@@ -1,0 +1,423 @@
+'use client';
+
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { Check, X, Loader2, ChevronRight, Globe, Camera, User, Lock, Eye, EyeOff } from 'lucide-react';
+import { useUser, displayName } from '@/components/providers/AuthProvider';
+import { createProfile, checkHandleAvailable, isValidHandle } from '@/lib/services/profiles';
+import { updateProfile } from '@/lib/services/profiles';
+import { supabase } from '@/lib/supabaseClient';
+import { Button, Card } from '@/components/ui';
+import { cn } from '@/lib/utils';
+
+type HandleStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
+
+function OnboardingContent() {
+  const router = useRouter();
+  const { user, profile, loading, refreshProfile } = useUser();
+
+  const [step, setStep] = useState(1);
+  const [handle, setHandle] = useState('');
+  const [handleStatus, setHandleStatus] = useState<HandleStatus>('idle');
+  const [displayNameValue, setDisplayNameValue] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [language, setLanguage] = useState<'de' | 'tr' | 'en'>('de');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Detect if user signed up with email+password (already has a password)
+  const hasPassword = user?.app_metadata?.provider === 'email'
+    && user?.app_metadata?.providers?.includes('email');
+
+  // Redirect if already has profile
+  useEffect(() => {
+    if (!loading && profile) router.replace('/');
+  }, [loading, profile, router]);
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!loading && !user) router.replace('/login');
+  }, [loading, user, router]);
+
+  // Pre-fill from user data
+  useEffect(() => {
+    if (user) {
+      const emailPrefix = user.email?.split('@')[0] ?? '';
+      const cleaned = emailPrefix.toLowerCase().replace(/[^a-z0-9_]/g, '');
+      if (!handle) setHandle(cleaned.slice(0, 20));
+      if (!displayNameValue) setDisplayNameValue(displayName(user));
+    }
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Debounced handle check
+  useEffect(() => {
+    if (!handle) {
+      setHandleStatus('idle');
+      return;
+    }
+    if (!isValidHandle(handle)) {
+      setHandleStatus('invalid');
+      return;
+    }
+    setHandleStatus('checking');
+    const timer = setTimeout(async () => {
+      const available = await checkHandleAvailable(handle);
+      setHandleStatus(available ? 'available' : 'taken');
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [handle]);
+
+  const validateStep1 = (): boolean => {
+    if (handleStatus !== 'available' || handle.length < 3) return false;
+
+    // Password validation only if user doesn't already have one
+    if (!hasPassword) {
+      if (password.length < 6) return false;
+      if (password !== passwordConfirm) return false;
+    }
+
+    return true;
+  };
+
+  const handleStep1Next = () => {
+    setPasswordError(null);
+
+    if (!hasPassword) {
+      if (password.length < 6) {
+        setPasswordError('Passwort muss mindestens 6 Zeichen lang sein.');
+        return;
+      }
+      if (password !== passwordConfirm) {
+        setPasswordError('Passwörter stimmen nicht überein.');
+        return;
+      }
+    }
+
+    setStep(2);
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return;
+    if (file.size > 2 * 1024 * 1024) {
+      setError('Bild darf maximal 2MB groß sein.');
+      return;
+    }
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+    setError(null);
+  };
+
+  const handleSubmit = useCallback(async () => {
+    if (!user) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      // Set password if user doesn't have one yet (OAuth / Magic Link)
+      if (!hasPassword && password) {
+        const { error: pwError } = await supabase.auth.updateUser({ password });
+        if (pwError) throw new Error(`Passwort konnte nicht gesetzt werden: ${pwError.message}`);
+      }
+
+      // Create profile
+      await createProfile(user.id, {
+        handle,
+        display_name: displayNameValue || null,
+        language,
+      });
+
+      // Upload avatar if selected
+      if (avatarFile) {
+        const ext = avatarFile.name.split('.').pop();
+        const path = `${user.id}/avatar.${ext}`;
+
+        const { error: uploadErr } = await supabase.storage
+          .from('avatars')
+          .upload(path, avatarFile, { upsert: true });
+
+        if (!uploadErr) {
+          const { data: urlData } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(path);
+
+          await updateProfile(user.id, { avatar_url: urlData.publicUrl });
+        }
+      }
+
+      await refreshProfile();
+      router.push('/');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Profil konnte nicht erstellt werden.';
+      // Stale session: user was deleted but session token remains
+      if (msg.includes('foreign key') || msg.includes('fkey')) {
+        await supabase.auth.signOut();
+        router.replace('/login');
+        return;
+      }
+      setError(msg);
+      setSubmitting(false);
+    }
+  }, [user, hasPassword, password, handle, displayNameValue, avatarFile, language, refreshProfile, router]);
+
+  if (loading || profile) {
+    return (
+      <div className="flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[#FFD700] animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full max-w-lg">
+      {/* Logo */}
+      <div className="flex flex-col items-center mb-8">
+        <Image src="/logo.png" alt="BeScout" width={56} height={56} className="mb-3" priority />
+        <Image src="/schrift.png" alt="BeScout" width={140} height={36} className="mb-2" priority />
+        <p className="text-sm text-white/50">Erstelle dein Manager-Profil</p>
+      </div>
+
+      {/* Progress Dots */}
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <div className={cn('w-2.5 h-2.5 rounded-full transition-all', step >= 1 ? 'bg-[#FFD700]' : 'bg-white/20')} />
+        <div className={cn('w-8 h-0.5 transition-all', step >= 2 ? 'bg-[#FFD700]' : 'bg-white/10')} />
+        <div className={cn('w-2.5 h-2.5 rounded-full transition-all', step >= 2 ? 'bg-[#FFD700]' : 'bg-white/20')} />
+      </div>
+
+      <Card className="p-6 sm:p-8">
+        {step === 1 && (
+          <>
+            <h2 className="text-xl font-black mb-1">Dein Profil</h2>
+            <p className="text-sm text-white/50 mb-6">
+              {hasPassword
+                ? 'Wähle deinen einzigartigen Handle für BeScout.'
+                : 'Handle wählen und Passwort setzen für zukünftige Anmeldungen.'}
+            </p>
+
+            {/* Handle Input */}
+            <div className="mb-4">
+              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Handle</label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30 text-sm">@</span>
+                <input
+                  type="text"
+                  value={handle}
+                  onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20))}
+                  placeholder="dein_name"
+                  className={cn(
+                    'w-full pl-8 pr-10 py-3 rounded-xl text-sm',
+                    'bg-white/5 border',
+                    'placeholder:text-white/30 text-white',
+                    'focus:outline-none transition-all',
+                    handleStatus === 'available' && 'border-[#22C55E]/40 focus:border-[#22C55E]/60',
+                    handleStatus === 'taken' && 'border-red-400/40 focus:border-red-400/60',
+                    handleStatus === 'invalid' && 'border-red-400/40 focus:border-red-400/60',
+                    (handleStatus === 'idle' || handleStatus === 'checking') && 'border-white/10 focus:border-[#FFD700]/40'
+                  )}
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  {handleStatus === 'checking' && <Loader2 className="w-4 h-4 text-white/40 animate-spin" />}
+                  {handleStatus === 'available' && <Check className="w-4 h-4 text-[#22C55E]" />}
+                  {handleStatus === 'taken' && <X className="w-4 h-4 text-red-400" />}
+                  {handleStatus === 'invalid' && <X className="w-4 h-4 text-red-400" />}
+                </div>
+              </div>
+              <div className="mt-1.5 text-xs">
+                {handleStatus === 'taken' && <span className="text-red-400">Dieser Name ist bereits vergeben.</span>}
+                {handleStatus === 'invalid' && <span className="text-red-400">3-20 Zeichen, nur a-z, 0-9 und _</span>}
+                {handleStatus === 'available' && <span className="text-[#22C55E]">Verfügbar!</span>}
+                {handleStatus === 'idle' && <span className="text-white/30">3-20 Zeichen, nur a-z, 0-9 und _</span>}
+              </div>
+            </div>
+
+            {/* Display Name */}
+            <div className="mb-4">
+              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Anzeigename (optional)</label>
+              <input
+                type="text"
+                value={displayNameValue}
+                onChange={(e) => setDisplayNameValue(e.target.value.slice(0, 50))}
+                placeholder="Dein Name"
+                className={cn(
+                  'w-full px-4 py-3 rounded-xl text-sm',
+                  'bg-white/5 border border-white/10',
+                  'placeholder:text-white/30 text-white',
+                  'focus:outline-none focus:border-[#FFD700]/40 transition-all'
+                )}
+              />
+            </div>
+
+            {/* Password fields — only if user doesn't have a password yet */}
+            {!hasPassword && (
+              <>
+                <div className="my-5 border-t border-white/10" />
+                <p className="text-xs text-white/40 mb-3">
+                  Setze ein Passwort, damit du dich beim nächsten Mal mit E-Mail + Passwort anmelden kannst.
+                </p>
+
+                <div className="mb-3">
+                  <label className="text-xs text-white/50 font-semibold mb-1.5 block">Passwort</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => { setPassword(e.target.value); setPasswordError(null); }}
+                      placeholder="Min. 6 Zeichen"
+                      className={cn(
+                        'w-full pl-11 pr-11 py-3 rounded-xl text-sm',
+                        'bg-white/5 border border-white/10',
+                        'placeholder:text-white/30 text-white',
+                        'focus:outline-none focus:border-[#FFD700]/40 transition-all'
+                      )}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="text-xs text-white/50 font-semibold mb-1.5 block">Passwort bestätigen</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={passwordConfirm}
+                      onChange={(e) => { setPasswordConfirm(e.target.value); setPasswordError(null); }}
+                      placeholder="Passwort wiederholen"
+                      className={cn(
+                        'w-full pl-11 pr-4 py-3 rounded-xl text-sm',
+                        'bg-white/5 border border-white/10',
+                        'placeholder:text-white/30 text-white',
+                        'focus:outline-none focus:border-[#FFD700]/40 transition-all'
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {passwordError && (
+                  <div className="flex items-center gap-2 p-3 mb-4 rounded-xl bg-red-500/10 border border-red-400/20">
+                    <X className="w-4 h-4 text-red-400 shrink-0" />
+                    <span className="text-sm text-red-200">{passwordError}</span>
+                  </div>
+                )}
+              </>
+            )}
+
+            <Button
+              variant="gold"
+              size="lg"
+              fullWidth
+              disabled={!validateStep1()}
+              onClick={handleStep1Next}
+            >
+              Weiter
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <h2 className="text-xl font-black mb-1">Profilbild & Sprache</h2>
+            <p className="text-sm text-white/50 mb-6">Lade ein Bild hoch und wähle deine Sprache.</p>
+
+            {/* Avatar Upload */}
+            <div className="flex flex-col items-center mb-6">
+              <label className="relative group cursor-pointer">
+                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-[#FFD700]/20 to-[#22C55E]/20 border-2 border-dashed border-white/20 group-hover:border-[#FFD700]/40 flex items-center justify-center overflow-hidden transition-all">
+                  {avatarPreview ? (
+                    <img src={avatarPreview} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-10 h-10 text-white/30" />
+                  )}
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#FFD700] flex items-center justify-center shadow-lg">
+                  <Camera className="w-4 h-4 text-black" />
+                </div>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                />
+              </label>
+              <div className="mt-3 text-xs text-white/40">
+                {avatarPreview ? 'Bild ausgewählt' : 'JPG/PNG, max. 2MB (optional)'}
+              </div>
+            </div>
+
+            {/* Language */}
+            <div className="mb-6">
+              <label className="text-xs text-white/50 font-semibold mb-1.5 flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5" />
+                Sprache
+              </label>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as 'de' | 'tr' | 'en')}
+                className={cn(
+                  'w-full px-4 py-3 rounded-xl text-sm',
+                  'bg-white/5 border border-white/10',
+                  'text-white appearance-none',
+                  'focus:outline-none focus:border-[#FFD700]/40 transition-all'
+                )}
+              >
+                <option value="de">Deutsch</option>
+                <option value="tr">Türkçe</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+
+            {error && (
+              <div className="flex items-center gap-2 p-3 mb-4 rounded-xl bg-red-500/10 border border-red-400/20">
+                <X className="w-4 h-4 text-red-400 shrink-0" />
+                <span className="text-sm text-red-200">{error}</span>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <Button variant="outline" size="lg" onClick={() => setStep(1)} disabled={submitting}>
+                Zurück
+              </Button>
+              <Button
+                variant="gold"
+                size="lg"
+                fullWidth
+                loading={submitting}
+                onClick={handleSubmit}
+              >
+                Los geht&apos;s
+              </Button>
+            </div>
+          </>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-[#FFD700] animate-spin" />
+        </div>
+      }
+    >
+      <OnboardingContent />
+    </Suspense>
+  );
+}
