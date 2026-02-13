@@ -77,7 +77,7 @@ src/
 │       │   ├── page.tsx           # Eigenes Profil (SettingsTab + ProfileView isSelf=true)
 │       │   └── [handle]/
 │       │       └── page.tsx       # Öffentliches Profil (ProfileView isSelf=false)
-│       └── supabase-test/page.tsx # Test-Seite
+│       └── (supabase-test entfernt vor Pilot-Launch)
 ├── components/
 │   ├── ui/index.tsx               # Card, Button, Chip, Modal, StatCard
 │   ├── ui/TabBar.tsx              # TabBar + TabPanel (role=tablist, aria-selected)
@@ -125,7 +125,7 @@ src/
 │   └── nav.ts                     # Navigation Config
 ├── types/index.ts                 # Alle Types (Player, Db*, IPO, Fantasy, etc.)
 middleware.ts                      # Next.js Middleware (Route Protection)
-.env.local                         # Supabase URL + Anon Key
+.env.local                         # Supabase URL + Anon Key + Sentry DSN + PostHog Key
 ```
 
 ## Wichtige Konventionen
@@ -179,6 +179,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Unified PlayerDisplay Refactor fertig:** 2 Varianten (`compact` + `card`), 6+ Custom-Komponenten entfernt, ~900 Zeilen netto reduziert. Sorare-inspirierte L5-Bars, Club-Logos, Stats-Pills.
 **Pilot-Blocker Fixes fertig:** Scout Score + Achievements auto-triggern (5 Services), Research Track Record funktional (floor_price statt last_price), Welcome Page BSD-Fix (10.000 statt 500), Trading-Notifications (Seller benachrichtigt), Fantasy Lineup-Lock verifiziert.
 **Verbleibende Lücken geschlossen:** Participant-Limit-Guard (Fantasy Join), Fee-Breakdown (Sell-Form), Admin Event-Erstellung (volle CRUD), Admin Spieler-Anlegen (Create-Modal), Öffentliche Profile (`/profile/[handle]` + Shared ProfileView + Leaderboard-Links).
+**Launch-Readiness fertig:** GitHub Repo (Private, `Djembo31/beScout-App`) + CI/CD Pipeline (GitHub Actions) + Sentry Error Tracking + PostHog Analytics. npm audit clean (Next.js 14.2.35). `/supabase-test` Route entfernt.
 **Danach:** Phase 7 (Scale).
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.
@@ -189,6 +190,7 @@ Siehe `docs/SCALE.md` für Skalierungsarchitektur und DB-Schema.
 
 **Pilot-Scope:** 1 Club (Sakaryaspor), 25 Spieler, 50 Beta-Tester.
 **Alle 76 SQL-Migrationen deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus live. Manager Office (5 Tabs) + Engagement-Wellen 1-4 (32 Features) live.
+**GitHub:** Private Repo `Djembo31/beScout-App`, CI/CD via GitHub Actions, Sentry Error Tracking, PostHog Analytics.
 
 ## Bekannte Issues
 
@@ -199,13 +201,42 @@ Siehe `docs/SCALE.md` für Skalierungsarchitektur und DB-Schema.
 
 ## Workflow
 
-1. Vor Änderungen: TODO.md und STATUS.md lesen
-2. Shared Components nutzen (nicht duplizieren!)
-3. Types in types/index.ts pflegen
-4. Service Layer nutzen (nie Supabase direkt in Components)
-5. Cache-Invalidation nach Writes nicht vergessen
-6. Deutsche Labels verwenden
-7. Nach Abschluss: TODO.md und STATUS.md aktualisieren
+### Session-Protokoll (PFLICHT bei jeder Session!)
+
+**Session-Start:**
+1. MEMORY.md wird automatisch geladen (Projekt-Snapshot, Quick-Reference, offene Themen)
+2. Bei Bedarf: relevante Memory-Files lesen (`errors.md` bei Bugs, `patterns.md` bei Code, `decisions.md` bei Architektur)
+3. `sessions.md` lesen um zu wissen wo wir zuletzt standen
+4. TODO.md und STATUS.md prüfen für aktuelle Tasks
+
+**Während der Session:**
+5. Shared Components nutzen (nicht duplizieren!)
+6. Types in types/index.ts pflegen
+7. Service Layer nutzen (nie Supabase direkt in Components)
+8. Cache-Invalidation nach Writes nicht vergessen
+9. Deutsche Labels verwenden
+10. Bei neuem Fehler → sofort in `memory/errors.md` dokumentieren
+11. Bei neuer Architektur-Entscheidung → in `memory/decisions.md` als ADR dokumentieren
+12. Bei neuem Pattern/Anti-Pattern → in `memory/patterns.md` dokumentieren
+
+**Session-Ende (PFLICHT — nie vergessen!):**
+13. `memory/sessions.md` updaten: Session-Nummer, Datum, was wurde gemacht, was wurde gelernt
+14. `memory/MEMORY.md` updaten: Projekt-Snapshot (Migrations, Routes, Build-Status), offene Themen, letzter Stand
+15. Relevante Topic-Files updaten wenn neues Wissen dazukam
+16. TODO.md und STATUS.md aktualisieren
+17. `npx next build` zur Verifikation
+
+### Memory-System (`~/.claude/projects/.../memory/`)
+Das Memory-System ist das **Langzeitgedächtnis** des Projekts. Es ersetzt ein ganzes Entwicklerteam:
+- `MEMORY.md` — Index (wird automatisch geladen, max 200 Zeilen)
+- `architecture.md` — Component Map, Services, Routes, Data Flow
+- `decisions.md` — Architektur-Entscheidungen (ADR) mit Kontext + Begründung
+- `patterns.md` — Code-Patterns, Anti-Patterns, bewährte Lösungen
+- `errors.md` — Error Journal: Symptom → Ursache → Fix (NIE denselben Fehler zweimal machen)
+- `sessions.md` — Session-Historie: Was wurde wann gemacht + gelernt
+- `backend-systems.md` — DB Schema, RPCs, Services (Detail)
+- `engagement-waves.md` — Feature Waves 1-4 (32 Features)
+- `user-prefs.md` — Anils Arbeitsweise, Kommunikation, Prioritäten
 
 ## Scale-Regeln (immer beachten!)
 
