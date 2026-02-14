@@ -51,6 +51,55 @@ const getPosAccent = (pos: string): string => {
   }
 };
 
+/** Reusable club logo — <img> with fallback to colored circle */
+function ClubLogo({ club, size = 28, short }: { club: ReturnType<typeof getClub>; size?: number; short?: string }) {
+  if (club?.logo) {
+    return (
+      <img
+        src={club.logo}
+        alt={club.name}
+        width={size}
+        height={size}
+        className="rounded-full object-cover flex-shrink-0"
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+  return (
+    <div
+      className="rounded-full flex items-center justify-center font-black flex-shrink-0"
+      style={{
+        width: size,
+        height: size,
+        fontSize: Math.max(8, size * 0.32),
+        backgroundColor: (club?.colors.primary ?? '#333') + '25',
+        color: club?.colors.primary ?? '#fff',
+      }}
+    >
+      {(short ?? club?.short ?? '???').slice(0, 3)}
+    </div>
+  );
+}
+
+/** Split team stats into starters (top 11 by minutes) + bench, derive formation string */
+function splitStartersBench(stats: FixturePlayerStat[]): {
+  starters: FixturePlayerStat[];
+  bench: FixturePlayerStat[];
+  formation: string;
+} {
+  const sorted = [...stats].sort((a, b) => b.minutes_played - a.minutes_played);
+  const starters = sorted.slice(0, 11);
+  const bench = sorted.slice(11).filter(s => s.minutes_played > 0);
+
+  const counts = { DEF: 0, MID: 0, ATT: 0 };
+  for (const s of starters) {
+    if (s.player_position in counts) counts[s.player_position as keyof typeof counts]++;
+  }
+  const formation = `${counts.DEF}-${counts.MID}-${counts.ATT}`;
+
+  return { starters, bench, formation };
+}
+
 // ============================================
 // Fixture Row (Sorare-style vertical list)
 // ============================================
@@ -77,12 +126,7 @@ function FixtureRow({ fixture, onSelect }: { fixture: Fixture; onSelect: () => v
       {/* Home team */}
       <div className="flex-1 flex items-center gap-2 justify-end min-w-0">
         <span className="font-semibold text-sm truncate">{fixture.home_club_name}</span>
-        <div
-          className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0"
-          style={{ backgroundColor: (homeClub?.colors.primary ?? '#333') + '25', color: homeClub?.colors.primary ?? '#fff' }}
-        >
-          {fixture.home_club_short.slice(0, 3)}
-        </div>
+        <ClubLogo club={homeClub} size={28} short={fixture.home_club_short} />
       </div>
 
       {/* Score / Time */}
@@ -98,12 +142,7 @@ function FixtureRow({ fixture, onSelect }: { fixture: Fixture; onSelect: () => v
 
       {/* Away team */}
       <div className="flex-1 flex items-center gap-2 min-w-0">
-        <div
-          className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0"
-          style={{ backgroundColor: (awayClub?.colors.primary ?? '#333') + '25', color: awayClub?.colors.primary ?? '#fff' }}
-        >
-          {fixture.away_club_short.slice(0, 3)}
-        </div>
+        <ClubLogo club={awayClub} size={28} short={fixture.away_club_short} />
         <span className="font-semibold text-sm truncate">{fixture.away_club_name}</span>
       </div>
 
@@ -155,7 +194,14 @@ function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
   );
 }
 
-function FormationHalf({ stats, teamName, color, isHome }: { stats: FixturePlayerStat[]; teamName: string; color: string; isHome: boolean }) {
+function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
+  stats: FixturePlayerStat[];
+  teamName: string;
+  color: string;
+  isHome: boolean;
+  formation: string;
+  logo: ReturnType<typeof getClub>;
+}) {
   // Group by position
   const grouped = new Map<string, FixturePlayerStat[]>();
   for (const s of stats) {
@@ -177,11 +223,15 @@ function FormationHalf({ stats, teamName, color, isHome }: { stats: FixturePlaye
 
   return (
     <div className="flex flex-col gap-3 py-2">
-      {/* Team label */}
-      <div className="text-[10px] font-bold uppercase tracking-widest text-center" style={{ color }}>
-        {teamName}
+      {/* Team label with logo + formation */}
+      <div className="flex items-center justify-center gap-2">
+        <ClubLogo club={logo} size={20} />
+        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color }}>
+          {teamName}
+        </span>
+        <span className="text-[9px] text-white/30 font-mono">({formation})</span>
       </div>
-      {/* Formation rows */}
+      {/* Formation rows — only starters */}
       {rows.map((players, rowIdx) => (
         <div key={rowIdx} className="flex items-center justify-center gap-2 md:gap-4">
           {players.map(s => <PlayerNode key={s.id} stat={s} />)}
@@ -232,12 +282,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose }: { fixture: Fixture | n
           <div className="relative flex items-center justify-center gap-4 md:gap-8 py-6 px-4">
             {/* Home */}
             <div className="flex flex-col items-center gap-1.5">
-              <div
-                className="w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center text-sm md:text-base font-black"
-                style={{ backgroundColor: homeColor + '25', color: homeColor }}
-              >
-                {fixture.home_club_short.slice(0, 3)}
-              </div>
+              <ClubLogo club={homeClub} size={52} short={fixture.home_club_short} />
               <span className="font-bold text-sm md:text-base">{fixture.home_club_name}</span>
             </div>
 
@@ -253,12 +298,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose }: { fixture: Fixture | n
 
             {/* Away */}
             <div className="flex flex-col items-center gap-1.5">
-              <div
-                className="w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center text-sm md:text-base font-black"
-                style={{ backgroundColor: awayColor + '25', color: awayColor }}
-              >
-                {fixture.away_club_short.slice(0, 3)}
-              </div>
+              <ClubLogo club={awayClub} size={52} short={fixture.away_club_short} />
               <span className="font-bold text-sm md:text-base">{fixture.away_club_name}</span>
             </div>
           </div>
@@ -332,15 +372,42 @@ function FixtureDetailModal({ fixture, isOpen, onClose }: { fixture: Fixture | n
                   </div>
                 </div>
 
-                {/* Both teams on pitch */}
-                <div className="relative z-10">
-                  {/* Home team — top half (GK at top, ATT near center) */}
-                  <FormationHalf stats={homeStats} teamName={fixture.home_club_name} color={homeColor} isHome={true} />
-                  {/* Center divider spacing */}
-                  <div className="h-4 md:h-6" />
-                  {/* Away team — bottom half (ATT near center, GK at bottom) */}
-                  <FormationHalf stats={awayStats} teamName={fixture.away_club_name} color={awayColor} isHome={false} />
-                </div>
+                {/* Both teams on pitch — starters only (11 per team) */}
+                {(() => {
+                  const homeSplit = splitStartersBench(homeStats);
+                  const awaySplit = splitStartersBench(awayStats);
+                  const allBench = [...homeSplit.bench, ...awaySplit.bench];
+                  return (
+                    <>
+                      <div className="relative z-10">
+                        <FormationHalf stats={homeSplit.starters} teamName={fixture.home_club_name} color={homeColor} isHome={true} formation={homeSplit.formation} logo={homeClub} />
+                        <div className="h-4 md:h-6" />
+                        <FormationHalf stats={awaySplit.starters} teamName={fixture.away_club_name} color={awayColor} isHome={false} formation={awaySplit.formation} logo={awayClub} />
+                      </div>
+
+                      {/* Bench section inside pitch area */}
+                      {allBench.length > 0 && (
+                        <div className="relative z-10 mt-3 pt-3 border-t border-white/[0.06]">
+                          <div className="text-[9px] font-bold text-white/25 uppercase tracking-wider text-center mb-2">Einwechslungen</div>
+                          <div className="flex gap-1.5 flex-wrap justify-center">
+                            {allBench.map(s => (
+                              <div key={s.id} className="flex items-center gap-1 px-2 py-1 bg-black/20 rounded-lg text-[9px] border border-white/[0.06]">
+                                <span className={`px-1 py-0.5 rounded text-[8px] font-bold ${posColor(s.player_position)}`}>
+                                  {s.player_position}
+                                </span>
+                                <span className="text-white/50">{s.player_last_name}</span>
+                                <span className="text-white/25 font-mono">{s.minutes_played}&apos;</span>
+                                <span className={`px-1 py-0.5 rounded text-[8px] font-bold ${scoreBadgeColor(s.fantasy_points)}`}>
+                                  {s.fantasy_points}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
 
               {/* Sponsor Banner Bottom */}
@@ -353,26 +420,6 @@ function FixtureDetailModal({ fixture, isOpen, onClose }: { fixture: Fixture | n
                   <span className="text-[9px] text-white/30 font-medium">Sponsor Logo</span>
                 </div>
               </div>
-
-              {/* Bench section (if > 11 players per team) */}
-              {(homeStats.length > 11 || awayStats.length > 11) && (
-                <div className="border-t border-white/[0.06] p-3">
-                  <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider text-center mb-2">Bank</div>
-                  <div className="flex gap-1 flex-wrap justify-center">
-                    {[...homeStats.slice(11), ...awayStats.slice(11)].map(s => (
-                      <div key={s.id} className="flex items-center gap-1 px-2 py-1 bg-white/[0.03] rounded text-[9px]">
-                        <span className={`px-1 py-0.5 rounded text-[8px] font-bold ${posColor(s.player_position)}`}>
-                          {s.player_position}
-                        </span>
-                        <span className="text-white/50">{s.player_last_name}</span>
-                        <span className={`px-1 py-0.5 rounded text-[8px] font-bold ${scoreBadgeColor(s.fantasy_points)}`}>
-                          {s.fantasy_points}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           ) : (
             /* ===== PLAYER STATS TABLE ===== */
