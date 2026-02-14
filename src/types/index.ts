@@ -204,6 +204,7 @@ export type DbClub = {
   primary_color: string | null;
   secondary_color: string | null;
   community_guidelines: string | null;
+  active_gameweek: number;
   plan: string;
   is_verified: boolean;
   created_at: string;

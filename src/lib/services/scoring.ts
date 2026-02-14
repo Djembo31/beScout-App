@@ -130,6 +130,105 @@ export async function resetEvent(eventId: string): Promise<ResetResult> {
   return data as ResetResult;
 }
 
+// ============================================
+// Gameweek Flow (Simulate + Score all events)
+// ============================================
+
+export type GameweekFlowResult = {
+  success: boolean;
+  fixturesSimulated: number;
+  eventsScored: number;
+  nextGameweek: number;
+  errors: string[];
+};
+
+/**
+ * Client-side orchestration: simulate fixtures + score all events for a gameweek.
+ * 1. simulateGameweek(gw) → fixtures
+ * 2. Find all non-ended events for this GW + club
+ * 3. Score each event sequentially
+ * 4. Advance active_gameweek to gw + 1
+ */
+export async function simulateGameweekFlow(clubId: string, gameweek: number): Promise<GameweekFlowResult> {
+  const errors: string[] = [];
+  let fixturesSimulated = 0;
+  let eventsScored = 0;
+
+  // 1. Simulate fixtures
+  const { simulateGameweek } = await import('@/lib/services/fixtures');
+  const simResult = await simulateGameweek(gameweek);
+  if (simResult.success) {
+    fixturesSimulated = simResult.fixtures_simulated ?? 0;
+  } else {
+    // If already simulated, that's okay — continue to scoring
+    if (simResult.error && !simResult.error.includes('already')) {
+      errors.push(`Fixture-Simulation: ${simResult.error}`);
+    }
+  }
+
+  // 2. Find events for this GW + club that aren't ended
+  const { data: gwEvents, error: evtErr } = await supabase
+    .from('events')
+    .select('id, status, scored_at')
+    .eq('club_id', clubId)
+    .eq('gameweek', gameweek)
+    .neq('status', 'ended');
+
+  if (evtErr) {
+    errors.push(`Events laden: ${evtErr.message}`);
+  }
+
+  // Also include events with status 'ended' but not yet scored (edge case)
+  const { data: unscoredEndedEvents } = await supabase
+    .from('events')
+    .select('id, status, scored_at')
+    .eq('club_id', clubId)
+    .eq('gameweek', gameweek)
+    .eq('status', 'ended')
+    .is('scored_at', null);
+
+  const allEvents = [...(gwEvents ?? []), ...(unscoredEndedEvents ?? [])];
+  // Deduplicate by id
+  const eventMap = new Map(allEvents.map(e => [e.id, e]));
+  const eventsToScore = Array.from(eventMap.values());
+
+  // 3. Score each event sequentially
+  for (const evt of eventsToScore) {
+    if (evt.scored_at) continue; // already scored
+    const result = await scoreEvent(evt.id);
+    if (result.success) {
+      eventsScored++;
+    } else {
+      errors.push(`Event ${evt.id}: ${result.error}`);
+    }
+  }
+
+  // 4. Advance active_gameweek
+  const nextGw = gameweek + 1;
+  const { setActiveGameweek } = await import('@/lib/services/club');
+  try {
+    await setActiveGameweek(clubId, nextGw);
+  } catch (e) {
+    errors.push(`GW advance: ${e instanceof Error ? e.message : 'Fehler'}`);
+  }
+
+  // Invalidate all relevant caches
+  invalidate('events:');
+  invalidate('fantasyHistory:');
+  invalidate('wallet:');
+  invalidate('transactions:');
+  invalidate(`fixtures:gw:${gameweek}`);
+  invalidate('gw-top:');
+
+  return {
+    success: errors.length === 0,
+    fixturesSimulated,
+    eventsScored,
+    nextGameweek: nextGw,
+    errors,
+  };
+}
+
 /** Load leaderboard for a scored event: lineups JOIN profiles, ordered by rank */
 export async function getEventLeaderboard(eventId: string): Promise<LeaderboardEntry[]> {
   const { data, error } = await supabase

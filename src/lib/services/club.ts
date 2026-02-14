@@ -225,6 +225,35 @@ export async function removeClubAdmin(
   return data as { success: boolean; error?: string };
 }
 
+// ============================================
+// Active Gameweek
+// ============================================
+
+/** Get the active gameweek for a club */
+export async function getActiveGameweek(clubId: string): Promise<number> {
+  return cached(`club:gw:${clubId}`, async () => {
+    const { data, error } = await supabase
+      .from('clubs')
+      .select('active_gameweek')
+      .eq('id', clubId)
+      .single();
+    if (error || !data) return 1;
+    return (data.active_gameweek as number) ?? 1;
+  }, FIVE_MIN);
+}
+
+/** Set the active gameweek for a club (admin only) */
+export async function setActiveGameweek(clubId: string, gw: number): Promise<void> {
+  const { error } = await supabase
+    .from('clubs')
+    .update({ active_gameweek: gw })
+    .eq('id', clubId);
+  if (error) throw new Error(error.message);
+  invalidate(`club:gw:${clubId}`);
+  invalidate(`club:${clubId}`);
+  invalidate(`club:slug:`);
+}
+
 /** Update community guidelines for a club */
 export async function updateCommunityGuidelines(
   adminId: string,
