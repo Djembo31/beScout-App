@@ -287,6 +287,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
                     <span className="inline-block w-3.5 h-3.5 rounded-full shrink-0 border border-white/10" style={{ backgroundColor: clubData.colors.primary }} />
                   ) : null}
                   <span className="truncate">
+                    {useTrikot && <span className="font-mono text-white/30">#{player.ticket}</span>}{useTrikot && ' · '}
                     {player.club}
                     {player.age > 0 && <> · {player.age}J.</>}
                     {player.league && <> · {player.league}</>}
@@ -593,6 +594,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
                   <span className="inline-block w-3.5 h-3.5 rounded-full shrink-0 border border-white/10" style={{ backgroundColor: clubData.colors.primary }} />
                 ) : null}
                 <span className="text-[10px] text-white/40 truncate">
+                  {useTrikot && <span className="font-mono text-white/30">#{player.ticket}</span>}{useTrikot && ' · '}
                   {player.club}
                   {player.age > 0 && <> · {player.age}J.</>}
                   {player.league && <> · {player.league}</>}
