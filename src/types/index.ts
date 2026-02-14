@@ -571,7 +571,7 @@ export type CommunityPollWithCreator = DbCommunityPoll & {
 export type DbPlayerGameweekScore = {
   id: string;
   player_id: string;
-  event_id: string;
+  gameweek: number;
   score: number;
   created_at: string;
 };

@@ -1,43 +1,36 @@
 -- ============================================
--- score_event RPC v3 — Fixture-Aware Scoring
+-- score_event RPC v4 — Gameweek-based scoring
 -- Run this in Supabase SQL Editor
 -- ============================================
+-- Changes from v3:
+--   - player_gameweek_scores keyed by (player_id, gameweek) instead of (player_id, event_id)
+--   - GW scores are shared across events that reference the same gameweek
+--   - Non-GW events use a temp table for consistent random scores across lineups
+--   - perf_l5/l15 ordered by gameweek DESC instead of created_at DESC
 -- Changes from v2:
 --   - FIXTURE-AWARE: If event has a gameweek, uses fixture_player_stats data
 --   - Score conversion: LEAST(150, GREATEST(40, 40 + fantasy_points * 6))
 --   - Falls back to random scoring for non-GW events or missing fixture data
 -- Changes from v1:
---   - NEW TABLE player_gameweek_scores: one canonical score per player per event
---   - Each player gets ONE score (not random per lineup)
+--   - TABLE player_gameweek_scores: one canonical score per player per gameweek
+--   - Each player gets ONE score per gameweek (not random per lineup)
 --   - All lineups with the same player get the same score
 --   - perf_l5 / perf_l15 updated from gameweek history
 
 -- ============================================
--- Step 1: Create player_gameweek_scores table
+-- Table: player_gameweek_scores (current schema)
 -- ============================================
-
-CREATE TABLE IF NOT EXISTS player_gameweek_scores (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  player_id UUID NOT NULL REFERENCES players(id),
-  event_id UUID NOT NULL REFERENCES events(id),
-  score INT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(player_id, event_id)
-);
-
-ALTER TABLE player_gameweek_scores ENABLE ROW LEVEL SECURITY;
-
--- Authenticated users can read all scores
-CREATE POLICY "Authenticated users can read gameweek scores"
-  ON player_gameweek_scores FOR SELECT
-  TO authenticated
-  USING (true);
-
--- Step 2: Ensure slot_scores column exists on lineups
-ALTER TABLE lineups ADD COLUMN IF NOT EXISTS slot_scores JSONB DEFAULT NULL;
+-- CREATE TABLE player_gameweek_scores (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   player_id UUID NOT NULL REFERENCES players(id),
+--   gameweek INT NOT NULL,
+--   score INT NOT NULL,
+--   created_at TIMESTAMPTZ DEFAULT NOW(),
+--   UNIQUE(player_id, gameweek)
+-- );
 
 -- ============================================
--- Step 3: Rewritten score_event RPC
+-- RPC: score_event
 -- ============================================
 
 CREATE OR REPLACE FUNCTION score_event(p_event_id UUID)
@@ -48,9 +41,7 @@ AS $$
 DECLARE
   v_event        RECORD;
   v_lineup       RECORD;
-  v_player_rec   RECORD;
   v_slot_id      UUID;
-  v_slot_name    TEXT;
   v_pos          TEXT;
   v_base         INT;
   v_bonus        INT;
@@ -66,6 +57,7 @@ DECLARE
   v_all_player_ids UUID[];
   v_pid          UUID;
   v_fixture_score INT;
+  v_gw           INT;
 BEGIN
   -- 1. Validate event
   SELECT * INTO v_event FROM events WHERE id = p_event_id;
@@ -78,6 +70,7 @@ BEGIN
   END IF;
 
   v_prize_pool := v_event.prize_pool;
+  v_gw := v_event.gameweek;  -- may be NULL for non-GW events
 
   -- 2. Collect ALL unique player IDs from all lineups of this event (NULL-safe)
   SELECT ARRAY(
@@ -88,48 +81,67 @@ BEGIN
     ) sub WHERE u IS NOT NULL
   ) INTO v_all_player_ids;
 
-  -- 3. Generate ONE canonical score per player and insert into player_gameweek_scores
-  --    NEW v3: If event has a gameweek, try fixture_player_stats first
-  FOREACH v_pid IN ARRAY v_all_player_ids
-  LOOP
-    -- Skip if already scored
-    IF NOT EXISTS (SELECT 1 FROM player_gameweek_scores WHERE player_id = v_pid AND event_id = p_event_id) THEN
-      v_fixture_score := NULL;
+  -- 3. Generate scores
+  IF v_gw IS NOT NULL THEN
+    -- === GW EVENT: Store canonical scores in player_gameweek_scores ===
+    FOREACH v_pid IN ARRAY v_all_player_ids
+    LOOP
+      IF NOT EXISTS (SELECT 1 FROM player_gameweek_scores WHERE player_id = v_pid AND gameweek = v_gw) THEN
+        v_fixture_score := NULL;
 
-      -- Try to get score from fixture data if event has a gameweek
-      IF v_event.gameweek IS NOT NULL THEN
+        -- Try fixture_player_stats first
         SELECT LEAST(150, GREATEST(40, 40 + (fps.fantasy_points * 6)))
         INTO v_fixture_score
         FROM fixture_player_stats fps
         JOIN fixtures f ON fps.fixture_id = f.id
-        WHERE fps.player_id = v_pid AND f.gameweek = v_event.gameweek
+        WHERE fps.player_id = v_pid AND f.gameweek = v_gw
         LIMIT 1;
+
+        IF v_fixture_score IS NOT NULL THEN
+          v_player_score := v_fixture_score;
+        ELSE
+          -- Fallback: random score
+          SELECT position INTO v_pos FROM players WHERE id = v_pid;
+          v_base := 40 + floor(random() * 61)::INT;
+          CASE COALESCE(v_pos, 'MID')
+            WHEN 'ATT' THEN v_bonus := floor(random() * 51)::INT;
+            WHEN 'MID' THEN v_bonus := floor(random() * 41)::INT;
+            WHEN 'DEF' THEN v_bonus := floor(random() * 26)::INT;
+            WHEN 'GK'  THEN v_bonus := floor(random() * 21)::INT;
+            ELSE v_bonus := floor(random() * 31)::INT;
+          END CASE;
+          v_player_score := v_base + v_bonus;
+        END IF;
+
+        INSERT INTO player_gameweek_scores (player_id, gameweek, score)
+        VALUES (v_pid, v_gw, v_player_score)
+        ON CONFLICT (player_id, gameweek) DO NOTHING;
       END IF;
+    END LOOP;
+  ELSE
+    -- === NON-GW EVENT: Use temp table for consistent random scores ===
+    CREATE TEMP TABLE IF NOT EXISTS _temp_event_scores (
+      player_id UUID PRIMARY KEY,
+      score INT NOT NULL
+    ) ON COMMIT DROP;
+    TRUNCATE _temp_event_scores;
 
-      IF v_fixture_score IS NOT NULL THEN
-        -- Use fixture-based score
-        v_player_score := v_fixture_score;
-      ELSE
-        -- Fallback: random score (for non-GW events or players without fixture data)
-        SELECT position INTO v_pos FROM players WHERE id = v_pid;
-        v_base := 40 + floor(random() * 61)::INT;  -- 40..100
-        CASE COALESCE(v_pos, 'MID')
-          WHEN 'ATT' THEN v_bonus := floor(random() * 51)::INT;  -- 0..50
-          WHEN 'MID' THEN v_bonus := floor(random() * 41)::INT;  -- 0..40
-          WHEN 'DEF' THEN v_bonus := floor(random() * 26)::INT;  -- 0..25
-          WHEN 'GK'  THEN v_bonus := floor(random() * 21)::INT;  -- 0..20
-          ELSE v_bonus := floor(random() * 31)::INT;
-        END CASE;
-        v_player_score := v_base + v_bonus;
-      END IF;
+    FOREACH v_pid IN ARRAY v_all_player_ids
+    LOOP
+      SELECT position INTO v_pos FROM players WHERE id = v_pid;
+      v_base := 40 + floor(random() * 61)::INT;
+      CASE COALESCE(v_pos, 'MID')
+        WHEN 'ATT' THEN v_bonus := floor(random() * 51)::INT;
+        WHEN 'MID' THEN v_bonus := floor(random() * 41)::INT;
+        WHEN 'DEF' THEN v_bonus := floor(random() * 26)::INT;
+        WHEN 'GK'  THEN v_bonus := floor(random() * 21)::INT;
+        ELSE v_bonus := floor(random() * 31)::INT;
+      END CASE;
+      INSERT INTO _temp_event_scores (player_id, score) VALUES (v_pid, v_base + v_bonus);
+    END LOOP;
+  END IF;
 
-      INSERT INTO player_gameweek_scores (player_id, event_id, score)
-      VALUES (v_pid, p_event_id, v_player_score)
-      ON CONFLICT (player_id, event_id) DO NOTHING;
-    END IF;
-  END LOOP;
-
-  -- 4. For each lineup, look up canonical scores and populate slot_scores + total_score
+  -- 4. For each lineup, look up scores and populate slot_scores + total_score
   FOR v_lineup IN
     SELECT * FROM lineups WHERE event_id = p_event_id
   LOOP
@@ -138,7 +150,11 @@ BEGIN
 
     -- slot_gk
     IF v_lineup.slot_gk IS NOT NULL THEN
-      SELECT score INTO v_player_score FROM player_gameweek_scores WHERE player_id = v_lineup.slot_gk AND event_id = p_event_id;
+      IF v_gw IS NOT NULL THEN
+        SELECT score INTO v_player_score FROM player_gameweek_scores WHERE player_id = v_lineup.slot_gk AND gameweek = v_gw;
+      ELSE
+        SELECT score INTO v_player_score FROM _temp_event_scores WHERE player_id = v_lineup.slot_gk;
+      END IF;
       IF v_player_score IS NOT NULL THEN
         v_total := v_total + v_player_score;
         v_scores := v_scores || jsonb_build_object('gk', v_player_score);
@@ -147,7 +163,11 @@ BEGIN
 
     -- slot_def1
     IF v_lineup.slot_def1 IS NOT NULL THEN
-      SELECT score INTO v_player_score FROM player_gameweek_scores WHERE player_id = v_lineup.slot_def1 AND event_id = p_event_id;
+      IF v_gw IS NOT NULL THEN
+        SELECT score INTO v_player_score FROM player_gameweek_scores WHERE player_id = v_lineup.slot_def1 AND gameweek = v_gw;
+      ELSE
+        SELECT score INTO v_player_score FROM _temp_event_scores WHERE player_id = v_lineup.slot_def1;
+      END IF;
       IF v_player_score IS NOT NULL THEN
         v_total := v_total + v_player_score;
         v_scores := v_scores || jsonb_build_object('def1', v_player_score);
@@ -156,7 +176,11 @@ BEGIN
 
     -- slot_def2
     IF v_lineup.slot_def2 IS NOT NULL THEN
-      SELECT score INTO v_player_score FROM player_gameweek_scores WHERE player_id = v_lineup.slot_def2 AND event_id = p_event_id;
+      IF v_gw IS NOT NULL THEN
+        SELECT score INTO v_player_score FROM player_gameweek_scores WHERE player_id = v_lineup.slot_def2 AND gameweek = v_gw;
+      ELSE
+        SELECT score INTO v_player_score FROM _temp_event_scores WHERE player_id = v_lineup.slot_def2;
+      END IF;
       IF v_player_score IS NOT NULL THEN
         v_total := v_total + v_player_score;
         v_scores := v_scores || jsonb_build_object('def2', v_player_score);
@@ -165,7 +189,11 @@ BEGIN
 
     -- slot_mid1
     IF v_lineup.slot_mid1 IS NOT NULL THEN
-      SELECT score INTO v_player_score FROM player_gameweek_scores WHERE player_id = v_lineup.slot_mid1 AND event_id = p_event_id;
+      IF v_gw IS NOT NULL THEN
+        SELECT score INTO v_player_score FROM player_gameweek_scores WHERE player_id = v_lineup.slot_mid1 AND gameweek = v_gw;
+      ELSE
+        SELECT score INTO v_player_score FROM _temp_event_scores WHERE player_id = v_lineup.slot_mid1;
+      END IF;
       IF v_player_score IS NOT NULL THEN
         v_total := v_total + v_player_score;
         v_scores := v_scores || jsonb_build_object('mid1', v_player_score);
@@ -174,7 +202,11 @@ BEGIN
 
     -- slot_mid2
     IF v_lineup.slot_mid2 IS NOT NULL THEN
-      SELECT score INTO v_player_score FROM player_gameweek_scores WHERE player_id = v_lineup.slot_mid2 AND event_id = p_event_id;
+      IF v_gw IS NOT NULL THEN
+        SELECT score INTO v_player_score FROM player_gameweek_scores WHERE player_id = v_lineup.slot_mid2 AND gameweek = v_gw;
+      ELSE
+        SELECT score INTO v_player_score FROM _temp_event_scores WHERE player_id = v_lineup.slot_mid2;
+      END IF;
       IF v_player_score IS NOT NULL THEN
         v_total := v_total + v_player_score;
         v_scores := v_scores || jsonb_build_object('mid2', v_player_score);
@@ -183,7 +215,11 @@ BEGIN
 
     -- slot_att
     IF v_lineup.slot_att IS NOT NULL THEN
-      SELECT score INTO v_player_score FROM player_gameweek_scores WHERE player_id = v_lineup.slot_att AND event_id = p_event_id;
+      IF v_gw IS NOT NULL THEN
+        SELECT score INTO v_player_score FROM player_gameweek_scores WHERE player_id = v_lineup.slot_att AND gameweek = v_gw;
+      ELSE
+        SELECT score INTO v_player_score FROM _temp_event_scores WHERE player_id = v_lineup.slot_att;
+      END IF;
       IF v_player_score IS NOT NULL THEN
         v_total := v_total + v_player_score;
         v_scores := v_scores || jsonb_build_object('att', v_player_score);
@@ -207,7 +243,7 @@ BEGIN
     UPDATE lineups SET rank = v_rank_row.rn WHERE id = v_rank_row.id;
   END LOOP;
 
-  -- 6. Distribute rewards (same logic as before)
+  -- 6. Distribute rewards
   SELECT COUNT(*) INTO v_total_ranked FROM lineups WHERE event_id = p_event_id AND rank IS NOT NULL;
 
   IF v_total_ranked >= 3 THEN
@@ -245,35 +281,35 @@ BEGIN
   -- 8. Update event status
   UPDATE events SET status = 'ended', scored_at = NOW() WHERE id = p_event_id;
 
-  -- 9. Update perf_l5 and perf_l15 for all players who got scored
-  FOREACH v_pid IN ARRAY v_all_player_ids
-  LOOP
-    -- perf_l5 = AVG of last 5 gameweek scores / 1.5 (normalize ~40-150 range to ~0-100)
-    SELECT AVG(score) / 1.5 INTO v_avg
-    FROM (
-      SELECT score FROM player_gameweek_scores
-      WHERE player_id = v_pid
-      ORDER BY created_at DESC
-      LIMIT 5
-    ) sub;
+  -- 9. Update perf_l5 and perf_l15 (only for GW events, based on gameweek order)
+  IF v_gw IS NOT NULL THEN
+    FOREACH v_pid IN ARRAY v_all_player_ids
+    LOOP
+      SELECT AVG(score) / 1.5 INTO v_avg
+      FROM (
+        SELECT score FROM player_gameweek_scores
+        WHERE player_id = v_pid
+        ORDER BY gameweek DESC
+        LIMIT 5
+      ) sub;
 
-    IF v_avg IS NOT NULL THEN
-      UPDATE players SET perf_l5 = ROUND(v_avg)::INT WHERE id = v_pid;
-    END IF;
+      IF v_avg IS NOT NULL THEN
+        UPDATE players SET perf_l5 = ROUND(v_avg)::INT WHERE id = v_pid;
+      END IF;
 
-    -- perf_l15 = AVG of last 15 gameweek scores / 1.5
-    SELECT AVG(score) / 1.5 INTO v_avg
-    FROM (
-      SELECT score FROM player_gameweek_scores
-      WHERE player_id = v_pid
-      ORDER BY created_at DESC
-      LIMIT 15
-    ) sub;
+      SELECT AVG(score) / 1.5 INTO v_avg
+      FROM (
+        SELECT score FROM player_gameweek_scores
+        WHERE player_id = v_pid
+        ORDER BY gameweek DESC
+        LIMIT 15
+      ) sub;
 
-    IF v_avg IS NOT NULL THEN
-      UPDATE players SET perf_l15 = ROUND(v_avg)::INT WHERE id = v_pid;
-    END IF;
-  END LOOP;
+      IF v_avg IS NOT NULL THEN
+        UPDATE players SET perf_l15 = ROUND(v_avg)::INT WHERE id = v_pid;
+      END IF;
+    END LOOP;
+  END IF;
 
   -- 10. Get winner name
   SELECT p.handle INTO v_winner_name

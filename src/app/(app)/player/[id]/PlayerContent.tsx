@@ -1814,15 +1814,15 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
                       const scoreColor = gw.score >= 100 ? 'text-[#FFD700]' : gw.score >= 70 ? 'text-white' : 'text-red-400';
                       const barColor = gw.score >= 100 ? 'bg-[#FFD700]/60' : gw.score >= 70 ? 'bg-white/30' : 'bg-red-400/40';
                       return (
-                        <div key={gw.eventId} className="flex items-center gap-3 bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
+                        <div key={gw.gameweek} className="flex items-center gap-3 bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
                           <div className="w-8 text-center">
                             <div className="font-mono font-black text-sm text-white/70">
-                              {gw.gameweek != null ? `${gw.gameweek}` : '-'}
+                              {gw.gameweek}
                             </div>
                             <div className="text-[9px] text-white/30">GW</div>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium truncate">{gw.eventName}</div>
+                            <div className="text-sm font-medium truncate">Spieltag {gw.gameweek}</div>
                             <div className="text-[10px] text-white/40">
                               {new Date(gw.date).toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' })}
                             </div>

@@ -1,13 +1,11 @@
 -- ============================================
--- reset_event RPC — Reset a scored event for testing
+-- reset_event RPC v2 — No longer deletes player_gameweek_scores
 -- Run this in Supabase SQL Editor
 -- ============================================
--- Resets an event back to 'registering' status:
---   1. Removes gameweek scores for all players in this event
---   2. Resets all lineup scores, ranks, and rewards
---   3. Refunds rewards back from wallets
---   4. Removes reward transactions
---   5. Resets event status to 'registering' + shifts timestamps into the future
+-- Changes from v1:
+--   - Does NOT delete from player_gameweek_scores
+--   - Scores belong to gameweeks (not events) — deleting them would affect other events
+--   - Only resets lineups, rewards, transactions, and event status
 --
 -- WARNING: This is a testing/admin tool. Not for production use.
 
@@ -50,9 +48,8 @@ BEGIN
       reward_amount = 0
   WHERE event_id = p_event_id;
 
-  -- 5. Remove gameweek scores for this event
-  DELETE FROM player_gameweek_scores
-  WHERE event_id = p_event_id;
+  -- 5. GW scores are NOT deleted — they belong to gameweeks, not events.
+  --    Other events referencing the same gameweek would lose data otherwise.
 
   -- 6. Reset event status AND shift timestamps into the future
   UPDATE events
@@ -65,7 +62,7 @@ BEGIN
 
   RETURN jsonb_build_object(
     'success', true,
-    'message', 'Event wurde zurückgesetzt'
+    'message', 'Event wurde zurückgesetzt (GW-Scores bleiben erhalten)'
   );
 END;
 $$;

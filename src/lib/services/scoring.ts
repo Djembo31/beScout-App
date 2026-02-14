@@ -78,33 +78,26 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
 // ============================================
 
 export type PlayerGameweekScore = {
-  eventId: string;
-  eventName: string;
-  gameweek: number | null;
+  gameweek: number;
   score: number;
   date: string;
 };
 
-/** Load gameweek score history for a player (joined with events for name/gameweek) */
+/** Load gameweek score history for a player */
 export async function getPlayerGameweekScores(playerId: string): Promise<PlayerGameweekScore[]> {
   const { data, error } = await supabase
     .from('player_gameweek_scores')
-    .select('score, created_at, event_id, events(name, gameweek, starts_at)')
+    .select('gameweek, score, created_at')
     .eq('player_id', playerId)
-    .order('created_at', { ascending: false });
+    .order('gameweek', { ascending: false });
 
   if (error || !data) return [];
 
-  return data.map((row: Record<string, unknown>) => {
-    const event = row.events as { name: string; gameweek: number | null; starts_at: string } | null;
-    return {
-      eventId: row.event_id as string,
-      eventName: event?.name ?? 'Unbekannt',
-      gameweek: event?.gameweek ?? null,
-      score: row.score as number,
-      date: event?.starts_at ?? (row.created_at as string),
-    };
-  });
+  return data.map((row) => ({
+    gameweek: row.gameweek as number,
+    score: row.score as number,
+    date: row.created_at as string,
+  }));
 }
 
 // ============================================
