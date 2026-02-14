@@ -3,7 +3,23 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 5** – Launch-Readiness: GitHub Repo + CI/CD Pipeline + Sentry + PostHog live. npm audit (Next.js 14.2.35), /supabase-test entfernt. 76 SQL-Migrationen deployed. Build sauber (0 Fehler, 16 Routes).
+**Woche 5** – "Alle Spieler" Tab im Marktplatz: Club-gruppierte Ansicht aller 500 Spieler (20 Clubs × 25), aufklappbar, mit Suche + Positions-Filter. Manager Office hat jetzt 7 Tabs. Build sauber (0 Fehler, 16 Routes).
+
+## Session 14.02.2026 (37) – "Alle Spieler" Tab im Marktplatz
+
+### Kontext
+Marktplatz hatte 500 Spieler, aber Transferliste zeigt nur aktive Sell-Orders und Scouting nur IPOs. Fehlende Möglichkeit, **alle** Spieler zu durchsuchen.
+
+### Änderungen
+- `ManagerTab` um `'spieler'` erweitert (`components/manager/types.ts`)
+- Neuer Tab "Spieler" im TABS-Array (zwischen Vergleich und Transferliste, Users Icon)
+- Club-gruppierte Ansicht: Aufklappbare Sektionen mit Club-Farbpunkt, Short-Code, Spieleranzahl
+- Eigene Suche + Positions-Filter (GK/DEF/MID/ATT), unabhängig von Transferliste-Filtern
+- `PlayerDisplay variant="compact"` + Watchlist pro Spieler
+- Spieler innerhalb jedes Clubs nach Position sortiert (GK→DEF→MID→ATT), dann Name
+- Ergebnis-Counter: "500 Spieler in 20 Clubs" (dynamisch bei Filterung)
+- Erster Club initial aufgeklappt, Rest zugeklappt → skaliert auf 50+ Clubs
+- Build verifiziert: 0 Fehler
 
 ## Session 14.02.2026 (35) – Launch-Readiness: GitHub + CI/CD + Monitoring
 

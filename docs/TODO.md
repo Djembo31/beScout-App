@@ -7,6 +7,16 @@
 
 ## Nächste Session: Phase 7 (Scale)
 
+### "Alle Spieler" Tab im Marktplatz ✅ (14.02.2026)
+- [x] `ManagerTab` um `'spieler'` erweitert (types.ts)
+- [x] Neuer Tab "Spieler" im Manager Office (7 Tabs total)
+- [x] Club-gruppierte Ansicht (20 Clubs × 25 Spieler, aufklappbar)
+- [x] Eigene Suche + Positions-Filter (unabhängig von Transferliste)
+- [x] `PlayerDisplay compact` + Watchlist pro Spieler
+- [x] Sortierung: Position (GK→DEF→MID→ATT), dann Nachname
+- [x] Ergebnis-Counter dynamisch ("500 Spieler in 20 Clubs")
+- [x] Build verifiziert (0 Fehler)
+
 ### Launch-Readiness: GitHub + CI/CD + Monitoring ✅ (14.02.2026)
 - [x] **GitHub Repo Setup** — `git init`, Private Repo `Djembo31/beScout-App` erstellt, Initial Commit (204 Files, 52K Lines), pushed to GitHub
 - [x] **GitHub Secrets** — 5 Secrets konfiguriert: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`

@@ -8,13 +8,14 @@ import {
   Star, Target, Users, Briefcase,
   MessageSquare, Zap, Layers, Shield, GitCompareArrows,
   Flame, Award, PiggyBank,
-  TrendingDown as PriceDown, X, ChevronDown, ArrowUpDown,
+  TrendingDown as PriceDown, X, ChevronDown, ChevronRight, ArrowUpDown,
   Package,
 } from 'lucide-react';
 import { Card, ErrorState, Skeleton, SkeletonCard } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
-import { fmtBSD } from '@/lib/utils';
+import { fmtBSD, cn } from '@/lib/utils';
+import { getClub } from '@/lib/clubs';
 import { getPlayers, dbToPlayers, centsToBsd } from '@/lib/services/players';
 import { getHoldings } from '@/lib/services/wallet';
 import { useWallet } from '@/components/providers/WalletProvider';
@@ -101,6 +102,7 @@ const TABS: { id: ManagerTab; label: string; icon: React.ElementType }[] = [
   { id: 'kader', label: 'Kader', icon: Shield },
   { id: 'bestand', label: 'Bestand', icon: Package },
   { id: 'compare', label: 'Vergleich', icon: GitCompareArrows },
+  { id: 'spieler', label: 'Spieler', icon: Users },
   { id: 'transferlist', label: 'Transferliste', icon: ArrowUpDown },
   { id: 'scouting', label: 'Scouting', icon: Zap },
   { id: 'offers', label: 'Angebote', icon: Briefcase },
@@ -175,7 +177,7 @@ function MarketSkeleton() {
       </div>
       {/* Tabs */}
       <div className="flex gap-1.5">
-        {[...Array(6)].map((_, i) => (
+        {[...Array(7)].map((_, i) => (
           <Skeleton key={i} className="h-10 w-28 rounded-full" />
         ))}
       </div>
@@ -235,6 +237,12 @@ export default function MarketPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [clubSearch, setClubSearch] = useState('');
   const [showClubDropdown, setShowClubDropdown] = useState(false);
+
+  // Spieler tab state
+  const [spielerQuery, setSpielerQuery] = useState('');
+  const [spielerPosFilter, setSpielerPosFilter] = useState<Set<Pos>>(new Set());
+  const [expandedClubs, setExpandedClubs] = useState<Set<string>>(new Set());
+  const [spielerInitialized, setSpielerInitialized] = useState(false);
 
   // Real data state
   const [players, setPlayers] = useState<Player[]>([]);
@@ -536,6 +544,65 @@ export default function MarketPage() {
     }
     return result;
   }, [players, query, posFilter, clubFilter]);
+
+  // Spieler tab: group players by club, filter, sort
+  const POS_ORDER: Record<Pos, number> = { GK: 0, DEF: 1, MID: 2, ATT: 3 };
+
+  const clubGroups = useMemo(() => {
+    let filtered = players.filter(p => !p.isLiquidated);
+    if (spielerQuery) {
+      const q = spielerQuery.toLowerCase();
+      filtered = filtered.filter(p =>
+        `${p.first} ${p.last} ${p.club} ${p.pos}`.toLowerCase().includes(q)
+      );
+    }
+    if (spielerPosFilter.size > 0) {
+      filtered = filtered.filter(p => spielerPosFilter.has(p.pos));
+    }
+    // Group by club
+    const map = new Map<string, Player[]>();
+    for (const p of filtered) {
+      const arr = map.get(p.club) ?? [];
+      arr.push(p);
+      map.set(p.club, arr);
+    }
+    // Sort clubs alphabetically, sort players within by pos then last name
+    return Array.from(map.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([clubName, clubPlayers]) => ({
+        clubName,
+        clubData: getClub(clubName),
+        players: clubPlayers.sort((a, b) => {
+          const posDiff = POS_ORDER[a.pos] - POS_ORDER[b.pos];
+          if (posDiff !== 0) return posDiff;
+          return a.last.localeCompare(b.last);
+        }),
+      }));
+  }, [players, spielerQuery, spielerPosFilter]);
+
+  // Auto-expand first club on initial load
+  if (!spielerInitialized && clubGroups.length > 0) {
+    setExpandedClubs(new Set([clubGroups[0].clubName]));
+    setSpielerInitialized(true);
+  }
+
+  const totalSpielerCount = clubGroups.reduce((s, g) => s + g.players.length, 0);
+
+  const toggleSpielerPos = (pos: Pos) => {
+    setSpielerPosFilter(prev => {
+      const next = new Set(prev);
+      next.has(pos) ? next.delete(pos) : next.add(pos);
+      return next;
+    });
+  };
+
+  const toggleClubExpand = (clubName: string) => {
+    setExpandedClubs(prev => {
+      const next = new Set(prev);
+      next.has(clubName) ? next.delete(clubName) : next.add(clubName);
+      return next;
+    });
+  };
 
   if (dataLoading) return <MarketSkeleton />;
 
@@ -971,6 +1038,116 @@ export default function MarketPage() {
             );
           })()}
         </>
+      )}
+
+      {/* SPIELER (Alle Spieler — Club-gruppiert) */}
+      {tab === 'spieler' && (
+        <div className="space-y-3">
+          {/* Search + Position Filter */}
+          <Card className="p-4 space-y-3">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                <input
+                  type="text"
+                  placeholder="Spieler suchen..."
+                  value={spielerQuery}
+                  onChange={(e) => setSpielerQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
+                />
+              </div>
+              <div className="flex gap-1">
+                {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map(pos => {
+                  const active = spielerPosFilter.has(pos);
+                  const colors: Record<Pos, { bg: string; border: string; text: string }> = {
+                    GK: { bg: 'bg-emerald-500/20', border: 'border-emerald-400', text: 'text-emerald-300' },
+                    DEF: { bg: 'bg-amber-500/20', border: 'border-amber-400', text: 'text-amber-300' },
+                    MID: { bg: 'bg-sky-500/20', border: 'border-sky-400', text: 'text-sky-300' },
+                    ATT: { bg: 'bg-rose-500/20', border: 'border-rose-400', text: 'text-rose-300' },
+                  };
+                  const c = colors[pos];
+                  return (
+                    <button
+                      key={pos}
+                      onClick={() => toggleSpielerPos(pos)}
+                      className={cn(
+                        'px-3 py-1.5 rounded-lg text-xs font-black border transition-all',
+                        active
+                          ? `${c.bg} ${c.border} ${c.text}`
+                          : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70 hover:bg-white/10'
+                      )}
+                    >
+                      {pos}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </Card>
+
+          {/* Result Counter */}
+          <div className="text-sm text-white/50">
+            {totalSpielerCount} Spieler in {clubGroups.length} Clubs
+          </div>
+
+          {/* Club Sections */}
+          {clubGroups.map(({ clubName, clubData, players: clubPlayers }) => {
+            const isExpanded = expandedClubs.has(clubName);
+            const primaryColor = clubData?.colors.primary ?? '#666';
+            return (
+              <div key={clubName} className="border border-white/[0.06] rounded-2xl overflow-hidden">
+                {/* Club Header */}
+                <button
+                  onClick={() => toggleClubExpand(clubName)}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-all"
+                  style={{ borderLeft: `3px solid ${primaryColor}` }}
+                >
+                  <div
+                    className="w-3 h-3 rounded-full shrink-0"
+                    style={{ backgroundColor: primaryColor }}
+                  />
+                  <span className="font-bold text-sm">{clubName}</span>
+                  {clubData && (
+                    <span className="text-[10px] font-mono text-white/30">{clubData.short}</span>
+                  )}
+                  <span className="text-xs text-white/40 ml-auto mr-2">
+                    {clubPlayers.length} Spieler
+                  </span>
+                  {isExpanded ? (
+                    <ChevronDown className="w-4 h-4 text-white/30" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-white/30" />
+                  )}
+                </button>
+
+                {/* Players */}
+                {isExpanded && (
+                  <div className="border-t border-white/[0.06]">
+                    <div className="space-y-0.5 p-1.5">
+                      {clubPlayers.map(player => (
+                        <PlayerDisplay
+                          key={player.id}
+                          variant="compact"
+                          player={player}
+                          isWatchlisted={watchlist[player.id]}
+                          onWatch={() => toggleWatch(player.id)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {clubGroups.length === 0 && (
+            <Card className="p-12 text-center">
+              <Users className="w-12 h-12 mx-auto mb-4 text-white/20" />
+              <div className="text-white/30 mb-2">Keine Spieler gefunden</div>
+              <div className="text-sm text-white/50">Versuche andere Suchbegriffe oder Filter</div>
+            </Card>
+          )}
+        </div>
       )}
 
       {/* Kader Tab */}

@@ -26,6 +26,7 @@ import {
   getClubRecentTrades,
   getClubDashboardStats,
 } from '@/lib/services/club';
+import { getClub } from '@/lib/clubs';
 import { fmtBSD, cn } from '@/lib/utils';
 import { withTimeout } from '@/lib/cache';
 import { val } from '@/lib/settledHelpers';
@@ -158,13 +159,15 @@ function HeroSection({
   playerCount: number;
 }) {
   const clubColor = club.primary_color || '#006633';
+  const clubMeta = getClub(club.slug);
+  const stadiumSrc = clubMeta?.stadiumImage ?? '/stadiums/default.jpg';
 
   return (
     <div className="relative h-[300px] md:h-[550px] -mx-4 md:-mx-6 -mt-4 md:-mt-6 mb-6 overflow-hidden">
       {/* Stadium Background */}
       <div className="absolute inset-0">
         <Image
-          src="/Sakarya_Stadion.jpg"
+          src={stadiumSrc}
           alt={club.stadium || club.name}
           fill
           className="object-cover blur-sm scale-105"

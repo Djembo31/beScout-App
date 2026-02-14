@@ -56,7 +56,7 @@ src/
 │       │   └── FantasyContent.tsx # Fantasy Orchestrator (~690 Zeilen)
 │       ├── market/
 │       │   ├── layout.tsx         # Metadata: "Marktplatz"
-│       │   └── page.tsx           # DPC Marktplatz
+│       │   └── page.tsx           # DPC Marktplatz (7 Tabs: Kader, Bestand, Vergleich, Spieler, Transferliste, Scouting, Angebote)
 │       ├── club/
 │       │   ├── layout.tsx         # Metadata: "Club"
 │       │   ├── page.tsx           # Redirect → /club/sakaryaspor
@@ -180,6 +180,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Pilot-Blocker Fixes fertig:** Scout Score + Achievements auto-triggern (5 Services), Research Track Record funktional (floor_price statt last_price), Welcome Page BSD-Fix (10.000 statt 500), Trading-Notifications (Seller benachrichtigt), Fantasy Lineup-Lock verifiziert.
 **Verbleibende Lücken geschlossen:** Participant-Limit-Guard (Fantasy Join), Fee-Breakdown (Sell-Form), Admin Event-Erstellung (volle CRUD), Admin Spieler-Anlegen (Create-Modal), Öffentliche Profile (`/profile/[handle]` + Shared ProfileView + Leaderboard-Links).
 **Launch-Readiness fertig:** GitHub Repo (Private, `Djembo31/beScout-App`) + CI/CD Pipeline (GitHub Actions) + Sentry Error Tracking + PostHog Analytics. npm audit clean (Next.js 14.2.35). `/supabase-test` Route entfernt.
+**"Alle Spieler" Tab fertig:** Manager Office 7. Tab — Club-gruppierte Ansicht aller 500 Spieler (20 Clubs), aufklappbar, Suche + Positions-Filter.
 **Danach:** Phase 7 (Scale).
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.
@@ -189,7 +190,7 @@ Siehe `docs/STATUS.md` für den detaillierten Fortschritt (inkl. SQL-Migration-T
 Siehe `docs/SCALE.md` für Skalierungsarchitektur und DB-Schema.
 
 **Pilot-Scope:** 1 Club (Sakaryaspor), 25 Spieler, 50 Beta-Tester.
-**Alle 76 SQL-Migrationen deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus live. Manager Office (5 Tabs) + Engagement-Wellen 1-4 (32 Features) live.
+**Alle 76 SQL-Migrationen deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) live.
 **GitHub:** Private Repo `Djembo31/beScout-App`, CI/CD via GitHub Actions, Sentry Error Tracking, PostHog Analytics.
 
 ## Bekannte Issues
