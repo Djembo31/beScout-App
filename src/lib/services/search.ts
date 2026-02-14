@@ -18,7 +18,7 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
     // Players: search by name
     supabase
       .from('players')
-      .select('id, first_name, last_name, position, club')
+      .select('id, first_name, last_name, position, club, shirt_number')
       .or(`first_name.ilike.${q},last_name.ilike.${q}`)
       .limit(5),
     // Research posts: search by title
@@ -44,7 +44,7 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
         type: 'player',
         id: p.id,
         title: `${p.first_name} ${p.last_name}`,
-        subtitle: `${p.position} · ${p.club}`,
+        subtitle: `#${p.shirt_number ?? 0} · ${p.position} · ${p.club}`,
         href: `/player/${p.id}`,
       });
     }

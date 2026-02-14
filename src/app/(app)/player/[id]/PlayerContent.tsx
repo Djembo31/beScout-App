@@ -1421,6 +1421,8 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
                   )}
                 </div>
                 <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm text-white/60 mt-0.5 flex-wrap">
+                  <span className="font-mono text-white/40">#{player.ticket}</span>
+                  <span className="text-white/30">•</span>
                   <span className="flex items-center gap-1.5">
                     {clubData?.logo && (
                       <img src={clubData.logo} alt={clubData.name} className="w-4 h-4 rounded-full object-cover" />
