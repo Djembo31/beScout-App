@@ -40,6 +40,14 @@ export const posTintColors: Record<Pos, string> = {
 const getPerfColor = (l5: number) =>
   l5 >= 65 ? 'text-emerald-300' : l5 >= 45 ? 'text-amber-300' : l5 > 0 ? 'text-red-300' : 'text-white/50';
 
+/** Returns true if a hex color is too dark to read on a dark background */
+const isColorDark = (hex: string): boolean => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.4;
+};
+
 const getFloor = (p: Player) =>
   p.listings.length > 0 ? Math.min(...p.listings.map((l) => l.price)) : p.prices.floor ?? 0;
 
@@ -62,7 +70,7 @@ export function TrikotBadge({ number, pos, club, size = 'sm' }: { number: number
         <svg viewBox="0 0 24 24" className={`absolute ${isLg ? 'w-10 h-10' : 'w-6 h-6'} opacity-30`} style={{ color: primary }}>
           <path fill="currentColor" d="M16.21 3L12 7.21 7.79 3H2v6l4 3v9h12v-9l4-3V3h-5.79zM6 7V5h2.29L12 8.71 15.71 5H18v2l-4 3v8H10v-8l-4-3z" />
         </svg>
-        <span className={`relative font-mono font-black ${isLg ? 'text-xl' : 'text-sm'}`} style={{ color: secondary === '#000000' ? '#FFFFFF' : secondary }}>{number}</span>
+        <span className={`relative font-mono font-black ${isLg ? 'text-xl' : 'text-sm'}`} style={{ color: isColorDark(secondary) ? '#FFFFFF' : secondary }}>{number}</span>
       </div>
     );
   }
