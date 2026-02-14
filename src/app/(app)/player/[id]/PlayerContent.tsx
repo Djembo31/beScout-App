@@ -1387,6 +1387,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const contract = getContractInfo(player.contractMonthsLeft);
   const successFeeTier = getSuccessFeeTier(player.marketValue || 500000);
   const colors = posColors[player.pos];
+  const clubData = player.club ? getClub(player.club) : null;
 
   const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
     { id: 'overview', label: 'Übersicht', icon: Activity },
@@ -1420,7 +1421,12 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
                   )}
                 </div>
                 <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm text-white/60 mt-0.5 flex-wrap">
-                  <span>{player.club}</span>
+                  <span className="flex items-center gap-1.5">
+                    {clubData?.logo && (
+                      <img src={clubData.logo} alt={clubData.name} className="w-4 h-4 rounded-full object-cover" />
+                    )}
+                    {player.club}
+                  </span>
                   <span className="text-white/30 hidden sm:inline">•</span>
                   <span className="hidden sm:inline">{player.league || 'TFF 1. Lig'}</span>
                   <span className="text-white/30">•</span>
