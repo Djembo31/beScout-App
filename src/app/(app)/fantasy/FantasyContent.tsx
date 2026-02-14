@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import {
-  Trophy, Search, Grid3X3, List, Home, Globe, History, Plus, AlertCircle, RefreshCw, Loader2,
+  Trophy, Search, Grid3X3, List, Home, Globe, History, Plus, AlertCircle, RefreshCw, Loader2, Calendar,
 } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -23,7 +23,7 @@ import {
   type LineupPlayer, type UserDpcHolding, type LeagueCategory, type LineupFormat, type ScoredLineupData,
   GAMEWEEKS, getStatusStyle,
   GameweekSelector, EventCard, EventTableRow,
-  DashboardTab, HistoryTab, CreateEventModal,
+  DashboardTab, HistoryTab, CreateEventModal, GameweekTab,
 } from '@/components/fantasy';
 
 // Lazy-load EventDetailModal (1387 lines) — only loaded when user opens an event
@@ -570,6 +570,7 @@ export default function FantasyContent() {
         {([
           { id: 'dashboard' as FantasyTab, label: 'Dashboard', icon: Home },
           { id: 'lobby' as FantasyTab, label: 'Events', icon: Globe, count: activeEvents.length },
+          { id: 'gameweek' as FantasyTab, label: 'Spieltag', icon: Calendar },
           { id: 'history' as FantasyTab, label: 'Verlauf', icon: History },
         ]).map(tab => (
           <button
@@ -783,6 +784,9 @@ export default function FantasyContent() {
           </section>
         </div>
       )}
+
+      {/* ========== GAMEWEEK TAB ========== */}
+      {mainTab === 'gameweek' && <GameweekTab />}
 
       {/* ========== HISTORY TAB ========== */}
       {mainTab === 'history' && (

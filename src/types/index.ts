@@ -888,6 +888,72 @@ export type DbLiquidationPayout = {
 };
 
 // ============================================
+// FIXTURE TYPES
+// ============================================
+
+export type FixtureStatus = 'scheduled' | 'simulated';
+
+export type DbFixture = {
+  id: string;
+  gameweek: number;
+  home_club_id: string;
+  away_club_id: string;
+  home_score: number | null;
+  away_score: number | null;
+  status: FixtureStatus;
+  played_at: string | null;
+  created_at: string;
+};
+
+export type DbFixturePlayerStat = {
+  id: string;
+  fixture_id: string;
+  player_id: string;
+  club_id: string;
+  minutes_played: number;
+  goals: number;
+  assists: number;
+  clean_sheet: boolean;
+  goals_conceded: number;
+  yellow_card: boolean;
+  red_card: boolean;
+  saves: number;
+  bonus: number;
+  fantasy_points: number;
+};
+
+export type Fixture = DbFixture & {
+  home_club_name: string;
+  home_club_short: string;
+  away_club_name: string;
+  away_club_short: string;
+  home_club_primary_color: string | null;
+  away_club_primary_color: string | null;
+};
+
+export type FixturePlayerStat = DbFixturePlayerStat & {
+  player_first_name: string;
+  player_last_name: string;
+  player_position: string;
+  club_short: string;
+};
+
+export type SimulateResult = {
+  success: boolean;
+  gameweek?: number;
+  fixtures_simulated?: number;
+  player_stats_created?: number;
+  error?: string;
+};
+
+export type GameweekStatus = {
+  gameweek: number;
+  total: number;
+  simulated: number;
+  is_complete: boolean;
+};
+
+// ============================================
 // STREAK TYPES
 // ============================================
 

@@ -1,11 +1,21 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 13.02.2026 (nach Lücken-Implementierung Session 34)
+> Letzte Aktualisierung: 14.02.2026 (nach Launch-Readiness Session 35)
 > Modus: PILOT SPRINT (4 Wochen → echte User)
 
 ---
 
 ## Nächste Session: Phase 7 (Scale)
+
+### Launch-Readiness: GitHub + CI/CD + Monitoring ✅ (14.02.2026)
+- [x] **GitHub Repo Setup** — `git init`, Private Repo `Djembo31/beScout-App` erstellt, Initial Commit (204 Files, 52K Lines), pushed to GitHub
+- [x] **GitHub Secrets** — 5 Secrets konfiguriert: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_POSTHOG_HOST`
+- [x] **Sentry DSN** — `NEXT_PUBLIC_SENTRY_DSN` in `.env.local` + GitHub Secrets, CI Pipeline (ci.yml) inkludiert Sentry env var
+- [x] **PostHog Analytics** — `NEXT_PUBLIC_POSTHOG_KEY` + `NEXT_PUBLIC_POSTHOG_HOST` in `.env.local` + GitHub Secrets
+- [x] **npm audit** — Next.js 14.2.5 → 14.2.35 (kritische CVEs gefixt). 4 verbleibende high-severity sind non-exploitable (glob CLI dev dep, Next.js Image Optimizer DoS nur self-hosted)
+- [x] **`/supabase-test` Route entfernt** — Test-Seite vor Pilot-Launch gelöscht
+- [x] **CI Pipeline aktiv** — GitHub Actions (`ci.yml`) läuft Build+Test bei jedem Push/PR auf main
+- [ ] ~~**Leaked PW Protection**~~ — Übersprungen, erfordert Supabase Pro Plan
 
 ### Verbleibende Lücken geschlossen ✅ (13.02.2026)
 Logik-Check Session 33 identifizierte 12 Lücken, 6 Pilot-Blocker in Session 33 gefixt. Restliche 5 Lücken jetzt geschlossen (Membership-Tiers übersprungen → Phase 7):
@@ -67,7 +77,7 @@ Logik-Check: Vision-Dokument gegen Implementierung geprüft, 12 Lücken identifi
 - [x] **ClubContent:** Community-Richtlinien Info-Card (Gold-Border, Shield-Icon)
 - [x] **Home:** Server-Streak via `recordLoginStreak()` fire-and-forget, Milestone-Toast, nächster-Milestone-Hinweis
 - [x] **RPC Fix:** `get_club_by_slug` um `community_guidelines` erweitert
-- [ ] **Leaked PW Protection:** ⏳ Erfordert Pro Plan (Authentication → Providers → Email → Password Security)
+- [ ] ~~**Leaked PW Protection:**~~ Übersprungen — erfordert Supabase Pro Plan
 - [x] **Build verifiziert** (0 Fehler), Security Advisors geprüft
 
 ### Phase 6.5: Success Fee + Liquidierung ✅ (13.02.2026)
@@ -133,7 +143,7 @@ Logik-Check: Vision-Dokument gegen Implementierung geprüft, 12 Lücken identifi
 - [x] 39 RLS Policies: `auth.uid()` → `(select auth.uid())` (Migration 49)
 - [x] 18 fehlende FK-Indexes hinzugefügt (Migration 50)
 - [x] `research_unlocks` 2 SELECT Policies → 1 merged (Migration 51)
-- [ ] Leaked Password Protection aktivieren (Dashboard → Auth → Providers → Email) ⏳ Erfordert Pro Plan
+- [ ] ~~Leaked Password Protection~~ Übersprungen — erfordert Supabase Pro Plan
 
 **Verbleibend (low-risk):**
 - [ ] 13 nullable Mismatches in Types (alle haben DEFAULT, kein Runtime-Risiko)
@@ -342,6 +352,9 @@ Logik-Check: Vision-Dokument gegen Implementierung geprüft, 12 Lücken identifi
 - [x] `.env.local` mit Supabase URL + Anon Key
 - [x] In-Memory TTL Cache (`lib/cache.ts`)
 - [x] Supabase MCP Server für Claude Code konfiguriert
+- [x] GitHub Repo (Private) + CI/CD Pipeline ✅ 14.02.2026
+- [x] Sentry Error Tracking konfiguriert ✅ 14.02.2026
+- [x] PostHog Analytics konfiguriert ✅ 14.02.2026
 
 ### Auth (komplett)
 - [x] Login/Register (Email + Google + Apple + Magic Link)

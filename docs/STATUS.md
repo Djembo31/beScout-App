@@ -3,7 +3,46 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 5** – Alle identifizierten Lücken geschlossen. Participant-Limit-Guard, Fee-Breakdown, Admin Event-Erstellung, Admin Spieler-Anlegen, Öffentliche Profile implementiert. 76 SQL-Migrationen deployed. Build sauber (0 Fehler, 17 Routes).
+**Woche 5** – Launch-Readiness: GitHub Repo + CI/CD Pipeline + Sentry + PostHog live. npm audit (Next.js 14.2.35), /supabase-test entfernt. 76 SQL-Migrationen deployed. Build sauber (0 Fehler, 16 Routes).
+
+## Session 14.02.2026 (35) – Launch-Readiness: GitHub + CI/CD + Monitoring
+
+### Kontext
+Vor Pilot-Launch: Versionskontrolle, CI/CD, Error Tracking und Analytics aufsetzen. Security-Audit (npm, Leaked PW Protection). Test-Route entfernen.
+
+### 1. GitHub Repo Setup
+- **`git init`** im Projektverzeichnis, Private Repo `Djembo31/beScout-App` auf GitHub erstellt
+- **Initial Commit:** 204 Dateien, ~52.000 Zeilen Code, pushed to `main`
+- **3 GitHub Secrets** für Build konfiguriert: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_SENTRY_DSN`
+
+### 2. Sentry Error Tracking
+- **`NEXT_PUBLIC_SENTRY_DSN`** in `.env.local` + GitHub Secrets gesetzt
+- **CI Pipeline** (`ci.yml`) erweitert um Sentry env var
+
+### 3. PostHog Analytics
+- **`NEXT_PUBLIC_POSTHOG_KEY`** + **`NEXT_PUBLIC_POSTHOG_HOST`** in `.env.local` + GitHub Secrets gesetzt
+
+### 4. Leaked Password Protection
+- **Übersprungen** — erfordert Supabase Pro Plan (Authentication → Providers → Email → Password Security)
+
+### 5. npm audit + Dependency-Updates
+- **Next.js 14.2.5 → 14.2.35** — kritische CVEs gefixt
+- **4 verbleibende high-severity** sind non-exploitable:
+  - `glob` CLI in dev dependency (nicht in Produktion)
+  - Next.js Image Optimizer DoS (nur self-hosted, nicht Vercel/Supabase)
+
+### 6. /supabase-test Route entfernt
+- **`src/app/(app)/supabase-test/page.tsx`** gelöscht — Test-Seite darf nicht in Pilot-Launch
+
+### 7. CI Pipeline
+- **GitHub Actions** (`ci.yml`) — Build + Test bei jedem Push/PR auf `main`
+- Umgebungsvariablen: Supabase URL/Key + Sentry DSN inkludiert
+
+### Dateien geändert/erstellt
+- `.env.local` — +SENTRY_DSN, +POSTHOG_KEY, +POSTHOG_HOST
+- `.github/workflows/ci.yml` — NEU (CI Pipeline)
+- `package.json` / `package-lock.json` — Next.js Update
+- `src/app/(app)/supabase-test/page.tsx` — GELÖSCHT
 
 ## Session 13.02.2026 (34) – Verbleibende Lücken geschlossen
 

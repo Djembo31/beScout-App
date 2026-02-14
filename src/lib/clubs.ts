@@ -17,6 +17,8 @@ export const TFF_CLUBS = [
   { id: 'altinordu', name: 'Altınordu FK', short: 'AOR', colors: { primary: '#DC2626', secondary: '#1E3A5F' }, logo: null },
   { id: 'yeni-malatyaspor', name: 'Yeni Malatyaspor', short: 'MAL', colors: { primary: '#FFD700', secondary: '#000000' }, logo: null },
   { id: 'kocaelispor', name: 'Kocaelispor', short: 'KOC', colors: { primary: '#16A34A', secondary: '#000000' }, logo: null },
+  { id: 'pendikspor', name: 'Pendikspor', short: 'PEN', colors: { primary: '#1E40AF', secondary: '#FFFFFF' }, logo: null },
+  { id: 'rizespor', name: 'Çaykur Rizespor', short: 'RIZ', colors: { primary: '#16A34A', secondary: '#1E3A5F' }, logo: null },
 ] as const;
 
 export type ClubId = (typeof TFF_CLUBS)[number]['id'];

@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Calendar, Play, Square, XCircle, Loader2 } from 'lucide-react';
+import { Plus, Calendar, Play, Square, XCircle, Loader2, Zap, CheckCircle2 } from 'lucide-react';
 import { Card, Button, Chip, Modal } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getEventsByClubId, createEvent, updateEventStatus } from '@/lib/services/events';
+import { simulateGameweek, getGameweekStatuses } from '@/lib/services/fixtures';
 import { centsToBsd, bsdToCents } from '@/lib/services/players';
 import { fmtBSD } from '@/lib/utils';
-import type { ClubWithAdmin, DbEvent } from '@/types';
+import type { ClubWithAdmin, DbEvent, GameweekStatus } from '@/types';
 
 const EVENT_STATUS_CONFIG: Record<string, { bg: string; border: string; text: string; label: string }> = {
   upcoming: { bg: 'bg-white/5', border: 'border-white/10', text: 'text-white/50', label: 'Geplant' },
@@ -28,6 +29,11 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  // Gameweek simulation state
+  const [simGw, setSimGw] = useState(1);
+  const [simulating, setSimulating] = useState(false);
+  const [gwStatuses, setGwStatuses] = useState<GameweekStatus[]>([]);
+
   // Form state
   const [name, setName] = useState('');
   const [type, setType] = useState<string>('club');
@@ -45,14 +51,47 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     async function load() {
       setLoading(true);
       try {
-        const data = await getEventsByClubId(club.id);
-        if (!cancelled) setEvents(data);
+        const [data, statuses] = await Promise.all([
+          getEventsByClubId(club.id),
+          getGameweekStatuses(1, 38),
+        ]);
+        if (!cancelled) {
+          setEvents(data);
+          setGwStatuses(statuses);
+          // Auto-select next unsimulated GW
+          const nextUnsim = statuses.find(s => !s.is_complete);
+          if (nextUnsim) setSimGw(nextUnsim.gameweek);
+        }
       } catch {}
       finally { if (!cancelled) setLoading(false); }
     }
     load();
     return () => { cancelled = true; };
   }, [club.id]);
+
+  const handleSimulate = useCallback(async () => {
+    setSimulating(true);
+    setError(null);
+    try {
+      const result = await simulateGameweek(simGw);
+      if (!result.success) {
+        setError(result.error || 'Simulation fehlgeschlagen');
+      } else {
+        setSuccess(`Spieltag ${simGw} simuliert: ${result.fixtures_simulated} Spiele, ${result.player_stats_created} Spieler-Stats`);
+        setTimeout(() => setSuccess(null), 5000);
+        // Refresh GW statuses
+        const statuses = await getGameweekStatuses(1, 38);
+        setGwStatuses(statuses);
+        // Auto-advance to next GW
+        const nextUnsim = statuses.find(s => !s.is_complete);
+        if (nextUnsim) setSimGw(nextUnsim.gameweek);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unbekannter Fehler');
+    } finally {
+      setSimulating(false);
+    }
+  }, [simGw]);
 
   const resetForm = useCallback(() => {
     setName('');
@@ -131,6 +170,66 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
       {error && (
         <div className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm cursor-pointer" onClick={() => setError(null)}>{error}</div>
       )}
+
+      {/* ===== GAMEWEEK SIMULATION ===== */}
+      <Card className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Zap className="w-5 h-5 text-[#FFD700]" />
+          <h3 className="font-black text-sm">Spieltag simulieren</h3>
+        </div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <select
+            value={simGw}
+            onChange={(e) => setSimGw(parseInt(e.target.value))}
+            className="px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/40"
+          >
+            {Array.from({ length: 38 }, (_, i) => i + 1).map(gw => {
+              const status = gwStatuses.find(s => s.gameweek === gw);
+              return (
+                <option key={gw} value={gw}>
+                  Spieltag {gw} {status?.is_complete ? '✓' : ''}
+                </option>
+              );
+            })}
+          </select>
+          <Button
+            variant="gold"
+            size="sm"
+            onClick={handleSimulate}
+            disabled={simulating || gwStatuses.find(s => s.gameweek === simGw)?.is_complete === true}
+          >
+            {simulating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+            {simulating ? 'Simuliere...' : 'Simulieren'}
+          </Button>
+          {gwStatuses.find(s => s.gameweek === simGw)?.is_complete && (
+            <span className="text-[#22C55E] text-xs flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5" /> Bereits simuliert
+            </span>
+          )}
+        </div>
+        {/* GW status overview */}
+        <div className="mt-3 flex gap-1 flex-wrap">
+          {Array.from({ length: 38 }, (_, i) => i + 1).map(gw => {
+            const status = gwStatuses.find(s => s.gameweek === gw);
+            return (
+              <div
+                key={gw}
+                className={`w-6 h-6 rounded text-[9px] font-bold flex items-center justify-center cursor-pointer transition-all ${
+                  status?.is_complete
+                    ? 'bg-[#22C55E]/20 text-[#22C55E] border border-[#22C55E]/30'
+                    : gw === simGw
+                    ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/30'
+                    : 'bg-white/[0.03] text-white/30 border border-white/[0.06]'
+                }`}
+                onClick={() => setSimGw(gw)}
+                title={`Spieltag ${gw}${status?.is_complete ? ' (simuliert)' : ''}`}
+              >
+                {gw}
+              </div>
+            );
+          })}
+        </div>
+      </Card>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
