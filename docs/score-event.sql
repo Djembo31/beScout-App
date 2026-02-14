@@ -1,7 +1,11 @@
 -- ============================================
--- score_event RPC v2 — Canonical Player Scores
+-- score_event RPC v3 — Fixture-Aware Scoring
 -- Run this in Supabase SQL Editor
 -- ============================================
+-- Changes from v2:
+--   - FIXTURE-AWARE: If event has a gameweek, uses fixture_player_stats data
+--   - Score conversion: LEAST(150, GREATEST(40, 40 + fantasy_points * 6))
+--   - Falls back to random scoring for non-GW events or missing fixture data
 -- Changes from v1:
 --   - NEW TABLE player_gameweek_scores: one canonical score per player per event
 --   - Each player gets ONE score (not random per lineup)
@@ -59,10 +63,9 @@ DECLARE
   v_rank_row     RECORD;
   v_total_ranked INT;
   v_avg          NUMERIC;
-  v_slot_names   TEXT[] := ARRAY['gk','def1','def2','mid1','mid2','att'];
-  v_slot_cols    TEXT[] := ARRAY['slot_gk','slot_def1','slot_def2','slot_mid1','slot_mid2','slot_att'];
   v_all_player_ids UUID[];
   v_pid          UUID;
+  v_fixture_score INT;
 BEGIN
   -- 1. Validate event
   SELECT * INTO v_event FROM events WHERE id = p_event_id;
@@ -86,20 +89,39 @@ BEGIN
   ) INTO v_all_player_ids;
 
   -- 3. Generate ONE canonical score per player and insert into player_gameweek_scores
+  --    NEW v3: If event has a gameweek, try fixture_player_stats first
   FOREACH v_pid IN ARRAY v_all_player_ids
   LOOP
-    -- Skip if already scored (ON CONFLICT DO NOTHING handles this too, but skip RNG)
+    -- Skip if already scored
     IF NOT EXISTS (SELECT 1 FROM player_gameweek_scores WHERE player_id = v_pid AND event_id = p_event_id) THEN
-      SELECT position INTO v_pos FROM players WHERE id = v_pid;
-      v_base := 40 + floor(random() * 61)::INT;  -- 40..100
-      CASE COALESCE(v_pos, 'MID')
-        WHEN 'ATT' THEN v_bonus := floor(random() * 51)::INT;  -- 0..50
-        WHEN 'MID' THEN v_bonus := floor(random() * 41)::INT;  -- 0..40
-        WHEN 'DEF' THEN v_bonus := floor(random() * 26)::INT;  -- 0..25
-        WHEN 'GK'  THEN v_bonus := floor(random() * 21)::INT;  -- 0..20
-        ELSE v_bonus := floor(random() * 31)::INT;
-      END CASE;
-      v_player_score := v_base + v_bonus;
+      v_fixture_score := NULL;
+
+      -- Try to get score from fixture data if event has a gameweek
+      IF v_event.gameweek IS NOT NULL THEN
+        SELECT LEAST(150, GREATEST(40, 40 + (fps.fantasy_points * 6)))
+        INTO v_fixture_score
+        FROM fixture_player_stats fps
+        JOIN fixtures f ON fps.fixture_id = f.id
+        WHERE fps.player_id = v_pid AND f.gameweek = v_event.gameweek
+        LIMIT 1;
+      END IF;
+
+      IF v_fixture_score IS NOT NULL THEN
+        -- Use fixture-based score
+        v_player_score := v_fixture_score;
+      ELSE
+        -- Fallback: random score (for non-GW events or players without fixture data)
+        SELECT position INTO v_pos FROM players WHERE id = v_pid;
+        v_base := 40 + floor(random() * 61)::INT;  -- 40..100
+        CASE COALESCE(v_pos, 'MID')
+          WHEN 'ATT' THEN v_bonus := floor(random() * 51)::INT;  -- 0..50
+          WHEN 'MID' THEN v_bonus := floor(random() * 41)::INT;  -- 0..40
+          WHEN 'DEF' THEN v_bonus := floor(random() * 26)::INT;  -- 0..25
+          WHEN 'GK'  THEN v_bonus := floor(random() * 21)::INT;  -- 0..20
+          ELSE v_bonus := floor(random() * 31)::INT;
+        END CASE;
+        v_player_score := v_base + v_bonus;
+      END IF;
 
       INSERT INTO player_gameweek_scores (player_id, event_id, score)
       VALUES (v_pid, p_event_id, v_player_score)
