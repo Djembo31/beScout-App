@@ -41,6 +41,16 @@ const posOrder = (pos: string): number => {
   switch (pos) { case 'ATT': return 0; case 'MID': return 1; case 'DEF': return 2; case 'GK': return 3; default: return 4; }
 };
 
+const getPosAccent = (pos: string): string => {
+  switch (pos) {
+    case 'GK': return '#34d399';
+    case 'DEF': return '#fbbf24';
+    case 'MID': return '#38bdf8';
+    case 'ATT': return '#fb7185';
+    default: return 'rgba(255,255,255,0.5)';
+  }
+};
+
 // ============================================
 // Fixture Row (Sorare-style vertical list)
 // ============================================
@@ -109,49 +119,44 @@ function FixtureRow({ fixture, onSelect }: { fixture: Fixture; onSelect: () => v
 
 function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
   const pts = stat.fantasy_points;
+  const accent = getPosAccent(stat.player_position);
   const badge = scoreBadgeColor(pts);
 
   return (
-    <div className="flex flex-col items-center gap-0.5 w-[60px] md:w-[70px]">
-      {/* Score badge on top of position circle */}
-      <div className="relative">
-        <div className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center text-[10px] md:text-xs font-black ${posColor(stat.player_position)}`}>
-          {stat.player_last_name.slice(0, 2).toUpperCase()}
-        </div>
-        <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black ${badge}`}>
-          {pts}
-        </div>
-        {/* Event icons */}
-        {stat.goals > 0 && (
-          <div className="absolute -bottom-0.5 -left-1 w-4 h-4 rounded-full bg-[#FFD700] flex items-center justify-center text-[8px] text-black font-black">
-            {stat.goals > 1 ? stat.goals : '⚽'}
-          </div>
-        )}
-        {stat.assists > 0 && (
-          <div className="absolute -bottom-0.5 left-3 w-4 h-4 rounded-full bg-sky-500 flex items-center justify-center text-[8px] text-white font-black">
-            A
-          </div>
-        )}
+    <div className="flex flex-col items-center relative w-[60px] md:w-[72px]">
+      {/* Score badge (top-right, overlapping) */}
+      <div className={`absolute -top-1.5 -right-2 z-20 min-w-[1.6rem] px-1 py-0.5 rounded-full text-[9px] font-mono font-black text-center shadow-lg ${badge}`}>
+        {pts}
       </div>
-      {/* Name + number */}
-      <div className="text-center mt-0.5">
-        <div className="text-[9px] md:text-[10px] font-semibold text-white/80 leading-tight truncate max-w-full">
-          {stat.player_last_name}
-        </div>
-        <div className="flex items-center justify-center gap-1 text-[8px] text-white/30">
-          <span>{stat.minutes_played}&apos;</span>
-          {stat.yellow_card && <span className="w-1.5 h-2 bg-yellow-400 rounded-[0.5px] inline-block" />}
-          {stat.red_card && <span className="w-1.5 h-2 bg-red-500 rounded-[0.5px] inline-block" />}
-          {stat.clean_sheet && <span className="text-emerald-400">CS</span>}
-          {stat.bonus > 0 && <span className="text-[#FFD700]">★{stat.bonus}</span>}
-        </div>
+      {/* Player circle */}
+      <div
+        className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center border-2 bg-black/30"
+        style={{ borderColor: accent, boxShadow: `0 0 10px ${accent}25` }}
+      >
+        <span className="font-bold text-[10px] md:text-xs" style={{ color: accent }}>
+          {stat.player_last_name.slice(0, 2).toUpperCase()}
+        </span>
+      </div>
+      {/* Name */}
+      <div className="text-[9px] md:text-[10px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
+        {stat.player_last_name}
+      </div>
+      {/* Stats line */}
+      <div className="flex items-center justify-center gap-0.5 text-[7px] md:text-[8px] text-white/30">
+        <span>{stat.minutes_played}&apos;</span>
+        {stat.goals > 0 && <span className="text-[#FFD700]">{stat.goals}G</span>}
+        {stat.assists > 0 && <span className="text-sky-400">{stat.assists}A</span>}
+        {stat.yellow_card && <span className="w-1.5 h-2 bg-yellow-400 rounded-[0.5px] inline-block" />}
+        {stat.red_card && <span className="w-1.5 h-2 bg-red-500 rounded-[0.5px] inline-block" />}
+        {stat.clean_sheet && <span className="text-emerald-400">CS</span>}
+        {stat.bonus > 0 && <span className="text-[#FFD700]">★{stat.bonus}</span>}
       </div>
     </div>
   );
 }
 
-function FormationHalf({ stats, color, isHome }: { stats: FixturePlayerStat[]; color: string; isHome: boolean }) {
-  // Group by position rows: ATT → MID → DEF → GK (top to bottom)
+function FormationHalf({ stats, teamName, color, isHome }: { stats: FixturePlayerStat[]; teamName: string; color: string; isHome: boolean }) {
+  // Group by position
   const grouped = new Map<string, FixturePlayerStat[]>();
   for (const s of stats) {
     const pos = s.player_position || 'MID';
@@ -160,25 +165,28 @@ function FormationHalf({ stats, color, isHome }: { stats: FixturePlayerStat[]; c
     grouped.set(pos, existing);
   }
 
-  // Sort groups by formation order
+  // Home (top half): GK → DEF → MID → ATT (GK near own goal, ATT near center)
+  // Away (bottom half): ATT → MID → DEF → GK (ATT near center, GK near own goal)
+  const order = isHome
+    ? (pos: string) => { switch (pos) { case 'GK': return 0; case 'DEF': return 1; case 'MID': return 2; case 'ATT': return 3; default: return 4; } }
+    : (pos: string) => { switch (pos) { case 'ATT': return 0; case 'MID': return 1; case 'DEF': return 2; case 'GK': return 3; default: return 4; } };
+
   const rows = Array.from(grouped.entries())
-    .sort((a, b) => posOrder(a[0]) - posOrder(b[0]))
+    .sort((a, b) => order(a[0]) - order(b[0]))
     .map(([, players]) => players.sort((a, b) => b.fantasy_points - a.fantasy_points));
 
   return (
-    <div className="flex-1 flex flex-col gap-3 py-3 relative">
-      {/* Team indicator */}
-      <div className="absolute top-1 text-[9px] font-bold uppercase tracking-wider" style={{ color, [isHome ? 'left' : 'right']: 8 }}>
-        {isHome ? 'Heim' : 'Gast'}
+    <div className="flex flex-col gap-3 py-2">
+      {/* Team label */}
+      <div className="text-[10px] font-bold uppercase tracking-widest text-center" style={{ color }}>
+        {teamName}
       </div>
       {/* Formation rows */}
-      <div className="flex flex-col gap-4 mt-4">
-        {rows.map((players, rowIdx) => (
-          <div key={rowIdx} className="flex items-center justify-center gap-1 md:gap-2 flex-wrap">
-            {players.map(s => <PlayerNode key={s.id} stat={s} />)}
-          </div>
-        ))}
-      </div>
+      {rows.map((players, rowIdx) => (
+        <div key={rowIdx} className="flex items-center justify-center gap-2 md:gap-4">
+          {players.map(s => <PlayerNode key={s.id} stat={s} />)}
+        </div>
+      ))}
     </div>
   );
 }
@@ -285,27 +293,68 @@ function FixtureDetailModal({ fixture, isOpen, onClose }: { fixture: Fixture | n
               {isSimulated ? 'Keine Spielerdaten verfügbar' : 'Spiel noch nicht simuliert — Aufstellungen werden nach Simulation angezeigt'}
             </div>
           ) : detailTab === 'formation' ? (
-            /* ===== FORMATION PITCH VIEW ===== */
-            <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden">
-              {/* Pitch background */}
-              <div className="relative min-h-[400px]" style={{
-                background: `
-                  linear-gradient(to right, ${homeColor}08 0%, transparent 50%, ${awayColor}08 100%),
-                  linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%)
-                `,
-              }}>
-                {/* Center line */}
-                <div className="absolute top-0 bottom-0 left-1/2 w-px bg-white/[0.06]" />
+            /* ===== FORMATION PITCH VIEW (Green Pitch — matches EventDetailModal) ===== */
+            <div className="rounded-xl overflow-hidden border border-[#22C55E]/20">
+              {/* Sponsor Banner Top */}
+              <div className="bg-gradient-to-r from-[#1a1a2e] via-[#16213e] to-[#1a1a2e] px-4 py-2 flex items-center justify-center gap-3 border-b border-white/10">
+                <Star className="w-3 h-3 text-[#FFD700]" />
+                <span className="text-xs font-bold tracking-widest text-white/50 uppercase">Sponsor-Fläche</span>
+                <Star className="w-3 h-3 text-[#FFD700]" />
+              </div>
 
-                <div className="flex min-h-[400px]">
-                  {/* Home formation */}
-                  <FormationHalf stats={homeStats} color={homeColor} isHome={true} />
-                  {/* Away formation */}
-                  <FormationHalf stats={awayStats} color={awayColor} isHome={false} />
+              {/* Green Pitch */}
+              <div className="relative bg-gradient-to-b from-[#1a5c1a]/40 via-[#1e6b1e]/30 to-[#1a5c1a]/40 px-3 md:px-6 py-4">
+                {/* SVG Field Markings */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none" viewBox="0 0 400 600">
+                  {/* Outer border */}
+                  <rect x="20" y="10" width="360" height="580" fill="none" stroke="white" strokeOpacity="0.1" strokeWidth="1.5" />
+                  {/* Center line */}
+                  <line x1="20" y1="300" x2="380" y2="300" stroke="white" strokeOpacity="0.08" strokeWidth="1" />
+                  {/* Center circle */}
+                  <circle cx="200" cy="300" r="45" fill="none" stroke="white" strokeOpacity="0.08" strokeWidth="1" />
+                  <circle cx="200" cy="300" r="3" fill="white" fillOpacity="0.1" />
+                  {/* Top penalty area (home goal) */}
+                  <rect x="110" y="10" width="180" height="70" fill="none" stroke="white" strokeOpacity="0.08" strokeWidth="1" />
+                  <rect x="145" y="10" width="110" height="30" fill="none" stroke="white" strokeOpacity="0.06" strokeWidth="1" />
+                  {/* Bottom penalty area (away goal) */}
+                  <rect x="110" y="520" width="180" height="70" fill="none" stroke="white" strokeOpacity="0.08" strokeWidth="1" />
+                  <rect x="145" y="560" width="110" height="30" fill="none" stroke="white" strokeOpacity="0.06" strokeWidth="1" />
+                  {/* Grass stripes */}
+                  {[0, 1, 2, 3, 4, 5].map(i => (
+                    <rect key={i} x="20" y={10 + i * 96.67} width="360" height="48.33" fill="white" fillOpacity="0.015" />
+                  ))}
+                </svg>
+
+                {/* Center circle sponsor overlay */}
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                  <div className="w-16 h-16 rounded-full border border-white/[0.06] flex items-center justify-center">
+                    <span className="text-[7px] text-white/15 font-bold tracking-wider uppercase">Sponsor</span>
+                  </div>
+                </div>
+
+                {/* Both teams on pitch */}
+                <div className="relative z-10">
+                  {/* Home team — top half (GK at top, ATT near center) */}
+                  <FormationHalf stats={homeStats} teamName={fixture.home_club_name} color={homeColor} isHome={true} />
+                  {/* Center divider spacing */}
+                  <div className="h-4 md:h-6" />
+                  {/* Away team — bottom half (ATT near center, GK at bottom) */}
+                  <FormationHalf stats={awayStats} teamName={fixture.away_club_name} color={awayColor} isHome={false} />
                 </div>
               </div>
 
-              {/* Bench sections */}
+              {/* Sponsor Banner Bottom */}
+              <div className="bg-gradient-to-r from-[#1a1a2e] via-[#0f3460] to-[#1a1a2e] px-3 py-2 flex items-center justify-between border-t border-white/10">
+                <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.04] rounded-lg border border-white/[0.06]">
+                  <span className="text-[9px] text-white/30 font-medium">Sponsor Logo</span>
+                </div>
+                <span className="text-[8px] text-white/20 font-bold tracking-widest uppercase">Powered by BeScout</span>
+                <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.04] rounded-lg border border-white/[0.06]">
+                  <span className="text-[9px] text-white/30 font-medium">Sponsor Logo</span>
+                </div>
+              </div>
+
+              {/* Bench section (if > 11 players per team) */}
               {(homeStats.length > 11 || awayStats.length > 11) && (
                 <div className="border-t border-white/[0.06] p-3">
                   <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider text-center mb-2">Bank</div>
