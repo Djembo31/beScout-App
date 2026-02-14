@@ -252,6 +252,7 @@ export default function MarketPage() {
   const balanceCents = wallet.balanceCents ?? 0;
   const setBalanceCents = wallet.setBalanceCents;
   const [dataLoading, setDataLoading] = useState(true);
+  const [enrichLoading, setEnrichLoading] = useState(true);
   const [dataError, setDataError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [buyingId, setBuyingId] = useState<string | null>(null);
@@ -259,33 +260,62 @@ export default function MarketPage() {
   const [buySuccess, setBuySuccess] = useState<string | null>(null);
   const [trending, setTrending] = useState<TrendingPlayer[]>([]);
 
-  // Load real data
+  // Phase 1: Players + Holdings (sofort nutzbar für Kader/Spieler/Bestand)
   useEffect(() => {
     let cancelled = false;
-    async function load() {
+    async function loadCore() {
       try {
         const results = await withTimeout(Promise.allSettled([
           getPlayers(),
           user ? getHoldings(user.id) : Promise.resolve([]),
+        ]), 10000);
+        if (cancelled) return;
+        const dbPlayers = val(results[0], []);
+        const hlds = val(results[1], []);
+        if (results[0].status === 'rejected') {
+          if (!cancelled) setDataError(true);
+          return;
+        }
+        const mapped = dbToPlayers(dbPlayers);
+        const base = mapped.map(p => {
+          const h = hlds.find(h => h.player_id === p.id);
+          return {
+            ...p,
+            dpc: { ...p.dpc, owned: h?.quantity ?? 0 },
+          };
+        });
+        setPlayers(base);
+        setHoldings(hlds);
+        setDataError(false);
+      } catch {
+        if (!cancelled) setDataError(true);
+      } finally {
+        if (!cancelled) setDataLoading(false);
+      }
+    }
+    loadCore();
+    return () => { cancelled = true; };
+  }, [user, retryCount]);
+
+  // Phase 2: Enrichment (Sell Orders, IPOs, Trending, Price Histories)
+  useEffect(() => {
+    if (players.length === 0 || dataLoading) return;
+    let cancelled = false;
+    async function loadEnrichment() {
+      try {
+        const results = await withTimeout(Promise.allSettled([
           getAllOpenSellOrders(),
           getActiveIpos(),
           getTrendingPlayers(5),
           getAllPriceHistories(10),
         ]), 10000);
         if (cancelled) return;
-        const dbPlayers = val(results[0], []);
-        const holdings = val(results[1], []);
-        const sellOrders = val(results[2], []);
-        const ipos = val(results[3], []);
-        const trendData = val(results[4], []);
-        const priceHistMap = val(results[5], new Map<string, number[]>());
-        if (results[0].status === 'rejected') {
-          if (!cancelled) setDataError(true);
-          return;
-        }
-        const mapped = dbToPlayers(dbPlayers);
-        const enriched = mapped.map(p => {
-          const h = holdings.find(h => h.player_id === p.id);
+        const sellOrders = val(results[0], []);
+        const ipos = val(results[1], []);
+        const trendData = val(results[2], []);
+        const priceHistMap = val(results[3], new Map<string, number[]>());
+
+        setPlayers(prev => prev.map(p => {
           const playerOrders = sellOrders.filter(o => o.player_id === p.id);
           const onMarket = playerOrders.reduce((sum, o) => sum + (o.quantity - o.filled_qty), 0);
           const listings: Listing[] = playerOrders.map(o => ({
@@ -299,22 +329,19 @@ export default function MarketPage() {
           const hist = priceHistMap.get(p.id);
           return {
             ...p,
-            dpc: { ...p.dpc, onMarket, owned: h?.quantity ?? 0 },
+            dpc: { ...p.dpc, onMarket },
             prices: { ...p.prices, history7d: hist && hist.length >= 2 ? hist : undefined },
             listings,
           };
-        });
-        setPlayers(enriched);
-        setHoldings(holdings);
+        }));
         setIpoList(ipos);
         setTrending(trendData);
-        setDataError(false);
 
         // Watchlist price change detection
         const wl = loadWatchlist();
         const savedPrices = loadWatchlistPrices();
         const updatedPrices = { ...savedPrices };
-        for (const p of enriched) {
+        for (const p of players) {
           if (!wl[p.id]) continue;
           const oldPrice = savedPrices[p.id];
           const newPrice = p.prices.floor ?? 0;
@@ -330,14 +357,15 @@ export default function MarketPage() {
         }
         saveWatchlistPrices(updatedPrices);
       } catch {
-        if (!cancelled) setDataError(true);
+        // Enrichment failure is non-critical, tabs still work
       } finally {
-        if (!cancelled) setDataLoading(false);
+        if (!cancelled) setEnrichLoading(false);
       }
     }
-    load();
+    loadEnrichment();
     return () => { cancelled = true; };
-  }, [user, retryCount]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [players.length, dataLoading]);
 
   const toggleWatch = (id: string) => {
     setWatchlist((prev) => {
@@ -1102,10 +1130,11 @@ export default function MarketPage() {
                   className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-all"
                   style={{ borderLeft: `3px solid ${primaryColor}` }}
                 >
-                  <div
-                    className="w-3 h-3 rounded-full shrink-0"
-                    style={{ backgroundColor: primaryColor }}
-                  />
+                  {clubData?.logo ? (
+                    <img src={clubData.logo} alt={clubName} className="w-5 h-5 rounded-full object-cover shrink-0" />
+                  ) : (
+                    <div className="w-5 h-5 rounded-full shrink-0 border border-white/10" style={{ backgroundColor: primaryColor }} />
+                  )}
                   <span className="font-bold text-sm">{clubName}</span>
                   {clubData && (
                     <span className="text-[10px] font-mono text-white/30">{clubData.short}</span>
