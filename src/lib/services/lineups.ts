@@ -94,6 +94,10 @@ export async function submitLineup(params: {
   import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
     triggerMissionProgress(params.userId, ['weekly_fantasy']);
   }).catch(() => {});
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(params.userId, 'lineup_submit', 'fantasy', { eventId: params.eventId, formation: params.formation });
+  }).catch(() => {});
   return data as DbLineup;
 }
 

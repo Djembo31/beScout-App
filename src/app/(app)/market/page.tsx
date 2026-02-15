@@ -34,6 +34,7 @@ import type { ManagerTab } from '@/components/manager/types';
 const ManagerKaderTab = dynamic(() => import('@/components/manager/ManagerKaderTab'), { ssr: false });
 const ManagerBestandTab = dynamic(() => import('@/components/manager/ManagerBestandTab'), { ssr: false });
 const ManagerCompareTab = dynamic(() => import('@/components/manager/ManagerCompareTab'), { ssr: false });
+const ManagerOffersTab = dynamic(() => import('@/components/manager/ManagerOffersTab'), { ssr: false });
 
 // ============================================
 // WATCHLIST (localStorage)
@@ -1196,11 +1197,7 @@ export default function MarketPage() {
 
       {/* Offers Tab */}
       {tab === 'offers' && (
-        <Card className="p-12 text-center">
-          <MessageSquare className="w-12 h-12 mx-auto mb-4 text-white/20" />
-          <div className="text-white/30 mb-2">Keine offenen Angebote</div>
-          <div className="text-sm text-white/50">Verhandle mit Spielerbesitzern</div>
-        </Card>
+        <ManagerOffersTab players={players} />
       )}
 
       {tab === 'transferlist' && transferPlayers.length === 0 && (

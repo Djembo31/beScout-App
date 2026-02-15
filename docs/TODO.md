@@ -5,7 +5,31 @@
 
 ---
 
-## Nächste Session: Phase 7 (Scale)
+## Nächste Session: Real User Testing + Phase 7
+
+### Beta-Ready Plan: 5 Phasen ✅ (15.02.2026)
+- [x] **Phase 1 (Activity-Logging):** Migration #97, `activityLog.ts` Batch-Service, 6 Integrations
+- [x] **Phase 2 (Angebote):** Migrations #98-99, `offers.ts` Service, `ManagerOffersTab` (4 Sub-Tabs), 5 RPCs, Notifications, PlayerContent
+- [x] **Phase 3 (Admin):** Migrations #100-101, `platformAdmin.ts`, `/bescout-admin` Route (6 Tabs), Admin-Guard, SideNav
+- [x] **Phase 4 (Profil):** Follower-Listen, Posts-Tab, ProfileView Redesign (Sorare-style)
+- [x] **Phase 5 (GW-Flow):** `getFullGameweekStatus()`, Spieltage-Tab im Admin
+- [x] **Migration #102:** `fix_rpc_search_paths` (Security Advisors clean)
+- [x] Build verifiziert (0 Fehler, 17 Routes, 102 Migrations)
+
+### Fantasy Redesign: GW-zentriert + Sorare UI ✅ (14.02.2026)
+- [x] DB Migration #96: `active_gameweek` auf `clubs` Tabelle
+- [x] Service Layer: `getActiveGameweek()`, `setActiveGameweek()`, `simulateGameweekFlow()`
+- [x] 3 Tabs (Spieltag/Events/Verlauf) statt 4 — Dashboard entfernt
+- [x] SpieltagTab (NEU): Unified GW View mit Navigation, Events, Aufstellungen, Ergebnisse
+- [x] Sorare-inspirierte UI: ClubLogo, FixtureRow, FixtureDetailModal, grüner Pitch
+- [x] `splitStartersBench()`: 11 Starter auf Pitch, Einwechslungen separat
+- [x] Formation-Label pro Team (z.B. "4-3-3") + echte Club-Logos überall
+- [x] SVG Feldlinien, Sponsor-Banner, Score-Badges mit Positions-Farben
+- [x] GameweekSelector dynamisch (1-38, Status aus DB)
+- [x] AdminSettingsTab: Aktiver-Spieltag Steuerung
+- [x] 3 Events für GW 11 erstellt (Gratis, 50 BSD, 250 BSD)
+- [x] Build verifiziert (0 Fehler, 16 Routes, 96 Migrations)
+- [x] 4 Commits deployed auf Vercel
 
 ### "Alle Spieler" Tab im Marktplatz ✅ (14.02.2026)
 - [x] `ManagerTab` um `'spieler'` erweitert (types.ts)
@@ -449,7 +473,7 @@ Logik-Check: Vision-Dokument gegen Implementierung geprüft, 12 Lücken identifi
 - [x] Home: Scout Score + Leaderboard Sidebar ✅ 12.02.2026
 - [x] Achievement Engine (auto-trigger nach Trades) ✅ 12.02.2026
 
-### SQL Scripts (76 Migrationen deployed)
+### SQL Scripts (102 Migrationen deployed)
 - [x] `pilot-schema.sql` – 8 Tabellen + RLS + Triggers
 - [x] `seed-players.sql` – 25 Sakaryaspor-Spieler
 - [x] `trading-functions.sql` – 4 atomare Trading RPCs
@@ -526,6 +550,13 @@ Logik-Check: Vision-Dokument gegen Implementierung geprüft, 12 Lücken identifi
 - [x] `create_liquidation_rpcs` – deployed via MCP ✅ 13.02.2026
 - [x] `community_moderation` – deployed via MCP ✅ 13.02.2026
 - [x] `streak_bonus_system` – deployed via MCP ✅ 13.02.2026
+- [x] Sessions 36-42: 20 weitere Migrationen (Fixtures, Spieler-Seeds, Scores, RPCs, active_gameweek) ✅ 14.02.2026
+- [x] `create_activity_log` – deployed via MCP ✅ 15.02.2026
+- [x] `create_offers_table` – deployed via MCP ✅ 15.02.2026
+- [x] `create_offer_rpcs` – deployed via MCP ✅ 15.02.2026
+- [x] `create_platform_admins` – deployed via MCP ✅ 15.02.2026
+- [x] `create_admin_rpcs` – deployed via MCP ✅ 15.02.2026
+- [x] `fix_rpc_search_paths` – deployed via MCP ✅ 15.02.2026
 
 ---
 

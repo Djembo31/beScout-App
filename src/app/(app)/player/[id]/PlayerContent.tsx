@@ -33,6 +33,8 @@ import { getPlayerGameweekScores } from '@/lib/services/scoring';
 import type { PlayerGameweekScore } from '@/lib/services/scoring';
 import { getPbtForPlayer } from '@/lib/services/pbt';
 import { getLiquidationEvent } from '@/lib/services/liquidation';
+import { getOpenBids, createOffer as createOfferAction, acceptOffer } from '@/lib/services/offers';
+import type { OfferWithDetails } from '@/types';
 import type { DbOrder, DbTrade, DbPbtTreasury, DbLiquidationEvent } from '@/types';
 
 // ============================================
@@ -1208,6 +1210,60 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     };
   }, [player, holdingQty, pbtTreasury]);
 
+  // Open bids for this player
+  const [openBids, setOpenBids] = useState<OfferWithDetails[]>([]);
+  const [showOfferModal, setShowOfferModal] = useState(false);
+  const [offerPrice, setOfferPrice] = useState('');
+  const [offerMessage, setOfferMessage] = useState('');
+  const [offerLoading, setOfferLoading] = useState(false);
+
+  useEffect(() => {
+    getOpenBids(playerId).then(setOpenBids).catch(() => {});
+  }, [playerId]);
+
+  const handleCreateOffer = async () => {
+    if (!user || !offerPrice) return;
+    const priceCents = Math.round(parseFloat(offerPrice) * 100);
+    if (priceCents <= 0) { addToast('Ungültiger Preis', 'error'); return; }
+    setOfferLoading(true);
+    try {
+      const result = await createOfferAction({
+        senderId: user.id, playerId, side: 'buy', priceCents, quantity: 1,
+        message: offerMessage.trim() || undefined,
+      });
+      if (result.success) {
+        addToast('Kaufangebot erstellt', 'success');
+        setShowOfferModal(false);
+        setOfferPrice('');
+        setOfferMessage('');
+        getOpenBids(playerId).then(setOpenBids).catch(() => {});
+      } else {
+        addToast(result.error ?? 'Fehler', 'error');
+      }
+    } catch (e) {
+      addToast(e instanceof Error ? e.message : 'Fehler', 'error');
+    } finally {
+      setOfferLoading(false);
+    }
+  };
+
+  const handleAcceptBid = async (offerId: string) => {
+    if (!user) return;
+    try {
+      const result = await acceptOffer(user.id, offerId);
+      if (result.success) {
+        addToast('Angebot angenommen', 'success');
+        getOpenBids(playerId).then(setOpenBids).catch(() => {});
+        invalidateTradeData(playerId, user.id);
+        refreshOrdersAndTrades();
+      } else {
+        addToast(result.error ?? 'Fehler', 'error');
+      }
+    } catch (e) {
+      addToast(e instanceof Error ? e.message : 'Fehler', 'error');
+    }
+  };
+
   // Buy confirmation state (when user has own sell orders)
   const [pendingBuyQty, setPendingBuyQty] = useState<number | null>(null);
 
@@ -2252,6 +2308,79 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
               onBuy={handleBuy}
               buying={buying}
             />
+          )}
+
+          {/* Offer Button + Open Bids */}
+          {!player.isLiquidated && user && (
+            <Card className="p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-bold text-white">Angebote</span>
+                <button
+                  onClick={() => setShowOfferModal(true)}
+                  className="text-xs px-3 py-1.5 rounded-lg bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20 hover:bg-[#FFD700]/20 transition-colors font-medium"
+                >
+                  Kaufangebot machen
+                </button>
+              </div>
+              {openBids.length > 0 && (
+                <div className="space-y-2">
+                  <div className="text-xs text-white/40">Offene Gebote ({openBids.length})</div>
+                  {openBids.slice(0, 3).map(bid => (
+                    <div key={bid.id} className="flex items-center justify-between bg-white/[0.03] rounded-xl px-3 py-2">
+                      <div className="text-sm">
+                        <span className="text-white/60">@{bid.sender_handle}</span>
+                        <span className="text-white/30 mx-2">•</span>
+                        <span className="font-mono font-bold text-[#FFD700]">{fmtBSD(centsToBsd(bid.price))} BSD</span>
+                      </div>
+                      {holdingQty > 0 && bid.sender_id !== user.id && (
+                        <button
+                          onClick={() => handleAcceptBid(bid.id)}
+                          className="text-xs px-2 py-1 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors"
+                        >
+                          Annehmen
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {openBids.length === 0 && (
+                <div className="text-xs text-white/30">Keine offenen Gebote für diesen Spieler.</div>
+              )}
+            </Card>
+          )}
+
+          {/* Offer Modal */}
+          {showOfferModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-black/60" onClick={() => setShowOfferModal(false)} />
+              <Card className="relative z-10 w-full max-w-sm p-6 space-y-4">
+                <h3 className="font-bold text-white">Kaufangebot erstellen</h3>
+                <p className="text-xs text-white/40">Erstelle ein offenes Gebot, das jeder Besitzer annehmen kann.</p>
+                <div>
+                  <label className="text-xs text-white/60 mb-1 block">Preis pro DPC (BSD)</label>
+                  <input
+                    type="number" value={offerPrice} onChange={e => setOfferPrice(e.target.value)}
+                    placeholder="z.B. 150" min="1"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-mono focus:outline-none focus:border-[#FFD700]/30"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-white/60 mb-1 block">Nachricht (optional)</label>
+                  <input
+                    type="text" value={offerMessage} onChange={e => setOfferMessage(e.target.value)}
+                    placeholder="Nachricht..." maxLength={200}
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/30"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => setShowOfferModal(false)} className="flex-1 py-2 text-sm text-white/40 hover:text-white/60">Abbrechen</button>
+                  <Button onClick={handleCreateOffer} disabled={!offerPrice || offerLoading} className="flex-1">
+                    {offerLoading ? 'Wird erstellt...' : 'Angebot senden'}
+                  </Button>
+                </div>
+              </Card>
+            </div>
           )}
 
           {/* Your Holdings */}

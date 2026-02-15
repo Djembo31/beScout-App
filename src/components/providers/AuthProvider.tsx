@@ -141,7 +141,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (u) {
         ssSet(SS_USER, u);
         await loadProfile(u.id);
+        // Activity log — login
+        if (_event === 'SIGNED_IN') {
+          import('@/lib/services/activityLog').then(({ logActivity }) => {
+            logActivity(u.id, 'login', 'auth', { provider: session?.user?.app_metadata?.provider });
+          }).catch(() => {});
+        }
       } else {
+        // Activity log — logout (before clearing)
+        if (_event === 'SIGNED_OUT' && user) {
+          import('@/lib/services/activityLog').then(({ logActivity, flushActivityLogs }) => {
+            logActivity(user.id, 'logout', 'auth');
+            flushActivityLogs();
+          }).catch(() => {});
+        }
         setProfile(null);
         ssClear();
         invalidateAll();

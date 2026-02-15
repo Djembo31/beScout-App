@@ -3,7 +3,70 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 5** – "Alle Spieler" Tab im Marktplatz: Club-gruppierte Ansicht aller 500 Spieler (20 Clubs × 25), aufklappbar, mit Suche + Positions-Filter. Manager Office hat jetzt 7 Tabs. Build sauber (0 Fehler, 16 Routes).
+**Woche 5** – Beta-Ready: 5 Phasen implementiert (Activity-Logging, User-Angebote, BeScout-Admin, Profil Redesign, GW-Flow). 6 neue Migrations (97-102), ~12 neue Files, ~20 modifizierte Files. Build sauber (0 Fehler, 17 Routes, 102 Migrations). Security Advisors clean.
+
+## Session 15.02.2026 (43) – Beta-Ready Plan: 5 Phasen
+
+### Kontext
+App mit Freunden testen: Activity-Logging, User-to-User Angebote, BeScout-Admin Dashboard, Profil Redesign, Gameweek-Flow Verifikation.
+
+### Änderungen
+- **Phase 1 (Activity-Logging):** Migration #97 (`activity_log` Tabelle + RLS), `activityLog.ts` Service (Batch-Queue 5s Flush), Integration in trading/social/posts/lineups/AuthProvider/layout
+- **Phase 2 (Angebote):** Migration #98 (`offers` Tabelle), Migration #99 (5 RPCs), `offers.ts` Service, `ManagerOffersTab.tsx` (4 Sub-Tabs), NotificationDropdown (4 neue Types), PlayerContent Offer-Button + Open Bids
+- **Phase 3 (Admin):** Migration #100 (`platform_admins`), Migration #101 (2 Admin-RPCs), `platformAdmin.ts` Service, `/bescout-admin` Route (6 Tabs), SideNav Admin-Link conditional
+- **Phase 4 (Profil):** `getFollowerList()`/`getFollowingList()`, `FollowListModal.tsx`, `ProfilePostsTab.tsx`, ProfileView Redesign (96px Avatar, Portfolio Hero, Bio, Mitglied seit, klickbare Follower-Counts, Posts-Tab)
+- **Phase 5 (GW-Flow):** `getFullGameweekStatus()` in scoring.ts, Spieltage-Tab im Admin
+- **Migration #102:** `fix_rpc_search_paths` — SET search_path = public auf 10 RPCs
+
+### Dateien erstellt
+- `src/lib/services/activityLog.ts`, `src/lib/services/offers.ts`, `src/lib/services/platformAdmin.ts`
+- `src/components/manager/ManagerOffersTab.tsx`, `src/components/profile/FollowListModal.tsx`, `src/components/profile/ProfilePostsTab.tsx`
+- `src/app/(app)/bescout-admin/page.tsx`, `src/app/(app)/bescout-admin/BescoutAdminContent.tsx`
+
+### Dateien modifiziert
+- `src/types/index.ts` — OfferStatus, OfferSide, DbOffer, OfferWithDetails, ProfileSummary, ProfileTab+'posts', NotificationType+4
+- `src/lib/services/trading.ts`, `social.ts`, `posts.ts`, `lineups.ts`, `scoring.ts` — Activity-Logging + Follower-Listen + GW-Status
+- `src/components/providers/AuthProvider.tsx`, `src/app/(app)/layout.tsx` — Activity-Logging
+- `src/app/(app)/market/page.tsx` — ManagerOffersTab
+- `src/components/layout/NotificationDropdown.tsx`, `SideNav.tsx` — Offer-Notifications + Admin-Link
+- `src/lib/nav.ts` — NAV_ADMIN
+- `src/app/(app)/player/[id]/PlayerContent.tsx` — Offer-Button + Open Bids
+- `src/components/profile/ProfileView.tsx`, `ProfileOverviewTab.tsx`, `ProfilePortfolioTab.tsx` — Redesign
+
+## Session 14.02.2026 (42) – Fantasy Redesign: GW-zentriert + Sorare UI
+
+### Kontext
+Fantasy-Seite war Event-zentriert, Spieltage hatten keinen Fokus. Redesign zu Gameweek-zentriertem Manager-Modus inspiriert von Sorare.
+
+### Änderungen
+- **DB Migration #96:** `active_gameweek INT DEFAULT 1` auf `clubs` Tabelle, Sakaryaspor auf GW 11
+- **Service Layer:** `getActiveGameweek()`, `setActiveGameweek()` in `club.ts`, `simulateGameweekFlow()` in `scoring.ts`
+- **3 Tabs statt 4:** Spieltag (Hero) / Events (GW-gefiltert) / Verlauf — Dashboard entfernt
+- **SpieltagTab (NEU):** Unified GW View mit Navigation, Status, Admin-Buttons, Paarungen, Events, Aufstellungen, Ergebnisse, Top Scorer
+- **Sorare-inspirierte UI:**
+  - `ClubLogo` Komponente: echte Club-Logo-Bilder mit Fallback
+  - FixtureRow: vertikale Spielliste mit Logos
+  - FixtureDetailModal: Gradient Header mit Logos, 2 Tabs (Aufstellungen/Spieler)
+  - Grüner Pitch: SVG Feldlinien, Strafräume, Mittelkreis, Grasstreifen — einheitlich mit EventDetailModal
+  - `splitStartersBench()`: Top 11 nach Spielminuten als Starter, Rest als Einwechslungen
+  - Formation-Label pro Team (z.B. "4-3-3") + Logo + Teamname
+  - PlayerNode: Position-farbige Borders, Score-Badge top-right, Glow-Effekt
+  - Sponsor-Banner oben/unten + Mittelkreis-Overlay
+- **AdminSettingsTab:** Aktiver-Spieltag Selector (1-38)
+- **GameweekSelector:** Dynamisch GW 1-38, Status aus DB
+- **3 Events für GW 11:** Gratis (0 BSD), 50 BSD Buy-In, Premium (250 BSD)
+
+### Dateien geändert/erstellt
+- `src/components/fantasy/SpieltagTab.tsx` — NEU (~820 Zeilen)
+- `src/app/(app)/fantasy/FantasyContent.tsx` — Komplett umgebaut (3 Tabs)
+- `src/components/fantasy/GameweekSelector.tsx` — Dynamisch rewritten
+- `src/components/fantasy/constants.ts` — Vereinfacht
+- `src/components/fantasy/types.ts` — FantasyTab geändert
+- `src/components/fantasy/index.ts` — SpieltagTab Export
+- `src/components/admin/AdminSettingsTab.tsx` — GW-Steuerung
+- `src/lib/services/club.ts` — +getActiveGameweek, +setActiveGameweek
+- `src/lib/services/scoring.ts` — +simulateGameweekFlow
+- `src/types/index.ts` — DbClub +active_gameweek
 
 ## Session 14.02.2026 (37) – "Alle Spieler" Tab im Marktplatz
 

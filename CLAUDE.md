@@ -85,8 +85,9 @@ src/
 │   ├── player/index.tsx           # PositionBadge, StatusBadge, ScoreCircle, MiniSparkline, IPOBadge
 │   ├── player/PlayerRow.tsx       # PlayerDisplay (compact/card), TrikotBadge, posColors, getContractInfo
 │   ├── community/                 # ResearchCard, CreateResearchModal, PostCard, FollowBtn, BountyCard, 5 Tab-Components
-│   ├── profile/                   # ProfileView (Shared), ProfileOverviewTab, ProfilePortfolioTab, ProfileResearchTab, ProfileActivityTab
+│   ├── profile/                   # ProfileView (Shared), ProfileOverviewTab, ProfilePortfolioTab, ProfilePostsTab, ProfileResearchTab, ProfileActivityTab, FollowListModal
 │   ├── fantasy/                   # 12 Sub-Components (EventDetailModal, DashboardTab, etc.)
+│   ├── manager/                   # ManagerOffersTab (4 Sub-Tabs: Eingehend, Ausgehend, Offene Gebote, Verlauf)
 │   ├── admin/                     # 8 Admin-Tab-Components (Overview, Players, Events, Votes, Bounties, Moderation, Revenue, Settings)
 │   ├── missions/                  # MissionBanner (Home Page)
 │   ├── layout/                    # SideNav, TopBar, NotificationDropdown, SearchDropdown, FeedbackModal
@@ -103,7 +104,7 @@ src/
 │   │   ├── profiles.ts            # getProfile, createProfile, updateProfile, getProfileByHandle
 │   │   ├── events.ts              # getEvents, getEventsByClubId, createEvent, updateEventStatus, getUserJoinedEventIds
 │   │   ├── lineups.ts             # submitLineup, getLineup, removeLineup, getPlayerEventUsage
-│   │   ├── scoring.ts             # scoreEvent, resetEvent, getEventLeaderboard, getPlayerGameweekScores
+│   │   ├── scoring.ts             # scoreEvent, resetEvent, getEventLeaderboard, getPlayerGameweekScores, getFullGameweekStatus
 │   │   ├── ipo.ts                 # getActiveIpos, buyFromIpo, getIpoForPlayer, getIposByClub
 │   │   ├── research.ts            # getResearchPosts, createResearchPost, unlockResearch, rateResearch, resolveExpiredResearch, getAuthorTrackRecord
 │   │   ├── pbt.ts                 # getPbtForPlayer, getPbtTransactions, getFeeConfig, invalidatePbtData
@@ -117,7 +118,10 @@ src/
 │   │   ├── bounties.ts            # Bounties (CRUD + RPCs + Notifications + Missions)
 │   │   ├── liquidation.ts        # Success Fee + Liquidierung (RPCs + Notifications)
 │   │   ├── missions.ts           # Missionen (getUserMissions, claimMissionReward, trackMissionProgress)
-│   │   └── streaks.ts            # Login-Streak (recordLoginStreak RPC + Milestone Rewards)
+│   │   ├── streaks.ts            # Login-Streak (recordLoginStreak RPC + Milestone Rewards)
+│   │   ├── offers.ts             # User-to-User Angebote (CRUD + RPCs + Notifications)
+│   │   ├── activityLog.ts        # Activity-Logging (Batch-Queue, 5s Flush, fire-and-forget)
+│   │   └── platformAdmin.ts      # Plattform-Admin (Stats, Users, Wallet-Korrektur, Fee-Config)
 │   ├── achievements.ts            # 19 Achievement-Definitionen (trading/manager/scout)
 │   ├── activityHelpers.ts         # Shared Activity Icons/Colors/Labels/RelativeTime
 │   ├── settledHelpers.ts          # val() Helper für Promise.allSettled
@@ -147,6 +151,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 - `fmtBSD()` für Zahlenformatierung (deutsch: 1.000 statt 1,000)
 - Trading via Supabase RPCs (atomare DB-Funktionen)
 - Cache-Invalidation nach Writes via `invalidateTradeData()` oder `invalidate(prefix)`
+- Club-Logos: `ClubLogo` Komponente (SpieltagTab) — `<img>` mit Fallback zu farbigem Kreis
 
 ### Benennungen
 - Deutsche UI-Labels (Buttons, Überschriften, Statusmeldungen)
@@ -181,7 +186,10 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Verbleibende Lücken geschlossen:** Participant-Limit-Guard (Fantasy Join), Fee-Breakdown (Sell-Form), Admin Event-Erstellung (volle CRUD), Admin Spieler-Anlegen (Create-Modal), Öffentliche Profile (`/profile/[handle]` + Shared ProfileView + Leaderboard-Links).
 **Launch-Readiness fertig:** GitHub Repo (Private, `Djembo31/beScout-App`) + CI/CD Pipeline (GitHub Actions) + Sentry Error Tracking + PostHog Analytics. npm audit clean (Next.js 14.2.35). `/supabase-test` Route entfernt.
 **"Alle Spieler" Tab fertig:** Manager Office 7. Tab — Club-gruppierte Ansicht aller 500 Spieler (20 Clubs), aufklappbar, Suche + Positions-Filter.
-**Danach:** Phase 7 (Scale).
+**TFF 1. Lig League Simulation fertig:** 20 Clubs, 380 Fixtures (38 GW), FPL-Style Scoring, `simulate_gameweek` RPC, 2.800 player_gameweek_scores (GW 1-10).
+**Fantasy Redesign fertig:** Spieltag-zentriert (3 Tabs), Sorare-inspirierte UI — grüner Pitch (SVG Feldlinien), echte Club-Logos, Formation-Labels (z.B. "4-3-3"), Starter/Bank-Split, Sponsor-Banner. `simulateGameweekFlow()` Client-seitig. 3 Events für GW 11 erstellt.
+**Beta-Ready fertig:** Activity-Logging (Batch-Queue), User-to-User Angebote (5 RPCs, 4 Sub-Tabs), BeScout Admin Dashboard (6 Tabs, `/bescout-admin`), Profil Redesign (Sorare-style, Follower-Listen, Posts-Tab). 102 Migrationen deployed.
+**Danach:** Real User Testing mit 50 Testern, Phase 7 (Scale).
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.
 Siehe `docs/TODO.md` für den aktuellen Task.
@@ -189,8 +197,8 @@ Siehe `docs/ROADMAP.md` für den Gesamtplan (Phase 6–7).
 Siehe `docs/STATUS.md` für den detaillierten Fortschritt (inkl. SQL-Migration-Tabelle).
 Siehe `docs/SCALE.md` für Skalierungsarchitektur und DB-Schema.
 
-**Pilot-Scope:** 1 Club (Sakaryaspor), 25 Spieler, 50 Beta-Tester.
-**Alle 76 SQL-Migrationen deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) live.
+**Pilot-Scope:** 1 Club (Sakaryaspor), 500 Spieler (20 Clubs), 50 Beta-Tester.
+**Alle 102 SQL-Migrationen deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) live.
 **GitHub:** Private Repo `Djembo31/beScout-App`, CI/CD via GitHub Actions, Sentry Error Tracking, PostHog Analytics.
 
 ## Bekannte Issues

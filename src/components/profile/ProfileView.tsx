@@ -1,15 +1,17 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { User, BadgeCheck, Settings, Loader2, RefreshCw, Users } from 'lucide-react';
+import { User, BadgeCheck, Settings, Loader2, RefreshCw, Users, Calendar } from 'lucide-react';
 import { Card, Button, Chip, ErrorState } from '@/components/ui';
 import { ScoreCircle } from '@/components/player';
 import { cn } from '@/lib/utils';
+import { fmtBSD } from '@/types';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { getHoldings, getTransactions, formatBsd } from '@/lib/services/wallet';
 import { getUserStats, refreshUserStats, getFollowerCount, getFollowingCount, getUserAchievements, checkAndUnlockAchievements, isFollowing, followUser, unfollowUser } from '@/lib/services/social';
 import { getClubName } from '@/lib/clubs';
+import { centsToBsd } from '@/lib/services/players';
 import { getResearchPosts, getAuthorTrackRecord, resolveExpiredResearch } from '@/lib/services/research';
 import { getUserTrades } from '@/lib/services/trading';
 import { getUserFantasyHistory } from '@/lib/services/lineups';
@@ -18,6 +20,8 @@ import ProfileOverviewTab from '@/components/profile/ProfileOverviewTab';
 import ProfilePortfolioTab from '@/components/profile/ProfilePortfolioTab';
 import ProfileResearchTab from '@/components/profile/ProfileResearchTab';
 import ProfileActivityTab from '@/components/profile/ProfileActivityTab';
+import ProfilePostsTab from '@/components/profile/ProfilePostsTab';
+import FollowListModal from '@/components/profile/FollowListModal';
 import type { HoldingRow } from '@/components/profile/ProfileOverviewTab';
 import type { ProfileTab, Profile, DbTransaction, DbUserStats, DbUserAchievement, ResearchPostWithAuthor, AuthorTrackRecord, UserTradeWithPlayer, UserFantasyResult } from '@/types';
 import { getLevelTier } from '@/types';
@@ -26,6 +30,7 @@ const TABS: { id: ProfileTab; label: string; selfOnly?: boolean }[] = [
   { id: 'overview', label: 'Übersicht' },
   { id: 'portfolio', label: 'Portfolio', selfOnly: true },
   { id: 'research', label: 'Research' },
+  { id: 'posts', label: 'Beiträge' },
   { id: 'activity', label: 'Aktivität' },
   { id: 'settings', label: 'Einstellungen', selfOnly: true },
 ];
@@ -68,6 +73,9 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
   // Follow state (for public profiles)
   const [following, setFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
+
+  // Follow list modal
+  const [followListMode, setFollowListMode] = useState<'followers' | 'following' | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -177,13 +185,14 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-start gap-3 md:gap-4">
-        <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-[#FFD700]/20 to-[#22C55E]/20 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+      {/* Header — Sorare-Style */}
+      <div className="flex items-start gap-4 md:gap-5">
+        {/* Avatar — 96px */}
+        <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#FFD700]/20 to-[#22C55E]/20 border-2 border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
           {targetProfile.avatar_url ? (
             <img src={targetProfile.avatar_url} alt="" className="w-full h-full object-cover" />
           ) : (
-            <span className="font-black text-xl md:text-2xl text-white/70">{initial}</span>
+            <span className="font-black text-2xl md:text-3xl text-white/70">{initial}</span>
           )}
         </div>
         <div className="min-w-0 flex-1">
@@ -193,16 +202,50 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             <Chip className="bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/25">{userPlan}</Chip>
           </div>
           <div className="text-sm md:text-base text-white/50">{userHandle}</div>
-          <div className="flex items-center gap-3 md:gap-4 mt-1.5 md:mt-2 text-xs md:text-sm flex-wrap">
+
+          {/* Portfolio Value — Hero */}
+          {(isSelf || portfolioValueCents > 0) && (
+            <div className="mt-1">
+              <span className="text-2xl md:text-3xl font-mono font-black text-[#FFD700]">
+                {fmtBSD(centsToBsd(portfolioValueCents))} BSD
+              </span>
+              <span className="text-xs text-white/30 ml-2">Portfolio-Wert</span>
+            </div>
+          )}
+
+          {/* Bio */}
+          {targetProfile.bio && (
+            <p className="text-sm text-white/60 mt-1.5 max-w-lg">{targetProfile.bio}</p>
+          )}
+
+          <div className="flex items-center gap-3 md:gap-4 mt-2 text-xs md:text-sm flex-wrap">
             <span>Level <strong>{userLevel}</strong></span>
             <span className={cn('font-semibold', getLevelTier(userLevel).color)}>{getLevelTier(userLevel).name}</span>
-            <span className="text-white/50 flex items-center gap-1">
+
+            {/* Clickable Follower/Following */}
+            <button
+              onClick={() => setFollowListMode('followers')}
+              className="text-white/50 hover:text-white/80 transition-colors flex items-center gap-1"
+            >
               <Users className="w-3 h-3" />
-              <strong>{followerCount}</strong> Follower · <strong>{followingCount}</strong> Folge ich
-            </span>
+              <strong>{followerCount}</strong> Follower
+            </button>
+            <button
+              onClick={() => setFollowListMode('following')}
+              className="text-white/50 hover:text-white/80 transition-colors"
+            >
+              <strong>{followingCount}</strong> Folge ich
+            </button>
+
             {targetProfile.favorite_club && (
               <span className="text-white/50">{getClubName(targetProfile.favorite_club)}</span>
             )}
+
+            {/* Mitglied seit */}
+            <span className="text-white/30 flex items-center gap-1">
+              <Calendar className="w-3 h-3" />
+              Mitglied seit {new Date(targetProfile.created_at).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' })}
+            </span>
           </div>
           <div className="flex items-center gap-2 mt-2 md:mt-3">
             {isSelf && (
@@ -224,6 +267,15 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           </div>
         </div>
       </div>
+
+      {/* Follow List Modal */}
+      {followListMode && (
+        <FollowListModal
+          userId={targetUserId}
+          mode={followListMode}
+          onClose={() => setFollowListMode(null)}
+        />
+      )}
 
       {/* Tabs */}
       <div className="flex items-center border-b border-white/10 overflow-x-auto scrollbar-hide -mx-4 px-4 lg:mx-0 lg:px-0">
@@ -329,6 +381,9 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           )}
           {!holdingsLoading && !dataError && tab === 'research' && (
             <ProfileResearchTab myResearch={myResearch} trackRecord={trackRecord} />
+          )}
+          {!holdingsLoading && !dataError && tab === 'posts' && (
+            <ProfilePostsTab userId={targetUserId} />
           )}
           {!holdingsLoading && !dataError && tab === 'activity' && (
             <ProfileActivityTab transactions={transactions} userId={targetUserId} />

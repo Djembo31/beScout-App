@@ -26,6 +26,10 @@ export async function followUser(followerId: string, followingId: string): Promi
   import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
     triggerMissionProgress(followerId, ['weekly_follow_3']);
   }).catch(() => {});
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(followerId, 'follow', 'social', { followingId });
+  }).catch(() => {});
 
   // Fire-and-forget notification to followed user
   import('@/lib/services/notifications').then(m => {
@@ -56,6 +60,10 @@ export async function unfollowUser(followerId: string, followingId: string): Pro
   invalidate(`isFollowing:${followerId}:${followingId}`);
   invalidate(`userStats:${followingId}`);
   invalidate('leaderboard:');
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(followerId, 'unfollow', 'social', { followingId });
+  }).catch(() => {});
 }
 
 export async function isFollowing(followerId: string, followingId: string): Promise<boolean> {
@@ -94,6 +102,77 @@ export async function getFollowingCount(userId: string): Promise<number> {
       .eq('follower_id', userId);
     if (error) throw new Error(error.message);
     return count ?? 0;
+  }, TWO_MIN);
+}
+
+export type ProfileSummary = {
+  userId: string;
+  handle: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  level: number;
+  totalScore: number;
+};
+
+/** Get follower list with profile details */
+export async function getFollowerList(userId: string, limit = 50): Promise<ProfileSummary[]> {
+  return cached(`followers:${userId}:list`, async () => {
+    const { data, error } = await supabase
+      .from('user_follows')
+      .select('follower_id')
+      .eq('following_id', userId)
+      .limit(limit);
+    if (error || !data || data.length === 0) return [];
+
+    const ids = data.map(r => r.follower_id);
+    const [profilesRes, statsRes] = await Promise.allSettled([
+      supabase.from('profiles').select('id, handle, display_name, avatar_url, level').in('id', ids),
+      supabase.from('user_stats').select('user_id, total_score').in('user_id', ids),
+    ]);
+
+    const profiles = profilesRes.status === 'fulfilled' ? (profilesRes.value.data ?? []) : [];
+    const stats = statsRes.status === 'fulfilled' ? (statsRes.value.data ?? []) : [];
+    const statsMap = new Map(stats.map(s => [s.user_id, s.total_score as number]));
+
+    return profiles.map(p => ({
+      userId: p.id,
+      handle: p.handle,
+      displayName: p.display_name,
+      avatarUrl: p.avatar_url,
+      level: p.level ?? 1,
+      totalScore: statsMap.get(p.id) ?? 0,
+    }));
+  }, TWO_MIN);
+}
+
+/** Get following list with profile details */
+export async function getFollowingList(userId: string, limit = 50): Promise<ProfileSummary[]> {
+  return cached(`following:${userId}:list`, async () => {
+    const { data, error } = await supabase
+      .from('user_follows')
+      .select('following_id')
+      .eq('follower_id', userId)
+      .limit(limit);
+    if (error || !data || data.length === 0) return [];
+
+    const ids = data.map(r => r.following_id);
+    const [profilesRes, statsRes] = await Promise.allSettled([
+      supabase.from('profiles').select('id, handle, display_name, avatar_url, level').in('id', ids),
+      supabase.from('user_stats').select('user_id, total_score').in('user_id', ids),
+    ]);
+
+    const profiles = profilesRes.status === 'fulfilled' ? (profilesRes.value.data ?? []) : [];
+    const stats = statsRes.status === 'fulfilled' ? (statsRes.value.data ?? []) : [];
+    const statsMap = new Map(stats.map(s => [s.user_id, s.total_score as number]));
+
+    return profiles.map(p => ({
+      userId: p.id,
+      handle: p.handle,
+      displayName: p.display_name,
+      avatarUrl: p.avatar_url,
+      level: p.level ?? 1,
+      totalScore: statsMap.get(p.id) ?? 0,
+    }));
   }, TWO_MIN);
 }
 

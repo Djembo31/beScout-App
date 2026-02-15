@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { SideNav, TopBar, BottomNav } from '@/components/layout';
 import { AuthGuard } from '@/components/providers/AuthGuard';
+import { useUser } from '@/components/providers/AuthProvider';
 
 export default function AppLayout({
   children,
@@ -10,6 +12,16 @@ export default function AppLayout({
   children: React.ReactNode;
 }>) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+  const { user } = useUser();
+
+  // Activity log — page views
+  useEffect(() => {
+    if (!user) return;
+    import('@/lib/services/activityLog').then(({ logActivity }) => {
+      logActivity(user.id, 'page_view', 'navigation', { path: pathname });
+    }).catch(() => {});
+  }, [pathname, user]);
 
   const handleMobileToggle = useCallback(() => {
     setMobileOpen((prev) => !prev);

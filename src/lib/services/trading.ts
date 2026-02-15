@@ -84,6 +84,10 @@ export async function buyFromMarket(
   invalidateTradeData(playerId, userId);
   triggerStatsRefresh(userId);
   triggerMissions(userId, ['daily_buy_1', 'daily_trade_2', 'weekly_trade_5']);
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(userId, 'trade_buy', 'trading', { playerId, quantity, source: result.source, price: result.price_per_dpc });
+  }).catch(() => {});
   // Notify seller if bought from a user order
   if (result.source === 'order' && result.order_id) {
     (async () => {
@@ -139,6 +143,10 @@ export async function placeSellOrder(
   invalidateTradeData(playerId, userId);
   triggerStatsRefresh(userId);
   triggerMissions(userId, ['daily_sell_1', 'daily_trade_2', 'weekly_trade_5']);
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(userId, 'trade_sell', 'trading', { playerId, quantity, priceCents });
+  }).catch(() => {});
   return data as TradeResult;
 }
 
@@ -204,6 +212,10 @@ export async function cancelOrder(
 
   if (error) throw new Error(error.message);
   invalidateTradeData('', userId);
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(userId, 'order_cancel', 'trading', { orderId });
+  }).catch(() => {});
   return data as TradeResult;
 }
 

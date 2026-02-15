@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight } from 'lucide-react';
+import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight, Send, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getNotifications, markAsRead, markAllAsRead, getUnreadCount } from '@/lib/services/notifications';
 import type { DbNotification, NotificationType } from '@/types';
@@ -19,6 +19,10 @@ function getNotifIcon(type: NotificationType) {
     case 'bounty_rejected': return <XCircle className="w-4 h-4" />;
     case 'pbt_liquidation': return <Banknote className="w-4 h-4" />;
     case 'trade': return <ArrowLeftRight className="w-4 h-4" />;
+    case 'offer_received': return <Send className="w-4 h-4" />;
+    case 'offer_accepted': return <CheckCircle className="w-4 h-4" />;
+    case 'offer_rejected': return <XCircle className="w-4 h-4" />;
+    case 'offer_countered': return <RotateCcw className="w-4 h-4" />;
     case 'system': return <Info className="w-4 h-4" />;
   }
 }
@@ -35,6 +39,10 @@ function getNotifColor(type: NotificationType): string {
     case 'bounty_approved': return 'text-[#22C55E] bg-[#22C55E]/10';
     case 'bounty_rejected': return 'text-red-400 bg-red-400/10';
     case 'pbt_liquidation': return 'text-[#FFD700] bg-[#FFD700]/10';
+    case 'offer_received': return 'text-amber-400 bg-amber-400/10';
+    case 'offer_accepted': return 'text-[#22C55E] bg-[#22C55E]/10';
+    case 'offer_rejected': return 'text-red-400 bg-red-400/10';
+    case 'offer_countered': return 'text-blue-400 bg-blue-400/10';
     case 'system': return 'text-sky-400 bg-sky-400/10';
   }
 }
@@ -50,6 +58,7 @@ function getNotifHref(notif: DbNotification): string | null {
     case 'bounty': return `/community`;
     case 'player': return `/player/${notif.reference_id}`;
     case 'liquidation': return `/player/${notif.reference_id}`;
+    case 'offer': return `/market?tab=offers`;
     default: return null;
   }
 }

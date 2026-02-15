@@ -270,7 +270,7 @@ export type ClubDashboardStats = {
 // PROFILE TYPES
 // ============================================
 
-export type ProfileTab = 'overview' | 'portfolio' | 'research' | 'activity' | 'settings';
+export type ProfileTab = 'overview' | 'portfolio' | 'research' | 'posts' | 'activity' | 'settings';
 
 export type Profile = {
   id: string;
@@ -745,7 +745,7 @@ export function getLevelTier(level: number): LevelTier {
 // NOTIFICATION TYPES
 // ============================================
 
-export type NotificationType = 'research_unlock' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation';
+export type NotificationType = 'research_unlock' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered';
 
 export type DbNotification = {
   id: string;
@@ -963,4 +963,52 @@ export type StreakResult = {
   current_streak: number;
   longest_streak: number;
   rewards_given: { milestone: number; reward_cents: number }[];
+};
+
+// ============================================
+// OFFER TYPES
+// ============================================
+
+export type OfferStatus = 'pending' | 'accepted' | 'rejected' | 'countered' | 'expired' | 'cancelled';
+export type OfferSide = 'buy' | 'sell';
+
+export type DbOffer = {
+  id: string;
+  player_id: string;
+  sender_id: string;
+  receiver_id: string | null;
+  side: OfferSide;
+  price: number;          // BIGINT Cents
+  quantity: number;
+  status: OfferStatus;
+  counter_offer_id: string | null;
+  message: string | null;
+  expires_at: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type OfferWithDetails = DbOffer & {
+  player_first_name: string;
+  player_last_name: string;
+  player_position: Pos;
+  player_club: string;
+  sender_handle: string;
+  sender_display_name: string | null;
+  sender_avatar_url: string | null;
+  receiver_handle: string | null;
+  receiver_display_name: string | null;
+};
+
+// ============================================
+// PROFILE SUMMARY (for follower lists etc.)
+// ============================================
+
+export type ProfileSummary = {
+  userId: string;
+  handle: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  level: number;
+  totalScore: number;
 };

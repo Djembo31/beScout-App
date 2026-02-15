@@ -79,6 +79,39 @@ export default function ProfileOverviewTab({
         <StatCard label="DPCs" value={totalDpcs} />
       </div>
 
+      {/* Top Holdings */}
+      {holdings.length > 0 && (
+        <Card className="p-4 md:p-6">
+          <h3 className="font-black mb-3">Top Positionen</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {holdings
+              .sort((a, b) => (b.quantity * b.player.floor_price) - (a.quantity * a.player.floor_price))
+              .slice(0, 3)
+              .map((h) => {
+                const valueCents = h.quantity * h.player.floor_price;
+                const pnl = h.quantity * (h.player.floor_price - h.avg_buy_price);
+                return (
+                  <Link key={h.id} href={`/player/${h.player_id}`}>
+                    <div className="p-3 bg-white/[0.03] rounded-xl border border-white/[0.06] hover:border-white/10 transition-colors">
+                      <div className="flex items-center gap-2 mb-2">
+                        <PositionBadge pos={h.player.position as Pos} size="sm" />
+                        <span className="text-sm font-bold text-white truncate">{h.player.first_name} {h.player.last_name}</span>
+                      </div>
+                      <div className="text-xs text-white/40 mb-1">{h.player.club} · {h.quantity}x</div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono font-bold text-[#FFD700] text-sm">{fmtBSD(centsToBsd(valueCents))}</span>
+                        <span className={cn('text-xs font-mono', pnl >= 0 ? 'text-[#22C55E]' : 'text-red-400')}>
+                          {pnl >= 0 ? '+' : ''}{fmtBSD(centsToBsd(pnl))}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+          </div>
+        </Card>
+      )}
+
       {/* Achievements */}
       {achievements.length > 0 && (
         <Card className="p-6">

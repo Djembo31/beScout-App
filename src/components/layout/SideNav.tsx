@@ -12,11 +12,12 @@ import {
   Settings,
   X,
 } from 'lucide-react';
-import { NAV_MAIN, NAV_MORE } from '@/lib/nav';
+import { NAV_MAIN, NAV_MORE, NAV_ADMIN } from '@/lib/nav';
 import { supabase } from '@/lib/supabaseClient';
 import { useUser } from '@/components/providers/AuthProvider';
 import { formatBsd } from '@/lib/services/wallet';
 import { useWallet } from '@/components/providers/WalletProvider';
+import { isPlatformAdmin } from '@/lib/services/platformAdmin';
 
 interface SideNavProps {
   mobileOpen?: boolean;
@@ -29,6 +30,13 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
   const { user } = useUser();
   const [collapsed, setCollapsed] = useState(false);
   const { balanceCents } = useWallet();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  React.useEffect(() => {
+    if (user) {
+      isPlatformAdmin(user.id).then(setIsAdmin).catch(() => {});
+    }
+  }, [user]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -160,6 +168,37 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
               </Link>
             );
           })}
+
+          {/* Platform Admin Link */}
+          {isAdmin && (() => {
+            const AdminIcon = NAV_ADMIN.icon;
+            const isAdminActive = pathname.startsWith(NAV_ADMIN.href);
+            return (
+              <Link
+                href={NAV_ADMIN.href}
+                onClick={handleNavClick}
+                className={`
+                  flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all
+                  ${isAdminActive
+                    ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20'
+                    : 'text-[#FFD700]/60 hover:bg-[#FFD700]/5 hover:text-[#FFD700]/80'
+                  }
+                  ${collapsed ? 'justify-center' : ''}
+                `}
+                title={collapsed ? NAV_ADMIN.label : undefined}
+              >
+                <AdminIcon className="w-5 h-5 flex-shrink-0" />
+                {!collapsed && (
+                  <>
+                    <span className="font-medium">{NAV_ADMIN.label}</span>
+                    <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-[#FFD700]/10 text-[#FFD700]/60">
+                      {NAV_ADMIN.badge}
+                    </span>
+                  </>
+                )}
+              </Link>
+            );
+          })()}
         </div>
       </nav>
 

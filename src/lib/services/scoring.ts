@@ -229,6 +229,50 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number): Pr
   };
 }
 
+// ============================================
+// Full Gameweek Status (for Admin Dashboard)
+// ============================================
+
+export type FullGameweekStatus = {
+  gameweek: number;
+  totalFixtures: number;
+  simulatedFixtures: number;
+  eventCount: number;
+  scoredEvents: number;
+  isSimulated: boolean;
+  isFullyScored: boolean;
+};
+
+/** Get status for all 38 gameweeks */
+export async function getFullGameweekStatus(): Promise<FullGameweekStatus[]> {
+  const [fixturesRes, eventsRes] = await Promise.allSettled([
+    supabase.from('fixtures').select('gameweek, status'),
+    supabase.from('events').select('gameweek, status, scored_at').not('gameweek', 'is', null),
+  ]);
+
+  const fixtures = fixturesRes.status === 'fulfilled' ? (fixturesRes.value.data ?? []) : [];
+  const events = eventsRes.status === 'fulfilled' ? (eventsRes.value.data ?? []) : [];
+
+  const result: FullGameweekStatus[] = [];
+  for (let gw = 1; gw <= 38; gw++) {
+    const gwFixtures = fixtures.filter(f => f.gameweek === gw);
+    const gwEvents = events.filter(e => e.gameweek === gw);
+    const simulatedCount = gwFixtures.filter(f => f.status === 'simulated').length;
+    const scoredCount = gwEvents.filter(e => e.scored_at !== null).length;
+
+    result.push({
+      gameweek: gw,
+      totalFixtures: gwFixtures.length,
+      simulatedFixtures: simulatedCount,
+      eventCount: gwEvents.length,
+      scoredEvents: scoredCount,
+      isSimulated: gwFixtures.length > 0 && simulatedCount === gwFixtures.length,
+      isFullyScored: gwEvents.length > 0 && scoredCount === gwEvents.length,
+    });
+  }
+  return result;
+}
+
 /** Load leaderboard for a scored event: lineups JOIN profiles, ordered by rank */
 export async function getEventLeaderboard(eventId: string): Promise<LeaderboardEntry[]> {
   const { data, error } = await supabase

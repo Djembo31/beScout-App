@@ -108,6 +108,10 @@ export async function createPost(
   import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
     triggerMissionProgress(userId, ['daily_post', 'weekly_3_posts']);
   }).catch(() => {});
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(userId, 'post_create', 'community', { postId: data.id, category });
+  }).catch(() => {});
   return data as DbPost;
 }
 
@@ -219,6 +223,10 @@ export async function votePost(
   if (error) throw new Error(error.message);
   invalidate('posts:');
   invalidate(`postVotes:${userId}`);
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(userId, 'post_vote', 'community', { postId, voteType });
+  }).catch(() => {});
   return data as { upvotes: number; downvotes: number };
 }
 

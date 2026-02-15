@@ -5,6 +5,7 @@ import {
   Users,
   User,
   Building2,
+  Shield,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -26,3 +27,10 @@ export const NAV_MAIN: NavItem[] = [
 export const NAV_MORE: NavItem[] = [
   { label: 'Club', href: '/club', icon: Building2 },
 ];
+
+export const NAV_ADMIN: NavItem = {
+  label: 'Admin',
+  href: '/bescout-admin',
+  icon: Shield,
+  badge: 'Admin',
+};
