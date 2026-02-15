@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Trophy, Users, Clock, Star, Shield, Zap, Award,
+  Trophy, Users, Clock, Star, Shield, Award,
   ChevronRight, Search, Lock,
   CheckCircle2, AlertCircle, Play, Medal,
   Briefcase, Coins, Layers,
@@ -16,7 +16,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { centsToBsd } from '@/lib/services/players';
 import { getLineup, removeLineup, getEventParticipants, getEventParticipantCount, getLineupWithPlayers } from '@/lib/services/lineups';
 import type { LineupWithPlayers } from '@/lib/services/lineups';
-import { scoreEvent, resetEvent, getEventLeaderboard } from '@/lib/services/scoring';
+import { resetEvent, getEventLeaderboard } from '@/lib/services/scoring';
 import type { LeaderboardEntry } from '@/lib/services/scoring';
 import { fmtBSD } from '@/lib/utils';
 import type { Pos } from '@/types';
@@ -33,7 +33,6 @@ export const EventDetailModal = ({
   onClose,
   onJoin,
   onLeave,
-  onScore,
   onReset,
   userHoldings,
 }: {
@@ -42,7 +41,6 @@ export const EventDetailModal = ({
   onClose: () => void;
   onJoin: (event: FantasyEvent, lineup: LineupPlayer[], formation: string) => void;
   onLeave: (event: FantasyEvent) => void;
-  onScore: (event: FantasyEvent) => void;
   onReset: (event: FantasyEvent) => void;
   userHoldings: UserDpcHolding[];
 }) => {
@@ -59,7 +57,6 @@ export const EventDetailModal = ({
   const [participantCount, setParticipantCount] = useState(0);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
-  const [scoring, setScoring] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [slotScores, setSlotScores] = useState<Record<string, number> | null>(null);
   const [myTotalScore, setMyTotalScore] = useState<number | null>(null);
@@ -88,37 +85,6 @@ export const EventDetailModal = ({
     }
   }, [isOpen, event?.id, tab, event?.scoredAt]);
 
-  // Handle simulate scoring
-  const handleSimulateScore = async () => {
-    if (!event || scoring) return;
-    setScoring(true);
-    try {
-      const result = await scoreEvent(event.id);
-      if (result.success) {
-        // Reload leaderboard + own lineup scores
-        const lb = await getEventLeaderboard(event.id);
-        setLeaderboard(lb);
-        if (user) {
-          const reloaded = await getLineup(event.id, user.id);
-          if (reloaded) {
-            setSlotScores(reloaded.slot_scores ?? null);
-            setMyTotalScore(reloaded.total_score);
-            setMyRank(reloaded.rank);
-          }
-        }
-        // Show scored lineup first, not leaderboard
-        setScoringJustFinished(true);
-        setTab('lineup');
-        onScore(event);
-      } else {
-        alert(`Scoring fehlgeschlagen: ${result.error}`);
-      }
-    } catch (e: unknown) {
-      alert(`Fehler: ${e instanceof Error ? e.message : 'Unbekannt'}`);
-    } finally {
-      setScoring(false);
-    }
-  };
 
   // Handle reset event (testing tool)
   const handleResetEvent = async () => {
@@ -349,8 +315,6 @@ export const EventDetailModal = ({
     localStorage.setItem(PRESET_KEY, JSON.stringify(presets)); setShowPresets(false);
   };
 
-  // Determine if event can be simulated (running or registering, not yet scored)
-  const canSimulate = event.status === 'running' || event.status === 'registering';
   const isScored = !!event.scoredAt;
 
   return (
@@ -382,16 +346,6 @@ export const EventDetailModal = ({
               {event.status === 'running' && !isScored && <Chip className="bg-[#22C55E] text-white">LIVE</Chip>}
             </div>
             <div className="flex items-center gap-2">
-              {canSimulate && !isScored && (
-                <button
-                  onClick={handleSimulateScore}
-                  disabled={scoring}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-50"
-                >
-                  {scoring ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
-                  {scoring ? 'Simuliere...' : <><span className="hidden md:inline">Gameweek simulieren</span><span className="md:hidden">Simulieren</span></>}
-                </button>
-              )}
               {isScored && (
                 <button
                   onClick={handleResetEvent}
@@ -1120,7 +1074,7 @@ export const EventDetailModal = ({
                       <Trophy className="w-10 h-10 mx-auto mb-3 text-white/20" />
                       <div className="text-white/50 text-sm">Noch keine Ergebnisse</div>
                       <div className="text-white/30 text-xs mt-1">
-                        {canSimulate && !isScored ? 'Klicke "Gameweek simulieren" um Punkte zu generieren.' : 'Die Auswertung steht noch aus.'}
+                        Die Auswertung steht noch aus.
                       </div>
                     </div>
                   ) : (

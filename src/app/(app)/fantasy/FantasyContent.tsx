@@ -290,7 +290,7 @@ export default function FantasyContent() {
     }
 
     if (statusFilter === 'registering') {
-      filtered = filtered.filter(e => e.status === 'registering' || e.status === 'late-reg' || e.status === 'running');
+      filtered = filtered.filter(e => e.status === 'registering' || e.status === 'late-reg');
     } else if (statusFilter !== 'all') {
       filtered = filtered.filter(e => e.status === statusFilter);
     }
@@ -424,23 +424,45 @@ export default function FantasyContent() {
     addToast(`Vom Event "${event.name}" abgemeldet.${event.buyIn > 0 ? ` ${event.buyIn} BSD zurückerstattet.` : ''}`, 'success');
   }, [user, setBalanceCents, addToast]);
 
-  const handleScoreEvent = useCallback(async (event: FantasyEvent) => {
-    setEvents(prev => prev.map(e =>
-      e.id === event.id ? { ...e, status: 'ended' as EventStatus, scoredAt: new Date().toISOString() } : e
-    ));
-    setSelectedEvent(prev => prev && prev.id === event.id ? { ...prev, status: 'ended' as EventStatus, scoredAt: new Date().toISOString() } : prev);
-    invalidate('wallet:');
-    invalidate('holdings:');
-  }, []);
+  // Refetch all events from DB (used after score, reset, simulation)
+  const reloadEvents = useCallback(async () => {
+    if (!user) return;
+    const uid = user.id;
+    try {
+      invalidate('events:');
+      invalidate('wallet:');
+      invalidate('holdings:');
+      const [dbEvents, joinedIds] = await Promise.all([
+        getEvents(),
+        getUserJoinedEventIds(uid),
+      ]);
+      const joinedSet = new Set(joinedIds);
+      const scoredJoinedEvents = dbEvents.filter(e => e.scored_at && joinedSet.has(e.id));
+      const lineupPromises = scoredJoinedEvents.map(e => getLineup(e.id, uid));
+      const lineups = await Promise.all(lineupPromises);
+      const lineupMap = new Map<string, { total_score: number | null; rank: number | null; reward_amount: number }>();
+      scoredJoinedEvents.forEach((e, i) => {
+        if (lineups[i]) lineupMap.set(e.id, { total_score: lineups[i]!.total_score, rank: lineups[i]!.rank, reward_amount: lineups[i]!.reward_amount });
+      });
+      const freshEvents = dbEvents.map(e => dbEventToFantasyEvent(e, joinedSet, lineupMap.get(e.id)));
+      setEvents(freshEvents);
+      // Update selected event if still open
+      setSelectedEvent(prev => {
+        if (!prev) return prev;
+        const updated = freshEvents.find(e => e.id === prev.id);
+        return updated ?? prev;
+      });
+    } catch { /* silent */ }
+  }, [user]);
 
   const handleResetEvent = useCallback(async (event: FantasyEvent) => {
+    // Optimistic local update, then full refetch
     setEvents(prev => prev.map(e =>
       e.id === event.id ? { ...e, status: 'registering' as EventStatus, scoredAt: undefined } : e
     ));
     setSelectedEvent(prev => prev && prev.id === event.id ? { ...prev, status: 'registering' as EventStatus, scoredAt: undefined } : prev);
-    invalidate('wallet:');
-    invalidate('holdings:');
-  }, []);
+    await reloadEvents();
+  }, [reloadEvents]);
 
   const handleCreateEvent = useCallback((eventData: Partial<FantasyEvent>) => {
     const newEvent: FantasyEvent = {
@@ -485,34 +507,16 @@ export default function FantasyContent() {
   // After gameweek simulation: reload data + auto-navigate to new GW
   const handleSimulated = useCallback(() => {
     addToast('Spieltag abgeschlossen! Nächster Spieltag wird geladen...', 'success');
-    // Re-fetch events to get updated scores
-    if (!user) return;
-    const uid = user.id;
     (async () => {
+      await reloadEvents();
+      // Re-fetch active GW (may have advanced) and auto-navigate
       try {
-        // Invalidate cached events so we get fresh data including cloned events
-        invalidate('events:');
-        const [dbEvents, joinedIds] = await Promise.all([
-          getEvents(),
-          getUserJoinedEventIds(uid),
-        ]);
-        const joinedSet = new Set(joinedIds);
-        const scoredJoinedEvents = dbEvents.filter(e => e.scored_at && joinedSet.has(e.id));
-        const lineupPromises = scoredJoinedEvents.map(e => getLineup(e.id, uid));
-        const lineups = await Promise.all(lineupPromises);
-        const lineupMap = new Map<string, { total_score: number | null; rank: number | null; reward_amount: number }>();
-        scoredJoinedEvents.forEach((e, i) => {
-          if (lineups[i]) lineupMap.set(e.id, { total_score: lineups[i]!.total_score, rank: lineups[i]!.rank, reward_amount: lineups[i]!.reward_amount });
-        });
-        setEvents(dbEvents.map(e => dbEventToFantasyEvent(e, joinedSet, lineupMap.get(e.id))));
-
-        // Re-fetch active GW (may have advanced) and auto-navigate
         const newGw = await getActiveGameweek(PILOT_CLUB_ID);
         setActiveGameweek(newGw);
         setSelectedGameweek(newGw);
       } catch { /* silent */ }
     })();
-  }, [user, addToast]);
+  }, [addToast, reloadEvents]);
 
   // Loading state
   if (dataLoading) {
@@ -667,7 +671,7 @@ export default function FantasyContent() {
             <div className="flex items-center gap-1">
               {([
                 { id: 'all' as const, label: 'Alle', count: statusCounts.all },
-                { id: 'registering' as const, label: 'Offen', count: statusCounts.registering + statusCounts['late-reg'] + statusCounts.running },
+                { id: 'registering' as const, label: 'Offen', count: statusCounts.registering + statusCounts['late-reg'] },
                 { id: 'ended' as const, label: 'Beendet', count: statusCounts.ended },
               ]).map(s => (
                 <button
@@ -764,7 +768,6 @@ export default function FantasyContent() {
         onClose={() => setSelectedEvent(null)}
         onJoin={handleJoinEvent}
         onLeave={handleLeaveEvent}
-        onScore={handleScoreEvent}
         onReset={handleResetEvent}
         userHoldings={holdings}
       />
