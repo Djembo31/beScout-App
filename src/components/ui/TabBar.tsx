@@ -27,9 +27,9 @@ export function TabBar({ tabs, activeTab, onChange, className }: TabBarProps) {
           aria-controls={`tabpanel-${tab.id}`}
           onClick={() => onChange(tab.id)}
           className={cn(
-            'flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap',
+            'flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap active:scale-[0.97]',
             activeTab === tab.id
-              ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20'
+              ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/30'
               : 'text-white/40 hover:text-white/60 border border-transparent'
           )}
         >

@@ -706,7 +706,7 @@ export default function MarketPage() {
           </div>
           {/* Advanced Filters */}
           {showFilters && (
-            <div className="flex items-start gap-3 flex-wrap pt-2 border-t border-white/5">
+            <div className="flex items-start gap-2 sm:gap-3 flex-wrap pt-2 border-t border-white/5">
               <div className="relative">
                 <button onClick={() => setShowClubDropdown(!showClubDropdown)}
                   className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-white/70 hover:bg-white/10 transition-all min-w-[160px]"
@@ -750,10 +750,10 @@ export default function MarketPage() {
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] text-white/40">Preis:</span>
                 <input type="number" placeholder="Min" value={priceMin} onChange={(e) => setPriceMin(e.target.value)}
-                  className="w-20 px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white/70 focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25" />
+                  className="w-16 sm:w-20 px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white/70 focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25" />
                 <span className="text-white/20">–</span>
                 <input type="number" placeholder="Max" value={priceMax} onChange={(e) => setPriceMax(e.target.value)}
-                  className="w-20 px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white/70 focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25" />
+                  className="w-16 sm:w-20 px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white/70 focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25" />
                 <span className="text-[10px] text-white/30">BSD</span>
               </div>
               <div className="flex items-center gap-2">
@@ -795,14 +795,15 @@ export default function MarketPage() {
         </div>
         {transferPlayers.length === 0 ? (
           <Card className="p-12 text-center">
-            <Package className="w-12 h-12 mx-auto mb-4 text-white/20" />
             {hasActiveFilters ? (
               <>
+                <Search className="w-12 h-12 mx-auto mb-4 text-white/20" />
                 <div className="text-white/30 mb-2">Keine Spieler gefunden</div>
                 <div className="text-sm text-white/50">Versuche andere Suchbegriffe oder Filter</div>
               </>
             ) : (
               <>
+                <Package className="w-12 h-12 mx-auto mb-4 text-white/20" />
                 <div className="text-white/30 mb-2">Keine Angebote auf dem Transfermarkt</div>
                 <div className="text-sm text-white/50">Kaufe DPCs über Club Sale und erstelle dann eigene Verkaufsangebote.</div>
               </>

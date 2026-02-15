@@ -365,9 +365,9 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
             {/* Divider */}
             <span className="hidden sm:block w-px h-3 bg-white/10" />
 
-            {/* Stats Pills */}
-            <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-mono">
-              <span className="px-1.5 py-0.5 rounded bg-white/5 text-white/60">
+            {/* Stats Pills — goals/assists always, matches on sm+ */}
+            <div className="flex items-center gap-1.5 text-[10px] font-mono">
+              <span className="hidden sm:inline-flex px-1.5 py-0.5 rounded bg-white/5 text-white/60">
                 <span className="text-white/30 mr-0.5">Sp</span>{player.stats.matches}
               </span>
               <span className="px-1.5 py-0.5 rounded bg-emerald-500/8 text-emerald-300/80">

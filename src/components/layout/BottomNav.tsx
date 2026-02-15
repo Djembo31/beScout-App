@@ -42,8 +42,8 @@ export function BottomNav() {
               data-tour-id={tab.tourId}
               className={`relative flex flex-col items-center justify-center gap-0.5 w-16 py-1.5 rounded-xl transition-all ${
                 isActive
-                  ? 'text-[#FFD700]'
-                  : 'text-white/40 active:text-white/60'
+                  ? 'text-[#FFD700] bg-[#FFD700]/[0.06]'
+                  : 'text-white/40 active:text-white/60 active:bg-white/5'
               }`}
             >
               {isActive && (

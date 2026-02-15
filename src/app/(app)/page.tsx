@@ -430,7 +430,7 @@ export default function HomePage() {
       <div data-tour-id="home-stats" className="grid grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2 md:gap-3">
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4">
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/40 uppercase tracking-wider">Spielerkader</span>
+            <span className="text-[10px] text-white/50 uppercase tracking-wider">Spielerkader</span>
             <InfoTooltip text="Der Gesamtwert aller DPCs in deinem Kader, berechnet zum aktuellen Floor-Preis." />
           </div>
           <div className="font-mono font-black text-base md:text-xl text-white truncate">{fmtBSD(portfolioValue)}</div>
@@ -438,7 +438,7 @@ export default function HomePage() {
         </div>
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4">
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/40 uppercase tracking-wider">P&L</span>
+            <span className="text-[10px] text-white/50 uppercase tracking-wider">P&L</span>
             <InfoTooltip text="Profit & Loss — die Differenz zwischen aktuellem Wert und deinem durchschnittlichen Kaufpreis." />
           </div>
           <div className={cn('font-mono font-black text-base md:text-xl truncate', pnl >= 0 ? 'text-[#22C55E]' : 'text-red-400')}>
@@ -450,7 +450,7 @@ export default function HomePage() {
         </div>
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4">
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/40 uppercase tracking-wider">Guthaben</span>
+            <span className="text-[10px] text-white/50 uppercase tracking-wider">Guthaben</span>
             <InfoTooltip text="Dein verfügbares BSD-Guthaben zum Kaufen, Handeln und Abstimmen." />
           </div>
           {balanceCents === null ? (
@@ -462,7 +462,7 @@ export default function HomePage() {
         </div>
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4">
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/40 uppercase tracking-wider">Scout Score</span>
+            <span className="text-[10px] text-white/50 uppercase tracking-wider">Scout Score</span>
             <InfoTooltip text="Deine Gesamt-Reputation: 35% Trading-Skill + 40% Manager-Fähigkeit + 25% Scouting-Expertise." />
           </div>
           <div className="font-mono font-black text-base md:text-xl text-[#FFD700]">
@@ -488,7 +488,7 @@ export default function HomePage() {
             <div className="mt-3 space-y-1.5">
               {holdings.length === 0 ? (
                 <Card className="p-6 text-center">
-                  <Briefcase className="w-8 h-8 mx-auto mb-2 text-white/20" />
+                  <Briefcase className="w-10 h-10 mx-auto mb-2 text-white/20" />
                   <div className="text-sm font-medium text-white/50">Starte mit deinem ersten Spieler</div>
                   <div className="text-xs text-white/30 mt-1">Kaufe DPCs, handle am Markt und baue dein Portfolio auf.</div>
                   <Link href="/market?tab=kaufen" className="inline-block mt-3">
@@ -545,7 +545,7 @@ export default function HomePage() {
                   <div className="text-sm text-white/40">Noch keine Aktivität</div>
                 </Card>
               ) : (
-                transactions.slice(0, 4).map((tx) => {
+                transactions.slice(0, 5).map((tx) => {
                   const positive = tx.amount > 0;
                   return (
                     <div key={tx.id} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors">
@@ -564,6 +564,11 @@ export default function HomePage() {
                     </div>
                   );
                 })
+              )}
+              {transactions.length > 5 && (
+                <Link href="/profile" className="block text-center py-2 text-xs text-[#FFD700] hover:underline">
+                  Alle Aktivitäten anzeigen
+                </Link>
               )}
             </div>
           </div>
@@ -665,7 +670,7 @@ export default function HomePage() {
                 <ArrowRightLeft className="w-3.5 h-3.5 text-[#FFD700]/60" />
                 <span className="text-[10px] font-black uppercase tracking-wider text-white/30">Letzte Trades</span>
               </div>
-              <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1">
+              <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
                 {recentTrades.map(t => (
                   <Link
                     key={t.id}
@@ -764,7 +769,7 @@ export default function HomePage() {
                 <span className="text-[10px] font-black uppercase tracking-wider text-white/30">Unter Wert</span>
                 <span className="text-[9px] text-white/20 ml-auto">Hohe Leistung, günstiger Preis</span>
               </div>
-              <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1">
+              <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
                 {bargains.map(({ player: p, floor }) => (
                   <Link
                     key={p.id}
