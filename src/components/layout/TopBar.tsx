@@ -89,7 +89,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           {/* Hamburger — mobile only, opens SideNav drawer */}
           <button
             onClick={onMobileMenuToggle}
-            className="lg:hidden p-2 rounded-xl hover:bg-white/10 transition-colors"
+            className="lg:hidden p-2 rounded-xl hover:bg-white/10 active:scale-90 transition-all"
             aria-label="Menu"
           >
             <Menu className="w-5 h-5 text-white/70" />
@@ -125,7 +125,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           {/* Search icon — mobile only */}
           <button
             onClick={() => setMobileSearchOpen(true)}
-            className="lg:hidden p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
+            className="lg:hidden p-2 bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 rounded-xl transition-all"
             aria-label="Suche"
           >
             <Search className="w-4 h-4 text-white/70" />
@@ -188,7 +188,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
 
       {/* Mobile search overlay */}
       {mobileSearchOpen && (
-        <div className="lg:hidden px-4 pb-3 border-b border-white/10">
+        <div className="lg:hidden px-4 pb-3 border-b border-white/10 anim-fade">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
             <input

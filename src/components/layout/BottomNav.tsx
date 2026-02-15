@@ -27,6 +27,7 @@ export function BottomNav() {
         background: 'rgba(10,10,10,0.95)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
+        boxShadow: '0 -2px 12px rgba(0,0,0,0.3)',
       }}
     >
       <div className="flex items-center justify-around h-16 px-1">
@@ -43,7 +44,7 @@ export function BottomNav() {
               className={`relative flex flex-col items-center justify-center gap-0.5 w-16 py-1.5 rounded-xl transition-all ${
                 isActive
                   ? 'text-[#FFD700] bg-[#FFD700]/[0.06]'
-                  : 'text-white/40 active:text-white/60 active:bg-white/5'
+                  : 'text-white/40 active:text-white/60 active:bg-white/5 active:scale-95'
               }`}
             >
               {isActive && (

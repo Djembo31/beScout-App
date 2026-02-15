@@ -142,7 +142,7 @@ export default function NotificationDropdown({ userId, open, onClose, onUnreadCo
   if (!open) return null;
 
   return (
-    <div ref={ref} className="absolute right-0 top-full mt-2 w-80 md:w-96 bg-[#111] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
+    <div ref={ref} className="absolute right-0 top-full mt-2 w-80 md:w-96 bg-[#111] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden anim-dropdown">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
         <span className="font-bold text-sm">Benachrichtigungen</span>

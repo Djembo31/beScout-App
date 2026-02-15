@@ -145,7 +145,7 @@ function WelcomeBanner({ name }: { name: string }) {
       <div className="p-4">
         <button
           onClick={() => { localStorage.setItem(WELCOME_KEY, '1'); setVisible(false); }}
-          className="absolute top-2 right-2 p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors"
+          className="absolute top-2 right-2 p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 active:scale-90 transition-all"
           aria-label="Schließen"
         >
           <X className="w-4 h-4" />
@@ -415,7 +415,7 @@ export default function HomePage() {
           </h1>
         </div>
         {streak >= 2 && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-400/20">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-400/20 anim-fade">
             <Flame className="w-4 h-4 text-orange-400" />
             <span className="text-sm font-black text-orange-300">{streak}</span>
             <span className="text-[10px] text-orange-400/60 hidden sm:inline">Tage</span>
@@ -428,7 +428,7 @@ export default function HomePage() {
 
       {/* ━━━ STAT CARDS — 2x2 mobile, 4-col desktop ━━━ */}
       <div data-tour-id="home-stats" className="grid grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2 md:gap-3">
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4">
+        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
           <div className="flex items-center gap-1 mb-1">
             <span className="text-[10px] text-white/50 uppercase tracking-wider">Spielerkader</span>
             <InfoTooltip text="Der Gesamtwert aller DPCs in deinem Kader, berechnet zum aktuellen Floor-Preis." />
@@ -436,7 +436,7 @@ export default function HomePage() {
           <div className="font-mono font-black text-base md:text-xl text-white truncate">{fmtBSD(portfolioValue)}</div>
           <div className="text-[10px] text-white/40">{holdings.length} Spieler · {totalDpcs} DPC</div>
         </div>
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4">
+        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
           <div className="flex items-center gap-1 mb-1">
             <span className="text-[10px] text-white/50 uppercase tracking-wider">P&L</span>
             <InfoTooltip text="Profit & Loss — die Differenz zwischen aktuellem Wert und deinem durchschnittlichen Kaufpreis." />
@@ -448,7 +448,7 @@ export default function HomePage() {
             {pnl >= 0 ? '+' : ''}{pnlPct.toFixed(1)}%
           </div>
         </div>
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4">
+        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
           <div className="flex items-center gap-1 mb-1">
             <span className="text-[10px] text-white/50 uppercase tracking-wider">Guthaben</span>
             <InfoTooltip text="Dein verfügbares BSD-Guthaben zum Kaufen, Handeln und Abstimmen." />
@@ -460,7 +460,7 @@ export default function HomePage() {
           )}
           <div className="text-[10px] text-white/40">BSD</div>
         </div>
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4">
+        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
           <div className="flex items-center gap-1 mb-1">
             <span className="text-[10px] text-white/50 uppercase tracking-wider">Scout Score</span>
             <InfoTooltip text="Deine Gesamt-Reputation: 35% Trading-Skill + 40% Manager-Fähigkeit + 25% Scouting-Expertise." />
@@ -548,7 +548,7 @@ export default function HomePage() {
                 transactions.slice(0, 5).map((tx) => {
                   const positive = tx.amount > 0;
                   return (
-                    <div key={tx.id} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors">
+                    <div key={tx.id} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors">
                       <div className={cn('flex items-center justify-center w-8 h-8 rounded-lg shrink-0 mt-0.5', getActivityColorLocal(tx.type))}>
                         {renderActivityIcon(tx.type)}
                       </div>

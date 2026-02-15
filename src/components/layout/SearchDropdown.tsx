@@ -100,7 +100,7 @@ export default function SearchDropdown({ query, open, onClose }: SearchDropdownP
   }
 
   return (
-    <div ref={ref} className="absolute left-0 right-0 top-full mt-1 bg-[#111] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+    <div ref={ref} className="absolute left-0 right-0 top-full mt-1 bg-[#111] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden anim-dropdown">
       {loading ? (
         <div className="flex items-center justify-center py-6 gap-2 text-white/30">
           <Loader2 className="w-4 h-4 animate-spin" />

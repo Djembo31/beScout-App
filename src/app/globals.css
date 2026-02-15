@@ -31,6 +31,7 @@ body {
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
+  transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -50,11 +51,12 @@ body {
 *:focus-visible {
   outline: 2px solid rgba(255, 215, 0, 0.4);
   outline-offset: 2px;
+  transition: outline-offset 0.15s ease;
 }
 
 /* Selection */
 ::selection {
-  background: rgba(255, 215, 0, 0.3);
+  background: rgba(255, 215, 0, 0.4);
 }
 
 /* Safe area insets for PWA standalone mode (iOS notch) */
@@ -74,3 +76,25 @@ body {
     padding-bottom: 6.5rem;
   }
 }
+
+/* Entrance animations */
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+@keyframes dropdown-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.anim-modal { animation: modal-in 0.2s ease-out; }
+.anim-fade { animation: fade-in 0.2s ease-out; }
+.anim-slide-left { animation: slide-in-left 0.25s ease-out; }
+.anim-dropdown { animation: dropdown-in 0.15s ease-out; }

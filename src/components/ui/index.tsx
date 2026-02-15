@@ -44,7 +44,7 @@ export function Button({
       {...props}
       disabled={disabled || loading}
       className={`
-        inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all
+        inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all active:scale-[0.97]
         focus-visible:ring-2 focus-visible:ring-[#FFD700]/50 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a] outline-none
         ${btnVariants[variant]} ${btnSizes[size]}
         ${fullWidth ? 'w-full' : ''}
@@ -151,14 +151,14 @@ export function Modal({ open, title, subtitle, children, onClose, preventClose }
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="w-full max-w-xl mx-4 rounded-3xl bg-[#0b0b0b] border border-white/10 shadow-2xl"
+        className="w-full max-w-xl mx-4 rounded-3xl bg-[#0b0b0b] border border-white/10 shadow-2xl anim-modal"
       >
         <div className="p-5 border-b border-white/10 flex items-center justify-between">
           <div>
             {subtitle && <div className="text-xs text-white/50">{subtitle}</div>}
             <div id="modal-title" className="text-lg font-black">{title}</div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/5 transition-colors" aria-label="Schließen">
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/5 hover:scale-110 active:scale-95 transition-all" aria-label="Schließen">
             <X className="w-5 h-5 text-white/70" />
           </button>
         </div>
@@ -242,7 +242,7 @@ export function InfoTooltip({ text }: { text: string }) {
         <span className="text-[9px] font-bold leading-none">?</span>
       </button>
       {open && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 p-2.5 rounded-xl bg-[#1a1a1a] border border-white/15 shadow-xl z-50">
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 p-2.5 rounded-xl bg-[#1a1a1a] border border-white/15 shadow-xl z-50 anim-dropdown">
           <div className="text-[11px] text-white/70 leading-relaxed">{text}</div>
           <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-[#1a1a1a] border-r border-b border-white/15 -mt-1" />
         </div>

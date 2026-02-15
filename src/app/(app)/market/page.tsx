@@ -716,7 +716,7 @@ export default function MarketPage() {
                   <ChevronDown className={`w-3 h-3 ml-auto transition-transform ${showClubDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 {showClubDropdown && (
-                  <div className="absolute top-full right-0 sm:left-0 sm:right-auto mt-1 w-[min(16rem,90vw)] max-h-72 overflow-y-auto bg-[#1a1a2e] border border-white/15 rounded-xl shadow-2xl z-[60]">
+                  <div className="absolute top-full right-0 sm:left-0 sm:right-auto mt-1 w-[min(16rem,90vw)] max-h-72 overflow-y-auto bg-[#1a1a2e] border border-white/15 rounded-xl shadow-2xl z-[60] anim-dropdown">
                     <div className="p-2 border-b border-white/10">
                       <input type="text" placeholder="Verein suchen..." value={clubSearch} onChange={(e) => setClubSearch(e.target.value)}
                         className="w-full px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30" autoFocus />
@@ -758,12 +758,12 @@ export default function MarketPage() {
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={() => setOnlyAvailable(!onlyAvailable)}
-                  className={cn('flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all',
+                  className={cn('flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all active:scale-95',
                     onlyAvailable ? 'bg-[#22C55E]/15 border-[#22C55E]/30 text-[#22C55E]' : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70')}>
                   <Package className="w-3.5 h-3.5" />Verfügbar
                 </button>
                 <button onClick={() => setOnlyWatched(!onlyWatched)}
-                  className={cn('flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all',
+                  className={cn('flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all active:scale-95',
                     onlyWatched ? 'bg-[#FFD700]/15 border-[#FFD700]/30 text-[#FFD700]' : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70')}>
                   <Star className="w-3.5 h-3.5" />Beobachtet
                 </button>

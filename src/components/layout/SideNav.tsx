@@ -106,7 +106,7 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
                 onClick={handleNavClick}
                 data-tour-id={tourId}
                 className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all
+                  flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.97]
                   ${isActive
                     ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20'
                     : 'text-white/60 hover:bg-white/5 hover:text-white border border-transparent'
@@ -248,7 +248,7 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
       {/* Collapse Toggle — desktop only */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-20 w-6 h-6 bg-[#0a0a0a] border border-white/10 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:border-white/20 transition-all hidden lg:flex"
+        className="absolute -right-3 top-20 w-6 h-6 bg-[#0a0a0a] border border-white/10 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:border-white/20 hover:scale-110 active:scale-90 transition-all hidden lg:flex"
       >
         {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
       </button>
@@ -274,11 +274,11 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
         <div className="lg:hidden fixed inset-0 z-50">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm anim-fade"
             onClick={onMobileClose}
           />
           {/* Drawer */}
-          <aside className="relative w-[280px] h-full flex flex-col bg-[#0a0a0a] border-r border-white/10 shadow-2xl">
+          <aside className="relative w-[280px] h-full flex flex-col bg-[#0a0a0a] border-r border-white/10 shadow-2xl anim-slide-left">
             {/* Close button */}
             <button
               onClick={onMobileClose}
