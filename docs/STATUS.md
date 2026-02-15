@@ -3,7 +3,26 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 5** – Beta-Ready: 5 Phasen implementiert (Activity-Logging, User-Angebote, BeScout-Admin, Profil Redesign, GW-Flow). 6 neue Migrations (97-102), ~12 neue Files, ~20 modifizierte Files. Build sauber (0 Fehler, 17 Routes, 102 Migrations). Security Advisors clean.
+**Woche 5** – Beta-Ready + Admin-gesteuerter Spieltag-Flow. 103 Migrations, 17 Routes. Build sauber (0 Fehler). GW 11 Events auf "registering" zurückgesetzt.
+
+## Session 15.02.2026 (44) – Admin-gesteuerter Spieltag-Flow
+
+### Kontext
+GW 11 Events sprangen durch Timestamps automatisch auf "running" → User konnten sich nicht anmelden. Flow soll admin-gesteuert sein.
+
+### Änderungen
+- **`deriveEventStatus()`** vertraut jetzt nur DB-Status, keine `Date.now()` Timestamp-Overrides mehr
+- **`simulateGameweekFlow()`** erweitert: Events → running (Anmeldung schließen) → Fixtures simulieren → Events scoren → Events für nächsten GW klonen → Active GW vorrücken
+- **`createNextGameweekEvents()`** NEU in `events.ts`: Klont Events des aktuellen GW für nächsten GW (idempotent, max GW 38)
+- **SpieltagTab Button:** "Simulieren" → "Spieltag starten" mit Confirmation Dialog (Zusammenfassung aller Schritte)
+- **`handleSimulated` Callback:** Toast "Spieltag abgeschlossen!", auto-navigate zum neuen Active GW
+- **Migration #103:** `reset_gw11_events_and_fix_flow` — GW 11 Events auf "registering" zurückgesetzt
+
+### Dateien modifiziert
+- `src/app/(app)/fantasy/FantasyContent.tsx` — deriveEventStatus + handleSimulated
+- `src/components/fantasy/SpieltagTab.tsx` — Button + Confirmation Dialog
+- `src/lib/services/events.ts` — createNextGameweekEvents()
+- `src/lib/services/scoring.ts` — simulateGameweekFlow() erweitert
 
 ## Session 15.02.2026 (43) – Beta-Ready Plan: 5 Phasen
 

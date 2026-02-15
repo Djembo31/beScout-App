@@ -102,7 +102,7 @@ src/
 │   │   ├── wallet.ts              # getWallet, getHoldings, getTransactions
 │   │   ├── trading.ts             # buyFromMarket, placeSellOrder, buyFromOrder, cancelOrder
 │   │   ├── profiles.ts            # getProfile, createProfile, updateProfile, getProfileByHandle
-│   │   ├── events.ts              # getEvents, getEventsByClubId, createEvent, updateEventStatus, getUserJoinedEventIds
+│   │   ├── events.ts              # getEvents, getEventsByClubId, createEvent, updateEventStatus, getUserJoinedEventIds, createNextGameweekEvents
 │   │   ├── lineups.ts             # submitLineup, getLineup, removeLineup, getPlayerEventUsage
 │   │   ├── scoring.ts             # scoreEvent, resetEvent, getEventLeaderboard, getPlayerGameweekScores, getFullGameweekStatus
 │   │   ├── ipo.ts                 # getActiveIpos, buyFromIpo, getIpoForPlayer, getIposByClub
@@ -188,7 +188,8 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **"Alle Spieler" Tab fertig:** Manager Office 7. Tab — Club-gruppierte Ansicht aller 500 Spieler (20 Clubs), aufklappbar, Suche + Positions-Filter.
 **TFF 1. Lig League Simulation fertig:** 20 Clubs, 380 Fixtures (38 GW), FPL-Style Scoring, `simulate_gameweek` RPC, 2.800 player_gameweek_scores (GW 1-10).
 **Fantasy Redesign fertig:** Spieltag-zentriert (3 Tabs), Sorare-inspirierte UI — grüner Pitch (SVG Feldlinien), echte Club-Logos, Formation-Labels (z.B. "4-3-3"), Starter/Bank-Split, Sponsor-Banner. `simulateGameweekFlow()` Client-seitig. 3 Events für GW 11 erstellt.
-**Beta-Ready fertig:** Activity-Logging (Batch-Queue), User-to-User Angebote (5 RPCs, 4 Sub-Tabs), BeScout Admin Dashboard (6 Tabs, `/bescout-admin`), Profil Redesign (Sorare-style, Follower-Listen, Posts-Tab). 102 Migrationen deployed.
+**Beta-Ready fertig:** Activity-Logging (Batch-Queue), User-to-User Angebote (5 RPCs, 4 Sub-Tabs), BeScout Admin Dashboard (6 Tabs, `/bescout-admin`), Profil Redesign (Sorare-style, Follower-Listen, Posts-Tab). 103 Migrationen deployed.
+**Admin-gesteuerter Spieltag-Flow fertig:** `deriveEventStatus()` vertraut nur DB-Status, `simulateGameweekFlow()` mit vollem Lifecycle (close → simulate → score → clone → advance), `createNextGameweekEvents()` klont Events, "Spieltag starten" Button mit Confirmation Dialog.
 **Danach:** Real User Testing mit 50 Testern, Phase 7 (Scale).
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.
@@ -198,7 +199,7 @@ Siehe `docs/STATUS.md` für den detaillierten Fortschritt (inkl. SQL-Migration-T
 Siehe `docs/SCALE.md` für Skalierungsarchitektur und DB-Schema.
 
 **Pilot-Scope:** 1 Club (Sakaryaspor), 500 Spieler (20 Clubs), 50 Beta-Tester.
-**Alle 102 SQL-Migrationen deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) live.
+**Alle 103 SQL-Migrationen deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) live.
 **GitHub:** Private Repo `Djembo31/beScout-App`, CI/CD via GitHub Actions, Sentry Error Tracking, PostHog Analytics.
 
 ## Bekannte Issues

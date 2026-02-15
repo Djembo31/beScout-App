@@ -7,6 +7,15 @@
 
 ## Nächste Session: Real User Testing + Phase 7
 
+### Admin-gesteuerter Spieltag-Flow ✅ (15.02.2026)
+- [x] `deriveEventStatus()` vertraut nur DB-Status (keine Timestamp-Overrides)
+- [x] `simulateGameweekFlow()` mit vollem Lifecycle (close → simulate → score → clone → advance)
+- [x] `createNextGameweekEvents()` klont Events für nächsten GW (idempotent, max GW 38)
+- [x] SpieltagTab: "Spieltag starten" Button mit Confirmation Dialog
+- [x] `handleSimulated` auto-navigate zum neuen Active GW
+- [x] Migration #103: GW 11 Events auf "registering" zurückgesetzt
+- [x] Build verifiziert (0 Fehler, 17 Routes, 103 Migrations)
+
 ### Beta-Ready Plan: 5 Phasen ✅ (15.02.2026)
 - [x] **Phase 1 (Activity-Logging):** Migration #97, `activityLog.ts` Batch-Service, 6 Integrations
 - [x] **Phase 2 (Angebote):** Migrations #98-99, `offers.ts` Service, `ManagerOffersTab` (4 Sub-Tabs), 5 RPCs, Notifications, PlayerContent
@@ -557,6 +566,7 @@ Logik-Check: Vision-Dokument gegen Implementierung geprüft, 12 Lücken identifi
 - [x] `create_platform_admins` – deployed via MCP ✅ 15.02.2026
 - [x] `create_admin_rpcs` – deployed via MCP ✅ 15.02.2026
 - [x] `fix_rpc_search_paths` – deployed via MCP ✅ 15.02.2026
+- [x] `reset_gw11_events_and_fix_flow` – deployed via MCP ✅ 15.02.2026
 
 ---
 
