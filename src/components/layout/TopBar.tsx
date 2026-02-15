@@ -104,7 +104,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
               value={searchQuery}
               onChange={handleSearchChange}
               onFocus={() => { if (searchQuery.length >= 2) setSearchOpen(true); }}
-              className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
+              className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/50"
             />
             <SearchDropdown query={searchQuery} open={searchOpen} onClose={handleSearchClose} />
           </div>
@@ -198,7 +198,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
               onChange={handleSearchChange}
               onFocus={() => { if (searchQuery.length >= 2) setSearchOpen(true); }}
               autoFocus
-              className="w-full pl-10 pr-10 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
+              className="w-full pl-10 pr-10 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/50"
             />
             <button
               onClick={handleMobileSearchClose}

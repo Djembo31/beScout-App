@@ -242,11 +242,11 @@ export default function CommunityPage() {
       setPosts(postsResult);
       setCreatePostOpen(false);
     } catch {
-      // silently fail
+      addToast('Beitrag konnte nicht erstellt werden.', 'error');
     } finally {
       setPostLoading(false);
     }
-  }, [user, clubName, clubId]);
+  }, [user, clubName, clubId, addToast]);
 
   const handleCastVote = useCallback(async (voteId: string, optionIndex: number) => {
     if (!user || votingId) return;

@@ -716,7 +716,7 @@ export default function MarketPage() {
                   <ChevronDown className={`w-3 h-3 ml-auto transition-transform ${showClubDropdown ? 'rotate-180' : ''}`} />
                 </button>
                 {showClubDropdown && (
-                  <div className="absolute top-full left-0 mt-1 w-64 max-h-72 overflow-y-auto bg-[#1a1a2e] border border-white/15 rounded-xl shadow-2xl z-50">
+                  <div className="absolute top-full right-0 sm:left-0 sm:right-auto mt-1 w-[min(16rem,90vw)] max-h-72 overflow-y-auto bg-[#1a1a2e] border border-white/15 rounded-xl shadow-2xl z-[60]">
                     <div className="p-2 border-b border-white/10">
                       <input type="text" placeholder="Verein suchen..." value={clubSearch} onChange={(e) => setClubSearch(e.target.value)}
                         className="w-full px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30" autoFocus />

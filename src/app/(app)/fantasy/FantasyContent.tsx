@@ -603,7 +603,7 @@ export default function FantasyContent() {
       {/* SEGMENT TABS — 3 Tabs */}
       <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-x-auto">
         {([
-          { id: 'spieltag' as FantasyTab, label: 'Spieltag', icon: Calendar },
+          { id: 'spieltag' as FantasyTab, label: `Spieltag ${activeGameweek}`, icon: Calendar },
           { id: 'events' as FantasyTab, label: 'Events', icon: Globe, count: activeEvents.length },
           { id: 'history' as FantasyTab, label: 'Verlauf', icon: History },
         ]).map(tab => (

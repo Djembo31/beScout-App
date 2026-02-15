@@ -24,6 +24,7 @@ import {
   Flame,
   ArrowRightLeft,
   Banknote,
+  X,
 } from 'lucide-react';
 import { Card, Button, Chip, ErrorState, Skeleton, SkeletonCard, TabBar, TabPanel } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
@@ -144,9 +145,11 @@ function WelcomeBanner({ name }: { name: string }) {
       <div className="p-4">
         <button
           onClick={() => { localStorage.setItem(WELCOME_KEY, '1'); setVisible(false); }}
-          className="absolute top-3 right-3 text-white/30 hover:text-white/60 text-xs"
+          className="absolute top-2 right-2 p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors"
           aria-label="Schließen"
-        >✕</button>
+        >
+          <X className="w-4 h-4" />
+        </button>
         <div className="flex items-center gap-2 mb-2">
           <Rocket className="w-5 h-5 text-[#FFD700]" />
           <span className="text-sm font-black text-[#FFD700]">Willkommen, {name}!</span>
@@ -424,7 +427,7 @@ export default function HomePage() {
       <WelcomeBanner name={firstName} />
 
       {/* ━━━ STAT CARDS — 2x2 mobile, 4-col desktop ━━━ */}
-      <div data-tour-id="home-stats" className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+      <div data-tour-id="home-stats" className="grid grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2 md:gap-3">
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4">
           <div className="flex items-center gap-1 mb-1">
             <span className="text-[10px] text-white/40 uppercase tracking-wider">Spielerkader</span>
