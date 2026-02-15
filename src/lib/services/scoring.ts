@@ -139,6 +139,7 @@ export type GameweekFlowResult = {
   fixturesSimulated: number;
   eventsScored: number;
   nextGameweek: number;
+  nextGwEventsCreated: number;
   errors: string[];
 };
 
@@ -153,6 +154,7 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number): Pr
   const errors: string[] = [];
   let fixturesSimulated = 0;
   let eventsScored = 0;
+  let nextGwEventsCreated = 0;
 
   // 1. Simulate fixtures
   const { simulateGameweek } = await import('@/lib/services/fixtures');
@@ -166,35 +168,30 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number): Pr
     }
   }
 
-  // 2. Find events for this GW + club that aren't ended
+  // 2. Set all GW events to "running" (close registration)
   const { data: gwEvents, error: evtErr } = await supabase
     .from('events')
     .select('id, status, scored_at')
     .eq('club_id', clubId)
-    .eq('gameweek', gameweek)
-    .neq('status', 'ended');
+    .eq('gameweek', gameweek);
 
   if (evtErr) {
     errors.push(`Events laden: ${evtErr.message}`);
   }
 
-  // Also include events with status 'ended' but not yet scored (edge case)
-  const { data: unscoredEndedEvents } = await supabase
-    .from('events')
-    .select('id, status, scored_at')
-    .eq('club_id', clubId)
-    .eq('gameweek', gameweek)
-    .eq('status', 'ended')
-    .is('scored_at', null);
+  const allEvents = gwEvents ?? [];
+  const eventsToClose = allEvents.filter(e => e.status === 'registering' || e.status === 'late-reg');
+  if (eventsToClose.length > 0) {
+    const { error: closeErr } = await supabase
+      .from('events')
+      .update({ status: 'running' })
+      .in('id', eventsToClose.map(e => e.id));
+    if (closeErr) errors.push(`Events schließen: ${closeErr.message}`);
+  }
 
-  const allEvents = [...(gwEvents ?? []), ...(unscoredEndedEvents ?? [])];
-  // Deduplicate by id
-  const eventMap = new Map(allEvents.map(e => [e.id, e]));
-  const eventsToScore = Array.from(eventMap.values());
-
-  // 3. Score each event sequentially
+  // 3. Score each unscored event sequentially
+  const eventsToScore = allEvents.filter(e => !e.scored_at);
   for (const evt of eventsToScore) {
-    if (evt.scored_at) continue; // already scored
     const result = await scoreEvent(evt.id);
     if (result.success) {
       eventsScored++;
@@ -203,7 +200,19 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number): Pr
     }
   }
 
-  // 4. Advance active_gameweek
+  // 4. Auto-create events for next GW (clone from current)
+  const { createNextGameweekEvents } = await import('@/lib/services/events');
+  try {
+    const cloneResult = await createNextGameweekEvents(clubId, gameweek);
+    nextGwEventsCreated = cloneResult.created;
+    if (cloneResult.error && !cloneResult.skipped) {
+      errors.push(`Nächster GW Events: ${cloneResult.error}`);
+    }
+  } catch (e) {
+    errors.push(`Nächster GW Events: ${e instanceof Error ? e.message : 'Fehler'}`);
+  }
+
+  // 5. Advance active_gameweek
   const nextGw = gameweek + 1;
   const { setActiveGameweek } = await import('@/lib/services/club');
   try {
@@ -225,6 +234,7 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number): Pr
     fixturesSimulated,
     eventsScored,
     nextGameweek: nextGw,
+    nextGwEventsCreated,
     errors,
   };
 }

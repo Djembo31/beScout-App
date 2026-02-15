@@ -49,16 +49,13 @@ const EventDetailModal = dynamic(
 // MAPPERS: DB → Local Types
 // ============================================
 
-/** Derive actual event status from DB status + timestamps */
+/** Derive actual event status from DB status — admin-controlled, no timestamp overrides */
 function deriveEventStatus(db: DbEvent): EventStatus {
-  const now = Date.now();
-  const startsAt = new Date(db.starts_at).getTime();
-  const endsAt = db.ends_at ? new Date(db.ends_at).getTime() : null;
-
-  if (db.status === 'ended' || db.status === 'scoring' || db.scored_at) return 'ended';
-  if (endsAt && now > endsAt) return 'ended';
-  if (db.status === 'registering' || db.status === 'late-reg') return db.status as EventStatus;
-  if (now >= startsAt) return 'running';
+  if (db.scored_at) return 'ended';
+  const s = db.status;
+  if (s === 'ended' || s === 'scoring') return 'ended';
+  if (s === 'running') return 'running';
+  if (s === 'registering' || s === 'late-reg') return s as EventStatus;
   return 'upcoming';
 }
 
@@ -486,14 +483,16 @@ export default function FantasyContent() {
     window.location.reload();
   }, []);
 
-  // After gameweek simulation: reload data
+  // After gameweek simulation: reload data + auto-navigate to new GW
   const handleSimulated = useCallback(() => {
-    addToast('Spieltag simuliert! Ergebnisse werden geladen...', 'success');
+    addToast('Spieltag abgeschlossen! Nächster Spieltag wird geladen...', 'success');
     // Re-fetch events to get updated scores
     if (!user) return;
     const uid = user.id;
     (async () => {
       try {
+        // Invalidate cached events so we get fresh data including cloned events
+        invalidate('events:');
         const [dbEvents, joinedIds] = await Promise.all([
           getEvents(),
           getUserJoinedEventIds(uid),
@@ -508,9 +507,10 @@ export default function FantasyContent() {
         });
         setEvents(dbEvents.map(e => dbEventToFantasyEvent(e, joinedSet, lineupMap.get(e.id))));
 
-        // Re-fetch active GW (may have advanced)
+        // Re-fetch active GW (may have advanced) and auto-navigate
         const newGw = await getActiveGameweek(PILOT_CLUB_ID);
         setActiveGameweek(newGw);
+        setSelectedGameweek(newGw);
       } catch { /* silent */ }
     })();
   }, [user, addToast]);

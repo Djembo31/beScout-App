@@ -84,6 +84,67 @@ export async function createEvent(params: {
   return { success: true, eventId: data.id };
 }
 
+/**
+ * Clone events from currentGw to nextGw for a club.
+ * Idempotent: skips if events for nextGw already exist. Guard: max GW 38.
+ */
+export async function createNextGameweekEvents(
+  clubId: string,
+  currentGw: number
+): Promise<{ created: number; skipped: boolean; error?: string }> {
+  const nextGw = currentGw + 1;
+  if (nextGw > 38) return { created: 0, skipped: true, error: 'Max GW 38 erreicht' };
+
+  // Check if events already exist for next GW
+  const { data: existing } = await supabase
+    .from('events')
+    .select('id')
+    .eq('club_id', clubId)
+    .eq('gameweek', nextGw)
+    .limit(1);
+
+  if (existing && existing.length > 0) {
+    return { created: 0, skipped: true };
+  }
+
+  // Load current GW events as templates
+  const { data: templates, error: tplErr } = await supabase
+    .from('events')
+    .select('name, type, format, entry_fee, prize_pool, max_entries, club_id, created_by')
+    .eq('club_id', clubId)
+    .eq('gameweek', currentGw);
+
+  if (tplErr || !templates || templates.length === 0) {
+    return { created: 0, skipped: false, error: tplErr?.message ?? 'Keine Events zum Klonen gefunden' };
+  }
+
+  // Create clones for next GW
+  const now = new Date().toISOString();
+  const farFuture = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const clones = templates.map(t => ({
+    name: t.name.replace(/Spieltag \d+/i, `Spieltag ${nextGw}`).replace(/GW\s*\d+/i, `GW ${nextGw}`),
+    type: t.type,
+    format: t.format,
+    gameweek: nextGw,
+    entry_fee: t.entry_fee,
+    prize_pool: t.prize_pool,
+    max_entries: t.max_entries,
+    club_id: t.club_id,
+    created_by: t.created_by,
+    starts_at: farFuture,
+    locks_at: farFuture,
+    ends_at: farFuture,
+    status: 'registering',
+    current_entries: 0,
+  }));
+
+  const { error: insertErr } = await supabase.from('events').insert(clones);
+  if (insertErr) return { created: 0, skipped: false, error: insertErr.message };
+
+  invalidate('events:');
+  return { created: clones.length, skipped: false };
+}
+
 export async function updateEventStatus(
   eventId: string,
   status: string

@@ -549,6 +549,7 @@ export function SpieltagTab({
   const [fixturesLoading, setFixturesLoading] = useState(true);
   const [lineupStatuses, setLineupStatuses] = useState<Map<string, { hasLineup: boolean; score: number | null; rank: number | null }>>(new Map());
   const [simulating, setSimulating] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [selectedFixture, setSelectedFixture] = useState<Fixture | null>(null);
 
   // Load fixtures for current GW
@@ -608,6 +609,7 @@ export function SpieltagTab({
 
   const handleSimulate = async () => {
     if (!isAdmin || simulating) return;
+    setShowConfirm(false);
     setSimulating(true);
     try {
       const result = await simulateGameweekFlow(clubId, gameweek);
@@ -660,12 +662,12 @@ export function SpieltagTab({
         <div className="flex items-center gap-2">
           {isAdmin && isCurrentGw && gwStatus === 'open' && gwEvents.length > 0 && (
             <button
-              onClick={handleSimulate}
+              onClick={() => setShowConfirm(true)}
               disabled={simulating}
               className="flex items-center gap-1.5 px-3 py-2 bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-xl text-sm font-bold text-[#FFD700] hover:bg-[#FFD700]/20 disabled:opacity-50 transition-all"
             >
               {simulating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-              <span className="hidden sm:inline">{simulating ? 'Simuliere...' : 'Simulieren'}</span>
+              <span className="hidden sm:inline">{simulating ? 'Spieltag wird gestartet...' : 'Spieltag starten'}</span>
             </button>
           )}
           {isAdmin && gwStatus === 'simulated' && isCurrentGw && (
@@ -853,6 +855,47 @@ export function SpieltagTab({
           <div className="text-white/30 text-xs">{fixtures.length} Paarungen vorhanden — Events werden vom Admin erstellt.</div>
         </Card>
       )}
+
+      {/* ===== SPIELTAG STARTEN CONFIRMATION ===== */}
+      <Modal open={showConfirm} title="Spieltag starten" onClose={() => setShowConfirm(false)}>
+        <div className="space-y-4 p-2">
+          <p className="text-sm text-white/70">
+            Spieltag {gameweek} wird gestartet. Folgendes passiert:
+          </p>
+          <ul className="space-y-2 text-sm">
+            <li className="flex items-start gap-2">
+              <span className="text-red-400 mt-0.5">1.</span>
+              <span>Anmeldung wird <strong className="text-red-400">geschlossen</strong> — {gwEvents.length} Event{gwEvents.length !== 1 ? 's' : ''} werden auf &quot;running&quot; gesetzt</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-sky-400 mt-0.5">2.</span>
+              <span>{fixtures.length} Spiele werden <strong className="text-sky-400">simuliert</strong></span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-[#FFD700] mt-0.5">3.</span>
+              <span>Events werden <strong className="text-[#FFD700]">gescored</strong> und Ergebnisse stehen fest</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-[#22C55E] mt-0.5">4.</span>
+              <span>Events für <strong className="text-[#22C55E]">Spieltag {gameweek + 1}</strong> werden automatisch erstellt</span>
+            </li>
+          </ul>
+          <div className="flex items-center gap-3 pt-2">
+            <button
+              onClick={() => setShowConfirm(false)}
+              className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-semibold hover:bg-white/10 transition-all"
+            >
+              Abbrechen
+            </button>
+            <button
+              onClick={handleSimulate}
+              className="flex-1 px-4 py-2.5 bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-xl text-sm font-bold text-[#FFD700] hover:bg-[#FFD700]/20 transition-all"
+            >
+              Spieltag starten
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* ===== FIXTURE DETAIL MODAL ===== */}
       <FixtureDetailModal
