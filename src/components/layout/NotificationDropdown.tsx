@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight, Send, RotateCcw } from 'lucide-react';
+import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight, Send, RotateCcw, Crown, TrendingUp, Star, Crosshair } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getNotifications, markAsRead, markAllAsRead, getUnreadCount } from '@/lib/services/notifications';
 import type { DbNotification, NotificationType } from '@/types';
@@ -23,6 +23,10 @@ function getNotifIcon(type: NotificationType) {
     case 'offer_accepted': return <CheckCircle className="w-4 h-4" />;
     case 'offer_rejected': return <XCircle className="w-4 h-4" />;
     case 'offer_countered': return <RotateCcw className="w-4 h-4" />;
+    case 'dpc_of_week': return <Crown className="w-4 h-4" />;
+    case 'tier_promotion': return <Star className="w-4 h-4" />;
+    case 'price_alert': return <TrendingUp className="w-4 h-4" />;
+    case 'mission_reward': return <Crosshair className="w-4 h-4" />;
     case 'system': return <Info className="w-4 h-4" />;
   }
 }
@@ -43,6 +47,10 @@ function getNotifColor(type: NotificationType): string {
     case 'offer_accepted': return 'text-[#22C55E] bg-[#22C55E]/10';
     case 'offer_rejected': return 'text-red-400 bg-red-400/10';
     case 'offer_countered': return 'text-blue-400 bg-blue-400/10';
+    case 'dpc_of_week': return 'text-[#FFD700] bg-[#FFD700]/10';
+    case 'tier_promotion': return 'text-purple-400 bg-purple-400/10';
+    case 'price_alert': return 'text-amber-400 bg-amber-400/10';
+    case 'mission_reward': return 'text-sky-400 bg-sky-400/10';
     case 'system': return 'text-sky-400 bg-sky-400/10';
   }
 }

@@ -325,7 +325,7 @@ export default function FantasyContent() {
     ));
   }, []);
 
-  const handleJoinEvent = useCallback(async (event: FantasyEvent, lineup: LineupPlayer[], formation: string) => {
+  const handleJoinEvent = useCallback(async (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null = null) => {
     if (!user) return;
 
     if (event.status === 'ended' || event.status === 'running') {
@@ -370,6 +370,7 @@ export default function FantasyContent() {
           slotMid1: slotMap.get(3) || null,
           slotMid2: slotMap.get(4) || null,
           slotAtt: slotMap.get(5) || null,
+          captainSlot,
         });
       } catch (lineupErr: unknown) {
         // Lineup failed — refund the fee to keep state consistent

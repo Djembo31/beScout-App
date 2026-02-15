@@ -37,34 +37,9 @@ const ManagerCompareTab = dynamic(() => import('@/components/manager/ManagerComp
 const ManagerOffersTab = dynamic(() => import('@/components/manager/ManagerOffersTab'), { ssr: false });
 
 // ============================================
-// WATCHLIST (localStorage)
+// WATCHLIST (DB-backed via service)
 // ============================================
-const WATCHLIST_KEY = 'bescout-watchlist';
-const WATCHLIST_PRICES_KEY = 'bescout-watchlist-prices';
-
-function loadWatchlist(): Record<string, boolean> {
-  if (typeof window === 'undefined') return {};
-  try {
-    const raw = localStorage.getItem(WATCHLIST_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-}
-
-function saveWatchlist(wl: Record<string, boolean>): void {
-  localStorage.setItem(WATCHLIST_KEY, JSON.stringify(wl));
-}
-
-function loadWatchlistPrices(): Record<string, number> {
-  if (typeof window === 'undefined') return {};
-  try {
-    const raw = localStorage.getItem(WATCHLIST_PRICES_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-}
-
-function saveWatchlistPrices(prices: Record<string, number>): void {
-  localStorage.setItem(WATCHLIST_PRICES_KEY, JSON.stringify(prices));
-}
+import { getWatchlist, addToWatchlist, removeFromWatchlist, migrateLocalWatchlist } from '@/lib/services/watchlist';
 
 // ============================================
 // TYPES
@@ -204,7 +179,7 @@ export default function MarketPage() {
   });
   const [portfolioView, setPortfolioView] = useState<'kader' | 'portfolio'>('kader');
   const [view, setView] = useState<'grid' | 'list'>('grid');
-  const [watchlist, setWatchlist] = useState<Record<string, boolean>>(loadWatchlist);
+  const [watchlist, setWatchlist] = useState<Record<string, boolean>>({});
   const [query, setQuery] = useState('');
   const [showCompare, setShowCompare] = useState(false);
 
@@ -252,10 +227,12 @@ export default function MarketPage() {
         const results = await withTimeout(Promise.allSettled([
           getPlayers(),
           user ? getHoldings(user.id) : Promise.resolve([]),
+          user ? getWatchlist(user.id) : Promise.resolve([]),
         ]), 10000);
         if (cancelled) return;
         const dbPlayers = val(results[0], []);
         const hlds = val(results[1], []);
+        const wlEntries = val(results[2], []);
         if (results[0].status === 'rejected') {
           if (!cancelled) setDataError(true);
           return;
@@ -267,6 +244,22 @@ export default function MarketPage() {
         });
         setPlayers(base);
         setHoldings(hlds);
+        // Build watchlist map from DB entries
+        const wlMap: Record<string, boolean> = {};
+        for (const entry of wlEntries) { wlMap[entry.playerId] = true; }
+        setWatchlist(wlMap);
+        // Migrate localStorage watchlist if present (one-time)
+        if (user && typeof window !== 'undefined' && localStorage.getItem('bescout-watchlist')) {
+          migrateLocalWatchlist(user.id).then(count => {
+            if (count > 0) {
+              getWatchlist(user.id).then(entries => {
+                const newMap: Record<string, boolean> = {};
+                for (const e of entries) { newMap[e.playerId] = true; }
+                setWatchlist(newMap);
+              }).catch(() => {});
+            }
+          }).catch(() => {});
+        }
         setDataError(false);
       } catch {
         if (!cancelled) setDataError(true);
@@ -318,12 +311,12 @@ export default function MarketPage() {
         setIpoList(ipos);
         setTrending(trendData);
 
-        // Watchlist price change detection
-        const wl = loadWatchlist();
-        const savedPrices = loadWatchlistPrices();
+        // Watchlist price change detection (using DB-backed watchlist state)
+        const savedPricesRaw = typeof window !== 'undefined' ? localStorage.getItem('bescout-watchlist-prices') : null;
+        const savedPrices: Record<string, number> = savedPricesRaw ? JSON.parse(savedPricesRaw) : {};
         const updatedPrices = { ...savedPrices };
         for (const p of players) {
-          if (!wl[p.id]) continue;
+          if (!watchlist[p.id]) continue;
           const oldPrice = savedPrices[p.id];
           const newPrice = p.prices.floor ?? 0;
           if (oldPrice && oldPrice > 0 && newPrice > 0) {
@@ -336,7 +329,7 @@ export default function MarketPage() {
           }
           updatedPrices[p.id] = newPrice;
         }
-        saveWatchlistPrices(updatedPrices);
+        if (typeof window !== 'undefined') localStorage.setItem('bescout-watchlist-prices', JSON.stringify(updatedPrices));
       } catch {
         // Enrichment failure is non-critical
       } finally {
@@ -349,18 +342,14 @@ export default function MarketPage() {
   }, [players.length, dataLoading]);
 
   const toggleWatch = (id: string) => {
-    setWatchlist((prev) => {
-      const next = { ...prev, [id]: !prev[id] };
-      saveWatchlist(next);
-      if (next[id]) {
-        const p = players.find(pl => pl.id === id);
-        if (p) {
-          const prices = loadWatchlistPrices();
-          prices[id] = p.prices.floor ?? 0;
-          saveWatchlistPrices(prices);
-        }
-      }
-      return next;
+    if (!user) return;
+    const isWatched = !!watchlist[id];
+    // Optimistic update
+    setWatchlist(prev => ({ ...prev, [id]: !isWatched }));
+    // DB call (fire-and-forget with rollback on error)
+    const action = isWatched ? removeFromWatchlist(user.id, id) : addToWatchlist(user.id, id);
+    action.catch(() => {
+      setWatchlist(prev => ({ ...prev, [id]: isWatched }));
     });
   };
 

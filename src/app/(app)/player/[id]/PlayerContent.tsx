@@ -527,6 +527,8 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             holdingQty={holdingQty}
             holderCount={holderCount}
             gwScores={gwScores}
+            userId={user?.id}
+            currentGameweek={gwScores[0]?.gameweek ?? 0}
           />
         )}
 

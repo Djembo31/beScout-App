@@ -44,6 +44,14 @@ import { val } from '@/lib/settledHelpers';
 import dynamic from 'next/dynamic';
 
 const MissionBanner = dynamic(() => import('@/components/missions/MissionBanner'), { ssr: false });
+const ScoutMissionCard = dynamic(() => import('@/components/missions/ScoutMissionCard'), { ssr: false });
+import { getDpcOfTheWeek } from '@/lib/services/dpcOfTheWeek';
+import type { DpcOfTheWeek } from '@/lib/services/dpcOfTheWeek';
+import { getScoutMissions, getUserMissionProgress } from '@/lib/services/scoutMissions';
+import type { ScoutMission, UserScoutMission } from '@/lib/services/scoutMissions';
+import { TierBadge } from '@/components/ui/TierBadge';
+import { getFanTier } from '@/types';
+import type { FanTier } from '@/types';
 import { getActivityColor as actColor, getActivityLabel, getRelativeTime, getActivityIcon as actIconName } from '@/lib/activityHelpers';
 import { getPosts } from '@/lib/services/posts';
 import type { Player, DpcHolding, DbTransaction, DbEvent, DbOrder, Pos, DbUserStats, LeaderboardUser, PostWithAuthor } from '@/types';
@@ -245,6 +253,9 @@ export default function HomePage() {
   const [topTraders, setTopTraders] = useState<TopTrader[]>([]);
   const [communityPosts, setCommunityPosts] = useState<PostWithAuthor[]>([]);
   const [streak, setStreak] = useState(0);
+  const [dpcOfWeek, setDpcOfWeek] = useState<DpcOfTheWeek | null>(null);
+  const [scoutMissions, setScoutMissions] = useState<ScoutMission[]>([]);
+  const [missionProgress, setMissionProgress] = useState<UserScoutMission[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -264,6 +275,7 @@ export default function HomePage() {
           getRecentGlobalTrades(10),
           getTopTraders(5),
           getPosts({ limit: 5 }),
+          getDpcOfTheWeek(),
         ]), 10000);
         if (cancelled) return;
 
@@ -277,6 +289,7 @@ export default function HomePage() {
         const trades = val(results[7], []);
         const traders = val(results[8], []);
         const posts = val(results[9], []);
+        const dpcWeek = val(results[10], null);
 
         if (results[0].status === 'rejected') {
           if (!cancelled) setDataError(true);
@@ -292,6 +305,7 @@ export default function HomePage() {
         setRecentTrades(trades);
         setTopTraders(traders);
         setCommunityPosts(posts);
+        setDpcOfWeek(dpcWeek);
 
         const mapped: DpcHolding[] = dbHoldings.map((h) => ({
           id: h.id,
@@ -325,6 +339,23 @@ export default function HomePage() {
     import('@/lib/services/missions').then(({ trackMissionProgress }) => {
       trackMissionProgress(uid, 'daily_login');
     }).catch(() => {});
+
+    // Load scout missions (fire-and-forget, non-critical)
+    Promise.allSettled([getScoutMissions()]).then(([missionsRes]) => {
+      if (cancelled) return;
+      const missions = val(missionsRes, []);
+      setScoutMissions(missions);
+      // Determine current GW from events (use max gameweek)
+      getEvents().then(evts => {
+        if (cancelled) return;
+        const maxGw = evts.reduce((mx, e) => Math.max(mx, e.gameweek || 0), 0);
+        if (maxGw > 0) {
+          getUserMissionProgress(uid, maxGw).then(progress => {
+            if (!cancelled) setMissionProgress(progress);
+          }).catch(() => {});
+        }
+      }).catch(() => {});
+    });
 
     setStreak(updateLoginStreak());
 
@@ -414,13 +445,16 @@ export default function HomePage() {
             <span className="text-[#FFD700]">.</span>
           </h1>
         </div>
-        {streak >= 2 && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-400/20 anim-fade">
-            <Flame className="w-4 h-4 text-orange-400" />
-            <span className="text-sm font-black text-orange-300">{streak}</span>
-            <span className="text-[10px] text-orange-400/60 hidden sm:inline">Tage</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {userStats?.tier && <TierBadge tier={userStats.tier} size="md" />}
+          {streak >= 2 && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-400/20 anim-fade">
+              <Flame className="w-4 h-4 text-orange-400" />
+              <span className="text-sm font-black text-orange-300">{streak}</span>
+              <span className="text-[10px] text-orange-400/60 hidden sm:inline">Tage</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ━━━ WELCOME BANNER ━━━ */}
@@ -573,8 +607,65 @@ export default function HomePage() {
             </div>
           </div>
 
+          {/* DPC der Woche */}
+          {dpcOfWeek && (
+            <div>
+              <SectionHeader title="DPC der Woche" badge={
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FFD700]/15 border border-[#FFD700]/25">
+                  <Trophy className="w-3 h-3 text-[#FFD700]" />
+                  <span className="text-[10px] font-bold text-[#FFD700]">GW {dpcOfWeek.gameweek}</span>
+                </span>
+              } />
+              <Link href={`/player/${dpcOfWeek.playerId}`} className="block mt-3">
+                <div className="relative overflow-hidden rounded-2xl border border-[#FFD700]/30 bg-gradient-to-br from-[#FFD700]/10 via-[#FFD700]/5 to-transparent">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFD700]/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                  <div className="p-4 flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-xl bg-[#FFD700]/20 border border-[#FFD700]/30 flex items-center justify-center">
+                      <Star className="w-7 h-7 text-[#FFD700]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-[#FFD700] mb-0.5">Bester Spieler</div>
+                      <div className="font-black text-lg truncate">{dpcOfWeek.playerFirstName} {dpcOfWeek.playerLastName}</div>
+                      <div className="text-xs text-white/50">{dpcOfWeek.playerClub} • {dpcOfWeek.holderCount} Besitzer</div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-2xl font-mono font-black text-[#FFD700]">{dpcOfWeek.score}</div>
+                      <div className="text-[10px] text-white/40">Punkte</div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          )}
+
           {/* Missionen */}
           <MissionBanner />
+
+          {/* Scout Missions */}
+          {scoutMissions.length > 0 && (
+            <div>
+              <SectionHeader
+                title="Scout Aufträge"
+                badge={
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/15 border border-sky-400/25">
+                    <span className="text-[10px] font-bold text-sky-300">{scoutMissions.length} aktiv</span>
+                  </span>
+                }
+              />
+              <div className="mt-3 space-y-3">
+                {scoutMissions.slice(0, 3).map(m => (
+                  <ScoutMissionCard
+                    key={m.id}
+                    mission={m}
+                    progress={missionProgress.find(p => p.missionId === m.id)}
+                    userTier={getFanTier(userStats?.total_score ?? 0)}
+                    onSubmit={() => addToast('Spieler-Einreichung kommt bald!', 'info')}
+                    onClaim={() => addToast('Belohnung wird abgeholt...', 'info')}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </TabPanel>
 

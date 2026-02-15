@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Trophy, Users, Clock, Star, Shield, Award,
+  Trophy, Users, Clock, Star, Shield, Award, Crown,
   ChevronRight, Search, Lock,
   CheckCircle2, AlertCircle, Play, Medal,
   Briefcase, Coins, Layers,
@@ -10,6 +10,8 @@ import {
   MessageCircle, X, RefreshCw, Heart,
   ChevronLeft, BarChart3, History,
 } from 'lucide-react';
+import { getScoreTier, SCORE_TIER_CONFIG, calculateSynergyPreview } from '@/types';
+import type { SynergyDetail } from '@/types';
 import { Card, Button, Chip } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -39,7 +41,7 @@ export const EventDetailModal = ({
   event: FantasyEvent | null;
   isOpen: boolean;
   onClose: () => void;
-  onJoin: (event: FantasyEvent, lineup: LineupPlayer[], formation: string) => void;
+  onJoin: (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null) => void;
   onLeave: (event: FantasyEvent) => void;
   onReset: (event: FantasyEvent) => void;
   userHoldings: UserDpcHolding[];
@@ -64,6 +66,7 @@ export const EventDetailModal = ({
   const [scoringJustFinished, setScoringJustFinished] = useState(false);
   const [viewingUserLineup, setViewingUserLineup] = useState<{ entry: LeaderboardEntry; data: LineupWithPlayers } | null>(null);
   const [viewingUserLoading, setViewingUserLoading] = useState(false);
+  const [captainSlot, setCaptainSlot] = useState<string | null>(null);
 
   // Set default tab based on join status when modal opens
   useEffect(() => {
@@ -131,6 +134,7 @@ export const EventDetailModal = ({
             setSlotScores(dbLineup.slot_scores ?? null);
             setMyTotalScore(dbLineup.total_score);
             setMyRank(dbLineup.rank);
+            setCaptainSlot(dbLineup.captain_slot ?? null);
 
             const formation = FORMATIONS_6ER.find(f => f.id === savedFormation) || FORMATIONS_6ER[0];
             const fSlots: { pos: string; slot: number }[] = [];
@@ -230,6 +234,14 @@ export const EventDetailModal = ({
     return effectiveHoldings.find(h => h.id === selected.playerId);
   };
 
+  // Synergy preview — detect club duos in selected lineup
+  const synergyPreview = (() => {
+    const clubs = selectedPlayers
+      .map(sp => effectiveHoldings.find(h => h.id === sp.playerId)?.club)
+      .filter(Boolean) as string[];
+    return calculateSynergyPreview(clubs);
+  })();
+
   const getAvailablePlayersForPosition = (position: string) => {
     const posMap: Record<string, string[]> = {
       'GK': ['GK'], 'DEF': ['DEF', 'CB', 'LB', 'RB'],
@@ -281,7 +293,7 @@ export const EventDetailModal = ({
   const handleConfirmJoin = () => {
     if (!isLineupComplete) { alert('Bitte stelle deine komplette Aufstellung auf!'); return; }
     if (!reqCheck.ok) { alert(reqCheck.message); return; }
-    onJoin(event, selectedPlayers, selectedFormation);
+    onJoin(event, selectedPlayers, selectedFormation, captainSlot);
   };
 
   // Presets (localStorage)
@@ -689,12 +701,19 @@ export const EventDetailModal = ({
                             const pStatus = player ? getPlayerStatusStyle(player.status) : null;
                             const slotScore = (isScored && slotScores) ? slotScores[SLOT_SCORE_KEYS[slot.slot]] : undefined;
                             const hasScore = slotScore != null;
+                            const isCaptain = captainSlot === SLOT_SCORE_KEYS[slot.slot];
                             return (
-                              <button
-                                key={slot.slot}
-                                onClick={() => !isReadOnly && (player ? handleRemovePlayer(slot.slot) : setShowPlayerPicker({ position: slot.pos, slot: slot.slot }))}
-                                className={`flex flex-col items-center relative ${isReadOnly ? 'cursor-default' : ''}`}
-                              >
+                              <div key={slot.slot} className="flex flex-col items-center relative">
+                                {/* Captain Crown (top-left) */}
+                                {player && isCaptain && (
+                                  <div className="absolute -top-2 -left-2 z-30 w-5 h-5 rounded-full bg-[#FFD700] flex items-center justify-center shadow-lg">
+                                    <Crown className="w-3 h-3 text-black" />
+                                  </div>
+                                )}
+                                {/* Captain ×1.5 badge (scored view) */}
+                                {player && hasScore && isCaptain && (
+                                  <div className="absolute -top-2 left-4 z-30 px-1 py-0.5 rounded bg-[#FFD700]/90 text-[8px] font-black text-black shadow-lg">×1.5</div>
+                                )}
                                 {/* Score badge (top-right, overlapping circle) */}
                                 {player && hasScore && (
                                   <div
@@ -707,6 +726,21 @@ export const EventDetailModal = ({
                                     {slotScore}
                                   </div>
                                 )}
+                                <button
+                                  onClick={() => !isReadOnly && (player ? handleRemovePlayer(slot.slot) : setShowPlayerPicker({ position: slot.pos, slot: slot.slot }))}
+                                  onContextMenu={(e) => {
+                                    e.preventDefault();
+                                    if (!isReadOnly && player) {
+                                      setCaptainSlot(isCaptain ? null : SLOT_SCORE_KEYS[slot.slot]);
+                                    }
+                                  }}
+                                  onDoubleClick={() => {
+                                    if (!isReadOnly && player) {
+                                      setCaptainSlot(isCaptain ? null : SLOT_SCORE_KEYS[slot.slot]);
+                                    }
+                                  }}
+                                  className={`flex flex-col items-center ${isReadOnly ? 'cursor-default' : ''}`}
+                                >
                                 <div
                                   className={`w-11 h-11 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 transition-all ${player
                                     ? hasScore
@@ -717,30 +751,33 @@ export const EventDetailModal = ({
                                     : 'bg-white/5 border-dashed hover:brightness-125'
                                   }`}
                                   style={{
-                                    borderColor: player && !hasScore && player.status !== 'injured' && player.status !== 'suspended'
-                                      ? getPosAccentColor(player.pos)
-                                      : player && hasScore
-                                        ? getScoreColor(slotScore!)
-                                        : !player ? getPosAccentColor(slot.pos) + '60' : undefined,
-                                    boxShadow: player && hasScore ? `0 0 12px ${getScoreColor(slotScore!)}40` : undefined,
+                                    borderColor: player && isCaptain && !hasScore ? '#FFD700'
+                                      : player && !hasScore && player.status !== 'injured' && player.status !== 'suspended'
+                                        ? getPosAccentColor(player.pos)
+                                        : player && hasScore
+                                          ? getScoreColor(slotScore!)
+                                          : !player ? getPosAccentColor(slot.pos) + '60' : undefined,
+                                    boxShadow: player && isCaptain && !hasScore ? '0 0 12px rgba(255,215,0,0.3)'
+                                      : player && hasScore ? `0 0 12px ${getScoreColor(slotScore!)}40` : undefined,
                                   }}
                                 >
                                   {player ? (
-                                    <span className="font-bold text-sm" style={{ color: hasScore ? '#fff' : getPosAccentColor(player.pos) }}>{player.first[0]}{player.last[0]}</span>
+                                    <span className="font-bold text-sm" style={{ color: hasScore ? '#fff' : isCaptain ? '#FFD700' : getPosAccentColor(player.pos) }}>{player.first[0]}{player.last[0]}</span>
                                   ) : (
                                     <Plus className="w-5 h-5 text-white/30" />
                                   )}
                                 </div>
-                                {pStatus && !hasScore && pStatus.icon !== '🟢' && (
+                                {pStatus && !hasScore && pStatus.icon !== '🟢' && !isCaptain && (
                                   <span className="absolute -top-1 -right-1 text-xs">{pStatus.icon}</span>
                                 )}
-                                <div className="text-[10px] mt-1" style={{ color: player ? (hasScore ? '#ffffffcc' : getPosAccentColor(player.pos) + 'aa') : getPosAccentColor(slot.pos) + '80' }}>
+                                <div className="text-[10px] mt-1" style={{ color: player ? (hasScore ? '#ffffffcc' : isCaptain ? '#FFD700' : getPosAccentColor(player.pos) + 'aa') : getPosAccentColor(slot.pos) + '80' }}>
                                   {player ? player.last.slice(0, 8) : slot.pos}
                                 </div>
                                 {player && !hasScore && (
                                   <div className="text-[9px] text-white/30">L5: {player.perfL5} • {player.dpcAvailable}/{player.dpcOwned}</div>
                                 )}
-                              </button>
+                                </button>
+                              </div>
                             );
                           })}
                         </div>
@@ -817,13 +854,32 @@ export const EventDetailModal = ({
                     const scoreKey = SLOT_SCORE_KEYS[slot.slot];
                     const score = slotScores[scoreKey];
                     if (!player || score == null) return null;
+                    const isCpt = captainSlot === scoreKey;
+                    const tier = getScoreTier(score);
+                    const tierCfg = tier !== 'none' ? SCORE_TIER_CONFIG[tier] : null;
                     return (
-                      <div key={slot.slot} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/[0.06]">
+                      <div key={slot.slot} className={`flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border ${isCpt ? 'border-[#FFD700]/30' : 'border-white/[0.06]'}`}>
                         <div className="flex items-center gap-3">
-                          <PositionBadge pos={player.pos as Pos} size="sm" />
+                          {isCpt ? (
+                            <div className="w-6 h-6 rounded-full bg-[#FFD700]/20 flex items-center justify-center flex-shrink-0">
+                              <Crown className="w-3.5 h-3.5 text-[#FFD700]" />
+                            </div>
+                          ) : (
+                            <PositionBadge pos={player.pos as Pos} size="sm" />
+                          )}
                           <div>
-                            <div className="font-medium text-sm">{player.first} {player.last}</div>
-                            <div className="text-[10px] text-white/40">{player.club}</div>
+                            <div className="font-medium text-sm flex items-center gap-1.5">
+                              {player.first} {player.last}
+                              {isCpt && <span className="text-[9px] font-bold text-[#FFD700] bg-[#FFD700]/10 px-1 rounded">C ×1.5</span>}
+                            </div>
+                            <div className="text-[10px] text-white/40 flex items-center gap-1.5">
+                              {player.club}
+                              {tierCfg && (
+                                <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${tierCfg.bg} ${tierCfg.color}`}>
+                                  {tierCfg.labelDe} +{tierCfg.bonusCents / 100} BSD
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -846,6 +902,19 @@ export const EventDetailModal = ({
                 </div>
               )}
 
+              {/* Synergy Bonus (scored view) */}
+              {isScored && synergyPreview.totalPct > 0 && (
+                <div className="flex items-center gap-3 p-3 bg-sky-500/5 border border-sky-500/20 rounded-lg">
+                  <Building2 className="w-5 h-5 text-sky-400 flex-shrink-0" />
+                  <div>
+                    <div className="text-sm font-bold text-sky-300">Synergy Bonus +{synergyPreview.totalPct}%</div>
+                    <div className="text-[10px] text-white/40">
+                      {synergyPreview.details.map(d => `${d.source} (${d.bonus_pct}%)`).join(' + ')}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* CTA to Leaderboard */}
               {isScored && (
                 <button
@@ -856,6 +925,32 @@ export const EventDetailModal = ({
                   Rangliste anzeigen
                   <ChevronRight className="w-4 h-4" />
                 </button>
+              )}
+
+              {/* Captain Selection Hint */}
+              {!isScored && !isReadOnly && selectedPlayers.length > 0 && (
+                <div className="flex items-center gap-2 p-3 bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-lg">
+                  <Crown className="w-4 h-4 text-[#FFD700]" />
+                  <span className="text-xs text-[#FFD700]/80">
+                    {captainSlot ? `Kapitän: ${(() => { const idx = SLOT_SCORE_KEYS.indexOf(captainSlot); const p = idx >= 0 ? getSelectedPlayer(idx) : null; return p ? `${p.first} ${p.last} (×1.5)` : captainSlot; })()}` : 'Doppelklick auf einen Spieler = Kapitän (×1.5 Score)'}
+                  </span>
+                  {captainSlot && (
+                    <button onClick={() => setCaptainSlot(null)} className="ml-auto text-[10px] text-white/40 hover:text-white/60">Entfernen</button>
+                  )}
+                </div>
+              )}
+
+              {/* Synergy Banner (during lineup building) */}
+              {!isScored && !isReadOnly && synergyPreview.totalPct > 0 && (
+                <div className="flex items-center gap-2 p-3 bg-sky-500/5 border border-sky-500/20 rounded-lg">
+                  <Building2 className="w-4 h-4 text-sky-400 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs text-sky-300 font-bold">Synergy +{synergyPreview.totalPct}%</span>
+                    <span className="text-xs text-white/40 ml-2">
+                      {synergyPreview.details.map(d => `${d.source} ×${Math.ceil(d.bonus_pct / 5) + 1}`).join(', ')}
+                    </span>
+                  </div>
+                </div>
               )}
 
               {/* Lineup Status (only when not scored — no need to show "3/6 selected" after scoring) */}

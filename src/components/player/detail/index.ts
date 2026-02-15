@@ -15,3 +15,4 @@ export { default as MobileTradingBar } from './MobileTradingBar';
 export { default as TradingModal } from './TradingModal';
 export { default as LiquidationAlert } from './LiquidationAlert';
 export { default as PlayerImagePlaceholder } from './PlayerImagePlaceholder';
+export { default as CommunityValuation } from './CommunityValuation';

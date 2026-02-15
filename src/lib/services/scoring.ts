@@ -223,6 +223,11 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number): Pr
     errors.push(`GW advance: ${e instanceof Error ? e.message : 'Fehler'}`);
   }
 
+  // 6. Calculate DPC of the Week (fire-and-forget)
+  import('@/lib/services/dpcOfTheWeek').then(({ calculateDpcOfWeek }) => {
+    calculateDpcOfWeek(gameweek).catch(err => console.error('[GW Flow] DPC of Week failed:', err));
+  }).catch(err => console.error('[GW Flow] DPC of Week import failed:', err));
+
   // Invalidate all relevant caches
   invalidate('events:');
   invalidate('fantasyHistory:');

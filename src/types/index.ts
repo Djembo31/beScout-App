@@ -424,13 +424,89 @@ export type DbLineup = {
   slot_mid1: string | null;
   slot_mid2: string | null;
   slot_att: string | null;
+  captain_slot: string | null;
   total_score: number | null;
   slot_scores: Record<string, number> | null;
   rank: number | null;
   reward_amount: number;
   submitted_at: string;
   locked: boolean;
+  synergy_bonus_pct: number;
+  synergy_details: SynergyDetail[] | null;
 };
+
+// ============================================
+// SYNERGY TYPES
+// ============================================
+
+export type SynergyDetail = { type: 'club'; source: string; bonus_pct: number };
+
+/** Client-side preview: detect club duos in lineup and calculate synergy bonus */
+export function calculateSynergyPreview(clubs: string[]): { totalPct: number; details: SynergyDetail[] } {
+  const counts = new Map<string, number>();
+  for (const c of clubs) counts.set(c, (counts.get(c) || 0) + 1);
+  const details: SynergyDetail[] = [];
+  let totalPct = 0;
+  Array.from(counts.entries()).forEach(([club, count]) => {
+    if (count >= 2) {
+      const pct = Math.min(5 * (count - 1), 15);
+      details.push({ type: 'club', source: club, bonus_pct: pct });
+      totalPct += pct;
+    }
+  });
+  totalPct = Math.min(totalPct, 15);
+  return { totalPct, details };
+}
+
+// ============================================
+// SCORE TIER TYPES
+// ============================================
+
+export type ScoreTier = 'decisive' | 'strong' | 'good' | 'none';
+
+export const SCORE_TIER_CONFIG: Record<Exclude<ScoreTier, 'none'>, { label: string; labelDe: string; minScore: number; color: string; bg: string; border: string; bonusCents: number }> = {
+  decisive: { label: 'Decisive', labelDe: 'Entscheidend', minScore: 120, color: 'text-[#FFD700]', bg: 'bg-[#FFD700]/20', border: 'border-[#FFD700]/40', bonusCents: 500 },
+  strong:   { label: 'Strong', labelDe: 'Stark', minScore: 100, color: 'text-purple-400', bg: 'bg-purple-500/20', border: 'border-purple-500/40', bonusCents: 300 },
+  good:     { label: 'Good', labelDe: 'Gut', minScore: 80, color: 'text-sky-400', bg: 'bg-sky-500/20', border: 'border-sky-500/40', bonusCents: 100 },
+};
+
+export function getScoreTier(score: number): ScoreTier {
+  if (score >= 120) return 'decisive';
+  if (score >= 100) return 'strong';
+  if (score >= 80) return 'good';
+  return 'none';
+}
+
+// ============================================
+// FAN TIER TYPES (Liga System)
+// ============================================
+
+export type FanTier = 'Rookie' | 'Amateur' | 'Profi' | 'Elite' | 'Legende' | 'Ikone';
+
+export const FAN_TIER_THRESHOLDS: { tier: FanTier; minScore: number }[] = [
+  { tier: 'Ikone', minScore: 5000 },
+  { tier: 'Legende', minScore: 3000 },
+  { tier: 'Elite', minScore: 1500 },
+  { tier: 'Profi', minScore: 500 },
+  { tier: 'Amateur', minScore: 100 },
+  { tier: 'Rookie', minScore: 0 },
+];
+
+export const FAN_TIER_STYLES: Record<FanTier, { color: string; bg: string; border: string; icon: string }> = {
+  Rookie:  { color: 'text-zinc-400', bg: 'bg-zinc-500/20', border: 'border-zinc-500/40', icon: '🌱' },
+  Amateur: { color: 'text-blue-400', bg: 'bg-blue-500/20', border: 'border-blue-500/40', icon: '⚡' },
+  Profi:   { color: 'text-green-400', bg: 'bg-green-500/20', border: 'border-green-500/40', icon: '🏅' },
+  Elite:   { color: 'text-purple-400', bg: 'bg-purple-500/20', border: 'border-purple-500/40', icon: '💎' },
+  Legende: { color: 'text-amber-400', bg: 'bg-amber-500/20', border: 'border-amber-500/40', icon: '👑' },
+  Ikone:   { color: 'text-yellow-300', bg: 'bg-yellow-400/20', border: 'border-yellow-400/40', icon: '🌟' },
+};
+
+export function getFanTier(totalScore: number): FanTier {
+  for (const t of FAN_TIER_THRESHOLDS) {
+    if (totalScore >= t.minScore) return t.tier;
+  }
+  return 'Rookie';
+}
 
 export type UserFantasyResult = {
   eventId: string;
@@ -620,6 +696,7 @@ export type DbUserStats = {
   votes_cast: number;
   achievements_count: number;
   rank: number;
+  tier: FanTier;
   updated_at: string;
 };
 
@@ -751,7 +828,7 @@ export function getLevelTier(level: number): LevelTier {
 // NOTIFICATION TYPES
 // ============================================
 
-export type NotificationType = 'research_unlock' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered';
+export type NotificationType = 'research_unlock' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward';
 
 export type DbNotification = {
   id: string;

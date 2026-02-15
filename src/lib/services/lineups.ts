@@ -54,6 +54,7 @@ export async function submitLineup(params: {
   slotMid1: string | null;
   slotMid2: string | null;
   slotAtt: string | null;
+  captainSlot?: string | null;
 }): Promise<DbLineup> {
   // Check event status + capacity before submitting
   const { data: ev } = await supabase
@@ -83,6 +84,7 @@ export async function submitLineup(params: {
         slot_mid1: params.slotMid1,
         slot_mid2: params.slotMid2,
         slot_att: params.slotAtt,
+        captain_slot: params.captainSlot ?? null,
         submitted_at: new Date().toISOString(),
         locked: false,
       },

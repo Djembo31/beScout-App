@@ -14,6 +14,8 @@ import type { Player } from '@/types';
 import type { PlayerGameweekScore } from '@/lib/services/scoring';
 import DPCSupplyRing from './DPCSupplyRing';
 import SponsorBanner from './SponsorBanner';
+import CommunityValuation from './CommunityValuation';
+import { RadarChart, buildPlayerRadarAxes } from '@/components/player/RadarChart';
 
 interface ProfilTabProps {
   player: Player;
@@ -21,6 +23,8 @@ interface ProfilTabProps {
   holdingQty: number;
   holderCount: number;
   gwScores: PlayerGameweekScore[];
+  userId?: string | null;
+  currentGameweek?: number;
 }
 
 const formatMarketValue = (value: number) => {
@@ -29,7 +33,7 @@ const formatMarketValue = (value: number) => {
   return `${value}\u20AC`;
 };
 
-export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCount, gwScores }: ProfilTabProps) {
+export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCount, gwScores, userId, currentGameweek = 0 }: ProfilTabProps) {
   const contract = getContractInfo(player.contractMonthsLeft);
   const successFeeTier = getSuccessFeeTier(player.marketValue || 500000);
   const progressPercent = Math.max(0, Math.min(100, ((36 - player.contractMonthsLeft) / 36) * 100));
@@ -70,6 +74,32 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
           </div>
         </Card>
       </div>
+
+      {/* Attribute Radar */}
+      <Card className="p-4 md:p-6">
+        <h3 className="font-black text-lg mb-4 flex items-center gap-2">
+          <Activity className="w-5 h-5 text-sky-400" />
+          Attribut-Radar
+        </h3>
+        <div className="flex justify-center">
+          <RadarChart
+            datasets={[{
+              axes: buildPlayerRadarAxes({
+                goals: player.stats.goals,
+                assists: player.stats.assists,
+                cleanSheets: 0,
+                matches: player.stats.matches,
+                perfL5: player.perf.l5,
+                perfL15: player.perf.l15,
+                bonus: 0,
+                minutes: player.stats.matches * 90,
+              }),
+              color: player.pos === 'GK' ? '#34d399' : player.pos === 'DEF' ? '#fbbf24' : player.pos === 'MID' ? '#38bdf8' : '#fb7185',
+            }]}
+            size={260}
+          />
+        </div>
+      </Card>
 
       {/* Spieler-Info */}
       <Card className="p-4 md:p-6">
@@ -247,6 +277,15 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
           )}
         </div>
       </Card>
+
+      {/* Community Valuation */}
+      <CommunityValuation
+        playerId={player.id}
+        userId={userId ?? null}
+        floorPriceCents={Math.round((player.prices.floor ?? 0) * 100)}
+        ipoPriceCents={Math.round((player.prices.ipoPrice ?? 0) * 100)}
+        currentGameweek={currentGameweek}
+      />
 
       {/* Sponsor banner mid-page */}
       <SponsorBanner placement="mid" />
