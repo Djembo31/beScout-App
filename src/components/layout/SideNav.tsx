@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import {
+  Building2,
   ChevronLeft,
   ChevronRight,
   DollarSign,
@@ -14,10 +15,9 @@ import {
 } from 'lucide-react';
 import { NAV_MAIN, NAV_MORE, NAV_ADMIN } from '@/lib/nav';
 import { supabase } from '@/lib/supabaseClient';
-import { useUser } from '@/components/providers/AuthProvider';
+import { useUser, useRoles } from '@/components/providers/AuthProvider';
 import { formatBsd } from '@/lib/services/wallet';
 import { useWallet } from '@/components/providers/WalletProvider';
-import { isPlatformAdmin } from '@/lib/services/platformAdmin';
 
 interface SideNavProps {
   mobileOpen?: boolean;
@@ -28,15 +28,9 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useUser();
+  const { isPlatformAdmin, clubAdmin } = useRoles();
   const [collapsed, setCollapsed] = useState(false);
   const { balanceCents } = useWallet();
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  React.useEffect(() => {
-    if (user) {
-      isPlatformAdmin(user.id).then(setIsAdmin).catch(() => {});
-    }
-  }, [user]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -169,8 +163,28 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
             );
           })}
 
+          {/* Club Admin Link */}
+          {clubAdmin && (
+            <Link
+              href={`/club/${clubAdmin.slug}/admin`}
+              onClick={handleNavClick}
+              className={`
+                flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all
+                ${pathname.startsWith(`/club/${clubAdmin.slug}/admin`)
+                  ? 'bg-white/5 text-white'
+                  : 'text-white/40 hover:bg-white/5 hover:text-white/60'
+                }
+                ${collapsed ? 'justify-center' : ''}
+              `}
+              title={collapsed ? 'Club Admin' : undefined}
+            >
+              <Building2 className="w-5 h-5 flex-shrink-0" />
+              {!collapsed && <span className="font-medium">Club Admin</span>}
+            </Link>
+          )}
+
           {/* Platform Admin Link */}
-          {isAdmin && (() => {
+          {isPlatformAdmin && (() => {
             const AdminIcon = NAV_ADMIN.icon;
             const isAdminActive = pathname.startsWith(NAV_ADMIN.href);
             return (

@@ -16,15 +16,18 @@ type AuthMode = 'login' | 'register' | 'magic';
 function LoginContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user, profile, loading } = useUser();
+  const { user, profile, loading, platformRole, clubAdmin } = useUser();
   const callbackError = searchParams.get('error');
 
-  // Redirect authenticated users away from login
+  // Redirect authenticated users away from login — smart redirect by role
   useEffect(() => {
     if (!loading && user) {
-      router.replace(profile ? '/' : '/onboarding');
+      if (!profile) { router.replace('/onboarding'); return; }
+      if (platformRole) { router.replace('/bescout-admin'); return; }
+      if (clubAdmin) { router.replace(`/club/${clubAdmin.slug}/admin`); return; }
+      router.replace('/');
     }
-  }, [loading, user, profile, router]);
+  }, [loading, user, profile, platformRole, clubAdmin, router]);
 
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');

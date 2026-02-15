@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Shield, BarChart3, Users, Percent, Zap, Calendar, Bug,
   Search, DollarSign, ChevronRight, ExternalLink, Loader2,
@@ -494,6 +495,7 @@ function DebugTab() {
 
 export default function BescoutAdminContent() {
   const { user } = useUser();
+  const router = useRouter();
   const [tab, setTab] = useState<AdminTab>('overview');
   const [adminRole, setAdminRole] = useState<PlatformAdminRole | null>(null);
   const [loading, setLoading] = useState(true);
@@ -506,25 +508,18 @@ export default function BescoutAdminContent() {
       setLoading(false);
       if (role) {
         getSystemStats().then(setStats).catch(() => {});
+      } else {
+        // Not an admin — redirect (middleware should catch this, but fallback)
+        router.replace('/');
       }
     }).catch(() => setLoading(false));
-  }, [user]);
+  }, [user, router]);
 
-  if (loading) {
+  if (loading || !adminRole) {
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 className="w-8 h-8 animate-spin text-white/30" />
       </div>
-    );
-  }
-
-  if (!adminRole) {
-    return (
-      <Card className="max-w-md mx-auto mt-20 p-8 text-center">
-        <Shield className="w-12 h-12 mx-auto mb-4 text-red-400/50" />
-        <h2 className="text-lg font-bold text-white mb-2">Zugriff verweigert</h2>
-        <p className="text-sm text-white/40">Du bist kein Plattform-Administrator.</p>
-      </Card>
     );
   }
 

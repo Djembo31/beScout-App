@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
 import { getProfile } from '@/lib/services/profiles';
+import { getPlatformAdminRole, type PlatformAdminRole } from '@/lib/services/platformAdmin';
+import { getClubAdminFor } from '@/lib/services/club';
 import { invalidateAll, withTimeout } from '@/lib/cache';
-import type { Profile } from '@/types';
+import type { Profile, ClubAdminRole } from '@/types';
 
 // ============================================
 // SessionStorage helpers
@@ -14,6 +16,8 @@ import type { Profile } from '@/types';
 
 const SS_USER = 'bs_user';
 const SS_PROFILE = 'bs_profile';
+const SS_PLATFORM_ROLE = 'bs_platform_role';
+const SS_CLUB_ADMIN = 'bs_club_admin';
 
 function ssGet<T>(key: string): T | null {
   try {
@@ -34,6 +38,8 @@ function ssClear(): void {
   try {
     sessionStorage.removeItem(SS_USER);
     sessionStorage.removeItem(SS_PROFILE);
+    sessionStorage.removeItem(SS_PLATFORM_ROLE);
+    sessionStorage.removeItem(SS_CLUB_ADMIN);
   } catch { /* ignore */ }
 }
 
@@ -41,11 +47,15 @@ function ssClear(): void {
 // Context
 // ============================================
 
+export type ClubAdminInfo = { clubId: string; slug: string; role: ClubAdminRole };
+
 interface AuthContextValue {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
   refreshProfile: () => Promise<void>;
+  platformRole: PlatformAdminRole | null;
+  clubAdmin: ClubAdminInfo | null;
 }
 
 const AuthContext = createContext<AuthContextValue>({
@@ -53,10 +63,23 @@ const AuthContext = createContext<AuthContextValue>({
   profile: null,
   loading: true,
   refreshProfile: async () => {},
+  platformRole: null,
+  clubAdmin: null,
 });
 
 export function useUser() {
   return useContext(AuthContext);
+}
+
+/** Convenience hook for role checks */
+export function useRoles() {
+  const { platformRole, clubAdmin } = useContext(AuthContext);
+  return {
+    platformRole,
+    clubAdmin,
+    isPlatformAdmin: platformRole !== null,
+    isClubAdmin: clubAdmin !== null,
+  };
 }
 
 /** Extract a display name from Supabase user metadata or email */
@@ -84,18 +107,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Hydrate from sessionStorage — if we have cached data, skip the loading spinner
   const cachedUser = ssGet<User>(SS_USER);
   const cachedProfile = ssGet<Profile>(SS_PROFILE);
+  const cachedPlatformRole = ssGet<PlatformAdminRole>(SS_PLATFORM_ROLE);
+  const cachedClubAdmin = ssGet<ClubAdminInfo>(SS_CLUB_ADMIN);
 
   const [user, setUser] = useState<User | null>(cachedUser);
   const [profile, setProfile] = useState<Profile | null>(cachedProfile);
   const [loading, setLoading] = useState(!cachedUser);
+  const [platformRole, setPlatformRole] = useState<PlatformAdminRole | null>(cachedPlatformRole);
+  const [clubAdmin, setClubAdmin] = useState<ClubAdminInfo | null>(cachedClubAdmin);
 
   const loadProfile = useCallback(async (userId: string) => {
     try {
-      const p = await withTimeout(getProfile(userId), 5000);
-      setProfile(p);
-      if (p) ssSet(SS_PROFILE, p);
+      const [p, pRole, cAdmin] = await Promise.allSettled([
+        withTimeout(getProfile(userId), 5000),
+        withTimeout(getPlatformAdminRole(userId), 5000),
+        withTimeout(getClubAdminFor(userId), 5000),
+      ]);
+
+      if (p.status === 'fulfilled') {
+        setProfile(p.value);
+        if (p.value) ssSet(SS_PROFILE, p.value);
+      }
+
+      const role = pRole.status === 'fulfilled' ? pRole.value : null;
+      setPlatformRole(role);
+      if (role) ssSet(SS_PLATFORM_ROLE, role); else try { sessionStorage.removeItem(SS_PLATFORM_ROLE); } catch { /* */ }
+
+      const ca = cAdmin.status === 'fulfilled' ? cAdmin.value : null;
+      setClubAdmin(ca);
+      if (ca) ssSet(SS_CLUB_ADMIN, ca); else try { sessionStorage.removeItem(SS_CLUB_ADMIN); } catch { /* */ }
     } catch {
-      // Profile load failed — keep cached profile if any
+      // Profile load failed — keep cached data if any
     }
   }, []);
 
@@ -119,6 +161,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           // Session expired or invalid — clear everything
           setProfile(null);
+          setPlatformRole(null);
+          setClubAdmin(null);
           ssClear();
           invalidateAll();
         }
@@ -128,6 +172,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Network error / Supabase down — treat as logged out
         setUser(null);
         setProfile(null);
+        setPlatformRole(null);
+        setClubAdmin(null);
         ssClear();
         setLoading(false);
       });
@@ -156,6 +202,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }).catch(() => {});
         }
         setProfile(null);
+        setPlatformRole(null);
+        setClubAdmin(null);
         ssClear();
         invalidateAll();
       }
@@ -166,8 +214,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [loadProfile]);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, profile, loading, refreshProfile }),
-    [user, profile, loading, refreshProfile],
+    () => ({ user, profile, loading, refreshProfile, platformRole, clubAdmin }),
+    [user, profile, loading, refreshProfile, platformRole, clubAdmin],
   );
 
   return (

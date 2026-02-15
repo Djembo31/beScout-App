@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { cached, invalidate, invalidateClubData } from '@/lib/cache';
-import type { DbTrade, DbClub, ClubWithAdmin, DbClubAdmin, ClubDashboardStats } from '@/types';
+import type { DbTrade, DbClub, ClubWithAdmin, DbClubAdmin, ClubDashboardStats, ClubAdminRole } from '@/types';
 
 const FIVE_MIN = 5 * 60 * 1000;
 
@@ -43,6 +43,23 @@ export async function getAllClubs(): Promise<DbClub[]> {
       .order('name');
     if (error) throw new Error(error.message);
     return (data ?? []) as DbClub[];
+  }, FIVE_MIN);
+}
+
+/** Get the first club the user is admin of (Pilot: max 1 club) */
+export async function getClubAdminFor(userId: string): Promise<{ clubId: string; slug: string; role: ClubAdminRole } | null> {
+  return cached(`clubAdminFor:${userId}`, async () => {
+    const { data, error } = await supabase
+      .from('club_admins')
+      .select('club_id, role, clubs!club_id(slug)')
+      .eq('user_id', userId)
+      .limit(1)
+      .single();
+    if (error || !data) return null;
+    const clubs = data.clubs as unknown as { slug: string } | { slug: string }[] | null;
+    const slug = Array.isArray(clubs) ? clubs[0]?.slug : clubs?.slug;
+    if (!slug) return null;
+    return { clubId: data.club_id as string, slug, role: data.role as ClubAdminRole };
   }, FIVE_MIN);
 }
 
