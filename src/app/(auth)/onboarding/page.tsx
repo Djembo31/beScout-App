@@ -152,6 +152,7 @@ function OnboardingContent() {
       }
 
       await refreshProfile();
+      localStorage.setItem('bescout-tour-pending', '1');
       router.push('/');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Profil konnte nicht erstellt werden.';

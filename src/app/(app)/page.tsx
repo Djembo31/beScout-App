@@ -424,7 +424,7 @@ export default function HomePage() {
       <WelcomeBanner name={firstName} />
 
       {/* ━━━ STAT CARDS — 2x2 mobile, 4-col desktop ━━━ */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+      <div data-tour-id="home-stats" className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4">
           <div className="flex items-center gap-1 mb-1">
             <span className="text-[10px] text-white/40 uppercase tracking-wider">Spielerkader</span>
@@ -472,7 +472,9 @@ export default function HomePage() {
       </div>
 
       {/* ━━━ TAB BAR ━━━ */}
-      <TabBar tabs={HOME_TABS} activeTab={activeTab} onChange={(id) => setActiveTab(id as HomeTab)} />
+      <div data-tour-id="home-tabs">
+        <TabBar tabs={HOME_TABS} activeTab={activeTab} onChange={(id) => setActiveTab(id as HomeTab)} />
+      </div>
 
       {/* ━━━ TAB: MEIN STAND ━━━ */}
       <TabPanel id="mein" activeTab={activeTab}>

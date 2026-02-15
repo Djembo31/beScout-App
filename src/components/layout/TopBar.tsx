@@ -96,7 +96,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           </button>
 
           {/* Search — desktop only */}
-          <div className="relative w-full max-w-[320px] hidden lg:block">
+          <div data-tour-id="topbar-search" className="relative w-full max-w-[320px] hidden lg:block">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
             <input
               type="text"
@@ -113,7 +113,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
         {/* Right side */}
         <div className="flex items-center gap-2 md:gap-3">
           {/* BSD Balance pill */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-xl">
+          <div data-tour-id="topbar-balance" className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-xl">
             <DollarSign className="w-3.5 h-3.5 text-[#FFD700]" />
             {balanceCents === null ? (
               <span className="inline-block w-12 h-3.5 rounded bg-[#FFD700]/20 animate-pulse" />
@@ -134,6 +134,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           {/* Notifications */}
           <div className="relative">
             <button
+              data-tour-id="topbar-notifications"
               onClick={() => setNotifOpen(o => !o)}
               className="relative p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
               aria-label="Benachrichtigungen"

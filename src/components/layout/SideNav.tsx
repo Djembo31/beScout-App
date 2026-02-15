@@ -71,7 +71,7 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
 
       {/* Wallet */}
       <div className={`p-4 border-b border-white/10 ${collapsed ? 'px-3' : ''}`}>
-        <div className={`bg-white/5 rounded-xl p-3 ${collapsed ? 'px-2' : ''}`}>
+        <div data-tour-id="sidebar-wallet" className={`bg-white/5 rounded-xl p-3 ${collapsed ? 'px-2' : ''}`}>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-[#FFD700]/20 flex items-center justify-center flex-shrink-0">
               <DollarSign className="w-4 h-4 text-[#FFD700]" />
@@ -98,11 +98,13 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
           {NAV_MAIN.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
+            const tourId = item.href === '/market' ? 'nav-market' : item.href === '/fantasy' ? 'nav-fantasy' : undefined;
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={handleNavClick}
+                data-tour-id={tourId}
                 className={`
                   flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all
                   ${isActive

@@ -5,11 +5,11 @@ import { usePathname } from 'next/navigation';
 import { Home, Trophy, TrendingUp, Users, User } from 'lucide-react';
 
 const BOTTOM_TABS = [
-  { label: 'Home', href: '/', icon: Home },
-  { label: 'Fantasy', href: '/fantasy', icon: Trophy },
-  { label: 'Markt', href: '/market', icon: TrendingUp },
-  { label: 'Community', href: '/community', icon: Users },
-  { label: 'Profil', href: '/profile', icon: User },
+  { label: 'Home', href: '/', icon: Home, tourId: undefined as string | undefined },
+  { label: 'Fantasy', href: '/fantasy', icon: Trophy, tourId: 'bottomnav-fantasy' },
+  { label: 'Markt', href: '/market', icon: TrendingUp, tourId: 'bottomnav-market' },
+  { label: 'Community', href: '/community', icon: Users, tourId: undefined as string | undefined },
+  { label: 'Profil', href: '/profile', icon: User, tourId: undefined as string | undefined },
 ];
 
 export function BottomNav() {
@@ -17,7 +17,7 @@ export function BottomNav() {
 
   return (
     <nav
-      className="lg:hidden border-t border-white/10"
+      className="lg:hidden border-t border-white/10 safe-bottom"
       style={{
         position: 'fixed',
         bottom: 0,
@@ -39,6 +39,7 @@ export function BottomNav() {
             <Link
               key={tab.href}
               href={tab.href}
+              data-tour-id={tab.tourId}
               className={`relative flex flex-col items-center justify-center gap-0.5 w-16 py-1.5 rounded-xl transition-all ${
                 isActive
                   ? 'text-[#FFD700]'

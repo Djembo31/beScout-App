@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation';
 import { SideNav, TopBar, BottomNav } from '@/components/layout';
 import { AuthGuard } from '@/components/providers/AuthGuard';
 import { useUser } from '@/components/providers/AuthProvider';
+import { TourProvider } from '@/components/tour/TourProvider';
+import { TourOverlay } from '@/components/tour/TourOverlay';
 
 export default function AppLayout({
   children,
@@ -32,7 +34,7 @@ export default function AppLayout({
   }, []);
 
   return (
-    <>
+    <TourProvider>
       {/* Background Effects */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 right-1/4 w-[640px] h-[640px] bg-[#FFD700]/[0.03] rounded-full blur-[140px]" />
@@ -58,6 +60,9 @@ export default function AppLayout({
 
       {/* Bottom Navigation — mobile only */}
       <BottomNav />
-    </>
+
+      {/* Tour Overlay */}
+      <TourOverlay />
+    </TourProvider>
   );
 }
