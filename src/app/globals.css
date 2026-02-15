@@ -62,3 +62,15 @@ body {
   .safe-top { padding-top: env(safe-area-inset-top); }
   .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 }
+
+/* Main content padding that accounts for BottomNav (h-16=64px) + safe area on notch devices */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .pb-safe-nav {
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px) + 0.5rem);
+  }
+}
+@supports not (padding: env(safe-area-inset-bottom)) {
+  .pb-safe-nav {
+    padding-bottom: 6.5rem;
+  }
+}

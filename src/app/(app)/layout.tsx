@@ -52,7 +52,7 @@ export default function AppLayout({
         <SideNav mobileOpen={mobileOpen} onMobileClose={handleMobileClose} />
         <div className="flex-1 ml-0 lg:ml-[260px] overflow-x-hidden">
           <TopBar onMobileMenuToggle={handleMobileToggle} />
-          <main className="p-4 lg:p-6 pb-24 lg:pb-6">
+          <main className="p-4 lg:p-6 pb-safe-nav lg:pb-6">
             <AuthGuard>{children}</AuthGuard>
           </main>
         </div>

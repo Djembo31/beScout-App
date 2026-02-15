@@ -97,16 +97,18 @@ export interface ModalProps {
   subtitle?: string;
   children: React.ReactNode;
   onClose: () => void;
+  /** Prevent closing via backdrop click or ESC (e.g. during form submission) */
+  preventClose?: boolean;
 }
 
-export function Modal({ open, title, subtitle, children, onClose }: ModalProps) {
+export function Modal({ open, title, subtitle, children, onClose, preventClose }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
 
   // ESC key closes modal
   useEffect(() => {
     if (!open) return;
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape' && !preventClose) onClose();
     }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
@@ -142,7 +144,7 @@ export function Modal({ open, title, subtitle, children, onClose }: ModalProps) 
   return (
     <div
       className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => { if (!preventClose && e.target === e.currentTarget) onClose(); }}
     >
       <div
         ref={dialogRef}

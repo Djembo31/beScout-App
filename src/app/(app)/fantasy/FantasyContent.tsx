@@ -351,33 +351,35 @@ export default function FantasyContent() {
     setSelectedEvent(null);
 
     try {
-      const slotMap = new Map(lineup.map(p => [p.slot, p.playerId]));
-
-      await submitLineup({
-        eventId: event.id,
-        userId: user.id,
-        formation,
-        slotGk: slotMap.get(0) || null,
-        slotDef1: slotMap.get(1) || null,
-        slotDef2: slotMap.get(2) || null,
-        slotMid1: slotMap.get(3) || null,
-        slotMid2: slotMap.get(4) || null,
-        slotAtt: slotMap.get(5) || null,
-      });
-
-      // Deduct fee — if this fails, roll back the lineup
+      // 1. Deduct fee FIRST — money is the critical resource, prevents free entries
       if (event.entryFeeCents > 0) {
-        try {
-          const newBalance = await deductEntryFee(user.id, event.entryFeeCents, event.name, event.id);
-          setBalanceCents(newBalance);
-        } catch (feeErr: unknown) {
-          // Fee deduction failed — remove the lineup to keep state consistent
+        const newBalance = await deductEntryFee(user.id, event.entryFeeCents, event.name, event.id);
+        setBalanceCents(newBalance);
+      }
+
+      // 2. Then submit lineup — if this fails, refund the fee
+      const slotMap = new Map(lineup.map(p => [p.slot, p.playerId]));
+      try {
+        await submitLineup({
+          eventId: event.id,
+          userId: user.id,
+          formation,
+          slotGk: slotMap.get(0) || null,
+          slotDef1: slotMap.get(1) || null,
+          slotDef2: slotMap.get(2) || null,
+          slotMid1: slotMap.get(3) || null,
+          slotMid2: slotMap.get(4) || null,
+          slotAtt: slotMap.get(5) || null,
+        });
+      } catch (lineupErr: unknown) {
+        // Lineup failed — refund the fee to keep state consistent
+        if (event.entryFeeCents > 0) {
           try {
-            const { removeLineup } = await import('@/lib/services/lineups');
-            await removeLineup(event.id, user.id);
-          } catch { /* lineup cleanup best-effort */ }
-          throw feeErr; // re-throw to trigger UI rollback
+            const refundedBalance = await refundEntryFee(user.id, event.entryFeeCents, event.name, event.id);
+            setBalanceCents(refundedBalance);
+          } catch (refundErr) { console.error('[Fantasy] Fee refund failed:', refundErr); }
         }
+        throw lineupErr;
       }
     } catch (e: unknown) {
       setEvents(prev => prev.map(ev =>
