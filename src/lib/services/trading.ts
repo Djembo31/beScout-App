@@ -21,10 +21,10 @@ function triggerStatsRefresh(userId: string): void {
               createNotification(userId, 'system', `${def.icon} ${def.label}`, def.description);
             }
           }
-        }).catch(() => {});
+        }).catch(err => console.error('[Trade] Achievement notification failed:', err));
       })
-      .catch(() => {});
-  }).catch(() => {});
+      .catch(err => console.error('[Trade] Stats refresh failed:', err));
+  }).catch(err => console.error('[Trade] Dynamic import failed:', err));
   invalidateSocialData(userId);
 }
 
@@ -32,7 +32,7 @@ function triggerStatsRefresh(userId: string): void {
 function triggerMissions(userId: string, keys: string[]): void {
   import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
     triggerMissionProgress(userId, keys);
-  }).catch(() => {});
+  }).catch(err => console.error('[Trade] Mission tracking failed:', err));
 }
 
 const ONE_MIN = 60 * 1000;
@@ -87,7 +87,7 @@ export async function buyFromMarket(
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'trade_buy', 'trading', { playerId, quantity, source: result.source, price: result.price_per_dpc });
-  }).catch(() => {});
+  }).catch(err => console.error('[Trade] Activity log failed:', err));
   // Notify seller if bought from a user order
   if (result.source === 'order' && result.order_id) {
     (async () => {
@@ -115,7 +115,7 @@ export async function buyFromMarket(
           );
           triggerStatsRefresh(order.user_id);
         }
-      } catch { /* silent */ }
+      } catch (err) { console.error('[Trade] Seller notification failed:', err); }
     })();
   }
   return result;
@@ -146,7 +146,7 @@ export async function placeSellOrder(
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'trade_sell', 'trading', { playerId, quantity, priceCents });
-  }).catch(() => {});
+  }).catch(err => console.error('[Trade] Activity log failed:', err));
   return data as TradeResult;
 }
 
@@ -195,7 +195,7 @@ export async function buyFromOrder(
         invalidateTradeData(order.player_id, order.user_id);
         triggerStatsRefresh(order.user_id);
       }
-    } catch { /* silent */ }
+    } catch (err) { console.error('[Trade] Seller notification failed:', err); }
   })();
   return result;
 }
@@ -215,7 +215,7 @@ export async function cancelOrder(
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'order_cancel', 'trading', { orderId });
-  }).catch(() => {});
+  }).catch(err => console.error('[Trade] Activity log failed:', err));
   return data as TradeResult;
 }
 

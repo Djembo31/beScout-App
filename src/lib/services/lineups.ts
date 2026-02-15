@@ -90,14 +90,11 @@ export async function submitLineup(params: {
   if (error) throw new Error(error.message);
   invalidate('events:');
   invalidate(`fantasyHistory:${params.userId}`);
-  // Mission tracking
-  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-    triggerMissionProgress(params.userId, ['weekly_fantasy']);
-  }).catch(() => {});
-  // Activity log
+  // Activity log (fire-and-forget — lineup confirmed at this point)
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(params.userId, 'lineup_submit', 'fantasy', { eventId: params.eventId, formation: params.formation });
-  }).catch(() => {});
+  }).catch(err => console.error('[Lineup] Activity log failed:', err));
+  // NOTE: Mission tracking moved to caller (after entry fee deduction succeeds)
   return data as DbLineup;
 }
 

@@ -33,11 +33,14 @@ let flushTimer: ReturnType<typeof setTimeout> | null = null;
 
 async function flush(): Promise<void> {
   if (queue.length === 0) return;
-  const batch = queue.splice(0, queue.length);
+  const batch = queue.slice(0, 50); // Copy without removing
   try {
     await supabase.from('activity_log').insert(batch);
-  } catch {
-    // Silent — activity logging should never break the app
+    queue.splice(0, batch.length); // Only remove after successful insert
+  } catch (err) {
+    console.error('[ActivityLog] Batch insert failed, retrying next flush:', err);
+    // Batch stays in queue for retry — cap queue to prevent unbounded growth
+    if (queue.length > 200) queue.splice(0, queue.length - 200);
   }
 }
 

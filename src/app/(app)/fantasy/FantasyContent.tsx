@@ -390,6 +390,11 @@ export default function FantasyContent() {
     invalidate('events:');
     try { await fetch('/api/events?bust=1'); } catch { /* silent */ }
 
+    // Mission tracking — only after full join succeeds (lineup + fee)
+    import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+      triggerMissionProgress(user.id, ['weekly_fantasy']);
+    }).catch(err => console.error('[Fantasy] Mission tracking failed:', err));
+
     addToast(`Erfolgreich angemeldet für "${event.name}"!`, 'success');
   }, [user, balanceCents, setBalanceCents, addToast]);
 

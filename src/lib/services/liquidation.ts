@@ -66,7 +66,7 @@ export async function liquidatePlayer(
           invalidateNotifications(p.user_id);
         }
       }
-    } catch {}
+    } catch (err) { console.error('[Liquidation] Holder notification failed:', err); }
   })();
 
   // Fire-and-forget: mission tracking
@@ -74,7 +74,7 @@ export async function liquidatePlayer(
     try {
       const { triggerMissionProgress } = await import('@/lib/services/missions');
       triggerMissionProgress(adminId, ['weekly_trade_5']);
-    } catch {}
+    } catch (err) { console.error('[Liquidation] Mission tracking failed:', err); }
   })();
 
   return {

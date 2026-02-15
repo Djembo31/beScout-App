@@ -29,15 +29,16 @@ export function useWallet() {
 export function WalletProvider({ children }: { children: React.ReactNode }) {
     const { user } = useUser();
 
-    // Hydrate from sessionStorage to avoid "0 BSD" flash
+    // Hydrate from sessionStorage to avoid "0 BSD" flash — but only if userId matches
     const [balanceCents, setBalanceCentsRaw] = useState<number | null>(() => {
         if (typeof window === 'undefined') return null;
         try {
             const stored = sessionStorage.getItem(WALLET_SESSION_KEY);
             if (stored) {
                 const parsed = JSON.parse(stored);
-                // Only use cached value if it's for the same session
-                if (parsed && typeof parsed.balance === 'number') return parsed.balance;
+                if (parsed && typeof parsed.balance === 'number' && typeof parsed.userId === 'string') {
+                    return parsed.balance;
+                }
             }
         } catch { /* ignore */ }
         return null;
@@ -48,7 +49,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const setBalanceCents = useCallback((cents: number) => {
         setBalanceCentsRaw(cents);
         try {
-            sessionStorage.setItem(WALLET_SESSION_KEY, JSON.stringify({ balance: cents }));
+            const uid = prevUserId.current;
+            sessionStorage.setItem(WALLET_SESSION_KEY, JSON.stringify({ balance: cents, userId: uid }));
         } catch { /* ignore */ }
     }, []);
 
@@ -75,11 +77,19 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             try { sessionStorage.removeItem(WALLET_SESSION_KEY); } catch { /* ignore */ }
             return;
         }
-        // Reset balance on user change
+        // Reset balance on user change — clear stale data from previous user
         if (prevUserId.current !== user.id) {
+            const cachedUid = (() => {
+                try {
+                    const stored = sessionStorage.getItem(WALLET_SESSION_KEY);
+                    if (stored) { const p = JSON.parse(stored); return p?.userId; }
+                } catch { /* ignore */ }
+                return null;
+            })();
             prevUserId.current = user.id;
             loaded.current = false;
-            // Don't reset to null here — keep sessionStorage-hydrated value until fresh fetch arrives
+            // Only keep cached balance if it belongs to this user
+            if (cachedUid !== user.id) setBalanceCentsRaw(null);
         }
         if (loaded.current) return;
         refreshBalance();

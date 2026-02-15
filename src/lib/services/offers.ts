@@ -159,7 +159,7 @@ export async function createOffer(params: {
   if (result.success && params.receiverId) {
     import('@/lib/services/notifications').then(({ createNotification }) => {
       createNotification(params.receiverId!, 'offer_received', 'Neues Angebot', params.message ?? 'Du hast ein neues Angebot erhalten');
-    }).catch(() => {});
+    }).catch(err => console.error('[Offers] Side-effect failed:', err));
   }
 
   // Activity log
@@ -167,7 +167,7 @@ export async function createOffer(params: {
     logActivity(params.senderId, 'offer_create', 'trading', {
       playerId: params.playerId, side: params.side, price: params.priceCents, receiverId: params.receiverId,
     });
-  }).catch(() => {});
+  }).catch(err => console.error('[Offers] Side-effect failed:', err));
 
   return result;
 }
@@ -184,22 +184,23 @@ export async function acceptOffer(userId: string, offerId: string): Promise<Offe
 
   // Notify sender
   if (result.success) {
-    // Look up the offer to notify sender
-    Promise.resolve(supabase.from('offers').select('sender_id, player_id').eq('id', offerId).single()).then(({ data: offer }) => {
-      if (offer) {
-        invalidateOfferData(offer.sender_id);
-        invalidateTradeData(offer.player_id, offer.sender_id);
-        import('@/lib/services/notifications').then(({ createNotification }) => {
-          createNotification(offer.sender_id, 'offer_accepted', 'Angebot angenommen', 'Dein Angebot wurde angenommen');
-        }).catch(() => {});
-      }
-    }).catch(() => {});
+    (async () => {
+      try {
+        const { data: offer } = await supabase.from('offers').select('sender_id, player_id').eq('id', offerId).single();
+        if (offer) {
+          invalidateOfferData(offer.sender_id);
+          invalidateTradeData(offer.player_id, offer.sender_id);
+          const { createNotification } = await import('@/lib/services/notifications');
+          await createNotification(offer.sender_id, 'offer_accepted', 'Angebot angenommen', 'Dein Angebot wurde angenommen');
+        }
+      } catch (err) { console.error('[Offers] Accept notification failed:', err); }
+    })();
   }
 
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'offer_accept', 'trading', { offerId });
-  }).catch(() => {});
+  }).catch(err => console.error('[Offers] Side-effect failed:', err));
 
   return result;
 }
@@ -215,14 +216,16 @@ export async function rejectOffer(userId: string, offerId: string): Promise<Offe
 
   // Notify sender
   if (result.success) {
-    Promise.resolve(supabase.from('offers').select('sender_id').eq('id', offerId).single()).then(({ data: offer }) => {
-      if (offer) {
-        invalidateOfferData(offer.sender_id);
-        import('@/lib/services/notifications').then(({ createNotification }) => {
-          createNotification(offer.sender_id, 'offer_rejected', 'Angebot abgelehnt', 'Dein Angebot wurde abgelehnt');
-        }).catch(() => {});
-      }
-    }).catch(() => {});
+    (async () => {
+      try {
+        const { data: offer } = await supabase.from('offers').select('sender_id').eq('id', offerId).single();
+        if (offer) {
+          invalidateOfferData(offer.sender_id);
+          const { createNotification } = await import('@/lib/services/notifications');
+          await createNotification(offer.sender_id, 'offer_rejected', 'Angebot abgelehnt', 'Dein Angebot wurde abgelehnt');
+        }
+      } catch (err) { console.error('[Offers] Reject notification failed:', err); }
+    })();
   }
 
   return result;
@@ -241,14 +244,16 @@ export async function counterOffer(userId: string, offerId: string, newPriceCent
 
   // Notify original sender
   if (result.success) {
-    Promise.resolve(supabase.from('offers').select('sender_id').eq('id', offerId).single()).then(({ data: offer }) => {
-      if (offer) {
-        invalidateOfferData(offer.sender_id);
-        import('@/lib/services/notifications').then(({ createNotification }) => {
-          createNotification(offer.sender_id, 'offer_countered', 'Gegenangebot', 'Du hast ein Gegenangebot erhalten');
-        }).catch(() => {});
-      }
-    }).catch(() => {});
+    (async () => {
+      try {
+        const { data: offer } = await supabase.from('offers').select('sender_id').eq('id', offerId).single();
+        if (offer) {
+          invalidateOfferData(offer.sender_id);
+          const { createNotification } = await import('@/lib/services/notifications');
+          await createNotification(offer.sender_id, 'offer_countered', 'Gegenangebot', 'Du hast ein Gegenangebot erhalten');
+        }
+      } catch (err) { console.error('[Offers] Counter notification failed:', err); }
+    })();
   }
 
   return result;

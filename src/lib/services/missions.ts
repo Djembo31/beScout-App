@@ -93,8 +93,8 @@ export async function trackMissionProgress(userId: string, missionKey: string, i
     });
     // Invalidate cache so next fetch reflects new progress
     invalidate(`missions:${userId}`);
-  } catch {
-    // Fire-and-forget — don't break the main flow
+  } catch (err) {
+    console.error('[Missions] Progress tracking failed:', err);
   }
 }
 
@@ -109,8 +109,8 @@ export function triggerMissionProgress(userId: string, missionKeys: string[]) {
     try {
       const { trackMissionProgress: track } = await import('@/lib/services/missions');
       await Promise.all(missionKeys.map(key => track(userId, key)));
-    } catch {
-      // Silent — mission tracking should never break main flow
+    } catch (err) {
+      console.error('[Missions] Trigger failed:', err);
     }
   })();
 }
