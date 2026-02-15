@@ -108,7 +108,7 @@ export async function getResearchPosts(options: {
         author_avatar_url: author?.avatar_url ?? null,
         author_level: author?.level ?? 1,
         author_verified: author?.verified ?? false,
-        player_name: player?.name,
+        player_name: post.player_id ? (player?.name ?? 'Unbekannter Spieler') : undefined,
         player_position: player ? toPos(player.pos) : undefined,
         is_unlocked: unlockedIds.has(post.id),
         is_own: post.user_id === currentUserId,

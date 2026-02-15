@@ -179,7 +179,7 @@ export async function refundEntryFee(userId: string, amountCents: number, eventN
 
 /** Cents → BSD Display (z.B. 1000000 → "10.000") */
 export function formatBsd(cents: number): string {
-  const bsd = cents / 100;
+  const bsd = Math.round(cents) / 100;
   return bsd.toLocaleString('de-DE', { maximumFractionDigits: 0 });
 }
 

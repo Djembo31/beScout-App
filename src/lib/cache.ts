@@ -121,12 +121,16 @@ export function invalidateClubData(clubId?: string): void {
 
 /** Invalidate caches affected by a trade action */
 export function invalidateTradeData(playerId: string, userId?: string): void {
-  // Player data
+  // Player data — always invalidate list caches
   invalidate('players:');
-  invalidate(`player:${playerId}`);
+  if (playerId) {
+    invalidate(`player:${playerId}`);
+    invalidate(`sellOrders:${playerId}`);
+    invalidate(`pbt:${playerId}`);
+    invalidate(`pbtTx:${playerId}`);
+  }
   // Orders
   invalidate('orders:');
-  invalidate(`sellOrders:${playerId}`);
   // Wallet & holdings
   if (userId) {
     invalidate(`wallet:${userId}`);
@@ -136,7 +140,4 @@ export function invalidateTradeData(playerId: string, userId?: string): void {
   }
   // IPO
   invalidate('ipos:');
-  // PBT
-  invalidate(`pbt:${playerId}`);
-  invalidate(`pbtTx:${playerId}`);
 }

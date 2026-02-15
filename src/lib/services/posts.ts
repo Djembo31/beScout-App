@@ -177,23 +177,22 @@ export async function createReply(
         .from('posts')
         .select('user_id')
         .eq('id', parentId)
-        .single();
-      if (parent && parent.user_id !== userId) {
-        const { createNotification } = await import('@/lib/services/notifications');
-        const { data: replier } = await supabase
-          .from('profiles')
-          .select('handle')
-          .eq('id', userId)
-          .single();
-        const name = replier?.handle ?? 'Jemand';
-        await createNotification(
-          parent.user_id,
-          'reply',
-          `${name} hat auf deinen Post geantwortet`,
-          content.slice(0, 100)
-        );
-      }
-    } catch {}
+        .maybeSingle();
+      if (!parent || parent.user_id === userId) return;
+      const { createNotification } = await import('@/lib/services/notifications');
+      const { data: replier } = await supabase
+        .from('profiles')
+        .select('handle')
+        .eq('id', userId)
+        .maybeSingle();
+      const name = replier?.handle ?? 'Jemand';
+      await createNotification(
+        parent.user_id,
+        'reply',
+        `${name} hat auf deinen Post geantwortet`,
+        content.slice(0, 100)
+      );
+    } catch (err) { console.error('[Posts] Reply notification failed:', err); }
   })();
 
   return data as DbPost;

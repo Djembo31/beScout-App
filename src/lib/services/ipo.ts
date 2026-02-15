@@ -89,6 +89,7 @@ export async function buyFromIpo(
   quantity: number,
   playerId?: string
 ): Promise<IpoBuyResult> {
+  if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Ungültige Menge.');
   const { data, error } = await supabase.rpc('buy_from_ipo', {
     p_user_id: userId,
     p_ipo_id: ipoId,
@@ -100,7 +101,7 @@ export async function buyFromIpo(
   // Mission tracking
   import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
     triggerMissionProgress(userId, ['daily_buy_1', 'daily_trade_2', 'weekly_trade_5']);
-  }).catch(() => {});
+  }).catch(err => console.error('[IPO] Mission tracking failed:', err));
   return data as IpoBuyResult;
 }
 

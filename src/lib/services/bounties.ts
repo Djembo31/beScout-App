@@ -115,7 +115,7 @@ async function enrichBounties(
       creator_handle: creator?.handle ?? 'unknown',
       creator_display_name: creator?.display_name ?? null,
       creator_avatar_url: creator?.avatar_url ?? null,
-      player_name: player?.name ?? null,
+      player_name: b.player_id ? (player?.name ?? 'Unbekannter Spieler') : null,
       player_position: player?.position ?? null,
       has_user_submitted: userSubmittedIds.has(b.id),
     };

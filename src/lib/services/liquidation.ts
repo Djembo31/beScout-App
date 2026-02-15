@@ -54,7 +54,7 @@ export async function liquidatePlayer(
         .eq('liquidation_id', result.liquidation_id);
       if (payouts) {
         for (const p of payouts) {
-          const payoutBsd = (p.payout_cents / 100).toFixed(2);
+          const payoutBsd = (Math.round(p.payout_cents ?? 0) / 100).toFixed(2);
           await createNotification(
             p.user_id,
             'pbt_liquidation',

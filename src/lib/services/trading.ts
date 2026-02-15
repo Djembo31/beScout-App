@@ -70,6 +70,7 @@ export async function buyFromMarket(
   playerId: string,
   quantity: number
 ): Promise<TradeResult> {
+  if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Ungültige Menge.');
   // Guard: check if player is liquidated
   const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).single();
   if (pl?.is_liquidated) throw new Error('Spieler wurde liquidiert. Trading nicht möglich.');
@@ -129,6 +130,8 @@ export async function placeSellOrder(
   quantity: number,
   priceCents: number
 ): Promise<TradeResult> {
+  if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Ungültige Menge.');
+  if (!Number.isInteger(priceCents) || priceCents < 1) throw new Error('Ungültiger Preis.');
   // Guard: check if player is liquidated
   const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).single();
   if (pl?.is_liquidated) throw new Error('Spieler wurde liquidiert. Trading nicht möglich.');
@@ -157,6 +160,7 @@ export async function buyFromOrder(
   orderId: string,
   quantity: number
 ): Promise<TradeResult> {
+  if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Ungültige Menge.');
   const { data, error } = await supabase.rpc('buy_from_order', {
     p_buyer_id: buyerId,
     p_order_id: orderId,
