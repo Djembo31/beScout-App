@@ -59,7 +59,7 @@ export async function updateSession(request: NextRequest) {
                 .from("platform_admins")
                 .select("role")
                 .eq("user_id", user.id)
-                .single();
+                .maybeSingle();
             if (!adminRow) {
                 const url = request.nextUrl.clone();
                 url.pathname = "/";
@@ -75,14 +75,14 @@ export async function updateSession(request: NextRequest) {
                 .from("clubs")
                 .select("id")
                 .eq("slug", slug)
-                .single();
+                .maybeSingle();
             if (clubRow) {
                 const { data: caRow } = await supabase
                     .from("club_admins")
                     .select("id")
                     .eq("user_id", user.id)
                     .eq("club_id", clubRow.id)
-                    .single();
+                    .maybeSingle();
                 if (!caRow) {
                     const url = request.nextUrl.clone();
                     url.pathname = `/club/${slug}`;

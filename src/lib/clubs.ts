@@ -23,6 +23,9 @@ export const TFF_CLUBS = [
 
 export type ClubId = (typeof TFF_CLUBS)[number]['id'];
 
+/** Pilot Club DB UUID (Sakaryaspor) — single source of truth for all hardcoded references */
+export const PILOT_CLUB_ID = '2bf30014-db88-4567-9885-9da215e3a0d4';
+
 export function getClubName(id: string): string {
   return TFF_CLUBS.find((c) => c.id === id)?.name ?? id;
 }

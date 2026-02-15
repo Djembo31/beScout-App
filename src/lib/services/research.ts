@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { cached, invalidateResearchData } from '@/lib/cache';
-import type { DbResearchPost, ResearchPostWithAuthor, AuthorTrackRecord, Pos } from '@/types';
+import type { DbResearchPost, ResearchPostWithAuthor, AuthorTrackRecord } from '@/types';
+import { toPos } from '@/types';
 
 export type RateResult = {
   success: boolean;
@@ -44,42 +45,57 @@ export async function getResearchPosts(options: {
 
     const posts = data as DbResearchPost[];
 
-    // Fetch author profiles
+    // Batch fetch all enrichment data in parallel
     const authorIds = Array.from(new Set(posts.map(p => p.user_id)));
-    const { data: profiles, error: pErr } = await supabase
-      .from('profiles')
-      .select('id, handle, display_name, avatar_url, level, verified')
-      .in('id', authorIds);
-    if (pErr) throw new Error(pErr.message);
-
-    const profileMap = new Map((profiles ?? []).map(p => [p.id, p]));
-
-    // Fetch player names
     const playerIds = Array.from(new Set(
       posts.filter(p => p.player_id).map(p => p.player_id as string)
     ));
-    let playerMap = new Map<string, { name: string; pos: string }>();
-    if (playerIds.length > 0) {
-      const { data: players } = await supabase
+    const postIds = posts.map(p => p.id);
+
+    // Parallel fetch: profiles + players + (unlocks + ratings if logged in)
+    const fetchProfiles = async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, handle, display_name, avatar_url, level, verified')
+        .in('id', authorIds);
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    };
+    const fetchPlayers = async () => {
+      if (playerIds.length === 0) return [];
+      const { data, error } = await supabase
         .from('players')
         .select('id, first_name, last_name, position')
         .in('id', playerIds);
-      playerMap = new Map(
-        (players ?? []).map(p => [p.id, { name: `${p.first_name} ${p.last_name}`, pos: p.position }])
-      );
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    };
+
+    const enrichPromises: Promise<unknown>[] = [fetchProfiles(), fetchPlayers()];
+    if (currentUserId) {
+      enrichPromises.push(getUserUnlockedIds(currentUserId));
+      enrichPromises.push(getUserResearchRatings(currentUserId, postIds));
     }
 
-    // Fetch unlock status + user ratings for current user
+    const enrichResults = await Promise.allSettled(enrichPromises);
+
+    type ProfileRow = { id: string; handle: string; display_name: string | null; avatar_url: string | null; level: number; verified: boolean };
+    type PlayerRow = { id: string; first_name: string; last_name: string; position: string };
+    const profiles = enrichResults[0].status === 'fulfilled' ? (enrichResults[0].value as ProfileRow[]) : [];
+    const players = enrichResults[1].status === 'fulfilled' ? (enrichResults[1].value as PlayerRow[]) : [];
+
+    const profileMap = new Map(profiles.map(p => [p.id, p]));
+    const playerMap = new Map<string, { name: string; pos: string }>(
+      players.map(p => [p.id, { name: `${p.first_name} ${p.last_name}`, pos: p.position }])
+    );
+
     let unlockedIds = new Set<string>();
     let ratingsMap = new Map<string, number>();
     if (currentUserId) {
-      const postIds = posts.map(p => p.id);
-      const [unlocks, ratings] = await Promise.all([
-        getUserUnlockedIds(currentUserId),
-        getUserResearchRatings(currentUserId, postIds),
-      ]);
-      unlockedIds = unlocks;
-      ratingsMap = ratings;
+      const unlocksRes = enrichResults[2];
+      const ratingsRes = enrichResults[3];
+      if (unlocksRes.status === 'fulfilled') unlockedIds = unlocksRes.value as Set<string>;
+      if (ratingsRes.status === 'fulfilled') ratingsMap = ratingsRes.value as Map<string, number>;
     }
 
     return posts.map(post => {
@@ -93,7 +109,7 @@ export async function getResearchPosts(options: {
         author_level: author?.level ?? 1,
         author_verified: author?.verified ?? false,
         player_name: player?.name,
-        player_position: player?.pos as Pos | undefined,
+        player_position: player ? toPos(player.pos) : undefined,
         is_unlocked: unlockedIds.has(post.id),
         is_own: post.user_id === currentUserId,
         user_rating: ratingsMap.get(post.id) ?? null,
@@ -164,7 +180,7 @@ export async function createResearchPost(params: {
   // Mission tracking
   import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
     triggerMissionProgress(params.userId, ['weekly_research']);
-  }).catch(() => {});
+  }).catch(err => console.error('[Research] Mission tracking failed:', err));
   return data as DbResearchPost;
 }
 
@@ -201,7 +217,7 @@ export async function unlockResearch(userId: string, researchId: string): Promis
     // Mission tracking
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
       triggerMissionProgress(userId, ['daily_unlock_research']);
-    }).catch(() => {});
+    }).catch(err => console.error('[Research] Mission tracking failed:', err));
 
     // Fire-and-forget notification to author
     (async () => {
@@ -222,7 +238,7 @@ export async function unlockResearch(userId: string, researchId: string): Promis
             'research'
           );
         }
-      } catch { /* silent */ }
+      } catch (err) { console.error('[Research] Unlock notification failed:', err); }
     })();
   }
 

@@ -55,15 +55,19 @@ export async function submitLineup(params: {
   slotMid2: string | null;
   slotAtt: string | null;
 }): Promise<DbLineup> {
-  // Check event status before submitting
+  // Check event status + capacity before submitting
   const { data: ev } = await supabase
     .from('events')
-    .select('status')
+    .select('status, max_entries, current_entries')
     .eq('id', params.eventId)
     .single();
 
   if (ev && (ev.status === 'ended' || ev.status === 'running' || ev.status === 'scoring')) {
     throw new Error('Event ist bereits gestartet oder beendet — Anmeldung nicht möglich.');
+  }
+
+  if (ev && ev.max_entries && ev.current_entries >= ev.max_entries) {
+    throw new Error('Event ist voll — maximale Teilnehmerzahl erreicht.');
   }
 
   const { data, error } = await supabase

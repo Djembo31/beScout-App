@@ -26,8 +26,7 @@ import {
   HistoryTab, CreateEventModal, SpieltagTab,
 } from '@/components/fantasy';
 
-// Pilot Club ID (Sakaryaspor)
-const PILOT_CLUB_ID = '2bf30014-db88-4567-9885-9da215e3a0d4';
+import { PILOT_CLUB_ID } from '@/lib/clubs';
 
 // Lazy-load EventDetailModal (1387 lines) — only loaded when user opens an event
 const EventDetailModal = dynamic(
@@ -366,9 +365,19 @@ export default function FantasyContent() {
         slotAtt: slotMap.get(5) || null,
       });
 
+      // Deduct fee — if this fails, roll back the lineup
       if (event.entryFeeCents > 0) {
-        const newBalance = await deductEntryFee(user.id, event.entryFeeCents, event.name, event.id);
-        setBalanceCents(newBalance);
+        try {
+          const newBalance = await deductEntryFee(user.id, event.entryFeeCents, event.name, event.id);
+          setBalanceCents(newBalance);
+        } catch (feeErr: unknown) {
+          // Fee deduction failed — remove the lineup to keep state consistent
+          try {
+            const { removeLineup } = await import('@/lib/services/lineups');
+            await removeLineup(event.id, user.id);
+          } catch { /* lineup cleanup best-effort */ }
+          throw feeErr; // re-throw to trigger UI rollback
+        }
       }
     } catch (e: unknown) {
       setEvents(prev => prev.map(ev =>
@@ -401,18 +410,30 @@ export default function FantasyContent() {
   const handleLeaveEvent = useCallback(async (event: FantasyEvent) => {
     if (!user) return;
 
+    const wasJoined = event.isJoined;
+    const prevParticipants = event.participants;
     setEvents(prev => prev.map(e =>
       e.id === event.id ? { ...e, isJoined: false, participants: Math.max(0, (e.participants || 1) - 1) } : e
     ));
     setSelectedEvent(null);
 
     try {
+      // Remove lineup from DB first
+      const { removeLineup } = await import('@/lib/services/lineups');
+      await removeLineup(event.id, user.id);
+
+      // Then refund entry fee
       if (event.entryFeeCents > 0) {
         const newBalance = await refundEntryFee(user.id, event.entryFeeCents, event.name, event.id);
         setBalanceCents(newBalance);
       }
-    } catch {
-      // Refund failed
+    } catch (e: unknown) {
+      // Revert optimistic update on failure
+      setEvents(prev => prev.map(ev =>
+        ev.id === event.id ? { ...ev, isJoined: wasJoined, participants: prevParticipants } : ev
+      ));
+      addToast(`Abmeldung fehlgeschlagen: ${e instanceof Error ? e.message : 'Unbekannter Fehler'}`, 'error');
+      return;
     }
 
     setHoldings(prev => prev.map(h => {

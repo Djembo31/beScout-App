@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { cached, invalidate } from '@/lib/cache';
 import type { DbPost, PostWithAuthor } from '@/types';
+import { toPos } from '@/types';
 
 const TWO_MIN = 2 * 60 * 1000;
 
@@ -73,7 +74,7 @@ export async function getPosts(options: {
         author_level: author?.level ?? 1,
         author_verified: author?.verified ?? false,
         player_name: player?.name,
-        player_position: player?.pos as PostWithAuthor['player_position'],
+        player_position: player ? toPos(player.pos) : undefined,
       };
     });
   }, TWO_MIN);

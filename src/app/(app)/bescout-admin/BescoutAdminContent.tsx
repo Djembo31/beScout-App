@@ -13,6 +13,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { fmtBSD } from '@/types';
 import { centsToBsd } from '@/lib/services/players';
+import { PILOT_CLUB_ID } from '@/lib/clubs';
 import {
   getPlatformAdminRole, getSystemStats, getAllUsers,
   adjustWallet, getAllFeeConfigs, updateFeeConfig, getAllIposAcrossClubs,
@@ -346,7 +347,7 @@ function GameweeksTab() {
     Promise.allSettled([
       getFullGameweekStatus(),
       import('@/lib/supabaseClient').then(({ supabase }) =>
-        supabase.from('clubs').select('active_gameweek').eq('id', '2bf30014-db88-4567-9885-9da215e3a0d4').single()
+        supabase.from('clubs').select('active_gameweek').eq('id', PILOT_CLUB_ID).single()
       ),
     ]).then(([gwRes, clubRes]) => {
       if (gwRes.status === 'fulfilled') setGwStatus(gwRes.value);
@@ -360,7 +361,7 @@ function GameweeksTab() {
   const handleSimAndScore = async (gw: number) => {
     setSimulating(gw);
     try {
-      const result = await simulateGameweekFlow('2bf30014-db88-4567-9885-9da215e3a0d4', gw);
+      const result = await simulateGameweekFlow(PILOT_CLUB_ID, gw);
       if (result.success) {
         addToast(`GW ${gw}: ${result.fixturesSimulated} Fixtures, ${result.eventsScored} Events gescort`, 'success');
         setActiveGw(result.nextGameweek);

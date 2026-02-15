@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { cached, invalidateTradeData, invalidateSocialData } from '@/lib/cache';
 import type { DbOrder, UserTradeWithPlayer, Pos } from '@/types';
+import { toPos } from '@/types';
 
 /** Fire-and-forget: refresh user stats + check achievements after a trade */
 function triggerStatsRefresh(userId: string): void {
@@ -355,7 +356,7 @@ export async function getTrendingPlayers(limit = 5): Promise<TrendingPlayer[]> {
         playerId: id,
         firstName: p?.first_name ?? '',
         lastName: p?.last_name ?? '',
-        position: (p?.position ?? 'MID') as Pos,
+        position: toPos(p?.position),
         club: p?.club ?? '',
         tradeCount: stats.count,
         totalVolume: stats.volume,
@@ -422,7 +423,7 @@ export async function getRecentGlobalTrades(limit = 10): Promise<GlobalTrade[]> 
         id: t.id as string,
         playerId: t.player_id as string,
         playerName: `${player?.first_name ?? ''} ${player?.last_name ?? ''}`.trim(),
-        playerPos: (player?.position ?? 'MID') as Pos,
+        playerPos: toPos(player?.position),
         price: t.price as number,
         quantity: t.quantity as number,
         executedAt: t.executed_at as string,

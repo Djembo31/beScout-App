@@ -8,6 +8,12 @@
 // ============================================
 
 export type Pos = 'GK' | 'DEF' | 'MID' | 'ATT';
+
+const VALID_POS = new Set<string>(['GK', 'DEF', 'MID', 'ATT']);
+/** Safely cast an unknown string to Pos, falling back to 'MID' */
+export function toPos(value: string | null | undefined): Pos {
+  return VALID_POS.has(value ?? '') ? (value as Pos) : 'MID';
+}
 export type PlayerStatus = 'fit' | 'injured' | 'suspended' | 'doubtful';
 export type Trend = 'UP' | 'DOWN' | 'FLAT';
 export type IPOStatus = 'none' | 'announced' | 'early_access' | 'open' | 'ended' | 'cancelled';

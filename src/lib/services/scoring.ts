@@ -37,7 +37,8 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
   invalidate('fantasyHistory:');
   invalidate('wallet:');
   invalidate('transactions:');
-  try { await fetch('/api/events?bust=1'); } catch { /* silent */ }
+  invalidate('lineups:');
+  try { await fetch('/api/events?bust=1'); } catch { /* bust cache best-effort */ }
 
   const result = data as ScoreResult;
 
@@ -64,9 +65,9 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
         for (const entry of lb) {
           refreshUserStats(entry.userId)
             .then(() => checkAndUnlockAchievements(entry.userId))
-            .catch(() => {});
+            .catch(err => console.error('[Scoring] Stats refresh failed:', err));
         }
-      } catch { /* silent */ }
+      } catch (err) { console.error('[Scoring] Post-score side-effects failed:', err); }
     })();
   }
 
@@ -125,7 +126,8 @@ export async function resetEvent(eventId: string): Promise<ResetResult> {
   invalidate('fantasyHistory:');
   invalidate('wallet:');
   invalidate('transactions:');
-  try { await fetch('/api/events?bust=1'); } catch { /* silent */ }
+  invalidate('lineups:');
+  try { await fetch('/api/events?bust=1'); } catch { /* bust cache best-effort */ }
 
   return data as ResetResult;
 }

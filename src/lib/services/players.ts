@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { cached, invalidate } from '@/lib/cache';
-import type { DbPlayer, Player, PlayerStatus, Pos } from '@/types';
+import type { DbPlayer, Player, PlayerStatus } from '@/types';
+import { toPos } from '@/types';
 
 const FIVE_MIN = 5 * 60 * 1000;
 
@@ -89,7 +90,7 @@ export function dbToPlayer(db: DbPlayer): Player {
     last: db.last_name,
     club: db.club,
     league: 'TFF 1. Lig',
-    pos: db.position as Pos,
+    pos: toPos(db.position),
     status: (db.status as PlayerStatus) ?? 'fit',
     age: db.age ?? 0,
     country: db.nationality ?? 'TR',
