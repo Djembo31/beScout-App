@@ -1,66 +1,59 @@
 'use client';
 
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
 /**
- * Dynamic Gameweek Selector — generates GWs 1-38 with status based on activeGameweek.
- * Replaces the old hardcoded GAMEWEEKS array.
+ * Compact Gameweek Selector — [<] Spieltag 11 [>]
+ * Replaces the old 38-item horizontal scroll.
  */
 export const GameweekSelector = ({
   activeGameweek,
   selectedGameweek,
   onSelect,
-  compact = false,
 }: {
   activeGameweek: number;
   selectedGameweek: number;
   onSelect: (gw: number) => void;
   compact?: boolean;
 }) => {
-  const gws = Array.from({ length: 38 }, (_, i) => i + 1);
-
-  // In compact mode, show a range around the active GW
-  const visibleGws = compact
-    ? gws.filter(gw => gw >= activeGameweek - 3 && gw <= activeGameweek + 3)
-    : gws;
+  const isActive = selectedGameweek === activeGameweek;
+  const canPrev = selectedGameweek > 1;
+  const canNext = selectedGameweek < 38;
 
   return (
-    <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4 lg:mx-0 lg:px-0">
-      {visibleGws.map(gw => {
-        const status: 'past' | 'current' | 'upcoming' =
-          gw < activeGameweek ? 'past' : gw === activeGameweek ? 'current' : 'upcoming';
-        const isSelected = gw === selectedGameweek;
+    <div className="flex items-center justify-center gap-3">
+      <button
+        onClick={() => canPrev && onSelect(selectedGameweek - 1)}
+        disabled={!canPrev}
+        className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
 
-        return (
-          <button
-            key={gw}
-            onClick={() => onSelect(gw)}
-            className={`flex-shrink-0 px-3 py-2 rounded-lg border transition-all text-center min-w-[52px] ${
-              isSelected
-                ? 'bg-[#FFD700]/10 border-[#FFD700]/30'
-                : status === 'current'
-                  ? 'bg-[#22C55E]/5 border-[#22C55E]/20'
-                  : 'bg-white/[0.02] border-white/[0.06] hover:border-white/15'
-            }`}
-          >
-            <div className={`text-sm font-black ${
-              isSelected ? 'text-[#FFD700]'
-              : status === 'current' ? 'text-[#22C55E]'
-              : status === 'past' ? 'text-white/40'
-              : 'text-white/70'
-            }`}>
-              {gw}
-            </div>
-            {status === 'current' && (
-              <div className="flex items-center justify-center gap-1 mt-0.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
-                <span className="text-[8px] font-bold text-[#22C55E]">AKTIV</span>
-              </div>
-            )}
-            {status === 'past' && (
-              <div className="text-[8px] text-white/25 mt-0.5">✓</div>
-            )}
-          </button>
-        );
-      })}
+      <button
+        onClick={() => onSelect(activeGameweek)}
+        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border font-bold transition-all min-w-[180px] justify-center ${
+          isActive
+            ? 'bg-[#22C55E]/10 border-[#22C55E]/30 text-[#22C55E]'
+            : 'bg-white/5 border-white/10 text-white hover:border-white/20'
+        }`}
+      >
+        <span className="text-base font-black">Spieltag {selectedGameweek}</span>
+        {isActive && (
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
+            <span className="text-[10px] font-bold">AKTIV</span>
+          </span>
+        )}
+      </button>
+
+      <button
+        onClick={() => canNext && onSelect(selectedGameweek + 1)}
+        disabled={!canNext}
+        className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        <ChevronRight className="w-5 h-5" />
+      </button>
     </div>
   );
 };

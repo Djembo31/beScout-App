@@ -10,8 +10,9 @@ import {
   Activity, FileText, MessageSquare, ExternalLink, Shield,
   Briefcase, ArrowRight, CheckCircle2, XCircle,
   TrendingDown as PriceDown, Gift, Coins, History, Loader2,
+  MoreVertical,
 } from 'lucide-react';
-import { Card, Button, Chip, StatCard, ErrorState, Skeleton, SkeletonCard } from '@/components/ui';
+import { Card, Button, Chip, StatCard, ErrorState, Skeleton, SkeletonCard, TabBar, TabPanel } from '@/components/ui';
 import { PositionBadge, StatusBadge, ScoreCircle, MiniSparkline } from '@/components/player';
 import { fmtBSD } from '@/lib/utils';
 import { getResearchPosts, unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
@@ -41,7 +42,7 @@ import type { DbOrder, DbTrade, DbPbtTreasury, DbLiquidationEvent } from '@/type
 // TYPES
 // ============================================
 
-type Tab = 'overview' | 'pbt' | 'market' | 'research' | 'activity';
+type Tab = 'info' | 'handeln' | 'analyse';
 
 type SuccessFeeTier = {
   minValue: number;
@@ -1024,8 +1025,9 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const [buyError, setBuyError] = useState<string | null>(null);
   const [buySuccess, setBuySuccess] = useState<string | null>(null);
   const [shared, setShared] = useState(false);
-  const [tab, setTab] = useState<Tab>('overview');
+  const [tab, setTab] = useState<Tab>('info');
   const [isWatchlisted, setIsWatchlisted] = useState(false);
+  const [showOverflow, setShowOverflow] = useState(false);
   const [trades, setTrades] = useState<DbTrade[]>([]);
   const [allSellOrders, setAllSellOrders] = useState<DbOrder[]>([]);
   const [tradesLoading, setTradesLoading] = useState(true);
@@ -1452,16 +1454,14 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const colors = posColors[player.pos];
   const clubData = player.club ? getClub(player.club) : null;
 
-  const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
-    { id: 'overview', label: 'Übersicht', icon: Activity },
-    { id: 'pbt', label: 'PBT Treasury', icon: PiggyBank },
-    { id: 'market', label: 'Markt', icon: ShoppingCart },
-    { id: 'research', label: 'Research', icon: FileText },
-    { id: 'activity', label: 'Aktivität', icon: History },
+  const TABS: { id: Tab; label: string }[] = [
+    { id: 'info', label: 'Info' },
+    { id: 'handeln', label: 'Handeln' },
+    { id: 'analyse', label: 'Analyse' },
   ];
 
   return (
-    <div className="max-w-[1600px] mx-auto space-y-6">
+    <div className="max-w-[1200px] mx-auto space-y-6 pb-20 md:pb-0">
 
       {/* ========== STICKY HEADER ========== */}
       <div className="sticky top-0 z-20 -mx-6 px-6 py-4 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/10">
@@ -1511,27 +1511,50 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setIsWatchlisted(!isWatchlisted)}
-              className={isWatchlisted ? 'bg-[#FFD700]/10 border-[#FFD700]/30 text-[#FFD700]' : ''}>
-              <Star className="w-4 h-4" fill={isWatchlisted ? 'currentColor' : 'none'} />
+          <div className="relative">
+            <Button variant="outline" size="sm" onClick={() => setShowOverflow(v => !v)}>
+              <MoreVertical className="w-4 h-4" />
             </Button>
-            <Button variant="outline" size="sm"><Bell className="w-4 h-4" /></Button>
-            <Button variant="outline" size="sm" className={shared ? 'bg-[#22C55E]/10 border-[#22C55E]/30 text-[#22C55E]' : ''}
-              onClick={async () => {
-                const url = window.location.href;
-                const text = `${player.first} ${player.last} auf BeScout — ${fmtBSD(centsToBsd(player.prices.floor ?? 0))} BSD`;
-                if (navigator.share) {
-                  try { await navigator.share({ title: text, url }); } catch {}
-                } else {
-                  await navigator.clipboard.writeText(url);
-                  setShared(true);
-                  addToast('Link kopiert!', 'success');
-                  setTimeout(() => setShared(false), 2000);
-                }
-              }}>
-              {shared ? <CheckCircle2 className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
-            </Button>
+            {showOverflow && (
+              <>
+                <div className="fixed inset-0 z-30" onClick={() => setShowOverflow(false)} />
+                <div className="absolute right-0 top-full mt-1 z-40 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl overflow-hidden min-w-[180px]">
+                  <button
+                    onClick={() => { setIsWatchlisted(!isWatchlisted); setShowOverflow(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors"
+                  >
+                    <Star className="w-4 h-4" fill={isWatchlisted ? 'currentColor' : 'none'} />
+                    {isWatchlisted ? 'Watchlist entfernen' : 'Watchlist hinzufügen'}
+                  </button>
+                  <button
+                    onClick={async () => {
+                      const url = window.location.href;
+                      const text = `${player.first} ${player.last} auf BeScout — ${fmtBSD(centsToBsd(player.prices.floor ?? 0))} BSD`;
+                      if (navigator.share) {
+                        try { await navigator.share({ title: text, url }); } catch {}
+                      } else {
+                        await navigator.clipboard.writeText(url);
+                        setShared(true);
+                        addToast('Link kopiert!', 'success');
+                        setTimeout(() => setShared(false), 2000);
+                      }
+                      setShowOverflow(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Teilen
+                  </button>
+                  <button
+                    onClick={() => setShowOverflow(false)}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors"
+                  >
+                    <Bell className="w-4 h-4" />
+                    Preis-Alert
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -1558,16 +1581,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
       )}
 
       {/* ========== TABS ========== */}
-      <div className="flex items-center gap-1 border-b border-white/10 overflow-x-auto">
-        {TABS.map((t) => (
-          <button key={t.id} onClick={() => setTab(t.id)}
-            className={`px-5 py-3 font-semibold transition-all relative whitespace-nowrap flex items-center gap-2 ${tab === t.id ? 'text-[#FFD700]' : 'text-white/60 hover:text-white'}`}>
-            <t.icon className="w-4 h-4" />
-            {t.label}
-            {tab === t.id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FFD700]" />}
-          </button>
-        ))}
-      </div>
+      <TabBar tabs={TABS} activeTab={tab} onChange={(id) => setTab(id as Tab)} />
 
       {/* ========== MAIN CONTENT ========== */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
@@ -1747,8 +1761,8 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           {/* Contract Status */}
           <ContractWidget player={player} />
 
-          {/* TAB CONTENT */}
-          {tab === 'overview' && (
+          {/* TAB CONTENT: INFO */}
+          {tab === 'info' && (
             <>
               {/* Player Info */}
               <Card className="p-4 md:p-6">
@@ -1898,19 +1912,13 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
                 )}
               </Card>
 
-              {/* Listings */}
-              <ListingsWidget player={player} />
-
-              {/* Research Preview */}
-              <ResearchPreview posts={playerResearch} />
+              {/* PBT Widget (was separate tab) */}
+              <PBTWidget player={playerWithOwnership} />
             </>
           )}
 
-          {tab === 'pbt' && (
-            <PBTWidget player={playerWithOwnership} />
-          )}
-
-          {tab === 'market' && (
+          {/* TAB CONTENT: HANDELN */}
+          {tab === 'handeln' && (
             <>
               <ListingsWidget player={player} />
 
@@ -1973,57 +1981,62 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             </>
           )}
 
-          {tab === 'research' && (
-            <div className="space-y-4">
-              {playerResearch.length === 0 ? (
-                <Card className="p-12 text-center">
-                  <FileText className="w-12 h-12 mx-auto mb-4 text-white/20" />
-                  <div className="text-white/50">Noch keine Research-Berichte</div>
-                  <div className="text-sm text-white/30">Berichte zu diesem Spieler erscheinen hier</div>
-                </Card>
-              ) : (
-                playerResearch.map(post => (
-                  <ResearchCard
-                    key={post.id}
-                    post={post}
-                    onUnlock={async (id) => {
-                      if (!user || unlockingId) return;
-                      setUnlockingId(id);
-                      try {
-                        const result = await unlockResearch(user.id, id);
-                        if (result.success) {
-                          const updated = await getResearchPosts({ playerId, currentUserId: user.id });
-                          setPlayerResearch(updated);
+          {/* TAB CONTENT: ANALYSE (Research + Activity merged) */}
+          {tab === 'analyse' && (
+            <>
+              {/* Research Section */}
+              <div className="space-y-4">
+                <h3 className="font-black text-lg flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-white/50" />
+                  Research-Berichte
+                </h3>
+                {playerResearch.length === 0 ? (
+                  <Card className="p-8 text-center">
+                    <FileText className="w-10 h-10 mx-auto mb-3 text-white/20" />
+                    <div className="text-white/50 text-sm">Noch keine Research-Berichte</div>
+                  </Card>
+                ) : (
+                  playerResearch.map(post => (
+                    <ResearchCard
+                      key={post.id}
+                      post={post}
+                      onUnlock={async (id) => {
+                        if (!user || unlockingId) return;
+                        setUnlockingId(id);
+                        try {
+                          const result = await unlockResearch(user.id, id);
+                          if (result.success) {
+                            const updated = await getResearchPosts({ playerId, currentUserId: user.id });
+                            setPlayerResearch(updated);
+                          }
+                        } catch { /* silently fail */ } finally {
+                          setUnlockingId(null);
                         }
-                      } catch { /* silently fail */ } finally {
-                        setUnlockingId(null);
-                      }
-                    }}
-                    unlockingId={unlockingId}
-                    onRate={async (id, rating) => {
-                      if (!user || ratingId) return;
-                      setRatingId(id);
-                      try {
-                        const result = await rateResearch(user.id, id, rating);
-                        if (result.success) {
-                          setPlayerResearch(prev => prev.map(p =>
-                            p.id === id
-                              ? { ...p, avg_rating: result.avg_rating ?? p.avg_rating, ratings_count: result.ratings_count ?? p.ratings_count, user_rating: result.user_rating ?? p.user_rating }
-                              : p
-                          ));
+                      }}
+                      unlockingId={unlockingId}
+                      onRate={async (id, rating) => {
+                        if (!user || ratingId) return;
+                        setRatingId(id);
+                        try {
+                          const result = await rateResearch(user.id, id, rating);
+                          if (result.success) {
+                            setPlayerResearch(prev => prev.map(p =>
+                              p.id === id
+                                ? { ...p, avg_rating: result.avg_rating ?? p.avg_rating, ratings_count: result.ratings_count ?? p.ratings_count, user_rating: result.user_rating ?? p.user_rating }
+                                : p
+                            ));
+                          }
+                        } catch { /* silently fail */ } finally {
+                          setRatingId(null);
                         }
-                      } catch { /* silently fail */ } finally {
-                        setRatingId(null);
-                      }
-                    }}
-                    ratingId={ratingId}
-                  />
-                ))
-              )}
-            </div>
-          )}
+                      }}
+                      ratingId={ratingId}
+                    />
+                  ))
+                )}
+              </div>
 
-          {tab === 'activity' && (
+              {/* Trade History Section (was activity tab) */}
             <div className="space-y-6">
               {/* Order Book (Transfermarkt) */}
               <Card className="overflow-hidden">
@@ -2195,6 +2208,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
                 </div>
               </Card>
             </div>
+            </>
           )}
         </div>
 
@@ -2400,6 +2414,32 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           <TopOwnersWidget player={player} />
         </div>
       </div>
+
+      {/* ========== STICKY MOBILE ACTION BAR ========== */}
+      {!player.isLiquidated && (
+        <div className="fixed bottom-16 left-0 right-0 z-30 md:hidden bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-white/10 px-4 py-3">
+          <div className="flex items-center gap-3 max-w-[1200px] mx-auto">
+            <Button
+              variant="gold"
+              className="flex-1 text-sm font-bold"
+              onClick={() => setTab('handeln')}
+            >
+              <ShoppingCart className="w-4 h-4" />
+              Kaufen
+            </Button>
+            {holdingQty > 0 && (
+              <Button
+                variant="outline"
+                className="flex-1 text-sm font-bold"
+                onClick={() => setTab('handeln')}
+              >
+                <Send className="w-4 h-4" />
+                Verkaufen
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

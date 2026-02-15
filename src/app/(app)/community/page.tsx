@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Users, UserCheck, Hash, Vote, Trophy, Loader2, Plus, Target } from 'lucide-react';
-import { Button, ErrorState } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { useState, useEffect, useCallback } from 'react';
+import { Loader2, Plus } from 'lucide-react';
+import { Button, ErrorState, TabBar, TabPanel } from '@/components/ui';
 import { val } from '@/lib/settledHelpers';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -30,7 +29,7 @@ import type { PostWithAuthor, DbClubVote, LeaderboardUser, ResearchPostWithAutho
 // TYPES
 // ============================================
 
-type MainTab = 'foryou' | 'following' | 'research' | 'votes' | 'bounties' | 'leaderboard';
+type MainTab = 'feed' | 'research' | 'aktionen' | 'ranking';
 
 // ============================================
 // MAIN PAGE
@@ -46,7 +45,8 @@ export default function CommunityPage() {
   const [isClubAdmin, setIsClubAdmin] = useState(false);
 
   // UI State
-  const [mainTab, setMainTab] = useState<MainTab>('foryou');
+  const [mainTab, setMainTab] = useState<MainTab>('feed');
+  const [feedMode, setFeedMode] = useState<'all' | 'following'>('all');
   const [createPostOpen, setCreatePostOpen] = useState(false);
   const [createResearchOpen, setCreateResearchOpen] = useState(false);
   const [createPollOpen, setCreatePollOpen] = useState(false);
@@ -441,24 +441,22 @@ export default function CommunityPage() {
   }, [user, submittingBountyId, addToast]);
 
   // ---- Tab Config ----
-  const TABS: { id: MainTab; label: string; icon: React.ElementType }[] = [
-    { id: 'foryou', label: 'Für dich', icon: Users },
-    { id: 'following', label: 'Folge ich', icon: UserCheck },
-    { id: 'research', label: 'Research', icon: Hash },
-    { id: 'votes', label: 'Abstimmungen', icon: Vote },
-    { id: 'bounties', label: 'Aufträge', icon: Target },
-    { id: 'leaderboard', label: 'Leaderboard', icon: Trophy },
+  const TABS: { id: MainTab; label: string }[] = [
+    { id: 'feed', label: 'Feed' },
+    { id: 'research', label: 'Research' },
+    { id: 'aktionen', label: 'Aktionen' },
+    { id: 'ranking', label: 'Ranking' },
   ];
 
   if (!user) return null;
 
   return (
-    <div className="max-w-[1400px] mx-auto">
+    <div className="max-w-[1200px] mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-black">Community</h1>
-          <p className="text-sm text-white/50 mt-1">Posts, Abstimmungen & Leaderboard</p>
+          <p className="text-sm text-white/50 mt-1">Vernetze dich mit anderen Scouts</p>
         </div>
         <Button variant="gold" size="sm" onClick={() => setCreatePostOpen(true)}>
           <Plus className="w-4 h-4" />
@@ -467,22 +465,7 @@ export default function CommunityPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center border-b border-white/10 overflow-x-auto scrollbar-hide -mx-4 px-4 lg:mx-0 lg:px-0 mb-6">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setMainTab(t.id)}
-            className={cn(
-              'px-3 md:px-5 py-2.5 md:py-3 text-xs md:text-sm font-semibold transition-all relative whitespace-nowrap flex-shrink-0 flex items-center gap-1.5',
-              mainTab === t.id ? 'text-[#FFD700]' : 'text-white/60 hover:text-white'
-            )}
-          >
-            <t.icon className="w-4 h-4" />
-            {t.label}
-            {mainTab === t.id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FFD700]" />}
-          </button>
-        ))}
-      </div>
+      <TabBar tabs={TABS} activeTab={mainTab} onChange={(id) => setMainTab(id as MainTab)} />
 
       {/* Loading / Error */}
       {dataLoading && !dataError && (
@@ -497,8 +480,23 @@ export default function CommunityPage() {
 
       {!dataLoading && !dataError && (
         <>
-          {/* Feed: For You / Following */}
-          {(mainTab === 'foryou' || mainTab === 'following') && (
+          {/* Feed (with Alle / Folge ich toggle) */}
+          <TabPanel activeTab={mainTab} id="feed">
+            <div className="flex items-center gap-2 mb-4">
+              {(['all', 'following'] as const).map(mode => (
+                <button
+                  key={mode}
+                  onClick={() => setFeedMode(mode)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                    feedMode === mode
+                      ? 'bg-[#FFD700]/20 text-[#FFD700] border border-[#FFD700]/40'
+                      : 'bg-white/5 text-white/50 border border-white/10 hover:text-white'
+                  }`}
+                >
+                  {mode === 'all' ? 'Alle' : 'Folge ich'}
+                </button>
+              ))}
+            </div>
             <CommunityFeedTab
               posts={posts}
               myPostVotes={myPostVotes}
@@ -507,20 +505,20 @@ export default function CommunityPage() {
               leaderboard={leaderboard}
               clubVotes={clubVotes}
               userId={user.id}
-              isFollowingTab={mainTab === 'following'}
+              isFollowingTab={feedMode === 'following'}
               onVote={handleVotePost}
               onDelete={handleDeletePost}
               onCreatePost={() => setCreatePostOpen(true)}
-              onSwitchToLeaderboard={() => setMainTab('leaderboard')}
-              onSwitchToVotes={() => setMainTab('votes')}
+              onSwitchToLeaderboard={() => setMainTab('ranking')}
+              onSwitchToVotes={() => setMainTab('aktionen')}
               isClubAdmin={isClubAdmin}
               onAdminDelete={handleAdminDeletePost}
               onTogglePin={handleTogglePin}
             />
-          )}
+          </TabPanel>
 
           {/* Research */}
-          {mainTab === 'research' && (
+          <TabPanel activeTab={mainTab} id="research">
             <CommunityResearchTab
               researchPosts={researchPosts}
               onCreateResearch={() => setCreateResearchOpen(true)}
@@ -529,43 +527,50 @@ export default function CommunityPage() {
               onRate={handleRateResearch}
               ratingId={ratingId}
             />
-          )}
+          </TabPanel>
 
-          {/* Votes */}
-          {mainTab === 'votes' && (
-            <CommunityVotesTab
-              communityPolls={communityPolls}
-              userPollVotedIds={userPollVotedIds}
-              clubVotes={clubVotes}
-              userVotedIdSet={userVotedIdSet}
-              userId={user.id}
-              onCastPollVote={handleCastPollVote}
-              onCancelPoll={handleCancelPoll}
-              pollVotingId={pollVotingId}
-              onCastVote={handleCastVote}
-              votingId={votingId}
-              onCreatePoll={() => setCreatePollOpen(true)}
-            />
-          )}
+          {/* Aktionen: Votes + Bounties combined */}
+          <TabPanel activeTab={mainTab} id="aktionen">
+            <div className="space-y-8">
+              {/* Votes Section */}
+              <section>
+                <h2 className="text-lg font-bold mb-4">Abstimmungen & Umfragen</h2>
+                <CommunityVotesTab
+                  communityPolls={communityPolls}
+                  userPollVotedIds={userPollVotedIds}
+                  clubVotes={clubVotes}
+                  userVotedIdSet={userVotedIdSet}
+                  userId={user.id}
+                  onCastPollVote={handleCastPollVote}
+                  onCancelPoll={handleCancelPoll}
+                  pollVotingId={pollVotingId}
+                  onCastVote={handleCastVote}
+                  votingId={votingId}
+                  onCreatePoll={() => setCreatePollOpen(true)}
+                />
+              </section>
 
-          {/* Bounties */}
-          {mainTab === 'bounties' && (
-            <CommunityBountiesTab
-              bounties={bounties}
-              userId={user.id}
-              onSubmit={handleSubmitBounty}
-              submitting={submittingBountyId}
-            />
-          )}
+              {/* Bounties Section */}
+              <section>
+                <h2 className="text-lg font-bold mb-4">Aufträge</h2>
+                <CommunityBountiesTab
+                  bounties={bounties}
+                  userId={user.id}
+                  onSubmit={handleSubmitBounty}
+                  submitting={submittingBountyId}
+                />
+              </section>
+            </div>
+          </TabPanel>
 
-          {/* Leaderboard */}
-          {mainTab === 'leaderboard' && (
+          {/* Ranking */}
+          <TabPanel activeTab={mainTab} id="ranking">
             <CommunityLeaderboardTab
               leaderboard={leaderboard}
               followingIds={followingIds}
               onFollowToggle={handleFollowToggle}
             />
-          )}
+          </TabPanel>
         </>
       )}
 

@@ -272,12 +272,9 @@ export default function FantasyContent() {
   }), [gwFilteredEvents]);
 
   const CATEGORIES_WITH_COUNTS: LeagueCategory[] = [
-    { id: 'joined', name: 'Meine Events', icon: '✅', count: categoryCounts.joined, group: 'user' },
-    { id: 'favorites', name: 'Favoriten', icon: '⭐', count: categoryCounts.favorites, group: 'user' },
-    { id: 'all', name: 'Alle Events', icon: '🌐', count: categoryCounts.all, group: 'type' },
-    { id: 'bescout', name: 'BeScout Official', icon: '✨', count: categoryCounts.bescout, group: 'type' },
-    { id: 'club', name: 'Club Events', icon: '🏟️', count: categoryCounts.club, group: 'type' },
-    { id: 'sponsor', name: 'Sponsor Events', icon: '🎁', count: categoryCounts.sponsor, group: 'type' },
+    { id: 'all', name: 'Alle', icon: '🌐', count: categoryCounts.all, group: 'type' },
+    { id: 'joined', name: 'Meine', icon: '✅', count: categoryCounts.joined, group: 'user' },
+    { id: 'bescout', name: 'Offiziell', icon: '✨', count: categoryCounts.bescout + categoryCounts.club + categoryCounts.sponsor, group: 'type' },
     { id: 'creator', name: 'Community', icon: '👥', count: categoryCounts.creator, group: 'type' },
   ];
 
@@ -292,14 +289,16 @@ export default function FantasyContent() {
       );
     }
 
-    if (statusFilter !== 'all') {
+    if (statusFilter === 'registering') {
+      filtered = filtered.filter(e => e.status === 'registering' || e.status === 'late-reg' || e.status === 'running');
+    } else if (statusFilter !== 'all') {
       filtered = filtered.filter(e => e.status === statusFilter);
     }
 
     if (categoryFilter === 'joined') {
       filtered = filtered.filter(e => e.isJoined);
-    } else if (categoryFilter === 'favorites') {
-      filtered = filtered.filter(e => e.isInterested);
+    } else if (categoryFilter === 'bescout') {
+      filtered = filtered.filter(e => e.type === 'bescout' || e.type === 'club' || e.type === 'sponsor');
     } else if (categoryFilter !== 'all') {
       filtered = filtered.filter(e => e.type === categoryFilter);
     }
@@ -665,18 +664,25 @@ export default function FantasyContent() {
                 <List className="w-4 h-4" />
               </button>
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as EventStatus | 'all')}
-              className="px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm"
-            >
-              <option value="all">Alle ({statusCounts.all})</option>
-              <option value="late-reg">Late Reg ({statusCounts['late-reg']})</option>
-              <option value="registering">Anmelden ({statusCounts.registering})</option>
-              <option value="running">Läuft ({statusCounts.running})</option>
-              <option value="upcoming">Bald ({statusCounts.upcoming})</option>
-              <option value="ended">Beendet ({statusCounts.ended})</option>
-            </select>
+            <div className="flex items-center gap-1">
+              {([
+                { id: 'all' as const, label: 'Alle', count: statusCounts.all },
+                { id: 'registering' as const, label: 'Offen', count: statusCounts.registering + statusCounts['late-reg'] + statusCounts.running },
+                { id: 'ended' as const, label: 'Beendet', count: statusCounts.ended },
+              ]).map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => setStatusFilter(s.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    statusFilter === s.id
+                      ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/30'
+                      : 'bg-white/5 text-white/50 border border-white/10 hover:text-white'
+                  }`}
+                >
+                  {s.label} <span className="text-white/30">{s.count}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* ALLE EVENTS */}

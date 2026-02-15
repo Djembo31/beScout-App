@@ -25,7 +25,7 @@ import {
   ArrowRightLeft,
   Banknote,
 } from 'lucide-react';
-import { Card, Button, Chip, ErrorState, Skeleton, SkeletonCard, InfoTooltip } from '@/components/ui';
+import { Card, Button, Chip, ErrorState, Skeleton, SkeletonCard, TabBar, TabPanel } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
@@ -47,26 +47,7 @@ import { getActivityColor as actColor, getActivityLabel, getRelativeTime, getAct
 import { getPosts } from '@/lib/services/posts';
 import type { Player, DpcHolding, DbTransaction, DbEvent, DbOrder, Pos, DbUserStats, LeaderboardUser, PostWithAuthor } from '@/types';
 import { getLevelTier } from '@/types';
-
-// ============================================
-// SECTION HEADER (Sorare-style)
-// ============================================
-
-function SectionHeader({ title, href, badge }: { title: string; href?: string; badge?: React.ReactNode }) {
-  const content = (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2.5">
-        <h2 className="text-lg md:text-xl font-black uppercase tracking-wide">{title}</h2>
-        {badge}
-      </div>
-      {href && <ChevronRight className="w-5 h-5 text-white/30" />}
-    </div>
-  );
-  if (href) {
-    return <Link href={href} className="block hover:opacity-80 transition-opacity">{content}</Link>;
-  }
-  return content;
-}
+import { InfoTooltip } from '@/components/ui';
 
 // ============================================
 // HELPERS
@@ -80,7 +61,6 @@ function getGreeting(): string {
   return 'Guten Abend';
 }
 
-// Icon name → React element mapping for activity helpers
 const ICON_MAP: Record<string, React.ElementType> = { CircleDollarSign, Trophy, Award, Users, Zap, FileText, Vote, Activity, Target, Flame, Banknote };
 function renderActivityIcon(type: string) {
   const Icon = ICON_MAP[actIconName(type)] ?? Activity;
@@ -101,85 +81,52 @@ function getTimeUntil(dateStr: string | null): string {
   return `${hours}h ${mins}m`;
 }
 
+function SectionHeader({ title, href, badge }: { title: string; href?: string; badge?: React.ReactNode }) {
+  const content = (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2.5">
+        <h2 className="text-base md:text-lg font-black uppercase tracking-wide">{title}</h2>
+        {badge}
+      </div>
+      {href && <ChevronRight className="w-5 h-5 text-white/30" />}
+    </div>
+  );
+  if (href) {
+    return <Link href={href} className="block hover:opacity-80 transition-opacity">{content}</Link>;
+  }
+  return content;
+}
+
 // ============================================
 // SKELETON
 // ============================================
 
 function HomeSkeleton() {
   return (
-    <div className="max-w-[1600px] mx-auto space-y-6 md:space-y-8">
-      {/* Greeting */}
+    <div className="max-w-[1200px] mx-auto space-y-4 md:space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <Skeleton className="h-4 w-24 mb-2" />
           <Skeleton className="h-9 w-40" />
         </div>
-        <Skeleton className="hidden md:block h-10 w-28 rounded-xl" />
       </div>
-      {/* Stat Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
         {[...Array(4)].map((_, i) => (
           <Skeleton key={i} className="h-[88px] rounded-xl" />
         ))}
       </div>
-      {/* IPO Banner */}
-      <Skeleton className="h-20 rounded-2xl" />
-      {/* Event Card */}
-      <div>
-        <Skeleton className="h-6 w-36 mb-3" />
-        <SkeletonCard className="h-40" />
-      </div>
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          {/* Portfolio */}
-          <div>
-            <Skeleton className="h-6 w-32 mb-3" />
-            <div className="space-y-2">
-              {[...Array(4)].map((_, i) => (
-                <Skeleton key={i} className="h-14 rounded-xl" />
-              ))}
-            </div>
-          </div>
-          {/* Marktbewegungen */}
-          <div>
-            <Skeleton className="h-6 w-40 mb-3" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                {[...Array(3)].map((_, i) => (
-                  <Skeleton key={i} className="h-16 rounded-xl" />
-                ))}
-              </div>
-              <div className="space-y-2">
-                {[...Array(3)].map((_, i) => (
-                  <Skeleton key={i} className="h-16 rounded-xl" />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Sidebar */}
-        <div className="space-y-6">
-          <div>
-            <Skeleton className="h-6 w-24 mb-3" />
-            <SkeletonCard className="h-64" />
-          </div>
-          <div>
-            <Skeleton className="h-6 w-20 mb-3" />
-            <div className="space-y-2">
-              {[...Array(3)].map((_, i) => (
-                <SkeletonCard key={i} className="h-28" />
-              ))}
-            </div>
-          </div>
-        </div>
+      <Skeleton className="h-12 rounded-2xl" />
+      <div className="space-y-3">
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} className="h-16 rounded-xl" />
+        ))}
       </div>
     </div>
   );
 }
 
 // ============================================
-// WELCOME BANNER (first-time users)
+// WELCOME BANNER
 // ============================================
 
 const WELCOME_KEY = 'bescout-welcome-dismissed';
@@ -194,7 +141,7 @@ function WelcomeBanner({ name }: { name: string }) {
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-[#FFD700]/20 bg-gradient-to-r from-[#FFD700]/[0.08] via-purple-500/[0.04] to-[#22C55E]/[0.04]">
-      <div className="p-4 md:p-5">
+      <div className="p-4">
         <button
           onClick={() => { localStorage.setItem(WELCOME_KEY, '1'); setVisible(false); }}
           className="absolute top-3 right-3 text-white/30 hover:text-white/60 text-xs"
@@ -208,7 +155,7 @@ function WelcomeBanner({ name }: { name: string }) {
           Verdiene BSD durch Trading, Fantasy-Turniere und Analysen. Wähle dein erstes Ziel:
         </p>
         <div className="flex flex-wrap gap-2">
-          <Link href="/market?tab=scouting">
+          <Link href="/market?tab=kaufen">
             <Button variant="gold" size="sm" className="gap-1.5 text-xs">
               <Zap className="w-3.5 h-3.5" />
               Ersten Spieler kaufen
@@ -233,7 +180,7 @@ function WelcomeBanner({ name }: { name: string }) {
 }
 
 // ============================================
-// LOGIN STREAK (localStorage-based)
+// LOGIN STREAK
 // ============================================
 
 const STREAK_KEY = 'bescout-login-streak';
@@ -250,14 +197,24 @@ function getLoginStreak(): { current: number; lastDate: string } {
 function updateLoginStreak(): number {
   const today = new Date().toISOString().slice(0, 10);
   const { current, lastDate } = getLoginStreak();
-
-  if (lastDate === today) return current; // Already counted today
-
+  if (lastDate === today) return current;
   const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
   const newStreak = lastDate === yesterday ? current + 1 : 1;
   localStorage.setItem(STREAK_KEY, JSON.stringify({ current: newStreak, lastDate: today }));
   return newStreak;
 }
+
+// ============================================
+// TAB CONFIG
+// ============================================
+
+type HomeTab = 'mein' | 'aktuell' | 'entdecken';
+
+const HOME_TABS = [
+  { id: 'mein' as const, label: 'Mein Stand' },
+  { id: 'aktuell' as const, label: 'Aktuell' },
+  { id: 'entdecken' as const, label: 'Entdecken' },
+];
 
 // ============================================
 // MAIN COMPONENT
@@ -270,6 +227,7 @@ export default function HomePage() {
   const name = profile?.display_name || displayName(user);
   const firstName = name.split(' ')[0];
 
+  const [activeTab, setActiveTab] = useState<HomeTab>('mein');
   const [players, setPlayers] = useState<Player[]>([]);
   const [holdings, setHoldings] = useState<DpcHolding[]>([]);
   const [transactions, setTransactions] = useState<DbTransaction[]>([]);
@@ -283,7 +241,6 @@ export default function HomePage() {
   const [recentTrades, setRecentTrades] = useState<GlobalTrade[]>([]);
   const [topTraders, setTopTraders] = useState<TopTrader[]>([]);
   const [communityPosts, setCommunityPosts] = useState<PostWithAuthor[]>([]);
-  const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null);
   const [streak, setStreak] = useState(0);
 
   useEffect(() => {
@@ -304,7 +261,6 @@ export default function HomePage() {
           getRecentGlobalTrades(10),
           getTopTraders(5),
           getPosts({ limit: 5 }),
-          getPlatformStats(),
         ]), 10000);
         if (cancelled) return;
 
@@ -318,9 +274,7 @@ export default function HomePage() {
         const trades = val(results[7], []);
         const traders = val(results[8], []);
         const posts = val(results[9], []);
-        const pStats = val(results[10], null);
 
-        // Critical: players must load for meaningful page
         if (results[0].status === 'rejected') {
           if (!cancelled) setDataError(true);
           return;
@@ -335,7 +289,6 @@ export default function HomePage() {
         setRecentTrades(trades);
         setTopTraders(traders);
         setCommunityPosts(posts);
-        setPlatformStats(pStats);
 
         const mapped: DpcHolding[] = dbHoldings.map((h) => ({
           id: h.id,
@@ -366,22 +319,17 @@ export default function HomePage() {
 
     loadData();
 
-    // Fire-and-forget: track daily login mission
     import('@/lib/services/missions').then(({ trackMissionProgress }) => {
       trackMissionProgress(uid, 'daily_login');
     }).catch(() => {});
 
-    // Update login streak (localStorage for instant UI)
     setStreak(updateLoginStreak());
 
-    // Server-side streak: record + auto-claim milestones
     import('@/lib/services/streaks').then(({ recordLoginStreak }) => {
       recordLoginStreak(uid).then(result => {
         if (cancelled) return;
-        // Override localStorage with server value
         setStreak(result.current_streak);
         localStorage.setItem(STREAK_KEY, JSON.stringify({ current: result.current_streak, lastDate: new Date().toISOString().slice(0, 10) }));
-        // Toast for milestone rewards
         if (result.rewards_given && result.rewards_given.length > 0) {
           result.rewards_given.forEach(r => {
             addToast(`Streak-Bonus: ${r.milestone} Tage! +${Math.round(r.reward_cents / 100)} BSD`, 'success');
@@ -393,27 +341,14 @@ export default function HomePage() {
     return () => { cancelled = true; };
   }, [user, retryCount]);
 
-  const portfolioValue = useMemo(
-    () => holdings.reduce((s, h) => s + h.qty * h.floor, 0),
-    [holdings]
-  );
-  const portfolioCost = useMemo(
-    () => holdings.reduce((s, h) => s + h.qty * h.avgBuy, 0),
-    [holdings]
-  );
+  // ── Derived data ──
+  const portfolioValue = useMemo(() => holdings.reduce((s, h) => s + h.qty * h.floor, 0), [holdings]);
+  const portfolioCost = useMemo(() => holdings.reduce((s, h) => s + h.qty * h.avgBuy, 0), [holdings]);
   const pnl = portfolioValue - portfolioCost;
   const pnlPct = portfolioCost > 0 ? (pnl / portfolioCost) * 100 : 0;
   const totalDpcs = useMemo(() => holdings.reduce((s, h) => s + h.qty, 0), [holdings]);
-  const posCounts = useMemo(() => {
-    const counts = { GK: 0, DEF: 0, MID: 0, ATT: 0 };
-    holdings.forEach(h => { if (counts[h.pos] !== undefined) counts[h.pos]++; });
-    return counts;
-  }, [holdings]);
 
-  const sortedByChange = useMemo(
-    () => [...players].sort((a, b) => b.prices.change24h - a.prices.change24h),
-    [players]
-  );
+  const sortedByChange = useMemo(() => [...players].sort((a, b) => b.prices.change24h - a.prices.change24h), [players]);
   const topGainers = sortedByChange.filter((p) => p.prices.change24h > 0).slice(0, 3);
   const topLosers = sortedByChange.filter((p) => p.prices.change24h < 0).slice(0, 3);
 
@@ -426,25 +361,19 @@ export default function HomePage() {
       .filter((item): item is { order: DbOrder; player: Player } => !!item.player);
   }, [orders, players]);
 
-  const activeIPOs = useMemo(
-    () => players.filter((p) => p.ipo.status === 'open' || p.ipo.status === 'early_access'),
-    [players]
-  );
+  const activeIPOs = useMemo(() => players.filter((p) => p.ipo.status === 'open' || p.ipo.status === 'early_access'), [players]);
 
-  // "Unter Wert" — high L5 perf relative to floor price
   const bargains = useMemo(() => {
     if (players.length === 0) return [];
-    const withValue = players
+    return players
       .filter(p => p.perf.l5 > 0 && (p.prices.floor ?? 0) > 0)
       .map(p => {
         const floor = centsToBsd(p.prices.floor ?? 0);
-        // Value ratio: perf per BSD — higher = more undervalued
         const valueRatio = p.perf.l5 / floor;
         return { player: p, floor, valueRatio };
       })
       .sort((a, b) => b.valueRatio - a.valueRatio)
       .slice(0, 5);
-    return withValue;
   }, [players]);
 
   const nextEvent = useMemo(() => {
@@ -464,53 +393,37 @@ export default function HomePage() {
 
   if (dataError && players.length === 0) {
     return (
-      <div className="max-w-[1600px] mx-auto py-12">
+      <div className="max-w-[1200px] mx-auto py-12">
         <ErrorState onRetry={() => { setDataLoading(true); setDataError(false); setRetryCount(c => c + 1); }} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto space-y-6 md:space-y-8">
+    <div className="max-w-[1200px] mx-auto space-y-4 md:space-y-6">
 
-      {/* ━━━ GREETING — compact on mobile ━━━ */}
+      {/* ━━━ GREETING + STREAK ━━━ */}
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-xs md:text-sm text-white/40 tracking-wide">
-            {getGreeting()},
-          </div>
-          <h1 className="text-2xl md:text-4xl font-black tracking-tight" suppressHydrationWarning>
+          <div className="text-xs text-white/40 tracking-wide">{getGreeting()},</div>
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight" suppressHydrationWarning>
             {loading ? '...' : firstName}
             <span className="text-[#FFD700]">.</span>
           </h1>
         </div>
-        <div className="flex items-center gap-3">
-          {streak >= 2 && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-400/20">
-              <Flame className="w-4 h-4 text-orange-400" />
-              <span className="text-sm font-black text-orange-300">{streak}</span>
-              <span className="text-[10px] text-orange-400/60 hidden sm:inline">Tage</span>
-              {(() => {
-                const milestones = [3, 7, 14, 30];
-                const next = milestones.find(m => m > streak);
-                if (!next) return null;
-                return <span className="text-[10px] text-orange-400/40 hidden md:inline ml-1">• noch {next - streak}d bis {next}d Bonus</span>;
-              })()}
-            </div>
-          )}
-          <Link href="/market" className="hidden md:block">
-            <Button variant="gold" className="gap-2">
-              <Briefcase className="w-4 h-4" />
-              Manager Office
-            </Button>
-          </Link>
-        </div>
+        {streak >= 2 && (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-400/20">
+            <Flame className="w-4 h-4 text-orange-400" />
+            <span className="text-sm font-black text-orange-300">{streak}</span>
+            <span className="text-[10px] text-orange-400/60 hidden sm:inline">Tage</span>
+          </div>
+        )}
       </div>
 
-      {/* ━━━ WELCOME BANNER (first-time only) ━━━ */}
+      {/* ━━━ WELCOME BANNER ━━━ */}
       <WelcomeBanner name={firstName} />
 
-      {/* ━━━ STATS — 2x2 grid on mobile, 4-col on desktop ━━━ */}
+      {/* ━━━ STAT CARDS — 2x2 mobile, 4-col desktop ━━━ */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4">
           <div className="flex items-center gap-1 mb-1">
@@ -558,227 +471,22 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ━━━ LIVE TRADE FEED ━━━ */}
-      {recentTrades.length > 0 && (
-        <div className="overflow-hidden">
-          <div className="flex items-center gap-2 mb-2">
-            <ArrowRightLeft className="w-3.5 h-3.5 text-[#FFD700]/60" />
-            <span className="text-[10px] font-black uppercase tracking-wider text-white/30">Letzte Trades</span>
-          </div>
-          <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1">
-            {recentTrades.map(t => (
-              <Link
-                key={t.id}
-                href={`/player/${t.playerId}`}
-                className="flex items-center gap-2 px-3 py-2 bg-white/[0.02] border border-white/[0.06] rounded-xl hover:bg-white/[0.04] transition-all shrink-0"
-              >
-                <PositionBadge pos={t.playerPos} size="sm" />
-                <div className="min-w-0">
-                  <div className="text-[11px] font-bold truncate max-w-[120px]">{t.playerName}</div>
-                  <div className="text-[10px] text-white/30">{getRelativeTime(t.executedAt)}</div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="text-[11px] font-mono font-bold text-[#FFD700]">{fmtBSD(centsToBsd(t.price))}</div>
-                  <div className="text-[9px] text-white/25">{t.quantity}x · {t.isP2P ? 'P2P' : 'IPO'}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* ━━━ TAB BAR ━━━ */}
+      <TabBar tabs={HOME_TABS} activeTab={activeTab} onChange={(id) => setActiveTab(id as HomeTab)} />
 
-      {/* ━━━ UNTER WERT / BARGAINS ━━━ */}
-      {bargains.length > 0 && (
-        <div className="overflow-hidden">
-          <div className="flex items-center gap-2 mb-2">
-            <Zap className="w-3.5 h-3.5 text-[#22C55E]/60" />
-            <span className="text-[10px] font-black uppercase tracking-wider text-white/30">Unter Wert</span>
-            <span className="text-[9px] text-white/20 ml-auto">Hohe Leistung, günstiger Preis</span>
-          </div>
-          <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1">
-            {bargains.map(({ player: p, floor }) => (
-              <Link
-                key={p.id}
-                href={`/player/${p.id}`}
-                className="flex items-center gap-2.5 px-3 py-2.5 bg-[#22C55E]/[0.03] border border-[#22C55E]/10 rounded-xl hover:bg-[#22C55E]/[0.06] transition-all shrink-0"
-              >
-                <PositionBadge pos={p.pos} size="sm" />
-                <div className="min-w-0">
-                  <div className="text-[11px] font-bold truncate max-w-[110px]">{p.first} {p.last}</div>
-                  <div className="text-[10px] text-white/30">{p.club}</div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="text-[11px] font-mono font-bold text-[#FFD700]">{fmtBSD(floor)} BSD</div>
-                  <div className="text-[10px] font-mono text-[#22C55E]">L5: {p.perf.l5}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ━━━ MISSIONS ━━━ */}
-      <MissionBanner />
-
-      {/* ━━━ NÄCHSTES EVENT (Hero card — prominent for engagement) ━━━ */}
-      {nextEvent && (
-        <div>
-          <SectionHeader
-            title="Nächstes Event"
-            href="/fantasy"
-            badge={
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-400/25">
-                <Clock className="w-3 h-3 text-purple-400" />
-                <span className="text-[10px] font-bold text-purple-300">
-                  {nextEvent.status === 'running' ? getTimeUntil(nextEvent.ends_at) : getTimeUntil(nextEvent.starts_at)}
-                </span>
-              </span>
-            }
-          />
-          <Link href="/fantasy" className="block mt-3">
-            <div className="relative overflow-hidden rounded-2xl border border-purple-500/20 bg-gradient-to-br from-purple-600/10 via-purple-500/5 to-transparent">
-              <div className="p-4 md:p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Trophy className="w-4 h-4 text-purple-400" />
-                      <span className="text-[10px] font-black uppercase tracking-wider text-purple-400">{nextEvent.format}</span>
-                    </div>
-                    <h3 className="text-lg md:text-2xl font-black">{nextEvent.name}</h3>
-                    <div className="flex items-center gap-3 mt-1.5 text-xs text-white/50">
-                      <span className="flex items-center gap-1">
-                        <Users className="w-3.5 h-3.5" />
-                        {nextEvent.current_entries}/{nextEvent.max_entries ?? '∞'}
-                      </span>
-                      <span>Eintritt: {nextEvent.entry_fee === 0 ? 'Gratis' : `${fmtBSD(centsToBsd(nextEvent.entry_fee))} BSD`}</span>
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="text-[10px] text-white/40 mb-0.5">Preisgeld</div>
-                    <div className="text-xl md:text-3xl font-black font-mono text-[#FFD700]">
-                      {formatPrize(centsToBsd(nextEvent.prize_pool))}
-                    </div>
-                    <div className="text-[10px] text-white/40">BSD</div>
-                  </div>
-                </div>
-                {nextEvent.max_entries && (
-                  <div className="mt-3">
-                    <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-full"
-                        style={{ width: `${Math.min(100, (nextEvent.current_entries / nextEvent.max_entries) * 100)}%` }}
-                      />
-                    </div>
-                    <div className="mt-1 text-[10px] text-white/30">
-                      {Math.round((nextEvent.current_entries / nextEvent.max_entries) * 100)}% belegt
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </Link>
-        </div>
-      )}
-
-      {/* ━━━ IPO BANNER ━━━ */}
-      {activeIPOs.length > 0 && (
-        <Link href={`/player/${activeIPOs[0].id}`} className="block">
-          <div className="relative overflow-hidden rounded-2xl border border-[#22C55E]/20 bg-gradient-to-r from-[#22C55E]/[0.08] via-transparent to-[#FFD700]/[0.04]">
-            <div className="relative flex items-center justify-between p-4 md:p-5 gap-4">
-              <div className="flex items-center gap-3 md:gap-4 min-w-0">
-                <div className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-[#22C55E]/15 border border-[#22C55E]/25 shrink-0">
-                  <Rocket className="w-5 h-5 md:w-6 md:h-6 text-[#22C55E]" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[10px] md:text-xs font-black uppercase tracking-wider text-[#22C55E]">Live IPO</span>
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22C55E]" />
-                    </span>
-                  </div>
-                  <div className="font-black text-sm md:text-lg truncate">
-                    {activeIPOs.map((p) => `${p.first} ${p.last}`).join(', ')}
-                  </div>
-                  <div className="text-xs text-white/50 truncate">
-                    {activeIPOs[0].club} · {activeIPOs[0].ipo.progress}% verkauft
-                  </div>
-                </div>
-              </div>
-              <div className="shrink-0 text-right">
-                <div className="font-mono font-black text-[#FFD700] text-lg md:text-2xl">{activeIPOs[0].ipo.price}</div>
-                <div className="text-[10px] text-white/40">BSD/DPC</div>
-              </div>
-            </div>
-          </div>
-        </Link>
-      )}
-
-      {/* ━━━ MAIN CONTENT — Desktop: 2/3 + 1/3, Mobile: single column ━━━ */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* ═══ LEFT / MAIN COLUMN ═══ */}
-        <div className="lg:col-span-2 space-y-6">
-
-          {/* ── MEIN SPIELERKADER ── */}
+      {/* ━━━ TAB: MEIN STAND ━━━ */}
+      <TabPanel id="mein" activeTab={activeTab}>
+        <div className="space-y-5">
+          {/* Holdings Top 5 */}
           <div>
-            <SectionHeader title="Mein Spielerkader" href="/market?tab=kader" />
-            {holdings.length > 0 && (() => {
-              const uniqueClubs = new Set(holdings.map(h => h.club)).size;
-              const uniquePositions = Object.values(posCounts).filter(c => c > 0).length;
-              const diversityScore = Math.min(100, Math.round((uniqueClubs * 25 + uniquePositions * 15 + Math.min(holdings.length, 10) * 3)));
-              const topPerformer = [...holdings].sort((a, b) => {
-                const aPnl = (a.floor - a.avgBuy) * a.qty;
-                const bPnl = (b.floor - b.avgBuy) * b.qty;
-                return bPnl - aPnl;
-              })[0];
-              const topPnl = topPerformer ? (topPerformer.floor - topPerformer.avgBuy) * topPerformer.qty : 0;
-              const posTotal = Object.values(posCounts).reduce((s, c) => s + c, 0) || 1;
-              return (
-                <>
-                  <div className="mt-3 flex items-center gap-2 flex-wrap">
-                    <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-lg font-bold">{posCounts.GK} GK</span>
-                    <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded-lg font-bold">{posCounts.DEF} DEF</span>
-                    <span className="text-[10px] text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2 py-1 rounded-lg font-bold">{posCounts.MID} MID</span>
-                    <span className="text-[10px] text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-1 rounded-lg font-bold">{posCounts.ATT} ATT</span>
-                    <div className="ml-auto flex items-center gap-1.5">
-                      <div className="flex h-2 w-20 rounded-full overflow-hidden bg-black/30">
-                        {posCounts.GK > 0 && <div className="bg-emerald-400" style={{ width: `${(posCounts.GK / posTotal) * 100}%` }} />}
-                        {posCounts.DEF > 0 && <div className="bg-amber-400" style={{ width: `${(posCounts.DEF / posTotal) * 100}%` }} />}
-                        {posCounts.MID > 0 && <div className="bg-sky-400" style={{ width: `${(posCounts.MID / posTotal) * 100}%` }} />}
-                        {posCounts.ATT > 0 && <div className="bg-rose-400" style={{ width: `${(posCounts.ATT / posTotal) * 100}%` }} />}
-                      </div>
-                    </div>
-                  </div>
-                  {holdings.length >= 3 && (
-                    <div className="mt-2 flex items-center gap-3 text-[10px]">
-                      <div className="flex items-center gap-1 px-2 py-1 bg-white/[0.03] border border-white/[0.06] rounded-lg">
-                        <Activity className="w-3 h-3 text-purple-400" />
-                        <span className="text-white/40">Diversität</span>
-                        <span className={cn('font-mono font-bold', diversityScore >= 60 ? 'text-[#22C55E]' : diversityScore >= 30 ? 'text-[#FFD700]' : 'text-red-400')}>{diversityScore}</span>
-                      </div>
-                      {topPerformer && (
-                        <div className="flex items-center gap-1 px-2 py-1 bg-white/[0.03] border border-white/[0.06] rounded-lg">
-                          <Trophy className="w-3 h-3 text-[#FFD700]" />
-                          <span className="text-white/40">Top:</span>
-                          <span className="font-bold text-white/80 truncate max-w-[80px]">{topPerformer.player}</span>
-                          <span className={cn('font-mono font-bold', topPnl >= 0 ? 'text-[#22C55E]' : 'text-red-400')}>
-                            {topPnl >= 0 ? '+' : ''}{fmtBSD(Math.round(topPnl))}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </>
-              );
-            })()}
-            <div className="mt-3 space-y-2">
+            <SectionHeader title="Mein Spielerkader" href="/market" />
+            <div className="mt-3 space-y-1.5">
               {holdings.length === 0 ? (
                 <Card className="p-6 text-center">
                   <Briefcase className="w-8 h-8 mx-auto mb-2 text-white/20" />
                   <div className="text-sm font-medium text-white/50">Starte mit deinem ersten Spieler</div>
                   <div className="text-xs text-white/30 mt-1">Kaufe DPCs, handle am Markt und baue dein Portfolio auf.</div>
-                  <Link href="/market?tab=scouting" className="inline-block mt-3">
+                  <Link href="/market?tab=kaufen" className="inline-block mt-3">
                     <Button variant="gold" size="sm" className="gap-1.5">
                       <Zap className="w-3.5 h-3.5" />
                       Ersten Spieler kaufen
@@ -786,196 +494,294 @@ export default function HomePage() {
                   </Link>
                 </Card>
               ) : (
-                <div className="space-y-1.5">
-                  {holdings.slice(0, 5).map((h) => (
-                    <PlayerDisplay key={h.id} variant="compact"
-                      player={{
-                        id: h.playerId,
-                        first: h.player.split(' ')[0] || '',
-                        last: h.player.split(' ').slice(1).join(' ') || '',
-                        club: h.club,
-                        pos: h.pos,
-                        age: h.age,
-                        ticket: h.ticket,
-                        status: 'fit' as const,
-                        contractMonthsLeft: 24,
-                        country: '',
-                        league: '',
-                        isLiquidated: false,
-                        stats: { matches: h.matches, goals: h.goals, assists: h.assists },
-                        perf: { l5: h.perfL5, l15: 0, trend: 'FLAT' as const },
-                        prices: { lastTrade: 0, floor: h.floor, change24h: h.change24h },
-                        dpc: { supply: 0, float: 0, circulation: 0, onMarket: 0, owned: h.qty },
-                        ipo: { status: 'none' as const },
-                        listings: [],
-                        topOwners: [],
-                      }}
-                      holding={{ quantity: h.qty, avgBuyPriceBsd: h.avgBuy }}
-                      showActions={false}
-                    />
-                  ))}
-                </div>
+                holdings.slice(0, 5).map((h) => (
+                  <PlayerDisplay key={h.id} variant="compact"
+                    player={{
+                      id: h.playerId,
+                      first: h.player.split(' ')[0] || '',
+                      last: h.player.split(' ').slice(1).join(' ') || '',
+                      club: h.club,
+                      pos: h.pos,
+                      age: h.age,
+                      ticket: h.ticket,
+                      status: 'fit' as const,
+                      contractMonthsLeft: 24,
+                      country: '',
+                      league: '',
+                      isLiquidated: false,
+                      stats: { matches: h.matches, goals: h.goals, assists: h.assists },
+                      perf: { l5: h.perfL5, l15: 0, trend: 'FLAT' as const },
+                      prices: { lastTrade: 0, floor: h.floor, change24h: h.change24h },
+                      dpc: { supply: 0, float: 0, circulation: 0, onMarket: 0, owned: h.qty },
+                      ipo: { status: 'none' as const },
+                      listings: [],
+                      topOwners: [],
+                    }}
+                    holding={{ quantity: h.qty, avgBuyPriceBsd: h.avgBuy }}
+                    showActions={false}
+                  />
+                ))
+              )}
+              {holdings.length > 5 && (
+                <Link href="/market" className="block text-center py-2 text-xs text-[#FFD700] hover:underline">
+                  Alle {holdings.length} Spieler anzeigen
+                </Link>
               )}
             </div>
           </div>
 
-          {/* ── AKTIVITÄT + EVENTS (vor Marktbewegungen) ── */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Aktivität */}
-            <div>
-              <SectionHeader title="Aktivität" />
-              <Card className="mt-3">
-                <div className="p-3 md:p-4 space-y-0.5">
-                  {transactions.length === 0 ? (
-                    <div className="text-center py-6">
-                      <Activity className="w-6 h-6 mx-auto mb-2 text-white/15" />
-                      <div className="text-sm text-white/40">Noch keine Aktivität</div>
-                      <div className="text-[11px] text-white/25 mt-1">Kaufe oder handle DPCs, um loszulegen.</div>
-                    </div>
-                  ) : (
-                    transactions.slice(0, 6).map((tx) => {
-                      const positive = tx.amount > 0;
-                      return (
-                        <div
-                          key={tx.id}
-                          className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors"
-                        >
-                          <div className={cn(
-                            'flex items-center justify-center w-8 h-8 rounded-lg shrink-0 mt-0.5',
-                            getActivityColorLocal(tx.type)
-                          )}>
-                            {renderActivityIcon(tx.type)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium leading-snug">{getActivityLabel(tx)}</div>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className={cn(
-                                'text-xs font-mono font-bold',
-                                positive ? 'text-[#22C55E]' : 'text-white/40'
-                              )}>
-                                {positive ? '+' : ''}{formatBsd(tx.amount)} BSD
-                              </span>
-                              <span className="text-[10px] text-white/25">· {getRelativeTime(tx.created_at)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </Card>
-            </div>
-
-            {/* Events */}
-            <div>
-              <SectionHeader title="Events" href="/fantasy" />
-              <div className="mt-3 space-y-2">
-                {displayEvents.length === 0 ? (
-                  <div className="p-6 text-center text-sm text-white/30 bg-white/[0.02] rounded-xl border border-white/[0.06]">
-                    Keine aktiven Events
-                  </div>
-                ) : displayEvents.slice(0, 3).map((evt) => {
-                  const isLive = evt.status === 'running';
-                  const fillPct = evt.max_entries ? (evt.current_entries / evt.max_entries) * 100 : 0;
+          {/* Aktivität */}
+          <div>
+            <SectionHeader title="Aktivität" />
+            <div className="mt-3 space-y-0.5">
+              {transactions.length === 0 ? (
+                <Card className="p-6 text-center">
+                  <Activity className="w-6 h-6 mx-auto mb-2 text-white/15" />
+                  <div className="text-sm text-white/40">Noch keine Aktivität</div>
+                </Card>
+              ) : (
+                transactions.slice(0, 4).map((tx) => {
+                  const positive = tx.amount > 0;
                   return (
-                    <Link
-                      key={evt.id}
-                      href="/fantasy"
-                      className="block bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:border-purple-400/30 transition-all"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="min-w-0">
-                          <div className="font-bold text-sm truncate">{evt.name}</div>
-                          <div className="text-[11px] text-white/40">{evt.format}</div>
-                        </div>
-                        {isLive ? (
-                          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#22C55E]/15 border border-[#22C55E]/25 shrink-0">
-                            <span className="relative flex h-1.5 w-1.5">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-75" />
-                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#22C55E]" />
-                            </span>
-                            <span className="text-[10px] font-black text-[#22C55E]">LIVE</span>
+                    <div key={tx.id} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors">
+                      <div className={cn('flex items-center justify-center w-8 h-8 rounded-lg shrink-0 mt-0.5', getActivityColorLocal(tx.type))}>
+                        {renderActivityIcon(tx.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium leading-snug">{getActivityLabel(tx)}</div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className={cn('text-xs font-mono font-bold', positive ? 'text-[#22C55E]' : 'text-white/40')}>
+                            {positive ? '+' : ''}{formatBsd(tx.amount)} BSD
                           </span>
-                        ) : evt.status === 'late-reg' ? (
-                          <span className="px-2 py-0.5 rounded-full bg-orange-500/15 border border-orange-400/25 text-[10px] font-black text-orange-300 shrink-0">Late Reg</span>
-                        ) : evt.status === 'registering' ? (
-                          <span className="px-2 py-0.5 rounded-full bg-sky-500/15 border border-sky-400/25 text-[10px] font-black text-sky-300 shrink-0">Anmelden</span>
-                        ) : evt.status === 'scoring' ? (
-                          <span className="px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-400/25 text-[10px] font-black text-purple-300 shrink-0">Auswertung</span>
-                        ) : (
-                          <Chip>Bald</Chip>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between text-xs mb-2">
-                        <span className="text-white/50 flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {isLive ? `Endet in ${getTimeUntil(evt.ends_at)}` : `Start: ${getTimeUntil(evt.starts_at)}`}
-                        </span>
-                        <span className="font-mono font-bold text-[#FFD700]">
-                          {formatPrize(centsToBsd(evt.prize_pool))} BSD
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-[10px] text-white/40 mb-2">
-                        <span>{evt.entry_fee === 0 ? <span className="text-[#22C55E] font-bold">Gratis</span> : `Eintritt: ${centsToBsd(evt.entry_fee)} BSD`}</span>
-                        <span>{evt.current_entries} Spieler</span>
-                      </div>
-                      {evt.max_entries ? (
-                        <>
-                          <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                            <div
-                              className={cn(
-                                'h-full rounded-full transition-all',
-                                isLive ? 'bg-[#22C55E]/50' : 'bg-purple-500/50'
-                              )}
-                              style={{ width: `${fillPct}%` }}
-                            />
-                          </div>
-                          <div className="mt-1 text-[10px] text-white/30">
-                            {evt.current_entries}/{evt.max_entries} Teilnehmer
-                          </div>
-                        </>
-                      ) : (
-                        <div className="text-[10px] text-white/30">
-                          {evt.current_entries} Teilnehmer
+                          <span className="text-[10px] text-white/25">· {getRelativeTime(tx.created_at)}</span>
                         </div>
-                      )}
-                    </Link>
+                      </div>
+                    </div>
                   );
-                })}
-              </div>
+                })
+              )}
             </div>
           </div>
 
-          {/* ── PLATFORM PULSE ── */}
-          {platformStats && (
+          {/* Missionen */}
+          <MissionBanner />
+        </div>
+      </TabPanel>
+
+      {/* ━━━ TAB: AKTUELL ━━━ */}
+      <TabPanel id="aktuell" activeTab={activeTab}>
+        <div className="space-y-5">
+
+          {/* Nächstes Event */}
+          {nextEvent && (
             <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Activity className="w-4 h-4 text-[#22C55E]" />
-                <span className="text-[10px] font-black uppercase tracking-wider text-white/30">Plattform-Puls</span>
-                <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
+              <SectionHeader
+                title="Nächstes Event"
+                href="/fantasy"
+                badge={
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-400/25">
+                    <Clock className="w-3 h-3 text-purple-400" />
+                    <span className="text-[10px] font-bold text-purple-300">
+                      {nextEvent.status === 'running' ? getTimeUntil(nextEvent.ends_at) : getTimeUntil(nextEvent.starts_at)}
+                    </span>
+                  </span>
+                }
+              />
+              <Link href="/fantasy" className="block mt-3">
+                <div className="relative overflow-hidden rounded-2xl border border-purple-500/20 bg-gradient-to-br from-purple-600/10 via-purple-500/5 to-transparent">
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Trophy className="w-4 h-4 text-purple-400" />
+                          <span className="text-[10px] font-black uppercase tracking-wider text-purple-400">{nextEvent.format}</span>
+                        </div>
+                        <h3 className="text-base md:text-lg font-black">{nextEvent.name}</h3>
+                        <div className="flex items-center gap-3 mt-1 text-xs text-white/50">
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3.5 h-3.5" />
+                            {nextEvent.current_entries}/{nextEvent.max_entries ?? '∞'}
+                          </span>
+                          <span>Eintritt: {nextEvent.entry_fee === 0 ? 'Gratis' : `${fmtBSD(centsToBsd(nextEvent.entry_fee))} BSD`}</span>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-[10px] text-white/40 mb-0.5">Preisgeld</div>
+                        <div className="text-xl md:text-2xl font-black font-mono text-[#FFD700]">
+                          {formatPrize(centsToBsd(nextEvent.prize_pool))}
+                        </div>
+                        <div className="text-[10px] text-white/40">BSD</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          )}
+
+          {/* IPO Banner */}
+          {activeIPOs.length > 0 && (
+            <Link href={`/player/${activeIPOs[0].id}`} className="block">
+              <div className="relative overflow-hidden rounded-2xl border border-[#22C55E]/20 bg-gradient-to-r from-[#22C55E]/[0.08] via-transparent to-[#FFD700]/[0.04]">
+                <div className="relative flex items-center justify-between p-4 gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-[#22C55E]/15 border border-[#22C55E]/25 shrink-0">
+                      <Rocket className="w-5 h-5 text-[#22C55E]" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-[#22C55E]">Live IPO</span>
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22C55E]" />
+                        </span>
+                      </div>
+                      <div className="font-black text-sm truncate">
+                        {activeIPOs.map((p) => `${p.first} ${p.last}`).join(', ')}
+                      </div>
+                      <div className="text-xs text-white/50 truncate">
+                        {activeIPOs[0].club} · {activeIPOs[0].ipo.progress}% verkauft
+                      </div>
+                    </div>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <div className="font-mono font-black text-[#FFD700] text-lg">{activeIPOs[0].ipo.price}</div>
+                    <div className="text-[10px] text-white/40">BSD/DPC</div>
+                  </div>
+                </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <Card className="p-3 text-center">
-                  <div className="font-mono font-bold text-lg text-white">{platformStats.totalUsers}</div>
-                  <div className="text-[10px] text-white/40">Scouts</div>
-                </Card>
-                <Card className="p-3 text-center">
-                  <div className="font-mono font-bold text-lg text-sky-300">{platformStats.trades24h}</div>
-                  <div className="text-[10px] text-white/40">Trades (24h)</div>
-                </Card>
-                <Card className="p-3 text-center">
-                  <div className="font-mono font-bold text-lg text-[#FFD700]">{fmtBSD(centsToBsd(platformStats.volume24h))}</div>
-                  <div className="text-[10px] text-white/40">Volumen (24h)</div>
-                </Card>
-                <Card className="p-3 text-center">
-                  <div className="font-mono font-bold text-lg text-[#22C55E]">{platformStats.activePlayers}</div>
-                  <div className="text-[10px] text-white/40">Aktive Spieler</div>
-                </Card>
+            </Link>
+          )}
+
+          {/* Live Trades */}
+          {recentTrades.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <ArrowRightLeft className="w-3.5 h-3.5 text-[#FFD700]/60" />
+                <span className="text-[10px] font-black uppercase tracking-wider text-white/30">Letzte Trades</span>
+              </div>
+              <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1">
+                {recentTrades.map(t => (
+                  <Link
+                    key={t.id}
+                    href={`/player/${t.playerId}`}
+                    className="flex items-center gap-2 px-3 py-2 bg-white/[0.02] border border-white/[0.06] rounded-xl hover:bg-white/[0.04] transition-all shrink-0"
+                  >
+                    <PositionBadge pos={t.playerPos} size="sm" />
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-bold truncate max-w-[120px]">{t.playerName}</div>
+                      <div className="text-[10px] text-white/30">{getRelativeTime(t.executedAt)}</div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-[11px] font-mono font-bold text-[#FFD700]">{fmtBSD(centsToBsd(t.price))}</div>
+                      <div className="text-[9px] text-white/25">{t.quantity}x · {t.isP2P ? 'P2P' : 'IPO'}</div>
+                    </div>
+                  </Link>
+                ))}
               </div>
             </div>
           )}
 
-          {/* ── COMMUNITY HIGHLIGHTS ── */}
+          {/* Marktbewegungen */}
+          <div>
+            <SectionHeader title="Marktbewegungen" href="/market" />
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <div className="text-xs font-bold text-[#22C55E] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                  Gewinner (24h)
+                </div>
+                <div className="space-y-2">
+                  {topGainers.map((p, i) => (
+                    <PlayerDisplay variant="compact" key={p.id} player={p} rank={i + 1} showSparkline />
+                  ))}
+                  {topGainers.length === 0 && (
+                    <div className="text-sm text-white/30 p-3 text-center rounded-xl bg-white/[0.02]">Keine Gewinner heute</div>
+                  )}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs font-bold text-red-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                  <ArrowDownRight className="w-3.5 h-3.5" />
+                  Verlierer (24h)
+                </div>
+                <div className="space-y-2">
+                  {topLosers.map((p, i) => (
+                    <PlayerDisplay variant="compact" key={p.id} player={p} rank={i + 1} showSparkline />
+                  ))}
+                  {topLosers.length === 0 && (
+                    <div className="text-sm text-white/30 p-3 text-center rounded-xl bg-white/[0.02]">Keine Verlierer heute</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Neue Angebote */}
+          {recentListings.length > 0 && (
+            <div>
+              <SectionHeader title="Neue Angebote" href="/market" />
+              <div className="mt-3 space-y-2">
+                {recentListings.slice(0, 4).map(({ order, player }) => (
+                  <Link
+                    key={order.id}
+                    href={`/player/${player.id}`}
+                    className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-[#FFD700]/20 transition-all"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <PositionBadge pos={player.pos} size="sm" />
+                      <div className="min-w-0">
+                        <div className="font-bold text-sm truncate">{player.first} {player.last}</div>
+                        <div className="text-[11px] text-white/40">{player.club} · {order.quantity} DPC</div>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="font-mono font-bold text-[#FFD700] text-sm">{fmtBSD(centsToBsd(order.price))} BSD</div>
+                      <div className="text-[10px] text-white/30">{getRelativeTime(order.created_at)}</div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </TabPanel>
+
+      {/* ━━━ TAB: ENTDECKEN ━━━ */}
+      <TabPanel id="entdecken" activeTab={activeTab}>
+        <div className="space-y-5">
+
+          {/* Unter Wert / Bargains */}
+          {bargains.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Zap className="w-3.5 h-3.5 text-[#22C55E]/60" />
+                <span className="text-[10px] font-black uppercase tracking-wider text-white/30">Unter Wert</span>
+                <span className="text-[9px] text-white/20 ml-auto">Hohe Leistung, günstiger Preis</span>
+              </div>
+              <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1">
+                {bargains.map(({ player: p, floor }) => (
+                  <Link
+                    key={p.id}
+                    href={`/player/${p.id}`}
+                    className="flex items-center gap-2.5 px-3 py-2.5 bg-[#22C55E]/[0.03] border border-[#22C55E]/10 rounded-xl hover:bg-[#22C55E]/[0.06] transition-all shrink-0"
+                  >
+                    <PositionBadge pos={p.pos} size="sm" />
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-bold truncate max-w-[110px]">{p.first} {p.last}</div>
+                      <div className="text-[10px] text-white/30">{p.club}</div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-[11px] font-mono font-bold text-[#FFD700]">{fmtBSD(floor)} BSD</div>
+                      <div className="text-[10px] font-mono text-[#22C55E]">L5: {p.perf.l5}</div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Community Highlights */}
           {communityPosts.length > 0 && (
             <div>
               <SectionHeader title="Community" href="/community" />
@@ -1009,92 +815,80 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* ── MARKTBEWEGUNGEN ── */}
-          <div>
-            <SectionHeader title="Marktbewegungen" href="/market" />
-            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Gewinner */}
-              <div>
-                <div className="text-xs font-bold text-[#22C55E] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                  Gewinner (24h)
-                </div>
-                <div className="space-y-2">
-                  {topGainers.map((p, i) => (
-                    <PlayerDisplay variant="compact" key={p.id} player={p} rank={i + 1} showSparkline />
-                  ))}
-                  {topGainers.length === 0 && (
-                    <div className="text-sm text-white/30 p-3 text-center rounded-xl bg-white/[0.02]">Keine Gewinner heute</div>
-                  )}
-                </div>
-              </div>
-              {/* Verlierer */}
-              <div>
-                <div className="text-xs font-bold text-red-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                  <ArrowDownRight className="w-3.5 h-3.5" />
-                  Verlierer (24h)
-                </div>
-                <div className="space-y-2">
-                  {topLosers.map((p, i) => (
-                    <PlayerDisplay variant="compact" key={p.id} player={p} rank={i + 1} showSparkline />
-                  ))}
-                  {topLosers.length === 0 && (
-                    <div className="text-sm text-white/30 p-3 text-center rounded-xl bg-white/[0.02]">Keine Verlierer heute</div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ── NEUE ANGEBOTE (Transfermarkt) ── */}
-          <div>
-            <SectionHeader title="Neue Angebote" href="/market" />
-            <div className="mt-3 space-y-2">
-              {recentListings.length === 0 ? (
-                <Card className="p-6 text-center">
-                  <BarChart3 className="w-8 h-8 mx-auto mb-2 text-white/20" />
-                  <div className="text-sm text-white/40">Noch keine Angebote auf dem Markt</div>
-                  <div className="text-xs text-white/25 mt-1">Stöbere im Manager Office nach Spielern.</div>
-                  <Link href="/market" className="inline-block mt-3">
-                    <Button variant="gold" size="sm" className="gap-1.5">
-                      <Briefcase className="w-3.5 h-3.5" />
-                      Manager Office
-                    </Button>
-                  </Link>
-                </Card>
-              ) : (
-                recentListings.map(({ order, player }) => (
-                  <Link
-                    key={order.id}
-                    href={`/player/${player.id}`}
-                    className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-[#FFD700]/20 transition-all"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <PositionBadge pos={player.pos} size="sm" />
-                      <div className="min-w-0">
-                        <div className="font-bold text-sm truncate">{player.first} {player.last}</div>
-                        <div className="text-[11px] text-white/40">{player.club} · {order.quantity} DPC</div>
+          {/* Top Scouts */}
+          {topScouts.length > 0 && (
+            <div>
+              <SectionHeader title="Top Scouts" href="/community" />
+              <div className="mt-3 space-y-1.5">
+                {topScouts.slice(0, 5).map((s, i) => {
+                  const isMe = s.userId === user?.id;
+                  return (
+                    <Link key={s.userId} href={`/profile/${s.handle}`} className={cn(
+                      'flex items-center gap-3 py-2 px-3 rounded-xl hover:bg-white/[0.04] transition-colors',
+                      isMe && 'bg-[#FFD700]/[0.06] border border-[#FFD700]/15'
+                    )}>
+                      <span className={cn(
+                        'w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black',
+                        i === 0 ? 'bg-[#FFD700]/20 text-[#FFD700]' : 'bg-white/5 text-white/50'
+                      )}>
+                        {i + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold truncate">{s.displayName || s.handle}</div>
                       </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="font-mono font-bold text-[#FFD700] text-sm">{fmtBSD(centsToBsd(order.price))} BSD</div>
-                      <div className="text-[10px] text-white/30">{getRelativeTime(order.created_at)}</div>
-                    </div>
-                  </Link>
-                ))
-              )}
+                      <span className="text-xs font-mono text-[#FFD700]">{s.totalScore}</span>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* ── INVITE BANNER ── */}
-          <Card className="p-5 bg-gradient-to-r from-[#FFD700]/[0.06] to-purple-500/[0.04] border-[#FFD700]/15">
+          {/* Top Trader */}
+          {topTraders.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <ArrowRightLeft className="w-4 h-4 text-[#22C55E]" />
+                  <span className="text-base md:text-lg font-black uppercase tracking-wide">Top Trader</span>
+                </div>
+                <span className="text-[10px] text-white/20">7 Tage</span>
+              </div>
+              <div className="space-y-1.5">
+                {topTraders.map((t, i) => {
+                  const isMe = t.userId === user?.id;
+                  return (
+                    <Link key={t.userId} href={`/profile/${t.handle}`} className={cn(
+                      'flex items-center gap-3 py-2 px-3 rounded-xl hover:bg-white/[0.04] transition-colors',
+                      isMe && 'bg-[#22C55E]/[0.06] border border-[#22C55E]/15'
+                    )}>
+                      <span className={cn(
+                        'w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black',
+                        i === 0 ? 'bg-[#22C55E]/20 text-[#22C55E]' : 'bg-white/5 text-white/50'
+                      )}>
+                        {i + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold truncate">{t.displayName || t.handle}</div>
+                        <div className="text-[10px] text-white/30">{t.tradeCount} Trades</div>
+                      </div>
+                      <span className="text-xs font-mono text-[#22C55E]">{fmtBSD(centsToBsd(t.totalVolume))}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Invite Banner */}
+          <Card className="p-4 bg-gradient-to-r from-[#FFD700]/[0.06] to-purple-500/[0.04] border-[#FFD700]/15">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#FFD700]/10 border border-[#FFD700]/20 flex items-center justify-center shrink-0">
-                <Users className="w-6 h-6 text-[#FFD700]" />
+              <div className="w-10 h-10 rounded-2xl bg-[#FFD700]/10 border border-[#FFD700]/20 flex items-center justify-center shrink-0">
+                <Users className="w-5 h-5 text-[#FFD700]" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-black text-sm">Lade Freunde ein!</div>
-                <div className="text-xs text-white/50 mt-0.5">Teile BeScout mit anderen Fußball-Fans und baut gemeinsam euren Kader auf.</div>
+                <div className="text-xs text-white/50 mt-0.5">Teile BeScout mit anderen Fußball-Fans.</div>
               </div>
               <Button variant="gold" size="sm" className="shrink-0 gap-1.5"
                 onClick={async () => {
@@ -1112,150 +906,7 @@ export default function HomePage() {
             </div>
           </Card>
         </div>
-
-        {/* ═══ RIGHT COLUMN (desktop sidebar) ═══ */}
-        <div className="space-y-6">
-
-          {/* ── TOP SCOUTS (Desktop only) ── */}
-          {topScouts.length > 0 && (
-            <div className="hidden lg:block">
-              <Card className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Trophy className="w-4 h-4 text-[#FFD700]" />
-                    <span className="text-xs text-white/30 uppercase tracking-wider font-bold">Top Scouts</span>
-                  </div>
-                  <Link href="/community" className="text-xs text-[#FFD700] hover:underline">Alle</Link>
-                </div>
-                <div className="space-y-2">
-                  {topScouts.slice(0, 5).map((s, i) => {
-                    const isMe = s.userId === user?.id;
-                    return (
-                      <Link key={s.userId} href={`/profile/${s.handle}`} className={cn(
-                        'flex items-center gap-3 py-1.5 px-2 rounded-lg hover:bg-white/[0.04] transition-colors',
-                        isMe && 'bg-[#FFD700]/[0.06] border border-[#FFD700]/15'
-                      )}>
-                        <span className={cn(
-                          'w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black',
-                          i === 0 ? 'bg-[#FFD700]/20 text-[#FFD700]' : 'bg-white/5 text-white/50'
-                        )}>
-                          {i + 1}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-semibold truncate">{s.displayName || s.handle}</div>
-                        </div>
-                        <span className="text-xs font-mono text-[#FFD700]">{s.totalScore}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </Card>
-            </div>
-          )}
-
-          {/* ── TOP TRADER (Desktop only) ── */}
-          {topTraders.length > 0 && (
-            <div className="hidden lg:block">
-              <Card className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <ArrowRightLeft className="w-4 h-4 text-[#22C55E]" />
-                    <span className="text-xs text-white/30 uppercase tracking-wider font-bold">Top Trader</span>
-                  </div>
-                  <span className="text-[10px] text-white/20">7 Tage</span>
-                </div>
-                <div className="space-y-2">
-                  {topTraders.map((t, i) => {
-                    const isMe = t.userId === user?.id;
-                    return (
-                      <Link key={t.userId} href={`/profile/${t.handle}`} className={cn(
-                        'flex items-center gap-3 py-1.5 px-2 rounded-lg hover:bg-white/[0.04] transition-colors',
-                        isMe && 'bg-[#22C55E]/[0.06] border border-[#22C55E]/15'
-                      )}>
-                        <span className={cn(
-                          'w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black',
-                          i === 0 ? 'bg-[#22C55E]/20 text-[#22C55E]' : 'bg-white/5 text-white/50'
-                        )}>
-                          {i + 1}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-semibold truncate">{t.displayName || t.handle}</div>
-                          <div className="text-[10px] text-white/30">{t.tradeCount} Trades</div>
-                        </div>
-                        <span className="text-xs font-mono text-[#22C55E]">{fmtBSD(centsToBsd(t.totalVolume))}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </Card>
-            </div>
-          )}
-
-          {/* ── FOLLOW SUGGESTIONS (Desktop only) ── */}
-          {topScouts.filter(s => s.userId !== user?.id).length > 0 && (
-            <div className="hidden lg:block">
-              <Card className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-purple-400" />
-                    <span className="text-xs text-white/30 uppercase tracking-wider font-bold">Entdecken</span>
-                  </div>
-                  <Link href="/community" className="text-xs text-[#FFD700] hover:underline">Alle</Link>
-                </div>
-                <div className="space-y-2">
-                  {topScouts.filter(s => s.userId !== user?.id).slice(0, 3).map(s => (
-                    <Link key={s.userId} href={`/profile/${s.handle}`} className="flex items-center gap-3 py-2 px-2 rounded-lg bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-colors">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500/20 to-sky-500/20 border border-white/10 flex items-center justify-center text-[10px] font-black">
-                        {(s.displayName || s.handle || '?')[0].toUpperCase()}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold truncate">{s.displayName || s.handle}</div>
-                        <div className="text-[10px] text-white/30">Lv {s.level} · {s.followersCount} Follower</div>
-                      </div>
-                      <span className="text-[10px] font-bold text-purple-300 bg-purple-500/15 border border-purple-500/20 px-2 py-1 rounded-lg">
-                        Ansehen
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </Card>
-            </div>
-          )}
-
-          {/* ── SCHNELLZUGRIFF (Desktop only) ── */}
-          <div className="hidden lg:block">
-            <Card className="p-4">
-              <div className="text-xs text-white/30 uppercase tracking-wider font-bold mb-3">Schnellzugriff</div>
-              <div className="grid grid-cols-2 gap-2">
-                <Link href="/market">
-                  <Button variant="outline" fullWidth size="sm" className="justify-start gap-2">
-                    <Briefcase className="w-4 h-4 text-[#FFD700]" />
-                    Manager
-                  </Button>
-                </Link>
-                <Link href="/fantasy">
-                  <Button variant="outline" fullWidth size="sm" className="justify-start gap-2">
-                    <Trophy className="w-4 h-4 text-purple-400" />
-                    Fantasy
-                  </Button>
-                </Link>
-                <Link href="/club">
-                  <Button variant="outline" fullWidth size="sm" className="justify-start gap-2">
-                    <Users className="w-4 h-4 text-sky-400" />
-                    Club
-                  </Button>
-                </Link>
-                <Link href="/profile">
-                  <Button variant="outline" fullWidth size="sm" className="justify-start gap-2">
-                    <Star className="w-4 h-4 text-amber-400" />
-                    Profil
-                  </Button>
-                </Link>
-              </div>
-            </Card>
-          </div>
-        </div>
-      </div>
+      </TabPanel>
     </div>
   );
 }
