@@ -361,7 +361,7 @@ export default function HomePage() {
     // Following Feed (fire-and-forget, non-critical)
     getFollowingFeed(uid, 15).then(feed => {
       if (!cancelled) setFollowingFeed(feed);
-    }).catch(() => {});
+    }).catch(err => console.error('[Home] Following feed failed:', err));
 
     import('@/lib/services/missions').then(({ trackMissionProgress }) => {
       trackMissionProgress(uid, 'daily_login');

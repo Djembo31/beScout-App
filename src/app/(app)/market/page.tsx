@@ -350,8 +350,10 @@ export default function MarketPage() {
     setWatchlist(prev => ({ ...prev, [id]: !isWatched }));
     // DB call (fire-and-forget with rollback on error)
     const action = isWatched ? removeFromWatchlist(user.id, id) : addToWatchlist(user.id, id);
-    action.catch(() => {
+    action.catch((err) => {
+      console.error('[Market] Watchlist toggle failed:', err);
       setWatchlist(prev => ({ ...prev, [id]: isWatched }));
+      addToast('Watchlist konnte nicht aktualisiert werden', 'error');
     });
   };
 

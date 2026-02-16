@@ -210,7 +210,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Community Datenkonsistenz + Visibility Waves 1-3 fertig:** Activity Logging, Notifications, Globale Suche, Player Detail, Gerüchte Tab, Following Feed, Level Auto-Increment, Reputation Score, Expert Badges, Role Badges. Migrationen #118-#122.
 **Phase A+B+C (Perfektionierung) fertig:** Monetarisierung (Trading Club-Fee 1%, Bounty Platform-Fee 5%, Fee Dashboard), Premium-Feel (Dynamic Sponsor Banners, Confetti Animation, Celebration Toast), Retention (Web Push Infrastructure, Club-Abo Bronze/Silber/Gold). 5 Migrationen (#123-#127) + 1 Edge Function (send-push).
 **Multi-Club Expansion fertig:** 8 Phasen — `leagues` Tabelle, `club_followers` Tabelle, DB-backed `clubs.ts` (ClubLookup Cache), ClubProvider Context, ClubSwitcher UI, Club Discovery `/clubs`, Onboarding 3-Step Club-Wahl, Community Club-Scoping. 3 Migrationen (#128-#130), 5 neue + 16 geänderte Dateien.
-**Danach:** VAPID Keys konfigurieren, DB Webhook einrichten, Real User Testing mit 50 Testern, Phase D (Card Scarcity, Match-Data, Native App).
+**Danach:** VAPID Keys konfigurieren, DB Webhook einrichten, Real User Testing mit 50 Testern, Phase D (Match-Data Integration, Native App).
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.
 Siehe `docs/TODO.md` für den aktuellen Task.

@@ -78,7 +78,7 @@ function getNotifHref(notif: DbNotification): string | null {
     case 'bounty': return `/community?tab=aktionen`;
     case 'player': return `/player/${notif.reference_id}`;
     case 'liquidation': return `/player/${notif.reference_id}`;
-    case 'offer': return `/market?tab=offers`;
+    case 'offer': return `/market?tab=angebote`;
     default: return null;
   }
 }
@@ -109,14 +109,20 @@ export default function NotificationDropdown({ userId, open, onClose, onUnreadCo
   const ref = useRef<HTMLDivElement>(null);
   const [notifications, setNotifications] = useState<DbNotification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setLoading(true);
+    setFetchError(false);
     getNotifications(userId, 20).then(data => {
       setNotifications(data);
       setLoading(false);
-    }).catch(() => setLoading(false));
+    }).catch((err) => {
+      console.error('[Notifications] Fetch failed:', err);
+      setFetchError(true);
+      setLoading(false);
+    });
   }, [open, userId]);
 
   // Close on click outside
@@ -185,6 +191,11 @@ export default function NotificationDropdown({ userId, open, onClose, onUnreadCo
         {loading ? (
           <div className="flex justify-center py-8">
             <Loader2 className="w-5 h-5 animate-spin text-white/30" />
+          </div>
+        ) : fetchError ? (
+          <div className="py-8 text-center">
+            <div className="text-sm text-white/30 mb-2">Laden fehlgeschlagen</div>
+            <button onClick={() => { setFetchError(false); setLoading(true); getNotifications(userId, 20).then(d => { setNotifications(d); setLoading(false); }).catch(() => { setFetchError(true); setLoading(false); }); }} className="text-xs text-[#FFD700] hover:underline">Erneut versuchen</button>
           </div>
         ) : notifications.length === 0 ? (
           <div className="py-8 text-center text-sm text-white/30">
