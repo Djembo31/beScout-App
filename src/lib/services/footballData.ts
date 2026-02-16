@@ -5,12 +5,13 @@ import { invalidate } from '@/lib/cache';
 // API-Football Integration Service
 // ============================================
 // Provider: api-football.com (RapidAPI)
-// TFF 1. Lig League ID: 203
+// TFF 1. Lig League ID: 204 (203 = Süper Lig!)
 // Docs: https://www.api-football.com/documentation-v3
+// Free Plan: Seasons 2022-2024 only (Pro Plan $19/mo for 2025+)
 
 const API_BASE = 'https://v3.football.api-sports.io';
-const TFF_1_LIG_ID = 203;
-const CURRENT_SEASON = 2025;
+const TFF_1_LIG_ID = 204;
+const CURRENT_SEASON = 2024;
 
 function getApiKey(): string | null {
   return typeof window !== 'undefined'
