@@ -127,6 +127,7 @@ export default function PlayerHero({
               pos={player.pos}
               shirtNumber={player.ticket}
               club={player.club}
+              imageUrl={player.imageUrl}
             />
 
             <h1 className="text-xl font-black mt-3">{player.first} {player.last}</h1>
@@ -194,6 +195,7 @@ export default function PlayerHero({
               pos={player.pos}
               shirtNumber={player.ticket}
               club={player.club}
+              imageUrl={player.imageUrl}
             />
 
             <div className="flex-1 min-w-0">

@@ -107,6 +107,7 @@ export function dbToPlayer(db: DbPlayer): Player {
     ipo: { status: 'none' }, // IPO status loaded separately
     listings: [], // Wird spaeter aus Orders befuellt
     topOwners: [], // Wird spaeter befuellt
+    imageUrl: db.image_url ?? null,
     successFeeCap: db.success_fee_cap_cents != null ? centsToBsd(db.success_fee_cap_cents) : undefined,
     isLiquidated: db.is_liquidated || false,
   };

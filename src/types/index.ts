@@ -49,6 +49,7 @@ export type Player = {
   listings: Listing[];
   topOwners: Owner[];
   sponsored?: boolean;
+  imageUrl?: string | null;
   successFeeCap?: number;  // in BSD (cents → BSD conversion)
   isLiquidated?: boolean;
 };

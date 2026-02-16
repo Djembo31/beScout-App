@@ -123,6 +123,24 @@ export const getSuccessFeeTier = (marketValue: number): SuccessFeeTier =>
   SUCCESS_FEE_TIERS.find(t => marketValue >= t.minValue && marketValue < t.maxValue) || SUCCESS_FEE_TIERS[0];
 
 
+// ============================================
+// PLAYER AVATAR (image with fallback to TrikotBadge/PositionBadge)
+// ============================================
+
+function PlayerAvatar({ player }: { player: Player }) {
+  if (player.imageUrl) {
+    return (
+      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 border border-white/10">
+        <img src={player.imageUrl} alt="" className="w-full h-full object-cover" />
+      </div>
+    );
+  }
+  if (player.ticket > 0) {
+    return <TrikotBadge number={player.ticket} pos={player.pos} club={player.club} />;
+  }
+  return <PositionBadge pos={player.pos} size="sm" />;
+}
+
 // ════════════════════════════════════════════
 //
 //  PLAYER DISPLAY
@@ -276,11 +294,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
           {/* Row 1: Identity + Holding data */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
-              {useTrikot ? (
-                <TrikotBadge number={player.ticket} pos={player.pos} club={player.club} />
-              ) : (
-                <PositionBadge pos={player.pos} size="sm" />
-              )}
+              <PlayerAvatar player={player} />
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span className="font-bold text-sm truncate group-hover:text-[#FFD700] transition-colors">
@@ -408,11 +422,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
                 <Star className="w-3.5 h-3.5" fill={isWatchlisted ? 'currentColor' : 'none'} />
               </button>
             )}
-            {useTrikot ? (
-              <TrikotBadge number={player.ticket} pos={player.pos} club={player.club} />
-            ) : (
-              <PositionBadge pos={player.pos} size="sm" />
-            )}
+            <PlayerAvatar player={player} />
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="font-bold text-sm truncate group-hover:text-[#FFD700] transition-colors">
@@ -497,11 +507,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
           {rank !== undefined && (
             <span className="text-xs font-mono text-white/25 w-5 text-right shrink-0">{rank}.</span>
           )}
-          {useTrikot ? (
-            <TrikotBadge number={player.ticket} pos={player.pos} club={player.club} />
-          ) : (
-            <PositionBadge pos={player.pos} size="sm" />
-          )}
+          <PlayerAvatar player={player} />
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-sm truncate group-hover:text-[#FFD700] transition-colors">
@@ -588,11 +594,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
       <div className="p-3 pb-2">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            {useTrikot ? (
-              <TrikotBadge number={player.ticket} pos={player.pos} club={player.club} />
-            ) : (
-              <PositionBadge pos={player.pos} size="sm" />
-            )}
+            <PlayerAvatar player={player} />
             <div className="min-w-0">
               <div className="font-black text-sm leading-tight truncate">{player.first} {player.last}</div>
               <div className="flex items-center gap-1 mt-0.5">
