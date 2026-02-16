@@ -4,17 +4,23 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Modal, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { POST_CATEGORIES } from '@/components/community/PostCard';
-import type { Pos } from '@/types';
+import type { Pos, PostType } from '@/types';
 
 // ============================================
 // TYPES
 // ============================================
 
+const POST_TYPES: { id: PostType; label: string; desc: string }[] = [
+  { id: 'general', label: 'Allgemein', desc: 'Meinung, Analyse, News' },
+  { id: 'player_take', label: 'Spieler-Take', desc: 'Dein Take zu einem Spieler' },
+  { id: 'transfer_rumor', label: 'Gerücht', desc: 'Transfergerücht oder Insider-Info' },
+];
+
 interface CreatePostModalProps {
   open: boolean;
   onClose: () => void;
   players: { id: string; name: string; pos: Pos }[];
-  onSubmit: (playerId: string | null, content: string, tags: string[], category: string) => void;
+  onSubmit: (playerId: string | null, content: string, tags: string[], category: string, postType: PostType) => void;
   loading: boolean;
 }
 
@@ -29,6 +35,7 @@ export default function CreatePostModal({
   const [playerId, setPlayerId] = useState('');
   const [tagInput, setTagInput] = useState('');
   const [category, setCategory] = useState('Meinung');
+  const [postType, setPostType] = useState<PostType>('general');
   const [playerSearch, setPlayerSearch] = useState('');
   const [playerDropdownOpen, setPlayerDropdownOpen] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
@@ -48,11 +55,12 @@ export default function CreatePostModal({
   const handleSubmit = () => {
     if (!canSubmit) return;
     const tags = tagInput.split(',').map(t => t.trim()).filter(Boolean);
-    onSubmit(playerId || null, content.trim(), tags, category);
+    onSubmit(playerId || null, content.trim(), tags, category, postType);
     setContent('');
     setPlayerId('');
     setTagInput('');
     setCategory('Meinung');
+    setPostType('general');
     setPlayerSearch('');
   };
 
@@ -75,6 +83,28 @@ export default function CreatePostModal({
                 )}
               >
                 {cat.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Post Type */}
+        <div>
+          <label className="text-xs text-white/50 font-semibold mb-1.5 block">Art</label>
+          <div className="flex gap-1.5">
+            {POST_TYPES.map(pt => (
+              <button
+                key={pt.id}
+                type="button"
+                onClick={() => setPostType(pt.id)}
+                className={cn(
+                  'flex-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all border text-center',
+                  postType === pt.id
+                    ? pt.id === 'transfer_rumor' ? 'bg-red-500/15 text-red-300 border-red-500/20' : 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/25'
+                    : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
+                )}
+              >
+                {pt.label}
               </button>
             ))}
           </div>

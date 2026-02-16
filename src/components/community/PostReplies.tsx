@@ -32,6 +32,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
   const [replyText, setReplyText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [myVotes, setMyVotes] = useState<Map<string, number>>(new Map());
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const loadReplies = useCallback(async () => {
     try {
@@ -41,8 +42,8 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
         const votes = await getUserPostVotes(userId, data.map(r => r.id));
         setMyVotes(votes);
       }
-    } catch {
-      // silently fail
+    } catch (err) {
+      console.error('[PostReplies] Load failed:', err);
     } finally {
       setLoading(false);
     }
@@ -60,8 +61,8 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
       setReplyText('');
       onRepliesCountChange(postId, 1);
       await loadReplies();
-    } catch {
-      // silently fail
+    } catch (err) {
+      console.error('[PostReplies] Submit reply failed:', err);
     } finally {
       setSubmitting(false);
     }
@@ -72,8 +73,8 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
       await deletePost(userId, replyId);
       setReplies(prev => prev.filter(r => r.id !== replyId));
       onRepliesCountChange(postId, -1);
-    } catch {
-      // silently fail
+    } catch (err) {
+      console.error('[PostReplies] Delete reply failed:', err);
     }
   };
 
@@ -89,8 +90,8 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
         else next.set(replyId, voteType);
         return next;
       });
-    } catch {
-      // silently fail
+    } catch (err) {
+      console.error('[PostReplies] Vote failed:', err);
     }
   };
 
@@ -102,6 +103,9 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
         </div>
       ) : (
         <>
+          {replies.length === 0 && (
+            <div className="text-xs text-white/30 italic mb-3">Noch keine Antworten — sei der Erste!</div>
+          )}
           {replies.length > 0 && (
             <div className="space-y-3 mb-3">
               {replies.map(reply => {
@@ -148,14 +152,21 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
                       >
                         <ArrowDown className="w-3 h-3" />
                       </button>
-                      {isOwn && (
+                      {isOwn && confirmDeleteId !== reply.id && (
                         <button
-                          onClick={() => handleDelete(reply.id)}
+                          onClick={() => setConfirmDeleteId(reply.id)}
                           className="flex items-center gap-0.5 hover:text-red-300 transition-colors opacity-0 group-hover:opacity-100"
                         >
                           <Trash2 className="w-3 h-3" />
                           <span>Löschen</span>
                         </button>
+                      )}
+                      {confirmDeleteId === reply.id && (
+                        <>
+                          <span className="text-red-300 text-[10px]">Löschen?</span>
+                          <button onClick={() => { handleDelete(reply.id); setConfirmDeleteId(null); }} className="text-red-300 hover:text-red-200 font-bold text-[10px]">Ja</button>
+                          <button onClick={() => setConfirmDeleteId(null)} className="text-white/40 hover:text-white text-[10px]">Nein</button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -166,14 +177,21 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
 
           {/* Reply form */}
           <div className="flex items-center gap-2">
-            <input
-              type="text"
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value.slice(0, 300))}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
-              placeholder="Antwort schreiben..."
-              className="flex-1 px-3 py-1.5 rounded-lg text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40"
-            />
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value.slice(0, 300))}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
+                placeholder="Antwort schreiben..."
+                className="w-full px-3 py-1.5 rounded-lg text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 pr-12"
+              />
+              {replyText.length > 0 && (
+                <span className={cn('absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono', replyText.length > 250 ? 'text-amber-400' : 'text-white/20')}>
+                  {replyText.length}/300
+                </span>
+              )}
+            </div>
             <button
               onClick={handleSubmit}
               disabled={!replyText.trim() || submitting}

@@ -24,7 +24,7 @@ import CreatePostModal from '@/components/community/CreatePostModal';
 import CreateResearchModal from '@/components/community/CreateResearchModal';
 import CreateCommunityPollModal from '@/components/community/CreateCommunityPollModal';
 import CommunityBountiesTab from '@/components/community/CommunityBountiesTab';
-import type { PostWithAuthor, DbClubVote, LeaderboardUser, ResearchPostWithAuthor, CommunityPollWithCreator, BountyWithCreator, ClubWithAdmin, Pos } from '@/types';
+import type { PostWithAuthor, DbClubVote, LeaderboardUser, ResearchPostWithAuthor, CommunityPollWithCreator, BountyWithCreator, ClubWithAdmin, Pos, PostType } from '@/types';
 
 // ============================================
 // TYPES
@@ -90,7 +90,7 @@ export default function CommunityPage() {
       setDataLoading(true);
       setDataError(false);
       // Fire-and-forget: resolve expired research calls
-      resolveExpiredResearch().catch(() => {});
+      resolveExpiredResearch().catch(err => console.error('[Community] Resolve expired research:', err));
 
       // Resolve club context: profile favorite → fallback to Sakaryaspor
       // Always load via slug to get admin status (Pilot: single club)
@@ -182,31 +182,54 @@ export default function CommunityPage() {
   // ---- Handlers ----
   const handleVotePost = useCallback(async (postId: string, voteType: number) => {
     if (!user) return;
+    // Optimistic update
+    const prevPosts = posts;
+    const prevVotes = new Map(myPostVotes);
+    const oldVote = myPostVotes.get(postId) ?? 0;
+
+    setPosts(prev => prev.map(p => {
+      if (p.id !== postId) return p;
+      let up = p.upvotes;
+      let down = p.downvotes;
+      // Remove old vote
+      if (oldVote === 1) up--;
+      if (oldVote === -1) down--;
+      // Apply new vote
+      if (voteType === 1) up++;
+      if (voteType === -1) down++;
+      return { ...p, upvotes: up, downvotes: down };
+    }));
+    setMyPostVotes(prev => {
+      const next = new Map(prev);
+      if (voteType === 0) next.delete(postId);
+      else next.set(postId, voteType);
+      return next;
+    });
+
     try {
       const result = await votePost(user.id, postId, voteType);
+      // Reconcile with server truth
       setPosts(prev => prev.map(p =>
         p.id === postId ? { ...p, upvotes: result.upvotes, downvotes: result.downvotes } : p
       ));
-      setMyPostVotes(prev => {
-        const next = new Map(prev);
-        if (voteType === 0) next.delete(postId);
-        else next.set(postId, voteType);
-        return next;
-      });
-    } catch {
-      // silently fail
+    } catch (err) {
+      console.error('[Community] Vote post failed:', err);
+      // Revert on error
+      setPosts(prevPosts);
+      setMyPostVotes(prevVotes);
     }
-  }, [user]);
+  }, [user, posts, myPostVotes]);
 
   const handleDeletePost = useCallback(async (postId: string) => {
     if (!user) return;
     try {
       await deletePost(user.id, postId);
       setPosts(prev => prev.filter(p => p.id !== postId));
-    } catch {
-      // silently fail
+    } catch (err) {
+      console.error('[Community] Delete post failed:', err);
+      addToast('Fehler beim Löschen', 'error');
     }
-  }, [user]);
+  }, [user, addToast]);
 
   const handleAdminDeletePost = useCallback(async (postId: string) => {
     if (!user) return;
@@ -240,13 +263,18 @@ export default function CommunityPage() {
     }
   }, [user, addToast]);
 
-  const handleCreatePost = useCallback(async (playerId: string | null, content: string, tags: string[], category: string) => {
+  const handleCreatePost = useCallback(async (playerId: string | null, content: string, tags: string[], category: string, postType: PostType = 'general') => {
     if (!user) return;
     setPostLoading(true);
     try {
-      await createPost(user.id, playerId, clubName, content, tags, category, clubId);
+      await createPost(user.id, playerId, clubName, content, tags, category, clubId, postType);
       const postsResult = await getPosts({ limit: 50 });
       setPosts(postsResult);
+      if (postType === 'transfer_rumor') {
+        getPosts({ limit: 30, postType: 'transfer_rumor' })
+          .then(r => setRumors(r))
+          .catch(err => console.error('[Community] Rumors refresh:', err));
+      }
       setCreatePostOpen(false);
     } catch {
       addToast('Beitrag konnte nicht erstellt werden.', 'error');
@@ -284,8 +312,8 @@ export default function CommunityPage() {
         await followUser(user.id, targetId);
         setFollowingIds(prev => new Set(prev).add(targetId));
       }
-    } catch {
-      // silently fail
+    } catch (err) {
+      console.error('[Community] Follow toggle failed:', err);
     }
   }, [user, followingIds]);
 
@@ -337,12 +365,13 @@ export default function CommunityPage() {
         const updated = await getResearchPosts({ currentUserId: user.id });
         setResearchPosts(updated);
       }
-    } catch {
-      // silently fail
+    } catch (err) {
+      console.error('[Community] Unlock research failed:', err);
+      addToast('Fehler beim Freischalten', 'error');
     } finally {
       setUnlockingId(null);
     }
-  }, [user, unlockingId]);
+  }, [user, unlockingId, addToast]);
 
   const handleRateResearch = useCallback(async (researchId: string, rating: number) => {
     if (!user || ratingId) return;
@@ -356,8 +385,8 @@ export default function CommunityPage() {
             : p
         ));
       }
-    } catch {
-      // silently fail
+    } catch (err) {
+      console.error('[Community] Rate research failed:', err);
     } finally {
       setRatingId(null);
     }

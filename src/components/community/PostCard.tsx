@@ -81,6 +81,7 @@ export default function PostCard({
   const [showReplies, setShowReplies] = useState(false);
   const [repliesCount, setRepliesCount] = useState(post.replies_count);
   const [copied, setCopied] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<'own' | 'admin' | null>(null);
 
   return (
     <Card className={cn('p-4 hover:border-white/20 transition-all', isOwnedPlayer && 'border-[#FFD700]/20 bg-[#FFD700]/[0.02]')}>
@@ -157,7 +158,7 @@ export default function PostCard({
                     )}
                     {isOwn && (
                       <button
-                        onClick={() => { onDelete(post.id); setShowMenu(false); }}
+                        onClick={() => { setConfirmDelete('own'); setShowMenu(false); }}
                         className="w-full px-3 py-2 text-left text-sm text-red-300 hover:bg-white/5 flex items-center gap-2"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -166,7 +167,7 @@ export default function PostCard({
                     )}
                     {isClubAdmin && !isOwn && onAdminDelete && (
                       <button
-                        onClick={() => { onAdminDelete(post.id); setShowMenu(false); }}
+                        onClick={() => { setConfirmDelete('admin'); setShowMenu(false); }}
                         className="w-full px-3 py-2 text-left text-sm text-red-300 hover:bg-white/5 flex items-center gap-2"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -178,6 +179,29 @@ export default function PostCard({
               </div>
             )}
           </div>
+
+          {/* Delete Confirmation */}
+          {confirmDelete && (
+            <div className="flex items-center gap-2 mb-2 px-2 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20">
+              <span className="text-xs text-red-300 flex-1">Post unwiderruflich löschen?</span>
+              <button
+                onClick={() => {
+                  if (confirmDelete === 'admin' && onAdminDelete) onAdminDelete(post.id);
+                  else onDelete(post.id);
+                  setConfirmDelete(null);
+                }}
+                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-colors"
+              >
+                Ja, löschen
+              </button>
+              <button
+                onClick={() => setConfirmDelete(null)}
+                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white/5 text-white/50 hover:bg-white/10 transition-colors"
+              >
+                Abbrechen
+              </button>
+            </div>
+          )}
 
           {/* Category Badge (top-level posts only) */}
           {!post.parent_id && post.category && (
