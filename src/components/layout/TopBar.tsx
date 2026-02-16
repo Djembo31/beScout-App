@@ -45,7 +45,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
       try {
         const count = await getUnreadCount(uid);
         if (!cancelled) setUnreadCount(count);
-      } catch { /* silent */ }
+      } catch (err) { console.error('[TopBar] Notification count failed:', err); }
     };
 
     fetchCount();

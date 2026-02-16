@@ -60,12 +60,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             const wallet = await withTimeout(getWallet(user.id), 5000);
             const newBalance = wallet?.balance ?? 0;
             setBalanceCents(newBalance);
-        } catch {
-            // Wallet fetch failed — balance stays stale
+        } catch (err) {
+            console.error('[Wallet] Balance fetch failed:', err);
+            // Set to 0 so UI doesn't show perpetual loading skeleton
+            if (balanceCents === null) setBalanceCentsRaw(0);
         } finally {
             loaded.current = true;
         }
-    }, [user, setBalanceCents]);
+    }, [user, setBalanceCents, balanceCents]);
 
     // Load balance when user becomes available (skip if already loaded for same user)
     const prevUserId = useRef<string | null>(null);

@@ -200,7 +200,13 @@ function OnboardingContent() {
           club_id: clubId,
           is_primary: i === 0, // first selected = primary
         }));
-        await supabase.from('club_followers').upsert(followRows, { onConflict: 'user_id,club_id' });
+        const { error: followErr } = await supabase.from('club_followers').upsert(followRows, { onConflict: 'user_id,club_id' });
+        if (followErr) {
+          console.error('[Onboarding] Club follow failed:', followErr.message);
+          // Retry once
+          const { error: retryErr } = await supabase.from('club_followers').upsert(followRows, { onConflict: 'user_id,club_id' });
+          if (retryErr) console.error('[Onboarding] Club follow retry failed:', retryErr.message);
+        }
       }
 
       // Upload avatar if selected
@@ -212,7 +218,10 @@ function OnboardingContent() {
           .from('avatars')
           .upload(path, avatarFile, { upsert: true });
 
-        if (!uploadErr) {
+        if (uploadErr) {
+          console.error('[Onboarding] Avatar upload failed:', uploadErr.message);
+          // Non-blocking — profile is already created, user can upload later
+        } else {
           const { data: urlData } = supabase.storage
             .from('avatars')
             .getPublicUrl(path);

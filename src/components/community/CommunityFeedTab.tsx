@@ -166,11 +166,21 @@ export default function CommunityFeedTab({
         {filteredPosts.length === 0 ? (
           <Card className="p-12 text-center">
             <div className="text-white/30 mb-2">
-              {isFollowingTab ? 'Keine Posts von Leuten denen du folgst' : 'Noch keine Posts'}
+              {isFollowingTab
+                ? 'Folge Scouts um deren Posts hier zu sehen'
+                : query.trim()
+                  ? `Keine Ergebnisse für "${query}"`
+                  : 'Noch keine Posts'}
             </div>
-            <Button variant="gold" size="sm" onClick={onCreatePost}>
-              Ersten Post schreiben
-            </Button>
+            {isFollowingTab ? (
+              <Button variant="outline" size="sm" onClick={onSwitchToLeaderboard}>
+                Top Scouts entdecken
+              </Button>
+            ) : (
+              <Button variant="gold" size="sm" onClick={onCreatePost}>
+                Ersten Post schreiben
+              </Button>
+            )}
           </Card>
         ) : (
           <div className="space-y-3">
