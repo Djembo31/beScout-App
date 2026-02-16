@@ -1,15 +1,17 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
+import Link from 'next/link';
 import {
-  Search, Filter, ChevronDown, X, ArrowUpDown,
-  Package,
+  Search, Filter, ChevronDown, ChevronUp, X, ArrowUpDown,
+  Package, Tag, MessageSquare, Loader2, Trash2, DollarSign,
+  TrendingUp, TrendingDown, Minus, AlertCircle,
 } from 'lucide-react';
-import { Card } from '@/components/ui';
-import { PlayerDisplay } from '@/components/player/PlayerRow';
-import { fmtBSD } from '@/lib/utils';
+import { Card, Button } from '@/components/ui';
+import { PositionBadge } from '@/components/player';
+import { fmtBSD, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import type { Player, Pos, DbIpo } from '@/types';
+import type { Player, Pos, DbIpo, OfferWithDetails } from '@/types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 
 // ============================================
@@ -21,6 +23,9 @@ interface ManagerBestandTabProps {
   holdings: HoldingWithPlayer[];
   ipoList: DbIpo[];
   userId: string | undefined;
+  incomingOffers: OfferWithDetails[];
+  onSell: (playerId: string, quantity: number, priceCents: number) => Promise<{ success: boolean; error?: string }>;
+  onCancelOrder: (orderId: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 type BestandPlayer = {
@@ -31,34 +36,301 @@ type BestandPlayer = {
   pnlBsd: number;
   pnlPct: number;
   purchasedAt: string;
-  isOnTransferList: boolean;
-  hasActiveIpo: boolean;
+  myListings: { id: string; qty: number; priceBsd: number }[];
+  listedQty: number;
+  availableToSell: number;
+  offers: OfferWithDetails[];
 };
 
 type SortOption = 'name' | 'value_desc' | 'l5' | 'date' | 'pnl_desc' | 'pnl_asc';
-type MarketFilter = 'all' | 'listed' | 'unlisted';
 
-const ACTIVE_IPO_STATUSES = new Set(['announced', 'early_access', 'open']);
+const FEE_RATE = 0.06; // 6% total fee
 
 // ============================================
-// COMPONENT
+// INLINE SELL FORM
 // ============================================
 
-export default function ManagerBestandTab({ players, holdings, ipoList, userId }: ManagerBestandTabProps) {
+function SellForm({ item, onSell }: {
+  item: BestandPlayer;
+  onSell: (playerId: string, qty: number, priceCents: number) => Promise<{ success: boolean; error?: string }>;
+}) {
+  const [qty, setQty] = useState(1);
+  const [priceBsd, setPriceBsd] = useState('');
+  const [selling, setSelling] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const priceNum = parseFloat(priceBsd) || 0;
+  const gross = qty * priceNum;
+  const fee = gross * FEE_RATE;
+  const net = gross - fee;
+  const isValid = qty > 0 && qty <= item.availableToSell && priceNum > 0;
+
+  const handleSubmit = async () => {
+    if (!isValid) return;
+    setSelling(true);
+    setError(null);
+    setSuccess(null);
+    const priceCents = Math.round(priceNum * 100);
+    const result = await onSell(item.player.id, qty, priceCents);
+    if (result.success) {
+      setSuccess(`${qty}× für ${fmtBSD(priceNum)} BSD gelistet`);
+      setPriceBsd('');
+      setQty(1);
+      setTimeout(() => setSuccess(null), 4000);
+    } else {
+      setError(result.error || 'Fehler');
+    }
+    setSelling(false);
+  };
+
+  const setQuickPrice = (multiplier: number) => {
+    const base = item.floorBsd > 0 ? item.floorBsd : item.avgBuyPriceBsd;
+    setPriceBsd((base * multiplier).toFixed(2));
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 text-[10px] text-white/40 uppercase tracking-wider font-black">
+        <DollarSign className="w-3 h-3" />
+        Verkaufen
+        <span className="font-normal normal-case text-white/25">
+          ({item.availableToSell} von {item.quantity} verfügbar)
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2">
+        {/* Quantity */}
+        <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl px-2">
+          <button onClick={() => setQty(Math.max(1, qty - 1))} className="px-1.5 py-2 text-white/40 hover:text-white text-sm font-bold">−</button>
+          <span className="w-6 text-center text-sm font-mono font-bold">{qty}</span>
+          <button onClick={() => setQty(Math.min(item.availableToSell, qty + 1))} className="px-1.5 py-2 text-white/40 hover:text-white text-sm font-bold">+</button>
+        </div>
+
+        {/* Price */}
+        <div className="relative flex-1">
+          <input
+            type="number"
+            step="0.01"
+            min="0.01"
+            value={priceBsd}
+            onChange={(e) => setPriceBsd(e.target.value)}
+            placeholder="Preis pro DPC"
+            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-mono focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25 pr-12"
+          />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/30 font-bold">BSD</span>
+        </div>
+      </div>
+
+      {/* Quick Price Buttons */}
+      <div className="flex items-center gap-1.5">
+        <span className="text-[10px] text-white/25 mr-1">Schnellwahl:</span>
+        {item.floorBsd > 0 && (
+          <button onClick={() => setQuickPrice(1)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-[#FFD700] hover:border-[#FFD700]/20 transition-all">
+            Floor {fmtBSD(item.floorBsd)}
+          </button>
+        )}
+        <button onClick={() => setQuickPrice(1.05)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-[#22C55E] hover:border-[#22C55E]/20 transition-all">+5%</button>
+        <button onClick={() => setQuickPrice(1.10)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-[#22C55E] hover:border-[#22C55E]/20 transition-all">+10%</button>
+        <button onClick={() => setQuickPrice(1.20)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-[#22C55E] hover:border-[#22C55E]/20 transition-all">+20%</button>
+      </div>
+
+      {/* Fee Breakdown */}
+      {priceNum > 0 && (
+        <div className="flex items-center gap-4 text-[11px] font-mono bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2">
+          <span className="text-white/40">Brutto: <span className="text-white/70">{fmtBSD(gross)}</span></span>
+          <span className="text-white/40">Gebühr: <span className="text-red-300/70">−{fmtBSD(fee)}</span> <span className="text-white/20">(6%)</span></span>
+          <span className="text-white/40">Netto: <span className="text-[#FFD700] font-bold">{fmtBSD(net)}</span></span>
+        </div>
+      )}
+
+      {/* Submit */}
+      <Button onClick={handleSubmit} disabled={!isValid || selling} variant="gold" className="w-full">
+        {selling ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Tag className="w-4 h-4 mr-2" />}
+        {selling ? 'Wird gelistet...' : `${qty}× für ${priceNum > 0 ? fmtBSD(priceNum) : '–'} BSD listen`}
+      </Button>
+
+      {error && <div className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{error}</div>}
+      {success && <div className="text-xs text-[#22C55E] font-bold">{success}</div>}
+    </div>
+  );
+}
+
+// ============================================
+// PLAYER ROW (EXPANDABLE)
+// ============================================
+
+function PlayerCard({ item, isExpanded, onToggle, onSell, onCancelOrder }: {
+  item: BestandPlayer;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onSell: (playerId: string, qty: number, priceCents: number) => Promise<{ success: boolean; error?: string }>;
+  onCancelOrder: (orderId: string) => Promise<{ success: boolean; error?: string }>;
+}) {
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const p = item.player;
+  const pnlColor = item.pnlBsd >= 0 ? 'text-[#22C55E]' : 'text-red-300';
+  const TrendIcon = item.pnlBsd > 0 ? TrendingUp : item.pnlBsd < 0 ? TrendingDown : Minus;
+
+  const handleCancel = async (orderId: string) => {
+    setCancellingId(orderId);
+    await onCancelOrder(orderId);
+    setCancellingId(null);
+  };
+
+  return (
+    <div className={cn(
+      'bg-white/[0.02] border rounded-2xl transition-all overflow-hidden',
+      isExpanded ? 'border-[#FFD700]/20 shadow-[0_0_20px_rgba(255,215,0,0.05)]' : 'border-white/[0.06] hover:border-white/10'
+    )}>
+      {/* Header Row */}
+      <button onClick={onToggle} className="w-full px-4 py-3 flex items-center gap-3 text-left">
+        {/* Position + Name */}
+        <PositionBadge pos={p.pos} size="sm" />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <Link href={`/player/${p.id}`} onClick={(e) => e.stopPropagation()} className="font-bold text-sm hover:text-[#FFD700] transition-colors truncate">
+              {p.first} {p.last}
+            </Link>
+            <span className="text-[10px] text-white/25 shrink-0">{p.club}</span>
+          </div>
+          {/* Status Badges */}
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-[10px] text-white/30 font-mono">{item.quantity} DPC · EK {fmtBSD(item.avgBuyPriceBsd)}</span>
+            {item.listedQty > 0 && (
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded text-[9px] font-bold text-[#FFD700]">
+                <Tag className="w-2.5 h-2.5" />
+                {item.listedQty} gelistet
+              </span>
+            )}
+            {item.offers.length > 0 && (
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-sky-500/10 border border-sky-400/20 rounded text-[9px] font-bold text-sky-300">
+                <MessageSquare className="w-2.5 h-2.5" />
+                {item.offers.length} {item.offers.length === 1 ? 'Angebot' : 'Angebote'}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Value + P&L */}
+        <div className="text-right shrink-0">
+          <div className="text-sm font-mono font-bold text-[#FFD700]">{fmtBSD(item.floorBsd * item.quantity)}</div>
+          <div className={cn('text-[10px] font-mono flex items-center justify-end gap-0.5', pnlColor)}>
+            <TrendIcon className="w-2.5 h-2.5" />
+            {item.pnlBsd >= 0 ? '+' : ''}{fmtBSD(Math.round(item.pnlBsd))}
+            <span className="text-white/20 ml-0.5">({item.pnlPct >= 0 ? '+' : ''}{item.pnlPct.toFixed(1)}%)</span>
+          </div>
+        </div>
+
+        {/* Expand Toggle */}
+        <div className="shrink-0 ml-1">
+          {isExpanded ? <ChevronUp className="w-4 h-4 text-[#FFD700]/50" /> : <ChevronDown className="w-4 h-4 text-white/20" />}
+        </div>
+      </button>
+
+      {/* Expanded Content */}
+      {isExpanded && (
+        <div className="px-4 pb-4 space-y-4 border-t border-white/[0.06] pt-4 anim-dropdown">
+          {/* My Listings */}
+          {item.myListings.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 text-[10px] text-[#FFD700]/60 uppercase tracking-wider font-black mb-2">
+                <Tag className="w-3 h-3" />
+                Meine Listings
+              </div>
+              <div className="space-y-1.5">
+                {item.myListings.map(listing => (
+                  <div key={listing.id} className="flex items-center justify-between px-3 py-2 bg-[#FFD700]/[0.03] border border-[#FFD700]/10 rounded-xl">
+                    <div className="text-sm">
+                      <span className="font-mono font-bold">{listing.qty}×</span>
+                      <span className="text-[#FFD700] font-mono font-bold ml-2">{fmtBSD(listing.priceBsd)} BSD</span>
+                      <span className="text-white/25 text-xs ml-2">
+                        (Netto {fmtBSD(listing.priceBsd * listing.qty * (1 - FEE_RATE))})
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => handleCancel(listing.id)}
+                      disabled={cancellingId === listing.id}
+                      className="flex items-center gap-1 px-2 py-1 text-[10px] font-bold text-red-400/70 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all"
+                    >
+                      {cancellingId === listing.id
+                        ? <Loader2 className="w-3 h-3 animate-spin" />
+                        : <Trash2 className="w-3 h-3" />
+                      }
+                      Stornieren
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Incoming Offers */}
+          {item.offers.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 text-[10px] text-sky-400/60 uppercase tracking-wider font-black mb-2">
+                <MessageSquare className="w-3 h-3" />
+                Eingehende Angebote
+              </div>
+              <div className="space-y-1.5">
+                {item.offers.map(offer => (
+                  <Link
+                    key={offer.id}
+                    href="/market?tab=angebote"
+                    className="flex items-center justify-between px-3 py-2 bg-sky-500/[0.03] border border-sky-400/10 rounded-xl hover:bg-sky-500/[0.06] transition-all"
+                  >
+                    <div className="text-sm">
+                      <span className="text-sky-300 font-bold">@{offer.sender_handle}</span>
+                      <span className="text-white/40 mx-2">bietet</span>
+                      <span className="font-mono font-bold">{offer.quantity}×</span>
+                      <span className="text-[#FFD700] font-mono font-bold ml-1">{fmtBSD(centsToBsd(offer.price))} BSD</span>
+                    </div>
+                    <span className="text-[10px] text-sky-400/50 font-bold">Ansehen →</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Sell Form */}
+          {item.availableToSell > 0 ? (
+            <SellForm item={item} onSell={onSell} />
+          ) : (
+            <div className="text-center py-3 text-xs text-white/25">
+              Alle DPCs sind bereits gelistet
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================
+// MAIN COMPONENT
+// ============================================
+
+export default function ManagerBestandTab({
+  players, holdings, ipoList, userId, incomingOffers, onSell, onCancelOrder,
+}: ManagerBestandTabProps) {
   const [query, setQuery] = useState('');
   const [posFilter, setPosFilter] = useState<Set<Pos>>(new Set());
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [marketFilter, setMarketFilter] = useState<MarketFilter>('all');
   const [sortBy, setSortBy] = useState<SortOption>('value_desc');
   const [showFilters, setShowFilters] = useState(false);
-  const [countryFilter, setCountryFilter] = useState('');
-  const [leagueFilter, setLeagueFilter] = useState('');
-  const [clubFilter, setClubFilter] = useState('');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Build bestand data
   const bestandItems = useMemo(() => {
     const playerMap = new Map(players.map(p => [p.id, p]));
     const ipoMap = new Map(ipoList.map(ipo => [ipo.player_id, ipo]));
+
+    // Group offers by player
+    const offersByPlayer = new Map<string, OfferWithDetails[]>();
+    for (const offer of incomingOffers) {
+      const existing = offersByPlayer.get(offer.player_id) ?? [];
+      existing.push(offer);
+      offersByPlayer.set(offer.player_id, existing);
+    }
 
     const items: BestandPlayer[] = [];
     for (const h of holdings) {
@@ -71,9 +343,16 @@ export default function ManagerBestandTab({ players, holdings, ipoList, userId }
         : player.prices.floor ?? 0;
       const pnlBsd = (floorBsd - avgBuyBsd) * h.quantity;
       const pnlPct = avgBuyBsd > 0 ? ((floorBsd - avgBuyBsd) / avgBuyBsd) * 100 : 0;
-      const isOnTransferList = player.listings.some(l => l.sellerId === userId);
-      const ipo = ipoMap.get(player.id);
-      const hasActiveIpo = ipo ? ACTIVE_IPO_STATUSES.has(ipo.status) : false;
+
+      // User's own listings
+      const myListings = userId
+        ? player.listings.filter(l => l.sellerId === userId).map(l => ({
+            id: l.id,
+            qty: l.qty ?? 1,
+            priceBsd: l.price,
+          }))
+        : [];
+      const listedQty = myListings.reduce((sum, l) => sum + l.qty, 0);
 
       items.push({
         player,
@@ -83,75 +362,40 @@ export default function ManagerBestandTab({ players, holdings, ipoList, userId }
         pnlBsd,
         pnlPct,
         purchasedAt: h.created_at,
-        isOnTransferList,
-        hasActiveIpo,
+        myListings,
+        listedQty,
+        availableToSell: h.quantity - listedQty,
+        offers: offersByPlayer.get(player.id) ?? [],
       });
     }
     return items;
-  }, [players, holdings, ipoList, userId]);
+  }, [players, holdings, ipoList, userId, incomingOffers]);
 
-  // Derive filter options from data
-  const { countries, leagues, clubs } = useMemo(() => {
-    const countrySet = new Set<string>();
-    const leagueSet = new Set<string>();
-    const clubSet = new Set<string>();
-    for (const item of bestandItems) {
-      if (item.player.country) countrySet.add(item.player.country);
-      if (item.player.league) leagueSet.add(item.player.league);
-      clubSet.add(item.player.club);
-    }
-    return {
-      countries: Array.from(countrySet).sort(),
-      leagues: Array.from(leagueSet).sort(),
-      clubs: Array.from(clubSet).sort(),
-    };
-  }, [bestandItems]);
-
-  // Summary stats (always unfiltered)
+  // Summary stats
   const summary = useMemo(() => {
-    let totalPlayers = 0;
-    let totalValue = 0;
-    let totalInvested = 0;
+    let totalPlayers = 0, totalValue = 0, totalInvested = 0, totalListed = 0, totalOffers = 0;
     for (const item of bestandItems) {
       totalPlayers++;
       totalValue += item.floorBsd * item.quantity;
       totalInvested += item.avgBuyPriceBsd * item.quantity;
+      totalListed += item.listedQty;
+      totalOffers += item.offers.length;
     }
     const pnl = totalValue - totalInvested;
     const pnlPct = totalInvested > 0 ? ((totalValue - totalInvested) / totalInvested) * 100 : 0;
-    return { totalPlayers, totalValue, totalInvested, pnl, pnlPct };
+    return { totalPlayers, totalValue, totalInvested, pnl, pnlPct, totalListed, totalOffers };
   }, [bestandItems]);
 
-  // Filtered + sorted items
+  // Filtered + sorted
   const filtered = useMemo(() => {
     let result = [...bestandItems];
-
     if (query) {
       const q = query.toLowerCase();
       result = result.filter(item =>
         `${item.player.first} ${item.player.last} ${item.player.club}`.toLowerCase().includes(q)
       );
     }
-    if (posFilter.size > 0) {
-      result = result.filter(item => posFilter.has(item.player.pos));
-    }
-    if (statusFilter !== 'all') {
-      result = result.filter(item => item.player.status === statusFilter);
-    }
-    if (marketFilter === 'listed') {
-      result = result.filter(item => item.isOnTransferList);
-    } else if (marketFilter === 'unlisted') {
-      result = result.filter(item => !item.isOnTransferList);
-    }
-    if (countryFilter) {
-      result = result.filter(item => item.player.country === countryFilter);
-    }
-    if (leagueFilter) {
-      result = result.filter(item => item.player.league === leagueFilter);
-    }
-    if (clubFilter) {
-      result = result.filter(item => item.player.club === clubFilter);
-    }
+    if (posFilter.size > 0) result = result.filter(item => posFilter.has(item.player.pos));
 
     result.sort((a, b) => {
       switch (sortBy) {
@@ -164,275 +408,127 @@ export default function ManagerBestandTab({ players, holdings, ipoList, userId }
         default: return 0;
       }
     });
-
     return result;
-  }, [bestandItems, query, posFilter, statusFilter, marketFilter, countryFilter, leagueFilter, clubFilter, sortBy]);
+  }, [bestandItems, query, posFilter, sortBy]);
 
-  const togglePos = (pos: Pos) => {
+  const togglePos = useCallback((pos: Pos) => {
     setPosFilter(prev => {
       const next = new Set(prev);
       next.has(pos) ? next.delete(pos) : next.add(pos);
       return next;
     });
-  };
-
-  const activeFilterCount =
-    (posFilter.size > 0 ? 1 : 0) +
-    (statusFilter !== 'all' ? 1 : 0) +
-    (marketFilter !== 'all' ? 1 : 0) +
-    (countryFilter ? 1 : 0) +
-    (leagueFilter ? 1 : 0) +
-    (clubFilter ? 1 : 0);
-
-  const resetFilters = () => {
-    setPosFilter(new Set());
-    setStatusFilter('all');
-    setMarketFilter('all');
-    setCountryFilter('');
-    setLeagueFilter('');
-    setClubFilter('');
-    setSortBy('value_desc');
-    setQuery('');
-  };
+  }, []);
 
   const getPnlColor = (pnl: number) => pnl >= 0 ? 'text-[#22C55E]' : 'text-red-300';
 
   return (
     <div className="space-y-5">
-      {/* Summary Stats */}
-      <div className="flex flex-wrap gap-3">
-        <div className="flex-1 min-w-[140px] bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
+      {/* Summary Stats — 2×2 Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
           <div className="text-[10px] text-white/40 uppercase tracking-wider">Spieler</div>
           <div className="text-xl font-black font-mono">{summary.totalPlayers}</div>
         </div>
-        <div className="flex-1 min-w-[140px] bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
+        <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
           <div className="text-[10px] text-white/40 uppercase tracking-wider">Kaderwert</div>
           <div className="text-xl font-black font-mono text-[#FFD700]">{fmtBSD(Math.round(summary.totalValue))}</div>
         </div>
-        <div className="flex-1 min-w-[140px] bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
-          <div className="text-[10px] text-white/40 uppercase tracking-wider">Investiert</div>
-          <div className="text-xl font-black font-mono text-white/70">{fmtBSD(Math.round(summary.totalInvested))}</div>
-        </div>
-        <div className="flex-1 min-w-[140px] bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
+        <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
           <div className="text-[10px] text-white/40 uppercase tracking-wider">G/V</div>
-          <div className={`text-xl font-black font-mono ${getPnlColor(summary.pnl)}`}>
+          <div className={cn('text-xl font-black font-mono', getPnlColor(summary.pnl))}>
             {summary.pnl >= 0 ? '+' : ''}{fmtBSD(Math.round(summary.pnl))}
-            <span className="text-sm ml-1">({summary.pnl >= 0 ? '+' : ''}{summary.pnlPct.toFixed(1)}%)</span>
+            <span className="text-sm ml-1">({summary.pnlPct >= 0 ? '+' : ''}{summary.pnlPct.toFixed(1)}%)</span>
+          </div>
+        </div>
+        <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
+          <div className="text-[10px] text-white/40 uppercase tracking-wider">Aktivität</div>
+          <div className="flex items-center gap-3 mt-1">
+            {summary.totalListed > 0 && (
+              <span className="flex items-center gap-1 text-xs font-bold text-[#FFD700]">
+                <Tag className="w-3 h-3" />{summary.totalListed} gelistet
+              </span>
+            )}
+            {summary.totalOffers > 0 && (
+              <span className="flex items-center gap-1 text-xs font-bold text-sky-300">
+                <MessageSquare className="w-3 h-3" />{summary.totalOffers} Angebote
+              </span>
+            )}
+            {summary.totalListed === 0 && summary.totalOffers === 0 && (
+              <span className="text-xs text-white/25">Keine</span>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <Card className="p-4 space-y-3">
-        {/* Search + Filter Toggle */}
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1 min-w-0">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-            <input
-              type="text"
-              placeholder="Spieler, Verein suchen..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
-            />
-          </div>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold border transition-all shrink-0 ${
-              showFilters || activeFilterCount > 0
-                ? 'bg-[#FFD700]/15 border-[#FFD700]/30 text-[#FFD700]'
-                : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <Filter className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Filter</span>
-            {activeFilterCount > 0 && (
-              <span className="ml-0.5 px-1.5 py-0.5 bg-[#FFD700] text-black text-[10px] font-black rounded-full">{activeFilterCount}</span>
-            )}
-            <ChevronDown className={`w-3 h-3 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-          </button>
+      {/* Search + Filters */}
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1 min-w-0">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+          <input
+            type="text"
+            placeholder="Spieler suchen..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
+          />
         </div>
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className={cn(
+            'flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold border transition-all shrink-0',
+            showFilters ? 'bg-[#FFD700]/15 border-[#FFD700]/30 text-[#FFD700]' : 'bg-white/5 border-white/10 text-white/50'
+          )}
+        >
+          <Filter className="w-3.5 h-3.5" />
+          <ChevronDown className={cn('w-3 h-3 transition-transform', showFilters && 'rotate-180')} />
+        </button>
+      </div>
 
-        {/* Position Chips */}
-        <div className="flex items-center gap-1">
+      {/* Position Chips + Sort (collapsible) */}
+      {showFilters && (
+        <div className="flex items-center gap-2 flex-wrap anim-dropdown">
           {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map(pos => {
             const active = posFilter.has(pos);
-            const colors: Record<Pos, { bg: string; border: string; text: string }> = {
-              GK: { bg: 'bg-emerald-500/20', border: 'border-emerald-400', text: 'text-emerald-300' },
-              DEF: { bg: 'bg-amber-500/20', border: 'border-amber-400', text: 'text-amber-300' },
-              MID: { bg: 'bg-sky-500/20', border: 'border-sky-400', text: 'text-sky-300' },
-              ATT: { bg: 'bg-rose-500/20', border: 'border-rose-400', text: 'text-rose-300' },
+            const colors: Record<Pos, string> = {
+              GK: 'bg-emerald-500/20 border-emerald-400 text-emerald-300',
+              DEF: 'bg-amber-500/20 border-amber-400 text-amber-300',
+              MID: 'bg-sky-500/20 border-sky-400 text-sky-300',
+              ATT: 'bg-rose-500/20 border-rose-400 text-rose-300',
             };
-            const c = colors[pos];
             return (
               <button
-                key={pos}
-                onClick={() => togglePos(pos)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-black border transition-all ${
-                  active
-                    ? `${c.bg} ${c.border} ${c.text}`
-                    : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70 hover:bg-white/10'
-                }`}
-              >
-                {pos}
-              </button>
+                key={pos} onClick={() => togglePos(pos)}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg text-xs font-black border transition-all',
+                  active ? colors[pos] : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70'
+                )}
+              >{pos}</button>
             );
           })}
-        </div>
-
-        {/* Advanced Filters */}
-        {showFilters && (
-          <div className="flex items-start gap-3 flex-wrap pt-2 border-t border-white/5">
-            {/* Country */}
-            {countries.length > 1 && (
-              <select
-                value={countryFilter}
-                onChange={(e) => setCountryFilter(e.target.value)}
-                className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-white/70 focus:outline-none focus:border-[#FFD700]/40 appearance-none cursor-pointer pr-8"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
-              >
-                <option value="">Alle Länder</option>
-                {countries.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            )}
-
-            {/* League */}
-            {leagues.length > 1 && (
-              <select
-                value={leagueFilter}
-                onChange={(e) => setLeagueFilter(e.target.value)}
-                className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-white/70 focus:outline-none focus:border-[#FFD700]/40 appearance-none cursor-pointer pr-8"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
-              >
-                <option value="">Alle Ligen</option>
-                {leagues.map(l => <option key={l} value={l}>{l}</option>)}
-              </select>
-            )}
-
-            {/* Club */}
-            {clubs.length > 1 && (
-              <select
-                value={clubFilter}
-                onChange={(e) => setClubFilter(e.target.value)}
-                className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-white/70 focus:outline-none focus:border-[#FFD700]/40 appearance-none cursor-pointer pr-8"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
-              >
-                <option value="">Alle Vereine</option>
-                {clubs.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            )}
-
-            {/* Status */}
-            <div className="flex items-center gap-1">
-              {[
-                { value: 'all', label: 'Alle' },
-                { value: 'fit', label: 'Fit' },
-                { value: 'injured', label: 'Verletzt' },
-                { value: 'suspended', label: 'Gesperrt' },
-                { value: 'doubtful', label: 'Fraglich' },
-              ].map(opt => (
-                <button
-                  key={opt.value}
-                  onClick={() => setStatusFilter(opt.value)}
-                  className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-all ${
-                    statusFilter === opt.value
-                      ? 'bg-[#FFD700]/15 border-[#FFD700]/30 text-[#FFD700]'
-                      : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Market */}
-            <div className="flex items-center gap-1">
-              {[
-                { value: 'all' as MarketFilter, label: 'Alle' },
-                { value: 'listed' as MarketFilter, label: 'Gelistet' },
-                { value: 'unlisted' as MarketFilter, label: 'Nicht gelistet' },
-              ].map(opt => (
-                <button
-                  key={opt.value}
-                  onClick={() => setMarketFilter(opt.value)}
-                  className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-all ${
-                    marketFilter === opt.value
-                      ? 'bg-sky-500/15 border-sky-400/30 text-sky-300'
-                      : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Sort */}
-            <div className="flex items-center gap-2">
-              <ArrowUpDown className="w-3.5 h-3.5 text-white/40" />
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-white/70 focus:outline-none focus:border-[#FFD700]/40 appearance-none cursor-pointer pr-8"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
-              >
-                <option value="value_desc">Wert (höchste)</option>
-                <option value="name">Name A-Z</option>
-                <option value="l5">L5 Score</option>
-                <option value="date">Kaufdatum</option>
-                <option value="pnl_desc">G/V (beste)</option>
-                <option value="pnl_asc">G/V (schlechteste)</option>
-              </select>
-            </div>
+          <div className="flex items-center gap-1.5 ml-auto">
+            <ArrowUpDown className="w-3.5 h-3.5 text-white/30" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              className="px-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60 focus:outline-none"
+            >
+              <option value="value_desc">Wert ↓</option>
+              <option value="pnl_desc">G/V ↓</option>
+              <option value="pnl_asc">G/V ↑</option>
+              <option value="l5">L5 Score</option>
+              <option value="name">Name A-Z</option>
+              <option value="date">Kaufdatum</option>
+            </select>
           </div>
-        )}
-
-        {/* Active Filter Chips */}
-        {activeFilterCount > 0 && (
-          <div className="flex items-center gap-2 flex-wrap pt-1">
-            {posFilter.size > 0 && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60">
-                Pos: {Array.from(posFilter).join(', ')}
-                <button onClick={() => setPosFilter(new Set())} className="ml-0.5 hover:text-white"><X className="w-3 h-3" /></button>
-              </span>
-            )}
-            {statusFilter !== 'all' && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60">
-                Status: {statusFilter}
-                <button onClick={() => setStatusFilter('all')} className="ml-0.5 hover:text-white"><X className="w-3 h-3" /></button>
-              </span>
-            )}
-            {marketFilter !== 'all' && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-sky-500/10 border border-sky-400/20 rounded-lg text-[11px] text-sky-300/70">
-                {marketFilter === 'listed' ? 'Gelistet' : 'Nicht gelistet'}
-                <button onClick={() => setMarketFilter('all')} className="ml-0.5 hover:text-sky-300"><X className="w-3 h-3" /></button>
-              </span>
-            )}
-            {countryFilter && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60">
-                {countryFilter}
-                <button onClick={() => setCountryFilter('')} className="ml-0.5 hover:text-white"><X className="w-3 h-3" /></button>
-              </span>
-            )}
-            {leagueFilter && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60">
-                {leagueFilter}
-                <button onClick={() => setLeagueFilter('')} className="ml-0.5 hover:text-white"><X className="w-3 h-3" /></button>
-              </span>
-            )}
-            {clubFilter && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60">
-                {clubFilter}
-                <button onClick={() => setClubFilter('')} className="ml-0.5 hover:text-white"><X className="w-3 h-3" /></button>
-              </span>
-            )}
-            <button onClick={resetFilters} className="text-[11px] text-white/30 hover:text-white/60 transition-colors ml-1">
-              Alle zurücksetzen
+          {posFilter.size > 0 && (
+            <button onClick={() => setPosFilter(new Set())} className="text-[10px] text-white/30 hover:text-white/60 flex items-center gap-1">
+              <X className="w-3 h-3" />Filter zurücksetzen
             </button>
-          </div>
-        )}
-      </Card>
+          )}
+        </div>
+      )}
 
-      {/* Result count */}
+      {/* Result Count */}
       <div className="text-sm text-white/50">{filtered.length} Spieler im Bestand</div>
 
       {/* Empty State */}
@@ -442,7 +538,7 @@ export default function ManagerBestandTab({ players, holdings, ipoList, userId }
           {bestandItems.length === 0 ? (
             <>
               <div className="text-white/30 mb-2">Noch keine Spieler im Bestand</div>
-              <div className="text-sm text-white/50">Kaufe DPCs über Scouting oder Transferliste.</div>
+              <div className="text-sm text-white/50">Kaufe DPCs über Club Sales oder den Transfermarkt.</div>
             </>
           ) : (
             <>
@@ -453,18 +549,18 @@ export default function ManagerBestandTab({ players, holdings, ipoList, userId }
         </Card>
       )}
 
-      {/* Player List */}
+      {/* Player Cards */}
       {filtered.length > 0 && (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {filtered.map(item => (
-            <PlayerDisplay key={item.player.id} variant="compact" player={item.player}
-              holding={{
-                quantity: item.quantity,
-                avgBuyPriceBsd: item.avgBuyPriceBsd,
-                isOnTransferList: item.isOnTransferList,
-                hasActiveIpo: item.hasActiveIpo,
-                purchasedAt: item.purchasedAt,
-              }} />
+            <PlayerCard
+              key={item.player.id}
+              item={item}
+              isExpanded={expandedId === item.player.id}
+              onToggle={() => setExpandedId(prev => prev === item.player.id ? null : item.player.id)}
+              onSell={onSell}
+              onCancelOrder={onCancelOrder}
+            />
           ))}
         </div>
       )}
