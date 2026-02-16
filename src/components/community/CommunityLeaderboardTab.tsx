@@ -29,6 +29,7 @@ interface CommunityLeaderboardTabProps {
   leaderboard: LeaderboardUser[];
   followingIds: Set<string>;
   onFollowToggle: (targetId: string) => void;
+  userId?: string;
 }
 
 // ============================================
@@ -57,12 +58,13 @@ function saveRankSnapshot(leaderboard: LeaderboardUser[]): void {
 // LEADERBOARD ROW
 // ============================================
 
-function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow }: {
+function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, isSelf }: {
   user: LeaderboardUser;
   rank: number;
   rankChange: number | null;
   isFollowed: boolean;
   onFollow: () => void;
+  isSelf?: boolean;
 }) {
   const rankStyle = rank === 1
     ? 'bg-[#FFD700]/20 text-[#FFD700] border-[#FFD700]/30'
@@ -79,7 +81,7 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow }:
     <Link href={`/profile/${lUser.handle}`} className="block">
       <div className={cn(
         'flex items-center gap-4 p-4 border rounded-xl hover:bg-white/[0.04] hover:border-white/20 transition-all',
-        isFollowed ? 'bg-[#22C55E]/[0.02] border-[#22C55E]/20' : 'bg-white/[0.02] border-white/10'
+        isSelf ? 'bg-[#FFD700]/[0.04] border-[#FFD700]/20' : isFollowed ? 'bg-[#22C55E]/[0.02] border-[#22C55E]/20' : 'bg-white/[0.02] border-white/10'
       )}>
         <div className="relative">
           <div className={cn('w-10 h-10 rounded-xl border flex items-center justify-center font-black', rankStyle)}>
@@ -99,6 +101,7 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow }:
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="font-bold">{lUser.displayName || lUser.handle}</span>
+            {isSelf && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/20">Du</span>}
             {lUser.verified && <BadgeCheck className="w-4 h-4 text-[#FFD700]" />}
             <span className={cn('px-2 py-0.5 rounded text-[10px] font-bold border', tier.color, 'bg-white/5 border-white/10')}>
               {tier.name}
@@ -174,6 +177,7 @@ export default function CommunityLeaderboardTab({
   leaderboard,
   followingIds,
   onFollowToggle,
+  userId,
 }: CommunityLeaderboardTabProps) {
   // Load previous snapshot and compute rank changes
   const rankChanges = useMemo(() => {
@@ -209,6 +213,7 @@ export default function CommunityLeaderboardTab({
             rankChange={rankChanges[u.userId] ?? null}
             isFollowed={followingIds.has(u.userId)}
             onFollow={() => onFollowToggle(u.userId)}
+            isSelf={u.userId === userId}
           />
         ))
       )}

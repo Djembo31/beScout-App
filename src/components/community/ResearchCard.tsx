@@ -208,14 +208,19 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
           {/* Unlock button */}
           <div className="flex flex-col items-center gap-2 -mt-2">
             {!confirmUnlock ? (
-              <Button
-                variant="gold"
-                size="sm"
-                onClick={() => setConfirmUnlock(true)}
-              >
-                <Lock className="w-3.5 h-3.5" />
-                Freischalten für {fmtBSD(priceBsd)} BSD
-              </Button>
+              <div className="flex flex-col items-center gap-1">
+                <Button
+                  variant="gold"
+                  size="sm"
+                  onClick={() => setConfirmUnlock(true)}
+                >
+                  <Lock className="w-3.5 h-3.5" />
+                  Freischalten für {fmtBSD(priceBsd)} BSD
+                </Button>
+                {post.unlock_count > 0 && (
+                  <span className="text-[10px] text-white/30">{post.unlock_count} {post.unlock_count === 1 ? 'Leser' : 'Leser'}</span>
+                )}
+              </div>
             ) : (
               <div className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl bg-[#FFD700]/5 border border-[#FFD700]/15">
                 <span className="text-xs text-white/60">{fmtBSD(priceBsd)} BSD werden von deinem Wallet abgezogen</span>

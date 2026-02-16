@@ -658,6 +658,7 @@ export default function CommunityPage() {
               leaderboard={leaderboard}
               followingIds={followingIds}
               onFollowToggle={handleFollowToggle}
+              userId={user.id}
             />
           </TabPanel>
         </>

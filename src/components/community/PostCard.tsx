@@ -90,6 +90,7 @@ export default function PostCard({
         <div className="flex flex-col items-center gap-1">
           <button
             onClick={() => onVote(post.id, myVote === 1 ? 0 : 1)}
+            aria-label={myVote === 1 ? 'Upvote entfernen' : 'Upvote'}
             className={cn(
               'p-1.5 rounded-lg transition-colors',
               myVote === 1 ? 'bg-[#22C55E]/20 text-[#22C55E]' : 'text-white/30 hover:text-[#22C55E] hover:bg-white/5'
@@ -97,14 +98,18 @@ export default function PostCard({
           >
             <ArrowUp className="w-4 h-4" />
           </button>
-          <span className={cn(
-            'font-mono font-bold text-sm',
-            netScore > 20 ? 'text-[#22C55E]' : netScore < 0 ? 'text-red-300' : 'text-white/50'
-          )}>
+          <span
+            className={cn(
+              'font-mono font-bold text-sm',
+              netScore > 20 ? 'text-[#22C55E]' : netScore < 0 ? 'text-red-300' : 'text-white/50'
+            )}
+            aria-label={`Score: ${netScore}`}
+          >
             {netScore}
           </span>
           <button
             onClick={() => onVote(post.id, myVote === -1 ? 0 : -1)}
+            aria-label={myVote === -1 ? 'Downvote entfernen' : 'Downvote'}
             className={cn(
               'p-1.5 rounded-lg transition-colors',
               myVote === -1 ? 'bg-red-500/20 text-red-300' : 'text-white/30 hover:text-red-300 hover:bg-white/5'

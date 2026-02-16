@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { ArrowUp, ArrowDown, Trash2, Loader2, Send, BadgeCheck } from 'lucide-react';
+import { ArrowUp, ArrowDown, Trash2, Loader2, Send, BadgeCheck, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getReplies, createReply, deletePost, votePost, getUserPostVotes } from '@/lib/services/posts';
 import type { PostWithAuthor } from '@/types';
@@ -109,7 +109,10 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
       ) : (
         <>
           {replies.length === 0 && (
-            <div className="text-xs text-white/30 italic mb-3">Noch keine Antworten — sei der Erste!</div>
+            <div className="text-center py-2 mb-3">
+              <MessageSquare className="w-6 h-6 mx-auto mb-1 text-white/10" />
+              <div className="text-xs text-white/30 italic">Noch keine Antworten — sei der Erste!</div>
+            </div>
           )}
           {replies.length > 0 && (
             <div className="space-y-3 mb-3">

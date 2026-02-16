@@ -96,7 +96,11 @@ export default function CommunityResearchTab({
         <div className="flex items-center gap-2">
           <FileText className="w-5 h-5 text-purple-400" />
           <span className="font-bold">Research Hub</span>
-          <span className="text-xs text-white/40">{sortedResearchPosts.length} Berichte</span>
+          <span className="text-xs text-white/40">
+            {(researchCallFilter || researchCategoryFilter)
+              ? `${sortedResearchPosts.length} von ${researchPosts.length} Berichten`
+              : `${sortedResearchPosts.length} Berichte`}
+          </span>
         </div>
         <Button variant="gold" size="sm" onClick={onCreateResearch}>
           <Plus className="w-4 h-4" />
