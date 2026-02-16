@@ -81,7 +81,32 @@ export async function castCommunityPollVote(
     // Mission tracking
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
       triggerMissionProgress(userId, ['daily_vote']);
-    }).catch(() => {});
+    }).catch(err => console.error('[Polls] Mission tracking failed:', err));
+    // Activity log
+    import('@/lib/services/activityLog').then(({ logActivity }) => {
+      logActivity(userId, 'poll_vote', 'community', { pollId, optionIndex });
+    }).catch(err => console.error('[Polls] Activity log failed:', err));
+    // Notify poll creator
+    (async () => {
+      try {
+        const { data: poll } = await supabase
+          .from('community_polls')
+          .select('created_by, question')
+          .eq('id', pollId)
+          .single();
+        if (poll && poll.created_by !== userId) {
+          const { createNotification } = await import('@/lib/services/notifications');
+          createNotification(
+            poll.created_by,
+            'poll_vote',
+            'Neue Stimme',
+            `Jemand hat bei "${poll.question.slice(0, 60)}" abgestimmt`,
+            pollId,
+            'poll'
+          );
+        }
+      } catch (err) { console.error('[Polls] Vote notification failed:', err); }
+    })();
   }
 
   return result;
@@ -113,6 +138,10 @@ export async function createCommunityPoll(params: {
 
   if (error) throw new Error(error.message);
   invalidatePollData(params.userId);
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(params.userId, 'poll_create', 'community', { pollId: data.id, question: params.question });
+  }).catch(err => console.error('[Polls] Activity log failed:', err));
   return data as DbCommunityPoll;
 }
 

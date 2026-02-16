@@ -181,6 +181,10 @@ export async function createResearchPost(params: {
   import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
     triggerMissionProgress(params.userId, ['weekly_research']);
   }).catch(err => console.error('[Research] Mission tracking failed:', err));
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(params.userId, 'research_create', 'community', { researchId: data.id, title: params.title, call: params.call });
+  }).catch(err => console.error('[Research] Activity log failed:', err));
   return data as DbResearchPost;
 }
 
@@ -218,6 +222,11 @@ export async function unlockResearch(userId: string, researchId: string): Promis
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
       triggerMissionProgress(userId, ['daily_unlock_research']);
     }).catch(err => console.error('[Research] Mission tracking failed:', err));
+
+    // Activity log
+    import('@/lib/services/activityLog').then(({ logActivity }) => {
+      logActivity(userId, 'research_unlock', 'community', { researchId });
+    }).catch(err => console.error('[Research] Activity log failed:', err));
 
     // Fire-and-forget notification to author
     (async () => {
@@ -284,6 +293,31 @@ export async function rateResearch(
 
   if (result.success) {
     invalidateResearchData(userId);
+    // Activity log
+    import('@/lib/services/activityLog').then(({ logActivity }) => {
+      logActivity(userId, 'research_rate', 'community', { researchId, rating });
+    }).catch(err => console.error('[Research] Rate activity log failed:', err));
+    // Notify author
+    (async () => {
+      try {
+        const { data: post } = await supabase
+          .from('research_posts')
+          .select('user_id, title')
+          .eq('id', researchId)
+          .single();
+        if (post && post.user_id !== userId) {
+          const { createNotification } = await import('@/lib/services/notifications');
+          createNotification(
+            post.user_id,
+            'research_rating',
+            `Bewertung: ${rating}/5 Sterne`,
+            `Jemand hat deinen Bericht "${post.title}" bewertet`,
+            researchId,
+            'research'
+          );
+        }
+      } catch (err) { console.error('[Research] Rating notification failed:', err); }
+    })();
   }
 
   return result;

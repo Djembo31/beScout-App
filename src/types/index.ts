@@ -737,6 +737,8 @@ export type DbVoteEntry = {
   created_at: string;
 };
 
+export type PostType = 'general' | 'player_take' | 'transfer_rumor';
+
 export type DbPost = {
   id: string;
   user_id: string;
@@ -745,12 +747,15 @@ export type DbPost = {
   club_id: string | null;
   content: string;
   tags: string[];
-  category: string;  // PostCategory — 'Analyse' | 'Prediction' | 'Meinung' | 'News'
+  category: string;  // PostCategory — 'Analyse' | 'Prediction' | 'Meinung' | 'News' | 'Gerücht'
+  post_type: PostType;
   upvotes: number;
   downvotes: number;
   replies_count: number;
   is_pinned: boolean;
   parent_id: string | null;
+  rumor_source: string | null;
+  rumor_club_target: string | null;
   created_at: string;
 };
 
@@ -828,7 +833,7 @@ export function getLevelTier(level: number): LevelTier {
 // NOTIFICATION TYPES
 // ============================================
 
-export type NotificationType = 'research_unlock' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward';
+export type NotificationType = 'research_unlock' | 'research_rating' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward';
 
 export type DbNotification = {
   id: string;

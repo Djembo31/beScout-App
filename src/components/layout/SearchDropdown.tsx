@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, FileText, Users, Loader2, Search } from 'lucide-react';
+import { User, FileText, Users, Loader2, Search, MessageSquare, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { globalSearch, type SearchResult } from '@/lib/services/search';
 
@@ -11,6 +11,8 @@ function getResultIcon(type: SearchResult['type']) {
     case 'player': return <Users className="w-4 h-4" />;
     case 'research': return <FileText className="w-4 h-4" />;
     case 'profile': return <User className="w-4 h-4" />;
+    case 'post': return <MessageSquare className="w-4 h-4" />;
+    case 'bounty': return <Target className="w-4 h-4" />;
   }
 }
 
@@ -19,6 +21,8 @@ function getResultColor(type: SearchResult['type']): string {
     case 'player': return 'text-[#FFD700] bg-[#FFD700]/10';
     case 'research': return 'text-purple-400 bg-purple-400/10';
     case 'profile': return 'text-[#22C55E] bg-[#22C55E]/10';
+    case 'post': return 'text-sky-400 bg-sky-400/10';
+    case 'bounty': return 'text-amber-400 bg-amber-400/10';
   }
 }
 
@@ -27,6 +31,8 @@ function getCategoryLabel(type: SearchResult['type']): string {
     case 'player': return 'Spieler';
     case 'research': return 'Research';
     case 'profile': return 'Nutzer';
+    case 'post': return 'Beiträge';
+    case 'bounty': return 'Aufträge';
   }
 }
 

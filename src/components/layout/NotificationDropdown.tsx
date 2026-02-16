@@ -10,6 +10,7 @@ import type { DbNotification, NotificationType } from '@/types';
 function getNotifIcon(type: NotificationType) {
   switch (type) {
     case 'research_unlock': return <FileText className="w-4 h-4" />;
+    case 'research_rating': return <Star className="w-4 h-4" />;
     case 'follow': return <UserPlus className="w-4 h-4" />;
     case 'fantasy_reward': return <Trophy className="w-4 h-4" />;
     case 'poll_vote': return <Vote className="w-4 h-4" />;
@@ -34,6 +35,7 @@ function getNotifIcon(type: NotificationType) {
 function getNotifColor(type: NotificationType): string {
   switch (type) {
     case 'research_unlock': return 'text-purple-400 bg-purple-400/10';
+    case 'research_rating': return 'text-amber-400 bg-amber-400/10';
     case 'follow': return 'text-[#22C55E] bg-[#22C55E]/10';
     case 'fantasy_reward': return 'text-[#FFD700] bg-[#FFD700]/10';
     case 'poll_vote': return 'text-amber-400 bg-amber-400/10';

@@ -62,7 +62,11 @@ export async function castVote(
   // Mission tracking
   import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
     triggerMissionProgress(userId, ['daily_vote']);
-  }).catch(() => {});
+  }).catch(err => console.error('[Votes] Mission tracking failed:', err));
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(userId, 'club_vote', 'community', { voteId, optionIndex });
+  }).catch(err => console.error('[Votes] Activity log failed:', err));
   // Fire-and-forget: refresh stats + check achievements
   import('@/lib/services/social').then(({ refreshUserStats, checkAndUnlockAchievements }) => {
     refreshUserStats(userId)
@@ -100,5 +104,9 @@ export async function createVote(params: {
 
   if (error) throw new Error(error.message);
   invalidate('votes:');
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(params.userId, 'vote_create', 'community', { voteId: data.id, question: params.question });
+  }).catch(err => console.error('[Votes] Activity log failed:', err));
   return data as DbClubVote;
 }

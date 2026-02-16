@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { Loader2, Plus } from 'lucide-react';
-import { Button, ErrorState, TabBar, TabPanel } from '@/components/ui';
+import { Button, Card, ErrorState, TabBar, TabPanel } from '@/components/ui';
 import { val } from '@/lib/settledHelpers';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -29,7 +30,7 @@ import type { PostWithAuthor, DbClubVote, LeaderboardUser, ResearchPostWithAutho
 // TYPES
 // ============================================
 
-type MainTab = 'feed' | 'research' | 'aktionen' | 'ranking';
+type MainTab = 'feed' | 'research' | 'geruechte' | 'aktionen' | 'ranking';
 
 // ============================================
 // MAIN PAGE
@@ -64,6 +65,7 @@ export default function CommunityPage() {
   const [communityPolls, setCommunityPolls] = useState<CommunityPollWithCreator[]>([]);
   const [userPollVotedIds, setUserPollVotedIds] = useState<Set<string>>(new Set());
   const [bounties, setBounties] = useState<BountyWithCreator[]>([]);
+  const [rumors, setRumors] = useState<PostWithAuthor[]>([]);
 
   // Loading State
   const [dataLoading, setDataLoading] = useState(true);
@@ -145,6 +147,11 @@ export default function CommunityPage() {
           name: `${p.first_name} ${p.last_name}`,
           pos: p.position as Pos,
         })));
+
+        // Load transfer rumors (fire-and-forget)
+        getPosts({ limit: 30, postType: 'transfer_rumor' })
+          .then(r => { if (!cancelled) setRumors(r); })
+          .catch(err => console.error('[Community] Rumors load failed:', err));
 
         // Post votes
         if (postsResult.length > 0) {
@@ -444,6 +451,7 @@ export default function CommunityPage() {
   const TABS: { id: MainTab; label: string }[] = [
     { id: 'feed', label: 'Feed' },
     { id: 'research', label: 'Research' },
+    { id: 'geruechte', label: 'Gerüchte' },
     { id: 'aktionen', label: 'Aktionen' },
     { id: 'ranking', label: 'Ranking' },
   ];
@@ -527,6 +535,54 @@ export default function CommunityPage() {
               onRate={handleRateResearch}
               ratingId={ratingId}
             />
+          </TabPanel>
+
+          {/* Gerüchte (Transfer Rumors) */}
+          <TabPanel activeTab={mainTab} id="geruechte">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-white/50">Transfergerüchte und Insider-Infos aus der Community</p>
+              </div>
+              {rumors.length === 0 ? (
+                <Card className="p-8 text-center border-red-500/10">
+                  <div className="text-3xl mb-3">📡</div>
+                  <div className="text-white/50 text-sm mb-1">Noch keine Gerüchte</div>
+                  <div className="text-white/30 text-xs">Geh zu einem Spieler und teile ein Transfergerücht!</div>
+                </Card>
+              ) : (
+                rumors.map(rumor => {
+                  const netScore = rumor.upvotes - rumor.downvotes;
+                  return (
+                    <Card key={rumor.id} className="p-4 border-red-500/15 bg-red-500/[0.02] hover:border-red-500/25 transition-all">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        <span className="font-bold text-sm">{rumor.author_display_name || rumor.author_handle}</span>
+                        <span className="text-[10px] text-white/30 px-1.5 py-0.5 bg-white/5 rounded">Lv{rumor.author_level}</span>
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold border bg-red-500/15 text-red-300 border-red-500/20">
+                          {rumor.rumor_source ? `📡 ${rumor.rumor_source}` : '📡 Gerücht'}
+                        </span>
+                        {rumor.rumor_club_target && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold border bg-amber-500/15 text-amber-300 border-amber-500/20">
+                            → {rumor.rumor_club_target}
+                          </span>
+                        )}
+                      </div>
+                      {rumor.player_id && rumor.player_name && (
+                        <Link href={`/player/${rumor.player_id}`} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-white/5 text-white/70 hover:bg-white/10 transition-colors mb-2">
+                          {rumor.player_name}
+                        </Link>
+                      )}
+                      <p className="text-sm text-white/80 leading-relaxed mb-2">{rumor.content}</p>
+                      <div className="flex items-center gap-4 text-xs text-white/40">
+                        <span className="font-mono font-bold" style={{ color: netScore > 5 ? '#22C55E' : netScore < 0 ? '#f87171' : undefined }}>
+                          {netScore > 0 ? '+' : ''}{netScore} Stimmen
+                        </span>
+                        <span>{new Date(rumor.created_at).toLocaleDateString('de-DE')}</span>
+                      </div>
+                    </Card>
+                  );
+                })
+              )}
+            </div>
           </TabPanel>
 
           {/* Aktionen: Votes + Bounties combined */}

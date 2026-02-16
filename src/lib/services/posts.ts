@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { cached, invalidate } from '@/lib/cache';
-import type { DbPost, PostWithAuthor } from '@/types';
+import type { DbPost, PostWithAuthor, PostType } from '@/types';
 import { toPos } from '@/types';
 
 const TWO_MIN = 2 * 60 * 1000;
@@ -15,9 +15,10 @@ export async function getPosts(options: {
   playerId?: string;
   userId?: string;
   clubName?: string;
+  postType?: PostType;
 }): Promise<PostWithAuthor[]> {
-  const { limit = 50, offset = 0, playerId, userId, clubName } = options;
-  const cacheKey = `posts:${playerId ?? ''}:${userId ?? ''}:${clubName ?? ''}:${offset}:${limit}`;
+  const { limit = 50, offset = 0, playerId, userId, clubName, postType } = options;
+  const cacheKey = `posts:${playerId ?? ''}:${userId ?? ''}:${clubName ?? ''}:${postType ?? ''}:${offset}:${limit}`;
 
   return cached(cacheKey, async () => {
     let query = supabase
@@ -33,6 +34,7 @@ export async function getPosts(options: {
     if (playerId) query = query.eq('player_id', playerId);
     if (userId) query = query.eq('user_id', userId);
     if (clubName) query = query.eq('club_name', clubName);
+    if (postType) query = query.eq('post_type', postType);
 
     const { data, error } = await query;
     if (error) throw new Error(error.message);
@@ -87,7 +89,10 @@ export async function createPost(
   content: string,
   tags: string[],
   category: string = 'Meinung',
-  clubId: string | null = null
+  clubId: string | null = null,
+  postType: PostType = 'general',
+  rumorSource: string | null = null,
+  rumorClubTarget: string | null = null
 ): Promise<DbPost> {
   const { data, error } = await supabase
     .from('posts')
@@ -99,6 +104,9 @@ export async function createPost(
       content,
       tags,
       category,
+      post_type: postType,
+      rumor_source: rumorSource,
+      rumor_club_target: rumorClubTarget,
     })
     .select()
     .single();
@@ -170,6 +178,11 @@ export async function createReply(
   invalidate('posts:');
   invalidate(`replies:${parentId}`);
 
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(userId, 'post_reply', 'community', { postId: data.id, parentId });
+  }).catch(err => console.error('[Posts] Reply activity log failed:', err));
+
   // Fire-and-forget: notify parent post author
   (async () => {
     try {
@@ -208,6 +221,10 @@ export async function deletePost(userId: string, postId: string): Promise<void> 
   if (error) throw new Error(error.message);
   invalidate('posts:');
   invalidate('replies:');
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(userId, 'post_delete', 'community', { postId });
+  }).catch(err => console.error('[Posts] Delete activity log failed:', err));
 }
 
 export async function votePost(

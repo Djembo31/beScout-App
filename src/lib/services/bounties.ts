@@ -218,6 +218,10 @@ export async function createBounty(params: {
 
   if (error) throw new Error(error.message);
   invalidateBountyData(params.userId, params.clubId);
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(params.userId, 'bounty_create', 'community', { bountyId: data.id, title: params.title, rewardCents: params.rewardCents });
+  }).catch(err => console.error('[Bounties] Activity log failed:', err));
   return data as DbBounty;
 }
 
@@ -255,6 +259,11 @@ export async function submitBountyResponse(
     invalidateBountyData(userId);
     invalidate(`bountySubmissions:${bountyId}`);
 
+    // Activity log
+    import('@/lib/services/activityLog').then(({ logActivity }) => {
+      logActivity(userId, 'bounty_submit', 'community', { bountyId, title });
+    }).catch(err => console.error('[Bounties] Activity log failed:', err));
+
     // Notification to bounty creator (fire-and-forget)
     (async () => {
       const { createNotification } = await import('@/lib/services/notifications');
@@ -273,7 +282,7 @@ export async function submitBountyResponse(
           'bounty',
         );
       }
-    })().catch(() => {});
+    })().catch(err => console.error('[Bounties] Notification failed:', err));
 
     // Mission tracking
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {

@@ -6,7 +6,8 @@ import { XCircle } from 'lucide-react';
 import { Button, ErrorState, Modal, TabBar } from '@/components/ui';
 import { fmtBSD } from '@/lib/utils';
 import { getResearchPosts, unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
-import type { ResearchPostWithAuthor } from '@/types';
+import { getPosts, createPost, votePost, getUserPostVotes, deletePost, createReply } from '@/lib/services/posts';
+import type { ResearchPostWithAuthor, PostWithAuthor } from '@/types';
 import type { Player, DbIpo } from '@/types';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -111,6 +112,9 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const [pbtTreasury, setPbtTreasury] = useState<DbPbtTreasury | null>(null);
   const [liquidationEvent, setLiquidationEvent] = useState<DbLiquidationEvent | null>(null);
   const [playerResearch, setPlayerResearch] = useState<ResearchPostWithAuthor[]>([]);
+  const [playerPosts, setPlayerPosts] = useState<PostWithAuthor[]>([]);
+  const [myPostVotes, setMyPostVotes] = useState<Map<string, number>>(new Map());
+  const [postLoading, setPostLoading] = useState(false);
   const [unlockingId, setUnlockingId] = useState<string | null>(null);
   const [ratingId, setRatingId] = useState<string | null>(null);
   const [openBids, setOpenBids] = useState<OfferWithDetails[]>([]);
@@ -181,6 +185,21 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         setPbtTreasury(val(results[3], null));
         setPlayerResearch(val(results[4], []));
         setLiquidationEvent(val(results[5], null));
+
+        // Fire-and-forget: load player-specific posts
+        const uid = user?.id;
+        (async () => {
+          try {
+            const posts = await getPosts({ playerId, limit: 30 });
+            if (!cancelled) {
+              setPlayerPosts(posts);
+              if (uid && posts.length > 0) {
+                const votes = await getUserPostVotes(uid, posts.map(p => p.id));
+                if (!cancelled) setMyPostVotes(votes);
+              }
+            }
+          } catch (err) { console.error('[Player] Posts load failed:', err); }
+        })();
       } catch {
         if (!cancelled) setDataError(true);
       }
@@ -439,6 +458,42 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     setPriceAlert(null);
   };
 
+  const handleCreatePlayerPost = async (content: string, tags: string[], category: string, postType: 'player_take' | 'transfer_rumor' = 'player_take', rumorSource?: string, rumorClubTarget?: string) => {
+    if (!user || !player) return;
+    setPostLoading(true);
+    try {
+      await createPost(user.id, playerId, player.club, content, tags, category, null, postType, rumorSource ?? null, rumorClubTarget ?? null);
+      const posts = await getPosts({ playerId, limit: 30 });
+      setPlayerPosts(posts);
+      addToast('Beitrag gepostet!', 'success');
+    } catch { addToast('Beitrag konnte nicht erstellt werden', 'error'); }
+    finally { setPostLoading(false); }
+  };
+
+  const handleVotePlayerPost = async (postId: string, voteType: number) => {
+    if (!user) return;
+    try {
+      const result = await votePost(user.id, postId, voteType);
+      setPlayerPosts(prev => prev.map(p =>
+        p.id === postId ? { ...p, upvotes: result.upvotes, downvotes: result.downvotes } : p
+      ));
+      setMyPostVotes(prev => {
+        const next = new Map(prev);
+        if (voteType === 0) next.delete(postId);
+        else next.set(postId, voteType);
+        return next;
+      });
+    } catch { /* silent */ }
+  };
+
+  const handleDeletePlayerPost = async (postId: string) => {
+    if (!user) return;
+    try {
+      await deletePost(user.id, postId);
+      setPlayerPosts(prev => prev.filter(p => p.id !== postId));
+    } catch { /* silent */ }
+  };
+
   const handleResearchUnlock = async (id: string) => {
     if (!user || unlockingId) return;
     setUnlockingId(id);
@@ -551,12 +606,20 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         {tab === 'community' && (
           <CommunityTab
             playerResearch={playerResearch}
+            playerPosts={playerPosts}
+            myPostVotes={myPostVotes}
             trades={trades}
             userId={user?.id}
+            playerId={playerId}
+            playerName={player ? `${player.first} ${player.last}` : ''}
             unlockingId={unlockingId}
             ratingId={ratingId}
+            postLoading={postLoading}
             onUnlock={handleResearchUnlock}
             onRate={handleResearchRate}
+            onCreatePost={handleCreatePlayerPost}
+            onVotePost={handleVotePlayerPost}
+            onDeletePost={handleDeletePlayerPost}
           />
         )}
       </div>
