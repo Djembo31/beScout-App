@@ -4,7 +4,7 @@ import React, { memo, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Bell, Search, User, Menu, DollarSign, MessageSquarePlus, X } from 'lucide-react';
+import { Bell, BellOff, BellRing, Search, User, Menu, DollarSign, MessageSquarePlus, X } from 'lucide-react';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { formatBsd } from '@/lib/services/wallet';
@@ -27,6 +27,8 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
 
   const name = profile?.display_name || displayName(user);
   const initial = name.charAt(0).toUpperCase();
@@ -50,6 +52,30 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
     const interval = setInterval(fetchCount, 60000);
     return () => { cancelled = true; clearInterval(interval); };
   }, [user]);
+
+  // Check push subscription state
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const { isPushEnabled } = require('@/lib/services/pushSubscription');
+    setPushEnabled(isPushEnabled());
+  }, []);
+
+  const togglePush = useCallback(async () => {
+    if (!user) return;
+    setPushLoading(true);
+    try {
+      if (pushEnabled) {
+        const { unsubscribeFromPush } = await import('@/lib/services/pushSubscription');
+        await unsubscribeFromPush(user.id);
+        setPushEnabled(false);
+      } else {
+        const { subscribeToPush } = await import('@/lib/services/pushSubscription');
+        const ok = await subscribeToPush(user.id);
+        setPushEnabled(ok);
+      }
+    } catch { /* silent */ }
+    finally { setPushLoading(false); }
+  }, [user, pushEnabled]);
 
   // Close search on route change
   useEffect(() => {
@@ -129,6 +155,24 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             aria-label="Suche"
           >
             <Search className="w-4 h-4 text-white/70" />
+          </button>
+
+          {/* Push Toggle */}
+          <button
+            onClick={togglePush}
+            disabled={pushLoading}
+            className={`hidden sm:block p-2 border rounded-xl transition-all ${
+              pushEnabled
+                ? 'bg-[#22C55E]/10 border-[#22C55E]/20 hover:bg-[#22C55E]/20'
+                : 'bg-white/5 border-white/10 hover:bg-white/10'
+            }`}
+            aria-label={pushEnabled ? 'Push deaktivieren' : 'Push aktivieren'}
+            title={pushEnabled ? 'Push-Benachrichtigungen aktiv' : 'Push-Benachrichtigungen aktivieren'}
+          >
+            {pushEnabled
+              ? <BellRing className="w-4 h-4 md:w-5 md:h-5 text-[#22C55E]" />
+              : <BellOff className="w-4 h-4 md:w-5 md:h-5 text-white/40" />
+            }
           </button>
 
           {/* Notifications */}

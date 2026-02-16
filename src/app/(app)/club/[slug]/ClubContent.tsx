@@ -32,6 +32,8 @@ import { val } from '@/lib/settledHelpers';
 import { getAllVotes, getUserVotedIds, castVote, createVote } from '@/lib/services/votes';
 import { formatBsd } from '@/lib/services/wallet';
 import { getResearchPosts, unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
+import { getMySubscription, subscribeTo, cancelSubscription, TIER_CONFIG } from '@/lib/services/clubSubscriptions';
+import type { ClubSubscription, SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import ResearchCard from '@/components/community/ResearchCard';
 import type { Player, Pos, DbPlayer, DbTrade, DbIpo, DbClubVote, ClubWithAdmin, ResearchPostWithAuthor } from '@/types';
 
@@ -674,6 +676,12 @@ export default function ClubContent({ slug }: { slug: string }) {
   const [researchUnlockingId, setResearchUnlockingId] = useState<string | null>(null);
   const [researchRatingId, setResearchRatingId] = useState<string | null>(null);
 
+  // Club-Abo state
+  const [subscription, setSubscription] = useState<ClubSubscription | null>(null);
+  const [subModalOpen, setSubModalOpen] = useState(false);
+  const [subLoading, setSubLoading] = useState(false);
+  const [subError, setSubError] = useState<string | null>(null);
+
   // ---- Load Data ----
   useEffect(() => {
     let cancelled = false;
@@ -752,6 +760,13 @@ export default function ClubContent({ slug }: { slug: string }) {
         resolveExpiredResearch().catch(() => {});
         const researchResult = await getResearchPosts({ clubId: cid, currentUserId: user?.id });
         if (!cancelled) setClubResearch(researchResult);
+
+        // Subscription
+        if (user) {
+          getMySubscription(user.id, cid).then(sub => {
+            if (!cancelled) setSubscription(sub);
+          }).catch(() => {});
+        }
       } catch {
         if (!cancelled) setDataError(true);
       } finally {
@@ -915,6 +930,37 @@ export default function ClubContent({ slug }: { slug: string }) {
     }
   }, [user, club, isFollowing, followLoading, refreshProfile]);
 
+  // ---- Subscription Handler ----
+  const handleSubscribe = useCallback(async (tier: SubscriptionTier) => {
+    if (!user || !club) return;
+    setSubLoading(true);
+    setSubError(null);
+    try {
+      const result = await subscribeTo(user.id, club.id, tier);
+      if (!result.success) {
+        setSubError(result.error || 'Fehler beim Abonnieren');
+      } else {
+        const sub = await getMySubscription(user.id, club.id);
+        setSubscription(sub);
+        setSubModalOpen(false);
+      }
+    } catch (err) {
+      setSubError(err instanceof Error ? err.message : 'Unbekannter Fehler');
+    } finally {
+      setSubLoading(false);
+    }
+  }, [user, club]);
+
+  const handleCancelSub = useCallback(async () => {
+    if (!user || !club) return;
+    setSubLoading(true);
+    try {
+      await cancelSubscription(user.id, club.id);
+      setSubscription(prev => prev ? { ...prev, auto_renew: false } : null);
+    } catch { /* silent */ }
+    finally { setSubLoading(false); }
+  }, [user, club]);
+
   // ---- Loading / Error ----
   if (loading) return <ClubSkeleton />;
 
@@ -967,6 +1013,58 @@ export default function ClubContent({ slug }: { slug: string }) {
           playerCount={players.length}
         />
       </div>
+
+      {/* CLUB-ABO BANNER */}
+      {user && (
+        <div className="mb-4">
+          {subscription ? (
+            <Card className={`p-3 border flex items-center justify-between ${
+              subscription.tier === 'gold' ? 'border-[#FFD700]/30 bg-[#FFD700]/5' :
+              subscription.tier === 'silber' ? 'border-[#C0C0C0]/30 bg-[#C0C0C0]/5' :
+              'border-[#CD7F32]/30 bg-[#CD7F32]/5'
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm ${
+                  subscription.tier === 'gold' ? 'bg-[#FFD700]/20 text-[#FFD700]' :
+                  subscription.tier === 'silber' ? 'bg-[#C0C0C0]/20 text-[#C0C0C0]' :
+                  'bg-[#CD7F32]/20 text-[#CD7F32]'
+                }`}>
+                  <Crown className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold">{TIER_CONFIG[subscription.tier as SubscriptionTier]?.label}-Mitglied</div>
+                  <div className="text-[10px] text-white/40">
+                    {subscription.auto_renew ? 'Verlängert am' : 'Läuft ab am'} {new Date(subscription.expires_at).toLocaleDateString('de-DE')}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setSubModalOpen(true)}>
+                  {subscription.auto_renew ? 'Verwalten' : 'Verlängern'}
+                </Button>
+              </div>
+            </Card>
+          ) : (
+            <Card
+              className="p-3 border border-[#FFD700]/20 bg-gradient-to-r from-[#FFD700]/5 to-transparent cursor-pointer hover:border-[#FFD700]/30 transition-all"
+              onClick={() => setSubModalOpen(true)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-[#FFD700]/10 flex items-center justify-center">
+                    <Crown className="w-4 h-4 text-[#FFD700]" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold">Club-Mitglied werden</div>
+                    <div className="text-[10px] text-white/40">Ab 500 BSD/Monat — Early Access, Badges, Premium Events</div>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-white/30" />
+              </div>
+            </Card>
+          )}
+        </div>
+      )}
 
       {/* TABS + Admin Link */}
       <div className="flex items-center gap-2 mb-6">
@@ -1299,6 +1397,85 @@ export default function ClubContent({ slug }: { slug: string }) {
           )}
         </div>
       )}
+
+      {/* Club-Abo Modal */}
+      <Modal title="Club-Mitgliedschaft" open={subModalOpen} onClose={() => { setSubModalOpen(false); setSubError(null); }}>
+        <div className="p-6 max-w-lg">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
+              <Crown className="w-5 h-5 text-[#FFD700]" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black">Club-Mitgliedschaft</h3>
+              <p className="text-xs text-white/40">{club.name} — Wähle deinen Tier</p>
+            </div>
+          </div>
+
+          {subError && (
+            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-300 text-sm">{subError}</div>
+          )}
+
+          <div className="space-y-3">
+            {(Object.entries(TIER_CONFIG) as [SubscriptionTier, typeof TIER_CONFIG[SubscriptionTier]][]).map(([tier, cfg]) => {
+              const isActive = subscription?.tier === tier && subscription?.status === 'active';
+              return (
+                <div
+                  key={tier}
+                  className={`rounded-xl border p-4 transition-all ${
+                    isActive
+                      ? `border-[${cfg.color}]/40 bg-[${cfg.color}]/10`
+                      : 'border-white/10 bg-white/[0.02] hover:border-white/20'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: `${cfg.color}20`, color: cfg.color }}>
+                        <Crown className="w-3 h-3" />
+                      </div>
+                      <span className="font-black" style={{ color: cfg.color }}>{cfg.label}</span>
+                      {isActive && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#22C55E]/20 text-[#22C55E]">Aktiv</span>}
+                    </div>
+                    <span className="font-mono font-bold text-sm">{fmtBSD(cfg.priceBsd)} BSD<span className="text-white/30 text-[10px]">/Monat</span></span>
+                  </div>
+                  <ul className="space-y-1 mb-3">
+                    {cfg.benefits.map(b => (
+                      <li key={b} className="text-xs text-white/50 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3 h-3 text-[#22C55E] flex-shrink-0" />
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                  {isActive ? (
+                    <div className="flex gap-2">
+                      {subscription?.auto_renew ? (
+                        <Button variant="outline" size="sm" onClick={handleCancelSub} disabled={subLoading}>
+                          Auto-Renew deaktivieren
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-white/30">Verlängerung deaktiviert</span>
+                      )}
+                    </div>
+                  ) : (
+                    <Button
+                      variant={tier === 'gold' ? 'gold' : 'outline'}
+                      size="sm"
+                      className="w-full"
+                      onClick={() => handleSubscribe(tier)}
+                      disabled={subLoading}
+                    >
+                      {subLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : `${cfg.label} abonnieren`}
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <p className="text-[10px] text-white/25 mt-4 text-center">
+            Abos werden monatlich in BSD abgerechnet. Jederzeit kündbar.
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 }

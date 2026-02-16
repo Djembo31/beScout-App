@@ -7,10 +7,11 @@ import {
   Search, Filter, Grid, List,
   Star, Target, Users, Briefcase,
   Zap, Layers, Shield, GitCompareArrows,
-  Flame, Award, PiggyBank,
+  Flame, Award, PiggyBank, MessageSquare,
   TrendingDown as PriceDown, X, ChevronDown, ChevronRight, ArrowUpDown,
-  Package,
+  Package, CheckCircle2,
 } from 'lucide-react';
+import { Confetti } from '@/components/ui/Confetti';
 import { Card, ErrorState, Skeleton, SkeletonCard, TabBar, TabPanel } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
@@ -217,6 +218,7 @@ export default function MarketPage() {
   const [buyingId, setBuyingId] = useState<string | null>(null);
   const [buyError, setBuyError] = useState<string | null>(null);
   const [buySuccess, setBuySuccess] = useState<string | null>(null);
+  const [lastBoughtId, setLastBoughtId] = useState<string | null>(null);
   const [trending, setTrending] = useState<TrendingPlayer[]>([]);
 
   // Phase 1: Players + Holdings
@@ -365,6 +367,7 @@ export default function MarketPage() {
         setBuyError(result.error || 'Kauf fehlgeschlagen');
       } else {
         setBuySuccess(`${quantity} DPC gekauft!`);
+        setLastBoughtId(playerId);
         setBalanceCents(result.new_balance ?? balanceCents);
         const [dbPlayers, holdings, sellOrders] = await Promise.all([
           getPlayers(),
@@ -387,7 +390,7 @@ export default function MarketPage() {
           return { ...p, dpc: { ...p.dpc, onMarket, owned: h?.quantity ?? 0 }, listings };
         }));
         setHoldings(holdings);
-        setTimeout(() => setBuySuccess(null), 3000);
+        setTimeout(() => { setBuySuccess(null); setLastBoughtId(null); }, 3000);
       }
     } catch (err) {
       setBuyError(err instanceof Error ? err.message : 'Unbekannter Fehler');
@@ -539,10 +542,21 @@ export default function MarketPage() {
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-5">
-      {/* Buy Feedback */}
+      {/* Buy Celebration */}
+      <Confetti active={!!buySuccess} />
       {buySuccess && (
-        <div className="fixed top-4 right-4 z-50 bg-[#22C55E]/20 border border-[#22C55E]/30 text-[#22C55E] px-4 py-3 rounded-xl font-bold text-sm animate-in fade-in">
-          {buySuccess}
+        <div className="fixed top-4 right-4 z-50 bg-gradient-to-r from-[#22C55E]/20 via-[#22C55E]/10 to-[#22C55E]/20 border border-[#22C55E]/30 text-[#22C55E] px-5 py-4 rounded-2xl font-bold text-sm anim-scale-pop anim-pulse-green flex items-center gap-4 shadow-lg shadow-[#22C55E]/10">
+          <div className="w-8 h-8 rounded-full bg-[#22C55E]/20 flex items-center justify-center flex-shrink-0">
+            <CheckCircle2 className="w-5 h-5 text-[#22C55E]" />
+          </div>
+          <span className="text-base">{buySuccess}</span>
+          {lastBoughtId && (
+            <Link href={`/player/${lastBoughtId}`}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 rounded-lg text-[11px] font-bold text-white/80 hover:bg-white/15 transition-all">
+              <MessageSquare className="w-3 h-3" />
+              Diskutieren
+            </Link>
+          )}
         </div>
       )}
       {buyError && (
@@ -608,7 +622,7 @@ export default function MarketPage() {
                   <PositionBadge pos={t.position} size="sm" />
                   <div className="min-w-0">
                     <div className="text-xs font-bold truncate">{t.firstName} {t.lastName}</div>
-                    <div className="text-[10px] text-white/40">{t.tradeCount} Trades</div>
+                    <div className="text-[10px] text-white/40 flex items-center gap-1">{t.tradeCount} Trades · <MessageSquare className="w-2.5 h-2.5 text-white/20" /></div>
                   </div>
                   <div className="text-right shrink-0">
                     <div className="text-xs font-mono font-bold text-[#FFD700]">{fmtBSD(t.floorPrice)}</div>

@@ -80,6 +80,8 @@ function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userLineup?:
     maxParticipants: db.max_entries,
     entryType: 'single',
     speed: 'normal',
+    sponsorName: db.sponsor_name ?? undefined,
+    sponsorLogo: db.sponsor_logo ?? undefined,
     isPromoted: db.type === 'bescout' || db.type === 'sponsor',
     isFeatured: db.type === 'sponsor',
     isJoined: joinedIds.has(db.id),

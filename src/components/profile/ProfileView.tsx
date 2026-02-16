@@ -25,6 +25,8 @@ import ProfileActivityTab from '@/components/profile/ProfileActivityTab';
 import ProfilePostsTab from '@/components/profile/ProfilePostsTab';
 import FollowListModal from '@/components/profile/FollowListModal';
 import { getExpertBadges } from '@/lib/expertBadges';
+import { getMySubscription, TIER_CONFIG } from '@/lib/services/clubSubscriptions';
+import type { ClubSubscription, SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import type { ExpertBadge } from '@/lib/expertBadges';
 import type { HoldingRow } from '@/components/profile/ProfileOverviewTab';
 import type { ProfileTab, Profile, DbTransaction, DbUserStats, DbUserAchievement, ResearchPostWithAuthor, AuthorTrackRecord, UserTradeWithPlayer, UserFantasyResult, PostWithAuthor } from '@/types';
@@ -85,6 +87,9 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
   // Top Post (most upvoted)
   const [topPost, setTopPost] = useState<PostWithAuthor | null>(null);
 
+  // Club-Abo badge
+  const [clubSub, setClubSub] = useState<ClubSubscription | null>(null);
+
   // Follow state (for public profiles)
   const [following, setFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
@@ -143,6 +148,14 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
     load();
     return () => { cancelled = true; };
   }, [targetUserId, isSelf, retryCount]);
+
+  // Load club subscription badge
+  useEffect(() => {
+    if (!targetProfile?.favorite_club_id) return;
+    getMySubscription(targetUserId, targetProfile.favorite_club_id)
+      .then(sub => setClubSub(sub))
+      .catch(() => {});
+  }, [targetUserId, targetProfile?.favorite_club_id]);
 
   // Check follow status for public profiles
   useEffect(() => {
@@ -275,7 +288,20 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             </button>
 
             {targetProfile.favorite_club && (
-              <span className="text-white/50">{getClubName(targetProfile.favorite_club)}</span>
+              <span className="text-white/50 flex items-center gap-1.5">
+                {getClubName(targetProfile.favorite_club)}
+                {clubSub && (
+                  <span
+                    className="px-1.5 py-0.5 rounded text-[9px] font-bold"
+                    style={{
+                      backgroundColor: `${TIER_CONFIG[clubSub.tier as SubscriptionTier]?.color}20`,
+                      color: TIER_CONFIG[clubSub.tier as SubscriptionTier]?.color,
+                    }}
+                  >
+                    {TIER_CONFIG[clubSub.tier as SubscriptionTier]?.label}
+                  </span>
+                )}
+              </span>
             )}
 
             {/* Mitglied seit */}

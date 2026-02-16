@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { DollarSign, Users2, TrendingUp, Trophy, Flame } from 'lucide-react';
+import { DollarSign, Users2, TrendingUp, Trophy, Flame, Crown } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, Skeleton } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { getClubDashboardStats, getClubFollowerCount } from '@/lib/services/club';
+import { getClubSubscribers } from '@/lib/services/clubSubscriptions';
 import { getPlayersByClubId, centsToBsd } from '@/lib/services/players';
 import { fmtBSD, cn } from '@/lib/utils';
 import { formatBsd } from '@/lib/services/wallet';
@@ -16,6 +17,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
   const [stats, setStats] = useState<ClubDashboardStats | null>(null);
   const [players, setPlayers] = useState<DbPlayer[]>([]);
   const [followerCount, setFollowerCount] = useState(0);
+  const [subData, setSubData] = useState<{ total: number; revenueCents: number } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,17 +25,19 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
     async function load() {
       setLoading(true);
       try {
-        const [s, p, f] = await Promise.all([
+        const [s, p, f, subs] = await Promise.all([
           getClubDashboardStats(club.id),
           getPlayersByClubId(club.id),
           getClubFollowerCount(club.id),
+          getClubSubscribers(club.id),
         ]);
         if (!cancelled) {
           setStats(s);
           setPlayers(p);
           setFollowerCount(f);
+          setSubData(subs);
         }
-      } catch {}
+      } catch { /* silent */ }
       finally { if (!cancelled) setLoading(false); }
     }
     load();
@@ -84,6 +88,26 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
           <div className="text-xl font-mono font-black text-white">{followerCount}</div>
         </Card>
       </div>
+
+      {/* Subscriber Stats */}
+      {subData && subData.total > 0 && (
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="p-4 border-[#FFD700]/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Crown className="w-5 h-5 text-[#FFD700]" />
+              <span className="text-xs text-white/50">Aktive Abonnenten</span>
+            </div>
+            <div className="text-xl font-mono font-black text-[#FFD700]">{subData.total}</div>
+          </Card>
+          <Card className="p-4 border-[#FFD700]/20">
+            <div className="flex items-center gap-2 mb-2">
+              <DollarSign className="w-5 h-5 text-[#FFD700]" />
+              <span className="text-xs text-white/50">Abo-Einnahmen</span>
+            </div>
+            <div className="text-xl font-mono font-black text-[#FFD700]">{formatBsd(subData.revenueCents)} BSD</div>
+          </Card>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Fans */}

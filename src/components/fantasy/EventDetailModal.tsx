@@ -649,13 +649,21 @@ export const EventDetailModal = ({
               <div className="rounded-xl overflow-hidden border border-[#22C55E]/20">
                 {/* Sponsor Banner Top (Bandenwerbung) */}
                 <div className="bg-gradient-to-r from-[#1a1a2e] via-[#16213e] to-[#1a1a2e] px-4 py-2.5 flex items-center justify-center gap-3 border-b border-white/10">
-                  <div className="w-5 h-5 rounded bg-[#FFD700]/20 flex items-center justify-center">
-                    <Sparkles className="w-3 h-3 text-[#FFD700]" />
-                  </div>
-                  <span className="text-xs font-bold tracking-widest text-white/50 uppercase">Sponsor-Fläche</span>
-                  <div className="w-5 h-5 rounded bg-[#FFD700]/20 flex items-center justify-center">
-                    <Sparkles className="w-3 h-3 text-[#FFD700]" />
-                  </div>
+                  {event.sponsorLogo ? (
+                    <img src={event.sponsorLogo} alt={event.sponsorName || 'Sponsor'} className="h-5 w-auto object-contain" />
+                  ) : (
+                    <div className="w-5 h-5 rounded bg-[#FFD700]/20 flex items-center justify-center">
+                      <Sparkles className="w-3 h-3 text-[#FFD700]" />
+                    </div>
+                  )}
+                  <span className="text-xs font-bold tracking-widest text-white/50 uppercase">{event.sponsorName || 'Sponsor-Fläche'}</span>
+                  {event.sponsorLogo ? (
+                    <img src={event.sponsorLogo} alt="" className="h-5 w-auto object-contain" />
+                  ) : (
+                    <div className="w-5 h-5 rounded bg-[#FFD700]/20 flex items-center justify-center">
+                      <Sparkles className="w-3 h-3 text-[#FFD700]" />
+                    </div>
+                  )}
                 </div>
 
                 {/* Pitch */}
@@ -684,7 +692,11 @@ export const EventDetailModal = ({
                   {/* Midfield Sponsor (Center Circle) */}
                   <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
                     <div className="w-20 h-20 rounded-full border border-white/[0.06] flex items-center justify-center">
-                      <span className="text-[8px] text-white/15 font-bold tracking-wider uppercase">Sponsor</span>
+                      {event.sponsorLogo ? (
+                        <img src={event.sponsorLogo} alt="" className="w-12 h-12 object-contain opacity-30" />
+                      ) : (
+                        <span className="text-[8px] text-white/15 font-bold tracking-wider uppercase">Sponsor</span>
+                      )}
                     </div>
                   </div>
 
@@ -790,17 +802,25 @@ export const EventDetailModal = ({
                 {/* Sponsor Banner Bottom (Bandenwerbung unten) */}
                 <div className="bg-gradient-to-r from-[#1a1a2e] via-[#0f3460] to-[#1a1a2e] px-3 py-2 flex items-center justify-between border-t border-white/10">
                   <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.04] rounded-lg border border-white/[0.06]">
-                    <div className="w-4 h-4 rounded bg-[#FFD700]/20 flex items-center justify-center">
-                      <Building2 className="w-2.5 h-2.5 text-[#FFD700]/60" />
-                    </div>
-                    <span className="text-[9px] text-white/30 font-medium">Sponsor Logo</span>
+                    {event.sponsorLogo ? (
+                      <img src={event.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
+                    ) : (
+                      <div className="w-4 h-4 rounded bg-[#FFD700]/20 flex items-center justify-center">
+                        <Building2 className="w-2.5 h-2.5 text-[#FFD700]/60" />
+                      </div>
+                    )}
+                    <span className="text-[9px] text-white/30 font-medium">{event.sponsorName || 'Sponsor Logo'}</span>
                   </div>
-                  <span className="text-[8px] text-white/20 font-bold tracking-widest uppercase">Powered by BeScout</span>
+                  <span className="text-[8px] text-white/20 font-bold tracking-widest uppercase">{event.sponsorName ? `${event.sponsorName} × BeScout` : 'Powered by BeScout'}</span>
                   <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.04] rounded-lg border border-white/[0.06]">
-                    <div className="w-4 h-4 rounded bg-[#FFD700]/20 flex items-center justify-center">
-                      <Building2 className="w-2.5 h-2.5 text-[#FFD700]/60" />
-                    </div>
-                    <span className="text-[9px] text-white/30 font-medium">Sponsor Logo</span>
+                    {event.sponsorLogo ? (
+                      <img src={event.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
+                    ) : (
+                      <div className="w-4 h-4 rounded bg-[#FFD700]/20 flex items-center justify-center">
+                        <Building2 className="w-2.5 h-2.5 text-[#FFD700]/60" />
+                      </div>
+                    )}
+                    <span className="text-[9px] text-white/30 font-medium">{event.sponsorName || 'Sponsor Logo'}</span>
                   </div>
                 </div>
               </div>

@@ -442,6 +442,8 @@ export type DbEvent = {
   scored_at: string | null;
   created_by: string | null;
   club_id: string | null;
+  sponsor_name: string | null;
+  sponsor_logo: string | null;
   created_at: string;
 };
 

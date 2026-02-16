@@ -111,6 +111,46 @@ export async function toggleFollowClub(
 }
 
 // ============================================
+// Club Revenue (Trading Fees)
+// ============================================
+
+/** Sum of club_fee from all trades for this club's players */
+export async function getClubTradingFees(clubId: string): Promise<{
+  totalClubFee: number;
+  totalPlatformFee: number;
+  totalPbtFee: number;
+  tradeCount: number;
+}> {
+  return cached(`clubTradingFees:${clubId}`, async () => {
+    // Get player IDs for this club
+    const { data: playerData } = await supabase
+      .from('players')
+      .select('id')
+      .eq('club_id', clubId);
+    if (!playerData || playerData.length === 0) {
+      return { totalClubFee: 0, totalPlatformFee: 0, totalPbtFee: 0, tradeCount: 0 };
+    }
+    const playerIds = playerData.map(p => p.id);
+
+    const { data, error } = await supabase
+      .from('trades')
+      .select('club_fee, platform_fee, pbt_fee')
+      .in('player_id', playerIds);
+
+    if (error || !data) {
+      return { totalClubFee: 0, totalPlatformFee: 0, totalPbtFee: 0, tradeCount: 0 };
+    }
+
+    return {
+      totalClubFee: data.reduce((sum, t) => sum + (t.club_fee ?? 0), 0),
+      totalPlatformFee: data.reduce((sum, t) => sum + (t.platform_fee ?? 0), 0),
+      totalPbtFee: data.reduce((sum, t) => sum + (t.pbt_fee ?? 0), 0),
+      tradeCount: data.length,
+    };
+  }, FIVE_MIN);
+}
+
+// ============================================
 // Club Activity
 // ============================================
 
