@@ -62,6 +62,7 @@ src/
 │       │   ├── page.tsx           # Redirect → /clubs (Club Discovery)
 │       │   └── [slug]/
 │       │       ├── page.tsx       # Server Component (generateMetadata)
+│       │       ├── not-found.tsx  # 404 für ungültige Club-Slugs
 │       │       ├── ClubContent.tsx # Club Fan-Seite (~1400 Zeilen)
 │       │       └── admin/
 │       │           ├── page.tsx       # Server Component (Admin-Guard)
@@ -71,16 +72,26 @@ src/
 │       │   └── page.tsx           # Community Orchestrator (~350 Zeilen)
 │       ├── player/[id]/
 │       │   ├── page.tsx           # Server Component (generateMetadata)
+│       │   ├── not-found.tsx      # 404 für ungültige Player-IDs
 │       │   └── PlayerContent.tsx  # Client Component (~1880 Zeilen)
 │       ├── profile/
 │       │   ├── layout.tsx         # Metadata: "Profil"
 │       │   ├── page.tsx           # Eigenes Profil (SettingsTab + ProfileView isSelf=true)
 │       │   └── [handle]/
-│       │       └── page.tsx       # Öffentliches Profil (ProfileView isSelf=false)
+│       │       ├── page.tsx       # Öffentliches Profil (ProfileView isSelf=false)
+│       │       └── not-found.tsx  # 404 für ungültige Handles
 │       ├── clubs/
 │       │   ├── layout.tsx         # Metadata: "Clubs entdecken"
 │       │   └── page.tsx           # Club Discovery (Suche, Liga-Gruppierung, Follow)
-│       └── (supabase-test entfernt vor Pilot-Launch)
+│       ├── compare/
+│       │   └── page.tsx           # Spieler-Vergleich (Radar Chart, Side-by-Side)
+│       └── bescout-admin/
+│           ├── page.tsx               # Server Component (Platform-Admin-Guard)
+│           ├── BescoutAdminContent.tsx # Platform Admin (~243 Zeilen, 3 inline + 4 extracted Tabs)
+│           ├── AdminUsersTab.tsx       # Users Tab (Suche, Wallet-Korrektur)
+│           ├── AdminFeesTab.tsx        # Fees Tab (Fee-Config CRUD)
+│           ├── AdminGameweeksTab.tsx   # Gameweeks Tab (Status-Grid, Simulate+Score)
+│           └── AdminAirdropTab.tsx     # Airdrop Tab (Stats, Tiers, Export, Leaderboard)
 ├── components/
 │   ├── ui/index.tsx               # Card, Button, Chip, Modal, StatCard
 │   ├── ui/TabBar.tsx              # TabBar + TabPanel (role=tablist, aria-selected)
@@ -128,7 +139,13 @@ src/
 │   │   ├── activityLog.ts        # Activity-Logging (Batch-Queue, 5s Flush, fire-and-forget)
 │   │   ├── platformAdmin.ts      # Plattform-Admin (Stats, Users, Wallet-Korrektur, Fee-Config)
 │   │   ├── pushSubscription.ts   # Web Push (subscribe/unsubscribe, VAPID, localStorage state)
-│   │   └── clubSubscriptions.ts  # Club-Abo (Bronze/Silber/Gold, BSD-Payments, TIER_CONFIG)
+│   │   ├── clubSubscriptions.ts  # Club-Abo (Bronze/Silber/Gold, BSD-Payments, TIER_CONFIG)
+│   │   ├── airdropScore.ts       # Airdrop Score (refresh_airdrop_score RPC, Tier-Berechnung)
+│   │   ├── referral.ts           # Referral System (reward_referral RPC, Code-Generierung)
+│   │   ├── footballData.ts       # API-Football Integration (Fetch, Map, Import Gameweeks)
+│   │   ├── auth.ts               # Auth Helpers (signOut, deleteAccount, updateEmail, updatePassword)
+│   │   ├── avatars.ts            # Avatar Upload (Supabase Storage, Public URL)
+│   │   └── fixtures.ts           # Fixture Queries + syncFixtureScores Bridge RPC
 │   ├── achievements.ts            # 19 Achievement-Definitionen (trading/manager/scout)
 │   ├── activityHelpers.ts         # Shared Activity Icons/Colors/Labels/RelativeTime
 │   ├── settledHelpers.ts          # val() Helper für Promise.allSettled
@@ -169,8 +186,10 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 - `player_gameweek_scores` Tabelle: ein kanonischer Score pro Spieler pro Event
 - `score_event` RPC: generiert Scores, schreibt in Lineups, updated `perf_l5`/`perf_l15`
 - `reset_event` RPC: setzt Event komplett zurück (Testing)
+- `sync_fixture_scores` RPC: Bridge von `fixture_player_stats.fantasy_points` (0-15) → `player_gameweek_scores.score` (40-150)
 - Normierung: GW-Scores 40-150 -> `perf_l5` = AVG(letzte 5) / 1.5 (Skala 0-100)
 - Score-Farben: >=100 Gold, 70-99 Weiß, <70 Rot
+- Match-Data: API-Football Integration (TFF 1. Lig, League ID 203) oder Simulation als Fallback
 
 ### Trading-System
 - `ipo_price`: fester Club/IPO-Preis, ändert sich NIE durch Marktaktivität
@@ -210,7 +229,12 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Community Datenkonsistenz + Visibility Waves 1-3 fertig:** Activity Logging, Notifications, Globale Suche, Player Detail, Gerüchte Tab, Following Feed, Level Auto-Increment, Reputation Score, Expert Badges, Role Badges. Migrationen #118-#122.
 **Phase A+B+C (Perfektionierung) fertig:** Monetarisierung (Trading Club-Fee 1%, Bounty Platform-Fee 5%, Fee Dashboard), Premium-Feel (Dynamic Sponsor Banners, Confetti Animation, Celebration Toast), Retention (Web Push Infrastructure, Club-Abo Bronze/Silber/Gold). 5 Migrationen (#123-#127) + 1 Edge Function (send-push).
 **Multi-Club Expansion fertig:** 8 Phasen — `leagues` Tabelle, `club_followers` Tabelle, DB-backed `clubs.ts` (ClubLookup Cache), ClubProvider Context, ClubSwitcher UI, Club Discovery `/clubs`, Onboarding 3-Step Club-Wahl, Community Club-Scoping. 3 Migrationen (#128-#130), 5 neue + 16 geänderte Dateien.
-**Danach:** VAPID Keys konfigurieren, DB Webhook einrichten, Real User Testing mit 50 Testern, Phase D (Match-Data Integration, Native App).
+**Airdrop Score + Referral System fertig:** `airdrop_scores` Tabelle, `refresh_airdrop_score` RPC, Referral-Codes + Belohnungen (500 BSD), Admin Airdrop-Tab (Stats, Tier-Verteilung, CSV Export). 2 Migrationen (#131-#132).
+**Launch-Readiness fertig:** Content Seeding (89 IPOs, 15 Bounties, 9 Events), 4 neue Notification-Types, VAPID Keys + Edge Function v2 (send-push) + DB Trigger (pg_net). 2 Migrationen (#133-#134).
+**Stakeholder Audit + Retention fertig:** Referral-Belohnung RPC, Club-Withdrawal (Balance + Auszahlung), Fan-Analytics, Trending Posts, Creator Earnings Dashboard, Season Leaderboard, Cross-App CTAs. 2 Migrationen (#135-#136).
+**Phase D (Match-Data Integration) fertig:** API-Football Service (`footballData.ts`), `api_football_id` auf clubs/players/fixtures, `sync_fixture_scores` Bridge-RPC, Admin Mapping UI (Teams/Spieler/Fixtures), SpieltagTab dual-button (Import/Simulieren). 2 Migrationen (#137-#138).
+**Codebase Audit + Quality Sprints 1-4 fertig:** 6 Experten-Agents (Dead Code, DB, UI, Security, Architecture, Services) → 21 Issues (4C+5H+8M+4L) → alle gefixt. Silent catches (78×), lineup exploit, missing notifications, service layer extraction (auth.ts, avatars.ts), activity logging gaps, not-found pages, CreateEventModal rewrite, cancellation flags, ErrorState, BescoutAdmin tab extraction (757→243 Zeilen), Loader2 standardization.
+**Danach:** VAPID Public Key in Vercel setzen, API-Football Account + Key, Admin Mapping durchführen, Real User Testing mit 50 Testern.
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.
 Siehe `docs/TODO.md` für den aktuellen Task.
@@ -219,7 +243,7 @@ Siehe `docs/STATUS.md` für den detaillierten Fortschritt (inkl. SQL-Migration-T
 Siehe `docs/SCALE.md` für Skalierungsarchitektur und DB-Schema.
 
 **Pilot-Scope:** Multi-Club-ready, 500 Spieler (20 Clubs), 50 Beta-Tester.
-**130 SQL-Migrationen + 1 Edge Function deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin + Trading Club-Fee + Bounty Platform-Fee + Event Sponsors + Push Subscriptions + Club Subscriptions + Leagues + Club Followers + Club Discovery live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) + Phase A+B+C + Multi-Club Expansion live.
+**138 SQL-Migrationen + 1 Edge Function deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin + Trading Club-Fee + Bounty Platform-Fee + Event Sponsors + Push Subscriptions + Club Subscriptions + Leagues + Club Followers + Club Discovery + Airdrop Score + Referral System + Match-Data Integration live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) + Phase A+B+C + Multi-Club Expansion + Phase D (Match-Data) live.
 **GitHub:** Private Repo `Djembo31/beScout-App`, CI/CD via GitHub Actions, Sentry Error Tracking, PostHog Analytics.
 
 ## Bekannte Issues
@@ -228,9 +252,9 @@ Siehe `docs/SCALE.md` für Skalierungsarchitektur und DB-Schema.
 - Community: Research-Tab live (Premium Posts mit Paywall, 80/20 Split)
 - Community: Bezahlte Polls live (70/30 Split Creator/Plattform)
 - Community: Mute/Block/Tag-Following nur localStorage (50 User, kein DB-Backend nötig)
-- Push: VAPID Keys müssen noch in `.env.local` + Supabase Secrets konfiguriert werden
-- Push: DB Webhook (`notifications` → `send-push` Edge Function) muss noch eingerichtet werden
+- Push: VAPID Keys lokal konfiguriert, DB Trigger aktiv — VAPID Public Key muss noch in Vercel Environment Variables gesetzt werden
 - Club-Abo: Auto-Renew braucht Supabase Cron/Scheduled Function (noch nicht eingerichtet)
+- API-Football: Account erstellen + Key in `.env.local` setzen, dann Admin-Mapping durchführen (~30 Min)
 
 ## Workflow
 
