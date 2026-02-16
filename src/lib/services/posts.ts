@@ -16,9 +16,10 @@ export async function getPosts(options: {
   userId?: string;
   clubName?: string;
   postType?: PostType;
+  eventId?: string;
 }): Promise<PostWithAuthor[]> {
-  const { limit = 50, offset = 0, playerId, userId, clubName, postType } = options;
-  const cacheKey = `posts:${playerId ?? ''}:${userId ?? ''}:${clubName ?? ''}:${postType ?? ''}:${offset}:${limit}`;
+  const { limit = 50, offset = 0, playerId, userId, clubName, postType, eventId } = options;
+  const cacheKey = `posts:${playerId ?? ''}:${userId ?? ''}:${clubName ?? ''}:${postType ?? ''}:${eventId ?? ''}:${offset}:${limit}`;
 
   return cached(cacheKey, async () => {
     let query = supabase
@@ -35,6 +36,7 @@ export async function getPosts(options: {
     if (userId) query = query.eq('user_id', userId);
     if (clubName) query = query.eq('club_name', clubName);
     if (postType) query = query.eq('post_type', postType);
+    if (eventId) query = query.eq('event_id', eventId);
 
     const { data, error } = await query;
     if (error) throw new Error(error.message);
@@ -92,7 +94,8 @@ export async function createPost(
   clubId: string | null = null,
   postType: PostType = 'general',
   rumorSource: string | null = null,
-  rumorClubTarget: string | null = null
+  rumorClubTarget: string | null = null,
+  eventId: string | null = null
 ): Promise<DbPost> {
   const { data, error } = await supabase
     .from('posts')
@@ -107,6 +110,7 @@ export async function createPost(
       post_type: postType,
       rumor_source: rumorSource,
       rumor_club_target: rumorClubTarget,
+      event_id: eventId,
     })
     .select()
     .single();

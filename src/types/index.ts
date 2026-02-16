@@ -754,6 +754,7 @@ export type DbPost = {
   replies_count: number;
   is_pinned: boolean;
   parent_id: string | null;
+  event_id: string | null;
   rumor_source: string | null;
   rumor_club_target: string | null;
   created_at: string;

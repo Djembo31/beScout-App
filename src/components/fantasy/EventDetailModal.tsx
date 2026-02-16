@@ -28,6 +28,7 @@ import {
   getStatusStyle, getTypeStyle, getPosBorderColor,
   SLOT_SCORE_KEYS, getScoreColor, getPosAccentColor, formatCountdown,
 } from './helpers';
+import EventCommunityTab from './EventCommunityTab';
 
 export const EventDetailModal = ({
   event,
@@ -1238,11 +1239,13 @@ export const EventDetailModal = ({
           )}
 
           {/* COMMUNITY TAB */}
-          {tab === 'community' && (
-            <div className="text-center py-12">
-              <MessageCircle className="w-12 h-12 mx-auto mb-4 text-white/20" />
-              <div className="text-white/50">Event-Chat kommt bald!</div>
-            </div>
+          {tab === 'community' && event && (
+            <EventCommunityTab
+              eventId={event.id}
+              eventStatus={event.status}
+              eventName={event.name}
+              gameweek={event.gameweek}
+            />
           )}
         </div>
 
