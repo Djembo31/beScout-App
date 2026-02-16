@@ -2,12 +2,13 @@
 
 import React, { useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { Trophy, BadgeCheck, TrendingUp, TrendingDown, Minus, BarChart3, Gamepad2, Search } from 'lucide-react';
+import { Trophy, BadgeCheck, TrendingUp, TrendingDown, Minus, BarChart3, Gamepad2, Search, Award, Users, Zap } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import FollowBtn from '@/components/community/FollowBtn';
-import type { LeaderboardUser } from '@/types';
+import type { LeaderboardUser, DbUserStats } from '@/types';
 import { getLevelTier } from '@/types';
+import { getExpertBadges } from '@/lib/expertBadges';
 
 function getTopRole(u: LeaderboardUser): { label: string; icon: React.ReactNode; color: string } | null {
   const scores = [
@@ -109,9 +110,30 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow }:
               </span>
             )}
           </div>
-          <div className="text-xs text-white/50 flex items-center gap-3 mt-0.5">
+          <div className="text-xs text-white/50 flex items-center gap-3 mt-0.5 flex-wrap">
             <span>Lv {lUser.level}</span>
             <span>{lUser.followersCount} Follower</span>
+            {(() => {
+              const synthStats = {
+                trading_score: lUser.tradingScore,
+                manager_score: lUser.managerScore,
+                scout_score: lUser.scoutScore,
+                total_score: lUser.totalScore,
+                rank: lUser.rank,
+                followers_count: lUser.followersCount,
+              } as DbUserStats;
+              const earned = getExpertBadges(synthStats).filter(b => b.earned);
+              const ICONS: Record<string, React.ElementType> = { TrendingUp, Trophy, Search, Award, Users, Zap };
+              return earned.slice(0, 3).map(b => {
+                const I = ICONS[b.icon] ?? Award;
+                return (
+                  <span key={b.key} className={cn('inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-bold border', b.bgColor, b.color)}>
+                    <I className="w-2.5 h-2.5" />
+                    {b.label}
+                  </span>
+                );
+              });
+            })()}
           </div>
         </div>
 

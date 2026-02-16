@@ -46,7 +46,7 @@ export async function getPosts(options: {
     const authorIds = Array.from(new Set((data as DbPost[]).map(p => p.user_id)));
     const { data: profiles, error: pErr } = await supabase
       .from('profiles')
-      .select('id, handle, display_name, avatar_url, level, verified')
+      .select('id, handle, display_name, avatar_url, level, verified, top_role')
       .in('id', authorIds);
     if (pErr) throw new Error(pErr.message);
 
@@ -77,6 +77,7 @@ export async function getPosts(options: {
         author_avatar_url: author?.avatar_url ?? null,
         author_level: author?.level ?? 1,
         author_verified: author?.verified ?? false,
+        author_top_role: author?.top_role ?? null,
         player_name: player?.name,
         player_position: player ? toPos(player.pos) : undefined,
       };
@@ -101,7 +102,7 @@ export async function getTopPostByUser(userId: string): Promise<PostWithAuthor |
 
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id, handle, display_name, avatar_url, level, verified')
+      .select('id, handle, display_name, avatar_url, level, verified, top_role')
       .eq('id', userId)
       .limit(1);
     const author = profiles?.[0];
@@ -113,6 +114,7 @@ export async function getTopPostByUser(userId: string): Promise<PostWithAuthor |
       author_avatar_url: author?.avatar_url ?? null,
       author_level: author?.level ?? 1,
       author_verified: author?.verified ?? false,
+      author_top_role: author?.top_role ?? null,
     };
   }, TWO_MIN);
 }
@@ -175,7 +177,7 @@ export async function getReplies(parentId: string): Promise<PostWithAuthor[]> {
     const authorIds = Array.from(new Set((data as DbPost[]).map(p => p.user_id)));
     const { data: profiles, error: pErr } = await supabase
       .from('profiles')
-      .select('id, handle, display_name, avatar_url, level, verified')
+      .select('id, handle, display_name, avatar_url, level, verified, top_role')
       .in('id', authorIds);
     if (pErr) throw new Error(pErr.message);
 
@@ -190,6 +192,7 @@ export async function getReplies(parentId: string): Promise<PostWithAuthor[]> {
         author_avatar_url: author?.avatar_url ?? null,
         author_level: author?.level ?? 1,
         author_verified: author?.verified ?? false,
+        author_top_role: author?.top_role ?? null,
       };
     });
   }, TWO_MIN);

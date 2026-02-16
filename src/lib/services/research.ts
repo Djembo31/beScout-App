@@ -56,7 +56,7 @@ export async function getResearchPosts(options: {
     const fetchProfiles = async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, handle, display_name, avatar_url, level, verified')
+        .select('id, handle, display_name, avatar_url, level, verified, top_role')
         .in('id', authorIds);
       if (error) throw new Error(error.message);
       return data ?? [];
@@ -79,7 +79,7 @@ export async function getResearchPosts(options: {
 
     const enrichResults = await Promise.allSettled(enrichPromises);
 
-    type ProfileRow = { id: string; handle: string; display_name: string | null; avatar_url: string | null; level: number; verified: boolean };
+    type ProfileRow = { id: string; handle: string; display_name: string | null; avatar_url: string | null; level: number; verified: boolean; top_role: string | null };
     type PlayerRow = { id: string; first_name: string; last_name: string; position: string };
     const profiles = enrichResults[0].status === 'fulfilled' ? (enrichResults[0].value as ProfileRow[]) : [];
     const players = enrichResults[1].status === 'fulfilled' ? (enrichResults[1].value as PlayerRow[]) : [];
@@ -108,6 +108,7 @@ export async function getResearchPosts(options: {
         author_avatar_url: author?.avatar_url ?? null,
         author_level: author?.level ?? 1,
         author_verified: author?.verified ?? false,
+        author_top_role: author?.top_role ?? null,
         player_name: post.player_id ? (player?.name ?? 'Unbekannter Spieler') : undefined,
         player_position: player ? toPos(player.pos) : undefined,
         is_unlocked: unlockedIds.has(post.id),

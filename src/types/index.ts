@@ -159,6 +159,7 @@ export type ResearchPostWithAuthor = DbResearchPost & {
   author_avatar_url: string | null;
   author_level: number;
   author_verified: boolean;
+  author_top_role: string | null;
   player_name?: string;
   player_position?: Pos;
   is_unlocked: boolean;
@@ -814,6 +815,7 @@ export type PostWithAuthor = DbPost & {
   author_avatar_url: string | null;
   author_level: number;
   author_verified: boolean;
+  author_top_role: string | null;
   player_name?: string;
   player_position?: Pos;
 };

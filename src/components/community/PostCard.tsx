@@ -119,6 +119,16 @@ export default function PostCard({
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2 flex-wrap">
               <Link href={`/profile/${post.author_handle}`} className="font-bold text-sm hover:text-[#FFD700] transition-colors">{post.author_display_name || post.author_handle}</Link>
+              {post.author_top_role && (
+                <span className={cn(
+                  'px-1.5 py-0.5 rounded text-[9px] font-bold border',
+                  post.author_top_role === 'Trader' ? 'text-sky-300 bg-sky-500/15 border-sky-500/20' :
+                  post.author_top_role === 'Manager' ? 'text-purple-300 bg-purple-500/15 border-purple-500/20' :
+                  'text-emerald-300 bg-emerald-500/15 border-emerald-500/20'
+                )}>
+                  {post.author_top_role}
+                </span>
+              )}
               {post.author_verified && <BadgeCheck className="w-3.5 h-3.5 text-[#FFD700]" />}
               <span className="text-[10px] text-white/30 px-1.5 py-0.5 bg-white/5 rounded">Lv{post.author_level}</span>
               {post.is_pinned && (

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { User, BadgeCheck, Settings, Loader2, RefreshCw, Users, Calendar, MessageCircle, ArrowUp, Share2 } from 'lucide-react';
+import { User, BadgeCheck, Settings, Loader2, RefreshCw, Users, Calendar, MessageCircle, ArrowUp, Share2, TrendingUp, Trophy, Search, Award, Zap, Lock } from 'lucide-react';
 import { Card, Button, Chip, ErrorState } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
 import { ScoreCircle } from '@/components/player';
@@ -24,6 +24,8 @@ import ProfileResearchTab from '@/components/profile/ProfileResearchTab';
 import ProfileActivityTab from '@/components/profile/ProfileActivityTab';
 import ProfilePostsTab from '@/components/profile/ProfilePostsTab';
 import FollowListModal from '@/components/profile/FollowListModal';
+import { getExpertBadges } from '@/lib/expertBadges';
+import type { ExpertBadge } from '@/lib/expertBadges';
 import type { HoldingRow } from '@/components/profile/ProfileOverviewTab';
 import type { ProfileTab, Profile, DbTransaction, DbUserStats, DbUserAchievement, ResearchPostWithAuthor, AuthorTrackRecord, UserTradeWithPlayer, UserFantasyResult, PostWithAuthor } from '@/types';
 import { getLevelTier } from '@/types';
@@ -402,6 +404,64 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               )}
             </div>
           </Card>
+
+          {/* Expert Badges */}
+          {userStats && (() => {
+            const badges = getExpertBadges(userStats);
+            const earnedCount = badges.filter(b => b.earned).length;
+            const BADGE_ICONS: Record<string, React.ElementType> = {
+              TrendingUp, Trophy, Search, Award, Users, Zap,
+            };
+            return (
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-black">Expert-Badges</h3>
+                  <span className="text-xs text-white/40">{earnedCount}/{badges.length} verdient</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {badges.map(badge => {
+                    const IconComp = BADGE_ICONS[badge.icon] ?? Award;
+                    return (
+                      <div
+                        key={badge.key}
+                        className={cn(
+                          'flex items-center gap-3 p-3 rounded-xl border transition-all',
+                          badge.earned
+                            ? `${badge.bgColor} border`
+                            : 'bg-white/[0.02] border-white/[0.06] opacity-50'
+                        )}
+                      >
+                        <div className={cn(
+                          'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0',
+                          badge.earned ? badge.bgColor : 'bg-white/5'
+                        )}>
+                          {badge.earned
+                            ? <IconComp className={cn('w-4 h-4', badge.color)} />
+                            : <Lock className="w-3.5 h-3.5 text-white/20" />}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className={cn('text-xs font-bold', badge.earned ? badge.color : 'text-white/30')}>
+                            {badge.label}
+                          </div>
+                          {!badge.earned && (
+                            <div className="mt-1">
+                              <div className="h-1 rounded-full bg-white/5 overflow-hidden">
+                                <div
+                                  className="h-full rounded-full bg-white/20 transition-all"
+                                  style={{ width: `${badge.progress}%` }}
+                                />
+                              </div>
+                              <div className="text-[9px] text-white/20 mt-0.5">{badge.progress}%</div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Card>
+            );
+          })()}
         </div>
 
         {/* Main Content */}

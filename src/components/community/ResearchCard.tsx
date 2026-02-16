@@ -161,7 +161,19 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
 
         {/* Author Row */}
         <div className="flex items-center gap-2 text-xs text-white/50 mb-3">
-          <span className="font-medium text-white/70">{post.author_display_name || post.author_handle}</span>
+          <Link href={`/profile/${post.author_handle}`} className="font-medium text-white/70 hover:text-[#FFD700] transition-colors">
+            {post.author_display_name || post.author_handle}
+          </Link>
+          {post.author_top_role && (
+            <span className={cn(
+              'px-1.5 py-0.5 rounded text-[9px] font-bold border',
+              post.author_top_role === 'Trader' ? 'text-sky-300 bg-sky-500/15 border-sky-500/20' :
+              post.author_top_role === 'Manager' ? 'text-purple-300 bg-purple-500/15 border-purple-500/20' :
+              'text-emerald-300 bg-emerald-500/15 border-emerald-500/20'
+            )}>
+              {post.author_top_role}
+            </span>
+          )}
           {post.author_verified && <BadgeCheck className="w-3.5 h-3.5 text-[#FFD700]" />}
           <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold border bg-white/5 border-white/10', tier.color)}>
             Lv{post.author_level}

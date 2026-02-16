@@ -996,7 +996,22 @@ export default function HomePage() {
                         {i + 1}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold truncate">{s.displayName || s.handle}</div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-semibold truncate">{s.displayName || s.handle}</span>
+                          {(() => {
+                            const best = [
+                              { label: 'Trader', score: s.tradingScore, cls: 'text-sky-300 bg-sky-500/15 border-sky-500/20' },
+                              { label: 'Manager', score: s.managerScore, cls: 'text-purple-300 bg-purple-500/15 border-purple-500/20' },
+                              { label: 'Scout', score: s.scoutScore, cls: 'text-emerald-300 bg-emerald-500/15 border-emerald-500/20' },
+                            ].reduce((a, b) => a.score >= b.score ? a : b);
+                            if (best.score < 100) return null;
+                            return (
+                              <span className={cn('px-1 py-0.5 rounded text-[8px] font-bold border', best.cls)}>
+                                {best.label}
+                              </span>
+                            );
+                          })()}
+                        </div>
                       </div>
                       <span className="text-xs font-mono text-[#FFD700]">{s.totalScore}</span>
                     </Link>
