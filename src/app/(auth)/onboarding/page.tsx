@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import { Check, X, Loader2, ChevronRight, Globe, Camera, User, Lock, Eye, EyeOff, Search, Shield } from 'lucide-react';
+import { Check, X, Loader2, ChevronRight, Globe, Camera, User, Lock, Eye, EyeOff, Search, Shield, Gift } from 'lucide-react';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { createProfile, checkHandleAvailable, isValidHandle } from '@/lib/services/profiles';
 import { updateProfile } from '@/lib/services/profiles';
+import { getProfileByReferralCode } from '@/lib/services/referral';
 import { supabase } from '@/lib/supabaseClient';
 import { Button, Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -17,6 +18,7 @@ type HandleStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 
 function OnboardingContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, profile, loading, refreshProfile } = useUser();
 
   const [step, setStep] = useState(1);
@@ -32,6 +34,9 @@ function OnboardingContent() {
   const [language, setLanguage] = useState<'de' | 'tr' | 'en'>('de');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Referral
+  const [referrer, setReferrer] = useState<{ id: string; handle: string; display_name: string | null } | null>(null);
 
   // Club selection (Step 3)
   const [allClubs, setAllClubs] = useState<DbClub[]>([]);
@@ -52,6 +57,16 @@ function OnboardingContent() {
   useEffect(() => {
     if (!loading && !user) router.replace('/login');
   }, [loading, user, router]);
+
+  // Look up referral code from URL
+  useEffect(() => {
+    const refCode = searchParams.get('ref');
+    if (refCode && refCode.length >= 4) {
+      getProfileByReferralCode(refCode).then(p => {
+        if (p) setReferrer(p);
+      }).catch(() => {});
+    }
+  }, [searchParams]);
 
   // Pre-fill from user data
   useEffect(() => {
@@ -175,6 +190,7 @@ function OnboardingContent() {
         language,
         favorite_club_id: primaryClubId,
         favorite_club: primaryClub?.name ?? null,
+        invited_by: referrer?.id ?? null,
       });
 
       // Insert club_followers for all selected clubs
@@ -219,7 +235,7 @@ function OnboardingContent() {
       setError(msg);
       setSubmitting(false);
     }
-  }, [user, hasPassword, password, handle, displayNameValue, avatarFile, language, selectedClubIds, allClubs, refreshProfile, router]);
+  }, [user, hasPassword, password, handle, displayNameValue, avatarFile, language, selectedClubIds, allClubs, referrer, refreshProfile, router]);
 
   if (loading || profile) {
     return (
@@ -246,6 +262,17 @@ function OnboardingContent() {
         <div className={cn('w-8 h-0.5 transition-all', step >= 3 ? 'bg-[#FFD700]' : 'bg-white/10')} />
         <div className={cn('w-2.5 h-2.5 rounded-full transition-all', step >= 3 ? 'bg-[#FFD700]' : 'bg-white/20')} />
       </div>
+
+      {/* Referral Banner */}
+      {referrer && (
+        <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-[#FFD700]/[0.06] border border-[#FFD700]/15">
+          <Gift className="w-5 h-5 text-[#FFD700] shrink-0" />
+          <div className="text-sm">
+            <span className="text-white/70">Eingeladen von </span>
+            <span className="font-bold text-[#FFD700]">@{referrer.handle}</span>
+          </div>
+        </div>
+      )}
 
       <Card className="p-6 sm:p-8">
         {step === 1 && (
@@ -561,14 +588,6 @@ function OnboardingContent() {
               </Button>
             </div>
 
-            {/* Skip option */}
-            <button
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="w-full mt-3 text-xs text-white/40 hover:text-white/60 transition-colors"
-            >
-              Überspringen — später wählen
-            </button>
           </>
         )}
       </Card>

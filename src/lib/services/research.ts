@@ -229,6 +229,14 @@ export async function unlockResearch(userId: string, researchId: string): Promis
       logActivity(userId, 'research_unlock', 'community', { researchId });
     }).catch(err => console.error('[Research] Activity log failed:', err));
 
+    // Fire-and-forget: airdrop score refresh for author
+    (async () => {
+      try {
+        const { data: rp } = await supabase.from('research_posts').select('user_id').eq('id', researchId).single();
+        if (rp) import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(rp.user_id));
+      } catch {}
+    })();
+
     // Fire-and-forget notification to author
     (async () => {
       try {

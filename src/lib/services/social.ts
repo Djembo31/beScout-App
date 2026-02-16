@@ -47,6 +47,8 @@ export async function followUser(followerId: string, followingId: string): Promi
   refreshUserStats(followingId)
     .then(() => checkAndUnlockAchievements(followingId))
     .catch(() => {});
+  // Fire-and-forget: airdrop score refresh for followed user
+  import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(followingId)).catch(() => {});
 }
 
 export async function unfollowUser(followerId: string, followingId: string): Promise<void> {

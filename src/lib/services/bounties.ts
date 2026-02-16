@@ -339,6 +339,14 @@ export async function approveBountySubmission(
       }
     })().catch(() => {});
 
+    // Fire-and-forget: airdrop score refresh for submitter
+    (async () => {
+      try {
+        const { data: s } = await supabase.from('bounty_submissions').select('user_id').eq('id', submissionId).single();
+        if (s) import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(s.user_id));
+      } catch {}
+    })();
+
     // Fire-and-forget: refresh stats + check achievements for submitter (and admin)
     (async () => {
       try {

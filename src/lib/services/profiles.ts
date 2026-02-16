@@ -29,8 +29,15 @@ export async function createProfile(
     favorite_club?: string | null;
     favorite_club_id?: string | null;
     language?: 'de' | 'tr' | 'en';
+    invited_by?: string | null;
   }
 ): Promise<Profile> {
+  // Generate 8-char uppercase referral code
+  const referral_code = Array.from(
+    { length: 8 },
+    () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random() * 36)]
+  ).join('');
+
   const { data: profile, error } = await supabase
     .from('profiles')
     .insert({
@@ -40,12 +47,21 @@ export async function createProfile(
       favorite_club: data.favorite_club ?? null,
       favorite_club_id: data.favorite_club_id ?? null,
       language: data.language ?? 'de',
+      referral_code,
+      invited_by: data.invited_by ?? null,
     })
     .select()
     .single();
 
   if (error) throw new Error(error.message);
   invalidate(`profile:${userId}`);
+
+  // Fire-and-forget: refresh referrer's airdrop score if invited_by is set
+  if (data.invited_by) {
+    import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(data.invited_by!))
+      .catch(err => console.error('[Profile] Referrer airdrop refresh failed:', err));
+  }
+
   return profile as Profile;
 }
 

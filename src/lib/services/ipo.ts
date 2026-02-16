@@ -148,6 +148,27 @@ export async function updateIpoStatus(
 
   if (error) throw new Error(error.message);
   invalidateTradeData('', '');
+
+  // Notify club followers when IPO goes live
+  if (newStatus === 'open') {
+    (async () => {
+      try {
+        const { data: ipo } = await supabase.from('ipos').select('player_id').eq('id', ipoId).single();
+        if (!ipo) return;
+        const { data: player } = await supabase.from('players').select('first_name, last_name, club_id').eq('id', ipo.player_id).single();
+        if (!player?.club_id) return;
+        const { data: followers } = await supabase.from('club_followers').select('user_id').eq('club_id', player.club_id);
+        if (followers && followers.length > 0) {
+          const { createNotification } = await import('@/lib/services/notifications');
+          const name = `${player.first_name} ${player.last_name}`;
+          for (const f of followers) {
+            await createNotification(f.user_id, 'new_ipo_available', 'Neuer IPO!', `${name} ist jetzt als DPC verfügbar — sichere dir deine Anteile!`, ipo.player_id, 'player');
+          }
+        }
+      } catch (err) { console.error('[IPO] new_ipo_available notification failed:', err); }
+    })();
+  }
+
   return data as UpdateIpoStatusResult;
 }
 

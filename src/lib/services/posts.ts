@@ -286,6 +286,16 @@ export async function votePost(
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'post_vote', 'community', { postId, voteType });
   }).catch(() => {});
+  // Fire-and-forget: airdrop score refresh for post author
+  (async () => {
+    try {
+      const { data: p } = await supabase.from('posts').select('user_id').eq('id', postId).single();
+      if (p && p.user_id !== userId) {
+        const { refreshAirdropScore } = await import('@/lib/services/airdropScore');
+        refreshAirdropScore(p.user_id);
+      }
+    } catch {}
+  })();
   return data as { upvotes: number; downvotes: number };
 }
 

@@ -48,6 +48,8 @@ import dynamic from 'next/dynamic';
 
 const MissionBanner = dynamic(() => import('@/components/missions/MissionBanner'), { ssr: false });
 const ScoutMissionCard = dynamic(() => import('@/components/missions/ScoutMissionCard'), { ssr: false });
+const AirdropScoreCard = dynamic(() => import('@/components/airdrop/AirdropScoreCard'), { ssr: false });
+const ReferralCard = dynamic(() => import('@/components/airdrop/ReferralCard'), { ssr: false });
 import { getDpcOfTheWeek } from '@/lib/services/dpcOfTheWeek';
 import type { DpcOfTheWeek } from '@/lib/services/dpcOfTheWeek';
 import { getScoutMissions, getUserMissionProgress } from '@/lib/services/scoutMissions';
@@ -1072,31 +1074,11 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Invite Banner */}
-          <Card className="p-4 bg-gradient-to-r from-[#FFD700]/[0.06] to-purple-500/[0.04] border-[#FFD700]/15">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-2xl bg-[#FFD700]/10 border border-[#FFD700]/20 flex items-center justify-center shrink-0">
-                <Users className="w-5 h-5 text-[#FFD700]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-black text-sm">Lade Freunde ein!</div>
-                <div className="text-xs text-white/50 mt-0.5">Teile BeScout mit anderen Fußball-Fans.</div>
-              </div>
-              <Button variant="gold" size="sm" className="shrink-0 gap-1.5"
-                onClick={async () => {
-                  const url = window.location.origin;
-                  const text = 'Schau dir BeScout an — DPC-Trading, Fantasy & mehr für Fußball-Fans!';
-                  if (navigator.share) {
-                    try { await navigator.share({ title: 'BeScout', text, url }); } catch {}
-                  } else {
-                    await navigator.clipboard.writeText(`${text} ${url}`);
-                  }
-                }}>
-                <Star className="w-3.5 h-3.5" />
-                Einladen
-              </Button>
-            </div>
-          </Card>
+          {/* Airdrop Score */}
+          {user && <AirdropScoreCard userId={user.id} compact />}
+
+          {/* Referral */}
+          {user && <ReferralCard userId={user.id} />}
         </div>
       </TabPanel>
     </div>

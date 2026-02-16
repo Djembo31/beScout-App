@@ -72,6 +72,7 @@ export async function getIncomingOffers(userId: string): Promise<OfferWithDetail
       .select('*')
       .eq('receiver_id', userId)
       .eq('status', 'pending')
+      .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false });
     if (error) throw new Error(error.message);
     return enrichOffers((data ?? []) as DbOffer[]);
@@ -86,6 +87,7 @@ export async function getOutgoingOffers(userId: string): Promise<OfferWithDetail
       .select('*')
       .eq('sender_id', userId)
       .in('status', ['pending'])
+      .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false });
     if (error) throw new Error(error.message);
     return enrichOffers((data ?? []) as DbOffer[]);

@@ -89,6 +89,13 @@ export async function castCommunityPollVote(
     import('@/lib/services/activityLog').then(({ logActivity }) => {
       logActivity(userId, 'poll_vote', 'community', { pollId, optionIndex });
     }).catch(err => console.error('[Polls] Activity log failed:', err));
+    // Fire-and-forget: airdrop score refresh for poll creator
+    (async () => {
+      try {
+        const { data: p } = await supabase.from('community_polls').select('created_by').eq('id', pollId).single();
+        if (p) import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(p.created_by));
+      } catch {}
+    })();
     // Notify poll creator
     (async () => {
       try {

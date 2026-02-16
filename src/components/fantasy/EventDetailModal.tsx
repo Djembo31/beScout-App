@@ -68,6 +68,7 @@ export const EventDetailModal = ({
   const [viewingUserLineup, setViewingUserLineup] = useState<{ entry: LeaderboardEntry; data: LineupWithPlayers } | null>(null);
   const [viewingUserLoading, setViewingUserLoading] = useState(false);
   const [captainSlot, setCaptainSlot] = useState<string | null>(null);
+  const [showJoinConfirm, setShowJoinConfirm] = useState(false);
 
   // Set default tab based on join status when modal opens
   useEffect(() => {
@@ -294,6 +295,11 @@ export const EventDetailModal = ({
   const handleConfirmJoin = () => {
     if (!isLineupComplete) { alert('Bitte stelle deine komplette Aufstellung auf!'); return; }
     if (!reqCheck.ok) { alert(reqCheck.message); return; }
+    setShowJoinConfirm(true);
+  };
+
+  const handleFinalJoin = () => {
+    setShowJoinConfirm(false);
     onJoin(event, selectedPlayers, selectedFormation, captainSlot);
   };
 
@@ -1268,6 +1274,62 @@ export const EventDetailModal = ({
             />
           )}
         </div>
+
+        {/* Join Confirmation Dialog */}
+        {showJoinConfirm && (
+          <div className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+            <div className="bg-[#141414] border border-white/10 rounded-2xl p-6 max-w-sm w-full">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
+                  <Trophy className="w-5 h-5 text-[#FFD700]" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white">Teilnahme bestätigen</h3>
+                  <p className="text-xs text-white/50">{event.name}</p>
+                </div>
+              </div>
+              <div className="space-y-2 mb-5 text-sm">
+                {event.buyIn > 0 && (
+                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
+                    <span className="text-white/60">Entry Fee</span>
+                    <span className="font-bold text-[#FFD700]">{fmtBSD(event.buyIn)} BSD</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
+                  <span className="text-white/60">Formation</span>
+                  <span className="font-mono text-white">{selectedFormation}</span>
+                </div>
+                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
+                  <span className="text-white/60">Spieler</span>
+                  <span className="text-white">{selectedPlayers.length} aufgestellt</span>
+                </div>
+                {captainSlot && (
+                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
+                    <span className="text-white/60">Kapitän</span>
+                    <span className="text-[#FFD700]">
+                      <Crown className="w-3.5 h-3.5 inline mr-1" />
+                      Gewählt (2x Punkte)
+                    </span>
+                  </div>
+                )}
+              </div>
+              {event.buyIn > 0 && (
+                <p className="text-[11px] text-white/40 mb-4">
+                  Die Entry Fee wird sofort von deinem Wallet abgezogen. Bei Abmeldung vor Event-Start wird sie erstattet.
+                </p>
+              )}
+              <div className="flex gap-3">
+                <Button variant="outline" size="lg" fullWidth onClick={() => setShowJoinConfirm(false)}>
+                  Abbrechen
+                </Button>
+                <Button variant="gold" size="lg" fullWidth onClick={handleFinalJoin}>
+                  <CheckCircle2 className="w-4 h-4" />
+                  Bestätigen
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Footer Actions */}
         {/* Join — only when not joined AND event not running/ended */}

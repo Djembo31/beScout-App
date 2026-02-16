@@ -26,8 +26,12 @@ import ProfilePostsTab from '@/components/profile/ProfilePostsTab';
 import FollowListModal from '@/components/profile/FollowListModal';
 import { getExpertBadges } from '@/lib/expertBadges';
 import { getMySubscription, TIER_CONFIG } from '@/lib/services/clubSubscriptions';
+import dynamic from 'next/dynamic';
 import type { ClubSubscription, SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import type { ExpertBadge } from '@/lib/expertBadges';
+
+const AirdropScoreCard = dynamic(() => import('@/components/airdrop/AirdropScoreCard'), { ssr: false });
+const ReferralCard = dynamic(() => import('@/components/airdrop/ReferralCard'), { ssr: false });
 import type { HoldingRow } from '@/components/profile/ProfileOverviewTab';
 import type { ProfileTab, Profile, DbTransaction, DbUserStats, DbUserAchievement, ResearchPostWithAuthor, AuthorTrackRecord, UserTradeWithPlayer, UserFantasyResult, PostWithAuthor } from '@/types';
 import { getLevelTier } from '@/types';
@@ -430,6 +434,12 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               )}
             </div>
           </Card>
+
+          {/* Airdrop Score */}
+          <AirdropScoreCard userId={targetUserId} compact={!isSelf} />
+
+          {/* Referral — self only */}
+          {isSelf && <ReferralCard userId={targetUserId} />}
 
           {/* Expert Badges */}
           {userStats && (() => {

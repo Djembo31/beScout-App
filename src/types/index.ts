@@ -351,6 +351,8 @@ export type Profile = {
   verified: boolean;
   created_at: string;
   updated_at: string;
+  referral_code?: string | null;
+  invited_by?: string | null;
 };
 
 // ============================================
@@ -896,7 +898,7 @@ export function getLevelTier(level: number): LevelTier {
 // NOTIFICATION TYPES
 // ============================================
 
-export type NotificationType = 'research_unlock' | 'research_rating' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward';
+export type NotificationType = 'research_unlock' | 'research_rating' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward' | 'event_starting' | 'event_closing_soon' | 'bounty_expiring' | 'new_ipo_available';
 
 export type DbNotification = {
   id: string;
@@ -1174,3 +1176,31 @@ export interface BeforeInstallPromptEvent extends Event {
   readonly userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
   prompt(): Promise<void>;
 }
+
+// ============================================
+// AIRDROP SCORE
+// ============================================
+
+export type AirdropTier = 'bronze' | 'silver' | 'gold' | 'diamond';
+
+export type DbAirdropScore = {
+  user_id: string;
+  trading_score: number;
+  content_score: number;
+  fantasy_score: number;
+  social_score: number;
+  activity_score: number;
+  referral_score: number;
+  trading_pnl_cents: number;
+  content_revenue_cents: number;
+  fantasy_earnings_cents: number;
+  fantasy_podiums: number;
+  followers_count: number;
+  posts_upvotes: number;
+  active_days: number;
+  referral_count: number;
+  total_score: number;
+  rank: number | null;
+  tier: AirdropTier;
+  updated_at: string;
+};

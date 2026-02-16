@@ -60,12 +60,14 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
             'event'
           );
         }
-        // Refresh stats + achievements for all participants
+        // Refresh stats + achievements + airdrop scores for all participants
         const { refreshUserStats, checkAndUnlockAchievements } = await import('@/lib/services/social');
+        const { refreshAirdropScore } = await import('@/lib/services/airdropScore');
         for (const entry of lb) {
           refreshUserStats(entry.userId)
             .then(() => checkAndUnlockAchievements(entry.userId))
             .catch(err => console.error('[Scoring] Stats refresh failed:', err));
+          refreshAirdropScore(entry.userId).catch(err => console.error('[Scoring] Airdrop refresh failed:', err));
         }
       } catch (err) { console.error('[Scoring] Post-score side-effects failed:', err); }
     })();
