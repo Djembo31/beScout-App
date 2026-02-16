@@ -232,6 +232,7 @@ export type DbClub = {
   secondary_color: string | null;
   community_guidelines: string | null;
   active_gameweek: number;
+  api_football_id?: number | null;
   plan: string;
   is_verified: boolean;
   created_at: string;
@@ -370,6 +371,7 @@ export type Profile = {
   plan: string;
   level: number;
   verified: boolean;
+  top_role?: string | null;
   created_at: string;
   updated_at: string;
   referral_code?: string | null;
@@ -495,6 +497,8 @@ export type DbEvent = {
   club_id: string | null;
   sponsor_name: string | null;
   sponsor_logo: string | null;
+  tier_bonuses?: Record<string, number> | null;
+  min_tier?: string | null;
   created_at: string;
 };
 
@@ -712,6 +716,7 @@ export type DbCommunityPoll = {
   creator_earned: number;  // BIGINT Cents
   starts_at: string;
   ends_at: string;
+  club_id?: string | null;
   created_at: string;
 };
 
@@ -782,6 +787,7 @@ export type DbUserStats = {
   achievements_count: number;
   rank: number;
   tier: FanTier;
+  valuation_score?: number | null;
   updated_at: string;
 };
 
@@ -859,6 +865,8 @@ export type DbFeedback = {
   type: FeedbackType;
   message: string;
   page_url: string | null;
+  category?: string | null;
+  status?: string | null;
   created_at: string;
 };
 
@@ -1226,4 +1234,5 @@ export type DbAirdropScore = {
   rank: number | null;
   tier: AirdropTier;
   updated_at: string;
+  created_at?: string;
 };

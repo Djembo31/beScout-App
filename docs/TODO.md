@@ -1,9 +1,44 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 14.02.2026 (nach Launch-Readiness Session 35)
-> Modus: PILOT SPRINT (4 Wochen → echte User)
+> Letzte Aktualisierung: 16.02.2026 (Session 72)
+> Modus: PILOT SPRINT — 138 Migrations, 20 Routes, 566 Spieler, 505 Player Images
 
 ---
+
+## Type Cleanup + Doku Sync ✅ (16.02.2026)
+- [x] 7 fehlende DB-Felder als optional zu TypeScript Types hinzugefügt
+- [x] STATUS.md, TODO.md, MEMORY.md auf aktuellen Stand synchronisiert
+- [x] Build verifiziert (0 Fehler, 20 Routes)
+
+## TFF 1. Lig Full Reset + Player Images ✅ (16.02.2026)
+- [x] 11 Clubs ab-/aufgestiegen (Saison 2025/26)
+- [x] 566 neue Spieler von Transfermarkt (echte Namen, Positionen, Trikotnummern)
+- [x] 505/566 Player Images (89%) via Transfermarkt Scraping
+- [x] Game Data Reseed: 380 Fixtures, 100 IPOs, 3 Events, 15 Bounties, 10 Votes
+- [x] 2 Migrationen (#137-#138): api_football_id + sync_fixture_scores RPC
+
+## Codebase Audit + 4 Sprint Fixes ✅ (16.02.2026)
+- [x] 6 Experten-Agents: Dead Code, DB, UI, Security, Architecture, Services
+- [x] Sprint 1-4: 78 Silent Catches, Lineup Exploit, Event Lifecycle, Dead Code, Loader2, etc.
+- [x] Full Pilot Audit: 23 Issues (5C+7H+12M) dedupliziert + alle gefixt
+
+## Performance Optimization ✅ (16.02.2026)
+- [x] Wallet-RLS-Fix, Market Single-Phase, Home Single-Batch, Lightweight Trade Refresh
+
+## Match-Data Integration Plan ✅ (16.02.2026)
+- [x] Plan erstellt (4 Phasen, 2 Migrationen, 1 neuer Service, Admin UI)
+- [ ] **API-Football Account erstellen** + Key in .env.local (manuell, $19/Monat)
+- [ ] **Admin: Team/Player/Fixture Mapping** (~30 Min, braucht API Key)
+
+## Verbleibende offene Punkte
+- [ ] **VAPID Public Key in Vercel** Environment Variables setzen (manuell)
+- [ ] **API-Football Account** + Key in .env.local setzen (manuell)
+- [ ] **13 nullable Type-Mismatches** — Felder mit DEFAULT, kein Runtime-Risiko (bewusst belassen)
+- [ ] E2E Tests mit echtem Browser
+- [ ] 10 Beta-Tester einladen
+- [ ] 50 Beta-Tester erreichen
+- [ ] Native App → Post-Pilot
+- [ ] ~~Next.js 15/16 Migration~~ → Post-Pilot
 
 ## Multi-Club Expansion ✅ (16.02.2026)
 - [x] **Phase 1 (Data Layer):** 3 Migrationen (#128-#130) — `leagues` Tabelle, `club_followers` Tabelle (RLS + Migration), `club_id` auf community_polls
@@ -200,7 +235,8 @@ Logik-Check: Vision-Dokument gegen Implementierung geprüft, 12 Lücken identifi
 - [ ] ~~Leaked Password Protection~~ Übersprungen — erfordert Supabase Pro Plan
 
 **Verbleibend (low-risk):**
-- [ ] 13 nullable Mismatches in Types (alle haben DEFAULT, kein Runtime-Risiko)
+- [x] 7 fehlende DB-Felder als optional hinzugefügt (Session 72)
+- [ ] 13 nullable Mismatches in Types (alle haben DEFAULT, kein Runtime-Risiko — bewusst belassen)
 
 ### Phase 5.7: Profil-Erweiterungen ✅ (12.02.2026)
 - [x] Types: `UserTradeWithPlayer`, `UserFantasyResult` in `types/index.ts`

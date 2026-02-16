@@ -3,7 +3,63 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 6** – Multi-Club Expansion komplett. 130 Migrations, 20 Routes, 1 Edge Function. Build sauber (0 Fehler). Volle Multi-Club-Plattform mit Club Discovery, ClubProvider, Club-Switcher, Multi-Liga-Vorbereitung.
+**Woche 8** – Pilot-Ready. 138 Migrations, 20 Routes, 1 Edge Function v2. Build sauber (0 Fehler). TFF 1. Lig 2025/26 Saison: 566 Spieler (20 Clubs), 505 Player Images (89%), 100 IPOs, 3 Events (GW 1), 15 Bounties, 10 Votes. Match-Data Integration (API-Football) geplant. Codebase Audit + 4 Sprints Fixes abgeschlossen.
+
+## Session 16.02.2026 (72) – Type Cleanup + Doku Sync
+
+### Änderungen
+- **TypeScript Types:** 7 fehlende DB-Felder als optional hinzugefügt (DbEvent.tier_bonuses/min_tier, DbClub.api_football_id, DbCommunityPoll.club_id, DbFeedback.category/status, Profile.top_role, DbUserStats.valuation_score, DbAirdropScore.created_at)
+- **Doku:** TODO.md, STATUS.md, MEMORY.md auf aktuellen Stand synchronisiert
+- Build verifiziert (0 Fehler, 20 Routes)
+
+## Session 16.02.2026 (71) – Player Images von Transfermarkt
+
+### Änderungen
+- **Transfermarkt Scraping:** 9 parallele Agents, Squad-Pages + individuelle Profil-Seiten
+- **505/566 Spieler (89%)** mit echten Portrait-URLs
+- 7 Clubs 100% (Sakaryaspor, Çorum FK, Erzurumspor FK, Bodrum FK, Sivasspor, Keçiörengücü, İstanbulspor)
+- Bandırmaspor 0% (Roster-Mismatch zwischen DB und TM)
+- SQL UPDATEs mit türkischer Zeichen-Normalisierung (`translate()`)
+
+## Session 16.02.2026 (70) – TFF 1. Lig Full Reset + Reseed
+
+### Änderungen
+- **DB Reset:** TRUNCATE alle Game-Data Tabellen, 11 Clubs ab-/aufgestiegen
+- **566 neue Spieler** von Transfermarkt (alle 20 Clubs, echte Namen/Positionen/Trikotnummern)
+- **Game Data Reseed:** 380 Fixtures (38 GW), 100 IPOs, 3 Events (GW 1), 15 Bounties, 10 Votes
+- 2 Migrationen (#137-#138): api_football_id Spalten + sync_fixture_scores RPC
+
+## Session 16.02.2026 (69) – Performance Optimization
+
+### Änderungen
+- Wallet RLS Fix, Market Single-Phase Load, Home Single-Batch Load
+- Lightweight Trade Refresh (nur holdings + orders, floor_price client-seitig)
+
+## Session 16.02.2026 (68) – Full Pilot Audit + Fixes
+
+### Änderungen
+- 4 Audit-Agents, 23 Issues dedupliziert (5C+7H+12M)
+- Sprint 1: Silent Catches (78×), Lineup Exploit, Missing Notification, Event Lifecycle
+- Sprint 2: Service Layer, Activity Logging (12 Gaps), Cache topPost, Dead Code
+- Sprint 3: not-found pages, CreateEventModal, Cancellation Flags, ErrorState, Admin Tab Extraction
+- Sprint 4: Loader2 Spinners, TODO entfernt, FeeKey Type, Button SVG→Loader2
+
+## Session 16.02.2026 (67) – Match-Data Integration (API-Football)
+
+### Änderungen
+- 2 Migrationen (#137-#138): api_football_id Spalten, sync_fixture_scores RPC
+- footballData.ts Service (API wrapper + mapping + import orchestrator)
+- Admin Mapping UI (Teams/Spieler/Fixtures sync + Status Dashboard)
+- SpieltagTab dual button (Daten importieren / Simulieren)
+
+## Sessions 64-66 – Airdrop, Launch-Readiness, Stakeholder Audit, Retention
+
+### Änderungen
+- Airdrop Score + Referral System (Migrationen #131-#132)
+- Launch-Readiness Fixes (Migrationen #133-#134, Content Seeding, Push Notifications)
+- Stakeholder Audit (Migrationen #135-#136, Referral Rewards, Club Withdrawal, Analytics)
+- Retention Features (Trending Posts, Creator Earnings, Season Leaderboard)
+- Cross-App Engagement CTAs
 
 ## Session 16.02.2026 (63) – Multi-Club Expansion (8 Phasen)
 
