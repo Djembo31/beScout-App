@@ -220,7 +220,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Pilot-Blocker Fixes fertig:** Scout Score + Achievements auto-triggern (5 Services), Research Track Record funktional (floor_price statt last_price), Welcome Page BSD-Fix (10.000 statt 500), Trading-Notifications (Seller benachrichtigt), Fantasy Lineup-Lock verifiziert.
 **Verbleibende Lücken geschlossen:** Participant-Limit-Guard (Fantasy Join), Fee-Breakdown (Sell-Form), Admin Event-Erstellung (volle CRUD), Admin Spieler-Anlegen (Create-Modal), Öffentliche Profile (`/profile/[handle]` + Shared ProfileView + Leaderboard-Links).
 **Launch-Readiness fertig:** GitHub Repo (Private, `Djembo31/beScout-App`) + CI/CD Pipeline (GitHub Actions) + Sentry Error Tracking + PostHog Analytics. npm audit clean (Next.js 14.2.35). `/supabase-test` Route entfernt.
-**"Alle Spieler" Tab fertig:** Manager Office 7. Tab — Club-gruppierte Ansicht aller 500 Spieler (20 Clubs), aufklappbar, Suche + Positions-Filter.
+**"Alle Spieler" Tab fertig:** Manager Office 7. Tab — Club-gruppierte Ansicht aller 566 Spieler (20 Clubs), aufklappbar, Suche + Positions-Filter.
 **TFF 1. Lig League Simulation fertig:** 20 Clubs, 380 Fixtures (38 GW), FPL-Style Scoring, `simulate_gameweek` RPC, 2.800 player_gameweek_scores (GW 1-10).
 **Fantasy Redesign fertig:** Spieltag-zentriert (3 Tabs), Sorare-inspirierte UI — grüner Pitch (SVG Feldlinien), echte Club-Logos, Formation-Labels (z.B. "4-3-3"), Starter/Bank-Split, Sponsor-Banner. `simulateGameweekFlow()` Client-seitig. 3 Events für GW 11 erstellt.
 **Beta-Ready fertig:** Activity-Logging (Batch-Queue), User-to-User Angebote (5 RPCs, 4 Sub-Tabs), BeScout Admin Dashboard (6 Tabs, `/bescout-admin`), Profil Redesign (Sorare-style, Follower-Listen, Posts-Tab). 103 Migrationen deployed.
@@ -234,7 +234,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Stakeholder Audit + Retention fertig:** Referral-Belohnung RPC, Club-Withdrawal (Balance + Auszahlung), Fan-Analytics, Trending Posts, Creator Earnings Dashboard, Season Leaderboard, Cross-App CTAs. 2 Migrationen (#135-#136).
 **Phase D (Match-Data Integration) fertig:** API-Football Service (`footballData.ts`), `api_football_id` auf clubs/players/fixtures, `sync_fixture_scores` Bridge-RPC, Admin Mapping UI (Teams/Spieler/Fixtures), SpieltagTab dual-button (Import/Simulieren). 2 Migrationen (#137-#138).
 **Codebase Audit + Quality Sprints 1-4 fertig:** 6 Experten-Agents (Dead Code, DB, UI, Security, Architecture, Services) → 21 Issues (4C+5H+8M+4L) → alle gefixt. Silent catches (78×), lineup exploit, missing notifications, service layer extraction (auth.ts, avatars.ts), activity logging gaps, not-found pages, CreateEventModal rewrite, cancellation flags, ErrorState, BescoutAdmin tab extraction (757→243 Zeilen), Loader2 standardization.
-**Danach:** VAPID Public Key in Vercel setzen, API-Football Account + Key, Admin Mapping durchführen, Real User Testing mit 50 Testern.
+**Danach:** VAPID Public Key in Vercel setzen, API-Football Account + Key, Admin Mapping durchführen (~30 Min), Real User Testing mit 50 Testern.
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.
 Siehe `docs/TODO.md` für den aktuellen Task.
@@ -242,8 +242,10 @@ Siehe `docs/ROADMAP.md` für den Gesamtplan (Phase 6–7).
 Siehe `docs/STATUS.md` für den detaillierten Fortschritt (inkl. SQL-Migration-Tabelle).
 Siehe `docs/SCALE.md` für Skalierungsarchitektur und DB-Schema.
 
-**Pilot-Scope:** Multi-Club-ready, 500 Spieler (20 Clubs), 50 Beta-Tester.
-**138 SQL-Migrationen + 1 Edge Function deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin + Trading Club-Fee + Bounty Platform-Fee + Event Sponsors + Push Subscriptions + Club Subscriptions + Leagues + Club Followers + Club Discovery + Airdrop Score + Referral System + Match-Data Integration live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) + Phase A+B+C + Multi-Club Expansion + Phase D (Match-Data) live.
+**TFF 1. Lig 2025/26 Reset fertig:** 11 Clubs auf-/abgestiegen, 566 neue Spieler (Transfermarkt), 505 Player Images (89%), 100 IPOs, 380 Fixtures, 3 Events (GW 1), 15 Bounties, 10 Votes. 2 Migrationen (#137-#138).
+**Security Hardening #2 fertig:** RLS auf leagues, 12 Funktionen SET search_path, 36 RLS Policies initplan-optimiert. 2 Migrationen (#139-#140). Security Advisors clean (nur 2 verbleibende WARN: dpc_of_the_week gewollt, Leaked PW braucht Pro Plan).
+**Pilot-Scope:** Multi-Club-ready, 566 Spieler (20 Clubs), 505 Player Images, 50 Beta-Tester.
+**140 SQL-Migrationen + 1 Edge Function deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin + Trading Club-Fee + Bounty Platform-Fee + Event Sponsors + Push Subscriptions + Club Subscriptions + Leagues + Club Followers + Club Discovery + Airdrop Score + Referral System + Match-Data Integration + Security Hardening #2 live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) + Phase A+B+C + Multi-Club Expansion + Phase D (Match-Data) live.
 **GitHub:** Private Repo `Djembo31/beScout-App`, CI/CD via GitHub Actions, Sentry Error Tracking, PostHog Analytics.
 
 ## Bekannte Issues
