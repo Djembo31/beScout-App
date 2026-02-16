@@ -404,8 +404,10 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     finally { setOfferLoading(false); }
   };
 
+  const [acceptingBidId, setAcceptingBidId] = useState<string | null>(null);
   const handleAcceptBid = async (offerId: string) => {
-    if (!user) return;
+    if (!user || acceptingBidId) return;
+    setAcceptingBidId(offerId);
     try {
       const result = await acceptOffer(user.id, offerId);
       if (result.success) {
@@ -415,6 +417,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         refreshOrdersAndTrades();
       } else { addToast(result.error ?? 'Fehler', 'error'); }
     } catch (e) { addToast(e instanceof Error ? e.message : 'Fehler', 'error'); }
+    finally { setAcceptingBidId(null); }
   };
 
   const handleShareTrade = async () => {

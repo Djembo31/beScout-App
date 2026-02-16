@@ -12,6 +12,7 @@ import { FeedbackModal } from '@/components/layout/FeedbackModal';
 import NotificationDropdown from '@/components/layout/NotificationDropdown';
 import SearchDropdown from '@/components/layout/SearchDropdown';
 import { getUnreadCount } from '@/lib/services/notifications';
+import { useToast } from '@/components/providers/ToastProvider';
 
 interface TopBarProps {
   onMobileMenuToggle?: () => void;
@@ -20,6 +21,7 @@ interface TopBarProps {
 export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) {
   const { user, profile, loading } = useUser();
   const { balanceCents } = useWallet();
+  const { addToast } = useToast();
   const pathname = usePathname();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -68,14 +70,23 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
         const { unsubscribeFromPush } = await import('@/lib/services/pushSubscription');
         await unsubscribeFromPush(user.id);
         setPushEnabled(false);
+        addToast('Push-Benachrichtigungen deaktiviert', 'success');
       } else {
         const { subscribeToPush } = await import('@/lib/services/pushSubscription');
         const ok = await subscribeToPush(user.id);
         setPushEnabled(ok);
+        if (ok) {
+          addToast('Push-Benachrichtigungen aktiviert', 'success');
+        } else {
+          addToast('Benachrichtigungen sind im Browser blockiert. Bitte in den Browser-Einstellungen aktivieren.', 'error');
+        }
       }
-    } catch (err) { console.error('[TopBar] togglePush:', err); }
+    } catch (err) {
+      console.error('[TopBar] togglePush:', err);
+      addToast('Push-Einstellung konnte nicht geändert werden', 'error');
+    }
     finally { setPushLoading(false); }
-  }, [user, pushEnabled]);
+  }, [user, pushEnabled, addToast]);
 
   // Close search on route change
   useEffect(() => {

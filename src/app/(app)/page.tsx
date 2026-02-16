@@ -635,14 +635,14 @@ export default function HomePage() {
           </div>
 
           {/* Following Feed */}
-          {followingFeed.length > 0 && (
-            <div>
-              <SectionHeader title="Was deine Scouts machen" badge={
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/15 border border-sky-400/25">
-                  <Users className="w-3 h-3 text-sky-400" />
-                  <span className="text-[10px] font-bold text-sky-300">{followingFeed.length}</span>
-                </span>
-              } />
+          <div>
+            <SectionHeader title="Was deine Scouts machen" badge={followingFeed.length > 0 ?
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/15 border border-sky-400/25">
+                <Users className="w-3 h-3 text-sky-400" />
+                <span className="text-[10px] font-bold text-sky-300">{followingFeed.length}</span>
+              </span> : undefined
+            } />
+            {followingFeed.length > 0 ? (
               <div className="mt-3 space-y-0.5">
                 {followingFeed.slice(0, 8).map(item => {
                   const feedIcon = FEED_ICON_MAP[item.action] ?? { Icon: Activity, color: 'text-white/50 bg-white/5' };
@@ -667,8 +667,16 @@ export default function HomePage() {
                   );
                 })}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="mt-3 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] text-center">
+                <Users className="w-6 h-6 text-white/20 mx-auto mb-2" />
+                <div className="text-xs text-white/40">Folge Scouts um ihre Aktivitäten zu sehen</div>
+                <Link href="/community" className="text-xs text-[#FFD700]/70 hover:text-[#FFD700] mt-1 inline-block">
+                  Community entdecken →
+                </Link>
+              </div>
+            )}
+          </div>
 
           {/* DPC der Woche */}
           {dpcOfWeek && (

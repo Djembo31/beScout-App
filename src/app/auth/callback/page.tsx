@@ -8,6 +8,7 @@ import { onAuthStateChange } from '@/lib/services/auth';
 export default function AuthCallbackPage() {
   const router = useRouter();
   const [error, setError] = useState(false);
+  const [slow, setSlow] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = onAuthStateChange((event) => {
@@ -17,13 +18,17 @@ export default function AuthCallbackPage() {
       }
     });
 
-    // Fallback: if no SIGNED_IN event fires within 10s, something went wrong
+    // Show "taking longer" hint after 3s
+    const slowTimer = setTimeout(() => setSlow(true), 3000);
+
+    // Fallback: if no SIGNED_IN event fires within 5s, something went wrong
     const timeout = setTimeout(() => {
       subscription.unsubscribe();
       setError(true);
-    }, 10000);
+    }, 5000);
 
     return () => {
+      clearTimeout(slowTimer);
       clearTimeout(timeout);
       subscription.unsubscribe();
     };
@@ -51,6 +56,7 @@ export default function AuthCallbackPage() {
       <div className="text-center">
         <Loader2 className="w-8 h-8 animate-spin text-[#FFD700] mx-auto mb-4" />
         <p className="text-white/50 text-sm">Anmeldung wird verarbeitet...</p>
+        {slow && <p className="text-white/30 text-xs mt-2">Dauert länger als erwartet...</p>}
       </div>
     </div>
   );

@@ -82,8 +82,10 @@ export function AdminFeesTab({ adminId }: { adminId: string }) {
                   {isEditing ? (
                     <input
                       type="number"
+                      min={0}
+                      max={10000}
                       value={editValues[key] ?? 0}
-                      onChange={e => setEditValues(prev => ({ ...prev, [key]: parseInt(e.target.value) || 0 }))}
+                      onChange={e => setEditValues(prev => ({ ...prev, [key]: Math.min(10000, Math.max(0, parseInt(e.target.value) || 0)) }))}
                       className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white font-mono text-xs"
                     />
                   ) : (

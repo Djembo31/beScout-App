@@ -646,7 +646,7 @@ export default function MarketPage() {
         )}
 
         {/* IPOs Section (prominent) */}
-        {filteredIPOs.length > 0 && (
+        {(filteredIPOs.length > 0 || enrichLoading) && (
           <div className="mb-5">
             <div className="flex items-center gap-2 mb-3">
               <Zap className="w-4 h-4 text-[#22C55E]" />
@@ -656,11 +656,16 @@ export default function MarketPage() {
               </span>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-              {filteredIPOs.map(({ player: p, ipo }) => (
-                <PlayerDisplay key={ipo.id} variant="card" player={p}
-                  ipoData={getIpoDisplayData(ipo)}
-                  isWatchlisted={watchlist[p.id]} onWatch={() => toggleWatch(p.id)} />
-              ))}
+              {enrichLoading && filteredIPOs.length === 0
+                ? Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="animate-pulse bg-white/[0.02] border border-white/10 rounded-2xl h-[170px]" />
+                  ))
+                : filteredIPOs.map(({ player: p, ipo }) => (
+                    <PlayerDisplay key={ipo.id} variant="card" player={p}
+                      ipoData={getIpoDisplayData(ipo)}
+                      isWatchlisted={watchlist[p.id]} onWatch={() => toggleWatch(p.id)} />
+                  ))
+              }
             </div>
           </div>
         )}
