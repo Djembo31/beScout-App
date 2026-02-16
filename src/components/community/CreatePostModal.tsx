@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Modal, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { POST_CATEGORIES } from '@/components/community/PostCard';
@@ -29,15 +29,31 @@ export default function CreatePostModal({
   const [playerId, setPlayerId] = useState('');
   const [tagInput, setTagInput] = useState('');
   const [category, setCategory] = useState('Meinung');
+  const [playerSearch, setPlayerSearch] = useState('');
+  const [playerDropdownOpen, setPlayerDropdownOpen] = useState(false);
+  const playerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (playerRef.current && !playerRef.current.contains(e.target as Node)) {
+        setPlayerDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const canSubmit = content.trim().length >= 10;
 
   const handleSubmit = () => {
-    if (!content.trim()) return;
+    if (!canSubmit) return;
     const tags = tagInput.split(',').map(t => t.trim()).filter(Boolean);
     onSubmit(playerId || null, content.trim(), tags, category);
     setContent('');
     setPlayerId('');
     setTagInput('');
     setCategory('Meinung');
+    setPlayerSearch('');
   };
 
   return (
@@ -64,18 +80,59 @@ export default function CreatePostModal({
           </div>
         </div>
 
-        <div>
+        <div className="relative" ref={playerRef}>
           <label className="text-xs text-white/50 font-semibold mb-1.5 block">Spieler (optional)</label>
-          <select
-            value={playerId}
-            onChange={(e) => setPlayerId(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-[#FFD700]/40"
-          >
-            <option value="">Kein Spieler</option>
-            {players.map(p => (
-              <option key={p.id} value={p.id}>{p.name} ({p.pos})</option>
-            ))}
-          </select>
+          <input
+            type="text"
+            value={playerSearch}
+            onChange={(e) => { setPlayerSearch(e.target.value); setPlayerDropdownOpen(true); }}
+            onFocus={() => setPlayerDropdownOpen(true)}
+            placeholder={playerId ? players.find(p => p.id === playerId)?.name ?? 'Spieler suchen...' : 'Spieler suchen...'}
+            className={cn(
+              'w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40',
+              playerId && !playerSearch && 'text-white/70'
+            )}
+          />
+          {playerId && (
+            <button
+              type="button"
+              onClick={() => { setPlayerId(''); setPlayerSearch(''); }}
+              className="absolute right-3 top-[34px] text-white/30 hover:text-white text-xs"
+            >
+              ✕
+            </button>
+          )}
+          {playerDropdownOpen && (
+            <div className="absolute z-20 mt-1 w-full max-h-48 overflow-y-auto rounded-xl bg-[#1a1a1a] border border-white/10 shadow-xl">
+              <button
+                type="button"
+                onClick={() => { setPlayerId(''); setPlayerSearch(''); setPlayerDropdownOpen(false); }}
+                className="w-full px-4 py-2 text-left text-sm text-white/50 hover:bg-white/5"
+              >
+                Kein Spieler
+              </button>
+              {players
+                .filter(p => !playerSearch || p.name.toLowerCase().includes(playerSearch.toLowerCase()))
+                .slice(0, 20)
+                .map(p => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => { setPlayerId(p.id); setPlayerSearch(p.name); setPlayerDropdownOpen(false); }}
+                    className={cn(
+                      'w-full px-4 py-2 text-left text-sm hover:bg-white/5 flex items-center justify-between',
+                      playerId === p.id ? 'text-[#FFD700]' : 'text-white/80'
+                    )}
+                  >
+                    <span>{p.name}</span>
+                    <span className="text-[10px] text-white/30">{p.pos}</span>
+                  </button>
+                ))}
+              {players.filter(p => !playerSearch || p.name.toLowerCase().includes(playerSearch.toLowerCase())).length === 0 && (
+                <div className="px-4 py-2 text-sm text-white/30">Kein Spieler gefunden</div>
+              )}
+            </div>
+          )}
         </div>
 
         <div>
@@ -103,7 +160,12 @@ export default function CreatePostModal({
           />
         </div>
 
-        <Button variant="gold" fullWidth loading={loading} onClick={handleSubmit}>
+        {!canSubmit && content.length > 0 && (
+          <div className="text-xs text-red-400/80">
+            Mindestens 10 Zeichen ({content.trim().length}/10)
+          </div>
+        )}
+        <Button variant="gold" fullWidth loading={loading} disabled={!canSubmit} onClick={handleSubmit}>
           Posten
         </Button>
       </div>

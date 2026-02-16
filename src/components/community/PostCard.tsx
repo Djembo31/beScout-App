@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import {
-  ArrowUp, ArrowDown, MessageSquare, Send, Bookmark,
+  ArrowUp, ArrowDown, MessageSquare, Send,
   MoreHorizontal, Target, Briefcase, BadgeCheck, CheckCircle2,
   Pin, Trash2,
 } from 'lucide-react';
@@ -246,10 +246,6 @@ export default function PostCard({
               }}>
               {copied ? <CheckCircle2 className="w-3 h-3" /> : <Send className="w-3 h-3" />}
               {copied ? 'Kopiert!' : 'Teilen'}
-            </button>
-            <button className="flex items-center gap-1 hover:text-white transition-colors">
-              <Bookmark className="w-3 h-3" />
-              Speichern
             </button>
           </div>
 
