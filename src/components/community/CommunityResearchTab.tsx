@@ -142,7 +142,7 @@ export default function CommunityResearchTab({
       </div>
 
       {/* Category Filter Pills */}
-      <div className="flex gap-1 flex-wrap">
+      <div className="flex gap-1 flex-wrap items-center">
         {RESEARCH_CATEGORIES.map(cat => (
           <button
             key={cat.id}
@@ -157,6 +157,14 @@ export default function CommunityResearchTab({
             {cat.label}
           </button>
         ))}
+        {(researchCallFilter || researchCategoryFilter) && (
+          <button
+            onClick={() => { setResearchCallFilter(null); setResearchCategoryFilter(null); }}
+            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-white/30 hover:text-white/60 transition-colors"
+          >
+            Filter zurücksetzen
+          </button>
+        )}
       </div>
 
       {sortedResearchPosts.length === 0 ? (

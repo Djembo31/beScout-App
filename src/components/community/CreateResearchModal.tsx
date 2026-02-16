@@ -146,6 +146,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             value={playerSearch}
             onChange={(e) => { setPlayerSearch(e.target.value); setPlayerDropdownOpen(true); }}
             onFocus={() => setPlayerDropdownOpen(true)}
+            onKeyDown={(e) => { if (e.key === 'Escape') setPlayerDropdownOpen(false); }}
             placeholder={playerId ? players.find(p => p.id === playerId)?.name ?? 'Spieler suchen...' : 'Spieler suchen...'}
             className={cn(
               'w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40',

@@ -33,6 +33,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
   const [submitting, setSubmitting] = useState(false);
   const [myVotes, setMyVotes] = useState<Map<string, number>>(new Map());
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [votingId, setVotingId] = useState<string | null>(null);
 
   const loadReplies = useCallback(async () => {
     try {
@@ -79,6 +80,8 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
   };
 
   const handleVote = async (replyId: string, voteType: number) => {
+    if (votingId) return;
+    setVotingId(replyId);
     try {
       const result = await votePost(userId, replyId, voteType);
       setReplies(prev => prev.map(r =>
@@ -92,6 +95,8 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
       });
     } catch (err) {
       console.error('[PostReplies] Vote failed:', err);
+    } finally {
+      setVotingId(null);
     }
   };
 
@@ -130,8 +135,10 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
                     <div className="flex items-center gap-3 text-xs text-white/40">
                       <button
                         onClick={() => handleVote(reply.id, myVote === 1 ? 0 : 1)}
+                        disabled={votingId === reply.id}
                         className={cn(
                           'flex items-center gap-0.5 transition-colors',
+                          votingId === reply.id ? 'opacity-50' : '',
                           myVote === 1 ? 'text-[#22C55E]' : 'hover:text-[#22C55E]'
                         )}
                       >
@@ -145,8 +152,10 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
                       </span>
                       <button
                         onClick={() => handleVote(reply.id, myVote === -1 ? 0 : -1)}
+                        disabled={votingId === reply.id}
                         className={cn(
                           'flex items-center gap-0.5 transition-colors',
+                          votingId === reply.id ? 'opacity-50' : '',
                           myVote === -1 ? 'text-red-300' : 'hover:text-red-300'
                         )}
                       >

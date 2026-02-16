@@ -107,6 +107,7 @@ function StarRating({
 }
 
 export default function ResearchCard({ post, onUnlock, unlockingId, onRate, ratingId }: Props) {
+  const [confirmUnlock, setConfirmUnlock] = useState(false);
   const canSeeContent = post.is_own || post.is_unlocked;
   const tier = getLevelTier(post.author_level);
   const priceBsd = centsToBsd(post.price);
@@ -205,22 +206,38 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0a0a]/60 to-[#0a0a0a]" />
           </div>
           {/* Unlock button */}
-          <div className="flex justify-center -mt-2">
-            <Button
-              variant="gold"
-              size="sm"
-              loading={unlockingId === post.id}
-              onClick={() => onUnlock(post.id)}
-            >
-              {unlockingId === post.id ? (
-                'Wird freigeschaltet...'
-              ) : (
-                <>
-                  <Lock className="w-3.5 h-3.5" />
-                  Freischalten für {fmtBSD(priceBsd)} BSD
-                </>
-              )}
-            </Button>
+          <div className="flex flex-col items-center gap-2 -mt-2">
+            {!confirmUnlock ? (
+              <Button
+                variant="gold"
+                size="sm"
+                onClick={() => setConfirmUnlock(true)}
+              >
+                <Lock className="w-3.5 h-3.5" />
+                Freischalten für {fmtBSD(priceBsd)} BSD
+              </Button>
+            ) : (
+              <div className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl bg-[#FFD700]/5 border border-[#FFD700]/15">
+                <span className="text-xs text-white/60">{fmtBSD(priceBsd)} BSD werden von deinem Wallet abgezogen</span>
+                <div className="flex gap-2">
+                  <Button
+                    variant="gold"
+                    size="sm"
+                    loading={unlockingId === post.id}
+                    onClick={() => { onUnlock(post.id); setConfirmUnlock(false); }}
+                  >
+                    <Unlock className="w-3.5 h-3.5" />
+                    Ja, freischalten
+                  </Button>
+                  <button
+                    onClick={() => setConfirmUnlock(false)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 text-white/50 hover:bg-white/10 transition-colors"
+                  >
+                    Abbrechen
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

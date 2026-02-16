@@ -576,7 +576,11 @@ export default function CommunityPage() {
                 <Card className="p-8 text-center border-red-500/10">
                   <div className="text-3xl mb-3">📡</div>
                   <div className="text-white/50 text-sm mb-1">Noch keine Gerüchte</div>
-                  <div className="text-white/30 text-xs">Geh zu einem Spieler und teile ein Transfergerücht!</div>
+                  <div className="text-white/30 text-xs mb-3">Erstelle einen Post mit Typ &quot;Gerücht&quot; oder geh zu einem Spieler!</div>
+                  <Button variant="gold" size="sm" onClick={() => setCreatePostOpen(true)}>
+                    <Plus className="w-4 h-4" />
+                    Gerücht posten
+                  </Button>
                 </Card>
               ) : (
                 rumors.map(rumor => {

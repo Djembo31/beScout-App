@@ -203,14 +203,28 @@ export default function PostCard({
             </div>
           )}
 
-          {/* Category Badge (top-level posts only) */}
-          {!post.parent_id && post.category && (
-            <span className={cn(
-              'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border mb-2',
-              POST_CATEGORIES.find(c => c.id === post.category)?.color ?? 'bg-white/5 text-white/50 border-white/10'
-            )}>
-              {post.category}
-            </span>
+          {/* Category + PostType Badges (top-level posts only) */}
+          {!post.parent_id && (post.category || (post.post_type && post.post_type !== 'general')) && (
+            <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+              {post.category && (
+                <span className={cn(
+                  'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border',
+                  POST_CATEGORIES.find(c => c.id === post.category)?.color ?? 'bg-white/5 text-white/50 border-white/10'
+                )}>
+                  {post.category}
+                </span>
+              )}
+              {post.post_type === 'player_take' && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/20">
+                  Spieler-Take
+                </span>
+              )}
+              {post.post_type === 'transfer_rumor' && (
+                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-semibold border bg-red-500/15 text-red-300 border-red-500/20">
+                  Gerücht
+                </span>
+              )}
+            </div>
           )}
 
           {/* Player Tag */}
@@ -258,14 +272,14 @@ export default function PostCard({
             </button>
             <button className={cn('flex items-center gap-1 transition-colors', copied ? 'text-[#22C55E]' : 'hover:text-white')}
               onClick={async () => {
-                const url = `${window.location.origin}/community`;
+                const url = `${window.location.origin}/community?post=${post.id}`;
                 const text = `${post.author_display_name || post.author_handle}: "${post.content.slice(0, 80)}…"`;
                 if (navigator.share) {
                   try { await navigator.share({ title: 'BeScout Post', text, url }); } catch {}
                 } else {
                   await navigator.clipboard.writeText(`${text} — ${url}`);
                   setCopied(true);
-                  setTimeout(() => setCopied(false), 2000);
+                  setTimeout(() => setCopied(false), 3000);
                 }
               }}>
               {copied ? <CheckCircle2 className="w-3 h-3" /> : <Send className="w-3 h-3" />}
