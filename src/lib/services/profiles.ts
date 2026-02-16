@@ -110,14 +110,16 @@ export async function getProfilesByIds(
 }
 
 export async function getProfileByHandle(handle: string): Promise<Profile | null> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('handle', handle.toLowerCase())
-    .single();
+  return cached(`profile:handle:${handle.toLowerCase()}`, async () => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('handle', handle.toLowerCase())
+      .single();
 
-  if (error || !data) return null;
-  return data as Profile;
+    if (error || !data) return null;
+    return data as Profile;
+  }, 5 * 60 * 1000);
 }
 
 export async function checkHandleAvailable(handle: string): Promise<boolean> {

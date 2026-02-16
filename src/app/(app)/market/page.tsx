@@ -224,36 +224,73 @@ export default function MarketPage() {
   const [trending, setTrending] = useState<TrendingPlayer[]>([]);
   const [incomingOffers, setIncomingOffers] = useState<OfferWithDetails[]>([]);
 
-  // Phase 1: Players + Holdings
+  // ── Helpers: enrich players with sell orders + holdings ──
+  const enrichPlayers = (base: Player[], sellOrders: { id: string; player_id: string; user_id: string; price: number; quantity: number; filled_qty: number; expires_at: string | null }[], hlds: HoldingWithPlayer[], priceHistMap?: Map<string, number[]>) => {
+    return base.map(p => {
+      const h = hlds.find(h => h.player_id === p.id);
+      const playerOrders = sellOrders.filter(o => o.player_id === p.id);
+      const onMarket = playerOrders.reduce((sum, o) => sum + (o.quantity - o.filled_qty), 0);
+      const listings: Listing[] = playerOrders.map(o => ({
+        id: o.id, sellerId: o.user_id, sellerName: 'Verkäufer', price: centsToBsd(o.price),
+        qty: o.quantity - o.filled_qty, expiresAt: o.expires_at ? new Date(o.expires_at).getTime() : Date.now() + 86400000,
+      }));
+      // Compute floor from sell orders (more accurate than DB floor_price which may be stale)
+      const orderFloor = listings.length > 0 ? Math.min(...listings.map(l => l.price)) : undefined;
+      const hist = priceHistMap?.get(p.id);
+      return {
+        ...p,
+        dpc: { ...p.dpc, onMarket, owned: h?.quantity ?? 0 },
+        prices: { ...p.prices, floor: orderFloor ?? p.prices.floor, history7d: hist && hist.length >= 2 ? hist : p.prices.history7d },
+        listings,
+      };
+    });
+  };
+
+  // Single-phase data load: Players + Holdings + Enrichment in parallel
   useEffect(() => {
     let cancelled = false;
-    async function loadCore() {
+    async function loadAll() {
       try {
         const results = await withTimeout(Promise.allSettled([
           getPlayers(),
           user ? getHoldings(user.id) : Promise.resolve([]),
           user ? getWatchlist(user.id) : Promise.resolve([]),
-        ]), 10000);
+          getAllOpenSellOrders(),
+          getActiveIpos(),
+          getTrendingPlayers(5),
+          getAllPriceHistories(10),
+          user ? getIncomingOffers(user.id) : Promise.resolve([]),
+        ]), 12000);
         if (cancelled) return;
+
         const dbPlayers = val(results[0], []);
         const hlds = val(results[1], []);
         const wlEntries = val(results[2], []);
+        const sellOrders = val(results[3], []);
+        const ipos = val(results[4], []);
+        const trendData = val(results[5], []);
+        const priceHistMap = val(results[6], new Map<string, number[]>());
+        const offers = val(results[7], []);
+
         if (results[0].status === 'rejected') {
           if (!cancelled) setDataError(true);
           return;
         }
+
         const mapped = dbToPlayers(dbPlayers);
-        const base = mapped.map(p => {
-          const h = hlds.find(h => h.player_id === p.id);
-          return { ...p, dpc: { ...p.dpc, owned: h?.quantity ?? 0 } };
-        });
-        setPlayers(base);
+        const enriched = enrichPlayers(mapped, sellOrders, hlds, priceHistMap);
+        setPlayers(enriched);
         setHoldings(hlds);
-        // Build watchlist map from DB entries
+        setIpoList(ipos);
+        setTrending(trendData);
+        setIncomingOffers(offers.filter(o => o.status === 'pending'));
+
+        // Build watchlist map
         const wlMap: Record<string, boolean> = {};
         for (const entry of wlEntries) { wlMap[entry.playerId] = true; }
         setWatchlist(wlMap);
-        // Migrate localStorage watchlist if present (one-time)
+
+        // Migrate localStorage watchlist (one-time, fire-and-forget)
         if (user && typeof window !== 'undefined' && localStorage.getItem('bescout-watchlist')) {
           migrateLocalWatchlist(user.id).then(count => {
             if (count > 0) {
@@ -265,93 +302,30 @@ export default function MarketPage() {
             }
           }).catch(err => console.error('[Market] Watchlist migration failed:', err));
         }
+
         setDataError(false);
       } catch {
         if (!cancelled) setDataError(true);
       } finally {
-        if (!cancelled) setDataLoading(false);
+        if (!cancelled) { setDataLoading(false); setEnrichLoading(false); }
       }
     }
-    loadCore();
+    loadAll();
     return () => { cancelled = true; };
   }, [user, retryCount]);
 
-  // Phase 2: Enrichment
-  useEffect(() => {
-    if (players.length === 0 || dataLoading) return;
-    let cancelled = false;
-    async function loadEnrichment() {
-      try {
-        const results = await withTimeout(Promise.allSettled([
-          getAllOpenSellOrders(),
-          getActiveIpos(),
-          getTrendingPlayers(5),
-          getAllPriceHistories(10),
-        ]), 10000);
-        if (cancelled) return;
-        const sellOrders = val(results[0], []);
-        const ipos = val(results[1], []);
-        const trendData = val(results[2], []);
-        const priceHistMap = val(results[3], new Map<string, number[]>());
-
-        setPlayers(prev => prev.map(p => {
-          const playerOrders = sellOrders.filter(o => o.player_id === p.id);
-          const onMarket = playerOrders.reduce((sum, o) => sum + (o.quantity - o.filled_qty), 0);
-          const listings: Listing[] = playerOrders.map(o => ({
-            id: o.id,
-            sellerId: o.user_id,
-            sellerName: 'Verkäufer',
-            price: centsToBsd(o.price),
-            qty: o.quantity - o.filled_qty,
-            expiresAt: o.expires_at ? new Date(o.expires_at).getTime() : Date.now() + 86400000,
-          }));
-          const hist = priceHistMap.get(p.id);
-          return {
-            ...p,
-            dpc: { ...p.dpc, onMarket },
-            prices: { ...p.prices, history7d: hist && hist.length >= 2 ? hist : undefined },
-            listings,
-          };
-        }));
-        setIpoList(ipos);
-        setTrending(trendData);
-
-        // Fetch incoming offers for portfolio sell view
-        if (user) {
-          getIncomingOffers(user.id).then(offers => {
-            if (!cancelled) setIncomingOffers(offers.filter(o => o.status === 'pending'));
-          }).catch(err => console.error('[Market] Incoming offers load failed:', err));
-        }
-
-        // Watchlist price change detection (using DB-backed watchlist state)
-        const savedPricesRaw = typeof window !== 'undefined' ? localStorage.getItem('bescout-watchlist-prices') : null;
-        const savedPrices: Record<string, number> = savedPricesRaw ? JSON.parse(savedPricesRaw) : {};
-        const updatedPrices = { ...savedPrices };
-        for (const p of players) {
-          if (!watchlist[p.id]) continue;
-          const oldPrice = savedPrices[p.id];
-          const newPrice = p.prices.floor ?? 0;
-          if (oldPrice && oldPrice > 0 && newPrice > 0) {
-            const changePct = ((newPrice - oldPrice) / oldPrice) * 100;
-            if (Math.abs(changePct) >= 5) {
-              const dir = changePct > 0 ? 'gestiegen' : 'gefallen';
-              const sign = changePct > 0 ? '+' : '';
-              addToast(`${p.first} ${p.last}: Preis ${dir} (${sign}${changePct.toFixed(1)}%)`, changePct > 0 ? 'success' : 'error');
-            }
-          }
-          updatedPrices[p.id] = newPrice;
-        }
-        if (typeof window !== 'undefined') localStorage.setItem('bescout-watchlist-prices', JSON.stringify(updatedPrices));
-      } catch {
-        // Enrichment failure is non-critical
-      } finally {
-        if (!cancelled) setEnrichLoading(false);
-      }
-    }
-    loadEnrichment();
-    return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [players.length, dataLoading]);
+  // Light refresh after trades: only holdings + sell orders (NOT all 500 players)
+  const refreshAfterTrade = async () => {
+    if (!user) return;
+    const [hlds, sellOrders, offers] = await Promise.all([
+      getHoldings(user.id),
+      getAllOpenSellOrders(),
+      getIncomingOffers(user.id),
+    ]);
+    setHoldings(hlds);
+    setIncomingOffers(offers.filter(o => o.status === 'pending'));
+    setPlayers(prev => enrichPlayers(prev, sellOrders, hlds));
+  };
 
   const toggleWatch = (id: string) => {
     if (!user) return;
@@ -367,7 +341,7 @@ export default function MarketPage() {
     });
   };
 
-  // Buy handler
+  // Buy handler — lightweight refresh (no full player reload)
   const handleBuy = async (playerId: string, quantity: number = 1) => {
     if (!user) return;
     setBuyingId(playerId);
@@ -381,27 +355,7 @@ export default function MarketPage() {
         setBuySuccess(`${quantity} DPC gekauft!`);
         setLastBoughtId(playerId);
         setBalanceCents(result.new_balance ?? balanceCents);
-        const [dbPlayers, holdings, sellOrders] = await Promise.all([
-          getPlayers(),
-          getHoldings(user.id),
-          getAllOpenSellOrders(),
-        ]);
-        const mapped = dbToPlayers(dbPlayers);
-        setPlayers(mapped.map(p => {
-          const h = holdings.find(h => h.player_id === p.id);
-          const playerOrders = sellOrders.filter(o => o.player_id === p.id);
-          const onMarket = playerOrders.reduce((sum, o) => sum + (o.quantity - o.filled_qty), 0);
-          const listings: Listing[] = playerOrders.map(o => ({
-            id: o.id,
-            sellerId: o.user_id,
-            sellerName: 'Verkäufer',
-            price: centsToBsd(o.price),
-            qty: o.quantity - o.filled_qty,
-            expiresAt: o.expires_at ? new Date(o.expires_at).getTime() : Date.now() + 86400000,
-          }));
-          return { ...p, dpc: { ...p.dpc, onMarket, owned: h?.quantity ?? 0 }, listings };
-        }));
-        setHoldings(holdings);
+        await refreshAfterTrade();
         setTimeout(() => { setBuySuccess(null); setLastBoughtId(null); }, 3000);
       }
     } catch (err) {
@@ -411,52 +365,26 @@ export default function MarketPage() {
     }
   };
 
-  // Sell handler (for ManagerBestandTab)
+  // Sell handler (for ManagerBestandTab) — lightweight refresh
   const handleSell = async (playerId: string, quantity: number, priceCents: number): Promise<{ success: boolean; error?: string }> => {
     if (!user) return { success: false, error: 'Nicht eingeloggt' };
     try {
       const result = await placeSellOrder(user.id, playerId, quantity, priceCents);
       if (!result.success) return { success: false, error: result.error || 'Listing fehlgeschlagen' };
-      // Refresh data
-      const [dbPlayers, hlds, sellOrders] = await Promise.all([getPlayers(), getHoldings(user.id), getAllOpenSellOrders()]);
-      const mapped = dbToPlayers(dbPlayers);
-      setPlayers(mapped.map(p => {
-        const h = hlds.find(h => h.player_id === p.id);
-        const playerOrders = sellOrders.filter(o => o.player_id === p.id);
-        const onMarket = playerOrders.reduce((sum, o) => sum + (o.quantity - o.filled_qty), 0);
-        const listings: Listing[] = playerOrders.map(o => ({
-          id: o.id, sellerId: o.user_id, sellerName: 'Verkäufer', price: centsToBsd(o.price),
-          qty: o.quantity - o.filled_qty, expiresAt: o.expires_at ? new Date(o.expires_at).getTime() : Date.now() + 86400000,
-        }));
-        return { ...p, dpc: { ...p.dpc, onMarket, owned: h?.quantity ?? 0 }, listings };
-      }));
-      setHoldings(hlds);
+      await refreshAfterTrade();
       return { success: true };
     } catch (err) {
       return { success: false, error: err instanceof Error ? err.message : 'Unbekannter Fehler' };
     }
   };
 
-  // Cancel order handler (for ManagerBestandTab)
+  // Cancel order handler (for ManagerBestandTab) — lightweight refresh
   const handleCancelOrder = async (orderId: string): Promise<{ success: boolean; error?: string }> => {
     if (!user) return { success: false, error: 'Nicht eingeloggt' };
     try {
       const result = await cancelOrder(user.id, orderId);
       if (!result.success) return { success: false, error: result.error || 'Stornierung fehlgeschlagen' };
-      // Refresh data
-      const [dbPlayers, hlds, sellOrders] = await Promise.all([getPlayers(), getHoldings(user.id), getAllOpenSellOrders()]);
-      const mapped = dbToPlayers(dbPlayers);
-      setPlayers(mapped.map(p => {
-        const h = hlds.find(h => h.player_id === p.id);
-        const playerOrders = sellOrders.filter(o => o.player_id === p.id);
-        const onMarket = playerOrders.reduce((sum, o) => sum + (o.quantity - o.filled_qty), 0);
-        const listings: Listing[] = playerOrders.map(o => ({
-          id: o.id, sellerId: o.user_id, sellerName: 'Verkäufer', price: centsToBsd(o.price),
-          qty: o.quantity - o.filled_qty, expiresAt: o.expires_at ? new Date(o.expires_at).getTime() : Date.now() + 86400000,
-        }));
-        return { ...p, dpc: { ...p.dpc, onMarket, owned: h?.quantity ?? 0 }, listings };
-      }));
-      setHoldings(hlds);
+      await refreshAfterTrade();
       return { success: true };
     } catch (err) {
       return { success: false, error: err instanceof Error ? err.message : 'Unbekannter Fehler' };

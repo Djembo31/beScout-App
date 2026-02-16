@@ -286,6 +286,7 @@ export default function HomePage() {
 
     async function loadData() {
       try {
+        // All fetches in one parallel batch — no waterfalls
         const results = await withTimeout(Promise.allSettled([
           getPlayers(),
           getHoldings(uid),
@@ -298,7 +299,9 @@ export default function HomePage() {
           getTopTraders(5),
           getPosts({ limit: 5 }),
           getDpcOfTheWeek(),
-        ]), 10000);
+          getFollowingFeed(uid, 15),
+          getScoutMissions(),
+        ]), 12000);
         if (cancelled) return;
 
         const dbPlayers = val(results[0], []);
@@ -312,6 +315,8 @@ export default function HomePage() {
         const traders = val(results[8], []);
         const posts = val(results[9], []);
         const dpcWeek = val(results[10], null);
+        const feed = val(results[11], []);
+        const missions = val(results[12], []);
 
         if (results[0].status === 'rejected') {
           if (!cancelled) setDataError(true);
@@ -328,6 +333,8 @@ export default function HomePage() {
         setTopTraders(traders);
         setCommunityPosts(posts);
         setDpcOfWeek(dpcWeek);
+        setFollowingFeed(feed);
+        setScoutMissions(missions);
 
         const mapped: DpcHolding[] = dbHoldings.map((h) => ({
           id: h.id,
@@ -349,6 +356,14 @@ export default function HomePage() {
         }));
         setHoldings(mapped);
         setDataError(false);
+
+        // Mission progress: derive GW from already-fetched events (no extra query)
+        const maxGw = dbEvents.reduce((mx: number, e: DbEvent) => Math.max(mx, e.gameweek || 0), 0);
+        if (maxGw > 0 && missions.length > 0) {
+          getUserMissionProgress(uid, maxGw).then(progress => {
+            if (!cancelled) setMissionProgress(progress);
+          }).catch(err => console.error('[Home] Mission progress load failed:', err));
+        }
       } catch {
         if (!cancelled) setDataError(true);
       } finally {
@@ -358,31 +373,10 @@ export default function HomePage() {
 
     loadData();
 
-    // Following Feed (fire-and-forget, non-critical)
-    getFollowingFeed(uid, 15).then(feed => {
-      if (!cancelled) setFollowingFeed(feed);
-    }).catch(err => console.error('[Home] Following feed failed:', err));
-
+    // Fire-and-forget side effects (non-blocking)
     import('@/lib/services/missions').then(({ trackMissionProgress }) => {
       trackMissionProgress(uid, 'daily_login');
     }).catch(err => console.error('[Home] Mission tracking failed:', err));
-
-    // Load scout missions (fire-and-forget, non-critical)
-    Promise.allSettled([getScoutMissions()]).then(([missionsRes]) => {
-      if (cancelled) return;
-      const missions = val(missionsRes, []);
-      setScoutMissions(missions);
-      // Determine current GW from events (use max gameweek)
-      getEvents().then(evts => {
-        if (cancelled) return;
-        const maxGw = evts.reduce((mx, e) => Math.max(mx, e.gameweek || 0), 0);
-        if (maxGw > 0) {
-          getUserMissionProgress(uid, maxGw).then(progress => {
-            if (!cancelled) setMissionProgress(progress);
-          }).catch(err => console.error('[Home] Mission progress load failed:', err));
-        }
-      }).catch(err => console.error('[Home] Events load for missions failed:', err));
-    });
 
     setStreak(updateLoginStreak());
 

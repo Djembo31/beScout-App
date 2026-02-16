@@ -19,18 +19,16 @@ const FIVE_MIN = 5 * 60 * 1000;
 // Wallet Queries
 // ============================================
 
-/** Wallet des Users laden */
+/** Wallet des Users laden — no cache to prevent RLS race condition (null cached before session ready) */
 export async function getWallet(userId: string): Promise<DbWallet | null> {
-  return cached(`wallet:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('wallets')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
+  const { data, error } = await supabase
+    .from('wallets')
+    .select('id, user_id, balance, locked_balance, currency, created_at, updated_at')
+    .eq('user_id', userId)
+    .single();
 
-    if (error) return null;
-    return data as DbWallet;
-  }, TWO_MIN);
+  if (error) return null;
+  return data as DbWallet;
 }
 
 // ============================================

@@ -243,7 +243,7 @@ export async function getAllOpenSellOrders(): Promise<DbOrder[]> {
   return cached('orders:all', async () => {
     const { data, error } = await supabase
       .from('orders')
-      .select('*')
+      .select('id, player_id, user_id, price, quantity, filled_qty, status, created_at, expires_at')
       .eq('side', 'sell')
       .in('status', ['open', 'partial'])
       .order('price', { ascending: true });
@@ -258,7 +258,7 @@ export async function getSellOrders(playerId: string): Promise<DbOrder[]> {
   return cached(`sellOrders:${playerId}`, async () => {
     const { data, error } = await supabase
       .from('orders')
-      .select('*')
+      .select('id, player_id, user_id, price, quantity, filled_qty, status, created_at, expires_at')
       .eq('player_id', playerId)
       .eq('side', 'sell')
       .in('status', ['open', 'partial'])
@@ -271,15 +271,17 @@ export async function getSellOrders(playerId: string): Promise<DbOrder[]> {
 
 /** Letzte Trades fuer einen Spieler (Preis-History) */
 export async function getPlayerTrades(playerId: string, limit = 20) {
-  const { data, error } = await supabase
-    .from('trades')
-    .select('*')
-    .eq('player_id', playerId)
-    .order('executed_at', { ascending: false })
-    .limit(limit);
+  return cached(`playerTrades:${playerId}:${limit}`, async () => {
+    const { data, error } = await supabase
+      .from('trades')
+      .select('*')
+      .eq('player_id', playerId)
+      .order('executed_at', { ascending: false })
+      .limit(limit);
 
-  if (error) throw new Error(error.message);
-  return data ?? [];
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  }, ONE_MIN);
 }
 
 /** Letzte Trades eines Users (fuer Profil) */
