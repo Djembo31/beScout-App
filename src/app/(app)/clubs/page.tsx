@@ -52,12 +52,12 @@ export default function ClubsDiscoveryPage() {
   const handleToggleFollow = async (club: ClubWithStats) => {
     if (!user) return;
     setTogglingId(club.id);
+    const wasFollowing = isFollowing(club.id);
     try {
       await toggleFollow(club.id, club.name);
-      // Update local count optimistically
+      // Update local count after toggle
       setClubs(prev => prev.map(c => {
         if (c.id !== club.id) return c;
-        const wasFollowing = isFollowing(club.id);
         return { ...c, follower_count: c.follower_count + (wasFollowing ? -1 : 1) };
       }));
     } catch (err) {
@@ -105,8 +105,15 @@ export default function ClubsDiscoveryPage() {
       {/* Empty */}
       {!loading && !dataError && filtered.length === 0 && (
         <div className="text-center py-16">
-          <Shield className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <p className="text-white/50">Keine Clubs gefunden.</p>
+          <Search className="w-10 h-10 text-white/20 mx-auto mb-3" />
+          <p className="text-white/50">
+            {searchQuery ? `Keine Clubs für "${searchQuery}" gefunden.` : 'Keine Clubs verfügbar.'}
+          </p>
+          {searchQuery && (
+            <button onClick={() => setSearchQuery('')} className="mt-2 text-xs text-[#FFD700]/70 hover:text-[#FFD700]">
+              Suche zurücksetzen
+            </button>
+          )}
         </div>
       )}
 

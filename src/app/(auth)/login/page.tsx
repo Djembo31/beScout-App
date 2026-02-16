@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Mail, Lock, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, CheckCircle, AlertCircle, Eye, EyeOff, X } from 'lucide-react';
 import { signUp, signInWithPassword, signInWithOtp, signInWithOAuth } from '@/lib/services/auth';
 import { useUser } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui';
@@ -212,7 +212,10 @@ function LoginContent() {
             {error && (
               <div className="flex items-center gap-2 p-3 mb-5 rounded-xl bg-red-500/10 border border-red-400/20">
                 <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-                <span className="text-sm text-red-200">{error}</span>
+                <span className="text-sm text-red-200 flex-1">{error}</span>
+                <button onClick={() => setError(null)} className="text-red-400/60 hover:text-red-400 shrink-0" aria-label="Schließen">
+                  <X className="w-3.5 h-3.5" />
+                </button>
               </div>
             )}
 

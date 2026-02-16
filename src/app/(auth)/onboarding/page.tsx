@@ -375,12 +375,19 @@ function OnboardingContent() {
                       onChange={(e) => { setPasswordConfirm(e.target.value); setPasswordError(null); }}
                       placeholder="Passwort wiederholen"
                       className={cn(
-                        'w-full pl-11 pr-4 py-3 rounded-xl text-sm',
+                        'w-full pl-11 pr-11 py-3 rounded-xl text-sm',
                         'bg-white/5 border border-white/10',
                         'placeholder:text-white/30 text-white',
                         'focus:outline-none focus:border-[#FFD700]/40 transition-all'
                       )}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
                   </div>
                 </div>
 
@@ -391,6 +398,17 @@ function OnboardingContent() {
                   </div>
                 )}
               </>
+            )}
+
+            {!validateStep1() && handle.length >= 1 && (
+              <div className="text-xs text-white/30 mb-3">
+                {handleStatus === 'checking' ? 'Handle wird geprüft...' :
+                 handleStatus === 'taken' ? 'Handle ist vergeben — wähle einen anderen.' :
+                 handleStatus === 'invalid' ? 'Handle: 3-20 Zeichen, nur a-z, 0-9 und _' :
+                 !hasPassword && password.length > 0 && password.length < 6 ? 'Passwort: min. 6 Zeichen.' :
+                 !hasPassword && password.length >= 6 && password !== passwordConfirm ? 'Passwörter stimmen nicht überein.' :
+                 null}
+              </div>
             )}
 
             <Button

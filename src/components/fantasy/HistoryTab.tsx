@@ -248,6 +248,7 @@ export const HistoryTab = ({
           <div className="text-center py-12 text-white/40">
             <History className="w-10 h-10 mx-auto mb-3 text-white/20" />
             <div className="text-sm">Noch keine ausgewerteten Events</div>
+            <div className="text-xs text-white/25 mt-1">Tritt einem Event bei und warte auf die Auswertung.</div>
           </div>
         ) : (
           <>

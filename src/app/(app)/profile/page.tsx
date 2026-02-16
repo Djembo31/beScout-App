@@ -250,6 +250,7 @@ function SettingsTab() {
             readOnly
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/[0.02] border border-white/5 text-white/40 cursor-not-allowed"
           />
+          <div className="mt-1 text-[10px] text-white/25">Kann nicht geändert werden</div>
         </div>
 
         <div className="mb-6">

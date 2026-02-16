@@ -39,7 +39,8 @@ const TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
 // Overview Tab (inline — 12 lines)
 // ============================================
 
-function OverviewTab({ stats }: { stats: SystemStats | null }) {
+function OverviewTab({ stats, error }: { stats: SystemStats | null; error?: boolean }) {
+  if (error) return <Card className="p-6 text-center text-white/40"><BarChart3 className="w-8 h-8 mx-auto mb-2 text-white/15" /><div className="text-sm">Statistiken konnten nicht geladen werden.</div></Card>;
   if (!stats) return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>;
   return (
     <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
@@ -172,6 +173,7 @@ export default function BescoutAdminContent() {
   const [adminRole, setAdminRole] = useState<PlatformAdminRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<SystemStats | null>(null);
+  const [statsError, setStatsError] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -179,7 +181,10 @@ export default function BescoutAdminContent() {
       setAdminRole(role);
       setLoading(false);
       if (role) {
-        getSystemStats().then(setStats).catch(err => console.error('[BescoutAdmin] System stats load failed:', err));
+        getSystemStats().then(setStats).catch(err => {
+          console.error('[BescoutAdmin] System stats load failed:', err);
+          setStatsError(true);
+        });
       } else {
         // Not an admin — redirect (middleware should catch this, but fallback)
         router.replace('/');
@@ -230,7 +235,7 @@ export default function BescoutAdminContent() {
       </div>
 
       {/* Tab Content */}
-      {tab === 'overview' && <OverviewTab stats={stats} />}
+      {tab === 'overview' && <OverviewTab stats={stats} error={statsError} />}
       {tab === 'users' && user && <AdminUsersTab adminId={user.id} role={adminRole} />}
       {tab === 'fees' && user && <AdminFeesTab adminId={user.id} />}
       {tab === 'ipos' && <IposTab />}

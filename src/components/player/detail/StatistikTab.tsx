@@ -85,7 +85,15 @@ export default function StatistikTab({ player, gwScores }: StatistikTabProps) {
       </Card>
 
       {/* Gameweek Score Bars */}
-      <GameweekScoreBar scores={gwScores} maxDisplay={15} />
+      {gwScores.length > 0 ? (
+        <GameweekScoreBar scores={gwScores} maxDisplay={15} />
+      ) : (
+        <Card className="p-6 text-center">
+          <Activity className="w-8 h-8 text-white/15 mx-auto mb-2" />
+          <div className="text-sm text-white/40">Noch keine Spieltagwerte verfügbar</div>
+          <div className="text-xs text-white/25 mt-1">Werte werden nach dem ersten ausgewerteten Spieltag angezeigt.</div>
+        </Card>
+      )}
     </div>
   );
 }

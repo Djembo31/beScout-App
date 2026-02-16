@@ -545,7 +545,7 @@ export default function HomePage() {
         <div className="space-y-5">
           {/* Holdings Top 5 */}
           <div>
-            <SectionHeader title="Mein Spielerkader" href="/market" />
+            <SectionHeader title="Mein Spielerkader" href="/market?tab=portfolio" />
             <div className="mt-3 space-y-1.5">
               {holdings.length === 0 ? (
                 <Card className="p-6 text-center">
@@ -589,7 +589,7 @@ export default function HomePage() {
                 ))
               )}
               {holdings.length > 5 && (
-                <Link href="/market" className="block text-center py-2 text-xs text-[#FFD700] hover:underline">
+                <Link href="/market?tab=portfolio" className="block text-center py-2 text-xs text-[#FFD700] hover:underline">
                   Alle {holdings.length} Spieler anzeigen
                 </Link>
               )}
@@ -850,7 +850,7 @@ export default function HomePage() {
                     <PositionBadge pos={t.playerPos} size="sm" />
                     <div className="min-w-0">
                       <div className="text-[11px] font-bold truncate max-w-[120px]">{t.playerName}</div>
-                      <div className="text-[10px] text-white/30">{getRelativeTime(t.executedAt)}</div>
+                      <div className="text-[10px] text-white/30" title={new Date(t.executedAt).toLocaleString('de-DE')}>{getRelativeTime(t.executedAt)}</div>
                     </div>
                     <div className="text-right shrink-0">
                       <div className="text-[11px] font-mono font-bold text-[#FFD700]">{fmtBSD(centsToBsd(t.price))}</div>

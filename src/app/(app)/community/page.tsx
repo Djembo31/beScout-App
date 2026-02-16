@@ -278,6 +278,7 @@ export default function CommunityPage() {
 
   const handleCreatePost = useCallback(async (playerId: string | null, content: string, tags: string[], category: string, postType: PostType = 'general') => {
     if (!user) return;
+    if (!clubId) { addToast('Kein Club ausgewählt. Bitte zuerst einen Club folgen.', 'error'); return; }
     setPostLoading(true);
     try {
       await createPost(user.id, playerId, clubName, content, tags, category, clubId, postType);
