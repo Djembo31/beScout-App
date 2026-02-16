@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { User, BadgeCheck, Settings, Loader2, RefreshCw, Users, Calendar } from 'lucide-react';
+import { User, BadgeCheck, Settings, Loader2, RefreshCw, Users, Calendar, MessageCircle, ArrowUp } from 'lucide-react';
 import { Card, Button, Chip, ErrorState } from '@/components/ui';
 import { ScoreCircle } from '@/components/player';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,7 @@ import { getUserStats, refreshUserStats, getFollowerCount, getFollowingCount, ge
 import { getClubName } from '@/lib/clubs';
 import { centsToBsd } from '@/lib/services/players';
 import { getResearchPosts, getAuthorTrackRecord, resolveExpiredResearch } from '@/lib/services/research';
+import { getTopPostByUser } from '@/lib/services/posts';
 import { getUserTrades } from '@/lib/services/trading';
 import { getUserFantasyHistory } from '@/lib/services/lineups';
 import { val } from '@/lib/settledHelpers';
@@ -23,7 +24,7 @@ import ProfileActivityTab from '@/components/profile/ProfileActivityTab';
 import ProfilePostsTab from '@/components/profile/ProfilePostsTab';
 import FollowListModal from '@/components/profile/FollowListModal';
 import type { HoldingRow } from '@/components/profile/ProfileOverviewTab';
-import type { ProfileTab, Profile, DbTransaction, DbUserStats, DbUserAchievement, ResearchPostWithAuthor, AuthorTrackRecord, UserTradeWithPlayer, UserFantasyResult } from '@/types';
+import type { ProfileTab, Profile, DbTransaction, DbUserStats, DbUserAchievement, ResearchPostWithAuthor, AuthorTrackRecord, UserTradeWithPlayer, UserFantasyResult, PostWithAuthor } from '@/types';
 import { getLevelTier } from '@/types';
 
 const TABS: { id: ProfileTab; label: string; selfOnly?: boolean }[] = [
@@ -31,9 +32,16 @@ const TABS: { id: ProfileTab; label: string; selfOnly?: boolean }[] = [
   { id: 'portfolio', label: 'Portfolio', selfOnly: true },
   { id: 'research', label: 'Research' },
   { id: 'posts', label: 'Beiträge' },
-  { id: 'activity', label: 'Aktivität' },
+  { id: 'activity', label: 'Aktivität' }, // Public: shows trades/rewards (no wallet details)
   { id: 'settings', label: 'Einstellungen', selfOnly: true },
 ];
+
+// Transaction types safe to show publicly (no wallet/deposit/withdrawal info)
+const PUBLIC_TX_TYPES = new Set([
+  'buy', 'sell', 'ipo_buy', 'fantasy_join', 'fantasy_reward',
+  'bounty_reward', 'research_earning', 'mission_reward',
+  'streak_reward', 'poll_revenue',
+]);
 
 interface ProfileViewProps {
   targetUserId: string;
@@ -70,6 +78,9 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
   const [recentTrades, setRecentTrades] = useState<UserTradeWithPlayer[]>([]);
   const [fantasyResults, setFantasyResults] = useState<UserFantasyResult[]>([]);
 
+  // Top Post (most upvoted)
+  const [topPost, setTopPost] = useState<PostWithAuthor | null>(null);
+
   // Follow state (for public profiles)
   const [following, setFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
@@ -88,7 +99,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
       try {
         const results = await Promise.allSettled([
           isSelf ? getHoldings(targetUserId) : Promise.resolve([]),
-          isSelf ? getTransactions(targetUserId, 50) : Promise.resolve([]),
+          getTransactions(targetUserId, 50), // Load for all profiles (filtered for public)
           getUserStats(targetUserId),
           getUserAchievements(targetUserId),
           getFollowerCount(targetUserId),
@@ -97,6 +108,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           getAuthorTrackRecord(targetUserId),
           getUserTrades(targetUserId, 10),
           getUserFantasyHistory(targetUserId, 10),
+          getTopPostByUser(targetUserId),
         ]);
         if (!cancelled) {
           if (results[0].status === 'rejected' && isSelf) {
@@ -113,6 +125,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             setTrackRecord(val(results[7], null));
             setRecentTrades(val(results[8], []));
             setFantasyResults(val(results[9], []));
+            setTopPost(val(results[10], null));
             setDataError(false);
           }
         }
@@ -216,6 +229,26 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           {/* Bio */}
           {targetProfile.bio && (
             <p className="text-sm text-white/60 mt-1.5 max-w-lg">{targetProfile.bio}</p>
+          )}
+
+          {/* Top Post — Pinned Take */}
+          {topPost && (
+            <div className="mt-2 max-w-lg">
+              <button
+                onClick={() => setTab('posts')}
+                className="w-full text-left px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] transition-colors"
+              >
+                <div className="flex items-center gap-1.5 mb-1">
+                  <MessageCircle className="w-3 h-3 text-sky-400" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400">Top Beitrag</span>
+                  <span className="flex items-center gap-0.5 ml-auto text-[10px] font-mono font-bold text-[#22C55E]">
+                    <ArrowUp className="w-3 h-3" />
+                    {topPost.upvotes - topPost.downvotes}
+                  </span>
+                </div>
+                <p className="text-xs text-white/60 line-clamp-2">{topPost.content}</p>
+              </button>
+            </div>
           )}
 
           <div className="flex items-center gap-3 md:gap-4 mt-2 text-xs md:text-sm flex-wrap">
@@ -386,7 +419,10 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             <ProfilePostsTab userId={targetUserId} />
           )}
           {!holdingsLoading && !dataError && tab === 'activity' && (
-            <ProfileActivityTab transactions={transactions} userId={targetUserId} />
+            <ProfileActivityTab
+              transactions={isSelf ? transactions : transactions.filter(t => PUBLIC_TX_TYPES.has(t.type))}
+              userId={targetUserId}
+            />
           )}
           {!holdingsLoading && !dataError && tab === 'settings' && isSelf && renderSettings?.()}
         </div>

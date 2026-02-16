@@ -60,12 +60,12 @@ function getNotifColor(type: NotificationType): string {
 function getNotifHref(notif: DbNotification): string | null {
   if (!notif.reference_id || !notif.reference_type) return null;
   switch (notif.reference_type) {
-    case 'research': return `/community`;
+    case 'research': return `/community?tab=research`;
     case 'event': return `/fantasy`;
-    case 'profile': return `/profile`;
-    case 'poll': return `/community`;
+    case 'profile': return null; // resolved async in handleClick
+    case 'poll': return `/community?tab=aktionen`;
     case 'post': return `/community`;
-    case 'bounty': return `/community`;
+    case 'bounty': return `/community?tab=aktionen`;
     case 'player': return `/player/${notif.reference_id}`;
     case 'liquidation': return `/player/${notif.reference_id}`;
     case 'offer': return `/market?tab=offers`;
@@ -138,7 +138,15 @@ export default function NotificationDropdown({ userId, open, onClose, onUnreadCo
       const count = await getUnreadCount(userId);
       onUnreadCountChange(count);
     }
-    const href = getNotifHref(notif);
+    let href = getNotifHref(notif);
+    // For profile notifications (follow), look up the follower's handle
+    if (notif.reference_type === 'profile' && notif.reference_id) {
+      try {
+        const { getProfile } = await import('@/lib/services/profiles');
+        const profile = await getProfile(notif.reference_id);
+        if (profile?.handle) href = `/profile/${profile.handle}`;
+      } catch { /* fallback to null */ }
+    }
     if (href) router.push(href);
     onClose();
   }, [userId, router, onClose, onUnreadCountChange]);

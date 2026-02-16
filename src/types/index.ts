@@ -273,6 +273,37 @@ export type ClubDashboardStats = {
 };
 
 // ============================================
+// FEED TYPES
+// ============================================
+
+export type FeedItem = {
+  id: string;
+  userId: string;
+  handle: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  action: string;
+  category: string;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+};
+
+export const FEED_ACTION_LABELS: Record<string, string> = {
+  trade_buy: 'hat einen Spieler gekauft',
+  trade_sell: 'hat einen Spieler verkauft',
+  research_create: 'hat eine Analyse veröffentlicht',
+  post_create: 'hat einen Beitrag geschrieben',
+  lineup_submit: 'hat ein Lineup eingereicht',
+  follow: 'folgt jetzt jemandem',
+  bounty_submit: 'hat einen Bounty eingereicht',
+  bounty_create: 'hat einen Auftrag erstellt',
+  offer_create: 'hat ein Angebot erstellt',
+  offer_accept: 'hat ein Angebot angenommen',
+  poll_create: 'hat eine Umfrage erstellt',
+  vote_create: 'hat eine Abstimmung erstellt',
+};
+
+// ============================================
 // PROFILE TYPES
 // ============================================
 

@@ -25,6 +25,9 @@ import {
   ArrowRightLeft,
   Banknote,
   X,
+  MessageCircle,
+  Send,
+  UserPlus,
 } from 'lucide-react';
 import { Card, Button, Chip, ErrorState, Skeleton, SkeletonCard, TabBar, TabPanel } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
@@ -39,7 +42,7 @@ import type { GlobalTrade, TopTrader, PlatformStats } from '@/lib/services/tradi
 import { getHoldings, getTransactions, formatBsd } from '@/lib/services/wallet';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { withTimeout } from '@/lib/cache';
-import { getUserStats, getLeaderboard } from '@/lib/services/social';
+import { getUserStats, getLeaderboard, getFollowingFeed } from '@/lib/services/social';
 import { val } from '@/lib/settledHelpers';
 import dynamic from 'next/dynamic';
 
@@ -54,7 +57,8 @@ import { getFanTier } from '@/types';
 import type { FanTier } from '@/types';
 import { getActivityColor as actColor, getActivityLabel, getRelativeTime, getActivityIcon as actIconName } from '@/lib/activityHelpers';
 import { getPosts } from '@/lib/services/posts';
-import type { Player, DpcHolding, DbTransaction, DbEvent, DbOrder, Pos, DbUserStats, LeaderboardUser, PostWithAuthor } from '@/types';
+import type { Player, DpcHolding, DbTransaction, DbEvent, DbOrder, Pos, DbUserStats, LeaderboardUser, PostWithAuthor, FeedItem } from '@/types';
+import { FEED_ACTION_LABELS } from '@/types';
 import { getLevelTier } from '@/types';
 import { InfoTooltip } from '@/components/ui';
 
@@ -76,6 +80,21 @@ function renderActivityIcon(type: string) {
   return <Icon className="w-4 h-4" />;
 }
 function getActivityColorLocal(type: string): string { return actColor(type); }
+
+const FEED_ICON_MAP: Record<string, { Icon: React.ElementType; color: string }> = {
+  trade_buy: { Icon: CircleDollarSign, color: 'text-[#FFD700] bg-[#FFD700]/10' },
+  trade_sell: { Icon: CircleDollarSign, color: 'text-[#22C55E] bg-[#22C55E]/10' },
+  research_create: { Icon: FileText, color: 'text-purple-400 bg-purple-400/10' },
+  post_create: { Icon: MessageCircle, color: 'text-sky-400 bg-sky-400/10' },
+  lineup_submit: { Icon: Trophy, color: 'text-purple-400 bg-purple-400/10' },
+  follow: { Icon: UserPlus, color: 'text-[#22C55E] bg-[#22C55E]/10' },
+  bounty_submit: { Icon: Target, color: 'text-amber-400 bg-amber-400/10' },
+  bounty_create: { Icon: Target, color: 'text-amber-400 bg-amber-400/10' },
+  offer_create: { Icon: Send, color: 'text-amber-400 bg-amber-400/10' },
+  offer_accept: { Icon: ArrowRightLeft, color: 'text-[#22C55E] bg-[#22C55E]/10' },
+  poll_create: { Icon: Vote, color: 'text-amber-400 bg-amber-400/10' },
+  vote_create: { Icon: Vote, color: 'text-amber-400 bg-amber-400/10' },
+};
 
 function formatPrize(bsd: number): string {
   return bsd >= 1000 ? `${(bsd / 1000).toFixed(0)}K` : String(bsd);
@@ -256,6 +275,7 @@ export default function HomePage() {
   const [dpcOfWeek, setDpcOfWeek] = useState<DpcOfTheWeek | null>(null);
   const [scoutMissions, setScoutMissions] = useState<ScoutMission[]>([]);
   const [missionProgress, setMissionProgress] = useState<UserScoutMission[]>([]);
+  const [followingFeed, setFollowingFeed] = useState<FeedItem[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -335,6 +355,11 @@ export default function HomePage() {
     }
 
     loadData();
+
+    // Following Feed (fire-and-forget, non-critical)
+    getFollowingFeed(uid, 15).then(feed => {
+      if (!cancelled) setFollowingFeed(feed);
+    }).catch(() => {});
 
     import('@/lib/services/missions').then(({ trackMissionProgress }) => {
       trackMissionProgress(uid, 'daily_login');
@@ -606,6 +631,42 @@ export default function HomePage() {
               )}
             </div>
           </div>
+
+          {/* Following Feed */}
+          {followingFeed.length > 0 && (
+            <div>
+              <SectionHeader title="Was deine Scouts machen" badge={
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/15 border border-sky-400/25">
+                  <Users className="w-3 h-3 text-sky-400" />
+                  <span className="text-[10px] font-bold text-sky-300">{followingFeed.length}</span>
+                </span>
+              } />
+              <div className="mt-3 space-y-0.5">
+                {followingFeed.slice(0, 8).map(item => {
+                  const feedIcon = FEED_ICON_MAP[item.action] ?? { Icon: Activity, color: 'text-white/50 bg-white/5' };
+                  const FIcon = feedIcon.Icon;
+                  const label = FEED_ACTION_LABELS[item.action] ?? item.action;
+                  const displayName = item.displayName ?? item.handle;
+                  return (
+                    <Link key={item.id} href={`/profile/${item.handle}`} className="block">
+                      <div className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors">
+                        <div className={cn('flex items-center justify-center w-8 h-8 rounded-lg shrink-0 mt-0.5', feedIcon.color)}>
+                          <FIcon className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm leading-snug">
+                            <span className="font-bold text-white/80">{displayName}</span>
+                            <span className="text-white/40 ml-1">{label}</span>
+                          </div>
+                          <div className="text-[10px] text-white/25 mt-0.5">{getRelativeTime(item.createdAt)}</div>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* DPC der Woche */}
           {dpcOfWeek && (

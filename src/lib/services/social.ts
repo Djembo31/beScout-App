@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { cached, invalidate } from '@/lib/cache';
 import { ACHIEVEMENTS } from '@/lib/achievements';
-import type { DbUserStats, DbUserAchievement, LeaderboardUser } from '@/types';
+import type { DbUserStats, DbUserAchievement, LeaderboardUser, FeedItem } from '@/types';
 
 const TWO_MIN = 2 * 60 * 1000;
 const FIVE_MIN = 5 * 60 * 1000;
@@ -359,4 +359,56 @@ export async function checkAndUnlockAchievements(userId: string): Promise<string
   }
 
   return newUnlocks;
+}
+
+// ============================================
+// Following Feed
+// ============================================
+
+const FEED_ACTIONS = [
+  'trade_buy', 'trade_sell', 'research_create', 'post_create',
+  'lineup_submit', 'follow', 'bounty_submit', 'bounty_create',
+  'offer_create', 'offer_accept', 'poll_create', 'vote_create',
+];
+
+export async function getFollowingFeed(userId: string, limit = 15): Promise<FeedItem[]> {
+  const followingIds = await getFollowingIds(userId);
+  if (followingIds.length === 0) return [];
+
+  return cached(`followingFeed:${userId}`, async () => {
+    const { data, error } = await supabase
+      .from('activity_log')
+      .select('id, user_id, action, category, metadata, created_at')
+      .in('user_id', followingIds)
+      .in('action', FEED_ACTIONS)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw new Error(error.message);
+    if (!data || data.length === 0) return [];
+
+    // Get profiles for all unique user IDs
+    const userIds = Array.from(new Set(data.map(d => d.user_id)));
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, handle, display_name, avatar_url')
+      .in('id', userIds);
+
+    const profileMap = new Map((profiles ?? []).map(p => [p.id, p]));
+
+    return data.map(d => {
+      const profile = profileMap.get(d.user_id);
+      return {
+        id: d.id,
+        userId: d.user_id,
+        handle: profile?.handle ?? 'unknown',
+        displayName: profile?.display_name ?? null,
+        avatarUrl: profile?.avatar_url ?? null,
+        action: d.action,
+        category: d.category,
+        metadata: (d.metadata ?? {}) as Record<string, unknown>,
+        createdAt: d.created_at,
+      };
+    });
+  }, TWO_MIN);
 }
