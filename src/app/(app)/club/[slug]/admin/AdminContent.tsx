@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  BarChart3, Users, Trophy, Vote, DollarSign, Settings, Loader2, Target, Shield,
+  BarChart3, Users, Trophy, Vote, DollarSign, Settings, Loader2, Target, Shield, Activity, Wallet,
 } from 'lucide-react';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getClubBySlug } from '@/lib/services/club';
@@ -16,9 +16,11 @@ import AdminRevenueTab from '@/components/admin/AdminRevenueTab';
 import AdminSettingsTab from '@/components/admin/AdminSettingsTab';
 import AdminBountiesTab from '@/components/admin/AdminBountiesTab';
 import AdminModerationTab from '@/components/admin/AdminModerationTab';
+import AdminAnalyticsTab from '@/components/admin/AdminAnalyticsTab';
+import AdminWithdrawalTab from '@/components/admin/AdminWithdrawalTab';
 import type { ClubWithAdmin } from '@/types';
 
-type AdminTab = 'overview' | 'players' | 'events' | 'votes' | 'bounties' | 'moderation' | 'revenue' | 'settings';
+type AdminTab = 'overview' | 'players' | 'events' | 'votes' | 'bounties' | 'moderation' | 'revenue' | 'analytics' | 'withdrawal' | 'settings';
 
 const ADMIN_TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
   { id: 'overview', label: 'Übersicht', icon: BarChart3 },
@@ -27,7 +29,9 @@ const ADMIN_TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
   { id: 'votes', label: 'Abstimmungen', icon: Vote },
   { id: 'bounties', label: 'Aufträge', icon: Target },
   { id: 'moderation', label: 'Moderation', icon: Shield },
+  { id: 'analytics', label: 'Fan-Analyse', icon: Activity },
   { id: 'revenue', label: 'Einnahmen', icon: DollarSign },
+  { id: 'withdrawal', label: 'Auszahlung', icon: Wallet },
   { id: 'settings', label: 'Einstellungen', icon: Settings },
 ];
 
@@ -122,7 +126,9 @@ export default function AdminContent({ slug }: { slug: string }) {
       {tab === 'votes' && <AdminVotesTab club={club} />}
       {tab === 'bounties' && <AdminBountiesTab club={club} />}
       {tab === 'moderation' && <AdminModerationTab club={club} />}
+      {tab === 'analytics' && <AdminAnalyticsTab club={club} />}
       {tab === 'revenue' && <AdminRevenueTab club={club} />}
+      {tab === 'withdrawal' && <AdminWithdrawalTab club={club} />}
       {tab === 'settings' && <AdminSettingsTab club={club} />}
     </div>
   );

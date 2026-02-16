@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight, Send, RotateCcw, Crown, TrendingUp, Star, Crosshair, Play, Clock, Zap } from 'lucide-react';
+import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight, Send, RotateCcw, Crown, TrendingUp, Star, Crosshair, Play, Clock, Zap, Gift } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getNotifications, markAsRead, markAllAsRead, getUnreadCount } from '@/lib/services/notifications';
 import type { DbNotification, NotificationType } from '@/types';
@@ -32,6 +32,7 @@ function getNotifIcon(type: NotificationType) {
     case 'event_closing_soon': return <Clock className="w-4 h-4" />;
     case 'bounty_expiring': return <Clock className="w-4 h-4" />;
     case 'new_ipo_available': return <Zap className="w-4 h-4" />;
+    case 'referral_reward': return <Gift className="w-4 h-4" />;
     case 'system': return <Info className="w-4 h-4" />;
   }
 }
@@ -61,6 +62,7 @@ function getNotifColor(type: NotificationType): string {
     case 'event_closing_soon': return 'text-amber-400 bg-amber-400/10';
     case 'bounty_expiring': return 'text-orange-400 bg-orange-400/10';
     case 'new_ipo_available': return 'text-[#FFD700] bg-[#FFD700]/10';
+    case 'referral_reward': return 'text-[#22C55E] bg-[#22C55E]/10';
     case 'system': return 'text-sky-400 bg-sky-400/10';
   }
 }

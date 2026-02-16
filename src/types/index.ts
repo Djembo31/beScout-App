@@ -258,6 +258,26 @@ export type DbClubAdmin = {
   created_at: string;
 };
 
+export type DbClubWithdrawal = {
+  id: string;
+  club_id: string;
+  requested_by: string;
+  amount_cents: number;
+  status: 'pending' | 'approved' | 'rejected' | 'paid';
+  note: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+};
+
+export type ClubBalance = {
+  total_earned: number;
+  trade_fees: number;
+  sub_revenue: number;
+  total_withdrawn: number;
+  available: number;
+};
+
 export type Club = {
   id: string;
   slug: string;
@@ -898,7 +918,7 @@ export function getLevelTier(level: number): LevelTier {
 // NOTIFICATION TYPES
 // ============================================
 
-export type NotificationType = 'research_unlock' | 'research_rating' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward' | 'event_starting' | 'event_closing_soon' | 'bounty_expiring' | 'new_ipo_available';
+export type NotificationType = 'research_unlock' | 'research_rating' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward' | 'event_starting' | 'event_closing_soon' | 'bounty_expiring' | 'new_ipo_available' | 'referral_reward';
 
 export type DbNotification = {
   id: string;

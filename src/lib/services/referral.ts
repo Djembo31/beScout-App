@@ -68,6 +68,28 @@ export async function applyReferralCode(userId: string, referrerCode: string): P
   return { success: true };
 }
 
+/** Fire-and-forget: reward referrer when referee makes first trade */
+export async function triggerReferralReward(refereeId: string): Promise<void> {
+  try {
+    const { data, error } = await supabase.rpc('reward_referral', { p_referee_id: refereeId });
+    if (error) {
+      console.error('[Referral] RPC error:', error.message);
+      return;
+    }
+    const result = data as { success: boolean; reason?: string; referrer_id?: string };
+    if (result.success && result.referrer_id) {
+      invalidate(`wallet:${result.referrer_id}`);
+      invalidate(`referralCount:${result.referrer_id}`);
+      // Refresh referrer airdrop score
+      import('@/lib/services/airdropScore').then(m => {
+        m.refreshAirdropScore(result.referrer_id!);
+      }).catch(err => console.error('[Referral] Airdrop refresh failed:', err));
+    }
+  } catch (err) {
+    console.error('[Referral] triggerReferralReward failed:', err);
+  }
+}
+
 export type ReferralLeaderboardEntry = { user_id: string; handle: string; display_name: string | null; count: number };
 
 export async function getReferralLeaderboard(limit = 20): Promise<ReferralLeaderboardEntry[]> {

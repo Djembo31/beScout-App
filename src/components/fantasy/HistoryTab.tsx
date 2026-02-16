@@ -1,9 +1,12 @@
 'use client';
 
-import { Heart, BarChart3, TrendingUp, History, Gift } from 'lucide-react';
-import { Card } from '@/components/ui';
-import { fmtBSD } from '@/lib/utils';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { Heart, BarChart3, TrendingUp, History, Trophy, Crown } from 'lucide-react';
+import { Card, Skeleton } from '@/components/ui';
+import { cn, fmtBSD } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
+import { getSeasonLeaderboard, type SeasonLeaderboardEntry } from '@/lib/services/scoring';
 import { getFormResult } from './helpers';
 
 export const HistoryTab = ({
@@ -18,6 +21,7 @@ export const HistoryTab = ({
   top10,
   avgPoints,
   avgRank,
+  userId,
 }: {
   participations: { eventId: string; eventName: string; gameweek: number; rank: number; totalParticipants: number; points: number; rewardCents: number }[];
   userDisplayName: string;
@@ -30,7 +34,20 @@ export const HistoryTab = ({
   top10: number;
   avgPoints: number;
   avgRank: number;
+  userId?: string;
 }) => {
+  const [seasonBoard, setSeasonBoard] = useState<SeasonLeaderboardEntry[]>([]);
+  const [boardLoading, setBoardLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    getSeasonLeaderboard(50)
+      .then(data => { if (!cancelled) setSeasonBoard(data); })
+      .catch(err => console.error('[HistoryTab] Season leaderboard failed:', err))
+      .finally(() => { if (!cancelled) setBoardLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <div className="space-y-6">
       {/* User Stats Overview */}
@@ -115,6 +132,111 @@ export const HistoryTab = ({
           </div>
         </Card>
       </div>
+
+      {/* Season Leaderboard */}
+      <Card className="overflow-hidden">
+        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+          <h3 className="font-bold flex items-center gap-2">
+            <Crown className="w-4 h-4 text-[#FFD700]" />
+            Saison-Rangliste
+          </h3>
+          <div className="text-sm text-white/40">{seasonBoard.length} Manager</div>
+        </div>
+        {boardLoading ? (
+          <div className="p-4 space-y-2">
+            {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-10 w-full rounded-xl" />)}
+          </div>
+        ) : seasonBoard.length === 0 ? (
+          <div className="text-center py-12 text-white/40">
+            <Trophy className="w-10 h-10 mx-auto mb-3 text-white/20" />
+            <div className="text-sm">Noch keine Saison-Daten</div>
+          </div>
+        ) : (
+          <>
+            {/* Desktop */}
+            <table className="w-full hidden md:table">
+              <thead>
+                <tr className="border-b border-white/10 text-xs text-white/40">
+                  <th className="py-3 px-4 text-left w-12">#</th>
+                  <th className="py-3 px-4 text-left">Manager</th>
+                  <th className="py-3 px-4 text-center">Events</th>
+                  <th className="py-3 px-4 text-center">Siege</th>
+                  <th className="py-3 px-4 text-center">Punkte</th>
+                  <th className="py-3 px-4 text-right">Gewinn</th>
+                </tr>
+              </thead>
+              <tbody>
+                {seasonBoard.map((entry) => {
+                  const isMe = entry.userId === userId;
+                  const rankColor = entry.rank === 1 ? 'text-[#FFD700]' : entry.rank === 2 ? 'text-zinc-300' : entry.rank === 3 ? 'text-amber-600' : 'text-white/50';
+                  return (
+                    <tr key={entry.userId} className={cn('border-b border-white/5 hover:bg-white/[0.02]', isMe && 'bg-[#FFD700]/[0.04]')}>
+                      <td className={cn('py-3 px-4 font-mono font-bold text-sm', rankColor)}>
+                        {entry.rank <= 3 ? <Trophy className={cn('w-4 h-4 inline', rankColor)} /> : `#${entry.rank}`}
+                      </td>
+                      <td className="py-3 px-4">
+                        <Link href={`/profile/${entry.handle}`} className="hover:text-[#FFD700] transition-colors">
+                          <span className={cn('font-semibold', isMe && 'text-[#FFD700]')}>
+                            {entry.displayName ?? `@${entry.handle}`}
+                          </span>
+                          {isMe && <span className="ml-1.5 text-[10px] text-[#FFD700]/60">(Du)</span>}
+                        </Link>
+                      </td>
+                      <td className="py-3 px-4 text-center text-sm font-mono">{entry.eventsPlayed}</td>
+                      <td className="py-3 px-4 text-center text-sm font-mono text-[#22C55E]">{entry.wins}</td>
+                      <td className="py-3 px-4 text-center text-sm font-mono font-bold">{entry.totalPoints.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-right">
+                        {entry.totalRewardCents > 0 ? (
+                          <span className="font-mono font-bold text-sm text-[#FFD700]">+{fmtBSD(centsToBsd(entry.totalRewardCents))} BSD</span>
+                        ) : (
+                          <span className="text-white/30">{'\u2014'}</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            {/* Mobile */}
+            <div className="md:hidden p-3 space-y-2">
+              {seasonBoard.slice(0, 20).map((entry) => {
+                const isMe = entry.userId === userId;
+                const rankColor = entry.rank === 1 ? 'text-[#FFD700]' : entry.rank === 2 ? 'text-zinc-300' : entry.rank === 3 ? 'text-amber-600' : 'text-white/50';
+                return (
+                  <Link key={entry.userId} href={`/profile/${entry.handle}`}>
+                    <div className={cn(
+                      'flex items-center justify-between gap-3 p-3 rounded-xl border border-white/[0.06]',
+                      isMe ? 'bg-[#FFD700]/[0.06]' : 'bg-white/[0.02]'
+                    )}>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0',
+                          entry.rank <= 3 ? 'bg-[#FFD700]/15' : 'bg-white/5', rankColor
+                        )}>
+                          #{entry.rank}
+                        </div>
+                        <div className="min-w-0">
+                          <div className={cn('font-medium text-sm truncate', isMe && 'text-[#FFD700]')}>
+                            {entry.displayName ?? `@${entry.handle}`}
+                            {isMe && <span className="text-[10px] text-[#FFD700]/60 ml-1">(Du)</span>}
+                          </div>
+                          <div className="text-[10px] text-white/40">{entry.eventsPlayed} Events · {entry.wins} Siege</div>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="font-mono font-bold text-sm">{entry.totalPoints.toLocaleString()}</div>
+                        {entry.totalRewardCents > 0 && (
+                          <div className="text-[11px] font-mono font-bold text-[#FFD700]">+{fmtBSD(centsToBsd(entry.totalRewardCents))}</div>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </Card>
 
       {/* Event History Table */}
       <Card className="overflow-hidden">

@@ -88,6 +88,10 @@ export async function buyFromMarket(
   triggerMissions(userId, ['daily_buy_1', 'daily_trade_2', 'weekly_trade_5']);
   // Fire-and-forget: airdrop score refresh
   import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(userId)).catch(err => console.error('[Trade] Airdrop refresh failed:', err));
+  // Fire-and-forget: referral reward (triggers on first trade by referred user)
+  import('@/lib/services/referral').then(({ triggerReferralReward }) => {
+    triggerReferralReward(userId);
+  }).catch(err => console.error('[Trade] Referral reward failed:', err));
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'trade_buy', 'trading', { playerId, quantity, source: result.source, price: result.price_per_dpc });

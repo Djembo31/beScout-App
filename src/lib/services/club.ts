@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { cached, invalidate, invalidateClubData } from '@/lib/cache';
-import type { DbTrade, DbClub, ClubWithAdmin, DbClubAdmin, ClubDashboardStats, ClubAdminRole } from '@/types';
+import type { DbTrade, DbClub, ClubWithAdmin, DbClubAdmin, DbClubWithdrawal, ClubBalance, ClubDashboardStats, ClubAdminRole } from '@/types';
 
 const FIVE_MIN = 5 * 60 * 1000;
 
@@ -499,4 +499,172 @@ export async function updateCommunityGuidelines(
   invalidateClubData(clubId);
   invalidate(`club:slug:`);
   return data as { success: boolean; error?: string };
+}
+
+// ============================================
+// Club Withdrawals
+// ============================================
+
+/** Get club balance (earned vs withdrawn) */
+export async function getClubBalance(clubId: string): Promise<ClubBalance> {
+  return cached(`clubBalance:${clubId}`, async () => {
+    const { data, error } = await supabase.rpc('get_club_balance', { p_club_id: clubId });
+    if (error) throw new Error(error.message);
+    return data as ClubBalance;
+  }, FIVE_MIN);
+}
+
+/** Get withdrawal history for a club */
+export async function getClubWithdrawals(clubId: string): Promise<(DbClubWithdrawal & { requester_handle: string })[]> {
+  const { data, error } = await supabase
+    .from('club_withdrawals')
+    .select('*, profiles!requested_by(handle)')
+    .eq('club_id', clubId)
+    .order('created_at', { ascending: false });
+
+  if (error) return [];
+  return (data ?? []).map((row: Record<string, unknown>) => {
+    const profiles = row.profiles as { handle: string } | null;
+    return {
+      ...(row as unknown as DbClubWithdrawal),
+      requester_handle: profiles?.handle ?? 'unbekannt',
+    };
+  });
+}
+
+/** Request a withdrawal */
+export async function requestClubWithdrawal(
+  clubId: string,
+  amountCents: number,
+  note?: string
+): Promise<{ success: boolean; error?: string }> {
+  const { data, error } = await supabase.rpc('request_club_withdrawal', {
+    p_club_id: clubId,
+    p_amount_cents: amountCents,
+    p_note: note ?? null,
+  });
+  if (error) throw new Error(error.message);
+  invalidate(`clubBalance:${clubId}`);
+  return data as { success: boolean; error?: string };
+}
+
+// ============================================
+// Club Fan Analytics
+// ============================================
+
+/** Get fan analytics for a club */
+export async function getClubFanAnalytics(clubId: string): Promise<{
+  activeFans7d: number;
+  activeFans30d: number;
+  totalFollowers: number;
+  topFans: { user_id: string; handle: string; display_name: string | null; trade_count: number; volume_cents: number }[];
+  engagementByType: { type: string; count: number }[];
+}> {
+  return cached(`clubAnalytics:${clubId}`, async () => {
+    // Get player IDs for this club
+    const { data: playerData } = await supabase.from('players').select('id').eq('club_id', clubId);
+    const playerIds = (playerData ?? []).map(p => p.id);
+
+    // Followers
+    const { count: totalFollowers } = await supabase
+      .from('club_followers')
+      .select('id', { count: 'exact', head: true })
+      .eq('club_id', clubId);
+
+    // Active fans 7d (distinct users who traded club players in last 7 days)
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    let activeFans7d = 0;
+    let activeFans30d = 0;
+    const topFansMap = new Map<string, { count: number; volume: number }>();
+
+    if (playerIds.length > 0) {
+      // Trades in last 7d
+      const { data: trades7d } = await supabase
+        .from('trades')
+        .select('buyer_id, seller_id, price, quantity')
+        .in('player_id', playerIds)
+        .gte('executed_at', sevenDaysAgo);
+
+      const users7d = new Set<string>();
+      for (const t of trades7d ?? []) {
+        if (t.buyer_id) users7d.add(t.buyer_id as string);
+        if (t.seller_id) users7d.add(t.seller_id as string);
+      }
+      activeFans7d = users7d.size;
+
+      // Trades in last 30d (+ top fans)
+      const { data: trades30d } = await supabase
+        .from('trades')
+        .select('buyer_id, seller_id, price, quantity')
+        .in('player_id', playerIds)
+        .gte('executed_at', thirtyDaysAgo);
+
+      const users30d = new Set<string>();
+      for (const t of trades30d ?? []) {
+        const vol = ((t.price as number) ?? 0) * ((t.quantity as number) ?? 1);
+        if (t.buyer_id) {
+          users30d.add(t.buyer_id as string);
+          const prev = topFansMap.get(t.buyer_id as string) ?? { count: 0, volume: 0 };
+          topFansMap.set(t.buyer_id as string, { count: prev.count + 1, volume: prev.volume + vol });
+        }
+        if (t.seller_id) {
+          users30d.add(t.seller_id as string);
+          const prev = topFansMap.get(t.seller_id as string) ?? { count: 0, volume: 0 };
+          topFansMap.set(t.seller_id as string, { count: prev.count + 1, volume: prev.volume + vol });
+        }
+      }
+      activeFans30d = users30d.size;
+    }
+
+    // Top 10 fans by volume
+    const sortedFans = Array.from(topFansMap.entries())
+      .sort((a, b) => b[1].volume - a[1].volume)
+      .slice(0, 10);
+
+    let topFans: { user_id: string; handle: string; display_name: string | null; trade_count: number; volume_cents: number }[] = [];
+    if (sortedFans.length > 0) {
+      const fanIds = sortedFans.map(([id]) => id);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, handle, display_name')
+        .in('id', fanIds);
+      const profileMap = new Map<string, { handle: string; display_name: string | null }>();
+      for (const p of profiles ?? []) {
+        profileMap.set(p.id, { handle: p.handle, display_name: p.display_name });
+      }
+      topFans = sortedFans.map(([id, stats]) => ({
+        user_id: id,
+        handle: profileMap.get(id)?.handle ?? 'unknown',
+        display_name: profileMap.get(id)?.display_name ?? null,
+        trade_count: stats.count,
+        volume_cents: stats.volume,
+      }));
+    }
+
+    // Engagement by type (last 30d from activity_log)
+    const { data: activityData } = await supabase
+      .from('activity_log')
+      .select('action')
+      .eq('category', 'trading')
+      .gte('created_at', thirtyDaysAgo);
+
+    const engCounts = new Map<string, number>();
+    for (const a of activityData ?? []) {
+      const action = a.action as string;
+      engCounts.set(action, (engCounts.get(action) ?? 0) + 1);
+    }
+    const engagementByType = Array.from(engCounts.entries())
+      .map(([type, count]) => ({ type, count }))
+      .sort((a, b) => b.count - a.count);
+
+    return {
+      activeFans7d,
+      activeFans30d,
+      totalFollowers: totalFollowers ?? 0,
+      topFans,
+      engagementByType,
+    };
+  }, FIVE_MIN);
 }

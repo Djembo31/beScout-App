@@ -11,7 +11,14 @@ import type { PostWithAuthor, DbClubVote, LeaderboardUser } from '@/types';
 // TYPES
 // ============================================
 
-type FeedSort = 'new' | 'top';
+type FeedSort = 'new' | 'top' | 'trending';
+
+/** Trending score: engagement weighted by recency (half-life ~24h) */
+function trendingScore(post: PostWithAuthor): number {
+  const engagement = post.upvotes * 2 + post.replies_count * 3;
+  const ageHours = (Date.now() - new Date(post.created_at).getTime()) / 3600000;
+  return engagement / Math.pow(ageHours + 2, 1.5);
+}
 
 interface CommunityFeedTabProps {
   posts: PostWithAuthor[];
@@ -84,7 +91,12 @@ export default function CommunityFeedTab({
     }
 
     // Sort: pinned always first, then by selected sort
-    if (feedSort === 'top') {
+    if (feedSort === 'trending') {
+      result = [...result].sort((a, b) => {
+        if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
+        return trendingScore(b) - trendingScore(a);
+      });
+    } else if (feedSort === 'top') {
       result = [...result].sort((a, b) => {
         if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
         return (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes);
@@ -117,7 +129,7 @@ export default function CommunityFeedTab({
             />
           </div>
           <div className="flex gap-1">
-            {(['new', 'top'] as FeedSort[]).map(s => (
+            {(['new', 'trending', 'top'] as FeedSort[]).map(s => (
               <button
                 key={s}
                 onClick={() => setFeedSort(s)}
@@ -126,7 +138,7 @@ export default function CommunityFeedTab({
                   feedSort === s ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/25' : 'text-white/50 hover:text-white bg-white/5 border border-white/10'
                 )}
               >
-                {s === 'new' ? 'Neu' : 'Top'}
+                {s === 'new' ? 'Neu' : s === 'trending' ? 'Beliebt' : 'Top'}
               </button>
             ))}
           </div>

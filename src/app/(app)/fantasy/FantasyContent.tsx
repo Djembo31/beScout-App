@@ -791,6 +791,7 @@ export default function FantasyContent() {
           top10={dashboardStats.top10}
           avgPoints={dashboardStats.avgPoints}
           avgRank={dashboardStats.avgRank}
+          userId={user?.id}
         />
       )}
 

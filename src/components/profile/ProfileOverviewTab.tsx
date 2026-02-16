@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, BarChart3, Trophy } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, BarChart3, Trophy, Coins, FileText, Vote, Target, Flame, Crosshair, Banknote } from 'lucide-react';
 import { Card, StatCard, Button } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { fmtBSD, cn } from '@/lib/utils';
@@ -10,7 +10,7 @@ import { centsToBsd } from '@/lib/services/players';
 import { formatBsd } from '@/lib/services/wallet';
 import { getAchievementDef } from '@/lib/achievements';
 import { getRelativeTime } from '@/lib/activityHelpers';
-import type { Pos, DbUserAchievement, UserTradeWithPlayer, UserFantasyResult } from '@/types';
+import type { Pos, DbUserAchievement, DbTransaction, UserTradeWithPlayer, UserFantasyResult } from '@/types';
 
 // ============================================
 // TYPES
@@ -46,7 +46,18 @@ interface ProfileOverviewTabProps {
   portfolioCostCents: number;
   totalDpcs: number;
   userId: string | undefined;
+  transactions?: DbTransaction[];
 }
+
+const EARNING_TYPES: { type: string; label: string; icon: React.ElementType; color: string }[] = [
+  { type: 'research_earning', label: 'Berichte', icon: FileText, color: 'text-purple-400' },
+  { type: 'bounty_reward', label: 'Bounties', icon: Target, color: 'text-amber-400' },
+  { type: 'fantasy_reward', label: 'Fantasy', icon: Trophy, color: 'text-[#FFD700]' },
+  { type: 'poll_revenue', label: 'Umfragen', icon: Vote, color: 'text-sky-400' },
+  { type: 'mission_reward', label: 'Missionen', icon: Crosshair, color: 'text-emerald-400' },
+  { type: 'streak_reward', label: 'Streaks', icon: Flame, color: 'text-orange-400' },
+  { type: 'pbt_liquidation', label: 'PBT', icon: Banknote, color: 'text-[#FFD700]' },
+];
 
 // ============================================
 // COMPONENT
@@ -61,8 +72,25 @@ export default function ProfileOverviewTab({
   portfolioCostCents,
   totalDpcs,
   userId,
+  transactions,
 }: ProfileOverviewTabProps) {
   const pnlCents = portfolioValueCents - portfolioCostCents;
+
+  // Aggregate earnings by type
+  const earnings = useMemo(() => {
+    if (!transactions || transactions.length === 0) return null;
+    const earningTypeSet = new Set(EARNING_TYPES.map(e => e.type));
+    const byType = new Map<string, number>();
+    let total = 0;
+    for (const tx of transactions) {
+      if (earningTypeSet.has(tx.type) && tx.amount > 0) {
+        byType.set(tx.type, (byType.get(tx.type) ?? 0) + tx.amount);
+        total += tx.amount;
+      }
+    }
+    if (total === 0) return null;
+    return { byType, total };
+  }, [transactions]);
 
   return (
     <>
@@ -78,6 +106,35 @@ export default function ProfileOverviewTab({
         <StatCard label="Spieler" value={holdings.length} />
         <StatCard label="DPCs" value={totalDpcs} />
       </div>
+
+      {/* Earnings Breakdown */}
+      {earnings && (
+        <Card className="p-4 md:p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-black flex items-center gap-2">
+              <Coins className="w-4 h-4 text-[#FFD700]" />
+              Verdienste
+            </h3>
+            <span className="text-sm font-mono font-bold text-[#22C55E]">+{fmtBSD(centsToBsd(earnings.total))} BSD</span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+            {EARNING_TYPES.map(et => {
+              const amount = earnings.byType.get(et.type) ?? 0;
+              if (amount === 0) return null;
+              const Icon = et.icon;
+              return (
+                <div key={et.type} className="p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Icon className={cn('w-3.5 h-3.5', et.color)} />
+                    <span className="text-xs text-white/50">{et.label}</span>
+                  </div>
+                  <div className="text-sm font-mono font-bold text-white">+{fmtBSD(centsToBsd(amount))} BSD</div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      )}
 
       {/* Top Holdings */}
       {holdings.length > 0 && (

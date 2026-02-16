@@ -522,6 +522,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               portfolioCostCents={portfolioCostCents}
               totalDpcs={totalDpcs}
               userId={targetUserId}
+              transactions={transactions}
             />
           )}
           {!holdingsLoading && !dataError && tab === 'portfolio' && isSelf && (
