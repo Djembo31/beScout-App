@@ -225,7 +225,7 @@ export async function getUserPrimaryClub(userId: string): Promise<DbClub | null>
     .select('clubs!club_id(*)')
     .eq('user_id', userId)
     .eq('is_primary', true)
-    .single();
+    .maybeSingle();
 
   if (error || !data) return null;
   return data.clubs as unknown as DbClub;
@@ -356,7 +356,16 @@ export async function getClubRecentTrades(
   clubId: string,
   limit = 10
 ): Promise<(DbTrade & { player: { first_name: string; last_name: string; position: string } })[]> {
-  const { data, error } = await supabase
+  // Two-step: first get player IDs, then fetch trades
+  // (Supabase .in() subquery syntax crashes in postgrest-js — new Set(queryBuilder) is not iterable)
+  const { data: playerData } = await supabase
+    .from('players')
+    .select('id')
+    .eq('club_id', clubId);
+  if (!playerData || playerData.length === 0) return [];
+
+  const playerIds = playerData.map(p => p.id);
+  const { data: trades, error } = await supabase
     .from('trades')
     .select(`
       *,
@@ -366,40 +375,12 @@ export async function getClubRecentTrades(
         position
       )
     `)
-    .in('player_id',
-      supabase.from('players').select('id').eq('club_id', clubId) as unknown as string[]
-    )
+    .in('player_id', playerIds)
     .order('executed_at', { ascending: false })
     .limit(limit);
 
-  // Fallback: if subquery doesn't work, use two-step approach
-  if (error) {
-    const { data: playerData } = await supabase
-      .from('players')
-      .select('id')
-      .eq('club_id', clubId);
-    if (!playerData || playerData.length === 0) return [];
-
-    const playerIds = playerData.map(p => p.id);
-    const { data: trades, error: tradeErr } = await supabase
-      .from('trades')
-      .select(`
-        *,
-        player:players!player_id (
-          first_name,
-          last_name,
-          position
-        )
-      `)
-      .in('player_id', playerIds)
-      .order('executed_at', { ascending: false })
-      .limit(limit);
-
-    if (tradeErr) return [];
-    return (trades ?? []) as (DbTrade & { player: { first_name: string; last_name: string; position: string } })[];
-  }
-
-  return (data ?? []) as (DbTrade & { player: { first_name: string; last_name: string; position: string } })[];
+  if (error) return [];
+  return (trades ?? []) as (DbTrade & { player: { first_name: string; last_name: string; position: string } })[];
 }
 
 // ============================================
