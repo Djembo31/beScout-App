@@ -365,7 +365,7 @@ export default function HomePage() {
 
     import('@/lib/services/missions').then(({ trackMissionProgress }) => {
       trackMissionProgress(uid, 'daily_login');
-    }).catch(() => {});
+    }).catch(err => console.error('[Home] Mission tracking failed:', err));
 
     // Load scout missions (fire-and-forget, non-critical)
     Promise.allSettled([getScoutMissions()]).then(([missionsRes]) => {
@@ -379,9 +379,9 @@ export default function HomePage() {
         if (maxGw > 0) {
           getUserMissionProgress(uid, maxGw).then(progress => {
             if (!cancelled) setMissionProgress(progress);
-          }).catch(() => {});
+          }).catch(err => console.error('[Home] Mission progress load failed:', err));
         }
-      }).catch(() => {});
+      }).catch(err => console.error('[Home] Events load for missions failed:', err));
     });
 
     setStreak(updateLoginStreak());
@@ -396,8 +396,8 @@ export default function HomePage() {
             addToast(`Streak-Bonus: ${r.milestone} Tage! +${Math.round(r.reward_cents / 100)} BSD`, 'success');
           });
         }
-      }).catch(() => {});
-    }).catch(() => {});
+      }).catch(err => console.error('[Home] Login streak record failed:', err));
+    }).catch(err => console.error('[Home] Streaks module load failed:', err));
 
     return () => { cancelled = true; };
   }, [user, retryCount]);

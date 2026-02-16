@@ -75,6 +75,10 @@ export async function claimMissionReward(userId: string, missionId: string): Pro
 
   if (result.success) {
     invalidateMissionData(userId);
+    // Activity log
+    import('@/lib/services/activityLog').then(({ logActivity }) => {
+      logActivity(userId, 'mission_claim', 'engagement', { missionId, rewardCents: result.reward_cents });
+    }).catch(err => console.error('[Missions] Activity log failed:', err));
   }
 
   return result;

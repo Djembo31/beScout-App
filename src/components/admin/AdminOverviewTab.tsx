@@ -37,7 +37,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
           setFollowerCount(f);
           setSubData(subs);
         }
-      } catch { /* silent */ }
+      } catch (err) { console.error('[AdminOverview] loadData:', err); }
       finally { if (!cancelled) setLoading(false); }
     }
     load();

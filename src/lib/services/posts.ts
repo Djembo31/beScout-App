@@ -157,11 +157,11 @@ export async function createPost(
   // Mission tracking
   import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
     triggerMissionProgress(userId, ['daily_post', 'weekly_3_posts']);
-  }).catch(() => {});
+  }).catch(err => console.error('[Posts] Mission tracking failed:', err));
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'post_create', 'community', { postId: data.id, category });
-  }).catch(() => {});
+  }).catch(err => console.error('[Posts] Create activity log failed:', err));
   return data as DbPost;
 }
 
@@ -282,10 +282,11 @@ export async function votePost(
   if (error) throw new Error(error.message);
   invalidate('posts:');
   invalidate(`postVotes:${userId}`);
+  invalidate(`topPost:`);
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'post_vote', 'community', { postId, voteType });
-  }).catch(() => {});
+  }).catch(err => console.error('[Posts] Vote activity log failed:', err));
   // Fire-and-forget: airdrop score refresh for post author
   (async () => {
     try {
@@ -294,7 +295,7 @@ export async function votePost(
         const { refreshAirdropScore } = await import('@/lib/services/airdropScore');
         refreshAirdropScore(p.user_id);
       }
-    } catch {}
+    } catch (err) { console.error('[Posts] Airdrop score refresh failed:', err); }
   })();
   return data as { upvotes: number; downvotes: number };
 }

@@ -258,9 +258,9 @@ export default function MarketPage() {
                 const newMap: Record<string, boolean> = {};
                 for (const e of entries) { newMap[e.playerId] = true; }
                 setWatchlist(newMap);
-              }).catch(() => {});
+              }).catch(err => console.error('[Market] Watchlist refresh failed:', err));
             }
-          }).catch(() => {});
+          }).catch(err => console.error('[Market] Watchlist migration failed:', err));
         }
         setDataError(false);
       } catch {

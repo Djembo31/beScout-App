@@ -25,11 +25,11 @@ export async function followUser(followerId: string, followingId: string): Promi
   // Mission tracking
   import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
     triggerMissionProgress(followerId, ['weekly_follow_3']);
-  }).catch(() => {});
+  }).catch(err => console.error('[Social] Follow mission tracking failed:', err));
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(followerId, 'follow', 'social', { followingId });
-  }).catch(() => {});
+  }).catch(err => console.error('[Social] Follow activity log failed:', err));
 
   // Fire-and-forget notification to followed user
   import('@/lib/services/notifications').then(m => {
@@ -41,14 +41,14 @@ export async function followUser(followerId: string, followingId: string): Promi
       followerId,
       'profile'
     );
-  }).catch(() => {});
+  }).catch(err => console.error('[Social] Follow notification failed:', err));
 
   // Fire-and-forget: refresh stats + check achievements for followed user (follower count changed)
   refreshUserStats(followingId)
     .then(() => checkAndUnlockAchievements(followingId))
-    .catch(() => {});
+    .catch(err => console.error('[Social] Follow stats/achievements refresh failed:', err));
   // Fire-and-forget: airdrop score refresh for followed user
-  import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(followingId)).catch(() => {});
+  import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(followingId)).catch(err => console.error('[Social] Follow airdrop score refresh failed:', err));
 }
 
 export async function unfollowUser(followerId: string, followingId: string): Promise<void> {
@@ -65,7 +65,7 @@ export async function unfollowUser(followerId: string, followingId: string): Pro
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(followerId, 'unfollow', 'social', { followingId });
-  }).catch(() => {});
+  }).catch(err => console.error('[Social] Unfollow activity log failed:', err));
 }
 
 export async function isFollowing(followerId: string, followingId: string): Promise<boolean> {

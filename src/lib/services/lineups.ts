@@ -71,6 +71,17 @@ export async function submitLineup(params: {
     throw new Error('Event ist voll — maximale Teilnehmerzahl erreicht.');
   }
 
+  // Guard: prevent duplicate players across slots
+  const slotPlayerIds = [
+    params.slotGk, params.slotDef1, params.slotDef2,
+    params.slotMid1, params.slotMid2, params.slotAtt,
+  ].filter((id): id is string => id != null);
+
+  const uniqueIds = new Set(slotPlayerIds);
+  if (uniqueIds.size < slotPlayerIds.length) {
+    throw new Error('Jeder Spieler darf nur einmal aufgestellt werden.');
+  }
+
   const { data, error } = await supabase
     .from('lineups')
     .upsert(

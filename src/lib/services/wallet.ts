@@ -96,24 +96,6 @@ export async function getPlayerHolderCount(playerId: string): Promise<number> {
   }, FIVE_MIN);
 }
 
-/** Bulk holder counts for multiple players */
-export async function getBulkHolderCounts(playerIds: string[]): Promise<Record<string, number>> {
-  if (playerIds.length === 0) return {};
-  return cached(`holderCounts:${playerIds.slice(0, 5).join(',')}:${playerIds.length}`, async () => {
-    const { data, error } = await supabase
-      .from('holdings')
-      .select('player_id, quantity')
-      .in('player_id', playerIds)
-      .gt('quantity', 0);
-    if (error) return {};
-    const counts: Record<string, number> = {};
-    (data ?? []).forEach(h => {
-      counts[h.player_id] = (counts[h.player_id] ?? 0) + 1;
-    });
-    return counts;
-  }, FIVE_MIN);
-}
-
 // ============================================
 // Transactions Queries
 // ============================================

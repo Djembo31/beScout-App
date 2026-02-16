@@ -177,6 +177,30 @@ export async function toggleFollowClub(
   invalidateClubData(clubId);
 }
 
+/** Batch follow clubs during onboarding (first = primary) */
+export async function followClubsBatch(
+  userId: string,
+  clubIds: string[]
+): Promise<void> {
+  if (clubIds.length === 0) return;
+  const rows = clubIds.map((clubId, i) => ({
+    user_id: userId,
+    club_id: clubId,
+    is_primary: i === 0,
+  }));
+  const { error } = await supabase
+    .from('club_followers')
+    .upsert(rows, { onConflict: 'user_id,club_id' });
+  if (error) {
+    // Retry once
+    const { error: retryErr } = await supabase
+      .from('club_followers')
+      .upsert(rows, { onConflict: 'user_id,club_id' });
+    if (retryErr) console.error('[Club] followClubsBatch retry failed:', retryErr.message);
+  }
+  invalidate(`clubFollows:${userId}`);
+}
+
 /** Get all clubs the user follows */
 export async function getUserFollowedClubs(userId: string): Promise<DbClub[]> {
   return cached(`clubFollows:${userId}`, async () => {

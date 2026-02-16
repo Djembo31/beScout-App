@@ -41,7 +41,7 @@ export default function RootLayout({
         </Providers>
         <Script id="sw-register" strategy="afterInteractive">{`
           if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').catch(() => {});
+            navigator.serviceWorker.register('/sw.js').catch(function(err) { console.error('[SW] Registration failed:', err); });
           }
         `}</Script>
       </body>

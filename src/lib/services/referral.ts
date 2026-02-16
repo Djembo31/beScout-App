@@ -80,6 +80,15 @@ export async function triggerReferralReward(refereeId: string): Promise<void> {
     if (result.success && result.referrer_id) {
       invalidate(`wallet:${result.referrer_id}`);
       invalidate(`referralCount:${result.referrer_id}`);
+      // Notify referrer about reward
+      import('@/lib/services/notifications').then(({ createNotification }) => {
+        createNotification(
+          result.referrer_id!,
+          'referral_reward',
+          'Empfehlungsbonus erhalten!',
+          'Dein eingeladener Freund hat seinen ersten Trade gemacht — du erhältst 500 BSD!',
+        );
+      }).catch(err => console.error('[Referral] Notification failed:', err));
       // Refresh referrer airdrop score
       import('@/lib/services/airdropScore').then(m => {
         m.refreshAirdropScore(result.referrer_id!);

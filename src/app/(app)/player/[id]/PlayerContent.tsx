@@ -160,7 +160,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     async function load() {
       setLoading(true);
       setDataError(false);
-      resolveExpiredResearch().catch(() => {});
+      resolveExpiredResearch().catch(err => console.error('[Player] Resolve expired research failed:', err));
       try {
         const currentUserId = user?.id;
         const results = await withTimeout(Promise.allSettled([
@@ -261,7 +261,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           const purchased = await getUserIpoPurchases(uid, activeIpo.id);
           if (!cancelled) setUserIpoPurchased(purchased);
         }
-      } catch { /* non-blocking */ }
+      } catch (err) { console.error('[Player] User-specific data load failed:', err); }
       if (!cancelled) setTradesLoading(false);
     }
     loadUserData();
@@ -270,7 +270,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
 
   // Open bids
   useEffect(() => {
-    getOpenBids(playerId).then(setOpenBids).catch(() => {});
+    getOpenBids(playerId).then(setOpenBids).catch(err => console.error('[Player] Load open bids failed:', err));
   }, [playerId]);
 
   // ─── Derived Data ───────────────────────
@@ -398,7 +398,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
       if (result.success) {
         addToast('Kaufangebot erstellt', 'success');
         setShowOfferModal(false); setOfferPrice(''); setOfferMessage('');
-        getOpenBids(playerId).then(setOpenBids).catch(() => {});
+        getOpenBids(playerId).then(setOpenBids).catch(err => console.error('[Player] Reload open bids failed:', err));
       } else { addToast(result.error ?? 'Fehler', 'error'); }
     } catch (e) { addToast(e instanceof Error ? e.message : 'Fehler', 'error'); }
     finally { setOfferLoading(false); }
@@ -410,7 +410,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
       const result = await acceptOffer(user.id, offerId);
       if (result.success) {
         addToast('Angebot angenommen', 'success');
-        getOpenBids(playerId).then(setOpenBids).catch(() => {});
+        getOpenBids(playerId).then(setOpenBids).catch(err => console.error('[Player] Reload open bids failed:', err));
         invalidateTradeData(playerId, user.id);
         refreshOrdersAndTrades();
       } else { addToast(result.error ?? 'Fehler', 'error'); }
@@ -433,7 +433,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     const url = window.location.href;
     const text = `${player.first} ${player.last} auf BeScout — ${fmtBSD(centsToBsd(player.prices.floor ?? 0))} BSD`;
     if (navigator.share) {
-      try { await navigator.share({ title: text, url }); } catch {}
+      try { await navigator.share({ title: text, url }); } catch (err) { console.error('[Player] Share failed:', err); }
     } else {
       await navigator.clipboard.writeText(url);
       addToast('Link kopiert!', 'success');
@@ -483,7 +483,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         else next.set(postId, voteType);
         return next;
       });
-    } catch { /* silent */ }
+    } catch (err) { console.error('[Player] Vote post failed:', err); }
   };
 
   const handleDeletePlayerPost = async (postId: string) => {
@@ -491,7 +491,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     try {
       await deletePost(user.id, postId);
       setPlayerPosts(prev => prev.filter(p => p.id !== postId));
-    } catch { /* silent */ }
+    } catch (err) { console.error('[Player] Delete post failed:', err); }
   };
 
   const handleResearchUnlock = async (id: string) => {
@@ -503,7 +503,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         const updated = await getResearchPosts({ playerId, currentUserId: user.id });
         setPlayerResearch(updated);
       }
-    } catch {} finally { setUnlockingId(null); }
+    } catch (err) { console.error('[Player] Research unlock failed:', err); } finally { setUnlockingId(null); }
   };
 
   const handleResearchRate = async (id: string, rating: number) => {
@@ -516,7 +516,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           p.id === id ? { ...p, avg_rating: result.avg_rating ?? p.avg_rating, ratings_count: result.ratings_count ?? p.ratings_count, user_rating: result.user_rating ?? p.user_rating } : p
         ));
       }
-    } catch {} finally { setRatingId(null); }
+    } catch (err) { console.error('[Player] Research rate failed:', err); } finally { setRatingId(null); }
   };
 
   const openTrading = () => setTradingModalOpen(true);

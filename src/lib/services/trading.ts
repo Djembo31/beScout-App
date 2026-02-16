@@ -507,20 +507,6 @@ export async function getTopTraders(limit = 5): Promise<TopTrader[]> {
   }, TWO_MIN);
 }
 
-export async function getPlayerPriceHistory(playerId: string, limit = 10): Promise<number[]> {
-  return cached(`priceHistory:${playerId}`, async () => {
-    const { data, error } = await supabase
-      .from('trades')
-      .select('price')
-      .eq('player_id', playerId)
-      .order('executed_at', { ascending: true })
-      .limit(limit);
-
-    if (error || !data) return [];
-    return data.map(t => t.price as number);
-  }, ONE_MIN);
-}
-
 // ============================================
 // Platform Stats
 // ============================================

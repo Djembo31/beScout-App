@@ -15,8 +15,8 @@ export default function ReferralCard({ userId }: Props) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    getUserReferralCode(userId).then(c => setCode(c)).catch(() => {});
-    getUserReferralCount(userId).then(n => setCount(n)).catch(() => {});
+    getUserReferralCode(userId).then(c => setCode(c)).catch(err => console.error('[ReferralCard] getReferralCode:', err));
+    getUserReferralCount(userId).then(n => setCount(n)).catch(err => console.error('[ReferralCard] getReferralCount:', err));
   }, [userId]);
 
   if (!code) return null;
@@ -28,7 +28,7 @@ export default function ReferralCard({ userId }: Props) {
       await navigator.clipboard.writeText(referralUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch {}
+    } catch (err) { console.error('[ReferralCard] copyToClipboard:', err); }
   };
 
   const handleShare = async () => {
@@ -39,7 +39,7 @@ export default function ReferralCard({ userId }: Props) {
           text: 'Komm zu BeScout — DPC-Trading, Fantasy & mehr für Fußball-Fans!',
           url: referralUrl,
         });
-      } catch {}
+      } catch (err) { console.error('[ReferralCard] share:', err); }
     } else {
       handleCopy();
     }

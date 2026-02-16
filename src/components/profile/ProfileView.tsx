@@ -107,7 +107,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
     async function load() {
       setHoldingsLoading(true);
       if (isSelf) {
-        resolveExpiredResearch().catch(() => {});
+        resolveExpiredResearch().catch(err => console.error('[ProfileView] resolveExpiredResearch:', err));
       }
       try {
         const results = await Promise.allSettled([
@@ -158,13 +158,13 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
     if (!targetProfile?.favorite_club_id) return;
     getMySubscription(targetUserId, targetProfile.favorite_club_id)
       .then(sub => setClubSub(sub))
-      .catch(() => {});
+      .catch(err => console.error('[ProfileView] getMySubscription:', err));
   }, [targetUserId, targetProfile?.favorite_club_id]);
 
   // Check follow status for public profiles
   useEffect(() => {
     if (isSelf || !user) return;
-    isFollowing(user.id, targetUserId).then(setFollowing).catch(() => {});
+    isFollowing(user.id, targetUserId).then(setFollowing).catch(err => console.error('[ProfileView] isFollowing:', err));
   }, [isSelf, user, targetUserId]);
 
   const handleToggleFollow = useCallback(async () => {
@@ -180,7 +180,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
         setFollowing(true);
         setFollowerCount(c => c + 1);
       }
-    } catch {}
+    } catch (err) { console.error('[ProfileView] toggleFollow:', err); }
     finally { setFollowLoading(false); }
   }, [user, isSelf, following, targetUserId]);
 
@@ -200,7 +200,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
       setAchievements(achvs);
       setFollowerCount(fCount);
       setFollowingCount(fgCount);
-    } catch {}
+    } catch (err) { console.error('[ProfileView] refreshStats:', err); }
     finally { setStatsRefreshing(false); }
   }, [targetUserId, statsRefreshing]);
 
@@ -338,7 +338,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                 const url = `${window.location.origin}/profile/${targetProfile.handle}`;
                 const text = `${name} auf BeScout`;
                 if (navigator.share) {
-                  try { await navigator.share({ title: text, url }); } catch {}
+                  try { await navigator.share({ title: text, url }); } catch (err) { console.error('[ProfileView] share:', err); }
                 } else {
                   await navigator.clipboard.writeText(url);
                   addToast('Link kopiert!', 'success');

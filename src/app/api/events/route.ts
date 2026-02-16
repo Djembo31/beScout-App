@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   }
 
   // Best-effort status sync
-  try { await supabaseServer.rpc('sync_event_statuses'); } catch { /* silent */ }
+  try { await supabaseServer.rpc('sync_event_statuses'); } catch (err) { console.error('[API/Events] Sync event statuses failed:', err); }
 
   const { data, error } = await supabaseServer
     .from('events')

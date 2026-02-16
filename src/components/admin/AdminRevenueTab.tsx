@@ -34,7 +34,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
           setVotes(v);
           setTradingFees(fees);
         }
-      } catch { /* silent */ }
+      } catch (err) { console.error('[AdminRevenue] loadData:', err); }
       finally { if (!cancelled) setLoading(false); }
     }
     load();

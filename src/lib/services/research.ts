@@ -267,7 +267,7 @@ export async function unlockResearch(userId: string, researchId: string): Promis
 // Research Ratings
 // ============================================
 
-export async function getUserResearchRatings(
+async function getUserResearchRatings(
   userId: string,
   researchIds: string[]
 ): Promise<Map<string, number>> {

@@ -33,7 +33,7 @@ export async function getFixturesByGameweek(gw: number): Promise<Fixture[]> {
         away_club_id: row.away_club_id as string,
         home_score: row.home_score as number | null,
         away_score: row.away_score as number | null,
-        status: row.status as 'scheduled' | 'simulated',
+        status: row.status as 'scheduled' | 'simulated' | 'live' | 'finished',
         played_at: row.played_at as string | null,
         created_at: row.created_at as string,
         home_club_name: home?.name ?? '',
@@ -104,7 +104,7 @@ export async function getGameweekStatuses(fromGw: number, toGw: number): Promise
     const gw = row.gameweek as number;
     const existing = gwMap.get(gw) || { total: 0, simulated: 0 };
     existing.total++;
-    if (row.status === 'simulated') existing.simulated++;
+    if (row.status === 'simulated' || row.status === 'finished') existing.simulated++;
     gwMap.set(gw, existing);
   }
 
@@ -124,7 +124,7 @@ export async function getGameweekTopScorers(gw: number, limit: number = 5): Prom
       .from('fixtures')
       .select('id')
       .eq('gameweek', gw)
-      .eq('status', 'simulated');
+      .in('status', ['simulated', 'finished']);
 
     if (!fixtures || fixtures.length === 0) return [];
 
@@ -191,4 +191,17 @@ export async function simulateGameweek(gameweek: number): Promise<SimulateResult
   invalidate('fps:');
 
   return data as SimulateResult;
+}
+
+/** Bridge: sync fixture_player_stats → player_gameweek_scores via RPC */
+export async function syncFixtureScores(gameweek: number): Promise<{ success: boolean; synced_count: number; error?: string }> {
+  const { data, error } = await supabase.rpc('sync_fixture_scores', {
+    p_gameweek: gameweek,
+  });
+
+  if (error) {
+    return { success: false, synced_count: 0, error: error.message };
+  }
+
+  return data as { success: boolean; synced_count: number };
 }

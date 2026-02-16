@@ -56,7 +56,7 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
         await followUser(user.id, targetId);
       }
       setFollowingMap(prev => new Map(prev).set(targetId, !isCurrentlyFollowing));
-    } catch { /* silent */ }
+    } catch (err) { console.error('[FollowListModal] toggleFollow:', err); }
     setToggling(null);
   };
 

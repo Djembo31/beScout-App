@@ -42,6 +42,15 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
 
   const result = data as ScoreResult;
 
+  // Auto-transition event to 'ended' after successful scoring
+  if (result.success) {
+    await supabase
+      .from('events')
+      .update({ status: 'ended', scored_at: new Date().toISOString() })
+      .eq('id', eventId)
+      .in('status', ['running', 'scoring', 'registering', 'late-reg']);
+  }
+
   // Fire-and-forget: notify top 3 + refresh stats for all participants
   if (result.success) {
     (async () => {
@@ -160,16 +169,48 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number): Pr
   let eventsScored = 0;
   let nextGwEventsCreated = 0;
 
-  // 1. Simulate fixtures
-  const { simulateGameweek } = await import('@/lib/services/fixtures');
-  const simResult = await simulateGameweek(gameweek);
-  if (simResult.success) {
-    fixturesSimulated = simResult.fixtures_simulated ?? 0;
-  } else {
-    // If already simulated, that's okay — continue to scoring
-    if (simResult.error && !simResult.error.includes('already')) {
-      errors.push(`Fixture-Simulation: ${simResult.error}`);
+  // 1. Try API import first, fallback to simulation
+  let useApi = false;
+  try {
+    const { isApiConfigured, hasApiFixtures, importGameweek } = await import('@/lib/services/footballData');
+    if (isApiConfigured()) {
+      const hasMapped = await hasApiFixtures(gameweek);
+      if (hasMapped) {
+        useApi = true;
+        const importResult = await importGameweek(gameweek);
+        if (importResult.success) {
+          fixturesSimulated = importResult.fixturesImported;
+        } else {
+          errors.push(...importResult.errors.map(e => `API-Import: ${e}`));
+        }
+      }
     }
+  } catch (e) {
+    console.error('[GW Flow] API import failed, falling back to simulation:', e);
+  }
+
+  // Fallback: simulate if API not used or failed
+  if (!useApi) {
+    const { simulateGameweek } = await import('@/lib/services/fixtures');
+    const simResult = await simulateGameweek(gameweek);
+    if (simResult.success) {
+      fixturesSimulated = simResult.fixtures_simulated ?? 0;
+    } else {
+      if (simResult.error && !simResult.error.includes('already')) {
+        errors.push(`Fixture-Simulation: ${simResult.error}`);
+      }
+    }
+  }
+
+  // Bridge: sync fixture_player_stats → player_gameweek_scores
+  try {
+    const { syncFixtureScores } = await import('@/lib/services/fixtures');
+    const syncResult = await syncFixtureScores(gameweek);
+    if (!syncResult.success && syncResult.error) {
+      errors.push(`Score-Sync: ${syncResult.error}`);
+    }
+  } catch (e) {
+    errors.push(`Score-Sync: ${e instanceof Error ? e.message : 'Fehler'}`);
   }
 
   // 2. Set all GW events to "running" (close registration)

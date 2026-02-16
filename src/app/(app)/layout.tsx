@@ -22,7 +22,7 @@ export default function AppLayout({
     if (!user) return;
     import('@/lib/services/activityLog').then(({ logActivity }) => {
       logActivity(user.id, 'page_view', 'navigation', { path: pathname });
-    }).catch(() => {});
+    }).catch(err => console.error('[AppLayout] Activity log failed:', err));
   }, [pathname, user]);
 
   const handleMobileToggle = useCallback(() => {

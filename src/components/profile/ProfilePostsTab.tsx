@@ -30,7 +30,7 @@ export default function ProfilePostsTab({ userId }: ProfilePostsTabProps) {
     try {
       await votePost(user.id, postId, voteType);
       setVotes(prev => new Map(prev).set(postId, voteType));
-    } catch { /* silent */ }
+    } catch (err) { console.error('[ProfilePosts] votePost:', err); }
   };
 
   const handleDelete = async (postId: string) => {
@@ -38,7 +38,7 @@ export default function ProfilePostsTab({ userId }: ProfilePostsTabProps) {
     try {
       await deletePost(user.id, postId);
       setPosts(prev => prev.filter(p => p.id !== postId));
-    } catch { /* silent */ }
+    } catch (err) { console.error('[ProfilePosts] deletePost:', err); }
   };
 
   if (loading) {

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Search, X, Share2, ChevronLeft, BarChart3, ArrowLeftRight } from 'lucide-react';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, ErrorState } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { RadarChart, buildPlayerRadarAxes } from '@/components/player/RadarChart';
 import type { RadarDataSet } from '@/components/player/RadarChart';
@@ -21,14 +21,21 @@ export default function ComparePage() {
   const [search, setSearch] = useState('');
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [dataError, setDataError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Load players
   useEffect(() => {
+    let cancelled = false;
+    setDataError(false);
     getPlayers().then(p => {
-      setAllPlayers(p);
-      setLoading(false);
-    }).catch(() => setLoading(false));
-  }, []);
+      if (!cancelled) { setAllPlayers(p); setLoading(false); }
+    }).catch(err => {
+      console.error('[Compare] Failed to load players:', err);
+      if (!cancelled) { setDataError(true); setLoading(false); }
+    });
+    return () => { cancelled = true; };
+  }, [retryCount]);
 
   // Parse URL params
   useEffect(() => {
@@ -77,7 +84,7 @@ export default function ComparePage() {
   const handleShare = () => {
     const params = selectedIds.map((id, i) => `p${i + 1}=${id}`).join('&');
     const url = `${window.location.origin}/compare?${params}`;
-    navigator.clipboard.writeText(url).then(() => alert('Link kopiert!')).catch(() => {});
+    navigator.clipboard.writeText(url).then(() => alert('Link kopiert!')).catch(err => console.error('[Compare] Clipboard write failed:', err));
   };
 
   // Build radar datasets
@@ -115,6 +122,14 @@ export default function ComparePage() {
           <div className="w-8 h-8 border-2 border-white/20 border-t-white/80 rounded-full animate-spin mx-auto mb-4" />
           <div className="text-white/40">Spieler werden geladen...</div>
         </div>
+      </div>
+    );
+  }
+
+  if (dataError) {
+    return (
+      <div className="max-w-4xl mx-auto py-8 px-4">
+        <ErrorState onRetry={() => { setLoading(true); setRetryCount(c => c + 1); }} />
       </div>
     );
   }

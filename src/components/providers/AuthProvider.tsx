@@ -31,7 +31,7 @@ function ssGet<T>(key: string): T | null {
 function ssSet(key: string, value: unknown): void {
   try {
     sessionStorage.setItem(key, JSON.stringify(value));
-  } catch { /* quota exceeded — ignore */ }
+  } catch (err) { console.error('[AuthProvider] ssSet quota exceeded:', err); }
 }
 
 function ssClear(): void {
@@ -40,7 +40,7 @@ function ssClear(): void {
     sessionStorage.removeItem(SS_PROFILE);
     sessionStorage.removeItem(SS_PLATFORM_ROLE);
     sessionStorage.removeItem(SS_CLUB_ADMIN);
-  } catch { /* ignore */ }
+  } catch (err) { console.error('[AuthProvider] ssClear:', err); }
 }
 
 // ============================================
@@ -131,11 +131,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const role = pRole.status === 'fulfilled' ? pRole.value : null;
       setPlatformRole(role);
-      if (role) ssSet(SS_PLATFORM_ROLE, role); else try { sessionStorage.removeItem(SS_PLATFORM_ROLE); } catch { /* */ }
+      if (role) ssSet(SS_PLATFORM_ROLE, role); else try { sessionStorage.removeItem(SS_PLATFORM_ROLE); } catch (err) { console.error('[AuthProvider] removeItem platformRole:', err); }
 
       const ca = cAdmin.status === 'fulfilled' ? cAdmin.value : null;
       setClubAdmin(ca);
-      if (ca) ssSet(SS_CLUB_ADMIN, ca); else try { sessionStorage.removeItem(SS_CLUB_ADMIN); } catch { /* */ }
+      if (ca) ssSet(SS_CLUB_ADMIN, ca); else try { sessionStorage.removeItem(SS_CLUB_ADMIN); } catch (err) { console.error('[AuthProvider] removeItem clubAdmin:', err); }
     } catch {
       // Profile load failed — keep cached data if any
     }
@@ -191,7 +191,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (_event === 'SIGNED_IN') {
           import('@/lib/services/activityLog').then(({ logActivity }) => {
             logActivity(u.id, 'login', 'auth', { provider: session?.user?.app_metadata?.provider });
-          }).catch(() => {});
+          }).catch(err => console.error('[AuthProvider] logActivity login:', err));
         }
       } else {
         // Activity log — logout (before clearing)
@@ -199,7 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           import('@/lib/services/activityLog').then(({ logActivity, flushActivityLogs }) => {
             logActivity(user.id, 'logout', 'auth');
             flushActivityLogs();
-          }).catch(() => {});
+          }).catch(err => console.error('[AuthProvider] logActivity logout:', err));
         }
         setProfile(null);
         setPlatformRole(null);

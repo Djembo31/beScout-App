@@ -91,6 +91,10 @@ export async function subscribeTo(
   if (result.success) {
     invalidate(`clubSub:${userId}:${clubId}`);
     invalidate(`profile:${userId}`);
+    // Activity log
+    import('@/lib/services/activityLog').then(({ logActivity }) => {
+      logActivity(userId, 'subscription_purchase', 'club', { clubId, tier });
+    }).catch(err => console.error('[ClubSub] Activity log failed:', err));
   }
 
   return result;

@@ -32,20 +32,6 @@ export async function getPlayerById(id: string): Promise<DbPlayer | null> {
   }, FIVE_MIN);
 }
 
-/** Alle Spieler eines Clubs laden (by name — legacy) */
-export async function getPlayersByClub(clubName: string): Promise<DbPlayer[]> {
-  return cached(`players:club:${clubName}`, async () => {
-    const { data, error } = await supabase
-      .from('players')
-      .select('*')
-      .eq('club', clubName)
-      .order('last_name');
-
-    if (error) throw new Error(error.message);
-    return data as DbPlayer[];
-  }, FIVE_MIN);
-}
-
 /** Alle Spieler eines Clubs laden (by club_id) */
 export async function getPlayersByClubId(clubId: string): Promise<DbPlayer[]> {
   return cached(`players:club:${clubId}`, async () => {

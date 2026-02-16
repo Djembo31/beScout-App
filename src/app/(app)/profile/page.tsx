@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { updateProfile, checkHandleAvailable, isValidHandle } from '@/lib/services/profiles';
 import { getAllClubsCached } from '@/lib/clubs';
-import { supabase } from '@/lib/supabaseClient';
+import { uploadAvatar } from '@/lib/services/avatars';
 import ProfileView from '@/components/profile/ProfileView';
 
 type HandleStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid' | 'unchanged';
@@ -108,16 +108,8 @@ function SettingsTab() {
     }
     setUploadingAvatar(true);
     try {
-      const ext = file.name.split('.').pop();
-      const path = `${user.id}/avatar.${ext}`;
-      const { error: uploadErr } = await supabase.storage
-        .from('avatars')
-        .upload(path, file, { upsert: true });
-      if (uploadErr) throw uploadErr;
-      const { data: urlData } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(path);
-      await updateProfile(user.id, { avatar_url: urlData.publicUrl });
+      const avatarUrl = await uploadAvatar(user.id, file);
+      await updateProfile(user.id, { avatar_url: avatarUrl });
       await refreshProfile();
     } catch {
       setProfileMsg({ type: 'error', text: 'Avatar konnte nicht hochgeladen werden.' });

@@ -406,6 +406,7 @@ export type DbPlayer = {
   volume_24h: number;
   status: 'fit' | 'injured' | 'suspended' | 'doubtful' | null;
   success_fee_cap_cents: number | null;
+  api_football_id?: number | null;
   is_liquidated: boolean;
   created_at: string;
   updated_at: string;
@@ -1065,7 +1066,7 @@ export type DbLiquidationPayout = {
 // FIXTURE TYPES
 // ============================================
 
-export type FixtureStatus = 'scheduled' | 'simulated';
+export type FixtureStatus = 'scheduled' | 'simulated' | 'live' | 'finished';
 
 export type DbFixture = {
   id: string;
@@ -1075,6 +1076,7 @@ export type DbFixture = {
   home_score: number | null;
   away_score: number | null;
   status: FixtureStatus;
+  api_fixture_id?: number | null;
   league_id?: string | null;
   played_at: string | null;
   created_at: string;

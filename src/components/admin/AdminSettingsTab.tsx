@@ -1,10 +1,202 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Settings, Shield, Calendar, Loader2, Check } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Settings, Shield, Calendar, Loader2, Check, Database, RefreshCw, Users, Shirt, Trophy, AlertCircle } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { getActiveGameweek, setActiveGameweek } from '@/lib/services/club';
+import {
+  isApiConfigured,
+  getMappingStatus,
+  syncTeamMapping,
+  syncPlayerMapping,
+  syncFixtureMapping,
+  type MappingStatus,
+  type MappingResult,
+} from '@/lib/services/footballData';
 import type { ClubWithAdmin } from '@/types';
+
+// ============================================
+// API-Football Mapping Section
+// ============================================
+
+function ApiFootballSection() {
+  const [status, setStatus] = useState<MappingStatus | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState<'teams' | 'players' | 'fixtures' | null>(null);
+  const [lastResult, setLastResult] = useState<{ type: string; result: MappingResult } | null>(null);
+  const [fixtureGw, setFixtureGw] = useState<number>(1);
+  const apiReady = isApiConfigured();
+
+  const loadStatus = useCallback(async () => {
+    setLoading(true);
+    try {
+      const s = await getMappingStatus();
+      setStatus(s);
+    } catch (err) { console.error('[AdminSettings] loadMappingStatus:', err); }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    if (apiReady) loadStatus();
+    else setLoading(false);
+  }, [apiReady, loadStatus]);
+
+  const handleSyncTeams = async () => {
+    setSyncing('teams');
+    setLastResult(null);
+    try {
+      const result = await syncTeamMapping();
+      setLastResult({ type: 'Teams', result });
+      await loadStatus();
+    } catch (e) {
+      setLastResult({ type: 'Teams', result: { matched: 0, unmatched: [], errors: [e instanceof Error ? e.message : 'Fehler'] } });
+    }
+    setSyncing(null);
+  };
+
+  const handleSyncPlayers = async () => {
+    setSyncing('players');
+    setLastResult(null);
+    try {
+      const result = await syncPlayerMapping();
+      setLastResult({ type: 'Spieler', result });
+      await loadStatus();
+    } catch (e) {
+      setLastResult({ type: 'Spieler', result: { matched: 0, unmatched: [], errors: [e instanceof Error ? e.message : 'Fehler'] } });
+    }
+    setSyncing(null);
+  };
+
+  const handleSyncFixtures = async () => {
+    setSyncing('fixtures');
+    setLastResult(null);
+    try {
+      const result = await syncFixtureMapping(fixtureGw);
+      setLastResult({ type: `Fixtures GW ${fixtureGw}`, result });
+      await loadStatus();
+    } catch (e) {
+      setLastResult({ type: `Fixtures GW ${fixtureGw}`, result: { matched: 0, unmatched: [], errors: [e instanceof Error ? e.message : 'Fehler'] } });
+    }
+    setSyncing(null);
+  };
+
+  return (
+    <Card className="p-6">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center">
+          <Database className="w-5 h-5 text-sky-400" />
+        </div>
+        <div>
+          <div className="font-bold">API-Football Integration</div>
+          <div className="text-xs text-white/50">
+            Echte Match-Daten importieren (TFF 1. Lig)
+          </div>
+        </div>
+      </div>
+
+      {!apiReady ? (
+        <div className="text-sm text-white/40 p-4 bg-white/[0.02] rounded-xl border border-dashed border-white/10 text-center">
+          <AlertCircle className="w-5 h-5 mx-auto mb-2 text-orange-400" />
+          <div className="font-semibold text-white/60 mb-1">API Key nicht konfiguriert</div>
+          <div>Setze <code className="text-sky-400 font-mono text-xs">NEXT_PUBLIC_API_FOOTBALL_KEY</code> in <code className="text-white/60 font-mono text-xs">.env.local</code></div>
+        </div>
+      ) : loading ? (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="w-5 h-5 animate-spin text-white/30" />
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {/* Mapping Status Dashboard */}
+          {status && (
+            <div className="grid grid-cols-3 gap-3">
+              <StatusPill label="Clubs" mapped={status.clubsMapped} total={status.clubsTotal} icon={<Shield className="w-3.5 h-3.5" />} />
+              <StatusPill label="Spieler" mapped={status.playersMapped} total={status.playersTotal} icon={<Shirt className="w-3.5 h-3.5" />} />
+              <StatusPill label="Fixtures" mapped={status.fixturesMapped} total={status.fixturesTotal} icon={<Trophy className="w-3.5 h-3.5" />} />
+            </div>
+          )}
+
+          {/* Sync Actions */}
+          <div className="space-y-3">
+            {/* Teams */}
+            <div className="flex items-center gap-3">
+              <Button onClick={handleSyncTeams} disabled={!!syncing} className="flex-1">
+                {syncing === 'teams' ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Users className="w-4 h-4 mr-2" />}
+                Teams syncen
+              </Button>
+            </div>
+
+            {/* Players */}
+            <div className="flex items-center gap-3">
+              <Button onClick={handleSyncPlayers} disabled={!!syncing || (status?.clubsMapped ?? 0) === 0} className="flex-1">
+                {syncing === 'players' ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Shirt className="w-4 h-4 mr-2" />}
+                Spieler syncen
+              </Button>
+            </div>
+
+            {/* Fixtures (per GW) */}
+            <div className="flex items-center gap-3">
+              <select
+                value={fixtureGw}
+                onChange={(e) => setFixtureGw(Number(e.target.value))}
+                className="w-28 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm"
+              >
+                {Array.from({ length: 38 }, (_, i) => i + 1).map(gw => (
+                  <option key={gw} value={gw}>GW {gw}</option>
+                ))}
+              </select>
+              <Button onClick={handleSyncFixtures} disabled={!!syncing || (status?.clubsMapped ?? 0) === 0} className="flex-1">
+                {syncing === 'fixtures' ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+                Fixtures syncen
+              </Button>
+            </div>
+          </div>
+
+          {/* Last Result */}
+          {lastResult && (
+            <div className={`p-3 rounded-xl text-sm ${lastResult.result.errors.length > 0 ? 'bg-red-500/10 border border-red-500/20' : 'bg-[#22C55E]/10 border border-[#22C55E]/20'}`}>
+              <div className="font-bold mb-1">
+                {lastResult.type}: {lastResult.result.matched} gemappt
+                {lastResult.result.unmatched.length > 0 && (
+                  <span className="text-orange-400 font-normal"> / {lastResult.result.unmatched.length} nicht gefunden</span>
+                )}
+              </div>
+              {lastResult.result.errors.length > 0 && (
+                <div className="text-red-400 text-xs space-y-0.5">
+                  {lastResult.result.errors.map((e, i) => <div key={i}>{e}</div>)}
+                </div>
+              )}
+              {lastResult.result.unmatched.length > 0 && lastResult.result.unmatched.length <= 10 && (
+                <div className="text-orange-400/70 text-xs mt-1">
+                  Nicht gefunden: {lastResult.result.unmatched.join(', ')}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function StatusPill({ label, mapped, total, icon }: { label: string; mapped: number; total: number; icon: React.ReactNode }) {
+  const pct = total > 0 ? Math.round((mapped / total) * 100) : 0;
+  const color = pct === 100 ? 'text-[#22C55E]' : pct > 0 ? 'text-[#FFD700]' : 'text-white/30';
+
+  return (
+    <div className="p-3 bg-white/[0.02] rounded-xl border border-white/[0.06] text-center">
+      <div className="flex items-center justify-center gap-1.5 mb-1">
+        <span className={color}>{icon}</span>
+        <span className="text-[10px] font-bold text-white/40 uppercase">{label}</span>
+      </div>
+      <div className={`text-lg font-black ${color}`}>{mapped}/{total}</div>
+      <div className="text-[10px] text-white/25">{pct}%</div>
+    </div>
+  );
+}
+
+// ============================================
+// Main Component
+// ============================================
 
 export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
   const [currentGw, setCurrentGw] = useState<number | null>(null);
@@ -16,7 +208,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
     getActiveGameweek(club.id).then(gw => {
       setCurrentGw(gw);
       setSelectedGw(gw);
-    }).catch(() => {});
+    }).catch(err => console.error('[AdminSettings] getActiveGameweek:', err));
   }, [club.id]);
 
   const handleSetGw = async () => {
@@ -27,7 +219,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
       setCurrentGw(selectedGw);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
-    } catch { /* error */ }
+    } catch (err) { console.error('[AdminSettings] setActiveGameweek:', err); }
     setSaving(false);
   };
 
@@ -78,6 +270,9 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
           </Button>
         </div>
       </Card>
+
+      {/* API-Football Integration */}
+      <ApiFootballSection />
 
       <Card className="p-6">
         <div className="flex items-center gap-3 mb-4">

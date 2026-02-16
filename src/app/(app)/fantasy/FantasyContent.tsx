@@ -207,7 +207,7 @@ export default function FantasyContent() {
         const { isClubAdmin } = await import('@/lib/services/club');
         const admin = await isClubAdmin(uid, clubId);
         setIsAdmin(admin);
-      } catch { /* not admin */ }
+      } catch (err) { console.error('[Fantasy] Admin check failed:', err); }
 
       setDataError(false);
       } catch {
@@ -404,7 +404,7 @@ export default function FantasyContent() {
     }));
 
     invalidate('events:');
-    try { await fetch('/api/events?bust=1'); } catch { /* silent */ }
+    try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
 
     // Mission tracking — only after full join succeeds (lineup + fee)
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
@@ -452,7 +452,7 @@ export default function FantasyContent() {
     }));
 
     invalidate('events:');
-    try { await fetch('/api/events?bust=1'); } catch { /* silent */ }
+    try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
 
     addToast(`Vom Event "${event.name}" abgemeldet.${event.buyIn > 0 ? ` ${event.buyIn} BSD zurückerstattet.` : ''}`, 'success');
   }, [user, setBalanceCents, addToast]);
@@ -485,7 +485,7 @@ export default function FantasyContent() {
         const updated = freshEvents.find(e => e.id === prev.id);
         return updated ?? prev;
       });
-    } catch { /* silent */ }
+    } catch (err) { console.error('[Fantasy] Events reload failed:', err); }
   }, [user]);
 
   const handleResetEvent = useCallback(async (event: FantasyEvent) => {
@@ -547,7 +547,7 @@ export default function FantasyContent() {
         const newGw = await getActiveGameweek(clubId);
         setActiveGameweek(newGw);
         setSelectedGameweek(newGw);
-      } catch { /* silent */ }
+      } catch (err) { console.error('[Fantasy] Active gameweek fetch failed:', err); }
     })();
   }, [addToast, reloadEvents]);
 

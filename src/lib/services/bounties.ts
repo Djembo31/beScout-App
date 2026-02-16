@@ -34,7 +34,7 @@ export async function getBountiesByClub(
 ): Promise<BountyWithCreator[]> {
   return cached(`bounties:club:${clubId}`, async () => {
     // Auto-close expired bounties (fire-and-forget style, but we await for fresh data)
-    await (async () => { await supabase.rpc('auto_close_expired_bounties'); })().catch(() => {});
+    await (async () => { await supabase.rpc('auto_close_expired_bounties'); })().catch(err => console.error('[Bounties] Auto-close expired bounties failed:', err));
 
     const { data, error } = await supabase
       .from('bounties')
@@ -56,7 +56,7 @@ export async function getAllActiveBounties(
 ): Promise<BountyWithCreator[]> {
   const cacheKey = clubId ? `bounties:active:${clubId}` : 'bounties:active';
   return cached(cacheKey, async () => {
-    await (async () => { await supabase.rpc('auto_close_expired_bounties'); })().catch(() => {});
+    await (async () => { await supabase.rpc('auto_close_expired_bounties'); })().catch(err => console.error('[Bounties] Auto-close expired bounties failed:', err));
 
     let query = supabase
       .from('bounties')
@@ -239,6 +239,10 @@ export async function cancelBounty(userId: string, bountyId: string): Promise<vo
 
   if (error) throw new Error(error.message);
   invalidateBountyData(userId);
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(userId, 'bounty_cancel', 'community', { bountyId });
+  }).catch(err => console.error('[Bounties] Activity log failed:', err));
 }
 
 export type SubmitBountyResult = { success: boolean; error?: string; submission_id?: string };
@@ -291,7 +295,7 @@ export async function submitBountyResponse(
     // Mission tracking
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
       triggerMissionProgress(userId, ['daily_submit_bounty', 'weekly_bounty_complete']);
-    }).catch(() => {});
+    }).catch(err => console.error('[Bounties] Mission tracking failed:', err));
   }
 
   return result;
@@ -315,6 +319,10 @@ export async function approveBountySubmission(
 
   if (result.success) {
     invalidateBountyData(adminId);
+    // Activity log
+    import('@/lib/services/activityLog').then(({ logActivity }) => {
+      logActivity(adminId, 'bounty_approved', 'community', { submissionId });
+    }).catch(err => console.error('[Bounties] Activity log failed:', err));
 
     // Get submission to notify user
     (async () => {
@@ -337,14 +345,14 @@ export async function approveBountySubmission(
           'bounty',
         );
       }
-    })().catch(() => {});
+    })().catch(err => console.error('[Bounties] Approve notification failed:', err));
 
     // Fire-and-forget: airdrop score refresh for submitter
     (async () => {
       try {
         const { data: s } = await supabase.from('bounty_submissions').select('user_id').eq('id', submissionId).single();
         if (s) import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(s.user_id));
-      } catch {}
+      } catch (err) { console.error('[Bounties] Airdrop score refresh failed:', err); }
     })();
 
     // Fire-and-forget: refresh stats + check achievements for submitter (and admin)
@@ -363,7 +371,7 @@ export async function approveBountySubmission(
         }
         // Admin stats too
         await refreshUserStats(adminId);
-      } catch { /* silent */ }
+      } catch (err) { console.error('[Bounties] Stats/achievements refresh failed:', err); }
     })();
   }
 
@@ -387,6 +395,10 @@ export async function rejectBountySubmission(
   const result = data as RejectBountyResult;
 
   if (result.success) {
+    // Activity log
+    import('@/lib/services/activityLog').then(({ logActivity }) => {
+      logActivity(adminId, 'bounty_rejected', 'community', { submissionId });
+    }).catch(err => console.error('[Bounties] Activity log failed:', err));
     // Notify user
     (async () => {
       const { createNotification } = await import('@/lib/services/notifications');
@@ -407,7 +419,7 @@ export async function rejectBountySubmission(
           'bounty',
         );
       }
-    })().catch(() => {});
+    })().catch(err => console.error('[Bounties] Reject notification failed:', err));
   }
 
   return result;

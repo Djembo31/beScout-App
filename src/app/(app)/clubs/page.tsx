@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Users, UserPlus, UserMinus, Loader2, Shield, Compass } from 'lucide-react';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, ErrorState } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useClub } from '@/components/providers/ClubProvider';
@@ -17,15 +17,23 @@ export default function ClubsDiscoveryPage() {
   const { isFollowing, toggleFollow, activeClub, setActiveClub } = useClub();
   const [clubs, setClubs] = useState<ClubWithStats[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dataError, setDataError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+    setDataError(false);
     getClubsWithStats()
-      .then(setClubs)
-      .catch(err => console.error('[Clubs] Failed to load:', err))
-      .finally(() => setLoading(false));
-  }, []);
+      .then(data => { if (!cancelled) setClubs(data); })
+      .catch(err => {
+        console.error('[Clubs] Failed to load:', err);
+        if (!cancelled) setDataError(true);
+      })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [retryCount]);
 
   const filtered = clubs.filter(c =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -89,8 +97,13 @@ export default function ClubsDiscoveryPage() {
         </div>
       )}
 
+      {/* Error */}
+      {!loading && dataError && (
+        <ErrorState onRetry={() => { setLoading(true); setRetryCount(c => c + 1); }} />
+      )}
+
       {/* Empty */}
-      {!loading && filtered.length === 0 && (
+      {!loading && !dataError && filtered.length === 0 && (
         <div className="text-center py-16">
           <Shield className="w-10 h-10 text-white/20 mx-auto mb-3" />
           <p className="text-white/50">Keine Clubs gefunden.</p>

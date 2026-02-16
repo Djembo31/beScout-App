@@ -10,6 +10,7 @@ import { getClub } from '@/lib/clubs';
 import { getFixturesByGameweek, getFixturePlayerStats, getGameweekTopScorers } from '@/lib/services/fixtures';
 import { getLineup } from '@/lib/services/lineups';
 import { simulateGameweekFlow } from '@/lib/services/scoring';
+import { isApiConfigured, hasApiFixtures } from '@/lib/services/footballData';
 import type { Fixture, FixturePlayerStat } from '@/types';
 import type { FantasyEvent } from './types';
 import { getStatusStyle } from './helpers';
@@ -107,7 +108,7 @@ function splitStartersBench(stats: FixturePlayerStat[]): {
 function FixtureRow({ fixture, onSelect }: { fixture: Fixture; onSelect: () => void }) {
   const homeClub = getClub(fixture.home_club_short) || getClub(fixture.home_club_name);
   const awayClub = getClub(fixture.away_club_short) || getClub(fixture.away_club_name);
-  const isSimulated = fixture.status === 'simulated';
+  const isSimulated = fixture.status === 'simulated' || fixture.status === 'finished';
 
   return (
     <button
@@ -267,7 +268,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
   const awayStats = stats.filter(s => s.club_id === fixture.away_club_id);
   const homeClub = getClub(fixture.home_club_short) || getClub(fixture.home_club_name);
   const awayClub = getClub(fixture.away_club_short) || getClub(fixture.away_club_name);
-  const isSimulated = fixture.status === 'simulated';
+  const isSimulated = fixture.status === 'simulated' || fixture.status === 'finished';
   const homeColor = homeClub?.colors.primary ?? '#22C55E';
   const awayColor = awayClub?.colors.primary ?? '#3B82F6';
 
@@ -580,6 +581,7 @@ export function SpieltagTab({
   const [simulating, setSimulating] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedFixture, setSelectedFixture] = useState<Fixture | null>(null);
+  const [apiAvailable, setApiAvailable] = useState(false);
 
   // Load fixtures for current GW
   const loadFixtures = useCallback(async (gw: number) => {
@@ -596,6 +598,21 @@ export function SpieltagTab({
   useEffect(() => {
     loadFixtures(gameweek);
   }, [gameweek, loadFixtures]);
+
+  // Check if API import is available for this gameweek
+  useEffect(() => {
+    if (!isAdmin || !isApiConfigured()) {
+      setApiAvailable(false);
+      return;
+    }
+    let cancelled = false;
+    hasApiFixtures(gameweek).then(avail => {
+      if (!cancelled) setApiAvailable(avail);
+    }).catch(() => {
+      if (!cancelled) setApiAvailable(false);
+    });
+    return () => { cancelled = true; };
+  }, [gameweek, isAdmin]);
 
   // Load lineup statuses for joined events
   useEffect(() => {
@@ -622,7 +639,7 @@ export function SpieltagTab({
     loadStatuses();
   }, [events, userId]);
 
-  const simulatedCount = fixtures.filter(f => f.status === 'simulated').length;
+  const simulatedCount = fixtures.filter(f => f.status === 'simulated' || f.status === 'finished').length;
   const totalGoals = fixtures.reduce((s, f) => s + (f.home_score ?? 0) + (f.away_score ?? 0), 0);
   const gwEvents = events;
   const joinedEvents = gwEvents.filter(e => e.isJoined);
@@ -696,7 +713,7 @@ export function SpieltagTab({
               className="flex items-center gap-1.5 px-3 py-2 bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-xl text-sm font-bold text-[#FFD700] hover:bg-[#FFD700]/20 disabled:opacity-50 transition-all"
             >
               {simulating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-              <span className="hidden sm:inline">{simulating ? 'Spieltag wird gestartet...' : 'Spieltag starten'}</span>
+              <span className="hidden sm:inline">{simulating ? 'Spieltag wird gestartet...' : apiAvailable ? 'Daten importieren' : 'Spieltag starten'}</span>
             </button>
           )}
           {isAdmin && gwStatus === 'simulated' && isCurrentGw && (
@@ -886,7 +903,7 @@ export function SpieltagTab({
       )}
 
       {/* ===== SPIELTAG STARTEN CONFIRMATION ===== */}
-      <Modal open={showConfirm} title="Spieltag starten" onClose={() => setShowConfirm(false)}>
+      <Modal open={showConfirm} title={apiAvailable ? 'Echte Daten importieren' : 'Spieltag starten'} onClose={() => setShowConfirm(false)}>
         <div className="space-y-4 p-2">
           <p className="text-sm text-white/70">
             Spieltag {gameweek} wird gestartet. Folgendes passiert:
@@ -898,7 +915,11 @@ export function SpieltagTab({
             </li>
             <li className="flex items-start gap-2">
               <span className="text-sky-400 mt-0.5">2.</span>
-              <span>{fixtures.length} Spiele werden <strong className="text-sky-400">simuliert</strong></span>
+              {apiAvailable ? (
+                <span>Echte Match-Daten werden von <strong className="text-sky-400">API-Football</strong> importiert</span>
+              ) : (
+                <span>{fixtures.length} Spiele werden <strong className="text-sky-400">simuliert</strong></span>
+              )}
             </li>
             <li className="flex items-start gap-2">
               <span className="text-[#FFD700] mt-0.5">3.</span>
@@ -909,6 +930,11 @@ export function SpieltagTab({
               <span>Events für <strong className="text-[#22C55E]">Spieltag {gameweek + 1}</strong> werden automatisch erstellt</span>
             </li>
           </ul>
+          {apiAvailable && (
+            <div className="p-2 rounded-lg bg-sky-500/10 border border-sky-500/20 text-xs text-sky-300">
+              API-Football aktiv — Ergebnisse basieren auf echten Spielerleistungen
+            </div>
+          )}
           <div className="flex items-center gap-3 pt-2">
             <button
               onClick={() => setShowConfirm(false)}
@@ -920,7 +946,7 @@ export function SpieltagTab({
               onClick={handleSimulate}
               className="flex-1 px-4 py-2.5 bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-xl text-sm font-bold text-[#FFD700] hover:bg-[#FFD700]/20 transition-all"
             >
-              Spieltag starten
+              {apiAvailable ? 'Daten importieren' : 'Spieltag starten'}
             </button>
           </div>
         </div>

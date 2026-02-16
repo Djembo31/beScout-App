@@ -756,7 +756,7 @@ export default function ClubContent({ slug }: { slug: string }) {
         }
 
         // Research
-        resolveExpiredResearch().catch(() => {});
+        resolveExpiredResearch().catch(err => console.error('[Club] Resolve expired research failed:', err));
         const researchResult = await getResearchPosts({ clubId: cid, currentUserId: user?.id });
         if (!cancelled) setClubResearch(researchResult);
 
@@ -764,9 +764,10 @@ export default function ClubContent({ slug }: { slug: string }) {
         if (user) {
           getMySubscription(user.id, cid).then(sub => {
             if (!cancelled) setSubscription(sub);
-          }).catch(() => {});
+          }).catch(err => console.error('[Club] Subscription load failed:', err));
         }
-      } catch {
+      } catch (err) {
+        console.error('[Club] Data load failed:', err);
         if (!cancelled) setDataError(true);
       } finally {
         if (!cancelled) setLoading(false);
@@ -837,8 +838,8 @@ export default function ClubContent({ slug }: { slug: string }) {
         const updated = await getResearchPosts({ clubId: club.id, currentUserId: user.id });
         setClubResearch(updated);
       }
-    } catch {
-      // silently fail
+    } catch (err) {
+      console.error('[Club] Research unlock failed:', err);
     } finally {
       setResearchUnlockingId(null);
     }
@@ -856,8 +857,8 @@ export default function ClubContent({ slug }: { slug: string }) {
             : p
         ));
       }
-    } catch {
-      // silently fail
+    } catch (err) {
+      console.error('[Club] Research rate failed:', err);
     } finally {
       setResearchRatingId(null);
     }
@@ -956,7 +957,7 @@ export default function ClubContent({ slug }: { slug: string }) {
     try {
       await cancelSubscription(user.id, club.id);
       setSubscription(prev => prev ? { ...prev, auto_renew: false } : null);
-    } catch { /* silent */ }
+    } catch (err) { console.error('[Club] Cancel subscription failed:', err); }
     finally { setSubLoading(false); }
   }, [user, club]);
 

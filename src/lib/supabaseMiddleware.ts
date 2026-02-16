@@ -33,8 +33,9 @@ export async function updateSession(request: NextRequest) {
     try {
         const { data } = await supabase.auth.getUser();
         user = data.user;
-    } catch {
+    } catch (err) {
         // Supabase down or network error — treat as logged out
+        console.error('[Middleware] Session refresh failed:', err);
     }
 
     // Define public routes (login, auth callback, onboarding)

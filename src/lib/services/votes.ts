@@ -71,8 +71,8 @@ export async function castVote(
   import('@/lib/services/social').then(({ refreshUserStats, checkAndUnlockAchievements }) => {
     refreshUserStats(userId)
       .then(() => checkAndUnlockAchievements(userId))
-      .catch(() => {});
-  }).catch(() => {});
+      .catch(err => console.error('[Votes] Stats/achievements refresh failed:', err));
+  }).catch(err => console.error('[Votes] Social import failed:', err));
   return data as { success: boolean; total_votes: number; cost: number };
 }
 

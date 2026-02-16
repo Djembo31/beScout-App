@@ -8,10 +8,11 @@ import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { createProfile, checkHandleAvailable, isValidHandle } from '@/lib/services/profiles';
 import { updateProfile } from '@/lib/services/profiles';
 import { getProfileByReferralCode } from '@/lib/services/referral';
-import { supabase } from '@/lib/supabaseClient';
+import { updateUserPassword, signOut } from '@/lib/services/auth';
+import { uploadAvatar } from '@/lib/services/avatars';
 import { Button, Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import { getAllClubs } from '@/lib/services/club';
+import { getAllClubs, followClubsBatch } from '@/lib/services/club';
 import type { DbClub } from '@/types';
 
 type HandleStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
@@ -64,7 +65,7 @@ function OnboardingContent() {
     if (refCode && refCode.length >= 4) {
       getProfileByReferralCode(refCode).then(p => {
         if (p) setReferrer(p);
-      }).catch(() => {});
+      }).catch(err => console.error('[Onboarding] Referrer lookup failed:', err));
     }
   }, [searchParams]);
 
@@ -174,7 +175,7 @@ function OnboardingContent() {
     try {
       // Set password if user doesn't have one yet (OAuth / Magic Link)
       if (!hasPassword && password) {
-        const { error: pwError } = await supabase.auth.updateUser({ password });
+        const { error: pwError } = await updateUserPassword(password);
         if (pwError) throw new Error(`Passwort konnte nicht gesetzt werden: ${pwError.message}`);
       }
 
@@ -195,38 +196,17 @@ function OnboardingContent() {
 
       // Insert club_followers for all selected clubs
       if (clubIdsArray.length > 0) {
-        const followRows = clubIdsArray.map((clubId, i) => ({
-          user_id: user.id,
-          club_id: clubId,
-          is_primary: i === 0, // first selected = primary
-        }));
-        const { error: followErr } = await supabase.from('club_followers').upsert(followRows, { onConflict: 'user_id,club_id' });
-        if (followErr) {
-          console.error('[Onboarding] Club follow failed:', followErr.message);
-          // Retry once
-          const { error: retryErr } = await supabase.from('club_followers').upsert(followRows, { onConflict: 'user_id,club_id' });
-          if (retryErr) console.error('[Onboarding] Club follow retry failed:', retryErr.message);
-        }
+        await followClubsBatch(user.id, clubIdsArray);
       }
 
       // Upload avatar if selected
       if (avatarFile) {
-        const ext = avatarFile.name.split('.').pop();
-        const path = `${user.id}/avatar.${ext}`;
-
-        const { error: uploadErr } = await supabase.storage
-          .from('avatars')
-          .upload(path, avatarFile, { upsert: true });
-
-        if (uploadErr) {
-          console.error('[Onboarding] Avatar upload failed:', uploadErr.message);
+        try {
+          const avatarUrl = await uploadAvatar(user.id, avatarFile);
+          await updateProfile(user.id, { avatar_url: avatarUrl });
+        } catch (uploadErr) {
+          console.error('[Onboarding] Avatar upload failed:', uploadErr);
           // Non-blocking — profile is already created, user can upload later
-        } else {
-          const { data: urlData } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(path);
-
-          await updateProfile(user.id, { avatar_url: urlData.publicUrl });
         }
       }
 
@@ -237,7 +217,7 @@ function OnboardingContent() {
       const msg = err instanceof Error ? err.message : 'Profil konnte nicht erstellt werden.';
       // Stale session: user was deleted but session token remains
       if (msg.includes('foreign key') || msg.includes('fkey')) {
-        await supabase.auth.signOut();
+        await signOut();
         router.replace('/login');
         return;
       }

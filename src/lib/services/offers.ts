@@ -215,6 +215,10 @@ export async function rejectOffer(userId: string, offerId: string): Promise<Offe
   if (error) throw new Error(error.message);
   const result = data as OfferResult;
   invalidateOfferData(userId);
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(userId, 'offer_reject', 'trading', { offerId });
+  }).catch(err => console.error('[Offers] Activity log failed:', err));
 
   // Notify sender
   if (result.success) {
@@ -243,6 +247,10 @@ export async function counterOffer(userId: string, offerId: string, newPriceCent
   if (error) throw new Error(error.message);
   const result = data as OfferResult;
   invalidateOfferData(userId);
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(userId, 'offer_counter', 'trading', { offerId, newPriceCents });
+  }).catch(err => console.error('[Offers] Activity log failed:', err));
 
   // Notify original sender
   if (result.success) {
@@ -268,5 +276,9 @@ export async function cancelOffer(userId: string, offerId: string): Promise<Offe
   });
   if (error) throw new Error(error.message);
   invalidateOfferData(userId);
+  // Activity log
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(userId, 'offer_cancel', 'trading', { offerId });
+  }).catch(err => console.error('[Offers] Activity log failed:', err));
   return data as OfferResult;
 }

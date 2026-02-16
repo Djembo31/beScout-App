@@ -73,7 +73,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
         const ok = await subscribeToPush(user.id);
         setPushEnabled(ok);
       }
-    } catch { /* silent */ }
+    } catch (err) { console.error('[TopBar] togglePush:', err); }
     finally { setPushLoading(false); }
   }, [user, pushEnabled]);
 

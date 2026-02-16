@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient';
+import { onAuthStateChange } from '@/lib/services/auth';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = onAuthStateChange((event) => {
       if (event === 'SIGNED_IN') {
         subscription.unsubscribe();
         router.replace('/');

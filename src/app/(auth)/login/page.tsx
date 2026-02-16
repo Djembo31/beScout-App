@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Mail, Lock, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
+import { signUp, signInWithPassword, signInWithOtp, signInWithOAuth } from '@/lib/services/auth';
 import { useUser } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui';
 import { Card } from '@/components/ui';
@@ -56,13 +56,9 @@ function LoginContent() {
       }
 
       setLoadingMethod('password');
-      const { data, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
+      const { data, error: authError } = await signUp(
+        email, password, `${window.location.origin}/auth/callback`
+      );
 
       if (authError) {
         setError(authError.message);
@@ -77,10 +73,7 @@ function LoginContent() {
       }
     } else {
       setLoadingMethod('password');
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { error: authError } = await signInWithPassword(email, password);
 
       if (authError) {
         setError(
@@ -99,12 +92,9 @@ function LoginContent() {
     setLoadingMethod('email');
     setError(null);
 
-    const { error: authError } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    const { error: authError } = await signInWithOtp(
+      email, `${window.location.origin}/auth/callback`
+    );
 
     if (authError) {
       setError(authError.message);
@@ -119,12 +109,9 @@ function LoginContent() {
     setLoadingMethod(provider);
     setError(null);
 
-    const { error: authError } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    const { error: authError } = await signInWithOAuth(
+      provider, `${window.location.origin}/auth/callback`
+    );
 
     if (authError) {
       setError(authError.message);

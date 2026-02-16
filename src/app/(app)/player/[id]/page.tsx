@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
         openGraph: { title: `${name} | BeScout`, description: `${data.position} · ${data.club}` },
       };
     }
-  } catch {}
+  } catch (err) { console.error('[Player] generateMetadata failed:', err); }
   return { title: 'Spieler' };
 }
 

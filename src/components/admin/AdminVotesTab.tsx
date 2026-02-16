@@ -22,7 +22,7 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
 
   useEffect(() => {
     let cancelled = false;
-    getAllVotes(club.id).then(v => { if (!cancelled) setVotes(v); }).catch(() => {}).finally(() => { if (!cancelled) setLoading(false); });
+    getAllVotes(club.id).then(v => { if (!cancelled) setVotes(v); }).catch(err => console.error('[AdminVotes] loadVotes:', err)).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [club.id]);
 
