@@ -555,7 +555,7 @@ export default function FantasyContent() {
   if (dataLoading) {
     return (
       <div className="max-w-[1600px] mx-auto flex flex-col items-center justify-center py-32 gap-4">
-        <div className="w-8 h-8 border-2 border-[#FFD700] border-t-transparent rounded-full animate-spin" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#FFD700]" />
         <div className="text-white/50 text-sm">Fantasy-Daten werden geladen...</div>
       </div>
     );

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Search, X, Share2, ChevronLeft, BarChart3, ArrowLeftRight } from 'lucide-react';
+import { Search, X, Share2, ChevronLeft, BarChart3, ArrowLeftRight, Loader2 } from 'lucide-react';
 import { Card, Button, ErrorState } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { RadarChart, buildPlayerRadarAxes } from '@/components/player/RadarChart';
@@ -119,7 +119,7 @@ export default function ComparePage() {
     return (
       <div className="max-w-4xl mx-auto py-8 px-4">
         <div className="text-center py-16">
-          <div className="w-8 h-8 border-2 border-white/20 border-t-white/80 rounded-full animate-spin mx-auto mb-4" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#FFD700] mx-auto mb-4" />
           <div className="text-white/40">Spieler werden geladen...</div>
         </div>
       </div>

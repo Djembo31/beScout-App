@@ -7,6 +7,8 @@ import { useToast } from '@/components/providers/ToastProvider';
 import { getAllFeeConfigs, updateFeeConfig } from '@/lib/services/platformAdmin';
 import type { DbFeeConfig } from '@/types';
 
+type FeeKey = 'trade_fee_bps' | 'trade_platform_bps' | 'trade_pbt_bps' | 'trade_club_bps' | 'ipo_club_bps' | 'ipo_platform_bps' | 'ipo_pbt_bps';
+
 export function AdminFeesTab({ adminId }: { adminId: string }) {
   const { addToast } = useToast();
   const [configs, setConfigs] = useState<DbFeeConfig[]>([]);
@@ -66,26 +68,26 @@ export function AdminFeesTab({ adminId }: { adminId: string }) {
               )}
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-              {[
-                { key: 'trade_fee_bps' as const, label: 'Trade Fee' },
-                { key: 'trade_platform_bps' as const, label: 'Platform' },
-                { key: 'trade_pbt_bps' as const, label: 'PBT' },
-                { key: 'trade_club_bps' as const, label: 'Club' },
-                { key: 'ipo_platform_bps' as const, label: 'IPO Platform' },
-                { key: 'ipo_pbt_bps' as const, label: 'IPO PBT' },
-                { key: 'ipo_club_bps' as const, label: 'IPO Club' },
-              ].map(({ key, label }) => (
+              {([
+                { key: 'trade_fee_bps' as FeeKey, label: 'Trade Fee' },
+                { key: 'trade_platform_bps' as FeeKey, label: 'Platform' },
+                { key: 'trade_pbt_bps' as FeeKey, label: 'PBT' },
+                { key: 'trade_club_bps' as FeeKey, label: 'Club' },
+                { key: 'ipo_platform_bps' as FeeKey, label: 'IPO Platform' },
+                { key: 'ipo_pbt_bps' as FeeKey, label: 'IPO PBT' },
+                { key: 'ipo_club_bps' as FeeKey, label: 'IPO Club' },
+              ]).map(({ key, label }) => (
                 <div key={key}>
                   <div className="text-white/40 mb-1">{label}</div>
                   {isEditing ? (
                     <input
                       type="number"
-                      value={(vals as Record<string, number>)[key] ?? 0}
+                      value={editValues[key] ?? 0}
                       onChange={e => setEditValues(prev => ({ ...prev, [key]: parseInt(e.target.value) || 0 }))}
                       className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white font-mono text-xs"
                     />
                   ) : (
-                    <div className="font-mono text-white">{(config as unknown as Record<string, number>)[key]} bps</div>
+                    <div className="font-mono text-white">{config[key]} bps</div>
                   )}
                 </div>
               ))}

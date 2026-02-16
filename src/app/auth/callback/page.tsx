@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 import { onAuthStateChange } from '@/lib/services/auth';
 
 export default function AuthCallbackPage() {
@@ -48,7 +49,7 @@ export default function AuthCallbackPage() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <div className="w-8 h-8 border-2 border-[#FFD700] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#FFD700] mx-auto mb-4" />
         <p className="text-white/50 text-sm">Anmeldung wird verarbeitet...</p>
       </div>
     </div>

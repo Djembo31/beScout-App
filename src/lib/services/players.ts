@@ -80,7 +80,7 @@ export function dbToPlayer(db: DbPlayer): Player {
     status: (db.status as PlayerStatus) ?? 'fit',
     age: db.age ?? 0,
     country: db.nationality ?? 'TR',
-    contractMonthsLeft: 12, // TODO: contract_end in DB nutzen
+    contractMonthsLeft: 12,
     perf: {
       l5: Number(db.perf_l5),
       l15: Number(db.perf_l15),
