@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import {
   MessageCircle, Send, ArrowUp, ArrowDown,
   Loader2, Clock, Trophy, Play, Sparkles, Trash2,
@@ -279,9 +280,9 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-bold text-white/70 truncate">
+                      <Link href={`/profile/${post.author_handle}`} className="text-xs font-bold text-white/70 truncate hover:text-[#FFD700] transition-colors">
                         {post.author_display_name ?? post.author_handle}
-                      </span>
+                      </Link>
                       {post.author_verified && (
                         <Sparkles className="w-3 h-3 text-[#FFD700] shrink-0" />
                       )}

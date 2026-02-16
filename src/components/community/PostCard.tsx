@@ -118,7 +118,7 @@ export default function PostCard({
           {/* Author Row */}
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-bold text-sm">{post.author_display_name || post.author_handle}</span>
+              <Link href={`/profile/${post.author_handle}`} className="font-bold text-sm hover:text-[#FFD700] transition-colors">{post.author_display_name || post.author_handle}</Link>
               {post.author_verified && <BadgeCheck className="w-3.5 h-3.5 text-[#FFD700]" />}
               <span className="text-[10px] text-white/30 px-1.5 py-0.5 bg-white/5 rounded">Lv{post.author_level}</span>
               {post.is_pinned && (

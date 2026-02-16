@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import { Trophy, BadgeCheck, TrendingUp, TrendingDown, Minus, BarChart3, Gamepad2, Search } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -74,68 +75,72 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow }:
   const topRole = getTopRole(lUser);
 
   return (
-    <div className={cn(
-      'flex items-center gap-4 p-4 border rounded-xl hover:bg-white/[0.04] hover:border-white/20 transition-all',
-      isFollowed ? 'bg-[#22C55E]/[0.02] border-[#22C55E]/20' : 'bg-white/[0.02] border-white/10'
-    )}>
-      <div className="relative">
-        <div className={cn('w-10 h-10 rounded-xl border flex items-center justify-center font-black', rankStyle)}>
-          {rank <= 3 ? <Trophy className="w-5 h-5" /> : <span>{rank}</span>}
-        </div>
-        {rankChange !== null && rankChange !== 0 && (
-          <div className={cn(
-            'absolute -top-1.5 -right-1.5 flex items-center gap-0.5 px-1 py-0.5 rounded-md text-[8px] font-black',
-            rankChange > 0 ? 'bg-[#22C55E]/20 text-[#22C55E]' : 'bg-red-500/20 text-red-400'
-          )}>
-            {rankChange > 0 ? <TrendingUp className="w-2 h-2" /> : <TrendingDown className="w-2 h-2" />}
-            {Math.abs(rankChange)}
+    <Link href={`/profile/${lUser.handle}`} className="block">
+      <div className={cn(
+        'flex items-center gap-4 p-4 border rounded-xl hover:bg-white/[0.04] hover:border-white/20 transition-all',
+        isFollowed ? 'bg-[#22C55E]/[0.02] border-[#22C55E]/20' : 'bg-white/[0.02] border-white/10'
+      )}>
+        <div className="relative">
+          <div className={cn('w-10 h-10 rounded-xl border flex items-center justify-center font-black', rankStyle)}>
+            {rank <= 3 ? <Trophy className="w-5 h-5" /> : <span>{rank}</span>}
           </div>
-        )}
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="font-bold">{lUser.displayName || lUser.handle}</span>
-          {lUser.verified && <BadgeCheck className="w-4 h-4 text-[#FFD700]" />}
-          <span className={cn('px-2 py-0.5 rounded text-[10px] font-bold border', tier.color, 'bg-white/5 border-white/10')}>
-            {tier.name}
-          </span>
-          {topRole && (
-            <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold border', topRole.color)}>
-              {topRole.icon}
-              {topRole.label}
-            </span>
+          {rankChange !== null && rankChange !== 0 && (
+            <div className={cn(
+              'absolute -top-1.5 -right-1.5 flex items-center gap-0.5 px-1 py-0.5 rounded-md text-[8px] font-black',
+              rankChange > 0 ? 'bg-[#22C55E]/20 text-[#22C55E]' : 'bg-red-500/20 text-red-400'
+            )}>
+              {rankChange > 0 ? <TrendingUp className="w-2 h-2" /> : <TrendingDown className="w-2 h-2" />}
+              {Math.abs(rankChange)}
+            </div>
           )}
         </div>
-        <div className="text-xs text-white/50 flex items-center gap-3 mt-0.5">
-          <span>Lv {lUser.level}</span>
-          <span>{lUser.followersCount} Follower</span>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-bold">{lUser.displayName || lUser.handle}</span>
+            {lUser.verified && <BadgeCheck className="w-4 h-4 text-[#FFD700]" />}
+            <span className={cn('px-2 py-0.5 rounded text-[10px] font-bold border', tier.color, 'bg-white/5 border-white/10')}>
+              {tier.name}
+            </span>
+            {topRole && (
+              <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold border', topRole.color)}>
+                {topRole.icon}
+                {topRole.label}
+              </span>
+            )}
+          </div>
+          <div className="text-xs text-white/50 flex items-center gap-3 mt-0.5">
+            <span>Lv {lUser.level}</span>
+            <span>{lUser.followersCount} Follower</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4 text-sm">
+          <div className="hidden sm:flex items-center gap-3">
+            <div className="text-center">
+              <div className="font-mono font-bold text-sky-300 text-xs">{lUser.tradingScore}</div>
+              <div className="text-[8px] text-white/30">TRD</div>
+            </div>
+            <div className="text-center">
+              <div className="font-mono font-bold text-purple-300 text-xs">{lUser.managerScore}</div>
+              <div className="text-[8px] text-white/30">MGR</div>
+            </div>
+            <div className="text-center">
+              <div className="font-mono font-bold text-emerald-300 text-xs">{lUser.scoutScore}</div>
+              <div className="text-[8px] text-white/30">SCT</div>
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="font-mono font-bold text-[#FFD700]">{lUser.totalScore}</div>
+            <div className="text-[10px] text-white/40">Score</div>
+          </div>
+        </div>
+
+        <div onClick={e => { e.preventDefault(); e.stopPropagation(); }}>
+          <FollowBtn isFollowed={isFollowed} onToggle={onFollow} />
         </div>
       </div>
-
-      <div className="flex items-center gap-4 text-sm">
-        <div className="hidden sm:flex items-center gap-3">
-          <div className="text-center">
-            <div className="font-mono font-bold text-sky-300 text-xs">{lUser.tradingScore}</div>
-            <div className="text-[8px] text-white/30">TRD</div>
-          </div>
-          <div className="text-center">
-            <div className="font-mono font-bold text-purple-300 text-xs">{lUser.managerScore}</div>
-            <div className="text-[8px] text-white/30">MGR</div>
-          </div>
-          <div className="text-center">
-            <div className="font-mono font-bold text-emerald-300 text-xs">{lUser.scoutScore}</div>
-            <div className="text-[8px] text-white/30">SCT</div>
-          </div>
-        </div>
-        <div className="text-center">
-          <div className="font-mono font-bold text-[#FFD700]">{lUser.totalScore}</div>
-          <div className="text-[10px] text-white/40">Score</div>
-        </div>
-      </div>
-
-      <FollowBtn isFollowed={isFollowed} onToggle={onFollow} />
-    </div>
+    </Link>
   );
 }
 

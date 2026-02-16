@@ -949,7 +949,7 @@ export default function HomePage() {
               <SectionHeader title="Community" href="/community" />
               <div className="mt-3 space-y-2">
                 {communityPosts.slice(0, 3).map(post => (
-                  <Link key={post.id} href="/community" className="block">
+                  <Link key={post.id} href={`/profile/${post.author_handle}`} className="block">
                     <Card className="p-3 hover:bg-white/[0.04] transition-all">
                       <div className="flex items-start gap-3">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFD700]/20 to-purple-500/20 border border-white/10 flex items-center justify-center text-[10px] font-black shrink-0">

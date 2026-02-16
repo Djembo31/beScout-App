@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import {
   Users, ShoppingCart, Clock, Layers, History,
   ArrowRight, Shield, BadgeCheck, Loader2,
@@ -108,7 +109,9 @@ export default function MarktTab({
                     <span className="text-xs">
                       {isOwn
                         ? <span className="text-[#FFD700] font-bold">Du</span>
-                        : <span className="text-white/60">@{sellerHandle || order.user_id.slice(0, 8)}</span>
+                        : sellerHandle
+                          ? <Link href={`/profile/${sellerHandle}`} className="text-white/60 hover:text-[#FFD700] transition-colors">@{sellerHandle}</Link>
+                          : <span className="text-white/60">@{order.user_id.slice(0, 8)}</span>
                       }
                     </span>
                   </div>
@@ -170,18 +173,23 @@ export default function MarktTab({
                       </div>
                     </div>
                     <div className="flex items-center gap-1 text-xs text-white/50">
-                      <span className={isBuyer ? 'text-[#22C55E] font-bold' : ''}>
-                        {isBuyer ? 'Du' : `@${buyerHandle || trade.buyer_id.slice(0, 8)}`}
-                      </span>
+                      {isBuyer
+                        ? <span className="text-[#22C55E] font-bold">Du</span>
+                        : buyerHandle
+                          ? <Link href={`/profile/${buyerHandle}`} className="hover:text-[#FFD700] transition-colors">@{buyerHandle}</Link>
+                          : <span>@{trade.buyer_id.slice(0, 8)}</span>
+                      }
                       <ArrowRight className="w-3 h-3 text-white/30" />
                       <span className="text-white/30">kauft von</span>
                       <ArrowRight className="w-3 h-3 text-white/30" />
-                      <span className={isSeller ? 'text-red-300 font-bold' : ''}>
-                        {isIpoBuy
-                          ? <span className="text-[#22C55E]">Club (IPO)</span>
-                          : isSeller ? 'Du' : `@${sellerHandle || trade.seller_id?.slice(0, 8)}`
-                        }
-                      </span>
+                      {isIpoBuy
+                        ? <span className="text-[#22C55E]">Club (IPO)</span>
+                        : isSeller
+                          ? <span className="text-red-300 font-bold">Du</span>
+                          : sellerHandle
+                            ? <Link href={`/profile/${sellerHandle}`} className="hover:text-[#FFD700] transition-colors">@{sellerHandle}</Link>
+                            : <span>@{trade.seller_id?.slice(0, 8)}</span>
+                      }
                     </div>
                   </div>
                 );

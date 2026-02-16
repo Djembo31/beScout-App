@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { User, BadgeCheck, Settings, Loader2, RefreshCw, Users, Calendar, MessageCircle, ArrowUp } from 'lucide-react';
+import { User, BadgeCheck, Settings, Loader2, RefreshCw, Users, Calendar, MessageCircle, ArrowUp, Share2 } from 'lucide-react';
 import { Card, Button, Chip, ErrorState } from '@/components/ui';
+import { useToast } from '@/components/providers/ToastProvider';
 import { ScoreCircle } from '@/components/player';
 import { cn } from '@/lib/utils';
 import { fmtBSD } from '@/types';
@@ -54,6 +55,7 @@ interface ProfileViewProps {
 export default function ProfileView({ targetUserId, targetProfile, isSelf, renderSettings }: ProfileViewProps) {
   const { user } = useUser();
   const { balanceCents } = useWallet();
+  const { addToast } = useToast();
   const [tab, setTab] = useState<ProfileTab>('overview');
 
   // Real holdings from DB
@@ -297,6 +299,23 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                 {following ? 'Entfolgen' : 'Folgen'}
               </Button>
             )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                const url = `${window.location.origin}/profile/${targetProfile.handle}`;
+                const text = `${name} auf BeScout`;
+                if (navigator.share) {
+                  try { await navigator.share({ title: text, url }); } catch {}
+                } else {
+                  await navigator.clipboard.writeText(url);
+                  addToast('Link kopiert!', 'success');
+                }
+              }}
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              Teilen
+            </Button>
           </div>
         </div>
       </div>
