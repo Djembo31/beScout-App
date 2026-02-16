@@ -15,11 +15,12 @@ export async function getPosts(options: {
   playerId?: string;
   userId?: string;
   clubName?: string;
+  clubId?: string;
   postType?: PostType;
   eventId?: string;
 }): Promise<PostWithAuthor[]> {
-  const { limit = 50, offset = 0, playerId, userId, clubName, postType, eventId } = options;
-  const cacheKey = `posts:${playerId ?? ''}:${userId ?? ''}:${clubName ?? ''}:${postType ?? ''}:${eventId ?? ''}:${offset}:${limit}`;
+  const { limit = 50, offset = 0, playerId, userId, clubName, clubId, postType, eventId } = options;
+  const cacheKey = `posts:${playerId ?? ''}:${userId ?? ''}:${clubName ?? ''}:${clubId ?? ''}:${postType ?? ''}:${eventId ?? ''}:${offset}:${limit}`;
 
   return cached(cacheKey, async () => {
     let query = supabase
@@ -35,6 +36,7 @@ export async function getPosts(options: {
     if (playerId) query = query.eq('player_id', playerId);
     if (userId) query = query.eq('user_id', userId);
     if (clubName) query = query.eq('club_name', clubName);
+    if (clubId) query = query.eq('club_id', clubId);
     if (postType) query = query.eq('post_type', postType);
     if (eventId) query = query.eq('event_id', eventId);
 

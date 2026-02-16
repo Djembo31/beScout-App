@@ -15,7 +15,8 @@ import { getPlayers } from '@/lib/services/players';
 import { getResearchPosts, createResearchPost, unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
 import { getCommunityPolls, getUserPollVotedIds, castCommunityPollVote, createCommunityPoll, cancelCommunityPoll } from '@/lib/services/communityPolls';
 import { getAllActiveBounties, submitBountyResponse, invalidateBountyData } from '@/lib/services/bounties';
-import { getClubBySlug } from '@/lib/services/club';
+import { getClubBySlug, getUserPrimaryClub } from '@/lib/services/club';
+import { useClub } from '@/components/providers/ClubProvider';
 import CommunityFeedTab from '@/components/community/CommunityFeedTab';
 import CommunityResearchTab from '@/components/community/CommunityResearchTab';
 import CommunityVotesTab from '@/components/community/CommunityVotesTab';
@@ -39,11 +40,13 @@ type MainTab = 'feed' | 'research' | 'geruechte' | 'aktionen' | 'ranking';
 export default function CommunityPage() {
   const { user, profile } = useUser();
   const { addToast } = useToast();
+  const { activeClub } = useClub();
 
   // Club context from user profile (fallback: load default)
   const [clubId, setClubId] = useState<string | null>(profile?.favorite_club_id ?? null);
   const [clubName, setClubName] = useState<string | null>(profile?.favorite_club ?? null);
   const [isClubAdmin, setIsClubAdmin] = useState(false);
+  const [clubScope, setClubScope] = useState<'all' | 'myclub'>('all');
 
   // UI State
   const [mainTab, setMainTab] = useState<MainTab>('feed');
@@ -92,26 +95,36 @@ export default function CommunityPage() {
       // Fire-and-forget: resolve expired research calls
       resolveExpiredResearch().catch(err => console.error('[Community] Resolve expired research:', err));
 
-      // Resolve club context: profile favorite → fallback to Sakaryaspor
-      // Always load via slug to get admin status (Pilot: single club)
-      const clubData = await getClubBySlug('sakaryaspor', uid);
+      // Resolve club context: profile favorite → primary club → first club
       let cId = profile?.favorite_club_id ?? clubId;
       let cName = profile?.favorite_club ?? clubName;
+      if (!cId) {
+        const primaryClub = await getUserPrimaryClub(uid);
+        if (primaryClub) { cId = primaryClub.id; cName = primaryClub.name; }
+      }
+      // Load admin status for the resolved club
+      const clubSlug = cId ? undefined : 'sakaryaspor'; // legacy fallback
+      const clubData = cId
+        ? await getClubBySlug(cName ?? '', uid).catch(() => null)
+        : await getClubBySlug(clubSlug!, uid).catch(() => null);
       if (!cId && clubData) { cId = clubData.id; cName = clubData.name; }
       if (!cancelled && cId) { setClubId(cId); setClubName(cName); }
       if (!cancelled && clubData) { setIsClubAdmin(clubData.is_admin); }
 
+      // Determine scope filter: if "myclub" scope, filter by active club ID
+      const scopeClubId = clubScope === 'myclub' ? (activeClub?.id ?? cId ?? undefined) : undefined;
+
       try {
         const results = await Promise.allSettled([
-          getPosts({ limit: 50 }),
+          getPosts({ limit: 50, clubId: scopeClubId }),
           cId ? getAllVotes(cId) : Promise.resolve([]),
           getLeaderboard(50),
           getFollowingIds(uid),
           getHoldings(uid),
           getPlayers(),
           getResearchPosts({ currentUserId: uid }),
-          getCommunityPolls(),
-          getAllActiveBounties(uid),
+          getCommunityPolls(scopeClubId),
+          getAllActiveBounties(uid, scopeClubId),
         ]);
 
         if (cancelled) return;
@@ -177,7 +190,7 @@ export default function CommunityPage() {
 
     load();
     return () => { cancelled = true; };
-  }, [user, profile, retryCount]);
+  }, [user, profile, retryCount, clubScope, activeClub]);
 
   // ---- Handlers ----
   const handleVotePost = useCallback(async (postId: string, voteType: number) => {
@@ -500,6 +513,28 @@ export default function CommunityPage() {
           Posten
         </Button>
       </div>
+
+      {/* Club Scope Toggle */}
+      {activeClub && (
+        <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl w-fit">
+          <button
+            onClick={() => setClubScope('all')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              clubScope === 'all' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
+            }`}
+          >
+            Alle Clubs
+          </button>
+          <button
+            onClick={() => setClubScope('myclub')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              clubScope === 'myclub' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
+            }`}
+          >
+            {activeClub.short ?? 'Mein Club'}
+          </button>
+        </div>
+      )}
 
       {/* Tabs */}
       <TabBar tabs={TABS} activeTab={mainTab} onChange={(id) => setMainTab(id as MainTab)} />

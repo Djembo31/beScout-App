@@ -51,17 +51,21 @@ export async function getBountiesByClub(
 }
 
 export async function getAllActiveBounties(
-  currentUserId?: string
+  currentUserId?: string,
+  clubId?: string
 ): Promise<BountyWithCreator[]> {
-  return cached('bounties:active', async () => {
+  const cacheKey = clubId ? `bounties:active:${clubId}` : 'bounties:active';
+  return cached(cacheKey, async () => {
     await (async () => { await supabase.rpc('auto_close_expired_bounties'); })().catch(() => {});
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('bounties')
       .select('*')
       .eq('status', 'open')
       .gt('deadline_at', new Date().toISOString())
       .order('created_at', { ascending: false });
+    if (clubId) query = query.eq('club_id', clubId);
+    const { data, error } = await query;
 
     if (error) throw new Error(error.message);
     if (!data || data.length === 0) return [];

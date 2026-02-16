@@ -193,6 +193,24 @@ export type Lineup = {
 };
 
 // ============================================
+// LEAGUE TYPES
+// ============================================
+
+export type DbLeague = {
+  id: string;
+  name: string;
+  short: string;
+  country: string;
+  season: string;
+  logo_url: string | null;
+  active_gameweek: number;
+  max_gameweeks: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+// ============================================
 // CLUB TYPES
 // ============================================
 
@@ -204,6 +222,7 @@ export type DbClub = {
   name: string;
   short: string;
   league: string;
+  league_id: string | null;
   country: string;
   city: string | null;
   stadium: string | null;
@@ -216,6 +235,14 @@ export type DbClub = {
   is_verified: boolean;
   created_at: string;
   updated_at: string;
+};
+
+export type DbClubFollower = {
+  id: string;
+  user_id: string;
+  club_id: string;
+  is_primary: boolean;
+  created_at: string;
 };
 
 export type ClubWithAdmin = DbClub & {
@@ -1026,6 +1053,7 @@ export type DbFixture = {
   home_score: number | null;
   away_score: number | null;
   status: FixtureStatus;
+  league_id?: string | null;
   played_at: string | null;
   created_at: string;
 };

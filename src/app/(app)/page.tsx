@@ -688,6 +688,10 @@ export default function HomePage() {
                       <div className="text-[10px] font-bold uppercase tracking-wider text-[#FFD700] mb-0.5">Bester Spieler</div>
                       <div className="font-black text-lg truncate">{dpcOfWeek.playerFirstName} {dpcOfWeek.playerLastName}</div>
                       <div className="text-xs text-white/50">{dpcOfWeek.playerClub} • {dpcOfWeek.holderCount} Besitzer</div>
+                      <div className="text-[10px] text-[#FFD700]/50 flex items-center gap-1 mt-0.5">
+                        <MessageCircle className="w-3 h-3" />
+                        Was sagen die Scouts?
+                      </div>
                     </div>
                     <div className="text-right flex-shrink-0">
                       <div className="text-2xl font-mono font-black text-[#FFD700]">{dpcOfWeek.score}</div>
@@ -765,6 +769,10 @@ export default function HomePage() {
                             {nextEvent.current_entries}/{nextEvent.max_entries ?? '∞'}
                           </span>
                           <span>Eintritt: {nextEvent.entry_fee === 0 ? 'Gratis' : `${fmtBSD(centsToBsd(nextEvent.entry_fee))} BSD`}</span>
+                          <span className="flex items-center gap-1">
+                            <MessageCircle className="w-3.5 h-3.5" />
+                            Diskussion
+                          </span>
                         </div>
                       </div>
                       <div className="text-right shrink-0">
@@ -836,7 +844,7 @@ export default function HomePage() {
                     </div>
                     <div className="text-right shrink-0">
                       <div className="text-[11px] font-mono font-bold text-[#FFD700]">{fmtBSD(centsToBsd(t.price))}</div>
-                      <div className="text-[9px] text-white/25">{t.quantity}x · {t.isP2P ? 'P2P' : 'IPO'}</div>
+                      <div className="text-[9px] text-white/25 flex items-center gap-1">{t.quantity}x · {t.isP2P ? 'P2P' : 'IPO'} <MessageCircle className="w-2.5 h-2.5 text-white/15" /></div>
                     </div>
                   </Link>
                 ))}
@@ -973,6 +981,13 @@ export default function HomePage() {
                     </Card>
                   </Link>
                 ))}
+                <Link href="/community" className="block mt-3 text-center">
+                  <div className="py-2.5 px-4 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-[#FFD700]/20 transition-all text-xs font-bold text-[#FFD700]/70 hover:text-[#FFD700] flex items-center justify-center gap-1.5">
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    Alle Beiträge anzeigen
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </div>
+                </Link>
               </div>
             </div>
           )}

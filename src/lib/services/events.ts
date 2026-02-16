@@ -29,6 +29,19 @@ export async function getEventsByClubId(clubId: string): Promise<DbEvent[]> {
   return (data ?? []) as DbEvent[];
 }
 
+/** Events mehrerer Clubs laden (für Multi-Club Fantasy) */
+export async function getEventsByClubIds(clubIds: string[]): Promise<DbEvent[]> {
+  if (clubIds.length === 0) return [];
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .in('club_id', clubIds)
+    .order('created_at', { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DbEvent[];
+}
+
 /** Event-IDs wo der User ein Lineup hat */
 export async function getUserJoinedEventIds(userId: string): Promise<string[]> {
   const { data, error } = await supabase

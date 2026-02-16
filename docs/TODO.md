@@ -5,7 +5,18 @@
 
 ---
 
-## Nächste Session: Real User Testing + Phase 7
+## Multi-Club Expansion ✅ (16.02.2026)
+- [x] **Phase 1 (Data Layer):** 3 Migrationen (#128-#130) — `leagues` Tabelle, `club_followers` Tabelle (RLS + Migration), `club_id` auf community_polls
+- [x] **Phase 2 (clubs.ts Refactor):** DB-backed ClubLookup Cache statt hardcoded TFF_CLUBS. `leagues.ts` Service. `club.ts` Follower auf club_followers
+- [x] **Phase 3 (ClubProvider):** React Context (activeClub, followedClubs, toggleFollow). ClubSwitcher in SideNav
+- [x] **Phase 4 (Hardcoding weg):** 5 Dateien refactored (PILOT_CLUB_ID, TFF_CLUBS, sakaryaspor Strings eliminiert)
+- [x] **Phase 5 (Club Discovery):** Neue `/clubs` Route mit Suche, Liga-Gruppierung, Follow/Unfollow
+- [x] **Phase 6 (Fantasy Multi-Club):** getEventsByClubIds(), Fantasy nutzt clubId aus ClubProvider
+- [x] **Phase 7 (Onboarding):** 3-Step Flow mit Club-Wahl (Suche + Multi-Select + Skip)
+- [x] **Phase 8 (Community Scoping):** "Alle Clubs" / "Mein Club" Toggle, clubId Filter auf 3 Services
+- [x] Build verifiziert (0 Fehler, 20 Routes, 130 Migrations)
+
+## Nächste Session: Real User Testing + Phase D
 
 ### Admin-gesteuerter Spieltag-Flow ✅ (15.02.2026)
 - [x] `deriveEventStatus()` vertraut nur DB-Status (keine Timestamp-Overrides)

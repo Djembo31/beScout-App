@@ -17,7 +17,7 @@ Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.
 - **Sprache:** TypeScript (strict)
 - **Styling:** Tailwind CSS (Dark Mode only)
 - **Icons:** lucide-react
-- **State:** React Context (AuthProvider, WalletProvider)
+- **State:** React Context (AuthProvider, ClubProvider, WalletProvider)
 - **Backend:** Supabase (PostgreSQL + Auth + Realtime)
 - **Auth:** Supabase Auth (Email + Google + Apple + Magic Link)
 - **Packages:** `@supabase/supabase-js`, `@supabase/ssr`
@@ -59,7 +59,7 @@ src/
 │       │   └── page.tsx           # DPC Marktplatz (7 Tabs: Kader, Bestand, Vergleich, Spieler, Transferliste, Scouting, Angebote)
 │       ├── club/
 │       │   ├── layout.tsx         # Metadata: "Club"
-│       │   ├── page.tsx           # Redirect → /club/sakaryaspor
+│       │   ├── page.tsx           # Redirect → /clubs (Club Discovery)
 │       │   └── [slug]/
 │       │       ├── page.tsx       # Server Component (generateMetadata)
 │       │       ├── ClubContent.tsx # Club Fan-Seite (~1400 Zeilen)
@@ -77,11 +77,15 @@ src/
 │       │   ├── page.tsx           # Eigenes Profil (SettingsTab + ProfileView isSelf=true)
 │       │   └── [handle]/
 │       │       └── page.tsx       # Öffentliches Profil (ProfileView isSelf=false)
+│       ├── clubs/
+│       │   ├── layout.tsx         # Metadata: "Clubs entdecken"
+│       │   └── page.tsx           # Club Discovery (Suche, Liga-Gruppierung, Follow)
 │       └── (supabase-test entfernt vor Pilot-Launch)
 ├── components/
 │   ├── ui/index.tsx               # Card, Button, Chip, Modal, StatCard
 │   ├── ui/TabBar.tsx              # TabBar + TabPanel (role=tablist, aria-selected)
 │   ├── ui/LoadMoreButton.tsx      # Pagination Button
+│   ├── ui/Confetti.tsx            # CSS-only Confetti Animation (24 Partikel, 3s auto-cleanup)
 │   ├── player/index.tsx           # PositionBadge, StatusBadge, ScoreCircle, MiniSparkline, IPOBadge
 │   ├── player/PlayerRow.tsx       # PlayerDisplay (compact/card), TrikotBadge, posColors, getContractInfo
 │   ├── community/                 # ResearchCard, CreateResearchModal, PostCard, FollowBtn, BountyCard, 5 Tab-Components
@@ -90,13 +94,13 @@ src/
 │   ├── manager/                   # ManagerOffersTab (4 Sub-Tabs: Eingehend, Ausgehend, Offene Gebote, Verlauf)
 │   ├── admin/                     # 8 Admin-Tab-Components (Overview, Players, Events, Votes, Bounties, Moderation, Revenue, Settings)
 │   ├── missions/                  # MissionBanner (Home Page)
-│   ├── layout/                    # SideNav, TopBar, NotificationDropdown, SearchDropdown, FeedbackModal
-│   └── providers/                 # AuthProvider, AuthGuard, WalletProvider, Providers
+│   ├── layout/                    # SideNav, TopBar (+ Push Toggle), NotificationDropdown, SearchDropdown, FeedbackModal, ClubSwitcher
+│   └── providers/                 # AuthProvider, AuthGuard, WalletProvider, ClubProvider, Providers
 ├── lib/
 │   ├── supabaseClient.ts          # Supabase Browser Client
 │   ├── supabaseMiddleware.ts      # Supabase Server Session Management
 │   ├── cache.ts                   # In-Memory TTL Cache (cached, invalidate, invalidateAll)
-│   ├── clubs.ts                   # Club-Daten + Farben
+│   ├── clubs.ts                   # Club-Daten (DB-backed Cache: initClubCache, getClub, getAllClubsCached)
 │   ├── services/
 │   │   ├── players.ts             # getPlayers, getPlayerById, createPlayer, dbToPlayer, centsToBsd
 │   │   ├── wallet.ts              # getWallet, getHoldings, getTransactions
@@ -114,14 +118,17 @@ src/
 │   │   ├── communityPolls.ts      # Bezahlte Umfragen (CRUD + 70/30 Split RPC)
 │   │   ├── notifications.ts      # Notification CRUD + createNotification
 │   │   ├── search.ts             # Globale Suche (players, research, profiles)
-│   │   ├── club.ts                # Club-Queries (getClubBySlug, Admin-Functions, Dashboard, Followers)
+│   │   ├── club.ts                # Club-Queries (getClubBySlug, Admin-Functions, Dashboard, Followers, TradingFees, Multi-Club)
+│   │   ├── leagues.ts             # Liga-Queries (getLeagues, getLeagueActiveGameweek)
 │   │   ├── bounties.ts            # Bounties (CRUD + RPCs + Notifications + Missions)
 │   │   ├── liquidation.ts        # Success Fee + Liquidierung (RPCs + Notifications)
 │   │   ├── missions.ts           # Missionen (getUserMissions, claimMissionReward, trackMissionProgress)
 │   │   ├── streaks.ts            # Login-Streak (recordLoginStreak RPC + Milestone Rewards)
 │   │   ├── offers.ts             # User-to-User Angebote (CRUD + RPCs + Notifications)
 │   │   ├── activityLog.ts        # Activity-Logging (Batch-Queue, 5s Flush, fire-and-forget)
-│   │   └── platformAdmin.ts      # Plattform-Admin (Stats, Users, Wallet-Korrektur, Fee-Config)
+│   │   ├── platformAdmin.ts      # Plattform-Admin (Stats, Users, Wallet-Korrektur, Fee-Config)
+│   │   ├── pushSubscription.ts   # Web Push (subscribe/unsubscribe, VAPID, localStorage state)
+│   │   └── clubSubscriptions.ts  # Club-Abo (Bronze/Silber/Gold, BSD-Payments, TIER_CONFIG)
 │   ├── achievements.ts            # 19 Achievement-Definitionen (trading/manager/scout)
 │   ├── activityHelpers.ts         # Shared Activity Icons/Colors/Labels/RelativeTime
 │   ├── settledHelpers.ts          # val() Helper für Promise.allSettled
@@ -129,7 +136,7 @@ src/
 │   └── nav.ts                     # Navigation Config
 ├── types/index.ts                 # Alle Types (Player, Db*, IPO, Fantasy, etc.)
 middleware.ts                      # Next.js Middleware (Route Protection)
-.env.local                         # Supabase URL + Anon Key + Sentry DSN + PostHog Key
+.env.local                         # Supabase URL + Anon Key + Sentry DSN + PostHog Key + VAPID Key
 ```
 
 ## Wichtige Konventionen
@@ -139,7 +146,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 - `variant="compact"` -> Listen, Rankings, Holdings, Sidebar (~55px Zeile)
 - `variant="card"` -> Grids, Transferliste, Club-Seite (~170px Karte mit Indikatoren)
 - Kontext-Props: `holding?` (DPC/EK/P&L), `ipoData?` (IPO-Status/Progress), `onBuy?`, `onWatch?`
-- Club-Logo: `getClub()` aus `lib/clubs.ts`, Fallback zu farbigem Dot
+- Club-Logo: `getClub()` aus `lib/clubs.ts` (DB-backed Cache), Fallback zu farbigem Dot
 - L5-Bar: Sorare-inspirierter 5-Segment-Balken + Score-Pill
 
 ### Code-Patterns
@@ -169,6 +176,15 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 - `ipo_price`: fester Club/IPO-Preis, ändert sich NIE durch Marktaktivität
 - `floor_price`: MIN(offene User-Sell-Orders) oder `ipo_price` als Fallback
 - Pool/IPO verkauft immer zu `ipo_price`, nicht `floor_price`
+- **Fee-Split (6% total):** `trade_fee_bps=600` → Platform 3.5% + PBT 1.5% + Club 1% (aus `fee_config`)
+- `buy_player_dpc` RPC berechnet Fees, Seller erhält Netto, PBT-Treasury wird aufgeladen
+- Bounty Platform-Fee: 5% auf `approve_bounty_submission` (Creator erhält 95%)
+
+### Club-Abo-System
+- 3 Tiers: Bronze (500 BSD/Monat), Silber (1.500 BSD), Gold (3.000 BSD)
+- `subscribe_to_club` RPC: Balance-Check → BSD abziehen → 30 Tage Laufzeit
+- `renew_club_subscription` RPC: Auto-Renew bei ausreichend Balance
+- Benefits: Profil-Badge, Priority-Voting, Early IPO Access, Premium Events
 
 ## Aktueller Status
 
@@ -190,7 +206,11 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Fantasy Redesign fertig:** Spieltag-zentriert (3 Tabs), Sorare-inspirierte UI — grüner Pitch (SVG Feldlinien), echte Club-Logos, Formation-Labels (z.B. "4-3-3"), Starter/Bank-Split, Sponsor-Banner. `simulateGameweekFlow()` Client-seitig. 3 Events für GW 11 erstellt.
 **Beta-Ready fertig:** Activity-Logging (Batch-Queue), User-to-User Angebote (5 RPCs, 4 Sub-Tabs), BeScout Admin Dashboard (6 Tabs, `/bescout-admin`), Profil Redesign (Sorare-style, Follower-Listen, Posts-Tab). 103 Migrationen deployed.
 **Admin-gesteuerter Spieltag-Flow fertig:** `deriveEventStatus()` vertraut nur DB-Status, `simulateGameweekFlow()` mit vollem Lifecycle (close → simulate → score → clone → advance), `createNextGameweekEvents()` klont Events, "Spieltag starten" Button mit Confirmation Dialog.
-**Danach:** Real User Testing mit 50 Testern, Phase 7 (Scale).
+**Phase 7 (Engagement & Career Features) fertig:** Captain Bonus, Score Tiers, DPC der Woche, Liga System, Radar Chart, Comparison, Watchlist DB, Synergy, Scout Missions, Community Valuations, Scout Network, Academy. 8 Migrationen (#110-#117).
+**Community Datenkonsistenz + Visibility Waves 1-3 fertig:** Activity Logging, Notifications, Globale Suche, Player Detail, Gerüchte Tab, Following Feed, Level Auto-Increment, Reputation Score, Expert Badges, Role Badges. Migrationen #118-#122.
+**Phase A+B+C (Perfektionierung) fertig:** Monetarisierung (Trading Club-Fee 1%, Bounty Platform-Fee 5%, Fee Dashboard), Premium-Feel (Dynamic Sponsor Banners, Confetti Animation, Celebration Toast), Retention (Web Push Infrastructure, Club-Abo Bronze/Silber/Gold). 5 Migrationen (#123-#127) + 1 Edge Function (send-push).
+**Multi-Club Expansion fertig:** 8 Phasen — `leagues` Tabelle, `club_followers` Tabelle, DB-backed `clubs.ts` (ClubLookup Cache), ClubProvider Context, ClubSwitcher UI, Club Discovery `/clubs`, Onboarding 3-Step Club-Wahl, Community Club-Scoping. 3 Migrationen (#128-#130), 5 neue + 16 geänderte Dateien.
+**Danach:** VAPID Keys konfigurieren, DB Webhook einrichten, Real User Testing mit 50 Testern, Phase D (Card Scarcity, Match-Data, Native App).
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.
 Siehe `docs/TODO.md` für den aktuellen Task.
@@ -198,8 +218,8 @@ Siehe `docs/ROADMAP.md` für den Gesamtplan (Phase 6–7).
 Siehe `docs/STATUS.md` für den detaillierten Fortschritt (inkl. SQL-Migration-Tabelle).
 Siehe `docs/SCALE.md` für Skalierungsarchitektur und DB-Schema.
 
-**Pilot-Scope:** 1 Club (Sakaryaspor), 500 Spieler (20 Clubs), 50 Beta-Tester.
-**Alle 103 SQL-Migrationen deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) live.
+**Pilot-Scope:** Multi-Club-ready, 500 Spieler (20 Clubs), 50 Beta-Tester.
+**130 SQL-Migrationen + 1 Edge Function deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin + Trading Club-Fee + Bounty Platform-Fee + Event Sponsors + Push Subscriptions + Club Subscriptions + Leagues + Club Followers + Club Discovery live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) + Phase A+B+C + Multi-Club Expansion live.
 **GitHub:** Private Repo `Djembo31/beScout-App`, CI/CD via GitHub Actions, Sentry Error Tracking, PostHog Analytics.
 
 ## Bekannte Issues
@@ -208,6 +228,9 @@ Siehe `docs/SCALE.md` für Skalierungsarchitektur und DB-Schema.
 - Community: Research-Tab live (Premium Posts mit Paywall, 80/20 Split)
 - Community: Bezahlte Polls live (70/30 Split Creator/Plattform)
 - Community: Mute/Block/Tag-Following nur localStorage (50 User, kein DB-Backend nötig)
+- Push: VAPID Keys müssen noch in `.env.local` + Supabase Secrets konfiguriert werden
+- Push: DB Webhook (`notifications` → `send-push` Edge Function) muss noch eingerichtet werden
+- Club-Abo: Auto-Renew braucht Supabase Cron/Scheduled Function (noch nicht eingerichtet)
 
 ## Workflow
 

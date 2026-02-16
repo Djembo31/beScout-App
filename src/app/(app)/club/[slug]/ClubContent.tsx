@@ -25,7 +25,7 @@ import {
   toggleFollowClub,
   getClubRecentTrades,
 } from '@/lib/services/club';
-import { getClub } from '@/lib/clubs';
+// Club data now comes from DB via ClubProvider
 import { fmtBSD, cn } from '@/lib/utils';
 import { withTimeout } from '@/lib/cache';
 import { val } from '@/lib/settledHelpers';
@@ -158,8 +158,7 @@ function HeroSection({
   playerCount: number;
 }) {
   const clubColor = club.primary_color || '#006633';
-  const clubMeta = getClub(club.slug);
-  const stadiumSrc = clubMeta?.stadiumImage ?? '/stadiums/default.jpg';
+  const stadiumSrc = `/stadiums/${club.slug}.jpg`;
 
   return (
     <div className="relative h-[160px] md:h-[350px] -mx-4 md:-mx-6 -mt-4 md:-mt-6 mb-6 overflow-hidden">

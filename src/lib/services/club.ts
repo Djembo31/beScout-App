@@ -67,47 +67,220 @@ export async function getClubAdminFor(userId: string): Promise<{ clubId: string;
 // Club Follower / Follow
 // ============================================
 
-/** Anzahl Follower eines Clubs (profiles.favorite_club_id) */
+/** Anzahl Follower eines Clubs (via club_followers) */
 export async function getClubFollowerCount(clubId: string): Promise<number> {
   const { count, error } = await supabase
-    .from('profiles')
+    .from('club_followers')
     .select('id', { count: 'exact', head: true })
-    .eq('favorite_club_id', clubId);
+    .eq('club_id', clubId);
 
   if (error) return 0;
   return count ?? 0;
 }
 
-/** Prüft ob der User den Club folgt */
+/** Prüft ob der User den Club folgt (via club_followers) */
 export async function isUserFollowingClub(userId: string, clubId: string): Promise<boolean> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('favorite_club_id')
-    .eq('id', userId)
-    .single();
+  const { count, error } = await supabase
+    .from('club_followers')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('club_id', clubId);
 
-  if (error || !data) return false;
-  return data.favorite_club_id === clubId;
+  if (error) return false;
+  return (count ?? 0) > 0;
 }
 
-/** Follow/Unfollow Club (dual-write: favorite_club + favorite_club_id) */
+/** Follow/Unfollow Club (club_followers + dual-write to profiles.favorite_club_id) */
 export async function toggleFollowClub(
   userId: string,
   clubId: string,
   clubName: string,
   follow: boolean
 ): Promise<void> {
+  if (follow) {
+    // Check if this is the user's first follow (make it primary)
+    const { count: existingCount } = await supabase
+      .from('club_followers')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId);
+
+    const isPrimary = (existingCount ?? 0) === 0;
+
+    const { error } = await supabase
+      .from('club_followers')
+      .upsert({
+        user_id: userId,
+        club_id: clubId,
+        is_primary: isPrimary,
+      }, { onConflict: 'user_id,club_id' });
+
+    if (error) throw new Error(error.message);
+
+    // Dual-write to profiles if primary
+    if (isPrimary) {
+      await supabase
+        .from('profiles')
+        .update({ favorite_club: clubName, favorite_club_id: clubId })
+        .eq('id', userId);
+    }
+  } else {
+    // Check if this was the primary club
+    const { data: follower } = await supabase
+      .from('club_followers')
+      .select('is_primary')
+      .eq('user_id', userId)
+      .eq('club_id', clubId)
+      .single();
+
+    const { error } = await supabase
+      .from('club_followers')
+      .delete()
+      .eq('user_id', userId)
+      .eq('club_id', clubId);
+
+    if (error) throw new Error(error.message);
+
+    // If it was primary, clear profiles or assign next club
+    if (follower?.is_primary) {
+      const { data: nextClub } = await supabase
+        .from('club_followers')
+        .select('club_id, clubs!club_id(name)')
+        .eq('user_id', userId)
+        .limit(1)
+        .single();
+
+      if (nextClub) {
+        // Promote next club to primary
+        await supabase
+          .from('club_followers')
+          .update({ is_primary: true })
+          .eq('user_id', userId)
+          .eq('club_id', nextClub.club_id);
+
+        const clubs = nextClub.clubs as unknown as { name: string } | null;
+        await supabase
+          .from('profiles')
+          .update({ favorite_club: clubs?.name ?? null, favorite_club_id: nextClub.club_id })
+          .eq('id', userId);
+      } else {
+        // No more followed clubs
+        await supabase
+          .from('profiles')
+          .update({ favorite_club: null, favorite_club_id: null })
+          .eq('id', userId);
+      }
+    }
+  }
+
+  invalidate(`profile:${userId}`);
+  invalidate(`clubFollows:${userId}`);
+  invalidateClubData(clubId);
+}
+
+/** Get all clubs the user follows */
+export async function getUserFollowedClubs(userId: string): Promise<DbClub[]> {
+  return cached(`clubFollows:${userId}`, async () => {
+    const { data, error } = await supabase
+      .from('club_followers')
+      .select('club_id, is_primary, clubs!club_id(*)')
+      .eq('user_id', userId)
+      .order('is_primary', { ascending: false });
+
+    if (error || !data) return [];
+    return data.map((row) => {
+      const club = row.clubs as unknown as DbClub;
+      return club;
+    }).filter(Boolean);
+  }, FIVE_MIN);
+}
+
+/** Get the user's primary club */
+export async function getUserPrimaryClub(userId: string): Promise<DbClub | null> {
+  const { data, error } = await supabase
+    .from('club_followers')
+    .select('clubs!club_id(*)')
+    .eq('user_id', userId)
+    .eq('is_primary', true)
+    .single();
+
+  if (error || !data) return null;
+  return data.clubs as unknown as DbClub;
+}
+
+/** Set a club as the user's primary club */
+export async function setUserPrimaryClub(userId: string, clubId: string): Promise<void> {
+  // Unset all primary flags for this user
+  await supabase
+    .from('club_followers')
+    .update({ is_primary: false })
+    .eq('user_id', userId);
+
+  // Set new primary
   const { error } = await supabase
-    .from('profiles')
-    .update({
-      favorite_club: follow ? clubName : null,
-      favorite_club_id: follow ? clubId : null,
-    })
-    .eq('id', userId);
+    .from('club_followers')
+    .update({ is_primary: true })
+    .eq('user_id', userId)
+    .eq('club_id', clubId);
 
   if (error) throw new Error(error.message);
+
+  // Dual-write to profiles
+  const { data: club } = await supabase
+    .from('clubs')
+    .select('name')
+    .eq('id', clubId)
+    .single();
+
+  await supabase
+    .from('profiles')
+    .update({ favorite_club: club?.name ?? null, favorite_club_id: clubId })
+    .eq('id', userId);
+
   invalidate(`profile:${userId}`);
-  invalidateClubData(clubId);
+  invalidate(`clubFollows:${userId}`);
+}
+
+/** Get all clubs with follower + player counts (for discovery page) */
+export async function getClubsWithStats(): Promise<Array<DbClub & { follower_count: number; player_count: number }>> {
+  return cached('clubs:withStats', async () => {
+    const { data: clubs, error } = await supabase
+      .from('clubs')
+      .select('*')
+      .order('name');
+
+    if (error || !clubs) return [];
+
+    // Get follower counts
+    const clubIds = clubs.map(c => c.id);
+    const { data: followerData } = await supabase
+      .from('club_followers')
+      .select('club_id')
+      .in('club_id', clubIds);
+
+    const followerCounts = new Map<string, number>();
+    for (const f of followerData ?? []) {
+      followerCounts.set(f.club_id, (followerCounts.get(f.club_id) ?? 0) + 1);
+    }
+
+    // Get player counts
+    const { data: playerData } = await supabase
+      .from('players')
+      .select('club_id')
+      .in('club_id', clubIds);
+
+    const playerCounts = new Map<string, number>();
+    for (const p of playerData ?? []) {
+      if (p.club_id) {
+        playerCounts.set(p.club_id, (playerCounts.get(p.club_id) ?? 0) + 1);
+      }
+    }
+
+    return clubs.map(c => ({
+      ...(c as DbClub),
+      follower_count: followerCounts.get(c.id) ?? 0,
+      player_count: playerCounts.get(c.id) ?? 0,
+    }));
+  }, FIVE_MIN);
 }
 
 // ============================================

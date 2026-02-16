@@ -8,12 +8,15 @@ const TWO_MIN = 2 * 60 * 1000;
 // Community Polls (Bezahlte Umfragen)
 // ============================================
 
-export async function getCommunityPolls(): Promise<CommunityPollWithCreator[]> {
-  return cached('communityPolls:all', async () => {
-    const { data, error } = await supabase
+export async function getCommunityPolls(clubId?: string): Promise<CommunityPollWithCreator[]> {
+  const cacheKey = clubId ? `communityPolls:${clubId}` : 'communityPolls:all';
+  return cached(cacheKey, async () => {
+    let query = supabase
       .from('community_polls')
       .select('*')
       .order('created_at', { ascending: false });
+    if (clubId) query = query.eq('club_id', clubId);
+    const { data, error } = await query;
 
     if (error) throw new Error(error.message);
     if (!data || data.length === 0) return [];

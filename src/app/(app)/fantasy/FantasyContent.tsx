@@ -26,7 +26,7 @@ import {
   HistoryTab, CreateEventModal, SpieltagTab,
 } from '@/components/fantasy';
 
-import { PILOT_CLUB_ID } from '@/lib/clubs';
+import { useClub } from '@/components/providers/ClubProvider';
 
 // Lazy-load EventDetailModal (1387 lines) — only loaded when user opens an event
 const EventDetailModal = dynamic(
@@ -127,10 +127,12 @@ function dbHoldingToUserDpcHolding(h: HoldingWithPlayer): UserDpcHolding {
 // ============================================
 
 export default function FantasyContent() {
-  // Auth + Wallet
+  // Auth + Wallet + Club
   const { user, profile } = useUser();
   const { balanceCents, setBalanceCents } = useWallet();
   const { addToast } = useToast();
+  const { activeClub } = useClub();
+  const clubId = activeClub?.id ?? '';
 
   // State
   const [mainTab, setMainTab] = useState<FantasyTab>('spieltag');
@@ -150,7 +152,7 @@ export default function FantasyContent() {
 
   // Load real data from DB
   useEffect(() => {
-    if (!user) return;
+    if (!user || !clubId) return;
     const uid = user.id;
     async function load() {
       try {
@@ -159,7 +161,7 @@ export default function FantasyContent() {
         getHoldings(uid),
         getUserJoinedEventIds(uid),
         getPlayerEventUsage(uid),
-        getActiveGameweek(PILOT_CLUB_ID),
+        getActiveGameweek(clubId),
       ]), 10000);
       const dbEvents = val(fantasyResults[0], []);
       const dbHoldings = val(fantasyResults[1], []);
@@ -203,7 +205,7 @@ export default function FantasyContent() {
       // Check admin status
       try {
         const { isClubAdmin } = await import('@/lib/services/club');
-        const admin = await isClubAdmin(uid, PILOT_CLUB_ID);
+        const admin = await isClubAdmin(uid, clubId);
         setIsAdmin(admin);
       } catch { /* not admin */ }
 
@@ -215,7 +217,7 @@ export default function FantasyContent() {
       setDataLoading(false);
     }
     load();
-  }, [user, addToast]);
+  }, [user, clubId, addToast]);
 
   // Derived data
   const activeEvents = useMemo(() => events.filter(e => e.isJoined && e.status === 'running'), [events]);
@@ -542,7 +544,7 @@ export default function FantasyContent() {
       await reloadEvents();
       // Re-fetch active GW (may have advanced) and auto-navigate
       try {
-        const newGw = await getActiveGameweek(PILOT_CLUB_ID);
+        const newGw = await getActiveGameweek(clubId);
         setActiveGameweek(newGw);
         setSelectedGameweek(newGw);
       } catch { /* silent */ }
@@ -633,7 +635,7 @@ export default function FantasyContent() {
         <SpieltagTab
           gameweek={selectedGameweek}
           activeGameweek={activeGameweek}
-          clubId={PILOT_CLUB_ID}
+          clubId={clubId}
           isAdmin={isAdmin}
           events={spieltagEvents}
           userId={user.id}

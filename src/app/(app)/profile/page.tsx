@@ -6,7 +6,7 @@ import { Card, Button, Modal } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { updateProfile, checkHandleAvailable, isValidHandle } from '@/lib/services/profiles';
-import { TFF_CLUBS } from '@/lib/clubs';
+import { getAllClubsCached } from '@/lib/clubs';
 import { supabase } from '@/lib/supabaseClient';
 import ProfileView from '@/components/profile/ProfileView';
 
@@ -225,7 +225,7 @@ function SettingsTab() {
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-[#FFD700]/40 transition-all"
           >
             <option value="">Kein Verein</option>
-            {TFF_CLUBS.map((club) => (
+            {getAllClubsCached().map((club) => (
               <option key={club.id} value={club.id}>{club.name}</option>
             ))}
           </select>

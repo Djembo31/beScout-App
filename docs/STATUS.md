@@ -3,7 +3,47 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 5** – Beta-Ready + Admin-gesteuerter Spieltag-Flow. 103 Migrations, 17 Routes. Build sauber (0 Fehler). GW 11 Events auf "registering" zurückgesetzt.
+**Woche 6** – Multi-Club Expansion komplett. 130 Migrations, 20 Routes, 1 Edge Function. Build sauber (0 Fehler). Volle Multi-Club-Plattform mit Club Discovery, ClubProvider, Club-Switcher, Multi-Liga-Vorbereitung.
+
+## Session 16.02.2026 (63) – Multi-Club Expansion (8 Phasen)
+
+### Kontext
+BeScout war zu 70% multi-club-ready (DB-Schema, Routing, Admin, Services), aber 11 Dateien nutzten hardcoded `TFF_CLUBS`/`PILOT_CLUB_ID`/`getClub()`. Ziel: Volle Multi-Club-Plattform mit Multi-Liga-Vorbereitung.
+
+### Änderungen
+- **Phase 1 (Data Layer):** 3 Migrationen (#128-#130) — `leagues` Tabelle (TFF 1. Lig Seed), `club_followers` Tabelle (RLS + Datenmigration von profiles), `club_id` auf community_polls
+- **Phase 2 (clubs.ts Refactor):** Komplettes Rewrite von hardcoded TFF_CLUBS zu DB-backed ClubLookup Cache. `initClubCache()` async → `getClub()` sync (gleiche Signatur, 0 Änderungen in 13 Consumern). Neue `leagues.ts` Service. `club.ts` Follower-Logik auf club_followers umgestellt mit Dual-Write
+- **Phase 3 (ClubProvider):** Neuer React Context (activeClub, followedClubs, primaryClub, toggleFollow). ClubSwitcher Dropdown in SideNav. Provider-Hierarchie: Auth → Analytics → Club → Wallet → Toast
+- **Phase 4 (Hardcoding weg):** 5 Dateien refactored — club/page.tsx redirect → /clubs, FantasyContent PILOT_CLUB_ID → useClub(), community/page sakaryaspor → getUserPrimaryClub(), BescoutAdmin → useClub(), profile TFF_CLUBS → getAllClubsCached()
+- **Phase 5 (Club Discovery):** Neue /clubs Route mit Suche, Liga-Gruppierung, Follow/Unfollow, Club-Cards
+- **Phase 6 (Fantasy Multi-Club):** getEventsByClubIds() in events.ts, Fantasy nutzt clubId aus ClubProvider
+- **Phase 7 (Onboarding):** 3-Step Flow (Handle → Avatar → Club-Wahl mit Suche + Multi-Select + Skip)
+- **Phase 8 (Community Scoping):** "Alle Clubs" / "Mein Club" Toggle, clubId Filter auf getPosts, getCommunityPolls, getAllActiveBounties
+
+### Dateien erstellt
+- `src/components/providers/ClubProvider.tsx` (~160 Zeilen)
+- `src/components/layout/ClubSwitcher.tsx` (~120 Zeilen)
+- `src/lib/services/leagues.ts` (~50 Zeilen)
+- `src/app/(app)/clubs/layout.tsx`
+- `src/app/(app)/clubs/page.tsx` (~190 Zeilen)
+
+### Dateien modifiziert
+- `src/types/index.ts` — DbLeague, DbClubFollower, DbClub+league_id, DbFixture+league_id
+- `src/lib/clubs.ts` — Komplettes Rewrite (ClubLookup, initClubCache, DB-backed)
+- `src/lib/services/club.ts` — Follower-Logik auf club_followers, 4 neue Funktionen
+- `src/lib/services/events.ts` — getEventsByClubIds()
+- `src/lib/services/posts.ts` — clubId Filter auf getPosts()
+- `src/lib/services/bounties.ts` — clubId auf getAllActiveBounties()
+- `src/lib/services/communityPolls.ts` — clubId auf getCommunityPolls()
+- `src/components/providers/Providers.tsx` — ClubProvider eingebaut
+- `src/components/layout/SideNav.tsx` — ClubSwitcher + dynamischer Club-Link
+- `src/app/(app)/club/page.tsx` — redirect /clubs statt /club/sakaryaspor
+- `src/app/(app)/fantasy/FantasyContent.tsx` — useClub() statt PILOT_CLUB_ID
+- `src/app/(app)/community/page.tsx` — Club-Scope Toggle + getUserPrimaryClub
+- `src/app/(app)/bescout-admin/BescoutAdminContent.tsx` — useClub() statt PILOT_CLUB_ID
+- `src/app/(app)/profile/page.tsx` — getAllClubsCached() statt TFF_CLUBS
+- `src/app/(auth)/onboarding/page.tsx` — 3-Step Flow mit Club-Wahl
+- `src/app/(app)/club/[slug]/ClubContent.tsx` — stadiumImage Fix
 
 ## Session 15.02.2026 (44) – Admin-gesteuerter Spieltag-Flow
 
