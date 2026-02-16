@@ -551,6 +551,17 @@ export default function FantasyContent() {
     })();
   }, [addToast, reloadEvents]);
 
+  // No club selected — show message instead of endless spinner
+  if (!clubId && !dataLoading) {
+    return (
+      <div className="max-w-[1600px] mx-auto flex flex-col items-center justify-center py-32 gap-4">
+        <Trophy className="w-12 h-12 text-white/20" />
+        <div className="text-white/70 font-bold">Kein Club ausgewählt</div>
+        <div className="text-white/40 text-sm">Wähle einen Club um Fantasy-Events zu sehen.</div>
+      </div>
+    );
+  }
+
   // Loading state
   if (dataLoading) {
     return (

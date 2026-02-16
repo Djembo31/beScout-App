@@ -71,13 +71,14 @@ export const EventDetailModal = ({
   const [captainSlot, setCaptainSlot] = useState<string | null>(null);
   const [showJoinConfirm, setShowJoinConfirm] = useState(false);
 
-  // Set default tab based on join status when modal opens
+  // Set default tab based on join status when modal opens — reset transient state
   useEffect(() => {
     if (isOpen && event) {
       // If event is scored + user joined → show their lineup with scores. Otherwise leaderboard for non-participants
       setTab(event.scoredAt ? (event.isJoined ? 'lineup' : 'leaderboard') : event.isJoined ? 'lineup' : 'overview');
       setViewingUserLineup(null);
       setScoringJustFinished(false);
+      setShowJoinConfirm(false);
     }
   }, [isOpen, event?.id]);
 

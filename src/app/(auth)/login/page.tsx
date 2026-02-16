@@ -116,6 +116,10 @@ function LoginContent() {
     if (authError) {
       setError(authError.message);
       setLoadingMethod(null);
+    } else {
+      // OAuth opens a new tab — if user closes it without completing,
+      // button stays disabled forever. Reset after 5s as safety net.
+      setTimeout(() => setLoadingMethod(prev => prev === provider ? null : prev), 5000);
     }
   };
 

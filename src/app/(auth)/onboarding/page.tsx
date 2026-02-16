@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Check, X, Loader2, ChevronRight, Globe, Camera, User, Lock, Eye, EyeOff, Search, Shield, Gift } from 'lucide-react';
@@ -90,7 +90,8 @@ function OnboardingContent() {
     }
   }, [step, allClubs.length]);
 
-  // Debounced handle check
+  // Debounced handle check with stale-request guard
+  const handleCheckRef = useRef(0);
   useEffect(() => {
     if (!handle) {
       setHandleStatus('idle');
@@ -101,9 +102,13 @@ function OnboardingContent() {
       return;
     }
     setHandleStatus('checking');
+    const requestId = ++handleCheckRef.current;
     const timer = setTimeout(async () => {
       const available = await checkHandleAvailable(handle);
-      setHandleStatus(available ? 'available' : 'taken');
+      // Only apply result if this is still the latest request
+      if (requestId === handleCheckRef.current) {
+        setHandleStatus(available ? 'available' : 'taken');
+      }
     }, 500);
     return () => clearTimeout(timer);
   }, [handle]);
