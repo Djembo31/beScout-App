@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import {
   Trophy, Users, Clock, Star, Shield, Award, Crown,
   ChevronRight, Search, Lock,
   CheckCircle2, AlertCircle, Play, Medal,
-  Briefcase, Coins, Layers,
+  Briefcase, Coins, Layers, Zap,
   Plus, Save, Eye, Sparkles, Building2,
   MessageCircle, X, RefreshCw, Heart,
   ChevronLeft, BarChart3, History,
@@ -870,6 +871,22 @@ export const EventDetailModal = ({
                     </div>
                   </div>
                 </div>
+              )}
+
+              {/* Post-Game Nudge: Trading */}
+              {isScored && myRank && myRank > 3 && (
+                <Link href="/market?tab=kaufen" onClick={onClose}>
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-[#FFD700]/[0.06] to-purple-500/[0.06] border border-[#FFD700]/15 hover:border-[#FFD700]/30 transition-all">
+                    <div className="w-8 h-8 rounded-lg bg-[#FFD700]/15 flex items-center justify-center flex-shrink-0">
+                      <Zap className="w-4 h-4 text-[#FFD700]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-bold text-white">Portfolio stärken?</div>
+                      <div className="text-[11px] text-white/40">Bessere Spieler = höhere Scores. Zum Marktplatz →</div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-white/30 flex-shrink-0" />
+                  </div>
+                </Link>
               )}
 
               {/* Scored Player Breakdown List */}

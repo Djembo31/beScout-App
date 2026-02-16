@@ -7,7 +7,7 @@ import {
   Search, Filter, Grid, List,
   Star, Target, Users, Briefcase,
   Zap, Layers, Shield, GitCompareArrows,
-  Flame, Award, PiggyBank, MessageSquare,
+  Flame, Award, PiggyBank, MessageSquare, Trophy,
   TrendingDown as PriceDown, X, ChevronDown, ChevronRight, ArrowUpDown,
   Package, CheckCircle2,
 } from 'lucide-react';
@@ -551,11 +551,18 @@ export default function MarketPage() {
           </div>
           <span className="text-base">{buySuccess}</span>
           {lastBoughtId && (
-            <Link href={`/player/${lastBoughtId}`}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 rounded-lg text-[11px] font-bold text-white/80 hover:bg-white/15 transition-all">
-              <MessageSquare className="w-3 h-3" />
-              Diskutieren
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/fantasy"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FFD700]/15 rounded-lg text-[11px] font-bold text-[#FFD700] hover:bg-[#FFD700]/25 transition-all">
+                <Trophy className="w-3 h-3" />
+                Fantasy
+              </Link>
+              <Link href={`/player/${lastBoughtId}`}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 rounded-lg text-[11px] font-bold text-white/80 hover:bg-white/15 transition-all">
+                <MessageSquare className="w-3 h-3" />
+                Diskutieren
+              </Link>
+            </div>
           )}
         </div>
       )}

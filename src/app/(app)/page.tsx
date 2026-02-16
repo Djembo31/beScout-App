@@ -187,22 +187,22 @@ function WelcomeBanner({ name }: { name: string }) {
           Verdiene BSD durch Trading, Fantasy-Turniere und Analysen. Wähle dein erstes Ziel:
         </p>
         <div className="flex flex-wrap gap-2">
-          <Link href="/market?tab=kaufen">
+          <Link href="/fantasy">
             <Button variant="gold" size="sm" className="gap-1.5 text-xs">
-              <Zap className="w-3.5 h-3.5" />
-              Ersten Spieler kaufen
+              <Trophy className="w-3.5 h-3.5" />
+              Fantasy spielen
             </Button>
           </Link>
-          <Link href="/fantasy">
+          <Link href="/market?tab=kaufen">
             <Button variant="outline" size="sm" className="gap-1.5 text-xs">
-              <Trophy className="w-3.5 h-3.5 text-purple-400" />
-              Fantasy spielen
+              <Zap className="w-3.5 h-3.5 text-[#FFD700]" />
+              Spieler kaufen
             </Button>
           </Link>
           <Link href="/community">
             <Button variant="outline" size="sm" className="gap-1.5 text-xs">
               <Users className="w-3.5 h-3.5 text-sky-400" />
-              Community entdecken
+              Community
             </Button>
           </Link>
         </div>
