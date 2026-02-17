@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
 import type { DbWallet, DbHolding, DbTransaction } from '@/types';
 
 export type HoldingWithPlayer = DbHolding & {
@@ -12,8 +11,6 @@ export type HoldingWithPlayer = DbHolding & {
   };
 };
 
-const TWO_MIN = 2 * 60 * 1000;
-const FIVE_MIN = 5 * 60 * 1000;
 
 // ============================================
 // Wallet Queries
@@ -23,7 +20,7 @@ const FIVE_MIN = 5 * 60 * 1000;
 export async function getWallet(userId: string): Promise<DbWallet | null> {
   const { data, error } = await supabase
     .from('wallets')
-    .select('id, user_id, balance, locked_balance, currency, created_at, updated_at')
+    .select('user_id, balance, locked_balance, created_at, updated_at')
     .eq('user_id', userId)
     .single();
 
@@ -83,15 +80,13 @@ export async function getHoldingQty(userId: string, playerId: string): Promise<n
 
 /** Distinct holder count for a player */
 export async function getPlayerHolderCount(playerId: string): Promise<number> {
-  return cached(`holderCount:${playerId}`, async () => {
-    const { count, error } = await supabase
-      .from('holdings')
-      .select('*', { count: 'exact', head: true })
-      .eq('player_id', playerId)
-      .gt('quantity', 0);
-    if (error) return 0;
-    return count ?? 0;
-  }, FIVE_MIN);
+  const { count, error } = await supabase
+    .from('holdings')
+    .select('*', { count: 'exact', head: true })
+    .eq('player_id', playerId)
+    .gt('quantity', 0);
+  if (error) return 0;
+  return count ?? 0;
 }
 
 // ============================================
@@ -100,17 +95,15 @@ export async function getPlayerHolderCount(playerId: string): Promise<number> {
 
 /** Letzte Transaktionen eines Users (mit Offset-Pagination) */
 export async function getTransactions(userId: string, limit = 20, offset = 0): Promise<DbTransaction[]> {
-  return cached(`transactions:${userId}:${offset}:${limit}`, async () => {
-    const { data, error } = await supabase
-      .from('transactions')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
 
-    if (error) throw new Error(error.message);
-    return (data ?? []) as DbTransaction[];
-  }, TWO_MIN);
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DbTransaction[];
 }
 
 // ============================================
@@ -131,8 +124,6 @@ export async function deductEntryFee(userId: string, amountCents: number, eventN
   if (error) throw new Error(error.message);
   const result = data as WalletRpcResult;
   if (!result.success) throw new Error(result.error ?? 'Wallet-Fehler');
-  invalidate(`wallet:${userId}`);
-  invalidate(`transactions:${userId}`);
   return result.new_balance!;
 }
 
@@ -148,8 +139,6 @@ export async function refundEntryFee(userId: string, amountCents: number, eventN
   if (error) throw new Error(error.message);
   const result = data as WalletRpcResult;
   if (!result.success) throw new Error(result.error ?? 'Wallet-Fehler');
-  invalidate(`wallet:${userId}`);
-  invalidate(`transactions:${userId}`);
   return result.new_balance!;
 }
 

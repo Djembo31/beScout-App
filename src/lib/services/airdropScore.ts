@@ -1,23 +1,18 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
 import type { DbAirdropScore } from '@/types';
-
-const TWO_MIN = 2 * 60 * 1000;
 
 // ============================================
 // Read
 // ============================================
 
 export async function getAirdropScore(userId: string): Promise<DbAirdropScore | null> {
-  return cached(`airdropScore:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('airdrop_scores')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-    if (error || !data) return null;
-    return data as DbAirdropScore;
-  }, TWO_MIN);
+  const { data, error } = await supabase
+    .from('airdrop_scores')
+    .select('*')
+    .eq('user_id', userId)
+    .single();
+  if (error || !data) return null;
+  return data as DbAirdropScore;
 }
 
 export type AirdropLeaderboardEntry = DbAirdropScore & {
@@ -27,25 +22,23 @@ export type AirdropLeaderboardEntry = DbAirdropScore & {
 };
 
 export async function getAirdropLeaderboard(limit = 50): Promise<AirdropLeaderboardEntry[]> {
-  return cached(`airdropLeaderboard:${limit}`, async () => {
-    const { data, error } = await supabase
-      .from('airdrop_scores')
-      .select('*, profiles(handle, display_name, avatar_url)')
-      .order('total_score', { ascending: false })
-      .limit(limit);
+  const { data, error } = await supabase
+    .from('airdrop_scores')
+    .select('*, profiles(handle, display_name, avatar_url)')
+    .order('total_score', { ascending: false })
+    .limit(limit);
 
-    if (error || !data) return [];
-    return (data as Array<Record<string, unknown>>).map(row => {
-      const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
-      const { profiles: _p, ...score } = row;
-      return {
-        ...score,
-        handle: (profile as Record<string, unknown>)?.handle ?? '',
-        display_name: (profile as Record<string, unknown>)?.display_name as string | null ?? null,
-        avatar_url: (profile as Record<string, unknown>)?.avatar_url as string | null ?? null,
-      } as AirdropLeaderboardEntry;
-    });
-  }, TWO_MIN);
+  if (error || !data) return [];
+  return (data as Array<Record<string, unknown>>).map(row => {
+    const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+    const { profiles: _p, ...score } = row;
+    return {
+      ...score,
+      handle: (profile as Record<string, unknown>)?.handle ?? '',
+      display_name: (profile as Record<string, unknown>)?.display_name as string | null ?? null,
+      avatar_url: (profile as Record<string, unknown>)?.avatar_url as string | null ?? null,
+    } as AirdropLeaderboardEntry;
+  });
 }
 
 export type AirdropStats = {
@@ -55,26 +48,24 @@ export type AirdropStats = {
 };
 
 export async function getAirdropStats(): Promise<AirdropStats> {
-  return cached('airdropStats', async () => {
-    const { data, error } = await supabase
-      .from('airdrop_scores')
-      .select('total_score, tier');
+  const { data, error } = await supabase
+    .from('airdrop_scores')
+    .select('total_score, tier');
 
-    if (error || !data) return { total_users: 0, avg_score: 0, tier_distribution: { bronze: 0, silver: 0, gold: 0, diamond: 0 } };
+  if (error || !data) return { total_users: 0, avg_score: 0, tier_distribution: { bronze: 0, silver: 0, gold: 0, diamond: 0 } };
 
-    const dist = { bronze: 0, silver: 0, gold: 0, diamond: 0 };
-    let sum = 0;
-    for (const row of data) {
-      sum += row.total_score;
-      const t = row.tier as keyof typeof dist;
-      if (t in dist) dist[t]++;
-    }
-    return {
-      total_users: data.length,
-      avg_score: data.length > 0 ? Math.round(sum / data.length) : 0,
-      tier_distribution: dist,
-    };
-  }, TWO_MIN);
+  const dist = { bronze: 0, silver: 0, gold: 0, diamond: 0 };
+  let sum = 0;
+  for (const row of data) {
+    sum += row.total_score;
+    const t = row.tier as keyof typeof dist;
+    if (t in dist) dist[t]++;
+  }
+  return {
+    total_users: data.length,
+    avg_score: data.length > 0 ? Math.round(sum / data.length) : 0,
+    tier_distribution: dist,
+  };
 }
 
 // ============================================
@@ -87,7 +78,6 @@ export async function refreshAirdropScore(userId: string): Promise<DbAirdropScor
     console.error('[Airdrop] Refresh failed:', error.message);
     return null;
   }
-  invalidateAirdropData(userId);
   // Re-fetch full row
   const { data: row } = await supabase
     .from('airdrop_scores')
@@ -100,9 +90,6 @@ export async function refreshAirdropScore(userId: string): Promise<DbAirdropScor
 export async function refreshAllAirdropScores(): Promise<number> {
   const { data, error } = await supabase.rpc('refresh_all_airdrop_scores');
   if (error) throw new Error(error.message);
-  invalidate('airdropScore:');
-  invalidate('airdropLeaderboard:');
-  invalidate('airdropStats');
   return (data as number) ?? 0;
 }
 
@@ -110,10 +97,8 @@ export async function refreshAllAirdropScores(): Promise<number> {
 // Cache Invalidation
 // ============================================
 
-export function invalidateAirdropData(userId?: string): void {
-  if (userId) invalidate(`airdropScore:${userId}`);
-  invalidate('airdropLeaderboard:');
-  invalidate('airdropStats');
+export function invalidateAirdropData(_userId?: string): void {
+  // No-op: React Query handles cache invalidation
 }
 
 // ============================================

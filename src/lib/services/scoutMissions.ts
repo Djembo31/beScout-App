@@ -1,7 +1,4 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
-
-const FIVE_MIN = 5 * 60 * 1000;
 
 // ============================================
 // Types
@@ -55,46 +52,42 @@ export const DIFFICULTY_STYLES: Record<ScoutMissionDifficulty, { label: string; 
 
 /** Get all active scout missions */
 export async function getScoutMissions(): Promise<ScoutMission[]> {
-  return cached('scout-missions:active', async () => {
-    const { data, error } = await supabase
-      .from('scout_mission_definitions')
-      .select('*')
-      .eq('active', true)
-      .order('difficulty', { ascending: true });
+  const { data, error } = await supabase
+    .from('scout_mission_definitions')
+    .select('*')
+    .eq('active', true)
+    .order('difficulty', { ascending: true });
 
-    if (error) throw new Error(error.message);
-    return (data ?? []).map(m => ({
-      id: m.id,
-      title: m.title,
-      description: m.description,
-      criteria: m.criteria as ScoutMissionCriteria,
-      rewardCents: m.reward_cents,
-      difficulty: m.difficulty as ScoutMissionDifficulty,
-      minTier: m.min_tier,
-    }));
-  }, FIVE_MIN);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(m => ({
+    id: m.id,
+    title: m.title,
+    description: m.description,
+    criteria: m.criteria as ScoutMissionCriteria,
+    rewardCents: m.reward_cents,
+    difficulty: m.difficulty as ScoutMissionDifficulty,
+    minTier: m.min_tier,
+  }));
 }
 
 /** Get user's mission progress for a specific gameweek */
 export async function getUserMissionProgress(userId: string, gameweek: number): Promise<UserScoutMission[]> {
-  return cached(`scout-missions:${userId}:gw${gameweek}`, async () => {
-    const { data, error } = await supabase
-      .from('user_scout_missions')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('gameweek', gameweek);
+  const { data, error } = await supabase
+    .from('user_scout_missions')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('gameweek', gameweek);
 
-    if (error) throw new Error(error.message);
-    return (data ?? []).map(m => ({
-      id: m.id,
-      missionId: m.mission_id,
-      gameweek: m.gameweek,
-      submittedPlayerId: m.submitted_player_id,
-      status: m.status as UserScoutMission['status'],
-      completedAt: m.completed_at,
-      claimedAt: m.claimed_at,
-    }));
-  }, FIVE_MIN);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(m => ({
+    id: m.id,
+    missionId: m.mission_id,
+    gameweek: m.gameweek,
+    submittedPlayerId: m.submitted_player_id,
+    status: m.status as UserScoutMission['status'],
+    completedAt: m.completed_at,
+    claimedAt: m.claimed_at,
+  }));
 }
 
 // ============================================
@@ -117,9 +110,6 @@ export async function submitScoutMission(
 
   if (error) return { success: false, error: error.message };
   const result = data as { success: boolean; error?: string; reward_cents?: number };
-  if (result.success) {
-    invalidate(`scout-missions:${userId}`);
-  }
   return {
     success: result.success,
     error: result.error,
@@ -141,9 +131,6 @@ export async function claimScoutMissionReward(
 
   if (error) return { success: false, error: error.message };
   const result = data as { success: boolean; error?: string; reward_cents?: number };
-  if (result.success) {
-    invalidate(`scout-missions:${userId}`);
-  }
   return {
     success: result.success,
     error: result.error,

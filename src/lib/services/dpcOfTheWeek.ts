@@ -1,7 +1,4 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
-
-const FIVE_MIN = 5 * 60 * 1000;
 
 // ============================================
 // Types
@@ -25,34 +22,32 @@ export type DpcOfTheWeek = {
 // Queries
 // ============================================
 
-/** Get the latest DPC of the Week (cached 5 min) */
+/** Get the latest DPC of the Week */
 export async function getDpcOfTheWeek(): Promise<DpcOfTheWeek | null> {
-  return cached('dpc-of-week:latest', async () => {
-    const { data, error } = await supabase
-      .from('dpc_of_the_week')
-      .select('*, players(first_name, last_name, position, club, perf_l5)')
-      .order('gameweek', { ascending: false })
-      .limit(1)
-      .single();
+  const { data, error } = await supabase
+    .from('dpc_of_the_week')
+    .select('*, players(first_name, last_name, position, club, perf_l5)')
+    .order('gameweek', { ascending: false })
+    .limit(1)
+    .single();
 
-    if (error || !data) return null;
+  if (error || !data) return null;
 
-    const player = Array.isArray(data.players) ? data.players[0] : data.players;
+  const player = Array.isArray(data.players) ? data.players[0] : data.players;
 
-    return {
-      id: data.id,
-      playerId: data.player_id,
-      playerFirstName: player?.first_name ?? '',
-      playerLastName: player?.last_name ?? '',
-      playerPosition: player?.position ?? 'MID',
-      playerClub: player?.club ?? '',
-      playerPerfL5: player?.perf_l5 ?? 0,
-      gameweek: data.gameweek,
-      score: data.score,
-      holderCount: data.holder_count,
-      createdAt: data.created_at,
-    };
-  }, FIVE_MIN);
+  return {
+    id: data.id,
+    playerId: data.player_id,
+    playerFirstName: player?.first_name ?? '',
+    playerLastName: player?.last_name ?? '',
+    playerPosition: player?.position ?? 'MID',
+    playerClub: player?.club ?? '',
+    playerPerfL5: player?.perf_l5 ?? 0,
+    gameweek: data.gameweek,
+    score: data.score,
+    holderCount: data.holder_count,
+    createdAt: data.created_at,
+  };
 }
 
 /** Calculate DPC of the Week for a given gameweek (fire-and-forget after scoring) */
@@ -62,8 +57,6 @@ export async function calculateDpcOfWeek(gameweek: number): Promise<{ success: b
   });
 
   if (error) return { success: false, error: error.message };
-
-  invalidate('dpc-of-week:');
 
   const result = data as { success: boolean; player_id?: string; score?: number; holder_count?: number; error?: string };
 

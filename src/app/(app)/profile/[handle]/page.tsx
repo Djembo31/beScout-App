@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { Skeleton, SkeletonCard } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getProfileByHandle } from '@/lib/services/profiles';
 import ProfileView from '@/components/profile/ProfileView';
@@ -51,8 +51,23 @@ export default function PublicProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-[#FFD700]" />
+      <div className="max-w-[1400px] mx-auto space-y-6">
+        <div className="animate-pulse bg-white/[0.02] border border-white/10 rounded-2xl h-48 relative">
+          <div className="absolute bottom-4 left-4 flex items-end gap-4">
+            <Skeleton className="w-20 h-20 rounded-2xl" />
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-16 rounded-xl" />)}
+        </div>
+        <Skeleton className="h-10 rounded-xl" />
+        <div className="space-y-3">
+          {[1, 2, 3].map(i => <SkeletonCard key={i} className="h-24" />)}
+        </div>
       </div>
     );
   }

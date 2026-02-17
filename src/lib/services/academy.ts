@@ -1,7 +1,4 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
-
-const FIVE_MIN = 5 * 60 * 1000;
 
 // ============================================
 // Types
@@ -51,67 +48,61 @@ export const PHASE_STYLES: Record<MilestonePhase, { label: string; color: string
 
 /** Get all milestones */
 export async function getMilestones(): Promise<Milestone[]> {
-  return cached('academy:milestones', async () => {
-    const { data, error } = await supabase
-      .from('mentorship_milestones')
-      .select('*')
-      .order('sort_order');
+  const { data, error } = await supabase
+    .from('mentorship_milestones')
+    .select('*')
+    .order('sort_order');
 
-    if (error) throw new Error(error.message);
-    return (data ?? []).map(m => ({
-      id: m.id,
-      phase: m.phase as MilestonePhase,
-      title: m.title,
-      description: m.description,
-      rewardMentorCents: m.reward_mentor_cents,
-      rewardMenteeCents: m.reward_mentee_cents,
-      sortOrder: m.sort_order,
-    }));
-  }, FIVE_MIN);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(m => ({
+    id: m.id,
+    phase: m.phase as MilestonePhase,
+    title: m.title,
+    description: m.description,
+    rewardMentorCents: m.reward_mentor_cents,
+    rewardMenteeCents: m.reward_mentee_cents,
+    sortOrder: m.sort_order,
+  }));
 }
 
 /** Get user's active mentorship (as mentee or mentor) */
 export async function getActiveMentorship(userId: string): Promise<Mentorship | null> {
-  return cached(`academy:mentorship:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('mentorships')
-      .select('*')
-      .or(`mentor_id.eq.${userId},mentee_id.eq.${userId}`)
-      .in('status', ['pending', 'active'])
-      .limit(1)
-      .maybeSingle();
+  const { data, error } = await supabase
+    .from('mentorships')
+    .select('*')
+    .or(`mentor_id.eq.${userId},mentee_id.eq.${userId}`)
+    .in('status', ['pending', 'active'])
+    .limit(1)
+    .maybeSingle();
 
-    if (error) throw new Error(error.message);
-    if (!data) return null;
-    return {
-      id: data.id,
-      mentorId: data.mentor_id,
-      menteeId: data.mentee_id,
-      status: data.status as MentorshipStatus,
-      startedAt: data.started_at,
-      completedAt: data.completed_at,
-    };
-  }, FIVE_MIN);
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  return {
+    id: data.id,
+    mentorId: data.mentor_id,
+    menteeId: data.mentee_id,
+    status: data.status as MentorshipStatus,
+    startedAt: data.started_at,
+    completedAt: data.completed_at,
+  };
 }
 
 /** Get milestone progress for a mentorship */
 export async function getMilestoneProgress(mentorshipId: string): Promise<MilestoneProgress[]> {
-  return cached(`academy:progress:${mentorshipId}`, async () => {
-    const { data, error } = await supabase
-      .from('user_mentorship_progress')
-      .select('*')
-      .eq('mentorship_id', mentorshipId);
+  const { data, error } = await supabase
+    .from('user_mentorship_progress')
+    .select('*')
+    .eq('mentorship_id', mentorshipId);
 
-    if (error) throw new Error(error.message);
-    return (data ?? []).map(p => ({
-      id: p.id,
-      milestoneId: p.milestone_id,
-      completed: p.completed,
-      claimedMentor: p.claimed_mentor,
-      claimedMentee: p.claimed_mentee,
-      completedAt: p.completed_at,
-    }));
-  }, FIVE_MIN);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(p => ({
+    id: p.id,
+    milestoneId: p.milestone_id,
+    completed: p.completed,
+    claimedMentor: p.claimed_mentor,
+    claimedMentee: p.claimed_mentee,
+    completedAt: p.completed_at,
+  }));
 }
 
 // ============================================
@@ -130,10 +121,6 @@ export async function requestMentor(
 
   if (error) return { success: false, error: error.message };
   const result = data as { success: boolean; error?: string; mentorship_id?: string };
-  if (result.success) {
-    invalidate(`academy:mentorship:${menteeId}`);
-    invalidate(`academy:mentorship:${mentorId}`);
-  }
   return {
     success: result.success,
     error: result.error,
@@ -153,9 +140,6 @@ export async function acceptMentee(
 
   if (error) return { success: false, error: error.message };
   const result = data as { success: boolean; error?: string };
-  if (result.success) {
-    invalidate(`academy:mentorship:`);
-  }
   return result;
 }
 
@@ -175,9 +159,6 @@ export async function claimMilestoneReward(
 
   if (error) return { success: false, error: error.message };
   const result = data as { success: boolean; error?: string; reward_cents?: number };
-  if (result.success) {
-    invalidate(`academy:progress:${mentorshipId}`);
-  }
   return {
     success: result.success,
     error: result.error,

@@ -1,9 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
 import type { DbFeeConfig } from '@/types';
-
-const TWO_MIN = 2 * 60 * 1000;
-const FIVE_MIN = 5 * 60 * 1000;
 
 // ============================================
 // Admin Role Check
@@ -12,15 +8,13 @@ const FIVE_MIN = 5 * 60 * 1000;
 export type PlatformAdminRole = 'superadmin' | 'admin' | 'viewer';
 
 export async function getPlatformAdminRole(userId: string): Promise<PlatformAdminRole | null> {
-  return cached(`platformAdmin:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('platform_admins')
-      .select('role')
-      .eq('user_id', userId)
-      .single();
-    if (error || !data) return null;
-    return data.role as PlatformAdminRole;
-  }, FIVE_MIN);
+  const { data, error } = await supabase
+    .from('platform_admins')
+    .select('role')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data.role as PlatformAdminRole;
 }
 
 export async function isPlatformAdmin(userId: string): Promise<boolean> {
@@ -41,26 +35,24 @@ export type SystemStats = {
 };
 
 export async function getSystemStats(): Promise<SystemStats> {
-  return cached('admin:systemStats', async () => {
-    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const [usersRes, walletsRes, tradesRes, eventsRes, offersRes] = await Promise.allSettled([
-      supabase.from('profiles').select('*', { count: 'exact', head: true }),
-      supabase.from('wallets').select('balance'),
-      supabase.from('trades').select('price, quantity').gte('executed_at', since),
-      supabase.from('events').select('*', { count: 'exact', head: true }).in('status', ['upcoming', 'registering', 'late-reg', 'running']),
-      supabase.from('offers').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-    ]);
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const [usersRes, walletsRes, tradesRes, eventsRes, offersRes] = await Promise.allSettled([
+    supabase.from('profiles').select('*', { count: 'exact', head: true }),
+    supabase.from('wallets').select('balance'),
+    supabase.from('trades').select('price, quantity').gte('executed_at', since),
+    supabase.from('events').select('*', { count: 'exact', head: true }).in('status', ['upcoming', 'registering', 'late-reg', 'running']),
+    supabase.from('offers').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+  ]);
 
-    const totalUsers = usersRes.status === 'fulfilled' ? (usersRes.value.count ?? 0) : 0;
-    const wallets = walletsRes.status === 'fulfilled' ? (walletsRes.value.data ?? []) : [];
-    const totalBsdCirculation = wallets.reduce((sum, w) => sum + ((w.balance as number) || 0), 0);
-    const trades = tradesRes.status === 'fulfilled' ? (tradesRes.value.data ?? []) : [];
-    const volume24h = trades.reduce((sum, t) => sum + ((t.price as number) * (t.quantity as number)), 0);
-    const activeEvents = eventsRes.status === 'fulfilled' ? (eventsRes.value.count ?? 0) : 0;
-    const pendingOffers = offersRes.status === 'fulfilled' ? (offersRes.value.count ?? 0) : 0;
+  const totalUsers = usersRes.status === 'fulfilled' ? (usersRes.value.count ?? 0) : 0;
+  const wallets = walletsRes.status === 'fulfilled' ? (walletsRes.value.data ?? []) : [];
+  const totalBsdCirculation = wallets.reduce((sum, w) => sum + ((w.balance as number) || 0), 0);
+  const trades = tradesRes.status === 'fulfilled' ? (tradesRes.value.data ?? []) : [];
+  const volume24h = trades.reduce((sum, t) => sum + ((t.price as number) * (t.quantity as number)), 0);
+  const activeEvents = eventsRes.status === 'fulfilled' ? (eventsRes.value.count ?? 0) : 0;
+  const pendingOffers = offersRes.status === 'fulfilled' ? (offersRes.value.count ?? 0) : 0;
 
-    return { totalUsers, totalBsdCirculation, volume24h, activeEvents, pendingOffers };
-  }, TWO_MIN);
+  return { totalUsers, totalBsdCirculation, volume24h, activeEvents, pendingOffers };
 }
 
 // ============================================
@@ -149,8 +141,6 @@ export async function adjustWallet(
     p_reason: reason,
   });
   if (error) throw new Error(error.message);
-  invalidate(`wallet:${targetUserId}`);
-  invalidate(`transactions:${targetUserId}`);
   return data as AdjustResult;
 }
 
@@ -159,14 +149,12 @@ export async function adjustWallet(
 // ============================================
 
 export async function getAllFeeConfigs(): Promise<DbFeeConfig[]> {
-  return cached('admin:feeConfigs', async () => {
-    const { data, error } = await supabase
-      .from('fee_config')
-      .select('*')
-      .order('club_name', { ascending: true });
-    if (error) throw new Error(error.message);
-    return (data ?? []) as DbFeeConfig[];
-  }, TWO_MIN);
+  const { data, error } = await supabase
+    .from('fee_config')
+    .select('*')
+    .order('club_name', { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DbFeeConfig[];
 }
 
 export async function updateFeeConfig(
@@ -194,7 +182,6 @@ export async function updateFeeConfig(
     p_ipo_pbt_bps: feeData.ipo_pbt_bps ?? null,
   });
   if (error) throw new Error(error.message);
-  invalidate('admin:feeConfigs');
   return data as { success: boolean; error?: string };
 }
 
@@ -203,15 +190,13 @@ export async function updateFeeConfig(
 // ============================================
 
 export async function getAllIposAcrossClubs() {
-  return cached('admin:allIpos', async () => {
-    const { data, error } = await supabase
-      .from('ipos')
-      .select('*, player:players!ipos_player_id_fkey(first_name, last_name, club)')
-      .order('created_at', { ascending: false })
-      .limit(100);
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  }, TWO_MIN);
+  const { data, error } = await supabase
+    .from('ipos')
+    .select('*, player:players!ipos_player_id_fkey(first_name, last_name, club)')
+    .order('created_at', { ascending: false })
+    .limit(100);
+  if (error) throw new Error(error.message);
+  return data ?? [];
 }
 
 // ============================================

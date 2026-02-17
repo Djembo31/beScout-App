@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
 import type { Profile } from '@/types';
 
 const HANDLE_REGEX = /^[a-z0-9_]{3,20}$/;
@@ -9,16 +8,14 @@ export function isValidHandle(handle: string): boolean {
 }
 
 export async function getProfile(userId: string): Promise<Profile | null> {
-  return cached(`profile:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
 
-    if (error || !data) return null;
-    return data as Profile;
-  }, 2 * 60 * 1000); // 2 min TTL
+  if (error || !data) return null;
+  return data as Profile;
 }
 
 export async function createProfile(
@@ -54,7 +51,6 @@ export async function createProfile(
     .single();
 
   if (error) throw new Error(error.message);
-  invalidate(`profile:${userId}`);
 
   // Fire-and-forget: refresh referrer's airdrop score if invited_by is set
   if (data.invited_by) {
@@ -86,7 +82,6 @@ export async function updateProfile(
     .single();
 
   if (error) throw new Error(error.message);
-  invalidate(`profile:${userId}`);
   return profile as Profile;
 }
 
@@ -110,16 +105,14 @@ export async function getProfilesByIds(
 }
 
 export async function getProfileByHandle(handle: string): Promise<Profile | null> {
-  return cached(`profile:handle:${handle.toLowerCase()}`, async () => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('handle', handle.toLowerCase())
-      .single();
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('handle', handle.toLowerCase())
+    .single();
 
-    if (error || !data) return null;
-    return data as Profile;
-  }, 5 * 60 * 1000);
+  if (error || !data) return null;
+  return data as Profile;
 }
 
 export async function checkHandleAvailable(handle: string): Promise<boolean> {

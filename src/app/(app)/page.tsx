@@ -28,6 +28,8 @@ import {
   MessageCircle,
   Send,
   UserPlus,
+  Shield,
+  Compass,
 } from 'lucide-react';
 import { Card, Button, Chip, ErrorState, Skeleton, SkeletonCard, TabBar, TabPanel } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
@@ -35,30 +37,47 @@ import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { fmtBSD, cn } from '@/lib/utils';
-import { getPlayers, dbToPlayers, centsToBsd } from '@/lib/services/players';
-import { getEvents } from '@/lib/services/events';
-import { getAllOpenSellOrders, getRecentGlobalTrades, getTopTraders, getPlatformStats } from '@/lib/services/trading';
-import type { GlobalTrade, TopTrader, PlatformStats } from '@/lib/services/trading';
-import { getHoldings, getTransactions, formatBsd } from '@/lib/services/wallet';
+import { centsToBsd } from '@/lib/services/players';
+import { formatBsd } from '@/lib/services/wallet';
 import { useWallet } from '@/components/providers/WalletProvider';
-import { withTimeout } from '@/lib/cache';
-import { getUserStats, getLeaderboard, getFollowingFeed } from '@/lib/services/social';
-import { val } from '@/lib/settledHelpers';
+import { useClub } from '@/components/providers/ClubProvider';
 import dynamic from 'next/dynamic';
+import FollowListModal from '@/components/profile/FollowListModal';
+
+// ── React Query Hooks ──
+import {
+  usePlayers,
+  useHoldings,
+  useAllOpenOrders,
+  useEvents,
+  useUserStats,
+  useTransactions,
+  useLeaderboard,
+  useRecentGlobalTrades,
+  useTopTraders,
+  usePosts,
+  useDpcOfWeek,
+  useScoutMissions,
+  useMissionProgress,
+  useFollowingFeed,
+  useFollowerCount,
+  useFollowingCount,
+  qk,
+} from '@/lib/queries';
+import { queryClient } from '@/lib/queryClient';
+
+import type { GlobalTrade, TopTrader } from '@/lib/services/trading';
 
 const MissionBanner = dynamic(() => import('@/components/missions/MissionBanner'), { ssr: false });
 const ScoutMissionCard = dynamic(() => import('@/components/missions/ScoutMissionCard'), { ssr: false });
 const AirdropScoreCard = dynamic(() => import('@/components/airdrop/AirdropScoreCard'), { ssr: false });
 const ReferralCard = dynamic(() => import('@/components/airdrop/ReferralCard'), { ssr: false });
-import { getDpcOfTheWeek } from '@/lib/services/dpcOfTheWeek';
 import type { DpcOfTheWeek } from '@/lib/services/dpcOfTheWeek';
-import { getScoutMissions, getUserMissionProgress } from '@/lib/services/scoutMissions';
 import type { ScoutMission, UserScoutMission } from '@/lib/services/scoutMissions';
 import { TierBadge } from '@/components/ui/TierBadge';
 import { getFanTier } from '@/types';
 import type { FanTier } from '@/types';
 import { getActivityColor as actColor, getActivityLabel, getRelativeTime, getActivityIcon as actIconName } from '@/lib/activityHelpers';
-import { getPosts } from '@/lib/services/posts';
 import type { Player, DpcHolding, DbTransaction, DbEvent, DbOrder, Pos, DbUserStats, LeaderboardUser, PostWithAuthor, FeedItem } from '@/types';
 import { FEED_ACTION_LABELS } from '@/types';
 import { getLevelTier } from '@/types';
@@ -256,124 +275,68 @@ export default function HomePage() {
   const { user, profile, loading } = useUser();
   const { balanceCents } = useWallet();
   const { addToast } = useToast();
+  const { followedClubs } = useClub();
   const name = profile?.display_name || displayName(user);
   const firstName = name.split(' ')[0];
+  const uid = user?.id;
 
+  // ── UI-only state (kept as useState) ──
   const [activeTab, setActiveTab] = useState<HomeTab>('mein');
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [holdings, setHoldings] = useState<DpcHolding[]>([]);
-  const [transactions, setTransactions] = useState<DbTransaction[]>([]);
-  const [events, setEvents] = useState<DbEvent[]>([]);
-  const [orders, setOrders] = useState<DbOrder[]>([]);
-  const [dataLoading, setDataLoading] = useState(true);
-  const [dataError, setDataError] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-  const [userStats, setUserStats] = useState<DbUserStats | null>(null);
-  const [topScouts, setTopScouts] = useState<LeaderboardUser[]>([]);
-  const [recentTrades, setRecentTrades] = useState<GlobalTrade[]>([]);
-  const [topTraders, setTopTraders] = useState<TopTrader[]>([]);
-  const [communityPosts, setCommunityPosts] = useState<PostWithAuthor[]>([]);
   const [streak, setStreak] = useState(0);
-  const [dpcOfWeek, setDpcOfWeek] = useState<DpcOfTheWeek | null>(null);
-  const [scoutMissions, setScoutMissions] = useState<ScoutMission[]>([]);
-  const [missionProgress, setMissionProgress] = useState<UserScoutMission[]>([]);
-  const [followingFeed, setFollowingFeed] = useState<FeedItem[]>([]);
+  const [followListMode, setFollowListMode] = useState<'followers' | 'following' | null>(null);
 
+  // ── React Query: Phase 1 (critical for "Mein Stand" tab) ──
+  const { data: players = [], isLoading: playersLoading, isError: playersError } = usePlayers();
+  const { data: rawHoldings = [] } = useHoldings(uid);
+  const { data: events = [] } = useEvents();
+  const { data: orders = [] } = useAllOpenOrders();
+  const { data: userStats = null } = useUserStats(uid);
+
+  // ── React Query: Phase 2 (secondary data for Aktuell/Entdecken tabs) ──
+  const { data: transactions = [] } = useTransactions(uid, 10);
+  const { data: topScouts = [] } = useLeaderboard(10);
+  const { data: recentTrades = [] } = useRecentGlobalTrades(10);
+  const { data: topTraders = [] } = useTopTraders(5);
+  const { data: communityPosts = [] } = usePosts({ limit: 5 });
+  const { data: dpcOfWeek = null } = useDpcOfWeek();
+  const { data: scoutMissions = [] } = useScoutMissions();
+  const { data: followingFeed = [] } = useFollowingFeed(uid);
+  const { data: followerCount = 0 } = useFollowerCount(uid);
+  const { data: followingCount = 0 } = useFollowingCount(uid);
+
+  // Mission progress — derive GW from already-fetched events
+  const maxGw = useMemo(() => events.reduce((mx: number, e: DbEvent) => Math.max(mx, e.gameweek || 0), 0), [events]);
+  const { data: missionProgress = [] } = useMissionProgress(uid, maxGw);
+
+  // ── Holdings transform ──
+  const holdings = useMemo<DpcHolding[]>(() =>
+    rawHoldings.map((h) => ({
+      id: h.id,
+      playerId: h.player_id,
+      player: `${h.player.first_name} ${h.player.last_name}`,
+      club: h.player.club,
+      pos: h.player.position as Pos,
+      qty: h.quantity,
+      avgBuy: centsToBsd(h.avg_buy_price),
+      floor: centsToBsd(h.player.floor_price),
+      change24h: Number(h.player.price_change_24h),
+      listedByUser: 0,
+      ticket: h.player.shirt_number ?? 0,
+      age: h.player.age ?? 0,
+      perfL5: h.player.perf_l5 ?? 0,
+      matches: h.player.matches ?? 0,
+      goals: h.player.goals ?? 0,
+      assists: h.player.assists ?? 0,
+    })),
+    [rawHoldings]
+  );
+
+  // ── Fire-and-forget side effects (login streak, mission tracking) ──
   useEffect(() => {
     if (!user) return;
     const uid = user.id;
     let cancelled = false;
 
-    async function loadData() {
-      try {
-        // All fetches in one parallel batch — no waterfalls
-        const results = await withTimeout(Promise.allSettled([
-          getPlayers(),
-          getHoldings(uid),
-          getTransactions(uid, 10),
-          getEvents(),
-          getAllOpenSellOrders(),
-          getUserStats(uid),
-          getLeaderboard(10),
-          getRecentGlobalTrades(10),
-          getTopTraders(5),
-          getPosts({ limit: 5 }),
-          getDpcOfTheWeek(),
-          getFollowingFeed(uid, 15),
-          getScoutMissions(),
-        ]), 12000);
-        if (cancelled) return;
-
-        const dbPlayers = val(results[0], []);
-        const dbHoldings = val(results[1], []);
-        const dbTransactions = val(results[2], []);
-        const dbEvents = val(results[3], []);
-        const dbOrders = val(results[4], []);
-        const stats = val(results[5], null);
-        const lb = val(results[6], []);
-        const trades = val(results[7], []);
-        const traders = val(results[8], []);
-        const posts = val(results[9], []);
-        const dpcWeek = val(results[10], null);
-        const feed = val(results[11], []);
-        const missions = val(results[12], []);
-
-        if (results[0].status === 'rejected') {
-          if (!cancelled) setDataError(true);
-          return;
-        }
-
-        setPlayers(dbToPlayers(dbPlayers));
-        setTransactions(dbTransactions);
-        setEvents(dbEvents);
-        setOrders(dbOrders);
-        setUserStats(stats);
-        setTopScouts(lb);
-        setRecentTrades(trades);
-        setTopTraders(traders);
-        setCommunityPosts(posts);
-        setDpcOfWeek(dpcWeek);
-        setFollowingFeed(feed);
-        setScoutMissions(missions);
-
-        const mapped: DpcHolding[] = dbHoldings.map((h) => ({
-          id: h.id,
-          playerId: h.player_id,
-          player: `${h.player.first_name} ${h.player.last_name}`,
-          club: h.player.club,
-          pos: h.player.position as Pos,
-          qty: h.quantity,
-          avgBuy: centsToBsd(h.avg_buy_price),
-          floor: centsToBsd(h.player.floor_price),
-          change24h: Number(h.player.price_change_24h),
-          listedByUser: 0,
-          ticket: h.player.shirt_number ?? 0,
-          age: h.player.age ?? 0,
-          perfL5: h.player.perf_l5 ?? 0,
-          matches: h.player.matches ?? 0,
-          goals: h.player.goals ?? 0,
-          assists: h.player.assists ?? 0,
-        }));
-        setHoldings(mapped);
-        setDataError(false);
-
-        // Mission progress: derive GW from already-fetched events (no extra query)
-        const maxGw = dbEvents.reduce((mx: number, e: DbEvent) => Math.max(mx, e.gameweek || 0), 0);
-        if (maxGw > 0 && missions.length > 0) {
-          getUserMissionProgress(uid, maxGw).then(progress => {
-            if (!cancelled) setMissionProgress(progress);
-          }).catch(err => console.error('[Home] Mission progress load failed:', err));
-        }
-      } catch {
-        if (!cancelled) setDataError(true);
-      } finally {
-        if (!cancelled) setDataLoading(false);
-      }
-    }
-
-    loadData();
-
-    // Fire-and-forget side effects (non-blocking)
     import('@/lib/services/missions').then(({ trackMissionProgress }) => {
       trackMissionProgress(uid, 'daily_login');
     }).catch(err => console.error('[Home] Mission tracking failed:', err));
@@ -394,7 +357,7 @@ export default function HomePage() {
     }).catch(err => console.error('[Home] Streaks module load failed:', err));
 
     return () => { cancelled = true; };
-  }, [user, retryCount]);
+  }, [user]);
 
   // ── Derived data ──
   const portfolioValue = useMemo(() => holdings.reduce((s, h) => s + h.qty * h.floor, 0), [holdings]);
@@ -444,12 +407,12 @@ export default function HomePage() {
       .sort((a, b) => (priority[a.status] ?? 9) - (priority[b.status] ?? 9));
   }, [events]);
 
-  if (dataLoading) return <HomeSkeleton />;
+  if (playersLoading) return <HomeSkeleton />;
 
-  if (dataError && players.length === 0) {
+  if (playersError && players.length === 0) {
     return (
       <div className="max-w-[1200px] mx-auto py-12">
-        <ErrorState onRetry={() => { setDataLoading(true); setDataError(false); setRetryCount(c => c + 1); }} />
+        <ErrorState onRetry={() => queryClient.refetchQueries({ queryKey: qk.players.all })} />
       </div>
     );
   }
@@ -537,6 +500,47 @@ export default function HomePage() {
       {/* ━━━ TAB: MEIN STAND ━━━ */}
       <TabPanel id="mein" activeTab={activeTab}>
         <div className="space-y-5">
+          {/* Meine Vereine */}
+          {followedClubs.length > 0 && (
+            <div>
+              <SectionHeader title="Meine Vereine" href="/clubs" />
+              <div className="flex gap-2 mt-3 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+                {followedClubs.map(club => {
+                  const color = club.primary_color ?? '#FFD700';
+                  return (
+                    <Link
+                      key={club.id}
+                      href={`/club/${club.slug}`}
+                      className="flex items-center gap-2 px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] hover:border-white/15 transition-all shrink-0"
+                    >
+                      <div
+                        className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                        style={{ backgroundColor: `${color}20` }}
+                      >
+                        {club.logo_url ? (
+                          <img src={club.logo_url} alt="" className="w-5 h-5 object-contain" />
+                        ) : (
+                          <Shield className="w-3.5 h-3.5" style={{ color }} />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold truncate max-w-[100px]">{club.name}</div>
+                        <div className="text-[10px] text-white/30">{club.league}</div>
+                      </div>
+                    </Link>
+                  );
+                })}
+                <Link
+                  href="/clubs"
+                  className="flex items-center gap-2 px-3 py-2 bg-[#FFD700]/[0.03] border border-[#FFD700]/10 rounded-xl hover:bg-[#FFD700]/[0.06] transition-all shrink-0"
+                >
+                  <Compass className="w-4 h-4 text-[#FFD700]/60" />
+                  <span className="text-xs font-medium text-[#FFD700]/60">Entdecken</span>
+                </Link>
+              </div>
+            </div>
+          )}
+
           {/* Holdings Top 5 */}
           <div>
             <SectionHeader title="Mein Spielerkader" href="/market?tab=portfolio" />
@@ -630,12 +634,38 @@ export default function HomePage() {
 
           {/* Following Feed */}
           <div>
-            <SectionHeader title="Was deine Scouts machen" badge={followingFeed.length > 0 ?
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/15 border border-sky-400/25">
-                <Users className="w-3 h-3 text-sky-400" />
-                <span className="text-[10px] font-bold text-sky-300">{followingFeed.length}</span>
-              </span> : undefined
-            } />
+            <div className="flex items-center justify-between">
+              <SectionHeader title="Was deine Scouts machen" badge={followingFeed.length > 0 ?
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/15 border border-sky-400/25">
+                  <Users className="w-3 h-3 text-sky-400" />
+                  <span className="text-[10px] font-bold text-sky-300">{followingFeed.length}</span>
+                </span> : undefined
+              } />
+              {(followerCount > 0 || followingCount > 0) && (
+                <button
+                  onClick={() => setFollowListMode('following')}
+                  className="text-[10px] font-bold text-[#FFD700]/60 hover:text-[#FFD700] transition-colors"
+                >
+                  Verwalten
+                </button>
+              )}
+            </div>
+            {/* Network counts */}
+            <div className="flex items-center gap-3 mt-1.5 mb-2">
+              <button
+                onClick={() => setFollowListMode('followers')}
+                className="text-xs text-white/40 hover:text-white/70 transition-colors"
+              >
+                <span className="font-bold text-white/60">{followerCount}</span> Follower
+              </button>
+              <span className="text-white/10">·</span>
+              <button
+                onClick={() => setFollowListMode('following')}
+                className="text-xs text-white/40 hover:text-white/70 transition-colors"
+              >
+                <span className="font-bold text-white/60">{followingCount}</span> Folge ich
+              </button>
+            </div>
             {followingFeed.length > 0 ? (
               <div className="mt-3 space-y-0.5">
                 {followingFeed.slice(0, 8).map(item => {
@@ -1083,6 +1113,15 @@ export default function HomePage() {
           {user && <ReferralCard userId={user.id} />}
         </div>
       </TabPanel>
+
+      {/* Follow List Modal */}
+      {followListMode && user && (
+        <FollowListModal
+          userId={user.id}
+          mode={followListMode}
+          onClose={() => setFollowListMode(null)}
+        />
+      )}
     </div>
   );
 }

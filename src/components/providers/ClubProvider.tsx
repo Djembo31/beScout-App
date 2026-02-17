@@ -1,10 +1,9 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useUser } from './AuthProvider';
 import { initClubCache } from '@/lib/clubs';
 import { getUserFollowedClubs, getUserPrimaryClub, toggleFollowClub } from '@/lib/services/club';
-import { invalidate } from '@/lib/cache';
 import type { DbClub } from '@/types';
 
 // ============================================
@@ -72,6 +71,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
   // Load clubs on mount / user change
   useEffect(() => {
     let cancelled = false;
+    setLoading(true); // Always reset to loading when user changes
 
     async function load() {
       // Always init the club cache (sync lookup for getClub() calls)
@@ -118,6 +118,10 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     ssSetClub(club);
   }, []);
 
+  // Ref for activeClub to avoid re-creating toggleFollow on every club switch
+  const activeClubRef = useRef(activeClub);
+  activeClubRef.current = activeClub;
+
   const isFollowing = useCallback((clubId: string) => {
     return followedClubs.some(c => c.id === clubId);
   }, [followedClubs]);
@@ -126,7 +130,6 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     if (!user) return;
     const currently = followedClubs.some(c => c.id === clubId);
     await toggleFollowClub(user.id, clubId, clubName, !currently);
-    invalidate(`clubFollows:${user.id}`);
     // Refresh
     const [followed, primary] = await Promise.all([
       getUserFollowedClubs(user.id),
@@ -135,16 +138,15 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     setFollowedClubs(followed);
     setPrimaryClub(primary);
     // If unfollowed the active club, switch
-    if (currently && activeClub?.id === clubId) {
+    if (currently && activeClubRef.current?.id === clubId) {
       const next = primary ?? followed[0] ?? null;
       setActiveClubState(next);
       ssSetClub(next);
     }
-  }, [user, followedClubs, activeClub]);
+  }, [user, followedClubs]);
 
   const refreshClubs = useCallback(async () => {
     if (!user) return;
-    invalidate(`clubFollows:${user.id}`);
     const [followed, primary] = await Promise.all([
       getUserFollowedClubs(user.id),
       getUserPrimaryClub(user.id),

@@ -1,31 +1,44 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { XCircle } from 'lucide-react';
 import { Button, ErrorState, Modal, TabBar } from '@/components/ui';
 import { fmtBSD } from '@/lib/utils';
-import { getResearchPosts, unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
-import { getPosts, createPost, votePost, getUserPostVotes, deletePost, createReply } from '@/lib/services/posts';
-import type { ResearchPostWithAuthor, PostWithAuthor } from '@/types';
-import type { Player, DbIpo } from '@/types';
+import { unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
+import { createPost, votePost, getUserPostVotes, deletePost } from '@/lib/services/posts';
+import type { PostWithAuthor } from '@/types';
+import type { Player } from '@/types';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
-import { getPlayerById, dbToPlayer, centsToBsd } from '@/lib/services/players';
-import { getHoldingQty, getPlayerHolderCount, formatBsd } from '@/lib/services/wallet';
+import { dbToPlayer, centsToBsd } from '@/lib/services/players';
+import { formatBsd } from '@/lib/services/wallet';
 import { useWallet } from '@/components/providers/WalletProvider';
-import { buyFromMarket, placeSellOrder, cancelOrder, getSellOrders, getPlayerTrades } from '@/lib/services/trading';
-import { getIpoForPlayer, getUserIpoPurchases, buyFromIpo } from '@/lib/services/ipo';
+import { buyFromMarket, placeSellOrder, cancelOrder } from '@/lib/services/trading';
+import { buyFromIpo } from '@/lib/services/ipo';
 import { getProfilesByIds } from '@/lib/services/profiles';
-import { invalidateTradeData, withTimeout } from '@/lib/cache';
-import { val } from '@/lib/settledHelpers';
-import { getPlayerGameweekScores } from '@/lib/services/scoring';
-import type { PlayerGameweekScore } from '@/lib/services/scoring';
-import { getPbtForPlayer } from '@/lib/services/pbt';
-import { getLiquidationEvent } from '@/lib/services/liquidation';
-import { getOpenBids, createOffer as createOfferAction, acceptOffer } from '@/lib/services/offers';
-import type { OfferWithDetails } from '@/types';
-import type { DbOrder, DbTrade, DbPbtTreasury, DbLiquidationEvent } from '@/types';
+import { invalidateTradeQueries, invalidatePlayerDetailQueries } from '@/lib/queries/invalidation';
+import { createOffer as createOfferAction, acceptOffer } from '@/lib/services/offers';
+import type { DbOrder, DbTrade } from '@/types';
+import { useQueryClient } from '@tanstack/react-query';
+
+// React Query hooks
+import { useDbPlayerById } from '@/lib/queries/players';
+import {
+  usePlayerGwScores,
+  usePbtForPlayer,
+  useLiquidationEvent,
+  useIpoForPlayer,
+  useHoldingQty,
+  usePlayerHolderCount,
+  useSellOrders,
+  useOpenBids,
+  usePosts,
+  useUserIpoPurchases,
+} from '@/lib/queries/misc';
+import { usePlayerResearch } from '@/lib/queries/research';
+import { usePlayerTrades } from '@/lib/queries/trades';
+import { qk } from '@/lib/queries/keys';
 
 import {
   PlayerDetailSkeleton,
@@ -82,132 +95,90 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const { user } = useUser();
   const { balanceCents, setBalanceCents } = useWallet();
   const { addToast } = useToast();
+  const queryClient = useQueryClient();
 
-  // ─── State ──────────────────────────────
-  const [player, setPlayer] = useState<Player | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [dataError, setDataError] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-  const [holdingQty, setHoldingQty] = useState(0);
-  const [holderCount, setHolderCount] = useState(0);
-  const [dpcAvailable, setDpcAvailable] = useState(0);
+  // ─── React Query Hooks (ALL before early returns) ────
+  const { data: dbPlayer, isLoading: playerLoading, isError: playerError, refetch } = useDbPlayerById(playerId);
+  const { data: gwScoresData } = usePlayerGwScores(playerId);
+  const { data: pbtTreasury } = usePbtForPlayer(playerId);
+  const { data: liquidationEvent } = useLiquidationEvent(playerId);
+  const { data: activeIpo } = useIpoForPlayer(playerId);
+  const { data: holdingQtyData } = useHoldingQty(user?.id, playerId);
+  const { data: holderCountData } = usePlayerHolderCount(playerId);
+  const { data: allSellOrdersData } = useSellOrders(playerId);
+  const { data: openBidsData } = useOpenBids(playerId);
+  const { data: tradesData, isLoading: tradesLoading } = usePlayerTrades(playerId);
+  const { data: playerResearchData } = usePlayerResearch(playerId, user?.id);
+  const { data: playerPostsData } = usePosts({ playerId, limit: 30 });
+  const { data: userIpoPurchasedData } = useUserIpoPurchases(user?.id, activeIpo?.id);
+
+  // ─── Derived from queries ─────────────────
+  const player = useMemo(() => dbPlayer ? dbToPlayer(dbPlayer) : null, [dbPlayer]);
+  const dpcAvailable = dbPlayer?.dpc_available ?? 0;
+  const gwScores = gwScoresData ?? [];
+  const holdingQty = holdingQtyData ?? 0;
+  const holderCount = holderCountData ?? 0;
+  const allSellOrders = allSellOrdersData ?? [];
+  const openBids = openBidsData ?? [];
+  const trades = tradesData ?? [];
+  const playerResearch = playerResearchData ?? [];
+  const playerPosts = playerPostsData ?? [];
+  const userIpoPurchased = userIpoPurchasedData ?? 0;
+
+  const userOrders = useMemo(
+    () => allSellOrders.filter(o => o.user_id === user?.id),
+    [allSellOrders, user?.id]
+  );
+
+  // ─── UI State (stays as useState) ─────────
   const [buying, setBuying] = useState(false);
-  const [activeIpo, setActiveIpo] = useState<DbIpo | null>(null);
-  const [userIpoPurchased, setUserIpoPurchased] = useState(0);
   const [ipoBuying, setIpoBuying] = useState(false);
   const [selling, setSelling] = useState(false);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
-  const [userOrders, setUserOrders] = useState<DbOrder[]>([]);
   const [buyError, setBuyError] = useState<string | null>(null);
   const [buySuccess, setBuySuccess] = useState<string | null>(null);
   const [shared, setShared] = useState(false);
   const [tab, setTab] = useState<Tab>('profil');
   const [isWatchlisted, setIsWatchlisted] = useState(false);
-  const [trades, setTrades] = useState<DbTrade[]>([]);
-  const [allSellOrders, setAllSellOrders] = useState<DbOrder[]>([]);
-  const [tradesLoading, setTradesLoading] = useState(true);
-  const [profileMap, setProfileMap] = useState<Record<string, { handle: string; display_name: string | null }>>({});
-  const [gwScores, setGwScores] = useState<PlayerGameweekScore[]>([]);
   const [priceAlert, setPriceAlert] = useState<{ target: number; dir: 'above' | 'below' } | null>(null);
-  const [pbtTreasury, setPbtTreasury] = useState<DbPbtTreasury | null>(null);
-  const [liquidationEvent, setLiquidationEvent] = useState<DbLiquidationEvent | null>(null);
-  const [playerResearch, setPlayerResearch] = useState<ResearchPostWithAuthor[]>([]);
-  const [playerPosts, setPlayerPosts] = useState<PostWithAuthor[]>([]);
   const [myPostVotes, setMyPostVotes] = useState<Map<string, number>>(new Map());
   const [postLoading, setPostLoading] = useState(false);
   const [unlockingId, setUnlockingId] = useState<string | null>(null);
   const [ratingId, setRatingId] = useState<string | null>(null);
-  const [openBids, setOpenBids] = useState<OfferWithDetails[]>([]);
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [offerPrice, setOfferPrice] = useState('');
   const [offerMessage, setOfferMessage] = useState('');
   const [offerLoading, setOfferLoading] = useState(false);
   const [pendingBuyQty, setPendingBuyQty] = useState<number | null>(null);
   const [tradingModalOpen, setTradingModalOpen] = useState(false);
+  const [acceptingBidId, setAcceptingBidId] = useState<string | null>(null);
+  const [profileMap, setProfileMap] = useState<Record<string, { handle: string; display_name: string | null }>>({});
 
-  // ─── Helpers ────────────────────────────
+  // ─── Side Effects ─────────────────────────
 
-  const loadProfiles = async (tradeList: DbTrade[], orderList: DbOrder[]) => {
-    const userIds: string[] = [];
-    for (const t of tradeList) {
-      if (t.buyer_id) userIds.push(t.buyer_id);
-      if (t.seller_id) userIds.push(t.seller_id);
-    }
-    for (const o of orderList) {
-      if (o.user_id) userIds.push(o.user_id);
-    }
-    if (userIds.length > 0) {
-      const map = await getProfilesByIds(userIds);
-      setProfileMap(map);
-    }
-  };
-
-  const refreshOrdersAndTrades = async () => {
-    const [allOrders, playerTrades] = await Promise.all([
-      getSellOrders(playerId),
-      getPlayerTrades(playerId, 50),
-    ]);
-    setAllSellOrders(allOrders);
-    if (user) setUserOrders(allOrders.filter((o) => o.user_id === user.id));
-    setTrades(playerTrades);
-    await loadProfiles(playerTrades, allOrders);
-  };
-
-  // ─── Data Loading ───────────────────────
-
+  // Fire-and-forget: resolve expired research on mount
   useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      setLoading(true);
-      setDataError(false);
-      resolveExpiredResearch().catch(err => console.error('[Player] Resolve expired research failed:', err));
-      try {
-        const currentUserId = user?.id;
-        const results = await withTimeout(Promise.allSettled([
-          getPlayerById(playerId),
-          getIpoForPlayer(playerId),
-          getPlayerGameweekScores(playerId),
-          getPbtForPlayer(playerId),
-          getResearchPosts({ playerId, currentUserId }),
-          getLiquidationEvent(playerId),
-        ]), 10000);
-        if (cancelled) return;
-        const dbPlayer = val(results[0], null);
-        if (!dbPlayer) {
-          if (results[0].status === 'rejected') setDataError(true);
-          setLoading(false);
-          return;
-        }
-        setPlayer(dbToPlayer(dbPlayer));
-        setDpcAvailable(dbPlayer.dpc_available);
-        setActiveIpo(val(results[1], null));
-        setGwScores(val(results[2], []));
-        setPbtTreasury(val(results[3], null));
-        setPlayerResearch(val(results[4], []));
-        setLiquidationEvent(val(results[5], null));
+    resolveExpiredResearch().catch(err => console.error('[Player] Resolve expired research failed:', err));
+  }, []);
 
-        // Fire-and-forget: load player-specific posts
-        const uid = user?.id;
-        (async () => {
-          try {
-            const posts = await getPosts({ playerId, limit: 30 });
-            if (!cancelled) {
-              setPlayerPosts(posts);
-              if (uid && posts.length > 0) {
-                const votes = await getUserPostVotes(uid, posts.map(p => p.id));
-                if (!cancelled) setMyPostVotes(votes);
-              }
-            }
-          } catch (err) { console.error('[Player] Posts load failed:', err); }
-        })();
-      } catch {
-        if (!cancelled) setDataError(true);
-      }
-      if (!cancelled) setLoading(false);
+  // Load profile map when trades or orders change
+  useEffect(() => {
+    const userIds = new Set<string>();
+    trades.forEach(t => { if (t.buyer_id) userIds.add(t.buyer_id); if (t.seller_id) userIds.add(t.seller_id); });
+    allSellOrders.forEach(o => { if (o.user_id) userIds.add(o.user_id); });
+    const ids = Array.from(userIds);
+    if (ids.length > 0) {
+      getProfilesByIds(ids).then(setProfileMap).catch(err => console.error('[Player] Profile map failed:', err));
     }
-    load();
-    return () => { cancelled = true; };
-  }, [playerId, addToast, retryCount]);
+  }, [trades, allSellOrders]);
+
+  // Load user post votes when posts change
+  useEffect(() => {
+    if (!user || playerPosts.length === 0) return;
+    getUserPostVotes(user.id, playerPosts.map(p => p.id))
+      .then(setMyPostVotes)
+      .catch(err => console.error('[Player] Post votes failed:', err));
+  }, [user, playerPosts]);
 
   // Price alert: load + check trigger
   useEffect(() => {
@@ -228,52 +199,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     }
   }, [player, playerId, addToast]);
 
-  // Load user-specific data
-  useEffect(() => {
-    if (!user) return;
-    const uid = user.id;
-    let cancelled = false;
-    async function loadUserData() {
-      setTradesLoading(true);
-      try {
-        const userResults = await withTimeout(Promise.allSettled([
-          getHoldingQty(uid, playerId),
-          getSellOrders(playerId),
-          getPlayerTrades(playerId, 50),
-          getPlayerHolderCount(playerId),
-        ]), 10000);
-        const qty = val(userResults[0], 0);
-        const allOrders = val(userResults[1], []);
-        const playerTrades = val(userResults[2], []);
-        const holders = val(userResults[3], 0);
-        if (!cancelled) {
-          setHoldingQty(qty);
-          setHolderCount(holders);
-          setAllSellOrders(allOrders);
-          setUserOrders(allOrders.filter((o) => o.user_id === uid));
-          setTrades(playerTrades);
-          const userIds: string[] = [];
-          for (const t of playerTrades) { if (t.buyer_id) userIds.push(t.buyer_id); if (t.seller_id) userIds.push(t.seller_id); }
-          for (const o of allOrders) { if (o.user_id) userIds.push(o.user_id); }
-          if (userIds.length > 0) { const map = await getProfilesByIds(userIds); if (!cancelled) setProfileMap(map); }
-        }
-        if (activeIpo) {
-          const purchased = await getUserIpoPurchases(uid, activeIpo.id);
-          if (!cancelled) setUserIpoPurchased(purchased);
-        }
-      } catch (err) { console.error('[Player] User-specific data load failed:', err); }
-      if (!cancelled) setTradesLoading(false);
-    }
-    loadUserData();
-    return () => { cancelled = true; };
-  }, [user, playerId, activeIpo]);
-
-  // Open bids
-  useEffect(() => {
-    getOpenBids(playerId).then(setOpenBids).catch(err => console.error('[Player] Load open bids failed:', err));
-  }, [playerId]);
-
-  // ─── Derived Data ───────────────────────
+  // ─── Derived Data ─────────────────────────
 
   const playerWithOwnership = useMemo(() => {
     if (!player) return null;
@@ -294,17 +220,25 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     };
   }, [player, holdingQty, pbtTreasury]);
 
-  const isIPO = activeIpo !== null && (activeIpo.status === 'open' || activeIpo.status === 'early_access');
+  const isIPO = activeIpo !== null && activeIpo !== undefined && (activeIpo.status === 'open' || activeIpo.status === 'early_access');
 
-  // ─── Handlers ───────────────────────────
+  // ─── Invalidation Helper ──────────────────
 
-  const handleBuy = (quantity: number) => {
+  const invalidateAfterTrade = useCallback((pid: string, uid?: string) => {
+    invalidateTradeQueries(pid, uid);
+    invalidatePlayerDetailQueries(pid, uid);
+    queryClient.invalidateQueries({ queryKey: ['offers', 'bids', pid] });
+  }, [queryClient]);
+
+  // ─── Handlers ─────────────────────────────
+
+  const handleBuy = useCallback((quantity: number) => {
     if (!user || !player || player.isLiquidated) return;
     if (userOrders.length > 0) { setPendingBuyQty(quantity); return; }
     executeBuy(quantity);
-  };
+  }, [user, player, userOrders]);
 
-  const executeBuy = async (quantity: number) => {
+  const executeBuy = useCallback(async (quantity: number) => {
     if (!user || !player) return;
     setPendingBuyQty(null);
     setBuying(true); setBuyError(null); setBuySuccess(null); setShared(false);
@@ -315,16 +249,16 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         const priceBsd = result.price_per_dpc ? formatBsd(result.price_per_dpc) : '?';
         setBuySuccess(`${quantity} DPC vom Transfermarkt für ${priceBsd} BSD gekauft`);
         setBalanceCents(result.new_balance ?? balanceCents ?? 0);
-        setHoldingQty((prev) => prev + quantity);
-        invalidateTradeData(playerId, user.id);
-        await refreshOrdersAndTrades();
+        // Optimistic holdingQty update
+        queryClient.setQueryData(['holdings', 'qty', user.id, playerId], (old: number | undefined) => (old ?? 0) + quantity);
+        invalidateAfterTrade(playerId, user.id);
         setTimeout(() => setBuySuccess(null), 5000);
       }
     } catch (err) { setBuyError(err instanceof Error ? err.message : 'Unbekannter Fehler'); }
     finally { setBuying(false); }
-  };
+  }, [user, player, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, queryClient]);
 
-  const handleIpoBuy = async (quantity: number) => {
+  const handleIpoBuy = useCallback(async (quantity: number) => {
     if (!user || !activeIpo) return;
     setIpoBuying(true); setBuyError(null); setBuySuccess(null); setShared(false);
     try {
@@ -334,18 +268,19 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         const priceBsd = result.price_per_dpc ? formatBsd(result.price_per_dpc) : '?';
         setBuySuccess(`${quantity} DPC per IPO für ${priceBsd} BSD gekauft`);
         setBalanceCents(result.new_balance ?? balanceCents ?? 0);
-        setHoldingQty((prev) => prev + quantity);
-        setUserIpoPurchased(result.user_total_purchased ?? userIpoPurchased + quantity);
-        invalidateTradeData(playerId, user.id);
-        const playerTrades = await getPlayerTrades(playerId, 50);
-        setTrades(playerTrades);
+        // Optimistic updates
+        queryClient.setQueryData(['holdings', 'qty', user.id, playerId], (old: number | undefined) => (old ?? 0) + quantity);
+        if (result.user_total_purchased != null) {
+          queryClient.setQueryData(['ipos', 'purchases', user.id, activeIpo.id], result.user_total_purchased);
+        }
+        invalidateAfterTrade(playerId, user.id);
         setTimeout(() => setBuySuccess(null), 5000);
       }
     } catch (err) { setBuyError(err instanceof Error ? err.message : 'Unbekannter Fehler'); }
     finally { setIpoBuying(false); }
-  };
+  }, [user, activeIpo, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, queryClient]);
 
-  const handleSell = async (quantity: number, priceCents: number) => {
+  const handleSell = useCallback(async (quantity: number, priceCents: number) => {
     if (!user || player?.isLiquidated) return;
     setSelling(true); setBuyError(null); setBuySuccess(null); setShared(false);
     try {
@@ -353,17 +288,14 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
       if (!result.success) { setBuyError(result.error || 'Listing fehlgeschlagen'); }
       else {
         setBuySuccess(`${quantity} DPC für ${formatBsd(priceCents)} BSD gelistet`);
-        invalidateTradeData(playerId, user.id);
-        const allOrders = await getSellOrders(playerId);
-        setAllSellOrders(allOrders);
-        setUserOrders(allOrders.filter((o) => o.user_id === user.id));
+        invalidateAfterTrade(playerId, user.id);
         setTimeout(() => setBuySuccess(null), 5000);
       }
     } catch (err) { setBuyError(err instanceof Error ? err.message : 'Unbekannter Fehler'); }
     finally { setSelling(false); }
-  };
+  }, [user, player, playerId, invalidateAfterTrade]);
 
-  const handleCancelOrder = async (orderId: string) => {
+  const handleCancelOrder = useCallback(async (orderId: string) => {
     if (!user) return;
     setCancellingId(orderId); setBuyError(null);
     try {
@@ -371,21 +303,18 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
       if (!result.success) { setBuyError(result.error || 'Stornierung fehlgeschlagen'); }
       else {
         setBuySuccess('Order storniert!');
-        const remaining = allSellOrders.filter((o) => o.id !== orderId);
-        setAllSellOrders(remaining);
-        setUserOrders(remaining.filter((o) => o.user_id === user.id));
-        if (player && remaining.length > 0) {
-          const newFloor = Math.min(...remaining.map((o) => o.price)) / 100;
-          setPlayer({ ...player, prices: { ...player.prices, floor: newFloor } });
-        }
-        invalidateTradeData(playerId, user.id);
+        // Optimistic: remove the cancelled order from cache
+        queryClient.setQueryData(qk.orders.byPlayer(playerId), (old: DbOrder[] | undefined) =>
+          (old ?? []).filter(o => o.id !== orderId)
+        );
+        invalidateAfterTrade(playerId, user.id);
         setTimeout(() => setBuySuccess(null), 5000);
       }
     } catch (err) { setBuyError(err instanceof Error ? err.message : 'Unbekannter Fehler'); }
     finally { setCancellingId(null); }
-  };
+  }, [user, playerId, invalidateAfterTrade, queryClient]);
 
-  const handleCreateOffer = async () => {
+  const handleCreateOffer = useCallback(async () => {
     if (!user || !offerPrice) return;
     const priceCents = Math.round(parseFloat(offerPrice) * 100);
     if (priceCents <= 0) { addToast('Ungültiger Preis', 'error'); return; }
@@ -398,29 +327,26 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
       if (result.success) {
         addToast('Kaufangebot erstellt', 'success');
         setShowOfferModal(false); setOfferPrice(''); setOfferMessage('');
-        getOpenBids(playerId).then(setOpenBids).catch(err => console.error('[Player] Reload open bids failed:', err));
+        queryClient.invalidateQueries({ queryKey: ['offers', 'bids', playerId] });
       } else { addToast(result.error ?? 'Fehler', 'error'); }
     } catch (e) { addToast(e instanceof Error ? e.message : 'Fehler', 'error'); }
     finally { setOfferLoading(false); }
-  };
+  }, [user, offerPrice, offerMessage, playerId, addToast, queryClient]);
 
-  const [acceptingBidId, setAcceptingBidId] = useState<string | null>(null);
-  const handleAcceptBid = async (offerId: string) => {
+  const handleAcceptBid = useCallback(async (offerId: string) => {
     if (!user || acceptingBidId) return;
     setAcceptingBidId(offerId);
     try {
       const result = await acceptOffer(user.id, offerId);
       if (result.success) {
         addToast('Angebot angenommen', 'success');
-        getOpenBids(playerId).then(setOpenBids).catch(err => console.error('[Player] Reload open bids failed:', err));
-        invalidateTradeData(playerId, user.id);
-        refreshOrdersAndTrades();
+        invalidateAfterTrade(playerId, user.id);
       } else { addToast(result.error ?? 'Fehler', 'error'); }
     } catch (e) { addToast(e instanceof Error ? e.message : 'Fehler', 'error'); }
     finally { setAcceptingBidId(null); }
-  };
+  }, [user, acceptingBidId, playerId, addToast, invalidateAfterTrade]);
 
-  const handleShareTrade = async () => {
+  const handleShareTrade = useCallback(async () => {
     if (!user || !player || shared) return;
     try {
       const p = player;
@@ -429,9 +355,9 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
       setShared(true);
       addToast('In der Community geteilt!', 'success');
     } catch { addToast('Teilen fehlgeschlagen', 'error'); }
-  };
+  }, [user, player, shared, playerId, addToast]);
 
-  const handleShare = async () => {
+  const handleShare = useCallback(async () => {
     if (!player) return;
     const url = window.location.href;
     const text = `${player.first} ${player.last} auf BeScout — ${fmtBSD(centsToBsd(player.prices.floor ?? 0))} BSD`;
@@ -441,9 +367,9 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
       await navigator.clipboard.writeText(url);
       addToast('Link kopiert!', 'success');
     }
-  };
+  }, [player, addToast]);
 
-  const handleSetPriceAlert = (target: number) => {
+  const handleSetPriceAlert = useCallback((target: number) => {
     if (!player) return;
     const currentBsd = centsToBsd(player.prices.floor ?? 0);
     const dir = target < currentBsd ? 'below' : 'above';
@@ -452,34 +378,34 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     savePriceAlerts(alerts);
     setPriceAlert({ target, dir });
     addToast(`Preis-Alert gesetzt: ${dir === 'below' ? '\u2264' : '\u2265'} ${fmtBSD(target)} BSD`, 'success');
-  };
+  }, [player, playerId, addToast]);
 
-  const handleRemovePriceAlert = () => {
+  const handleRemovePriceAlert = useCallback(() => {
     const alerts = loadPriceAlerts();
     delete alerts[playerId];
     savePriceAlerts(alerts);
     setPriceAlert(null);
-  };
+  }, [playerId]);
 
-  const handleCreatePlayerPost = async (content: string, tags: string[], category: string, postType: 'player_take' | 'transfer_rumor' = 'player_take', rumorSource?: string, rumorClubTarget?: string) => {
+  const handleCreatePlayerPost = useCallback(async (content: string, tags: string[], category: string, postType: 'player_take' | 'transfer_rumor' = 'player_take', rumorSource?: string, rumorClubTarget?: string) => {
     if (!user || !player) return;
     setPostLoading(true);
     try {
       await createPost(user.id, playerId, player.club, content, tags, category, null, postType, rumorSource ?? null, rumorClubTarget ?? null);
-      const posts = await getPosts({ playerId, limit: 30 });
-      setPlayerPosts(posts);
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
       addToast('Beitrag gepostet!', 'success');
     } catch { addToast('Beitrag konnte nicht erstellt werden', 'error'); }
     finally { setPostLoading(false); }
-  };
+  }, [user, player, playerId, addToast, queryClient]);
 
-  const handleVotePlayerPost = async (postId: string, voteType: number) => {
+  const handleVotePlayerPost = useCallback(async (postId: string, voteType: number) => {
     if (!user) return;
     try {
       const result = await votePost(user.id, postId, voteType);
-      setPlayerPosts(prev => prev.map(p =>
-        p.id === postId ? { ...p, upvotes: result.upvotes, downvotes: result.downvotes } : p
-      ));
+      // Optimistic update on post votes
+      queryClient.setQueryData(qk.posts.list({ playerId, limit: 30 } as Record<string, unknown>), (old: PostWithAuthor[] | undefined) =>
+        (old ?? []).map(p => p.id === postId ? { ...p, upvotes: result.upvotes, downvotes: result.downvotes } : p)
+      );
       setMyPostVotes(prev => {
         const next = new Map(prev);
         if (voteType === 0) next.delete(postId);
@@ -487,51 +413,48 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         return next;
       });
     } catch (err) { console.error('[Player] Vote post failed:', err); }
-  };
+  }, [user, playerId, queryClient]);
 
-  const handleDeletePlayerPost = async (postId: string) => {
+  const handleDeletePlayerPost = useCallback(async (postId: string) => {
     if (!user) return;
     try {
       await deletePost(user.id, postId);
-      setPlayerPosts(prev => prev.filter(p => p.id !== postId));
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
     } catch (err) { console.error('[Player] Delete post failed:', err); }
-  };
+  }, [user, queryClient]);
 
-  const handleResearchUnlock = async (id: string) => {
+  const handleResearchUnlock = useCallback(async (id: string) => {
     if (!user || unlockingId) return;
     setUnlockingId(id);
     try {
       const result = await unlockResearch(user.id, id);
       if (result.success) {
-        const updated = await getResearchPosts({ playerId, currentUserId: user.id });
-        setPlayerResearch(updated);
+        queryClient.invalidateQueries({ queryKey: ['research'] });
       }
     } catch (err) { console.error('[Player] Research unlock failed:', err); } finally { setUnlockingId(null); }
-  };
+  }, [user, unlockingId, queryClient]);
 
-  const handleResearchRate = async (id: string, rating: number) => {
+  const handleResearchRate = useCallback(async (id: string, rating: number) => {
     if (!user || ratingId) return;
     setRatingId(id);
     try {
       const result = await rateResearch(user.id, id, rating);
       if (result.success) {
-        setPlayerResearch(prev => prev.map(p =>
-          p.id === id ? { ...p, avg_rating: result.avg_rating ?? p.avg_rating, ratings_count: result.ratings_count ?? p.ratings_count, user_rating: result.user_rating ?? p.user_rating } : p
-        ));
+        queryClient.invalidateQueries({ queryKey: ['research'] });
       }
     } catch (err) { console.error('[Player] Research rate failed:', err); } finally { setRatingId(null); }
-  };
+  }, [user, ratingId, queryClient]);
 
-  const openTrading = () => setTradingModalOpen(true);
+  const openTrading = useCallback(() => setTradingModalOpen(true), []);
 
-  // ─── Loading / Error / Not Found ────────
+  // ─── Loading / Error / Not Found ──────────
 
-  if (loading) return <PlayerDetailSkeleton />;
+  if (playerLoading) return <PlayerDetailSkeleton />;
 
-  if (dataError) {
+  if (playerError) {
     return (
       <div className="max-w-xl mx-auto mt-20">
-        <ErrorState onRetry={() => setRetryCount((c) => c + 1)} />
+        <ErrorState onRetry={() => refetch()} />
       </div>
     );
   }
@@ -548,20 +471,20 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     );
   }
 
-  // ─── Render ─────────────────────────────
+  // ─── Render ───────────────────────────────
 
   return (
     <div className="max-w-[900px] mx-auto space-y-6 pb-20 lg:pb-0">
       {/* Liquidation Alert (above Hero) */}
       {player.isLiquidated && (
-        <LiquidationAlert liquidationEvent={liquidationEvent} />
+        <LiquidationAlert liquidationEvent={liquidationEvent ?? null} />
       )}
 
       {/* Hero (full-width, identity-focused) */}
       <PlayerHero
         player={player}
         isIPO={isIPO}
-        activeIpo={activeIpo}
+        activeIpo={activeIpo ?? null}
         holderCount={holderCount}
         holdingQty={holdingQty}
         isWatchlisted={isWatchlisted}
@@ -632,7 +555,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         open={tradingModalOpen}
         onClose={() => setTradingModalOpen(false)}
         player={playerWithOwnership}
-        activeIpo={activeIpo}
+        activeIpo={activeIpo ?? null}
         userIpoPurchased={userIpoPurchased}
         balanceCents={balanceCents}
         holdingQty={holdingQty}

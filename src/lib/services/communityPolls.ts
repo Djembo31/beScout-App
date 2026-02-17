@@ -1,17 +1,12 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidatePollData } from '@/lib/cache';
 import type { DbCommunityPoll, CommunityPollWithCreator } from '@/types';
-
-const TWO_MIN = 2 * 60 * 1000;
 
 // ============================================
 // Community Polls (Bezahlte Umfragen)
 // ============================================
 
 export async function getCommunityPolls(clubId?: string): Promise<CommunityPollWithCreator[]> {
-  const cacheKey = clubId ? `communityPolls:${clubId}` : 'communityPolls:all';
-  return cached(cacheKey, async () => {
-    let query = supabase
+  let query = supabase
       .from('community_polls')
       .select('*')
       .order('created_at', { ascending: false });
@@ -42,19 +37,16 @@ export async function getCommunityPolls(clubId?: string): Promise<CommunityPollW
         creator_avatar_url: creator?.avatar_url ?? null,
       };
     });
-  }, TWO_MIN);
 }
 
 export async function getUserPollVotedIds(userId: string): Promise<Set<string>> {
-  return cached(`pollVotedIds:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('community_poll_votes')
-      .select('poll_id')
-      .eq('user_id', userId);
+  const { data, error } = await supabase
+    .from('community_poll_votes')
+    .select('poll_id')
+    .eq('user_id', userId);
 
-    if (error) throw new Error(error.message);
-    return new Set((data ?? []).map(r => r.poll_id));
-  }, TWO_MIN);
+  if (error) throw new Error(error.message);
+  return new Set((data ?? []).map(r => r.poll_id));
 }
 
 export type CastPollVoteResult = {
@@ -80,7 +72,6 @@ export async function castCommunityPollVote(
   const result = data as CastPollVoteResult;
 
   if (result.success) {
-    invalidatePollData(userId);
     // Mission tracking
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
       triggerMissionProgress(userId, ['daily_vote']);
@@ -147,7 +138,6 @@ export async function createCommunityPoll(params: {
     .single();
 
   if (error) throw new Error(error.message);
-  invalidatePollData(params.userId);
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(params.userId, 'poll_create', 'community', { pollId: data.id, question: params.question });
@@ -164,5 +154,4 @@ export async function cancelCommunityPoll(userId: string, pollId: string): Promi
     .eq('total_votes', 0);
 
   if (error) throw new Error(error.message);
-  invalidatePollData(userId);
 }

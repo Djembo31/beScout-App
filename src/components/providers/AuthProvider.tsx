@@ -7,7 +7,8 @@ import { supabase } from '@/lib/supabaseClient';
 import { getProfile } from '@/lib/services/profiles';
 import { getPlatformAdminRole, type PlatformAdminRole } from '@/lib/services/platformAdmin';
 import { getClubAdminFor } from '@/lib/services/club';
-import { invalidateAll, withTimeout } from '@/lib/cache';
+import { withTimeout } from '@/lib/utils';
+import { queryClient } from '@/lib/queryClient';
 import type { Profile, ClubAdminRole } from '@/types';
 
 // ============================================
@@ -164,7 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setPlatformRole(null);
           setClubAdmin(null);
           ssClear();
-          invalidateAll();
+          queryClient.clear();
         }
         setLoading(false);
       })
@@ -205,7 +206,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setPlatformRole(null);
         setClubAdmin(null);
         ssClear();
-        invalidateAll();
+        queryClient.clear();
       }
       setLoading(false);
     });

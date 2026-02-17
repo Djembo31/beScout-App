@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabaseClient';
-import { invalidate } from '@/lib/cache';
 
 // ============================================
 // API-Football Integration Service
@@ -595,12 +594,6 @@ export async function importGameweek(gameweek: number): Promise<ImportResult> {
     } else {
       result.scoresSynced = (syncResult as { synced_count?: number })?.synced_count ?? 0;
     }
-
-    // 6. Invalidate caches
-    invalidate(`fixtures:gw:${gameweek}`);
-    invalidate('gw-top:');
-    invalidate('players:');
-    invalidate('fps:');
 
     result.success = result.errors.length === 0;
   } catch (e) {

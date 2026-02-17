@@ -1,20 +1,12 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate, invalidateTradeData } from '@/lib/cache';
 import type { DbOffer, OfferWithDetails } from '@/types';
-
-const ONE_MIN = 60 * 1000;
 
 // ============================================
 // Cache helpers
 // ============================================
 
-export function invalidateOfferData(userId?: string): void {
-  invalidate('offers:');
-  if (userId) {
-    invalidate(`wallet:${userId}`);
-    invalidate(`holdings:${userId}`);
-    invalidate(`transactions:${userId}`);
-  }
+export function invalidateOfferData(_userId?: string): void {
+  // No-op: React Query handles cache invalidation
 }
 
 // ============================================
@@ -66,65 +58,57 @@ async function enrichOffers(offers: DbOffer[]): Promise<OfferWithDetails[]> {
 
 /** Incoming offers for a user */
 export async function getIncomingOffers(userId: string): Promise<OfferWithDetails[]> {
-  return cached(`offers:incoming:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('offers')
-      .select('*')
-      .eq('receiver_id', userId)
-      .eq('status', 'pending')
-      .gt('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false });
-    if (error) throw new Error(error.message);
-    return enrichOffers((data ?? []) as DbOffer[]);
-  }, ONE_MIN);
+  const { data, error } = await supabase
+    .from('offers')
+    .select('*')
+    .eq('receiver_id', userId)
+    .eq('status', 'pending')
+    .gt('expires_at', new Date().toISOString())
+    .order('created_at', { ascending: false });
+  if (error) throw new Error(error.message);
+  return enrichOffers((data ?? []) as DbOffer[]);
 }
 
 /** Outgoing offers from a user */
 export async function getOutgoingOffers(userId: string): Promise<OfferWithDetails[]> {
-  return cached(`offers:outgoing:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('offers')
-      .select('*')
-      .eq('sender_id', userId)
-      .in('status', ['pending'])
-      .gt('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false });
-    if (error) throw new Error(error.message);
-    return enrichOffers((data ?? []) as DbOffer[]);
-  }, ONE_MIN);
+  const { data, error } = await supabase
+    .from('offers')
+    .select('*')
+    .eq('sender_id', userId)
+    .in('status', ['pending'])
+    .gt('expires_at', new Date().toISOString())
+    .order('created_at', { ascending: false });
+  if (error) throw new Error(error.message);
+  return enrichOffers((data ?? []) as DbOffer[]);
 }
 
 /** Open bids (no receiver) */
 export async function getOpenBids(playerId?: string): Promise<OfferWithDetails[]> {
-  return cached(`offers:open:${playerId ?? 'all'}`, async () => {
-    let query = supabase
-      .from('offers')
-      .select('*')
-      .is('receiver_id', null)
-      .eq('status', 'pending')
-      .gt('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false })
-      .limit(50);
-    if (playerId) query = query.eq('player_id', playerId);
-    const { data, error } = await query;
-    if (error) throw new Error(error.message);
-    return enrichOffers((data ?? []) as DbOffer[]);
-  }, ONE_MIN);
+  let query = supabase
+    .from('offers')
+    .select('*')
+    .is('receiver_id', null)
+    .eq('status', 'pending')
+    .gt('expires_at', new Date().toISOString())
+    .order('created_at', { ascending: false })
+    .limit(50);
+  if (playerId) query = query.eq('player_id', playerId);
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  return enrichOffers((data ?? []) as DbOffer[]);
 }
 
 /** Offer history for a user (accepted, rejected, countered, expired, cancelled) */
 export async function getOfferHistory(userId: string): Promise<OfferWithDetails[]> {
-  return cached(`offers:history:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('offers')
-      .select('*')
-      .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
-      .in('status', ['accepted', 'rejected', 'countered', 'expired', 'cancelled'])
-      .order('updated_at', { ascending: false })
-      .limit(50);
-    if (error) throw new Error(error.message);
-    return enrichOffers((data ?? []) as DbOffer[]);
-  }, ONE_MIN);
+  const { data, error } = await supabase
+    .from('offers')
+    .select('*')
+    .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+    .in('status', ['accepted', 'rejected', 'countered', 'expired', 'cancelled'])
+    .order('updated_at', { ascending: false })
+    .limit(50);
+  if (error) throw new Error(error.message);
+  return enrichOffers((data ?? []) as DbOffer[]);
 }
 
 // ============================================
@@ -155,8 +139,6 @@ export async function createOffer(params: {
   });
   if (error) throw new Error(error.message);
   const result = data as OfferResult;
-  invalidateOfferData(params.senderId);
-
   // Notify receiver
   if (result.success && params.receiverId) {
     import('@/lib/services/notifications').then(({ createNotification }) => {
@@ -181,8 +163,6 @@ export async function acceptOffer(userId: string, offerId: string): Promise<Offe
   });
   if (error) throw new Error(error.message);
   const result = data as OfferResult & { trade_price?: number };
-  invalidateOfferData(userId);
-  invalidateTradeData('', userId);
 
   // Notify sender
   if (result.success) {
@@ -190,8 +170,6 @@ export async function acceptOffer(userId: string, offerId: string): Promise<Offe
       try {
         const { data: offer } = await supabase.from('offers').select('sender_id, player_id').eq('id', offerId).single();
         if (offer) {
-          invalidateOfferData(offer.sender_id);
-          invalidateTradeData(offer.player_id, offer.sender_id);
           const { createNotification } = await import('@/lib/services/notifications');
           await createNotification(offer.sender_id, 'offer_accepted', 'Angebot angenommen', 'Dein Angebot wurde angenommen');
         }
@@ -214,7 +192,6 @@ export async function rejectOffer(userId: string, offerId: string): Promise<Offe
   });
   if (error) throw new Error(error.message);
   const result = data as OfferResult;
-  invalidateOfferData(userId);
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'offer_reject', 'trading', { offerId });
@@ -226,7 +203,6 @@ export async function rejectOffer(userId: string, offerId: string): Promise<Offe
       try {
         const { data: offer } = await supabase.from('offers').select('sender_id').eq('id', offerId).single();
         if (offer) {
-          invalidateOfferData(offer.sender_id);
           const { createNotification } = await import('@/lib/services/notifications');
           await createNotification(offer.sender_id, 'offer_rejected', 'Angebot abgelehnt', 'Dein Angebot wurde abgelehnt');
         }
@@ -246,7 +222,6 @@ export async function counterOffer(userId: string, offerId: string, newPriceCent
   });
   if (error) throw new Error(error.message);
   const result = data as OfferResult;
-  invalidateOfferData(userId);
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'offer_counter', 'trading', { offerId, newPriceCents });
@@ -258,7 +233,6 @@ export async function counterOffer(userId: string, offerId: string, newPriceCent
       try {
         const { data: offer } = await supabase.from('offers').select('sender_id').eq('id', offerId).single();
         if (offer) {
-          invalidateOfferData(offer.sender_id);
           const { createNotification } = await import('@/lib/services/notifications');
           await createNotification(offer.sender_id, 'offer_countered', 'Gegenangebot', 'Du hast ein Gegenangebot erhalten');
         }
@@ -275,7 +249,6 @@ export async function cancelOffer(userId: string, offerId: string): Promise<Offe
     p_offer_id: offerId,
   });
   if (error) throw new Error(error.message);
-  invalidateOfferData(userId);
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'offer_cancel', 'trading', { offerId });

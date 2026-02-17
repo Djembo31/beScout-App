@@ -1,5 +1,6 @@
 'use client';
 
+import { QueryProvider } from './QueryProvider';
 import { AuthProvider } from './AuthProvider';
 import { ClubProvider } from './ClubProvider';
 import { WalletProvider } from './WalletProvider';
@@ -8,14 +9,16 @@ import AnalyticsProvider from './AnalyticsProvider';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <AuthProvider>
-      <AnalyticsProvider>
-        <ClubProvider>
-          <WalletProvider>
-            <ToastProvider>{children}</ToastProvider>
-          </WalletProvider>
-        </ClubProvider>
-      </AnalyticsProvider>
-    </AuthProvider>
+    <QueryProvider>
+      <AuthProvider>
+        <AnalyticsProvider>
+          <ClubProvider>
+            <WalletProvider>
+              <ToastProvider>{children}</ToastProvider>
+            </WalletProvider>
+          </ClubProvider>
+        </AnalyticsProvider>
+      </AuthProvider>
+    </QueryProvider>
   );
 }

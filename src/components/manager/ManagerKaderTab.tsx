@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Save, RotateCcw, Search, ChevronDown, X } from 'lucide-react';
-import { Card, Button } from '@/components/ui';
+import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart } from 'lucide-react';
+import Link from 'next/link';
+import { Card } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { fmtBSD, cn } from '@/lib/utils';
@@ -31,6 +32,9 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
   const [showPresets, setShowPresets] = useState(false);
   const [presets, setPresets] = useState<SquadPreset[]>([]);
   const [sortBy, setSortBy] = useState<'perf' | 'price' | 'name'>('perf');
+  // Desktop side-panel: which position is selected (null = show all owned)
+  const [sidePanelPos, setSidePanelPos] = useState<Pos | null>(null);
+  const [sidePanelSlot, setSidePanelSlot] = useState<number | null>(null);
 
   const availableFormations = FORMATIONS[squadSize];
   const formation = useMemo(() => availableFormations.find(f => f.id === formationId) ?? availableFormations[0], [formationId, availableFormations]);
@@ -69,25 +73,30 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
         return next;
       });
     } else {
-      // Open picker
+      // Desktop: set side panel filter; Mobile: open modal
+      setSidePanelPos(pos);
+      setSidePanelSlot(slotIndex);
       setPickerOpen({ slotIndex, pos });
       setPickerSearch('');
     }
   }, [assignments]);
 
   const handlePickPlayer = useCallback((playerId: string) => {
-    if (!pickerOpen) return;
+    const targetSlot = sidePanelSlot ?? pickerOpen?.slotIndex;
+    if (targetSlot == null) return;
     setAssignments(prev => {
       const next = new Map(prev);
       // Remove player from any other slot first
       Array.from(next.entries()).forEach(([idx, pid]) => {
         if (pid === playerId) next.delete(idx);
       });
-      next.set(pickerOpen.slotIndex, playerId);
+      next.set(targetSlot, playerId);
       return next;
     });
     setPickerOpen(null);
-  }, [pickerOpen]);
+    setSidePanelPos(null);
+    setSidePanelSlot(null);
+  }, [pickerOpen, sidePanelSlot]);
 
   const handleSquadSizeChange = useCallback((size: SquadSize) => {
     setSquadSize(size);
@@ -129,8 +138,9 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
 
   // Picker players — filter by position, search, not already assigned
   const pickerPlayers = useMemo(() => {
-    if (!pickerOpen) return [];
-    let list = ownedPlayers.filter(p => p.pos === pickerOpen.pos && !assignedIds.has(p.id));
+    const targetPos = sidePanelPos ?? pickerOpen?.pos;
+    if (!targetPos) return [];
+    let list = ownedPlayers.filter(p => p.pos === targetPos && !assignedIds.has(p.id));
     if (pickerSearch) {
       const q = pickerSearch.toLowerCase();
       list = list.filter(p => `${p.first} ${p.last} ${p.club}`.toLowerCase().includes(q));
@@ -141,9 +151,9 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
       case 'name': return [...list].sort((a, b) => a.last.localeCompare(b.last));
       default: return list;
     }
-  }, [pickerOpen, ownedPlayers, assignedIds, pickerSearch, sortBy]);
+  }, [sidePanelPos, pickerOpen, ownedPlayers, assignedIds, pickerSearch, sortBy]);
 
-  // Owned player list for "all players" section below pitch
+  // Owned player list for "all players" section (when no position selected)
   const sortedOwned = useMemo(() => {
     return [...ownedPlayers].sort((a, b) => {
       switch (sortBy) {
@@ -155,8 +165,133 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
     });
   }, [ownedPlayers, sortBy]);
 
+  // The side panel position label
+  const POS_LABEL: Record<Pos, string> = { GK: 'Torwart', DEF: 'Verteidiger', MID: 'Mittelfeldspieler', ATT: 'Angreifer' };
+
+  // ── Desktop Side Panel (right of pitch) ──
+  const sidePanel = (
+    <div className="flex flex-col h-full min-h-0">
+      {/* Header: Position tabs */}
+      <div className="p-3 border-b border-white/10 space-y-2.5 shrink-0">
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => { setSidePanelPos(null); setSidePanelSlot(null); }}
+            className={cn('px-2.5 py-1 rounded-lg text-[10px] font-black transition-all',
+              !sidePanelPos ? 'bg-[#FFD700]/15 text-[#FFD700]' : 'text-white/40 hover:text-white/70'
+            )}
+          >Alle</button>
+          {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map(pos => {
+            const active = sidePanelPos === pos;
+            return (
+              <button
+                key={pos}
+                onClick={() => { setSidePanelPos(pos); setSidePanelSlot(null); }}
+                className={cn('px-2.5 py-1 rounded-lg text-[10px] font-black transition-all',
+                  active ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/70'
+                )}
+                style={active ? { color: getPosColor(pos) } : undefined}
+              >{pos}</button>
+            );
+          })}
+        </div>
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+          <input
+            type="text"
+            placeholder="Spieler suchen..."
+            value={pickerSearch}
+            onChange={e => setPickerSearch(e.target.value)}
+            className="w-full pl-8 pr-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
+          />
+        </div>
+      </div>
+
+      {/* Title */}
+      <div className="px-3 pt-2.5 pb-1 shrink-0 flex items-center justify-between">
+        <div className="text-xs font-black uppercase tracking-wide text-white/60">
+          {sidePanelPos ? (
+            <>Wähle deinen <span style={{ color: getPosColor(sidePanelPos) }}>{POS_LABEL[sidePanelPos]}</span></>
+          ) : (
+            <>Dein Kader ({ownedPlayers.length})</>
+          )}
+        </div>
+        <div className="flex items-center gap-0.5">
+          {(['perf', 'price', 'name'] as const).map(s => (
+            <button
+              key={s}
+              onClick={() => setSortBy(s)}
+              className={cn('px-1.5 py-0.5 rounded text-[9px] font-bold transition-all',
+                sortBy === s ? 'bg-[#FFD700]/15 text-[#FFD700]' : 'text-white/30 hover:text-white/60'
+              )}
+            >{s === 'perf' ? 'L5' : s === 'price' ? 'Wert' : 'A-Z'}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Player list — scrollable */}
+      <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-0.5 min-h-0">
+        {sidePanelPos ? (
+          // Filtered by position (picking mode)
+          pickerPlayers.length === 0 ? (
+            <div className="text-center py-8 space-y-2">
+              <PositionBadge pos={sidePanelPos} size="lg" />
+              <div className="text-xs text-white/30 mt-2">
+                {ownedPlayers.filter(p => p.pos === sidePanelPos).length === 0
+                  ? `Keine eigenen ${sidePanelPos}-Spieler`
+                  : 'Keine Spieler gefunden'}
+              </div>
+              <Link href="/market?tab=kaufen" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FFD700]/15 text-[#FFD700] text-[10px] font-bold rounded-lg hover:bg-[#FFD700]/25 transition-all mt-2">
+                <ShoppingCart className="w-3 h-3" />
+                Spieler kaufen
+              </Link>
+            </div>
+          ) : (
+            pickerPlayers.map(p => (
+              <button
+                key={p.id}
+                onClick={() => handlePickPlayer(p.id)}
+                className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl hover:bg-white/5 transition-colors text-left"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <PositionBadge pos={p.pos} size="sm" />
+                  <div className="min-w-0">
+                    <div className="font-bold text-xs truncate">{p.first} {p.last}</div>
+                    <div className="text-[10px] text-white/40 truncate">{p.club}{p.age > 0 && <> · {p.age}J.</>}</div>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className={cn('font-mono font-bold text-xs',
+                    p.perf.l5 >= 70 ? 'text-[#FFD700]' : p.perf.l5 >= 50 ? 'text-white' : 'text-red-400'
+                  )}>{p.perf.l5}</div>
+                  <div className="text-[9px] text-white/30 font-mono">{fmtBSD(p.prices.floor ?? 0)}</div>
+                </div>
+              </button>
+            ))
+          )
+        ) : (
+          // All owned players
+          sortedOwned.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-xs text-white/30 mb-2">Noch keine Spieler im Kader</div>
+              <Link href="/market?tab=kaufen" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FFD700]/15 text-[#FFD700] text-[10px] font-bold rounded-lg hover:bg-[#FFD700]/25 transition-all">
+                <ShoppingCart className="w-3 h-3" />
+                Spieler kaufen
+              </Link>
+            </div>
+          ) : (
+            sortedOwned.map(p => (
+              <PlayerDisplay key={p.id} variant="compact" player={p} showActions={false}
+                className={cn('!p-2', assignedIds.has(p.id) ? 'bg-[#22C55E]/[0.06] border-[#22C55E]/20' : '')} />
+            ))
+          )
+        )}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Summary Stats */}
       <SquadSummaryStats
         players={Array.from(assignedPlayers.values())}
@@ -240,7 +375,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             )}
           </div>
           <button
-            onClick={() => setAssignments(new Map())}
+            onClick={() => { setAssignments(new Map()); setSidePanelPos(null); setSidePanelSlot(null); }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -249,19 +384,30 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
         </div>
       </div>
 
-      {/* Pitch */}
-      <SquadPitch formation={formation} assignments={assignedPlayers} onSlotClick={handleSlotClick} />
+      {/* ═══ Desktop: Pitch (left) + Player Panel (right) side by side ═══ */}
+      <div className="flex gap-4">
+        {/* Pitch — takes ~55% on desktop, full on mobile */}
+        <div className="w-full lg:w-[55%] shrink-0">
+          <SquadPitch formation={formation} assignments={assignedPlayers} onSlotClick={handleSlotClick} />
+        </div>
 
-      {/* Player Picker Modal */}
+        {/* Side Panel — only visible on lg+ */}
+        <div className="hidden lg:flex flex-col flex-1 min-w-0 bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden"
+          style={{ maxHeight: 'min(55vh, 500px)' }}>
+          {sidePanel}
+        </div>
+      </div>
+
+      {/* ═══ Mobile: Modal Picker (unchanged) ═══ */}
       {pickerOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center" onClick={() => setPickerOpen(null)}>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center lg:hidden" onClick={() => { setPickerOpen(null); setSidePanelPos(null); setSidePanelSlot(null); }}>
           <div onClick={e => e.stopPropagation()} className="w-full max-w-md max-h-[70vh] bg-[#0f0f1a] border border-white/15 rounded-t-2xl sm:rounded-2xl overflow-hidden flex flex-col">
             <div className="p-4 border-b border-white/10">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-black text-sm">
                   <span style={{ color: getPosColor(pickerOpen.pos) }}>{pickerOpen.pos}</span> auswählen
                 </h3>
-                <button onClick={() => setPickerOpen(null)} className="p-1 hover:bg-white/10 rounded-lg"><X className="w-4 h-4 text-white/50" /></button>
+                <button onClick={() => { setPickerOpen(null); setSidePanelPos(null); setSidePanelSlot(null); }} className="p-1 hover:bg-white/10 rounded-lg"><X className="w-4 h-4 text-white/50" /></button>
               </div>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
@@ -313,8 +459,8 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
         </div>
       )}
 
-      {/* Owned Players List */}
-      <div>
+      {/* ═══ Below-pitch player list (mobile + small desktop without side panel) ═══ */}
+      <div className="lg:hidden">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-black uppercase tracking-wide">Alle Spieler ({ownedPlayers.length})</h3>
           <div className="flex items-center gap-1">

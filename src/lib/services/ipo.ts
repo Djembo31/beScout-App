@@ -1,8 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidateTradeData } from '@/lib/cache';
 import type { DbIpo } from '@/types';
-
-const FIVE_MIN = 5 * 60 * 1000;
 
 // ============================================
 // Types
@@ -43,16 +40,14 @@ type IpoBuyResult = {
 
 /** All active IPOs (open or early_access) */
 export async function getActiveIpos(): Promise<DbIpo[]> {
-  return cached('ipos:active', async () => {
-    const { data, error } = await supabase
-      .from('ipos')
-      .select('*')
-      .in('status', ['open', 'early_access'])
-      .order('starts_at', { ascending: false });
+  const { data, error } = await supabase
+    .from('ipos')
+    .select('*')
+    .in('status', ['open', 'early_access'])
+    .order('starts_at', { ascending: false });
 
-    if (error) throw new Error(error.message);
-    return (data ?? []) as DbIpo[];
-  }, FIVE_MIN);
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DbIpo[];
 }
 
 /** Active IPO for a specific player */
@@ -97,7 +92,6 @@ export async function buyFromIpo(
   });
 
   if (error) throw new Error(error.message);
-  invalidateTradeData(playerId ?? '', userId);
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'ipo_buy', 'trading', { ipoId, quantity, playerId });
@@ -134,7 +128,6 @@ export async function createIpo(params: {
   });
 
   if (error) throw new Error(error.message);
-  invalidateTradeData('', '');
   return data as CreateIpoResult;
 }
 
@@ -151,7 +144,6 @@ export async function updateIpoStatus(
   });
 
   if (error) throw new Error(error.message);
-  invalidateTradeData('', '');
 
   // Notify club followers when IPO goes live
   if (newStatus === 'open') {

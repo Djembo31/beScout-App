@@ -1,9 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
 import type { DbPost, PostWithAuthor, PostType } from '@/types';
 import { toPos } from '@/types';
-
-const TWO_MIN = 2 * 60 * 1000;
 
 // ============================================
 // Posts (Community)
@@ -20,95 +17,56 @@ export async function getPosts(options: {
   eventId?: string;
 }): Promise<PostWithAuthor[]> {
   const { limit = 50, offset = 0, playerId, userId, clubName, clubId, postType, eventId } = options;
-  const cacheKey = `posts:${playerId ?? ''}:${userId ?? ''}:${clubName ?? ''}:${clubId ?? ''}:${postType ?? ''}:${eventId ?? ''}:${offset}:${limit}`;
 
-  return cached(cacheKey, async () => {
-    let query = supabase
-      .from('posts')
-      .select('*')
-      .order('is_pinned', { ascending: false })
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+  let query = supabase
+    .from('posts')
+    .select('*')
+    .order('is_pinned', { ascending: false })
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
 
-    // Only top-level posts (no replies)
-    query = query.is('parent_id', null);
+  // Only top-level posts (no replies)
+  query = query.is('parent_id', null);
 
-    if (playerId) query = query.eq('player_id', playerId);
-    if (userId) query = query.eq('user_id', userId);
-    if (clubName) query = query.eq('club_name', clubName);
-    if (clubId) query = query.eq('club_id', clubId);
-    if (postType) query = query.eq('post_type', postType);
-    if (eventId) query = query.eq('event_id', eventId);
+  if (playerId) query = query.eq('player_id', playerId);
+  if (userId) query = query.eq('user_id', userId);
+  if (clubName) query = query.eq('club_name', clubName);
+  if (clubId) query = query.eq('club_id', clubId);
+  if (postType) query = query.eq('post_type', postType);
+  if (eventId) query = query.eq('event_id', eventId);
 
-    const { data, error } = await query;
-    if (error) throw new Error(error.message);
-    if (!data || data.length === 0) return [];
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) return [];
 
-    // Fetch author profiles
-    const authorIds = Array.from(new Set((data as DbPost[]).map(p => p.user_id)));
-    const { data: profiles, error: pErr } = await supabase
-      .from('profiles')
-      .select('id, handle, display_name, avatar_url, level, verified, top_role')
-      .in('id', authorIds);
-    if (pErr) throw new Error(pErr.message);
+  // Fetch author profiles
+  const authorIds = Array.from(new Set((data as DbPost[]).map(p => p.user_id)));
+  const { data: profiles, error: pErr } = await supabase
+    .from('profiles')
+    .select('id, handle, display_name, avatar_url, level, verified, top_role')
+    .in('id', authorIds);
+  if (pErr) throw new Error(pErr.message);
 
-    const profileMap = new Map((profiles ?? []).map(p => [p.id, p]));
+  const profileMap = new Map((profiles ?? []).map(p => [p.id, p]));
 
-    // Fetch player names for posts with player_id
-    const playerIds = Array.from(new Set(
-      (data as DbPost[]).filter(p => p.player_id).map(p => p.player_id as string)
-    ));
-    let playerMap = new Map<string, { name: string; pos: string }>();
-    if (playerIds.length > 0) {
-      const { data: players } = await supabase
-        .from('players')
-        .select('id, first_name, last_name, position')
-        .in('id', playerIds);
-      playerMap = new Map(
-        (players ?? []).map(p => [p.id, { name: `${p.first_name} ${p.last_name}`, pos: p.position }])
-      );
-    }
+  // Fetch player names for posts with player_id
+  const playerIds = Array.from(new Set(
+    (data as DbPost[]).filter(p => p.player_id).map(p => p.player_id as string)
+  ));
+  let playerMap = new Map<string, { name: string; pos: string }>();
+  if (playerIds.length > 0) {
+    const { data: players } = await supabase
+      .from('players')
+      .select('id, first_name, last_name, position')
+      .in('id', playerIds);
+    playerMap = new Map(
+      (players ?? []).map(p => [p.id, { name: `${p.first_name} ${p.last_name}`, pos: p.position }])
+    );
+  }
 
-    return (data as DbPost[]).map(post => {
-      const author = profileMap.get(post.user_id);
-      const player = post.player_id ? playerMap.get(post.player_id) : undefined;
-      return {
-        ...post,
-        author_handle: author?.handle ?? 'unknown',
-        author_display_name: author?.display_name ?? null,
-        author_avatar_url: author?.avatar_url ?? null,
-        author_level: author?.level ?? 1,
-        author_verified: author?.verified ?? false,
-        author_top_role: author?.top_role ?? null,
-        player_name: player?.name,
-        player_position: player ? toPos(player.pos) : undefined,
-      };
-    });
-  }, TWO_MIN);
-}
-
-/** Get the user's most upvoted post (for profile hero) */
-export async function getTopPostByUser(userId: string): Promise<PostWithAuthor | null> {
-  return cached(`topPost:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('posts')
-      .select('*')
-      .eq('user_id', userId)
-      .is('parent_id', null)
-      .order('upvotes', { ascending: false })
-      .limit(1);
-
-    if (error || !data || data.length === 0) return null;
-    const post = data[0] as DbPost;
-    if (post.upvotes <= 0) return null; // No point showing 0-upvote posts
-
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, handle, display_name, avatar_url, level, verified, top_role')
-      .eq('id', userId)
-      .limit(1);
-    const author = profiles?.[0];
-
+  return (data as DbPost[]).map(post => {
+    const author = profileMap.get(post.user_id);
+    const player = post.player_id ? playerMap.get(post.player_id) : undefined;
     return {
       ...post,
       author_handle: author?.handle ?? 'unknown',
@@ -117,8 +75,42 @@ export async function getTopPostByUser(userId: string): Promise<PostWithAuthor |
       author_level: author?.level ?? 1,
       author_verified: author?.verified ?? false,
       author_top_role: author?.top_role ?? null,
+      player_name: player?.name,
+      player_position: player ? toPos(player.pos) : undefined,
     };
-  }, TWO_MIN);
+  });
+}
+
+/** Get the user's most upvoted post (for profile hero) */
+export async function getTopPostByUser(userId: string): Promise<PostWithAuthor | null> {
+  const { data, error } = await supabase
+    .from('posts')
+    .select('*')
+    .eq('user_id', userId)
+    .is('parent_id', null)
+    .order('upvotes', { ascending: false })
+    .limit(1);
+
+  if (error || !data || data.length === 0) return null;
+  const post = data[0] as DbPost;
+  if (post.upvotes <= 0) return null; // No point showing 0-upvote posts
+
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, handle, display_name, avatar_url, level, verified, top_role')
+    .eq('id', userId)
+    .limit(1);
+  const author = profiles?.[0];
+
+  return {
+    ...post,
+    author_handle: author?.handle ?? 'unknown',
+    author_display_name: author?.display_name ?? null,
+    author_avatar_url: author?.avatar_url ?? null,
+    author_level: author?.level ?? 1,
+    author_verified: author?.verified ?? false,
+    author_top_role: author?.top_role ?? null,
+  };
 }
 
 export async function createPost(
@@ -153,7 +145,6 @@ export async function createPost(
     .single();
 
   if (error) throw new Error(error.message);
-  invalidate('posts:');
   // Mission tracking
   import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
     triggerMissionProgress(userId, ['daily_post', 'weekly_3_posts']);
@@ -166,38 +157,36 @@ export async function createPost(
 }
 
 export async function getReplies(parentId: string): Promise<PostWithAuthor[]> {
-  return cached(`replies:${parentId}`, async () => {
-    const { data, error } = await supabase
-      .from('posts')
-      .select('*')
-      .eq('parent_id', parentId)
-      .order('created_at', { ascending: true });
+  const { data, error } = await supabase
+    .from('posts')
+    .select('*')
+    .eq('parent_id', parentId)
+    .order('created_at', { ascending: true });
 
-    if (error) throw new Error(error.message);
-    if (!data || data.length === 0) return [];
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) return [];
 
-    const authorIds = Array.from(new Set((data as DbPost[]).map(p => p.user_id)));
-    const { data: profiles, error: pErr } = await supabase
-      .from('profiles')
-      .select('id, handle, display_name, avatar_url, level, verified, top_role')
-      .in('id', authorIds);
-    if (pErr) throw new Error(pErr.message);
+  const authorIds = Array.from(new Set((data as DbPost[]).map(p => p.user_id)));
+  const { data: profiles, error: pErr } = await supabase
+    .from('profiles')
+    .select('id, handle, display_name, avatar_url, level, verified, top_role')
+    .in('id', authorIds);
+  if (pErr) throw new Error(pErr.message);
 
-    const profileMap = new Map((profiles ?? []).map(p => [p.id, p]));
+  const profileMap = new Map((profiles ?? []).map(p => [p.id, p]));
 
-    return (data as DbPost[]).map(post => {
-      const author = profileMap.get(post.user_id);
-      return {
-        ...post,
-        author_handle: author?.handle ?? 'unknown',
-        author_display_name: author?.display_name ?? null,
-        author_avatar_url: author?.avatar_url ?? null,
-        author_level: author?.level ?? 1,
-        author_verified: author?.verified ?? false,
-        author_top_role: author?.top_role ?? null,
-      };
-    });
-  }, TWO_MIN);
+  return (data as DbPost[]).map(post => {
+    const author = profileMap.get(post.user_id);
+    return {
+      ...post,
+      author_handle: author?.handle ?? 'unknown',
+      author_display_name: author?.display_name ?? null,
+      author_avatar_url: author?.avatar_url ?? null,
+      author_level: author?.level ?? 1,
+      author_verified: author?.verified ?? false,
+      author_top_role: author?.top_role ?? null,
+    };
+  });
 }
 
 export async function createReply(
@@ -217,8 +206,6 @@ export async function createReply(
     .single();
 
   if (error) throw new Error(error.message);
-  invalidate('posts:');
-  invalidate(`replies:${parentId}`);
 
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
@@ -261,8 +248,6 @@ export async function deletePost(userId: string, postId: string): Promise<void> 
     .eq('user_id', userId);
 
   if (error) throw new Error(error.message);
-  invalidate('posts:');
-  invalidate('replies:');
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'post_delete', 'community', { postId });
@@ -280,9 +265,6 @@ export async function votePost(
     p_vote_type: voteType,
   });
   if (error) throw new Error(error.message);
-  invalidate('posts:');
-  invalidate(`postVotes:${userId}`);
-  invalidate(`topPost:`);
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'post_vote', 'community', { postId, voteType });
@@ -306,18 +288,16 @@ export async function getUserPostVotes(
 ): Promise<Map<string, number>> {
   if (postIds.length === 0) return new Map();
 
-  return cached(`postVotes:${userId}:${postIds.slice(0, 3).join(',')}`, async () => {
-    const { data, error } = await supabase
-      .from('post_votes')
-      .select('post_id, vote_type')
-      .eq('user_id', userId)
-      .in('post_id', postIds);
+  const { data, error } = await supabase
+    .from('post_votes')
+    .select('post_id, vote_type')
+    .eq('user_id', userId)
+    .in('post_id', postIds);
 
-    if (error) throw new Error(error.message);
-    const map = new Map<string, number>();
-    (data ?? []).forEach(r => map.set(r.post_id, r.vote_type));
-    return map;
-  }, TWO_MIN);
+  if (error) throw new Error(error.message);
+  const map = new Map<string, number>();
+  (data ?? []).forEach(r => map.set(r.post_id, r.vote_type));
+  return map;
 }
 
 // ============================================
@@ -333,8 +313,6 @@ export async function adminDeletePost(
     p_post_id: postId,
   });
   if (error) throw new Error(error.message);
-  invalidate('posts:');
-  invalidate('replies:');
   return data as { success: boolean; error?: string };
 }
 
@@ -349,6 +327,5 @@ export async function adminTogglePin(
     p_pinned: pinned,
   });
   if (error) throw new Error(error.message);
-  invalidate('posts:');
   return data as { success: boolean; is_pinned?: boolean; error?: string };
 }

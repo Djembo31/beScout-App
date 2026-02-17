@@ -21,9 +21,8 @@ export default function SquadPitch({ formation, assignments, onSlotClick }: Squa
   const rowColIndex = new Map<number, number>();
 
   return (
-    <div className="relative w-full bg-gradient-to-b from-[#1a5c1a]/40 via-[#1e6b1e]/30 to-[#1a5c1a]/40 rounded-2xl overflow-hidden border border-white/10">
-      {/* Aspect ratio container */}
-      <div className="relative" style={{ paddingBottom: '125%' /* 500/400 */ }}>
+    <div className="relative w-full bg-gradient-to-b from-[#1a5c1a]/40 via-[#1e6b1e]/30 to-[#1a5c1a]/40 rounded-2xl overflow-hidden border border-white/10"
+      style={{ aspectRatio: '5/4', maxHeight: 'min(55vh, 500px)' }}>
         {/* SVG Field Markings */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none" viewBox="0 0 400 500">
           {/* Grass stripes */}
@@ -115,7 +114,6 @@ export default function SquadPitch({ formation, assignments, onSlotClick }: Squa
             );
           })}
         </div>
-      </div>
     </div>
   );
 }

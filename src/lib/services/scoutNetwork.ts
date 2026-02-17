@@ -1,7 +1,4 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
-
-const FIVE_MIN = 5 * 60 * 1000;
 
 // ============================================
 // Types
@@ -42,66 +39,60 @@ export const BADGE_STYLES: Record<BadgeLevel, { label: string; color: string; bg
 
 /** Get top scouts for a club */
 export async function getClubTopScouts(clubId: string, limit = 10): Promise<VerifiedScout[]> {
-  return cached(`scouts:club:${clubId}`, async () => {
-    const { data, error } = await supabase.rpc('get_club_top_scouts', {
-      p_club_id: clubId,
-      p_limit: limit,
-    });
+  const { data, error } = await supabase.rpc('get_club_top_scouts', {
+    p_club_id: clubId,
+    p_limit: limit,
+  });
 
-    if (error) throw new Error(error.message);
-    return (data ?? []).map((s: Record<string, unknown>) => ({
-      userId: s.user_id as string,
-      displayName: s.display_name as string,
-      handle: s.handle as string,
-      avatarUrl: s.avatar_url as string | null,
-      badgeLevel: s.badge_level as BadgeLevel,
-      specialty: s.specialty as string | null,
-      totalScore: s.total_score as number,
-    }));
-  }, FIVE_MIN);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((s: Record<string, unknown>) => ({
+    userId: s.user_id as string,
+    displayName: s.display_name as string,
+    handle: s.handle as string,
+    avatarUrl: s.avatar_url as string | null,
+    badgeLevel: s.badge_level as BadgeLevel,
+    specialty: s.specialty as string | null,
+    totalScore: s.total_score as number,
+  }));
 }
 
 /** Check if a user is a verified scout for any club */
 export async function getUserScoutStatus(userId: string): Promise<{ isVerified: boolean; badgeLevel?: BadgeLevel; clubId?: string }> {
-  return cached(`scout:user:${userId}`, async () => {
-    const { data } = await supabase
-      .from('verified_scouts')
-      .select('badge_level, club_id')
-      .eq('user_id', userId)
-      .eq('active', true)
-      .limit(1)
-      .maybeSingle();
+  const { data } = await supabase
+    .from('verified_scouts')
+    .select('badge_level, club_id')
+    .eq('user_id', userId)
+    .eq('active', true)
+    .limit(1)
+    .maybeSingle();
 
-    if (!data) return { isVerified: false };
-    return {
-      isVerified: true,
-      badgeLevel: data.badge_level as BadgeLevel,
-      clubId: data.club_id,
-    };
-  }, FIVE_MIN);
+  if (!data) return { isVerified: false };
+  return {
+    isVerified: true,
+    badgeLevel: data.badge_level as BadgeLevel,
+    clubId: data.club_id,
+  };
 }
 
 /** Get scout assignments for a verified scout */
 export async function getScoutAssignments(userId: string): Promise<ScoutAssignment[]> {
-  return cached(`scout:assignments:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('scout_assignments')
-      .select('*, verified_scouts!inner(user_id)')
-      .eq('verified_scouts.user_id', userId)
-      .order('created_at', { ascending: false });
+  const { data, error } = await supabase
+    .from('scout_assignments')
+    .select('*, verified_scouts!inner(user_id)')
+    .eq('verified_scouts.user_id', userId)
+    .order('created_at', { ascending: false });
 
-    if (error) throw new Error(error.message);
-    return (data ?? []).map((a: Record<string, unknown>) => ({
-      id: a.id as string,
-      title: a.title as string,
-      description: a.description as string | null,
-      status: a.status as ScoutAssignment['status'],
-      rewardCents: a.reward_cents as number,
-      dueAt: a.due_at as string | null,
-      completedAt: a.completed_at as string | null,
-      createdAt: a.created_at as string,
-    }));
-  }, FIVE_MIN);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((a: Record<string, unknown>) => ({
+    id: a.id as string,
+    title: a.title as string,
+    description: a.description as string | null,
+    status: a.status as ScoutAssignment['status'],
+    rewardCents: a.reward_cents as number,
+    dueAt: a.due_at as string | null,
+    completedAt: a.completed_at as string | null,
+    createdAt: a.created_at as string,
+  }));
 }
 
 // ============================================
@@ -126,10 +117,6 @@ export async function verifyScout(
 
   if (error) return { success: false, error: error.message };
   const result = data as { success: boolean; error?: string };
-  if (result.success) {
-    invalidate(`scouts:club:${clubId}`);
-    invalidate(`scout:user:${userId}`);
-  }
   return result;
 }
 
@@ -142,6 +129,4 @@ export async function removeScoutVerification(userId: string, clubId: string): P
     .eq('club_id', clubId);
 
   if (error) throw new Error(error.message);
-  invalidate(`scouts:club:${clubId}`);
-  invalidate(`scout:user:${userId}`);
 }

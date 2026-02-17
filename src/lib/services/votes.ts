@@ -1,47 +1,38 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
 import type { DbClubVote } from '@/types';
-
-const TWO_MIN = 2 * 60 * 1000;
 
 // ============================================
 // Club Votes
 // ============================================
 
 export async function getActiveVotes(clubId: string): Promise<DbClubVote[]> {
-  return cached(`votes:active:${clubId}`, async () => {
-    const { data, error } = await supabase
-      .from('club_votes')
-      .select('*')
-      .eq('club_id', clubId)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false });
-    if (error) throw new Error(error.message);
-    return (data ?? []) as DbClubVote[];
-  }, TWO_MIN);
+  const { data, error } = await supabase
+    .from('club_votes')
+    .select('*')
+    .eq('club_id', clubId)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DbClubVote[];
 }
 
 export async function getAllVotes(clubId: string): Promise<DbClubVote[]> {
-  return cached(`votes:all:${clubId}`, async () => {
-    const { data, error } = await supabase
-      .from('club_votes')
-      .select('*')
-      .eq('club_id', clubId)
-      .order('created_at', { ascending: false });
-    if (error) throw new Error(error.message);
-    return (data ?? []) as DbClubVote[];
-  }, TWO_MIN);
+  const { data, error } = await supabase
+    .from('club_votes')
+    .select('*')
+    .eq('club_id', clubId)
+    .order('created_at', { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DbClubVote[];
 }
 
 export async function getUserVotedIds(userId: string): Promise<Set<string>> {
-  return cached(`votedIds:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('vote_entries')
-      .select('vote_id')
-      .eq('user_id', userId);
-    if (error) throw new Error(error.message);
-    return new Set((data ?? []).map(r => r.vote_id));
-  }, TWO_MIN);
+  const { data, error } = await supabase
+    .from('vote_entries')
+    .select('vote_id')
+    .eq('user_id', userId);
+  if (error) throw new Error(error.message);
+  return new Set((data ?? []).map(r => r.vote_id));
 }
 
 export async function castVote(
@@ -55,10 +46,6 @@ export async function castVote(
     p_option_index: optionIndex,
   });
   if (error) throw new Error(error.message);
-  invalidate('votes:');
-  invalidate(`votedIds:${userId}`);
-  invalidate(`wallet:${userId}`);
-  invalidate(`transactions:${userId}`);
   // Mission tracking
   import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
     triggerMissionProgress(userId, ['daily_vote']);
@@ -103,7 +90,6 @@ export async function createVote(params: {
     .single();
 
   if (error) throw new Error(error.message);
-  invalidate('votes:');
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(params.userId, 'vote_create', 'community', { voteId: data.id, question: params.question });

@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
 import type {
   DbBounty,
   BountyWithCreator,
@@ -8,20 +7,12 @@ import type {
   BountySubmissionWithBounty,
 } from '@/types';
 
-const TWO_MIN = 2 * 60 * 1000;
-
 // ============================================
-// Cache Invalidation
+// Cache Invalidation (no-op, React Query handles this)
 // ============================================
 
-export function invalidateBountyData(userId?: string, clubId?: string): void {
-  invalidate('bounties:');
-  if (clubId) invalidate(`bounties:club:${clubId}`);
-  if (userId) {
-    invalidate(`wallet:${userId}`);
-    invalidate(`transactions:${userId}`);
-    invalidate(`userBountySubmissions:${userId}`);
-  }
+export function invalidateBountyData(_userId?: string, _clubId?: string): void {
+  // React Query handles cache invalidation from components
 }
 
 // ============================================
@@ -32,47 +23,42 @@ export async function getBountiesByClub(
   clubId: string,
   currentUserId?: string
 ): Promise<BountyWithCreator[]> {
-  return cached(`bounties:club:${clubId}`, async () => {
-    // Auto-close expired bounties (fire-and-forget style, but we await for fresh data)
-    await (async () => { await supabase.rpc('auto_close_expired_bounties'); })().catch(err => console.error('[Bounties] Auto-close expired bounties failed:', err));
+  // Auto-close expired bounties (fire-and-forget style, but we await for fresh data)
+  await (async () => { await supabase.rpc('auto_close_expired_bounties'); })().catch(err => console.error('[Bounties] Auto-close expired bounties failed:', err));
 
-    const { data, error } = await supabase
-      .from('bounties')
-      .select('*')
-      .eq('club_id', clubId)
-      .order('created_at', { ascending: false });
+  const { data, error } = await supabase
+    .from('bounties')
+    .select('*')
+    .eq('club_id', clubId)
+    .order('created_at', { ascending: false });
 
-    if (error) throw new Error(error.message);
-    if (!data || data.length === 0) return [];
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) return [];
 
-    const bounties = data as DbBounty[];
-    return enrichBounties(bounties, currentUserId);
-  }, TWO_MIN);
+  const bounties = data as DbBounty[];
+  return enrichBounties(bounties, currentUserId);
 }
 
 export async function getAllActiveBounties(
   currentUserId?: string,
   clubId?: string
 ): Promise<BountyWithCreator[]> {
-  const cacheKey = clubId ? `bounties:active:${clubId}` : 'bounties:active';
-  return cached(cacheKey, async () => {
-    await (async () => { await supabase.rpc('auto_close_expired_bounties'); })().catch(err => console.error('[Bounties] Auto-close expired bounties failed:', err));
+  await (async () => { await supabase.rpc('auto_close_expired_bounties'); })().catch(err => console.error('[Bounties] Auto-close expired bounties failed:', err));
 
-    let query = supabase
-      .from('bounties')
-      .select('*')
-      .eq('status', 'open')
-      .gt('deadline_at', new Date().toISOString())
-      .order('created_at', { ascending: false });
-    if (clubId) query = query.eq('club_id', clubId);
-    const { data, error } = await query;
+  let query = supabase
+    .from('bounties')
+    .select('*')
+    .eq('status', 'open')
+    .gt('deadline_at', new Date().toISOString())
+    .order('created_at', { ascending: false });
+  if (clubId) query = query.eq('club_id', clubId);
+  const { data, error } = await query;
 
-    if (error) throw new Error(error.message);
-    if (!data || data.length === 0) return [];
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) return [];
 
-    const bounties = data as DbBounty[];
-    return enrichBounties(bounties, currentUserId);
-  }, TWO_MIN);
+  const bounties = data as DbBounty[];
+  return enrichBounties(bounties, currentUserId);
 }
 
 async function enrichBounties(
@@ -129,60 +115,56 @@ async function enrichBounties(
 export async function getBountySubmissions(
   bountyId: string
 ): Promise<BountySubmissionWithUser[]> {
-  return cached(`bountySubmissions:${bountyId}`, async () => {
-    const { data, error } = await supabase
-      .from('bounty_submissions')
-      .select('*')
-      .eq('bounty_id', bountyId)
-      .order('created_at', { ascending: false });
+  const { data, error } = await supabase
+    .from('bounty_submissions')
+    .select('*')
+    .eq('bounty_id', bountyId)
+    .order('created_at', { ascending: false });
 
-    if (error) throw new Error(error.message);
-    if (!data || data.length === 0) return [];
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) return [];
 
-    const subs = data as DbBountySubmission[];
-    const userIds = Array.from(new Set(subs.map(s => s.user_id)));
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, handle, display_name, avatar_url')
-      .in('id', userIds);
+  const subs = data as DbBountySubmission[];
+  const userIds = Array.from(new Set(subs.map(s => s.user_id)));
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, handle, display_name, avatar_url')
+    .in('id', userIds);
 
-    const profileMap = new Map((profiles ?? []).map(p => [p.id, p]));
+  const profileMap = new Map((profiles ?? []).map(p => [p.id, p]));
 
-    return subs.map(s => {
-      const u = profileMap.get(s.user_id);
-      return {
-        ...s,
-        user_handle: u?.handle ?? 'unknown',
-        user_display_name: u?.display_name ?? null,
-        user_avatar_url: u?.avatar_url ?? null,
-      };
-    });
-  }, TWO_MIN);
+  return subs.map(s => {
+    const u = profileMap.get(s.user_id);
+    return {
+      ...s,
+      user_handle: u?.handle ?? 'unknown',
+      user_display_name: u?.display_name ?? null,
+      user_avatar_url: u?.avatar_url ?? null,
+    };
+  });
 }
 
 export async function getUserBountySubmissions(
   userId: string
 ): Promise<BountySubmissionWithBounty[]> {
-  return cached(`userBountySubmissions:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('bounty_submissions')
-      .select('*, bounties(title, reward_cents)')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+  const { data, error } = await supabase
+    .from('bounty_submissions')
+    .select('*, bounties(title, reward_cents)')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
 
-    if (error) throw new Error(error.message);
-    if (!data || data.length === 0) return [];
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) return [];
 
-    return data.map((row: Record<string, unknown>) => {
-      const bounty = row.bounties as { title: string; reward_cents: number } | null;
-      const { bounties: _, ...sub } = row;
-      return {
-        ...(sub as unknown as DbBountySubmission),
-        bounty_title: bounty?.title ?? '',
-        bounty_reward_cents: bounty?.reward_cents ?? 0,
-      };
-    });
-  }, TWO_MIN);
+  return data.map((row: Record<string, unknown>) => {
+    const bounty = row.bounties as { title: string; reward_cents: number } | null;
+    const { bounties: _, ...sub } = row;
+    return {
+      ...(sub as unknown as DbBountySubmission),
+      bounty_title: bounty?.title ?? '',
+      bounty_reward_cents: bounty?.reward_cents ?? 0,
+    };
+  });
 }
 
 // ============================================
@@ -264,9 +246,6 @@ export async function submitBountyResponse(
   const result = data as SubmitBountyResult;
 
   if (result.success) {
-    invalidateBountyData(userId);
-    invalidate(`bountySubmissions:${bountyId}`);
-
     // Activity log
     import('@/lib/services/activityLog').then(({ logActivity }) => {
       logActivity(userId, 'bounty_submit', 'community', { bountyId, title });
@@ -334,8 +313,6 @@ export async function approveBountySubmission(
         .single();
       if (sub) {
         const bounty = (sub as Record<string, unknown>).bounties as { title: string } | null;
-        invalidateBountyData(sub.user_id);
-        invalidate(`bountySubmissions:${sub.bounty_id}`);
         await createNotification(
           sub.user_id,
           'bounty_approved',
@@ -409,7 +386,6 @@ export async function rejectBountySubmission(
         .single();
       if (sub) {
         const bounty = (sub as Record<string, unknown>).bounties as { title: string } | null;
-        invalidate(`bountySubmissions:${sub.bounty_id}`);
         await createNotification(
           sub.user_id,
           'bounty_rejected',

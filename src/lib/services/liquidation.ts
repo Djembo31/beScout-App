@@ -1,6 +1,4 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate, invalidateTradeData, invalidateNotifications } from '@/lib/cache';
-import { invalidatePbtData } from '@/lib/services/pbt';
 import type { DbLiquidationEvent, DbLiquidationPayout } from '@/types';
 
 // ============================================
@@ -18,8 +16,6 @@ export async function setSuccessFeeCap(
     p_cap_cents: capCents,
   });
   if (error) return { success: false, error: error.message };
-  invalidate('players:');
-  invalidate(`player:${playerId}`);
   return { success: true };
 }
 
@@ -38,11 +34,6 @@ export async function liquidatePlayer(
   if (error) return { success: false, error: error.message };
 
   const result = data as { success: boolean; holder_count: number; distributed_cents: number; success_fee_cents: number; liquidation_id: string };
-
-  // Invalidate all related caches
-  invalidateTradeData(playerId);
-  invalidatePbtData(playerId);
-  invalidateLiquidationData(playerId);
 
   // Fire-and-forget: notify all holders
   (async () => {
@@ -63,7 +54,6 @@ export async function liquidatePlayer(
             playerId,
             'player',
           );
-          invalidateNotifications(p.user_id);
         }
       }
     } catch (err) { console.error('[Liquidation] Holder notification failed:', err); }
@@ -90,51 +80,42 @@ export async function liquidatePlayer(
 // ============================================
 
 export async function getLiquidationEvent(playerId: string): Promise<DbLiquidationEvent | null> {
-  return cached(`liquidation:${playerId}`, async () => {
-    const { data } = await supabase
-      .from('liquidation_events')
-      .select('*')
-      .eq('player_id', playerId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-    return (data as DbLiquidationEvent) || null;
-  }, 5 * 60 * 1000);
+  const { data } = await supabase
+    .from('liquidation_events')
+    .select('*')
+    .eq('player_id', playerId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+  return (data as DbLiquidationEvent) || null;
 }
 
 export async function getLiquidationPayouts(liquidationId: string): Promise<(DbLiquidationPayout & { handle?: string })[]> {
-  return cached(`liquidationPayouts:${liquidationId}`, async () => {
-    const { data } = await supabase
-      .from('liquidation_payouts')
-      .select('*')
-      .eq('liquidation_id', liquidationId)
-      .order('payout_cents', { ascending: false });
-    if (!data) return [];
+  const { data } = await supabase
+    .from('liquidation_payouts')
+    .select('*')
+    .eq('liquidation_id', liquidationId)
+    .order('payout_cents', { ascending: false });
+  if (!data) return [];
 
-    // Enrich with profile handles
-    const userIds = Array.from(new Set((data as DbLiquidationPayout[]).map(p => p.user_id)));
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, handle')
-      .in('id', userIds);
-    const handleMap = new Map((profiles || []).map(p => [p.id, p.handle as string]));
+  // Enrich with profile handles
+  const userIds = Array.from(new Set((data as DbLiquidationPayout[]).map(p => p.user_id)));
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, handle')
+    .in('id', userIds);
+  const handleMap = new Map((profiles || []).map(p => [p.id, p.handle as string]));
 
-    return (data as DbLiquidationPayout[]).map(p => ({
-      ...p,
-      handle: handleMap.get(p.user_id),
-    }));
-  }, 5 * 60 * 1000);
+  return (data as DbLiquidationPayout[]).map(p => ({
+    ...p,
+    handle: handleMap.get(p.user_id),
+  }));
 }
 
 // ============================================
 // Cache Invalidation
 // ============================================
 
-export function invalidateLiquidationData(playerId?: string): void {
-  if (playerId) {
-    invalidate(`liquidation:${playerId}`);
-    invalidate(`player:${playerId}`);
-  }
-  invalidate('players:');
-  invalidate('liquidationPayouts:');
+export function invalidateLiquidationData(_playerId?: string): void {
+  // No-op: React Query handles cache invalidation
 }

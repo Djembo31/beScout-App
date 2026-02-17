@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
 
 // ============================================
 // Scoring Service
@@ -32,12 +31,6 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
     return { success: false, error: error.message };
   }
 
-  // Invalidate client + server caches after scoring
-  invalidate('events:');
-  invalidate('fantasyHistory:');
-  invalidate('wallet:');
-  invalidate('transactions:');
-  invalidate('lineups:');
   try { await fetch('/api/events?bust=1'); } catch { /* bust cache best-effort */ }
 
   const result = data as ScoreResult;
@@ -132,12 +125,6 @@ export async function resetEvent(eventId: string): Promise<ResetResult> {
     return { success: false, error: error.message };
   }
 
-  // Invalidate client + server caches after reset
-  invalidate('events:');
-  invalidate('fantasyHistory:');
-  invalidate('wallet:');
-  invalidate('transactions:');
-  invalidate('lineups:');
   try { await fetch('/api/events?bust=1'); } catch { /* bust cache best-effort */ }
 
   return data as ResetResult;
@@ -271,14 +258,6 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number): Pr
     calculateDpcOfWeek(gameweek).catch(err => console.error('[GW Flow] DPC of Week failed:', err));
   }).catch(err => console.error('[GW Flow] DPC of Week import failed:', err));
 
-  // Invalidate all relevant caches
-  invalidate('events:');
-  invalidate('fantasyHistory:');
-  invalidate('wallet:');
-  invalidate('transactions:');
-  invalidate(`fixtures:gw:${gameweek}`);
-  invalidate('gw-top:');
-
   return {
     success: errors.length === 0,
     fixturesSimulated,
@@ -387,61 +366,59 @@ export type SeasonLeaderboardEntry = {
 
 /** Aggregate season leaderboard: top users by total points across all scored events */
 export async function getSeasonLeaderboard(limit = 50): Promise<SeasonLeaderboardEntry[]> {
-  return cached(`seasonLeaderboard:${limit}`, async () => {
-    // Aggregate lineups where scoring happened (total_score IS NOT NULL)
-    const { data, error } = await supabase
-      .from('lineups')
-      .select('user_id, total_score, rank, reward_amount')
-      .not('total_score', 'is', null);
+  // Aggregate lineups where scoring happened (total_score IS NOT NULL)
+  const { data, error } = await supabase
+    .from('lineups')
+    .select('user_id, total_score, rank, reward_amount')
+    .not('total_score', 'is', null);
 
-    if (error || !data || data.length === 0) return [];
+  if (error || !data || data.length === 0) return [];
 
-    // Aggregate per user
-    const userMap = new Map<string, { totalPoints: number; eventsPlayed: number; totalRewardCents: number; wins: number }>();
-    for (const l of data) {
-      const existing = userMap.get(l.user_id);
-      const score = (l.total_score as number) ?? 0;
-      const reward = l.reward_amount ?? 0;
-      const isWin = l.rank === 1;
-      if (existing) {
-        existing.totalPoints += score;
-        existing.eventsPlayed += 1;
-        existing.totalRewardCents += reward;
-        if (isWin) existing.wins += 1;
-      } else {
-        userMap.set(l.user_id, { totalPoints: score, eventsPlayed: 1, totalRewardCents: reward, wins: isWin ? 1 : 0 });
-      }
+  // Aggregate per user
+  const userMap = new Map<string, { totalPoints: number; eventsPlayed: number; totalRewardCents: number; wins: number }>();
+  for (const l of data) {
+    const existing = userMap.get(l.user_id);
+    const score = (l.total_score as number) ?? 0;
+    const reward = l.reward_amount ?? 0;
+    const isWin = l.rank === 1;
+    if (existing) {
+      existing.totalPoints += score;
+      existing.eventsPlayed += 1;
+      existing.totalRewardCents += reward;
+      if (isWin) existing.wins += 1;
+    } else {
+      userMap.set(l.user_id, { totalPoints: score, eventsPlayed: 1, totalRewardCents: reward, wins: isWin ? 1 : 0 });
     }
+  }
 
-    // Sort by total points desc, take top N
-    const sorted = Array.from(userMap.entries())
-      .sort((a, b) => b[1].totalPoints - a[1].totalPoints)
-      .slice(0, limit);
+  // Sort by total points desc, take top N
+  const sorted = Array.from(userMap.entries())
+    .sort((a, b) => b[1].totalPoints - a[1].totalPoints)
+    .slice(0, limit);
 
-    // Fetch profiles
-    const userIds = sorted.map(([uid]) => uid);
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('id, handle, display_name, avatar_url')
-      .in('id', userIds);
+  // Fetch profiles
+  const userIds = sorted.map(([uid]) => uid);
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, handle, display_name, avatar_url')
+    .in('id', userIds);
 
-    const profileMap = new Map(
-      (profiles ?? []).map(p => [p.id, p])
-    );
+  const profileMap = new Map(
+    (profiles ?? []).map(p => [p.id, p])
+  );
 
-    return sorted.map(([uid, stats], idx) => {
-      const profile = profileMap.get(uid);
-      return {
-        rank: idx + 1,
-        userId: uid,
-        handle: profile?.handle ?? 'Unbekannt',
-        displayName: profile?.display_name ?? null,
-        avatarUrl: profile?.avatar_url ?? null,
-        totalPoints: stats.totalPoints,
-        eventsPlayed: stats.eventsPlayed,
-        totalRewardCents: stats.totalRewardCents,
-        wins: stats.wins,
-      };
-    });
-  }, 300);
+  return sorted.map(([uid, stats], idx) => {
+    const profile = profileMap.get(uid);
+    return {
+      rank: idx + 1,
+      userId: uid,
+      handle: profile?.handle ?? 'Unbekannt',
+      displayName: profile?.display_name ?? null,
+      avatarUrl: profile?.avatar_url ?? null,
+      totalPoints: stats.totalPoints,
+      eventsPlayed: stats.eventsPlayed,
+      totalRewardCents: stats.totalRewardCents,
+      wins: stats.wins,
+    };
+  });
 }

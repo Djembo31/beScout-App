@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await supabaseServer
       .from('players')
-      .select('*')
+      .select('id,first_name,last_name,position,club,club_id,age,shirt_number,nationality,image_url,matches,goals,assists,perf_l5,perf_l15,dpc_total,dpc_available,floor_price,last_price,ipo_price,price_change_24h,status,success_fee_cap_cents,is_liquidated')
       .order('price_change_24h', { ascending: false })
       .limit(limit);
 
@@ -34,16 +34,26 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  // All players
+  // All players — select only columns used by dbToPlayer() to reduce payload (~30% smaller)
   if (playersCache && Date.now() < playersCache.expiresAt) {
     return NextResponse.json(playersCache.data, {
       headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60' },
     });
   }
 
+  const PLAYER_COLS = [
+    'id', 'first_name', 'last_name', 'position', 'club', 'club_id',
+    'age', 'shirt_number', 'nationality', 'image_url',
+    'matches', 'goals', 'assists',
+    'perf_l5', 'perf_l15',
+    'dpc_total', 'dpc_available',
+    'floor_price', 'last_price', 'ipo_price', 'price_change_24h',
+    'status', 'success_fee_cap_cents', 'is_liquidated',
+  ].join(',');
+
   const { data, error } = await supabaseServer
     .from('players')
-    .select('*')
+    .select(PLAYER_COLS)
     .order('last_name');
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

@@ -55,3 +55,14 @@ export function cn(...classes: (string | boolean | undefined | null)[]): string 
   return classes.filter(Boolean).join(' ');
 }
 
+/** Race a promise against a timeout. Rejects with Error('Timeout') on expiry. */
+export function withTimeout<T>(promise: Promise<T>, ms = 8000): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('Timeout')), ms);
+    promise.then(
+      (v) => { clearTimeout(timer); resolve(v); },
+      (e) => { clearTimeout(timer); reject(e); },
+    );
+  });
+}
+

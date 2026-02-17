@@ -3,14 +3,15 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import {
-  Search, Filter, ChevronDown, ChevronUp, X, ArrowUpDown,
+  Filter, ChevronDown, ChevronUp, X, ArrowUpDown,
   Package, Tag, MessageSquare, Loader2, Trash2, DollarSign,
   TrendingUp, TrendingDown, Minus, AlertCircle,
 } from 'lucide-react';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, SearchInput, PosFilter, EmptyState } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { fmtBSD, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
+import { getClub } from '@/lib/clubs';
 import type { Player, Pos, DbIpo, OfferWithDetails } from '@/types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 
@@ -315,8 +316,11 @@ export default function ManagerBestandTab({
 }: ManagerBestandTabProps) {
   const [query, setQuery] = useState('');
   const [posFilter, setPosFilter] = useState<Set<Pos>>(new Set());
+  const [clubFilter, setClubFilter] = useState('');
+  const [leagueFilter, setLeagueFilter] = useState('');
+  const [countryFilter, setCountryFilter] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('value_desc');
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Build bestand data
@@ -371,6 +375,56 @@ export default function ManagerBestandTab({
     return items;
   }, [players, holdings, ipoList, userId, incomingOffers]);
 
+  // Derive unique countries, leagues, clubs from ALL players (not just owned)
+  const filterOptions = useMemo(() => {
+    const countries = new Set<string>();
+    const leagues = new Map<string, Set<string>>(); // country → leagues
+    const clubs = new Map<string, Set<string>>();   // league → clubs
+    for (const p of players) {
+      const cl = getClub(p.club);
+      const country = cl?.country ?? 'Unbekannt';
+      const league = cl?.league ?? p.league ?? 'Unbekannt';
+      const club = p.club;
+      countries.add(country);
+      if (!leagues.has(country)) leagues.set(country, new Set());
+      leagues.get(country)!.add(league);
+      if (!clubs.has(league)) clubs.set(league, new Set());
+      clubs.get(league)!.add(club);
+    }
+    return {
+      countries: Array.from(countries).sort(),
+      leagues,
+      clubs,
+    };
+  }, [players]);
+
+  // Cascade: when country changes, reset league if not in that country
+  const availableLeagues = useMemo(() => {
+    if (!countryFilter) {
+      const all = new Set<string>();
+      filterOptions.leagues.forEach(set => set.forEach(l => all.add(l)));
+      return Array.from(all).sort();
+    }
+    return Array.from(filterOptions.leagues.get(countryFilter) ?? []).sort();
+  }, [countryFilter, filterOptions]);
+
+  const availableClubs = useMemo(() => {
+    if (!leagueFilter) {
+      const all = new Set<string>();
+      // If country filter is set, only show clubs from that country's leagues
+      if (countryFilter) {
+        const countryLeagues = filterOptions.leagues.get(countryFilter) ?? new Set();
+        countryLeagues.forEach(lg => {
+          (filterOptions.clubs.get(lg) ?? new Set()).forEach(c => all.add(c));
+        });
+      } else {
+        filterOptions.clubs.forEach(set => set.forEach(c => all.add(c)));
+      }
+      return Array.from(all).sort();
+    }
+    return Array.from(filterOptions.clubs.get(leagueFilter) ?? []).sort();
+  }, [leagueFilter, countryFilter, filterOptions]);
+
   // Summary stats
   const summary = useMemo(() => {
     let totalPlayers = 0, totalValue = 0, totalInvested = 0, totalListed = 0, totalOffers = 0;
@@ -396,6 +450,15 @@ export default function ManagerBestandTab({
       );
     }
     if (posFilter.size > 0) result = result.filter(item => posFilter.has(item.player.pos));
+    if (clubFilter) result = result.filter(item => item.player.club === clubFilter);
+    if (leagueFilter) result = result.filter(item => {
+      const cl = getClub(item.player.club);
+      return (cl?.league ?? item.player.league) === leagueFilter;
+    });
+    if (countryFilter) result = result.filter(item => {
+      const cl = getClub(item.player.club);
+      return (cl?.country ?? 'Unbekannt') === countryFilter;
+    });
 
     result.sort((a, b) => {
       switch (sortBy) {
@@ -409,7 +472,7 @@ export default function ManagerBestandTab({
       }
     });
     return result;
-  }, [bestandItems, query, posFilter, sortBy]);
+  }, [bestandItems, query, posFilter, clubFilter, leagueFilter, countryFilter, sortBy]);
 
   const togglePos = useCallback((pos: Pos) => {
     setPosFilter(prev => {
@@ -462,16 +525,7 @@ export default function ManagerBestandTab({
 
       {/* Search + Filters */}
       <div className="flex items-center gap-2">
-        <div className="relative flex-1 min-w-0">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-          <input
-            type="text"
-            placeholder="Spieler suchen..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
-          />
-        </div>
+        <SearchInput value={query} onChange={setQuery} placeholder="Spieler suchen..." className="flex-1 min-w-0" />
         <button
           onClick={() => setShowFilters(!showFilters)}
           className={cn(
@@ -484,47 +538,68 @@ export default function ManagerBestandTab({
         </button>
       </div>
 
-      {/* Position Chips + Sort (collapsible) */}
+      {/* Filters (collapsible) */}
       {showFilters && (
-        <div className="flex items-center gap-2 flex-wrap anim-dropdown">
-          {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map(pos => {
-            const active = posFilter.has(pos);
-            const colors: Record<Pos, string> = {
-              GK: 'bg-emerald-500/20 border-emerald-400 text-emerald-300',
-              DEF: 'bg-amber-500/20 border-amber-400 text-amber-300',
-              MID: 'bg-sky-500/20 border-sky-400 text-sky-300',
-              ATT: 'bg-rose-500/20 border-rose-400 text-rose-300',
-            };
-            return (
-              <button
-                key={pos} onClick={() => togglePos(pos)}
-                className={cn(
-                  'px-3 py-1.5 rounded-lg text-xs font-black border transition-all',
-                  active ? colors[pos] : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70'
-                )}
-              >{pos}</button>
-            );
-          })}
-          <div className="flex items-center gap-1.5 ml-auto">
-            <ArrowUpDown className="w-3.5 h-3.5 text-white/30" />
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="px-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60 focus:outline-none"
-            >
-              <option value="value_desc">Wert ↓</option>
-              <option value="pnl_desc">G/V ↓</option>
-              <option value="pnl_asc">G/V ↑</option>
-              <option value="l5">L5 Score</option>
-              <option value="name">Name A-Z</option>
-              <option value="date">Kaufdatum</option>
-            </select>
+        <div className="space-y-3 anim-dropdown">
+          {/* Position Chips + Sort */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <PosFilter multi selected={posFilter} onChange={togglePos} />
+            <div className="flex items-center gap-1.5 ml-auto">
+              <ArrowUpDown className="w-3.5 h-3.5 text-white/30" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className="px-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60 focus:outline-none"
+              >
+                <option value="value_desc">Wert ↓</option>
+                <option value="pnl_desc">G/V ↓</option>
+                <option value="pnl_asc">G/V ↑</option>
+                <option value="l5">L5 Score</option>
+                <option value="name">Name A-Z</option>
+                <option value="date">Kaufdatum</option>
+              </select>
+            </div>
           </div>
-          {posFilter.size > 0 && (
-            <button onClick={() => setPosFilter(new Set())} className="text-[10px] text-white/30 hover:text-white/60 flex items-center gap-1">
-              <X className="w-3 h-3" />Filter zurücksetzen
-            </button>
-          )}
+
+          {/* Land / Liga / Verein Dropdowns */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Land */}
+            <select
+              value={countryFilter}
+              onChange={(e) => { setCountryFilter(e.target.value); setLeagueFilter(''); setClubFilter(''); }}
+              className="px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60 focus:outline-none focus:border-[#FFD700]/40"
+            >
+              <option value="">Alle Länder</option>
+              {filterOptions.countries.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            {/* Liga */}
+            <select
+              value={leagueFilter}
+              onChange={(e) => { setLeagueFilter(e.target.value); setClubFilter(''); }}
+              className="px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60 focus:outline-none focus:border-[#FFD700]/40"
+            >
+              <option value="">Alle Ligen</option>
+              {availableLeagues.map(l => <option key={l} value={l}>{l}</option>)}
+            </select>
+            {/* Verein */}
+            <select
+              value={clubFilter}
+              onChange={(e) => setClubFilter(e.target.value)}
+              className="px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60 focus:outline-none focus:border-[#FFD700]/40"
+            >
+              <option value="">Alle Vereine</option>
+              {availableClubs.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            {/* Reset all */}
+            {(posFilter.size > 0 || clubFilter || leagueFilter || countryFilter) && (
+              <button
+                onClick={() => { setPosFilter(new Set()); setClubFilter(''); setLeagueFilter(''); setCountryFilter(''); }}
+                className="text-[10px] text-white/30 hover:text-white/60 flex items-center gap-1 ml-auto"
+              >
+                <X className="w-3 h-3" />Zurücksetzen
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -533,20 +608,11 @@ export default function ManagerBestandTab({
 
       {/* Empty State */}
       {filtered.length === 0 && (
-        <Card className="p-12 text-center">
-          <Package className="w-12 h-12 mx-auto mb-4 text-white/20" />
-          {bestandItems.length === 0 ? (
-            <>
-              <div className="text-white/30 mb-2">Noch keine Spieler im Bestand</div>
-              <div className="text-sm text-white/50">Kaufe DPCs über Club Sales oder den Transfermarkt.</div>
-            </>
-          ) : (
-            <>
-              <div className="text-white/30 mb-2">Keine Spieler gefunden</div>
-              <div className="text-sm text-white/50">Versuche andere Suchbegriffe oder Filter</div>
-            </>
-          )}
-        </Card>
+        bestandItems.length === 0 ? (
+          <EmptyState icon={<Package />} title="Noch keine Spieler im Bestand" description="Kaufe DPCs über Club Sales oder den Transfermarkt." />
+        ) : (
+          <EmptyState icon={<Package />} title="Keine Spieler gefunden" description="Versuche andere Suchbegriffe oder Filter" action={{ label: 'Filter zurücksetzen', onClick: () => { setPosFilter(new Set()); setClubFilter(''); setLeagueFilter(''); setCountryFilter(''); setQuery(''); }}} />
+        )
       )}
 
       {/* Player Cards */}

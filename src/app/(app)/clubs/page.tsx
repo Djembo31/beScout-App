@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Users, UserPlus, UserMinus, Loader2, Shield, Compass } from 'lucide-react';
-import { Card, Button, ErrorState } from '@/components/ui';
+import { Search, Users, UserPlus, UserMinus, Shield, Compass } from 'lucide-react';
+import { Card, Button, ErrorState, SearchInput, EmptyState, Skeleton, SkeletonCard } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useClub } from '@/components/providers/ClubProvider';
@@ -79,21 +79,15 @@ export default function ClubsDiscoveryPage() {
       </div>
 
       {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Club, Stadt oder Liga suchen..."
-          className="w-full pl-10 pr-4 py-3 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 transition-all"
-        />
-      </div>
+      <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Club, Stadt oder Liga suchen..." />
 
       {/* Loading */}
       {loading && (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-8 h-8 text-[#FFD700] animate-spin" />
+        <div className="space-y-6">
+          <Skeleton className="h-5 w-32" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} className="h-40" />)}
+          </div>
         </div>
       )}
 
@@ -104,17 +98,11 @@ export default function ClubsDiscoveryPage() {
 
       {/* Empty */}
       {!loading && !dataError && filtered.length === 0 && (
-        <div className="text-center py-16">
-          <Search className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <p className="text-white/50">
-            {searchQuery ? `Keine Clubs für "${searchQuery}" gefunden.` : 'Keine Clubs verfügbar.'}
-          </p>
-          {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="mt-2 text-xs text-[#FFD700]/70 hover:text-[#FFD700]">
-              Suche zurücksetzen
-            </button>
-          )}
-        </div>
+        <EmptyState
+          icon={<Search />}
+          title={searchQuery ? `Keine Clubs für "${searchQuery}" gefunden` : 'Keine Clubs verfügbar'}
+          action={searchQuery ? { label: 'Suche zurücksetzen', onClick: () => setSearchQuery('') } : undefined}
+        />
       )}
 
       {/* Club Grid by League */}

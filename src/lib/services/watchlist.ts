@@ -1,7 +1,4 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
-
-const TWO_MIN = 2 * 60 * 1000;
 
 // ============================================
 // Types
@@ -22,36 +19,32 @@ export type WatchlistEntry = {
 
 /** Get user's watchlist */
 export async function getWatchlist(userId: string): Promise<WatchlistEntry[]> {
-  return cached(`watchlist:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('watchlist')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+  const { data, error } = await supabase
+    .from('watchlist')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
 
-    if (error) throw new Error(error.message);
-    return (data ?? []).map(w => ({
-      id: w.id,
-      playerId: w.player_id,
-      alertThresholdPct: w.alert_threshold_pct,
-      alertDirection: w.alert_direction,
-      lastAlertPrice: w.last_alert_price,
-      createdAt: w.created_at,
-    }));
-  }, TWO_MIN);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(w => ({
+    id: w.id,
+    playerId: w.player_id,
+    alertThresholdPct: w.alert_threshold_pct,
+    alertDirection: w.alert_direction,
+    lastAlertPrice: w.last_alert_price,
+    createdAt: w.created_at,
+  }));
 }
 
 /** Check if a player is on the user's watchlist */
 export async function isOnWatchlist(userId: string, playerId: string): Promise<boolean> {
-  return cached(`watchlist:${userId}:${playerId}`, async () => {
-    const { data } = await supabase
-      .from('watchlist')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('player_id', playerId)
-      .maybeSingle();
-    return !!data;
-  }, TWO_MIN);
+  const { data } = await supabase
+    .from('watchlist')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('player_id', playerId)
+    .maybeSingle();
+  return !!data;
 }
 
 // ============================================
@@ -68,7 +61,6 @@ export async function addToWatchlist(userId: string, playerId: string): Promise<
     if (error.code === '23505') return; // Already exists
     throw new Error(error.message);
   }
-  invalidate(`watchlist:${userId}`);
 }
 
 /** Remove player from watchlist */
@@ -80,7 +72,6 @@ export async function removeFromWatchlist(userId: string, playerId: string): Pro
     .eq('player_id', playerId);
 
   if (error) throw new Error(error.message);
-  invalidate(`watchlist:${userId}`);
 }
 
 /** Migrate localStorage watchlist to DB (one-time). Returns number of items migrated. */
@@ -105,7 +96,6 @@ export async function migrateLocalWatchlist(userId: string): Promise<number> {
 
     // Remove localStorage after successful migration
     localStorage.removeItem(LEGACY_KEY);
-    invalidate(`watchlist:${userId}`);
     return migrated;
   } catch {
     return 0;

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Search, Trophy, Vote, BadgeCheck, Plus } from 'lucide-react';
-import { Card, Button } from '@/components/ui';
+import { Trophy, Vote, BadgeCheck, Plus, MessageSquare } from 'lucide-react';
+import { Card, Button, SearchInput, SortPills, EmptyState } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import PostCard, { POST_CATEGORIES } from '@/components/community/PostCard';
 import type { PostWithAuthor, DbClubVote, LeaderboardUser } from '@/types';
@@ -118,30 +118,16 @@ export default function CommunityFeedTab({
       <div className="lg:col-span-2 space-y-4">
         {/* Search + Sort */}
         <div className="flex items-center gap-3">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Suche Posts, Spieler, Tags..."
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40"
-            />
-          </div>
-          <div className="flex gap-1">
-            {(['new', 'trending', 'top'] as FeedSort[]).map(s => (
-              <button
-                key={s}
-                onClick={() => setFeedSort(s)}
-                className={cn(
-                  'px-3 py-2 rounded-lg text-xs font-semibold transition-all',
-                  feedSort === s ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/25' : 'text-white/50 hover:text-white bg-white/5 border border-white/10'
-                )}
-              >
-                {s === 'new' ? 'Neu' : s === 'trending' ? 'Beliebt' : 'Top'}
-              </button>
-            ))}
-          </div>
+          <SearchInput value={query} onChange={setQuery} placeholder="Suche Posts, Spieler, Tags..." className="flex-1" />
+          <SortPills
+            options={[
+              { id: 'new', label: 'Neu' },
+              { id: 'trending', label: 'Beliebt' },
+              { id: 'top', label: 'Top' },
+            ]}
+            active={feedSort}
+            onChange={(id) => setFeedSort(id as FeedSort)}
+          />
         </div>
 
         {/* Category Filter Pills */}
@@ -162,26 +148,18 @@ export default function CommunityFeedTab({
           ))}
         </div>
 
+        {/* Result Counter */}
+        <div className="text-xs text-white/40 px-1">{filteredPosts.length} Beiträge</div>
+
         {/* Posts */}
         {filteredPosts.length === 0 ? (
-          <Card className="p-12 text-center">
-            <div className="text-white/30 mb-2">
-              {isFollowingTab
-                ? 'Folge Scouts um deren Posts hier zu sehen'
-                : query.trim()
-                  ? `Keine Ergebnisse für "${query}"`
-                  : 'Noch keine Posts'}
-            </div>
-            {isFollowingTab ? (
-              <Button variant="outline" size="sm" onClick={onSwitchToLeaderboard}>
-                Top Scouts entdecken
-              </Button>
-            ) : (
-              <Button variant="gold" size="sm" onClick={onCreatePost}>
-                Ersten Post schreiben
-              </Button>
-            )}
-          </Card>
+          isFollowingTab ? (
+            <EmptyState icon={<Trophy />} title="Folge Scouts um deren Posts hier zu sehen" action={{ label: 'Top Scouts entdecken', onClick: onSwitchToLeaderboard }} />
+          ) : query.trim() ? (
+            <EmptyState icon={<MessageSquare />} title={`Keine Ergebnisse für "${query}"`} action={{ label: 'Suche löschen', onClick: () => setQuery('') }} />
+          ) : (
+            <EmptyState icon={<MessageSquare />} title="Noch keine Posts" action={{ label: 'Ersten Post schreiben', onClick: onCreatePost }} />
+          )
         ) : (
           <div className="space-y-3">
             {filteredPosts.map((post) => (

@@ -1,8 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
 import type { DbEvent } from '@/types';
-
-const ONE_MIN = 60 * 1000;
 
 // ============================================
 // Event Queries
@@ -10,11 +7,9 @@ const ONE_MIN = 60 * 1000;
 
 /** Alle Events laden — via server-cached API Route */
 export async function getEvents(): Promise<DbEvent[]> {
-  return cached('events:all', async () => {
-    const res = await fetch('/api/events');
-    if (!res.ok) throw new Error('Failed to fetch events');
-    return (await res.json()) as DbEvent[];
-  }, ONE_MIN);
+  const res = await fetch('/api/events');
+  if (!res.ok) throw new Error('Failed to fetch events');
+  return (await res.json()) as DbEvent[];
 }
 
 /** Events eines Clubs laden (direkt aus DB) */
@@ -93,7 +88,6 @@ export async function createEvent(params: {
     .single();
 
   if (error) return { success: false, error: error.message };
-  invalidate('events:');
 
   // Notify club followers about new event
   if (params.clubId) {
@@ -170,7 +164,6 @@ export async function createNextGameweekEvents(
   const { error: insertErr } = await supabase.from('events').insert(clones);
   if (insertErr) return { created: 0, skipped: false, error: insertErr.message };
 
-  invalidate('events:');
   return { created: clones.length, skipped: false };
 }
 
@@ -184,7 +177,6 @@ export async function updateEventStatus(
     .eq('id', eventId);
 
   if (error) return { success: false, error: error.message };
-  invalidate('events:');
 
   // Notify participants when event starts running
   if (status === 'running') {

@@ -48,21 +48,24 @@ export default function SearchDropdown({ query, open, onClose }: SearchDropdownP
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Debounced search
+  // Debounced search with stale-request guard
+  const searchIdRef = useRef(0);
   useEffect(() => {
     if (!query || query.length < 2) {
       setResults([]);
+      setLoading(false);
       return;
     }
     setLoading(true);
+    const id = ++searchIdRef.current;
     const timer = setTimeout(async () => {
       try {
         const data = await globalSearch(query);
-        setResults(data);
+        if (id === searchIdRef.current) setResults(data);
       } catch {
-        setResults([]);
+        if (id === searchIdRef.current) setResults([]);
       } finally {
-        setLoading(false);
+        if (id === searchIdRef.current) setLoading(false);
       }
     }, 300);
     return () => clearTimeout(timer);

@@ -3,7 +3,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useUser } from './AuthProvider';
 import { getWallet } from '@/lib/services/wallet';
-import { withTimeout } from '@/lib/cache';
+import { withTimeout } from '@/lib/utils';
 
 const WALLET_SESSION_KEY = 'bescout-wallet-balance';
 
@@ -63,11 +63,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         } catch (err) {
             console.error('[Wallet] Balance fetch failed:', err);
             // Set to 0 so UI doesn't show perpetual loading skeleton
-            if (balanceCents === null) setBalanceCentsRaw(0);
+            setBalanceCentsRaw(prev => prev === null ? 0 : prev);
         } finally {
             loaded.current = true;
         }
-    }, [user, setBalanceCents, balanceCents]);
+    }, [user, setBalanceCents]);
 
     // Load balance when user becomes available (skip if already loaded for same user)
     const prevUserId = useRef<string | null>(null);

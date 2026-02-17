@@ -11,30 +11,28 @@ import {
   ArrowUpRight, ArrowDownRight, ExternalLink, Users2,
   Loader2, Plus, FileText, Settings,
 } from 'lucide-react';
-import { Card, Button, Chip, Modal, ErrorState, Skeleton, SkeletonCard, TabBar } from '@/components/ui';
+import { Card, Button, Chip, Modal, ErrorState, Skeleton, SkeletonCard, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { useUser } from '@/components/providers/AuthProvider';
-import { getPlayersByClubId, dbToPlayers, centsToBsd } from '@/lib/services/players';
-import { getIposByClubId } from '@/lib/services/ipo';
-import { getHoldings } from '@/lib/services/wallet';
-import {
-  getClubBySlug,
-  getClubFollowerCount,
-  isUserFollowingClub,
-  toggleFollowClub,
-  getClubRecentTrades,
-} from '@/lib/services/club';
-// Club data now comes from DB via ClubProvider
+import { dbToPlayers, centsToBsd } from '@/lib/services/players';
+import { toggleFollowClub } from '@/lib/services/club';
 import { fmtBSD, cn } from '@/lib/utils';
-import { withTimeout } from '@/lib/cache';
-import { val } from '@/lib/settledHelpers';
-import { getAllVotes, getUserVotedIds, castVote, createVote } from '@/lib/services/votes';
+import { getAllVotes, castVote, createVote } from '@/lib/services/votes';
 import { formatBsd } from '@/lib/services/wallet';
-import { getResearchPosts, unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
-import { getMySubscription, subscribeTo, cancelSubscription, TIER_CONFIG } from '@/lib/services/clubSubscriptions';
+import { unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
+import { subscribeTo, cancelSubscription, TIER_CONFIG } from '@/lib/services/clubSubscriptions';
 import type { ClubSubscription, SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import ResearchCard from '@/components/community/ResearchCard';
+import { useClubBySlug, useClubSubscription } from '@/lib/queries/misc';
+import { usePlayersByClub } from '@/lib/queries/players';
+import { useClubFollowerCount, useIsFollowingClub } from '@/lib/queries/social';
+import { useClubRecentTrades } from '@/lib/queries/trades';
+import { useHoldings } from '@/lib/queries/holdings';
+import { useClubVotes, useUserVotedIds } from '@/lib/queries/votes';
+import { useClubResearch } from '@/lib/queries/research';
+import { queryClient } from '@/lib/queryClient';
+import { qk } from '@/lib/queries/keys';
 import type { Player, Pos, DbPlayer, DbTrade, DbIpo, DbClubVote, ClubWithAdmin, ResearchPostWithAuthor } from '@/types';
 
 // ============================================
@@ -634,33 +632,65 @@ function ClubSkeleton() {
 
 export default function ClubContent({ slug }: { slug: string }) {
   const { user, profile, refreshProfile } = useUser();
+  const userId = user?.id;
 
-  // ---- Club data ----
-  const [club, setClub] = useState<ClubWithAdmin | null>(null);
+  // ── React Query Hooks (ALL before early returns) ──
+  const { data: club, isLoading: clubLoading, isError: clubError } = useClubBySlug(slug, userId);
+  const clubId = club?.id;
+  const { data: dbPlayersRaw = [], isLoading: playersLoading, isError: playersError } = usePlayersByClub(clubId);
+  const { data: followerCountData = 0 } = useClubFollowerCount(clubId);
+  const { data: isFollowingData = false } = useIsFollowingClub(userId, clubId);
+  const { data: recentTradesData = [] } = useClubRecentTrades(clubId);
+  const { data: dbHoldings = [] } = useHoldings(userId);
+  const { data: clubVotesData = [] } = useClubVotes(clubId ?? null);
+  const { data: userVotedIdsData } = useUserVotedIds(userId);
+  const { data: clubResearchData = [] } = useClubResearch(clubId, userId);
+  const { data: subscriptionData = null } = useClubSubscription(userId, clubId);
 
-  // ---- State ----
+  // Resolve expired research (fire-and-forget)
+  useEffect(() => {
+    resolveExpiredResearch().catch(err => console.error('[Club] Resolve expired research failed:', err));
+  }, []);
+
+  // ---- Derived data from hooks ----
+  const players = useMemo(() => dbToPlayers(dbPlayersRaw), [dbPlayersRaw]);
+  const recentTrades = recentTradesData as TradeWithPlayer[];
+  const clubVotes = clubVotesData;
+  const userVotedIds = userVotedIdsData ?? new Set<string>();
+  const clubResearch = clubResearchData;
+
+  const userHoldingsQty = useMemo(() => {
+    if (!clubId || dbHoldings.length === 0) return {};
+    const clubPlayerIds = new Set(dbPlayersRaw.map((p) => p.id));
+    const holdingsMap: Record<string, number> = {};
+    dbHoldings.forEach((h) => {
+      if (clubPlayerIds.has(h.player_id)) {
+        holdingsMap[h.player_id] = h.quantity;
+      }
+    });
+    return holdingsMap;
+  }, [dbHoldings, dbPlayersRaw, clubId]);
+
+  // Loading / error / notFound
+  const loading = clubLoading || (!!clubId && playersLoading);
+  const dataError = clubError || playersError;
+  const notFound = !clubLoading && !club;
+
+  // ---- Local UI state ----
   const [tab, setTab] = useState<ClubTab>('uebersicht');
-  const [loading, setLoading] = useState(true);
-  const [dataError, setDataError] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-  const [notFound, setNotFound] = useState(false);
-
-  // Real data
-  const [dbPlayersRaw, setDbPlayersRaw] = useState<DbPlayer[]>([]);
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [followerCount, setFollowerCount] = useState(0);
-  const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
-  const [userHoldingsQty, setUserHoldingsQty] = useState<Record<string, number>>({});
-  const [recentTrades, setRecentTrades] = useState<TradeWithPlayer[]>([]);
+  const [localFollowing, setLocalFollowing] = useState<boolean | null>(null);
+  const [localFollowerDelta, setLocalFollowerDelta] = useState(0);
+
+  const isFollowing = localFollowing ?? isFollowingData;
+  const followerCount = followerCountData + localFollowerDelta;
 
   // Spieler Tab filters
   const [posFilter, setPosFilter] = useState<Pos | 'ALL'>('ALL');
   const [sortBy, setSortBy] = useState<'perf' | 'price' | 'change'>('perf');
+  const [spielerQuery, setSpielerQuery] = useState('');
 
   // Votes state
-  const [clubVotes, setClubVotes] = useState<DbClubVote[]>([]);
-  const [userVotedIds, setUserVotedIds] = useState<Set<string>>(new Set());
   const [votingId, setVotingId] = useState<string | null>(null);
   const [voteMsg, setVoteMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [createVoteModalOpen, setCreateVoteModalOpen] = useState(false);
@@ -671,7 +701,6 @@ export default function ClubContent({ slug }: { slug: string }) {
   const [cvLoading, setCvLoading] = useState(false);
 
   // Research state
-  const [clubResearch, setClubResearch] = useState<ResearchPostWithAuthor[]>([]);
   const [researchUnlockingId, setResearchUnlockingId] = useState<string | null>(null);
   const [researchRatingId, setResearchRatingId] = useState<string | null>(null);
 
@@ -681,102 +710,10 @@ export default function ClubContent({ slug }: { slug: string }) {
   const [subLoading, setSubLoading] = useState(false);
   const [subError, setSubError] = useState<string | null>(null);
 
-  // ---- Load Data ----
+  // Sync subscription from query
   useEffect(() => {
-    let cancelled = false;
-
-    async function loadData() {
-      setLoading(true);
-      setDataError(false);
-      setNotFound(false);
-      try {
-        // Step 1: Load club by slug
-        const clubData = await getClubBySlug(slug, user?.id);
-        if (cancelled) return;
-        if (!clubData) {
-          setNotFound(true);
-          setLoading(false);
-          return;
-        }
-        setClub(clubData);
-        const cid = clubData.id;
-
-        // Step 2: Parallel fetch with timeout
-        const clubResults = await withTimeout(Promise.allSettled([
-          getPlayersByClubId(cid),
-          getClubFollowerCount(cid),
-        ]), 10000);
-
-        if (cancelled) return;
-
-        const playersResult = val(clubResults[0], []);
-        const followerResult = val(clubResults[1], 0);
-
-        if (clubResults[0].status === 'rejected') {
-          if (!cancelled) setDataError(true);
-          return;
-        }
-
-        setDbPlayersRaw(playersResult);
-        setPlayers(dbToPlayers(playersResult));
-        setFollowerCount(followerResult);
-
-        // User-specific data
-        if (user) {
-          const [followingResult, holdingsResult] = await Promise.all([
-            isUserFollowingClub(user.id, cid),
-            getHoldings(user.id),
-          ]);
-
-          if (cancelled) return;
-
-          setIsFollowing(followingResult);
-
-          const clubPlayerIds = new Set(playersResult.map((p) => p.id));
-          const holdingsMap: Record<string, number> = {};
-          holdingsResult.forEach((h) => {
-            if (clubPlayerIds.has(h.player_id)) {
-              holdingsMap[h.player_id] = h.quantity;
-            }
-          });
-          setUserHoldingsQty(holdingsMap);
-        }
-
-        // Trades
-        const tradesResult = await getClubRecentTrades(cid, 10);
-        if (!cancelled) setRecentTrades(tradesResult);
-
-        // Club votes
-        const votesResult = await getAllVotes(cid);
-        if (!cancelled) setClubVotes(votesResult);
-
-        if (user) {
-          const votedResult = await getUserVotedIds(user.id);
-          if (!cancelled) setUserVotedIds(votedResult);
-        }
-
-        // Research
-        resolveExpiredResearch().catch(err => console.error('[Club] Resolve expired research failed:', err));
-        const researchResult = await getResearchPosts({ clubId: cid, currentUserId: user?.id });
-        if (!cancelled) setClubResearch(researchResult);
-
-        // Subscription
-        if (user) {
-          getMySubscription(user.id, cid).then(sub => {
-            if (!cancelled) setSubscription(sub);
-          }).catch(err => console.error('[Club] Subscription load failed:', err));
-        }
-      } catch (err) {
-        console.error('[Club] Data load failed:', err);
-        if (!cancelled) setDataError(true);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    loadData();
-    return () => { cancelled = true; };
-  }, [user, slug, retryCount]);
+    if (subscriptionData !== undefined) setSubscription(subscriptionData);
+  }, [subscriptionData]);
 
   // ---- Vote Handlers ----
   const handleCastVote = useCallback(async (voteId: string, optionIndex: number) => {
@@ -785,12 +722,8 @@ export default function ClubContent({ slug }: { slug: string }) {
     setVoteMsg(null);
     try {
       await castVote(user.id, voteId, optionIndex);
-      const [votesResult, votedResult] = await Promise.all([
-        getAllVotes(club.id),
-        getUserVotedIds(user.id),
-      ]);
-      setClubVotes(votesResult);
-      setUserVotedIds(votedResult);
+      queryClient.invalidateQueries({ queryKey: qk.votes.byClub(club.id) });
+      queryClient.invalidateQueries({ queryKey: qk.clubs.votedIds(user.id) });
       setVoteMsg({ type: 'success', text: 'Stimme abgegeben!' });
     } catch (err) {
       setVoteMsg({ type: 'error', text: err instanceof Error ? err.message : 'Fehler beim Abstimmen.' });
@@ -819,8 +752,7 @@ export default function ClubContent({ slug }: { slug: string }) {
       setCvOptions(['', '']);
       setCvCost('5');
       setCvDays('7');
-      const votesResult = await getAllVotes(club.id);
-      setClubVotes(votesResult);
+      queryClient.invalidateQueries({ queryKey: qk.votes.byClub(club.id) });
     } catch (err) {
       setVoteMsg({ type: 'error', text: err instanceof Error ? err.message : 'Fehler beim Erstellen.' });
     } finally {
@@ -835,8 +767,7 @@ export default function ClubContent({ slug }: { slug: string }) {
     try {
       const result = await unlockResearch(user.id, researchId);
       if (result.success) {
-        const updated = await getResearchPosts({ clubId: club.id, currentUserId: user.id });
-        setClubResearch(updated);
+        queryClient.invalidateQueries({ queryKey: ['research'] });
       }
     } catch (err) {
       console.error('[Club] Research unlock failed:', err);
@@ -851,11 +782,7 @@ export default function ClubContent({ slug }: { slug: string }) {
     try {
       const result = await rateResearch(user.id, researchId, rating);
       if (result.success) {
-        setClubResearch(prev => prev.map(p =>
-          p.id === researchId
-            ? { ...p, avg_rating: result.avg_rating ?? p.avg_rating, ratings_count: result.ratings_count ?? p.ratings_count, user_rating: result.user_rating ?? p.user_rating }
-            : p
-        ));
+        queryClient.invalidateQueries({ queryKey: ['research'] });
       }
     } catch (err) {
       console.error('[Club] Research rate failed:', err);
@@ -896,13 +823,17 @@ export default function ClubContent({ slug }: { slug: string }) {
 
   const filteredPlayers = useMemo(() => {
     let filtered = posFilter === 'ALL' ? players : players.filter((p) => p.pos === posFilter);
+    if (spielerQuery) {
+      const q = spielerQuery.toLowerCase();
+      filtered = filtered.filter(p => `${p.first} ${p.last}`.toLowerCase().includes(q));
+    }
     filtered = [...filtered].sort((a, b) => {
       if (sortBy === 'perf') return b.perf.l5 - a.perf.l5;
       if (sortBy === 'price') return b.prices.lastTrade - a.prices.lastTrade;
       return b.prices.change24h - a.prices.change24h;
     });
     return filtered;
-  }, [players, posFilter, sortBy]);
+  }, [players, posFilter, sortBy, spielerQuery]);
 
   const posCounts = useMemo(() => {
     const counts: Record<string, number> = { ALL: players.length, GK: 0, DEF: 0, MID: 0, ATT: 0 };
@@ -916,15 +847,17 @@ export default function ClubContent({ slug }: { slug: string }) {
     setFollowLoading(true);
     const newFollowing = !isFollowing;
 
-    setIsFollowing(newFollowing);
-    setFollowerCount((prev) => prev + (newFollowing ? 1 : -1));
+    setLocalFollowing(newFollowing);
+    setLocalFollowerDelta(prev => prev + (newFollowing ? 1 : -1));
 
     try {
       await toggleFollowClub(user.id, club.id, club.name, newFollowing);
       await refreshProfile();
+      queryClient.invalidateQueries({ queryKey: qk.clubs.isFollowing(user.id, club.id) });
+      queryClient.invalidateQueries({ queryKey: qk.clubs.followers(club.id) });
     } catch {
-      setIsFollowing(!newFollowing);
-      setFollowerCount((prev) => prev + (newFollowing ? -1 : 1));
+      setLocalFollowing(!newFollowing);
+      setLocalFollowerDelta(prev => prev + (newFollowing ? -1 : 1));
     } finally {
       setFollowLoading(false);
     }
@@ -940,8 +873,7 @@ export default function ClubContent({ slug }: { slug: string }) {
       if (!result.success) {
         setSubError(result.error || 'Fehler beim Abonnieren');
       } else {
-        const sub = await getMySubscription(user.id, club.id);
-        setSubscription(sub);
+        queryClient.invalidateQueries({ queryKey: qk.clubs.subscription(user.id, club.id) });
         setSubModalOpen(false);
       }
     } catch (err) {
@@ -980,7 +912,10 @@ export default function ClubContent({ slug }: { slug: string }) {
   if (dataError || !club) {
     return (
       <div className="max-w-xl mx-auto mt-20">
-        <ErrorState onRetry={() => setRetryCount((c) => c + 1)} />
+        <ErrorState onRetry={() => {
+          queryClient.invalidateQueries({ queryKey: qk.clubs.bySlug(slug, userId) });
+          if (clubId) queryClient.invalidateQueries({ queryKey: qk.players.byClub(clubId) });
+        }} />
       </div>
     );
   }
@@ -1173,47 +1108,23 @@ export default function ClubContent({ slug }: { slug: string }) {
       {/* ========== TAB: SPIELER ========== */}
       {tab === 'spieler' && (
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-2 flex-wrap">
-              {(['ALL', 'GK', 'DEF', 'MID', 'ATT'] as const).map((pos) => (
-                <button
-                  key={pos}
-                  onClick={() => setPosFilter(pos)}
-                  className={`px-3 py-1.5 rounded-xl text-sm font-bold transition-all ${
-                    posFilter === pos
-                      ? 'bg-white/10 border border-white/20 text-white'
-                      : 'bg-white/5 border border-white/10 text-white/60 hover:text-white hover:border-white/20'
-                  }`}
-                  style={posFilter === pos ? { borderColor: `${clubColor}66`, backgroundColor: `${clubColor}22` } : {}}
-                >
-                  {pos === 'ALL' ? 'Alle' : pos}
-                  <span className="ml-1 text-xs text-white/40">{posCounts[pos]}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-2">
-              {([
-                { id: 'perf' as const, label: 'Perf L5' },
-                { id: 'price' as const, label: 'Preis' },
-                { id: 'change' as const, label: '24h Change' },
-              ]).map((s) => (
-                <button
-                  key={s.id}
-                  onClick={() => setSortBy(s.id)}
-                  className={`px-3 py-1.5 rounded-xl text-sm font-bold transition-all ${
-                    sortBy === s.id
-                      ? 'bg-white/10 border border-white/20 text-white'
-                      : 'bg-white/5 border border-white/10 text-white/50 hover:text-white'
-                  }`}
-                >
-                  {s.label}
-                </button>
-              ))}
+          <div className="flex flex-col gap-3">
+            <SearchInput value={spielerQuery} onChange={setSpielerQuery} placeholder="Spieler suchen..." />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <PosFilter selected={posFilter} onChange={setPosFilter} showAll allCount={posCounts['ALL']} counts={posCounts} />
+              <SortPills
+                options={[
+                  { id: 'perf', label: 'Perf L5' },
+                  { id: 'price', label: 'Preis' },
+                  { id: 'change', label: '24h Change' },
+                ]}
+                active={sortBy}
+                onChange={(id) => setSortBy(id as 'perf' | 'price' | 'change')}
+              />
             </div>
           </div>
 
-          <div className="text-white/50 text-sm">{filteredPlayers.length} Spieler</div>
+          <div className="text-xs text-white/40 px-1">{filteredPlayers.length} Spieler</div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {filteredPlayers.map((player) => (

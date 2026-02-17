@@ -1,22 +1,26 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import { Loader2, Plus } from 'lucide-react';
-import { Button, Card, ErrorState, TabBar, TabPanel } from '@/components/ui';
-import { val } from '@/lib/settledHelpers';
+import { Plus, Users } from 'lucide-react';
+import { Button, Card, ErrorState, TabBar, TabPanel, Skeleton } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
-import { getPosts, createPost, votePost, getUserPostVotes, deletePost, adminDeletePost, adminTogglePin } from '@/lib/services/posts';
-import { getAllVotes, getUserVotedIds, castVote } from '@/lib/services/votes';
-import { getLeaderboard, followUser, unfollowUser, getFollowingIds } from '@/lib/services/social';
-import { getHoldings } from '@/lib/services/wallet';
-import { getPlayers } from '@/lib/services/players';
-import { getResearchPosts, createResearchPost, unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
-import { getCommunityPolls, getUserPollVotedIds, castCommunityPollVote, createCommunityPoll, cancelCommunityPoll } from '@/lib/services/communityPolls';
-import { getAllActiveBounties, submitBountyResponse, invalidateBountyData } from '@/lib/services/bounties';
-import { getClubBySlug, getUserPrimaryClub } from '@/lib/services/club';
 import { useClub } from '@/components/providers/ClubProvider';
+import { createPost, votePost, getUserPostVotes, deletePost, adminDeletePost, adminTogglePin } from '@/lib/services/posts';
+import { castVote, getUserVotedIds } from '@/lib/services/votes';
+import { followUser, unfollowUser } from '@/lib/services/social';
+import { createResearchPost, unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
+import { castCommunityPollVote, createCommunityPoll, cancelCommunityPoll, getUserPollVotedIds } from '@/lib/services/communityPolls';
+import { submitBountyResponse, invalidateBountyData } from '@/lib/services/bounties';
+import { getClubBySlug, getUserPrimaryClub } from '@/lib/services/club';
+import {
+  usePlayers, useHoldings, usePosts, useLeaderboard,
+  useFollowingIds, useFollowerCount, useFollowingCount,
+  useClubVotes, useResearchPosts, useCommunityPolls, useActiveBounties,
+  qk, invalidateCommunityQueries, invalidateSocialQueries, invalidateResearchQueries, invalidatePollQueries,
+} from '@/lib/queries';
+import { queryClient } from '@/lib/queryClient';
 import CommunityFeedTab from '@/components/community/CommunityFeedTab';
 import CommunityResearchTab from '@/components/community/CommunityResearchTab';
 import CommunityVotesTab from '@/components/community/CommunityVotesTab';
@@ -25,7 +29,8 @@ import CreatePostModal from '@/components/community/CreatePostModal';
 import CreateResearchModal from '@/components/community/CreateResearchModal';
 import CreateCommunityPollModal from '@/components/community/CreateCommunityPollModal';
 import CommunityBountiesTab from '@/components/community/CommunityBountiesTab';
-import type { PostWithAuthor, DbClubVote, LeaderboardUser, ResearchPostWithAuthor, CommunityPollWithCreator, BountyWithCreator, ClubWithAdmin, Pos, PostType } from '@/types';
+import FollowListModal from '@/components/profile/FollowListModal';
+import type { PostWithAuthor, Pos, PostType } from '@/types';
 
 // ============================================
 // TYPES
@@ -41,8 +46,9 @@ export default function CommunityPage() {
   const { user, profile } = useUser();
   const { addToast } = useToast();
   const { activeClub } = useClub();
+  const uid = user?.id;
 
-  // Club context from user profile (fallback: load default)
+  // Club context
   const [clubId, setClubId] = useState<string | null>(profile?.favorite_club_id ?? null);
   const [clubName, setClubName] = useState<string | null>(profile?.favorite_club ?? null);
   const [isClubAdmin, setIsClubAdmin] = useState(false);
@@ -54,26 +60,9 @@ export default function CommunityPage() {
   const [createPostOpen, setCreatePostOpen] = useState(false);
   const [createResearchOpen, setCreateResearchOpen] = useState(false);
   const [createPollOpen, setCreatePollOpen] = useState(false);
+  const [followListMode, setFollowListMode] = useState<'followers' | 'following' | null>(null);
 
-  // Data State
-  const [posts, setPosts] = useState<PostWithAuthor[]>([]);
-  const [myPostVotes, setMyPostVotes] = useState<Map<string, number>>(new Map());
-  const [clubVotes, setClubVotes] = useState<DbClubVote[]>([]);
-  const [userVotedIdSet, setUserVotedIdSet] = useState<Set<string>>(new Set());
-  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
-  const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
-  const [ownedPlayerIds, setOwnedPlayerIds] = useState<Set<string>>(new Set());
-  const [allPlayers, setAllPlayers] = useState<{ id: string; name: string; pos: Pos }[]>([]);
-  const [researchPosts, setResearchPosts] = useState<ResearchPostWithAuthor[]>([]);
-  const [communityPolls, setCommunityPolls] = useState<CommunityPollWithCreator[]>([]);
-  const [userPollVotedIds, setUserPollVotedIds] = useState<Set<string>>(new Set());
-  const [bounties, setBounties] = useState<BountyWithCreator[]>([]);
-  const [rumors, setRumors] = useState<PostWithAuthor[]>([]);
-
-  // Loading State
-  const [dataLoading, setDataLoading] = useState(true);
-  const [dataError, setDataError] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
+  // Action loading state
   const [unlockingId, setUnlockingId] = useState<string | null>(null);
   const [ratingId, setRatingId] = useState<string | null>(null);
   const [postLoading, setPostLoading] = useState(false);
@@ -83,135 +72,100 @@ export default function CommunityPage() {
   const [pollVotingId, setPollVotingId] = useState<string | null>(null);
   const [submittingBountyId, setSubmittingBountyId] = useState<string | null>(null);
 
-  // ---- Load Data ----
-  useEffect(() => {
-    if (!user) return;
-    const uid = user.id;
-    let cancelled = false;
+  // User-specific vote tracking (optimistically updated by handlers)
+  const [myPostVotes, setMyPostVotes] = useState<Map<string, number>>(new Map());
+  const [userVotedIdSet, setUserVotedIdSet] = useState<Set<string>>(new Set());
+  const [userPollVotedIds, setUserPollVotedIds] = useState<Set<string>>(new Set());
 
-    async function load() {
-      setDataLoading(true);
-      setDataError(false);
-      // Fire-and-forget: resolve expired research calls
+  // ---- Scope-dependent club ID for queries ----
+  const scopeClubId = clubScope === 'myclub' ? (activeClub?.id ?? clubId ?? undefined) : undefined;
+
+  // ---- React Query: shared data ----
+  const { data: posts = [], isLoading: postsLoading, isError: postsError } = usePosts({ limit: 50, clubId: scopeClubId });
+  const { data: rumors = [] } = usePosts({ limit: 30, postType: 'transfer_rumor' });
+  const { data: clubVotes = [] } = useClubVotes(clubId);
+  const { data: leaderboard = [] } = useLeaderboard(50);
+  const { data: followingIdsList = [] } = useFollowingIds(uid);
+  const { data: rawHoldings = [] } = useHoldings(uid);
+  const { data: rawPlayers = [] } = usePlayers();
+  const { data: researchPosts = [] } = useResearchPosts(uid);
+  const { data: communityPolls = [] } = useCommunityPolls(scopeClubId);
+  const { data: bounties = [] } = useActiveBounties(uid, scopeClubId);
+  const { data: followerCount = 0 } = useFollowerCount(uid);
+  const { data: followingCountNum = 0 } = useFollowingCount(uid);
+
+  // ---- Derived data ----
+  const followingIds = useMemo(() => new Set(followingIdsList), [followingIdsList]);
+  const ownedPlayerIds = useMemo(() => new Set(rawHoldings.map(h => h.player_id)), [rawHoldings]);
+  const allPlayers = useMemo(() =>
+    rawPlayers.map(p => ({ id: p.id, name: `${p.first} ${p.last}`, pos: p.pos })),
+    [rawPlayers]
+  );
+
+  // ---- Club context resolution ----
+  useEffect(() => {
+    if (!uid) return;
+    let cancelled = false;
+    async function resolveClub() {
+      // Resolve expired research (fire-and-forget)
       resolveExpiredResearch().catch(err => console.error('[Community] Resolve expired research:', err));
 
-      // Resolve club context: profile favorite → primary club → first club
       let cId = profile?.favorite_club_id ?? clubId;
       let cName = profile?.favorite_club ?? clubName;
       if (!cId) {
-        const primaryClub = await getUserPrimaryClub(uid);
+        const primaryClub = await getUserPrimaryClub(uid!);
         if (primaryClub) { cId = primaryClub.id; cName = primaryClub.name; }
       }
-      // Load admin status for the resolved club
-      const clubSlug = cId ? undefined : 'sakaryaspor'; // legacy fallback
       const clubData = cId
-        ? await getClubBySlug(cName ?? '', uid).catch(() => null)
-        : await getClubBySlug(clubSlug!, uid).catch(() => null);
+        ? await getClubBySlug(cName ?? '', uid!).catch(() => null)
+        : await getClubBySlug('sakaryaspor', uid!).catch(() => null);
       if (!cId && clubData) { cId = clubData.id; cName = clubData.name; }
       if (!cancelled && cId) { setClubId(cId); setClubName(cName); }
       if (!cancelled && clubData) { setIsClubAdmin(clubData.is_admin); }
+    }
+    resolveClub();
+    return () => { cancelled = true; };
+  }, [uid, profile]);
 
-      // Determine scope filter: if "myclub" scope, filter by active club ID
-      const scopeClubId = clubScope === 'myclub' ? (activeClub?.id ?? cId ?? undefined) : undefined;
-
-      try {
-        const results = await Promise.allSettled([
-          getPosts({ limit: 50, clubId: scopeClubId }),
-          cId ? getAllVotes(cId) : Promise.resolve([]),
-          getLeaderboard(50),
-          getFollowingIds(uid),
-          getHoldings(uid),
-          getPlayers(),
-          getResearchPosts({ currentUserId: uid }),
-          getCommunityPolls(scopeClubId),
-          getAllActiveBounties(uid, scopeClubId),
-        ]);
-
-        if (cancelled) return;
-
-        // If ALL results failed, show error state
-        const allFailed = results.every(r => r.status === 'rejected');
-        if (allFailed) {
-          setDataError(true);
-          setDataLoading(false);
-          return;
-        }
-
-        const postsResult = val(results[0], []);
-        const votesResult = val(results[1], []);
-        const leaderboardResult = val(results[2], []);
-        const followingResult = val(results[3], []);
-        const holdingsResult = val(results[4], []);
-        const playersResult = val(results[5], []);
-        const researchResult = val(results[6], []);
-        const pollsResult = val(results[7], []);
-        const bountiesResult = val(results[8], []);
-
-        setPosts(postsResult);
-        setResearchPosts(researchResult);
-        setClubVotes(votesResult);
-        setCommunityPolls(pollsResult);
-        setBounties(bountiesResult);
-        setLeaderboard(leaderboardResult);
-        setFollowingIds(new Set(followingResult));
-        setOwnedPlayerIds(new Set(holdingsResult.map(h => h.player_id)));
-        setAllPlayers(playersResult.map(p => ({
-          id: p.id,
-          name: `${p.first_name} ${p.last_name}`,
-          pos: p.position as Pos,
-        })));
-
-        // Load transfer rumors (fire-and-forget)
-        getPosts({ limit: 30, postType: 'transfer_rumor' })
-          .then(r => { if (!cancelled) setRumors(r); })
-          .catch(err => console.error('[Community] Rumors load failed:', err));
-
-        // Post votes
-        if (postsResult.length > 0) {
-          const postVotesResult = await getUserPostVotes(uid, postsResult.map(p => p.id));
-          if (!cancelled) setMyPostVotes(postVotesResult);
-        }
-
-        // Voted vote IDs + poll voted IDs
-        const [votedResult, pollVotedResult] = await Promise.all([
-          getUserVotedIds(uid),
-          getUserPollVotedIds(uid),
-        ]);
-        if (!cancelled) {
-          setUserVotedIdSet(votedResult);
-          setUserPollVotedIds(pollVotedResult);
-        }
-      } catch {
-        if (!cancelled) setDataError(true);
-      } finally {
-        if (!cancelled) setDataLoading(false);
+  // ---- Load user-specific vote data (after posts load) ----
+  useEffect(() => {
+    if (!uid || !posts.length) return;
+    let cancelled = false;
+    async function loadVoteData() {
+      const [postVotes, votedIds, pollVotedIds] = await Promise.all([
+        getUserPostVotes(uid!, posts.map(p => p.id)),
+        getUserVotedIds(uid!),
+        getUserPollVotedIds(uid!),
+      ]);
+      if (!cancelled) {
+        setMyPostVotes(postVotes);
+        setUserVotedIdSet(votedIds);
+        setUserPollVotedIds(pollVotedIds);
       }
     }
-
-    load();
+    loadVoteData();
     return () => { cancelled = true; };
-  }, [user, profile, retryCount, clubScope, activeClub]);
+  }, [uid, posts]);
 
   // ---- Handlers ----
   const handleVotePost = useCallback(async (postId: string, voteType: number) => {
-    if (!user) return;
-    // Optimistic update
-    const prevPosts = posts;
+    if (!uid) return;
     const prevVotes = new Map(myPostVotes);
     const oldVote = myPostVotes.get(postId) ?? 0;
 
-    setPosts(prev => prev.map(p => {
-      if (p.id !== postId) return p;
-      let up = p.upvotes;
-      let down = p.downvotes;
-      // Remove old vote
-      if (oldVote === 1) up--;
-      if (oldVote === -1) down--;
-      // Apply new vote
-      if (voteType === 1) up++;
-      if (voteType === -1) down++;
-      return { ...p, upvotes: up, downvotes: down };
-    }));
+    // Optimistic update on posts cache
+    queryClient.setQueryData<PostWithAuthor[]>(
+      qk.posts.list({ limit: 50, clubId: scopeClubId } as Record<string, unknown>),
+      (prev) => prev?.map(p => {
+        if (p.id !== postId) return p;
+        let up = p.upvotes, down = p.downvotes;
+        if (oldVote === 1) up--;
+        if (oldVote === -1) down--;
+        if (voteType === 1) up++;
+        if (voteType === -1) down++;
+        return { ...p, upvotes: up, downvotes: down };
+      }),
+    );
     setMyPostVotes(prev => {
       const next = new Map(prev);
       if (voteType === 0) next.delete(postId);
@@ -220,36 +174,37 @@ export default function CommunityPage() {
     });
 
     try {
-      const result = await votePost(user.id, postId, voteType);
-      // Reconcile with server truth
-      setPosts(prev => prev.map(p =>
-        p.id === postId ? { ...p, upvotes: result.upvotes, downvotes: result.downvotes } : p
-      ));
+      const result = await votePost(uid, postId, voteType);
+      queryClient.setQueryData<PostWithAuthor[]>(
+        qk.posts.list({ limit: 50, clubId: scopeClubId } as Record<string, unknown>),
+        (prev) => prev?.map(p =>
+          p.id === postId ? { ...p, upvotes: result.upvotes, downvotes: result.downvotes } : p
+        ),
+      );
     } catch (err) {
       console.error('[Community] Vote post failed:', err);
-      // Revert on error
-      setPosts(prevPosts);
       setMyPostVotes(prevVotes);
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
     }
-  }, [user, posts, myPostVotes]);
+  }, [uid, myPostVotes, scopeClubId]);
 
   const handleDeletePost = useCallback(async (postId: string) => {
-    if (!user) return;
+    if (!uid) return;
     try {
-      await deletePost(user.id, postId);
-      setPosts(prev => prev.filter(p => p.id !== postId));
+      await deletePost(uid, postId);
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
     } catch (err) {
       console.error('[Community] Delete post failed:', err);
       addToast('Fehler beim Löschen', 'error');
     }
-  }, [user, addToast]);
+  }, [uid, addToast]);
 
   const handleAdminDeletePost = useCallback(async (postId: string) => {
-    if (!user) return;
+    if (!uid) return;
     try {
-      const result = await adminDeletePost(user.id, postId);
+      const result = await adminDeletePost(uid, postId);
       if (result.success) {
-        setPosts(prev => prev.filter(p => p.id !== postId));
+        queryClient.invalidateQueries({ queryKey: ['posts'] });
         addToast('Post entfernt', 'success');
       } else {
         addToast(result.error ?? 'Fehler', 'error');
@@ -257,16 +212,19 @@ export default function CommunityPage() {
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Fehler beim Löschen', 'error');
     }
-  }, [user, addToast]);
+  }, [uid, addToast]);
 
   const handleTogglePin = useCallback(async (postId: string, pinned: boolean) => {
-    if (!user) return;
+    if (!uid) return;
     try {
-      const result = await adminTogglePin(user.id, postId, pinned);
+      const result = await adminTogglePin(uid, postId, pinned);
       if (result.success) {
-        setPosts(prev => prev.map(p =>
-          p.id === postId ? { ...p, is_pinned: pinned } : p
-        ));
+        queryClient.setQueryData<PostWithAuthor[]>(
+          qk.posts.list({ limit: 50, clubId: scopeClubId } as Record<string, unknown>),
+          (prev) => prev?.map(p =>
+            p.id === postId ? { ...p, is_pinned: pinned } : p
+          ),
+        );
         addToast(pinned ? 'Post angepinnt' : 'Post gelöst', 'success');
       } else {
         addToast(result.error ?? 'Fehler', 'error');
@@ -274,62 +232,52 @@ export default function CommunityPage() {
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Fehler', 'error');
     }
-  }, [user, addToast]);
+  }, [uid, addToast, scopeClubId]);
 
   const handleCreatePost = useCallback(async (playerId: string | null, content: string, tags: string[], category: string, postType: PostType = 'general') => {
-    if (!user) return;
+    if (!uid) return;
     if (!clubId) { addToast('Kein Club ausgewählt. Bitte zuerst einen Club folgen.', 'error'); return; }
     setPostLoading(true);
     try {
-      await createPost(user.id, playerId, clubName, content, tags, category, clubId, postType);
-      const postsResult = await getPosts({ limit: 50 });
-      setPosts(postsResult);
-      if (postType === 'transfer_rumor') {
-        getPosts({ limit: 30, postType: 'transfer_rumor' })
-          .then(r => setRumors(r))
-          .catch(err => console.error('[Community] Rumors refresh:', err));
-      }
+      await createPost(uid, playerId, clubName, content, tags, category, clubId, postType);
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
       setCreatePostOpen(false);
     } catch {
       addToast('Beitrag konnte nicht erstellt werden.', 'error');
     } finally {
       setPostLoading(false);
     }
-  }, [user, clubName, clubId, addToast]);
+  }, [uid, clubName, clubId, addToast]);
 
   const handleCastVote = useCallback(async (voteId: string, optionIndex: number) => {
-    if (!user || votingId) return;
+    if (!uid || votingId) return;
     setVotingId(voteId);
     try {
-      await castVote(user.id, voteId, optionIndex);
-      const [votesResult, votedResult] = await Promise.all([
-        clubId ? getAllVotes(clubId) : Promise.resolve([]),
-        getUserVotedIds(user.id),
-      ]);
-      setClubVotes(votesResult);
+      await castVote(uid, voteId, optionIndex);
+      queryClient.invalidateQueries({ queryKey: ['votes'] });
+      const votedResult = await getUserVotedIds(uid);
       setUserVotedIdSet(votedResult);
     } catch {
       addToast('Fehler beim Abstimmen', 'error');
     } finally {
       setVotingId(null);
     }
-  }, [user, clubId, votingId, addToast]);
+  }, [uid, votingId, addToast]);
 
   const handleFollowToggle = useCallback(async (targetId: string) => {
-    if (!user) return;
+    if (!uid) return;
     const isCurrentlyFollowing = followingIds.has(targetId);
     try {
       if (isCurrentlyFollowing) {
-        await unfollowUser(user.id, targetId);
-        setFollowingIds(prev => { const next = new Set(prev); next.delete(targetId); return next; });
+        await unfollowUser(uid, targetId);
       } else {
-        await followUser(user.id, targetId);
-        setFollowingIds(prev => new Set(prev).add(targetId));
+        await followUser(uid, targetId);
       }
+      invalidateSocialQueries(uid);
     } catch (err) {
       console.error('[Community] Follow toggle failed:', err);
     }
-  }, [user, followingIds]);
+  }, [uid, followingIds]);
 
   const handleCreateResearch = useCallback(async (params: {
     playerId: string | null;
@@ -342,11 +290,11 @@ export default function CommunityPage() {
     horizon: string;
     priceBsd: number;
   }) => {
-    if (!user) return;
+    if (!uid) return;
     setResearchLoading(true);
     try {
       await createResearchPost({
-        userId: user.id,
+        userId: uid,
         playerId: params.playerId,
         clubName: clubName,
         clubId: clubId,
@@ -359,8 +307,7 @@ export default function CommunityPage() {
         horizon: params.horizon,
         price: params.priceBsd * 100,
       });
-      const result = await getResearchPosts({ currentUserId: user.id });
-      setResearchPosts(result);
+      invalidateResearchQueries(uid);
       setCreateResearchOpen(false);
       addToast('Bericht veröffentlicht!', 'success');
     } catch (err) {
@@ -368,16 +315,15 @@ export default function CommunityPage() {
     } finally {
       setResearchLoading(false);
     }
-  }, [user, clubName, clubId, addToast]);
+  }, [uid, clubName, clubId, addToast]);
 
   const handleUnlockResearch = useCallback(async (researchId: string) => {
-    if (!user || unlockingId) return;
+    if (!uid || unlockingId) return;
     setUnlockingId(researchId);
     try {
-      const result = await unlockResearch(user.id, researchId);
+      const result = await unlockResearch(uid, researchId);
       if (result.success) {
-        const updated = await getResearchPosts({ currentUserId: user.id });
-        setResearchPosts(updated);
+        invalidateResearchQueries(uid);
       }
     } catch (err) {
       console.error('[Community] Unlock research failed:', err);
@@ -385,38 +331,31 @@ export default function CommunityPage() {
     } finally {
       setUnlockingId(null);
     }
-  }, [user, unlockingId, addToast]);
+  }, [uid, unlockingId, addToast]);
 
   const handleRateResearch = useCallback(async (researchId: string, rating: number) => {
-    if (!user || ratingId) return;
+    if (!uid || ratingId) return;
     setRatingId(researchId);
     try {
-      const result = await rateResearch(user.id, researchId, rating);
+      const result = await rateResearch(uid, researchId, rating);
       if (result.success) {
-        setResearchPosts(prev => prev.map(p =>
-          p.id === researchId
-            ? { ...p, avg_rating: result.avg_rating ?? p.avg_rating, ratings_count: result.ratings_count ?? p.ratings_count, user_rating: result.user_rating ?? p.user_rating }
-            : p
-        ));
+        invalidateResearchQueries(uid);
       }
     } catch (err) {
       console.error('[Community] Rate research failed:', err);
     } finally {
       setRatingId(null);
     }
-  }, [user, ratingId]);
+  }, [uid, ratingId]);
 
   const handleCastPollVote = useCallback(async (pollId: string, optionIndex: number) => {
-    if (!user || pollVotingId) return;
+    if (!uid || pollVotingId) return;
     setPollVotingId(pollId);
     try {
-      const result = await castCommunityPollVote(user.id, pollId, optionIndex);
+      const result = await castCommunityPollVote(uid, pollId, optionIndex);
       if (result.success) {
-        const [pollsResult, pollVotedResult] = await Promise.all([
-          getCommunityPolls(),
-          getUserPollVotedIds(user.id),
-        ]);
-        setCommunityPolls(pollsResult);
+        invalidatePollQueries(uid);
+        const pollVotedResult = await getUserPollVotedIds(uid);
         setUserPollVotedIds(pollVotedResult);
         addToast('Stimme abgegeben!', 'success');
       } else {
@@ -427,7 +366,7 @@ export default function CommunityPage() {
     } finally {
       setPollVotingId(null);
     }
-  }, [user, pollVotingId, addToast]);
+  }, [uid, pollVotingId, addToast]);
 
   const handleCreatePoll = useCallback(async (params: {
     question: string;
@@ -436,19 +375,18 @@ export default function CommunityPage() {
     priceBsd: number;
     durationDays: number;
   }) => {
-    if (!user) return;
+    if (!uid) return;
     setPollLoading(true);
     try {
       await createCommunityPoll({
-        userId: user.id,
+        userId: uid,
         question: params.question,
         description: params.description,
         options: params.options,
         costCents: params.priceBsd * 100,
         durationDays: params.durationDays,
       });
-      const pollsResult = await getCommunityPolls();
-      setCommunityPolls(pollsResult);
+      invalidatePollQueries(uid);
       setCreatePollOpen(false);
       addToast('Umfrage erstellt!', 'success');
     } catch (err) {
@@ -456,29 +394,27 @@ export default function CommunityPage() {
     } finally {
       setPollLoading(false);
     }
-  }, [user, addToast]);
+  }, [uid, addToast]);
 
   const handleCancelPoll = useCallback(async (pollId: string) => {
-    if (!user) return;
+    if (!uid) return;
     try {
-      await cancelCommunityPoll(user.id, pollId);
-      const pollsResult = await getCommunityPolls();
-      setCommunityPolls(pollsResult);
+      await cancelCommunityPoll(uid, pollId);
+      invalidatePollQueries(uid);
       addToast('Umfrage abgebrochen', 'success');
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Fehler beim Abbrechen', 'error');
     }
-  }, [user, addToast]);
+  }, [uid, addToast]);
 
   const handleSubmitBounty = useCallback(async (bountyId: string, title: string, content: string) => {
-    if (!user || submittingBountyId) return;
+    if (!uid || submittingBountyId) return;
     setSubmittingBountyId(bountyId);
     try {
-      const result = await submitBountyResponse(user.id, bountyId, title, content);
+      const result = await submitBountyResponse(uid, bountyId, title, content);
       if (result.success) {
-        invalidateBountyData(user.id);
-        const updated = await getAllActiveBounties(user.id);
-        setBounties(updated);
+        invalidateBountyData(uid);
+        invalidateCommunityQueries();
         addToast('Lösung eingereicht!', 'success');
       } else {
         addToast(result.error ?? 'Fehler beim Einreichen', 'error');
@@ -488,7 +424,7 @@ export default function CommunityPage() {
     } finally {
       setSubmittingBountyId(null);
     }
-  }, [user, submittingBountyId, addToast]);
+  }, [uid, submittingBountyId, addToast]);
 
   // ---- Tab Config ----
   const TABS: { id: MainTab; label: string }[] = [
@@ -537,21 +473,64 @@ export default function CommunityPage() {
         </div>
       )}
 
+      {/* Network Bar */}
+      <div className="flex items-center justify-between py-2 mb-2">
+        <div className="flex items-center gap-3">
+          <Users className="w-4 h-4 text-sky-400/60" />
+          <button
+            onClick={() => setFollowListMode('followers')}
+            className="text-xs text-white/40 hover:text-white/70 transition-colors"
+          >
+            <span className="font-bold text-white/60">{followerCount}</span> Follower
+          </button>
+          <span className="text-white/10">·</span>
+          <button
+            onClick={() => setFollowListMode('following')}
+            className="text-xs text-white/40 hover:text-white/70 transition-colors"
+          >
+            <span className="font-bold text-white/60">{followingCountNum}</span> Folge ich
+          </button>
+        </div>
+        <button
+          onClick={() => setFollowListMode('following')}
+          className="text-[10px] font-bold text-[#FFD700]/60 hover:text-[#FFD700] transition-colors"
+        >
+          Verwalten
+        </button>
+      </div>
+
       {/* Tabs */}
       <TabBar tabs={TABS} activeTab={mainTab} onChange={(id) => setMainTab(id as MainTab)} />
 
       {/* Loading / Error */}
-      {dataLoading && !dataError && (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-[#FFD700]" />
+      {postsLoading && (
+        <div className="space-y-4 mt-4">
+          <div className="flex items-center gap-3">
+            <Skeleton className="flex-1 h-10 rounded-xl" />
+            <Skeleton className="h-10 w-24 rounded-lg" />
+          </div>
+          {[1, 2, 3].map(i => (
+            <div key={i} className="bg-white/[0.02] border border-white/10 rounded-2xl p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <Skeleton className="w-8 h-8 rounded-full" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+              <div className="flex gap-4 pt-2">
+                <Skeleton className="h-6 w-16" />
+                <Skeleton className="h-6 w-16" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
-      {dataError && !dataLoading && (
-        <ErrorState onRetry={() => setRetryCount(c => c + 1)} />
+      {postsError && !postsLoading && (
+        <ErrorState onRetry={() => queryClient.invalidateQueries({ queryKey: ['posts'] })} />
       )}
 
-      {!dataLoading && !dataError && (
+      {!postsLoading && !postsError && (
         <>
           {/* Feed (with Alle / Folge ich toggle) */}
           <TabPanel activeTab={mainTab} id="feed">
@@ -725,6 +704,15 @@ export default function CommunityPage() {
         onSubmit={handleCreatePoll}
         loading={pollLoading}
       />
+
+      {/* Follow List Modal */}
+      {followListMode && user && (
+        <FollowListModal
+          userId={user.id}
+          mode={followListMode}
+          onClose={() => setFollowListMode(null)}
+        />
+      )}
     </div>
   );
 }

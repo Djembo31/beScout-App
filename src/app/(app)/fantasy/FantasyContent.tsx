@@ -3,20 +3,20 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import {
-  Trophy, Search, Grid3X3, List, Globe, History, Plus, AlertCircle, RefreshCw, Loader2, Calendar,
+  Trophy, Grid3X3, List, Globe, History, Plus, AlertCircle, RefreshCw, Loader2, Calendar,
 } from 'lucide-react';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, SearchInput, SortPills, EmptyState, Skeleton, SkeletonCard } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { centsToBsd } from '@/lib/services/players';
-import { getHoldings, deductEntryFee, refundEntryFee } from '@/lib/services/wallet';
+import { deductEntryFee, refundEntryFee } from '@/lib/services/wallet';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
-import { getEvents, getUserJoinedEventIds } from '@/lib/services/events';
-import { getActiveGameweek } from '@/lib/services/club';
-import { submitLineup, getLineup, getPlayerEventUsage } from '@/lib/services/lineups';
-import { invalidate, withTimeout } from '@/lib/cache';
-import { val } from '@/lib/settledHelpers';
+import { submitLineup, getLineup } from '@/lib/services/lineups';
+import { invalidateFantasyQueries } from '@/lib/queries/invalidation';
+import { useEvents, useJoinedEventIds, usePlayerEventUsage, useActiveGameweek, useIsClubAdmin } from '@/lib/queries/events';
+import { useHoldings } from '@/lib/queries/holdings';
+import { withTimeout } from '@/lib/utils';
 import { fmtBSD } from '@/lib/utils';
 import type { DbEvent } from '@/types';
 import {
@@ -133,91 +133,75 @@ export default function FantasyContent() {
   const { addToast } = useToast();
   const { activeClub } = useClub();
   const clubId = activeClub?.id ?? '';
+  const userId = user?.id;
+
+  // ── React Query Hooks (BEFORE any early returns) ──
+  const { data: dbEvents = [], isLoading: eventsLoading, isError: eventsError } = useEvents();
+  const { data: joinedIdsArr = [] } = useJoinedEventIds(userId);
+  const { data: usageMap } = usePlayerEventUsage(userId);
+  const { data: activeGw = 1 } = useActiveGameweek(clubId || undefined);
+  const { data: isAdmin = false } = useIsClubAdmin(userId, clubId || undefined);
+  const { data: dbHoldings = [] } = useHoldings(userId);
 
   // State
   const [mainTab, setMainTab] = useState<FantasyTab>('spieltag');
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
   const [statusFilter, setStatusFilter] = useState<EventStatus | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [activeGameweek, setActiveGameweek] = useState(1);
-  const [selectedGameweek, setSelectedGameweek] = useState(1);
+  const [selectedGameweek, setSelectedGameweek] = useState<number | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<FantasyEvent | null>(null);
-  const [events, setEvents] = useState<FantasyEvent[]>([]);
-  const [holdings, setHoldings] = useState<UserDpcHolding[]>([]);
-  const [dataLoading, setDataLoading] = useState(true);
-  const [dataError, setDataError] = useState(false);
+  const [localEvents, setLocalEvents] = useState<FantasyEvent[] | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [lineupMap, setLineupMap] = useState<Map<string, { total_score: number | null; rank: number | null; reward_amount: number }>>(new Map());
 
-  // Load real data from DB
+  // Sync selectedGameweek with activeGw on first load
   useEffect(() => {
-    if (!user || !clubId) return;
-    const uid = user.id;
-    async function load() {
-      try {
-      const fantasyResults = await withTimeout(Promise.allSettled([
-        getEvents(),
-        getHoldings(uid),
-        getUserJoinedEventIds(uid),
-        getPlayerEventUsage(uid),
-        getActiveGameweek(clubId),
-      ]), 10000);
-      const dbEvents = val(fantasyResults[0], []);
-      const dbHoldings = val(fantasyResults[1], []);
-      const joinedIds = val(fantasyResults[2], [] as string[]);
-      const usageMap = val(fantasyResults[3], new Map<string, string[]>());
-      const activeGw = val(fantasyResults[4], 1);
-
-      // Events are critical
-      if (fantasyResults[0].status === 'rejected') {
-        setDataError(true);
-        addToast('Fehler beim Laden der Fantasy-Daten', 'error');
-        setDataLoading(false);
-        return;
-      }
-
-      setActiveGameweek(activeGw);
+    if (selectedGameweek === null && activeGw > 0) {
       setSelectedGameweek(activeGw);
-
-      const joinedSet = new Set(joinedIds);
-
-      // Load user lineups for scored events to get rank + points
-      const scoredJoinedEvents = dbEvents.filter(e => e.scored_at && joinedSet.has(e.id));
-      const lineupPromises = scoredJoinedEvents.map(e => getLineup(e.id, uid));
-      const lineups = await Promise.all(lineupPromises);
-      const lineupMap = new Map<string, { total_score: number | null; rank: number | null; reward_amount: number }>();
-      scoredJoinedEvents.forEach((e, i) => {
-        if (lineups[i]) lineupMap.set(e.id, { total_score: lineups[i]!.total_score, rank: lineups[i]!.rank, reward_amount: lineups[i]!.reward_amount });
-      });
-
-      setEvents(dbEvents.map(e => dbEventToFantasyEvent(e, joinedSet, lineupMap.get(e.id))));
-      setHoldings(dbHoldings.map(h => {
-        const holding = dbHoldingToUserDpcHolding(h);
-        const eventIds = usageMap.get(holding.id) || [];
-        holding.activeEventIds = eventIds;
-        holding.eventsUsing = eventIds.length;
-        holding.dpcAvailable = Math.max(0, holding.dpcOwned - holding.eventsUsing);
-        holding.isLocked = holding.dpcAvailable <= 0;
-        return holding;
-      }));
-
-      // Check admin status
-      try {
-        const { isClubAdmin } = await import('@/lib/services/club');
-        const admin = await isClubAdmin(uid, clubId);
-        setIsAdmin(admin);
-      } catch (err) { console.error('[Fantasy] Admin check failed:', err); }
-
-      setDataError(false);
-      } catch {
-        setDataError(true);
-        addToast('Fehler beim Laden der Fantasy-Daten', 'error');
-      }
-      setDataLoading(false);
     }
-    load();
-  }, [user, clubId, addToast]);
+  }, [activeGw, selectedGameweek]);
+
+  const currentGw = selectedGameweek ?? activeGw;
+
+  // Load user lineups for scored events to get rank + points
+  const joinedSet = useMemo(() => new Set(joinedIdsArr), [joinedIdsArr]);
+
+  useEffect(() => {
+    if (!userId || dbEvents.length === 0) return;
+    let cancelled = false;
+    const scoredJoinedEvents = dbEvents.filter(e => e.scored_at && joinedSet.has(e.id));
+    if (scoredJoinedEvents.length === 0) return;
+
+    Promise.all(scoredJoinedEvents.map(e => getLineup(e.id, userId))).then(lineups => {
+      if (cancelled) return;
+      const map = new Map<string, { total_score: number | null; rank: number | null; reward_amount: number }>();
+      scoredJoinedEvents.forEach((e, i) => {
+        if (lineups[i]) map.set(e.id, { total_score: lineups[i]!.total_score, rank: lineups[i]!.rank, reward_amount: lineups[i]!.reward_amount });
+      });
+      setLineupMap(map);
+    }).catch(err => console.error('[Fantasy] Lineup load failed:', err));
+    return () => { cancelled = true; };
+  }, [dbEvents, joinedSet, userId]);
+
+  // Derive events from React Query data
+  const events = useMemo(() => {
+    if (localEvents) return localEvents;
+    return dbEvents.map(e => dbEventToFantasyEvent(e, joinedSet, lineupMap.get(e.id)));
+  }, [dbEvents, joinedSet, lineupMap, localEvents]);
+
+  // Derive holdings with usage info
+  const holdings = useMemo(() => {
+    return dbHoldings.map(h => {
+      const holding = dbHoldingToUserDpcHolding(h);
+      const eventIds = usageMap?.get(holding.id) || [];
+      holding.activeEventIds = eventIds;
+      holding.eventsUsing = eventIds.length;
+      holding.dpcAvailable = Math.max(0, holding.dpcOwned - holding.eventsUsing);
+      holding.isLocked = holding.dpcAvailable <= 0;
+      return holding;
+    });
+  }, [dbHoldings, usageMap]);
 
   // Derived data
   const activeEvents = useMemo(() => events.filter(e => e.isJoined && e.status === 'running'), [events]);
@@ -255,13 +239,13 @@ export default function FantasyContent() {
 
   // Events filtered by selected gameweek (for Events tab)
   const gwFilteredEvents = useMemo(() => {
-    return events.filter(e => e.gameweek === selectedGameweek);
-  }, [events, selectedGameweek]);
+    return events.filter(e => e.gameweek === currentGw);
+  }, [events, currentGw]);
 
   // Events filtered by selected gameweek for SpieltagTab
   const spieltagEvents = useMemo(() => {
-    return events.filter(e => e.gameweek === selectedGameweek);
-  }, [events, selectedGameweek]);
+    return events.filter(e => e.gameweek === currentGw);
+  }, [events, currentGw]);
 
   // Category counts (for Events tab)
   const categoryCounts = useMemo(() => ({
@@ -324,10 +308,10 @@ export default function FantasyContent() {
 
   // Handlers
   const handleToggleInterest = useCallback((eventId: string) => {
-    setEvents(prev => prev.map(e =>
+    setLocalEvents(prev => (prev ?? events).map(e =>
       e.id === eventId ? { ...e, isInterested: !e.isInterested } : e
     ));
-  }, []);
+  }, [events]);
 
   const handleJoinEvent = useCallback(async (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null = null) => {
     if (!user) return;
@@ -349,7 +333,7 @@ export default function FantasyContent() {
     }
 
     const wasJoined = event.isJoined;
-    setEvents(prev => prev.map(e =>
+    setLocalEvents(prev => (prev ?? events).map(e =>
       e.id === event.id ? { ...e, isJoined: true, isInterested: false, participants: wasJoined ? e.participants : (e.participants || 0) + 1 } : e
     ));
     setSelectedEvent(null);
@@ -387,23 +371,14 @@ export default function FantasyContent() {
         throw lineupErr;
       }
     } catch (e: unknown) {
-      setEvents(prev => prev.map(ev =>
+      setLocalEvents(prev => (prev ?? events).map(ev =>
         ev.id === event.id ? { ...ev, isJoined: wasJoined, participants: wasJoined ? ev.participants : Math.max(0, (ev.participants || 1) - 1) } : ev
       ));
       addToast(`Fehler: ${e instanceof Error ? e.message : 'Unbekannter Fehler'}`, 'error');
       return;
     }
 
-    const lineupPlayerIds = new Set(lineup.map(p => p.playerId));
-    setHoldings(prev => prev.map(h => {
-      if (!lineupPlayerIds.has(h.id)) return h;
-      const newEventIds = h.activeEventIds.includes(event.id) ? h.activeEventIds : [...h.activeEventIds, event.id];
-      const newUsing = newEventIds.length;
-      const newAvail = Math.max(0, h.dpcOwned - newUsing);
-      return { ...h, activeEventIds: newEventIds, eventsUsing: newUsing, dpcAvailable: newAvail, isLocked: newAvail <= 0 };
-    }));
-
-    invalidate('events:');
+    invalidateFantasyQueries(user.id);
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
 
     // Mission tracking — only after full join succeeds (lineup + fee)
@@ -412,14 +387,14 @@ export default function FantasyContent() {
     }).catch(err => console.error('[Fantasy] Mission tracking failed:', err));
 
     addToast(`Erfolgreich angemeldet für "${event.name}"!`, 'success');
-  }, [user, balanceCents, setBalanceCents, addToast]);
+  }, [user, balanceCents, setBalanceCents, addToast, events]);
 
   const handleLeaveEvent = useCallback(async (event: FantasyEvent) => {
     if (!user) return;
 
     const wasJoined = event.isJoined;
     const prevParticipants = event.participants;
-    setEvents(prev => prev.map(e =>
+    setLocalEvents(prev => (prev ?? events).map(e =>
       e.id === event.id ? { ...e, isJoined: false, participants: Math.max(0, (e.participants || 1) - 1) } : e
     ));
     setSelectedEvent(null);
@@ -436,66 +411,33 @@ export default function FantasyContent() {
       }
     } catch (e: unknown) {
       // Revert optimistic update on failure
-      setEvents(prev => prev.map(ev =>
+      setLocalEvents(prev => (prev ?? events).map(ev =>
         ev.id === event.id ? { ...ev, isJoined: wasJoined, participants: prevParticipants } : ev
       ));
       addToast(`Abmeldung fehlgeschlagen: ${e instanceof Error ? e.message : 'Unbekannter Fehler'}`, 'error');
       return;
     }
 
-    setHoldings(prev => prev.map(h => {
-      if (!h.activeEventIds.includes(event.id)) return h;
-      const newEventIds = h.activeEventIds.filter(eid => eid !== event.id);
-      const newUsing = newEventIds.length;
-      const newAvail = Math.max(0, h.dpcOwned - newUsing);
-      return { ...h, activeEventIds: newEventIds, eventsUsing: newUsing, dpcAvailable: newAvail, isLocked: newAvail <= 0 };
-    }));
-
-    invalidate('events:');
+    invalidateFantasyQueries(user.id);
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
 
     addToast(`Vom Event "${event.name}" abgemeldet.${event.buyIn > 0 ? ` ${event.buyIn} BSD zurückerstattet.` : ''}`, 'success');
-  }, [user, setBalanceCents, addToast]);
+  }, [user, setBalanceCents, addToast, events]);
 
   // Refetch all events from DB (used after score, reset, simulation)
   const reloadEvents = useCallback(async () => {
-    if (!user) return;
-    const uid = user.id;
-    try {
-      invalidate('events:');
-      invalidate('wallet:');
-      invalidate('holdings:');
-      const [dbEvents, joinedIds] = await Promise.all([
-        getEvents(),
-        getUserJoinedEventIds(uid),
-      ]);
-      const joinedSet = new Set(joinedIds);
-      const scoredJoinedEvents = dbEvents.filter(e => e.scored_at && joinedSet.has(e.id));
-      const lineupPromises = scoredJoinedEvents.map(e => getLineup(e.id, uid));
-      const lineups = await Promise.all(lineupPromises);
-      const lineupMap = new Map<string, { total_score: number | null; rank: number | null; reward_amount: number }>();
-      scoredJoinedEvents.forEach((e, i) => {
-        if (lineups[i]) lineupMap.set(e.id, { total_score: lineups[i]!.total_score, rank: lineups[i]!.rank, reward_amount: lineups[i]!.reward_amount });
-      });
-      const freshEvents = dbEvents.map(e => dbEventToFantasyEvent(e, joinedSet, lineupMap.get(e.id)));
-      setEvents(freshEvents);
-      // Update selected event if still open
-      setSelectedEvent(prev => {
-        if (!prev) return prev;
-        const updated = freshEvents.find(e => e.id === prev.id);
-        return updated ?? prev;
-      });
-    } catch (err) { console.error('[Fantasy] Events reload failed:', err); }
-  }, [user]);
+    setLocalEvents(null); // Clear local overrides, let React Query refetch
+    invalidateFantasyQueries(userId);
+  }, [userId]);
 
   const handleResetEvent = useCallback(async (event: FantasyEvent) => {
     // Optimistic local update, then full refetch
-    setEvents(prev => prev.map(e =>
+    setLocalEvents(prev => (prev ?? events).map(e =>
       e.id === event.id ? { ...e, status: 'registering' as EventStatus, scoredAt: undefined } : e
     ));
     setSelectedEvent(prev => prev && prev.id === event.id ? { ...prev, status: 'registering' as EventStatus, scoredAt: undefined } : prev);
     await reloadEvents();
-  }, [reloadEvents]);
+  }, [reloadEvents, events]);
 
   const handleCreateEvent = useCallback((eventData: Partial<FantasyEvent>) => {
     const newEvent: FantasyEvent = {
@@ -506,7 +448,7 @@ export default function FantasyContent() {
       mode: eventData.mode || 'tournament',
       status: 'registering',
       format: eventData.format || '6er',
-      gameweek: selectedGameweek,
+      gameweek: currentGw,
       startTime: Date.now() + 86400000,
       endTime: Date.now() + 604800000,
       lockTime: Date.now() + 82800000,
@@ -526,14 +468,12 @@ export default function FantasyContent() {
       requirements: { dpcPerSlot: 1 },
       rewards: [{ rank: '1st', reward: 'League Champion' }],
     };
-    setEvents(prev => [newEvent, ...prev]);
+    setLocalEvents(prev => [newEvent, ...(prev ?? events)]);
     addToast(`Event "${newEvent.name}" wurde erstellt!`, 'success');
-  }, [addToast, selectedGameweek]);
+  }, [addToast, currentGw, events]);
 
   // Reload handler for error state
   const handleRetry = useCallback(() => {
-    setDataLoading(true);
-    setDataError(false);
     window.location.reload();
   }, []);
 
@@ -543,37 +483,36 @@ export default function FantasyContent() {
     (async () => {
       await reloadEvents();
       // Re-fetch active GW (may have advanced) and auto-navigate
-      try {
-        const newGw = await getActiveGameweek(clubId);
-        setActiveGameweek(newGw);
-        setSelectedGameweek(newGw);
-      } catch (err) { console.error('[Fantasy] Active gameweek fetch failed:', err); }
+      if (clubId) {
+        try {
+          const { getActiveGameweek: fetchGw } = await import('@/lib/services/club');
+          const newGw = await fetchGw(clubId);
+          setSelectedGameweek(newGw);
+        } catch (err) { console.error('[Fantasy] Active gameweek fetch failed:', err); }
+      }
     })();
-  }, [addToast, reloadEvents]);
+  }, [addToast, reloadEvents, clubId]);
 
-  // No club selected — show message instead of endless spinner
-  if (!clubId && !dataLoading) {
+  // Loading state — skeleton
+  if (eventsLoading) {
     return (
-      <div className="max-w-[1600px] mx-auto flex flex-col items-center justify-center py-32 gap-4">
-        <Trophy className="w-12 h-12 text-white/20" />
-        <div className="text-white/70 font-bold">Kein Club ausgewählt</div>
-        <div className="text-white/40 text-sm">Wähle einen Club um Fantasy-Events zu sehen.</div>
-      </div>
-    );
-  }
-
-  // Loading state
-  if (dataLoading) {
-    return (
-      <div className="max-w-[1600px] mx-auto flex flex-col items-center justify-center py-32 gap-4">
-        <Loader2 className="w-8 h-8 animate-spin text-[#FFD700]" />
-        <div className="text-white/50 text-sm">Fantasy-Daten werden geladen...</div>
+      <div className="max-w-[1600px] mx-auto space-y-4">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-9 w-24" />
+        </div>
+        <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+          {[1, 2, 3].map(i => <Skeleton key={i} className="flex-1 h-10 rounded-lg" />)}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+          {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} className="h-48" />)}
+        </div>
       </div>
     );
   }
 
   // Error state
-  if (dataError && events.length === 0) {
+  if (eventsError && events.length === 0) {
     return (
       <div className="max-w-[1600px] mx-auto flex flex-col items-center justify-center py-32 gap-4">
         <div className="w-12 h-12 rounded-full bg-red-500/15 border border-red-400/25 flex items-center justify-center">
@@ -619,7 +558,7 @@ export default function FantasyContent() {
       {/* SEGMENT TABS — 3 Tabs */}
       <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-x-auto">
         {([
-          { id: 'spieltag' as FantasyTab, label: `Spieltag ${activeGameweek}`, icon: Calendar },
+          { id: 'spieltag' as FantasyTab, label: `Spieltag ${activeGw}`, icon: Calendar },
           { id: 'events' as FantasyTab, label: 'Events', icon: Globe, count: activeEvents.length },
           { id: 'history' as FantasyTab, label: 'Verlauf', icon: History },
         ]).map(tab => (
@@ -644,8 +583,8 @@ export default function FantasyContent() {
       {/* ========== SPIELTAG TAB (Hero) ========== */}
       {mainTab === 'spieltag' && user && (
         <SpieltagTab
-          gameweek={selectedGameweek}
-          activeGameweek={activeGameweek}
+          gameweek={currentGw}
+          activeGameweek={activeGw}
           clubId={clubId}
           isAdmin={isAdmin}
           events={spieltagEvents}
@@ -662,8 +601,8 @@ export default function FantasyContent() {
         <div className="space-y-6">
           {/* Gameweek Selector */}
           <GameweekSelector
-            activeGameweek={activeGameweek}
-            selectedGameweek={selectedGameweek}
+            activeGameweek={activeGw}
+            selectedGameweek={currentGw}
             onSelect={setSelectedGameweek}
           />
 
@@ -688,16 +627,7 @@ export default function FantasyContent() {
 
           {/* SEARCH + FILTERS */}
           <div className="flex items-center gap-2">
-            <div className="relative flex-1 min-w-0">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-              <input
-                type="text"
-                placeholder="Event suchen..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40"
-              />
-            </div>
+            <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Event suchen..." className="flex-1 min-w-0" />
             <div className="hidden md:flex items-center gap-1 bg-white/5 rounded-xl p-1">
               <button
                 onClick={() => setViewMode('cards')}
@@ -712,32 +642,25 @@ export default function FantasyContent() {
                 <List className="w-4 h-4" />
               </button>
             </div>
-            <div className="flex items-center gap-1">
-              {([
-                { id: 'all' as const, label: 'Alle', count: statusCounts.all },
-                { id: 'registering' as const, label: 'Offen', count: statusCounts.registering + statusCounts['late-reg'] },
-                { id: 'ended' as const, label: 'Beendet', count: statusCounts.ended },
-              ]).map(s => (
-                <button
-                  key={s.id}
-                  onClick={() => setStatusFilter(s.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    statusFilter === s.id
-                      ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/30'
-                      : 'bg-white/5 text-white/50 border border-white/10 hover:text-white'
-                  }`}
-                >
-                  {s.label} <span className="text-white/30">{s.count}</span>
-                </button>
-              ))}
-            </div>
+            <SortPills
+              options={[
+                { id: 'all', label: 'Alle', count: statusCounts.all },
+                { id: 'registering', label: 'Offen', count: statusCounts.registering + statusCounts['late-reg'] },
+                { id: 'ended', label: 'Beendet', count: statusCounts.ended },
+              ]}
+              active={statusFilter}
+              onChange={(id) => setStatusFilter(id as EventStatus | 'all')}
+            />
           </div>
 
           {/* ALLE EVENTS */}
           <section>
-            <h2 className="text-[11px] font-black uppercase tracking-wider text-white/40 mb-3">
-              Events — Spieltag {selectedGameweek} <span className="text-white/20">({filteredEvents.length})</span>
-            </h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-[11px] font-black uppercase tracking-wider text-white/40">
+                Events — Spieltag {currentGw}
+              </h2>
+              <div className="text-xs text-white/40">{filteredEvents.length} Events</div>
+            </div>
             {viewMode === 'cards' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                 {filteredEvents.map(event => (
@@ -779,10 +702,7 @@ export default function FantasyContent() {
             )}
 
             {filteredEvents.length === 0 && (
-              <Card className="p-12 text-center">
-                <Trophy className="w-12 h-12 mx-auto mb-4 text-white/20" />
-                <div className="text-white/50">Keine Events für Spieltag {selectedGameweek}</div>
-              </Card>
+              <EmptyState icon={<Trophy />} title={`Keine Events für Spieltag ${currentGw}`} />
             )}
           </section>
         </div>

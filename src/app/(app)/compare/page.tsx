@@ -3,12 +3,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Search, X, Share2, ChevronLeft, BarChart3, ArrowLeftRight, Loader2 } from 'lucide-react';
-import { Card, Button, ErrorState } from '@/components/ui';
+import { Search, X, Share2, ChevronLeft, BarChart3, ArrowLeftRight } from 'lucide-react';
+import { Card, Button, ErrorState, Skeleton, SkeletonCard } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { RadarChart, buildPlayerRadarAxes } from '@/components/player/RadarChart';
 import type { RadarDataSet } from '@/components/player/RadarChart';
-import { getPlayers, centsToBsd } from '@/lib/services/players';
+import { centsToBsd } from '@/lib/services/players';
+import { useRawPlayers } from '@/lib/queries/players';
 import { fmtBSD } from '@/lib/utils';
 import type { DbPlayer, Pos } from '@/types';
 
@@ -16,26 +17,10 @@ const COLORS = ['#38bdf8', '#fb7185', '#fbbf24'];
 
 export default function ComparePage() {
   const searchParams = useSearchParams();
-  const [allPlayers, setAllPlayers] = useState<DbPlayer[]>([]);
+  const { data: allPlayers = [], isLoading, isError, refetch } = useRawPlayers();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [dataError, setDataError] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-
-  // Load players
-  useEffect(() => {
-    let cancelled = false;
-    setDataError(false);
-    getPlayers().then(p => {
-      if (!cancelled) { setAllPlayers(p); setLoading(false); }
-    }).catch(err => {
-      console.error('[Compare] Failed to load players:', err);
-      if (!cancelled) { setDataError(true); setLoading(false); }
-    });
-    return () => { cancelled = true; };
-  }, [retryCount]);
 
   // Parse URL params
   useEffect(() => {
@@ -115,21 +100,25 @@ export default function ComparePage() {
     { label: 'Alter', key: 'age' as const },
   ];
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto py-8 px-4">
-        <div className="text-center py-16">
-          <Loader2 className="w-8 h-8 animate-spin text-[#FFD700] mx-auto mb-4" />
-          <div className="text-white/40">Spieler werden geladen...</div>
+      <div className="max-w-4xl mx-auto py-8 px-4 space-y-6">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-9 w-28" />
         </div>
+        <div className="grid grid-cols-3 gap-4">
+          {[1, 2, 3].map(i => <SkeletonCard key={i} className="h-32" />)}
+        </div>
+        <SkeletonCard className="h-64" />
       </div>
     );
   }
 
-  if (dataError) {
+  if (isError) {
     return (
       <div className="max-w-4xl mx-auto py-8 px-4">
-        <ErrorState onRetry={() => { setLoading(true); setRetryCount(c => c + 1); }} />
+        <ErrorState onRetry={() => refetch()} />
       </div>
     );
   }

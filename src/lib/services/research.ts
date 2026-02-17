@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidateResearchData } from '@/lib/cache';
 import type { DbResearchPost, ResearchPostWithAuthor, AuthorTrackRecord } from '@/types';
 import { toPos } from '@/types';
 
@@ -10,8 +9,6 @@ export type RateResult = {
   ratings_count?: number;
   user_rating?: number;
 };
-
-const TWO_MIN = 2 * 60 * 1000;
 
 // ============================================
 // Research Posts (Premium Content / Paywall)
@@ -26,10 +23,8 @@ export async function getResearchPosts(options: {
   currentUserId?: string;
 }): Promise<ResearchPostWithAuthor[]> {
   const { limit = 50, offset = 0, playerId, clubName, clubId, currentUserId } = options;
-  const cacheKey = `research:${playerId ?? ''}:${clubName ?? ''}:${clubId ?? ''}:${currentUserId ?? ''}:${offset}:${limit}`;
 
-  return cached(cacheKey, async () => {
-    let query = supabase
+  let query = supabase
       .from('research_posts')
       .select('*')
       .order('created_at', { ascending: false })
@@ -116,19 +111,16 @@ export async function getResearchPosts(options: {
         user_rating: ratingsMap.get(post.id) ?? null,
       };
     });
-  }, TWO_MIN);
 }
 
 export async function getUserUnlockedIds(userId: string): Promise<Set<string>> {
-  return cached(`researchUnlocks:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('research_unlocks')
-      .select('research_id')
-      .eq('user_id', userId);
+  const { data, error } = await supabase
+    .from('research_unlocks')
+    .select('research_id')
+    .eq('user_id', userId);
 
-    if (error) throw new Error(error.message);
-    return new Set((data ?? []).map(r => r.research_id));
-  }, TWO_MIN);
+  if (error) throw new Error(error.message);
+  return new Set((data ?? []).map(r => r.research_id));
 }
 
 export async function createResearchPost(params: {
@@ -177,7 +169,6 @@ export async function createResearchPost(params: {
     .single();
 
   if (error) throw new Error(error.message);
-  invalidateResearchData(params.userId);
   // Mission tracking
   import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
     triggerMissionProgress(params.userId, ['weekly_research']);
@@ -197,7 +188,6 @@ export async function deleteResearchPost(userId: string, postId: string): Promis
     .eq('user_id', userId);
 
   if (error) throw new Error(error.message);
-  invalidateResearchData(userId);
 }
 
 export type UnlockResult = {
@@ -218,7 +208,6 @@ export async function unlockResearch(userId: string, researchId: string): Promis
   const result = data as UnlockResult;
 
   if (result.success) {
-    invalidateResearchData(userId);
     // Mission tracking
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
       triggerMissionProgress(userId, ['daily_unlock_research']);
@@ -273,17 +262,14 @@ async function getUserResearchRatings(
 ): Promise<Map<string, number>> {
   if (researchIds.length === 0) return new Map();
 
-  const sortedKey = Array.from(researchIds).sort().join(',');
-  return cached(`researchRatings:${userId}:${sortedKey}`, async () => {
-    const { data, error } = await supabase
-      .from('research_ratings')
-      .select('research_id, rating')
-      .eq('user_id', userId)
-      .in('research_id', researchIds);
+  const { data, error } = await supabase
+    .from('research_ratings')
+    .select('research_id, rating')
+    .eq('user_id', userId)
+    .in('research_id', researchIds);
 
-    if (error) throw new Error(error.message);
-    return new Map((data ?? []).map(r => [r.research_id, r.rating as number]));
-  }, TWO_MIN);
+  if (error) throw new Error(error.message);
+  return new Map((data ?? []).map(r => [r.research_id, r.rating as number]));
 }
 
 export async function rateResearch(
@@ -301,7 +287,6 @@ export async function rateResearch(
   const result = data as RateResult;
 
   if (result.success) {
-    invalidateResearchData(userId);
     // Activity log
     import('@/lib/services/activityLog').then(({ logActivity }) => {
       logActivity(userId, 'research_rate', 'community', { researchId, rating });
@@ -340,35 +325,30 @@ export async function resolveExpiredResearch(): Promise<number> {
   const { data, error } = await supabase.rpc('resolve_expired_research');
   if (error) return 0;
   const resolved = (data as { resolved: number })?.resolved ?? 0;
-  if (resolved > 0) {
-    invalidateResearchData();
-  }
   return resolved;
 }
 
 export async function getAuthorTrackRecord(userId: string): Promise<AuthorTrackRecord> {
-  return cached(`trackRecord:${userId}`, async () => {
-    const { data, error } = await supabase
-      .from('research_posts')
-      .select('outcome')
-      .eq('user_id', userId)
-      .gt('price_at_creation', 0);
+  const { data, error } = await supabase
+    .from('research_posts')
+    .select('outcome')
+    .eq('user_id', userId)
+    .gt('price_at_creation', 0);
 
-    if (error || !data) return { totalCalls: 0, correctCalls: 0, incorrectCalls: 0, pendingCalls: 0, hitRate: 0 };
+  if (error || !data) return { totalCalls: 0, correctCalls: 0, incorrectCalls: 0, pendingCalls: 0, hitRate: 0 };
 
-    let correctCalls = 0;
-    let incorrectCalls = 0;
-    let pendingCalls = 0;
+  let correctCalls = 0;
+  let incorrectCalls = 0;
+  let pendingCalls = 0;
 
-    for (const row of data) {
-      if (row.outcome === 'correct') correctCalls++;
-      else if (row.outcome === 'incorrect') incorrectCalls++;
-      else pendingCalls++;
-    }
+  for (const row of data) {
+    if (row.outcome === 'correct') correctCalls++;
+    else if (row.outcome === 'incorrect') incorrectCalls++;
+    else pendingCalls++;
+  }
 
-    const totalCalls = correctCalls + incorrectCalls;
-    const hitRate = totalCalls > 0 ? Math.round((correctCalls / totalCalls) * 100) : 0;
+  const totalCalls = correctCalls + incorrectCalls;
+  const hitRate = totalCalls > 0 ? Math.round((correctCalls / totalCalls) * 100) : 0;
 
-    return { totalCalls, correctCalls, incorrectCalls, pendingCalls, hitRate };
-  }, TWO_MIN);
+  return { totalCalls, correctCalls, incorrectCalls, pendingCalls, hitRate };
 }

@@ -244,13 +244,14 @@ Siehe `docs/SCALE.md` für Skalierungsarchitektur und DB-Schema.
 
 **TFF 1. Lig 2025/26 Reset fertig:** 11 Clubs auf-/abgestiegen, 566 neue Spieler (Transfermarkt), 505 Player Images (89%), 100 IPOs, 380 Fixtures, 3 Events (GW 1), 15 Bounties, 10 Votes. 2 Migrationen (#137-#138).
 **Security Hardening #2 fertig:** RLS auf leagues, 12 Funktionen SET search_path, 36 RLS Policies initplan-optimiert. 2 Migrationen (#139-#140). Security Advisors clean (nur 2 verbleibende WARN: dpc_of_the_week gewollt, Leaked PW braucht Pro Plan).
+**Fantasy Club-Unabhängigkeit fertig:** Events laden global ohne Club-Zugehörigkeit (ADR-017). Wallet-Query-Fix (`wallets.id` existierte nicht → 400 Error). Admin-Queries `.single()` → `.maybeSingle()` (406 Error bei Non-Admins). ClubProvider Race Condition gefixt.
 **Pilot-Scope:** Multi-Club-ready, 566 Spieler (20 Clubs), 505 Player Images, 50 Beta-Tester.
 **140 SQL-Migrationen + 1 Edge Function deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin + Trading Club-Fee + Bounty Platform-Fee + Event Sponsors + Push Subscriptions + Club Subscriptions + Leagues + Club Followers + Club Discovery + Airdrop Score + Referral System + Match-Data Integration + Security Hardening #2 live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) + Phase A+B+C + Multi-Club Expansion + Phase D (Match-Data) live.
 **GitHub:** Private Repo `Djembo31/beScout-App`, CI/CD via GitHub Actions, Sentry Error Tracking, PostHog Analytics.
 
 ## Bekannte Issues
 
-- Fantasy: Presets nur in localStorage (bewusste Pilot-Entscheidung)
+- Fantasy: Presets nur in localStorage (bewusste Pilot-Entscheidung), Events sind global (kein Club nötig)
 - Community: Research-Tab live (Premium Posts mit Paywall, 80/20 Split)
 - Community: Bezahlte Polls live (70/30 Split Creator/Plattform)
 - Community: Mute/Block/Tag-Following nur localStorage (50 User, kein DB-Backend nötig)

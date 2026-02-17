@@ -13,6 +13,7 @@ export type ClubLookup = {
   logo: string | null;
   league: string;
   league_id: string | null;
+  country: string;
 };
 
 // ============================================
@@ -32,7 +33,7 @@ export async function initClubCache(): Promise<void> {
     try {
       const { data, error } = await supabase
         .from('clubs')
-        .select('id, slug, name, short, league, league_id, primary_color, secondary_color, logo_url')
+        .select('id, slug, name, short, league, league_id, country, primary_color, secondary_color, logo_url')
         .order('name');
 
       if (error) {
@@ -54,6 +55,7 @@ export async function initClubCache(): Promise<void> {
           logo: c.logo_url,
           league: c.league,
           league_id: c.league_id,
+          country: c.country ?? 'Unbekannt',
         };
         // Index by multiple keys for flexible lookup
         newCache.set(c.id, lookup);         // UUID

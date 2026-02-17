@@ -1,8 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
 import type { DbLineup, DbPlayer, Pos, UserFantasyResult } from '@/types';
-
-const TWO_MIN = 2 * 60 * 1000;
 
 // ============================================
 // Types
@@ -105,8 +102,6 @@ export async function submitLineup(params: {
     .single();
 
   if (error) throw new Error(error.message);
-  invalidate('events:');
-  invalidate(`fantasyHistory:${params.userId}`);
   // Activity log (fire-and-forget — lineup confirmed at this point)
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(params.userId, 'lineup_submit', 'fantasy', { eventId: params.eventId, formation: params.formation });
@@ -128,8 +123,6 @@ export async function removeLineup(eventId: string, userId: string): Promise<voi
   if (count === 0) {
     throw new Error('Lineup konnte nicht gelöscht werden. Bitte Admin kontaktieren.');
   }
-  invalidate('events:');
-  invalidate(`fantasyHistory:${userId}`);
 }
 
 /** Teilnehmer eines Events laden (für Overview) */
@@ -266,26 +259,24 @@ export async function getPlayerEventUsage(userId: string): Promise<Map<string, s
 
 /** Fantasy-Ergebnisse eines Users (fuer Profil) — nur scored Events */
 export async function getUserFantasyHistory(userId: string, limit = 10): Promise<UserFantasyResult[]> {
-  return cached(`fantasyHistory:${userId}:${limit}`, async () => {
-    const { data, error } = await supabase
-      .from('lineups')
-      .select('event_id, total_score, rank, reward_amount, event:events(name, gameweek, starts_at)')
-      .eq('user_id', userId)
-      .not('total_score', 'is', null)
-      .order('submitted_at', { ascending: false })
-      .limit(limit);
-    if (error || !data) return [];
-    return data.map((row: Record<string, unknown>) => {
-      const event = row.event as { name?: string; gameweek?: number; starts_at?: string } | null;
-      return {
-        eventId: row.event_id as string,
-        eventName: event?.name ?? 'Unbekannt',
-        gameweek: event?.gameweek ?? null,
-        eventDate: event?.starts_at ?? '',
-        totalScore: row.total_score as number,
-        rank: row.rank as number,
-        rewardAmount: row.reward_amount as number,
-      };
-    });
-  }, TWO_MIN);
+  const { data, error } = await supabase
+    .from('lineups')
+    .select('event_id, total_score, rank, reward_amount, event:events(name, gameweek, starts_at)')
+    .eq('user_id', userId)
+    .not('total_score', 'is', null)
+    .order('submitted_at', { ascending: false })
+    .limit(limit);
+  if (error || !data) return [];
+  return data.map((row: Record<string, unknown>) => {
+    const event = row.event as { name?: string; gameweek?: number; starts_at?: string } | null;
+    return {
+      eventId: row.event_id as string,
+      eventName: event?.name ?? 'Unbekannt',
+      gameweek: event?.gameweek ?? null,
+      eventDate: event?.starts_at ?? '',
+      totalScore: row.total_score as number,
+      rank: row.rank as number,
+      rewardAmount: row.reward_amount as number,
+    };
+  });
 }

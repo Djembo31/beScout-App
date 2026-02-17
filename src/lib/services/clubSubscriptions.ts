@@ -1,7 +1,4 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
-
-const TWO_MIN = 2 * 60 * 1000;
 
 export type SubscriptionTier = 'bronze' | 'silber' | 'gold';
 
@@ -59,18 +56,16 @@ export const TIER_CONFIG: Record<SubscriptionTier, {
 
 /** Get user's active subscription for a club */
 export async function getMySubscription(userId: string, clubId: string): Promise<ClubSubscription | null> {
-  return cached(`clubSub:${userId}:${clubId}`, async () => {
-    const { data, error } = await supabase
-      .from('club_subscriptions')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('club_id', clubId)
-      .eq('status', 'active')
-      .single();
+  const { data, error } = await supabase
+    .from('club_subscriptions')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('club_id', clubId)
+    .eq('status', 'active')
+    .single();
 
-    if (error || !data) return null;
-    return data as ClubSubscription;
-  }, TWO_MIN);
+  if (error || !data) return null;
+  return data as ClubSubscription;
 }
 
 /** Subscribe to a club */
@@ -89,8 +84,6 @@ export async function subscribeTo(
   const result = data as SubscribeResult;
 
   if (result.success) {
-    invalidate(`clubSub:${userId}:${clubId}`);
-    invalidate(`profile:${userId}`);
     // Activity log
     import('@/lib/services/activityLog').then(({ logActivity }) => {
       logActivity(userId, 'subscription_purchase', 'club', { clubId, tier });
@@ -110,7 +103,6 @@ export async function cancelSubscription(userId: string, clubId: string): Promis
     .eq('status', 'active');
 
   if (error) return false;
-  invalidate(`clubSub:${userId}:${clubId}`);
   return true;
 }
 
@@ -120,23 +112,21 @@ export async function getClubSubscribers(clubId: string): Promise<{
   byTier: Record<SubscriptionTier, number>;
   revenueCents: number;
 }> {
-  return cached(`clubSubscribers:${clubId}`, async () => {
-    const { data, error } = await supabase
-      .from('club_subscriptions')
-      .select('tier, price_cents')
-      .eq('club_id', clubId)
-      .eq('status', 'active');
+  const { data, error } = await supabase
+    .from('club_subscriptions')
+    .select('tier, price_cents')
+    .eq('club_id', clubId)
+    .eq('status', 'active');
 
-    if (error || !data) return { total: 0, byTier: { bronze: 0, silber: 0, gold: 0 }, revenueCents: 0 };
+  if (error || !data) return { total: 0, byTier: { bronze: 0, silber: 0, gold: 0 }, revenueCents: 0 };
 
-    const byTier = { bronze: 0, silber: 0, gold: 0 };
-    let revenueCents = 0;
-    for (const row of data) {
-      const tier = row.tier as SubscriptionTier;
-      if (byTier[tier] !== undefined) byTier[tier]++;
-      revenueCents += row.price_cents;
-    }
+  const byTier = { bronze: 0, silber: 0, gold: 0 };
+  let revenueCents = 0;
+  for (const row of data) {
+    const tier = row.tier as SubscriptionTier;
+    if (byTier[tier] !== undefined) byTier[tier]++;
+    revenueCents += row.price_cents;
+  }
 
-    return { total: data.length, byTier, revenueCents };
-  }, TWO_MIN);
+  return { total: data.length, byTier, revenueCents };
 }

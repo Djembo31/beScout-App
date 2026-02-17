@@ -1,48 +1,50 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
   Search, Filter, Grid, List,
-  Star, Target, Users, Briefcase,
-  Zap, Layers, Shield, GitCompareArrows,
-  Flame, Award, PiggyBank, MessageSquare, Trophy,
-  TrendingDown as PriceDown, X, ChevronDown, ChevronRight, ArrowUpDown,
+  Star, Users, Briefcase,
+  GitCompareArrows,
+  MessageSquare, Trophy,
+  X, ChevronDown, ChevronRight, ArrowUpDown,
   Package, CheckCircle2,
 } from 'lucide-react';
 import { Confetti } from '@/components/ui/Confetti';
-import { Card, ErrorState, Skeleton, SkeletonCard, TabBar, TabPanel } from '@/components/ui';
-import { PositionBadge } from '@/components/player';
+import { Card, ErrorState, Skeleton, SkeletonCard, TabBar, TabPanel, SearchInput, PosFilter, EmptyState } from '@/components/ui';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { fmtBSD, cn } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
-import { getPlayers, dbToPlayers, centsToBsd } from '@/lib/services/players';
-import { getHoldings } from '@/lib/services/wallet';
-import { useWallet } from '@/components/providers/WalletProvider';
-import { buyFromMarket, placeSellOrder, cancelOrder, getAllOpenSellOrders, getTrendingPlayers, getAllPriceHistories } from '@/lib/services/trading';
+import { centsToBsd } from '@/lib/services/players';
+import { placeSellOrder, cancelOrder } from '@/lib/services/trading';
 import type { TrendingPlayer } from '@/lib/services/trading';
-import { getActiveIpos } from '@/lib/services/ipo';
-import { getIncomingOffers } from '@/lib/services/offers';
+import { addToWatchlist, removeFromWatchlist, migrateLocalWatchlist } from '@/lib/services/watchlist';
+import type { WatchlistEntry } from '@/lib/services/watchlist';
 import type { OfferWithDetails } from '@/types';
 import { useUser } from '@/components/providers/AuthProvider';
+import { useClub } from '@/components/providers/ClubProvider';
 import { useToast } from '@/components/providers/ToastProvider';
-import { withTimeout } from '@/lib/cache';
-import { val } from '@/lib/settledHelpers';
+import { useWallet } from '@/components/providers/WalletProvider';
+import { useEnrichedPlayers, useHoldings, invalidateTradeQueries } from '@/lib/queries';
+import { useActiveIpos } from '@/lib/queries/ipos';
+import { useTrendingPlayers } from '@/lib/queries/trending';
+import { useAllPriceHistories } from '@/lib/queries/priceHist';
+import { useWatchlist } from '@/lib/queries/watchlist';
+import { useIncomingOffers } from '@/lib/queries/offers';
+import { useBuyFromMarket } from '@/lib/mutations/trading';
+import { useMarketStore } from '@/lib/stores/marketStore';
+import type { MarketTab, SortOption } from '@/lib/stores/marketStore';
+import { queryClient } from '@/lib/queryClient';
+import { qk } from '@/lib/queries/keys';
 import dynamic from 'next/dynamic';
 import type { Player, Pos, Listing, DbIpo } from '@/types';
-import type { HoldingWithPlayer } from '@/lib/services/wallet';
-import type { ManagerTab } from '@/components/manager/types';
 
 const ManagerKaderTab = dynamic(() => import('@/components/manager/ManagerKaderTab'), { ssr: false });
 const ManagerBestandTab = dynamic(() => import('@/components/manager/ManagerBestandTab'), { ssr: false });
 const ManagerCompareTab = dynamic(() => import('@/components/manager/ManagerCompareTab'), { ssr: false });
 const ManagerOffersTab = dynamic(() => import('@/components/manager/ManagerOffersTab'), { ssr: false });
-
-// ============================================
-// WATCHLIST (DB-backed via service)
-// ============================================
-import { getWatchlist, addToWatchlist, removeFromWatchlist, migrateLocalWatchlist } from '@/lib/services/watchlist';
+const KaufenIPOSection = dynamic(() => import('@/components/manager/KaufenIPOSection'), { ssr: false });
 
 // ============================================
 // TYPES
@@ -71,22 +73,18 @@ type IPOData = {
   userPurchased: number;
 };
 
-
 // ============================================
 // TABS CONFIG — 4 Tabs
 // ============================================
 
-type NewTab = 'portfolio' | 'kaufen' | 'angebote' | 'spieler';
-
-const TABS: { id: NewTab; label: string }[] = [
+const TABS: { id: MarketTab; label: string }[] = [
   { id: 'portfolio', label: 'Mein Kader' },
   { id: 'kaufen', label: 'Kaufen' },
   { id: 'angebote', label: 'Angebote' },
   { id: 'spieler', label: 'Alle Spieler' },
 ];
 
-// Map old tab IDs to new ones for backward compat
-const TAB_ALIAS: Record<string, NewTab> = {
+const TAB_ALIAS: Record<string, MarketTab> = {
   kader: 'portfolio',
   bestand: 'portfolio',
   compare: 'spieler',
@@ -142,6 +140,24 @@ const getIPOStatusStyle = (status: LocalIPOStatus) => {
   }
 };
 
+const POS_ORDER: Record<Pos, number> = { GK: 0, DEF: 1, MID: 2, ATT: 3 };
+
+function getIpoDisplayData(ipo: IPOData) {
+  let currentPrice = ipo.price;
+  if (ipo.type === 'tiered' && ipo.tiers) {
+    const currentTier = ipo.tiers.find(t => t.sold < t.quantity);
+    if (currentTier) currentPrice = currentTier.price;
+  }
+  return {
+    status: getIPOStatusStyle(ipo.status).label,
+    progress: (ipo.sold / ipo.totalOffered) * 100,
+    price: currentPrice,
+    remaining: ipo.totalOffered - ipo.sold,
+    totalOffered: ipo.totalOffered,
+    endsAt: ipo.endsAt,
+  };
+}
+
 // ============================================
 // SKELETON
 // ============================================
@@ -170,247 +186,169 @@ function MarketSkeleton() {
 
 export default function MarketPage() {
   const { user } = useUser();
+  const { followedClubs } = useClub();
   const { addToast } = useToast();
-  const searchParams = useSearchParams();
-  const initialTab = searchParams.get('tab');
-  const [tab, setTab] = useState<NewTab>(() => {
-    if (initialTab) {
-      if (VALID_TABS.has(initialTab)) return initialTab as NewTab;
-      if (TAB_ALIAS[initialTab]) return TAB_ALIAS[initialTab];
-    }
-    return 'portfolio';
-  });
-  const [portfolioView, setPortfolioView] = useState<'kader' | 'portfolio'>('kader');
-  const [view, setView] = useState<'grid' | 'list'>('grid');
-  const [watchlist, setWatchlist] = useState<Record<string, boolean>>({});
-  const [query, setQuery] = useState('');
-  const [showCompare, setShowCompare] = useState(false);
-
-  // Filter state
-  type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'change' | 'name';
-  const [posFilter, setPosFilter] = useState<Set<Pos>>(new Set());
-  const [clubFilter, setClubFilter] = useState<Set<string>>(new Set());
-  const [sortBy, setSortBy] = useState<SortOption>('floor_asc');
-  const [priceMin, setPriceMin] = useState('');
-  const [priceMax, setPriceMax] = useState('');
-  const [onlyAvailable, setOnlyAvailable] = useState(false);
-  const [onlyOwned, setOnlyOwned] = useState(false);
-  const [onlyWatched, setOnlyWatched] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [clubSearch, setClubSearch] = useState('');
-  const [showClubDropdown, setShowClubDropdown] = useState(false);
-
-  // Spieler tab state
-  const [spielerQuery, setSpielerQuery] = useState('');
-  const [spielerPosFilter, setSpielerPosFilter] = useState<Set<Pos>>(new Set());
-  const [expandedClubs, setExpandedClubs] = useState<Set<string>>(new Set());
-  const [spielerInitialized, setSpielerInitialized] = useState(false);
-
-  // Real data state
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [holdings, setHoldings] = useState<HoldingWithPlayer[]>([]);
-  const [ipoList, setIpoList] = useState<DbIpo[]>([]);
   const wallet = useWallet();
   const balanceCents = wallet.balanceCents ?? 0;
-  const setBalanceCents = wallet.setBalanceCents;
-  const [dataLoading, setDataLoading] = useState(true);
-  const [enrichLoading, setEnrichLoading] = useState(true);
-  const [dataError, setDataError] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-  const [buyingId, setBuyingId] = useState<string | null>(null);
-  const [buyError, setBuyError] = useState<string | null>(null);
-  const [buySuccess, setBuySuccess] = useState<string | null>(null);
-  const [lastBoughtId, setLastBoughtId] = useState<string | null>(null);
-  const [trending, setTrending] = useState<TrendingPlayer[]>([]);
-  const [incomingOffers, setIncomingOffers] = useState<OfferWithDetails[]>([]);
+  const searchParams = useSearchParams();
 
-  // ── Helpers: enrich players with sell orders + holdings ──
-  const enrichPlayers = (base: Player[], sellOrders: { id: string; player_id: string; user_id: string; price: number; quantity: number; filled_qty: number; expires_at: string | null }[], hlds: HoldingWithPlayer[], priceHistMap?: Map<string, number[]>) => {
-    return base.map(p => {
-      const h = hlds.find(h => h.player_id === p.id);
-      const playerOrders = sellOrders.filter(o => o.player_id === p.id);
-      const onMarket = playerOrders.reduce((sum, o) => sum + (o.quantity - o.filled_qty), 0);
-      const listings: Listing[] = playerOrders.map(o => ({
-        id: o.id, sellerId: o.user_id, sellerName: 'Verkäufer', price: centsToBsd(o.price),
-        qty: o.quantity - o.filled_qty, expiresAt: o.expires_at ? new Date(o.expires_at).getTime() : Date.now() + 86400000,
-      }));
-      // Compute floor from sell orders (more accurate than DB floor_price which may be stale)
-      const orderFloor = listings.length > 0 ? Math.min(...listings.map(l => l.price)) : undefined;
-      const hist = priceHistMap?.get(p.id);
-      return {
-        ...p,
-        dpc: { ...p.dpc, onMarket, owned: h?.quantity ?? 0 },
-        prices: { ...p.prices, floor: orderFloor ?? p.prices.floor, history7d: hist && hist.length >= 2 ? hist : p.prices.history7d },
-        listings,
-      };
-    });
-  };
+  // ── Zustand Store (UI state) ──
+  const {
+    tab, setTab,
+    portfolioView, setPortfolioView,
+    view, setView,
+    query, setQuery,
+    posFilter, togglePos, clearPosFilter,
+    clubFilter, toggleClub,
+    sortBy, setSortBy,
+    priceMin, setPriceMin,
+    priceMax, setPriceMax,
+    onlyAvailable, setOnlyAvailable,
+    onlyOwned, setOnlyOwned,
+    onlyWatched, setOnlyWatched,
+    showFilters, setShowFilters,
+    clubSearch, setClubSearch,
+    showClubDropdown, setShowClubDropdown,
+    spielerQuery, setSpielerQuery,
+    spielerPosFilter, toggleSpielerPos,
+    expandedClubs, toggleClubExpand,
+    initExpandedClubs,
+    showCompare, setShowCompare,
+    resetFilters,
+  } = useMarketStore();
 
-  // Single-phase data load: Players + Holdings + Enrichment in parallel
+  // ── Sync URL tab param → store (once on mount) ──
+  const tabSyncedRef = useRef(false);
   useEffect(() => {
-    let cancelled = false;
-    async function loadAll() {
-      try {
-        const results = await withTimeout(Promise.allSettled([
-          getPlayers(),
-          user ? getHoldings(user.id) : Promise.resolve([]),
-          user ? getWatchlist(user.id) : Promise.resolve([]),
-          getAllOpenSellOrders(),
-          getActiveIpos(),
-          getTrendingPlayers(5),
-          getAllPriceHistories(10),
-          user ? getIncomingOffers(user.id) : Promise.resolve([]),
-        ]), 12000);
-        if (cancelled) return;
-
-        const dbPlayers = val(results[0], []);
-        const hlds = val(results[1], []);
-        const wlEntries = val(results[2], []);
-        const sellOrders = val(results[3], []);
-        const ipos = val(results[4], []);
-        const trendData = val(results[5], []);
-        const priceHistMap = val(results[6], new Map<string, number[]>());
-        const offers = val(results[7], []);
-
-        if (results[0].status === 'rejected') {
-          if (!cancelled) setDataError(true);
-          return;
-        }
-
-        const mapped = dbToPlayers(dbPlayers);
-        const enriched = enrichPlayers(mapped, sellOrders, hlds, priceHistMap);
-        setPlayers(enriched);
-        setHoldings(hlds);
-        setIpoList(ipos);
-        setTrending(trendData);
-        setIncomingOffers(offers.filter(o => o.status === 'pending'));
-
-        // Build watchlist map
-        const wlMap: Record<string, boolean> = {};
-        for (const entry of wlEntries) { wlMap[entry.playerId] = true; }
-        setWatchlist(wlMap);
-
-        // Migrate localStorage watchlist (one-time, fire-and-forget)
-        if (user && typeof window !== 'undefined' && localStorage.getItem('bescout-watchlist')) {
-          migrateLocalWatchlist(user.id).then(count => {
-            if (count > 0) {
-              getWatchlist(user.id).then(entries => {
-                const newMap: Record<string, boolean> = {};
-                for (const e of entries) { newMap[e.playerId] = true; }
-                setWatchlist(newMap);
-              }).catch(err => console.error('[Market] Watchlist refresh failed:', err));
-            }
-          }).catch(err => console.error('[Market] Watchlist migration failed:', err));
-        }
-
-        setDataError(false);
-      } catch {
-        if (!cancelled) setDataError(true);
-      } finally {
-        if (!cancelled) { setDataLoading(false); setEnrichLoading(false); }
-      }
+    if (tabSyncedRef.current) return;
+    tabSyncedRef.current = true;
+    const initial = searchParams.get('tab');
+    if (initial) {
+      if (VALID_TABS.has(initial)) setTab(initial as MarketTab);
+      else if (TAB_ALIAS[initial]) setTab(TAB_ALIAS[initial]);
     }
-    loadAll();
-    return () => { cancelled = true; };
-  }, [user, retryCount]);
+  }, [searchParams, setTab]);
 
-  // Light refresh after trades: only holdings + sell orders (NOT all 500 players)
-  const refreshAfterTrade = async () => {
-    if (!user) return;
-    const [hlds, sellOrders, offers] = await Promise.all([
-      getHoldings(user.id),
-      getAllOpenSellOrders(),
-      getIncomingOffers(user.id),
-    ]);
-    setHoldings(hlds);
-    setIncomingOffers(offers.filter(o => o.status === 'pending'));
-    setPlayers(prev => enrichPlayers(prev, sellOrders, hlds));
-  };
+  // ── React Query Hooks (data) ──
+  const { data: enrichedPlayers = [], isLoading: playersLoading, isError: playersError } = useEnrichedPlayers(user?.id);
+  const { data: ipoList = [] } = useActiveIpos();
+  const { data: trending = [] } = useTrendingPlayers(5);
+  const { data: watchlistEntries = [] } = useWatchlist(user?.id);
+  const { data: incomingOffers = [] } = useIncomingOffers(user?.id);
+  const { data: priceHistMap } = useAllPriceHistories(10);
+  const { data: holdings = [], isLoading: holdingsLoading } = useHoldings(user?.id);
 
-  const toggleWatch = (id: string) => {
+  // ── Merge price histories into enriched players ──
+  const players = useMemo(() => {
+    if (!priceHistMap || priceHistMap.size === 0) return enrichedPlayers;
+    return enrichedPlayers.map(p => {
+      const hist = priceHistMap.get(p.id);
+      if (!hist || hist.length < 2) return p;
+      return { ...p, prices: { ...p.prices, history7d: hist } };
+    });
+  }, [enrichedPlayers, priceHistMap]);
+
+  // ── Watchlist map (derived) ──
+  const watchlist = useMemo(() => {
+    const map: Record<string, boolean> = {};
+    for (const e of watchlistEntries) map[e.playerId] = true;
+    return map;
+  }, [watchlistEntries]);
+
+  const enrichLoading = holdingsLoading;
+
+  // ── Buy mutation ──
+  const buyMut = useBuyFromMarket();
+  const { mutate: doBuy, isPending: buyPending, isSuccess: buyIsSuccess, isError: buyIsError, error: buyMutError, variables: buyVars, reset: resetBuy } = buyMut;
+  const buyingId = buyPending ? (buyVars?.playerId ?? null) : null;
+  const buySuccess = buyIsSuccess ? `${buyVars?.quantity ?? 1} DPC gekauft!` : null;
+  const lastBoughtId = buyIsSuccess ? (buyVars?.playerId ?? null) : null;
+  const buyError = buyIsError ? (buyMutError?.message ?? 'Unbekannter Fehler') : null;
+
+  // Auto-dismiss success after 3s
+  useEffect(() => {
+    if (!buyIsSuccess) return;
+    const timer = setTimeout(resetBuy, 3000);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buyIsSuccess]);
+
+  // ── Watchlist toggle (optimistic via cache) ──
+  const toggleWatch = useCallback((id: string) => {
     if (!user) return;
     const isWatched = !!watchlist[id];
-    // Optimistic update
-    setWatchlist(prev => ({ ...prev, [id]: !isWatched }));
-    // DB call (fire-and-forget with rollback on error)
+    // Optimistic update via React Query cache
+    queryClient.setQueryData<WatchlistEntry[]>(qk.watchlist.byUser(user.id), (old) => {
+      if (!old) return old;
+      if (isWatched) return old.filter(e => e.playerId !== id);
+      return [...old, { id: `opt-${id}`, playerId: id, alertThresholdPct: 0, alertDirection: 'both' as const, lastAlertPrice: 0, createdAt: new Date().toISOString() }];
+    });
     const action = isWatched ? removeFromWatchlist(user.id, id) : addToWatchlist(user.id, id);
     action.catch((err) => {
       console.error('[Market] Watchlist toggle failed:', err);
-      setWatchlist(prev => ({ ...prev, [id]: isWatched }));
+      queryClient.invalidateQueries({ queryKey: qk.watchlist.byUser(user.id) });
       addToast('Watchlist konnte nicht aktualisiert werden', 'error');
     });
-  };
+  }, [user, watchlist, addToast]);
 
-  // Buy handler — lightweight refresh (no full player reload)
-  const handleBuy = async (playerId: string, quantity: number = 1) => {
+  // ── Handlers ──
+  const handleBuy = useCallback((playerId: string, quantity: number = 1) => {
     if (!user) return;
-    setBuyingId(playerId);
-    setBuyError(null);
-    setBuySuccess(null);
-    try {
-      const result = await buyFromMarket(user.id, playerId, quantity);
-      if (!result.success) {
-        setBuyError(result.error || 'Kauf fehlgeschlagen');
-      } else {
-        setBuySuccess(`${quantity} DPC gekauft!`);
-        setLastBoughtId(playerId);
-        setBalanceCents(result.new_balance ?? balanceCents);
-        await refreshAfterTrade();
-        setTimeout(() => { setBuySuccess(null); setLastBoughtId(null); }, 3000);
-      }
-    } catch (err) {
-      setBuyError(err instanceof Error ? err.message : 'Unbekannter Fehler');
-    } finally {
-      setBuyingId(null);
-    }
-  };
+    doBuy({ userId: user.id, playerId, quantity });
+  }, [user, doBuy]);
 
-  // Sell handler (for ManagerBestandTab) — lightweight refresh
-  const handleSell = async (playerId: string, quantity: number, priceCents: number): Promise<{ success: boolean; error?: string }> => {
+  const handleSell = useCallback(async (playerId: string, quantity: number, priceCents: number): Promise<{ success: boolean; error?: string }> => {
     if (!user) return { success: false, error: 'Nicht eingeloggt' };
     try {
       const result = await placeSellOrder(user.id, playerId, quantity, priceCents);
       if (!result.success) return { success: false, error: result.error || 'Listing fehlgeschlagen' };
-      await refreshAfterTrade();
+      invalidateTradeQueries(playerId, user.id);
       return { success: true };
     } catch (err) {
       return { success: false, error: err instanceof Error ? err.message : 'Unbekannter Fehler' };
     }
-  };
+  }, [user]);
 
-  // Cancel order handler (for ManagerBestandTab) — lightweight refresh
-  const handleCancelOrder = async (orderId: string): Promise<{ success: boolean; error?: string }> => {
+  const handleCancelOrder = useCallback(async (orderId: string): Promise<{ success: boolean; error?: string }> => {
     if (!user) return { success: false, error: 'Nicht eingeloggt' };
     try {
       const result = await cancelOrder(user.id, orderId);
       if (!result.success) return { success: false, error: result.error || 'Stornierung fehlgeschlagen' };
-      await refreshAfterTrade();
+      invalidateTradeQueries('', user.id);
       return { success: true };
     } catch (err) {
       return { success: false, error: err instanceof Error ? err.message : 'Unbekannter Fehler' };
     }
-  };
+  }, [user]);
 
-  // Derived data
+  // ── localStorage watchlist migration (one-time) ──
+  useEffect(() => {
+    if (!user || typeof window === 'undefined') return;
+    const legacy = localStorage.getItem('bescout-watchlist');
+    if (!legacy) return;
+    migrateLocalWatchlist(user.id)
+      .then(count => {
+        if (count > 0) queryClient.invalidateQueries({ queryKey: qk.watchlist.byUser(user.id) });
+      })
+      .catch(err => console.error('[Market] Watchlist migration failed:', err));
+  }, [user]);
+
+  // ── Derived data ──
   const availableClubs = useMemo(() => Array.from(new Set(players.map(p => p.club))).sort(), [players]);
   const filteredClubs = clubSearch ? availableClubs.filter(c => c.toLowerCase().includes(clubSearch.toLowerCase())) : availableClubs;
-
-  const togglePos = (pos: Pos) => {
-    setPosFilter(prev => { const next = new Set(prev); next.has(pos) ? next.delete(pos) : next.add(pos); return next; });
-  };
-  const toggleClub = (club: string) => {
-    setClubFilter(prev => { const next = new Set(prev); next.has(club) ? next.delete(club) : next.add(club); return next; });
-  };
 
   const activeFilterCount = (posFilter.size > 0 ? 1 : 0) + (clubFilter.size > 0 ? 1 : 0)
     + (priceMin ? 1 : 0) + (priceMax ? 1 : 0) + (onlyAvailable ? 1 : 0) + (onlyOwned ? 1 : 0) + (onlyWatched ? 1 : 0);
 
-  const resetFilters = () => {
-    setPosFilter(new Set()); setClubFilter(new Set()); setPriceMin(''); setPriceMax('');
-    setOnlyAvailable(false); setOnlyOwned(false); setOnlyWatched(false); setSortBy('floor_asc'); setQuery('');
-  };
-
-  const getFloor = (p: Player) => p.listings.length > 0 ? Math.min(...p.listings.map(l => l.price)) : p.prices.floor ?? 0;
+  // Pre-compute floor prices once per player-change
+  const floorMap = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const p of players) {
+      m.set(p.id, p.listings.length > 0 ? Math.min(...p.listings.map(l => l.price)) : p.prices.floor ?? 0);
+    }
+    return m;
+  }, [players]);
+  const getFloor = useCallback((p: Player) => floorMap.get(p.id) ?? 0, [floorMap]);
 
   const hasActiveFilters = query !== '' || posFilter.size > 0 || clubFilter.size > 0
     || priceMin !== '' || priceMax !== '' || onlyAvailable || onlyOwned || onlyWatched;
@@ -447,7 +385,7 @@ export default function MarketPage() {
         default: return 0;
       }
     });
-  }, [players, query, posFilter, clubFilter, priceMin, priceMax, onlyAvailable, onlyOwned, onlyWatched, watchlist, sortBy]);
+  }, [players, query, posFilter, clubFilter, priceMin, priceMax, onlyAvailable, onlyOwned, onlyWatched, watchlist, sortBy, getFloor]);
 
   const filteredIPOs = useMemo(() => {
     let result = ipoItems;
@@ -460,6 +398,53 @@ export default function MarketPage() {
     });
   }, [ipoItems, query, posFilter, clubFilter]);
 
+  const followedClubNames = useMemo(
+    () => new Set(followedClubs.map(c => c.name)),
+    [followedClubs]
+  );
+
+  const ipoClubGroups = useMemo(() => {
+    const map = new Map<string, { player: Player; ipo: ReturnType<typeof getIpoDisplayData> }[]>();
+    for (const { player, ipo } of filteredIPOs) {
+      const display = getIpoDisplayData(ipo);
+      const arr = map.get(player.club) ?? [];
+      arr.push({ player, ipo: display });
+      map.set(player.club, arr);
+    }
+    return Array.from(map.entries())
+      .map(([clubName, items]) => {
+        const clubData = getClub(clubName);
+        const l5Sum = items.reduce((s, i) => s + i.player.perf.l5, 0);
+        const avgL5 = items.length > 0 ? Math.round(l5Sum / items.length) : 0;
+        const maxProgress = Math.max(...items.map(i => i.ipo.progress));
+        const posCounts: Record<Pos, number> = { GK: 0, DEF: 0, MID: 0, ATT: 0 };
+        for (const i of items) posCounts[i.player.pos]++;
+        items.sort((a, b) => {
+          const posDiff = POS_ORDER[a.player.pos] - POS_ORDER[b.player.pos];
+          return posDiff !== 0 ? posDiff : b.player.perf.l5 - a.player.perf.l5;
+        });
+        return { clubName, clubData, items, avgL5, maxProgress, posCounts };
+      })
+      .sort((a, b) => {
+        const aScore = (followedClubNames.has(a.clubName) ? 1000 : 0) + a.avgL5 * 2 + a.maxProgress;
+        const bScore = (followedClubNames.has(b.clubName) ? 1000 : 0) + b.avgL5 * 2 + b.maxProgress;
+        return bScore - aScore;
+      });
+  }, [filteredIPOs, followedClubNames]);
+
+  const ipoSuggestions = useMemo(() => {
+    if (ipoItems.length === 0) return [];
+    const sorted = [...ipoItems]
+      .filter(({ ipo }) => ipo.status === 'live' || ipo.status === 'early_access')
+      .map(({ player, ipo }) => ({
+        player,
+        ipo: getIpoDisplayData(ipo),
+        score: player.perf.l5 * 2 + (ipo.sold / ipo.totalOffered) * 100,
+      }))
+      .sort((a, b) => b.score - a.score);
+    return sorted.slice(0, 6).map(({ player, ipo }) => ({ player, ipo }));
+  }, [ipoItems]);
+
   const mySquadPlayers = useMemo(() => {
     let result = players.filter(p => p.dpc.owned > 0 && !p.isLiquidated);
     if (query) { const q = query.toLowerCase(); result = result.filter(p => `${p.first} ${p.last} ${p.club}`.toLowerCase().includes(q)); }
@@ -469,8 +454,6 @@ export default function MarketPage() {
   }, [players, query, posFilter, clubFilter]);
 
   // Spieler tab: club groups
-  const POS_ORDER: Record<Pos, number> = { GK: 0, DEF: 1, MID: 2, ATT: 3 };
-
   const clubGroups = useMemo(() => {
     let filtered = players.filter(p => !p.isLiquidated);
     if (spielerQuery) {
@@ -492,45 +475,20 @@ export default function MarketPage() {
       }));
   }, [players, spielerQuery, spielerPosFilter]);
 
-  if (!spielerInitialized && clubGroups.length > 0) {
-    setExpandedClubs(new Set([clubGroups[0].clubName]));
-    setSpielerInitialized(true);
-  }
+  // Init first club expanded (one-time via Zustand)
+  if (clubGroups.length > 0) initExpandedClubs(clubGroups[0].clubName);
 
   const totalSpielerCount = clubGroups.reduce((s, g) => s + g.players.length, 0);
 
-  const toggleSpielerPos = (pos: Pos) => {
-    setSpielerPosFilter(prev => { const next = new Set(prev); next.has(pos) ? next.delete(pos) : next.add(pos); return next; });
-  };
-  const toggleClubExpand = (clubName: string) => {
-    setExpandedClubs(prev => { const next = new Set(prev); next.has(clubName) ? next.delete(clubName) : next.add(clubName); return next; });
-  };
+  if (playersLoading) return <MarketSkeleton />;
 
-  if (dataLoading) return <MarketSkeleton />;
-
-  if (dataError && players.length === 0) {
+  if (playersError && players.length === 0) {
     return (
       <div className="max-w-[1400px] mx-auto py-12">
-        <ErrorState onRetry={() => { setDataLoading(true); setDataError(false); setRetryCount(c => c + 1); }} />
+        <ErrorState onRetry={() => queryClient.refetchQueries({ queryKey: qk.players.all })} />
       </div>
     );
   }
-
-  const getIpoDisplayData = (ipo: IPOData) => {
-    let currentPrice = ipo.price;
-    if (ipo.type === 'tiered' && ipo.tiers) {
-      const currentTier = ipo.tiers.find(t => t.sold < t.quantity);
-      if (currentTier) currentPrice = currentTier.price;
-    }
-    return {
-      status: getIPOStatusStyle(ipo.status).label,
-      progress: (ipo.sold / ipo.totalOffered) * 100,
-      price: currentPrice,
-      remaining: ipo.totalOffered - ipo.sold,
-      totalOffered: ipo.totalOffered,
-      endsAt: ipo.endsAt,
-    };
-  };
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-5">
@@ -559,7 +517,7 @@ export default function MarketPage() {
         </div>
       )}
       {buyError && (
-        <div className="fixed top-4 right-4 z-50 bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm cursor-pointer" onClick={() => setBuyError(null)}>
+        <div className="fixed top-4 right-4 z-50 bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm cursor-pointer" onClick={() => resetBuy()}>
           {buyError}
         </div>
       )}
@@ -577,24 +535,24 @@ export default function MarketPage() {
       </div>
 
       {/* 4 Tabs */}
-      <TabBar tabs={TABS} activeTab={tab} onChange={(id) => setTab(id as NewTab)} />
+      <TabBar tabs={TABS} activeTab={tab} onChange={(id) => setTab(id as MarketTab)} />
 
       {/* ━━━ TAB: MEIN KADER ━━━ */}
       <TabPanel id="portfolio" activeTab={tab}>
         {/* Toggle: Kader / Portfolio */}
         <div className="flex items-center gap-1 mb-4 p-1 bg-white/[0.02] border border-white/10 rounded-xl w-fit">
           <button
-            onClick={() => setPortfolioView('kader')}
-            className={cn('px-3 py-1.5 rounded-lg text-sm font-bold transition-all',
-              portfolioView === 'kader' ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20' : 'text-white/40 border border-transparent'
-            )}
-          >Kader-Ansicht</button>
-          <button
             onClick={() => setPortfolioView('portfolio')}
             className={cn('px-3 py-1.5 rounded-lg text-sm font-bold transition-all',
               portfolioView === 'portfolio' ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20' : 'text-white/40 border border-transparent'
             )}
-          >Portfolio-Ansicht</button>
+          >Team</button>
+          <button
+            onClick={() => setPortfolioView('kader')}
+            className={cn('px-3 py-1.5 rounded-lg text-sm font-bold transition-all',
+              portfolioView === 'kader' ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20' : 'text-white/40 border border-transparent'
+            )}
+          >Aufstellungen</button>
         </div>
         {portfolioView === 'kader' ? (
           <ManagerKaderTab players={players} ownedPlayers={mySquadPlayers} />
@@ -605,74 +563,15 @@ export default function MarketPage() {
 
       {/* ━━━ TAB: KAUFEN (IPOs + P2P) ━━━ */}
       <TabPanel id="kaufen" activeTab={tab}>
-        {/* Trending Strip */}
-        {trending.length > 0 && (
-          <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-3">
-            <div className="flex items-center gap-1.5 shrink-0">
-              <Flame className="w-4 h-4 text-orange-400" />
-              <span className="text-[10px] font-black uppercase tracking-wider text-orange-400/80">Trending</span>
-            </div>
-            {trending.map(t => {
-              const up = t.change24h >= 0;
-              return (
-                <Link key={t.playerId} href={`/player/${t.playerId}`}
-                  className="flex items-center gap-2.5 px-3 py-2 bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.06] transition-all shrink-0"
-                >
-                  <PositionBadge pos={t.position} size="sm" />
-                  <div className="min-w-0">
-                    <div className="text-xs font-bold truncate">{t.firstName} {t.lastName}</div>
-                    <div className="text-[10px] text-white/40 flex items-center gap-1">{t.tradeCount} Trades · <MessageSquare className="w-2.5 h-2.5 text-white/20" /></div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="text-xs font-mono font-bold text-[#FFD700]">{fmtBSD(t.floorPrice)}</div>
-                    <div className={`text-[10px] font-mono ${up ? 'text-[#22C55E]' : 'text-red-300'}`}>
-                      {up ? '+' : ''}{t.change24h.toFixed(1)}%
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-
-        {/* IPOs Section (prominent) */}
-        {(filteredIPOs.length > 0 || enrichLoading) && (
-          <div className="mb-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Zap className="w-4 h-4 text-[#22C55E]" />
-              <span className="text-sm font-black uppercase tracking-wider">Club Sales (IPO)</span>
-              <span className="px-1.5 py-0.5 bg-[#22C55E]/20 text-[#22C55E] text-[10px] font-bold rounded-full">
-                {filteredIPOs.filter(i => i.ipo.status === 'live' || i.ipo.status === 'early_access').length} Live
-              </span>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-              {enrichLoading && filteredIPOs.length === 0
-                ? Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="animate-pulse bg-white/[0.02] border border-white/10 rounded-2xl h-[170px]" />
-                  ))
-                : filteredIPOs.map(({ player: p, ipo }) => (
-                    <PlayerDisplay key={ipo.id} variant="card" player={p}
-                      ipoData={getIpoDisplayData(ipo)}
-                      isWatchlisted={watchlist[p.id]} onWatch={() => toggleWatch(p.id)} />
-                  ))
-              }
-            </div>
-          </div>
-        )}
-
         {/* Filters */}
         <Card className="p-4 space-y-3 mb-4">
           <div className="flex items-center gap-2">
-            <div className="relative flex-1 min-w-0">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-              <input
-                type="text"
-                placeholder="Spieler, Verein, Liga suchen..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
-              />
-            </div>
+            <SearchInput
+              value={query}
+              onChange={setQuery}
+              placeholder="Spieler, Verein, Liga suchen..."
+              className="flex-1 min-w-0"
+            />
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={cn('flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold border transition-all shrink-0',
@@ -694,23 +593,7 @@ export default function MarketPage() {
             </div>
           </div>
           {/* Position Toggles */}
-          <div className="flex items-center gap-1">
-            {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map(pos => {
-              const active = posFilter.has(pos);
-              const colors: Record<Pos, { bg: string; border: string; text: string }> = {
-                GK: { bg: 'bg-emerald-500/20', border: 'border-emerald-400', text: 'text-emerald-300' },
-                DEF: { bg: 'bg-amber-500/20', border: 'border-amber-400', text: 'text-amber-300' },
-                MID: { bg: 'bg-sky-500/20', border: 'border-sky-400', text: 'text-sky-300' },
-                ATT: { bg: 'bg-rose-500/20', border: 'border-rose-400', text: 'text-rose-300' },
-              };
-              const c = colors[pos];
-              return (
-                <button key={pos} onClick={() => togglePos(pos)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-black border transition-all ${active ? `${c.bg} ${c.border} ${c.text}` : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70 hover:bg-white/10'}`}
-                >{pos}</button>
-              );
-            })}
-          </div>
+          <PosFilter multi selected={posFilter} onChange={togglePos} />
           {/* Advanced Filters */}
           {showFilters && (
             <div className="flex items-start gap-2 sm:gap-3 flex-wrap pt-2 border-t border-white/5">
@@ -782,7 +665,7 @@ export default function MarketPage() {
               {posFilter.size > 0 && (
                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60">
                   Pos: {Array.from(posFilter).join(', ')}
-                  <button onClick={() => setPosFilter(new Set())} className="ml-0.5 hover:text-white"><X className="w-3 h-3" /></button>
+                  <button onClick={clearPosFilter} className="ml-0.5 hover:text-white"><X className="w-3 h-3" /></button>
                 </span>
               )}
               {Array.from(clubFilter).map(club => (
@@ -796,38 +679,54 @@ export default function MarketPage() {
           )}
         </Card>
 
+        {/* Club Sales (IPO) */}
+        <KaufenIPOSection
+          clubGroups={ipoClubGroups}
+          suggestions={ipoSuggestions}
+          trending={trending}
+          watchlist={watchlist}
+          onWatch={toggleWatch}
+          buyingId={buyingId}
+          followedClubNames={followedClubNames}
+          enrichLoading={enrichLoading}
+          view={view}
+          filteredIPOs={filteredIPOs.map(({ player, ipo }) => ({ player, ipo: getIpoDisplayData(ipo) }))}
+        />
+
         {/* P2P Listings */}
         <div className="flex items-center justify-between mb-3">
           <div className="text-sm text-white/50">{transferPlayers.length} Spieler am Transfermarkt</div>
         </div>
         {transferPlayers.length === 0 ? (
-          <Card className="p-12 text-center">
-            {hasActiveFilters ? (
-              <>
-                <Search className="w-12 h-12 mx-auto mb-4 text-white/20" />
-                <div className="text-white/30 mb-2">Keine Spieler gefunden</div>
-                <div className="text-sm text-white/50">Versuche andere Suchbegriffe oder Filter</div>
-              </>
-            ) : (
-              <>
-                <Package className="w-12 h-12 mx-auto mb-4 text-white/20" />
-                <div className="text-white/30 mb-2">Keine Angebote auf dem Transfermarkt</div>
-                <div className="text-sm text-white/50">Kaufe DPCs über Club Sale und erstelle dann eigene Verkaufsangebote.</div>
-              </>
-            )}
-          </Card>
-        ) : view === 'grid' ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-            {transferPlayers.map((player) => (
-              <PlayerDisplay key={player.id} variant="card" player={player} isWatchlisted={watchlist[player.id]} onWatch={() => toggleWatch(player.id)} onBuy={(id) => handleBuy(id)} buying={buyingId === player.id} />
-            ))}
-          </div>
+          hasActiveFilters ? (
+            <EmptyState icon={<Search />} title="Keine Spieler gefunden" description="Versuche andere Suchbegriffe oder Filter" action={{ label: 'Filter zurücksetzen', onClick: resetFilters }} />
+          ) : (
+            <EmptyState icon={<Package />} title="Keine Angebote auf dem Transfermarkt" description="Kaufe DPCs über Club Sale und erstelle dann eigene Verkaufsangebote." />
+          )
         ) : (
-          <div className="space-y-1.5">
-            {transferPlayers.map((player) => (
-              <PlayerDisplay key={player.id} variant="compact" player={player} isWatchlisted={watchlist[player.id]} onWatch={() => toggleWatch(player.id)} onBuy={(id) => handleBuy(id)} buying={buyingId === player.id} />
-            ))}
-          </div>
+          <>
+            {/* Mobile: always list, Desktop: view toggle */}
+            <div className="md:hidden space-y-1.5">
+              {transferPlayers.map((player) => (
+                <PlayerDisplay key={player.id} variant="compact" player={player} isWatchlisted={watchlist[player.id]} onWatch={() => toggleWatch(player.id)} onBuy={(id) => handleBuy(id)} buying={buyingId === player.id} />
+              ))}
+            </div>
+            <div className="hidden md:block">
+              {view === 'grid' ? (
+                <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                  {transferPlayers.map((player) => (
+                    <PlayerDisplay key={player.id} variant="card" player={player} isWatchlisted={watchlist[player.id]} onWatch={() => toggleWatch(player.id)} onBuy={(id) => handleBuy(id)} buying={buyingId === player.id} />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  {transferPlayers.map((player) => (
+                    <PlayerDisplay key={player.id} variant="compact" player={player} isWatchlisted={watchlist[player.id]} onWatch={() => toggleWatch(player.id)} onBuy={(id) => handleBuy(id)} buying={buyingId === player.id} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
         )}
       </TabPanel>
 
@@ -842,29 +741,8 @@ export default function MarketPage() {
           {/* Search + Position Filter + Compare Button */}
           <Card className="p-4 space-y-3">
             <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                <input type="text" placeholder="Spieler suchen..." value={spielerQuery} onChange={(e) => setSpielerQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30" />
-              </div>
-              <div className="flex gap-1">
-                {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map(pos => {
-                  const active = spielerPosFilter.has(pos);
-                  const colors: Record<Pos, { bg: string; border: string; text: string }> = {
-                    GK: { bg: 'bg-emerald-500/20', border: 'border-emerald-400', text: 'text-emerald-300' },
-                    DEF: { bg: 'bg-amber-500/20', border: 'border-amber-400', text: 'text-amber-300' },
-                    MID: { bg: 'bg-sky-500/20', border: 'border-sky-400', text: 'text-sky-300' },
-                    ATT: { bg: 'bg-rose-500/20', border: 'border-rose-400', text: 'text-rose-300' },
-                  };
-                  const c = colors[pos];
-                  return (
-                    <button key={pos} onClick={() => toggleSpielerPos(pos)}
-                      className={cn('px-3 py-1.5 rounded-lg text-xs font-black border transition-all',
-                        active ? `${c.bg} ${c.border} ${c.text}` : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70 hover:bg-white/10'
-                      )}>{pos}</button>
-                  );
-                })}
-              </div>
+              <SearchInput value={spielerQuery} onChange={setSpielerQuery} placeholder="Spieler suchen..." className="flex-1" />
+              <PosFilter multi selected={spielerPosFilter} onChange={toggleSpielerPos} />
               <button onClick={() => setShowCompare(!showCompare)}
                 className={cn('flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all shrink-0',
                   showCompare ? 'bg-purple-500/15 border-purple-400/30 text-purple-300' : 'bg-white/5 border-white/10 text-white/50 hover:text-white/70'
@@ -919,11 +797,7 @@ export default function MarketPage() {
             );
           })}
           {clubGroups.length === 0 && (
-            <Card className="p-12 text-center">
-              <Users className="w-12 h-12 mx-auto mb-4 text-white/20" />
-              <div className="text-white/30 mb-2">Keine Spieler gefunden</div>
-              <div className="text-sm text-white/50">Versuche andere Suchbegriffe oder Filter</div>
-            </Card>
+            <EmptyState icon={<Users />} title="Keine Spieler gefunden" description="Versuche andere Suchbegriffe oder Filter" />
           )}
         </div>
       </TabPanel>

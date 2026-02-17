@@ -115,3 +115,14 @@ body {
 }
 .anim-scale-pop { animation: scale-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .anim-pulse-green { animation: pulse-green 1.5s ease-in-out 2; }
+
+/* Shimmer skeleton animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}

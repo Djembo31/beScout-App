@@ -1,9 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
-import { cached, invalidate } from '@/lib/cache';
 import type { DbPlayer, Player, PlayerStatus } from '@/types';
 import { toPos } from '@/types';
-
-const FIVE_MIN = 5 * 60 * 1000;
 
 // ============================================
 // Queries
@@ -11,39 +8,33 @@ const FIVE_MIN = 5 * 60 * 1000;
 
 /** Alle Spieler laden — via server-cached API Route */
 export async function getPlayers(): Promise<DbPlayer[]> {
-  return cached('players:all', async () => {
-    const res = await fetch('/api/players');
-    if (!res.ok) throw new Error('Failed to fetch players');
-    return (await res.json()) as DbPlayer[];
-  }, FIVE_MIN);
+  const res = await fetch('/api/players');
+  if (!res.ok) throw new Error('Failed to fetch players');
+  return (await res.json()) as DbPlayer[];
 }
 
 /** Einzelnen Spieler laden */
 export async function getPlayerById(id: string): Promise<DbPlayer | null> {
-  return cached(`player:${id}`, async () => {
-    const { data, error } = await supabase
-      .from('players')
-      .select('*')
-      .eq('id', id)
-      .single();
+  const { data, error } = await supabase
+    .from('players')
+    .select('*')
+    .eq('id', id)
+    .single();
 
-    if (error) return null;
-    return data as DbPlayer;
-  }, FIVE_MIN);
+  if (error) return null;
+  return data as DbPlayer;
 }
 
 /** Alle Spieler eines Clubs laden (by club_id) */
 export async function getPlayersByClubId(clubId: string): Promise<DbPlayer[]> {
-  return cached(`players:club:${clubId}`, async () => {
-    const { data, error } = await supabase
-      .from('players')
-      .select('*')
-      .eq('club_id', clubId)
-      .order('last_name');
+  const { data, error } = await supabase
+    .from('players')
+    .select('*')
+    .eq('club_id', clubId)
+    .order('last_name');
 
-    if (error) throw new Error(error.message);
-    return data as DbPlayer[];
-  }, FIVE_MIN);
+  if (error) throw new Error(error.message);
+  return data as DbPlayer[];
 }
 
 // ============================================
@@ -165,6 +156,5 @@ export async function createPlayer(params: {
     .single();
 
   if (error) return { success: false, error: error.message };
-  invalidate('players:');
   return { success: true, playerId: data.id };
 }
