@@ -92,6 +92,29 @@ function NextMatchBadge({ fixture }: { fixture: NextFixtureInfo | undefined }) {
 }
 
 // ============================================
+// MINUTES BAR (Last 5 GW visual)
+// ============================================
+
+function MinutesBar({ minutes }: { minutes: number[] }) {
+  return (
+    <div className="flex items-end gap-[3px] h-[18px]">
+      {minutes.slice(0, 5).map((m, i) => {
+        const pct = Math.min(100, (m / 90) * 100);
+        const color = m >= 75 ? 'bg-[#22C55E]' : m >= 45 ? 'bg-yellow-400' : m > 0 ? 'bg-red-400' : 'bg-white/10';
+        return (
+          <div key={i} className="relative group">
+            <div className={cn('w-[6px] rounded-sm', color)} style={{ height: `${Math.max(2, (pct / 100) * 18)}px` }} />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-1.5 py-0.5 bg-black/90 border border-white/10 rounded text-[8px] font-mono text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10">
+              {m}&apos;
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ============================================
 // EVENT USAGE BADGE
 // ============================================
 
@@ -195,7 +218,17 @@ function PickerPlayerRow({ player, minutes, nextFixture, eventCount, isAssigned,
             {p.stats.goals}<span className="text-white/35">T</span>{' '}
             {p.stats.assists}<span className="text-white/35">A</span>
           </span>
-          <MinutesPill minutes={minutes} />
+          {/* Minutes: Bar + Average */}
+          <div className="flex items-center gap-1.5">
+            {minutes && minutes.length > 0 ? (
+              <>
+                <MinutesBar minutes={minutes} />
+                <MinutesPill minutes={minutes} />
+              </>
+            ) : (
+              <MinutesPill minutes={minutes} />
+            )}
+          </div>
           <NextMatchBadge fixture={nextFixture} />
         </div>
       </div>
