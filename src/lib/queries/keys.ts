@@ -157,4 +157,10 @@ export const qk = {
   scoring: {
     gwScores: (pid: string) => ['scoring', 'gwScores', pid] as const,
   },
+
+  // ── Sponsors ──
+  sponsors: {
+    all: ['sponsors'] as const,
+    byPlacement: (placement: string, scope: string) => ['sponsors', placement, scope] as const,
+  },
 } as const;

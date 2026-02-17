@@ -10,7 +10,7 @@ export async function getPbtForPlayer(playerId: string): Promise<DbPbtTreasury |
     .from('pbt_treasury')
     .select('*')
     .eq('player_id', playerId)
-    .single();
+    .maybeSingle();
   return (data as DbPbtTreasury) || null;
 }
 
@@ -36,7 +36,7 @@ export async function getFeeConfig(clubNameOrId?: string | null, opts?: { byId?:
       .from('fee_config')
       .select('*')
       .eq(col, clubNameOrId)
-      .single();
+      .maybeSingle();
     if (data) return data as DbFeeConfig;
   }
   // Global default
@@ -44,7 +44,7 @@ export async function getFeeConfig(clubNameOrId?: string | null, opts?: { byId?:
     .from('fee_config')
     .select('*')
     .is('club_name', null)
-    .single();
+    .maybeSingle();
   return (data as DbFeeConfig) || null;
 }
 

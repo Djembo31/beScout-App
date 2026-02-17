@@ -86,7 +86,7 @@ export async function getLiquidationEvent(playerId: string): Promise<DbLiquidati
     .eq('player_id', playerId)
     .order('created_at', { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
   return (data as DbLiquidationEvent) || null;
 }
 

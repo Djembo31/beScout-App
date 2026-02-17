@@ -12,6 +12,7 @@ import {
   Loader2, Plus, FileText, Settings,
 } from 'lucide-react';
 import { Card, Button, Chip, Modal, ErrorState, Skeleton, SkeletonCard, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
+import SponsorBanner from '@/components/player/detail/SponsorBanner';
 import { PositionBadge } from '@/components/player';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -1000,6 +1001,9 @@ export default function ClubContent({ slug }: { slug: string }) {
           )}
         </div>
       )}
+
+      {/* ━━━ SPONSOR: CLUB HERO ━━━ */}
+      <SponsorBanner placement="club_hero" clubId={club.id} />
 
       {/* TABS + Admin Link */}
       <div className="flex items-center gap-2 mb-6">

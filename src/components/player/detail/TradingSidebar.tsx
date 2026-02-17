@@ -225,7 +225,7 @@ export default function TradingSidebar({
       )}
 
       {/* Sponsor */}
-      <SponsorBanner placement="footer" />
+      <SponsorBanner placement="player_footer" />
     </div>
   );
 }

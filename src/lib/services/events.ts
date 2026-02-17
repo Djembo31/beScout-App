@@ -65,6 +65,8 @@ export async function createEvent(params: {
   endsAt: string;
   clubId: string;
   createdBy: string;
+  sponsorName?: string;
+  sponsorLogo?: string;
 }): Promise<{ success: boolean; eventId?: string; error?: string }> {
   const { data, error } = await supabase
     .from('events')
@@ -81,6 +83,8 @@ export async function createEvent(params: {
       ends_at: params.endsAt,
       club_id: params.clubId,
       created_by: params.createdBy,
+      sponsor_name: params.sponsorName || null,
+      sponsor_logo: params.sponsorLogo || null,
       status: 'registering',
       current_entries: 0,
     })
@@ -133,7 +137,7 @@ export async function createNextGameweekEvents(
   // Load current GW events as templates
   const { data: templates, error: tplErr } = await supabase
     .from('events')
-    .select('name, type, format, entry_fee, prize_pool, max_entries, club_id, created_by')
+    .select('name, type, format, entry_fee, prize_pool, max_entries, club_id, created_by, sponsor_name, sponsor_logo')
     .eq('club_id', clubId)
     .eq('gameweek', currentGw);
 
@@ -154,6 +158,8 @@ export async function createNextGameweekEvents(
     max_entries: t.max_entries,
     club_id: t.club_id,
     created_by: t.created_by,
+    sponsor_name: t.sponsor_name,
+    sponsor_logo: t.sponsor_logo,
     starts_at: farFuture,
     locks_at: farFuture,
     ends_at: farFuture,

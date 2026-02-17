@@ -45,6 +45,8 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
   const [startsAt, setStartsAt] = useState('');
   const [locksAt, setLocksAt] = useState('');
   const [endsAt, setEndsAt] = useState('');
+  const [sponsorName, setSponsorName] = useState('');
+  const [sponsorLogo, setSponsorLogo] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -104,6 +106,8 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     setStartsAt('');
     setLocksAt('');
     setEndsAt('');
+    setSponsorName('');
+    setSponsorLogo('');
   }, []);
 
   const handleCreate = useCallback(async () => {
@@ -124,6 +128,8 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
         endsAt: new Date(endsAt).toISOString(),
         clubId: club.id,
         createdBy: user.id,
+        sponsorName: type === 'sponsor' ? sponsorName : undefined,
+        sponsorLogo: type === 'sponsor' ? sponsorLogo : undefined,
       });
       if (!result.success) {
         setError(result.error || 'Event konnte nicht erstellt werden.');
@@ -140,7 +146,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     } finally {
       setSaving(false);
     }
-  }, [user, name, type, format, gameweek, entryFee, prizePool, maxEntries, startsAt, locksAt, endsAt, club.id, resetForm]);
+  }, [user, name, type, format, gameweek, entryFee, prizePool, maxEntries, startsAt, locksAt, endsAt, club.id, resetForm, sponsorName, sponsorLogo]);
 
   const handleStatusChange = useCallback(async (eventId: string, newStatus: string) => {
     setError(null);
@@ -440,6 +446,31 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 text-white [color-scheme:dark]"
             />
           </div>
+          {type === 'sponsor' && (
+            <div className="space-y-3 p-3 bg-[#FFD700]/5 border border-[#FFD700]/15 rounded-xl">
+              <div className="text-xs font-bold text-[#FFD700]/70 uppercase tracking-wider">Sponsor-Daten</div>
+              <div>
+                <label className="block text-sm font-bold text-white/70 mb-1">Sponsor Name</label>
+                <input
+                  type="text"
+                  value={sponsorName}
+                  onChange={(e) => setSponsorName(e.target.value.slice(0, 40))}
+                  placeholder="z.B. Nike"
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-white/70 mb-1">Sponsor Logo URL</label>
+                <input
+                  type="url"
+                  value={sponsorLogo}
+                  onChange={(e) => setSponsorLogo(e.target.value)}
+                  placeholder="https://..."
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+                />
+              </div>
+            </div>
+          )}
           {name && startsAt && (
             <div className="bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-xl p-3 text-sm">
               <div className="flex items-center justify-between mb-1">

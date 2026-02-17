@@ -68,6 +68,7 @@ import { queryClient } from '@/lib/queryClient';
 
 import type { GlobalTrade, TopTrader } from '@/lib/services/trading';
 
+const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 const MissionBanner = dynamic(() => import('@/components/missions/MissionBanner'), { ssr: false });
 const ScoutMissionCard = dynamic(() => import('@/components/missions/ScoutMissionCard'), { ssr: false });
 const AirdropScoreCard = dynamic(() => import('@/components/airdrop/AirdropScoreCard'), { ssr: false });
@@ -444,6 +445,9 @@ export default function HomePage() {
       {/* ━━━ WELCOME BANNER ━━━ */}
       <WelcomeBanner name={firstName} />
 
+      {/* ━━━ SPONSOR: HOME HERO ━━━ */}
+      <SponsorBanner placement="home_hero" />
+
       {/* ━━━ STAT CARDS — 2x2 mobile, 4-col desktop ━━━ */}
       <div data-tour-id="home-stats" className="grid grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2 md:gap-3">
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
@@ -767,6 +771,9 @@ export default function HomePage() {
           )}
         </div>
       </TabPanel>
+
+      {/* ━━━ SPONSOR: HOME MID ━━━ */}
+      <SponsorBanner placement="home_mid" />
 
       {/* ━━━ TAB: AKTUELL ━━━ */}
       <TabPanel id="aktuell" activeTab={activeTab}>

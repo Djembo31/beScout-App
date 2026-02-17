@@ -72,7 +72,7 @@ export async function getHoldingQty(userId: string, playerId: string): Promise<n
     .select('quantity')
     .eq('user_id', userId)
     .eq('player_id', playerId)
-    .single();
+    .maybeSingle();
 
   if (error) return 0;
   return data?.quantity ?? 0;

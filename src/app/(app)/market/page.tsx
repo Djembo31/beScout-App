@@ -40,6 +40,7 @@ import { qk } from '@/lib/queries/keys';
 import dynamic from 'next/dynamic';
 import type { Player, Pos, Listing, DbIpo } from '@/types';
 
+const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 const ManagerKaderTab = dynamic(() => import('@/components/manager/ManagerKaderTab'), { ssr: false });
 const ManagerBestandTab = dynamic(() => import('@/components/manager/ManagerBestandTab'), { ssr: false });
 const ManagerCompareTab = dynamic(() => import('@/components/manager/ManagerCompareTab'), { ssr: false });
@@ -536,6 +537,9 @@ export default function MarketPage() {
 
       {/* 4 Tabs */}
       <TabBar tabs={TABS} activeTab={tab} onChange={(id) => setTab(id as MarketTab)} />
+
+      {/* ━━━ SPONSOR: MARKET TOP ━━━ */}
+      <SponsorBanner placement="market_top" />
 
       {/* ━━━ TAB: MEIN KADER ━━━ */}
       <TabPanel id="portfolio" activeTab={tab}>

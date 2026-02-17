@@ -1236,3 +1236,27 @@ export type DbAirdropScore = {
   updated_at: string;
   created_at?: string;
 };
+
+// ============================================
+// SPONSOR TYPES
+// ============================================
+
+export type SponsorPlacement =
+  | 'home_hero' | 'home_mid' | 'market_top'
+  | 'club_hero' | 'player_mid' | 'player_footer' | 'event';
+
+export type DbSponsor = {
+  id: string;
+  name: string;
+  logo_url: string;
+  link_url: string | null;
+  placement: SponsorPlacement;
+  club_id: string | null;
+  is_active: boolean;
+  priority: number;
+  starts_at: string;
+  ends_at: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+};

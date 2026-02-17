@@ -22,6 +22,7 @@ export { useClubVotes } from './votes';
 export { useResearchPosts } from './research';
 export { useActiveBounties } from './bounties';
 export { useCommunityPolls } from './polls';
+export { useSponsor } from './sponsors';
 export {
   invalidateTradeQueries,
   invalidateSocialQueries,

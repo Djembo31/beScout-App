@@ -288,7 +288,7 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
       />
 
       {/* Sponsor banner mid-page */}
-      <SponsorBanner placement="mid" />
+      <SponsorBanner placement="player_mid" />
     </div>
   );
 }
