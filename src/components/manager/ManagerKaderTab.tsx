@@ -1,18 +1,211 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart } from 'lucide-react';
+import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart, Shield, TrendingUp, TrendingDown, Minus, Heart, AlertTriangle, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
-import { PlayerDisplay } from '@/components/player/PlayerRow';
+import { posColors } from '@/components/player/PlayerRow';
 import { fmtBSD, cn } from '@/lib/utils';
+import { getClub } from '@/lib/clubs';
+import { useUser } from '@/components/providers/AuthProvider';
+import { useRecentMinutes, useNextFixtures, usePlayerEventUsage } from '@/lib/queries/managerData';
 import SquadPitch from './SquadPitch';
 import SquadSummaryStats from './SquadSummaryStats';
 import { FORMATIONS, DEFAULT_FORMATIONS, DEFAULT_SQUAD_SIZE, SQUAD_PRESET_KEY, SQUAD_SIZE_KEY } from './constants';
 import { getPosColor } from './helpers';
-import type { Player, Pos } from '@/types';
+import type { Player, Pos, PlayerStatus } from '@/types';
 import type { FormationId, SquadPreset, SquadSize } from './types';
+import type { NextFixtureInfo } from '@/lib/services/fixtures';
+
+// ============================================
+// STATUS HELPERS
+// ============================================
+
+const STATUS_CONFIG: Record<PlayerStatus, { label: string; short: string; bg: string; border: string; text: string; icon: typeof Heart }> = {
+  fit: { label: 'Fit', short: 'Fit', bg: 'bg-[#22C55E]/10', border: 'border-[#22C55E]/20', text: 'text-[#22C55E]', icon: Heart },
+  injured: { label: 'Verletzt', short: 'Verl.', bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', icon: AlertTriangle },
+  suspended: { label: 'Gesperrt', short: 'Gesp.', bg: 'bg-orange-500/10', border: 'border-orange-500/20', text: 'text-orange-400', icon: AlertTriangle },
+  doubtful: { label: 'Fraglich', short: 'Fragl.', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', text: 'text-yellow-400', icon: HelpCircle },
+};
+
+function StatusPill({ status }: { status: PlayerStatus }) {
+  const cfg = STATUS_CONFIG[status];
+  const Icon = cfg.icon;
+  return (
+    <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border', cfg.bg, cfg.border, cfg.text)}>
+      <Icon className="w-2.5 h-2.5" />
+      <span className="hidden sm:inline">{cfg.short}</span>
+    </span>
+  );
+}
+
+// ============================================
+// PERF TREND
+// ============================================
+
+function PerfPills({ l5, l15, trend }: { l5: number; l15: number; trend: string }) {
+  const TrendIcon = trend === 'UP' ? TrendingUp : trend === 'DOWN' ? TrendingDown : Minus;
+  const trendColor = trend === 'UP' ? 'text-[#22C55E]' : trend === 'DOWN' ? 'text-red-400' : 'text-white/40';
+  const l5Color = l5 >= 70 ? 'text-[#FFD700]' : l5 >= 50 ? 'text-white' : 'text-red-300';
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className={cn('text-[11px] font-mono font-black', l5Color)}>L5 {l5}</span>
+      <span className="text-[10px] font-mono text-white/40">L15 {l15}</span>
+      <TrendIcon className={cn('w-3 h-3', trendColor)} />
+    </div>
+  );
+}
+
+// ============================================
+// MINUTES PILL
+// ============================================
+
+function MinutesPill({ minutes }: { minutes: number[] | undefined }) {
+  if (!minutes || minutes.length === 0) {
+    return <span className="text-[10px] text-white/30 font-mono">&mdash;&apos;</span>;
+  }
+  const avg = Math.round(minutes.reduce((s, m) => s + m, 0) / minutes.length);
+  const color = avg >= 75 ? 'text-[#22C55E]' : avg >= 45 ? 'text-yellow-400' : 'text-red-400';
+  return (
+    <span className={cn('text-[10px] font-mono font-bold', color)}>
+      ∅{avg}&apos;
+    </span>
+  );
+}
+
+// ============================================
+// NEXT MATCH BADGE
+// ============================================
+
+function NextMatchBadge({ fixture }: { fixture: NextFixtureInfo | undefined }) {
+  if (!fixture) return <span className="text-[10px] text-white/30">&mdash;</span>;
+  return (
+    <span className="text-[10px] text-white/50 font-mono">
+      <span className={fixture.isHome ? 'text-[#22C55E]' : 'text-sky-300'}>
+        {fixture.isHome ? 'H' : 'A'}
+      </span>
+      {' '}{fixture.opponentShort}
+    </span>
+  );
+}
+
+// ============================================
+// EVENT USAGE BADGE
+// ============================================
+
+function EventUsageBadge({ count }: { count: number }) {
+  if (count === 0) return null;
+  return (
+    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#22C55E]/10 border border-[#22C55E]/20 rounded text-[9px] font-bold text-[#22C55E]"
+          title={`In ${count} aktiven Event(s) aufgestellt`}>
+      <Shield className="w-2.5 h-2.5" />{count}
+    </span>
+  );
+}
+
+// ============================================
+// PICKER PLAYER ROW (Performance-Fokus Card)
+// ============================================
+
+function PickerPlayerRow({ player, minutes, nextFixture, eventCount, isAssigned, onClick }: {
+  player: Player;
+  minutes: number[] | undefined;
+  nextFixture: NextFixtureInfo | undefined;
+  eventCount: number;
+  isAssigned: boolean;
+  onClick?: () => void;
+}) {
+  const p = player;
+  const clubData = p.clubId ? getClub(p.clubId) : null;
+  const borderColor = p.pos === 'GK' ? '#34d399' : p.pos === 'DEF' ? '#fbbf24' : p.pos === 'MID' ? '#38bdf8' : '#fb7185';
+
+  const Wrapper = onClick ? 'button' : 'div';
+
+  return (
+    <Wrapper
+      onClick={onClick}
+      className={cn(
+        'w-full flex flex-col gap-1 px-3 py-2.5 rounded-xl border-l-2 transition-all text-left',
+        'bg-white/[0.02] border border-white/[0.06]',
+        isAssigned && 'bg-[#22C55E]/[0.06] border-[#22C55E]/20',
+        onClick && 'hover:bg-white/[0.05] cursor-pointer',
+      )}
+      style={{ borderLeftColor: borderColor }}
+    >
+      {/* Row 1: Photo + Name + L5 Score */}
+      <div className="flex items-center gap-2.5 min-w-0">
+        {/* Player Photo */}
+        <div className="shrink-0">
+          {p.imageUrl ? (
+            <img src={p.imageUrl} alt="" className="w-9 h-9 rounded-full object-cover border border-white/10" />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-[10px] font-bold text-white/30">
+              {p.first[0]}{p.last[0]}
+            </div>
+          )}
+        </div>
+
+        {/* Identity */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <PositionBadge pos={p.pos} size="sm" />
+            <span className="text-[10px] font-mono text-white/50">#{p.ticket}</span>
+            <span className="font-bold text-xs truncate">{p.first} {p.last}</span>
+            {isAssigned && (
+              <span className="shrink-0" title="In Aufstellung">
+                <Shield className="w-3 h-3 text-[#22C55E]" />
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Right: L5 Score (always visible) */}
+        <div className="shrink-0 text-right">
+          <div className={cn('font-mono font-black text-sm',
+            p.perf.l5 >= 70 ? 'text-[#FFD700]' : p.perf.l5 >= 50 ? 'text-white' : 'text-red-300'
+          )}>{p.perf.l5}</div>
+        </div>
+      </div>
+
+      {/* Row 2: Club, Age, Status, EventUsage | Stats, Min, Next */}
+      <div className="flex items-center gap-2 flex-wrap pl-[46px]">
+        {/* Club Info */}
+        <div className="flex items-center gap-1.5">
+          {clubData?.logo ? (
+            <img src={clubData.logo} alt={p.club} className="w-3.5 h-3.5 rounded-full object-cover shrink-0" />
+          ) : clubData?.colors?.primary ? (
+            <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: clubData.colors.primary }} />
+          ) : null}
+          <span className="text-[10px] text-white/50 font-semibold">{p.club}</span>
+        </div>
+        {p.age > 0 && <span className="text-[10px] text-white/35 font-mono">{p.age}J.</span>}
+        <StatusPill status={p.status} />
+        <EventUsageBadge count={eventCount} />
+
+        {/* Spacer */}
+        <span className="flex-1" />
+
+        {/* Performance KPIs */}
+        <div className="flex items-center gap-2.5">
+          <PerfPills l5={p.perf.l5} l15={p.perf.l15} trend={p.perf.trend} />
+          <span className="text-[10px] font-mono text-white/50" title="Spiele / Tore / Assists">
+            {p.stats.matches}<span className="text-white/35">S</span>{' '}
+            {p.stats.goals}<span className="text-white/35">T</span>{' '}
+            {p.stats.assists}<span className="text-white/35">A</span>
+          </span>
+          <MinutesPill minutes={minutes} />
+          <NextMatchBadge fixture={nextFixture} />
+        </div>
+      </div>
+    </Wrapper>
+  );
+}
+
+// ============================================
+// MAIN COMPONENT
+// ============================================
 
 interface ManagerKaderTabProps {
   players: Player[]; // all players (for picker)
@@ -20,6 +213,7 @@ interface ManagerKaderTabProps {
 }
 
 export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderTabProps) {
+  const { user } = useUser();
   const [squadSize, setSquadSize] = useState<SquadSize>(() => {
     if (typeof window === 'undefined') return DEFAULT_SQUAD_SIZE;
     try { return (localStorage.getItem(SQUAD_SIZE_KEY) as SquadSize) || DEFAULT_SQUAD_SIZE; } catch { return DEFAULT_SQUAD_SIZE; }
@@ -35,6 +229,11 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
   // Desktop side-panel: which position is selected (null = show all owned)
   const [sidePanelPos, setSidePanelPos] = useState<Pos | null>(null);
   const [sidePanelSlot, setSidePanelSlot] = useState<number | null>(null);
+
+  // ── Manager Data Hooks ──
+  const { data: minutesMap } = useRecentMinutes();
+  const { data: nextFixturesMap } = useNextFixtures();
+  const { data: eventUsageMap } = usePlayerEventUsage(user?.id);
 
   const availableFormations = FORMATIONS[squadSize];
   const formation = useMemo(() => availableFormations.find(f => f.id === formationId) ?? availableFormations[0], [formationId, availableFormations]);
@@ -136,6 +335,16 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
     localStorage.setItem(SQUAD_PRESET_KEY, JSON.stringify(updated));
   }, [presets]);
 
+  // Helper to get event usage count for a player
+  const getEventCount = useCallback((playerId: string) => {
+    return eventUsageMap?.get(playerId)?.length ?? 0;
+  }, [eventUsageMap]);
+
+  // Helper to get next fixture for a player
+  const getNextFixture = useCallback((player: Player) => {
+    return nextFixturesMap?.get(player.clubId ?? '');
+  }, [nextFixturesMap]);
+
   // Picker players — filter by position, search, not already assigned
   const pickerPlayers = useMemo(() => {
     const targetPos = sidePanelPos ?? pickerOpen?.pos;
@@ -230,7 +439,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
       </div>
 
       {/* Player list — scrollable */}
-      <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-0.5 min-h-0">
+      <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-1 min-h-0">
         {sidePanelPos ? (
           // Filtered by position (picking mode)
           pickerPlayers.length === 0 ? (
@@ -248,25 +457,15 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             </div>
           ) : (
             pickerPlayers.map(p => (
-              <button
+              <PickerPlayerRow
                 key={p.id}
+                player={p}
+                minutes={minutesMap?.get(p.id)}
+                nextFixture={getNextFixture(p)}
+                eventCount={getEventCount(p.id)}
+                isAssigned={false}
                 onClick={() => handlePickPlayer(p.id)}
-                className="w-full flex items-center justify-between gap-2 p-2.5 rounded-xl hover:bg-white/5 transition-colors text-left"
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <PositionBadge pos={p.pos} size="sm" />
-                  <div className="min-w-0">
-                    <div className="font-bold text-xs truncate">{p.first} {p.last}</div>
-                    <div className="text-[10px] text-white/40 truncate">{p.club}{p.age > 0 && <> · {p.age}J.</>}</div>
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className={cn('font-mono font-bold text-xs',
-                    p.perf.l5 >= 70 ? 'text-[#FFD700]' : p.perf.l5 >= 50 ? 'text-white' : 'text-red-400'
-                  )}>{p.perf.l5}</div>
-                  <div className="text-[9px] text-white/30 font-mono">{fmtBSD(p.prices.floor ?? 0)}</div>
-                </div>
-              </button>
+              />
             ))
           )
         ) : (
@@ -281,8 +480,14 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             </div>
           ) : (
             sortedOwned.map(p => (
-              <PlayerDisplay key={p.id} variant="compact" player={p} showActions={false}
-                className={cn('!p-2', assignedIds.has(p.id) ? 'bg-[#22C55E]/[0.06] border-[#22C55E]/20' : '')} />
+              <PickerPlayerRow
+                key={p.id}
+                player={p}
+                minutes={minutesMap?.get(p.id)}
+                nextFixture={getNextFixture(p)}
+                eventCount={getEventCount(p.id)}
+                isAssigned={assignedIds.has(p.id)}
+              />
             ))
           )
         )}
@@ -398,7 +603,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
         </div>
       </div>
 
-      {/* ═══ Mobile: Modal Picker (unchanged) ═══ */}
+      {/* ═══ Mobile: Modal Picker ═══ */}
       {pickerOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center lg:hidden" onClick={() => { setPickerOpen(null); setSidePanelPos(null); setSidePanelSlot(null); }}>
           <div onClick={e => e.stopPropagation()} className="w-full max-w-md max-h-[70vh] bg-[#0f0f1a] border border-white/15 rounded-t-2xl sm:rounded-2xl overflow-hidden flex flex-col">
@@ -430,28 +635,15 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                 </div>
               ) : (
                 pickerPlayers.map(p => (
-                  <button
+                  <PickerPlayerRow
                     key={p.id}
+                    player={p}
+                    minutes={minutesMap?.get(p.id)}
+                    nextFixture={getNextFixture(p)}
+                    eventCount={getEventCount(p.id)}
+                    isAssigned={false}
                     onClick={() => handlePickPlayer(p.id)}
-                    className="w-full flex items-center justify-between gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <PositionBadge pos={p.pos} size="sm" />
-                      <div className="min-w-0">
-                        <div className="font-bold text-sm truncate">{p.first} {p.last}</div>
-                        <div className="text-[11px] text-white/40">{p.club}</div>
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className={cn(
-                        'font-mono font-bold text-sm',
-                        p.perf.l5 >= 70 ? 'text-[#FFD700]' : p.perf.l5 >= 50 ? 'text-white' : 'text-red-400'
-                      )}>
-                        {p.perf.l5}
-                      </div>
-                      <div className="text-[10px] text-white/40 font-mono">{fmtBSD(p.prices.floor ?? 0)}</div>
-                    </div>
-                  </button>
+                  />
                 ))
               )}
             </div>
@@ -480,8 +672,14 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
         </div>
         <div className="space-y-1.5">
           {sortedOwned.map(p => (
-            <PlayerDisplay key={p.id} variant="compact" player={p} showActions={false}
-              className={assignedIds.has(p.id) ? 'bg-[#22C55E]/[0.06] border-[#22C55E]/20' : ''} />
+            <PickerPlayerRow
+              key={p.id}
+              player={p}
+              minutes={minutesMap?.get(p.id)}
+              nextFixture={getNextFixture(p)}
+              eventCount={getEventCount(p.id)}
+              isAssigned={assignedIds.has(p.id)}
+            />
           ))}
           {ownedPlayers.length === 0 && (
             <Card className="p-8 text-center">
