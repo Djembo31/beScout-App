@@ -3,7 +3,27 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 8** – Pilot-Ready. 138 Migrations, 20 Routes, 1 Edge Function v2. Build sauber (0 Fehler). TFF 1. Lig 2025/26 Saison: 566 Spieler (20 Clubs), 505 Player Images (89%), 100 IPOs, 3 Events (GW 1), 15 Bounties, 10 Votes. Match-Data Integration (API-Football) geplant. Codebase Audit + 4 Sprints Fixes abgeschlossen.
+**Woche 8** – Pilot-Ready. 142 Migrations, 20 Routes, 1 Edge Function v2. Build sauber (0 Fehler). TFF 1. Lig 2025/26 Saison: 566 Spieler (20 Clubs), 505 Player Images (89%), 100 IPOs, 3 Events (GW 1), 15 Bounties, 10 Votes, 4 Sponsoren. State Management: TanStack React Query v5 + Zustand v5 (cache.ts gelöscht). Sponsor-Flächen DB-backed mit Admin CRUD (7 Placements).
+
+## Session 17.02.2026 (80) – Sponsor-Flächen produktionsreif
+
+### Änderungen
+- **Migration #142:** `create_sponsors_table` — sponsors Tabelle + 4 RLS Policies + Partial Index
+- **Types + Service:** `DbSponsor`, `SponsorPlacement`, `sponsors.ts` (6 Funktionen), `useSponsor` Hook
+- **SponsorBanner Redesign:** Hardcoded → datengetrieben (DB-Fetch oder direkte Props, null wenn kein Sponsor)
+- **Event-Flow Fix:** `createEvent()` + `createNextGameweekEvents()` mit sponsorName/sponsorLogo
+- **6 Page Placements:** Home (hero+mid), Market (top), Club (hero), Player (mid+footer)
+- **AdminSponsorsTab:** CRUD mit Active-Toggle, Logo-Preview, Placement-Badges, Zeitsteuerung
+- **BescoutAdminContent:** Sponsoren als 8. Tab (Megaphone-Icon)
+- **4 Seed-Einträge:** BeScout auf home_hero, market_top, player_mid, player_footer
+- **3 .maybeSingle() Fixes** in liquidation.ts, pbt.ts, wallet.ts
+
+## Session 17.02.2026 (79) – cache.ts Removal
+
+### Änderungen
+- 7 Phasen: 33 Services + 2 Providers + 4 Pages von cache.ts → React Query migriert
+- cache.ts + cache.test.ts gelöscht — TanStack React Query v5 ist einziges Caching-Layer
+- ~41 Query-Hooks in 13 Dateien (queries/), alle Pages migriert
 
 ## Session 16.02.2026 (72) – Type Cleanup + Doku Sync
 

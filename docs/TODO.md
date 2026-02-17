@@ -1,9 +1,27 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 16.02.2026 (Session 72)
-> Modus: PILOT SPRINT — 138 Migrations, 20 Routes, 566 Spieler, 505 Player Images
+> Letzte Aktualisierung: 17.02.2026 (Session 80)
+> Modus: PILOT SPRINT — 142 Migrations, 20 Routes, 566 Spieler, 505 Player Images
 
 ---
+
+## Sponsor-Flächen produktionsreif ✅ (17.02.2026)
+- [x] Migration #142: `create_sponsors_table` (sponsors Tabelle + 4 RLS Policies + Partial Index)
+- [x] Types: `DbSponsor`, `SponsorPlacement` in types/index.ts
+- [x] Service: `sponsors.ts` (getSponsorForPlacement, getAllSponsors, CRUD)
+- [x] Query Hook: `useSponsor(placement, clubId?)` mit 10min staleTime
+- [x] SponsorBanner Redesign: Hardcoded → datengetrieben (DB-Fetch oder direkte Props, null wenn kein Sponsor)
+- [x] Event-Flow: `createEvent()` + `createNextGameweekEvents()` mit sponsorName/sponsorLogo
+- [x] AdminEventsTab: Sponsor-Felder bei Type "sponsor" im Create Modal
+- [x] Page Placements: Home (hero+mid), Market (top), Club (hero), Player (mid+footer)
+- [x] AdminSponsorsTab: CRUD mit Placement-Badges, Active-Toggle, Logo-Preview, Priority, Zeitsteuerung
+- [x] BescoutAdminContent: Sponsoren als 8. Tab (Megaphone-Icon)
+- [x] 4 Seed-Einträge (BeScout auf home_hero, market_top, player_mid, player_footer)
+- [x] Build verifiziert (0 Fehler, 20 Routes, 142 Migrations)
+
+## cache.ts Removal ✅ (17.02.2026)
+- [x] 7 Phasen: 33 Services + 2 Providers + 4 Pages von cache.ts → React Query migriert
+- [x] cache.ts + cache.test.ts gelöscht — TanStack React Query v5 ist einziges Caching-Layer
 
 ## Type Cleanup + Doku Sync ✅ (16.02.2026)
 - [x] 7 fehlende DB-Felder als optional zu TypeScript Types hinzugefügt

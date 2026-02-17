@@ -21,7 +21,7 @@ Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.
 - **Backend:** Supabase (PostgreSQL + Auth + Realtime)
 - **Auth:** Supabase Auth (Email + Google + Apple + Magic Link)
 - **Packages:** `@supabase/supabase-js`, `@supabase/ssr`
-- **Caching:** In-Memory TTL Cache (`lib/cache.ts`)
+- **Caching:** TanStack React Query v5 + Zustand v5 (einziges Caching-Layer)
 
 ## Design System
 
@@ -110,7 +110,7 @@ src/
 ├── lib/
 │   ├── supabaseClient.ts          # Supabase Browser Client
 │   ├── supabaseMiddleware.ts      # Supabase Server Session Management
-│   ├── cache.ts                   # In-Memory TTL Cache (cached, invalidate, invalidateAll)
+│   ├── queryClient.ts             # TanStack React Query Client (singleton)
 │   ├── clubs.ts                   # Club-Daten (DB-backed Cache: initClubCache, getClub, getAllClubsCached)
 │   ├── services/
 │   │   ├── players.ts             # getPlayers, getPlayerById, createPlayer, dbToPlayer, centsToBsd
@@ -145,6 +145,7 @@ src/
 │   │   ├── footballData.ts       # API-Football Integration (Fetch, Map, Import Gameweeks)
 │   │   ├── auth.ts               # Auth Helpers (signOut, deleteAccount, updateEmail, updatePassword)
 │   │   ├── avatars.ts            # Avatar Upload (Supabase Storage, Public URL)
+│   │   ├── sponsors.ts           # Sponsor CRUD + getSponsorForPlacement (DB-backed)
 │   │   └── fixtures.ts           # Fixture Queries + syncFixtureScores Bridge RPC
 │   ├── achievements.ts            # 19 Achievement-Definitionen (trading/manager/scout)
 │   ├── activityHelpers.ts         # Shared Activity Icons/Colors/Labels/RelativeTime
@@ -245,8 +246,10 @@ Siehe `docs/SCALE.md` für Skalierungsarchitektur und DB-Schema.
 **TFF 1. Lig 2025/26 Reset fertig:** 11 Clubs auf-/abgestiegen, 566 neue Spieler (Transfermarkt), 505 Player Images (89%), 100 IPOs, 380 Fixtures, 3 Events (GW 1), 15 Bounties, 10 Votes. 2 Migrationen (#137-#138).
 **Security Hardening #2 fertig:** RLS auf leagues, 12 Funktionen SET search_path, 36 RLS Policies initplan-optimiert. 2 Migrationen (#139-#140). Security Advisors clean (nur 2 verbleibende WARN: dpc_of_the_week gewollt, Leaked PW braucht Pro Plan).
 **Fantasy Club-Unabhängigkeit fertig:** Events laden global ohne Club-Zugehörigkeit (ADR-017). Wallet-Query-Fix (`wallets.id` existierte nicht → 400 Error). Admin-Queries `.single()` → `.maybeSingle()` (406 Error bei Non-Admins). ClubProvider Race Condition gefixt.
+**State Management Migration fertig:** TanStack React Query v5 + Zustand v5 als einziges Caching-Layer. cache.ts komplett gelöscht. ~41 Query-Hooks in 13 Dateien.
+**Sponsor-Flächen produktionsreif:** sponsors Tabelle (Migration #142), SponsorBanner DB-backed, 7 Placements (home_hero, home_mid, market_top, club_hero, player_mid, player_footer, event), Admin CRUD Tab, 4 Seed-Einträge.
 **Pilot-Scope:** Multi-Club-ready, 566 Spieler (20 Clubs), 505 Player Images, 50 Beta-Tester.
-**140 SQL-Migrationen + 1 Edge Function deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin + Trading Club-Fee + Bounty Platform-Fee + Event Sponsors + Push Subscriptions + Club Subscriptions + Leagues + Club Followers + Club Discovery + Airdrop Score + Referral System + Match-Data Integration + Security Hardening #2 live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) + Phase A+B+C + Multi-Club Expansion + Phase D (Match-Data) live.
+**142 SQL-Migrationen + 1 Edge Function deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin + Trading Club-Fee + Bounty Platform-Fee + Event Sponsors + Push Subscriptions + Club Subscriptions + Leagues + Club Followers + Club Discovery + Airdrop Score + Referral System + Match-Data Integration + Security Hardening #2 + Sponsor-Flächen live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) + Phase A+B+C + Multi-Club Expansion + Phase D (Match-Data) live.
 **GitHub:** Private Repo `Djembo31/beScout-App`, CI/CD via GitHub Actions, Sentry Error Tracking, PostHog Analytics.
 
 ## Bekannte Issues
