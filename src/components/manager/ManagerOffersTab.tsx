@@ -17,6 +17,7 @@ import {
 import { fmtBSD } from '@/types';
 import { centsToBsd } from '@/lib/services/players';
 import type { OfferWithDetails, Pos, Player } from '@/types';
+import SponsorBanner from '@/components/player/detail/SponsorBanner';
 
 // ============================================
 // Sub-Tab Config
@@ -494,6 +495,8 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
           );
         })}
       </div>
+
+      <SponsorBanner placement="market_offers" className="mb-3" />
 
       {/* Content */}
       {loading ? (

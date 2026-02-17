@@ -15,6 +15,7 @@ import type { Fixture, FixturePlayerStat } from '@/types';
 import type { FantasyEvent } from './types';
 import { getStatusStyle } from './helpers';
 import { EventCard } from './EventCard';
+import SponsorBanner from '@/components/player/detail/SponsorBanner';
 
 // ============================================
 // Helpers
@@ -734,6 +735,8 @@ export function SpieltagTab({
           </button>
         </div>
       </div>
+
+      <SponsorBanner placement="fantasy_spieltag" className="mb-4" />
 
       {/* ===== PAARUNGEN — Sorare-style vertical list ===== */}
       {fixtures.length > 0 && !fixturesLoading && (

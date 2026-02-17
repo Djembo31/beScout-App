@@ -31,6 +31,7 @@ import CreateCommunityPollModal from '@/components/community/CreateCommunityPoll
 import CommunityBountiesTab from '@/components/community/CommunityBountiesTab';
 import FollowListModal from '@/components/profile/FollowListModal';
 import type { PostWithAuthor, Pos, PostType } from '@/types';
+import SponsorBanner from '@/components/player/detail/SponsorBanner';
 
 // ============================================
 // TYPES
@@ -549,6 +550,7 @@ export default function CommunityPage() {
                 </button>
               ))}
             </div>
+            <SponsorBanner placement="community_feed" className="mb-3" />
             <CommunityFeedTab
               posts={posts}
               myPostVotes={myPostVotes}
@@ -571,6 +573,7 @@ export default function CommunityPage() {
 
           {/* Research */}
           <TabPanel activeTab={mainTab} id="research">
+            <SponsorBanner placement="community_research" className="mb-3" />
             <CommunityResearchTab
               researchPosts={researchPosts}
               onCreateResearch={() => setCreateResearchOpen(true)}

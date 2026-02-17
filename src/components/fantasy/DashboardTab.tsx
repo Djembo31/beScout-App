@@ -9,6 +9,7 @@ import { fmtBSD } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { FantasyEvent, ScoredLineupData } from './types';
 import { formatCountdown, getFormResult, getScoreColor, getPosAccentColor } from './helpers';
+import { useSponsor } from '@/lib/queries';
 
 export const DashboardTab = ({
   seasonPoints,
@@ -36,6 +37,10 @@ export const DashboardTab = ({
   const lastEvent = pastParticipations[0];
   const [selectedIdx, setSelectedIdx] = useState(0);
   const currentLineup = scoredLineups[selectedIdx] ?? null;
+  const { data: pitchSponsor } = useSponsor('fantasy_pitch');
+  const sponsorName = pitchSponsor?.name ?? 'Sponsor';
+  const leftBoard = ['beScout', sponsorName, 'TFF 1.Lig', sponsorName];
+  const rightBoard = [sponsorName, 'beScout', sponsorName, 'Premium'];
   const totalScore = currentLineup ? currentLineup.players.reduce((sum, p) => sum + (p.score ?? 0), 0) : 0;
 
   // Form der letzten 5
@@ -161,7 +166,7 @@ export const DashboardTab = ({
             <div className="rounded-xl overflow-hidden border border-[#22C55E]/20 flex">
               {/* Left LED Board */}
               <div className="hidden md:flex w-10 flex-shrink-0 bg-[#0c0c14] flex-col items-center justify-between py-3 gap-2 border-r border-white/[0.06]">
-                {['beScout', 'Sponsor', 'TFF 1.Lig', 'Sponsor'].map((label, i) => (
+                {leftBoard.map((label, i) => (
                   <div key={i} className="flex-1 w-full flex items-center justify-center border-y border-white/[0.04] bg-gradient-to-b from-white/[0.02] to-transparent">
                     <span className="text-[8px] font-bold tracking-wider text-white/20 [writing-mode:vertical-lr] rotate-180">{label}</span>
                   </div>
@@ -241,7 +246,7 @@ export const DashboardTab = ({
 
               {/* Right LED Board */}
               <div className="hidden md:flex w-10 flex-shrink-0 bg-[#0c0c14] flex-col items-center justify-between py-3 gap-2 border-l border-white/[0.06]">
-                {['Sponsor', 'beScout', 'Sponsor', 'Premium'].map((label, i) => (
+                {rightBoard.map((label, i) => (
                   <div key={i} className="flex-1 w-full flex items-center justify-center border-y border-white/[0.04] bg-gradient-to-b from-white/[0.02] to-transparent">
                     <span className="text-[8px] font-bold tracking-wider text-white/20 [writing-mode:vertical-lr] rotate-180">{label}</span>
                   </div>

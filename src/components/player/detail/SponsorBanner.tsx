@@ -12,6 +12,20 @@ const PLACEMENT_LABELS: Record<SponsorPlacement, string> = {
   player_mid: 'Gesponsert von',
   player_footer: 'Partner',
   event: 'Gesponsert von',
+  market_transferlist: 'Gesponsert von',
+  market_ipo: 'Gesponsert von',
+  market_portfolio: 'Partner',
+  market_offers: 'Gesponsert von',
+  club_community: 'Gesponsert von',
+  club_players: 'Gesponsert von',
+  fantasy_spieltag: 'Gesponsert von',
+  fantasy_pitch: 'Präsentiert von',
+  fantasy_leaderboard: 'Gesponsert von',
+  fantasy_history: 'Gesponsert von',
+  profile_hero: 'Präsentiert von',
+  profile_footer: 'Partner',
+  community_feed: 'Gesponsert von',
+  community_research: 'Gesponsert von',
 };
 
 interface SponsorBannerProps {

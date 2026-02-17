@@ -30,6 +30,7 @@ import {
   SLOT_SCORE_KEYS, getScoreColor, getPosAccentColor, formatCountdown,
 } from './helpers';
 import EventCommunityTab from './EventCommunityTab';
+import SponsorBanner from '@/components/player/detail/SponsorBanner';
 
 export const EventDetailModal = ({
   event,
@@ -1065,6 +1066,7 @@ export const EventDetailModal = ({
           {/* LEADERBOARD TAB */}
           {tab === 'leaderboard' && (
             <div className="space-y-2">
+              <SponsorBanner placement="fantasy_leaderboard" className="mb-2" />
               {/* User Lineup Viewer (sub-view) */}
               {viewingUserLineup ? (
                 <div className="space-y-4">

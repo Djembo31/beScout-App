@@ -14,6 +14,7 @@ import { centsToBsd } from '@/lib/services/players';
 import { getClub } from '@/lib/clubs';
 import type { Player, Pos, DbIpo, OfferWithDetails } from '@/types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
+import SponsorBanner from '@/components/player/detail/SponsorBanner';
 
 // ============================================
 // TYPES
@@ -522,6 +523,8 @@ export default function ManagerBestandTab({
           </div>
         </div>
       </div>
+
+      <SponsorBanner placement="market_portfolio" className="mb-3" />
 
       {/* Search + Filters */}
       <div className="flex items-center gap-2">

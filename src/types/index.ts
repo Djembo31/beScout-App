@@ -1243,7 +1243,12 @@ export type DbAirdropScore = {
 
 export type SponsorPlacement =
   | 'home_hero' | 'home_mid' | 'market_top'
-  | 'club_hero' | 'player_mid' | 'player_footer' | 'event';
+  | 'club_hero' | 'player_mid' | 'player_footer' | 'event'
+  | 'market_transferlist' | 'market_ipo' | 'market_portfolio' | 'market_offers'
+  | 'club_community' | 'club_players'
+  | 'fantasy_spieltag' | 'fantasy_pitch' | 'fantasy_leaderboard' | 'fantasy_history'
+  | 'profile_hero' | 'profile_footer'
+  | 'community_feed' | 'community_research';
 
 export type DbSponsor = {
   id: string;

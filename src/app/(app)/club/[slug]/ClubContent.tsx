@@ -1128,6 +1128,7 @@ export default function ClubContent({ slug }: { slug: string }) {
             </div>
           </div>
 
+          <SponsorBanner placement="club_players" clubId={club.id} className="mb-3" />
           <div className="text-xs text-white/40 px-1">{filteredPlayers.length} Spieler</div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
@@ -1299,6 +1300,8 @@ export default function ClubContent({ slug }: { slug: string }) {
               ))}
             </div>
           )}
+
+          <SponsorBanner placement="club_community" clubId={club.id} className="mb-4" />
 
           {/* Community Guidelines */}
           {club?.community_guidelines && (

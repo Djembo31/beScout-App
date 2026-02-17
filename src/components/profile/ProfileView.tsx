@@ -32,6 +32,7 @@ import type { ExpertBadge } from '@/lib/expertBadges';
 
 const AirdropScoreCard = dynamic(() => import('@/components/airdrop/AirdropScoreCard'), { ssr: false });
 const ReferralCard = dynamic(() => import('@/components/airdrop/ReferralCard'), { ssr: false });
+const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 import type { HoldingRow } from '@/components/profile/ProfileOverviewTab';
 import type { ProfileTab, Profile, DbTransaction, DbUserStats, DbUserAchievement, ResearchPostWithAuthor, AuthorTrackRecord, UserTradeWithPlayer, UserFantasyResult, PostWithAuthor } from '@/types';
 import { getLevelTier } from '@/types';
@@ -352,6 +353,8 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
         </div>
       </div>
 
+      <SponsorBanner placement="profile_hero" className="mb-4" />
+
       {/* Follow List Modal */}
       {followListMode && (
         <FollowListModal
@@ -543,6 +546,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           {!holdingsLoading && !dataError && tab === 'settings' && isSelf && renderSettings?.()}
         </div>
       </div>
+      <SponsorBanner placement="profile_footer" className="mt-4" />
     </div>
   );
 }

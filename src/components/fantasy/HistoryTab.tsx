@@ -8,6 +8,7 @@ import { cn, fmtBSD } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getSeasonLeaderboard, type SeasonLeaderboardEntry } from '@/lib/services/scoring';
 import { getFormResult } from './helpers';
+import SponsorBanner from '@/components/player/detail/SponsorBanner';
 
 export const HistoryTab = ({
   participations,
@@ -132,6 +133,8 @@ export const HistoryTab = ({
           </div>
         </Card>
       </div>
+
+      <SponsorBanner placement="fantasy_history" className="mb-4" />
 
       {/* Season Leaderboard */}
       <Card className="overflow-hidden">

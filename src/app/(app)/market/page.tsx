@@ -698,6 +698,7 @@ export default function MarketPage() {
         />
 
         {/* P2P Listings */}
+        <SponsorBanner placement="market_transferlist" className="mb-4" />
         <div className="flex items-center justify-between mb-3">
           <div className="text-sm text-white/50">{transferPlayers.length} Spieler am Transfermarkt</div>
         </div>

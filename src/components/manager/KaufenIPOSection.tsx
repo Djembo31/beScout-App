@@ -14,6 +14,7 @@ import type { Player, Pos } from '@/types';
 import type { IpoDisplayData } from '@/components/player/PlayerRow';
 import type { TrendingPlayer } from '@/lib/services/trading';
 import type { ClubLookup } from '@/lib/clubs';
+import SponsorBanner from '@/components/player/detail/SponsorBanner';
 
 // ============================================
 // TYPES
@@ -173,6 +174,8 @@ export default function KaufenIPOSection({
           </div>
         </div>
       )}
+
+      <SponsorBanner placement="market_ipo" className="mb-3" />
 
       {/* ── B. Trending Strip ── */}
       {trending.length > 0 && (

@@ -15,6 +15,20 @@ const PLACEMENT_OPTIONS: { value: SponsorPlacement; label: string }[] = [
   { value: 'player_mid', label: 'Spieler Mitte' },
   { value: 'player_footer', label: 'Spieler Footer' },
   { value: 'event', label: 'Fantasy Event' },
+  { value: 'market_transferlist', label: 'Transferliste' },
+  { value: 'market_ipo', label: 'IPO-Bereich' },
+  { value: 'market_portfolio', label: 'Portfolio' },
+  { value: 'market_offers', label: 'Angebote' },
+  { value: 'club_community', label: 'Club Community' },
+  { value: 'club_players', label: 'Club Spieler' },
+  { value: 'fantasy_spieltag', label: 'Spieltag' },
+  { value: 'fantasy_pitch', label: 'Fantasy Pitch' },
+  { value: 'fantasy_leaderboard', label: 'Fantasy Rangliste' },
+  { value: 'fantasy_history', label: 'Fantasy Verlauf' },
+  { value: 'profile_hero', label: 'Profil Hero' },
+  { value: 'profile_footer', label: 'Profil Footer' },
+  { value: 'community_feed', label: 'Community Feed' },
+  { value: 'community_research', label: 'Community Research' },
 ];
 
 const PLACEMENT_COLORS: Record<string, string> = {
@@ -25,6 +39,20 @@ const PLACEMENT_COLORS: Record<string, string> = {
   player_mid: 'bg-sky-500/15 text-sky-300 border-sky-400/25',
   player_footer: 'bg-sky-500/10 text-sky-200 border-sky-400/20',
   event: 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/25',
+  market_transferlist: 'bg-purple-500/10 text-purple-200 border-purple-400/20',
+  market_ipo: 'bg-purple-500/12 text-purple-300 border-purple-400/22',
+  market_portfolio: 'bg-purple-500/8 text-purple-200 border-purple-400/18',
+  market_offers: 'bg-purple-500/10 text-purple-200 border-purple-400/20',
+  club_community: 'bg-amber-500/10 text-amber-200 border-amber-400/20',
+  club_players: 'bg-amber-500/12 text-amber-300 border-amber-400/22',
+  fantasy_spieltag: 'bg-[#FFD700]/10 text-[#FFD700]/80 border-[#FFD700]/20',
+  fantasy_pitch: 'bg-[#FFD700]/12 text-[#FFD700]/85 border-[#FFD700]/22',
+  fantasy_leaderboard: 'bg-[#FFD700]/8 text-[#FFD700]/75 border-[#FFD700]/18',
+  fantasy_history: 'bg-[#FFD700]/10 text-[#FFD700]/80 border-[#FFD700]/20',
+  profile_hero: 'bg-emerald-500/15 text-emerald-300 border-emerald-400/25',
+  profile_footer: 'bg-emerald-500/10 text-emerald-200 border-emerald-400/20',
+  community_feed: 'bg-rose-500/15 text-rose-300 border-rose-400/25',
+  community_research: 'bg-rose-500/10 text-rose-200 border-rose-400/20',
 };
 
 type FormState = {
