@@ -3,7 +3,17 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 8** – Pilot-Ready. 142 Migrations, 20 Routes, 1 Edge Function v2. Build sauber (0 Fehler). TFF 1. Lig 2025/26 Saison: 566 Spieler (20 Clubs), 505 Player Images (89%), 100 IPOs, 3 Events (GW 1), 15 Bounties, 10 Votes, 4 Sponsoren. State Management: TanStack React Query v5 + Zustand v5 (cache.ts gelöscht). Sponsor-Flächen DB-backed mit Admin CRUD (7 Placements).
+**Woche 8** – Pilot-Ready. 143 Migrations, 20 Routes, 1 Edge Function v2. Build sauber (0 Fehler). TFF 1. Lig 2025/26 Saison: 566 Spieler (20 Clubs), 505 Player Images (89%), 100 IPOs, 3 Events (GW 1), 15 Bounties, 10 Votes, 8 Sponsoren. State Management: TanStack React Query v5 + Zustand v5 (cache.ts gelöscht). Sponsor-Flächen DB-backed mit Admin CRUD (21 Placements).
+
+## Session 17.02.2026 (81) – Sponsor-Placements Expansion (7→21)
+
+### Änderungen
+- **Migration #143:** `expand_sponsor_placements` — CHECK Constraint von 7 auf 21 Werte erweitert
+- **Types + Labels:** `SponsorPlacement` Union +14, `PLACEMENT_LABELS` +14, Admin Options+Colors +14
+- **12 Standard-Placements:** SponsorBanner in Market (transferlist, ipo, portfolio, offers), Club (players, community), Fantasy (spieltag, leaderboard, history), Profile (hero, footer), Community (feed, research)
+- **Fantasy Pitch LED Boards:** Hardcodierte Texte → `useSponsor('fantasy_pitch')` dynamic (DashboardTab)
+- **4 neue Seed-Einträge:** BeScout auf fantasy_spieltag, community_feed, profile_hero, fantasy_pitch
+- **14 Dateien geändert**, 83 Insertions, 0 Build-Fehler
 
 ## Session 17.02.2026 (80) – Sponsor-Flächen produktionsreif
 
