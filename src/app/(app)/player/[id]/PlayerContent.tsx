@@ -50,6 +50,7 @@ import {
   MobileTradingBar,
   TradingModal,
   LiquidationAlert,
+  SponsorBanner,
 } from '@/components/player/detail';
 
 // ============================================
@@ -497,6 +498,9 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         onRemovePriceAlert={handleRemovePriceAlert}
       />
 
+      {/* Sponsor: Player Mid */}
+      <SponsorBanner placement="player_mid" />
+
       {/* Single Column: Tabs + Content */}
       <div className="space-y-4 md:space-y-6">
         <TabBar tabs={TABS} activeTab={tab} onChange={(id) => setTab(id as Tab)} />
@@ -609,6 +613,9 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           </div>
         </div>
       </Modal>
+
+      {/* Sponsor: Player Footer */}
+      <SponsorBanner placement="player_footer" />
 
       {/* Mobile Trading Bar */}
       <MobileTradingBar
