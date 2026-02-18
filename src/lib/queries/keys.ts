@@ -158,9 +158,37 @@ export const qk = {
     gwScores: (pid: string) => ['scoring', 'gwScores', pid] as const,
   },
 
+  // ── Fixtures (Manager Data) ──
+  fixtures: {
+    recentMinutes: ['fixtures', 'recentMinutes'] as const,
+    recentScores: ['fixtures', 'recentScores'] as const,
+    nextByClub: ['fixtures', 'nextByClub'] as const,
+  },
+
   // ── Sponsors ──
   sponsors: {
     all: ['sponsors'] as const,
     byPlacement: (placement: string, scope: string) => ['sponsors', placement, scope] as const,
+  },
+
+  // ── Tips ──
+  tips: {
+    byContent: (type: string, id: string) => ['tips', type, id] as const,
+    received: (uid: string) => ['tips', 'received', uid] as const,
+  },
+
+  // ── Scout Subscriptions ──
+  scoutSubs: {
+    isSubscribed: (uid: string, scoutId: string) => ['scoutSubs', uid, scoutId] as const,
+    mySubs: (uid: string) => ['scoutSubs', 'my', uid] as const,
+    mySubscribers: (uid: string) => ['scoutSubs', 'subscribers', uid] as const,
+    subscribedIds: (uid: string) => ['scoutSubs', 'ids', uid] as const,
+    config: ['scoutSubs', 'config'] as const,
+  },
+
+  // ── Creator Fund ──
+  creatorFund: {
+    stats: ['creatorFund', 'stats'] as const,
+    payouts: (uid: string) => ['creatorFund', 'payouts', uid] as const,
   },
 } as const;

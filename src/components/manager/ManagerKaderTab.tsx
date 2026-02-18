@@ -1,15 +1,14 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart, Shield, TrendingUp, TrendingDown, Minus, Heart, AlertTriangle, HelpCircle } from 'lucide-react';
+import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart, Shield, Heart, AlertTriangle, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
-import { posColors } from '@/components/player/PlayerRow';
-import { fmtBSD, cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import { useUser } from '@/components/providers/AuthProvider';
-import { useRecentMinutes, useNextFixtures, usePlayerEventUsage } from '@/lib/queries/managerData';
+import { useRecentMinutes, useRecentScores, useNextFixtures, usePlayerEventUsage } from '@/lib/queries/managerData';
 import SquadPitch from './SquadPitch';
 import SquadSummaryStats from './SquadSummaryStats';
 import { FORMATIONS, DEFAULT_FORMATIONS, DEFAULT_SQUAD_SIZE, SQUAD_PRESET_KEY, SQUAD_SIZE_KEY } from './constants';
@@ -37,24 +36,6 @@ function StatusPill({ status }: { status: PlayerStatus }) {
       <Icon className="w-2.5 h-2.5" />
       <span className="hidden sm:inline">{cfg.short}</span>
     </span>
-  );
-}
-
-// ============================================
-// PERF TREND
-// ============================================
-
-function PerfPills({ l5, l15, trend }: { l5: number; l15: number; trend: string }) {
-  const TrendIcon = trend === 'UP' ? TrendingUp : trend === 'DOWN' ? TrendingDown : Minus;
-  const trendColor = trend === 'UP' ? 'text-[#22C55E]' : trend === 'DOWN' ? 'text-red-400' : 'text-white/40';
-  const l5Color = l5 >= 70 ? 'text-[#FFD700]' : l5 >= 50 ? 'text-white' : 'text-red-300';
-
-  return (
-    <div className="flex items-center gap-1.5">
-      <span className={cn('text-[11px] font-mono font-black', l5Color)}>L5 {l5}</span>
-      <span className="text-[10px] font-mono text-white/40">L15 {l15}</span>
-      <TrendIcon className={cn('w-3 h-3', trendColor)} />
-    </div>
   );
 }
 
@@ -92,29 +73,6 @@ function NextMatchBadge({ fixture }: { fixture: NextFixtureInfo | undefined }) {
 }
 
 // ============================================
-// MINUTES BAR (Last 5 GW visual)
-// ============================================
-
-function MinutesBar({ minutes }: { minutes: number[] }) {
-  return (
-    <div className="flex items-end gap-[3px] h-[18px]">
-      {minutes.slice(0, 5).map((m, i) => {
-        const pct = Math.min(100, (m / 90) * 100);
-        const color = m >= 75 ? 'bg-[#22C55E]' : m >= 45 ? 'bg-yellow-400' : m > 0 ? 'bg-red-400' : 'bg-white/10';
-        return (
-          <div key={i} className="relative group">
-            <div className={cn('w-[6px] rounded-sm', color)} style={{ height: `${Math.max(2, (pct / 100) * 18)}px` }} />
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-1.5 py-0.5 bg-black/90 border border-white/10 rounded text-[8px] font-mono text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10">
-              {m}&apos;
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ============================================
 // EVENT USAGE BADGE
 // ============================================
 
@@ -129,12 +87,88 @@ function EventUsageBadge({ count }: { count: number }) {
 }
 
 // ============================================
+// SCORE CIRCLE (prominent last score)
+// ============================================
+
+function ScoreCircle({ score }: { score: number | null }) {
+  if (score == null) {
+    return (
+      <div className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center">
+        <span className="text-[10px] font-mono text-white/20">&mdash;</span>
+      </div>
+    );
+  }
+  const bg = score >= 100 ? 'bg-[#FFD700]/15 border-[#FFD700]/30' : score >= 70 ? 'bg-white/[0.06] border-white/15' : 'bg-red-500/10 border-red-400/20';
+  const text = score >= 100 ? 'text-[#FFD700]' : score >= 70 ? 'text-white' : 'text-red-300';
+  return (
+    <div className={cn('w-10 h-10 rounded-full border flex items-center justify-center', bg)}>
+      <span className={cn('text-sm font-black font-mono', text)}>{score}</span>
+    </div>
+  );
+}
+
+// ============================================
+// LAST 5 SCORE BARS (vertical bars for GW scores + minutes overlay)
+// ============================================
+
+function L5ScoreBars({ scores, minutes }: { scores: number[] | undefined; minutes: number[] | undefined }) {
+  // Build 5 slots (most recent first, pad with null)
+  const slots: { score: number | null; min: number | null }[] = [];
+  for (let i = 0; i < 5; i++) {
+    slots.push({
+      score: scores && i < scores.length ? scores[i] : null,
+      min: minutes && i < minutes.length ? minutes[i] : null,
+    });
+  }
+  // Reverse so oldest is left, newest is right
+  slots.reverse();
+
+  const hasAnyData = slots.some(s => s.score != null);
+  if (!hasAnyData) {
+    return (
+      <div className="flex items-end gap-[3px] h-6">
+        {slots.map((_, i) => (
+          <div key={i} className="w-[7px] h-1 rounded-sm bg-white/[0.06]" />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-end gap-[3px] h-6">
+      {slots.map((s, i) => {
+        if (s.score == null) {
+          return <div key={i} className="w-[7px] h-1 rounded-sm bg-white/[0.06]" />;
+        }
+        // Normalize: score 40-150 → height 15%-100%
+        const pct = Math.min(100, Math.max(15, ((s.score - 40) / 110) * 100));
+        const color = s.score >= 100 ? 'bg-[#FFD700]' : s.score >= 70 ? 'bg-[#22C55E]' : 'bg-red-400';
+        // Minutes overlay: opacity based on minutes (0'=dim, 90'=full)
+        const opacity = s.min != null ? Math.max(0.4, s.min / 90) : 0.6;
+        return (
+          <div key={i} className="relative group">
+            <div
+              className={cn('w-[7px] rounded-sm', color)}
+              style={{ height: `${(pct / 100) * 24}px`, opacity }}
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-1.5 py-0.5 bg-black/90 border border-white/10 rounded text-[8px] font-mono text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10">
+              {s.score}pts{s.min != null ? ` · ${s.min}'` : ''}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ============================================
 // PICKER PLAYER ROW (Performance-Fokus Card)
 // ============================================
 
-function PickerPlayerRow({ player, minutes, nextFixture, eventCount, isAssigned, onClick }: {
+function PickerPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAssigned, onClick }: {
   player: Player;
   minutes: number[] | undefined;
+  scores: number[] | undefined;
   nextFixture: NextFixtureInfo | undefined;
   eventCount: number;
   isAssigned: boolean;
@@ -143,6 +177,7 @@ function PickerPlayerRow({ player, minutes, nextFixture, eventCount, isAssigned,
   const p = player;
   const clubData = p.clubId ? getClub(p.clubId) : null;
   const borderColor = p.pos === 'GK' ? '#34d399' : p.pos === 'DEF' ? '#fbbf24' : p.pos === 'MID' ? '#38bdf8' : '#fb7185';
+  const lastScore = scores && scores.length > 0 ? scores[0] : null;
 
   const Wrapper = onClick ? 'button' : 'div';
 
@@ -150,87 +185,62 @@ function PickerPlayerRow({ player, minutes, nextFixture, eventCount, isAssigned,
     <Wrapper
       onClick={onClick}
       className={cn(
-        'w-full flex flex-col gap-1 px-3 py-2.5 rounded-xl border-l-2 transition-all text-left',
+        'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border-l-2 transition-all text-left',
         'bg-white/[0.02] border border-white/[0.06]',
         isAssigned && 'bg-[#22C55E]/[0.06] border-[#22C55E]/20',
         onClick && 'hover:bg-white/[0.05] cursor-pointer',
       )}
       style={{ borderLeftColor: borderColor }}
     >
-      {/* Row 1: Photo + Name + L5 Score */}
-      <div className="flex items-center gap-2.5 min-w-0">
-        {/* Player Photo */}
-        <div className="shrink-0">
-          {p.imageUrl ? (
-            <img src={p.imageUrl} alt="" className="w-9 h-9 rounded-full object-cover border border-white/10" />
-          ) : (
-            <div className="w-9 h-9 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-[10px] font-bold text-white/30">
-              {p.first[0]}{p.last[0]}
-            </div>
-          )}
-        </div>
-
-        {/* Identity */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <PositionBadge pos={p.pos} size="sm" />
-            <span className="text-[10px] font-mono text-white/50">#{p.ticket}</span>
-            <span className="font-bold text-xs truncate">{p.first} {p.last}</span>
-            {isAssigned && (
-              <span className="shrink-0" title="In Aufstellung">
-                <Shield className="w-3 h-3 text-[#22C55E]" />
-              </span>
-            )}
+      {/* Player Photo */}
+      <div className="shrink-0">
+        {p.imageUrl ? (
+          <img src={p.imageUrl} alt="" className="w-9 h-9 rounded-full object-cover border border-white/10" />
+        ) : (
+          <div className="w-9 h-9 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-[10px] font-bold text-white/30">
+            {p.first[0]}{p.last[0]}
           </div>
-        </div>
-
-        {/* Right: L5 Score (always visible) */}
-        <div className="shrink-0 text-right">
-          <div className={cn('font-mono font-black text-sm',
-            p.perf.l5 >= 70 ? 'text-[#FFD700]' : p.perf.l5 >= 50 ? 'text-white' : 'text-red-300'
-          )}>{p.perf.l5}</div>
-        </div>
+        )}
       </div>
 
-      {/* Row 2: Club, Age, Status, EventUsage | Stats, Min, Next */}
-      <div className="flex items-center gap-2 flex-wrap pl-[46px]">
-        {/* Club Info */}
+      {/* Center: Identity + Meta */}
+      <div className="flex-1 min-w-0">
+        {/* Row 1: Pos + #Nr + Name + Assigned icon */}
         <div className="flex items-center gap-1.5">
+          <PositionBadge pos={p.pos} size="sm" />
+          <span className="text-[10px] font-mono text-white/50">#{p.ticket}</span>
+          <span className="font-bold text-xs truncate">{p.first} {p.last}</span>
+          {isAssigned && (
+            <span className="shrink-0" title="In Aufstellung">
+              <Shield className="w-3 h-3 text-[#22C55E]" />
+            </span>
+          )}
+        </div>
+        {/* Row 2: Club, Age, Status, EventUsage, Stats, Min, Next */}
+        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
           {clubData?.logo ? (
             <img src={clubData.logo} alt={p.club} className="w-3.5 h-3.5 rounded-full object-cover shrink-0" />
           ) : clubData?.colors?.primary ? (
             <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: clubData.colors.primary }} />
           ) : null}
-          <span className="text-[10px] text-white/50 font-semibold">{p.club}</span>
-        </div>
-        {p.age > 0 && <span className="text-[10px] text-white/35 font-mono">{p.age}J.</span>}
-        <StatusPill status={p.status} />
-        <EventUsageBadge count={eventCount} />
-
-        {/* Spacer */}
-        <span className="flex-1" />
-
-        {/* Performance KPIs */}
-        <div className="flex items-center gap-2.5">
-          <PerfPills l5={p.perf.l5} l15={p.perf.l15} trend={p.perf.trend} />
-          <span className="text-[10px] font-mono text-white/50" title="Spiele / Tore / Assists">
-            {p.stats.matches}<span className="text-white/35">S</span>{' '}
-            {p.stats.goals}<span className="text-white/35">T</span>{' '}
-            {p.stats.assists}<span className="text-white/35">A</span>
+          <span className="text-[10px] text-white/50">{p.club}</span>
+          {p.age > 0 && <span className="text-[10px] text-white/30 font-mono">{p.age}J.</span>}
+          <StatusPill status={p.status} />
+          <EventUsageBadge count={eventCount} />
+          <span className="text-[10px] font-mono text-white/40">
+            {p.stats.matches}<span className="text-white/25">S</span>{' '}
+            {p.stats.goals}<span className="text-white/25">T</span>{' '}
+            {p.stats.assists}<span className="text-white/25">A</span>
           </span>
-          {/* Minutes: Bar + Average */}
-          <div className="flex items-center gap-1.5">
-            {minutes && minutes.length > 0 ? (
-              <>
-                <MinutesBar minutes={minutes} />
-                <MinutesPill minutes={minutes} />
-              </>
-            ) : (
-              <MinutesPill minutes={minutes} />
-            )}
-          </div>
+          <MinutesPill minutes={minutes} />
           <NextMatchBadge fixture={nextFixture} />
         </div>
+      </div>
+
+      {/* Right: L5 Score Bars + Last Score Circle */}
+      <div className="shrink-0 flex items-center gap-2">
+        <L5ScoreBars scores={scores} minutes={minutes} />
+        <ScoreCircle score={lastScore} />
       </div>
     </Wrapper>
   );
@@ -265,6 +275,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
 
   // ── Manager Data Hooks ──
   const { data: minutesMap } = useRecentMinutes();
+  const { data: scoresMap } = useRecentScores();
   const { data: nextFixturesMap } = useNextFixtures();
   const { data: eventUsageMap } = usePlayerEventUsage(user?.id);
 
@@ -494,6 +505,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                 key={p.id}
                 player={p}
                 minutes={minutesMap?.get(p.id)}
+                scores={scoresMap?.get(p.id)}
                 nextFixture={getNextFixture(p)}
                 eventCount={getEventCount(p.id)}
                 isAssigned={false}
@@ -517,6 +529,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                 key={p.id}
                 player={p}
                 minutes={minutesMap?.get(p.id)}
+                scores={scoresMap?.get(p.id)}
                 nextFixture={getNextFixture(p)}
                 eventCount={getEventCount(p.id)}
                 isAssigned={assignedIds.has(p.id)}
@@ -672,6 +685,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                     key={p.id}
                     player={p}
                     minutes={minutesMap?.get(p.id)}
+                    scores={scoresMap?.get(p.id)}
                     nextFixture={getNextFixture(p)}
                     eventCount={getEventCount(p.id)}
                     isAssigned={false}
@@ -709,6 +723,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
               key={p.id}
               player={p}
               minutes={minutesMap?.get(p.id)}
+              scores={scoresMap?.get(p.id)}
               nextFixture={getNextFixture(p)}
               eventCount={getEventCount(p.id)}
               isAssigned={assignedIds.has(p.id)}
