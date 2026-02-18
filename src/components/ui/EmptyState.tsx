@@ -19,7 +19,7 @@ export interface EmptyStateProps {
 export function EmptyState({ icon, title, description, action, className = '' }: EmptyStateProps) {
   return (
     <Card className={`p-12 text-center ${className}`}>
-      <div className="flex justify-center mb-4 text-white/20 [&>svg]:w-12 [&>svg]:h-12">
+      <div className="flex justify-center mb-4 text-white/40 [&>svg]:w-12 [&>svg]:h-12">
         {icon}
       </div>
       <div className="text-white/30 mb-2">{title}</div>

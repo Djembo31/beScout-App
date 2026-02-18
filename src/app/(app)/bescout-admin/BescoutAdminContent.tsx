@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Shield, BarChart3, Users, Percent, Zap, Calendar, Bug, Rocket,
-  DollarSign, ExternalLink, Loader2, Megaphone,
+  DollarSign, ExternalLink, Loader2, Megaphone, Sparkles,
 } from 'lucide-react';
 import { Card, StatCard } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -19,12 +19,13 @@ import { AdminFeesTab } from './AdminFeesTab';
 import { AdminGameweeksTab } from './AdminGameweeksTab';
 import { AdminAirdropTab } from './AdminAirdropTab';
 import { AdminSponsorsTab } from './AdminSponsorsTab';
+import { AdminCreatorFundTab } from './AdminCreatorFundTab';
 
 // ============================================
 // Tab Config
 // ============================================
 
-type AdminTab = 'overview' | 'users' | 'fees' | 'ipos' | 'gameweeks' | 'airdrop' | 'sponsors' | 'debug';
+type AdminTab = 'overview' | 'users' | 'fees' | 'ipos' | 'gameweeks' | 'airdrop' | 'sponsors' | 'creator_fund' | 'debug';
 
 const TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
   { id: 'overview', label: 'Übersicht', icon: BarChart3 },
@@ -34,6 +35,7 @@ const TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
   { id: 'gameweeks', label: 'Spieltage', icon: Calendar },
   { id: 'airdrop', label: 'Airdrop', icon: Rocket },
   { id: 'sponsors', label: 'Sponsoren', icon: Megaphone },
+  { id: 'creator_fund', label: 'Creator Fund', icon: Sparkles },
   { id: 'debug', label: 'Debug', icon: Bug },
 ];
 
@@ -244,6 +246,7 @@ export default function BescoutAdminContent() {
       {tab === 'gameweeks' && <AdminGameweeksTab />}
       {tab === 'airdrop' && <AdminAirdropTab />}
       {tab === 'sponsors' && user && <AdminSponsorsTab adminId={user.id} />}
+      {tab === 'creator_fund' && user && <AdminCreatorFundTab adminId={user.id} />}
       {tab === 'debug' && <DebugTab />}
     </div>
   );

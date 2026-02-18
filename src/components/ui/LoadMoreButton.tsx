@@ -22,7 +22,8 @@ export function LoadMoreButton({ loading, hasMore, onLoadMore }: LoadMoreButtonP
       <button
         onClick={onLoadMore}
         disabled={loading}
-        className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        aria-busy={loading}
+        className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px]"
       >
         {loading ? (
           <>

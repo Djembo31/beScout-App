@@ -135,6 +135,26 @@ export default function TradingSidebar({
             <div className="text-xs text-white/50 bg-white/[0.02] rounded-lg p-3">
               Deine eigenen Angebote werden beim Kauf übersprungen.
             </div>
+            {(() => {
+              const estPriceBsd = player.prices.floor ?? 0;
+              const estTotalCents = Math.round(estPriceBsd * 100) * pendingBuyQty;
+              return (
+                <div className="bg-black/20 rounded-lg px-3 py-2 space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-white/40">ca. Kosten ({pendingBuyQty} &times; {fmtBSD(estPriceBsd)})</span>
+                    <span className="font-mono font-bold text-[#FFD700]">{fmtBSD(estPriceBsd * pendingBuyQty)} BSD</span>
+                  </div>
+                  {balanceCents !== null && (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-white/40">Guthaben danach</span>
+                      <span className={`font-mono font-bold ${balanceCents >= estTotalCents ? 'text-[#22C55E]' : 'text-red-400'}`}>
+                        {formatBsd(balanceCents - estTotalCents)} BSD
+                      </span>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
             <div className="flex items-center gap-2">
               <Button variant="gold" size="sm" className="flex-1" onClick={() => onConfirmBuy(pendingBuyQty)} disabled={buying}>
                 {buying ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
@@ -321,14 +341,33 @@ function IPOBuySection({
                   className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 font-bold hover:bg-white/10">+</button>
               </div>
             </div>
-            <div className="bg-white/[0.03] rounded-xl p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-white/60">Total</span>
+            <div className="bg-black/20 rounded-xl p-4 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-white/40">Preis pro DPC</span>
+                <span className="font-mono text-white/60">{fmtBSD(priceBsd)} BSD</span>
+              </div>
+              {buyQty > 1 && (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/40">Anzahl</span>
+                  <span className="font-mono text-white/60">&times; {buyQty}</span>
+                </div>
+              )}
+              <div className="border-t border-white/10 pt-2 flex items-center justify-between">
+                <span className="text-white/50 text-sm">Gesamtkosten</span>
                 <span className="font-mono font-black text-xl text-[#FFD700]">{fmtBSD(totalBsd)} BSD</span>
               </div>
-              <div className="text-xs text-white/40 mt-1">
-                Balance: {balanceCents !== null ? formatBsd(balanceCents) : '...'} BSD
+              <div className="border-t border-white/10 pt-2 flex items-center justify-between text-xs">
+                <span className="text-white/40">Dein Guthaben</span>
+                <span className="font-mono text-white/50">{balanceCents !== null ? formatBsd(balanceCents) : '...'} BSD</span>
               </div>
+              {balanceCents !== null && (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/40">Guthaben danach</span>
+                  <span className={`font-mono font-bold ${canAfford ? 'text-[#22C55E]' : 'text-red-400'}`}>
+                    {formatBsd(balanceCents - totalCents)} BSD
+                  </span>
+                </div>
+              )}
             </div>
             <Button variant="gold" fullWidth size="lg" onClick={() => onBuy(buyQty)} disabled={buying || !canAfford}>
               {buying ? <Loader2 className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
@@ -408,14 +447,33 @@ function TransferBuySection({
                   className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 font-bold hover:bg-white/10">+</button>
               </div>
             </div>
-            <div className="bg-white/[0.03] rounded-xl p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-white/60">Total</span>
+            <div className="bg-black/20 rounded-xl p-4 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-white/40">Preis pro DPC</span>
+                <span className="font-mono text-white/60">{fmtBSD(floorBsd)} BSD</span>
+              </div>
+              {buyQty > 1 && (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/40">Anzahl</span>
+                  <span className="font-mono text-white/60">&times; {buyQty}</span>
+                </div>
+              )}
+              <div className="border-t border-white/10 pt-2 flex items-center justify-between">
+                <span className="text-white/50 text-sm">Gesamtkosten</span>
                 <span className="font-mono font-black text-xl text-[#FFD700]">{fmtBSD(totalBsd)} BSD</span>
               </div>
-              <div className="text-xs text-white/40 mt-1">
-                Balance: {balanceCents !== null ? formatBsd(balanceCents) : '...'} BSD
+              <div className="border-t border-white/10 pt-2 flex items-center justify-between text-xs">
+                <span className="text-white/40">Dein Guthaben</span>
+                <span className="font-mono text-white/50">{balanceCents !== null ? formatBsd(balanceCents) : '...'} BSD</span>
               </div>
+              {balanceCents !== null && (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/40">Guthaben danach</span>
+                  <span className={`font-mono font-bold ${canAfford ? 'text-[#22C55E]' : 'text-red-400'}`}>
+                    {formatBsd(balanceCents - floorCents * buyQty)} BSD
+                  </span>
+                </div>
+              )}
             </div>
             <Button variant="gold" fullWidth size="lg" onClick={() => onBuy(buyQty)} disabled={buying || !canAfford}>
               {buying ? <Loader2 className="w-5 h-5 animate-spin" /> : <Target className="w-5 h-5" />}

@@ -77,7 +77,11 @@ export async function getAllUsers(limit = 50, offset = 0, search?: string): Prom
     .range(offset, offset + limit - 1);
 
   if (search) {
-    query = query.or(`handle.ilike.%${search}%,display_name.ilike.%${search}%`);
+    // Sanitize search input to prevent PostgREST filter injection
+    const sanitized = search.replace(/[,()]/g, '').trim();
+    if (sanitized) {
+      query = query.or(`handle.ilike.%${sanitized}%,display_name.ilike.%${sanitized}%`);
+    }
   }
 
   const { data: profiles, error } = await query;

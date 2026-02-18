@@ -2,7 +2,7 @@ import {
   Home,
   Briefcase,
   Trophy,
-  Users,
+  FileText,
   User,
   Building2,
   Shield,
@@ -19,8 +19,8 @@ export type NavItem = {
 export const NAV_MAIN: NavItem[] = [
   { label: 'Home', href: '/', icon: Home },
   { label: 'Manager', href: '/market', icon: Briefcase, badge: 'Office' },
-  { label: 'Fantasy', href: '/fantasy', icon: Trophy, badge: 'Fantasy' },
-  { label: 'Community', href: '/community', icon: Users, badge: 'Community' },
+  { label: 'Spieltag', href: '/fantasy', icon: Trophy },
+  { label: 'Report', href: '/community', icon: FileText },
   { label: 'Profil', href: '/profile', icon: User },
 ];
 

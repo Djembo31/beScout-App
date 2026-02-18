@@ -100,13 +100,24 @@ export async function getOpenBids(playerId?: string): Promise<OfferWithDetails[]
 
 /** Offer history for a user (accepted, rejected, countered, expired, cancelled) */
 export async function getOfferHistory(userId: string): Promise<OfferWithDetails[]> {
-  const { data, error } = await supabase
-    .from('offers')
-    .select('*')
-    .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
-    .in('status', ['accepted', 'rejected', 'countered', 'expired', 'cancelled'])
-    .order('updated_at', { ascending: false })
-    .limit(50);
+  const [sentRes, recvRes] = await Promise.allSettled([
+    supabase.from('offers').select('*')
+      .eq('sender_id', userId)
+      .in('status', ['accepted', 'rejected', 'countered', 'expired', 'cancelled'])
+      .order('updated_at', { ascending: false }).limit(25),
+    supabase.from('offers').select('*')
+      .eq('receiver_id', userId)
+      .in('status', ['accepted', 'rejected', 'countered', 'expired', 'cancelled'])
+      .order('updated_at', { ascending: false }).limit(25),
+  ]);
+  const sent = sentRes.status === 'fulfilled' ? (sentRes.value.data ?? []) : [];
+  const recv = recvRes.status === 'fulfilled' ? (recvRes.value.data ?? []) : [];
+  const merged = [...sent, ...recv].sort((a, b) =>
+    new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+  ).slice(0, 50);
+  const data = merged;
+  const error = sentRes.status === 'rejected' && recvRes.status === 'rejected'
+    ? { message: 'Offers konnten nicht geladen werden' } : null;
   if (error) throw new Error(error.message);
   return enrichOffers((data ?? []) as DbOffer[]);
 }

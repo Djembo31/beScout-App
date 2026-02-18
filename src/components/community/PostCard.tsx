@@ -5,12 +5,13 @@ import Link from 'next/link';
 import {
   ArrowUp, ArrowDown, MessageSquare, Send,
   MoreHorizontal, Target, Briefcase, BadgeCheck, CheckCircle2,
-  Pin, Trash2,
+  Pin, Trash2, Lock,
 } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { cn } from '@/lib/utils';
 import PostReplies from '@/components/community/PostReplies';
+import TipButton from '@/components/community/TipButton';
 import type { PostWithAuthor } from '@/types';
 
 // ============================================
@@ -57,6 +58,9 @@ interface PostCardProps {
   isClubAdmin?: boolean;
   onAdminDelete?: (postId: string) => void;
   onTogglePin?: (postId: string, pinned: boolean) => void;
+  tipCount?: number;
+  tipTotalCents?: number;
+  isLockedExclusive?: boolean;
 }
 
 // ============================================
@@ -74,6 +78,9 @@ export default function PostCard({
   isClubAdmin,
   onAdminDelete,
   onTogglePin,
+  tipCount = 0,
+  tipTotalCents = 0,
+  isLockedExclusive = false,
 }: PostCardProps) {
   const netScore = post.upvotes - post.downvotes;
   const isOwnedPlayer = post.player_id ? ownedPlayerIds.has(post.player_id) : false;
@@ -250,7 +257,28 @@ export default function PostCard({
           )}
 
           {/* Post Text */}
-          <p className="text-sm text-white/80 leading-relaxed mb-2">{post.content}</p>
+          {isLockedExclusive ? (
+            <div className="relative mb-2">
+              <p className="text-sm text-white/80 leading-relaxed blur-sm select-none" aria-hidden>
+                Dieser Inhalt ist exklusiv für Abonnenten dieses Scouts verfügbar...
+              </p>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-500/15 border border-indigo-500/20 text-indigo-300 text-xs font-semibold">
+                  <Lock className="w-3.5 h-3.5" />
+                  Exklusiv für Abonnenten
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-white/80 leading-relaxed mb-2">{post.content}</p>
+          )}
+          {/* Exclusive badge */}
+          {post.is_exclusive && !isLockedExclusive && (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/20 mb-2">
+              <Lock className="w-2.5 h-2.5" />
+              Exklusiv
+            </span>
+          )}
 
           {/* Tags */}
           {post.tags.length > 0 && (
@@ -275,6 +303,16 @@ export default function PostCard({
               <MessageSquare className="w-3 h-3" />
               {repliesCount}
             </button>
+            {!isOwn && (
+              <TipButton
+                contentType="post"
+                contentId={post.id}
+                authorId={post.user_id}
+                userId={userId}
+                tipCount={tipCount}
+                tipTotalCents={tipTotalCents}
+              />
+            )}
             <button className={cn('flex items-center gap-1 transition-colors', copied ? 'text-[#22C55E]' : 'hover:text-white')}
               onClick={async () => {
                 const url = `${window.location.origin}/community?post=${post.id}`;

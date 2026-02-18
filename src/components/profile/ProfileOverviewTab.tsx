@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, BarChart3, Trophy, Coins, FileText, Vote, Target, Flame, Crosshair, Banknote } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, BarChart3, Trophy, Coins, FileText, Vote, Target, Flame, Crosshair, Banknote, UserCheck, Sparkles, Megaphone } from 'lucide-react';
 import { Card, StatCard, Button } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { fmtBSD, cn } from '@/lib/utils';
@@ -57,6 +57,10 @@ const EARNING_TYPES: { type: string; label: string; icon: React.ElementType; col
   { type: 'mission_reward', label: 'Missionen', icon: Crosshair, color: 'text-emerald-400' },
   { type: 'streak_reward', label: 'Streaks', icon: Flame, color: 'text-orange-400' },
   { type: 'pbt_liquidation', label: 'PBT', icon: Banknote, color: 'text-[#FFD700]' },
+  { type: 'tip_receive', label: 'Scout-Tipps', icon: Coins, color: 'text-pink-400' },
+  { type: 'scout_subscription_earning', label: 'Beratervertrag', icon: UserCheck, color: 'text-indigo-400' },
+  { type: 'creator_fund_payout', label: 'Creator Fund', icon: Sparkles, color: 'text-cyan-400' },
+  { type: 'ad_revenue_payout', label: 'Werbeanteil', icon: Megaphone, color: 'text-lime-400' },
 ];
 
 // ============================================

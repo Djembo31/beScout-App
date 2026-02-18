@@ -3,7 +3,32 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 8** – Pilot-Ready. 143 Migrations, 20 Routes, 1 Edge Function v2. Build sauber (0 Fehler). TFF 1. Lig 2025/26 Saison: 566 Spieler (20 Clubs), 505 Player Images (89%), 100 IPOs, 3 Events (GW 1), 15 Bounties, 10 Votes, 8 Sponsoren. State Management: TanStack React Query v5 + Zustand v5 (cache.ts gelöscht). Sponsor-Flächen DB-backed mit Admin CRUD (21 Placements).
+**Woche 8** – Pilot-Ready. 147 Migrations, 20 Routes, 1 Edge Function v2. Build sauber (0 Fehler). TFF 1. Lig 2025/26 Saison: 566 Spieler (20 Clubs), 505 Player Images (89%), 100 IPOs, 3 Events (GW 1), 15 Bounties, 10 Votes, 8 Sponsoren. State Management: TanStack React Query v5 + Zustand v5 (~46 Hooks). Navigation: Home / Spieltag / Manager Office / Report / Profil.
+
+## Session 18.02.2026 (84) – ManagerKaderTab Redesign + Navigation Rename
+
+### Änderungen
+- **ManagerKaderTab Redesign:** Konsistentes Player-Card-Design mit Foto, Position-Border, Club-Logo, Performance-KPIs
+- **Score-Circle + L5-Bars:** Neuer `getRecentPlayerScores()` Batch-Query + `useRecentScores()` Hook
+- **Mobile Picker:** Full-Screen Overlay statt Bottom-Sheet (3 Iterationen, komplett redesigned)
+- **CompactPickerRow + FullPlayerRow:** Split für unterschiedliche Kontexte (Picker vs Display)
+- **Navigation Rename:** Fantasy→Spieltag, Markt→Manager, Community→Report (BottomNav + SideNav konsistent)
+- **6 Dateien geändert**, 0 Build-Fehler
+
+## Session 17.02.2026 (83) – AI Agent Team + Full Audit + CR-4 Fee-Breakdown
+
+### Änderungen
+- **14 AI-Agenten** als Claude Code Skills (.claude/skills/)
+- **Full Project Audit:** 6 Agents parallel → 7C+7H+15M dedupliziert
+- **11 Fixes:** SQL Injection, TipButton, Fee-Breakdown, Focus-Ring, Offers, Touch Targets, EmptyState
+- **3 False Positives** identifiziert und übersprungen
+
+## Session 17.02.2026 (82) – Scout-Sponsoring: Creator Monetarisierung
+
+### Änderungen
+- **4 Säulen:** Scout-Tipp (95/5), Beratervertrag (85/15), Creator Fund (Impression-basiert), Werbeanteil (Ad Revenue Share)
+- **4 Migrationen (#144-#147)**, 9 neue + 7 geänderte Dateien
+- **6 neue Transaction-Types**, 4 neue Notification-Types
 
 ## Session 17.02.2026 (81) – Sponsor-Placements Expansion (7→21)
 

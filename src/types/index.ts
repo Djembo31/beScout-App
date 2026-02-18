@@ -376,6 +376,9 @@ export type Profile = {
   updated_at: string;
   referral_code?: string | null;
   invited_by?: string | null;
+  subscription_enabled?: boolean;
+  subscription_price_cents?: number | null;
+  subscription_description?: string | null;
 };
 
 // ============================================
@@ -844,6 +847,7 @@ export type DbPost = {
   downvotes: number;
   replies_count: number;
   is_pinned: boolean;
+  is_exclusive: boolean;
   parent_id: string | null;
   event_id: string | null;
   rumor_source: string | null;
@@ -928,7 +932,7 @@ export function getLevelTier(level: number): LevelTier {
 // NOTIFICATION TYPES
 // ============================================
 
-export type NotificationType = 'research_unlock' | 'research_rating' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward' | 'event_starting' | 'event_closing_soon' | 'bounty_expiring' | 'new_ipo_available' | 'referral_reward';
+export type NotificationType = 'research_unlock' | 'research_rating' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward' | 'event_starting' | 'event_closing_soon' | 'bounty_expiring' | 'new_ipo_available' | 'referral_reward' | 'tip_received' | 'subscription_new' | 'creator_fund_payout' | 'ad_revenue_payout';
 
 export type DbNotification = {
   id: string;
@@ -1262,6 +1266,95 @@ export type DbSponsor = {
   starts_at: string;
   ends_at: string | null;
   created_by: string | null;
+  revenue_cents_per_impression: number | null;
   created_at: string;
   updated_at: string;
+};
+
+// ============================================
+// TIP TYPES
+// ============================================
+
+export type DbTip = {
+  id: string;
+  sender_id: string;
+  receiver_id: string;
+  content_type: 'post' | 'research';
+  content_id: string;
+  amount_cents: number;
+  platform_fee_cents: number;
+  receiver_earned_cents: number;
+  message: string | null;
+  created_at: string;
+};
+
+export type TipResult = {
+  success: boolean;
+  error?: string;
+  tip_id?: string;
+  amount_cents?: number;
+  receiver_earned?: number;
+  platform_fee?: number;
+};
+
+// ============================================
+// SCOUT SUBSCRIPTION TYPES
+// ============================================
+
+export type DbScoutSubscription = {
+  id: string;
+  subscriber_id: string;
+  scout_id: string;
+  price_cents: number;
+  scout_earned_cents: number;
+  platform_fee_cents: number;
+  started_at: string;
+  expires_at: string;
+  auto_renew: boolean;
+  status: 'active' | 'cancelled' | 'expired';
+  created_at: string;
+};
+
+export type SubscribeToScoutResult = {
+  success: boolean;
+  error?: string;
+  subscription_id?: string;
+  price_cents?: number;
+  scout_earned?: number;
+  expires_at?: string;
+};
+
+export type CreatorConfig = {
+  id: string;
+  key: string;
+  value: unknown;
+  updated_by: string | null;
+  updated_at: string;
+};
+
+// ============================================
+// IMPRESSION & CREATOR FUND TYPES
+// ============================================
+
+export type DbContentImpression = {
+  id: string;
+  content_type: 'post' | 'research' | 'poll';
+  content_id: string;
+  author_id: string;
+  viewer_id: string | null;
+  created_at: string;
+};
+
+export type DbCreatorFundPayout = {
+  id: string;
+  user_id: string;
+  payout_type: 'creator_fund' | 'ad_revenue_share';
+  period_start: string;
+  period_end: string;
+  impression_count: number;
+  impression_share_pct: number;
+  pool_total_cents: number;
+  payout_cents: number;
+  status: 'pending' | 'paid' | 'rolled_over';
+  created_at: string;
 };

@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Trophy, TrendingUp, Users, User } from 'lucide-react';
+import { Home, Trophy, Briefcase, FileText, User } from 'lucide-react';
 
 const BOTTOM_TABS = [
   { label: 'Home', href: '/', icon: Home, tourId: undefined as string | undefined },
-  { label: 'Fantasy', href: '/fantasy', icon: Trophy, tourId: 'bottomnav-fantasy' },
-  { label: 'Markt', href: '/market', icon: TrendingUp, tourId: 'bottomnav-market' },
-  { label: 'Community', href: '/community', icon: Users, tourId: undefined as string | undefined },
+  { label: 'Spieltag', href: '/fantasy', icon: Trophy, tourId: 'bottomnav-fantasy' },
+  { label: 'Manager', href: '/market', icon: Briefcase, tourId: 'bottomnav-market' },
+  { label: 'Report', href: '/community', icon: FileText, tourId: undefined as string | undefined },
   { label: 'Profil', href: '/profile', icon: User, tourId: undefined as string | undefined },
 ];
 

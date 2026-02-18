@@ -66,6 +66,7 @@ export function dbToPlayer(db: DbPlayer): Player {
     first: db.first_name,
     last: db.last_name,
     club: db.club,
+    clubId: db.club_id ?? undefined,
     league: 'TFF 1. Lig',
     pos: toPos(db.position),
     status: (db.status as PlayerStatus) ?? 'fit',

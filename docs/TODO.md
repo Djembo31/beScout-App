@@ -1,9 +1,28 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 17.02.2026 (Session 80)
-> Modus: PILOT SPRINT — 142 Migrations, 20 Routes, 566 Spieler, 505 Player Images
+> Letzte Aktualisierung: 18.02.2026 (Session 84)
+> Modus: PILOT SPRINT — 147 Migrations, 20 Routes, 566 Spieler, 505 Player Images
 
 ---
+
+## ManagerKaderTab Redesign + Navigation Rename ✅ (18.02.2026)
+- [x] ManagerKaderTab: Konsistentes Player-Card-Design (Foto, Position-Border, Club-Logo, Performance-KPIs)
+- [x] Score-Circle (40px, letzter GW-Score) + L5-Score-Bars (5 Balken, farbig nach Score)
+- [x] `getRecentPlayerScores()` Batch-Query + `useRecentScores()` Hook + Query-Key
+- [x] CompactPickerRow (~40px, Picker) + FullPlayerRow (~60px, Display)
+- [x] Mobile Picker: Full-Screen Overlay (`fixed inset-0 z-50`) statt Bottom-Sheet
+- [x] Navigation: Fantasy→Spieltag, Markt→Manager (Briefcase), Community→Report (FileText)
+- [x] SideNav Labels + Icons konsistent mit BottomNav
+- [x] Build verifiziert (0 Fehler, 20 Routes)
+
+## AI Agent Team + Full Audit ✅ (17.02.2026)
+- [x] 14 AI-Agenten als Claude Code Skills (.claude/skills/)
+- [x] Full Project Audit: 6 Agents → 7C+7H gefixt, 15M offen
+- [x] CR-4 Fee-Breakdown: IPO + Transfer + Kaufbestätigung (3 Stellen)
+
+## Scout-Sponsoring: Creator Monetarisierung ✅ (17.02.2026)
+- [x] 4 Säulen: Scout-Tipp, Beratervertrag, Creator Fund, Werbeanteil
+- [x] 4 Migrationen (#144-#147), 9 neue + 7 geänderte Dateien
 
 ## Sponsor-Flächen produktionsreif ✅ (17.02.2026)
 - [x] Migration #142: `create_sponsors_table` (sponsors Tabelle + 4 RLS Policies + Partial Index)
