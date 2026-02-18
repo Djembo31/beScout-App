@@ -23,6 +23,7 @@ export { useResearchPosts } from './research';
 export { useActiveBounties } from './bounties';
 export { useCommunityPolls } from './polls';
 export { useSponsor } from './sponsors';
+export { useClubFixtures } from './fixtures';
 export { useContentTips } from './tips';
 export { useIsSubscribedToScout, useSubscribedScoutIds } from './scoutSubscriptions';
 export {

@@ -11,6 +11,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: '*.supabase.in',
       },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+      },
     ],
   },
   async headers() {

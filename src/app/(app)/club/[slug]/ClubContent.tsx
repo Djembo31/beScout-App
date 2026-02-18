@@ -9,7 +9,8 @@ import {
   Building2, Zap, Crown, Gift, MessageCircle, Share2,
   Bell, Flame, CheckCircle2, Briefcase,
   ArrowUpRight, ArrowDownRight, ExternalLink, Users2,
-  Loader2, Plus, FileText, Settings,
+  Loader2, Plus, FileText, Settings, ChevronDown,
+  Swords, Home, Plane,
 } from 'lucide-react';
 import { Card, Button, Chip, Modal, ErrorState, Skeleton, SkeletonCard, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
 import SponsorBanner from '@/components/player/detail/SponsorBanner';
@@ -32,15 +33,17 @@ import { useClubRecentTrades } from '@/lib/queries/trades';
 import { useHoldings } from '@/lib/queries/holdings';
 import { useClubVotes, useUserVotedIds } from '@/lib/queries/votes';
 import { useClubResearch } from '@/lib/queries/research';
+import { useClubFixtures } from '@/lib/queries/fixtures';
 import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
-import type { Player, Pos, DbPlayer, DbTrade, DbIpo, DbClubVote, ClubWithAdmin, ResearchPostWithAuthor } from '@/types';
+import { getClub } from '@/lib/clubs';
+import type { Player, Pos, DbPlayer, DbTrade, DbIpo, DbClubVote, ClubWithAdmin, ResearchPostWithAuthor, Fixture } from '@/types';
 
 // ============================================
 // TYPES
 // ============================================
 
-type ClubTab = 'uebersicht' | 'spieler' | 'club';
+type ClubTab = 'uebersicht' | 'spieler' | 'spielplan' | 'club';
 
 type TradeWithPlayer = DbTrade & {
   player: { first_name: string; last_name: string; position: string };
@@ -128,6 +131,7 @@ function getUserMembershipTier(totalDpc: number) {
 const TABS: { id: ClubTab; label: string }[] = [
   { id: 'uebersicht', label: 'Übersicht' },
   { id: 'spieler', label: 'Spieler' },
+  { id: 'spielplan', label: 'Spielplan' },
   { id: 'club', label: 'Club & Member' },
 ];
 
@@ -157,7 +161,7 @@ function HeroSection({
   playerCount: number;
 }) {
   const clubColor = club.primary_color || '#006633';
-  const stadiumSrc = `/stadiums/${club.slug}.jpg`;
+  const [stadiumSrc, setStadiumSrc] = useState(`/stadiums/${club.slug}.jpg`);
 
   return (
     <div className="relative h-[160px] md:h-[350px] -mx-4 md:-mx-6 -mt-4 md:-mt-6 mb-6 overflow-hidden">
@@ -169,6 +173,7 @@ function HeroSection({
           fill
           className="object-cover blur-sm scale-105"
           priority
+          onError={() => setStadiumSrc('/stadiums/default.jpg')}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-[#0a0a0a]" />
         <div className="absolute inset-0" style={{ background: `linear-gradient(to right, ${clubColor}33, transparent)` }} />
@@ -254,7 +259,7 @@ function HeroSection({
 }
 
 // ============================================
-// STATS BAR
+// STATS BAR (2 big + 3 small + Form)
 // ============================================
 
 function StatsBar({
@@ -263,35 +268,81 @@ function StatsBar({
   avgPerf,
   followerCount,
   playerCount,
+  clubColor,
+  formResults,
 }: {
   totalVolume24h: number;
   totalDpcFloat: number;
   avgPerf: number;
   followerCount: number;
   playerCount: number;
+  clubColor: string;
+  formResults: ('W' | 'D' | 'L')[];
 }) {
-  const stats = [
-    { label: '24h Volume', value: fmtBSD(totalVolume24h), suffix: 'BSD', icon: BarChart3, color: 'text-[#FFD700]' },
-    { label: 'DPC Float', value: totalDpcFloat.toLocaleString(), suffix: 'DPC', icon: Briefcase, color: 'text-white' },
-    { label: 'Ø Performance', value: avgPerf.toFixed(1), suffix: '', icon: TrendingUp, color: 'text-purple-400' },
-    { label: 'Scouts', value: followerCount.toLocaleString(), suffix: '', icon: Users2, color: 'text-sky-400' },
-    { label: 'Spieler', value: playerCount.toString(), suffix: '', icon: Users, color: 'text-[#22C55E]' },
+  const secondary = [
+    { label: 'DPC Float', value: totalDpcFloat.toLocaleString(), icon: Briefcase },
+    { label: 'Ø Perf L5', value: avgPerf.toFixed(1), icon: TrendingUp },
+    { label: 'Spieler', value: playerCount.toString(), icon: Users },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-      {stats.map((stat, i) => (
-        <Card key={i} className="p-3 md:p-4 hover:border-white/20 transition-all">
-          <div className="flex items-start justify-between mb-2">
-            <stat.icon className={`w-5 h-5 ${stat.color}`} />
+    <div className="space-y-3">
+      {/* Primary stats — big */}
+      <div className="grid grid-cols-2 gap-3">
+        <Card className="p-4 hover:border-white/20 transition-all" style={{ borderColor: `${clubColor}25` }}>
+          <div className="flex items-center gap-2 mb-1">
+            <Users2 className="w-5 h-5" style={{ color: clubColor }} />
+            <span className="text-xs text-white/50">Scouts</span>
           </div>
-          <div className={`text-xl font-mono font-black ${stat.color}`}>
-            {stat.value}
-            {stat.suffix && <span className="text-sm text-white/50 ml-1">{stat.suffix}</span>}
+          <div className="text-2xl md:text-3xl font-mono font-black" style={{ color: clubColor }}>
+            {followerCount.toLocaleString()}
           </div>
-          <div className="text-xs text-white/50">{stat.label}</div>
         </Card>
-      ))}
+        <Card className="p-4 hover:border-white/20 transition-all border-[#FFD700]/15">
+          <div className="flex items-center gap-2 mb-1">
+            <BarChart3 className="w-5 h-5 text-[#FFD700]" />
+            <span className="text-xs text-white/50">24h Volume</span>
+          </div>
+          <div className="text-2xl md:text-3xl font-mono font-black text-[#FFD700]">
+            {fmtBSD(totalVolume24h)}
+            <span className="text-sm text-white/40 ml-1">BSD</span>
+          </div>
+        </Card>
+      </div>
+
+      {/* Secondary stats + Form — compact row */}
+      <div className="flex items-center gap-3">
+        {secondary.map((stat, i) => (
+          <div key={i} className="flex-1 flex items-center gap-2 p-2.5 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+            <stat.icon className="w-4 h-4 text-white/30 flex-shrink-0" />
+            <div className="min-w-0">
+              <div className="font-mono font-bold text-sm text-white/80">{stat.value}</div>
+              <div className="text-[10px] text-white/30">{stat.label}</div>
+            </div>
+          </div>
+        ))}
+        {/* Form streak */}
+        {formResults.length > 0 && (
+          <div className="flex-shrink-0 flex items-center gap-2 p-2.5 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+            <div className="flex items-center gap-1">
+              {formResults.map((r, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    'w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black',
+                    r === 'W' && 'bg-[#22C55E] text-black',
+                    r === 'D' && 'bg-yellow-500 text-black',
+                    r === 'L' && 'bg-red-500 text-white',
+                  )}
+                >
+                  {r === 'W' ? 'S' : r === 'D' ? 'U' : 'N'}
+                </div>
+              ))}
+            </div>
+            <div className="text-[10px] text-white/30 hidden md:block">Form</div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -363,9 +414,11 @@ function ClubVoteCard({ vote, hasVoted, onVote, voting }: {
 function TopPlayersWidget({
   players,
   onViewAll,
+  clubColor,
 }: {
   players: Player[];
   onViewAll: () => void;
+  clubColor: string;
 }) {
   const topPlayers = useMemo(
     () => [...players].sort((a, b) => b.prices.change24h - a.prices.change24h).slice(0, 3),
@@ -386,13 +439,17 @@ function TopPlayersWidget({
       <div className="space-y-3">
         {topPlayers.map((player, i) => (
           <Link key={player.id} href={`/player/${player.id}`}>
-            <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10 hover:border-[#FFD700]/30 transition-all">
+            <div
+              className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10 transition-all"
+              style={{ ['--hover-border' as string]: `${clubColor}50` }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = `${clubColor}50`)}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = '')}
+            >
               <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm ${
-                  i === 0 ? 'bg-[#FFD700]/20 text-[#FFD700]' :
-                  i === 1 ? 'bg-white/10 text-white/70' :
-                  'bg-orange-500/20 text-orange-400'
-                }`}>
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm"
+                  style={i === 0 ? { backgroundColor: `${clubColor}30`, color: clubColor } : undefined}
+                >
                   {i + 1}
                 </div>
                 <PositionBadge pos={player.pos} size="sm" />
@@ -454,6 +511,229 @@ function SquadOverviewWidget({ players }: { players: Player[] }) {
             <span className="font-mono text-sm font-bold">{breakdown[pos]}</span>
           </div>
         ))}
+      </div>
+    </Card>
+  );
+}
+
+// ============================================
+// FIXTURE HELPERS
+// ============================================
+
+type FixtureFilter = 'all' | 'home' | 'away' | 'results' | 'upcoming';
+
+function getFixtureResult(fixture: Fixture, clubId: string): 'W' | 'D' | 'L' | null {
+  if (fixture.home_score === null || fixture.away_score === null) return null;
+  const isHome = fixture.home_club_id === clubId;
+  const ownGoals = isHome ? fixture.home_score : fixture.away_score;
+  const oppGoals = isHome ? fixture.away_score : fixture.home_score;
+  if (ownGoals > oppGoals) return 'W';
+  if (ownGoals < oppGoals) return 'L';
+  return 'D';
+}
+
+const resultBadge: Record<'W' | 'D' | 'L', { label: string; color: string }> = {
+  W: { label: 'S', color: 'bg-[#22C55E]/20 text-[#22C55E]' },
+  D: { label: 'U', color: 'bg-yellow-500/20 text-yellow-400' },
+  L: { label: 'N', color: 'bg-red-500/20 text-red-400' },
+};
+
+function FixtureRow({ fixture, clubId, accent }: { fixture: Fixture; clubId: string; accent: string }) {
+  const isHome = fixture.home_club_id === clubId;
+  const isPlayed = fixture.status === 'simulated' || fixture.status === 'finished';
+  const result = getFixtureResult(fixture, clubId);
+  const oppClubId = isHome ? fixture.away_club_id : fixture.home_club_id;
+  const oppClub = getClub(isHome ? fixture.away_club_short : fixture.home_club_short) ||
+                  getClub(isHome ? fixture.away_club_name : fixture.home_club_name);
+  const oppColor = isHome ? fixture.away_club_primary_color : fixture.home_club_primary_color;
+  const oppName = isHome ? fixture.away_club_name : fixture.home_club_name;
+  const oppShort = isHome ? fixture.away_club_short : fixture.home_club_short;
+
+  return (
+    <div className={cn(
+      'flex items-center gap-3 p-3 rounded-xl border transition-all',
+      isPlayed ? 'bg-white/[0.02] border-white/10' : 'bg-white/[0.01] border-white/[0.06]',
+    )}>
+      {/* H/A Badge */}
+      <div className={cn(
+        'w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black flex-shrink-0',
+        isHome ? 'bg-[#22C55E]/15 text-[#22C55E]' : 'bg-sky-500/15 text-sky-400',
+      )}>
+        {isHome ? 'H' : 'A'}
+      </div>
+
+      {/* Opponent */}
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <div
+          className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0"
+          style={{ backgroundColor: (oppColor ?? '#666') + '20', color: oppColor ?? '#aaa' }}
+        >
+          {oppClub?.logo ? (
+            <img src={oppClub.logo} alt="" className="w-5 h-5 object-contain" />
+          ) : (
+            oppShort.slice(0, 2)
+          )}
+        </div>
+        <span className="text-sm font-semibold truncate">{oppName}</span>
+      </div>
+
+      {/* Score or Status */}
+      {isPlayed ? (
+        <div className="flex items-center gap-2">
+          <span className="font-mono font-black text-sm">
+            {fixture.home_score} - {fixture.away_score}
+          </span>
+          {result && (
+            <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-black', resultBadge[result].color)}>
+              {resultBadge[result].label}
+            </span>
+          )}
+        </div>
+      ) : (
+        <span className="text-xs text-white/30">Geplant</span>
+      )}
+    </div>
+  );
+}
+
+function SeasonSummary({ fixtures, clubId }: { fixtures: Fixture[]; clubId: string }) {
+  let w = 0, d = 0, l = 0;
+  for (const f of fixtures) {
+    const r = getFixtureResult(f, clubId);
+    if (r === 'W') w++;
+    else if (r === 'D') d++;
+    else if (r === 'L') l++;
+  }
+  const played = w + d + l;
+  const points = w * 3 + d;
+
+  if (played === 0) return null;
+
+  return (
+    <div className="flex items-center gap-4 p-3 bg-white/[0.02] rounded-xl border border-white/10">
+      <div className="text-center flex-1">
+        <div className="text-lg font-mono font-black text-white">{played}</div>
+        <div className="text-[10px] text-white/40">Spiele</div>
+      </div>
+      <div className="text-center flex-1">
+        <div className="text-lg font-mono font-black text-[#22C55E]">{w}</div>
+        <div className="text-[10px] text-white/40">Siege</div>
+      </div>
+      <div className="text-center flex-1">
+        <div className="text-lg font-mono font-black text-yellow-400">{d}</div>
+        <div className="text-[10px] text-white/40">Remis</div>
+      </div>
+      <div className="text-center flex-1">
+        <div className="text-lg font-mono font-black text-red-400">{l}</div>
+        <div className="text-[10px] text-white/40">Ndl.</div>
+      </div>
+      <div className="w-px h-8 bg-white/10" />
+      <div className="text-center flex-1">
+        <div className="text-lg font-mono font-black text-[#FFD700]">{points}</div>
+        <div className="text-[10px] text-white/40">Punkte</div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// NEXT MATCH WIDGET (Übersicht)
+// ============================================
+
+function NextMatchCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: string }) {
+  const next = fixtures.find(f => f.status === 'scheduled');
+  if (!next) return null;
+
+  const isHome = next.home_club_id === clubId;
+  const oppName = isHome ? next.away_club_name : next.home_club_name;
+  const oppShort = isHome ? next.away_club_short : next.home_club_short;
+  const oppColor = isHome ? next.away_club_primary_color : next.home_club_primary_color;
+  const oppClub = getClub(oppShort) || getClub(oppName);
+
+  return (
+    <Card className="p-4 border-[#22C55E]/20 bg-gradient-to-r from-[#22C55E]/5 to-transparent">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-[#22C55E]/10 flex items-center justify-center flex-shrink-0">
+          <Swords className="w-5 h-5 text-[#22C55E]" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-xs text-white/40 mb-0.5">Nächste Begegnung — Spieltag {next.gameweek}</div>
+          <div className="flex items-center gap-2">
+            <span className={cn(
+              'px-1.5 py-0.5 rounded text-[10px] font-black',
+              isHome ? 'bg-[#22C55E]/15 text-[#22C55E]' : 'bg-sky-500/15 text-sky-400',
+            )}>
+              {isHome ? 'HEIM' : 'AUSWÄRTS'}
+            </span>
+            <div className="flex items-center gap-2">
+              <div
+                className="w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-black flex-shrink-0"
+                style={{ backgroundColor: (oppColor ?? '#666') + '20', color: oppColor ?? '#aaa' }}
+              >
+                {oppClub?.logo ? (
+                  <img src={oppClub.logo} alt="" className="w-4 h-4 object-contain" />
+                ) : (
+                  oppShort.slice(0, 2)
+                )}
+              </div>
+              <span className="font-bold text-sm truncate">{oppName}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+// ============================================
+// LAST RESULTS WIDGET (Übersicht)
+// ============================================
+
+function LastResultsCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: string }) {
+  const played = fixtures
+    .filter(f => f.status === 'simulated' || f.status === 'finished')
+    .slice(-5)
+    .reverse();
+
+  if (played.length === 0) return null;
+
+  return (
+    <Card className="p-4 md:p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <Calendar className="w-5 h-5 text-white/50" />
+        <span className="font-black">Letzte Ergebnisse</span>
+      </div>
+      <div className="space-y-2">
+        {played.map(f => {
+          const isHome = f.home_club_id === clubId;
+          const oppName = isHome ? f.away_club_short : f.home_club_short;
+          const oppColor = isHome ? f.away_club_primary_color : f.home_club_primary_color;
+          const oppClub = getClub(oppName);
+          const result = getFixtureResult(f, clubId);
+
+          return (
+            <div key={f.id} className="flex items-center gap-3 text-sm">
+              <span className="text-xs text-white/30 font-mono w-8 text-right flex-shrink-0">GW {f.gameweek}</span>
+              <div
+                className="w-5 h-5 rounded-full flex items-center justify-center text-[7px] font-black flex-shrink-0"
+                style={{ backgroundColor: (oppColor ?? '#666') + '20', color: oppColor ?? '#aaa' }}
+              >
+                {oppClub?.logo ? (
+                  <img src={oppClub.logo} alt="" className="w-3.5 h-3.5 object-contain" />
+                ) : (
+                  oppName.slice(0, 2)
+                )}
+              </div>
+              <span className="flex-1 truncate text-white/70">{isHome ? f.away_club_name : f.home_club_name}</span>
+              <span className="font-mono font-bold text-xs">{f.home_score} - {f.away_score}</span>
+              {result && (
+                <span className={cn('px-1.5 py-0.5 rounded text-[9px] font-black w-5 text-center', resultBadge[result].color)}>
+                  {resultBadge[result].label}
+                </span>
+              )}
+            </div>
+          );
+        })}
       </div>
     </Card>
   );
@@ -647,6 +927,7 @@ export default function ClubContent({ slug }: { slug: string }) {
   const { data: userVotedIdsData } = useUserVotedIds(userId);
   const { data: clubResearchData = [] } = useClubResearch(clubId, userId);
   const { data: subscriptionData = null } = useClubSubscription(userId, clubId);
+  const { data: clubFixtures = [] } = useClubFixtures(clubId);
 
   // Resolve expired research (fire-and-forget)
   useEffect(() => {
@@ -690,6 +971,10 @@ export default function ClubContent({ slug }: { slug: string }) {
   const [posFilter, setPosFilter] = useState<Pos | 'ALL'>('ALL');
   const [sortBy, setSortBy] = useState<'perf' | 'price' | 'change'>('perf');
   const [spielerQuery, setSpielerQuery] = useState('');
+
+  // Spielplan Tab state
+  const [fixtureFilter, setFixtureFilter] = useState<FixtureFilter>('all');
+  const [expandedGw, setExpandedGw] = useState<Set<number>>(new Set());
 
   // Votes state
   const [votingId, setVotingId] = useState<string | null>(null);
@@ -842,6 +1127,23 @@ export default function ClubContent({ slug }: { slug: string }) {
     return counts;
   }, [players]);
 
+  // Form streak (last 5 played fixtures)
+  const formResults = useMemo(() => {
+    if (!clubId) return [];
+    return clubFixtures
+      .filter(f => f.status === 'simulated' || f.status === 'finished')
+      .slice(-5)
+      .map(f => getFixtureResult(f, clubId))
+      .filter((r): r is 'W' | 'D' | 'L' => r !== null);
+  }, [clubFixtures, clubId]);
+
+  // Active votes for overview (max 2)
+  const activeVotesPreview = useMemo(() => {
+    return clubVotes
+      .filter(v => v.status === 'active' && new Date(v.ends_at) > new Date())
+      .slice(0, 2);
+  }, [clubVotes]);
+
   // ---- Follow Toggle ----
   const handleFollow = useCallback(async () => {
     if (!user || !club || followLoading) return;
@@ -947,6 +1249,8 @@ export default function ClubContent({ slug }: { slug: string }) {
           avgPerf={avgPerf}
           followerCount={followerCount}
           playerCount={players.length}
+          clubColor={clubColor}
+          formResults={formResults}
         />
       </div>
 
@@ -1008,7 +1312,7 @@ export default function ClubContent({ slug }: { slug: string }) {
       {/* TABS + Admin Link */}
       <div className="flex items-center gap-2 mb-6">
         <div className="flex-1">
-          <TabBar tabs={TABS} activeTab={tab} onChange={(id) => setTab(id as ClubTab)} />
+          <TabBar tabs={TABS} activeTab={tab} onChange={(id) => setTab(id as ClubTab)} accentColor={clubColor} />
         </div>
         {club.is_admin && (
           <Link
@@ -1024,6 +1328,9 @@ export default function ClubContent({ slug }: { slug: string }) {
       {/* ========== TAB: ÜBERSICHT ========== */}
       {tab === 'uebersicht' && (
         <div className="space-y-6">
+          {/* Nächste Begegnung */}
+          {clubId && <NextMatchCard fixtures={clubFixtures} clubId={clubId} />}
+
           {/* Dein Status */}
           {userTier ? (
             <Card className={`p-4 bg-gradient-to-br ${userTier.color} ${userTier.borderColor}`}>
@@ -1042,7 +1349,43 @@ export default function ClubContent({ slug }: { slug: string }) {
             </Card>
           ) : null}
 
-          <TopPlayersWidget players={players} onViewAll={() => setTab('spieler')} />
+          <TopPlayersWidget players={players} onViewAll={() => setTab('spieler')} clubColor={clubColor} />
+
+          {/* Aktive Votes Preview */}
+          {activeVotesPreview.length > 0 && (
+            <Card className="p-4 md:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Vote className="w-5 h-5" style={{ color: clubColor }} />
+                  <span className="font-black">Aktive Abstimmungen</span>
+                </div>
+                <button onClick={() => setTab('club')} className="text-xs hover:underline flex items-center gap-1" style={{ color: clubColor }}>
+                  Alle anzeigen <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="space-y-2">
+                {activeVotesPreview.map(vote => {
+                  const totalVotes = (vote.options as { label: string; votes: number }[]).reduce((s, o) => s + o.votes, 0);
+                  return (
+                    <button
+                      key={vote.id}
+                      onClick={() => setTab('club')}
+                      className="w-full text-left p-3 bg-white/[0.02] rounded-xl border border-white/10 hover:border-white/20 transition-all"
+                    >
+                      <div className="font-bold text-sm mb-1 truncate">{vote.question}</div>
+                      <div className="flex items-center gap-3 text-xs text-white/40">
+                        <span>{totalVotes} Stimme{totalVotes !== 1 ? 'n' : ''}</span>
+                        <span>Endet {new Date(vote.ends_at).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
+
+          {/* Letzte Ergebnisse */}
+          {clubId && <LastResultsCard fixtures={clubFixtures} clubId={clubId} />}
 
           {/* Deine Spieler */}
           {userClubPlayers.length > 0 && (
@@ -1054,7 +1397,11 @@ export default function ClubContent({ slug }: { slug: string }) {
               <div className="space-y-2">
                 {userClubPlayers.map((player) => (
                   <Link key={player.id} href={`/player/${player.id}`}>
-                    <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10 hover:border-[#FFD700]/30 transition-all">
+                    <div
+                      className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10 transition-all"
+                      onMouseEnter={e => (e.currentTarget.style.borderColor = `${clubColor}50`)}
+                      onMouseLeave={e => (e.currentTarget.style.borderColor = '')}
+                    >
                       <div className="flex items-center gap-2">
                         <PositionBadge pos={player.pos} size="sm" />
                         <div>
@@ -1144,6 +1491,104 @@ export default function ClubContent({ slug }: { slug: string }) {
           )}
         </div>
       )}
+
+      {/* ========== TAB: SPIELPLAN ========== */}
+      {tab === 'spielplan' && clubId && (() => {
+        const filtered = clubFixtures.filter(f => {
+          const isHome = f.home_club_id === clubId;
+          const isPlayed = f.status === 'simulated' || f.status === 'finished';
+          if (fixtureFilter === 'home') return isHome;
+          if (fixtureFilter === 'away') return !isHome;
+          if (fixtureFilter === 'results') return isPlayed;
+          if (fixtureFilter === 'upcoming') return !isPlayed;
+          return true;
+        });
+
+        // Group by gameweek
+        const gwMap = new Map<number, Fixture[]>();
+        for (const f of filtered) {
+          const arr = gwMap.get(f.gameweek) ?? [];
+          arr.push(f);
+          gwMap.set(f.gameweek, arr);
+        }
+        const gameweeks = Array.from(gwMap.keys()).sort((a, b) => a - b);
+
+        // Auto-expand the first upcoming GW
+        const firstUpcomingGw = clubFixtures.find(f => f.status === 'scheduled')?.gameweek;
+
+        return (
+          <div className="space-y-4">
+            {/* Season Summary */}
+            <SeasonSummary fixtures={clubFixtures} clubId={clubId} />
+
+            {/* Filter Chips */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              {([
+                { id: 'all', label: 'Alle' },
+                { id: 'home', label: 'Heim', icon: Home },
+                { id: 'away', label: 'Auswärts', icon: Plane },
+                { id: 'results', label: 'Ergebnisse' },
+                { id: 'upcoming', label: 'Kommend' },
+              ] as { id: FixtureFilter; label: string; icon?: typeof Home }[]).map(chip => (
+                <button
+                  key={chip.id}
+                  onClick={() => setFixtureFilter(chip.id)}
+                  className={cn(
+                    'px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap border transition-all flex items-center gap-1.5',
+                    fixtureFilter === chip.id
+                      ? 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30'
+                      : 'bg-white/[0.02] text-white/50 border-white/10 hover:border-white/20'
+                  )}
+                >
+                  {chip.icon && <chip.icon className="w-3 h-3" />}
+                  {chip.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Gameweek Groups */}
+            {gameweeks.length === 0 ? (
+              <div className="text-center text-white/30 py-12">Keine Spiele in dieser Kategorie</div>
+            ) : (
+              <div className="space-y-2">
+                {gameweeks.map(gw => {
+                  const gwFixtures = gwMap.get(gw)!;
+                  const isExpanded = expandedGw.has(gw) || gw === firstUpcomingGw;
+                  const gwPlayed = gwFixtures.some(f => f.status === 'simulated' || f.status === 'finished');
+
+                  return (
+                    <div key={gw} className="rounded-xl border border-white/10 overflow-hidden">
+                      <button
+                        onClick={() => setExpandedGw(prev => {
+                          const next = new Set(prev);
+                          if (next.has(gw)) next.delete(gw); else next.add(gw);
+                          return next;
+                        })}
+                        className="w-full flex items-center justify-between px-4 py-3 bg-white/[0.02] hover:bg-white/[0.04] transition-all"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-black">Spieltag {gw}</span>
+                          {gwPlayed && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#22C55E]/15 text-[#22C55E]">Gespielt</span>
+                          )}
+                        </div>
+                        <ChevronDown className={cn('w-4 h-4 text-white/30 transition-transform', isExpanded && 'rotate-180')} />
+                      </button>
+                      {isExpanded && (
+                        <div className="p-3 space-y-2 border-t border-white/[0.06]">
+                          {gwFixtures.map(f => (
+                            <FixtureRow key={f.id} fixture={f} clubId={clubId} accent={club.primary_color || '#FFD700'} />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ========== TAB: CLUB & MEMBER ========== */}
       {tab === 'club' && (

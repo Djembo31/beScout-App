@@ -163,6 +163,7 @@ export const qk = {
     recentMinutes: ['fixtures', 'recentMinutes'] as const,
     recentScores: ['fixtures', 'recentScores'] as const,
     nextByClub: ['fixtures', 'nextByClub'] as const,
+    byClub: (cid: string) => ['fixtures', 'club', cid] as const,
   },
 
   // ── Sponsors ──

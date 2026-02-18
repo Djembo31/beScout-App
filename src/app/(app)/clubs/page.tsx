@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Users, UserPlus, UserMinus, Shield, Compass } from 'lucide-react';
+import { Search, Users, UserPlus, UserMinus, Shield, Compass, Calendar } from 'lucide-react';
 import { Card, Button, ErrorState, SearchInput, EmptyState, Skeleton, SkeletonCard } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { getClubsWithStats } from '@/lib/services/club';
+import { getNextFixturesByClub } from '@/lib/services/fixtures';
+import type { NextFixtureInfo } from '@/lib/services/fixtures';
 import type { DbClub } from '@/types';
 
 type ClubWithStats = DbClub & { follower_count: number; player_count: number };
@@ -16,6 +18,7 @@ export default function ClubsDiscoveryPage() {
   const { user } = useUser();
   const { isFollowing, toggleFollow, activeClub, setActiveClub } = useClub();
   const [clubs, setClubs] = useState<ClubWithStats[]>([]);
+  const [nextFixtures, setNextFixtures] = useState<Map<string, NextFixtureInfo>>(new Map());
   const [loading, setLoading] = useState(true);
   const [dataError, setDataError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -25,8 +28,13 @@ export default function ClubsDiscoveryPage() {
   useEffect(() => {
     let cancelled = false;
     setDataError(false);
-    getClubsWithStats()
-      .then(data => { if (!cancelled) setClubs(data); })
+    Promise.all([getClubsWithStats(), getNextFixturesByClub()])
+      .then(([clubData, fixtureData]) => {
+        if (!cancelled) {
+          setClubs(clubData);
+          setNextFixtures(fixtureData);
+        }
+      })
       .catch(err => {
         console.error('[Clubs] Failed to load:', err);
         if (!cancelled) setDataError(true);
@@ -163,6 +171,21 @@ export default function ClubsDiscoveryPage() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Next Fixture */}
+                  {nextFixtures.get(club.id) && (() => {
+                    const nf = nextFixtures.get(club.id)!;
+                    return (
+                      <div className="flex items-center gap-2 mt-2 px-2 py-1.5 bg-white/[0.02] rounded-lg text-xs text-white/50">
+                        <Calendar className="w-3 h-3 text-[#22C55E] flex-shrink-0" />
+                        <span className="font-mono text-white/30">GW {nf.gameweek}</span>
+                        <span className={cn('px-1 py-0.5 rounded text-[9px] font-bold', nf.isHome ? 'bg-[#22C55E]/10 text-[#22C55E]' : 'bg-sky-500/10 text-sky-400')}>
+                          {nf.isHome ? 'H' : 'A'}
+                        </span>
+                        <span className="truncate">vs {nf.opponentShort || nf.opponentName}</span>
+                      </div>
+                    );
+                  })()}
 
                   {/* Actions */}
                   <div className="flex items-center gap-2 mt-3">

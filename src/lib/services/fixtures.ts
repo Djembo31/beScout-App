@@ -42,6 +42,43 @@ export async function getFixturesByGameweek(gw: number): Promise<Fixture[]> {
   });
 }
 
+/** Load all fixtures for a specific club (home or away) with club names */
+export async function getFixturesByClub(clubId: string): Promise<Fixture[]> {
+  const { data, error } = await supabase
+    .from('fixtures')
+    .select(`
+      *,
+      home_club:clubs!fixtures_home_club_id_fkey(name, short, primary_color),
+      away_club:clubs!fixtures_away_club_id_fkey(name, short, primary_color)
+    `)
+    .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
+    .order('gameweek', { ascending: true });
+
+  if (error || !data) return [];
+
+  return data.map((row: Record<string, unknown>) => {
+    const home = row.home_club as { name: string; short: string; primary_color: string | null } | null;
+    const away = row.away_club as { name: string; short: string; primary_color: string | null } | null;
+    return {
+      id: row.id as string,
+      gameweek: row.gameweek as number,
+      home_club_id: row.home_club_id as string,
+      away_club_id: row.away_club_id as string,
+      home_score: row.home_score as number | null,
+      away_score: row.away_score as number | null,
+      status: row.status as 'scheduled' | 'simulated' | 'live' | 'finished',
+      played_at: row.played_at as string | null,
+      created_at: row.created_at as string,
+      home_club_name: home?.name ?? '',
+      home_club_short: home?.short ?? '',
+      away_club_name: away?.name ?? '',
+      away_club_short: away?.short ?? '',
+      home_club_primary_color: home?.primary_color ?? null,
+      away_club_primary_color: away?.primary_color ?? null,
+    };
+  });
+}
+
 /** Load player stats for a specific fixture */
 export async function getFixturePlayerStats(fixtureId: string): Promise<FixturePlayerStat[]> {
   const { data, error } = await supabase
