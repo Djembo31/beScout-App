@@ -175,6 +175,8 @@ export default function CommunityFeedTab({
                 isClubAdmin={isClubAdmin}
                 onAdminDelete={onAdminDelete}
                 onTogglePin={onTogglePin}
+                tipCount={post.tip_count ?? 0}
+                tipTotalCents={post.tip_total_cents ?? 0}
               />
             ))}
           </div>

@@ -428,7 +428,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-2xl font-mono font-black text-[#FFD700]">{userStats?.total_score ?? 0}</span>
-                <span className="text-white/30 text-sm ml-1">/ 100</span>
+                <span className="text-white/30 text-sm ml-1">Pkt</span>
               </div>
               {userStats && userStats.rank > 0 && (
                 <Chip className="bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/25">

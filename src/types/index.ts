@@ -883,6 +883,8 @@ export type PostWithAuthor = DbPost & {
   author_top_role: string | null;
   player_name?: string;
   player_position?: Pos;
+  tip_count?: number;
+  tip_total_cents?: number;
 };
 
 export type LeaderboardUser = {

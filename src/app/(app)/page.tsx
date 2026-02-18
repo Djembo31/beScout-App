@@ -488,7 +488,7 @@ export default function HomePage() {
             <InfoTooltip text="Deine Gesamt-Reputation: 35% Trading-Skill + 40% Manager-Fähigkeit + 25% Scouting-Expertise." />
           </div>
           <div className="font-mono font-black text-base md:text-xl text-[#FFD700]">
-            {userStats?.total_score ?? 0}<span className="text-white/30 text-xs">/100</span>
+            {userStats?.total_score ?? 0}<span className="text-white/30 text-xs"> Pkt</span>
           </div>
           <div className="text-[10px] text-white/40">
             {userStats && userStats.rank > 0 ? `Rang #${userStats.rank}` : getLevelTier(profile?.level ?? 1).name}

@@ -64,9 +64,25 @@ export async function getPosts(options: {
     );
   }
 
+  // Fetch tip aggregates for all posts
+  const postIds = (data as DbPost[]).map(p => p.id);
+  const tipMap = new Map<string, { count: number; total: number }>();
+  if (postIds.length > 0) {
+    const { data: tips } = await supabase
+      .from('tips')
+      .select('content_id, amount_cents')
+      .eq('content_type', 'post')
+      .in('content_id', postIds);
+    for (const t of tips ?? []) {
+      const prev = tipMap.get(t.content_id) ?? { count: 0, total: 0 };
+      tipMap.set(t.content_id, { count: prev.count + 1, total: prev.total + t.amount_cents });
+    }
+  }
+
   return (data as DbPost[]).map(post => {
     const author = profileMap.get(post.user_id);
     const player = post.player_id ? playerMap.get(post.player_id) : undefined;
+    const tipAgg = tipMap.get(post.id);
     return {
       ...post,
       author_handle: author?.handle ?? 'unknown',
@@ -77,6 +93,8 @@ export async function getPosts(options: {
       author_top_role: author?.top_role ?? null,
       player_name: player?.name,
       player_position: player ? toPos(player.pos) : undefined,
+      tip_count: tipAgg?.count ?? 0,
+      tip_total_cents: tipAgg?.total ?? 0,
     };
   });
 }
