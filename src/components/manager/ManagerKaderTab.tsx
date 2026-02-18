@@ -696,30 +696,30 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
 
       {/* ═══ Mobile: Modal Picker ═══ */}
       {pickerOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center lg:hidden" onClick={() => { setPickerOpen(null); setSidePanelPos(null); setSidePanelSlot(null); }}>
-          <div onClick={e => e.stopPropagation()} className="w-full max-w-md max-h-[70vh] bg-[#0f0f1a] border border-white/15 rounded-t-2xl sm:rounded-2xl overflow-hidden flex flex-col">
-            <div className="p-4 border-b border-white/10">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-black text-sm">
-                  <span style={{ color: getPosColor(pickerOpen.pos) }}>{pickerOpen.pos}</span> auswählen
-                </h3>
-                <button onClick={() => { setPickerOpen(null); setSidePanelPos(null); setSidePanelSlot(null); }} className="p-1 hover:bg-white/10 rounded-lg"><X className="w-4 h-4 text-white/50" /></button>
-              </div>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center lg:hidden" onClick={() => { setPickerOpen(null); setSidePanelPos(null); setSidePanelSlot(null); }}>
+          <div onClick={e => e.stopPropagation()} className="w-full max-h-[90vh] bg-[#0f0f1a] border-t border-white/15 rounded-t-2xl overflow-hidden flex flex-col">
+            {/* Compact header: title + search in one row */}
+            <div className="flex items-center gap-2 px-3 py-2 border-b border-white/10 shrink-0">
+              <h3 className="font-black text-xs shrink-0">
+                <span style={{ color: getPosColor(pickerOpen.pos) }}>{pickerOpen.pos}</span>
+              </h3>
+              <div className="relative flex-1">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-white/30" />
                 <input
                   type="text"
-                  placeholder="Spieler suchen..."
+                  placeholder="Suchen..."
                   value={pickerSearch}
                   onChange={e => setPickerSearch(e.target.value)}
                   autoFocus
-                  className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
+                  className="w-full pl-7 pr-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
                 />
               </div>
+              <button onClick={() => { setPickerOpen(null); setSidePanelPos(null); setSidePanelSlot(null); }} className="p-1 hover:bg-white/10 rounded-lg shrink-0"><X className="w-4 h-4 text-white/50" /></button>
             </div>
-            <div className="flex-1 overflow-y-auto p-2 space-y-1">
+            {/* Player list — fills remaining space */}
+            <div className="flex-1 overflow-y-auto px-1.5 py-1 space-y-0.5">
               {pickerPlayers.length === 0 ? (
-                <div className="text-center text-white/30 text-sm py-8">
+                <div className="text-center text-white/30 text-xs py-6">
                   {ownedPlayers.filter(p => p.pos === pickerOpen.pos).length === 0
                     ? `Keine eigenen ${pickerOpen.pos}-Spieler`
                     : 'Keine Spieler gefunden'}
