@@ -162,33 +162,85 @@ function L5ScoreBars({ scores, minutes }: { scores: number[] | undefined; minute
 }
 
 // ============================================
-// PICKER PLAYER ROW (Performance-Fokus Card)
+// COMPACT PICKER ROW (for picker modals — single row, ~40px height)
 // ============================================
 
-function PickerPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAssigned, onClick }: {
+function CompactPickerRow({ player, scores, minutes, onClick }: {
+  player: Player;
+  scores: number[] | undefined;
+  minutes: number[] | undefined;
+  onClick: () => void;
+}) {
+  const p = player;
+  const lastScore = scores && scores.length > 0 ? scores[0] : null;
+  const borderColor = p.pos === 'GK' ? '#34d399' : p.pos === 'DEF' ? '#fbbf24' : p.pos === 'MID' ? '#38bdf8' : '#fb7185';
+
+  return (
+    <button
+      onClick={onClick}
+      className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border-l-2 hover:bg-white/[0.05] transition-colors text-left"
+      style={{ borderLeftColor: borderColor }}
+    >
+      {/* Photo 28px */}
+      {p.imageUrl ? (
+        <img src={p.imageUrl} alt="" className="w-7 h-7 rounded-full object-cover border border-white/10 shrink-0" />
+      ) : (
+        <div className="w-7 h-7 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-[9px] font-bold text-white/25 shrink-0">
+          {p.first[0]}{p.last[0]}
+        </div>
+      )}
+
+      {/* Name + Club */}
+      <div className="flex-1 min-w-0">
+        <div className="font-bold text-[11px] truncate">{p.first} {p.last}</div>
+        <div className="text-[9px] text-white/40 truncate">{p.club}{p.age > 0 ? ` · ${p.age}J.` : ''}{p.status !== 'fit' ? ` · ${STATUS_CONFIG[p.status].short}` : ''}</div>
+      </div>
+
+      {/* L5 Bars */}
+      <L5ScoreBars scores={scores} minutes={minutes} />
+
+      {/* Score mini circle 28px */}
+      {lastScore != null ? (
+        <div className={cn(
+          'w-7 h-7 rounded-full border flex items-center justify-center shrink-0',
+          lastScore >= 100 ? 'bg-[#FFD700]/15 border-[#FFD700]/30' : lastScore >= 70 ? 'bg-white/[0.06] border-white/15' : 'bg-red-500/10 border-red-400/20',
+        )}>
+          <span className={cn('text-[10px] font-black font-mono',
+            lastScore >= 100 ? 'text-[#FFD700]' : lastScore >= 70 ? 'text-white' : 'text-red-300',
+          )}>{lastScore}</span>
+        </div>
+      ) : (
+        <div className="w-7 h-7 rounded-full bg-white/[0.03] border border-white/[0.06] flex items-center justify-center shrink-0">
+          <span className="text-[9px] font-mono text-white/15">&mdash;</span>
+        </div>
+      )}
+    </button>
+  );
+}
+
+// ============================================
+// FULL PLAYER ROW (for below-pitch list + desktop "Alle" view)
+// ============================================
+
+function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAssigned }: {
   player: Player;
   minutes: number[] | undefined;
   scores: number[] | undefined;
   nextFixture: NextFixtureInfo | undefined;
   eventCount: number;
   isAssigned: boolean;
-  onClick?: () => void;
 }) {
   const p = player;
   const clubData = p.clubId ? getClub(p.clubId) : null;
   const borderColor = p.pos === 'GK' ? '#34d399' : p.pos === 'DEF' ? '#fbbf24' : p.pos === 'MID' ? '#38bdf8' : '#fb7185';
   const lastScore = scores && scores.length > 0 ? scores[0] : null;
 
-  const Wrapper = onClick ? 'button' : 'div';
-
   return (
-    <Wrapper
-      onClick={onClick}
+    <div
       className={cn(
         'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border-l-2 transition-all text-left',
         'bg-white/[0.02] border border-white/[0.06]',
         isAssigned && 'bg-[#22C55E]/[0.06] border-[#22C55E]/20',
-        onClick && 'hover:bg-white/[0.05] cursor-pointer',
       )}
       style={{ borderLeftColor: borderColor }}
     >
@@ -205,7 +257,6 @@ function PickerPlayerRow({ player, minutes, scores, nextFixture, eventCount, isA
 
       {/* Center: Identity + Meta */}
       <div className="flex-1 min-w-0">
-        {/* Row 1: Pos + #Nr + Name + Assigned icon */}
         <div className="flex items-center gap-1.5">
           <PositionBadge pos={p.pos} size="sm" />
           <span className="text-[10px] font-mono text-white/50">#{p.ticket}</span>
@@ -216,7 +267,6 @@ function PickerPlayerRow({ player, minutes, scores, nextFixture, eventCount, isA
             </span>
           )}
         </div>
-        {/* Row 2: Club, Age, Status, EventUsage, Stats, Min, Next */}
         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
           {clubData?.logo ? (
             <img src={clubData.logo} alt={p.club} className="w-3.5 h-3.5 rounded-full object-cover shrink-0" />
@@ -242,7 +292,7 @@ function PickerPlayerRow({ player, minutes, scores, nextFixture, eventCount, isA
         <L5ScoreBars scores={scores} minutes={minutes} />
         <ScoreCircle score={lastScore} />
       </div>
-    </Wrapper>
+    </div>
   );
 }
 
@@ -501,14 +551,11 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             </div>
           ) : (
             pickerPlayers.map(p => (
-              <PickerPlayerRow
+              <CompactPickerRow
                 key={p.id}
                 player={p}
-                minutes={minutesMap?.get(p.id)}
                 scores={scoresMap?.get(p.id)}
-                nextFixture={getNextFixture(p)}
-                eventCount={getEventCount(p.id)}
-                isAssigned={false}
+                minutes={minutesMap?.get(p.id)}
                 onClick={() => handlePickPlayer(p.id)}
               />
             ))
@@ -525,14 +572,12 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             </div>
           ) : (
             sortedOwned.map(p => (
-              <PickerPlayerRow
+              <CompactPickerRow
                 key={p.id}
                 player={p}
-                minutes={minutesMap?.get(p.id)}
                 scores={scoresMap?.get(p.id)}
-                nextFixture={getNextFixture(p)}
-                eventCount={getEventCount(p.id)}
-                isAssigned={assignedIds.has(p.id)}
+                minutes={minutesMap?.get(p.id)}
+                onClick={() => handlePickPlayer(p.id)}
               />
             ))
           )
@@ -681,14 +726,11 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                 </div>
               ) : (
                 pickerPlayers.map(p => (
-                  <PickerPlayerRow
+                  <CompactPickerRow
                     key={p.id}
                     player={p}
-                    minutes={minutesMap?.get(p.id)}
                     scores={scoresMap?.get(p.id)}
-                    nextFixture={getNextFixture(p)}
-                    eventCount={getEventCount(p.id)}
-                    isAssigned={false}
+                    minutes={minutesMap?.get(p.id)}
                     onClick={() => handlePickPlayer(p.id)}
                   />
                 ))
@@ -719,7 +761,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
         </div>
         <div className="space-y-1.5">
           {sortedOwned.map(p => (
-            <PickerPlayerRow
+            <FullPlayerRow
               key={p.id}
               player={p}
               minutes={minutesMap?.get(p.id)}
