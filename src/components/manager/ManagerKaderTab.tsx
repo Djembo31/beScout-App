@@ -694,48 +694,117 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
         </div>
       </div>
 
-      {/* ═══ Mobile: Modal Picker ═══ */}
+      {/* ═══ Mobile: Full-Screen Picker ═══ */}
       {pickerOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center lg:hidden" onClick={() => { setPickerOpen(null); setSidePanelPos(null); setSidePanelSlot(null); }}>
-          <div onClick={e => e.stopPropagation()} className="w-full max-h-[90vh] bg-[#0f0f1a] border-t border-white/15 rounded-t-2xl overflow-hidden flex flex-col">
-            {/* Compact header: title + search in one row */}
-            <div className="flex items-center gap-2 px-3 py-2 border-b border-white/10 shrink-0">
-              <h3 className="font-black text-xs shrink-0">
-                <span style={{ color: getPosColor(pickerOpen.pos) }}>{pickerOpen.pos}</span>
-              </h3>
-              <div className="relative flex-1">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-white/30" />
+        <div className="fixed inset-0 z-50 bg-[#0a0a0a] flex flex-col lg:hidden">
+          {/* ── Sticky Header ── */}
+          <div className="shrink-0 bg-[#0a0a0a] border-b border-white/10">
+            {/* Top bar: Back + Title + Count */}
+            <div className="flex items-center gap-3 px-4 pt-3 pb-2">
+              <button
+                onClick={() => { setPickerOpen(null); setSidePanelPos(null); setSidePanelSlot(null); }}
+                className="p-1.5 -ml-1.5 rounded-lg hover:bg-white/10 transition-colors"
+              >
+                <X className="w-5 h-5 text-white/60" />
+              </button>
+              <div className="flex-1">
+                <h3 className="font-black text-base">
+                  <span style={{ color: getPosColor(pickerOpen.pos) }}>{POS_LABEL[pickerOpen.pos]}</span> wählen
+                </h3>
+                <div className="text-[10px] text-white/40">{pickerPlayers.length} verfügbar</div>
+              </div>
+              {/* Sort pills */}
+              <div className="flex items-center gap-0.5">
+                {(['perf', 'name'] as const).map(s => (
+                  <button
+                    key={s}
+                    onClick={() => setSortBy(s === 'perf' ? 'perf' : 'name')}
+                    className={cn('px-2 py-1 rounded text-[10px] font-bold',
+                      sortBy === s ? 'bg-[#FFD700]/15 text-[#FFD700]' : 'text-white/30'
+                    )}
+                  >{s === 'perf' ? 'L5' : 'A-Z'}</button>
+                ))}
+              </div>
+            </div>
+            {/* Search */}
+            <div className="px-4 pb-2.5">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
                 <input
                   type="text"
-                  placeholder="Suchen..."
+                  placeholder="Spieler suchen..."
                   value={pickerSearch}
                   onChange={e => setPickerSearch(e.target.value)}
                   autoFocus
-                  className="w-full pl-7 pr-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
+                  className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
                 />
               </div>
-              <button onClick={() => { setPickerOpen(null); setSidePanelPos(null); setSidePanelSlot(null); }} className="p-1 hover:bg-white/10 rounded-lg shrink-0"><X className="w-4 h-4 text-white/50" /></button>
             </div>
-            {/* Player list — fills remaining space */}
-            <div className="flex-1 overflow-y-auto px-1.5 py-1 space-y-0.5">
-              {pickerPlayers.length === 0 ? (
-                <div className="text-center text-white/30 text-xs py-6">
+          </div>
+
+          {/* ── Scrollable Player List ── */}
+          <div className="flex-1 overflow-y-auto overscroll-contain">
+            {pickerPlayers.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 px-6">
+                <PositionBadge pos={pickerOpen.pos} size="lg" />
+                <div className="text-sm text-white/30 mt-3 text-center">
                   {ownedPlayers.filter(p => p.pos === pickerOpen.pos).length === 0
-                    ? `Keine eigenen ${pickerOpen.pos}-Spieler`
+                    ? `Du besitzt keine ${POS_LABEL[pickerOpen.pos]}`
                     : 'Keine Spieler gefunden'}
                 </div>
-              ) : (
-                pickerPlayers.map(p => (
-                  <CompactPickerRow
-                    key={p.id}
-                    player={p}
-                    scores={scoresMap?.get(p.id)}
-                    minutes={minutesMap?.get(p.id)}
-                    onClick={() => handlePickPlayer(p.id)}
-                  />
-                ))
-              )}
-            </div>
+                <Link
+                  href="/market?tab=kaufen"
+                  onClick={() => { setPickerOpen(null); setSidePanelPos(null); setSidePanelSlot(null); }}
+                  className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-[#FFD700]/15 text-[#FFD700] text-xs font-bold rounded-xl hover:bg-[#FFD700]/25 transition-all"
+                >
+                  <ShoppingCart className="w-3.5 h-3.5" />
+                  Spieler kaufen
+                </Link>
+              </div>
+            ) : (
+              <div className="divide-y divide-white/[0.04]">
+                {pickerPlayers.map(p => {
+                  const lastScore = scoresMap?.get(p.id)?.[0] ?? null;
+                  const scoreColor = lastScore != null
+                    ? (lastScore >= 100 ? 'text-[#FFD700]' : lastScore >= 70 ? 'text-white' : 'text-red-300')
+                    : 'text-white/15';
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => handlePickPlayer(p.id)}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-white/[0.06] transition-colors text-left"
+                    >
+                      {/* Photo */}
+                      {p.imageUrl ? (
+                        <img src={p.imageUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-xs font-bold text-white/25 shrink-0">
+                          {p.first[0]}{p.last[0]}
+                        </div>
+                      )}
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-sm truncate">{p.first} {p.last}</div>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-[11px] text-white/40">{p.club}</span>
+                          {p.status !== 'fit' && <StatusPill status={p.status} />}
+                        </div>
+                      </div>
+                      {/* Score + Bars */}
+                      <div className="shrink-0 flex items-center gap-2.5">
+                        <L5ScoreBars scores={scoresMap?.get(p.id)} minutes={minutesMap?.get(p.id)} />
+                        <div className="w-10 text-right">
+                          <div className={cn('text-lg font-black font-mono leading-none', scoreColor)}>
+                            {lastScore ?? '–'}
+                          </div>
+                          <div className="text-[9px] text-white/25 font-mono">Score</div>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       )}
