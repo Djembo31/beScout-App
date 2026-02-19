@@ -523,7 +523,7 @@ export default function HomePage() {
               </div>
             </>
           ) : (
-            <div className="font-black text-base md:text-xl text-amber-600">{tg('rang.bronzeIII')}</div>
+            <div className="font-black text-base md:text-xl text-amber-600">{tg('rang.bronzeI')}</div>
           )}
         </div>
       </div>

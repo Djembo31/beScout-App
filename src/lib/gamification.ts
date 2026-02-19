@@ -6,6 +6,7 @@
  * Gesamt-Rang = Median der 3 Einzel-Ränge.
  *
  * 12 Tiers: Bronze I-III → Silber I-III → Gold I-III → Diamant → Mythisch → Legendär
+ * Sub-Tier Ordering: I (lowest) < II < III (highest) — Star-System
  */
 
 // ============================================
@@ -23,7 +24,7 @@ export type Rang = {
   name: string;
   subStufe: SubStufe | null;     // null for Diamant, Mythisch, Legendär
   fullName: string;              // e.g. "Gold II" (German fallback)
-  i18nKey: string;               // e.g. "bronzeIII", "diamant" — maps to gamification.rang.*
+  i18nKey: string;               // e.g. "bronzeI", "diamant" — maps to gamification.rang.*
   color: string;                 // Tailwind text color
   bgColor: string;               // Tailwind bg color
   borderColor: string;           // Tailwind border color
@@ -58,19 +59,19 @@ type RangDef = {
 const RANG_DEFS: RangDef[] = [
   {
     id: 'bronze', name: 'Bronze',
-    thresholds: [0, 350, 700],          // III=0-349, II=350-699, I=700-999
+    thresholds: [0, 350, 700],          // I=0-349, II=350-699, III=700-999
     color: 'text-amber-600', bgColor: 'bg-amber-600/15', borderColor: 'border-amber-600/25',
     gradientFrom: 'from-amber-600/20',
   },
   {
     id: 'silber', name: 'Silber',
-    thresholds: [1000, 1400, 1800],     // III=1000-1399, II=1400-1799, I=1800-2199
+    thresholds: [1000, 1400, 1800],     // I=1000-1399, II=1400-1799, III=1800-2199
     color: 'text-slate-300', bgColor: 'bg-slate-300/15', borderColor: 'border-slate-300/25',
     gradientFrom: 'from-slate-300/20',
   },
   {
     id: 'gold', name: 'Gold',
-    thresholds: [2200, 2800, 3400],     // III=2200-2799, II=2800-3399, I=3400-3999
+    thresholds: [2200, 2800, 3400],     // I=2200-2799, II=2800-3399, III=3400-3999
     color: 'text-[#FFD700]', bgColor: 'bg-[#FFD700]/15', borderColor: 'border-[#FFD700]/25',
     gradientFrom: 'from-[#FFD700]/20',
   },
@@ -94,7 +95,7 @@ const RANG_DEFS: RangDef[] = [
   },
 ];
 
-const SUB_STUFEN: SubStufe[] = ['III', 'II', 'I'];
+const SUB_STUFEN: SubStufe[] = ['I', 'II', 'III'];
 
 // ============================================
 // CORE FUNCTION: getRang(score) → Rang
@@ -159,9 +160,9 @@ export function getRang(score: number): Rang {
     }
   }
 
-  // Fallback: Bronze III
+  // Fallback: Bronze I (lowest tier)
   return {
-    id: 'bronze', name: 'Bronze', subStufe: 'III', fullName: 'Bronze III', i18nKey: 'bronzeIII',
+    id: 'bronze', name: 'Bronze', subStufe: 'I', fullName: 'Bronze I', i18nKey: 'bronzeI',
     color: RANG_DEFS[0].color, bgColor: RANG_DEFS[0].bgColor,
     borderColor: RANG_DEFS[0].borderColor, gradientFrom: RANG_DEFS[0].gradientFrom,
     minScore: 0, maxScore: 349, tier: 1,
@@ -250,13 +251,13 @@ export type ScoreRoadMilestone = {
 
 export const SCORE_ROAD: ScoreRoadMilestone[] = [
   { score: 350, rangName: 'Bronze II', rangI18nKey: 'bronzeII', rewardBsd: 20000, rewardLabel: '200 BSD', rewardType: 'bsd' },
-  { score: 700, rangName: 'Bronze I', rangI18nKey: 'bronzeI', rewardBsd: 0, rewardLabel: 'Bronze-Rahmen', rewardType: 'cosmetic' },
-  { score: 1000, rangName: 'Silber III', rangI18nKey: 'silberIII', rewardBsd: 50000, rewardLabel: '500 BSD', rewardType: 'bsd' },
+  { score: 700, rangName: 'Bronze III', rangI18nKey: 'bronzeIII', rewardBsd: 0, rewardLabel: 'Bronze-Rahmen', rewardType: 'cosmetic' },
+  { score: 1000, rangName: 'Silber I', rangI18nKey: 'silberI', rewardBsd: 50000, rewardLabel: '500 BSD', rewardType: 'bsd' },
   { score: 1400, rangName: 'Silber II', rangI18nKey: 'silberII', rewardBsd: 0, rewardLabel: '"Scout" Titel', rewardType: 'cosmetic' },
-  { score: 1800, rangName: 'Silber I', rangI18nKey: 'silberI', rewardBsd: 100000, rewardLabel: '1.000 BSD', rewardType: 'bsd' },
-  { score: 2200, rangName: 'Gold III', rangI18nKey: 'goldIII', rewardBsd: 0, rewardLabel: 'Gold-Rahmen', rewardType: 'cosmetic' },
+  { score: 1800, rangName: 'Silber III', rangI18nKey: 'silberIII', rewardBsd: 100000, rewardLabel: '1.000 BSD', rewardType: 'bsd' },
+  { score: 2200, rangName: 'Gold I', rangI18nKey: 'goldI', rewardBsd: 0, rewardLabel: 'Gold-Rahmen', rewardType: 'cosmetic' },
   { score: 2800, rangName: 'Gold II', rangI18nKey: 'goldII', rewardBsd: 200000, rewardLabel: '2.000 BSD', rewardType: 'bsd' },
-  { score: 3400, rangName: 'Gold I', rangI18nKey: 'goldI', rewardBsd: 0, rewardLabel: '"Stratege" Titel', rewardType: 'cosmetic' },
+  { score: 3400, rangName: 'Gold III', rangI18nKey: 'goldIII', rewardBsd: 0, rewardLabel: '"Stratege" Titel', rewardType: 'cosmetic' },
   { score: 4000, rangName: 'Diamant', rangI18nKey: 'diamant', rewardBsd: 500000, rewardLabel: 'Diamant-Rahmen + 5.000 BSD', rewardType: 'both' },
   { score: 5000, rangName: 'Mythisch', rangI18nKey: 'mythisch', rewardBsd: 750000, rewardLabel: 'Mythisch-Avatar + 7.500 BSD', rewardType: 'both' },
   { score: 7000, rangName: 'Legendär', rangI18nKey: 'legendaer', rewardBsd: 2000000, rewardLabel: 'Legendär-Set + 20.000 BSD', rewardType: 'both' },

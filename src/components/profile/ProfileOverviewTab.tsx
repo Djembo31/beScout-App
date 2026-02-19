@@ -11,6 +11,7 @@ import { formatBsd } from '@/lib/services/wallet';
 import { getAchievementDef, getFeaturedAchievements } from '@/lib/achievements';
 import { getRelativeTime } from '@/lib/activityHelpers';
 import { useUserMasteryAll } from '@/lib/queries/mastery';
+import ScoreRoadCard from '@/components/gamification/ScoreRoadCard';
 import type { Pos, DbUserAchievement, DbTransaction, UserTradeWithPlayer, UserFantasyResult } from '@/types';
 import { useTranslations } from 'next-intl';
 
@@ -242,6 +243,9 @@ export default function ProfileOverviewTab({
           </Card>
         ) : null;
       })()}
+
+      {/* Score Road */}
+      {userId && <ScoreRoadCard userId={userId} />}
 
       {/* Letzte Trades */}
       {recentTrades.length > 0 && (

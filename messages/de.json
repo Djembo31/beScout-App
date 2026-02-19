@@ -640,7 +640,19 @@
       "noRankings": "Noch keine Rankings",
       "rankingsHint": "Rankings werden nach Aktivität berechnet."
     },
-    "scoreRoad": "Rang-Aufstieg",
+    "scoreRoad": {
+      "title": "Rang-Aufstieg",
+      "claim": "Einl\u00f6sen",
+      "claimed": "Eingel\u00f6st",
+      "locked": "Gesperrt",
+      "reward": "Belohnung",
+      "cosmetic": "Kosmetisch",
+      "progress": "{current} / {target}",
+      "claimedAt": "Eingel\u00f6st am {date}",
+      "nextMilestone": "N\u00e4chster Meilenstein",
+      "allClaimed": "Alle Meilensteine eingel\u00f6st!",
+      "celebration": "{reward} erhalten!"
+    },
     "gesamtRang": "Gesamt-Rang",
     "median": "Median der 3 Dimensionen"
   }

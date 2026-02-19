@@ -48,7 +48,7 @@ export async function getScoreRoadClaims(userId: string): Promise<ScoreRoadClaim
 export async function claimScoreRoad(
   userId: string,
   milestone: number,
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: boolean; reward_bsd?: number; error?: string }> {
   const { data, error } = await supabase.rpc('claim_score_road', {
     p_user_id: userId,
     p_milestone: milestone,
@@ -61,7 +61,10 @@ export async function claimScoreRoad(
   if (data && typeof data === 'object' && 'error' in data) {
     return { ok: false, error: String(data.error) };
   }
-  return { ok: true };
+  const reward = data && typeof data === 'object' && 'reward_bsd' in data
+    ? Number(data.reward_bsd)
+    : undefined;
+  return { ok: true, reward_bsd: reward };
 }
 
 // ============================================

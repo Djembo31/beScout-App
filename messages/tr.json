@@ -640,8 +640,20 @@
       "noRankings": "Henüz sıralama yok",
       "rankingsHint": "Sıralamalar aktiviteye göre hesaplanır."
     },
-    "scoreRoad": "Rütbe Yükselişi",
-    "gesamtRang": "Genel Rütbe",
-    "median": "3 boyutun ortancası"
+    "scoreRoad": {
+      "title": "R\u00fctbe Y\u00fckselişi",
+      "claim": "Talep Et",
+      "claimed": "Talep Edildi",
+      "locked": "Kilitli",
+      "reward": "\u00d6d\u00fcl",
+      "cosmetic": "Kozmetik",
+      "progress": "{current} / {target}",
+      "claimedAt": "{date} tarihinde talep edildi",
+      "nextMilestone": "Sonraki hedef",
+      "allClaimed": "T\u00fcm kilometreta\u015fları talep edildi!",
+      "celebration": "{reward} kazan\u0131ld\u0131!"
+    },
+    "gesamtRang": "Genel R\u00fctbe",
+    "median": "3 boyutun ortancas\u0131"
   }
 }
