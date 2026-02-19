@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import {
   Search, Filter, Grid, List,
-  Zap, Flame, Gem, Star, Clock, Users,
+  Zap, Flame, Gem, Star, Clock, Users, Tag,
   ChevronDown, ChevronRight, ArrowUpDown, X,
   Package, Trophy, Layers,
 } from 'lucide-react';
@@ -160,6 +160,30 @@ export default function KaufenDiscovery({
       .sort((a, b) => b.player.perf.l5 - a.player.perf.l5)
       .slice(0, 12);
   }, [ipoItems]);
+
+  // Section 2b: Transferliste (players with active sell listings)
+  const transferList = useMemo(() => {
+    const ordersByPlayer = new Map<string, { count: number; totalQty: number; floor: number }>();
+    for (const o of recentOrders) {
+      if (o.side !== 'sell' || (o.status !== 'open' && o.status !== 'partial')) continue;
+      const prev = ordersByPlayer.get(o.player_id);
+      const openQty = o.quantity - (o.filled_qty ?? 0);
+      const priceBsd = centsToBsd(o.price);
+      if (prev) {
+        prev.count += 1;
+        prev.totalQty += openQty;
+        prev.floor = Math.min(prev.floor, priceBsd);
+      } else {
+        ordersByPlayer.set(o.player_id, { count: 1, totalQty: openQty, floor: priceBsd });
+      }
+    }
+    const playerMap = new Map(players.map(p => [p.id, p]));
+    return Array.from(ordersByPlayer.entries())
+      .map(([playerId, info]) => ({ player: playerMap.get(playerId), ...info }))
+      .filter((x): x is { player: Player; count: number; totalQty: number; floor: number } => x.player !== undefined && !x.player.isLiquidated)
+      .sort((a, b) => b.totalQty - a.totalQty)
+      .slice(0, 12);
+  }, [recentOrders, players]);
 
   // Section 3: Best Deals (high L5, low price)
   const bestDeals = useMemo(() => {
@@ -359,6 +383,31 @@ export default function KaufenDiscovery({
                   />
                 );
               })}
+            </DiscoverySection>
+          )}
+
+          {/* Section 2b: Transferliste */}
+          {transferList.length > 0 && (
+            <DiscoverySection
+              icon={<Tag className="w-3.5 h-3.5 text-[#FFD700]" />}
+              title={t('transferList')}
+              accent="text-[#FFD700]/80"
+              onShowAll={() => { goSearch(); setOnlyAvailable(true); }}
+              showAllLabel={t('allListings')}
+            >
+              {transferList.map(({ player, count, floor }) => (
+                <DiscoveryCard
+                  key={player.id}
+                  player={player}
+                  variant="listing"
+                  listingPrice={floor}
+                  listingCount={count}
+                  isWatchlisted={watchlist[player.id]}
+                  onWatch={onWatch}
+                  onBuy={(id) => onBuy(id)}
+                  buying={buyingId === player.id}
+                />
+              ))}
             </DiscoverySection>
           )}
 

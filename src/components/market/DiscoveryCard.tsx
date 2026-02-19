@@ -8,7 +8,7 @@ import { fmtBSD, cn } from '@/lib/utils';
 import { getRelativeTime } from '@/lib/activityHelpers';
 import type { Player } from '@/types';
 
-export type DiscoveryVariant = 'ipo' | 'trending' | 'deal' | 'new';
+export type DiscoveryVariant = 'ipo' | 'trending' | 'deal' | 'new' | 'listing';
 
 interface DiscoveryCardProps {
   player: Player;
@@ -20,6 +20,7 @@ interface DiscoveryCardProps {
   valueRatio?: number;
   listingPrice?: number;
   listedAt?: string;
+  listingCount?: number;
   isWatchlisted?: boolean;
   onWatch?: (id: string) => void;
   onBuy?: (id: string) => void;
@@ -31,13 +32,14 @@ const VARIANT_STYLES: Record<DiscoveryVariant, { border: string; badge: string; 
   trending: { border: 'border-orange-400/20', badge: 'text-orange-300', badgeBg: 'bg-orange-500/15', label: '' },
   deal: { border: 'border-[#22C55E]/20', badge: 'text-[#22C55E]', badgeBg: 'bg-[#22C55E]/15', label: 'Wert!' },
   new: { border: 'border-sky-400/20', badge: 'text-sky-300', badgeBg: 'bg-sky-500/15', label: 'Neu' },
+  listing: { border: 'border-[#FFD700]/20', badge: 'text-[#FFD700]', badgeBg: 'bg-[#FFD700]/15', label: 'Am Markt' },
 };
 
 export default function DiscoveryCard({
   player: p, variant,
   ipoProgress, ipoPrice,
   tradeCount, change24h,
-  valueRatio, listingPrice, listedAt,
+  valueRatio, listingPrice, listedAt, listingCount,
   isWatchlisted, onWatch, onBuy, buying,
 }: DiscoveryCardProps) {
   const l5 = p.perf.l5;
@@ -45,7 +47,7 @@ export default function DiscoveryCard({
   const vs = VARIANT_STYLES[variant];
 
   const price = variant === 'ipo' ? (ipoPrice ?? 0)
-    : variant === 'new' ? (listingPrice ?? 0)
+    : variant === 'new' || variant === 'listing' ? (listingPrice ?? p.prices.floor ?? 0)
     : p.prices.floor ?? 0;
 
   return (
@@ -126,8 +128,19 @@ export default function DiscoveryCard({
         </div>
       )}
 
+      {variant === 'listing' && (
+        <div className="mt-1.5 flex items-center justify-between">
+          <span className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded', vs.badgeBg, vs.badge)}>
+            {p.dpc.onMarket}× verfügbar
+          </span>
+          {listingCount !== undefined && listingCount > 1 && (
+            <span className="text-[9px] font-mono text-white/30">{listingCount} Angebote</span>
+          )}
+        </div>
+      )}
+
       {/* Badge */}
-      {vs.label && variant !== 'trending' && variant !== 'new' && (
+      {vs.label && variant !== 'trending' && variant !== 'new' && variant !== 'listing' && (
         <div className={cn('absolute top-1.5 right-1.5 text-[8px] font-black px-1 py-0.5 rounded', vs.badgeBg, vs.badge)}>
           {vs.label}
         </div>
