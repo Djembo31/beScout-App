@@ -124,6 +124,7 @@ export default function KaufenDiscovery({
   } = useMarketStore();
 
   const [showMoreClubs, setShowMoreClubs] = useState(false);
+  const [posMode, setPosMode] = useState<'ipo' | 'listing'>('ipo');
 
   const followedClubNames = useMemo(
     () => new Set(followedClubs.map(c => c.name)),
@@ -222,13 +223,19 @@ export default function KaufenDiscovery({
       });
   }, [players, ipoItems, followedClubNames, getFloor]);
 
-  // Section 5: By Position
+  // Section 5: By Position (switchable IPO / Transferliste)
+  const ipoPlayerIdSet = useMemo(() => new Set(ipoItems.filter(i => i.ipo.status === 'live' || i.ipo.status === 'early_access').map(i => i.player.id)), [ipoItems]);
+
   const byPosition = useMemo(() => {
-    const buyable = players.filter(p => !p.isLiquidated && (p.listings.length > 0 || ipoItems.some(i => i.player.id === p.id)));
-    let filtered = buyable;
-    if (discoveryPos) filtered = filtered.filter(p => p.pos === discoveryPos);
-    return filtered.sort((a, b) => b.perf.l5 - a.perf.l5).slice(0, 8);
-  }, [players, ipoItems, discoveryPos]);
+    let pool: Player[];
+    if (posMode === 'ipo') {
+      pool = players.filter(p => !p.isLiquidated && ipoPlayerIdSet.has(p.id));
+    } else {
+      pool = players.filter(p => !p.isLiquidated && p.dpc.onMarket > 0);
+    }
+    if (discoveryPos) pool = pool.filter(p => p.pos === discoveryPos);
+    return pool.sort((a, b) => b.perf.l5 - a.perf.l5).slice(0, 12);
+  }, [players, ipoPlayerIdSet, discoveryPos, posMode]);
 
   // Section 6: Newly Listed
   const newlyListed = useMemo(() => {
@@ -525,11 +532,28 @@ export default function KaufenDiscovery({
             )}
           </div>
 
-          {/* Section 5: By Position */}
+          {/* Section 5: By Position (IPO / Transferliste Toggle) */}
           <div>
-            <div className="flex items-center gap-1.5 mb-2">
-              <Layers className="w-3.5 h-3.5 text-purple-400/60" />
-              <span className="text-[10px] font-black uppercase tracking-wider text-purple-400/80">{t('byPosition')}</span>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-purple-400/60" />
+                <span className="text-[10px] font-black uppercase tracking-wider text-purple-400/80">{t('byPosition')}</span>
+              </div>
+              {/* IPO / Transferliste Toggle */}
+              <div className="flex rounded-lg border border-white/[0.06] overflow-hidden">
+                <button
+                  onClick={() => setPosMode('ipo')}
+                  className={cn('px-2.5 py-1 text-[10px] font-bold transition-all',
+                    posMode === 'ipo' ? 'bg-[#22C55E]/15 text-[#22C55E]' : 'text-white/30 hover:text-white/50'
+                  )}
+                >{t('posModeIpo')}</button>
+                <button
+                  onClick={() => setPosMode('listing')}
+                  className={cn('px-2.5 py-1 text-[10px] font-bold transition-all border-l border-white/[0.06]',
+                    posMode === 'listing' ? 'bg-[#FFD700]/15 text-[#FFD700]' : 'text-white/30 hover:text-white/50'
+                  )}
+                >{t('posModeListing')}</button>
+              </div>
             </div>
             {/* Position Pills */}
             <div className="flex gap-1.5 mb-3">
@@ -550,20 +574,26 @@ export default function KaufenDiscovery({
               ))}
             </div>
             {/* Player list */}
-            <div className="space-y-0.5">
-              {byPosition.map(player => (
-                <PlayerDisplay
-                  key={player.id}
-                  variant="compact"
-                  player={player}
-                  isWatchlisted={watchlist[player.id]}
-                  onWatch={() => onWatch(player.id)}
-                  onBuy={(id) => handlePlayerBuy(id)}
-                  buying={buyingId === player.id}
-                />
-              ))}
-            </div>
-            {discoveryPos && (
+            {byPosition.length > 0 ? (
+              <div className="space-y-0.5">
+                {byPosition.map(player => (
+                  <PlayerDisplay
+                    key={player.id}
+                    variant="compact"
+                    player={player}
+                    isWatchlisted={watchlist[player.id]}
+                    onWatch={() => onWatch(player.id)}
+                    onBuy={(id) => posMode === 'ipo' ? onIpoBuy(id) : onBuy(id)}
+                    buying={buyingId === player.id}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4 text-sm text-white/30">
+                {posMode === 'ipo' ? t('noIpoForPos') : t('noListingForPos')}
+              </div>
+            )}
+            {discoveryPos && byPosition.length > 0 && (
               <button
                 onClick={() => goSearch({ pos: discoveryPos })}
                 className="w-full py-2 mt-2 text-center text-[10px] font-bold text-white/30 hover:text-[#FFD700] border border-white/[0.06] rounded-xl hover:bg-white/[0.03] transition-all"
