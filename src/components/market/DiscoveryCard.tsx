@@ -129,12 +129,10 @@ export default function DiscoveryCard({
       )}
 
       {variant === 'listing' && (
-        <div className="mt-1.5 flex items-center justify-between">
-          <span className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded', vs.badgeBg, vs.badge)}>
-            {p.dpc.onMarket}× verfügbar
-          </span>
+        <div className="mt-1.5 flex items-center gap-1.5 text-[9px] text-white/40">
+          <span className="font-mono font-bold text-[#FFD700]/70">{p.dpc.onMarket} DPC</span>
           {listingCount !== undefined && listingCount > 1 && (
-            <span className="text-[9px] font-mono text-white/30">{listingCount} Angebote</span>
+            <><span className="text-white/15">·</span><span>{listingCount} Seller</span></>
           )}
         </div>
       )}
