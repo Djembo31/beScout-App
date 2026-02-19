@@ -73,6 +73,7 @@ const MissionBanner = dynamic(() => import('@/components/missions/MissionBanner'
 const ScoutMissionCard = dynamic(() => import('@/components/missions/ScoutMissionCard'), { ssr: false });
 const AirdropScoreCard = dynamic(() => import('@/components/airdrop/AirdropScoreCard'), { ssr: false });
 const ReferralCard = dynamic(() => import('@/components/airdrop/ReferralCard'), { ssr: false });
+const OnboardingChecklist = dynamic(() => import('@/components/onboarding/OnboardingChecklist'), { ssr: false });
 import type { DpcOfTheWeek } from '@/lib/services/dpcOfTheWeek';
 import type { ScoutMission, UserScoutMission } from '@/lib/services/scoutMissions';
 import { TierBadge } from '@/components/ui/TierBadge';
@@ -172,64 +173,6 @@ function HomeSkeleton() {
         {[...Array(4)].map((_, i) => (
           <Skeleton key={i} className="h-16 rounded-xl" />
         ))}
-      </div>
-    </div>
-  );
-}
-
-// ============================================
-// WELCOME BANNER
-// ============================================
-
-const WELCOME_KEY = 'bescout-welcome-dismissed';
-
-function WelcomeBanner({ name }: { name: string }) {
-  const t = useTranslations('home');
-  const tc = useTranslations('common');
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return !localStorage.getItem(WELCOME_KEY);
-  });
-
-  if (!visible) return null;
-
-  return (
-    <div className="relative overflow-hidden rounded-2xl border border-[#FFD700]/20 bg-gradient-to-r from-[#FFD700]/[0.08] via-purple-500/[0.04] to-[#22C55E]/[0.04]">
-      <div className="p-4">
-        <button
-          onClick={() => { localStorage.setItem(WELCOME_KEY, '1'); setVisible(false); }}
-          className="absolute top-2 right-2 p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 active:scale-90 transition-all"
-          aria-label={tc('close')}
-        >
-          <X className="w-4 h-4" />
-        </button>
-        <div className="flex items-center gap-2 mb-2">
-          <Rocket className="w-5 h-5 text-[#FFD700]" />
-          <span className="text-sm font-black text-[#FFD700]">{t('welcomeGreeting', { name })}</span>
-        </div>
-        <p className="text-xs text-white/50 mb-3">
-          {t('welcomeSubtitle')}
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <Link href="/fantasy">
-            <Button variant="gold" size="sm" className="gap-1.5 text-xs">
-              <Trophy className="w-3.5 h-3.5" />
-              {t('welcomeFantasy')}
-            </Button>
-          </Link>
-          <Link href="/market?tab=kaufen">
-            <Button variant="outline" size="sm" className="gap-1.5 text-xs">
-              <Zap className="w-3.5 h-3.5 text-[#FFD700]" />
-              {t('welcomeBuyPlayers')}
-            </Button>
-          </Link>
-          <Link href="/community">
-            <Button variant="outline" size="sm" className="gap-1.5 text-xs">
-              <Users className="w-3.5 h-3.5 text-sky-400" />
-              {t('welcomeCommunity')}
-            </Button>
-          </Link>
-        </div>
       </div>
     </div>
   );
@@ -466,8 +409,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ━━━ WELCOME BANNER ━━━ */}
-      <WelcomeBanner name={firstName} />
+      {/* ━━━ ONBOARDING CHECKLIST ━━━ */}
+      {uid && <OnboardingChecklist userId={uid} name={firstName} />}
 
       {/* ━━━ SPONSOR: HOME HERO ━━━ */}
       <SponsorBanner placement="home_hero" />

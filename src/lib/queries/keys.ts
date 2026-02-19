@@ -212,4 +212,13 @@ export const qk = {
     stats: ['creatorFund', 'stats'] as const,
     payouts: (uid: string) => ['creatorFund', 'payouts', uid] as const,
   },
+
+  // ── Predictions ──
+  predictions: {
+    byUserGw: (uid: string, gw: number) => ['predictions', uid, gw] as const,
+    resolved: (uid: string) => ['predictions', 'resolved', uid] as const,
+    stats: (uid: string) => ['predictions', 'stats', uid] as const,
+    countGw: (uid: string, gw: number) => ['predictions', 'count', uid, gw] as const,
+    fixtures: (gw: number) => ['predictions', 'fixtures', gw] as const,
+  },
 } as const;

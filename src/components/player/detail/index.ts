@@ -16,3 +16,5 @@ export { default as TradingModal } from './TradingModal';
 export { default as LiquidationAlert } from './LiquidationAlert';
 export { default as PlayerImagePlaceholder } from './PlayerImagePlaceholder';
 export { default as CommunityValuation } from './CommunityValuation';
+export { default as DpcMasteryCard } from './DpcMasteryCard';
+export { default as OfferModal } from './OfferModal';

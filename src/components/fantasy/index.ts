@@ -12,3 +12,4 @@ export { CreateEventModal } from './CreateEventModal';
 export { EventDetailModal } from './EventDetailModal';
 export { GameweekTab } from './GameweekTab';
 export { SpieltagTab } from './SpieltagTab';
+export { PredictionsTab } from './PredictionsTab';

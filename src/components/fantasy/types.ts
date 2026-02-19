@@ -6,7 +6,7 @@ export type EventType = 'bescout' | 'special' | 'club' | 'sponsor' | 'creator';
 export type EventMode = 'tournament' | 'league';
 export type EventStatus = 'registering' | 'late-reg' | 'running' | 'upcoming' | 'ended';
 export type LineupFormat = '6er' | '11er' | '11er-reserve';
-export type FantasyTab = 'spieltag' | 'events' | 'history';
+export type FantasyTab = 'spieltag' | 'events' | 'predictions' | 'history';
 export type EventDetailTab = 'overview' | 'lineup' | 'leaderboard' | 'community';
 export type ViewMode = 'cards' | 'table';
 

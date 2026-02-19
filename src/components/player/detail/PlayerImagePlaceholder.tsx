@@ -16,23 +16,25 @@ interface PlayerImagePlaceholderProps {
   shirtNumber: number;
   club: string;
   imageUrl?: string | null;
+  className?: string;
 }
 
 export default function PlayerImagePlaceholder({
-  pos, shirtNumber, club, imageUrl,
+  pos, shirtNumber, club, imageUrl, className,
 }: PlayerImagePlaceholderProps) {
   const gradient = posGradients[pos] || posGradients.MID;
+  const sizeClass = className || 'w-24 h-28 md:w-32 md:h-36';
 
   if (imageUrl) {
     return (
-      <div className="w-24 h-28 md:w-32 md:h-36 rounded-2xl overflow-hidden shrink-0">
+      <div className={`${sizeClass} rounded-2xl overflow-hidden shrink-0`}>
         <img src={imageUrl} alt="" className="w-full h-full object-cover" />
       </div>
     );
   }
 
   return (
-    <div className={`w-24 h-28 md:w-32 md:h-36 rounded-2xl bg-gradient-to-b ${gradient} flex items-center justify-center shrink-0 border border-white/10`}>
+    <div className={`${sizeClass} rounded-2xl bg-gradient-to-b ${gradient} flex items-center justify-center shrink-0 border border-white/10`}>
       {shirtNumber > 0 ? (
         <TrikotBadge number={shirtNumber} pos={pos} club={club} size="lg" />
       ) : (

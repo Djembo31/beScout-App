@@ -224,6 +224,17 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number): Pr
     errors.push(`Score-Sync: ${e instanceof Error ? e.message : 'Fehler'}`);
   }
 
+  // 1.5 Resolve predictions for this gameweek
+  try {
+    const { resolvePredictions } = await import('@/lib/services/predictions');
+    const predResult = await resolvePredictions(gameweek);
+    if (!predResult.success && predResult.error) {
+      errors.push(`Prediction-Auflösung: ${predResult.error}`);
+    }
+  } catch (e) {
+    errors.push(`Prediction-Auflösung: ${e instanceof Error ? e.message : 'Fehler'}`);
+  }
+
   // 2. Set all GW events to "running" (close registration)
   const { data: gwEvents, error: evtErr } = await supabase
     .from('events')

@@ -4,7 +4,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import {
-  Trophy, Grid3X3, List, Globe, History, Plus, AlertCircle, RefreshCw, Loader2, Calendar,
+  Trophy, Grid3X3, List, Globe, History, Plus, AlertCircle, RefreshCw, Loader2, Calendar, Target,
 } from 'lucide-react';
 import { Card, Button, SearchInput, SortPills, EmptyState, Skeleton, SkeletonCard } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -24,7 +24,7 @@ import {
   type EventStatus, type FantasyTab, type ViewMode, type FantasyEvent,
   type LineupPlayer, type UserDpcHolding, type LeagueCategory, type LineupFormat,
   GameweekSelector, EventCard, EventTableRow,
-  HistoryTab, CreateEventModal, SpieltagTab,
+  HistoryTab, CreateEventModal, SpieltagTab, PredictionsTab,
 } from '@/components/fantasy';
 
 import { useClub } from '@/components/providers/ClubProvider';
@@ -562,11 +562,12 @@ export default function FantasyContent() {
         </div>
       </div>
 
-      {/* SEGMENT TABS — 3 Tabs */}
+      {/* SEGMENT TABS — 4 Tabs */}
       <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-x-auto">
         {([
           { id: 'spieltag' as FantasyTab, label: `${t('gameweek')} ${activeGw}`, icon: Calendar },
           { id: 'events' as FantasyTab, label: t('events'), icon: Globe, count: activeEvents.length },
+          { id: 'predictions' as FantasyTab, label: t('predictions'), icon: Target },
           { id: 'history' as FantasyTab, label: t('history'), icon: History },
         ]).map(tab => (
           <button
@@ -713,6 +714,11 @@ export default function FantasyContent() {
             )}
           </section>
         </div>
+      )}
+
+      {/* ========== PREDICTIONS TAB ========== */}
+      {mainTab === 'predictions' && user && (
+        <PredictionsTab gameweek={currentGw} userId={user.id} />
       )}
 
       {/* ========== HISTORY TAB ========== */}

@@ -3,7 +3,84 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 8** – 171 Migrations, 21 Routes, 1 Edge Function v2. Build sauber (0 Fehler). Gamification komplett rewritten: 3-Dimensionen Elo-System (Trader/Manager/Analyst), 12 Ränge, DPC Mastery (Level 1-5), neue Airdrop-Formel, Streak Shields, Trading-Fee-Rabatte per Abo. i18n (DE+TR) komplett.
+**Woche 9** – 189 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs. Build sauber (0 Fehler). **Code-seitig launch-fertig.** Guided Onboarding Checklist für 50 Beta-Tester (5 Tasks, Progress-Tracking, Confetti). Prediction Engine, Score Road UI, Kaufen-Tab Redesign, 12 RPC-Bug-Fixes, Deep Dive Audit, i18n Gamification+Streak Shield, ALL Trading Flows E2E verified.
+
+## Session 19.02.2026 (96) – Guided Onboarding Checklist
+
+### Änderungen
+- **WelcomeBanner entfernt** — statische 3-Button-Banner durch interaktive Checklist ersetzt
+- **OnboardingChecklist.tsx** (~130 Zeilen) — 5 Kern-Aktionen tracked via bestehende React Query Hooks (dedupliziert)
+- **5 Tasks:** Ersten Spieler kaufen, Fantasy Event beitreten, Einem Scout folgen, Ersten Beitrag erstellen, Erste Prognose abgeben
+- **Auto-Detect:** Completion via Holdings/JoinedEvents/FollowingCount/Posts/Predictions — kein zusätzlicher DB-State nötig
+- **UX:** Progress-Bar (gold→grün), Confetti bei 5/5, Dismiss via localStorage, Auto-Hide bei Completion
+- **Service:** `hasAnyPrediction()` — prüft alle Prediction-Status (nicht nur resolved wie `getPredictionStats`)
+- **Hook:** `useHasAnyPrediction()` mit 5min staleTime
+- **Barrel-Exports:** `useHasAnyPrediction` + `useJoinedEventIds` in queries/index.ts
+- **i18n:** `onboarding` Namespace (12 Keys) in DE+TR
+
+### Dateien erstellt
+- `src/components/onboarding/OnboardingChecklist.tsx`
+
+### Dateien modifiziert
+- `src/lib/services/predictions.ts` (+hasAnyPrediction)
+- `src/lib/queries/predictions.ts` (+useHasAnyPrediction)
+- `src/lib/queries/index.ts` (+2 Exports)
+- `src/app/(app)/page.tsx` (WelcomeBanner → OnboardingChecklist)
+- `messages/de.json` (+onboarding Namespace)
+- `messages/tr.json` (+onboarding Namespace)
+
+## Session 19.02.2026 (95) – Prediction Engine
+
+### Änderungen
+- **Migration #188:** `predictions` Tabelle (15 Spalten, 3 Indices, 3 RLS Policies), `create_prediction` RPC (Validation, 5-per-GW Limit, auto Difficulty via IPO price heuristic), `resolve_gameweek_predictions` RPC (auto-resolve per Fixture/Stats, awards analyst_score), `notifications_type_check` + `score_events_event_type_check` erweitert
+- **Migration #189 (Audit Fixes):** `notifications_reference_type_check` + `prediction` hinzugefügt, `resolve_gameweek_predictions` Admin-Guard + `ROUND()` Fix, `starts→sub` Rename
+- **Types:** `Prediction`, `PredictionType`, `PredictionStatus`, `MatchCondition`, `PlayerCondition`, `PredictionCondition`, `NotificationType` erweitert
+- **Service:** `predictions.ts` — 8 Funktionen (create, get, count, stats, fixtures, players, resolve, notify)
+- **Query Hooks:** 6 Hooks (usePredictions, usePredictionCount, usePredictionStats, useResolvedPredictions, usePredictionFixtures, useCreatePrediction)
+- **UI:** PredictionsTab (4. Fantasy-Tab), CreatePredictionModal (3-Step), PredictionCard, PredictionStatsCard
+- **Scoring Integration:** `simulateGameweekFlow` → `resolvePredictions(gw)` nach Score-Sync
+- **i18n:** 50+ Keys in `predictions.*` namespace (DE+TR)
+- **Profil:** PredictionStatsCard nach ScoreRoadCard
+
+### Dateien erstellt
+- `src/lib/services/predictions.ts`, `src/lib/queries/predictions.ts`
+- `src/components/fantasy/PredictionsTab.tsx`, `src/components/fantasy/CreatePredictionModal.tsx`
+- `src/components/fantasy/PredictionCard.tsx`, `src/components/profile/PredictionStatsCard.tsx`
+
+### Dateien modifiziert
+- `src/types/index.ts`, `src/lib/queries/keys.ts`, `src/lib/queries/index.ts`
+- `src/components/fantasy/types.ts`, `src/components/fantasy/index.ts`
+- `src/app/(app)/fantasy/FantasyContent.tsx`, `src/lib/services/scoring.ts`
+- `src/components/layout/NotificationDropdown.tsx`, `src/components/profile/ProfileOverviewTab.tsx`
+- `messages/de.json`, `messages/tr.json`
+
+## Session 19.02.2026 (94) – Score Road UI
+
+### Änderungen
+- **Migration #187:** `claim_score_road` RPC rewritten (scout_scores 3-Dim, Median via `PERCENTILE_DISC(0.5)`, korrekte SCORE_ROAD Milestones)
+- **ScoreRoadCard.tsx:** Vertikale Timeline mit 11 Milestones, 4 States (claimed/claimable/active/locked), Progress-Bar, Confetti
+- **i18n:** 11 Keys unter `gamification.scoreRoad.*` (DE+TR)
+- **Rang Sub-Tier Ordering:** I < II < III (aufsteigend, konsistent mit League-of-Legends-Stil)
+
+## Session 19.02.2026 (93) – Kaufen-Tab Redesign + Trading Deep Dive
+
+### Änderungen
+- **Kaufen-Tab:** Komplett redesigned mit DPC-Karten, Preisen, Schnellkauf, IPO Follow-Gate entfernt
+- **Trading E2E Simulation:** 12 RPC-Bugs in 5 Migrationen (#182-#186) gefixt
+- **Key Fixes:** `::TEXT` Cast auf UUID-Spalten (häufigstes Bug-Pattern), `liquidate_player` 5 Bugs, `is_liquidated` Guards auf allen 4 Trading-RPCs
+
+## Session 19.02.2026 (92) – i18n Gamification + Streak Shield UI
+
+### Änderungen
+- **H2 Fix:** Gamification-Texte (Rang, Dimension, Score Labels) in DE+TR via `i18nKey` Pattern
+- **H4 Fix:** Streak Shield UI in Profil-Settings (Shield-Icon, Verbrauch/Gesamt, Abo-Upgrade-Hint)
+
+## Session 19.02.2026 (91) – Deep Dive Audit
+
+### Änderungen
+- **6K+3H+1M Bugs gefixt** aus Gamification-Rewrite-Audit
+- **3 Migrationen (#172-#174):** pg_cron Jobs (score_history cleanup, streak expiry), Fee-Discount enforced in buy_player_dpc
+- **pg_cron** Extension aktiviert (Supabase Free Tier)
 
 ## Session 18.02.2026 (90) – Gamification System Rewrite (6 Sprints)
 

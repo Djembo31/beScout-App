@@ -101,10 +101,11 @@ src/
 │   ├── player/PlayerRow.tsx       # PlayerDisplay (compact/card), TrikotBadge, posColors, getContractInfo
 │   ├── community/                 # ResearchCard, CreateResearchModal, PostCard, FollowBtn, BountyCard, 5 Tab-Components
 │   ├── profile/                   # ProfileView (Shared), ProfileOverviewTab, ProfilePortfolioTab, ProfilePostsTab, ProfileResearchTab, ProfileActivityTab, FollowListModal
-│   ├── fantasy/                   # 12 Sub-Components (EventDetailModal, DashboardTab, etc.)
+│   ├── fantasy/                   # 14 Sub-Components (EventDetailModal, PredictionsTab, CreatePredictionModal, PredictionCard, etc.)
 │   ├── manager/                   # ManagerOffersTab (4 Sub-Tabs: Eingehend, Ausgehend, Offene Gebote, Verlauf)
 │   ├── admin/                     # 8 Admin-Tab-Components (Overview, Players, Events, Votes, Bounties, Moderation, Revenue, Settings)
 │   ├── missions/                  # MissionBanner (Home Page)
+│   ├── onboarding/                # OnboardingChecklist (5 Tasks, Home Page)
 │   ├── layout/                    # SideNav, TopBar (+ Push Toggle), NotificationDropdown, SearchDropdown, FeedbackModal, ClubSwitcher
 │   └── providers/                 # AuthProvider, AuthGuard, WalletProvider, ClubProvider, Providers
 ├── lib/
@@ -146,6 +147,7 @@ src/
 │   │   ├── auth.ts               # Auth Helpers (signOut, deleteAccount, updateEmail, updatePassword)
 │   │   ├── avatars.ts            # Avatar Upload (Supabase Storage, Public URL)
 │   │   ├── sponsors.ts           # Sponsor CRUD + getSponsorForPlacement (DB-backed)
+│   │   ├── predictions.ts        # Prediction Engine (CRUD + RPCs + Stats + Resolve)
 │   │   └── fixtures.ts           # Fixture Queries + syncFixtureScores Bridge RPC
 │   ├── achievements.ts            # 25 Achievement-Definitionen (trading/manager/scout)
 │   ├── activityHelpers.ts         # Shared Activity Icons/Colors/Labels/RelativeTime
@@ -241,7 +243,12 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Phase D (Match-Data Integration) fertig:** API-Football Service (`footballData.ts`), `api_football_id` auf clubs/players/fixtures, `sync_fixture_scores` Bridge-RPC, Admin Mapping UI (Teams/Spieler/Fixtures), SpieltagTab dual-button (Import/Simulieren). 2 Migrationen (#137-#138).
 **Codebase Audit + Quality Sprints 1-4 fertig:** 6 Experten-Agents (Dead Code, DB, UI, Security, Architecture, Services) → 21 Issues (4C+5H+8M+4L) → alle gefixt. Silent catches (78×), lineup exploit, missing notifications, service layer extraction (auth.ts, avatars.ts), activity logging gaps, not-found pages, CreateEventModal rewrite, cancellation flags, ErrorState, BescoutAdmin tab extraction (757→243 Zeilen), Loader2 standardization.
 **Project Harmony Sprints 1-5 fertig:** Fee-Fix (3-Way-Split Trading 3.5%+1.5%+1%, IPO 85/10/5), Gamification (BeScout Score mit Arena+Club+Scout, 7 Ränge Bronze III→Legende, 5 DB-Trigger, RangBadge), Arena Events (event_tier, getTierStyle, 8-stufige Punktetabelle, Visual Distinction), Abo-System Overhaul (5 echte Perks server-seitig enforced in RPCs), Achievement-Fix (alle 25/25 Checks, 6 neue Lazy Queries). 9 Migrationen (#148-#156).
-**Danach:** VAPID Public Key in Vercel setzen, API-Football Account + Key, Admin Mapping durchführen (~30 Min), Real User Testing mit 50 Testern.
+**Gamification Rewrite fertig:** 3-Dimensionen Elo (Trader/Manager/Analyst), 12 Ränge Bronze I→Legendär, DPC Mastery Level 1-5, neue Airdrop-Formel, Streak Shields, Fee-Rabatte per Abo. 10 Migrationen (#162-#171).
+**Deep Dive Audit fertig:** 6K+3H+1M gefixt, pg_cron Jobs, Fee-Discount enforced. 3 Migrationen (#172-#174).
+**Kaufen-Tab Redesign + Trading Deep Dive fertig:** 12 RPC-Bug-Fixes, IPO Follow-Gate entfernt, ALL Trading Flows E2E verified. 5 Migrationen (#182-#186).
+**Score Road UI fertig:** `claim_score_road` RPC rewritten (3-Dim Median), ScoreRoadCard Component, i18n DE+TR. Migration #187.
+**Prediction Engine fertig:** `predictions` Tabelle, `create_prediction` + `resolve_gameweek_predictions` RPCs, Fantasy 4. Tab "Vorhersagen", PredictionStatsCard im Profil, auto-resolve in simulateGameweekFlow, i18n DE+TR. 2 Migrationen (#188-#189).
+**Code-seitig launch-fertig.** Nur 2 manuelle Setup-Schritte blockieren Beta-Launch: VAPID Key in Vercel + API-Football Account+Mapping.
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.
 Siehe `docs/TODO.md` für den aktuellen Task.
@@ -255,7 +262,7 @@ Siehe `docs/SCALE.md` für Skalierungsarchitektur und DB-Schema.
 **State Management Migration fertig:** TanStack React Query v5 + Zustand v5 als einziges Caching-Layer. cache.ts komplett gelöscht. ~41 Query-Hooks in 13 Dateien.
 **Sponsor-Flächen produktionsreif:** sponsors Tabelle (Migration #142), SponsorBanner DB-backed, 21 Placements (7 original + 14 neu in Migration #143), Admin CRUD Tab, 8 Seed-Einträge. Placements decken alle Bereiche ab: Home, Market (4 Tabs), Club (2 Unterseiten), Fantasy (Spieltag, Pitch LED Boards, Leaderboard, History), Profile (Hero+Footer), Community (Feed+Research).
 **Pilot-Scope:** Multi-Club-ready, 566 Spieler (20 Clubs), 505 Player Images, 50 Beta-Tester.
-**156 SQL-Migrationen + 1 Edge Function deployed.** Trading + IPO + Fantasy + Scoring + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin + Trading Club-Fee + Bounty Platform-Fee + Event Sponsors + Push Subscriptions + Club Subscriptions + Leagues + Club Followers + Club Discovery + Airdrop Score + Referral System + Match-Data Integration + Security Hardening #2 + Sponsor-Flächen (21 Placements) live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) + Phase A+B+C + Multi-Club Expansion + Phase D (Match-Data) live.
+**189 SQL-Migrationen + 1 Edge Function v2 + 2 pg_cron Jobs deployed.** Trading + IPO + Fantasy + Scoring + Predictions + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin + Trading Club-Fee + Bounty Platform-Fee + Event Sponsors + Push Subscriptions + Club Subscriptions + Leagues + Club Followers + Club Discovery + Airdrop Score + Referral System + Match-Data Integration + Security Hardening #2 + Sponsor-Flächen (21 Placements) + Gamification v4 (3-Dim Elo) + DPC Mastery + Score Road + Prediction Engine live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) + Phase A+B+C + Multi-Club Expansion + Phase D (Match-Data) live.
 **GitHub:** Private Repo `Djembo31/beScout-App`, CI/CD via GitHub Actions, Sentry Error Tracking, PostHog Analytics.
 
 ## Bekannte Issues

@@ -1,9 +1,43 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 18.02.2026 (Session 90)
-> Modus: PILOT SPRINT — 171 Migrations, 21 Routes, 566 Spieler, 505 Player Images
+> Letzte Aktualisierung: 19.02.2026 (Session 96)
+> Modus: PILOT SPRINT — 189 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 566 Spieler, 505 Player Images
 
 ---
+
+## Guided Onboarding Checklist ✅ (19.02.2026)
+- [x] Sprint 1: `hasAnyPrediction()` Service + `useHasAnyPrediction()` Hook + Barrel-Exports
+- [x] Sprint 2: `OnboardingChecklist.tsx` (~130 Zeilen) — 5 Tasks, Progress-Bar, Confetti, Dismiss, Auto-Hide
+- [x] Sprint 3: Home Page Integration — WelcomeBanner entfernt, OnboardingChecklist als dynamic import
+- [x] Sprint 4: i18n — `onboarding` Namespace (12 Keys) in DE+TR
+- [x] Build verifiziert (0 Fehler)
+
+## Prediction Engine ✅ (19.02.2026)
+- [x] Sprint 1: DB Foundation — Migration #188 (`predictions` Tabelle, RLS, `create_prediction` + `resolve_gameweek_predictions` RPCs)
+- [x] Sprint 2: Types + Service Layer + Query Hooks (`predictions.ts` Service + 6 Query-Hooks)
+- [x] Sprint 3: UI — FantasyTab 4. Tab "Vorhersagen", PredictionsTab, CreatePredictionModal (3-Step), PredictionCard
+- [x] Sprint 4: Scoring Integration (`simulateGameweekFlow` → `resolvePredictions`), Notification (`prediction_resolved`)
+- [x] Sprint 5: i18n (50+ Keys DE+TR), PredictionStatsCard in ProfileOverviewTab
+- [x] Audit + Fixes — Migration #189: `notifications_reference_type_check` + Admin-Guard + `ROUND()` Fix + `starts→sub` Rename
+- [x] 2 Migrationen (#188-#189), 4 neue Dateien, 14 modifizierte Dateien, Build verifiziert (0 Fehler)
+
+## Score Road UI ✅ (19.02.2026)
+- [x] Migration #187: `claim_score_road` RPC rewritten (scout_scores Median, PERCENTILE_DISC)
+- [x] ScoreRoadCard Component (11 Milestones, Progress-Bar, Confetti bei Claim)
+- [x] i18n: 11 Keys unter `gamification.scoreRoad.*` (DE+TR)
+- [x] Integration in ProfileOverviewTab
+
+## Kaufen-Tab Redesign + Trading Flow Deep Dive ✅ (19.02.2026)
+- [x] Kaufen-Tab komplett neu (DPC-Karten mit Preisen, Schnellkauf, Portfolioansicht)
+- [x] Trading Flow E2E Simulation: 12 RPC-Bugs gefixt
+- [x] 5 Migrationen (#182-#186), Build verifiziert
+
+## Deep Dive Audit ✅ (19.02.2026)
+- [x] 6K+3H+1M gefixt, 3 Migrationen (#172-#174), pg_cron Jobs, Fee-Discount enforced
+
+## H2 i18n Gamification + H4 Streak Shield UI ✅ (19.02.2026)
+- [x] Gamification-Texte (Rang, Dimension, Score Labels) in DE+TR
+- [x] Streak Shield UI in Profil-Settings
 
 ## Gamification System Rewrite — 3-Dim Elo ✅ (18.02.2026)
 - [x] Sprint 1: DB Foundation (scout_scores 3-Dim Start 500, score_history, award_dimension_score RPC)
@@ -110,14 +144,16 @@
 - [ ] **Admin: Team/Player/Fixture Mapping** (~30 Min, braucht API Key)
 
 ## Verbleibende offene Punkte
-- [ ] **VAPID Public Key in Vercel** Environment Variables setzen (manuell)
-- [ ] **API-Football Account** + Key in .env.local setzen (manuell)
+- [ ] **VAPID Public Key in Vercel** Environment Variables setzen (manuell, 5 Min)
+- [ ] **API-Football Account** + Key in .env.local setzen (manuell, $19/Monat) + Admin-Mapping (~30 Min)
 - [ ] **13 nullable Type-Mismatches** — Felder mit DEFAULT, kein Runtime-Risiko (bewusst belassen)
 - [ ] E2E Tests mit echtem Browser
 - [ ] 10 Beta-Tester einladen
 - [ ] 50 Beta-Tester erreichen
 - [ ] Native App → Post-Pilot
 - [ ] ~~Next.js 15/16 Migration~~ → Post-Pilot
+
+> **Status:** Code-seitig launch-fertig. Nur 2 manuelle Setup-Schritte blockieren den Beta-Launch.
 
 ## Multi-Club Expansion ✅ (16.02.2026)
 - [x] **Phase 1 (Data Layer):** 3 Migrationen (#128-#130) — `leagues` Tabelle, `club_followers` Tabelle (RLS + Migration), `club_id` auf community_polls
@@ -130,7 +166,7 @@
 - [x] **Phase 8 (Community Scoping):** "Alle Clubs" / "Mein Club" Toggle, clubId Filter auf 3 Services
 - [x] Build verifiziert (0 Fehler, 20 Routes, 130 Migrations)
 
-## Nächste Session: Real User Testing + Phase D
+## Nächste Session: Beta-Launch Setup + Real User Testing
 
 ### Admin-gesteuerter Spieltag-Flow ✅ (15.02.2026)
 - [x] `deriveEventStatus()` vertraut nur DB-Status (keine Timestamp-Overrides)
