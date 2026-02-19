@@ -231,7 +231,7 @@ export async function cancelOrder(
 export async function getAllOpenSellOrders(): Promise<DbOrder[]> {
   const { data, error } = await supabase
     .from('orders')
-    .select('id, player_id, user_id, price, quantity, filled_qty, status, created_at, expires_at')
+    .select('id, player_id, user_id, side, price, quantity, filled_qty, status, created_at, expires_at')
     .eq('side', 'sell')
     .in('status', ['open', 'partial'])
     .order('price', { ascending: true });

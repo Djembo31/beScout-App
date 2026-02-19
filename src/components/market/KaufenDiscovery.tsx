@@ -165,7 +165,7 @@ export default function KaufenDiscovery({
   const transferList = useMemo(() => {
     const ordersByPlayer = new Map<string, { count: number; totalQty: number; floor: number }>();
     for (const o of recentOrders) {
-      if (o.side !== 'sell' || (o.status !== 'open' && o.status !== 'partial')) continue;
+      if (o.status !== 'open' && o.status !== 'partial') continue;
       const prev = ordersByPlayer.get(o.player_id);
       const openQty = o.quantity - (o.filled_qty ?? 0);
       const priceBsd = centsToBsd(o.price);
