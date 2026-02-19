@@ -88,7 +88,7 @@ export default function DiscoveryCard({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">
           <span className={cn('font-mono font-bold text-[11px]', l5Color)}>L5: {l5}</span>
-          {p.dpc.onMarket > 0 && variant !== 'new' && (
+          {p.dpc.onMarket > 0 && variant !== 'new' && variant !== 'listing' && (
             <span className="text-[8px] font-bold text-[#FFD700]/70 bg-[#FFD700]/10 px-1 py-0.5 rounded">{p.dpc.onMarket}×</span>
           )}
         </div>
