@@ -376,7 +376,21 @@
     "showResults": "{count} Göster",
     "allLeagues": "Tüm Ligler",
     "showAllClubs": "Tüm {count} Kulübü Göster ▾",
-    "showLessClubs": "Daha Az Göster ▴"
+    "showLessClubs": "Daha Az Göster ▴",
+    "liveIpos": "Canlı IPO'lar",
+    "allIpos": "Tüm IPO'lar",
+    "trendingTitle": "En Çok İşlem Gören (24s)",
+    "bestDeals": "En İyi Fırsatlar",
+    "yourClubs": "Kulüplerin",
+    "moreClubs": "Diğer Kulüpler",
+    "playersAvailable": "{count} mevcut",
+    "byPosition": "Pozisyona Göre",
+    "allPositions": "Tümü",
+    "showAllPos": "Tüm {pos} Göster",
+    "newlyListed": "Yeni Listelenen",
+    "backToDiscovery": "Keşfet",
+    "fairlyPriced": "Tüm oyuncular adil fiyatlandırılmış",
+    "followClubHint": "Oyuncuları görmek için bir kulüp takip edin"
   },
   "community": {
     "title": "Rapor",

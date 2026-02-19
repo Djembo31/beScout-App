@@ -3,11 +3,12 @@ import type { Pos } from '@/types';
 
 export type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'change' | 'name';
 export type MarketTab = 'portfolio' | 'kaufen' | 'angebote' | 'spieler';
+export type KaufenMode = 'discovery' | 'search';
 
 interface MarketState {
   tab: MarketTab;
   portfolioView: 'kader' | 'portfolio';
-  kaufenView: 'ipo' | 'markt';
+  kaufenMode: KaufenMode;
   view: 'grid' | 'list';
   query: string;
   posFilter: Set<Pos>;
@@ -27,10 +28,12 @@ interface MarketState {
   expandedClubs: Set<string>;
   spielerInitialized: boolean;
   showCompare: boolean;
+  discoveryPos: Pos | null;
+  expandedDiscoveryClubs: Set<string>;
 
   setTab: (t: MarketTab) => void;
   setPortfolioView: (v: 'kader' | 'portfolio') => void;
-  setKaufenView: (v: 'ipo' | 'markt') => void;
+  setKaufenMode: (v: KaufenMode) => void;
   setView: (v: 'grid' | 'list') => void;
   setQuery: (q: string) => void;
   togglePos: (pos: Pos) => void;
@@ -51,13 +54,15 @@ interface MarketState {
   initExpandedClubs: (firstClub: string) => void;
   setShowCompare: (v: boolean) => void;
   clearPosFilter: () => void;
+  setDiscoveryPos: (pos: Pos | null) => void;
+  toggleDiscoveryClub: (club: string) => void;
   resetFilters: () => void;
 }
 
 export const useMarketStore = create<MarketState>()((set) => ({
   tab: 'portfolio',
   portfolioView: 'portfolio',
-  kaufenView: 'ipo',
+  kaufenMode: 'discovery',
   view: 'grid',
   query: '',
   posFilter: new Set<Pos>(),
@@ -77,10 +82,12 @@ export const useMarketStore = create<MarketState>()((set) => ({
   expandedClubs: new Set<string>(),
   spielerInitialized: false,
   showCompare: false,
+  discoveryPos: null,
+  expandedDiscoveryClubs: new Set<string>(),
 
   setTab: (t) => set({ tab: t }),
   setPortfolioView: (v) => set({ portfolioView: v }),
-  setKaufenView: (v) => set({ kaufenView: v }),
+  setKaufenMode: (v) => set({ kaufenMode: v }),
   setView: (v) => set({ view: v }),
   setQuery: (q) => set({ query: q }),
   togglePos: (pos) => set((state) => {
@@ -120,6 +127,12 @@ export const useMarketStore = create<MarketState>()((set) => ({
   }),
   setShowCompare: (v) => set({ showCompare: v }),
   clearPosFilter: () => set({ posFilter: new Set<Pos>() }),
+  setDiscoveryPos: (pos) => set({ discoveryPos: pos }),
+  toggleDiscoveryClub: (club) => set((state) => {
+    const next = new Set(state.expandedDiscoveryClubs);
+    if (next.has(club)) next.delete(club); else next.add(club);
+    return { expandedDiscoveryClubs: next };
+  }),
   resetFilters: () => set({
     posFilter: new Set<Pos>(),
     clubFilter: new Set<string>(),
@@ -131,5 +144,6 @@ export const useMarketStore = create<MarketState>()((set) => ({
     onlyWatched: false,
     sortBy: 'floor_asc' as SortOption,
     query: '',
+    kaufenMode: 'discovery' as KaufenMode,
   }),
 }));

@@ -376,7 +376,21 @@
     "showResults": "{count} anzeigen",
     "allLeagues": "Alle Ligen",
     "showAllClubs": "Alle {count} Clubs anzeigen ▾",
-    "showLessClubs": "Weniger anzeigen ▴"
+    "showLessClubs": "Weniger anzeigen ▴",
+    "liveIpos": "Live IPOs",
+    "allIpos": "Alle IPOs",
+    "trendingTitle": "Meistgehandelt (24h)",
+    "bestDeals": "Beste Deals",
+    "yourClubs": "Deine Vereine",
+    "moreClubs": "Weitere Vereine",
+    "playersAvailable": "{count} verfügbar",
+    "byPosition": "Nach Position",
+    "allPositions": "Alle",
+    "showAllPos": "Alle {pos} anzeigen",
+    "newlyListed": "Neu gelistet",
+    "backToDiscovery": "Entdecken",
+    "fairlyPriced": "Alle Spieler fair bewertet",
+    "followClubHint": "Folge einem Verein um Spieler zu sehen"
   },
   "community": {
     "title": "Report",
