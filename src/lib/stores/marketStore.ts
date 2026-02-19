@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { Pos } from '@/types';
+import type { BestandLens } from '@/components/manager/bestand/bestandHelpers';
 
 export type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'change' | 'name';
 export type MarketTab = 'portfolio' | 'kaufen' | 'angebote' | 'spieler';
@@ -30,6 +31,9 @@ interface MarketState {
   showCompare: boolean;
   discoveryPos: Pos | null;
   expandedDiscoveryClubs: Set<string>;
+  bestandLens: BestandLens;
+  bestandGroupByClub: boolean;
+  bestandSellPlayerId: string | null;
 
   setTab: (t: MarketTab) => void;
   setPortfolioView: (v: 'kader' | 'portfolio') => void;
@@ -56,6 +60,9 @@ interface MarketState {
   clearPosFilter: () => void;
   setDiscoveryPos: (pos: Pos | null) => void;
   toggleDiscoveryClub: (club: string) => void;
+  setBestandLens: (lens: BestandLens) => void;
+  setBestandGroupByClub: (v: boolean) => void;
+  setBestandSellPlayerId: (id: string | null) => void;
   resetFilters: () => void;
 }
 
@@ -84,6 +91,9 @@ export const useMarketStore = create<MarketState>()((set) => ({
   showCompare: false,
   discoveryPos: null,
   expandedDiscoveryClubs: new Set<string>(),
+  bestandLens: 'performance',
+  bestandGroupByClub: false,
+  bestandSellPlayerId: null,
 
   setTab: (t) => set({ tab: t }),
   setPortfolioView: (v) => set({ portfolioView: v }),
@@ -133,6 +143,9 @@ export const useMarketStore = create<MarketState>()((set) => ({
     if (next.has(club)) next.delete(club); else next.add(club);
     return { expandedDiscoveryClubs: next };
   }),
+  setBestandLens: (lens) => set({ bestandLens: lens }),
+  setBestandGroupByClub: (v) => set({ bestandGroupByClub: v }),
+  setBestandSellPlayerId: (id) => set({ bestandSellPlayerId: id }),
   resetFilters: () => set({
     posFilter: new Set<Pos>(),
     clubFilter: new Set<string>(),

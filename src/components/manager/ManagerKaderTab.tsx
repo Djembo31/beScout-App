@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart, Shield, Heart, AlertTriangle, HelpCircle } from 'lucide-react';
+import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
@@ -13,64 +13,10 @@ import SquadPitch from './SquadPitch';
 import SquadSummaryStats from './SquadSummaryStats';
 import { FORMATIONS, DEFAULT_FORMATIONS, DEFAULT_SQUAD_SIZE, SQUAD_PRESET_KEY, SQUAD_SIZE_KEY } from './constants';
 import { getPosColor } from './helpers';
-import type { Player, Pos, PlayerStatus } from '@/types';
+import { StatusPill, MinutesPill, NextMatchBadge, STATUS_CONFIG } from './bestand/bestandHelpers';
+import type { Player, Pos } from '@/types';
 import type { FormationId, SquadPreset, SquadSize } from './types';
 import type { NextFixtureInfo } from '@/lib/services/fixtures';
-
-// ============================================
-// STATUS HELPERS
-// ============================================
-
-const STATUS_CONFIG: Record<PlayerStatus, { label: string; short: string; bg: string; border: string; text: string; icon: typeof Heart }> = {
-  fit: { label: 'Fit', short: 'Fit', bg: 'bg-[#22C55E]/10', border: 'border-[#22C55E]/20', text: 'text-[#22C55E]', icon: Heart },
-  injured: { label: 'Verletzt', short: 'Verl.', bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', icon: AlertTriangle },
-  suspended: { label: 'Gesperrt', short: 'Gesp.', bg: 'bg-orange-500/10', border: 'border-orange-500/20', text: 'text-orange-400', icon: AlertTriangle },
-  doubtful: { label: 'Fraglich', short: 'Fragl.', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', text: 'text-yellow-400', icon: HelpCircle },
-};
-
-function StatusPill({ status }: { status: PlayerStatus }) {
-  const cfg = STATUS_CONFIG[status];
-  const Icon = cfg.icon;
-  return (
-    <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border', cfg.bg, cfg.border, cfg.text)}>
-      <Icon className="w-2.5 h-2.5" />
-      <span className="hidden sm:inline">{cfg.short}</span>
-    </span>
-  );
-}
-
-// ============================================
-// MINUTES PILL
-// ============================================
-
-function MinutesPill({ minutes }: { minutes: number[] | undefined }) {
-  if (!minutes || minutes.length === 0) {
-    return <span className="text-[10px] text-white/30 font-mono">&mdash;&apos;</span>;
-  }
-  const avg = Math.round(minutes.reduce((s, m) => s + m, 0) / minutes.length);
-  const color = avg >= 75 ? 'text-[#22C55E]' : avg >= 45 ? 'text-yellow-400' : 'text-red-400';
-  return (
-    <span className={cn('text-[10px] font-mono font-bold', color)}>
-      ∅{avg}&apos;
-    </span>
-  );
-}
-
-// ============================================
-// NEXT MATCH BADGE
-// ============================================
-
-function NextMatchBadge({ fixture }: { fixture: NextFixtureInfo | undefined }) {
-  if (!fixture) return <span className="text-[10px] text-white/30">&mdash;</span>;
-  return (
-    <span className="text-[10px] text-white/50 font-mono">
-      <span className={fixture.isHome ? 'text-[#22C55E]' : 'text-sky-300'}>
-        {fixture.isHome ? 'H' : 'A'}
-      </span>
-      {' '}{fixture.opponentShort}
-    </span>
-  );
-}
 
 // ============================================
 // EVENT USAGE BADGE
