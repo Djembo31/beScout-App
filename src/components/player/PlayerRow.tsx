@@ -546,6 +546,13 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
             {player.perf.l5}
           </div>
 
+          {/* On-Market Badge */}
+          {player.dpc.onMarket > 0 && (
+            <span className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded text-[9px] font-bold text-[#FFD700]">
+              <Tag className="w-2.5 h-2.5" />{player.dpc.onMarket}
+            </span>
+          )}
+
           {showSparkline && player.prices.history7d && (
             <MiniSparkline values={player.prices.history7d} width={56} height={20} />
           )}

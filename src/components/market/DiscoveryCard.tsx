@@ -82,9 +82,14 @@ export default function DiscoveryCard({
       {/* Separator */}
       <div className="h-px bg-white/5 my-1.5" />
 
-      {/* Metrics: L5 + Price */}
+      {/* Metrics: L5 + OnMarket + Price */}
       <div className="flex items-center justify-between">
-        <span className={cn('font-mono font-bold text-[11px]', l5Color)}>L5: {l5}</span>
+        <div className="flex items-center gap-1">
+          <span className={cn('font-mono font-bold text-[11px]', l5Color)}>L5: {l5}</span>
+          {p.dpc.onMarket > 0 && variant !== 'new' && (
+            <span className="text-[8px] font-bold text-[#FFD700]/70 bg-[#FFD700]/10 px-1 py-0.5 rounded">{p.dpc.onMarket}×</span>
+          )}
+        </div>
         {price > 0 && <span className="font-mono font-bold text-[11px] text-[#FFD700]">{fmtBSD(price)}</span>}
       </div>
 
