@@ -65,6 +65,8 @@ export type FantasyEvent = {
   userPoints?: number;
   scoredAt?: string | null;
   userReward?: number; // reward_amount in Cents
+  eventTier: 'arena' | 'club' | 'user';
+  minSubscriptionTier?: string | null;
   requirements: {
     dpcPerSlot?: number;
     minDpc?: number;

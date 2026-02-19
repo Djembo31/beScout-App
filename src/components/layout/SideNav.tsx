@@ -13,6 +13,7 @@ import {
   Settings,
   X,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { NAV_MAIN, NAV_MORE, NAV_ADMIN } from '@/lib/nav';
 import { supabase } from '@/lib/supabaseClient';
 import { useUser, useRoles } from '@/components/providers/AuthProvider';
@@ -34,6 +35,8 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
   const { activeClub } = useClub();
   const [collapsed, setCollapsed] = useState(false);
   const { balanceCents } = useWallet();
+  const t = useTranslations('nav');
+  const tc = useTranslations('common');
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -81,7 +84,7 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
             </div>
             {!collapsed && (
               <div>
-                <div className="text-[10px] text-white/50">Guthaben</div>
+                <div className="text-[10px] text-white/50">{tc('balance')}</div>
                 <div className="font-mono font-black text-[#FFD700]">
                   {balanceCents === null ? (
                     <span className="inline-block w-16 h-4 rounded bg-[#FFD700]/20 animate-pulse" />
@@ -119,15 +122,15 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
                   }
                   ${collapsed ? 'justify-center' : ''}
                 `}
-                title={collapsed ? item.label : undefined}
+                title={collapsed ? t(item.label) : undefined}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
                 {!collapsed && (
                   <>
-                    <span className="font-semibold">{item.label}</span>
+                    <span className="font-semibold">{t(item.label)}</span>
                     {item.badge && (
                       <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/50">
-                        {item.badge}
+                        {t(item.badge)}
                       </span>
                     )}
                   </>
@@ -141,7 +144,7 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
           <>
             <div className="my-4 border-t border-white/10" />
             <div className="text-[10px] text-white/30 uppercase tracking-wider px-3 mb-2">
-              Mehr
+              {t('more')}
             </div>
           </>
         )}
@@ -167,10 +170,10 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
                   }
                   ${collapsed ? 'justify-center' : ''}
                 `}
-                title={collapsed ? item.label : undefined}
+                title={collapsed ? t(item.label) : undefined}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
-                {!collapsed && <span className="font-medium">{item.label}</span>}
+                {!collapsed && <span className="font-medium">{t(item.label)}</span>}
               </Link>
             );
           })}
@@ -188,10 +191,10 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
                 }
                 ${collapsed ? 'justify-center' : ''}
               `}
-              title={collapsed ? 'Club Admin' : undefined}
+              title={collapsed ? t('clubAdmin') : undefined}
             >
               <Building2 className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span className="font-medium">Club Admin</span>}
+              {!collapsed && <span className="font-medium">{t('clubAdmin')}</span>}
             </Link>
           )}
 
@@ -211,14 +214,14 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
                   }
                   ${collapsed ? 'justify-center' : ''}
                 `}
-                title={collapsed ? NAV_ADMIN.label : undefined}
+                title={collapsed ? t(NAV_ADMIN.label) : undefined}
               >
                 <AdminIcon className="w-5 h-5 flex-shrink-0" />
                 {!collapsed && (
                   <>
-                    <span className="font-medium">{NAV_ADMIN.label}</span>
+                    <span className="font-medium">{t(NAV_ADMIN.label)}</span>
                     <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-[#FFD700]/10 text-[#FFD700]/60">
-                      {NAV_ADMIN.badge}
+                      {NAV_ADMIN.badge ? t(NAV_ADMIN.badge) : ''}
                     </span>
                   </>
                 )}
@@ -240,7 +243,7 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
           `}
         >
           <Settings className="w-5 h-5" />
-          {!collapsed && <span className="font-medium">Einstellungen</span>}
+          {!collapsed && <span className="font-medium">{t('settings')}</span>}
         </Link>
         <button
           onClick={handleLogout}
@@ -251,7 +254,7 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
           `}
         >
           <LogOut className="w-5 h-5" />
-          {!collapsed && <span className="font-medium">Abmelden</span>}
+          {!collapsed && <span className="font-medium">{t('logout')}</span>}
         </button>
       </div>
 

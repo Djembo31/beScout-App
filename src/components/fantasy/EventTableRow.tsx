@@ -41,10 +41,10 @@ export const EventTableRow = ({
         </div>
       </td>
 
-      {/* Buy-in */}
+      {/* Teilnahme */}
       <td className="py-3 px-3 text-right">
         <span className={`font-mono text-sm ${event.buyIn === 0 ? 'text-[#22C55E]' : 'text-white'}`}>
-          {event.buyIn === 0 ? 'Free' : event.buyIn}
+          {event.buyIn === 0 ? 'Kostenlos' : event.buyIn}
         </span>
       </td>
 

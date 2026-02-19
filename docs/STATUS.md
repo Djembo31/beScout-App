@@ -3,7 +3,49 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 8** – Pilot-Ready. 147 Migrations, 20 Routes, 1 Edge Function v2. Build sauber (0 Fehler). TFF 1. Lig 2025/26 Saison: 566 Spieler (20 Clubs), 505 Player Images (89%), 100 IPOs, 3 Events (GW 1), 15 Bounties, 10 Votes, 8 Sponsoren. State Management: TanStack React Query v5 + Zustand v5 (~46 Hooks). Navigation: Home / Spieltag / Manager Office / Report / Profil.
+**Woche 8** – 171 Migrations, 21 Routes, 1 Edge Function v2. Build sauber (0 Fehler). Gamification komplett rewritten: 3-Dimensionen Elo-System (Trader/Manager/Analyst), 12 Ränge, DPC Mastery (Level 1-5), neue Airdrop-Formel, Streak Shields, Trading-Fee-Rabatte per Abo. i18n (DE+TR) komplett.
+
+## Session 18.02.2026 (90) – Gamification System Rewrite (6 Sprints)
+
+### Änderungen
+- **Sprint 1 — DB Foundation:** `scout_scores` (3 Dimensionen, Start 500) + `score_history` (Event-Sourced Audit Trail) + `award_dimension_score` RPC (Gold-Abo +20%, Floor bei 0)
+- **Sprint 2 — Rang-System + Frontend:** `gamification.ts` komplett neu (12 Tiers Bronze I→Legendär, Median-Gesamt-Rang), `RangBadge` mit DimensionRangStack, 4-Tab Leaderboard (Gesamt/Trader/Manager/Analyst), Home + Profil auf 3 Dimensionen
+- **Sprint 3 — Scoring-Regeln:** 5 alte Trigger → neue dimension-basierte (Trader: Profit/Loss-Skalierung, Panic-Sell -20; Manager: Percentile +50 bis -25, Absent -15; Analyst: Content-Metriken ±)
+- **Sprint 4 — DPC Mastery:** Level 1-5 pro DPC (XP: Hold +1/Tag, Fantasy +10, Content +15), Freeze bei Verkauf, PlayerContent + ProfileOverview UI
+- **Sprint 5 — Airdrop + Achievements + Streaks:** Neue Airdrop-Formel (Rang+Mastery+Activity, Founding 3x, Abo-Mult), 15 Featured + 16 Hidden Achievements, Streak Shields per Abo-Tier (1/2/3 pro Monat)
+- **Sprint 6 — Club Perks + Notifications + Cleanup:** Fee-Rabatt per Abo (50/100/150 bps), Rang-Change Notifications (rang_up/rang_down/mastery_level_up), season_reset_scores(), deprecated bescout_scores
+- **10 Migrationen (#162-#171)**, ~24 geänderte/neue Dateien, 0 Build-Fehler
+
+## Session 18.02.2026 (89) – Final Report v3 (DPC Supply, Legal Brief, i18n)
+
+### Änderungen
+- **DPC Supply:** max_supply=300/Spieler, CHECK Constraint, create_ipo Supply-Cap-Check
+- **Legal Brief:** `docs/legal-brief.md` — 10 Kapitel + 3 Appendices, an Anwalt sendbar
+- **i18n Tier 3-6:** 7 Pages + Navigation konvertiert, ~404 Keys in 13 Namespaces (DE+TR)
+- **1 Migration (#161)**, Build verifiziert (0 Fehler)
+
+## Session 18.02.2026 (88) – Pilot-Readiness Briefing (8 Sprints)
+
+### Änderungen
+- **Sprint 0 — UI-Copy Audit:** ~14 verbotene Begriffe gefixt (Investor→Sammler, Buy-in→Teilnahme, Entry Fee→Teilnahmegebühr, Gewinn→Prämie, Trading Platform→Fan-Plattform, Profit→Wert-Entwicklung)
+- **Sprint 1 — Entry Fees = 0:** DB Migration (all events → 0, DEFAULT 0), CreateEventModal locked
+- **Sprint 2 — Airdrop Score prominent:** Neue `/airdrop` Route (Leaderboard Top 100, Stats, Tips), 3 Query-Hooks, Nav-Eintrag, AirdropScoreCard auf Home
+- **Sprint 3 — Founding Scout Badge:** Achievement `founding_scout` für erste 50 User, 1.5x Airdrop-Multiplikator, FoundingScoutBadge Component auf Profil
+- **Sprint 4 — PWA v2:** manifest.webmanifest (categories, screenshots), sw.js v2 (App-Shell + Static Asset Caching)
+- **Sprint 5 — Prestige-Loop:** Achievement+Level-Up Notification-Types (DB), auto-Notifications bei Achievement-Unlock, Confetti bei Celebration-Toasts, Level-Up Detection (localStorage) auf Profil
+- **Sprint 6 — Club Fantasy Settings:** 3 DB-Spalten auf clubs (entry_fee, jurisdiction, allow_fees), AdminSettingsTab UI mit Jurisdiktion-Dropdown, Service-Functions
+- **Sprint 7 — i18n (next-intl):** Infrastruktur (request.ts, de.json, tr.json, NextIntlClientProvider), Login+Welcome Pages internationalisiert, Locale Cookie + Profile Language Sync
+- **4 Migrationen (#157-#160)**, ~20 geänderte/neue Dateien, 0 Build-Fehler
+
+## Session 18.02.2026 (87) – Project Harmony Sprints 1-5
+
+### Änderungen
+- **Sprint 1 — Fee-Fix + Gamification DB:** 3-Way-Split Trading (3.5%+1.5%+1%), IPO 85/10/5, BeScout Score (3 Kategorien), 7 Ränge (Bronze III→Legende), 5 DB-Trigger, `gamification.ts` Service
+- **Sprint 2 — Dead Code + RangBadge:** Altes Tier-System entfernt, einheitliches `getRang()` System, RangBadge Component, BeScout Score auf Profile
+- **Sprint 3 — Arena Events + Global Leaderboard:** `event_tier` Spalte, `getTierStyle()`, 8-stufige Punktetabelle (+50 bis −15), Visual Distinction in EventCard+DetailModal, CommunityLeaderboardTab mit BeScout Score
+- **Sprint 4 — Abo-System Overhaul:** 5 echte Perks enforced: Bronze Vote ×2 (RPC), Silber IPO Early Access (RPC), Silber+ exklusive Bounties (DB+UI), Gold Score +20% (RPC), Gold Premium Events (DB+UI)
+- **Sprint 5 — Achievement-Fix:** Alle 25/25 Achievement-Keys mit auto-unlock Checks, 6 neue Lazy Queries (sell_order, verified, posts, research, research_sold, upvotes)
+- **9 Migrationen (#148-#156)**, 15+ geänderte Dateien, 0 Build-Fehler
 
 ## Session 18.02.2026 (84) – ManagerKaderTab Redesign + Navigation Rename
 

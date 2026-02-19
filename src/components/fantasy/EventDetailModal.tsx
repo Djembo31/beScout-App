@@ -9,7 +9,7 @@ import {
   Briefcase, Coins, Layers, Zap,
   Plus, Save, Eye, Sparkles, Building2,
   MessageCircle, X, RefreshCw, Heart,
-  ChevronLeft, BarChart3, History,
+  ChevronLeft, BarChart3, History, Swords,
 } from 'lucide-react';
 import { getScoreTier, SCORE_TIER_CONFIG, calculateSynergyPreview } from '@/types';
 import type { SynergyDetail } from '@/types';
@@ -415,6 +415,36 @@ export const EventDetailModal = ({
                 <h3 className="font-bold mb-2">Beschreibung</h3>
                 <p className="text-white/70">{event.description}</p>
               </div>
+
+              {/* Arena Score Info */}
+              {event.eventTier === 'arena' && (
+                <div className="p-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/20">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Swords className="w-5 h-5 text-amber-400" />
+                    <h3 className="font-bold text-amber-400">Arena-Wertung</h3>
+                  </div>
+                  <p className="text-xs text-white/60 mb-3">
+                    Deine Platzierung beeinflusst deinen BeScout Score. Top-Platzierungen geben Punkte, schlechte Platzierungen kosten Punkte!
+                  </p>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[
+                      { label: 'Top 1%', pts: '+50', color: 'text-[#FFD700]' },
+                      { label: 'Top 5%', pts: '+40', color: 'text-[#FFD700]' },
+                      { label: 'Top 10%', pts: '+30', color: 'text-[#22C55E]' },
+                      { label: 'Top 25%', pts: '+20', color: 'text-[#22C55E]' },
+                      { label: 'Top 50%', pts: '+10', color: 'text-sky-400' },
+                      { label: 'Top 75%', pts: '±0', color: 'text-white/40' },
+                      { label: '75–90%', pts: '−5', color: 'text-red-300' },
+                      { label: 'Rest', pts: '−15', color: 'text-red-400' },
+                    ].map(r => (
+                      <div key={r.label} className="text-center p-1.5 bg-black/20 rounded-lg">
+                        <div className={`font-mono font-bold text-xs ${r.color}`}>{r.pts}</div>
+                        <div className="text-[9px] text-white/30">{r.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Event Details */}
               <div>
@@ -863,7 +893,7 @@ export const EventDetailModal = ({
                         if (myEntry && myEntry.rewardAmount > 0) {
                           return (
                             <div className="text-right">
-                              <div className="text-xs text-white/50 uppercase tracking-wider font-bold">Gewinn</div>
+                              <div className="text-xs text-white/50 uppercase tracking-wider font-bold">Prämie</div>
                               <div className="text-xl font-mono font-black text-[#22C55E]">+{fmtBSD(myEntry.rewardAmount / 100)} BSD</div>
                             </div>
                           );
@@ -1311,7 +1341,7 @@ export const EventDetailModal = ({
               <div className="space-y-2 mb-5 text-sm">
                 {event.buyIn > 0 && (
                   <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                    <span className="text-white/60">Entry Fee</span>
+                    <span className="text-white/60">Teilnahmegebühr</span>
                     <span className="font-bold text-[#FFD700]">{fmtBSD(event.buyIn)} BSD</span>
                   </div>
                 )}
@@ -1335,7 +1365,7 @@ export const EventDetailModal = ({
               </div>
               {event.buyIn > 0 && (
                 <p className="text-[11px] text-white/40 mb-4">
-                  Die Entry Fee wird sofort von deinem Wallet abgezogen. Bei Abmeldung vor Event-Start wird sie erstattet.
+                  Die Teilnahmegebühr wird sofort von deinem Wallet abgezogen. Bei Abmeldung vor Event-Start wird sie erstattet.
                 </p>
               )}
               <div className="flex gap-3">

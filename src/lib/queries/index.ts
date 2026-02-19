@@ -12,7 +12,7 @@ export { useFollowingFeed, useFollowerCount, useFollowingCount, useFollowingIds 
 export { useEvents } from './events';
 export { useUserStats } from './stats';
 export { useRecentGlobalTrades, useTopTraders } from './trades';
-export { useTransactions, useLeaderboard, usePosts, useDpcOfWeek, useScoutMissions, useMissionProgress } from './misc';
+export { useTransactions, useLeaderboard, usePosts, useDpcOfWeek, useScoutMissions, useMissionProgress, useClubSubscription } from './misc';
 export { useActiveIpos } from './ipos';
 export { useTrendingPlayers } from './trending';
 export { useAllPriceHistories } from './priceHist';
@@ -26,6 +26,9 @@ export { useSponsor } from './sponsors';
 export { useClubFixtures } from './fixtures';
 export { useContentTips } from './tips';
 export { useIsSubscribedToScout, useSubscribedScoutIds } from './scoutSubscriptions';
+export { useScoutScores, useScoutLeaderboard, useScoreRoadClaims } from './gamification';
+export { useDpcMastery, useUserMasteryAll } from './mastery';
+export { useAirdropScore, useAirdropLeaderboard, useAirdropStats } from './airdrop';
 export {
   invalidateTradeQueries,
   invalidateSocialQueries,

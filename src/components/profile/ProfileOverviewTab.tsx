@@ -8,9 +8,11 @@ import { PositionBadge } from '@/components/player';
 import { fmtBSD, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatBsd } from '@/lib/services/wallet';
-import { getAchievementDef } from '@/lib/achievements';
+import { getAchievementDef, getFeaturedAchievements } from '@/lib/achievements';
 import { getRelativeTime } from '@/lib/activityHelpers';
+import { useUserMasteryAll } from '@/lib/queries/mastery';
 import type { Pos, DbUserAchievement, DbTransaction, UserTradeWithPlayer, UserFantasyResult } from '@/types';
+import { useTranslations } from 'next-intl';
 
 // ============================================
 // TYPES
@@ -78,7 +80,10 @@ export default function ProfileOverviewTab({
   userId,
   transactions,
 }: ProfileOverviewTabProps) {
+  const tg = useTranslations('gamification');
   const pnlCents = portfolioValueCents - portfolioCostCents;
+  const { data: masteryAll = [] } = useUserMasteryAll(userId);
+  const topMastery = masteryAll.slice(0, 5);
 
   // Aggregate earnings by type
   const earnings = useMemo(() => {
@@ -102,7 +107,7 @@ export default function ProfileOverviewTab({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard label="Portfoliowert" value={`${formatBsd(portfolioValueCents)} BSD`} icon={<BarChart3 className="w-4 h-4 text-white/40" />} />
         <StatCard
-          label="Gewinn/Verlust"
+          label="Wertentwicklung"
           value={`${pnlCents >= 0 ? '+' : ''}${formatBsd(pnlCents)} BSD`}
           trend={pnlCents >= 0 ? 'up' : 'down'}
           icon={pnlCents >= 0 ? <TrendingUp className="w-4 h-4 text-[#22C55E]" /> : <TrendingDown className="w-4 h-4 text-red-400" />}
@@ -173,25 +178,70 @@ export default function ProfileOverviewTab({
         </Card>
       )}
 
-      {/* Achievements */}
-      {achievements.length > 0 && (
+      {/* DPC Mastery — Kader-Stärke */}
+      {topMastery.length > 0 && (
         <Card className="p-6">
-          <h3 className="font-black mb-4">Errungenschaften</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {achievements.map((a) => {
-              const def = getAchievementDef(a.achievement_key);
-              if (!def) return null;
+          <h3 className="font-black mb-4">{tg('mastery.title')}</h3>
+          <div className="space-y-2">
+            {topMastery.map(m => {
+              const h = holdings.find(h => h.player_id === m.player_id);
+              const playerName = h?.player
+                ? `${h.player.first_name} ${h.player.last_name}`
+                : m.player_id.slice(0, 8);
               return (
-                <div key={a.id} className="p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
-                  <div className="text-xl mb-1">{def.icon}</div>
-                  <div className="text-sm font-bold">{def.label}</div>
-                  <div className="text-[10px] text-white/40 mt-0.5">{def.description}</div>
+                <div key={m.id} className="flex items-center justify-between p-2 bg-white/[0.03] rounded-lg border border-white/[0.06]">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold truncate max-w-[140px]">{playerName}</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-lg bg-[#FFD700]/15 text-[#FFD700] text-[10px] font-black border border-[#FFD700]/25">
+                    {tg('mastery.level', { level: m.level })} — {tg(`mastery.level${m.level}`)}
+                  </span>
                 </div>
               );
             })}
           </div>
         </Card>
       )}
+
+      {/* Achievements — Featured always visible, Hidden only when unlocked */}
+      {(() => {
+        const unlockedKeys = new Set(achievements.map(a => a.achievement_key));
+        const featured = getFeaturedAchievements();
+        const unlockedHidden = achievements
+          .filter(a => { const d = getAchievementDef(a.achievement_key); return d && !d.featured; })
+          .map(a => ({ key: a.achievement_key, def: getAchievementDef(a.achievement_key)! }));
+
+        return (featured.length > 0 || unlockedHidden.length > 0) ? (
+          <Card className="p-6">
+            <h3 className="font-black mb-4">{tg('achievement.title')}</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {featured.map((def) => {
+                const isUnlocked = unlockedKeys.has(def.key);
+                return (
+                  <div key={def.key} className={cn(
+                    'p-3 rounded-xl border',
+                    isUnlocked
+                      ? 'bg-white/[0.03] border-white/[0.06]'
+                      : 'bg-white/[0.01] border-white/[0.03] opacity-40'
+                  )}>
+                    <div className="text-xl mb-1">{isUnlocked ? def.icon : '🔒'}</div>
+                    <div className="text-sm font-bold">{def.label}</div>
+                    <div className="text-[10px] text-white/40 mt-0.5">{def.description}</div>
+                  </div>
+                );
+              })}
+              {unlockedHidden.map(({ key, def }) => (
+                <div key={key} className="p-3 bg-[#FFD700]/[0.04] rounded-xl border border-[#FFD700]/15">
+                  <div className="text-xl mb-1">{def.icon}</div>
+                  <div className="text-sm font-bold text-[#FFD700]">{def.label}</div>
+                  <div className="text-[10px] text-white/40 mt-0.5">{def.description}</div>
+                  <div className="text-[8px] text-[#FFD700]/50 mt-1 uppercase tracking-wider font-bold">{tg('achievement.hidden')}</div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        ) : null;
+      })()}
 
       {/* Letzte Trades */}
       {recentTrades.length > 0 && (

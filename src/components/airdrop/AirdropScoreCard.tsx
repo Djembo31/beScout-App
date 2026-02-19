@@ -14,13 +14,15 @@ const TIER_CONFIG: Record<AirdropTier, { label: string; color: string; bg: strin
   diamond: { label: 'Diamond', color: '#B9F2FF', bg: 'rgba(185,242,255,0.12)', border: 'rgba(185,242,255,0.25)' },
 };
 
-const SCORE_BARS: { key: keyof Pick<DbAirdropScore, 'trading_score' | 'content_score' | 'fantasy_score' | 'social_score' | 'activity_score' | 'referral_score'>; label: string; color: string; weight: string }[] = [
-  { key: 'trading_score',  label: 'Trading',  color: '#3B82F6', weight: '25%' },
-  { key: 'content_score',  label: 'Content',  color: '#8B5CF6', weight: '25%' },
-  { key: 'fantasy_score',  label: 'Fantasy',  color: '#22C55E', weight: '20%' },
-  { key: 'social_score',   label: 'Social',   color: '#F59E0B', weight: '15%' },
-  { key: 'activity_score', label: 'Aktivität', color: '#EC4899', weight: '10%' },
-  { key: 'referral_score', label: 'Referral', color: '#06B6D4', weight: '5%' },
+type ScoreBarDef = { key: string; label: string; color: string; getValue: (s: DbAirdropScore) => number };
+
+const SCORE_BARS: ScoreBarDef[] = [
+  { key: 'scout_rang',  label: 'Scout Rang',  color: '#FFD700', getValue: (s) => (s as Record<string, unknown>).scout_rang_score as number ?? 0 },
+  { key: 'mastery',     label: 'DPC Mastery', color: '#8B5CF6', getValue: (s) => (s as Record<string, unknown>).mastery_score as number ?? 0 },
+  { key: 'activity',    label: 'Aktivität',   color: '#EC4899', getValue: (s) => s.active_days * 2 },
+  { key: 'trades',      label: 'Trading',     color: '#3B82F6', getValue: (s) => s.total_trades },
+  { key: 'research',    label: 'Research',    color: '#22C55E', getValue: (s) => s.research_count * 3 },
+  { key: 'referral',    label: 'Referral',    color: '#06B6D4', getValue: (s) => s.referral_count * 5 },
 ];
 
 type Props = {
@@ -137,30 +139,47 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
       {expanded && (
         <div className="space-y-2">
           {SCORE_BARS.map(bar => {
-            const val = score[bar.key] as number;
+            const val = bar.getValue(score);
             return (
               <div key={bar.key}>
                 <div className="flex items-center justify-between text-[10px] mb-0.5">
-                  <span className="text-white/50">{bar.label} <span className="text-white/20">({bar.weight})</span></span>
+                  <span className="text-white/50">{bar.label}</span>
                   <span className="font-mono font-bold" style={{ color: bar.color }}>{val}</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-500"
-                    style={{ width: `${(val / 1000) * 100}%`, backgroundColor: bar.color }}
+                    style={{ width: `${Math.min((val / 100) * 100, 100)}%`, backgroundColor: bar.color }}
                   />
                 </div>
               </div>
             );
           })}
+          {/* Multipliers */}
+          <div className="pt-2 border-t border-white/[0.06] flex gap-3 text-[10px]">
+            {score.founding_multiplier > 1 && (
+              <span className="px-2 py-0.5 rounded-lg bg-[#FFD700]/15 text-[#FFD700] font-bold border border-[#FFD700]/25">
+                Founding {score.founding_multiplier}x
+              </span>
+            )}
+            {((score as Record<string, unknown>).abo_multiplier as number ?? 1) > 1 && (
+              <span className="px-2 py-0.5 rounded-lg bg-purple-400/15 text-purple-400 font-bold border border-purple-400/25">
+                Abo {((score as Record<string, unknown>).abo_multiplier as number).toFixed(1)}x
+              </span>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Coming Soon Teaser */}
-      <div className="mt-3 pt-3 border-t border-white/[0.06]">
+      {/* Improve + Coming Soon */}
+      <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-2">
+        <a href="/airdrop" className="flex items-center gap-2 text-[10px] text-purple-400/70 hover:text-purple-300 transition-colors">
+          <Trophy className="w-3 h-3" />
+          <span>Rangliste ansehen</span>
+        </a>
         <div className="flex items-center gap-2 text-[10px] text-white/30">
           <TrendingUp className="w-3 h-3" />
-          <span>$SCOUT Token Airdrop — Coming Soon</span>
+          <span>$SCOUT Airdrop — Coming Soon</span>
         </div>
       </div>
     </Card>

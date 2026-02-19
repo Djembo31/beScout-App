@@ -6,7 +6,9 @@ import { Loader2, UserPlus, UserMinus } from 'lucide-react';
 import { Modal } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getFollowerList, getFollowingList, isFollowing, followUser, unfollowUser, type ProfileSummary } from '@/lib/services/social';
-import { getLevelTier } from '@/types';
+import { getRang } from '@/lib/gamification';
+import { supabase } from '@/lib/supabaseClient';
+import { useTranslations } from 'next-intl';
 
 interface FollowListModalProps {
   userId: string;
@@ -16,9 +18,11 @@ interface FollowListModalProps {
 
 export default function FollowListModal({ userId, mode, onClose }: FollowListModalProps) {
   const { user } = useUser();
+  const tg = useTranslations('gamification');
   const [list, setList] = useState<ProfileSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [followingMap, setFollowingMap] = useState<Map<string, boolean>>(new Map());
+  const [scoresMap, setScoresMap] = useState<Map<string, number>>(new Map());
   const [toggling, setToggling] = useState<string | null>(null);
 
   useEffect(() => {
@@ -40,6 +44,23 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
         });
         setFollowingMap(map);
       }
+
+      // Fetch scout scores for all users in the list
+      const userIds = data.map(p => p.userId);
+      if (userIds.length > 0) {
+        const { data: scoreRows } = await supabase
+          .from('scout_scores')
+          .select('user_id, trader_score, manager_score, analyst_score')
+          .in('user_id', userIds);
+        const sm = new Map<string, number>();
+        for (const row of scoreRows ?? []) {
+          const vals = [row.trader_score as number, row.manager_score as number, row.analyst_score as number];
+          const sorted = [...vals].sort((a: number, b: number) => a - b);
+          sm.set(row.user_id as string, sorted[1]); // median
+        }
+        setScoresMap(sm);
+      }
+
       setLoading(false);
     };
     load();
@@ -73,7 +94,7 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
       ) : (
         <div className="space-y-1 max-h-[400px] overflow-y-auto">
           {list.map(p => {
-            const tier = getLevelTier(p.level);
+            const rang = getRang(scoresMap.get(p.userId) ?? 500);
             const isMe = user?.id === p.userId;
             const isFollowingThem = followingMap.get(p.userId) ?? false;
             return (
@@ -94,7 +115,7 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
                   </div>
                   <div className="flex items-center gap-2 text-[10px]">
                     <span className="text-white/40">@{p.handle}</span>
-                    <span className={`${tier.color} font-medium`}>Lv. {p.level}</span>
+                    <span className={`${rang.color} font-medium`}>{tg(`rang.${rang.i18nKey}`)}</span>
                   </div>
                 </Link>
 

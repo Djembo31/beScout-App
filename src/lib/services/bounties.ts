@@ -182,6 +182,7 @@ export async function createBounty(params: {
   maxSubmissions: number;
   playerId?: string;
   position?: string;
+  minTier?: string | null;
 }): Promise<DbBounty> {
   const deadlineAt = new Date(Date.now() + params.deadlineDays * 24 * 60 * 60 * 1000).toISOString();
 
@@ -198,6 +199,7 @@ export async function createBounty(params: {
       max_submissions: params.maxSubmissions,
       player_id: params.playerId || null,
       position: params.position || null,
+      min_tier: params.minTier || null,
     })
     .select()
     .single();
@@ -324,12 +326,20 @@ export async function approveBountySubmission(
       }
     })().catch(err => console.error('[Bounties] Approve notification failed:', err));
 
-    // Fire-and-forget: airdrop score refresh for submitter
+    // Fire-and-forget: analyst score + airdrop refresh for submitter
     (async () => {
       try {
-        const { data: s } = await supabase.from('bounty_submissions').select('user_id').eq('id', submissionId).single();
-        if (s) import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(s.user_id));
-      } catch (err) { console.error('[Bounties] Airdrop score refresh failed:', err); }
+        const { data: s } = await supabase.from('bounty_submissions').select('user_id, bounties(reward_cents)').eq('id', submissionId).single();
+        if (s) {
+          // +10/20/30 Analyst based on bounty reward
+          const bountyData = Array.isArray(s.bounties) ? s.bounties[0] : s.bounties;
+          const rewardCents = (bountyData as Record<string, unknown>)?.reward_cents as number ?? 0;
+          const analystPts = rewardCents >= 500000 ? 30 : rewardCents >= 200000 ? 20 : 10;
+          const { awardDimensionScoreAsync } = await import('@/lib/services/scoutScores');
+          awardDimensionScoreAsync(s.user_id, 'analyst', analystPts, 'bounty_approved', submissionId);
+          import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(s.user_id));
+        }
+      } catch (err) { console.error('[Bounties] Analyst score + airdrop refresh failed:', err); }
     })();
 
     // Fire-and-forget: refresh stats + check achievements for submitter (and admin)

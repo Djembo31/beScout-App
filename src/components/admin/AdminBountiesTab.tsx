@@ -29,6 +29,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
   const [reward, setReward] = useState('10');
   const [days, setDays] = useState('7');
   const [maxSubs, setMaxSubs] = useState('5');
+  const [minTier, setMinTier] = useState('');
   const [creating, setCreating] = useState(false);
 
   // Submissions modal
@@ -72,6 +73,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
         rewardCents: Math.round(parseFloat(reward || '10') * 100),
         deadlineDays: parseInt(days || '7'),
         maxSubmissions: parseInt(maxSubs || '5'),
+        minTier: minTier || null,
       });
       setCreateOpen(false);
       setTitle('');
@@ -79,6 +81,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
       setReward('10');
       setDays('7');
       setMaxSubs('5');
+      setMinTier('');
       await reload();
       setMsg({ type: 'success', text: 'Auftrag erstellt!' });
     } catch (err) {
@@ -296,6 +299,22 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                 className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#FFD700]/40"
               />
             </div>
+          </div>
+          <div>
+            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Mindest-Abo (optional)</label>
+            <select
+              value={minTier}
+              onChange={(e) => setMinTier(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#FFD700]/40"
+            >
+              <option value="">Alle (kein Abo nötig)</option>
+              <option value="bronze">Bronze+</option>
+              <option value="silber">Silber+</option>
+              <option value="gold">Nur Gold</option>
+            </select>
+            {minTier && (
+              <div className="text-[10px] text-amber-300 mt-1">Nur {minTier === 'bronze' ? 'Bronze' : minTier === 'silber' ? 'Silber' : 'Gold'}+ Mitglieder können einreichen</div>
+            )}
           </div>
           <Button variant="gold" fullWidth loading={creating} onClick={handleCreate}>
             Auftrag erstellen

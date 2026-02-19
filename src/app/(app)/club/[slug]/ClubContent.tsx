@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -10,7 +11,7 @@ import {
   Bell, Flame, CheckCircle2, Briefcase,
   ArrowUpRight, ArrowDownRight, ExternalLink, Users2,
   Loader2, Plus, FileText, Settings, ChevronDown,
-  Swords, Home, Plane,
+  Swords, Home, Plane, ShoppingBag,
 } from 'lucide-react';
 import { Card, Button, Chip, Modal, ErrorState, Skeleton, SkeletonCard, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
 import SponsorBanner from '@/components/player/detail/SponsorBanner';
@@ -50,89 +51,14 @@ type TradeWithPlayer = DbTrade & {
 };
 
 // ============================================
-// MEMBERSHIP TIERS (constant)
-// ============================================
-
-const MEMBERSHIP_TIERS = [
-  {
-    id: 'supporter',
-    name: 'Supporter',
-    minDpc: 1,
-    maxDpc: 99,
-    color: 'from-white/20 to-white/5',
-    borderColor: 'border-white/20',
-    icon: '🎫',
-    benefits: [
-      'Zugang zu Club Votes',
-      'Club News & Updates',
-      'Basis-Badge im Profil',
-    ],
-  },
-  {
-    id: 'member',
-    name: 'Member',
-    minDpc: 100,
-    maxDpc: 499,
-    color: 'from-green-500/20 to-green-500/5',
-    borderColor: 'border-green-500/30',
-    icon: '⭐',
-    benefits: [
-      'Alle Supporter Benefits',
-      'Frühzeitiger Zugang zu IPOs',
-      '5% Rabatt auf Votes',
-      'Exklusiver Discord-Kanal',
-    ],
-  },
-  {
-    id: 'vip',
-    name: 'VIP',
-    minDpc: 500,
-    maxDpc: 1999,
-    color: 'from-purple-500/20 to-purple-500/5',
-    borderColor: 'border-purple-500/30',
-    icon: '💎',
-    benefits: [
-      'Alle Member Benefits',
-      '10% Rabatt auf alle Fees',
-      'Monatlicher AMA mit Spielern',
-      'Signiertes Merchandise (jährlich)',
-    ],
-  },
-  {
-    id: 'legend',
-    name: 'Legend',
-    minDpc: 2000,
-    maxDpc: null as number | null,
-    color: 'from-[#FFD700]/20 to-[#FFD700]/5',
-    borderColor: 'border-[#FFD700]/30',
-    icon: '👑',
-    benefits: [
-      'Alle VIP Benefits',
-      '20% Rabatt auf alle Fees',
-      'Meet & Greet (1x pro Saison)',
-      'VIP-Tickets (2x pro Saison)',
-      'Name auf der Ehrentafel',
-    ],
-  },
-];
-
-function getUserMembershipTier(totalDpc: number) {
-  if (totalDpc >= 2000) return MEMBERSHIP_TIERS[3];
-  if (totalDpc >= 500) return MEMBERSHIP_TIERS[2];
-  if (totalDpc >= 100) return MEMBERSHIP_TIERS[1];
-  if (totalDpc >= 1) return MEMBERSHIP_TIERS[0];
-  return null;
-}
-
-// ============================================
 // TABS CONFIG
 // ============================================
 
 const TABS: { id: ClubTab; label: string }[] = [
-  { id: 'uebersicht', label: 'Übersicht' },
-  { id: 'spieler', label: 'Spieler' },
-  { id: 'spielplan', label: 'Spielplan' },
-  { id: 'club', label: 'Club & Member' },
+  { id: 'uebersicht', label: 'overview' },
+  { id: 'spieler', label: 'players' },
+  { id: 'spielplan', label: 'fixtures' },
+  { id: 'club', label: 'community' },
 ];
 
 // ============================================
@@ -145,7 +71,6 @@ function HeroSection({
   isFollowing,
   followLoading,
   onFollow,
-  userTier,
   userClubDpc,
   totalVolume24h,
   playerCount,
@@ -155,11 +80,11 @@ function HeroSection({
   isFollowing: boolean;
   followLoading: boolean;
   onFollow: () => void;
-  userTier: typeof MEMBERSHIP_TIERS[0] | null;
   userClubDpc: number;
   totalVolume24h: number;
   playerCount: number;
 }) {
+  const t = useTranslations('club');
   const clubColor = club.primary_color || '#006633';
   const [stadiumSrc, setStadiumSrc] = useState(`/stadiums/${club.slug}.jpg`);
 
@@ -217,17 +142,17 @@ function HeroSection({
           <div className="flex items-center justify-center gap-3 md:gap-6">
             <div className="text-center">
               <div className="text-sm md:text-2xl font-black text-white">{followerCount.toLocaleString()}</div>
-              <div className="text-[10px] md:text-xs text-white/50">Scouts</div>
+              <div className="text-[10px] md:text-xs text-white/50">{t('scouts')}</div>
             </div>
             <div className="w-px h-5 md:h-10 bg-white/20" />
             <div className="text-center">
               <div className="text-sm md:text-2xl font-black text-[#FFD700]">{fmtBSD(totalVolume24h)}</div>
-              <div className="text-[10px] md:text-xs text-white/50">24h Vol</div>
+              <div className="text-[10px] md:text-xs text-white/50">{t('volume24h')}</div>
             </div>
             <div className="w-px h-5 md:h-10 bg-white/20" />
             <div className="text-center">
               <div className="text-sm md:text-2xl font-black text-[#22C55E]">{playerCount}</div>
-              <div className="text-[10px] md:text-xs text-white/50">Spieler</div>
+              <div className="text-[10px] md:text-xs text-white/50">{t('players')}</div>
             </div>
             <div className="w-px h-5 md:h-10 bg-white/20 hidden md:block" />
             <Button
@@ -237,7 +162,7 @@ function HeroSection({
               disabled={followLoading}
               className="hidden md:flex"
             >
-              {followLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFollowing ? <><CheckCircle2 className="w-4 h-4" /> Abonniert</> : <><Bell className="w-4 h-4" /> Folgen</>}
+              {followLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFollowing ? <><CheckCircle2 className="w-4 h-4" /> {t('subscribed')}</> : <><Bell className="w-4 h-4" /> {t('follow')}</>}
             </Button>
           </div>
 
@@ -249,7 +174,7 @@ function HeroSection({
               onClick={onFollow}
               disabled={followLoading}
             >
-              {followLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFollowing ? 'Abonniert' : 'Folgen'}
+              {followLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFollowing ? t('subscribed') : t('follow')}
             </Button>
           </div>
         </div>
@@ -279,10 +204,11 @@ function StatsBar({
   clubColor: string;
   formResults: ('W' | 'D' | 'L')[];
 }) {
+  const t = useTranslations('club');
   const secondary = [
-    { label: 'DPC Float', value: totalDpcFloat.toLocaleString(), icon: Briefcase },
-    { label: 'Ø Perf L5', value: avgPerf.toFixed(1), icon: TrendingUp },
-    { label: 'Spieler', value: playerCount.toString(), icon: Users },
+    { label: t('dpcFloat'), value: totalDpcFloat.toLocaleString(), icon: Briefcase },
+    { label: t('avgPerfL5'), value: avgPerf.toFixed(1), icon: TrendingUp },
+    { label: t('players'), value: playerCount.toString(), icon: Users },
   ];
 
   return (
@@ -292,7 +218,7 @@ function StatsBar({
         <Card className="p-4 hover:border-white/20 transition-all" style={{ borderColor: `${clubColor}25` }}>
           <div className="flex items-center gap-2 mb-1">
             <Users2 className="w-5 h-5" style={{ color: clubColor }} />
-            <span className="text-xs text-white/50">Scouts</span>
+            <span className="text-xs text-white/50">{t('scouts')}</span>
           </div>
           <div className="text-2xl md:text-3xl font-mono font-black" style={{ color: clubColor }}>
             {followerCount.toLocaleString()}
@@ -301,7 +227,7 @@ function StatsBar({
         <Card className="p-4 hover:border-white/20 transition-all border-[#FFD700]/15">
           <div className="flex items-center gap-2 mb-1">
             <BarChart3 className="w-5 h-5 text-[#FFD700]" />
-            <span className="text-xs text-white/50">24h Volume</span>
+            <span className="text-xs text-white/50">{t('volume24h')}</span>
           </div>
           <div className="text-2xl md:text-3xl font-mono font-black text-[#FFD700]">
             {fmtBSD(totalVolume24h)}
@@ -357,6 +283,7 @@ function ClubVoteCard({ vote, hasVoted, onVote, voting }: {
   onVote: (voteId: string, optionIndex: number) => void;
   voting: string | null;
 }) {
+  const t = useTranslations('club');
   const totalVotes = vote.total_votes;
   const isActive = vote.status === 'active' && new Date(vote.ends_at) > new Date();
   const endsAt = new Date(vote.ends_at);
@@ -398,10 +325,10 @@ function ClubVoteCard({ vote, hasVoted, onVote, voting }: {
         <span><Clock className="w-3 h-3 inline mr-1" />{timeLeft}</span>
       </div>
       {hasVoted && (
-        <Chip className="mt-2 bg-purple-500/15 text-purple-300 border-purple-500/25">Abgestimmt</Chip>
+        <Chip className="mt-2 bg-purple-500/15 text-purple-300 border-purple-500/25">{t('voted')}</Chip>
       )}
       {!hasVoted && isActive && vote.cost_bsd > 0 && (
-        <div className="text-[10px] text-white/30 mt-2">Kosten: {formatBsd(vote.cost_bsd)} BSD</div>
+        <div className="text-[10px] text-white/30 mt-2">{t('voteCost')} {formatBsd(vote.cost_bsd)} BSD</div>
       )}
     </div>
   );
@@ -420,6 +347,8 @@ function TopPlayersWidget({
   onViewAll: () => void;
   clubColor: string;
 }) {
+  const t = useTranslations('club');
+  const tc = useTranslations('common');
   const topPlayers = useMemo(
     () => [...players].sort((a, b) => b.prices.change24h - a.prices.change24h).slice(0, 3),
     [players]
@@ -430,10 +359,10 @@ function TopPlayersWidget({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Flame className="w-5 h-5 text-orange-400" />
-          <span className="font-black text-lg">Trending Spieler</span>
+          <span className="font-black text-lg">{t('trendingPlayers')}</span>
         </div>
         <button onClick={onViewAll} className="text-xs text-[#FFD700] hover:underline flex items-center gap-1">
-          Alle anzeigen <ChevronRight className="w-4 h-4" />
+          {tc('viewAll')} <ChevronRight className="w-4 h-4" />
         </button>
       </div>
       <div className="space-y-3">
@@ -466,7 +395,7 @@ function TopPlayersWidget({
           </Link>
         ))}
         {topPlayers.length === 0 && (
-          <div className="text-center text-white/40 py-6">Keine Spieler geladen</div>
+          <div className="text-center text-white/40 py-6">{t('noPlayersLoaded')}</div>
         )}
       </div>
     </Card>
@@ -478,6 +407,7 @@ function TopPlayersWidget({
 // ============================================
 
 function SquadOverviewWidget({ players }: { players: Player[] }) {
+  const t = useTranslations('club');
   const breakdown = useMemo(() => {
     const counts: Record<Pos, number> = { GK: 0, DEF: 0, MID: 0, ATT: 0 };
     players.forEach((p) => { counts[p.pos]++; });
@@ -486,13 +416,13 @@ function SquadOverviewWidget({ players }: { players: Player[] }) {
 
   const total = players.length;
   const posColors: Record<Pos, string> = { GK: 'bg-emerald-500', DEF: 'bg-amber-500', MID: 'bg-sky-500', ATT: 'bg-rose-500' };
-  const posLabels: Record<Pos, string> = { GK: 'Torwart', DEF: 'Verteidiger', MID: 'Mittelfeld', ATT: 'Angriff' };
+  const posLabels: Record<Pos, string> = { GK: t('posGK'), DEF: t('posDEF'), MID: t('posMID'), ATT: t('posATT') };
 
   return (
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-4">
         <Shield className="w-5 h-5 text-white/50" />
-        <span className="font-black text-lg">Squad-Überblick</span>
+        <span className="font-black text-lg">{t('squadOverview')}</span>
       </div>
       <div className="h-4 bg-white/5 rounded-full overflow-hidden flex mb-4">
         {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map((pos) => (
@@ -539,6 +469,7 @@ const resultBadge: Record<'W' | 'D' | 'L', { label: string; color: string }> = {
 };
 
 function FixtureRow({ fixture, clubId, accent }: { fixture: Fixture; clubId: string; accent: string }) {
+  const t = useTranslations('club');
   const isHome = fixture.home_club_id === clubId;
   const isPlayed = fixture.status === 'simulated' || fixture.status === 'finished';
   const result = getFixtureResult(fixture, clubId);
@@ -590,13 +521,14 @@ function FixtureRow({ fixture, clubId, accent }: { fixture: Fixture; clubId: str
           )}
         </div>
       ) : (
-        <span className="text-xs text-white/30">Geplant</span>
+        <span className="text-xs text-white/30">{t('scheduled')}</span>
       )}
     </div>
   );
 }
 
 function SeasonSummary({ fixtures, clubId }: { fixtures: Fixture[]; clubId: string }) {
+  const t = useTranslations('club');
   let w = 0, d = 0, l = 0;
   for (const f of fixtures) {
     const r = getFixtureResult(f, clubId);
@@ -613,24 +545,24 @@ function SeasonSummary({ fixtures, clubId }: { fixtures: Fixture[]; clubId: stri
     <div className="flex items-center gap-4 p-3 bg-white/[0.02] rounded-xl border border-white/10">
       <div className="text-center flex-1">
         <div className="text-lg font-mono font-black text-white">{played}</div>
-        <div className="text-[10px] text-white/40">Spiele</div>
+        <div className="text-[10px] text-white/40">{t('played')}</div>
       </div>
       <div className="text-center flex-1">
         <div className="text-lg font-mono font-black text-[#22C55E]">{w}</div>
-        <div className="text-[10px] text-white/40">Siege</div>
+        <div className="text-[10px] text-white/40">{t('wins')}</div>
       </div>
       <div className="text-center flex-1">
         <div className="text-lg font-mono font-black text-yellow-400">{d}</div>
-        <div className="text-[10px] text-white/40">Remis</div>
+        <div className="text-[10px] text-white/40">{t('draws')}</div>
       </div>
       <div className="text-center flex-1">
         <div className="text-lg font-mono font-black text-red-400">{l}</div>
-        <div className="text-[10px] text-white/40">Ndl.</div>
+        <div className="text-[10px] text-white/40">{t('losses')}</div>
       </div>
       <div className="w-px h-8 bg-white/10" />
       <div className="text-center flex-1">
         <div className="text-lg font-mono font-black text-[#FFD700]">{points}</div>
-        <div className="text-[10px] text-white/40">Punkte</div>
+        <div className="text-[10px] text-white/40">{t('seasonPoints')}</div>
       </div>
     </div>
   );
@@ -641,6 +573,7 @@ function SeasonSummary({ fixtures, clubId }: { fixtures: Fixture[]; clubId: stri
 // ============================================
 
 function NextMatchCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: string }) {
+  const t = useTranslations('club');
   const next = fixtures.find(f => f.status === 'scheduled');
   if (!next) return null;
 
@@ -657,13 +590,13 @@ function NextMatchCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: stri
           <Swords className="w-5 h-5 text-[#22C55E]" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-xs text-white/40 mb-0.5">Nächste Begegnung — Spieltag {next.gameweek}</div>
+          <div className="text-xs text-white/40 mb-0.5">{t('nextMatch', { gw: next.gameweek })}</div>
           <div className="flex items-center gap-2">
             <span className={cn(
               'px-1.5 py-0.5 rounded text-[10px] font-black',
               isHome ? 'bg-[#22C55E]/15 text-[#22C55E]' : 'bg-sky-500/15 text-sky-400',
             )}>
-              {isHome ? 'HEIM' : 'AUSWÄRTS'}
+              {isHome ? t('home') : t('away')}
             </span>
             <div className="flex items-center gap-2">
               <div
@@ -690,6 +623,7 @@ function NextMatchCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: stri
 // ============================================
 
 function LastResultsCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: string }) {
+  const t = useTranslations('club');
   const played = fixtures
     .filter(f => f.status === 'simulated' || f.status === 'finished')
     .slice(-5)
@@ -701,7 +635,7 @@ function LastResultsCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: st
     <Card className="p-4 md:p-6">
       <div className="flex items-center gap-2 mb-4">
         <Calendar className="w-5 h-5 text-white/50" />
-        <span className="font-black">Letzte Ergebnisse</span>
+        <span className="font-black">{t('lastResults')}</span>
       </div>
       <div className="space-y-2">
         {played.map(f => {
@@ -796,64 +730,6 @@ function ActivityFeed({
 // MEMBERSHIP TIER CARD
 // ============================================
 
-function MembershipTierCard({
-  tier,
-  isCurrentTier,
-  userDpc,
-}: {
-  tier: typeof MEMBERSHIP_TIERS[0];
-  isCurrentTier: boolean;
-  userDpc: number;
-}) {
-  const nextTierIndex = MEMBERSHIP_TIERS.findIndex((t) => t.id === tier.id) + 1;
-  const nextTier = nextTierIndex < MEMBERSHIP_TIERS.length ? MEMBERSHIP_TIERS[nextTierIndex] : null;
-  const dpcToNextTier = nextTier ? nextTier.minDpc - userDpc : 0;
-
-  return (
-    <Card className={`p-6 transition-all ${isCurrentTier ? `bg-gradient-to-br ${tier.color} ${tier.borderColor} border-2` : 'opacity-60'}`}>
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Crown className={`w-6 h-6 ${isCurrentTier ? 'text-[#FFD700]' : 'text-white/30'}`} />
-          <div>
-            <div className="font-black text-lg">{tier.name}</div>
-            <div className="text-xs text-white/50">{tier.minDpc}+ DPC{tier.maxDpc ? ` (bis ${tier.maxDpc})` : ''}</div>
-          </div>
-        </div>
-        {isCurrentTier && (
-          <Chip className="bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/25">Dein Tier</Chip>
-        )}
-      </div>
-
-      {isCurrentTier && nextTier && (
-        <div className="mb-4">
-          <div className="flex items-center justify-between text-xs mb-1">
-            <span className="text-white/50">Fortschritt zu {nextTier.name}</span>
-            <span className="font-mono">{userDpc} / {nextTier.minDpc} DPC</span>
-          </div>
-          <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-[#FFD700] to-[#22C55E] rounded-full"
-              style={{ width: `${(userDpc / nextTier.minDpc) * 100}%` }}
-            />
-          </div>
-          <div className="text-xs text-white/40 mt-1">
-            Noch {dpcToNextTier} DPC bis zum nächsten Tier
-          </div>
-        </div>
-      )}
-
-      <div className="space-y-2">
-        {tier.benefits.map((benefit, i) => (
-          <div key={i} className="flex items-center gap-2 text-sm">
-            <CheckCircle2 className={`w-4 h-4 ${isCurrentTier ? 'text-[#22C55E]' : 'text-white/30'}`} />
-            <span className={isCurrentTier ? 'text-white/80' : 'text-white/40'}>{benefit}</span>
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
 // ============================================
 // SKELETON
 // ============================================
@@ -933,6 +809,9 @@ export default function ClubContent({ slug }: { slug: string }) {
   useEffect(() => {
     resolveExpiredResearch().catch(err => console.error('[Club] Resolve expired research failed:', err));
   }, []);
+
+  const t = useTranslations('club');
+  const tc = useTranslations('common');
 
   // ---- Derived data from hooks ----
   const players = useMemo(() => dbToPlayers(dbPlayersRaw), [dbPlayersRaw]);
@@ -1100,8 +979,6 @@ export default function ClubContent({ slug }: { slug: string }) {
     [userHoldingsQty]
   );
 
-  const userTier = useMemo(() => getUserMembershipTier(userClubDpc), [userClubDpc]);
-
   const userClubPlayers = useMemo(
     () => players.filter((p) => userHoldingsQty[p.id] > 0),
     [players, userHoldingsQty]
@@ -1156,6 +1033,9 @@ export default function ClubContent({ slug }: { slug: string }) {
     try {
       await toggleFollowClub(user.id, club.id, club.name, newFollowing);
       await refreshProfile();
+      // Reset optimistic delta BEFORE query refetch delivers new server count
+      setLocalFollowerDelta(0);
+      setLocalFollowing(null);
       queryClient.invalidateQueries({ queryKey: qk.clubs.isFollowing(user.id, club.id) });
       queryClient.invalidateQueries({ queryKey: qk.clubs.followers(club.id) });
     } catch {
@@ -1203,10 +1083,10 @@ export default function ClubContent({ slug }: { slug: string }) {
     return (
       <div className="max-w-xl mx-auto mt-20 text-center">
         <Building2 className="w-16 h-16 mx-auto mb-4 text-white/20" />
-        <h2 className="text-2xl font-black mb-2">Club nicht gefunden</h2>
-        <p className="text-white/50 mb-6">Der Club &quot;{slug}&quot; existiert nicht.</p>
+        <h2 className="text-2xl font-black mb-2">{t('notFoundTitle')}</h2>
+        <p className="text-white/50 mb-6">{t('notFoundDesc', { slug })}</p>
         <Link href="/">
-          <Button variant="outline">Zurück zur Startseite</Button>
+          <Button variant="outline">{t('backHome')}</Button>
         </Link>
       </div>
     );
@@ -1235,7 +1115,6 @@ export default function ClubContent({ slug }: { slug: string }) {
         isFollowing={isFollowing}
         followLoading={followLoading}
         onFollow={handleFollow}
-        userTier={userTier}
         userClubDpc={userClubDpc}
         totalVolume24h={totalVolume24h}
         playerCount={players.length}
@@ -1272,15 +1151,15 @@ export default function ClubContent({ slug }: { slug: string }) {
                   <Crown className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-sm font-bold">{TIER_CONFIG[subscription.tier as SubscriptionTier]?.label}-Mitglied</div>
+                  <div className="text-sm font-bold">{t('member', { tier: TIER_CONFIG[subscription.tier as SubscriptionTier]?.label })}</div>
                   <div className="text-[10px] text-white/40">
-                    {subscription.auto_renew ? 'Verlängert am' : 'Läuft ab am'} {new Date(subscription.expires_at).toLocaleDateString('de-DE')}
+                    {subscription.auto_renew ? t('renewsAt') : t('expiresAt')} {new Date(subscription.expires_at).toLocaleDateString('de-DE')}
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => setSubModalOpen(true)}>
-                  {subscription.auto_renew ? 'Verwalten' : 'Verlängern'}
+                  {subscription.auto_renew ? tc('manage') : t('renew')}
                 </Button>
               </div>
             </Card>
@@ -1295,8 +1174,8 @@ export default function ClubContent({ slug }: { slug: string }) {
                     <Crown className="w-4 h-4 text-[#FFD700]" />
                   </div>
                   <div>
-                    <div className="text-sm font-bold">Club-Mitglied werden</div>
-                    <div className="text-[10px] text-white/40">Ab 500 BSD/Monat — Early Access, Badges, Premium Events</div>
+                    <div className="text-sm font-bold">{t('joinClub')}</div>
+                    <div className="text-[10px] text-white/40">{t('joinClubDesc')}</div>
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-white/30" />
@@ -1312,7 +1191,7 @@ export default function ClubContent({ slug }: { slug: string }) {
       {/* TABS + Admin Link */}
       <div className="flex items-center gap-2 mb-6">
         <div className="flex-1">
-          <TabBar tabs={TABS} activeTab={tab} onChange={(id) => setTab(id as ClubTab)} accentColor={clubColor} />
+          <TabBar tabs={TABS.map(tab => ({ ...tab, label: t(tab.label) }))} activeTab={tab} onChange={(id) => setTab(id as ClubTab)} accentColor={clubColor} />
         </div>
         {club.is_admin && (
           <Link
@@ -1320,7 +1199,7 @@ export default function ClubContent({ slug }: { slug: string }) {
             className="flex-shrink-0 px-3 py-2 text-sm font-semibold text-white/60 hover:text-white transition-all whitespace-nowrap flex items-center gap-1.5"
           >
             <Settings className="w-4 h-4" />
-            <span className="hidden md:inline">Admin</span>
+            <span className="hidden md:inline">{t('admin')}</span>
           </Link>
         )}
       </div>
@@ -1331,23 +1210,23 @@ export default function ClubContent({ slug }: { slug: string }) {
           {/* Nächste Begegnung */}
           {clubId && <NextMatchCard fixtures={clubFixtures} clubId={clubId} />}
 
-          {/* Dein Status */}
-          {userTier ? (
-            <Card className={`p-4 bg-gradient-to-br ${userTier.color} ${userTier.borderColor}`}>
+          {/* Dein DPC-Bestand */}
+          {userClubDpc > 0 && (
+            <Card className="p-4 bg-gradient-to-br from-[#FFD700]/10 to-[#FFD700]/5 border-[#FFD700]/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{userTier.icon}</span>
+                  <ShoppingBag className="w-6 h-6 text-[#FFD700]" />
                   <div>
-                    <div className="font-black">{userTier.name}</div>
-                    <div className="text-xs text-white/50">{userClubDpc} DPC</div>
+                    <div className="font-black">{userClubDpc} DPC</div>
+                    <div className="text-xs text-white/50">{t('yourHoldingsDesc')}</div>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => setTab('club')}>
-                  Details
+                <Button variant="outline" size="sm" onClick={() => setTab('spieler')}>
+                  {t('squad')}
                 </Button>
               </div>
             </Card>
-          ) : null}
+          )}
 
           <TopPlayersWidget players={players} onViewAll={() => setTab('spieler')} clubColor={clubColor} />
 
@@ -1357,10 +1236,10 @@ export default function ClubContent({ slug }: { slug: string }) {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Vote className="w-5 h-5" style={{ color: clubColor }} />
-                  <span className="font-black">Aktive Abstimmungen</span>
+                  <span className="font-black">{t('activeVotes')}</span>
                 </div>
                 <button onClick={() => setTab('club')} className="text-xs hover:underline flex items-center gap-1" style={{ color: clubColor }}>
-                  Alle anzeigen <ChevronRight className="w-4 h-4" />
+                  {tc('viewAll')} <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
               <div className="space-y-2">
@@ -1392,7 +1271,7 @@ export default function ClubContent({ slug }: { slug: string }) {
             <Card className="p-4 md:p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Briefcase className="w-5 h-5 text-[#FFD700]" />
-                <span className="font-black">Deine Spieler</span>
+                <span className="font-black">{t('yourPlayers')}</span>
               </div>
               <div className="space-y-2">
                 {userClubPlayers.map((player) => (
@@ -1420,33 +1299,33 @@ export default function ClubContent({ slug }: { slug: string }) {
             </Card>
           )}
 
-          <ActivityFeed trades={recentTrades} title="Aktivitäts-Feed" emptyText="Noch keine Trades für diesen Club" />
+          <ActivityFeed trades={recentTrades} title={t('activityFeed')} emptyText={t('noTrades')} />
 
           {/* Club Info */}
           <Card className="p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4">
               <Building2 className="w-5 h-5 text-white/50" />
-              <span className="font-black">Club Info</span>
+              <span className="font-black">{t('clubInfo')}</span>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
               {club.stadium && (
                 <div className="bg-white/[0.02] rounded-xl p-3">
-                  <div className="text-xs text-white/50 mb-1">Stadion</div>
+                  <div className="text-xs text-white/50 mb-1">{t('stadium')}</div>
                   <div className="font-bold text-sm">{club.stadium}</div>
                 </div>
               )}
               {club.city && (
                 <div className="bg-white/[0.02] rounded-xl p-3">
-                  <div className="text-xs text-white/50 mb-1">Stadt</div>
+                  <div className="text-xs text-white/50 mb-1">{t('city')}</div>
                   <div className="font-bold text-sm">{club.city}</div>
                 </div>
               )}
               <div className="bg-white/[0.02] rounded-xl p-3">
-                <div className="text-xs text-white/50 mb-1">Liga</div>
+                <div className="text-xs text-white/50 mb-1">{t('league')}</div>
                 <div className="font-bold text-sm">{club.league}</div>
               </div>
               <div className="bg-white/[0.02] rounded-xl p-3">
-                <div className="text-xs text-white/50 mb-1">Spieler</div>
+                <div className="text-xs text-white/50 mb-1">{t('players')}</div>
                 <div className="font-bold text-sm text-[#22C55E]">{players.length}</div>
               </div>
             </div>
@@ -1460,14 +1339,14 @@ export default function ClubContent({ slug }: { slug: string }) {
       {tab === 'spieler' && (
         <div className="space-y-6">
           <div className="flex flex-col gap-3">
-            <SearchInput value={spielerQuery} onChange={setSpielerQuery} placeholder="Spieler suchen..." />
+            <SearchInput value={spielerQuery} onChange={setSpielerQuery} placeholder={t('searchPlayers')} />
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <PosFilter selected={posFilter} onChange={setPosFilter} showAll allCount={posCounts['ALL']} counts={posCounts} />
               <SortPills
                 options={[
-                  { id: 'perf', label: 'Perf L5' },
-                  { id: 'price', label: 'Preis' },
-                  { id: 'change', label: '24h Change' },
+                  { id: 'perf', label: t('sortPerf') },
+                  { id: 'price', label: t('sortPrice') },
+                  { id: 'change', label: t('sortChange') },
                 ]}
                 active={sortBy}
                 onChange={(id) => setSortBy(id as 'perf' | 'price' | 'change')}
@@ -1476,7 +1355,7 @@ export default function ClubContent({ slug }: { slug: string }) {
           </div>
 
           <SponsorBanner placement="club_players" clubId={club.id} className="mb-3" />
-          <div className="text-xs text-white/40 px-1">{filteredPlayers.length} Spieler</div>
+          <div className="text-xs text-white/40 px-1">{t('playerCount', { count: filteredPlayers.length })}</div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {filteredPlayers.map((player) => (
@@ -1486,7 +1365,7 @@ export default function ClubContent({ slug }: { slug: string }) {
 
           {filteredPlayers.length === 0 && (
             <div className="text-center text-white/40 py-12">
-              Keine Spieler in dieser Kategorie
+              {t('noPlayersInCategory')}
             </div>
           )}
         </div>
@@ -1524,11 +1403,11 @@ export default function ClubContent({ slug }: { slug: string }) {
             {/* Filter Chips */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
               {([
-                { id: 'all', label: 'Alle' },
-                { id: 'home', label: 'Heim', icon: Home },
-                { id: 'away', label: 'Auswärts', icon: Plane },
-                { id: 'results', label: 'Ergebnisse' },
-                { id: 'upcoming', label: 'Kommend' },
+                { id: 'all', label: t('fixturesAll') },
+                { id: 'home', label: t('fixturesHome'), icon: Home },
+                { id: 'away', label: t('fixturesAway'), icon: Plane },
+                { id: 'results', label: t('fixturesResults') },
+                { id: 'upcoming', label: t('fixturesUpcoming') },
               ] as { id: FixtureFilter; label: string; icon?: typeof Home }[]).map(chip => (
                 <button
                   key={chip.id}
@@ -1548,7 +1427,7 @@ export default function ClubContent({ slug }: { slug: string }) {
 
             {/* Gameweek Groups */}
             {gameweeks.length === 0 ? (
-              <div className="text-center text-white/30 py-12">Keine Spiele in dieser Kategorie</div>
+              <div className="text-center text-white/30 py-12">{t('noFixtures')}</div>
             ) : (
               <div className="space-y-2">
                 {gameweeks.map(gw => {
@@ -1567,9 +1446,9 @@ export default function ClubContent({ slug }: { slug: string }) {
                         className="w-full flex items-center justify-between px-4 py-3 bg-white/[0.02] hover:bg-white/[0.04] transition-all"
                       >
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-black">Spieltag {gw}</span>
+                          <span className="text-sm font-black">{t('fixtureGameweek', { gw })}</span>
                           {gwPlayed && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#22C55E]/15 text-[#22C55E]">Gespielt</span>
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#22C55E]/15 text-[#22C55E]">{t('fixturePlayed')}</span>
                           )}
                         </div>
                         <ChevronDown className={cn('w-4 h-4 text-white/30 transition-transform', isExpanded && 'rotate-180')} />
@@ -1593,36 +1472,17 @@ export default function ClubContent({ slug }: { slug: string }) {
       {/* ========== TAB: CLUB & MEMBER ========== */}
       {tab === 'club' && (
         <div className="space-y-6">
-          {/* Membership Tiers */}
-          <div className="text-center mb-4">
-            <h2 className="text-2xl font-black mb-1">Club Membership</h2>
-            <p className="text-sm text-white/50">
-              Je mehr DPC du von {club.name}-Spielern besitzt, desto höher dein Tier.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {MEMBERSHIP_TIERS.map((tier) => (
-              <MembershipTierCard
-                key={tier.id}
-                tier={tier}
-                isCurrentTier={userTier?.id === tier.id}
-                userDpc={userClubDpc}
-              />
-            ))}
-          </div>
-
           {/* Votes Section */}
           <Card className="p-4 md:p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Vote className="w-5 h-5 text-purple-400" />
-                <span className="font-black">Abstimmungen</span>
+                <span className="font-black">{t('votes')}</span>
               </div>
               {club.is_admin && (
                 <Button variant="outline" size="sm" onClick={() => setCreateVoteModalOpen(true)}>
                   <Plus className="w-3.5 h-3.5" />
-                  Neu
+                  {t('newVote')}
                 </Button>
               )}
             </div>
@@ -1638,7 +1498,7 @@ export default function ClubContent({ slug }: { slug: string }) {
 
             {clubVotes.length === 0 ? (
               <div className="text-center py-6 text-white/30 text-sm">
-                Noch keine Abstimmungen
+                {t('noVotes')}
               </div>
             ) : (
               <div className="space-y-4">
@@ -1726,11 +1586,11 @@ export default function ClubContent({ slug }: { slug: string }) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <FileText className="w-5 h-5 text-purple-400" />
-                  <span className="font-black">Research</span>
-                  <span className="text-xs text-white/40">{clubResearch.length} Berichte</span>
+                  <span className="font-black">{t('research')}</span>
+                  <span className="text-xs text-white/40">{t('researchCount', { count: clubResearch.length })}</span>
                 </div>
                 <Link href="/community" className="text-xs text-[#FFD700] hover:underline">
-                  Alle anzeigen
+                  {tc('viewAll')}
                 </Link>
               </div>
               {clubResearch.slice(0, 3).map(post => (
@@ -1753,7 +1613,7 @@ export default function ClubContent({ slug }: { slug: string }) {
             <Card className="p-4 border-[#FFD700]/10 bg-[#FFD700]/[0.02]">
               <div className="flex items-center gap-2 mb-2">
                 <Shield className="w-4 h-4 text-[#FFD700]" />
-                <span className="font-bold text-sm text-[#FFD700]">Community-Richtlinien</span>
+                <span className="font-bold text-sm text-[#FFD700]">{t('guidelines')}</span>
               </div>
               <p className="text-sm text-white/70 whitespace-pre-line">{club.community_guidelines}</p>
             </Card>
@@ -1762,15 +1622,15 @@ export default function ClubContent({ slug }: { slug: string }) {
       )}
 
       {/* Club-Abo Modal */}
-      <Modal title="Club-Mitgliedschaft" open={subModalOpen} onClose={() => { setSubModalOpen(false); setSubError(null); }}>
+      <Modal title={t('subscription')} open={subModalOpen} onClose={() => { setSubModalOpen(false); setSubError(null); }}>
         <div className="p-6 max-w-lg">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
               <Crown className="w-5 h-5 text-[#FFD700]" />
             </div>
             <div>
-              <h3 className="text-lg font-black">Club-Mitgliedschaft</h3>
-              <p className="text-xs text-white/40">{club.name} — Wähle deinen Tier</p>
+              <h3 className="text-lg font-black">{t('subscription')}</h3>
+              <p className="text-xs text-white/40">{club.name} — {t('chooseTier')}</p>
             </div>
           </div>
 
@@ -1812,7 +1672,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                     <div className="flex gap-2">
                       {subscription?.auto_renew ? (
                         <Button variant="outline" size="sm" onClick={handleCancelSub} disabled={subLoading}>
-                          Auto-Renew deaktivieren
+                          {t('disableAutoRenew')}
                         </Button>
                       ) : (
                         <span className="text-xs text-white/30">Verlängerung deaktiviert</span>
@@ -1826,7 +1686,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                       onClick={() => handleSubscribe(tier)}
                       disabled={subLoading}
                     >
-                      {subLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : `${cfg.label} abonnieren`}
+                      {subLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('subscribe', { tier: cfg.label })}
                     </Button>
                   )}
                 </div>
@@ -1835,7 +1695,7 @@ export default function ClubContent({ slug }: { slug: string }) {
           </div>
 
           <p className="text-[10px] text-white/25 mt-4 text-center">
-            Abos werden monatlich in BSD abgerechnet. Jederzeit kündbar.
+            {t('subscriptionDisclaimer')}
           </p>
         </div>
       </Modal>

@@ -121,7 +121,24 @@
       "WebFetch(domain:company.onefootball.com)",
       "WebFetch(domain:www.fotmob.com)",
       "WebFetch(domain:press.disneyadvertising.com)",
-      "WebFetch(domain:www.mediaimpact.de)"
+      "WebFetch(domain:www.mediaimpact.de)",
+      "Bash(jq:*)",
+      "Bash(ls -la \"C:\\\\bescout-app\\\\public\\\\stadiums\"\" 2>&1 || echo \"stadiums directory does not exist \")",
+      "Bash(git log:*)",
+      "Bash(sort:*)",
+      "Bash(UA=\"Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) BeScout/1.0\")",
+      "WebFetch(domain:screensdesign.com)",
+      "WebFetch(domain:www.designrush.com)",
+      "WebFetch(domain:sorare.com)",
+      "WebFetch(domain:www.socios.com)",
+      "WebFetch(domain:archistudios.com)",
+      "WebFetch(domain:www.fanzone.me)",
+      "WebFetch(domain:www.footballbusinessinside.com)",
+      "WebFetch(domain:www.infobip.com)",
+      "Bash(git -C /c/bescout-app status)",
+      "Bash(git -C /c/bescout-app diff --stat)",
+      "Bash(git -C /c/bescout-app log --oneline -5)",
+      "Bash(tasklist:*)"
     ]
   }
 }

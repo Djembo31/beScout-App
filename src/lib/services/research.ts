@@ -177,6 +177,16 @@ export async function createResearchPost(params: {
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(params.userId, 'research_create', 'community', { researchId: data.id, title: params.title, call: params.call });
   }).catch(err => console.error('[Research] Activity log failed:', err));
+  // Fire-and-forget: +3 Analyst for research creation
+  import('@/lib/services/scoutScores').then(m => {
+    m.awardDimensionScoreAsync(params.userId, 'analyst', 3, 'research_create', data.id);
+  }).catch(err => console.error('[Research] Analyst score failed:', err));
+  // Fire-and-forget: +15 Mastery XP if research references a player
+  if (params.playerId) {
+    import('@/lib/services/mastery').then(m => {
+      m.awardMasteryXp(params.userId, params.playerId!, 15, 'content');
+    }).catch(err => console.error('[Research] Mastery XP failed:', err));
+  }
   return data as DbResearchPost;
 }
 
@@ -218,12 +228,17 @@ export async function unlockResearch(userId: string, researchId: string): Promis
       logActivity(userId, 'research_unlock', 'community', { researchId });
     }).catch(err => console.error('[Research] Activity log failed:', err));
 
-    // Fire-and-forget: airdrop score refresh for author
+    // Fire-and-forget: +5 Analyst for author + airdrop refresh
     (async () => {
       try {
         const { data: rp } = await supabase.from('research_posts').select('user_id').eq('id', researchId).single();
-        if (rp) import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(rp.user_id));
-      } catch {}
+        if (rp) {
+          import('@/lib/services/scoutScores').then(m => {
+            m.awardDimensionScoreAsync(rp.user_id, 'analyst', 5, 'research_sold', researchId);
+          });
+          import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(rp.user_id));
+        }
+      } catch (err) { console.error('[Research] Analyst score + airdrop refresh failed:', err); }
     })();
 
     // Fire-and-forget notification to author

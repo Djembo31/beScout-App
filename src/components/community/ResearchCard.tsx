@@ -8,8 +8,9 @@ import { PositionBadge } from '@/components/player';
 import { cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { fmtBSD } from '@/lib/utils';
-import { getLevelTier } from '@/types';
+import { getRang } from '@/lib/gamification';
 import type { ResearchPostWithAuthor } from '@/types';
+import { useTranslations } from 'next-intl';
 
 function formatTimeAgo(dateStr: string): string {
   const now = Date.now();
@@ -45,6 +46,8 @@ type Props = {
   unlockingId: string | null;
   onRate: (id: string, rating: number) => void;
   ratingId: string | null;
+  /** Author's median scout score for rang badge (default 500 = Bronze II) */
+  authorScore?: number;
 };
 
 function StarRating({
@@ -106,10 +109,11 @@ function StarRating({
   );
 }
 
-export default function ResearchCard({ post, onUnlock, unlockingId, onRate, ratingId }: Props) {
+export default function ResearchCard({ post, onUnlock, unlockingId, onRate, ratingId, authorScore }: Props) {
+  const tg = useTranslations('gamification');
   const [confirmUnlock, setConfirmUnlock] = useState(false);
   const canSeeContent = post.is_own || post.is_unlocked;
-  const tier = getLevelTier(post.author_level);
+  const rang = getRang(authorScore ?? 500);
   const priceBsd = centsToBsd(post.price);
   const canRate = post.is_unlocked && !post.is_own;
 
@@ -176,8 +180,8 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
             </span>
           )}
           {post.author_verified && <BadgeCheck className="w-3.5 h-3.5 text-[#FFD700]" />}
-          <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold border bg-white/5 border-white/10', tier.color)}>
-            Lv{post.author_level}
+          <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold border', rang.bgColor, rang.borderColor, rang.color)}>
+            {tg(`rang.${rang.i18nKey}`)}
           </span>
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3" />

@@ -17,7 +17,7 @@ export function toPos(value: string | null | undefined): Pos {
 export type PlayerStatus = 'fit' | 'injured' | 'suspended' | 'doubtful';
 export type Trend = 'UP' | 'DOWN' | 'FLAT';
 export type IPOStatus = 'none' | 'announced' | 'early_access' | 'open' | 'ended' | 'cancelled';
-export type IPOType = 'fixed' | 'tiered' | 'dutch';
+export type IPOType = 'fixed';
 export type FeedbackType = 'bug' | 'feature' | 'sonstiges';
 export type PostCategory = 'Analyse' | 'Prediction' | 'Meinung' | 'News';
 
@@ -412,6 +412,7 @@ export type DbPlayer = {
   volume_24h: number;
   status: 'fit' | 'injured' | 'suspended' | 'doubtful' | null;
   success_fee_cap_cents: number | null;
+  max_supply?: number;
   api_football_id?: number | null;
   is_liquidated: boolean;
   created_at: string;
@@ -500,8 +501,10 @@ export type DbEvent = {
   club_id: string | null;
   sponsor_name: string | null;
   sponsor_logo: string | null;
+  event_tier?: 'arena' | 'club' | 'user';
   tier_bonuses?: Record<string, number> | null;
   min_tier?: string | null;
+  min_subscription_tier?: string | null;
   created_at: string;
 };
 
@@ -631,13 +634,9 @@ export type DbIpo = {
   status: 'announced' | 'early_access' | 'open' | 'ended' | 'cancelled';
   format: IPOType;
   price: number;              // BIGINT Cents
-  price_min: number | null;   // Dutch
-  price_max: number | null;   // Dutch
-  tiers: { price: number; quantity: number; sold: number }[] | null;
   total_offered: number;
   sold: number;
   max_per_user: number;
-  member_discount: number;
   starts_at: string;
   ends_at: string;
   early_access_ends_at: string | null;
@@ -652,9 +651,6 @@ export type DbIpoPurchase = {
   user_id: string;
   quantity: number;
   price: number;              // Cents per DPC
-  platform_fee: number;
-  pbt_fee: number;
-  club_fee: number;
   purchased_at: string;
 };
 
@@ -902,30 +898,6 @@ export type LeaderboardUser = {
   followersCount: number;
 };
 
-// Level tiers
-export type LevelTier = {
-  name: string;
-  minLevel: number;
-  maxLevel: number;
-  color: string;
-};
-
-export const LEVEL_TIERS: LevelTier[] = [
-  { name: 'Rookie', minLevel: 1, maxLevel: 5, color: 'text-zinc-400' },
-  { name: 'Amateur', minLevel: 6, maxLevel: 15, color: 'text-blue-400' },
-  { name: 'Profi', minLevel: 16, maxLevel: 30, color: 'text-green-400' },
-  { name: 'Elite', minLevel: 31, maxLevel: 50, color: 'text-purple-400' },
-  { name: 'Legende', minLevel: 51, maxLevel: 75, color: 'text-amber-400' },
-  { name: 'Ikone', minLevel: 76, maxLevel: 100, color: 'text-yellow-300' },
-];
-
-export function getLevelTier(level: number): LevelTier {
-  for (let i = LEVEL_TIERS.length - 1; i >= 0; i--) {
-    if (level >= LEVEL_TIERS[i].minLevel) return LEVEL_TIERS[i];
-  }
-  return LEVEL_TIERS[0];
-}
-
 // ============================================
 // HELPER FUNCTIONS
 // ============================================
@@ -934,7 +906,7 @@ export function getLevelTier(level: number): LevelTier {
 // NOTIFICATION TYPES
 // ============================================
 
-export type NotificationType = 'research_unlock' | 'research_rating' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward' | 'event_starting' | 'event_closing_soon' | 'bounty_expiring' | 'new_ipo_available' | 'referral_reward' | 'tip_received' | 'subscription_new' | 'creator_fund_payout' | 'ad_revenue_payout';
+export type NotificationType = 'research_unlock' | 'research_rating' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward' | 'event_starting' | 'event_closing_soon' | 'bounty_expiring' | 'new_ipo_available' | 'referral_reward' | 'tip_received' | 'subscription_new' | 'creator_fund_payout' | 'ad_revenue_payout' | 'achievement' | 'level_up' | 'rang_up' | 'rang_down' | 'mastery_level_up';
 
 export type DbNotification = {
   id: string;
@@ -1013,6 +985,7 @@ export type DbBounty = {
   position: string | null;
   status: BountyStatus;
   submission_count: number;
+  min_tier?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -1150,10 +1123,14 @@ export type GameweekStatus = {
 // ============================================
 
 export type StreakResult = {
-  success: boolean;
-  current_streak: number;
-  longest_streak: number;
-  rewards_given: { milestone: number; reward_cents: number }[];
+  ok: boolean;
+  streak: number;
+  longest: number;
+  shield_used: boolean;
+  shields_remaining: number;
+  milestone_reward: number;
+  milestone_label?: string | null;
+  already_today?: boolean;
 };
 
 // ============================================
@@ -1235,10 +1212,16 @@ export type DbAirdropScore = {
   followers_count: number;
   posts_upvotes: number;
   active_days: number;
+  total_trades: number;
+  research_count: number;
   referral_count: number;
   total_score: number;
   rank: number | null;
   tier: AirdropTier;
+  founding_multiplier: number;
+  mastery_score?: number;
+  scout_rang_score?: number;
+  abo_multiplier?: number;
   updated_at: string;
   created_at?: string;
 };

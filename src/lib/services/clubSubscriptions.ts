@@ -29,6 +29,7 @@ export const TIER_CONFIG: Record<SubscriptionTier, {
   priceBsd: number;
   priceCents: number;
   color: string;
+  feeDiscountBps: number;
   benefits: string[];
 }> = {
   bronze: {
@@ -36,21 +37,24 @@ export const TIER_CONFIG: Record<SubscriptionTier, {
     priceBsd: 500,
     priceCents: 50000,
     color: '#CD7F32',
-    benefits: ['Abzeichen auf Profil', 'Priority-Voting'],
+    feeDiscountBps: 50,
+    benefits: ['Profil-Abzeichen', 'Stimmgewicht ×2 bei Votes', 'Trading-Rabatt (0.5%)'],
   },
   silber: {
     label: 'Silber',
     priceBsd: 1500,
     priceCents: 150000,
     color: '#C0C0C0',
-    benefits: ['Alle Bronze-Vorteile', 'Early IPO Access (24h)', 'Exklusive Bounties'],
+    feeDiscountBps: 100,
+    benefits: ['Alle Bronze-Vorteile', 'IPO-Vorkaufsrecht (24h)', 'Exklusive Aufträge', 'Trading-Rabatt (1%)'],
   },
   gold: {
     label: 'Gold',
     priceBsd: 3000,
     priceCents: 300000,
     color: '#FFD700',
-    benefits: ['Alle Silber-Vorteile', 'Premium Fantasy Events', 'Direkt-Chat mit Club'],
+    feeDiscountBps: 150,
+    benefits: ['Alle Silber-Vorteile', 'Score Boost (+20%)', 'Premium Fantasy Events', 'Trading-Rabatt (1.5%)'],
   },
 };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Plus, Users } from 'lucide-react';
 import { Button, Card, ErrorState, TabBar, TabPanel, Skeleton } from '@/components/ui';
@@ -18,6 +19,7 @@ import {
   usePlayers, useHoldings, usePosts, useLeaderboard,
   useFollowingIds, useFollowerCount, useFollowingCount,
   useClubVotes, useResearchPosts, useCommunityPolls, useActiveBounties,
+  useClubSubscription,
   qk, invalidateCommunityQueries, invalidateSocialQueries, invalidateResearchQueries, invalidatePollQueries,
 } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
@@ -47,6 +49,8 @@ export default function CommunityPage() {
   const { user, profile } = useUser();
   const { addToast } = useToast();
   const { activeClub } = useClub();
+  const t = useTranslations('community');
+  const tc = useTranslations('common');
   const uid = user?.id;
 
   // Club context
@@ -92,6 +96,7 @@ export default function CommunityPage() {
   const { data: researchPosts = [] } = useResearchPosts(uid);
   const { data: communityPolls = [] } = useCommunityPolls(scopeClubId);
   const { data: bounties = [] } = useActiveBounties(uid, scopeClubId);
+  const { data: clubSub = null } = useClubSubscription(uid, clubId ?? undefined);
   const { data: followerCount = 0 } = useFollowerCount(uid);
   const { data: followingCountNum = 0 } = useFollowingCount(uid);
 
@@ -429,11 +434,11 @@ export default function CommunityPage() {
 
   // ---- Tab Config ----
   const TABS: { id: MainTab; label: string }[] = [
-    { id: 'feed', label: 'Feed' },
-    { id: 'research', label: 'Research' },
-    { id: 'geruechte', label: 'Gerüchte' },
-    { id: 'aktionen', label: 'Aktionen' },
-    { id: 'ranking', label: 'Ranking' },
+    { id: 'feed', label: t('feed') },
+    { id: 'research', label: t('research') },
+    { id: 'geruechte', label: t('rumors') },
+    { id: 'aktionen', label: t('actions') },
+    { id: 'ranking', label: t('leaderboard') },
   ];
 
   if (!user) return null;
@@ -443,12 +448,12 @@ export default function CommunityPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black">Community</h1>
-          <p className="text-sm text-white/50 mt-1">Vernetze dich mit anderen Scouts</p>
+          <h1 className="text-2xl md:text-3xl font-black">{t('title')}</h1>
+          <p className="text-sm text-white/50 mt-1">{t('subtitle')}</p>
         </div>
         <Button variant="gold" size="sm" onClick={() => setCreatePostOpen(true)}>
           <Plus className="w-4 h-4" />
-          Posten
+          {t('post')}
         </Button>
       </div>
 
@@ -461,7 +466,7 @@ export default function CommunityPage() {
               clubScope === 'all' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
             }`}
           >
-            Alle Clubs
+            {t('allClubs')}
           </button>
           <button
             onClick={() => setClubScope('myclub')}
@@ -469,7 +474,7 @@ export default function CommunityPage() {
               clubScope === 'myclub' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
             }`}
           >
-            {activeClub.short ?? 'Mein Club'}
+            {activeClub.short ?? t('myClub')}
           </button>
         </div>
       )}
@@ -496,7 +501,7 @@ export default function CommunityPage() {
           onClick={() => setFollowListMode('following')}
           className="text-[10px] font-bold text-[#FFD700]/60 hover:text-[#FFD700] transition-colors"
         >
-          Verwalten
+          {tc('manage')}
         </button>
       </div>
 
@@ -546,7 +551,7 @@ export default function CommunityPage() {
                       : 'bg-white/5 text-white/50 border border-white/10 hover:text-white'
                   }`}
                 >
-                  {mode === 'all' ? 'Alle' : 'Folge ich'}
+                  {mode === 'all' ? t('filterAll') : t('filterFollowing')}
                 </button>
               ))}
             </div>
@@ -588,16 +593,16 @@ export default function CommunityPage() {
           <TabPanel activeTab={mainTab} id="geruechte">
             <div className="space-y-4">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm text-white/50">Transfergerüchte und Insider-Infos aus der Community</p>
+                <p className="text-sm text-white/50">{t('rumorsDesc')}</p>
               </div>
               {rumors.length === 0 ? (
                 <Card className="p-8 text-center border-red-500/10">
                   <div className="text-3xl mb-3">📡</div>
-                  <div className="text-white/50 text-sm mb-1">Noch keine Gerüchte</div>
-                  <div className="text-white/30 text-xs mb-3">Erstelle einen Post mit Typ &quot;Gerücht&quot; oder geh zu einem Spieler!</div>
+                  <div className="text-white/50 text-sm mb-1">{t('noRumors')}</div>
+                  <div className="text-white/30 text-xs mb-3">{t('noRumorsHint')}</div>
                   <Button variant="gold" size="sm" onClick={() => setCreatePostOpen(true)}>
                     <Plus className="w-4 h-4" />
-                    Gerücht posten
+                    {t('postRumor')}
                   </Button>
                 </Card>
               ) : (
@@ -609,7 +614,7 @@ export default function CommunityPage() {
                         <span className="font-bold text-sm">{rumor.author_display_name || rumor.author_handle}</span>
                         <span className="text-[10px] text-white/30 px-1.5 py-0.5 bg-white/5 rounded">Lv{rumor.author_level}</span>
                         <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold border bg-red-500/15 text-red-300 border-red-500/20">
-                          {rumor.rumor_source ? `📡 ${rumor.rumor_source}` : '📡 Gerücht'}
+                          {rumor.rumor_source ? `📡 ${rumor.rumor_source}` : `📡 ${t('rumorBadge')}`}
                         </span>
                         {rumor.rumor_club_target && (
                           <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold border bg-amber-500/15 text-amber-300 border-amber-500/20">
@@ -625,7 +630,7 @@ export default function CommunityPage() {
                       <p className="text-sm text-white/80 leading-relaxed mb-2">{rumor.content}</p>
                       <div className="flex items-center gap-4 text-xs text-white/40">
                         <span className="font-mono font-bold" style={{ color: netScore > 5 ? '#22C55E' : netScore < 0 ? '#f87171' : undefined }}>
-                          {netScore > 0 ? '+' : ''}{netScore} Stimmen
+                          {netScore > 0 ? '+' : ''}{netScore} {tc('votes')}
                         </span>
                         <span>{new Date(rumor.created_at).toLocaleDateString('de-DE')}</span>
                       </div>
@@ -641,7 +646,7 @@ export default function CommunityPage() {
             <div className="space-y-8">
               {/* Votes Section */}
               <section>
-                <h2 className="text-lg font-bold mb-4">Abstimmungen & Umfragen</h2>
+                <h2 className="text-lg font-bold mb-4">{t('votesTitle')}</h2>
                 <CommunityVotesTab
                   communityPolls={communityPolls}
                   userPollVotedIds={userPollVotedIds}
@@ -659,12 +664,13 @@ export default function CommunityPage() {
 
               {/* Bounties Section */}
               <section>
-                <h2 className="text-lg font-bold mb-4">Aufträge</h2>
+                <h2 className="text-lg font-bold mb-4">{t('bountiesTitle')}</h2>
                 <CommunityBountiesTab
                   bounties={bounties}
                   userId={user.id}
                   onSubmit={handleSubmitBounty}
                   submitting={submittingBountyId}
+                  userTier={clubSub?.tier ?? null}
                 />
               </section>
             </div>

@@ -1,6 +1,6 @@
 import type { EventStatus, EventType } from './types';
 import {
-  Sparkles, Building2, Gift, UserPlus, Star, Trophy,
+  Sparkles, Building2, Gift, UserPlus, Star, Trophy, Swords,
 } from 'lucide-react';
 
 export const getStatusStyle = (status: EventStatus) => {
@@ -22,6 +22,15 @@ export const getTypeStyle = (type: EventType) => {
     case 'creator': return { color: 'text-orange-400', bg: 'bg-orange-500/15', icon: UserPlus };
     case 'special': return { color: 'text-purple-400', bg: 'bg-purple-500/15', icon: Star };
     default: return { color: 'text-white/70', bg: 'bg-white/10', icon: Trophy };
+  }
+};
+
+export const getTierStyle = (tier: 'arena' | 'club' | 'user') => {
+  switch (tier) {
+    case 'arena': return { color: 'text-amber-400', bg: 'bg-amber-500/15', border: 'border-amber-500/30', icon: Swords, label: 'Arena', pointsLabel: '+50 / −15' };
+    case 'club': return { color: 'text-[#22C55E]', bg: 'bg-[#22C55E]/10', border: 'border-[#22C55E]/20', icon: Building2, label: 'Club', pointsLabel: '+1 bis +15' };
+    case 'user': return { color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', icon: UserPlus, label: 'User', pointsLabel: '' };
+    default: return { color: 'text-white/50', bg: 'bg-white/5', border: 'border-white/10', icon: Trophy, label: '', pointsLabel: '' };
   }
 };
 

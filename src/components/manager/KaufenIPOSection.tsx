@@ -35,6 +35,7 @@ interface KaufenIPOSectionProps {
   trending: TrendingPlayer[];
   watchlist: Record<string, boolean>;
   onWatch: (id: string) => void;
+  onIpoBuy?: (playerId: string, quantity?: number) => void;
   buyingId: string | null;
   followedClubNames: Set<string>;
   enrichLoading: boolean;
@@ -42,6 +43,11 @@ interface KaufenIPOSectionProps {
   view: 'grid' | 'list';
   /** Flat filtered IPO list for card grid view */
   filteredIPOs: { player: Player; ipo: IpoDisplayData }[];
+  /** Max clubs visible before "show all" button (default 5) */
+  maxVisibleClubs?: number;
+  /** i18n labels for show all / show less */
+  showAllLabel?: string;
+  showLessLabel?: string;
 }
 
 // ============================================
@@ -68,12 +74,18 @@ export default function KaufenIPOSection({
   trending,
   watchlist,
   onWatch,
+  onIpoBuy,
   buyingId,
   followedClubNames,
   enrichLoading,
   view,
   filteredIPOs,
+  maxVisibleClubs = 5,
+  showAllLabel,
+  showLessLabel,
 }: KaufenIPOSectionProps) {
+
+  const [showAllClubs, setShowAllClubs] = useState(false);
 
   // Auto-expand: followed clubs by default, otherwise first club
   const [expandedIPOClubs, setExpandedIPOClubs] = useState<Set<string>>(() => {
@@ -247,13 +259,14 @@ export default function KaufenIPOSection({
           {filteredIPOs.map(({ player: p, ipo }) => (
             <PlayerDisplay key={p.id} variant="card" player={p}
               ipoData={ipo}
-              isWatchlisted={watchlist[p.id]} onWatch={() => onWatch(p.id)} />
+              isWatchlisted={watchlist[p.id]} onWatch={() => onWatch(p.id)}
+              onBuy={onIpoBuy ? (id) => onIpoBuy(id) : undefined} buying={buyingId === p.id} />
           ))}
         </div>
       ) : (
         /* ── Club Accordion (new list view) ── */
         <div className="space-y-1.5">
-          {clubGroups.map(({ clubName, clubData, items, avgL5, posCounts }) => {
+          {(showAllClubs ? clubGroups : clubGroups.slice(0, maxVisibleClubs)).map(({ clubName, clubData, items, avgL5, posCounts }) => {
             const isExpanded = expandedIPOClubs.has(clubName);
             const primaryColor = clubData?.colors.primary ?? '#666';
             const posGroups = isExpanded ? getPositionGroups(items) : [];
@@ -288,7 +301,10 @@ export default function KaufenIPOSection({
                     })}
                   </div>
 
-                  <span className="text-xs text-white/40 ml-auto mr-1">{items.length} IPOs</span>
+                  {!followedClubNames.has(clubName) && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 text-white/30 font-bold ml-auto">Nicht gefolgt</span>
+                  )}
+                  <span className={cn("text-xs text-white/40 mr-1", followedClubNames.has(clubName) && "ml-auto")}>{items.length} IPOs</span>
                   <span className="text-[10px] text-white/30 mr-2 hidden sm:inline">
                     {'\u00D8'} L5: {avgL5}
                   </span>
@@ -320,6 +336,8 @@ export default function KaufenIPOSection({
                               ipoData={ipo}
                               isWatchlisted={watchlist[player.id]}
                               onWatch={() => onWatch(player.id)}
+                              onBuy={onIpoBuy ? (id) => onIpoBuy(id) : undefined}
+                              buying={buyingId === player.id}
                             />
                           ))}
                         </div>
@@ -330,6 +348,17 @@ export default function KaufenIPOSection({
               </div>
             );
           })}
+          {/* Show all / Show less button */}
+          {clubGroups.length > maxVisibleClubs && (
+            <button
+              onClick={() => setShowAllClubs(!showAllClubs)}
+              className="w-full py-2.5 text-center text-xs font-bold text-white/40 hover:text-white/70 border border-white/[0.06] rounded-xl hover:bg-white/[0.03] transition-all"
+            >
+              {showAllClubs
+                ? (showLessLabel || 'Weniger anzeigen ▴')
+                : (showAllLabel || `Alle ${clubGroups.length} Clubs anzeigen ▾`)}
+            </button>
+          )}
         </div>
       )}
 

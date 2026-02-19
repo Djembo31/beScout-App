@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import {
   ShoppingCart, Users, Clock, Target, Zap, Lock,
-  PiggyBank, Crown, AlertTriangle, Send, Briefcase,
+  AlertTriangle, Send, Briefcase,
   CheckCircle2, XCircle, Loader2,
 } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
@@ -15,14 +15,7 @@ import SponsorBanner from './SponsorBanner';
 
 // ─── Helpers ────────────────────────────────────
 
-const getIPOFormatLabel = (format: string) => {
-  switch (format) {
-    case 'fixed': return 'Festpreis';
-    case 'tiered': return 'Staffelpreis';
-    case 'dutch': return 'Sinkender Preis';
-    default: return format;
-  }
-};
+const getIPOFormatLabel = (_format: string) => 'Festpreis';
 
 const formatCountdown = (isoDate: string) => {
   const ms = Math.max(0, new Date(isoDate).getTime() - Date.now());
@@ -307,13 +300,6 @@ function IPOBuySection({
             <span className="text-white/50 text-sm">IPO Preis</span>
             <span className="font-mono font-black text-2xl text-[#FFD700]">{fmtBSD(priceBsd)} BSD</span>
           </div>
-          {ipo.member_discount > 0 && (
-            <div className="flex items-center gap-2 text-sm bg-purple-500/10 border border-purple-500/20 rounded-lg px-3 py-2">
-              <Crown className="w-4 h-4 text-purple-400" />
-              <span className="text-purple-300">Club-Mitglied: -{ipo.member_discount}%</span>
-              <span className="font-mono font-bold text-purple-300 ml-auto">{fmtBSD(priceBsd * (1 - ipo.member_discount / 100))} BSD</span>
-            </div>
-          )}
         </div>
         {/* Limits */}
         <div className="grid grid-cols-2 gap-3 text-sm">
@@ -326,7 +312,7 @@ function IPOBuySection({
             <div className="font-mono font-bold">{userPurchased} DPC</div>
           </div>
         </div>
-        {/* Buy form */}
+        {/* Buy form — open to all users */}
         {canBuyMore && maxBuy > 0 ? (
           <>
             <div>
@@ -597,7 +583,7 @@ function HoldingsSection({
                 {/* Fee breakdown */}
                 {sellPriceBsd && Number(sellPriceBsd) > 0 && (() => {
                   const gross = sellQty * Number(sellPriceBsd);
-                  const feePct = 5;
+                  const feePct = 6;
                   const fee = gross * feePct / 100;
                   const net = gross - fee;
                   return (

@@ -187,6 +187,26 @@ export const qk = {
     config: ['scoutSubs', 'config'] as const,
   },
 
+  // ── Gamification (Scout Scores — 3 Dimensions) ──
+  gamification: {
+    scoutScores: (uid: string) => ['gamification', 'scoutScores', uid] as const,
+    scoreRoad: (uid: string) => ['gamification', 'scoreRoad', uid] as const,
+    leaderboardByDim: (dim: string, n: number) => ['gamification', 'leaderboard', dim, n] as const,
+  },
+
+  // ── DPC Mastery ──
+  mastery: {
+    byUserPlayer: (uid: string, pid: string) => ['mastery', uid, pid] as const,
+    byUser: (uid: string) => ['mastery', 'all', uid] as const,
+  },
+
+  // ── Airdrop ──
+  airdrop: {
+    score: (uid: string) => ['airdrop', 'score', uid] as const,
+    leaderboard: (n: number) => ['airdrop', 'leaderboard', n] as const,
+    stats: ['airdrop', 'stats'] as const,
+  },
+
   // ── Creator Fund ──
   creatorFund: {
     stats: ['creatorFund', 'stats'] as const,

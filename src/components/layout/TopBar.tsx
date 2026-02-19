@@ -13,6 +13,7 @@ import NotificationDropdown from '@/components/layout/NotificationDropdown';
 import SearchDropdown from '@/components/layout/SearchDropdown';
 import { getUnreadCount } from '@/lib/services/notifications';
 import { useToast } from '@/components/providers/ToastProvider';
+import { useTranslations } from 'next-intl';
 
 interface TopBarProps {
   onMobileMenuToggle?: () => void;
@@ -32,6 +33,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
 
+  const t = useTranslations('nav');
   const name = profile?.display_name || displayName(user);
   const initial = name.charAt(0).toUpperCase();
   const level = profile?.level ?? 1;
@@ -70,20 +72,20 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
         const { unsubscribeFromPush } = await import('@/lib/services/pushSubscription');
         await unsubscribeFromPush(user.id);
         setPushEnabled(false);
-        addToast('Push-Benachrichtigungen deaktiviert', 'success');
+        addToast(t('pushDisabled'), 'success');
       } else {
         const { subscribeToPush } = await import('@/lib/services/pushSubscription');
         const ok = await subscribeToPush(user.id);
         setPushEnabled(ok);
         if (ok) {
-          addToast('Push-Benachrichtigungen aktiviert', 'success');
+          addToast(t('pushEnabled'), 'success');
         } else {
-          addToast('Benachrichtigungen sind im Browser blockiert. Bitte in den Browser-Einstellungen aktivieren.', 'error');
+          addToast(t('pushBlocked'), 'error');
         }
       }
     } catch (err) {
       console.error('[TopBar] togglePush:', err);
-      addToast('Push-Einstellung konnte nicht geändert werden', 'error');
+      addToast(t('pushError'), 'error');
     }
     finally { setPushLoading(false); }
   }, [user, pushEnabled, addToast]);
@@ -137,7 +139,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
             <input
               type="text"
-              placeholder="Spieler, Research, Nutzer suchen..."
+              placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={handleSearchChange}
               onFocus={() => { if (searchQuery.length >= 2) setSearchOpen(true); }}
@@ -163,7 +165,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           <button
             onClick={() => setMobileSearchOpen(true)}
             className="lg:hidden p-2.5 bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 rounded-xl transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
-            aria-label="Suche"
+            aria-label={t('searchPlaceholder')}
           >
             <Search className="w-4 h-4 text-white/70" />
           </button>
@@ -177,8 +179,8 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
                 ? 'bg-[#22C55E]/10 border-[#22C55E]/20 hover:bg-[#22C55E]/20'
                 : 'bg-white/5 border-white/10 hover:bg-white/10'
             }`}
-            aria-label={pushEnabled ? 'Push deaktivieren' : 'Push aktivieren'}
-            title={pushEnabled ? 'Push-Benachrichtigungen aktiv' : 'Push-Benachrichtigungen aktivieren'}
+            aria-label={pushEnabled ? t('pushDisable') : t('pushEnable')}
+            title={pushEnabled ? t('pushActive') : t('pushActivate')}
           >
             {pushEnabled
               ? <BellRing className="w-4 h-4 md:w-5 md:h-5 text-[#22C55E]" />
@@ -192,7 +194,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
               data-tour-id="topbar-notifications"
               onClick={() => setNotifOpen(o => !o)}
               className="relative p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
-              aria-label="Benachrichtigungen"
+              aria-label={t('notifications')}
             >
               <Bell className="w-4 h-4 md:w-5 md:h-5 text-white/70" />
               {unreadCount > 0 && (
@@ -215,7 +217,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           <button
             onClick={() => setFeedbackOpen(true)}
             className="p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
-            aria-label="Feedback senden"
+            aria-label={t('feedback')}
           >
             <MessageSquarePlus className="w-4 h-4 md:w-5 md:h-5 text-white/70" />
           </button>
@@ -224,7 +226,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           <div className="flex items-center gap-3 pl-2 md:pl-3 border-l border-white/10">
             <div className="text-right hidden lg:block">
               <div className="font-semibold text-sm">{loading ? '...' : name}</div>
-              <div className="text-[10px] text-white/50">Lv {level} · {plan}</div>
+              <div className="text-[10px] text-white/50">{t('levelPlan', { level, plan })}</div>
             </div>
             <Link href="/profile" className="lg:pointer-events-none">
               <div className="relative w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-[#FFD700]/20 to-[#22C55E]/20 border border-white/10 flex items-center justify-center overflow-hidden">
@@ -248,7 +250,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
             <input
               type="text"
-              placeholder="Spieler, Research, Nutzer suchen..."
+              placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={handleSearchChange}
               onFocus={() => { if (searchQuery.length >= 2) setSearchOpen(true); }}
@@ -258,7 +260,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             <button
               onClick={handleMobileSearchClose}
               className="absolute right-3 top-1/2 -translate-y-1/2"
-              aria-label="Suche schließen"
+              aria-label={t('closeSearch')}
             >
               <X className="w-4 h-4 text-white/30" />
             </button>

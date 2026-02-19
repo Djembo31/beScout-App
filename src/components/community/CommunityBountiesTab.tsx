@@ -11,6 +11,7 @@ interface CommunityBountiesTabProps {
   userId: string;
   onSubmit: (bountyId: string, title: string, content: string) => void;
   submitting: string | null;
+  userTier?: string | null;
 }
 
 export default function CommunityBountiesTab({
@@ -18,6 +19,7 @@ export default function CommunityBountiesTab({
   userId,
   onSubmit,
   submitting,
+  userTier,
 }: CommunityBountiesTabProps) {
   if (bounties.length === 0) {
     return (
@@ -45,6 +47,7 @@ export default function CommunityBountiesTab({
           userId={userId}
           onSubmit={onSubmit}
           submitting={submitting}
+          userTier={userTier}
         />
       ))}
     </div>

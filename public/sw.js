@@ -1,10 +1,25 @@
-// BeScout Service Worker — network-first with offline fallback + push notifications
-const CACHE_NAME = 'bescout-offline-v1';
-const OFFLINE_URL = '/offline.html';
+// BeScout Service Worker — App Shell caching + push notifications
+const CACHE_NAME = 'bescout-v2';
+const APP_SHELL = [
+  '/',
+  '/fantasy',
+  '/market',
+  '/community',
+  '/profile',
+  '/offline.html',
+];
+
+// Static asset patterns to cache
+const STATIC_CACHE_PATTERNS = [
+  /\/_next\/static\//,
+  /\/icons\//,
+  /\/logo\.png$/,
+  /\/schrift\.png$/,
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.add(OFFLINE_URL))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
   );
   self.skipWaiting();
 });
@@ -19,12 +34,43 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.mode !== 'navigate') return;
-  event.respondWith(
-    fetch(event.request).catch(() =>
-      caches.match(OFFLINE_URL).then((cached) => cached || new Response('Offline', { status: 503 }))
-    )
-  );
+  const { request } = event;
+
+  // Navigation requests: network-first, fallback to cache then offline page
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Cache successful navigation responses
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          return response;
+        })
+        .catch(() =>
+          caches.match(request).then((cached) =>
+            cached || caches.match('/offline.html').then((offline) =>
+              offline || new Response('Offline', { status: 503 })
+            )
+          )
+        )
+    );
+    return;
+  }
+
+  // Static assets: cache-first
+  if (STATIC_CACHE_PATTERNS.some((p) => p.test(request.url))) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          return response;
+        });
+      })
+    );
+    return;
+  }
 });
 
 // ============================================
@@ -48,7 +94,6 @@ self.addEventListener('notificationclick', (event) => {
   const url = event.notification.data?.url || '/';
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // Focus existing tab if possible
       for (const client of clientList) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
           client.focus();
@@ -56,7 +101,6 @@ self.addEventListener('notificationclick', (event) => {
           return;
         }
       }
-      // Open new window
       return self.clients.openWindow(url);
     })
   );

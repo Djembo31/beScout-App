@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import {
   Trophy, Grid3X3, List, Globe, History, Plus, AlertCircle, RefreshCw, Loader2, Calendar,
@@ -90,6 +91,8 @@ function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userLineup?:
     userPoints: userLineup?.total_score ?? undefined,
     userReward: userLineup?.reward_amount ?? undefined,
     scoredAt: db.scored_at,
+    eventTier: db.event_tier ?? 'club',
+    minSubscriptionTier: db.min_subscription_tier ?? null,
     requirements: { dpcPerSlot: 1 },
     rewards: [
       { rank: '1st', reward: 'Champion Badge' },
@@ -142,6 +145,9 @@ export default function FantasyContent() {
   const { data: activeGw = 1 } = useActiveGameweek(clubId || undefined);
   const { data: isAdmin = false } = useIsClubAdmin(userId, clubId || undefined);
   const { data: dbHoldings = [] } = useHoldings(userId);
+
+  const t = useTranslations('fantasy');
+  const tc = useTranslations('common');
 
   // State
   const [mainTab, setMainTab] = useState<FantasyTab>('spieltag');
@@ -465,6 +471,7 @@ export default function FantasyContent() {
       isInterested: false,
       creatorId: 'user1',
       creatorName: 'Du',
+      eventTier: 'user',
       requirements: { dpcPerSlot: 1 },
       rewards: [{ rank: '1st', reward: 'League Champion' }],
     };
@@ -518,10 +525,10 @@ export default function FantasyContent() {
         <div className="w-12 h-12 rounded-full bg-red-500/15 border border-red-400/25 flex items-center justify-center">
           <AlertCircle className="w-6 h-6 text-red-400" />
         </div>
-        <div className="text-white/70 font-bold">Daten konnten nicht geladen werden</div>
+        <div className="text-white/70 font-bold">{t('dataLoadFailed')}</div>
         <Button variant="outline" onClick={handleRetry}>
           <RefreshCw className="w-4 h-4" />
-          Erneut versuchen
+          {tc('retry')}
         </Button>
       </div>
     );
@@ -540,7 +547,7 @@ export default function FantasyContent() {
             <div className="flex items-center gap-1.5 text-sm">
               <div className="w-2 h-2 rounded-full bg-[#22C55E]" />
               <span className="font-mono font-bold text-[#22C55E]">{activeEvents.length}</span>
-              <span className="text-white/40 text-xs">Aktiv</span>
+              <span className="text-white/40 text-xs">{tc('active')}</span>
             </div>
           </div>
           {isAdmin && (
@@ -549,7 +556,7 @@ export default function FantasyContent() {
               className="flex items-center gap-1.5 px-3 py-2 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-xl text-sm font-semibold text-[#FFD700] hover:bg-[#FFD700]/20 transition-all"
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Erstellen</span>
+              <span className="hidden sm:inline">{tc('create')}</span>
             </button>
           )}
         </div>
@@ -558,9 +565,9 @@ export default function FantasyContent() {
       {/* SEGMENT TABS — 3 Tabs */}
       <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-x-auto">
         {([
-          { id: 'spieltag' as FantasyTab, label: `Spieltag ${activeGw}`, icon: Calendar },
-          { id: 'events' as FantasyTab, label: 'Events', icon: Globe, count: activeEvents.length },
-          { id: 'history' as FantasyTab, label: 'Verlauf', icon: History },
+          { id: 'spieltag' as FantasyTab, label: `${t('gameweek')} ${activeGw}`, icon: Calendar },
+          { id: 'events' as FantasyTab, label: t('events'), icon: Globe, count: activeEvents.length },
+          { id: 'history' as FantasyTab, label: t('history'), icon: History },
         ]).map(tab => (
           <button
             key={tab.id}
@@ -627,7 +634,7 @@ export default function FantasyContent() {
 
           {/* SEARCH + FILTERS */}
           <div className="flex items-center gap-2">
-            <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Event suchen..." className="flex-1 min-w-0" />
+            <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder={t('searchEvents')} className="flex-1 min-w-0" />
             <div className="hidden md:flex items-center gap-1 bg-white/5 rounded-xl p-1">
               <button
                 onClick={() => setViewMode('cards')}
@@ -644,9 +651,9 @@ export default function FantasyContent() {
             </div>
             <SortPills
               options={[
-                { id: 'all', label: 'Alle', count: statusCounts.all },
-                { id: 'registering', label: 'Offen', count: statusCounts.registering + statusCounts['late-reg'] },
-                { id: 'ended', label: 'Beendet', count: statusCounts.ended },
+                { id: 'all', label: tc('all'), count: statusCounts.all },
+                { id: 'registering', label: t('status.open'), count: statusCounts.registering + statusCounts['late-reg'] },
+                { id: 'ended', label: tc('ended'), count: statusCounts.ended },
               ]}
               active={statusFilter}
               onChange={(id) => setStatusFilter(id as EventStatus | 'all')}
@@ -657,9 +664,9 @@ export default function FantasyContent() {
           <section>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-[11px] font-black uppercase tracking-wider text-white/40">
-                Events — Spieltag {currentGw}
+                {t('eventsGameweek', { gw: currentGw })}
               </h2>
-              <div className="text-xs text-white/40">{filteredEvents.length} Events</div>
+              <div className="text-xs text-white/40">{t('eventsCount', { count: filteredEvents.length })}</div>
             </div>
             {viewMode === 'cards' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -677,14 +684,14 @@ export default function FantasyContent() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-white/10 text-xs text-white/40">
-                      <th className="py-3 px-4 text-left">Status</th>
-                      <th className="py-3 px-3 text-left">Typ</th>
-                      <th className="py-3 px-3 text-right">Buy-in</th>
-                      <th className="py-3 px-3 text-left">Event</th>
-                      <th className="py-3 px-3 text-right">Prize</th>
-                      <th className="py-3 px-3 text-center">Spieler</th>
+                      <th className="py-3 px-4 text-left">{t('tableStatus')}</th>
+                      <th className="py-3 px-3 text-left">{t('tableType')}</th>
+                      <th className="py-3 px-3 text-right">{t('participation')}</th>
+                      <th className="py-3 px-3 text-left">{t('tableEvent')}</th>
+                      <th className="py-3 px-3 text-right">{t('tablePrize')}</th>
+                      <th className="py-3 px-3 text-center">{t('tablePlayers')}</th>
                       <th className="py-3 px-2"></th>
-                      <th className="py-3 px-3 text-center">Aktion</th>
+                      <th className="py-3 px-3 text-center">{t('tableAction')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -702,7 +709,7 @@ export default function FantasyContent() {
             )}
 
             {filteredEvents.length === 0 && (
-              <EmptyState icon={<Trophy />} title={`Keine Events für Spieltag ${currentGw}`} />
+              <EmptyState icon={<Trophy />} title={t('noEventsForGameweek', { gw: currentGw })} />
             )}
           </section>
         </div>

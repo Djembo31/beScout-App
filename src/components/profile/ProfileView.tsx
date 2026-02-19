@@ -35,7 +35,9 @@ const ReferralCard = dynamic(() => import('@/components/airdrop/ReferralCard'), 
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 import type { HoldingRow } from '@/components/profile/ProfileOverviewTab';
 import type { ProfileTab, Profile, DbTransaction, DbUserStats, DbUserAchievement, ResearchPostWithAuthor, AuthorTrackRecord, UserTradeWithPlayer, UserFantasyResult, PostWithAuthor } from '@/types';
-import { getLevelTier } from '@/types';
+import { RangBadge, DimensionRangStack } from '@/components/ui/RangBadge';
+import FoundingScoutBadge from '@/components/ui/FoundingScoutBadge';
+import { useScoutScores } from '@/lib/queries';
 
 const TABS: { id: ProfileTab; label: string; selfOnly?: boolean }[] = [
   { id: 'overview', label: 'Übersicht' },
@@ -73,6 +75,9 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
   const [holdingsLoading, setHoldingsLoading] = useState(true);
   const [dataError, setDataError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+
+  // Scout Scores (3 Dimensions)
+  const { data: scoutScores } = useScoutScores(targetUserId);
 
   // Reputation & Social
   const [userStats, setUserStats] = useState<DbUserStats | null>(null);
@@ -205,10 +210,22 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
     finally { setStatsRefreshing(false); }
   }, [targetUserId, statsRefreshing]);
 
+  // Level-Up Detection (localStorage comparison → celebration toast)
+  const userLevel = targetProfile.level ?? 1;
+  useEffect(() => {
+    if (!isSelf) return;
+    const key = `bescout_last_level_${targetUserId}`;
+    const stored = localStorage.getItem(key);
+    const lastLevel = stored ? parseInt(stored, 10) : 0;
+    if (lastLevel > 0 && userLevel > lastLevel) {
+      addToast(`Level Up! Du bist jetzt Level ${userLevel}`, 'celebration');
+    }
+    localStorage.setItem(key, String(userLevel));
+  }, [isSelf, targetUserId, userLevel, addToast]);
+
   const name = targetProfile.display_name || targetProfile.handle;
   const userHandle = `@${targetProfile.handle}`;
   const userPlan = targetProfile.plan ?? 'Kostenlos';
-  const userLevel = targetProfile.level ?? 1;
   const initial = name.charAt(0).toUpperCase();
 
   // Computed portfolio stats from real holdings (all in cents)
@@ -274,8 +291,10 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           )}
 
           <div className="flex items-center gap-3 md:gap-4 mt-2 text-xs md:text-sm flex-wrap">
-            <span>Level <strong>{userLevel}</strong></span>
-            <span className={cn('font-semibold', getLevelTier(userLevel).color)}>{getLevelTier(userLevel).name}</span>
+            <RangBadge scores={scoutScores ?? undefined} score={scoutScores ? undefined : 0} size="sm" />
+            {achievements.some(a => a.achievement_key === 'founding_scout') && (
+              <FoundingScoutBadge size="sm" />
+            )}
 
             {/* Clickable Follower/Following */}
             <button
@@ -315,6 +334,13 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               Mitglied seit {new Date(targetProfile.created_at).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' })}
             </span>
           </div>
+          {/* 3-Dimension Scout Scores */}
+          {scoutScores && (
+            <div className="mt-2 bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 max-w-xs">
+              <DimensionRangStack scores={scoutScores} />
+            </div>
+          )}
+
           <div className="flex items-center gap-2 mt-2 md:mt-3">
             {isSelf && (
               <Button variant="outline" size="sm" onClick={() => setTab('settings')}>

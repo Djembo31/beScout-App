@@ -127,7 +127,7 @@ export const HistoryTab = ({
               <span className="font-mono font-bold text-[#FFD700]">{bestRank ? `#${bestRank}` : '\u2014'}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-white/50">Total Gewinn</span>
+              <span className="text-sm text-white/50">Total Prämien</span>
               <span className="font-mono font-bold text-purple-400">{fmtBSD(totalRewardBsd)} BSD</span>
             </div>
           </div>
@@ -165,7 +165,7 @@ export const HistoryTab = ({
                   <th className="py-3 px-4 text-center">Events</th>
                   <th className="py-3 px-4 text-center">Siege</th>
                   <th className="py-3 px-4 text-center">Punkte</th>
-                  <th className="py-3 px-4 text-right">Gewinn</th>
+                  <th className="py-3 px-4 text-right">Prämie</th>
                 </tr>
               </thead>
               <tbody>

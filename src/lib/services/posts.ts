@@ -171,6 +171,16 @@ export async function createPost(
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'post_create', 'community', { postId: data.id, category });
   }).catch(err => console.error('[Posts] Create activity log failed:', err));
+  // Fire-and-forget: +3 Analyst for post creation
+  import('@/lib/services/scoutScores').then(m => {
+    m.awardDimensionScoreAsync(userId, 'analyst', 3, 'post_create', data.id);
+  }).catch(err => console.error('[Posts] Analyst score failed:', err));
+  // Fire-and-forget: +15 Mastery XP if post references a player
+  if (playerId) {
+    import('@/lib/services/mastery').then(m => {
+      m.awardMasteryXp(userId, playerId, 15, 'content');
+    }).catch(err => console.error('[Posts] Mastery XP failed:', err));
+  }
   return data as DbPost;
 }
 
@@ -287,15 +297,28 @@ export async function votePost(
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'post_vote', 'community', { postId, voteType });
   }).catch(err => console.error('[Posts] Vote activity log failed:', err));
-  // Fire-and-forget: airdrop score refresh for post author
+  // Fire-and-forget: analyst score + airdrop refresh for post author
   (async () => {
     try {
       const { data: p } = await supabase.from('posts').select('user_id').eq('id', postId).single();
       if (p && p.user_id !== userId) {
+        const { awardDimensionScoreAsync } = await import('@/lib/services/scoutScores');
+        // +1 Analyst per upvote (capped at 20/post via DB constraint would be ideal, but we accept it here)
+        if (voteType === 1) {
+          awardDimensionScoreAsync(p.user_id, 'analyst', 1, 'post_upvote', postId);
+        }
+        // -2 Analyst for downvotes beyond 3 (check total downvotes)
+        if (voteType === -1) {
+          const { data: voteData } = await supabase.rpc('vote_post_count', { p_post_id: postId });
+          const downvotes = (voteData as { downvotes?: number })?.downvotes ?? 0;
+          if (downvotes > 3) {
+            awardDimensionScoreAsync(p.user_id, 'analyst', -2, 'post_excessive_downvotes', postId);
+          }
+        }
         const { refreshAirdropScore } = await import('@/lib/services/airdropScore');
         refreshAirdropScore(p.user_id);
       }
-    } catch (err) { console.error('[Posts] Airdrop score refresh failed:', err); }
+    } catch (err) { console.error('[Posts] Analyst score + airdrop refresh failed:', err); }
   })();
   return data as { upvotes: number; downvotes: number };
 }

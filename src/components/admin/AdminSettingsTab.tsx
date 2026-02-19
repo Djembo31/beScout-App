@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Settings, Shield, Calendar, Loader2, Check, Database, RefreshCw, Users, Shirt, Trophy, AlertCircle } from 'lucide-react';
+import { Settings, Shield, Calendar, Loader2, Check, Database, RefreshCw, Users, Shirt, Trophy, AlertCircle, Gamepad2, Globe } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
-import { getActiveGameweek, setActiveGameweek } from '@/lib/services/club';
+import { getActiveGameweek, setActiveGameweek, getClubFantasySettings, updateClubFantasySettings } from '@/lib/services/club';
+import type { ClubFantasySettings } from '@/lib/services/club';
 import {
   isApiConfigured,
   getMappingStatus,
@@ -198,17 +199,30 @@ function StatusPill({ label, mapped, total, icon }: { label: string; mapped: num
 // Main Component
 // ============================================
 
+const JURISDICTIONS: { value: ClubFantasySettings['fantasy_jurisdiction_preset']; label: string; desc: string }[] = [
+  { value: 'TR', label: 'Türkei', desc: 'Entry Fees deaktiviert (Regulierung)' },
+  { value: 'DE', label: 'Deutschland', desc: 'Entry Fees deaktiviert (Regulierung)' },
+  { value: 'OTHER', label: 'Andere', desc: 'Entry Fees möglich (Eigenverantwortung)' },
+];
+
 export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
   const [currentGw, setCurrentGw] = useState<number | null>(null);
   const [selectedGw, setSelectedGw] = useState<number>(1);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // Fantasy Settings
+  const [fantasySettings, setFantasySettings] = useState<ClubFantasySettings | null>(null);
+  const [fantasySaving, setFantasySaving] = useState(false);
+  const [fantasySaved, setFantasySaved] = useState(false);
+
   useEffect(() => {
     getActiveGameweek(club.id).then(gw => {
       setCurrentGw(gw);
       setSelectedGw(gw);
     }).catch(err => console.error('[AdminSettings] getActiveGameweek:', err));
+    getClubFantasySettings(club.id).then(setFantasySettings)
+      .catch(err => console.error('[AdminSettings] getClubFantasySettings:', err));
   }, [club.id]);
 
   const handleSetGw = async () => {
@@ -221,6 +235,18 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
       setTimeout(() => setSaved(false), 2000);
     } catch (err) { console.error('[AdminSettings] setActiveGameweek:', err); }
     setSaving(false);
+  };
+
+  const handleSaveFantasy = async () => {
+    if (!fantasySettings) return;
+    setFantasySaving(true);
+    setFantasySaved(false);
+    try {
+      await updateClubFantasySettings(club.id, fantasySettings);
+      setFantasySaved(true);
+      setTimeout(() => setFantasySaved(false), 2000);
+    } catch (err) { console.error('[AdminSettings] updateClubFantasySettings:', err); }
+    setFantasySaving(false);
   };
 
   return (
@@ -273,6 +299,88 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
 
       {/* API-Football Integration */}
       <ApiFootballSection />
+
+      {/* Fantasy Settings */}
+      <Card className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+            <Gamepad2 className="w-5 h-5 text-purple-400" />
+          </div>
+          <div>
+            <div className="font-bold">Fantasy-Einstellungen</div>
+            <div className="text-xs text-white/50">Jurisdiktion und Event-Defaults für diesen Club</div>
+          </div>
+        </div>
+
+        {!fantasySettings ? (
+          <div className="flex items-center justify-center py-6">
+            <Loader2 className="w-5 h-5 animate-spin text-white/30" />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* Jurisdiction */}
+            <div>
+              <label className="block text-sm font-medium mb-2 flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5 text-white/40" />
+                Jurisdiktion
+              </label>
+              <select
+                value={fantasySettings.fantasy_jurisdiction_preset}
+                onChange={(e) => {
+                  const preset = e.target.value as ClubFantasySettings['fantasy_jurisdiction_preset'];
+                  const allowFees = preset === 'OTHER';
+                  setFantasySettings(prev => prev ? { ...prev, fantasy_jurisdiction_preset: preset, fantasy_allow_entry_fees: allowFees, fantasy_entry_fee_cents: allowFees ? prev.fantasy_entry_fee_cents : 0 } : prev);
+                }}
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm"
+              >
+                {JURISDICTIONS.map(j => (
+                  <option key={j.value} value={j.value}>{j.label} — {j.desc}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Entry Fee Lock Info */}
+            {!fantasySettings.fantasy_allow_entry_fees && (
+              <div className="flex items-start gap-2.5 p-3 bg-amber-500/5 border border-amber-500/15 rounded-xl">
+                <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                <div className="text-xs text-amber-300/80">
+                  Entry Fees sind in <strong>{fantasySettings.fantasy_jurisdiction_preset === 'TR' ? 'der Türkei' : 'Deutschland'}</strong> aus regulatorischen Gründen deaktiviert. Alle Events dieses Clubs werden automatisch auf 0 BSD gesetzt.
+                </div>
+              </div>
+            )}
+
+            {/* Default Entry Fee (only if allowed) */}
+            {fantasySettings.fantasy_allow_entry_fees && (
+              <div>
+                <label className="block text-sm font-medium mb-2">Standard-Teilnahmegebühr (BSD)</label>
+                <input
+                  type="number"
+                  value={fantasySettings.fantasy_entry_fee_cents / 100}
+                  onChange={(e) => setFantasySettings(prev => prev ? { ...prev, fantasy_entry_fee_cents: Math.max(0, Math.round(Number(e.target.value) * 100)) } : prev)}
+                  min={0}
+                  max={1000}
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm"
+                />
+                <div className="text-[10px] text-white/30 mt-1">Wird als Default in neue Events übernommen</div>
+              </div>
+            )}
+
+            <Button
+              onClick={handleSaveFantasy}
+              disabled={fantasySaving}
+              className="w-full"
+            >
+              {fantasySaving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : fantasySaved ? (
+                <><Check className="w-4 h-4 text-[#22C55E]" /> Gespeichert</>
+              ) : (
+                'Fantasy-Einstellungen speichern'
+              )}
+            </Button>
+          </div>
+        )}
+      </Card>
 
       <Card className="p-6">
         <div className="flex items-center gap-3 mb-4">

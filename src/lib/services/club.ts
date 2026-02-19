@@ -473,6 +473,38 @@ export async function updateCommunityGuidelines(
 }
 
 // ============================================
+// Club Fantasy Settings
+// ============================================
+
+export interface ClubFantasySettings {
+  fantasy_entry_fee_cents: number;
+  fantasy_jurisdiction_preset: 'TR' | 'DE' | 'OTHER';
+  fantasy_allow_entry_fees: boolean;
+}
+
+/** Get fantasy settings for a club */
+export async function getClubFantasySettings(clubId: string): Promise<ClubFantasySettings> {
+  const { data, error } = await supabase
+    .from('clubs')
+    .select('fantasy_entry_fee_cents, fantasy_jurisdiction_preset, fantasy_allow_entry_fees')
+    .eq('id', clubId)
+    .single();
+  if (error || !data) {
+    return { fantasy_entry_fee_cents: 0, fantasy_jurisdiction_preset: 'TR', fantasy_allow_entry_fees: false };
+  }
+  return data as ClubFantasySettings;
+}
+
+/** Update fantasy settings for a club (admin only) */
+export async function updateClubFantasySettings(clubId: string, settings: Partial<ClubFantasySettings>): Promise<void> {
+  const { error } = await supabase
+    .from('clubs')
+    .update(settings)
+    .eq('id', clubId);
+  if (error) throw new Error(error.message);
+}
+
+// ============================================
 // Club Withdrawals
 // ============================================
 

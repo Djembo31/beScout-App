@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Card, Button, Chip } from '@/components/ui';
 import type { FantasyEvent } from './types';
-import { getStatusStyle, getTypeStyle, formatCountdown } from './helpers';
+import { getStatusStyle, getTypeStyle, getTierStyle, formatCountdown } from './helpers';
 
 export const EventCard = ({
   event,
@@ -21,9 +21,11 @@ export const EventCard = ({
   const statusStyle = getStatusStyle(event.status);
   const typeStyle = getTypeStyle(event.type);
   const TypeIcon = typeStyle.icon;
+  const tierStyle = getTierStyle(event.eventTier);
+  const isArena = event.eventTier === 'arena';
 
   return (
-    <Card className={`p-4 hover:border-white/20 transition-all ${event.isJoined ? 'border-[#22C55E]/30 bg-[#22C55E]/[0.02]' : ''}`}>
+    <Card className={`p-4 hover:border-white/20 transition-all ${event.isJoined ? 'border-[#22C55E]/30 bg-[#22C55E]/[0.02]' : isArena ? 'border-amber-500/20 bg-amber-500/[0.02]' : ''}`}>
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -84,9 +86,9 @@ export const EventCard = ({
       <div className="grid grid-cols-3 gap-2 mb-3">
         <div className="text-center p-2 bg-white/[0.03] rounded-lg">
           <div className={`font-mono font-bold text-sm ${event.buyIn === 0 ? 'text-[#22C55E]' : 'text-[#FFD700]'}`}>
-            {event.buyIn === 0 ? 'Free' : event.buyIn}
+            {event.buyIn === 0 ? 'Kostenlos' : event.buyIn}
           </div>
-          <div className="text-[9px] text-white/40">Buy-in</div>
+          <div className="text-[9px] text-white/40">Teilnahme</div>
         </div>
         <div className="text-center p-2 bg-white/[0.03] rounded-lg">
           <div className="font-mono font-bold text-sm text-purple-400">{event.prizePool >= 1000 ? `${(event.prizePool / 1000).toFixed(0)}K` : event.prizePool}</div>
@@ -98,9 +100,27 @@ export const EventCard = ({
         </div>
       </div>
 
-      {/* Timer */}
+      {/* Timer + Arena Badge */}
       <div className="flex items-center justify-between text-xs text-white/50 mb-3">
-        <span>{event.format} • {event.mode === 'league' ? 'Liga' : 'Turnier'}</span>
+        <div className="flex items-center gap-2">
+          <span>{event.format} • {event.mode === 'league' ? 'Liga' : 'Turnier'}</span>
+          {isArena && (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/15 border border-amber-500/25 text-amber-400">
+              <tierStyle.icon className="w-3 h-3" />
+              {tierStyle.pointsLabel}
+            </span>
+          )}
+          {event.minSubscriptionTier && (
+            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border ${
+              event.minSubscriptionTier === 'gold' ? 'bg-[#FFD700]/15 border-[#FFD700]/25 text-[#FFD700]' :
+              event.minSubscriptionTier === 'silber' ? 'bg-white/10 border-white/20 text-gray-300' :
+              'bg-orange-500/15 border-orange-500/25 text-orange-300'
+            }`}>
+              <Lock className="w-2.5 h-2.5" />
+              {event.minSubscriptionTier === 'gold' ? 'Gold' : event.minSubscriptionTier === 'silber' ? 'Silber' : 'Bronze'}+
+            </span>
+          )}
+        </div>
         <span>{event.status === 'ended' ? 'Beendet' : formatCountdown(event.lockTime)}</span>
       </div>
 

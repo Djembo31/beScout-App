@@ -1,9 +1,51 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 18.02.2026 (Session 84)
-> Modus: PILOT SPRINT — 147 Migrations, 20 Routes, 566 Spieler, 505 Player Images
+> Letzte Aktualisierung: 18.02.2026 (Session 90)
+> Modus: PILOT SPRINT — 171 Migrations, 21 Routes, 566 Spieler, 505 Player Images
 
 ---
+
+## Gamification System Rewrite — 3-Dim Elo ✅ (18.02.2026)
+- [x] Sprint 1: DB Foundation (scout_scores 3-Dim Start 500, score_history, award_dimension_score RPC)
+- [x] Sprint 2: Rang-System (12 Tiers, Median-Gesamt, RangBadge, 4-Tab Leaderboard, Home+Profil)
+- [x] Sprint 3: Scoring-Regeln (Trader Profit/Loss, Manager Percentile+Absent, Analyst Content)
+- [x] Sprint 4: DPC Mastery (Level 1-5, XP per Hold/Fantasy/Content, Freeze bei Verkauf)
+- [x] Sprint 5: Airdrop (Rang+Mastery+Activity, Founding 3x, Abo-Mult) + 31 Achievements + Streak Shields
+- [x] Sprint 6: Fee-Rabatt per Abo, Rang-Change Notifications, Season Reset, Deprecated Cleanup
+- [x] 10 Migrationen (#162-#171), Build verifiziert (0 Fehler)
+
+## Final Report v3 Action Items ✅ (18.02.2026)
+- [x] DPC Supply: max_supply=300, CHECK Constraint, create_ipo Cap-Check (Migration #161)
+- [x] Legal Brief: 10 Kapitel + 3 Appendices (docs/legal-brief.md)
+- [x] i18n Tier 3-6: 7 Pages + Nav konvertiert, ~404 Keys in 13 Namespaces (DE+TR)
+
+## Pilot-Readiness Briefing (8 Sprints) ✅ (18.02.2026)
+- [x] Sprint 0: UI-Copy Audit (~14 Begriffe: Investor→Sammler, Buy-in→Teilnahme, Entry Fee→Teilnahmegebühr, etc.)
+- [x] Sprint 1: Entry Fees = 0 (Migration + UI lock)
+- [x] Sprint 2: Airdrop Score prominent (neue /airdrop Route, 3 Query-Hooks, Nav-Eintrag)
+- [x] Sprint 3: Founding Scout Badge (Achievement + 1.5x Airdrop + Badge Component)
+- [x] Sprint 4: PWA v2 (manifest + sw.js Caching)
+- [x] Sprint 5: Prestige-Loop (Achievement/Level-Up Notifications, Confetti, Level-Up Detection)
+- [x] Sprint 6: Club Fantasy Settings (3 DB-Spalten, AdminSettingsTab UI)
+- [x] Sprint 7: i18n Infrastruktur (next-intl, de.json + tr.json, Auth+Welcome internationalisiert)
+- [x] 4 Migrationen (#157-#160), Build verifiziert (0 Fehler)
+
+## Project Harmony Sprints 1-5 ✅ (18.02.2026)
+- [x] Sprint 1: Fee-Fix (3-Way-Split 3.5%+1.5%+1%), Gamification DB+Triggers (BeScout Score, 7 Ränge)
+- [x] Sprint 2: Dead Code Removal (altes Tier-System), RangBadge Component, BeScout Score auf Profile
+- [x] Sprint 3: Arena Events (event_tier, 8-stufige Punkte), Visual Distinction, Global Leaderboard
+- [x] Sprint 4: Abo-System Overhaul — 5 echte Perks enforced (Vote ×2, IPO Early Access, Bounties, Score +20%, Premium Events)
+- [x] Sprint 5: Achievement-Fix (25/25 auto-unlock Checks, 6 Lazy Queries)
+- [x] 9 Migrationen (#148-#156), Build verifiziert (0 Fehler)
+
+## Test-Persona Seeding + Feature-Test ✅ (18.02.2026)
+- [x] 5 Personas (mehmet/ayse/emre/zeynep/ali) + 287 Test-Rows
+- [x] DB-Konsistenz (150+ Checks) + UI-Code-Audit bestanden
+
+## UI-Code-Audit + Tips im Feed + Achievements ✅ (18.02.2026)
+- [x] Tips im Community Feed (PostCard)
+- [x] Achievement-Definitions erweitert (25 Keys)
+- [x] Score Labels in gamification.ts
 
 ## ManagerKaderTab Redesign + Navigation Rename ✅ (18.02.2026)
 - [x] ManagerKaderTab: Konsistentes Player-Card-Design (Foto, Position-Border, Club-Logo, Performance-KPIs)

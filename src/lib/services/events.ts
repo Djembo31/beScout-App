@@ -67,6 +67,8 @@ export async function createEvent(params: {
   createdBy: string;
   sponsorName?: string;
   sponsorLogo?: string;
+  eventTier?: 'arena' | 'club' | 'user';
+  minSubscriptionTier?: string | null;
 }): Promise<{ success: boolean; eventId?: string; error?: string }> {
   const { data, error } = await supabase
     .from('events')
@@ -85,6 +87,8 @@ export async function createEvent(params: {
       created_by: params.createdBy,
       sponsor_name: params.sponsorName || null,
       sponsor_logo: params.sponsorLogo || null,
+      event_tier: params.eventTier || 'club',
+      min_subscription_tier: params.minSubscriptionTier || null,
       status: 'registering',
       current_entries: 0,
     })

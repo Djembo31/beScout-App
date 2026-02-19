@@ -3,68 +3,71 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { TrendingUp, Trophy, Users, Vote, ChevronDown, Wallet, ShoppingCart, BarChart3 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui';
 
-const features = [
-  {
-    icon: TrendingUp,
-    color: 'text-[#FFD700]',
-    bg: 'bg-[#FFD700]/10',
-    title: 'DPC Trading',
-    text: 'Kaufe digitale Spielerkarten und verkaufe sie mit Gewinn. Dein Wissen bestimmt deinen Erfolg.',
-  },
-  {
-    icon: Trophy,
-    color: 'text-purple-400',
-    bg: 'bg-purple-400/10',
-    title: 'Fantasy Turniere',
-    text: 'Stelle dein Dream-Team auf und tritt gegen andere Scouts an. Die besten gewinnen BSD.',
-  },
-  {
-    icon: Users,
-    color: 'text-sky-400',
-    bg: 'bg-sky-400/10',
-    title: 'Analysen & Community',
-    text: 'Schreibe Berichte, teile Einschätzungen und baue dir eine Follower-Basis auf.',
-  },
-  {
-    icon: Vote,
-    color: 'text-[#22C55E]',
-    bg: 'bg-[#22C55E]/10',
-    title: 'Club-Abstimmungen',
-    text: 'Stimme bei echten Club-Entscheidungen ab und beeinflusse deinen Verein.',
-  },
-];
-
-const steps = [
-  {
-    icon: Wallet,
-    num: '01',
-    title: 'Registrieren',
-    text: 'Erstelle dein Konto und erhalte 10.000 BSD Startguthaben — kostenlos.',
-  },
-  {
-    icon: ShoppingCart,
-    num: '02',
-    title: 'Spielerkarten kaufen',
-    text: 'Investiere in Spieler, von denen du überzeugt bist. Baue dein Portfolio auf.',
-  },
-  {
-    icon: BarChart3,
-    num: '03',
-    title: 'Verdienen',
-    text: 'Trade, spiele Fantasy-Turniere, schreibe Analysen — und verdiene BSD.',
-  },
-];
-
-const stats = [
-  { value: '25', label: 'Spieler' },
-  { value: '1', label: 'Partnerverein' },
-  { value: 'TFF', label: '1. Lig' },
-  { value: 'Beta', label: 'Phase' },
-];
-
 export default function WelcomePage() {
+  const t = useTranslations('welcome');
+
+  const features = [
+    {
+      icon: TrendingUp,
+      color: 'text-[#FFD700]',
+      bg: 'bg-[#FFD700]/10',
+      title: t('featureDpcTitle'),
+      text: t('featureDpcText'),
+    },
+    {
+      icon: Trophy,
+      color: 'text-purple-400',
+      bg: 'bg-purple-400/10',
+      title: t('featureFantasyTitle'),
+      text: t('featureFantasyText'),
+    },
+    {
+      icon: Users,
+      color: 'text-sky-400',
+      bg: 'bg-sky-400/10',
+      title: t('featureCommunityTitle'),
+      text: t('featureCommunityText'),
+    },
+    {
+      icon: Vote,
+      color: 'text-[#22C55E]',
+      bg: 'bg-[#22C55E]/10',
+      title: t('featureVotesTitle'),
+      text: t('featureVotesText'),
+    },
+  ];
+
+  const steps = [
+    {
+      icon: Wallet,
+      num: '01',
+      title: t('step1Title'),
+      text: t('step1Text'),
+    },
+    {
+      icon: ShoppingCart,
+      num: '02',
+      title: t('step2Title'),
+      text: t('step2Text'),
+    },
+    {
+      icon: BarChart3,
+      num: '03',
+      title: t('step3Title'),
+      text: t('step3Text'),
+    },
+  ];
+
+  const stats = [
+    { value: '25', label: t('statsPlayers') },
+    { value: '1', label: t('statsPartner') },
+    { value: 'TFF', label: t('statsLeague') },
+    { value: 'Beta', label: t('statsPhase') },
+  ];
+
   return (
     <div className="relative min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
       {/* ── Background Effects ── */}
@@ -87,17 +90,17 @@ export default function WelcomePage() {
         </div>
 
         <h1 className="text-3xl md:text-5xl lg:text-6xl font-black leading-tight max-w-3xl">
-          Dein Fußball-Wissen hat endlich einen{' '}
-          <span className="text-[#FFD700]">Wert</span>.
+          {t('heroTitle')}{' '}
+          <span className="text-[#FFD700]">{t('heroHighlight')}</span>.
         </h1>
 
         <p className="mt-4 md:mt-6 text-base md:text-lg text-white/60 max-w-xl leading-relaxed">
-          Kaufe Spielerkarten. Spiele Fantasy-Turniere. Schreibe Analysen. Verdiene BSD.
+          {t('heroSubtitle')}
         </p>
 
         <Link href="/login" className="mt-8">
           <Button variant="gold" size="lg" className="text-base md:text-lg px-8 py-3.5">
-            Jetzt starten
+            {t('ctaStart')}
           </Button>
         </Link>
 
@@ -105,7 +108,7 @@ export default function WelcomePage() {
           onClick={() => document.getElementById('social-proof')?.scrollIntoView({ behavior: 'smooth' })}
           className="absolute bottom-10 flex flex-col items-center gap-1 text-white/30 hover:text-white/50 transition-colors"
         >
-          <span className="text-xs">Mehr erfahren</span>
+          <span className="text-xs">{t('learnMore')}</span>
           <ChevronDown className="w-5 h-5 animate-bounce" />
         </button>
       </section>
@@ -125,7 +128,7 @@ export default function WelcomePage() {
       {/* ── 3. Features ── */}
       <section className="relative max-w-6xl mx-auto px-4 py-20 md:py-28">
         <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-center mb-12 md:mb-16">
-          4 Wege, mit Fußball-Wissen zu verdienen
+          {t('featuresTitle')}
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -148,7 +151,7 @@ export default function WelcomePage() {
       <section className="relative border-y border-white/[0.06] bg-white/[0.01]">
         <div className="max-w-6xl mx-auto px-4 py-20 md:py-28">
           <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-center mb-12 md:mb-16">
-            So funktioniert BeScout
+            {t('howItWorksTitle')}
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
@@ -157,7 +160,7 @@ export default function WelcomePage() {
                 <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#FFD700]/10 mb-4">
                   <s.icon className="w-7 h-7 text-[#FFD700]" />
                 </div>
-                <div className="text-xs font-mono text-[#FFD700]/60 mb-1">Schritt {s.num}</div>
+                <div className="text-xs font-mono text-[#FFD700]/60 mb-1">{t('step')} {s.num}</div>
                 <h3 className="text-lg font-black mb-2">{s.title}</h3>
                 <p className="text-sm text-white/50 leading-relaxed">{s.text}</p>
               </div>
@@ -169,10 +172,10 @@ export default function WelcomePage() {
       {/* ── 5. Vision Quote ── */}
       <section className="relative max-w-4xl mx-auto px-4 py-20 md:py-28 text-center">
         <blockquote className="text-xl md:text-2xl lg:text-3xl font-black leading-snug text-white/90">
-          &ldquo;BeScout ist für Fußball-Wissen, was YouTube für Gesang ist.&rdquo;
+          &ldquo;{t('visionQuote')}&rdquo;
         </blockquote>
         <p className="mt-6 text-sm md:text-base text-white/40 max-w-lg mx-auto leading-relaxed">
-          Auf Twitter interessiert das niemanden. Auf BeScout wirst du dafür bezahlt.
+          {t('visionSub')}
         </p>
       </section>
 
@@ -193,13 +196,13 @@ export default function WelcomePage() {
             <div className="text-center lg:text-left">
               <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
                 <Image src="/Sakarya_logo.png" alt="Sakaryaspor" width={48} height={48} className="w-12 h-12" />
-                <span className="text-lg font-black">Sakaryaspor</span>
+                <span className="text-lg font-black">{t('pilotPartner')}</span>
               </div>
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-black mb-4">
-                25 Spieler. Echte Daten. BeScout startet mit Sakaryaspor.
+                {t('pilotTitle')}
               </h2>
               <p className="text-sm md:text-base text-white/50 leading-relaxed">
-                TFF 1. Lig — die erste Liga auf BeScout. Kaufe Spielerkarten, tritt in Fantasy-Turnieren an und beweise dein Scouting-Talent mit echten Spielern.
+                {t('pilotDesc')}
               </p>
             </div>
           </div>
@@ -209,14 +212,14 @@ export default function WelcomePage() {
       {/* ── 7. Final CTA ── */}
       <section className="relative max-w-4xl mx-auto px-4 py-20 md:py-28 text-center">
         <h2 className="text-2xl md:text-4xl lg:text-5xl font-black mb-6">
-          Bereit, dein Fußball-Wissen zu beweisen?
+          {t('finalCtaTitle')}
         </h2>
         <p className="text-sm md:text-base text-white/50 mb-8 max-w-md mx-auto">
-          Erstelle jetzt dein kostenloses Konto und starte mit 10.000 BSD.
+          {t('finalCtaDesc')}
         </p>
         <Link href="/login">
           <Button variant="gold" size="lg" className="text-base md:text-lg px-8 py-3.5">
-            Kostenlos starten
+            {t('finalCtaButton')}
           </Button>
         </Link>
       </section>
@@ -229,9 +232,9 @@ export default function WelcomePage() {
             <span className="text-xs text-white/40">&copy; 2026 BeScout</span>
           </div>
           <div className="flex items-center gap-6 text-xs text-white/30">
-            <span className="hover:text-white/50 cursor-pointer transition-colors">Nutzungsbedingungen</span>
-            <span className="hover:text-white/50 cursor-pointer transition-colors">Datenschutz</span>
-            <span className="hover:text-white/50 cursor-pointer transition-colors">Impressum</span>
+            <span className="hover:text-white/50 cursor-pointer transition-colors">{t('footerTerms')}</span>
+            <span className="hover:text-white/50 cursor-pointer transition-colors">{t('footerPrivacy')}</span>
+            <span className="hover:text-white/50 cursor-pointer transition-colors">{t('footerImprint')}</span>
           </div>
         </div>
       </footer>

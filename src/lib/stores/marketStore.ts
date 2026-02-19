@@ -7,10 +7,12 @@ export type MarketTab = 'portfolio' | 'kaufen' | 'angebote' | 'spieler';
 interface MarketState {
   tab: MarketTab;
   portfolioView: 'kader' | 'portfolio';
+  kaufenView: 'ipo' | 'markt';
   view: 'grid' | 'list';
   query: string;
   posFilter: Set<Pos>;
   clubFilter: Set<string>;
+  leagueFilter: string;
   sortBy: SortOption;
   priceMin: string;
   priceMax: string;
@@ -28,10 +30,12 @@ interface MarketState {
 
   setTab: (t: MarketTab) => void;
   setPortfolioView: (v: 'kader' | 'portfolio') => void;
+  setKaufenView: (v: 'ipo' | 'markt') => void;
   setView: (v: 'grid' | 'list') => void;
   setQuery: (q: string) => void;
   togglePos: (pos: Pos) => void;
   toggleClub: (club: string) => void;
+  setLeagueFilter: (v: string) => void;
   setSortBy: (s: SortOption) => void;
   setPriceMin: (v: string) => void;
   setPriceMax: (v: string) => void;
@@ -53,10 +57,12 @@ interface MarketState {
 export const useMarketStore = create<MarketState>()((set) => ({
   tab: 'portfolio',
   portfolioView: 'portfolio',
+  kaufenView: 'ipo',
   view: 'grid',
   query: '',
   posFilter: new Set<Pos>(),
   clubFilter: new Set<string>(),
+  leagueFilter: '',
   sortBy: 'floor_asc',
   priceMin: '',
   priceMax: '',
@@ -74,6 +80,7 @@ export const useMarketStore = create<MarketState>()((set) => ({
 
   setTab: (t) => set({ tab: t }),
   setPortfolioView: (v) => set({ portfolioView: v }),
+  setKaufenView: (v) => set({ kaufenView: v }),
   setView: (v) => set({ view: v }),
   setQuery: (q) => set({ query: q }),
   togglePos: (pos) => set((state) => {
@@ -86,6 +93,7 @@ export const useMarketStore = create<MarketState>()((set) => ({
     if (next.has(club)) next.delete(club); else next.add(club);
     return { clubFilter: next };
   }),
+  setLeagueFilter: (v) => set({ leagueFilter: v }),
   setSortBy: (s) => set({ sortBy: s }),
   setPriceMin: (v) => set({ priceMin: v }),
   setPriceMax: (v) => set({ priceMax: v }),
@@ -115,6 +123,7 @@ export const useMarketStore = create<MarketState>()((set) => ({
   resetFilters: () => set({
     posFilter: new Set<Pos>(),
     clubFilter: new Set<string>(),
+    leagueFilter: '',
     priceMin: '',
     priceMax: '',
     onlyAvailable: false,

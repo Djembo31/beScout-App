@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight, Send, RotateCcw, Crown, TrendingUp, Star, Crosshair, Play, Clock, Zap, Gift, Coins, UserCheck, Sparkles, Megaphone } from 'lucide-react';
+import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight, Send, RotateCcw, Crown, TrendingUp, Star, Crosshair, Play, Clock, Zap, Gift, Coins, UserCheck, Sparkles, Megaphone, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getNotifications, markAsRead, markAllAsRead, getUnreadCount } from '@/lib/services/notifications';
 import type { DbNotification, NotificationType } from '@/types';
@@ -37,6 +37,11 @@ function getNotifIcon(type: NotificationType) {
     case 'subscription_new': return <UserCheck className="w-4 h-4" />;
     case 'creator_fund_payout': return <Sparkles className="w-4 h-4" />;
     case 'ad_revenue_payout': return <Megaphone className="w-4 h-4" />;
+    case 'achievement': return <Award className="w-4 h-4" />;
+    case 'level_up': return <Zap className="w-4 h-4" />;
+    case 'rang_up': return <TrendingUp className="w-4 h-4" />;
+    case 'rang_down': return <TrendingUp className="w-4 h-4 rotate-180" />;
+    case 'mastery_level_up': return <Star className="w-4 h-4" />;
     case 'system': return <Info className="w-4 h-4" />;
   }
 }
@@ -71,6 +76,11 @@ function getNotifColor(type: NotificationType): string {
     case 'subscription_new': return 'text-indigo-400 bg-indigo-400/10';
     case 'creator_fund_payout': return 'text-cyan-400 bg-cyan-400/10';
     case 'ad_revenue_payout': return 'text-lime-400 bg-lime-400/10';
+    case 'achievement': return 'text-[#FFD700] bg-[#FFD700]/10';
+    case 'level_up': return 'text-purple-400 bg-purple-400/10';
+    case 'rang_up': return 'text-[#22C55E] bg-[#22C55E]/10';
+    case 'rang_down': return 'text-red-400 bg-red-400/10';
+    case 'mastery_level_up': return 'text-[#FFD700] bg-[#FFD700]/10';
     case 'system': return 'text-sky-400 bg-sky-400/10';
   }
 }

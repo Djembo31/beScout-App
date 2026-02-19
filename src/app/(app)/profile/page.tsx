@@ -9,6 +9,7 @@ import { updateProfile, checkHandleAvailable, isValidHandle } from '@/lib/servic
 import { getAllClubsCached } from '@/lib/clubs';
 import { uploadAvatar } from '@/lib/services/avatars';
 import ProfileView from '@/components/profile/ProfileView';
+import { useTranslations } from 'next-intl';
 
 type HandleStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid' | 'unchanged';
 
@@ -18,6 +19,7 @@ type HandleStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid' | 'u
 
 function SettingsTab() {
   const { user, profile, refreshProfile } = useUser();
+  const t = useTranslations('profile');
 
   const [handle, setHandle] = useState('');
   const [handleStatus, setHandleStatus] = useState<HandleStatus>('idle');
@@ -75,9 +77,9 @@ function SettingsTab() {
         favorite_club: favoriteClub || null,
       });
       await refreshProfile();
-      setProfileMsg({ type: 'success', text: 'Profil gespeichert!' });
+      setProfileMsg({ type: 'success', text: t('saved') });
     } catch (err) {
-      setProfileMsg({ type: 'error', text: err instanceof Error ? err.message : 'Fehler beim Speichern.' });
+      setProfileMsg({ type: 'error', text: err instanceof Error ? err.message : t('saveFailed') });
     } finally {
       setSavingProfile(false);
     }
@@ -89,10 +91,14 @@ function SettingsTab() {
     setAccountMsg(null);
     try {
       await updateProfile(user.id, { language });
+      // Set locale cookie for next-intl
+      document.cookie = `bescout-locale=${language};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
       await refreshProfile();
-      setAccountMsg({ type: 'success', text: 'Einstellungen gespeichert!' });
+      setAccountMsg({ type: 'success', text: t('settingsSaved') });
+      // Reload to apply new locale across the app
+      window.location.reload();
     } catch (err) {
-      setAccountMsg({ type: 'error', text: err instanceof Error ? err.message : 'Fehler beim Speichern.' });
+      setAccountMsg({ type: 'error', text: err instanceof Error ? err.message : t('saveFailed') });
     } finally {
       setSavingAccount(false);
     }
@@ -103,7 +109,7 @@ function SettingsTab() {
     if (!file || !user) return;
     if (!file.type.startsWith('image/')) return;
     if (file.size > 2 * 1024 * 1024) {
-      setProfileMsg({ type: 'error', text: 'Bild darf maximal 2MB groß sein.' });
+      setProfileMsg({ type: 'error', text: t('avatarTooLarge') });
       return;
     }
     setUploadingAvatar(true);
@@ -112,7 +118,7 @@ function SettingsTab() {
       await updateProfile(user.id, { avatar_url: avatarUrl });
       await refreshProfile();
     } catch {
-      setProfileMsg({ type: 'error', text: 'Avatar konnte nicht hochgeladen werden.' });
+      setProfileMsg({ type: 'error', text: t('avatarUploadFailed') });
     } finally {
       setUploadingAvatar(false);
     }
@@ -122,7 +128,7 @@ function SettingsTab() {
     <div className="space-y-6">
       {/* Profile Section */}
       <Card className="p-6">
-        <h3 className="font-black text-lg mb-5">Profil</h3>
+        <h3 className="font-black text-lg mb-5">{t('title')}</h3>
 
         {/* Avatar Upload */}
         <div className="flex items-center gap-4 mb-6">
@@ -144,14 +150,14 @@ function SettingsTab() {
             </label>
           </div>
           <div>
-            <div className="text-sm font-semibold">Profilbild</div>
-            <div className="text-xs text-white/40">JPG/PNG, max. 2MB</div>
+            <div className="text-sm font-semibold">{t('avatarLabel')}</div>
+            <div className="text-xs text-white/40">{t('avatarHint')}</div>
           </div>
         </div>
 
         {/* Handle */}
         <div className="mb-4">
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">Manager-Name</label>
+          <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('handleLabel')}</label>
           <div className="relative">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30 text-sm">@</span>
             <input
@@ -175,18 +181,18 @@ function SettingsTab() {
               {handleStatus === 'invalid' && <X className="w-4 h-4 text-red-400" />}
             </div>
           </div>
-          {handleStatus === 'taken' && <div className="mt-1 text-xs text-red-400">Bereits vergeben.</div>}
-          {handleStatus === 'invalid' && <div className="mt-1 text-xs text-red-400">3-20 Zeichen, nur a-z, 0-9 und _</div>}
+          {handleStatus === 'taken' && <div className="mt-1 text-xs text-red-400">{t('handleTaken')}</div>}
+          {handleStatus === 'invalid' && <div className="mt-1 text-xs text-red-400">{t('handleInvalid')}</div>}
         </div>
 
         {/* Display Name */}
         <div className="mb-4">
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">Anzeigename</label>
+          <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('displayNameLabel')}</label>
           <input
             type="text"
             value={displayNameVal}
             onChange={(e) => setDisplayNameVal(e.target.value.slice(0, 50))}
-            placeholder="Dein Name"
+            placeholder={t('displayNamePlaceholder')}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 placeholder:text-white/30 text-white focus:outline-none focus:border-[#FFD700]/40 transition-all"
           />
         </div>
@@ -194,7 +200,7 @@ function SettingsTab() {
         {/* Bio */}
         <div className="mb-4">
           <label className="text-xs text-white/50 font-semibold mb-1.5 flex items-center justify-between">
-            <span>Bio</span>
+            <span>{t('bioLabel')}</span>
             <span className={cn('font-mono', bio.length > 140 ? 'text-amber-400' : 'text-white/30')}>
               {bio.length}/160
             </span>
@@ -203,20 +209,20 @@ function SettingsTab() {
             value={bio}
             onChange={(e) => setBio(e.target.value.slice(0, 160))}
             rows={3}
-            placeholder="Über dich..."
+            placeholder={t('bioPlaceholder')}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 placeholder:text-white/30 text-white focus:outline-none focus:border-[#FFD700]/40 transition-all resize-none"
           />
         </div>
 
         {/* Favorite Club */}
         <div className="mb-6">
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">Lieblingsverein</label>
+          <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('favoriteClubLabel')}</label>
           <select
             value={favoriteClub}
             onChange={(e) => setFavoriteClub(e.target.value)}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-[#FFD700]/40 transition-all"
           >
-            <option value="">Kein Verein</option>
+            <option value="">{t('favoriteClubNone')}</option>
             {getAllClubsCached().map((club) => (
               <option key={club.id} value={club.id}>{club.name}</option>
             ))}
@@ -234,37 +240,37 @@ function SettingsTab() {
         )}
 
         <Button variant="gold" loading={savingProfile} disabled={!canSaveProfile} onClick={handleSaveProfile}>
-          Profil speichern
+          {t('saveProfile')}
         </Button>
       </Card>
 
       {/* Account Section */}
       <Card className="p-6">
-        <h3 className="font-black text-lg mb-5">Konto</h3>
+        <h3 className="font-black text-lg mb-5">{t('account')}</h3>
 
         <div className="mb-4">
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">E-Mail</label>
+          <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('emailLabel')}</label>
           <input
             type="email"
             value={user?.email ?? ''}
             readOnly
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/[0.02] border border-white/5 text-white/40 cursor-not-allowed"
           />
-          <div className="mt-1 text-[10px] text-white/25">Kann nicht geändert werden</div>
+          <div className="mt-1 text-[10px] text-white/25">{t('emailReadOnly')}</div>
         </div>
 
         <div className="mb-6">
           <label className="text-xs text-white/50 font-semibold mb-1.5 flex items-center gap-1.5">
             <Globe className="w-3.5 h-3.5" />
-            Sprache
+            {t('languageLabel')}
           </label>
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value as 'de' | 'tr' | 'en')}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-[#FFD700]/40 transition-all"
           >
-            <option value="de">Deutsch</option>
-            <option value="tr">Türkçe</option>
+            <option value="de">{t('languageDe')}</option>
+            <option value="tr">{t('languageTr')}</option>
             <option value="en">English</option>
           </select>
         </div>
@@ -280,28 +286,28 @@ function SettingsTab() {
         )}
 
         <Button variant="gold" loading={savingAccount} onClick={handleSaveAccount}>
-          Einstellungen speichern
+          {t('saveSettings')}
         </Button>
       </Card>
 
       {/* Danger Zone */}
       <Card className="p-6 border-red-500/20">
-        <h3 className="font-black text-lg mb-2 text-red-400">Gefahrenzone</h3>
+        <h3 className="font-black text-lg mb-2 text-red-400">{t('dangerZone')}</h3>
         <p className="text-sm text-white/40 mb-4">
-          Das Löschen deines Kontos kann nicht rückgängig gemacht werden.
+          {t('deleteWarning')}
         </p>
         <Button variant="danger" onClick={() => setShowDeleteModal(true)}>
           <AlertTriangle className="w-4 h-4" />
-          Konto löschen
+          {t('deleteAccount')}
         </Button>
       </Card>
 
-      <Modal open={showDeleteModal} title="Konto löschen?" onClose={() => setShowDeleteModal(false)}>
+      <Modal open={showDeleteModal} title={t('deleteTitle')} onClose={() => setShowDeleteModal(false)}>
         <p className="text-sm text-white/60 mb-6">
-          Diese Funktion ist im Pilot-Betrieb noch nicht verfügbar. Kontaktiere uns bei Fragen.
+          {t('deleteMessage')}
         </p>
         <Button variant="outline" fullWidth onClick={() => setShowDeleteModal(false)}>
-          Verstanden
+          {t('understood')}
         </Button>
       </Modal>
     </div>

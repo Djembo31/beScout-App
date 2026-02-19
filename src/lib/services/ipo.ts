@@ -77,7 +77,7 @@ export async function getUserIpoPurchases(userId: string, ipoId: string): Promis
   return (data ?? []).reduce((sum: number, row: { quantity: number }) => sum + row.quantity, 0);
 }
 
-/** Buy from IPO via RPC */
+/** Buy from IPO via RPC — all users can buy, followers/subscribers get early access */
 export async function buyFromIpo(
   userId: string,
   ipoId: string,
@@ -85,6 +85,7 @@ export async function buyFromIpo(
   playerId?: string
 ): Promise<IpoBuyResult> {
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Ungültige Menge.');
+
   const { data, error } = await supabase.rpc('buy_from_ipo', {
     p_user_id: userId,
     p_ipo_id: ipoId,

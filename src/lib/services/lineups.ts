@@ -106,6 +106,12 @@ export async function submitLineup(params: {
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(params.userId, 'lineup_submit', 'fantasy', { eventId: params.eventId, formation: params.formation });
   }).catch(err => console.error('[Lineup] Activity log failed:', err));
+  // Fire-and-forget: +10 Mastery XP per player in lineup
+  import('@/lib/services/mastery').then(({ awardMasteryXpAsync }) => {
+    for (const pid of slotPlayerIds) {
+      awardMasteryXpAsync(params.userId, pid, 10, 'fantasy');
+    }
+  }).catch(err => console.error('[Lineup] Mastery XP failed:', err));
   // NOTE: Mission tracking moved to caller (after entry fee deduction succeeds)
   return data as DbLineup;
 }

@@ -81,19 +81,21 @@ import type { FanTier } from '@/types';
 import { getActivityColor as actColor, getActivityLabel, getRelativeTime, getActivityIcon as actIconName } from '@/lib/activityHelpers';
 import type { Player, DpcHolding, DbTransaction, DbEvent, DbOrder, Pos, DbUserStats, LeaderboardUser, PostWithAuthor, FeedItem } from '@/types';
 import { FEED_ACTION_LABELS } from '@/types';
-import { getLevelTier } from '@/types';
+import { getGesamtRang } from '@/lib/gamification';
+import { useScoutScores } from '@/lib/queries';
 import { InfoTooltip } from '@/components/ui';
+import { useTranslations } from 'next-intl';
 
 // ============================================
 // HELPERS
 // ============================================
 
-function getGreeting(): string {
+function getGreetingKey(): string {
   const h = new Date().getHours();
-  if (h < 6) return 'Gute Nacht';
-  if (h < 12) return 'Guten Morgen';
-  if (h < 18) return 'Guten Tag';
-  return 'Guten Abend';
+  if (h < 6) return 'greetingNight';
+  if (h < 12) return 'greetingMorning';
+  if (h < 18) return 'greetingAfternoon';
+  return 'greetingEvening';
 }
 
 const ICON_MAP: Record<string, React.ElementType> = { CircleDollarSign, Trophy, Award, Users, Zap, FileText, Vote, Activity, Target, Flame, Banknote };
@@ -182,6 +184,8 @@ function HomeSkeleton() {
 const WELCOME_KEY = 'bescout-welcome-dismissed';
 
 function WelcomeBanner({ name }: { name: string }) {
+  const t = useTranslations('home');
+  const tc = useTranslations('common');
   const [visible, setVisible] = useState(() => {
     if (typeof window === 'undefined') return false;
     return !localStorage.getItem(WELCOME_KEY);
@@ -195,34 +199,34 @@ function WelcomeBanner({ name }: { name: string }) {
         <button
           onClick={() => { localStorage.setItem(WELCOME_KEY, '1'); setVisible(false); }}
           className="absolute top-2 right-2 p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 active:scale-90 transition-all"
-          aria-label="Schließen"
+          aria-label={tc('close')}
         >
           <X className="w-4 h-4" />
         </button>
         <div className="flex items-center gap-2 mb-2">
           <Rocket className="w-5 h-5 text-[#FFD700]" />
-          <span className="text-sm font-black text-[#FFD700]">Willkommen, {name}!</span>
+          <span className="text-sm font-black text-[#FFD700]">{t('welcomeGreeting', { name })}</span>
         </div>
         <p className="text-xs text-white/50 mb-3">
-          Verdiene BSD durch Trading, Fantasy-Turniere und Analysen. Wähle dein erstes Ziel:
+          {t('welcomeSubtitle')}
         </p>
         <div className="flex flex-wrap gap-2">
           <Link href="/fantasy">
             <Button variant="gold" size="sm" className="gap-1.5 text-xs">
               <Trophy className="w-3.5 h-3.5" />
-              Fantasy spielen
+              {t('welcomeFantasy')}
             </Button>
           </Link>
           <Link href="/market?tab=kaufen">
             <Button variant="outline" size="sm" className="gap-1.5 text-xs">
               <Zap className="w-3.5 h-3.5 text-[#FFD700]" />
-              Spieler kaufen
+              {t('welcomeBuyPlayers')}
             </Button>
           </Link>
           <Link href="/community">
             <Button variant="outline" size="sm" className="gap-1.5 text-xs">
               <Users className="w-3.5 h-3.5 text-sky-400" />
-              Community
+              {t('welcomeCommunity')}
             </Button>
           </Link>
         </div>
@@ -262,11 +266,7 @@ function updateLoginStreak(): number {
 
 type HomeTab = 'mein' | 'aktuell' | 'entdecken';
 
-const HOME_TABS = [
-  { id: 'mein' as const, label: 'Mein Stand' },
-  { id: 'aktuell' as const, label: 'Aktuell' },
-  { id: 'entdecken' as const, label: 'Entdecken' },
-];
+// HOME_TABS labels are set inside the component via useTranslations
 
 // ============================================
 // MAIN COMPONENT
@@ -284,6 +284,7 @@ export default function HomePage() {
   // ── UI-only state (kept as useState) ──
   const [activeTab, setActiveTab] = useState<HomeTab>('mein');
   const [streak, setStreak] = useState(0);
+  const [shieldsRemaining, setShieldsRemaining] = useState<number | null>(null);
   const [followListMode, setFollowListMode] = useState<'followers' | 'following' | null>(null);
 
   // ── React Query: Phase 1 (critical for "Mein Stand" tab) ──
@@ -292,6 +293,18 @@ export default function HomePage() {
   const { data: events = [] } = useEvents();
   const { data: orders = [] } = useAllOpenOrders();
   const { data: userStats = null } = useUserStats(uid);
+  const { data: scoutScores = null } = useScoutScores(uid);
+
+  // ── i18n ──
+  const t = useTranslations('home');
+  const tc = useTranslations('common');
+  const tg = useTranslations('gamification');
+
+  const HOME_TABS = useMemo(() => [
+    { id: 'mein' as const, label: t('myStand') },
+    { id: 'aktuell' as const, label: 'Aktuell' },
+    { id: 'entdecken' as const, label: t('discover') },
+  ], [t]);
 
   // ── React Query: Phase 2 (secondary data for Aktuell/Entdecken tabs) ──
   const { data: transactions = [] } = useTransactions(uid, 10);
@@ -347,12 +360,14 @@ export default function HomePage() {
     import('@/lib/services/streaks').then(({ recordLoginStreak }) => {
       recordLoginStreak(uid).then(result => {
         if (cancelled) return;
-        setStreak(result.current_streak);
-        localStorage.setItem(STREAK_KEY, JSON.stringify({ current: result.current_streak, lastDate: new Date().toISOString().slice(0, 10) }));
-        if (result.rewards_given && result.rewards_given.length > 0) {
-          result.rewards_given.forEach(r => {
-            addToast(`Streak-Bonus: ${r.milestone} Tage! +${Math.round(r.reward_cents / 100)} BSD`, 'success');
-          });
+        setStreak(result.streak);
+        setShieldsRemaining(result.shields_remaining);
+        localStorage.setItem(STREAK_KEY, JSON.stringify({ current: result.streak, lastDate: new Date().toISOString().slice(0, 10) }));
+        if (result.milestone_reward > 0 && result.milestone_label) {
+          addToast(result.milestone_label, 'success');
+        }
+        if (result.shield_used) {
+          addToast(tg('streak.shieldUsed') + ` ${tg('streak.shieldsRemaining', { count: result.shields_remaining })}`, 'success');
         }
       }).catch(err => console.error('[Home] Login streak record failed:', err));
     }).catch(err => console.error('[Home] Streaks module load failed:', err));
@@ -424,7 +439,7 @@ export default function HomePage() {
       {/* ━━━ GREETING + STREAK ━━━ */}
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-xs text-white/40 tracking-wide">{getGreeting()},</div>
+          <div className="text-xs text-white/40 tracking-wide">{t(getGreetingKey())},</div>
           <h1 className="text-2xl md:text-3xl font-black tracking-tight" suppressHydrationWarning>
             {loading ? '...' : firstName}
             <span className="text-[#FFD700]">.</span>
@@ -436,7 +451,16 @@ export default function HomePage() {
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-400/20 anim-fade">
               <Flame className="w-4 h-4 text-orange-400" />
               <span className="text-sm font-black text-orange-300">{streak}</span>
-              <span className="text-[10px] text-orange-400/60 hidden sm:inline">Tage</span>
+              <span className="text-[10px] text-orange-400/60 hidden sm:inline">{t('streakDays')}</span>
+            </div>
+          )}
+          {shieldsRemaining != null && shieldsRemaining > 0 && (
+            <div
+              className="flex items-center gap-1 px-2 py-1.5 rounded-xl bg-sky-500/10 border border-sky-400/20 anim-fade"
+              title={tg('streak.shieldHint')}
+            >
+              <Shield className="w-3.5 h-3.5 text-sky-400" />
+              <span className="text-xs font-black text-sky-300">{shieldsRemaining}</span>
             </div>
           )}
         </div>
@@ -452,16 +476,16 @@ export default function HomePage() {
       <div data-tour-id="home-stats" className="grid grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2 md:gap-3">
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/50 uppercase tracking-wider">Spielerkader</span>
-            <InfoTooltip text="Der Gesamtwert aller DPCs in deinem Kader, berechnet zum aktuellen Floor-Preis." />
+            <span className="text-[10px] text-white/50 uppercase tracking-wider">{t('portfolioRoster')}</span>
+            <InfoTooltip text={t('portfolioRosterTooltip')} />
           </div>
           <div className="font-mono font-black text-base md:text-xl text-white truncate">{fmtBSD(portfolioValue)}</div>
           <div className="text-[10px] text-white/40">{holdings.length} Spieler · {totalDpcs} DPC</div>
         </div>
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/50 uppercase tracking-wider">P&L</span>
-            <InfoTooltip text="Profit & Loss — die Differenz zwischen aktuellem Wert und deinem durchschnittlichen Kaufpreis." />
+            <span className="text-[10px] text-white/50 uppercase tracking-wider">{t('pnl')}</span>
+            <InfoTooltip text={t('pnlTooltip')} />
           </div>
           <div className={cn('font-mono font-black text-base md:text-xl truncate', pnl >= 0 ? 'text-[#22C55E]' : 'text-red-400')}>
             {pnl >= 0 ? '+' : ''}{fmtBSD(pnl)}
@@ -472,8 +496,8 @@ export default function HomePage() {
         </div>
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/50 uppercase tracking-wider">Guthaben</span>
-            <InfoTooltip text="Dein verfügbares BSD-Guthaben zum Kaufen, Handeln und Abstimmen." />
+            <span className="text-[10px] text-white/50 uppercase tracking-wider">{tc('balance')}</span>
+            <InfoTooltip text={t('balanceTooltip')} />
           </div>
           {balanceCents === null ? (
             <div className="h-6 md:h-7 w-20 rounded bg-[#FFD700]/10 animate-pulse mt-1" />
@@ -484,15 +508,23 @@ export default function HomePage() {
         </div>
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/50 uppercase tracking-wider">Scout Score</span>
-            <InfoTooltip text="Deine Gesamt-Reputation: 35% Trading-Skill + 40% Manager-Fähigkeit + 25% Scouting-Expertise." />
+            <span className="text-[10px] text-white/50 uppercase tracking-wider">{t('bescoutScore')}</span>
+            <InfoTooltip text={t('bescoutScoreTooltip')} />
           </div>
-          <div className="font-mono font-black text-base md:text-xl text-[#FFD700]">
-            {userStats?.total_score ?? 0}<span className="text-white/30 text-xs"> Pkt</span>
-          </div>
-          <div className="text-[10px] text-white/40">
-            {userStats && userStats.rank > 0 ? `Rang #${userStats.rank}` : getLevelTier(profile?.level ?? 1).name}
-          </div>
+          {scoutScores ? (
+            <>
+              <div className={`font-black text-base md:text-xl ${getGesamtRang(scoutScores).color}`}>
+                {tg(`rang.${getGesamtRang(scoutScores).i18nKey}`)}
+              </div>
+              <div className="flex gap-2 mt-1">
+                <span className="text-[9px] text-sky-400 font-mono">T {scoutScores.trader_score}</span>
+                <span className="text-[9px] text-purple-400 font-mono">M {scoutScores.manager_score}</span>
+                <span className="text-[9px] text-emerald-400 font-mono">A {scoutScores.analyst_score}</span>
+              </div>
+            </>
+          ) : (
+            <div className="font-black text-base md:text-xl text-amber-600">{tg('rang.bronzeIII')}</div>
+          )}
         </div>
       </div>
 
@@ -507,7 +539,7 @@ export default function HomePage() {
           {/* Meine Vereine */}
           {followedClubs.length > 0 && (
             <div>
-              <SectionHeader title="Meine Vereine" href="/clubs" />
+              <SectionHeader title={t('myClubs')} href="/clubs" />
               <div className="flex gap-2 mt-3 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
                 {followedClubs.map(club => {
                   const color = club.primary_color ?? '#FFD700';
@@ -539,7 +571,7 @@ export default function HomePage() {
                   className="flex items-center gap-2 px-3 py-2 bg-[#FFD700]/[0.03] border border-[#FFD700]/10 rounded-xl hover:bg-[#FFD700]/[0.06] transition-all shrink-0"
                 >
                   <Compass className="w-4 h-4 text-[#FFD700]/60" />
-                  <span className="text-xs font-medium text-[#FFD700]/60">Entdecken</span>
+                  <span className="text-xs font-medium text-[#FFD700]/60">{t('discover')}</span>
                 </Link>
               </div>
             </div>
@@ -547,17 +579,17 @@ export default function HomePage() {
 
           {/* Holdings Top 5 */}
           <div>
-            <SectionHeader title="Mein Spielerkader" href="/market?tab=portfolio" />
+            <SectionHeader title={t('myRoster')} href="/market?tab=portfolio" />
             <div className="mt-3 space-y-1.5">
               {holdings.length === 0 ? (
                 <Card className="p-6 text-center">
                   <Briefcase className="w-10 h-10 mx-auto mb-2 text-white/20" />
-                  <div className="text-sm font-medium text-white/50">Starte mit deinem ersten Spieler</div>
-                  <div className="text-xs text-white/30 mt-1">Kaufe DPCs, handle am Markt und baue dein Portfolio auf.</div>
+                  <div className="text-sm font-medium text-white/50">{t('emptyPortfolioTitle')}</div>
+                  <div className="text-xs text-white/30 mt-1">{t('emptyPortfolioDesc')}</div>
                   <Link href="/market?tab=kaufen" className="inline-block mt-3">
                     <Button variant="gold" size="sm" className="gap-1.5">
                       <Zap className="w-3.5 h-3.5" />
-                      Ersten Spieler kaufen
+                      {t('buyFirstPlayer')}
                     </Button>
                   </Link>
                 </Card>
@@ -592,7 +624,7 @@ export default function HomePage() {
               )}
               {holdings.length > 5 && (
                 <Link href="/market?tab=portfolio" className="block text-center py-2 text-xs text-[#FFD700] hover:underline">
-                  Alle {holdings.length} Spieler anzeigen
+                  {t('viewAllPlayers', { count: holdings.length })}
                 </Link>
               )}
             </div>
@@ -600,12 +632,12 @@ export default function HomePage() {
 
           {/* Aktivität */}
           <div>
-            <SectionHeader title="Aktivität" />
+            <SectionHeader title={t('activity')} />
             <div className="mt-3 space-y-0.5">
               {transactions.length === 0 ? (
                 <Card className="p-6 text-center">
                   <Activity className="w-6 h-6 mx-auto mb-2 text-white/15" />
-                  <div className="text-sm text-white/40">Noch keine Aktivität</div>
+                  <div className="text-sm text-white/40">{t('noActivity')}</div>
                 </Card>
               ) : (
                 transactions.slice(0, 5).map((tx) => {
@@ -630,7 +662,7 @@ export default function HomePage() {
               )}
               {transactions.length > 5 && (
                 <Link href="/profile" className="block text-center py-2 text-xs text-[#FFD700] hover:underline">
-                  Alle Aktivitäten anzeigen
+                  {t('viewAllActivity')}
                 </Link>
               )}
             </div>
@@ -639,7 +671,7 @@ export default function HomePage() {
           {/* Following Feed */}
           <div>
             <div className="flex items-center justify-between">
-              <SectionHeader title="Was deine Scouts machen" badge={followingFeed.length > 0 ?
+              <SectionHeader title={t('whatYourScoutsDo')} badge={followingFeed.length > 0 ?
                 <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/15 border border-sky-400/25">
                   <Users className="w-3 h-3 text-sky-400" />
                   <span className="text-[10px] font-bold text-sky-300">{followingFeed.length}</span>
@@ -650,7 +682,7 @@ export default function HomePage() {
                   onClick={() => setFollowListMode('following')}
                   className="text-[10px] font-bold text-[#FFD700]/60 hover:text-[#FFD700] transition-colors"
                 >
-                  Verwalten
+                  {tc('manage')}
                 </button>
               )}
             </div>
@@ -698,9 +730,9 @@ export default function HomePage() {
             ) : (
               <div className="mt-3 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] text-center">
                 <Users className="w-6 h-6 text-white/20 mx-auto mb-2" />
-                <div className="text-xs text-white/40">Folge Scouts um ihre Aktivitäten zu sehen</div>
+                <div className="text-xs text-white/40">{t('followScoutsHint')}</div>
                 <Link href="/community" className="text-xs text-[#FFD700]/70 hover:text-[#FFD700] mt-1 inline-block">
-                  Community entdecken →
+                  {t('discoverCommunity')}
                 </Link>
               </div>
             )}
@@ -709,7 +741,7 @@ export default function HomePage() {
           {/* DPC der Woche */}
           {dpcOfWeek && (
             <div>
-              <SectionHeader title="DPC der Woche" badge={
+              <SectionHeader title={t('dpcOfTheWeek')} badge={
                 <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FFD700]/15 border border-[#FFD700]/25">
                   <Trophy className="w-3 h-3 text-[#FFD700]" />
                   <span className="text-[10px] font-bold text-[#FFD700]">GW {dpcOfWeek.gameweek}</span>
@@ -723,12 +755,12 @@ export default function HomePage() {
                       <Star className="w-7 h-7 text-[#FFD700]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-[#FFD700] mb-0.5">Bester Spieler</div>
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-[#FFD700] mb-0.5">{t('bestPlayer')}</div>
                       <div className="font-black text-lg truncate">{dpcOfWeek.playerFirstName} {dpcOfWeek.playerLastName}</div>
-                      <div className="text-xs text-white/50">{dpcOfWeek.playerClub} • {dpcOfWeek.holderCount} Besitzer</div>
+                      <div className="text-xs text-white/50">{dpcOfWeek.playerClub} • {dpcOfWeek.holderCount} {t('owners')}</div>
                       <div className="text-[10px] text-[#FFD700]/50 flex items-center gap-1 mt-0.5">
                         <MessageCircle className="w-3 h-3" />
-                        Was sagen die Scouts?
+                        {t('whatSayScouts')}
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
@@ -744,11 +776,14 @@ export default function HomePage() {
           {/* Missionen */}
           <MissionBanner />
 
+          {/* Airdrop Score */}
+          {user && <AirdropScoreCard userId={user.id} />}
+
           {/* Scout Missions */}
           {scoutMissions.length > 0 && (
             <div>
               <SectionHeader
-                title="Scout Aufträge"
+                title={t('scoutMissions')}
                 badge={
                   <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/15 border border-sky-400/25">
                     <span className="text-[10px] font-bold text-sky-300">{scoutMissions.length} aktiv</span>
@@ -783,7 +818,7 @@ export default function HomePage() {
           {nextEvent && (
             <div>
               <SectionHeader
-                title="Nächstes Event"
+                title={t('nextEvent')}
                 href="/fantasy"
                 badge={
                   <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-400/25">
@@ -812,7 +847,7 @@ export default function HomePage() {
                           <span>Eintritt: {nextEvent.entry_fee === 0 ? 'Gratis' : `${fmtBSD(centsToBsd(nextEvent.entry_fee))} BSD`}</span>
                           <span className="flex items-center gap-1">
                             <MessageCircle className="w-3.5 h-3.5" />
-                            Diskussion
+                            {t('discussion')}
                           </span>
                         </div>
                       </div>
@@ -841,7 +876,8 @@ export default function HomePage() {
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-[#22C55E]">Live IPO</span>
+                        <span className="text-[10px] font-black uppercase tracking-wider text-[#22C55E]">{t('liveIPO')}</span>
+                        <span className="text-[9px] text-white/30 font-bold">{t('onlyForFans')}</span>
                         <span className="relative flex h-2 w-2">
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-75" />
                           <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22C55E]" />
@@ -851,7 +887,7 @@ export default function HomePage() {
                         {activeIPOs.map((p) => `${p.first} ${p.last}`).join(', ')}
                       </div>
                       <div className="text-xs text-white/50 truncate">
-                        {activeIPOs[0].club} · {activeIPOs[0].ipo.progress}% verkauft
+                        {activeIPOs[0].club} · {activeIPOs[0].ipo.progress}% {t('sold')}
                       </div>
                     </div>
                   </div>
@@ -869,23 +905,23 @@ export default function HomePage() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <ArrowRightLeft className="w-3.5 h-3.5 text-[#FFD700]/60" />
-                <span className="text-[10px] font-black uppercase tracking-wider text-white/30">Letzte Trades</span>
+                <span className="text-[10px] font-black uppercase tracking-wider text-white/30">{t('recentTrades')}</span>
               </div>
               <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-                {recentTrades.map(t => (
+                {recentTrades.map(tr => (
                   <Link
-                    key={t.id}
-                    href={`/player/${t.playerId}`}
+                    key={tr.id}
+                    href={`/player/${tr.playerId}`}
                     className="flex items-center gap-2 px-3 py-2 bg-white/[0.02] border border-white/[0.06] rounded-xl hover:bg-white/[0.04] transition-all shrink-0"
                   >
-                    <PositionBadge pos={t.playerPos} size="sm" />
+                    <PositionBadge pos={tr.playerPos} size="sm" />
                     <div className="min-w-0">
-                      <div className="text-[11px] font-bold truncate max-w-[120px]">{t.playerName}</div>
-                      <div className="text-[10px] text-white/30" title={new Date(t.executedAt).toLocaleString('de-DE')}>{getRelativeTime(t.executedAt)}</div>
+                      <div className="text-[11px] font-bold truncate max-w-[120px]">{tr.playerName}</div>
+                      <div className="text-[10px] text-white/30" title={new Date(tr.executedAt).toLocaleString('de-DE')}>{getRelativeTime(tr.executedAt)}</div>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="text-[11px] font-mono font-bold text-[#FFD700]">{fmtBSD(centsToBsd(t.price))}</div>
-                      <div className="text-[9px] text-white/25 flex items-center gap-1">{t.quantity}x · {t.isP2P ? 'P2P' : 'IPO'} <MessageCircle className="w-2.5 h-2.5 text-white/15" /></div>
+                      <div className="text-[11px] font-mono font-bold text-[#FFD700]">{fmtBSD(centsToBsd(tr.price))}</div>
+                      <div className="text-[9px] text-white/25 flex items-center gap-1">{tr.quantity}x · {tr.isP2P ? t('p2p') : 'IPO'} <MessageCircle className="w-2.5 h-2.5 text-white/15" /></div>
                     </div>
                   </Link>
                 ))}
@@ -895,33 +931,33 @@ export default function HomePage() {
 
           {/* Marktbewegungen */}
           <div>
-            <SectionHeader title="Marktbewegungen" href="/market" />
+            <SectionHeader title={t('marketMovements')} href="/market" />
             <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <div className="text-xs font-bold text-[#22C55E] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
                   <ArrowUpRight className="w-3.5 h-3.5" />
-                  Gewinner (24h)
+                  {t('winners24h')}
                 </div>
                 <div className="space-y-2">
                   {topGainers.map((p, i) => (
                     <PlayerDisplay variant="compact" key={p.id} player={p} rank={i + 1} showSparkline />
                   ))}
                   {topGainers.length === 0 && (
-                    <div className="text-sm text-white/30 p-3 text-center rounded-xl bg-white/[0.02]">Keine Gewinner heute</div>
+                    <div className="text-sm text-white/30 p-3 text-center rounded-xl bg-white/[0.02]">{t('noWinnersToday')}</div>
                   )}
                 </div>
               </div>
               <div>
                 <div className="text-xs font-bold text-red-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
                   <ArrowDownRight className="w-3.5 h-3.5" />
-                  Verlierer (24h)
+                  {t('losers24h')}
                 </div>
                 <div className="space-y-2">
                   {topLosers.map((p, i) => (
                     <PlayerDisplay variant="compact" key={p.id} player={p} rank={i + 1} showSparkline />
                   ))}
                   {topLosers.length === 0 && (
-                    <div className="text-sm text-white/30 p-3 text-center rounded-xl bg-white/[0.02]">Keine Verlierer heute</div>
+                    <div className="text-sm text-white/30 p-3 text-center rounded-xl bg-white/[0.02]">{t('noLosersToday')}</div>
                   )}
                 </div>
               </div>
@@ -931,7 +967,7 @@ export default function HomePage() {
           {/* Neue Angebote */}
           {recentListings.length > 0 && (
             <div>
-              <SectionHeader title="Neue Angebote" href="/market" />
+              <SectionHeader title={t('newOffers')} href="/market" />
               <div className="mt-3 space-y-2">
                 {recentListings.slice(0, 4).map(({ order, player }) => (
                   <Link
@@ -967,8 +1003,8 @@ export default function HomePage() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Zap className="w-3.5 h-3.5 text-[#22C55E]/60" />
-                <span className="text-[10px] font-black uppercase tracking-wider text-white/30">Unter Wert</span>
-                <span className="text-[9px] text-white/20 ml-auto">Hohe Leistung, günstiger Preis</span>
+                <span className="text-[10px] font-black uppercase tracking-wider text-white/30">{t('undervalued')}</span>
+                <span className="text-[9px] text-white/20 ml-auto">{t('highPerfLowPrice')}</span>
               </div>
               <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
                 {bargains.map(({ player: p, floor }) => (
@@ -995,7 +1031,7 @@ export default function HomePage() {
           {/* Community Highlights */}
           {communityPosts.length > 0 && (
             <div>
-              <SectionHeader title="Community" href="/community" />
+              <SectionHeader title={t('communityHighlights')} href="/community" />
               <div className="mt-3 space-y-2">
                 {communityPosts.slice(0, 3).map(post => (
                   <Link key={post.id} href={`/profile/${post.author_handle}`} className="block">
@@ -1015,7 +1051,7 @@ export default function HomePage() {
                           <div className="text-xs text-white/60 line-clamp-2">{post.content}</div>
                           <div className="flex items-center gap-3 mt-1.5 text-[10px] text-white/30">
                             <span>▲ {post.upvotes}</span>
-                            {post.replies_count > 0 && <span>{post.replies_count} Antworten</span>}
+                            {post.replies_count > 0 && <span>{post.replies_count} {t('replies')}</span>}
                           </div>
                         </div>
                       </div>
@@ -1025,7 +1061,7 @@ export default function HomePage() {
                 <Link href="/community" className="block mt-3 text-center">
                   <div className="py-2.5 px-4 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-[#FFD700]/20 transition-all text-xs font-bold text-[#FFD700]/70 hover:text-[#FFD700] flex items-center justify-center gap-1.5">
                     <MessageCircle className="w-3.5 h-3.5" />
-                    Alle Beiträge anzeigen
+                    {t('viewAllPosts')}
                     <ChevronRight className="w-3.5 h-3.5" />
                   </div>
                 </Link>
@@ -1036,7 +1072,7 @@ export default function HomePage() {
           {/* Top Scouts */}
           {topScouts.length > 0 && (
             <div>
-              <SectionHeader title="Top Scouts" href="/community" />
+              <SectionHeader title={t('topScouts')} href="/community" />
               <div className="mt-3 space-y-1.5">
                 {topScouts.slice(0, 5).map((s, i) => {
                   const isMe = s.userId === user?.id;
@@ -1056,9 +1092,9 @@ export default function HomePage() {
                           <span className="text-sm font-semibold truncate">{s.displayName || s.handle}</span>
                           {(() => {
                             const best = [
-                              { label: 'Trader', score: s.tradingScore, cls: 'text-sky-300 bg-sky-500/15 border-sky-500/20' },
-                              { label: 'Manager', score: s.managerScore, cls: 'text-purple-300 bg-purple-500/15 border-purple-500/20' },
-                              { label: 'Scout', score: s.scoutScore, cls: 'text-emerald-300 bg-emerald-500/15 border-emerald-500/20' },
+                              { label: tg('dimension.trader'), score: s.tradingScore, cls: 'text-sky-300 bg-sky-500/15 border-sky-500/20' },
+                              { label: tg('dimension.manager'), score: s.managerScore, cls: 'text-purple-300 bg-purple-500/15 border-purple-500/20' },
+                              { label: tg('dimension.analyst'), score: s.scoutScore, cls: 'text-emerald-300 bg-emerald-500/15 border-emerald-500/20' },
                             ].reduce((a, b) => a.score >= b.score ? a : b);
                             if (best.score < 100) return null;
                             return (
@@ -1083,15 +1119,15 @@ export default function HomePage() {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <ArrowRightLeft className="w-4 h-4 text-[#22C55E]" />
-                  <span className="text-base md:text-lg font-black uppercase tracking-wide">Top Trader</span>
+                  <span className="text-base md:text-lg font-black uppercase tracking-wide">{t('topTraders')}</span>
                 </div>
-                <span className="text-[10px] text-white/20">7 Tage</span>
+                <span className="text-[10px] text-white/20">{t('sevenDays')}</span>
               </div>
               <div className="space-y-1.5">
-                {topTraders.map((t, i) => {
-                  const isMe = t.userId === user?.id;
+                {topTraders.map((td, i) => {
+                  const isMe = td.userId === user?.id;
                   return (
-                    <Link key={t.userId} href={`/profile/${t.handle}`} className={cn(
+                    <Link key={td.userId} href={`/profile/${td.handle}`} className={cn(
                       'flex items-center gap-3 py-2 px-3 rounded-xl hover:bg-white/[0.04] transition-colors',
                       isMe && 'bg-[#22C55E]/[0.06] border border-[#22C55E]/15'
                     )}>
@@ -1102,10 +1138,10 @@ export default function HomePage() {
                         {i + 1}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold truncate">{t.displayName || t.handle}</div>
-                        <div className="text-[10px] text-white/30">{t.tradeCount} Trades</div>
+                        <div className="text-sm font-semibold truncate">{td.displayName || td.handle}</div>
+                        <div className="text-[10px] text-white/30">{td.tradeCount} {t('trades')}</div>
                       </div>
-                      <span className="text-xs font-mono text-[#22C55E]">{fmtBSD(centsToBsd(t.totalVolume))}</span>
+                      <span className="text-xs font-mono text-[#22C55E]">{fmtBSD(centsToBsd(td.totalVolume))}</span>
                     </Link>
                   );
                 })}

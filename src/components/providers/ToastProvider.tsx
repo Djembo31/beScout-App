@@ -2,6 +2,7 @@
 
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { X, AlertCircle, CheckCircle2, Info, Sparkles } from 'lucide-react';
+import { Confetti } from '@/components/ui/Confetti';
 
 type ToastType = 'error' | 'success' | 'info' | 'celebration';
 
@@ -41,10 +42,15 @@ let nextId = 0;
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [confettiActive, setConfettiActive] = useState(false);
 
   const addToast = useCallback((message: string, type: ToastType) => {
     const id = ++nextId;
     setToasts((prev) => [...prev, { id, message, type }]);
+    if (type === 'celebration') {
+      setConfettiActive(true);
+      setTimeout(() => setConfettiActive(false), 3500);
+    }
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, type === 'celebration' ? 6000 : 5000);
@@ -59,6 +65,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
+      <Confetti active={confettiActive} />
       {/* Toast Container */}
       <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none">
         {toasts.map((toast) => {

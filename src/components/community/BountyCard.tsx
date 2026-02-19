@@ -1,19 +1,28 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Target, Clock, Users, Coins, CheckCircle, Loader2 } from 'lucide-react';
+import { Target, Clock, Users, Coins, CheckCircle, Loader2, Lock } from 'lucide-react';
 import { Card, Chip, Button, Modal } from '@/components/ui';
 import { formatBsd } from '@/lib/services/wallet';
 import type { BountyWithCreator } from '@/types';
+
+const TIER_ORDER: Record<string, number> = { bronze: 1, silber: 2, gold: 3 };
+const TIER_LABELS: Record<string, string> = { bronze: 'Bronze', silber: 'Silber', gold: 'Gold' };
+const TIER_COLORS: Record<string, string> = {
+  bronze: 'text-orange-300 bg-orange-500/15 border-orange-500/20',
+  silber: 'text-gray-300 bg-white/10 border-white/20',
+  gold: 'text-[#FFD700] bg-[#FFD700]/15 border-[#FFD700]/20',
+};
 
 interface BountyCardProps {
   bounty: BountyWithCreator;
   userId: string;
   onSubmit: (bountyId: string, title: string, content: string) => void;
   submitting: string | null;
+  userTier?: string | null;
 }
 
-export default function BountyCard({ bounty, userId, onSubmit, submitting }: BountyCardProps) {
+export default function BountyCard({ bounty, userId, onSubmit, submitting, userTier }: BountyCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -22,7 +31,8 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting }: Bou
   const isFull = bounty.submission_count >= bounty.max_submissions;
   const hasSubmitted = bounty.has_user_submitted === true;
   const isCreator = bounty.created_by === userId;
-  const canSubmit = isOpen && !isFull && !hasSubmitted && !isCreator;
+  const isTierLocked = bounty.min_tier ? (TIER_ORDER[userTier ?? ''] ?? 0) < (TIER_ORDER[bounty.min_tier] ?? 0) : false;
+  const canSubmit = isOpen && !isFull && !hasSubmitted && !isCreator && !isTierLocked;
 
   const diffMs = new Date(bounty.deadline_at).getTime() - Date.now();
   const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -45,6 +55,12 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting }: Bou
           <div className="flex items-center gap-2">
             <Target className="w-5 h-5 text-amber-400" />
             <span className="font-bold text-amber-300">Club-Auftrag</span>
+            {bounty.min_tier && (
+              <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border ${TIER_COLORS[bounty.min_tier] ?? ''}`}>
+                <Lock className="w-2.5 h-2.5" />
+                {TIER_LABELS[bounty.min_tier] ?? bounty.min_tier}+
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2 text-xs text-white/50">
             <Clock className="w-3 h-3" />
@@ -91,7 +107,13 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting }: Bou
               Einreichen
             </Button>
           )}
-          {isFull && !hasSubmitted && (
+          {isTierLocked && !hasSubmitted && (
+            <Chip className={`${TIER_COLORS[bounty.min_tier ?? 'bronze']}`}>
+              <Lock className="w-3 h-3 inline mr-1" />
+              {TIER_LABELS[bounty.min_tier ?? ''] ?? 'Abo'}+ erforderlich
+            </Chip>
+          )}
+          {isFull && !hasSubmitted && !isTierLocked && (
             <Chip className="bg-white/5 text-white/40 border-white/10">Voll</Chip>
           )}
           {isCreator && (

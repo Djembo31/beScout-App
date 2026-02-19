@@ -90,7 +90,7 @@ export function dbToPlayer(db: DbPlayer): Player {
       ipoPrice: centsToBsd(db.ipo_price ?? db.floor_price),
     },
     dpc: {
-      supply: db.dpc_total,
+      supply: db.max_supply ?? db.dpc_total,
       float: db.dpc_total,
       circulation: db.dpc_total - db.dpc_available,
       onMarket: 0, // Wird spaeter aus Orders berechnet

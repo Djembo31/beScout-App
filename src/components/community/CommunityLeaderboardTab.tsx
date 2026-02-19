@@ -1,20 +1,24 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Trophy, BadgeCheck, TrendingUp, TrendingDown, Minus, BarChart3, Gamepad2, Search, Award, Users, Zap } from 'lucide-react';
+import { Trophy, BadgeCheck, TrendingUp, TrendingDown, BarChart3, Gamepad2, Search, Award, Users, Zap, Swords } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import FollowBtn from '@/components/community/FollowBtn';
 import type { LeaderboardUser, DbUserStats } from '@/types';
-import { getLevelTier } from '@/types';
+import { getRang, getDimensionColor, type Dimension } from '@/lib/gamification';
+import { RangBadge, RangScorePill } from '@/components/ui/RangBadge';
+import { useScoutLeaderboard } from '@/lib/queries';
 import { getExpertBadges } from '@/lib/expertBadges';
+import { getMedianScore } from '@/lib/services/scoutScores';
+import { useTranslations } from 'next-intl';
 
-function getTopRole(u: LeaderboardUser): { label: string; icon: React.ReactNode; color: string } | null {
+function getTopRole(u: LeaderboardUser, dimLabels: { trader: string; manager: string; analyst: string }): { label: string; icon: React.ReactNode; color: string } | null {
   const scores = [
-    { label: 'Trader', score: u.tradingScore, icon: <BarChart3 className="w-3 h-3" />, color: 'text-sky-300 bg-sky-500/15 border-sky-500/20' },
-    { label: 'Manager', score: u.managerScore, icon: <Gamepad2 className="w-3 h-3" />, color: 'text-purple-300 bg-purple-500/15 border-purple-500/20' },
-    { label: 'Scout', score: u.scoutScore, icon: <Search className="w-3 h-3" />, color: 'text-emerald-300 bg-emerald-500/15 border-emerald-500/20' },
+    { label: dimLabels.trader, score: u.tradingScore, icon: <BarChart3 className="w-3 h-3" />, color: 'text-sky-300 bg-sky-500/15 border-sky-500/20' },
+    { label: dimLabels.manager, score: u.managerScore, icon: <Gamepad2 className="w-3 h-3" />, color: 'text-purple-300 bg-purple-500/15 border-purple-500/20' },
+    { label: dimLabels.analyst, score: u.scoutScore, icon: <Search className="w-3 h-3" />, color: 'text-emerald-300 bg-emerald-500/15 border-emerald-500/20' },
   ];
   const best = scores.reduce((a, b) => a.score >= b.score ? a : b);
   if (best.score < 10) return null;
@@ -24,6 +28,8 @@ function getTopRole(u: LeaderboardUser): { label: string; icon: React.ReactNode;
 // ============================================
 // TYPES
 // ============================================
+
+type ScoreTab = 'overall' | 'trader' | 'manager' | 'analyst';
 
 interface CommunityLeaderboardTabProps {
   leaderboard: LeaderboardUser[];
@@ -55,7 +61,7 @@ function saveRankSnapshot(leaderboard: LeaderboardUser[]): void {
 }
 
 // ============================================
-// LEADERBOARD ROW
+// LEADERBOARD ROW (Reputation)
 // ============================================
 
 function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, isSelf }: {
@@ -66,6 +72,7 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
   onFollow: () => void;
   isSelf?: boolean;
 }) {
+  const tg = useTranslations('gamification');
   const rankStyle = rank === 1
     ? 'bg-[#FFD700]/20 text-[#FFD700] border-[#FFD700]/30'
     : rank === 2
@@ -74,8 +81,11 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
     ? 'bg-orange-500/20 text-orange-300 border-orange-500/30'
     : 'bg-white/5 text-white/50 border-white/10';
 
-  const tier = getLevelTier(lUser.level);
-  const topRole = getTopRole(lUser);
+  const topRole = getTopRole(lUser, {
+    trader: tg('dimension.trader'),
+    manager: tg('dimension.manager'),
+    analyst: tg('dimension.analyst'),
+  });
 
   return (
     <Link href={`/profile/${lUser.handle}`} className="block">
@@ -103,9 +113,6 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
             <span className="font-bold">{lUser.displayName || lUser.handle}</span>
             {isSelf && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/20">Du</span>}
             {lUser.verified && <BadgeCheck className="w-4 h-4 text-[#FFD700]" />}
-            <span className={cn('px-2 py-0.5 rounded text-[10px] font-bold border', tier.color, 'bg-white/5 border-white/10')}>
-              {tier.name}
-            </span>
             {topRole && (
               <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold border', topRole.color)}>
                 {topRole.icon}
@@ -170,6 +177,17 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
 }
 
 // ============================================
+// SCORE TAB LABELS
+// ============================================
+
+const SCORE_TABS: { id: ScoreTab; dimKey: string; color: string }[] = [
+  { id: 'overall', dimKey: 'overall', color: 'text-[#FFD700]' },
+  { id: 'trader', dimKey: 'trader', color: 'text-sky-400' },
+  { id: 'manager', dimKey: 'manager', color: 'text-purple-400' },
+  { id: 'analyst', dimKey: 'analyst', color: 'text-emerald-400' },
+];
+
+// ============================================
 // COMMUNITY LEADERBOARD TAB
 // ============================================
 
@@ -179,44 +197,144 @@ export default function CommunityLeaderboardTab({
   onFollowToggle,
   userId,
 }: CommunityLeaderboardTabProps) {
+  const tg = useTranslations('gamification');
+  const [scoreTab, setScoreTab] = useState<ScoreTab>('overall');
+
   // Load previous snapshot and compute rank changes
   const rankChanges = useMemo(() => {
     const prevSnapshot = getRankSnapshot();
     const changes: Record<string, number | null> = {};
     for (const u of leaderboard) {
       const prevRank = prevSnapshot[u.userId];
-      changes[u.userId] = prevRank != null ? prevRank - u.rank : null; // positive = went UP
+      changes[u.userId] = prevRank != null ? prevRank - u.rank : null;
     }
     return changes;
   }, [leaderboard]);
 
-  // Save current snapshot (debounced, only once)
+  // Save current snapshot
   useEffect(() => {
     if (leaderboard.length > 0) {
       saveRankSnapshot(leaderboard);
     }
   }, [leaderboard]);
 
+  const dim: Dimension | 'overall' = scoreTab;
+  const { data: scoutTop = [] } = useScoutLeaderboard(dim, 10);
+
   return (
-    <div className="max-w-3xl mx-auto space-y-3">
-      {leaderboard.length === 0 ? (
-        <Card className="p-12 text-center">
-          <div className="text-white/30 mb-2">Noch keine Rankings</div>
-          <div className="text-xs text-white/20">Rankings werden nach Aktivität berechnet.</div>
+    <div className="max-w-3xl mx-auto space-y-6">
+      {/* Scout Score Rangliste (4 Tabs) */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <Swords className="w-5 h-5 text-amber-400" />
+          <h3 className="font-black text-sm uppercase tracking-wider">{tg('leaderboard.scoutRanking')}</h3>
+        </div>
+
+        {/* Tab Switcher */}
+        <div className="flex gap-1 mb-3 bg-white/[0.03] rounded-xl p-1 border border-white/[0.06]">
+          {SCORE_TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setScoreTab(tab.id)}
+              className={cn(
+                'flex-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all',
+                scoreTab === tab.id
+                  ? `bg-white/10 ${tab.color}`
+                  : 'text-white/40 hover:text-white/60'
+              )}
+            >
+              {tg(`dimension.${tab.dimKey}`)}
+            </button>
+          ))}
+        </div>
+
+        <Card className="divide-y divide-white/[0.06]">
+          {scoutTop.length === 0 ? (
+            <div className="p-8 text-center text-white/30 text-sm">{tg('leaderboard.noRankings')}</div>
+          ) : (
+            scoutTop.map((entry, idx) => {
+              const rank = idx + 1;
+              const isSelf = entry.user_id === userId;
+              const displayScore = scoreTab === 'overall'
+                ? getMedianScore(entry)
+                : entry[`${scoreTab}_score` as keyof typeof entry] as number;
+              const rang = getRang(displayScore);
+
+              return (
+                <Link key={entry.user_id} href={`/profile/${entry.handle}`} className="block">
+                  <div className={cn(
+                    'flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors',
+                    isSelf && 'bg-[#FFD700]/[0.04]'
+                  )}>
+                    <div className={cn(
+                      'w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm',
+                      rank === 1 ? 'bg-[#FFD700]/20 text-[#FFD700]' :
+                      rank === 2 ? 'bg-white/10 text-white/70' :
+                      rank === 3 ? 'bg-orange-500/20 text-orange-300' :
+                      'bg-white/5 text-white/40'
+                    )}>
+                      {rank <= 3 ? <Trophy className="w-4 h-4" /> : rank}
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold overflow-hidden flex-shrink-0">
+                      {entry.avatar_url
+                        ? <img src={entry.avatar_url} alt="" className="w-full h-full object-cover" />
+                        : (entry.display_name ?? entry.handle).charAt(0).toUpperCase()
+                      }
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm truncate">{entry.display_name ?? entry.handle}</span>
+                        {isSelf && <span className="px-1 py-0.5 rounded text-[8px] font-bold bg-[#FFD700]/15 text-[#FFD700]">Du</span>}
+                      </div>
+                      <RangScorePill score={displayScore} />
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <div className={cn('font-mono font-bold text-sm', rang.color)}>
+                        {displayScore.toLocaleString('de-DE')}
+                      </div>
+                      {scoreTab === 'overall' && (
+                        <div className="text-[9px] text-white/30 flex gap-2 justify-end">
+                          <span className="text-sky-400">{entry.trader_score} T</span>
+                          <span className="text-purple-400">{entry.manager_score} M</span>
+                          <span className="text-emerald-400">{entry.analyst_score} A</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })
+          )}
         </Card>
-      ) : (
-        leaderboard.map((u) => (
-          <LeaderboardRow
-            key={u.userId}
-            user={u}
-            rank={u.rank}
-            rankChange={rankChanges[u.userId] ?? null}
-            isFollowed={followingIds.has(u.userId)}
-            onFollow={() => onFollowToggle(u.userId)}
-            isSelf={u.userId === userId}
-          />
-        ))
-      )}
+      </div>
+
+      {/* Scout Reputation Rangliste */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <Award className="w-5 h-5 text-purple-400" />
+          <h3 className="font-black text-sm uppercase tracking-wider">{tg('leaderboard.scoutReputation')}</h3>
+        </div>
+        <div className="space-y-3">
+          {leaderboard.length === 0 ? (
+            <Card className="p-12 text-center">
+              <div className="text-white/30 mb-2">{tg('leaderboard.noRankings')}</div>
+              <div className="text-xs text-white/20">{tg('leaderboard.rankingsHint')}</div>
+            </Card>
+          ) : (
+            leaderboard.map((u) => (
+              <LeaderboardRow
+                key={u.userId}
+                user={u}
+                rank={u.rank}
+                rankChange={rankChanges[u.userId] ?? null}
+                isFollowed={followingIds.has(u.userId)}
+                onFollow={() => onFollowToggle(u.userId)}
+                isSelf={u.userId === userId}
+              />
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }

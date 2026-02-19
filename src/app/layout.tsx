@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 import { Providers } from '@/components/providers/Providers';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import './globals.css';
@@ -27,18 +29,23 @@ export const viewport: Viewport = {
   themeColor: '#0a0a0a',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="de">
+    <html lang={locale}>
       <body className="min-h-screen bg-[#0a0a0a] text-white font-sans antialiased">
-        <Providers>
-          {children}
-          <InstallPrompt />
-        </Providers>
+        <NextIntlClientProvider messages={messages}>
+          <Providers>
+            {children}
+            <InstallPrompt />
+          </Providers>
+        </NextIntlClientProvider>
         <Script id="sw-register" strategy="afterInteractive">{`
           if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js').catch(function(err) { console.error('[SW] Registration failed:', err); });

@@ -47,6 +47,8 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
   const [endsAt, setEndsAt] = useState('');
   const [sponsorName, setSponsorName] = useState('');
   const [sponsorLogo, setSponsorLogo] = useState('');
+  const [eventTier, setEventTier] = useState<'arena' | 'club' | 'user'>('club');
+  const [minSubTier, setMinSubTier] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -108,6 +110,8 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     setEndsAt('');
     setSponsorName('');
     setSponsorLogo('');
+    setEventTier('club');
+    setMinSubTier('');
   }, []);
 
   const handleCreate = useCallback(async () => {
@@ -130,6 +134,8 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
         createdBy: user.id,
         sponsorName: type === 'sponsor' ? sponsorName : undefined,
         sponsorLogo: type === 'sponsor' ? sponsorLogo : undefined,
+        eventTier,
+        minSubscriptionTier: minSubTier || null,
       });
       if (!result.success) {
         setError(result.error || 'Event konnte nicht erstellt werden.');
@@ -372,6 +378,36 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               </select>
             </div>
           </div>
+          <div>
+            <label className="block text-sm font-bold text-white/70 mb-1">Wertung</label>
+            <select
+              value={eventTier}
+              onChange={(e) => setEventTier(e.target.value as 'arena' | 'club' | 'user')}
+              className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/40"
+            >
+              <option value="club">Club Event (+1 bis +15 Punkte)</option>
+              <option value="arena">Arena Event (+50/−15 Punkte)</option>
+            </select>
+            {eventTier === 'arena' && (
+              <p className="mt-1 text-[10px] text-amber-400/70">Arena-Events vergeben +/− BeScout Score nach Platzierung. Untere 10% verlieren Punkte!</p>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-white/70 mb-1">Mindest-Abo (optional)</label>
+            <select
+              value={minSubTier}
+              onChange={(e) => setMinSubTier(e.target.value)}
+              className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/40"
+            >
+              <option value="">Alle (kein Abo nötig)</option>
+              <option value="bronze">Bronze+</option>
+              <option value="silber">Silber+</option>
+              <option value="gold">Nur Gold</option>
+            </select>
+            {minSubTier && (
+              <p className="mt-1 text-[10px] text-amber-400/70">Nur {minSubTier === 'bronze' ? 'Bronze' : minSubTier === 'silber' ? 'Silber' : 'Gold'}+ Mitglieder können teilnehmen</p>
+            )}
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-bold text-white/70 mb-1">Gameweek</label>
@@ -397,7 +433,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Entry Fee (BSD)</label>
+              <label className="block text-sm font-bold text-white/70 mb-1">Teilnahmegebühr (BSD)</label>
               <input
                 type="number"
                 step="0.01"
@@ -474,7 +510,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
           {name && startsAt && (
             <div className="bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-xl p-3 text-sm">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-white/50">Entry Fee</span>
+                <span className="text-white/50">Teilnahmegebühr</span>
                 <span className="font-mono font-bold">{parseFloat(entryFee) > 0 ? `${fmtBSD(parseFloat(entryFee))} BSD` : 'Kostenlos'}</span>
               </div>
               <div className="flex items-center justify-between">

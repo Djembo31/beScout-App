@@ -252,6 +252,7 @@ export { SearchInput } from './SearchInput';
 export { PosFilter } from './PosFilter';
 export { SortPills } from './SortPills';
 export { EmptyState } from './EmptyState';
+export { RangBadge, RangScorePill, RangProgress, DimensionRangRow, DimensionRangStack } from './RangBadge';
 
 export function ErrorState({
   message = 'Daten konnten nicht geladen werden.',

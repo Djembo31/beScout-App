@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { XCircle } from 'lucide-react';
 import { Button, ErrorState, Modal, TabBar } from '@/components/ui';
 import { fmtBSD } from '@/lib/utils';
@@ -38,6 +39,8 @@ import {
 } from '@/lib/queries/misc';
 import { usePlayerResearch } from '@/lib/queries/research';
 import { usePlayerTrades } from '@/lib/queries/trades';
+import { useDpcMastery } from '@/lib/queries/mastery';
+import { MASTERY_LEVEL_LABELS, MASTERY_XP_THRESHOLDS } from '@/lib/services/mastery';
 import { qk } from '@/lib/queries/keys';
 
 import {
@@ -82,10 +85,10 @@ function savePriceAlerts(alerts: Record<string, { target: number; dir: 'above' |
 // ============================================
 
 const TABS: { id: string; label: string }[] = [
-  { id: 'profil', label: 'Profil' },
-  { id: 'markt', label: 'Markt' },
-  { id: 'statistik', label: 'Statistik' },
-  { id: 'community', label: 'Community' },
+  { id: 'profil', label: 'profile' },
+  { id: 'markt', label: 'market' },
+  { id: 'statistik', label: 'stats' },
+  { id: 'community', label: 'community' },
 ];
 
 // ============================================
@@ -97,6 +100,8 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const { balanceCents, setBalanceCents } = useWallet();
   const { addToast } = useToast();
   const queryClient = useQueryClient();
+  const t = useTranslations('player');
+  const tc = useTranslations('common');
 
   // ─── React Query Hooks (ALL before early returns) ────
   const { data: dbPlayer, isLoading: playerLoading, isError: playerError, refetch } = useDbPlayerById(playerId);
@@ -112,6 +117,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const { data: playerResearchData } = usePlayerResearch(playerId, user?.id);
   const { data: playerPostsData } = usePosts({ playerId, limit: 30 });
   const { data: userIpoPurchasedData } = useUserIpoPurchases(user?.id, activeIpo?.id);
+  const { data: masteryData } = useDpcMastery(user?.id, playerId);
 
   // ─── Derived from queries ─────────────────
   const player = useMemo(() => dbPlayer ? dbToPlayer(dbPlayer) : null, [dbPlayer]);
@@ -464,9 +470,9 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <XCircle className="w-12 h-12 text-white/20 mb-4" />
-        <div className="text-white/50 mb-2">Spieler nicht gefunden</div>
+        <div className="text-white/50 mb-2">{t('notFound')}</div>
         <Link href="/market">
-          <Button variant="outline">Zurück zum Markt</Button>
+          <Button variant="outline">{t('backToMarket')}</Button>
         </Link>
       </div>
     );
@@ -498,12 +504,42 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         onRemovePriceAlert={handleRemovePriceAlert}
       />
 
+      {/* DPC Mastery (only if user holds this player) */}
+      {masteryData && holdingQty > 0 && (
+        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-white/50 uppercase tracking-wider">DPC Mastery</span>
+              <span className="px-2 py-0.5 rounded-lg bg-[#FFD700]/15 text-[#FFD700] text-[10px] font-black border border-[#FFD700]/25">
+                Lv {masteryData.level} — {MASTERY_LEVEL_LABELS[masteryData.level]}
+              </span>
+            </div>
+            <span className="text-[10px] font-mono text-white/30">
+              {masteryData.xp} / {masteryData.level < 5 ? MASTERY_XP_THRESHOLDS[masteryData.level] : 'MAX'} XP
+            </span>
+          </div>
+          {masteryData.level < 5 && (
+            <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-[#FFD700]/40 to-[#FFD700]/20 transition-all"
+                style={{ width: `${Math.min((masteryData.xp / MASTERY_XP_THRESHOLDS[masteryData.level]) * 100, 100)}%` }}
+              />
+            </div>
+          )}
+          <div className="flex gap-4 mt-2 text-[10px] text-white/40">
+            <span>{masteryData.hold_days}d gehalten</span>
+            <span>{masteryData.fantasy_uses}x Fantasy</span>
+            <span>{masteryData.content_count}x Content</span>
+          </div>
+        </div>
+      )}
+
       {/* Sponsor: Player Mid */}
       <SponsorBanner placement="player_mid" />
 
       {/* Single Column: Tabs + Content */}
       <div className="space-y-4 md:space-y-6">
-        <TabBar tabs={TABS} activeTab={tab} onChange={(id) => setTab(id as Tab)} />
+        <TabBar tabs={TABS.map(tab => ({ ...tab, label: t(tab.label) }))} activeTab={tab} onChange={(id) => setTab(id as Tab)} />
 
         {tab === 'profil' && (
           <ProfilTab

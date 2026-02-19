@@ -18,7 +18,7 @@ export const CreateEventModal = ({
   const [description, setDescription] = useState('');
   const [mode, setMode] = useState<EventMode>('tournament');
   const [format, setFormat] = useState<LineupFormat>('6er');
-  const [buyIn, setBuyIn] = useState(5);
+  const [buyIn, setBuyIn] = useState(0);
   const [maxParticipants, setMaxParticipants] = useState(50);
   const [isPrivate, setIsPrivate] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -112,15 +112,17 @@ export const CreateEventModal = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Buy-in (BSD)</label>
+            <label className="block text-sm font-medium mb-2">Teilnahmegebühr (BSD)</label>
             <input
               type="number"
               value={buyIn}
               onChange={(e) => setBuyIn(Number(e.target.value))}
               min={0}
-              max={100}
-              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-[#FFD700]/40"
+              max={0}
+              disabled
+              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-[#FFD700]/40 opacity-50"
             />
+            <div className="text-[10px] text-white/30 mt-1">Pilot: immer 0 BSD (regulatorisch)</div>
           </div>
           <div>
             <label className="block text-sm font-medium mb-2">Max. Teilnehmer</label>
@@ -153,7 +155,7 @@ export const CreateEventModal = ({
           <div className="grid grid-cols-3 gap-3 text-center">
             <div>
               <div className="font-mono font-bold text-lg text-[#FFD700]">{buyIn} BSD</div>
-              <div className="text-[10px] text-white/40">Buy-in</div>
+              <div className="text-[10px] text-white/40">Teilnahme</div>
             </div>
             <div>
               <div className="font-mono font-bold text-lg text-purple-400">{prizePool} BSD</div>

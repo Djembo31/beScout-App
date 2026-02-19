@@ -127,7 +127,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (p.status === 'fulfilled') {
         setProfile(p.value);
-        if (p.value) ssSet(SS_PROFILE, p.value);
+        if (p.value) {
+          ssSet(SS_PROFILE, p.value);
+          // Sync locale cookie from profile language for next-intl
+          if (typeof document !== 'undefined' && p.value.language) {
+            document.cookie = `bescout-locale=${p.value.language};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
+          }
+        }
       }
 
       const role = pRole.status === 'fulfilled' ? pRole.value : null;

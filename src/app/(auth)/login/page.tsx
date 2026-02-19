@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Mail, Lock, CheckCircle, AlertCircle, Eye, EyeOff, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { signUp, signInWithPassword, signInWithOtp, signInWithOAuth } from '@/lib/services/auth';
 import { useUser } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui';
@@ -17,6 +18,7 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user, profile, loading, platformRole, clubAdmin } = useUser();
+  const t = useTranslations('auth');
   const callbackError = searchParams.get('error');
 
   // Redirect authenticated users away from login — smart redirect by role
@@ -36,7 +38,7 @@ function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [loadingMethod, setLoadingMethod] = useState<LoadingState>(null);
   const [error, setError] = useState<string | null>(
-    callbackError === 'auth_callback_failed' ? 'Anmeldung fehlgeschlagen. Bitte versuche es erneut.' : null
+    callbackError === 'auth_callback_failed' ? t('callbackError') : null
   );
   const [emailSent, setEmailSent] = useState(false);
   const [registered, setRegistered] = useState(false);
@@ -47,11 +49,11 @@ function LoginContent() {
 
     if (mode === 'register') {
       if (password.length < 6) {
-        setError('Passwort muss mindestens 6 Zeichen lang sein.');
+        setError(t('passwordMinLength'));
         return;
       }
       if (password !== passwordConfirm) {
-        setError('Passwörter stimmen nicht überein.');
+        setError(t('passwordMismatch'));
         return;
       }
 
@@ -78,7 +80,7 @@ function LoginContent() {
       if (authError) {
         setError(
           authError.message === 'Invalid login credentials'
-            ? 'E-Mail oder Passwort falsch.'
+            ? t('invalidCredentials')
             : authError.message
         );
         setLoadingMethod(null);
@@ -153,7 +155,7 @@ function LoginContent() {
           priority
         />
         <p className="text-sm text-white/50">
-          TFF 1. Lig Trading Platform
+          {t('subtitle')}
         </p>
       </div>
 
@@ -165,19 +167,19 @@ function LoginContent() {
             <div className="w-14 h-14 rounded-full bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-center justify-center mb-4">
               <CheckCircle className="w-7 h-7 text-[#22C55E]" />
             </div>
-            <h2 className="text-xl font-black mb-2">Link gesendet!</h2>
+            <h2 className="text-xl font-black mb-2">{t('linkSent')}</h2>
             <p className="text-sm text-white/60 mb-1">
-              Wir haben einen Magic Link an
+              {t('linkSentDesc')}
             </p>
             <p className="text-sm font-bold text-white/90 mb-4">{email}</p>
             <p className="text-xs text-white/40">
-              Prüfe deinen Posteingang und klicke auf den Link.
+              {t('checkInbox')}
             </p>
             <button
               onClick={resetForm}
               className="mt-6 text-sm text-[#FFD700]/70 hover:text-[#FFD700] transition-colors"
             >
-              Andere E-Mail verwenden
+              {t('otherEmail')}
             </button>
           </div>
         ) : registered ? (
@@ -186,26 +188,26 @@ function LoginContent() {
             <div className="w-14 h-14 rounded-full bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-center justify-center mb-4">
               <CheckCircle className="w-7 h-7 text-[#22C55E]" />
             </div>
-            <h2 className="text-xl font-black mb-2">Registrierung erfolgreich!</h2>
+            <h2 className="text-xl font-black mb-2">{t('registrationSuccess')}</h2>
             <p className="text-sm text-white/60 mb-1">
-              Bestätige deine E-Mail-Adresse:
+              {t('confirmEmail')}
             </p>
             <p className="text-sm font-bold text-white/90 mb-4">{email}</p>
             <p className="text-xs text-white/40">
-              Prüfe deinen Posteingang und klicke auf den Bestätigungslink.
+              {t('checkInboxConfirm')}
             </p>
             <button
               onClick={() => { resetForm(); setMode('login'); }}
               className="mt-6 text-sm text-[#FFD700]/70 hover:text-[#FFD700] transition-colors"
             >
-              Zur Anmeldung
+              {t('goToLogin')}
             </button>
           </div>
         ) : (
           /* Auth Form */
           <>
             <h1 className="text-2xl font-black text-center mb-6">
-              {mode === 'register' ? 'Registrieren' : mode === 'magic' ? 'Magic Link' : 'Willkommen'}
+              {mode === 'register' ? t('register') : mode === 'magic' ? t('magicLink') : t('welcome')}
             </h1>
 
             {/* Error Display */}
@@ -213,7 +215,7 @@ function LoginContent() {
               <div className="flex items-center gap-2 p-3 mb-5 rounded-xl bg-red-500/10 border border-red-400/20">
                 <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
                 <span className="text-sm text-red-200 flex-1">{error}</span>
-                <button onClick={() => setError(null)} className="text-red-400/60 hover:text-red-400 shrink-0" aria-label="Schließen">
+                <button onClick={() => setError(null)} className="text-red-400/60 hover:text-red-400 shrink-0" aria-label={t('close', { ns: 'common' })}>
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -237,7 +239,7 @@ function LoginContent() {
                       <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                       <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                     </svg>
-                    Mit Google {mode === 'register' ? 'registrieren' : 'anmelden'}
+                    {`Mit Google ${mode === 'register' ? 'registrieren' : 'anmelden'}`}
                   </Button>
 
                   <Button
@@ -251,14 +253,14 @@ function LoginContent() {
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.52-3.23 0-1.44.62-2.2.44-3.06-.4C3.79 16.17 4.36 9.51 8.82 9.26c1.27.06 2.15.72 2.9.75.93-.19 1.82-.9 3.16-.77 1.59.16 2.63.86 3.23 2.1-2.95 1.74-2.25 5.58.53 6.66-.65 1.55-1.49 3.08-2.59 4.28zM12.1 9.21C11.95 7.06 13.7 5.3 15.75 5.14c.29 2.46-2.24 4.28-3.65 4.07z" />
                     </svg>
-                    Mit Apple {mode === 'register' ? 'registrieren' : 'anmelden'}
+                    {`Mit Apple ${mode === 'register' ? 'registrieren' : 'anmelden'}`}
                   </Button>
                 </div>
 
                 {/* Divider */}
                 <div className="flex items-center gap-3 mb-5">
                   <div className="flex-1 h-px bg-white/10" />
-                  <span className="text-xs text-white/40 font-medium">oder mit E-Mail</span>
+                  <span className="text-xs text-white/40 font-medium">{t('orWithEmail')}</span>
                   <div className="flex-1 h-px bg-white/10" />
                 </div>
               </>
@@ -271,7 +273,7 @@ function LoginContent() {
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                   <input
                     type="email"
-                    placeholder="E-Mail Adresse"
+                    placeholder={t('emailPlaceholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -288,7 +290,7 @@ function LoginContent() {
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Passwort"
+                    placeholder={t('passwordPlaceholder')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -315,7 +317,7 @@ function LoginContent() {
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                     <input
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Passwort bestätigen"
+                      placeholder={t('confirmPasswordPlaceholder')}
                       value={passwordConfirm}
                       onChange={(e) => setPasswordConfirm(e.target.value)}
                       required
@@ -339,7 +341,7 @@ function LoginContent() {
                   loading={loadingMethod === 'password'}
                   disabled={loadingMethod !== null}
                 >
-                  {mode === 'register' ? 'Registrieren' : 'Anmelden'}
+                  {mode === 'register' ? t('register') : t('login')}
                 </Button>
               </form>
             ) : (
@@ -349,7 +351,7 @@ function LoginContent() {
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                   <input
                     type="email"
-                    placeholder="E-Mail Adresse"
+                    placeholder={t('emailPlaceholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -370,7 +372,7 @@ function LoginContent() {
                   loading={loadingMethod === 'email'}
                   disabled={loadingMethod !== null}
                 >
-                  Magic Link senden
+                  {t('sendMagicLink')}
                 </Button>
               </form>
             )}
@@ -383,14 +385,14 @@ function LoginContent() {
                     onClick={() => { setMode('magic'); setError(null); }}
                     className="text-white/40 hover:text-white/70 transition-colors"
                   >
-                    Lieber per Magic Link anmelden
+                    {t('preferMagicLink')}
                   </button>
                   <span className="text-white/20">·</span>
                   <button
                     onClick={() => { setMode('register'); setError(null); }}
                     className="text-[#FFD700]/70 hover:text-[#FFD700] transition-colors font-semibold"
                   >
-                    Noch kein Konto? Registrieren
+                    {t('noAccount')}
                   </button>
                 </>
               )}
@@ -399,7 +401,7 @@ function LoginContent() {
                   onClick={() => { setMode('login'); setError(null); }}
                   className="text-[#FFD700]/70 hover:text-[#FFD700] transition-colors font-semibold"
                 >
-                  Bereits ein Konto? Anmelden
+                  {t('hasAccount')}
                 </button>
               )}
               {mode === 'magic' && (
@@ -407,7 +409,7 @@ function LoginContent() {
                   onClick={() => { setMode('login'); setError(null); }}
                   className="text-white/40 hover:text-white/70 transition-colors"
                 >
-                  Zurück zur Anmeldung mit Passwort
+                  {t('backToPassword')}
                 </button>
               )}
             </div>
@@ -418,13 +420,13 @@ function LoginContent() {
       {/* Footer */}
       <div className="text-center mt-6">
         <p className="text-xs text-white/30">
-          Mit der Anmeldung akzeptierst du unsere{' '}
+          {t('termsPrefix')}{' '}
           <a href="#" className="text-white/50 hover:text-white/70 underline transition-colors">
-            Nutzungsbedingungen
+            {t('terms')}
           </a>{' '}
-          und{' '}
+          {t('and')}{' '}
           <a href="#" className="text-white/50 hover:text-white/70 underline transition-colors">
-            Datenschutzerklärung
+            {t('privacy')}
           </a>
         </p>
       </div>

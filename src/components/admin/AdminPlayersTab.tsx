@@ -24,8 +24,8 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
   const [ipoSuccess, setIpoSuccess] = useState<string | null>(null);
   const [ipoPlayerId, setIpoPlayerId] = useState('');
   const [ipoPrice, setIpoPrice] = useState('');
-  const [ipoQty, setIpoQty] = useState('2000');
-  const [ipoMaxPerUser, setIpoMaxPerUser] = useState('50');
+  const [ipoQty, setIpoQty] = useState('100');
+  const [ipoMaxPerUser, setIpoMaxPerUser] = useState('10');
   const [ipoDuration, setIpoDuration] = useState('14');
   const [ipoStartNow, setIpoStartNow] = useState(true);
 
@@ -103,8 +103,8 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
         setClubIpos(refreshed);
         setIpoPlayerId('');
         setIpoPrice('');
-        setIpoQty('2000');
-        setIpoMaxPerUser('50');
+        setIpoQty('100');
+        setIpoMaxPerUser('10');
         setIpoDuration('14');
         setIpoStartNow(true);
         setIpoModalOpen(false);
@@ -568,7 +568,17 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">Anzahl DPC</label>
-            <input type="number" min="1" value={ipoQty} onChange={(e) => setIpoQty(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40" />
+            <input type="number" min="1" max={(() => { const sp = players.find(p => p.id === ipoPlayerId); return sp ? sp.dpc.supply - sp.dpc.circulation : 300; })()} value={ipoQty} onChange={(e) => setIpoQty(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40" />
+            {ipoPlayerId && (() => {
+              const sp = players.find(p => p.id === ipoPlayerId);
+              if (!sp) return null;
+              const available = sp.dpc.supply - sp.dpc.circulation;
+              return (
+                <div className="mt-1 text-xs text-white/40">
+                  Verfügbar: <span className="font-mono font-bold text-white/60">{available}</span> von <span className="font-mono font-bold text-white/60">{sp.dpc.supply}</span> (im Umlauf: {sp.dpc.circulation})
+                </div>
+              );
+            })()}
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">Max pro User</label>
