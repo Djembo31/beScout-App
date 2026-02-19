@@ -2,8 +2,10 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Star, Loader2 } from 'lucide-react';
+import { Star, Loader2, User } from 'lucide-react';
 import { PositionBadge } from '@/components/player';
+import { posTintColors } from '@/components/player/PlayerRow';
+import { getClub } from '@/lib/clubs';
 import { fmtBSD, cn } from '@/lib/utils';
 import { getRelativeTime } from '@/lib/activityHelpers';
 import type { Player } from '@/types';
@@ -27,12 +29,12 @@ interface DiscoveryCardProps {
   buying?: boolean;
 }
 
-const VARIANT_STYLES: Record<DiscoveryVariant, { border: string; badge: string; badgeBg: string; label: string }> = {
-  ipo: { border: 'border-[#22C55E]/20', badge: 'text-[#22C55E]', badgeBg: 'bg-[#22C55E]/15', label: 'Live' },
-  trending: { border: 'border-orange-400/20', badge: 'text-orange-300', badgeBg: 'bg-orange-500/15', label: '' },
-  deal: { border: 'border-[#22C55E]/20', badge: 'text-[#22C55E]', badgeBg: 'bg-[#22C55E]/15', label: 'Wert!' },
-  new: { border: 'border-sky-400/20', badge: 'text-sky-300', badgeBg: 'bg-sky-500/15', label: 'Neu' },
-  listing: { border: 'border-[#FFD700]/20', badge: 'text-[#FFD700]', badgeBg: 'bg-[#FFD700]/15', label: 'Am Markt' },
+const VARIANT_STYLES: Record<DiscoveryVariant, { badge: string; badgeBg: string; label: string }> = {
+  ipo: { badge: 'text-[#22C55E]', badgeBg: 'bg-[#22C55E]/15', label: 'Live' },
+  trending: { badge: 'text-orange-300', badgeBg: 'bg-orange-500/15', label: '' },
+  deal: { badge: 'text-[#22C55E]', badgeBg: 'bg-[#22C55E]/15', label: 'Wert!' },
+  new: { badge: 'text-sky-300', badgeBg: 'bg-sky-500/15', label: 'Neu' },
+  listing: { badge: 'text-[#FFD700]', badgeBg: 'bg-[#FFD700]/15', label: 'Am Markt' },
 };
 
 export default function DiscoveryCard({
@@ -45,6 +47,8 @@ export default function DiscoveryCard({
   const l5 = p.perf.l5;
   const l5Color = l5 >= 65 ? 'text-emerald-300' : l5 >= 45 ? 'text-amber-300' : l5 > 0 ? 'text-red-300' : 'text-white/50';
   const vs = VARIANT_STYLES[variant];
+  const clubData = getClub(p.club);
+  const posBorderColor = posTintColors[p.pos];
 
   const price = variant === 'ipo' ? (ipoPrice ?? 0)
     : variant === 'new' || variant === 'listing' ? (listingPrice ?? p.prices.floor ?? 0)
@@ -53,45 +57,57 @@ export default function DiscoveryCard({
   return (
     <Link
       href={`/player/${p.id}`}
-      className={cn(
-        'flex-shrink-0 w-[140px] bg-white/[0.03] border rounded-xl p-2.5 hover:bg-white/[0.06] transition-all group relative',
-        vs.border
-      )}
+      className="flex-shrink-0 w-[140px] bg-white/[0.03] border border-white/[0.06] rounded-xl p-2.5 hover:bg-white/[0.06] transition-all group relative overflow-hidden"
+      style={{ borderLeftColor: posBorderColor, borderLeftWidth: 2 }}
     >
-      {/* Top row: Position + Watch */}
-      <div className="flex items-center justify-between mb-1.5">
-        <PositionBadge pos={p.pos} size="sm" />
-        {onWatch && (
-          <button
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onWatch(p.id); }}
-            className={cn('p-0.5 rounded transition-colors', isWatchlisted ? 'text-[#FFD700]' : 'text-white/20 hover:text-white/40')}
-          >
-            <Star className="w-3 h-3" fill={isWatchlisted ? 'currentColor' : 'none'} />
-          </button>
-        )}
+      {/* Top row: Photo + Identity */}
+      <div className="flex items-start gap-2 mb-1.5">
+        {/* Player Photo */}
+        <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-white/5 border border-white/10">
+          {p.imageUrl ? (
+            <img src={p.imageUrl} alt={p.last} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <User className="w-4 h-4 text-white/20" />
+            </div>
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between">
+            <PositionBadge pos={p.pos} size="sm" />
+            {onWatch && (
+              <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); onWatch(p.id); }}
+                className={cn('p-0.5 rounded transition-colors', isWatchlisted ? 'text-[#FFD700]' : 'text-white/20 hover:text-white/40')}
+              >
+                <Star className="w-3 h-3" fill={isWatchlisted ? 'currentColor' : 'none'} />
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Name */}
       <div className="text-[11px] text-white/50 truncate">{p.first}</div>
       <div className="font-bold text-xs truncate group-hover:text-[#FFD700] transition-colors uppercase">{p.last}</div>
 
-      {/* Club + Number */}
-      <div className="text-[10px] text-white/40 truncate mt-0.5">
-        {p.club}
-        {p.ticket > 0 && <span className="font-mono text-white/25"> #{p.ticket}</span>}
+      {/* Club + Logo + Number */}
+      <div className="flex items-center gap-1 mt-0.5">
+        {clubData?.logo ? (
+          <img src={clubData.logo} alt={p.club} className="w-3 h-3 rounded-full object-cover shrink-0" />
+        ) : (
+          <div className="w-3 h-3 rounded-full shrink-0 border border-white/10" style={{ backgroundColor: clubData?.colors.primary ?? '#666' }} />
+        )}
+        <span className="text-[10px] text-white/40 truncate">{clubData?.short || p.club}</span>
+        {p.ticket > 0 && <span className="font-mono text-[10px] text-white/20">#{p.ticket}</span>}
       </div>
 
       {/* Separator */}
       <div className="h-px bg-white/5 my-1.5" />
 
-      {/* Metrics: L5 + OnMarket + Price */}
+      {/* Metrics: L5 + Price */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          <span className={cn('font-mono font-bold text-[11px]', l5Color)}>L5: {l5}</span>
-          {p.dpc.onMarket > 0 && variant !== 'new' && variant !== 'listing' && (
-            <span className="text-[8px] font-bold text-[#FFD700]/70 bg-[#FFD700]/10 px-1 py-0.5 rounded">{p.dpc.onMarket}×</span>
-          )}
-        </div>
+        <span className={cn('font-mono font-bold text-[11px]', l5Color)}>L5: {l5}</span>
         {price > 0 && <span className="font-mono font-bold text-[11px] text-[#FFD700]">{fmtBSD(price)}</span>}
       </div>
 
