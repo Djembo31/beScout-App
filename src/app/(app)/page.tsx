@@ -1,48 +1,15 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
-import Link from 'next/link';
-import {
-  ArrowUpRight,
-  ArrowDownRight,
-  TrendingUp,
-  Trophy,
-  Users,
-  Clock,
-  ChevronRight,
-  Star,
-  Zap,
-  BarChart3,
-  Rocket,
-  CircleDollarSign,
-  Activity,
-  Award,
-  Briefcase,
-  FileText,
-  Vote,
-  Target,
-  Flame,
-  ArrowRightLeft,
-  Banknote,
-  X,
-  MessageCircle,
-  Send,
-  UserPlus,
-  Shield,
-  Compass,
-} from 'lucide-react';
-import { Card, Button, Chip, ErrorState, Skeleton, SkeletonCard, TabBar, TabPanel } from '@/components/ui';
-import { PositionBadge } from '@/components/player';
-import { PlayerDisplay } from '@/components/player/PlayerRow';
+import { useState, useMemo, useEffect } from 'react';
+import { TabBar, TabPanel, ErrorState } from '@/components/ui';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
-import { fmtBSD, cn } from '@/lib/utils';
-import { centsToBsd } from '@/lib/services/players';
-import { formatBsd } from '@/lib/services/wallet';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { useClub } from '@/components/providers/ClubProvider';
+import { centsToBsd } from '@/lib/services/players';
 import dynamic from 'next/dynamic';
 import FollowListModal from '@/components/profile/FollowListModal';
+import { useTranslations } from 'next-intl';
 
 // ── React Query Hooks ──
 import {
@@ -62,158 +29,25 @@ import {
   useFollowingFeed,
   useFollowerCount,
   useFollowingCount,
+  useScoutScores,
   qk,
 } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
 
-import type { GlobalTrade, TopTrader } from '@/lib/services/trading';
+// ── Home Components ──
+import { HomeSkeleton, HomeHeader, MeinStandTab, AktuellTab, EntdeckenTab } from '@/components/home';
+import { updateLoginStreak, STREAK_KEY } from '@/components/home/helpers';
 
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
-const MissionBanner = dynamic(() => import('@/components/missions/MissionBanner'), { ssr: false });
-const ScoutMissionCard = dynamic(() => import('@/components/missions/ScoutMissionCard'), { ssr: false });
-const AirdropScoreCard = dynamic(() => import('@/components/airdrop/AirdropScoreCard'), { ssr: false });
-const ReferralCard = dynamic(() => import('@/components/airdrop/ReferralCard'), { ssr: false });
 const OnboardingChecklist = dynamic(() => import('@/components/onboarding/OnboardingChecklist'), { ssr: false });
-import type { DpcOfTheWeek } from '@/lib/services/dpcOfTheWeek';
-import type { ScoutMission, UserScoutMission } from '@/lib/services/scoutMissions';
-import { TierBadge } from '@/components/ui/TierBadge';
-import { getFanTier } from '@/types';
-import type { FanTier } from '@/types';
-import { getActivityColor as actColor, getActivityLabel, getRelativeTime, getActivityIcon as actIconName } from '@/lib/activityHelpers';
-import type { Player, DpcHolding, DbTransaction, DbEvent, DbOrder, Pos, DbUserStats, LeaderboardUser, PostWithAuthor, FeedItem } from '@/types';
-import { FEED_ACTION_LABELS } from '@/types';
-import { getGesamtRang } from '@/lib/gamification';
-import { useScoutScores } from '@/lib/queries';
-import { InfoTooltip } from '@/components/ui';
-import { useTranslations } from 'next-intl';
 
-// ============================================
-// HELPERS
-// ============================================
-
-function getGreetingKey(): string {
-  const h = new Date().getHours();
-  if (h < 6) return 'greetingNight';
-  if (h < 12) return 'greetingMorning';
-  if (h < 18) return 'greetingAfternoon';
-  return 'greetingEvening';
-}
-
-const ICON_MAP: Record<string, React.ElementType> = { CircleDollarSign, Trophy, Award, Users, Zap, FileText, Vote, Activity, Target, Flame, Banknote };
-function renderActivityIcon(type: string) {
-  const Icon = ICON_MAP[actIconName(type)] ?? Activity;
-  return <Icon className="w-4 h-4" />;
-}
-function getActivityColorLocal(type: string): string { return actColor(type); }
-
-const FEED_ICON_MAP: Record<string, { Icon: React.ElementType; color: string }> = {
-  trade_buy: { Icon: CircleDollarSign, color: 'text-[#FFD700] bg-[#FFD700]/10' },
-  trade_sell: { Icon: CircleDollarSign, color: 'text-[#22C55E] bg-[#22C55E]/10' },
-  research_create: { Icon: FileText, color: 'text-purple-400 bg-purple-400/10' },
-  post_create: { Icon: MessageCircle, color: 'text-sky-400 bg-sky-400/10' },
-  lineup_submit: { Icon: Trophy, color: 'text-purple-400 bg-purple-400/10' },
-  follow: { Icon: UserPlus, color: 'text-[#22C55E] bg-[#22C55E]/10' },
-  bounty_submit: { Icon: Target, color: 'text-amber-400 bg-amber-400/10' },
-  bounty_create: { Icon: Target, color: 'text-amber-400 bg-amber-400/10' },
-  offer_create: { Icon: Send, color: 'text-amber-400 bg-amber-400/10' },
-  offer_accept: { Icon: ArrowRightLeft, color: 'text-[#22C55E] bg-[#22C55E]/10' },
-  poll_create: { Icon: Vote, color: 'text-amber-400 bg-amber-400/10' },
-  vote_create: { Icon: Vote, color: 'text-amber-400 bg-amber-400/10' },
-};
-
-function formatPrize(bsd: number): string {
-  return bsd >= 1000 ? `${(bsd / 1000).toFixed(0)}K` : String(bsd);
-}
-
-function getTimeUntil(dateStr: string | null): string {
-  if (!dateStr) return '—';
-  const ms = Math.max(0, new Date(dateStr).getTime() - Date.now());
-  const hours = Math.floor(ms / 3600000);
-  const mins = Math.floor((ms % 3600000) / 60000);
-  if (hours >= 24) return `${Math.floor(hours / 24)}d ${hours % 24}h`;
-  return `${hours}h ${mins}m`;
-}
-
-function SectionHeader({ title, href, badge }: { title: string; href?: string; badge?: React.ReactNode }) {
-  const content = (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2.5">
-        <h2 className="text-base md:text-lg font-black uppercase tracking-wide">{title}</h2>
-        {badge}
-      </div>
-      {href && <ChevronRight className="w-5 h-5 text-white/30" />}
-    </div>
-  );
-  if (href) {
-    return <Link href={href} className="block hover:opacity-80 transition-opacity">{content}</Link>;
-  }
-  return content;
-}
-
-// ============================================
-// SKELETON
-// ============================================
-
-function HomeSkeleton() {
-  return (
-    <div className="max-w-[1200px] mx-auto space-y-4 md:space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <Skeleton className="h-4 w-24 mb-2" />
-          <Skeleton className="h-9 w-40" />
-        </div>
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
-        {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-[88px] rounded-xl" />
-        ))}
-      </div>
-      <Skeleton className="h-12 rounded-2xl" />
-      <div className="space-y-3">
-        {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-16 rounded-xl" />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ============================================
-// LOGIN STREAK
-// ============================================
-
-const STREAK_KEY = 'bescout-login-streak';
-
-function getLoginStreak(): { current: number; lastDate: string } {
-  if (typeof window === 'undefined') return { current: 0, lastDate: '' };
-  try {
-    const raw = localStorage.getItem(STREAK_KEY);
-    if (!raw) return { current: 0, lastDate: '' };
-    return JSON.parse(raw);
-  } catch { return { current: 0, lastDate: '' }; }
-}
-
-function updateLoginStreak(): number {
-  const today = new Date().toISOString().slice(0, 10);
-  const { current, lastDate } = getLoginStreak();
-  if (lastDate === today) return current;
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-  const newStreak = lastDate === yesterday ? current + 1 : 1;
-  localStorage.setItem(STREAK_KEY, JSON.stringify({ current: newStreak, lastDate: today }));
-  return newStreak;
-}
-
-// ============================================
-// TAB CONFIG
-// ============================================
-
-type HomeTab = 'mein' | 'aktuell' | 'entdecken';
-
-// HOME_TABS labels are set inside the component via useTranslations
+import type { DpcHolding, DbEvent, Pos, Player, DbOrder } from '@/types';
 
 // ============================================
 // MAIN COMPONENT
 // ============================================
+
+type HomeTab = 'mein' | 'aktuell' | 'entdecken';
 
 export default function HomePage() {
   const { user, profile, loading } = useUser();
@@ -224,13 +58,13 @@ export default function HomePage() {
   const firstName = name.split(' ')[0];
   const uid = user?.id;
 
-  // ── UI-only state (kept as useState) ──
+  // ── UI-only state ──
   const [activeTab, setActiveTab] = useState<HomeTab>('mein');
   const [streak, setStreak] = useState(0);
   const [shieldsRemaining, setShieldsRemaining] = useState<number | null>(null);
   const [followListMode, setFollowListMode] = useState<'followers' | 'following' | null>(null);
 
-  // ── React Query: Phase 1 (critical for "Mein Stand" tab) ──
+  // ── React Query: Phase 1 (critical) ──
   const { data: players = [], isLoading: playersLoading, isError: playersError } = usePlayers();
   const { data: rawHoldings = [] } = useHoldings(uid);
   const { data: events = [] } = useEvents();
@@ -240,7 +74,6 @@ export default function HomePage() {
 
   // ── i18n ──
   const t = useTranslations('home');
-  const tc = useTranslations('common');
   const tg = useTranslations('gamification');
 
   const HOME_TABS = useMemo(() => [
@@ -249,7 +82,7 @@ export default function HomePage() {
     { id: 'entdecken' as const, label: t('discover') },
   ], [t]);
 
-  // ── React Query: Phase 2 (secondary data for Aktuell/Entdecken tabs) ──
+  // ── React Query: Phase 2 (secondary) ──
   const { data: transactions = [] } = useTransactions(uid, 10);
   const { data: topScouts = [] } = useLeaderboard(10);
   const { data: recentTrades = [] } = useRecentGlobalTrades(10);
@@ -261,7 +94,6 @@ export default function HomePage() {
   const { data: followerCount = 0 } = useFollowerCount(uid);
   const { data: followingCount = 0 } = useFollowingCount(uid);
 
-  // Mission progress — derive GW from already-fetched events
   const maxGw = useMemo(() => events.reduce((mx: number, e: DbEvent) => Math.max(mx, e.gameweek || 0), 0), [events]);
   const { data: missionProgress = [] } = useMissionProgress(uid, maxGw);
 
@@ -288,20 +120,20 @@ export default function HomePage() {
     [rawHoldings]
   );
 
-  // ── Fire-and-forget side effects (login streak, mission tracking) ──
+  // ── Login streak + mission tracking ──
   useEffect(() => {
     if (!user) return;
-    const uid = user.id;
+    const userId = user.id;
     let cancelled = false;
 
     import('@/lib/services/missions').then(({ trackMissionProgress }) => {
-      trackMissionProgress(uid, 'daily_login');
+      trackMissionProgress(userId, 'daily_login');
     }).catch(err => console.error('[Home] Mission tracking failed:', err));
 
     setStreak(updateLoginStreak());
 
     import('@/lib/services/streaks').then(({ recordLoginStreak }) => {
-      recordLoginStreak(uid).then(result => {
+      recordLoginStreak(userId).then(result => {
         if (cancelled) return;
         setStreak(result.streak);
         setShieldsRemaining(result.shields_remaining);
@@ -359,13 +191,7 @@ export default function HomePage() {
     return active[0] ?? null;
   }, [events]);
 
-  const displayEvents = useMemo(() => {
-    const priority: Record<string, number> = { running: 0, 'late-reg': 1, registering: 2, scoring: 3, upcoming: 4, ended: 5 };
-    return [...events]
-      .filter(e => e.status !== 'ended')
-      .sort((a, b) => (priority[a.status] ?? 9) - (priority[b.status] ?? 9));
-  }, [events]);
-
+  // ── Guards ──
   if (playersLoading) return <HomeSkeleton />;
 
   if (playersError && players.length === 0) {
@@ -379,728 +205,68 @@ export default function HomePage() {
   return (
     <div className="max-w-[1200px] mx-auto space-y-4 md:space-y-6">
 
-      {/* ━━━ GREETING + STREAK ━━━ */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-xs text-white/40 tracking-wide">{t(getGreetingKey())},</div>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight" suppressHydrationWarning>
-            {loading ? '...' : firstName}
-            <span className="text-[#FFD700]">.</span>
-          </h1>
-        </div>
-        <div className="flex items-center gap-2">
-          {userStats?.tier && <TierBadge tier={userStats.tier} size="md" />}
-          {streak >= 2 && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-400/20 anim-fade">
-              <Flame className="w-4 h-4 text-orange-400" />
-              <span className="text-sm font-black text-orange-300">{streak}</span>
-              <span className="text-[10px] text-orange-400/60 hidden sm:inline">{t('streakDays')}</span>
-            </div>
-          )}
-          {shieldsRemaining != null && shieldsRemaining > 0 && (
-            <div
-              className="flex items-center gap-1 px-2 py-1.5 rounded-xl bg-sky-500/10 border border-sky-400/20 anim-fade"
-              title={tg('streak.shieldHint')}
-            >
-              <Shield className="w-3.5 h-3.5 text-sky-400" />
-              <span className="text-xs font-black text-sky-300">{shieldsRemaining}</span>
-            </div>
-          )}
-        </div>
-      </div>
+      <HomeHeader
+        loading={loading}
+        firstName={firstName}
+        streak={streak}
+        shieldsRemaining={shieldsRemaining}
+        userStats={userStats}
+        portfolioValue={portfolioValue}
+        holdingsCount={holdings.length}
+        totalDpcs={totalDpcs}
+        pnl={pnl}
+        pnlPct={pnlPct}
+        balanceCents={balanceCents}
+        scoutScores={scoutScores}
+      />
 
-      {/* ━━━ ONBOARDING CHECKLIST ━━━ */}
       {uid && <OnboardingChecklist userId={uid} name={firstName} />}
-
-      {/* ━━━ SPONSOR: HOME HERO ━━━ */}
       <SponsorBanner placement="home_hero" />
 
-      {/* ━━━ STAT CARDS — 2x2 mobile, 4-col desktop ━━━ */}
-      <div data-tour-id="home-stats" className="grid grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2 md:gap-3">
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
-          <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/50 uppercase tracking-wider">{t('portfolioRoster')}</span>
-            <InfoTooltip text={t('portfolioRosterTooltip')} />
-          </div>
-          <div className="font-mono font-black text-base md:text-xl text-white truncate">{fmtBSD(portfolioValue)}</div>
-          <div className="text-[10px] text-white/40">{holdings.length} Spieler · {totalDpcs} DPC</div>
-        </div>
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
-          <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/50 uppercase tracking-wider">{t('pnl')}</span>
-            <InfoTooltip text={t('pnlTooltip')} />
-          </div>
-          <div className={cn('font-mono font-black text-base md:text-xl truncate', pnl >= 0 ? 'text-[#22C55E]' : 'text-red-400')}>
-            {pnl >= 0 ? '+' : ''}{fmtBSD(pnl)}
-          </div>
-          <div className={cn('text-[10px]', pnl >= 0 ? 'text-[#22C55E]/60' : 'text-red-400/60')}>
-            {pnl >= 0 ? '+' : ''}{pnlPct.toFixed(1)}%
-          </div>
-        </div>
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
-          <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/50 uppercase tracking-wider">{tc('balance')}</span>
-            <InfoTooltip text={t('balanceTooltip')} />
-          </div>
-          {balanceCents === null ? (
-            <div className="h-6 md:h-7 w-20 rounded bg-[#FFD700]/10 animate-pulse mt-1" />
-          ) : (
-            <div className="font-mono font-black text-base md:text-xl text-[#FFD700] truncate">{fmtBSD(centsToBsd(balanceCents))}</div>
-          )}
-          <div className="text-[10px] text-white/40">BSD</div>
-        </div>
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
-          <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/50 uppercase tracking-wider">{t('bescoutScore')}</span>
-            <InfoTooltip text={t('bescoutScoreTooltip')} />
-          </div>
-          {scoutScores ? (
-            <>
-              <div className={`font-black text-base md:text-xl ${getGesamtRang(scoutScores).color}`}>
-                {tg(`rang.${getGesamtRang(scoutScores).i18nKey}`)}
-              </div>
-              <div className="flex gap-2 mt-1">
-                <span className="text-[9px] text-sky-400 font-mono">T {scoutScores.trader_score}</span>
-                <span className="text-[9px] text-purple-400 font-mono">M {scoutScores.manager_score}</span>
-                <span className="text-[9px] text-emerald-400 font-mono">A {scoutScores.analyst_score}</span>
-              </div>
-            </>
-          ) : (
-            <div className="font-black text-base md:text-xl text-amber-600">{tg('rang.bronzeI')}</div>
-          )}
-        </div>
-      </div>
-
-      {/* ━━━ TAB BAR ━━━ */}
       <div data-tour-id="home-tabs">
         <TabBar tabs={HOME_TABS} activeTab={activeTab} onChange={(id) => setActiveTab(id as HomeTab)} />
       </div>
 
-      {/* ━━━ TAB: MEIN STAND ━━━ */}
       <TabPanel id="mein" activeTab={activeTab}>
-        <div className="space-y-5">
-          {/* Meine Vereine */}
-          {followedClubs.length > 0 && (
-            <div>
-              <SectionHeader title={t('myClubs')} href="/clubs" />
-              <div className="flex gap-2 mt-3 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-                {followedClubs.map(club => {
-                  const color = club.primary_color ?? '#FFD700';
-                  return (
-                    <Link
-                      key={club.id}
-                      href={`/club/${club.slug}`}
-                      className="flex items-center gap-2 px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] hover:border-white/15 transition-all shrink-0"
-                    >
-                      <div
-                        className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                        style={{ backgroundColor: `${color}20` }}
-                      >
-                        {club.logo_url ? (
-                          <img src={club.logo_url} alt="" className="w-5 h-5 object-contain" />
-                        ) : (
-                          <Shield className="w-3.5 h-3.5" style={{ color }} />
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-xs font-bold truncate max-w-[100px]">{club.name}</div>
-                        <div className="text-[10px] text-white/30">{club.league}</div>
-                      </div>
-                    </Link>
-                  );
-                })}
-                <Link
-                  href="/clubs"
-                  className="flex items-center gap-2 px-3 py-2 bg-[#FFD700]/[0.03] border border-[#FFD700]/10 rounded-xl hover:bg-[#FFD700]/[0.06] transition-all shrink-0"
-                >
-                  <Compass className="w-4 h-4 text-[#FFD700]/60" />
-                  <span className="text-xs font-medium text-[#FFD700]/60">{t('discover')}</span>
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {/* Holdings Top 5 */}
-          <div>
-            <SectionHeader title={t('myRoster')} href="/market?tab=portfolio" />
-            <div className="mt-3 space-y-1.5">
-              {holdings.length === 0 ? (
-                <Card className="p-6 text-center">
-                  <Briefcase className="w-10 h-10 mx-auto mb-2 text-white/20" />
-                  <div className="text-sm font-medium text-white/50">{t('emptyPortfolioTitle')}</div>
-                  <div className="text-xs text-white/30 mt-1">{t('emptyPortfolioDesc')}</div>
-                  <Link href="/market?tab=kaufen" className="inline-block mt-3">
-                    <Button variant="gold" size="sm" className="gap-1.5">
-                      <Zap className="w-3.5 h-3.5" />
-                      {t('buyFirstPlayer')}
-                    </Button>
-                  </Link>
-                </Card>
-              ) : (
-                holdings.slice(0, 5).map((h) => (
-                  <PlayerDisplay key={h.id} variant="compact"
-                    player={{
-                      id: h.playerId,
-                      first: h.player.split(' ')[0] || '',
-                      last: h.player.split(' ').slice(1).join(' ') || '',
-                      club: h.club,
-                      pos: h.pos,
-                      age: h.age,
-                      ticket: h.ticket,
-                      status: 'fit' as const,
-                      contractMonthsLeft: 24,
-                      country: '',
-                      league: '',
-                      isLiquidated: false,
-                      stats: { matches: h.matches, goals: h.goals, assists: h.assists },
-                      perf: { l5: h.perfL5, l15: 0, trend: 'FLAT' as const },
-                      prices: { lastTrade: 0, floor: h.floor, change24h: h.change24h },
-                      dpc: { supply: 0, float: 0, circulation: 0, onMarket: 0, owned: h.qty },
-                      ipo: { status: 'none' as const },
-                      listings: [],
-                      topOwners: [],
-                    }}
-                    holding={{ quantity: h.qty, avgBuyPriceBsd: h.avgBuy }}
-                    showActions={false}
-                  />
-                ))
-              )}
-              {holdings.length > 5 && (
-                <Link href="/market?tab=portfolio" className="block text-center py-2 text-xs text-[#FFD700] hover:underline">
-                  {t('viewAllPlayers', { count: holdings.length })}
-                </Link>
-              )}
-            </div>
-          </div>
-
-          {/* Aktivität */}
-          <div>
-            <SectionHeader title={t('activity')} />
-            <div className="mt-3 space-y-0.5">
-              {transactions.length === 0 ? (
-                <Card className="p-6 text-center">
-                  <Activity className="w-6 h-6 mx-auto mb-2 text-white/15" />
-                  <div className="text-sm text-white/40">{t('noActivity')}</div>
-                </Card>
-              ) : (
-                transactions.slice(0, 5).map((tx) => {
-                  const positive = tx.amount > 0;
-                  return (
-                    <div key={tx.id} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors">
-                      <div className={cn('flex items-center justify-center w-8 h-8 rounded-lg shrink-0 mt-0.5', getActivityColorLocal(tx.type))}>
-                        {renderActivityIcon(tx.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium leading-snug">{getActivityLabel(tx)}</div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className={cn('text-xs font-mono font-bold', positive ? 'text-[#22C55E]' : 'text-white/40')}>
-                            {positive ? '+' : ''}{formatBsd(tx.amount)} BSD
-                          </span>
-                          <span className="text-[10px] text-white/25">· {getRelativeTime(tx.created_at)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-              {transactions.length > 5 && (
-                <Link href="/profile" className="block text-center py-2 text-xs text-[#FFD700] hover:underline">
-                  {t('viewAllActivity')}
-                </Link>
-              )}
-            </div>
-          </div>
-
-          {/* Following Feed */}
-          <div>
-            <div className="flex items-center justify-between">
-              <SectionHeader title={t('whatYourScoutsDo')} badge={followingFeed.length > 0 ?
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/15 border border-sky-400/25">
-                  <Users className="w-3 h-3 text-sky-400" />
-                  <span className="text-[10px] font-bold text-sky-300">{followingFeed.length}</span>
-                </span> : undefined
-              } />
-              {(followerCount > 0 || followingCount > 0) && (
-                <button
-                  onClick={() => setFollowListMode('following')}
-                  className="text-[10px] font-bold text-[#FFD700]/60 hover:text-[#FFD700] transition-colors"
-                >
-                  {tc('manage')}
-                </button>
-              )}
-            </div>
-            {/* Network counts */}
-            <div className="flex items-center gap-3 mt-1.5 mb-2">
-              <button
-                onClick={() => setFollowListMode('followers')}
-                className="text-xs text-white/40 hover:text-white/70 transition-colors"
-              >
-                <span className="font-bold text-white/60">{followerCount}</span> Follower
-              </button>
-              <span className="text-white/10">·</span>
-              <button
-                onClick={() => setFollowListMode('following')}
-                className="text-xs text-white/40 hover:text-white/70 transition-colors"
-              >
-                <span className="font-bold text-white/60">{followingCount}</span> Folge ich
-              </button>
-            </div>
-            {followingFeed.length > 0 ? (
-              <div className="mt-3 space-y-0.5">
-                {followingFeed.slice(0, 8).map(item => {
-                  const feedIcon = FEED_ICON_MAP[item.action] ?? { Icon: Activity, color: 'text-white/50 bg-white/5' };
-                  const FIcon = feedIcon.Icon;
-                  const label = FEED_ACTION_LABELS[item.action] ?? item.action;
-                  const displayName = item.displayName ?? item.handle;
-                  return (
-                    <Link key={item.id} href={`/profile/${item.handle}`} className="block">
-                      <div className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors">
-                        <div className={cn('flex items-center justify-center w-8 h-8 rounded-lg shrink-0 mt-0.5', feedIcon.color)}>
-                          <FIcon className="w-4 h-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm leading-snug">
-                            <span className="font-bold text-white/80">{displayName}</span>
-                            <span className="text-white/40 ml-1">{label}</span>
-                          </div>
-                          <div className="text-[10px] text-white/25 mt-0.5">{getRelativeTime(item.createdAt)}</div>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="mt-3 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] text-center">
-                <Users className="w-6 h-6 text-white/20 mx-auto mb-2" />
-                <div className="text-xs text-white/40">{t('followScoutsHint')}</div>
-                <Link href="/community" className="text-xs text-[#FFD700]/70 hover:text-[#FFD700] mt-1 inline-block">
-                  {t('discoverCommunity')}
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {/* DPC der Woche */}
-          {dpcOfWeek && (
-            <div>
-              <SectionHeader title={t('dpcOfTheWeek')} badge={
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FFD700]/15 border border-[#FFD700]/25">
-                  <Trophy className="w-3 h-3 text-[#FFD700]" />
-                  <span className="text-[10px] font-bold text-[#FFD700]">GW {dpcOfWeek.gameweek}</span>
-                </span>
-              } />
-              <Link href={`/player/${dpcOfWeek.playerId}`} className="block mt-3">
-                <div className="relative overflow-hidden rounded-2xl border border-[#FFD700]/30 bg-gradient-to-br from-[#FFD700]/10 via-[#FFD700]/5 to-transparent">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFD700]/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-                  <div className="p-4 flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-xl bg-[#FFD700]/20 border border-[#FFD700]/30 flex items-center justify-center">
-                      <Star className="w-7 h-7 text-[#FFD700]" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-[#FFD700] mb-0.5">{t('bestPlayer')}</div>
-                      <div className="font-black text-lg truncate">{dpcOfWeek.playerFirstName} {dpcOfWeek.playerLastName}</div>
-                      <div className="text-xs text-white/50">{dpcOfWeek.playerClub} • {dpcOfWeek.holderCount} {t('owners')}</div>
-                      <div className="text-[10px] text-[#FFD700]/50 flex items-center gap-1 mt-0.5">
-                        <MessageCircle className="w-3 h-3" />
-                        {t('whatSayScouts')}
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className="text-2xl font-mono font-black text-[#FFD700]">{dpcOfWeek.score}</div>
-                      <div className="text-[10px] text-white/40">Punkte</div>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          )}
-
-          {/* Missionen */}
-          <MissionBanner />
-
-          {/* Airdrop Score */}
-          {user && <AirdropScoreCard userId={user.id} />}
-
-          {/* Scout Missions */}
-          {scoutMissions.length > 0 && (
-            <div>
-              <SectionHeader
-                title={t('scoutMissions')}
-                badge={
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/15 border border-sky-400/25">
-                    <span className="text-[10px] font-bold text-sky-300">{scoutMissions.length} aktiv</span>
-                  </span>
-                }
-              />
-              <div className="mt-3 space-y-3">
-                {scoutMissions.slice(0, 3).map(m => (
-                  <ScoutMissionCard
-                    key={m.id}
-                    mission={m}
-                    progress={missionProgress.find(p => p.missionId === m.id)}
-                    userTier={getFanTier(userStats?.total_score ?? 0)}
-                    onSubmit={() => addToast('Spieler-Einreichung kommt bald!', 'info')}
-                    onClaim={() => addToast('Belohnung wird abgeholt...', 'info')}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        <MeinStandTab
+          uid={uid}
+          holdings={holdings}
+          transactions={transactions}
+          followingFeed={followingFeed}
+          followerCount={followerCount}
+          followingCount={followingCount}
+          followedClubs={followedClubs}
+          dpcOfWeek={dpcOfWeek}
+          scoutMissions={scoutMissions}
+          missionProgress={missionProgress}
+          userStats={userStats}
+          onFollowListOpen={(mode) => setFollowListMode(mode)}
+        />
       </TabPanel>
 
-      {/* ━━━ SPONSOR: HOME MID ━━━ */}
       <SponsorBanner placement="home_mid" />
 
-      {/* ━━━ TAB: AKTUELL ━━━ */}
       <TabPanel id="aktuell" activeTab={activeTab}>
-        <div className="space-y-5">
-
-          {/* Nächstes Event */}
-          {nextEvent && (
-            <div>
-              <SectionHeader
-                title={t('nextEvent')}
-                href="/fantasy"
-                badge={
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-400/25">
-                    <Clock className="w-3 h-3 text-purple-400" />
-                    <span className="text-[10px] font-bold text-purple-300">
-                      {nextEvent.status === 'running' ? getTimeUntil(nextEvent.ends_at) : getTimeUntil(nextEvent.starts_at)}
-                    </span>
-                  </span>
-                }
-              />
-              <Link href="/fantasy" className="block mt-3">
-                <div className="relative overflow-hidden rounded-2xl border border-purple-500/20 bg-gradient-to-br from-purple-600/10 via-purple-500/5 to-transparent">
-                  <div className="p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Trophy className="w-4 h-4 text-purple-400" />
-                          <span className="text-[10px] font-black uppercase tracking-wider text-purple-400">{nextEvent.format}</span>
-                        </div>
-                        <h3 className="text-base md:text-lg font-black">{nextEvent.name}</h3>
-                        <div className="flex items-center gap-3 mt-1 text-xs text-white/50">
-                          <span className="flex items-center gap-1">
-                            <Users className="w-3.5 h-3.5" />
-                            {nextEvent.current_entries}/{nextEvent.max_entries ?? '∞'}
-                          </span>
-                          <span>Eintritt: {nextEvent.entry_fee === 0 ? 'Gratis' : `${fmtBSD(centsToBsd(nextEvent.entry_fee))} BSD`}</span>
-                          <span className="flex items-center gap-1">
-                            <MessageCircle className="w-3.5 h-3.5" />
-                            {t('discussion')}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <div className="text-[10px] text-white/40 mb-0.5">Preisgeld</div>
-                        <div className="text-xl md:text-2xl font-black font-mono text-[#FFD700]">
-                          {formatPrize(centsToBsd(nextEvent.prize_pool))}
-                        </div>
-                        <div className="text-[10px] text-white/40">BSD</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          )}
-
-          {/* IPO Banner */}
-          {activeIPOs.length > 0 && (
-            <Link href={`/player/${activeIPOs[0].id}`} className="block">
-              <div className="relative overflow-hidden rounded-2xl border border-[#22C55E]/20 bg-gradient-to-r from-[#22C55E]/[0.08] via-transparent to-[#FFD700]/[0.04]">
-                <div className="relative flex items-center justify-between p-4 gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-[#22C55E]/15 border border-[#22C55E]/25 shrink-0">
-                      <Rocket className="w-5 h-5 text-[#22C55E]" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-[#22C55E]">{t('liveIPO')}</span>
-                        <span className="text-[9px] text-white/30 font-bold">{t('onlyForFans')}</span>
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-75" />
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22C55E]" />
-                        </span>
-                      </div>
-                      <div className="font-black text-sm truncate">
-                        {activeIPOs.map((p) => `${p.first} ${p.last}`).join(', ')}
-                      </div>
-                      <div className="text-xs text-white/50 truncate">
-                        {activeIPOs[0].club} · {activeIPOs[0].ipo.progress}% {t('sold')}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <div className="font-mono font-black text-[#FFD700] text-lg">{activeIPOs[0].ipo.price}</div>
-                    <div className="text-[10px] text-white/40">BSD/DPC</div>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          )}
-
-          {/* Live Trades */}
-          {recentTrades.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <ArrowRightLeft className="w-3.5 h-3.5 text-[#FFD700]/60" />
-                <span className="text-[10px] font-black uppercase tracking-wider text-white/30">{t('recentTrades')}</span>
-              </div>
-              <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-                {recentTrades.map(tr => (
-                  <Link
-                    key={tr.id}
-                    href={`/player/${tr.playerId}`}
-                    className="flex items-center gap-2 px-3 py-2 bg-white/[0.02] border border-white/[0.06] rounded-xl hover:bg-white/[0.04] transition-all shrink-0"
-                  >
-                    <PositionBadge pos={tr.playerPos} size="sm" />
-                    <div className="min-w-0">
-                      <div className="text-[11px] font-bold truncate max-w-[120px]">{tr.playerName}</div>
-                      <div className="text-[10px] text-white/30" title={new Date(tr.executedAt).toLocaleString('de-DE')}>{getRelativeTime(tr.executedAt)}</div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-[11px] font-mono font-bold text-[#FFD700]">{fmtBSD(centsToBsd(tr.price))}</div>
-                      <div className="text-[9px] text-white/25 flex items-center gap-1">{tr.quantity}x · {tr.isP2P ? t('p2p') : 'IPO'} <MessageCircle className="w-2.5 h-2.5 text-white/15" /></div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Marktbewegungen */}
-          <div>
-            <SectionHeader title={t('marketMovements')} href="/market" />
-            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <div className="text-xs font-bold text-[#22C55E] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                  {t('winners24h')}
-                </div>
-                <div className="space-y-2">
-                  {topGainers.map((p, i) => (
-                    <PlayerDisplay variant="compact" key={p.id} player={p} rank={i + 1} showSparkline />
-                  ))}
-                  {topGainers.length === 0 && (
-                    <div className="text-sm text-white/30 p-3 text-center rounded-xl bg-white/[0.02]">{t('noWinnersToday')}</div>
-                  )}
-                </div>
-              </div>
-              <div>
-                <div className="text-xs font-bold text-red-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                  <ArrowDownRight className="w-3.5 h-3.5" />
-                  {t('losers24h')}
-                </div>
-                <div className="space-y-2">
-                  {topLosers.map((p, i) => (
-                    <PlayerDisplay variant="compact" key={p.id} player={p} rank={i + 1} showSparkline />
-                  ))}
-                  {topLosers.length === 0 && (
-                    <div className="text-sm text-white/30 p-3 text-center rounded-xl bg-white/[0.02]">{t('noLosersToday')}</div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Neue Angebote */}
-          {recentListings.length > 0 && (
-            <div>
-              <SectionHeader title={t('newOffers')} href="/market" />
-              <div className="mt-3 space-y-2">
-                {recentListings.slice(0, 4).map(({ order, player }) => (
-                  <Link
-                    key={order.id}
-                    href={`/player/${player.id}`}
-                    className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-[#FFD700]/20 transition-all"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <PositionBadge pos={player.pos} size="sm" />
-                      <div className="min-w-0">
-                        <div className="font-bold text-sm truncate">{player.first} {player.last}</div>
-                        <div className="text-[11px] text-white/40">{player.club} · {order.quantity} DPC</div>
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="font-mono font-bold text-[#FFD700] text-sm">{fmtBSD(centsToBsd(order.price))} BSD</div>
-                      <div className="text-[10px] text-white/30">{getRelativeTime(order.created_at)}</div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        <AktuellTab
+          nextEvent={nextEvent}
+          activeIPOs={activeIPOs}
+          recentTrades={recentTrades}
+          topGainers={topGainers}
+          topLosers={topLosers}
+          recentListings={recentListings}
+        />
       </TabPanel>
 
-      {/* ━━━ TAB: ENTDECKEN ━━━ */}
       <TabPanel id="entdecken" activeTab={activeTab}>
-        <div className="space-y-5">
-
-          {/* Unter Wert / Bargains */}
-          {bargains.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Zap className="w-3.5 h-3.5 text-[#22C55E]/60" />
-                <span className="text-[10px] font-black uppercase tracking-wider text-white/30">{t('undervalued')}</span>
-                <span className="text-[9px] text-white/20 ml-auto">{t('highPerfLowPrice')}</span>
-              </div>
-              <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-                {bargains.map(({ player: p, floor }) => (
-                  <Link
-                    key={p.id}
-                    href={`/player/${p.id}`}
-                    className="flex items-center gap-2.5 px-3 py-2.5 bg-[#22C55E]/[0.03] border border-[#22C55E]/10 rounded-xl hover:bg-[#22C55E]/[0.06] transition-all shrink-0"
-                  >
-                    <PositionBadge pos={p.pos} size="sm" />
-                    <div className="min-w-0">
-                      <div className="text-[11px] font-bold truncate max-w-[110px]">{p.first} {p.last}</div>
-                      <div className="text-[10px] text-white/30">{p.club}</div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-[11px] font-mono font-bold text-[#FFD700]">{fmtBSD(floor)} BSD</div>
-                      <div className="text-[10px] font-mono text-[#22C55E]">L5: {p.perf.l5}</div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Community Highlights */}
-          {communityPosts.length > 0 && (
-            <div>
-              <SectionHeader title={t('communityHighlights')} href="/community" />
-              <div className="mt-3 space-y-2">
-                {communityPosts.slice(0, 3).map(post => (
-                  <Link key={post.id} href={`/profile/${post.author_handle}`} className="block">
-                    <Card className="p-3 hover:bg-white/[0.04] transition-all">
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFD700]/20 to-purple-500/20 border border-white/10 flex items-center justify-center text-[10px] font-black shrink-0">
-                          {(post.author_display_name || post.author_handle || '?')[0].toUpperCase()}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-xs font-bold">{post.author_display_name || post.author_handle}</span>
-                            {post.category && (
-                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-white/5 text-white/40 border border-white/10">{post.category}</span>
-                            )}
-                            <span className="text-[10px] text-white/25 ml-auto shrink-0">{getRelativeTime(post.created_at)}</span>
-                          </div>
-                          <div className="text-xs text-white/60 line-clamp-2">{post.content}</div>
-                          <div className="flex items-center gap-3 mt-1.5 text-[10px] text-white/30">
-                            <span>▲ {post.upvotes}</span>
-                            {post.replies_count > 0 && <span>{post.replies_count} {t('replies')}</span>}
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  </Link>
-                ))}
-                <Link href="/community" className="block mt-3 text-center">
-                  <div className="py-2.5 px-4 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-[#FFD700]/20 transition-all text-xs font-bold text-[#FFD700]/70 hover:text-[#FFD700] flex items-center justify-center gap-1.5">
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    {t('viewAllPosts')}
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </div>
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {/* Top Scouts */}
-          {topScouts.length > 0 && (
-            <div>
-              <SectionHeader title={t('topScouts')} href="/community" />
-              <div className="mt-3 space-y-1.5">
-                {topScouts.slice(0, 5).map((s, i) => {
-                  const isMe = s.userId === user?.id;
-                  return (
-                    <Link key={s.userId} href={`/profile/${s.handle}`} className={cn(
-                      'flex items-center gap-3 py-2 px-3 rounded-xl hover:bg-white/[0.04] transition-colors',
-                      isMe && 'bg-[#FFD700]/[0.06] border border-[#FFD700]/15'
-                    )}>
-                      <span className={cn(
-                        'w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black',
-                        i === 0 ? 'bg-[#FFD700]/20 text-[#FFD700]' : 'bg-white/5 text-white/50'
-                      )}>
-                        {i + 1}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-sm font-semibold truncate">{s.displayName || s.handle}</span>
-                          {(() => {
-                            const best = [
-                              { label: tg('dimension.trader'), score: s.tradingScore, cls: 'text-sky-300 bg-sky-500/15 border-sky-500/20' },
-                              { label: tg('dimension.manager'), score: s.managerScore, cls: 'text-purple-300 bg-purple-500/15 border-purple-500/20' },
-                              { label: tg('dimension.analyst'), score: s.scoutScore, cls: 'text-emerald-300 bg-emerald-500/15 border-emerald-500/20' },
-                            ].reduce((a, b) => a.score >= b.score ? a : b);
-                            if (best.score < 100) return null;
-                            return (
-                              <span className={cn('px-1 py-0.5 rounded text-[8px] font-bold border', best.cls)}>
-                                {best.label}
-                              </span>
-                            );
-                          })()}
-                        </div>
-                      </div>
-                      <span className="text-xs font-mono text-[#FFD700]">{s.totalScore}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Top Trader */}
-          {topTraders.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <ArrowRightLeft className="w-4 h-4 text-[#22C55E]" />
-                  <span className="text-base md:text-lg font-black uppercase tracking-wide">{t('topTraders')}</span>
-                </div>
-                <span className="text-[10px] text-white/20">{t('sevenDays')}</span>
-              </div>
-              <div className="space-y-1.5">
-                {topTraders.map((td, i) => {
-                  const isMe = td.userId === user?.id;
-                  return (
-                    <Link key={td.userId} href={`/profile/${td.handle}`} className={cn(
-                      'flex items-center gap-3 py-2 px-3 rounded-xl hover:bg-white/[0.04] transition-colors',
-                      isMe && 'bg-[#22C55E]/[0.06] border border-[#22C55E]/15'
-                    )}>
-                      <span className={cn(
-                        'w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black',
-                        i === 0 ? 'bg-[#22C55E]/20 text-[#22C55E]' : 'bg-white/5 text-white/50'
-                      )}>
-                        {i + 1}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold truncate">{td.displayName || td.handle}</div>
-                        <div className="text-[10px] text-white/30">{td.tradeCount} {t('trades')}</div>
-                      </div>
-                      <span className="text-xs font-mono text-[#22C55E]">{fmtBSD(centsToBsd(td.totalVolume))}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Airdrop Score */}
-          {user && <AirdropScoreCard userId={user.id} compact />}
-
-          {/* Referral */}
-          {user && <ReferralCard userId={user.id} />}
-        </div>
+        <EntdeckenTab
+          uid={uid}
+          bargains={bargains}
+          communityPosts={communityPosts}
+          topScouts={topScouts}
+          topTraders={topTraders}
+        />
       </TabPanel>
 
-      {/* Follow List Modal */}
       {followListMode && user && (
         <FollowListModal
           userId={user.id}
