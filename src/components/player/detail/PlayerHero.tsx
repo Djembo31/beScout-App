@@ -159,7 +159,7 @@ export default function PlayerHero({
                 <span className="text-white/20">&middot;</span>
                 <span>{player.age} {t('hero.years')}</span>
               </div>
-              <div className="flex items-center gap-1.5 mt-1.5 justify-center md:justify-start">
+              <div className="flex items-center gap-1.5 mt-1.5 justify-center md:justify-start flex-wrap">
                 <StatusBadge status={player.status} />
                 {isIPO && (
                   <div className="flex items-center gap-1 px-2 py-1 bg-[#22C55E]/20 border border-[#22C55E]/30 rounded-lg">
@@ -173,23 +173,33 @@ export default function PlayerHero({
                     {holderCount} Scouts
                   </span>
                 )}
+                {holdingQty > 0 && (
+                  <span className="flex items-center gap-1 px-2 py-1 bg-[#22C55E]/10 border border-[#22C55E]/20 rounded-lg text-xs font-bold text-[#22C55E]">
+                    Du: {holdingQty} DPC
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
           {/* Price Strip — full width */}
           <div className="mt-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 pt-4 border-t border-white/[0.06]">
-            <div className="flex items-end gap-2">
-              <span className="text-xl md:text-2xl lg:text-4xl font-mono font-black text-[#FFD700]">
-                {isIPO && activeIpo ? fmtBSD(centsToBsd(activeIpo.price)) : fmtBSD(floor)}
-              </span>
-              <span className="text-white/40 mb-0.5 md:mb-1">BSD</span>
-              {!isIPO && (
-                <span className={`flex items-center gap-0.5 mb-0.5 md:mb-1 font-mono font-bold text-sm ${up ? 'text-[#22C55E]' : 'text-red-300'}`}>
-                  {up ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-                  {up ? '+' : ''}{change24h.toFixed(1)}%
+            <div>
+              <div className="flex items-end gap-2">
+                <span className="text-xl md:text-2xl lg:text-4xl font-mono font-black text-[#FFD700]">
+                  {isIPO && activeIpo ? fmtBSD(centsToBsd(activeIpo.price)) : fmtBSD(floor)}
                 </span>
-              )}
+                <span className="text-white/40 mb-0.5 md:mb-1">BSD</span>
+                {!isIPO && (
+                  <span className={`flex items-center gap-0.5 mb-0.5 md:mb-1 font-mono font-bold text-sm ${up ? 'text-[#22C55E]' : 'text-red-300'}`}>
+                    {up ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                    {up ? '+' : ''}{change24h.toFixed(1)}%
+                  </span>
+                )}
+              </div>
+              <div className="text-[10px] text-white/30 font-medium mt-0.5">
+                {isIPO ? 'Club Sale \u00B7 Festpreis' : 'Floor \u00B7 g\u00FCnstigstes Angebot'}
+              </div>
             </div>
             {/* CTA Buttons */}
             {!player.isLiquidated && (

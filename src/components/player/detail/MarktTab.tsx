@@ -4,13 +4,13 @@ import React from 'react';
 import Link from 'next/link';
 import {
   Users, ShoppingCart, Clock, Layers, History,
-  ArrowRight, Shield, BadgeCheck, Loader2,
+  ArrowRight, Shield, BadgeCheck, Loader2, MessageSquare,
 } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { fmtBSD } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatBsd } from '@/lib/services/wallet';
-import type { Player, DbOrder, DbTrade } from '@/types';
+import type { Player, DbOrder, DbTrade, OfferWithDetails } from '@/types';
 import PriceChart from './PriceChart';
 import OrderbookDepth from './OrderbookDepth';
 
@@ -22,11 +22,19 @@ interface MarktTabProps {
   profileMap: Record<string, { handle: string; display_name: string | null }>;
   userId?: string;
   dpcAvailable: number;
+  // Offers
+  openBids?: OfferWithDetails[];
+  holdingQty?: number;
+  onAcceptBid?: (offerId: string) => void;
+  acceptingBidId?: string | null;
+  onOpenOfferModal?: () => void;
 }
 
 export default function MarktTab({
   player, trades, allSellOrders, tradesLoading,
   profileMap, userId, dpcAvailable,
+  openBids = [], holdingQty = 0,
+  onAcceptBid, acceptingBidId, onOpenOfferModal,
 }: MarktTabProps) {
   return (
     <div className="space-y-4 md:space-y-6">
@@ -35,6 +43,59 @@ export default function MarktTab({
 
       {/* Orderbook Depth */}
       <OrderbookDepth orders={allSellOrders} />
+
+      {/* Offers Section */}
+      {userId && (
+        <Card className="overflow-hidden">
+          <div className="bg-gradient-to-r from-[#FFD700]/10 to-[#FFD700]/5 border-b border-[#FFD700]/20 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-[#FFD700]" />
+                <span className="font-black">Angebote</span>
+              </div>
+              {onOpenOfferModal && (
+                <button
+                  onClick={onOpenOfferModal}
+                  className="text-xs px-3 py-1.5 min-h-[36px] rounded-lg bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20 hover:bg-[#FFD700]/20 transition-colors font-medium"
+                >
+                  Kaufangebot machen
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="p-4">
+            {openBids.length > 0 ? (
+              <div className="space-y-2">
+                {openBids.map(bid => (
+                  <div key={bid.id} className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10">
+                    <div className="flex items-center gap-3">
+                      <div className="text-sm">
+                        <span className="text-white/60">@{bid.sender_handle}</span>
+                        <span className="text-white/30 mx-2">&middot;</span>
+                        <span className="font-mono text-xs text-white/40">{bid.quantity} DPC</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono font-bold text-[#FFD700]">{fmtBSD(centsToBsd(bid.price))} BSD</span>
+                      {holdingQty > 0 && bid.sender_id !== userId && onAcceptBid && (
+                        <button
+                          onClick={() => onAcceptBid(bid.id)}
+                          disabled={acceptingBidId === bid.id}
+                          className="text-xs px-3 py-2 min-h-[44px] rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors disabled:opacity-50"
+                        >
+                          {acceptingBidId === bid.id ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Annehmen'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4 text-white/30 text-sm">Keine offenen Gebote für diesen Spieler.</div>
+            )}
+          </div>
+        </Card>
+      )}
 
       {/* Listings */}
       {player.listings.length > 0 && (

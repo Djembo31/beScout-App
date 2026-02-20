@@ -42,7 +42,8 @@ export function usePlayerTrading({
   const [buySuccess, setBuySuccess] = useState<string | null>(null);
   const [shared, setShared] = useState(false);
   const [pendingBuyQty, setPendingBuyQty] = useState<number | null>(null);
-  const [tradingModalOpen, setTradingModalOpen] = useState(false);
+  const [buyModalOpen, setBuyModalOpen] = useState(false);
+  const [sellModalOpen, setSellModalOpen] = useState(false);
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [offerPrice, setOfferPrice] = useState('');
   const [offerMessage, setOfferMessage] = useState('');
@@ -186,9 +187,11 @@ export function usePlayerTrading({
     } catch { addToast('Teilen fehlgeschlagen', 'error'); }
   }, [userId, player, shared, playerId, addToast]);
 
-  const openTrading = useCallback(() => setTradingModalOpen(true), []);
-  const closeTrading = useCallback(() => setTradingModalOpen(false), []);
-  const openOfferModal = useCallback(() => { setTradingModalOpen(false); setShowOfferModal(true); }, []);
+  const openBuyModal = useCallback(() => setBuyModalOpen(true), []);
+  const closeBuyModal = useCallback(() => setBuyModalOpen(false), []);
+  const openSellModal = useCallback(() => setSellModalOpen(true), []);
+  const closeSellModal = useCallback(() => setSellModalOpen(false), []);
+  const openOfferModal = useCallback(() => { setBuyModalOpen(false); setShowOfferModal(true); }, []);
   const closeOfferModal = useCallback(() => setShowOfferModal(false), []);
   const cancelPendingBuy = useCallback(() => setPendingBuyQty(null), []);
 
@@ -196,7 +199,7 @@ export function usePlayerTrading({
     // State
     buying, ipoBuying, selling, cancellingId,
     buyError, buySuccess, shared,
-    pendingBuyQty, tradingModalOpen,
+    pendingBuyQty, buyModalOpen, sellModalOpen,
     showOfferModal, offerPrice, offerMessage, offerLoading,
     acceptingBidId,
     // Setters
@@ -206,7 +209,8 @@ export function usePlayerTrading({
     // Handlers
     handleBuy, executeBuy, handleIpoBuy, handleSell,
     handleCancelOrder, handleCreateOffer, handleAcceptBid,
-    handleShareTrade, openTrading, closeTrading,
+    handleShareTrade, openBuyModal, closeBuyModal,
+    openSellModal, closeSellModal,
     openOfferModal, closeOfferModal, cancelPendingBuy,
   };
 }

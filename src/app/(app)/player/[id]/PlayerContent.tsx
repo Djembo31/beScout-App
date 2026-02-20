@@ -9,6 +9,7 @@ import { fmtBSD } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
+import { useToast } from '@/components/providers/ToastProvider';
 import { dbToPlayer } from '@/lib/services/players';
 import { getProfilesByIds } from '@/lib/services/profiles';
 import { MASTERY_LEVEL_LABELS, MASTERY_XP_THRESHOLDS } from '@/lib/services/mastery';
@@ -43,10 +44,11 @@ import {
   StatistikTab,
   CommunityTab,
   MobileTradingBar,
-  TradingModal,
   LiquidationAlert,
   SponsorBanner,
 } from '@/components/player/detail';
+import BuyModal from '@/components/player/detail/BuyModal';
+import SellModal from '@/components/player/detail/SellModal';
 import DpcMasteryCard from '@/components/player/detail/DpcMasteryCard';
 import OfferModal from '@/components/player/detail/OfferModal';
 
@@ -70,6 +72,7 @@ const TABS: { id: string; label: string }[] = [
 export default function PlayerContent({ playerId }: { playerId: string }) {
   const { user } = useUser();
   const { balanceCents } = useWallet();
+  const { addToast } = useToast();
   const t = useTranslations('player');
   const uid = user?.id;
 
@@ -129,7 +132,10 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     allSellOrders.forEach(o => { if (o.user_id) userIds.add(o.user_id); });
     const ids = Array.from(userIds);
     if (ids.length > 0) {
-      getProfilesByIds(ids).then(setProfileMap).catch(err => console.error('[Player] Profile map failed:', err));
+      getProfilesByIds(ids).then(setProfileMap).catch(err => {
+        console.error('[Player] Profile map failed:', err);
+        addToast('Profilnamen konnten nicht geladen werden', 'error');
+      });
     }
   }, [trades, allSellOrders]);
 
@@ -211,8 +217,8 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         priceAlert={alerts.priceAlert}
         onToggleWatchlist={() => setIsWatchlisted(!isWatchlisted)}
         onShare={handleShare}
-        onBuyClick={trading.openTrading}
-        onSellClick={trading.openTrading}
+        onBuyClick={trading.openBuyModal}
+        onSellClick={trading.openSellModal}
         onSetPriceAlert={alerts.handleSetPriceAlert}
         onRemovePriceAlert={alerts.handleRemovePriceAlert}
       />
@@ -250,6 +256,11 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             profileMap={profileMap}
             userId={uid}
             dpcAvailable={dpcAvailable}
+            openBids={openBids}
+            holdingQty={holdingQty}
+            onAcceptBid={trading.handleAcceptBid}
+            acceptingBidId={trading.acceptingBidId}
+            onOpenOfferModal={trading.openOfferModal}
           />
         )}
 
@@ -278,36 +289,42 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         )}
       </div>
 
-      {/* Trading Modal */}
-      <TradingModal
-        open={trading.tradingModalOpen}
-        onClose={trading.closeTrading}
+      {/* Buy Modal */}
+      <BuyModal
+        open={trading.buyModalOpen}
+        onClose={trading.closeBuyModal}
         player={playerWithOwnership}
         activeIpo={activeIpo ?? null}
         userIpoPurchased={userIpoPurchased}
         balanceCents={balanceCents}
-        holdingQty={holdingQty}
-        userOrders={trading.userOrders}
         allSellOrders={allSellOrders}
-        openBids={openBids}
+        userOrders={trading.userOrders}
         userId={uid}
         buying={trading.buying}
         ipoBuying={trading.ipoBuying}
-        selling={trading.selling}
-        cancellingId={trading.cancellingId}
         buyError={trading.buyError}
         buySuccess={trading.buySuccess}
         shared={trading.shared}
         pendingBuyQty={trading.pendingBuyQty}
         onBuy={trading.handleBuy}
         onIpoBuy={trading.handleIpoBuy}
-        onSell={trading.handleSell}
-        onCancelOrder={trading.handleCancelOrder}
         onConfirmBuy={trading.executeBuy}
         onCancelPendingBuy={trading.cancelPendingBuy}
         onShareTrade={trading.handleShareTrade}
-        onAcceptBid={trading.handleAcceptBid}
         onOpenOfferModal={trading.openOfferModal}
+      />
+
+      {/* Sell Modal */}
+      <SellModal
+        open={trading.sellModalOpen}
+        onClose={trading.closeSellModal}
+        player={playerWithOwnership}
+        holdingQty={holdingQty}
+        userOrders={trading.userOrders}
+        onSell={trading.handleSell}
+        onCancelOrder={trading.handleCancelOrder}
+        selling={trading.selling}
+        cancellingId={trading.cancellingId}
       />
 
       {/* Offer Modal */}
@@ -330,8 +347,8 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         floor={player.prices.floor ?? 0}
         holdingQty={holdingQty}
         isLiquidated={player.isLiquidated}
-        onBuyClick={trading.openTrading}
-        onSellClick={trading.openTrading}
+        onBuyClick={trading.openBuyModal}
+        onSellClick={trading.openSellModal}
       />
     </div>
   );
