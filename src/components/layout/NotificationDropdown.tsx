@@ -195,19 +195,19 @@ export default function NotificationDropdown({ userId, open, onClose, onUnreadCo
 
   if (!open) return null;
 
-  return (
-    <div ref={ref} className="absolute right-0 top-full mt-2 w-80 md:w-96 bg-[#111] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden anim-dropdown">
+  const notifContent = (
+    <>
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
         <span className="font-bold text-sm">Benachrichtigungen</span>
-        <button onClick={handleMarkAllRead} className="text-xs text-[#FFD700] hover:underline flex items-center gap-1">
+        <button onClick={handleMarkAllRead} className="text-xs text-[#FFD700] hover:underline flex items-center gap-1 min-h-[44px] md:min-h-0">
           <Check className="w-3 h-3" />
           Alle gelesen
         </button>
       </div>
 
       {/* Content */}
-      <div className="max-h-[400px] overflow-y-auto">
+      <div className="max-h-[60vh] md:max-h-[400px] overflow-y-auto">
         {loading ? (
           <div className="flex justify-center py-8">
             <Loader2 className="w-5 h-5 animate-spin text-white/30" />
@@ -227,7 +227,7 @@ export default function NotificationDropdown({ userId, open, onClose, onUnreadCo
               key={notif.id}
               onClick={() => handleClick(notif)}
               className={cn(
-                'w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors border-b border-white/[0.04]',
+                'w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors border-b border-white/[0.04] min-h-[44px]',
                 !notif.read && 'bg-white/[0.02]'
               )}
             >
@@ -241,7 +241,7 @@ export default function NotificationDropdown({ userId, open, onClose, onUnreadCo
                 {notif.body && (
                   <div className="text-xs text-white/40 mt-0.5 line-clamp-2">{notif.body}</div>
                 )}
-                <div className="text-[10px] text-white/25 mt-1">{timeAgo(notif.created_at)}</div>
+                <div className="text-xs text-white/25 mt-1">{timeAgo(notif.created_at)}</div>
               </div>
               {!notif.read && (
                 <div className="w-2 h-2 rounded-full bg-[#FFD700] shrink-0 mt-2" />
@@ -250,6 +250,29 @@ export default function NotificationDropdown({ userId, open, onClose, onUnreadCo
           ))
         )}
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop: classic dropdown */}
+      <div ref={ref} className="hidden md:block absolute right-0 top-full mt-2 w-96 bg-[#111] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden anim-dropdown">
+        {notifContent}
+      </div>
+
+      {/* Mobile: bottom sheet */}
+      <div className="md:hidden fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm anim-fade" onClick={onClose}>
+        <div
+          ref={ref}
+          className="fixed inset-x-0 bottom-0 bg-[#111] border-t border-white/10 rounded-t-3xl shadow-2xl overflow-hidden anim-bottom-sheet"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex justify-center pt-2 pb-1">
+            <div className="w-10 h-1 bg-white/20 rounded-full" />
+          </div>
+          {notifContent}
+        </div>
+      </div>
+    </>
   );
 }

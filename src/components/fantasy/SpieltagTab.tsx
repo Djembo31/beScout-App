@@ -126,8 +126,8 @@ function FixtureRow({ fixture, onSelect }: { fixture: Fixture; onSelect: () => v
       </div>
 
       {/* Home team */}
-      <div className="flex-1 flex items-center gap-2 justify-end min-w-0">
-        <span className="font-semibold text-sm truncate">{fixture.home_club_name}</span>
+      <div className="flex-1 flex items-center gap-1.5 md:gap-2 justify-end min-w-0">
+        <span className="font-semibold text-xs md:text-sm truncate max-w-[80px] md:max-w-none">{fixture.home_club_name}</span>
         <ClubLogo club={homeClub} size={28} short={fixture.home_club_short} />
       </div>
 
@@ -143,9 +143,9 @@ function FixtureRow({ fixture, onSelect }: { fixture: Fixture; onSelect: () => v
       </div>
 
       {/* Away team */}
-      <div className="flex-1 flex items-center gap-2 min-w-0">
+      <div className="flex-1 flex items-center gap-1.5 md:gap-2 min-w-0">
         <ClubLogo club={awayClub} size={28} short={fixture.away_club_short} />
-        <span className="font-semibold text-sm truncate">{fixture.away_club_name}</span>
+        <span className="font-semibold text-xs md:text-sm truncate max-w-[80px] md:max-w-none">{fixture.away_club_name}</span>
       </div>
 
       {/* Hover arrow */}
@@ -164,26 +164,26 @@ function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
   const badge = scoreBadgeColor(pts);
 
   return (
-    <div className="flex flex-col items-center relative w-[60px] md:w-[72px]">
+    <div className="flex flex-col items-center relative w-[52px] md:w-[60px] lg:w-[72px]">
       {/* Score badge (top-right, overlapping) */}
-      <div className={`absolute -top-1.5 -right-2 z-20 min-w-[1.6rem] px-1 py-0.5 rounded-full text-[9px] font-mono font-black text-center shadow-lg ${badge}`}>
+      <div className={`absolute -top-1 -right-0.5 md:-top-1.5 md:-right-2 z-20 min-w-[1.4rem] md:min-w-[1.6rem] px-1 py-0.5 rounded-full text-[8px] md:text-[9px] font-mono font-black text-center shadow-lg ${badge}`}>
         {pts}
       </div>
       {/* Player circle */}
       <div
-        className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center border-2 bg-black/30"
+        className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center border-2 bg-black/30"
         style={{ borderColor: accent, boxShadow: `0 0 10px ${accent}25` }}
       >
-        <span className="font-bold text-[10px] md:text-xs" style={{ color: accent }}>
+        <span className="font-bold text-[9px] md:text-[10px] lg:text-xs" style={{ color: accent }}>
           {stat.player_last_name.slice(0, 2).toUpperCase()}
         </span>
       </div>
       {/* Name */}
-      <div className="text-[9px] md:text-[10px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
+      <div className="text-[8px] md:text-[9px] lg:text-[10px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
         {stat.player_last_name}
       </div>
-      {/* Stats line */}
-      <div className="flex items-center justify-center gap-0.5 text-[7px] md:text-[8px] text-white/30">
+      {/* Stats line — hidden on small mobile */}
+      <div className="hidden md:flex items-center justify-center gap-0.5 text-[8px] text-white/30">
         <span>{stat.minutes_played}&apos;</span>
         {stat.goals > 0 && <span className="text-[#FFD700]">{stat.goals}G</span>}
         {stat.assists > 0 && <span className="text-sky-400">{stat.assists}A</span>}
@@ -235,7 +235,7 @@ function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
       </div>
       {/* Formation rows — only starters */}
       {rows.map((players, rowIdx) => (
-        <div key={rowIdx} className="flex items-center justify-center gap-2 md:gap-4">
+        <div key={rowIdx} className="flex items-center justify-center gap-1 md:gap-2 lg:gap-4">
           {players.map(s => <PlayerNode key={s.id} stat={s} />)}
         </div>
       ))}
@@ -389,7 +389,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
                         {sponsor?.sponsorLogo ? (
                           <img src={sponsor.sponsorLogo} alt="" className="w-10 h-10 object-contain opacity-30" />
                         ) : (
-                          <span className="text-[7px] text-white/15 font-bold tracking-wider uppercase">Sponsor</span>
+                          <span className="text-[8px] text-white/15 font-bold tracking-wider uppercase">Sponsor</span>
                         )}
                       </div>
                     </div>

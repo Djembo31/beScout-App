@@ -248,6 +248,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Kaufen-Tab Redesign + Trading Deep Dive fertig:** 12 RPC-Bug-Fixes, IPO Follow-Gate entfernt, ALL Trading Flows E2E verified. 5 Migrationen (#182-#186).
 **Score Road UI fertig:** `claim_score_road` RPC rewritten (3-Dim Median), ScoreRoadCard Component, i18n DE+TR. Migration #187.
 **Prediction Engine fertig:** `predictions` Tabelle, `create_prediction` + `resolve_gameweek_predictions` RPCs, Fantasy 4. Tab "Vorhersagen", PredictionStatsCard im Profil, auto-resolve in simulateGameweekFlow, i18n DE+TR. 2 Migrationen (#188-#189).
+**Player Data Consistency fertig:** Phase 1: L5 Farb-Tokens unified (`getL5Color`/`getL5Hex`/`getL5Bg`), `PlayerPhoto` shared Component, 9 Dateien gefixt. Phase 2: `image_url` in Holdings/Lineup Queries, `PlayerPhoto` in Fantasy Picker, Emoji-Stats→Text. Spielerfotos konsistent in ALLEN Views.
 **Code-seitig launch-fertig.** Nur 2 manuelle Setup-Schritte blockieren Beta-Launch: VAPID Key in Vercel + API-Football Account+Mapping.
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.

@@ -99,7 +99,7 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
           </div>
           {rankChange !== null && rankChange !== 0 && (
             <div className={cn(
-              'absolute -top-1.5 -right-1.5 flex items-center gap-0.5 px-1 py-0.5 rounded-md text-[8px] font-black',
+              'absolute -top-1.5 -right-1.5 flex items-center gap-0.5 px-1 py-0.5 rounded-md text-[9px] font-black',
               rankChange > 0 ? 'bg-[#22C55E]/20 text-[#22C55E]' : 'bg-red-500/20 text-red-400'
             )}>
               {rankChange > 0 ? <TrendingUp className="w-2 h-2" /> : <TrendingDown className="w-2 h-2" />}
@@ -151,15 +151,15 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
           <div className="hidden sm:flex items-center gap-3">
             <div className="text-center">
               <div className="font-mono font-bold text-sky-300 text-xs">{lUser.tradingScore}</div>
-              <div className="text-[8px] text-white/30">TRD</div>
+              <div className="text-[9px] text-white/30">TRD</div>
             </div>
             <div className="text-center">
               <div className="font-mono font-bold text-purple-300 text-xs">{lUser.managerScore}</div>
-              <div className="text-[8px] text-white/30">MGR</div>
+              <div className="text-[9px] text-white/30">MGR</div>
             </div>
             <div className="text-center">
               <div className="font-mono font-bold text-emerald-300 text-xs">{lUser.scoutScore}</div>
-              <div className="text-[8px] text-white/30">SCT</div>
+              <div className="text-[9px] text-white/30">SCT</div>
             </div>
           </div>
           <div className="text-center">

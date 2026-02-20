@@ -7,7 +7,7 @@ import {
   Activity,
 } from 'lucide-react';
 import { Card } from '@/components/ui';
-import { PositionBadge, getL5Color } from '@/components/player';
+import { PlayerIdentity, PlayerKPIs } from '@/components/player';
 import { fmtBSD, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getRelativeTime } from '@/lib/activityHelpers';
@@ -46,20 +46,15 @@ export default function EntdeckenTab({
             <span className="text-[9px] text-white/20 ml-auto">{t('highPerfLowPrice')}</span>
           </div>
           <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-            {bargains.map(({ player: p, floor }) => (
+            {bargains.map(({ player: p }) => (
               <Link
                 key={p.id}
                 href={`/player/${p.id}`}
-                className="flex items-center gap-2.5 px-3 py-2.5 bg-[#22C55E]/[0.03] border border-[#22C55E]/10 rounded-xl hover:bg-[#22C55E]/[0.06] transition-all shrink-0"
+                className="flex items-center gap-2.5 px-3 py-2.5 bg-[#22C55E]/[0.03] border border-[#22C55E]/10 rounded-xl hover:bg-[#22C55E]/[0.06] transition-all shrink-0 min-w-[220px]"
               >
-                <PositionBadge pos={p.pos} size="sm" />
-                <div className="min-w-0">
-                  <div className="text-[11px] font-bold truncate max-w-[110px]">{p.first} {p.last}</div>
-                  <div className="text-[10px] text-white/30">{p.club}</div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="text-[11px] font-mono font-bold text-[#FFD700]">{fmtBSD(floor)} BSD</div>
-                  <div className={`text-[10px] font-mono ${getL5Color(p.perf.l5)}`}>L5: {p.perf.l5}</div>
+                <PlayerIdentity player={p} size="sm" showMeta={false} showStatus={false} />
+                <div className="shrink-0 ml-auto">
+                  <PlayerKPIs player={p} context="market" />
                 </div>
               </Link>
             ))}
@@ -137,7 +132,7 @@ export default function EntdeckenTab({
                         ].reduce((a, b) => a.score >= b.score ? a : b);
                         if (best.score < 100) return null;
                         return (
-                          <span className={cn('px-1 py-0.5 rounded text-[8px] font-bold border', best.cls)}>
+                          <span className={cn('px-1 py-0.5 rounded text-[9px] font-bold border', best.cls)}>
                             {best.label}
                           </span>
                         );

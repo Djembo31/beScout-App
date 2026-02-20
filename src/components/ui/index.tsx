@@ -24,9 +24,9 @@ const btnVariants: Record<ButtonVariant, string> = {
 };
 
 const btnSizes = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-sm',
-  lg: 'px-6 py-3 text-base',
+  sm: 'px-3 py-2 text-sm min-h-[44px]',
+  md: 'px-4 py-2.5 text-sm min-h-[44px]',
+  lg: 'px-6 py-3 text-base min-h-[44px]',
 };
 
 export function Button({
@@ -76,7 +76,7 @@ export function Card({ children, className = '', ...props }: React.HTMLAttribute
 
 export function Chip({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/5 border border-white/10 text-white/70 ${className}`}>
+    <span className={`px-2 py-0.5 rounded-full text-xs font-bold bg-white/5 border border-white/10 text-white/70 ${className}`}>
       {children}
     </span>
   );
@@ -94,9 +94,18 @@ export interface ModalProps {
   onClose: () => void;
   /** Prevent closing via backdrop click or ESC (e.g. during form submission) */
   preventClose?: boolean;
+  /** Modal size: sm=384px, md=576px (default), lg=768px, full=100% */
+  size?: 'sm' | 'md' | 'lg' | 'full';
 }
 
-export function Modal({ open, title, subtitle, children, onClose, preventClose }: ModalProps) {
+const modalMaxW = {
+  sm: 'md:max-w-sm',
+  md: 'md:max-w-xl',
+  lg: 'md:max-w-3xl',
+  full: 'md:max-w-[calc(100vw-2rem)]',
+};
+
+export function Modal({ open, title, subtitle, children, onClose, preventClose, size = 'md' }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
 
   // ESC key closes modal
@@ -108,6 +117,13 @@ export function Modal({ open, title, subtitle, children, onClose, preventClose }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [open, onClose]);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
 
   // Focus trap
   useEffect(() => {
@@ -138,7 +154,7 @@ export function Modal({ open, title, subtitle, children, onClose, preventClose }
 
   return (
     <div
-      className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-end md:items-center md:justify-center md:p-4 anim-fade"
       onClick={(e) => { if (!preventClose && e.target === e.currentTarget) onClose(); }}
     >
       <div
@@ -146,18 +162,24 @@ export function Modal({ open, title, subtitle, children, onClose, preventClose }
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="w-full max-w-xl mx-4 rounded-3xl bg-[#0b0b0b] border border-white/10 shadow-2xl anim-modal"
+        className={`w-full ${modalMaxW[size]} bg-[#0b0b0b] border border-white/10 shadow-2xl
+          rounded-t-3xl max-h-[90vh] overflow-y-auto anim-bottom-sheet
+          md:rounded-3xl md:mx-4 md:max-h-[85vh] md:anim-modal`}
       >
-        <div className="p-5 border-b border-white/10 flex items-center justify-between">
-          <div>
+        {/* Swipe handle — mobile only */}
+        <div className="flex justify-center pt-2 pb-1 md:hidden">
+          <div className="w-10 h-1 bg-white/20 rounded-full" />
+        </div>
+        <div className="px-4 py-3 md:p-5 border-b border-white/10 flex items-center justify-between">
+          <div className="min-w-0 flex-1">
             {subtitle && <div className="text-xs text-white/50">{subtitle}</div>}
-            <div id="modal-title" className="text-lg font-black">{title}</div>
+            <div id="modal-title" className="text-base md:text-lg font-black truncate">{title}</div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/5 hover:scale-110 active:scale-95 transition-all" aria-label="Schließen">
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/5 hover:scale-110 active:scale-95 transition-all flex-shrink-0 ml-2" aria-label="Schließen">
             <X className="w-5 h-5 text-white/70" />
           </button>
         </div>
-        <div className="p-5">{children}</div>
+        <div className="px-4 py-4 md:p-5">{children}</div>
       </div>
     </div>
   );
@@ -183,13 +205,13 @@ export function StatCard({
   const trendColor = trend === 'up' ? 'text-[#22C55E]' : trend === 'down' ? 'text-red-300' : 'text-white';
 
   return (
-    <div className="bg-black/30 border border-white/10 rounded-2xl p-5">
+    <div className="bg-black/30 border border-white/10 rounded-2xl p-3 md:p-5">
       <div className="flex items-center justify-between">
-        <div className="text-xs text-white/50">{label}</div>
+        <div className="text-xs text-white/50 truncate">{label}</div>
         {icon}
       </div>
-      <div className={`mt-2 text-2xl md:text-3xl font-black font-mono ${trendColor}`}>{value}</div>
-      {sub && <div className="mt-2 text-sm text-white/60">{sub}</div>}
+      <div className={`mt-1.5 md:mt-2 text-xl md:text-2xl font-black font-mono truncate ${trendColor}`}>{value}</div>
+      {sub && <div className="mt-1 md:mt-2 text-xs md:text-sm text-white/60 truncate">{sub}</div>}
     </div>
   );
 }
@@ -237,7 +259,7 @@ export function InfoTooltip({ text }: { text: string }) {
         <span className="text-[9px] font-bold leading-none">?</span>
       </button>
       {open && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 p-2.5 rounded-xl bg-[#1a1a1a] border border-white/15 shadow-xl z-50 anim-dropdown">
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[min(13rem,calc(100vw-2rem))] p-2.5 rounded-xl bg-[#1a1a1a] border border-white/15 shadow-xl z-50 anim-dropdown">
           <div className="text-[11px] text-white/70 leading-relaxed">{text}</div>
           <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-[#1a1a1a] border-r border-b border-white/15 -mt-1" />
         </div>
@@ -247,6 +269,7 @@ export function InfoTooltip({ text }: { text: string }) {
 }
 
 export { TabBar, TabPanel } from './TabBar';
+export { MobileTableCard } from './MobileTableCard';
 export { LoadMoreButton } from './LoadMoreButton';
 export { SearchInput } from './SearchInput';
 export { PosFilter } from './PosFilter';

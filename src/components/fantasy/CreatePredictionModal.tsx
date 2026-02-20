@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Target, ChevronRight, ChevronLeft, User, Loader2 } from 'lucide-react';
 import { Modal, Button, Card } from '@/components/ui';
+import { PlayerIdentity } from '@/components/player';
 import { getClub } from '@/lib/clubs';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
@@ -48,7 +49,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
   const [playerSearch, setPlayerSearch] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [selectedPlayerName, setSelectedPlayerName] = useState('');
-  const [players, setPlayers] = useState<{ id: string; first_name: string; last_name: string; position: string }[]>([]);
+  const [players, setPlayers] = useState<{ id: string; first_name: string; last_name: string; position: string; club?: string; image_url?: string | null }[]>([]);
   const [loadingPlayers, setLoadingPlayers] = useState(false);
   const [error, setError] = useState('');
 
@@ -221,8 +222,10 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                         onClick={() => { setSelectedPlayerId(p.id); setSelectedPlayerName(`${p.first_name} ${p.last_name}`); }}
                         className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 text-left text-sm"
                       >
-                        <span className="text-[10px] font-bold text-white/30 w-6">{p.position}</span>
-                        <span className="font-medium">{p.first_name} {p.last_name}</span>
+                        <PlayerIdentity
+                          player={{ first: p.first_name, last: p.last_name, pos: p.position as 'GK' | 'DEF' | 'MID' | 'ATT', status: 'fit', club: p.club ?? '', ticket: 0, age: 0, imageUrl: p.image_url }}
+                          size="sm" showMeta={false} showStatus={false}
+                        />
                       </button>
                     ))}
                   </div>

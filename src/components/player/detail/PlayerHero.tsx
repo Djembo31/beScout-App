@@ -180,7 +180,7 @@ export default function PlayerHero({
           {/* Price Strip — full width */}
           <div className="mt-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 pt-4 border-t border-white/[0.06]">
             <div className="flex items-end gap-2">
-              <span className="text-2xl md:text-4xl font-mono font-black text-[#FFD700]">
+              <span className="text-xl md:text-2xl lg:text-4xl font-mono font-black text-[#FFD700]">
                 {isIPO && activeIpo ? fmtBSD(centsToBsd(activeIpo.price)) : fmtBSD(floor)}
               </span>
               <span className="text-white/40 mb-0.5 md:mb-1">BSD</span>
@@ -223,10 +223,10 @@ export default function PlayerHero({
                 <div className="flex items-center gap-1.5">
                   <Bell className="w-3 h-3 text-white/30" />
                   <input
-                    type="number" step="0.01" placeholder={t('hero.targetPrice')}
+                    type="number" inputMode="numeric" step="0.01" placeholder={t('hero.targetPrice')}
                     value={alertInput}
                     onChange={(e) => setAlertInput(e.target.value)}
-                    className="w-20 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-xs font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-[#FFD700]/30"
+                    className="w-24 px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-sm font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-[#FFD700]/30"
                     autoFocus
                   />
                   <button

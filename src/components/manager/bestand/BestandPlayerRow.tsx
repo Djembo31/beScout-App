@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {
   TrendingUp, TrendingDown, Minus, DollarSign, Shield,
 } from 'lucide-react';
-import { PositionBadge, PlayerPhoto } from '@/components/player';
+import { PlayerIdentity } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { fmtBSD, cn } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
@@ -188,24 +188,12 @@ function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onS
       style={{ borderLeftColor: posTintColors[p.pos] }}
     >
       <div className="flex items-center gap-2 sm:gap-3 px-3 py-2.5">
-        {/* Photo 32px */}
-        <Link href={`/player/${p.id}`} className="shrink-0">
-          <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={32} />
-        </Link>
-
         {/* Identity + Lens-specific data */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <PositionBadge pos={p.pos} size="sm" />
-            <Link href={`/player/${p.id}`} className="font-bold text-xs hover:text-[#FFD700] transition-colors truncate">
-              {p.first} {p.last}
+            <Link href={`/player/${p.id}`} className="hover:opacity-80 transition-opacity">
+              <PlayerIdentity player={p} size="sm" showMeta={false} showStatus={false} />
             </Link>
-            {clubData?.logo ? (
-              <img src={clubData.logo} alt="" className="w-3.5 h-3.5 rounded-full object-cover shrink-0" />
-            ) : clubData?.colors?.primary ? (
-              <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: clubData.colors.primary }} />
-            ) : null}
-            <span className="text-[10px] text-white/40 hidden sm:inline">{p.club}</span>
             {inLineup && <span className="shrink-0" title="In Aufstellung"><Shield className="w-3 h-3 text-[#22C55E]" /></span>}
           </div>
 

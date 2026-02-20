@@ -2,8 +2,10 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { AlertTriangle } from 'lucide-react';
-import type { Pos, PlayerStatus } from '@/types';
+import { AlertTriangle, PiggyBank, Tag, ShoppingCart } from 'lucide-react';
+import type { Pos, PlayerStatus, Player } from '@/types';
+import { getClub } from '@/lib/clubs';
+import { fmtBSD } from '@/lib/utils';
 
 // ============================================
 // L5 COLOR TOKENS (Single Source of Truth)
@@ -203,5 +205,325 @@ export function IPOBadge({ status, progress }: { status: string; progress?: numb
       {isLive && progress !== undefined && <span className="font-mono">{progress}%</span>}
     </span>
   );
+}
+
+// ============================================
+// PLAYER CONTEXT TYPE
+// ============================================
+
+export type PlayerContext = 'portfolio' | 'market' | 'lineup' | 'result' | 'picker' | 'ipo' | 'search' | 'default';
+
+export interface HoldingData {
+  quantity: number;
+  avgBuyPriceBsd: number;
+  isOnTransferList?: boolean;
+  hasActiveIpo?: boolean;
+  purchasedAt?: string;
+}
+
+export interface IpoDisplayData {
+  status: string;
+  progress: number;
+  price: number;
+  remaining?: number;
+  totalOffered?: number;
+  endsAt?: number;
+}
+
+// ============================================
+// PLAYER IDENTITY (Sacred — never changes)
+// ============================================
+
+/** The sacred identity row — always the same everywhere.
+ *  Photo (with club-logo overlay) + Name + PosBadge + StatusBadge + Meta line */
+export function PlayerIdentity({ player, size = 'md', showMeta = true, showStatus = true, className = '' }: {
+  player: Pick<Player, 'first' | 'last' | 'pos' | 'status' | 'club' | 'clubId' | 'ticket' | 'age' | 'imageUrl' | 'league'>;
+  size?: 'sm' | 'md' | 'lg';
+  showMeta?: boolean;
+  showStatus?: boolean;
+  className?: string;
+}) {
+  const photoSize = size === 'sm' ? 32 : size === 'md' ? 40 : 48;
+  const clubLogoSize = size === 'sm' ? 14 : 16;
+  const nameClass = size === 'sm' ? 'text-xs' : size === 'lg' ? 'text-base' : 'text-sm';
+  const posBadgeSize = size === 'lg' ? 'md' as const : 'sm' as const;
+  const clubData = getClub(player.club);
+  const useTrikot = player.ticket > 0;
+
+  return (
+    <div className={`flex items-center gap-2 min-w-0 ${className}`}>
+      {/* Photo with ClubLogo overlay */}
+      <div className="relative shrink-0">
+        <PlayerPhoto imageUrl={player.imageUrl} first={player.first} last={player.last} pos={player.pos} size={photoSize} />
+        {clubData && (
+          <div
+            className="absolute -bottom-0.5 -right-0.5 rounded-full ring-2 ring-[#0a0a0a] overflow-hidden bg-[#0a0a0a]"
+            style={{ width: clubLogoSize, height: clubLogoSize }}
+          >
+            {clubData.logo ? (
+              <img src={clubData.logo} alt={player.club} className="w-full h-full object-cover rounded-full" />
+            ) : (
+              <div className="w-full h-full rounded-full border border-white/10" style={{ backgroundColor: clubData.colors.primary }} />
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Name + Meta */}
+      <div className="min-w-0">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className={`font-bold ${nameClass} break-words`}>
+            {player.first} {player.last}
+          </span>
+          <PositionBadge pos={player.pos} size={posBadgeSize} />
+          {showStatus && <StatusBadge status={player.status} />}
+        </div>
+        {showMeta && (
+          <div className="flex items-center gap-1 text-[10px] md:text-[11px] text-white/40">
+            <span className="truncate">
+              {player.club}
+              {useTrikot && <> · <span className="font-mono text-white/30">#{player.ticket}</span></>}
+              {player.age > 0 && <> · {player.age}J.</>}
+              {player.league && <> · {player.league}</>}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// PLAYER BADGE STRIP (Priority-ordered badges)
+// ============================================
+
+/** Priority-ordered badge strip. Shows max N badges. */
+export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }: {
+  player: Pick<Player, 'status' | 'isLiquidated' | 'contractMonthsLeft' | 'ipo' | 'dpc' | 'pbt'>;
+  holding?: HoldingData;
+  maxBadges?: number;
+  size?: 'sm' | 'md';
+}) {
+  const badges: React.ReactNode[] = [];
+  const chipCls = size === 'md'
+    ? 'px-2 py-0.5 text-[10px] font-bold rounded border'
+    : 'px-1.5 py-0.5 text-[9px] font-bold rounded border';
+
+  // 1. Status (only if not fit — duplicates StatusBadge but as inline chip)
+  if (player.status === 'injured') {
+    badges.push(<span key="st" className={`inline-flex items-center gap-0.5 ${chipCls} bg-red-500/10 border-red-500/20 text-red-300`}><AlertTriangle className="w-2.5 h-2.5" />Verletzt</span>);
+  } else if (player.status === 'suspended') {
+    badges.push(<span key="st" className={`inline-flex items-center gap-0.5 ${chipCls} bg-purple-500/10 border-purple-500/20 text-purple-300`}>Gesperrt</span>);
+  } else if (player.status === 'doubtful') {
+    badges.push(<span key="st" className={`inline-flex items-center gap-0.5 ${chipCls} bg-yellow-500/10 border-yellow-500/20 text-yellow-300`}>Fraglich</span>);
+  }
+
+  // 2. Liquidated
+  if (player.isLiquidated) {
+    badges.push(<span key="liq" className={`inline-flex items-center gap-0.5 ${chipCls} bg-red-500/10 border-red-500/20 text-red-300`}>LIQUIDIERT</span>);
+  }
+
+  // 3. Contract <= 12M
+  if (player.contractMonthsLeft <= 12) {
+    const urgent = player.contractMonthsLeft <= 6;
+    badges.push(
+      <span key="ctr" className={`inline-flex items-center gap-0.5 ${chipCls} ${urgent ? 'bg-red-500/10 border-red-500/20 text-red-300' : 'bg-orange-500/10 border-orange-500/20 text-orange-300'}`}>
+        {player.contractMonthsLeft}M
+      </span>
+    );
+  }
+
+  // 4. IPO
+  if (player.ipo.status === 'open' || player.ipo.status === 'early_access') {
+    badges.push(
+      <span key="ipo" className={`inline-flex items-center gap-0.5 ${chipCls} bg-[#22C55E]/10 border-[#22C55E]/20 text-[#22C55E]`}>
+        <ShoppingCart className="w-2.5 h-2.5" />IPO {player.ipo.progress ?? 0}%
+      </span>
+    );
+  }
+
+  // 5. Listed
+  if (holding?.isOnTransferList) {
+    badges.push(
+      <span key="list" className={`inline-flex items-center gap-0.5 ${chipCls} bg-sky-500/10 border-sky-400/20 text-sky-300`}>
+        <Tag className="w-2.5 h-2.5" />Gelistet
+      </span>
+    );
+  }
+
+  // 6. PBT
+  if (player.pbt && player.pbt.balance > 0) {
+    badges.push(
+      <span key="pbt" className={`inline-flex items-center gap-0.5 ${chipCls} bg-[#FFD700]/10 border-[#FFD700]/20 text-[#FFD700]/80`}>
+        <PiggyBank className="w-2.5 h-2.5" />PBT {fmtBSD(player.pbt.balance)}
+      </span>
+    );
+  }
+
+  // 7. Owned (only when NOT in holding context)
+  if (!holding && player.dpc.owned > 0) {
+    badges.push(
+      <span key="own" className={`inline-flex items-center gap-0.5 ${chipCls} bg-[#22C55E]/10 border-[#22C55E]/20 text-[#22C55E]/80`}>
+        Du: {player.dpc.owned}
+      </span>
+    );
+  }
+
+  if (badges.length === 0) return null;
+  return <div className="flex items-center gap-1 flex-wrap mt-1">{badges.slice(0, maxBadges)}</div>;
+}
+
+// ============================================
+// PLAYER KPIs (Context-dependent metrics)
+// ============================================
+
+/** Context-dependent KPI strip — 4-5 metrics based on context */
+export function PlayerKPIs({ player, context = 'default', holding, ipoData, score, rank }: {
+  player: Pick<Player, 'perf' | 'prices' | 'stats' | 'dpc' | 'ipo' | 'contractMonthsLeft' | 'listings'>;
+  context?: PlayerContext;
+  holding?: HoldingData;
+  ipoData?: IpoDisplayData;
+  score?: number;
+  rank?: number;
+}) {
+  const floor = player.listings.length > 0
+    ? Math.min(...player.listings.map(l => l.price))
+    : player.prices.floor ?? 0;
+  const l5 = player.perf.l5;
+  const l5Color = getL5Color(l5);
+  const up = player.prices.change24h >= 0;
+
+  const kpiCls = 'text-[10px] md:text-[11px] font-mono';
+  const labelCls = 'text-white/30 mr-0.5';
+
+  const kpis: React.ReactNode[] = [];
+
+  switch (context) {
+    case 'portfolio': {
+      const pnl = holding ? (floor - holding.avgBuyPriceBsd) * holding.quantity : 0;
+      const pnlPct = holding && holding.avgBuyPriceBsd > 0 ? ((floor - holding.avgBuyPriceBsd) / holding.avgBuyPriceBsd) * 100 : 0;
+      const upPnl = pnl >= 0;
+      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}><span className={labelCls}>Floor</span>{fmtBSD(floor)}</span>);
+      kpis.push(
+        <span key="pnl" className={`${kpiCls} ${upPnl ? 'text-[#22C55E]' : 'text-red-400'}`}>
+          <span className={labelCls}>G/V</span>{upPnl ? '+' : ''}{fmtBSD(Math.round(pnl))} ({upPnl ? '+' : ''}{pnlPct.toFixed(1)}%)
+        </span>
+      );
+      kpis.push(
+        <span key="ch" className={`${kpiCls} ${up ? 'text-[#22C55E]' : 'text-red-400'}`}>
+          {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
+        </span>
+      );
+      if (holding) {
+        kpis.push(<span key="qty" className={`${kpiCls} text-white/60`}>{holding.quantity} DPC</span>);
+        kpis.push(<span key="ek" className={`${kpiCls} text-white/40`}><span className={labelCls}>EK</span>{fmtBSD(holding.avgBuyPriceBsd)}</span>);
+      }
+      break;
+    }
+    case 'market':
+      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}><span className={labelCls}>Floor</span>{fmtBSD(floor)}</span>);
+      kpis.push(
+        <span key="ch" className={`${kpiCls} ${up ? 'text-[#22C55E]' : 'text-red-400'}`}>
+          {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
+        </span>
+      );
+      kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
+      if (player.dpc.onMarket > 0) kpis.push(<span key="om" className={`${kpiCls} text-white/50`}>{player.dpc.onMarket} am Markt</span>);
+      kpis.push(
+        <span key="st" className={`${kpiCls} text-white/50`}>
+          {player.stats.matches}<span className="text-white/20">/</span>
+          <span className="text-[#22C55E]">{player.stats.goals}</span><span className="text-white/20">/</span>
+          <span className="text-sky-300">{player.stats.assists}</span>
+        </span>
+      );
+      break;
+
+    case 'lineup':
+      kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
+      kpis.push(<span key="l15" className={`${kpiCls} text-white/60`}><span className={labelCls}>L15</span>{player.perf.l15}</span>);
+      kpis.push(
+        <span key="st" className={`${kpiCls} text-white/50`}>
+          {player.stats.matches}<span className="text-white/20">/</span>
+          <span className="text-[#22C55E]">{player.stats.goals}</span><span className="text-white/20">/</span>
+          <span className="text-sky-300">{player.stats.assists}</span>
+        </span>
+      );
+      kpis.push(<span key="ctr" className={`${kpiCls} text-white/40`}>{player.contractMonthsLeft}M</span>);
+      kpis.push(<span key="tr" className={`${kpiCls} text-white/40`}>{player.perf.trend === 'UP' ? '↑' : player.perf.trend === 'DOWN' ? '↓' : '→'}</span>);
+      break;
+
+    case 'result':
+      if (score !== undefined) kpis.push(<span key="sc" className={`${kpiCls} font-bold text-white`}>{score} Pkt</span>);
+      kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
+      kpis.push(
+        <span key="st" className={`${kpiCls} text-white/50`}>
+          {player.stats.matches}<span className="text-white/20">/</span>
+          <span className="text-[#22C55E]">{player.stats.goals}</span><span className="text-white/20">/</span>
+          <span className="text-sky-300">{player.stats.assists}</span>
+        </span>
+      );
+      kpis.push(
+        <span key="ch" className={`${kpiCls} ${up ? 'text-[#22C55E]' : 'text-red-400'}`}>
+          {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
+        </span>
+      );
+      break;
+
+    case 'picker':
+      kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
+      kpis.push(
+        <span key="st" className={`${kpiCls} text-white/50`}>
+          {player.stats.matches}<span className="text-white/20">/</span>
+          <span className="text-[#22C55E]">{player.stats.goals}</span><span className="text-white/20">/</span>
+          <span className="text-sky-300">{player.stats.assists}</span>
+        </span>
+      );
+      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}>{fmtBSD(floor)}</span>);
+      kpis.push(<span key="ctr" className={`${kpiCls} text-white/40`}>{player.contractMonthsLeft}M</span>);
+      kpis.push(<span key="tr" className={`${kpiCls} text-white/40`}>{player.perf.trend === 'UP' ? '↑' : player.perf.trend === 'DOWN' ? '↓' : '→'}</span>);
+      break;
+
+    case 'ipo':
+      kpis.push(<span key="pr" className={`${kpiCls} text-[#FFD700] font-bold`}>{fmtBSD(ipoData?.price ?? player.ipo.price ?? 0)}</span>);
+      if (ipoData) {
+        kpis.push(<span key="pg" className={`${kpiCls} text-[#22C55E]`}>{ipoData.progress.toFixed(0)}%</span>);
+        if (ipoData.remaining != null) kpis.push(<span key="rem" className={`${kpiCls} text-white/50`}>{fmtBSD(ipoData.remaining)} verf.</span>);
+      }
+      kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
+      break;
+
+    case 'search':
+      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}>{fmtBSD(floor)}</span>);
+      kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
+      kpis.push(
+        <span key="st" className={`${kpiCls} text-white/50`}>
+          {player.stats.matches}<span className="text-white/20">/</span>
+          <span className="text-[#22C55E]">{player.stats.goals}</span><span className="text-white/20">/</span>
+          <span className="text-sky-300">{player.stats.assists}</span>
+        </span>
+      );
+      break;
+
+    default: // 'default'
+      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}><span className={labelCls}>Floor</span>{fmtBSD(floor)}</span>);
+      kpis.push(
+        <span key="ch" className={`${kpiCls} ${up ? 'text-[#22C55E]' : 'text-red-400'}`}>
+          {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
+        </span>
+      );
+      kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
+      kpis.push(
+        <span key="st" className={`${kpiCls} text-white/50`}>
+          {player.stats.matches}<span className="text-white/20">/</span>
+          <span className="text-[#22C55E]">{player.stats.goals}</span><span className="text-white/20">/</span>
+          <span className="text-sky-300">{player.stats.assists}</span>
+        </span>
+      );
+      if (player.dpc.onMarket > 0) kpis.push(<span key="om" className={`${kpiCls} text-white/50`}>{player.dpc.onMarket} am Markt</span>);
+      break;
+  }
+
+  if (kpis.length === 0) return null;
+  return <div className="flex items-center gap-2 flex-wrap">{kpis}</div>;
 }
 

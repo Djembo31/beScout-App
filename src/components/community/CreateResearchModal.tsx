@@ -237,7 +237,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
         <div>
           <label className="text-xs text-white/50 font-semibold mb-1.5 block">Preis (BSD)</label>
           <input
-            type="number"
+            type="number" inputMode="numeric"
             value={priceBsd}
             onChange={(e) => {
               const raw = e.target.value;

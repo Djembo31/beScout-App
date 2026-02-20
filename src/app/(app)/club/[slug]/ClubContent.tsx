@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { Card, Button, Chip, Modal, ErrorState, Skeleton, SkeletonCard, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
 import SponsorBanner from '@/components/player/detail/SponsorBanner';
-import { PositionBadge } from '@/components/player';
+import { PlayerIdentity, PlayerKPIs } from '@/components/player';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { useUser } from '@/components/providers/AuthProvider';
 import { dbToPlayers, centsToBsd } from '@/lib/services/players';
@@ -89,7 +89,7 @@ function HeroSection({
   const [stadiumSrc, setStadiumSrc] = useState(`/stadiums/${club.slug}.jpg`);
 
   return (
-    <div className="relative h-[160px] md:h-[350px] -mx-4 md:-mx-6 -mt-4 md:-mt-6 mb-6 overflow-hidden">
+    <div className="relative h-[120px] md:h-[160px] lg:h-[350px] -mx-4 md:-mx-6 -mt-4 md:-mt-6 mb-6 overflow-hidden">
       {/* Stadium Background */}
       <div className="absolute inset-0">
         <Image
@@ -120,7 +120,7 @@ function HeroSection({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg md:text-4xl font-black tracking-tight text-white drop-shadow-lg">
+                <h1 className="text-base md:text-lg lg:text-4xl font-black tracking-tight text-white drop-shadow-lg truncate">
                   {club.name.toUpperCase()}
                 </h1>
                 {club.is_verified && <BadgeCheck className="w-5 h-5 md:w-8 md:h-8 text-[#FFD700]" />}
@@ -381,11 +381,8 @@ function TopPlayersWidget({
                 >
                   {i + 1}
                 </div>
-                <PositionBadge pos={player.pos} size="sm" />
-                <div>
-                  <div className="font-bold text-sm">{player.first} {player.last}</div>
-                  <div className="text-[10px] text-white/40">{fmtBSD(player.prices.lastTrade)} BSD</div>
-                </div>
+                <PlayerIdentity player={player} size="sm" showMeta={false} showStatus={false} />
+                <div className="text-[10px] text-white/40 shrink-0">{fmtBSD(player.prices.lastTrade)} BSD</div>
               </div>
               <div className={`flex items-center gap-1 font-mono font-bold ${player.prices.change24h >= 0 ? 'text-[#22C55E]' : 'text-red-400'}`}>
                 {player.prices.change24h >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
@@ -600,7 +597,7 @@ function NextMatchCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: stri
             </span>
             <div className="flex items-center gap-2">
               <div
-                className="w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-black flex-shrink-0"
+                className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0"
                 style={{ backgroundColor: (oppColor ?? '#666') + '20', color: oppColor ?? '#aaa' }}
               >
                 {oppClub?.logo ? (
@@ -649,7 +646,7 @@ function LastResultsCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: st
             <div key={f.id} className="flex items-center gap-3 text-sm">
               <span className="text-xs text-white/30 font-mono w-8 text-right flex-shrink-0">GW {f.gameweek}</span>
               <div
-                className="w-5 h-5 rounded-full flex items-center justify-center text-[7px] font-black flex-shrink-0"
+                className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0"
                 style={{ backgroundColor: (oppColor ?? '#666') + '20', color: oppColor ?? '#aaa' }}
               >
                 {oppClub?.logo ? (
@@ -1282,11 +1279,8 @@ export default function ClubContent({ slug }: { slug: string }) {
                       onMouseLeave={e => (e.currentTarget.style.borderColor = '')}
                     >
                       <div className="flex items-center gap-2">
-                        <PositionBadge pos={player.pos} size="sm" />
-                        <div>
-                          <div className="font-bold text-sm">{player.first} {player.last}</div>
-                          <div className="text-[10px] text-white/40">{fmtBSD(player.prices.lastTrade)} BSD</div>
-                        </div>
+                        <PlayerIdentity player={player} size="sm" showMeta={false} showStatus={false} />
+                        <div className="text-[10px] text-white/40 shrink-0">{fmtBSD(player.prices.lastTrade)} BSD</div>
                       </div>
                       <div className="text-right">
                         <div className="font-mono font-bold text-[#FFD700]">{userHoldingsQty[player.id]}</div>
@@ -1558,6 +1552,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                   <label className="text-xs text-white/50 font-semibold mb-1.5 block">Kosten (BSD)</label>
                   <input
                     type="number"
+                    inputMode="numeric"
                     value={cvCost}
                     onChange={(e) => setCvCost(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#FFD700]/40"
@@ -1567,6 +1562,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                   <label className="text-xs text-white/50 font-semibold mb-1.5 block">Laufzeit (Tage)</label>
                   <input
                     type="number"
+                    inputMode="numeric"
                     value={cvDays}
                     onChange={(e) => setCvDays(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#FFD700]/40"

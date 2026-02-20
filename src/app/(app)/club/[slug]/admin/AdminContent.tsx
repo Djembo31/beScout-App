@@ -108,7 +108,7 @@ export default function AdminContent({ slug }: { slug: string }) {
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`flex-shrink-0 px-3 md:px-4 py-2.5 text-sm font-semibold transition-all relative whitespace-nowrap flex items-center gap-1.5 ${
+            className={`flex-shrink-0 px-2.5 md:px-4 py-2.5 text-xs md:text-sm font-semibold transition-all relative whitespace-nowrap flex items-center gap-1 md:gap-1.5 min-h-[44px] ${
               tab === t.id ? 'text-[#FFD700]' : 'text-white/60 hover:text-white'
             }`}
           >

@@ -15,6 +15,7 @@ export function toPos(value: string | null | undefined): Pos {
   return VALID_POS.has(value ?? '') ? (value as Pos) : 'MID';
 }
 export type PlayerStatus = 'fit' | 'injured' | 'suspended' | 'doubtful';
+export type PlayerContext = 'portfolio' | 'market' | 'lineup' | 'result' | 'picker' | 'ipo' | 'search' | 'default';
 export type Trend = 'UP' | 'DOWN' | 'FLAT';
 export type IPOStatus = 'none' | 'announced' | 'early_access' | 'open' | 'ended' | 'cancelled';
 export type IPOType = 'fixed';

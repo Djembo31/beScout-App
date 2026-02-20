@@ -14,7 +14,7 @@ import {
 import { getScoreTier, SCORE_TIER_CONFIG, calculateSynergyPreview } from '@/types';
 import type { SynergyDetail } from '@/types';
 import { Card, Button, Chip } from '@/components/ui';
-import { PositionBadge, PlayerPhoto, getL5Color } from '@/components/player';
+import { PositionBadge, PlayerIdentity, getL5Color } from '@/components/player';
 import { useUser } from '@/components/providers/AuthProvider';
 import { centsToBsd } from '@/lib/services/players';
 import { getLineup, removeLineup, getEventParticipants, getEventParticipantCount, getLineupWithPlayers } from '@/lib/services/lineups';
@@ -632,7 +632,7 @@ export const EventDetailModal = ({
                   value={selectedFormation}
                   onChange={(e) => handleFormationChange(e.target.value)}
                   disabled={isReadOnly}
-                  className={`px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm font-bold ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`px-3 py-2 min-h-[44px] bg-white/5 border border-white/10 rounded-lg text-sm font-bold ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {FORMATIONS_6ER.map(f => (
                     <option key={f.id} value={f.id}>{f.name}</option>
@@ -643,7 +643,7 @@ export const EventDetailModal = ({
                     <div className="flex-1" />
                     <button
                       onClick={() => setShowPresets(!showPresets)}
-                      className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs font-bold hover:bg-white/10 transition-all flex items-center gap-1"
+                      className="px-3 py-2 min-h-[44px] bg-white/5 border border-white/10 rounded-lg text-xs font-bold hover:bg-white/10 transition-all flex items-center gap-1"
                     >
                       <Briefcase className="w-3.5 h-3.5" /> Vorlagen
                     </button>
@@ -951,7 +951,7 @@ export const EventDetailModal = ({
                             <div className="text-[10px] text-white/40 flex items-center gap-1.5">
                               {player.club}
                               {tierCfg && (
-                                <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${tierCfg.bg} ${tierCfg.color}`}>
+                                <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${tierCfg.bg} ${tierCfg.color}`}>
                                   {tierCfg.labelDe} +{tierCfg.bonusCents / 100} BSD
                                 </span>
                               )}
@@ -1047,7 +1047,6 @@ export const EventDetailModal = ({
                 <div className="text-sm font-bold text-white/70">Deine Spieler</div>
                 {effectiveHoldings.map(player => {
                   const isSelected = selectedPlayers.some(sp => sp.playerId === player.id);
-                  const pStatus = getPlayerStatusStyle(player.status);
                   return (
                     <div
                       key={player.id}
@@ -1059,22 +1058,14 @@ export const EventDetailModal = ({
                         }`}
                     >
                       <div className="flex items-center gap-3">
-                        <PlayerPhoto
-                          imageUrl={player.imageUrl}
-                          first={player.first}
-                          last={player.last}
-                          pos={player.pos as Pos}
-                          size={32}
+                        <PlayerIdentity
+                          player={{ first: player.first, last: player.last, pos: player.pos as Pos, status: player.status, club: player.club, ticket: 0, age: 0, imageUrl: player.imageUrl }}
+                          size="sm"
+                          showMeta={false}
                         />
-                        <div>
-                          <div className="font-medium text-sm flex items-center gap-1.5">
-                            {player.first} {player.last}
-                            <span className="text-xs" title={pStatus.label}>{pStatus.icon}</span>
-                          </div>
-                          <div className="text-[10px] text-white/40">
-                            {player.club} • <span className={player.isLocked ? 'text-orange-400' : player.dpcAvailable < player.dpcOwned ? 'text-yellow-400' : 'text-white/40'}>{player.dpcAvailable}/{player.dpcOwned} DPC</span>
-                            {player.eventsUsing > 0 && <span className="text-white/30"> ({player.eventsUsing} Event{player.eventsUsing > 1 ? 's' : ''})</span>}
-                          </div>
+                        <div className="text-[10px] text-white/40">
+                          <span className={player.isLocked ? 'text-orange-400' : player.dpcAvailable < player.dpcOwned ? 'text-yellow-400' : 'text-white/40'}>{player.dpcAvailable}/{player.dpcOwned} DPC</span>
+                          {player.eventsUsing > 0 && <span className="text-white/30"> ({player.eventsUsing} Event{player.eventsUsing > 1 ? 's' : ''})</span>}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -1211,11 +1202,12 @@ export const EventDetailModal = ({
                     {viewingUserLineup.data.players.map(sp => (
                       <div key={sp.slotKey} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/[0.06]">
                         <div className="flex items-center gap-3">
-                          <PositionBadge pos={sp.player.position as Pos} size="sm" />
-                          <div>
-                            <div className="font-medium text-sm">{sp.player.firstName} {sp.player.lastName}</div>
-                            <div className="text-[10px] text-white/40">{sp.player.club}</div>
-                          </div>
+                          <PlayerIdentity
+                            player={{ first: sp.player.firstName, last: sp.player.lastName, pos: sp.player.position as Pos, status: 'fit', club: sp.player.club, ticket: 0, age: 0, imageUrl: sp.player.imageUrl }}
+                            size="sm"
+                            showMeta={false}
+                            showStatus={false}
+                          />
                         </div>
                         {sp.score != null ? (
                           <div className="flex items-center gap-2">
@@ -1537,7 +1529,6 @@ export const EventDetailModal = ({
             {/* Player List */}
             <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
               {getAvailablePlayersForPosition(showPlayerPicker.position).map(player => {
-                const pStatus = getPlayerStatusStyle(player.status);
                 return (
                   <button
                     key={player.id}
@@ -1548,21 +1539,13 @@ export const EventDetailModal = ({
                       }`}
                   >
                     <div className="flex items-center gap-3">
-                      <PlayerPhoto
-                        imageUrl={player.imageUrl}
-                        first={player.first}
-                        last={player.last}
-                        pos={player.pos as Pos}
-                        size={32}
+                      <PlayerIdentity
+                        player={{ first: player.first, last: player.last, pos: player.pos as Pos, status: player.status, club: player.club, ticket: 0, age: 0, imageUrl: player.imageUrl }}
+                        size="sm"
+                        showMeta={false}
                       />
-                      <div className="text-left">
-                        <div className="font-medium text-sm flex items-center gap-1">
-                          {player.first} {player.last}
-                          <span className="text-xs" title={pStatus.label}>{pStatus.icon}</span>
-                        </div>
-                        <div className="text-[10px] text-white/40">
-                          {player.club} • <span className={player.dpcAvailable < player.dpcOwned ? 'text-yellow-400' : 'text-white/40'}>{player.dpcAvailable}/{player.dpcOwned} DPC</span>
-                        </div>
+                      <div className="text-[10px] text-white/40">
+                        <span className={player.dpcAvailable < player.dpcOwned ? 'text-yellow-400' : 'text-white/40'}>{player.dpcAvailable}/{player.dpcOwned} DPC</span>
                       </div>
                     </div>
                     <div className="text-right">

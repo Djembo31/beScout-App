@@ -355,6 +355,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
                 <label className="block text-sm font-medium mb-2">Standard-Teilnahmegebühr (BSD)</label>
                 <input
                   type="number"
+                  inputMode="numeric"
                   value={fantasySettings.fantasy_entry_fee_cents / 100}
                   onChange={(e) => setFantasySettings(prev => prev ? { ...prev, fantasy_entry_fee_cents: Math.max(0, Math.round(Number(e.target.value) * 100)) } : prev)}
                   min={0}

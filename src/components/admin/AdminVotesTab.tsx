@@ -139,11 +139,11 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-white/50 font-semibold mb-1.5 block">Kosten (BSD)</label>
-              <input type="number" value={cost} onChange={(e) => setCost(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#FFD700]/40" />
+              <input type="number" inputMode="numeric" value={cost} onChange={(e) => setCost(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#FFD700]/40" />
             </div>
             <div>
               <label className="text-xs text-white/50 font-semibold mb-1.5 block">Laufzeit (Tage)</label>
-              <input type="number" value={days} onChange={(e) => setDays(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#FFD700]/40" />
+              <input type="number" inputMode="numeric" value={days} onChange={(e) => setDays(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#FFD700]/40" />
             </div>
           </div>
           <Button variant="gold" fullWidth loading={creating} onClick={handleCreate}>Abstimmung erstellen</Button>

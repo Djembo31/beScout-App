@@ -121,27 +121,27 @@ export default function BestandSellModal({ item, open, onClose, onSell, onCancel
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl px-2">
-                <button onClick={() => setQty(Math.max(1, qty - 1))} className="px-1.5 py-2 text-white/40 hover:text-white text-sm font-bold">&minus;</button>
+                <button onClick={() => setQty(Math.max(1, qty - 1))} className="px-2 py-2.5 min-w-[44px] min-h-[44px] text-white/40 hover:text-white text-sm font-bold">&minus;</button>
                 <span className="w-6 text-center text-sm font-mono font-bold">{qty}</span>
-                <button onClick={() => setQty(Math.min(item.availableToSell, qty + 1))} className="px-1.5 py-2 text-white/40 hover:text-white text-sm font-bold">+</button>
+                <button onClick={() => setQty(Math.min(item.availableToSell, qty + 1))} className="px-2 py-2.5 min-w-[44px] min-h-[44px] text-white/40 hover:text-white text-sm font-bold">+</button>
               </div>
               <div className="relative flex-1">
-                <input type="number" step="0.01" min="0.01" value={priceBsd} onChange={(e) => setPriceBsd(e.target.value)}
+                <input type="number" inputMode="numeric" step="0.01" min="0.01" value={priceBsd} onChange={(e) => setPriceBsd(e.target.value)}
                   placeholder="Preis pro DPC"
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-mono focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25 pr-12" />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/30 font-bold">BSD</span>
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base font-mono focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25 pr-12" />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-white/30 font-bold">BSD</span>
               </div>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] text-white/25 mr-1">Schnellwahl:</span>
+              <span className="text-[11px] text-white/25 mr-1">Schnellwahl:</span>
               {item.floorBsd != null && item.floorBsd > 0 && (
-                <button onClick={() => setQuickPrice(1)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-[#FFD700] hover:border-[#FFD700]/20 transition-all">
+                <button onClick={() => setQuickPrice(1)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] font-bold text-white/50 hover:text-[#FFD700] hover:border-[#FFD700]/20 transition-all">
                   Floor {fmtBSD(item.floorBsd)}
                 </button>
               )}
-              <button onClick={() => setQuickPrice(1.05)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-[#22C55E] hover:border-[#22C55E]/20 transition-all">+5%</button>
-              <button onClick={() => setQuickPrice(1.10)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-[#22C55E] hover:border-[#22C55E]/20 transition-all">+10%</button>
-              <button onClick={() => setQuickPrice(1.20)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-white/50 hover:text-[#22C55E] hover:border-[#22C55E]/20 transition-all">+20%</button>
+              <button onClick={() => setQuickPrice(1.05)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] font-bold text-white/50 hover:text-[#22C55E] hover:border-[#22C55E]/20 transition-all">+5%</button>
+              <button onClick={() => setQuickPrice(1.10)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] font-bold text-white/50 hover:text-[#22C55E] hover:border-[#22C55E]/20 transition-all">+10%</button>
+              <button onClick={() => setQuickPrice(1.20)} className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] font-bold text-white/50 hover:text-[#22C55E] hover:border-[#22C55E]/20 transition-all">+20%</button>
             </div>
             {priceNum > 0 && (
               <div className="flex items-center gap-4 text-[11px] font-mono bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2">

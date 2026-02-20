@@ -26,9 +26,9 @@ export default function OfferModal({
         <div>
           <label className="text-xs text-white/60 mb-1 block">{t('offer.priceLabel')}</label>
           <input
-            type="number" value={offerPrice} onChange={e => onPriceChange(e.target.value)}
+            type="number" inputMode="numeric" value={offerPrice} onChange={e => onPriceChange(e.target.value)}
             placeholder={t('offer.pricePlaceholder')} min="1"
-            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-mono focus:outline-none focus:border-[#FFD700]/30"
+            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white font-mono focus:outline-none focus:border-[#FFD700]/30"
           />
         </div>
         <div>

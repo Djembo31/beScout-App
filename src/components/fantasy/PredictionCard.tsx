@@ -53,18 +53,20 @@ export function PredictionCard({ prediction }: PredictionCardProps) {
       </div>
 
       {/* Condition + Value + Confidence + Status */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs text-white/50">{conditionLabel}:</span>
-        <span className="text-sm font-bold">{valueLabel}</span>
+      <div className="flex flex-col gap-1.5 md:flex-row md:items-center md:gap-2 md:flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-white/50">{conditionLabel}:</span>
+          <span className="text-sm font-bold">{valueLabel}</span>
 
-        {/* Actual value (only when resolved) */}
-        {prediction.status !== 'pending' && actualLabel && (
-          <span className="text-xs text-white/40">
-            ({t('actual')}: {actualLabel})
-          </span>
-        )}
+          {/* Actual value (only when resolved) */}
+          {prediction.status !== 'pending' && actualLabel && (
+            <span className="text-xs text-white/40">
+              ({t('actual')}: {actualLabel})
+            </span>
+          )}
+        </div>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex items-center gap-2 md:ml-auto">
           {/* Confidence badge */}
           <span className={cn('px-2 py-0.5 rounded-full text-xs font-bold', confidenceColor)}>
             {prediction.confidence}%

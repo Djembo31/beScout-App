@@ -78,32 +78,32 @@ export default function HoldingsSection({
                   <label className="text-xs text-white/50 mb-1 block">Anzahl (max. {availableToSell})</label>
                   <div className="flex items-center gap-2">
                     <button onClick={() => setSellQty(Math.max(1, sellQty - 1))}
-                      className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 text-sm">-</button>
-                    <input type="number" value={sellQty} min={1} max={availableToSell}
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 text-sm">-</button>
+                    <input type="number" inputMode="numeric" value={sellQty} min={1} max={availableToSell}
                       onChange={(e) => setSellQty(Math.max(1, Math.min(availableToSell, parseInt(e.target.value) || 1)))}
-                      className="flex-1 text-center bg-white/5 border border-white/10 rounded-lg py-1.5 font-mono font-bold text-sm" />
+                      className="flex-1 text-center bg-white/5 border border-white/10 rounded-lg py-1.5 font-mono font-bold text-base" />
                     <button onClick={() => setSellQty(Math.min(availableToSell, sellQty + 1))}
-                      className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 text-sm">+</button>
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 text-sm">+</button>
                   </div>
                 </div>
                 <div>
                   <label className="text-xs text-white/50 mb-1 block">Preis pro DPC (BSD)</label>
                   <input
-                    type="number" value={sellPriceBsd} min={1} step={1}
+                    type="number" inputMode="numeric" value={sellPriceBsd} min={1} step={1}
                     placeholder={floorBsd > 0 ? `z.B. ${floorBsd}` : 'Preis eingeben'}
                     onChange={(e) => setSellPriceBsd(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 font-mono font-bold text-sm"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 font-mono font-bold text-base"
                   />
                   {floorBsd > 0 && (
                     <div className="mt-1.5 space-y-1">
                       <div className="flex items-center gap-1.5">
                         <button onClick={() => setSellPriceBsd(floorBsd.toString())}
-                          className="px-2 py-0.5 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">Floor</button>
+                          className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">Floor</button>
                         <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.05).toString())}
-                          className="px-2 py-0.5 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+5%</button>
+                          className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+5%</button>
                         <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.10).toString())}
-                          className="px-2 py-0.5 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+10%</button>
-                        <span className="text-[10px] text-white/25 ml-1">Floor: {fmtBSD(floorBsd)}</span>
+                          className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+10%</button>
+                        <span className="text-[11px] text-white/25 ml-1">Floor: {fmtBSD(floorBsd)}</span>
                       </div>
                     </div>
                   )}

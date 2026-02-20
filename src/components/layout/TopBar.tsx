@@ -174,7 +174,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           <button
             onClick={togglePush}
             disabled={pushLoading}
-            className={`hidden sm:flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] border rounded-xl transition-all ${
+            className={`flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] border rounded-xl transition-all ${
               pushEnabled
                 ? 'bg-[#22C55E]/10 border-[#22C55E]/20 hover:bg-[#22C55E]/20'
                 : 'bg-white/5 border-white/10 hover:bg-white/10'
@@ -216,7 +216,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           {/* Feedback */}
           <button
             onClick={() => setFeedbackOpen(true)}
-            className="p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
+            className="hidden sm:flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
             aria-label={t('feedback')}
           >
             <MessageSquarePlus className="w-4 h-4 md:w-5 md:h-5 text-white/70" />

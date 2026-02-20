@@ -128,6 +128,7 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
               <label className="block text-xs text-white/50 mb-1">Betrag (BSD)</label>
               <input
                 type="number"
+                inputMode="numeric"
                 min="1"
                 step="0.01"
                 value={amount}

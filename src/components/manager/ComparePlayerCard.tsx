@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { PositionBadge, PlayerPhoto, getL5Color } from '@/components/player';
+import { PlayerIdentity, getL5Color } from '@/components/player';
 import { fmtBSD, cn } from '@/lib/utils';
 import type { Player } from '@/types';
 
@@ -14,14 +14,13 @@ interface ComparePlayerCardProps {
 export default function ComparePlayerCard({ player, isHighest }: ComparePlayerCardProps) {
   return (
     <Link href={`/player/${player.id}`} className="block text-center p-3 hover:bg-white/[0.02] rounded-xl transition-colors">
-      <div className="flex flex-col items-center gap-2 mb-2">
-        <PlayerPhoto imageUrl={player.imageUrl} first={player.first} last={player.last} pos={player.pos} size={48} />
-        <div className="flex items-center gap-1.5">
-          <PositionBadge pos={player.pos} size="sm" />
-          <div className="font-bold text-sm truncate">{player.first} {player.last}</div>
-        </div>
+      <div className="flex flex-col items-center gap-2 mb-3">
+        <PlayerIdentity
+          player={{ first: player.first, last: player.last, pos: player.pos, status: player.status ?? 'fit', club: player.club, ticket: player.ticket ?? 0, age: player.age ?? 0, imageUrl: player.imageUrl }}
+          size="lg"
+          showMeta
+        />
       </div>
-      <div className="text-[11px] text-white/40 mb-3">{player.club} · {player.age} J.</div>
 
       <div className="space-y-2 text-xs">
         <StatRow label="L5 Perf" value={String(player.perf.l5)} gold={isHighest.l5} color={isHighest.l5 ? undefined : getL5Color(player.perf.l5)} />

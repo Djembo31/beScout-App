@@ -159,7 +159,7 @@ export default function AirdropPage() {
                     </div>
                     <div className="flex items-center gap-1.5">
                       {entry.founding_multiplier > 1 && (
-                        <span className="px-1 py-0.5 rounded text-[8px] font-black bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/25">
+                        <span className="px-1 py-0.5 rounded text-[9px] font-black bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/25">
                           {entry.founding_multiplier}x
                         </span>
                       )}

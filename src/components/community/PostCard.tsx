@@ -91,15 +91,15 @@ export default function PostCard({
   const [confirmDelete, setConfirmDelete] = useState<'own' | 'admin' | null>(null);
 
   return (
-    <Card className={cn('p-4 hover:border-white/20 transition-all', isOwnedPlayer && 'border-[#FFD700]/20 bg-[#FFD700]/[0.02]')}>
-      <div className="flex gap-3">
+    <Card className={cn('p-3 md:p-4 hover:border-white/20 transition-all', isOwnedPlayer && 'border-[#FFD700]/20 bg-[#FFD700]/[0.02]')}>
+      <div className="flex gap-2 md:gap-3">
         {/* Vote Buttons */}
-        <div className="flex flex-col items-center gap-1">
+        <div className="flex flex-col items-center gap-0.5">
           <button
             onClick={() => onVote(post.id, myVote === 1 ? 0 : 1)}
             aria-label={myVote === 1 ? 'Upvote entfernen' : 'Upvote'}
             className={cn(
-              'p-1.5 rounded-lg transition-colors',
+              'p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors',
               myVote === 1 ? 'bg-[#22C55E]/20 text-[#22C55E]' : 'text-white/30 hover:text-[#22C55E] hover:bg-white/5'
             )}
           >
@@ -118,7 +118,7 @@ export default function PostCard({
             onClick={() => onVote(post.id, myVote === -1 ? 0 : -1)}
             aria-label={myVote === -1 ? 'Downvote entfernen' : 'Downvote'}
             className={cn(
-              'p-1.5 rounded-lg transition-colors',
+              'p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors',
               myVote === -1 ? 'bg-red-500/20 text-red-300' : 'text-white/30 hover:text-red-300 hover:bg-white/5'
             )}
           >
@@ -130,7 +130,7 @@ export default function PostCard({
         <div className="flex-1 min-w-0">
           {/* Author Row */}
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
               <Link href={`/profile/${post.author_handle}`} className="font-bold text-sm hover:text-[#FFD700] transition-colors">{post.author_display_name || post.author_handle}</Link>
               {post.author_top_role && (
                 <span className={cn(

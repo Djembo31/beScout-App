@@ -115,6 +115,7 @@ export const CreateEventModal = ({
             <label className="block text-sm font-medium mb-2">Teilnahmegebühr (BSD)</label>
             <input
               type="number"
+              inputMode="numeric"
               value={buyIn}
               onChange={(e) => setBuyIn(Number(e.target.value))}
               min={0}
@@ -128,6 +129,7 @@ export const CreateEventModal = ({
             <label className="block text-sm font-medium mb-2">Max. Teilnehmer</label>
             <input
               type="number"
+              inputMode="numeric"
               value={maxParticipants}
               onChange={(e) => setMaxParticipants(Number(e.target.value))}
               min={2}

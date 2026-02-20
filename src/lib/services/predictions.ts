@@ -216,10 +216,10 @@ export type PredictionFixture = Awaited<ReturnType<typeof getFixturesForPredicti
 export async function getPlayersForFixture(
   homeClubId: string,
   awayClubId: string,
-): Promise<{ id: string; first_name: string; last_name: string; position: string }[]> {
+): Promise<{ id: string; first_name: string; last_name: string; position: string; club?: string; image_url?: string | null }[]> {
   const { data, error } = await supabase
     .from('players')
-    .select('id, first_name, last_name, position')
+    .select('id, first_name, last_name, position, club, image_url')
     .in('club_id', [homeClubId, awayClubId])
     .order('last_name');
 

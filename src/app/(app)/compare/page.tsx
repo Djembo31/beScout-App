@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Search, X, Share2, ChevronLeft, BarChart3, ArrowLeftRight } from 'lucide-react';
 import { Card, Button, ErrorState, Skeleton, SkeletonCard } from '@/components/ui';
-import { PositionBadge } from '@/components/player';
+import { PlayerIdentity } from '@/components/player';
 import { RadarChart, buildPlayerRadarAxes } from '@/components/player/RadarChart';
 import type { RadarDataSet } from '@/components/player/RadarChart';
 import { centsToBsd } from '@/lib/services/players';
@@ -147,7 +147,7 @@ export default function ComparePage() {
       </div>
 
       {/* Player Slots */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[0, 1, 2].map(idx => {
           const p = selectedPlayers[idx];
           return (
@@ -156,18 +156,15 @@ export default function ComparePage() {
                 <Card className="p-3 relative">
                   <button
                     onClick={() => handleRemovePlayer(idx)}
-                    className="absolute top-2 right-2 p-1 bg-white/10 hover:bg-red-500/20 rounded-full transition-all"
+                    className="absolute top-1 right-1 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white/10 hover:bg-red-500/20 rounded-full transition-all"
                   >
                     <X className="w-3 h-3" />
                   </button>
                   <div className="flex flex-col items-center text-center gap-1">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center border-2"
-                      style={{ borderColor: COLORS[idx], backgroundColor: COLORS[idx] + '20' }}>
-                      <span className="font-bold text-sm" style={{ color: COLORS[idx] }}>{p.first_name[0]}{p.last_name[0]}</span>
-                    </div>
-                    <div className="font-bold text-sm truncate w-full">{p.last_name}</div>
-                    <div className="text-[10px] text-white/40">{p.club}</div>
-                    <PositionBadge pos={p.position as Pos} size="sm" />
+                    <PlayerIdentity
+                      player={{ first: p.first_name, last: p.last_name, pos: p.position as Pos, status: 'fit', club: p.club, ticket: p.shirt_number ?? 0, age: p.age ?? 0, imageUrl: p.image_url }}
+                      size="lg" showMeta={false} showStatus={false}
+                    />
                   </div>
                 </Card>
               ) : (
@@ -204,11 +201,10 @@ export default function ComparePage() {
                   onClick={() => handleAddPlayer(p.id)}
                   className="w-full flex items-center gap-3 p-3 hover:bg-white/5 transition-all text-left"
                 >
-                  <PositionBadge pos={p.position as Pos} size="sm" />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm truncate">{p.first_name} {p.last_name}</div>
-                    <div className="text-[10px] text-white/40">{p.club}</div>
-                  </div>
+                  <PlayerIdentity
+                    player={{ first: p.first_name, last: p.last_name, pos: p.position as Pos, status: 'fit', club: p.club, ticket: p.shirt_number ?? 0, age: p.age ?? 0, imageUrl: p.image_url }}
+                    size="sm" showStatus={false}
+                  />
                   <div className="text-xs text-white/40 font-mono">L5: {p.perf_l5}</div>
                 </button>
               ))}
@@ -224,7 +220,7 @@ export default function ComparePage() {
             <BarChart3 className="w-5 h-5 text-sky-400" />
             Radar-Vergleich
           </h3>
-          <div className="flex justify-center">
+          <div className="flex justify-center max-w-[300px] mx-auto md:max-w-none">
             <RadarChart datasets={radarDatasets} size={280} />
           </div>
           <div className="flex justify-center gap-4 mt-4">

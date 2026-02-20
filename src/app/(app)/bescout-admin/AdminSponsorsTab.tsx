@@ -292,6 +292,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
               <label className="block text-sm font-bold text-white/70 mb-1">Priorität</label>
               <input
                 type="number"
+                inputMode="numeric"
                 min="0"
                 value={form.priority}
                 onChange={(e) => setForm(f => ({ ...f, priority: e.target.value }))}

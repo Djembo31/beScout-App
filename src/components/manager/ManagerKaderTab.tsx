@@ -4,7 +4,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui';
-import { PositionBadge, PlayerPhoto } from '@/components/player';
+import { PositionBadge, PlayerIdentity } from '@/components/player';
 import { cn } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -39,16 +39,16 @@ function EventUsageBadge({ count }: { count: number }) {
 function ScoreCircle({ score }: { score: number | null }) {
   if (score == null) {
     return (
-      <div className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center">
-        <span className="text-[10px] font-mono text-white/20">&mdash;</span>
+      <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center">
+        <span className="text-[9px] md:text-[10px] font-mono text-white/20">&mdash;</span>
       </div>
     );
   }
   const bg = score >= 100 ? 'bg-[#FFD700]/15 border-[#FFD700]/30' : score >= 70 ? 'bg-white/[0.06] border-white/15' : 'bg-red-500/10 border-red-400/20';
   const text = score >= 100 ? 'text-[#FFD700]' : score >= 70 ? 'text-white' : 'text-red-300';
   return (
-    <div className={cn('w-10 h-10 rounded-full border flex items-center justify-center', bg)}>
-      <span className={cn('text-sm font-black font-mono', text)}>{score}</span>
+    <div className={cn('w-7 h-7 md:w-10 md:h-10 rounded-full border flex items-center justify-center', bg)}>
+      <span className={cn('text-xs md:text-sm font-black font-mono', text)}>{score}</span>
     </div>
   );
 }
@@ -124,17 +124,11 @@ function CompactPickerRow({ player, scores, minutes, onClick }: {
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border-l-2 hover:bg-white/[0.05] transition-colors text-left"
+      className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg border-l-2 hover:bg-white/[0.05] transition-colors text-left min-h-[44px]"
       style={{ borderLeftColor: borderColor }}
     >
-      {/* Photo 28px */}
-      <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={28} />
-
-      {/* Name + Club */}
-      <div className="flex-1 min-w-0">
-        <div className="font-bold text-[11px] truncate">{p.first} {p.last}</div>
-        <div className="text-[9px] text-white/40 truncate">{p.club}{p.age > 0 ? ` · ${p.age}J.` : ''}{p.status !== 'fit' ? ` · ${STATUS_CONFIG[p.status].short}` : ''}</div>
-      </div>
+      {/* Identity (28px photo via sm) */}
+      <PlayerIdentity player={p} size="sm" showStatus={false} className="flex-1 min-w-0" />
 
       {/* L5 Bars */}
       <L5ScoreBars scores={scores} minutes={minutes} />
@@ -184,15 +178,10 @@ function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAss
       )}
       style={{ borderLeftColor: borderColor }}
     >
-      {/* Player Photo */}
-      <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={36} />
-
       {/* Center: Identity + Meta */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <PositionBadge pos={p.pos} size="sm" />
-          <span className="text-[10px] font-mono text-white/50">#{p.ticket}</span>
-          <span className="font-bold text-xs truncate">{p.first} {p.last}</span>
+          <PlayerIdentity player={p} size="md" showStatus={false} />
           {isAssigned && (
             <span className="shrink-0" title="In Aufstellung">
               <Shield className="w-3 h-3 text-[#22C55E]" />
@@ -200,13 +189,6 @@ function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAss
           )}
         </div>
         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-          {clubData?.logo ? (
-            <img src={clubData.logo} alt={p.club} className="w-3.5 h-3.5 rounded-full object-cover shrink-0" />
-          ) : clubData?.colors?.primary ? (
-            <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: clubData.colors.primary }} />
-          ) : null}
-          <span className="text-[10px] text-white/50">{p.club}</span>
-          {p.age > 0 && <span className="text-[10px] text-white/30 font-mono">{p.age}J.</span>}
           <StatusPill status={p.status} />
           <EventUsageBadge count={eventCount} />
           <span className="text-[10px] font-mono text-white/40">
@@ -706,16 +688,8 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                       onClick={() => handlePickPlayer(p.id)}
                       className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-white/[0.06] transition-colors text-left"
                     >
-                      {/* Photo */}
-                      <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={40} />
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="font-bold text-sm truncate">{p.first} {p.last}</div>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-[11px] text-white/40">{p.club}</span>
-                          {p.status !== 'fit' && <StatusPill status={p.status} />}
-                        </div>
-                      </div>
+                      {/* Identity */}
+                      <PlayerIdentity player={p} size="md" className="flex-1 min-w-0" />
                       {/* Score + Bars */}
                       <div className="shrink-0 flex items-center gap-2.5">
                         <L5ScoreBars scores={scoresMap?.get(p.id)} minutes={minutesMap?.get(p.id)} />

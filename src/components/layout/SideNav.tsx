@@ -84,8 +84,8 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
             </div>
             {!collapsed && (
               <div>
-                <div className="text-[10px] text-white/50">{tc('balance')}</div>
-                <div className="font-mono font-black text-[#FFD700]">
+                <div className="text-[11px] text-white/50">{tc('balance')}</div>
+                <div className="font-mono font-black text-[#FFD700] text-sm">
                   {balanceCents === null ? (
                     <span className="inline-block w-16 h-4 rounded bg-[#FFD700]/20 animate-pulse" />
                   ) : (
@@ -115,7 +115,7 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
                 onClick={handleNavClick}
                 data-tour-id={tourId}
                 className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.97]
+                  flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.97] min-h-[44px]
                   ${isActive
                     ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20'
                     : 'text-white/60 hover:bg-white/5 hover:text-white border border-transparent'
@@ -237,7 +237,7 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
           href="/profile"
           onClick={handleNavClick}
           className={`
-            w-full flex items-center gap-3 px-3 py-2.5 rounded-xl
+            w-full flex items-center gap-3 px-3 py-2.5 rounded-xl min-h-[44px]
             text-white/40 hover:bg-white/5 hover:text-white/60 transition-all
             ${collapsed ? 'justify-center' : ''}
           `}
@@ -248,7 +248,7 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
         <button
           onClick={handleLogout}
           className={`
-            w-full flex items-center gap-3 px-3 py-2.5 rounded-xl
+            w-full flex items-center gap-3 px-3 py-2.5 rounded-xl min-h-[44px]
             text-white/40 hover:bg-red-500/10 hover:text-red-400 transition-all
             ${collapsed ? 'justify-center' : ''}
           `}
@@ -291,11 +291,11 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
             onClick={onMobileClose}
           />
           {/* Drawer */}
-          <aside className="relative w-[280px] h-full flex flex-col bg-[#0a0a0a] border-r border-white/10 shadow-2xl anim-slide-left">
+          <aside className="relative w-[min(280px,85vw)] h-full flex flex-col bg-[#0a0a0a] border-r border-white/10 shadow-2xl anim-slide-left">
             {/* Close button */}
             <button
               onClick={onMobileClose}
-              className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-white/10 transition-colors z-10"
+              className="absolute top-3 right-3 p-2.5 rounded-xl hover:bg-white/10 transition-colors z-10 min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
               <X className="w-5 h-5 text-white/50" />
             </button>

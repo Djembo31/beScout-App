@@ -77,15 +77,15 @@ function DiscoverySection({ icon, title, accent, onShowAll, showAllLabel, childr
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-1.5">
           {icon}
-          <span className={cn('text-[10px] font-black uppercase tracking-wider', accent || 'text-white/40')}>{title}</span>
+          <span className={cn('text-[11px] font-black uppercase tracking-wider', accent || 'text-white/40')}>{title}</span>
         </div>
         {onShowAll && (
-          <button onClick={onShowAll} className="text-[10px] font-bold text-white/30 hover:text-[#FFD700] transition-colors flex items-center gap-1">
+          <button onClick={onShowAll} className="text-[11px] font-bold text-white/30 hover:text-[#FFD700] transition-colors flex items-center gap-1 min-h-[44px]">
             {showAllLabel || 'Alle'} <ChevronRight className="w-3 h-3" />
           </button>
         )}
       </div>
-      <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-2 snap-x snap-mandatory" style={{ WebkitOverflowScrolling: 'touch' }}>
         {children}
       </div>
     </div>
@@ -713,10 +713,10 @@ export default function KaufenDiscovery({
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-[10px] text-white/40">{t('priceLabel')}</span>
-                  <input type="number" placeholder={t('min')} value={priceMin} onChange={(e) => setPriceMin(e.target.value)}
+                  <input type="number" inputMode="numeric" placeholder={t('min')} value={priceMin} onChange={(e) => setPriceMin(e.target.value)}
                     className="w-20 px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white/70 focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25" />
                   <span className="text-white/20">–</span>
-                  <input type="number" placeholder={t('max')} value={priceMax} onChange={(e) => setPriceMax(e.target.value)}
+                  <input type="number" inputMode="numeric" placeholder={t('max')} value={priceMax} onChange={(e) => setPriceMax(e.target.value)}
                     className="w-20 px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white/70 focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25" />
                   <span className="text-[10px] text-white/30">BSD</span>
                 </div>
@@ -837,10 +837,10 @@ export default function KaufenDiscovery({
                   <div>
                     <div className="text-[10px] font-black uppercase tracking-wider text-white/40 mb-2.5">{t('priceLabel')}</div>
                     <div className="flex items-center gap-2">
-                      <input type="number" placeholder={t('min')} value={priceMin} onChange={(e) => setPriceMin(e.target.value)}
+                      <input type="number" inputMode="numeric" placeholder={t('min')} value={priceMin} onChange={(e) => setPriceMin(e.target.value)}
                         className="flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white/70 focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25" />
                       <span className="text-white/20 font-bold">–</span>
-                      <input type="number" placeholder={t('max')} value={priceMax} onChange={(e) => setPriceMax(e.target.value)}
+                      <input type="number" inputMode="numeric" placeholder={t('max')} value={priceMax} onChange={(e) => setPriceMax(e.target.value)}
                         className="flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white/70 focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25" />
                       <span className="text-xs text-white/30 font-bold shrink-0">BSD</span>
                     </div>

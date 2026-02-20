@@ -56,7 +56,7 @@ export const EventCard = ({
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); onToggleInterest(); }}
-          className={`p-1.5 rounded-lg transition-all ${event.isInterested ? 'bg-pink-500/20 text-pink-400' : 'hover:bg-white/10 text-white/30'}`}
+          className={`p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all ${event.isInterested ? 'bg-pink-500/20 text-pink-400' : 'hover:bg-white/10 text-white/30'}`}
         >
           <Heart className={`w-4 h-4 ${event.isInterested ? 'fill-current' : ''}`} />
         </button>

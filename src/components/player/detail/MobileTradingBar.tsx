@@ -23,7 +23,7 @@ export default function MobileTradingBar({
         {/* Price info */}
         <div className="shrink-0 mr-1">
           <div className="font-mono font-bold text-[#FFD700] text-sm">{fmtBSD(floor)} BSD</div>
-          <div className="text-[10px] text-white/40">Floor</div>
+          <div className="text-[11px] text-white/40">Floor</div>
         </div>
         {/* Buy button */}
         <Button

@@ -82,6 +82,7 @@ export function AdminFeesTab({ adminId }: { adminId: string }) {
                   {isEditing ? (
                     <input
                       type="number"
+                      inputMode="numeric"
                       min={0}
                       max={10000}
                       value={editValues[key] ?? 0}

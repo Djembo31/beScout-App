@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, BarChart3, Trophy, Coins, FileText, Vote, Target, Flame, Crosshair, Banknote, UserCheck, Sparkles, Megaphone } from 'lucide-react';
 import { Card, StatCard, Button } from '@/components/ui';
-import { PositionBadge } from '@/components/player';
+import { PositionBadge, PlayerIdentity } from '@/components/player';
 import { fmtBSD, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatBsd } from '@/lib/services/wallet';
@@ -163,8 +163,10 @@ export default function ProfileOverviewTab({
                   <Link key={h.id} href={`/player/${h.player_id}`}>
                     <div className="p-3 bg-white/[0.03] rounded-xl border border-white/[0.06] hover:border-white/10 transition-colors">
                       <div className="flex items-center gap-2 mb-2">
-                        <PositionBadge pos={h.player.position as Pos} size="sm" />
-                        <span className="text-sm font-bold text-white truncate">{h.player.first_name} {h.player.last_name}</span>
+                        <PlayerIdentity
+                          player={{ first: h.player.first_name, last: h.player.last_name, pos: h.player.position as Pos, status: 'fit', club: h.player.club, ticket: 0, age: 0, imageUrl: h.player.image_url }}
+                          size="sm" showMeta={false} showStatus={false}
+                        />
                       </div>
                       <div className="text-xs text-white/40 mb-1">{h.player.club} · {h.quantity}x</div>
                       <div className="flex items-center justify-between">
@@ -238,7 +240,7 @@ export default function ProfileOverviewTab({
                   <div className="text-xl mb-1">{def.icon}</div>
                   <div className="text-sm font-bold text-[#FFD700]">{def.label}</div>
                   <div className="text-[10px] text-white/40 mt-0.5">{def.description}</div>
-                  <div className="text-[8px] text-[#FFD700]/50 mt-1 uppercase tracking-wider font-bold">{tg('achievement.hidden')}</div>
+                  <div className="text-[9px] text-[#FFD700]/50 mt-1 uppercase tracking-wider font-bold">{tg('achievement.hidden')}</div>
                 </div>
               ))}
             </div>
@@ -388,11 +390,10 @@ export default function ProfileOverviewTab({
                 <Link key={h.id} href={`/player/${h.player_id}`}>
                   <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl hover:bg-white/[0.04] transition-all">
                     <div className="flex items-center gap-3">
-                      <PositionBadge pos={h.player?.position as Pos} size="sm" />
-                      <div>
-                        <div className="font-bold">{h.player?.first_name} {h.player?.last_name}</div>
-                        <div className="text-xs text-white/50">{h.player?.club}</div>
-                      </div>
+                      <PlayerIdentity
+                        player={{ first: h.player?.first_name ?? '', last: h.player?.last_name ?? '', pos: (h.player?.position ?? 'MID') as Pos, status: 'fit', club: h.player?.club ?? '', ticket: 0, age: 0, imageUrl: h.player?.image_url }}
+                        size="sm" showMeta={false} showStatus={false}
+                      />
                     </div>
                     <div className="text-right">
                       <div className="font-mono font-bold">{h.quantity} DPC</div>

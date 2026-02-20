@@ -47,7 +47,7 @@ function OverviewTab({ stats, error }: { stats: SystemStats | null; error?: bool
   if (error) return <Card className="p-6 text-center text-white/40"><BarChart3 className="w-8 h-8 mx-auto mb-2 text-white/15" /><div className="text-sm">Statistiken konnten nicht geladen werden.</div></Card>;
   if (!stats) return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>;
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
       <StatCard label="Benutzer" value={stats.totalUsers.toString()} icon={<Users className="w-4 h-4 text-white/40" />} />
       <StatCard label="BSD Gesamt" value={`${fmtBSD(centsToBsd(stats.totalBsdCirculation))}`} icon={<DollarSign className="w-4 h-4 text-[#FFD700]" />} />
       <StatCard label="24h Volumen" value={`${fmtBSD(centsToBsd(stats.volume24h))}`} icon={<BarChart3 className="w-4 h-4 text-white/40" />} />
@@ -218,21 +218,22 @@ export default function BescoutAdminContent() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-white/[0.02] rounded-xl p-1 border border-white/[0.06] overflow-x-auto">
+      <div className="flex gap-1 bg-white/[0.02] rounded-xl p-1 border border-white/[0.06] overflow-x-auto scrollbar-hide">
         {TABS.map(t => {
           const Icon = t.icon;
           return (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
+              className={`flex items-center gap-1 md:gap-1.5 px-2.5 md:px-3 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 min-h-[44px] ${
                 tab === t.id
                   ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20'
                   : 'text-white/40 hover:text-white/60'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
-              {t.label}
+              <span className="hidden md:inline">{t.label}</span>
+              <span className="md:hidden">{t.label.slice(0, 4)}</span>
             </button>
           );
         })}

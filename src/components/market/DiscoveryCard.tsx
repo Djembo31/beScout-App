@@ -3,9 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { Star, Loader2 } from 'lucide-react';
-import { PositionBadge, PlayerPhoto, getL5Color } from '@/components/player';
+import { PlayerIdentity, PlayerKPIs, PlayerBadgeStrip, getL5Color } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
-import { getClub } from '@/lib/clubs';
 import { fmtBSD, cn } from '@/lib/utils';
 import { getRelativeTime } from '@/lib/activityHelpers';
 import type { Player } from '@/types';
@@ -44,10 +43,7 @@ export default function DiscoveryCard({
   valueRatio, listingPrice, listedAt, listingCount,
   isWatchlisted, onWatch, onBuy, buying,
 }: DiscoveryCardProps) {
-  const l5 = p.perf.l5;
-  const l5Color = getL5Color(l5);
   const vs = VARIANT_STYLES[variant];
-  const clubData = getClub(p.club);
   const posBorderColor = posTintColors[p.pos];
 
   const price = variant === 'ipo' ? (ipoPrice ?? 0)
@@ -57,40 +53,20 @@ export default function DiscoveryCard({
   return (
     <Link
       href={`/player/${p.id}`}
-      className="flex-shrink-0 w-[140px] bg-white/[0.03] border border-white/[0.06] rounded-xl p-2.5 hover:bg-white/[0.06] transition-all group relative overflow-hidden"
+      className="flex-shrink-0 w-[calc((100vw-48px)/2.5)] md:w-[140px] max-w-[160px] bg-white/[0.03] border border-white/[0.06] rounded-xl p-2.5 hover:bg-white/[0.06] transition-all group relative overflow-hidden"
       style={{ borderLeftColor: posBorderColor, borderLeftWidth: 2 }}
     >
-      {/* Top row: Photo + Identity */}
-      <div className="flex items-start gap-2 mb-1.5">
-        <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={32} />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between">
-            <PositionBadge pos={p.pos} size="sm" />
-            {onWatch && (
-              <button
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); onWatch(p.id); }}
-                className={cn('p-0.5 rounded transition-colors', isWatchlisted ? 'text-[#FFD700]' : 'text-white/20 hover:text-white/40')}
-              >
-                <Star className="w-3 h-3" fill={isWatchlisted ? 'currentColor' : 'none'} />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Name */}
-      <div className="text-[11px] text-white/50 truncate">{p.first}</div>
-      <div className="font-bold text-xs truncate group-hover:text-[#FFD700] transition-colors uppercase">{p.last}</div>
-
-      {/* Club + Logo + Number */}
-      <div className="flex items-center gap-1 mt-0.5">
-        {clubData?.logo ? (
-          <img src={clubData.logo} alt={p.club} className="w-3 h-3 rounded-full object-cover shrink-0" />
-        ) : (
-          <div className="w-3 h-3 rounded-full shrink-0 border border-white/10" style={{ backgroundColor: clubData?.colors.primary ?? '#666' }} />
+      {/* Identity: Photo+ClubLogo + Name + Pos */}
+      <div className="flex items-start gap-2 mb-1">
+        <PlayerIdentity player={p} size="sm" showStatus={false} className="flex-1 min-w-0" />
+        {onWatch && (
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onWatch(p.id); }}
+            className={cn('p-0.5 rounded transition-colors shrink-0', isWatchlisted ? 'text-[#FFD700]' : 'text-white/20 hover:text-white/40')}
+          >
+            <Star className="w-3 h-3" fill={isWatchlisted ? 'currentColor' : 'none'} />
+          </button>
         )}
-        <span className="text-[10px] text-white/40 truncate">{clubData?.short || p.club}</span>
-        {p.ticket > 0 && <span className="font-mono text-[10px] text-white/20">#{p.ticket}</span>}
       </div>
 
       {/* Separator */}
@@ -98,7 +74,7 @@ export default function DiscoveryCard({
 
       {/* Metrics: L5 + Price */}
       <div className="flex items-center justify-between">
-        <span className={cn('font-mono font-bold text-[11px]', l5Color)}>L5: {l5}</span>
+        <span className={cn('font-mono font-bold text-[11px]', getL5Color(p.perf.l5))}>L5: {p.perf.l5}</span>
         {price > 0 && <span className="font-mono font-bold text-[11px] text-[#FFD700]">{fmtBSD(price)}</span>}
       </div>
 
@@ -146,7 +122,7 @@ export default function DiscoveryCard({
 
       {/* Badge */}
       {vs.label && variant !== 'trending' && variant !== 'new' && variant !== 'listing' && (
-        <div className={cn('absolute top-1.5 right-1.5 text-[8px] font-black px-1 py-0.5 rounded', vs.badgeBg, vs.badge)}>
+        <div className={cn('absolute top-1.5 right-1.5 text-[9px] font-black px-1 py-0.5 rounded', vs.badgeBg, vs.badge)}>
           {vs.label}
         </div>
       )}
@@ -156,7 +132,7 @@ export default function DiscoveryCard({
         <button
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onBuy(p.id); }}
           disabled={buying}
-          className="mt-2 w-full py-1.5 bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] rounded-lg text-[10px] font-bold hover:bg-[#FFD700]/20 transition-all disabled:opacity-50 flex items-center justify-center gap-1"
+          className="mt-2 w-full py-2 min-h-[44px] bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] rounded-lg text-xs font-bold hover:bg-[#FFD700]/20 transition-all disabled:opacity-50 flex items-center justify-center gap-1"
         >
           {buying ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Kaufen'}
         </button>

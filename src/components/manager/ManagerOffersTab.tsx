@@ -7,7 +7,7 @@ import {
   ArrowRight, Search, Plus,
 } from 'lucide-react';
 import { Card, Button, Modal } from '@/components/ui';
-import { PositionBadge } from '@/components/player';
+import { PlayerIdentity } from '@/components/player';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import {
@@ -85,12 +85,13 @@ function OfferCard({
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           {/* Player */}
-          <div className="flex items-center gap-2 mb-2">
-            <PositionBadge pos={offer.player_position} size="sm" />
-            <span className="font-bold text-white truncate">
-              {offer.player_first_name} {offer.player_last_name}
-            </span>
-            <span className="text-white/40 text-xs">{offer.player_club}</span>
+          <div className="mb-2">
+            <PlayerIdentity
+              player={{ first: offer.player_first_name, last: offer.player_last_name, pos: offer.player_position, status: 'fit', club: offer.player_club, ticket: 0, age: 0 }}
+              size="sm"
+              showMeta={false}
+              showStatus={false}
+            />
           </div>
 
           {/* Offer details */}
@@ -274,9 +275,10 @@ function CreateOfferModal({
                     onClick={() => { setSelectedPlayer(p); setSearch(''); }}
                     className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 text-left"
                   >
-                    <PositionBadge pos={p.pos} size="sm" />
-                    <span className="text-sm text-white">{p.first} {p.last}</span>
-                    <span className="text-xs text-white/40 ml-auto">{p.club}</span>
+                    <PlayerIdentity
+                      player={{ first: p.first, last: p.last, pos: p.pos, status: 'fit', club: p.club, ticket: p.ticket, age: p.age, imageUrl: p.imageUrl }}
+                      size="sm" showMeta={false} showStatus={false}
+                    />
                   </button>
                 ))}
               </div>
@@ -284,8 +286,10 @@ function CreateOfferModal({
           </div>
         ) : (
           <div className="flex items-center gap-2 bg-white/5 rounded-xl p-3">
-            <PositionBadge pos={selectedPlayer.pos} size="sm" />
-            <span className="font-bold text-white">{selectedPlayer.first} {selectedPlayer.last}</span>
+            <PlayerIdentity
+              player={{ first: selectedPlayer.first, last: selectedPlayer.last, pos: selectedPlayer.pos, status: 'fit', club: selectedPlayer.club, ticket: selectedPlayer.ticket, age: selectedPlayer.age, imageUrl: selectedPlayer.imageUrl }}
+              size="sm" showMeta={false} showStatus={false}
+            />
             <button onClick={() => setSelectedPlayer(null)} className="ml-auto text-white/40 hover:text-white">
               <X className="w-4 h-4" />
             </button>
@@ -319,13 +323,13 @@ function CreateOfferModal({
         <div>
           <label className="text-sm text-white/60 mb-1 block">Preis pro DPC (BSD)</label>
           <input
-            type="number"
+            type="number" inputMode="numeric"
             value={price}
             onChange={e => setPrice(e.target.value)}
             placeholder="z.B. 150"
             min="1"
             step="1"
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/30 font-mono"
+            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/30 font-mono"
           />
         </div>
 
@@ -557,10 +561,10 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
             <div>
               <label className="text-sm text-white/60 mb-1 block">Dein Preis (BSD)</label>
               <input
-                type="number"
+                type="number" inputMode="numeric"
                 value={counterPrice}
                 onChange={e => setCounterPrice(e.target.value)}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-mono focus:outline-none focus:border-[#FFD700]/30"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white font-mono focus:outline-none focus:border-[#FFD700]/30"
               />
             </div>
             <Button onClick={handleCounter} className="w-full">

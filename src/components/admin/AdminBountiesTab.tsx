@@ -270,6 +270,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
               <label className="text-xs text-white/50 font-semibold mb-1.5 block">Belohnung (BSD)</label>
               <input
                 type="number"
+                inputMode="numeric"
                 value={reward}
                 onChange={(e) => setReward(e.target.value)}
                 min="5"
@@ -281,6 +282,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
               <label className="text-xs text-white/50 font-semibold mb-1.5 block">Frist (Tage)</label>
               <input
                 type="number"
+                inputMode="numeric"
                 value={days}
                 onChange={(e) => setDays(e.target.value)}
                 min="1"
@@ -292,6 +294,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
               <label className="text-xs text-white/50 font-semibold mb-1.5 block">Max. Einreichungen</label>
               <input
                 type="number"
+                inputMode="numeric"
                 value={maxSubs}
                 onChange={(e) => setMaxSubs(e.target.value)}
                 min="1"

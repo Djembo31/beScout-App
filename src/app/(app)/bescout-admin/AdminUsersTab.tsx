@@ -122,7 +122,7 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
             <div>
               <label className="text-xs text-white/60 mb-1 block">Betrag (BSD, negativ = abziehen)</label>
               <input
-                type="number" value={adjustAmount} onChange={e => setAdjustAmount(e.target.value)}
+                type="number" inputMode="numeric" value={adjustAmount} onChange={e => setAdjustAmount(e.target.value)}
                 placeholder="z.B. 1000 oder -500"
                 className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-mono focus:outline-none focus:border-[#FFD700]/30"
               />

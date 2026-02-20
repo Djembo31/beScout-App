@@ -413,6 +413,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               <label className="block text-sm font-bold text-white/70 mb-1">Gameweek</label>
               <input
                 type="number"
+                inputMode="numeric"
                 min="1"
                 value={gameweek}
                 onChange={(e) => setGameweek(e.target.value)}
@@ -424,6 +425,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               <label className="block text-sm font-bold text-white/70 mb-1">Max Teilnehmer</label>
               <input
                 type="number"
+                inputMode="numeric"
                 min="0"
                 value={maxEntries}
                 onChange={(e) => setMaxEntries(e.target.value)}
@@ -436,6 +438,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               <label className="block text-sm font-bold text-white/70 mb-1">Teilnahmegebühr (BSD)</label>
               <input
                 type="number"
+                inputMode="numeric"
                 step="0.01"
                 min="0"
                 value={entryFee}
@@ -447,6 +450,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               <label className="block text-sm font-bold text-white/70 mb-1">Preisgeld (BSD)</label>
               <input
                 type="number"
+                inputMode="numeric"
                 step="0.01"
                 min="0"
                 value={prizePool}

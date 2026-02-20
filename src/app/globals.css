@@ -94,10 +94,24 @@ body {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
 .anim-modal { animation: modal-in 0.2s ease-out; }
+.anim-bottom-sheet { animation: slide-up 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
 .anim-fade { animation: fade-in 0.2s ease-out; }
 .anim-slide-left { animation: slide-in-left 0.25s ease-out; }
 .anim-dropdown { animation: dropdown-in 0.15s ease-out; }
+
+/* Touch-optimized horizontal scroll */
+.scroll-touch {
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+.scroll-touch > * {
+  scroll-snap-align: start;
+}
 
 /* Win-Celebration animations */
 @keyframes confetti-fall {

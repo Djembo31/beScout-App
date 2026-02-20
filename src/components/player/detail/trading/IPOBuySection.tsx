@@ -95,12 +95,12 @@ export default function IPOBuySection({
               <label className="text-xs text-white/50 mb-2 block">Anzahl</label>
               <div className="flex items-center gap-2">
                 <button onClick={() => setBuyQty(Math.max(1, buyQty - 1))}
-                  className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 font-bold hover:bg-white/10">-</button>
-                <input type="number" value={buyQty} min={1} max={maxBuy}
+                  className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white/5 border border-white/10 font-bold hover:bg-white/10">-</button>
+                <input type="number" inputMode="numeric" value={buyQty} min={1} max={maxBuy}
                   onChange={(e) => setBuyQty(Math.max(1, Math.min(maxBuy, parseInt(e.target.value) || 1)))}
-                  className="flex-1 text-center bg-white/5 border border-white/10 rounded-xl py-2 font-mono font-bold" />
+                  className="flex-1 text-center bg-white/5 border border-white/10 rounded-xl py-2 font-mono font-bold text-base" />
                 <button onClick={() => setBuyQty(Math.min(maxBuy, buyQty + 1))}
-                  className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 font-bold hover:bg-white/10">+</button>
+                  className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white/5 border border-white/10 font-bold hover:bg-white/10">+</button>
               </div>
             </div>
             <div className="bg-black/20 rounded-xl p-4 space-y-2">

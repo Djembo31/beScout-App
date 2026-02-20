@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { Plus, Play, XCircle, Package, Loader2, Shield, Flame, AlertTriangle, UserPlus } from 'lucide-react';
 import { Card, Button, Chip, Modal } from '@/components/ui';
-import { PositionBadge } from '@/components/player';
+import { PlayerIdentity } from '@/components/player';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getPlayersByClubId, dbToPlayers, centsToBsd, bsdToCents, createPlayer } from '@/lib/services/players';
 import { getIposByClubId, createIpo, updateIpoStatus } from '@/lib/services/ipo';
@@ -297,11 +297,8 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                   <Card key={ipo.id} className="p-3 md:p-4">
                     <div className="space-y-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <PositionBadge pos={player.pos} size="sm" />
-                        <div className="min-w-0 flex-1">
-                          <div className="font-bold truncate">{player.first} {player.last}</div>
-                          <div className="text-xs text-white/40">{player.pos} • {fmtBSD(priceBsd)} BSD</div>
-                        </div>
+                        <PlayerIdentity player={player} size="sm" showStatus={false} className="min-w-0 flex-1" />
+                        <span className="text-xs text-white/40 shrink-0">{fmtBSD(priceBsd)} BSD</span>
                         <Chip className={`${sc.bg} ${sc.text} ${sc.border} border flex-shrink-0`}>{sc.label}</Chip>
                       </div>
                       <div className="flex items-center gap-3">
@@ -358,11 +355,8 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 return (
                   <Card key={ipo.id} className="p-3 md:p-4 opacity-60">
                     <div className="flex items-center gap-3 min-w-0">
-                      <PositionBadge pos={player.pos} size="sm" />
-                      <div className="min-w-0 flex-1">
-                        <div className="font-bold truncate">{player.first} {player.last}</div>
-                        <div className="text-xs text-white/40">{fmtBSD(centsToBsd(ipo.price))} BSD • {progress.toFixed(0)}% verkauft</div>
-                      </div>
+                      <PlayerIdentity player={player} size="sm" showStatus={false} className="min-w-0 flex-1" />
+                      <span className="text-xs text-white/40 shrink-0">{fmtBSD(centsToBsd(ipo.price))} BSD · {progress.toFixed(0)}%</span>
                       <Chip className={`${sc.bg} ${sc.text} ${sc.border} border flex-shrink-0`}>{sc.label}</Chip>
                     </div>
                   </Card>
@@ -388,18 +382,12 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             {activePlayers.map(p => (
               <Card key={p.id} className="p-3 md:p-4">
                 <div className="flex items-center gap-3 min-w-0">
-                  <PositionBadge pos={p.pos} size="sm" />
-                  <div className="min-w-0 flex-1">
-                    <div className="font-bold truncate">{p.first} {p.last}</div>
-                    <div className="flex items-center gap-2 text-xs text-white/40">
-                      <span>{p.pos}</span>
-                      {p.successFeeCap != null && (
-                        <Chip className="bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20 text-[10px] px-1.5 py-0">
-                          Cap: {fmtBSD(p.successFeeCap)} BSD
-                        </Chip>
-                      )}
-                    </div>
-                  </div>
+                  <PlayerIdentity player={p} size="sm" showStatus={false} className="min-w-0 flex-1" />
+                  {p.successFeeCap != null && (
+                    <Chip className="bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20 text-[10px] px-1.5 py-0 shrink-0">
+                      Cap: {fmtBSD(p.successFeeCap)} BSD
+                    </Chip>
+                  )}
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     <button
                       onClick={() => { setCapModalPlayer(p); setCapValue(p.successFeeCap != null ? String(p.successFeeCap) : ''); }}
@@ -428,11 +416,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             {liquidatedPlayers.map(p => (
               <Card key={p.id} className="p-3 md:p-4 opacity-50">
                 <div className="flex items-center gap-3 min-w-0">
-                  <PositionBadge pos={p.pos} size="sm" />
-                  <div className="min-w-0 flex-1">
-                    <div className="font-bold truncate">{p.first} {p.last}</div>
-                    <div className="text-xs text-white/40">{p.pos}</div>
-                  </div>
+                  <PlayerIdentity player={p} size="sm" showStatus={false} className="min-w-0 flex-1" />
                   <Chip className="bg-white/5 text-white/40 border border-white/10">Liquidiert</Chip>
                 </div>
               </Card>
@@ -452,6 +436,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               <label className="block text-sm font-bold text-white/70 mb-1">Cap-Betrag (BSD)</label>
               <input
                 type="number"
+                inputMode="numeric"
                 step="0.01"
                 min="0"
                 value={capValue}
@@ -564,11 +549,11 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">Preis pro DPC (BSD)</label>
-            <input type="number" step="0.01" min="0.01" value={ipoPrice} onChange={(e) => setIpoPrice(e.target.value)} placeholder="z.B. 5.00" className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25" />
+            <input type="number" inputMode="numeric" step="0.01" min="0.01" value={ipoPrice} onChange={(e) => setIpoPrice(e.target.value)} placeholder="z.B. 5.00" className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25" />
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">Anzahl DPC</label>
-            <input type="number" min="1" max={(() => { const sp = players.find(p => p.id === ipoPlayerId); return sp ? sp.dpc.supply - sp.dpc.circulation : 300; })()} value={ipoQty} onChange={(e) => setIpoQty(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40" />
+            <input type="number" inputMode="numeric" min="1" max={(() => { const sp = players.find(p => p.id === ipoPlayerId); return sp ? sp.dpc.supply - sp.dpc.circulation : 300; })()} value={ipoQty} onChange={(e) => setIpoQty(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40" />
             {ipoPlayerId && (() => {
               const sp = players.find(p => p.id === ipoPlayerId);
               if (!sp) return null;
@@ -582,7 +567,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">Max pro User</label>
-            <input type="number" min="1" value={ipoMaxPerUser} onChange={(e) => setIpoMaxPerUser(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40" />
+            <input type="number" inputMode="numeric" min="1" value={ipoMaxPerUser} onChange={(e) => setIpoMaxPerUser(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40" />
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">Laufzeit</label>
@@ -667,6 +652,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               <label className="block text-sm font-bold text-white/70 mb-1">Trikotnr.</label>
               <input
                 type="number"
+                inputMode="numeric"
                 min="1"
                 max="99"
                 value={cpShirtNumber}
@@ -681,6 +667,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               <label className="block text-sm font-bold text-white/70 mb-1">Alter</label>
               <input
                 type="number"
+                inputMode="numeric"
                 min="15"
                 max="45"
                 value={cpAge}
@@ -704,6 +691,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             <label className="block text-sm font-bold text-white/70 mb-1">IPO-Preis (BSD)</label>
             <input
               type="number"
+              inputMode="numeric"
               step="0.01"
               min="0.01"
               value={cpIpoPrice}
