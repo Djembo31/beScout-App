@@ -7,7 +7,7 @@ import {
   Activity,
 } from 'lucide-react';
 import { Card } from '@/components/ui';
-import { PositionBadge } from '@/components/player';
+import { PositionBadge, getL5Color } from '@/components/player';
 import { fmtBSD, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getRelativeTime } from '@/lib/activityHelpers';
@@ -59,7 +59,7 @@ export default function EntdeckenTab({
                 </div>
                 <div className="text-right shrink-0">
                   <div className="text-[11px] font-mono font-bold text-[#FFD700]">{fmtBSD(floor)} BSD</div>
-                  <div className="text-[10px] font-mono text-[#22C55E]">L5: {p.perf.l5}</div>
+                  <div className={`text-[10px] font-mono ${getL5Color(p.perf.l5)}`}>L5: {p.perf.l5}</div>
                 </div>
               </Link>
             ))}

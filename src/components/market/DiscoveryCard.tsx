@@ -2,8 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Star, Loader2, User } from 'lucide-react';
-import { PositionBadge } from '@/components/player';
+import { Star, Loader2 } from 'lucide-react';
+import { PositionBadge, PlayerPhoto, getL5Color } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { getClub } from '@/lib/clubs';
 import { fmtBSD, cn } from '@/lib/utils';
@@ -45,7 +45,7 @@ export default function DiscoveryCard({
   isWatchlisted, onWatch, onBuy, buying,
 }: DiscoveryCardProps) {
   const l5 = p.perf.l5;
-  const l5Color = l5 >= 65 ? 'text-emerald-300' : l5 >= 45 ? 'text-amber-300' : l5 > 0 ? 'text-red-300' : 'text-white/50';
+  const l5Color = getL5Color(l5);
   const vs = VARIANT_STYLES[variant];
   const clubData = getClub(p.club);
   const posBorderColor = posTintColors[p.pos];
@@ -62,16 +62,7 @@ export default function DiscoveryCard({
     >
       {/* Top row: Photo + Identity */}
       <div className="flex items-start gap-2 mb-1.5">
-        {/* Player Photo */}
-        <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-white/5 border border-white/10">
-          {p.imageUrl ? (
-            <img src={p.imageUrl} alt={p.last} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <User className="w-4 h-4 text-white/20" />
-            </div>
-          )}
-        </div>
+        <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={32} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between">
             <PositionBadge pos={p.pos} size="sm" />

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {
   TrendingUp, TrendingDown, Minus, DollarSign, Shield,
 } from 'lucide-react';
-import { PositionBadge } from '@/components/player';
+import { PositionBadge, PlayerPhoto } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { fmtBSD, cn } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
@@ -190,13 +190,7 @@ function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onS
       <div className="flex items-center gap-2 sm:gap-3 px-3 py-2.5">
         {/* Photo 32px */}
         <Link href={`/player/${p.id}`} className="shrink-0">
-          {p.imageUrl ? (
-            <img src={p.imageUrl} alt="" className="w-8 h-8 rounded-full object-cover border border-white/10" />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-[9px] font-bold text-white/30">
-              {p.first[0]}{p.last[0]}
-            </div>
-          )}
+          <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={32} />
         </Link>
 
         {/* Identity + Lens-specific data */}

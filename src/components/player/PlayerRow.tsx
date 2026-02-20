@@ -17,7 +17,7 @@ import {
 import type { Player, Pos, DpcHolding } from '@/types';
 import { fmtBSD } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
-import { PositionBadge, StatusBadge, MiniSparkline } from './index';
+import { PositionBadge, StatusBadge, MiniSparkline, PlayerPhoto, getL5Color, getL5Hex, getL5Bg } from './index';
 
 // ============================================
 // SHARED DESIGN TOKENS
@@ -36,9 +36,6 @@ export const posTintColors: Record<Pos, string> = {
   MID: '#38bdf8',  // sky-400
   ATT: '#fb7185',  // rose-400
 };
-
-const getPerfColor = (l5: number) =>
-  l5 >= 65 ? 'text-emerald-300' : l5 >= 45 ? 'text-amber-300' : l5 > 0 ? 'text-red-300' : 'text-white/50';
 
 /** Returns true if a hex color is too dark to read on a dark background */
 const isColorDark = (hex: string): boolean => {
@@ -123,22 +120,9 @@ export const getSuccessFeeTier = (marketValue: number): SuccessFeeTier =>
   SUCCESS_FEE_TIERS.find(t => marketValue >= t.minValue && marketValue < t.maxValue) || SUCCESS_FEE_TIERS[0];
 
 
-// ============================================
-// PLAYER AVATAR (image with fallback to TrikotBadge/PositionBadge)
-// ============================================
-
+// PlayerAvatar — delegate to shared PlayerPhoto
 function PlayerAvatar({ player }: { player: Player }) {
-  if (player.imageUrl) {
-    return (
-      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 border border-white/10">
-        <img src={player.imageUrl} alt="" className="w-full h-full object-cover" />
-      </div>
-    );
-  }
-  if (player.ticket > 0) {
-    return <TrikotBadge number={player.ticket} pos={player.pos} club={player.club} />;
-  }
-  return <PositionBadge pos={player.pos} size="sm" />;
+  return <PlayerPhoto imageUrl={player.imageUrl} first={player.first} last={player.last} pos={player.pos} size={32} />;
 }
 
 // ════════════════════════════════════════════
@@ -277,8 +261,8 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
       const pnlPct = holding.avgBuyPriceBsd > 0 ? ((floor - holding.avgBuyPriceBsd) / holding.avgBuyPriceBsd) * 100 : 0;
       const upPnl = pnl >= 0;
       const l5 = player.perf.l5;
-      const l5Color = l5 >= 70 ? '#22C55E' : l5 >= 50 ? '#FBBF24' : l5 > 0 ? '#F87171' : '#555';
-      const l5Bg = l5 >= 70 ? 'bg-emerald-500/15' : l5 >= 50 ? 'bg-amber-500/15' : l5 > 0 ? 'bg-red-500/15' : 'bg-white/5';
+      const l5Color = getL5Hex(l5);
+      const l5Bg = getL5Bg(l5);
 
       return (
         <Link
@@ -457,7 +441,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
             </div>
 
             {/* L5 */}
-            <div className={`hidden sm:block font-mono font-bold text-sm ${getPerfColor(player.perf.l5)}`}>
+            <div className={`hidden sm:block font-mono font-bold text-sm ${getL5Color(player.perf.l5)}`}>
               {player.perf.l5}
             </div>
 
@@ -542,7 +526,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
           </div>
 
           {/* L5 Score */}
-          <div className={`hidden sm:block font-mono font-bold text-sm ${getPerfColor(player.perf.l5)}`}>
+          <div className={`hidden sm:block font-mono font-bold text-sm ${getL5Color(player.perf.l5)}`}>
             {player.perf.l5}
           </div>
 
@@ -623,7 +607,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             {/* L5 Score */}
-            <div className={`font-mono font-bold text-sm ${getPerfColor(player.perf.l5)}`}>
+            <div className={`font-mono font-bold text-sm ${getL5Color(player.perf.l5)}`}>
               {player.perf.l5}
             </div>
             {onWatch && (

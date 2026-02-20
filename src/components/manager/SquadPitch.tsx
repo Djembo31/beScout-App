@@ -84,8 +84,8 @@ export default function SquadPitch({ formation, assignments, onSlotClick }: Squa
                       <div
                         className="absolute -top-2 -right-3 z-20 min-w-[1.75rem] px-1 py-0.5 rounded-full text-[9px] md:text-[10px] font-mono font-black text-center shadow-lg"
                         style={{
-                          backgroundColor: player.perf.l5 >= 100 ? '#FFD700' : player.perf.l5 >= 70 ? 'rgba(255,255,255,0.9)' : '#ff6b6b',
-                          color: player.perf.l5 >= 100 ? '#000' : player.perf.l5 >= 70 ? '#000' : '#fff',
+                          backgroundColor: player.perf.l5 >= 100 ? '#FFD700' : player.perf.l5 >= 65 ? 'rgba(255,255,255,0.9)' : player.perf.l5 >= 45 ? '#fcd34d' : '#ff6b6b',
+                          color: player.perf.l5 >= 45 ? '#000' : '#fff',
                         }}
                       >
                         {player.perf.l5}

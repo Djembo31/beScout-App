@@ -7,6 +7,7 @@ import {
   Rocket, Tag, MessageSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getL5Color } from '@/components/player';
 import type { PlayerStatus } from '@/types';
 import type { NextFixtureInfo } from '@/lib/services/fixtures';
 
@@ -118,11 +119,10 @@ export function MinutesBar({ minutes }: { minutes: number[] }) {
 export function PerfPills({ l5, l15, trend }: { l5: number; l15: number; trend: string }) {
   const TrendIcon = trend === 'UP' ? TrendingUp : trend === 'DOWN' ? TrendingDown : Minus;
   const trendColor = trend === 'UP' ? 'text-[#22C55E]' : trend === 'DOWN' ? 'text-red-400' : 'text-white/40';
-  const l5Color = l5 >= 70 ? 'text-[#FFD700]' : l5 >= 50 ? 'text-white' : 'text-red-300';
 
   return (
     <div className="flex items-center gap-1.5">
-      <span className={cn('text-[11px] font-mono font-black', l5Color)}>L5 {l5}</span>
+      <span className={cn('text-[11px] font-mono font-black', getL5Color(l5))}>L5 {l5}</span>
       <span className="text-[10px] font-mono text-white/40">L15 {l15}</span>
       <TrendIcon className={cn('w-3 h-3', trendColor)} />
     </div>

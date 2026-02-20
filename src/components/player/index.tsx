@@ -6,6 +6,38 @@ import { AlertTriangle } from 'lucide-react';
 import type { Pos, PlayerStatus } from '@/types';
 
 // ============================================
+// L5 COLOR TOKENS (Single Source of Truth)
+// ============================================
+
+/** Canonical L5 color thresholds — use EVERYWHERE for consistency.
+ *  ≥65 = good (emerald), ≥45 = mid (amber), >0 = bad (red), 0 = neutral */
+export const L5_THRESHOLDS = { good: 65, mid: 45 } as const;
+
+/** Returns a Tailwind text-color class for an L5 score */
+export function getL5Color(l5: number): string {
+  if (l5 >= L5_THRESHOLDS.good) return 'text-emerald-300';
+  if (l5 >= L5_THRESHOLDS.mid) return 'text-amber-300';
+  if (l5 > 0) return 'text-red-300';
+  return 'text-white/50';
+}
+
+/** Returns a hex color string for L5 (used in inline styles, e.g. SVG fill) */
+export function getL5Hex(l5: number): string {
+  if (l5 >= L5_THRESHOLDS.good) return '#6ee7b7'; // emerald-300
+  if (l5 >= L5_THRESHOLDS.mid) return '#fcd34d';  // amber-300
+  if (l5 > 0) return '#fca5a5';                    // red-300
+  return '#555';
+}
+
+/** Returns a Tailwind bg class for L5 pill backgrounds */
+export function getL5Bg(l5: number): string {
+  if (l5 >= L5_THRESHOLDS.good) return 'bg-emerald-500/15';
+  if (l5 >= L5_THRESHOLDS.mid) return 'bg-amber-500/15';
+  if (l5 > 0) return 'bg-red-500/15';
+  return 'bg-white/5';
+}
+
+// ============================================
 // POSITION BADGE
 // ============================================
 
@@ -58,7 +90,7 @@ const toneClasses = {
 };
 
 export function ScoreCircle({ label, value, size = 48 }: { label: string; value: number; size?: number }) {
-  const tone = value >= 65 ? 'good' : value >= 45 ? 'mid' : value > 0 ? 'bad' : 'neutral';
+  const tone = value >= L5_THRESHOLDS.good ? 'good' : value >= L5_THRESHOLDS.mid ? 'mid' : value > 0 ? 'bad' : 'neutral';
   return (
     <div
       className={`rounded-full border flex flex-col items-center justify-center ${toneClasses[tone]}`}
@@ -103,6 +135,54 @@ export function MiniSparkline({ values, width = 100, height = 24 }: { values: nu
         strokeLinecap="round"
       />
     </svg>
+  );
+}
+
+// ============================================
+// PLAYER PHOTO (Unified avatar — use EVERYWHERE)
+// ============================================
+
+/** Consistent player photo with fallback hierarchy:
+ *  1. Image (if imageUrl exists) → rounded circle
+ *  2. Initials (first+last) → colored circle
+ *  Always: position-tinted border, configurable size */
+export function PlayerPhoto({ imageUrl, first, last, pos, size = 32, className = '' }: {
+  imageUrl?: string | null;
+  first: string;
+  last: string;
+  pos: Pos;
+  size?: number;
+  className?: string;
+}) {
+  const borderColor = {
+    GK: 'border-emerald-400/40',
+    DEF: 'border-amber-400/40',
+    MID: 'border-sky-400/40',
+    ATT: 'border-rose-400/40',
+  }[pos];
+
+  const s = `${size / 16}rem`;
+
+  if (imageUrl) {
+    return (
+      <div
+        className={`rounded-full overflow-hidden shrink-0 border ${borderColor} ${className}`}
+        style={{ width: s, height: s }}
+      >
+        <img src={imageUrl} alt={`${first} ${last}`} className="w-full h-full object-cover" />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`rounded-full shrink-0 border ${borderColor} bg-white/[0.06] flex items-center justify-center ${className}`}
+      style={{ width: s, height: s }}
+    >
+      <span className="font-bold text-white/30" style={{ fontSize: `${size * 0.28}px` }}>
+        {first[0]}{last[0]}
+      </span>
+    </div>
   );
 }
 

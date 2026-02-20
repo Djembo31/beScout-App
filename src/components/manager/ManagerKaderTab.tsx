@@ -4,7 +4,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui';
-import { PositionBadge } from '@/components/player';
+import { PositionBadge, PlayerPhoto } from '@/components/player';
 import { cn } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -128,13 +128,7 @@ function CompactPickerRow({ player, scores, minutes, onClick }: {
       style={{ borderLeftColor: borderColor }}
     >
       {/* Photo 28px */}
-      {p.imageUrl ? (
-        <img src={p.imageUrl} alt="" className="w-7 h-7 rounded-full object-cover border border-white/10 shrink-0" />
-      ) : (
-        <div className="w-7 h-7 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-[9px] font-bold text-white/25 shrink-0">
-          {p.first[0]}{p.last[0]}
-        </div>
-      )}
+      <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={28} />
 
       {/* Name + Club */}
       <div className="flex-1 min-w-0">
@@ -191,15 +185,7 @@ function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAss
       style={{ borderLeftColor: borderColor }}
     >
       {/* Player Photo */}
-      <div className="shrink-0">
-        {p.imageUrl ? (
-          <img src={p.imageUrl} alt="" className="w-9 h-9 rounded-full object-cover border border-white/10" />
-        ) : (
-          <div className="w-9 h-9 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-[10px] font-bold text-white/30">
-            {p.first[0]}{p.last[0]}
-          </div>
-        )}
-      </div>
+      <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={36} />
 
       {/* Center: Identity + Meta */}
       <div className="flex-1 min-w-0">
@@ -721,13 +707,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                       className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-white/[0.06] transition-colors text-left"
                     >
                       {/* Photo */}
-                      {p.imageUrl ? (
-                        <img src={p.imageUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-xs font-bold text-white/25 shrink-0">
-                          {p.first[0]}{p.last[0]}
-                        </div>
-                      )}
+                      <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={40} />
                       {/* Info */}
                       <div className="flex-1 min-w-0">
                         <div className="font-bold text-sm truncate">{p.first} {p.last}</div>

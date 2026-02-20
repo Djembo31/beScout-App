@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { PositionBadge } from '@/components/player';
+import { PositionBadge, PlayerPhoto, getL5Color } from '@/components/player';
 import { fmtBSD, cn } from '@/lib/utils';
 import type { Player } from '@/types';
 
@@ -14,15 +14,18 @@ interface ComparePlayerCardProps {
 export default function ComparePlayerCard({ player, isHighest }: ComparePlayerCardProps) {
   return (
     <Link href={`/player/${player.id}`} className="block text-center p-3 hover:bg-white/[0.02] rounded-xl transition-colors">
-      <div className="flex items-center justify-center gap-2 mb-2">
-        <PositionBadge pos={player.pos} size="sm" />
-        <div className="font-bold text-sm truncate">{player.first} {player.last}</div>
+      <div className="flex flex-col items-center gap-2 mb-2">
+        <PlayerPhoto imageUrl={player.imageUrl} first={player.first} last={player.last} pos={player.pos} size={48} />
+        <div className="flex items-center gap-1.5">
+          <PositionBadge pos={player.pos} size="sm" />
+          <div className="font-bold text-sm truncate">{player.first} {player.last}</div>
+        </div>
       </div>
       <div className="text-[11px] text-white/40 mb-3">{player.club} · {player.age} J.</div>
 
       <div className="space-y-2 text-xs">
-        <StatRow label="L5 Perf" value={String(player.perf.l5)} gold={isHighest.l5} />
-        <StatRow label="L15 Perf" value={String(player.perf.l15)} gold={isHighest.l15} />
+        <StatRow label="L5 Perf" value={String(player.perf.l5)} gold={isHighest.l5} color={isHighest.l5 ? undefined : getL5Color(player.perf.l5)} />
+        <StatRow label="L15 Perf" value={String(player.perf.l15)} gold={isHighest.l15} color={isHighest.l15 ? undefined : getL5Color(player.perf.l15)} />
         <StatRow label="Spiele" value={String(player.stats.matches)} gold={isHighest.matches} />
         <StatRow label="Tore" value={String(player.stats.goals)} gold={isHighest.goals} />
         <StatRow label="Assists" value={String(player.stats.assists)} gold={isHighest.assists} />
