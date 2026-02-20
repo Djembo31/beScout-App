@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Target, Clock, Users, Loader2, Eye, CheckCircle, XCircle, X, AlertTriangle } from 'lucide-react';
 import { Card, Button, Chip, Modal } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
-import { formatBsd } from '@/lib/services/wallet';
+import { formatScout } from '@/lib/services/wallet';
 import {
   getBountiesByClub,
   createBounty,
@@ -216,7 +216,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                 )}
 
                 <div className="flex items-center justify-between text-xs text-white/50 mb-3">
-                  <span className="text-[#FFD700] font-bold">{formatBsd(bounty.reward_cents)} BSD</span>
+                  <span className="text-[#FFD700] font-bold">{formatScout(bounty.reward_cents)} $SCOUT</span>
                   <span><Users className="w-3 h-3 inline mr-1" />{bounty.submission_count}/{bounty.max_submissions}</span>
                   <span><Clock className="w-3 h-3 inline mr-1" />{diffMs > 0 ? `${d}d ${h}h` : 'Abgelaufen'}</span>
                 </div>
@@ -267,7 +267,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Belohnung (BSD)</label>
+              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Belohnung ($SCOUT)</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -402,7 +402,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
             {viewBounty && (
               <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300">
                 <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                <span>Genehmigung kostet {formatBsd(viewBounty.reward_cents)} BSD aus deinem Wallet</span>
+                <span>Genehmigung kostet {formatScout(viewBounty.reward_cents)} $SCOUT aus deinem Wallet</span>
               </div>
             )}
             <div className="flex items-center gap-3">

@@ -112,7 +112,7 @@ export const CreateEventModal = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Teilnahmegebühr (BSD)</label>
+            <label className="block text-sm font-medium mb-2">Teilnahmegebühr ($SCOUT)</label>
             <input
               type="number"
               inputMode="numeric"
@@ -123,7 +123,7 @@ export const CreateEventModal = ({
               disabled
               className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-[#FFD700]/40 opacity-50"
             />
-            <div className="text-[10px] text-white/30 mt-1">Pilot: immer 0 BSD (regulatorisch)</div>
+            <div className="text-[10px] text-white/30 mt-1">Pilot: immer 0 $SCOUT (regulatorisch)</div>
           </div>
           <div>
             <label className="block text-sm font-medium mb-2">Max. Teilnehmer</label>
@@ -156,15 +156,15 @@ export const CreateEventModal = ({
           <div className="text-sm text-white/60 mb-2">Vorschau</div>
           <div className="grid grid-cols-3 gap-3 text-center">
             <div>
-              <div className="font-mono font-bold text-lg text-[#FFD700]">{buyIn} BSD</div>
+              <div className="font-mono font-bold text-lg text-[#FFD700]">{buyIn} $SCOUT</div>
               <div className="text-[10px] text-white/40">Teilnahme</div>
             </div>
             <div>
-              <div className="font-mono font-bold text-lg text-purple-400">{prizePool} BSD</div>
+              <div className="font-mono font-bold text-lg text-purple-400">{prizePool} $SCOUT</div>
               <div className="text-[10px] text-white/40">Preisgeld</div>
             </div>
             <div>
-              <div className="font-mono font-bold text-lg text-white/60">{creatorFee} BSD</div>
+              <div className="font-mono font-bold text-lg text-white/60">{creatorFee} $SCOUT</div>
               <div className="text-[10px] text-white/40">Deine Fee (5%)</div>
             </div>
           </div>

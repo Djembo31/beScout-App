@@ -18,7 +18,7 @@ import { invalidateFantasyQueries } from '@/lib/queries/invalidation';
 import { useEvents, useJoinedEventIds, usePlayerEventUsage, useActiveGameweek, useIsClubAdmin } from '@/lib/queries/events';
 import { useHoldings } from '@/lib/queries/holdings';
 import { withTimeout } from '@/lib/utils';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import type { DbEvent } from '@/types';
 import {
   type EventStatus, type FantasyTab, type FantasyEvent,
@@ -307,7 +307,7 @@ export default function FantasyContent() {
 
     const bal = balanceCents ?? 0;
     if (event.entryFeeCents > 0 && bal < event.entryFeeCents) {
-      addToast(`Nicht genug BSD! Du brauchst ${event.buyIn} BSD, hast aber nur ${fmtBSD(bal / 100)}.`, 'error');
+      addToast(`Nicht genug $SCOUT! Du brauchst ${event.buyIn} $SCOUT, hast aber nur ${fmtScout(bal / 100)}.`, 'error');
       return;
     }
 
@@ -400,7 +400,7 @@ export default function FantasyContent() {
     invalidateFantasyQueries(user.id);
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
 
-    addToast(`Vom Event "${event.name}" abgemeldet.${event.buyIn > 0 ? ` ${event.buyIn} BSD zurückerstattet.` : ''}`, 'success');
+    addToast(`Vom Event "${event.name}" abgemeldet.${event.buyIn > 0 ? ` ${event.buyIn} $SCOUT zurückerstattet.` : ''}`, 'success');
   }, [user, setBalanceCents, addToast, events]);
 
   // Refetch all events from DB (used after score, reset, simulation)

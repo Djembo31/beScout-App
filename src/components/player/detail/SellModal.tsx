@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { Send, Briefcase, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { Modal, Card, Button } from '@/components/ui';
-import { fmtBSD } from '@/lib/utils';
-import { formatBsd } from '@/lib/services/wallet';
+import { fmtScout } from '@/lib/utils';
+import { formatScout } from '@/lib/services/wallet';
 import type { Player, DbOrder } from '@/types';
 
 interface SellModalProps {
@@ -119,7 +119,7 @@ export default function SellModal({
 
               {/* Price */}
               <div>
-                <label className="text-xs text-white/50 mb-1 block">Preis pro DPC (BSD)</label>
+                <label className="text-xs text-white/50 mb-1 block">Preis pro DPC ($SCOUT)</label>
                 <input
                   type="number" inputMode="numeric" value={sellPriceBsd} min={1} step={1}
                   placeholder={floorBsd > 0 ? `z.B. ${floorBsd}` : 'Preis eingeben'}
@@ -137,7 +137,7 @@ export default function SellModal({
                       className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+10%</button>
                     <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.20).toString())}
                       className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+20%</button>
-                    <span className="text-[11px] text-white/25 ml-1">Floor: {fmtBSD(floorBsd)}</span>
+                    <span className="text-[11px] text-white/25 ml-1">Floor: {fmtScout(floorBsd)}</span>
                   </div>
                 )}
               </div>
@@ -147,15 +147,15 @@ export default function SellModal({
                 <div className="bg-black/20 rounded-lg px-3 py-2 space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-white/40">Brutto</span>
-                    <span className="font-mono text-white/40">{fmtBSD(gross)} BSD</span>
+                    <span className="font-mono text-white/40">{fmtScout(gross)} $SCOUT</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-white/40">Gebühr ({feePct}%)</span>
-                    <span className="font-mono text-red-400/70">-{fmtBSD(fee)} BSD</span>
+                    <span className="font-mono text-red-400/70">-{fmtScout(fee)} $SCOUT</span>
                   </div>
                   <div className="border-t border-white/10 pt-1.5 flex items-center justify-between text-sm">
                     <span className="text-white/50">Netto-Erlös</span>
-                    <span className="font-mono font-bold text-[#FFD700]">{fmtBSD(net)} BSD</span>
+                    <span className="font-mono font-bold text-[#FFD700]">{fmtScout(net)} $SCOUT</span>
                   </div>
                 </div>
               )}
@@ -166,7 +166,7 @@ export default function SellModal({
                 disabled={selling || !sellPriceBsd || Number(sellPriceBsd) <= 0}
               >
                 {selling ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                {selling ? 'Wird gelistet...' : `Für ${showFee ? fmtBSD(Number(sellPriceBsd)) : '...'} BSD listen`}
+                {selling ? 'Wird gelistet...' : `Für ${showFee ? fmtScout(Number(sellPriceBsd)) : '...'} $SCOUT listen`}
               </Button>
             </Card>
           )}
@@ -181,7 +181,7 @@ export default function SellModal({
                   return (
                     <div key={order.id} className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10">
                       <div>
-                        <div className="font-mono font-bold text-sm text-[#FFD700]">{formatBsd(order.price)} BSD</div>
+                        <div className="font-mono font-bold text-sm text-[#FFD700]">{formatScout(order.price)} $SCOUT</div>
                         <div className="text-[10px] text-white/40">
                           {remaining}/{order.quantity} DPC
                           {order.filled_qty > 0 && <span className="text-[#22C55E]"> &middot; {order.filled_qty} verkauft</span>}

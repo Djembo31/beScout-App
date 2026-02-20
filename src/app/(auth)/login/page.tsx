@@ -24,7 +24,13 @@ function LoginContent() {
   // Redirect authenticated users away from login — smart redirect by role
   useEffect(() => {
     if (!loading && user) {
-      if (!profile) { router.replace('/onboarding'); return; }
+      if (!profile) {
+        const clubParam = searchParams.get('club');
+        const refParam = searchParams.get('ref');
+        const qs = [clubParam && `club=${clubParam}`, refParam && `ref=${refParam}`].filter(Boolean).join('&');
+        router.replace(`/onboarding${qs ? `?${qs}` : ''}`);
+        return;
+      }
       if (platformRole) { router.replace('/bescout-admin'); return; }
       if (clubAdmin) { router.replace(`/club/${clubAdmin.slug}/admin`); return; }
       router.replace('/');

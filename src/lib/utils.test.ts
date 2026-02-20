@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { cn, fmtBSD, fmtCompact, fmtPct, clamp, truncate } from './utils';
+import { cn, fmtScout, fmtCompact, fmtPct, clamp, truncate } from './utils';
 
 // ============================================
 // cn (classNames helper)
@@ -30,39 +30,39 @@ describe('cn', () => {
 });
 
 // ============================================
-// fmtBSD (German locale number formatting)
+// fmtScout (German locale number formatting)
 // ============================================
 
-describe('fmtBSD', () => {
+describe('fmtScout', () => {
   it('formats 1000 with German thousands separator', () => {
-    const result = fmtBSD(1000);
+    const result = fmtScout(1000);
     expect(result).toBe('1.000');
   });
 
   it('formats decimal value with up to 2 digits', () => {
-    const result = fmtBSD(5.5);
+    const result = fmtScout(5.5);
     expect(result).toBe('5,5');
   });
 
   it('formats zero', () => {
-    expect(fmtBSD(0)).toBe('0');
+    expect(fmtScout(0)).toBe('0');
   });
 
   it('handles undefined', () => {
-    expect(fmtBSD(undefined)).toBe('0');
+    expect(fmtScout(undefined)).toBe('0');
   });
 
   it('handles null', () => {
-    expect(fmtBSD(null)).toBe('0');
+    expect(fmtScout(null)).toBe('0');
   });
 
   it('formats large number', () => {
-    expect(fmtBSD(1000000)).toBe('1.000.000');
+    expect(fmtScout(1000000)).toBe('1.000.000');
   });
 
   it('formats value with 2 decimal places', () => {
     // maximumFractionDigits: 2
-    const result = fmtBSD(99.99);
+    const result = fmtScout(99.99);
     expect(result).toBe('99,99');
   });
 });

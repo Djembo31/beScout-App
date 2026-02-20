@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { XCircle } from 'lucide-react';
 import { Button, ErrorState, TabBar } from '@/components/ui';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
@@ -165,7 +165,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const handleShare = async () => {
     if (!player) return;
     const url = window.location.href;
-    const text = `${player.first} ${player.last} auf BeScout — ${fmtBSD(centsToBsd(player.prices.floor ?? 0))} BSD`;
+    const text = `${player.first} ${player.last} auf BeScout — ${fmtScout(centsToBsd(player.prices.floor ?? 0))} $SCOUT`;
     if (navigator.share) {
       try { await navigator.share({ title: text, url }); } catch (err) { console.error('[Player] Share failed:', err); }
     } else {

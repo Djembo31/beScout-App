@@ -5,11 +5,10 @@ import { User, BadgeCheck, Settings, Loader2, RefreshCw, Users, Calendar, Messag
 import { Card, Button, Chip, ErrorState } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
 import { ScoreCircle } from '@/components/player';
-import { cn } from '@/lib/utils';
-import { fmtBSD } from '@/types';
+import { cn, fmtScout } from '@/lib/utils';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
-import { getHoldings, getTransactions, formatBsd } from '@/lib/services/wallet';
+import { getHoldings, getTransactions, formatScout } from '@/lib/services/wallet';
 import { getUserStats, refreshUserStats, getFollowerCount, getFollowingCount, getUserAchievements, checkAndUnlockAchievements, isFollowing, followUser, unfollowUser } from '@/lib/services/social';
 import { getClubName } from '@/lib/clubs';
 import { centsToBsd } from '@/lib/services/players';
@@ -26,6 +25,7 @@ import ProfilePostsTab from '@/components/profile/ProfilePostsTab';
 import FollowListModal from '@/components/profile/FollowListModal';
 import { getExpertBadges } from '@/lib/expertBadges';
 import { getMySubscription, TIER_CONFIG } from '@/lib/services/clubSubscriptions';
+import SubscriptionBadge from '@/components/ui/SubscriptionBadge';
 import dynamic from 'next/dynamic';
 import type { ClubSubscription, SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import type { ExpertBadge } from '@/lib/expertBadges';
@@ -40,11 +40,11 @@ import FoundingScoutBadge from '@/components/ui/FoundingScoutBadge';
 import { useScoutScores } from '@/lib/queries';
 
 const TABS: { id: ProfileTab; label: string; selfOnly?: boolean }[] = [
-  { id: 'overview', label: 'Übersicht' },
+  { id: 'overview', label: 'Ãœbersicht' },
   { id: 'portfolio', label: 'Portfolio', selfOnly: true },
   { id: 'research', label: 'Research' },
-  { id: 'posts', label: 'Beiträge' },
-  { id: 'activity', label: 'Aktivität' }, // Public: shows trades/rewards (no wallet details)
+  { id: 'posts', label: 'BeitrÃ¤ge' },
+  { id: 'activity', label: 'AktivitÃ¤t' }, // Public: shows trades/rewards (no wallet details)
   { id: 'settings', label: 'Einstellungen', selfOnly: true },
 ];
 
@@ -59,7 +59,7 @@ interface ProfileViewProps {
   targetUserId: string;
   targetProfile: Profile;
   isSelf: boolean;
-  /** Render the settings tab — only provided for own profile */
+  /** Render the settings tab â€” only provided for own profile */
   renderSettings?: () => React.ReactNode;
 }
 
@@ -210,7 +210,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
     finally { setStatsRefreshing(false); }
   }, [targetUserId, statsRefreshing]);
 
-  // Level-Up Detection (localStorage comparison → celebration toast)
+  // Level-Up Detection (localStorage comparison â†’ celebration toast)
   const userLevel = targetProfile.level ?? 1;
   useEffect(() => {
     if (!isSelf) return;
@@ -237,9 +237,9 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-6">
-      {/* Header — Sorare-Style */}
+      {/* Header â€” Sorare-Style */}
       <div className="flex items-start gap-4 md:gap-5">
-        {/* Avatar — 96px */}
+        {/* Avatar â€” 96px */}
         <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#FFD700]/20 to-[#22C55E]/20 border-2 border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
           {targetProfile.avatar_url ? (
             <img src={targetProfile.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -255,11 +255,11 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           </div>
           <div className="text-sm md:text-base text-white/50">{userHandle}</div>
 
-          {/* Portfolio Value — Hero */}
+          {/* Portfolio Value â€” Hero */}
           {(isSelf || portfolioValueCents > 0) && (
             <div className="mt-1">
               <span className="text-2xl md:text-3xl font-mono font-black text-[#FFD700]">
-                {fmtBSD(centsToBsd(portfolioValueCents))} BSD
+                {fmtScout(centsToBsd(portfolioValueCents))} $SCOUT
               </span>
               <span className="text-xs text-white/30 ml-2">Portfolio-Wert</span>
             </div>
@@ -270,7 +270,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             <p className="text-sm text-white/60 mt-1.5 max-w-lg">{targetProfile.bio}</p>
           )}
 
-          {/* Top Post — Pinned Take */}
+          {/* Top Post â€” Pinned Take */}
           {topPost && (
             <div className="mt-2 max-w-lg">
               <button
@@ -315,15 +315,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               <span className="text-white/50 flex items-center gap-1.5">
                 {getClubName(targetProfile.favorite_club)}
                 {clubSub && (
-                  <span
-                    className="px-1.5 py-0.5 rounded text-[9px] font-bold"
-                    style={{
-                      backgroundColor: `${TIER_CONFIG[clubSub.tier as SubscriptionTier]?.color}20`,
-                      color: TIER_CONFIG[clubSub.tier as SubscriptionTier]?.color,
-                    }}
-                  >
-                    {TIER_CONFIG[clubSub.tier as SubscriptionTier]?.label}
-                  </span>
+                  <SubscriptionBadge tier={clubSub.tier as SubscriptionTier} size="sm" />
                 )}
               </span>
             )}
@@ -409,7 +401,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Sidebar */}
         <div className="space-y-6">
-          {/* Wallet — self only */}
+          {/* Wallet â€” self only */}
           {isSelf && (
             <Card className="p-4 md:p-6">
               <h3 className="font-black mb-4">Guthaben</h3>
@@ -417,10 +409,10 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                 {balanceCents === null ? (
                   <span className="inline-block w-24 h-8 rounded bg-[#FFD700]/10 animate-pulse" />
                 ) : (
-                  <>{formatBsd(balanceCents)} BSD</>
+                  <>{formatScout(balanceCents)} $SCOUT</>
                 )}
               </div>
-              <div className="text-sm text-white/50 mb-4">Verfügbares Guthaben</div>
+              <div className="text-sm text-white/50 mb-4">VerfÃ¼gbares Guthaben</div>
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="gold" size="sm">Einzahlen</Button>
                 <Button variant="outline" size="sm">Abheben</Button>
@@ -449,7 +441,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               <ScoreCircle label="S" value={userStats?.scout_score ?? 0} size={48} />
             </div>
             <div className="text-sm text-white/50 mb-2">
-              Trading · Manager · Scout
+              Trading Â· Manager Â· Scout
             </div>
             <div className="flex items-center justify-between">
               <div>
@@ -467,7 +459,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           {/* Airdrop Score */}
           <AirdropScoreCard userId={targetUserId} compact={!isSelf} />
 
-          {/* Referral — self only */}
+          {/* Referral â€” self only */}
           {isSelf && <ReferralCard userId={targetUserId} />}
 
           {/* Expert Badges */}

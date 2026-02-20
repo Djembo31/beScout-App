@@ -6,6 +6,7 @@ import { Card, Button, SearchInput, SortPills, EmptyState } from '@/components/u
 import { cn } from '@/lib/utils';
 import PostCard, { POST_CATEGORIES } from '@/components/community/PostCard';
 import type { PostWithAuthor, DbClubVote, LeaderboardUser } from '@/types';
+import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
 
 // ============================================
 // TYPES
@@ -20,7 +21,7 @@ function trendingScore(post: PostWithAuthor): number {
   return engagement / Math.pow(ageHours + 2, 1.5);
 }
 
-type PostTypeFilter = 'all' | 'general' | 'transfer_rumor';
+type PostTypeFilter = 'all' | 'general' | 'transfer_rumor' | 'club_news';
 
 interface CommunityFeedTabProps {
   posts: PostWithAuthor[];
@@ -39,6 +40,7 @@ interface CommunityFeedTabProps {
   isClubAdmin?: boolean;
   onAdminDelete?: (postId: string) => void;
   onTogglePin?: (postId: string, pinned: boolean) => void;
+  subscriptionMap?: Map<string, SubscriptionTier>;
 }
 
 // ============================================
@@ -62,6 +64,7 @@ export default function CommunityFeedTab({
   isClubAdmin,
   onAdminDelete,
   onTogglePin,
+  subscriptionMap,
 }: CommunityFeedTabProps) {
   const [feedSort, setFeedSort] = useState<FeedSort>('new');
   const [query, setQuery] = useState('');
@@ -77,11 +80,13 @@ export default function CommunityFeedTab({
       result = result.filter(p => followingIds.has(p.user_id));
     }
 
-    // Post type filter (All / Posts / Gerüchte)
+    // Post type filter (All / Posts / Gerüchte / Club-News)
     if (postTypeFilter === 'general') {
-      result = result.filter(p => p.post_type !== 'transfer_rumor');
+      result = result.filter(p => p.post_type !== 'transfer_rumor' && p.post_type !== 'club_news');
     } else if (postTypeFilter === 'transfer_rumor') {
       result = result.filter(p => p.post_type === 'transfer_rumor');
+    } else if (postTypeFilter === 'club_news') {
+      result = result.filter(p => p.post_type === 'club_news');
     }
 
     // Category filter
@@ -146,6 +151,7 @@ export default function CommunityFeedTab({
             { id: 'all' as PostTypeFilter, label: 'Alle' },
             { id: 'general' as PostTypeFilter, label: 'Posts' },
             { id: 'transfer_rumor' as PostTypeFilter, label: 'Gerüchte' },
+            { id: 'club_news' as PostTypeFilter, label: 'Club-News' },
           ]).map(opt => (
             <button
               key={opt.id}
@@ -155,7 +161,9 @@ export default function CommunityFeedTab({
                 postTypeFilter === opt.id
                   ? opt.id === 'transfer_rumor'
                     ? 'bg-red-500/15 text-red-300 border-red-500/30'
-                    : 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30'
+                    : opt.id === 'club_news'
+                      ? 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30'
+                      : 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30'
                   : 'bg-white/[0.02] text-white/40 border-white/10 hover:text-white/60'
               )}
             >
@@ -211,6 +219,7 @@ export default function CommunityFeedTab({
                 onTogglePin={onTogglePin}
                 tipCount={post.tip_count ?? 0}
                 tipTotalCents={post.tip_total_cents ?? 0}
+                authorSubscriptionTier={subscriptionMap?.get(post.user_id)}
               />
             ))}
           </div>

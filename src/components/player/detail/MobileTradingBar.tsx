@@ -2,7 +2,7 @@
 
 import { ShoppingCart, Send } from 'lucide-react';
 import { Button } from '@/components/ui';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 
 interface MobileTradingBarProps {
   floor: number;
@@ -22,7 +22,7 @@ export default function MobileTradingBar({
       <div className="flex items-center gap-3 max-w-[1200px] mx-auto">
         {/* Price info */}
         <div className="shrink-0 mr-1">
-          <div className="font-mono font-bold text-[#FFD700] text-sm">{fmtBSD(floor)} BSD</div>
+          <div className="font-mono font-bold text-[#FFD700] text-sm">{fmtScout(floor)} $SCOUT</div>
           <div className="text-[11px] text-white/40">Floor</div>
         </div>
         {/* Buy button */}

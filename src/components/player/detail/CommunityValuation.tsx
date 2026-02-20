@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, BarChart3, Send, CheckCircle2 } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getPlayerFairValue, getUserValuation, submitValuation } from '@/lib/services/valuations';
 import type { PlayerFairValue } from '@/lib/services/valuations';
@@ -97,11 +97,11 @@ export default function CommunityValuation({ playerId, userId, floorPriceCents, 
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3 text-center">
             <div className="text-[10px] text-white/40 mb-1">Fair Value</div>
-            <div className="font-mono font-bold text-[#FFD700]">{fmtBSD(centsToBsd(fairValue.medianCents))}</div>
+            <div className="font-mono font-bold text-[#FFD700]">{fmtScout(centsToBsd(fairValue.medianCents))}</div>
           </div>
           <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3 text-center">
             <div className="text-[10px] text-white/40 mb-1">Floor Preis</div>
-            <div className="font-mono font-bold text-white/70">{fmtBSD(centsToBsd(floorPriceCents))}</div>
+            <div className="font-mono font-bold text-white/70">{fmtScout(centsToBsd(floorPriceCents))}</div>
           </div>
           <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3 text-center">
             <div className="text-[10px] text-white/40 mb-1">Bewertungen</div>
@@ -121,7 +121,7 @@ export default function CommunityValuation({ playerId, userId, floorPriceCents, 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs text-white/50">Deine Einschätzung (GW {currentGameweek})</span>
-            <span className="font-mono font-bold text-sm">{fmtBSD(centsToBsd(myEstimate))} BSD</span>
+            <span className="font-mono font-bold text-sm">{fmtScout(centsToBsd(myEstimate))} $SCOUT</span>
           </div>
           <input
             type="range"
@@ -134,8 +134,8 @@ export default function CommunityValuation({ playerId, userId, floorPriceCents, 
             disabled={submitting}
           />
           <div className="flex items-center justify-between text-[10px] text-white/30">
-            <span>{fmtBSD(centsToBsd(minCents))}</span>
-            <span>{fmtBSD(centsToBsd(maxCents))}</span>
+            <span>{fmtScout(centsToBsd(minCents))}</span>
+            <span>{fmtScout(centsToBsd(maxCents))}</span>
           </div>
           {hasVoted ? (
             <div className="flex items-center gap-2 p-2 bg-[#22C55E]/10 border border-[#22C55E]/20 rounded-lg">

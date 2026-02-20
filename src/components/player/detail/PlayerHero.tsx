@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui';
 import { StatusBadge } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getClub } from '@/lib/clubs';
 import type { Player, DbIpo } from '@/types';
@@ -187,9 +187,9 @@ export default function PlayerHero({
             <div>
               <div className="flex items-end gap-2">
                 <span className="text-xl md:text-2xl lg:text-4xl font-mono font-black text-[#FFD700]">
-                  {isIPO && activeIpo ? fmtBSD(centsToBsd(activeIpo.price)) : fmtBSD(floor)}
+                  {isIPO && activeIpo ? fmtScout(centsToBsd(activeIpo.price)) : fmtScout(floor)}
                 </span>
-                <span className="text-white/40 mb-0.5 md:mb-1">BSD</span>
+                <span className="text-white/40 mb-0.5 md:mb-1">$SCOUT</span>
                 {!isIPO && (
                   <span className={`flex items-center gap-0.5 mb-0.5 md:mb-1 font-mono font-bold text-sm ${up ? 'text-[#22C55E]' : 'text-red-300'}`}>
                     {up ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
@@ -223,7 +223,7 @@ export default function PlayerHero({
                 <div className="flex items-center gap-2 px-3 py-2 bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-xl">
                   <Bell className="w-3.5 h-3.5 text-[#FFD700]" />
                   <span className="text-xs text-[#FFD700]/80">
-                    Alert: {priceAlert.dir === 'below' ? '\u2264' : '\u2265'} {fmtBSD(priceAlert.target)} BSD
+                    Alert: {priceAlert.dir === 'below' ? '\u2264' : '\u2265'} {fmtScout(priceAlert.target)} $SCOUT
                   </span>
                   <button onClick={() => { onRemovePriceAlert(); setShowAlertInput(false); }} className="ml-auto text-white/30 hover:text-white/60">
                     <XCircle className="w-3.5 h-3.5" />

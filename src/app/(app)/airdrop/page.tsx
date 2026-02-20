@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { Rocket, Trophy, ChevronLeft, TrendingUp, Users, Star } from 'lucide-react';
 import { Card, Skeleton } from '@/components/ui';
-import { cn, fmtBSD } from '@/lib/utils';
+import { cn, fmtScout } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useAirdropLeaderboard, useAirdropStats } from '@/lib/queries';
 import type { DbAirdropScore, AirdropTier } from '@/types';

@@ -1,9 +1,18 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 19.02.2026 (Session 96)
-> Modus: PILOT SPRINT — 189 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 566 Spieler, 505 Player Images
+> Letzte Aktualisierung: 20.02.2026 (Session 106)
+> Modus: PILOT SPRINT — 189 Migrations, 19 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 566 Spieler, 505 Player Images
 
 ---
+
+## UX Radical Simplification ✅ (20.02.2026)
+- [x] Sprint 1: Home — 3 Tabs → scrollbare Seite. 7 Sections (Header, Onboarding, Sponsor, Portfolio, Event, IPO, Marktbewegungen). 9 Sections entfernt (Airdrop 2×, Scout Missions, DPC, Bargains, Live Trades, Referral, Community Highlights, Top Scouts). page.tsx 1.113→279 (-75%)
+- [x] Sprint 2: Market — 4→3 Tabs. "Spieler"-Tab entfernt (KaufenDiscovery hat Search-Mode). ~-65 Zeilen
+- [x] Sprint 3: Community — 5→3 Tabs. "Gerüchte" in Feed gemergt (PostType-Filter Pills), "Aktionen" entfernt (Votes+Bounties nur in Club). ~-180 Zeilen
+- [x] Sprint 4: Club — 4→3 Tabs. "Club" Community-Tab komplett entfernt. Übersicht vereinfacht (9→5 Sections). ~-350 Zeilen
+- [x] Sprint 5: Fantasy — Events vereinfacht. Category Pills + View-Mode Toggle entfernt. Nur Card-View. ~-60 Zeilen
+- [x] Sprint 6: Nav Labels — "Manager"→"Markt", "Report"→"Community", "Office" Badge entfernt. DE+TR i18n
+- [x] **Gesamt: 20→13 Tabs, ~760 Zeilen reduziert, Build 0 Fehler (19 Routes)**
 
 ## Guided Onboarding Checklist ✅ (19.02.2026)
 - [x] Sprint 1: `hasAnyPrediction()` Service + `useHasAnyPrediction()` Hook + Barrel-Exports

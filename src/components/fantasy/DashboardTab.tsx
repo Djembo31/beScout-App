@@ -5,7 +5,7 @@ import {
   Trophy, Shield, Play, CheckCircle2, Heart, Gift, Coins, Activity,
 } from 'lucide-react';
 import { Card, Chip } from '@/components/ui';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { FantasyEvent, ScoredLineupData } from './types';
 import { formatCountdown, getFormResult, getScoreColor, getPosAccentColor } from './helpers';
@@ -52,9 +52,9 @@ export const DashboardTab = ({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
         <Card className="p-3 md:p-4 bg-gradient-to-br from-[#FFD700]/10 to-transparent border-[#FFD700]/20">
           <div className="text-xs text-white/50 mb-1 flex items-center gap-1">
-            <Coins className="w-3 h-3" /> Gewonnene BSD
+            <Coins className="w-3 h-3" /> Gewonnene $SCOUT
           </div>
-          <div className="text-xl md:text-3xl font-mono font-black text-[#FFD700]">{fmtBSD(totalRewardBsd)}</div>
+          <div className="text-xl md:text-3xl font-mono font-black text-[#FFD700]">{fmtScout(totalRewardBsd)}</div>
         </Card>
         <Card className="p-3 md:p-4">
           <div className="text-xs text-white/50 mb-1">Gesamt Punkte</div>
@@ -124,7 +124,7 @@ export const DashboardTab = ({
             {lastEvent.rewardCents > 0 && (
               <div className="p-3 bg-[#FFD700]/10 rounded-lg border border-[#FFD700]/20 flex items-center gap-2">
                 <Gift className="w-4 h-4 text-[#FFD700]" />
-                <span className="text-sm">Reward: <strong>{fmtBSD(centsToBsd(lastEvent.rewardCents))} BSD</strong></span>
+                <span className="text-sm">Reward: <strong>{fmtScout(centsToBsd(lastEvent.rewardCents))} $SCOUT</strong></span>
               </div>
             )}
           </Card>
@@ -264,7 +264,7 @@ export const DashboardTab = ({
                 <span className="text-white/50">Platz <span className="font-mono font-bold text-[#22C55E]">#{currentLineup.rank}</span> / {currentLineup.totalParticipants}</span>
                 {currentLineup.rewardCents > 0 && (
                   <span className="text-[#FFD700] font-mono font-bold flex items-center gap-1">
-                    <Gift className="w-3 h-3" /> {fmtBSD(centsToBsd(currentLineup.rewardCents))} BSD
+                    <Gift className="w-3 h-3" /> {fmtScout(centsToBsd(currentLineup.rewardCents))} $SCOUT
                   </span>
                 )}
               </div>
@@ -330,7 +330,7 @@ export const DashboardTab = ({
                     <span className="font-medium text-sm truncate">{event.name}</span>
                     <span className="text-[10px] text-white/40">{event.status === 'ended' ? 'Beendet' : formatCountdown(event.lockTime)}</span>
                   </div>
-                  <div className="text-[10px] text-white/40 mt-1">{event.format} • {event.buyIn === 0 ? 'Free' : `${event.buyIn} BSD`}</div>
+                  <div className="text-[10px] text-white/40 mt-1">{event.format} • {event.buyIn === 0 ? 'Free' : `${event.buyIn} $SCOUT`}</div>
                 </button>
               ))}
             </div>
@@ -360,7 +360,7 @@ export const DashboardTab = ({
                     <span className="font-medium text-sm truncate">{event.name}</span>
                     <span className="text-[10px] text-white/40">{formatCountdown(event.startTime)}</span>
                   </div>
-                  <div className="text-[10px] text-white/40 mt-1">{event.buyIn === 0 ? 'Free' : `${event.buyIn} BSD`}</div>
+                  <div className="text-[10px] text-white/40 mt-1">{event.buyIn === 0 ? 'Free' : `${event.buyIn} $SCOUT`}</div>
                 </button>
               ))}
             </div>

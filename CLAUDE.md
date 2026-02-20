@@ -5,9 +5,9 @@
 
 ## Projekt
 
-BeScout ist eine **B2B2C Fan-Engagement- und Monetarisierungsplattform** für Fußballvereine. Vereine nutzen BeScout als Tool um Fans aufzubauen, zu binden und zu monetarisieren — durch DPC-Trading (Digital Player Cards), Fantasy Events, Club-Votes, Content-Paywall und Bounties. Fans verdienen BSD durch Trading, Fantasy-Turniere, Berichte verkaufen und Club-Aufträge. Ihr verifizierter Track Record baut ihre Fußball-Identität auf — bis hin zu echten Club-Positionen.
+BeScout ist eine **B2B2C Fan-Engagement- und Monetarisierungsplattform** für Fußballvereine. Vereine nutzen BeScout als Tool um Fans aufzubauen, zu binden und zu monetarisieren — durch DPC-Trading (Digital Player Cards), Fantasy Events, Club-Votes, Content-Paywall und Bounties. Fans verdienen $SCOUT durch Trading, Fantasy-Turniere, Berichte verkaufen und Club-Aufträge. Ihr verifizierter Track Record baut ihre Fußball-Identität auf — bis hin zu echten Club-Positionen.
 
-Kein Blockchain — zentrale Datenbank. Währung: BSD (BeScout Dollar). Pilot-Phase mit Sakaryaspor (TFF 1. Lig). Ziel: große Clubs (Galatasaray) über Sakaryaspor-Proof gewinnen.
+Kein Blockchain — zentrale Datenbank. Währung: $SCOUT (ehem. BSD). Pilot-Phase mit Sakaryaspor (TFF 1. Lig). Ziel: große Clubs (Galatasaray) über Sakaryaspor-Proof gewinnen.
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.
 
@@ -56,20 +56,20 @@ src/
 │       │   └── FantasyContent.tsx # Fantasy Orchestrator (~690 Zeilen)
 │       ├── market/
 │       │   ├── layout.tsx         # Metadata: "Marktplatz"
-│       │   └── page.tsx           # DPC Marktplatz (7 Tabs: Kader, Bestand, Vergleich, Spieler, Transferliste, Scouting, Angebote)
+│       │   └── page.tsx           # DPC Marktplatz (3 Tabs: Portfolio, Kaufen, Angebote)
 │       ├── club/
 │       │   ├── layout.tsx         # Metadata: "Club"
 │       │   ├── page.tsx           # Redirect → /clubs (Club Discovery)
 │       │   └── [slug]/
 │       │       ├── page.tsx       # Server Component (generateMetadata)
 │       │       ├── not-found.tsx  # 404 für ungültige Club-Slugs
-│       │       ├── ClubContent.tsx # Club Fan-Seite (~1400 Zeilen)
+│       │       ├── ClubContent.tsx # Club Fan-Seite (3 Tabs: Übersicht, Spieler, Spielplan)
 │       │       └── admin/
 │       │           ├── page.tsx       # Server Component (Admin-Guard)
 │       │           └── AdminContent.tsx # Admin Dashboard (8 Tabs)
 │       ├── community/
 │       │   ├── layout.tsx         # Metadata: "Community"
-│       │   └── page.tsx           # Community Orchestrator (~350 Zeilen)
+│       │   └── page.tsx           # Community Orchestrator (3 Tabs: Feed, Research, Ranking)
 │       ├── player/[id]/
 │       │   ├── page.tsx           # Server Component (generateMetadata)
 │       │   ├── not-found.tsx      # 404 für ungültige Player-IDs
@@ -140,7 +140,7 @@ src/
 │   │   ├── activityLog.ts        # Activity-Logging (Batch-Queue, 5s Flush, fire-and-forget)
 │   │   ├── platformAdmin.ts      # Plattform-Admin (Stats, Users, Wallet-Korrektur, Fee-Config)
 │   │   ├── pushSubscription.ts   # Web Push (subscribe/unsubscribe, VAPID, localStorage state)
-│   │   ├── clubSubscriptions.ts  # Club-Abo (Bronze/Silber/Gold, BSD-Payments, TIER_CONFIG)
+│   │   ├── clubSubscriptions.ts  # Club-Abo (Bronze/Silber/Gold, $SCOUT-Payments, TIER_CONFIG)
 │   │   ├── airdropScore.ts       # Airdrop Score (refresh_airdrop_score RPC, Tier-Berechnung)
 │   │   ├── referral.ts           # Referral System (reward_referral RPC, Code-Generierung)
 │   │   ├── footballData.ts       # API-Football Integration (Fetch, Map, Import Gameweeks)
@@ -175,7 +175,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 - Types zentral in `src/types/index.ts` (Frontend + DB Types)
 - Shared UI in `src/components/ui/index.tsx`
 - `cn()` Utility für conditional classNames
-- `fmtBSD()` für Zahlenformatierung (deutsch: 1.000 statt 1,000)
+- `fmtScout()` für Zahlenformatierung (deutsch: 1.000 statt 1,000)
 - Trading via Supabase RPCs (atomare DB-Funktionen)
 - Cache-Invalidation nach Writes via `invalidateTradeData()` oder `invalidate(prefix)`
 - Club-Logos: `ClubLogo` Komponente (SpieltagTab) — `<img>` mit Fallback zu farbigem Kreis
@@ -203,8 +203,8 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 - Bounty Platform-Fee: 5% auf `approve_bounty_submission` (Creator erhält 95%)
 
 ### Club-Abo-System
-- 3 Tiers: Bronze (500 BSD/Monat), Silber (1.500 BSD), Gold (3.000 BSD)
-- `subscribe_to_club` RPC: Balance-Check → BSD abziehen → 30 Tage Laufzeit
+- 3 Tiers: Bronze (500 $SCOUT/Monat), Silber (1.500 $SCOUT), Gold (3.000 $SCOUT)
+- `subscribe_to_club` RPC: Balance-Check → $SCOUT abziehen → 30 Tage Laufzeit
 - `renew_club_subscription` RPC: Auto-Renew bei ausreichend Balance
 - **Enforced Perks (Server-seitig in RPCs):**
   - Bronze+: Stimmgewicht ×2 bei Votes (`cast_vote` RPC)
@@ -225,7 +225,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Phase 6.5 (Success Fee + Liquidierung) fertig:** `liquidation_events` + `liquidation_payouts` Tabellen, 2 RPCs (set_success_fee_cap, liquidate_player), Admin-UI (Cap + Liquidieren), Player-UI (Banner + Guards), PBT-Ausschüttung an Holder.
 **Phase 6.4 (Community-Moderation) fertig:** Admin Pin/Delete Posts, Community Guidelines, Admin-Moderation-Tab (8. Tab). Streak-Bonus System (Server-seitig, 4 Milestones: 3d/7d/14d/30d).
 **Unified PlayerDisplay Refactor fertig:** 2 Varianten (`compact` + `card`), 6+ Custom-Komponenten entfernt, ~900 Zeilen netto reduziert. Sorare-inspirierte L5-Bars, Club-Logos, Stats-Pills.
-**Pilot-Blocker Fixes fertig:** Scout Score + Achievements auto-triggern (5 Services), Research Track Record funktional (floor_price statt last_price), Welcome Page BSD-Fix (10.000 statt 500), Trading-Notifications (Seller benachrichtigt), Fantasy Lineup-Lock verifiziert.
+**Pilot-Blocker Fixes fertig:** Scout Score + Achievements auto-triggern (5 Services), Research Track Record funktional (floor_price statt last_price), Welcome Page $SCOUT-Fix (10.000 statt 500), Trading-Notifications (Seller benachrichtigt), Fantasy Lineup-Lock verifiziert.
 **Verbleibende Lücken geschlossen:** Participant-Limit-Guard (Fantasy Join), Fee-Breakdown (Sell-Form), Admin Event-Erstellung (volle CRUD), Admin Spieler-Anlegen (Create-Modal), Öffentliche Profile (`/profile/[handle]` + Shared ProfileView + Leaderboard-Links).
 **Launch-Readiness fertig:** GitHub Repo (Private, `Djembo31/beScout-App`) + CI/CD Pipeline (GitHub Actions) + Sentry Error Tracking + PostHog Analytics. npm audit clean (Next.js 14.2.35). `/supabase-test` Route entfernt.
 **"Alle Spieler" Tab fertig:** Manager Office 7. Tab — Club-gruppierte Ansicht aller 566 Spieler (20 Clubs), aufklappbar, Suche + Positions-Filter.
@@ -237,7 +237,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Community Datenkonsistenz + Visibility Waves 1-3 fertig:** Activity Logging, Notifications, Globale Suche, Player Detail, Gerüchte Tab, Following Feed, Level Auto-Increment, Reputation Score, Expert Badges, Role Badges. Migrationen #118-#122.
 **Phase A+B+C (Perfektionierung) fertig:** Monetarisierung (Trading Club-Fee 1%, Bounty Platform-Fee 5%, Fee Dashboard), Premium-Feel (Dynamic Sponsor Banners, Confetti Animation, Celebration Toast), Retention (Web Push Infrastructure, Club-Abo Bronze/Silber/Gold). 5 Migrationen (#123-#127) + 1 Edge Function (send-push).
 **Multi-Club Expansion fertig:** 8 Phasen — `leagues` Tabelle, `club_followers` Tabelle, DB-backed `clubs.ts` (ClubLookup Cache), ClubProvider Context, ClubSwitcher UI, Club Discovery `/clubs`, Onboarding 3-Step Club-Wahl, Community Club-Scoping. 3 Migrationen (#128-#130), 5 neue + 16 geänderte Dateien.
-**Airdrop Score + Referral System fertig:** `airdrop_scores` Tabelle, `refresh_airdrop_score` RPC, Referral-Codes + Belohnungen (500 BSD), Admin Airdrop-Tab (Stats, Tier-Verteilung, CSV Export). 2 Migrationen (#131-#132).
+**Airdrop Score + Referral System fertig:** `airdrop_scores` Tabelle, `refresh_airdrop_score` RPC, Referral-Codes + Belohnungen (500 $SCOUT), Admin Airdrop-Tab (Stats, Tier-Verteilung, CSV Export). 2 Migrationen (#131-#132).
 **Launch-Readiness fertig:** Content Seeding (89 IPOs, 15 Bounties, 9 Events), 4 neue Notification-Types, VAPID Keys + Edge Function v2 (send-push) + DB Trigger (pg_net). 2 Migrationen (#133-#134).
 **Stakeholder Audit + Retention fertig:** Referral-Belohnung RPC, Club-Withdrawal (Balance + Auszahlung), Fan-Analytics, Trending Posts, Creator Earnings Dashboard, Season Leaderboard, Cross-App CTAs. 2 Migrationen (#135-#136).
 **Phase D (Match-Data Integration) fertig:** API-Football Service (`footballData.ts`), `api_football_id` auf clubs/players/fixtures, `sync_fixture_scores` Bridge-RPC, Admin Mapping UI (Teams/Spieler/Fixtures), SpieltagTab dual-button (Import/Simulieren). 2 Migrationen (#137-#138).
@@ -249,6 +249,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Score Road UI fertig:** `claim_score_road` RPC rewritten (3-Dim Median), ScoreRoadCard Component, i18n DE+TR. Migration #187.
 **Prediction Engine fertig:** `predictions` Tabelle, `create_prediction` + `resolve_gameweek_predictions` RPCs, Fantasy 4. Tab "Vorhersagen", PredictionStatsCard im Profil, auto-resolve in simulateGameweekFlow, i18n DE+TR. 2 Migrationen (#188-#189).
 **Player Data Consistency fertig:** Phase 1: L5 Farb-Tokens unified (`getL5Color`/`getL5Hex`/`getL5Bg`), `PlayerPhoto` shared Component, 9 Dateien gefixt. Phase 2: `image_url` in Holdings/Lineup Queries, `PlayerPhoto` in Fantasy Picker, Emoji-Stats→Text. Spielerfotos konsistent in ALLEN Views.
+**UX Radical Simplification fertig:** 20→13 Tabs, ~760 Zeilen reduziert. Home scrollbar (keine Tabs), Market 3 Tabs, Community 3 Tabs (PostType-Filter im Feed), Club 3 Tabs, Fantasy vereinfacht (nur Cards). Nav Labels: "Markt" + "Community" statt "Manager" + "Report".
 **Code-seitig launch-fertig.** Nur 2 manuelle Setup-Schritte blockieren Beta-Launch: VAPID Key in Vercel + API-Football Account+Mapping.
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.

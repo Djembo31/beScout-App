@@ -250,17 +250,17 @@ export type ScoreRoadMilestone = {
 };
 
 export const SCORE_ROAD: ScoreRoadMilestone[] = [
-  { score: 350, rangName: 'Bronze II', rangI18nKey: 'bronzeII', rewardBsd: 20000, rewardLabel: '200 BSD', rewardType: 'bsd' },
+  { score: 350, rangName: 'Bronze II', rangI18nKey: 'bronzeII', rewardBsd: 20000, rewardLabel: '200 $SCOUT', rewardType: 'bsd' },
   { score: 700, rangName: 'Bronze III', rangI18nKey: 'bronzeIII', rewardBsd: 0, rewardLabel: 'Bronze-Rahmen', rewardType: 'cosmetic' },
-  { score: 1000, rangName: 'Silber I', rangI18nKey: 'silberI', rewardBsd: 50000, rewardLabel: '500 BSD', rewardType: 'bsd' },
+  { score: 1000, rangName: 'Silber I', rangI18nKey: 'silberI', rewardBsd: 50000, rewardLabel: '500 $SCOUT', rewardType: 'bsd' },
   { score: 1400, rangName: 'Silber II', rangI18nKey: 'silberII', rewardBsd: 0, rewardLabel: '"Scout" Titel', rewardType: 'cosmetic' },
-  { score: 1800, rangName: 'Silber III', rangI18nKey: 'silberIII', rewardBsd: 100000, rewardLabel: '1.000 BSD', rewardType: 'bsd' },
+  { score: 1800, rangName: 'Silber III', rangI18nKey: 'silberIII', rewardBsd: 100000, rewardLabel: '1.000 $SCOUT', rewardType: 'bsd' },
   { score: 2200, rangName: 'Gold I', rangI18nKey: 'goldI', rewardBsd: 0, rewardLabel: 'Gold-Rahmen', rewardType: 'cosmetic' },
-  { score: 2800, rangName: 'Gold II', rangI18nKey: 'goldII', rewardBsd: 200000, rewardLabel: '2.000 BSD', rewardType: 'bsd' },
+  { score: 2800, rangName: 'Gold II', rangI18nKey: 'goldII', rewardBsd: 200000, rewardLabel: '2.000 $SCOUT', rewardType: 'bsd' },
   { score: 3400, rangName: 'Gold III', rangI18nKey: 'goldIII', rewardBsd: 0, rewardLabel: '"Stratege" Titel', rewardType: 'cosmetic' },
-  { score: 4000, rangName: 'Diamant', rangI18nKey: 'diamant', rewardBsd: 500000, rewardLabel: 'Diamant-Rahmen + 5.000 BSD', rewardType: 'both' },
-  { score: 5000, rangName: 'Mythisch', rangI18nKey: 'mythisch', rewardBsd: 750000, rewardLabel: 'Mythisch-Avatar + 7.500 BSD', rewardType: 'both' },
-  { score: 7000, rangName: 'Legendär', rangI18nKey: 'legendaer', rewardBsd: 2000000, rewardLabel: 'Legendär-Set + 20.000 BSD', rewardType: 'both' },
+  { score: 4000, rangName: 'Diamant', rangI18nKey: 'diamant', rewardBsd: 500000, rewardLabel: 'Diamant-Rahmen + 5.000 $SCOUT', rewardType: 'both' },
+  { score: 5000, rangName: 'Mythisch', rangI18nKey: 'mythisch', rewardBsd: 750000, rewardLabel: 'Mythisch-Avatar + 7.500 $SCOUT', rewardType: 'both' },
+  { score: 7000, rangName: 'Legendär', rangI18nKey: 'legendaer', rewardBsd: 2000000, rewardLabel: 'Legendär-Set + 20.000 $SCOUT', rewardType: 'both' },
 ];
 
 // ============================================

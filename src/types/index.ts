@@ -51,7 +51,7 @@ export type Player = {
   topOwners: Owner[];
   sponsored?: boolean;
   imageUrl?: string | null;
-  successFeeCap?: number;  // in BSD (cents → BSD conversion)
+  successFeeCap?: number;  // in $SCOUT (cents → $SCOUT conversion)
   isLiquidated?: boolean;
 };
 
@@ -235,6 +235,7 @@ export type DbClub = {
   community_guidelines: string | null;
   active_gameweek: number;
   api_football_id?: number | null;
+  referral_code?: string | null;
   plan: string;
   is_verified: boolean;
   created_at: string;
@@ -378,6 +379,7 @@ export type Profile = {
   updated_at: string;
   referral_code?: string | null;
   invited_by?: string | null;
+  invited_by_club?: string | null;
   subscription_enabled?: boolean;
   subscription_price_cents?: number | null;
   subscription_description?: string | null;
@@ -829,7 +831,7 @@ export type DbVoteEntry = {
   created_at: string;
 };
 
-export type PostType = 'general' | 'player_take' | 'transfer_rumor';
+export type PostType = 'general' | 'player_take' | 'transfer_rumor' | 'club_news';
 
 export type DbPost = {
   id: string;
@@ -963,8 +965,6 @@ export type DbUserMission = {
 export type UserMissionWithDef = DbUserMission & {
   definition: DbMissionDefinition;
 };
-
-export const fmtBSD = (n: number) => n.toLocaleString('de-DE');
 
 // ============================================
 // BOUNTIES

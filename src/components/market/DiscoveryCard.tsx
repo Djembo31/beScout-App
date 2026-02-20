@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Star, Loader2 } from 'lucide-react';
 import { PlayerIdentity, PlayerKPIs, PlayerBadgeStrip, getL5Color } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
-import { fmtBSD, cn } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import { getRelativeTime } from '@/lib/activityHelpers';
 import type { Player } from '@/types';
 
@@ -75,7 +75,7 @@ export default function DiscoveryCard({
       {/* Metrics: L5 + Price */}
       <div className="flex items-center justify-between">
         <span className={cn('font-mono font-bold text-[11px]', getL5Color(p.perf.l5))}>L5: {p.perf.l5}</span>
-        {price > 0 && <span className="font-mono font-bold text-[11px] text-[#FFD700]">{fmtBSD(price)}</span>}
+        {price > 0 && <span className="font-mono font-bold text-[11px] text-[#FFD700]">{fmtScout(price)}</span>}
       </div>
 
       {/* Variant-specific indicator */}

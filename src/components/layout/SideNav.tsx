@@ -17,7 +17,7 @@ import { useTranslations } from 'next-intl';
 import { NAV_MAIN, NAV_MORE, NAV_ADMIN } from '@/lib/nav';
 import { supabase } from '@/lib/supabaseClient';
 import { useUser, useRoles } from '@/components/providers/AuthProvider';
-import { formatBsd } from '@/lib/services/wallet';
+import { formatScout } from '@/lib/services/wallet';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { ClubSwitcher } from './ClubSwitcher';
@@ -89,7 +89,7 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
                   {balanceCents === null ? (
                     <span className="inline-block w-16 h-4 rounded bg-[#FFD700]/20 animate-pulse" />
                   ) : (
-                    <>{formatBsd(balanceCents)} BSD</>
+                    <>{formatScout(balanceCents)} $SCOUT</>
                   )}
                 </div>
               </div>

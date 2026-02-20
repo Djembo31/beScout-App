@@ -12,6 +12,8 @@ import { PositionBadge } from '@/components/player';
 import { cn } from '@/lib/utils';
 import PostReplies from '@/components/community/PostReplies';
 import TipButton from '@/components/community/TipButton';
+import SubscriptionBadge from '@/components/ui/SubscriptionBadge';
+import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import type { PostWithAuthor } from '@/types';
 
 // ============================================
@@ -61,6 +63,7 @@ interface PostCardProps {
   tipCount?: number;
   tipTotalCents?: number;
   isLockedExclusive?: boolean;
+  authorSubscriptionTier?: SubscriptionTier;
 }
 
 // ============================================
@@ -81,6 +84,7 @@ export default function PostCard({
   tipCount = 0,
   tipTotalCents = 0,
   isLockedExclusive = false,
+  authorSubscriptionTier,
 }: PostCardProps) {
   const netScore = post.upvotes - post.downvotes;
   const isOwnedPlayer = post.player_id ? ownedPlayerIds.has(post.player_id) : false;
@@ -91,7 +95,11 @@ export default function PostCard({
   const [confirmDelete, setConfirmDelete] = useState<'own' | 'admin' | null>(null);
 
   return (
-    <Card className={cn('p-3 md:p-4 hover:border-white/20 transition-all', isOwnedPlayer && 'border-[#FFD700]/20 bg-[#FFD700]/[0.02]')}>
+    <Card className={cn(
+      'p-3 md:p-4 hover:border-white/20 transition-all',
+      isOwnedPlayer && 'border-[#FFD700]/20 bg-[#FFD700]/[0.02]',
+      post.post_type === 'club_news' && 'border-[#FFD700]/30 bg-[#FFD700]/[0.03]',
+    )}>
       <div className="flex gap-2 md:gap-3">
         {/* Vote Buttons */}
         <div className="flex flex-col items-center gap-0.5">
@@ -143,6 +151,7 @@ export default function PostCard({
                 </span>
               )}
               {post.author_verified && <BadgeCheck className="w-3.5 h-3.5 text-[#FFD700]" />}
+              {authorSubscriptionTier && <SubscriptionBadge tier={authorSubscriptionTier} size="sm" />}
               <span className="text-[10px] text-white/30 px-1.5 py-0.5 bg-white/5 rounded">Lv{post.author_level}</span>
               {post.is_pinned && (
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20">
@@ -234,6 +243,11 @@ export default function PostCard({
               {post.post_type === 'transfer_rumor' && (
                 <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-semibold border bg-red-500/15 text-red-300 border-red-500/20">
                   Gerücht
+                </span>
+              )}
+              {post.post_type === 'club_news' && (
+                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-semibold border bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/20">
+                  Club-Nachricht
                 </span>
               )}
             </div>

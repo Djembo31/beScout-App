@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Users, Target, Loader2 } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
-import { fmtBSD } from '@/lib/utils';
-import { formatBsd } from '@/lib/services/wallet';
+import { fmtScout } from '@/lib/utils';
+import { formatScout } from '@/lib/services/wallet';
 import type { Player } from '@/types';
 
 interface TransferBuySectionProps {
@@ -51,7 +51,7 @@ export default function TransferBuySection({
                   <ShoppingCart className="w-4 h-4 text-sky-300" />
                   <span className="text-sm text-sky-300 font-bold">User-Angebote</span>
                 </div>
-                <span className="font-mono font-black text-lg text-[#FFD700]">{fmtBSD(floorBsd)} BSD</span>
+                <span className="font-mono font-black text-lg text-[#FFD700]">{fmtScout(floorBsd)} $SCOUT</span>
               </div>
               <div className="text-[10px] text-white/40 mt-1">{sellOrderCount} Angebot{sellOrderCount !== 1 ? 'e' : ''} von Usern</div>
             </div>
@@ -70,7 +70,7 @@ export default function TransferBuySection({
             <div className="bg-black/20 rounded-xl p-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-white/40">Preis pro DPC</span>
-                <span className="font-mono text-white/60">{fmtBSD(floorBsd)} BSD</span>
+                <span className="font-mono text-white/60">{fmtScout(floorBsd)} $SCOUT</span>
               </div>
               {buyQty > 1 && (
                 <div className="flex items-center justify-between text-xs">
@@ -80,17 +80,17 @@ export default function TransferBuySection({
               )}
               <div className="border-t border-white/10 pt-2 flex items-center justify-between">
                 <span className="text-white/50 text-sm">Gesamtkosten</span>
-                <span className="font-mono font-black text-xl text-[#FFD700]">{fmtBSD(totalBsd)} BSD</span>
+                <span className="font-mono font-black text-xl text-[#FFD700]">{fmtScout(totalBsd)} $SCOUT</span>
               </div>
               <div className="border-t border-white/10 pt-2 flex items-center justify-between text-xs">
                 <span className="text-white/40">Dein Guthaben</span>
-                <span className="font-mono text-white/50">{balanceCents !== null ? formatBsd(balanceCents) : '...'} BSD</span>
+                <span className="font-mono text-white/50">{balanceCents !== null ? formatScout(balanceCents) : '...'} $SCOUT</span>
               </div>
               {balanceCents !== null && (
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-white/40">Guthaben danach</span>
                   <span className={`font-mono font-bold ${canAfford ? 'text-[#22C55E]' : 'text-red-400'}`}>
-                    {formatBsd(balanceCents - floorCents * buyQty)} BSD
+                    {formatScout(balanceCents - floorCents * buyQty)} $SCOUT
                   </span>
                 </div>
               )}
@@ -99,7 +99,7 @@ export default function TransferBuySection({
               {buying ? <Loader2 className="w-5 h-5 animate-spin" /> : <Target className="w-5 h-5" />}
               {buying ? 'Wird gekauft...' : `${buyQty} DPC kaufen`}
             </Button>
-            {!canAfford && !buying && <div className="text-xs text-red-400 text-center">Nicht genug BSD</div>}
+            {!canAfford && !buying && <div className="text-xs text-red-400 text-center">Nicht genug $SCOUT</div>}
           </>
         ) : (
           <div className="py-6 text-center">

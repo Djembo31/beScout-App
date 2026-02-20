@@ -3,8 +3,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Check, Lock, ChevronDown, ChevronUp, Trophy } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
-import { cn } from '@/lib/utils';
-import { fmtBSD } from '@/types';
+import { cn, fmtScout } from '@/lib/utils';
 import { SCORE_ROAD, getRang, getMedianScore, type ScoreRoadMilestone } from '@/lib/gamification';
 import { useScoreRoadClaims, useScoutScores } from '@/lib/queries/gamification';
 import { claimScoreRoad } from '@/lib/services/gamification';
@@ -63,7 +62,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
     if (result.ok) {
       const rewardBsd = result.reward_bsd ? centsToBsd(result.reward_bsd) : 0;
       if (rewardBsd > 0) {
-        addToast(tsr('celebration', { reward: `${fmtBSD(rewardBsd)} BSD` }), 'celebration');
+        addToast(tsr('celebration', { reward: `${fmtScout(rewardBsd)} $SCOUT` }), 'celebration');
       } else {
         addToast(tsr('claimed'), 'success');
       }
@@ -134,7 +133,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
                     {/* Reward badge */}
                     {ms.rewardBsd > 0 ? (
                       <span className="text-xs font-mono font-bold text-[#FFD700]">
-                        {fmtBSD(centsToBsd(ms.rewardBsd))} BSD
+                        {fmtScout(centsToBsd(ms.rewardBsd))} $SCOUT
                       </span>
                     ) : (
                       <span className="text-[10px] text-white/30">{tsr('cosmetic')}</span>

@@ -2,8 +2,8 @@
 
 import { AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
-import { fmtBSD } from '@/lib/utils';
-import { formatBsd } from '@/lib/services/wallet';
+import { fmtScout } from '@/lib/utils';
+import { formatScout } from '@/lib/services/wallet';
 import type { DbOrder } from '@/types';
 
 interface BuyConfirmationProps {
@@ -41,14 +41,14 @@ export default function BuyConfirmation({
         </div>
         <div className="bg-black/20 rounded-lg px-3 py-2 space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-white/40">ca. Kosten ({pendingBuyQty} &times; {fmtBSD(floorBsd)})</span>
-            <span className="font-mono font-bold text-[#FFD700]">{fmtBSD(floorBsd * pendingBuyQty)} BSD</span>
+            <span className="text-white/40">ca. Kosten ({pendingBuyQty} &times; {fmtScout(floorBsd)})</span>
+            <span className="font-mono font-bold text-[#FFD700]">{fmtScout(floorBsd * pendingBuyQty)} $SCOUT</span>
           </div>
           {balanceCents !== null && (
             <div className="flex items-center justify-between text-xs">
               <span className="text-white/40">Guthaben danach</span>
               <span className={`font-mono font-bold ${balanceCents >= estTotalCents ? 'text-[#22C55E]' : 'text-red-400'}`}>
-                {formatBsd(balanceCents - estTotalCents)} BSD
+                {formatScout(balanceCents - estTotalCents)} $SCOUT
               </span>
             </div>
           )}

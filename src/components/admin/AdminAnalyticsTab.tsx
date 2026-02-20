@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, Activity, TrendingUp, UserCheck } from 'lucide-react';
 import { Card, Skeleton } from '@/components/ui';
 import { getClubFanAnalytics, getClubFollowerCount } from '@/lib/services/club';
-import { formatBsd } from '@/lib/services/wallet';
+import { formatScout } from '@/lib/services/wallet';
 import type { ClubWithAdmin } from '@/types';
 
 const ACTION_LABELS: Record<string, string> = {
@@ -82,7 +82,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
           </div>
           {loading ? <Skeleton className="h-7 w-16" /> : (
             <div className="text-xl font-mono font-black text-[#FFD700]">
-              {formatBsd(data?.topFans.reduce((s, f) => s + f.volume_cents, 0) ?? 0)} BSD
+              {formatScout(data?.topFans.reduce((s, f) => s + f.volume_cents, 0) ?? 0)} $SCOUT
             </div>
           )}
         </Card>
@@ -118,7 +118,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
                   )}
                 </div>
                 <div className="col-span-3 text-right text-sm font-mono">{fan.trade_count}</div>
-                <div className="col-span-3 text-right text-sm font-mono text-[#FFD700]">{formatBsd(fan.volume_cents)}</div>
+                <div className="col-span-3 text-right text-sm font-mono text-[#FFD700]">{formatScout(fan.volume_cents)}</div>
               </div>
             ))}
           </div>

@@ -7,7 +7,7 @@ import { Card, Button, Chip } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import { getRang } from '@/lib/gamification';
 import type { ResearchPostWithAuthor } from '@/types';
 import { useTranslations } from 'next-intl';
@@ -219,7 +219,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
                   onClick={() => setConfirmUnlock(true)}
                 >
                   <Lock className="w-3.5 h-3.5" />
-                  Freischalten für {fmtBSD(priceBsd)} BSD
+                  Freischalten für {fmtScout(priceBsd)} $SCOUT
                 </Button>
                 {post.unlock_count > 0 && (
                   <span className="text-[10px] text-white/30">{post.unlock_count} {post.unlock_count === 1 ? 'Leser' : 'Leser'}</span>
@@ -227,7 +227,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
               </div>
             ) : (
               <div className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl bg-[#FFD700]/5 border border-[#FFD700]/15">
-                <span className="text-xs text-white/60">{fmtBSD(priceBsd)} BSD werden von deinem Wallet abgezogen</span>
+                <span className="text-xs text-white/60">{fmtScout(priceBsd)} $SCOUT werden von deinem Wallet abgezogen</span>
                 <div className="flex gap-2">
                   <Button
                     variant="gold"
@@ -273,7 +273,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
             <Unlock className="w-3 h-3" />
             {post.unlock_count}
           </span>
-          <span className="font-mono text-[#FFD700] font-bold">{fmtBSD(priceBsd)} BSD</span>
+          <span className="font-mono text-[#FFD700] font-bold">{fmtScout(priceBsd)} $SCOUT</span>
         </div>
       </div>
     </Card>

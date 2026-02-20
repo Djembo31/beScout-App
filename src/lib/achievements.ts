@@ -21,7 +21,7 @@ const FEATURED: AchievementDef[] = [
   { key: 'first_trade', label: 'Erster Deal', description: 'Ersten DPC-Trade abgeschlossen', icon: '🤝', category: 'trading', featured: true },
   { key: '10_trades', label: 'Aktiver Händler', description: '10 Trades abgeschlossen', icon: '📊', category: 'trading', featured: true },
   { key: '100_trades', label: 'Trading-Legende', description: '100 Trades abgeschlossen', icon: '👑', category: 'trading', featured: true },
-  { key: 'portfolio_10000', label: 'Profi-Sammler', description: 'Kader über 10.000 BSD', icon: '🏦', category: 'trading', featured: true },
+  { key: 'portfolio_10000', label: 'Profi-Sammler', description: 'Kader über 10.000 $SCOUT', icon: '🏦', category: 'trading', featured: true },
   { key: 'smart_money', label: 'Smart Money', description: '5 Profit-Trades in Folge', icon: '🧠', category: 'trading', featured: true },
   // Manager (5)
   { key: 'first_event', label: 'Debüt', description: 'Erstes Fantasy-Event gespielt', icon: '⚽', category: 'manager', featured: true },
@@ -42,7 +42,7 @@ const FEATURED: AchievementDef[] = [
 const HIDDEN: AchievementDef[] = [
   // Trading
   { key: '50_trades', label: 'Profi-Händler', description: '50 Trades abgeschlossen', icon: '💼', category: 'trading', featured: false },
-  { key: 'portfolio_1000', label: 'Sammler', description: 'Kader über 1.000 BSD', icon: '💰', category: 'trading', featured: false },
+  { key: 'portfolio_1000', label: 'Sammler', description: 'Kader über 1.000 $SCOUT', icon: '💰', category: 'trading', featured: false },
   { key: 'diverse_5', label: 'Diversifiziert', description: '5 verschiedene Spieler im Portfolio', icon: '🎯', category: 'trading', featured: false },
   { key: 'diverse_15', label: 'Kader-Sammler', description: '15 verschiedene Spieler im Portfolio', icon: '🏟️', category: 'trading', featured: false },
   { key: 'sell_order', label: 'Erstverkauf', description: 'Ersten Sell-Order erstellt', icon: '🏷️', category: 'trading', featured: false },

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Heart, BarChart3, TrendingUp, History, Trophy, Crown } from 'lucide-react';
 import { Card, Skeleton } from '@/components/ui';
-import { cn, fmtBSD } from '@/lib/utils';
+import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getSeasonLeaderboard, type SeasonLeaderboardEntry } from '@/lib/services/scoring';
 import { getFormResult } from './helpers';
@@ -71,8 +71,8 @@ export const HistoryTab = ({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="text-center p-3 bg-white/[0.03] rounded-lg">
-              <div className="text-lg md:text-2xl font-mono font-black text-[#FFD700]">{fmtBSD(totalRewardBsd)}</div>
-              <div className="text-[10px] text-white/40">Gewonnene BSD</div>
+              <div className="text-lg md:text-2xl font-mono font-black text-[#FFD700]">{fmtScout(totalRewardBsd)}</div>
+              <div className="text-[10px] text-white/40">Gewonnene $SCOUT</div>
             </div>
             <div className="text-center p-3 bg-white/[0.03] rounded-lg">
               <div className="text-lg md:text-2xl font-mono font-black">{seasonPoints.toLocaleString()}</div>
@@ -128,7 +128,7 @@ export const HistoryTab = ({
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/50">Total Prämien</span>
-              <span className="font-mono font-bold text-purple-400">{fmtBSD(totalRewardBsd)} BSD</span>
+              <span className="font-mono font-bold text-purple-400">{fmtScout(totalRewardBsd)} $SCOUT</span>
             </div>
           </div>
         </Card>
@@ -190,7 +190,7 @@ export const HistoryTab = ({
                       <td className="py-3 px-4 text-center text-sm font-mono font-bold">{entry.totalPoints.toLocaleString()}</td>
                       <td className="py-3 px-4 text-right">
                         {entry.totalRewardCents > 0 ? (
-                          <span className="font-mono font-bold text-sm text-[#FFD700]">+{fmtBSD(centsToBsd(entry.totalRewardCents))} BSD</span>
+                          <span className="font-mono font-bold text-sm text-[#FFD700]">+{fmtScout(centsToBsd(entry.totalRewardCents))} $SCOUT</span>
                         ) : (
                           <span className="text-white/30">{'\u2014'}</span>
                         )}
@@ -229,7 +229,7 @@ export const HistoryTab = ({
                       <div className="text-right shrink-0">
                         <div className="font-mono font-bold text-sm">{entry.totalPoints.toLocaleString()}</div>
                         {entry.totalRewardCents > 0 && (
-                          <div className="text-[11px] font-mono font-bold text-[#FFD700]">+{fmtBSD(centsToBsd(entry.totalRewardCents))}</div>
+                          <div className="text-[11px] font-mono font-bold text-[#FFD700]">+{fmtScout(centsToBsd(entry.totalRewardCents))}</div>
                         )}
                       </div>
                     </div>
@@ -284,7 +284,7 @@ export const HistoryTab = ({
                       <td className="py-3 px-4 text-center font-mono">{p.points}</td>
                       <td className="py-3 px-4 text-right text-sm">
                         {p.rewardCents > 0 ? (
-                          <span className="font-mono font-bold text-[#FFD700]">+{fmtBSD(centsToBsd(p.rewardCents))} BSD</span>
+                          <span className="font-mono font-bold text-[#FFD700]">+{fmtScout(centsToBsd(p.rewardCents))} $SCOUT</span>
                         ) : (
                           <span className="text-white/30">{'\u2014'}</span>
                         )}
@@ -313,7 +313,7 @@ export const HistoryTab = ({
                     <div className="text-right shrink-0">
                       <div className="font-mono font-bold text-sm">{p.points} Pkt</div>
                       {p.rewardCents > 0 ? (
-                        <div className="text-[11px] font-mono font-bold text-[#FFD700]">+{fmtBSD(centsToBsd(p.rewardCents))}</div>
+                        <div className="text-[11px] font-mono font-bold text-[#FFD700]">+{fmtScout(centsToBsd(p.rewardCents))}</div>
                       ) : (
                         <div className="text-[11px] text-white/30">{'\u2014'}</div>
                       )}

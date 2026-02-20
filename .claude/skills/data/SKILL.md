@@ -81,8 +81,8 @@ Wenn der User `/data [question]` aufruft:
 ## Geld-Konvention
 
 - Alle `*_cents` Spalten sind **BIGINT** (nicht Float!)
-- `1.000.000 cents = 10.000 BSD`
-- Für Anzeige: `amount_cents / 100.0` → BSD
+- `1.000.000 cents = 10.000 $SCOUT`
+- Für Anzeige: `amount_cents / 100.0` → $SCOUT
 - Formatierung: Deutsche Zahlen (1.000 statt 1,000)
 
 ## Output-Format
@@ -122,5 +122,5 @@ Wenn der User `/data [question]` aufruft:
 - **ABSOLUT NUR SELECT Queries!** Kein INSERT, UPDATE, DELETE, DROP, ALTER!
 - Keine individuellen User-Daten exponieren (nur Aggregate, keine Emails/Namen).
 - Bei großen Tabellen: LIMIT verwenden (max 100 Rows).
-- Geld immer als BSD anzeigen (cents / 100), nicht als rohe Cents.
+- Geld immer als $SCOUT anzeigen (cents / 100), nicht als rohe Cents.
 - Wenn eine Tabelle unklar ist: `list_tables` verwenden statt raten.

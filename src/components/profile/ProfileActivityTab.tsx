@@ -4,7 +4,7 @@ import React, { useState, useCallback } from 'react';
 import { CircleDollarSign, Trophy, Award, Users, Zap, FileText, Vote, Activity } from 'lucide-react';
 import { Card, LoadMoreButton } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import { formatBsd, getTransactions } from '@/lib/services/wallet';
+import { formatScout, getTransactions } from '@/lib/services/wallet';
 import { getActivityIcon, getActivityColor, getActivityLabel, getRelativeTime } from '@/lib/activityHelpers';
 import type { DbTransaction } from '@/types';
 
@@ -83,7 +83,7 @@ export default function ProfileActivityTab({ transactions: initial, userId }: Pr
                         'text-xs font-mono font-bold',
                         positive ? 'text-[#22C55E]' : 'text-white/40'
                       )}>
-                        {positive ? '+' : ''}{formatBsd(tx.amount)} BSD
+                        {positive ? '+' : ''}{formatScout(tx.amount)} $SCOUT
                       </span>
                       <span className="text-[10px] text-white/25">· {getRelativeTime(tx.created_at)}</span>
                     </div>

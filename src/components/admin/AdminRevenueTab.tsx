@@ -6,8 +6,8 @@ import { Card, Skeleton } from '@/components/ui';
 import { getClubDashboardStats, getClubTradingFees } from '@/lib/services/club';
 import { getPlayersByClubId, centsToBsd } from '@/lib/services/players';
 import { getAllVotes } from '@/lib/services/votes';
-import { fmtBSD } from '@/lib/utils';
-import { formatBsd } from '@/lib/services/wallet';
+import { fmtScout } from '@/lib/utils';
+import { formatScout } from '@/lib/services/wallet';
 import type { ClubWithAdmin, ClubDashboardStats, DbClubVote } from '@/types';
 
 export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
@@ -56,7 +56,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             <span className="text-xs text-white/50">Gesamt</span>
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black text-[#FFD700]">{formatBsd(totalRevenue)} BSD</div>
+            <div className="text-xl font-mono font-black text-[#FFD700]">{formatScout(totalRevenue)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
@@ -65,7 +65,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             <span className="text-xs text-white/50">DPC/IPO Umsatz</span>
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black">{formatBsd(stats?.ipo_revenue_cents ?? 0)} BSD</div>
+            <div className="text-xl font-mono font-black">{formatScout(stats?.ipo_revenue_cents ?? 0)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
@@ -74,7 +74,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             <span className="text-xs text-white/50">Trading Gebühren</span>
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black text-emerald-400">{formatBsd(clubFeeRevenue)} BSD</div>
+            <div className="text-xl font-mono font-black text-emerald-400">{formatScout(clubFeeRevenue)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
@@ -83,7 +83,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             <span className="text-xs text-white/50">Vote Einnahmen</span>
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black text-purple-400">{formatBsd(voteRevenue)} BSD</div>
+            <div className="text-xl font-mono font-black text-purple-400">{formatScout(voteRevenue)} $SCOUT</div>
           )}
         </Card>
       </div>
@@ -99,7 +99,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             <div>
               <div className="text-[10px] text-white/40 uppercase tracking-wider">Club-Fee (1%)</div>
               {loading ? <Skeleton className="h-5 w-16" /> : (
-                <div className="text-sm font-mono font-bold">{formatBsd(tradingFees?.totalClubFee ?? 0)} BSD</div>
+                <div className="text-sm font-mono font-bold">{formatScout(tradingFees?.totalClubFee ?? 0)} $SCOUT</div>
               )}
             </div>
           </div>
@@ -110,7 +110,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             <div>
               <div className="text-[10px] text-white/40 uppercase tracking-wider">PBT-Fee (1,5%)</div>
               {loading ? <Skeleton className="h-5 w-16" /> : (
-                <div className="text-sm font-mono font-bold">{formatBsd(tradingFees?.totalPbtFee ?? 0)} BSD</div>
+                <div className="text-sm font-mono font-bold">{formatScout(tradingFees?.totalPbtFee ?? 0)} $SCOUT</div>
               )}
             </div>
           </div>
@@ -121,7 +121,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             <div>
               <div className="text-[10px] text-white/40 uppercase tracking-wider">Plattform (3,5%)</div>
               {loading ? <Skeleton className="h-5 w-16" /> : (
-                <div className="text-sm font-mono font-bold">{formatBsd(tradingFees?.totalPlatformFee ?? 0)} BSD</div>
+                <div className="text-sm font-mono font-bold">{formatScout(tradingFees?.totalPlatformFee ?? 0)} $SCOUT</div>
               )}
             </div>
           </div>
@@ -131,7 +131,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             </div>
             <div>
               <div className="text-[10px] text-white/40 uppercase tracking-wider">Trading Vol. 24h</div>
-              <div className="text-sm font-mono font-bold">{fmtBSD(totalVolume)} BSD</div>
+              <div className="text-sm font-mono font-bold">{fmtScout(totalVolume)} $SCOUT</div>
             </div>
           </div>
         </div>

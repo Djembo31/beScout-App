@@ -8,7 +8,7 @@ import {
   Target,
 } from 'lucide-react';
 import type { Player, Pos } from '@/types';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import {
   MiniSparkline, PlayerPhoto, getL5Color, getL5Hex, getL5Bg,
@@ -255,9 +255,9 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
         <div className="flex items-center justify-between">
           <div className="flex items-baseline gap-1.5">
             <span className="font-mono font-black text-[#FFD700] text-lg">
-              {ipoData ? fmtBSD(ipoData.price) : fmtBSD(floor)}
+              {ipoData ? fmtScout(ipoData.price) : fmtScout(floor)}
             </span>
-            <span className="text-white/30 text-[10px]">BSD</span>
+            <span className="text-white/30 text-[10px]">$SCOUT</span>
             {!ipoData && (
               <span className={`text-[11px] font-mono font-bold ml-1 ${up ? 'text-[#22C55E]' : 'text-red-400'}`}>
                 {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%

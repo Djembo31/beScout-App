@@ -27,7 +27,7 @@ Wenn der User `/mobile [question]` aufruft:
 - **Types (`types/index.ts`):** Alle TypeScript-Interfaces → 100% portierbar
 - **Business Logic:** Trading, Scoring, Wallet → 100% portierbar
 - **Query Hooks (`lib/queries/`):** TanStack Query v5 → 90% portierbar (React Native Support)
-- **Utils:** `fmtBSD()`, `cn()`, Helpers → 90% portierbar
+- **Utils:** `fmtScout()`, `cn()`, Helpers → 90% portierbar
 
 ### Nicht portierbare Schichten
 - **UI Components:** Tailwind CSS → React Native StyleSheet

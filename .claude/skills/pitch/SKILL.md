@@ -38,10 +38,10 @@ Wenn der User `/pitch [audience]` aufruft:
 - **Für Clubs:** White-Label Fan-Engagement-Tool das monetarisiert
   - DPC Trading Fees (6% Split: 3.5% Plattform + 1.5% PBT + 1% Club)
   - Bounties (Club gibt Aufträge an Fans, 5% Platform Fee)
-  - Club-Abos (Bronze/Silber/Gold, BSD-basiert)
+  - Club-Abos (Bronze/Silber/Gold, $SCOUT-basiert)
   - Fan-Analytics Dashboard
 - **Für Fans:** Trading + Fantasy + Community + Reputation
-  - Verdiene BSD durch Trading, Fantasy, Content, Club-Aufträge
+  - Verdiene $SCOUT durch Trading, Fantasy, Content, Club-Aufträge
   - Baue deine Fußball-Identität auf (Scout Score, Level, Achievements)
   - Bis hin zu echten Club-Positionen (Scout → Analyst → ...)
 
@@ -64,7 +64,7 @@ Wenn der User `/pitch [audience]` aufruft:
 | B2B2C | B2C | B2C | B2B (Token) |
 | Kein Blockchain | Ethereum | — | Chiliz Chain |
 | Club verdient | Club lizenziert | — | Token Sale |
-| BSD (In-App) | ETH/€ | € | CHZ Token |
+| $SCOUT (In-App) | ETH/€ | € | CHZ Token |
 | Creator Economy | — | — | — |
 | Nischen-Start | Global | DACH | Global |
 
@@ -73,7 +73,7 @@ Wenn der User `/pitch [audience]` aufruft:
 2. **Bounty Fees:** 5% von jeder Club-Bounty-Auszahlung
 3. **Club License:** Monatliche Lizenzgebühr (ab Phase B)
 4. **Premium Features:** Creator Fund, Ad Revenue Share
-5. **Token (Zukunft):** Airdrop-basiert, BSD → Token Conversion
+5. **Token (Zukunft):** Airdrop-basiert, $SCOUT → Token Conversion
 
 ### Ask (typische Runden)
 - **Pre-Seed:** €200-500K für Team + 3 Clubs + 12 Monate Runway

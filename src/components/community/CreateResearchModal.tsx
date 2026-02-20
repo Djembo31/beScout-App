@@ -238,7 +238,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
 
         {/* Price */}
         <div>
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">Preis (BSD)</label>
+          <label className="text-xs text-white/50 font-semibold mb-1.5 block">Preis ($SCOUT)</label>
           <input
             type="number" inputMode="numeric"
             value={priceBsd}
@@ -252,7 +252,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             max={100000}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white font-mono focus:outline-none focus:border-[#FFD700]/40"
           />
-          <div className="text-[10px] text-white/30 mt-1">Min 1 BSD, Max 100.000 BSD — 80% gehen an dich, 20% Plattform-Gebühr</div>
+          <div className="text-[10px] text-white/30 mt-1">Min 1 $SCOUT, Max 100.000 $SCOUT — 80% gehen an dich, 20% Plattform-Gebühr</div>
         </div>
 
         {/* Preview */}
@@ -303,7 +303,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             {title.length < 5 && <div>Titel: mind. 5 Zeichen ({title.length}/5)</div>}
             {preview.length === 0 && <div>Vorschau darf nicht leer sein</div>}
             {content.length < 50 && <div>Inhalt: mind. 50 Zeichen ({content.length}/50)</div>}
-            {(priceBsd < 1 || priceBsd > 100000) && <div>Preis: 1–100.000 BSD</div>}
+            {(priceBsd < 1 || priceBsd > 100000) && <div>Preis: 1–100.000 $SCOUT</div>}
           </div>
         )}
         <Button variant="gold" fullWidth loading={loading} disabled={!canSubmit} onClick={handleSubmit}>

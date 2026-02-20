@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/providers/ToastProvider';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { Player } from '@/types';
 
@@ -38,7 +38,7 @@ export function usePriceAlerts({ playerId, player }: UsePriceAlertsParams) {
       const floorBsd = centsToBsd(player.prices.floor ?? 0);
       const triggered = existing.dir === 'below' ? floorBsd <= existing.target : floorBsd >= existing.target;
       if (triggered && floorBsd > 0) {
-        addToast(`Preis-Alert: ${player.first} ${player.last} ist ${existing.dir === 'below' ? 'unter' : 'über'} ${fmtBSD(existing.target)} BSD`, 'success');
+        addToast(`Preis-Alert: ${player.first} ${player.last} ist ${existing.dir === 'below' ? 'unter' : 'über'} ${fmtScout(existing.target)} $SCOUT`, 'success');
         delete alerts[playerId];
         savePriceAlerts(alerts);
         setPriceAlert(null);
@@ -56,7 +56,7 @@ export function usePriceAlerts({ playerId, player }: UsePriceAlertsParams) {
     alerts[playerId] = { target, dir };
     savePriceAlerts(alerts);
     setPriceAlert({ target, dir });
-    addToast(`Preis-Alert gesetzt: ${dir === 'below' ? '\u2264' : '\u2265'} ${fmtBSD(target)} BSD`, 'success');
+    addToast(`Preis-Alert gesetzt: ${dir === 'below' ? '\u2264' : '\u2265'} ${fmtScout(target)} $SCOUT`, 'success');
   }, [player, playerId, addToast]);
 
   const handleRemovePriceAlert = useCallback(() => {

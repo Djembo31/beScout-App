@@ -114,7 +114,7 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
         type: 'bounty',
         id: b.id,
         title: b.title,
-        subtitle: `Auftrag · ${rewardBsd} BSD`,
+        subtitle: `Auftrag · ${rewardBsd} $SCOUT`,
         href: '/community?tab=aktionen',
       });
     }

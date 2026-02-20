@@ -8,7 +8,7 @@ import { useToast } from '@/components/providers/ToastProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { centsToBsd } from '@/lib/services/players';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import {
@@ -292,7 +292,7 @@ export default function HomePage() {
                         <Users className="w-3.5 h-3.5" />
                         {nextEvent.current_entries}/{nextEvent.max_entries ?? '\u221E'}
                       </span>
-                      <span>Eintritt: {nextEvent.entry_fee === 0 ? 'Gratis' : `${fmtBSD(centsToBsd(nextEvent.entry_fee))} BSD`}</span>
+                      <span>Eintritt: {nextEvent.entry_fee === 0 ? 'Gratis' : `${fmtScout(centsToBsd(nextEvent.entry_fee))} $SCOUT`}</span>
                     </div>
                   </div>
                   <div className="text-right shrink-0">
@@ -300,7 +300,7 @@ export default function HomePage() {
                     <div className="text-xl md:text-2xl font-black font-mono text-[#FFD700]">
                       {formatPrize(centsToBsd(nextEvent.prize_pool))}
                     </div>
-                    <div className="text-[10px] text-white/40">BSD</div>
+                    <div className="text-[10px] text-white/40">$SCOUT</div>
                   </div>
                 </div>
               </div>
@@ -336,7 +336,7 @@ export default function HomePage() {
               </div>
               <div className="shrink-0 text-right">
                 <div className="font-mono font-black text-[#FFD700] text-lg">{activeIPOs[0].ipo.price}</div>
-                <div className="text-[10px] text-white/40">BSD/DPC</div>
+                <div className="text-[10px] text-white/40">$SCOUT/DPC</div>
               </div>
             </div>
           </div>

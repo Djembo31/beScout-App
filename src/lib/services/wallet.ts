@@ -148,8 +148,8 @@ export async function refundEntryFee(userId: string, amountCents: number, eventN
 // Helpers
 // ============================================
 
-/** Cents → BSD Display (z.B. 1000000 → "10.000") */
-export function formatBsd(cents: number): string {
+/** Cents → $SCOUT Display (z.B. 1000000 → "10.000") */
+export function formatScout(cents: number): string {
   const bsd = Math.round(cents) / 100;
   return bsd.toLocaleString('de-DE', { maximumFractionDigits: 0 });
 }

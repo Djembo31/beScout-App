@@ -7,7 +7,7 @@ import { Check, X, Loader2, ChevronRight, Globe, Camera, User, Lock, Eye, EyeOff
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { createProfile, checkHandleAvailable, isValidHandle } from '@/lib/services/profiles';
 import { updateProfile } from '@/lib/services/profiles';
-import { getProfileByReferralCode } from '@/lib/services/referral';
+import { getProfileByReferralCode, getClubByReferralCode, applyClubReferral } from '@/lib/services/referral';
 import { updateUserPassword, signOut } from '@/lib/services/auth';
 import { uploadAvatar } from '@/lib/services/avatars';
 import { Button, Card } from '@/components/ui';
@@ -39,6 +39,9 @@ function OnboardingContent() {
   // Referral
   const [referrer, setReferrer] = useState<{ id: string; handle: string; display_name: string | null } | null>(null);
 
+  // Club referral
+  const [referralClub, setReferralClub] = useState<{ id: string; name: string; slug: string; logo_url: string | null } | null>(null);
+
   // Club selection (Step 3)
   const [allClubs, setAllClubs] = useState<DbClub[]>([]);
   const [clubSearch, setClubSearch] = useState('');
@@ -66,6 +69,20 @@ function OnboardingContent() {
       getProfileByReferralCode(refCode).then(p => {
         if (p) setReferrer(p);
       }).catch(err => console.error('[Onboarding] Referrer lookup failed:', err));
+    }
+  }, [searchParams]);
+
+  // Look up club referral code from URL (?club=CODE)
+  useEffect(() => {
+    const clubCode = searchParams.get('club');
+    if (clubCode && clubCode.length >= 3) {
+      getClubByReferralCode(clubCode).then(c => {
+        if (c) {
+          setReferralClub(c);
+          // Auto-select this club
+          setSelectedClubIds(prev => new Set(prev).add(c.id));
+        }
+      }).catch(err => console.error('[Onboarding] Club referral lookup failed:', err));
     }
   }, [searchParams]);
 
@@ -204,6 +221,11 @@ function OnboardingContent() {
         await followClubsBatch(user.id, clubIdsArray);
       }
 
+      // Apply club referral if present
+      if (referralClub) {
+        await applyClubReferral(user.id, referralClub.id);
+      }
+
       // Upload avatar if selected
       if (avatarFile) {
         try {
@@ -229,7 +251,7 @@ function OnboardingContent() {
       setError(msg);
       setSubmitting(false);
     }
-  }, [user, hasPassword, password, handle, displayNameValue, avatarFile, language, selectedClubIds, allClubs, referrer, refreshProfile, router]);
+  }, [user, hasPassword, password, handle, displayNameValue, avatarFile, language, selectedClubIds, allClubs, referrer, referralClub, refreshProfile, router]);
 
   if (loading || profile) {
     return (
@@ -264,6 +286,21 @@ function OnboardingContent() {
           <div className="text-sm">
             <span className="text-white/70">Eingeladen von </span>
             <span className="font-bold text-[#FFD700]">@{referrer.handle}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Club Referral Banner */}
+      {referralClub && !referrer && (
+        <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-[#22C55E]/[0.06] border border-[#22C55E]/15">
+          {referralClub.logo_url ? (
+            <img src={referralClub.logo_url} alt="" className="w-6 h-6 object-contain shrink-0" />
+          ) : (
+            <Shield className="w-5 h-5 text-[#22C55E] shrink-0" />
+          )}
+          <div className="text-sm">
+            <span className="text-white/70">Eingeladen von </span>
+            <span className="font-bold text-[#22C55E]">{referralClub.name}</span>
           </div>
         </div>
       )}

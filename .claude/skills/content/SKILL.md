@@ -23,7 +23,7 @@ Wenn der User `/content [type] [topic]` aufruft:
 | Begriff | Beschreibung | Verwendung |
 |---------|-------------|------------|
 | DPC | Digital Player Card | "Sichere dir die DPC von [Spieler]!" |
-| BSD | BeScout Dollar | "Verdiene BSD durch Trading!" |
+| $SCOUT | $SCOUT | "Verdiene $SCOUT durch Trading!" |
 | Scout | BeScout-Nutzer | "Als Scout analysierst du Spieler..." |
 | Spieltag | Fantasy Gameweek | "Spieltag 3 startet jetzt!" |
 | Kader | Fantasy Lineup | "Stelle deinen Kader zusammen!" |

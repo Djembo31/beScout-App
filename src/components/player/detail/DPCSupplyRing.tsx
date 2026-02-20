@@ -1,6 +1,6 @@
 'use client';
 
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 
 interface DPCSupplyRingProps {
   supply: number;
@@ -75,8 +75,8 @@ export default function DPCSupplyRing({ supply, circulation, owned, className = 
         </svg>
         {/* Center text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="font-mono font-black text-xl">{fmtBSD(circulation)}</span>
-          <span className="text-[10px] text-white/40">von {fmtBSD(supply)}</span>
+          <span className="font-mono font-black text-xl">{fmtScout(circulation)}</span>
+          <span className="text-[10px] text-white/40">von {fmtScout(supply)}</span>
         </div>
       </div>
 
@@ -86,14 +86,14 @@ export default function DPCSupplyRing({ supply, circulation, owned, className = 
           <div className="w-3 h-3 rounded-sm bg-white/15 shrink-0" />
           <div>
             <div className="text-xs text-white/50">Pool (verfügbar)</div>
-            <div className="font-mono font-bold text-sm">{fmtBSD(pool)}</div>
+            <div className="font-mono font-bold text-sm">{fmtScout(pool)}</div>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-sm bg-[#FFD700]/60 shrink-0" />
           <div>
             <div className="text-xs text-white/50">Im Umlauf</div>
-            <div className="font-mono font-bold text-sm">{fmtBSD(othersCirculation)}</div>
+            <div className="font-mono font-bold text-sm">{fmtScout(othersCirculation)}</div>
           </div>
         </div>
         {owned > 0 && (

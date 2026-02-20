@@ -42,7 +42,7 @@ describe('bsdToCents', () => {
     expect(bsdToCents(0)).toBe(0);
   });
 
-  it('converts fractional BSD', () => {
+  it('converts fractional $SCOUT', () => {
     expect(bsdToCents(0.01)).toBe(1);
   });
 
@@ -85,13 +85,13 @@ function createMockDbPlayer(overrides?: Partial<DbPlayer>): DbPlayer {
     perf_season: 68,
     dpc_total: 500,
     dpc_available: 200,
-    floor_price: 50000, // 500 BSD
-    last_price: 48000,  // 480 BSD
-    ipo_price: 50000,   // 500 BSD
+    floor_price: 50000, // 500 $SCOUT
+    last_price: 48000,  // 480 $SCOUT
+    ipo_price: 50000,   // 500 $SCOUT
     price_change_24h: 5.2,
     volume_24h: 150000,
     status: 'fit',
-    success_fee_cap_cents: 100000, // 1000 BSD
+    success_fee_cap_cents: 100000, // 1000 $SCOUT
     is_liquidated: false,
     created_at: '2025-01-01T00:00:00Z',
     updated_at: '2025-02-01T00:00:00Z',
@@ -117,13 +117,13 @@ describe('dbToPlayer', () => {
     expect(p.contractMonthsLeft).toBe(12);
   });
 
-  it('converts prices from cents to BSD', () => {
+  it('converts prices from cents to $SCOUT', () => {
     const db = createMockDbPlayer();
     const p = dbToPlayer(db);
 
-    expect(p.prices.floor).toBe(500);       // 50000 cents -> 500 BSD
-    expect(p.prices.lastTrade).toBe(480);   // 48000 cents -> 480 BSD
-    expect(p.prices.ipoPrice).toBe(500);    // 50000 cents -> 500 BSD
+    expect(p.prices.floor).toBe(500);       // 50000 cents -> 500 $SCOUT
+    expect(p.prices.lastTrade).toBe(480);   // 48000 cents -> 480 $SCOUT
+    expect(p.prices.ipoPrice).toBe(500);    // 50000 cents -> 500 $SCOUT
     expect(p.prices.change24h).toBe(5.2);
   });
 
@@ -181,7 +181,7 @@ describe('dbToPlayer', () => {
     expect(dbToPlayer(db).status).toBe('fit');
   });
 
-  it('maps successFeeCap from cents to BSD', () => {
+  it('maps successFeeCap from cents to $SCOUT', () => {
     const db = createMockDbPlayer({ success_fee_cap_cents: 100000 });
     expect(dbToPlayer(db).successFeeCap).toBe(1000);
   });

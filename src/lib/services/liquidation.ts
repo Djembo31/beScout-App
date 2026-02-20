@@ -50,7 +50,7 @@ export async function liquidatePlayer(
             p.user_id,
             'pbt_liquidation',
             'DPC liquidiert',
-            `Du hast ${payoutBsd} BSD aus der PBT-Ausschüttung erhalten.`,
+            `Du hast ${payoutBsd} $SCOUT aus der PBT-Ausschüttung erhalten.`,
             playerId,
             'player',
           );

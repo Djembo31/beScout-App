@@ -344,7 +344,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
               <div className="flex items-start gap-2.5 p-3 bg-amber-500/5 border border-amber-500/15 rounded-xl">
                 <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
                 <div className="text-xs text-amber-300/80">
-                  Entry Fees sind in <strong>{fantasySettings.fantasy_jurisdiction_preset === 'TR' ? 'der Türkei' : 'Deutschland'}</strong> aus regulatorischen Gründen deaktiviert. Alle Events dieses Clubs werden automatisch auf 0 BSD gesetzt.
+                  Entry Fees sind in <strong>{fantasySettings.fantasy_jurisdiction_preset === 'TR' ? 'der Türkei' : 'Deutschland'}</strong> aus regulatorischen Gründen deaktiviert. Alle Events dieses Clubs werden automatisch auf 0 $SCOUT gesetzt.
                 </div>
               </div>
             )}
@@ -352,7 +352,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
             {/* Default Entry Fee (only if allowed) */}
             {fantasySettings.fantasy_allow_entry_fees && (
               <div>
-                <label className="block text-sm font-medium mb-2">Standard-Teilnahmegebühr (BSD)</label>
+                <label className="block text-sm font-medium mb-2">Standard-Teilnahmegebühr ($SCOUT)</label>
                 <input
                   type="number"
                   inputMode="numeric"

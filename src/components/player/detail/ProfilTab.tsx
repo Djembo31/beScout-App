@@ -9,7 +9,7 @@ import {
 import { Card } from '@/components/ui';
 import { PositionBadge, ScoreCircle, MiniSparkline } from '@/components/player';
 import { getContractInfo, getSuccessFeeTier } from '@/components/player/PlayerRow';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import type { Player } from '@/types';
 import type { PlayerGameweekScore } from '@/lib/services/scoring';
 import DPCSupplyRing from './DPCSupplyRing';
@@ -63,7 +63,7 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
           <div className="text-[10px] text-white/40 mb-1 flex items-center justify-center gap-1">
             <BarChart3 className="w-3 h-3" /> DPC Supply
           </div>
-          <div className="font-mono font-bold text-sm">{fmtBSD(player.dpc.supply)}</div>
+          <div className="font-mono font-bold text-sm">{fmtScout(player.dpc.supply)}</div>
         </Card>
         <Card className="p-3 text-center">
           <div className="text-[10px] text-white/40 mb-1 flex items-center justify-center gap-1">
@@ -146,25 +146,25 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
             <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
               <BarChart3 className="w-3 h-3" />Supply
             </div>
-            <div className="font-mono font-bold">{fmtBSD(player.dpc.supply)}</div>
+            <div className="font-mono font-bold">{fmtScout(player.dpc.supply)}</div>
           </div>
           <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3">
             <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
               <Briefcase className="w-3 h-3" />Float
             </div>
-            <div className="font-mono font-bold">{fmtBSD(player.dpc.float)}</div>
+            <div className="font-mono font-bold">{fmtScout(player.dpc.float)}</div>
           </div>
           <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3">
             <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
               <Users className="w-3 h-3" />Im Umlauf
             </div>
-            <div className="font-mono font-bold">{fmtBSD(player.dpc.circulation)}</div>
+            <div className="font-mono font-bold">{fmtScout(player.dpc.circulation)}</div>
           </div>
           <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3">
             <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
               <Unlock className="w-3 h-3" />Verfügbar
             </div>
-            <div className="font-mono font-bold text-[#FFD700]">{fmtBSD(dpcAvailable)}</div>
+            <div className="font-mono font-bold text-[#FFD700]">{fmtScout(dpcAvailable)}</div>
           </div>
         </div>
       </Card>
@@ -249,7 +249,7 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
           <div className="bg-black/20 rounded-xl p-4">
             <div className="flex items-center justify-between">
               <span className="text-white/50 text-sm">{player.isLiquidated ? 'Reserviert (Success Fee)' : 'Treasury Guthaben'}</span>
-              <span className={`font-mono font-black text-2xl ${player.isLiquidated ? 'text-white/30' : 'text-[#FFD700]'}`}>{fmtBSD(pbt.balance)} BSD</span>
+              <span className={`font-mono font-black text-2xl ${player.isLiquidated ? 'text-white/30' : 'text-[#FFD700]'}`}>{fmtScout(pbt.balance)} $SCOUT</span>
             </div>
           </div>
           {pbt.sources && (
@@ -258,19 +258,19 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
               <div className="grid grid-cols-2 gap-2">
                 <div className="bg-white/[0.02] rounded-lg p-2 flex items-center justify-between">
                   <span className="text-xs text-white/50">Trading Fees</span>
-                  <span className="font-mono text-sm">{fmtBSD(pbt.sources.trading)}</span>
+                  <span className="font-mono text-sm">{fmtScout(pbt.sources.trading)}</span>
                 </div>
                 <div className="bg-white/[0.02] rounded-lg p-2 flex items-center justify-between">
                   <span className="text-xs text-white/50">Votes</span>
-                  <span className="font-mono text-sm">{fmtBSD(pbt.sources.votes)}</span>
+                  <span className="font-mono text-sm">{fmtScout(pbt.sources.votes)}</span>
                 </div>
                 <div className="bg-white/[0.02] rounded-lg p-2 flex items-center justify-between">
                   <span className="text-xs text-white/50">Content</span>
-                  <span className="font-mono text-sm">{fmtBSD(pbt.sources.content)}</span>
+                  <span className="font-mono text-sm">{fmtScout(pbt.sources.content)}</span>
                 </div>
                 <div className="bg-white/[0.02] rounded-lg p-2 flex items-center justify-between">
                   <span className="text-xs text-white/50">IPO Seed</span>
-                  <span className="font-mono text-sm">{fmtBSD(pbt.sources.ipo)}</span>
+                  <span className="font-mono text-sm">{fmtScout(pbt.sources.ipo)}</span>
                 </div>
               </div>
             </div>

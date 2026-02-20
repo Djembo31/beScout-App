@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { Card, StatCard } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
-import { fmtBSD } from '@/types';
+import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import {
   getPlatformAdminRole, getSystemStats, getAllIposAcrossClubs,
@@ -28,9 +28,9 @@ import { AdminCreatorFundTab } from './AdminCreatorFundTab';
 type AdminTab = 'overview' | 'users' | 'fees' | 'ipos' | 'gameweeks' | 'airdrop' | 'sponsors' | 'creator_fund' | 'debug';
 
 const TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
-  { id: 'overview', label: 'Übersicht', icon: BarChart3 },
+  { id: 'overview', label: 'Ãœbersicht', icon: BarChart3 },
   { id: 'users', label: 'Benutzer', icon: Users },
-  { id: 'fees', label: 'Gebühren', icon: Percent },
+  { id: 'fees', label: 'GebÃ¼hren', icon: Percent },
   { id: 'ipos', label: 'IPOs', icon: Zap },
   { id: 'gameweeks', label: 'Spieltage', icon: Calendar },
   { id: 'airdrop', label: 'Airdrop', icon: Rocket },
@@ -40,7 +40,7 @@ const TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
 ];
 
 // ============================================
-// Overview Tab (inline — 12 lines)
+// Overview Tab (inline â€” 12 lines)
 // ============================================
 
 function OverviewTab({ stats, error }: { stats: SystemStats | null; error?: boolean }) {
@@ -49,8 +49,8 @@ function OverviewTab({ stats, error }: { stats: SystemStats | null; error?: bool
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
       <StatCard label="Benutzer" value={stats.totalUsers.toString()} icon={<Users className="w-4 h-4 text-white/40" />} />
-      <StatCard label="BSD Gesamt" value={`${fmtBSD(centsToBsd(stats.totalBsdCirculation))}`} icon={<DollarSign className="w-4 h-4 text-[#FFD700]" />} />
-      <StatCard label="24h Volumen" value={`${fmtBSD(centsToBsd(stats.volume24h))}`} icon={<BarChart3 className="w-4 h-4 text-white/40" />} />
+      <StatCard label="$SCOUT Gesamt" value={`${fmtScout(centsToBsd(stats.totalBsdCirculation))}`} icon={<DollarSign className="w-4 h-4 text-[#FFD700]" />} />
+      <StatCard label="24h Volumen" value={`${fmtScout(centsToBsd(stats.volume24h))}`} icon={<BarChart3 className="w-4 h-4 text-white/40" />} />
       <StatCard label="Aktive Events" value={stats.activeEvents.toString()} icon={<Calendar className="w-4 h-4 text-white/40" />} />
       <StatCard label="Offene Angebote" value={stats.pendingOffers.toString()} icon={<Zap className="w-4 h-4 text-white/40" />} />
     </div>
@@ -58,7 +58,7 @@ function OverviewTab({ stats, error }: { stats: SystemStats | null; error?: bool
 }
 
 // ============================================
-// IPOs Tab (inline — 42 lines)
+// IPOs Tab (inline â€” 42 lines)
 // ============================================
 
 function IposTab() {
@@ -93,7 +93,7 @@ function IposTab() {
                 }`}>
                   {ipo.status as string}
                 </span>
-                <span className="font-mono text-[#FFD700]">{fmtBSD(centsToBsd(ipo.price as number))} BSD</span>
+                <span className="font-mono text-[#FFD700]">{fmtScout(centsToBsd(ipo.price as number))} $SCOUT</span>
                 <span className="text-white/40">{ipo.sold as number}/{ipo.total_offered as number}</span>
               </div>
             </div>
@@ -105,7 +105,7 @@ function IposTab() {
 }
 
 // ============================================
-// Debug Tab (inline — 57 lines)
+// Debug Tab (inline â€” 57 lines)
 // ============================================
 
 function DebugTab() {
@@ -121,7 +121,7 @@ function DebugTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-bold text-white">Letzte Aktivitäten</span>
+        <span className="text-sm font-bold text-white">Letzte AktivitÃ¤ten</span>
         <a
           href="https://supabase.com/dashboard/project/skzjfhvgccaeplydsunz"
           target="_blank"
@@ -190,7 +190,7 @@ export default function BescoutAdminContent() {
           setStatsError(true);
         });
       } else {
-        // Not an admin — redirect (middleware should catch this, but fallback)
+        // Not an admin â€” redirect (middleware should catch this, but fallback)
         router.replace('/');
       }
     }).catch(() => setLoading(false));

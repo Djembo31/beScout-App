@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Search, CheckCircle2, Gift, Lock, Crosshair } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { TierBadge } from '@/components/ui/TierBadge';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import type { ScoutMission, UserScoutMission } from '@/lib/services/scoutMissions';
 import { DIFFICULTY_STYLES } from '@/lib/services/scoutMissions';
 import type { FanTier } from '@/types';
@@ -55,7 +55,7 @@ export default function ScoutMissionCard({ mission, progress, userTier, onSubmit
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Gift className="w-4 h-4 text-[#FFD700]" />
-          <span className="font-mono font-bold text-sm text-[#FFD700]">{fmtBSD(mission.rewardCents / 100)} BSD</span>
+          <span className="font-mono font-bold text-sm text-[#FFD700]">{fmtScout(mission.rewardCents / 100)} $SCOUT</span>
           {mission.minTier && (
             <TierBadge tier={mission.minTier as FanTier} size="sm" />
           )}
@@ -111,6 +111,6 @@ function buildCriteriaLabels(criteria: ScoutMission['criteria']): string[] {
   if (criteria.min_goals) labels.push(`Tore ≥ ${criteria.min_goals}`);
   if (criteria.min_assists) labels.push(`Assists ≥ ${criteria.min_assists}`);
   if (criteria.min_clean_sheets) labels.push(`CS ≥ ${criteria.min_clean_sheets}`);
-  if (criteria.max_floor_price_cents) labels.push(`Floor ≤ ${fmtBSD(criteria.max_floor_price_cents / 100)} BSD`);
+  if (criteria.max_floor_price_cents) labels.push(`Floor ≤ ${fmtScout(criteria.max_floor_price_cents / 100)} $SCOUT`);
   return labels;
 }

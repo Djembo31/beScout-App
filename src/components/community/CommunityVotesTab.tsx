@@ -4,7 +4,7 @@ import React from 'react';
 import { Vote, Users, Clock, Coins, Plus } from 'lucide-react';
 import { Card, Chip, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import { formatBsd } from '@/lib/services/wallet';
+import { formatScout } from '@/lib/services/wallet';
 import CommunityPollCard from '@/components/community/CommunityPollCard';
 import type { CommunityPollWithCreator, DbClubVote } from '@/types';
 
@@ -92,7 +92,7 @@ function CommunityVoteCard({ vote, hasVoted, onVote, voting }: {
           {vote.cost_bsd > 0 && (
             <div className="flex items-center gap-2">
               <Coins className="w-4 h-4 text-[#FFD700]" />
-              <span className="text-[#FFD700] font-bold">{formatBsd(vote.cost_bsd)} BSD</span>
+              <span className="text-[#FFD700] font-bold">{formatScout(vote.cost_bsd)} $SCOUT</span>
             </div>
           )}
         </div>

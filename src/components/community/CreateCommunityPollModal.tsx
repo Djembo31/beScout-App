@@ -141,7 +141,7 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
 
         {/* Price */}
         <div>
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">Preis (BSD)</label>
+          <label className="text-xs text-white/50 font-semibold mb-1.5 block">Preis ($SCOUT)</label>
           <input
             type="number" inputMode="numeric"
             value={priceBsd}
@@ -184,7 +184,7 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
           <div className="text-xs text-red-400/80 space-y-0.5">
             {question.length < 5 && <div>Frage: mind. 5 Zeichen ({question.length}/5)</div>}
             {validOptions.length < 2 && <div>Mind. 2 Optionen erforderlich</div>}
-            {(priceBsd < 1 || priceBsd > 10000) && <div>Preis: 1-10.000 BSD</div>}
+            {(priceBsd < 1 || priceBsd > 10000) && <div>Preis: 1-10.000 $SCOUT</div>}
           </div>
         )}
 

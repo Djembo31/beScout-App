@@ -34,7 +34,7 @@ Wenn der User `/review-code [file/feature]` aufruft:
 - [ ] Englische Code-Variablen und Funktionsnamen
 - [ ] Englische Kommentare
 - [ ] `cn()` für conditional classNames
-- [ ] `fmtBSD()` für Zahlenformatierung
+- [ ] `fmtScout()` für Zahlenformatierung
 
 ### Components
 - [ ] `PlayerDisplay` (variant="compact"|"card") statt custom Player-Rendering
@@ -45,7 +45,7 @@ Wenn der User `/review-code [file/feature]` aufruft:
 - [ ] Club-Logo: `getClub()` aus `lib/clubs.ts`
 
 ### Data Handling
-- [ ] Geld als BIGINT cents (1.000.000 cents = 10.000 BSD)
+- [ ] Geld als BIGINT cents (1.000.000 cents = 10.000 $SCOUT)
 - [ ] Trading über RPCs (atomare Transactions)
 - [ ] Cache-Invalidation nach Writes
 - [ ] `Array.from(new Set())` statt Spread (strict TS)

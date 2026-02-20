@@ -3,7 +3,57 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 9** – 189 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs. Build sauber (0 Fehler). **Code-seitig launch-fertig.** Guided Onboarding Checklist für 50 Beta-Tester (5 Tasks, Progress-Tracking, Confetti). Prediction Engine, Score Road UI, Kaufen-Tab Redesign, 12 RPC-Bug-Fixes, Deep Dive Audit, i18n Gamification+Streak Shield, ALL Trading Flows E2E verified.
+**Woche 9** – 191 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs. Build sauber (0 Fehler). **Beta-Launch Must-Haves fertig.** Public Club Page (Social-Sharing), Club-Referral-Codes, Abo-Badges (Social Proof), Club-News im Feed. 13 Tabs. Nav: "Markt" + "Community".
+
+## Session 20.02.2026 (108) – Beta-Launch Must-Haves (4 Sprints)
+
+### Änderungen
+- **Sprint 1: Public Club Page** — `/club/[slug]` ohne Login zugänglich (Middleware + AuthGuard conditional). Hero + Kader-Vorschau + Stats + Fixtures + CTA. OG Meta Tags für Social Sharing
+- **Sprint 2: Club-Referral** — Migration #190 (`clubs.referral_code` + `profiles.invited_by_club`). Onboarding `?club=CODE` Parameter. Admin Referral-Count + Copy-Link Card
+- **Sprint 3: Abo-Badge** — `SubscriptionBadge` Component. Batch-Fetch in Community Feed. PostCard + ProfileView Integration
+- **Sprint 4: Club-News** — Migration #191 (`post_type='club_news'`). Admin News-Modal. PostCard gold styling. Neuigkeiten-Section in Club Übersicht. PostType-Filter "Club-News" Pill
+
+### Dateien modifiziert/neu
+- `src/lib/supabaseMiddleware.ts` (publicRoutes + `/club`)
+- `src/app/(app)/layout.tsx` (AuthGuard conditional für `/club/`)
+- `src/app/(app)/club/[slug]/page.tsx` (OG Meta Tags)
+- `src/app/(app)/club/[slug]/ClubContent.tsx` (Public View + Club-News Section)
+- `src/app/(auth)/login/page.tsx` (`?club` param forwarding)
+- `src/app/(auth)/onboarding/page.tsx` (`?club=CODE` auto-club + banner)
+- `src/app/(app)/community/page.tsx` (Subscription batch-fetch)
+- `src/types/index.ts` (PostType + DbClub + Profile erweitert)
+- `src/lib/services/referral.ts` (3 neue Funktionen)
+- `src/lib/services/clubSubscriptions.ts` (`getActiveSubscriptionsByUsers`)
+- `src/lib/services/posts.ts` (`createClubNews`)
+- `src/components/ui/SubscriptionBadge.tsx` (NEU)
+- `src/components/community/PostCard.tsx` (club_news badge + abo badge)
+- `src/components/community/CommunityFeedTab.tsx` (subscriptionMap + club_news filter)
+- `src/components/profile/ProfileView.tsx` (SubscriptionBadge)
+- `src/components/admin/AdminOverviewTab.tsx` (Referral + News Modal)
+- `messages/de.json` + `messages/tr.json` (i18n keys)
+
+## Session 20.02.2026 (106) – UX Radical Simplification
+
+### Änderungen
+- **Home:** 3-Tab System (Mein Stand/Aktuell/Entdecken) → 1 scrollbare Seite. 10+ Queries entfernt, 9 Sections eliminiert, 6 Sections inlined
+- **Market:** 'Spieler' Tab entfernt (KaufenDiscovery Search-Mode deckt ab), 4→3 Tabs. `MarketTab` Type 4→3
+- **Community:** 'Gerüchte' + 'Aktionen' Tabs entfernt. Gerüchte-Filter als PostType-Pills (Alle/Posts/Gerüchte) in FeedTab gemerged. 5→3 Tabs
+- **Club:** 'Club' Community-Tab komplett entfernt. DeineSpieler, ActivityFeed, SquadOverview aus Übersicht entfernt. 15+ State-Vars, Vote/Research-Handlers entfernt. 4→3 Tabs
+- **Fantasy:** Category-Pills, View-Mode-Toggle, Table-View entfernt. Nur: GW-Selector + Search + Status-Pills + Card-View
+- **Nav:** "Manager" + Badge "Office" → "Markt" (DE) / "Pazar" (TR). "Report" → "Community" (DE) / "Topluluk" (TR). Badge entfernt
+- **Ergebnis:** 20→13 Tabs, 10 Dateien, 299 Insertions / 864 Deletions (-565 net)
+
+### Dateien modifiziert
+- `src/app/(app)/page.tsx` (Home — single scrollable page)
+- `src/app/(app)/market/page.tsx` (Spieler tab removed)
+- `src/app/(app)/community/page.tsx` (Gerüchte+Aktionen removed)
+- `src/app/(app)/club/[slug]/ClubContent.tsx` (Club tab removed, Übersicht simplified)
+- `src/app/(app)/fantasy/FantasyContent.tsx` (Category pills + view toggle removed)
+- `src/components/community/CommunityFeedTab.tsx` (PostType filter pills added)
+- `src/lib/stores/marketStore.ts` (MarketTab type 4→3)
+- `src/lib/nav.ts` (badge removed)
+- `messages/de.json` (nav labels)
+- `messages/tr.json` (nav labels)
 
 ## Session 19.02.2026 (96) – Guided Onboarding Checklist
 

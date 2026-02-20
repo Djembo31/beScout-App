@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Target, Calendar, Check, ChevronDown, Gift, Clock } from 'lucide-react';
-import { cn, fmtBSD } from '@/lib/utils';
+import { cn, fmtScout } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { getUserMissions, claimMissionReward } from '@/lib/services/missions';
@@ -108,7 +108,7 @@ export default function MissionBanner() {
               <span className="font-black text-sm">Missionen</span>
               {unclaimedReward > 0 && (
                 <span className="text-[10px] font-bold text-[#FFD700] bg-[#FFD700]/10 px-1.5 py-0.5 rounded-full">
-                  +{fmtBSD(centsToBsd(unclaimedReward))} BSD
+                  +{fmtScout(centsToBsd(unclaimedReward))} $SCOUT
                 </span>
               )}
             </div>
@@ -200,7 +200,7 @@ function MissionSection({ type, missions, completedCount, claiming, onClaim }: {
           const pct = Math.min(100, (m.progress / m.target_value) * 100);
           const isClaimed = m.status === 'claimed';
           const isCompleted = m.status === 'completed';
-          const rewardBsd = fmtBSD(centsToBsd(Number(m.reward_cents)));
+          const rewardBsd = fmtScout(centsToBsd(Number(m.reward_cents)));
 
           return (
             <div

@@ -875,7 +875,7 @@ export function SpieltagTab({
                     </div>
                   </div>
                   {event.userReward && event.userReward > 0 && (
-                    <span className="text-xs font-bold text-[#FFD700]">+{(event.userReward / 100).toFixed(0)} BSD</span>
+                    <span className="text-xs font-bold text-[#FFD700]">+{(event.userReward / 100).toFixed(0)} $SCOUT</span>
                   )}
                 </button>
               );

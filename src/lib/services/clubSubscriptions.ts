@@ -58,6 +58,29 @@ export const TIER_CONFIG: Record<SubscriptionTier, {
   },
 };
 
+/** Batch-fetch active subscription tiers for multiple users (for PostCard badges) */
+export async function getActiveSubscriptionsByUsers(userIds: string[]): Promise<Map<string, SubscriptionTier>> {
+  if (userIds.length === 0) return new Map();
+  const { data, error } = await supabase
+    .from('club_subscriptions')
+    .select('user_id, tier')
+    .in('user_id', userIds)
+    .eq('status', 'active')
+    .gt('expires_at', new Date().toISOString());
+  if (error || !data) return new Map();
+  // If user has multiple subs, pick highest tier
+  const tierRank: Record<string, number> = { bronze: 1, silber: 2, gold: 3 };
+  const result = new Map<string, SubscriptionTier>();
+  for (const row of data) {
+    const existing = result.get(row.user_id as string);
+    const rowTier = row.tier as SubscriptionTier;
+    if (!existing || (tierRank[rowTier] ?? 0) > (tierRank[existing] ?? 0)) {
+      result.set(row.user_id as string, rowTier);
+    }
+  }
+  return result;
+}
+
 /** Get user's active subscription for a club */
 export async function getMySubscription(userId: string, clubId: string): Promise<ClubSubscription | null> {
   const { data, error } = await supabase

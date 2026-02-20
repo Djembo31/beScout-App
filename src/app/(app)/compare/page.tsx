@@ -10,7 +10,7 @@ import { RadarChart, buildPlayerRadarAxes } from '@/components/player/RadarChart
 import type { RadarDataSet } from '@/components/player/RadarChart';
 import { centsToBsd } from '@/lib/services/players';
 import { useRawPlayers } from '@/lib/queries/players';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import type { DbPlayer, Pos } from '@/types';
 
 const COLORS = ['#38bdf8', '#fb7185', '#fbbf24'];
@@ -266,7 +266,7 @@ export default function ComparePage() {
                       const isWorst = v === minVal && maxVal !== minVal;
                       return (
                         <td key={i} className={`py-2.5 text-right font-mono font-bold ${isBest ? 'text-[#FFD700]' : isWorst ? 'text-red-400' : 'text-white'}`}>
-                          {row.isBsd ? fmtBSD(centsToBsd(v)) : v}
+                          {row.isBsd ? fmtScout(centsToBsd(v)) : v}
                         </td>
                       );
                     })}

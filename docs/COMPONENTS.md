@@ -152,10 +152,10 @@
 ## Helper Functions (`@/lib/utils.ts`)
 
 ```tsx
-import { fmtBSD, cn } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 
-fmtBSD(12450)     // → "12.450"
-fmtBSD(1234567)   // → "1.234.567"
+fmtScout(12450)     // → "12.450"
+fmtScout(1234567)   // → "1.234.567"
 cn('base', condition && 'active')  // Conditional classNames
 ```
 

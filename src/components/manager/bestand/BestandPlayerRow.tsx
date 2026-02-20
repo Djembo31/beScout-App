@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { PlayerIdentity } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
-import { fmtBSD, cn } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import {
   StatusPill, MinutesPill, PerfPills, NextMatchBadge, MarketBadges,
@@ -89,23 +89,23 @@ function MarktCols({ item }: { item: BestandPlayer }) {
       {/* Desktop */}
       <div className="hidden md:flex items-center gap-3 shrink-0 text-[11px] font-mono">
         <span className="text-white/50">{item.quantity}<span className="text-white/25">×</span></span>
-        <span className="text-white/40">EK {fmtBSD(item.avgBuyPriceBsd)}</span>
-        <span className="text-white/50">Floor {item.floorBsd != null ? fmtBSD(item.floorBsd) : '—'}</span>
-        <span className="text-[#FFD700] font-bold">{fmtBSD(item.valueBsd * item.quantity)}</span>
+        <span className="text-white/40">EK {fmtScout(item.avgBuyPriceBsd)}</span>
+        <span className="text-white/50">Floor {item.floorBsd != null ? fmtScout(item.floorBsd) : '—'}</span>
+        <span className="text-[#FFD700] font-bold">{fmtScout(item.valueBsd * item.quantity)}</span>
         <span className={cn('flex items-center gap-0.5', pnlColor)}>
           <TrendIcon className="w-2.5 h-2.5" />
-          {item.pnlBsd >= 0 ? '+' : ''}{fmtBSD(Math.round(item.pnlBsd))}
+          {item.pnlBsd >= 0 ? '+' : ''}{fmtScout(Math.round(item.pnlBsd))}
           <span className="text-white/30 ml-0.5">({item.pnlPct >= 0 ? '+' : ''}{item.pnlPct.toFixed(1)}%)</span>
         </span>
         <MarketBadges hasIpo={item.hasActiveIpo} listedQty={0} offerCount={0} />
       </div>
       {/* Mobile */}
       <div className="md:hidden flex items-center gap-2 flex-wrap mt-0.5 text-[10px] font-mono">
-        <span className="text-white/50">{item.quantity}<span className="text-white/25">×</span> EK {fmtBSD(item.avgBuyPriceBsd)}</span>
-        <span className="text-[#FFD700] font-bold">{fmtBSD(item.valueBsd * item.quantity)}</span>
+        <span className="text-white/50">{item.quantity}<span className="text-white/25">×</span> EK {fmtScout(item.avgBuyPriceBsd)}</span>
+        <span className="text-[#FFD700] font-bold">{fmtScout(item.valueBsd * item.quantity)}</span>
         <span className={cn('flex items-center gap-0.5', pnlColor)}>
           <TrendIcon className="w-2.5 h-2.5" />
-          {item.pnlBsd >= 0 ? '+' : ''}{fmtBSD(Math.round(item.pnlBsd))}
+          {item.pnlBsd >= 0 ? '+' : ''}{fmtScout(Math.round(item.pnlBsd))}
         </span>
       </div>
     </>
@@ -128,13 +128,13 @@ function HandelCols({ item }: { item: BestandPlayer }) {
           <span className="text-white/30">Kein Angebot</span>
         )}
         <span className="text-white/50">{item.availableToSell} verfügbar</span>
-        <span className="text-white/50">Floor {item.floorBsd != null ? fmtBSD(item.floorBsd) : '—'}</span>
+        <span className="text-white/50">Floor {item.floorBsd != null ? fmtScout(item.floorBsd) : '—'}</span>
       </div>
       {/* Mobile */}
       <div className="md:hidden flex items-center gap-2 flex-wrap mt-0.5 text-[10px] font-mono">
         <MarketBadges hasIpo={item.hasActiveIpo} listedQty={item.listedQty} offerCount={item.offers.length} />
         <span className="text-white/40">{item.availableToSell} verfüg.</span>
-        <span className="text-white/50">Floor {item.floorBsd != null ? fmtBSD(item.floorBsd) : '—'}</span>
+        <span className="text-white/50">Floor {item.floorBsd != null ? fmtScout(item.floorBsd) : '—'}</span>
       </div>
     </>
   );
@@ -208,9 +208,9 @@ function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onS
         <div className="shrink-0 flex items-center gap-2">
           {lens === 'performance' && (
             <div className="text-right hidden sm:block">
-              <div className="text-xs font-mono font-bold text-[#FFD700]">{fmtBSD(item.valueBsd * item.quantity)}</div>
+              <div className="text-xs font-mono font-bold text-[#FFD700]">{fmtScout(item.valueBsd * item.quantity)}</div>
               <div className={cn('text-[9px] font-mono', item.pnlBsd >= 0 ? 'text-[#22C55E]' : 'text-red-300')}>
-                {item.pnlBsd >= 0 ? '+' : ''}{fmtBSD(Math.round(item.pnlBsd))}
+                {item.pnlBsd >= 0 ? '+' : ''}{fmtScout(Math.round(item.pnlBsd))}
               </div>
             </div>
           )}

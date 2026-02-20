@@ -4,7 +4,7 @@ import React from 'react';
 import { Users, Clock, Coins, Vote, X } from 'lucide-react';
 import { Card, Chip } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import { formatBsd } from '@/lib/services/wallet';
+import { formatScout } from '@/lib/services/wallet';
 import type { CommunityPollWithCreator } from '@/types';
 
 type Props = {
@@ -88,7 +88,7 @@ export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCan
           {poll.cost_bsd > 0 && (
             <div className="flex items-center gap-2">
               <Coins className="w-4 h-4 text-[#FFD700]" />
-              <span className="text-[#FFD700] font-bold">{formatBsd(poll.cost_bsd)} BSD</span>
+              <span className="text-[#FFD700] font-bold">{formatScout(poll.cost_bsd)} $SCOUT</span>
             </div>
           )}
         </div>

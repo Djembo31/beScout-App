@@ -150,7 +150,7 @@ export const EventCard = ({
         ) : event.status === 'running' ? (
           <><Play className="w-4 h-4" /> Läuft</>
         ) : (
-          <><Plus className="w-4 h-4" /> {event.buyIn === 0 ? 'Beitreten' : `${event.buyIn} BSD`}</>
+          <><Plus className="w-4 h-4" /> {event.buyIn === 0 ? 'Beitreten' : `${event.buyIn} $SCOUT`}</>
         )}
       </Button>
     </Card>

@@ -13,7 +13,7 @@ import {
 import { Card, Button } from '@/components/ui';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { cn } from '@/lib/utils';
-import { formatBsd } from '@/lib/services/wallet';
+import { formatScout } from '@/lib/services/wallet';
 import { getActivityLabel, getRelativeTime } from '@/lib/activityHelpers';
 import { useToast } from '@/components/providers/ToastProvider';
 import { SectionHeader, FEED_ICON_MAP, renderActivityIcon, getActivityColorLocal } from './helpers';
@@ -171,7 +171,7 @@ export default function MeinStandTab({
                     <div className="text-sm font-medium leading-snug">{getActivityLabel(tx)}</div>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className={cn('text-xs font-mono font-bold', positive ? 'text-[#22C55E]' : 'text-white/40')}>
-                        {positive ? '+' : ''}{formatBsd(tx.amount)} BSD
+                        {positive ? '+' : ''}{formatScout(tx.amount)} $SCOUT
                       </span>
                       <span className="text-[10px] text-white/25">· {getRelativeTime(tx.created_at)}</span>
                     </div>

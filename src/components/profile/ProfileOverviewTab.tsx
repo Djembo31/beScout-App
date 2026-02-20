@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, BarChart3, Trophy, Coins, FileText, Vote, Target, Flame, Crosshair, Banknote, UserCheck, Sparkles, Megaphone } from 'lucide-react';
 import { Card, StatCard, Button } from '@/components/ui';
 import { PositionBadge, PlayerIdentity } from '@/components/player';
-import { fmtBSD, cn } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import { formatBsd } from '@/lib/services/wallet';
+import { formatScout } from '@/lib/services/wallet';
 import { getAchievementDef, getFeaturedAchievements } from '@/lib/achievements';
 import { getRelativeTime } from '@/lib/activityHelpers';
 import { useUserMasteryAll } from '@/lib/queries/mastery';
@@ -108,10 +108,10 @@ export default function ProfileOverviewTab({
     <>
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Portfoliowert" value={`${formatBsd(portfolioValueCents)} BSD`} icon={<BarChart3 className="w-4 h-4 text-white/40" />} />
+        <StatCard label="Portfoliowert" value={`${formatScout(portfolioValueCents)} $SCOUT`} icon={<BarChart3 className="w-4 h-4 text-white/40" />} />
         <StatCard
           label="Wertentwicklung"
-          value={`${pnlCents >= 0 ? '+' : ''}${formatBsd(pnlCents)} BSD`}
+          value={`${pnlCents >= 0 ? '+' : ''}${formatScout(pnlCents)} $SCOUT`}
           trend={pnlCents >= 0 ? 'up' : 'down'}
           icon={pnlCents >= 0 ? <TrendingUp className="w-4 h-4 text-[#22C55E]" /> : <TrendingDown className="w-4 h-4 text-red-400" />}
         />
@@ -127,7 +127,7 @@ export default function ProfileOverviewTab({
               <Coins className="w-4 h-4 text-[#FFD700]" />
               Verdienste
             </h3>
-            <span className="text-sm font-mono font-bold text-[#22C55E]">+{fmtBSD(centsToBsd(earnings.total))} BSD</span>
+            <span className="text-sm font-mono font-bold text-[#22C55E]">+{fmtScout(centsToBsd(earnings.total))} $SCOUT</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             {EARNING_TYPES.map(et => {
@@ -140,7 +140,7 @@ export default function ProfileOverviewTab({
                     <Icon className={cn('w-3.5 h-3.5', et.color)} />
                     <span className="text-xs text-white/50">{et.label}</span>
                   </div>
-                  <div className="text-sm font-mono font-bold text-white">+{fmtBSD(centsToBsd(amount))} BSD</div>
+                  <div className="text-sm font-mono font-bold text-white">+{fmtScout(centsToBsd(amount))} $SCOUT</div>
                 </div>
               );
             })}
@@ -170,9 +170,9 @@ export default function ProfileOverviewTab({
                       </div>
                       <div className="text-xs text-white/40 mb-1">{h.player.club} · {h.quantity}x</div>
                       <div className="flex items-center justify-between">
-                        <span className="font-mono font-bold text-[#FFD700] text-sm">{fmtBSD(centsToBsd(valueCents))}</span>
+                        <span className="font-mono font-bold text-[#FFD700] text-sm">{fmtScout(centsToBsd(valueCents))}</span>
                         <span className={cn('text-xs font-mono', pnl >= 0 ? 'text-[#22C55E]' : 'text-red-400')}>
-                          {pnl >= 0 ? '+' : ''}{fmtBSD(centsToBsd(pnl))}
+                          {pnl >= 0 ? '+' : ''}{fmtScout(centsToBsd(pnl))}
                         </span>
                       </div>
                     </div>
@@ -289,9 +289,9 @@ export default function ProfileOverviewTab({
                     </div>
                     <div className="text-right flex-shrink-0">
                       <div className={cn('text-sm font-mono font-bold', isBuy ? 'text-white' : 'text-[#22C55E]')}>
-                        {isBuy ? '-' : '+'}{fmtBSD(centsToBsd(totalCents))} BSD
+                        {isBuy ? '-' : '+'}{fmtScout(centsToBsd(totalCents))} $SCOUT
                       </div>
-                      <div className="text-[10px] text-white/30 font-mono">à {fmtBSD(unitBsd)}</div>
+                      <div className="text-[10px] text-white/30 font-mono">à {fmtScout(unitBsd)}</div>
                     </div>
                   </div>
                 </Link>
@@ -325,7 +325,7 @@ export default function ProfileOverviewTab({
             </div>
             <div className="text-center">
               <div className="text-lg font-mono font-black text-[#22C55E]">
-                {fmtBSD(centsToBsd(fantasyResults.reduce((s, r) => s + r.rewardAmount, 0)))}
+                {fmtScout(centsToBsd(fantasyResults.reduce((s, r) => s + r.rewardAmount, 0)))}
               </div>
               <div className="text-[10px] text-white/40">Gewonnen</div>
             </div>
@@ -358,8 +358,8 @@ export default function ProfileOverviewTab({
                     </div>
                     {result.rewardAmount > 0 && (
                       <div className="text-right">
-                        <div className="text-sm font-mono font-bold text-[#22C55E]">+{fmtBSD(centsToBsd(result.rewardAmount))}</div>
-                        <div className="text-[10px] text-white/30">BSD</div>
+                        <div className="text-sm font-mono font-bold text-[#22C55E]">+{fmtScout(centsToBsd(result.rewardAmount))}</div>
+                        <div className="text-[10px] text-white/30">$SCOUT</div>
                       </div>
                     )}
                   </div>
@@ -398,7 +398,7 @@ export default function ProfileOverviewTab({
                     <div className="text-right">
                       <div className="font-mono font-bold">{h.quantity} DPC</div>
                       <div className={`text-xs font-mono ${holdingPnl >= 0 ? 'text-[#22C55E]' : 'text-red-300'}`}>
-                        {holdingPnl >= 0 ? '+' : ''}{fmtBSD(Math.round(holdingPnl))} BSD
+                        {holdingPnl >= 0 ? '+' : ''}{fmtScout(Math.round(holdingPnl))} $SCOUT
                       </div>
                     </div>
                   </div>

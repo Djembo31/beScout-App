@@ -2,7 +2,7 @@
  * BeScout - Utility Functions
  */
 
-export function fmtBSD(value: number | undefined | null): string {
+export function fmtScout(value: number | undefined | null): string {
   if (value === undefined || value === null) return '0';
   return value.toLocaleString('de-DE', { maximumFractionDigits: 2 });
 }

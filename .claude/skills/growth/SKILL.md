@@ -35,7 +35,7 @@ Wenn der User `/growth [metric/question]` aufruft:
 - `airdrop_scores` — Engagement-Score (total_score, tier)
 
 ### Trading & Economy
-- `wallets` — BSD Balance (PK: user_id, balance_cents BIGINT)
+- `wallets` — $SCOUT Balance (PK: user_id, balance_cents BIGINT)
 - `transactions` — Alle Transaktionen (type, amount_cents, created_at)
 - `orders` — Offene/erfüllte Orders (side, price_cents, status)
 - `holdings` — DPC Bestände (player_id, quantity)

@@ -14,7 +14,7 @@ import {
   getIncomingOffers, getOutgoingOffers, getOpenBids, getOfferHistory,
   acceptOffer, rejectOffer, counterOffer, cancelOffer, createOffer,
 } from '@/lib/services/offers';
-import { fmtBSD } from '@/types';
+import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { OfferWithDetails, Pos, Player } from '@/types';
 import SponsorBanner from '@/components/player/detail/SponsorBanner';
@@ -51,7 +51,7 @@ function StatusBadge({ status }: { status: string }) {
     rejected: 'Abgelehnt',
     countered: 'Gegenangebot',
     expired: 'Abgelaufen',
-    cancelled: 'Zurückgezogen',
+    cancelled: 'ZurÃ¼ckgezogen',
   };
   return (
     <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${styles[status] ?? 'bg-white/10 text-white/40'}`}>
@@ -99,11 +99,11 @@ function OfferCard({
             <span className={offer.side === 'buy' ? 'text-green-400' : 'text-red-400'}>
               {offer.side === 'buy' ? 'Kaufangebot' : 'Verkaufsangebot'}
             </span>
-            <span className="text-white/30">•</span>
+            <span className="text-white/30">â€¢</span>
             <span className="font-mono font-bold text-[#FFD700]">
-              {fmtBSD(centsToBsd(offer.price))} BSD
+              {fmtScout(centsToBsd(offer.price))} $SCOUT
             </span>
-            <span className="text-white/30">•</span>
+            <span className="text-white/30">â€¢</span>
             <span className="text-white/60">{offer.quantity}x</span>
           </div>
 
@@ -116,7 +116,7 @@ function OfferCard({
             )}
             {!isExpired && offer.status === 'pending' && (
               <>
-                <span>•</span>
+                <span>â€¢</span>
                 <span>{timeLeft}h verbleibend</span>
               </>
             )}
@@ -167,7 +167,7 @@ function OfferCard({
                 <button
                   onClick={onCancel}
                   className="p-1.5 rounded-lg bg-white/10 text-white/40 hover:bg-white/20 transition-colors"
-                  title="Zurückziehen"
+                  title="ZurÃ¼ckziehen"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -210,7 +210,7 @@ function CreateOfferModal({
   const handleSubmit = async () => {
     if (!selectedPlayer || !price) return;
     const priceCents = Math.round(parseFloat(price) * 100);
-    if (priceCents <= 0) { addToast('Ungültiger Preis', 'error'); return; }
+    if (priceCents <= 0) { addToast('UngÃ¼ltiger Preis', 'error'); return; }
 
     setLoading(true);
     try {
@@ -321,7 +321,7 @@ function CreateOfferModal({
 
         {/* Price */}
         <div>
-          <label className="text-sm text-white/60 mb-1 block">Preis pro DPC (BSD)</label>
+          <label className="text-sm text-white/60 mb-1 block">Preis pro DPC ($SCOUT)</label>
           <input
             type="number" inputMode="numeric"
             value={price}
@@ -335,7 +335,7 @@ function CreateOfferModal({
 
         {/* Receiver (optional) */}
         <div>
-          <label className="text-sm text-white/60 mb-1 block">Empfänger (optional, leer = offenes Gebot)</label>
+          <label className="text-sm text-white/60 mb-1 block">EmpfÃ¤nger (optional, leer = offenes Gebot)</label>
           <input
             type="text"
             value={receiverHandle}
@@ -438,7 +438,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
   const handleCounter = async () => {
     if (!uid || !counterModal || !counterPrice) return;
     const priceCents = Math.round(parseFloat(counterPrice) * 100);
-    if (priceCents <= 0) { addToast('Ungültiger Preis', 'error'); return; }
+    if (priceCents <= 0) { addToast('UngÃ¼ltiger Preis', 'error'); return; }
     try {
       const result = await counterOffer(uid, counterModal.id, priceCents);
       if (result.success) {
@@ -459,7 +459,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
     try {
       const result = await cancelOffer(uid, offerId);
       if (result.success) {
-        addToast('Angebot zurückgezogen', 'success');
+        addToast('Angebot zurÃ¼ckgezogen', 'success');
         loadOffers();
       } else {
         addToast(result.error ?? 'Fehler', 'error');
@@ -556,10 +556,10 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
         <Modal open={true} onClose={() => { setCounterModal(null); setCounterPrice(''); }} title="Gegenangebot">
           <div className="space-y-4">
             <div className="text-sm text-white/60">
-              Original: <span className="font-mono text-[#FFD700]">{fmtBSD(centsToBsd(counterModal.price))} BSD</span> für {counterModal.player_first_name} {counterModal.player_last_name}
+              Original: <span className="font-mono text-[#FFD700]">{fmtScout(centsToBsd(counterModal.price))} $SCOUT</span> fÃ¼r {counterModal.player_first_name} {counterModal.player_last_name}
             </div>
             <div>
-              <label className="text-sm text-white/60 mb-1 block">Dein Preis (BSD)</label>
+              <label className="text-sm text-white/60 mb-1 block">Dein Preis ($SCOUT)</label>
               <input
                 type="number" inputMode="numeric"
                 value={counterPrice}

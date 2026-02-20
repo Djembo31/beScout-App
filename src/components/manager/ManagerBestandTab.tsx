@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Package, Tag, MessageSquare } from 'lucide-react';
 import { EmptyState } from '@/components/ui';
-import { fmtBSD, cn } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { Player, Pos, DbIpo, OfferWithDetails } from '@/types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
@@ -235,12 +235,12 @@ export default function ManagerBestandTab({
         </div>
         <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
           <div className="text-[10px] text-white/40 uppercase tracking-wider">Kaderwert</div>
-          <div className="text-xl font-black font-mono text-[#FFD700]">{fmtBSD(Math.round(summary.totalValue))}</div>
+          <div className="text-xl font-black font-mono text-[#FFD700]">{fmtScout(Math.round(summary.totalValue))}</div>
         </div>
         <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
           <div className="text-[10px] text-white/40 uppercase tracking-wider">G/V</div>
           <div className={cn('text-xl font-black font-mono', getPnlColor(summary.pnl))}>
-            {summary.pnl >= 0 ? '+' : ''}{fmtBSD(Math.round(summary.pnl))}
+            {summary.pnl >= 0 ? '+' : ''}{fmtScout(Math.round(summary.pnl))}
             <span className="text-sm ml-1">({summary.pnlPct >= 0 ? '+' : ''}{summary.pnlPct.toFixed(1)}%)</span>
           </div>
         </div>

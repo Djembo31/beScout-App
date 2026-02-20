@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Lock, ArrowRight } from 'lucide-react';
 import { Modal, Card } from '@/components/ui';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { Player, DbIpo, DbOrder } from '@/types';
 import {
@@ -139,8 +139,8 @@ export default function BuyModal({
             >
               <ArrowRight className="w-3 h-3" />
               {effectiveSource === 'ipo'
-                ? `Auch verfügbar: Transfermarkt ab ${fmtBSD(floorBsd)} BSD`
-                : `Auch verfügbar: Club IPO für ${fmtBSD(ipoPriceBsd)} BSD`
+                ? `Auch verfügbar: Transfermarkt ab ${fmtScout(floorBsd)} $SCOUT`
+                : `Auch verfügbar: Club IPO für ${fmtScout(ipoPriceBsd)} $SCOUT`
               }
             </button>
           )}

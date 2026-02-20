@@ -21,7 +21,7 @@ import { getLineup, removeLineup, getEventParticipants, getEventParticipantCount
 import type { LineupWithPlayers } from '@/lib/services/lineups';
 import { resetEvent, getEventLeaderboard } from '@/lib/services/scoring';
 import type { LeaderboardEntry } from '@/lib/services/scoring';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import type { Pos } from '@/types';
 import type { FantasyEvent, EventDetailTab, LineupPlayer, UserDpcHolding, LineupPreset } from './types';
 import { FORMATIONS_6ER, PRESET_KEY } from './constants';
@@ -452,11 +452,11 @@ export const EventDetailModal = ({
                 <div className="grid grid-cols-2 gap-2">
                   <div className="p-3 bg-white/[0.03] rounded-lg">
                     <div className="text-xs text-white/40">Eintritt</div>
-                    <div className="font-mono font-bold text-[#FFD700]">{event.buyIn === 0 ? 'Kostenlos' : `${event.buyIn} BSD`}</div>
+                    <div className="font-mono font-bold text-[#FFD700]">{event.buyIn === 0 ? 'Kostenlos' : `${event.buyIn} $SCOUT`}</div>
                   </div>
                   <div className="p-3 bg-white/[0.03] rounded-lg">
                     <div className="text-xs text-white/40">Preispool</div>
-                    <div className="font-mono font-bold text-[#FFD700]">{event.prizePool} BSD</div>
+                    <div className="font-mono font-bold text-[#FFD700]">{event.prizePool} $SCOUT</div>
                   </div>
                   <div className="p-3 bg-white/[0.03] rounded-lg">
                     <div className="text-xs text-white/40">Format</div>
@@ -530,7 +530,7 @@ export const EventDetailModal = ({
                     <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
                         <Coins className="w-4 h-4 text-[#FFD700]" />
-                        <span>Eintrittsgebühr: {event.buyIn} BSD</span>
+                        <span>Eintrittsgebühr: {event.buyIn} $SCOUT</span>
                       </div>
                       <CheckCircle2 className="w-5 h-5 text-[#22C55E]" />
                     </div>
@@ -894,7 +894,7 @@ export const EventDetailModal = ({
                           return (
                             <div className="text-right">
                               <div className="text-xs text-white/50 uppercase tracking-wider font-bold">Prämie</div>
-                              <div className="text-xl font-mono font-black text-[#22C55E]">+{fmtBSD(myEntry.rewardAmount / 100)} BSD</div>
+                              <div className="text-xl font-mono font-black text-[#22C55E]">+{fmtScout(myEntry.rewardAmount / 100)} $SCOUT</div>
                             </div>
                           );
                         }
@@ -952,7 +952,7 @@ export const EventDetailModal = ({
                               {player.club}
                               {tierCfg && (
                                 <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${tierCfg.bg} ${tierCfg.color}`}>
-                                  {tierCfg.labelDe} +{tierCfg.bonusCents / 100} BSD
+                                  {tierCfg.labelDe} +{tierCfg.bonusCents / 100} $SCOUT
                                 </span>
                               )}
                             </div>
@@ -1124,7 +1124,7 @@ export const EventDetailModal = ({
                     <div className="text-right">
                       <div className="text-2xl font-mono font-black text-[#FFD700]">{viewingUserLineup.entry.totalScore} Pkt</div>
                       {viewingUserLineup.entry.rewardAmount > 0 && (
-                        <div className="text-xs font-mono text-[#22C55E]">+{fmtBSD(viewingUserLineup.entry.rewardAmount / 100)} BSD</div>
+                        <div className="text-xs font-mono text-[#22C55E]">+{fmtScout(viewingUserLineup.entry.rewardAmount / 100)} $SCOUT</div>
                       )}
                     </div>
                   </div>
@@ -1292,7 +1292,7 @@ export const EventDetailModal = ({
                             </div>
                             <div className="flex items-center gap-3">
                               {entry.rewardAmount > 0 && (
-                                <span className="text-xs font-mono text-[#22C55E]">+{fmtBSD(entry.rewardAmount / 100)} BSD</span>
+                                <span className="text-xs font-mono text-[#22C55E]">+{fmtScout(entry.rewardAmount / 100)} $SCOUT</span>
                               )}
                               <span className="font-mono font-bold">{entry.totalScore}</span>
                               <ChevronRight className="w-4 h-4 text-white/30" />
@@ -1340,7 +1340,7 @@ export const EventDetailModal = ({
                 {event.buyIn > 0 && (
                   <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
                     <span className="text-white/60">Teilnahmegebühr</span>
-                    <span className="font-bold text-[#FFD700]">{fmtBSD(event.buyIn)} BSD</span>
+                    <span className="font-bold text-[#FFD700]">{fmtScout(event.buyIn)} $SCOUT</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
@@ -1394,7 +1394,7 @@ export const EventDetailModal = ({
                 className={!isLineupComplete || !reqCheck.ok || isFull ? 'opacity-50' : ''}
               >
                 <CheckCircle2 className="w-5 h-5" />
-                {isFull ? 'Event voll' : event.buyIn === 0 ? 'Anmeldung bestätigen' : `Anmelden & ${event.buyIn} BSD zahlen`}
+                {isFull ? 'Event voll' : event.buyIn === 0 ? 'Anmeldung bestätigen' : `Anmelden & ${event.buyIn} $SCOUT zahlen`}
               </Button>
             </div>
           );

@@ -178,7 +178,7 @@ export default function CommunityResearchTab({
             {(researchCallFilter || researchCategoryFilter) ? 'Keine Berichte mit diesem Filter' : 'Noch keine Research-Berichte'}
           </div>
           <div className="text-xs text-white/30 mb-4">
-            {(researchCallFilter || researchCategoryFilter) ? 'Probiere einen anderen Filter.' : 'Schreibe den ersten Bericht und verdiene BSD!'}
+            {(researchCallFilter || researchCategoryFilter) ? 'Probiere einen anderen Filter.' : 'Schreibe den ersten Bericht und verdiene $SCOUT!'}
           </div>
           {!(researchCallFilter || researchCategoryFilter) && (
             <Button variant="gold" size="sm" onClick={onCreateResearch}>

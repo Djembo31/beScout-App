@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { PositionBadge } from '@/components/player';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getRelativeTime } from '@/lib/activityHelpers';
 import { SectionHeader, formatPrize, getTimeUntil } from './helpers';
@@ -66,7 +66,7 @@ export default function AktuellTab({
                         <Users className="w-3.5 h-3.5" />
                         {nextEvent.current_entries}/{nextEvent.max_entries ?? '∞'}
                       </span>
-                      <span>Eintritt: {nextEvent.entry_fee === 0 ? 'Gratis' : `${fmtBSD(centsToBsd(nextEvent.entry_fee))} BSD`}</span>
+                      <span>Eintritt: {nextEvent.entry_fee === 0 ? 'Gratis' : `${fmtScout(centsToBsd(nextEvent.entry_fee))} $SCOUT`}</span>
                       <span className="flex items-center gap-1">
                         <MessageCircle className="w-3.5 h-3.5" />
                         {t('discussion')}
@@ -78,7 +78,7 @@ export default function AktuellTab({
                     <div className="text-xl md:text-2xl font-black font-mono text-[#FFD700]">
                       {formatPrize(centsToBsd(nextEvent.prize_pool))}
                     </div>
-                    <div className="text-[10px] text-white/40">BSD</div>
+                    <div className="text-[10px] text-white/40">$SCOUT</div>
                   </div>
                 </div>
               </div>
@@ -115,7 +115,7 @@ export default function AktuellTab({
               </div>
               <div className="shrink-0 text-right">
                 <div className="font-mono font-black text-[#FFD700] text-lg">{activeIPOs[0].ipo.price}</div>
-                <div className="text-[10px] text-white/40">BSD/DPC</div>
+                <div className="text-[10px] text-white/40">$SCOUT/DPC</div>
               </div>
             </div>
           </div>
@@ -142,7 +142,7 @@ export default function AktuellTab({
                   <div className="text-[10px] text-white/30" title={new Date(tr.executedAt).toLocaleString('de-DE')}>{getRelativeTime(tr.executedAt)}</div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="text-[11px] font-mono font-bold text-[#FFD700]">{fmtBSD(centsToBsd(tr.price))}</div>
+                  <div className="text-[11px] font-mono font-bold text-[#FFD700]">{fmtScout(centsToBsd(tr.price))}</div>
                   <div className="text-[9px] text-white/25 flex items-center gap-1">{tr.quantity}x · {tr.isP2P ? t('p2p') : 'IPO'} <MessageCircle className="w-2.5 h-2.5 text-white/15" /></div>
                 </div>
               </Link>
@@ -205,7 +205,7 @@ export default function AktuellTab({
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="font-mono font-bold text-[#FFD700] text-sm">{fmtBSD(centsToBsd(order.price))} BSD</div>
+                  <div className="font-mono font-bold text-[#FFD700] text-sm">{fmtScout(centsToBsd(order.price))} $SCOUT</div>
                   <div className="text-[10px] text-white/30">{getRelativeTime(order.created_at)}</div>
                 </div>
               </Link>

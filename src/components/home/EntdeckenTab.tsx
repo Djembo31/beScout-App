@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { PlayerIdentity, PlayerKPIs } from '@/components/player';
-import { fmtBSD, cn } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getRelativeTime } from '@/lib/activityHelpers';
 import { SectionHeader } from './helpers';
@@ -175,7 +175,7 @@ export default function EntdeckenTab({
                     <div className="text-sm font-semibold truncate">{td.displayName || td.handle}</div>
                     <div className="text-[10px] text-white/30">{td.tradeCount} {t('trades')}</div>
                   </div>
-                  <span className="text-xs font-mono text-[#22C55E]">{fmtBSD(centsToBsd(td.totalVolume))}</span>
+                  <span className="text-xs font-mono text-[#22C55E]">{fmtScout(centsToBsd(td.totalVolume))}</span>
                 </Link>
               );
             })}

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Search, Loader2 } from 'lucide-react';
 import { Button, Modal } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
-import { fmtBSD } from '@/types';
+import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import {
   getAllUsers, adjustWallet,
@@ -42,7 +42,7 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
     try {
       const result = await adjustWallet(adminId, adjustModal.id, cents, adjustReason);
       if (result.success) {
-        addToast(`Wallet angepasst: ${fmtBSD(centsToBsd(result.new_balance ?? 0))} BSD`, 'success');
+        addToast(`Wallet angepasst: ${fmtScout(centsToBsd(result.new_balance ?? 0))} $SCOUT`, 'success');
         setAdjustModal(null);
         setAdjustAmount('');
         setAdjustReason('');
@@ -92,7 +92,7 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
                     {u.displayName && <span className="text-white/40 ml-1 text-xs">{u.displayName}</span>}
                   </td>
                   <td className="py-2.5 px-3 text-right font-mono text-[#FFD700]">
-                    {fmtBSD(centsToBsd(u.balance))}
+                    {fmtScout(centsToBsd(u.balance))}
                   </td>
                   <td className="py-2.5 px-3 text-right text-white/60">{u.holdingsCount}</td>
                   <td className="py-2.5 px-3 text-right text-white/60">{u.tradesCount}</td>
@@ -117,10 +117,10 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
         <Modal open={true} onClose={() => setAdjustModal(null)} title={`Wallet-Korrektur: @${adjustModal.handle}`}>
           <div className="space-y-4">
             <div className="text-sm text-white/60">
-              Aktuelles Guthaben: <span className="font-mono text-[#FFD700]">{fmtBSD(centsToBsd(adjustModal.balance))} BSD</span>
+              Aktuelles Guthaben: <span className="font-mono text-[#FFD700]">{fmtScout(centsToBsd(adjustModal.balance))} $SCOUT</span>
             </div>
             <div>
-              <label className="text-xs text-white/60 mb-1 block">Betrag (BSD, negativ = abziehen)</label>
+              <label className="text-xs text-white/60 mb-1 block">Betrag ($SCOUT, negativ = abziehen)</label>
               <input
                 type="number" inputMode="numeric" value={adjustAmount} onChange={e => setAdjustAmount(e.target.value)}
                 placeholder="z.B. 1000 oder -500"

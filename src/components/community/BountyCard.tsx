@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Target, Clock, Users, Coins, CheckCircle, Loader2, Lock } from 'lucide-react';
 import { Card, Chip, Button, Modal } from '@/components/ui';
-import { formatBsd } from '@/lib/services/wallet';
+import { formatScout } from '@/lib/services/wallet';
 import type { BountyWithCreator } from '@/types';
 
 const TIER_ORDER: Record<string, number> = { bronze: 1, silber: 2, gold: 3 };
@@ -82,7 +82,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
           <div className="flex items-center justify-between text-sm mb-4">
             <div className="flex items-center gap-1.5">
               <Coins className="w-4 h-4 text-[#FFD700]" />
-              <span className="text-[#FFD700] font-bold">{formatBsd(bounty.reward_cents)} BSD</span>
+              <span className="text-[#FFD700] font-bold">{formatScout(bounty.reward_cents)} $SCOUT</span>
             </div>
             <div className="flex items-center gap-1.5 text-white/50">
               <Users className="w-4 h-4" />
@@ -128,7 +128,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
           <div className="text-sm text-white/50 mb-2">
             <span className="font-bold text-white">{bounty.title}</span>
             <span className="mx-2">&bull;</span>
-            <span className="text-[#FFD700] font-bold">{formatBsd(bounty.reward_cents)} BSD</span>
+            <span className="text-[#FFD700] font-bold">{formatScout(bounty.reward_cents)} $SCOUT</span>
           </div>
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">Titel</label>

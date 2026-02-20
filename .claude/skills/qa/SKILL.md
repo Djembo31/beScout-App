@@ -55,7 +55,7 @@ Wenn der User `/qa [scope]` aufruft:
 - [ ] Supabase direkt in Components? (→ Service Layer nutzen)
 - [ ] Types in `types/index.ts`? (nicht lokal definiert)
 - [ ] `cn()` für conditional classNames?
-- [ ] `fmtBSD()` für Zahlenformatierung?
+- [ ] `fmtScout()` für Zahlenformatierung?
 - [ ] `PlayerDisplay` statt custom Player-Rendering?
 
 ## Output-Format

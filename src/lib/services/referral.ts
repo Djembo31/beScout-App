@@ -74,7 +74,7 @@ export async function triggerReferralReward(refereeId: string): Promise<void> {
           result.referrer_id!,
           'referral_reward',
           'Empfehlungsbonus erhalten!',
-          'Dein eingeladener Freund hat seinen ersten Trade gemacht — du erhältst 500 BSD!',
+          'Dein eingeladener Freund hat seinen ersten Trade gemacht — du erhältst 500 $SCOUT!',
         );
       }).catch(err => console.error('[Referral] Notification failed:', err));
       // Refresh referrer airdrop score
@@ -85,6 +85,38 @@ export async function triggerReferralReward(refereeId: string): Promise<void> {
   } catch (err) {
     console.error('[Referral] triggerReferralReward failed:', err);
   }
+}
+
+/** Look up a club by its referral code */
+export async function getClubByReferralCode(code: string): Promise<{ id: string; name: string; slug: string; logo_url: string | null } | null> {
+  const { data, error } = await supabase
+    .from('clubs')
+    .select('id, name, slug, logo')
+    .eq('referral_code', code.toUpperCase())
+    .maybeSingle();
+  if (error || !data) return null;
+  return { id: data.id, name: data.name, slug: data.slug, logo_url: data.logo };
+}
+
+/** Count how many users were referred to a specific club */
+export async function getClubReferralCount(clubId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from('club_followers')
+    .select('id', { count: 'exact', head: true })
+    .eq('club_id', clubId);
+  if (error) return 0;
+  return count ?? 0;
+}
+
+/** Apply a club referral: ensure user follows the club as primary */
+export async function applyClubReferral(userId: string, clubId: string): Promise<void> {
+  // Upsert club_followers with is_primary = true
+  await supabase
+    .from('club_followers')
+    .upsert(
+      { user_id: userId, club_id: clubId, is_primary: true },
+      { onConflict: 'user_id,club_id' }
+    );
 }
 
 export type ReferralLeaderboardEntry = { user_id: string; handle: string; display_name: string | null; count: number };

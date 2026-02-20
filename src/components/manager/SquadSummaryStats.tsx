@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { Player } from '@/types';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 
 interface SquadSummaryStatsProps {
   players: Player[];       // assigned players (on pitch)
@@ -24,7 +24,7 @@ export default function SquadSummaryStats({ players, ownedPlayers, assignedCount
     <div className="flex flex-wrap items-center gap-2 md:gap-3 text-xs">
       <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-lg">
         <span className="text-white/50">Kaderwert:</span>
-        <span className="font-mono font-bold text-[#FFD700]">{fmtBSD(totalValue)} BSD</span>
+        <span className="font-mono font-bold text-[#FFD700]">{fmtScout(totalValue)} $SCOUT</span>
       </div>
       <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg">
         <span className="text-white/50">Aufstellung:</span>

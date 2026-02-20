@@ -93,7 +93,7 @@ export async function enableSubscriptions(
   const maxPrice = Number(config.beratervertrag_max_price_cents ?? 500000);
 
   if (priceCents < minPrice || priceCents > maxPrice) {
-    return { success: false, error: `Preis muss zwischen ${minPrice / 100} und ${maxPrice / 100} BSD liegen` };
+    return { success: false, error: `Preis muss zwischen ${minPrice / 100} und ${maxPrice / 100} $SCOUT liegen` };
   }
 
   const { error } = await supabase

@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import { Bell, BellOff, BellRing, Search, User, Menu, DollarSign, MessageSquarePlus, X } from 'lucide-react';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
-import { formatBsd } from '@/lib/services/wallet';
+import { formatScout } from '@/lib/services/wallet';
 import { FeedbackModal } from '@/components/layout/FeedbackModal';
 import NotificationDropdown from '@/components/layout/NotificationDropdown';
 import SearchDropdown from '@/components/layout/SearchDropdown';
@@ -151,13 +151,13 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
 
         {/* Right side */}
         <div className="flex items-center gap-2 md:gap-3">
-          {/* BSD Balance pill */}
+          {/* $SCOUT Balance pill */}
           <div data-tour-id="topbar-balance" className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-xl">
             <DollarSign className="w-3.5 h-3.5 text-[#FFD700]" />
             {balanceCents === null ? (
               <span className="inline-block w-12 h-3.5 rounded bg-[#FFD700]/20 animate-pulse" />
             ) : (
-              <span className="font-mono font-bold text-[#FFD700] text-xs">{formatBsd(balanceCents)}</span>
+              <span className="font-mono font-bold text-[#FFD700] text-xs">{formatScout(balanceCents)}</span>
             )}
           </div>
 

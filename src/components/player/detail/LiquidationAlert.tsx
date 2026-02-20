@@ -1,7 +1,7 @@
 'use client';
 
 import { Flame } from 'lucide-react';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import type { DbLiquidationEvent } from '@/types';
 
 interface LiquidationAlertProps {
@@ -19,8 +19,8 @@ export default function LiquidationAlert({ liquidationEvent }: LiquidationAlertP
         </div>
         {liquidationEvent && (
           <div className="flex flex-wrap items-center gap-4 mt-3 text-xs">
-            <div><span className="text-white/40">Ausgeschüttet:</span> <span className="font-mono font-bold text-[#22C55E]">{fmtBSD(liquidationEvent.distributed_cents / 100)} BSD</span></div>
-            <div><span className="text-white/40">Success Fee:</span> <span className="font-mono font-bold text-[#FFD700]">{fmtBSD(liquidationEvent.success_fee_cents / 100)} BSD</span></div>
+            <div><span className="text-white/40">Ausgeschüttet:</span> <span className="font-mono font-bold text-[#22C55E]">{fmtScout(liquidationEvent.distributed_cents / 100)} $SCOUT</span></div>
+            <div><span className="text-white/40">Success Fee:</span> <span className="font-mono font-bold text-[#FFD700]">{fmtScout(liquidationEvent.success_fee_cents / 100)} $SCOUT</span></div>
             <div><span className="text-white/40">Holder:</span> <span className="font-mono font-bold">{liquidationEvent.holder_count}</span></div>
             <div><span className="text-white/40">Datum:</span> <span className="font-mono">{new Date(liquidationEvent.created_at).toLocaleDateString('de-DE')}</span></div>
           </div>

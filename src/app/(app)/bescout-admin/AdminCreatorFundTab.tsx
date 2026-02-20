@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Loader2, Play, Megaphone } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
-import { fmtBSD } from '@/types';
+import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { triggerCreatorFundPayout, getCreatorFundStats } from '@/lib/services/creatorFund';
 import { triggerAdRevenuePayout, getAdRevenueStats } from '@/lib/services/adRevenueShare';
@@ -41,14 +41,14 @@ export function AdminCreatorFundTab({ adminId }: Props) {
     if (type === 'fund') {
       const res = await triggerCreatorFundPayout(adminId, startStr, endStr);
       if (res.success) {
-        setResult(`Creator Fund: ${res.paid_count ?? 0} Creators bezahlt, ${fmtBSD(centsToBsd(res.total_paid_cents ?? 0))} BSD ausgezahlt`);
+        setResult(`Creator Fund: ${res.paid_count ?? 0} Creators bezahlt, ${fmtScout(centsToBsd(res.total_paid_cents ?? 0))} $SCOUT ausgezahlt`);
       } else {
         setResult(`Fehler: ${res.error}`);
       }
     } else {
       const res = await triggerAdRevenuePayout(adminId, startStr, endStr);
       if (res.success) {
-        setResult(`Werbeanteil: ${res.paid_count ?? 0} Creators bezahlt, ${fmtBSD(centsToBsd(res.total_paid_cents ?? 0))} BSD ausgezahlt`);
+        setResult(`Werbeanteil: ${res.paid_count ?? 0} Creators bezahlt, ${fmtScout(centsToBsd(res.total_paid_cents ?? 0))} $SCOUT ausgezahlt`);
       } else {
         setResult(`Fehler: ${res.error}`);
       }
@@ -70,7 +70,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card className="p-4">
           <div className="text-xs text-white/40 mb-1">Creator Fund Ausgezahlt</div>
-          <div className="text-lg font-mono font-black text-cyan-400">{fmtBSD(centsToBsd(stats?.totalPaid ?? 0))} BSD</div>
+          <div className="text-lg font-mono font-black text-cyan-400">{fmtScout(centsToBsd(stats?.totalPaid ?? 0))} $SCOUT</div>
         </Card>
         <Card className="p-4">
           <div className="text-xs text-white/40 mb-1">Creator Fund Payouts</div>
@@ -78,7 +78,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
         </Card>
         <Card className="p-4">
           <div className="text-xs text-white/40 mb-1">Werbeanteil Ausgezahlt</div>
-          <div className="text-lg font-mono font-black text-lime-400">{fmtBSD(centsToBsd(adStats?.totalPaid ?? 0))} BSD</div>
+          <div className="text-lg font-mono font-black text-lime-400">{fmtScout(centsToBsd(adStats?.totalPaid ?? 0))} $SCOUT</div>
         </Card>
         <Card className="p-4">
           <div className="text-xs text-white/40 mb-1">Werbeanteil Payouts</div>
@@ -90,7 +90,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
       <Card className="p-4">
         <h3 className="font-black mb-3 flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-cyan-400" />
-          Auszahlungen auslösen (letzte 7 Tage)
+          Auszahlungen auslÃ¶sen (letzte 7 Tage)
         </h3>
         <div className="flex gap-3">
           <Button
@@ -145,17 +145,17 @@ export function AdminCreatorFundTab({ adminId }: Props) {
                         <span className="text-lime-400">Werbeanteil</span>
                       )}
                     </td>
-                    <td className="py-1.5 px-2 text-white/60">{p.period_start} — {p.period_end}</td>
+                    <td className="py-1.5 px-2 text-white/60">{p.period_start} â€” {p.period_end}</td>
                     <td className="py-1.5 px-2 text-right font-mono text-white/60">{p.impression_count}</td>
                     <td className="py-1.5 px-2 text-right font-mono text-white/60">{p.impression_share_pct.toFixed(1)}%</td>
-                    <td className="py-1.5 px-2 text-right font-mono text-[#22C55E] font-bold">{fmtBSD(centsToBsd(p.payout_cents))} BSD</td>
+                    <td className="py-1.5 px-2 text-right font-mono text-[#22C55E] font-bold">{fmtScout(centsToBsd(p.payout_cents))} $SCOUT</td>
                     <td className="py-1.5 px-2">
                       <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
                         p.status === 'paid' ? 'bg-green-500/20 text-green-400' :
                         p.status === 'rolled_over' ? 'bg-amber-500/20 text-amber-400' :
                         'bg-white/10 text-white/40'
                       }`}>
-                        {p.status === 'paid' ? 'Bezahlt' : p.status === 'rolled_over' ? 'Übertragen' : 'Ausstehend'}
+                        {p.status === 'paid' ? 'Bezahlt' : p.status === 'rolled_over' ? 'Ãœbertragen' : 'Ausstehend'}
                       </span>
                     </td>
                   </tr>

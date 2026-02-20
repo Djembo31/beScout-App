@@ -184,6 +184,17 @@ export async function createPost(
   return data as DbPost;
 }
 
+/** Create a club news post (admin only) */
+export async function createClubNews(
+  adminUserId: string,
+  clubId: string,
+  clubName: string,
+  content: string,
+  category: string = 'News',
+): Promise<DbPost> {
+  return createPost(adminUserId, null, clubName, content, [], category, clubId, 'club_news');
+}
+
 export async function getReplies(parentId: string): Promise<PostWithAuthor[]> {
   const { data, error } = await supabase
     .from('posts')

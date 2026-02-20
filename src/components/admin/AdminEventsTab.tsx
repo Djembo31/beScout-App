@@ -7,7 +7,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { getEventsByClubId, createEvent, updateEventStatus } from '@/lib/services/events';
 import { simulateGameweek, getGameweekStatuses } from '@/lib/services/fixtures';
 import { centsToBsd, bsdToCents } from '@/lib/services/players';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import type { ClubWithAdmin, DbEvent, GameweekStatus } from '@/types';
 
 const EVENT_STATUS_CONFIG: Record<string, { bg: string; border: string; text: string; label: string }> = {
@@ -275,7 +275,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                         <div className="min-w-0 flex-1">
                           <div className="font-bold truncate">{ev.name}</div>
                           <div className="text-xs text-white/40">
-                            GW {ev.gameweek} • {ev.format} • {centsToBsd(ev.entry_fee) > 0 ? `${fmtBSD(centsToBsd(ev.entry_fee))} BSD` : 'Kostenlos'}
+                            GW {ev.gameweek} • {ev.format} • {centsToBsd(ev.entry_fee) > 0 ? `${fmtScout(centsToBsd(ev.entry_fee))} $SCOUT` : 'Kostenlos'}
                             {ev.max_entries && ` • ${ev.current_entries}/${ev.max_entries}`}
                           </div>
                         </div>
@@ -283,7 +283,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                       </div>
                       <div className="flex items-center gap-3 text-xs text-white/40">
                         <span>Start: {new Date(ev.starts_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
-                        <span>Preis: {fmtBSD(centsToBsd(ev.prize_pool))} BSD</span>
+                        <span>Preis: {fmtScout(centsToBsd(ev.prize_pool))} $SCOUT</span>
                       </div>
                       <div className="flex items-center gap-2">
                         {ev.status === 'registering' && (
@@ -326,7 +326,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                       <div className="min-w-0 flex-1">
                         <div className="font-bold truncate">{ev.name}</div>
                         <div className="text-xs text-white/40">
-                          GW {ev.gameweek} • {ev.current_entries} Teilnehmer • {fmtBSD(centsToBsd(ev.prize_pool))} BSD
+                          GW {ev.gameweek} • {ev.current_entries} Teilnehmer • {fmtScout(centsToBsd(ev.prize_pool))} $SCOUT
                         </div>
                       </div>
                       <Chip className={`${sc.bg} ${sc.text} ${sc.border} border flex-shrink-0`}>{sc.label}</Chip>
@@ -435,7 +435,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Teilnahmegebühr (BSD)</label>
+              <label className="block text-sm font-bold text-white/70 mb-1">Teilnahmegebühr ($SCOUT)</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -447,7 +447,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Preisgeld (BSD)</label>
+              <label className="block text-sm font-bold text-white/70 mb-1">Preisgeld ($SCOUT)</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -515,11 +515,11 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
             <div className="bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-xl p-3 text-sm">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-white/50">Teilnahmegebühr</span>
-                <span className="font-mono font-bold">{parseFloat(entryFee) > 0 ? `${fmtBSD(parseFloat(entryFee))} BSD` : 'Kostenlos'}</span>
+                <span className="font-mono font-bold">{parseFloat(entryFee) > 0 ? `${fmtScout(parseFloat(entryFee))} $SCOUT` : 'Kostenlos'}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/50">Preisgeld</span>
-                <span className="font-mono font-bold text-[#FFD700]">{fmtBSD(parseFloat(prizePool) || 0)} BSD</span>
+                <span className="font-mono font-bold text-[#FFD700]">{fmtScout(parseFloat(prizePool) || 0)} $SCOUT</span>
               </div>
             </div>
           )}

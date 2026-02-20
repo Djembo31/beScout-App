@@ -138,7 +138,22 @@
       "Bash(git -C /c/bescout-app status)",
       "Bash(git -C /c/bescout-app diff --stat)",
       "Bash(git -C /c/bescout-app log --oneline -5)",
-      "Bash(tasklist:*)"
+      "Bash(tasklist:*)",
+      "Bash(git -C C:/bescout-app log --oneline -5)",
+      "Skill(competitors)",
+      "Bash(powershell:*)",
+      "Bash(/tmp/rename2.ps1 << 'ENDSCRIPT'\n$f = 'src/app/\\(app\\)/club/`[slug`]/ClubContent.tsx'\nif \\(Test-Path -LiteralPath $f\\) {\n  $content = Get-Content -LiteralPath $f -Raw\n  $newContent = $content -replace 'formatBsd', 'formatScout'\n  Set-Content -LiteralPath $f $newContent -NoNewline\n  Write-Host \"Updated: $f\"\n} else {\n  Write-Host \"NOT FOUND: $f\"\n}\nENDSCRIPT)",
+      "Bash(/tmp/rename3.ps1 << 'ENDSCRIPT'\n$f = Join-Path \"src/app/\\(app\\)/club\" \"[slug]\" \"ClubContent.tsx\"\nif \\(Test-Path -LiteralPath $f\\) {\n  $content = Get-Content -LiteralPath $f -Raw\n  $newContent = $content -replace 'formatBsd', 'formatScout'\n  Set-Content -LiteralPath $f $newContent -NoNewline\n  Write-Host \"Updated: $f\"\n} else {\n  Write-Host \"NOT FOUND \\(literal\\): $f\"\n  # Try listing what's there\n  Get-ChildItem \"src/app/\\(app\\)/club\" | ForEach-Object { Write-Host $_.Name }\n}\nENDSCRIPT)",
+      "Bash(/tmp/rename4.ps1 << 'ENDSCRIPT'\n$f = \"src\\\\app\\\\\\(app\\)\\\\club\\\\[slug]\\\\ClubContent.tsx\"\nif \\(Test-Path -LiteralPath $f\\) {\n  $content = Get-Content -LiteralPath $f -Raw\n  $newContent = $content -replace 'formatBsd', 'formatScout'\n  Set-Content -LiteralPath $f $newContent -NoNewline\n  Write-Host \"Updated: $f\"\n} else {\n  Write-Host \"NOT FOUND: $f\"\n}\nENDSCRIPT)",
+      "Bash(/tmp/replace_bsd.ps1 << 'PSEOF'\n$files = @\\('C:\\\\bescout-app\\\\messages\\\\de.json', 'C:\\\\bescout-app\\\\messages\\\\tr.json'\\)\nforeach \\($f in $files\\) {\n  $content = Get-Content -LiteralPath $f -Raw\n  $content = $content -creplace 'BSD', '$SCOUT'\n  Set-Content -LiteralPath $f $content -NoNewline\n}\nPSEOF)",
+      "Bash(while read f)",
+      "Bash(do perl -pi -e 's/\\(?<![a-zA-Z]\\)BSD\\(?![a-zA-Z_]\\)/\\\\$SCOUT/g' \"$f\")",
+      "Bash(perl -pi -e:*)",
+      "Bash(node -e \"JSON.parse\\(require\\(''fs''\\).readFileSync\\(''C:/bescout-app/messages/de.json'',''utf8''\\)\\); console.log\\(''de.json: valid JSON''\\)\")",
+      "Bash(node -e \"JSON.parse\\(require\\(''fs''\\).readFileSync\\(''C:/bescout-app/messages/tr.json'',''utf8''\\)\\); console.log\\(''tr.json: valid JSON''\\)\")",
+      "Bash(perl:*)",
+      "Bash(git checkout:*)",
+      "Bash(for f in .claude/skills/content/SKILL.md .claude/skills/pitch/SKILL.md .claude/skills/review-code/SKILL.md .claude/skills/growth/SKILL.md .claude/skills/pm/SKILL.md .claude/skills/data/SKILL.md)"
     ]
   }
 }

@@ -39,7 +39,7 @@ export async function updateSession(request: NextRequest) {
     }
 
     // Define public routes (login, auth callback, onboarding)
-    const publicRoutes = ["/login", "/auth/callback", "/supabase-test", "/onboarding", "/welcome"];
+    const publicRoutes = ["/login", "/auth/callback", "/supabase-test", "/onboarding", "/welcome", "/club"];
     const pathname = request.nextUrl.pathname;
     const isPublicRoute = publicRoutes.some(route =>
         pathname === route || pathname.startsWith(`${route}/`)

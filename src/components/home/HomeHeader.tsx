@@ -1,5 +1,5 @@
 import { Flame, Shield } from 'lucide-react';
-import { fmtBSD, cn } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { TierBadge } from '@/components/ui/TierBadge';
 import { InfoTooltip } from '@/components/ui';
@@ -71,7 +71,7 @@ export default function HomeHeader({
             <span className="text-[10px] text-white/50 uppercase tracking-wider">{t('portfolioRoster')}</span>
             <InfoTooltip text={t('portfolioRosterTooltip')} />
           </div>
-          <div className="font-mono font-black text-base md:text-xl text-white truncate">{fmtBSD(portfolioValue)}</div>
+          <div className="font-mono font-black text-base md:text-xl text-white truncate">{fmtScout(portfolioValue)}</div>
           <div className="text-[10px] text-white/40">{holdingsCount} Spieler · {totalDpcs} DPC</div>
         </div>
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
@@ -80,7 +80,7 @@ export default function HomeHeader({
             <InfoTooltip text={t('pnlTooltip')} />
           </div>
           <div className={cn('font-mono font-black text-base md:text-xl truncate', pnl >= 0 ? 'text-[#22C55E]' : 'text-red-400')}>
-            {pnl >= 0 ? '+' : ''}{fmtBSD(pnl)}
+            {pnl >= 0 ? '+' : ''}{fmtScout(pnl)}
           </div>
           <div className={cn('text-[10px]', pnl >= 0 ? 'text-[#22C55E]/60' : 'text-red-400/60')}>
             {pnl >= 0 ? '+' : ''}{pnlPct.toFixed(1)}%
@@ -94,9 +94,9 @@ export default function HomeHeader({
           {balanceCents === null ? (
             <div className="h-6 md:h-7 w-20 rounded bg-[#FFD700]/10 animate-pulse mt-1" />
           ) : (
-            <div className="font-mono font-black text-base md:text-xl text-[#FFD700] truncate">{fmtBSD(centsToBsd(balanceCents))}</div>
+            <div className="font-mono font-black text-base md:text-xl text-[#FFD700] truncate">{fmtScout(centsToBsd(balanceCents))}</div>
           )}
-          <div className="text-[10px] text-white/40">BSD</div>
+          <div className="text-[10px] text-white/40">$SCOUT</div>
         </div>
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
           <div className="flex items-center gap-1 mb-1">

@@ -12,18 +12,18 @@ export type TourStep = {
 };
 
 export const TOUR_STEPS: TourStep[] = [
-  // 1. BSD Balance — different target per device
+  // 1. $SCOUT Balance — different target per device
   {
     targetSelector: '[data-tour-id="sidebar-wallet"]',
     title: 'Dein Guthaben',
-    description: 'Hier siehst du dein BSD-Guthaben. Verdiene BSD durch Trading, Fantasy-Turniere und Analysen.',
+    description: 'Hier siehst du dein $SCOUT-Guthaben. Verdiene $SCOUT durch Trading, Fantasy-Turniere und Analysen.',
     position: 'right',
     desktopOnly: true,
   },
   {
     targetSelector: '[data-tour-id="topbar-balance"]',
     title: 'Dein Guthaben',
-    description: 'Hier siehst du dein BSD-Guthaben. Verdiene BSD durch Trading, Fantasy und Analysen.',
+    description: 'Hier siehst du dein $SCOUT-Guthaben. Verdiene $SCOUT durch Trading, Fantasy und Analysen.',
     position: 'bottom',
     mobileOnly: true,
   },
@@ -81,14 +81,14 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targetSelector: '[data-tour-id="nav-fantasy"]',
     title: 'Fantasy Events',
-    description: 'Stelle dein Lineup auf, tritt gegen andere an und gewinne BSD-Preisgelder!',
+    description: 'Stelle dein Lineup auf, tritt gegen andere an und gewinne $SCOUT-Preisgelder!',
     position: 'right',
     desktopOnly: true,
   },
   {
     targetSelector: '[data-tour-id="bottomnav-fantasy"]',
     title: 'Fantasy Events',
-    description: 'Stelle dein Lineup auf, tritt gegen andere an und gewinne BSD-Preisgelder!',
+    description: 'Stelle dein Lineup auf, tritt gegen andere an und gewinne $SCOUT-Preisgelder!',
     position: 'top',
     mobileOnly: true,
   },

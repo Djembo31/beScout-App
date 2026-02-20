@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { PlayerIdentity, getL5Color } from '@/components/player';
-import { fmtBSD, cn } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import type { Player } from '@/types';
 
 interface ComparePlayerCardProps {
@@ -28,7 +28,7 @@ export default function ComparePlayerCard({ player, isHighest }: ComparePlayerCa
         <StatRow label="Spiele" value={String(player.stats.matches)} gold={isHighest.matches} />
         <StatRow label="Tore" value={String(player.stats.goals)} gold={isHighest.goals} />
         <StatRow label="Assists" value={String(player.stats.assists)} gold={isHighest.assists} />
-        <StatRow label="Floor" value={`${fmtBSD(player.prices.floor ?? 0)} BSD`} gold={isHighest.floor} />
+        <StatRow label="Floor" value={`${fmtScout(player.prices.floor ?? 0)} $SCOUT`} gold={isHighest.floor} />
         <StatRow label="24h" value={`${player.prices.change24h >= 0 ? '+' : ''}${player.prices.change24h.toFixed(1)}%`}
           color={player.prices.change24h >= 0 ? 'text-[#22C55E]' : 'text-red-400'} gold={isHighest.change} />
       </div>

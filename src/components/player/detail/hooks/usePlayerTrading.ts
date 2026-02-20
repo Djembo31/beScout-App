@@ -8,7 +8,7 @@ import { buyFromMarket, placeSellOrder, cancelOrder } from '@/lib/services/tradi
 import { buyFromIpo } from '@/lib/services/ipo';
 import { createOffer as createOfferAction, acceptOffer } from '@/lib/services/offers';
 import { createPost } from '@/lib/services/posts';
-import { formatBsd } from '@/lib/services/wallet';
+import { formatScout } from '@/lib/services/wallet';
 import { invalidateTradeQueries, invalidatePlayerDetailQueries } from '@/lib/queries/invalidation';
 import { qk } from '@/lib/queries/keys';
 import type { Player, DbIpo, DbOrder } from '@/types';
@@ -75,8 +75,8 @@ export function usePlayerTrading({
       const result = await buyFromMarket(userId, playerId, quantity);
       if (!result.success) { setBuyError(result.error || 'Kauf fehlgeschlagen'); }
       else {
-        const priceBsd = result.price_per_dpc ? formatBsd(result.price_per_dpc) : '?';
-        setBuySuccess(`${quantity} DPC vom Transfermarkt für ${priceBsd} BSD gekauft`);
+        const priceBsd = result.price_per_dpc ? formatScout(result.price_per_dpc) : '?';
+        setBuySuccess(`${quantity} DPC vom Transfermarkt für ${priceBsd} $SCOUT gekauft`);
         setBalanceCents(result.new_balance ?? balanceCents ?? 0);
         queryClient.setQueryData(['holdings', 'qty', userId, playerId], (old: number | undefined) => (old ?? 0) + quantity);
         invalidateAfterTrade(playerId, userId);
@@ -99,8 +99,8 @@ export function usePlayerTrading({
       const result = await buyFromIpo(userId, activeIpo.id, quantity);
       if (!result.success) { setBuyError(result.error || 'IPO-Kauf fehlgeschlagen'); }
       else {
-        const priceBsd = result.price_per_dpc ? formatBsd(result.price_per_dpc) : '?';
-        setBuySuccess(`${quantity} DPC per IPO für ${priceBsd} BSD gekauft`);
+        const priceBsd = result.price_per_dpc ? formatScout(result.price_per_dpc) : '?';
+        setBuySuccess(`${quantity} DPC per IPO für ${priceBsd} $SCOUT gekauft`);
         setBalanceCents(result.new_balance ?? balanceCents ?? 0);
         queryClient.setQueryData(['holdings', 'qty', userId, playerId], (old: number | undefined) => (old ?? 0) + quantity);
         if (result.user_total_purchased != null) {
@@ -120,7 +120,7 @@ export function usePlayerTrading({
       const result = await placeSellOrder(userId, playerId, quantity, priceCents);
       if (!result.success) { setBuyError(result.error || 'Listing fehlgeschlagen'); }
       else {
-        setBuySuccess(`${quantity} DPC für ${formatBsd(priceCents)} BSD gelistet`);
+        setBuySuccess(`${quantity} DPC für ${formatScout(priceCents)} $SCOUT gelistet`);
         invalidateAfterTrade(playerId, userId);
         setTimeout(() => setBuySuccess(null), 5000);
       }

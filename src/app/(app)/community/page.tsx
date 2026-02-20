@@ -8,6 +8,8 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { createPost, votePost, getUserPostVotes, deletePost, adminDeletePost, adminTogglePin } from '@/lib/services/posts';
+import { getActiveSubscriptionsByUsers } from '@/lib/services/clubSubscriptions';
+import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import { followUser, unfollowUser } from '@/lib/services/social';
 import { createResearchPost, unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
 import { getClubBySlug, getUserPrimaryClub } from '@/lib/services/club';
@@ -66,6 +68,9 @@ export default function CommunityPage() {
 
   // User-specific vote tracking (optimistically updated by handlers)
   const [myPostVotes, setMyPostVotes] = useState<Map<string, number>>(new Map());
+
+  // Subscription tiers for post authors (batch-fetched)
+  const [subscriptionMap, setSubscriptionMap] = useState<Map<string, SubscriptionTier>>(new Map());
 
   // ---- Scope-dependent club ID for queries ----
   const scopeClubId = clubScope === 'myclub' ? (activeClub?.id ?? clubId ?? undefined) : undefined;
@@ -127,6 +132,17 @@ export default function CommunityPage() {
     loadVoteData();
     return () => { cancelled = true; };
   }, [uid, posts]);
+
+  // ---- Load subscription tiers for post authors (batch) ----
+  useEffect(() => {
+    if (!posts.length) return;
+    let cancelled = false;
+    const authorIds = Array.from(new Set(posts.map(p => p.user_id)));
+    getActiveSubscriptionsByUsers(authorIds).then(map => {
+      if (!cancelled) setSubscriptionMap(map);
+    }).catch(err => console.error('[Community] Subscription fetch:', err));
+    return () => { cancelled = true; };
+  }, [posts]);
 
   // ---- Handlers ----
   const handleVotePost = useCallback(async (postId: string, voteType: number) => {
@@ -455,6 +471,7 @@ export default function CommunityPage() {
               isClubAdmin={isClubAdmin}
               onAdminDelete={handleAdminDeletePost}
               onTogglePin={handleTogglePin}
+              subscriptionMap={subscriptionMap}
             />
           </TabPanel>
 

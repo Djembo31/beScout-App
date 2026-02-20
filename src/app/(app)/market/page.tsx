@@ -12,7 +12,7 @@ import {
 import { Confetti } from '@/components/ui/Confetti';
 import { Card, ErrorState, Skeleton, SkeletonCard, TabBar, TabPanel } from '@/components/ui';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
-import { fmtBSD, cn } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 
 import { centsToBsd } from '@/lib/services/players';
 import { placeSellOrder, cancelOrder } from '@/lib/services/trading';
@@ -364,7 +364,7 @@ export default function MarketPage() {
           {t('title')}
         </h1>
         <div className="mt-1 text-sm text-white/50">
-          {tc('balance')}: <span className="font-mono font-bold text-[#FFD700]">{fmtBSD(centsToBsd(balanceCents))} BSD</span>
+          {tc('balance')}: <span className="font-mono font-bold text-[#FFD700]">{fmtScout(centsToBsd(balanceCents))} $SCOUT</span>
         </div>
       </div>
 

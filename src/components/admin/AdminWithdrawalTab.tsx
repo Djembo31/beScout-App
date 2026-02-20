@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Wallet, ArrowDownToLine, Clock, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { Card, Skeleton } from '@/components/ui';
 import { getClubBalance, getClubWithdrawals, requestClubWithdrawal } from '@/lib/services/club';
-import { formatBsd } from '@/lib/services/wallet';
+import { formatScout } from '@/lib/services/wallet';
 import type { ClubWithAdmin, ClubBalance, DbClubWithdrawal } from '@/types';
 
 function timeAgo(dateStr: string): string {
@@ -57,12 +57,12 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
     e.preventDefault();
     const amountNum = parseFloat(amount);
     if (!amountNum || amountNum < 1) {
-      setFeedback({ type: 'error', msg: 'Mindestbetrag: 1 BSD.' });
+      setFeedback({ type: 'error', msg: 'Mindestbetrag: 1 $SCOUT.' });
       return;
     }
     const cents = Math.round(amountNum * 100);
     if (balance && cents > balance.available) {
-      setFeedback({ type: 'error', msg: `Nicht genug Guthaben. Verfügbar: ${formatBsd(balance.available)} BSD.` });
+      setFeedback({ type: 'error', msg: `Nicht genug Guthaben. Verfügbar: ${formatScout(balance.available)} $SCOUT.` });
       return;
     }
     setSubmitting(true);
@@ -93,25 +93,25 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
         <Card className="p-4 bg-gradient-to-br from-[#FFD700]/10 to-[#FFD700]/[0.02] border-[#FFD700]/20">
           <div className="text-[10px] text-white/40 uppercase tracking-wider mb-1">Verfügbar</div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black text-[#FFD700]">{formatBsd(balance?.available ?? 0)} BSD</div>
+            <div className="text-xl font-mono font-black text-[#FFD700]">{formatScout(balance?.available ?? 0)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
           <div className="text-[10px] text-white/40 uppercase tracking-wider mb-1">Gesamt verdient</div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black">{formatBsd(balance?.total_earned ?? 0)} BSD</div>
+            <div className="text-xl font-mono font-black">{formatScout(balance?.total_earned ?? 0)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
           <div className="text-[10px] text-white/40 uppercase tracking-wider mb-1">Trading-Fees</div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-sm font-mono font-bold text-emerald-400">{formatBsd(balance?.trade_fees ?? 0)} BSD</div>
+            <div className="text-sm font-mono font-bold text-emerald-400">{formatScout(balance?.trade_fees ?? 0)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
           <div className="text-[10px] text-white/40 uppercase tracking-wider mb-1">Bereits ausgezahlt</div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-sm font-mono font-bold text-white/60">{formatBsd(balance?.total_withdrawn ?? 0)} BSD</div>
+            <div className="text-sm font-mono font-bold text-white/60">{formatScout(balance?.total_withdrawn ?? 0)} $SCOUT</div>
           )}
         </Card>
       </div>
@@ -125,7 +125,7 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-white/50 mb-1">Betrag (BSD)</label>
+              <label className="block text-xs text-white/50 mb-1">Betrag ($SCOUT)</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -185,7 +185,7 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
                   <div className="flex items-center gap-3">
                     <StatusIcon className={`w-4 h-4 ${status.color}`} />
                     <div>
-                      <div className="text-sm font-mono font-bold">{formatBsd(w.amount_cents)} BSD</div>
+                      <div className="text-sm font-mono font-bold">{formatScout(w.amount_cents)} $SCOUT</div>
                       {w.note && <div className="text-xs text-white/40">{w.note}</div>}
                     </div>
                   </div>

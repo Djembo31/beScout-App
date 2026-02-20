@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { AlertTriangle, PiggyBank, Tag, ShoppingCart } from 'lucide-react';
 import type { Pos, PlayerStatus, Player } from '@/types';
 import { getClub } from '@/lib/clubs';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 
 // ============================================
 // L5 COLOR TOKENS (Single Source of Truth)
@@ -355,7 +355,7 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
   if (player.pbt && player.pbt.balance > 0) {
     badges.push(
       <span key="pbt" className={`inline-flex items-center gap-0.5 ${chipCls} bg-[#FFD700]/10 border-[#FFD700]/20 text-[#FFD700]/80`}>
-        <PiggyBank className="w-2.5 h-2.5" />PBT {fmtBSD(player.pbt.balance)}
+        <PiggyBank className="w-2.5 h-2.5" />PBT {fmtScout(player.pbt.balance)}
       </span>
     );
   }
@@ -403,10 +403,10 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       const pnl = holding ? (floor - holding.avgBuyPriceBsd) * holding.quantity : 0;
       const pnlPct = holding && holding.avgBuyPriceBsd > 0 ? ((floor - holding.avgBuyPriceBsd) / holding.avgBuyPriceBsd) * 100 : 0;
       const upPnl = pnl >= 0;
-      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}><span className={labelCls}>Floor</span>{fmtBSD(floor)}</span>);
+      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
       kpis.push(
         <span key="pnl" className={`${kpiCls} ${upPnl ? 'text-[#22C55E]' : 'text-red-400'}`}>
-          <span className={labelCls}>G/V</span>{upPnl ? '+' : ''}{fmtBSD(Math.round(pnl))} ({upPnl ? '+' : ''}{pnlPct.toFixed(1)}%)
+          <span className={labelCls}>G/V</span>{upPnl ? '+' : ''}{fmtScout(Math.round(pnl))} ({upPnl ? '+' : ''}{pnlPct.toFixed(1)}%)
         </span>
       );
       kpis.push(
@@ -416,12 +416,12 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       );
       if (holding) {
         kpis.push(<span key="qty" className={`${kpiCls} text-white/60`}>{holding.quantity} DPC</span>);
-        kpis.push(<span key="ek" className={`${kpiCls} text-white/40`}><span className={labelCls}>EK</span>{fmtBSD(holding.avgBuyPriceBsd)}</span>);
+        kpis.push(<span key="ek" className={`${kpiCls} text-white/40`}><span className={labelCls}>EK</span>{fmtScout(holding.avgBuyPriceBsd)}</span>);
       }
       break;
     }
     case 'market':
-      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}><span className={labelCls}>Floor</span>{fmtBSD(floor)}</span>);
+      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
       kpis.push(
         <span key="ch" className={`${kpiCls} ${up ? 'text-[#22C55E]' : 'text-red-400'}`}>
           {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
@@ -478,22 +478,22 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
           <span className="text-sky-300">{player.stats.assists}</span>
         </span>
       );
-      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}>{fmtBSD(floor)}</span>);
+      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}>{fmtScout(floor)}</span>);
       kpis.push(<span key="ctr" className={`${kpiCls} text-white/40`}>{player.contractMonthsLeft}M</span>);
       kpis.push(<span key="tr" className={`${kpiCls} text-white/40`}>{player.perf.trend === 'UP' ? '↑' : player.perf.trend === 'DOWN' ? '↓' : '→'}</span>);
       break;
 
     case 'ipo':
-      kpis.push(<span key="pr" className={`${kpiCls} text-[#FFD700] font-bold`}>{fmtBSD(ipoData?.price ?? player.ipo.price ?? 0)}</span>);
+      kpis.push(<span key="pr" className={`${kpiCls} text-[#FFD700] font-bold`}>{fmtScout(ipoData?.price ?? player.ipo.price ?? 0)}</span>);
       if (ipoData) {
         kpis.push(<span key="pg" className={`${kpiCls} text-[#22C55E]`}>{ipoData.progress.toFixed(0)}%</span>);
-        if (ipoData.remaining != null) kpis.push(<span key="rem" className={`${kpiCls} text-white/50`}>{fmtBSD(ipoData.remaining)} verf.</span>);
+        if (ipoData.remaining != null) kpis.push(<span key="rem" className={`${kpiCls} text-white/50`}>{fmtScout(ipoData.remaining)} verf.</span>);
       }
       kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
       break;
 
     case 'search':
-      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}>{fmtBSD(floor)}</span>);
+      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}>{fmtScout(floor)}</span>);
       kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
       kpis.push(
         <span key="st" className={`${kpiCls} text-white/50`}>
@@ -505,7 +505,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       break;
 
     default: // 'default'
-      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}><span className={labelCls}>Floor</span>{fmtBSD(floor)}</span>);
+      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
       kpis.push(
         <span key="ch" className={`${kpiCls} ${up ? 'text-[#22C55E]' : 'text-red-400'}`}>
           {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%

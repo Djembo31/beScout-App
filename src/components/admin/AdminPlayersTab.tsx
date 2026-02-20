@@ -10,7 +10,7 @@ import { getPlayersByClubId, dbToPlayers, centsToBsd, bsdToCents, createPlayer }
 import { getIposByClubId, createIpo, updateIpoStatus } from '@/lib/services/ipo';
 import { getPbtForPlayer } from '@/lib/services/pbt';
 import { setSuccessFeeCap, liquidatePlayer } from '@/lib/services/liquidation';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import type { ClubWithAdmin, Player, DbIpo } from '@/types';
 
 export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
@@ -146,7 +146,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
       if (!result.success) {
         setIpoError(result.error || 'Cap konnte nicht gesetzt werden.');
       } else {
-        setIpoSuccess(`Success Fee Cap auf ${capValue} BSD gesetzt.`);
+        setIpoSuccess(`Success Fee Cap auf ${capValue} $SCOUT gesetzt.`);
         // Refresh players
         const dbPlayers = await getPlayersByClubId(club.id);
         setPlayers(dbToPlayers(dbPlayers));
@@ -298,7 +298,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                     <div className="space-y-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <PlayerIdentity player={player} size="sm" showStatus={false} className="min-w-0 flex-1" />
-                        <span className="text-xs text-white/40 shrink-0">{fmtBSD(priceBsd)} BSD</span>
+                        <span className="text-xs text-white/40 shrink-0">{fmtScout(priceBsd)} $SCOUT</span>
                         <Chip className={`${sc.bg} ${sc.text} ${sc.border} border flex-shrink-0`}>{sc.label}</Chip>
                       </div>
                       <div className="flex items-center gap-3">
@@ -356,7 +356,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                   <Card key={ipo.id} className="p-3 md:p-4 opacity-60">
                     <div className="flex items-center gap-3 min-w-0">
                       <PlayerIdentity player={player} size="sm" showStatus={false} className="min-w-0 flex-1" />
-                      <span className="text-xs text-white/40 shrink-0">{fmtBSD(centsToBsd(ipo.price))} BSD · {progress.toFixed(0)}%</span>
+                      <span className="text-xs text-white/40 shrink-0">{fmtScout(centsToBsd(ipo.price))} $SCOUT · {progress.toFixed(0)}%</span>
                       <Chip className={`${sc.bg} ${sc.text} ${sc.border} border flex-shrink-0`}>{sc.label}</Chip>
                     </div>
                   </Card>
@@ -385,7 +385,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                   <PlayerIdentity player={p} size="sm" showStatus={false} className="min-w-0 flex-1" />
                   {p.successFeeCap != null && (
                     <Chip className="bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20 text-[10px] px-1.5 py-0 shrink-0">
-                      Cap: {fmtBSD(p.successFeeCap)} BSD
+                      Cap: {fmtScout(p.successFeeCap)} $SCOUT
                     </Chip>
                   )}
                   <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -430,10 +430,10 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
         {capModalPlayer && (
           <div className="space-y-4 p-4 md:p-6">
             <div className="text-sm text-white/60">
-              Der Cap bestimmt, wie viel BSD als Success Fee im PBT reserviert bleibt, wenn <span className="text-white font-bold">{capModalPlayer.first} {capModalPlayer.last}</span> liquidiert wird.
+              Der Cap bestimmt, wie viel $SCOUT als Success Fee im PBT reserviert bleibt, wenn <span className="text-white font-bold">{capModalPlayer.first} {capModalPlayer.last}</span> liquidiert wird.
             </div>
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Cap-Betrag (BSD)</label>
+              <label className="block text-sm font-bold text-white/70 mb-1">Cap-Betrag ($SCOUT)</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -447,7 +447,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             </div>
             {capModalPlayer.successFeeCap != null && (
               <div className="text-xs text-white/40">
-                Aktueller Cap: <span className="text-[#FFD700] font-mono font-bold">{fmtBSD(capModalPlayer.successFeeCap)} BSD</span>
+                Aktueller Cap: <span className="text-[#FFD700] font-mono font-bold">{fmtScout(capModalPlayer.successFeeCap)} $SCOUT</span>
               </div>
             )}
             <Button variant="gold" fullWidth onClick={handleSetCap} disabled={capLoading || !capValue}>
@@ -471,20 +471,20 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             <div className="space-y-2 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-white/50">PBT-Balance</span>
-                <span className="font-mono font-bold text-[#FFD700]">{fmtBSD(liqPbtBalance)} BSD</span>
+                <span className="font-mono font-bold text-[#FFD700]">{fmtScout(liqPbtBalance)} $SCOUT</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/50">Success Fee Cap</span>
                 <span className="font-mono font-bold">
                   {liqModalPlayer.successFeeCap != null
-                    ? <span className="text-[#FFD700]">{fmtBSD(liqModalPlayer.successFeeCap)} BSD</span>
+                    ? <span className="text-[#FFD700]">{fmtScout(liqModalPlayer.successFeeCap)} $SCOUT</span>
                     : <span className="text-white/30">Kein Cap</span>}
                 </span>
               </div>
               <div className="flex items-center justify-between border-t border-white/10 pt-2">
                 <span className="text-white/50">Geschätzte Ausschüttung</span>
                 <span className="font-mono font-bold text-[#22C55E]">
-                  {fmtBSD(Math.max(0, liqPbtBalance - (liqModalPlayer.successFeeCap ?? 0)))} BSD
+                  {fmtScout(Math.max(0, liqPbtBalance - (liqModalPlayer.successFeeCap ?? 0)))} $SCOUT
                 </span>
               </div>
             </div>
@@ -517,11 +517,11 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/50">Ausgeschüttet</span>
-                <span className="font-mono font-bold text-[#22C55E]">{fmtBSD(centsToBsd(liqResult.distributed_cents))} BSD</span>
+                <span className="font-mono font-bold text-[#22C55E]">{fmtScout(centsToBsd(liqResult.distributed_cents))} $SCOUT</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/50">Success Fee (reserviert)</span>
-                <span className="font-mono font-bold text-[#FFD700]">{fmtBSD(centsToBsd(liqResult.success_fee_cents))} BSD</span>
+                <span className="font-mono font-bold text-[#FFD700]">{fmtScout(centsToBsd(liqResult.success_fee_cents))} $SCOUT</span>
               </div>
             </div>
             <Button variant="outline" fullWidth onClick={() => { setLiqModalPlayer(null); setLiqResult(null); }}>
@@ -548,7 +548,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-bold text-white/70 mb-1">Preis pro DPC (BSD)</label>
+            <label className="block text-sm font-bold text-white/70 mb-1">Preis pro DPC ($SCOUT)</label>
             <input type="number" inputMode="numeric" step="0.01" min="0.01" value={ipoPrice} onChange={(e) => setIpoPrice(e.target.value)} placeholder="z.B. 5.00" className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25" />
           </div>
           <div>
@@ -594,7 +594,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             <div className="bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-xl p-3 text-sm">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-white/50">Gesamtvolumen</span>
-                <span className="font-mono font-bold text-[#FFD700]">{fmtBSD(parseFloat(ipoPrice) * parseInt(ipoQty || '0'))} BSD</span>
+                <span className="font-mono font-bold text-[#FFD700]">{fmtScout(parseFloat(ipoPrice) * parseInt(ipoQty || '0'))} $SCOUT</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/50">Status nach Erstellung</span>
@@ -688,7 +688,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-bold text-white/70 mb-1">IPO-Preis (BSD)</label>
+            <label className="block text-sm font-bold text-white/70 mb-1">IPO-Preis ($SCOUT)</label>
             <input
               type="number"
               inputMode="numeric"

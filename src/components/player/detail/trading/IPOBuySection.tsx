@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import { Clock, Zap, Lock, Loader2 } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import { formatBsd } from '@/lib/services/wallet';
+import { formatScout } from '@/lib/services/wallet';
 import type { DbIpo } from '@/types';
 
 const formatCountdown = (isoDate: string) => {
@@ -66,15 +66,15 @@ export default function IPOBuySection({
             <div className="h-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-full" style={{ width: `${progress}%` }} />
           </div>
           <div className="flex items-center justify-between text-xs text-white/40 mt-1">
-            <span>{fmtBSD(ipo.sold)} verkauft</span>
-            <span>{fmtBSD(remaining)} verfügbar</span>
+            <span>{fmtScout(ipo.sold)} verkauft</span>
+            <span>{fmtScout(remaining)} verfügbar</span>
           </div>
         </div>
         {/* Price */}
         <div className="bg-black/20 rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-white/50 text-sm">IPO Preis</span>
-            <span className="font-mono font-black text-2xl text-[#FFD700]">{fmtBSD(priceBsd)} BSD</span>
+            <span className="font-mono font-black text-2xl text-[#FFD700]">{fmtScout(priceBsd)} $SCOUT</span>
           </div>
         </div>
         {/* Limits */}
@@ -106,7 +106,7 @@ export default function IPOBuySection({
             <div className="bg-black/20 rounded-xl p-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-white/40">Preis pro DPC</span>
-                <span className="font-mono text-white/60">{fmtBSD(priceBsd)} BSD</span>
+                <span className="font-mono text-white/60">{fmtScout(priceBsd)} $SCOUT</span>
               </div>
               {buyQty > 1 && (
                 <div className="flex items-center justify-between text-xs">
@@ -116,17 +116,17 @@ export default function IPOBuySection({
               )}
               <div className="border-t border-white/10 pt-2 flex items-center justify-between">
                 <span className="text-white/50 text-sm">Gesamtkosten</span>
-                <span className="font-mono font-black text-xl text-[#FFD700]">{fmtBSD(totalBsd)} BSD</span>
+                <span className="font-mono font-black text-xl text-[#FFD700]">{fmtScout(totalBsd)} $SCOUT</span>
               </div>
               <div className="border-t border-white/10 pt-2 flex items-center justify-between text-xs">
                 <span className="text-white/40">Dein Guthaben</span>
-                <span className="font-mono text-white/50">{balanceCents !== null ? formatBsd(balanceCents) : '...'} BSD</span>
+                <span className="font-mono text-white/50">{balanceCents !== null ? formatScout(balanceCents) : '...'} $SCOUT</span>
               </div>
               {balanceCents !== null && (
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-white/40">Guthaben danach</span>
                   <span className={`font-mono font-bold ${canAfford ? 'text-[#22C55E]' : 'text-red-400'}`}>
-                    {formatBsd(balanceCents - totalCents)} BSD
+                    {formatScout(balanceCents - totalCents)} $SCOUT
                   </span>
                 </div>
               )}
@@ -135,7 +135,7 @@ export default function IPOBuySection({
               {buying ? <Loader2 className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
               {buying ? 'Wird gekauft...' : `${buyQty} DPC verpflichten`}
             </Button>
-            {!canAfford && !buying && <div className="text-xs text-red-400 text-center">Nicht genug BSD</div>}
+            {!canAfford && !buying && <div className="text-xs text-red-400 text-center">Nicht genug $SCOUT</div>}
           </>
         ) : (
           <div className="bg-white/[0.03] rounded-xl p-4 text-center">

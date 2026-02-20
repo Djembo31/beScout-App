@@ -12,7 +12,7 @@ import {
 import { Card, SearchInput, PosFilter, EmptyState } from '@/components/ui';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import DiscoveryCard from './DiscoveryCard';
-import { fmtBSD, cn } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getClub } from '@/lib/clubs';
 import { useMarketStore } from '@/lib/stores/marketStore';
@@ -718,7 +718,7 @@ export default function KaufenDiscovery({
                   <span className="text-white/20">–</span>
                   <input type="number" inputMode="numeric" placeholder={t('max')} value={priceMax} onChange={(e) => setPriceMax(e.target.value)}
                     className="w-20 px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white/70 focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25" />
-                  <span className="text-[10px] text-white/30">BSD</span>
+                  <span className="text-[10px] text-white/30">$SCOUT</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setOnlyAvailable(!onlyAvailable)}
@@ -842,7 +842,7 @@ export default function KaufenDiscovery({
                       <span className="text-white/20 font-bold">–</span>
                       <input type="number" inputMode="numeric" placeholder={t('max')} value={priceMax} onChange={(e) => setPriceMax(e.target.value)}
                         className="flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white/70 focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25" />
-                      <span className="text-xs text-white/30 font-bold shrink-0">BSD</span>
+                      <span className="text-xs text-white/30 font-bold shrink-0">$SCOUT</span>
                     </div>
                   </div>
                   <div className="flex gap-2">

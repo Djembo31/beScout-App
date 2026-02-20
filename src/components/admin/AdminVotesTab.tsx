@@ -5,7 +5,7 @@ import { Plus, Users, Clock } from 'lucide-react';
 import { Card, Button, Chip, Modal } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getAllVotes, createVote } from '@/lib/services/votes';
-import { formatBsd } from '@/lib/services/wallet';
+import { formatScout } from '@/lib/services/wallet';
 import type { ClubWithAdmin, DbClubVote } from '@/types';
 
 export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
@@ -113,7 +113,7 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
                 <div className="flex items-center justify-between text-xs text-white/50">
                   <span><Users className="w-3 h-3 inline mr-1" />{vote.total_votes} Stimmen</span>
                   <span><Clock className="w-3 h-3 inline mr-1" />{diffMs > 0 ? `${d}d ${h}h` : 'Beendet'}</span>
-                  {vote.cost_bsd > 0 && <span>{formatBsd(vote.cost_bsd)} BSD/Stimme</span>}
+                  {vote.cost_bsd > 0 && <span>{formatScout(vote.cost_bsd)} $SCOUT/Stimme</span>}
                 </div>
               </Card>
             );
@@ -138,7 +138,7 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
           )}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Kosten (BSD)</label>
+              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Kosten ($SCOUT)</label>
               <input type="number" inputMode="numeric" value={cost} onChange={(e) => setCost(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#FFD700]/40" />
             </div>
             <div>

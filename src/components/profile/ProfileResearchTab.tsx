@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { BarChart3, Shield, FileText, CheckCircle, XCircle, Clock, Target, CircleDollarSign, Users, Star } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
-import { fmtBSD, cn } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { ResearchPostWithAuthor, AuthorTrackRecord } from '@/types';
 
@@ -102,8 +102,8 @@ export default function ProfileResearchTab({ myResearch, trackRecord }: ProfileR
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center p-3 bg-[#22C55E]/5 border border-[#22C55E]/10 rounded-xl">
-                <div className="text-2xl font-mono font-black text-[#22C55E]">{fmtBSD(centsToBsd(totalEarned))}</div>
-                <div className="text-[10px] text-white/40 mt-1">BSD verdient</div>
+                <div className="text-2xl font-mono font-black text-[#22C55E]">{fmtScout(centsToBsd(totalEarned))}</div>
+                <div className="text-[10px] text-white/40 mt-1">$SCOUT verdient</div>
               </div>
               <div className="text-center p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
                 <div className="text-2xl font-mono font-black">{totalUnlocks}</div>
@@ -125,7 +125,7 @@ export default function ProfileResearchTab({ myResearch, trackRecord }: ProfileR
                 <div className="text-[10px] text-[#FFD700]/60 mb-1">Top-Bericht</div>
                 <div className="flex items-center gap-2">
                   <div className="text-sm font-bold truncate flex-1">{topPost.title}</div>
-                  <div className="text-xs font-mono font-bold text-[#22C55E] shrink-0">{fmtBSD(centsToBsd(topPost.total_earned))} BSD</div>
+                  <div className="text-xs font-mono font-bold text-[#22C55E] shrink-0">{fmtScout(centsToBsd(topPost.total_earned))} $SCOUT</div>
                   <div className="text-[10px] text-white/30 shrink-0">{topPost.unlock_count}x</div>
                 </div>
               </div>
@@ -180,7 +180,7 @@ export default function ProfileResearchTab({ myResearch, trackRecord }: ProfileR
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <div className="text-xs font-mono text-[#FFD700] font-bold">{fmtBSD(centsToBsd(post.price))} BSD</div>
+                    <div className="text-xs font-mono text-[#FFD700] font-bold">{fmtScout(centsToBsd(post.price))} $SCOUT</div>
                     <div className="text-[10px] text-white/30 mt-0.5">{new Date(post.created_at).toLocaleDateString('de-DE')}</div>
                   </div>
                 </div>

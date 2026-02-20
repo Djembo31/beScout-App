@@ -7,9 +7,9 @@ import {
   ArrowRight, Shield, BadgeCheck, Loader2, MessageSquare,
 } from 'lucide-react';
 import { Card } from '@/components/ui';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import { formatBsd } from '@/lib/services/wallet';
+import { formatScout } from '@/lib/services/wallet';
 import type { Player, DbOrder, DbTrade, OfferWithDetails } from '@/types';
 import PriceChart from './PriceChart';
 import OrderbookDepth from './OrderbookDepth';
@@ -76,7 +76,7 @@ export default function MarktTab({
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="font-mono font-bold text-[#FFD700]">{fmtBSD(centsToBsd(bid.price))} BSD</span>
+                      <span className="font-mono font-bold text-[#FFD700]">{fmtScout(centsToBsd(bid.price))} $SCOUT</span>
                       {holdingQty > 0 && bid.sender_id !== userId && onAcceptBid && (
                         <button
                           onClick={() => onAcceptBid(bid.id)}
@@ -123,7 +123,7 @@ export default function MarktTab({
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-mono font-bold text-[#FFD700]">{fmtBSD(listing.price)}</div>
+                  <div className="font-mono font-bold text-[#FFD700]">{fmtScout(listing.price)}</div>
                   <div className="text-[10px] text-white/40 flex items-center gap-1">
                     <Clock className="w-2.5 h-2.5" />
                     {Math.floor((listing.expiresAt - Date.now()) / 3600000)}h
@@ -164,9 +164,9 @@ export default function MarktTab({
                 const sellerHandle = profileMap[order.user_id]?.handle;
                 return (
                   <div key={order.id} className={`grid grid-cols-4 gap-2 items-center px-3 py-2 rounded-lg text-sm ${isOwn ? 'bg-[#FFD700]/5 border border-[#FFD700]/20' : 'bg-white/[0.02]'}`}>
-                    <span className="font-mono font-bold text-[#FFD700]">{formatBsd(order.price)}</span>
+                    <span className="font-mono font-bold text-[#FFD700]">{formatScout(order.price)}</span>
                     <span className="font-mono">{remaining} DPC</span>
-                    <span className="font-mono text-white/60">{formatBsd(order.price * remaining)}</span>
+                    <span className="font-mono text-white/60">{formatScout(order.price * remaining)}</span>
                     <span className="text-xs">
                       {isOwn
                         ? <span className="text-[#FFD700] font-bold">Du</span>
@@ -229,7 +229,7 @@ export default function MarktTab({
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-[#FFD700]">{formatBsd(trade.price)} BSD</span>
+                        <span className="font-mono font-bold text-[#FFD700]">{formatScout(trade.price)} $SCOUT</span>
                         <span className="text-white/40 font-mono text-xs">&times;{trade.quantity}</span>
                       </div>
                     </div>
@@ -272,17 +272,17 @@ export default function MarktTab({
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3">
               <div className="text-xs text-purple-300">Club IPO-Preis</div>
-              <div className="font-mono font-bold text-purple-200">{fmtBSD(player.prices.ipoPrice ?? 0)} BSD</div>
+              <div className="font-mono font-bold text-purple-200">{fmtScout(player.prices.ipoPrice ?? 0)} $SCOUT</div>
               <div className="text-[10px] text-white/30 mt-0.5">Fest, vom Club gesetzt</div>
             </div>
             <div className="bg-sky-500/10 border border-sky-500/20 rounded-lg p-3">
               <div className="text-xs text-sky-300">Markt Floor</div>
-              <div className="font-mono font-bold text-[#FFD700]">{fmtBSD(player.prices.floor ?? 0)} BSD</div>
+              <div className="font-mono font-bold text-[#FFD700]">{fmtScout(player.prices.floor ?? 0)} $SCOUT</div>
               <div className="text-[10px] text-white/30 mt-0.5">Günstigstes User-Angebot</div>
             </div>
             <div className="bg-white/[0.02] rounded-lg p-3">
               <div className="text-xs text-white/40">Letzter Trade</div>
-              <div className="font-mono font-bold">{fmtBSD(player.prices.lastTrade ?? 0)} BSD</div>
+              <div className="font-mono font-bold">{fmtScout(player.prices.lastTrade ?? 0)} $SCOUT</div>
             </div>
             <div className="bg-white/[0.02] rounded-lg p-3">
               <div className="text-xs text-white/40">24h Change</div>

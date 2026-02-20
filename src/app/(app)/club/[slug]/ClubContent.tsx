@@ -20,8 +20,8 @@ import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { useUser } from '@/components/providers/AuthProvider';
 import { dbToPlayers, centsToBsd } from '@/lib/services/players';
 import { toggleFollowClub } from '@/lib/services/club';
-import { fmtBSD, cn } from '@/lib/utils';
-import { formatBsd } from '@/lib/services/wallet';
+import { fmtScout, cn } from '@/lib/utils';
+import { formatScout } from '@/lib/services/wallet';
 import { resolveExpiredResearch } from '@/lib/services/research';
 import { subscribeTo, cancelSubscription, TIER_CONFIG } from '@/lib/services/clubSubscriptions';
 import type { ClubSubscription, SubscriptionTier } from '@/lib/services/clubSubscriptions';
@@ -35,7 +35,9 @@ import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 import { getClub } from '@/lib/clubs';
 import { useToast } from '@/components/providers/ToastProvider';
-import type { Player, Pos, DbPlayer, DbTrade, DbClubVote, ClubWithAdmin, Fixture } from '@/types';
+import { getPosts } from '@/lib/services/posts';
+import { formatTimeAgo } from '@/components/community/PostCard';
+import type { Player, Pos, DbPlayer, DbTrade, DbClubVote, ClubWithAdmin, Fixture, PostWithAuthor } from '@/types';
 
 // ============================================
 // TYPES
@@ -70,6 +72,8 @@ function HeroSection({
   userClubDpc,
   totalVolume24h,
   playerCount,
+  isPublic = false,
+  loginUrl = '/login',
 }: {
   club: ClubWithAdmin;
   followerCount: number;
@@ -79,6 +83,8 @@ function HeroSection({
   userClubDpc: number;
   totalVolume24h: number;
   playerCount: number;
+  isPublic?: boolean;
+  loginUrl?: string;
 }) {
   const t = useTranslations('club');
   const clubColor = club.primary_color || '#006633';
@@ -142,7 +148,7 @@ function HeroSection({
             </div>
             <div className="w-px h-5 md:h-10 bg-white/20" />
             <div className="text-center">
-              <div className="text-sm md:text-2xl font-black text-[#FFD700]">{fmtBSD(totalVolume24h)}</div>
+              <div className="text-sm md:text-2xl font-black text-[#FFD700]">{fmtScout(totalVolume24h)}</div>
               <div className="text-[10px] md:text-xs text-white/50">{t('volume24h')}</div>
             </div>
             <div className="w-px h-5 md:h-10 bg-white/20" />
@@ -151,27 +157,39 @@ function HeroSection({
               <div className="text-[10px] md:text-xs text-white/50">{t('players')}</div>
             </div>
             <div className="w-px h-5 md:h-10 bg-white/20 hidden md:block" />
-            <Button
-              variant={isFollowing ? 'outline' : 'gold'}
-              size="sm"
-              onClick={onFollow}
-              disabled={followLoading}
-              className="hidden md:flex"
-            >
-              {followLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFollowing ? <><CheckCircle2 className="w-4 h-4" /> {t('subscribed')}</> : <><Bell className="w-4 h-4" /> {t('follow')}</>}
-            </Button>
+            {isPublic ? (
+              <Link href={loginUrl} className="hidden md:block">
+                <Button variant="gold" size="sm">{t('publicRegister')}</Button>
+              </Link>
+            ) : (
+              <Button
+                variant={isFollowing ? 'outline' : 'gold'}
+                size="sm"
+                onClick={onFollow}
+                disabled={followLoading}
+                className="hidden md:flex"
+              >
+                {followLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFollowing ? <><CheckCircle2 className="w-4 h-4" /> {t('subscribed')}</> : <><Bell className="w-4 h-4" /> {t('follow')}</>}
+              </Button>
+            )}
           </div>
 
-          {/* Mobile-only follow button */}
+          {/* Mobile-only follow/register button */}
           <div className="md:hidden flex items-center justify-center gap-2">
-            <Button
-              variant={isFollowing ? 'outline' : 'gold'}
-              size="sm"
-              onClick={onFollow}
-              disabled={followLoading}
-            >
-              {followLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFollowing ? t('subscribed') : t('follow')}
-            </Button>
+            {isPublic ? (
+              <Link href={loginUrl}>
+                <Button variant="gold" size="sm">{t('publicRegister')}</Button>
+              </Link>
+            ) : (
+              <Button
+                variant={isFollowing ? 'outline' : 'gold'}
+                size="sm"
+                onClick={onFollow}
+                disabled={followLoading}
+              >
+                {followLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFollowing ? t('subscribed') : t('follow')}
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -226,8 +244,8 @@ function StatsBar({
             <span className="text-xs text-white/50">{t('volume24h')}</span>
           </div>
           <div className="text-2xl md:text-3xl font-mono font-black text-[#FFD700]">
-            {fmtBSD(totalVolume24h)}
-            <span className="text-sm text-white/40 ml-1">BSD</span>
+            {fmtScout(totalVolume24h)}
+            <span className="text-sm text-white/40 ml-1">$SCOUT</span>
           </div>
         </Card>
       </div>
@@ -324,7 +342,7 @@ function ClubVoteCard({ vote, hasVoted, onVote, voting }: {
         <Chip className="mt-2 bg-purple-500/15 text-purple-300 border-purple-500/25">{t('voted')}</Chip>
       )}
       {!hasVoted && isActive && vote.cost_bsd > 0 && (
-        <div className="text-[10px] text-white/30 mt-2">{t('voteCost')} {formatBsd(vote.cost_bsd)} BSD</div>
+        <div className="text-[10px] text-white/30 mt-2">{t('voteCost')} {formatScout(vote.cost_bsd)} $SCOUT</div>
       )}
     </div>
   );
@@ -378,7 +396,7 @@ function TopPlayersWidget({
                   {i + 1}
                 </div>
                 <PlayerIdentity player={player} size="sm" showMeta={false} showStatus={false} />
-                <div className="text-[10px] text-white/40 shrink-0">{fmtBSD(player.prices.lastTrade)} BSD</div>
+                <div className="text-[10px] text-white/40 shrink-0">{fmtScout(player.prices.lastTrade)} $SCOUT</div>
               </div>
               <div className={`flex items-center gap-1 font-mono font-bold ${player.prices.change24h >= 0 ? 'text-[#22C55E]' : 'text-red-400'}`}>
                 {player.prices.change24h >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
@@ -707,7 +725,7 @@ function ActivityFeed({
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-mono font-bold text-[#FFD700]">{fmtBSD(priceBsd)} BSD</div>
+                  <div className="font-mono font-bold text-[#FFD700]">{fmtScout(priceBsd)} $SCOUT</div>
                   <div className="text-[10px] text-white/40">pro DPC</div>
                 </div>
               </div>
@@ -781,7 +799,7 @@ function ClubSkeleton() {
 // ============================================
 
 export default function ClubContent({ slug }: { slug: string }) {
-  const { user, profile, refreshProfile } = useUser();
+  const { user, profile, refreshProfile, loading: authLoading } = useUser();
   const { addToast } = useToast();
   const userId = user?.id;
 
@@ -821,7 +839,7 @@ export default function ClubContent({ slug }: { slug: string }) {
   }, [dbHoldings, dbPlayersRaw, clubId]);
 
   // Loading / error / notFound
-  const loading = clubLoading || (!!clubId && playersLoading);
+  const loading = authLoading || clubLoading || (!!clubId && playersLoading);
   const dataError = clubError || playersError;
   const notFound = !clubLoading && !club;
 
@@ -850,10 +868,23 @@ export default function ClubContent({ slug }: { slug: string }) {
   const [subLoading, setSubLoading] = useState(false);
   const [subError, setSubError] = useState<string | null>(null);
 
+  // Club News
+  const [clubNews, setClubNews] = useState<PostWithAuthor[]>([]);
+
   // Sync subscription from query
   useEffect(() => {
     if (subscriptionData !== undefined) setSubscription(subscriptionData);
   }, [subscriptionData]);
+
+  // Fetch club news posts
+  useEffect(() => {
+    if (!clubId) return;
+    let cancelled = false;
+    getPosts({ clubId, postType: 'club_news', limit: 3 }).then(news => {
+      if (!cancelled) setClubNews(news);
+    }).catch(err => console.error('[Club] News fetch:', err));
+    return () => { cancelled = true; };
+  }, [clubId]);
 
   // Dashboard stats removed (admin has /club/[slug]/admin)
 
@@ -1001,6 +1032,137 @@ export default function ClubContent({ slug }: { slug: string }) {
     );
   }
 
+  // ── Public view (unauthenticated) ──
+  if (!user) {
+    const clubColor = club.primary_color || '#006633';
+    const loginUrl = club.referral_code ? `/login?club=${club.referral_code}` : '/login';
+    return (
+      <div className="max-w-[1200px] mx-auto">
+        <HeroSection
+          club={club}
+          followerCount={followerCount}
+          isFollowing={false}
+          followLoading={false}
+          onFollow={() => {}}
+          userClubDpc={0}
+          totalVolume24h={totalVolume24h}
+          playerCount={players.length}
+          isPublic
+          loginUrl={loginUrl}
+        />
+
+        {/* CTA Banner */}
+        <div className="mb-6">
+          <Card className="p-6 border-[#FFD700]/20 bg-gradient-to-r from-[#FFD700]/10 to-[#FFD700]/5">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="text-center md:text-left">
+                <h2 className="text-lg font-black mb-1">{t('publicCta')}</h2>
+                <p className="text-sm text-white/50">{t('publicCtaDesc')}</p>
+              </div>
+              <Link href={loginUrl}>
+                <Button variant="gold">{t('publicCtaButton')}</Button>
+              </Link>
+            </div>
+          </Card>
+        </div>
+
+        {/* Stats */}
+        <div className="mb-6">
+          <StatsBar
+            totalVolume24h={totalVolume24h}
+            totalDpcFloat={totalDpcFloat}
+            avgPerf={avgPerf}
+            followerCount={followerCount}
+            playerCount={players.length}
+            clubColor={clubColor}
+            formResults={formResults}
+          />
+        </div>
+
+        {/* Next Match */}
+        {clubId && (
+          <div className="mb-6">
+            <NextMatchCard fixtures={clubFixtures} clubId={clubId} />
+          </div>
+        )}
+
+        {/* Player Preview (Top 8 by L5) */}
+        <Card className="p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Users className="w-5 h-5" style={{ color: clubColor }} />
+              <span className="font-black text-lg">{t('squadPreview')}</span>
+            </div>
+            <Link href={loginUrl} className="text-xs text-[#FFD700] hover:underline flex items-center gap-1">
+              {t('publicAllPlayers', { count: players.length })} <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[...players]
+              .sort((a, b) => b.perf.l5 - a.perf.l5)
+              .slice(0, 8)
+              .map(player => (
+                <div key={player.id} className="p-3 bg-white/[0.02] rounded-xl border border-white/10">
+                  <PlayerIdentity player={player} size="sm" showMeta={false} showStatus={false} />
+                </div>
+              ))
+            }
+          </div>
+        </Card>
+
+        {/* Squad Overview */}
+        <div className="mb-6">
+          <SquadOverviewWidget players={players} />
+        </div>
+
+        {/* Last Results */}
+        {clubId && (
+          <div className="mb-6">
+            <LastResultsCard fixtures={clubFixtures} clubId={clubId} />
+          </div>
+        )}
+
+        {/* Club Info */}
+        <Card className="p-4 md:p-6 mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Building2 className="w-5 h-5 text-white/50" />
+            <span className="font-black">{t('clubInfo')}</span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+            {club.stadium && (
+              <div className="bg-white/[0.02] rounded-xl p-3">
+                <div className="text-xs text-white/50 mb-1">{t('stadium')}</div>
+                <div className="font-bold text-sm">{club.stadium}</div>
+              </div>
+            )}
+            {club.city && (
+              <div className="bg-white/[0.02] rounded-xl p-3">
+                <div className="text-xs text-white/50 mb-1">{t('city')}</div>
+                <div className="font-bold text-sm">{club.city}</div>
+              </div>
+            )}
+            <div className="bg-white/[0.02] rounded-xl p-3">
+              <div className="text-xs text-white/50 mb-1">{t('league')}</div>
+              <div className="font-bold text-sm">{club.league}</div>
+            </div>
+            <div className="bg-white/[0.02] rounded-xl p-3">
+              <div className="text-xs text-white/50 mb-1">{t('players')}</div>
+              <div className="font-bold text-sm text-[#22C55E]">{players.length}</div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Bottom CTA */}
+        <div className="text-center py-8">
+          <p className="text-white/40 text-sm mb-3">{t('publicCtaDesc')}</p>
+          <Link href={loginUrl}>
+            <Button variant="gold" className="px-8">{t('publicCtaButton')}</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const clubColor = club.primary_color || '#006633';
 
   return (
@@ -1127,6 +1289,33 @@ export default function ClubContent({ slug }: { slug: string }) {
           )}
 
           <TopPlayersWidget players={players} onViewAll={() => setTab('spieler')} clubColor={clubColor} />
+
+          {/* Club-Neuigkeiten */}
+          {clubNews.length > 0 && (
+            <Card className="p-4 md:p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <MessageCircle className="w-5 h-5" style={{ color: clubColor }} />
+                <span className="font-black">{t('news')}</span>
+              </div>
+              <div className="space-y-3">
+                {clubNews.map(news => (
+                  <div key={news.id} className="p-3 bg-[#FFD700]/[0.03] rounded-xl border border-[#FFD700]/15">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20">
+                        Club-Nachricht
+                      </span>
+                      <span className="text-[10px] text-white/30">{formatTimeAgo(news.created_at)}</span>
+                    </div>
+                    <p className="text-sm text-white/80 leading-relaxed">{news.content}</p>
+                    <div className="flex items-center gap-3 mt-2 text-[10px] text-white/30">
+                      <span>{news.author_display_name || news.author_handle}</span>
+                      <span>{news.upvotes - news.downvotes} Stimmen</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
 
           {/* Aktive Votes Preview */}
           {activeVotesPreview.length > 0 && (
@@ -1363,7 +1552,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                       <span className="font-black" style={{ color: cfg.color }}>{cfg.label}</span>
                       {isActive && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#22C55E]/20 text-[#22C55E]">Aktiv</span>}
                     </div>
-                    <span className="font-mono font-bold text-sm">{fmtBSD(cfg.priceBsd)} BSD<span className="text-white/30 text-[10px]">/Monat</span></span>
+                    <span className="font-mono font-bold text-sm">{fmtScout(cfg.priceBsd)} $SCOUT<span className="text-white/30 text-[10px]">/Monat</span></span>
                   </div>
                   <ul className="space-y-1 mb-3">
                     {cfg.benefits.map(b => (

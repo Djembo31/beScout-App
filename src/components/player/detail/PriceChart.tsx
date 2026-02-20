@@ -2,7 +2,7 @@
 
 import { BarChart3 } from 'lucide-react';
 import { Card } from '@/components/ui';
-import { fmtBSD } from '@/lib/utils';
+import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { DbTrade } from '@/types';
 
@@ -59,9 +59,9 @@ export default function PriceChart({ trades, ipoPrice, className = '' }: PriceCh
           Preisverlauf
         </h3>
         <div className="flex items-center gap-2">
-          <span className="text-sm font-mono font-bold">{fmtBSD(prices[prices.length - 1])} BSD</span>
+          <span className="text-sm font-mono font-bold">{fmtScout(prices[prices.length - 1])} $SCOUT</span>
           <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-lg ${up ? 'bg-[#22C55E]/10 text-[#22C55E]' : 'bg-red-500/10 text-red-400'}`}>
-            {change >= 0 ? '+' : ''}{fmtBSD(change)} ({changePct >= 0 ? '+' : ''}{changePct.toFixed(1)}%)
+            {change >= 0 ? '+' : ''}{fmtScout(change)} ({changePct >= 0 ? '+' : ''}{changePct.toFixed(1)}%)
           </span>
         </div>
       </div>

@@ -6,8 +6,8 @@ import { ArrowUpDown, TrendingUp, TrendingDown } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { centsToBsd } from '@/lib/services/players';
-import { formatBsd } from '@/lib/services/wallet';
-import { fmtBSD, cn } from '@/lib/utils';
+import { formatScout } from '@/lib/services/wallet';
+import { fmtScout, cn } from '@/lib/utils';
 import type { Pos } from '@/types';
 import type { HoldingRow } from './ProfileOverviewTab';
 
@@ -96,14 +96,14 @@ export default function ProfilePortfolioTab({ holdings }: ProfilePortfolioTabPro
           <div>
             <div className="text-xs text-white/40 mb-1">Portfolio-Wert</div>
             <div className="text-2xl md:text-3xl font-mono font-black text-[#FFD700]">
-              {formatBsd(portfolioValueCents)} BSD
+              {formatScout(portfolioValueCents)} $SCOUT
             </div>
           </div>
           <div className="text-right">
             <div className="text-xs text-white/40 mb-1">Wertentwicklung</div>
             <div className={cn('text-lg font-mono font-bold flex items-center gap-1 justify-end', pnlCents >= 0 ? 'text-[#22C55E]' : 'text-red-400')}>
               {pnlCents >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-              {pnlCents >= 0 ? '+' : ''}{formatBsd(pnlCents)} BSD
+              {pnlCents >= 0 ? '+' : ''}{formatScout(pnlCents)} $SCOUT
             </div>
           </div>
         </div>
