@@ -3,7 +3,7 @@ import type { Pos } from '@/types';
 import type { BestandLens } from '@/components/manager/bestand/bestandHelpers';
 
 export type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'change' | 'name';
-export type MarketTab = 'portfolio' | 'kaufen' | 'angebote' | 'spieler';
+export type MarketTab = 'portfolio' | 'kaufen' | 'angebote';
 export type KaufenMode = 'discovery' | 'search';
 
 interface MarketState {

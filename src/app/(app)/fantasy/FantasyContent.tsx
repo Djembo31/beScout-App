@@ -4,7 +4,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import {
-  Trophy, Grid3X3, List, Globe, History, Plus, AlertCircle, RefreshCw, Loader2, Calendar, Target,
+  Trophy, Globe, History, Plus, AlertCircle, RefreshCw, Loader2, Calendar, Target,
 } from 'lucide-react';
 import { Card, Button, SearchInput, SortPills, EmptyState, Skeleton, SkeletonCard } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -21,9 +21,9 @@ import { withTimeout } from '@/lib/utils';
 import { fmtBSD } from '@/lib/utils';
 import type { DbEvent } from '@/types';
 import {
-  type EventStatus, type FantasyTab, type ViewMode, type FantasyEvent,
-  type LineupPlayer, type UserDpcHolding, type LeagueCategory, type LineupFormat,
-  GameweekSelector, EventCard, EventTableRow,
+  type EventStatus, type FantasyTab, type FantasyEvent,
+  type LineupPlayer, type UserDpcHolding, type LineupFormat,
+  GameweekSelector, EventCard,
   HistoryTab, CreateEventModal, SpieltagTab, PredictionsTab,
 } from '@/components/fantasy';
 
@@ -152,9 +152,7 @@ export default function FantasyContent() {
 
   // State
   const [mainTab, setMainTab] = useState<FantasyTab>('spieltag');
-  const [viewMode, setViewMode] = useState<ViewMode>('cards');
   const [statusFilter, setStatusFilter] = useState<EventStatus | 'all'>('all');
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [selectedGameweek, setSelectedGameweek] = useState<number | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<FantasyEvent | null>(null);
   const [localEvents, setLocalEvents] = useState<FantasyEvent[] | null>(null);
@@ -254,24 +252,6 @@ export default function FantasyContent() {
     return events.filter(e => e.gameweek === currentGw);
   }, [events, currentGw]);
 
-  // Category counts (for Events tab)
-  const categoryCounts = useMemo(() => ({
-    all: gwFilteredEvents.length,
-    joined: gwFilteredEvents.filter(e => e.isJoined).length,
-    favorites: gwFilteredEvents.filter(e => e.isInterested).length,
-    bescout: gwFilteredEvents.filter(e => e.type === 'bescout').length,
-    club: gwFilteredEvents.filter(e => e.type === 'club').length,
-    sponsor: gwFilteredEvents.filter(e => e.type === 'sponsor').length,
-    creator: gwFilteredEvents.filter(e => e.type === 'creator').length,
-  }), [gwFilteredEvents]);
-
-  const CATEGORIES_WITH_COUNTS: LeagueCategory[] = [
-    { id: 'all', name: 'Alle', icon: '🌐', count: categoryCounts.all, group: 'type' },
-    { id: 'joined', name: 'Meine', icon: '✅', count: categoryCounts.joined, group: 'user' },
-    { id: 'bescout', name: 'Offiziell', icon: '✨', count: categoryCounts.bescout + categoryCounts.club + categoryCounts.sponsor, group: 'type' },
-    { id: 'creator', name: 'Community', icon: '👥', count: categoryCounts.creator, group: 'type' },
-  ];
-
   // Filtered events for Events tab
   const filteredEvents = useMemo(() => {
     let filtered = [...gwFilteredEvents];
@@ -289,19 +269,11 @@ export default function FantasyContent() {
       filtered = filtered.filter(e => e.status === statusFilter);
     }
 
-    if (categoryFilter === 'joined') {
-      filtered = filtered.filter(e => e.isJoined);
-    } else if (categoryFilter === 'bescout') {
-      filtered = filtered.filter(e => e.type === 'bescout' || e.type === 'club' || e.type === 'sponsor');
-    } else if (categoryFilter !== 'all') {
-      filtered = filtered.filter(e => e.type === categoryFilter);
-    }
-
     const statusOrder = { 'late-reg': 0, 'running': 1, 'registering': 2, 'upcoming': 3, 'ended': 4 };
     filtered.sort((a, b) => (statusOrder[a.status] || 5) - (statusOrder[b.status] || 5));
 
     return filtered;
-  }, [gwFilteredEvents, searchQuery, statusFilter, categoryFilter]);
+  }, [gwFilteredEvents, searchQuery, statusFilter]);
 
   // Status counts
   const statusCounts = useMemo(() => ({
@@ -615,42 +587,9 @@ export default function FantasyContent() {
             onSelect={setSelectedGameweek}
           />
 
-          {/* CATEGORY FILTER PILLS */}
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 lg:mx-0 lg:px-0">
-            {CATEGORIES_WITH_COUNTS.map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => setCategoryFilter(cat.id)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-full border whitespace-nowrap text-sm transition-all ${
-                  categoryFilter === cat.id
-                    ? 'bg-[#FFD700]/15 border-[#FFD700]/30 text-[#FFD700]'
-                    : 'bg-white/[0.03] border-white/[0.06] text-white/50 hover:border-white/15'
-                }`}
-              >
-                <span>{cat.icon}</span>
-                <span>{cat.name}</span>
-                <span className="text-[10px] text-white/30">{cat.count}</span>
-              </button>
-            ))}
-          </div>
-
           {/* SEARCH + FILTERS */}
           <div className="flex items-center gap-2">
             <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder={t('searchEvents')} className="flex-1 min-w-0" />
-            <div className="hidden md:flex items-center gap-1 bg-white/5 rounded-xl p-1">
-              <button
-                onClick={() => setViewMode('cards')}
-                className={`p-2 rounded-lg transition-all ${viewMode === 'cards' ? 'bg-[#FFD700]/20 text-[#FFD700]' : 'text-white/50 hover:text-white'}`}
-              >
-                <Grid3X3 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('table')}
-                className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-[#FFD700]/20 text-[#FFD700]' : 'text-white/50 hover:text-white'}`}
-              >
-                <List className="w-4 h-4" />
-              </button>
-            </div>
             <SortPills
               options={[
                 { id: 'all', label: tc('all'), count: statusCounts.all },
@@ -670,45 +609,16 @@ export default function FantasyContent() {
               </h2>
               <div className="text-xs text-white/40">{t('eventsCount', { count: filteredEvents.length })}</div>
             </div>
-            {viewMode === 'cards' ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                {filteredEvents.map(event => (
-                  <EventCard
-                    key={event.id}
-                    event={event}
-                    onView={() => setSelectedEvent(event)}
-                    onToggleInterest={() => handleToggleInterest(event.id)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <Card className="overflow-hidden">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-white/10 text-xs text-white/40">
-                      <th className="py-3 px-4 text-left">{t('tableStatus')}</th>
-                      <th className="py-3 px-3 text-left">{t('tableType')}</th>
-                      <th className="py-3 px-3 text-right">{t('participation')}</th>
-                      <th className="py-3 px-3 text-left">{t('tableEvent')}</th>
-                      <th className="py-3 px-3 text-right">{t('tablePrize')}</th>
-                      <th className="py-3 px-3 text-center">{t('tablePlayers')}</th>
-                      <th className="py-3 px-2"></th>
-                      <th className="py-3 px-3 text-center">{t('tableAction')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredEvents.map(event => (
-                      <EventTableRow
-                        key={event.id}
-                        event={event}
-                        onView={() => setSelectedEvent(event)}
-                        onToggleInterest={() => handleToggleInterest(event.id)}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </Card>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+              {filteredEvents.map(event => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onView={() => setSelectedEvent(event)}
+                  onToggleInterest={() => handleToggleInterest(event.id)}
+                />
+              ))}
+            </div>
 
             {filteredEvents.length === 0 && (
               <EmptyState icon={<Trophy />} title={t('noEventsForGameweek', { gw: currentGw })} />

@@ -2,35 +2,27 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
 import { Plus, Users } from 'lucide-react';
 import { Button, Card, ErrorState, TabBar, TabPanel, Skeleton } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { createPost, votePost, getUserPostVotes, deletePost, adminDeletePost, adminTogglePin } from '@/lib/services/posts';
-import { castVote, getUserVotedIds } from '@/lib/services/votes';
 import { followUser, unfollowUser } from '@/lib/services/social';
 import { createResearchPost, unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
-import { castCommunityPollVote, createCommunityPoll, cancelCommunityPoll, getUserPollVotedIds } from '@/lib/services/communityPolls';
-import { submitBountyResponse, invalidateBountyData } from '@/lib/services/bounties';
 import { getClubBySlug, getUserPrimaryClub } from '@/lib/services/club';
 import {
   usePlayers, useHoldings, usePosts, useLeaderboard,
   useFollowingIds, useFollowerCount, useFollowingCount,
-  useClubVotes, useResearchPosts, useCommunityPolls, useActiveBounties,
-  useClubSubscription,
-  qk, invalidateCommunityQueries, invalidateSocialQueries, invalidateResearchQueries, invalidatePollQueries,
+  useClubVotes, useResearchPosts,
+  qk, invalidateSocialQueries, invalidateResearchQueries,
 } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
 import CommunityFeedTab from '@/components/community/CommunityFeedTab';
 import CommunityResearchTab from '@/components/community/CommunityResearchTab';
-import CommunityVotesTab from '@/components/community/CommunityVotesTab';
 import CommunityLeaderboardTab from '@/components/community/CommunityLeaderboardTab';
 import CreatePostModal from '@/components/community/CreatePostModal';
 import CreateResearchModal from '@/components/community/CreateResearchModal';
-import CreateCommunityPollModal from '@/components/community/CreateCommunityPollModal';
-import CommunityBountiesTab from '@/components/community/CommunityBountiesTab';
 import FollowListModal from '@/components/profile/FollowListModal';
 import type { PostWithAuthor, Pos, PostType } from '@/types';
 import SponsorBanner from '@/components/player/detail/SponsorBanner';
@@ -39,7 +31,7 @@ import SponsorBanner from '@/components/player/detail/SponsorBanner';
 // TYPES
 // ============================================
 
-type MainTab = 'feed' | 'research' | 'geruechte' | 'aktionen' | 'ranking';
+type MainTab = 'feed' | 'research' | 'ranking';
 
 // ============================================
 // MAIN PAGE
@@ -64,7 +56,6 @@ export default function CommunityPage() {
   const [feedMode, setFeedMode] = useState<'all' | 'following'>('all');
   const [createPostOpen, setCreatePostOpen] = useState(false);
   const [createResearchOpen, setCreateResearchOpen] = useState(false);
-  const [createPollOpen, setCreatePollOpen] = useState(false);
   const [followListMode, setFollowListMode] = useState<'followers' | 'following' | null>(null);
 
   // Action loading state
@@ -72,31 +63,21 @@ export default function CommunityPage() {
   const [ratingId, setRatingId] = useState<string | null>(null);
   const [postLoading, setPostLoading] = useState(false);
   const [researchLoading, setResearchLoading] = useState(false);
-  const [pollLoading, setPollLoading] = useState(false);
-  const [votingId, setVotingId] = useState<string | null>(null);
-  const [pollVotingId, setPollVotingId] = useState<string | null>(null);
-  const [submittingBountyId, setSubmittingBountyId] = useState<string | null>(null);
 
   // User-specific vote tracking (optimistically updated by handlers)
   const [myPostVotes, setMyPostVotes] = useState<Map<string, number>>(new Map());
-  const [userVotedIdSet, setUserVotedIdSet] = useState<Set<string>>(new Set());
-  const [userPollVotedIds, setUserPollVotedIds] = useState<Set<string>>(new Set());
 
   // ---- Scope-dependent club ID for queries ----
   const scopeClubId = clubScope === 'myclub' ? (activeClub?.id ?? clubId ?? undefined) : undefined;
 
   // ---- React Query: shared data ----
   const { data: posts = [], isLoading: postsLoading, isError: postsError } = usePosts({ limit: 50, clubId: scopeClubId });
-  const { data: rumors = [] } = usePosts({ limit: 30, postType: 'transfer_rumor' });
   const { data: clubVotes = [] } = useClubVotes(clubId);
   const { data: leaderboard = [] } = useLeaderboard(50);
   const { data: followingIdsList = [] } = useFollowingIds(uid);
   const { data: rawHoldings = [] } = useHoldings(uid);
   const { data: rawPlayers = [] } = usePlayers();
   const { data: researchPosts = [] } = useResearchPosts(uid);
-  const { data: communityPolls = [] } = useCommunityPolls(scopeClubId);
-  const { data: bounties = [] } = useActiveBounties(uid, scopeClubId);
-  const { data: clubSub = null } = useClubSubscription(uid, clubId ?? undefined);
   const { data: followerCount = 0 } = useFollowerCount(uid);
   const { data: followingCountNum = 0 } = useFollowingCount(uid);
 
@@ -138,15 +119,9 @@ export default function CommunityPage() {
     if (!uid || !posts.length) return;
     let cancelled = false;
     async function loadVoteData() {
-      const [postVotes, votedIds, pollVotedIds] = await Promise.all([
-        getUserPostVotes(uid!, posts.map(p => p.id)),
-        getUserVotedIds(uid!),
-        getUserPollVotedIds(uid!),
-      ]);
+      const postVotes = await getUserPostVotes(uid!, posts.map(p => p.id));
       if (!cancelled) {
         setMyPostVotes(postVotes);
-        setUserVotedIdSet(votedIds);
-        setUserPollVotedIds(pollVotedIds);
       }
     }
     loadVoteData();
@@ -256,21 +231,6 @@ export default function CommunityPage() {
     }
   }, [uid, clubName, clubId, addToast]);
 
-  const handleCastVote = useCallback(async (voteId: string, optionIndex: number) => {
-    if (!uid || votingId) return;
-    setVotingId(voteId);
-    try {
-      await castVote(uid, voteId, optionIndex);
-      queryClient.invalidateQueries({ queryKey: ['votes'] });
-      const votedResult = await getUserVotedIds(uid);
-      setUserVotedIdSet(votedResult);
-    } catch {
-      addToast('Fehler beim Abstimmen', 'error');
-    } finally {
-      setVotingId(null);
-    }
-  }, [uid, votingId, addToast]);
-
   const handleFollowToggle = useCallback(async (targetId: string) => {
     if (!uid) return;
     const isCurrentlyFollowing = followingIds.has(targetId);
@@ -357,90 +317,10 @@ export default function CommunityPage() {
     }
   }, [uid, ratingId, addToast]);
 
-  const handleCastPollVote = useCallback(async (pollId: string, optionIndex: number) => {
-    if (!uid || pollVotingId) return;
-    setPollVotingId(pollId);
-    try {
-      const result = await castCommunityPollVote(uid, pollId, optionIndex);
-      if (result.success) {
-        invalidatePollQueries(uid);
-        const pollVotedResult = await getUserPollVotedIds(uid);
-        setUserPollVotedIds(pollVotedResult);
-        addToast('Stimme abgegeben!', 'success');
-      } else {
-        addToast(result.error ?? 'Fehler beim Abstimmen', 'error');
-      }
-    } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler beim Abstimmen', 'error');
-    } finally {
-      setPollVotingId(null);
-    }
-  }, [uid, pollVotingId, addToast]);
-
-  const handleCreatePoll = useCallback(async (params: {
-    question: string;
-    description: string | null;
-    options: string[];
-    priceBsd: number;
-    durationDays: number;
-  }) => {
-    if (!uid) return;
-    setPollLoading(true);
-    try {
-      await createCommunityPoll({
-        userId: uid,
-        question: params.question,
-        description: params.description,
-        options: params.options,
-        costCents: params.priceBsd * 100,
-        durationDays: params.durationDays,
-      });
-      invalidatePollQueries(uid);
-      setCreatePollOpen(false);
-      addToast('Umfrage erstellt!', 'success');
-    } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Umfrage konnte nicht erstellt werden', 'error');
-    } finally {
-      setPollLoading(false);
-    }
-  }, [uid, addToast]);
-
-  const handleCancelPoll = useCallback(async (pollId: string) => {
-    if (!uid) return;
-    try {
-      await cancelCommunityPoll(uid, pollId);
-      invalidatePollQueries(uid);
-      addToast('Umfrage abgebrochen', 'success');
-    } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler beim Abbrechen', 'error');
-    }
-  }, [uid, addToast]);
-
-  const handleSubmitBounty = useCallback(async (bountyId: string, title: string, content: string) => {
-    if (!uid || submittingBountyId) return;
-    setSubmittingBountyId(bountyId);
-    try {
-      const result = await submitBountyResponse(uid, bountyId, title, content);
-      if (result.success) {
-        invalidateBountyData(uid);
-        invalidateCommunityQueries();
-        addToast('Lösung eingereicht!', 'success');
-      } else {
-        addToast(result.error ?? 'Fehler beim Einreichen', 'error');
-      }
-    } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler beim Einreichen', 'error');
-    } finally {
-      setSubmittingBountyId(null);
-    }
-  }, [uid, submittingBountyId, addToast]);
-
   // ---- Tab Config ----
   const TABS: { id: MainTab; label: string }[] = [
     { id: 'feed', label: t('feed') },
     { id: 'research', label: t('research') },
-    { id: 'geruechte', label: t('rumors') },
-    { id: 'aktionen', label: t('actions') },
     { id: 'ranking', label: t('leaderboard') },
   ];
 
@@ -572,7 +452,6 @@ export default function CommunityPage() {
               onDelete={handleDeletePost}
               onCreatePost={() => setCreatePostOpen(true)}
               onSwitchToLeaderboard={() => setMainTab('ranking')}
-              onSwitchToVotes={() => setMainTab('aktionen')}
               isClubAdmin={isClubAdmin}
               onAdminDelete={handleAdminDeletePost}
               onTogglePin={handleTogglePin}
@@ -590,93 +469,6 @@ export default function CommunityPage() {
               onRate={handleRateResearch}
               ratingId={ratingId}
             />
-          </TabPanel>
-
-          {/* Gerüchte (Transfer Rumors) */}
-          <TabPanel activeTab={mainTab} id="geruechte">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm text-white/50">{t('rumorsDesc')}</p>
-              </div>
-              {rumors.length === 0 ? (
-                <Card className="p-8 text-center border-red-500/10">
-                  <div className="text-3xl mb-3">📡</div>
-                  <div className="text-white/50 text-sm mb-1">{t('noRumors')}</div>
-                  <div className="text-white/30 text-xs mb-3">{t('noRumorsHint')}</div>
-                  <Button variant="gold" size="sm" onClick={() => setCreatePostOpen(true)}>
-                    <Plus className="w-4 h-4" />
-                    {t('postRumor')}
-                  </Button>
-                </Card>
-              ) : (
-                rumors.map(rumor => {
-                  const netScore = rumor.upvotes - rumor.downvotes;
-                  return (
-                    <Card key={rumor.id} className="p-4 border-red-500/15 bg-red-500/[0.02] hover:border-red-500/25 transition-all">
-                      <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        <span className="font-bold text-sm">{rumor.author_display_name || rumor.author_handle}</span>
-                        <span className="text-[10px] text-white/30 px-1.5 py-0.5 bg-white/5 rounded">Lv{rumor.author_level}</span>
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold border bg-red-500/15 text-red-300 border-red-500/20">
-                          {rumor.rumor_source ? `📡 ${rumor.rumor_source}` : `📡 ${t('rumorBadge')}`}
-                        </span>
-                        {rumor.rumor_club_target && (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold border bg-amber-500/15 text-amber-300 border-amber-500/20">
-                            → {rumor.rumor_club_target}
-                          </span>
-                        )}
-                      </div>
-                      {rumor.player_id && rumor.player_name && (
-                        <Link href={`/player/${rumor.player_id}`} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-white/5 text-white/70 hover:bg-white/10 transition-colors mb-2">
-                          {rumor.player_name}
-                        </Link>
-                      )}
-                      <p className="text-sm text-white/80 leading-relaxed mb-2">{rumor.content}</p>
-                      <div className="flex items-center gap-4 text-xs text-white/40">
-                        <span className="font-mono font-bold" style={{ color: netScore > 5 ? '#22C55E' : netScore < 0 ? '#f87171' : undefined }}>
-                          {netScore > 0 ? '+' : ''}{netScore} {tc('votes')}
-                        </span>
-                        <span>{new Date(rumor.created_at).toLocaleDateString('de-DE')}</span>
-                      </div>
-                    </Card>
-                  );
-                })
-              )}
-            </div>
-          </TabPanel>
-
-          {/* Aktionen: Votes + Bounties combined */}
-          <TabPanel activeTab={mainTab} id="aktionen">
-            <div className="space-y-8">
-              {/* Votes Section */}
-              <section>
-                <h2 className="text-lg font-bold mb-4">{t('votesTitle')}</h2>
-                <CommunityVotesTab
-                  communityPolls={communityPolls}
-                  userPollVotedIds={userPollVotedIds}
-                  clubVotes={clubVotes}
-                  userVotedIdSet={userVotedIdSet}
-                  userId={user.id}
-                  onCastPollVote={handleCastPollVote}
-                  onCancelPoll={handleCancelPoll}
-                  pollVotingId={pollVotingId}
-                  onCastVote={handleCastVote}
-                  votingId={votingId}
-                  onCreatePoll={() => setCreatePollOpen(true)}
-                />
-              </section>
-
-              {/* Bounties Section */}
-              <section>
-                <h2 className="text-lg font-bold mb-4">{t('bountiesTitle')}</h2>
-                <CommunityBountiesTab
-                  bounties={bounties}
-                  userId={user.id}
-                  onSubmit={handleSubmitBounty}
-                  submitting={submittingBountyId}
-                  userTier={clubSub?.tier ?? null}
-                />
-              </section>
-            </div>
           </TabPanel>
 
           {/* Ranking */}
@@ -707,14 +499,6 @@ export default function CommunityPage() {
         players={allPlayers}
         onSubmit={handleCreateResearch}
         loading={researchLoading}
-      />
-
-      {/* Create Community Poll Modal */}
-      <CreateCommunityPollModal
-        open={createPollOpen}
-        onClose={() => setCreatePollOpen(false)}
-        onSubmit={handleCreatePoll}
-        loading={pollLoading}
       />
 
       {/* Follow List Modal */}

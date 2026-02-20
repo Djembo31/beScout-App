@@ -5,17 +5,15 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
-  Search, Users, Briefcase,
-  GitCompareArrows,
+  Search, Briefcase,
   MessageSquare, Trophy,
-  ChevronDown, ChevronRight,
   CheckCircle2,
 } from 'lucide-react';
 import { Confetti } from '@/components/ui/Confetti';
-import { Card, ErrorState, Skeleton, SkeletonCard, TabBar, TabPanel, SearchInput, PosFilter, EmptyState } from '@/components/ui';
+import { Card, ErrorState, Skeleton, SkeletonCard, TabBar, TabPanel } from '@/components/ui';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { fmtBSD, cn } from '@/lib/utils';
-import { getClub } from '@/lib/clubs';
+
 import { centsToBsd } from '@/lib/services/players';
 import { placeSellOrder, cancelOrder } from '@/lib/services/trading';
 import { addToWatchlist, removeFromWatchlist, migrateLocalWatchlist } from '@/lib/services/watchlist';
@@ -36,12 +34,11 @@ import type { MarketTab } from '@/lib/stores/marketStore';
 import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 import dynamic from 'next/dynamic';
-import type { Player, Pos, DbIpo } from '@/types';
+import type { Player, DbIpo } from '@/types';
 
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 const ManagerKaderTab = dynamic(() => import('@/components/manager/ManagerKaderTab'), { ssr: false });
 const ManagerBestandTab = dynamic(() => import('@/components/manager/ManagerBestandTab'), { ssr: false });
-const ManagerCompareTab = dynamic(() => import('@/components/manager/ManagerCompareTab'), { ssr: false });
 const ManagerOffersTab = dynamic(() => import('@/components/manager/ManagerOffersTab'), { ssr: false });
 const KaufenDiscovery = dynamic(() => import('@/components/market/KaufenDiscovery'), { ssr: false });
 
@@ -68,12 +65,13 @@ type IPOData = {
 // TABS CONFIG — 4 Tabs
 // ============================================
 
-const TAB_IDS: MarketTab[] = ['portfolio', 'kaufen', 'angebote', 'spieler'];
+const TAB_IDS: MarketTab[] = ['portfolio', 'kaufen', 'angebote'];
 
 const TAB_ALIAS: Record<string, MarketTab> = {
   kader: 'portfolio',
   bestand: 'portfolio',
-  compare: 'spieler',
+  compare: 'kaufen',
+  spieler: 'kaufen',
   transferlist: 'kaufen',
   scouting: 'kaufen',
   offers: 'angebote',
@@ -107,8 +105,6 @@ function dbIpoToLocal(ipo: DbIpo): IPOData {
     userPurchased: 0,
   };
 }
-
-const POS_ORDER: Record<Pos, number> = { GK: 0, DEF: 1, MID: 2, ATT: 3 };
 
 // ============================================
 // SKELETON
@@ -148,11 +144,6 @@ export default function MarketPage() {
   const {
     tab, setTab,
     portfolioView, setPortfolioView,
-    spielerQuery, setSpielerQuery,
-    spielerPosFilter, toggleSpielerPos,
-    expandedClubs, toggleClubExpand,
-    initExpandedClubs,
-    showCompare, setShowCompare,
   } = useMarketStore();
 
   const t = useTranslations('market');
@@ -162,7 +153,6 @@ export default function MarketPage() {
     portfolio: t('myRoster'),
     kaufen: t('buy'),
     angebote: t('offers'),
-    spieler: t('allPlayers'),
   };
   const tabs = TAB_IDS.map(id => ({ id, label: TAB_LABELS[id] }));
 
@@ -324,33 +314,6 @@ export default function MarketPage() {
     return players.filter(p => p.dpc.owned > 0 && !p.isLiquidated);
   }, [players]);
 
-  // Spieler tab: club groups
-  const clubGroups = useMemo(() => {
-    let filtered = players.filter(p => !p.isLiquidated);
-    if (spielerQuery) {
-      const q = spielerQuery.toLowerCase();
-      filtered = filtered.filter(p => `${p.first} ${p.last} ${p.club} ${p.pos}`.toLowerCase().includes(q));
-    }
-    if (spielerPosFilter.size > 0) filtered = filtered.filter(p => spielerPosFilter.has(p.pos));
-    const map = new Map<string, Player[]>();
-    for (const p of filtered) { const arr = map.get(p.club) ?? []; arr.push(p); map.set(p.club, arr); }
-    return Array.from(map.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([clubName, clubPlayers]) => ({
-        clubName,
-        clubData: getClub(clubName),
-        players: clubPlayers.sort((a, b) => {
-          const posDiff = POS_ORDER[a.pos] - POS_ORDER[b.pos];
-          return posDiff !== 0 ? posDiff : a.last.localeCompare(b.last);
-        }),
-      }));
-  }, [players, spielerQuery, spielerPosFilter]);
-
-  // Init first club expanded (one-time via Zustand)
-  if (clubGroups.length > 0) initExpandedClubs(clubGroups[0].clubName);
-
-  const totalSpielerCount = clubGroups.reduce((s, g) => s + g.players.length, 0);
-
   if (playersLoading) return <MarketSkeleton />;
 
   if (playersError && players.length === 0) {
@@ -457,72 +420,6 @@ export default function MarketPage() {
         <ManagerOffersTab players={players} />
       </TabPanel>
 
-      {/* ━━━ TAB: ALLE SPIELER ━━━ */}
-      <TabPanel id="spieler" activeTab={tab}>
-        <div className="space-y-3">
-          {/* Search + Position Filter + Compare Button */}
-          <Card className="p-4 space-y-3">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <SearchInput value={spielerQuery} onChange={setSpielerQuery} placeholder={t('allPlayersSearch')} className="flex-1" />
-              <PosFilter multi selected={spielerPosFilter} onChange={toggleSpielerPos} />
-              <button onClick={() => setShowCompare(!showCompare)}
-                className={cn('flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all shrink-0',
-                  showCompare ? 'bg-purple-500/15 border-purple-400/30 text-purple-300' : 'bg-white/5 border-white/10 text-white/50 hover:text-white/70'
-                )}>
-                <GitCompareArrows className="w-3.5 h-3.5" />
-                {t('compare')}
-              </button>
-            </div>
-          </Card>
-
-          {/* Compare Modal-inline */}
-          {showCompare && (
-            <Card className="p-4">
-              <ManagerCompareTab players={players} />
-            </Card>
-          )}
-
-          {/* Result Counter */}
-          <div className="text-sm text-white/50">{t('allPlayersCount', { count: totalSpielerCount, clubs: clubGroups.length })}</div>
-
-          {/* Club Sections */}
-          {clubGroups.map(({ clubName, clubData, players: clubPlayers }) => {
-            const isExpanded = expandedClubs.has(clubName);
-            const primaryColor = clubData?.colors.primary ?? '#666';
-            return (
-              <div key={clubName} className="border border-white/[0.06] rounded-2xl overflow-hidden">
-                <button onClick={() => toggleClubExpand(clubName)}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-all"
-                  style={{ borderLeft: `3px solid ${primaryColor}` }}
-                >
-                  {clubData?.logo ? (
-                    <img src={clubData.logo} alt={clubName} className="w-5 h-5 rounded-full object-cover shrink-0" />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full shrink-0 border border-white/10" style={{ backgroundColor: primaryColor }} />
-                  )}
-                  <span className="font-bold text-sm">{clubName}</span>
-                  {clubData && <span className="text-[10px] font-mono text-white/30">{clubData.short}</span>}
-                  <span className="text-xs text-white/40 ml-auto mr-2">{t('clubPlayerCount', { count: clubPlayers.length })}</span>
-                  {isExpanded ? <ChevronDown className="w-4 h-4 text-white/30" /> : <ChevronRight className="w-4 h-4 text-white/30" />}
-                </button>
-                {isExpanded && (
-                  <div className="border-t border-white/[0.06]">
-                    <div className="space-y-0.5 p-1.5">
-                      {clubPlayers.map(player => (
-                        <PlayerDisplay key={player.id} variant="compact" player={player}
-                          isWatchlisted={watchlist[player.id]} onWatch={() => toggleWatch(player.id)} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-          {clubGroups.length === 0 && (
-            <EmptyState icon={<Users />} title={t('noPlayersFound')} description={t('noPlayersHint')} />
-          )}
-        </div>
-      </TabPanel>
     </div>
   );
 }

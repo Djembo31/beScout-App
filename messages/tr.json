@@ -113,10 +113,9 @@
   },
   "nav": {
     "home": "Ana Sayfa",
-    "manager": "Menajer",
-    "managerBadge": "Ofis",
+    "manager": "Pazar",
     "fantasy": "Maç Günü",
-    "report": "Rapor",
+    "report": "Topluluk",
     "profile": "Profil",
     "club": "Kulüp",
     "airdrop": "Airdrop",

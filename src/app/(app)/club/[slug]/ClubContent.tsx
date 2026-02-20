@@ -7,10 +7,10 @@ import Image from 'next/image';
 import {
   Users, Trophy, BadgeCheck, ChevronRight, Clock, Vote, TrendingUp,
   Shield, BarChart3, Calendar, MapPin,
-  Building2, Zap, Crown, Gift, MessageCircle, Share2,
+  Building2, Zap, Crown, MessageCircle, Share2,
   Bell, Flame, CheckCircle2, Briefcase,
   ArrowUpRight, ArrowDownRight, ExternalLink, Users2,
-  Loader2, Plus, FileText, Settings, ChevronDown,
+  Loader2, Settings, ChevronDown,
   Swords, Home, Plane, ShoppingBag,
 } from 'lucide-react';
 import { Card, Button, Chip, Modal, ErrorState, Skeleton, SkeletonCard, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
@@ -21,30 +21,27 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { dbToPlayers, centsToBsd } from '@/lib/services/players';
 import { toggleFollowClub } from '@/lib/services/club';
 import { fmtBSD, cn } from '@/lib/utils';
-import { getAllVotes, castVote, createVote } from '@/lib/services/votes';
 import { formatBsd } from '@/lib/services/wallet';
-import { unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
+import { resolveExpiredResearch } from '@/lib/services/research';
 import { subscribeTo, cancelSubscription, TIER_CONFIG } from '@/lib/services/clubSubscriptions';
 import type { ClubSubscription, SubscriptionTier } from '@/lib/services/clubSubscriptions';
-import ResearchCard from '@/components/community/ResearchCard';
 import { useClubBySlug, useClubSubscription } from '@/lib/queries/misc';
 import { usePlayersByClub } from '@/lib/queries/players';
 import { useClubFollowerCount, useIsFollowingClub } from '@/lib/queries/social';
-import { useClubRecentTrades } from '@/lib/queries/trades';
 import { useHoldings } from '@/lib/queries/holdings';
-import { useClubVotes, useUserVotedIds } from '@/lib/queries/votes';
-import { useClubResearch } from '@/lib/queries/research';
+import { useClubVotes } from '@/lib/queries/votes';
 import { useClubFixtures } from '@/lib/queries/fixtures';
 import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 import { getClub } from '@/lib/clubs';
-import type { Player, Pos, DbPlayer, DbTrade, DbIpo, DbClubVote, ClubWithAdmin, ResearchPostWithAuthor, Fixture } from '@/types';
+import { useToast } from '@/components/providers/ToastProvider';
+import type { Player, Pos, DbPlayer, DbTrade, DbClubVote, ClubWithAdmin, Fixture } from '@/types';
 
 // ============================================
 // TYPES
 // ============================================
 
-type ClubTab = 'uebersicht' | 'spieler' | 'spielplan' | 'club';
+type ClubTab = 'uebersicht' | 'spieler' | 'spielplan';
 
 type TradeWithPlayer = DbTrade & {
   player: { first_name: string; last_name: string; position: string };
@@ -58,7 +55,6 @@ const TABS: { id: ClubTab; label: string }[] = [
   { id: 'uebersicht', label: 'overview' },
   { id: 'spieler', label: 'players' },
   { id: 'spielplan', label: 'fixtures' },
-  { id: 'club', label: 'community' },
 ];
 
 // ============================================
@@ -786,6 +782,7 @@ function ClubSkeleton() {
 
 export default function ClubContent({ slug }: { slug: string }) {
   const { user, profile, refreshProfile } = useUser();
+  const { addToast } = useToast();
   const userId = user?.id;
 
   // ── React Query Hooks (ALL before early returns) ──
@@ -794,11 +791,8 @@ export default function ClubContent({ slug }: { slug: string }) {
   const { data: dbPlayersRaw = [], isLoading: playersLoading, isError: playersError } = usePlayersByClub(clubId);
   const { data: followerCountData = 0 } = useClubFollowerCount(clubId);
   const { data: isFollowingData = false } = useIsFollowingClub(userId, clubId);
-  const { data: recentTradesData = [] } = useClubRecentTrades(clubId);
   const { data: dbHoldings = [] } = useHoldings(userId);
   const { data: clubVotesData = [] } = useClubVotes(clubId ?? null);
-  const { data: userVotedIdsData } = useUserVotedIds(userId);
-  const { data: clubResearchData = [] } = useClubResearch(clubId, userId);
   const { data: subscriptionData = null } = useClubSubscription(userId, clubId);
   const { data: clubFixtures = [] } = useClubFixtures(clubId);
 
@@ -812,10 +806,7 @@ export default function ClubContent({ slug }: { slug: string }) {
 
   // ---- Derived data from hooks ----
   const players = useMemo(() => dbToPlayers(dbPlayersRaw), [dbPlayersRaw]);
-  const recentTrades = recentTradesData as TradeWithPlayer[];
   const clubVotes = clubVotesData;
-  const userVotedIds = userVotedIdsData ?? new Set<string>();
-  const clubResearch = clubResearchData;
 
   const userHoldingsQty = useMemo(() => {
     if (!clubId || dbHoldings.length === 0) return {};
@@ -852,19 +843,6 @@ export default function ClubContent({ slug }: { slug: string }) {
   const [fixtureFilter, setFixtureFilter] = useState<FixtureFilter>('all');
   const [expandedGw, setExpandedGw] = useState<Set<number>>(new Set());
 
-  // Votes state
-  const [votingId, setVotingId] = useState<string | null>(null);
-  const [voteMsg, setVoteMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [createVoteModalOpen, setCreateVoteModalOpen] = useState(false);
-  const [cvQuestion, setCvQuestion] = useState('');
-  const [cvOptions, setCvOptions] = useState(['', '']);
-  const [cvCost, setCvCost] = useState('5');
-  const [cvDays, setCvDays] = useState('7');
-  const [cvLoading, setCvLoading] = useState(false);
-
-  // Research state
-  const [researchUnlockingId, setResearchUnlockingId] = useState<string | null>(null);
-  const [researchRatingId, setResearchRatingId] = useState<string | null>(null);
 
   // Club-Abo state
   const [subscription, setSubscription] = useState<ClubSubscription | null>(null);
@@ -876,82 +854,6 @@ export default function ClubContent({ slug }: { slug: string }) {
   useEffect(() => {
     if (subscriptionData !== undefined) setSubscription(subscriptionData);
   }, [subscriptionData]);
-
-  // ---- Vote Handlers ----
-  const handleCastVote = useCallback(async (voteId: string, optionIndex: number) => {
-    if (!user || !club || votingId) return;
-    setVotingId(voteId);
-    setVoteMsg(null);
-    try {
-      await castVote(user.id, voteId, optionIndex);
-      queryClient.invalidateQueries({ queryKey: qk.votes.byClub(club.id) });
-      queryClient.invalidateQueries({ queryKey: qk.clubs.votedIds(user.id) });
-      setVoteMsg({ type: 'success', text: 'Stimme abgegeben!' });
-    } catch (err) {
-      setVoteMsg({ type: 'error', text: err instanceof Error ? err.message : 'Fehler beim Abstimmen.' });
-    } finally {
-      setVotingId(null);
-    }
-  }, [user, club, votingId]);
-
-  const handleCreateVote = useCallback(async () => {
-    if (!user || !club || cvLoading) return;
-    const validOptions = cvOptions.filter(o => o.trim());
-    if (!cvQuestion.trim() || validOptions.length < 2) return;
-    setCvLoading(true);
-    try {
-      await createVote({
-        userId: user.id,
-        clubId: club.id,
-        clubName: club.name,
-        question: cvQuestion.trim(),
-        options: validOptions.map(o => o.trim()),
-        costCents: Math.round(parseFloat(cvCost || '0') * 100),
-        durationDays: parseInt(cvDays || '7'),
-      });
-      setCreateVoteModalOpen(false);
-      setCvQuestion('');
-      setCvOptions(['', '']);
-      setCvCost('5');
-      setCvDays('7');
-      queryClient.invalidateQueries({ queryKey: qk.votes.byClub(club.id) });
-    } catch (err) {
-      setVoteMsg({ type: 'error', text: err instanceof Error ? err.message : 'Fehler beim Erstellen.' });
-    } finally {
-      setCvLoading(false);
-    }
-  }, [user, club, cvLoading, cvQuestion, cvOptions, cvCost, cvDays]);
-
-  // ---- Research Handlers ----
-  const handleResearchUnlock = useCallback(async (researchId: string) => {
-    if (!user || !club || researchUnlockingId) return;
-    setResearchUnlockingId(researchId);
-    try {
-      const result = await unlockResearch(user.id, researchId);
-      if (result.success) {
-        queryClient.invalidateQueries({ queryKey: ['research'] });
-      }
-    } catch (err) {
-      console.error('[Club] Research unlock failed:', err);
-    } finally {
-      setResearchUnlockingId(null);
-    }
-  }, [user, club, researchUnlockingId]);
-
-  const handleResearchRate = useCallback(async (researchId: string, rating: number) => {
-    if (!user || researchRatingId) return;
-    setResearchRatingId(researchId);
-    try {
-      const result = await rateResearch(user.id, researchId, rating);
-      if (result.success) {
-        queryClient.invalidateQueries({ queryKey: ['research'] });
-      }
-    } catch (err) {
-      console.error('[Club] Research rate failed:', err);
-    } finally {
-      setResearchRatingId(null);
-    }
-  }, [user, researchRatingId]);
 
   // Dashboard stats removed (admin has /club/[slug]/admin)
 
@@ -974,11 +876,6 @@ export default function ClubContent({ slug }: { slug: string }) {
   const userClubDpc = useMemo(
     () => Object.values(userHoldingsQty).reduce((sum, q) => sum + q, 0),
     [userHoldingsQty]
-  );
-
-  const userClubPlayers = useMemo(
-    () => players.filter((p) => userHoldingsQty[p.id] > 0),
-    [players, userHoldingsQty]
   );
 
   const filteredPlayers = useMemo(() => {
@@ -1038,6 +935,7 @@ export default function ClubContent({ slug }: { slug: string }) {
     } catch {
       setLocalFollowing(!newFollowing);
       setLocalFollowerDelta(prev => prev + (newFollowing ? -1 : 1));
+      addToast('Fehler beim Folgen/Entfolgen', 'error');
     } finally {
       setFollowLoading(false);
     }
@@ -1069,7 +967,10 @@ export default function ClubContent({ slug }: { slug: string }) {
     try {
       await cancelSubscription(user.id, club.id);
       setSubscription(prev => prev ? { ...prev, auto_renew: false } : null);
-    } catch (err) { console.error('[Club] Cancel subscription failed:', err); }
+    } catch (err) {
+      console.error('[Club] Cancel subscription failed:', err);
+      addToast('Fehler beim Kündigen', 'error');
+    }
     finally { setSubLoading(false); }
   }, [user, club]);
 
@@ -1235,25 +1136,21 @@ export default function ClubContent({ slug }: { slug: string }) {
                   <Vote className="w-5 h-5" style={{ color: clubColor }} />
                   <span className="font-black">{t('activeVotes')}</span>
                 </div>
-                <button onClick={() => setTab('club')} className="text-xs hover:underline flex items-center gap-1" style={{ color: clubColor }}>
-                  {tc('viewAll')} <ChevronRight className="w-4 h-4" />
-                </button>
               </div>
               <div className="space-y-2">
                 {activeVotesPreview.map(vote => {
                   const totalVotes = (vote.options as { label: string; votes: number }[]).reduce((s, o) => s + o.votes, 0);
                   return (
-                    <button
+                    <div
                       key={vote.id}
-                      onClick={() => setTab('club')}
-                      className="w-full text-left p-3 bg-white/[0.02] rounded-xl border border-white/10 hover:border-white/20 transition-all"
+                      className="p-3 bg-white/[0.02] rounded-xl border border-white/10"
                     >
                       <div className="font-bold text-sm mb-1 truncate">{vote.question}</div>
                       <div className="flex items-center gap-3 text-xs text-white/40">
                         <span>{totalVotes} Stimme{totalVotes !== 1 ? 'n' : ''}</span>
                         <span>Endet {new Date(vote.ends_at).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })}</span>
                       </div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
@@ -1262,38 +1159,6 @@ export default function ClubContent({ slug }: { slug: string }) {
 
           {/* Letzte Ergebnisse */}
           {clubId && <LastResultsCard fixtures={clubFixtures} clubId={clubId} />}
-
-          {/* Deine Spieler */}
-          {userClubPlayers.length > 0 && (
-            <Card className="p-4 md:p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Briefcase className="w-5 h-5 text-[#FFD700]" />
-                <span className="font-black">{t('yourPlayers')}</span>
-              </div>
-              <div className="space-y-2">
-                {userClubPlayers.map((player) => (
-                  <Link key={player.id} href={`/player/${player.id}`}>
-                    <div
-                      className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10 transition-all"
-                      onMouseEnter={e => (e.currentTarget.style.borderColor = `${clubColor}50`)}
-                      onMouseLeave={e => (e.currentTarget.style.borderColor = '')}
-                    >
-                      <div className="flex items-center gap-2">
-                        <PlayerIdentity player={player} size="sm" showMeta={false} showStatus={false} />
-                        <div className="text-[10px] text-white/40 shrink-0">{fmtBSD(player.prices.lastTrade)} BSD</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-mono font-bold text-[#FFD700]">{userHoldingsQty[player.id]}</div>
-                        <div className="text-[10px] text-white/40">DPC</div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </Card>
-          )}
-
-          <ActivityFeed trades={recentTrades} title={t('activityFeed')} emptyText={t('noTrades')} />
 
           {/* Club Info */}
           <Card className="p-4 md:p-6">
@@ -1324,8 +1189,6 @@ export default function ClubContent({ slug }: { slug: string }) {
               </div>
             </div>
           </Card>
-
-          <SquadOverviewWidget players={players} />
         </div>
       )}
 
@@ -1462,160 +1325,6 @@ export default function ClubContent({ slug }: { slug: string }) {
           </div>
         );
       })()}
-
-      {/* ========== TAB: CLUB & MEMBER ========== */}
-      {tab === 'club' && (
-        <div className="space-y-6">
-          {/* Votes Section */}
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Vote className="w-5 h-5 text-purple-400" />
-                <span className="font-black">{t('votes')}</span>
-              </div>
-              {club.is_admin && (
-                <Button variant="outline" size="sm" onClick={() => setCreateVoteModalOpen(true)}>
-                  <Plus className="w-3.5 h-3.5" />
-                  {t('newVote')}
-                </Button>
-              )}
-            </div>
-
-            {voteMsg && (
-              <div className={cn(
-                'flex items-center gap-2 p-2.5 mb-3 rounded-xl border text-xs',
-                voteMsg.type === 'success' ? 'bg-[#22C55E]/10 border-[#22C55E]/20 text-[#22C55E]' : 'bg-red-500/10 border-red-400/20 text-red-200'
-              )}>
-                {voteMsg.text}
-              </div>
-            )}
-
-            {clubVotes.length === 0 ? (
-              <div className="text-center py-6 text-white/30 text-sm">
-                {t('noVotes')}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {clubVotes.map((vote) => (
-                  <ClubVoteCard
-                    key={vote.id}
-                    vote={vote}
-                    hasVoted={userVotedIds.has(vote.id)}
-                    onVote={handleCastVote}
-                    voting={votingId}
-                  />
-                ))}
-              </div>
-            )}
-          </Card>
-
-          {/* Create Vote Modal */}
-          <Modal open={createVoteModalOpen} title="Neue Abstimmung" onClose={() => setCreateVoteModalOpen(false)}>
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs text-white/50 font-semibold mb-1.5 block">Frage</label>
-                <input
-                  type="text"
-                  value={cvQuestion}
-                  onChange={(e) => setCvQuestion(e.target.value.slice(0, 200))}
-                  placeholder="z.B. Welches Trikot-Design bevorzugt ihr?"
-                  className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40"
-                />
-              </div>
-
-              {cvOptions.map((opt, idx) => (
-                <div key={idx}>
-                  <label className="text-xs text-white/50 font-semibold mb-1.5 block">Option {idx + 1}</label>
-                  <input
-                    type="text"
-                    value={opt}
-                    onChange={(e) => {
-                      const next = [...cvOptions];
-                      next[idx] = e.target.value.slice(0, 100);
-                      setCvOptions(next);
-                    }}
-                    placeholder={`Option ${idx + 1}`}
-                    className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40"
-                  />
-                </div>
-              ))}
-
-              {cvOptions.length < 4 && (
-                <Button variant="outline" size="sm" onClick={() => setCvOptions([...cvOptions, ''])}>
-                  <Plus className="w-3.5 h-3.5" />
-                  Option hinzufügen
-                </Button>
-              )}
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-white/50 font-semibold mb-1.5 block">Kosten (BSD)</label>
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    value={cvCost}
-                    onChange={(e) => setCvCost(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#FFD700]/40"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-white/50 font-semibold mb-1.5 block">Laufzeit (Tage)</label>
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    value={cvDays}
-                    onChange={(e) => setCvDays(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#FFD700]/40"
-                  />
-                </div>
-              </div>
-
-              <Button variant="gold" fullWidth loading={cvLoading} onClick={handleCreateVote}>
-                Abstimmung erstellen
-              </Button>
-            </div>
-          </Modal>
-
-          {/* Research Preview */}
-          {clubResearch.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-purple-400" />
-                  <span className="font-black">{t('research')}</span>
-                  <span className="text-xs text-white/40">{t('researchCount', { count: clubResearch.length })}</span>
-                </div>
-                <Link href="/community" className="text-xs text-[#FFD700] hover:underline">
-                  {tc('viewAll')}
-                </Link>
-              </div>
-              {clubResearch.slice(0, 3).map(post => (
-                <ResearchCard
-                  key={post.id}
-                  post={post}
-                  onUnlock={handleResearchUnlock}
-                  unlockingId={researchUnlockingId}
-                  onRate={handleResearchRate}
-                  ratingId={researchRatingId}
-                />
-              ))}
-            </div>
-          )}
-
-          <SponsorBanner placement="club_community" clubId={club.id} className="mb-4" />
-
-          {/* Community Guidelines */}
-          {club?.community_guidelines && (
-            <Card className="p-4 border-[#FFD700]/10 bg-[#FFD700]/[0.02]">
-              <div className="flex items-center gap-2 mb-2">
-                <Shield className="w-4 h-4 text-[#FFD700]" />
-                <span className="font-bold text-sm text-[#FFD700]">{t('guidelines')}</span>
-              </div>
-              <p className="text-sm text-white/70 whitespace-pre-line">{club.community_guidelines}</p>
-            </Card>
-          )}
-        </div>
-      )}
 
       {/* Club-Abo Modal */}
       <Modal title={t('subscription')} open={subModalOpen} onClose={() => { setSubModalOpen(false); setSubError(null); }}>

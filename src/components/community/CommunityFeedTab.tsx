@@ -20,6 +20,8 @@ function trendingScore(post: PostWithAuthor): number {
   return engagement / Math.pow(ageHours + 2, 1.5);
 }
 
+type PostTypeFilter = 'all' | 'general' | 'transfer_rumor';
+
 interface CommunityFeedTabProps {
   posts: PostWithAuthor[];
   myPostVotes: Map<string, number>;
@@ -33,7 +35,7 @@ interface CommunityFeedTabProps {
   onDelete: (postId: string) => void;
   onCreatePost: () => void;
   onSwitchToLeaderboard: () => void;
-  onSwitchToVotes: () => void;
+  onSwitchToVotes?: () => void;
   isClubAdmin?: boolean;
   onAdminDelete?: (postId: string) => void;
   onTogglePin?: (postId: string, pinned: boolean) => void;
@@ -64,6 +66,7 @@ export default function CommunityFeedTab({
   const [feedSort, setFeedSort] = useState<FeedSort>('new');
   const [query, setQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [postTypeFilter, setPostTypeFilter] = useState<PostTypeFilter>('all');
 
   // ---- Filtered/Sorted Posts ----
   const filteredPosts = useMemo(() => {
@@ -72,6 +75,13 @@ export default function CommunityFeedTab({
     // Following tab filter
     if (isFollowingTab) {
       result = result.filter(p => followingIds.has(p.user_id));
+    }
+
+    // Post type filter (All / Posts / Gerüchte)
+    if (postTypeFilter === 'general') {
+      result = result.filter(p => p.post_type !== 'transfer_rumor');
+    } else if (postTypeFilter === 'transfer_rumor') {
+      result = result.filter(p => p.post_type === 'transfer_rumor');
     }
 
     // Category filter
@@ -110,7 +120,7 @@ export default function CommunityFeedTab({
     }
 
     return result;
-  }, [posts, isFollowingTab, feedSort, query, followingIds, categoryFilter]);
+  }, [posts, isFollowingTab, feedSort, query, followingIds, categoryFilter, postTypeFilter]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -128,6 +138,30 @@ export default function CommunityFeedTab({
             active={feedSort}
             onChange={(id) => setFeedSort(id as FeedSort)}
           />
+        </div>
+
+        {/* Post Type Filter (All / Posts / Gerüchte) */}
+        <div className="flex gap-1.5">
+          {([
+            { id: 'all' as PostTypeFilter, label: 'Alle' },
+            { id: 'general' as PostTypeFilter, label: 'Posts' },
+            { id: 'transfer_rumor' as PostTypeFilter, label: 'Gerüchte' },
+          ]).map(opt => (
+            <button
+              key={opt.id}
+              onClick={() => setPostTypeFilter(opt.id)}
+              className={cn(
+                'px-3 py-1.5 rounded-full text-xs font-semibold transition-all border',
+                postTypeFilter === opt.id
+                  ? opt.id === 'transfer_rumor'
+                    ? 'bg-red-500/15 text-red-300 border-red-500/30'
+                    : 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30'
+                  : 'bg-white/[0.02] text-white/40 border-white/10 hover:text-white/60'
+              )}
+            >
+              {opt.id === 'transfer_rumor' && '📡 '}{opt.label}
+            </button>
+          ))}
         </div>
 
         {/* Category Filter Pills */}
