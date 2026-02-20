@@ -189,10 +189,11 @@ export default function CommunityPage() {
       );
     } catch (err) {
       console.error('[Community] Vote post failed:', err);
+      addToast('Fehler beim Abstimmen', 'error');
       setMyPostVotes(prevVotes);
       queryClient.invalidateQueries({ queryKey: ['posts'] });
     }
-  }, [uid, myPostVotes, scopeClubId]);
+  }, [uid, myPostVotes, scopeClubId, addToast]);
 
   const handleDeletePost = useCallback(async (postId: string) => {
     if (!uid) return;
@@ -282,8 +283,9 @@ export default function CommunityPage() {
       invalidateSocialQueries(uid);
     } catch (err) {
       console.error('[Community] Follow toggle failed:', err);
+      addToast('Fehler beim Folgen/Entfolgen', 'error');
     }
-  }, [uid, followingIds]);
+  }, [uid, followingIds, addToast]);
 
   const handleCreateResearch = useCallback(async (params: {
     playerId: string | null;
@@ -349,10 +351,11 @@ export default function CommunityPage() {
       }
     } catch (err) {
       console.error('[Community] Rate research failed:', err);
+      addToast('Fehler beim Bewerten', 'error');
     } finally {
       setRatingId(null);
     }
-  }, [uid, ratingId]);
+  }, [uid, ratingId, addToast]);
 
   const handleCastPollVote = useCallback(async (pollId: string, optionIndex: number) => {
     if (!uid || pollVotingId) return;

@@ -52,6 +52,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
   const [category, setCategory] = useState<ResearchCategory>('Spieler-Analyse');
   const [playerSearch, setPlayerSearch] = useState('');
   const [playerDropdownOpen, setPlayerDropdownOpen] = useState(false);
+  const [tried, setTried] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -67,6 +68,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
   const canSubmit = title.length >= 5 && content.length >= 50 && preview.length > 0 && priceBsd >= 1 && priceBsd <= 100000;
 
   const handleSubmit = () => {
+    setTried(true);
     if (!canSubmit) return;
     const tags = tagInput.split(',').map(t => t.trim()).filter(Boolean);
     onSubmit({
@@ -95,6 +97,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
       setTagInput('');
       setCategory('Spieler-Analyse');
       setPlayerSearch('');
+      setTried(false);
     }
   }, [open]);
 
@@ -295,7 +298,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
           />
         </div>
 
-        {!canSubmit && (title.length > 0 || preview.length > 0 || content.length > 0) && (
+        {!canSubmit && (tried || title.length > 0 || preview.length > 0 || content.length > 0) && (
           <div className="text-xs text-red-400/80 space-y-0.5">
             {title.length < 5 && <div>Titel: mind. 5 Zeichen ({title.length}/5)</div>}
             {preview.length === 0 && <div>Vorschau darf nicht leer sein</div>}

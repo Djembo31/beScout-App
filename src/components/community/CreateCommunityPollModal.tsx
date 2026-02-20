@@ -30,6 +30,7 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
   const [options, setOptions] = useState(['', '']);
   const [priceBsd, setPriceBsd] = useState(5);
   const [durationDays, setDurationDays] = useState(3);
+  const [tried, setTried] = useState(false);
 
   // Reset form when modal closes
   useEffect(() => {
@@ -39,6 +40,7 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
       setOptions(['', '']);
       setPriceBsd(5);
       setDurationDays(3);
+      setTried(false);
     }
   }, [open]);
 
@@ -58,6 +60,7 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
   const canSubmit = question.length >= 5 && question.length <= 200 && validOptions.length >= 2 && priceBsd >= 1 && priceBsd <= 10000;
 
   const handleSubmit = () => {
+    setTried(true);
     if (!canSubmit) return;
     onSubmit({
       question: question.trim(),
@@ -177,7 +180,7 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
         </div>
 
         {/* Validation hints */}
-        {!canSubmit && (question.length > 0 || validOptions.length > 0) && (
+        {!canSubmit && (tried || question.length > 0 || validOptions.length > 0) && (
           <div className="text-xs text-red-400/80 space-y-0.5">
             {question.length < 5 && <div>Frage: mind. 5 Zeichen ({question.length}/5)</div>}
             {validOptions.length < 2 && <div>Mind. 2 Optionen erforderlich</div>}
