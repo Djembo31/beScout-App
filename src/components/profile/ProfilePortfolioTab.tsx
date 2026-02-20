@@ -42,6 +42,7 @@ function holdingRowToPlayer(h: HoldingRow) {
     prices: { lastTrade: 0, floor: centsToBsd(h.player?.floor_price ?? 0), change24h: h.player?.price_change_24h ?? 0 },
     dpc: { supply: 0, float: 0, circulation: 0, onMarket: 0, owned: h.quantity },
     ipo: { status: 'none' as const },
+    imageUrl: h.player?.image_url ?? null,
     listings: [],
     topOwners: [],
   };

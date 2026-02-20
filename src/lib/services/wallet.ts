@@ -8,6 +8,7 @@ export type HoldingWithPlayer = DbHolding & {
     perf_l5: number; perf_l15: number;
     matches: number; goals: number; assists: number; status: string;
     shirt_number: number; age: number;
+    image_url: string | null;
   };
 };
 
@@ -43,6 +44,7 @@ export async function getHoldings(userId: string): Promise<HoldingWithPlayer[]> 
       player:players (
         first_name,
         last_name,
+        image_url,
         position,
         club,
         floor_price,

@@ -15,6 +15,7 @@ export type LineupSlotPlayer = {
     position: Pos;
     club: string;
     perfL5: number;
+    imageUrl?: string | null;
   };
 };
 
@@ -198,10 +199,10 @@ export async function getLineupWithPlayers(eventId: string, userId: string): Pro
   // Fetch player data
   const { data: playersData } = await supabase
     .from('players')
-    .select('id, first_name, last_name, position, club, perf_l5')
+    .select('id, first_name, last_name, position, club, perf_l5, image_url')
     .in('id', playerIds);
 
-  type SlotPlayerData = Pick<DbPlayer, 'id' | 'first_name' | 'last_name' | 'position' | 'club' | 'perf_l5'>;
+  type SlotPlayerData = Pick<DbPlayer, 'id' | 'first_name' | 'last_name' | 'position' | 'club' | 'perf_l5' | 'image_url'>;
   const playerMap = new Map<string, SlotPlayerData>(
     (playersData ?? []).map((p) => [p.id, p as SlotPlayerData])
   );
@@ -223,6 +224,7 @@ export async function getLineupWithPlayers(eventId: string, userId: string): Pro
         position: p?.position ?? 'MID',
         club: p?.club ?? '',
         perfL5: p?.perf_l5 ?? 0,
+        imageUrl: p?.image_url ?? null,
       },
     });
   }

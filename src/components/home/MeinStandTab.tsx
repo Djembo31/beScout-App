@@ -128,6 +128,7 @@ export default function MeinStandTab({
                   country: '',
                   league: '',
                   isLiquidated: false,
+                  imageUrl: h.imageUrl,
                   stats: { matches: h.matches, goals: h.goals, assists: h.assists },
                   perf: { l5: h.perfL5, l15: 0, trend: 'FLAT' as const },
                   prices: { lastTrade: 0, floor: h.floor, change24h: h.change24h },

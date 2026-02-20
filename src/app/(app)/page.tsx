@@ -116,6 +116,7 @@ export default function HomePage() {
       matches: h.player.matches ?? 0,
       goals: h.player.goals ?? 0,
       assists: h.player.assists ?? 0,
+      imageUrl: h.player.image_url ?? null,
     })),
     [rawHoldings]
   );

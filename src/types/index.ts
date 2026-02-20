@@ -97,6 +97,7 @@ export type DpcHolding = {
   matches: number;
   goals: number;
   assists: number;
+  imageUrl?: string | null;
 };
 
 // ============================================

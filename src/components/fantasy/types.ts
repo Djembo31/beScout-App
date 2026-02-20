@@ -105,6 +105,7 @@ export type UserDpcHolding = {
   goals: number;
   assists: number;
   status: 'fit' | 'injured' | 'suspended' | 'doubtful';
+  imageUrl?: string | null;
 };
 
 export type LineupPreset = {

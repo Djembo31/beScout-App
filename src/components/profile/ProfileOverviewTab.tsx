@@ -38,6 +38,7 @@ export type HoldingRow = {
     matches: number;
     goals: number;
     assists: number;
+    image_url: string | null;
   };
 };
 

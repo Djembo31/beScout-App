@@ -14,7 +14,7 @@ import {
 import { getScoreTier, SCORE_TIER_CONFIG, calculateSynergyPreview } from '@/types';
 import type { SynergyDetail } from '@/types';
 import { Card, Button, Chip } from '@/components/ui';
-import { PositionBadge } from '@/components/player';
+import { PositionBadge, PlayerPhoto, getL5Color } from '@/components/player';
 import { useUser } from '@/components/providers/AuthProvider';
 import { centsToBsd } from '@/lib/services/players';
 import { getLineup, removeLineup, getEventParticipants, getEventParticipantCount, getLineupWithPlayers } from '@/lib/services/lineups';
@@ -1059,7 +1059,13 @@ export const EventDetailModal = ({
                         }`}
                     >
                       <div className="flex items-center gap-3">
-                        <PositionBadge pos={player.pos as Pos} size="sm" />
+                        <PlayerPhoto
+                          imageUrl={player.imageUrl}
+                          first={player.first}
+                          last={player.last}
+                          pos={player.pos as Pos}
+                          size={32}
+                        />
                         <div>
                           <div className="font-medium text-sm flex items-center gap-1.5">
                             {player.first} {player.last}
@@ -1073,8 +1079,8 @@ export const EventDetailModal = ({
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="text-right">
-                          <div className="text-xs text-white/50">L5: <span className="font-mono font-bold">{player.perfL5}</span></div>
-                          <div className="text-[10px] text-white/30">{player.goals}⚽ {player.assists}🎯 {player.matches}📋</div>
+                          <div className="text-xs text-white/50">L5: <span className={`font-mono font-bold ${getL5Color(player.perfL5)}`}>{player.perfL5}</span></div>
+                          <div className="text-[10px] text-white/30">{player.goals}T {player.assists}A {player.matches}S</div>
                         </div>
                         {player.isLocked ? (
                           <span className="text-xs text-orange-400 flex items-center gap-1" title={`In ${player.eventsUsing} Events`}>
@@ -1542,7 +1548,13 @@ export const EventDetailModal = ({
                       }`}
                   >
                     <div className="flex items-center gap-3">
-                      <PositionBadge pos={player.pos as Pos} size="sm" />
+                      <PlayerPhoto
+                        imageUrl={player.imageUrl}
+                        first={player.first}
+                        last={player.last}
+                        pos={player.pos as Pos}
+                        size={32}
+                      />
                       <div className="text-left">
                         <div className="font-medium text-sm flex items-center gap-1">
                           {player.first} {player.last}
@@ -1554,8 +1566,8 @@ export const EventDetailModal = ({
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs font-mono font-bold text-white/70">L5: {player.perfL5}</div>
-                      <div className="text-[9px] text-white/30">{player.goals}⚽ {player.assists}🎯 {player.matches}📋</div>
+                      <div className={`text-xs font-mono font-bold ${getL5Color(player.perfL5)}`}>L5: {player.perfL5}</div>
+                      <div className="text-[9px] text-white/30">{player.goals}T {player.assists}A {player.matches}S</div>
                     </div>
                   </button>
                 );
