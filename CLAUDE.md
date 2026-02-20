@@ -250,6 +250,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Prediction Engine fertig:** `predictions` Tabelle, `create_prediction` + `resolve_gameweek_predictions` RPCs, Fantasy 4. Tab "Vorhersagen", PredictionStatsCard im Profil, auto-resolve in simulateGameweekFlow, i18n DE+TR. 2 Migrationen (#188-#189).
 **Player Data Consistency fertig:** Phase 1: L5 Farb-Tokens unified (`getL5Color`/`getL5Hex`/`getL5Bg`), `PlayerPhoto` shared Component, 9 Dateien gefixt. Phase 2: `image_url` in Holdings/Lineup Queries, `PlayerPhoto` in Fantasy Picker, Emoji-Stats→Text. Spielerfotos konsistent in ALLEN Views.
 **UX Radical Simplification fertig:** 20→13 Tabs, ~760 Zeilen reduziert. Home scrollbar (keine Tabs), Market 3 Tabs, Community 3 Tabs (PostType-Filter im Feed), Club 3 Tabs, Fantasy vereinfacht (nur Cards). Nav Labels: "Markt" + "Community" statt "Manager" + "Report".
+**$SCOUT Umbenennung fertig (ADR-021):** BSD → $SCOUT. `fmtBSD` → `fmtScout`, `formatBsd` → `formatScout`, ~242 UI-Strings, i18n DE+TR, 8 Skills, Docs. Interne Variablen (`centsToBsd`, `priceBsd`) bleiben.
 **Code-seitig launch-fertig.** Nur 2 manuelle Setup-Schritte blockieren Beta-Launch: VAPID Key in Vercel + API-Football Account+Mapping.
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.

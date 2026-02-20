@@ -98,25 +98,15 @@ export async function getClubByReferralCode(code: string): Promise<{ id: string;
   return { id: data.id, name: data.name, slug: data.slug, logo_url: data.logo };
 }
 
-/** Count how many users were referred to a specific club */
-export async function getClubReferralCount(clubId: string): Promise<number> {
-  const { count, error } = await supabase
-    .from('club_followers')
-    .select('id', { count: 'exact', head: true })
-    .eq('club_id', clubId);
-  if (error) return 0;
-  return count ?? 0;
-}
-
 /** Apply a club referral: ensure user follows the club as primary */
 export async function applyClubReferral(userId: string, clubId: string): Promise<void> {
-  // Upsert club_followers with is_primary = true
-  await supabase
+  const { error } = await supabase
     .from('club_followers')
     .upsert(
       { user_id: userId, club_id: clubId, is_primary: true },
       { onConflict: 'user_id,club_id' }
     );
+  if (error) console.error('[Referral] applyClubReferral failed:', error.message);
 }
 
 export type ReferralLeaderboardEntry = { user_id: string; handle: string; display_name: string | null; count: number };

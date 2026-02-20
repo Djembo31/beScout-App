@@ -8,7 +8,6 @@ import { Card, Skeleton, Button, Modal } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { getClubDashboardStats, getClubFollowerCount } from '@/lib/services/club';
 import { getClubSubscribers } from '@/lib/services/clubSubscriptions';
-import { getClubReferralCount } from '@/lib/services/referral';
 import { createClubNews } from '@/lib/services/posts';
 import { getPlayersByClubId, centsToBsd } from '@/lib/services/players';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -24,7 +23,6 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
   const [players, setPlayers] = useState<DbPlayer[]>([]);
   const [followerCount, setFollowerCount] = useState(0);
   const [subData, setSubData] = useState<{ total: number; revenueCents: number } | null>(null);
-  const [referralCount, setReferralCount] = useState(0);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -38,19 +36,17 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
     async function load() {
       setLoading(true);
       try {
-        const [s, p, f, subs, refCount] = await Promise.all([
+        const [s, p, f, subs] = await Promise.all([
           getClubDashboardStats(club.id),
           getPlayersByClubId(club.id),
           getClubFollowerCount(club.id),
           getClubSubscribers(club.id),
-          getClubReferralCount(club.id),
         ]);
         if (!cancelled) {
           setStats(s);
           setPlayers(p);
           setFollowerCount(f);
           setSubData(subs);
-          setReferralCount(refCount);
         }
       } catch (err) { console.error('[AdminOverview] loadData:', err); }
       finally { if (!cancelled) setLoading(false); }
@@ -134,8 +130,8 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
             <div>
               <div className="text-sm font-bold">Club-Referral-Link</div>
               <div className="text-[10px] text-white/40">
-                {referralCount > 0
-                  ? `${referralCount} Fan${referralCount !== 1 ? 's' : ''} über diesen Link`
+                {followerCount > 0
+                  ? `${followerCount} Fan${followerCount !== 1 ? 's' : ''} folgen deinem Club`
                   : 'Teile diesen Link um Fans zu gewinnen'}
               </div>
             </div>

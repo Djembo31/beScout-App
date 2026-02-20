@@ -3,7 +3,6 @@ export * from './types';
 export * from './helpers';
 export * from './constants';
 export { GameweekSelector } from './GameweekSelector';
-export { LeagueSidebar } from './LeagueSidebar';
 export { EventCard } from './EventCard';
 export { EventTableRow } from './EventTableRow';
 export { DashboardTab } from './DashboardTab';
