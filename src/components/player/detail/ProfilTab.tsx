@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { PositionBadge, ScoreCircle, MiniSparkline } from '@/components/player';
-import { getContractInfo, getSuccessFeeTier } from '@/components/player/PlayerRow';
+import { getContractInfo } from '@/components/player/PlayerRow';
 import { fmtScout } from '@/lib/utils';
 import type { Player } from '@/types';
 import type { PlayerGameweekScore } from '@/lib/services/scoring';
@@ -35,7 +35,6 @@ const formatMarketValue = (value: number) => {
 
 export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCount, gwScores, userId, currentGameweek = 0 }: ProfilTabProps) {
   const contract = getContractInfo(player.contractMonthsLeft);
-  const successFeeTier = getSuccessFeeTier(player.marketValue || 500000);
   const progressPercent = Math.max(0, Math.min(100, ((36 - player.contractMonthsLeft) / 36) * 100));
   const pbt = player.pbt || { balance: 0, sources: { trading: 0, votes: 0, content: 0, ipo: 0 } };
 
@@ -124,8 +123,8 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
             <div className="font-bold">{player.country}</div>
           </div>
           <div>
-            <div className="text-xs text-white/50">Success Fee Tier</div>
-            <div className="font-bold text-purple-300">{successFeeTier.label}</div>
+            <div className="text-xs text-white/50">Holder</div>
+            <div className="font-bold">{holderCount}</div>
           </div>
         </div>
       </Card>

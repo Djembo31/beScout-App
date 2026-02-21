@@ -98,9 +98,9 @@ export function getContractInfo(monthsLeft: number) {
 // SUCCESS FEE HELPER (Shared)
 // ============================================
 
-type SuccessFeeTier = { minValue: number; maxValue: number; fee: number; label: string };
+export type SuccessFeeTier = { minValue: number; maxValue: number; fee: number; label: string };
 
-const SUCCESS_FEE_TIERS: SuccessFeeTier[] = [
+export const SUCCESS_FEE_TIERS: SuccessFeeTier[] = [
   { minValue: 0, maxValue: 100000, fee: 2500, label: '< 100K' },
   { minValue: 100000, maxValue: 300000, fee: 5000, label: '100K-300K' },
   { minValue: 300000, maxValue: 500000, fee: 8000, label: '300K-500K' },

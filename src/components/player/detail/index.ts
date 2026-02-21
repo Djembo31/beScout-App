@@ -10,6 +10,7 @@ export { default as ProfilTab } from './ProfilTab';
 export { default as MarktTab } from './MarktTab';
 export { default as StatistikTab } from './StatistikTab';
 export { default as CommunityTab } from './CommunityTab';
+export { default as RewardsTab } from './RewardsTab';
 export { default as MobileTradingBar } from './MobileTradingBar';
 export { default as BuyModal } from './BuyModal';
 export { default as SellModal } from './SellModal';

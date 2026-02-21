@@ -43,6 +43,7 @@ import {
   MarktTab,
   StatistikTab,
   CommunityTab,
+  RewardsTab,
   MobileTradingBar,
   LiquidationAlert,
   SponsorBanner,
@@ -56,11 +57,12 @@ import OfferModal from '@/components/player/detail/OfferModal';
 // TYPES
 // ============================================
 
-type Tab = 'profil' | 'markt' | 'statistik' | 'community';
+type Tab = 'profil' | 'markt' | 'rewards' | 'statistik' | 'community';
 
 const TABS: { id: string; label: string }[] = [
   { id: 'profil', label: 'profile' },
   { id: 'markt', label: 'market' },
+  { id: 'rewards', label: 'rewards' },
   { id: 'statistik', label: 'stats' },
   { id: 'community', label: 'community' },
 ];
@@ -262,6 +264,10 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             acceptingBidId={trading.acceptingBidId}
             onOpenOfferModal={trading.openOfferModal}
           />
+        )}
+
+        {tab === 'rewards' && (
+          <RewardsTab player={playerWithOwnership} holdingQty={holdingQty} />
         )}
 
         {tab === 'statistik' && (
