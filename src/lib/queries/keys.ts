@@ -213,6 +213,15 @@ export const qk = {
     payouts: (uid: string) => ['creatorFund', 'payouts', uid] as const,
   },
 
+  // ── Scouting ──
+  scouting: {
+    summaries: (cid: string) => ['scouting', 'summaries', cid] as const,
+    topScouts: (cid: string, n: number) => ['scouting', 'topScouts', cid, n] as const,
+    userStats: (uid: string) => ['scouting', 'user-stats', uid] as const,
+    prestige: (cid: string) => ['scouting', 'prestige', cid] as const,
+    globalTopScouts: (n: number) => ['scouting', 'globalTop', n] as const,
+  },
+
   // ── Predictions ──
   predictions: {
     byUserGw: (uid: string, gw: number) => ['predictions', uid, gw] as const,

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Target, Clock, Users, Loader2, Eye, CheckCircle, XCircle, X, AlertTriangle } from 'lucide-react';
+import { Plus, Target, Clock, Users, Loader2, Eye, CheckCircle, XCircle, X, AlertTriangle, Telescope } from 'lucide-react';
 import { Card, Button, Chip, Modal } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { formatScout } from '@/lib/services/wallet';
@@ -30,6 +30,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
   const [days, setDays] = useState('7');
   const [maxSubs, setMaxSubs] = useState('5');
   const [minTier, setMinTier] = useState('');
+  const [bountyType, setBountyType] = useState<'general' | 'scouting'>('general');
   const [creating, setCreating] = useState(false);
 
   // Submissions modal
@@ -74,6 +75,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
         deadlineDays: parseInt(days || '7'),
         maxSubmissions: parseInt(maxSubs || '5'),
         minTier: minTier || null,
+        type: bountyType,
       });
       setCreateOpen(false);
       setTitle('');
@@ -82,6 +84,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
       setDays('7');
       setMaxSubs('5');
       setMinTier('');
+      setBountyType('general');
       await reload();
       setMsg({ type: 'success', text: 'Auftrag erstellt!' });
     } catch (err) {
@@ -203,7 +206,15 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
               <Card key={bounty.id} className={`p-4 ${!isOpen ? 'opacity-60' : ''}`}>
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold line-clamp-1">{bounty.title}</div>
+                    <div className="font-bold line-clamp-1 flex items-center gap-2">
+                      {bounty.title}
+                      {bounty.type === 'scouting' && (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/20 shrink-0">
+                          <Telescope className="w-2.5 h-2.5" />
+                          Scouting
+                        </span>
+                      )}
+                    </div>
                     <div className="text-xs text-white/40 line-clamp-2 mt-1">{bounty.description}</div>
                   </div>
                   <Chip className={isOpen ? 'bg-[#22C55E]/15 text-[#22C55E] border-[#22C55E]/25 ml-2' : 'bg-white/5 text-white/50 border-white/10 ml-2'}>
@@ -244,6 +255,39 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
       {/* Create Bounty Modal */}
       <Modal open={createOpen} title="Neuer Auftrag" onClose={() => setCreateOpen(false)}>
         <div className="space-y-4">
+          {/* Type Toggle */}
+          <div>
+            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Typ</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setBountyType('general')}
+                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold border transition-all ${
+                  bountyType === 'general'
+                    ? 'bg-amber-500/15 text-amber-300 border-amber-500/25'
+                    : 'bg-white/5 text-white/50 border-white/10 hover:bg-white/10'
+                }`}
+              >
+                <Target className="w-4 h-4" />
+                Allgemein
+              </button>
+              <button
+                type="button"
+                onClick={() => setBountyType('scouting')}
+                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold border transition-all ${
+                  bountyType === 'scouting'
+                    ? 'bg-rose-500/15 text-rose-300 border-rose-500/25'
+                    : 'bg-white/5 text-white/50 border-white/10 hover:bg-white/10'
+                }`}
+              >
+                <Telescope className="w-4 h-4" />
+                Scouting
+              </button>
+            </div>
+            {bountyType === 'scouting' && (
+              <div className="text-[10px] text-rose-300 mt-1">Fans müssen eine strukturierte Spieler-Bewertung abgeben</div>
+            )}
+          </div>
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">Titel</label>
             <input

@@ -2,13 +2,15 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Trophy, Vote, BadgeCheck, FileText, Plus, Star } from 'lucide-react';
+import { Trophy, Vote, BadgeCheck, FileText, Plus, Star, Shield, Target } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import type { LeaderboardUser, DbClubVote, ResearchPostWithAuthor } from '@/types';
+import { getRang } from '@/lib/gamification';
+import type { LeaderboardUser, DbClubVote, ResearchPostWithAuthor, TopScout } from '@/types';
 import { useTranslations } from 'next-intl';
+import { useGlobalTopScouts } from '@/lib/queries/scouting';
 
 interface CommunitySidebarProps {
   leaderboard: LeaderboardUser[];
@@ -32,8 +34,10 @@ export default function CommunitySidebar({
   onCreateResearch,
 }: CommunitySidebarProps) {
   const t = useTranslations('community');
+  const tg = useTranslations('gamification');
   const activeVotes = clubVotes.filter(v => v.status === 'active');
   const topResearch = researchPosts.slice(0, 3);
+  const { data: globalScouts = [] } = useGlobalTopScouts(5);
 
   return (
     <div className="space-y-6">
@@ -80,7 +84,7 @@ export default function CommunitySidebar({
         </Card>
       )}
 
-      {/* Top Scouts */}
+      {/* Top Scouts — analyst-ranked */}
       <Card className="p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -92,23 +96,42 @@ export default function CommunitySidebar({
           </Link>
         </div>
         <div className="space-y-2">
-          {leaderboard.slice(0, 5).map((u, i) => (
-            <Link key={u.userId} href={`/profile/${u.handle}`} className="flex items-center gap-3 py-1.5 hover:bg-white/[0.03] rounded-lg px-1 -mx-1 transition-colors">
-              <span className={cn(
-                'w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black',
-                i === 0 ? 'bg-[#FFD700]/20 text-[#FFD700]' : 'bg-white/5 text-white/50'
-              )}>
-                {i + 1}
-              </span>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold truncate flex items-center gap-1">
-                  {u.displayName || u.handle}
-                  {u.verified && <BadgeCheck className="w-3 h-3 text-[#FFD700]" />}
+          {(globalScouts.length > 0 ? globalScouts : leaderboard.slice(0, 5).map(u => ({
+            userId: u.userId,
+            handle: u.handle,
+            displayName: u.displayName,
+            avatarUrl: u.avatarUrl,
+            reportCount: 0,
+            approvedBounties: 0,
+            avgRating: 0,
+            analystScore: u.totalScore,
+          } as TopScout))).map((scout, i) => {
+            const rang = getRang(scout.analystScore);
+            return (
+              <Link key={scout.userId} href={`/profile/${scout.handle}`} className="flex items-center gap-3 py-1.5 hover:bg-white/[0.03] rounded-lg px-1 -mx-1 transition-colors">
+                <span className={cn(
+                  'w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black',
+                  i === 0 ? 'bg-[#FFD700]/20 text-[#FFD700]' : 'bg-white/5 text-white/50'
+                )}>
+                  {i + 1}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold truncate">
+                    {scout.displayName || scout.handle}
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[10px]">
+                    <span className={cn('px-1 py-0.5 rounded font-bold border', rang.bgColor, rang.borderColor, rang.color)}>
+                      {tg(`rang.${rang.i18nKey}`)}
+                    </span>
+                    {scout.reportCount > 0 && (
+                      <span className="text-white/30">{scout.reportCount} <FileText className="w-2.5 h-2.5 inline" /></span>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <span className="text-xs font-mono text-[#FFD700]">{u.totalScore}</span>
-            </Link>
-          ))}
+                <span className="text-xs font-mono text-[#FFD700]">{scout.analystScore}</span>
+              </Link>
+            );
+          })}
         </div>
       </Card>
 

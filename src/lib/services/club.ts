@@ -53,6 +53,49 @@ export async function getClubAdminFor(userId: string): Promise<{ clubId: string;
 }
 
 // ============================================
+// Club-Prestige (Computed, keine DB)
+// ============================================
+
+export type PrestigeTier = 'starter' | 'aktiv' | 'engagiert' | 'vorbildlich';
+
+export type ClubPrestige = {
+  score: number;
+  tier: PrestigeTier;
+  breakdown: { bounties: number; approvedSubmissions: number; votes: number; news: number; followers: number };
+};
+
+function getPrestigeTier(score: number): PrestigeTier {
+  if (score >= 300) return 'vorbildlich';
+  if (score >= 150) return 'engagiert';
+  if (score >= 50) return 'aktiv';
+  return 'starter';
+}
+
+export async function getClubPrestige(clubId: string): Promise<ClubPrestige> {
+  const [bountiesResult, approvedResult, votesResult, newsResult, followersResult] = await Promise.allSettled([
+    supabase.from('bounties').select('id', { count: 'exact', head: true }).eq('club_id', clubId),
+    supabase.from('bounty_submissions').select('id, bounties!inner(club_id)', { count: 'exact', head: true }).eq('status', 'approved').eq('bounties.club_id', clubId),
+    supabase.from('club_votes').select('id', { count: 'exact', head: true }).eq('club_id', clubId).eq('status', 'active'),
+    supabase.from('posts').select('id', { count: 'exact', head: true }).eq('club_id', clubId).eq('post_type', 'club_news'),
+    supabase.from('club_followers').select('id', { count: 'exact', head: true }).eq('club_id', clubId),
+  ]);
+
+  const bounties = bountiesResult.status === 'fulfilled' ? (bountiesResult.value.count ?? 0) : 0;
+  const approvedSubmissions = approvedResult.status === 'fulfilled' ? (approvedResult.value.count ?? 0) : 0;
+  const votes = votesResult.status === 'fulfilled' ? (votesResult.value.count ?? 0) : 0;
+  const news = newsResult.status === 'fulfilled' ? (newsResult.value.count ?? 0) : 0;
+  const followers = followersResult.status === 'fulfilled' ? (followersResult.value.count ?? 0) : 0;
+
+  const score = bounties * 15 + approvedSubmissions * 25 + votes * 10 + followers * 1 + news * 5;
+
+  return {
+    score,
+    tier: getPrestigeTier(score),
+    breakdown: { bounties, approvedSubmissions, votes, news, followers },
+  };
+}
+
+// ============================================
 // Club Follower / Follow
 // ============================================
 

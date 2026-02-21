@@ -3,7 +3,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Modal, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import type { Pos, ResearchCall, ResearchHorizon, ResearchCategory } from '@/types';
+import ScoutingEvaluationForm from '@/components/community/ScoutingEvaluationForm';
+import type { Pos, ResearchCall, ResearchHorizon, ResearchCategory, ScoutingEvaluation, DbFixture } from '@/types';
 
 type Props = {
   open: boolean;
@@ -19,8 +20,11 @@ type Props = {
     call: ResearchCall;
     horizon: ResearchHorizon;
     priceBsd: number;
+    evaluation?: ScoutingEvaluation | null;
+    fixtureId?: string | null;
   }) => void;
   loading: boolean;
+  fixtures?: DbFixture[];
 };
 
 const CALLS: ResearchCall[] = ['Bullish', 'Bearish', 'Neutral'];
@@ -40,7 +44,12 @@ const callStyle: Record<ResearchCall, { active: string; inactive: string }> = {
   Neutral: { active: 'bg-white/15 text-white border-white/30', inactive: 'bg-white/5 text-white/50 border-white/10' },
 };
 
-export default function CreateResearchModal({ open, onClose, players, onSubmit, loading }: Props) {
+const EMPTY_EVALUATION: ScoutingEvaluation = {
+  technik: 0, taktik: 0, athletik: 0, mentalitaet: 0, potenzial: 0,
+  staerken: '', schwaechen: '', gesamteindruck: '',
+};
+
+export default function CreateResearchModal({ open, onClose, players, onSubmit, loading, fixtures }: Props) {
   const [title, setTitle] = useState('');
   const [playerId, setPlayerId] = useState('');
   const [call, setCall] = useState<ResearchCall>('Bullish');
@@ -53,7 +62,11 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
   const [playerSearch, setPlayerSearch] = useState('');
   const [playerDropdownOpen, setPlayerDropdownOpen] = useState(false);
   const [tried, setTried] = useState(false);
+  const [evaluation, setEvaluation] = useState<ScoutingEvaluation>(EMPTY_EVALUATION);
+  const [fixtureId, setFixtureId] = useState<string | null>(null);
   const playerRef = useRef<HTMLDivElement>(null);
+
+  const isScouting = category === 'Scouting-Report';
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -65,7 +78,16 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const canSubmit = title.length >= 5 && content.length >= 50 && preview.length > 0 && priceBsd >= 1 && priceBsd <= 100000;
+  const isEvalValid = isScouting
+    ? evaluation.technik >= 1 && evaluation.taktik >= 1 && evaluation.athletik >= 1 &&
+      evaluation.mentalitaet >= 1 && evaluation.potenzial >= 1 &&
+      evaluation.staerken.length >= 20 && evaluation.schwaechen.length >= 20 &&
+      evaluation.gesamteindruck.length >= 30
+    : true;
+
+  const canSubmit = title.length >= 5 && content.length >= 50 && preview.length > 0 &&
+    priceBsd >= 1 && priceBsd <= 100000 &&
+    (!isScouting || (playerId && isEvalValid));
 
   const handleSubmit = () => {
     setTried(true);
@@ -81,6 +103,8 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
       call,
       horizon,
       priceBsd,
+      evaluation: isScouting ? evaluation : null,
+      fixtureId: isScouting ? fixtureId : null,
     });
   };
 
@@ -98,11 +122,13 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
       setCategory('Spieler-Analyse');
       setPlayerSearch('');
       setTried(false);
+      setEvaluation(EMPTY_EVALUATION);
+      setFixtureId(null);
     }
   }, [open]);
 
   return (
-    <Modal open={open} title="Neuer Research-Bericht" onClose={onClose}>
+    <Modal open={open} title={isScouting ? 'Neuer Scouting-Report' : 'Neuer Research-Bericht'} onClose={onClose}>
       <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
         {/* Title */}
         <div>
@@ -114,7 +140,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value.slice(0, 200))}
-            placeholder="z.B. Matchday Edge: Warum Yasin heute überperformen kann"
+            placeholder={isScouting ? 'z.B. Scouting: Mehmet Yilmaz — Starke Technik, Potenzial' : 'z.B. Matchday Edge: Warum Yasin heute überperformen kann'}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40"
           />
         </div>
@@ -143,7 +169,9 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
 
         {/* Player */}
         <div className="relative" ref={playerRef}>
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">Spieler (optional)</label>
+          <label className="text-xs text-white/50 font-semibold mb-1.5 block">
+            Spieler {isScouting ? '(Pflicht)' : '(optional)'}
+          </label>
           <input
             type="text"
             value={playerSearch}
@@ -152,8 +180,9 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             onKeyDown={(e) => { if (e.key === 'Escape') setPlayerDropdownOpen(false); }}
             placeholder={playerId ? players.find(p => p.id === playerId)?.name ?? 'Spieler suchen...' : 'Spieler suchen...'}
             className={cn(
-              'w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40',
-              playerId && !playerSearch && 'text-white/70'
+              'w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40',
+              playerId && !playerSearch && 'text-white/70',
+              tried && isScouting && !playerId ? 'border-red-500/40' : 'border-white/10'
             )}
           />
           {playerId && (
@@ -167,13 +196,15 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
           )}
           {playerDropdownOpen && (
             <div className="absolute z-20 mt-1 w-full max-h-48 overflow-y-auto rounded-xl bg-[#1a1a1a] border border-white/10 shadow-xl">
-              <button
-                type="button"
-                onClick={() => { setPlayerId(''); setPlayerSearch(''); setPlayerDropdownOpen(false); }}
-                className="w-full px-4 py-2 text-left text-sm text-white/50 hover:bg-white/5"
-              >
-                Kein Spieler
-              </button>
+              {!isScouting && (
+                <button
+                  type="button"
+                  onClick={() => { setPlayerId(''); setPlayerSearch(''); setPlayerDropdownOpen(false); }}
+                  className="w-full px-4 py-2 text-left text-sm text-white/50 hover:bg-white/5"
+                >
+                  Kein Spieler
+                </button>
+              )}
               {players
                 .filter(p => !playerSearch || p.name.toLowerCase().includes(playerSearch.toLowerCase()))
                 .slice(0, 20)
@@ -196,45 +227,64 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
               )}
             </div>
           )}
+          {tried && isScouting && !playerId && (
+            <div className="text-[10px] text-red-400 mt-0.5">Spieler ist Pflichtfeld für Scouting-Reports</div>
+          )}
         </div>
 
-        {/* Call + Horizon Row */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Call</label>
-            <div className="flex gap-1.5">
-              {CALLS.map(c => (
-                <button
-                  key={c}
-                  onClick={() => setCall(c)}
-                  className={cn(
-                    'flex-1 px-2 py-2 rounded-xl text-xs font-bold border transition-all',
-                    call === c ? callStyle[c].active : callStyle[c].inactive
-                  )}
-                >
-                  {c}
-                </button>
-              ))}
+        {/* Scouting Evaluation Form (only for Scouting-Report) */}
+        {isScouting && (
+          <div className="border border-rose-500/20 rounded-2xl p-4 bg-rose-500/5">
+            <ScoutingEvaluationForm
+              evaluation={evaluation}
+              onEvaluationChange={setEvaluation}
+              fixtures={fixtures}
+              selectedFixtureId={fixtureId}
+              onFixtureChange={setFixtureId}
+              tried={tried}
+            />
+          </div>
+        )}
+
+        {/* Call + Horizon Row — hidden for Scouting */}
+        {!isScouting && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Call</label>
+              <div className="flex gap-1.5">
+                {CALLS.map(c => (
+                  <button
+                    key={c}
+                    onClick={() => setCall(c)}
+                    className={cn(
+                      'flex-1 px-2 py-2 rounded-xl text-xs font-bold border transition-all',
+                      call === c ? callStyle[c].active : callStyle[c].inactive
+                    )}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Horizon</label>
+              <div className="flex gap-1.5">
+                {HORIZONS.map(h => (
+                  <button
+                    key={h}
+                    onClick={() => setHorizon(h)}
+                    className={cn(
+                      'flex-1 px-2 py-2 rounded-xl text-xs font-bold border transition-all',
+                      horizon === h ? 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/25' : 'bg-white/5 text-white/50 border-white/10'
+                    )}
+                  >
+                    {h}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-          <div>
-            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Horizon</label>
-            <div className="flex gap-1.5">
-              {HORIZONS.map(h => (
-                <button
-                  key={h}
-                  onClick={() => setHorizon(h)}
-                  className={cn(
-                    'flex-1 px-2 py-2 rounded-xl text-xs font-bold border transition-all',
-                    horizon === h ? 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/25' : 'bg-white/5 text-white/50 border-white/10'
-                  )}
-                >
-                  {h}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* Price */}
         <div>
@@ -280,7 +330,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             value={content}
             onChange={(e) => setContent(e.target.value.slice(0, 10000))}
             rows={6}
-            placeholder="Deine vollständige Analyse..."
+            placeholder={isScouting ? 'Detaillierte Begründung deiner Bewertung...' : 'Deine vollständige Analyse...'}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none"
           />
           <div className="text-[10px] text-white/30 mt-1">Mindestens 50 Zeichen</div>
@@ -304,10 +354,12 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             {preview.length === 0 && <div>Vorschau darf nicht leer sein</div>}
             {content.length < 50 && <div>Inhalt: mind. 50 Zeichen ({content.length}/50)</div>}
             {(priceBsd < 1 || priceBsd > 100000) && <div>Preis: 1–100.000 $SCOUT</div>}
+            {isScouting && !playerId && <div>Spieler ist Pflichtfeld</div>}
+            {isScouting && !isEvalValid && <div>Alle 5 Dimensionen + Texte ausfüllen</div>}
           </div>
         )}
         <Button variant="gold" fullWidth loading={loading} disabled={!canSubmit} onClick={handleSubmit}>
-          Bericht veröffentlichen
+          {isScouting ? 'Scouting-Report veröffentlichen' : 'Bericht veröffentlichen'}
         </Button>
       </div>
     </Modal>

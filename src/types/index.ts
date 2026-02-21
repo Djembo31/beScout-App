@@ -110,6 +110,58 @@ export type ResearchHorizon = '24h' | '7d' | 'Season';
 export type ResearchOutcome = 'correct' | 'incorrect';
 export type ResearchCategory = 'Spieler-Analyse' | 'Transfer-Empfehlung' | 'Taktik' | 'Saisonvorschau' | 'Scouting-Report';
 
+// ============================================
+// SCOUTING TYPES
+// ============================================
+
+export type ScoutingDimension = 'technik' | 'taktik' | 'athletik' | 'mentalitaet' | 'potenzial';
+
+export type ScoutingEvaluation = {
+  technik: number;       // 1-10
+  taktik: number;        // 1-10
+  athletik: number;      // 1-10
+  mentalitaet: number;   // 1-10
+  potenzial: number;     // 1-10
+  staerken: string;
+  schwaechen: string;
+  gesamteindruck: string;
+};
+
+export const SCOUTING_DIMENSIONS: { key: ScoutingDimension; labelDe: string; labelTr: string; descDe: string; descTr: string }[] = [
+  { key: 'technik', labelDe: 'Technik', labelTr: 'Teknik', descDe: 'Ballkontrolle, Passspiel, erster Kontakt, Dribbling', descTr: 'Top kontrolü, pas, ilk dokunuş, dribling' },
+  { key: 'taktik', labelDe: 'Taktik', labelTr: 'Taktik', descDe: 'Positionierung, Entscheidungsfindung, Pressing', descTr: 'Pozisyon alma, karar verme, pres' },
+  { key: 'athletik', labelDe: 'Athletik', labelTr: 'Atletizm', descDe: 'Schnelligkeit, Ausdauer, Stärke, Wendigkeit', descTr: 'Hız, dayanıklılık, güç, çeviklik' },
+  { key: 'mentalitaet', labelDe: 'Mentalität', labelTr: 'Mentalite', descDe: 'Einsatz, Gelassenheit, Führung, Konstanz', descTr: 'Çaba, soğukkanlılık, liderlik, tutarlılık' },
+  { key: 'potenzial', labelDe: 'Potenzial', labelTr: 'Potansiyel', descDe: 'Altersbereinigtes Entwicklungspotenzial', descTr: 'Yaşa göre gelişim potansiyeli' },
+];
+
+export type PlayerScoutingSummary = {
+  playerId: string;
+  firstName: string;
+  lastName: string;
+  position: Pos;
+  clubId: string | null;
+  reportCount: number;
+  avgTechnik: number;
+  avgTaktik: number;
+  avgAthletik: number;
+  avgMentalitaet: number;
+  avgPotenzial: number;
+  avgOverall: number;
+  lastScoutedAt: string;
+};
+
+export type TopScout = {
+  userId: string;
+  handle: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  reportCount: number;
+  approvedBounties: number;
+  avgRating: number;
+  analystScore: number;
+};
+
 export type DbResearchPost = {
   id: string;
   user_id: string;
@@ -133,6 +185,8 @@ export type DbResearchPost = {
   outcome: ResearchOutcome | null;
   price_change_pct: number | null;
   resolved_at: string | null;
+  evaluation: ScoutingEvaluation | null;
+  fixture_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -168,6 +222,7 @@ export type ResearchPostWithAuthor = DbResearchPost & {
   is_unlocked: boolean;
   is_own: boolean;
   user_rating: number | null;  // 1-5 if user has rated, null if not
+  author_track_record?: { hitRate: number; totalCalls: number } | null;
 };
 
 export type AuthorTrackRecord = {
@@ -988,6 +1043,8 @@ export type DbBounty = {
   status: BountyStatus;
   submission_count: number;
   min_tier?: string | null;
+  type: 'general' | 'scouting';
+  fixture_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -1012,6 +1069,7 @@ export type DbBountySubmission = {
   reviewed_by: string | null;
   reviewed_at: string | null;
   reward_paid: number;
+  evaluation: ScoutingEvaluation | null;
   created_at: string;
   updated_at: string;
 };

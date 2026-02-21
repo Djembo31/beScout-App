@@ -12,6 +12,7 @@ import {
   ArrowUpRight, ArrowDownRight, ExternalLink, Users2,
   Loader2, Settings, ChevronDown,
   Swords, Home, Plane, ShoppingBag,
+  Star, Award, FileText,
 } from 'lucide-react';
 import { Card, Button, Chip, Modal, ErrorState, Skeleton, SkeletonCard, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
 import SponsorBanner from '@/components/player/detail/SponsorBanner';
@@ -37,7 +38,9 @@ import { getClub } from '@/lib/clubs';
 import { useToast } from '@/components/providers/ToastProvider';
 import { getPosts } from '@/lib/services/posts';
 import { formatTimeAgo } from '@/components/community/PostCard';
-import type { Player, Pos, DbPlayer, DbTrade, DbClubVote, ClubWithAdmin, Fixture, PostWithAuthor } from '@/types';
+import { useTopScouts, useClubPrestige } from '@/lib/queries/scouting';
+import type { Player, Pos, DbPlayer, DbTrade, DbClubVote, ClubWithAdmin, Fixture, PostWithAuthor, TopScout } from '@/types';
+import type { PrestigeTier } from '@/lib/services/club';
 
 // ============================================
 // TYPES
@@ -209,6 +212,7 @@ function StatsBar({
   playerCount,
   clubColor,
   formResults,
+  prestigeTier,
 }: {
   totalVolume24h: number;
   totalDpcFloat: number;
@@ -217,6 +221,7 @@ function StatsBar({
   playerCount: number;
   clubColor: string;
   formResults: ('W' | 'D' | 'L')[];
+  prestigeTier?: PrestigeTier;
 }) {
   const t = useTranslations('club');
   const secondary = [
@@ -282,6 +287,20 @@ function StatsBar({
             <div className="text-[10px] text-white/30 hidden md:block">Form</div>
           </div>
         )}
+        {/* Prestige Badge */}
+        {prestigeTier && (() => {
+          const cfg = PRESTIGE_CONFIG[prestigeTier];
+          const Icon = cfg.icon;
+          return (
+            <div className="flex-shrink-0 flex items-center gap-2 p-2.5 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+              <Icon className={cn('w-4 h-4', cfg.color)} />
+              <div className="min-w-0">
+                <div className={cn('text-sm font-bold', cfg.color)}>{t(cfg.labelKey)}</div>
+                <div className="text-[10px] text-white/30">{t('prestige')}</div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
@@ -451,6 +470,60 @@ function SquadOverviewWidget({ players }: { players: Player[] }) {
             </div>
             <span className="font-mono text-sm font-bold">{breakdown[pos]}</span>
           </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+// ============================================
+// TOP SCOUTS WIDGET
+// ============================================
+
+const PRESTIGE_CONFIG: Record<PrestigeTier, { icon: typeof Star; color: string; labelKey: string }> = {
+  starter: { icon: Shield, color: 'text-white/30', labelKey: 'prestigeStarter' },
+  aktiv: { icon: Shield, color: 'text-white/60', labelKey: 'prestigeAktiv' },
+  engagiert: { icon: Award, color: 'text-[#22C55E]', labelKey: 'prestigeEngagiert' },
+  vorbildlich: { icon: Star, color: 'text-[#FFD700]', labelKey: 'prestigeVorbildlich' },
+};
+
+function TopScoutsWidget({ scouts, clubColor }: { scouts: TopScout[]; clubColor: string }) {
+  const t = useTranslations('club');
+  if (scouts.length === 0) return null;
+
+  const podiumColors = ['text-[#FFD700] bg-[#FFD700]/15', 'text-white/70 bg-white/10', 'text-amber-600 bg-amber-600/15'];
+
+  return (
+    <Card className="p-4 md:p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <Trophy className="w-5 h-5" style={{ color: clubColor }} />
+        <span className="font-black">{t('topScoutsTitle')}</span>
+      </div>
+      <div className="space-y-2">
+        {scouts.slice(0, 3).map((scout, i) => (
+          <Link key={scout.userId} href={`/profile/${scout.handle}`}>
+            <div className="flex items-center gap-3 p-2.5 bg-white/[0.02] rounded-xl border border-white/[0.06] hover:border-white/15 transition-all">
+              <span className={cn('w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black', podiumColors[i] ?? 'bg-white/5 text-white/40')}>
+                {i + 1}
+              </span>
+              {scout.avatarUrl ? (
+                <Image src={scout.avatarUrl} alt="" width={28} height={28} className="w-7 h-7 rounded-full object-cover" />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/50">
+                  {(scout.displayName ?? scout.handle).charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold truncate">{scout.displayName || scout.handle}</div>
+                <div className="text-[10px] text-white/40">
+                  {scout.reportCount} {t('research')} · {scout.avgRating > 0 ? `★ ${scout.avgRating.toFixed(1)}` : ''}
+                </div>
+              </div>
+              {scout.approvedBounties > 0 && (
+                <span className="text-[10px] text-[#22C55E] font-bold">{scout.approvedBounties} ✓</span>
+              )}
+            </div>
+          </Link>
         ))}
       </div>
     </Card>
@@ -813,6 +886,8 @@ export default function ClubContent({ slug }: { slug: string }) {
   const { data: clubVotesData = [] } = useClubVotes(clubId ?? null);
   const { data: subscriptionData = null } = useClubSubscription(userId, clubId);
   const { data: clubFixtures = [] } = useClubFixtures(clubId);
+  const { data: topScouts = [] } = useTopScouts(clubId, 3);
+  const { data: clubPrestige } = useClubPrestige(clubId);
 
   // Resolve expired research (fire-and-forget)
   useEffect(() => {
@@ -1076,6 +1151,7 @@ export default function ClubContent({ slug }: { slug: string }) {
             playerCount={players.length}
             clubColor={clubColor}
             formResults={formResults}
+            prestigeTier={clubPrestige?.tier}
           />
         </div>
 
@@ -1289,6 +1365,11 @@ export default function ClubContent({ slug }: { slug: string }) {
           )}
 
           <TopPlayersWidget players={players} onViewAll={() => setTab('spieler')} clubColor={clubColor} />
+
+          {/* Top Scouts */}
+          {topScouts.length > 0 && (
+            <TopScoutsWidget scouts={topScouts} clubColor={clubColor} />
+          )}
 
           {/* Club-Neuigkeiten */}
           {clubNews.length > 0 && (

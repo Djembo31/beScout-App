@@ -2,14 +2,14 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Lock, Unlock, Target, BadgeCheck, Clock, Star, CheckCircle, XCircle } from 'lucide-react';
+import { Lock, Unlock, Target, BadgeCheck, Clock, Star, CheckCircle, XCircle, Shield } from 'lucide-react';
 import { Card, Button, Chip } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { fmtScout } from '@/lib/utils';
 import { getRang } from '@/lib/gamification';
-import type { ResearchPostWithAuthor } from '@/types';
+import type { ResearchPostWithAuthor, ScoutingEvaluation } from '@/types';
 import { useTranslations } from 'next-intl';
 
 function formatTimeAgo(dateStr: string): string {
@@ -111,6 +111,7 @@ function StarRating({
 
 export default function ResearchCard({ post, onUnlock, unlockingId, onRate, ratingId, authorScore }: Props) {
   const tg = useTranslations('gamification');
+  const ts = useTranslations('scouting');
   const [confirmUnlock, setConfirmUnlock] = useState(false);
   const canSeeContent = post.is_own || post.is_unlocked;
   const rang = getRang(authorScore ?? 500);
@@ -183,11 +184,63 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
           <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold border', rang.bgColor, rang.borderColor, rang.color)}>
             {tg(`rang.${rang.i18nKey}`)}
           </span>
+          {/* Credibility Pill */}
+          {post.author_track_record != null && (() => {
+            const tr = post.author_track_record;
+            const isVerified = tr.totalCalls >= 5 && tr.hitRate >= 60;
+            const hasEnough = tr.totalCalls >= 5;
+            return (
+              <span className={cn(
+                'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold border',
+                isVerified
+                  ? 'text-[#FFD700] bg-[#FFD700]/10 border-[#FFD700]/20'
+                  : hasEnough
+                  ? 'text-white/50 bg-white/5 border-white/10'
+                  : 'text-white/30 bg-white/[0.02] border-white/[0.06]'
+              )}>
+                <Shield className="w-3 h-3" />
+                {hasEnough
+                  ? `${tr.hitRate}%`
+                  : ts('buildingRecord', { n: tr.totalCalls })}
+              </span>
+            );
+          })()}
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3" />
             {formatTimeAgo(post.created_at)}
           </span>
         </div>
+
+        {/* Scouting Evaluation Preview */}
+        {post.evaluation && (() => {
+          const ev = post.evaluation as ScoutingEvaluation;
+          return (
+            <div className="flex items-center gap-1.5 flex-wrap mb-2">
+              {[
+                { key: 'T', val: ev.technik },
+                { key: 'Tk', val: ev.taktik },
+                { key: 'A', val: ev.athletik },
+                { key: 'M', val: ev.mentalitaet },
+                { key: 'P', val: ev.potenzial },
+              ].map(d => (
+                <span key={d.key} className={cn(
+                  'px-1.5 py-0.5 rounded text-[10px] font-mono font-bold border',
+                  d.val >= 8 ? 'text-[#FFD700] bg-[#FFD700]/10 border-[#FFD700]/20' :
+                  d.val >= 6 ? 'text-[#22C55E] bg-[#22C55E]/10 border-[#22C55E]/20' :
+                  'text-white/50 bg-white/5 border-white/10'
+                )}>
+                  {d.key}{d.val}
+                </span>
+              ))}
+              <span className={cn(
+                'px-1.5 py-0.5 rounded text-[10px] font-mono font-bold border',
+                'text-white/70 bg-white/5 border-white/10'
+              )}>
+                Ø{((ev.technik + ev.taktik + ev.athletik + ev.mentalitaet + ev.potenzial) / 5).toFixed(1)}
+              </span>
+            </div>
+          );
+        })()}
 
         {/* Preview (always visible) */}
         <p className="text-sm text-white/60 leading-relaxed">{post.preview}</p>

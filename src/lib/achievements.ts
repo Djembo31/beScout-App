@@ -59,6 +59,7 @@ const HIDDEN: AchievementDef[] = [
   { key: 'first_vote', label: 'Mitbestimmer', description: 'Erste Abstimmung abgegeben', icon: '🗳️', category: 'scout', featured: false },
   { key: '10_votes', label: 'Demokrat', description: '10 Abstimmungen abgegeben', icon: '🏛️', category: 'scout', featured: false },
   { key: 'first_bounty', label: 'Club Scout', description: 'Erste Bounty abgeschlossen', icon: '🎯', category: 'scout', featured: false },
+  { key: 'scout_specialist', label: 'Scout-Spezialist', description: '10 Scouting-Reports mit Ø 4.0+ Bewertung', icon: '🔭', category: 'scout', featured: false },
   { key: 'founding_scout', label: 'Founding Scout', description: 'Unter den ersten 50 Scouts auf BeScout', icon: '🌟', category: 'scout', featured: false },
 ];
 

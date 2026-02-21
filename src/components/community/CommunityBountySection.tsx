@@ -9,7 +9,7 @@ import { useTranslations } from 'next-intl';
 interface CommunityBountySectionProps {
   bounties: BountyWithCreator[];
   userId: string;
-  onSubmit: (bountyId: string, title: string, content: string) => void;
+  onSubmit: (bountyId: string, title: string, content: string, evaluation?: Record<string, unknown> | null) => void;
   submitting: string | null;
   userTier?: string | null;
 }

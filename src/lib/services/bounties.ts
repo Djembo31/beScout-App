@@ -183,6 +183,8 @@ export async function createBounty(params: {
   playerId?: string;
   position?: string;
   minTier?: string | null;
+  type?: 'general' | 'scouting';
+  fixtureId?: string | null;
 }): Promise<DbBounty> {
   const deadlineAt = new Date(Date.now() + params.deadlineDays * 24 * 60 * 60 * 1000).toISOString();
 
@@ -200,6 +202,8 @@ export async function createBounty(params: {
       player_id: params.playerId || null,
       position: params.position || null,
       min_tier: params.minTier || null,
+      type: params.type ?? 'general',
+      fixture_id: params.fixtureId ?? null,
     })
     .select()
     .single();
@@ -235,13 +239,15 @@ export async function submitBountyResponse(
   userId: string,
   bountyId: string,
   title: string,
-  content: string
+  content: string,
+  evaluation?: Record<string, unknown> | null
 ): Promise<SubmitBountyResult> {
   const { data, error } = await supabase.rpc('submit_bounty_response', {
     p_user_id: userId,
     p_bounty_id: bountyId,
     p_title: title,
     p_content: content,
+    p_evaluation: evaluation ?? null,
   });
 
   if (error) throw new Error(error.message);
@@ -326,18 +332,37 @@ export async function approveBountySubmission(
       }
     })().catch(err => console.error('[Bounties] Approve notification failed:', err));
 
-    // Fire-and-forget: analyst score + airdrop refresh for submitter
+    // Fire-and-forget: analyst score + airdrop refresh + auto-post for submitter
     (async () => {
       try {
-        const { data: s } = await supabase.from('bounty_submissions').select('user_id, bounties(reward_cents)').eq('id', submissionId).single();
+        const { data: s } = await supabase.from('bounty_submissions').select('user_id, bounty_id, bounties(reward_cents, club_id, club_name)').eq('id', submissionId).single();
         if (s) {
           // +10/20/30 Analyst based on bounty reward
           const bountyData = Array.isArray(s.bounties) ? s.bounties[0] : s.bounties;
           const rewardCents = (bountyData as Record<string, unknown>)?.reward_cents as number ?? 0;
+          const clubId = (bountyData as Record<string, unknown>)?.club_id as string ?? null;
+          const clubName = (bountyData as Record<string, unknown>)?.club_name as string ?? '';
           const analystPts = rewardCents >= 500000 ? 30 : rewardCents >= 200000 ? 20 : 10;
           const { awardDimensionScoreAsync } = await import('@/lib/services/scoutScores');
           awardDimensionScoreAsync(s.user_id, 'analyst', analystPts, 'bounty_approved', submissionId);
           import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(s.user_id));
+
+          // Auto-post: visible in community feed
+          if (clubId) {
+            const { data: scoutProfile } = await supabase.from('profiles').select('handle').eq('id', s.user_id).single();
+            const scoutHandle = scoutProfile?.handle ?? 'Scout';
+            const { createPost } = await import('@/lib/services/posts');
+            createPost(
+              adminId,
+              null,
+              clubName,
+              `${clubName} hat @${scoutHandle}'s Scouting-Beitrag belohnt!`,
+              ['scouting', 'bounty'],
+              'News',
+              clubId,
+              'club_news',
+            ).catch(err => console.error('[Bounties] Auto-post failed:', err));
+          }
         }
       } catch (err) { console.error('[Bounties] Analyst score + airdrop refresh failed:', err); }
     })();

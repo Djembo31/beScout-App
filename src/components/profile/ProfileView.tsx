@@ -37,7 +37,8 @@ import type { HoldingRow } from '@/components/profile/ProfileOverviewTab';
 import type { ProfileTab, Profile, DbTransaction, DbUserStats, DbUserAchievement, ResearchPostWithAuthor, AuthorTrackRecord, UserTradeWithPlayer, UserFantasyResult, PostWithAuthor } from '@/types';
 import { RangBadge, DimensionRangStack } from '@/components/ui/RangBadge';
 import FoundingScoutBadge from '@/components/ui/FoundingScoutBadge';
-import { useScoutScores } from '@/lib/queries';
+import { useScoutScores, useScoutingStats } from '@/lib/queries';
+import { FileText, Target as TargetIcon, CheckCircle, Star } from 'lucide-react';
 
 const TABS: { id: ProfileTab; label: string; selfOnly?: boolean }[] = [
   { id: 'overview', label: 'Ãœbersicht' },
@@ -78,6 +79,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
 
   // Scout Scores (3 Dimensions)
   const { data: scoutScores } = useScoutScores(targetUserId);
+  const { data: scoutingStats } = useScoutingStats(targetUserId);
 
   // Reputation & Social
   const [userStats, setUserStats] = useState<DbUserStats | null>(null);
@@ -330,6 +332,34 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           {scoutScores && (
             <div className="mt-2 bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 max-w-xs">
               <DimensionRangStack scores={scoutScores} />
+            </div>
+          )}
+
+          {/* Scout Stats Row */}
+          {scoutingStats && scoutingStats.reportCount > 0 && (
+            <div className="mt-2 flex items-center gap-3 flex-wrap text-xs text-white/50">
+              <span className="inline-flex items-center gap-1">
+                <FileText className="w-3.5 h-3.5 text-white/40" />
+                <span className="font-mono font-bold text-white/70">{scoutingStats.reportCount}</span> Berichte
+              </span>
+              {scoutingStats.totalCalls >= 5 && (
+                <span className={cn('inline-flex items-center gap-1', scoutingStats.hitRate >= 60 ? 'text-[#FFD700]' : '')}>
+                  <TargetIcon className="w-3.5 h-3.5" />
+                  <span className="font-mono font-bold">{scoutingStats.hitRate}%</span> Hit-Rate
+                </span>
+              )}
+              {scoutingStats.avgRating > 0 && (
+                <span className="inline-flex items-center gap-1 text-amber-400">
+                  <Star className="w-3.5 h-3.5" />
+                  <span className="font-mono font-bold">{scoutingStats.avgRating.toFixed(1)}</span>
+                </span>
+              )}
+              {scoutingStats.approvedBounties > 0 && (
+                <span className="inline-flex items-center gap-1 text-[#22C55E]">
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  <span className="font-mono font-bold">{scoutingStats.approvedBounties}</span> genehmigt
+                </span>
+              )}
             </div>
           )}
 

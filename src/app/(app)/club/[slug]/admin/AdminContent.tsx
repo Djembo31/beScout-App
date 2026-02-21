@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  BarChart3, Users, Trophy, Vote, DollarSign, Settings, Loader2, Target, Shield, Activity, Wallet,
+  BarChart3, Users, Trophy, Vote, DollarSign, Settings, Loader2, Target, Shield, Activity, Wallet, Telescope,
 } from 'lucide-react';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getClubBySlug } from '@/lib/services/club';
@@ -18,9 +18,10 @@ import AdminBountiesTab from '@/components/admin/AdminBountiesTab';
 import AdminModerationTab from '@/components/admin/AdminModerationTab';
 import AdminAnalyticsTab from '@/components/admin/AdminAnalyticsTab';
 import AdminWithdrawalTab from '@/components/admin/AdminWithdrawalTab';
+import AdminScoutingTab from '@/components/admin/AdminScoutingTab';
 import type { ClubWithAdmin } from '@/types';
 
-type AdminTab = 'overview' | 'players' | 'events' | 'votes' | 'bounties' | 'moderation' | 'revenue' | 'analytics' | 'withdrawal' | 'settings';
+type AdminTab = 'overview' | 'players' | 'events' | 'votes' | 'bounties' | 'scouting' | 'moderation' | 'revenue' | 'analytics' | 'withdrawal' | 'settings';
 
 const ADMIN_TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
   { id: 'overview', label: 'Übersicht', icon: BarChart3 },
@@ -28,6 +29,7 @@ const ADMIN_TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
   { id: 'events', label: 'Events', icon: Trophy },
   { id: 'votes', label: 'Abstimmungen', icon: Vote },
   { id: 'bounties', label: 'Aufträge', icon: Target },
+  { id: 'scouting', label: 'Scouting', icon: Telescope },
   { id: 'moderation', label: 'Moderation', icon: Shield },
   { id: 'analytics', label: 'Fan-Analyse', icon: Activity },
   { id: 'revenue', label: 'Einnahmen', icon: DollarSign },
@@ -125,6 +127,7 @@ export default function AdminContent({ slug }: { slug: string }) {
       {tab === 'events' && <AdminEventsTab club={club} />}
       {tab === 'votes' && <AdminVotesTab club={club} />}
       {tab === 'bounties' && <AdminBountiesTab club={club} />}
+      {tab === 'scouting' && <AdminScoutingTab club={club} />}
       {tab === 'moderation' && <AdminModerationTab club={club} />}
       {tab === 'analytics' && <AdminAnalyticsTab club={club} />}
       {tab === 'revenue' && <AdminRevenueTab club={club} />}

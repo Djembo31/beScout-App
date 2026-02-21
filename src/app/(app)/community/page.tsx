@@ -248,6 +248,8 @@ export default function CommunityPage() {
     call: string;
     horizon: string;
     priceBsd: number;
+    evaluation?: Record<string, unknown> | null;
+    fixtureId?: string | null;
   }) => {
     if (!uid) return;
     setResearchLoading(true);
@@ -265,6 +267,8 @@ export default function CommunityPage() {
         call: params.call,
         horizon: params.horizon,
         price: params.priceBsd * 100,
+        evaluation: params.evaluation,
+        fixtureId: params.fixtureId,
       });
       invalidateResearchQueries(uid);
       setCreateResearchOpen(false);
@@ -276,11 +280,11 @@ export default function CommunityPage() {
     }
   }, [uid, clubName, clubId, addToast]);
 
-  const handleBountySubmit = useCallback(async (bountyId: string, title: string, content: string) => {
+  const handleBountySubmit = useCallback(async (bountyId: string, title: string, content: string, evaluation?: Record<string, unknown> | null) => {
     if (!uid) return;
     setBountySubmitting(bountyId);
     try {
-      const result = await submitBountyResponse(uid, bountyId, title, content);
+      const result = await submitBountyResponse(uid, bountyId, title, content, evaluation);
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ['bounties'] });
         addToast(t('bountySection.submitted'), 'success');

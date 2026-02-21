@@ -3,7 +3,39 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 9** – 191 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs. Build sauber (0 Fehler). **Beta-Launch Must-Haves fertig.** Public Club Page (Social-Sharing), Club-Referral-Codes, Abo-Badges (Social Proof), Club-News im Feed. 13 Tabs. Nav: "Markt" + "Community".
+**Woche 9** – 191 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs. Build sauber (0 Fehler). **Community Redesign fertig.** Single-Scroll Layout (Hero + Bounties + Feed + Sidebar), keine Tabs mehr. 3 neue Components, CommunityFeedTab -47%.
+
+## Session 21.02.2026 (111) – Community Redesign: Single-Scroll
+
+### Änderungen
+- **CommunityHero.tsx (NEU)** — 3 Quick-Action-Cards: Post schreiben, Gerücht teilen, Analyse schreiben. Gradient-Borders, Icons, i18n DE+TR
+- **CommunitySidebar.tsx (NEU)** — Research Highlights (Top 3), Top Scouts (Top 5), Laufende Votes. Aus CommunityFeedTab extrahiert
+- **CommunityBountySection.tsx (NEU)** — Bounty-Strip mit BountyCard, horizontaler Scroll Mobile, 2-Col Grid Desktop. Nur sichtbar wenn Bounties > 0
+- **CommunityFeedTab.tsx vereinfacht** — Sidebar + Category-Pills entfernt, Filter auf 1 Zeile (Search + Type + Sort). 289→155 Zeilen (-47%)
+- **page.tsx umgebaut** — TabBar/TabPanel entfernt, Single-Scroll: Hero → Scope+Network → Bounties → Grid(Feed+Sidebar) → Modals. Neue Hooks: useActiveBounties, useClubSubscription. Dead Code entfernt
+- **CommunityBountiesTab.tsx gelöscht** — Ersetzt durch CommunityBountySection
+- **i18n** — hero.*, bountySection.*, sidebar.*, feed.* Keys in DE+TR
+
+### Dateien modifiziert/neu
+- `src/components/community/CommunityHero.tsx` (NEU)
+- `src/components/community/CommunitySidebar.tsx` (NEU)
+- `src/components/community/CommunityBountySection.tsx` (NEU)
+- `src/app/(app)/community/page.tsx` (REWRITE)
+- `src/components/community/CommunityFeedTab.tsx` (SIMPLIFIED)
+- `src/components/community/CommunityBountiesTab.tsx` (DELETED)
+- `messages/de.json` + `messages/tr.json` (i18n)
+
+## Session 21.02.2026 (110) – Build-Fix + DPC-Verteilung + Rewards Tab
+
+### Änderungen
+- **Build-Fix** — 4 tote Barrel-Exports entfernt, ManagerCompareTab gelöscht. -992 Zeilen
+- **DPC-Ring Redesign** — 4 Segmente (Reserviert/Verfügbar/Andere/Du), max_supply (300) Basis
+- **Rewards Tab (NEU)** — 5. Player-Detail Tab, Success Fee Wachstums-Treppe (10 Tiers), i18n DE+TR
+
+## Session 20.02.2026 (109) – $SCOUT Umbenennung
+
+### Änderungen
+- ADR-021: BSD → $SCOUT. fmtBSD→fmtScout, formatBsd→formatScout, ~242 UI-Strings, i18n DE+TR, Docs
 
 ## Session 20.02.2026 (108) – Beta-Launch Must-Haves (4 Sprints)
 

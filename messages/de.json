@@ -530,7 +530,11 @@
     "deleteMessage": "Diese Funktion ist im Pilot-Betrieb noch nicht verfügbar. Kontaktiere uns bei Fragen.",
     "understood": "Verstanden",
     "avatarTooLarge": "Bild darf maximal 2MB groß sein.",
-    "avatarUploadFailed": "Avatar konnte nicht hochgeladen werden."
+    "avatarUploadFailed": "Avatar konnte nicht hochgeladen werden.",
+    "scoutReports": "Berichte",
+    "hitRate": "Hit-Rate",
+    "avgRating": "Ø Bewertung",
+    "approvedBounties": "genehmigt"
   },
   "player": {
     "overview": "Übersicht",
@@ -659,7 +663,13 @@
     "publicRegister": "Registrieren",
     "squadPreview": "Kader-Vorschau",
     "publicAllPlayers": "Alle {count} Spieler ansehen",
-    "news": "Neuigkeiten"
+    "news": "Neuigkeiten",
+    "prestige": "Prestige",
+    "prestigeStarter": "Starter",
+    "prestigeAktiv": "Aktiv",
+    "prestigeEngagiert": "Engagiert",
+    "prestigeVorbildlich": "Vorbildlich",
+    "topScoutsTitle": "Top Scouts"
   },
   "airdrop": {
     "title": "$SCOUT Airdrop",
@@ -785,7 +795,9 @@
       "scout_network": "Scout-Netzwerk",
       "scout_networkDesc": "25 Follower erreicht",
       "complete_scout": "Complete Scout",
-      "complete_scoutDesc": "In allen 3 Dimensionen Silber+"
+      "complete_scoutDesc": "In allen 3 Dimensionen Silber+",
+      "scout_specialist": "Scout-Spezialist",
+      "scout_specialistDesc": "10 Scouting-Reports mit Ø 4.0+ Bewertung"
     },
     "notification": {
       "rangUp": "{dim}: Aufstieg zu {rang}!",
@@ -834,5 +846,46 @@
     "createPostDesc": "Teile deine Meinung in der Community",
     "makePrediction": "Erste Prognose abgeben",
     "makePredictionDesc": "Sage das Ergebnis eines Spiels voraus"
+  },
+  "scouting": {
+    "dimensions": "Bewertungsdimensionen",
+    "dim": {
+      "technik": "Technik",
+      "taktik": "Taktik",
+      "athletik": "Athletik",
+      "mentalitaet": "Mentalität",
+      "potenzial": "Potenzial"
+    },
+    "dimDesc": {
+      "technik": "Ballkontrolle, Passspiel, erster Kontakt, Dribbling",
+      "taktik": "Positionierung, Entscheidungsfindung, Pressing",
+      "athletik": "Schnelligkeit, Ausdauer, Stärke, Wendigkeit",
+      "mentalitaet": "Einsatz, Gelassenheit, Führung, Konstanz",
+      "potenzial": "Altersbereinigtes Entwicklungspotenzial"
+    },
+    "fixture": "Beobachtet im Spiel (optional)",
+    "noFixture": "Kein bestimmtes Spiel",
+    "strengths": "Stärken",
+    "strengthsPlaceholder": "Was kann der Spieler besonders gut?",
+    "weaknesses": "Schwächen",
+    "weaknessesPlaceholder": "Wo hat der Spieler Verbesserungspotenzial?",
+    "overall": "Gesamteindruck",
+    "overallPlaceholder": "Dein Gesamtfazit zum Spieler — Zusammenfassung, Empfehlung, Kontext...",
+    "minChars": "Mind. {count} Zeichen",
+    "scoutingReport": "Scouting-Report",
+    "scoutingBounty": "Scouting-Auftrag",
+    "adminTab": "Scouting",
+    "playerRadar": "Spieler-Radar",
+    "topScouts": "Top Scouts",
+    "recentReports": "Letzte Berichte",
+    "noData": "Noch keine Scouting-Daten",
+    "noDataHint": "Fans können über Community Scouting-Reports einreichen",
+    "reports": "Berichte",
+    "approved": "genehmigt",
+    "avgOverall": "Gesamt",
+    "hitRate": "Trefferquote",
+    "buildingRecord": "{n}/5 Calls",
+    "verifiedScout": "Verifizierter Scout",
+    "bountyApprovedPost": "{club} hat {scout}'s Scouting-Beitrag belohnt!"
   }
 }

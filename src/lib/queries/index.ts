@@ -30,6 +30,7 @@ export { useScoutScores, useScoutLeaderboard, useScoreRoadClaims } from './gamif
 export { useDpcMastery, useUserMasteryAll } from './mastery';
 export { useAirdropScore, useAirdropLeaderboard, useAirdropStats } from './airdrop';
 export { usePredictions, usePredictionCount, usePredictionStats, useResolvedPredictions, usePredictionFixtures, useCreatePrediction, useHasAnyPrediction } from './predictions';
+export { usePlayerScoutingSummaries, useTopScouts, useScoutingStats, useClubPrestige, useGlobalTopScouts } from './scouting';
 export {
   invalidateTradeQueries,
   invalidateSocialQueries,

@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Target, Clock, Users, Coins, CheckCircle, Loader2, Lock } from 'lucide-react';
+import { Target, Clock, Users, Coins, CheckCircle, Lock, Telescope } from 'lucide-react';
 import { Card, Chip, Button, Modal } from '@/components/ui';
 import { formatScout } from '@/lib/services/wallet';
-import type { BountyWithCreator } from '@/types';
+import ScoutingEvaluationForm from '@/components/community/ScoutingEvaluationForm';
+import type { BountyWithCreator, ScoutingEvaluation } from '@/types';
+import { getClub } from '@/lib/clubs';
 
 const TIER_ORDER: Record<string, number> = { bronze: 1, silber: 2, gold: 3 };
 const TIER_LABELS: Record<string, string> = { bronze: 'Bronze', silber: 'Silber', gold: 'Gold' };
@@ -14,10 +16,15 @@ const TIER_COLORS: Record<string, string> = {
   gold: 'text-[#FFD700] bg-[#FFD700]/15 border-[#FFD700]/20',
 };
 
+const EMPTY_EVALUATION: ScoutingEvaluation = {
+  technik: 0, taktik: 0, athletik: 0, mentalitaet: 0, potenzial: 0,
+  staerken: '', schwaechen: '', gesamteindruck: '',
+};
+
 interface BountyCardProps {
   bounty: BountyWithCreator;
   userId: string;
-  onSubmit: (bountyId: string, title: string, content: string) => void;
+  onSubmit: (bountyId: string, title: string, content: string, evaluation?: Record<string, unknown> | null) => void;
   submitting: string | null;
   userTier?: string | null;
 }
@@ -26,7 +33,10 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
   const [modalOpen, setModalOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [evaluation, setEvaluation] = useState<ScoutingEvaluation>(EMPTY_EVALUATION);
+  const [tried, setTried] = useState(false);
 
+  const isScouting = bounty.type === 'scouting';
   const isOpen = bounty.status === 'open' && new Date(bounty.deadline_at) > new Date();
   const isFull = bounty.submission_count >= bounty.max_submissions;
   const hasSubmitted = bounty.has_user_submitted === true;
@@ -39,22 +49,55 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
   const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const timeLeft = diffMs > 0 ? `${days}d ${hours}h` : 'Abgelaufen';
 
+  const isEvalValid = isScouting
+    ? evaluation.technik >= 1 && evaluation.taktik >= 1 && evaluation.athletik >= 1 &&
+      evaluation.mentalitaet >= 1 && evaluation.potenzial >= 1 &&
+      evaluation.staerken.length >= 20 && evaluation.schwaechen.length >= 20 &&
+      evaluation.gesamteindruck.length >= 30
+    : true;
+
+  const canSubmitForm = title.trim().length > 0 && content.length >= 100 && isEvalValid;
+
   const handleSubmit = () => {
-    if (!title.trim() || content.length < 100) return;
-    onSubmit(bounty.id, title.trim(), content.trim());
+    setTried(true);
+    if (!canSubmitForm) return;
+    onSubmit(
+      bounty.id,
+      title.trim(),
+      content.trim(),
+      isScouting ? (evaluation as unknown as Record<string, unknown>) : null,
+    );
     setModalOpen(false);
     setTitle('');
     setContent('');
+    setEvaluation(EMPTY_EVALUATION);
+    setTried(false);
   };
+
+  // Fixture info
+  const fixtureInfo = bounty.fixture_id ? (() => {
+    // We don't have fixture data on BountyWithCreator, so just show reference
+    return bounty.fixture_id;
+  })() : null;
 
   return (
     <>
       <Card className="overflow-hidden">
         {/* Header */}
-        <div className="p-4 flex items-center justify-between bg-gradient-to-r from-amber-500/10 to-amber-500/5 border-b border-amber-500/20">
+        <div className={`p-4 flex items-center justify-between border-b ${
+          isScouting
+            ? 'bg-gradient-to-r from-rose-500/10 to-rose-500/5 border-rose-500/20'
+            : 'bg-gradient-to-r from-amber-500/10 to-amber-500/5 border-amber-500/20'
+        }`}>
           <div className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-amber-400" />
-            <span className="font-bold text-amber-300">Club-Auftrag</span>
+            {isScouting ? (
+              <Telescope className="w-5 h-5 text-rose-400" />
+            ) : (
+              <Target className="w-5 h-5 text-amber-400" />
+            )}
+            <span className={`font-bold ${isScouting ? 'text-rose-300' : 'text-amber-300'}`}>
+              {isScouting ? 'Scouting-Auftrag' : 'Club-Auftrag'}
+            </span>
             {bounty.min_tier && (
               <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border ${TIER_COLORS[bounty.min_tier] ?? ''}`}>
                 <Lock className="w-2.5 h-2.5" />
@@ -123,8 +166,12 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
       </Card>
 
       {/* Submit Modal */}
-      <Modal open={modalOpen} title="Lösung einreichen" onClose={() => setModalOpen(false)}>
-        <div className="space-y-4">
+      <Modal
+        open={modalOpen}
+        title={isScouting ? 'Scouting-Bewertung einreichen' : 'Lösung einreichen'}
+        onClose={() => { setModalOpen(false); setTried(false); }}
+      >
+        <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
           <div className="text-sm text-white/50 mb-2">
             <span className="font-bold text-white">{bounty.title}</span>
             <span className="mx-2">&bull;</span>
@@ -140,13 +187,27 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
               className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40"
             />
           </div>
+
+          {/* Scouting Evaluation */}
+          {isScouting && (
+            <div className="border border-rose-500/20 rounded-2xl p-4 bg-rose-500/5">
+              <ScoutingEvaluationForm
+                evaluation={evaluation}
+                onEvaluationChange={setEvaluation}
+                selectedFixtureId={null}
+                onFixtureChange={() => {}}
+                tried={tried}
+              />
+            </div>
+          )}
+
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">Inhalt</label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value.slice(0, 10000))}
               rows={6}
-              placeholder="Beschreibe deine Analyse ausführlich (min. 100 Zeichen)..."
+              placeholder={isScouting ? 'Begründe deine Bewertung ausführlich (min. 100 Zeichen)...' : 'Beschreibe deine Analyse ausführlich (min. 100 Zeichen)...'}
               className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none"
             />
             <div className="text-[10px] text-white/30 mt-1">{content.length}/10000 (min. 100)</div>
@@ -156,7 +217,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
             fullWidth
             onClick={handleSubmit}
             loading={submitting === bounty.id}
-            disabled={!title.trim() || content.length < 100}
+            disabled={!canSubmitForm}
           >
             Einreichen
           </Button>

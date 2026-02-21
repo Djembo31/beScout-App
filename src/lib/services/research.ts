@@ -66,7 +66,34 @@ export async function getResearchPosts(options: {
       return data ?? [];
     };
 
-    const enrichPromises: Promise<unknown>[] = [fetchProfiles(), fetchPlayers()];
+    const fetchTrackRecords = async () => {
+      // Batch: count resolved outcomes per author
+      const { data, error } = await supabase
+        .from('research_posts')
+        .select('user_id, outcome')
+        .in('user_id', authorIds)
+        .gt('price_at_creation', 0)
+        .not('outcome', 'is', null);
+      if (error || !data) return new Map<string, { hitRate: number; totalCalls: number }>();
+      const map = new Map<string, { correct: number; total: number }>();
+      for (const row of data) {
+        const uid = row.user_id as string;
+        const entry = map.get(uid) ?? { correct: 0, total: 0 };
+        entry.total++;
+        if (row.outcome === 'correct') entry.correct++;
+        map.set(uid, entry);
+      }
+      const result = new Map<string, { hitRate: number; totalCalls: number }>();
+      Array.from(map.entries()).forEach(([uid, stats]) => {
+        result.set(uid, {
+          hitRate: stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0,
+          totalCalls: stats.total,
+        });
+      });
+      return result;
+    };
+
+    const enrichPromises: Promise<unknown>[] = [fetchProfiles(), fetchPlayers(), fetchTrackRecords()];
     if (currentUserId) {
       enrichPromises.push(getUserUnlockedIds(currentUserId));
       enrichPromises.push(getUserResearchRatings(currentUserId, postIds));
@@ -78,6 +105,9 @@ export async function getResearchPosts(options: {
     type PlayerRow = { id: string; first_name: string; last_name: string; position: string };
     const profiles = enrichResults[0].status === 'fulfilled' ? (enrichResults[0].value as ProfileRow[]) : [];
     const players = enrichResults[1].status === 'fulfilled' ? (enrichResults[1].value as PlayerRow[]) : [];
+    const trackRecordMap = enrichResults[2].status === 'fulfilled'
+      ? (enrichResults[2].value as Map<string, { hitRate: number; totalCalls: number }>)
+      : new Map<string, { hitRate: number; totalCalls: number }>();
 
     const profileMap = new Map(profiles.map(p => [p.id, p]));
     const playerMap = new Map<string, { name: string; pos: string }>(
@@ -87,8 +117,8 @@ export async function getResearchPosts(options: {
     let unlockedIds = new Set<string>();
     let ratingsMap = new Map<string, number>();
     if (currentUserId) {
-      const unlocksRes = enrichResults[2];
-      const ratingsRes = enrichResults[3];
+      const unlocksRes = enrichResults[3];
+      const ratingsRes = enrichResults[4];
       if (unlocksRes.status === 'fulfilled') unlockedIds = unlocksRes.value as Set<string>;
       if (ratingsRes.status === 'fulfilled') ratingsMap = ratingsRes.value as Map<string, number>;
     }
@@ -96,6 +126,7 @@ export async function getResearchPosts(options: {
     return posts.map(post => {
       const author = profileMap.get(post.user_id);
       const player = post.player_id ? playerMap.get(post.player_id) : undefined;
+      const tr = trackRecordMap.get(post.user_id);
       return {
         ...post,
         author_handle: author?.handle ?? 'unknown',
@@ -109,6 +140,7 @@ export async function getResearchPosts(options: {
         is_unlocked: unlockedIds.has(post.id),
         is_own: post.user_id === currentUserId,
         user_rating: ratingsMap.get(post.id) ?? null,
+        author_track_record: tr ?? null,
       };
     });
 }
@@ -136,6 +168,8 @@ export async function createResearchPost(params: {
   call: string;
   horizon: string;
   price: number; // cents
+  evaluation?: Record<string, unknown> | null;
+  fixtureId?: string | null;
 }): Promise<DbResearchPost> {
   // Fetch player price snapshot for track record (floor_price > ipo_price > 0)
   let priceAtCreation = 0;
@@ -164,6 +198,8 @@ export async function createResearchPost(params: {
       horizon: params.horizon,
       price: params.price,
       price_at_creation: priceAtCreation,
+      evaluation: params.evaluation ?? null,
+      fixture_id: params.fixtureId ?? null,
     })
     .select()
     .single();
@@ -177,9 +213,10 @@ export async function createResearchPost(params: {
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(params.userId, 'research_create', 'community', { researchId: data.id, title: params.title, call: params.call });
   }).catch(err => console.error('[Research] Activity log failed:', err));
-  // Fire-and-forget: +3 Analyst for research creation
+  // Fire-and-forget: +5 Analyst for scouting report (structured), +3 for normal research
+  const analystPoints = params.evaluation ? 5 : 3;
   import('@/lib/services/scoutScores').then(m => {
-    m.awardDimensionScoreAsync(params.userId, 'analyst', 3, 'research_create', data.id);
+    m.awardDimensionScoreAsync(params.userId, 'analyst', analystPoints, 'research_create', data.id);
   }).catch(err => console.error('[Research] Analyst score failed:', err));
   // Fire-and-forget: +15 Mastery XP if research references a player
   if (params.playerId) {

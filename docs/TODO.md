@@ -1,9 +1,34 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 20.02.2026 (Session 106)
-> Modus: PILOT SPRINT — 189 Migrations, 19 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 566 Spieler, 505 Player Images
+> Letzte Aktualisierung: 21.02.2026 (Session 111)
+> Modus: PILOT SPRINT — 191 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 566 Spieler, 505 Player Images
 
 ---
+
+## Community Redesign: Single-Scroll ✅ (21.02.2026)
+- [x] Sprint 1: CommunityHero.tsx — 3 Quick-Action-Cards (Post, Gerücht, Analyse) mit Gradient-Borders + i18n
+- [x] Sprint 2: CommunitySidebar.tsx — Research Highlights (Top 3), Top Scouts (Top 5), Laufende Votes
+- [x] Sprint 3: CommunityFeedTab.tsx vereinfacht — Sidebar + Category-Pills entfernt, 1-Zeile Filter. 289→155 Zeilen (-47%)
+- [x] Sprint 4: CommunityBountySection.tsx — Bounty-Strip, horizontal scroll Mobile, 2-Col Grid Desktop
+- [x] Sprint 5: page.tsx umgebaut — TabBar/TabPanel entfernt, Single-Scroll Layout, Bounty-Hooks + Handler
+- [x] Sprint 6: Cleanup — CommunityBountiesTab gelöscht, i18n Keys (hero/bountySection/sidebar/feed) DE+TR
+- [x] **8 Dateien: 3 neu, 3 modifiziert, 1 gelöscht, +498/-402 Zeilen, Build 0 Fehler**
+
+## Build-Fix + DPC-Verteilung + Rewards Tab ✅ (21.02.2026)
+- [x] Build-Fix: 4 tote Barrel-Exports entfernt, ManagerCompareTab gelöscht. -992 Zeilen
+- [x] DPC-Ring Redesign: 4 Segmente (Reserviert/Verfügbar/Andere/Du), max_supply Basis
+- [x] Stat-Cards Klartext: Supply (300), Freigegeben (100), Verkauft (2), Verfügbar (98)
+- [x] Rewards Tab (NEU): 5. Player-Detail Tab, Success Fee Wachstums-Treppe (10 Tiers)
+- [x] ProfilTab bereinigt: "Success Fee Tier" → "Holder: X"
+
+## $SCOUT Umbenennung ✅ (20.02.2026)
+- [x] ADR-021: BSD → $SCOUT. fmtBSD→fmtScout, formatBsd→formatScout, ~242 UI-Strings, i18n DE+TR
+
+## Beta-Launch Must-Haves ✅ (20.02.2026)
+- [x] Public Club Page, Club-Referral, Abo-Badge, Club-News — 4 Sprints, 2 Migrations (#190-#191), ~17 Dateien
+
+## Competitive Analysis ✅ (20.02.2026)
+- [x] BeScout vs 5 Competitors, 4 Must-Have Sprints identifiziert
 
 ## UX Radical Simplification ✅ (20.02.2026)
 - [x] Sprint 1: Home — 3 Tabs → scrollbare Seite. 7 Sections (Header, Onboarding, Sponsor, Portfolio, Event, IPO, Marktbewegungen). 9 Sections entfernt (Airdrop 2×, Scout Missions, DPC, Bargains, Live Trades, Referral, Community Highlights, Top Scouts). page.tsx 1.113→279 (-75%)

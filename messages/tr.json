@@ -530,7 +530,11 @@
     "deleteMessage": "Bu özellik pilot döneminde henüz mevcut değil. Sorularınız için bize ulaşın.",
     "understood": "Anladım",
     "avatarTooLarge": "Resim en fazla 2MB olabilir.",
-    "avatarUploadFailed": "Avatar yüklenemedi."
+    "avatarUploadFailed": "Avatar yüklenemedi.",
+    "scoutReports": "Rapor",
+    "hitRate": "İsabet",
+    "avgRating": "Ø Değerlendirme",
+    "approvedBounties": "onaylandı"
   },
   "player": {
     "overview": "Genel Bakış",
@@ -659,7 +663,13 @@
     "publicRegister": "Kaydol",
     "squadPreview": "Kadro Önizleme",
     "publicAllPlayers": "Tüm {count} oyuncuyu gör",
-    "news": "Haberler"
+    "news": "Haberler",
+    "prestige": "Prestij",
+    "prestigeStarter": "Başlangıç",
+    "prestigeAktiv": "Aktif",
+    "prestigeEngagiert": "İlgili",
+    "prestigeVorbildlich": "Örnek",
+    "topScoutsTitle": "En İyi İzciler"
   },
   "airdrop": {
     "title": "$SCOUT Airdrop",
@@ -785,7 +795,9 @@
       "scout_network": "İzci Ağı",
       "scout_networkDesc": "25 takipçiye ulaşıldı",
       "complete_scout": "Tam İzci",
-      "complete_scoutDesc": "3 boyutta da Gümüş+"
+      "complete_scoutDesc": "3 boyutta da Gümüş+",
+      "scout_specialist": "Keşif Uzmanı",
+      "scout_specialistDesc": "Ø 4.0+ değerlendirmeyle 10 keşif raporu"
     },
     "notification": {
       "rangUp": "{dim}: {rang} rütbesine yükseldin!",
@@ -832,7 +844,48 @@
     "followScoutDesc": "Di\u011fer taraftarlarla ba\u011flan",
     "createPost": "\u0130lk g\u00f6nderiyi olu\u015ftur",
     "createPostDesc": "Toplulukta fikrini payla\u015f",
-    "makePrediction": "\u0130lk tahminini yap",
-    "makePredictionDesc": "Bir ma\u00e7\u0131n sonucunu tahmin et"
+    "makePrediction": "İlk tahminini yap",
+    "makePredictionDesc": "Bir maçın sonucunu tahmin et"
+  },
+  "scouting": {
+    "dimensions": "Değerlendirme Boyutları",
+    "dim": {
+      "technik": "Teknik",
+      "taktik": "Taktik",
+      "athletik": "Atletizm",
+      "mentalitaet": "Mentalite",
+      "potenzial": "Potansiyel"
+    },
+    "dimDesc": {
+      "technik": "Top kontrolü, pas, ilk dokunuş, dribling",
+      "taktik": "Pozisyon alma, karar verme, pres",
+      "athletik": "Hız, dayanıklılık, güç, çeviklik",
+      "mentalitaet": "Çaba, soğukkanlılık, liderlik, tutarlılık",
+      "potenzial": "Yaşa göre gelişim potansiyeli"
+    },
+    "fixture": "Gözlemlenen maç (opsiyonel)",
+    "noFixture": "Belirli bir maç yok",
+    "strengths": "Güçlü Yanlar",
+    "strengthsPlaceholder": "Oyuncunun en iyi yaptığı şeyler neler?",
+    "weaknesses": "Zayıf Yanlar",
+    "weaknessesPlaceholder": "Oyuncunun gelişim alanları neler?",
+    "overall": "Genel İzlenim",
+    "overallPlaceholder": "Oyuncu hakkında genel değerlendirmen — özet, öneri, bağlam...",
+    "minChars": "En az {count} karakter",
+    "scoutingReport": "Keşif Raporu",
+    "scoutingBounty": "Keşif Görevi",
+    "adminTab": "Keşif",
+    "playerRadar": "Oyuncu Radarı",
+    "topScouts": "En İyi İzciler",
+    "recentReports": "Son Raporlar",
+    "noData": "Henüz keşif verisi yok",
+    "noDataHint": "Taraftarlar topluluktan keşif raporları gönderebilir",
+    "reports": "Rapor",
+    "approved": "onaylandı",
+    "avgOverall": "Genel",
+    "hitRate": "İsabet oranı",
+    "buildingRecord": "{n}/5 Değerlendirme",
+    "verifiedScout": "Onaylı İzci",
+    "bountyApprovedPost": "{club}, {scout}'un keşif katkısını ödüllendirdi!"
   }
 }
