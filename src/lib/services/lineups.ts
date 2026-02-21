@@ -35,7 +35,7 @@ export async function getLineup(eventId: string, userId: string): Promise<DbLine
     .select('*')
     .eq('event_id', eventId)
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
   if (error) return null;
   return data as DbLineup;
@@ -55,13 +55,17 @@ export async function submitLineup(params: {
   captainSlot?: string | null;
 }): Promise<DbLineup> {
   // Check event status + capacity before submitting
-  const { data: ev } = await supabase
+  const { data: ev, error: evError } = await supabase
     .from('events')
     .select('status, max_entries, current_entries')
     .eq('id', params.eventId)
     .single();
 
-  if (ev && (ev.status === 'ended' || ev.status === 'running' || ev.status === 'scoring')) {
+  if (evError || !ev) {
+    throw new Error('Event nicht gefunden.');
+  }
+
+  if (ev.status === 'ended' || ev.status === 'running' || ev.status === 'scoring') {
     throw new Error('Event ist bereits gestartet oder beendet — Anmeldung nicht möglich.');
   }
 
@@ -173,7 +177,7 @@ export async function getLineupWithPlayers(eventId: string, userId: string): Pro
     .select('*')
     .eq('event_id', eventId)
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
   if (error || !lineup) return null;
 
@@ -283,7 +287,7 @@ export async function getUserFantasyHistory(userId: string, limit = 10): Promise
       gameweek: event?.gameweek ?? null,
       eventDate: event?.starts_at ?? '',
       totalScore: row.total_score as number,
-      rank: row.rank as number,
+      rank: (row.rank as number | null) ?? 0,
       rewardAmount: row.reward_amount as number,
     };
   });

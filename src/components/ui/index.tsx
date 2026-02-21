@@ -179,7 +179,7 @@ export function Modal({ open, title, subtitle, children, onClose, preventClose, 
             <X className="w-5 h-5 text-white/70" />
           </button>
         </div>
-        <div className="px-4 py-4 md:p-5">{children}</div>
+        <div className="px-4 py-4 pb-6 safe-bottom md:p-5">{children}</div>
       </div>
     </div>
   );

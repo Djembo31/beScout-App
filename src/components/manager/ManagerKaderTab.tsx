@@ -610,7 +610,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
 
       {/* ═══ Mobile: Full-Screen Picker ═══ */}
       {pickerOpen && (
-        <div className="fixed inset-0 z-50 bg-[#0a0a0a] flex flex-col lg:hidden">
+        <div className="fixed inset-0 z-[70] bg-[#0a0a0a] flex flex-col lg:hidden">
           {/* ── Sticky Header ── */}
           <div className="shrink-0 bg-[#0a0a0a] border-b border-white/10">
             {/* Top bar: Back + Title + Count */}

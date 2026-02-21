@@ -23,7 +23,7 @@ export async function getWallet(userId: string): Promise<DbWallet | null> {
     .from('wallets')
     .select('user_id, balance, locked_balance, created_at, updated_at')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
   if (error) return null;
   return data as DbWallet;

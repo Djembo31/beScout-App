@@ -27,7 +27,7 @@ function LoginContent() {
       if (!profile) {
         const clubParam = searchParams.get('club');
         const refParam = searchParams.get('ref');
-        const qs = [clubParam && `club=${clubParam}`, refParam && `ref=${refParam}`].filter(Boolean).join('&');
+        const qs = [clubParam && `club=${encodeURIComponent(clubParam)}`, refParam && `ref=${encodeURIComponent(refParam)}`].filter(Boolean).join('&');
         router.replace(`/onboarding${qs ? `?${qs}` : ''}`);
         return;
       }

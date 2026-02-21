@@ -737,7 +737,7 @@ export default function KaufenDiscovery({
 
             {/* ── Mobile: Full-Screen Filter Modal ── */}
             {showFilters && (
-              <div className="md:hidden fixed inset-0 z-50 bg-[#0a0a0a] flex flex-col">
+              <div className="md:hidden fixed inset-0 z-[70] bg-[#0a0a0a] flex flex-col">
                 <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/10 shrink-0">
                   <div className="flex items-center gap-2">
                     <Filter className="w-4 h-4 text-[#FFD700]" />

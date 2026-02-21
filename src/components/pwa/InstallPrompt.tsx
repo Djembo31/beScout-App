@@ -45,7 +45,7 @@ export function InstallPrompt() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 lg:bottom-4 lg:left-auto lg:right-4 lg:w-[340px] z-[9997] animate-in slide-in-from-bottom-4">
+    <div className="fixed bottom-20 left-4 right-4 lg:bottom-4 lg:left-auto lg:right-4 lg:w-[340px] z-[85] animate-in slide-in-from-bottom-4">
       <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#111] border border-white/15 shadow-2xl backdrop-blur-xl">
         <div className="w-10 h-10 rounded-xl bg-[#FFD700]/15 border border-[#FFD700]/25 flex items-center justify-center shrink-0">
           <Download className="w-5 h-5 text-[#FFD700]" />

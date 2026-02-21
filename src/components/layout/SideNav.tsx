@@ -284,7 +284,7 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
 
       {/* Mobile Drawer Overlay */}
       {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-50">
+        <div className="lg:hidden fixed inset-0 z-[70]">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm anim-fade"

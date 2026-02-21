@@ -50,7 +50,7 @@ function getTooltipStyle(
   left = Math.max(12, Math.min(left, vw - tw - 12));
   top = Math.max(12, Math.min(top, vh - th - 12));
 
-  return { position: 'fixed', top, left, zIndex: 9998 };
+  return { position: 'fixed', top, left, zIndex: 90 };
 }
 
 export function TourOverlay() {
@@ -127,7 +127,7 @@ export function TourOverlay() {
       {/* Backdrop with spotlight cutout via box-shadow */}
       {targetRect && (
         <div
-          className="fixed z-[9998] rounded-xl pointer-events-none"
+          className="fixed z-[90] rounded-xl pointer-events-none"
           style={{
             top: targetRect.top - PADDING,
             left: targetRect.left - PADDING,
@@ -140,7 +140,7 @@ export function TourOverlay() {
 
       {/* Clickable backdrop to skip */}
       <div
-        className="fixed inset-0 z-[9997]"
+        className="fixed inset-0 z-[89]"
         onClick={skipTour}
         aria-hidden="true"
       />
@@ -192,7 +192,7 @@ export function TourOverlay() {
 
       {/* Fallback: if target not found, show centered tooltip */}
       {!targetRect && (
-        <div className="fixed inset-0 z-[9998] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
           <div
             ref={tooltipRef}
             className="w-[300px] sm:w-[340px] bg-[#111] border border-white/15 rounded-2xl p-4 shadow-2xl"

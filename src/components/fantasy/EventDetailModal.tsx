@@ -341,8 +341,8 @@ export const EventDetailModal = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/80 z-50" onClick={onClose} />
-      <div className="fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[calc(100%-2rem)] md:max-w-3xl bg-[#0a0a0a] md:border border-white/10 md:rounded-2xl shadow-2xl z-50 md:max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="fixed inset-0 bg-black/80 z-[80]" onClick={onClose} />
+      <div className="fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[calc(100%-2rem)] md:max-w-3xl bg-[#0a0a0a] md:border border-white/10 md:rounded-2xl shadow-2xl z-[80] md:max-h-[90vh] overflow-hidden flex flex-col">
 
         {/* Header */}
         <div className="flex-shrink-0 p-3 md:p-5 border-b border-white/10">
