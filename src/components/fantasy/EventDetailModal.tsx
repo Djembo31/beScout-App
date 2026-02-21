@@ -1030,16 +1030,23 @@ export const EventDetailModal = ({
               )}
 
               {/* Lineup Status (only when not scored — no need to show "3/6 selected" after scoring) */}
-              {!isScored && (
-                <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
-                  <span className="text-sm text-white/60">{selectedPlayers.length}/{formationSlots.length} Spieler ausgewählt</span>
-                  {!reqCheck.ok && (
-                    <span className="text-xs text-orange-400 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" />
-                      {reqCheck.message}
-                    </span>
-                  )}
-                </div>
+              {!isScored && !isReadOnly && (
+                isLineupComplete ? (
+                  <div className="flex items-center gap-2 p-3 bg-[#22C55E]/10 border border-[#22C55E]/30 rounded-xl">
+                    <CheckCircle2 className="w-5 h-5 text-[#22C55E] shrink-0" />
+                    <span className="text-sm font-bold text-[#22C55E]">Aufstellung vollständig — unten Teilnahme bestätigen!</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                    <span className="text-sm text-white/60">{selectedPlayers.length}/{formationSlots.length} Spieler ausgewählt</span>
+                    {!reqCheck.ok && (
+                      <span className="text-xs text-orange-400 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {reqCheck.message}
+                      </span>
+                    )}
+                  </div>
+                )
               )}
 
               {/* Player List with Stats & Status — hidden when locked or scored */}
@@ -1383,19 +1390,47 @@ export const EventDetailModal = ({
         {/* Join — only when not joined AND event not running/ended */}
         {!event.isJoined && event.status !== 'ended' && event.status !== 'running' && (() => {
           const isFull = !!(event.maxParticipants && event.participants >= event.maxParticipants);
+          const filledSlots = selectedPlayers.length;
+          const totalSlots = formationSlots.length;
+          const canJoin = isLineupComplete && reqCheck.ok && !isFull;
           return (
-            <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
-              <Button
-                variant="gold"
-                fullWidth
-                size="lg"
-                onClick={handleConfirmJoin}
-                disabled={!isLineupComplete || !reqCheck.ok || isFull}
-                className={!isLineupComplete || !reqCheck.ok || isFull ? 'opacity-50' : ''}
-              >
-                <CheckCircle2 className="w-5 h-5" />
-                {isFull ? 'Event voll' : event.buyIn === 0 ? 'Anmeldung bestätigen' : `Anmelden & ${event.buyIn} $SCOUT zahlen`}
-              </Button>
+            <div className="flex-shrink-0 border-t border-white/10 bg-[#0a0a0a]">
+              {/* Lineup progress indicator */}
+              {!isLineupComplete && (
+                <div className="px-3 pt-3 md:px-5 md:pt-4">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs text-white/50">Aufstellung</span>
+                    <span className="text-xs font-mono font-bold text-[#FFD700]">{filledSlots}/{totalSlots} Spieler</span>
+                  </div>
+                  <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-full transition-all"
+                      style={{ width: `${(filledSlots / totalSlots) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+              <div className="p-3 md:p-5">
+                <Button
+                  variant="gold"
+                  fullWidth
+                  size="lg"
+                  onClick={handleConfirmJoin}
+                  disabled={!canJoin}
+                  className={!canJoin ? 'opacity-60' : 'animate-pulse-subtle'}
+                >
+                  <CheckCircle2 className="w-5 h-5" />
+                  {isFull
+                    ? 'Event voll'
+                    : !isLineupComplete
+                    ? `Noch ${totalSlots - filledSlots} Spieler aufstellen`
+                    : !reqCheck.ok
+                    ? reqCheck.message
+                    : event.buyIn === 0
+                    ? 'Anmeldung bestätigen'
+                    : `Anmelden & ${fmtScout(event.buyIn)} $SCOUT zahlen`}
+                </Button>
+              </div>
             </div>
           );
         })()}
