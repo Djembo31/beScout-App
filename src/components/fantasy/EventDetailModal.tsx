@@ -14,7 +14,7 @@ import {
 import { getScoreTier, SCORE_TIER_CONFIG, calculateSynergyPreview } from '@/types';
 import type { SynergyDetail } from '@/types';
 import { Card, Button, Chip } from '@/components/ui';
-import { PositionBadge, PlayerIdentity, getL5Color } from '@/components/player';
+import { PositionBadge, PlayerIdentity, PlayerPhoto, getL5Color } from '@/components/player';
 import { useUser } from '@/components/providers/AuthProvider';
 import { centsToBsd } from '@/lib/services/players';
 import { getLineup, removeLineup, getEventParticipants, getEventParticipantCount, getLineupWithPlayers } from '@/lib/services/lineups';
@@ -1490,19 +1490,23 @@ export const EventDetailModal = ({
       {showPlayerPicker && (
         <>
           <div className="fixed inset-0 bg-black/60 z-[60]" onClick={() => setShowPlayerPicker(null)} />
-          <div className="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[calc(100%-2rem)] md:max-w-md bg-[#0a0a0a] border-t md:border border-white/10 rounded-t-2xl md:rounded-xl shadow-2xl z-[60] max-h-[80vh] md:max-h-[70vh] overflow-hidden flex flex-col">
-            {/* Header */}
-            <div className="p-4 border-b border-white/10">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <div className="font-bold">Spieler wählen</div>
-                  <div className="text-xs text-white/50">Position: {showPlayerPicker.position}</div>
+          <div className="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[calc(100%-2rem)] md:max-w-md bg-[#0a0a0a] border-t md:border border-white/10 rounded-t-3xl md:rounded-xl shadow-2xl z-[60] max-h-[85vh] md:max-h-[70vh] overflow-hidden flex flex-col">
+            {/* Swipe Handle */}
+            <div className="flex justify-center pt-2 pb-1 md:hidden">
+              <div className="w-10 h-1 rounded-full bg-white/20" />
+            </div>
+            {/* Header — compact */}
+            <div className="px-4 pt-2 pb-3 border-b border-white/10">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm">Spieler wählen</span>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${getPosBorderColor(showPlayerPicker.position)} bg-white/5`}>{showPlayerPicker.position}</span>
                 </div>
-                <button onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }} className="p-1 hover:bg-white/10 rounded-lg">
+                <button onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }} className="p-1.5 hover:bg-white/10 rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              {/* Search + Sort */}
+              {/* Search + Sort — single row */}
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
@@ -1510,53 +1514,69 @@ export const EventDetailModal = ({
                     type="text"
                     value={pickerSearch}
                     onChange={(e) => setPickerSearch(e.target.value)}
-                    placeholder="Name oder Club..."
-                    className="w-full pl-8 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-[#FFD700]/40"
-                    autoFocus
+                    placeholder="Suche..."
+                    className="w-full pl-8 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm focus:outline-none focus:border-[#FFD700]/40"
                   />
                 </div>
                 <select
                   value={pickerSort}
                   onChange={(e) => setPickerSort(e.target.value as 'l5' | 'dpc' | 'name')}
-                  className="px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-xs"
+                  className="px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-xs min-h-[44px]"
                 >
                   <option value="l5">L5 Score</option>
-                  <option value="dpc">DPC Anzahl</option>
-                  <option value="name">Name A-Z</option>
+                  <option value="dpc">DPC</option>
+                  <option value="name">A-Z</option>
                 </select>
               </div>
             </div>
             {/* Player List */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
+            <div className="flex-1 overflow-y-auto p-2 space-y-1">
               {getAvailablePlayersForPosition(showPlayerPicker.position).map(player => {
+                const l5Color = getL5Color(player.perfL5);
+                const l5Bg = player.perfL5 >= 70 ? 'bg-[#22C55E]' : player.perfL5 >= 50 ? 'bg-[#FFD700]' : player.perfL5 >= 30 ? 'bg-orange-400' : 'bg-red-400';
+                const l5Pct = Math.min(100, Math.max(5, player.perfL5));
                 return (
                   <button
                     key={player.id}
                     onClick={() => handleSelectPlayer(player.id, showPlayerPicker.position, showPlayerPicker.slot)}
-                    className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all ${player.status === 'injured' ? 'bg-red-500/5 border-red-500/20 hover:border-red-400/40' :
-                      player.status === 'suspended' ? 'bg-orange-500/5 border-orange-500/20 hover:border-orange-400/40' :
-                        `bg-white/[0.02] ${getPosBorderColor(player.pos)} hover:border-opacity-60`
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl border transition-all min-h-[56px] ${player.status === 'injured' ? 'bg-red-500/5 border-red-500/20' :
+                      player.status === 'suspended' ? 'bg-orange-500/5 border-orange-500/20' :
+                        'bg-white/[0.02] border-white/[0.06] active:bg-white/[0.06]'
                       }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <PlayerIdentity
-                        player={{ first: player.first, last: player.last, pos: player.pos as Pos, status: player.status, club: player.club, ticket: 0, age: 0, imageUrl: player.imageUrl }}
-                        size="sm"
-                        showMeta={false}
-                      />
-                      <div className="text-[10px] text-white/40">
-                        <span className={player.dpcAvailable < player.dpcOwned ? 'text-yellow-400' : 'text-white/40'}>{player.dpcAvailable}/{player.dpcOwned} DPC</span>
+                    {/* L5 Bar — visual score indicator */}
+                    <div className="w-1 h-8 rounded-full bg-white/10 overflow-hidden shrink-0">
+                      <div className={`w-full rounded-full ${l5Bg}`} style={{ height: `${l5Pct}%`, marginTop: `${100 - l5Pct}%` }} />
+                    </div>
+                    {/* Photo + Name */}
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <PlayerPhoto first={player.first} last={player.last} pos={player.pos as Pos} imageUrl={player.imageUrl} size={36} />
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold text-sm truncate">{player.last}</div>
+                        <div className="flex items-center gap-1.5 text-[10px] text-white/40">
+                          <span>{player.club}</span>
+                          <span className={player.dpcAvailable < player.dpcOwned ? 'text-yellow-400' : ''}>{player.dpcAvailable}/{player.dpcOwned} DPC</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className={`text-xs font-mono font-bold ${getL5Color(player.perfL5)}`}>L5: {player.perfL5}</div>
-                      <div className="text-[9px] text-white/30">{player.goals}T {player.assists}A {player.matches}S</div>
+                    {/* Stats — right side */}
+                    <div className="flex items-center gap-3 shrink-0">
+                      {/* Key stats pills */}
+                      <div className="flex gap-1">
+                        {player.goals > 0 && <span className="text-[10px] font-mono bg-white/5 px-1 py-0.5 rounded text-white/60">{player.goals}T</span>}
+                        {player.assists > 0 && <span className="text-[10px] font-mono bg-white/5 px-1 py-0.5 rounded text-white/60">{player.assists}A</span>}
+                        <span className="text-[10px] font-mono bg-white/5 px-1 py-0.5 rounded text-white/40">{player.matches}S</span>
+                      </div>
+                      {/* L5 Score — prominent */}
+                      <div className={`font-mono font-black text-base w-8 text-right ${l5Color}`}>
+                        {player.perfL5}
+                      </div>
                     </div>
                   </button>
                 );
               })}
               {getAvailablePlayersForPosition(showPlayerPicker.position).length === 0 && (
-                <div className="text-center py-6 text-white/40">
+                <div className="text-center py-8 text-white/40 text-sm">
                   Keine verfügbaren Spieler
                 </div>
               )}
