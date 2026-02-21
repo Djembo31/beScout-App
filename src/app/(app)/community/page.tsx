@@ -2,41 +2,36 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { Plus, Users } from 'lucide-react';
-import { Button, Card, ErrorState, TabBar, TabPanel, Skeleton } from '@/components/ui';
+import { Users } from 'lucide-react';
+import { Skeleton, ErrorState } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { createPost, votePost, getUserPostVotes, deletePost, adminDeletePost, adminTogglePin } from '@/lib/services/posts';
 import { getActiveSubscriptionsByUsers } from '@/lib/services/clubSubscriptions';
 import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
-import { followUser, unfollowUser } from '@/lib/services/social';
-import { createResearchPost, unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
+import { createResearchPost, resolveExpiredResearch } from '@/lib/services/research';
+import { submitBountyResponse } from '@/lib/services/bounties';
 import { getClubBySlug, getUserPrimaryClub } from '@/lib/services/club';
 import {
   usePlayers, useHoldings, usePosts, useLeaderboard,
   useFollowingIds, useFollowerCount, useFollowingCount,
-  useClubVotes, useResearchPosts,
-  qk, invalidateSocialQueries, invalidateResearchQueries,
+  useClubVotes, useResearchPosts, useActiveBounties, useClubSubscription,
+  qk, invalidateResearchQueries,
 } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
+import CommunityHero from '@/components/community/CommunityHero';
+import CommunityBountySection from '@/components/community/CommunityBountySection';
 import CommunityFeedTab from '@/components/community/CommunityFeedTab';
-import CommunityResearchTab from '@/components/community/CommunityResearchTab';
-import CommunityLeaderboardTab from '@/components/community/CommunityLeaderboardTab';
+import CommunitySidebar from '@/components/community/CommunitySidebar';
 import CreatePostModal from '@/components/community/CreatePostModal';
 import CreateResearchModal from '@/components/community/CreateResearchModal';
 import FollowListModal from '@/components/profile/FollowListModal';
-import type { PostWithAuthor, Pos, PostType } from '@/types';
+import type { PostWithAuthor, PostType } from '@/types';
 import SponsorBanner from '@/components/player/detail/SponsorBanner';
 
 // ============================================
-// TYPES
-// ============================================
-
-type MainTab = 'feed' | 'research' | 'ranking';
-
-// ============================================
-// MAIN PAGE
+// MAIN PAGE — Single Scroll Layout
 // ============================================
 
 export default function CommunityPage() {
@@ -54,22 +49,20 @@ export default function CommunityPage() {
   const [clubScope, setClubScope] = useState<'all' | 'myclub'>('all');
 
   // UI State
-  const [mainTab, setMainTab] = useState<MainTab>('feed');
   const [feedMode, setFeedMode] = useState<'all' | 'following'>('all');
   const [createPostOpen, setCreatePostOpen] = useState(false);
   const [createResearchOpen, setCreateResearchOpen] = useState(false);
   const [followListMode, setFollowListMode] = useState<'followers' | 'following' | null>(null);
 
   // Action loading state
-  const [unlockingId, setUnlockingId] = useState<string | null>(null);
-  const [ratingId, setRatingId] = useState<string | null>(null);
   const [postLoading, setPostLoading] = useState(false);
   const [researchLoading, setResearchLoading] = useState(false);
+  const [bountySubmitting, setBountySubmitting] = useState<string | null>(null);
 
-  // User-specific vote tracking (optimistically updated by handlers)
+  // User-specific vote tracking
   const [myPostVotes, setMyPostVotes] = useState<Map<string, number>>(new Map());
 
-  // Subscription tiers for post authors (batch-fetched)
+  // Subscription tiers for post authors
   const [subscriptionMap, setSubscriptionMap] = useState<Map<string, SubscriptionTier>>(new Map());
 
   // ---- Scope-dependent club ID for queries ----
@@ -85,6 +78,8 @@ export default function CommunityPage() {
   const { data: researchPosts = [] } = useResearchPosts(uid);
   const { data: followerCount = 0 } = useFollowerCount(uid);
   const { data: followingCountNum = 0 } = useFollowingCount(uid);
+  const { data: bounties = [] } = useActiveBounties(uid, scopeClubId);
+  const { data: subscription } = useClubSubscription(uid, clubId ?? undefined);
 
   // ---- Derived data ----
   const followingIds = useMemo(() => new Set(followingIdsList), [followingIdsList]);
@@ -99,7 +94,6 @@ export default function CommunityPage() {
     if (!uid) return;
     let cancelled = false;
     async function resolveClub() {
-      // Resolve expired research (fire-and-forget)
       resolveExpiredResearch().catch(err => console.error('[Community] Resolve expired research:', err));
 
       let cId = profile?.favorite_club_id ?? clubId;
@@ -119,21 +113,19 @@ export default function CommunityPage() {
     return () => { cancelled = true; };
   }, [uid, profile]);
 
-  // ---- Load user-specific vote data (after posts load) ----
+  // ---- Load user-specific vote data ----
   useEffect(() => {
     if (!uid || !posts.length) return;
     let cancelled = false;
     async function loadVoteData() {
       const postVotes = await getUserPostVotes(uid!, posts.map(p => p.id));
-      if (!cancelled) {
-        setMyPostVotes(postVotes);
-      }
+      if (!cancelled) setMyPostVotes(postVotes);
     }
     loadVoteData();
     return () => { cancelled = true; };
   }, [uid, posts]);
 
-  // ---- Load subscription tiers for post authors (batch) ----
+  // ---- Load subscription tiers for post authors ----
   useEffect(() => {
     if (!posts.length) return;
     let cancelled = false;
@@ -150,7 +142,6 @@ export default function CommunityPage() {
     const prevVotes = new Map(myPostVotes);
     const oldVote = myPostVotes.get(postId) ?? 0;
 
-    // Optimistic update on posts cache
     queryClient.setQueryData<PostWithAuthor[]>(
       qk.posts.list({ limit: 50, clubId: scopeClubId } as Record<string, unknown>),
       (prev) => prev?.map(p => {
@@ -247,22 +238,6 @@ export default function CommunityPage() {
     }
   }, [uid, clubName, clubId, addToast]);
 
-  const handleFollowToggle = useCallback(async (targetId: string) => {
-    if (!uid) return;
-    const isCurrentlyFollowing = followingIds.has(targetId);
-    try {
-      if (isCurrentlyFollowing) {
-        await unfollowUser(uid, targetId);
-      } else {
-        await followUser(uid, targetId);
-      }
-      invalidateSocialQueries(uid);
-    } catch (err) {
-      console.error('[Community] Follow toggle failed:', err);
-      addToast('Fehler beim Folgen/Entfolgen', 'error');
-    }
-  }, [uid, followingIds, addToast]);
-
   const handleCreateResearch = useCallback(async (params: {
     playerId: string | null;
     title: string;
@@ -301,115 +276,111 @@ export default function CommunityPage() {
     }
   }, [uid, clubName, clubId, addToast]);
 
-  const handleUnlockResearch = useCallback(async (researchId: string) => {
-    if (!uid || unlockingId) return;
-    setUnlockingId(researchId);
+  const handleBountySubmit = useCallback(async (bountyId: string, title: string, content: string) => {
+    if (!uid) return;
+    setBountySubmitting(bountyId);
     try {
-      const result = await unlockResearch(uid, researchId);
+      const result = await submitBountyResponse(uid, bountyId, title, content);
       if (result.success) {
-        invalidateResearchQueries(uid);
+        queryClient.invalidateQueries({ queryKey: ['bounties'] });
+        addToast(t('bountySection.submitted'), 'success');
+      } else {
+        addToast(result.error ?? 'Fehler', 'error');
       }
     } catch (err) {
-      console.error('[Community] Unlock research failed:', err);
-      addToast('Fehler beim Freischalten', 'error');
+      console.error('[Community] Bounty submit failed:', err);
+      addToast('Fehler beim Einreichen', 'error');
     } finally {
-      setUnlockingId(null);
+      setBountySubmitting(null);
     }
-  }, [uid, unlockingId, addToast]);
-
-  const handleRateResearch = useCallback(async (researchId: string, rating: number) => {
-    if (!uid || ratingId) return;
-    setRatingId(researchId);
-    try {
-      const result = await rateResearch(uid, researchId, rating);
-      if (result.success) {
-        invalidateResearchQueries(uid);
-      }
-    } catch (err) {
-      console.error('[Community] Rate research failed:', err);
-      addToast('Fehler beim Bewerten', 'error');
-    } finally {
-      setRatingId(null);
-    }
-  }, [uid, ratingId, addToast]);
-
-  // ---- Tab Config ----
-  const TABS: { id: MainTab; label: string }[] = [
-    { id: 'feed', label: t('feed') },
-    { id: 'research', label: t('research') },
-    { id: 'ranking', label: t('leaderboard') },
-  ];
+  }, [uid, addToast, t]);
 
   if (!user) return null;
 
   return (
-    <div className="max-w-[1200px] mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-black">{t('title')}</h1>
-          <p className="text-sm text-white/50 mt-1">{t('subtitle')}</p>
-        </div>
-        <Button variant="gold" size="sm" onClick={() => setCreatePostOpen(true)}>
-          <Plus className="w-4 h-4" />
-          {t('post')}
-        </Button>
+    <div className="max-w-[1200px] mx-auto space-y-6">
+      {/* [A] Hero + Quick Actions */}
+      <div>
+        <h1 className="text-2xl md:text-3xl font-black mb-1">{t('title')}</h1>
+        <p className="text-sm text-white/50 mb-4">{t('subtitle')}</p>
+        <CommunityHero
+          onCreatePost={() => { setCreatePostOpen(true); }}
+          onCreateRumor={() => { setCreatePostOpen(true); /* CreatePostModal handles postType selection */ }}
+          onCreateResearch={() => setCreateResearchOpen(true)}
+        />
       </div>
 
-      {/* Club Scope Toggle */}
-      {activeClub && (
-        <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl w-fit">
-          <button
-            onClick={() => setClubScope('all')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              clubScope === 'all' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
-            }`}
-          >
-            {t('allClubs')}
-          </button>
-          <button
-            onClick={() => setClubScope('myclub')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              clubScope === 'myclub' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
-            }`}
-          >
-            {activeClub.short ?? t('myClub')}
-          </button>
-        </div>
-      )}
+      {/* [B] Club Scope Toggle + Network Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          {activeClub && (
+            <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl">
+              <button
+                onClick={() => setClubScope('all')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[36px] ${
+                  clubScope === 'all' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
+                }`}
+              >
+                {t('allClubs')}
+              </button>
+              <button
+                onClick={() => setClubScope('myclub')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[36px] ${
+                  clubScope === 'myclub' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
+                }`}
+              >
+                {activeClub.short ?? t('myClub')}
+              </button>
+            </div>
+          )}
 
-      {/* Network Bar */}
-      <div className="flex items-center justify-between py-2 mb-2">
+          {/* Alle / Folge ich Toggle */}
+          <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl">
+            {(['all', 'following'] as const).map(mode => (
+              <button
+                key={mode}
+                onClick={() => setFeedMode(mode)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[36px] ${
+                  feedMode === mode ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
+                }`}
+              >
+                {mode === 'all' ? t('filterAll') : t('filterFollowing')}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Network Bar */}
         <div className="flex items-center gap-3">
           <Users className="w-4 h-4 text-sky-400/60" />
           <button
             onClick={() => setFollowListMode('followers')}
-            className="text-xs text-white/40 hover:text-white/70 transition-colors"
+            className="text-xs text-white/40 hover:text-white/70 transition-colors min-h-[44px] flex items-center"
           >
-            <span className="font-bold text-white/60">{followerCount}</span> Follower
+            <span className="font-bold text-white/60">{followerCount}</span>&nbsp;Follower
           </button>
           <span className="text-white/10">·</span>
           <button
             onClick={() => setFollowListMode('following')}
-            className="text-xs text-white/40 hover:text-white/70 transition-colors"
+            className="text-xs text-white/40 hover:text-white/70 transition-colors min-h-[44px] flex items-center"
           >
-            <span className="font-bold text-white/60">{followingCountNum}</span> Folge ich
+            <span className="font-bold text-white/60">{followingCountNum}</span>&nbsp;{t('filterFollowing')}
           </button>
         </div>
-        <button
-          onClick={() => setFollowListMode('following')}
-          className="text-[10px] font-bold text-[#FFD700]/60 hover:text-[#FFD700] transition-colors"
-        >
-          {tc('manage')}
-        </button>
       </div>
 
-      {/* Tabs */}
-      <TabBar tabs={TABS} activeTab={mainTab} onChange={(id) => setMainTab(id as MainTab)} />
+      {/* [C] Bounties Section */}
+      <CommunityBountySection
+        bounties={bounties}
+        userId={user.id}
+        onSubmit={handleBountySubmit}
+        submitting={bountySubmitting}
+        userTier={subscription?.tier}
+      />
 
       {/* Loading / Error */}
       {postsLoading && (
-        <div className="space-y-4 mt-4">
+        <div className="space-y-4">
           <div className="flex items-center gap-3">
             <Skeleton className="flex-1 h-10 rounded-xl" />
             <Skeleton className="h-10 w-24 rounded-lg" />
@@ -435,72 +406,58 @@ export default function CommunityPage() {
         <ErrorState onRetry={() => queryClient.invalidateQueries({ queryKey: ['posts'] })} />
       )}
 
+      {/* [D] Feed + Sidebar Grid */}
       {!postsLoading && !postsError && (
         <>
-          {/* Feed (with Alle / Folge ich toggle) */}
-          <TabPanel activeTab={mainTab} id="feed">
-            <div className="flex items-center gap-2 mb-4">
-              {(['all', 'following'] as const).map(mode => (
-                <button
-                  key={mode}
-                  onClick={() => setFeedMode(mode)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                    feedMode === mode
-                      ? 'bg-[#FFD700]/20 text-[#FFD700] border border-[#FFD700]/40'
-                      : 'bg-white/5 text-white/50 border border-white/10 hover:text-white'
-                  }`}
-                >
-                  {mode === 'all' ? t('filterAll') : t('filterFollowing')}
-                </button>
-              ))}
+          <SponsorBanner placement="community_feed" className="mb-0" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* [D.1] Feed */}
+            <div className="lg:col-span-2">
+              <CommunityFeedTab
+                posts={posts}
+                myPostVotes={myPostVotes}
+                ownedPlayerIds={ownedPlayerIds}
+                followingIds={followingIds}
+                userId={user.id}
+                isFollowingTab={feedMode === 'following'}
+                onVote={handleVotePost}
+                onDelete={handleDeletePost}
+                onCreatePost={() => setCreatePostOpen(true)}
+                onSwitchToLeaderboard={() => {/* scroll to sidebar or link */}}
+                isClubAdmin={isClubAdmin}
+                onAdminDelete={handleAdminDeletePost}
+                onTogglePin={handleTogglePin}
+                subscriptionMap={subscriptionMap}
+              />
             </div>
-            <SponsorBanner placement="community_feed" className="mb-3" />
-            <CommunityFeedTab
-              posts={posts}
-              myPostVotes={myPostVotes}
-              ownedPlayerIds={ownedPlayerIds}
-              followingIds={followingIds}
+
+            {/* [D.2] Sidebar — hidden on mobile, shown as cards below feed */}
+            <div className="hidden lg:block">
+              <CommunitySidebar
+                leaderboard={leaderboard}
+                researchPosts={researchPosts}
+                clubVotes={clubVotes}
+                userId={user.id}
+                onCreateResearch={() => setCreateResearchOpen(true)}
+              />
+            </div>
+          </div>
+
+          {/* Mobile: Sidebar content below feed */}
+          <div className="lg:hidden">
+            <CommunitySidebar
               leaderboard={leaderboard}
+              researchPosts={researchPosts}
               clubVotes={clubVotes}
               userId={user.id}
-              isFollowingTab={feedMode === 'following'}
-              onVote={handleVotePost}
-              onDelete={handleDeletePost}
-              onCreatePost={() => setCreatePostOpen(true)}
-              onSwitchToLeaderboard={() => setMainTab('ranking')}
-              isClubAdmin={isClubAdmin}
-              onAdminDelete={handleAdminDeletePost}
-              onTogglePin={handleTogglePin}
-              subscriptionMap={subscriptionMap}
-            />
-          </TabPanel>
-
-          {/* Research */}
-          <TabPanel activeTab={mainTab} id="research">
-            <SponsorBanner placement="community_research" className="mb-3" />
-            <CommunityResearchTab
-              researchPosts={researchPosts}
               onCreateResearch={() => setCreateResearchOpen(true)}
-              onUnlock={handleUnlockResearch}
-              unlockingId={unlockingId}
-              onRate={handleRateResearch}
-              ratingId={ratingId}
             />
-          </TabPanel>
-
-          {/* Ranking */}
-          <TabPanel activeTab={mainTab} id="ranking">
-            <CommunityLeaderboardTab
-              leaderboard={leaderboard}
-              followingIds={followingIds}
-              onFollowToggle={handleFollowToggle}
-              userId={user.id}
-            />
-          </TabPanel>
+          </div>
         </>
       )}
 
-      {/* Create Post Modal */}
+      {/* Modals */}
       <CreatePostModal
         open={createPostOpen}
         onClose={() => setCreatePostOpen(false)}
@@ -509,7 +466,6 @@ export default function CommunityPage() {
         loading={postLoading}
       />
 
-      {/* Create Research Modal */}
       <CreateResearchModal
         open={createResearchOpen}
         onClose={() => setCreateResearchOpen(false)}
@@ -518,7 +474,6 @@ export default function CommunityPage() {
         loading={researchLoading}
       />
 
-      {/* Follow List Modal */}
       {followListMode && user && (
         <FollowListModal
           userId={user.id}

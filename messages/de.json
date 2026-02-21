@@ -425,8 +425,8 @@
     "bestandContractMonths": "{months}M"
   },
   "community": {
-    "title": "Report",
-    "subtitle": "Vernetze dich mit anderen Scouts",
+    "title": "Community",
+    "subtitle": "Vernetze dich mit anderen Scouts und verdiene $SCOUT",
     "feed": "Feed",
     "research": "Research",
     "rumors": "Gerüchte",
@@ -445,7 +445,39 @@
     "postRumor": "Gerücht posten",
     "rumorBadge": "Gerücht",
     "votesTitle": "Abstimmungen & Umfragen",
-    "bountiesTitle": "Aufträge"
+    "bountiesTitle": "Aufträge",
+    "hero": {
+      "postLabel": "Post schreiben",
+      "postDesc": "Teile deine Meinung mit der Community",
+      "rumorLabel": "Gerücht teilen",
+      "rumorDesc": "Insider-Infos und Transfergerüchte",
+      "researchLabel": "Analyse schreiben",
+      "researchDesc": "Verdiene $SCOUT mit Premium-Berichten"
+    },
+    "bountySection": {
+      "title": "Club-Aufträge",
+      "open": "offen",
+      "submitted": "Einreichung erfolgreich!"
+    },
+    "sidebar": {
+      "topResearch": "Research Highlights",
+      "showAll": "Alle",
+      "free": "Kostenlos",
+      "writeReport": "Bericht schreiben",
+      "activeVotes": "Laufende Votes"
+    },
+    "feed": {
+      "searchPlaceholder": "Suche Posts, Spieler, Tags...",
+      "sortNew": "Neu",
+      "sortTrending": "Beliebt",
+      "posts": "Beiträge",
+      "emptyFollowing": "Folge Scouts um deren Posts hier zu sehen",
+      "discoverScouts": "Top Scouts entdecken",
+      "noResults": "Keine Ergebnisse für",
+      "clearSearch": "Suche löschen",
+      "noPosts": "Noch keine Posts",
+      "writeFirst": "Ersten Post schreiben"
+    }
   },
   "profile": {
     "title": "Profil",

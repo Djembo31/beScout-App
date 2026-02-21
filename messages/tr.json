@@ -425,8 +425,8 @@
     "bestandContractMonths": "{months}A"
   },
   "community": {
-    "title": "Rapor",
-    "subtitle": "Diğer izcilerle bağlantı kur",
+    "title": "Topluluk",
+    "subtitle": "Diğer izcilerle bağlantı kur ve $SCOUT kazan",
     "feed": "Akış",
     "research": "Araştırma",
     "rumors": "Söylentiler",
@@ -445,7 +445,39 @@
     "postRumor": "Söylenti paylaş",
     "rumorBadge": "Söylenti",
     "votesTitle": "Oylamalar & Anketler",
-    "bountiesTitle": "Görevler"
+    "bountiesTitle": "Görevler",
+    "hero": {
+      "postLabel": "Gönderi yaz",
+      "postDesc": "Topluluğla fikrini paylaş",
+      "rumorLabel": "Söylenti paylaş",
+      "rumorDesc": "İçeriden bilgiler ve transfer söylentileri",
+      "researchLabel": "Analiz yaz",
+      "researchDesc": "Premium raporlarla $SCOUT kazan"
+    },
+    "bountySection": {
+      "title": "Kulüp Görevleri",
+      "open": "açık",
+      "submitted": "Başarıyla gönderildi!"
+    },
+    "sidebar": {
+      "topResearch": "Araştırma Öne Çıkanlar",
+      "showAll": "Tümü",
+      "free": "Ücretsiz",
+      "writeReport": "Rapor yaz",
+      "activeVotes": "Aktif Oylamalar"
+    },
+    "feed": {
+      "searchPlaceholder": "Gönderi, oyuncu, etiket ara...",
+      "sortNew": "Yeni",
+      "sortTrending": "Popüler",
+      "posts": "Gönderi",
+      "emptyFollowing": "Gönderilerini görmek için izcileri takip et",
+      "discoverScouts": "Top İzcileri keşfet",
+      "noResults": "Sonuç bulunamadı:",
+      "clearSearch": "Aramayı temizle",
+      "noPosts": "Henüz gönderi yok",
+      "writeFirst": "İlk gönderiyi yaz"
+    }
   },
   "profile": {
     "title": "Profil",
