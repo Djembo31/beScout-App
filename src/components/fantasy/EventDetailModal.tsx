@@ -9,19 +9,19 @@ import {
   Briefcase, Coins, Layers, Zap,
   Plus, Save, Eye, Sparkles, Building2,
   MessageCircle, X, RefreshCw, Heart,
-  ChevronLeft, BarChart3, History, Swords,
+  ChevronLeft, BarChart3, History, Swords, ShoppingCart,
 } from 'lucide-react';
 import { getScoreTier, SCORE_TIER_CONFIG, calculateSynergyPreview } from '@/types';
 import type { SynergyDetail } from '@/types';
 import { Card, Button, Chip } from '@/components/ui';
-import { PositionBadge, PlayerIdentity, PlayerPhoto, getL5Color } from '@/components/player';
+import { PositionBadge, PlayerIdentity, getL5Color } from '@/components/player';
 import { useUser } from '@/components/providers/AuthProvider';
 import { centsToBsd } from '@/lib/services/players';
 import { getLineup, removeLineup, getEventParticipants, getEventParticipantCount, getLineupWithPlayers } from '@/lib/services/lineups';
 import type { LineupWithPlayers } from '@/lib/services/lineups';
 import { resetEvent, getEventLeaderboard } from '@/lib/services/scoring';
 import type { LeaderboardEntry } from '@/lib/services/scoring';
-import { fmtScout } from '@/lib/utils';
+import { cn, fmtScout } from '@/lib/utils';
 import type { Pos } from '@/types';
 import type { FantasyEvent, EventDetailTab, LineupPlayer, UserDpcHolding, LineupPreset } from './types';
 import { FORMATIONS_6ER, PRESET_KEY } from './constants';
@@ -1487,103 +1487,121 @@ export const EventDetailModal = ({
       </div>
 
       {/* Player Picker Modal — Enhanced with Search, Sort, Stats, Status */}
-      {showPlayerPicker && (
-        <>
-          <div className="fixed inset-0 bg-black/60 z-[60]" onClick={() => setShowPlayerPicker(null)} />
-          <div className="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[calc(100%-2rem)] md:max-w-md bg-[#0a0a0a] border-t md:border border-white/10 rounded-t-3xl md:rounded-xl shadow-2xl z-[60] max-h-[85vh] md:max-h-[70vh] overflow-hidden flex flex-col">
-            {/* Swipe Handle */}
-            <div className="flex justify-center pt-2 pb-1 md:hidden">
-              <div className="w-10 h-1 rounded-full bg-white/20" />
-            </div>
-            {/* Header — compact */}
-            <div className="px-4 pt-2 pb-3 border-b border-white/10">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-sm">Spieler wählen</span>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${getPosBorderColor(showPlayerPicker.position)} bg-white/5`}>{showPlayerPicker.position}</span>
-                </div>
-                <button onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }} className="p-1.5 hover:bg-white/10 rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              {/* Search + Sort — single row */}
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
-                  <input
-                    type="text"
-                    value={pickerSearch}
-                    onChange={(e) => setPickerSearch(e.target.value)}
-                    placeholder="Suche..."
-                    className="w-full pl-8 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm focus:outline-none focus:border-[#FFD700]/40"
-                  />
-                </div>
-                <select
-                  value={pickerSort}
-                  onChange={(e) => setPickerSort(e.target.value as 'l5' | 'dpc' | 'name')}
-                  className="px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-xs min-h-[44px]"
-                >
-                  <option value="l5">L5 Score</option>
-                  <option value="dpc">DPC</option>
-                  <option value="name">A-Z</option>
-                </select>
-              </div>
-            </div>
-            {/* Player List */}
-            <div className="flex-1 overflow-y-auto p-2 space-y-1">
-              {getAvailablePlayersForPosition(showPlayerPicker.position).map(player => {
-                const l5Color = getL5Color(player.perfL5);
-                const l5Bg = player.perfL5 >= 70 ? 'bg-[#22C55E]' : player.perfL5 >= 50 ? 'bg-[#FFD700]' : player.perfL5 >= 30 ? 'bg-orange-400' : 'bg-red-400';
-                const l5Pct = Math.min(100, Math.max(5, player.perfL5));
-                return (
+      {showPlayerPicker && (() => {
+        const POS_LABEL: Record<string, string> = { GK: 'Torwart', DEF: 'Verteidiger', MID: 'Mittelfeldspieler', ATT: 'Angreifer' };
+        const posColor = getPosAccentColor(showPlayerPicker.position);
+        const availablePlayers = getAvailablePlayersForPosition(showPlayerPicker.position);
+        return (
+          <>
+            {/* Desktop: backdrop + centered modal */}
+            <div className="hidden md:block fixed inset-0 bg-black/60 z-[60]" onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }} />
+            {/* Mobile: full-screen | Desktop: centered modal */}
+            <div className="fixed inset-0 z-[60] bg-[#0a0a0a] flex flex-col md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[calc(100%-2rem)] md:max-w-md md:max-h-[70vh] md:rounded-xl md:border md:border-white/10 md:shadow-2xl md:overflow-hidden">
+              {/* ── Sticky Header ── */}
+              <div className="shrink-0 bg-[#0a0a0a] border-b border-white/10">
+                {/* Top bar: Back + Title + Count + Sort */}
+                <div className="flex items-center gap-3 px-4 pt-3 pb-2">
                   <button
-                    key={player.id}
-                    onClick={() => handleSelectPlayer(player.id, showPlayerPicker.position, showPlayerPicker.slot)}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl border transition-all min-h-[56px] ${player.status === 'injured' ? 'bg-red-500/5 border-red-500/20' :
-                      player.status === 'suspended' ? 'bg-orange-500/5 border-orange-500/20' :
-                        'bg-white/[0.02] border-white/[0.06] active:bg-white/[0.06]'
-                      }`}
+                    onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }}
+                    className="p-1.5 -ml-1.5 rounded-lg hover:bg-white/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                   >
-                    {/* L5 Bar — visual score indicator */}
-                    <div className="w-1 h-8 rounded-full bg-white/10 overflow-hidden shrink-0">
-                      <div className={`w-full rounded-full ${l5Bg}`} style={{ height: `${l5Pct}%`, marginTop: `${100 - l5Pct}%` }} />
-                    </div>
-                    {/* Photo + Name */}
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <PlayerPhoto first={player.first} last={player.last} pos={player.pos as Pos} imageUrl={player.imageUrl} size={36} />
-                      <div className="min-w-0 flex-1">
-                        <div className="font-bold text-sm truncate">{player.last}</div>
-                        <div className="flex items-center gap-1.5 text-[10px] text-white/40">
-                          <span>{player.club}</span>
-                          <span className={player.dpcAvailable < player.dpcOwned ? 'text-yellow-400' : ''}>{player.dpcAvailable}/{player.dpcOwned} DPC</span>
-                        </div>
-                      </div>
-                    </div>
-                    {/* Stats — right side */}
-                    <div className="flex items-center gap-3 shrink-0">
-                      {/* Key stats pills */}
-                      <div className="flex gap-1">
-                        {player.goals > 0 && <span className="text-[10px] font-mono bg-white/5 px-1 py-0.5 rounded text-white/60">{player.goals}T</span>}
-                        {player.assists > 0 && <span className="text-[10px] font-mono bg-white/5 px-1 py-0.5 rounded text-white/60">{player.assists}A</span>}
-                        <span className="text-[10px] font-mono bg-white/5 px-1 py-0.5 rounded text-white/40">{player.matches}S</span>
-                      </div>
-                      {/* L5 Score — prominent */}
-                      <div className={`font-mono font-black text-base w-8 text-right ${l5Color}`}>
-                        {player.perfL5}
-                      </div>
-                    </div>
+                    <X className="w-5 h-5 text-white/60" />
                   </button>
-                );
-              })}
-              {getAvailablePlayersForPosition(showPlayerPicker.position).length === 0 && (
-                <div className="text-center py-8 text-white/40 text-sm">
-                  Keine verfügbaren Spieler
+                  <div className="flex-1">
+                    <h3 className="font-black text-base">
+                      <span style={{ color: posColor }}>{POS_LABEL[showPlayerPicker.position] || showPlayerPicker.position}</span> wählen
+                    </h3>
+                    <div className="text-[10px] text-white/40">{availablePlayers.length} verfügbar</div>
+                  </div>
+                  {/* Sort pills */}
+                  <div className="flex items-center gap-0.5">
+                    {(['l5', 'name'] as const).map(s => (
+                      <button
+                        key={s}
+                        onClick={() => setPickerSort(s === 'l5' ? 'l5' : 'name')}
+                        className={cn('px-2 py-1 rounded text-[10px] font-bold min-h-[44px]',
+                          pickerSort === s ? 'bg-[#FFD700]/15 text-[#FFD700]' : 'text-white/30'
+                        )}
+                      >{s === 'l5' ? 'L5' : 'A-Z'}</button>
+                    ))}
+                  </div>
                 </div>
-              )}
+                {/* Search */}
+                <div className="px-4 pb-2.5">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+                    <input
+                      type="text"
+                      placeholder="Spieler suchen..."
+                      value={pickerSearch}
+                      onChange={e => setPickerSearch(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Scrollable Player List ── */}
+              <div className="flex-1 overflow-y-auto overscroll-contain">
+                {availablePlayers.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 px-6">
+                    <PositionBadge pos={showPlayerPicker.position as Pos} size="lg" />
+                    <div className="text-sm text-white/30 mt-3 text-center">
+                      Keine {POS_LABEL[showPlayerPicker.position] || 'Spieler'} verfügbar
+                    </div>
+                    <Link
+                      href="/market?tab=kaufen"
+                      onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }}
+                      className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-[#FFD700]/15 text-[#FFD700] text-xs font-bold rounded-xl hover:bg-[#FFD700]/25 transition-all"
+                    >
+                      <ShoppingCart className="w-3.5 h-3.5" />
+                      Spieler kaufen
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-white/[0.04]">
+                    {availablePlayers.map(player => {
+                      const scoreColor = player.perfL5 >= 70 ? 'text-[#22C55E]' : player.perfL5 >= 50 ? 'text-white' : 'text-red-300';
+                      return (
+                        <button
+                          key={player.id}
+                          onClick={() => handleSelectPlayer(player.id, showPlayerPicker.position, showPlayerPicker.slot)}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-white/[0.06] transition-colors text-left"
+                        >
+                          {/* Identity */}
+                          <PlayerIdentity
+                            player={{ first: player.first, last: player.last, pos: player.pos as Pos, status: player.status, club: player.club, ticket: 0, age: 0, imageUrl: player.imageUrl }}
+                            size="md"
+                            className="flex-1 min-w-0"
+                          />
+                          {/* Stats + Score */}
+                          <div className="shrink-0 flex items-center gap-2.5">
+                            {/* Compact stats */}
+                            <div className="flex flex-col items-end gap-0.5">
+                              <div className="flex gap-1">
+                                {player.goals > 0 && <span className="text-[9px] font-mono bg-white/5 px-1 py-0.5 rounded text-white/50">{player.goals}T</span>}
+                                {player.assists > 0 && <span className="text-[9px] font-mono bg-white/5 px-1 py-0.5 rounded text-white/50">{player.assists}A</span>}
+                              </div>
+                              <span className="text-[9px] text-white/25 font-mono">{player.dpcAvailable}/{player.dpcOwned} DPC</span>
+                            </div>
+                            {/* L5 Score — prominent */}
+                            <div className="w-10 text-right">
+                              <div className={cn('text-lg font-black font-mono leading-none', scoreColor)}>
+                                {player.perfL5}
+                              </div>
+                              <div className="text-[9px] text-white/25 font-mono">L5</div>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        );
+      })()}
     </>
   );
 };
