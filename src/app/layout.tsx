@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { Providers } from '@/components/providers/Providers';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
+import { CookieConsent } from '@/components/legal/CookieConsent';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -44,6 +45,7 @@ export default async function RootLayout({
           <Providers>
             {children}
             <InstallPrompt />
+            <CookieConsent />
           </Providers>
         </NextIntlClientProvider>
         <Script id="sw-register" strategy="afterInteractive">{`

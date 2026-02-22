@@ -36,6 +36,7 @@ import { qk } from '@/lib/queries/keys';
 import dynamic from 'next/dynamic';
 import type { Player, DbIpo } from '@/types';
 
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 const ManagerKaderTab = dynamic(() => import('@/components/manager/ManagerKaderTab'), { ssr: false });
 const ManagerBestandTab = dynamic(() => import('@/components/manager/ManagerBestandTab'), { ssr: false });
@@ -370,6 +371,9 @@ export default function MarketPage() {
 
       {/* 4 Tabs */}
       <TabBar tabs={tabs} activeTab={tab} onChange={(id) => setTab(id as MarketTab)} />
+
+      {/* Trading Disclaimer */}
+      <TradingDisclaimer variant="card" />
 
       {/* ━━━ SPONSOR: MARKET TOP ━━━ */}
       <SponsorBanner placement="market_top" />

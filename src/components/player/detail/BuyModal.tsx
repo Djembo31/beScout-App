@@ -11,6 +11,7 @@ import {
   TradingToasts,
   BuyConfirmation,
 } from './trading';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 
 interface BuyModalProps {
   open: boolean;
@@ -275,6 +276,7 @@ export default function BuyModal({
               )}
             </>
           )}
+        <TradingDisclaimer />
       </div>
     </Modal>
   );

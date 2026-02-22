@@ -22,7 +22,7 @@ const FEATURED: AchievementDef[] = [
   { key: '10_trades', label: 'Aktiver Händler', description: '10 Trades abgeschlossen', icon: '📊', category: 'trading', featured: true },
   { key: '100_trades', label: 'Trading-Legende', description: '100 Trades abgeschlossen', icon: '👑', category: 'trading', featured: true },
   { key: 'portfolio_10000', label: 'Profi-Sammler', description: 'Kader über 10.000 $SCOUT', icon: '🏦', category: 'trading', featured: true },
-  { key: 'smart_money', label: 'Smart Money', description: '5 Profit-Trades in Folge', icon: '🧠', category: 'trading', featured: true },
+  { key: 'smart_money', label: 'Smart Money', description: '5 erfolgreiche Trades in Folge', icon: '🧠', category: 'trading', featured: true },
   // Manager (5)
   { key: 'first_event', label: 'Debüt', description: 'Erstes Fantasy-Event gespielt', icon: '⚽', category: 'manager', featured: true },
   { key: '20_events', label: 'Veteran', description: '20 Fantasy-Events gespielt', icon: '🏆', category: 'manager', featured: true },

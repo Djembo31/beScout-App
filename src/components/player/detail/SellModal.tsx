@@ -6,6 +6,7 @@ import { Modal, Card, Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { formatScout } from '@/lib/services/wallet';
 import type { Player, DbOrder } from '@/types';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 
 interface SellModalProps {
   open: boolean;
@@ -57,13 +58,16 @@ export default function SellModal({
       title="Verkaufen"
       subtitle={`${player.first} ${player.last}`}
       footer={availableToSell > 0 ? (
-        <Button variant="gold" fullWidth size="lg"
-          onClick={handleSell}
-          disabled={selling || !sellPriceBsd || Number(sellPriceBsd) <= 0}
-        >
-          {selling ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-          {selling ? 'Wird gelistet...' : `Für ${showFee ? fmtScout(Number(sellPriceBsd)) : '...'} $SCOUT listen`}
-        </Button>
+        <div>
+          <Button variant="gold" fullWidth size="lg"
+            onClick={handleSell}
+            disabled={selling || !sellPriceBsd || Number(sellPriceBsd) <= 0}
+          >
+            {selling ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {selling ? 'Wird gelistet...' : `Für ${showFee ? fmtScout(Number(sellPriceBsd)) : '...'} $SCOUT listen`}
+          </Button>
+          <TradingDisclaimer />
+        </div>
       ) : undefined}
     >
       <div className="space-y-4">

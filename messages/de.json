@@ -857,7 +857,7 @@
       "portfolio_10000": "Profi-Sammler",
       "portfolio_10000Desc": "Kader über 10.000 $SCOUT",
       "smart_money": "Smart Money",
-      "smart_moneyDesc": "5 Profit-Trades in Folge",
+      "smart_moneyDesc": "5 erfolgreiche Trades in Folge",
       "first_event": "Debüt",
       "first_eventDesc": "Erstes Fantasy-Event gespielt",
       "20_events": "Veteran",
@@ -1091,6 +1091,15 @@
     "errorEval": "Alle 5 Dimensionen + Texte ausfüllen",
     "publishScouting": "Scouting-Report veröffentlichen",
     "publishResearch": "Bericht veröffentlichen"
+  },
+  "legal": {
+    "cookieText": "Diese Seite nutzt Cookies für Funktionalität und Analyse.",
+    "cookieAccept": "Akzeptieren",
+    "cookieEssential": "Nur notwendige",
+    "cookiePrivacy": "Datenschutz",
+    "cookieImprint": "Impressum",
+    "tradingDisclaimer": "$SCOUT sind Plattform-Credits zum Zugang zu Plattform-Features. Kein Finanzprodukt, keine garantierten Erträge.",
+    "tradingDisclaimerShort": "Plattform-Credits, kein Finanzprodukt."
   },
   "search": {
     "placeholder": "Spieler, Clubs, Nutzer suchen...",

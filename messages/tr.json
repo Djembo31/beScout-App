@@ -857,7 +857,7 @@
       "portfolio_10000": "Profesyonel Koleksiyoncu",
       "portfolio_10000Desc": "10.000 $SCOUT üstü kadro",
       "smart_money": "Akıllı Para",
-      "smart_moneyDesc": "Arka arkaya 5 kârlı ticaret",
+      "smart_moneyDesc": "Arka arkaya 5 başarılı işlem",
       "first_event": "İlk Maç",
       "first_eventDesc": "İlk fantezi etkinlik oynandı",
       "20_events": "Tecrübeli",
@@ -1091,6 +1091,15 @@
     "errorEval": "Tüm 5 boyut + metinleri doldurun",
     "publishScouting": "Keşif Raporunu yayınla",
     "publishResearch": "Raporu yayınla"
+  },
+  "legal": {
+    "cookieText": "Bu site işlevsellik ve analiz için çerezler kullanmaktadır.",
+    "cookieAccept": "Kabul Et",
+    "cookieEssential": "Sadece gerekli",
+    "cookiePrivacy": "Gizlilik Politikası",
+    "cookieImprint": "Künye",
+    "tradingDisclaimer": "$SCOUT, platform özelliklerine erişim için kullanılan platform kredileridir. Finansal ürün değildir, garantili getiri yoktur.",
+    "tradingDisclaimerShort": "Platform kredileri, finansal ürün değildir."
   },
   "search": {
     "placeholder": "Oyuncu, kulüp, kullanıcı ara...",

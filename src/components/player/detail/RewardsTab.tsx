@@ -4,6 +4,7 @@ import React from 'react';
 import { TrendingUp, Trophy, Zap, Star, Info } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { SUCCESS_FEE_TIERS, getSuccessFeeTier } from '@/components/player/PlayerRow';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { centsToBsd } from '@/lib/services/players';
 import { fmtScout } from '@/lib/utils';
 import type { Player } from '@/types';
@@ -134,7 +135,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                   </div>
                   {isFuture && roi > 1 && (
                     <div className="text-[10px] font-mono text-[#22C55E]/70">
-                      x{roi >= 10 ? Math.round(roi) : roi.toFixed(1)} ROI
+                      x{roi >= 10 ? Math.round(roi) : roi.toFixed(1)} Bonus
                     </div>
                   )}
                   {isActive && (
@@ -180,6 +181,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
             <Info className="w-3 h-3 mt-0.5 shrink-0" />
             <span>Erfolgsbonus = Belohnung vom Verein bei Marktwert-Wachstum. Zusätzlich zu Trading-Gewinnen und PBT-Ausschüttung.</span>
           </div>
+          <TradingDisclaimer className="mt-3" />
         </Card>
       )}
     </div>

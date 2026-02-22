@@ -48,6 +48,7 @@ import {
   LiquidationAlert,
   SponsorBanner,
 } from '@/components/player/detail';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import BuyModal from '@/components/player/detail/BuyModal';
 import SellModal from '@/components/player/detail/SellModal';
 import DpcMasteryCard from '@/components/player/detail/DpcMasteryCard';
@@ -250,6 +251,8 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         )}
 
         {tab === 'markt' && (
+          <>
+          <TradingDisclaimer variant="card" className="mb-4" />
           <MarktTab
             player={player}
             trades={trades}
@@ -264,6 +267,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             acceptingBidId={trading.acceptingBidId}
             onOpenOfferModal={trading.openOfferModal}
           />
+          </>
         )}
 
         {tab === 'rewards' && (

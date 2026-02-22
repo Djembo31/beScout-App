@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Modal, Button } from '@/components/ui';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 
 interface OfferModalProps {
   open: boolean;
@@ -27,13 +28,16 @@ export default function OfferModal({
       title={t('offer.title')}
       subtitle={t('offer.subtitle')}
       footer={
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={onClose} className="flex-1">
-            {t('offer.cancel')}
-          </Button>
-          <Button variant="gold" onClick={onSubmit} disabled={!offerPrice || offerLoading} className="flex-1">
-            {offerLoading ? t('offer.sending') : t('offer.send')}
-          </Button>
+        <div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClose} className="flex-1">
+              {t('offer.cancel')}
+            </Button>
+            <Button variant="gold" onClick={onSubmit} disabled={!offerPrice || offerLoading} className="flex-1">
+              {offerLoading ? t('offer.sending') : t('offer.send')}
+            </Button>
+          </div>
+          <TradingDisclaimer />
         </div>
       }
     >
