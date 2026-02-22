@@ -2,20 +2,19 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Trophy, Vote, BadgeCheck, FileText, Plus, Star, Shield, Target } from 'lucide-react';
+import { Trophy, FileText, Plus, Star } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getRang } from '@/lib/gamification';
-import type { LeaderboardUser, DbClubVote, ResearchPostWithAuthor, TopScout } from '@/types';
+import type { LeaderboardUser, ResearchPostWithAuthor, TopScout } from '@/types';
 import { useTranslations } from 'next-intl';
 import { useGlobalTopScouts } from '@/lib/queries/scouting';
 
 interface CommunitySidebarProps {
   leaderboard: LeaderboardUser[];
   researchPosts: ResearchPostWithAuthor[];
-  clubVotes: DbClubVote[];
   userId: string;
   onCreateResearch: () => void;
 }
@@ -29,13 +28,11 @@ const callColor: Record<string, string> = {
 export default function CommunitySidebar({
   leaderboard,
   researchPosts,
-  clubVotes,
   userId,
   onCreateResearch,
 }: CommunitySidebarProps) {
   const t = useTranslations('community');
   const tg = useTranslations('gamification');
-  const activeVotes = clubVotes.filter(v => v.status === 'active');
   const topResearch = researchPosts.slice(0, 3);
   const { data: globalScouts = [] } = useGlobalTopScouts(5);
 
@@ -135,28 +132,6 @@ export default function CommunitySidebar({
         </div>
       </Card>
 
-      {/* Active Votes */}
-      {activeVotes.length > 0 && (
-        <Card className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Vote className="w-4 h-4 text-purple-400" />
-              <span className="font-bold text-sm">{t('sidebar.activeVotes')}</span>
-            </div>
-          </div>
-          <div className="space-y-2">
-            {activeVotes.slice(0, 3).map(v => (
-              <div
-                key={v.id}
-                className="w-full text-left p-2 rounded-lg bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
-              >
-                <div className="text-sm font-medium line-clamp-1">{v.question}</div>
-                <div className="text-[10px] text-white/40 mt-0.5">{v.total_votes} Stimmen</div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
     </div>
   );
 }

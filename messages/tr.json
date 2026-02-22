@@ -115,8 +115,7 @@
     "home": "Ana Sayfa",
     "manager": "Pazar",
     "fantasy": "Maç Günü",
-    "report": "Topluluk",
-    "profile": "Profil",
+    "scouting": "Scouting",
     "club": "Kulüp",
     "airdrop": "Airdrop",
     "admin": "Yönetici",
@@ -446,6 +445,19 @@
     "rumorBadge": "Söylenti",
     "votesTitle": "Oylamalar & Anketler",
     "bountiesTitle": "Görevler",
+    "scoutingZone": {
+      "title": "Scouting Zone",
+      "subtitle": "Analizler, söylentiler, görevler ve daha fazlası"
+    },
+    "filters": {
+      "all": "Tümü",
+      "posts": "Gönderiler",
+      "rumors": "Söylentiler",
+      "research": "Raporlar",
+      "bounties": "Görevler",
+      "votes": "Oylamalar",
+      "news": "Haberler"
+    },
     "hero": {
       "postLabel": "Gönderi yaz",
       "postDesc": "Topluluğla fikrini paylaş",
@@ -453,12 +465,31 @@
       "rumorDesc": "İçeriden bilgiler ve transfer söylentileri",
       "researchLabel": "Analiz yaz",
       "researchDesc": "Premium raporlarla $SCOUT kazan",
-      "researchLocked": "Bronz II'den itibaren"
+      "researchLocked": "Bronz II'den itibaren",
+      "bountyLabel": "Görev oluştur",
+      "bountyDesc": "İzcileri çalışmaları için ödüllendir",
+      "voteLabel": "Oylama başlat",
+      "voteDesc": "Taraftarlara fikirlerini sor"
     },
     "bountySection": {
       "title": "Kulüp Görevleri",
       "open": "açık",
       "submitted": "Başarıyla gönderildi!"
+    },
+    "createBounty": {
+      "title": "Görev oluştur",
+      "titleLabel": "Başlık",
+      "titlePlaceholder": "Ne arıyorsun?",
+      "descLabel": "Açıklama",
+      "descPlaceholder": "Ne istediğini ve hangi kriterlerin karşılanması gerektiğini ayrıntılı olarak açıkla...",
+      "rewardLabel": "Ödül",
+      "deadlineLabel": "Süre",
+      "maxSubLabel": "Maks. başvuru",
+      "submit": "Görev yayınla",
+      "success": "Görev oluşturuldu! $SCOUT rezerve edildi.",
+      "insufficientFunds": "Hesabında yeterli $SCOUT yok.",
+      "minReward": "En az 50 $SCOUT",
+      "escrowInfo": "Ödül bakiyenden rezerve edilir ve yalnızca onaylandığında izciye ödenir."
     },
     "sidebar": {
       "topResearch": "Araştırma Öne Çıkanlar",
@@ -908,6 +939,7 @@
     "expired": "Süresi doldu",
     "scoutingTask": "Keşif Görevi",
     "clubTask": "Kulüp Görevi",
+    "userTask": "Topluluk Görevi",
     "playerLabel": "Oyuncu: {name}",
     "submitted": "Gönderildi",
     "submit": "Gönder",

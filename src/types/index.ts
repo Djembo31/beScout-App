@@ -1045,6 +1045,7 @@ export type DbBounty = {
   min_tier?: string | null;
   type: 'general' | 'scouting';
   fixture_id: string | null;
+  is_user_bounty?: boolean;
   created_at: string;
   updated_at: string;
 };

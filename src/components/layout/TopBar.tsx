@@ -219,8 +219,8 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
               <div className="font-semibold text-sm">{loading ? '...' : name}</div>
               <div className="text-[10px] text-white/50">{t('levelPlan', { level, plan })}</div>
             </div>
-            <Link href="/profile" className="lg:pointer-events-none">
-              <div className="relative w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-[#FFD700]/20 to-[#22C55E]/20 border border-white/10 flex items-center justify-center overflow-hidden">
+            <Link href="/profile" className="group">
+              <div className={`relative w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-[#FFD700]/20 to-[#22C55E]/20 border flex items-center justify-center overflow-hidden transition-all group-hover:border-[#FFD700]/40 ${pathname.startsWith('/profile') ? 'border-[#FFD700]/60 ring-2 ring-[#FFD700]/20' : 'border-white/10'}`}>
                 {loading ? (
                   <User className="w-4 h-4 md:w-5 md:h-5 text-white/70" />
                 ) : profile?.avatar_url ? (

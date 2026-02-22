@@ -2,8 +2,7 @@ import {
   Home,
   Briefcase,
   Trophy,
-  FileText,
-  User,
+  Compass,
   Building2,
   Shield,
   Rocket,
@@ -21,12 +20,11 @@ export const NAV_MAIN: NavItem[] = [
   { label: 'home', href: '/', icon: Home },
   { label: 'manager', href: '/market', icon: Briefcase },
   { label: 'fantasy', href: '/fantasy', icon: Trophy },
-  { label: 'report', href: '/community', icon: FileText },
-  { label: 'profile', href: '/profile', icon: User },
+  { label: 'club', href: '/club', icon: Building2 },
+  { label: 'scouting', href: '/community', icon: Compass },
 ];
 
 export const NAV_MORE: NavItem[] = [
-  { label: 'club', href: '/club', icon: Building2 },
   { label: 'airdrop', href: '/airdrop', icon: Rocket },
 ];
 

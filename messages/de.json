@@ -115,8 +115,7 @@
     "home": "Home",
     "manager": "Markt",
     "fantasy": "Spieltag",
-    "report": "Community",
-    "profile": "Profil",
+    "scouting": "Scouting",
     "club": "Club",
     "airdrop": "Airdrop",
     "admin": "Admin",
@@ -446,6 +445,19 @@
     "rumorBadge": "Gerücht",
     "votesTitle": "Abstimmungen & Umfragen",
     "bountiesTitle": "Aufträge",
+    "scoutingZone": {
+      "title": "Scouting Zone",
+      "subtitle": "Analysen, Gerüchte, Aufträge und mehr"
+    },
+    "filters": {
+      "all": "Alle",
+      "posts": "Beiträge",
+      "rumors": "Gerüchte",
+      "research": "Berichte",
+      "bounties": "Aufträge",
+      "votes": "Abstimmungen",
+      "news": "News"
+    },
     "hero": {
       "postLabel": "Post schreiben",
       "postDesc": "Teile deine Meinung mit der Community",
@@ -453,12 +465,31 @@
       "rumorDesc": "Insider-Infos und Transfergerüchte",
       "researchLabel": "Analyse schreiben",
       "researchDesc": "Verdiene $SCOUT mit Premium-Berichten",
-      "researchLocked": "Ab Bronze II"
+      "researchLocked": "Ab Bronze II",
+      "bountyLabel": "Auftrag erstellen",
+      "bountyDesc": "Belohne Scouts für ihre Arbeit",
+      "voteLabel": "Abstimmung starten",
+      "voteDesc": "Frage deine Fans nach ihrer Meinung"
     },
     "bountySection": {
       "title": "Club-Aufträge",
       "open": "offen",
       "submitted": "Einreichung erfolgreich!"
+    },
+    "createBounty": {
+      "title": "Auftrag erstellen",
+      "titleLabel": "Titel",
+      "titlePlaceholder": "Was suchst du?",
+      "descLabel": "Beschreibung",
+      "descPlaceholder": "Beschreibe genau, was du brauchst und welche Kriterien erfüllt sein müssen...",
+      "rewardLabel": "Belohnung",
+      "deadlineLabel": "Laufzeit",
+      "maxSubLabel": "Max. Einreichungen",
+      "submit": "Auftrag veröffentlichen",
+      "success": "Auftrag erstellt! $SCOUT wurden reserviert.",
+      "insufficientFunds": "Nicht genug $SCOUT auf deinem Konto.",
+      "minReward": "Mindestens 50 $SCOUT",
+      "escrowInfo": "Die Belohnung wird aus deinem Guthaben reserviert und erst bei Genehmigung an den Scout ausgezahlt."
     },
     "sidebar": {
       "topResearch": "Research Highlights",
@@ -908,6 +939,7 @@
     "expired": "Abgelaufen",
     "scoutingTask": "Scouting-Auftrag",
     "clubTask": "Club-Auftrag",
+    "userTask": "Community-Auftrag",
     "playerLabel": "Spieler: {name}",
     "submitted": "Eingereicht",
     "submit": "Einreichen",

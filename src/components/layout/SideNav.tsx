@@ -106,12 +106,18 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
         <div className="space-y-1">
           {NAV_MAIN.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            // Dynamic href: /club → /club/{activeClub.slug} or /clubs
+            const href = item.href === '/club'
+              ? (activeClub ? `/club/${activeClub.slug}` : '/clubs')
+              : item.href;
+            const isActive = item.href === '/'
+              ? pathname === '/'
+              : pathname.startsWith(item.href);
             const tourId = item.href === '/market' ? 'nav-market' : item.href === '/fantasy' ? 'nav-fantasy' : undefined;
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={href}
                 onClick={handleNavClick}
                 data-tour-id={tourId}
                 className={`

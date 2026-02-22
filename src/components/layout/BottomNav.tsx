@@ -2,18 +2,20 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Trophy, Briefcase, FileText, User } from 'lucide-react';
+import { Home, Trophy, Briefcase, Building2, Compass } from 'lucide-react';
+import { useClub } from '@/components/providers/ClubProvider';
 
 const BOTTOM_TABS = [
   { label: 'Home', href: '/', icon: Home, tourId: undefined as string | undefined },
   { label: 'Spieltag', href: '/fantasy', icon: Trophy, tourId: 'bottomnav-fantasy' },
-  { label: 'Manager', href: '/market', icon: Briefcase, tourId: 'bottomnav-market' },
-  { label: 'Report', href: '/community', icon: FileText, tourId: undefined as string | undefined },
-  { label: 'Profil', href: '/profile', icon: User, tourId: undefined as string | undefined },
+  { label: 'Markt', href: '/market', icon: Briefcase, tourId: 'bottomnav-market' },
+  { label: 'Club', href: '/club', icon: Building2, tourId: undefined as string | undefined },
+  { label: 'Scouting', href: '/community', icon: Compass, tourId: undefined as string | undefined },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
+  const { activeClub } = useClub();
 
   return (
     <nav
@@ -33,13 +35,17 @@ export function BottomNav() {
       <div className="flex items-center justify-around h-16 px-1">
         {BOTTOM_TABS.map((tab) => {
           const Icon = tab.icon;
+          // Club tab: resolve to active club slug or /clubs
+          const href = tab.href === '/club'
+            ? activeClub?.slug ? `/club/${activeClub.slug}` : '/clubs'
+            : tab.href;
           const isActive = tab.href === '/'
             ? pathname === '/'
             : pathname.startsWith(tab.href);
           return (
             <Link
               key={tab.href}
-              href={tab.href}
+              href={href}
               data-tour-id={tab.tourId}
               className={`relative flex flex-col items-center justify-center gap-0.5 w-16 py-1.5 rounded-xl transition-all ${
                 isActive

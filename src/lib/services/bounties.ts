@@ -217,6 +217,77 @@ export async function createBounty(params: {
   return data as DbBounty;
 }
 
+/**
+ * User-created bounty: locks $SCOUT from wallet as escrow, creates bounty with is_user_bounty=true.
+ */
+export async function createUserBounty(params: {
+  userId: string;
+  clubId: string;
+  clubName: string;
+  title: string;
+  description: string;
+  rewardCents: number;
+  deadlineDays: number;
+  maxSubmissions: number;
+  playerId?: string;
+}): Promise<DbBounty> {
+  // 1. Check wallet balance
+  const { data: wallet, error: walletErr } = await supabase
+    .from('wallets')
+    .select('balance_cents, locked_balance')
+    .eq('user_id', params.userId)
+    .maybeSingle();
+  if (walletErr) throw new Error(walletErr.message);
+  if (!wallet) throw new Error('Wallet nicht gefunden');
+
+  const available = (wallet.balance_cents ?? 0) - (wallet.locked_balance ?? 0);
+  if (available < params.rewardCents) {
+    throw new Error('Nicht genug $SCOUT. Du brauchst ' + Math.ceil(params.rewardCents / 100) + ' $SCOUT.');
+  }
+
+  // 2. Lock the reward amount (escrow)
+  const { error: lockErr } = await supabase
+    .from('wallets')
+    .update({ locked_balance: (wallet.locked_balance ?? 0) + params.rewardCents })
+    .eq('user_id', params.userId);
+  if (lockErr) throw new Error(lockErr.message);
+
+  // 3. Create bounty
+  const deadlineAt = new Date(Date.now() + params.deadlineDays * 24 * 60 * 60 * 1000).toISOString();
+  const { data, error } = await supabase
+    .from('bounties')
+    .insert({
+      club_id: params.clubId,
+      club_name: params.clubName,
+      created_by: params.userId,
+      title: params.title,
+      description: params.description,
+      reward_cents: params.rewardCents,
+      deadline_at: deadlineAt,
+      max_submissions: params.maxSubmissions,
+      player_id: params.playerId || null,
+      type: 'general',
+      is_user_bounty: true,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    // Rollback lock on failure
+    await supabase
+      .from('wallets')
+      .update({ locked_balance: wallet.locked_balance ?? 0 })
+      .eq('user_id', params.userId);
+    throw new Error(error.message);
+  }
+
+  invalidateBountyData(params.userId, params.clubId);
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(params.userId, 'bounty_create', 'community', { bountyId: data.id, title: params.title, rewardCents: params.rewardCents, isUserBounty: true });
+  }).catch(err => console.error('[Bounties] Activity log failed:', err));
+  return data as DbBounty;
+}
+
 export async function cancelBounty(userId: string, bountyId: string): Promise<void> {
   const { error } = await supabase
     .from('bounties')

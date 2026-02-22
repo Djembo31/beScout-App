@@ -10,31 +10,33 @@ import { useClub } from '@/components/providers/ClubProvider';
 import { createPost, votePost, getUserPostVotes, deletePost, adminDeletePost, adminTogglePin } from '@/lib/services/posts';
 import { getActiveSubscriptionsByUsers } from '@/lib/services/clubSubscriptions';
 import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
-import { createResearchPost, resolveExpiredResearch } from '@/lib/services/research';
-import { submitBountyResponse } from '@/lib/services/bounties';
+import { createResearchPost, resolveExpiredResearch, unlockResearch, rateResearch } from '@/lib/services/research';
+import { submitBountyResponse, createUserBounty } from '@/lib/services/bounties';
 import { getClubBySlug, getUserPrimaryClub } from '@/lib/services/club';
+import { castVote, getUserVotedIds } from '@/lib/services/votes';
+import { castCommunityPollVote, getUserPollVotedIds, cancelCommunityPoll } from '@/lib/services/communityPolls';
 import { getGesamtRang } from '@/lib/gamification';
 import {
   usePlayers, useHoldings, usePosts, useLeaderboard,
   useFollowingIds, useFollowerCount, useFollowingCount,
   useClubVotes, useResearchPosts, useActiveBounties, useClubSubscription,
-  useUserStats,
+  useUserStats, useCommunityPolls,
   qk, invalidateResearchQueries,
 } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
 import CommunityHero from '@/components/community/CommunityHero';
-import CommunityBountySection from '@/components/community/CommunityBountySection';
-import ClubNewsSection from '@/components/community/ClubNewsSection';
 import CommunityFeedTab from '@/components/community/CommunityFeedTab';
+import type { ContentFilter } from '@/components/community/CommunityFeedTab';
 import CommunitySidebar from '@/components/community/CommunitySidebar';
 import CreatePostModal from '@/components/community/CreatePostModal';
 import CreateResearchModal from '@/components/community/CreateResearchModal';
+import CreateBountyModal from '@/components/community/CreateBountyModal';
 import FollowListModal from '@/components/profile/FollowListModal';
 import type { PostWithAuthor, PostType } from '@/types';
 import SponsorBanner from '@/components/player/detail/SponsorBanner';
 
 // ============================================
-// MAIN PAGE — Single Scroll Layout
+// MAIN PAGE — Scouting Zone
 // ============================================
 
 export default function CommunityPage() {
@@ -42,7 +44,6 @@ export default function CommunityPage() {
   const { addToast } = useToast();
   const { activeClub } = useClub();
   const t = useTranslations('community');
-  const tc = useTranslations('common');
   const uid = user?.id;
 
   // Club context
@@ -53,18 +54,27 @@ export default function CommunityPage() {
 
   // UI State
   const [feedMode, setFeedMode] = useState<'all' | 'following'>('all');
+  const [contentFilter, setContentFilter] = useState<ContentFilter>('all');
   const [createPostOpen, setCreatePostOpen] = useState(false);
   const [createResearchOpen, setCreateResearchOpen] = useState(false);
   const [followListMode, setFollowListMode] = useState<'followers' | 'following' | null>(null);
   const [defaultPostType, setDefaultPostType] = useState<PostType>('general');
+  const [createBountyOpen, setCreateBountyOpen] = useState(false);
 
   // Action loading state
   const [postLoading, setPostLoading] = useState(false);
   const [researchLoading, setResearchLoading] = useState(false);
   const [bountySubmitting, setBountySubmitting] = useState<string | null>(null);
+  const [bountyCreating, setBountyCreating] = useState(false);
+  const [unlockingResearchId, setUnlockingResearchId] = useState<string | null>(null);
+  const [ratingResearchId, setRatingResearchId] = useState<string | null>(null);
 
   // User-specific vote tracking
   const [myPostVotes, setMyPostVotes] = useState<Map<string, number>>(new Map());
+  const [userVotedIds, setUserVotedIds] = useState<Set<string>>(new Set());
+  const [userPollVotedIds, setUserPollVotedIds] = useState<Set<string>>(new Set());
+  const [votingId, setVotingId] = useState<string | null>(null);
+  const [pollVotingId, setPollVotingId] = useState<string | null>(null);
 
   // Subscription tiers for post authors
   const [subscriptionMap, setSubscriptionMap] = useState<Map<string, SubscriptionTier>>(new Map());
@@ -85,6 +95,7 @@ export default function CommunityPage() {
   const { data: bounties = [] } = useActiveBounties(uid, scopeClubId);
   const { data: subscription } = useClubSubscription(uid, clubId ?? undefined);
   const { data: userStats } = useUserStats(uid);
+  const { data: communityPolls = [] } = useCommunityPolls(scopeClubId);
 
   // ---- Derived data ----
   const followingIds = useMemo(() => new Set(followingIdsList), [followingIdsList]);
@@ -104,12 +115,6 @@ export default function CommunityPage() {
     });
     return rang.tier;
   }, [userStats]);
-
-  // Club news posts (separate section)
-  const clubNewsPosts = useMemo(() =>
-    posts.filter(p => p.post_type === 'club_news').slice(0, 5),
-    [posts]
-  );
 
   // ---- Club context resolution ----
   useEffect(() => {
@@ -146,6 +151,24 @@ export default function CommunityPage() {
     loadVoteData();
     return () => { cancelled = true; };
   }, [uid, posts]);
+
+  // ---- Load user club vote + poll vote IDs ----
+  useEffect(() => {
+    if (!uid) return;
+    let cancelled = false;
+    async function loadVoteIds() {
+      const [vIds, pIds] = await Promise.all([
+        getUserVotedIds(uid!).catch(() => new Set<string>()),
+        getUserPollVotedIds(uid!).catch(() => new Set<string>()),
+      ]);
+      if (!cancelled) {
+        setUserVotedIds(vIds);
+        setUserPollVotedIds(pIds);
+      }
+    }
+    loadVoteIds();
+    return () => { cancelled = true; };
+  }, [uid]);
 
   // ---- Load subscription tiers for post authors ----
   useEffect(() => {
@@ -323,14 +346,124 @@ export default function CommunityPage() {
     }
   }, [uid, addToast, t]);
 
+  const handleUnlockResearch = useCallback(async (postId: string) => {
+    if (!uid) return;
+    setUnlockingResearchId(postId);
+    try {
+      const result = await unlockResearch(uid, postId);
+      if (result.success) {
+        invalidateResearchQueries(uid);
+        addToast('Bericht freigeschaltet!', 'success');
+      } else {
+        addToast(result.error ?? 'Fehler', 'error');
+      }
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+    } finally {
+      setUnlockingResearchId(null);
+    }
+  }, [uid, addToast]);
+
+  const handleRateResearch = useCallback(async (postId: string, rating: number) => {
+    if (!uid) return;
+    setRatingResearchId(postId);
+    try {
+      const result = await rateResearch(uid, postId, rating);
+      if (result.success) {
+        invalidateResearchQueries(uid);
+        addToast('Bewertung gespeichert!', 'success');
+      } else {
+        addToast(result.error ?? 'Fehler', 'error');
+      }
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+    } finally {
+      setRatingResearchId(null);
+    }
+  }, [uid, addToast]);
+
+  const handleCastVote = useCallback(async (voteId: string, optionIndex: number) => {
+    if (!uid) return;
+    setVotingId(voteId);
+    try {
+      await castVote(uid, voteId, optionIndex);
+      setUserVotedIds(prev => new Set([...Array.from(prev), voteId]));
+      queryClient.invalidateQueries({ queryKey: ['clubVotes'] });
+      addToast('Stimme abgegeben!', 'success');
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+    } finally {
+      setVotingId(null);
+    }
+  }, [uid, addToast]);
+
+  const handleCastPollVote = useCallback(async (pollId: string, optionIndex: number) => {
+    if (!uid) return;
+    setPollVotingId(pollId);
+    try {
+      await castCommunityPollVote(uid, pollId, optionIndex);
+      setUserPollVotedIds(prev => new Set([...Array.from(prev), pollId]));
+      queryClient.invalidateQueries({ queryKey: ['polls'] });
+      addToast('Stimme abgegeben!', 'success');
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+    } finally {
+      setPollVotingId(null);
+    }
+  }, [uid, addToast]);
+
+  const handleCancelPoll = useCallback(async (pollId: string) => {
+    if (!uid) return;
+    try {
+      await cancelCommunityPoll(uid, pollId);
+      queryClient.invalidateQueries({ queryKey: ['polls'] });
+      addToast('Umfrage abgebrochen', 'success');
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+    }
+  }, [uid, addToast]);
+
+  const handleCreateBounty = useCallback(async (params: {
+    title: string;
+    description: string;
+    rewardCents: number;
+    deadlineDays: number;
+    maxSubmissions: number;
+  }) => {
+    if (!uid || !clubId || !clubName) {
+      addToast(t('feed.noClub'), 'error');
+      return;
+    }
+    setBountyCreating(true);
+    try {
+      await createUserBounty({
+        userId: uid,
+        clubId,
+        clubName,
+        title: params.title,
+        description: params.description,
+        rewardCents: params.rewardCents,
+        deadlineDays: params.deadlineDays,
+        maxSubmissions: params.maxSubmissions,
+      });
+      queryClient.invalidateQueries({ queryKey: ['bounties'] });
+      setCreateBountyOpen(false);
+      addToast(t('createBounty.success'), 'success');
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+    } finally {
+      setBountyCreating(false);
+    }
+  }, [uid, clubId, clubName, addToast, t]);
+
   if (!user) return null;
 
   return (
     <div className="max-w-[1200px] mx-auto space-y-6">
       {/* [A] Hero + Quick Actions */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-black mb-1">{t('title')}</h1>
-        <p className="text-sm text-white/50 mb-4">{t('subtitle')}</p>
+        <h1 className="text-2xl md:text-3xl font-black mb-1">{t('scoutingZone.title')}</h1>
+        <p className="text-sm text-white/50 mb-4">{t('scoutingZone.subtitle')}</p>
         <CommunityHero
           onCreatePost={() => { setDefaultPostType('general'); setCreatePostOpen(true); }}
           onCreateRumor={() => { setDefaultPostType('transfer_rumor'); setCreatePostOpen(true); }}
@@ -339,6 +472,9 @@ export default function CommunityPage() {
             setCreateResearchOpen(true);
           }}
           researchLocked={userRangTier < 2}
+          isClubAdmin={isClubAdmin}
+          onCreateVote={() => {/* TODO: CreateVoteModal */}}
+          onCreateBounty={() => setCreateBountyOpen(true)}
         />
       </div>
 
@@ -401,21 +537,6 @@ export default function CommunityPage() {
         </div>
       </div>
 
-      {/* [C] Bounties Section */}
-      <CommunityBountySection
-        bounties={bounties}
-        userId={user.id}
-        onSubmit={handleBountySubmit}
-        submitting={bountySubmitting}
-        userTier={subscription?.tier}
-      />
-
-      {/* [D] Club News Section */}
-      <ClubNewsSection
-        posts={clubNewsPosts}
-        onShowAll={() => {/* Feed filter is handled inside CommunityFeedTab */}}
-      />
-
       {/* Loading / Error */}
       {postsLoading && (
         <div className="space-y-4">
@@ -444,13 +565,13 @@ export default function CommunityPage() {
         <ErrorState onRetry={() => queryClient.invalidateQueries({ queryKey: ['posts'] })} />
       )}
 
-      {/* [D] Feed + Sidebar Grid */}
+      {/* [C] Feed + Sidebar Grid */}
       {!postsLoading && !postsError && (
         <>
           <SponsorBanner placement="community_feed" className="mb-0" />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* [D.1] Feed */}
+            {/* [C.1] Feed */}
             <div className="lg:col-span-2">
               <CommunityFeedTab
                 posts={posts}
@@ -462,20 +583,39 @@ export default function CommunityPage() {
                 onVote={handleVotePost}
                 onDelete={handleDeletePost}
                 onCreatePost={() => setCreatePostOpen(true)}
-                onSwitchToLeaderboard={() => {/* scroll to sidebar or link */}}
+                onSwitchToLeaderboard={() => {}}
                 isClubAdmin={isClubAdmin}
                 onAdminDelete={handleAdminDeletePost}
                 onTogglePin={handleTogglePin}
                 subscriptionMap={subscriptionMap}
+                contentFilter={contentFilter}
+                onContentFilterChange={setContentFilter}
+                researchPosts={researchPosts}
+                bounties={bounties}
+                clubVotes={clubVotes}
+                communityPolls={communityPolls}
+                onUnlockResearch={handleUnlockResearch}
+                unlockingResearchId={unlockingResearchId}
+                onRateResearch={handleRateResearch}
+                ratingResearchId={ratingResearchId}
+                onBountySubmit={handleBountySubmit}
+                bountySubmitting={bountySubmitting}
+                userTier={subscription?.tier}
+                userVotedIds={userVotedIds}
+                onCastVote={handleCastVote}
+                votingId={votingId}
+                userPollVotedIds={userPollVotedIds}
+                onCastPollVote={handleCastPollVote}
+                onCancelPoll={handleCancelPoll}
+                pollVotingId={pollVotingId}
               />
             </div>
 
-            {/* [D.2] Sidebar — hidden on mobile, shown as cards below feed */}
+            {/* [C.2] Sidebar — hidden on mobile, shown as cards below feed */}
             <div className="hidden lg:block">
               <CommunitySidebar
                 leaderboard={leaderboard}
                 researchPosts={researchPosts}
-                clubVotes={clubVotes}
                 userId={user.id}
                 onCreateResearch={() => setCreateResearchOpen(true)}
               />
@@ -487,7 +627,6 @@ export default function CommunityPage() {
             <CommunitySidebar
               leaderboard={leaderboard}
               researchPosts={researchPosts}
-              clubVotes={clubVotes}
               userId={user.id}
               onCreateResearch={() => setCreateResearchOpen(true)}
             />
@@ -511,6 +650,13 @@ export default function CommunityPage() {
         players={allPlayers}
         onSubmit={handleCreateResearch}
         loading={researchLoading}
+      />
+
+      <CreateBountyModal
+        open={createBountyOpen}
+        onClose={() => setCreateBountyOpen(false)}
+        onSubmit={handleCreateBounty}
+        loading={bountyCreating}
       />
 
       {followListMode && user && (

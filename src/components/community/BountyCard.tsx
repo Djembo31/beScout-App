@@ -91,7 +91,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
               <Target className="w-5 h-5 text-amber-400" />
             )}
             <span className={`font-bold ${isScouting ? 'text-rose-300' : 'text-amber-300'}`}>
-              {isScouting ? tb('scoutingTask') : tb('clubTask')}
+              {isScouting ? tb('scoutingTask') : bounty.is_user_bounty ? tb('userTask') : tb('clubTask')}
             </span>
             {bounty.min_tier && (
               <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border ${TIER_COLORS[bounty.min_tier] ?? ''}`}>

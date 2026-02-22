@@ -1,6 +1,6 @@
 'use client';
 
-import { MessageSquare, Radio, FileText, Lock } from 'lucide-react';
+import { MessageSquare, Radio, FileText, Lock, Vote, Target } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface CommunityHeroProps {
@@ -8,27 +8,71 @@ interface CommunityHeroProps {
   onCreateRumor: () => void;
   onCreateResearch: () => void;
   researchLocked?: boolean;
+  isClubAdmin?: boolean;
+  onCreateVote?: () => void;
+  onCreateBounty?: () => void;
 }
 
-const ACTIONS = [
+type HeroAction = {
+  key: string;
+  icon: typeof MessageSquare;
+  color: string;
+  iconColor: string;
+};
+
+const BASE_ACTIONS: HeroAction[] = [
   { key: 'post', icon: MessageSquare, color: 'from-sky-500/20 to-sky-500/5 border-sky-500/20 hover:border-sky-500/40', iconColor: 'text-sky-400' },
   { key: 'rumor', icon: Radio, color: 'from-red-500/20 to-red-500/5 border-red-500/20 hover:border-red-500/40', iconColor: 'text-red-400' },
   { key: 'research', icon: FileText, color: 'from-purple-500/20 to-purple-500/5 border-purple-500/20 hover:border-purple-500/40', iconColor: 'text-purple-400' },
-] as const;
+];
 
-export default function CommunityHero({ onCreatePost, onCreateRumor, onCreateResearch, researchLocked }: CommunityHeroProps) {
+const BOUNTY_ACTION: HeroAction = {
+  key: 'bounty', icon: Target, color: 'from-amber-500/20 to-amber-500/5 border-amber-500/20 hover:border-amber-500/40', iconColor: 'text-amber-400',
+};
+
+const VOTE_ACTION: HeroAction = {
+  key: 'vote', icon: Vote, color: 'from-purple-500/20 to-purple-500/5 border-purple-500/20 hover:border-purple-500/40', iconColor: 'text-purple-400',
+};
+
+export default function CommunityHero({
+  onCreatePost,
+  onCreateRumor,
+  onCreateResearch,
+  researchLocked,
+  isClubAdmin,
+  onCreateVote,
+  onCreateBounty,
+}: CommunityHeroProps) {
   const t = useTranslations('community');
-  const handlers = [onCreatePost, onCreateRumor, onCreateResearch];
+
+  // Build action list dynamically
+  const actions: HeroAction[] = [...BASE_ACTIONS];
+  if (onCreateBounty) actions.push(BOUNTY_ACTION);
+  if (isClubAdmin && onCreateVote) actions.push(VOTE_ACTION);
+
+  const handlerMap: Record<string, () => void> = {
+    post: onCreatePost,
+    rumor: onCreateRumor,
+    research: onCreateResearch,
+    bounty: onCreateBounty ?? (() => {}),
+    vote: onCreateVote ?? (() => {}),
+  };
+
+  const colsClass = actions.length <= 3
+    ? 'grid-cols-3'
+    : actions.length === 4
+      ? 'grid-cols-2 sm:grid-cols-4'
+      : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5';
 
   return (
-    <div className="grid grid-cols-3 gap-3">
-      {ACTIONS.map((a, i) => {
+    <div className={`grid ${colsClass} gap-3`}>
+      {actions.map((a) => {
         const Icon = a.icon;
         const isLocked = a.key === 'research' && researchLocked;
         return (
           <button
             key={a.key}
-            onClick={handlers[i]}
+            onClick={handlerMap[a.key]}
             className={`group relative p-4 rounded-2xl border bg-gradient-to-br ${a.color} transition-all min-h-[44px] text-left ${isLocked ? 'opacity-60' : ''}`}
           >
             <div className="flex items-center gap-1.5">
