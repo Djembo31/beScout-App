@@ -1,9 +1,25 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 22.02.2026 (Session 121)
-> Modus: PILOT SPRINT — 196 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 566 Spieler, 505 Player Images
+> Letzte Aktualisierung: 22.02.2026 (Session 123)
+> Modus: PILOT SPRINT — 199 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 566 Spieler, 505 Player Images
 
 ---
+
+## Notification System Fix + Preferences ✅ (22.02.2026)
+- [x] Sprint 1: Migration #198 — `notifications` zu Supabase Realtime Publication hinzugefügt
+- [x] Sprint 1: `useNotificationRealtime` Hook — Realtime WebSocket statt 60s Polling, instant Badge+Toast
+- [x] Sprint 1: TopBar refactored — Polling entfernt, nutzt Realtime Hook
+- [x] Sprint 1: NotificationDropdown refactored — Props-basiert statt interner Fetch
+- [x] Sprint 2: Migration #199 — `notification_preferences` Tabelle (6 boolean Kategorien + RLS)
+- [x] Sprint 2: `NOTIFICATION_CATEGORIES` + `TYPE_TO_CATEGORY` — 35 Types auf 6 Kategorien gemappt
+- [x] Sprint 2: `createNotification()` Gate — prüft User-Preferences vor INSERT
+- [x] Sprint 2: SettingsTab — Notification Preferences Card mit 6 Toggle-Rows (debounced save)
+- [x] Sprint 3: i18n — 14 neue Keys DE+TR (notifCat_trading/offers/fantasy/social/bounties/rewards)
+- [x] **2 Migrations (#198-#199), 1 neue + 7 modifizierte Dateien, Build 0 Fehler**
+
+## Gamification Triggers + REVOKE ✅ (22.02.2026)
+- [x] Migration #197 — 13 DB-Triggers, 6 RPCs REVOKED, 3 Wrapper RPCs, Double-Scoring Fix
+- [x] ~15 TS-Files bereinigt (fire-and-forget Calls entfernt)
 
 ## Security Audit + auth.uid() Hardening ✅ (22.02.2026)
 - [x] Sprint 1: 5-Agenten Security/Fraud Audit — Trading, Fantasy, Wallet, RLS/Auth, Social
@@ -14,10 +30,10 @@
 - [x] Sprint 6: Verifikation — Spot-Checks auf 4 RPCs + REVOKE bestätigt
 - [x] **1 Migration (#196), keine Code-Änderungen, Build 0 Fehler**
 
-## Known Risk: Fire-and-Forget RPCs ohne auth.uid()
-- [ ] `award_dimension_score`, `award_score_points`, `award_mastery_xp` — zu DB-Triggers migrieren
-- [ ] `refresh_user_stats`, `refresh_airdrop_score` — zu DB-Triggers migrieren
-- [ ] `update_mission_progress` — Admin-Kontext prüfen
+## Known Risk: Fire-and-Forget RPCs ohne auth.uid() ✅ (22.02.2026)
+- [x] `award_dimension_score`, `award_score_points`, `award_mastery_xp` — REVOKED + DB-Triggers (Migration #197)
+- [x] `refresh_user_stats`, `refresh_airdrop_score` — REVOKED + Wrapper RPCs mit auth.uid() (Migration #197)
+- [x] `update_mission_progress` — REVOKED + DB-Trigger (Migration #197)
 
 ## Club Multi-Admin: Rollen-Differenzierung ✅ (22.02.2026)
 - [x] Sprint 1: `adminRoles.ts` (NEU) — `canAccessTab()`, `canPerformAction()`, `getRoleBadge()`, Tab-Access-Matrix

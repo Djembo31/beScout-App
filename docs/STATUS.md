@@ -3,7 +3,33 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 9** – 196 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements. Build sauber (0 Fehler). 40 RPCs mit auth.uid() Identity Guards. deduct/refund_wallet_balance EXECUTE revoked. **Beta-Launch ready.**
+**Woche 9** – 199 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 13 Gamification-Triggers. Build sauber (0 Fehler). Notifications Realtime (kein Polling). User Notification Preferences (6 Kategorien). **Beta-Launch ready.**
+
+## Session 22.02.2026 (123) – Notification System Fix + Preferences
+
+### Änderungen
+- **Migration #198 (add_notifications_to_realtime):** `ALTER PUBLICATION supabase_realtime ADD TABLE notifications` — enables WebSocket delivery of new notifications.
+- **Migration #199 (create_notification_preferences):** `notification_preferences` Tabelle mit 6 boolean Kategorien (trading, offers, fantasy, social, bounties, rewards) + RLS Policies.
+- **`useNotificationRealtime` Hook (NEU):** Ersetzt 60s `setInterval` Polling mit Supabase Realtime `postgres_changes` INSERT subscription. Initial fetch + live prepend + toast callback ref.
+- **TopBar refactored:** Polling entfernt, nutzt `useNotificationRealtime` Hook. Toast bei neuer Notification wenn Dropdown geschlossen.
+- **NotificationDropdown refactored:** Props-basiert (`notifications`, `loading`, `onMarkRead`, `onMarkAllRead`) statt interner `useState`/`useEffect` Fetch. Optimistic mark-as-read.
+- **`notifications.ts` erweitert:** `NOTIFICATION_CATEGORIES` (6 Kategorien), `TYPE_TO_CATEGORY` (35 NotificationTypes → 6+system), `getNotificationPreferences()`, `updateNotificationPreferences()`. `createNotification()` prüft jetzt User-Preferences vor INSERT — disabled Kategorien werden silently skipped.
+- **SettingsTab erweitert:** Neue "Benachrichtigungen" Card zwischen Account und Danger Zone. 6 Toggle-Rows mit gold pill switch, 44px touch targets, debounced save (500ms).
+- **i18n:** 14 neue Keys in DE+TR (notificationPrefs, 6 Kategorien mit Label+Desc).
+
+### Dateien (1 neu + 7 modifiziert)
+- NEU: `src/lib/hooks/useNotificationRealtime.ts`
+- Modifiziert: `TopBar.tsx`, `NotificationDropdown.tsx`, `notifications.ts`, `profile/page.tsx`, `types/index.ts`, `messages/de.json`, `messages/tr.json`
+
+## Session 22.02.2026 (122) – Gamification Triggers + REVOKE
+
+### Änderungen
+- **Migration #197 (gamification_triggers_and_revoke):** 13 DB-Triggers für alle Gamification-Seiteneffekte. 6 gefährliche RPCs REVOKED (award_dimension_score, award_score_points, award_mastery_xp, update_mission_progress, refresh_user_stats, refresh_airdrop_score). 3 Wrapper RPCs mit auth.uid() (refresh_my_stats, refresh_my_airdrop_score, track_my_mission_progress). Double-Scoring Fix.
+- **~15 TS-Files bereinigt:** Fire-and-forget Calls zu revoked RPCs entfernt.
+
+### Dateien
+- DB: Migration #197
+- ~15 modifizierte TS-Dateien (Services + Components)
 
 ## Session 22.02.2026 (121) – Security Audit + auth.uid() Hardening
 
