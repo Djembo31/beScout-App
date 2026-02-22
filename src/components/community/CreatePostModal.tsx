@@ -22,6 +22,7 @@ interface CreatePostModalProps {
   players: { id: string; name: string; pos: Pos }[];
   onSubmit: (playerId: string | null, content: string, tags: string[], category: string, postType: PostType) => void;
   loading: boolean;
+  defaultPostType?: PostType;
 }
 
 // ============================================
@@ -29,7 +30,7 @@ interface CreatePostModalProps {
 // ============================================
 
 export default function CreatePostModal({
-  open, onClose, players, onSubmit, loading,
+  open, onClose, players, onSubmit, loading, defaultPostType,
 }: CreatePostModalProps) {
   const [content, setContent] = useState('');
   const [playerId, setPlayerId] = useState('');
@@ -39,6 +40,13 @@ export default function CreatePostModal({
   const [playerSearch, setPlayerSearch] = useState('');
   const [playerDropdownOpen, setPlayerDropdownOpen] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
+
+  // Set postType when modal opens with a defaultPostType
+  useEffect(() => {
+    if (open && defaultPostType) {
+      setPostType(defaultPostType);
+    }
+  }, [open, defaultPostType]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -65,7 +73,23 @@ export default function CreatePostModal({
   };
 
   return (
-    <Modal open={open} title="Neuer Post" onClose={onClose}>
+    <Modal
+      open={open}
+      title="Neuer Post"
+      onClose={onClose}
+      footer={
+        <div className="space-y-2">
+          {!canSubmit && content.length > 0 && (
+            <div className="text-xs text-red-400/80">
+              Mindestens 10 Zeichen ({content.trim().length}/10)
+            </div>
+          )}
+          <Button variant="gold" fullWidth loading={loading} disabled={!canSubmit} onClick={handleSubmit}>
+            Posten
+          </Button>
+        </div>
+      }
+    >
       <div className="space-y-4">
         <div>
           <label className="text-xs text-white/50 font-semibold mb-1.5 block">Kategorie</label>
@@ -191,14 +215,6 @@ export default function CreatePostModal({
           />
         </div>
 
-        {!canSubmit && content.length > 0 && (
-          <div className="text-xs text-red-400/80">
-            Mindestens 10 Zeichen ({content.trim().length}/10)
-          </div>
-        )}
-        <Button variant="gold" fullWidth loading={loading} disabled={!canSubmit} onClick={handleSubmit}>
-          Posten
-        </Button>
       </div>
     </Modal>
   );

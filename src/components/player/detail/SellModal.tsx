@@ -51,9 +51,22 @@ export default function SellModal({
   const showFee = sellPriceBsd && Number(sellPriceBsd) > 0;
 
   return (
-    <Modal open={open} onClose={onClose} title="Verkaufen" subtitle={`${player.first} ${player.last}`}>
-      <div className="-mx-4 -mb-4 sm:-mx-6 sm:-mb-6">
-        <div className="space-y-4 p-4 sm:p-6">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Verkaufen"
+      subtitle={`${player.first} ${player.last}`}
+      footer={availableToSell > 0 ? (
+        <Button variant="gold" fullWidth size="lg"
+          onClick={handleSell}
+          disabled={selling || !sellPriceBsd || Number(sellPriceBsd) <= 0}
+        >
+          {selling ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+          {selling ? 'Wird gelistet...' : `Für ${showFee ? fmtScout(Number(sellPriceBsd)) : '...'} $SCOUT listen`}
+        </Button>
+      ) : undefined}
+    >
+      <div className="space-y-4">
           {/* Toast messages */}
           {sellSuccess && (
             <div className="bg-[#22C55E]/20 border border-[#22C55E]/30 text-[#22C55E] rounded-xl px-4 py-3 text-sm font-bold flex items-center gap-2">
@@ -130,13 +143,13 @@ export default function SellModal({
                 {floorBsd > 0 && (
                   <div className="mt-1.5 flex items-center gap-1.5">
                     <button onClick={() => setSellPriceBsd(floorBsd.toString())}
-                      className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">Floor</button>
+                      className="px-2.5 py-1.5 min-h-[44px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">Floor</button>
                     <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.05).toString())}
-                      className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+5%</button>
+                      className="px-2.5 py-1.5 min-h-[44px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+5%</button>
                     <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.10).toString())}
-                      className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+10%</button>
+                      className="px-2.5 py-1.5 min-h-[44px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+10%</button>
                     <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.20).toString())}
-                      className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+20%</button>
+                      className="px-2.5 py-1.5 min-h-[44px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+20%</button>
                     <span className="text-[11px] text-white/25 ml-1">Floor: {fmtScout(floorBsd)}</span>
                   </div>
                 )}
@@ -160,14 +173,6 @@ export default function SellModal({
                 </div>
               )}
 
-              {/* Submit */}
-              <Button variant="gold" fullWidth size="lg"
-                onClick={handleSell}
-                disabled={selling || !sellPriceBsd || Number(sellPriceBsd) <= 0}
-              >
-                {selling ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                {selling ? 'Wird gelistet...' : `Für ${showFee ? fmtScout(Number(sellPriceBsd)) : '...'} $SCOUT listen`}
-              </Button>
             </Card>
           )}
 
@@ -200,7 +205,6 @@ export default function SellModal({
               </div>
             </Card>
           )}
-        </div>
       </div>
     </Modal>
   );

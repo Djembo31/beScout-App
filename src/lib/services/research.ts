@@ -178,7 +178,7 @@ export async function createResearchPost(params: {
       .from('players')
       .select('floor_price, ipo_price')
       .eq('id', params.playerId)
-      .single();
+      .maybeSingle();
     if (playerData) priceAtCreation = playerData.floor_price || playerData.ipo_price || 0;
   }
 
@@ -268,7 +268,7 @@ export async function unlockResearch(userId: string, researchId: string): Promis
     // Fire-and-forget: +5 Analyst for author + airdrop refresh
     (async () => {
       try {
-        const { data: rp } = await supabase.from('research_posts').select('user_id').eq('id', researchId).single();
+        const { data: rp } = await supabase.from('research_posts').select('user_id').eq('id', researchId).maybeSingle();
         if (rp) {
           import('@/lib/services/scoutScores').then(m => {
             m.awardDimensionScoreAsync(rp.user_id, 'analyst', 5, 'research_sold', researchId);
@@ -285,7 +285,7 @@ export async function unlockResearch(userId: string, researchId: string): Promis
           .from('research_posts')
           .select('user_id, title')
           .eq('id', researchId)
-          .single();
+          .maybeSingle();
         if (post && post.user_id !== userId) {
           const { createNotification } = await import('@/lib/services/notifications');
           createNotification(
@@ -350,7 +350,7 @@ export async function rateResearch(
           .from('research_posts')
           .select('user_id, title')
           .eq('id', researchId)
-          .single();
+          .maybeSingle();
         if (post && post.user_id !== userId) {
           const { createNotification } = await import('@/lib/services/notifications');
           createNotification(

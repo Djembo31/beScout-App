@@ -51,7 +51,7 @@ function DimensionRow({
             type="button"
             onClick={() => onChange(n)}
             className={cn(
-              'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all border min-h-[36px]',
+              'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all border min-h-[44px]',
               value === n
                 ? 'bg-[#FFD700]/20 text-[#FFD700] border-[#FFD700]/30 scale-105'
                 : value > 0 && n <= value

@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Telescope, Users, FileText, Star, ArrowUpDown } from 'lucide-react';
 import { Card, Chip } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { usePlayerScoutingSummaries, useTopScouts } from '@/lib/queries';
 import type { ClubWithAdmin, PlayerScoutingSummary } from '@/types';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 type SortKey = 'reportCount' | 'avgOverall' | 'avgTechnik' | 'avgTaktik' | 'avgAthletik' | 'avgMentalitaet' | 'avgPotenzial';
 
@@ -24,6 +25,7 @@ function DimBar({ value, max = 10 }: { value: number; max?: number }) {
 }
 
 export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
+  const ts = useTranslations('scouting');
   const { data: summaries, isLoading: loadingSummaries } = usePlayerScoutingSummaries(club.id);
   const { data: topScouts, isLoading: loadingScouts } = useTopScouts(club.id);
   const [sortKey, setSortKey] = useState<SortKey>('reportCount');
@@ -65,8 +67,8 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
       <div>
         <div className="flex items-center gap-2 mb-4">
           <Telescope className="w-5 h-5 text-rose-400" />
-          <h2 className="text-lg font-black">Spieler-Radar</h2>
-          <span className="text-xs text-white/40">{summaries?.length ?? 0} Spieler gescoutet</span>
+          <h2 className="text-lg font-black">{ts('playerRadar')}</h2>
+          <span className="text-xs text-white/40">{ts('playersScouted', { count: summaries?.length ?? 0 })}</span>
         </div>
 
         {loadingSummaries ? (
@@ -74,22 +76,22 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
         ) : sortedSummaries.length === 0 ? (
           <Card className="p-8 text-center">
             <Telescope className="w-10 h-10 mx-auto mb-3 text-white/20" />
-            <div className="text-white/30 font-bold">Noch keine Scouting-Daten</div>
-            <div className="text-xs text-white/20 mt-1">Fans können über Community Scouting-Reports einreichen</div>
+            <div className="text-white/30 font-bold">{ts('noData')}</div>
+            <div className="text-xs text-white/20 mt-1">{ts('noDataHint')}</div>
           </Card>
         ) : (
           <Card className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white/40">Spieler</th>
-                  <th className="px-2 py-2"><SortHeader label="Berichte" field="reportCount" /></th>
-                  <th className="px-2 py-2"><SortHeader label="Technik" field="avgTechnik" /></th>
-                  <th className="px-2 py-2"><SortHeader label="Taktik" field="avgTaktik" /></th>
-                  <th className="px-2 py-2"><SortHeader label="Athletik" field="avgAthletik" /></th>
-                  <th className="px-2 py-2"><SortHeader label="Mentalit." field="avgMentalitaet" /></th>
-                  <th className="px-2 py-2"><SortHeader label="Potenzial" field="avgPotenzial" /></th>
-                  <th className="px-2 py-2"><SortHeader label="Gesamt" field="avgOverall" /></th>
+                  <th className="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white/40">{ts('player')}</th>
+                  <th className="px-2 py-2"><SortHeader label={ts('reports')} field="reportCount" /></th>
+                  <th className="px-2 py-2"><SortHeader label={ts('dim.technik')} field="avgTechnik" /></th>
+                  <th className="px-2 py-2"><SortHeader label={ts('dim.taktik')} field="avgTaktik" /></th>
+                  <th className="px-2 py-2"><SortHeader label={ts('dim.athletik')} field="avgAthletik" /></th>
+                  <th className="px-2 py-2"><SortHeader label={ts('dimShortMentalitaet')} field="avgMentalitaet" /></th>
+                  <th className="px-2 py-2"><SortHeader label={ts('dim.potenzial')} field="avgPotenzial" /></th>
+                  <th className="px-2 py-2"><SortHeader label={ts('avgOverall')} field="avgOverall" /></th>
                 </tr>
               </thead>
               <tbody>
@@ -126,13 +128,13 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
       <div>
         <div className="flex items-center gap-2 mb-4">
           <Users className="w-5 h-5 text-amber-400" />
-          <h2 className="text-lg font-black">Top Scouts</h2>
+          <h2 className="text-lg font-black">{ts('topScouts')}</h2>
         </div>
 
         {loadingScouts ? (
           <div className="space-y-2">{[...Array(3)].map((_, i) => <Card key={i} className="h-12 animate-pulse" />)}</div>
         ) : !topScouts || topScouts.length === 0 ? (
-          <Card className="p-6 text-center text-sm text-white/30">Noch keine Scout-Aktivität</Card>
+          <Card className="p-6 text-center text-sm text-white/30">{ts('noScoutActivity')}</Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {topScouts.map((scout, idx) => (
@@ -157,9 +159,9 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
                     {scout.displayName || `@${scout.handle}`}
                   </Link>
                   <div className="flex items-center gap-2 text-[10px] text-white/40">
-                    <span><FileText className="w-2.5 h-2.5 inline mr-0.5" />{scout.reportCount} Reports</span>
+                    <span><FileText className="w-2.5 h-2.5 inline mr-0.5" />{scout.reportCount} {ts('reports')}</span>
                     {scout.approvedBounties > 0 && (
-                      <span className="text-[#22C55E]">{scout.approvedBounties} genehmigt</span>
+                      <span className="text-[#22C55E]">{scout.approvedBounties} {ts('approved')}</span>
                     )}
                     {scout.avgRating > 0 && (
                       <span><Star className="w-2.5 h-2.5 inline mr-0.5 text-[#FFD700]" />{scout.avgRating.toFixed(1)}</span>
@@ -167,7 +169,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-xs font-mono text-white/40">Score</div>
+                  <div className="text-xs font-mono text-white/40">{ts('scoreLabel')}</div>
                   <div className="font-bold text-sm">{scout.analystScore}</div>
                 </div>
               </Card>
@@ -180,11 +182,11 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
       <div>
         <div className="flex items-center gap-2 mb-4">
           <FileText className="w-5 h-5 text-sky-400" />
-          <h2 className="text-lg font-black">Letzte Berichte</h2>
+          <h2 className="text-lg font-black">{ts('recentReports')}</h2>
         </div>
 
         {recentReports.length === 0 ? (
-          <Card className="p-6 text-center text-sm text-white/30">Noch keine Scouting-Reports</Card>
+          <Card className="p-6 text-center text-sm text-white/30">{ts('noScoutingReports')}</Card>
         ) : (
           <div className="space-y-2">
             {recentReports.map(r => (

@@ -166,7 +166,7 @@ function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
   return (
     <div className="flex flex-col items-center relative w-[52px] md:w-[60px] lg:w-[72px]">
       {/* Score badge (top-right, overlapping) */}
-      <div className={`absolute -top-1 -right-0.5 md:-top-1.5 md:-right-2 z-20 min-w-[1.4rem] md:min-w-[1.6rem] px-1 py-0.5 rounded-full text-[8px] md:text-[9px] font-mono font-black text-center shadow-lg ${badge}`}>
+      <div className={`absolute -top-1 -right-0.5 md:-top-1.5 md:-right-2 z-20 min-w-[1.4rem] md:min-w-[1.6rem] px-1 py-0.5 rounded-full text-[9px] md:text-[9px] font-mono font-black text-center shadow-lg ${badge}`}>
         {pts}
       </div>
       {/* Player circle */}
@@ -179,11 +179,11 @@ function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
         </span>
       </div>
       {/* Name */}
-      <div className="text-[8px] md:text-[9px] lg:text-[10px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
+      <div className="text-[9px] md:text-[9px] lg:text-[10px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
         {stat.player_last_name}
       </div>
       {/* Stats line — hidden on small mobile */}
-      <div className="hidden md:flex items-center justify-center gap-0.5 text-[8px] text-white/30">
+      <div className="hidden md:flex items-center justify-center gap-0.5 text-[9px] text-white/30">
         <span>{stat.minutes_played}&apos;</span>
         {stat.goals > 0 && <span className="text-[#FFD700]">{stat.goals}G</span>}
         {stat.assists > 0 && <span className="text-sky-400">{stat.assists}A</span>}
@@ -389,7 +389,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
                         {sponsor?.sponsorLogo ? (
                           <img src={sponsor.sponsorLogo} alt="" className="w-10 h-10 object-contain opacity-30" />
                         ) : (
-                          <span className="text-[8px] text-white/15 font-bold tracking-wider uppercase">Sponsor</span>
+                          <span className="text-[9px] text-white/15 font-bold tracking-wider uppercase">Sponsor</span>
                         )}
                       </div>
                     </div>
@@ -416,12 +416,12 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
                           <div className="flex gap-1.5 flex-wrap justify-center">
                             {allBench.map(s => (
                               <div key={s.id} className="flex items-center gap-1 px-2 py-1 bg-black/20 rounded-lg text-[9px] border border-white/[0.06]">
-                                <span className={`px-1 py-0.5 rounded text-[8px] font-bold ${posColor(s.player_position)}`}>
+                                <span className={`px-1 py-0.5 rounded text-[9px] font-bold ${posColor(s.player_position)}`}>
                                   {s.player_position}
                                 </span>
                                 <span className="text-white/50">{s.player_last_name}</span>
                                 <span className="text-white/25 font-mono">{s.minutes_played}&apos;</span>
-                                <span className={`px-1 py-0.5 rounded text-[8px] font-bold ${scoreBadgeColor(s.fantasy_points)}`}>
+                                <span className={`px-1 py-0.5 rounded text-[9px] font-bold ${scoreBadgeColor(s.fantasy_points)}`}>
                                   {s.fantasy_points}
                                 </span>
                               </div>
@@ -443,7 +443,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
                       {sponsor?.sponsorLogo && <img src={sponsor.sponsorLogo} alt="" className="h-3.5 w-auto object-contain" />}
                       <span className="text-[9px] text-white/30 font-medium">{sponsor?.sponsorName || 'Sponsor Logo'}</span>
                     </div>
-                    <span className="text-[8px] text-white/20 font-bold tracking-widest uppercase">{sponsor?.sponsorName ? `${sponsor.sponsorName} × BeScout` : 'Powered by BeScout'}</span>
+                    <span className="text-[9px] text-white/20 font-bold tracking-widest uppercase">{sponsor?.sponsorName ? `${sponsor.sponsorName} × BeScout` : 'Powered by BeScout'}</span>
                     <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.04] rounded-lg border border-white/[0.06]">
                       {sponsor?.sponsorLogo && <img src={sponsor.sponsorLogo} alt="" className="h-3.5 w-auto object-contain" />}
                       <span className="text-[9px] text-white/30 font-medium">{sponsor?.sponsorName || 'Sponsor Logo'}</span>

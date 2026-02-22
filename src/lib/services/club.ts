@@ -279,7 +279,7 @@ export async function setUserPrimaryClub(userId: string, clubId: string): Promis
     .from('clubs')
     .select('name')
     .eq('id', clubId)
-    .single();
+    .maybeSingle();
 
   await supabase
     .from('profiles')

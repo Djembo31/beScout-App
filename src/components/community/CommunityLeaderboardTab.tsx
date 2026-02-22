@@ -284,7 +284,7 @@ export default function CommunityLeaderboardTab({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm truncate">{entry.display_name ?? entry.handle}</span>
-                        {isSelf && <span className="px-1 py-0.5 rounded text-[8px] font-bold bg-[#FFD700]/15 text-[#FFD700]">Du</span>}
+                        {isSelf && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-[#FFD700]/15 text-[#FFD700]">Du</span>}
                       </div>
                       <RangScorePill score={displayScore} />
                     </div>

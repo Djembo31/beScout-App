@@ -53,7 +53,22 @@ export function FeedbackModal({ open, onClose, pageUrl }: FeedbackModalProps) {
   }
 
   return (
-    <Modal open={open} title="Feedback senden" onClose={onClose}>
+    <Modal
+      open={open}
+      title="Feedback senden"
+      onClose={onClose}
+      footer={
+        <Button
+          variant="gold"
+          fullWidth
+          loading={loading}
+          disabled={!isValid}
+          onClick={handleSubmit}
+        >
+          Feedback senden
+        </Button>
+      }
+    >
       {/* Type pills */}
       <div className="flex gap-2 mb-4">
         {TYPE_OPTIONS.map((opt) => (
@@ -92,16 +107,6 @@ export function FeedbackModal({ open, onClose, pageUrl }: FeedbackModalProps) {
         </span>
       </div>
 
-      {/* Submit */}
-      <Button
-        variant="gold"
-        fullWidth
-        loading={loading}
-        disabled={!isValid}
-        onClick={handleSubmit}
-      >
-        Feedback senden
-      </Button>
     </Modal>
   );
 }

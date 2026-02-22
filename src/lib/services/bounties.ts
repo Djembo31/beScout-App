@@ -266,7 +266,7 @@ export async function submitBountyResponse(
         .from('bounties')
         .select('created_by, title')
         .eq('id', bountyId)
-        .single();
+        .maybeSingle();
       if (bounty) {
         await createNotification(
           bounty.created_by,
@@ -318,7 +318,7 @@ export async function approveBountySubmission(
         .from('bounty_submissions')
         .select('user_id, bounty_id, bounties(title)')
         .eq('id', submissionId)
-        .single();
+        .maybeSingle();
       if (sub) {
         const bounty = (sub as Record<string, unknown>).bounties as { title: string } | null;
         await createNotification(
@@ -335,7 +335,7 @@ export async function approveBountySubmission(
     // Fire-and-forget: analyst score + airdrop refresh + auto-post for submitter
     (async () => {
       try {
-        const { data: s } = await supabase.from('bounty_submissions').select('user_id, bounty_id, bounties(reward_cents, club_id, club_name)').eq('id', submissionId).single();
+        const { data: s } = await supabase.from('bounty_submissions').select('user_id, bounty_id, bounties(reward_cents, club_id, club_name)').eq('id', submissionId).maybeSingle();
         if (s) {
           // +10/20/30 Analyst based on bounty reward
           const bountyData = Array.isArray(s.bounties) ? s.bounties[0] : s.bounties;
@@ -349,7 +349,7 @@ export async function approveBountySubmission(
 
           // Auto-post: visible in community feed
           if (clubId) {
-            const { data: scoutProfile } = await supabase.from('profiles').select('handle').eq('id', s.user_id).single();
+            const { data: scoutProfile } = await supabase.from('profiles').select('handle').eq('id', s.user_id).maybeSingle();
             const scoutHandle = scoutProfile?.handle ?? 'Scout';
             const { createPost } = await import('@/lib/services/posts');
             createPost(
@@ -376,7 +376,7 @@ export async function approveBountySubmission(
           .from('bounty_submissions')
           .select('user_id')
           .eq('id', submissionId)
-          .single();
+          .maybeSingle();
         if (subData) {
           await refreshUserStats(subData.user_id);
           await checkAndUnlockAchievements(subData.user_id);
@@ -418,7 +418,7 @@ export async function rejectBountySubmission(
         .from('bounty_submissions')
         .select('user_id, bounty_id, bounties(title)')
         .eq('id', submissionId)
-        .single();
+        .maybeSingle();
       if (sub) {
         const bounty = (sub as Record<string, unknown>).bounties as { title: string } | null;
         await createNotification(

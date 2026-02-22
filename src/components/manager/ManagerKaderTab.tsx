@@ -97,7 +97,7 @@ function L5ScoreBars({ scores, minutes }: { scores: number[] | undefined; minute
               className={cn('w-[7px] rounded-sm', color)}
               style={{ height: `${(pct / 100) * 24}px`, opacity }}
             />
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-1.5 py-0.5 bg-black/90 border border-white/10 rounded text-[8px] font-mono text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10">
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-1.5 py-0.5 bg-black/90 border border-white/10 rounded text-[9px] font-mono text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10">
               {s.score}pts{s.min != null ? ` · ${s.min}'` : ''}
             </div>
           </div>

@@ -21,7 +21,22 @@ export default function OfferModal({
   const t = useTranslations('player');
 
   return (
-    <Modal open={open} onClose={onClose} title={t('offer.title')} subtitle={t('offer.subtitle')}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={t('offer.title')}
+      subtitle={t('offer.subtitle')}
+      footer={
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={onClose} className="flex-1">
+            {t('offer.cancel')}
+          </Button>
+          <Button variant="gold" onClick={onSubmit} disabled={!offerPrice || offerLoading} className="flex-1">
+            {offerLoading ? t('offer.sending') : t('offer.send')}
+          </Button>
+        </div>
+      }
+    >
       <div className="space-y-4">
         <div>
           <label className="text-xs text-white/60 mb-1 block">{t('offer.priceLabel')}</label>
@@ -38,12 +53,6 @@ export default function OfferModal({
             placeholder={t('offer.messagePlaceholder')} maxLength={200}
             className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/30"
           />
-        </div>
-        <div className="flex gap-2">
-          <button onClick={onClose} className="flex-1 py-2 text-sm text-white/40 hover:text-white/60">{t('offer.cancel')}</button>
-          <Button onClick={onSubmit} disabled={!offerPrice || offerLoading} className="flex-1">
-            {offerLoading ? t('offer.sending') : t('offer.send')}
-          </Button>
         </div>
       </div>
     </Modal>

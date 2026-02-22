@@ -3,7 +3,29 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 9** – 191 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs. Build sauber (0 Fehler). **Community Redesign fertig.** Single-Scroll Layout (Hero + Bounties + Feed + Sidebar), keine Tabs mehr. 3 neue Components, CommunityFeedTab -47%.
+**Woche 9** – 194 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs. Build sauber (0 Fehler). **Final QA Sprint fertig.** 7 Fixes: i18n 4 Scouting Components (~90 Keys DE+TR), RLS initplan (24 Policies), .maybeSingle() Safety, text-[9px] Minimum, Touch Targets 44px.
+
+## Session 22.02.2026 (114) – Final QA Sprint vor Beta-Launch
+
+### Änderungen
+- **`.single()` → `.maybeSingle()`** — club.ts (1), bounties.ts (6), research.ts (4), posts.ts (1) — verhindert 406 Errors bei 0 Rows in fire-and-forget Blöcken
+- **i18n 4 Scouting Components** — ~90 Keys in 3 neuen Namespaces (bounty, bountyAdmin, research). AdminScoutingTab, BountyCard, AdminBountiesTab, CreateResearchModal vollständig lokalisiert DE+TR
+- **Migration #194: RLS initplan** — 24 Policies über 14 Tabellen: `auth.uid()` → `(select auth.uid())` für Query-Performance
+- **text-[8px] → text-[9px]** — 14 Instanzen in 5 Fantasy/Community/Manager-Dateien (Minimum-Textgröße)
+- **Touch Targets min-h-[44px]** — 13 Instanzen in 6 Dateien (Apple HIG Compliance)
+- **Security Advisors clean** — Nur 2 bekannte WARNs (dpc_of_the_week intentional, Leaked PW braucht Pro Plan)
+
+### Dateien modifiziert (~20)
+- Services: club.ts, bounties.ts, research.ts, posts.ts (.maybeSingle)
+- Admin: AdminScoutingTab.tsx, AdminBountiesTab.tsx (i18n rewrite)
+- Community: BountyCard.tsx, CreateResearchModal.tsx (i18n rewrite)
+- Fantasy: SpieltagTab, EventDetailModal, DashboardTab (text-[9px])
+- Community/Player: CommunityFeedTab, ScoutingEvaluationForm, page.tsx, HoldingsSection, SellModal, MarktTab (min-h-[44px])
+- i18n: de.json + tr.json (~90 neue Keys)
+
+## Session 21.02.2026 (113) – Scouting × Gamification Integration (5 Sprints)
+
+## Session 21.02.2026 (112) – Crowd Scouting Modul (5 Sprints, 2 Migrations #192-#193)
 
 ## Session 21.02.2026 (111) – Community Redesign: Single-Scroll
 

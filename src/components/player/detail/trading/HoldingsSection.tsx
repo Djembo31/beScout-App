@@ -98,11 +98,11 @@ export default function HoldingsSection({
                     <div className="mt-1.5 space-y-1">
                       <div className="flex items-center gap-1.5">
                         <button onClick={() => setSellPriceBsd(floorBsd.toString())}
-                          className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">Floor</button>
+                          className="px-2.5 py-1.5 min-h-[44px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">Floor</button>
                         <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.05).toString())}
-                          className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+5%</button>
+                          className="px-2.5 py-1.5 min-h-[44px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+5%</button>
                         <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.10).toString())}
-                          className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+10%</button>
+                          className="px-2.5 py-1.5 min-h-[44px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+10%</button>
                         <span className="text-[11px] text-white/25 ml-1">Floor: {fmtScout(floorBsd)}</span>
                       </div>
                     </div>

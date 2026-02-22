@@ -13,15 +13,18 @@ import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import { createResearchPost, resolveExpiredResearch } from '@/lib/services/research';
 import { submitBountyResponse } from '@/lib/services/bounties';
 import { getClubBySlug, getUserPrimaryClub } from '@/lib/services/club';
+import { getGesamtRang } from '@/lib/gamification';
 import {
   usePlayers, useHoldings, usePosts, useLeaderboard,
   useFollowingIds, useFollowerCount, useFollowingCount,
   useClubVotes, useResearchPosts, useActiveBounties, useClubSubscription,
+  useUserStats,
   qk, invalidateResearchQueries,
 } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
 import CommunityHero from '@/components/community/CommunityHero';
 import CommunityBountySection from '@/components/community/CommunityBountySection';
+import ClubNewsSection from '@/components/community/ClubNewsSection';
 import CommunityFeedTab from '@/components/community/CommunityFeedTab';
 import CommunitySidebar from '@/components/community/CommunitySidebar';
 import CreatePostModal from '@/components/community/CreatePostModal';
@@ -53,6 +56,7 @@ export default function CommunityPage() {
   const [createPostOpen, setCreatePostOpen] = useState(false);
   const [createResearchOpen, setCreateResearchOpen] = useState(false);
   const [followListMode, setFollowListMode] = useState<'followers' | 'following' | null>(null);
+  const [defaultPostType, setDefaultPostType] = useState<PostType>('general');
 
   // Action loading state
   const [postLoading, setPostLoading] = useState(false);
@@ -80,6 +84,7 @@ export default function CommunityPage() {
   const { data: followingCountNum = 0 } = useFollowingCount(uid);
   const { data: bounties = [] } = useActiveBounties(uid, scopeClubId);
   const { data: subscription } = useClubSubscription(uid, clubId ?? undefined);
+  const { data: userStats } = useUserStats(uid);
 
   // ---- Derived data ----
   const followingIds = useMemo(() => new Set(followingIdsList), [followingIdsList]);
@@ -87,6 +92,23 @@ export default function CommunityPage() {
   const allPlayers = useMemo(() =>
     rawPlayers.map(p => ({ id: p.id, name: `${p.first} ${p.last}`, pos: p.pos })),
     [rawPlayers]
+  );
+
+  // User rang tier for research gate (Bronze II = tier 2)
+  const userRangTier = useMemo(() => {
+    if (!userStats) return 0;
+    const rang = getGesamtRang({
+      trader_score: userStats.trading_score ?? 0,
+      manager_score: userStats.manager_score ?? 0,
+      analyst_score: userStats.scout_score ?? 0,
+    });
+    return rang.tier;
+  }, [userStats]);
+
+  // Club news posts (separate section)
+  const clubNewsPosts = useMemo(() =>
+    posts.filter(p => p.post_type === 'club_news').slice(0, 5),
+    [posts]
   );
 
   // ---- Club context resolution ----
@@ -252,6 +274,8 @@ export default function CommunityPage() {
     fixtureId?: string | null;
   }) => {
     if (!uid) return;
+    if (!clubId) { addToast(t('feed.noClub'), 'error'); return; }
+    if (userRangTier < 2) { addToast(t('research.rangRequired'), 'error'); return; }
     setResearchLoading(true);
     try {
       await createResearchPost({
@@ -278,7 +302,7 @@ export default function CommunityPage() {
     } finally {
       setResearchLoading(false);
     }
-  }, [uid, clubName, clubId, addToast]);
+  }, [uid, clubName, clubId, userRangTier, addToast, t]);
 
   const handleBountySubmit = useCallback(async (bountyId: string, title: string, content: string, evaluation?: Record<string, unknown> | null) => {
     if (!uid) return;
@@ -308,9 +332,13 @@ export default function CommunityPage() {
         <h1 className="text-2xl md:text-3xl font-black mb-1">{t('title')}</h1>
         <p className="text-sm text-white/50 mb-4">{t('subtitle')}</p>
         <CommunityHero
-          onCreatePost={() => { setCreatePostOpen(true); }}
-          onCreateRumor={() => { setCreatePostOpen(true); /* CreatePostModal handles postType selection */ }}
-          onCreateResearch={() => setCreateResearchOpen(true)}
+          onCreatePost={() => { setDefaultPostType('general'); setCreatePostOpen(true); }}
+          onCreateRumor={() => { setDefaultPostType('transfer_rumor'); setCreatePostOpen(true); }}
+          onCreateResearch={() => {
+            if (userRangTier < 2) { addToast(t('research.rangRequired'), 'error'); return; }
+            setCreateResearchOpen(true);
+          }}
+          researchLocked={userRangTier < 2}
         />
       </div>
 
@@ -321,7 +349,7 @@ export default function CommunityPage() {
             <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl">
               <button
                 onClick={() => setClubScope('all')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[36px] ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] ${
                   clubScope === 'all' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
                 }`}
               >
@@ -329,7 +357,7 @@ export default function CommunityPage() {
               </button>
               <button
                 onClick={() => setClubScope('myclub')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[36px] ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] ${
                   clubScope === 'myclub' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
                 }`}
               >
@@ -344,7 +372,7 @@ export default function CommunityPage() {
               <button
                 key={mode}
                 onClick={() => setFeedMode(mode)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[36px] ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] ${
                   feedMode === mode ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
                 }`}
               >
@@ -380,6 +408,12 @@ export default function CommunityPage() {
         onSubmit={handleBountySubmit}
         submitting={bountySubmitting}
         userTier={subscription?.tier}
+      />
+
+      {/* [D] Club News Section */}
+      <ClubNewsSection
+        posts={clubNewsPosts}
+        onShowAll={() => {/* Feed filter is handled inside CommunityFeedTab */}}
       />
 
       {/* Loading / Error */}
@@ -468,6 +502,7 @@ export default function CommunityPage() {
         players={allPlayers}
         onSubmit={handleCreatePost}
         loading={postLoading}
+        defaultPostType={defaultPostType}
       />
 
       <CreateResearchModal

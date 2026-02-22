@@ -56,7 +56,7 @@ export default function MarktTab({
               {onOpenOfferModal && (
                 <button
                   onClick={onOpenOfferModal}
-                  className="text-xs px-3 py-1.5 min-h-[36px] rounded-lg bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20 hover:bg-[#FFD700]/20 transition-colors font-medium"
+                  className="text-xs px-3 py-1.5 min-h-[44px] rounded-lg bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20 hover:bg-[#FFD700]/20 transition-colors font-medium"
                 >
                   Kaufangebot machen
                 </button>

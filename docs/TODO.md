@@ -1,9 +1,24 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 21.02.2026 (Session 111)
-> Modus: PILOT SPRINT — 191 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 566 Spieler, 505 Player Images
+> Letzte Aktualisierung: 22.02.2026 (Session 114)
+> Modus: PILOT SPRINT — 194 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 566 Spieler, 505 Player Images
 
 ---
+
+## Final QA Sprint ✅ (22.02.2026)
+- [x] `.single()` → `.maybeSingle()` in club.ts, bounties.ts, research.ts, posts.ts (12 Stellen)
+- [x] i18n 4 Scouting Components: ~90 Keys DE+TR (bounty, bountyAdmin, research Namespaces)
+- [x] Migration #194: RLS initplan — 24 Policies `auth.uid()` → `(select auth.uid())`
+- [x] text-[8px] → text-[9px] — 14 Instanzen in 5 Dateien
+- [x] Touch Targets min-h-[44px] — 13 Instanzen in 6 Dateien
+- [x] Security + Performance Advisors verified clean
+- [x] **~20 Dateien modifiziert, 1 Migration, Build 0 Fehler**
+
+## Scouting × Gamification Integration ✅ (21.02.2026)
+- [x] 5 Sprints: Credibility-Pill, Scout-Stats, Club-Prestige, Scout-Leaderboard, Feedback-Loop
+
+## Crowd Scouting Modul ✅ (21.02.2026)
+- [x] 5 Sprints, 2 Migrations (#192-#193), 4 neue Dateien, 13 modifiziert, 11. Admin-Tab
 
 ## Community Redesign: Single-Scroll ✅ (21.02.2026)
 - [x] Sprint 1: CommunityHero.tsx — 3 Quick-Action-Cards (Post, Gerücht, Analyse) mit Gradient-Borders + i18n

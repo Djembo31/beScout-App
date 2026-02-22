@@ -6,7 +6,7 @@ import { Card, Chip, Button, Modal } from '@/components/ui';
 import { formatScout } from '@/lib/services/wallet';
 import ScoutingEvaluationForm from '@/components/community/ScoutingEvaluationForm';
 import type { BountyWithCreator, ScoutingEvaluation } from '@/types';
-import { getClub } from '@/lib/clubs';
+import { useTranslations } from 'next-intl';
 
 const TIER_ORDER: Record<string, number> = { bronze: 1, silber: 2, gold: 3 };
 const TIER_LABELS: Record<string, string> = { bronze: 'Bronze', silber: 'Silber', gold: 'Gold' };
@@ -30,6 +30,7 @@ interface BountyCardProps {
 }
 
 export default function BountyCard({ bounty, userId, onSubmit, submitting, userTier }: BountyCardProps) {
+  const tb = useTranslations('bounty');
   const [modalOpen, setModalOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -47,7 +48,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
   const diffMs = new Date(bounty.deadline_at).getTime() - Date.now();
   const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const timeLeft = diffMs > 0 ? `${days}d ${hours}h` : 'Abgelaufen';
+  const timeLeft = diffMs > 0 ? `${days}d ${hours}h` : tb('expired');
 
   const isEvalValid = isScouting
     ? evaluation.technik >= 1 && evaluation.taktik >= 1 && evaluation.athletik >= 1 &&
@@ -74,12 +75,6 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
     setTried(false);
   };
 
-  // Fixture info
-  const fixtureInfo = bounty.fixture_id ? (() => {
-    // We don't have fixture data on BountyWithCreator, so just show reference
-    return bounty.fixture_id;
-  })() : null;
-
   return (
     <>
       <Card className="overflow-hidden">
@@ -96,7 +91,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
               <Target className="w-5 h-5 text-amber-400" />
             )}
             <span className={`font-bold ${isScouting ? 'text-rose-300' : 'text-amber-300'}`}>
-              {isScouting ? 'Scouting-Auftrag' : 'Club-Auftrag'}
+              {isScouting ? tb('scoutingTask') : tb('clubTask')}
             </span>
             {bounty.min_tier && (
               <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border ${TIER_COLORS[bounty.min_tier] ?? ''}`}>
@@ -117,7 +112,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
 
           {bounty.player_name && (
             <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/60 mb-3">
-              Spieler: {bounty.player_name}
+              {tb('playerLabel', { name: bounty.player_name })}
             </div>
           )}
 
@@ -137,7 +132,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
           {hasSubmitted && (
             <Chip className="bg-[#22C55E]/15 text-[#22C55E] border-[#22C55E]/25">
               <CheckCircle className="w-3 h-3 inline mr-1" />
-              Eingereicht
+              {tb('submitted')}
             </Chip>
           )}
           {canSubmit && (
@@ -147,20 +142,20 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
               onClick={() => setModalOpen(true)}
               loading={submitting === bounty.id}
             >
-              Einreichen
+              {tb('submit')}
             </Button>
           )}
           {isTierLocked && !hasSubmitted && (
             <Chip className={`${TIER_COLORS[bounty.min_tier ?? 'bronze']}`}>
               <Lock className="w-3 h-3 inline mr-1" />
-              {TIER_LABELS[bounty.min_tier ?? ''] ?? 'Abo'}+ erforderlich
+              {tb('tierRequired', { tier: TIER_LABELS[bounty.min_tier ?? ''] ?? 'Abo' })}
             </Chip>
           )}
           {isFull && !hasSubmitted && !isTierLocked && (
-            <Chip className="bg-white/5 text-white/40 border-white/10">Voll</Chip>
+            <Chip className="bg-white/5 text-white/40 border-white/10">{tb('full')}</Chip>
           )}
           {isCreator && (
-            <Chip className="bg-amber-500/15 text-amber-300 border-amber-500/25">Dein Auftrag</Chip>
+            <Chip className="bg-amber-500/15 text-amber-300 border-amber-500/25">{tb('yourBounty')}</Chip>
           )}
         </div>
       </Card>
@@ -168,7 +163,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
       {/* Submit Modal */}
       <Modal
         open={modalOpen}
-        title={isScouting ? 'Scouting-Bewertung einreichen' : 'Lösung einreichen'}
+        title={isScouting ? tb('submitScoutingEval') : tb('submitSolution')}
         onClose={() => { setModalOpen(false); setTried(false); }}
       >
         <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
@@ -178,12 +173,12 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
             <span className="text-[#FFD700] font-bold">{formatScout(bounty.reward_cents)} $SCOUT</span>
           </div>
           <div>
-            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Titel</label>
+            <label className="text-xs text-white/50 font-semibold mb-1.5 block">{tb('title')}</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value.slice(0, 200))}
-              placeholder="Kurze Zusammenfassung deiner Lösung"
+              placeholder={tb('titlePlaceholder')}
               className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40"
             />
           </div>
@@ -202,15 +197,15 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
           )}
 
           <div>
-            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Inhalt</label>
+            <label className="text-xs text-white/50 font-semibold mb-1.5 block">{tb('content')}</label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value.slice(0, 10000))}
               rows={6}
-              placeholder={isScouting ? 'Begründe deine Bewertung ausführlich (min. 100 Zeichen)...' : 'Beschreibe deine Analyse ausführlich (min. 100 Zeichen)...'}
+              placeholder={isScouting ? tb('contentScoutingPlaceholder') : tb('contentGeneralPlaceholder')}
               className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none"
             />
-            <div className="text-[10px] text-white/30 mt-1">{content.length}/10000 (min. 100)</div>
+            <div className="text-[10px] text-white/30 mt-1">{tb('charCount', { count: content.length })}</div>
           </div>
           <Button
             variant="gold"
@@ -219,7 +214,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
             loading={submitting === bounty.id}
             disabled={!canSubmitForm}
           >
-            Einreichen
+            {tb('submit')}
           </Button>
         </div>
       </Modal>

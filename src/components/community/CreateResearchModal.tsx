@@ -5,6 +5,7 @@ import { Modal, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import ScoutingEvaluationForm from '@/components/community/ScoutingEvaluationForm';
 import type { Pos, ResearchCall, ResearchHorizon, ResearchCategory, ScoutingEvaluation, DbFixture } from '@/types';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   open: boolean;
@@ -30,13 +31,21 @@ type Props = {
 const CALLS: ResearchCall[] = ['Bullish', 'Bearish', 'Neutral'];
 const HORIZONS: ResearchHorizon[] = ['24h', '7d', 'Season'];
 
-const CATEGORIES: { id: ResearchCategory; label: string; color: string }[] = [
-  { id: 'Spieler-Analyse', label: 'Spieler-Analyse', color: 'bg-sky-500/15 text-sky-300 border-sky-500/20' },
-  { id: 'Transfer-Empfehlung', label: 'Transfer-Empfehlung', color: 'bg-purple-500/15 text-purple-300 border-purple-500/20' },
-  { id: 'Taktik', label: 'Taktik', color: 'bg-amber-500/15 text-amber-300 border-amber-500/20' },
-  { id: 'Saisonvorschau', label: 'Saisonvorschau', color: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/20' },
-  { id: 'Scouting-Report', label: 'Scouting-Report', color: 'bg-rose-500/15 text-rose-300 border-rose-500/20' },
-];
+const CATEGORY_IDS: ResearchCategory[] = ['Spieler-Analyse', 'Transfer-Empfehlung', 'Taktik', 'Saisonvorschau', 'Scouting-Report'];
+const CATEGORY_COLORS: Record<ResearchCategory, string> = {
+  'Spieler-Analyse': 'bg-sky-500/15 text-sky-300 border-sky-500/20',
+  'Transfer-Empfehlung': 'bg-purple-500/15 text-purple-300 border-purple-500/20',
+  'Taktik': 'bg-amber-500/15 text-amber-300 border-amber-500/20',
+  'Saisonvorschau': 'bg-emerald-500/15 text-emerald-300 border-emerald-500/20',
+  'Scouting-Report': 'bg-rose-500/15 text-rose-300 border-rose-500/20',
+};
+const CATEGORY_I18N_KEYS: Record<ResearchCategory, string> = {
+  'Spieler-Analyse': 'catPlayerAnalysis',
+  'Transfer-Empfehlung': 'catTransferRec',
+  'Taktik': 'catTactics',
+  'Saisonvorschau': 'catSeasonPreview',
+  'Scouting-Report': 'catScoutingReport',
+};
 
 const callStyle: Record<ResearchCall, { active: string; inactive: string }> = {
   Bullish: { active: 'bg-[#22C55E]/20 text-[#22C55E] border-[#22C55E]/30', inactive: 'bg-white/5 text-white/50 border-white/10' },
@@ -50,6 +59,7 @@ const EMPTY_EVALUATION: ScoutingEvaluation = {
 };
 
 export default function CreateResearchModal({ open, onClose, players, onSubmit, loading, fixtures }: Props) {
+  const tr = useTranslations('research');
   const [title, setTitle] = useState('');
   const [playerId, setPlayerId] = useState('');
   const [call, setCall] = useState<ResearchCall>('Bullish');
@@ -128,40 +138,61 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
   }, [open]);
 
   return (
-    <Modal open={open} title={isScouting ? 'Neuer Scouting-Report' : 'Neuer Research-Bericht'} onClose={onClose}>
-      <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+    <Modal
+      open={open}
+      title={isScouting ? tr('newScoutingReport') : tr('newResearchReport')}
+      onClose={onClose}
+      footer={
+        <div className="space-y-2">
+          {!canSubmit && (tried || title.length > 0 || preview.length > 0 || content.length > 0) && (
+            <div className="text-xs text-red-400/80 space-y-0.5">
+              {title.length < 5 && <div>{tr('errorTitle', { min: 5, count: title.length })}</div>}
+              {preview.length === 0 && <div>{tr('errorPreview')}</div>}
+              {content.length < 50 && <div>{tr('errorContent', { min: 50, count: content.length })}</div>}
+              {(priceBsd < 1 || priceBsd > 100000) && <div>{tr('errorPrice')}</div>}
+              {isScouting && !playerId && <div>{tr('errorPlayer')}</div>}
+              {isScouting && !isEvalValid && <div>{tr('errorEval')}</div>}
+            </div>
+          )}
+          <Button variant="gold" fullWidth loading={loading} disabled={!canSubmit} onClick={handleSubmit}>
+            {isScouting ? tr('publishScouting') : tr('publishResearch')}
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-4">
         {/* Title */}
         <div>
           <label className="text-xs text-white/50 font-semibold mb-1.5 flex justify-between">
-            <span>Titel</span>
+            <span>{tr('title')}</span>
             <span className={cn('font-mono', title.length > 180 ? 'text-amber-400' : 'text-white/30')}>{title.length}/200</span>
           </label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value.slice(0, 200))}
-            placeholder={isScouting ? 'z.B. Scouting: Mehmet Yilmaz — Starke Technik, Potenzial' : 'z.B. Matchday Edge: Warum Yasin heute überperformen kann'}
+            placeholder={isScouting ? tr('titleScoutingPlaceholder') : tr('titleResearchPlaceholder')}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40"
           />
         </div>
 
         {/* Category */}
         <div>
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">Kategorie</label>
+          <label className="text-xs text-white/50 font-semibold mb-1.5 block">{tr('category')}</label>
           <div className="flex gap-1.5 flex-wrap">
-            {CATEGORIES.map(cat => (
+            {CATEGORY_IDS.map(catId => (
               <button
-                key={cat.id}
+                key={catId}
                 type="button"
-                onClick={() => setCategory(cat.id)}
+                onClick={() => setCategory(catId)}
                 className={cn(
                   'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border',
-                  category === cat.id
-                    ? cat.color
+                  category === catId
+                    ? CATEGORY_COLORS[catId]
                     : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
                 )}
               >
-                {cat.label}
+                {tr(CATEGORY_I18N_KEYS[catId])}
               </button>
             ))}
           </div>
@@ -170,7 +201,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
         {/* Player */}
         <div className="relative" ref={playerRef}>
           <label className="text-xs text-white/50 font-semibold mb-1.5 block">
-            Spieler {isScouting ? '(Pflicht)' : '(optional)'}
+            {isScouting ? tr('playerRequired') : tr('playerOptional')}
           </label>
           <input
             type="text"
@@ -178,7 +209,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             onChange={(e) => { setPlayerSearch(e.target.value); setPlayerDropdownOpen(true); }}
             onFocus={() => setPlayerDropdownOpen(true)}
             onKeyDown={(e) => { if (e.key === 'Escape') setPlayerDropdownOpen(false); }}
-            placeholder={playerId ? players.find(p => p.id === playerId)?.name ?? 'Spieler suchen...' : 'Spieler suchen...'}
+            placeholder={playerId ? players.find(p => p.id === playerId)?.name ?? tr('searchPlayer') : tr('searchPlayer')}
             className={cn(
               'w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40',
               playerId && !playerSearch && 'text-white/70',
@@ -202,7 +233,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
                   onClick={() => { setPlayerId(''); setPlayerSearch(''); setPlayerDropdownOpen(false); }}
                   className="w-full px-4 py-2 text-left text-sm text-white/50 hover:bg-white/5"
                 >
-                  Kein Spieler
+                  {tr('noPlayer')}
                 </button>
               )}
               {players
@@ -223,12 +254,12 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
                   </button>
                 ))}
               {players.filter(p => !playerSearch || p.name.toLowerCase().includes(playerSearch.toLowerCase())).length === 0 && (
-                <div className="px-4 py-2 text-sm text-white/30">Kein Spieler gefunden</div>
+                <div className="px-4 py-2 text-sm text-white/30">{tr('noPlayerFound')}</div>
               )}
             </div>
           )}
           {tried && isScouting && !playerId && (
-            <div className="text-[10px] text-red-400 mt-0.5">Spieler ist Pflichtfeld für Scouting-Reports</div>
+            <div className="text-[10px] text-red-400 mt-0.5">{tr('playerRequiredError')}</div>
           )}
         </div>
 
@@ -250,7 +281,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
         {!isScouting && (
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Call</label>
+              <label className="text-xs text-white/50 font-semibold mb-1.5 block">{tr('call')}</label>
               <div className="flex gap-1.5">
                 {CALLS.map(c => (
                   <button
@@ -267,7 +298,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
               </div>
             </div>
             <div>
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Horizon</label>
+              <label className="text-xs text-white/50 font-semibold mb-1.5 block">{tr('horizon')}</label>
               <div className="flex gap-1.5">
                 {HORIZONS.map(h => (
                   <button
@@ -288,7 +319,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
 
         {/* Price */}
         <div>
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">Preis ($SCOUT)</label>
+          <label className="text-xs text-white/50 font-semibold mb-1.5 block">{tr('price')}</label>
           <input
             type="number" inputMode="numeric"
             value={priceBsd}
@@ -302,20 +333,20 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             max={100000}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white font-mono focus:outline-none focus:border-[#FFD700]/40"
           />
-          <div className="text-[10px] text-white/30 mt-1">Min 1 $SCOUT, Max 100.000 $SCOUT — 80% gehen an dich, 20% Plattform-Gebühr</div>
+          <div className="text-[10px] text-white/30 mt-1">{tr('priceHint')}</div>
         </div>
 
         {/* Preview */}
         <div>
           <label className="text-xs text-white/50 font-semibold mb-1.5 flex justify-between">
-            <span>Vorschau (Teaser)</span>
+            <span>{tr('preview')}</span>
             <span className={cn('font-mono', preview.length > 280 ? 'text-amber-400' : 'text-white/30')}>{preview.length}/300</span>
           </label>
           <textarea
             value={preview}
             onChange={(e) => setPreview(e.target.value.slice(0, 300))}
             rows={2}
-            placeholder="Kurzer Teaser, der immer sichtbar ist..."
+            placeholder={tr('previewPlaceholder')}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none"
           />
         </div>
@@ -323,44 +354,31 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
         {/* Content */}
         <div>
           <label className="text-xs text-white/50 font-semibold mb-1.5 flex justify-between">
-            <span>Inhalt (hinter Paywall)</span>
+            <span>{tr('contentBehindPaywall')}</span>
             <span className={cn('font-mono', content.length > 9500 ? 'text-amber-400' : 'text-white/30')}>{content.length}/10.000</span>
           </label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value.slice(0, 10000))}
             rows={6}
-            placeholder={isScouting ? 'Detaillierte Begründung deiner Bewertung...' : 'Deine vollständige Analyse...'}
+            placeholder={isScouting ? tr('contentScoutingPlaceholder') : tr('contentResearchPlaceholder')}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none"
           />
-          <div className="text-[10px] text-white/30 mt-1">Mindestens 50 Zeichen</div>
+          <div className="text-[10px] text-white/30 mt-1">{tr('minChars', { count: 50 })}</div>
         </div>
 
         {/* Tags */}
         <div>
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">Tags (kommagetrennt)</label>
+          <label className="text-xs text-white/50 font-semibold mb-1.5 block">{tr('tags')}</label>
           <input
             type="text"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
-            placeholder="z.B. Form, Value, Tactics, Matchup"
+            placeholder={tr('tagsPlaceholder')}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40"
           />
         </div>
 
-        {!canSubmit && (tried || title.length > 0 || preview.length > 0 || content.length > 0) && (
-          <div className="text-xs text-red-400/80 space-y-0.5">
-            {title.length < 5 && <div>Titel: mind. 5 Zeichen ({title.length}/5)</div>}
-            {preview.length === 0 && <div>Vorschau darf nicht leer sein</div>}
-            {content.length < 50 && <div>Inhalt: mind. 50 Zeichen ({content.length}/50)</div>}
-            {(priceBsd < 1 || priceBsd > 100000) && <div>Preis: 1–100.000 $SCOUT</div>}
-            {isScouting && !playerId && <div>Spieler ist Pflichtfeld</div>}
-            {isScouting && !isEvalValid && <div>Alle 5 Dimensionen + Texte ausfüllen</div>}
-          </div>
-        )}
-        <Button variant="gold" fullWidth loading={loading} disabled={!canSubmit} onClick={handleSubmit}>
-          {isScouting ? 'Scouting-Report veröffentlichen' : 'Bericht veröffentlichen'}
-        </Button>
       </div>
     </Modal>
   );

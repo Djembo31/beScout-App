@@ -1,124 +1,143 @@
 import { supabase } from '@/lib/supabaseClient';
+import { getAllClubsCached } from '@/lib/clubs';
+import type { Pos } from '@/types';
 
-export type SearchResult = {
-  type: 'player' | 'research' | 'profile' | 'post' | 'bounty';
+export type SearchResultType = 'player' | 'club' | 'profile';
+
+export type RichSearchResult = {
+  type: SearchResultType;
   id: string;
-  title: string;
-  subtitle: string;
   href: string;
+  // Player
+  firstName?: string;
+  lastName?: string;
+  position?: Pos;
+  club?: string;
+  clubId?: string;
+  imageUrl?: string | null;
+  floorPrice?: number;
+  ipoPrice?: number;
+  perfL5?: number;
+  // Club
+  clubName?: string;
+  clubShort?: string;
+  clubLogo?: string | null;
+  clubSlug?: string;
+  clubLeague?: string;
+  clubColors?: { primary: string };
+  followerCount?: number;
+  // Profile
+  handle?: string;
+  displayName?: string | null;
+  avatarUrl?: string | null;
+  level?: number;
+  totalScore?: number;
 };
 
-/** Global search across players, research posts, profiles, community posts, and bounties */
-export async function globalSearch(query: string): Promise<SearchResult[]> {
+/** Unified search across players, clubs, and profiles */
+export async function spotlightSearch(
+  query: string,
+  filter: SearchResultType | 'all' = 'all',
+): Promise<RichSearchResult[]> {
   if (!query || query.length < 2) return [];
 
   const q = `%${query}%`;
+  const results: RichSearchResult[] = [];
 
-  const results = await Promise.allSettled([
-    // Players: search by name
-    supabase
-      .from('players')
-      .select('id, first_name, last_name, position, club, shirt_number')
-      .or(`first_name.ilike.${q},last_name.ilike.${q}`)
-      .limit(5),
-    // Research posts: search by title
-    supabase
-      .from('research_posts')
-      .select('id, title, call, player_name')
-      .ilike('title', q)
-      .limit(5),
-    // Profiles: search by handle or display_name
-    supabase
-      .from('profiles')
-      .select('id, handle, display_name, level')
-      .or(`handle.ilike.${q},display_name.ilike.${q}`)
-      .limit(5),
-    // Community posts: search by content
-    supabase
-      .from('posts')
-      .select('id, content, category, post_type, player_id')
-      .is('parent_id', null)
-      .ilike('content', q)
-      .order('created_at', { ascending: false })
-      .limit(5),
-    // Bounties: search by title or description
-    supabase
-      .from('bounties')
-      .select('id, title, reward_cents, status')
-      .or(`title.ilike.${q},description.ilike.${q}`)
-      .eq('status', 'open')
-      .limit(5),
-  ]);
+  const shouldSearch = (t: SearchResultType) => filter === 'all' || filter === t;
 
-  const searchResults: SearchResult[] = [];
-
-  // Players
-  if (results[0].status === 'fulfilled' && results[0].value.data) {
-    for (const p of results[0].value.data) {
-      searchResults.push({
-        type: 'player',
-        id: p.id,
-        title: `${p.first_name} ${p.last_name}`,
-        subtitle: `#${p.shirt_number ?? 0} · ${p.position} · ${p.club}`,
-        href: `/player/${p.id}`,
+  // --- Clubs: client-side, instant ---
+  if (shouldSearch('club')) {
+    const lq = query.toLowerCase();
+    const clubs = getAllClubsCached().filter(
+      (c) => c.name.toLowerCase().includes(lq) || c.short.toLowerCase().includes(lq),
+    );
+    for (const c of clubs.slice(0, 8)) {
+      results.push({
+        type: 'club',
+        id: c.id,
+        href: `/club/${c.slug}`,
+        clubName: c.name,
+        clubShort: c.short,
+        clubLogo: c.logo,
+        clubSlug: c.slug,
+        clubLeague: c.league,
+        clubColors: { primary: c.colors.primary },
       });
     }
   }
 
-  // Research
-  if (results[1].status === 'fulfilled' && results[1].value.data) {
-    for (const r of results[1].value.data) {
-      searchResults.push({
-        type: 'research',
-        id: r.id,
-        title: r.title,
-        subtitle: r.player_name ? `${r.call} · ${r.player_name}` : r.call,
-        href: '/community?tab=research',
-      });
-    }
+  // --- Players + Profiles: parallel DB queries ---
+  const promises: Promise<void>[] = [];
+
+  if (shouldSearch('player')) {
+    promises.push(
+      (async () => {
+        const { data } = await supabase
+          .from('players')
+          .select('id, first_name, last_name, position, club, club_id, floor_price, ipo_price, perf_l5, image_url')
+          .or(`first_name.ilike.${q},last_name.ilike.${q}`)
+          .limit(8);
+        if (data) {
+          for (const p of data) {
+            results.push({
+              type: 'player',
+              id: p.id,
+              href: `/player/${p.id}`,
+              firstName: p.first_name,
+              lastName: p.last_name,
+              position: p.position as Pos,
+              club: p.club,
+              clubId: p.club_id,
+              imageUrl: p.image_url,
+              floorPrice: p.floor_price,
+              ipoPrice: p.ipo_price,
+              perfL5: p.perf_l5,
+            });
+          }
+        }
+      })(),
+    );
   }
 
-  // Profiles
-  if (results[2].status === 'fulfilled' && results[2].value.data) {
-    for (const u of results[2].value.data) {
-      searchResults.push({
-        type: 'profile',
-        id: u.id,
-        title: u.display_name || u.handle,
-        subtitle: `@${u.handle} · Lv ${u.level}`,
-        href: `/profile/${u.handle}`,
-      });
-    }
+  if (shouldSearch('profile')) {
+    promises.push(
+      (async () => {
+        const { data } = await supabase
+          .from('profiles')
+          .select('id, handle, display_name, avatar_url, level')
+          .or(`handle.ilike.${q},display_name.ilike.${q}`)
+          .limit(8);
+        if (data && data.length > 0) {
+          // Batch fetch total_score from user_stats
+          const ids = data.map((u) => u.id);
+          const { data: stats } = await supabase
+            .from('user_stats')
+            .select('user_id, total_score')
+            .in('user_id', ids);
+          const scoreMap = new Map<string, number>();
+          if (stats) {
+            for (const s of stats) scoreMap.set(s.user_id, s.total_score ?? 0);
+          }
+
+          for (const u of data) {
+            results.push({
+              type: 'profile',
+              id: u.id,
+              href: `/profile/${u.handle}`,
+              handle: u.handle,
+              displayName: u.display_name,
+              avatarUrl: u.avatar_url,
+              level: u.level,
+              totalScore: scoreMap.get(u.id) ?? 0,
+            });
+          }
+        }
+      })(),
+    );
   }
 
-  // Posts
-  if (results[3].status === 'fulfilled' && results[3].value.data) {
-    for (const p of results[3].value.data) {
-      const preview = (p.content as string).slice(0, 60);
-      const typeLabel = p.post_type === 'transfer_rumor' ? 'Gerücht' : (p.category ?? 'Post');
-      searchResults.push({
-        type: 'post',
-        id: p.id,
-        title: `${preview}${(p.content as string).length > 60 ? '…' : ''}`,
-        subtitle: typeLabel,
-        href: p.player_id ? `/player/${p.player_id}` : '/community',
-      });
-    }
-  }
+  await Promise.allSettled(promises);
 
-  // Bounties
-  if (results[4].status === 'fulfilled' && results[4].value.data) {
-    for (const b of results[4].value.data) {
-      const rewardBsd = ((b.reward_cents as number) / 100).toLocaleString('de-DE');
-      searchResults.push({
-        type: 'bounty',
-        id: b.id,
-        title: b.title,
-        subtitle: `Auftrag · ${rewardBsd} $SCOUT`,
-        href: '/community?tab=aktionen',
-      });
-    }
-  }
-
-  return searchResults;
+  return results;
 }

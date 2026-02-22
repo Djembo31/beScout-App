@@ -152,6 +152,11 @@ export default function PostCard({
               )}
               {post.author_verified && <BadgeCheck className="w-3.5 h-3.5 text-[#FFD700]" />}
               {authorSubscriptionTier && <SubscriptionBadge tier={authorSubscriptionTier} size="sm" />}
+              {post.post_type === 'club_news' && (
+                <span className="text-[10px] bg-[#FFD700]/15 text-[#FFD700] px-1.5 py-0.5 rounded-full border border-[#FFD700]/20 font-semibold">
+                  Offiziell
+                </span>
+              )}
               <span className="text-[10px] text-white/30 px-1.5 py-0.5 bg-white/5 rounded">Lv{post.author_level}</span>
               {post.is_pinned && (
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20">

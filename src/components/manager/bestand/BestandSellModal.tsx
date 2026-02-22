@@ -66,7 +66,22 @@ export default function BestandSellModal({ item, open, onClose, onSell, onCancel
   const subtitle = `${item.player.first} ${item.player.last} · ${item.player.club}`;
 
   return (
-    <Modal open={open} title="DPC verkaufen" subtitle={subtitle} onClose={onClose}>
+    <Modal
+      open={open}
+      title="DPC verkaufen"
+      subtitle={subtitle}
+      onClose={onClose}
+      footer={item.availableToSell > 0 ? (
+        <div className="space-y-2">
+          <Button onClick={handleSubmit} disabled={!isValid || selling} variant="gold" className="w-full">
+            {selling ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Tag className="w-4 h-4 mr-2" />}
+            {selling ? 'Wird gelistet...' : `${qty}× für ${priceNum > 0 ? fmtScout(priceNum) : '–'} $SCOUT listen`}
+          </Button>
+          {error && <div className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{error}</div>}
+          {success && <div className="text-xs text-[#22C55E] font-bold">{success}</div>}
+        </div>
+      ) : undefined}
+    >
       <div className="space-y-4">
         {/* My Listings */}
         {item.myListings.length > 0 && (
@@ -150,12 +165,6 @@ export default function BestandSellModal({ item, open, onClose, onSell, onCancel
                 <span className="text-white/40">Netto: <span className="text-[#FFD700] font-bold">{fmtScout(net)}</span></span>
               </div>
             )}
-            <Button onClick={handleSubmit} disabled={!isValid || selling} variant="gold" className="w-full">
-              {selling ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Tag className="w-4 h-4 mr-2" />}
-              {selling ? 'Wird gelistet...' : `${qty}× für ${priceNum > 0 ? fmtScout(priceNum) : '–'} $SCOUT listen`}
-            </Button>
-            {error && <div className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{error}</div>}
-            {success && <div className="text-xs text-[#22C55E] font-bold">{success}</div>}
           </div>
         ) : (
           <div className="text-center py-3 text-xs text-white/25">

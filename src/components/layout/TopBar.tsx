@@ -4,13 +4,13 @@ import React, { memo, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Bell, BellOff, BellRing, Search, User, Menu, DollarSign, MessageSquarePlus, X } from 'lucide-react';
+import { Bell, BellOff, BellRing, Search, User, Menu, DollarSign, MessageSquarePlus } from 'lucide-react';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { formatScout } from '@/lib/services/wallet';
 import { FeedbackModal } from '@/components/layout/FeedbackModal';
 import NotificationDropdown from '@/components/layout/NotificationDropdown';
-import SearchDropdown from '@/components/layout/SearchDropdown';
+import SearchOverlay from '@/components/layout/SearchOverlay';
 import { getUnreadCount } from '@/lib/services/notifications';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useTranslations } from 'next-intl';
@@ -27,9 +27,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
 
@@ -90,27 +88,21 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
     finally { setPushLoading(false); }
   }, [user, pushEnabled, addToast]);
 
-  // Close search on route change
+  // Close spotlight on route change
   useEffect(() => {
-    setSearchOpen(false);
-    setMobileSearchOpen(false);
-    setSearchQuery('');
+    setSpotlightOpen(false);
   }, [pathname]);
 
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setSearchQuery(val);
-    setSearchOpen(val.length >= 2);
-  }, []);
-
-  const handleSearchClose = useCallback(() => {
-    setSearchOpen(false);
-  }, []);
-
-  const handleMobileSearchClose = useCallback(() => {
-    setMobileSearchOpen(false);
-    setSearchQuery('');
-    setSearchOpen(false);
+  // Cmd+K / Ctrl+K shortcut
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSpotlightOpen((o) => !o);
+      }
+    }
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
   }, []);
 
   return (
@@ -134,19 +126,18 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             <Menu className="w-5 h-5 text-white/70" />
           </button>
 
-          {/* Search — desktop only */}
-          <div data-tour-id="topbar-search" className="relative w-full max-w-[320px] hidden lg:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-            <input
-              type="text"
-              placeholder={t('searchPlaceholder')}
-              value={searchQuery}
-              onChange={handleSearchChange}
-              onFocus={() => { if (searchQuery.length >= 2) setSearchOpen(true); }}
-              className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/50"
-            />
-            <SearchDropdown query={searchQuery} open={searchOpen} onClose={handleSearchClose} />
-          </div>
+          {/* Search trigger — desktop only */}
+          <button
+            data-tour-id="topbar-search"
+            onClick={() => setSpotlightOpen(true)}
+            className="hidden lg:flex items-center gap-2 w-full max-w-[280px] px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white/40 hover:bg-white/[0.08] hover:border-white/15 transition-all"
+          >
+            <Search className="w-4 h-4 shrink-0" />
+            <span className="flex-1 text-left truncate">{t('searchPlaceholder')}</span>
+            <kbd className="hidden xl:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono text-white/25 bg-white/5 border border-white/10 rounded-md">
+              <span className="text-[11px]">&#8984;</span>K
+            </kbd>
+          </button>
         </div>
 
         {/* Right side */}
@@ -163,7 +154,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
 
           {/* Search icon — mobile only */}
           <button
-            onClick={() => setMobileSearchOpen(true)}
+            onClick={() => setSpotlightOpen(true)}
             className="lg:hidden p-2.5 bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 rounded-xl transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label={t('searchPlaceholder')}
           >
@@ -243,32 +234,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
         </div>
       </div>
 
-      {/* Mobile search overlay */}
-      {mobileSearchOpen && (
-        <div className="lg:hidden px-4 pb-3 border-b border-white/10 anim-fade">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-            <input
-              type="text"
-              placeholder={t('searchPlaceholder')}
-              value={searchQuery}
-              onChange={handleSearchChange}
-              onFocus={() => { if (searchQuery.length >= 2) setSearchOpen(true); }}
-              autoFocus
-              className="w-full pl-10 pr-10 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/50"
-            />
-            <button
-              onClick={handleMobileSearchClose}
-              className="absolute right-3 top-1/2 -translate-y-1/2"
-              aria-label={t('closeSearch')}
-            >
-              <X className="w-4 h-4 text-white/30" />
-            </button>
-            <SearchDropdown query={searchQuery} open={searchOpen} onClose={handleSearchClose} />
-          </div>
-        </div>
-      )}
-
+      <SearchOverlay open={spotlightOpen} onClose={() => setSpotlightOpen(false)} />
       <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} pageUrl={pathname} />
     </header>
   );

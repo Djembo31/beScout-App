@@ -311,7 +311,7 @@ export async function votePost(
   // Fire-and-forget: analyst score + airdrop refresh for post author
   (async () => {
     try {
-      const { data: p } = await supabase.from('posts').select('user_id').eq('id', postId).single();
+      const { data: p } = await supabase.from('posts').select('user_id').eq('id', postId).maybeSingle();
       if (p && p.user_id !== userId) {
         const { awardDimensionScoreAsync } = await import('@/lib/services/scoutScores');
         // +1 Analyst per upvote (capped at 20/post via DB constraint would be ideal, but we accept it here)

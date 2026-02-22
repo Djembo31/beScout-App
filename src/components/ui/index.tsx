@@ -91,6 +91,8 @@ export interface ModalProps {
   title: string;
   subtitle?: string;
   children: React.ReactNode;
+  /** Sticky footer for action buttons — always visible at the bottom */
+  footer?: React.ReactNode;
   onClose: () => void;
   /** Prevent closing via backdrop click or ESC (e.g. during form submission) */
   preventClose?: boolean;
@@ -105,7 +107,7 @@ const modalMaxW = {
   full: 'md:max-w-[calc(100vw-2rem)]',
 };
 
-export function Modal({ open, title, subtitle, children, onClose, preventClose, size = 'md' }: ModalProps) {
+export function Modal({ open, title, subtitle, children, footer, onClose, preventClose, size = 'md' }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
 
   // ESC key closes modal
@@ -163,23 +165,31 @@ export function Modal({ open, title, subtitle, children, onClose, preventClose, 
         aria-modal="true"
         aria-labelledby="modal-title"
         className={`w-full ${modalMaxW[size]} bg-[#0b0b0b] border border-white/10 shadow-2xl
-          rounded-t-3xl max-h-[90vh] overflow-y-auto anim-bottom-sheet
+          rounded-t-3xl max-h-[90vh] overflow-hidden flex flex-col anim-bottom-sheet
           md:rounded-3xl md:mx-4 md:max-h-[85vh] md:anim-modal`}
       >
         {/* Swipe handle — mobile only */}
-        <div className="flex justify-center pt-2 pb-1 md:hidden">
+        <div className="flex justify-center pt-2 pb-1 md:hidden flex-shrink-0">
           <div className="w-10 h-1 bg-white/20 rounded-full" />
         </div>
-        <div className="px-4 py-3 md:p-5 border-b border-white/10 flex items-center justify-between">
+        {/* Header — fixed, never scrolls */}
+        <div className="px-4 py-3 md:p-5 border-b border-white/10 flex items-center justify-between flex-shrink-0">
           <div className="min-w-0 flex-1">
             {subtitle && <div className="text-xs text-white/50">{subtitle}</div>}
             <div id="modal-title" className="text-base md:text-lg font-black truncate">{title}</div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/5 hover:scale-110 active:scale-95 transition-all flex-shrink-0 ml-2" aria-label="Schließen">
+          <button onClick={onClose} className="p-2 min-w-[44px] min-h-[44px] rounded-xl hover:bg-white/5 hover:scale-110 active:scale-95 transition-all flex-shrink-0 ml-2 flex items-center justify-center" aria-label="Schließen">
             <X className="w-5 h-5 text-white/70" />
           </button>
         </div>
-        <div className="px-4 py-4 pb-6 safe-bottom md:p-5">{children}</div>
+        {/* Body — scrollable */}
+        <div className={`flex-1 overflow-y-auto min-h-0 px-4 py-4 md:p-5 ${footer ? '' : 'pb-6 safe-bottom'}`}>{children}</div>
+        {/* Footer — sticky, always visible */}
+        {footer && (
+          <div className="flex-shrink-0 border-t border-white/[0.06] bg-[#0b0b0b] px-4 py-3 safe-bottom md:px-5 md:py-4">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );

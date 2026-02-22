@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { getScoreTier, SCORE_TIER_CONFIG, calculateSynergyPreview } from '@/types';
 import type { SynergyDetail } from '@/types';
-import { Card, Button, Chip } from '@/components/ui';
+import { Modal, Card, Button, Chip } from '@/components/ui';
 import { PositionBadge, PlayerIdentity, getL5Color } from '@/components/player';
 import { useUser } from '@/components/providers/AuthProvider';
 import { centsToBsd } from '@/lib/services/players';
@@ -340,63 +340,50 @@ export const EventDetailModal = ({
   const isScored = !!event.scoredAt;
 
   return (
-    <>
-      <div className="fixed inset-0 bg-black/80 z-[80]" onClick={onClose} />
-      <div className="fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[calc(100%-2rem)] md:max-w-3xl bg-[#0a0a0a] md:border border-white/10 md:rounded-2xl shadow-2xl z-[80] md:max-h-[90vh] overflow-hidden flex flex-col">
-
-        {/* Header */}
-        <div className="flex-shrink-0 p-3 md:p-5 border-b border-white/10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {isScored ? (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-purple-500/20 text-purple-300">
-                  <Trophy className="w-3.5 h-3.5" />
-                  <span className="text-xs font-bold">Ausgewertet</span>
-                </div>
-              ) : event.isJoined ? (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#22C55E] text-white">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span className="text-xs font-bold">Nimmt teil</span>
-                </div>
-              ) : (
-                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded ${statusStyle.bg} ${statusStyle.text}`}>
-                  {statusStyle.pulse && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
-                  <span className="text-xs font-bold">{statusStyle.label}</span>
-                </div>
-              )}
-              <Chip className={`${typeStyle.bg} ${typeStyle.color}`}>{event.mode === 'league' ? 'Liga' : 'Turnier'} • {event.format}</Chip>
-              {event.status === 'running' && !isScored && <Chip className="bg-[#22C55E] text-white">LIVE</Chip>}
+    <Modal open={isOpen} onClose={onClose} title={event.name} size="lg">
+        {/* Status Badges + Meta */}
+        <div className="flex items-center flex-wrap gap-2 mb-3">
+          {isScored ? (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-purple-500/20 text-purple-300">
+              <Trophy className="w-3.5 h-3.5" />
+              <span className="text-xs font-bold">Ausgewertet</span>
             </div>
-            <div className="flex items-center gap-2">
-              {isScored && (
-                <button
-                  onClick={handleResetEvent}
-                  disabled={resetting}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-50"
-                >
-                  {resetting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <History className="w-3.5 h-3.5" />}
-                  {resetting ? 'Wird zurückgesetzt...' : 'Zurücksetzen'}
-                </button>
-              )}
-              <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg">
-                <X className="w-5 h-5" />
-              </button>
+          ) : event.isJoined ? (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#22C55E] text-white">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span className="text-xs font-bold">Nimmt teil</span>
             </div>
-          </div>
-          <h2 className="text-lg md:text-2xl font-black mt-3">{event.name}</h2>
-          <div className="flex items-center gap-4 text-sm text-white/50 mt-1">
-            <span className="flex items-center gap-1"><Users className="w-4 h-4" />{event.participants}{event.maxParticipants ? `/${event.maxParticipants}` : ''}</span>
-            <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{event.status === 'ended' ? 'Beendet' : formatCountdown(event.lockTime)}</span>
-          </div>
+          ) : (
+            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded ${statusStyle.bg} ${statusStyle.text}`}>
+              {statusStyle.pulse && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
+              <span className="text-xs font-bold">{statusStyle.label}</span>
+            </div>
+          )}
+          <Chip className={`${typeStyle.bg} ${typeStyle.color}`}>{event.mode === 'league' ? 'Liga' : 'Turnier'} • {event.format}</Chip>
+          {event.status === 'running' && !isScored && <Chip className="bg-[#22C55E] text-white">LIVE</Chip>}
+          {isScored && (
+            <button
+              onClick={handleResetEvent}
+              disabled={resetting}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-50 ml-auto"
+            >
+              {resetting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <History className="w-3.5 h-3.5" />}
+              {resetting ? 'Wird zurückgesetzt...' : 'Zurücksetzen'}
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-4 text-sm text-white/50 mb-4">
+          <span className="flex items-center gap-1"><Users className="w-4 h-4" />{event.participants}{event.maxParticipants ? `/${event.maxParticipants}` : ''}</span>
+          <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{event.status === 'ended' ? 'Beendet' : formatCountdown(event.lockTime)}</span>
         </div>
 
         {/* Tabs */}
-        <div className="flex-shrink-0 flex border-b border-white/10">
+        <div className="flex -mx-4 md:-mx-5 border-b border-white/10 mb-4">
           {(['overview', 'lineup', 'leaderboard', 'community'] as EventDetailTab[]).map(t => (
             <button
               key={t}
               onClick={() => { setTab(t); setViewingUserLineup(null); }}
-              className={`flex-1 px-4 py-3 font-medium text-sm transition-all relative ${tab === t ? 'text-[#FFD700]' : 'text-white/50 hover:text-white'
+              className={`flex-1 px-4 py-3 min-h-[44px] font-medium text-sm transition-all relative ${tab === t ? 'text-[#FFD700]' : 'text-white/50 hover:text-white'
                 }`}
             >
               {t === 'overview' ? 'Übersicht' : t === 'lineup' ? 'Aufstellung' : t === 'leaderboard' ? 'Rangliste' : 'Community'}
@@ -406,7 +393,7 @@ export const EventDetailModal = ({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-3 md:p-5">
+        <div>
 
           {/* OVERVIEW TAB */}
           {tab === 'overview' && (
@@ -734,7 +721,7 @@ export const EventDetailModal = ({
                       {event.sponsorLogo ? (
                         <img src={event.sponsorLogo} alt="" className="w-12 h-12 object-contain opacity-30" />
                       ) : (
-                        <span className="text-[8px] text-white/15 font-bold tracking-wider uppercase">Sponsor</span>
+                        <span className="text-[9px] text-white/15 font-bold tracking-wider uppercase">Sponsor</span>
                       )}
                     </div>
                   </div>
@@ -764,7 +751,7 @@ export const EventDetailModal = ({
                                 )}
                                 {/* Captain ×1.5 badge (scored view) */}
                                 {player && hasScore && isCaptain && (
-                                  <div className="absolute -top-2 left-4 z-30 px-1 py-0.5 rounded bg-[#FFD700]/90 text-[8px] font-black text-black shadow-lg">×1.5</div>
+                                  <div className="absolute -top-2 left-4 z-30 px-1 py-0.5 rounded bg-[#FFD700]/90 text-[9px] font-black text-black shadow-lg">×1.5</div>
                                 )}
                                 {/* Score badge (top-right, overlapping circle) */}
                                 {player && hasScore && (
@@ -850,7 +837,7 @@ export const EventDetailModal = ({
                     )}
                     <span className="text-[9px] text-white/30 font-medium">{event.sponsorName || 'Sponsor Logo'}</span>
                   </div>
-                  <span className="text-[8px] text-white/20 font-bold tracking-widest uppercase">{event.sponsorName ? `${event.sponsorName} × BeScout` : 'Powered by BeScout'}</span>
+                  <span className="text-[9px] text-white/20 font-bold tracking-widest uppercase">{event.sponsorName ? `${event.sponsorName} × BeScout` : 'Powered by BeScout'}</span>
                   <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.04] rounded-lg border border-white/[0.06]">
                     {event.sponsorLogo ? (
                       <img src={event.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
@@ -1519,7 +1506,6 @@ export const EventDetailModal = ({
             </Button>
           </div>
         )}
-      </div>
 
       {/* Player Picker Modal — Enhanced with Search, Sort, Stats, Status */}
       {showPlayerPicker && (() => {
@@ -1637,7 +1623,7 @@ export const EventDetailModal = ({
           </>
         );
       })()}
-    </>
+    </Modal>
   );
 };
 

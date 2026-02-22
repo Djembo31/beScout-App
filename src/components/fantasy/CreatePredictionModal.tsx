@@ -136,7 +136,44 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
   const conditions = predType === 'match' ? MATCH_CONDITIONS : PLAYER_CONDITIONS;
 
   return (
-    <Modal open={open} onClose={handleClose} title={t('create')}>
+    <Modal
+      open={open}
+      onClose={handleClose}
+      title={t('create')}
+      footer={
+        step === 'condition' ? (
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => { setStep('fixture'); setSelectedCondition(null); setSelectedValue(null); setPredType('match'); }}>
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <Button
+              className="flex-1"
+              disabled={!selectedCondition || !selectedValue}
+              onClick={() => setStep('confirm')}
+            >
+              {t('next')}
+            </Button>
+          </div>
+        ) : step === 'confirm' ? (
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setStep('condition')}>
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <Button
+              className="flex-1"
+              onClick={handleSubmit}
+              disabled={createMutation.isPending}
+            >
+              {createMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                t('submit')
+              )}
+            </Button>
+          </div>
+        ) : undefined
+      }
+    >
       <div className="space-y-4">
         {/* Step indicator */}
         <div className="flex items-center gap-2 text-xs text-white/40">
@@ -274,19 +311,6 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
               </div>
             )}
 
-            {/* Navigation */}
-            <div className="flex gap-2 pt-2">
-              <Button variant="outline" onClick={() => { setStep('fixture'); setSelectedCondition(null); setSelectedValue(null); setPredType('match'); }}>
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button
-                className="flex-1"
-                disabled={!selectedCondition || !selectedValue}
-                onClick={() => setStep('confirm')}
-              >
-                {t('next')}
-              </Button>
-            </div>
           </div>
         )}
 
@@ -346,24 +370,6 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
             )}
 
             {error && <p className="text-xs text-red-400">{error}</p>}
-
-            {/* Actions */}
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setStep('condition')}>
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button
-                className="flex-1"
-                onClick={handleSubmit}
-                disabled={createMutation.isPending}
-              >
-                {createMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  t('submit')
-                )}
-              </Button>
-            </div>
           </div>
         )}
       </div>

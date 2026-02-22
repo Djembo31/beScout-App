@@ -15,9 +15,11 @@ import {
   invalidateBountyData,
 } from '@/lib/services/bounties';
 import type { ClubWithAdmin, BountyWithCreator, BountySubmissionWithUser } from '@/types';
+import { useTranslations } from 'next-intl';
 
 export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
   const { user } = useUser();
+  const t = useTranslations('bountyAdmin');
   const [bounties, setBounties] = useState<BountyWithCreator[]>([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -86,24 +88,24 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
       setMinTier('');
       setBountyType('general');
       await reload();
-      setMsg({ type: 'success', text: 'Auftrag erstellt!' });
+      setMsg({ type: 'success', text: t('bountyCreated') });
     } catch (err) {
-      setMsg({ type: 'error', text: err instanceof Error ? err.message : 'Fehler' });
+      setMsg({ type: 'error', text: err instanceof Error ? err.message : t('error') });
     } finally {
       setCreating(false);
     }
-  }, [user, creating, title, description, reward, days, maxSubs, club, reload]);
+  }, [user, creating, title, description, reward, days, maxSubs, club, reload, t, minTier, bountyType]);
 
   const handleCancel = useCallback(async (bountyId: string) => {
     if (!user) return;
     try {
       await cancelBounty(user.id, bountyId);
       await reload();
-      setMsg({ type: 'success', text: 'Auftrag abgebrochen' });
+      setMsg({ type: 'success', text: t('bountyCancelled') });
     } catch (err) {
-      setMsg({ type: 'error', text: err instanceof Error ? err.message : 'Fehler' });
+      setMsg({ type: 'error', text: err instanceof Error ? err.message : t('error') });
     }
-  }, [user, reload]);
+  }, [user, reload, t]);
 
   const handleViewSubmissions = useCallback(async (bountyId: string) => {
     setViewBountyId(bountyId);
@@ -126,7 +128,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
       if (result.success) {
         setReviewSub(null);
         setFeedback('');
-        setMsg({ type: 'success', text: 'Einreichung genehmigt! Belohnung ausgezahlt.' });
+        setMsg({ type: 'success', text: t('submissionApproved') });
         // Refresh submissions + bounties
         if (viewBountyId) {
           invalidateBountyData(user.id, club.id);
@@ -134,14 +136,14 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
           setSubmissions(subs);
         }
       } else {
-        setMsg({ type: 'error', text: result.error ?? 'Fehler' });
+        setMsg({ type: 'error', text: result.error ?? t('error') });
       }
     } catch (err) {
-      setMsg({ type: 'error', text: err instanceof Error ? err.message : 'Fehler' });
+      setMsg({ type: 'error', text: err instanceof Error ? err.message : t('error') });
     } finally {
       setReviewing(false);
     }
-  }, [user, reviewSub, reviewing, feedback, viewBountyId, club.id, reload]);
+  }, [user, reviewSub, reviewing, feedback, viewBountyId, club.id, reload, t]);
 
   const handleReject = useCallback(async () => {
     if (!user || !reviewSub || reviewing) return;
@@ -151,20 +153,20 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
       if (result.success) {
         setReviewSub(null);
         setFeedback('');
-        setMsg({ type: 'success', text: 'Einreichung abgelehnt' });
+        setMsg({ type: 'success', text: t('submissionRejected') });
         if (viewBountyId) {
           const subs = await getBountySubmissions(viewBountyId);
           setSubmissions(subs);
         }
       } else {
-        setMsg({ type: 'error', text: result.error ?? 'Fehler' });
+        setMsg({ type: 'error', text: result.error ?? t('error') });
       }
     } catch (err) {
-      setMsg({ type: 'error', text: err instanceof Error ? err.message : 'Fehler' });
+      setMsg({ type: 'error', text: err instanceof Error ? err.message : t('error') });
     } finally {
       setReviewing(false);
     }
-  }, [user, reviewSub, reviewing, feedback, viewBountyId]);
+  }, [user, reviewSub, reviewing, feedback, viewBountyId, t]);
 
   const openBounties = bounties.filter(b => b.status === 'open');
   const closedBounties = bounties.filter(b => b.status !== 'open');
@@ -178,12 +180,12 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-black">Aufträge</h2>
-          <p className="text-xs text-white/50">{openBounties.length} offen &bull; {closedBounties.length} beendet</p>
+          <h2 className="text-xl font-black">{t('heading')}</h2>
+          <p className="text-xs text-white/50">{t('statsOpen', { count: openBounties.length })} &bull; {t('statsClosed', { count: closedBounties.length })}</p>
         </div>
         <Button variant="gold" onClick={() => setCreateOpen(true)}>
           <Plus className="w-4 h-4" />
-          Neuer Auftrag
+          {t('newBounty')}
         </Button>
       </div>
 
@@ -192,8 +194,8 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
       ) : bounties.length === 0 ? (
         <Card className="p-12 text-center">
           <Target className="w-12 h-12 mx-auto mb-4 text-white/20" />
-          <div className="text-white/30 font-bold">Keine Aufträge</div>
-          <div className="text-xs text-white/20 mt-1">Erstelle deinen ersten Club-Auftrag</div>
+          <div className="text-white/30 font-bold">{t('noBounties')}</div>
+          <div className="text-xs text-white/20 mt-1">{t('createFirst')}</div>
         </Card>
       ) : (
         <div className="space-y-4">
@@ -211,38 +213,38 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                       {bounty.type === 'scouting' && (
                         <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/20 shrink-0">
                           <Telescope className="w-2.5 h-2.5" />
-                          Scouting
+                          {t('scouting')}
                         </span>
                       )}
                     </div>
                     <div className="text-xs text-white/40 line-clamp-2 mt-1">{bounty.description}</div>
                   </div>
                   <Chip className={isOpen ? 'bg-[#22C55E]/15 text-[#22C55E] border-[#22C55E]/25 ml-2' : 'bg-white/5 text-white/50 border-white/10 ml-2'}>
-                    {bounty.status === 'cancelled' ? 'Abgebrochen' : isOpen ? 'Offen' : 'Beendet'}
+                    {bounty.status === 'cancelled' ? t('cancelled') : isOpen ? t('open') : t('closed')}
                   </Chip>
                 </div>
 
                 {bounty.player_name && (
-                  <div className="text-xs text-amber-400 mb-2">Spieler: {bounty.player_name}</div>
+                  <div className="text-xs text-amber-400 mb-2">{t('playerLabel', { name: bounty.player_name })}</div>
                 )}
 
                 <div className="flex items-center justify-between text-xs text-white/50 mb-3">
                   <span className="text-[#FFD700] font-bold">{formatScout(bounty.reward_cents)} $SCOUT</span>
                   <span><Users className="w-3 h-3 inline mr-1" />{bounty.submission_count}/{bounty.max_submissions}</span>
-                  <span><Clock className="w-3 h-3 inline mr-1" />{diffMs > 0 ? `${d}d ${h}h` : 'Abgelaufen'}</span>
+                  <span><Clock className="w-3 h-3 inline mr-1" />{diffMs > 0 ? `${d}d ${h}h` : t('expired')}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
                   {bounty.submission_count > 0 && (
                     <Button variant="outline" size="sm" onClick={() => handleViewSubmissions(bounty.id)}>
                       <Eye className="w-3.5 h-3.5" />
-                      Einreichungen ({bounty.submission_count})
+                      {t('submissions', { count: bounty.submission_count })}
                     </Button>
                   )}
                   {isOpen && bounty.submission_count === 0 && bounty.status !== 'cancelled' && (
                     <Button variant="outline" size="sm" onClick={() => handleCancel(bounty.id)}>
                       <X className="w-3.5 h-3.5" />
-                      Abbrechen
+                      {t('cancel')}
                     </Button>
                   )}
                 </div>
@@ -253,11 +255,11 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
       )}
 
       {/* Create Bounty Modal */}
-      <Modal open={createOpen} title="Neuer Auftrag" onClose={() => setCreateOpen(false)}>
+      <Modal open={createOpen} title={t('newBounty')} onClose={() => setCreateOpen(false)}>
         <div className="space-y-4">
           {/* Type Toggle */}
           <div>
-            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Typ</label>
+            <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('type')}</label>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -269,7 +271,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                 }`}
               >
                 <Target className="w-4 h-4" />
-                Allgemein
+                {t('general')}
               </button>
               <button
                 type="button"
@@ -281,37 +283,37 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                 }`}
               >
                 <Telescope className="w-4 h-4" />
-                Scouting
+                {t('scouting')}
               </button>
             </div>
             {bountyType === 'scouting' && (
-              <div className="text-[10px] text-rose-300 mt-1">Fans müssen eine strukturierte Spieler-Bewertung abgeben</div>
+              <div className="text-[10px] text-rose-300 mt-1">{t('scoutingHint')}</div>
             )}
           </div>
           <div>
-            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Titel</label>
+            <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('title')}</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value.slice(0, 200))}
-              placeholder="z.B. Gegner-Analyse: Göztepe vs Sakaryaspor"
+              placeholder={t('titlePlaceholder')}
               className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40"
             />
           </div>
           <div>
-            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Beschreibung</label>
+            <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('description')}</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
               rows={4}
-              placeholder="Beschreibe den Auftrag genau: Was soll analysiert werden? Welche Informationen brauchst du?"
+              placeholder={t('descPlaceholder')}
               className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none"
             />
-            <div className="text-[10px] text-white/30 mt-1">{description.length}/2000</div>
+            <div className="text-[10px] text-white/30 mt-1">{t('charCount', { count: description.length })}</div>
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Belohnung ($SCOUT)</label>
+              <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('reward')}</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -323,7 +325,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
               />
             </div>
             <div>
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Frist (Tage)</label>
+              <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('deadline')}</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -335,7 +337,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
               />
             </div>
             <div>
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Max. Einreichungen</label>
+              <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('maxSubmissions')}</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -348,23 +350,23 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
             </div>
           </div>
           <div>
-            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Mindest-Abo (optional)</label>
+            <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('minTier')}</label>
             <select
               value={minTier}
               onChange={(e) => setMinTier(e.target.value)}
               className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#FFD700]/40"
             >
-              <option value="">Alle (kein Abo nötig)</option>
-              <option value="bronze">Bronze+</option>
-              <option value="silber">Silber+</option>
-              <option value="gold">Nur Gold</option>
+              <option value="">{t('allTiers')}</option>
+              <option value="bronze">{t('bronzePlus')}</option>
+              <option value="silber">{t('silberPlus')}</option>
+              <option value="gold">{t('goldOnly')}</option>
             </select>
             {minTier && (
-              <div className="text-[10px] text-amber-300 mt-1">Nur {minTier === 'bronze' ? 'Bronze' : minTier === 'silber' ? 'Silber' : 'Gold'}+ Mitglieder können einreichen</div>
+              <div className="text-[10px] text-amber-300 mt-1">{t('tierOnlyHint', { tier: minTier === 'bronze' ? 'Bronze+' : minTier === 'silber' ? 'Silber+' : 'Gold' })}</div>
             )}
           </div>
           <Button variant="gold" fullWidth loading={creating} onClick={handleCreate}>
-            Auftrag erstellen
+            {t('createBounty')}
           </Button>
         </div>
       </Modal>
@@ -372,7 +374,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
       {/* Submissions Modal */}
       <Modal
         open={!!viewBountyId}
-        title={viewBounty ? `Einreichungen: ${viewBounty.title}` : 'Einreichungen'}
+        title={viewBounty ? t('submissionsTitle', { title: viewBounty.title }) : t('submissionsHeading')}
         onClose={() => { setViewBountyId(null); setSubmissions([]); }}
       >
         {subsLoading ? (
@@ -380,7 +382,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
             <Loader2 className="w-6 h-6 animate-spin text-white/30" />
           </div>
         ) : submissions.length === 0 ? (
-          <div className="py-8 text-center text-sm text-white/30">Keine Einreichungen</div>
+          <div className="py-8 text-center text-sm text-white/30">{t('noSubmissions')}</div>
         ) : (
           <div className="space-y-3 max-h-[400px] overflow-y-auto">
             {submissions.map(sub => (
@@ -388,23 +390,23 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <div className="font-bold text-sm">{sub.title}</div>
-                    <div className="text-xs text-white/40">von @{sub.user_handle}</div>
+                    <div className="text-xs text-white/40">{t('by', { handle: sub.user_handle })}</div>
                   </div>
                   <Chip className={
                     sub.status === 'approved' ? 'bg-[#22C55E]/15 text-[#22C55E] border-[#22C55E]/25' :
                     sub.status === 'rejected' ? 'bg-red-500/15 text-red-300 border-red-500/25' :
                     'bg-amber-500/15 text-amber-300 border-amber-500/25'
                   }>
-                    {sub.status === 'approved' ? 'Genehmigt' : sub.status === 'rejected' ? 'Abgelehnt' : 'Ausstehend'}
+                    {sub.status === 'approved' ? t('approved') : sub.status === 'rejected' ? t('rejected') : t('pending')}
                   </Chip>
                 </div>
                 <div className="text-xs text-white/60 line-clamp-3 mb-2">{sub.content}</div>
                 {sub.admin_feedback && (
-                  <div className="text-xs text-white/40 italic mb-2">Feedback: {sub.admin_feedback}</div>
+                  <div className="text-xs text-white/40 italic mb-2">{t('feedbackPrefix', { text: sub.admin_feedback })}</div>
                 )}
                 {sub.status === 'pending' && (
                   <Button variant="outline" size="sm" onClick={() => { setReviewSub(sub); setFeedback(''); }}>
-                    Prüfen
+                    {t('review')}
                   </Button>
                 )}
               </Card>
@@ -416,43 +418,43 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
       {/* Review Modal */}
       <Modal
         open={!!reviewSub}
-        title="Einreichung prüfen"
+        title={t('reviewTitle')}
         onClose={() => { setReviewSub(null); setFeedback(''); }}
       >
         {reviewSub && (
           <div className="space-y-4">
             <div>
-              <div className="text-xs text-white/50 font-semibold mb-1">Titel</div>
+              <div className="text-xs text-white/50 font-semibold mb-1">{t('titleLabel')}</div>
               <div className="font-bold">{reviewSub.title}</div>
             </div>
             <div>
-              <div className="text-xs text-white/50 font-semibold mb-1">Von</div>
+              <div className="text-xs text-white/50 font-semibold mb-1">{t('fromLabel')}</div>
               <div className="text-sm">@{reviewSub.user_handle} {reviewSub.user_display_name ? `(${reviewSub.user_display_name})` : ''}</div>
             </div>
             <div>
-              <div className="text-xs text-white/50 font-semibold mb-1">Inhalt</div>
+              <div className="text-xs text-white/50 font-semibold mb-1">{t('contentLabel')}</div>
               <div className="text-sm text-white/80 bg-white/[0.02] border border-white/10 rounded-xl p-3 max-h-[200px] overflow-y-auto whitespace-pre-wrap">{reviewSub.content}</div>
             </div>
             <div>
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Feedback (optional)</label>
+              <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('feedbackLabel')}</label>
               <textarea
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value.slice(0, 500))}
                 rows={2}
-                placeholder="Feedback an den Fan..."
+                placeholder={t('feedbackPlaceholder')}
                 className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none"
               />
             </div>
             {viewBounty && (
               <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300">
                 <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                <span>Genehmigung kostet {formatScout(viewBounty.reward_cents)} $SCOUT aus deinem Wallet</span>
+                <span>{t('approvalCost', { reward: formatScout(viewBounty.reward_cents) })}</span>
               </div>
             )}
             <div className="flex items-center gap-3">
               <Button variant="gold" className="flex-1" loading={reviewing} onClick={handleApprove}>
                 <CheckCircle className="w-4 h-4" />
-                Genehmigen
+                {t('approve')}
               </Button>
               <button
                 onClick={handleReject}
@@ -460,7 +462,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-red-500/15 border border-red-500/25 text-red-300 hover:bg-red-500/25 transition-colors disabled:opacity-50"
               >
                 <XCircle className="w-4 h-4" />
-                Ablehnen
+                {t('reject')}
               </button>
             </div>
           </div>

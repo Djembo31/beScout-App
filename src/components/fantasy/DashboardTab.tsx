@@ -168,7 +168,7 @@ export const DashboardTab = ({
               <div className="hidden md:flex w-10 flex-shrink-0 bg-[#0c0c14] flex-col items-center justify-between py-3 gap-2 border-r border-white/[0.06]">
                 {leftBoard.map((label, i) => (
                   <div key={i} className="flex-1 w-full flex items-center justify-center border-y border-white/[0.04] bg-gradient-to-b from-white/[0.02] to-transparent">
-                    <span className="text-[8px] font-bold tracking-wider text-white/20 [writing-mode:vertical-lr] rotate-180">{label}</span>
+                    <span className="text-[9px] font-bold tracking-wider text-white/20 [writing-mode:vertical-lr] rotate-180">{label}</span>
                   </div>
                 ))}
               </div>
@@ -248,7 +248,7 @@ export const DashboardTab = ({
               <div className="hidden md:flex w-10 flex-shrink-0 bg-[#0c0c14] flex-col items-center justify-between py-3 gap-2 border-l border-white/[0.06]">
                 {rightBoard.map((label, i) => (
                   <div key={i} className="flex-1 w-full flex items-center justify-center border-y border-white/[0.04] bg-gradient-to-b from-white/[0.02] to-transparent">
-                    <span className="text-[8px] font-bold tracking-wider text-white/20 [writing-mode:vertical-lr] rotate-180">{label}</span>
+                    <span className="text-[9px] font-bold tracking-wider text-white/20 [writing-mode:vertical-lr] rotate-180">{label}</span>
                   </div>
                 ))}
               </div>

@@ -142,8 +142,7 @@ export default function BuyModal({
 
   return (
     <Modal open={open} onClose={onClose} title="DPC kaufen" subtitle={`${player.first} ${player.last}`}>
-      <div className="-mx-4 -mb-4 sm:-mx-6 sm:-mb-6">
-        <div className="p-4 sm:p-6 space-y-3">
+      <div className="space-y-3">
           {/* Liquidated Guard */}
           {isLiquidated && (
             <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-300">
@@ -276,7 +275,6 @@ export default function BuyModal({
               )}
             </>
           )}
-        </div>
       </div>
     </Modal>
   );

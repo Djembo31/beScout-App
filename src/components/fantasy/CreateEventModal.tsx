@@ -53,7 +53,22 @@ export const CreateEventModal = ({
   const prizePool = buyIn * maxParticipants - creatorFee;
 
   return (
-    <Modal open={isOpen} title="Community Event erstellen" onClose={onClose}>
+    <Modal
+      open={isOpen}
+      title="Community Event erstellen"
+      onClose={onClose}
+      footer={
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={onClose} className="flex-1">
+            Abbrechen
+          </Button>
+          <Button variant="gold" onClick={handleCreate} disabled={!canSubmit} className="flex-1">
+            <Plus className="w-4 h-4" />
+            Event erstellen
+          </Button>
+        </div>
+      }
+    >
       <div className="space-y-4">
         {error && (
           <div className="text-sm text-red-300 bg-red-500/10 border border-red-400/20 rounded-xl px-3 py-2">
@@ -170,15 +185,6 @@ export const CreateEventModal = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-3 pt-2">
-          <Button variant="outline" onClick={onClose} className="flex-1">
-            Abbrechen
-          </Button>
-          <Button variant="gold" onClick={handleCreate} disabled={!canSubmit} className="flex-1">
-            <Plus className="w-4 h-4" />
-            Event erstellen
-          </Button>
-        </div>
       </div>
     </Modal>
   );

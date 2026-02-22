@@ -72,8 +72,26 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
   };
 
   return (
-    <Modal open={open} title="Neue Umfrage" onClose={onClose}>
-      <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+    <Modal
+      open={open}
+      title="Neue Umfrage"
+      onClose={onClose}
+      footer={
+        <div className="space-y-2">
+          {!canSubmit && (tried || question.length > 0 || validOptions.length > 0) && (
+            <div className="text-xs text-red-400/80 space-y-0.5">
+              {question.length < 5 && <div>Frage: mind. 5 Zeichen ({question.length}/5)</div>}
+              {validOptions.length < 2 && <div>Mind. 2 Optionen erforderlich</div>}
+              {(priceBsd < 1 || priceBsd > 10000) && <div>Preis: 1-10.000 $SCOUT</div>}
+            </div>
+          )}
+          <Button variant="gold" fullWidth loading={loading} disabled={!canSubmit} onClick={handleSubmit}>
+            Umfrage erstellen
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-4">
         {/* Question */}
         <div>
           <label className="text-xs text-white/50 font-semibold mb-1.5 flex justify-between">
@@ -179,18 +197,6 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
           </div>
         </div>
 
-        {/* Validation hints */}
-        {!canSubmit && (tried || question.length > 0 || validOptions.length > 0) && (
-          <div className="text-xs text-red-400/80 space-y-0.5">
-            {question.length < 5 && <div>Frage: mind. 5 Zeichen ({question.length}/5)</div>}
-            {validOptions.length < 2 && <div>Mind. 2 Optionen erforderlich</div>}
-            {(priceBsd < 1 || priceBsd > 10000) && <div>Preis: 1-10.000 $SCOUT</div>}
-          </div>
-        )}
-
-        <Button variant="gold" fullWidth loading={loading} disabled={!canSubmit} onClick={handleSubmit}>
-          Umfrage erstellen
-        </Button>
       </div>
     </Modal>
   );

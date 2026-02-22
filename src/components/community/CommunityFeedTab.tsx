@@ -74,11 +74,13 @@ export default function CommunityFeedTab({
       result = result.filter(p => followingIds.has(p.user_id));
     }
 
-    // Post type filter
+    // Post type filter — club_news has its own section, exclude from default feed
     if (postTypeFilter === 'transfer_rumor') {
       result = result.filter(p => p.post_type === 'transfer_rumor');
     } else if (postTypeFilter === 'club_news') {
       result = result.filter(p => p.post_type === 'club_news');
+    } else {
+      result = result.filter(p => p.post_type !== 'club_news');
     }
 
     // Search
@@ -128,7 +130,7 @@ export default function CommunityFeedTab({
               key={opt.id}
               onClick={() => setPostTypeFilter(opt.id)}
               className={cn(
-                'px-3 py-1.5 rounded-full text-xs font-semibold transition-all border min-h-[36px]',
+                'px-3 py-1.5 rounded-full text-xs font-semibold transition-all border min-h-[44px]',
                 postTypeFilter === opt.id
                   ? opt.id === 'transfer_rumor'
                     ? 'bg-red-500/15 text-red-300 border-red-500/30'
