@@ -4,9 +4,12 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Search, Loader2 } from 'lucide-react';
 import { Button, Modal } from '@/components/ui';
+import { RegionBadge } from '@/components/ui/RegionBadge';
 import { useToast } from '@/components/providers/ToastProvider';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
+import { updateProfile } from '@/lib/services/profiles';
+import { GEOFENCING_ENABLED, GEO_REGIONS } from '@/lib/geofencing';
 import {
   getAllUsers, adjustWallet,
   type PlatformAdminRole, type AdminUser,
@@ -79,6 +82,7 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
                 <th className="text-right py-2 px-3">Balance</th>
                 <th className="text-right py-2 px-3">Holdings</th>
                 <th className="text-right py-2 px-3">Trades</th>
+                {GEOFENCING_ENABLED && <th className="text-center py-2 px-3">Region</th>}
                 <th className="text-right py-2 px-3">Aktion</th>
               </tr>
             </thead>
@@ -96,6 +100,11 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
                   </td>
                   <td className="py-2.5 px-3 text-right text-white/60">{u.holdingsCount}</td>
                   <td className="py-2.5 px-3 text-right text-white/60">{u.tradesCount}</td>
+                  {GEOFENCING_ENABLED && (
+                    <td className="py-2.5 px-3 text-center">
+                      <RegionBadge region={u.region} />
+                    </td>
+                  )}
                   <td className="py-2.5 px-3 text-right">
                     {role !== 'viewer' && (
                       <button
@@ -135,6 +144,31 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
                 className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/30"
               />
             </div>
+            {GEOFENCING_ENABLED && (
+              <div>
+                <label className="text-xs text-white/60 mb-1 block">Region</label>
+                <select
+                  value={adjustModal.region ?? ''}
+                  onChange={async (e) => {
+                    const val = e.target.value || null;
+                    try {
+                      await updateProfile(adjustModal.id, { region: val });
+                      setAdjustModal({ ...adjustModal, region: val });
+                      addToast('Region aktualisiert', 'success');
+                      loadUsers();
+                    } catch (err) {
+                      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+                    }
+                  }}
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/30"
+                >
+                  <option value="">Nicht gesetzt</option>
+                  {GEO_REGIONS.map(r => (
+                    <option key={r.value} value={r.value}>{r.value}</option>
+                  ))}
+                </select>
+              </div>
+            )}
             <Button onClick={handleAdjust} disabled={!adjustAmount || !adjustReason || adjusting} className="w-full">
               {adjusting ? 'Wird angepasst...' : 'Wallet anpassen'}
             </Button>

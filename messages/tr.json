@@ -1124,6 +1124,24 @@
     "loginAsAdmin": "Kulüp yöneticisi olarak test et",
     "loginAsPlatform": "Platform yöneticisi olarak test et"
   },
+  "geo": {
+    "restricted": "Bu özellik bölgenizde kullanılamaz",
+    "regionLabel": "Bölge",
+    "regionUnset": "Belirlenmemiş",
+    "region": {
+      "turkey": "Türkiye",
+      "eu_strict": "AB (katı)",
+      "eu_rest": "AB (diğer)",
+      "global": "Global"
+    },
+    "feature": {
+      "dpc_trading": "DPC Ticareti",
+      "free_fantasy": "Fantasy (ücretsiz)",
+      "prize_league": "Ödül Ligi",
+      "scout_reports": "Scout Raporları",
+      "paid_research": "Ücretli Analizler"
+    }
+  },
   "pitch": {
     "heroTitle": "Fan Etkileşimi ve Gelir Platformu",
     "heroSubtitle": "Taraftarlarınızı aktifleştirin. Sponsorlarınızı değerlendirin. Maliyeti sıfırlayın.",

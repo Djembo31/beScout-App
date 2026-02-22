@@ -1124,6 +1124,24 @@
     "loginAsAdmin": "Als Club-Admin testen",
     "loginAsPlatform": "Als Plattform-Admin testen"
   },
+  "geo": {
+    "restricted": "Dieses Feature ist in deiner Region nicht verfügbar",
+    "regionLabel": "Region",
+    "regionUnset": "Nicht gesetzt",
+    "region": {
+      "turkey": "Türkei",
+      "eu_strict": "EU (streng)",
+      "eu_rest": "EU (übrig)",
+      "global": "Global"
+    },
+    "feature": {
+      "dpc_trading": "DPC-Handel",
+      "free_fantasy": "Fantasy (kostenlos)",
+      "prize_league": "Prämien-Liga",
+      "scout_reports": "Scout-Berichte",
+      "paid_research": "Bezahlte Analysen"
+    }
+  },
   "pitch": {
     "heroTitle": "Fan Engagement & Monetarisierung",
     "heroSubtitle": "Aktiviere deine Fans. Monetarisiere deine Reichweite. Refinanziere über Sponsoring.",

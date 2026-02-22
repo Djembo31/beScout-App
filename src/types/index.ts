@@ -439,6 +439,7 @@ export type Profile = {
   subscription_price_cents?: number | null;
   subscription_description?: string | null;
   is_demo?: boolean;
+  region?: string | null;
 };
 
 // ============================================

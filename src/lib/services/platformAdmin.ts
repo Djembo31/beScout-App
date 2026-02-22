@@ -67,12 +67,13 @@ export type AdminUser = {
   holdingsCount: number;
   tradesCount: number;
   createdAt: string;
+  region: string | null;
 };
 
 export async function getAllUsers(limit = 50, offset = 0, search?: string): Promise<AdminUser[]> {
   let query = supabase
     .from('profiles')
-    .select('id, handle, display_name, created_at')
+    .select('id, handle, display_name, created_at, region')
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -123,6 +124,7 @@ export async function getAllUsers(limit = 50, offset = 0, search?: string): Prom
     holdingsCount: holdingsCountMap.get(p.id) ?? 0,
     tradesCount: tradesMap.get(p.id) ?? 0,
     createdAt: p.created_at,
+    region: p.region ?? null,
   }));
 }
 

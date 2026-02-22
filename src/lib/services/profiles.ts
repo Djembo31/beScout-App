@@ -63,7 +63,7 @@ export async function createProfile(
 
 export async function updateProfile(
   userId: string,
-  data: Partial<Pick<Profile, 'handle' | 'display_name' | 'bio' | 'favorite_club' | 'favorite_club_id' | 'language' | 'avatar_url'>>
+  data: Partial<Pick<Profile, 'handle' | 'display_name' | 'bio' | 'favorite_club' | 'favorite_club_id' | 'language' | 'avatar_url' | 'region'>>
 ): Promise<Profile> {
   const update: Record<string, unknown> = {};
   if (data.handle !== undefined) update.handle = data.handle.toLowerCase();
@@ -73,6 +73,7 @@ export async function updateProfile(
   if (data.favorite_club_id !== undefined) update.favorite_club_id = data.favorite_club_id;
   if (data.language !== undefined) update.language = data.language;
   if (data.avatar_url !== undefined) update.avatar_url = data.avatar_url;
+  if (data.region !== undefined) update.region = data.region;
 
   const { data: profile, error } = await supabase
     .from('profiles')
