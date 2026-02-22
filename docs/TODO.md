@@ -1,9 +1,18 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 22.02.2026 (Session 119)
+> Letzte Aktualisierung: 22.02.2026 (Session 120)
 > Modus: PILOT SPRINT — 195 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 566 Spieler, 505 Player Images
 
 ---
+
+## Club Multi-Admin: Rollen-Differenzierung ✅ (22.02.2026)
+- [x] Sprint 1: `adminRoles.ts` (NEU) — `canAccessTab()`, `canPerformAction()`, `getRoleBadge()`, Tab-Access-Matrix
+- [x] Sprint 1: AdminContent.tsx — Tab-Filtering (Owner: 11, Admin: 9, Editor: 4), Rollen-Badge (Gold/Blau/Grau)
+- [x] Sprint 2: `AddAdminModal.tsx` (NEU) — Handle-Suche, Rollen-Auswahl (Admin/Editor), Profil-Preview
+- [x] Sprint 2: AdminSettingsTab.tsx — Team-Verwaltung (Admin-Liste, Rollen-Dropdown, Remove), Gameweek/Jurisdiction/API-Sync hinter Guards
+- [x] Sprint 3: AdminOverviewTab — News-Guard, AdminPlayersTab — IPO/Liquidation Owner-only, AdminModerationTab — Pin/Delete/Guidelines Editor read-only
+- [x] Sprint 4: i18n — ~20 neue Keys in de.json + tr.json (admin.teamManagement, admin.role*)
+- [x] **2 neue + 7 modifizierte Dateien, keine DB-Migration, Build 0 Fehler**
 
 ## Deep-Dive Harmony Audit + Sponsor Seeding ✅ (22.02.2026)
 - [x] 5-Agenten Audit: Navigation, Types, Features, i18n, UI/UX — 2 False Positives, 8 echte Befunde

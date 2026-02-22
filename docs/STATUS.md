@@ -3,7 +3,23 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 9** – 195 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements. Build sauber (0 Fehler). **Projekt ~95% harmonisch** (5-Agenten Deep-Dive bestanden). 21 Fußball-Sponsor-Placements mit echten Marken. Alle Features connected.
+**Woche 9** – 195 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements. Build sauber (0 Fehler). Admin-Rollen (Owner/Admin/Editor) mit Tab-Filtering + Action-Guards + Team-Management UI live. **Beta-Launch ready.**
+
+## Session 22.02.2026 (120) – Club Multi-Admin: Rollen-Differenzierung
+
+### Änderungen
+- **`adminRoles.ts` (NEU):** Zentrales Role-Permission-Mapping mit `canAccessTab()`, `canPerformAction()`, `getRoleBadge()`. 3 Rollen: Owner (volle Kontrolle), Admin (operativ, kein Finance/GW), Editor (read-only).
+- **AdminContent.tsx:** Tab-Filtering basierend auf `club.admin_role` (Owner: 11, Admin: 9, Editor: 4 Tabs). Rollen-Badge (Gold/Blau/Grau) im Header. useEffect für Tab-Reset bei Rollen-Wechsel.
+- **AddAdminModal.tsx (NEU):** Handle-Suche via `getProfileByHandle()`, Rollen-Auswahl (Admin/Editor), Profil-Preview mit Avatar, Submit via `addClubAdmin()` RPC.
+- **AdminSettingsTab.tsx:** Stub "Phase 7" durch echte Team-Verwaltung ersetzt — Admin-Liste mit Rollen-Dropdown (ON CONFLICT DO UPDATE), Entfernen-Button. Gameweek/Jurisdiction Owner-only, API-Sync Admin+.
+- **AdminOverviewTab.tsx:** News-Post-Button hinter `canPerformAction('publish_news')` Guard.
+- **AdminPlayersTab.tsx:** IPO-Create/Status-Change/Liquidation/SuccessFee Owner-only, CreatePlayer Admin+.
+- **AdminModerationTab.tsx:** Pin/Delete/Guidelines hinter Role-Guards, Editor read-only (textarea disabled).
+- **i18n:** ~20 neue Keys in de.json + tr.json (admin.teamManagement, admin.role*, admin.ownerOnlyTeam etc.)
+
+### Dateien (2 neu + 7 modifiziert)
+- NEU: `src/lib/adminRoles.ts`, `src/components/admin/AddAdminModal.tsx`
+- Modifiziert: `AdminContent.tsx`, `AdminSettingsTab.tsx`, `AdminOverviewTab.tsx`, `AdminPlayersTab.tsx`, `AdminModerationTab.tsx`, `messages/de.json`, `messages/tr.json`
 
 ## Session 22.02.2026 (119) – Deep-Dive Harmony Audit + Sponsor Seeding
 
