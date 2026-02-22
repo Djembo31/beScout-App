@@ -5,12 +5,14 @@
 
 ---
 
-## Nav Umbau: Profil → Avatar, Scouting Zone ✅ (22.02.2026)
+## Nav Umbau + Profil Dedup + Scouting Zone Fixes ✅ (22.02.2026)
 - [x] Sprint 1: Navigation Restructure — Profile aus NAV_MAIN, Club in NAV_MAIN, Scouting statt Report. TopBar Avatar klickbar
 - [x] Sprint 2: Scouting Zone — 7 Content-Type Filter, FeedItem Union-Type, Mixed-Content Feed, ClubNewsSection+CommunityBountySection gelöscht
 - [x] Sprint 3: User Aufträge — Migration #195, createUserBounty mit Escrow, CreateBountyModal, BountyCard Badge
 - [x] Sprint 4: i18n + Cleanup — ~35 Keys DE+TR, Nav Keys bereinigt, unused imports entfernt
-- [x] **17 Dateien: 1 neu, 12 modifiziert, 2 gelöscht, +914/-302 Zeilen, Build 0 Fehler**
+- [x] Profil Dedup: Research+Posts Tabs entfernt, Track Record+Earnings in Overview gemerged, ProfileTab 6→4
+- [x] Scouting Zone Fixes: Vote-Button entfernt (nur Clubs), filter-aware Empty States (5 neue i18n Keys)
+- [x] **~20 Dateien, Build 0 Fehler**
 
 ## Spotlight-Suche + Modal-Harmonisierung + Content-System ✅ (22.02.2026)
 - [x] Spotlight: Unified Search Overlay, Cmd+K, SearchDropdown gelöscht

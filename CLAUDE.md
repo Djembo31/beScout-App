@@ -100,7 +100,7 @@ src/
 │   ├── player/index.tsx           # PositionBadge, StatusBadge, ScoreCircle, MiniSparkline, IPOBadge
 │   ├── player/PlayerRow.tsx       # PlayerDisplay (compact/card), TrikotBadge, posColors, getContractInfo
 │   ├── community/                 # ResearchCard, CreateResearchModal, PostCard, FollowBtn, BountyCard, CreateBountyModal, CommunityHero, CommunitySidebar, CommunityFeedTab
-│   ├── profile/                   # ProfileView (Shared), ProfileOverviewTab, ProfilePortfolioTab, ProfilePostsTab, ProfileResearchTab, ProfileActivityTab, FollowListModal
+│   ├── profile/                   # ProfileView (Shared, 4 Tabs), ProfileOverviewTab (Track Record + Research Earnings), ProfilePortfolioTab, ProfileActivityTab, FollowListModal
 │   ├── fantasy/                   # 14 Sub-Components (EventDetailModal, PredictionsTab, CreatePredictionModal, PredictionCard, etc.)
 │   ├── manager/                   # ManagerOffersTab (4 Sub-Tabs: Eingehend, Ausgehend, Offene Gebote, Verlauf)
 │   ├── admin/                     # 8 Admin-Tab-Components (Overview, Players, Events, Votes, Bounties, Moderation, Revenue, Settings)
@@ -251,7 +251,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Player Data Consistency fertig:** Phase 1: L5 Farb-Tokens unified (`getL5Color`/`getL5Hex`/`getL5Bg`), `PlayerPhoto` shared Component, 9 Dateien gefixt. Phase 2: `image_url` in Holdings/Lineup Queries, `PlayerPhoto` in Fantasy Picker, Emoji-Stats→Text. Spielerfotos konsistent in ALLEN Views.
 **UX Radical Simplification fertig:** 20→13 Tabs, ~760 Zeilen reduziert. Home scrollbar (keine Tabs), Market 3 Tabs, Community 3 Tabs (PostType-Filter im Feed), Club 3 Tabs, Fantasy vereinfacht (nur Cards). Nav Labels: "Markt" + "Community" statt "Manager" + "Report".
 **$SCOUT Umbenennung fertig (ADR-021):** BSD → $SCOUT. `fmtBSD` → `fmtScout`, `formatBsd` → `formatScout`, ~242 UI-Strings, i18n DE+TR, 8 Skills, Docs. Interne Variablen (`centsToBsd`, `priceBsd`) bleiben.
-**Nav Umbau fertig:** Profil→Avatar (TopBar klickbar), Community→Scouting Zone (7 Content-Type Filter), Club in NAV_MAIN. User Aufträge mit $SCOUT-Escrow. Migration #195. BottomNav: Home|Spieltag|Markt|Club|Scouting.
+**Nav Umbau fertig:** Profil→Avatar (TopBar klickbar, 4 Tabs: Overview mit Track Record+Earnings, Portfolio, Aktivität, Einstellungen), Community→Scouting Zone (7 Content-Type Filter, filter-aware Empty States, 4 Hero-Buttons), Club in NAV_MAIN. User Aufträge mit $SCOUT-Escrow. Migration #195. BottomNav: Home|Spieltag|Markt|Club|Scouting.
 **Code-seitig launch-fertig.** Nur 2 manuelle Setup-Schritte blockieren Beta-Launch: VAPID Key in Vercel + API-Football Account+Mapping.
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.

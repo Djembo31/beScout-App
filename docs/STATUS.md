@@ -3,23 +3,26 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 9** – 195 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs. Build sauber (0 Fehler). **Nav Umbau fertig.** Profil→Avatar, Community→Scouting Zone (7 Content-Type Filter), Club in NAV_MAIN, User Aufträge mit $SCOUT-Escrow.
+**Woche 9** – 195 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs. Build sauber (0 Fehler). **Nav Umbau + Profil Dedup fertig.** Profil→Avatar (4 Tabs, Track Record in Overview). Scouting Zone (7 Content-Type Filter, filter-aware Empty States, 4 Hero-Buttons). User Aufträge mit $SCOUT-Escrow.
 
-## Session 22.02.2026 (118) – Nav Umbau: Profil → Avatar, Community → Scouting Zone
+## Session 22.02.2026 (118) – Nav Umbau + Profil Dedup + Scouting Zone Fixes
 
 ### Änderungen
 - **Sprint 1: Navigation Restructure** — Profile aus NAV_MAIN entfernt, Club von NAV_MORE nach NAV_MAIN verschoben. `report` → `scouting` (Compass Icon). BottomNav: Home|Spieltag|Markt|Club|Scouting. TopBar Avatar klickbar auf Desktop + Active-Ring. SideNav: Club mit dynamischem Slug-Routing.
-- **Sprint 2: Scouting Zone** — 7 Content-Type Filter-Pills (Alle, Beiträge, Gerüchte, Berichte, Aufträge, Abstimmungen, News). FeedItem Union-Type für Mixed-Content Feed. ClubNewsSection + CommunityBountySection gelöscht (in Feed integriert). CommunitySidebar: Votes Section entfernt. CommunityHero: dynamische Buttons (Bounty für alle, Vote für Admins).
+- **Sprint 2: Scouting Zone** — 7 Content-Type Filter-Pills (Alle, Beiträge, Gerüchte, Berichte, Aufträge, Abstimmungen, News). FeedItem Union-Type für Mixed-Content Feed. ClubNewsSection + CommunityBountySection gelöscht (in Feed integriert). CommunitySidebar: Votes Section entfernt.
 - **Sprint 3: User Aufträge** — Migration #195 (`is_user_bounty` boolean + RLS Policy). `createUserBounty()` mit Wallet-Escrow (locked_balance). CreateBountyModal (~150 Zeilen). BountyCard: "Community-Auftrag" Badge.
 - **Sprint 4: i18n + Cleanup** — ~35 neue Keys DE+TR (scoutingZone, filters, hero, createBounty). Nav Keys bereinigt. Unused imports entfernt.
+- **Profil Dedup** — Research-Tab + Posts-Tab aus ProfileView entfernt (duplizierten Scouting Zone). Track Record + Research Earnings in ProfileOverviewTab gemerged. ProfileTab Type: 6→4 Tabs.
+- **Scouting Zone Fixes** — Vote-Button aus CommunityHero entfernt (nur Clubs). Filter-aware Empty States: 5 kontextuelle Leer-Meldungen je Content-Filter. 5 neue i18n Keys DE+TR.
 
-### Dateien modifiziert/neu/gelöscht (~17)
+### Dateien modifiziert/neu/gelöscht (~20)
 - Nav: `nav.ts`, `BottomNav.tsx`, `SideNav.tsx`, `TopBar.tsx`
 - Community: `page.tsx` (rewrite), `layout.tsx`, `CommunityFeedTab.tsx` (rewrite), `CommunityHero.tsx` (rewrite), `CommunitySidebar.tsx`, `BountyCard.tsx`
+- Profil: `ProfileView.tsx`, `ProfileOverviewTab.tsx`
 - Neu: `CreateBountyModal.tsx`
 - Gelöscht: `ClubNewsSection.tsx`, `CommunityBountySection.tsx`
 - Service: `bounties.ts` (+createUserBounty)
-- Types: `types/index.ts` (+is_user_bounty)
+- Types: `types/index.ts` (+is_user_bounty, ProfileTab 4 Tabs)
 - i18n: `de.json`, `tr.json`
 
 ## Session 22.02.2026 (114–117) – QA + Spotlight + Modal + Content-System
