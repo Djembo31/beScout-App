@@ -1,9 +1,23 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 22.02.2026 (Session 120)
-> Modus: PILOT SPRINT — 195 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 566 Spieler, 505 Player Images
+> Letzte Aktualisierung: 22.02.2026 (Session 121)
+> Modus: PILOT SPRINT — 196 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 566 Spieler, 505 Player Images
 
 ---
+
+## Security Audit + auth.uid() Hardening ✅ (22.02.2026)
+- [x] Sprint 1: 5-Agenten Security/Fraud Audit — Trading, Fantasy, Wallet, RLS/Auth, Social
+- [x] Sprint 2: 23 RPCs aus DB verifiziert via `pg_get_functiondef` — ~75% False Positives eliminiert
+- [x] Sprint 3: Systemische Schwachstelle identifiziert — RPCs akzeptieren p_user_id vom Client statt auth.uid()
+- [x] Sprint 4: Migration #196 — 40 RPCs mit auth.uid() Identity Guards, score_event Admin-Guard
+- [x] Sprint 5: REVOKE EXECUTE auf deduct/refund_wallet_balance von PUBLIC
+- [x] Sprint 6: Verifikation — Spot-Checks auf 4 RPCs + REVOKE bestätigt
+- [x] **1 Migration (#196), keine Code-Änderungen, Build 0 Fehler**
+
+## Known Risk: Fire-and-Forget RPCs ohne auth.uid()
+- [ ] `award_dimension_score`, `award_score_points`, `award_mastery_xp` — zu DB-Triggers migrieren
+- [ ] `refresh_user_stats`, `refresh_airdrop_score` — zu DB-Triggers migrieren
+- [ ] `update_mission_progress` — Admin-Kontext prüfen
 
 ## Club Multi-Admin: Rollen-Differenzierung ✅ (22.02.2026)
 - [x] Sprint 1: `adminRoles.ts` (NEU) — `canAccessTab()`, `canPerformAction()`, `getRoleBadge()`, Tab-Access-Matrix

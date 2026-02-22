@@ -3,7 +3,24 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 9** – 195 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements. Build sauber (0 Fehler). Admin-Rollen (Owner/Admin/Editor) mit Tab-Filtering + Action-Guards + Team-Management UI live. **Beta-Launch ready.**
+**Woche 9** – 196 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements. Build sauber (0 Fehler). 40 RPCs mit auth.uid() Identity Guards. deduct/refund_wallet_balance EXECUTE revoked. **Beta-Launch ready.**
+
+## Session 22.02.2026 (121) – Security Audit + auth.uid() Hardening
+
+### Änderungen
+- **5-Agenten Security/Fraud Audit:** Trading RPCs, Fantasy Scoring, Wallet Exploits, RLS/Auth, Social Manipulation — initial 30+ Befunde, ~75% als False Positives eliminiert nach RPC-Verifikation via `pg_get_functiondef`.
+- **Systemische Schwachstelle:** ALLE SECURITY DEFINER RPCs akzeptierten `p_user_id`/`p_admin_id` vom Client statt `auth.uid()` → Impersonation möglich.
+- **Migration #196 (auth_uid_security_guards):** 40 RPCs mit `IF auth.uid() IS DISTINCT FROM p_xxx THEN RAISE EXCEPTION` Guards versehen. Dynamisches Patching via `pg_get_functiondef()` + `regexp_replace()`.
+- **score_event Admin-Guard:** platform_admins + club_admins Check injiziert.
+- **REVOKE EXECUTE** auf `deduct_wallet_balance` + `refund_wallet_balance` von PUBLIC (interne Helper).
+- **Verifikation:** Spot-Checks auf adjust_user_wallet, buy_player_dpc, send_tip, score_event — alle Guards korrekt.
+
+### Dateien
+- DB: Migration #196 (auth_uid_security_guards) — 40 RPCs + 2 REVOKE
+- Keine Code-Änderungen (Frontend ruft RPCs bereits mit eigenem user_id auf)
+
+### Known Risk
+- `award_dimension_score`, `award_score_points`, `award_mastery_xp`, `refresh_user_stats`, `refresh_airdrop_score`, `update_mission_progress` — vom Client mit fremden user_ids aufrufbar. Sollten zu DB-Triggers migriert werden.
 
 ## Session 22.02.2026 (120) – Club Multi-Admin: Rollen-Differenzierung
 
