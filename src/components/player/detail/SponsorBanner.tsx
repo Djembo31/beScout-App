@@ -60,7 +60,7 @@ export default function SponsorBanner({ placement, clubId, sponsor: directSponso
           <img
             src={sponsor.logo_url}
             alt={sponsor.name}
-            className="w-5 h-5 rounded object-contain"
+            className="h-6 w-auto max-w-[80px] rounded object-contain"
           />
         )}
         <span className="text-xs font-black text-white/40">{sponsor.name}</span>

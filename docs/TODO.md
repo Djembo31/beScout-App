@@ -1,9 +1,17 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 22.02.2026 (Session 118)
-> Modus: PILOT SPRINT — 195 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 566 Spieler, 505 Player Images
+> Letzte Aktualisierung: 22.02.2026 (Session 119)
+> Modus: PILOT SPRINT — 195 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 566 Spieler, 505 Player Images
 
 ---
+
+## Deep-Dive Harmony Audit + Sponsor Seeding ✅ (22.02.2026)
+- [x] 5-Agenten Audit: Navigation, Types, Features, i18n, UI/UX — 2 False Positives, 8 echte Befunde
+- [x] Metadata "Manager Office" → "Marktplatz", 5 Touch-Targets, ProfileView i18n
+- [x] Dead Files: ProfilePostsTab + ProfileResearchTab gelöscht (-273 Zeilen)
+- [x] FeedItem → ActivityFeedItem, Nav-Key manager → market
+- [x] 21 Sponsor-Placements: Nike, Adidas, Turkish Airlines, EA Sports, Mastercard, Coca-Cola, etc.
+- [x] **13 Dateien, -271 Zeilen netto, Build 0 Fehler**
 
 ## Nav Umbau + Profil Dedup + Scouting Zone Fixes ✅ (22.02.2026)
 - [x] Sprint 1: Navigation Restructure — Profile aus NAV_MAIN, Club in NAV_MAIN, Scouting statt Report. TopBar Avatar klickbar

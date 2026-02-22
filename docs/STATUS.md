@@ -3,7 +3,25 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 9** – 195 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs. Build sauber (0 Fehler). **Nav Umbau + Profil Dedup fertig.** Profil→Avatar (4 Tabs, Track Record in Overview). Scouting Zone (7 Content-Type Filter, filter-aware Empty States, 4 Hero-Buttons). User Aufträge mit $SCOUT-Escrow.
+**Woche 9** – 195 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements. Build sauber (0 Fehler). **Projekt ~95% harmonisch** (5-Agenten Deep-Dive bestanden). 21 Fußball-Sponsor-Placements mit echten Marken. Alle Features connected.
+
+## Session 22.02.2026 (119) – Deep-Dive Harmony Audit + Sponsor Seeding
+
+### Änderungen
+- **5-Agenten Harmony Audit:** Navigation, Types/Services, Feature Integration, i18n/Dead Code, UI/UX Flow — ~425K Tokens, ~230 Dateien geprüft
+- **2 False Positives eliminiert:** Wallet `balance` (DB korrekt), Trader Score Gap (DB-Trigger existiert)
+- **8 Befunde gefixt:** Metadata "Manager Office"→"Marktplatz", 5 Touch-Targets, ProfileView i18n, 2 Dead Files gelöscht, FeedItem→ActivityFeedItem, Nav-Key manager→market
+- **21 Sponsor-Placements** mit echten Fußball-Marken: Nike, Adidas, Turkish Airlines, EA Sports, Mastercard, Coca-Cola, Puma, Heineken, PlayStation, Pepsi, Visa, Trendyol. Clearbit-Logos (öffentliche CDN).
+
+### Dateien modifiziert/gelöscht (~13)
+- Layout: `market/layout.tsx`
+- Touch: `PostCard.tsx`, `FollowBtn.tsx`, `EventDetailModal.tsx`, `CreateCommunityPollModal.tsx`
+- Profile: `ProfileView.tsx` (i18n), gelöscht: `ProfilePostsTab.tsx`, `ProfileResearchTab.tsx`
+- Types: `types/index.ts` (ActivityFeedItem)
+- Services: `social.ts` (ActivityFeedItem)
+- Nav: `nav.ts` (market key)
+- i18n: `de.json`, `tr.json`
+- DB: 21 Sponsor-Einträge (INSERT)
 
 ## Session 22.02.2026 (118) – Nav Umbau + Profil Dedup + Scouting Zone Fixes
 

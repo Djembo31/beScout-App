@@ -252,6 +252,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **UX Radical Simplification fertig:** 20→13 Tabs, ~760 Zeilen reduziert. Home scrollbar (keine Tabs), Market 3 Tabs, Community 3 Tabs (PostType-Filter im Feed), Club 3 Tabs, Fantasy vereinfacht (nur Cards). Nav Labels: "Markt" + "Community" statt "Manager" + "Report".
 **$SCOUT Umbenennung fertig (ADR-021):** BSD → $SCOUT. `fmtBSD` → `fmtScout`, `formatBsd` → `formatScout`, ~242 UI-Strings, i18n DE+TR, 8 Skills, Docs. Interne Variablen (`centsToBsd`, `priceBsd`) bleiben.
 **Nav Umbau fertig:** Profil→Avatar (TopBar klickbar, 4 Tabs: Overview mit Track Record+Earnings, Portfolio, Aktivität, Einstellungen), Community→Scouting Zone (7 Content-Type Filter, filter-aware Empty States, 4 Hero-Buttons), Club in NAV_MAIN. User Aufträge mit $SCOUT-Escrow. Migration #195. BottomNav: Home|Spieltag|Markt|Club|Scouting.
+**Deep-Dive Harmony Audit bestanden:** 5 Experten-Agenten, ~95% harmonisch. 8 Befunde gefixt (Metadata, Touch-Targets, i18n, Dead Code, Type-Rename, Nav-Key). 21 Sponsor-Placements mit echten Fußball-Marken (Nike, Adidas, Turkish Airlines, EA Sports, Mastercard, Coca-Cola, Puma, Heineken, PlayStation, Pepsi, Visa, Trendyol).
 **Code-seitig launch-fertig.** Nur 2 manuelle Setup-Schritte blockieren Beta-Launch: VAPID Key in Vercel + API-Football Account+Mapping.
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.
