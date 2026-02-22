@@ -19,9 +19,7 @@ import { getUserFantasyHistory } from '@/lib/services/lineups';
 import { val } from '@/lib/settledHelpers';
 import ProfileOverviewTab from '@/components/profile/ProfileOverviewTab';
 import ProfilePortfolioTab from '@/components/profile/ProfilePortfolioTab';
-import ProfileResearchTab from '@/components/profile/ProfileResearchTab';
 import ProfileActivityTab from '@/components/profile/ProfileActivityTab';
-import ProfilePostsTab from '@/components/profile/ProfilePostsTab';
 import FollowListModal from '@/components/profile/FollowListModal';
 import { getExpertBadges } from '@/lib/expertBadges';
 import { getMySubscription, TIER_CONFIG } from '@/lib/services/clubSubscriptions';
@@ -43,8 +41,6 @@ import { FileText, Target as TargetIcon, CheckCircle, Star } from 'lucide-react'
 const TABS: { id: ProfileTab; label: string; selfOnly?: boolean }[] = [
   { id: 'overview', label: 'Ãœbersicht' },
   { id: 'portfolio', label: 'Portfolio', selfOnly: true },
-  { id: 'research', label: 'Research' },
-  { id: 'posts', label: 'BeitrÃ¤ge' },
   { id: 'activity', label: 'AktivitÃ¤t' }, // Public: shows trades/rewards (no wallet details)
   { id: 'settings', label: 'Einstellungen', selfOnly: true },
 ];
@@ -272,13 +268,10 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             <p className="text-sm text-white/60 mt-1.5 max-w-lg">{targetProfile.bio}</p>
           )}
 
-          {/* Top Post â€” Pinned Take */}
+          {/* Top Post â€" Pinned Take */}
           {topPost && (
             <div className="mt-2 max-w-lg">
-              <button
-                onClick={() => setTab('posts')}
-                className="w-full text-left px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] transition-colors"
-              >
+              <div className="px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06]">
                 <div className="flex items-center gap-1.5 mb-1">
                   <MessageCircle className="w-3 h-3 text-sky-400" />
                   <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400">Top Beitrag</span>
@@ -288,7 +281,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                   </span>
                 </div>
                 <p className="text-xs text-white/60 line-clamp-2">{topPost.content}</p>
-              </button>
+              </div>
             </div>
           )}
 
@@ -574,16 +567,12 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               totalDpcs={totalDpcs}
               userId={targetUserId}
               transactions={transactions}
+              myResearch={myResearch}
+              trackRecord={trackRecord}
             />
           )}
           {!holdingsLoading && !dataError && tab === 'portfolio' && isSelf && (
             <ProfilePortfolioTab holdings={holdings} />
-          )}
-          {!holdingsLoading && !dataError && tab === 'research' && (
-            <ProfileResearchTab myResearch={myResearch} trackRecord={trackRecord} />
-          )}
-          {!holdingsLoading && !dataError && tab === 'posts' && (
-            <ProfilePostsTab userId={targetUserId} />
           )}
           {!holdingsLoading && !dataError && tab === 'activity' && (
             <ProfileActivityTab

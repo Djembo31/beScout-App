@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, BarChart3, Trophy, Coins, FileText, Vote, Target, Flame, Crosshair, Banknote, UserCheck, Sparkles, Megaphone } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, BarChart3, Trophy, Coins, FileText, Vote, Target, Flame, Crosshair, Banknote, UserCheck, Sparkles, Megaphone, Shield, CheckCircle, XCircle, Clock, CircleDollarSign, Star } from 'lucide-react';
 import { Card, StatCard, Button } from '@/components/ui';
 import { PositionBadge, PlayerIdentity } from '@/components/player';
 import { fmtScout, cn } from '@/lib/utils';
@@ -13,7 +13,7 @@ import { getRelativeTime } from '@/lib/activityHelpers';
 import { useUserMasteryAll } from '@/lib/queries/mastery';
 import ScoreRoadCard from '@/components/gamification/ScoreRoadCard';
 import PredictionStatsCard from '@/components/profile/PredictionStatsCard';
-import type { Pos, DbUserAchievement, DbTransaction, UserTradeWithPlayer, UserFantasyResult } from '@/types';
+import type { Pos, DbUserAchievement, DbTransaction, UserTradeWithPlayer, UserFantasyResult, ResearchPostWithAuthor, AuthorTrackRecord } from '@/types';
 import { useTranslations } from 'next-intl';
 
 // ============================================
@@ -52,6 +52,8 @@ interface ProfileOverviewTabProps {
   totalDpcs: number;
   userId: string | undefined;
   transactions?: DbTransaction[];
+  myResearch?: ResearchPostWithAuthor[];
+  trackRecord?: AuthorTrackRecord | null;
 }
 
 const EARNING_TYPES: { type: string; label: string; icon: React.ElementType; color: string }[] = [
@@ -82,6 +84,8 @@ export default function ProfileOverviewTab({
   totalDpcs,
   userId,
   transactions,
+  myResearch = [],
+  trackRecord,
 }: ProfileOverviewTabProps) {
   const tg = useTranslations('gamification');
   const pnlCents = portfolioValueCents - portfolioCostCents;
@@ -147,6 +151,106 @@ export default function ProfileOverviewTab({
           </div>
         </Card>
       )}
+
+      {/* Track Record */}
+      {trackRecord && trackRecord.totalCalls > 0 && (
+        <Card className="p-4 md:p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 className="w-5 h-5 text-[#FFD700]" />
+            <h3 className="font-black">Track Record</h3>
+            <div className="flex-1" />
+            {trackRecord.totalCalls >= 5 && trackRecord.hitRate >= 60 ? (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/25">
+                <Shield className="w-3 h-3" />
+                Verifizierter Scout
+              </span>
+            ) : trackRecord.totalCalls < 5 ? (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-white/5 text-white/40 border border-white/10">
+                <Shield className="w-3 h-3" />
+                {trackRecord.totalCalls}/5 Calls
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-white/5 text-white/40 border border-white/10">
+                <Shield className="w-3 h-3" />
+                {trackRecord.hitRate}%/60% Hit-Rate
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-6 flex-wrap">
+            <div className="text-center">
+              <div className={cn(
+                'text-3xl font-mono font-black',
+                trackRecord.hitRate >= 60 ? 'text-[#FFD700]' : trackRecord.hitRate >= 40 ? 'text-white' : 'text-red-400'
+              )}>
+                {trackRecord.hitRate}%
+              </div>
+              <div className="text-xs text-white/40 mt-0.5">Hit-Rate</div>
+            </div>
+            <div>
+              <div className="text-sm text-white/60 mb-1">
+                {trackRecord.correctCalls} / {trackRecord.totalCalls} Calls
+              </div>
+              <div className="w-40 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#FFD700] to-[#22C55E] rounded-full transition-all"
+                  style={{ width: `${trackRecord.hitRate}%` }}
+                />
+              </div>
+              <div className="flex items-center gap-3 mt-2 text-xs text-white/50">
+                <span className="flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3 text-[#22C55E]" />
+                  {trackRecord.correctCalls}
+                </span>
+                <span className="flex items-center gap-1">
+                  <XCircle className="w-3 h-3 text-red-400" />
+                  {trackRecord.incorrectCalls}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-white/30" />
+                  {trackRecord.pendingCalls}
+                </span>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Research Einnahmen */}
+      {myResearch.length > 0 && (() => {
+        const totalEarned = myResearch.reduce((s, p) => s + p.total_earned, 0);
+        const totalUnlocks = myResearch.reduce((s, p) => s + p.unlock_count, 0);
+        const rated = myResearch.filter(p => p.avg_rating > 0);
+        const avgRating = rated.length > 0 ? rated.reduce((s, p) => s + p.avg_rating, 0) / rated.length : 0;
+        if (totalEarned === 0 && totalUnlocks === 0) return null;
+        return (
+          <Card className="p-4 md:p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <CircleDollarSign className="w-5 h-5 text-[#22C55E]" />
+              <h3 className="font-black">Research-Einnahmen</h3>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center p-3 bg-[#22C55E]/5 border border-[#22C55E]/10 rounded-xl">
+                <div className="text-2xl font-mono font-black text-[#22C55E]">{fmtScout(centsToBsd(totalEarned))}</div>
+                <div className="text-[10px] text-white/40 mt-1">$SCOUT verdient</div>
+              </div>
+              <div className="text-center p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+                <div className="text-2xl font-mono font-black">{totalUnlocks}</div>
+                <div className="text-[10px] text-white/40 mt-1">Verkäufe</div>
+              </div>
+              <div className="text-center p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+                <div className="text-2xl font-mono font-black text-[#FFD700]">{avgRating > 0 ? avgRating.toFixed(1) : '-'}</div>
+                <div className="text-[10px] text-white/40 mt-1 flex items-center justify-center gap-0.5">
+                  <Star className="w-3 h-3" /> Ø Bewertung
+                </div>
+              </div>
+              <div className="text-center p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+                <div className="text-2xl font-mono font-black">{myResearch.length}</div>
+                <div className="text-[10px] text-white/40 mt-1">Berichte</div>
+              </div>
+            </div>
+          </Card>
+        );
+      })()}
 
       {/* Top Holdings */}
       {holdings.length > 0 && (

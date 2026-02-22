@@ -68,8 +68,8 @@ src/
 │       │           ├── page.tsx       # Server Component (Admin-Guard)
 │       │           └── AdminContent.tsx # Admin Dashboard (8 Tabs)
 │       ├── community/
-│       │   ├── layout.tsx         # Metadata: "Community"
-│       │   └── page.tsx           # Community Orchestrator (3 Tabs: Feed, Research, Ranking)
+│       │   ├── layout.tsx         # Metadata: "Scouting Zone"
+│       │   └── page.tsx           # Scouting Zone (7 Content-Type Filter, Unified Feed)
 │       ├── player/[id]/
 │       │   ├── page.tsx           # Server Component (generateMetadata)
 │       │   ├── not-found.tsx      # 404 für ungültige Player-IDs
@@ -99,7 +99,7 @@ src/
 │   ├── ui/Confetti.tsx            # CSS-only Confetti Animation (24 Partikel, 3s auto-cleanup)
 │   ├── player/index.tsx           # PositionBadge, StatusBadge, ScoreCircle, MiniSparkline, IPOBadge
 │   ├── player/PlayerRow.tsx       # PlayerDisplay (compact/card), TrikotBadge, posColors, getContractInfo
-│   ├── community/                 # ResearchCard, CreateResearchModal, PostCard, FollowBtn, BountyCard, 5 Tab-Components
+│   ├── community/                 # ResearchCard, CreateResearchModal, PostCard, FollowBtn, BountyCard, CreateBountyModal, CommunityHero, CommunitySidebar, CommunityFeedTab
 │   ├── profile/                   # ProfileView (Shared), ProfileOverviewTab, ProfilePortfolioTab, ProfilePostsTab, ProfileResearchTab, ProfileActivityTab, FollowListModal
 │   ├── fantasy/                   # 14 Sub-Components (EventDetailModal, PredictionsTab, CreatePredictionModal, PredictionCard, etc.)
 │   ├── manager/                   # ManagerOffersTab (4 Sub-Tabs: Eingehend, Ausgehend, Offene Gebote, Verlauf)
@@ -251,6 +251,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 **Player Data Consistency fertig:** Phase 1: L5 Farb-Tokens unified (`getL5Color`/`getL5Hex`/`getL5Bg`), `PlayerPhoto` shared Component, 9 Dateien gefixt. Phase 2: `image_url` in Holdings/Lineup Queries, `PlayerPhoto` in Fantasy Picker, Emoji-Stats→Text. Spielerfotos konsistent in ALLEN Views.
 **UX Radical Simplification fertig:** 20→13 Tabs, ~760 Zeilen reduziert. Home scrollbar (keine Tabs), Market 3 Tabs, Community 3 Tabs (PostType-Filter im Feed), Club 3 Tabs, Fantasy vereinfacht (nur Cards). Nav Labels: "Markt" + "Community" statt "Manager" + "Report".
 **$SCOUT Umbenennung fertig (ADR-021):** BSD → $SCOUT. `fmtBSD` → `fmtScout`, `formatBsd` → `formatScout`, ~242 UI-Strings, i18n DE+TR, 8 Skills, Docs. Interne Variablen (`centsToBsd`, `priceBsd`) bleiben.
+**Nav Umbau fertig:** Profil→Avatar (TopBar klickbar), Community→Scouting Zone (7 Content-Type Filter), Club in NAV_MAIN. User Aufträge mit $SCOUT-Escrow. Migration #195. BottomNav: Home|Spieltag|Markt|Club|Scouting.
 **Code-seitig launch-fertig.** Nur 2 manuelle Setup-Schritte blockieren Beta-Launch: VAPID Key in Vercel + API-Football Account+Mapping.
 
 Siehe `docs/VISION.md` für die vollständige Produktvision und Fan-Ökonomie.
@@ -265,7 +266,7 @@ Siehe `docs/SCALE.md` für Skalierungsarchitektur und DB-Schema.
 **State Management Migration fertig:** TanStack React Query v5 + Zustand v5 als einziges Caching-Layer. cache.ts komplett gelöscht. ~41 Query-Hooks in 13 Dateien.
 **Sponsor-Flächen produktionsreif:** sponsors Tabelle (Migration #142), SponsorBanner DB-backed, 21 Placements (7 original + 14 neu in Migration #143), Admin CRUD Tab, 8 Seed-Einträge. Placements decken alle Bereiche ab: Home, Market (4 Tabs), Club (2 Unterseiten), Fantasy (Spieltag, Pitch LED Boards, Leaderboard, History), Profile (Hero+Footer), Community (Feed+Research).
 **Pilot-Scope:** Multi-Club-ready, 566 Spieler (20 Clubs), 505 Player Images, 50 Beta-Tester.
-**189 SQL-Migrationen + 1 Edge Function v2 + 2 pg_cron Jobs deployed.** Trading + IPO + Fantasy + Scoring + Predictions + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin + Trading Club-Fee + Bounty Platform-Fee + Event Sponsors + Push Subscriptions + Club Subscriptions + Leagues + Club Followers + Club Discovery + Airdrop Score + Referral System + Match-Data Integration + Security Hardening #2 + Sponsor-Flächen (21 Placements) + Gamification v4 (3-Dim Elo) + DPC Mastery + Score Road + Prediction Engine live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) + Phase A+B+C + Multi-Club Expansion + Phase D (Match-Data) live.
+**195 SQL-Migrationen + 1 Edge Function v2 + 2 pg_cron Jobs deployed.** Trading + IPO + Fantasy + Scoring + Predictions + Reputation & Engagement + Feedback + Research Paywall + Research Ratings + Track Record + Activity Tracking + PBT + Fee Split + Bezahlte Polls + Content-Kategorien + Research-Kategorien + Security Hardening + Notifications + Missions + Multi-Club Architektur + Club Dashboard + Bounties + Success Fee + Liquidierung + Community-Moderation + Streak-Bonus + Activity-Log + Offers + Platform-Admin + Trading Club-Fee + Bounty Platform-Fee + Event Sponsors + Push Subscriptions + Club Subscriptions + Leagues + Club Followers + Club Discovery + Airdrop Score + Referral System + Match-Data Integration + Security Hardening #2 + Sponsor-Flächen (21 Placements) + Gamification v4 (3-Dim Elo) + DPC Mastery + Score Road + Prediction Engine + User Aufträge (Escrow) live. Manager Office (7 Tabs inkl. "Alle Spieler") + Engagement-Wellen 1-4 (32 Features) + Phase A+B+C + Multi-Club Expansion + Phase D (Match-Data) + Nav Umbau (Scouting Zone) live.
 **GitHub:** Private Repo `Djembo31/beScout-App`, CI/CD via GitHub Actions, Sentry Error Tracking, PostHog Analytics.
 
 ## Bekannte Issues
