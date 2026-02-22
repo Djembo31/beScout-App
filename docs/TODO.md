@@ -1,9 +1,36 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 22.02.2026 (Session 123)
-> Modus: PILOT SPRINT — 199 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 566 Spieler, 505 Player Images
+> Letzte Aktualisierung: 23.02.2026 (Session 126)
+> Modus: PILOT SPRINT — 201 Migrations, 22 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 566 Spieler, 505 Player Images
 
 ---
+
+## Geofencing Infrastruktur ✅ (23.02.2026)
+- [x] Sprint 1: Migration #201 — `profiles.region TEXT` + `geofencing_config` Tabelle (5×4 Matrix, RLS, 20 Seed-Rows)
+- [x] Sprint 2: `geofencing.ts` — Types (GeoRegion, GeoFeature), static Fallback-Matrix, `isFeatureAllowed()`, Feature Flag
+- [x] Sprint 3: `useRegionGuard` Hook — identisches Pattern wie useDemoGuard, wraps async actions mit Region-Check
+- [x] Sprint 4: `RegionBadge` Component — Farbige Pill (Turkey=rot, EU-Strict=blau, EU-Rest=sky, Global=emerald)
+- [x] Sprint 5: i18n `geo` Namespace — ~15 Keys in DE+TR (restricted, regions, features)
+- [x] Sprint 6: Admin Region-Verwaltung — Region-Spalte + Dropdown in AdminUsersTab, profiles.ts + platformAdmin.ts erweitert
+- [x] Sprint 7: Feature Flag `NEXT_PUBLIC_GEOFENCING_ENABLED=false` — global OFF, Build 0 Fehler
+- [x] **1 Migration (#201), 3 neue + 6 modifizierte Dateien, Build 0 Fehler**
+
+## Demo-Modus + Pitch-Material ✅ (23.02.2026)
+- [x] Sprint 1: Migration #200 — `is_demo BOOLEAN` auf profiles + Index
+- [x] Sprint 2: `useDemoGuard` Hook + `DemoBanner` — blockiert Writes mit Toast, sticky Banner
+- [x] Sprint 3: Login-Shortcuts — 3 Demo-Accounts (Fan, Club-Admin, Plattform-Admin)
+- [x] Sprint 4: Demo-Seed-Script — `scripts/seed-demo.sql` (3 User mit Profilen, Wallets, Holdings)
+- [x] Sprint 5: Pitch-Seite `/pitch` — 7 Sections, Sponsoring-Rechner mit Live-Kalkulation
+- [x] Sprint 6: i18n `demo` + `pitch` Namespaces in DE+TR
+- [x] **1 Migration (#200), 5 neue + 8 modifizierte Dateien, Build 0 Fehler**
+
+## Disclaimer-Texte + Wording-Compliance ✅ (22.02.2026)
+- [x] Sprint 1: Wording-Fixes — "ROI" → "Bonus" (RewardsTab), "Profit-Trades" → "erfolgreiche Trades" (achievements.ts, de.json, tr.json)
+- [x] Sprint 2: Cookie Consent Banner — `CookieConsent.tsx`, localStorage-basiert, in root layout.tsx eingebunden
+- [x] Sprint 3: Trading Disclaimer — `TradingDisclaimer.tsx` (inline/card), 6 Platzierungen (BuyModal, SellModal, OfferModal, Market, PlayerContent, RewardsTab)
+- [x] Sprint 4: i18n — `legal` Namespace in de.json + tr.json (7 Keys je Sprache)
+- [x] Verifikation: Wording-Scan 0 Treffer (ROI/Profit/Rendite/Investment/Dividende), Build 0 Fehler
+- [x] **2 neue + 10 modifizierte Dateien, keine DB-Migration, Build 0 Fehler**
 
 ## Notification System Fix + Preferences ✅ (22.02.2026)
 - [x] Sprint 1: Migration #198 — `notifications` zu Supabase Realtime Publication hinzugefügt
@@ -263,7 +290,7 @@
 - [ ] Native App → Post-Pilot
 - [ ] ~~Next.js 15/16 Migration~~ → Post-Pilot
 
-> **Status:** Code-seitig launch-fertig. Nur 2 manuelle Setup-Schritte blockieren den Beta-Launch.
+> **Status:** Code-seitig launch-fertig + Demo+Pitch + Geofencing ready. Nur 2 manuelle Setup-Schritte blockieren den Beta-Launch.
 
 ## Multi-Club Expansion ✅ (16.02.2026)
 - [x] **Phase 1 (Data Layer):** 3 Migrationen (#128-#130) — `leagues` Tabelle, `club_followers` Tabelle (RLS + Migration), `club_id` auf community_polls
