@@ -97,10 +97,7 @@ export async function buyFromIpo(
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'ipo_buy', 'trading', { ipoId, quantity, playerId });
   }).catch(err => console.error('[IPO] Activity log failed:', err));
-  // Mission tracking
-  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-    triggerMissionProgress(userId, ['daily_buy_1', 'daily_trade_2', 'weekly_trade_5']);
-  }).catch(err => console.error('[IPO] Mission tracking failed:', err));
+  // Gamification (missions, stats) handled by DB trigger on trades table
   return data as IpoBuyResult;
 }
 

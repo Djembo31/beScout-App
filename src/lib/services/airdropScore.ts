@@ -73,7 +73,8 @@ export async function getAirdropStats(): Promise<AirdropStats> {
 // ============================================
 
 export async function refreshAirdropScore(userId: string): Promise<DbAirdropScore | null> {
-  const { data, error } = await supabase.rpc('refresh_airdrop_score', { p_user_id: userId });
+  // Use wrapper RPC that calls auth.uid() internally (direct refresh_airdrop_score is REVOKED)
+  const { data, error } = await supabase.rpc('refresh_my_airdrop_score');
   if (error) {
     console.error('[Airdrop] Refresh failed:', error.message);
     return null;
@@ -101,12 +102,4 @@ export function invalidateAirdropData(_userId?: string): void {
   // No-op: React Query handles cache invalidation
 }
 
-// ============================================
-// Fire-and-forget helper for other services
-// ============================================
-
-export function triggerAirdropRefresh(userId: string): void {
-  import('@/lib/services/airdropScore').then(m => {
-    m.refreshAirdropScore(userId);
-  }).catch(err => console.error('[Airdrop] Trigger refresh failed:', err));
-}
+// triggerAirdropRefresh removed — airdrop refresh now handled by DB triggers

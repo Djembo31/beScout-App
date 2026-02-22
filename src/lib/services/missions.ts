@@ -81,8 +81,8 @@ export async function claimMissionReward(userId: string, missionId: string): Pro
 
 export async function trackMissionProgress(userId: string, missionKey: string, increment = 1): Promise<void> {
   try {
-    await supabase.rpc('update_mission_progress', {
-      p_user_id: userId,
+    // Use wrapper RPC that calls auth.uid() internally (direct update_mission_progress is REVOKED)
+    await supabase.rpc('track_my_mission_progress', {
       p_mission_key: missionKey,
       p_increment: increment,
     });

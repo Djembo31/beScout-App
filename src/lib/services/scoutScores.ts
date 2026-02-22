@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import { getRang, getDimensionLabel, type Dimension } from '@/lib/gamification';
+import type { Dimension } from '@/lib/gamification';
 
 // ============================================
 // Scout Scores Service (3-Dimension Elo System)
@@ -106,79 +106,8 @@ export async function getScoutLeaderboard(
   return mapped;
 }
 
-/** Award dimension score via RPC */
-export async function awardDimensionScore(
-  userId: string,
-  dimension: Dimension,
-  delta: number,
-  eventType: string,
-  sourceId?: string,
-  metadata?: Record<string, unknown>,
-): Promise<{ ok: boolean; score_before?: number; score_after?: number; error?: string }> {
-  if (delta === 0) return { ok: true };
-
-  const { data, error } = await supabase.rpc('award_dimension_score', {
-    p_user_id: userId,
-    p_dimension: dimension,
-    p_delta: delta,
-    p_event_type: eventType,
-    p_source_id: sourceId ?? null,
-    p_metadata: metadata ?? {},
-  });
-
-  if (error) {
-    console.error('[ScoutScores] awardDimensionScore error:', error);
-    return { ok: false, error: error.message };
-  }
-
-  const result = data as Record<string, unknown> | null;
-  if (result && result.ok === false) {
-    return { ok: false, error: String(result.error) };
-  }
-
-  const scoreBefore = result?.score_before as number | undefined;
-  const scoreAfter = result?.score_after as number | undefined;
-
-  // Rang-change detection → notification
-  if (scoreBefore !== undefined && scoreAfter !== undefined) {
-    const rangBefore = getRang(scoreBefore);
-    const rangAfter = getRang(scoreAfter);
-    if (rangBefore.id !== rangAfter.id) {
-      const dimLabel = getDimensionLabel(dimension);
-      const isUp = scoreAfter > scoreBefore;
-      import('@/lib/services/notifications').then(({ createNotification }) => {
-        createNotification(
-          userId,
-          isUp ? 'rang_up' : 'rang_down',
-          isUp
-            ? `${dimLabel}: Aufstieg zu ${rangAfter.fullName}!`
-            : `${dimLabel}: Abstieg auf ${rangAfter.fullName}`,
-          isUp
-            ? `Dein ${dimLabel}-Rang ist auf ${rangAfter.fullName} gestiegen. Weiter so!`
-            : `Dein ${dimLabel}-Rang ist auf ${rangAfter.fullName} gefallen.`,
-        );
-      }).catch(err => console.error('[ScoutScores] Rang notification failed:', err));
-    }
-  }
-
-  return {
-    ok: true,
-    score_before: scoreBefore,
-    score_after: scoreAfter,
-  };
-}
-
-/** Fire-and-forget wrapper for service-layer calls */
-export function awardDimensionScoreAsync(
-  userId: string,
-  dimension: Dimension,
-  delta: number,
-  eventType: string,
-  sourceId?: string,
-): void {
-  awardDimensionScore(userId, dimension, delta, eventType, sourceId)
-    .catch(err => console.error('[ScoutScores] async award error:', err));
-}
+// award_dimension_score is REVOKED from PUBLIC — all scoring now happens via DB triggers
+// Rang-change notifications are handled inside the award_dimension_score RPC itself
 
 // ── Helpers ──
 

@@ -403,22 +403,16 @@ export async function approveBountySubmission(
       }
     })().catch(err => console.error('[Bounties] Approve notification failed:', err));
 
-    // Fire-and-forget: analyst score + airdrop refresh + auto-post for submitter
+    // Gamification (analyst score, airdrop refresh, stats) handled by DB trigger trg_fn_bounty_approved_analyst
+
+    // Fire-and-forget: auto-post for submitter
     (async () => {
       try {
-        const { data: s } = await supabase.from('bounty_submissions').select('user_id, bounty_id, bounties(reward_cents, club_id, club_name)').eq('id', submissionId).maybeSingle();
+        const { data: s } = await supabase.from('bounty_submissions').select('user_id, bounty_id, bounties(club_id, club_name)').eq('id', submissionId).maybeSingle();
         if (s) {
-          // +10/20/30 Analyst based on bounty reward
           const bountyData = Array.isArray(s.bounties) ? s.bounties[0] : s.bounties;
-          const rewardCents = (bountyData as Record<string, unknown>)?.reward_cents as number ?? 0;
           const clubId = (bountyData as Record<string, unknown>)?.club_id as string ?? null;
           const clubName = (bountyData as Record<string, unknown>)?.club_name as string ?? '';
-          const analystPts = rewardCents >= 500000 ? 30 : rewardCents >= 200000 ? 20 : 10;
-          const { awardDimensionScoreAsync } = await import('@/lib/services/scoutScores');
-          awardDimensionScoreAsync(s.user_id, 'analyst', analystPts, 'bounty_approved', submissionId);
-          import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(s.user_id));
-
-          // Auto-post: visible in community feed
           if (clubId) {
             const { data: scoutProfile } = await supabase.from('profiles').select('handle').eq('id', s.user_id).maybeSingle();
             const scoutHandle = scoutProfile?.handle ?? 'Scout';
@@ -435,26 +429,7 @@ export async function approveBountySubmission(
             ).catch(err => console.error('[Bounties] Auto-post failed:', err));
           }
         }
-      } catch (err) { console.error('[Bounties] Analyst score + airdrop refresh failed:', err); }
-    })();
-
-    // Fire-and-forget: refresh stats + check achievements for submitter (and admin)
-    (async () => {
-      try {
-        const { refreshUserStats, checkAndUnlockAchievements } = await import('@/lib/services/social');
-        // Submitter gets bounty achievement check
-        const { data: subData } = await supabase
-          .from('bounty_submissions')
-          .select('user_id')
-          .eq('id', submissionId)
-          .maybeSingle();
-        if (subData) {
-          await refreshUserStats(subData.user_id);
-          await checkAndUnlockAchievements(subData.user_id);
-        }
-        // Admin stats too
-        await refreshUserStats(adminId);
-      } catch (err) { console.error('[Bounties] Stats/achievements refresh failed:', err); }
+      } catch (err) { console.error('[Bounties] Auto-post failed:', err); }
     })();
   }
 

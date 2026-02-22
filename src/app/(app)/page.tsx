@@ -96,10 +96,7 @@ export default function HomePage() {
     const userId = user.id;
     let cancelled = false;
 
-    import('@/lib/services/missions').then(({ trackMissionProgress }) => {
-      trackMissionProgress(userId, 'daily_login');
-    }).catch(err => console.error('[Home] Mission tracking failed:', err));
-
+    // daily_login mission tracking handled by record_login_streak RPC
     setStreak(updateLoginStreak());
 
     import('@/lib/services/streaks').then(({ recordLoginStreak }) => {

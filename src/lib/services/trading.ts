@@ -2,38 +2,6 @@ import { supabase } from '@/lib/supabaseClient';
 import type { DbOrder, UserTradeWithPlayer, Pos } from '@/types';
 import { toPos } from '@/types';
 
-/** Fire-and-forget: refresh user stats + check achievements after a trade */
-function triggerStatsRefresh(userId: string): void {
-  // Dynamic import to avoid circular deps
-  import('@/lib/services/social').then(({ refreshUserStats, checkAndUnlockAchievements }) => {
-    refreshUserStats(userId)
-      .then(() => checkAndUnlockAchievements(userId))
-      .then((newUnlocks: string[]) => {
-        if (newUnlocks.length === 0) return;
-        // Create notification for each new achievement
-        Promise.all([
-          import('@/lib/services/notifications'),
-          import('@/lib/achievements'),
-        ]).then(([{ createNotification }, { getAchievementDef }]) => {
-          for (const key of newUnlocks) {
-            const def = getAchievementDef(key);
-            if (def) {
-              createNotification(userId, 'system', `${def.icon} ${def.label}`, def.description);
-            }
-          }
-        }).catch(err => console.error('[Trade] Achievement notification failed:', err));
-      })
-      .catch(err => console.error('[Trade] Stats refresh failed:', err));
-  }).catch(err => console.error('[Trade] Dynamic import failed:', err));
-}
-
-/** Fire-and-forget: track mission progress after a trade */
-function triggerMissions(userId: string, keys: string[]): void {
-  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-    triggerMissionProgress(userId, keys);
-  }).catch(err => console.error('[Trade] Mission tracking failed:', err));
-}
-
 // ============================================
 // Types
 // ============================================
@@ -78,10 +46,7 @@ export async function buyFromMarket(
 
   if (error) throw new Error(error.message);
   const result = data as TradeResult;
-  triggerStatsRefresh(userId);
-  triggerMissions(userId, ['daily_buy_1', 'daily_trade_2', 'weekly_trade_5']);
-  // Fire-and-forget: airdrop score refresh
-  import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(userId)).catch(err => console.error('[Trade] Airdrop refresh failed:', err));
+  // Gamification (stats, missions, airdrop, scores) handled by DB triggers on trades/orders tables
   // Fire-and-forget: referral reward (triggers on first trade by referred user)
   import('@/lib/services/referral').then(({ triggerReferralReward }) => {
     triggerReferralReward(userId);
@@ -115,7 +80,6 @@ export async function buyFromMarket(
             playerId,
             'player'
           );
-          triggerStatsRefresh(order.user_id);
         }
       } catch (err) { console.error('[Trade] Seller notification failed:', err); }
     })();
@@ -144,10 +108,7 @@ export async function placeSellOrder(
   });
 
   if (error) throw new Error(error.message);
-  triggerStatsRefresh(userId);
-  triggerMissions(userId, ['daily_sell_1', 'daily_trade_2', 'weekly_trade_5']);
-  // Fire-and-forget: airdrop score refresh
-  import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(userId)).catch(err => console.error('[Trade] Airdrop refresh failed:', err));
+  // Gamification (stats, missions, airdrop) handled by DB triggers on orders table
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'trade_sell', 'trading', { playerId, quantity, priceCents });
@@ -170,10 +131,7 @@ export async function buyFromOrder(
 
   if (error) throw new Error(error.message);
   const result = data as TradeResult;
-  triggerStatsRefresh(buyerId);
-  triggerMissions(buyerId, ['daily_buy_1', 'daily_trade_2', 'weekly_trade_5']);
-  // Fire-and-forget: airdrop score refresh
-  import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(buyerId)).catch(err => console.error('[Trade] Airdrop refresh failed:', err));
+  // Gamification (stats, missions, airdrop, scores) handled by DB triggers on trades table
   // Notify the seller
   (async () => {
     try {
@@ -198,7 +156,6 @@ export async function buyFromOrder(
           order.player_id,
           'player'
         );
-        triggerStatsRefresh(order.user_id);
       }
     } catch (err) { console.error('[Trade] Seller notification failed:', err); }
   })();

@@ -59,13 +59,7 @@ export async function liquidatePlayer(
     } catch (err) { console.error('[Liquidation] Holder notification failed:', err); }
   })();
 
-  // Fire-and-forget: mission tracking
-  (async () => {
-    try {
-      const { triggerMissionProgress } = await import('@/lib/services/missions');
-      triggerMissionProgress(adminId, ['weekly_trade_5']);
-    } catch (err) { console.error('[Liquidation] Mission tracking failed:', err); }
-  })();
+  // Mission tracking handled by DB triggers on trades table
 
   return {
     success: true,

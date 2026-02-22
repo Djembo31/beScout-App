@@ -13,10 +13,7 @@ export async function followUser(followerId: string, followingId: string): Promi
   });
   if (error) throw new Error(error.message);
 
-  // Mission tracking
-  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-    triggerMissionProgress(followerId, ['weekly_follow_3']);
-  }).catch(err => console.error('[Social] Follow mission tracking failed:', err));
+  // Gamification (analyst score, missions, stats refresh, airdrop) handled by DB trigger trg_fn_follow_gamification
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(followerId, 'follow', 'social', { followingId });
@@ -33,17 +30,6 @@ export async function followUser(followerId: string, followingId: string): Promi
       'profile'
     );
   }).catch(err => console.error('[Social] Follow notification failed:', err));
-
-  // Fire-and-forget: refresh stats + check achievements for followed user (follower count changed)
-  refreshUserStats(followingId)
-    .then(() => checkAndUnlockAchievements(followingId))
-    .catch(err => console.error('[Social] Follow stats/achievements refresh failed:', err));
-  // Fire-and-forget: +2 Analyst for followed user (new follower)
-  import('@/lib/services/scoutScores').then(m => {
-    m.awardDimensionScoreAsync(followingId, 'analyst', 2, 'new_follower', followerId);
-  }).catch(err => console.error('[Social] Follow analyst score failed:', err));
-  // Fire-and-forget: airdrop score refresh for followed user
-  import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(followingId)).catch(err => console.error('[Social] Follow airdrop score refresh failed:', err));
 }
 
 export async function unfollowUser(followerId: string, followingId: string): Promise<void> {
@@ -182,9 +168,8 @@ export async function getUserStats(userId: string): Promise<DbUserStats | null> 
 }
 
 export async function refreshUserStats(userId: string): Promise<DbUserStats | null> {
-  const { data, error } = await supabase.rpc('refresh_user_stats', {
-    p_user_id: userId,
-  });
+  // Use wrapper RPC that calls auth.uid() internally (direct refresh_user_stats is REVOKED)
+  const { data, error } = await supabase.rpc('refresh_my_stats');
   if (error) throw new Error(error.message);
   return data as DbUserStats | null;
 }

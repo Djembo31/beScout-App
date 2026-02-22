@@ -15,8 +15,6 @@ export type {
 export {
   getScoutScores,
   getScoutLeaderboard,
-  awardDimensionScore,
-  awardDimensionScoreAsync,
   getMedianScore,
 } from './scoutScores';
 

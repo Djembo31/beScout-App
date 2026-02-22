@@ -46,20 +46,11 @@ export async function castVote(
     p_option_index: optionIndex,
   });
   if (error) throw new Error(error.message);
-  // Mission tracking
-  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-    triggerMissionProgress(userId, ['daily_vote']);
-  }).catch(err => console.error('[Votes] Mission tracking failed:', err));
+  // Gamification (mission tracking, stats refresh) handled by cast_vote RPC + DB triggers
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'club_vote', 'community', { voteId, optionIndex });
   }).catch(err => console.error('[Votes] Activity log failed:', err));
-  // Fire-and-forget: refresh stats + check achievements
-  import('@/lib/services/social').then(({ refreshUserStats, checkAndUnlockAchievements }) => {
-    refreshUserStats(userId)
-      .then(() => checkAndUnlockAchievements(userId))
-      .catch(err => console.error('[Votes] Stats/achievements refresh failed:', err));
-  }).catch(err => console.error('[Votes] Social import failed:', err));
   return data as { success: boolean; total_votes: number; cost: number };
 }
 

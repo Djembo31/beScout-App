@@ -205,25 +205,11 @@ export async function createResearchPost(params: {
     .single();
 
   if (error) throw new Error(error.message);
-  // Mission tracking
-  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-    triggerMissionProgress(params.userId, ['weekly_research']);
-  }).catch(err => console.error('[Research] Mission tracking failed:', err));
+  // Gamification (analyst score, mastery XP, missions) handled by DB trigger trg_analyst_score_on_research
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(params.userId, 'research_create', 'community', { researchId: data.id, title: params.title, call: params.call });
   }).catch(err => console.error('[Research] Activity log failed:', err));
-  // Fire-and-forget: +5 Analyst for scouting report (structured), +3 for normal research
-  const analystPoints = params.evaluation ? 5 : 3;
-  import('@/lib/services/scoutScores').then(m => {
-    m.awardDimensionScoreAsync(params.userId, 'analyst', analystPoints, 'research_create', data.id);
-  }).catch(err => console.error('[Research] Analyst score failed:', err));
-  // Fire-and-forget: +15 Mastery XP if research references a player
-  if (params.playerId) {
-    import('@/lib/services/mastery').then(m => {
-      m.awardMasteryXp(params.userId, params.playerId!, 15, 'content');
-    }).catch(err => console.error('[Research] Mastery XP failed:', err));
-  }
   return data as DbResearchPost;
 }
 
@@ -255,28 +241,12 @@ export async function unlockResearch(userId: string, researchId: string): Promis
   const result = data as UnlockResult;
 
   if (result.success) {
-    // Mission tracking
-    import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-      triggerMissionProgress(userId, ['daily_unlock_research']);
-    }).catch(err => console.error('[Research] Mission tracking failed:', err));
+    // Gamification (analyst score, missions, airdrop refresh) handled by DB trigger trg_fn_research_unlock_gamification
 
     // Activity log
     import('@/lib/services/activityLog').then(({ logActivity }) => {
       logActivity(userId, 'research_unlock', 'community', { researchId });
     }).catch(err => console.error('[Research] Activity log failed:', err));
-
-    // Fire-and-forget: +5 Analyst for author + airdrop refresh
-    (async () => {
-      try {
-        const { data: rp } = await supabase.from('research_posts').select('user_id').eq('id', researchId).maybeSingle();
-        if (rp) {
-          import('@/lib/services/scoutScores').then(m => {
-            m.awardDimensionScoreAsync(rp.user_id, 'analyst', 5, 'research_sold', researchId);
-          });
-          import('@/lib/services/airdropScore').then(m => m.refreshAirdropScore(rp.user_id));
-        }
-      } catch (err) { console.error('[Research] Analyst score + airdrop refresh failed:', err); }
-    })();
 
     // Fire-and-forget notification to author
     (async () => {

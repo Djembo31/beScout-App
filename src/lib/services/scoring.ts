@@ -44,7 +44,7 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
       .in('status', ['running', 'scoring', 'registering', 'late-reg']);
   }
 
-  // Fire-and-forget: notify top 3 + refresh stats for all participants
+  // Fire-and-forget: notify top 3 (manager scoring + stats refresh handled by DB trigger trg_fn_event_scored_manager)
   if (result.success) {
     (async () => {
       try {
@@ -62,40 +62,7 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
             'event'
           );
         }
-        // Manager Score: award based on percentile placement
-        const { awardDimensionScoreAsync } = await import('@/lib/services/scoutScores');
-        const { getManagerPoints, ABSENT_MANAGER_PENALTY, CAPTAINS_CALL_BONUS } = await import('@/lib/gamification');
-        const totalParticipants = lb.length;
-        for (const entry of lb) {
-          const percentile = (entry.rank / totalParticipants) * 100;
-          const managerPts = getManagerPoints(percentile);
-          if (managerPts !== 0) {
-            awardDimensionScoreAsync(entry.userId, 'manager', managerPts, 'fantasy_placement', eventId);
-          }
-        }
-
-        // Absent Manager Penalty: users who joined but have no lineup
-        const { data: joinedUsers } = await supabase
-          .from('event_participants')
-          .select('user_id')
-          .eq('event_id', eventId);
-        const scoredUserIds = new Set(lb.map(e => e.userId));
-        for (const jp of (joinedUsers ?? [])) {
-          if (!scoredUserIds.has(jp.user_id)) {
-            awardDimensionScoreAsync(jp.user_id, 'manager', ABSENT_MANAGER_PENALTY, 'absent_manager', eventId);
-          }
-        }
-
-        // Refresh stats + achievements + airdrop scores for all participants
-        const { refreshUserStats, checkAndUnlockAchievements } = await import('@/lib/services/social');
-        const { refreshAirdropScore } = await import('@/lib/services/airdropScore');
-        for (const entry of lb) {
-          refreshUserStats(entry.userId)
-            .then(() => checkAndUnlockAchievements(entry.userId))
-            .catch(err => console.error('[Scoring] Stats refresh failed:', err));
-          refreshAirdropScore(entry.userId).catch(err => console.error('[Scoring] Airdrop refresh failed:', err));
-        }
-      } catch (err) { console.error('[Scoring] Post-score side-effects failed:', err); }
+      } catch (err) { console.error('[Scoring] Post-score notification failed:', err); }
     })();
   }
 

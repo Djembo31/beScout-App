@@ -50,11 +50,7 @@ export async function applyReferralCode(userId: string, referrerCode: string): P
     .eq('id', userId);
   if (error) return { success: false, error: error.message };
 
-  // Fire-and-forget: refresh referrer's airdrop score
-  import('@/lib/services/airdropScore').then(m => {
-    m.refreshAirdropScore(referrer.id);
-  }).catch(err => console.error('[Referral] Airdrop refresh failed:', err));
-
+  // Referrer airdrop refresh handled by periodic pg_cron job
   return { success: true };
 }
 
@@ -77,10 +73,7 @@ export async function triggerReferralReward(refereeId: string): Promise<void> {
           'Dein eingeladener Freund hat seinen ersten Trade gemacht — du erhältst 500 $SCOUT!',
         );
       }).catch(err => console.error('[Referral] Notification failed:', err));
-      // Refresh referrer airdrop score
-      import('@/lib/services/airdropScore').then(m => {
-        m.refreshAirdropScore(result.referrer_id!);
-      }).catch(err => console.error('[Referral] Airdrop refresh failed:', err));
+      // Referrer airdrop refresh handled by periodic pg_cron job
     }
   } catch (err) {
     console.error('[Referral] triggerReferralReward failed:', err);
