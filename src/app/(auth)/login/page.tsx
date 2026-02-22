@@ -11,15 +11,23 @@ import { Button } from '@/components/ui';
 import { Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
-type LoadingState = 'email' | 'password' | 'google' | 'apple' | null;
+type LoadingState = 'email' | 'password' | 'google' | 'apple' | 'demo' | null;
 type AuthMode = 'login' | 'register' | 'magic';
+
+const DEMO_ACCOUNTS = [
+  { key: 'fan', email: 'demo-fan@bescout.app', pw: 'BeScout2026!' },
+  { key: 'admin', email: 'demo-admin@bescout.app', pw: 'BeScout2026!' },
+  { key: 'platform', email: 'demo-platform@bescout.app', pw: 'BeScout2026!' },
+] as const;
 
 function LoginContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user, profile, loading, platformRole, clubAdmin } = useUser();
   const t = useTranslations('auth');
+  const td = useTranslations('demo');
   const callbackError = searchParams.get('error');
+  const showDemo = searchParams.get('demo') === 'true';
 
   // Redirect authenticated users away from login — smart redirect by role
   useEffect(() => {
@@ -138,6 +146,16 @@ function LoginContent() {
     setPassword('');
     setPasswordConfirm('');
     setError(null);
+  };
+
+  const handleDemoLogin = async (account: typeof DEMO_ACCOUNTS[number]) => {
+    setLoadingMethod('demo');
+    setError(null);
+    const { error: authError } = await signInWithPassword(account.email, account.pw);
+    if (authError) {
+      setError(authError.message);
+      setLoadingMethod(null);
+    }
   };
 
   return (
@@ -422,6 +440,32 @@ function LoginContent() {
           </>
         )}
       </Card>
+
+      {/* Demo Login Shortcuts */}
+      {showDemo && (
+        <div className="mt-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 h-px bg-white/10" />
+            <span className="text-xs text-white/40 font-medium">Demo</span>
+            <div className="flex-1 h-px bg-white/10" />
+          </div>
+          <div className="flex flex-col gap-2">
+            {DEMO_ACCOUNTS.map((acc) => (
+              <Button
+                key={acc.key}
+                variant="outline"
+                size="lg"
+                fullWidth
+                loading={loadingMethod === 'demo'}
+                disabled={loadingMethod !== null}
+                onClick={() => handleDemoLogin(acc)}
+              >
+                {td(`loginAs${acc.key[0].toUpperCase()}${acc.key.slice(1)}` as 'loginAsFan' | 'loginAsAdmin' | 'loginAsPlatform')}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="text-center mt-6">

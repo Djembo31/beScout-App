@@ -438,6 +438,7 @@ export type Profile = {
   subscription_enabled?: boolean;
   subscription_price_cents?: number | null;
   subscription_description?: string | null;
+  is_demo?: boolean;
 };
 
 // ============================================
