@@ -472,8 +472,6 @@ export default function CommunityPage() {
             setCreateResearchOpen(true);
           }}
           researchLocked={userRangTier < 2}
-          isClubAdmin={isClubAdmin}
-          onCreateVote={() => {/* TODO: CreateVoteModal */}}
           onCreateBounty={() => setCreateBountyOpen(true)}
         />
       </div>

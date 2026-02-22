@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Trophy, MessageSquare, Vote } from 'lucide-react';
+import { Trophy, MessageSquare, Vote, FileText, Target, Radio, Megaphone } from 'lucide-react';
 import { SearchInput, SortPills, EmptyState, Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import PostCard from '@/components/community/PostCard';
@@ -337,6 +337,16 @@ export default function CommunityFeedTab({
           <EmptyState icon={<Trophy />} title={t('feed.emptyFollowing')} action={{ label: t('feed.discoverScouts'), onClick: onSwitchToLeaderboard }} />
         ) : query.trim() ? (
           <EmptyState icon={<MessageSquare />} title={`${t('feed.noResults')} "${query}"`} action={{ label: t('feed.clearSearch'), onClick: () => setQuery('') }} />
+        ) : contentFilter === 'rumors' ? (
+          <EmptyState icon={<Radio />} title={t('feed.emptyRumors')} />
+        ) : contentFilter === 'research' ? (
+          <EmptyState icon={<FileText />} title={t('feed.emptyResearch')} />
+        ) : contentFilter === 'bounties' ? (
+          <EmptyState icon={<Target />} title={t('feed.emptyBounties')} />
+        ) : contentFilter === 'votes' ? (
+          <EmptyState icon={<Vote />} title={t('feed.emptyVotes')} />
+        ) : contentFilter === 'news' ? (
+          <EmptyState icon={<Megaphone />} title={t('feed.emptyNews')} />
         ) : (
           <EmptyState icon={<MessageSquare />} title={t('feed.noPosts')} action={{ label: t('feed.writeFirst'), onClick: onCreatePost }} />
         )

@@ -509,6 +509,11 @@
       "clearSearch": "Aramayı temizle",
       "noPosts": "Henüz gönderi yok",
       "writeFirst": "İlk gönderiyi yaz",
+      "emptyRumors": "Henüz söylenti yok",
+      "emptyResearch": "Henüz rapor yok",
+      "emptyBounties": "Henüz görev yok",
+      "emptyVotes": "Aktif oylama yok",
+      "emptyNews": "Henüz haber yok",
       "noClub": "Kulüp seçilmedi. Önce bir kulübü takip et."
     },
     "research": {

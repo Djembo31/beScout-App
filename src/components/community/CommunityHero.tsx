@@ -1,6 +1,6 @@
 'use client';
 
-import { MessageSquare, Radio, FileText, Lock, Vote, Target } from 'lucide-react';
+import { MessageSquare, Radio, FileText, Lock, Target } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface CommunityHeroProps {
@@ -8,8 +8,6 @@ interface CommunityHeroProps {
   onCreateRumor: () => void;
   onCreateResearch: () => void;
   researchLocked?: boolean;
-  isClubAdmin?: boolean;
-  onCreateVote?: () => void;
   onCreateBounty?: () => void;
 }
 
@@ -30,17 +28,11 @@ const BOUNTY_ACTION: HeroAction = {
   key: 'bounty', icon: Target, color: 'from-amber-500/20 to-amber-500/5 border-amber-500/20 hover:border-amber-500/40', iconColor: 'text-amber-400',
 };
 
-const VOTE_ACTION: HeroAction = {
-  key: 'vote', icon: Vote, color: 'from-purple-500/20 to-purple-500/5 border-purple-500/20 hover:border-purple-500/40', iconColor: 'text-purple-400',
-};
-
 export default function CommunityHero({
   onCreatePost,
   onCreateRumor,
   onCreateResearch,
   researchLocked,
-  isClubAdmin,
-  onCreateVote,
   onCreateBounty,
 }: CommunityHeroProps) {
   const t = useTranslations('community');
@@ -48,14 +40,12 @@ export default function CommunityHero({
   // Build action list dynamically
   const actions: HeroAction[] = [...BASE_ACTIONS];
   if (onCreateBounty) actions.push(BOUNTY_ACTION);
-  if (isClubAdmin && onCreateVote) actions.push(VOTE_ACTION);
 
   const handlerMap: Record<string, () => void> = {
     post: onCreatePost,
     rumor: onCreateRumor,
     research: onCreateResearch,
     bounty: onCreateBounty ?? (() => {}),
-    vote: onCreateVote ?? (() => {}),
   };
 
   const colsClass = actions.length <= 3

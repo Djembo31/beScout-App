@@ -509,6 +509,11 @@
       "clearSearch": "Suche löschen",
       "noPosts": "Noch keine Posts",
       "writeFirst": "Ersten Post schreiben",
+      "emptyRumors": "Noch keine Gerüchte",
+      "emptyResearch": "Noch keine Berichte",
+      "emptyBounties": "Noch keine Aufträge",
+      "emptyVotes": "Keine laufenden Abstimmungen",
+      "emptyNews": "Noch keine Neuigkeiten",
       "noClub": "Kein Club ausgewählt. Bitte zuerst einen Club folgen."
     },
     "research": {
