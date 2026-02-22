@@ -3,7 +3,49 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 9** – 199 Migrations, 21 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 13 Gamification-Triggers. Build sauber (0 Fehler). Notifications Realtime (kein Polling). User Notification Preferences (6 Kategorien). **Beta-Launch ready.**
+**Woche 9** – 201 Migrations, 22 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 13 Gamification-Triggers. Build sauber (0 Fehler). Demo-Modus + Pitch-Seite + Geofencing-Infrastruktur. Feature Flag global OFF. **Beta-Launch ready + Demo+Pitch + Geofencing ready.**
+
+## Session 23.02.2026 (126) – Geofencing Infrastruktur
+
+### Änderungen
+- **Migration #201 (add_geofencing):** `profiles.region TEXT` Spalte (nullable, default NULL). `geofencing_config` Tabelle (PK: feature+region, RLS: public SELECT, admin-only Modify). 20 Seed-Rows (5 Features × 4 Regions). `eu_strict` blockiert `dpc_trading` + `prize_league`.
+- **`geofencing.ts` (NEU):** Types `GeoRegion` (4 Werte) + `GeoFeature` (5 Werte). Static `REGION_FEATURES` Fallback-Matrix. `GEOFENCING_ENABLED` aus env var. `isFeatureAllowed(feature, region)` — wenn OFF oder region=null → immer `true`. `GEO_REGIONS` Array für Dropdowns.
+- **`useRegionGuard` Hook (NEU):** Identisches Pattern wie `useDemoGuard` — wraps async actions mit Region-Check + i18n Toast. Returns `{ allowed, guard, region, geofencingEnabled }`.
+- **`RegionBadge` Component (NEU):** Farbige Pill per Region (Turkey=rot, EU-Strict=blau, EU-Rest=sky, Global=emerald) mit Globe/MapPin Icon. Returns `null` wenn region nicht gesetzt.
+- **Admin Region-Verwaltung:** `AdminUsersTab` mit Region-Spalte (nur wenn `GEOFENCING_ENABLED`) + Region-Dropdown im Modal. `profiles.ts` und `platformAdmin.ts` um `region` Feld erweitert.
+- **i18n `geo` Namespace:** ~15 Keys in DE+TR (restricted, regionLabel, regionUnset, 4 Regions, 5 Features).
+- **Feature Flag:** `NEXT_PUBLIC_GEOFENCING_ENABLED=false` in `.env.local` — global OFF, aktivierbar wenn nötig.
+
+### Dateien (3 neu + 6 modifiziert)
+- NEU: `src/lib/geofencing.ts`, `src/lib/useRegionGuard.ts`, `src/components/ui/RegionBadge.tsx`
+- Modifiziert: `types/index.ts`, `AdminUsersTab.tsx`, `profiles.ts`, `platformAdmin.ts`, `messages/de.json`, `messages/tr.json`
+
+## Session 23.02.2026 (125) – Demo-Modus + Pitch-Material
+
+### Änderungen
+- **Migration #200 (add_demo_flag):** `is_demo BOOLEAN NOT NULL DEFAULT false` auf `profiles`, Index für schnelle Lookups.
+- **Demo-Modus:** `useDemoGuard` Hook (blockiert Writes mit Toast), `DemoBanner` (sticky top), Login-Shortcuts (3 Demo-Accounts: Fan, Club-Admin, Plattform-Admin).
+- **Demo-Seed-Script:** `scripts/seed-demo.sql` — 3 Demo-User mit Profilen, Wallets, Holdings, Achievements.
+- **Pitch-Seite (`/pitch`):** 7 Sections (Hero, Features, DPC-Erklärung, Revenue-Modell, Sponsoring-Rechner, Testimonials, CTA). Sponsoring-Rechner mit Live-Kalkulation.
+- **i18n:** `demo` + `pitch` Namespaces in DE+TR.
+
+### Dateien (5 neu + 8 modifiziert)
+- NEU: `src/lib/useDemoGuard.ts`, `src/components/demo/DemoBanner.tsx`, `src/app/(app)/pitch/page.tsx`, `scripts/seed-demo.sql`
+- Modifiziert: `types/index.ts`, `login/page.tsx`, `layout.tsx`, `profiles.ts`, `messages/de.json`, `messages/tr.json`
+
+## Session 22.02.2026 (124) – Disclaimer-Texte + Wording-Compliance
+
+### Änderungen
+- **Wording-Compliance (3 Fixes):** "ROI" → "Bonus" (RewardsTab.tsx), "Profit-Trades" → "erfolgreiche Trades" (achievements.ts + de.json + tr.json). MiCA/CASP-konform.
+- **Cookie Consent Banner:** Neuer `CookieConsent.tsx` — sticky bottom über BottomNav (z-[60]), 2 Buttons (Akzeptieren/Nur notwendige), localStorage `bescout-cookie-consent`. Eingebunden in root layout.tsx (alle Seiten).
+- **Trading Disclaimer Component:** Neuer `TradingDisclaimer.tsx` — 2 Varianten (inline für Modals, card für Pages). Text: "$SCOUT sind Plattform-Credits. Kein Finanzprodukt, keine garantierten Erträge."
+- **6 Disclaimer-Platzierungen:** BuyModal, SellModal, OfferModal (inline unter Buttons), Market page (card unter TabBar), PlayerContent MarktTab (card oben), RewardsTab (inline unter Info-Box).
+- **i18n `legal` Namespace:** 7 Keys in DE+TR (cookieText, cookieAccept, cookieEssential, cookiePrivacy, cookieImprint, tradingDisclaimer, tradingDisclaimerShort).
+- **Verifikation:** Wording-Scan 0 Treffer (ROI/Profit/Rendite/Investment/Dividende). Build 0 Fehler.
+
+### Dateien (2 neu + 10 modifiziert)
+- NEU: `src/components/legal/CookieConsent.tsx`, `src/components/legal/TradingDisclaimer.tsx`
+- Modifiziert: `RewardsTab.tsx`, `achievements.ts`, `BuyModal.tsx`, `SellModal.tsx`, `OfferModal.tsx`, `market/page.tsx`, `PlayerContent.tsx`, `layout.tsx`, `de.json`, `tr.json`
 
 ## Session 22.02.2026 (123) – Notification System Fix + Preferences
 
