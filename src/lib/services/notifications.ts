@@ -1,5 +1,115 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { NotificationType, DbNotification } from '@/types';
+import type { NotificationType, NotificationCategory, NotificationPreferences, DbNotification } from '@/types';
+
+// ============================================
+// NOTIFICATION CATEGORIES
+// ============================================
+
+/** Maps each NotificationType to one of 6 toggleable categories (or 'system' which is always on) */
+const TYPE_TO_CATEGORY: Record<NotificationType, NotificationCategory | 'system'> = {
+  // Trading & Market
+  trade: 'trading',
+  price_alert: 'trading',
+  new_ipo_available: 'trading',
+  dpc_of_week: 'trading',
+  pbt_liquidation: 'trading',
+  // Offers
+  offer_received: 'offers',
+  offer_accepted: 'offers',
+  offer_rejected: 'offers',
+  offer_countered: 'offers',
+  // Fantasy & Spieltag
+  fantasy_reward: 'fantasy',
+  event_starting: 'fantasy',
+  event_closing_soon: 'fantasy',
+  prediction_resolved: 'fantasy',
+  // Social & Community
+  follow: 'social',
+  reply: 'social',
+  poll_vote: 'social',
+  research_unlock: 'social',
+  research_rating: 'social',
+  // Bounties
+  bounty_submission: 'bounties',
+  bounty_approved: 'bounties',
+  bounty_rejected: 'bounties',
+  bounty_expiring: 'bounties',
+  // Rewards & Progress
+  achievement: 'rewards',
+  level_up: 'rewards',
+  rang_up: 'rewards',
+  rang_down: 'rewards',
+  mastery_level_up: 'rewards',
+  mission_reward: 'rewards',
+  referral_reward: 'rewards',
+  tip_received: 'rewards',
+  subscription_new: 'rewards',
+  creator_fund_payout: 'rewards',
+  ad_revenue_payout: 'rewards',
+  tier_promotion: 'rewards',
+  // System (always on)
+  system: 'system',
+};
+
+/** Get the category for a notification type */
+export function getCategoryForType(type: NotificationType): NotificationCategory | 'system' {
+  return TYPE_TO_CATEGORY[type] ?? 'system';
+}
+
+/** All 6 toggleable categories with their metadata (for UI) */
+export const NOTIFICATION_CATEGORIES: { key: NotificationCategory; icon: string }[] = [
+  { key: 'trading', icon: 'ArrowLeftRight' },
+  { key: 'offers', icon: 'Send' },
+  { key: 'fantasy', icon: 'Trophy' },
+  { key: 'social', icon: 'UserPlus' },
+  { key: 'bounties', icon: 'Target' },
+  { key: 'rewards', icon: 'Gift' },
+];
+
+// ============================================
+// PREFERENCES CRUD
+// ============================================
+
+/** Get notification preferences for a user. Returns defaults (all true) if no row exists. */
+export async function getNotificationPreferences(userId: string): Promise<NotificationPreferences> {
+  const { data } = await supabase
+    .from('notification_preferences')
+    .select('*')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (data) return data as NotificationPreferences;
+
+  // No row = all defaults enabled
+  return {
+    user_id: userId,
+    trading: true,
+    offers: true,
+    fantasy: true,
+    social: true,
+    bounties: true,
+    rewards: true,
+    updated_at: new Date().toISOString(),
+  };
+}
+
+/** Upsert notification preferences */
+export async function updateNotificationPreferences(
+  userId: string,
+  prefs: Partial<Pick<NotificationPreferences, NotificationCategory>>,
+): Promise<void> {
+  await supabase
+    .from('notification_preferences')
+    .upsert({
+      user_id: userId,
+      ...prefs,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'user_id' });
+}
+
+// ============================================
+// CORE NOTIFICATION FUNCTIONS
+// ============================================
 
 /** Get unread notification count */
 export async function getUnreadCount(userId: string): Promise<number> {
@@ -33,7 +143,6 @@ export async function markAsRead(notificationId: string, userId: string): Promis
     .update({ read: true })
     .eq('id', notificationId)
     .eq('user_id', userId);
-
 }
 
 /** Mark all notifications as read */
@@ -43,10 +152,9 @@ export async function markAllAsRead(userId: string): Promise<void> {
     .update({ read: true })
     .eq('user_id', userId)
     .eq('read', false);
-
 }
 
-/** Create a notification (fire-and-forget) */
+/** Create a notification — respects user preferences (skips if category disabled) */
 export async function createNotification(
   userId: string,
   type: NotificationType,
@@ -55,6 +163,13 @@ export async function createNotification(
   referenceId?: string,
   referenceType?: string,
 ): Promise<void> {
+  // Check if user has disabled this category
+  const category = getCategoryForType(type);
+  if (category !== 'system') {
+    const prefs = await getNotificationPreferences(userId);
+    if (!prefs[category]) return; // User disabled this category
+  }
+
   await supabase.from('notifications').insert({
     user_id: userId,
     type,
@@ -63,5 +178,4 @@ export async function createNotification(
     reference_id: referenceId ?? null,
     reference_type: referenceType ?? null,
   });
-
 }

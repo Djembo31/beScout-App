@@ -580,7 +580,21 @@
     "scoutReports": "Berichte",
     "hitRate": "Hit-Rate",
     "avgRating": "Ø Bewertung",
-    "approvedBounties": "genehmigt"
+    "approvedBounties": "genehmigt",
+    "notificationPrefs": "Benachrichtigungen",
+    "notificationPrefsDesc": "Wähle, welche Benachrichtigungen du erhalten möchtest.",
+    "notifCat_trading": "Trading & Markt",
+    "notifCat_trading_desc": "Trades, Preisalarme, IPOs, DPC der Woche",
+    "notifCat_offers": "Angebote",
+    "notifCat_offers_desc": "Eingehende, angenommene & abgelehnte Angebote",
+    "notifCat_fantasy": "Fantasy & Spieltag",
+    "notifCat_fantasy_desc": "Belohnungen, Event-Start, Vorhersagen",
+    "notifCat_social": "Soziales & Community",
+    "notifCat_social_desc": "Follower, Antworten, Bewertungen, Umfragen",
+    "notifCat_bounties": "Aufträge",
+    "notifCat_bounties_desc": "Einreichungen, Genehmigungen, Ablauf",
+    "notifCat_rewards": "Belohnungen & Fortschritt",
+    "notifCat_rewards_desc": "Achievements, Level-Ups, Ränge, Missionen"
   },
   "player": {
     "overview": "Übersicht",

@@ -11,7 +11,7 @@ import { formatScout } from '@/lib/services/wallet';
 import { FeedbackModal } from '@/components/layout/FeedbackModal';
 import NotificationDropdown from '@/components/layout/NotificationDropdown';
 import SearchOverlay from '@/components/layout/SearchOverlay';
-import { getUnreadCount } from '@/lib/services/notifications';
+import { useNotificationRealtime } from '@/lib/hooks/useNotificationRealtime';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useTranslations } from 'next-intl';
 
@@ -26,7 +26,6 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
   const pathname = usePathname();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
@@ -37,23 +36,22 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
   const level = profile?.level ?? 1;
   const plan = profile?.plan ?? 'Free';
 
-  // Poll unread count every 60s
+  // Realtime notification subscription (replaces 60s polling)
+  const {
+    notifications: realtimeNotifs,
+    unreadCount,
+    loading: notifsLoading,
+    markReadLocal,
+    markAllReadLocal,
+    onNewNotifRef,
+  } = useNotificationRealtime(user?.id);
+
+  // Toast on new notification (only when dropdown is closed)
   useEffect(() => {
-    if (!user) return;
-    const uid = user.id;
-    let cancelled = false;
-
-    const fetchCount = async () => {
-      try {
-        const count = await getUnreadCount(uid);
-        if (!cancelled) setUnreadCount(count);
-      } catch (err) { console.error('[TopBar] Notification count failed:', err); }
+    onNewNotifRef.current = (n) => {
+      if (!notifOpen) addToast(n.title, 'info');
     };
-
-    fetchCount();
-    const interval = setInterval(fetchCount, 60000);
-    return () => { cancelled = true; clearInterval(interval); };
-  }, [user]);
+  }, [notifOpen, addToast, onNewNotifRef]);
 
   // Check push subscription state
   useEffect(() => {
@@ -199,7 +197,10 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
                 userId={user.id}
                 open={notifOpen}
                 onClose={() => setNotifOpen(false)}
-                onUnreadCountChange={setUnreadCount}
+                notifications={realtimeNotifs}
+                loading={notifsLoading}
+                onMarkRead={markReadLocal}
+                onMarkAllRead={markAllReadLocal}
               />
             )}
           </div>

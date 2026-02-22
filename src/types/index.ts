@@ -979,6 +979,19 @@ export type DbNotification = {
   created_at: string;
 };
 
+export type NotificationCategory = 'trading' | 'offers' | 'fantasy' | 'social' | 'bounties' | 'rewards';
+
+export type NotificationPreferences = {
+  user_id: string;
+  trading: boolean;
+  offers: boolean;
+  fantasy: boolean;
+  social: boolean;
+  bounties: boolean;
+  rewards: boolean;
+  updated_at: string;
+};
+
 // ============================================
 // MISSIONS
 // ============================================

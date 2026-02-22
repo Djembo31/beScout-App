@@ -1,15 +1,17 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { User, Check, X, Loader2, Globe, AlertTriangle, Camera } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { User, Check, X, Loader2, Globe, AlertTriangle, Camera, Bell, ArrowLeftRight, Send, Trophy, UserPlus, Target, Gift } from 'lucide-react';
 import { Card, Button, Modal, Skeleton, SkeletonCard } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { updateProfile, checkHandleAvailable, isValidHandle } from '@/lib/services/profiles';
 import { getAllClubsCached } from '@/lib/clubs';
 import { uploadAvatar } from '@/lib/services/avatars';
+import { getNotificationPreferences, updateNotificationPreferences, NOTIFICATION_CATEGORIES } from '@/lib/services/notifications';
 import ProfileView from '@/components/profile/ProfileView';
 import { useTranslations } from 'next-intl';
+import type { NotificationCategory } from '@/types';
 
 type HandleStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid' | 'unchanged';
 
@@ -36,6 +38,13 @@ function SettingsTab() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  // Notification Preferences
+  const [notifPrefs, setNotifPrefs] = useState<Record<NotificationCategory, boolean>>({
+    trading: true, offers: true, fantasy: true, social: true, bounties: true, rewards: true,
+  });
+  const [notifPrefsLoaded, setNotifPrefsLoaded] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     if (profile) {
       setHandle(profile.handle);
@@ -45,6 +54,37 @@ function SettingsTab() {
       setLanguage(profile.language);
     }
   }, [profile]);
+
+  // Load notification preferences
+  useEffect(() => {
+    if (!user) return;
+    getNotificationPreferences(user.id).then((prefs) => {
+      setNotifPrefs({
+        trading: prefs.trading,
+        offers: prefs.offers,
+        fantasy: prefs.fantasy,
+        social: prefs.social,
+        bounties: prefs.bounties,
+        rewards: prefs.rewards,
+      });
+      setNotifPrefsLoaded(true);
+    }).catch((err) => console.error('[Settings] Notification prefs failed:', err));
+  }, [user]);
+
+  const toggleNotifPref = useCallback((key: NotificationCategory) => {
+    if (!user) return;
+    setNotifPrefs((prev) => {
+      const updated = { ...prev, [key]: !prev[key] };
+      // Debounced save
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        updateNotificationPreferences(user.id, updated).catch((err) =>
+          console.error('[Settings] Save notif prefs failed:', err)
+        );
+      }, 500);
+      return updated;
+    });
+  }, [user]);
 
   useEffect(() => {
     if (!handle || handle === profile?.handle) {
@@ -288,6 +328,62 @@ function SettingsTab() {
         <Button variant="gold" loading={savingAccount} onClick={handleSaveAccount}>
           {t('saveSettings')}
         </Button>
+      </Card>
+
+      {/* Notification Preferences */}
+      <Card className="p-6">
+        <div className="flex items-center gap-2 mb-1">
+          <Bell className="w-4 h-4 text-[#FFD700]" />
+          <h3 className="font-black text-lg">{t('notificationPrefs')}</h3>
+        </div>
+        <p className="text-xs text-white/40 mb-5">{t('notificationPrefsDesc')}</p>
+
+        {!notifPrefsLoaded ? (
+          <div className="flex justify-center py-4">
+            <Loader2 className="w-5 h-5 animate-spin text-white/30" />
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {NOTIFICATION_CATEGORIES.map(({ key }) => {
+              const icons: Record<NotificationCategory, React.ReactNode> = {
+                trading: <ArrowLeftRight className="w-4 h-4" />,
+                offers: <Send className="w-4 h-4" />,
+                fantasy: <Trophy className="w-4 h-4" />,
+                social: <UserPlus className="w-4 h-4" />,
+                bounties: <Target className="w-4 h-4" />,
+                rewards: <Gift className="w-4 h-4" />,
+              };
+              return (
+                <button
+                  key={key}
+                  onClick={() => toggleNotifPref(key)}
+                  className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/[0.04] transition-colors min-h-[44px]"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/60 shrink-0">
+                    {icons[key]}
+                  </div>
+                  <div className="flex-1 text-left min-w-0">
+                    <div className="text-sm font-medium">{t(`notifCat_${key}` as any)}</div>
+                    <div className="text-xs text-white/40 line-clamp-1">{t(`notifCat_${key}_desc` as any)}</div>
+                  </div>
+                  <div
+                    className={cn(
+                      'w-11 h-6 rounded-full relative transition-colors shrink-0',
+                      notifPrefs[key] ? 'bg-[#FFD700]' : 'bg-white/10'
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        'absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform',
+                        notifPrefs[key] ? 'translate-x-[22px]' : 'translate-x-0.5'
+                      )}
+                    />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </Card>
 
       {/* Danger Zone */}

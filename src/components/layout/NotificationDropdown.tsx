@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight, Send, RotateCcw, Crown, TrendingUp, Star, Crosshair, Play, Clock, Zap, Gift, Coins, UserCheck, Sparkles, Megaphone, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getNotifications, markAsRead, markAllAsRead, getUnreadCount } from '@/lib/services/notifications';
 import type { DbNotification, NotificationType } from '@/types';
 
 function getNotifIcon(type: NotificationType) {
@@ -121,29 +120,15 @@ interface NotificationDropdownProps {
   userId: string;
   open: boolean;
   onClose: () => void;
-  onUnreadCountChange: (count: number) => void;
+  notifications: DbNotification[];
+  loading: boolean;
+  onMarkRead: (id: string) => void;
+  onMarkAllRead: () => void;
 }
 
-export default function NotificationDropdown({ userId, open, onClose, onUnreadCountChange }: NotificationDropdownProps) {
+export default function NotificationDropdown({ userId, open, onClose, notifications, loading, onMarkRead, onMarkAllRead }: NotificationDropdownProps) {
   const router = useRouter();
   const ref = useRef<HTMLDivElement>(null);
-  const [notifications, setNotifications] = useState<DbNotification[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [fetchError, setFetchError] = useState(false);
-
-  useEffect(() => {
-    if (!open) return;
-    setLoading(true);
-    setFetchError(false);
-    getNotifications(userId, 20).then(data => {
-      setNotifications(data);
-      setLoading(false);
-    }).catch((err) => {
-      console.error('[Notifications] Fetch failed:', err);
-      setFetchError(true);
-      setLoading(false);
-    });
-  }, [open, userId]);
 
   // Close on click outside
   useEffect(() => {
@@ -169,10 +154,7 @@ export default function NotificationDropdown({ userId, open, onClose, onUnreadCo
 
   const handleClick = useCallback(async (notif: DbNotification) => {
     if (!notif.read) {
-      await markAsRead(notif.id, userId);
-      setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read: true } : n));
-      const count = await getUnreadCount(userId);
-      onUnreadCountChange(count);
+      onMarkRead(notif.id);
     }
     let href = getNotifHref(notif);
     // For profile notifications (follow), look up the follower's handle
@@ -185,13 +167,11 @@ export default function NotificationDropdown({ userId, open, onClose, onUnreadCo
     }
     if (href) router.push(href);
     onClose();
-  }, [userId, router, onClose, onUnreadCountChange]);
+  }, [router, onClose, onMarkRead]);
 
-  const handleMarkAllRead = useCallback(async () => {
-    await markAllAsRead(userId);
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    onUnreadCountChange(0);
-  }, [userId, onUnreadCountChange]);
+  const handleMarkAllRead = useCallback(() => {
+    onMarkAllRead();
+  }, [onMarkAllRead]);
 
   if (!open) return null;
 
@@ -211,11 +191,6 @@ export default function NotificationDropdown({ userId, open, onClose, onUnreadCo
         {loading ? (
           <div className="flex justify-center py-8">
             <Loader2 className="w-5 h-5 animate-spin text-white/30" />
-          </div>
-        ) : fetchError ? (
-          <div className="py-8 text-center">
-            <div className="text-sm text-white/30 mb-2">Laden fehlgeschlagen</div>
-            <button onClick={() => { setFetchError(false); setLoading(true); getNotifications(userId, 20).then(d => { setNotifications(d); setLoading(false); }).catch(() => { setFetchError(true); setLoading(false); }); }} className="text-xs text-[#FFD700] hover:underline">Erneut versuchen</button>
           </div>
         ) : notifications.length === 0 ? (
           <div className="py-8 text-center text-sm text-white/30">

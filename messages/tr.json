@@ -580,7 +580,21 @@
     "scoutReports": "Rapor",
     "hitRate": "İsabet",
     "avgRating": "Ø Değerlendirme",
-    "approvedBounties": "onaylandı"
+    "approvedBounties": "onaylandı",
+    "notificationPrefs": "Bildirimler",
+    "notificationPrefsDesc": "Hangi bildirimleri almak istediğini seç.",
+    "notifCat_trading": "Ticaret & Pazar",
+    "notifCat_trading_desc": "İşlemler, fiyat uyarıları, IPO'lar, haftanın DPC'si",
+    "notifCat_offers": "Teklifler",
+    "notifCat_offers_desc": "Gelen, kabul edilen ve reddedilen teklifler",
+    "notifCat_fantasy": "Fantezi & Maç Günü",
+    "notifCat_fantasy_desc": "Ödüller, etkinlik başlangıcı, tahminler",
+    "notifCat_social": "Sosyal & Topluluk",
+    "notifCat_social_desc": "Takipçiler, yanıtlar, değerlendirmeler, anketler",
+    "notifCat_bounties": "Görevler",
+    "notifCat_bounties_desc": "Gönderimler, onaylar, süre dolumu",
+    "notifCat_rewards": "Ödüller & İlerleme",
+    "notifCat_rewards_desc": "Başarılar, seviye atlamaları, rütbeler, görevler"
   },
   "player": {
     "overview": "Genel Bakış",
