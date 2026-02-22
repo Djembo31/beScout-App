@@ -8,6 +8,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { getPosts, adminDeletePost, adminTogglePin } from '@/lib/services/posts';
 import { updateCommunityGuidelines } from '@/lib/services/club';
+import { canPerformAction } from '@/lib/adminRoles';
 import type { ClubWithAdmin, PostWithAuthor } from '@/types';
 
 // ============================================
@@ -15,6 +16,10 @@ import type { ClubWithAdmin, PostWithAuthor } from '@/types';
 // ============================================
 
 export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
+  const role = club.admin_role ?? 'editor';
+  const canPin = canPerformAction('pin_post', role);
+  const canDelete = canPerformAction('delete_post', role);
+  const canEditGuidelines = canPerformAction('update_guidelines', role);
   const { user } = useUser();
   const { addToast } = useToast();
 
@@ -109,21 +114,27 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
         </p>
         <textarea
           value={guidelines}
-          onChange={(e) => setGuidelines(e.target.value.slice(0, 1000))}
+          onChange={(e) => canEditGuidelines && setGuidelines(e.target.value.slice(0, 1000))}
+          readOnly={!canEditGuidelines}
           placeholder="Regeln und Richtlinien für die Club-Community..."
-          className="w-full h-32 p-3 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none"
+          className={cn(
+            'w-full h-32 p-3 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none',
+            !canEditGuidelines && 'opacity-60 cursor-not-allowed'
+          )}
         />
         <div className="flex items-center justify-between mt-2">
           <span className="text-xs text-white/30">{guidelines.length}/1000</span>
-          <Button
-            variant="gold"
-            size="sm"
-            onClick={handleSaveGuidelines}
-            disabled={!guidelinesChanged || guidelinesSaving}
-          >
-            {guidelinesSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Speichern
-          </Button>
+          {canEditGuidelines && (
+            <Button
+              variant="gold"
+              size="sm"
+              onClick={handleSaveGuidelines}
+              disabled={!guidelinesChanged || guidelinesSaving}
+            >
+              {guidelinesSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              Speichern
+            </Button>
+          )}
         </div>
       </Card>
 
@@ -145,12 +156,14 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
                   <p className="text-sm truncate">{post.content.slice(0, 80)}</p>
                   <span className="text-[10px] text-white/40">von {post.author_display_name || post.author_handle}</span>
                 </div>
-                <button
-                  onClick={() => handleTogglePin(post.id, false)}
-                  className="text-xs text-white/50 hover:text-red-300 px-2 py-1 rounded-lg hover:bg-white/5"
-                >
-                  Lösen
-                </button>
+                {canPin && (
+                  <button
+                    onClick={() => handleTogglePin(post.id, false)}
+                    className="text-xs text-white/50 hover:text-red-300 px-2 py-1 rounded-lg hover:bg-white/5"
+                  >
+                    Lösen
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -187,25 +200,31 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
                   </div>
                   <p className="text-sm text-white/70 line-clamp-2">{post.content}</p>
                 </div>
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <button
-                    onClick={() => handleTogglePin(post.id, !post.is_pinned)}
-                    className={cn(
-                      'p-1.5 rounded-lg transition-colors',
-                      post.is_pinned ? 'text-[#FFD700] hover:bg-[#FFD700]/10' : 'text-white/30 hover:text-white hover:bg-white/5'
+                {(canPin || canDelete) && (
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {canPin && (
+                      <button
+                        onClick={() => handleTogglePin(post.id, !post.is_pinned)}
+                        className={cn(
+                          'p-1.5 rounded-lg transition-colors',
+                          post.is_pinned ? 'text-[#FFD700] hover:bg-[#FFD700]/10' : 'text-white/30 hover:text-white hover:bg-white/5'
+                        )}
+                        title={post.is_pinned ? 'Lösen' : 'Anpinnen'}
+                      >
+                        <Pin className="w-4 h-4" />
+                      </button>
                     )}
-                    title={post.is_pinned ? 'Lösen' : 'Anpinnen'}
-                  >
-                    <Pin className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleAdminDelete(post.id)}
-                    className="p-1.5 rounded-lg text-white/30 hover:text-red-300 hover:bg-red-500/10 transition-colors"
-                    title="Löschen"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+                    {canDelete && (
+                      <button
+                        onClick={() => handleAdminDelete(post.id)}
+                        className="p-1.5 rounded-lg text-white/30 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+                        title="Löschen"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Settings, Shield, Calendar, Loader2, Check, Database, RefreshCw, Users, Shirt, Trophy, AlertCircle, Gamepad2, Globe } from 'lucide-react';
+import { Settings, Shield, Calendar, Loader2, Check, Database, RefreshCw, Users, Shirt, Trophy, AlertCircle, Gamepad2, Globe, UserPlus, Trash2, Crown } from 'lucide-react';
+import Image from 'next/image';
 import { Card, Button } from '@/components/ui';
-import { getActiveGameweek, setActiveGameweek, getClubFantasySettings, updateClubFantasySettings } from '@/lib/services/club';
+import { getActiveGameweek, setActiveGameweek, getClubFantasySettings, updateClubFantasySettings, getClubAdmins, removeClubAdmin, addClubAdmin } from '@/lib/services/club';
 import type { ClubFantasySettings } from '@/lib/services/club';
 import {
   isApiConfigured,
@@ -14,7 +15,11 @@ import {
   type MappingStatus,
   type MappingResult,
 } from '@/lib/services/footballData';
-import type { ClubWithAdmin } from '@/types';
+import { canPerformAction, getRoleBadge } from '@/lib/adminRoles';
+import { useUser } from '@/components/providers/AuthProvider';
+import { useToast } from '@/components/providers/ToastProvider';
+import AddAdminModal from '@/components/admin/AddAdminModal';
+import type { ClubWithAdmin, ClubAdminRole, DbClubAdmin } from '@/types';
 
 // ============================================
 // API-Football Mapping Section
@@ -205,7 +210,14 @@ const JURISDICTIONS: { value: ClubFantasySettings['fantasy_jurisdiction_preset']
   { value: 'OTHER', label: 'Andere', desc: 'Entry Fees möglich (Eigenverantwortung)' },
 ];
 
+type AdminWithProfile = DbClubAdmin & { handle: string; display_name: string | null };
+
 export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
+  const { user } = useUser();
+  const { addToast } = useToast();
+  const role = club.admin_role ?? 'editor';
+  const isOwner = canPerformAction('manage_admins', role);
+
   const [currentGw, setCurrentGw] = useState<number | null>(null);
   const [selectedGw, setSelectedGw] = useState<number>(1);
   const [saving, setSaving] = useState(false);
@@ -216,6 +228,25 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
   const [fantasySaving, setFantasySaving] = useState(false);
   const [fantasySaved, setFantasySaved] = useState(false);
 
+  // Team Management
+  const [admins, setAdmins] = useState<AdminWithProfile[]>([]);
+  const [adminsLoading, setAdminsLoading] = useState(true);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
+  const [changingRole, setChangingRole] = useState<string | null>(null);
+
+  const loadAdmins = useCallback(async () => {
+    setAdminsLoading(true);
+    try {
+      const data = await getClubAdmins(club.id);
+      setAdmins(data);
+    } catch (err) {
+      console.error('[AdminSettings] getClubAdmins:', err);
+    } finally {
+      setAdminsLoading(false);
+    }
+  }, [club.id]);
+
   useEffect(() => {
     getActiveGameweek(club.id).then(gw => {
       setCurrentGw(gw);
@@ -223,7 +254,8 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
     }).catch(err => console.error('[AdminSettings] getActiveGameweek:', err));
     getClubFantasySettings(club.id).then(setFantasySettings)
       .catch(err => console.error('[AdminSettings] getClubFantasySettings:', err));
-  }, [club.id]);
+    loadAdmins();
+  }, [club.id, loadAdmins]);
 
   const handleSetGw = async () => {
     setSaving(true);
@@ -249,58 +281,99 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
     setFantasySaving(false);
   };
 
+  const handleRemoveAdmin = async (userId: string) => {
+    setRemovingId(userId);
+    try {
+      const result = await removeClubAdmin(club.id, userId);
+      if (result.success) {
+        addToast('Team-Mitglied entfernt', 'success');
+        await loadAdmins();
+      } else {
+        addToast(result.error ?? 'Fehler beim Entfernen', 'error');
+      }
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+    } finally {
+      setRemovingId(null);
+    }
+  };
+
+  const handleChangeRole = async (userId: string, newRole: ClubAdminRole) => {
+    setChangingRole(userId);
+    try {
+      const result = await addClubAdmin(club.id, userId, newRole);
+      if (result.success) {
+        addToast('Rolle geändert', 'success');
+        await loadAdmins();
+      } else {
+        addToast(result.error ?? 'Fehler', 'error');
+      }
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+    } finally {
+      setChangingRole(null);
+    }
+  };
+
+  const canSetGw = canPerformAction('set_gameweek', role);
+  const canSetJurisdiction = canPerformAction('set_jurisdiction', role);
+  const canSyncApi = canPerformAction('sync_api', role);
+
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-black">Einstellungen</h2>
 
-      {/* Active Gameweek Control */}
-      <Card className="p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
-            <Calendar className="w-5 h-5 text-[#FFD700]" />
-          </div>
-          <div>
-            <div className="font-bold">Aktiver Spieltag</div>
-            <div className="text-xs text-white/50">
-              Steuert welcher Spieltag in Fantasy aktiv ist
-              {currentGw != null && (
-                <span className="ml-1 text-[#22C55E]">• Aktuell: GW {currentGw}</span>
-              )}
+      {/* Active Gameweek Control — Owner only */}
+      {canSetGw && (
+        <Card className="p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-[#FFD700]" />
+            </div>
+            <div>
+              <div className="font-bold">Aktiver Spieltag</div>
+              <div className="text-xs text-white/50">
+                Steuert welcher Spieltag in Fantasy aktiv ist
+                {currentGw != null && (
+                  <span className="ml-1 text-[#22C55E]">• Aktuell: GW {currentGw}</span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <select
-            value={selectedGw}
-            onChange={(e) => setSelectedGw(Number(e.target.value))}
-            className="flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm"
-          >
-            {Array.from({ length: 38 }, (_, i) => i + 1).map(gw => (
-              <option key={gw} value={gw}>
-                Spieltag {gw} {gw === currentGw ? '(aktuell)' : ''}
-              </option>
-            ))}
-          </select>
-          <Button
-            onClick={handleSetGw}
-            disabled={saving || selectedGw === currentGw}
-            className="px-4"
-          >
-            {saving ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : saved ? (
-              <Check className="w-4 h-4 text-[#22C55E]" />
-            ) : (
-              'Setzen'
-            )}
-          </Button>
-        </div>
-      </Card>
+          <div className="flex items-center gap-3">
+            <select
+              value={selectedGw}
+              onChange={(e) => setSelectedGw(Number(e.target.value))}
+              className="flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm"
+            >
+              {Array.from({ length: 38 }, (_, i) => i + 1).map(gw => (
+                <option key={gw} value={gw}>
+                  Spieltag {gw} {gw === currentGw ? '(aktuell)' : ''}
+                </option>
+              ))}
+            </select>
+            <Button
+              onClick={handleSetGw}
+              disabled={saving || selectedGw === currentGw}
+              className="px-4"
+            >
+              {saving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : saved ? (
+                <Check className="w-4 h-4 text-[#22C55E]" />
+              ) : (
+                'Setzen'
+              )}
+            </Button>
+          </div>
+        </Card>
+      )}
 
-      {/* API-Football Integration */}
-      <ApiFootballSection />
+      {/* API-Football Integration — Owner + Admin */}
+      {canSyncApi && <ApiFootballSection />}
 
-      {/* Fantasy Settings */}
+      {/* Fantasy Settings — Owner only for jurisdiction */}
+      {canSetJurisdiction && (
       <Card className="p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
@@ -382,7 +455,9 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
           </div>
         )}
       </Card>
+      )}
 
+      {/* Club Info */}
       <Card className="p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
@@ -417,20 +492,102 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
         </div>
       </Card>
 
+      {/* Team-Verwaltung */}
       <Card className="p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
-            <Settings className="w-5 h-5 text-white/50" />
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
+              <Users className="w-5 h-5 text-[#FFD700]" />
+            </div>
+            <div>
+              <div className="font-bold">Team-Verwaltung</div>
+              <div className="text-xs text-white/50">Admins und Redakteure verwalten</div>
+            </div>
           </div>
-          <div>
-            <div className="font-bold">Branding & Team</div>
-            <div className="text-xs text-white/50">Logo, Farben & Admin-Verwaltung</div>
+          {isOwner && (
+            <Button variant="gold" size="sm" onClick={() => setAddModalOpen(true)}>
+              <UserPlus className="w-3.5 h-3.5" />
+              Hinzufügen
+            </Button>
+          )}
+        </div>
+
+        {adminsLoading ? (
+          <div className="flex items-center justify-center py-6">
+            <Loader2 className="w-5 h-5 animate-spin text-white/30" />
           </div>
-        </div>
-        <div className="text-sm text-white/40 p-4 bg-white/[0.02] rounded-xl border border-dashed border-white/10 text-center">
-          Logo-Upload, Farbanpassungen und Team-Management werden in Phase 7 freigeschaltet.
-        </div>
+        ) : (
+          <div className="space-y-2">
+            {admins.map(admin => {
+              const badge = getRoleBadge(admin.role);
+              const isSelf = admin.user_id === user?.id;
+              const isAdminOwner = admin.role === 'owner';
+              return (
+                <div key={admin.id} className="flex items-center gap-3 p-3 bg-white/[0.02] rounded-xl border border-white/[0.06]">
+                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/50">
+                    {admin.handle.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-bold truncate">
+                      {admin.display_name || admin.handle}
+                      {isSelf && <span className="text-[10px] text-white/30 ml-1">(Du)</span>}
+                    </div>
+                    <div className="text-[10px] text-white/40">@{admin.handle}</div>
+                  </div>
+                  {/* Role badge / dropdown */}
+                  {isOwner && !isAdminOwner ? (
+                    <select
+                      value={admin.role}
+                      onChange={(e) => handleChangeRole(admin.user_id, e.target.value as ClubAdminRole)}
+                      disabled={changingRole === admin.user_id}
+                      className={`px-2 py-1 rounded-lg text-xs font-bold border ${badge.bg} ${badge.color} ${badge.border} bg-transparent cursor-pointer`}
+                    >
+                      <option value="admin">Verwalter</option>
+                      <option value="editor">Redakteur</option>
+                    </select>
+                  ) : (
+                    <span className={`px-2 py-1 rounded-lg text-xs font-bold border ${badge.bg} ${badge.color} ${badge.border} flex items-center gap-1`}>
+                      {isAdminOwner && <Crown className="w-3 h-3" />}
+                      {badge.label}
+                    </span>
+                  )}
+                  {/* Remove button — Owner only, can't remove self */}
+                  {isOwner && !isAdminOwner && !isSelf && (
+                    <button
+                      onClick={() => handleRemoveAdmin(admin.user_id)}
+                      disabled={removingId === admin.user_id}
+                      className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                      title="Entfernen"
+                    >
+                      {removingId === admin.user_id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {!isOwner && (
+          <div className="text-sm text-white/40 p-4 bg-white/[0.02] rounded-xl border border-dashed border-white/10 text-center mt-4">
+            Nur der Eigentümer kann das Team verwalten.
+          </div>
+        )}
       </Card>
+
+      {/* Add Admin Modal */}
+      {isOwner && (
+        <AddAdminModal
+          open={addModalOpen}
+          onClose={() => setAddModalOpen(false)}
+          clubId={club.id}
+          onAdded={loadAdmins}
+        />
+      )}
     </div>
   );
 }

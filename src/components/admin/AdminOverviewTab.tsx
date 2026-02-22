@@ -14,9 +14,12 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { fmtScout, cn } from '@/lib/utils';
 import { formatScout } from '@/lib/services/wallet';
+import { canPerformAction } from '@/lib/adminRoles';
 import type { ClubWithAdmin, ClubDashboardStats, DbPlayer, Pos } from '@/types';
 
 export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
+  const role = club.admin_role ?? 'editor';
+  const canPublishNews = canPerformAction('publish_news', role);
   const { user } = useUser();
   const { addToast } = useToast();
   const [stats, setStats] = useState<ClubDashboardStats | null>(null);
@@ -156,24 +159,26 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
         </div>
       </Card>
 
-      {/* Publish Club News */}
-      <Card className="p-4 border-[#FFD700]/20 bg-gradient-to-r from-[#FFD700]/5 to-transparent">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
-              <Megaphone className="w-5 h-5 text-[#FFD700]" />
+      {/* Publish Club News — Owner + Admin only */}
+      {canPublishNews && (
+        <Card className="p-4 border-[#FFD700]/20 bg-gradient-to-r from-[#FFD700]/5 to-transparent">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
+                <Megaphone className="w-5 h-5 text-[#FFD700]" />
+              </div>
+              <div>
+                <div className="text-sm font-bold">Club-News veröffentlichen</div>
+                <div className="text-[10px] text-white/40">Neuigkeiten für Fans sichtbar im Feed + Club-Seite</div>
+              </div>
             </div>
-            <div>
-              <div className="text-sm font-bold">Club-News veröffentlichen</div>
-              <div className="text-[10px] text-white/40">Neuigkeiten für Fans sichtbar im Feed + Club-Seite</div>
-            </div>
+            <Button variant="gold" size="sm" onClick={() => setNewsOpen(true)}>
+              <Send className="w-3.5 h-3.5" />
+              News schreiben
+            </Button>
           </div>
-          <Button variant="gold" size="sm" onClick={() => setNewsOpen(true)}>
-            <Send className="w-3.5 h-3.5" />
-            News schreiben
-          </Button>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       {/* News Modal */}
       <Modal open={newsOpen} onClose={() => setNewsOpen(false)} title="Club-News veröffentlichen">

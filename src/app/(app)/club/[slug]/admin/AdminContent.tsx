@@ -19,9 +19,8 @@ import AdminModerationTab from '@/components/admin/AdminModerationTab';
 import AdminAnalyticsTab from '@/components/admin/AdminAnalyticsTab';
 import AdminWithdrawalTab from '@/components/admin/AdminWithdrawalTab';
 import AdminScoutingTab from '@/components/admin/AdminScoutingTab';
+import { canAccessTab, getRoleBadge, type AdminTab } from '@/lib/adminRoles';
 import type { ClubWithAdmin } from '@/types';
-
-type AdminTab = 'overview' | 'players' | 'events' | 'votes' | 'bounties' | 'scouting' | 'moderation' | 'revenue' | 'analytics' | 'withdrawal' | 'settings';
 
 const ADMIN_TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
   { id: 'overview', label: 'Übersicht', icon: BarChart3 },
@@ -44,6 +43,15 @@ export default function AdminContent({ slug }: { slug: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [tab, setTab] = useState<AdminTab>('overview');
+  const role = club?.admin_role ?? 'editor';
+  const visibleTabs = ADMIN_TABS.filter(t => canAccessTab(t.id, role));
+
+  // Reset tab if current tab not accessible for this role
+  useEffect(() => {
+    if (club && !canAccessTab(tab, role)) {
+      setTab(visibleTabs[0]?.id ?? 'overview');
+    }
+  }, [club, role, tab, visibleTabs]);
 
   useEffect(() => {
     let cancelled = false;
@@ -92,9 +100,19 @@ export default function AdminContent({ slug }: { slug: string }) {
     <div className="max-w-[1400px] mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-black">{club.name} Admin</h1>
-          <p className="text-sm text-white/50">Club-Verwaltung • Rolle: {club.admin_role}</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-black">{club.name} Admin</h1>
+            <p className="text-sm text-white/50">Club-Verwaltung</p>
+          </div>
+          {(() => {
+            const badge = getRoleBadge(role);
+            return (
+              <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${badge.color} ${badge.bg} ${badge.border}`}>
+                {badge.label}
+              </span>
+            );
+          })()}
         </div>
         <button
           onClick={() => router.push(`/club/${slug}`)}
@@ -106,7 +124,7 @@ export default function AdminContent({ slug }: { slug: string }) {
 
       {/* Tabs */}
       <div className="flex items-center border-b border-white/10 overflow-x-auto mb-6 scrollbar-hide -mx-4 px-4 lg:mx-0 lg:px-0">
-        {ADMIN_TABS.map((t) => (
+        {visibleTabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}

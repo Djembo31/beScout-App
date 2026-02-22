@@ -11,9 +11,15 @@ import { getIposByClubId, createIpo, updateIpoStatus } from '@/lib/services/ipo'
 import { getPbtForPlayer } from '@/lib/services/pbt';
 import { setSuccessFeeCap, liquidatePlayer } from '@/lib/services/liquidation';
 import { fmtScout } from '@/lib/utils';
+import { canPerformAction } from '@/lib/adminRoles';
 import type { ClubWithAdmin, Player, DbIpo } from '@/types';
 
 export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
+  const role = club.admin_role ?? 'editor';
+  const canCreateIpo = canPerformAction('create_ipo', role);
+  const canLiquidate = canPerformAction('liquidate', role);
+  const canSetFee = canPerformAction('set_success_fee', role);
+  const canCreatePlayer = canPerformAction('create_player', role);
   const { user } = useUser();
   const [players, setPlayers] = useState<Player[]>([]);
   const [clubIpos, setClubIpos] = useState<DbIpo[]>([]);
@@ -266,10 +272,12 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
           <h2 className="text-xl font-black">IPO Verwaltung</h2>
           <p className="text-xs text-white/50">{players.length} Spieler • {activeIpos.length} aktive IPOs</p>
         </div>
-        <Button variant="gold" onClick={() => setIpoModalOpen(true)}>
-          <Plus className="w-4 h-4" />
-          Neue IPO erstellen
-        </Button>
+        {canCreateIpo && (
+          <Button variant="gold" onClick={() => setIpoModalOpen(true)}>
+            <Plus className="w-4 h-4" />
+            Neue IPO erstellen
+          </Button>
+        )}
       </div>
 
       {activeIpos.length === 0 && pastIpos.length === 0 ? (
@@ -315,26 +323,28 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                           {ipo.status === 'open' || ipo.status === 'announced' ? `${daysLeft}d ${hoursLeft}h` : '-'}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {ipo.status === 'announced' && (
-                          <>
-                            <Button variant="gold" size="sm" onClick={() => handleIpoStatusChange(ipo.id, 'open')} disabled={ipoLoading}>
-                              <Play className="w-3 h-3" />Starten
-                            </Button>
-                            <Button variant="outline" size="sm" onClick={() => handleIpoStatusChange(ipo.id, 'cancelled')} disabled={ipoLoading}>
-                              <XCircle className="w-3 h-3" />Abbrechen
-                            </Button>
-                          </>
-                        )}
-                        {ipo.status === 'open' && (
-                          <>
-                            <Button variant="outline" size="sm" onClick={() => handleIpoStatusChange(ipo.id, 'ended')} disabled={ipoLoading}>Beenden</Button>
-                            <Button variant="outline" size="sm" onClick={() => handleIpoStatusChange(ipo.id, 'cancelled')} disabled={ipoLoading}>
-                              <XCircle className="w-3 h-3" />Abbrechen
-                            </Button>
-                          </>
-                        )}
-                      </div>
+                      {canCreateIpo && (
+                        <div className="flex items-center gap-2">
+                          {ipo.status === 'announced' && (
+                            <>
+                              <Button variant="gold" size="sm" onClick={() => handleIpoStatusChange(ipo.id, 'open')} disabled={ipoLoading}>
+                                <Play className="w-3 h-3" />Starten
+                              </Button>
+                              <Button variant="outline" size="sm" onClick={() => handleIpoStatusChange(ipo.id, 'cancelled')} disabled={ipoLoading}>
+                                <XCircle className="w-3 h-3" />Abbrechen
+                              </Button>
+                            </>
+                          )}
+                          {ipo.status === 'open' && (
+                            <>
+                              <Button variant="outline" size="sm" onClick={() => handleIpoStatusChange(ipo.id, 'ended')} disabled={ipoLoading}>Beenden</Button>
+                              <Button variant="outline" size="sm" onClick={() => handleIpoStatusChange(ipo.id, 'cancelled')} disabled={ipoLoading}>
+                                <XCircle className="w-3 h-3" />Abbrechen
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </Card>
                 );
@@ -371,10 +381,12 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
       <div className="border-t border-white/10 pt-6 space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <h2 className="text-xl font-black">Spieler-Verwaltung</h2>
-          <Button variant="gold" onClick={() => setCreateModalOpen(true)}>
-            <UserPlus className="w-4 h-4" />
-            Spieler anlegen
-          </Button>
+          {canCreatePlayer && (
+            <Button variant="gold" onClick={() => setCreateModalOpen(true)}>
+              <UserPlus className="w-4 h-4" />
+              Spieler anlegen
+            </Button>
+          )}
         </div>
 
         {activePlayers.length > 0 && (
@@ -388,22 +400,28 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                       Cap: {fmtScout(p.successFeeCap)} $SCOUT
                     </Chip>
                   )}
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <button
-                      onClick={() => { setCapModalPlayer(p); setCapValue(p.successFeeCap != null ? String(p.successFeeCap) : ''); }}
-                      className="p-2 rounded-lg bg-white/5 hover:bg-[#FFD700]/10 text-white/50 hover:text-[#FFD700] transition-colors"
-                      title="Success Fee Cap setzen"
-                    >
-                      <Shield className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => openLiquidationModal(p)}
-                      className="p-2 rounded-lg bg-white/5 hover:bg-red-500/10 text-white/50 hover:text-red-400 transition-colors"
-                      title="Spieler liquidieren"
-                    >
-                      <Flame className="w-4 h-4" />
-                    </button>
-                  </div>
+                  {(canSetFee || canLiquidate) && (
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      {canSetFee && (
+                        <button
+                          onClick={() => { setCapModalPlayer(p); setCapValue(p.successFeeCap != null ? String(p.successFeeCap) : ''); }}
+                          className="p-2 rounded-lg bg-white/5 hover:bg-[#FFD700]/10 text-white/50 hover:text-[#FFD700] transition-colors"
+                          title="Success Fee Cap setzen"
+                        >
+                          <Shield className="w-4 h-4" />
+                        </button>
+                      )}
+                      {canLiquidate && (
+                        <button
+                          onClick={() => openLiquidationModal(p)}
+                          className="p-2 rounded-lg bg-white/5 hover:bg-red-500/10 text-white/50 hover:text-red-400 transition-colors"
+                          title="Spieler liquidieren"
+                        >
+                          <Flame className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </Card>
             ))}
