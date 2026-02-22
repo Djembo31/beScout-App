@@ -138,7 +138,7 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
                 {options.length > 2 && (
                   <button
                     onClick={() => removeOption(idx)}
-                    className="p-2 rounded-lg text-white/30 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-white/30 hover:text-red-300 hover:bg-red-500/10 transition-colors"
                   >
                     <Minus className="w-4 h-4" />
                   </button>

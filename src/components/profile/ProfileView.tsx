@@ -37,12 +37,13 @@ import { RangBadge, DimensionRangStack } from '@/components/ui/RangBadge';
 import FoundingScoutBadge from '@/components/ui/FoundingScoutBadge';
 import { useScoutScores, useScoutingStats } from '@/lib/queries';
 import { FileText, Target as TargetIcon, CheckCircle, Star } from 'lucide-react';
+import { useTranslations as useProfileTranslations } from 'next-intl';
 
-const TABS: { id: ProfileTab; label: string; selfOnly?: boolean }[] = [
-  { id: 'overview', label: 'Ãœbersicht' },
-  { id: 'portfolio', label: 'Portfolio', selfOnly: true },
-  { id: 'activity', label: 'AktivitÃ¤t' }, // Public: shows trades/rewards (no wallet details)
-  { id: 'settings', label: 'Einstellungen', selfOnly: true },
+const TAB_IDS: { id: ProfileTab; selfOnly?: boolean }[] = [
+  { id: 'overview' },
+  { id: 'portfolio', selfOnly: true },
+  { id: 'activity' },
+  { id: 'settings', selfOnly: true },
 ];
 
 // Transaction types safe to show publicly (no wallet/deposit/withdrawal info)
@@ -64,6 +65,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
   const { user } = useUser();
   const { balanceCents } = useWallet();
   const { addToast } = useToast();
+  const tp = useProfileTranslations('profile');
   const [tab, setTab] = useState<ProfileTab>('overview');
 
   // Real holdings from DB
@@ -231,7 +233,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
   const portfolioCostCents = holdings.reduce((s, h) => s + h.quantity * h.avg_buy_price, 0);
   const totalDpcs = holdings.reduce((s, h) => s + h.quantity, 0);
 
-  const visibleTabs = TABS.filter((t) => !t.selfOnly || isSelf);
+  const visibleTabs = TAB_IDS.filter((t) => !t.selfOnly || isSelf);
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-6">
@@ -415,7 +417,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               tab === t.id ? 'text-[#FFD700]' : 'text-white/60 hover:text-white'
             }`}
           >
-            {t.label}
+            {tp(t.id)}
             {tab === t.id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FFD700]" />}
           </button>
         ))}

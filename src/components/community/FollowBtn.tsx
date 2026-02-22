@@ -10,7 +10,7 @@ interface FollowBtnProps {
 }
 
 export default function FollowBtn({ isFollowed, onToggle, size = 'sm' }: FollowBtnProps) {
-  const sizeClasses = size === 'sm' ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-sm';
+  const sizeClasses = size === 'sm' ? 'px-3 py-2 text-xs min-h-[44px]' : 'px-3 py-2 text-sm min-h-[44px]';
 
   if (isFollowed) {
     return (

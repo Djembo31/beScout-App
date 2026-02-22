@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { ACHIEVEMENTS } from '@/lib/achievements';
-import type { DbUserStats, DbUserAchievement, LeaderboardUser, FeedItem } from '@/types';
+import type { DbUserStats, DbUserAchievement, LeaderboardUser, ActivityFeedItem } from '@/types';
 
 // ============================================
 // Follow / Unfollow
@@ -510,7 +510,7 @@ const FEED_ACTIONS = [
   'offer_create', 'offer_accept', 'poll_create', 'vote_create',
 ];
 
-export async function getFollowingFeed(userId: string, limit = 15): Promise<FeedItem[]> {
+export async function getFollowingFeed(userId: string, limit = 15): Promise<ActivityFeedItem[]> {
   const followingIds = await getFollowingIds(userId);
   if (followingIds.length === 0) return [];
 

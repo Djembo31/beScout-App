@@ -18,7 +18,7 @@ export type NavItem = {
 
 export const NAV_MAIN: NavItem[] = [
   { label: 'home', href: '/', icon: Home },
-  { label: 'manager', href: '/market', icon: Briefcase },
+  { label: 'market', href: '/market', icon: Briefcase },
   { label: 'fantasy', href: '/fantasy', icon: Trophy },
   { label: 'club', href: '/club', icon: Building2 },
   { label: 'scouting', href: '/community', icon: Compass },

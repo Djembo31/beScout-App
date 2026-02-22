@@ -384,7 +384,7 @@ export type ClubDashboardStats = {
 // FEED TYPES
 // ============================================
 
-export type FeedItem = {
+export type ActivityFeedItem = {
   id: string;
   userId: string;
   handle: string;

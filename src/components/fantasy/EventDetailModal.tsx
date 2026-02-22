@@ -647,7 +647,7 @@ export const EventDetailModal = ({
                       <button onClick={() => applyPreset(preset)} className="text-sm font-medium hover:text-[#FFD700] transition-all flex-1 text-left">
                         {preset.name} <span className="text-white/30 text-xs">({preset.formation})</span>
                       </button>
-                      <button onClick={() => deletePreset(i)} className="p-1 hover:bg-red-500/20 rounded text-red-400">
+                      <button onClick={() => deletePreset(i)} className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-red-500/20 rounded text-red-400">
                         <X className="w-3 h-3" />
                       </button>
                     </div>
