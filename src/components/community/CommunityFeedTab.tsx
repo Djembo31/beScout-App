@@ -351,7 +351,7 @@ export default function CommunityFeedTab({
           <EmptyState icon={<MessageSquare />} title={t('feed.noPosts')} action={{ label: t('feed.writeFirst'), onClick: onCreatePost }} />
         )
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {sortedItems.map((item) => {
             switch (item.type) {
               case 'post':

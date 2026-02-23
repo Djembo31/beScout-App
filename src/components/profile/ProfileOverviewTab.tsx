@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, BarChart3, Trophy, Coins, FileText, Vote, Target, Flame, Crosshair, Banknote, UserCheck, Sparkles, Megaphone, Shield, CheckCircle, XCircle, Clock, CircleDollarSign, Star } from 'lucide-react';
 import { Card, StatCard, Button } from '@/components/ui';
@@ -91,6 +91,8 @@ export default function ProfileOverviewTab({
 }: ProfileOverviewTabProps) {
   const tg = useTranslations('gamification');
   const tp = useTranslations('profile');
+  const [showAllAchievements, setShowAllAchievements] = useState(false);
+  const [showAllTrades, setShowAllTrades] = useState(false);
   const pnlCents = portfolioValueCents - portfolioCostCents;
   const { data: masteryAll = [] } = useUserMasteryAll(userId);
   const topMastery = masteryAll.slice(0, 5);
@@ -339,34 +341,49 @@ export default function ProfileOverviewTab({
           .filter(a => { const d = getAchievementDef(a.achievement_key); return d && !d.featured; })
           .map(a => ({ key: a.achievement_key, def: getAchievementDef(a.achievement_key)! }));
 
-        return (featured.length > 0 || unlockedHidden.length > 0) ? (
+        const allItems = [
+          ...featured.map(def => ({ key: def.key, def, isUnlocked: unlockedKeys.has(def.key), isHidden: false })),
+          ...unlockedHidden.map(({ key, def }) => ({ key, def, isUnlocked: true, isHidden: true })),
+        ];
+        const INITIAL_SHOW = 6;
+        const visibleItems = showAllAchievements ? allItems : allItems.slice(0, INITIAL_SHOW);
+        const hasMore = allItems.length > INITIAL_SHOW;
+
+        return allItems.length > 0 ? (
           <Card className="p-6">
-            <h3 className="font-black mb-4">{tg('achievement.title')}</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-black">{tg('achievement.title')}</h3>
+              <span className="text-xs text-white/40">{unlockedKeys.size}/{allItems.length}</span>
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {featured.map((def) => {
-                const isUnlocked = unlockedKeys.has(def.key);
-                return (
-                  <div key={def.key} className={cn(
-                    'p-3 rounded-xl border',
-                    isUnlocked
-                      ? 'bg-white/[0.03] border-white/[0.06]'
-                      : 'bg-white/[0.01] border-white/[0.03] opacity-40'
-                  )}>
-                    <div className="text-xl mb-1">{isUnlocked ? def.icon : '🔒'}</div>
-                    <div className="text-sm font-bold">{def.label}</div>
-                    <div className="text-[10px] text-white/40 mt-0.5">{def.description}</div>
-                  </div>
-                );
-              })}
-              {unlockedHidden.map(({ key, def }) => (
+              {visibleItems.map(({ key, def, isUnlocked, isHidden }) => isHidden ? (
                 <div key={key} className="p-3 bg-[#FFD700]/[0.04] rounded-xl border border-[#FFD700]/15">
                   <div className="text-xl mb-1">{def.icon}</div>
                   <div className="text-sm font-bold text-[#FFD700]">{def.label}</div>
                   <div className="text-[10px] text-white/40 mt-0.5">{def.description}</div>
                   <div className="text-[9px] text-[#FFD700]/50 mt-1 uppercase tracking-wider font-bold">{tg('achievement.hidden')}</div>
                 </div>
+              ) : (
+                <div key={key} className={cn(
+                  'p-3 rounded-xl border',
+                  isUnlocked
+                    ? 'bg-white/[0.03] border-white/[0.06]'
+                    : 'bg-white/[0.01] border-white/[0.03] opacity-40'
+                )}>
+                  <div className="text-xl mb-1">{isUnlocked ? def.icon : '🔒'}</div>
+                  <div className="text-sm font-bold">{def.label}</div>
+                  <div className="text-[10px] text-white/40 mt-0.5">{def.description}</div>
+                </div>
               ))}
             </div>
+            {hasMore && (
+              <button
+                onClick={() => setShowAllAchievements(prev => !prev)}
+                className="w-full mt-3 py-2 text-xs text-white/40 hover:text-white/60 transition-colors"
+              >
+                {showAllAchievements ? 'Weniger anzeigen' : `Alle ${allItems.length} anzeigen`}
+              </button>
+            )}
           </Card>
         ) : null;
       })()}
@@ -378,11 +395,18 @@ export default function ProfileOverviewTab({
       {userId && <PredictionStatsCard userId={userId} />}
 
       {/* Letzte Trades */}
-      {recentTrades.length > 0 && (
+      {recentTrades.length > 0 && (() => {
+        const INITIAL_TRADES = 5;
+        const visibleTrades = showAllTrades ? recentTrades : recentTrades.slice(0, INITIAL_TRADES);
+        const hasMoreTrades = recentTrades.length > INITIAL_TRADES;
+        return (
         <Card className="p-4 md:p-6">
-          <h3 className="font-black mb-4">Letzte Trades</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-black">Letzte Trades</h3>
+            <span className="text-xs text-white/40">{recentTrades.length} Trades</span>
+          </div>
           <div className="space-y-1">
-            {recentTrades.map((trade) => {
+            {visibleTrades.map((trade) => {
               const isBuy = trade.buyer_id === userId;
               const totalCents = trade.price * trade.quantity;
               const unitBsd = centsToBsd(trade.price);
@@ -421,8 +445,17 @@ export default function ProfileOverviewTab({
               );
             })}
           </div>
+          {hasMoreTrades && (
+            <button
+              onClick={() => setShowAllTrades(prev => !prev)}
+              className="w-full mt-3 py-2 text-xs text-white/40 hover:text-white/60 transition-colors"
+            >
+              {showAllTrades ? 'Weniger anzeigen' : `Alle ${recentTrades.length} anzeigen`}
+            </button>
+          )}
         </Card>
-      )}
+        );
+      })()}
 
       {/* Fantasy-Ergebnisse */}
       {fantasyResults.length > 0 && (

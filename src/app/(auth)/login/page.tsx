@@ -414,7 +414,7 @@ function LoginContent() {
                   <span className="text-white/20">·</span>
                   <button
                     onClick={() => { setMode('register'); setError(null); }}
-                    className="text-[#FFD700]/70 hover:text-[#FFD700] transition-colors font-semibold"
+                    className="px-4 py-2 rounded-xl border border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700]/10 transition-all font-bold text-sm"
                   >
                     {t('noAccount')}
                   </button>
