@@ -1298,5 +1298,18 @@
     "ctaDemo": "Canlı Demo Başlat",
     "ctaClubPage": "Kulüp Sayfasını Gör",
     "ctaContact": "İletişim"
+  },
+  "sponsorStats": {
+    "title": "Sponsor KPI'ları",
+    "impressions": "Gösterimler",
+    "clicks": "Tıklamalar",
+    "ctr": "CTR",
+    "estRevenue": "Tahmini Gelir",
+    "placement": "Yerleşim",
+    "sponsor": "Sponsor",
+    "noData": "Henüz takip verisi yok",
+    "days7": "7G",
+    "days30": "30G",
+    "days90": "90G"
   }
 }

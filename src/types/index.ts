@@ -1364,6 +1364,25 @@ export type DbSponsor = {
   updated_at: string;
 };
 
+export type DbSponsorStats = {
+  id: string;
+  sponsor_id: string;
+  placement: string;
+  date: string;
+  impressions: number;
+  clicks: number;
+  created_at: string;
+};
+
+export type SponsorStatsSummary = {
+  sponsor_id: string;
+  sponsor_name: string;
+  placement: string;
+  total_impressions: number;
+  total_clicks: number;
+  ctr: number;
+};
+
 // ============================================
 // TIP TYPES
 // ============================================

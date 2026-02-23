@@ -170,6 +170,7 @@ export const qk = {
   sponsors: {
     all: ['sponsors'] as const,
     byPlacement: (placement: string, scope: string) => ['sponsors', placement, scope] as const,
+    stats: (days: number) => ['sponsors', 'stats', days] as const,
   },
 
   // ── Tips ──

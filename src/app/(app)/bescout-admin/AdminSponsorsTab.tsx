@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Trash2, Edit2, Loader2, ImageIcon, ToggleLeft, ToggleRight } from 'lucide-react';
-import { Card, Button, Chip, Modal } from '@/components/ui';
+import { Plus, Trash2, Edit2, Loader2, ImageIcon, ToggleLeft, ToggleRight, Eye, MousePointerClick, TrendingUp, DollarSign } from 'lucide-react';
+import { Card, Button, Chip, Modal, StatCard } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
 import { getAllSponsors, createSponsor, updateSponsor, deleteSponsor } from '@/lib/services/sponsors';
-import type { DbSponsor, SponsorPlacement } from '@/types';
+import { useSponsorStats } from '@/lib/queries';
+import { fmtScout } from '@/lib/utils';
+import type { DbSponsor, SponsorPlacement, SponsorStatsSummary } from '@/types';
 
 const PLACEMENT_OPTIONS: { value: SponsorPlacement; label: string }[] = [
   { value: 'home_hero', label: 'Home Hero' },
@@ -83,6 +85,8 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
   const [saving, setSaving] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [statsDays, setStatsDays] = useState(30);
+  const { data: stats } = useSponsorStats(statsDays);
 
   const load = useCallback(async () => {
     try {
@@ -189,6 +193,9 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
           <Plus className="w-4 h-4" /> Neu
         </Button>
       </div>
+
+      {/* Stats Dashboard */}
+      <SponsorStatsSection stats={stats ?? []} days={statsDays} onDaysChange={setStatsDays} sponsors={sponsors} />
 
       {sponsors.length === 0 ? (
         <Card className="p-8 text-center">
@@ -332,5 +339,101 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
         </div>
       </Modal>
     </div>
+  );
+}
+
+// ── Stats Dashboard Section ──────────────────────────────
+
+const DAYS_OPTIONS = [7, 30, 90] as const;
+
+function SponsorStatsSection({
+  stats,
+  days,
+  onDaysChange,
+  sponsors,
+}: {
+  stats: SponsorStatsSummary[];
+  days: number;
+  onDaysChange: (d: number) => void;
+  sponsors: DbSponsor[];
+}) {
+  const totalImpressions = stats.reduce((s, r) => s + r.total_impressions, 0);
+  const totalClicks = stats.reduce((s, r) => s + r.total_clicks, 0);
+  const avgCtr = totalImpressions > 0 ? (totalClicks / totalImpressions * 100) : 0;
+
+  // Estimate revenue: sum each row's impressions * sponsor's revenue_cents_per_impression
+  const sponsorMap = new Map(sponsors.map(s => [s.id, s]));
+  const estRevenueCents = stats.reduce((sum, r) => {
+    const sp = sponsorMap.get(r.sponsor_id);
+    const cpi = sp?.revenue_cents_per_impression ?? 0;
+    return sum + r.total_impressions * cpi;
+  }, 0);
+
+  const placementLabel = (key: string) =>
+    PLACEMENT_OPTIONS.find(p => p.value === key)?.label ?? key;
+
+  return (
+    <Card className="p-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <h4 className="font-black text-sm">Sponsor-KPIs</h4>
+        <div className="flex gap-1">
+          {DAYS_OPTIONS.map(d => (
+            <button
+              key={d}
+              onClick={() => onDaysChange(d)}
+              className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-colors min-h-[32px] ${
+                days === d ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/25' : 'bg-white/5 text-white/40 border border-white/10 hover:text-white/60'
+              }`}
+            >
+              {d}T
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatCard label="Impressions" value={fmtScout(totalImpressions)} icon={<Eye className="w-4 h-4" />} />
+        <StatCard label="Clicks" value={fmtScout(totalClicks)} icon={<MousePointerClick className="w-4 h-4" />} />
+        <StatCard label="CTR" value={`${avgCtr.toFixed(2)}%`} icon={<TrendingUp className="w-4 h-4" />} />
+        <StatCard label="Est. Umsatz" value={`${fmtScout(Math.round(estRevenueCents / 100))} $SCOUT`} icon={<DollarSign className="w-4 h-4" />} />
+      </div>
+
+      {stats.length > 0 && (
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-white/40 text-left border-b border-white/[0.06]">
+                <th className="pb-2 font-bold">Sponsor</th>
+                <th className="pb-2 font-bold">Platzierung</th>
+                <th className="pb-2 font-bold text-right">Impressions</th>
+                <th className="pb-2 font-bold text-right">Clicks</th>
+                <th className="pb-2 font-bold text-right">CTR</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats.map((r, i) => (
+                <tr key={`${r.sponsor_id}-${r.placement}-${i}`} className="border-b border-white/[0.04]">
+                  <td className="py-2 font-bold text-white/80">{r.sponsor_name}</td>
+                  <td className="py-2">
+                    <Chip className={`${PLACEMENT_COLORS[r.placement] ?? 'bg-white/10 text-white/50'} border text-[9px]`}>
+                      {placementLabel(r.placement)}
+                    </Chip>
+                  </td>
+                  <td className="py-2 text-right font-mono text-white/60">{fmtScout(r.total_impressions)}</td>
+                  <td className="py-2 text-right font-mono text-white/60">{fmtScout(r.total_clicks)}</td>
+                  <td className="py-2 text-right font-mono text-[#FFD700]">{r.ctr}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {stats.length === 0 && (
+        <div className="text-center text-white/25 text-xs py-4">
+          Noch keine Tracking-Daten vorhanden
+        </div>
+      )}
+    </Card>
   );
 }

@@ -1298,5 +1298,18 @@
     "ctaDemo": "Live Demo starten",
     "ctaClubPage": "Club-Seite ansehen",
     "ctaContact": "Kontakt"
+  },
+  "sponsorStats": {
+    "title": "Sponsor-KPIs",
+    "impressions": "Impressions",
+    "clicks": "Clicks",
+    "ctr": "CTR",
+    "estRevenue": "Est. Umsatz",
+    "placement": "Platzierung",
+    "sponsor": "Sponsor",
+    "noData": "Noch keine Tracking-Daten vorhanden",
+    "days7": "7T",
+    "days30": "30T",
+    "days90": "90T"
   }
 }
