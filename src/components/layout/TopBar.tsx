@@ -11,6 +11,7 @@ import { formatScout } from '@/lib/services/wallet';
 import { FeedbackModal } from '@/components/layout/FeedbackModal';
 import NotificationDropdown from '@/components/layout/NotificationDropdown';
 import SearchOverlay from '@/components/layout/SearchOverlay';
+import AchievementListener from '@/components/providers/AchievementListener';
 import { useNotificationRealtime } from '@/lib/hooks/useNotificationRealtime';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useTranslations } from 'next-intl';
@@ -238,6 +239,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
 
       <SearchOverlay open={spotlightOpen} onClose={() => setSpotlightOpen(false)} />
       <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} pageUrl={pathname} />
+      <AchievementListener notifications={realtimeNotifs} />
     </header>
   );
 });

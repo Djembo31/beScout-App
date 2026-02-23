@@ -49,6 +49,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
   const [sponsorLogo, setSponsorLogo] = useState('');
   const [eventTier, setEventTier] = useState<'arena' | 'club' | 'user'>('club');
   const [minSubTier, setMinSubTier] = useState('');
+  const [salaryCap, setSalaryCap] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -112,6 +113,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     setSponsorLogo('');
     setEventTier('club');
     setMinSubTier('');
+    setSalaryCap('');
   }, []);
 
   const handleCreate = useCallback(async () => {
@@ -136,6 +138,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
         sponsorLogo: type === 'sponsor' ? sponsorLogo : undefined,
         eventTier,
         minSubscriptionTier: minSubTier || null,
+        salaryCap: salaryCap ? parseInt(salaryCap) : null,
       });
       if (!result.success) {
         setError(result.error || 'Event konnte nicht erstellt werden.');
@@ -154,7 +157,11 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     }
   }, [user, name, type, format, gameweek, entryFee, prizePool, maxEntries, startsAt, locksAt, endsAt, club.id, resetForm, sponsorName, sponsorLogo]);
 
+  const [changingId, setChangingId] = useState<string | null>(null);
+
   const handleStatusChange = useCallback(async (eventId: string, newStatus: string) => {
+    if (changingId) return;
+    setChangingId(eventId);
     setError(null);
     try {
       const result = await updateEventStatus(eventId, newStatus);
@@ -166,8 +173,10 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler');
+    } finally {
+      setChangingId(null);
     }
-  }, [club.id]);
+  }, [club.id, changingId]);
 
   if (loading) return <div className="space-y-3">{[...Array(3)].map((_, i) => <Card key={i} className="h-20 animate-pulse" />)}</div>;
 
@@ -288,22 +297,22 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                       <div className="flex items-center gap-2">
                         {ev.status === 'registering' && (
                           <>
-                            <Button variant="gold" size="sm" onClick={() => handleStatusChange(ev.id, 'running')}>
-                              <Play className="w-3 h-3" />Starten
+                            <Button variant="gold" size="sm" onClick={() => handleStatusChange(ev.id, 'running')} disabled={changingId === ev.id}>
+                              {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}Starten
                             </Button>
-                            <Button variant="outline" size="sm" onClick={() => handleStatusChange(ev.id, 'cancelled')}>
-                              <XCircle className="w-3 h-3" />Abbrechen
+                            <Button variant="outline" size="sm" onClick={() => handleStatusChange(ev.id, 'cancelled')} disabled={changingId === ev.id}>
+                              {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <XCircle className="w-3 h-3" />}Abbrechen
                             </Button>
                           </>
                         )}
                         {ev.status === 'running' && (
-                          <Button variant="outline" size="sm" onClick={() => handleStatusChange(ev.id, 'ended')}>
-                            <Square className="w-3 h-3" />Beenden
+                          <Button variant="outline" size="sm" onClick={() => handleStatusChange(ev.id, 'ended')} disabled={changingId === ev.id}>
+                            {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Square className="w-3 h-3" />}Beenden
                           </Button>
                         )}
                         {ev.status === 'scoring' && (
-                          <Button variant="outline" size="sm" onClick={() => handleStatusChange(ev.id, 'ended')}>
-                            <Square className="w-3 h-3" />Abschließen
+                          <Button variant="outline" size="sm" onClick={() => handleStatusChange(ev.id, 'ended')} disabled={changingId === ev.id}>
+                            {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Square className="w-3 h-3" />}Abschließen
                           </Button>
                         )}
                       </div>
@@ -407,6 +416,19 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
             {minSubTier && (
               <p className="mt-1 text-[10px] text-amber-400/70">Nur {minSubTier === 'bronze' ? 'Bronze' : minSubTier === 'silber' ? 'Silber' : 'Gold'}+ Mitglieder können teilnehmen</p>
             )}
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-white/70 mb-1">Salary Cap (optional)</label>
+            <input
+              type="number"
+              inputMode="numeric"
+              min="0"
+              value={salaryCap}
+              onChange={(e) => setSalaryCap(e.target.value)}
+              placeholder="z.B. 400 (Summe der L5-Scores)"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+            />
+            {salaryCap && <p className="mt-1 text-[10px] text-white/40">Max. Summe der L5-Scores aller Spieler im Lineup</p>}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>

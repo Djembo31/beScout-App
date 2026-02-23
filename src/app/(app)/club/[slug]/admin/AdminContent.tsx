@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  BarChart3, Users, Trophy, Vote, DollarSign, Settings, Loader2, Target, Shield, Activity, Wallet, Telescope,
+  BarChart3, Users, Trophy, Vote, DollarSign, Settings, Loader2, Target, Shield, Activity, Wallet, Telescope, Heart,
 } from 'lucide-react';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getClubBySlug } from '@/lib/services/club';
@@ -19,6 +19,7 @@ import AdminModerationTab from '@/components/admin/AdminModerationTab';
 import AdminAnalyticsTab from '@/components/admin/AdminAnalyticsTab';
 import AdminWithdrawalTab from '@/components/admin/AdminWithdrawalTab';
 import AdminScoutingTab from '@/components/admin/AdminScoutingTab';
+import AdminFansTab from '@/components/admin/AdminFansTab';
 import { canAccessTab, getRoleBadge, type AdminTab } from '@/lib/adminRoles';
 import type { ClubWithAdmin } from '@/types';
 
@@ -31,6 +32,7 @@ const ADMIN_TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
   { id: 'scouting', label: 'Scouting', icon: Telescope },
   { id: 'moderation', label: 'Moderation', icon: Shield },
   { id: 'analytics', label: 'Fan-Analyse', icon: Activity },
+  { id: 'fans', label: 'Fans CRM', icon: Heart },
   { id: 'revenue', label: 'Einnahmen', icon: DollarSign },
   { id: 'withdrawal', label: 'Auszahlung', icon: Wallet },
   { id: 'settings', label: 'Einstellungen', icon: Settings },
@@ -148,6 +150,7 @@ export default function AdminContent({ slug }: { slug: string }) {
       {tab === 'scouting' && <AdminScoutingTab club={club} />}
       {tab === 'moderation' && <AdminModerationTab club={club} />}
       {tab === 'analytics' && <AdminAnalyticsTab club={club} />}
+      {tab === 'fans' && <AdminFansTab club={club} />}
       {tab === 'revenue' && <AdminRevenueTab club={club} />}
       {tab === 'withdrawal' && <AdminWithdrawalTab club={club} />}
       {tab === 'settings' && <AdminSettingsTab club={club} />}

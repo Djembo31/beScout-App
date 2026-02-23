@@ -4,12 +4,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Inbox, Send, Globe, Clock,
   Check, X, RotateCcw, MessageSquare,
-  ArrowRight, Search, Plus,
+  ArrowRight, Search, Plus, Loader2,
 } from 'lucide-react';
 import { Card, Button, Modal } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
+import { useErrorToast } from '@/lib/hooks/useErrorToast';
 import {
   getIncomingOffers, getOutgoingOffers, getOpenBids, getOfferHistory,
   acceptOffer, rejectOffer, counterOffer, cancelOffer, createOffer,
@@ -65,7 +66,7 @@ function StatusBadge({ status }: { status: string }) {
 // ============================================
 
 function OfferCard({
-  offer, userId, onAccept, onReject, onCounter, onCancel,
+  offer, userId, onAccept, onReject, onCounter, onCancel, actionId,
 }: {
   offer: OfferWithDetails;
   userId: string;
@@ -73,6 +74,7 @@ function OfferCard({
   onReject?: () => void;
   onCounter?: () => void;
   onCancel?: () => void;
+  actionId?: string | null;
 }) {
   const isIncoming = offer.receiver_id === userId || (offer.receiver_id === null && offer.sender_id !== userId);
   const isSender = offer.sender_id === userId;
@@ -139,16 +141,18 @@ function OfferCard({
               {isIncoming && onAccept && (
                 <button
                   onClick={onAccept}
-                  className="p-1.5 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors"
+                  disabled={actionId === offer.id}
+                  className="p-1.5 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors disabled:opacity-50"
                   title="Annehmen"
                 >
-                  <Check className="w-4 h-4" />
+                  {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 </button>
               )}
               {isIncoming && onCounter && (
                 <button
                   onClick={onCounter}
-                  className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
+                  disabled={actionId === offer.id}
+                  className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors disabled:opacity-50"
                   title="Gegenangebot"
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -157,19 +161,21 @@ function OfferCard({
               {(isIncoming && onReject) && (
                 <button
                   onClick={onReject}
-                  className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
+                  disabled={actionId === offer.id}
+                  className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors disabled:opacity-50"
                   title="Ablehnen"
                 >
-                  <X className="w-4 h-4" />
+                  {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
                 </button>
               )}
               {isSender && onCancel && (
                 <button
                   onClick={onCancel}
-                  className="p-1.5 rounded-lg bg-white/10 text-white/40 hover:bg-white/20 transition-colors"
+                  disabled={actionId === offer.id}
+                  className="p-1.5 rounded-lg bg-white/10 text-white/40 hover:bg-white/20 transition-colors disabled:opacity-50"
                   title="ZurÃ¼ckziehen"
                 >
-                  <X className="w-4 h-4" />
+                  {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
                 </button>
               )}
             </div>
@@ -377,12 +383,15 @@ function CreateOfferModal({
 export default function ManagerOffersTab({ players }: { players: Player[] }) {
   const { user } = useUser();
   const { addToast } = useToast();
+  const { showError } = useErrorToast();
   const [subTab, setSubTab] = useState<SubTab>('incoming');
   const [offers, setOffers] = useState<OfferWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [counterModal, setCounterModal] = useState<OfferWithDetails | null>(null);
   const [counterPrice, setCounterPrice] = useState('');
+  const [actionId, setActionId] = useState<string | null>(null);
+  const [countering, setCountering] = useState(false);
 
   const uid = user?.id;
 
@@ -406,39 +415,46 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
   useEffect(() => { loadOffers(); }, [loadOffers]);
 
   const handleAccept = async (offerId: string) => {
-    if (!uid) return;
+    if (!uid || actionId) return;
+    setActionId(offerId);
     try {
       const result = await acceptOffer(uid, offerId);
       if (result.success) {
         addToast('Angebot angenommen', 'success');
         loadOffers();
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        showError(result.error ?? 'generic');
       }
     } catch (e) {
-      addToast(e instanceof Error ? e.message : 'Fehler', 'error');
+      showError(e);
+    } finally {
+      setActionId(null);
     }
   };
 
   const handleReject = async (offerId: string) => {
-    if (!uid) return;
+    if (!uid || actionId) return;
+    setActionId(offerId);
     try {
       const result = await rejectOffer(uid, offerId);
       if (result.success) {
         addToast('Angebot abgelehnt', 'success');
         loadOffers();
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        showError(result.error ?? 'generic');
       }
     } catch (e) {
-      addToast(e instanceof Error ? e.message : 'Fehler', 'error');
+      showError(e);
+    } finally {
+      setActionId(null);
     }
   };
 
   const handleCounter = async () => {
-    if (!uid || !counterModal || !counterPrice) return;
+    if (!uid || !counterModal || !counterPrice || countering) return;
     const priceCents = Math.round(parseFloat(counterPrice) * 100);
-    if (priceCents <= 0) { addToast('UngÃ¼ltiger Preis', 'error'); return; }
+    if (priceCents <= 0) { addToast('Ungültiger Preis', 'error'); return; }
+    setCountering(true);
     try {
       const result = await counterOffer(uid, counterModal.id, priceCents);
       if (result.success) {
@@ -447,25 +463,30 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
         setCounterPrice('');
         loadOffers();
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        showError(result.error ?? 'generic');
       }
     } catch (e) {
-      addToast(e instanceof Error ? e.message : 'Fehler', 'error');
+      showError(e);
+    } finally {
+      setCountering(false);
     }
   };
 
   const handleCancel = async (offerId: string) => {
-    if (!uid) return;
+    if (!uid || actionId) return;
+    setActionId(offerId);
     try {
       const result = await cancelOffer(uid, offerId);
       if (result.success) {
-        addToast('Angebot zurÃ¼ckgezogen', 'success');
+        addToast('Angebot zurückgezogen', 'success');
         loadOffers();
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        showError(result.error ?? 'generic');
       }
     } catch (e) {
-      addToast(e instanceof Error ? e.message : 'Fehler', 'error');
+      showError(e);
+    } finally {
+      setActionId(null);
     }
   };
 
@@ -532,6 +553,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
               key={offer.id}
               offer={offer}
               userId={uid!}
+              actionId={actionId}
               onAccept={subTab === 'incoming' || subTab === 'open' ? () => handleAccept(offer.id) : undefined}
               onReject={subTab === 'incoming' ? () => handleReject(offer.id) : undefined}
               onCounter={subTab === 'incoming' ? () => { setCounterModal(offer); setCounterPrice(String(centsToBsd(offer.price))); } : undefined}
@@ -567,8 +589,8 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white font-mono focus:outline-none focus:border-[#FFD700]/30"
               />
             </div>
-            <Button onClick={handleCounter} className="w-full">
-              Gegenangebot senden
+            <Button onClick={handleCounter} disabled={countering} className="w-full">
+              {countering ? <><Loader2 className="w-4 h-4 animate-spin" /> Wird gesendet...</> : 'Gegenangebot senden'}
             </Button>
           </div>
         </Modal>

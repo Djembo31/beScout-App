@@ -38,6 +38,7 @@ export default function TipButton({
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [customAmount, setCustomAmount] = useState('');
   const ref = useRef<HTMLDivElement>(null);
   const qc = useQueryClient();
 
@@ -74,6 +75,7 @@ export default function TipButton({
 
     setSuccess(true);
     setOpen(false);
+    setCustomAmount('');
     setTimeout(() => setSuccess(false), 3000);
 
     // Invalidate tips + wallet + transactions
@@ -97,7 +99,7 @@ export default function TipButton({
         onClick={() => { setOpen(!open); setError(null); }}
         className={cn(
           'flex items-center gap-1 transition-colors text-xs',
-          success ? 'text-pink-400' : 'text-white/40 hover:text-pink-400'
+          success ? 'text-[#FFD700] animate-pulse' : 'text-white/40 hover:text-pink-400'
         )}
         aria-label="Tipp senden"
       >
@@ -124,6 +126,27 @@ export default function TipButton({
               </button>
             ))}
           </div>
+          {/* Custom Amount */}
+          <div className="mt-2 flex gap-1.5">
+            <input
+              type="number"
+              inputMode="numeric"
+              min="1"
+              max="10000"
+              value={customAmount}
+              onChange={e => setCustomAmount(e.target.value)}
+              placeholder="Betrag..."
+              className="flex-1 px-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-base text-white font-mono text-sm placeholder:text-white/30 focus:outline-none focus:border-pink-500/30 min-w-0"
+            />
+            <button
+              disabled={sending || !customAmount || Number(customAmount) < 1 || Number(customAmount) > 10000}
+              onClick={() => { const c = Math.floor(Number(customAmount) * 100); if (c >= 100) handleSend(c); }}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-pink-500/15 text-pink-300 hover:bg-pink-500/25 transition-colors border border-pink-500/20 disabled:opacity-40 whitespace-nowrap"
+            >
+              {sending ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Senden'}
+            </button>
+          </div>
+          <div className="text-[9px] text-white/25 mt-1">Max. 10.000 $SCOUT</div>
           {error && (
             <div className="mt-2 text-[10px] text-red-400 bg-red-500/10 rounded-lg px-2 py-1">{error}</div>
           )}

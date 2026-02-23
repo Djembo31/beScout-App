@@ -54,7 +54,7 @@ export async function applyReferralCode(userId: string, referrerCode: string): P
   return { success: true };
 }
 
-/** Fire-and-forget: reward referrer when referee makes first trade */
+/** Fire-and-forget: reward referrer (500 $SCOUT) + referee (250 $SCOUT) on first trade */
 export async function triggerReferralReward(refereeId: string): Promise<void> {
   try {
     const { data, error } = await supabase.rpc('reward_referral', { p_referee_id: refereeId });
@@ -62,19 +62,11 @@ export async function triggerReferralReward(refereeId: string): Promise<void> {
       console.error('[Referral] RPC error:', error.message);
       return;
     }
-    const result = data as { success: boolean; reason?: string; referrer_id?: string };
-    if (result.success && result.referrer_id) {
-      // Notify referrer about reward
-      import('@/lib/services/notifications').then(({ createNotification }) => {
-        createNotification(
-          result.referrer_id!,
-          'referral_reward',
-          'Empfehlungsbonus erhalten!',
-          'Dein eingeladener Freund hat seinen ersten Trade gemacht — du erhältst 500 $SCOUT!',
-        );
-      }).catch(err => console.error('[Referral] Notification failed:', err));
-      // Referrer airdrop refresh handled by periodic pg_cron job
+    const result = data as { success: boolean; reason?: string; referrer_id?: string; referee_reward?: number };
+    if (!result.success) {
+      // Already rewarded or no referrer — expected, not an error
     }
+    // Notifications are handled inside the RPC — no client-side notification needed
   } catch (err) {
     console.error('[Referral] triggerReferralReward failed:', err);
   }

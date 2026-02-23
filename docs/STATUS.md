@@ -3,7 +3,44 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 9** – 201 Migrations, 22 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 13 Gamification-Triggers. Build sauber (0 Fehler). Player Detail: Sorare-Level Redesign — TradingCardFrame (3:4, Position-Glow, Foil/Holo), ScoreMasteryStrip, Vertical GW-Bars, TradeHistoryChips, Glass MobileTradingBar. **Beta-Launch ready + Sorare-Level Player Detail.**
+**Woche 9** – 206 Migrations, 22 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 13 Gamification-Triggers. Build sauber (0 Fehler). **11 Feature-Sprints abgeschlossen: Double-Submit Guards, Home Hero, Achievement Modal, Daily Quests, Post-Event Summary, Error Mapping, Salary Cap, Private Ligen, Referral Double-Sided, Tip Enhancements, CRM-Basics.**
+
+## Session 23.02.2026 (131) – 11 Feature-Sprints (360-Grad-Evaluation)
+
+### Änderungen
+- **Sprint 1: Double-Submit Guards** — ManagerOffersTab (accept/reject/cancel/counter), EventDetailModal (join/leave), AdminEventsTab (statusChange). Pattern: per-item `actionId` state + `Loader2` spinner + `try/finally`.
+- **Sprint 2: Home Hero** — `HomeHero.tsx` (~120Z): Rang-Badge, Progress-Bar (Score→Next Tier), 3 Dimension Mini-Bars, Quick-Stats, klickbar→/profile. Empty State CTA.
+- **Sprint 3: Achievement Modal** — `AchievementUnlockModal.tsx` (~100Z): Confetti, 64px Emoji, Category-Badge. `AchievementListener.tsx` (~70Z): watches notifications array, localStorage dedup, Queue-System.
+- **Sprint 4: Daily Quests** — MissionBanner dynamic import auf Home Page.
+- **Sprint 5: Post-Event Summary** — `EventSummaryModal.tsx` (~100Z): Rank Medals, Score, Reward, Top-3 Mini-Leaderboard, CTA→/market. Auto-Detection in FantasyContent via localStorage "seen" tracking.
+- **Sprint 6: Error Mapping** — `errorMessages.ts` (~80Z): 20 Regex→i18n-Key Patterns. `useErrorToast.ts` (~25Z) Hook. ManagerOffersTab migriert.
+- **Sprint 7: Salary Cap** — Migration #203 (`salary_cap BIGINT` auf events). Budget-Bar in EventDetailModal (grün/gelb/rot), Admin-Input in AdminEventsTab.
+- **Sprint 8: Private Ligen** — Migrations #204 (Tabellen) + #205 (RPCs). `fantasy_leagues` + `fantasy_league_members`, `create_league`/`join_league`/`leave_league`/`get_league_leaderboard` RPCs. `LeaguesSection.tsx` (~295Z), 5. Fantasy-Tab "Ligen".
+- **Sprint 9: Referral Double-Sided** — Migration #206: `reward_referral` RPC updated, Referee bekommt 250 $SCOUT Welcome-Bonus. Service bereinigt (Notifications in RPC).
+- **Sprint 10: Tip Enhancements** — Custom Amount Input (1-10.000 $SCOUT) mit `inputMode="numeric"`, Gold-Shimmer (`text-[#FFD700] animate-pulse`) bei Success.
+- **Sprint 11: CRM-Basics** — `clubCrm.ts` (~170Z): Segments (All/Free/Bronze/Silber/Gold/Trader), FanList, RetentionMetrics (DAU/WAU/MAU). `AdminFansTab.tsx` (~200Z): Segment-Cards, KPI-Kacheln, Fan-Liste mit Search. 12. Admin-Tab.
+
+### Neue Dateien (12)
+- `src/components/home/HomeHero.tsx`, `src/components/gamification/AchievementUnlockModal.tsx`, `src/components/providers/AchievementListener.tsx`, `src/components/fantasy/EventSummaryModal.tsx`, `src/lib/errorMessages.ts`, `src/lib/hooks/useErrorToast.ts`, `src/lib/services/fantasyLeagues.ts`, `src/lib/queries/fantasyLeagues.ts`, `src/components/fantasy/LeaguesSection.tsx`, `src/lib/services/clubCrm.ts`, `src/components/admin/AdminFansTab.tsx`
+
+### Migrations (4)
+- #203: `add_salary_cap_to_events`
+- #204: `create_fantasy_leagues` (Tabellen + RLS)
+- #205: `fantasy_league_rpcs` (4 RPCs)
+- #206: `referral_double_sided` (Referee-Bonus)
+
+## Session 23.02.2026 (130) – TradingCardFrame Redesign-Iterationen + Notification Bug Fixes
+
+### Änderungen
+- **TradingCardFrame Redesign (3 Iterationen):** v1 full-bleed rejected (Headshots funktionieren nicht), v2 Photo-Constraint+Logo-Fix rejected (immer noch full-bleed), v3 Premium Portrait gewählt: Circle Photo (88-100px) mit Position-Glow-Ring (`posRingGlow` Box-Shadow), Diagonal Stripe Texture (`repeating-linear-gradient 135deg, 4% opacity`), Gold Separator (`via-[#FFD700]/40`), Mini ScoreCircle (34px), Ambient Radial Glow (scale 1.4×).
+- **Shimmer-Logik:** User bestätigte L5-basiert (≥80 holo-rainbow, ≥65 foil-shimmer, <65 none). "Alle shimmen" getestet und verworfen.
+- **Notification Bug 1 — REPLICA IDENTITY:** Migration #202: `ALTER TABLE notifications REPLICA IDENTITY FULL`. Supabase Realtime braucht FULL für `user_id`-gefilterte INSERT Events.
+- **Notification Bug 2 — Refetch on Open:** `useNotificationRealtime` Hook: `fetchNotifications()` als reusable `useCallback` mit `fetchIdRef` Stale-Guard. Exponiert als `refetch`. TopBar ruft `refetchNotifs()` beim Dropdown-Öffnen auf.
+
+### Dateien (1 Migration + 3 modifiziert)
+- Migration #202: `ALTER TABLE notifications REPLICA IDENTITY FULL`
+- REWRITE: `TradingCardFrame.tsx` (Premium Portrait Style)
+- MODIFIED: `useNotificationRealtime.ts` (refetch + stale guard), `TopBar.tsx` (refetch on open)
 
 ## Session 23.02.2026 (129) – Player Detail Page — Sorare-Level Redesign
 

@@ -35,6 +35,8 @@ import { updateLoginStreak, STREAK_KEY, SectionHeader, formatPrize, getTimeUntil
 
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 const OnboardingChecklist = dynamic(() => import('@/components/onboarding/OnboardingChecklist'), { ssr: false });
+const HomeHero = dynamic(() => import('@/components/home/HomeHero'), { ssr: false });
+const MissionBanner = dynamic(() => import('@/components/missions/MissionBanner'), { ssr: false });
 
 import type { DpcHolding, DbEvent, Pos } from '@/types';
 
@@ -166,6 +168,8 @@ export default function HomePage() {
       />
 
       {uid && <OnboardingChecklist userId={uid} name={firstName} />}
+      <HomeHero userStats={userStats} scoutScores={scoutScores} />
+      {uid && <MissionBanner />}
       <SponsorBanner placement="home_hero" />
       <div className="floodlight-divider" />
 

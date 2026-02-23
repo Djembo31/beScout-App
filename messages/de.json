@@ -209,7 +209,16 @@
     "topTraders": "Top Trader",
     "sevenDays": "7 Tage",
     "trades": "Trades",
-    "streakDays": "Tage"
+    "streakDays": "Tage",
+    "hero": {
+      "startTitle": "Dein Scout-Rang",
+      "startCta": "Starte deinen Weg zum Top-Scout",
+      "profile": "Profil",
+      "progress": "Fortschritt",
+      "trades": "Trades",
+      "events": "Events",
+      "achievements": "Erfolge"
+    }
   },
   "fantasy": {
     "title": "Spieltag",
@@ -254,7 +263,18 @@
     "tablePrize": "Prize",
     "tablePlayers": "Spieler",
     "tableAction": "Aktion",
-    "predictions": "Vorhersagen"
+    "predictions": "Vorhersagen",
+    "leagues": "Ligen",
+    "summary": {
+      "title": "Event-Ergebnis",
+      "rank": "Platz",
+      "played": "Teilgenommen",
+      "score": "Punkte",
+      "reward": "Belohnung",
+      "top3": "Top 3",
+      "close": "Schließen",
+      "buyCta": "Aufstocken"
+    }
   },
   "predictions": {
     "title": "Vorhersagen",
@@ -308,6 +328,33 @@
     "statsTitle": "Vorhersage-Statistiken",
     "noPredictions": "Noch keine Vorhersagen",
     "viewAll": "Alle Vorhersagen"
+  },
+  "leagues": {
+    "title": "Meine Ligen",
+    "create": "Erstellen",
+    "join": "Beitreten",
+    "createTitle": "Liga erstellen",
+    "joinTitle": "Liga beitreten",
+    "nameLabel": "Liga-Name",
+    "namePlaceholder": "z.B. Unsere Fantasy Liga",
+    "maxLabel": "Max. Mitglieder",
+    "codeLabel": "Einladungscode",
+    "codePlaceholder": "Code eingeben...",
+    "creating": "Wird erstellt...",
+    "joining": "Trete bei...",
+    "created": "Liga erstellt!",
+    "joined": "Beigetreten",
+    "left": "Liga verlassen",
+    "leaveConfirm": "Möchtest du diese Liga wirklich verlassen?",
+    "leave": "Verlassen",
+    "copyCode": "Code kopieren",
+    "codeCopied": "Einladungscode kopiert!",
+    "leaderboard": "Rangliste",
+    "noData": "Noch keine Daten",
+    "events": "Events",
+    "best": "Best",
+    "emptyTitle": "Keine Ligen",
+    "emptyDesc": "Erstelle eine Liga oder tritt einer bei, um mit Freunden zu spielen."
   },
   "market": {
     "title": "Manager Office",
@@ -792,6 +839,13 @@
     "analytics": "Fan-Analyse",
     "scouting": "Scouting"
   },
+  "adminFans": {
+    "totalFollowers": "Follower",
+    "subscribers": "Abonnenten",
+    "searchFans": "Fan suchen...",
+    "fans": "Fans",
+    "noFans": "Noch keine Fans in diesem Segment"
+  },
   "notifications": {
     "title": "Benachrichtigungen",
     "markAllRead": "Alle gelesen",
@@ -1094,6 +1148,38 @@
     "errorEval": "Alle 5 Dimensionen + Texte ausfüllen",
     "publishScouting": "Scouting-Report veröffentlichen",
     "publishResearch": "Bericht veröffentlichen"
+  },
+  "achievement": {
+    "unlocked": "Erfolg freigeschaltet!",
+    "continue": "Weiter",
+    "viewAll": "Alle ansehen",
+    "category": {
+      "trading": "Trading",
+      "manager": "Manager",
+      "scout": "Scout"
+    }
+  },
+  "errors": {
+    "generic": "Ein Fehler ist aufgetreten. Bitte versuche es erneut.",
+    "insufficientBalance": "Nicht genügend $SCOUT-Guthaben.",
+    "playerLiquidated": "Dieser Spieler wurde liquidiert und kann nicht mehr gehandelt werden.",
+    "notEnoughDpc": "Du besitzt nicht genügend DPCs für diese Aktion.",
+    "orderNotFound": "Die Order wurde nicht gefunden oder ist abgelaufen.",
+    "cannotBuyOwn": "Du kannst deine eigene Order nicht kaufen.",
+    "alreadyJoined": "Du bist bereits für dieses Event angemeldet.",
+    "eventFull": "Das Event ist voll. Keine Plätze mehr verfügbar.",
+    "eventClosed": "Die Anmeldung für dieses Event ist geschlossen.",
+    "lineupIncomplete": "Bitte stelle deine komplette Aufstellung auf.",
+    "offerExpired": "Dieses Angebot ist abgelaufen.",
+    "offerAlreadyHandled": "Dieses Angebot wurde bereits bearbeitet.",
+    "alreadyExists": "Dieser Eintrag existiert bereits.",
+    "notFound": "Nicht gefunden.",
+    "permissionDenied": "Keine Berechtigung für diese Aktion.",
+    "rateLimited": "Zu viele Anfragen. Bitte warte einen Moment.",
+    "networkError": "Netzwerkfehler. Bitte prüfe deine Verbindung.",
+    "timeout": "Die Anfrage hat zu lange gedauert. Bitte versuche es erneut.",
+    "subscriptionRequired": "Ein Club-Abo wird für diese Aktion benötigt.",
+    "tierTooLow": "Dein Abo-Tier ist zu niedrig für diese Aktion."
   },
   "legal": {
     "cookieText": "Diese Seite nutzt Cookies für Funktionalität und Analyse.",

@@ -209,7 +209,16 @@
     "topTraders": "En İyi Tüccarlar",
     "sevenDays": "7 Gün",
     "trades": "İşlemler",
-    "streakDays": "Gün"
+    "streakDays": "Gün",
+    "hero": {
+      "startTitle": "Scout Rütben",
+      "startCta": "Top Scout olma yolculuğuna başla",
+      "profile": "Profil",
+      "progress": "İlerleme",
+      "trades": "İşlem",
+      "events": "Etkinlik",
+      "achievements": "Başarı"
+    }
   },
   "fantasy": {
     "title": "Maç Günü",
@@ -254,7 +263,18 @@
     "tablePrize": "Ödül",
     "tablePlayers": "Oyuncu",
     "tableAction": "İşlem",
-    "predictions": "Tahminler"
+    "predictions": "Tahminler",
+    "leagues": "Ligler",
+    "summary": {
+      "title": "Etkinlik Sonucu",
+      "rank": "Sıralama",
+      "played": "Katıldın",
+      "score": "Puan",
+      "reward": "Ödül",
+      "top3": "İlk 3",
+      "close": "Kapat",
+      "buyCta": "Güçlendir"
+    }
   },
   "predictions": {
     "title": "Tahminler",
@@ -308,6 +328,33 @@
     "statsTitle": "Tahmin İstatistikleri",
     "noPredictions": "Henüz tahmin yok",
     "viewAll": "Tüm tahminler"
+  },
+  "leagues": {
+    "title": "Liglerim",
+    "create": "Oluştur",
+    "join": "Katıl",
+    "createTitle": "Lig Oluştur",
+    "joinTitle": "Lige Katıl",
+    "nameLabel": "Lig Adı",
+    "namePlaceholder": "örn. Bizim Fantasy Ligi",
+    "maxLabel": "Maks. Üye",
+    "codeLabel": "Davet Kodu",
+    "codePlaceholder": "Kod girin...",
+    "creating": "Oluşturuluyor...",
+    "joining": "Katılıyor...",
+    "created": "Lig oluşturuldu!",
+    "joined": "Katıldın",
+    "left": "Ligden ayrıldın",
+    "leaveConfirm": "Bu ligden ayrılmak istediğine emin misin?",
+    "leave": "Ayrıl",
+    "copyCode": "Kodu kopyala",
+    "codeCopied": "Davet kodu kopyalandı!",
+    "leaderboard": "Sıralama",
+    "noData": "Henüz veri yok",
+    "events": "Etkinlik",
+    "best": "En iyi",
+    "emptyTitle": "Lig yok",
+    "emptyDesc": "Bir lig oluştur veya katıl, arkadaşlarınla oyna."
   },
   "market": {
     "title": "Menajer Ofisi",
@@ -792,6 +839,13 @@
     "analytics": "Fan Analizi",
     "scouting": "Keşif"
   },
+  "adminFans": {
+    "totalFollowers": "Takipçi",
+    "subscribers": "Aboneler",
+    "searchFans": "Fan ara...",
+    "fans": "Fan",
+    "noFans": "Bu segmentte henüz fan yok"
+  },
   "notifications": {
     "title": "Bildirimler",
     "markAllRead": "Tümünü okundu işaretle",
@@ -1094,6 +1148,38 @@
     "errorEval": "Tüm 5 boyut + metinleri doldurun",
     "publishScouting": "Keşif Raporunu yayınla",
     "publishResearch": "Raporu yayınla"
+  },
+  "achievement": {
+    "unlocked": "Başarı açıldı!",
+    "continue": "Devam",
+    "viewAll": "Tümünü gör",
+    "category": {
+      "trading": "Trading",
+      "manager": "Menajer",
+      "scout": "Scout"
+    }
+  },
+  "errors": {
+    "generic": "Bir hata oluştu. Lütfen tekrar deneyin.",
+    "insufficientBalance": "Yeterli $SCOUT bakiyeniz yok.",
+    "playerLiquidated": "Bu oyuncu tasfiye edildi ve artık işlem yapılamaz.",
+    "notEnoughDpc": "Bu işlem için yeterli DPC'niz yok.",
+    "orderNotFound": "Emir bulunamadı veya süresi doldu.",
+    "cannotBuyOwn": "Kendi emirinizi satın alamazsınız.",
+    "alreadyJoined": "Bu etkinliğe zaten kayıtlısınız.",
+    "eventFull": "Etkinlik dolu. Boş yer yok.",
+    "eventClosed": "Bu etkinliğe kayıt kapandı.",
+    "lineupIncomplete": "Lütfen kadronuzu tamamlayın.",
+    "offerExpired": "Bu teklifin süresi doldu.",
+    "offerAlreadyHandled": "Bu teklif zaten işlendi.",
+    "alreadyExists": "Bu kayıt zaten mevcut.",
+    "notFound": "Bulunamadı.",
+    "permissionDenied": "Bu işlem için yetkiniz yok.",
+    "rateLimited": "Çok fazla istek. Lütfen biraz bekleyin.",
+    "networkError": "Ağ hatası. Bağlantınızı kontrol edin.",
+    "timeout": "İstek zaman aşımına uğradı. Lütfen tekrar deneyin.",
+    "subscriptionRequired": "Bu işlem için kulüp aboneliği gerekiyor.",
+    "tierTooLow": "Abonelik seviyeniz bu işlem için yetersiz."
   },
   "legal": {
     "cookieText": "Bu site işlevsellik ve analiz için çerezler kullanmaktadır.",

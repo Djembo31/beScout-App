@@ -566,6 +566,7 @@ export type DbEvent = {
   tier_bonuses?: Record<string, number> | null;
   min_tier?: string | null;
   min_subscription_tier?: string | null;
+  salary_cap?: number | null;
   created_at: string;
 };
 
@@ -992,6 +993,37 @@ export type NotificationPreferences = {
   bounties: boolean;
   rewards: boolean;
   updated_at: string;
+};
+
+// ============================================
+// FANTASY LEAGUES
+// ============================================
+
+export type DbFantasyLeague = {
+  id: string;
+  name: string;
+  created_by: string;
+  invite_code: string;
+  max_members: number;
+  season: string;
+  created_at: string;
+  member_count?: number;
+};
+
+export type DbFantasyLeagueMember = {
+  league_id: string;
+  user_id: string;
+  joined_at: string;
+};
+
+export type LeagueLeaderboardEntry = {
+  user_id: string;
+  handle: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+  total_score: number;
+  events_played: number;
+  best_rank: number | null;
 };
 
 // ============================================

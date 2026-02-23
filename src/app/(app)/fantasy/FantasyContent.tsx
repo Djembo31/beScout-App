@@ -28,6 +28,9 @@ import {
 } from '@/components/fantasy';
 
 import { useClub } from '@/components/providers/ClubProvider';
+import EventSummaryModal from '@/components/fantasy/EventSummaryModal';
+
+const LeaguesSection = dynamic(() => import('@/components/fantasy/LeaguesSection'), { ssr: false });
 
 // Lazy-load EventDetailModal (1387 lines) — only loaded when user opens an event
 const EventDetailModal = dynamic(
@@ -93,6 +96,7 @@ function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userLineup?:
     scoredAt: db.scored_at,
     eventTier: db.event_tier ?? 'club',
     minSubscriptionTier: db.min_subscription_tier ?? null,
+    salaryCap: db.salary_cap ? centsToBsd(db.salary_cap) : null,
     requirements: { dpcPerSlot: 1 },
     rewards: [
       { rank: '1st', reward: 'Champion Badge' },
@@ -159,6 +163,8 @@ export default function FantasyContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [lineupMap, setLineupMap] = useState<Map<string, { total_score: number | null; rank: number | null; reward_amount: number }>>(new Map());
+  const [summaryEvent, setSummaryEvent] = useState<FantasyEvent | null>(null);
+  const [summaryLeaderboard, setSummaryLeaderboard] = useState<import('@/lib/services/scoring').LeaderboardEntry[]>([]);
 
   // Sync selectedGameweek with activeGw on first load
   useEffect(() => {
@@ -188,6 +194,21 @@ export default function FantasyContent() {
     }).catch(err => console.error('[Fantasy] Lineup load failed:', err));
     return () => { cancelled = true; };
   }, [dbEvents, joinedSet, userId]);
+
+  // Check for unseen scored events → show summary modal
+  useEffect(() => {
+    if (lineupMap.size === 0 || !userId) return;
+    const { isEventSeen } = require('@/components/fantasy/EventSummaryModal');
+    const scoredJoined = dbEvents.filter(e => e.scored_at && joinedSet.has(e.id));
+    const unseen = scoredJoined.find(e => !isEventSeen(e.id));
+    if (!unseen) return;
+    const lineup = lineupMap.get(unseen.id);
+    const ev = dbEventToFantasyEvent(unseen, joinedSet, lineup);
+    setSummaryEvent(ev);
+    import('@/lib/services/scoring').then(({ getEventLeaderboard }) => {
+      getEventLeaderboard(unseen.id).then(setSummaryLeaderboard).catch(() => {});
+    });
+  }, [lineupMap, dbEvents, joinedSet, userId]);
 
   // Derive events from React Query data
   const events = useMemo(() => {
@@ -535,12 +556,13 @@ export default function FantasyContent() {
         </div>
       </div>
 
-      {/* SEGMENT TABS — 4 Tabs */}
+      {/* SEGMENT TABS — 5 Tabs */}
       <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-x-auto">
         {([
           { id: 'spieltag' as FantasyTab, label: `${t('gameweek')} ${activeGw}`, icon: Calendar },
           { id: 'events' as FantasyTab, label: t('events'), icon: Globe, count: activeEvents.length },
           { id: 'predictions' as FantasyTab, label: t('predictions'), icon: Target },
+          { id: 'leagues' as FantasyTab, label: t('leagues'), icon: Trophy },
           { id: 'history' as FantasyTab, label: t('history'), icon: History },
         ]).map(tab => (
           <button
@@ -632,6 +654,9 @@ export default function FantasyContent() {
         <PredictionsTab gameweek={currentGw} userId={user.id} />
       )}
 
+      {/* ========== LEAGUES TAB ========== */}
+      {mainTab === 'leagues' && <LeaguesSection />}
+
       {/* ========== HISTORY TAB ========== */}
       {mainTab === 'history' && (
         <HistoryTab
@@ -667,6 +692,21 @@ export default function FantasyContent() {
         onClose={() => setShowCreateModal(false)}
         onCreate={handleCreateEvent}
       />
+
+      {/* POST-EVENT SUMMARY MODAL */}
+      {summaryEvent && (
+        <EventSummaryModal
+          event={summaryEvent}
+          leaderboard={summaryLeaderboard}
+          open={true}
+          onClose={() => {
+            const { markEventSeen } = require('@/components/fantasy/EventSummaryModal');
+            markEventSeen(summaryEvent.id);
+            setSummaryEvent(null);
+            setSummaryLeaderboard([]);
+          }}
+        />
+      )}
 
     </div>
   );

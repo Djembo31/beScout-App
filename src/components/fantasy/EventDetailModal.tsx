@@ -9,7 +9,7 @@ import {
   Briefcase, Coins, Layers, Zap,
   Plus, Save, Eye, Sparkles, Building2,
   MessageCircle, X, RefreshCw, Heart,
-  ChevronLeft, BarChart3, History, Swords, ShoppingCart,
+  ChevronLeft, BarChart3, History, Swords, ShoppingCart, Loader2,
 } from 'lucide-react';
 import { getScoreTier, SCORE_TIER_CONFIG, calculateSynergyPreview } from '@/types';
 import type { SynergyDetail } from '@/types';
@@ -44,7 +44,7 @@ export const EventDetailModal = ({
   event: FantasyEvent | null;
   isOpen: boolean;
   onClose: () => void;
-  onJoin: (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null) => void;
+  onJoin: (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null) => void | Promise<void>;
   onLeave: (event: FantasyEvent) => void;
   onReset: (event: FantasyEvent) => void;
   userHoldings: UserDpcHolding[];
@@ -71,6 +71,8 @@ export const EventDetailModal = ({
   const [viewingUserLoading, setViewingUserLoading] = useState(false);
   const [captainSlot, setCaptainSlot] = useState<string | null>(null);
   const [showJoinConfirm, setShowJoinConfirm] = useState(false);
+  const [joining, setJoining] = useState(false);
+  const [leaving, setLeaving] = useState(false);
 
   // Set default tab based on join status when modal opens — reset transient state
   useEffect(() => {
@@ -187,14 +189,17 @@ export const EventDetailModal = ({
   }, [isOpen, event?.id, event?.isJoined, user]);
 
   const handleLeave = async () => {
-    if (!user || !event) return;
+    if (!user || !event || leaving) return;
     if (confirm(`Möchtest du dich wirklich vom Event "${event.name}" abmelden?`)) {
+      setLeaving(true);
       try {
         await removeLineup(event.id, user.id);
         onLeave(event);
         onClose();
       } catch (e: unknown) {
         alert(`Fehler beim Abmelden: ${e instanceof Error ? e.message : 'Unbekannter Fehler'}`);
+      } finally {
+        setLeaving(false);
       }
     }
   };
@@ -280,6 +285,14 @@ export const EventDetailModal = ({
 
   const isLineupComplete = selectedPlayers.length === formationSlots.length;
 
+  // Salary Cap check — perfL5 as proxy "salary" (0-100 per player)
+  const totalSalary = selectedPlayers.reduce((sum, sp) => {
+    const player = effectiveHoldings.find(h => h.id === sp.playerId);
+    return sum + (player?.perfL5 ?? 50);
+  }, 0);
+  const salaryCap = event.salaryCap ?? null;
+  const overBudget = salaryCap != null && totalSalary > salaryCap;
+
   const checkRequirements = () => {
     if (event.requirements.minClubPlayers && event.requirements.specificClub) {
       const clubPlayers = selectedPlayers.filter(sp => {
@@ -301,9 +314,15 @@ export const EventDetailModal = ({
     setShowJoinConfirm(true);
   };
 
-  const handleFinalJoin = () => {
-    setShowJoinConfirm(false);
-    onJoin(event, selectedPlayers, selectedFormation, captainSlot);
+  const handleFinalJoin = async () => {
+    if (joining) return;
+    setJoining(true);
+    try {
+      setShowJoinConfirm(false);
+      await onJoin(event, selectedPlayers, selectedFormation, captainSlot);
+    } finally {
+      setJoining(false);
+    }
   };
 
   // Presets (localStorage)
@@ -1364,9 +1383,9 @@ export const EventDetailModal = ({
                 <Button variant="outline" size="lg" fullWidth onClick={() => setShowJoinConfirm(false)}>
                   Abbrechen
                 </Button>
-                <Button variant="gold" size="lg" fullWidth onClick={handleFinalJoin}>
-                  <CheckCircle2 className="w-4 h-4" />
-                  Bestätigen
+                <Button variant="gold" size="lg" fullWidth onClick={handleFinalJoin} disabled={joining}>
+                  {joining ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                  {joining ? 'Wird angemeldet...' : 'Bestätigen'}
                 </Button>
               </div>
             </div>
@@ -1379,7 +1398,7 @@ export const EventDetailModal = ({
           const isFull = !!(event.maxParticipants && event.participants >= event.maxParticipants);
           const filledSlots = selectedPlayers.length;
           const totalSlots = formationSlots.length;
-          const canJoin = isLineupComplete && reqCheck.ok && !isFull;
+          const canJoin = isLineupComplete && reqCheck.ok && !isFull && !overBudget;
           return (
             <div className="flex-shrink-0 border-t border-white/10 bg-[#0a0a0a]">
               {/* Lineup progress indicator */}
@@ -1393,6 +1412,25 @@ export const EventDetailModal = ({
                     <div
                       className="h-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-full transition-all"
                       style={{ width: `${(filledSlots / totalSlots) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+              {/* Salary Cap budget bar */}
+              {salaryCap != null && selectedPlayers.length > 0 && (
+                <div className="px-3 pt-2 md:px-5 md:pt-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-white/50">Budget</span>
+                    <span className={`text-xs font-mono font-bold ${overBudget ? 'text-red-400' : 'text-[#22C55E]'}`}>
+                      {totalSalary} / {salaryCap}
+                    </span>
+                  </div>
+                  <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        overBudget ? 'bg-red-500' : totalSalary / salaryCap > 0.85 ? 'bg-amber-500' : 'bg-[#22C55E]'
+                      }`}
+                      style={{ width: `${Math.min(100, (totalSalary / salaryCap) * 100)}%` }}
                     />
                   </div>
                 </div>
@@ -1431,8 +1469,9 @@ export const EventDetailModal = ({
               size="lg"
               className="border-red-500/30 text-red-400 hover:bg-red-500/10"
               onClick={handleLeave}
+              disabled={leaving}
             >
-              Abmelden
+              {leaving ? <><Loader2 className="w-4 h-4 animate-spin" /> Abmelden...</> : 'Abmelden'}
             </Button>
             <Button
               variant="gold"

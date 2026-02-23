@@ -6,7 +6,7 @@ export type EventType = 'bescout' | 'special' | 'club' | 'sponsor' | 'creator';
 export type EventMode = 'tournament' | 'league';
 export type EventStatus = 'registering' | 'late-reg' | 'running' | 'upcoming' | 'ended';
 export type LineupFormat = '6er' | '11er' | '11er-reserve';
-export type FantasyTab = 'spieltag' | 'events' | 'predictions' | 'history';
+export type FantasyTab = 'spieltag' | 'events' | 'predictions' | 'leagues' | 'history';
 export type EventDetailTab = 'overview' | 'lineup' | 'leaderboard' | 'community';
 export type ViewMode = 'cards' | 'table';
 
@@ -67,6 +67,7 @@ export type FantasyEvent = {
   userReward?: number; // reward_amount in Cents
   eventTier: 'arena' | 'club' | 'user';
   minSubscriptionTier?: string | null;
+  salaryCap?: number | null;
   requirements: {
     dpcPerSlot?: number;
     minDpc?: number;
