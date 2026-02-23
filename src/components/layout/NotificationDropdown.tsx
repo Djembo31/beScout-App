@@ -128,15 +128,17 @@ interface NotificationDropdownProps {
 
 export default function NotificationDropdown({ userId, open, onClose, notifications, loading, onMarkRead, onMarkAllRead }: NotificationDropdownProps) {
   const router = useRouter();
-  const ref = useRef<HTMLDivElement>(null);
+  const desktopRef = useRef<HTMLDivElement>(null);
+  const mobileRef = useRef<HTMLDivElement>(null);
 
   // Close on click outside
   useEffect(() => {
     if (!open) return;
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        onClose();
-      }
+      const target = e.target as Node;
+      // Check both refs — don't close if click is inside either panel
+      if (desktopRef.current?.contains(target) || mobileRef.current?.contains(target)) return;
+      onClose();
     }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
@@ -230,15 +232,15 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
 
   return (
     <>
-      {/* Desktop: classic dropdown */}
-      <div ref={ref} className="hidden md:block absolute right-0 top-full mt-2 w-96 bg-[#111] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden anim-dropdown">
+      {/* Desktop: fixed dropdown — outside header stacking context */}
+      <div ref={desktopRef} className="hidden md:block fixed top-[60px] right-4 lg:right-6 w-96 bg-[#111] border border-white/10 rounded-2xl shadow-2xl z-[100] overflow-hidden anim-dropdown">
         {notifContent}
       </div>
 
       {/* Mobile: bottom sheet */}
-      <div className="md:hidden fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm anim-fade" onClick={onClose}>
+      <div className="md:hidden fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm anim-fade" onClick={onClose}>
         <div
-          ref={ref}
+          ref={mobileRef}
           className="fixed inset-x-0 bottom-0 bg-[#111] border-t border-white/10 rounded-t-3xl shadow-2xl overflow-hidden anim-bottom-sheet"
           onClick={(e) => e.stopPropagation()}
         >
