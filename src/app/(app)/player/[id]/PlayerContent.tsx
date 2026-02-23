@@ -47,11 +47,12 @@ import {
   MobileTradingBar,
   LiquidationAlert,
   SponsorBanner,
+  ScoreMasteryStrip,
+  TradeHistoryChips,
 } from '@/components/player/detail';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import BuyModal from '@/components/player/detail/BuyModal';
 import SellModal from '@/components/player/detail/SellModal';
-import DpcMasteryCard from '@/components/player/detail/DpcMasteryCard';
 import OfferModal from '@/components/player/detail/OfferModal';
 
 // ============================================
@@ -226,9 +227,19 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         onRemovePriceAlert={alerts.handleRemovePriceAlert}
       />
 
-      {/* DPC Mastery */}
-      {masteryData && holdingQty > 0 && (
-        <DpcMasteryCard mastery={masteryData} />
+      {/* Score + Mastery Strip */}
+      {player && (
+        <ScoreMasteryStrip
+          l5={player.perf.l5}
+          l15={player.perf.l15}
+          trend={player.perf.trend}
+          mastery={masteryData && holdingQty > 0 ? masteryData : null}
+        />
+      )}
+
+      {/* Trade History Chips */}
+      {trades.length > 0 && (
+        <TradeHistoryChips trades={trades} />
       )}
 
       {/* Sponsor: Player Mid */}
@@ -356,6 +367,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
       <MobileTradingBar
         floor={player.prices.floor ?? 0}
         holdingQty={holdingQty}
+        change24h={player.prices.change24h ?? 0}
         isLiquidated={player.isLiquidated}
         onBuyClick={trading.openBuyModal}
         onSellClick={trading.openSellModal}

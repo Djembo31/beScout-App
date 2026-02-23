@@ -624,7 +624,10 @@
       "priceAlert": "Preis-Alert",
       "targetPrice": "Zielpreis",
       "addWatchlist": "Watchlist hinzufügen",
-      "removeWatchlist": "Watchlist entfernen"
+      "removeWatchlist": "Watchlist entfernen",
+      "edition": "Edition",
+      "tradeHistory": "Kaufhistorie",
+      "scoreBonus": "Score Bonus"
     },
     "mastery": {
       "held": "gehalten"

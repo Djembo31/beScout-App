@@ -14,23 +14,7 @@ import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getClub } from '@/lib/clubs';
 import type { Player, DbIpo } from '@/types';
-import PlayerImagePlaceholder from './PlayerImagePlaceholder';
-
-// Position gradient backgrounds
-const posGradients: Record<string, string> = {
-  GK: 'from-emerald-500/20 via-emerald-500/5 to-transparent',
-  DEF: 'from-amber-500/20 via-amber-500/5 to-transparent',
-  MID: 'from-sky-500/20 via-sky-500/5 to-transparent',
-  ATT: 'from-rose-500/20 via-rose-500/5 to-transparent',
-};
-
-// Position glow shadows
-const posGlows: Record<string, string> = {
-  GK: '0 0 40px rgba(16,185,129,0.08)',
-  DEF: '0 0 40px rgba(245,158,11,0.08)',
-  MID: '0 0 40px rgba(14,165,233,0.08)',
-  ATT: '0 0 40px rgba(244,63,94,0.08)',
-};
+import TradingCardFrame from './TradingCardFrame';
 
 interface PlayerHeroProps {
   player: Player;
@@ -63,203 +47,211 @@ export default function PlayerHero({
   const change24h = player.prices.change24h ?? 0;
   const up = change24h >= 0;
   const clubData = player.club ? getClub(player.club) : null;
-  const gradient = posGradients[player.pos] || posGradients.MID;
   const tint = posTintColors[player.pos];
-  const glow = posGlows[player.pos] || posGlows.MID;
+
+  // Edition badge text
+  const owned = player.dpc.circulation;
+  const supply = player.dpc.supply;
+  const edition = supply > 0 ? `${owned}/${supply} DPC` : undefined;
 
   return (
     <div
-      className="rounded-2xl border overflow-hidden"
-      style={{ borderColor: `${tint}33`, boxShadow: glow }}
+      className="rounded-2xl border overflow-hidden bg-[#0d0d0d]"
+      style={{ borderColor: `${tint}33` }}
     >
-      <div className={`bg-gradient-to-br ${gradient} relative`}>
-        {/* Top bar: Back + Actions */}
-        <div className="flex items-center justify-between px-4 pt-4 md:px-6 md:pt-5">
-          <Link href="/market">
-            <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4" /></Button>
-          </Link>
-          <div className="flex items-center gap-2">
+      {/* Top bar: Back + Actions */}
+      <div className="flex items-center justify-between px-4 pt-4 md:px-6 md:pt-5">
+        <Link href="/market">
+          <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4" /></Button>
+        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onToggleWatchlist}
+            className={`p-2 rounded-xl transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${isWatchlisted ? 'text-[#FFD700] bg-[#FFD700]/10' : 'text-white/30 hover:text-white/60 hover:bg-white/5'}`}
+            aria-label="Watchlist"
+          >
+            <Star className="w-4 h-4" fill={isWatchlisted ? 'currentColor' : 'none'} />
+          </button>
+          <button
+            onClick={onShare}
+            className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label={t('hero.share')}
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
+          <div className="relative">
             <button
-              onClick={onToggleWatchlist}
-              className={`p-2 rounded-xl transition-colors ${isWatchlisted ? 'text-[#FFD700] bg-[#FFD700]/10' : 'text-white/30 hover:text-white/60 hover:bg-white/5'}`}
-              aria-label="Watchlist"
+              onClick={() => setShowOverflow(v => !v)}
+              className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
-              <Star className="w-4 h-4" fill={isWatchlisted ? 'currentColor' : 'none'} />
+              <MoreVertical className="w-4 h-4" />
             </button>
-            <button
-              onClick={onShare}
-              className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors"
-              aria-label={t('hero.share')}
-            >
-              <Share2 className="w-4 h-4" />
-            </button>
-            <div className="relative">
-              <button
-                onClick={() => setShowOverflow(v => !v)}
-                className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors"
-              >
-                <MoreVertical className="w-4 h-4" />
-              </button>
-              {showOverflow && (
-                <>
-                  <div className="fixed inset-0 z-30" onClick={() => setShowOverflow(false)} />
-                  <div className="absolute right-0 top-full mt-1 z-40 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl overflow-hidden min-w-[180px]">
-                    <button
-                      onClick={() => { onToggleWatchlist(); setShowOverflow(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors"
-                    >
-                      <Star className="w-4 h-4" fill={isWatchlisted ? 'currentColor' : 'none'} />
-                      {isWatchlisted ? t('hero.removeWatchlist') : t('hero.addWatchlist')}
-                    </button>
-                    <button
-                      onClick={() => { onShare(); setShowOverflow(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors"
-                    >
-                      <Share2 className="w-4 h-4" /> {t('hero.share')}
-                    </button>
-                    <button
-                      onClick={() => { setShowAlertInput(true); setShowOverflow(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors"
-                    >
-                      <Bell className="w-4 h-4" /> {t('hero.priceAlert')}
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
+            {showOverflow && (
+              <>
+                <div className="fixed inset-0 z-30" onClick={() => setShowOverflow(false)} />
+                <div className="absolute right-0 top-full mt-1 z-40 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl overflow-hidden min-w-[180px]">
+                  <button
+                    onClick={() => { onToggleWatchlist(); setShowOverflow(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors min-h-[44px]"
+                  >
+                    <Star className="w-4 h-4" fill={isWatchlisted ? 'currentColor' : 'none'} />
+                    {isWatchlisted ? t('hero.removeWatchlist') : t('hero.addWatchlist')}
+                  </button>
+                  <button
+                    onClick={() => { onShare(); setShowOverflow(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors min-h-[44px]"
+                  >
+                    <Share2 className="w-4 h-4" /> {t('hero.share')}
+                  </button>
+                  <button
+                    onClick={() => { setShowAlertInput(true); setShowOverflow(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors min-h-[44px]"
+                  >
+                    <Bell className="w-4 h-4" /> {t('hero.priceAlert')}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Player Identity: Single responsive layout */}
-        <div className="px-4 pb-5 pt-3 md:px-6 md:pb-6 md:pt-4">
-          <div className="flex flex-col items-center text-center md:flex-row md:items-start md:text-left gap-4 md:gap-6">
-            {/* Player Image — larger */}
-            <div className="shrink-0">
-              <PlayerImagePlaceholder
-                pos={player.pos}
-                shirtNumber={player.ticket}
-                club={player.club}
-                imageUrl={player.imageUrl}
-                className="w-28 h-32 md:w-36 md:h-40"
-              />
-            </div>
-
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 flex-wrap justify-center md:justify-start">
-                <h1 className="text-xl md:text-3xl font-black truncate">{player.first} {player.last}</h1>
-              </div>
-              <div className="flex items-center gap-2 text-xs md:text-sm text-white/60 mt-1 flex-wrap justify-center md:justify-start">
-                {clubData?.logo && (
-                  <img src={clubData.logo} alt={clubData.name} className="w-4 h-4 rounded-full object-cover" />
-                )}
-                <span>{player.club}</span>
-                <span className="text-white/20">&middot;</span>
-                <span>{player.pos}</span>
-                <span className="text-white/20">&middot;</span>
-                <span>{player.age} {t('hero.years')}</span>
-              </div>
-              <div className="flex items-center gap-1.5 mt-1.5 justify-center md:justify-start flex-wrap">
-                <StatusBadge status={player.status} />
-                {isIPO && (
-                  <div className="flex items-center gap-1 px-2 py-1 bg-[#22C55E]/20 border border-[#22C55E]/30 rounded-lg">
-                    <div className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-                    <span className="text-xs font-bold text-[#22C55E]">IPO LIVE</span>
-                  </div>
-                )}
-                {holderCount > 0 && (
-                  <span className="flex items-center gap-1 px-2 py-1 bg-sky-500/10 border border-sky-500/20 rounded-lg text-xs text-sky-300">
-                    <Users className="w-3 h-3" />
-                    {holderCount} Scouts
-                  </span>
-                )}
-                {holdingQty > 0 && (
-                  <span className="flex items-center gap-1 px-2 py-1 bg-[#22C55E]/10 border border-[#22C55E]/20 rounded-lg text-xs font-bold text-[#22C55E]">
-                    Du: {holdingQty} DPC
-                  </span>
-                )}
-              </div>
-            </div>
+      {/* Main Content: Card + Info */}
+      <div className="px-4 pb-5 pt-4 md:px-6 md:pb-6 md:pt-5">
+        <div className="flex flex-col items-center md:flex-row md:items-start gap-5 md:gap-8">
+          {/* Trading Card Frame */}
+          <div className="shrink-0">
+            <TradingCardFrame
+              first={player.first}
+              last={player.last}
+              pos={player.pos}
+              club={player.club}
+              shirtNumber={player.ticket}
+              imageUrl={player.imageUrl}
+              l5={player.perf.l5}
+              edition={edition}
+            />
           </div>
 
-          {/* Price Strip — full width */}
-          <div className="mt-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 pt-4 border-t border-white/[0.06]">
-            <div>
-              <div className="flex items-end gap-2">
-                <span className="text-xl md:text-2xl lg:text-4xl font-mono font-black text-[#FFD700]">
+          {/* Info Column (desktop: beside card, mobile: below card) */}
+          <div className="flex-1 min-w-0 flex flex-col items-center md:items-start text-center md:text-left">
+            {/* Name */}
+            <h1 className="text-xl md:text-3xl font-black truncate max-w-full">
+              {player.first} {player.last}
+            </h1>
+
+            {/* Club · Position · Age */}
+            <div className="flex items-center gap-2 text-xs md:text-sm text-white/60 mt-1 flex-wrap justify-center md:justify-start">
+              {clubData?.logo && (
+                <img src={clubData.logo} alt={clubData.name} className="w-4 h-4 rounded-full object-cover" />
+              )}
+              <span>{player.club}</span>
+              <span className="text-white/20">&middot;</span>
+              <span>{player.pos}</span>
+              <span className="text-white/20">&middot;</span>
+              <span>{player.age} {t('hero.years')}</span>
+            </div>
+
+            {/* Status Badges Row */}
+            <div className="flex items-center gap-1.5 mt-2 justify-center md:justify-start flex-wrap">
+              <StatusBadge status={player.status} />
+              {isIPO && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-[#22C55E]/20 border border-[#22C55E]/30 rounded-lg">
+                  <div className="w-2 h-2 rounded-full bg-[#22C55E] live-ring" />
+                  <span className="text-xs font-bold text-[#22C55E]">IPO LIVE</span>
+                </div>
+              )}
+              {holderCount > 0 && (
+                <span className="flex items-center gap-1 px-2 py-1 bg-sky-500/10 border border-sky-500/20 rounded-lg text-xs text-sky-300">
+                  <Users className="w-3 h-3" />
+                  {holderCount} Scouts
+                </span>
+              )}
+              {holdingQty > 0 && (
+                <span className="flex items-center gap-1 px-2 py-1 bg-[#22C55E]/10 border border-[#22C55E]/20 rounded-lg text-xs font-bold text-[#22C55E]">
+                  Du: {holdingQty} DPC
+                </span>
+              )}
+            </div>
+
+            {/* Price Strip */}
+            <div className="mt-4 pt-4 border-t border-white/[0.06] w-full">
+              <div className="flex items-end gap-2 justify-center md:justify-start">
+                <span className="text-xl md:text-3xl font-mono font-black text-[#FFD700] gold-glow">
                   {isIPO && activeIpo ? fmtScout(centsToBsd(activeIpo.price)) : fmtScout(floor)}
                 </span>
-                <span className="text-white/40 mb-0.5 md:mb-1">$SCOUT</span>
-                {!isIPO && (
-                  <span className={`flex items-center gap-0.5 mb-0.5 md:mb-1 font-mono font-bold text-sm ${up ? 'text-[#22C55E]' : 'text-red-300'}`}>
+                <span className="text-white/40 mb-0.5">$SCOUT</span>
+                {!isIPO && change24h !== 0 && (
+                  <span className={`flex items-center gap-0.5 mb-0.5 font-mono font-bold text-sm px-1.5 py-0.5 rounded-md ${up ? 'text-[#22C55E] bg-[#22C55E]/10' : 'text-red-300 bg-red-500/10'}`}>
                     {up ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
                     {up ? '+' : ''}{change24h.toFixed(1)}%
                   </span>
                 )}
               </div>
-              <div className="text-[10px] text-white/30 font-medium mt-0.5">
+              <div className="text-[10px] text-white/30 font-medium mt-0.5 text-center md:text-left">
                 {isIPO ? 'Club Sale \u00B7 Festpreis' : 'Floor \u00B7 g\u00FCnstigstes Angebot'}
               </div>
             </div>
-            {/* CTA Buttons */}
+
+            {/* CTA Buttons (desktop only — mobile has sticky bar) */}
             {!player.isLiquidated && (
-              <div className="flex gap-2 sm:ml-auto w-full sm:w-auto">
-                <Button variant="gold" className="flex-1 sm:flex-initial text-sm font-bold sm:px-6" onClick={onBuyClick}>
+              <div className="hidden md:flex gap-2 mt-4 w-full">
+                <Button variant="gold" className="text-sm font-bold px-6 btn-gold-glow" onClick={onBuyClick}>
                   <ShoppingCart className="w-4 h-4" /> {t('hero.buy')}
                 </Button>
                 {holdingQty > 0 && (
-                  <Button variant="outline" className="flex-1 sm:flex-initial text-sm font-bold sm:px-6" onClick={onSellClick}>
+                  <Button variant="outline" className="text-sm font-bold px-6" onClick={onSellClick}>
                     <Send className="w-4 h-4" /> {t('hero.sell')}
                   </Button>
                 )}
               </div>
             )}
           </div>
-
-          {/* Price Alert (inline, triggered from overflow menu) */}
-          {!isIPO && (priceAlert || showAlertInput) && (
-            <div className="mt-4">
-              {priceAlert ? (
-                <div className="flex items-center gap-2 px-3 py-2 bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-xl">
-                  <Bell className="w-3.5 h-3.5 text-[#FFD700]" />
-                  <span className="text-xs text-[#FFD700]/80">
-                    Alert: {priceAlert.dir === 'below' ? '\u2264' : '\u2265'} {fmtScout(priceAlert.target)} $SCOUT
-                  </span>
-                  <button onClick={() => { onRemovePriceAlert(); setShowAlertInput(false); }} className="ml-auto text-white/30 hover:text-white/60">
-                    <XCircle className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1.5">
-                  <Bell className="w-3 h-3 text-white/30" />
-                  <input
-                    type="number" inputMode="numeric" step="0.01" placeholder={t('hero.targetPrice')}
-                    value={alertInput}
-                    onChange={(e) => setAlertInput(e.target.value)}
-                    className="w-24 px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-sm font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-[#FFD700]/30"
-                    autoFocus
-                  />
-                  <button
-                    onClick={() => {
-                      const target = parseFloat(alertInput);
-                      if (target > 0) { onSetPriceAlert(target); setShowAlertInput(false); }
-                    }}
-                    disabled={!alertInput}
-                    className="px-2 py-1 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-lg text-[10px] font-bold text-[#FFD700] hover:bg-[#FFD700]/20 disabled:opacity-30 transition-all"
-                  >
-                    Alert
-                  </button>
-                  <button
-                    onClick={() => setShowAlertInput(false)}
-                    className="text-white/30 hover:text-white/60"
-                  >
-                    <XCircle className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
         </div>
+
+        {/* Price Alert (inline, triggered from overflow menu) */}
+        {!isIPO && (priceAlert || showAlertInput) && (
+          <div className="mt-4">
+            {priceAlert ? (
+              <div className="flex items-center gap-2 px-3 py-2 bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-xl">
+                <Bell className="w-3.5 h-3.5 text-[#FFD700]" />
+                <span className="text-xs text-[#FFD700]/80">
+                  Alert: {priceAlert.dir === 'below' ? '\u2264' : '\u2265'} {fmtScout(priceAlert.target)} $SCOUT
+                </span>
+                <button onClick={() => { onRemovePriceAlert(); setShowAlertInput(false); }} className="ml-auto text-white/30 hover:text-white/60">
+                  <XCircle className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <Bell className="w-3 h-3 text-white/30" />
+                <input
+                  type="number" inputMode="numeric" step="0.01" placeholder={t('hero.targetPrice')}
+                  value={alertInput}
+                  onChange={(e) => setAlertInput(e.target.value)}
+                  className="w-24 px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-base font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-[#FFD700]/30"
+                  autoFocus
+                />
+                <button
+                  onClick={() => {
+                    const target = parseFloat(alertInput);
+                    if (target > 0) { onSetPriceAlert(target); setShowAlertInput(false); }
+                  }}
+                  disabled={!alertInput}
+                  className="px-2 py-1 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-lg text-[10px] font-bold text-[#FFD700] hover:bg-[#FFD700]/20 disabled:opacity-30 transition-all min-h-[44px]"
+                >
+                  Alert
+                </button>
+                <button
+                  onClick={() => setShowAlertInput(false)}
+                  className="text-white/30 hover:text-white/60 min-h-[44px] flex items-center"
+                >
+                  <XCircle className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

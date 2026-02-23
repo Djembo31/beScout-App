@@ -270,6 +270,16 @@ body {
   box-shadow: 0 4px 24px rgba(255,215,0,0.4), 0 0 60px rgba(255,215,0,0.15);
 }
 
+/* Trading card 3D tilt on hover — Sorare-inspired */
+.card-3d-tilt {
+  transition: transform 300ms ease, box-shadow 300ms ease;
+}
+.card-3d-tilt:hover {
+  transform: perspective(800px) rotateY(2deg) rotateX(-1deg) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.10);
+}
+@media (hover: none) { .card-3d-tilt:hover { transform: none; box-shadow: none; } }
+
 /* Colored surface tints for themed cards */
 .surface-gold { background: linear-gradient(135deg, rgba(255,215,0,0.08) 0%, transparent 60%); }
 .surface-green { background: linear-gradient(135deg, rgba(0,230,118,0.08) 0%, transparent 60%); }

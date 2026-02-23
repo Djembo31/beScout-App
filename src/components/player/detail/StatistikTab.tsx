@@ -3,7 +3,7 @@
 import React from 'react';
 import { Activity, TrendingUp, TrendingDown } from 'lucide-react';
 import { Card } from '@/components/ui';
-import { ScoreCircle, MiniSparkline } from '@/components/player';
+import { ScoreCircle, MiniSparkline, getL5Hex } from '@/components/player';
 import type { Player } from '@/types';
 import type { PlayerGameweekScore } from '@/lib/services/scoring';
 import GameweekScoreBar from './GameweekScoreBar';
@@ -28,39 +28,55 @@ export default function StatistikTab({ player, gwScores }: StatistikTabProps) {
           <Activity className="w-5 h-5 text-[#FFD700]" />
           Performance-Übersicht
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* L5 vs L15 */}
-          <div>
-            <div className="text-xs text-white/50 mb-3">Letzte Bewertungen</div>
-            <div className="flex items-center gap-4">
-              <ScoreCircle label="L5" value={player.perf.l5} size={64} />
-              <ScoreCircle label="L15" value={player.perf.l15} size={56} />
-              <div className="text-sm">
-                <div className={`font-bold flex items-center gap-1 ${player.perf.trend === 'UP' ? 'text-[#22C55E]' : player.perf.trend === 'DOWN' ? 'text-red-300' : 'text-white/60'}`}>
-                  {player.perf.trend === 'UP' ? <TrendingUp className="w-4 h-4" /> : player.perf.trend === 'DOWN' ? <TrendingDown className="w-4 h-4" /> : null}
-                  {player.perf.trend === 'UP' ? 'Hot' : player.perf.trend === 'DOWN' ? 'Cold' : 'Stable'}
-                </div>
-                <div className="text-white/50 text-xs">Form Trend</div>
-              </div>
-            </div>
-          </div>
 
-          {/* Stats */}
-          <div>
-            <div className="text-xs text-white/50 mb-3">Saison-Statistiken</div>
-            <div className="grid grid-cols-3 gap-2 md:gap-4">
-              <div className="text-center bg-black/20 rounded-xl py-3">
-                <div className="text-2xl font-mono font-black">{player.stats.matches}</div>
-                <div className="text-[10px] text-white/50">Spiele</div>
-              </div>
-              <div className="text-center bg-black/20 rounded-xl py-3">
-                <div className="text-2xl font-mono font-black text-[#22C55E]">{player.stats.goals}</div>
-                <div className="text-[10px] text-white/50">Tore</div>
-              </div>
-              <div className="text-center bg-black/20 rounded-xl py-3">
-                <div className="text-2xl font-mono font-black text-sky-300">{player.stats.assists}</div>
-                <div className="text-[10px] text-white/50">Assists</div>
-              </div>
+        {/* Score Circles Row */}
+        <div className="flex items-end gap-4 md:gap-6 mb-6">
+          <div className="flex flex-col items-center gap-1">
+            <div style={{ filter: `drop-shadow(0 0 8px ${getL5Hex(player.perf.l5)}40)` }}>
+              <ScoreCircle label="L5" value={player.perf.l5} size={64} />
+            </div>
+            <span className="text-[9px] font-mono text-white/40">
+              {player.perf.l5 > 0 ? `${Math.round((player.perf.l5 / 100) * 100)}%` : '--'}
+            </span>
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <ScoreCircle label="L15" value={player.perf.l15} size={52} />
+            <span className="text-[9px] font-mono text-white/40">
+              {player.perf.l15 > 0 ? `${Math.round((player.perf.l15 / 100) * 100)}%` : '--'}
+            </span>
+          </div>
+          {avgScore > 0 && (
+            <div className="flex flex-col items-center gap-1">
+              <ScoreCircle label="Saison" value={avgScore} size={48} />
+              <span className="text-[9px] font-mono text-white/40">
+                {Math.round((avgScore / 100) * 100)}%
+              </span>
+            </div>
+          )}
+          <div className="flex flex-col items-center gap-0.5 ml-2">
+            <div className={`font-bold flex items-center gap-1 ${player.perf.trend === 'UP' ? 'text-[#22C55E]' : player.perf.trend === 'DOWN' ? 'text-red-300' : 'text-white/60'}`}>
+              {player.perf.trend === 'UP' ? <TrendingUp className="w-4 h-4" /> : player.perf.trend === 'DOWN' ? <TrendingDown className="w-4 h-4" /> : null}
+              {player.perf.trend === 'UP' ? 'Hot' : player.perf.trend === 'DOWN' ? 'Cold' : 'Stable'}
+            </div>
+            <div className="text-white/50 text-[9px]">Form</div>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div>
+          <div className="text-xs text-white/50 mb-3">Saison-Statistiken</div>
+          <div className="grid grid-cols-3 gap-2 md:gap-4">
+            <div className="text-center bg-black/20 rounded-xl py-3">
+              <div className="text-2xl font-mono font-black">{player.stats.matches}</div>
+              <div className="text-[10px] text-white/50">Spiele</div>
+            </div>
+            <div className="text-center bg-black/20 rounded-xl py-3">
+              <div className="text-2xl font-mono font-black text-[#22C55E]">{player.stats.goals}</div>
+              <div className="text-[10px] text-white/50">Tore</div>
+            </div>
+            <div className="text-center bg-black/20 rounded-xl py-3">
+              <div className="text-2xl font-mono font-black text-sky-300">{player.stats.assists}</div>
+              <div className="text-[10px] text-white/50">Assists</div>
             </div>
           </div>
         </div>

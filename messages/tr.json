@@ -624,7 +624,10 @@
       "priceAlert": "Fiyat Alarmı",
       "targetPrice": "Hedef fiyat",
       "addWatchlist": "İzleme listesine ekle",
-      "removeWatchlist": "İzleme listesinden çıkar"
+      "removeWatchlist": "İzleme listesinden çıkar",
+      "edition": "Edisyon",
+      "tradeHistory": "Alım Geçmişi",
+      "scoreBonus": "Puan Bonusu"
     },
     "mastery": {
       "held": "tutuldu"
