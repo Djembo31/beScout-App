@@ -13,6 +13,13 @@ async function loginAndSave(
   await page.goto('/login');
   await page.waitForLoadState('networkidle');
 
+  // Dismiss cookie consent if visible
+  const acceptBtn = page.getByRole('button', { name: 'Akzeptieren' });
+  if (await acceptBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await acceptBtn.click();
+    await page.waitForTimeout(300);
+  }
+
   // Fill credentials
   await page.getByPlaceholder('E-Mail Adresse').fill(email);
   await page.getByPlaceholder('Passwort').fill(password);

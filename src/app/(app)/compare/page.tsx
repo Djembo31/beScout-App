@@ -282,6 +282,7 @@ export default function ComparePage() {
         <div className="text-center py-12">
           <ArrowLeftRight className="w-12 h-12 mx-auto mb-4 text-white/10" />
           <div className="text-white/30 text-sm">Wähle mindestens 2 Spieler zum Vergleichen</div>
+          <div className="text-white/20 text-xs mt-1">Suche oben nach Name, Verein oder Position</div>
         </div>
       )}
     </div>

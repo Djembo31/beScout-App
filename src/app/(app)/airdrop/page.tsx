@@ -53,7 +53,7 @@ export default function AirdropPage() {
       </div>
 
       {/* Stats Bar */}
-      {stats && (
+      {stats && stats.total_users > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 text-center">
             <div className="text-lg font-mono font-black text-white">{stats.total_users}</div>
@@ -72,6 +72,12 @@ export default function AirdropPage() {
             <div className="text-[10px] text-white/40">Diamond Tier</div>
           </div>
         </div>
+      ) : (
+        <Card className="p-5 text-center bg-gradient-to-r from-purple-500/[0.06] to-[#FFD700]/[0.06] border-purple-500/20">
+          <Rocket className="w-8 h-8 mx-auto mb-2 text-purple-400" />
+          <div className="font-bold text-sm">Der Airdrop startet bald!</div>
+          <div className="text-xs text-white/40 mt-1">Sammle jetzt Punkte durch Trading, Fantasy und Community-Aktivität</div>
+        </Card>
       )}
 
       {/* My Score Highlight */}

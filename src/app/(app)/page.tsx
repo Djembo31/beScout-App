@@ -346,46 +346,47 @@ export default function HomePage() {
         </Link>
       )}
 
-      <div className="floodlight-divider" />
-
-      {/* ── Marktbewegungen ── */}
-      <div>
-        <SectionHeader title={t('marketMovements')} href="/market" />
-        <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* ── Marktbewegungen (nur wenn Daten vorhanden) ── */}
+      {(topGainers.length > 0 || topLosers.length > 0) && (
+        <>
+          <div className="floodlight-divider" />
           <div>
-            <div className="text-xs font-bold text-[#22C55E] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-              <ArrowUpRight className="w-3.5 h-3.5" />
-              {t('winners24h')}
-            </div>
-            <div className="space-y-2">
-              {topGainers.map((p, i) => (
-                <div key={p.id} style={{ animation: `stagger-in 0.3s ease-out ${i * 0.05}s both` }}>
-                  <PlayerDisplay variant="compact" player={p} rank={i + 1} showSparkline />
+            <SectionHeader title={t('marketMovements')} href="/market" />
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {topGainers.length > 0 && (
+                <div>
+                  <div className="text-xs font-bold text-[#22C55E] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                    {t('winners24h')}
+                  </div>
+                  <div className="space-y-2">
+                    {topGainers.map((p, i) => (
+                      <div key={p.id} style={{ animation: `stagger-in 0.3s ease-out ${i * 0.05}s both` }}>
+                        <PlayerDisplay variant="compact" player={p} rank={i + 1} showSparkline />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-              {topGainers.length === 0 && (
-                <div className="text-sm text-white/30 p-3 text-center rounded-xl bg-surface-base">{t('noWinnersToday')}</div>
+              )}
+              {topLosers.length > 0 && (
+                <div>
+                  <div className="text-xs font-bold text-red-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                    <ArrowDownRight className="w-3.5 h-3.5" />
+                    {t('losers24h')}
+                  </div>
+                  <div className="space-y-2">
+                    {topLosers.map((p, i) => (
+                      <div key={p.id} style={{ animation: `stagger-in 0.3s ease-out ${i * 0.05}s both` }}>
+                        <PlayerDisplay variant="compact" player={p} rank={i + 1} showSparkline />
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           </div>
-          <div>
-            <div className="text-xs font-bold text-red-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-              <ArrowDownRight className="w-3.5 h-3.5" />
-              {t('losers24h')}
-            </div>
-            <div className="space-y-2">
-              {topLosers.map((p, i) => (
-                <div key={p.id} style={{ animation: `stagger-in 0.3s ease-out ${i * 0.05}s both` }}>
-                  <PlayerDisplay variant="compact" player={p} rank={i + 1} showSparkline />
-                </div>
-              ))}
-              {topLosers.length === 0 && (
-                <div className="text-sm text-white/30 p-3 text-center rounded-xl bg-surface-base">{t('noLosersToday')}</div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+        </>
+      )}
 
     </div>
   );
