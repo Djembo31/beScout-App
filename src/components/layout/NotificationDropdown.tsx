@@ -127,40 +127,63 @@ interface NotificationDropdownProps {
   onMarkAllRead: () => void;
 }
 
+const EXIT_MS = 200;
+
 export default function NotificationDropdown({ userId, open, onClose, notifications, loading, onMarkRead, onMarkAllRead }: NotificationDropdownProps) {
   const router = useRouter();
   const desktopRef = useRef<HTMLDivElement>(null);
   const mobileRef = useRef<HTMLDivElement>(null);
 
+  // Keep mounted during exit animation
+  const [mounted, setMounted] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const closingRef = useRef(false);
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      setClosing(false);
+      closingRef.current = false;
+    } else if (mounted && !closingRef.current) {
+      // Start exit animation
+      closingRef.current = true;
+      setClosing(true);
+      const timer = setTimeout(() => {
+        setMounted(false);
+        setClosing(false);
+        closingRef.current = false;
+      }, EXIT_MS);
+      return () => clearTimeout(timer);
+    }
+  }, [open, mounted]);
+
   // Close on click outside
   useEffect(() => {
-    if (!open) return;
+    if (!mounted || closing) return;
     function handleClick(e: MouseEvent) {
       const target = e.target as Node;
-      // Check both refs — don't close if click is inside either panel
       if (desktopRef.current?.contains(target) || mobileRef.current?.contains(target)) return;
       onClose();
     }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
-  }, [open, onClose]);
+  }, [mounted, closing, onClose]);
 
   // Close on ESC
   useEffect(() => {
-    if (!open) return;
+    if (!mounted || closing) return;
     function handleKey(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose();
     }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  }, [open, onClose]);
+  }, [mounted, closing, onClose]);
 
   const handleClick = useCallback(async (notif: DbNotification) => {
     if (!notif.read) {
       onMarkRead(notif.id);
     }
     let href = getNotifHref(notif);
-    // For profile notifications (follow), look up the follower's handle
     if (notif.reference_type === 'profile' && notif.reference_id) {
       try {
         const { getProfile } = await import('@/lib/services/profiles');
@@ -180,7 +203,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
   useEffect(() => { setPortalTarget(document.body); }, []);
 
-  if (!open || !portalTarget) return null;
+  if (!mounted || !portalTarget) return null;
 
   const notifContent = (
     <>
@@ -237,16 +260,33 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
 
   return createPortal(
     <>
-      {/* Desktop: fixed dropdown */}
-      <div ref={desktopRef} className="hidden md:block fixed top-[60px] right-4 lg:right-6 w-96 bg-[#111] border border-white/10 rounded-2xl shadow-2xl z-[100] overflow-hidden anim-dropdown">
+      {/* Desktop: fixed dropdown — slide down/up */}
+      <div
+        ref={desktopRef}
+        className={cn(
+          'hidden md:block fixed top-[60px] right-4 lg:right-6 w-96 bg-[#111] border border-white/10 rounded-2xl shadow-2xl z-[100] overflow-hidden transition-all',
+          closing ? 'notif-exit-desktop' : 'notif-enter-desktop',
+        )}
+      >
         {notifContent}
       </div>
 
-      {/* Mobile: bottom sheet */}
-      <div className="md:hidden fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm anim-fade" onClick={onClose}>
+      {/* Mobile: bottom sheet — slide up/down */}
+      <div
+        className={cn(
+          'md:hidden fixed inset-0 z-[100] transition-opacity',
+          closing ? 'opacity-0' : 'opacity-100 bg-black/70 backdrop-blur-sm',
+        )}
+        style={{ transitionDuration: `${EXIT_MS}ms` }}
+        onClick={onClose}
+      >
         <div
           ref={mobileRef}
-          className="fixed inset-x-0 bottom-0 bg-[#111] border-t border-white/10 rounded-t-3xl shadow-2xl overflow-hidden anim-bottom-sheet"
+          className={cn(
+            'fixed inset-x-0 bottom-0 bg-[#111] border-t border-white/10 rounded-t-3xl shadow-2xl overflow-hidden transition-transform',
+            closing ? 'translate-y-full' : 'translate-y-0',
+          )}
+          style={{ transitionDuration: `${EXIT_MS}ms`, transitionTimingFunction: 'cubic-bezier(0.32, 0.72, 0, 1)' }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex justify-center pt-2 pb-1">
