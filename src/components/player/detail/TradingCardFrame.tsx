@@ -42,8 +42,8 @@ export default function TradingCardFrame({
   const glowColor = posGlowColors[pos];
   const ringGlow = posRingGlow[pos];
 
-  // Foil/holo effect class
-  const effectClass = l5 >= 80 ? 'holo-rainbow' : l5 >= 65 ? 'foil-shimmer' : '';
+  // Foil shimmer on all cards, holo-rainbow for top performers
+  const effectClass = l5 >= 80 ? 'holo-rainbow' : 'foil-shimmer';
 
   // Initials fallback
   const initials = `${first?.[0] ?? ''}${last?.[0] ?? ''}`;
