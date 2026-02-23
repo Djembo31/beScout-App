@@ -3,7 +3,26 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 9** – 201 Migrations, 22 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 13 Gamification-Triggers. Build sauber (0 Fehler). Bold Design v2: Surface 5%/8%/14%/20%, Position Glows 20%, Holo Rainbow L5≥80, Gold Gradient Buttons, Inset Top-Light, Colored Stat Cards, Live-Ring, Glassmorphism, Vivid Trading Colors (#00E676/#FF3B69), Sparkline Area Fill, HOT/Live Badges. **Beta-Launch ready + Bold Design v2.**
+**Woche 9** – 201 Migrations, 22 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 13 Gamification-Triggers. Build sauber (0 Fehler). Player Detail: Sorare-Level Redesign — TradingCardFrame (3:4, Position-Glow, Foil/Holo), ScoreMasteryStrip, Vertical GW-Bars, TradeHistoryChips, Glass MobileTradingBar. **Beta-Launch ready + Sorare-Level Player Detail.**
+
+## Session 23.02.2026 (129) – Player Detail Page — Sorare-Level Redesign
+
+### Änderungen
+- **TradingCardFrame (NEU ~120Z):** 3:4 Aspect Ratio Trading Card. Position-farbiger Border (3px `posTintColors`), Ambient Radial Glow (`posGlowColors`, scale 1.3×, blur-2xl). Position-Gradient Background (dark `posCardGradients`). Club-Logo Overlay (top-left, 24px). Position+Shirt# Pill (top-right). Player Photo (`object-cover object-top`) oder TrikotBadge Fallback. Name + Edition Badge auf Dark Gradient (bottom, `h-2/5`). `foil-shimmer` (L5≥65), `holo-rainbow` (L5≥80), `card-3d-tilt` Hover.
+- **ScoreMasteryStrip (NEU ~90Z):** Ersetzt standalone DpcMasteryCard. L5 ScoreCircle (64px, Glow-Shadow) + L15 (48px) + Prozent-Badges + Trend Indicator (Hot/Cold/Stable). Separator + inline DPC Mastery: Level-Pill + XP-Bar + Stats (hold_days, fantasy_uses, content_count).
+- **GameweekScoreBar (REWRITE):** Sorare-Style vertikale Balken statt horizontale Listen. `scrollbar-hide scroll-touch`, proportionale Höhe `((score-40)/110)*120px`, min 8px. Gold ≥100, Weiß/30 ≥70, Rot <70, Grau DNP. Threshold-Lines bei 70 und 100 (gestrichelt). DNP-Erkennung durch GW-Sequenz-Lücken.
+- **TradeHistoryChips (NEU ~60Z):** Horizontal scroll Chips. Preis Gold font-mono, $SCOUT Label, Relative Time (`getRelativeTime`), Source Badge (IPO=grün, Markt=sky). Max 10 Trades.
+- **MobileTradingBar (REWRITE):** `glass` Utility (blur-16px), Gold-Preis mit `gold-glow`, 24h-Change Pill (grün/rot mit Icons), Holdings-Pill, Buy-Button `btn-gold-glow`, Sell-Button compact (nur Icon), 44px Touch Targets.
+- **PlayerHero (RESTRUCTURE):** TradingCardFrame zentriert (mobile) / links (desktop) via `flex-col md:flex-row`. Info-Column mit Name, Club·Pos·Age, Status-Badges, Price-Strip (`gold-glow`), `live-ring` auf IPO-Badge, Change-Pill als farbige Pill. CTA-Buttons nur Desktop (mobile hat Sticky Bar). `bg-[#0d0d0d]` Card-Background.
+- **StatistikTab:** Score-Summary-Row: 3 ScoreCircles (L5 64px, L15 52px, Saison-Avg 48px) + Prozent-Badges + L5-Glow-Shadow.
+- **PlayerDetailSkeleton:** Card-shaped Placeholder matching 3:4 Aspect Ratio (mobile: `w-[180px]`, desktop: `w-[220px]`).
+- **CSS:** `card-3d-tilt` Hover-Klasse (`perspective(800px) rotateY(2deg) rotateX(-1deg) scale(1.02)`, mobile disable).
+- **i18n:** 3 neue Keys (`hero.edition`, `hero.tradeHistory`, `hero.scoreBonus`) in DE + TR.
+
+### Dateien (3 neu + 10 modifiziert)
+- NEU: `TradingCardFrame.tsx`, `ScoreMasteryStrip.tsx`, `TradeHistoryChips.tsx`
+- REWRITE: `GameweekScoreBar.tsx`, `MobileTradingBar.tsx`, `PlayerHero.tsx`, `StatistikTab.tsx`, `PlayerDetailSkeleton.tsx`
+- MODIFIED: `PlayerContent.tsx`, `index.ts`, `globals.css`, `de.json`, `tr.json`
 
 ## Session 23.02.2026 (128) – Bold Design Overhaul v2 + Trading UI Polish
 

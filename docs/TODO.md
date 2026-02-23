@@ -1,9 +1,18 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 23.02.2026 (Session 128)
+> Letzte Aktualisierung: 23.02.2026 (Session 129)
 > Modus: PILOT SPRINT — 201 Migrations, 22 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 566 Spieler, 505 Player Images
 
 ---
+
+## Player Detail Page — Sorare-Level Redesign ✅ (23.02.2026)
+- [x] Sprint 1: TradingCardFrame — 3:4 Aspect Ratio Card, Position-Border (3px), Ambient Radial Glow, Club-Logo Overlay, Position+# Pill, Photo/TrikotBadge Fallback, Foil/Holo, Edition Badge, `card-3d-tilt` CSS
+- [x] Sprint 2: ScoreMasteryStrip — L5 (64px) + L15 (48px) ScoreCircles mit Glow-Shadow, Trend Indicator, inline DPC Mastery (Level-Pill + XP-Bar + Stats). Ersetzt DpcMasteryCard
+- [x] Sprint 3: GameweekScoreBar Rewrite — Vertikale proportionale Balken (Gold ≥100, Weiß ≥70, Rot <70), Horizontal Scroll, DNP-Detection, Threshold-Lines bei 70/100. StatistikTab: 3 ScoreCircles Row
+- [x] Sprint 4: TradeHistoryChips — Horizontal scroll Chips (Preis Gold, $SCOUT, Relative Time, IPO/Markt Source Badges)
+- [x] Sprint 5: MobileTradingBar Rewrite — Glass Backdrop, Gold-Glow Preis, 24h-Change Pill, Holdings-Pill, btn-gold-glow Buy, 44px Touch Targets
+- [x] Sprint 6: PlayerHero Restructure — TradingCardFrame centered (mobile) / left (desktop), gold-glow Price Strip, live-ring IPO Badge, PlayerDetailSkeleton Card-Shape, i18n 3 Keys DE+TR
+- [x] **3 neue + 7 modifizierte Dateien + globals.css + 2 i18n, +694/-284 Zeilen, Build 0 Fehler**
 
 ## Bold Design Overhaul v2 + Trading UI Polish ✅ (23.02.2026)
 - [x] Sprint 1: 5 Competitor Research Agents — Sorare, FotMob, Kickbase, Binance/DexScreener/CoinGecko, NBA Top Shot / Trading Card
