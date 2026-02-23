@@ -277,7 +277,7 @@ export default function HomePage() {
             }
           />
           <Link href="/fantasy" className="block mt-3">
-            <div className="relative overflow-hidden rounded-2xl border border-purple-500/20 bg-gradient-to-br from-purple-600/10 via-purple-500/5 to-transparent shadow-card-md">
+            <div className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-gradient-to-br from-purple-600/20 via-purple-500/8 to-transparent shadow-card-md" style={{ boxShadow: '0 0 30px rgba(168,85,247,0.12), 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)' }}>
               <div className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -296,7 +296,7 @@ export default function HomePage() {
                   </div>
                   <div className="text-right shrink-0">
                     <div className="text-[10px] text-white/40 mb-0.5">Preisgeld</div>
-                    <div className="text-xl md:text-2xl font-black font-mono text-[#FFD700] drop-shadow-[0_0_8px_rgba(255,215,0,0.3)]">
+                    <div className="text-xl md:text-2xl font-black font-mono text-[#FFD700] gold-glow">
                       {formatPrize(centsToBsd(nextEvent.prize_pool))}
                     </div>
                     <div className="text-[10px] text-white/40">$SCOUT</div>
@@ -311,7 +311,7 @@ export default function HomePage() {
       {/* ── IPO Banner ── */}
       {activeIPOs.length > 0 && (
         <Link href={`/player/${activeIPOs[0].id}`} className="block">
-          <div className="relative overflow-hidden rounded-2xl border border-[#22C55E]/20 bg-gradient-to-r from-[#22C55E]/[0.08] via-transparent to-[#FFD700]/[0.04] shadow-glow-live">
+          <div className="relative overflow-hidden rounded-2xl border border-[#22C55E]/30 bg-gradient-to-r from-[#22C55E]/[0.15] via-transparent to-[#FFD700]/[0.06] shadow-glow-live">
             <div className="relative flex items-center justify-between p-4 gap-4">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-[#22C55E]/15 border border-[#22C55E]/25 shrink-0">
@@ -320,9 +320,9 @@ export default function HomePage() {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-[10px] font-black uppercase tracking-wider text-[#22C55E]">{t('liveIPO')}</span>
-                    <span className="relative flex h-2 w-2 live-glow">
+                    <span className="relative flex h-2.5 w-2.5 live-ring">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22C55E]" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#22C55E]" style={{ boxShadow: '0 0 8px rgba(34,197,94,0.6)' }} />
                     </span>
                   </div>
                   <div className="font-black text-sm truncate">

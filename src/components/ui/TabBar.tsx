@@ -25,7 +25,7 @@ export function TabBar({ tabs, activeTab, onChange, className, accentColor }: Ta
     <div
       role="tablist"
       className={cn(
-        'flex gap-1 p-1 bg-white/[0.02] border border-white/10 rounded-2xl',
+        'flex gap-1 p-1 bg-white/[0.05] border border-white/[0.10] rounded-2xl',
         'overflow-x-auto scrollbar-hide',
         className
       )}
@@ -41,8 +41,8 @@ export function TabBar({ tabs, activeTab, onChange, className, accentColor }: Ta
             onClick={() => onChange(tab.id)}
             className={cn(
               'flex items-center gap-1 md:gap-1.5 px-2.5 py-2 md:px-3 md:py-2 rounded-xl text-xs md:text-sm font-bold transition-all whitespace-nowrap active:scale-[0.97] flex-shrink-0 min-h-[44px]',
-              isActive && !accentColor && 'bg-gradient-to-r from-[#FFD700]/10 to-[#FFD700]/5 text-[#FFD700] border border-[#FFD700]/30',
-              !isActive && 'text-white/40 hover:text-white/60 border border-transparent'
+              isActive && !accentColor && 'bg-[#FFD700]/[0.15] text-[#FFD700] border border-[#FFD700]/30 shadow-[0_0_12px_rgba(255,215,0,0.10)]',
+              !isActive && 'text-white/50 hover:text-white/70 hover:bg-white/[0.06] border border-transparent'
             )}
             style={isActive && accentColor ? {
               backgroundColor: `${accentColor}18`,

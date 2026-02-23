@@ -54,13 +54,13 @@ export default function DiscoveryCard({
     <Link
       href={`/player/${p.id}`}
       className={cn(
-        'flex-shrink-0 w-[calc((100vw-48px)/2.5)] md:w-[140px] max-w-[160px] bg-white/[0.03] border border-white/[0.06] rounded-xl p-2.5 card-lift group relative overflow-hidden',
+        'flex-shrink-0 w-[calc((100vw-48px)/2.5)] md:w-[140px] max-w-[160px] bg-surface-base border border-white/[0.10] rounded-xl p-2.5 card-lift group relative overflow-hidden',
         variant === 'ipo' && 'shadow-glow-live'
       )}
       style={{
         borderLeftColor: posBorderColor,
         borderLeftWidth: 2,
-        backgroundImage: `linear-gradient(to bottom right, ${posBorderColor}0D, transparent 60%)`,
+        backgroundImage: `linear-gradient(to bottom right, ${posBorderColor}20, transparent 60%)`,
       }}
     >
       {/* Identity: Photo+ClubLogo + Name + Pos */}
@@ -77,12 +77,12 @@ export default function DiscoveryCard({
       </div>
 
       {/* Separator */}
-      <div className="h-px bg-white/5 my-1.5" />
+      <div className="h-px bg-white/[0.08] my-1.5" />
 
       {/* Metrics: L5 + Price */}
       <div className="flex items-center justify-between">
         <span className={cn('font-mono font-bold text-[11px]', getL5Color(p.perf.l5))}>L5: {p.perf.l5}</span>
-        {price > 0 && <span className="font-mono font-bold text-[11px] text-[#FFD700]">{fmtScout(price)}</span>}
+        {price > 0 && <span className="font-mono font-bold text-[11px] text-[#FFD700]" style={{ textShadow: '0 0 10px rgba(255,215,0,0.4)' }}>{fmtScout(price)}</span>}
       </div>
 
       {/* Variant-specific indicator */}

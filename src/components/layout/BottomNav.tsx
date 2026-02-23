@@ -49,14 +49,14 @@ export function BottomNav() {
               data-tour-id={tab.tourId}
               className={`relative flex flex-col items-center justify-center gap-0.5 w-16 py-1.5 rounded-xl transition-all ${
                 isActive
-                  ? 'text-[#FFD700] bg-[#FFD700]/[0.06]'
-                  : 'text-white/40 active:text-white/60 active:bg-white/5 active:scale-95'
+                  ? 'text-[#FFD700] bg-[#FFD700]/[0.12]'
+                  : 'text-white/50 active:text-white/70 active:bg-white/[0.08] active:scale-95'
               }`}
             >
               {isActive && (
-                <div className="absolute -top-[9px] w-8 h-0.5 bg-[#FFD700] rounded-full shadow-glow-gold" />
+                <div className="absolute -top-[1px] w-10 h-[3px] bg-[#FFD700] rounded-full shadow-glow-gold" />
               )}
-              <Icon className={`w-5 h-5 ${isActive ? 'drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]' : ''}`} />
+              <Icon className={`w-5 h-5 ${isActive ? 'drop-shadow-[0_0_10px_rgba(255,215,0,0.6)]' : ''}`} />
               <span className={`text-[10px] leading-none ${isActive ? 'font-black' : 'font-medium'}`}>{tab.label}</span>
             </Link>
           );

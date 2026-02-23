@@ -36,7 +36,7 @@ export function SectionHeader({ title, href, badge }: { title: string; href?: st
   const content = (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2.5">
-        <h2 className="text-base md:text-lg font-black uppercase tracking-wide border-b border-[#FFD700]/10 pb-1 inline-block">{title}</h2>
+        <h2 className="text-base md:text-lg font-black uppercase tracking-wide border-b-2 border-[#FFD700]/25 pb-1 inline-block">{title}</h2>
         {badge}
       </div>
       {href && <ChevronRight className="w-5 h-5 text-white/30" />}

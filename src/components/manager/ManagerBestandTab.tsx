@@ -229,23 +229,23 @@ export default function ManagerBestandTab({
     <div className="space-y-4">
       {/* Summary Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-surface-base border border-white/[0.06] rounded-xl px-4 py-3">
-          <div className="text-[10px] text-white/40 uppercase tracking-wider">Spieler</div>
+        <div className="bg-surface-elevated border border-white/[0.10] rounded-xl px-4 py-3 shadow-card-sm">
+          <div className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">Spieler</div>
           <div className="text-xl font-black font-mono">{summary.totalPlayers}</div>
         </div>
-        <div className="bg-surface-base border border-white/[0.06] rounded-xl px-4 py-3">
-          <div className="text-[10px] text-white/40 uppercase tracking-wider">Kaderwert</div>
-          <div className="text-xl font-black font-mono text-[#FFD700]">{fmtScout(Math.round(summary.totalValue))}</div>
+        <div className="bg-gradient-to-br from-[#FFD700]/[0.08] to-transparent border border-[#FFD700]/[0.12] rounded-xl px-4 py-3 shadow-card-sm">
+          <div className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">Kaderwert</div>
+          <div className="text-xl font-black font-mono text-[#FFD700]" style={{ textShadow: '0 0 10px rgba(255,215,0,0.3)' }}>{fmtScout(Math.round(summary.totalValue))}</div>
         </div>
-        <div className="bg-surface-base border border-white/[0.06] rounded-xl px-4 py-3">
-          <div className="text-[10px] text-white/40 uppercase tracking-wider">G/V</div>
+        <div className={cn('bg-gradient-to-br rounded-xl px-4 py-3 shadow-card-sm border', summary.pnl >= 0 ? 'from-[#22C55E]/[0.08] to-transparent border-[#22C55E]/[0.12]' : 'from-red-400/[0.08] to-transparent border-red-400/[0.12]')}>
+          <div className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">G/V</div>
           <div className={cn('text-xl font-black font-mono', getPnlColor(summary.pnl))}>
             {summary.pnl >= 0 ? '+' : ''}{fmtScout(Math.round(summary.pnl))}
             <span className="text-sm ml-1">({summary.pnlPct >= 0 ? '+' : ''}{summary.pnlPct.toFixed(1)}%)</span>
           </div>
         </div>
-        <div className="bg-surface-base border border-white/[0.06] rounded-xl px-4 py-3">
-          <div className="text-[10px] text-white/40 uppercase tracking-wider">Aktivität</div>
+        <div className="bg-surface-elevated border border-white/[0.10] rounded-xl px-4 py-3 shadow-card-sm">
+          <div className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">Aktivität</div>
           <div className="flex items-center gap-3 mt-1">
             {summary.totalListed > 0 && (
               <span className="flex items-center gap-1 text-xs font-bold text-[#FFD700]">
@@ -258,7 +258,7 @@ export default function ManagerBestandTab({
               </span>
             )}
             {summary.totalListed === 0 && summary.totalOffers === 0 && (
-              <span className="text-xs text-white/25">Keine</span>
+              <span className="text-xs text-white/30">Keine</span>
             )}
           </div>
         </div>

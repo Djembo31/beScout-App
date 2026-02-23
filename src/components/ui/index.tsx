@@ -18,10 +18,10 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const btnVariants: Record<ButtonVariant, string> = {
-  gold: 'bg-[#FFD700] hover:bg-[#FFD700]/90 text-black',
-  outline: 'bg-white/5 hover:bg-white/10 border border-white/10 text-white',
-  ghost: 'hover:bg-white/5 text-white/80',
-  danger: 'bg-red-500/15 hover:bg-red-500/20 border border-red-400/25 text-red-200',
+  gold: 'bg-gradient-to-b from-[#FFE44D] to-[#E6B800] hover:from-[#FFD700] hover:to-[#CC9900] text-black btn-gold-glow',
+  outline: 'bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.12] text-white',
+  ghost: 'hover:bg-white/[0.08] text-white/80',
+  danger: 'bg-red-500/15 hover:bg-red-500/25 border border-red-400/30 text-red-200',
 };
 
 const btnSizes = {
@@ -72,10 +72,10 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const surfaceClasses: Record<CardSurface, string> = {
-  base: 'bg-surface-base border border-white/[0.06]',
-  elevated: 'bg-surface-elevated border border-white/10 shadow-card-sm',
-  featured: 'bg-surface-featured border border-white/15 shadow-card-md',
-  hero: 'bg-surface-hero border border-white/20 shadow-card-lg',
+  base: 'bg-surface-base border border-white/[0.08] shadow-card-sm',
+  elevated: 'bg-surface-elevated border border-white/[0.12] shadow-card-sm',
+  featured: 'bg-surface-featured border border-white/[0.16] shadow-card-md',
+  hero: 'bg-surface-hero border border-white/[0.20] shadow-card-lg',
 };
 
 const glowClasses: Record<string, string> = {
@@ -100,7 +100,7 @@ export function Card({ children, className = '', surface = 'base', hoverable, gl
 
 export function Chip({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={`px-2 py-0.5 rounded-full text-xs font-bold bg-white/5 border border-white/10 text-white/70 ${className}`}>
+    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/[0.08] border border-white/[0.12] text-white/80 ${className}`}>
       {children}
     </span>
   );
@@ -180,7 +180,7 @@ export function Modal({ open, title, subtitle, children, footer, onClose, preven
 
   return (
     <div
-      className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-end md:items-center md:justify-center md:p-4 anim-fade"
+      className="fixed inset-0 z-[80] bg-black/80 backdrop-blur-md flex items-end md:items-center md:justify-center md:p-4 anim-fade"
       onClick={(e) => { if (!preventClose && e.target === e.currentTarget) onClose(); }}
     >
       <div
@@ -188,7 +188,7 @@ export function Modal({ open, title, subtitle, children, footer, onClose, preven
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className={`w-full ${modalMaxW[size]} bg-[#0b0b0b] border border-white/10 shadow-2xl
+        className={`w-full ${modalMaxW[size]} bg-[#0d0d0f] border border-white/[0.12] shadow-card-lg
           rounded-t-3xl max-h-[90vh] overflow-hidden flex flex-col anim-bottom-sheet
           md:rounded-3xl md:mx-4 md:max-h-[85vh] md:anim-modal`}
       >
@@ -233,6 +233,14 @@ const accentBorderColors: Record<StatCardAccent, string> = {
   sky: 'border-l-sky-400',
 };
 
+const accentGradients: Record<StatCardAccent, string> = {
+  gold: 'from-[#FFD700]/[0.10] to-transparent',
+  green: 'from-[#22C55E]/[0.10] to-transparent',
+  red: 'from-red-400/[0.10] to-transparent',
+  purple: 'from-purple-400/[0.10] to-transparent',
+  sky: 'from-sky-400/[0.10] to-transparent',
+};
+
 export function StatCard({
   label,
   value,
@@ -252,11 +260,11 @@ export function StatCard({
 
   return (
     <div className={cn(
-      'bg-surface-elevated border border-white/[0.08] shadow-card-sm rounded-2xl p-3 md:p-5',
-      accent && `border-l-2 ${accentBorderColors[accent]}`
+      'bg-surface-elevated border border-white/[0.10] shadow-card-sm rounded-2xl p-3 md:p-5',
+      accent && `border-l-3 ${accentBorderColors[accent]} bg-gradient-to-br ${accentGradients[accent]}`
     )}>
       <div className="flex items-center justify-between">
-        <div className="text-xs text-white/50 truncate">{label}</div>
+        <div className="text-xs text-white/50 uppercase tracking-wider font-semibold truncate">{label}</div>
         {icon}
       </div>
       <div className={`mt-1.5 md:mt-2 text-xl md:text-2xl font-black font-mono truncate ${trendColor}`}>{value}</div>

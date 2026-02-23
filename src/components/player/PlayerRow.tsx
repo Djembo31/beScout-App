@@ -35,17 +35,17 @@ export const posTintColors: Record<Pos, string> = {
 };
 
 const posCardGradients: Record<Pos, string> = {
-  GK: 'from-emerald-500/[0.08] via-emerald-500/[0.02] to-transparent',
-  DEF: 'from-amber-500/[0.08] via-amber-500/[0.02] to-transparent',
-  MID: 'from-sky-500/[0.08] via-sky-500/[0.02] to-transparent',
-  ATT: 'from-rose-500/[0.08] via-rose-500/[0.02] to-transparent',
+  GK: 'from-emerald-500/[0.15] via-emerald-500/[0.04] to-transparent',
+  DEF: 'from-amber-500/[0.15] via-amber-500/[0.04] to-transparent',
+  MID: 'from-sky-500/[0.15] via-sky-500/[0.04] to-transparent',
+  ATT: 'from-rose-500/[0.15] via-rose-500/[0.04] to-transparent',
 };
 
 const posGlowShadows: Record<Pos, string> = {
-  GK: '0 4px 20px rgba(16,185,129,0.08)',
-  DEF: '0 4px 20px rgba(245,158,11,0.08)',
-  MID: '0 4px 20px rgba(14,165,233,0.08)',
-  ATT: '0 4px 20px rgba(244,63,94,0.08)',
+  GK: '0 4px 24px rgba(16,185,129,0.20), inset 0 1px 0 rgba(16,185,129,0.10)',
+  DEF: '0 4px 24px rgba(245,158,11,0.20), inset 0 1px 0 rgba(245,158,11,0.10)',
+  MID: '0 4px 24px rgba(14,165,233,0.20), inset 0 1px 0 rgba(14,165,233,0.10)',
+  ATT: '0 4px 24px rgba(244,63,94,0.20), inset 0 1px 0 rgba(244,63,94,0.10)',
 };
 
 /** Returns true if a hex color is too dark to read on a dark background */
@@ -218,7 +218,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
         className={`block p-3 rounded-xl bg-white/[0.02] border-2 card-lift group ${className}`}
         style={{
           borderColor: posTintColors[player.pos],
-          backgroundImage: `linear-gradient(to right, transparent 60%, ${posTintColors[player.pos]}08)`,
+          backgroundImage: `linear-gradient(to right, transparent 50%, ${posTintColors[player.pos]}15)`,
         }}
       >
         <div className="flex items-center justify-between gap-3">
@@ -248,8 +248,8 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
   return (
     <Link
       href={`/player/${player.id}`}
-      className={`block bg-gradient-to-br ${posCardGradients[player.pos]} border-2 rounded-xl overflow-hidden card-lift ${player.perf.l5 >= 65 ? 'foil-shimmer' : ''} ${className}`}
-      style={{ borderColor: posTintColors[player.pos], boxShadow: posGlowShadows[player.pos] }}
+      className={`block bg-gradient-to-br ${posCardGradients[player.pos]} border rounded-xl overflow-hidden card-lift ${player.perf.l5 >= 80 ? 'holo-rainbow' : player.perf.l5 >= 65 ? 'foil-shimmer' : ''} ${className}`}
+      style={{ borderColor: `${posTintColors[player.pos]}55`, boxShadow: posGlowShadows[player.pos] }}
     >
       {/* Header: Identity + L5 + Watch */}
       <div className="p-3 pb-2">
@@ -265,13 +265,13 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
       </div>
 
       {/* Divider */}
-      <div className="border-t border-white/5 mx-3" />
+      <div className="border-t border-white/[0.08] mx-3" />
 
       {/* Price + KPIs + Badges */}
       <div className="px-3 pt-2 pb-1.5">
         <div className="flex items-center justify-between">
           <div className="flex items-baseline gap-1.5">
-            <span className="font-mono font-black text-[#FFD700] text-lg drop-shadow-[0_0_8px_rgba(255,215,0,0.3)]">
+            <span className="font-mono font-black text-[#FFD700] text-lg gold-glow">
               {ipoData ? fmtScout(ipoData.price) : fmtScout(floor)}
             </span>
             <span className="text-white/30 text-[10px]">$SCOUT</span>

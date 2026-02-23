@@ -77,9 +77,9 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
 
       {/* Wallet */}
       <div className={`p-4 border-b border-white/10 ${collapsed ? 'px-3' : ''}`}>
-        <div data-tour-id="sidebar-wallet" className={`bg-white/5 rounded-xl p-3 border border-[#FFD700]/10 ${collapsed ? 'px-2' : ''}`}>
+        <div data-tour-id="sidebar-wallet" className={`bg-gradient-to-br from-[#FFD700]/[0.10] to-transparent rounded-xl p-3 border border-[#FFD700]/[0.18] shadow-card-sm ${collapsed ? 'px-2' : ''}`}>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#FFD700]/20 flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-[#FFD700]/25 flex items-center justify-center flex-shrink-0 shadow-glow-gold">
               <DollarSign className="w-4 h-4 text-[#FFD700]" />
             </div>
             {!collapsed && (
@@ -123,8 +123,8 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
                 className={`
                   flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.97] min-h-[44px]
                   ${isActive
-                    ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20 shadow-[0_0_12px_rgba(255,215,0,0.08)]'
-                    : 'text-white/60 hover:bg-white/5 hover:text-white border border-transparent'
+                    ? 'bg-[#FFD700]/[0.15] text-[#FFD700] border border-[#FFD700]/30 shadow-[0_0_16px_rgba(255,215,0,0.15)]'
+                    : 'text-white/60 hover:bg-white/[0.08] hover:text-white border border-transparent'
                   }
                   ${collapsed ? 'justify-center' : ''}
                 `}
@@ -280,7 +280,7 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
       <aside
         className={`
           hidden lg:flex fixed left-0 top-0 h-screen z-40 flex-col
-          bg-[#0a0a0a]/95 backdrop-blur-xl border-r border-white/10
+          bg-gradient-to-b from-[#111114] to-[#0a0a0a] backdrop-blur-xl border-r border-white/[0.08]
           transition-all duration-300
           ${collapsed ? 'w-[72px]' : 'w-[260px]'}
         `}

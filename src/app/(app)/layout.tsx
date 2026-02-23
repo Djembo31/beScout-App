@@ -38,13 +38,19 @@ export default function AppLayout({
     <TourProvider>
       <DemoBanner />
 
-      {/* Background Effects */}
+      {/* Background Effects — Stadium Atmosphere */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 inset-x-0 h-[200px] bg-gradient-to-b from-[#FFD700]/[0.015] to-transparent" />
-        <div className="absolute top-0 right-1/4 w-[640px] h-[640px] bg-[#FFD700]/[0.04] rounded-full blur-[140px]" />
-        <div className="absolute bottom-0 left-1/4 w-[820px] h-[820px] bg-[#22C55E]/[0.035] rounded-full blur-[160px]" />
+        {/* Top floodlight — golden wash from above */}
+        <div className="absolute top-0 inset-x-0 h-[350px] bg-gradient-to-b from-[#FFD700]/[0.05] via-[#FFD700]/[0.02] to-transparent" />
+        {/* Gold ambient blob — top right */}
+        <div className="absolute -top-[200px] right-[10%] w-[700px] h-[700px] bg-[#FFD700]/[0.06] rounded-full blur-[160px]" />
+        {/* Green ambient blob — bottom left */}
+        <div className="absolute -bottom-[200px] left-[15%] w-[800px] h-[800px] bg-[#22C55E]/[0.04] rounded-full blur-[180px]" />
+        {/* Subtle purple accent — center */}
+        <div className="absolute top-[40%] left-[50%] -translate-x-1/2 w-[600px] h-[400px] bg-purple-500/[0.02] rounded-full blur-[200px]" />
+        {/* Noise texture — DexScreener-inspired grain */}
         <div
-          className="absolute inset-0 opacity-[0.015]"
+          className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
           }}
