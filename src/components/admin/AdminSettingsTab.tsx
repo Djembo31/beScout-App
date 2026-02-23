@@ -142,9 +142,11 @@ function ApiFootballSection() {
             {/* Fixtures (per GW) */}
             <div className="flex items-center gap-3">
               <select
+                id="fixture-gw"
+                aria-label="Gameweek für Fixture-Sync"
                 value={fixtureGw}
                 onChange={(e) => setFixtureGw(Number(e.target.value))}
-                className="w-28 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm"
+                className="w-28 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm min-h-[44px]"
               >
                 {Array.from({ length: 38 }, (_, i) => i + 1).map(gw => (
                   <option key={gw} value={gw}>GW {gw}</option>
@@ -342,9 +344,11 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <div className="flex items-center gap-3">
             <select
+              id="active-gw"
+              aria-label="Aktiver Spieltag"
               value={selectedGw}
               onChange={(e) => setSelectedGw(Number(e.target.value))}
-              className="flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm"
+              className="flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm min-h-[44px]"
             >
               {Array.from({ length: 38 }, (_, i) => i + 1).map(gw => (
                 <option key={gw} value={gw}>
@@ -393,18 +397,19 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
           <div className="space-y-4">
             {/* Jurisdiction */}
             <div>
-              <label className="block text-sm font-medium mb-2 flex items-center gap-1.5">
+              <label htmlFor="jurisdiction" className="block text-sm font-medium mb-2 flex items-center gap-1.5">
                 <Globe className="w-3.5 h-3.5 text-white/40" />
                 Jurisdiktion
               </label>
               <select
+                id="jurisdiction"
                 value={fantasySettings.fantasy_jurisdiction_preset}
                 onChange={(e) => {
                   const preset = e.target.value as ClubFantasySettings['fantasy_jurisdiction_preset'];
                   const allowFees = preset === 'OTHER';
                   setFantasySettings(prev => prev ? { ...prev, fantasy_jurisdiction_preset: preset, fantasy_allow_entry_fees: allowFees, fantasy_entry_fee_cents: allowFees ? prev.fantasy_entry_fee_cents : 0 } : prev);
                 }}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm min-h-[44px]"
               >
                 {JURISDICTIONS.map(j => (
                   <option key={j.value} value={j.value}>{j.label} — {j.desc}</option>
@@ -425,15 +430,16 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
             {/* Default Entry Fee (only if allowed) */}
             {fantasySettings.fantasy_allow_entry_fees && (
               <div>
-                <label className="block text-sm font-medium mb-2">Standard-Teilnahmegebühr ($SCOUT)</label>
+                <label htmlFor="entry-fee" className="block text-sm font-medium mb-2">Standard-Teilnahmegebühr ($SCOUT)</label>
                 <input
+                  id="entry-fee"
                   type="number"
                   inputMode="numeric"
                   value={fantasySettings.fantasy_entry_fee_cents / 100}
                   onChange={(e) => setFantasySettings(prev => prev ? { ...prev, fantasy_entry_fee_cents: Math.max(0, Math.round(Number(e.target.value) * 100)) } : prev)}
                   min={0}
                   max={1000}
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm"
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm min-h-[44px]"
                 />
                 <div className="text-[10px] text-white/30 mt-1">Wird als Default in neue Events übernommen</div>
               </div>
@@ -537,10 +543,11 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
                   {/* Role badge / dropdown */}
                   {isOwner && !isAdminOwner ? (
                     <select
+                      aria-label={`Rolle für ${admin.handle}`}
                       value={admin.role}
                       onChange={(e) => handleChangeRole(admin.user_id, e.target.value as ClubAdminRole)}
                       disabled={changingRole === admin.user_id}
-                      className={`px-2 py-1 rounded-lg text-xs font-bold border ${badge.bg} ${badge.color} ${badge.border} bg-transparent cursor-pointer`}
+                      className={`px-2 py-2 rounded-lg text-xs font-bold border min-h-[44px] ${badge.bg} ${badge.color} ${badge.border} bg-transparent cursor-pointer`}
                     >
                       <option value="admin">Verwalter</option>
                       <option value="editor">Redakteur</option>
@@ -556,8 +563,8 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
                     <button
                       onClick={() => handleRemoveAdmin(admin.user_id)}
                       disabled={removingId === admin.user_id}
-                      className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                      title="Entfernen"
+                      aria-label={`${admin.handle} entfernen`}
+                      className="p-2.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                     >
                       {removingId === admin.user_id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
