@@ -54,6 +54,7 @@ interface ProfileOverviewTabProps {
   transactions?: DbTransaction[];
   myResearch?: ResearchPostWithAuthor[];
   trackRecord?: AuthorTrackRecord | null;
+  isSelf?: boolean;
 }
 
 const EARNING_TYPES: { type: string; label: string; icon: React.ElementType; color: string }[] = [
@@ -86,8 +87,10 @@ export default function ProfileOverviewTab({
   transactions,
   myResearch = [],
   trackRecord,
+  isSelf = false,
 }: ProfileOverviewTabProps) {
   const tg = useTranslations('gamification');
+  const tp = useTranslations('profile');
   const pnlCents = portfolioValueCents - portfolioCostCents;
   const { data: masteryAll = [] } = useUserMasteryAll(userId);
   const topMastery = masteryAll.slice(0, 5);
@@ -110,6 +113,22 @@ export default function ProfileOverviewTab({
 
   return (
     <>
+      {/* Welcome Card for new users */}
+      {isSelf && holdings.length === 0 && !earnings && (
+        <Card className="p-5 border-[#FFD700]/20 bg-[#FFD700]/[0.03]">
+          <div className="flex items-start gap-3">
+            <Sparkles className="w-5 h-5 text-[#FFD700] flex-shrink-0 mt-0.5" />
+            <div>
+              <div className="font-bold text-sm">{tp('overview.welcomeTitle')}</div>
+              <div className="text-xs text-white/50 mt-1">{tp('overview.welcomeDesc')}</div>
+              <Link href="/market?tab=kaufen">
+                <Button variant="gold" size="sm" className="mt-3">{tp('overview.startNow')}</Button>
+              </Link>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard label="Portfoliowert" value={`${formatScout(portfolioValueCents)} $SCOUT`} icon={<BarChart3 className="w-4 h-4 text-white/40" />} />

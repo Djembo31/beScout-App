@@ -571,6 +571,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               transactions={transactions}
               myResearch={myResearch}
               trackRecord={trackRecord}
+              isSelf={isSelf}
             />
           )}
           {!holdingsLoading && !dataError && tab === 'portfolio' && isSelf && (
@@ -580,6 +581,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             <ProfileActivityTab
               transactions={isSelf ? transactions : transactions.filter(t => PUBLIC_TX_TYPES.has(t.type))}
               userId={targetUserId}
+              isSelf={isSelf}
             />
           )}
           {!holdingsLoading && !dataError && tab === 'settings' && isSelf && renderSettings?.()}

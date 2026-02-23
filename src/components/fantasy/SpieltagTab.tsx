@@ -3,9 +3,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   ChevronLeft, ChevronRight, Trophy, Clock, Loader2, Play, ArrowRight,
-  CheckCircle2, AlertTriangle, Eye, Star, X, Shirt,
+  CheckCircle2, AlertTriangle, Eye, Star, X, Shirt, Calendar,
 } from 'lucide-react';
-import { Card, Modal } from '@/components/ui';
+import { Card, Button, Modal } from '@/components/ui';
+import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
 import { getFixturesByGameweek, getFixturePlayerStats, getGameweekTopScorers } from '@/lib/services/fixtures';
 import { getLineup } from '@/lib/services/lineups';
@@ -576,6 +577,7 @@ export function SpieltagTab({
   gameweek, activeGameweek, clubId, isAdmin, events, userId,
   onEventClick, onToggleInterest, onGameweekChange, onSimulated,
 }: SpieltagTabProps) {
+  const ts = useTranslations('spieltag');
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
   const [fixturesLoading, setFixturesLoading] = useState(true);
   const [lineupStatuses, setLineupStatuses] = useState<Map<string, { hasLineup: boolean; score: number | null; rank: number | null }>>(new Map());
@@ -892,16 +894,17 @@ export function SpieltagTab({
       {/* ===== EMPTY STATES ===== */}
       {gwEvents.length === 0 && !fixturesLoading && fixtures.length === 0 && (
         <Card className="p-12 text-center">
-          <Trophy className="w-12 h-12 mx-auto mb-4 text-white/20" />
-          <div className="text-white/50 mb-1">Keine Aktivität für Spieltag {gameweek}</div>
-          <div className="text-white/30 text-xs">Events und Fixtures sind für diesen Spieltag noch nicht eingerichtet.</div>
+          <Calendar className="w-12 h-12 mx-auto mb-4 text-white/20" />
+          <div className="text-white/50 mb-1">{ts('noActivity', { gw: gameweek })}</div>
+          <div className="text-white/30 text-xs">{ts('noActivityDesc')}</div>
         </Card>
       )}
 
       {gwEvents.length === 0 && !fixturesLoading && fixtures.length > 0 && (
         <Card className="p-8 text-center">
-          <div className="text-white/50 mb-1">Noch keine Events für Spieltag {gameweek}</div>
-          <div className="text-white/30 text-xs">{fixtures.length} Paarungen vorhanden — Events werden vom Admin erstellt.</div>
+          <Trophy className="w-10 h-10 mx-auto mb-3 text-white/20" />
+          <div className="text-white/50 mb-1">{ts('noEvents', { gw: gameweek })}</div>
+          <div className="text-white/30 text-xs mb-3">{ts('noEventsDesc', { count: fixtures.length })}</div>
         </Card>
       )}
 

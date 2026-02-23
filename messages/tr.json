@@ -579,6 +579,13 @@
     "research": "Araştırma",
     "posts": "Gönderiler",
     "activity": "Aktivite",
+    "activity.emptyTitle": "Henüz aktivite yok",
+    "activity.emptyDesc": "İşlemlerin, etkinliklerin ve etkileşimlerin burada görünecek.",
+    "activity.emptyOther": "Bu kullanıcının henüz herkese açık aktivitesi yok.",
+    "activity.startTrading": "Pazara git",
+    "overview.welcomeTitle": "BeScout'a Hoş Geldin!",
+    "overview.welcomeDesc": "İlk DPC'ni al, bir fantasy etkinliğe katıl ve sicilini oluştur.",
+    "overview.startNow": "Hemen başla",
     "settings": "Ayarlar",
     "editProfile": "Profili düzenle",
     "follow": "Takip et",
@@ -1298,6 +1305,22 @@
     "ctaDemo": "Canlı Demo Başlat",
     "ctaClubPage": "Kulüp Sayfasını Gör",
     "ctaContact": "İletişim"
+  },
+  "tips": {
+    "marketTitle": "İlk DPC'n",
+    "marketDesc": "Bir oyuncu seç ve 10.000 $SCOUT başlangıç bakiyenle yatırım yap.",
+    "fantasyTitle": "İlk Fantasy Etkinliğin",
+    "fantasyDesc": "Bir etkinliğe katıl, takımını kur ve puan topla.",
+    "communityTitle": "Scouting Zone'a Hoş Geldin",
+    "communityDesc": "Fikirlerini paylaş, oyuncuları değerlendir veya transfer söylentilerini keşfet.",
+    "writePost": "Gönderi yaz",
+    "dismiss": "Anladım"
+  },
+  "spieltag": {
+    "noEvents": "Maç Haftası {gw} için henüz etkinlik yok",
+    "noEventsDesc": "{count} eşleşme mevcut — etkinlikler yönetici tarafından oluşturulur.",
+    "noActivity": "Maç Haftası {gw} için aktivite yok",
+    "noActivityDesc": "Bu maç haftası için etkinlikler ve maçlar henüz ayarlanmadı."
   },
   "sponsorStats": {
     "title": "Sponsor KPI'ları",

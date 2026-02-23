@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { Users } from 'lucide-react';
+import { Users, MessageCircle } from 'lucide-react';
 import { Skeleton, ErrorState } from '@/components/ui';
+import NewUserTip from '@/components/onboarding/NewUserTip';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useClub } from '@/components/providers/ClubProvider';
@@ -44,6 +45,7 @@ export default function CommunityPage() {
   const { addToast } = useToast();
   const { activeClub } = useClub();
   const t = useTranslations('community');
+  const tt = useTranslations('tips');
   const uid = user?.id;
 
   // Club context
@@ -475,6 +477,16 @@ export default function CommunityPage() {
           onCreateBounty={() => setCreateBountyOpen(true)}
         />
       </div>
+
+      {/* New User Tip */}
+      <NewUserTip
+        tipKey="community-first-post"
+        icon={<MessageCircle className="w-4 h-4" />}
+        title={tt('communityTitle')}
+        description={tt('communityDesc')}
+        show={!!uid && !posts.some(p => p.user_id === uid)}
+        action={{ label: tt('writePost'), onClick: () => { setDefaultPostType('general'); setCreatePostOpen(true); } }}
+      />
 
       {/* [B] Club Scope Toggle + Network Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">

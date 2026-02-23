@@ -29,6 +29,7 @@ import {
 
 import { useClub } from '@/components/providers/ClubProvider';
 import EventSummaryModal from '@/components/fantasy/EventSummaryModal';
+import NewUserTip from '@/components/onboarding/NewUserTip';
 
 const LeaguesSection = dynamic(() => import('@/components/fantasy/LeaguesSection'), { ssr: false });
 
@@ -153,6 +154,7 @@ export default function FantasyContent() {
 
   const t = useTranslations('fantasy');
   const tc = useTranslations('common');
+  const tt = useTranslations('tips');
 
   // State
   const [mainTab, setMainTab] = useState<FantasyTab>('spieltag');
@@ -555,6 +557,15 @@ export default function FantasyContent() {
           )}
         </div>
       </div>
+
+      {/* New User Tip */}
+      <NewUserTip
+        tipKey="fantasy-first-event"
+        icon={<Trophy className="w-4 h-4" />}
+        title={tt('fantasyTitle')}
+        description={tt('fantasyDesc')}
+        show={joinedIdsArr.length === 0}
+      />
 
       {/* SEGMENT TABS — 5 Tabs */}
       <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-x-auto">

@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
-  Search, Briefcase,
+  Search, Briefcase, Zap,
   MessageSquare, Trophy,
   CheckCircle2,
 } from 'lucide-react';
@@ -37,6 +37,7 @@ import dynamic from 'next/dynamic';
 import type { Player, DbIpo } from '@/types';
 
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
+import NewUserTip from '@/components/onboarding/NewUserTip';
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 const ManagerKaderTab = dynamic(() => import('@/components/manager/ManagerKaderTab'), { ssr: false });
 const ManagerBestandTab = dynamic(() => import('@/components/manager/ManagerBestandTab'), { ssr: false });
@@ -149,6 +150,7 @@ export default function MarketPage() {
 
   const t = useTranslations('market');
   const tc = useTranslations('common');
+  const tt = useTranslations('tips');
 
   const TAB_LABELS: Record<MarketTab, string> = {
     portfolio: t('myRoster'),
@@ -404,6 +406,13 @@ export default function MarketPage() {
 
       {/* ━━━ TAB: KAUFEN (Discovery + Search) ━━━ */}
       <TabPanel id="kaufen" activeTab={tab}>
+        <NewUserTip
+          tipKey="market-first-buy"
+          icon={<Zap className="w-4 h-4" />}
+          title={tt('marketTitle')}
+          description={tt('marketDesc')}
+          show={holdings.length === 0}
+        />
         <KaufenDiscovery
           players={players}
           ipoItems={ipoItems}

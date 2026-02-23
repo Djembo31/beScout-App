@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
+import Link from 'next/link';
 import { CircleDollarSign, Trophy, Award, Users, Zap, FileText, Vote, Activity } from 'lucide-react';
-import { Card, LoadMoreButton } from '@/components/ui';
+import { Card, Button, LoadMoreButton } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { formatScout, getTransactions } from '@/lib/services/wallet';
 import { getActivityIcon, getActivityColor, getActivityLabel, getRelativeTime } from '@/lib/activityHelpers';
+import { useTranslations } from 'next-intl';
 import type { DbTransaction } from '@/types';
 
 // ============================================
@@ -29,13 +31,15 @@ const PAGE_SIZE = 20;
 interface ProfileActivityTabProps {
   transactions: DbTransaction[];
   userId: string;
+  isSelf?: boolean;
 }
 
 // ============================================
 // COMPONENT
 // ============================================
 
-export default function ProfileActivityTab({ transactions: initial, userId }: ProfileActivityTabProps) {
+export default function ProfileActivityTab({ transactions: initial, userId, isSelf = false }: ProfileActivityTabProps) {
+  const t = useTranslations('profile');
   const [transactions, setTransactions] = useState(initial);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(initial.length >= PAGE_SIZE);
@@ -57,8 +61,19 @@ export default function ProfileActivityTab({ transactions: initial, userId }: Pr
     <Card className="p-4 md:p-6">
       <h3 className="font-black mb-4">Letzte Aktivität</h3>
       {transactions.length === 0 ? (
-        <div className="text-center py-8 text-white/30 text-sm">
-          Noch keine Aktivität
+        <div className="text-center py-10">
+          <Activity className="w-10 h-10 mx-auto mb-3 text-white/20" />
+          <div className="text-white/40 font-semibold text-sm mb-1">
+            {isSelf ? t('activity.emptyTitle') : t('activity.emptyOther')}
+          </div>
+          {isSelf && (
+            <>
+              <div className="text-xs text-white/30 mb-3">{t('activity.emptyDesc')}</div>
+              <Link href="/market?tab=kaufen">
+                <Button variant="gold" size="sm">{t('activity.startTrading')}</Button>
+              </Link>
+            </>
+          )}
         </div>
       ) : (
         <>

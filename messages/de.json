@@ -579,6 +579,13 @@
     "research": "Research",
     "posts": "Beiträge",
     "activity": "Aktivität",
+    "activity.emptyTitle": "Noch keine Aktivität",
+    "activity.emptyDesc": "Deine Trades, Events und Interaktionen erscheinen hier.",
+    "activity.emptyOther": "Dieser Nutzer hat noch keine öffentliche Aktivität.",
+    "activity.startTrading": "Zum Marktplatz",
+    "overview.welcomeTitle": "Willkommen bei BeScout!",
+    "overview.welcomeDesc": "Kaufe dein erstes DPC, tritt einem Fantasy-Event bei und baue deinen Track Record auf.",
+    "overview.startNow": "Jetzt starten",
     "settings": "Einstellungen",
     "editProfile": "Profil bearbeiten",
     "follow": "Folgen",
@@ -1298,6 +1305,22 @@
     "ctaDemo": "Live Demo starten",
     "ctaClubPage": "Club-Seite ansehen",
     "ctaContact": "Kontakt"
+  },
+  "tips": {
+    "marketTitle": "Dein erstes DPC",
+    "marketDesc": "Wähle einen Spieler und investiere dein Startguthaben von 10.000 $SCOUT.",
+    "fantasyTitle": "Dein erstes Fantasy-Event",
+    "fantasyDesc": "Tritt einem Event bei, stelle dein Team auf und sammle Punkte.",
+    "communityTitle": "Willkommen in der Scouting Zone",
+    "communityDesc": "Teile deine Meinung, bewerte Spieler oder entdecke Transfer-Gerüchte.",
+    "writePost": "Post schreiben",
+    "dismiss": "Verstanden"
+  },
+  "spieltag": {
+    "noEvents": "Noch keine Events für Spieltag {gw}",
+    "noEventsDesc": "{count} Paarungen vorhanden — Events werden vom Admin erstellt.",
+    "noActivity": "Keine Aktivität für Spieltag {gw}",
+    "noActivityDesc": "Events und Fixtures sind für diesen Spieltag noch nicht eingerichtet."
   },
   "sponsorStats": {
     "title": "Sponsor-KPIs",
