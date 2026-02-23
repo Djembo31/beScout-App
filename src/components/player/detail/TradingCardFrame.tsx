@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { getClub } from '@/lib/clubs';
-import { PlayerPhoto } from '@/components/player';
 import { TrikotBadge, posTintColors } from '@/components/player/PlayerRow';
 import type { Pos } from '@/types';
 
@@ -64,28 +63,30 @@ export default function TradingCardFrame({
         {/* Background gradient */}
         <div className={`absolute inset-0 bg-gradient-to-b ${gradient}`} />
 
-        {/* Club logo (top-left) */}
+        {/* Club logo (top-left) — bigger for identity */}
         {clubData?.logo && (
-          <div className="absolute top-3 left-3 z-10">
-            <img src={clubData.logo} alt={clubData.name} className="w-6 h-6 md:w-7 md:h-7 rounded-full object-cover opacity-80" />
+          <div className="absolute top-2.5 left-2.5 z-20">
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-black/50 border border-white/15 flex items-center justify-center backdrop-blur-sm">
+              <img src={clubData.logo} alt={clubData.name} className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover" />
+            </div>
           </div>
         )}
 
-        {/* Position + Shirt# pill (top-right) */}
+        {/* Position + Shirt# pill (top-right) — higher contrast */}
         <div
-          className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black"
-          style={{ backgroundColor: `${tint}25`, color: tint, border: `1px solid ${tint}40` }}
+          className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black backdrop-blur-sm"
+          style={{ backgroundColor: `${tint}50`, color: '#fff', border: `1px solid ${tint}70`, textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
         >
           {pos} {shirtNumber > 0 && <span className="font-mono">{shirtNumber}</span>}
         </div>
 
-        {/* Player Photo / Fallback */}
-        <div className="absolute inset-0 flex items-center justify-center pt-4">
+        {/* Player Photo / Fallback — constrained to top 68% so face doesn't overlap name */}
+        <div className="absolute inset-x-0 top-0 h-[72%] overflow-hidden">
           {imageUrl ? (
             <img
               src={imageUrl}
               alt={`${first} ${last}`}
-              className="w-full h-full object-cover object-top"
+              className="w-full h-full object-cover object-[center_20%]"
             />
           ) : (
             <div className="flex items-center justify-center w-full h-full">
@@ -94,12 +95,12 @@ export default function TradingCardFrame({
           )}
         </div>
 
-        {/* Bottom dark gradient overlay */}
-        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/60 to-transparent z-10" />
+        {/* Bottom dark gradient overlay — taller to clearly separate from photo */}
+        <div className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
 
         {/* Name + Edition badge (bottom) */}
         <div className="absolute inset-x-0 bottom-0 z-20 px-3 pb-3">
-          <div className="text-sm md:text-base font-black text-white leading-tight truncate">
+          <div className="text-sm md:text-base font-black text-white leading-tight truncate drop-shadow-lg">
             {first} {last}
           </div>
           {edition && (
