@@ -1,9 +1,22 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 23.02.2026 (Session 127)
+> Letzte Aktualisierung: 23.02.2026 (Session 128)
 > Modus: PILOT SPRINT — 201 Migrations, 22 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 566 Spieler, 505 Player Images
 
 ---
+
+## Bold Design Overhaul v2 + Trading UI Polish ✅ (23.02.2026)
+- [x] Sprint 1: 5 Competitor Research Agents — Sorare, FotMob, Kickbase, Binance/DexScreener/CoinGecko, NBA Top Shot / Trading Card
+- [x] Sprint 2: Surface Opacity 2-3× — base 2%→5%, elevated 4%→8%, featured 6%→14%, hero 8%→20%. Border Opacity 2× (0.08→0.12, 0.12→0.20, 0.16→0.24, 0.20→0.30)
+- [x] Sprint 3: Position Glows 2× — 12%→20% primary, 6%→10% secondary, inset top-light `rgba(255,255,255,0.08)`. Card-lift hover 8px→32px shadow
+- [x] Sprint 4: Holo Rainbow — L5≥80: 6-stop chromatic `holo-rainbow` (emerald→sky→purple→rose→gold). L5≥65 foil-shimmer intensified (0.08→0.18 peak, 4s cycle)
+- [x] Sprint 5: Gold Gradient Buttons — `btn-gold-glow` class, gold→amber gradient, `from-[#FFE44D] to-[#E6B800]`. Active state glow escalation
+- [x] Sprint 6: Colored Stat Cards — `StatCard` accent borders + gradients (gold/green/red/purple/sky), `border-l-3`, subtle BG gradient per accent
+- [x] Sprint 7: Live-Ring + Glassmorphism — `live-ring` pulsing ring animation, `.glass` utility (blur-16px, inset top-light, 0.06 surface + shadow)
+- [x] Sprint 8: Vivid Trading Colors — `#00E676` (neon green) + `#FF3B69` (hot pink-red) for P&L in 14 files. DexScreener/Binance-inspired
+- [x] Sprint 9: Sparkline Area Fill — MiniSparkline rewrite: SVG polygon gradient fill + glow dot at last point (CoinGecko pattern)
+- [x] Sprint 10: Trading Badges + IPO Bar — HOT = gradient red→orange + glow, Live = pulse dot + live-ring, Neu = pulse sky dot. IPO bar: green→gold gradient + centered label
+- [x] **13 Dateien (Bold Pass) + 14 Dateien (Trading Polish), 2 Commits, Build 0 Fehler**
 
 ## Design Identity Overhaul ✅ (23.02.2026)
 - [x] Sprint 1: Design Tokens Foundation — `tailwind.config.ts` (surface colors, 10 box-shadows), `globals.css` (7 keyframes + utilities: foil-shimmer, card-lift, live-glow, floodlight-divider, stagger-in, price-tick)

@@ -3,7 +3,30 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 9** – 201 Migrations, 22 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 13 Gamification-Triggers. Build sauber (0 Fehler). Design Identity Overhaul: Surface Tokens, Position Glows, Foil Shimmer, Floodlight Dividers, Card-Lift, Live-Glow. **Beta-Launch ready + Design Identity Overhaul.**
+**Woche 9** – 201 Migrations, 22 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 13 Gamification-Triggers. Build sauber (0 Fehler). Bold Design v2: Surface 5%/8%/14%/20%, Position Glows 20%, Holo Rainbow L5≥80, Gold Gradient Buttons, Inset Top-Light, Colored Stat Cards, Live-Ring, Glassmorphism, Vivid Trading Colors (#00E676/#FF3B69), Sparkline Area Fill, HOT/Live Badges. **Beta-Launch ready + Bold Design v2.**
+
+## Session 23.02.2026 (128) – Bold Design Overhaul v2 + Trading UI Polish
+
+### Änderungen
+- **5 Competitor Research Agents:** Sorare (foil shimmers, rarity tiers, card elevation), FotMob/Kickbase (live pulsing dots, stadium atmosphere), Binance/DexScreener/CoinGecko (vivid neon green/red, area-fill sparklines, price flash), NBA Top Shot/Trading Cards (holographic effects, premium elevation). Ergebnisse als Design-Patterns destilliert.
+- **Surface Opacity 2-3×:** `bg-surface-base` 2%→5%, `elevated` 4%→8%, `featured` 6%→14%, `hero` 8%→20%. Border Opacity entsprechend verdoppelt. Cards jetzt deutlich sichtbarer ohne den dunklen Hintergrund zu verlieren.
+- **Position Glows 2×:** Primary 12%→20%, Secondary 6%→10%. Inset Top-Light `rgba(255,255,255,0.08)` auf allen Karten. Card-lift Hover: `translateY(-3px) scale(1.01)` + `0 8px 32px` Shadow.
+- **Holo Rainbow (L5≥80):** Neuer `.holo-rainbow` CSS-Effekt — 6-stop chromatic gradient (emerald→sky→purple→rose→gold) mit `mix-blend-mode: screen`, 3s Animation. Foil-Shimmer (L5≥65) intensiviert: Peak 0.08→0.18, 4s Cycle.
+- **Gold Gradient Buttons:** `btn-gold-glow` mit `from-[#FFE44D] to-[#E6B800]`, Hover → `from-[#FFD700] to-[#CC9900]`, Box-Shadow-Glow auf Hover eskalierend.
+- **Colored Stat Cards:** `StatCard` accent prop mit `border-l-3` + BG-Gradient (gold/green/red/purple/sky). HomeHeader 4 Stat-Cards alle mit Accent-Farben.
+- **Live-Ring + Glass:** `.live-ring` pulsing-ring Keyframe (0→8px green shadow). `.glass` utility: `backdrop-filter: blur(16px)`, `rgba(255,255,255,0.06)` surface, inset top-light, `0 8px 32px` shadow.
+- **Vivid Trading Colors:** `#22C55E` → `#00E676` (neon green, DexScreener-inspired) und `text-red-300/400` → `#FF3B69` (hot pink-red) in 14 Trading/Price-Kontexten. Tailwind Tokens `vivid-green`/`vivid-red`. Fantasy/Status-Farben bewusst bei `#22C55E` belassen.
+- **Sparkline Area Fill:** MiniSparkline komplett neugeschrieben — SVG `<polygon>` mit `<linearGradient>` Fill (30% opacity top → 0% bottom) + glühender Endpunkt-Dot. CoinGecko-Pattern.
+- **Trading Badges:** HOT = `bg-gradient-to-r from-[#FF3B69] to-[#FF6B3B]` + Glow-Shadow. Live = pulsierender grüner Dot mit `live-ring`. Neu = pulsierender sky Dot. IPO-Progress-Bar: `from-[#00E676] to-[#FFD700]` Gradient mit zentriertem Label.
+
+### Dateien (27 modifiziert in 2 Commits)
+- Config: `tailwind.config.ts`, `globals.css`
+- UI: `ui/index.tsx`, `ui/TabBar.tsx`
+- Player: `PlayerRow.tsx`, `player/index.tsx`, `DiscoveryCard.tsx`
+- Home: `HomeHeader.tsx`, `helpers.tsx`, `page.tsx`
+- Layout: `BottomNav.tsx`, `SideNav.tsx`, `layout.tsx`
+- Trading Polish: `BestandPlayerRow.tsx`, `ManagerBestandTab.tsx`, `ProfilePortfolioTab.tsx`, `ProfileOverviewTab.tsx`, `ComparePlayerCard.tsx`, `PriceChart.tsx`, `MarktTab.tsx`, `ClubContent.tsx`
+- Migration: `ProfilTab.tsx`, `AdminSettingsTab.tsx`, `EventDetailModal.tsx`, `loading.tsx`, `CommunityValuation.tsx`, `KaufenDiscovery.tsx`
 
 ## Session 23.02.2026 (127) – Design Identity Overhaul
 
