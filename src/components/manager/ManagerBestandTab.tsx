@@ -211,7 +211,7 @@ export default function ManagerBestandTab({
     [sellPlayerId, bestandItems]
   );
 
-  const getPnlColor = (pnl: number) => pnl >= 0 ? 'text-[#22C55E]' : 'text-red-300';
+  const getPnlColor = (pnl: number) => pnl >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]';
 
   const renderRow = (item: BestandPlayer) => (
     <BestandPlayerRow
@@ -237,7 +237,7 @@ export default function ManagerBestandTab({
           <div className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">Kaderwert</div>
           <div className="text-xl font-black font-mono text-[#FFD700]" style={{ textShadow: '0 0 10px rgba(255,215,0,0.3)' }}>{fmtScout(Math.round(summary.totalValue))}</div>
         </div>
-        <div className={cn('bg-gradient-to-br rounded-xl px-4 py-3 shadow-card-sm border', summary.pnl >= 0 ? 'from-[#22C55E]/[0.08] to-transparent border-[#22C55E]/[0.12]' : 'from-red-400/[0.08] to-transparent border-red-400/[0.12]')}>
+        <div className={cn('bg-gradient-to-br rounded-xl px-4 py-3 shadow-card-sm border', summary.pnl >= 0 ? 'from-[#00E676]/[0.08] to-transparent border-[#00E676]/[0.12]' : 'from-[#FF3B69]/[0.08] to-transparent border-[#FF3B69]/[0.12]')}>
           <div className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">G/V</div>
           <div className={cn('text-xl font-black font-mono', getPnlColor(summary.pnl))}>
             {summary.pnl >= 0 ? '+' : ''}{fmtScout(Math.round(summary.pnl))}

@@ -117,7 +117,7 @@ export default function ProfileOverviewTab({
           label="Wertentwicklung"
           value={`${pnlCents >= 0 ? '+' : ''}${formatScout(pnlCents)} $SCOUT`}
           trend={pnlCents >= 0 ? 'up' : 'down'}
-          icon={pnlCents >= 0 ? <TrendingUp className="w-4 h-4 text-[#22C55E]" /> : <TrendingDown className="w-4 h-4 text-red-400" />}
+          icon={pnlCents >= 0 ? <TrendingUp className="w-4 h-4 text-[#00E676]" /> : <TrendingDown className="w-4 h-4 text-[#FF3B69]" />}
         />
         <StatCard label="Spieler" value={holdings.length} />
         <StatCard label="DPCs" value={totalDpcs} />

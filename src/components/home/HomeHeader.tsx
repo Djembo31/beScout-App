@@ -78,17 +78,17 @@ export default function HomeHeader({
         <div className={cn(
           'bg-gradient-to-br shadow-card-sm rounded-xl p-3 md:p-4 border-l-3 border',
           pnl >= 0
-            ? 'from-[#22C55E]/[0.10] to-transparent border-[#22C55E]/[0.15] border-l-[#22C55E]'
-            : 'from-red-400/[0.10] to-transparent border-red-400/[0.15] border-l-red-400'
+            ? 'from-[#00E676]/[0.10] to-transparent border-[#00E676]/[0.15] border-l-[#00E676]'
+            : 'from-[#FF3B69]/[0.10] to-transparent border-[#FF3B69]/[0.15] border-l-[#FF3B69]'
         )}>
           <div className="flex items-center gap-1 mb-1">
             <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">{t('pnl')}</span>
             <InfoTooltip text={t('pnlTooltip')} />
           </div>
-          <div className={cn('font-mono font-black text-base md:text-xl truncate', pnl >= 0 ? 'text-[#22C55E]' : 'text-red-400')}>
+          <div className={cn('font-mono font-black text-base md:text-xl truncate', pnl >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]')}>
             {pnl >= 0 ? '+' : ''}{fmtScout(pnl)}
           </div>
-          <div className={cn('text-[10px]', pnl >= 0 ? 'text-[#22C55E]/60' : 'text-red-400/60')}>
+          <div className={cn('text-[10px]', pnl >= 0 ? 'text-[#00E676]/60' : 'text-[#FF3B69]/60')}>
             {pnl >= 0 ? '+' : ''}{pnlPct.toFixed(1)}%
           </div>
         </div>

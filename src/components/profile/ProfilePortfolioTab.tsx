@@ -101,7 +101,7 @@ export default function ProfilePortfolioTab({ holdings }: ProfilePortfolioTabPro
           </div>
           <div className="text-right">
             <div className="text-xs text-white/40 mb-1">Wertentwicklung</div>
-            <div className={cn('text-lg font-mono font-bold flex items-center gap-1 justify-end', pnlCents >= 0 ? 'text-[#22C55E]' : 'text-red-400')}>
+            <div className={cn('text-lg font-mono font-bold flex items-center gap-1 justify-end', pnlCents >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]')}>
               {pnlCents >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
               {pnlCents >= 0 ? '+' : ''}{formatScout(pnlCents)} $SCOUT
             </div>

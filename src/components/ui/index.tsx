@@ -256,7 +256,7 @@ export function StatCard({
   trend?: 'up' | 'down';
   accent?: StatCardAccent;
 }) {
-  const trendColor = trend === 'up' ? 'text-[#22C55E]' : trend === 'down' ? 'text-red-300' : 'text-white';
+  const trendColor = trend === 'up' ? 'text-[#00E676]' : trend === 'down' ? 'text-[#FF3B69]' : 'text-white';
 
   return (
     <div className={cn(

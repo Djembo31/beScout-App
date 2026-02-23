@@ -28,10 +28,10 @@ interface DiscoveryCardProps {
   buying?: boolean;
 }
 
-const VARIANT_STYLES: Record<DiscoveryVariant, { badge: string; badgeBg: string; label: string }> = {
-  ipo: { badge: 'text-[#22C55E]', badgeBg: 'bg-[#22C55E]/15', label: 'Live' },
-  trending: { badge: 'text-orange-300', badgeBg: 'bg-orange-500/15', label: '' },
-  deal: { badge: 'text-[#22C55E]', badgeBg: 'bg-[#22C55E]/15', label: 'Wert!' },
+const VARIANT_STYLES: Record<DiscoveryVariant, { badge: string; badgeBg: string; label: string; glow?: string }> = {
+  ipo: { badge: 'text-[#00E676]', badgeBg: 'bg-[#00E676]/15', label: 'Live', glow: 'shadow-[0_0_8px_rgba(0,230,118,0.3)]' },
+  trending: { badge: 'text-white', badgeBg: 'bg-gradient-to-r from-[#FF3B69] to-[#FF6B3B]', label: 'HOT', glow: 'shadow-[0_0_8px_rgba(255,59,105,0.3)]' },
+  deal: { badge: 'text-[#00E676]', badgeBg: 'bg-[#00E676]/15', label: 'Wert!' },
   new: { badge: 'text-sky-300', badgeBg: 'bg-sky-500/15', label: 'Neu' },
   listing: { badge: 'text-[#FFD700]', badgeBg: 'bg-[#FFD700]/15', label: 'Am Markt' },
 };
@@ -87,19 +87,27 @@ export default function DiscoveryCard({
 
       {/* Variant-specific indicator */}
       {variant === 'ipo' && ipoProgress !== undefined && (
-        <div className="mt-1.5 flex items-center gap-1.5">
-          <div className="flex-1 h-1 bg-black/30 rounded-full overflow-hidden">
-            <div className="h-full bg-[#22C55E] rounded-full transition-all" style={{ width: `${Math.min(ipoProgress, 100)}%` }} />
+        <div className="relative mt-1.5">
+          <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden border border-white/[0.06]">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[#00E676] to-[#FFD700] transition-all duration-500"
+              style={{
+                width: `${Math.min(ipoProgress, 100)}%`,
+                boxShadow: '0 0 8px rgba(0,230,118,0.3)',
+              }}
+            />
           </div>
-          <span className="text-[9px] font-mono text-white/30">{ipoProgress.toFixed(0)}%</span>
+          <span className="absolute inset-0 flex items-center justify-center text-[8px] font-mono font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+            {ipoProgress.toFixed(0)}% verkauft
+          </span>
         </div>
       )}
 
       {variant === 'trending' && tradeCount !== undefined && (
         <div className="mt-1.5 flex items-center justify-between">
-          <span className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded', vs.badgeBg, vs.badge)}>{tradeCount}× Trades</span>
+          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded text-white/60">{tradeCount}× Trades</span>
           {change24h !== undefined && (
-            <span className={cn('text-[10px] font-mono', change24h >= 0 ? 'text-[#22C55E]' : 'text-red-300')}>
+            <span className={cn('text-[10px] font-mono font-bold', change24h >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]')}>
               {change24h >= 0 ? '+' : ''}{change24h.toFixed(1)}%
             </span>
           )}
@@ -114,7 +122,10 @@ export default function DiscoveryCard({
 
       {variant === 'new' && listedAt && (
         <div className="mt-1.5">
-          <span className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded', vs.badgeBg, vs.badge)}>{getRelativeTime(listedAt)}</span>
+          <span className={cn('inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded', vs.badgeBg, vs.badge)}>
+            <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
+            {getRelativeTime(listedAt)}
+          </span>
         </div>
       )}
 
@@ -128,8 +139,19 @@ export default function DiscoveryCard({
       )}
 
       {/* Badge */}
-      {vs.label && variant !== 'trending' && variant !== 'new' && variant !== 'listing' && (
-        <div className={cn('absolute top-1.5 right-1.5 text-[9px] font-black px-1 py-0.5 rounded', vs.badgeBg, vs.badge)}>
+      {variant === 'trending' && (
+        <div className={cn('absolute top-1.5 right-1.5 text-[9px] font-black px-1.5 py-0.5 rounded-md', vs.badgeBg, vs.badge, vs.glow)}>
+          {vs.label}
+        </div>
+      )}
+      {variant === 'ipo' && (
+        <div className={cn('absolute top-1.5 right-1.5 inline-flex items-center gap-1 text-[9px] font-black px-1.5 py-0.5 rounded-md', vs.badgeBg, vs.badge, vs.glow)}>
+          <span className="w-1.5 h-1.5 rounded-full bg-[#00E676] live-ring" />
+          {vs.label}
+        </div>
+      )}
+      {vs.label && variant !== 'trending' && variant !== 'ipo' && variant !== 'new' && variant !== 'listing' && (
+        <div className={cn('absolute top-1.5 right-1.5 text-[9px] font-black px-1.5 py-0.5 rounded-md', vs.badgeBg, vs.badge, vs.glow)}>
           {vs.label}
         </div>
       )}

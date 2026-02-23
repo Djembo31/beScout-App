@@ -115,27 +115,38 @@ export function MiniSparkline({ values, width = 100, height = 24 }: { values: nu
   const max = Math.max(...values);
   const norm = (v: number) => (max === min ? 0.5 : (v - min) / (max - min));
 
-  const pts = values
-    .map((v, i) => {
-      const x = 2 + (i * (width - 4)) / (values.length - 1);
-      const y = 2 + (1 - norm(v)) * (height - 4);
-      return `${x},${y}`;
-    })
-    .join(' ');
+  const coords = values.map((v, i) => ({
+    x: 2 + (i * (width - 4)) / (values.length - 1),
+    y: 2 + (1 - norm(v)) * (height - 4),
+  }));
 
+  const pts = coords.map(c => `${c.x},${c.y}`).join(' ');
   const up = values[values.length - 1] >= values[0];
+  const color = up ? '#00E676' : '#FF3B69';
+  const last = coords[coords.length - 1];
+  const gradId = `spark-${up ? 'up' : 'dn'}`;
+
+  // Area fill polygon: line points + bottom-right + bottom-left
+  const areaPts = `${pts} ${coords[coords.length - 1].x},${height} ${coords[0].x},${height}`;
 
   return (
-    <svg width={width} height={height} className="opacity-80">
+    <svg width={width} height={height} className="opacity-90">
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.30" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon points={areaPts} fill={`url(#${gradId})`} />
       <polyline
         points={pts}
         fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        className={up ? 'text-[#22C55E]' : 'text-red-400'}
+        stroke={color}
+        strokeWidth="1.5"
         strokeLinejoin="round"
         strokeLinecap="round"
       />
+      <circle cx={last.x} cy={last.y} r="2" fill={color} style={{ filter: `drop-shadow(0 0 4px ${color})` }} />
     </svg>
   );
 }
@@ -405,12 +416,12 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       const upPnl = pnl >= 0;
       kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
       kpis.push(
-        <span key="pnl" className={`${kpiCls} ${upPnl ? 'text-[#22C55E]' : 'text-red-400'}`}>
+        <span key="pnl" className={`${kpiCls} ${upPnl ? 'text-[#00E676]' : 'text-[#FF3B69]'}`}>
           <span className={labelCls}>G/V</span>{upPnl ? '+' : ''}{fmtScout(Math.round(pnl))} ({upPnl ? '+' : ''}{pnlPct.toFixed(1)}%)
         </span>
       );
       kpis.push(
-        <span key="ch" className={`${kpiCls} ${up ? 'text-[#22C55E]' : 'text-red-400'}`}>
+        <span key="ch" className={`${kpiCls} ${up ? 'text-[#00E676]' : 'text-[#FF3B69]'}`}>
           {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
         </span>
       );
@@ -423,7 +434,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
     case 'market':
       kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
       kpis.push(
-        <span key="ch" className={`${kpiCls} ${up ? 'text-[#22C55E]' : 'text-red-400'}`}>
+        <span key="ch" className={`${kpiCls} ${up ? 'text-[#00E676]' : 'text-[#FF3B69]'}`}>
           {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
         </span>
       );
@@ -432,7 +443,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       kpis.push(
         <span key="st" className={`${kpiCls} text-white/50`}>
           {player.stats.matches}<span className="text-white/20">/</span>
-          <span className="text-[#22C55E]">{player.stats.goals}</span><span className="text-white/20">/</span>
+          <span className="text-[#00E676]">{player.stats.goals}</span><span className="text-white/20">/</span>
           <span className="text-sky-300">{player.stats.assists}</span>
         </span>
       );

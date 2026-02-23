@@ -204,9 +204,9 @@ body {
 
 /* Live dot pulsing ring — FotMob */
 @keyframes live-ring {
-  0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.5); }
-  70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
-  100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+  0% { box-shadow: 0 0 0 0 rgba(0,230,118,0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(0,230,118,0); }
+  100% { box-shadow: 0 0 0 0 rgba(0,230,118,0); }
 }
 .live-ring { animation: live-ring 1.5s ease-in-out infinite; }
 
@@ -224,10 +224,28 @@ body {
 }
 
 /* Price tick flash */
-@keyframes price-tick-up { 0% { background-color: rgba(34,197,94,0.25); } 100% { background-color: transparent; } }
-@keyframes price-tick-down { 0% { background-color: rgba(239,68,68,0.25); } 100% { background-color: transparent; } }
+@keyframes price-tick-up {
+  0% { background-color: rgba(0,230,118,0.20); color: #00E676; }
+  100% { background-color: transparent; }
+}
+@keyframes price-tick-down {
+  0% { background-color: rgba(255,59,105,0.20); color: #FF3B69; }
+  100% { background-color: transparent; }
+}
 .anim-tick-up { animation: price-tick-up 0.8s ease-out; }
 .anim-tick-down { animation: price-tick-down 0.8s ease-out; }
+
+/* Flash cell — rounded container for price ticks */
+.flash-cell { border-radius: 6px; transition: background-color 0.1s; }
+.flash-cell.up { animation: price-tick-up 0.8s ease-out; }
+.flash-cell.down { animation: price-tick-down 0.8s ease-out; }
+
+/* Number slide-in for balance updates */
+@keyframes num-slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.anim-num-up { animation: num-slide-up 0.3s ease-out; }
 
 /* Glass surface — premium modal/overlay feel */
 .glass {
@@ -254,7 +272,7 @@ body {
 
 /* Colored surface tints for themed cards */
 .surface-gold { background: linear-gradient(135deg, rgba(255,215,0,0.08) 0%, transparent 60%); }
-.surface-green { background: linear-gradient(135deg, rgba(34,197,94,0.08) 0%, transparent 60%); }
-.surface-red { background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, transparent 60%); }
+.surface-green { background: linear-gradient(135deg, rgba(0,230,118,0.08) 0%, transparent 60%); }
+.surface-red { background: linear-gradient(135deg, rgba(255,59,105,0.08) 0%, transparent 60%); }
 .surface-purple { background: linear-gradient(135deg, rgba(168,85,247,0.08) 0%, transparent 60%); }
 .surface-sky { background: linear-gradient(135deg, rgba(14,165,233,0.08) 0%, transparent 60%); }

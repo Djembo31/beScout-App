@@ -286,7 +286,7 @@ export default function MarktTab({
             </div>
             <div className="bg-surface-base rounded-lg p-3">
               <div className="text-xs text-white/40">24h Change</div>
-              <div className={`font-mono font-bold ${player.prices.change24h >= 0 ? 'text-[#22C55E]' : 'text-red-300'}`}>
+              <div className={`font-mono font-bold ${player.prices.change24h >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]'}`}>
                 {player.prices.change24h >= 0 ? '+' : ''}{player.prices.change24h.toFixed(1)}%
               </div>
             </div>

@@ -417,7 +417,7 @@ function TopPlayersWidget({
                 <PlayerIdentity player={player} size="sm" showMeta={false} showStatus={false} />
                 <div className="text-[10px] text-white/40 shrink-0">{fmtScout(player.prices.lastTrade)} $SCOUT</div>
               </div>
-              <div className={`flex items-center gap-1 font-mono font-bold ${player.prices.change24h >= 0 ? 'text-[#22C55E]' : 'text-red-400'}`}>
+              <div className={`flex items-center gap-1 font-mono font-bold ${player.prices.change24h >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]'}`}>
                 {player.prices.change24h >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                 {Math.abs(player.prices.change24h).toFixed(1)}%
               </div>

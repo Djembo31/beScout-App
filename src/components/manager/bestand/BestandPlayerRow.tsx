@@ -82,7 +82,7 @@ function PerformanceCols({ item, minutes, nextFixture }: { item: BestandPlayer; 
 }
 
 function MarktCols({ item }: { item: BestandPlayer }) {
-  const pnlColor = item.pnlBsd >= 0 ? 'text-[#22C55E]' : 'text-red-300';
+  const pnlColor = item.pnlBsd >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]';
   const TrendIcon = item.pnlBsd > 0 ? TrendingUp : item.pnlBsd < 0 ? TrendingDown : Minus;
   return (
     <>

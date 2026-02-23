@@ -60,7 +60,7 @@ export default function PriceChart({ trades, ipoPrice, className = '' }: PriceCh
         </h3>
         <div className="flex items-center gap-2">
           <span className="text-sm font-mono font-bold">{fmtScout(prices[prices.length - 1])} $SCOUT</span>
-          <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-lg ${up ? 'bg-[#22C55E]/10 text-[#22C55E]' : 'bg-red-500/10 text-red-400'}`}>
+          <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-lg ${up ? 'bg-[#00E676]/10 text-[#00E676]' : 'bg-[#FF3B69]/10 text-[#FF3B69]'}`}>
             {change >= 0 ? '+' : ''}{fmtScout(change)} ({changePct >= 0 ? '+' : ''}{changePct.toFixed(1)}%)
           </span>
         </div>
@@ -83,12 +83,12 @@ export default function PriceChart({ trades, ipoPrice, className = '' }: PriceCh
           <line x1={padX} y1={ipoY} x2={W - 10} y2={ipoY} stroke="#FFD700" strokeWidth="1" strokeDasharray="6,4" opacity={0.3} />
         )}
         {/* Area fill */}
-        <path d={areaPath} fill={up ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)'} />
+        <path d={areaPath} fill={up ? 'rgba(0,230,118,0.10)' : 'rgba(255,59,105,0.10)'} />
         {/* Line */}
-        <polyline points={polyline} fill="none" stroke={up ? '#22C55E' : '#EF4444'} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        <polyline points={polyline} fill="none" stroke={up ? '#00E676' : '#FF3B69'} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
         {/* Data points */}
         {pts.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r="3" fill={up ? '#22C55E' : '#EF4444'} stroke="#0a0a0a" strokeWidth="1.5" />
+          <circle key={i} cx={p.x} cy={p.y} r="3" fill={up ? '#00E676' : '#FF3B69'} stroke="#0a0a0a" strokeWidth="1.5" />
         ))}
       </svg>
       <div className="flex justify-between text-[10px] text-white/30 mt-1 px-1">
