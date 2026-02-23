@@ -1,9 +1,18 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 23.02.2026 (Session 126)
+> Letzte Aktualisierung: 23.02.2026 (Session 127)
 > Modus: PILOT SPRINT — 201 Migrations, 22 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 566 Spieler, 505 Player Images
 
 ---
+
+## Design Identity Overhaul ✅ (23.02.2026)
+- [x] Sprint 1: Design Tokens Foundation — `tailwind.config.ts` (surface colors, 10 box-shadows), `globals.css` (7 keyframes + utilities: foil-shimmer, card-lift, live-glow, floodlight-divider, stagger-in, price-tick)
+- [x] Sprint 2: Surface System Primitives — `Card` upgraded (4 surface variants, hoverable, glow), `StatCard` accent prop, `SkeletonCard` bg-surface-elevated, `cn()` import
+- [x] Sprint 3: Player Card Transformation — Position gradients + glow shadows on PlayerDisplay card/compact, foil shimmer (L5≥65), card-lift hover, gold price drop-shadow. DiscoveryCard: position gradient + IPO glow
+- [x] Sprint 4: Home Page Visual Flow — Gold glow greeting, 4 stat-cards with accent border-l-2 (gold/green-red/gold/purple), SectionHeader gold accent, 3 floodlight dividers, event shadow + prize glow, IPO shadow-glow-live, stagger animations on market movers
+- [x] Sprint 5: Layout Chrome & Navigation Polish — BottomNav gold glow active indicator, SideNav wallet gold border + active nav glow, layout top floodlight gradient + warmer gold blob
+- [x] Sprint 6: Inline Migration & Live Indicators — `bg-white/[0.02]` → `bg-surface-base` in 10 files (~80 occurrences), TabBar gradient active state, live-glow on IPO banner
+- [x] **22 Dateien, +241/-107 Zeilen, Build 0 Fehler**
 
 ## Geofencing Infrastruktur ✅ (23.02.2026)
 - [x] Sprint 1: Migration #201 — `profiles.region TEXT` + `geofencing_config` Tabelle (5×4 Matrix, RLS, 20 Seed-Rows)
@@ -290,7 +299,7 @@
 - [ ] Native App → Post-Pilot
 - [ ] ~~Next.js 15/16 Migration~~ → Post-Pilot
 
-> **Status:** Code-seitig launch-fertig + Demo+Pitch + Geofencing ready. Nur 2 manuelle Setup-Schritte blockieren den Beta-Launch.
+> **Status:** Code-seitig launch-fertig + Design Identity Overhaul. Nur 2 manuelle Setup-Schritte blockieren den Beta-Launch.
 
 ## Multi-Club Expansion ✅ (16.02.2026)
 - [x] **Phase 1 (Data Layer):** 3 Migrationen (#128-#130) — `leagues` Tabelle, `club_followers` Tabelle (RLS + Migration), `club_id` auf community_polls

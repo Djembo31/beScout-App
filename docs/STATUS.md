@@ -3,7 +3,25 @@
 > Aktualisiert nach jeder Session. Einzige Datei die du pflegen MUSST.
 
 ## Jetzt
-**Woche 9** – 201 Migrations, 22 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 13 Gamification-Triggers. Build sauber (0 Fehler). Demo-Modus + Pitch-Seite + Geofencing-Infrastruktur. Feature Flag global OFF. **Beta-Launch ready + Demo+Pitch + Geofencing ready.**
+**Woche 9** – 201 Migrations, 22 Routes, 1 Edge Function v2, 2 pg_cron Jobs, 21 Sponsor-Placements, 13 Gamification-Triggers. Build sauber (0 Fehler). Design Identity Overhaul: Surface Tokens, Position Glows, Foil Shimmer, Floodlight Dividers, Card-Lift, Live-Glow. **Beta-Launch ready + Design Identity Overhaul.**
+
+## Session 23.02.2026 (127) – Design Identity Overhaul
+
+### Änderungen
+- **Sprint 1 — Design Tokens Foundation:** `tailwind.config.ts` erweitert mit `surface` colors (base/elevated/featured/hero), 10 box-shadows (6 position/gold/live glows + 3 card elevations). `globals.css` erweitert mit 7 keyframes + CSS utilities (foil-shimmer, card-lift, live-glow, floodlight-divider, stagger-in, price-tick-up/down).
+- **Sprint 2 — Surface System Primitives:** `Card` Component upgraded: 4 surface variants, `hoverable` prop (card-lift), `glow` prop (6 options). `StatCard` neuer `accent` prop mit farbiger linker Border (gold/green/red/purple/sky). `SkeletonCard` → `bg-surface-elevated`. `cn()` Import hinzugefügt.
+- **Sprint 3 — Player Card Transformation:** `PlayerRow.tsx`: `posCardGradients` + `posGlowShadows` Maps für alle 4 Positionen. Card-Variante: Position-Gradient Background + Glow-Shadow + `foil-shimmer` bei L5≥65 + `card-lift` + Gold-Price-Drop-Shadow. Compact-Variante: subtiler Right-Gradient + `card-lift`. `DiscoveryCard.tsx`: Position-Gradient + IPO-Glow (`shadow-glow-live`) + `card-lift`.
+- **Sprint 4 — Home Page Visual Flow:** `HomeHeader`: Gold-Glow hinter Greeting, 4 Stat-Cards auf `bg-surface-elevated shadow-card-sm` + farbige `border-l-2`. `helpers.tsx`: SectionHeader Gold-Accent Underline. `page.tsx`: 3 Floodlight-Divider, Event-Banner `shadow-card-md` + Gold-Prize-Drop-Shadow, IPO-Banner `shadow-glow-live` + `live-glow`, Stagger-Animationen auf Market Movers.
+- **Sprint 5 — Layout Chrome & Navigation Polish:** `BottomNav`: Gold-Glow auf Active-Indicator (`shadow-glow-gold`), stärkerer Icon-Drop-Shadow. `SideNav`: Wallet-Display Gold-Border (`border-[#FFD700]/10`), Active-Nav-Item-Glow (`shadow-[0_0_12px...]`). `layout.tsx`: Top-Flutlicht-Gradient, Gold-Blob Opacity 0.03→0.04.
+- **Sprint 6 — Inline Migration & Live Indicators:** `bg-white/[0.02]` → `bg-surface-base` in 10 Dateien (~80 Occ.): ClubContent, ProfilTab, AdminSettingsTab, MarktTab, EventDetailModal, loading.tsx, ProfileOverviewTab, CommunityValuation, KaufenDiscovery, ManagerBestandTab, page.tsx. `TabBar`: Gradient Active State. IPO Live-Indicator: `live-glow` Wrapper.
+
+### Dateien (22 modifiziert)
+- Config: `tailwind.config.ts`, `globals.css`
+- UI: `ui/index.tsx`, `ui/TabBar.tsx`
+- Player: `PlayerRow.tsx`, `DiscoveryCard.tsx`
+- Home: `HomeHeader.tsx`, `helpers.tsx`, `page.tsx`
+- Layout: `BottomNav.tsx`, `SideNav.tsx`, `layout.tsx`
+- Migration: `ClubContent.tsx`, `ProfilTab.tsx`, `MarktTab.tsx`, `AdminSettingsTab.tsx`, `EventDetailModal.tsx`, `loading.tsx`, `ProfileOverviewTab.tsx`, `CommunityValuation.tsx`, `KaufenDiscovery.tsx`, `ManagerBestandTab.tsx`
 
 ## Session 23.02.2026 (126) – Geofencing Infrastruktur
 
