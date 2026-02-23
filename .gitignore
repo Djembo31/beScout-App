@@ -58,6 +58,7 @@ Desktop.ini
 # test results
 /test-results/
 /playwright-report/
+/.auth/
 nul
 
 .vercel

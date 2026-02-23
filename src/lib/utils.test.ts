@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { cn, fmtScout, fmtCompact, fmtPct, clamp, truncate } from './utils';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { cn, fmtScout, fmtCompact, fmtPct, clamp, truncate, humanTimeLeft, timeAgo, withTimeout } from './utils';
 
 // ============================================
 // cn (classNames helper)
@@ -139,5 +139,117 @@ describe('truncate', () => {
     const result = truncate('Hello World', 5);
     expect(result).toContain('…');
     expect(result.length).toBeLessThanOrEqual(6); // 5 chars + ellipsis
+  });
+});
+
+// ============================================
+// humanTimeLeft
+// ============================================
+
+describe('humanTimeLeft', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-02-23T12:00:00Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('returns 0m for past timestamps', () => {
+    const past = new Date('2026-02-23T11:00:00Z').getTime();
+    expect(humanTimeLeft(past)).toBe('0m');
+  });
+
+  it('returns minutes only for < 1 hour', () => {
+    const future = Date.now() + 30 * 60_000; // 30 min
+    expect(humanTimeLeft(future)).toBe('30m');
+  });
+
+  it('returns hours and minutes for < 24 hours', () => {
+    const future = Date.now() + 3 * 60 * 60_000 + 15 * 60_000; // 3h 15m
+    expect(humanTimeLeft(future)).toBe('3h 15m');
+  });
+
+  it('returns days and hours for >= 24 hours', () => {
+    const future = Date.now() + 2 * 24 * 60 * 60_000 + 5 * 60 * 60_000; // 2d 5h
+    expect(humanTimeLeft(future)).toBe('2d 5h');
+  });
+
+  it('returns 0m for exactly now', () => {
+    expect(humanTimeLeft(Date.now())).toBe('0m');
+  });
+});
+
+// ============================================
+// timeAgo
+// ============================================
+
+describe('timeAgo', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-02-23T12:00:00Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('returns "just now" for < 1 minute', () => {
+    expect(timeAgo(Date.now() - 30_000)).toBe('just now');
+  });
+
+  it('returns minutes format', () => {
+    expect(timeAgo(Date.now() - 5 * 60_000)).toBe('5m ago');
+  });
+
+  it('returns hours format', () => {
+    expect(timeAgo(Date.now() - 3 * 60 * 60_000)).toBe('3h ago');
+  });
+
+  it('returns days format', () => {
+    expect(timeAgo(Date.now() - 2 * 24 * 60 * 60_000)).toBe('2d ago');
+  });
+});
+
+// ============================================
+// withTimeout
+// ============================================
+
+describe('withTimeout', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('resolves when promise resolves before timeout', async () => {
+    const fast = new Promise<string>(resolve => setTimeout(() => resolve('ok'), 100));
+    const result = withTimeout(fast, 5000);
+    vi.advanceTimersByTime(100);
+    await expect(result).resolves.toBe('ok');
+  });
+
+  it('rejects with Timeout error when promise takes too long', async () => {
+    const slow = new Promise<string>(resolve => setTimeout(() => resolve('late'), 10_000));
+    const result = withTimeout(slow, 1000);
+    vi.advanceTimersByTime(1000);
+    await expect(result).rejects.toThrow('Timeout');
+  });
+
+  it('passes through rejection from the original promise', async () => {
+    const failing = new Promise<string>((_, reject) => setTimeout(() => reject(new Error('boom')), 100));
+    const result = withTimeout(failing, 5000);
+    vi.advanceTimersByTime(100);
+    await expect(result).rejects.toThrow('boom');
+  });
+
+  it('uses default timeout of 8000ms', async () => {
+    const slow = new Promise<string>(resolve => setTimeout(() => resolve('late'), 10_000));
+    const result = withTimeout(slow);
+    vi.advanceTimersByTime(8000);
+    await expect(result).rejects.toThrow('Timeout');
   });
 });
