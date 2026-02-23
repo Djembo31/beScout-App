@@ -64,13 +64,13 @@ export default function ProfileActivityTab({ transactions: initial, userId, isSe
         <div className="text-center py-10">
           <Activity className="w-10 h-10 mx-auto mb-3 text-white/20" />
           <div className="text-white/40 font-semibold text-sm mb-1">
-            {isSelf ? t('activity.emptyTitle') : t('activity.emptyOther')}
+            {isSelf ? t('activityEmptyTitle') : t('activityEmptyOther')}
           </div>
           {isSelf && (
             <>
-              <div className="text-xs text-white/30 mb-3">{t('activity.emptyDesc')}</div>
+              <div className="text-xs text-white/30 mb-3">{t('activityEmptyDesc')}</div>
               <Link href="/market?tab=kaufen">
-                <Button variant="gold" size="sm">{t('activity.startTrading')}</Button>
+                <Button variant="gold" size="sm">{t('activityStartTrading')}</Button>
               </Link>
             </>
           )}

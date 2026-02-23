@@ -121,10 +121,10 @@ export default function ProfileOverviewTab({
           <div className="flex items-start gap-3">
             <Sparkles className="w-5 h-5 text-[#FFD700] flex-shrink-0 mt-0.5" />
             <div>
-              <div className="font-bold text-sm">{tp('overview.welcomeTitle')}</div>
-              <div className="text-xs text-white/50 mt-1">{tp('overview.welcomeDesc')}</div>
+              <div className="font-bold text-sm">{tp('overviewWelcomeTitle')}</div>
+              <div className="text-xs text-white/50 mt-1">{tp('overviewWelcomeDesc')}</div>
               <Link href="/market?tab=kaufen">
-                <Button variant="gold" size="sm" className="mt-3">{tp('overview.startNow')}</Button>
+                <Button variant="gold" size="sm" className="mt-3">{tp('overviewStartNow')}</Button>
               </Link>
             </div>
           </div>

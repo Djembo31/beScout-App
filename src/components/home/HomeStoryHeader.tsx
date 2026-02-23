@@ -69,31 +69,34 @@ export default function HomeStoryHeader({
         </div>
       </div>
 
-      {/* ━━━ COMPACT STAT STRIP ━━━ */}
-      <div className="mt-3 flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+      {/* ━━━ COMPACT STAT STRIP — grid fills portrait width ━━━ */}
+      <div className="mt-3 grid grid-cols-3 gap-2">
         <Link
           href="/market?tab=portfolio"
-          className="flex items-center gap-1.5 px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-all shrink-0"
+          className="flex flex-col items-center justify-center py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-all"
         >
-          <span className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">{t('portfolioRoster')}</span>
           <span className="font-mono font-black text-sm text-white">{fmtScout(portfolioValue)}</span>
+          <span className="text-[9px] text-white/40 uppercase tracking-wider font-semibold mt-0.5">{t('portfolioRoster')}</span>
         </Link>
 
         <div className={cn(
-          'flex items-center gap-1 px-3 py-2 rounded-xl border shrink-0',
+          'flex flex-col items-center justify-center py-2.5 rounded-xl border',
           pnlPositive
             ? 'bg-[#00E676]/[0.06] border-[#00E676]/15'
             : 'bg-[#FF3B69]/[0.06] border-[#FF3B69]/15'
         )}>
-          <PnlIcon className={cn('w-3 h-3', pnlPositive ? 'text-[#00E676]' : 'text-[#FF3B69]')} />
-          <span className={cn('font-mono font-black text-sm', pnlPositive ? 'text-[#00E676]' : 'text-[#FF3B69]')}>
-            {pnlPositive ? '+' : ''}{pnlPct.toFixed(1)}%
-          </span>
+          <div className="flex items-center gap-1">
+            <PnlIcon className={cn('w-3 h-3', pnlPositive ? 'text-[#00E676]' : 'text-[#FF3B69]')} />
+            <span className={cn('font-mono font-black text-sm', pnlPositive ? 'text-[#00E676]' : 'text-[#FF3B69]')}>
+              {pnlPositive ? '+' : ''}{pnlPct.toFixed(1)}%
+            </span>
+          </div>
+          <span className="text-[9px] text-white/40 uppercase tracking-wider font-semibold mt-0.5">{t('pnl')}</span>
         </div>
 
-        <div className="flex items-center gap-1.5 px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-xl shrink-0">
-          <span className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">Spieler</span>
+        <div className="flex flex-col items-center justify-center py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl">
           <span className="font-mono font-bold text-sm text-white">{holdingsCount}</span>
+          <span className="text-[9px] text-white/40 uppercase tracking-wider font-semibold mt-0.5">Spieler</span>
         </div>
       </div>
     </div>

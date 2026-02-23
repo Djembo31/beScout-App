@@ -20,19 +20,19 @@ export default function LiveTicker({ trades }: LiveTickerProps) {
   return (
     <div>
       <div className="text-[10px] font-bold text-white/30 uppercase tracking-wider mb-2">{t('liveTrades')}</div>
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div className="flex flex-wrap gap-1.5">
         {trades.map((trade) => {
           const posColor = posTintColors[trade.playerPos] ?? '#FFD700';
           return (
             <div
               key={trade.id}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/[0.03] border border-white/[0.06] rounded-lg shrink-0"
+              className="flex items-center gap-1.5 px-2 py-1 bg-white/[0.03] border border-white/[0.06] rounded-lg"
             >
-              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: posColor }} />
-              <span className="text-[11px] text-white/60 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: posColor }} />
+              <span className="text-[10px] text-white/60 whitespace-nowrap">
                 {trade.quantity}× {trade.playerName}
               </span>
-              <span className="text-[10px] font-mono text-[#FFD700]/60">
+              <span className="text-[9px] font-mono text-[#FFD700]/60">
                 {fmtScout(centsToBsd(trade.price))}
               </span>
             </div>

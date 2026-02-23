@@ -37,13 +37,13 @@ export default function PortfolioStrip({ holdings }: PortfolioStripProps) {
     );
   }
 
-  const top3 = holdings.slice(0, 3);
+  const top4 = holdings.slice(0, 4);
 
   return (
     <div>
       <SectionHeader title={t('myRoster')} href="/market?tab=portfolio" />
-      <div className="mt-3 flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-        {top3.map((h) => {
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        {top4.map((h) => {
           const posColor = posTintColors[h.pos];
           const nameParts = h.player.split(' ');
           const first = nameParts[0] || '';
@@ -53,7 +53,7 @@ export default function PortfolioStrip({ holdings }: PortfolioStripProps) {
             <Link
               key={h.id}
               href={`/player/${h.playerId}`}
-              className="flex-shrink-0 w-[140px] bg-surface-base border border-white/[0.10] rounded-xl p-3 card-lift group relative overflow-hidden"
+              className="bg-surface-base border border-white/[0.10] rounded-xl p-3 card-lift group relative overflow-hidden"
               style={{
                 borderLeftColor: posColor,
                 borderLeftWidth: 2,
@@ -83,18 +83,12 @@ export default function PortfolioStrip({ holdings }: PortfolioStripProps) {
             </Link>
           );
         })}
-
-        {/* "Show all" ghost card */}
-        {holdings.length > 3 && (
-          <Link
-            href="/market?tab=portfolio"
-            className="flex-shrink-0 w-[100px] flex flex-col items-center justify-center bg-white/[0.02] border border-white/[0.06] border-dashed rounded-xl p-3 hover:bg-white/[0.04] transition-all"
-          >
-            <ChevronRight className="w-5 h-5 text-white/20 mb-1" />
-            <span className="text-[10px] text-white/40 text-center">{t('viewAllRoster', { count: String(holdings.length) })}</span>
-          </Link>
-        )}
       </div>
+      {holdings.length > 4 && (
+        <Link href="/market?tab=portfolio" className="block text-center py-2.5 mt-1 text-xs text-[#FFD700] hover:underline">
+          {t('viewAllRoster', { count: String(holdings.length) })}
+        </Link>
+      )}
     </div>
   );
 }
