@@ -234,13 +234,13 @@ export async function createUserBounty(params: {
   // 1. Check wallet balance
   const { data: wallet, error: walletErr } = await supabase
     .from('wallets')
-    .select('balance_cents, locked_balance')
+    .select('balance, locked_balance')
     .eq('user_id', params.userId)
     .maybeSingle();
   if (walletErr) throw new Error(walletErr.message);
   if (!wallet) throw new Error('Wallet nicht gefunden');
 
-  const available = (wallet.balance_cents ?? 0) - (wallet.locked_balance ?? 0);
+  const available = (wallet.balance ?? 0) - (wallet.locked_balance ?? 0);
   if (available < params.rewardCents) {
     throw new Error('Nicht genug $SCOUT. Du brauchst ' + Math.ceil(params.rewardCents / 100) + ' $SCOUT.');
   }

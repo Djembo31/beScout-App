@@ -143,8 +143,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const ca = cAdmin.status === 'fulfilled' ? cAdmin.value : null;
       setClubAdmin(ca);
       if (ca) ssSet(SS_CLUB_ADMIN, ca); else try { sessionStorage.removeItem(SS_CLUB_ADMIN); } catch (err) { console.error('[AuthProvider] removeItem clubAdmin:', err); }
-    } catch {
-      // Profile load failed — keep cached data if any
+    } catch (err) {
+      console.error('[AuthProvider] loadProfile:', err);
     }
   }, []);
 

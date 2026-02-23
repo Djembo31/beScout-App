@@ -69,7 +69,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
           setPlayers(dbToPlayers(dbPlayers));
           setClubIpos(ipos);
         }
-      } catch {}
+      } catch (err) { console.error('[AdminPlayers] Load failed:', err); }
       finally { if (!cancelled) setLoading(false); }
     }
     load();

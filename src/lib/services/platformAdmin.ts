@@ -38,7 +38,7 @@ export async function getSystemStats(): Promise<SystemStats> {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const [usersRes, walletsRes, tradesRes, eventsRes, offersRes] = await Promise.allSettled([
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
-    supabase.from('wallets').select('balance'),
+    supabase.from('wallets').select('balance').limit(10000),
     supabase.from('trades').select('price, quantity').gte('executed_at', since),
     supabase.from('events').select('*', { count: 'exact', head: true }).in('status', ['upcoming', 'registering', 'late-reg', 'running']),
     supabase.from('offers').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
@@ -79,7 +79,7 @@ export async function getAllUsers(limit = 50, offset = 0, search?: string): Prom
 
   if (search) {
     // Sanitize search input to prevent PostgREST filter injection
-    const sanitized = search.replace(/[,()]/g, '').trim();
+    const sanitized = search.replace(/[^a-zA-Z0-9\s\-_.@üöäÜÖÄşçğıİŞÇĞ]/g, '').trim();
     if (sanitized) {
       query = query.or(`handle.ilike.%${sanitized}%,display_name.ilike.%${sanitized}%`);
     }

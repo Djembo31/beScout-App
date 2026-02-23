@@ -88,7 +88,7 @@ export async function castCommunityPollVote(
           .from('community_polls')
           .select('created_by, question')
           .eq('id', pollId)
-          .single();
+          .maybeSingle();
         if (poll && poll.created_by !== userId) {
           const { createNotification } = await import('@/lib/services/notifications');
           createNotification(

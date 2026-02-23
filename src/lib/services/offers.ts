@@ -179,11 +179,10 @@ export async function acceptOffer(userId: string, offerId: string): Promise<Offe
   if (result.success) {
     (async () => {
       try {
-        const { data: offer } = await supabase.from('offers').select('sender_id, player_id').eq('id', offerId).single();
-        if (offer) {
-          const { createNotification } = await import('@/lib/services/notifications');
-          await createNotification(offer.sender_id, 'offer_accepted', 'Angebot angenommen', 'Dein Angebot wurde angenommen');
-        }
+        const { data: offer } = await supabase.from('offers').select('sender_id, player_id').eq('id', offerId).maybeSingle();
+        if (!offer) return;
+        const { createNotification } = await import('@/lib/services/notifications');
+        await createNotification(offer.sender_id, 'offer_accepted', 'Angebot angenommen', 'Dein Angebot wurde angenommen');
       } catch (err) { console.error('[Offers] Accept notification failed:', err); }
     })();
   }
@@ -212,11 +211,10 @@ export async function rejectOffer(userId: string, offerId: string): Promise<Offe
   if (result.success) {
     (async () => {
       try {
-        const { data: offer } = await supabase.from('offers').select('sender_id').eq('id', offerId).single();
-        if (offer) {
-          const { createNotification } = await import('@/lib/services/notifications');
-          await createNotification(offer.sender_id, 'offer_rejected', 'Angebot abgelehnt', 'Dein Angebot wurde abgelehnt');
-        }
+        const { data: offer } = await supabase.from('offers').select('sender_id').eq('id', offerId).maybeSingle();
+        if (!offer) return;
+        const { createNotification } = await import('@/lib/services/notifications');
+        await createNotification(offer.sender_id, 'offer_rejected', 'Angebot abgelehnt', 'Dein Angebot wurde abgelehnt');
       } catch (err) { console.error('[Offers] Reject notification failed:', err); }
     })();
   }
@@ -242,11 +240,10 @@ export async function counterOffer(userId: string, offerId: string, newPriceCent
   if (result.success) {
     (async () => {
       try {
-        const { data: offer } = await supabase.from('offers').select('sender_id').eq('id', offerId).single();
-        if (offer) {
-          const { createNotification } = await import('@/lib/services/notifications');
-          await createNotification(offer.sender_id, 'offer_countered', 'Gegenangebot', 'Du hast ein Gegenangebot erhalten');
-        }
+        const { data: offer } = await supabase.from('offers').select('sender_id').eq('id', offerId).maybeSingle();
+        if (!offer) return;
+        const { createNotification } = await import('@/lib/services/notifications');
+        await createNotification(offer.sender_id, 'offer_countered', 'Gegenangebot', 'Du hast ein Gegenangebot erhalten');
       } catch (err) { console.error('[Offers] Counter notification failed:', err); }
     })();
   }

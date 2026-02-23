@@ -35,8 +35,9 @@ export async function buyFromMarket(
 ): Promise<TradeResult> {
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Ungültige Menge.');
   // Guard: check if player is liquidated
-  const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).single();
-  if (pl?.is_liquidated) throw new Error('Spieler wurde liquidiert. Trading nicht möglich.');
+  const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).maybeSingle();
+  if (!pl) throw new Error('Spieler nicht gefunden.');
+  if (pl.is_liquidated) throw new Error('Spieler wurde liquidiert. Trading nicht möglich.');
 
   const { data, error } = await supabase.rpc('buy_player_dpc', {
     p_user_id: userId,
@@ -97,8 +98,9 @@ export async function placeSellOrder(
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Ungültige Menge.');
   if (!Number.isInteger(priceCents) || priceCents < 1) throw new Error('Ungültiger Preis.');
   // Guard: check if player is liquidated
-  const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).single();
-  if (pl?.is_liquidated) throw new Error('Spieler wurde liquidiert. Trading nicht möglich.');
+  const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).maybeSingle();
+  if (!pl) throw new Error('Spieler nicht gefunden.');
+  if (pl.is_liquidated) throw new Error('Spieler wurde liquidiert. Trading nicht möglich.');
 
   const { data, error } = await supabase.rpc('place_sell_order', {
     p_user_id: userId,

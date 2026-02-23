@@ -627,7 +627,8 @@ export async function getClubFanAnalytics(clubId: string): Promise<{
       .from('trades')
       .select('buyer_id, seller_id, price, quantity')
       .in('player_id', playerIds)
-      .gte('executed_at', sevenDaysAgo);
+      .gte('executed_at', sevenDaysAgo)
+      .limit(10000);
 
     const users7d = new Set<string>();
     for (const t of trades7d ?? []) {
@@ -641,7 +642,8 @@ export async function getClubFanAnalytics(clubId: string): Promise<{
       .from('trades')
       .select('buyer_id, seller_id, price, quantity')
       .in('player_id', playerIds)
-      .gte('executed_at', thirtyDaysAgo);
+      .gte('executed_at', thirtyDaysAgo)
+      .limit(10000);
 
     const users30d = new Set<string>();
     for (const t of trades30d ?? []) {

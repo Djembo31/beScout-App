@@ -58,8 +58,9 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
   // Check push subscription state
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const { isPushEnabled } = require('@/lib/services/pushSubscription');
-    setPushEnabled(isPushEnabled());
+    import('@/lib/services/pushSubscription').then(({ isPushEnabled }) => {
+      setPushEnabled(isPushEnabled());
+    }).catch(() => {});
   }, []);
 
   const togglePush = useCallback(async () => {

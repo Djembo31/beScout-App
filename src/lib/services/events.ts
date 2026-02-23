@@ -106,9 +106,9 @@ export async function createEvent(params: {
         const { data: followers } = await supabase.from('club_followers').select('user_id').eq('club_id', params.clubId);
         if (followers && followers.length > 0) {
           const { createNotification } = await import('@/lib/services/notifications');
-          for (const f of followers) {
-            await createNotification(f.user_id, 'event_closing_soon', 'Neues Fantasy Event!', `"${params.name}" — Jetzt anmelden und mitspielen!`, data.id, 'event');
-          }
+          await Promise.all(followers.map(f =>
+            createNotification(f.user_id, 'event_closing_soon', 'Neues Fantasy Event!', `"${params.name}" — Jetzt anmelden und mitspielen!`, data.id, 'event')
+          ));
         }
       } catch (err) { console.error('[Events] new event notification failed:', err); }
     })();
@@ -198,9 +198,9 @@ export async function updateEventStatus(
         const { data: lineups } = await supabase.from('lineups').select('user_id').eq('event_id', eventId);
         if (lineups && lineups.length > 0) {
           const { createNotification } = await import('@/lib/services/notifications');
-          for (const l of lineups) {
-            await createNotification(l.user_id, 'event_starting', 'Event gestartet!', `${event?.name ?? 'Ein Event'} ist jetzt live — die Punkte zählen!`, eventId, 'event');
-          }
+          await Promise.all(lineups.map(l =>
+            createNotification(l.user_id, 'event_starting', 'Event gestartet!', `${event?.name ?? 'Ein Event'} ist jetzt live — die Punkte zählen!`, eventId, 'event')
+          ));
         }
       } catch (err) { console.error('[Events] event_starting notification failed:', err); }
     })();

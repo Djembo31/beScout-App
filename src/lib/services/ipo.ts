@@ -147,9 +147,9 @@ export async function updateIpoStatus(
   if (newStatus === 'open') {
     (async () => {
       try {
-        const { data: ipo } = await supabase.from('ipos').select('player_id').eq('id', ipoId).single();
+        const { data: ipo } = await supabase.from('ipos').select('player_id').eq('id', ipoId).maybeSingle();
         if (!ipo) return;
-        const { data: player } = await supabase.from('players').select('first_name, last_name, club_id').eq('id', ipo.player_id).single();
+        const { data: player } = await supabase.from('players').select('first_name, last_name, club_id').eq('id', ipo.player_id).maybeSingle();
         if (!player?.club_id) return;
         const { data: followers } = await supabase.from('club_followers').select('user_id').eq('club_id', player.club_id);
         if (followers && followers.length > 0) {
