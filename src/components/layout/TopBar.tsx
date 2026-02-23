@@ -44,6 +44,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
     markReadLocal,
     markAllReadLocal,
     onNewNotifRef,
+    refetch: refetchNotifs,
   } = useNotificationRealtime(user?.id);
 
   // Toast on new notification (only when dropdown is closed)
@@ -181,7 +182,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           <div className="relative">
             <button
               data-tour-id="topbar-notifications"
-              onClick={() => setNotifOpen(o => !o)}
+              onClick={() => { setNotifOpen(o => { if (!o) refetchNotifs(); return !o; }); }}
               className="relative p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
               aria-label={t('notifications')}
             >

@@ -17,6 +17,27 @@ export function useNotificationRealtime(userId: string | undefined) {
 
   // Callback ref for toast/sound when a new notification arrives
   const onNewNotifRef = useRef<((n: DbNotification) => void) | null>(null);
+  const fetchIdRef = useRef(0);
+
+  // Fetch function (reusable for initial + refetch)
+  const fetchNotifications = useCallback(async () => {
+    if (!userId) return;
+    const id = ++fetchIdRef.current;
+    setLoading(true);
+    try {
+      const [notifs, count] = await Promise.all([
+        getNotifications(userId, 20),
+        getUnreadCount(userId),
+      ]);
+      if (fetchIdRef.current !== id) return; // stale guard
+      setNotifications(notifs);
+      setUnreadCount(count);
+    } catch (err) {
+      console.error('[useNotificationRealtime] fetch failed:', err);
+    } finally {
+      if (fetchIdRef.current === id) setLoading(false);
+    }
+  }, [userId]);
 
   // Initial fetch
   useEffect(() => {
@@ -26,25 +47,8 @@ export function useNotificationRealtime(userId: string | undefined) {
       setLoading(false);
       return;
     }
-
-    let cancelled = false;
-    setLoading(true);
-
-    Promise.all([
-      getNotifications(userId, 20),
-      getUnreadCount(userId),
-    ]).then(([notifs, count]) => {
-      if (cancelled) return;
-      setNotifications(notifs);
-      setUnreadCount(count);
-      setLoading(false);
-    }).catch((err) => {
-      console.error('[useNotificationRealtime] Initial fetch failed:', err);
-      if (!cancelled) setLoading(false);
-    });
-
-    return () => { cancelled = true; };
-  }, [userId]);
+    fetchNotifications();
+  }, [userId, fetchNotifications]);
 
   // Realtime subscription
   useEffect(() => {
@@ -115,5 +119,6 @@ export function useNotificationRealtime(userId: string | undefined) {
     markReadLocal,
     markAllReadLocal,
     onNewNotifRef,
+    refetch: fetchNotifications,
   };
 }
