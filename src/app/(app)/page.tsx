@@ -12,11 +12,9 @@ import { fmtScout } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import {
-  Clock, Trophy, Users, Rocket, ArrowUpRight, ArrowDownRight,
-  Shield, Compass, Briefcase, Zap, MessageCircle,
+  Clock, Trophy, Users, Rocket,
+  Shield, Compass,
 } from 'lucide-react';
-import { Card, Button } from '@/components/ui';
-import { PlayerDisplay } from '@/components/player/PlayerRow';
 
 // ── React Query Hooks ──
 import {
@@ -25,17 +23,23 @@ import {
   useEvents,
   useUserStats,
   useScoutScores,
+  useRecentGlobalTrades,
+  useTrendingPlayers,
   qk,
 } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
 
 // ── Home Components ──
-import { HomeSkeleton, HomeHeader } from '@/components/home';
-import { updateLoginStreak, STREAK_KEY, SectionHeader, formatPrize, getTimeUntil } from '@/components/home/helpers';
+import { HomeSkeleton } from '@/components/home';
+import HomeStoryHeader from '@/components/home/HomeStoryHeader';
+import HomeSpotlight from '@/components/home/HomeSpotlight';
+import LiveTicker from '@/components/home/LiveTicker';
+import PortfolioStrip from '@/components/home/PortfolioStrip';
+import DiscoveryCard from '@/components/market/DiscoveryCard';
+import { updateLoginStreak, STREAK_KEY, SectionHeader, formatPrize, getTimeUntil, getStoryMessage } from '@/components/home/helpers';
 
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 const OnboardingChecklist = dynamic(() => import('@/components/onboarding/OnboardingChecklist'), { ssr: false });
-const HomeHero = dynamic(() => import('@/components/home/HomeHero'), { ssr: false });
 const MissionBanner = dynamic(() => import('@/components/missions/MissionBanner'), { ssr: false });
 
 import type { DpcHolding, DbEvent, Pos } from '@/types';
@@ -46,7 +50,6 @@ import type { DpcHolding, DbEvent, Pos } from '@/types';
 
 export default function HomePage() {
   const { user, profile, loading } = useUser();
-  const { balanceCents } = useWallet();
   const { addToast } = useToast();
   const { followedClubs } = useClub();
   const name = profile?.display_name || displayName(user);
@@ -63,6 +66,8 @@ export default function HomePage() {
   const { data: events = [] } = useEvents();
   const { data: userStats = null } = useUserStats(uid);
   const { data: scoutScores = null } = useScoutScores(uid);
+  const { data: globalTrades = [] } = useRecentGlobalTrades(5);
+  const { data: trendingPlayers = [] } = useTrendingPlayers(5);
 
   // ── i18n ──
   const t = useTranslations('home');
@@ -98,7 +103,6 @@ export default function HomePage() {
     const userId = user.id;
     let cancelled = false;
 
-    // daily_login mission tracking handled by record_login_streak RPC
     setStreak(updateLoginStreak());
 
     import('@/lib/services/streaks').then(({ recordLoginStreak }) => {
@@ -124,11 +128,6 @@ export default function HomePage() {
   const portfolioCost = useMemo(() => holdings.reduce((s, h) => s + h.qty * h.avgBuy, 0), [holdings]);
   const pnl = portfolioValue - portfolioCost;
   const pnlPct = portfolioCost > 0 ? (pnl / portfolioCost) * 100 : 0;
-  const totalDpcs = useMemo(() => holdings.reduce((s, h) => s + h.qty, 0), [holdings]);
-
-  const sortedByChange = useMemo(() => [...players].sort((a, b) => b.prices.change24h - a.prices.change24h), [players]);
-  const topGainers = sortedByChange.filter((p) => p.prices.change24h > 0).slice(0, 3);
-  const topLosers = sortedByChange.filter((p) => p.prices.change24h < 0).slice(0, 3);
 
   const activeIPOs = useMemo(() => players.filter((p) => p.ipo.status === 'open' || p.ipo.status === 'early_access'), [players]);
 
@@ -137,6 +136,28 @@ export default function HomePage() {
     active.sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
     return active[0] ?? null;
   }, [events]);
+
+  const storyMessage = useMemo(
+    () => getStoryMessage(holdings, pnl, pnlPct, activeIPOs, nextEvent),
+    [holdings, pnl, pnlPct, activeIPOs, nextEvent]
+  );
+
+  // Determine what Spotlight shows so we don't duplicate below
+  const spotlightType = useMemo(() => {
+    if (activeIPOs.length > 0) return 'ipo' as const;
+    if (nextEvent) return 'event' as const;
+    if (holdings.length > 0 && holdings.some(h => h.change24h !== 0)) return 'topMover' as const;
+    if (trendingPlayers.length > 0) return 'trending' as const;
+    return 'cta' as const;
+  }, [activeIPOs, nextEvent, holdings, trendingPlayers]);
+
+  // Trending players matched to full Player objects for DiscoveryCard
+  const trendingWithPlayers = useMemo(() => {
+    return trendingPlayers
+      .map(tp => ({ tp, player: players.find(p => p.id === tp.playerId) }))
+      .filter((item): item is { tp: typeof trendingPlayers[0]; player: NonNullable<typeof item.player> } => !!item.player)
+      .slice(0, 5);
+  }, [trendingPlayers, players]);
 
   // ── Guards ──
   if (playersLoading) return <HomeSkeleton />;
@@ -152,7 +173,8 @@ export default function HomePage() {
   return (
     <div className="max-w-[1200px] mx-auto space-y-4 md:space-y-6">
 
-      <HomeHeader
+      {/* 1. Story Header — Greeting + Narrative + Compact Stats */}
+      <HomeStoryHeader
         loading={loading}
         firstName={firstName}
         streak={streak}
@@ -160,20 +182,32 @@ export default function HomePage() {
         userStats={userStats}
         portfolioValue={portfolioValue}
         holdingsCount={holdings.length}
-        totalDpcs={totalDpcs}
         pnl={pnl}
         pnlPct={pnlPct}
-        balanceCents={balanceCents}
-        scoutScores={scoutScores}
+        storyMessage={storyMessage}
       />
 
-      {uid && <OnboardingChecklist userId={uid} name={firstName} />}
-      <HomeHero userStats={userStats} scoutScores={scoutScores} />
-      {uid && <MissionBanner />}
-      <SponsorBanner placement="home_hero" />
-      <div className="floodlight-divider" />
+      {/* 2. Spotlight — One Focus Card */}
+      <HomeSpotlight
+        activeIPOs={activeIPOs}
+        nextEvent={nextEvent}
+        holdings={holdings}
+        trendingPlayers={trendingPlayers}
+        players={players}
+      />
 
-      {/* ── Meine Vereine ── */}
+      {/* 3. Onboarding — Only for new users */}
+      {uid && <OnboardingChecklist userId={uid} name={firstName} />}
+
+      {/* 4. Live Ticker — Social Proof */}
+      <LiveTicker trades={globalTrades} />
+
+      {/* 5. Portfolio Strip — Top 3 Holdings as Cards */}
+      <PortfolioStrip holdings={holdings} />
+
+      <SponsorBanner placement="home_hero" />
+
+      {/* 6. Meine Vereine */}
       {followedClubs.length > 0 && (
         <div>
           <SectionHeader title={t('myClubs')} href="/clubs" />
@@ -208,65 +242,8 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* ── Portfolio Holdings Top 5 ── */}
-      <div>
-        <SectionHeader title={t('myRoster')} href="/market?tab=portfolio" />
-        <div className="mt-3 space-y-1.5">
-          {holdings.length === 0 ? (
-            <Card className="p-6 text-center">
-              <Briefcase className="w-10 h-10 mx-auto mb-2 text-white/20" />
-              <div className="text-sm font-medium text-white/50">{t('emptyPortfolioTitle')}</div>
-              <div className="text-xs text-white/30 mt-1">{t('emptyPortfolioDesc')}</div>
-              <Link href="/market?tab=kaufen" className="inline-block mt-3">
-                <Button variant="gold" size="sm" className="gap-1.5">
-                  <Zap className="w-3.5 h-3.5" />
-                  {t('buyFirstPlayer')}
-                </Button>
-              </Link>
-            </Card>
-          ) : (
-            holdings.slice(0, 5).map((h) => (
-              <PlayerDisplay key={h.id} variant="compact"
-                player={{
-                  id: h.playerId,
-                  first: h.player.split(' ')[0] || '',
-                  last: h.player.split(' ').slice(1).join(' ') || '',
-                  club: h.club,
-                  pos: h.pos,
-                  age: h.age,
-                  ticket: h.ticket,
-                  status: 'fit' as const,
-                  contractMonthsLeft: 24,
-                  country: '',
-                  league: '',
-                  isLiquidated: false,
-                  imageUrl: h.imageUrl,
-                  stats: { matches: h.matches, goals: h.goals, assists: h.assists },
-                  perf: { l5: h.perfL5, l15: 0, trend: 'FLAT' as const },
-                  prices: { lastTrade: 0, floor: h.floor, change24h: h.change24h },
-                  dpc: { supply: 0, float: 0, circulation: 0, onMarket: 0, owned: h.qty },
-                  ipo: { status: 'none' as const },
-                  listings: [],
-                  topOwners: [],
-                }}
-                holding={{ quantity: h.qty, avgBuyPriceBsd: h.avgBuy }}
-                showActions={false}
-              />
-            ))
-          )}
-          {holdings.length > 5 && (
-            <Link href="/market?tab=portfolio" className="block text-center py-2 text-xs text-[#FFD700] hover:underline">
-              {t('viewAllPlayers', { count: holdings.length })}
-            </Link>
-          )}
-        </div>
-      </div>
-
-      <div className="floodlight-divider" />
-      <SponsorBanner placement="home_mid" />
-
-      {/* ── Nächstes Event ── */}
-      {nextEvent && (
+      {/* 7. Event + IPO (only if NOT already shown in Spotlight) */}
+      {nextEvent && spotlightType !== 'event' && (
         <div>
           <SectionHeader
             title={t('nextEvent')}
@@ -312,8 +289,8 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* ── IPO Banner ── */}
-      {activeIPOs.length > 0 && (
+      {/* IPO Banner only if Spotlight doesn't already show it */}
+      {activeIPOs.length > 0 && spotlightType !== 'ipo' && (
         <Link href={`/player/${activeIPOs[0].id}`} className="block">
           <div className="relative overflow-hidden rounded-2xl border border-[#22C55E]/30 bg-gradient-to-r from-[#22C55E]/[0.15] via-transparent to-[#FFD700]/[0.06] shadow-glow-live">
             <div className="relative flex items-center justify-between p-4 gap-4">
@@ -346,48 +323,31 @@ export default function HomePage() {
         </Link>
       )}
 
-      {/* ── Marktbewegungen (nur wenn Daten vorhanden) ── */}
-      {(topGainers.length > 0 || topLosers.length > 0) && (
+      {/* 8. Markt-Puls — Trending Players */}
+      {trendingWithPlayers.length > 0 && (
         <>
           <div className="floodlight-divider" />
           <div>
-            <SectionHeader title={t('marketMovements')} href="/market" />
-            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {topGainers.length > 0 && (
-                <div>
-                  <div className="text-xs font-bold text-[#22C55E] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                    {t('winners24h')}
-                  </div>
-                  <div className="space-y-2">
-                    {topGainers.map((p, i) => (
-                      <div key={p.id} style={{ animation: `stagger-in 0.3s ease-out ${i * 0.05}s both` }}>
-                        <PlayerDisplay variant="compact" player={p} rank={i + 1} showSparkline />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {topLosers.length > 0 && (
-                <div>
-                  <div className="text-xs font-bold text-red-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                    <ArrowDownRight className="w-3.5 h-3.5" />
-                    {t('losers24h')}
-                  </div>
-                  <div className="space-y-2">
-                    {topLosers.map((p, i) => (
-                      <div key={p.id} style={{ animation: `stagger-in 0.3s ease-out ${i * 0.05}s both` }}>
-                        <PlayerDisplay variant="compact" player={p} rank={i + 1} showSparkline />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+            <SectionHeader title={t('marketPulse')} href="/market" />
+            <div className="mt-3 flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+              {trendingWithPlayers.map(({ tp, player }) => (
+                <DiscoveryCard
+                  key={player.id}
+                  player={player}
+                  variant="trending"
+                  tradeCount={tp.tradeCount}
+                  change24h={tp.change24h}
+                />
+              ))}
             </div>
           </div>
         </>
       )}
 
+      {/* 9. Missions — Default Collapsed */}
+      {uid && <MissionBanner />}
+
+      <SponsorBanner placement="home_mid" />
     </div>
   );
 }

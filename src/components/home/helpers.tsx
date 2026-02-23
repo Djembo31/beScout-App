@@ -91,6 +91,57 @@ export const FEED_ICON_MAP: Record<string, { Icon: React.ElementType; color: str
   vote_create: { Icon: Vote, color: 'text-amber-400 bg-amber-400/10' },
 };
 
+// ── Story Message (contextual greeting subtext) ──
+
+export type StoryMessage = { key: string; params: Record<string, string> };
+
+export function getStoryMessage(
+  holdings: { player: string; change24h: number }[],
+  pnl: number,
+  pnlPct: number,
+  activeIPOs: { first: string; last: string; ipo: { progress?: number } }[],
+  nextEvent: { starts_at: string; status: string } | null,
+): StoryMessage | null {
+  // Priority 1: Live IPO
+  if (activeIPOs.length > 0) {
+    const ipo = activeIPOs[0];
+    return {
+      key: 'storyLiveIpo',
+      params: { player: `${ipo.first} ${ipo.last}`, progress: String(ipo.ipo.progress ?? 0) },
+    };
+  }
+
+  // Priority 2: Event starting soon (within 6h)
+  if (nextEvent && (nextEvent.status === 'registering' || nextEvent.status === 'late-reg')) {
+    const ms = new Date(nextEvent.starts_at).getTime() - Date.now();
+    if (ms > 0 && ms < 6 * 3600000) {
+      const hours = Math.floor(ms / 3600000);
+      const mins = Math.floor((ms % 3600000) / 60000);
+      return { key: 'storyEventSoon', params: { time: `${hours}h ${mins}m` } };
+    }
+  }
+
+  // Priority 3: Portfolio change
+  if (holdings.length > 0 && Math.abs(pnlPct) >= 0.1) {
+    const best = [...holdings].sort((a, b) => b.change24h - a.change24h)[0];
+    if (pnlPct > 0) {
+      const base: StoryMessage = { key: 'storyPnlUp', params: { pct: Math.abs(pnlPct).toFixed(1) } };
+      if (best && best.change24h > 0) {
+        return { key: 'storyPnlUp', params: { ...base.params, player: best.player, change: best.change24h.toFixed(1) } };
+      }
+      return base;
+    }
+    return { key: 'storyPnlDown', params: { pct: Math.abs(pnlPct).toFixed(1) } };
+  }
+
+  // Priority 4: No holdings
+  if (holdings.length === 0) {
+    return { key: 'storyNoHoldings', params: {} };
+  }
+
+  return null;
+}
+
 // ── Login Streak (localStorage) ──
 
 export const STREAK_KEY = 'bescout-login-streak';

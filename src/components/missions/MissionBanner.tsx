@@ -30,7 +30,7 @@ export default function MissionBanner() {
   const [missions, setMissions] = useState<UserMissionWithDef[]>([]);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -96,8 +96,8 @@ export default function MissionBanner() {
     <div className="bg-gradient-to-r from-[#FFD700]/[0.06] to-purple-500/[0.04] border border-[#FFD700]/15 rounded-2xl overflow-hidden">
       {/* Header — always visible */}
       <button
-        onClick={() => hasClaimed ? setExpanded(!expanded) : undefined}
-        className={cn('w-full flex items-center justify-between p-4 text-left', !hasClaimed && 'cursor-default')}
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center justify-between p-4 text-left"
       >
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-[#FFD700]/15 border border-[#FFD700]/25 flex items-center justify-center">
@@ -123,9 +123,7 @@ export default function MissionBanner() {
             </div>
           </div>
         </div>
-        {hasClaimed && (
-          <ChevronDown className={cn('w-4 h-4 text-white/30 transition-transform', expanded && 'rotate-180')} />
-        )}
+        <ChevronDown className={cn('w-4 h-4 text-white/30 transition-transform', expanded && 'rotate-180')} />
       </button>
 
       {/* Expanded content */}

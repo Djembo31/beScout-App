@@ -1,3 +1,5 @@
 export { default as HomeSkeleton } from './HomeSkeleton';
-export { default as HomeHeader } from './HomeHeader';
-export { default as HomeHero } from './HomeHero';
+export { default as HomeStoryHeader } from './HomeStoryHeader';
+export { default as HomeSpotlight } from './HomeSpotlight';
+export { default as LiveTicker } from './LiveTicker';
+export { default as PortfolioStrip } from './PortfolioStrip';

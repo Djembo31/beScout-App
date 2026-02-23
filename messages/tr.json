@@ -218,7 +218,21 @@
       "trades": "İşlem",
       "events": "Etkinlik",
       "achievements": "Başarı"
-    }
+    },
+    "storyPnlUp": "Kadron bugün +{pct}% değer kazandı",
+    "storyPnlDown": "Kadron bugün {pct}% düştü",
+    "storyNoHoldings": "566 oyuncu seni bekliyor — ilk DPC'ni al",
+    "storyLiveIpo": "{player} IPO canlı — {progress}% satıldı",
+    "storyEventSoon": "Fantezi etkinlik {time} sonra başlıyor",
+    "marketPulse": "Piyasa Nabzı",
+    "trendingNow": "Şu an popüler",
+    "liveTrades": "BeScout'ta canlı",
+    "viewAllRoster": "Tüm {count} oyuncu",
+    "spotlightIpo": "IPO Canlı",
+    "spotlightEvent": "Sonraki Etkinlik",
+    "spotlightTopMover": "Bugünkü en iyi oyuncun",
+    "spotlightTrending": "Trend",
+    "spotlightCta": "Piyasayı keşfet"
   },
   "fantasy": {
     "title": "Maç Günü",

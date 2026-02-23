@@ -218,7 +218,21 @@
       "trades": "Trades",
       "events": "Events",
       "achievements": "Erfolge"
-    }
+    },
+    "storyPnlUp": "Dein Kader hat heute +{pct}% zugelegt",
+    "storyPnlDown": "Dein Kader gibt heute {pct}% nach",
+    "storyNoHoldings": "566 Spieler warten — starte mit deinem ersten DPC",
+    "storyLiveIpo": "{player} IPO ist live — {progress}% verkauft",
+    "storyEventSoon": "Fantasy-Event startet in {time}",
+    "marketPulse": "Markt-Puls",
+    "trendingNow": "Gerade beliebt",
+    "liveTrades": "Live auf BeScout",
+    "viewAllRoster": "Alle {count} Spieler",
+    "spotlightIpo": "IPO Live",
+    "spotlightEvent": "Nächstes Event",
+    "spotlightTopMover": "Dein Top-Spieler heute",
+    "spotlightTrending": "Trending",
+    "spotlightCta": "Entdecke den Markt"
   },
   "fantasy": {
     "title": "Spieltag",
