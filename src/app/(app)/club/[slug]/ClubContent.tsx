@@ -258,7 +258,7 @@ function StatsBar({
       {/* Secondary stats + Form — compact row */}
       <div className="flex items-center gap-3">
         {secondary.map((stat, i) => (
-          <div key={i} className="flex-1 flex items-center gap-2 p-2.5 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+          <div key={i} className="flex-1 flex items-center gap-2 p-2.5 bg-surface-base border border-white/[0.06] rounded-xl">
             <stat.icon className="w-4 h-4 text-white/30 flex-shrink-0" />
             <div className="min-w-0">
               <div className="font-mono font-bold text-sm text-white/80">{stat.value}</div>
@@ -268,7 +268,7 @@ function StatsBar({
         ))}
         {/* Form streak */}
         {formResults.length > 0 && (
-          <div className="flex-shrink-0 flex items-center gap-2 p-2.5 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+          <div className="flex-shrink-0 flex items-center gap-2 p-2.5 bg-surface-base border border-white/[0.06] rounded-xl">
             <div className="flex items-center gap-1">
               {formResults.map((r, i) => (
                 <div
@@ -292,7 +292,7 @@ function StatsBar({
           const cfg = PRESTIGE_CONFIG[prestigeTier];
           const Icon = cfg.icon;
           return (
-            <div className="flex-shrink-0 flex items-center gap-2 p-2.5 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+            <div className="flex-shrink-0 flex items-center gap-2 p-2.5 bg-surface-base border border-white/[0.06] rounded-xl">
               <Icon className={cn('w-4 h-4', cfg.color)} />
               <div className="min-w-0">
                 <div className={cn('text-sm font-bold', cfg.color)}>{t(cfg.labelKey)}</div>
@@ -326,7 +326,7 @@ function ClubVoteCard({ vote, hasVoted, onVote, voting }: {
   const timeLeft = diffMs > 0 ? `${days}d ${hours}h` : 'Beendet';
 
   return (
-    <div className="p-4 bg-white/[0.02] rounded-xl border border-white/10 hover:border-purple-400/40 transition-all">
+    <div className="p-4 bg-surface-base rounded-xl border border-white/10 hover:border-purple-400/40 transition-all">
       <div className="font-bold mb-3 line-clamp-2">{vote.question}</div>
       <div className="space-y-2 mb-3">
         {(vote.options as { label: string; votes: number }[]).map((opt, idx) => {
@@ -402,7 +402,7 @@ function TopPlayersWidget({
         {topPlayers.map((player, i) => (
           <Link key={player.id} href={`/player/${player.id}`}>
             <div
-              className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10 transition-all"
+              className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10 transition-all"
               style={{ ['--hover-border' as string]: `${clubColor}50` }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = `${clubColor}50`)}
               onMouseLeave={e => (e.currentTarget.style.borderColor = '')}
@@ -463,7 +463,7 @@ function SquadOverviewWidget({ players }: { players: Player[] }) {
       </div>
       <div className="grid grid-cols-2 gap-3">
         {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map((pos) => (
-          <div key={pos} className="flex items-center justify-between p-2 bg-white/[0.02] rounded-lg">
+          <div key={pos} className="flex items-center justify-between p-2 bg-surface-base rounded-lg">
             <div className="flex items-center gap-2">
               <div className={`w-3 h-3 rounded-full ${posColors[pos]}`} />
               <span className="text-sm text-white/70">{posLabels[pos]}</span>
@@ -502,7 +502,7 @@ function TopScoutsWidget({ scouts, clubColor }: { scouts: TopScout[]; clubColor:
       <div className="space-y-2">
         {scouts.slice(0, 3).map((scout, i) => (
           <Link key={scout.userId} href={`/profile/${scout.handle}`}>
-            <div className="flex items-center gap-3 p-2.5 bg-white/[0.02] rounded-xl border border-white/[0.06] hover:border-white/15 transition-all">
+            <div className="flex items-center gap-3 p-2.5 bg-surface-base rounded-xl border border-white/[0.06] hover:border-white/15 transition-all">
               <span className={cn('w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black', podiumColors[i] ?? 'bg-white/5 text-white/40')}>
                 {i + 1}
               </span>
@@ -567,7 +567,7 @@ function FixtureRow({ fixture, clubId, accent }: { fixture: Fixture; clubId: str
   return (
     <div className={cn(
       'flex items-center gap-3 p-3 rounded-xl border transition-all',
-      isPlayed ? 'bg-white/[0.02] border-white/10' : 'bg-white/[0.01] border-white/[0.06]',
+      isPlayed ? 'bg-surface-base border-white/10' : 'bg-white/[0.01] border-white/[0.06]',
     )}>
       {/* H/A Badge */}
       <div className={cn(
@@ -626,7 +626,7 @@ function SeasonSummary({ fixtures, clubId }: { fixtures: Fixture[]; clubId: stri
   if (played === 0) return null;
 
   return (
-    <div className="flex items-center gap-4 p-3 bg-white/[0.02] rounded-xl border border-white/10">
+    <div className="flex items-center gap-4 p-3 bg-surface-base rounded-xl border border-white/10">
       <div className="text-center flex-1">
         <div className="text-lg font-mono font-black text-white">{played}</div>
         <div className="text-[10px] text-white/40">{t('played')}</div>
@@ -783,7 +783,7 @@ function ActivityFeed({
           trades.map((trade) => {
             const priceBsd = centsToBsd(trade.price);
             return (
-              <div key={trade.id} className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10">
+              <div key={trade.id} className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-[#FFD700]/10 flex items-center justify-center">
                     <ArrowUpRight className="w-4 h-4 text-[#FFD700]" />
@@ -1178,7 +1178,7 @@ export default function ClubContent({ slug }: { slug: string }) {
               .sort((a, b) => b.perf.l5 - a.perf.l5)
               .slice(0, 8)
               .map(player => (
-                <div key={player.id} className="p-3 bg-white/[0.02] rounded-xl border border-white/10">
+                <div key={player.id} className="p-3 bg-surface-base rounded-xl border border-white/10">
                   <PlayerIdentity player={player} size="sm" showMeta={false} showStatus={false} />
                 </div>
               ))
@@ -1206,22 +1206,22 @@ export default function ClubContent({ slug }: { slug: string }) {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
             {club.stadium && (
-              <div className="bg-white/[0.02] rounded-xl p-3">
+              <div className="bg-surface-base rounded-xl p-3">
                 <div className="text-xs text-white/50 mb-1">{t('stadium')}</div>
                 <div className="font-bold text-sm">{club.stadium}</div>
               </div>
             )}
             {club.city && (
-              <div className="bg-white/[0.02] rounded-xl p-3">
+              <div className="bg-surface-base rounded-xl p-3">
                 <div className="text-xs text-white/50 mb-1">{t('city')}</div>
                 <div className="font-bold text-sm">{club.city}</div>
               </div>
             )}
-            <div className="bg-white/[0.02] rounded-xl p-3">
+            <div className="bg-surface-base rounded-xl p-3">
               <div className="text-xs text-white/50 mb-1">{t('league')}</div>
               <div className="font-bold text-sm">{club.league}</div>
             </div>
-            <div className="bg-white/[0.02] rounded-xl p-3">
+            <div className="bg-surface-base rounded-xl p-3">
               <div className="text-xs text-white/50 mb-1">{t('players')}</div>
               <div className="font-bold text-sm text-[#22C55E]">{players.length}</div>
             </div>
@@ -1413,7 +1413,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                   return (
                     <div
                       key={vote.id}
-                      className="p-3 bg-white/[0.02] rounded-xl border border-white/10"
+                      className="p-3 bg-surface-base rounded-xl border border-white/10"
                     >
                       <div className="font-bold text-sm mb-1 truncate">{vote.question}</div>
                       <div className="flex items-center gap-3 text-xs text-white/40">
@@ -1438,22 +1438,22 @@ export default function ClubContent({ slug }: { slug: string }) {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
               {club.stadium && (
-                <div className="bg-white/[0.02] rounded-xl p-3">
+                <div className="bg-surface-base rounded-xl p-3">
                   <div className="text-xs text-white/50 mb-1">{t('stadium')}</div>
                   <div className="font-bold text-sm">{club.stadium}</div>
                 </div>
               )}
               {club.city && (
-                <div className="bg-white/[0.02] rounded-xl p-3">
+                <div className="bg-surface-base rounded-xl p-3">
                   <div className="text-xs text-white/50 mb-1">{t('city')}</div>
                   <div className="font-bold text-sm">{club.city}</div>
                 </div>
               )}
-              <div className="bg-white/[0.02] rounded-xl p-3">
+              <div className="bg-surface-base rounded-xl p-3">
                 <div className="text-xs text-white/50 mb-1">{t('league')}</div>
                 <div className="font-bold text-sm">{club.league}</div>
               </div>
-              <div className="bg-white/[0.02] rounded-xl p-3">
+              <div className="bg-surface-base rounded-xl p-3">
                 <div className="text-xs text-white/50 mb-1">{t('players')}</div>
                 <div className="font-bold text-sm text-[#22C55E]">{players.length}</div>
               </div>
@@ -1543,7 +1543,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                     'px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap border transition-all flex items-center gap-1.5',
                     fixtureFilter === chip.id
                       ? 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30'
-                      : 'bg-white/[0.02] text-white/50 border-white/10 hover:border-white/20'
+                      : 'bg-surface-base text-white/50 border-white/10 hover:border-white/20'
                   )}
                 >
                   {chip.icon && <chip.icon className="w-3 h-3" />}
@@ -1570,7 +1570,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                           if (next.has(gw)) next.delete(gw); else next.add(gw);
                           return next;
                         })}
-                        className="w-full flex items-center justify-between px-4 py-3 bg-white/[0.02] hover:bg-white/[0.04] transition-all"
+                        className="w-full flex items-center justify-between px-4 py-3 bg-surface-base hover:bg-white/[0.04] transition-all"
                       >
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-black">{t('fixtureGameweek', { gw })}</span>
@@ -1622,7 +1622,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                   className={`rounded-xl border p-4 transition-all ${
                     isActive
                       ? `border-[${cfg.color}]/40 bg-[${cfg.color}]/10`
-                      : 'border-white/10 bg-white/[0.02] hover:border-white/20'
+                      : 'border-white/10 bg-surface-base hover:border-white/20'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">

@@ -54,9 +54,9 @@ export function BottomNav() {
               }`}
             >
               {isActive && (
-                <div className="absolute -top-[9px] w-8 h-0.5 bg-[#FFD700] rounded-full" />
+                <div className="absolute -top-[9px] w-8 h-0.5 bg-[#FFD700] rounded-full shadow-glow-gold" />
               )}
-              <Icon className={`w-5 h-5 ${isActive ? 'drop-shadow-[0_0_6px_rgba(255,215,0,0.4)]' : ''}`} />
+              <Icon className={`w-5 h-5 ${isActive ? 'drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]' : ''}`} />
               <span className={`text-[10px] leading-none ${isActive ? 'font-black' : 'font-medium'}`}>{tab.label}</span>
             </Link>
           );

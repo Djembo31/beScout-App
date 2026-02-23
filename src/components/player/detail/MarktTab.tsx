@@ -67,7 +67,7 @@ export default function MarktTab({
             {openBids.length > 0 ? (
               <div className="space-y-2">
                 {openBids.map(bid => (
-                  <div key={bid.id} className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10">
+                  <div key={bid.id} className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10">
                     <div className="flex items-center gap-3">
                       <div className="text-sm">
                         <span className="text-white/60">@{bid.sender_handle}</span>
@@ -109,7 +109,7 @@ export default function MarktTab({
           </div>
           <div className="space-y-2">
             {player.listings.map((listing) => (
-              <div key={listing.id} className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10 hover:bg-white/[0.04] transition-all">
+              <div key={listing.id} className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10 hover:bg-white/[0.04] transition-all">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center">
                     <span className="font-bold text-xs">Lv{listing.sellerLevel}</span>
@@ -163,7 +163,7 @@ export default function MarktTab({
                 const isOwn = userId && order.user_id === userId;
                 const sellerHandle = profileMap[order.user_id]?.handle;
                 return (
-                  <div key={order.id} className={`grid grid-cols-4 gap-2 items-center px-3 py-2 rounded-lg text-sm ${isOwn ? 'bg-[#FFD700]/5 border border-[#FFD700]/20' : 'bg-white/[0.02]'}`}>
+                  <div key={order.id} className={`grid grid-cols-4 gap-2 items-center px-3 py-2 rounded-lg text-sm ${isOwn ? 'bg-[#FFD700]/5 border border-[#FFD700]/20' : 'bg-surface-base'}`}>
                     <span className="font-mono font-bold text-[#FFD700]">{formatScout(order.price)}</span>
                     <span className="font-mono">{remaining} DPC</span>
                     <span className="font-mono text-white/60">{formatScout(order.price * remaining)}</span>
@@ -218,7 +218,7 @@ export default function MarktTab({
                   return d.toLocaleDateString('de-DE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
                 })();
                 return (
-                  <div key={trade.id} className={`px-3 py-2.5 rounded-lg text-sm ${isBuyer || isSeller ? 'bg-sky-500/5 border border-sky-500/10' : 'bg-white/[0.02]'}`}>
+                  <div key={trade.id} className={`px-3 py-2.5 rounded-lg text-sm ${isBuyer || isSeller ? 'bg-sky-500/5 border border-sky-500/10' : 'bg-surface-base'}`}>
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-white/40 w-20">{tradeTime}</span>
@@ -280,21 +280,21 @@ export default function MarktTab({
               <div className="font-mono font-bold text-[#FFD700]">{fmtScout(player.prices.floor ?? 0)} $SCOUT</div>
               <div className="text-[10px] text-white/30 mt-0.5">Günstigstes User-Angebot</div>
             </div>
-            <div className="bg-white/[0.02] rounded-lg p-3">
+            <div className="bg-surface-base rounded-lg p-3">
               <div className="text-xs text-white/40">Letzter Trade</div>
               <div className="font-mono font-bold">{fmtScout(player.prices.lastTrade ?? 0)} $SCOUT</div>
             </div>
-            <div className="bg-white/[0.02] rounded-lg p-3">
+            <div className="bg-surface-base rounded-lg p-3">
               <div className="text-xs text-white/40">24h Change</div>
               <div className={`font-mono font-bold ${player.prices.change24h >= 0 ? 'text-[#22C55E]' : 'text-red-300'}`}>
                 {player.prices.change24h >= 0 ? '+' : ''}{player.prices.change24h.toFixed(1)}%
               </div>
             </div>
-            <div className="bg-white/[0.02] rounded-lg p-3">
+            <div className="bg-surface-base rounded-lg p-3">
               <div className="text-xs text-white/40">Club-Pool DPCs</div>
               <div className="font-mono font-bold">{dpcAvailable}</div>
             </div>
-            <div className="bg-white/[0.02] rounded-lg p-3">
+            <div className="bg-surface-base rounded-lg p-3">
               <div className="text-xs text-white/40">Im Umlauf</div>
               <div className="font-mono font-bold">{player.dpc.circulation}</div>
             </div>

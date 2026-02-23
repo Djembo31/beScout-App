@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { X, AlertTriangle, RefreshCw, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 // ============================================
 // BUTTON
@@ -62,9 +63,32 @@ export function Button({
 // CARD
 // ============================================
 
-export function Card({ children, className = '', ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export type CardSurface = 'base' | 'elevated' | 'featured' | 'hero';
+
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  surface?: CardSurface;
+  hoverable?: boolean;
+  glow?: 'gk' | 'def' | 'mid' | 'att' | 'gold' | 'live';
+}
+
+const surfaceClasses: Record<CardSurface, string> = {
+  base: 'bg-surface-base border border-white/[0.06]',
+  elevated: 'bg-surface-elevated border border-white/10 shadow-card-sm',
+  featured: 'bg-surface-featured border border-white/15 shadow-card-md',
+  hero: 'bg-surface-hero border border-white/20 shadow-card-lg',
+};
+
+const glowClasses: Record<string, string> = {
+  gk: 'shadow-glow-gk', def: 'shadow-glow-def',
+  mid: 'shadow-glow-mid', att: 'shadow-glow-att',
+  gold: 'shadow-glow-gold', live: 'shadow-glow-live',
+};
+
+export function Card({ children, className = '', surface = 'base', hoverable, glow, ...props }: CardProps) {
   return (
-    <div className={`bg-white/[0.02] border border-white/10 rounded-2xl ${className}`} {...props}>
+    <div className={cn('rounded-2xl', surfaceClasses[surface],
+      hoverable && 'card-lift cursor-pointer',
+      glow && glowClasses[glow], className)} {...props}>
       {children}
     </div>
   );
@@ -199,23 +223,38 @@ export function Modal({ open, title, subtitle, children, footer, onClose, preven
 // STAT CARD
 // ============================================
 
+export type StatCardAccent = 'gold' | 'green' | 'red' | 'purple' | 'sky';
+
+const accentBorderColors: Record<StatCardAccent, string> = {
+  gold: 'border-l-[#FFD700]',
+  green: 'border-l-[#22C55E]',
+  red: 'border-l-red-400',
+  purple: 'border-l-purple-400',
+  sky: 'border-l-sky-400',
+};
+
 export function StatCard({
   label,
   value,
   sub,
   icon,
   trend,
+  accent,
 }: {
   label: string;
   value: string | number;
   sub?: string;
   icon?: React.ReactNode;
   trend?: 'up' | 'down';
+  accent?: StatCardAccent;
 }) {
   const trendColor = trend === 'up' ? 'text-[#22C55E]' : trend === 'down' ? 'text-red-300' : 'text-white';
 
   return (
-    <div className="bg-black/30 border border-white/10 rounded-2xl p-3 md:p-5">
+    <div className={cn(
+      'bg-surface-elevated border border-white/[0.08] shadow-card-sm rounded-2xl p-3 md:p-5',
+      accent && `border-l-2 ${accentBorderColors[accent]}`
+    )}>
       <div className="flex items-center justify-between">
         <div className="text-xs text-white/50 truncate">{label}</div>
         {icon}
@@ -235,7 +274,7 @@ export function Skeleton({ className }: { className?: string }) {
 }
 
 export function SkeletonCard({ className }: { className?: string }) {
-  return <div className={`animate-pulse bg-white/[0.02] border border-white/10 rounded-2xl ${className ?? ''}`} />;
+  return <div className={`animate-pulse bg-surface-elevated border border-white/10 rounded-2xl ${className ?? ''}`} />;
 }
 
 // ============================================

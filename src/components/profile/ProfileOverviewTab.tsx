@@ -233,17 +233,17 @@ export default function ProfileOverviewTab({
                 <div className="text-2xl font-mono font-black text-[#22C55E]">{fmtScout(centsToBsd(totalEarned))}</div>
                 <div className="text-[10px] text-white/40 mt-1">$SCOUT verdient</div>
               </div>
-              <div className="text-center p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+              <div className="text-center p-3 bg-surface-base border border-white/[0.06] rounded-xl">
                 <div className="text-2xl font-mono font-black">{totalUnlocks}</div>
                 <div className="text-[10px] text-white/40 mt-1">Verkäufe</div>
               </div>
-              <div className="text-center p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+              <div className="text-center p-3 bg-surface-base border border-white/[0.06] rounded-xl">
                 <div className="text-2xl font-mono font-black text-[#FFD700]">{avgRating > 0 ? avgRating.toFixed(1) : '-'}</div>
                 <div className="text-[10px] text-white/40 mt-1 flex items-center justify-center gap-0.5">
                   <Star className="w-3 h-3" /> Ø Bewertung
                 </div>
               </div>
-              <div className="text-center p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+              <div className="text-center p-3 bg-surface-base border border-white/[0.06] rounded-xl">
                 <div className="text-2xl font-mono font-black">{myResearch.length}</div>
                 <div className="text-[10px] text-white/40 mt-1">Berichte</div>
               </div>
@@ -492,7 +492,7 @@ export default function ProfileOverviewTab({
               const holdingPnl = (floorBsd - avgBsd) * h.quantity;
               return (
                 <Link key={h.id} href={`/player/${h.player_id}`}>
-                  <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl hover:bg-white/[0.04] transition-all">
+                  <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl hover:bg-white/[0.04] transition-all">
                     <div className="flex items-center gap-3">
                       <PlayerIdentity
                         player={{ first: h.player?.first_name ?? '', last: h.player?.last_name ?? '', pos: (h.player?.position ?? 'MID') as Pos, status: 'fit', club: h.player?.club ?? '', ticket: 0, age: 0, imageUrl: h.player?.image_url }}

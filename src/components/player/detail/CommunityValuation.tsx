@@ -95,21 +95,21 @@ export default function CommunityValuation({ playerId, userId, floorPriceCents, 
       {/* Fair Value Display */}
       {fairValue && fairValue.voteCount > 0 ? (
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3 text-center">
+          <div className="bg-surface-base border border-white/10 rounded-xl p-3 text-center">
             <div className="text-[10px] text-white/40 mb-1">Fair Value</div>
             <div className="font-mono font-bold text-[#FFD700]">{fmtScout(centsToBsd(fairValue.medianCents))}</div>
           </div>
-          <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3 text-center">
+          <div className="bg-surface-base border border-white/10 rounded-xl p-3 text-center">
             <div className="text-[10px] text-white/40 mb-1">Floor Preis</div>
             <div className="font-mono font-bold text-white/70">{fmtScout(centsToBsd(floorPriceCents))}</div>
           </div>
-          <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3 text-center">
+          <div className="bg-surface-base border border-white/10 rounded-xl p-3 text-center">
             <div className="text-[10px] text-white/40 mb-1">Bewertungen</div>
             <div className="font-mono font-bold text-sky-300">{fairValue.voteCount}</div>
           </div>
         </div>
       ) : (
-        <div className="text-center py-4 mb-4 bg-white/[0.02] border border-white/10 rounded-xl">
+        <div className="text-center py-4 mb-4 bg-surface-base border border-white/10 rounded-xl">
           <BarChart3 className="w-8 h-8 text-white/10 mx-auto mb-2" />
           <div className="text-sm text-white/30">Noch keine Bewertungen</div>
           <div className="text-[10px] text-white/20">Sei der Erste!</div>

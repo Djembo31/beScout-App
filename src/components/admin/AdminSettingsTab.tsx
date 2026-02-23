@@ -101,7 +101,7 @@ function ApiFootballSection() {
       </div>
 
       {!apiReady ? (
-        <div className="text-sm text-white/40 p-4 bg-white/[0.02] rounded-xl border border-dashed border-white/10 text-center">
+        <div className="text-sm text-white/40 p-4 bg-surface-base rounded-xl border border-dashed border-white/10 text-center">
           <AlertCircle className="w-5 h-5 mx-auto mb-2 text-orange-400" />
           <div className="font-semibold text-white/60 mb-1">API Key nicht konfiguriert</div>
           <div>Setze <code className="text-sky-400 font-mono text-xs">NEXT_PUBLIC_API_FOOTBALL_KEY</code> in <code className="text-white/60 font-mono text-xs">.env.local</code></div>
@@ -191,7 +191,7 @@ function StatusPill({ label, mapped, total, icon }: { label: string; mapped: num
   const color = pct === 100 ? 'text-[#22C55E]' : pct > 0 ? 'text-[#FFD700]' : 'text-white/30';
 
   return (
-    <div className="p-3 bg-white/[0.02] rounded-xl border border-white/[0.06] text-center">
+    <div className="p-3 bg-surface-base rounded-xl border border-white/[0.06] text-center">
       <div className="flex items-center justify-center gap-1.5 mb-1">
         <span className={color}>{icon}</span>
         <span className="text-[10px] font-bold text-white/40 uppercase">{label}</span>
@@ -475,23 +475,23 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
           </div>
         </div>
         <div className="space-y-3 text-sm">
-          <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl">
+          <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl">
             <span className="text-white/50">Name</span>
             <span className="font-bold">{club.name}</span>
           </div>
-          <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl">
+          <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl">
             <span className="text-white/50">Slug</span>
             <span className="font-mono text-white/70">{club.slug}</span>
           </div>
-          <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl">
+          <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl">
             <span className="text-white/50">Liga</span>
             <span>{club.league}</span>
           </div>
-          <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl">
+          <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl">
             <span className="text-white/50">Plan</span>
             <span className="text-[#FFD700] font-bold">{club.plan}</span>
           </div>
-          <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl">
+          <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl">
             <span className="text-white/50">Verifiziert</span>
             <span className={club.is_verified ? 'text-[#22C55E]' : 'text-white/50'}>{club.is_verified ? 'Ja' : 'Nein'}</span>
           </div>
@@ -529,7 +529,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
               const isSelf = admin.user_id === user?.id;
               const isAdminOwner = admin.role === 'owner';
               return (
-                <div key={admin.id} className="flex items-center gap-3 p-3 bg-white/[0.02] rounded-xl border border-white/[0.06]">
+                <div key={admin.id} className="flex items-center gap-3 p-3 bg-surface-base rounded-xl border border-white/[0.06]">
                   <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/50">
                     {admin.handle.charAt(0).toUpperCase()}
                   </div>
@@ -580,7 +580,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
         )}
 
         {!isOwner && (
-          <div className="text-sm text-white/40 p-4 bg-white/[0.02] rounded-xl border border-dashed border-white/10 text-center mt-4">
+          <div className="text-sm text-white/40 p-4 bg-surface-base rounded-xl border border-dashed border-white/10 text-center mt-4">
             Nur der Eigentümer kann das Team verwalten.
           </div>
         )}

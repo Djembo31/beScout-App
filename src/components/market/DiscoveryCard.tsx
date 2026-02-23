@@ -53,8 +53,15 @@ export default function DiscoveryCard({
   return (
     <Link
       href={`/player/${p.id}`}
-      className="flex-shrink-0 w-[calc((100vw-48px)/2.5)] md:w-[140px] max-w-[160px] bg-white/[0.03] border border-white/[0.06] rounded-xl p-2.5 hover:bg-white/[0.06] transition-all group relative overflow-hidden"
-      style={{ borderLeftColor: posBorderColor, borderLeftWidth: 2 }}
+      className={cn(
+        'flex-shrink-0 w-[calc((100vw-48px)/2.5)] md:w-[140px] max-w-[160px] bg-white/[0.03] border border-white/[0.06] rounded-xl p-2.5 card-lift group relative overflow-hidden',
+        variant === 'ipo' && 'shadow-glow-live'
+      )}
+      style={{
+        borderLeftColor: posBorderColor,
+        borderLeftWidth: 2,
+        backgroundImage: `linear-gradient(to bottom right, ${posBorderColor}0D, transparent 60%)`,
+      }}
     >
       {/* Identity: Photo+ClubLogo + Name + Pos */}
       <div className="flex items-start gap-2 mb-1">

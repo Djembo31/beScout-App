@@ -36,7 +36,8 @@ export default function HomeHeader({
     <>
       {/* ━━━ GREETING + STREAK ━━━ */}
       <div className="flex items-center justify-between">
-        <div>
+        <div className="relative">
+          <div className="absolute -inset-4 bg-[#FFD700]/[0.03] rounded-full blur-xl -z-10" />
           <div className="text-xs text-white/40 tracking-wide">{t(getGreetingKey())},</div>
           <h1 className="text-2xl md:text-3xl font-black tracking-tight" suppressHydrationWarning>
             {loading ? '...' : firstName}
@@ -66,7 +67,7 @@ export default function HomeHeader({
 
       {/* ━━━ STAT CARDS — 2x2 mobile, 4-col desktop ━━━ */}
       <div data-tour-id="home-stats" className="grid grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2 md:gap-3">
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
+        <div className="bg-surface-elevated border border-white/[0.08] shadow-card-sm rounded-xl p-3 md:p-4 border-l-2 border-l-[#FFD700]">
           <div className="flex items-center gap-1 mb-1">
             <span className="text-[10px] text-white/50 uppercase tracking-wider">{t('portfolioRoster')}</span>
             <InfoTooltip text={t('portfolioRosterTooltip')} />
@@ -74,7 +75,7 @@ export default function HomeHeader({
           <div className="font-mono font-black text-base md:text-xl text-white truncate">{fmtScout(portfolioValue)}</div>
           <div className="text-[10px] text-white/40">{holdingsCount} Spieler · {totalDpcs} DPC</div>
         </div>
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
+        <div className={cn('bg-surface-elevated border border-white/[0.08] shadow-card-sm rounded-xl p-3 md:p-4 border-l-2', pnl >= 0 ? 'border-l-[#22C55E]' : 'border-l-red-400')}>
           <div className="flex items-center gap-1 mb-1">
             <span className="text-[10px] text-white/50 uppercase tracking-wider">{t('pnl')}</span>
             <InfoTooltip text={t('pnlTooltip')} />
@@ -86,7 +87,7 @@ export default function HomeHeader({
             {pnl >= 0 ? '+' : ''}{pnlPct.toFixed(1)}%
           </div>
         </div>
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
+        <div className="bg-surface-elevated border border-white/[0.08] shadow-card-sm rounded-xl p-3 md:p-4 border-l-2 border-l-[#FFD700]">
           <div className="flex items-center gap-1 mb-1">
             <span className="text-[10px] text-white/50 uppercase tracking-wider">{tc('balance')}</span>
             <InfoTooltip text={t('balanceTooltip')} />
@@ -98,7 +99,7 @@ export default function HomeHeader({
           )}
           <div className="text-[10px] text-white/40">$SCOUT</div>
         </div>
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 md:p-4 hover:bg-white/[0.05] transition-colors">
+        <div className="bg-surface-elevated border border-white/[0.08] shadow-card-sm rounded-xl p-3 md:p-4 border-l-2 border-l-purple-400">
           <div className="flex items-center gap-1 mb-1">
             <span className="text-[10px] text-white/50 uppercase tracking-wider">{t('bescoutScore')}</span>
             <InfoTooltip text={t('bescoutScoreTooltip')} />

@@ -229,22 +229,22 @@ export default function ManagerBestandTab({
     <div className="space-y-4">
       {/* Summary Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
+        <div className="bg-surface-base border border-white/[0.06] rounded-xl px-4 py-3">
           <div className="text-[10px] text-white/40 uppercase tracking-wider">Spieler</div>
           <div className="text-xl font-black font-mono">{summary.totalPlayers}</div>
         </div>
-        <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
+        <div className="bg-surface-base border border-white/[0.06] rounded-xl px-4 py-3">
           <div className="text-[10px] text-white/40 uppercase tracking-wider">Kaderwert</div>
           <div className="text-xl font-black font-mono text-[#FFD700]">{fmtScout(Math.round(summary.totalValue))}</div>
         </div>
-        <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
+        <div className="bg-surface-base border border-white/[0.06] rounded-xl px-4 py-3">
           <div className="text-[10px] text-white/40 uppercase tracking-wider">G/V</div>
           <div className={cn('text-xl font-black font-mono', getPnlColor(summary.pnl))}>
             {summary.pnl >= 0 ? '+' : ''}{fmtScout(Math.round(summary.pnl))}
             <span className="text-sm ml-1">({summary.pnlPct >= 0 ? '+' : ''}{summary.pnlPct.toFixed(1)}%)</span>
           </div>
         </div>
-        <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3">
+        <div className="bg-surface-base border border-white/[0.06] rounded-xl px-4 py-3">
           <div className="text-[10px] text-white/40 uppercase tracking-wider">Aktivität</div>
           <div className="flex items-center gap-3 mt-1">
             {summary.totalListed > 0 && (

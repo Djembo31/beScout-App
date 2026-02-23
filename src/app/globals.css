@@ -140,3 +140,47 @@ body {
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }
+
+/* ── Design Identity: Trading Card × Stadium Atmosphere ── */
+
+/* Foil shimmer for top performers (L5 ≥ 65) */
+@keyframes card-shimmer {
+  0% { transform: translateX(-100%) rotate(15deg); }
+  100% { transform: translateX(200%) rotate(15deg); }
+}
+.foil-shimmer { position: relative; overflow: hidden; }
+.foil-shimmer::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 20%, rgba(255,255,255,0.04) 40%,
+    rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 60%, transparent 80%);
+  transform: translateX(-100%) rotate(15deg);
+  animation: card-shimmer 3s ease-in-out infinite;
+}
+
+/* Card hover lift */
+.card-lift { transition: transform 150ms ease, box-shadow 150ms ease; }
+.card-lift:hover { transform: translateY(-2px); }
+@media (hover: none) { .card-lift:hover { transform: none; } }
+
+/* Glow pulse for live elements */
+@keyframes glow-pulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+.live-glow { animation: glow-pulse 2s ease-in-out infinite; }
+
+/* Floodlight section divider */
+.floodlight-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,215,0,0.15) 20%,
+    rgba(255,215,0,0.3) 50%, rgba(255,215,0,0.15) 80%, transparent 100%);
+}
+
+/* Stagger fade for lists */
+@keyframes stagger-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Price tick flash */
+@keyframes price-tick-up { 0% { background-color: rgba(34,197,94,0.2); } 100% { background-color: transparent; } }
+@keyframes price-tick-down { 0% { background-color: rgba(239,68,68,0.2); } 100% { background-color: transparent; } }
+.anim-tick-up { animation: price-tick-up 0.8s ease-out; }
+.anim-tick-down { animation: price-tick-down 0.8s ease-out; }

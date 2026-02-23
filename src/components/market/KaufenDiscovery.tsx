@@ -786,7 +786,7 @@ export default function KaufenDiscovery({
                             className={cn('flex flex-col items-center gap-1.5 p-2.5 rounded-xl border transition-all active:scale-95',
                               active
                                 ? 'border-[#FFD700]/40 bg-[#FFD700]/10'
-                                : 'border-white/[0.06] bg-white/[0.02]'
+                                : 'border-white/[0.06] bg-surface-base'
                             )}
                             style={active ? { boxShadow: `0 0 16px ${color}25` } : undefined}
                           >
@@ -821,7 +821,7 @@ export default function KaufenDiscovery({
                           className={cn('w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all',
                             sortBy === opt.value
                               ? 'bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700]'
-                              : 'bg-white/[0.02] border border-white/[0.06] text-white/50'
+                              : 'bg-surface-base border border-white/[0.06] text-white/50'
                           )}
                         >
                           <div className={cn('w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0',
@@ -848,12 +848,12 @@ export default function KaufenDiscovery({
                   <div className="flex gap-2">
                     <button onClick={() => setOnlyAvailable(!onlyAvailable)}
                       className={cn('flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border transition-all active:scale-95',
-                        onlyAvailable ? 'bg-[#22C55E]/15 border-[#22C55E]/30 text-[#22C55E]' : 'bg-white/[0.02] border-white/[0.06] text-white/40')}>
+                        onlyAvailable ? 'bg-[#22C55E]/15 border-[#22C55E]/30 text-[#22C55E]' : 'bg-surface-base border-white/[0.06] text-white/40')}>
                       <Package className="w-4 h-4" />{t('available')}
                     </button>
                     <button onClick={() => setOnlyWatched(!onlyWatched)}
                       className={cn('flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border transition-all active:scale-95',
-                        onlyWatched ? 'bg-[#FFD700]/15 border-[#FFD700]/30 text-[#FFD700]' : 'bg-white/[0.02] border-white/[0.06] text-white/40')}>
+                        onlyWatched ? 'bg-[#FFD700]/15 border-[#FFD700]/30 text-[#FFD700]' : 'bg-surface-base border-white/[0.06] text-white/40')}>
                       <Star className="w-4 h-4" />{t('watched')}
                     </button>
                   </div>

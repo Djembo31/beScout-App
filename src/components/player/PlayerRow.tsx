@@ -34,6 +34,20 @@ export const posTintColors: Record<Pos, string> = {
   ATT: '#fb7185',  // rose-400
 };
 
+const posCardGradients: Record<Pos, string> = {
+  GK: 'from-emerald-500/[0.08] via-emerald-500/[0.02] to-transparent',
+  DEF: 'from-amber-500/[0.08] via-amber-500/[0.02] to-transparent',
+  MID: 'from-sky-500/[0.08] via-sky-500/[0.02] to-transparent',
+  ATT: 'from-rose-500/[0.08] via-rose-500/[0.02] to-transparent',
+};
+
+const posGlowShadows: Record<Pos, string> = {
+  GK: '0 4px 20px rgba(16,185,129,0.08)',
+  DEF: '0 4px 20px rgba(245,158,11,0.08)',
+  MID: '0 4px 20px rgba(14,165,233,0.08)',
+  ATT: '0 4px 20px rgba(244,63,94,0.08)',
+};
+
 /** Returns true if a hex color is too dark to read on a dark background */
 const isColorDark = (hex: string): boolean => {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -201,8 +215,11 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
     return (
       <Link
         href={`/player/${player.id}`}
-        className={`block p-3 rounded-xl bg-white/[0.02] border-2 hover:bg-white/[0.04] transition-all group ${className}`}
-        style={{ borderColor: posTintColors[player.pos] }}
+        className={`block p-3 rounded-xl bg-white/[0.02] border-2 card-lift group ${className}`}
+        style={{
+          borderColor: posTintColors[player.pos],
+          backgroundImage: `linear-gradient(to right, transparent 60%, ${posTintColors[player.pos]}08)`,
+        }}
       >
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
@@ -231,8 +248,8 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
   return (
     <Link
       href={`/player/${player.id}`}
-      className={`block bg-white/[0.02] border-2 rounded-xl overflow-hidden transition-all hover:bg-white/[0.04] ${className}`}
-      style={{ borderColor: posTintColors[player.pos] }}
+      className={`block bg-gradient-to-br ${posCardGradients[player.pos]} border-2 rounded-xl overflow-hidden card-lift ${player.perf.l5 >= 65 ? 'foil-shimmer' : ''} ${className}`}
+      style={{ borderColor: posTintColors[player.pos], boxShadow: posGlowShadows[player.pos] }}
     >
       {/* Header: Identity + L5 + Watch */}
       <div className="p-3 pb-2">
@@ -254,7 +271,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
       <div className="px-3 pt-2 pb-1.5">
         <div className="flex items-center justify-between">
           <div className="flex items-baseline gap-1.5">
-            <span className="font-mono font-black text-[#FFD700] text-lg">
+            <span className="font-mono font-black text-[#FFD700] text-lg drop-shadow-[0_0_8px_rgba(255,215,0,0.3)]">
               {ipoData ? fmtScout(ipoData.price) : fmtScout(floor)}
             </span>
             <span className="text-white/30 text-[10px]">$SCOUT</span>

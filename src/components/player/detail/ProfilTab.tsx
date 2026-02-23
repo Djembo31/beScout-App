@@ -142,25 +142,25 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
           owned={player.dpc.owned}
         />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-          <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3">
+          <div className="bg-surface-base border border-white/10 rounded-xl p-3">
             <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
               <BarChart3 className="w-3 h-3" />Supply
             </div>
             <div className="font-mono font-bold">{fmtScout(player.dpc.supply)}</div>
           </div>
-          <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3">
+          <div className="bg-surface-base border border-white/10 rounded-xl p-3">
             <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
               <ShoppingBag className="w-3 h-3" />Freigegeben
             </div>
             <div className="font-mono font-bold">{fmtScout(player.dpc.float)}</div>
           </div>
-          <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3">
+          <div className="bg-surface-base border border-white/10 rounded-xl p-3">
             <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
               <Users className="w-3 h-3" />Verkauft
             </div>
             <div className="font-mono font-bold">{fmtScout(player.dpc.circulation)}</div>
           </div>
-          <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3">
+          <div className="bg-surface-base border border-white/10 rounded-xl p-3">
             <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
               <Unlock className="w-3 h-3" />Verfügbar
             </div>
@@ -171,7 +171,7 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
 
       {/* Contract Status */}
       <Card className="overflow-hidden">
-        <div className={`p-4 ${contract.urgent ? 'bg-red-500/10' : player.contractMonthsLeft <= 12 ? 'bg-orange-500/10' : 'bg-white/[0.02]'}`}>
+        <div className={`p-4 ${contract.urgent ? 'bg-red-500/10' : player.contractMonthsLeft <= 12 ? 'bg-orange-500/10' : 'bg-surface-base'}`}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-white/50" />
@@ -256,19 +256,19 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
             <div>
               <div className="text-xs text-white/40 mb-2">Zuflüsse nach Quelle</div>
               <div className="grid grid-cols-2 gap-2">
-                <div className="bg-white/[0.02] rounded-lg p-2 flex items-center justify-between">
+                <div className="bg-surface-base rounded-lg p-2 flex items-center justify-between">
                   <span className="text-xs text-white/50">Trading Fees</span>
                   <span className="font-mono text-sm">{fmtScout(pbt.sources.trading)}</span>
                 </div>
-                <div className="bg-white/[0.02] rounded-lg p-2 flex items-center justify-between">
+                <div className="bg-surface-base rounded-lg p-2 flex items-center justify-between">
                   <span className="text-xs text-white/50">Votes</span>
                   <span className="font-mono text-sm">{fmtScout(pbt.sources.votes)}</span>
                 </div>
-                <div className="bg-white/[0.02] rounded-lg p-2 flex items-center justify-between">
+                <div className="bg-surface-base rounded-lg p-2 flex items-center justify-between">
                   <span className="text-xs text-white/50">Content</span>
                   <span className="font-mono text-sm">{fmtScout(pbt.sources.content)}</span>
                 </div>
-                <div className="bg-white/[0.02] rounded-lg p-2 flex items-center justify-between">
+                <div className="bg-surface-base rounded-lg p-2 flex items-center justify-between">
                   <span className="text-xs text-white/50">IPO Seed</span>
                   <span className="font-mono text-sm">{fmtScout(pbt.sources.ipo)}</span>
                 </div>

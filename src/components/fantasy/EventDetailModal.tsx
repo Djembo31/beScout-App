@@ -643,7 +643,7 @@ export const EventDetailModal = ({
                 <div className="p-3 bg-white/[0.03] rounded-lg border border-white/10 space-y-2">
                   <div className="text-xs font-bold text-white/60 mb-2">Aufstellungs-Vorlagen (max 5)</div>
                   {loadPresets().map((preset, i) => (
-                    <div key={i} className="flex items-center justify-between p-2 bg-white/[0.02] rounded-lg">
+                    <div key={i} className="flex items-center justify-between p-2 bg-surface-base rounded-lg">
                       <button onClick={() => applyPreset(preset)} className="text-sm font-medium hover:text-[#FFD700] transition-all flex-1 text-left">
                         {preset.name} <span className="text-white/30 text-xs">({preset.formation})</span>
                       </button>
@@ -921,7 +921,7 @@ export const EventDetailModal = ({
                     const tier = getScoreTier(score);
                     const tierCfg = tier !== 'none' ? SCORE_TIER_CONFIG[tier] : null;
                     return (
-                      <div key={slot.slot} className={`flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border ${isCpt ? 'border-[#FFD700]/30' : 'border-white/[0.06]'}`}>
+                      <div key={slot.slot} className={`flex items-center justify-between p-3 rounded-lg bg-surface-base border ${isCpt ? 'border-[#FFD700]/30' : 'border-white/[0.06]'}`}>
                         <div className="flex items-center gap-3">
                           {isCpt ? (
                             <div className="w-6 h-6 rounded-full bg-[#FFD700]/20 flex items-center justify-center flex-shrink-0">
@@ -1045,10 +1045,10 @@ export const EventDetailModal = ({
                     <div
                       key={player.id}
                       className={`flex items-center justify-between p-3 rounded-xl border transition-all ${isSelected ? 'bg-[#22C55E]/10 border-[#22C55E]/30' :
-                        player.isLocked ? 'bg-white/[0.02] border-white/5 opacity-50' :
+                        player.isLocked ? 'bg-surface-base border-white/5 opacity-50' :
                           player.status === 'injured' ? 'bg-red-500/5 border-red-500/20' :
                             player.status === 'suspended' ? 'bg-orange-500/5 border-orange-500/20' :
-                              `bg-white/[0.02] ${getPosBorderColor(player.pos)} hover:border-opacity-60`
+                              `bg-surface-base ${getPosBorderColor(player.pos)} hover:border-opacity-60`
                         }`}
                     >
                       <div className="flex items-center gap-3">
@@ -1194,7 +1194,7 @@ export const EventDetailModal = ({
                   <div className="space-y-1.5">
                     <div className="text-xs text-white/40 font-bold uppercase tracking-wider px-1">Einzelbewertungen</div>
                     {viewingUserLineup.data.players.map(sp => (
-                      <div key={sp.slotKey} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/[0.06]">
+                      <div key={sp.slotKey} className="flex items-center justify-between p-3 rounded-lg bg-surface-base border border-white/[0.06]">
                         <div className="flex items-center gap-3">
                           <PlayerIdentity
                             player={{ first: sp.player.firstName, last: sp.player.lastName, pos: sp.player.position as Pos, status: 'fit', club: sp.player.club, ticket: 0, age: 0, imageUrl: sp.player.imageUrl }}
@@ -1263,7 +1263,7 @@ export const EventDetailModal = ({
                                 setViewingUserLoading(false);
                               }
                             }}
-                            className={`w-full flex items-center justify-between p-4 rounded-lg border transition-all hover:brightness-110 cursor-pointer ${isCurrentUser ? 'bg-[#FFD700]/10 border-[#FFD700]/30' : 'bg-white/[0.02] border-white/10 hover:border-white/20'}`}
+                            className={`w-full flex items-center justify-between p-4 rounded-lg border transition-all hover:brightness-110 cursor-pointer ${isCurrentUser ? 'bg-[#FFD700]/10 border-[#FFD700]/30' : 'bg-surface-base border-white/10 hover:border-white/20'}`}
                           >
                             <div className="flex items-center gap-3">
                               <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${entry.rank === 1 ? 'bg-[#FFD700]/20 text-[#FFD700]' :
