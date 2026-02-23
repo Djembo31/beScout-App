@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useCallback, useRef } from 'react';
+import React, { useEffect, useCallback, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight, Send, RotateCcw, Crown, TrendingUp, Star, Crosshair, Play, Clock, Zap, Gift, Coins, UserCheck, Sparkles, Megaphone, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -175,7 +176,11 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
     onMarkAllRead();
   }, [onMarkAllRead]);
 
-  if (!open) return null;
+  // Portal target (SSR-safe)
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+  useEffect(() => { setPortalTarget(document.body); }, []);
+
+  if (!open || !portalTarget) return null;
 
   const notifContent = (
     <>
@@ -230,9 +235,9 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
     </>
   );
 
-  return (
+  return createPortal(
     <>
-      {/* Desktop: fixed dropdown — outside header stacking context */}
+      {/* Desktop: fixed dropdown */}
       <div ref={desktopRef} className="hidden md:block fixed top-[60px] right-4 lg:right-6 w-96 bg-[#111] border border-white/10 rounded-2xl shadow-2xl z-[100] overflow-hidden anim-dropdown">
         {notifContent}
       </div>
@@ -250,6 +255,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
           {notifContent}
         </div>
       </div>
-    </>
+    </>,
+    portalTarget,
   );
 }
