@@ -202,10 +202,10 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number): Pr
     errors.push(`Prediction-Auflösung: ${e instanceof Error ? e.message : 'Fehler'}`);
   }
 
-  // 2. Set all GW events to "running" (close registration)
+  // 2. Load all GW events
   const { data: gwEvents, error: evtErr } = await supabase
     .from('events')
-    .select('id, status, scored_at')
+    .select('id, status, scored_at, current_entries')
     .eq('club_id', clubId)
     .eq('gameweek', gameweek);
 
@@ -214,30 +214,26 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number): Pr
   }
 
   const allEvents = gwEvents ?? [];
-  const eventsToClose = allEvents.filter(e => e.status === 'registering' || e.status === 'late-reg');
-  if (eventsToClose.length > 0) {
-    const { error: closeErr } = await supabase
-      .from('events')
-      .update({ status: 'running' })
-      .in('id', eventsToClose.map(e => e.id));
-    if (closeErr) errors.push(`Events schließen: ${closeErr.message}`);
-  }
-
-  // 3. Score each unscored event sequentially
   const eventsToScore = allEvents.filter(e => !e.scored_at);
+
+  // 3. Score events with lineups, close empty events directly
   for (const evt of eventsToScore) {
-    const result = await scoreEvent(evt.id);
-    if (result.success) {
-      eventsScored++;
-    } else if (result.error?.includes('Keine Lineups')) {
-      // Empty events: close them silently (no participants = no scoring needed)
-      await supabase
+    if ((evt.current_entries ?? 0) === 0) {
+      // No participants: skip RPC, close directly
+      const { error: closeErr } = await supabase
         .from('events')
         .update({ status: 'ended', scored_at: new Date().toISOString() })
         .eq('id', evt.id);
-      eventsScored++;
+      if (closeErr) errors.push(`Event ${evt.id} schließen: ${closeErr.message}`);
+      else eventsScored++;
     } else {
-      errors.push(`Event ${evt.id}: ${result.error}`);
+      // Has participants: score via RPC (RPC sets status to 'ended' internally)
+      const result = await scoreEvent(evt.id);
+      if (result.success) {
+        eventsScored++;
+      } else {
+        errors.push(`Event ${evt.id}: ${result.error}`);
+      }
     }
   }
 
