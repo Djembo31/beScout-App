@@ -229,6 +229,13 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number): Pr
     const result = await scoreEvent(evt.id);
     if (result.success) {
       eventsScored++;
+    } else if (result.error?.includes('Keine Lineups')) {
+      // Empty events: close them silently (no participants = no scoring needed)
+      await supabase
+        .from('events')
+        .update({ status: 'ended', scored_at: new Date().toISOString() })
+        .eq('id', evt.id);
+      eventsScored++;
     } else {
       errors.push(`Event ${evt.id}: ${result.error}`);
     }

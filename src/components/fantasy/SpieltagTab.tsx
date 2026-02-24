@@ -454,9 +454,13 @@ export function SpieltagTab({
     setSimulating(true);
     try {
       const result = await simulateGameweekFlow(clubId, gameweek);
-      if (result.success) {
+      // Always refresh + notify parent — even if some events had no lineups
+      if (result.eventsScored > 0 || result.fixturesSimulated > 0) {
         await loadFixtures(gameweek);
         onSimulated();
+      }
+      if (result.errors.length > 0) {
+        console.warn('[Spieltag] Simulation warnings:', result.errors);
       }
     } catch { /* handled via toast in parent */ }
     setSimulating(false);
