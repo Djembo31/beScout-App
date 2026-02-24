@@ -351,7 +351,7 @@ export default function FantasyContent() {
       return;
     }
 
-    invalidateFantasyQueries(user.id);
+    invalidateFantasyQueries(user.id, clubId);
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
 
     // Mission tracking — only after full join succeeds (lineup + fee)
@@ -391,7 +391,7 @@ export default function FantasyContent() {
       return;
     }
 
-    invalidateFantasyQueries(user.id);
+    invalidateFantasyQueries(user.id, clubId);
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
 
     addToast(`Vom Event "${event.name}" abgemeldet.${event.buyIn > 0 ? ` ${event.buyIn} $SCOUT zurückerstattet.` : ''}`, 'success');
@@ -400,8 +400,8 @@ export default function FantasyContent() {
   // Refetch all events from DB (used after score, reset, simulation)
   const reloadEvents = useCallback(async () => {
     setLocalEvents(null); // Clear local overrides, let React Query refetch
-    invalidateFantasyQueries(userId);
-  }, [userId]);
+    invalidateFantasyQueries(userId, clubId);
+  }, [userId, clubId]);
 
   const handleResetEvent = useCallback(async (event: FantasyEvent) => {
     // Optimistic local update, then full refetch

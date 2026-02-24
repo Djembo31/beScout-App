@@ -35,14 +35,8 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
 
   const result = data as ScoreResult;
 
-  // Auto-transition event to 'ended' after successful scoring
-  if (result.success) {
-    await supabase
-      .from('events')
-      .update({ status: 'ended', scored_at: new Date().toISOString() })
-      .eq('id', eventId)
-      .in('status', ['running', 'scoring', 'registering', 'late-reg']);
-  }
+  // NOTE: score_event RPC sets status='ended' + scored_at=NOW() internally (SECURITY DEFINER).
+  // No client-side update needed — RLS would block it anyway.
 
   // Fire-and-forget: notify top 3 (manager scoring + stats refresh handled by DB trigger trg_fn_event_scored_manager)
   if (result.success) {
@@ -258,7 +252,10 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number): Pr
     errors.push(`GW advance: ${e instanceof Error ? e.message : 'Fehler'}`);
   }
 
-  // 6. Calculate DPC of the Week (fire-and-forget)
+  // 6. Bust API cache so next fetch gets fresh data
+  try { await fetch('/api/events?bust=1'); } catch { /* best-effort */ }
+
+  // 7. Calculate DPC of the Week (fire-and-forget)
   import('@/lib/services/dpcOfTheWeek').then(({ calculateDpcOfWeek }) => {
     calculateDpcOfWeek(gameweek).catch(err => console.error('[GW Flow] DPC of Week failed:', err));
   }).catch(err => console.error('[GW Flow] DPC of Week import failed:', err));

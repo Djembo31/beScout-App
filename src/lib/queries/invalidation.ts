@@ -73,8 +73,11 @@ export function invalidateCommunityQueries(): void {
 }
 
 /** Invalidate fantasy/event-related caches */
-export function invalidateFantasyQueries(userId?: string): void {
+export function invalidateFantasyQueries(userId?: string, clubId?: string): void {
   queryClient.invalidateQueries({ queryKey: qk.events.all });
+  if (clubId) {
+    queryClient.invalidateQueries({ queryKey: qk.events.activeGw(clubId) });
+  }
   if (userId) {
     queryClient.invalidateQueries({ queryKey: qk.events.joinedIds(userId) });
     queryClient.invalidateQueries({ queryKey: qk.events.usage(userId) });
