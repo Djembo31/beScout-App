@@ -238,7 +238,8 @@
       "Bash(git -C C:/bescout-app add \"src/app/\\(app\\)/fantasy/FantasyContent.tsx\")",
       "Bash(git -C C:/bescout-app commit -m \"Fix mobile tab overflow: use scrollable tabs instead of flex-1\n\n- Replace flex-1 with flex-shrink-0 on segment tabs for proper horizontal scroll on iPhone\n- Shorten tab labels \\(Spieltag→ST, Vorhersagen→Tipps, Ligen, Verlauf\\) to fit mobile\n- Reduce tab font/icon size \\(text-xs, w-3.5\\) for compact mobile layout\n- Add scrollbar-hide class for clean horizontal scroll\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\")",
       "Bash(git show:*)",
-      "Bash(git ls-tree:*)"
+      "Bash(git ls-tree:*)",
+      "Bash(migrations \")"
     ]
   }
 }

@@ -12,6 +12,7 @@ import { getPbtForPlayer } from '@/lib/services/pbt';
 import { setSuccessFeeCap, liquidatePlayer } from '@/lib/services/liquidation';
 import { fmtScout } from '@/lib/utils';
 import { canPerformAction } from '@/lib/adminRoles';
+import { getSuccessFeeTier } from '@/components/player/PlayerRow';
 import type { ClubWithAdmin, Player, DbIpo } from '@/types';
 
 export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
@@ -54,7 +55,15 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
   const [liqPbtBalance, setLiqPbtBalance] = useState<number>(0);
   const [liqHolderCount, setLiqHolderCount] = useState<number | null>(null);
   const [liqLoading, setLiqLoading] = useState(false);
-  const [liqResult, setLiqResult] = useState<{ holder_count: number; distributed_cents: number; success_fee_cents: number } | null>(null);
+  const [liqTransferValue, setLiqTransferValue] = useState('');
+  const [liqResult, setLiqResult] = useState<{
+    holder_count: number;
+    distributed_cents: number;
+    pbt_distributed_cents: number;
+    success_fee_cents: number;
+    fee_per_dpc_cents: number;
+    transfer_value_eur: number;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -173,10 +182,11 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
     setLiqResult(null);
     setLiqPbtBalance(0);
     setLiqHolderCount(null);
+    setLiqTransferValue(player.marketValue ? String(player.marketValue) : '');
     try {
       const pbt = await getPbtForPlayer(player.id);
       setLiqPbtBalance(pbt ? centsToBsd(pbt.balance) : 0);
-    } catch {}
+    } catch (err) { console.error('[AdminPlayers] PBT fetch failed:', err); }
   }, []);
 
   const handleLiquidate = useCallback(async () => {
@@ -184,7 +194,8 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
     setLiqLoading(true);
     setIpoError(null);
     try {
-      const result = await liquidatePlayer(user.id, liqModalPlayer.id);
+      const tvEur = parseInt(liqTransferValue) || 0;
+      const result = await liquidatePlayer(user.id, liqModalPlayer.id, tvEur);
       if (!result.success) {
         setIpoError(result.error || 'Liquidierung fehlgeschlagen.');
         setLiqModalPlayer(null);
@@ -192,7 +203,10 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
         setLiqResult({
           holder_count: result.holder_count ?? 0,
           distributed_cents: result.distributed_cents ?? 0,
+          pbt_distributed_cents: result.pbt_distributed_cents ?? 0,
           success_fee_cents: result.success_fee_cents ?? 0,
+          fee_per_dpc_cents: result.fee_per_dpc_cents ?? 0,
+          transfer_value_eur: result.transfer_value_eur ?? 0,
         });
         // Refresh players
         const dbPlayers = await getPlayersByClubId(club.id);
@@ -204,7 +218,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
     } finally {
       setLiqLoading(false);
     }
-  }, [user, liqModalPlayer, club.id]);
+  }, [user, liqModalPlayer, liqTransferValue, club.id]);
 
   const handleCreatePlayer = useCallback(async () => {
     if (!user || !cpFirstName || !cpLastName || !cpShirtNumber || !cpAge) return;
@@ -448,7 +462,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
         {capModalPlayer && (
           <div className="space-y-4 p-4 md:p-6">
             <div className="text-sm text-white/60">
-              Der Cap bestimmt, wie viel $SCOUT als Success Fee im PBT reserviert bleibt, wenn <span className="text-white font-bold">{capModalPlayer.first} {capModalPlayer.last}</span> liquidiert wird.
+              Der Cap begrenzt die maximale Community Success Fee pro DPC bei Liquidierung von <span className="text-white font-bold">{capModalPlayer.first} {capModalPlayer.last}</span>.
             </div>
             <div>
               <label className="block text-sm font-bold text-white/70 mb-1">Cap-Betrag ($SCOUT)</label>
@@ -478,50 +492,85 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
 
       {/* Liquidation Confirmation Modal */}
       <Modal open={!!liqModalPlayer} title="Spieler liquidieren" onClose={() => { setLiqModalPlayer(null); setLiqResult(null); }}>
-        {liqModalPlayer && !liqResult && (
-          <div className="space-y-4 p-4 md:p-6">
-            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-start gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-red-300">
-                Diese Aktion ist <span className="font-black">UNWIDERRUFLICH</span>. Alle DPCs von <span className="font-bold text-white">{liqModalPlayer.first} {liqModalPlayer.last}</span> werden gelöscht und die PBT-Balance an Holder ausgeschüttet.
+        {liqModalPlayer && !liqResult && (() => {
+          const tvEur = parseInt(liqTransferValue) || 0;
+          const tier = getSuccessFeeTier(tvEur);
+          const feeCents = tier.fee;
+          const capCents = liqModalPlayer.successFeeCap != null ? Math.round(liqModalPlayer.successFeeCap * 100) : null;
+          const effectiveFee = capCents != null && capCents > 0 ? Math.min(feeCents, capCents) : feeCents;
+          const effectiveFeeBsd = effectiveFee / 100;
+          const totalDpcs = liqModalPlayer.dpc.circulation;
+          const totalSfBsd = effectiveFeeBsd * totalDpcs;
+          return (
+            <div className="space-y-4 p-4 md:p-6">
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-start gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-red-300">
+                  Diese Aktion ist <span className="font-black">UNWIDERRUFLICH</span>. Alle DPCs von <span className="font-bold text-white">{liqModalPlayer.first} {liqModalPlayer.last}</span> werden gelöscht.
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-white/70 mb-1">Transferwert (EUR)</label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min="0"
+                  value={liqTransferValue}
+                  onChange={(e) => setLiqTransferValue(e.target.value)}
+                  placeholder="z.B. 1000000"
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+                />
+                <div className="text-xs text-white/40 mt-1">Bestimmt den Community Bonus Tier. 0 = gespeicherter Marktwert.</div>
+              </div>
+              <div className="bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-xl p-3 space-y-2 text-sm">
+                <div className="text-xs font-bold text-[#FFD700]/70 mb-1">Live-Vorschau</div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white/50">Tier</span>
+                  <span className="font-mono font-bold text-[#FFD700]">{tier.label}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white/50">Fee pro DPC</span>
+                  <span className="font-mono font-bold text-[#FFD700]">
+                    {fmtScout(effectiveFeeBsd)} $SCOUT
+                    {capCents != null && capCents > 0 && capCents < feeCents && <span className="text-white/40 text-xs ml-1">(Cap)</span>}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white/50">DPCs im Umlauf</span>
+                  <span className="font-mono font-bold">{totalDpcs}</span>
+                </div>
+                <div className="border-t border-white/10 pt-2 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/50">PBT-Ausschüttung</span>
+                    <span className="font-mono font-bold text-[#22C55E]">{fmtScout(liqPbtBalance)} $SCOUT</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/50">Community Bonus</span>
+                    <span className="font-mono font-bold text-[#FFD700]">{fmtScout(totalSfBsd)} $SCOUT</span>
+                  </div>
+                  <div className="flex items-center justify-between border-t border-white/10 pt-1">
+                    <span className="text-white font-bold">Gesamt</span>
+                    <span className="font-mono font-bold text-[#22C55E]">{fmtScout(liqPbtBalance + totalSfBsd)} $SCOUT</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" fullWidth onClick={() => setLiqModalPlayer(null)}>
+                  Abbrechen
+                </Button>
+                <Button
+                  fullWidth
+                  onClick={handleLiquidate}
+                  disabled={liqLoading}
+                  className="bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30"
+                >
+                  {liqLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Flame className="w-4 h-4" />}
+                  {liqLoading ? 'Liquidiere...' : 'Liquidieren'}
+                </Button>
               </div>
             </div>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-white/50">PBT-Balance</span>
-                <span className="font-mono font-bold text-[#FFD700]">{fmtScout(liqPbtBalance)} $SCOUT</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-white/50">Success Fee Cap</span>
-                <span className="font-mono font-bold">
-                  {liqModalPlayer.successFeeCap != null
-                    ? <span className="text-[#FFD700]">{fmtScout(liqModalPlayer.successFeeCap)} $SCOUT</span>
-                    : <span className="text-white/30">Kein Cap</span>}
-                </span>
-              </div>
-              <div className="flex items-center justify-between border-t border-white/10 pt-2">
-                <span className="text-white/50">Geschätzte Ausschüttung</span>
-                <span className="font-mono font-bold text-[#22C55E]">
-                  {fmtScout(Math.max(0, liqPbtBalance - (liqModalPlayer.successFeeCap ?? 0)))} $SCOUT
-                </span>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" fullWidth onClick={() => setLiqModalPlayer(null)}>
-                Abbrechen
-              </Button>
-              <Button
-                fullWidth
-                onClick={handleLiquidate}
-                disabled={liqLoading}
-                className="bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30"
-              >
-                {liqLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Flame className="w-4 h-4" />}
-                {liqLoading ? 'Liquidiere...' : 'Liquidieren'}
-              </Button>
-            </div>
-          </div>
-        )}
+          );
+        })()}
         {liqModalPlayer && liqResult && (
           <div className="space-y-4 p-4 md:p-6">
             <div className="bg-[#22C55E]/10 border border-[#22C55E]/20 rounded-xl p-4 text-center">
@@ -534,12 +583,26 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 <span className="font-mono font-bold">{liqResult.holder_count}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-white/50">Ausgeschüttet</span>
-                <span className="font-mono font-bold text-[#22C55E]">{fmtScout(centsToBsd(liqResult.distributed_cents))} $SCOUT</span>
+                <span className="text-white/50">Transferwert</span>
+                <span className="font-mono font-bold">{liqResult.transfer_value_eur > 0 ? `${(liqResult.transfer_value_eur / 1000000).toFixed(1)}M EUR` : '-'}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-white/50">Success Fee (reserviert)</span>
-                <span className="font-mono font-bold text-[#FFD700]">{fmtScout(centsToBsd(liqResult.success_fee_cents))} $SCOUT</span>
+                <span className="text-white/50">Fee pro DPC</span>
+                <span className="font-mono font-bold text-[#FFD700]">{fmtScout(centsToBsd(liqResult.fee_per_dpc_cents))} $SCOUT</span>
+              </div>
+              <div className="border-t border-white/10 pt-2 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-white/50">PBT-Ausschüttung</span>
+                  <span className="font-mono font-bold text-[#22C55E]">{fmtScout(centsToBsd(liqResult.pbt_distributed_cents))} $SCOUT</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white/50">Community Bonus</span>
+                  <span className="font-mono font-bold text-[#FFD700]">{fmtScout(centsToBsd(liqResult.success_fee_cents))} $SCOUT</span>
+                </div>
+                <div className="flex items-center justify-between border-t border-white/10 pt-1">
+                  <span className="text-white font-bold">Gesamt</span>
+                  <span className="font-mono font-bold text-[#22C55E]">{fmtScout(centsToBsd(liqResult.distributed_cents))} $SCOUT</span>
+                </div>
               </div>
             </div>
             <Button variant="outline" fullWidth onClick={() => { setLiqModalPlayer(null); setLiqResult(null); }}>

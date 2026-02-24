@@ -472,6 +472,7 @@ export type DbPlayer = {
   price_change_24h: number;
   volume_24h: number;
   status: 'fit' | 'injured' | 'suspended' | 'doubtful' | null;
+  market_value_eur: number;
   success_fee_cap_cents: number | null;
   max_supply?: number;
   api_football_id?: number | null;
@@ -1152,6 +1153,8 @@ export type DbLiquidationEvent = {
   success_fee_cents: number;
   distributed_cents: number;
   holder_count: number;
+  transfer_value_eur: number;
+  fee_per_dpc_cents: number;
   created_at: string;
 };
 
@@ -1161,6 +1164,8 @@ export type DbLiquidationPayout = {
   user_id: string;
   dpc_quantity: number;
   payout_cents: number;
+  pbt_payout_cents: number;
+  success_fee_payout_cents: number;
   created_at: string;
 };
 

@@ -26,14 +26,34 @@ export async function setSuccessFeeCap(
 export async function liquidatePlayer(
   adminId: string,
   playerId: string,
-): Promise<{ success: boolean; holder_count?: number; distributed_cents?: number; success_fee_cents?: number; error?: string }> {
+  transferValueEur?: number,
+): Promise<{
+  success: boolean;
+  holder_count?: number;
+  distributed_cents?: number;
+  pbt_distributed_cents?: number;
+  success_fee_cents?: number;
+  fee_per_dpc_cents?: number;
+  transfer_value_eur?: number;
+  error?: string;
+}> {
   const { data, error } = await supabase.rpc('liquidate_player', {
     p_admin_id: adminId,
     p_player_id: playerId,
+    p_transfer_value_eur: transferValueEur ?? 0,
   });
   if (error) return { success: false, error: error.message };
 
-  const result = data as { success: boolean; holder_count: number; distributed_cents: number; success_fee_cents: number; liquidation_id: string };
+  const result = data as {
+    success: boolean;
+    holder_count: number;
+    distributed_cents: number;
+    pbt_distributed_cents: number;
+    success_fee_cents: number;
+    fee_per_dpc_cents: number;
+    transfer_value_eur: number;
+    liquidation_id: string;
+  };
 
   // Fire-and-forget: notify all holders
   (async () => {
@@ -41,16 +61,21 @@ export async function liquidatePlayer(
       const { createNotification } = await import('@/lib/services/notifications');
       const { data: payouts } = await supabase
         .from('liquidation_payouts')
-        .select('user_id, payout_cents')
+        .select('user_id, payout_cents, pbt_payout_cents, success_fee_payout_cents')
         .eq('liquidation_id', result.liquidation_id);
       if (payouts) {
         for (const p of payouts) {
-          const payoutBsd = (Math.round(p.payout_cents ?? 0) / 100).toFixed(2);
+          const totalBsd = (Math.round(p.payout_cents ?? 0) / 100).toFixed(2);
+          const pbtBsd = (Math.round(p.pbt_payout_cents ?? 0) / 100).toFixed(2);
+          const sfBsd = (Math.round(p.success_fee_payout_cents ?? 0) / 100).toFixed(2);
+          const msg = Number(p.success_fee_payout_cents) > 0
+            ? `Du hast ${totalBsd} $SCOUT erhalten (${pbtBsd} PBT + ${sfBsd} Community Bonus).`
+            : `Du hast ${totalBsd} $SCOUT aus der PBT-Ausschüttung erhalten.`;
           await createNotification(
             p.user_id,
             'pbt_liquidation',
             'DPC liquidiert',
-            `Du hast ${payoutBsd} $SCOUT aus der PBT-Ausschüttung erhalten.`,
+            msg,
             playerId,
             'player',
           );
@@ -65,7 +90,10 @@ export async function liquidatePlayer(
     success: true,
     holder_count: result.holder_count,
     distributed_cents: result.distributed_cents,
+    pbt_distributed_cents: result.pbt_distributed_cents,
     success_fee_cents: result.success_fee_cents,
+    fee_per_dpc_cents: result.fee_per_dpc_cents,
+    transfer_value_eur: result.transfer_value_eur,
   };
 }
 
