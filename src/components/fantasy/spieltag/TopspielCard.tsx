@@ -39,14 +39,14 @@ export function TopspielCard({ fixture, onSelect }: Props) {
       <div className="flex items-center justify-center gap-3 px-4 pb-4">
         {/* Home team */}
         <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
-          <ClubLogo club={homeClub} size={44} short={fixture.home_club_short} />
-          <span className="text-xs font-bold truncate max-w-[80px] text-center">{fixture.home_club_short || fixture.home_club_name}</span>
+          <ClubLogo club={homeClub} size={36} short={fixture.home_club_short} />
+          <span className="text-xs font-bold truncate max-w-[60px] md:max-w-[80px] text-center">{fixture.home_club_short || fixture.home_club_name}</span>
         </div>
 
         {/* Score */}
         <div className="flex-shrink-0 text-center px-2">
           {isSimulated ? (
-            <div className="font-mono font-black text-3xl" style={{ textShadow: '0 0 12px rgba(255,215,0,0.25)' }}>
+            <div className="font-mono font-black text-2xl md:text-3xl" style={{ textShadow: '0 0 12px rgba(255,215,0,0.25)' }}>
               {fixture.home_score} <span className="text-white/20">-</span> {fixture.away_score}
             </div>
           ) : (
@@ -59,8 +59,8 @@ export function TopspielCard({ fixture, onSelect }: Props) {
 
         {/* Away team */}
         <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
-          <ClubLogo club={awayClub} size={44} short={fixture.away_club_short} />
-          <span className="text-xs font-bold truncate max-w-[80px] text-center">{fixture.away_club_short || fixture.away_club_name}</span>
+          <ClubLogo club={awayClub} size={36} short={fixture.away_club_short} />
+          <span className="text-xs font-bold truncate max-w-[60px] md:max-w-[80px] text-center">{fixture.away_club_short || fixture.away_club_name}</span>
         </div>
       </div>
 

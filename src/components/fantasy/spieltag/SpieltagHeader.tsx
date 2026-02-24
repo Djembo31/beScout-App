@@ -92,12 +92,12 @@ export function SpieltagHeader({
       <div className="text-center py-3">
         <div className="flex items-baseline justify-center gap-1.5">
           <span
-            className={`text-5xl font-black tabular-nums ${numberColor}`}
+            className={`text-3xl md:text-5xl font-black tabular-nums ${numberColor}`}
             style={{ textShadow: numberShadow }}
           >
             {String(gameweek).padStart(2, '0')}
           </span>
-          <span className="text-sm text-white/20 font-medium">von 38</span>
+          <span className="text-xs md:text-sm text-white/20 font-medium">von 38</span>
         </div>
 
         {/* Status line */}

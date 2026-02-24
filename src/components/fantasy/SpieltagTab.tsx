@@ -19,7 +19,7 @@ import SponsorBanner from '@/components/player/detail/SponsorBanner';
 import { SectionHeader } from '@/components/home/helpers';
 import {
   ClubLogo, SpieltagHeader, TopspielCard, pickTopspiel,
-  FixtureCard, GoalTicker, TopScorerShowcase,
+  FixtureCard, GoalTicker, TopScorerShowcase, BestElevenShowcase,
   posColor, scoreBadgeColor, getPosAccent,
 } from './spieltag';
 
@@ -474,7 +474,7 @@ export function SpieltagTab({
   useEffect(() => {
     if (!allSimulated) { setTopScorers([]); return; }
     let cancelled = false;
-    getGameweekTopScorers(gameweek, 10).then(data => {
+    getGameweekTopScorers(gameweek, 20).then(data => {
       if (!cancelled) setTopScorers(data);
     }).catch(() => {
       if (!cancelled) setTopScorers([]);
@@ -684,6 +684,13 @@ export function SpieltagTab({
       {allSimulated && topScorers.length > 0 && (
         <section>
           <TopScorerShowcase scorers={topScorers} gameweek={gameweek} />
+        </section>
+      )}
+
+      {/* 9b. BEST XI / BEST VI PITCH VIEW */}
+      {allSimulated && topScorers.length >= 6 && (
+        <section>
+          <BestElevenShowcase scorers={topScorers} gameweek={gameweek} />
         </section>
       )}
 

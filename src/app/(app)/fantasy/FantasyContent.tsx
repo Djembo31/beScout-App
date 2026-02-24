@@ -531,7 +531,7 @@ export default function FantasyContent() {
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto space-y-4">
+    <div className="max-w-[1600px] mx-auto space-y-4 overflow-x-hidden">
       {/* HEADER — Compact */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl md:text-2xl font-black flex items-center gap-2">

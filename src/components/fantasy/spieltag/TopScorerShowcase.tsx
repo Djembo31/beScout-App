@@ -1,9 +1,18 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Trophy, Target, HandHelping, ShieldCheck, Star } from 'lucide-react';
 import type { FixturePlayerStat } from '@/types';
 import { posColor, scoreBadgeColor } from './helpers';
+
+type PosFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'ATT';
+const POS_FILTERS: { id: PosFilter; label: string }[] = [
+  { id: 'all', label: 'Alle' },
+  { id: 'GK', label: 'GK' },
+  { id: 'DEF', label: 'DEF' },
+  { id: 'MID', label: 'MID' },
+  { id: 'ATT', label: 'ATT' },
+];
 
 type Props = {
   scorers: FixturePlayerStat[];
@@ -114,9 +123,16 @@ function CompactRow({ stat, rank }: { stat: FixturePlayerStat; rank: number }) {
 }
 
 export function TopScorerShowcase({ scorers, gameweek }: Props) {
+  const [posFilter, setPosFilter] = useState<PosFilter>('all');
+
+  const filtered = useMemo(() => {
+    if (posFilter === 'all') return scorers;
+    return scorers.filter(s => s.player_position === posFilter);
+  }, [scorers, posFilter]);
+
   if (scorers.length === 0) return null;
 
-  const [first, ...rest] = scorers;
+  const [first, ...rest] = filtered;
   const podium = rest.slice(0, 2); // #2 and #3
   const compact = rest.slice(2);    // #4-10
 
@@ -129,25 +145,50 @@ export function TopScorerShowcase({ scorers, gameweek }: Props) {
         <span className="text-[10px] text-white/25">Spieltag {gameweek}</span>
       </div>
 
-      {/* #1 Hero */}
-      <HeroCard stat={first} medal={MEDALS[0]} />
+      {/* Position filter pills */}
+      <div className="flex items-center gap-1.5 mb-3 overflow-x-auto pb-1 -mx-1 px-1">
+        {POS_FILTERS.map(f => (
+          <button
+            key={f.id}
+            onClick={() => setPosFilter(f.id)}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all min-h-[32px] ${
+              posFilter === f.id
+                ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/30'
+                : 'bg-white/[0.04] text-white/40 border border-white/[0.06] hover:text-white/60'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
 
-      {/* #2-3 Grid */}
-      {podium.length > 0 && (
-        <div className="grid grid-cols-2 gap-2 mt-2">
-          {podium.map((s, i) => (
-            <PodiumCard key={s.id} stat={s} rank={i + 2} medal={MEDALS[i + 1]} />
-          ))}
+      {filtered.length === 0 ? (
+        <div className="text-center py-6 text-white/30 text-sm">
+          Keine Spieler für diese Position
         </div>
-      )}
+      ) : (
+        <>
+          {/* #1 Hero */}
+          {first && <HeroCard stat={first} medal={MEDALS[0]} />}
 
-      {/* #4-10 compact */}
-      {compact.length > 0 && (
-        <div className="mt-2 rounded-xl border border-white/[0.06] bg-white/[0.02] divide-y divide-white/[0.04]">
-          {compact.map((s, i) => (
-            <CompactRow key={s.id} stat={s} rank={i + 4} />
-          ))}
-        </div>
+          {/* #2-3 Grid */}
+          {podium.length > 0 && (
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              {podium.map((s, i) => (
+                <PodiumCard key={s.id} stat={s} rank={i + 2} medal={MEDALS[i + 1]} />
+              ))}
+            </div>
+          )}
+
+          {/* #4-10 compact */}
+          {compact.length > 0 && (
+            <div className="mt-2 rounded-xl border border-white/[0.06] bg-white/[0.02] divide-y divide-white/[0.04]">
+              {compact.map((s, i) => (
+                <CompactRow key={s.id} stat={s} rank={i + 4} />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
