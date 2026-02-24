@@ -493,10 +493,10 @@ export async function getActiveGameweek(clubId: string): Promise<number> {
 
 /** Set the active gameweek for a club (admin only) */
 export async function setActiveGameweek(clubId: string, gw: number): Promise<void> {
-  const { error } = await supabase
-    .from('clubs')
-    .update({ active_gameweek: gw })
-    .eq('id', clubId);
+  const { error } = await supabase.rpc('set_active_gameweek', {
+    p_club_id: clubId,
+    p_gameweek: gw,
+  });
   if (error) throw new Error(error.message);
 }
 
