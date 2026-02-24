@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  Trophy, Loader2, Star, Calendar,
+  Trophy, Loader2, Star, Calendar, Play, ArrowRight, ChevronDown, Globe,
 } from 'lucide-react';
 import { Card, Modal } from '@/components/ui';
 import { useTranslations } from 'next-intl';
@@ -12,14 +12,19 @@ import { simulateGameweekFlow } from '@/lib/services/scoring';
 import { isApiConfigured, hasApiFixtures } from '@/lib/services/footballData';
 import type { Fixture, FixturePlayerStat } from '@/types';
 import type { FantasyEvent } from './types';
-import { EventCard } from './EventCard';
 import SponsorBanner from '@/components/player/detail/SponsorBanner';
 import { SectionHeader } from '@/components/home/helpers';
 import {
-  ClubLogo, SpieltagHeader, TopspielCard, pickTopspiel,
+  ClubLogo, TopspielCard, pickTopspiel,
   FixtureCard, GoalTicker,
   posColor, scoreBadgeColor, getPosAccent,
 } from './spieltag';
+
+// Available leagues — will grow as we add more
+const LEAGUES = [
+  { id: 'tff1', label: 'TFF 1. Lig', country: 'TR', flag: '\uD83C\uDDF9\uD83C\uDDF7' },
+] as const;
+type LeagueId = typeof LEAGUES[number]['id'];
 
 // ============================================
 // Unchanged internals (Formation Pitch View)
@@ -376,15 +381,12 @@ type SpieltagTabProps = {
   isAdmin: boolean;
   events: FantasyEvent[];
   userId: string;
-  onEventClick: (event: FantasyEvent) => void;
-  onToggleInterest: (eventId: string) => void;
-  onGameweekChange: (gw: number) => void;
   onSimulated: () => void;
 };
 
 export function SpieltagTab({
   gameweek, activeGameweek, clubId, isAdmin, events, userId,
-  onEventClick, onToggleInterest, onGameweekChange, onSimulated,
+  onSimulated,
 }: SpieltagTabProps) {
   const ts = useTranslations('spieltag');
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
@@ -394,6 +396,7 @@ export function SpieltagTab({
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedFixture, setSelectedFixture] = useState<Fixture | null>(null);
   const [apiAvailable, setApiAvailable] = useState(false);
+  const [selectedLeague, setSelectedLeague] = useState<LeagueId>('tff1');
 
   // Load fixtures for current GW
   const loadFixtures = useCallback(async (gw: number) => {
@@ -473,26 +476,41 @@ export function SpieltagTab({
     setSimulating(false);
   };
 
+  const activeLeague = LEAGUES.find(l => l.id === selectedLeague) ?? LEAGUES[0];
+
   return (
     <div className="space-y-5">
-      {/* 1. SPIELTAG HEADER — Hero GW number + Nav + Status + Admin */}
-      <SpieltagHeader
-        gameweek={gameweek}
-        isCurrentGw={isCurrentGw}
-        isPast={isPast}
-        gwStatus={gwStatus}
-        simulatedCount={simulatedCount}
-        fixtureCount={fixtures.length}
-        totalGoals={totalGoals}
-        eventCount={gwEvents.length}
-        isAdmin={isAdmin}
-        simulating={simulating}
-        apiAvailable={apiAvailable}
-        onPrev={() => onGameweekChange(Math.max(1, gameweek - 1))}
-        onNext={() => onGameweekChange(Math.min(38, gameweek + 1))}
-        onSimulate={() => setShowConfirm(true)}
-        onAdvance={() => onGameweekChange(gameweek + 1)}
-      />
+      {/* 1. LEAGUE FILTER + ADMIN ACTIONS */}
+      <div className="flex items-center justify-between gap-2">
+        {/* League selector */}
+        <div className="relative">
+          <button className="flex items-center gap-2 px-3 py-2 min-h-[40px] bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm font-semibold hover:bg-white/[0.06] transition-all">
+            <span>{activeLeague.flag}</span>
+            <span>{activeLeague.label}</span>
+            {LEAGUES.length > 1 && <ChevronDown className="w-3.5 h-3.5 text-white/30" />}
+          </button>
+        </div>
+
+        {/* Status + Admin */}
+        <div className="flex items-center gap-2">
+          {allSimulated && (
+            <span className="text-[10px] text-white/30 font-mono">{totalGoals} Tore</span>
+          )}
+          {isAdmin && isCurrentGw && gwStatus === 'open' && gwEvents.length > 0 && (
+            <button
+              onClick={() => setShowConfirm(true)}
+              disabled={simulating}
+              className="flex items-center gap-1.5 px-3 py-2 min-h-[40px] bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-xl text-xs font-bold text-[#FFD700] hover:bg-[#FFD700]/20 disabled:opacity-50 transition-all"
+            >
+              {simulating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+              {apiAvailable ? 'Import' : 'Starten'}
+            </button>
+          )}
+          {isAdmin && gwStatus === 'simulated' && isCurrentGw && (
+            <span className="text-[10px] text-[#22C55E] font-bold px-2 py-1 bg-[#22C55E]/10 rounded-lg">Beendet</span>
+          )}
+        </div>
+      </div>
 
       {/* 2. SPONSOR BANNER */}
       <SponsorBanner placement="fantasy_spieltag" />
@@ -516,7 +534,7 @@ export function SpieltagTab({
         <section>
           <SectionHeader
             title={ts('fixtures')}
-            badge={<span className="text-[10px] text-white/25 font-medium">{otherFixtures.length} Spiele</span>}
+            badge={<span className="text-[10px] text-white/25 font-medium">{otherFixtures.length} {ts('fixturesShort')}</span>}
           />
           <div className="space-y-2 mt-3">
             {otherFixtures.map(f => (
@@ -536,40 +554,12 @@ export function SpieltagTab({
         </Card>
       )}
 
-      {/* 6. VERFÜGBARE EVENTS */}
-      {gwEvents.length > 0 && (
-        <section>
-          <SectionHeader
-            title={ts('events')}
-            badge={<span className="text-[10px] text-white/25 font-medium">{gwEvents.length}</span>}
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
-            {gwEvents.map(event => (
-              <EventCard
-                key={event.id}
-                event={event}
-                onView={() => onEventClick(event)}
-                onToggleInterest={() => onToggleInterest(event.id)}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 7. EMPTY STATES */}
-      {gwEvents.length === 0 && !fixturesLoading && fixtures.length === 0 && (
+      {/* 6. EMPTY STATE */}
+      {!fixturesLoading && fixtures.length === 0 && (
         <Card className="p-12 text-center">
           <Calendar className="w-12 h-12 mx-auto mb-4 text-white/20" />
           <div className="text-white/50 mb-1">{ts('noActivity', { gw: gameweek })}</div>
           <div className="text-white/30 text-xs">{ts('noActivityDesc')}</div>
-        </Card>
-      )}
-
-      {gwEvents.length === 0 && !fixturesLoading && fixtures.length > 0 && (
-        <Card className="p-8 text-center">
-          <Trophy className="w-10 h-10 mx-auto mb-3 text-white/20" />
-          <div className="text-white/50 mb-1">{ts('noEvents', { gw: gameweek })}</div>
-          <div className="text-white/30 text-xs mb-3">{ts('noEventsDesc', { count: fixtures.length })}</div>
         </Card>
       )}
 

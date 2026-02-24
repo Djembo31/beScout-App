@@ -281,10 +281,19 @@
     "leagues": "Ligen",
     "mitmachen": {
       "noLineups": "Noch bei keinem Event angemeldet",
-      "noLineupsCta": "Tritt einem Event im Spieltag-Tab bei",
+      "noLineupsCta": "Tritt einem Event im Events-Tab bei",
       "lineupSet": "Aufstellung gesetzt",
       "noLineup": "Noch keine Aufstellung"
     },
+    "eventCategories": {
+      "all": "Alle",
+      "bescout": "BeScout",
+      "sponsor": "Sponsoren",
+      "club": "Verein",
+      "creator": "User",
+      "special": "Spezial"
+    },
+    "noEventsForCategory": "Keine Events in dieser Kategorie",
     "ergebnisse": {
       "upcoming": "Spieltag hat noch nicht begonnen",
       "upcomingDesc": "Ergebnisse werden nach dem Spieltag angezeigt",

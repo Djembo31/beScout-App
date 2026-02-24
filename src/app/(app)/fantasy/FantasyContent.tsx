@@ -4,7 +4,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import {
-  Trophy, Plus, AlertCircle, RefreshCw, Loader2, Calendar, Users, BarChart3,
+  Trophy, Plus, AlertCircle, RefreshCw, Loader2, Calendar, Users, BarChart3, Globe,
 } from 'lucide-react';
 import { Button, Skeleton, SkeletonCard } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -27,6 +27,7 @@ import {
 import { SpieltagSelector } from '@/components/fantasy/SpieltagSelector';
 import { MitmachenTab } from '@/components/fantasy/MitmachenTab';
 import { ErgebnisseTab } from '@/components/fantasy/ErgebnisseTab';
+import { EventsTab } from '@/components/fantasy/EventsTab';
 
 import { useClub } from '@/components/providers/ClubProvider';
 import EventSummaryModal from '@/components/fantasy/EventSummaryModal';
@@ -155,8 +156,8 @@ export default function FantasyContent() {
   const tc = useTranslations('common');
   const tt = useTranslations('tips');
 
-  // State — 3 tabs instead of 5
-  const [mainTab, setMainTab] = useState<FantasyTab>('spieltag');
+  // State — 4 tabs
+  const [mainTab, setMainTab] = useState<FantasyTab>('paarungen');
   const [selectedGameweek, setSelectedGameweek] = useState<number | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<FantasyEvent | null>(null);
   const [localEvents, setLocalEvents] = useState<FantasyEvent[] | null>(null);
@@ -501,9 +502,10 @@ export default function FantasyContent() {
     );
   }
 
-  // Tab definitions — 3 tabs
+  // Tab definitions — 4 tabs
   const tabs: { id: FantasyTab; label: string; mobileLabel: string; icon: typeof Calendar }[] = [
-    { id: 'spieltag', label: 'Spieltag', mobileLabel: 'Spieltag', icon: Calendar },
+    { id: 'paarungen', label: 'Paarungen', mobileLabel: 'Spiele', icon: Calendar },
+    { id: 'events', label: 'Events', mobileLabel: 'Events', icon: Globe },
     { id: 'mitmachen', label: 'Mitmachen', mobileLabel: 'Aktiv', icon: Users },
     { id: 'ergebnisse', label: 'Ergebnisse', mobileLabel: 'Ergebnis', icon: BarChart3 },
   ];
@@ -555,13 +557,13 @@ export default function FantasyContent() {
         onGameweekChange={setSelectedGameweek}
       />
 
-      {/* SEGMENT TABS — 3 Tabs, always fit on mobile */}
-      <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+      {/* SEGMENT TABS — 4 Tabs, scrollable on mobile */}
+      <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-x-auto scrollbar-hide">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setMainTab(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[40px] ${
+            className={`flex-shrink-0 flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[40px] ${
               mainTab === tab.id
                 ? 'bg-[#FFD700]/15 text-[#FFD700] shadow-sm'
                 : 'text-white/50 hover:text-white/70'
@@ -574,8 +576,8 @@ export default function FantasyContent() {
         ))}
       </div>
 
-      {/* ========== SPIELTAG TAB — Lobby: WAS passiert? ========== */}
-      {mainTab === 'spieltag' && user && (
+      {/* ========== PAARUNGEN TAB — Lobby: WAS passiert? ========== */}
+      {mainTab === 'paarungen' && user && (
         <SpieltagTab
           gameweek={currentGw}
           activeGameweek={activeGw}
@@ -583,10 +585,16 @@ export default function FantasyContent() {
           isAdmin={isAdmin}
           events={gwEvents}
           userId={user.id}
+          onSimulated={handleSimulated}
+        />
+      )}
+
+      {/* ========== EVENTS TAB — Alle Events nach Kategorie ========== */}
+      {mainTab === 'events' && user && (
+        <EventsTab
+          events={gwEvents}
           onEventClick={setSelectedEvent}
           onToggleInterest={handleToggleInterest}
-          onGameweekChange={setSelectedGameweek}
-          onSimulated={handleSimulated}
         />
       )}
 

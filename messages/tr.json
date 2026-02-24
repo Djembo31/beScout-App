@@ -281,10 +281,19 @@
     "leagues": "Ligler",
     "mitmachen": {
       "noLineups": "Henüz bir etkinliğe katılmadın",
-      "noLineupsCta": "Maç Günü sekmesinden bir etkinliğe katıl",
+      "noLineupsCta": "Etkinlikler sekmesinden bir etkinliğe katıl",
       "lineupSet": "Kadro belirlendi",
       "noLineup": "Henüz kadro yok"
     },
+    "eventCategories": {
+      "all": "Tümü",
+      "bescout": "BeScout",
+      "sponsor": "Sponsorlar",
+      "club": "Kulüp",
+      "creator": "Kullanıcı",
+      "special": "Özel"
+    },
+    "noEventsForCategory": "Bu kategoride etkinlik yok",
     "ergebnisse": {
       "upcoming": "Maç haftası henüz başlamadı",
       "upcomingDesc": "Sonuçlar maç haftası bittikten sonra gösterilecek",
