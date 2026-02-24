@@ -60,7 +60,7 @@ export default function AppLayout({
       {/* App Shell */}
       <div className="relative flex min-h-screen">
         <SideNav mobileOpen={mobileOpen} onMobileClose={handleMobileClose} />
-        <div className="flex-1 ml-0 lg:ml-[260px]">
+        <div className="flex-1 ml-0 lg:ml-[260px] min-w-0">
           <TopBar onMobileMenuToggle={handleMobileToggle} />
           <main className="p-4 lg:p-6 pb-safe-nav lg:pb-6 overflow-x-hidden">
             {pathname.startsWith('/club/') && !pathname.includes('/admin') ? children : <AuthGuard>{children}</AuthGuard>}

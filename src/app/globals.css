@@ -12,10 +12,16 @@
   --bg-main: #0a0a0a;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Outfit', sans-serif;
   background-color: var(--bg-main);
   color: white;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* Custom scrollbar */

@@ -143,13 +143,13 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
 
         {/* Right side */}
         <div className="flex items-center gap-2 md:gap-3">
-          {/* $SCOUT Balance pill */}
-          <div data-tour-id="topbar-balance" className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-xl">
-            <DollarSign className="w-3.5 h-3.5 text-[#FFD700]" />
+          {/* $SCOUT Balance pill — compact on mobile */}
+          <div data-tour-id="topbar-balance" className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-xl">
+            <DollarSign className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#FFD700]" />
             {balanceCents === null ? (
-              <span className="inline-block w-12 h-3.5 rounded bg-[#FFD700]/20 animate-pulse" />
+              <span className="inline-block w-10 sm:w-12 h-3.5 rounded bg-[#FFD700]/20 animate-pulse" />
             ) : (
-              <span className="font-mono font-bold text-[#FFD700] text-xs">{formatScout(balanceCents)}</span>
+              <span className="font-mono font-bold text-[#FFD700] text-[10px] sm:text-xs">{formatScout(balanceCents)}</span>
             )}
           </div>
 
@@ -162,11 +162,11 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             <Search className="w-4 h-4 text-white/70" />
           </button>
 
-          {/* Push Toggle */}
+          {/* Push Toggle — hidden on mobile to save space */}
           <button
             onClick={togglePush}
             disabled={pushLoading}
-            className={`flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] border rounded-xl transition-all ${
+            className={`hidden sm:flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] border rounded-xl transition-all ${
               pushEnabled
                 ? 'bg-[#22C55E]/10 border-[#22C55E]/20 hover:bg-[#22C55E]/20'
                 : 'bg-white/5 border-white/10 hover:bg-white/10'
