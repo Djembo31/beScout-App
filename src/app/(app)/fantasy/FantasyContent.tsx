@@ -567,28 +567,28 @@ export default function FantasyContent() {
         show={joinedIdsArr.length === 0}
       />
 
-      {/* SEGMENT TABS — 5 Tabs */}
-      <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-x-auto">
+      {/* SEGMENT TABS — 5 Tabs, scrollable on mobile */}
+      <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-x-auto scrollbar-hide">
         {([
-          { id: 'spieltag' as FantasyTab, label: `${t('gameweek')} ${activeGw}`, icon: Calendar },
+          { id: 'spieltag' as FantasyTab, label: `ST ${activeGw}`, icon: Calendar },
           { id: 'events' as FantasyTab, label: t('events'), icon: Globe, count: activeEvents.length },
-          { id: 'predictions' as FantasyTab, label: t('predictions'), icon: Target },
-          { id: 'leagues' as FantasyTab, label: t('leagues'), icon: Trophy },
-          { id: 'history' as FantasyTab, label: t('history'), icon: History },
+          { id: 'predictions' as FantasyTab, label: 'Tipps', icon: Target },
+          { id: 'leagues' as FantasyTab, label: 'Ligen', icon: Trophy },
+          { id: 'history' as FantasyTab, label: 'Verlauf', icon: History },
         ]).map(tab => (
           <button
             key={tab.id}
             onClick={() => setMainTab(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${
+            className={`flex-shrink-0 flex items-center justify-center gap-1 px-2.5 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[36px] ${
               mainTab === tab.id
                 ? 'bg-[#FFD700]/15 text-[#FFD700] shadow-sm'
                 : 'text-white/50 hover:text-white/70'
             }`}
           >
-            <tab.icon className="w-4 h-4" />
+            <tab.icon className="w-3.5 h-3.5" />
             <span>{tab.label}</span>
             {tab.count != null && tab.count > 0 && (
-              <span className="px-1.5 py-0.5 bg-[#22C55E]/20 text-[#22C55E] text-[10px] font-bold rounded-full">{tab.count}</span>
+              <span className="px-1 py-0.5 bg-[#22C55E]/20 text-[#22C55E] text-[9px] font-bold rounded-full">{tab.count}</span>
             )}
           </button>
         ))}
