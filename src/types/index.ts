@@ -578,9 +578,15 @@ export type DbLineup = {
   slot_gk: string | null;
   slot_def1: string | null;
   slot_def2: string | null;
+  slot_def3: string | null;
+  slot_def4: string | null;
   slot_mid1: string | null;
   slot_mid2: string | null;
+  slot_mid3: string | null;
+  slot_mid4: string | null;
   slot_att: string | null;
+  slot_att2: string | null;
+  slot_att3: string | null;
   captain_slot: string | null;
   total_score: number | null;
   slot_scores: Record<string, number> | null;

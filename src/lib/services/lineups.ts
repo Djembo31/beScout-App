@@ -5,8 +5,22 @@ import type { DbLineup, DbPlayer, Pos, UserFantasyResult } from '@/types';
 // Types
 // ============================================
 
+/** All possible DB slot column names */
+const ALL_SLOT_COLUMNS = [
+  'slot_gk', 'slot_def1', 'slot_def2', 'slot_def3', 'slot_def4',
+  'slot_mid1', 'slot_mid2', 'slot_mid3', 'slot_mid4',
+  'slot_att', 'slot_att2', 'slot_att3',
+] as const;
+
+/** All possible slot keys (used in slot_scores JSONB) */
+const ALL_SLOT_KEYS = [
+  'gk', 'def1', 'def2', 'def3', 'def4',
+  'mid1', 'mid2', 'mid3', 'mid4',
+  'att', 'att2', 'att3',
+] as const;
+
 export type LineupSlotPlayer = {
-  slotKey: string;           // 'gk' | 'def1' | 'def2' | 'mid1' | 'mid2' | 'att'
+  slotKey: string;           // 'gk' | 'def1' | 'def2' | ... | 'att3'
   playerId: string;
   score: number | null;
   player: {
@@ -46,12 +60,7 @@ export async function submitLineup(params: {
   eventId: string;
   userId: string;
   formation: string;
-  slotGk: string | null;
-  slotDef1: string | null;
-  slotDef2: string | null;
-  slotMid1: string | null;
-  slotMid2: string | null;
-  slotAtt: string | null;
+  slots: Record<string, string | null>;
   captainSlot?: string | null;
 }): Promise<DbLineup> {
   // Check event status + capacity before submitting
@@ -74,35 +83,30 @@ export async function submitLineup(params: {
   }
 
   // Guard: prevent duplicate players across slots
-  const slotPlayerIds = [
-    params.slotGk, params.slotDef1, params.slotDef2,
-    params.slotMid1, params.slotMid2, params.slotAtt,
-  ].filter((id): id is string => id != null);
-
+  const slotPlayerIds = Object.values(params.slots).filter((id): id is string => id != null);
   const uniqueIds = new Set(slotPlayerIds);
   if (uniqueIds.size < slotPlayerIds.length) {
     throw new Error('Jeder Spieler darf nur einmal aufgestellt werden.');
   }
 
+  // Build DB row with all slot columns
+  const row: Record<string, unknown> = {
+    event_id: params.eventId,
+    user_id: params.userId,
+    formation: params.formation,
+    captain_slot: params.captainSlot ?? null,
+    submitted_at: new Date().toISOString(),
+    locked: false,
+  };
+
+  // Map all slot keys to DB columns (unused slots = null)
+  for (let i = 0; i < ALL_SLOT_KEYS.length; i++) {
+    row[ALL_SLOT_COLUMNS[i]] = params.slots[ALL_SLOT_KEYS[i]] ?? null;
+  }
+
   const { data, error } = await supabase
     .from('lineups')
-    .upsert(
-      {
-        event_id: params.eventId,
-        user_id: params.userId,
-        formation: params.formation,
-        slot_gk: params.slotGk,
-        slot_def1: params.slotDef1,
-        slot_def2: params.slotDef2,
-        slot_mid1: params.slotMid1,
-        slot_mid2: params.slotMid2,
-        slot_att: params.slotAtt,
-        captain_slot: params.captainSlot ?? null,
-        submitted_at: new Date().toISOString(),
-        locked: false,
-      },
-      { onConflict: 'event_id,user_id' }
-    )
+    .upsert(row, { onConflict: 'event_id,user_id' })
     .select()
     .single();
 
@@ -177,14 +181,12 @@ export async function getLineupWithPlayers(eventId: string, userId: string): Pro
   if (error || !lineup) return null;
 
   const dbLineup = lineup as DbLineup;
-  const slotDefs: { key: string; column: keyof DbLineup }[] = [
-    { key: 'gk', column: 'slot_gk' },
-    { key: 'def1', column: 'slot_def1' },
-    { key: 'def2', column: 'slot_def2' },
-    { key: 'mid1', column: 'slot_mid1' },
-    { key: 'mid2', column: 'slot_mid2' },
-    { key: 'att', column: 'slot_att' },
-  ];
+
+  // Build slot definitions from all possible columns
+  const slotDefs: { key: string; column: keyof DbLineup }[] = ALL_SLOT_KEYS.map((key, i) => ({
+    key,
+    column: ALL_SLOT_COLUMNS[i] as keyof DbLineup,
+  }));
 
   // Collect non-null player IDs
   const playerIds: string[] = [];
@@ -238,7 +240,9 @@ export async function getPlayerEventUsage(userId: string): Promise<Map<string, s
   const { data, error } = await supabase
     .from('lineups')
     .select(`
-      slot_gk, slot_def1, slot_def2, slot_mid1, slot_mid2, slot_att,
+      slot_gk, slot_def1, slot_def2, slot_def3, slot_def4,
+      slot_mid1, slot_mid2, slot_mid3, slot_mid4,
+      slot_att, slot_att2, slot_att3,
       event:events ( id, name, status )
     `)
     .eq('user_id', userId);
@@ -251,7 +255,11 @@ export async function getPlayerEventUsage(userId: string): Promise<Map<string, s
     const ev = lineup.event as unknown as { id: string; name: string; status: string } | null;
     if (!ev || ev.status === 'ended' || ev.status === 'scoring') continue;
 
-    const slots = [lineup.slot_gk, lineup.slot_def1, lineup.slot_def2, lineup.slot_mid1, lineup.slot_mid2, lineup.slot_att];
+    const slots = [
+      lineup.slot_gk, lineup.slot_def1, lineup.slot_def2, lineup.slot_def3, lineup.slot_def4,
+      lineup.slot_mid1, lineup.slot_mid2, lineup.slot_mid3, lineup.slot_mid4,
+      lineup.slot_att, lineup.slot_att2, lineup.slot_att3,
+    ];
     for (const playerId of slots) {
       if (playerId) {
         const existing = usageMap.get(playerId) || [];

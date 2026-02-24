@@ -24,6 +24,7 @@ import {
   type LineupPlayer, type UserDpcHolding, type LineupFormat,
   CreateEventModal, SpieltagTab,
 } from '@/components/fantasy';
+import { getFormationsForFormat, buildSlotDbKeys } from '@/components/fantasy/constants';
 import { SpieltagSelector } from '@/components/fantasy/SpieltagSelector';
 import { MitmachenTab } from '@/components/fantasy/MitmachenTab';
 import { ErgebnisseTab } from '@/components/fantasy/ErgebnisseTab';
@@ -316,18 +317,20 @@ export default function FantasyContent() {
       }
 
       // 2. Then submit lineup — if this fails, refund the fee
+      // Build dynamic slot mapping based on event format + formation
+      const formations = getFormationsForFormat(event.format);
+      const currentFormation = formations.find(f => f.id === formation) || formations[0];
+      const dbKeys = buildSlotDbKeys(currentFormation);
       const slotMap = new Map(lineup.map(p => [p.slot, p.playerId]));
+      const slots: Record<string, string | null> = {};
+      dbKeys.forEach((key, idx) => { slots[key] = slotMap.get(idx) || null; });
+
       try {
         await submitLineup({
           eventId: event.id,
           userId: user.id,
           formation,
-          slotGk: slotMap.get(0) || null,
-          slotDef1: slotMap.get(1) || null,
-          slotDef2: slotMap.get(2) || null,
-          slotMid1: slotMap.get(3) || null,
-          slotMid2: slotMap.get(4) || null,
-          slotAtt: slotMap.get(5) || null,
+          slots,
           captainSlot,
         });
       } catch (lineupErr: unknown) {

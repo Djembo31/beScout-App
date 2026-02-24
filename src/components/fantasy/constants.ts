@@ -1,4 +1,10 @@
-export const FORMATIONS_6ER = [
+export type FormationDef = {
+  id: string;
+  name: string;
+  slots: { pos: string; count: number }[];
+};
+
+export const FORMATIONS_6ER: FormationDef[] = [
   {
     id: '1-2-2-1', name: 'Balanced (1-2-2-1)', slots: [
       { pos: 'GK', count: 1 },
@@ -32,5 +38,69 @@ export const FORMATIONS_6ER = [
     ]
   },
 ];
+
+export const FORMATIONS_11ER: FormationDef[] = [
+  {
+    id: '1-4-3-3', name: '4-3-3', slots: [
+      { pos: 'GK', count: 1 },
+      { pos: 'DEF', count: 4 },
+      { pos: 'MID', count: 3 },
+      { pos: 'ATT', count: 3 },
+    ]
+  },
+  {
+    id: '1-4-4-2', name: '4-4-2', slots: [
+      { pos: 'GK', count: 1 },
+      { pos: 'DEF', count: 4 },
+      { pos: 'MID', count: 4 },
+      { pos: 'ATT', count: 2 },
+    ]
+  },
+  {
+    id: '1-3-4-3', name: '3-4-3', slots: [
+      { pos: 'GK', count: 1 },
+      { pos: 'DEF', count: 3 },
+      { pos: 'MID', count: 4 },
+      { pos: 'ATT', count: 3 },
+    ]
+  },
+];
+
+/** Get formations array for an event format */
+export function getFormationsForFormat(format: string): FormationDef[] {
+  return format === '11er' ? FORMATIONS_11ER : FORMATIONS_6ER;
+}
+
+/** Get default formation ID for a format */
+export function getDefaultFormation(format: string): string {
+  return format === '11er' ? '1-4-3-3' : '1-2-2-1';
+}
+
+/**
+ * Build slot-to-DB-column mapping for a formation.
+ * Slot index → DB column key (e.g., 0 → 'slotGk', 3 → 'slotDef3')
+ */
+export function buildSlotDbKeys(formation: FormationDef): string[] {
+  const keys: string[] = [];
+  const posCounters: Record<string, number> = {};
+
+  for (const s of formation.slots) {
+    for (let i = 0; i < s.count; i++) {
+      const posLower = s.pos.toLowerCase();
+      const count = (posCounters[posLower] ?? 0) + 1;
+      posCounters[posLower] = count;
+
+      // Match existing DB naming: gk (no number), def1/def2/..., mid1/mid2/..., att (no number for first), att2/att3
+      if (posLower === 'gk') {
+        keys.push('gk');
+      } else if (posLower === 'att') {
+        keys.push(count === 1 ? 'att' : `att${count}`);
+      } else {
+        keys.push(`${posLower}${count}`);
+      }
+    }
+  }
+  return keys;
+}
 
 export const PRESET_KEY = 'bescout-lineup-presets';

@@ -24,10 +24,10 @@ import type { LeaderboardEntry } from '@/lib/services/scoring';
 import { cn, fmtScout } from '@/lib/utils';
 import type { Pos } from '@/types';
 import type { FantasyEvent, EventDetailTab, LineupPlayer, UserDpcHolding, LineupPreset } from './types';
-import { FORMATIONS_6ER, PRESET_KEY } from './constants';
+import { getFormationsForFormat, getDefaultFormation, buildSlotDbKeys, PRESET_KEY } from './constants';
 import {
   getStatusStyle, getTypeStyle, getPosBorderColor,
-  SLOT_SCORE_KEYS, getScoreColor, getPosAccentColor, formatCountdown,
+  getScoreColor, getPosAccentColor, formatCountdown,
 } from './helpers';
 import EventCommunityTab from './EventCommunityTab';
 import SponsorBanner from '@/components/player/detail/SponsorBanner';
@@ -53,7 +53,7 @@ export const EventDetailModal = ({
   const [tab, setTab] = useState<EventDetailTab>('overview');
   const [selectedPlayers, setSelectedPlayers] = useState<LineupPlayer[]>([]);
   const [showPlayerPicker, setShowPlayerPicker] = useState<{ position: string; slot: number } | null>(null);
-  const [selectedFormation, setSelectedFormation] = useState('1-2-2-1');
+  const [selectedFormation, setSelectedFormation] = useState(() => getDefaultFormation(event?.format ?? '6er'));
   const [pickerSearch, setPickerSearch] = useState('');
   const [pickerSort, setPickerSort] = useState<'l5' | 'dpc' | 'name'>('l5');
   const [presetName, setPresetName] = useState('');
@@ -82,6 +82,9 @@ export const EventDetailModal = ({
       setViewingUserLineup(null);
       setScoringJustFinished(false);
       setShowJoinConfirm(false);
+      // Reset formation to match event format (6er vs 11er)
+      setSelectedFormation(getDefaultFormation(event.format));
+      setSelectedPlayers([]);
     }
   }, [isOpen, event?.id]);
 
@@ -134,7 +137,7 @@ export const EventDetailModal = ({
         getLineup(event.id, user.id).then(dbLineup => {
           if (dbLineup) {
             // Use persisted formation, fallback to default
-            const savedFormation = dbLineup.formation || '1-2-2-1';
+            const savedFormation = dbLineup.formation || getDefaultFormation(event.format);
             setSelectedFormation(savedFormation);
 
             // Store scoring data for pitch display
@@ -143,24 +146,18 @@ export const EventDetailModal = ({
             setMyRank(dbLineup.rank);
             setCaptainSlot(dbLineup.captain_slot ?? null);
 
-            const formation = FORMATIONS_6ER.find(f => f.id === savedFormation) || FORMATIONS_6ER[0];
+            const fmtFormations = getFormationsForFormat(event.format);
+            const formation = fmtFormations.find(f => f.id === savedFormation) || fmtFormations[0];
             const fSlots: { pos: string; slot: number }[] = [];
             let si = 0;
             for (const s of formation.slots) { for (let i = 0; i < s.count; i++) fSlots.push({ pos: s.pos, slot: si++ }); }
 
-            // Map DB slot columns to formation slots in order
-            const dbSlotValues = [
-              dbLineup.slot_gk,
-              dbLineup.slot_def1,
-              dbLineup.slot_def2,
-              dbLineup.slot_mid1,
-              dbLineup.slot_mid2,
-              dbLineup.slot_att,
-            ];
-
+            // Map DB slot columns to formation slots using buildSlotDbKeys
+            const dbKeys = buildSlotDbKeys(formation);
             const finalLineup: LineupPlayer[] = [];
             fSlots.forEach((slot, i) => {
-              const playerId = dbSlotValues[i];
+              const colKey = `slot_${dbKeys[i]}` as keyof typeof dbLineup;
+              const playerId = dbLineup[colKey] as string | null;
               if (playerId) {
                 finalLineup.push({ playerId, position: slot.pos, slot: slot.slot, isLocked: false });
               }
@@ -168,16 +165,13 @@ export const EventDetailModal = ({
 
             setSelectedPlayers(finalLineup);
           } else {
-            // Lineup row exists (user is joined) but getLineup returned null
-            // Could be a DB read error — reset cleanly
             setSelectedPlayers([]);
-            setSelectedFormation('1-2-2-1');
+            setSelectedFormation(getDefaultFormation(event.format));
             setSlotScores(null);
           }
         }).catch(() => {
-          // Silent fail — reset lineup state
           setSelectedPlayers([]);
-          setSelectedFormation('1-2-2-1');
+          setSelectedFormation(getDefaultFormation(event.format));
           setSlotScores(null);
         });
       } else {
@@ -210,13 +204,17 @@ export const EventDetailModal = ({
   const typeStyle = getTypeStyle(event.type);
   const TypeIcon = typeStyle.icon;
 
-  // Dynamic formation slots
-  const currentFormation = FORMATIONS_6ER.find(f => f.id === selectedFormation) || FORMATIONS_6ER[0];
+  // Dynamic formation slots — use format-specific formations
+  const availableFormations = getFormationsForFormat(event.format);
+  const currentFormation = availableFormations.find(f => f.id === selectedFormation) || availableFormations[0];
   const formationSlots: { pos: string; slot: number }[] = [];
   let slotIdx = 0;
   for (const s of currentFormation.slots) {
     for (let i = 0; i < s.count; i++) formationSlots.push({ pos: s.pos, slot: slotIdx++ });
   }
+
+  // Slot key mapping for this formation (used for scores, captain, etc.)
+  const slotDbKeys = buildSlotDbKeys(currentFormation);
 
   // Free up 1 DPC for players already committed to THIS event (user is editing their own lineup)
   const effectiveHoldings = userHoldings.map(h => {
@@ -340,7 +338,7 @@ export const EventDetailModal = ({
   };
   const applyPreset = (preset: LineupPreset) => {
     setSelectedFormation(preset.formation);
-    const formation = FORMATIONS_6ER.find(f => f.id === preset.formation) || FORMATIONS_6ER[0];
+    const formation = availableFormations.find(f => f.id === preset.formation) || availableFormations[0];
     const slots: { pos: string; slot: number }[] = [];
     let idx = 0;
     for (const s of formation.slots) { for (let i = 0; i < s.count; i++) slots.push({ pos: s.pos, slot: idx++ }); }
@@ -640,7 +638,7 @@ export const EventDetailModal = ({
                   disabled={isReadOnly}
                   className={`px-3 py-2 min-h-[44px] bg-white/5 border border-white/10 rounded-lg text-sm font-bold ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  {FORMATIONS_6ER.map(f => (
+                  {availableFormations.map(f => (
                     <option key={f.id} value={f.id}>{f.name}</option>
                   ))}
                 </select>
@@ -757,9 +755,9 @@ export const EventDetailModal = ({
                           {posSlots.map(slot => {
                             const player = getSelectedPlayer(slot.slot);
                             const pStatus = player ? getPlayerStatusStyle(player.status) : null;
-                            const slotScore = (isScored && slotScores) ? slotScores[SLOT_SCORE_KEYS[slot.slot]] : undefined;
+                            const slotScore = (isScored && slotScores) ? slotScores[slotDbKeys[slot.slot]] : undefined;
                             const hasScore = slotScore != null;
-                            const isCaptain = captainSlot === SLOT_SCORE_KEYS[slot.slot];
+                            const isCaptain = captainSlot === slotDbKeys[slot.slot];
                             return (
                               <div key={slot.slot} className="flex flex-col items-center relative">
                                 {/* Captain Crown (top-left) */}
@@ -789,12 +787,12 @@ export const EventDetailModal = ({
                                   onContextMenu={(e) => {
                                     e.preventDefault();
                                     if (!isReadOnly && player) {
-                                      setCaptainSlot(isCaptain ? null : SLOT_SCORE_KEYS[slot.slot]);
+                                      setCaptainSlot(isCaptain ? null : slotDbKeys[slot.slot]);
                                     }
                                   }}
                                   onDoubleClick={() => {
                                     if (!isReadOnly && player) {
-                                      setCaptainSlot(isCaptain ? null : SLOT_SCORE_KEYS[slot.slot]);
+                                      setCaptainSlot(isCaptain ? null : slotDbKeys[slot.slot]);
                                     }
                                   }}
                                   className={`flex flex-col items-center ${isReadOnly ? 'cursor-default' : ''}`}
@@ -933,7 +931,7 @@ export const EventDetailModal = ({
                   <div className="text-xs text-white/40 font-bold uppercase tracking-wider px-1">Einzelbewertungen</div>
                   {formationSlots.map(slot => {
                     const player = getSelectedPlayer(slot.slot);
-                    const scoreKey = SLOT_SCORE_KEYS[slot.slot];
+                    const scoreKey = slotDbKeys[slot.slot];
                     const score = slotScores[scoreKey];
                     if (!player || score == null) return null;
                     const isCpt = captainSlot === scoreKey;
@@ -1014,7 +1012,7 @@ export const EventDetailModal = ({
                 <div className="flex items-center gap-2 p-3 bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-lg">
                   <Crown className="w-4 h-4 text-[#FFD700]" />
                   <span className="text-xs text-[#FFD700]/80">
-                    {captainSlot ? `Kapitän: ${(() => { const idx = SLOT_SCORE_KEYS.indexOf(captainSlot); const p = idx >= 0 ? getSelectedPlayer(idx) : null; return p ? `${p.first} ${p.last} (×1.5)` : captainSlot; })()}` : 'Doppelklick auf einen Spieler = Kapitän (×1.5 Score)'}
+                    {captainSlot ? `Kapitän: ${(() => { const idx = slotDbKeys.indexOf(captainSlot); const p = idx >= 0 ? getSelectedPlayer(idx) : null; return p ? `${p.first} ${p.last} (×1.5)` : captainSlot; })()}` : 'Doppelklick auf einen Spieler = Kapitän (×1.5 Score)'}
                   </span>
                   {captainSlot && (
                     <button onClick={() => setCaptainSlot(null)} className="ml-auto text-[10px] text-white/40 hover:text-white/60">Entfernen</button>

@@ -43,8 +43,11 @@ export const getPosBorderColor = (pos: string): string => {
   return 'border-white/10';
 };
 
-// Slot index (0-5) → JSONB key in slot_scores
-export const SLOT_SCORE_KEYS = ['gk', 'def1', 'def2', 'mid1', 'mid2', 'att'];
+// All possible slot keys — 6er uses first 6, 11er up to 12
+export const SLOT_SCORE_KEYS_6ER = ['gk', 'def1', 'def2', 'mid1', 'mid2', 'att'];
+export const SLOT_SCORE_KEYS_ALL = ['gk', 'def1', 'def2', 'def3', 'def4', 'mid1', 'mid2', 'mid3', 'mid4', 'att', 'att2', 'att3'];
+/** @deprecated Use format-specific keys or buildSlotDbKeys */
+export const SLOT_SCORE_KEYS = SLOT_SCORE_KEYS_6ER;
 
 export const getScoreColor = (score: number): string => {
   if (score >= 100) return '#FFD700';
