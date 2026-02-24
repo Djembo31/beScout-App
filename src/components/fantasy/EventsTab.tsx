@@ -3,12 +3,12 @@
 import React, { useState, useMemo } from 'react';
 import {
   Trophy, Sparkles, Building2, Gift, UserPlus, Star, Globe,
-  Users, CheckCircle2, ChevronRight, Lock, Play, LayoutGrid, List,
+  CheckCircle2, ChevronRight, Lock, LayoutGrid, List,
 } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { useTranslations } from 'next-intl';
 import type { FantasyEvent, EventType, ViewMode } from './types';
-import { getStatusStyle, getTypeStyle, formatCountdown } from './helpers';
+import { getTypeStyle, formatCountdown } from './helpers';
 import { EventCard } from './EventCard';
 
 type EventCategory = 'all' | EventType;
@@ -28,54 +28,49 @@ type EventsTabProps = {
   onToggleInterest?: (eventId: string) => void;
 };
 
-/** Compact event row — matches visual density of FixtureCards */
+/** Compact event row — same visual density as FixtureCards (text-xs, 48px height) */
 function EventRow({ event, onClick }: { event: FantasyEvent; onClick: () => void }) {
   const typeStyle = getTypeStyle(event.type);
-  const statusStyle = getStatusStyle(event.status);
   const TypeIcon = typeStyle.icon;
 
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-2.5 px-3 py-3 min-h-[56px] rounded-xl border transition-all text-left ${
+      className={`w-full flex items-center gap-2 px-3 py-2 min-h-[44px] rounded-xl border transition-all text-left active:scale-[0.98] ${
         event.isJoined
-          ? 'bg-[#22C55E]/[0.04] border-[#22C55E]/20 hover:border-[#22C55E]/30'
-          : 'bg-white/[0.02] border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.04]'
+          ? 'bg-[#22C55E]/[0.04] border-[#22C55E]/20'
+          : 'bg-white/[0.02] border-white/[0.06] hover:border-white/10'
       }`}
     >
       {/* Type icon */}
-      <div className={`flex-shrink-0 p-1.5 rounded-lg ${typeStyle.bg}`}>
-        <TypeIcon className={`w-3.5 h-3.5 ${typeStyle.color}`} />
+      <div className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center ${typeStyle.bg}`}>
+        <TypeIcon className={`w-3 h-3 ${typeStyle.color}`} />
       </div>
 
       {/* Name + Meta */}
-      <div className="flex-1 min-w-0 overflow-hidden">
-        <div className="truncate text-sm font-semibold">{event.name}</div>
-        <div className="flex items-center gap-1.5 text-[10px] text-white/35 mt-0.5">
+      <div className="flex-1 min-w-0">
+        <div className="truncate text-xs font-semibold leading-tight">{event.name}</div>
+        <div className="flex items-center gap-1 text-[9px] text-white/30 mt-0.5 leading-tight">
           <span>{event.format}</span>
-          <span className="text-white/15">·</span>
-          <Users className="w-2.5 h-2.5 flex-shrink-0" />
-          <span>{event.participants}{event.maxParticipants ? `/${event.maxParticipants}` : ''}</span>
-          <span className="text-white/15">·</span>
-          <span className="truncate">{event.buyIn === 0 ? 'Kostenlos' : `${event.buyIn} $SCOUT`}</span>
+          <span>·</span>
+          <span>{event.participants}/{event.maxParticipants ?? '∞'}</span>
+          <span>·</span>
+          <span>{event.buyIn === 0 ? 'Free' : `${event.buyIn}`}</span>
         </div>
       </div>
 
-      {/* Status — compact */}
-      <div className="flex-shrink-0 flex items-center gap-1.5">
+      {/* Status */}
+      <div className="flex-shrink-0 flex items-center gap-1">
         {event.isJoined ? (
-          <CheckCircle2 className="w-4 h-4 text-[#22C55E]" />
+          <CheckCircle2 className="w-3.5 h-3.5 text-[#22C55E]" />
         ) : event.status === 'running' ? (
-          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#22C55E]/15">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
-            <span className="text-[9px] font-bold text-[#22C55E]">LIVE</span>
-          </div>
+          <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
         ) : event.status === 'ended' ? (
-          <Lock className="w-3.5 h-3.5 text-white/25" />
+          <Lock className="w-3 h-3 text-white/20" />
         ) : (
-          <span className="text-[10px] font-medium text-white/30">{formatCountdown(event.lockTime)}</span>
+          <span className="text-[9px] text-white/25">{formatCountdown(event.lockTime)}</span>
         )}
-        <ChevronRight className="w-3.5 h-3.5 text-white/15" />
+        <ChevronRight className="w-3 h-3 text-white/10" />
       </div>
     </button>
   );
