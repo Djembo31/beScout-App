@@ -974,7 +974,7 @@ export type LeaderboardUser = {
 // NOTIFICATION TYPES
 // ============================================
 
-export type NotificationType = 'research_unlock' | 'research_rating' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward' | 'event_starting' | 'event_closing_soon' | 'bounty_expiring' | 'new_ipo_available' | 'referral_reward' | 'tip_received' | 'subscription_new' | 'creator_fund_payout' | 'ad_revenue_payout' | 'achievement' | 'level_up' | 'rang_up' | 'rang_down' | 'mastery_level_up' | 'prediction_resolved';
+export type NotificationType = 'research_unlock' | 'research_rating' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward' | 'event_starting' | 'event_closing_soon' | 'event_scored' | 'bounty_expiring' | 'new_ipo_available' | 'referral_reward' | 'tip_received' | 'subscription_new' | 'creator_fund_payout' | 'ad_revenue_payout' | 'achievement' | 'level_up' | 'rang_up' | 'rang_down' | 'mastery_level_up' | 'prediction_resolved';
 
 export type DbNotification = {
   id: string;

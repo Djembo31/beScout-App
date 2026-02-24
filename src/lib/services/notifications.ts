@@ -22,6 +22,7 @@ const TYPE_TO_CATEGORY: Record<NotificationType, NotificationCategory | 'system'
   fantasy_reward: 'fantasy',
   event_starting: 'fantasy',
   event_closing_soon: 'fantasy',
+  event_scored: 'fantasy',
   prediction_resolved: 'fantasy',
   // Social & Community
   follow: 'social',

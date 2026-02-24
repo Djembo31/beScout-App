@@ -38,7 +38,7 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
   // NOTE: score_event RPC sets status='ended' + scored_at=NOW() internally (SECURITY DEFINER).
   // No client-side update needed — RLS would block it anyway.
 
-  // Fire-and-forget: notify top 3 (manager scoring + stats refresh handled by DB trigger trg_fn_event_scored_manager)
+  // Fire-and-forget: notify all participants + top 3 rewards
   if (result.success) {
     (async () => {
       try {
@@ -46,6 +46,18 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
         const { createNotification } = await import('@/lib/services/notifications');
         const { data: evt } = await supabase.from('events').select('name').eq('id', eventId).single();
         const eventName = evt?.name ?? 'Event';
+        // All participants: event_scored
+        for (const entry of lb) {
+          createNotification(
+            entry.userId,
+            'event_scored',
+            `Ergebnisse für ${eventName} sind da!`,
+            `Dein Platz: #${entry.rank} mit ${entry.totalScore} Punkten`,
+            eventId,
+            'event'
+          );
+        }
+        // Top 3: additional fantasy_reward with prize info
         for (const entry of lb.slice(0, 3)) {
           createNotification(
             entry.userId,

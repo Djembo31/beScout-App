@@ -3,7 +3,7 @@
 import React, { useEffect, useCallback, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight, Send, RotateCcw, Crown, TrendingUp, Star, Crosshair, Play, Clock, Zap, Gift, Coins, UserCheck, Sparkles, Megaphone, Award } from 'lucide-react';
+import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight, Send, RotateCcw, Crown, TrendingUp, Star, Crosshair, Play, Clock, Zap, Gift, Coins, UserCheck, Sparkles, Megaphone, Award, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { DbNotification, NotificationType } from '@/types';
 
@@ -30,6 +30,7 @@ function getNotifIcon(type: NotificationType) {
     case 'mission_reward': return <Crosshair className="w-4 h-4" />;
     case 'event_starting': return <Play className="w-4 h-4" />;
     case 'event_closing_soon': return <Clock className="w-4 h-4" />;
+    case 'event_scored': return <BarChart3 className="w-4 h-4" />;
     case 'bounty_expiring': return <Clock className="w-4 h-4" />;
     case 'new_ipo_available': return <Zap className="w-4 h-4" />;
     case 'referral_reward': return <Gift className="w-4 h-4" />;
@@ -70,6 +71,7 @@ function getNotifColor(type: NotificationType): string {
     case 'mission_reward': return 'text-sky-400 bg-sky-400/10';
     case 'event_starting': return 'text-[#22C55E] bg-[#22C55E]/10';
     case 'event_closing_soon': return 'text-amber-400 bg-amber-400/10';
+    case 'event_scored': return 'text-sky-400 bg-sky-400/10';
     case 'bounty_expiring': return 'text-orange-400 bg-orange-400/10';
     case 'new_ipo_available': return 'text-[#FFD700] bg-[#FFD700]/10';
     case 'referral_reward': return 'text-[#22C55E] bg-[#22C55E]/10';
