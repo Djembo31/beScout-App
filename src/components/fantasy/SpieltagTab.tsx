@@ -2,24 +2,22 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  Trophy, Loader2, CheckCircle2, AlertTriangle, Eye, Star, Calendar,
+  Trophy, Loader2, Star, Calendar,
 } from 'lucide-react';
 import { Card, Modal } from '@/components/ui';
 import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
 import { getFixturesByGameweek, getFixturePlayerStats, getGameweekTopScorers } from '@/lib/services/fixtures';
-import { getLineup } from '@/lib/services/lineups';
 import { simulateGameweekFlow } from '@/lib/services/scoring';
 import { isApiConfigured, hasApiFixtures } from '@/lib/services/footballData';
 import type { Fixture, FixturePlayerStat } from '@/types';
 import type { FantasyEvent } from './types';
-import { getStatusStyle } from './helpers';
 import { EventCard } from './EventCard';
 import SponsorBanner from '@/components/player/detail/SponsorBanner';
 import { SectionHeader } from '@/components/home/helpers';
 import {
   ClubLogo, SpieltagHeader, TopspielCard, pickTopspiel,
-  FixtureCard, GoalTicker, TopScorerShowcase, BestElevenShowcase,
+  FixtureCard, GoalTicker,
   posColor, scoreBadgeColor, getPosAccent,
 } from './spieltag';
 
@@ -392,7 +390,6 @@ export function SpieltagTab({
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
   const [fixturesLoading, setFixturesLoading] = useState(true);
   const [topScorers, setTopScorers] = useState<FixturePlayerStat[]>([]);
-  const [lineupStatuses, setLineupStatuses] = useState<Map<string, { hasLineup: boolean; score: number | null; rank: number | null }>>(new Map());
   const [simulating, setSimulating] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedFixture, setSelectedFixture] = useState<Fixture | null>(null);
@@ -429,37 +426,10 @@ export function SpieltagTab({
     return () => { cancelled = true; };
   }, [gameweek, isAdmin]);
 
-  // Load lineup statuses for joined events
-  useEffect(() => {
-    if (!userId) return;
-    const joinedEvts = events.filter(e => e.isJoined);
-    if (joinedEvts.length === 0) return;
-
-    const loadStatuses = async () => {
-      const statusMap = new Map<string, { hasLineup: boolean; score: number | null; rank: number | null }>();
-      for (const evt of joinedEvts) {
-        try {
-          const lineup = await getLineup(evt.id, userId);
-          statusMap.set(evt.id, {
-            hasLineup: !!lineup,
-            score: lineup?.total_score ?? null,
-            rank: lineup?.rank ?? null,
-          });
-        } catch {
-          statusMap.set(evt.id, { hasLineup: false, score: null, rank: null });
-        }
-      }
-      setLineupStatuses(statusMap);
-    };
-    loadStatuses();
-  }, [events, userId]);
-
   // Derived state
   const simulatedCount = fixtures.filter(f => f.status === 'simulated' || f.status === 'finished').length;
   const totalGoals = fixtures.reduce((s, f) => s + (f.home_score ?? 0) + (f.away_score ?? 0), 0);
   const gwEvents = events;
-  const joinedEvents = gwEvents.filter(e => e.isJoined);
-  const openEvents = gwEvents.filter(e => !e.isJoined && e.status !== 'ended');
   const allEnded = gwEvents.length > 0 && gwEvents.every(e => e.status === 'ended' || e.scoredAt);
   const isCurrentGw = gameweek === activeGameweek;
   const isPast = gameweek < activeGameweek;
@@ -470,7 +440,7 @@ export function SpieltagTab({
     : gwEvents.length === 0 && fixtures.length === 0 ? 'empty'
     : 'open';
 
-  // Top scorers — single fetch, shared between GoalTicker + TopScorerShowcase
+  // Top scorers — for GoalTicker
   useEffect(() => {
     if (!allSimulated) { setTopScorers([]); return; }
     let cancelled = false;
@@ -566,15 +536,15 @@ export function SpieltagTab({
         </Card>
       )}
 
-      {/* 6. EVENTS */}
-      {openEvents.length > 0 && (
+      {/* 6. VERFÜGBARE EVENTS */}
+      {gwEvents.length > 0 && (
         <section>
           <SectionHeader
             title={ts('events')}
-            badge={<span className="text-[10px] text-white/25 font-medium">{openEvents.length}</span>}
+            badge={<span className="text-[10px] text-white/25 font-medium">{gwEvents.length}</span>}
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
-            {openEvents.map(event => (
+            {gwEvents.map(event => (
               <EventCard
                 key={event.id}
                 event={event}
@@ -586,115 +556,7 @@ export function SpieltagTab({
         </section>
       )}
 
-      {/* 7. MEINE AUFSTELLUNGEN */}
-      {joinedEvents.length > 0 && (
-        <section>
-          <SectionHeader title={ts('myLineups')} />
-          <div className="space-y-2 mt-3">
-            {joinedEvents.map(event => {
-              const lineupStatus = lineupStatuses.get(event.id);
-              const hasLineup = lineupStatus?.hasLineup ?? false;
-              const score = lineupStatus?.score;
-              const rank = lineupStatus?.rank;
-              const isScored = !!event.scoredAt;
-              const sStyle = getStatusStyle(event.status);
-
-              return (
-                <button
-                  key={event.id}
-                  onClick={() => onEventClick(event)}
-                  className="w-full flex items-center gap-3 p-3 bg-white/[0.03] border border-white/10 rounded-2xl hover:bg-white/[0.06] transition-all text-left active:scale-[0.98]"
-                >
-                  <div className="flex-shrink-0">
-                    {isScored && rank != null ? (
-                      <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
-                        <span className="text-sm font-black text-[#FFD700]">#{rank}</span>
-                      </div>
-                    ) : hasLineup ? (
-                      <div className="w-10 h-10 rounded-xl bg-[#22C55E]/10 flex items-center justify-center">
-                        <CheckCircle2 className="w-5 h-5 text-[#22C55E]" />
-                      </div>
-                    ) : (
-                      <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
-                        <AlertTriangle className="w-5 h-5 text-orange-400" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm truncate">{event.name}</div>
-                    <div className="text-[11px] text-white/40">
-                      {isScored ? (
-                        <span>{score ?? 0} Punkte · Platz {rank ?? '-'} / {event.participants}</span>
-                      ) : hasLineup ? (
-                        <span className="text-[#22C55E]">Aufstellung gesetzt</span>
-                      ) : (
-                        <span className="text-orange-400">Noch keine Aufstellung</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className={`flex items-center gap-1 px-2 py-0.5 rounded ${sStyle.bg} ${sStyle.text}`}>
-                    {sStyle.pulse && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
-                    <span className="text-[9px] font-bold">{sStyle.label}</span>
-                  </div>
-                  <Eye className="w-4 h-4 text-white/20 flex-shrink-0" />
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* 8. ERGEBNISSE */}
-      {gwStatus === 'simulated' && joinedEvents.length > 0 && (
-        <section>
-          <SectionHeader title={ts('results')} />
-          <div className="space-y-2 mt-3">
-            {joinedEvents.filter(e => e.scoredAt).map(event => {
-              const lineupStatus = lineupStatuses.get(event.id);
-              const rank = lineupStatus?.rank ?? event.userRank;
-              const score = lineupStatus?.score ?? event.userPoints;
-              const medalEmoji = rank === 1 ? '\u{1F947}' : rank === 2 ? '\u{1F948}' : rank === 3 ? '\u{1F949}' : '';
-
-              return (
-                <button
-                  key={event.id}
-                  onClick={() => onEventClick(event)}
-                  className="w-full flex items-center gap-3 p-3 bg-white/[0.03] border border-white/10 rounded-2xl hover:bg-white/[0.06] transition-all text-left active:scale-[0.98]"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
-                    <span className="text-sm font-bold">{medalEmoji || `#${rank ?? '-'}`}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm truncate">{event.name}</div>
-                    <div className="text-[11px] text-white/40">
-                      Platz {rank ?? '-'} / {event.participants} — {score ?? 0} Punkte
-                    </div>
-                  </div>
-                  {event.userReward && event.userReward > 0 && (
-                    <span className="text-xs font-bold text-[#FFD700]">+{(event.userReward / 100).toFixed(0)} $SCOUT</span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* 9. TOP SCORER SHOWCASE */}
-      {allSimulated && topScorers.length > 0 && (
-        <section>
-          <TopScorerShowcase scorers={topScorers} gameweek={gameweek} />
-        </section>
-      )}
-
-      {/* 9b. BEST XI / BEST VI PITCH VIEW */}
-      {allSimulated && topScorers.length >= 6 && (
-        <section>
-          <BestElevenShowcase scorers={topScorers} gameweek={gameweek} />
-        </section>
-      )}
-
-      {/* 10. EMPTY STATES */}
+      {/* 7. EMPTY STATES */}
       {gwEvents.length === 0 && !fixturesLoading && fixtures.length === 0 && (
         <Card className="p-12 text-center">
           <Calendar className="w-12 h-12 mx-auto mb-4 text-white/20" />

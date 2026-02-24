@@ -279,6 +279,21 @@
     "tableAction": "İşlem",
     "predictions": "Tahminler",
     "leagues": "Ligler",
+    "mitmachen": {
+      "noLineups": "Henüz bir etkinliğe katılmadın",
+      "noLineupsCta": "Maç Günü sekmesinden bir etkinliğe katıl",
+      "lineupSet": "Kadro belirlendi",
+      "noLineup": "Henüz kadro yok"
+    },
+    "ergebnisse": {
+      "upcoming": "Maç haftası henüz başlamadı",
+      "upcomingDesc": "Sonuçlar maç haftası bittikten sonra gösterilecek",
+      "pending": "Maç haftası devam ediyor",
+      "pendingDesc": "Sonuçlar değerlendirmeden sonra belli olacak",
+      "noData": "Bu maç haftası için veri yok",
+      "predictions": "Tahmin Sonuçları",
+      "seasonStats": "Sezon İstatistikleri"
+    },
     "summary": {
       "title": "Etkinlik Sonucu",
       "rank": "Sıralama",
@@ -1331,10 +1346,16 @@
     "dismiss": "Anladım"
   },
   "spieltag": {
+    "label": "Maç Haftası",
     "fixtures": "Eşleşmeler",
+    "fixturesShort": "Maç",
     "events": "Etkinlikler",
     "myLineups": "Kadrolarım",
     "results": "Sonuçlar",
+    "statusOpen": "Açık",
+    "statusEnded": "Bitti",
+    "statusPast": "Geçmiş",
+    "statusUpcoming": "Yaklaşan",
     "noEvents": "Maç Haftası {gw} için henüz etkinlik yok",
     "noEventsDesc": "{count} eşleşme mevcut — etkinlikler yönetici tarafından oluşturulur.",
     "noActivity": "Maç Haftası {gw} için aktivite yok",

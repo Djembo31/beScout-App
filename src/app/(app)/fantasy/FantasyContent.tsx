@@ -4,9 +4,9 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import {
-  Trophy, Globe, History, Plus, AlertCircle, RefreshCw, Loader2, Calendar, Target,
+  Trophy, Plus, AlertCircle, RefreshCw, Loader2, Calendar, Users, BarChart3,
 } from 'lucide-react';
-import { Card, Button, SearchInput, SortPills, EmptyState, Skeleton, SkeletonCard } from '@/components/ui';
+import { Button, Skeleton, SkeletonCard } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
@@ -17,21 +17,20 @@ import { submitLineup, getLineup } from '@/lib/services/lineups';
 import { invalidateFantasyQueries } from '@/lib/queries/invalidation';
 import { useEvents, useJoinedEventIds, usePlayerEventUsage, useActiveGameweek, useIsClubAdmin } from '@/lib/queries/events';
 import { useHoldings } from '@/lib/queries/holdings';
-import { withTimeout } from '@/lib/utils';
 import { fmtScout } from '@/lib/utils';
 import type { DbEvent } from '@/types';
 import {
   type EventStatus, type FantasyTab, type FantasyEvent,
   type LineupPlayer, type UserDpcHolding, type LineupFormat,
-  GameweekSelector, EventCard,
-  HistoryTab, CreateEventModal, SpieltagTab, PredictionsTab,
+  CreateEventModal, SpieltagTab,
 } from '@/components/fantasy';
+import { SpieltagSelector } from '@/components/fantasy/SpieltagSelector';
+import { MitmachenTab } from '@/components/fantasy/MitmachenTab';
+import { ErgebnisseTab } from '@/components/fantasy/ErgebnisseTab';
 
 import { useClub } from '@/components/providers/ClubProvider';
 import EventSummaryModal from '@/components/fantasy/EventSummaryModal';
 import NewUserTip from '@/components/onboarding/NewUserTip';
-
-const LeaguesSection = dynamic(() => import('@/components/fantasy/LeaguesSection'), { ssr: false });
 
 // Lazy-load EventDetailModal (1387 lines) — only loaded when user opens an event
 const EventDetailModal = dynamic(
@@ -156,13 +155,11 @@ export default function FantasyContent() {
   const tc = useTranslations('common');
   const tt = useTranslations('tips');
 
-  // State
+  // State — 3 tabs instead of 5
   const [mainTab, setMainTab] = useState<FantasyTab>('spieltag');
-  const [statusFilter, setStatusFilter] = useState<EventStatus | 'all'>('all');
   const [selectedGameweek, setSelectedGameweek] = useState<number | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<FantasyEvent | null>(null);
   const [localEvents, setLocalEvents] = useState<FantasyEvent[] | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [lineupMap, setLineupMap] = useState<Map<string, { total_score: number | null; rank: number | null; reward_amount: number }>>(new Map());
   const [summaryEvent, setSummaryEvent] = useState<FantasyEvent | null>(null);
@@ -234,7 +231,20 @@ export default function FantasyContent() {
   // Derived data
   const activeEvents = useMemo(() => events.filter(e => e.isJoined && e.status === 'running'), [events]);
 
-  // Dashboard stats from real data
+  // Events filtered by selected gameweek
+  const gwEvents = useMemo(() => {
+    return events.filter(e => e.gameweek === currentGw);
+  }, [events, currentGw]);
+
+  // GW status for selector
+  const gwStatus = useMemo((): 'open' | 'simulated' | 'empty' => {
+    if (gwEvents.length === 0) return 'empty';
+    const allEnded = gwEvents.every(e => e.status === 'ended' || e.scoredAt);
+    if (allEnded) return 'simulated';
+    return 'open';
+  }, [gwEvents]);
+
+  // Dashboard stats from real data (for ErgebnisseTab → HistoryTab)
   const dashboardStats = useMemo(() => {
     const scored = events.filter(e => e.isJoined && e.scoredAt && e.userPoints != null);
     const eventsPlayed = scored.length;
@@ -264,49 +274,6 @@ export default function FantasyContent() {
 
     return { eventsPlayed, seasonPoints, bestRank, totalRewardBsd, pastParticipations, wins, top10, avgPoints, avgRank };
   }, [events]);
-
-  // Events filtered by selected gameweek (for Events tab)
-  const gwFilteredEvents = useMemo(() => {
-    return events.filter(e => e.gameweek === currentGw);
-  }, [events, currentGw]);
-
-  // Events filtered by selected gameweek for SpieltagTab
-  const spieltagEvents = useMemo(() => {
-    return events.filter(e => e.gameweek === currentGw);
-  }, [events, currentGw]);
-
-  // Filtered events for Events tab
-  const filteredEvents = useMemo(() => {
-    let filtered = [...gwFilteredEvents];
-
-    if (searchQuery) {
-      filtered = filtered.filter(e =>
-        e.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        e.clubName?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    if (statusFilter === 'registering') {
-      filtered = filtered.filter(e => e.status === 'registering' || e.status === 'late-reg');
-    } else if (statusFilter !== 'all') {
-      filtered = filtered.filter(e => e.status === statusFilter);
-    }
-
-    const statusOrder = { 'late-reg': 0, 'running': 1, 'registering': 2, 'upcoming': 3, 'ended': 4 };
-    filtered.sort((a, b) => (statusOrder[a.status] || 5) - (statusOrder[b.status] || 5));
-
-    return filtered;
-  }, [gwFilteredEvents, searchQuery, statusFilter]);
-
-  // Status counts
-  const statusCounts = useMemo(() => ({
-    all: gwFilteredEvents.length,
-    'late-reg': gwFilteredEvents.filter(e => e.status === 'late-reg').length,
-    registering: gwFilteredEvents.filter(e => e.status === 'registering').length,
-    running: gwFilteredEvents.filter(e => e.status === 'running').length,
-    upcoming: gwFilteredEvents.filter(e => e.status === 'upcoming').length,
-    ended: gwFilteredEvents.filter(e => e.status === 'ended').length,
-  }), [gwFilteredEvents]);
 
   // Handlers
   const handleToggleInterest = useCallback((eventId: string) => {
@@ -496,6 +463,9 @@ export default function FantasyContent() {
     })();
   }, [addToast, reloadEvents, clubId]);
 
+  // Fixture count for the GW selector (approximate from events)
+  const fixtureCount = 0; // Fixtures are loaded inside SpieltagTab, selector shows eventCount
+
   // Loading state — skeleton
   if (eventsLoading) {
     return (
@@ -504,6 +474,7 @@ export default function FantasyContent() {
           <Skeleton className="h-8 w-40" />
           <Skeleton className="h-9 w-24" />
         </div>
+        <Skeleton className="h-16 rounded-2xl" />
         <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl">
           {[1, 2, 3].map(i => <Skeleton key={i} className="flex-1 h-10 rounded-lg" />)}
         </div>
@@ -529,6 +500,13 @@ export default function FantasyContent() {
       </div>
     );
   }
+
+  // Tab definitions — 3 tabs
+  const tabs: { id: FantasyTab; label: string; mobileLabel: string; icon: typeof Calendar }[] = [
+    { id: 'spieltag', label: 'Spieltag', mobileLabel: 'Spieltag', icon: Calendar },
+    { id: 'mitmachen', label: 'Mitmachen', mobileLabel: 'Aktiv', icon: Users },
+    { id: 'ergebnisse', label: 'Ergebnisse', mobileLabel: 'Ergebnis', icon: BarChart3 },
+  ];
 
   return (
     <div className="max-w-[1600px] mx-auto space-y-4 overflow-x-hidden">
@@ -567,41 +545,43 @@ export default function FantasyContent() {
         show={joinedIdsArr.length === 0}
       />
 
-      {/* SEGMENT TABS — 5 Tabs, scrollable on mobile */}
-      <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-x-auto scrollbar-hide">
-        {([
-          { id: 'spieltag' as FantasyTab, label: `ST ${activeGw}`, icon: Calendar },
-          { id: 'events' as FantasyTab, label: t('events'), icon: Globe, count: activeEvents.length },
-          { id: 'predictions' as FantasyTab, label: 'Tipps', icon: Target },
-          { id: 'leagues' as FantasyTab, label: 'Ligen', icon: Trophy },
-          { id: 'history' as FantasyTab, label: 'Verlauf', icon: History },
-        ]).map(tab => (
+      {/* PERSISTENT GW SELECTOR — always visible above tabs */}
+      <SpieltagSelector
+        gameweek={currentGw}
+        activeGameweek={activeGw}
+        status={gwStatus}
+        fixtureCount={fixtureCount}
+        eventCount={gwEvents.length}
+        onGameweekChange={setSelectedGameweek}
+      />
+
+      {/* SEGMENT TABS — 3 Tabs, always fit on mobile */}
+      <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+        {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setMainTab(tab.id)}
-            className={`flex-shrink-0 flex items-center justify-center gap-1 px-2.5 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[36px] ${
+            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[40px] ${
               mainTab === tab.id
                 ? 'bg-[#FFD700]/15 text-[#FFD700] shadow-sm'
                 : 'text-white/50 hover:text-white/70'
             }`}
           >
             <tab.icon className="w-3.5 h-3.5" />
-            <span>{tab.label}</span>
-            {tab.count != null && tab.count > 0 && (
-              <span className="px-1 py-0.5 bg-[#22C55E]/20 text-[#22C55E] text-[9px] font-bold rounded-full">{tab.count}</span>
-            )}
+            <span className="hidden sm:inline">{tab.label}</span>
+            <span className="sm:hidden">{tab.mobileLabel}</span>
           </button>
         ))}
       </div>
 
-      {/* ========== SPIELTAG TAB (Hero) ========== */}
+      {/* ========== SPIELTAG TAB — Lobby: WAS passiert? ========== */}
       {mainTab === 'spieltag' && user && (
         <SpieltagTab
           gameweek={currentGw}
           activeGameweek={activeGw}
           clubId={clubId}
           isAdmin={isAdmin}
-          events={spieltagEvents}
+          events={gwEvents}
           userId={user.id}
           onEventClick={setSelectedEvent}
           onToggleInterest={handleToggleInterest}
@@ -610,67 +590,24 @@ export default function FantasyContent() {
         />
       )}
 
-      {/* ========== EVENTS TAB — GW-filtered ========== */}
-      {mainTab === 'events' && (
-        <div className="space-y-6">
-          {/* Gameweek Selector */}
-          <GameweekSelector
-            activeGameweek={activeGw}
-            selectedGameweek={currentGw}
-            onSelect={setSelectedGameweek}
-          />
-
-          {/* SEARCH + FILTERS */}
-          <div className="flex items-center gap-2">
-            <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder={t('searchEvents')} className="flex-1 min-w-0" />
-            <SortPills
-              options={[
-                { id: 'all', label: tc('all'), count: statusCounts.all },
-                { id: 'registering', label: t('status.open'), count: statusCounts.registering + statusCounts['late-reg'] },
-                { id: 'ended', label: tc('ended'), count: statusCounts.ended },
-              ]}
-              active={statusFilter}
-              onChange={(id) => setStatusFilter(id as EventStatus | 'all')}
-            />
-          </div>
-
-          {/* ALLE EVENTS */}
-          <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-[11px] font-black uppercase tracking-wider text-white/40">
-                {t('eventsGameweek', { gw: currentGw })}
-              </h2>
-              <div className="text-xs text-white/40">{t('eventsCount', { count: filteredEvents.length })}</div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-              {filteredEvents.map(event => (
-                <EventCard
-                  key={event.id}
-                  event={event}
-                  onView={() => setSelectedEvent(event)}
-                  onToggleInterest={() => handleToggleInterest(event.id)}
-                />
-              ))}
-            </div>
-
-            {filteredEvents.length === 0 && (
-              <EmptyState icon={<Trophy />} title={t('noEventsForGameweek', { gw: currentGw })} />
-            )}
-          </section>
-        </div>
+      {/* ========== MITMACHEN TAB — WAS mache ICH? ========== */}
+      {mainTab === 'mitmachen' && user && (
+        <MitmachenTab
+          gameweek={currentGw}
+          activeGameweek={activeGw}
+          events={gwEvents}
+          userId={user.id}
+          onEventClick={setSelectedEvent}
+        />
       )}
 
-      {/* ========== PREDICTIONS TAB ========== */}
-      {mainTab === 'predictions' && user && (
-        <PredictionsTab gameweek={currentGw} userId={user.id} />
-      )}
-
-      {/* ========== LEAGUES TAB ========== */}
-      {mainTab === 'leagues' && <LeaguesSection />}
-
-      {/* ========== HISTORY TAB ========== */}
-      {mainTab === 'history' && (
-        <HistoryTab
+      {/* ========== ERGEBNISSE TAB — WAS ist passiert? ========== */}
+      {mainTab === 'ergebnisse' && user && (
+        <ErgebnisseTab
+          gameweek={currentGw}
+          activeGameweek={activeGw}
+          events={gwEvents}
+          userId={user.id}
           participations={dashboardStats.pastParticipations}
           userDisplayName={profile?.display_name || user?.email?.split('@')[0] || 'User'}
           userFavoriteClub={profile?.favorite_club ?? null}
@@ -682,7 +619,6 @@ export default function FantasyContent() {
           top10={dashboardStats.top10}
           avgPoints={dashboardStats.avgPoints}
           avgRank={dashboardStats.avgRank}
-          userId={user?.id}
         />
       )}
 

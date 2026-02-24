@@ -242,13 +242,69 @@ function LeagueCard({ league, userId }: { league: DbFantasyLeague; userId: strin
 // Main Component
 // ============================================
 
-export default function LeaguesSection() {
+export default function LeaguesSection({ mode = 'full' }: { mode?: 'compact' | 'full' }) {
   const { user } = useUser();
   const t = useTranslations('leagues');
   const userId = user?.id;
   const { data: leagues = [], isLoading } = useMyLeagues(userId);
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
+
+  if (mode === 'compact') {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Trophy className="w-4 h-4 text-purple-400" />
+            <h3 className="font-bold text-sm">{t('title')}</h3>
+            {leagues.length > 0 && (
+              <span className="text-[10px] text-white/30 font-mono">{leagues.length}</span>
+            )}
+          </div>
+          <div className="flex gap-1.5">
+            <button onClick={() => setShowJoin(true)} className="px-2.5 py-1.5 min-h-[36px] text-xs font-semibold rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
+              <LogIn className="w-3.5 h-3.5 inline mr-1" />
+              {t('join')}
+            </button>
+            <button onClick={() => setShowCreate(true)} className="px-2.5 py-1.5 min-h-[36px] text-xs font-semibold rounded-lg bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] hover:bg-[#FFD700]/20 transition-all">
+              <Plus className="w-3.5 h-3.5 inline mr-1" />
+              {t('create')}
+            </button>
+          </div>
+        </div>
+
+        {isLoading ? (
+          <div className="space-y-2">
+            {[1, 2].map(i => <div key={i} className="h-12 rounded-xl bg-white/[0.02] animate-pulse border border-white/[0.06]" />)}
+          </div>
+        ) : leagues.length === 0 ? (
+          <div className="p-4 text-center bg-white/[0.02] border border-white/[0.06] rounded-xl">
+            <div className="text-xs text-white/30">{t('emptyDesc')}</div>
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            {leagues.map(l => (
+              <div key={l.id} className="flex items-center gap-3 p-2.5 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/15 border border-purple-500/25 flex items-center justify-center shrink-0">
+                  <Trophy className="w-4 h-4 text-purple-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-sm truncate">{l.name}</div>
+                  <div className="text-[10px] text-white/40 flex items-center gap-1.5">
+                    <Users className="w-3 h-3" />
+                    <span>{l.member_count ?? 0}/{l.max_members}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <CreateLeagueModal open={showCreate} onClose={() => setShowCreate(false)} />
+        <JoinLeagueModal open={showJoin} onClose={() => setShowJoin(false)} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

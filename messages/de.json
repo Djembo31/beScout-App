@@ -279,6 +279,21 @@
     "tableAction": "Aktion",
     "predictions": "Vorhersagen",
     "leagues": "Ligen",
+    "mitmachen": {
+      "noLineups": "Noch bei keinem Event angemeldet",
+      "noLineupsCta": "Tritt einem Event im Spieltag-Tab bei",
+      "lineupSet": "Aufstellung gesetzt",
+      "noLineup": "Noch keine Aufstellung"
+    },
+    "ergebnisse": {
+      "upcoming": "Spieltag hat noch nicht begonnen",
+      "upcomingDesc": "Ergebnisse werden nach dem Spieltag angezeigt",
+      "pending": "Spieltag läuft noch",
+      "pendingDesc": "Die Ergebnisse stehen nach der Auswertung fest",
+      "noData": "Keine Daten für diesen Spieltag",
+      "predictions": "Tipp-Ergebnisse",
+      "seasonStats": "Saison-Statistiken"
+    },
     "summary": {
       "title": "Event-Ergebnis",
       "rank": "Platz",
@@ -1331,10 +1346,16 @@
     "dismiss": "Verstanden"
   },
   "spieltag": {
+    "label": "Spieltag",
     "fixtures": "Paarungen",
+    "fixturesShort": "Spiele",
     "events": "Events",
     "myLineups": "Meine Aufstellungen",
     "results": "Ergebnisse",
+    "statusOpen": "Offen",
+    "statusEnded": "Beendet",
+    "statusPast": "Vergangen",
+    "statusUpcoming": "Kommend",
     "noEvents": "Noch keine Events für Spieltag {gw}",
     "noEventsDesc": "{count} Paarungen vorhanden — Events werden vom Admin erstellt.",
     "noActivity": "Keine Aktivität für Spieltag {gw}",
