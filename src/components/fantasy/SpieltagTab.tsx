@@ -491,11 +491,8 @@ export function SpieltagTab({
           </button>
         </div>
 
-        {/* Status + Admin */}
+        {/* Admin */}
         <div className="flex items-center gap-2">
-          {allSimulated && (
-            <span className="text-[10px] text-white/30 font-mono">{totalGoals} Tore</span>
-          )}
           {isAdmin && isCurrentGw && gwStatus === 'open' && gwEvents.length > 0 && (
             <button
               onClick={() => setShowConfirm(true)}

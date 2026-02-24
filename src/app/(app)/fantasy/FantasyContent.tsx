@@ -594,7 +594,6 @@ export default function FantasyContent() {
         <EventsTab
           events={gwEvents}
           onEventClick={setSelectedEvent}
-          onToggleInterest={handleToggleInterest}
         />
       )}
 
