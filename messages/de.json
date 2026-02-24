@@ -1331,6 +1331,10 @@
     "dismiss": "Verstanden"
   },
   "spieltag": {
+    "fixtures": "Paarungen",
+    "events": "Events",
+    "myLineups": "Meine Aufstellungen",
+    "results": "Ergebnisse",
     "noEvents": "Noch keine Events für Spieltag {gw}",
     "noEventsDesc": "{count} Paarungen vorhanden — Events werden vom Admin erstellt.",
     "noActivity": "Keine Aktivität für Spieltag {gw}",

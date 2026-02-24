@@ -1331,6 +1331,10 @@
     "dismiss": "Anladım"
   },
   "spieltag": {
+    "fixtures": "Eşleşmeler",
+    "events": "Etkinlikler",
+    "myLineups": "Kadrolarım",
+    "results": "Sonuçlar",
     "noEvents": "Maç Haftası {gw} için henüz etkinlik yok",
     "noEventsDesc": "{count} eşleşme mevcut — etkinlikler yönetici tarafından oluşturulur.",
     "noActivity": "Maç Haftası {gw} için aktivite yok",

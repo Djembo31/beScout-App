@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  ChevronLeft, ChevronRight, Trophy, Clock, Loader2, Play, ArrowRight,
-  CheckCircle2, AlertTriangle, Eye, Star, X, Shirt, Calendar,
+  Trophy, Loader2, CheckCircle2, AlertTriangle, Eye, Star, Calendar,
 } from 'lucide-react';
-import { Card, Button, Modal } from '@/components/ui';
+import { Card, Modal } from '@/components/ui';
 import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
 import { getFixturesByGameweek, getFixturePlayerStats, getGameweekTopScorers } from '@/lib/services/fixtures';
@@ -17,72 +16,16 @@ import type { FantasyEvent } from './types';
 import { getStatusStyle } from './helpers';
 import { EventCard } from './EventCard';
 import SponsorBanner from '@/components/player/detail/SponsorBanner';
+import { SectionHeader } from '@/components/home/helpers';
+import {
+  ClubLogo, SpieltagHeader, TopspielCard, pickTopspiel,
+  FixtureCard, GoalTicker, TopScorerShowcase,
+  posColor, scoreBadgeColor, getPosAccent,
+} from './spieltag';
 
 // ============================================
-// Helpers
+// Unchanged internals (Formation Pitch View)
 // ============================================
-
-const posColor = (pos: string) => {
-  switch (pos) {
-    case 'GK': return 'text-emerald-400 bg-emerald-500/15';
-    case 'DEF': return 'text-amber-400 bg-amber-500/15';
-    case 'MID': return 'text-sky-400 bg-sky-500/15';
-    case 'ATT': return 'text-rose-400 bg-rose-500/15';
-    default: return 'text-white/50 bg-white/10';
-  }
-};
-
-const scoreBadgeColor = (pts: number): string => {
-  if (pts >= 80) return 'bg-[#FFD700] text-black';
-  if (pts >= 60) return 'bg-[#22C55E] text-white';
-  if (pts >= 40) return 'bg-sky-500 text-white';
-  if (pts >= 20) return 'bg-orange-500 text-white';
-  return 'bg-red-500 text-white';
-};
-
-const posOrder = (pos: string): number => {
-  switch (pos) { case 'ATT': return 0; case 'MID': return 1; case 'DEF': return 2; case 'GK': return 3; default: return 4; }
-};
-
-const getPosAccent = (pos: string): string => {
-  switch (pos) {
-    case 'GK': return '#34d399';
-    case 'DEF': return '#fbbf24';
-    case 'MID': return '#38bdf8';
-    case 'ATT': return '#fb7185';
-    default: return 'rgba(255,255,255,0.5)';
-  }
-};
-
-/** Reusable club logo — <img> with fallback to colored circle */
-function ClubLogo({ club, size = 28, short }: { club: ReturnType<typeof getClub>; size?: number; short?: string }) {
-  if (club?.logo) {
-    return (
-      <img
-        src={club.logo}
-        alt={club.name}
-        width={size}
-        height={size}
-        className="rounded-full object-cover flex-shrink-0"
-        style={{ width: size, height: size }}
-      />
-    );
-  }
-  return (
-    <div
-      className="rounded-full flex items-center justify-center font-black flex-shrink-0"
-      style={{
-        width: size,
-        height: size,
-        fontSize: Math.max(8, size * 0.32),
-        backgroundColor: (club?.colors.primary ?? '#333') + '25',
-        color: club?.colors.primary ?? '#fff',
-      }}
-    >
-      {(short ?? club?.short ?? '???').slice(0, 3)}
-    </div>
-  );
-}
 
 /** Split team stats into starters (top 11 by minutes) + bench, derive formation string */
 function splitStartersBench(stats: FixturePlayerStat[]): {
@@ -103,62 +46,6 @@ function splitStartersBench(stats: FixturePlayerStat[]): {
   return { starters, bench, formation };
 }
 
-// ============================================
-// Fixture Row (Sorare-style vertical list)
-// ============================================
-
-function FixtureRow({ fixture, onSelect }: { fixture: Fixture; onSelect: () => void }) {
-  const homeClub = getClub(fixture.home_club_short) || getClub(fixture.home_club_name);
-  const awayClub = getClub(fixture.away_club_short) || getClub(fixture.away_club_name);
-  const isSimulated = fixture.status === 'simulated' || fixture.status === 'finished';
-
-  return (
-    <button
-      onClick={onSelect}
-      className="w-full flex items-center gap-3 py-3 px-4 hover:bg-white/[0.03] transition-all border-b border-white/[0.06] last:border-b-0 group"
-    >
-      {/* Status dot */}
-      <div className="flex-shrink-0 w-5">
-        {isSimulated ? (
-          <div className="w-2 h-2 rounded-full bg-[#22C55E] mx-auto" />
-        ) : (
-          <div className="w-2 h-2 rounded-full bg-white/15 mx-auto" />
-        )}
-      </div>
-
-      {/* Home team */}
-      <div className="flex-1 flex items-center gap-1.5 md:gap-2 justify-end min-w-0">
-        <span className="font-semibold text-xs md:text-sm truncate max-w-[80px] md:max-w-none">{fixture.home_club_name}</span>
-        <ClubLogo club={homeClub} size={28} short={fixture.home_club_short} />
-      </div>
-
-      {/* Score / Time */}
-      <div className="flex-shrink-0 w-16 text-center">
-        {isSimulated ? (
-          <span className="font-mono font-black text-base">
-            {fixture.home_score} - {fixture.away_score}
-          </span>
-        ) : (
-          <span className="text-white/30 text-sm font-bold">vs</span>
-        )}
-      </div>
-
-      {/* Away team */}
-      <div className="flex-1 flex items-center gap-1.5 md:gap-2 min-w-0">
-        <ClubLogo club={awayClub} size={28} short={fixture.away_club_short} />
-        <span className="font-semibold text-xs md:text-sm truncate max-w-[80px] md:max-w-none">{fixture.away_club_name}</span>
-      </div>
-
-      {/* Hover arrow */}
-      <ChevronRight className="w-4 h-4 text-white/0 group-hover:text-white/30 transition-colors flex-shrink-0" />
-    </button>
-  );
-}
-
-// ============================================
-// Formation Pitch View (Sorare Bild 3 style)
-// ============================================
-
 function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
   const pts = stat.fantasy_points;
   const accent = getPosAccent(stat.player_position);
@@ -166,11 +53,9 @@ function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
 
   return (
     <div className="flex flex-col items-center relative w-[52px] md:w-[60px] lg:w-[72px]">
-      {/* Score badge (top-right, overlapping) */}
       <div className={`absolute -top-1 -right-0.5 md:-top-1.5 md:-right-2 z-20 min-w-[1.4rem] md:min-w-[1.6rem] px-1 py-0.5 rounded-full text-[9px] md:text-[9px] font-mono font-black text-center shadow-lg ${badge}`}>
         {pts}
       </div>
-      {/* Player circle */}
       <div
         className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center border-2 bg-black/30"
         style={{ borderColor: accent, boxShadow: `0 0 10px ${accent}25` }}
@@ -179,11 +64,9 @@ function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
           {stat.player_last_name.slice(0, 2).toUpperCase()}
         </span>
       </div>
-      {/* Name */}
       <div className="text-[9px] md:text-[9px] lg:text-[10px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
         {stat.player_last_name}
       </div>
-      {/* Stats line — hidden on small mobile */}
       <div className="hidden md:flex items-center justify-center gap-0.5 text-[9px] text-white/30">
         <span>{stat.minutes_played}&apos;</span>
         {stat.goals > 0 && <span className="text-[#FFD700]">{stat.goals}G</span>}
@@ -191,7 +74,7 @@ function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
         {stat.yellow_card && <span className="w-1.5 h-2 bg-yellow-400 rounded-[0.5px] inline-block" />}
         {stat.red_card && <span className="w-1.5 h-2 bg-red-500 rounded-[0.5px] inline-block" />}
         {stat.clean_sheet && <span className="text-emerald-400">CS</span>}
-        {stat.bonus > 0 && <span className="text-[#FFD700]">★{stat.bonus}</span>}
+        {stat.bonus > 0 && <span className="text-[#FFD700]">{stat.bonus}</span>}
       </div>
     </div>
   );
@@ -205,7 +88,6 @@ function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
   formation: string;
   logo: ReturnType<typeof getClub>;
 }) {
-  // Group by position
   const grouped = new Map<string, FixturePlayerStat[]>();
   for (const s of stats) {
     const pos = s.player_position || 'MID';
@@ -214,8 +96,6 @@ function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
     grouped.set(pos, existing);
   }
 
-  // Home (top half): GK → DEF → MID → ATT (GK near own goal, ATT near center)
-  // Away (bottom half): ATT → MID → DEF → GK (ATT near center, GK near own goal)
   const order = isHome
     ? (pos: string) => { switch (pos) { case 'GK': return 0; case 'DEF': return 1; case 'MID': return 2; case 'ATT': return 3; default: return 4; } }
     : (pos: string) => { switch (pos) { case 'ATT': return 0; case 'MID': return 1; case 'DEF': return 2; case 'GK': return 3; default: return 4; } };
@@ -226,7 +106,6 @@ function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
 
   return (
     <div className="flex flex-col gap-3 py-2">
-      {/* Team label with logo + formation */}
       <div className="flex items-center justify-center gap-2">
         <ClubLogo club={logo} size={20} />
         <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color }}>
@@ -234,7 +113,6 @@ function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
         </span>
         <span className="text-[9px] text-white/30 font-mono">({formation})</span>
       </div>
-      {/* Formation rows — only starters */}
       {rows.map((players, rowIdx) => (
         <div key={rowIdx} className="flex items-center justify-center gap-1 md:gap-2 lg:gap-4">
           {players.map(s => <PlayerNode key={s.id} stat={s} />)}
@@ -245,7 +123,7 @@ function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
 }
 
 // ============================================
-// Fixture Detail Modal
+// Fixture Detail Modal (unchanged)
 // ============================================
 
 function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo }: { fixture: Fixture | null; isOpen: boolean; onClose: () => void; sponsorName?: string; sponsorLogo?: string }) {
@@ -277,19 +155,16 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
   return (
     <Modal open={isOpen} title="" onClose={onClose}>
       <div className="max-h-[80vh] overflow-y-auto">
-        {/* Score Header — Sorare-style gradient */}
+        {/* Score Header */}
         <div className="relative overflow-hidden">
           <div className="absolute inset-0" style={{
             background: `linear-gradient(135deg, ${homeColor}15 0%, transparent 50%, ${awayColor}15 100%)`,
           }} />
           <div className="relative flex items-center justify-center gap-4 md:gap-8 py-6 px-4">
-            {/* Home */}
             <div className="flex flex-col items-center gap-1.5">
               <ClubLogo club={homeClub} size={52} short={fixture.home_club_short} />
               <span className="font-bold text-sm md:text-base">{fixture.home_club_name}</span>
             </div>
-
-            {/* Score */}
             <div className="text-center">
               <div className="font-mono font-black text-3xl md:text-4xl">
                 {isSimulated ? `${fixture.home_score} - ${fixture.away_score}` : 'vs'}
@@ -298,8 +173,6 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
                 <div className="text-[10px] text-white/30 mt-1">Spieltag {fixture.gameweek}</div>
               )}
             </div>
-
-            {/* Away */}
             <div className="flex flex-col items-center gap-1.5">
               <ClubLogo club={awayClub} size={52} short={fixture.away_club_short} />
               <span className="font-bold text-sm md:text-base">{fixture.away_club_name}</span>
@@ -307,7 +180,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
           </div>
         </div>
 
-        {/* Tabs: Aufstellungen / Spieler */}
+        {/* Tabs */}
         {stats.length > 0 && (
           <div className="flex items-center justify-center gap-6 border-b border-white/[0.06] px-4">
             {(['formation', 'players'] as const).map(tab => (
@@ -336,7 +209,6 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
               {isSimulated ? 'Keine Spielerdaten verfügbar' : 'Spiel noch nicht simuliert — Aufstellungen werden nach Simulation angezeigt'}
             </div>
           ) : detailTab === 'formation' ? (
-            /* ===== FORMATION PITCH VIEW (Green Pitch — matches EventDetailModal) ===== */
             <div className="rounded-xl overflow-hidden border border-[#22C55E]/20">
               {/* Sponsor Banner Top */}
               {(() => {
@@ -360,28 +232,21 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
 
               {/* Green Pitch */}
               <div className="relative bg-gradient-to-b from-[#1a5c1a]/40 via-[#1e6b1e]/30 to-[#1a5c1a]/40 px-3 md:px-6 py-4">
-                {/* SVG Field Markings */}
                 <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none" viewBox="0 0 400 600">
-                  {/* Outer border */}
                   <rect x="20" y="10" width="360" height="580" fill="none" stroke="white" strokeOpacity="0.1" strokeWidth="1.5" />
-                  {/* Center line */}
                   <line x1="20" y1="300" x2="380" y2="300" stroke="white" strokeOpacity="0.08" strokeWidth="1" />
-                  {/* Center circle */}
                   <circle cx="200" cy="300" r="45" fill="none" stroke="white" strokeOpacity="0.08" strokeWidth="1" />
                   <circle cx="200" cy="300" r="3" fill="white" fillOpacity="0.1" />
-                  {/* Top penalty area (home goal) */}
                   <rect x="110" y="10" width="180" height="70" fill="none" stroke="white" strokeOpacity="0.08" strokeWidth="1" />
                   <rect x="145" y="10" width="110" height="30" fill="none" stroke="white" strokeOpacity="0.06" strokeWidth="1" />
-                  {/* Bottom penalty area (away goal) */}
                   <rect x="110" y="520" width="180" height="70" fill="none" stroke="white" strokeOpacity="0.08" strokeWidth="1" />
                   <rect x="145" y="560" width="110" height="30" fill="none" stroke="white" strokeOpacity="0.06" strokeWidth="1" />
-                  {/* Grass stripes */}
                   {[0, 1, 2, 3, 4, 5].map(i => (
                     <rect key={i} x="20" y={10 + i * 96.67} width="360" height="48.33" fill="white" fillOpacity="0.015" />
                   ))}
                 </svg>
 
-                {/* Center circle sponsor overlay */}
+                {/* Center circle sponsor */}
                 {(() => {
                   const sponsor = sponsorName ? { sponsorName, sponsorLogo } : null;
                   return (
@@ -397,7 +262,6 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
                   );
                 })()}
 
-                {/* Both teams on pitch — starters only (11 per team) */}
                 {(() => {
                   const homeSplit = splitStartersBench(homeStats);
                   const awaySplit = splitStartersBench(awayStats);
@@ -409,8 +273,6 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
                         <div className="h-4 md:h-6" />
                         <FormationHalf stats={awaySplit.starters} teamName={fixture.away_club_name} color={awayColor} isHome={false} formation={awaySplit.formation} logo={awayClub} />
                       </div>
-
-                      {/* Bench section inside pitch area */}
                       {allBench.length > 0 && (
                         <div className="relative z-10 mt-3 pt-3 border-t border-white/[0.06]">
                           <div className="text-[9px] font-bold text-white/25 uppercase tracking-wider text-center mb-2">Einwechslungen</div>
@@ -454,7 +316,6 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
               })()}
             </div>
           ) : (
-            /* ===== PLAYER STATS TABLE ===== */
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <TeamStatsList label={fixture.home_club_name} stats={homeStats} color={homeColor} />
               <TeamStatsList label={fixture.away_club_name} stats={awayStats} color={awayColor} />
@@ -507,57 +368,7 @@ function TeamStatsList({ label, stats, color }: { label: string; stats: FixtureP
 }
 
 // ============================================
-// Top Scorers Section
-// ============================================
-
-function TopScorersSection({ gameweek }: { gameweek: number }) {
-  const [topScorers, setTopScorers] = useState<FixturePlayerStat[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    getGameweekTopScorers(gameweek, 10).then(data => {
-      if (!cancelled) { setTopScorers(data); setLoading(false); }
-    }).catch(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [gameweek]);
-
-  if (loading || topScorers.length === 0) return null;
-
-  return (
-    <Card className="p-4">
-      <div className="flex items-center gap-2 mb-3">
-        <Trophy className="w-4 h-4 text-[#FFD700]" />
-        <span className="text-sm font-black">Top Scorer — Spieltag {gameweek}</span>
-      </div>
-      <div className="space-y-1.5">
-        {topScorers.map((s, i) => (
-          <div key={s.id} className="flex items-center gap-2 text-xs">
-            <span className={`w-5 text-center font-bold ${i < 3 ? 'text-[#FFD700]' : 'text-white/30'}`}>
-              {i + 1}
-            </span>
-            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${posColor(s.player_position)}`}>
-              {s.player_position}
-            </span>
-            <span className="flex-1 font-semibold truncate">
-              {s.player_first_name} {s.player_last_name}
-            </span>
-            <span className="text-white/40">{s.club_short}</span>
-            {s.goals > 0 && <span className="text-[#FFD700]">{s.goals}G</span>}
-            {s.assists > 0 && <span className="text-sky-400">{s.assists}A</span>}
-            <span className={`px-1.5 py-0.5 rounded text-[10px] font-black ${scoreBadgeColor(s.fantasy_points)}`}>
-              {s.fantasy_points}
-            </span>
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
-// ============================================
-// SpieltagTab (Main)
+// SpieltagTab (Main — new render order)
 // ============================================
 
 type SpieltagTabProps = {
@@ -580,6 +391,7 @@ export function SpieltagTab({
   const ts = useTranslations('spieltag');
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
   const [fixturesLoading, setFixturesLoading] = useState(true);
+  const [topScorers, setTopScorers] = useState<FixturePlayerStat[]>([]);
   const [lineupStatuses, setLineupStatuses] = useState<Map<string, { hasLineup: boolean; score: number | null; rank: number | null }>>(new Map());
   const [simulating, setSimulating] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -620,12 +432,12 @@ export function SpieltagTab({
   // Load lineup statuses for joined events
   useEffect(() => {
     if (!userId) return;
-    const joinedEvents = events.filter(e => e.isJoined);
-    if (joinedEvents.length === 0) return;
+    const joinedEvts = events.filter(e => e.isJoined);
+    if (joinedEvts.length === 0) return;
 
     const loadStatuses = async () => {
       const statusMap = new Map<string, { hasLineup: boolean; score: number | null; rank: number | null }>();
-      for (const evt of joinedEvents) {
+      for (const evt of joinedEvts) {
         try {
           const lineup = await getLineup(evt.id, userId);
           statusMap.set(evt.id, {
@@ -642,6 +454,7 @@ export function SpieltagTab({
     loadStatuses();
   }, [events, userId]);
 
+  // Derived state
   const simulatedCount = fixtures.filter(f => f.status === 'simulated' || f.status === 'finished').length;
   const totalGoals = fixtures.reduce((s, f) => s + (f.home_score ?? 0) + (f.away_score ?? 0), 0);
   const gwEvents = events;
@@ -650,11 +463,31 @@ export function SpieltagTab({
   const allEnded = gwEvents.length > 0 && gwEvents.every(e => e.status === 'ended' || e.scoredAt);
   const isCurrentGw = gameweek === activeGameweek;
   const isPast = gameweek < activeGameweek;
+  const allSimulated = simulatedCount === fixtures.length && fixtures.length > 0;
 
   const gwStatus: 'open' | 'simulated' | 'empty' =
-    allEnded && simulatedCount === fixtures.length && fixtures.length > 0 ? 'simulated'
+    allEnded && allSimulated ? 'simulated'
     : gwEvents.length === 0 && fixtures.length === 0 ? 'empty'
     : 'open';
+
+  // Top scorers — single fetch, shared between GoalTicker + TopScorerShowcase
+  useEffect(() => {
+    if (!allSimulated) { setTopScorers([]); return; }
+    let cancelled = false;
+    getGameweekTopScorers(gameweek, 10).then(data => {
+      if (!cancelled) setTopScorers(data);
+    }).catch(() => {
+      if (!cancelled) setTopScorers([]);
+    });
+    return () => { cancelled = true; };
+  }, [gameweek, allSimulated]);
+
+  // Topspiel selection
+  const topspiel = useMemo(() => pickTopspiel(fixtures, clubId), [fixtures, clubId]);
+  const otherFixtures = useMemo(() => {
+    if (!topspiel) return fixtures;
+    return fixtures.filter(f => f.id !== topspiel.id);
+  }, [fixtures, topspiel]);
 
   const handleSimulate = async () => {
     if (!isAdmin || simulating) return;
@@ -671,95 +504,59 @@ export function SpieltagTab({
   };
 
   return (
-    <div className="space-y-4">
-      {/* ===== HEADER: GW Navigation + Status + Admin Actions ===== */}
-      <div className="flex items-center justify-between">
-        <button
-          onClick={() => onGameweekChange(Math.max(1, gameweek - 1))}
-          disabled={gameweek <= 1}
-          className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-30 transition-all"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
+    <div className="space-y-5">
+      {/* 1. SPIELTAG HEADER — Hero GW number + Nav + Status + Admin */}
+      <SpieltagHeader
+        gameweek={gameweek}
+        isCurrentGw={isCurrentGw}
+        isPast={isPast}
+        gwStatus={gwStatus}
+        simulatedCount={simulatedCount}
+        fixtureCount={fixtures.length}
+        totalGoals={totalGoals}
+        eventCount={gwEvents.length}
+        isAdmin={isAdmin}
+        simulating={simulating}
+        apiAvailable={apiAvailable}
+        onPrev={() => onGameweekChange(Math.max(1, gameweek - 1))}
+        onNext={() => onGameweekChange(Math.min(38, gameweek + 1))}
+        onSimulate={() => setShowConfirm(true)}
+        onAdvance={() => onGameweekChange(gameweek + 1)}
+      />
 
-        <div className="text-center flex-1">
-          <div className="text-xl font-black">Spieltag {gameweek}</div>
-          <div className="flex items-center justify-center gap-2 text-xs mt-0.5">
-            {gwStatus === 'simulated' ? (
-              <span className="flex items-center gap-1 text-[#22C55E]">
-                <CheckCircle2 className="w-3 h-3" /> Beendet
-                {totalGoals > 0 && <span className="text-white/40 ml-1">{totalGoals} Tore</span>}
-              </span>
-            ) : isCurrentGw ? (
-              <span className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-                <span className="text-[#22C55E] font-bold">OFFEN</span>
-                <span className="text-white/40 ml-1">{gwEvents.length} Events • {fixtures.length} Spiele</span>
-              </span>
-            ) : isPast ? (
-              <span className="text-white/40">
-                {simulatedCount > 0 ? `${simulatedCount}/${fixtures.length} simuliert` : 'Vergangener Spieltag'}
-              </span>
-            ) : (
-              <span className="flex items-center gap-1 text-white/30">
-                <Clock className="w-3 h-3" /> Kommender Spieltag
-              </span>
-            )}
-          </div>
-        </div>
+      {/* 2. SPONSOR BANNER */}
+      <SponsorBanner placement="fantasy_spieltag" />
 
-        <div className="flex items-center gap-2">
-          {isAdmin && isCurrentGw && gwStatus === 'open' && gwEvents.length > 0 && (
-            <button
-              onClick={() => setShowConfirm(true)}
-              disabled={simulating}
-              className="flex items-center gap-1.5 px-3 py-2 bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-xl text-sm font-bold text-[#FFD700] hover:bg-[#FFD700]/20 disabled:opacity-50 transition-all"
-            >
-              {simulating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-              <span className="hidden sm:inline">{simulating ? 'Spieltag wird gestartet...' : apiAvailable ? 'Daten importieren' : 'Spieltag starten'}</span>
-            </button>
-          )}
-          {isAdmin && gwStatus === 'simulated' && isCurrentGw && (
-            <button
-              onClick={() => onGameweekChange(gameweek + 1)}
-              className="flex items-center gap-1.5 px-3 py-2 bg-[#22C55E]/10 border border-[#22C55E]/30 rounded-xl text-sm font-bold text-[#22C55E] hover:bg-[#22C55E]/20 transition-all"
-            >
-              <ArrowRight className="w-4 h-4" />
-              <span className="hidden sm:inline">Nächster</span>
-            </button>
-          )}
-          <button
-            onClick={() => onGameweekChange(Math.min(38, gameweek + 1))}
-            disabled={gameweek >= 38}
-            className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-30 transition-all"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
+      {/* 3. TOPSPIEL CARD — Hero Match */}
+      {topspiel && !fixturesLoading && (
+        <TopspielCard
+          fixture={topspiel}
+          userClubId={clubId}
+          onSelect={(f) => setSelectedFixture(f)}
+        />
+      )}
 
-      <SponsorBanner placement="fantasy_spieltag" className="mb-4" />
+      {/* 4. GOAL TICKER — only when simulated */}
+      {simulatedCount > 0 && topScorers.length > 0 && (
+        <GoalTicker scorers={topScorers} />
+      )}
 
-      {/* ===== PAARUNGEN — Sorare-style vertical list ===== */}
-      {fixtures.length > 0 && !fixturesLoading && (
+      {/* 5. PAARUNGEN — FixtureCards (without Topspiel) */}
+      {otherFixtures.length > 0 && !fixturesLoading && (
         <section>
-          <Card className="overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
-              <h2 className="text-xs font-black uppercase tracking-wider text-white/40">
-                Paarungen
-              </h2>
-              <span className="text-[10px] text-white/25">{fixtures.length} Spiele</span>
-            </div>
-            <div>
-              {fixtures.map(f => (
-                <FixtureRow
-                  key={f.id}
-                  fixture={f}
-                  onSelect={() => setSelectedFixture(f)}
-                />
-              ))}
-            </div>
-          </Card>
+          <SectionHeader
+            title={ts('fixtures')}
+            badge={<span className="text-[10px] text-white/25 font-medium">{otherFixtures.length} Spiele</span>}
+          />
+          <div className="space-y-2 mt-3">
+            {otherFixtures.map(f => (
+              <FixtureCard
+                key={f.id}
+                fixture={f}
+                onSelect={() => setSelectedFixture(f)}
+              />
+            ))}
+          </div>
         </section>
       )}
 
@@ -769,13 +566,14 @@ export function SpieltagTab({
         </Card>
       )}
 
-      {/* ===== EVENTS FÜR DIESEN SPIELTAG ===== */}
+      {/* 6. EVENTS */}
       {openEvents.length > 0 && (
         <section>
-          <h2 className="text-[11px] font-black uppercase tracking-wider text-white/40 mb-2">
-            Events für diesen Spieltag
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <SectionHeader
+            title={ts('events')}
+            badge={<span className="text-[10px] text-white/25 font-medium">{openEvents.length}</span>}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
             {openEvents.map(event => (
               <EventCard
                 key={event.id}
@@ -788,13 +586,11 @@ export function SpieltagTab({
         </section>
       )}
 
-      {/* ===== MEINE AUFSTELLUNGEN ===== */}
+      {/* 7. MEINE AUFSTELLUNGEN */}
       {joinedEvents.length > 0 && (
         <section>
-          <h2 className="text-[11px] font-black uppercase tracking-wider text-white/40 mb-2">
-            Meine Aufstellungen
-          </h2>
-          <div className="space-y-2">
+          <SectionHeader title={ts('myLineups')} />
+          <div className="space-y-2 mt-3">
             {joinedEvents.map(event => {
               const lineupStatus = lineupStatuses.get(event.id);
               const hasLineup = lineupStatus?.hasLineup ?? false;
@@ -807,19 +603,19 @@ export function SpieltagTab({
                 <button
                   key={event.id}
                   onClick={() => onEventClick(event)}
-                  className="w-full flex items-center gap-3 p-3 bg-white/[0.03] border border-white/10 rounded-xl hover:bg-white/[0.06] transition-all text-left"
+                  className="w-full flex items-center gap-3 p-3 bg-white/[0.03] border border-white/10 rounded-2xl hover:bg-white/[0.06] transition-all text-left active:scale-[0.98]"
                 >
                   <div className="flex-shrink-0">
                     {isScored && rank != null ? (
-                      <div className="w-9 h-9 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
                         <span className="text-sm font-black text-[#FFD700]">#{rank}</span>
                       </div>
                     ) : hasLineup ? (
-                      <div className="w-9 h-9 rounded-xl bg-[#22C55E]/10 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-xl bg-[#22C55E]/10 flex items-center justify-center">
                         <CheckCircle2 className="w-5 h-5 text-[#22C55E]" />
                       </div>
                     ) : (
-                      <div className="w-9 h-9 rounded-xl bg-orange-500/10 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
                         <AlertTriangle className="w-5 h-5 text-orange-400" />
                       </div>
                     )}
@@ -828,7 +624,7 @@ export function SpieltagTab({
                     <div className="font-semibold text-sm truncate">{event.name}</div>
                     <div className="text-[11px] text-white/40">
                       {isScored ? (
-                        <span>{score ?? 0} Punkte • Platz {rank ?? '-'} / {event.participants}</span>
+                        <span>{score ?? 0} Punkte · Platz {rank ?? '-'} / {event.participants}</span>
                       ) : hasLineup ? (
                         <span className="text-[#22C55E]">Aufstellung gesetzt</span>
                       ) : (
@@ -848,26 +644,24 @@ export function SpieltagTab({
         </section>
       )}
 
-      {/* ===== ERGEBNISSE (nach Simulation) ===== */}
+      {/* 8. ERGEBNISSE */}
       {gwStatus === 'simulated' && joinedEvents.length > 0 && (
         <section>
-          <h2 className="text-[11px] font-black uppercase tracking-wider text-white/40 mb-2">
-            Ergebnisse
-          </h2>
-          <div className="space-y-2">
+          <SectionHeader title={ts('results')} />
+          <div className="space-y-2 mt-3">
             {joinedEvents.filter(e => e.scoredAt).map(event => {
               const lineupStatus = lineupStatuses.get(event.id);
               const rank = lineupStatus?.rank ?? event.userRank;
               const score = lineupStatus?.score ?? event.userPoints;
-              const medalEmoji = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+              const medalEmoji = rank === 1 ? '\u{1F947}' : rank === 2 ? '\u{1F948}' : rank === 3 ? '\u{1F949}' : '';
 
               return (
                 <button
                   key={event.id}
                   onClick={() => onEventClick(event)}
-                  className="w-full flex items-center gap-3 p-3 bg-white/[0.03] border border-white/10 rounded-xl hover:bg-white/[0.06] transition-all text-left"
+                  className="w-full flex items-center gap-3 p-3 bg-white/[0.03] border border-white/10 rounded-2xl hover:bg-white/[0.06] transition-all text-left active:scale-[0.98]"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
                     <span className="text-sm font-bold">{medalEmoji || `#${rank ?? '-'}`}</span>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -886,12 +680,14 @@ export function SpieltagTab({
         </section>
       )}
 
-      {/* ===== TOP SCORER ===== */}
-      {simulatedCount === fixtures.length && fixtures.length > 0 && (
-        <TopScorersSection gameweek={gameweek} />
+      {/* 9. TOP SCORER SHOWCASE */}
+      {allSimulated && topScorers.length > 0 && (
+        <section>
+          <TopScorerShowcase scorers={topScorers} gameweek={gameweek} />
+        </section>
       )}
 
-      {/* ===== EMPTY STATES ===== */}
+      {/* 10. EMPTY STATES */}
       {gwEvents.length === 0 && !fixturesLoading && fixtures.length === 0 && (
         <Card className="p-12 text-center">
           <Calendar className="w-12 h-12 mx-auto mb-4 text-white/20" />
@@ -908,7 +704,7 @@ export function SpieltagTab({
         </Card>
       )}
 
-      {/* ===== SPIELTAG STARTEN CONFIRMATION ===== */}
+      {/* 11. MODALS — unchanged */}
       <Modal open={showConfirm} title={apiAvailable ? 'Echte Daten importieren' : 'Spieltag starten'} onClose={() => setShowConfirm(false)}>
         <div className="space-y-4 p-2">
           <p className="text-sm text-white/70">
@@ -944,13 +740,13 @@ export function SpieltagTab({
           <div className="flex items-center gap-3 pt-2">
             <button
               onClick={() => setShowConfirm(false)}
-              className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-semibold hover:bg-white/10 transition-all"
+              className="flex-1 px-4 py-2.5 min-h-[44px] bg-white/5 border border-white/10 rounded-xl text-sm font-semibold hover:bg-white/10 transition-all"
             >
               Abbrechen
             </button>
             <button
               onClick={handleSimulate}
-              className="flex-1 px-4 py-2.5 bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-xl text-sm font-bold text-[#FFD700] hover:bg-[#FFD700]/20 transition-all"
+              className="flex-1 px-4 py-2.5 min-h-[44px] bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-xl text-sm font-bold text-[#FFD700] hover:bg-[#FFD700]/20 transition-all"
             >
               {apiAvailable ? 'Daten importieren' : 'Spieltag starten'}
             </button>
@@ -958,7 +754,6 @@ export function SpieltagTab({
         </div>
       </Modal>
 
-      {/* ===== FIXTURE DETAIL MODAL ===== */}
       <FixtureDetailModal
         fixture={selectedFixture}
         isOpen={!!selectedFixture}
