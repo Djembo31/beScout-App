@@ -28,7 +28,7 @@ type EventsTabProps = {
   onToggleInterest?: (eventId: string) => void;
 };
 
-/** Compact event row — same visual density as FixtureCards (text-xs, 48px height) */
+/** Event row — same density as Kader FullPlayerRow (gap-2.5, px-3, py-2.5) */
 function EventRow({ event, onClick }: { event: FantasyEvent; onClick: () => void }) {
   const typeStyle = getTypeStyle(event.type);
   const TypeIcon = typeStyle.icon;
@@ -36,41 +36,44 @@ function EventRow({ event, onClick }: { event: FantasyEvent; onClick: () => void
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-2 px-3 py-2 min-h-[44px] rounded-xl border transition-all text-left active:scale-[0.98] ${
+      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-all text-left active:scale-[0.98] ${
         event.isJoined
           ? 'bg-[#22C55E]/[0.04] border-[#22C55E]/20'
           : 'bg-white/[0.02] border-white/[0.06] hover:border-white/10'
       }`}
     >
       {/* Type icon */}
-      <div className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center ${typeStyle.bg}`}>
-        <TypeIcon className={`w-3 h-3 ${typeStyle.color}`} />
+      <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${typeStyle.bg}`}>
+        <TypeIcon className={`w-4 h-4 ${typeStyle.color}`} />
       </div>
 
       {/* Name + Meta */}
       <div className="flex-1 min-w-0">
-        <div className="truncate text-xs font-semibold leading-tight">{event.name}</div>
-        <div className="flex items-center gap-1 text-[9px] text-white/30 mt-0.5 leading-tight">
+        <div className="truncate text-sm font-semibold">{event.name}</div>
+        <div className="flex items-center gap-1.5 text-[10px] text-white/40 mt-0.5 flex-wrap">
           <span>{event.format}</span>
-          <span>·</span>
+          <span className="text-white/15">·</span>
           <span>{event.participants}/{event.maxParticipants ?? '∞'}</span>
-          <span>·</span>
-          <span>{event.buyIn === 0 ? 'Free' : `${event.buyIn}`}</span>
+          <span className="text-white/15">·</span>
+          <span>{event.buyIn === 0 ? 'Kostenlos' : `${event.buyIn} $SCOUT`}</span>
         </div>
       </div>
 
       {/* Status */}
-      <div className="flex-shrink-0 flex items-center gap-1">
+      <div className="flex-shrink-0 flex items-center gap-1.5">
         {event.isJoined ? (
-          <CheckCircle2 className="w-3.5 h-3.5 text-[#22C55E]" />
+          <CheckCircle2 className="w-4 h-4 text-[#22C55E]" />
         ) : event.status === 'running' ? (
-          <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
+          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#22C55E]/15">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
+            <span className="text-[9px] font-bold text-[#22C55E]">LIVE</span>
+          </div>
         ) : event.status === 'ended' ? (
-          <Lock className="w-3 h-3 text-white/20" />
+          <Lock className="w-3.5 h-3.5 text-white/25" />
         ) : (
-          <span className="text-[9px] text-white/25">{formatCountdown(event.lockTime)}</span>
+          <span className="text-[10px] font-medium text-white/30">{formatCountdown(event.lockTime)}</span>
         )}
-        <ChevronRight className="w-3 h-3 text-white/10" />
+        <ChevronRight className="w-3.5 h-3.5 text-white/15" />
       </div>
     </button>
   );
@@ -114,7 +117,7 @@ export function EventsTab({
     <div className="space-y-3">
       {/* Header: Category pills + View toggle */}
       <div className="flex items-center gap-2">
-        {/* Category filter pills — scrollable, takes remaining space */}
+        {/* Category filter pills — scrollable */}
         <div className="flex-1 min-w-0 flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
           {CATEGORIES.map(cat => {
             const count = counts[cat.id];

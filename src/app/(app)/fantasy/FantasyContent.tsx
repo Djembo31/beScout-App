@@ -470,7 +470,7 @@ export default function FantasyContent() {
   // Loading state — skeleton
   if (eventsLoading) {
     return (
-      <div className="max-w-[1600px] mx-auto space-y-4">
+      <div className="max-w-[1400px] mx-auto space-y-4">
         <div className="flex items-center justify-between">
           <Skeleton className="h-8 w-40" />
           <Skeleton className="h-9 w-24" />
@@ -489,7 +489,7 @@ export default function FantasyContent() {
   // Error state
   if (eventsError && events.length === 0) {
     return (
-      <div className="max-w-[1600px] mx-auto flex flex-col items-center justify-center py-32 gap-4">
+      <div className="max-w-[1400px] mx-auto flex flex-col items-center justify-center py-32 gap-4">
         <div className="w-12 h-12 rounded-full bg-red-500/15 border border-red-400/25 flex items-center justify-center">
           <AlertCircle className="w-6 h-6 text-red-400" />
         </div>
@@ -511,7 +511,7 @@ export default function FantasyContent() {
   ];
 
   return (
-    <div className="max-w-[1600px] mx-auto space-y-4 overflow-x-hidden">
+    <div className="max-w-[1400px] mx-auto space-y-4 md:space-y-5">
       {/* HEADER — Compact */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl md:text-2xl font-black flex items-center gap-2">
@@ -557,19 +557,19 @@ export default function FantasyContent() {
         onGameweekChange={setSelectedGameweek}
       />
 
-      {/* SEGMENT TABS — 4 Tabs, scrollable on mobile */}
-      <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-x-auto scrollbar-hide">
+      {/* SEGMENT TABS — 4 Tabs, always fit */}
+      <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setMainTab(tab.id)}
-            className={`flex-shrink-0 flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[40px] ${
+            className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[40px] ${
               mainTab === tab.id
                 ? 'bg-[#FFD700]/15 text-[#FFD700] shadow-sm'
                 : 'text-white/50 hover:text-white/70'
             }`}
           >
-            <tab.icon className="w-3.5 h-3.5" />
+            <tab.icon className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="hidden sm:inline">{tab.label}</span>
             <span className="sm:hidden">{tab.mobileLabel}</span>
           </button>
