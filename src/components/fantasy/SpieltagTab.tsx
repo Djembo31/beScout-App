@@ -7,7 +7,7 @@ import {
 import { Card, Modal } from '@/components/ui';
 import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
-import { getFixturesByGameweek, getFixturePlayerStats, getGameweekTopScorers } from '@/lib/services/fixtures';
+import { getFixturesByGameweek, getFixturePlayerStats } from '@/lib/services/fixtures';
 import { simulateGameweekFlow } from '@/lib/services/scoring';
 import { isApiConfigured, hasApiFixtures } from '@/lib/services/footballData';
 import type { Fixture, FixturePlayerStat } from '@/types';
@@ -16,7 +16,7 @@ import SponsorBanner from '@/components/player/detail/SponsorBanner';
 import { SectionHeader } from '@/components/home/helpers';
 import {
   ClubLogo, TopspielCard, pickTopspiel,
-  FixtureCard, GoalTicker,
+  FixtureCard,
   posColor, scoreBadgeColor, getPosAccent,
 } from './spieltag';
 
@@ -391,7 +391,6 @@ export function SpieltagTab({
   const ts = useTranslations('spieltag');
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
   const [fixturesLoading, setFixturesLoading] = useState(true);
-  const [topScorers, setTopScorers] = useState<FixturePlayerStat[]>([]);
   const [simulating, setSimulating] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedFixture, setSelectedFixture] = useState<Fixture | null>(null);
@@ -431,7 +430,6 @@ export function SpieltagTab({
 
   // Derived state
   const simulatedCount = fixtures.filter(f => f.status === 'simulated' || f.status === 'finished').length;
-  const totalGoals = fixtures.reduce((s, f) => s + (f.home_score ?? 0) + (f.away_score ?? 0), 0);
   const gwEvents = events;
   const allEnded = gwEvents.length > 0 && gwEvents.every(e => e.status === 'ended' || e.scoredAt);
   const isCurrentGw = gameweek === activeGameweek;
@@ -442,18 +440,6 @@ export function SpieltagTab({
     allEnded && allSimulated ? 'simulated'
     : gwEvents.length === 0 && fixtures.length === 0 ? 'empty'
     : 'open';
-
-  // Top scorers — for GoalTicker
-  useEffect(() => {
-    if (!allSimulated) { setTopScorers([]); return; }
-    let cancelled = false;
-    getGameweekTopScorers(gameweek, 20).then(data => {
-      if (!cancelled) setTopScorers(data);
-    }).catch(() => {
-      if (!cancelled) setTopScorers([]);
-    });
-    return () => { cancelled = true; };
-  }, [gameweek, allSimulated]);
 
   // Topspiel selection
   const topspiel = useMemo(() => pickTopspiel(fixtures, clubId), [fixtures, clubId]);
@@ -521,12 +507,7 @@ export function SpieltagTab({
         />
       )}
 
-      {/* 4. GOAL TICKER — only when simulated */}
-      {simulatedCount > 0 && topScorers.length > 0 && (
-        <GoalTicker scorers={topScorers} />
-      )}
-
-      {/* 5. PAARUNGEN — FixtureCards (without Topspiel) */}
+      {/* 4. PAARUNGEN — FixtureCards (without Topspiel) */}
       {otherFixtures.length > 0 && !fixturesLoading && (
         <section>
           <SectionHeader

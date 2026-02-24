@@ -3,12 +3,13 @@
 import React, { useState, useMemo } from 'react';
 import {
   Trophy, Sparkles, Building2, Gift, UserPlus, Star, Globe,
-  Users, CheckCircle2, ChevronRight, Lock, Play,
+  Users, CheckCircle2, ChevronRight, Lock, Play, LayoutGrid, List,
 } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { useTranslations } from 'next-intl';
-import type { FantasyEvent, EventType } from './types';
+import type { FantasyEvent, EventType, ViewMode } from './types';
 import { getStatusStyle, getTypeStyle, formatCountdown } from './helpers';
+import { EventCard } from './EventCard';
 
 type EventCategory = 'all' | EventType;
 
@@ -24,6 +25,7 @@ const CATEGORIES: { id: EventCategory; labelKey: string; icon: typeof Trophy }[]
 type EventsTabProps = {
   events: FantasyEvent[];
   onEventClick: (event: FantasyEvent) => void;
+  onToggleInterest?: (eventId: string) => void;
 };
 
 /** Compact event row — matches visual density of FixtureCards */
@@ -35,7 +37,7 @@ function EventRow({ event, onClick }: { event: FantasyEvent; onClick: () => void
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-3 py-3 min-h-[56px] rounded-xl border transition-all text-left ${
+      className={`w-full flex items-center gap-2.5 px-3 py-3 min-h-[56px] rounded-xl border transition-all text-left ${
         event.isJoined
           ? 'bg-[#22C55E]/[0.04] border-[#22C55E]/20 hover:border-[#22C55E]/30'
           : 'bg-white/[0.02] border-white/[0.06] hover:border-white/[0.12] hover:bg-white/[0.04]'
@@ -43,54 +45,37 @@ function EventRow({ event, onClick }: { event: FantasyEvent; onClick: () => void
     >
       {/* Type icon */}
       <div className={`flex-shrink-0 p-1.5 rounded-lg ${typeStyle.bg}`}>
-        <TypeIcon className={`w-4 h-4 ${typeStyle.color}`} />
+        <TypeIcon className={`w-3.5 h-3.5 ${typeStyle.color}`} />
       </div>
 
       {/* Name + Meta */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold truncate">{event.name}</span>
-          {event.sponsorName && (
-            <span className="text-[9px] text-sky-400/60 font-medium truncate hidden sm:inline">
-              {event.sponsorName}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-2 text-[10px] text-white/35 mt-0.5">
+      <div className="flex-1 min-w-0 overflow-hidden">
+        <div className="truncate text-sm font-semibold">{event.name}</div>
+        <div className="flex items-center gap-1.5 text-[10px] text-white/35 mt-0.5">
           <span>{event.format}</span>
-          <span>·</span>
-          <span className="flex items-center gap-0.5">
-            <Users className="w-2.5 h-2.5" />
-            {event.participants}{event.maxParticipants ? `/${event.maxParticipants}` : ''}
-          </span>
-          <span>·</span>
-          <span>{event.buyIn === 0 ? 'Kostenlos' : `${event.buyIn} $SCOUT`}</span>
+          <span className="text-white/15">·</span>
+          <Users className="w-2.5 h-2.5 flex-shrink-0" />
+          <span>{event.participants}{event.maxParticipants ? `/${event.maxParticipants}` : ''}</span>
+          <span className="text-white/15">·</span>
+          <span className="truncate">{event.buyIn === 0 ? 'Kostenlos' : `${event.buyIn} $SCOUT`}</span>
         </div>
       </div>
 
-      {/* Status */}
-      <div className="flex-shrink-0 flex items-center gap-2">
+      {/* Status — compact */}
+      <div className="flex-shrink-0 flex items-center gap-1.5">
         {event.isJoined ? (
-          <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#22C55E]/15">
-            <CheckCircle2 className="w-3 h-3 text-[#22C55E]" />
-            <span className="text-[10px] font-bold text-[#22C55E] hidden sm:inline">Dabei</span>
-          </div>
+          <CheckCircle2 className="w-4 h-4 text-[#22C55E]" />
         ) : event.status === 'running' ? (
-          <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#22C55E]/15">
-            <Play className="w-3 h-3 text-[#22C55E]" />
-            <span className="text-[10px] font-bold text-[#22C55E]">LIVE</span>
+          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#22C55E]/15">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
+            <span className="text-[9px] font-bold text-[#22C55E]">LIVE</span>
           </div>
         ) : event.status === 'ended' ? (
-          <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10">
-            <Lock className="w-3 h-3 text-white/40" />
-          </div>
+          <Lock className="w-3.5 h-3.5 text-white/25" />
         ) : (
-          <div className={`flex items-center gap-1 px-2 py-1 rounded-lg ${statusStyle.bg}/15`}>
-            {statusStyle.pulse && <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />}
-            <span className="text-[10px] font-bold text-white/50">{formatCountdown(event.lockTime)}</span>
-          </div>
+          <span className="text-[10px] font-medium text-white/30">{formatCountdown(event.lockTime)}</span>
         )}
-        <ChevronRight className="w-4 h-4 text-white/20" />
+        <ChevronRight className="w-3.5 h-3.5 text-white/15" />
       </div>
     </button>
   );
@@ -99,22 +84,22 @@ function EventRow({ event, onClick }: { event: FantasyEvent; onClick: () => void
 export function EventsTab({
   events,
   onEventClick,
+  onToggleInterest,
 }: EventsTabProps) {
   const t = useTranslations('fantasy');
   const [category, setCategory] = useState<EventCategory>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
 
   const filteredEvents = useMemo(() => {
     let filtered = [...events];
     if (category !== 'all') {
       filtered = filtered.filter(e => e.type === category);
     }
-    // Sort: running/late-reg first, then registering, then upcoming, then ended
     const statusOrder: Record<string, number> = { 'late-reg': 0, 'running': 1, 'registering': 2, 'upcoming': 3, 'ended': 4 };
     filtered.sort((a, b) => (statusOrder[a.status] ?? 5) - (statusOrder[b.status] ?? 5));
     return filtered;
   }, [events, category]);
 
-  // Counts per category
   const counts = useMemo(() => {
     const map: Record<EventCategory, number> = {
       all: events.length,
@@ -132,46 +117,81 @@ export function EventsTab({
 
   return (
     <div className="space-y-3">
-      {/* Category filter pills — scrollable */}
-      <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide pb-0.5">
-        {CATEGORIES.map(cat => {
-          const count = counts[cat.id];
-          const isActive = category === cat.id;
-          const Icon = cat.icon;
-          // Hide categories with 0 events (except 'all')
-          if (cat.id !== 'all' && count === 0) return null;
+      {/* Header: Category pills + View toggle */}
+      <div className="flex items-center gap-2">
+        {/* Category filter pills — scrollable, takes remaining space */}
+        <div className="flex-1 min-w-0 flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+          {CATEGORIES.map(cat => {
+            const count = counts[cat.id];
+            const isActive = category === cat.id;
+            const Icon = cat.icon;
+            if (cat.id !== 'all' && count === 0) return null;
 
-          return (
-            <button
-              key={cat.id}
-              onClick={() => setCategory(cat.id)}
-              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 min-h-[36px] rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
-                isActive
-                  ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/20'
-                  : 'bg-white/[0.04] text-white/50 border border-white/[0.06] hover:text-white/70'
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              <span>{t(`eventCategories.${cat.labelKey}`)}</span>
-              <span className={`text-[10px] font-mono ${isActive ? 'text-[#FFD700]/60' : 'text-white/25'}`}>
-                {count}
-              </span>
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setCategory(cat.id)}
+                className={`flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 min-h-[32px] rounded-lg text-[11px] font-semibold transition-all whitespace-nowrap ${
+                  isActive
+                    ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/20'
+                    : 'bg-white/[0.04] text-white/50 border border-white/[0.06] hover:text-white/70'
+                }`}
+              >
+                <Icon className="w-3 h-3" />
+                <span>{t(`eventCategories.${cat.labelKey}`)}</span>
+                <span className={`text-[9px] font-mono ${isActive ? 'text-[#FFD700]/60' : 'text-white/20'}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* View mode toggle */}
+        <div className="flex-shrink-0 flex items-center bg-white/[0.04] border border-white/[0.06] rounded-lg p-0.5">
+          <button
+            onClick={() => setViewMode('table')}
+            className={`p-1.5 rounded transition-all ${
+              viewMode === 'table' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50'
+            }`}
+          >
+            <List className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => setViewMode('cards')}
+            className={`p-1.5 rounded transition-all ${
+              viewMode === 'cards' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50'
+            }`}
+          >
+            <LayoutGrid className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
-      {/* Event list — compact rows */}
+      {/* Event list or cards */}
       {filteredEvents.length > 0 ? (
-        <div className="space-y-1.5">
-          {filteredEvents.map(event => (
-            <EventRow
-              key={event.id}
-              event={event}
-              onClick={() => onEventClick(event)}
-            />
-          ))}
-        </div>
+        viewMode === 'table' ? (
+          <div className="space-y-1.5">
+            {filteredEvents.map(event => (
+              <EventRow
+                key={event.id}
+                event={event}
+                onClick={() => onEventClick(event)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {filteredEvents.map(event => (
+              <EventCard
+                key={event.id}
+                event={event}
+                onView={() => onEventClick(event)}
+                onToggleInterest={() => onToggleInterest?.(event.id)}
+              />
+            ))}
+          </div>
+        )
       ) : (
         <Card className="p-10 text-center">
           <Trophy className="w-10 h-10 mx-auto mb-3 text-white/15" />
