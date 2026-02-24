@@ -17,7 +17,7 @@ import { Modal, Card, Button, Chip } from '@/components/ui';
 import { PositionBadge, PlayerIdentity, getL5Color } from '@/components/player';
 import { useUser } from '@/components/providers/AuthProvider';
 import { centsToBsd } from '@/lib/services/players';
-import { getLineup, removeLineup, getEventParticipants, getEventParticipantCount, getLineupWithPlayers } from '@/lib/services/lineups';
+import { getLineup, getEventParticipants, getEventParticipantCount, getLineupWithPlayers } from '@/lib/services/lineups';
 import type { LineupWithPlayers } from '@/lib/services/lineups';
 import { resetEvent, getEventLeaderboard } from '@/lib/services/scoring';
 import type { LeaderboardEntry } from '@/lib/services/scoring';
@@ -45,7 +45,7 @@ export const EventDetailModal = ({
   isOpen: boolean;
   onClose: () => void;
   onJoin: (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null) => void | Promise<void>;
-  onLeave: (event: FantasyEvent) => void;
+  onLeave: (event: FantasyEvent) => void | Promise<void>;
   onReset: (event: FantasyEvent) => void;
   userHoldings: UserDpcHolding[];
 }) => {
@@ -187,8 +187,8 @@ export const EventDetailModal = ({
     if (confirm(`Möchtest du dich wirklich vom Event "${event.name}" abmelden?`)) {
       setLeaving(true);
       try {
-        await removeLineup(event.id, user.id);
-        onLeave(event);
+        // Parent (handleLeaveEvent) handles: removeLineup + refund + cache invalidation
+        await onLeave(event);
         onClose();
       } catch (e: unknown) {
         alert(`Fehler beim Abmelden: ${e instanceof Error ? e.message : 'Unbekannter Fehler'}`);
