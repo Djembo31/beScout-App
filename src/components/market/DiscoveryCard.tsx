@@ -55,7 +55,10 @@ export default function DiscoveryCard({
       href={`/player/${p.id}`}
       className={cn(
         'flex-shrink-0 w-[calc((100vw-48px)/2.5)] md:w-[140px] max-w-[160px] bg-surface-base border border-white/[0.10] rounded-xl p-2.5 card-lift group relative overflow-hidden',
-        variant === 'ipo' && 'shadow-glow-live'
+        variant === 'ipo' && 'shadow-glow-live',
+        variant === 'trending' && 'shadow-[0_0_16px_rgba(255,59,105,0.15)]',
+        (variant === 'ipo' || variant === 'trending') && p.perf.l5 >= 65 && 'foil-shimmer',
+        p.perf.l5 >= 80 && 'holo-rainbow',
       )}
       style={{
         borderLeftColor: posBorderColor,
@@ -76,13 +79,13 @@ export default function DiscoveryCard({
         )}
       </div>
 
-      {/* Separator */}
-      <div className="h-px bg-white/[0.08] my-1.5" />
+      {/* Separator — floodlight style */}
+      <div className="h-px my-1.5" style={{ background: `linear-gradient(90deg, transparent, ${posBorderColor}40, transparent)` }} />
 
       {/* Metrics: L5 + Price */}
       <div className="flex items-center justify-between">
-        <span className={cn('font-mono font-bold text-[11px]', getL5Color(p.perf.l5))}>L5: {p.perf.l5}</span>
-        {price > 0 && <span className="font-mono font-bold text-[11px] text-[#FFD700]" style={{ textShadow: '0 0 10px rgba(255,215,0,0.4)' }}>{fmtScout(price)}</span>}
+        <span className={cn('font-mono font-bold text-[11px]', getL5Color(p.perf.l5))} style={{ textShadow: p.perf.l5 >= 65 ? '0 0 8px currentColor' : undefined }}>{p.perf.l5}</span>
+        {price > 0 && <span className="font-mono font-black text-[11px] gold-glow">{fmtScout(price)}</span>}
       </div>
 
       {/* Variant-specific indicator */}
@@ -161,7 +164,7 @@ export default function DiscoveryCard({
         <button
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onBuy(p.id); }}
           disabled={buying}
-          className="mt-2 w-full py-2 min-h-[44px] bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] rounded-lg text-xs font-bold hover:bg-[#FFD700]/20 transition-all disabled:opacity-50 flex items-center justify-center gap-1"
+          className="mt-2 w-full py-2 min-h-[44px] bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] rounded-lg text-xs font-black hover:bg-[#FFD700]/20 hover:btn-gold-glow transition-all active:scale-[0.95] disabled:opacity-50 flex items-center justify-center gap-1"
         >
           {buying ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Kaufen'}
         </button>

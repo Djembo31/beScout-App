@@ -74,10 +74,10 @@ function DiscoverySection({ icon, title, accent, onShowAll, showAllLabel, childr
 }) {
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5">
+      <div className="flex items-center justify-between mb-2.5">
+        <div className="flex items-center gap-2">
           {icon}
-          <span className={cn('text-[11px] font-black uppercase tracking-wider', accent || 'text-white/40')}>{title}</span>
+          <span className={cn('text-xs font-black uppercase tracking-wider', accent || 'text-white/50')}>{title}</span>
         </div>
         {onShowAll && (
           <button onClick={onShowAll} className="text-[11px] font-bold text-white/30 hover:text-[#FFD700] transition-colors flex items-center gap-1 min-h-[44px]">
@@ -88,6 +88,7 @@ function DiscoverySection({ icon, title, accent, onShowAll, showAllLabel, childr
       <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-2 snap-x snap-mandatory" style={{ WebkitOverflowScrolling: 'touch' }}>
         {children}
       </div>
+      <div className="floodlight-divider mt-3" />
     </div>
   );
 }

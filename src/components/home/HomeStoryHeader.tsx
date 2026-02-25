@@ -76,7 +76,7 @@ export default function HomeStoryHeader({
           href="/market?tab=portfolio"
           className="flex flex-col items-center justify-center py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-all"
         >
-          <span className="font-mono font-black text-sm text-white">{fmtScout(portfolioValue)}</span>
+          <span className="font-mono font-black text-sm gold-glow">{fmtScout(portfolioValue)}</span>
           <span className="text-[9px] text-white/40 uppercase tracking-wider font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('portfolioRoster')} <InfoTooltip text={t('portfolioRosterTooltip')} /></span>
         </Link>
 
@@ -88,7 +88,7 @@ export default function HomeStoryHeader({
         )}>
           <div className="flex items-center gap-1">
             <PnlIcon className={cn('w-3 h-3', pnlPositive ? 'text-[#00E676]' : 'text-[#FF3B69]')} />
-            <span className={cn('font-mono font-black text-sm', pnlPositive ? 'text-[#00E676]' : 'text-[#FF3B69]')}>
+            <span className={cn('font-mono font-black text-sm', pnlPositive ? 'text-[#00E676]' : 'text-[#FF3B69]')} style={{ textShadow: `0 0 12px ${pnlPositive ? 'rgba(0,230,118,0.4)' : 'rgba(255,59,105,0.4)'}` }}>
               {pnlPositive ? '+' : ''}{pnlPct.toFixed(1)}%
             </span>
           </div>

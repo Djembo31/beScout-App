@@ -37,23 +37,27 @@ export default function PortfolioStrip({ holdings }: PortfolioStripProps) {
     );
   }
 
-  const top4 = holdings.slice(0, 4);
+  const top6 = holdings.slice(0, 6);
 
   return (
     <div>
       <SectionHeader title={t('myRoster')} href="/market?tab=portfolio" />
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        {top4.map((h) => {
+      <div className="mt-3 flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+        {top6.map((h) => {
           const posColor = posTintColors[h.pos];
           const nameParts = h.player.split(' ');
           const first = nameParts[0] || '';
           const last = nameParts.slice(1).join(' ') || '';
+          const isTop = h.change24h >= 5;
 
           return (
             <Link
               key={h.id}
               href={`/player/${h.playerId}`}
-              className="bg-surface-base border border-white/[0.10] rounded-xl p-3 card-lift group relative overflow-hidden"
+              className={cn(
+                'flex-shrink-0 w-[130px] bg-surface-base border border-white/[0.10] rounded-xl p-3 card-lift group relative overflow-hidden',
+                isTop && 'foil-shimmer',
+              )}
               style={{
                 borderLeftColor: posColor,
                 borderLeftWidth: 2,
@@ -67,28 +71,32 @@ export default function PortfolioStrip({ holdings }: PortfolioStripProps) {
                   <PositionBadge pos={h.pos} size="sm" />
                 </div>
               </div>
-              <div className="h-px bg-white/[0.06] my-1.5" />
+              <div className="h-px my-1.5" style={{ background: `linear-gradient(90deg, transparent, ${posColor}40, transparent)` }} />
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-mono font-bold text-[#FFD700]" style={{ textShadow: '0 0 10px rgba(255,215,0,0.4)' }}>
+                <span className="text-[11px] font-mono font-black gold-glow">
                   {fmtScout(h.floor)}
                 </span>
                 <span className={cn(
                   'text-[10px] font-mono font-bold',
                   h.change24h >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]'
-                )}>
+                )} style={{ textShadow: h.change24h >= 5 ? '0 0 8px rgba(0,230,118,0.4)' : undefined }}>
                   {h.change24h >= 0 ? '+' : ''}{h.change24h.toFixed(1)}%
                 </span>
               </div>
-              <div className="text-[9px] text-white/30 mt-1">{h.qty} DPC</div>
+              <div className="text-[9px] text-white/30 mt-1 font-mono">{h.qty} DPC</div>
             </Link>
           );
         })}
+        {holdings.length > 6 && (
+          <Link
+            href="/market?tab=portfolio"
+            className="flex-shrink-0 w-[100px] flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-surface-base hover:bg-surface-elevated transition-all"
+          >
+            <ChevronRight className="w-5 h-5 text-[#FFD700] mb-1" />
+            <span className="text-[10px] text-[#FFD700] font-bold">+{holdings.length - 6}</span>
+          </Link>
+        )}
       </div>
-      {holdings.length > 4 && (
-        <Link href="/market?tab=portfolio" className="block text-center py-2.5 mt-1 text-xs text-[#FFD700] hover:underline">
-          {t('viewAllRoster', { count: String(holdings.length) })}
-        </Link>
-      )}
     </div>
   );
 }

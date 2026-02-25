@@ -29,8 +29,9 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
     const posColor = posTintColors[ipo.pos];
     return (
       <Link href={`/player/${ipo.id}`} className="block">
-        <Card surface="hero" className="p-4 relative overflow-hidden">
+        <Card surface="hero" className="p-4 relative overflow-hidden shadow-glow-live">
           <div className="absolute inset-0 opacity-20" style={{ backgroundImage: `linear-gradient(135deg, ${posColor}40, transparent 60%)` }} />
+          <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full blur-3xl opacity-30" style={{ background: posColor }} />
           <div className="relative flex items-center gap-3">
             <div className="relative">
               <PlayerPhoto imageUrl={ipo.imageUrl} first={ipo.first} last={ipo.last} pos={ipo.pos} size={48} />
@@ -48,7 +49,7 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
               <div className="text-[10px] text-white/40">{ipo.club}</div>
             </div>
             <div className="text-right shrink-0">
-              <div className="font-mono font-black text-lg text-[#FFD700]" style={{ textShadow: '0 0 12px rgba(255,215,0,0.4)' }}>
+              <div className="font-mono font-black text-lg gold-glow">
                 {ipo.ipo.price}
               </div>
               <div className="text-[10px] text-white/40">$SCOUT/DPC</div>
@@ -76,8 +77,9 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
   if (nextEvent) {
     return (
       <Link href="/fantasy" className="block">
-        <Card surface="hero" className="p-4 relative overflow-hidden">
+        <Card surface="hero" className="p-4 relative overflow-hidden shadow-[0_0_24px_rgba(168,85,247,0.15)]">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-purple-500/8 to-transparent" />
+          <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-purple-500 blur-3xl opacity-20" />
           <div className="relative">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
