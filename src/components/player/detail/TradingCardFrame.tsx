@@ -140,7 +140,7 @@ export default function TradingCardFrame({
         </div>
 
         {/* Mini stat circles + edition */}
-        <div className="relative z-10 flex items-center justify-center gap-2 mt-2 md:mt-3 px-3 pb-3">
+        <div className="relative z-10 flex items-center justify-center gap-2 mt-2 md:mt-3 px-3 pb-1">
           {l5 > 0 && <ScoreCircle label="L5" value={l5} size={34} />}
           {edition && (
             <span
@@ -150,6 +150,11 @@ export default function TradingCardFrame({
               {edition}
             </span>
           )}
+        </div>
+
+        {/* BeScout branding */}
+        <div className="relative z-10 flex justify-center pb-2">
+          <img src="/logo_schrift.png" alt="BeScout" className="h-3 md:h-3.5 opacity-30" />
         </div>
       </div>
     </div>
