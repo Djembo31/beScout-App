@@ -281,7 +281,8 @@
     "leagues": "Ligen",
     "mitmachen": {
       "noLineups": "Noch bei keinem Event angemeldet",
-      "noLineupsCta": "Tritt einem Event im Events-Tab bei",
+      "noLineupsCta": "Melde dich bei einem Event an und stelle dein Lineup auf — kostenlos!",
+      "noLineupsAction": "Events entdecken",
       "lineupSet": "Aufstellung gesetzt",
       "noLineup": "Noch keine Aufstellung"
     },
@@ -299,7 +300,8 @@
       "upcomingDesc": "Ergebnisse werden nach dem Spieltag angezeigt",
       "pending": "Spieltag läuft noch",
       "pendingDesc": "Die Ergebnisse stehen nach der Auswertung fest",
-      "noData": "Keine Daten für diesen Spieltag",
+      "noData": "Noch keine Ergebnisse",
+      "noDataDesc": "Melde dich bei einem Event an, um hier deine Ergebnisse zu sehen.",
       "predictions": "Tipp-Ergebnisse",
       "seasonStats": "Saison-Statistiken"
     },
@@ -506,7 +508,12 @@
     "bestandNoOffer": "Kein Angebot",
     "bestandAvailable": "Verfügbar",
     "bestandPlayersInSquad": "{count} Spieler im Kader",
-    "bestandContractMonths": "{months}M"
+    "bestandContractMonths": "{months}M",
+    "bestandEmptyTitle": "Noch keine Spieler im Kader",
+    "bestandEmptyDesc": "Kaufe deine erste Spielerkarte über einen Erstverkauf oder den Transfermarkt — schon ab 100 $SCOUT.",
+    "bestandEmptyCta": "Spieler entdecken",
+    "bestandFilterEmpty": "Keine Spieler gefunden",
+    "bestandFilterEmptyDesc": "Versuche andere Suchbegriffe oder Filter"
   },
   "community": {
     "title": "Community",

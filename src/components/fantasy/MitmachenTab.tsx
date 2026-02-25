@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import {
   CheckCircle2, AlertTriangle, Eye, Trophy, Target, Users, Loader2,
 } from 'lucide-react';
-import { Card } from '@/components/ui';
+import { Card, Button } from '@/components/ui';
 import { useTranslations } from 'next-intl';
 import { getLineup } from '@/lib/services/lineups';
 import type { FantasyEvent } from './types';
@@ -78,9 +78,12 @@ export function MitmachenTab({
 
         {joinedEvents.length === 0 ? (
           <Card className="p-6 text-center">
-            <Trophy className="w-8 h-8 text-white/15 mx-auto mb-2" />
-            <div className="text-sm text-white/40">{tf('mitmachen.noLineups')}</div>
-            <div className="text-xs text-white/20 mt-1">{tf('mitmachen.noLineupsCta')}</div>
+            <Trophy className="w-8 h-8 text-[#FFD700]/30 mx-auto mb-2" />
+            <div className="text-sm text-white/50 font-medium">{tf('mitmachen.noLineups')}</div>
+            <div className="text-xs text-white/30 mt-1 max-w-[280px] mx-auto leading-relaxed">{tf('mitmachen.noLineupsCta')}</div>
+            <Button variant="gold" size="sm" className="mt-3" onClick={() => { const el = document.querySelector('[data-tab="events"]'); if (el instanceof HTMLElement) el.click(); }}>
+              {tf('mitmachen.noLineupsAction')}
+            </Button>
           </Card>
         ) : (
           <div className="space-y-2">

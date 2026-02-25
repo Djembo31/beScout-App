@@ -131,8 +131,9 @@ export function ErgebnisseTab({
   if (events.length === 0) {
     return (
       <div className="py-16 text-center">
-        <Trophy className="w-12 h-12 mx-auto mb-4 text-white/15" />
-        <div className="text-white/40 font-medium">{tf('ergebnisse.noData')}</div>
+        <Trophy className="w-12 h-12 mx-auto mb-4 text-[#FFD700]/20" />
+        <div className="text-white/50 font-medium">{tf('ergebnisse.noData')}</div>
+        <div className="text-xs text-white/30 mt-1 max-w-[280px] mx-auto leading-relaxed">{tf('ergebnisse.noDataDesc')}</div>
       </div>
     );
   }

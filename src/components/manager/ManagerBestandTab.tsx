@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { Package, Tag, MessageSquare } from 'lucide-react';
+import { Package, Tag, MessageSquare, ShoppingCart } from 'lucide-react';
 import { EmptyState } from '@/components/ui';
+import NewUserTip from '@/components/onboarding/NewUserTip';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { Player, Pos, DbIpo, OfferWithDetails } from '@/types';
@@ -293,9 +294,16 @@ export default function ManagerBestandTab({
       {/* Empty State */}
       {filtered.length === 0 && (
         bestandItems.length === 0 ? (
-          <EmptyState icon={<Package />} title="Noch keine Spieler im Kader" description="Kaufe DPCs über Club Sales oder den Transfermarkt." />
+          <NewUserTip
+            tipKey="bestand-empty"
+            icon={<ShoppingCart className="w-5 h-5" />}
+            title={t('bestandEmptyTitle')}
+            description={t('bestandEmptyDesc')}
+            show
+            action={{ label: t('bestandEmptyCta'), href: '/market?tab=kaufen' }}
+          />
         ) : (
-          <EmptyState icon={<Package />} title="Keine Spieler gefunden" description="Versuche andere Suchbegriffe oder Filter"
+          <EmptyState icon={<Package />} title={t('bestandFilterEmpty')} description={t('bestandFilterEmptyDesc')}
             action={{ label: t('resetFilters'), onClick: () => { setPosFilter(new Set()); setClubFilter(''); setQuery(''); }}} />
         )
       )}
