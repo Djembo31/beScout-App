@@ -95,9 +95,9 @@ export default function HomeStoryHeader({
           <span className="text-[9px] text-white/40 uppercase tracking-wider font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('pnl')} <InfoTooltip text={t('pnlTooltip')} /></span>
         </div>
 
-        <div className="flex flex-col items-center justify-center py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl">
+        <div className="flex flex-col items-center justify-center py-2.5 bg-surface-base border border-white/[0.08] rounded-xl">
           <span className="font-mono font-bold text-sm text-white">{holdingsCount}</span>
-          <span className="text-[9px] text-white/40 uppercase tracking-wider font-semibold mt-0.5">Spieler</span>
+          <span className="text-[9px] text-white/40 uppercase tracking-wider font-semibold mt-0.5">{t('players')}</span>
         </div>
       </div>
     </div>

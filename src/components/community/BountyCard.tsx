@@ -77,7 +77,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
 
   return (
     <>
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden hover:border-white/20 transition-all">
         {/* Header */}
         <div className={`p-4 flex items-center justify-between border-b ${
           isScouting

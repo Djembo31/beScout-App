@@ -69,7 +69,7 @@ export default function DiscoveryCard({
         {onWatch && (
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onWatch(p.id); }}
-            className={cn('p-0.5 rounded transition-colors shrink-0', isWatchlisted ? 'text-[#FFD700]' : 'text-white/20 hover:text-white/40')}
+            className={cn('p-2 -m-1.5 rounded transition-all active:scale-[0.90] shrink-0', isWatchlisted ? 'text-[#FFD700]' : 'text-white/20 hover:text-white/40')}
           >
             <Star className="w-3 h-3" fill={isWatchlisted ? 'currentColor' : 'none'} />
           </button>
