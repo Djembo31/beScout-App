@@ -130,6 +130,14 @@ export default function PlayerHero({
               imageUrl={player.imageUrl}
               l5={player.perf.l5}
               edition={edition}
+              backStats={{
+                goals: player.stats.goals,
+                assists: player.stats.assists,
+                matches: player.stats.matches,
+                l15: player.perf.l15,
+                trend: player.perf.trend,
+                floorPrice: player.prices.floor,
+              }}
             />
           </div>
 

@@ -197,6 +197,22 @@ body {
   animation: card-shimmer 3s ease-in-out infinite;
 }
 
+/* Foil/holo shimmer follows cursor on tilt-enabled cards */
+@media (hover: hover) {
+  [data-tilt].foil-shimmer::after,
+  [data-tilt].holo-rainbow::after {
+    animation: none;
+    background-position: calc(var(--tilt-x, 0.5) * 400% - 100%) calc(var(--tilt-y, 0.5) * 400% - 100%);
+    transition: background-position 150ms ease-out;
+  }
+}
+
+/* Slow drift for position background patterns */
+@keyframes pattern-drift {
+  0% { background-position: 0 0; }
+  100% { background-position: 60px 60px; }
+}
+
 /* Card hover lift — Sorare scale + shadow escalation */
 .card-lift {
   transition: transform 200ms ease, box-shadow 200ms ease;
