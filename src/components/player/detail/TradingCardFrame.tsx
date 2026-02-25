@@ -4,6 +4,7 @@ import React from 'react';
 import { getClub } from '@/lib/clubs';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { ScoreCircle } from '@/components/player';
+import { useTilt } from '@/lib/hooks/useTilt';
 import type { Pos } from '@/types';
 
 // Position glow ring colors (for the photo circle border)
@@ -37,6 +38,7 @@ interface TradingCardFrameProps {
 export default function TradingCardFrame({
   first, last, pos, club, shirtNumber, imageUrl, l5, edition, className = '',
 }: TradingCardFrameProps) {
+  const { ref, tiltProps } = useTilt<HTMLDivElement>({ maxTilt: 15, scale: 1.03 });
   const tint = posTintColors[pos];
   const clubData = club ? getClub(club) : null;
   const glowColor = posGlowColors[pos];
@@ -61,8 +63,10 @@ export default function TradingCardFrame({
 
       {/* The Card */}
       <div
-        className={`relative aspect-[3/4] w-[180px] md:w-[220px] rounded-2xl overflow-hidden border-[2px] card-3d-tilt ${effectClass}`}
-        style={{ borderColor: `${tint}55` }}
+        ref={ref}
+        {...tiltProps}
+        className={`relative aspect-[3/4] w-[180px] md:w-[220px] rounded-2xl overflow-hidden border-[2px] ${effectClass}`}
+        style={{ ...tiltProps.style, borderColor: `${tint}55` }}
       >
         {/* Background: dark base + diagonal stripes texture */}
         <div className="absolute inset-0 bg-[#0c0c0c]" />

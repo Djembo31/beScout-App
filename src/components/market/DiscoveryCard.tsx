@@ -6,6 +6,7 @@ import { Star, Loader2 } from 'lucide-react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { PlayerIdentity, PlayerKPIs, PlayerBadgeStrip, getL5Color } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
+import { useTilt } from '@/lib/hooks/useTilt';
 import { fmtScout, cn } from '@/lib/utils';
 import { getRelativeTime } from '@/lib/activityHelpers';
 import type { Player } from '@/types';
@@ -44,6 +45,7 @@ export default function DiscoveryCard({
   valueRatio, listingPrice, listedAt, listingCount,
   isWatchlisted, onWatch, onBuy, buying,
 }: DiscoveryCardProps) {
+  const { ref, tiltProps } = useTilt<HTMLAnchorElement>({ maxTilt: 8, scale: 1.02 });
   const vs = VARIANT_STYLES[variant];
   const posBorderColor = posTintColors[p.pos];
 
@@ -53,15 +55,18 @@ export default function DiscoveryCard({
 
   return (
     <Link
+      ref={ref}
+      {...tiltProps}
       href={`/player/${p.id}`}
       className={cn(
-        'flex-shrink-0 w-[calc((100vw-48px)/2.5)] md:w-[140px] max-w-[160px] bg-surface-base border border-white/[0.10] rounded-xl p-2.5 card-lift group relative overflow-hidden',
+        'flex-shrink-0 w-[calc((100vw-48px)/2.5)] md:w-[140px] max-w-[160px] bg-surface-base border border-white/[0.10] rounded-xl p-2.5 group relative overflow-hidden',
         variant === 'ipo' && 'shadow-glow-live',
         variant === 'trending' && 'shadow-[0_0_16px_rgba(255,59,105,0.15)]',
         (variant === 'ipo' || variant === 'trending') && p.perf.l5 >= 65 && 'foil-shimmer',
         p.perf.l5 >= 80 && 'holo-rainbow',
       )}
       style={{
+        ...tiltProps.style,
         borderLeftColor: posBorderColor,
         borderLeftWidth: 2,
         backgroundImage: `linear-gradient(to bottom right, ${posBorderColor}20, transparent 60%)`,
