@@ -91,12 +91,18 @@ const toneClasses = {
   neutral: 'border-white/10 bg-white/5 text-white/70',
 };
 
+const SCORE_TOOLTIPS: Record<string, string> = {
+  L5: 'Letzte 5 Spiele Performance (0–100)',
+  L15: 'Letzte 15 Spiele Performance (0–100)',
+};
+
 export function ScoreCircle({ label, value, size = 48 }: { label: string; value: number; size?: number }) {
   const tone = value >= L5_THRESHOLDS.good ? 'good' : value >= L5_THRESHOLDS.mid ? 'mid' : value > 0 ? 'bad' : 'neutral';
   return (
     <div
       className={`rounded-full border flex flex-col items-center justify-center ${toneClasses[tone]}`}
       style={{ width: size, height: size }}
+      title={SCORE_TOOLTIPS[label] ?? label}
     >
       <div className="text-[10px] font-black opacity-70 leading-none">{label}</div>
       <div className="text-base font-black leading-none mt-1">{Math.round(value)}</div>
@@ -212,7 +218,7 @@ export function IPOBadge({ status, progress }: { status: string; progress?: numb
       className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-xl border text-[11px] font-black ${isLive ? 'bg-[#22C55E]/15 border-[#22C55E]/25 text-[#22C55E]' : 'bg-[#FFD700]/15 border-[#FFD700]/25 text-[#FFD700]'
         }`}
     >
-      {isLive ? 'LIVE IPO' : 'SOON'}
+      {isLive ? 'ERSTVERKAUF' : 'BALD'}
       {isLive && progress !== undefined && <span className="font-mono">{progress}%</span>}
     </span>
   );
@@ -348,7 +354,7 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
   if (player.ipo.status === 'open' || player.ipo.status === 'early_access') {
     badges.push(
       <span key="ipo" className={`inline-flex items-center gap-0.5 ${chipCls} bg-[#22C55E]/10 border-[#22C55E]/20 text-[#22C55E]`}>
-        <ShoppingCart className="w-2.5 h-2.5" />IPO {player.ipo.progress ?? 0}%
+        <ShoppingCart className="w-2.5 h-2.5" />Neu {player.ipo.progress ?? 0}%
       </span>
     );
   }

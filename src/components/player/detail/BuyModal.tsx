@@ -178,7 +178,7 @@ export default function BuyModal({
                   <div className="flex items-center justify-between px-4 py-2.5 bg-[#22C55E]/[0.06]">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-                      <span className="font-black text-sm text-[#22C55E]">IPO</span>
+                      <span className="font-black text-sm text-[#22C55E]">Erstverkauf</span>
                       <span className="text-[10px] text-white/30">Festpreis vom Verein</span>
                     </div>
                     <div className="flex items-center gap-1 text-[10px] text-white/30">
@@ -213,7 +213,7 @@ export default function BuyModal({
                     ) : (
                       <div className="text-center py-2 text-xs text-white/30">
                         <Lock className="w-4 h-4 mx-auto mb-1 text-white/15" />
-                        IPO-Limit erreicht
+                        Limit erreicht
                       </div>
                     )}
                   </div>
@@ -253,7 +253,7 @@ export default function BuyModal({
                 <div className="py-6 text-center">
                   <ShoppingCart className="w-8 h-8 mx-auto mb-2 text-white/10" />
                   <div className="text-sm text-white/40 mb-1">Nicht verfügbar</div>
-                  <div className="text-xs text-white/25 mb-3">Kein IPO aktiv und keine Markt-Angebote</div>
+                  <div className="text-xs text-white/25 mb-3">Kein Erstverkauf aktiv und keine Markt-Angebote</div>
                   <button
                     onClick={onOpenOfferModal}
                     className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-xl bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20 hover:bg-[#FFD700]/20 transition-colors text-xs font-bold"

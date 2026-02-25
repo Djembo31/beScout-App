@@ -49,19 +49,11 @@ export const TOUR_STEPS: TourStep[] = [
   {
     targetSelector: '[data-tour-id="home-stats"]',
     title: 'Dein Dashboard',
-    description: 'Kader-Wert, P&L, Guthaben und Scout Score — deine wichtigsten Kennzahlen.',
+    description: 'Kader-Wert, Wertentwicklung und Spieler-Anzahl — deine wichtigsten Kennzahlen.',
     position: 'bottom',
   },
 
-  // 5. Three Perspectives
-  {
-    targetSelector: '[data-tour-id="home-tabs"]',
-    title: 'Drei Perspektiven',
-    description: '"Mein Stand" zeigt dein Portfolio, "Aktuell" den Markt und "Entdecken" neue Chancen.',
-    position: 'bottom',
-  },
-
-  // 6. Manager Office / Market — different target per device
+  // 5. Manager Office / Market — different target per device
   {
     targetSelector: '[data-tour-id="nav-market"]',
     title: 'Manager Office',

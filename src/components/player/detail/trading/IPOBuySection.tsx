@@ -46,7 +46,7 @@ export default function IPOBuySection({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-            <span className="font-black text-[#22C55E]">IPO LIVE</span>
+            <span className="font-black text-[#22C55E]">ERSTVERKAUF</span>
             <span className="text-[10px] text-white/40 ml-1">Festpreis</span>
           </div>
           <div className="flex items-center gap-1 text-xs text-white/50">
@@ -73,7 +73,7 @@ export default function IPOBuySection({
         {/* Price */}
         <div className="bg-black/20 rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-white/50 text-sm">IPO Preis</span>
+            <span className="text-white/50 text-sm">Club-Preis</span>
             <span className="font-mono font-black text-2xl text-[#FFD700]">{fmtScout(priceBsd)} $SCOUT</span>
           </div>
         </div>
@@ -141,7 +141,7 @@ export default function IPOBuySection({
           <div className="bg-white/[0.03] rounded-xl p-4 text-center">
             <Lock className="w-8 h-8 mx-auto mb-2 text-white/30" />
             <div className="text-white/50">Limit erreicht</div>
-            <div className="text-xs text-white/30">Du hast das Maximum für diesen IPO erreicht</div>
+            <div className="text-xs text-white/30">Du hast das Maximum für diesen Erstverkauf erreicht</div>
           </div>
         )}
       </div>

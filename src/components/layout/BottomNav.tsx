@@ -10,7 +10,7 @@ const BOTTOM_TABS = [
   { label: 'Spieltag', href: '/fantasy', icon: Trophy, tourId: 'bottomnav-fantasy' },
   { label: 'Markt', href: '/market', icon: Briefcase, tourId: 'bottomnav-market' },
   { label: 'Club', href: '/club', icon: Building2, tourId: undefined as string | undefined },
-  { label: 'Scouting', href: '/community', icon: Compass, tourId: undefined as string | undefined },
+  { label: 'Community', href: '/community', icon: Compass, tourId: undefined as string | undefined },
 ];
 
 export function BottomNav() {

@@ -223,7 +223,7 @@ export default function MarktTab({
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-white/40 w-20">{tradeTime}</span>
                         {isIpoBuy ? (
-                          <span className="px-1.5 py-0.5 rounded bg-[#22C55E]/20 text-[#22C55E] font-bold text-[10px]">IPO</span>
+                          <span className="px-1.5 py-0.5 rounded bg-[#22C55E]/20 text-[#22C55E] font-bold text-[10px]">Club</span>
                         ) : (
                           <span className="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 font-bold text-[10px]">Markt</span>
                         )}
@@ -244,7 +244,7 @@ export default function MarktTab({
                       <span className="text-white/30">kauft von</span>
                       <ArrowRight className="w-3 h-3 text-white/30" />
                       {isIpoBuy
-                        ? <span className="text-[#22C55E]">Club (IPO)</span>
+                        ? <span className="text-[#22C55E]">Club</span>
                         : isSeller
                           ? <span className="text-red-300 font-bold">Du</span>
                           : sellerHandle
@@ -271,7 +271,7 @@ export default function MarktTab({
         <div className="p-4">
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3">
-              <div className="text-xs text-purple-300">Club IPO-Preis</div>
+              <div className="text-xs text-purple-300">Club-Preis</div>
               <div className="font-mono font-bold text-purple-200">{fmtScout(player.prices.ipoPrice ?? 0)} $SCOUT</div>
               <div className="text-[10px] text-white/30 mt-0.5">Fest, vom Club gesetzt</div>
             </div>

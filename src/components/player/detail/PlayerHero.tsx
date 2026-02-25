@@ -158,7 +158,7 @@ export default function PlayerHero({
               {isIPO && (
                 <div className="flex items-center gap-1 px-2 py-1 bg-[#22C55E]/20 border border-[#22C55E]/30 rounded-lg">
                   <div className="w-2 h-2 rounded-full bg-[#22C55E] live-ring" />
-                  <span className="text-xs font-bold text-[#22C55E]">IPO LIVE</span>
+                  <span className="text-xs font-bold text-[#22C55E]">ERSTVERKAUF</span>
                 </div>
               )}
               {holderCount > 0 && (

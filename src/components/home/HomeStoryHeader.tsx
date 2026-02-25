@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Flame, Shield, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { fmtScout, cn } from '@/lib/utils';
 import { TierBadge } from '@/components/ui/TierBadge';
+import { InfoTooltip } from '@/components/ui';
 import { getGreetingKey } from './helpers';
 import { useTranslations } from 'next-intl';
 import type { DbUserStats } from '@/types';
@@ -70,13 +71,13 @@ export default function HomeStoryHeader({
       </div>
 
       {/* ━━━ COMPACT STAT STRIP — grid fills portrait width ━━━ */}
-      <div className="mt-3 grid grid-cols-3 gap-2">
+      <div data-tour-id="home-stats" className="mt-3 grid grid-cols-3 gap-2">
         <Link
           href="/market?tab=portfolio"
           className="flex flex-col items-center justify-center py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-all"
         >
           <span className="font-mono font-black text-sm text-white">{fmtScout(portfolioValue)}</span>
-          <span className="text-[9px] text-white/40 uppercase tracking-wider font-semibold mt-0.5">{t('portfolioRoster')}</span>
+          <span className="text-[9px] text-white/40 uppercase tracking-wider font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('portfolioRoster')} <InfoTooltip text={t('portfolioRosterTooltip')} /></span>
         </Link>
 
         <div className={cn(
@@ -91,7 +92,7 @@ export default function HomeStoryHeader({
               {pnlPositive ? '+' : ''}{pnlPct.toFixed(1)}%
             </span>
           </div>
-          <span className="text-[9px] text-white/40 uppercase tracking-wider font-semibold mt-0.5">{t('pnl')}</span>
+          <span className="text-[9px] text-white/40 uppercase tracking-wider font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('pnl')} <InfoTooltip text={t('pnlTooltip')} /></span>
         </div>
 
         <div className="flex flex-col items-center justify-center py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl">

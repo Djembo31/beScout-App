@@ -27,7 +27,7 @@ function LoginContent() {
   const t = useTranslations('auth');
   const td = useTranslations('demo');
   const callbackError = searchParams.get('error');
-  const showDemo = searchParams.get('demo') === 'true';
+
 
   // Redirect authenticated users away from login — smart redirect by role
   useEffect(() => {
@@ -442,7 +442,8 @@ function LoginContent() {
       </Card>
 
       {/* Demo Login Shortcuts */}
-      {showDemo && (
+      {/* Demo always visible during Beta */}
+      {(
         <div className="mt-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="flex-1 h-px bg-white/10" />

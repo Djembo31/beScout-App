@@ -269,7 +269,7 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
                   <span className="font-mono text-sm">{fmtScout(pbt.sources.content)}</span>
                 </div>
                 <div className="bg-surface-base rounded-lg p-2 flex items-center justify-between">
-                  <span className="text-xs text-white/50">IPO Seed</span>
+                  <span className="text-xs text-white/50">Erstverkauf</span>
                   <span className="font-mono text-sm">{fmtScout(pbt.sources.ipo)}</span>
                 </div>
               </div>
