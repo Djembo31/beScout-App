@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Star, Loader2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { PlayerIdentity, PlayerKPIs, PlayerBadgeStrip, getL5Color } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { fmtScout, cn } from '@/lib/utils';
@@ -86,6 +87,23 @@ export default function DiscoveryCard({
       <div className="flex items-center justify-between">
         <span className={cn('font-mono font-bold text-[11px]', getL5Color(p.perf.l5))} style={{ textShadow: p.perf.l5 >= 65 ? '0 0 8px currentColor' : undefined }}>{p.perf.l5}</span>
         {price > 0 && <span className="font-mono font-black text-[11px] gold-glow">{fmtScout(price)}</span>}
+      </div>
+
+      {/* Stat micro-row: Goals · Assists · Matches  Trend  Age */}
+      <div className="flex items-center justify-between mt-0.5 text-[9px] font-mono leading-none">
+        <div className="flex items-center gap-0.5">
+          <span className="text-[#00E676]">{p.stats.goals}T</span>
+          <span className="text-white/15">·</span>
+          <span className="text-sky-300">{p.stats.assists}A</span>
+          <span className="text-white/15">·</span>
+          <span className="text-white/40">{p.stats.matches}Sp</span>
+        </div>
+        <div className="flex items-center gap-0.5">
+          {p.perf.trend === 'UP' && <TrendingUp className="w-2.5 h-2.5 text-[#00E676]" />}
+          {p.perf.trend === 'DOWN' && <TrendingDown className="w-2.5 h-2.5 text-[#FF3B69]" />}
+          {p.perf.trend === 'FLAT' && <Minus className="w-2.5 h-2.5 text-white/30" />}
+          <span className="text-white/40">{p.age}J.</span>
+        </div>
       </div>
 
       {/* Variant-specific indicator */}

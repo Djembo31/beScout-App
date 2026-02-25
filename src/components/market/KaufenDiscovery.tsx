@@ -7,7 +7,7 @@ import {
   Search, Filter, Grid, List,
   Zap, Flame, Gem, Star, Clock, Users, Tag,
   ChevronDown, ChevronRight, ArrowUpDown, X,
-  Package, Trophy, Layers,
+  Package, Trophy, Layers, Heart,
 } from 'lucide-react';
 import { Card, SearchInput, PosFilter, EmptyState } from '@/components/ui';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
@@ -63,6 +63,36 @@ interface KaufenDiscoveryProps {
 
 const POS_ORDER: Record<Pos, number> = { GK: 0, DEF: 1, MID: 2, ATT: 3 };
 const POS_LABELS: Record<Pos, string> = { GK: 'TW', DEF: 'DEF', MID: 'MID', ATT: 'STU' };
+
+function applySortOption(a: Player, b: Player, sort: SortOption, getFloor: (p: Player) => number): number {
+  switch (sort) {
+    case 'floor_asc': return getFloor(a) - getFloor(b);
+    case 'floor_desc': return getFloor(b) - getFloor(a);
+    case 'l5': return b.perf.l5 - a.perf.l5;
+    case 'l15': return b.perf.l15 - a.perf.l15;
+    case 'change': return b.prices.change24h - a.prices.change24h;
+    case 'name': return `${a.last}`.localeCompare(`${b.last}`);
+    case 'goals': return b.stats.goals - a.stats.goals;
+    case 'assists': return b.stats.assists - a.stats.assists;
+    case 'matches': return b.stats.matches - a.stats.matches;
+    case 'age_asc': return a.age - b.age;
+    case 'age_desc': return b.age - a.age;
+    default: return 0;
+  }
+}
+
+function applyDiscoveryFilters(
+  pool: Player[],
+  minL5: number,
+  onlyFit: boolean,
+  pos: Pos | null,
+): Player[] {
+  let result = pool;
+  if (minL5 > 0) result = result.filter(p => p.perf.l5 >= minL5);
+  if (onlyFit) result = result.filter(p => p.status === 'fit');
+  if (pos) result = result.filter(p => p.pos === pos);
+  return result;
+}
 
 function DiscoverySection({ icon, title, accent, onShowAll, showAllLabel, children }: {
   icon: React.ReactNode;
@@ -121,6 +151,9 @@ export default function KaufenDiscovery({
     view, setView,
     discoveryPos, setDiscoveryPos,
     expandedDiscoveryClubs, toggleDiscoveryClub,
+    discoverySortBy, setDiscoverySortBy,
+    discoveryMinL5, setDiscoveryMinL5,
+    discoveryOnlyFit, setDiscoveryOnlyFit,
     resetFilters,
   } = useMarketStore();
 
@@ -157,11 +190,14 @@ export default function KaufenDiscovery({
 
   // Section 1: Live IPOs
   const liveIpos = useMemo(() => {
-    return ipoItems
-      .filter(({ ipo }) => ipo.status === 'live' || ipo.status === 'early_access')
-      .sort((a, b) => b.player.perf.l5 - a.player.perf.l5)
+    const live = ipoItems.filter(({ ipo }) => ipo.status === 'live' || ipo.status === 'early_access');
+    const filtered = applyDiscoveryFilters(live.map(i => i.player), discoveryMinL5, discoveryOnlyFit, discoveryPos);
+    const filteredSet = new Set(filtered.map(p => p.id));
+    return live
+      .filter(i => filteredSet.has(i.player.id))
+      .sort((a, b) => applySortOption(a.player, b.player, discoverySortBy, getFloor))
       .slice(0, 12);
-  }, [ipoItems]);
+  }, [ipoItems, discoveryMinL5, discoveryOnlyFit, discoveryPos, discoverySortBy, getFloor]);
 
   // Section 2b: Transferliste (players with active sell listings)
   const transferList = useMemo(() => {
@@ -180,21 +216,26 @@ export default function KaufenDiscovery({
       }
     }
     const playerMap = new Map(players.map(p => [p.id, p]));
-    return Array.from(ordersByPlayer.entries())
+    const raw = Array.from(ordersByPlayer.entries())
       .map(([playerId, info]) => ({ player: playerMap.get(playerId), ...info }))
-      .filter((x): x is { player: Player; count: number; totalQty: number; floor: number } => x.player !== undefined && !x.player.isLiquidated)
-      .sort((a, b) => b.totalQty - a.totalQty)
+      .filter((x): x is { player: Player; count: number; totalQty: number; floor: number } => x.player !== undefined && !x.player.isLiquidated);
+    const filteredPlayers = applyDiscoveryFilters(raw.map(r => r.player), discoveryMinL5, discoveryOnlyFit, discoveryPos);
+    const filteredSet = new Set(filteredPlayers.map(p => p.id));
+    return raw
+      .filter(r => filteredSet.has(r.player.id))
+      .sort((a, b) => applySortOption(a.player, b.player, discoverySortBy, getFloor))
       .slice(0, 12);
-  }, [recentOrders, players]);
+  }, [recentOrders, players, discoveryMinL5, discoveryOnlyFit, discoveryPos, discoverySortBy, getFloor]);
 
   // Section 3: Best Deals (high L5, low price)
   const bestDeals = useMemo(() => {
-    return players
-      .filter(p => p.perf.l5 > 40 && !p.isLiquidated && getFloor(p) > 0)
+    const base = players.filter(p => p.perf.l5 > 40 && !p.isLiquidated && getFloor(p) > 0);
+    const filtered = applyDiscoveryFilters(base, discoveryMinL5, discoveryOnlyFit, discoveryPos);
+    return filtered
       .map(p => ({ player: p, floor: getFloor(p), ratio: p.perf.l5 / Math.max(getFloor(p), 0.01) }))
-      .sort((a, b) => b.ratio - a.ratio)
+      .sort((a, b) => applySortOption(a.player, b.player, discoverySortBy, getFloor))
       .slice(0, 8);
-  }, [players, getFloor]);
+  }, [players, getFloor, discoveryMinL5, discoveryOnlyFit, discoveryPos, discoverySortBy]);
 
   // Section 4: Your Clubs (grouped by followed clubs)
   const clubGroups = useMemo(() => {
@@ -234,20 +275,23 @@ export default function KaufenDiscovery({
     } else {
       pool = players.filter(p => !p.isLiquidated && p.dpc.onMarket > 0);
     }
-    if (discoveryPos) pool = pool.filter(p => p.pos === discoveryPos);
-    return pool.sort((a, b) => b.perf.l5 - a.perf.l5).slice(0, 12);
-  }, [players, ipoPlayerIdSet, discoveryPos, posMode]);
+    pool = applyDiscoveryFilters(pool, discoveryMinL5, discoveryOnlyFit, discoveryPos);
+    return pool.sort((a, b) => applySortOption(a, b, discoverySortBy, getFloor)).slice(0, 12);
+  }, [players, ipoPlayerIdSet, discoveryPos, posMode, discoveryMinL5, discoveryOnlyFit, discoverySortBy, getFloor]);
 
   // Section 6: Newly Listed
   const newlyListed = useMemo(() => {
     const playerMap = new Map(players.map(p => [p.id, p]));
-    return recentOrders
+    const raw = recentOrders
       .filter(o => o.side === 'sell' && (o.status === 'open' || o.status === 'partial'))
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      .slice(0, 10)
+      .slice(0, 20)
       .map(o => ({ order: o, player: playerMap.get(o.player_id) }))
       .filter((x): x is { order: DbOrder; player: Player } => x.player !== undefined);
-  }, [recentOrders, players]);
+    const filteredPlayers = applyDiscoveryFilters(raw.map(r => r.player), discoveryMinL5, discoveryOnlyFit, discoveryPos);
+    const filteredSet = new Set(filteredPlayers.map(p => p.id));
+    return raw.filter(r => filteredSet.has(r.player.id)).slice(0, 10);
+  }, [recentOrders, players, discoveryMinL5, discoveryOnlyFit, discoveryPos]);
 
   // ============================================
   // SEARCH MODE DATA
@@ -291,16 +335,7 @@ export default function KaufenDiscovery({
     if (onlyOwned) result = result.filter(p => p.dpc.owned > 0);
     if (onlyWatched) result = result.filter(p => watchlist[p.id]);
 
-    return [...result].sort((a, b) => {
-      switch (sortBy) {
-        case 'floor_asc': return getFloor(a) - getFloor(b);
-        case 'floor_desc': return getFloor(b) - getFloor(a);
-        case 'l5': return b.perf.l5 - a.perf.l5;
-        case 'change': return b.prices.change24h - a.prices.change24h;
-        case 'name': return `${a.last}`.localeCompare(`${b.last}`);
-        default: return 0;
-      }
-    });
+    return [...result].sort((a, b) => applySortOption(a, b, sortBy, getFloor));
   }, [isSearchMode, players, ipoItems, query, leagueFilter, posFilter, clubFilter, priceMin, priceMax, onlyAvailable, onlyOwned, onlyWatched, watchlist, sortBy, getFloor]);
 
   const hasActiveFilters = leagueFilter !== '' || query !== '' || posFilter.size > 0 || clubFilter.size > 0
@@ -341,6 +376,64 @@ export default function KaufenDiscovery({
       {/* ━━━ DISCOVERY MODE ━━━ */}
       {!isSearchMode && (
         <div className="space-y-5">
+
+          {/* Discovery Filter-Strip */}
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+            {/* Sort select */}
+            <select
+              value={discoverySortBy}
+              onChange={(e) => setDiscoverySortBy(e.target.value as SortOption)}
+              className="px-2.5 py-1.5 bg-white/[0.06] border border-white/[0.08] rounded-lg text-[10px] font-bold text-white/60 appearance-none cursor-pointer pr-6 shrink-0"
+              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center' }}
+            >
+              <option value="l5">{t('sortL5')}</option>
+              <option value="l15">{t('sortL15')}</option>
+              <option value="floor_asc">{t('sortFloorAsc')}</option>
+              <option value="floor_desc">{t('sortFloorDesc')}</option>
+              <option value="goals">{t('sortGoals')}</option>
+              <option value="assists">{t('sortAssists')}</option>
+              <option value="matches">{t('sortMatches')}</option>
+              <option value="age_asc">{t('sortAgeAsc')}</option>
+              <option value="age_desc">{t('sortAgeDesc')}</option>
+              <option value="change">{t('sortChange24h')}</option>
+              <option value="name">{t('sortName')}</option>
+            </select>
+            {/* L5 presets */}
+            {[40, 60, 75].map(threshold => (
+              <button
+                key={threshold}
+                onClick={() => setDiscoveryMinL5(discoveryMinL5 === threshold ? 0 : threshold)}
+                className={cn('px-2.5 py-1.5 rounded-lg text-[10px] font-bold border transition-all shrink-0 whitespace-nowrap',
+                  discoveryMinL5 === threshold
+                    ? 'bg-[#FFD700]/10 border-[#FFD700]/20 text-[#FFD700]'
+                    : 'bg-white/[0.03] border-white/[0.06] text-white/40'
+                )}
+              >L5 {threshold}+</button>
+            ))}
+            {/* Only Fit */}
+            <button
+              onClick={() => setDiscoveryOnlyFit(!discoveryOnlyFit)}
+              className={cn('px-2.5 py-1.5 rounded-lg text-[10px] font-bold border transition-all shrink-0 flex items-center gap-1',
+                discoveryOnlyFit
+                  ? 'bg-[#22C55E]/15 border-[#22C55E]/30 text-[#22C55E]'
+                  : 'bg-white/[0.03] border-white/[0.06] text-white/40'
+              )}
+            >
+              <Heart className="w-3 h-3" />{t('discoveryOnlyFit')}
+            </button>
+            {/* Position pills */}
+            {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map(pos => (
+              <button
+                key={pos}
+                onClick={() => setDiscoveryPos(discoveryPos === pos ? null : pos)}
+                className={cn('px-2.5 py-1.5 rounded-lg text-[10px] font-bold border transition-all shrink-0',
+                  discoveryPos === pos
+                    ? 'bg-[#FFD700]/10 border-[#FFD700]/20 text-[#FFD700]'
+                    : 'bg-white/[0.03] border-white/[0.06] text-white/40'
+                )}
+              >{POS_LABELS[pos]}</button>
+            ))}
+          </div>
 
           {/* Section 1: Live IPOs */}
           {liveIpos.length > 0 && (
@@ -556,24 +649,6 @@ export default function KaufenDiscovery({
                 >{t('posModeListing')}</button>
               </div>
             </div>
-            {/* Position Pills */}
-            <div className="flex gap-1.5 mb-3">
-              <button
-                onClick={() => setDiscoveryPos(null)}
-                className={cn('px-3 py-1.5 rounded-lg text-xs font-bold border transition-all',
-                  discoveryPos === null ? 'bg-[#FFD700]/10 border-[#FFD700]/20 text-[#FFD700]' : 'bg-white/[0.03] border-white/[0.06] text-white/40'
-                )}
-              >{t('allPositions')}</button>
-              {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map(pos => (
-                <button
-                  key={pos}
-                  onClick={() => setDiscoveryPos(discoveryPos === pos ? null : pos)}
-                  className={cn('px-3 py-1.5 rounded-lg text-xs font-bold border transition-all',
-                    discoveryPos === pos ? 'bg-[#FFD700]/10 border-[#FFD700]/20 text-[#FFD700]' : 'bg-white/[0.03] border-white/[0.06] text-white/40'
-                  )}
-                >{POS_LABELS[pos]}</button>
-              ))}
-            </div>
             {/* Player list */}
             {byPosition.length > 0 ? (
               <div className="space-y-0.5">
@@ -625,6 +700,15 @@ export default function KaufenDiscovery({
                 />
               ))}
             </DiscoverySection>
+          )}
+
+          {/* Empty state when discovery filters hide everything */}
+          {(discoveryMinL5 > 0 || discoveryOnlyFit || discoveryPos !== null) &&
+            liveIpos.length === 0 && transferList.length === 0 && bestDeals.length === 0 && byPosition.length === 0 && newlyListed.length === 0 && (
+            <div className="text-center py-8">
+              <Search className="w-8 h-8 mx-auto mb-2 text-white/15" />
+              <p className="text-sm text-white/40">{t('noPlayersForFilter')}</p>
+            </div>
           )}
         </div>
       )}
@@ -708,6 +792,12 @@ export default function KaufenDiscovery({
                     <option value="floor_asc">{t('sortFloorAsc')}</option>
                     <option value="floor_desc">{t('sortFloorDesc')}</option>
                     <option value="l5">{t('sortL5')}</option>
+                    <option value="l15">{t('sortL15')}</option>
+                    <option value="goals">{t('sortGoals')}</option>
+                    <option value="assists">{t('sortAssists')}</option>
+                    <option value="matches">{t('sortMatches')}</option>
+                    <option value="age_asc">{t('sortAgeAsc')}</option>
+                    <option value="age_desc">{t('sortAgeDesc')}</option>
                     <option value="change">{t('sortChange24h')}</option>
                     <option value="name">{t('sortName')}</option>
                   </select>
@@ -815,6 +905,12 @@ export default function KaufenDiscovery({
                         { value: 'floor_asc' as SortOption, label: t('sortFloorAsc') },
                         { value: 'floor_desc' as SortOption, label: t('sortFloorDesc') },
                         { value: 'l5' as SortOption, label: t('sortL5') },
+                        { value: 'l15' as SortOption, label: t('sortL15') },
+                        { value: 'goals' as SortOption, label: t('sortGoals') },
+                        { value: 'assists' as SortOption, label: t('sortAssists') },
+                        { value: 'matches' as SortOption, label: t('sortMatches') },
+                        { value: 'age_asc' as SortOption, label: t('sortAgeAsc') },
+                        { value: 'age_desc' as SortOption, label: t('sortAgeDesc') },
                         { value: 'change' as SortOption, label: t('sortChange24h') },
                         { value: 'name' as SortOption, label: t('sortName') },
                       ]).map(opt => (

@@ -2,7 +2,8 @@ import { create } from 'zustand';
 import type { Pos } from '@/types';
 import type { BestandLens } from '@/components/manager/bestand/bestandHelpers';
 
-export type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'change' | 'name';
+export type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'l15' | 'change' | 'name'
+  | 'goals' | 'assists' | 'matches' | 'age_asc' | 'age_desc';
 export type MarketTab = 'portfolio' | 'kaufen' | 'angebote';
 export type KaufenMode = 'discovery' | 'search';
 
@@ -34,6 +35,9 @@ interface MarketState {
   bestandLens: BestandLens;
   bestandGroupByClub: boolean;
   bestandSellPlayerId: string | null;
+  discoverySortBy: SortOption;
+  discoveryMinL5: number;
+  discoveryOnlyFit: boolean;
 
   setTab: (t: MarketTab) => void;
   setPortfolioView: (v: 'kader' | 'portfolio') => void;
@@ -63,6 +67,9 @@ interface MarketState {
   setBestandLens: (lens: BestandLens) => void;
   setBestandGroupByClub: (v: boolean) => void;
   setBestandSellPlayerId: (id: string | null) => void;
+  setDiscoverySortBy: (s: SortOption) => void;
+  setDiscoveryMinL5: (v: number) => void;
+  setDiscoveryOnlyFit: (v: boolean) => void;
   resetFilters: () => void;
 }
 
@@ -94,6 +101,9 @@ export const useMarketStore = create<MarketState>()((set) => ({
   bestandLens: 'performance',
   bestandGroupByClub: false,
   bestandSellPlayerId: null,
+  discoverySortBy: 'l5',
+  discoveryMinL5: 0,
+  discoveryOnlyFit: false,
 
   setTab: (t) => set({ tab: t }),
   setPortfolioView: (v) => set({ portfolioView: v }),
@@ -146,6 +156,9 @@ export const useMarketStore = create<MarketState>()((set) => ({
   setBestandLens: (lens) => set({ bestandLens: lens }),
   setBestandGroupByClub: (v) => set({ bestandGroupByClub: v }),
   setBestandSellPlayerId: (id) => set({ bestandSellPlayerId: id }),
+  setDiscoverySortBy: (s) => set({ discoverySortBy: s }),
+  setDiscoveryMinL5: (v) => set({ discoveryMinL5: v }),
+  setDiscoveryOnlyFit: (v) => set({ discoveryOnlyFit: v }),
   resetFilters: () => set({
     posFilter: new Set<Pos>(),
     clubFilter: new Set<string>(),
@@ -158,5 +171,9 @@ export const useMarketStore = create<MarketState>()((set) => ({
     sortBy: 'floor_asc' as SortOption,
     query: '',
     kaufenMode: 'discovery' as KaufenMode,
+    discoverySortBy: 'l5' as SortOption,
+    discoveryMinL5: 0,
+    discoveryOnlyFit: false,
+    discoveryPos: null,
   }),
 }));
