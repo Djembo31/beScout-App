@@ -151,7 +151,7 @@ export default function TradingCardFrame({
             />
 
             {/* Top bar: Club logo + Position pill */}
-            <div className="relative z-10 flex items-center justify-between px-3 pt-3">
+            <div className="relative z-10 flex items-center justify-between px-3 pt-2">
               {clubData?.logo ? (
                 <div
                   className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-black/60 border border-white/10 flex items-center justify-center backdrop-blur-sm"
@@ -170,9 +170,9 @@ export default function TradingCardFrame({
             </div>
 
             {/* Photo circle with position glow ring */}
-            <div className="relative z-10 flex justify-center mt-2 md:mt-3">
+            <div className="relative z-10 flex justify-center mt-1 md:mt-2">
               <div
-                className="w-[88px] h-[88px] md:w-[100px] md:h-[100px] rounded-full border-[3px] overflow-hidden"
+                className="w-[80px] h-[80px] md:w-[100px] md:h-[100px] rounded-full border-[3px] overflow-hidden"
                 style={{ borderColor: `${tint}99`, boxShadow: ringGlow }}
               >
                 {imageUrl ? (
@@ -193,13 +193,13 @@ export default function TradingCardFrame({
             </div>
 
             {/* Gold separator line */}
-            <div className="relative z-10 mx-4 mt-3 md:mt-4">
+            <div className="relative z-10 mx-4 mt-2 md:mt-3">
               <div className="h-px bg-gradient-to-r from-transparent via-[#FFD700]/40 to-transparent" />
             </div>
 
             {/* Glassmorphism Name Bar */}
             <div
-              className="relative z-10 mt-2 md:mt-3 backdrop-blur-md border-y px-3 py-2"
+              className="relative z-10 mt-1 md:mt-2 backdrop-blur-md border-y px-3 py-1.5"
               style={{
                 backgroundColor: 'rgba(255,255,255,0.06)',
                 borderColor: 'rgba(255,255,255,0.08)',
@@ -214,7 +214,7 @@ export default function TradingCardFrame({
             </div>
 
             {/* Mini stat circles + edition */}
-            <div className="relative z-10 flex items-center justify-center gap-2 mt-2 md:mt-3 px-3 pb-1">
+            <div className="relative z-10 flex items-center justify-center gap-2 mt-1.5 md:mt-2 px-3 pb-0.5">
               {l5 > 0 && <ScoreCircle label="L5" value={l5} size={34} />}
               {edition && (
                 <span
