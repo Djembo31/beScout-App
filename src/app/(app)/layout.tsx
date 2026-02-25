@@ -40,6 +40,8 @@ export default function AppLayout({
 
       {/* Background Effects — Stadium Atmosphere */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        {/* Stadium photo — blurred base layer */}
+        <img src="/stadiums/default.jpg" alt="" className="absolute inset-0 w-full h-full object-cover blur-[50px] scale-110 opacity-[0.15]" />
         {/* Top floodlight — golden wash from above */}
         <div className="absolute top-0 inset-x-0 h-[350px] bg-gradient-to-b from-[#FFD700]/[0.05] via-[#FFD700]/[0.02] to-transparent" />
         {/* Gold ambient blob — top right */}
