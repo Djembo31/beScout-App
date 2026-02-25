@@ -8,10 +8,9 @@ test.describe('Fantasy Page', () => {
   });
 
   test('Fantasy loads with tabs', async ({ page }) => {
-    // At least one tab should be visible (Events, Spieltag, etc.)
-    const tabs = page.getByRole('tab');
-    const tabCount = await tabs.count();
-    expect(tabCount).toBeGreaterThanOrEqual(1);
+    // Fantasy uses custom tab buttons (not role="tab") — wait for content to render
+    await expect(page.getByRole('button', { name: /Paarungen/i })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('button', { name: /Events/i })).toBeVisible({ timeout: 10_000 });
   });
 
   test('Events show cards with status badges', async ({ page }) => {

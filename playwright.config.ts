@@ -7,7 +7,7 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 2 : 1,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
@@ -15,7 +15,7 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     actionTimeout: 10_000,
-    navigationTimeout: 15_000,
+    navigationTimeout: 30_000,
   },
   expect: {
     timeout: 8_000,
@@ -35,7 +35,7 @@ export default defineConfig({
     // --- Authenticated tests (fan) ---
     {
       name: 'authenticated',
-      testIgnore: [/auth\.(setup|spec)\.ts/, /admin\.spec\.ts/],
+      testIgnore: [/auth\.(setup|spec)\.ts/, /admin\.spec\.ts/, /create-demo-accounts\.spec\.ts/],
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],

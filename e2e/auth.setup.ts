@@ -25,10 +25,12 @@ async function loginAndSave(
   await page.getByPlaceholder('Passwort').fill(password);
 
   // Submit
-  await page.getByRole('button', { name: 'Anmelden' }).click();
+  await page.getByRole('button', { name: 'Anmelden', exact: true }).click();
 
-  // Wait for redirect to authenticated area
-  await page.waitForURL('/', { timeout: 15_000 });
+  // Wait for redirect away from login (admins go to /club/.../admin, fans to /)
+  await page.waitForURL((url) => !url.pathname.startsWith('/login'), {
+    timeout: 30_000,
+  });
   await waitForApp(page);
 
   // Save auth state

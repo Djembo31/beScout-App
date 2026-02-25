@@ -17,22 +17,19 @@ test.describe('Club Admin Page', () => {
     await page.goto(`/club/${CLUB_SLUG}/admin`);
     await waitForApp(page);
 
-    const tabs = page.getByRole('tab');
-    const tabCount = await tabs.count();
-    expect(tabCount).toBeGreaterThanOrEqual(4);
+    // Admin uses custom tab buttons (not role="tab")
+    await expect(page.getByText('Übersicht', { exact: true })).toBeVisible();
+    await expect(page.getByText('Spieler', { exact: true })).toBeVisible();
+    await expect(page.getByText('Events', { exact: true })).toBeVisible();
+    await expect(page.getByText('Aufträge', { exact: true })).toBeVisible();
   });
 
   test('Overview tab shows dashboard statistics', async ({ page }) => {
     await page.goto(`/club/${CLUB_SLUG}/admin`);
     await waitForApp(page);
 
-    // Overview should be the first/default tab with stats
-    const main = page.locator('main');
-    await expect(main).not.toBeEmpty();
-
-    // Should contain some numeric stat or card
-    const statCards = page.locator('[class*="stat"], [class*="card"]');
-    const count = await statCards.count();
-    expect(count).toBeGreaterThan(0);
+    // Overview should show club stats like IPO Umsatz, Follower, Trading Vol
+    await expect(page.getByText('IPO Umsatz')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('Follower')).toBeVisible({ timeout: 10_000 });
   });
 });

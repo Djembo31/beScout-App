@@ -14,27 +14,27 @@ test.describe('Scouting Zone (Community)', () => {
   });
 
   test('Content filter pills are visible', async ({ page }) => {
-    // Filter pills like "Alle", "Berichte", "Gerüchte", etc.
-    const alleFilter = page.getByText('Alle', { exact: true });
-    await expect(alleFilter).toBeVisible();
+    // Filter pills: Alle, Beiträge, Gerüchte, Berichte, Aufträge, Abstimmungen, News
+    // "Alle" appears in both feed toggle and filter pills, use the filter pills area
+    await expect(page.getByText('Beiträge', { exact: true })).toBeVisible();
+    await expect(page.getByText('Gerüchte', { exact: true })).toBeVisible();
   });
 
   test('Filter switch changes feed content', async ({ page }) => {
     // Click a specific filter
-    const geruechteFilter = page.getByText('Gerüchte');
-    if (await geruechteFilter.isVisible()) {
-      await geruechteFilter.click();
-      await page.waitForTimeout(1000);
+    const geruechteFilter = page.getByText('Gerüchte', { exact: true });
+    await expect(geruechteFilter).toBeVisible();
+    await geruechteFilter.click();
+    await page.waitForTimeout(1000);
 
-      // Feed should update (content still present)
-      const main = page.locator('main');
-      await expect(main).not.toBeEmpty();
-    }
+    // Feed should update (content still present)
+    const main = page.locator('main');
+    await expect(main).not.toBeEmpty();
   });
 
   test('Create post button opens modal', async ({ page }) => {
-    // Look for post creation trigger
-    const createBtn = page.getByRole('button', { name: /Post|Beitrag|Schreiben/i });
+    // Look for post creation trigger — "Post schreiben" button in hero area
+    const createBtn = page.getByText('Post schreiben').first();
     if (await createBtn.isVisible()) {
       await createBtn.click();
       await page.waitForTimeout(500);
@@ -46,7 +46,7 @@ test.describe('Scouting Zone (Community)', () => {
   });
 
   test('Post modal allows text input and submit', async ({ page }) => {
-    const createBtn = page.getByRole('button', { name: /Post|Beitrag|Schreiben/i });
+    const createBtn = page.getByText('Post schreiben').first();
     if (await createBtn.isVisible()) {
       await createBtn.click();
       await page.waitForTimeout(500);

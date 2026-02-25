@@ -26,12 +26,10 @@ test.describe('Spotlight Search', () => {
 
     const searchInput = page.getByPlaceholder(/such|search/i);
     await searchInput.fill('Sakarya');
-    await page.waitForTimeout(1500);
 
-    // Results should appear
+    // Wait for search results to appear (API call + render)
     const results = page.locator('a[href*="/player/"], a[href*="/club/"]');
-    const resultCount = await results.count();
-    expect(resultCount).toBeGreaterThan(0);
+    await expect(results.first()).toBeVisible({ timeout: 10_000 });
   });
 
   test('Click on search result navigates to player', async ({ page }) => {
@@ -41,17 +39,13 @@ test.describe('Spotlight Search', () => {
 
     const searchInput = page.getByPlaceholder(/such|search/i);
     await searchInput.fill('Sakarya');
-    await page.waitForTimeout(1500);
 
-    // Click first result link
+    // Wait for search results to appear
     const resultLink = page.locator('a[href*="/player/"], a[href*="/club/"]').first();
-    if (await resultLink.isVisible()) {
-      await resultLink.click();
-      await page.waitForTimeout(1000);
+    await expect(resultLink).toBeVisible({ timeout: 10_000 });
 
-      // Should navigate away from home
-      const url = page.url();
-      expect(url).toMatch(/\/(player|club)\//);
-    }
+    await resultLink.click();
+    await page.waitForURL(/\/(player|club)\//, { timeout: 10_000 });
+    expect(page.url()).toMatch(/\/(player|club)\//);
   });
 });
