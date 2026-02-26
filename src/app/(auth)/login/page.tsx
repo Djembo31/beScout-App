@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Mail, Lock, CheckCircle, AlertCircle, Eye, EyeOff, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { signUp, signInWithPassword, signInWithOtp, signInWithOAuth } from '@/lib/services/auth';
@@ -472,13 +473,13 @@ function LoginContent() {
       <div className="text-center mt-6">
         <p className="text-xs text-white/30">
           {t('termsPrefix')}{' '}
-          <a href="#" className="text-white/50 hover:text-white/70 underline transition-colors">
+          <Link href="/agb" className="text-white/50 hover:text-white/70 underline transition-colors">
             {t('terms')}
-          </a>{' '}
+          </Link>{' '}
           {t('and')}{' '}
-          <a href="#" className="text-white/50 hover:text-white/70 underline transition-colors">
+          <Link href="/datenschutz" className="text-white/50 hover:text-white/70 underline transition-colors">
             {t('privacy')}
-          </a>
+          </Link>
         </p>
       </div>
     </div>

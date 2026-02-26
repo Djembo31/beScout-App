@@ -72,7 +72,12 @@ export default function WelcomePage() {
     <div className="relative min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
       {/* ── Background Effects ── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <img src="/stadiums/default.jpg" alt="" className="absolute inset-0 w-full h-full object-cover blur-[50px] scale-110 opacity-[0.15]" />
+        <img
+          src="/stadiums/default.jpg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover blur-[25px] scale-110 opacity-[0.3]"
+          style={{ maskImage: 'linear-gradient(to bottom, black 20%, transparent 65%)', WebkitMaskImage: 'linear-gradient(to bottom, black 20%, transparent 65%)' }}
+        />
         <div className="absolute top-0 right-1/4 w-[640px] h-[640px] bg-[#FFD700]/[0.03] rounded-full blur-[140px]" />
         <div className="absolute bottom-0 left-1/4 w-[820px] h-[820px] bg-[#22C55E]/[0.035] rounded-full blur-[160px]" />
         <div
@@ -233,9 +238,9 @@ export default function WelcomePage() {
             <span className="text-xs text-white/40">&copy; 2026 BeScout</span>
           </div>
           <div className="flex items-center gap-6 text-xs text-white/30">
-            <span className="hover:text-white/50 cursor-pointer transition-colors">{t('footerTerms')}</span>
-            <span className="hover:text-white/50 cursor-pointer transition-colors">{t('footerPrivacy')}</span>
-            <span className="hover:text-white/50 cursor-pointer transition-colors">{t('footerImprint')}</span>
+            <Link href="/agb" className="hover:text-white/50 transition-colors">{t('footerTerms')}</Link>
+            <Link href="/datenschutz" className="hover:text-white/50 transition-colors">{t('footerPrivacy')}</Link>
+            <Link href="/impressum" className="hover:text-white/50 transition-colors">{t('footerImprint')}</Link>
           </div>
         </div>
       </footer>
