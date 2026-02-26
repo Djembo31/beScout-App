@@ -91,6 +91,7 @@ function createMockDbPlayer(overrides?: Partial<DbPlayer>): DbPlayer {
     price_change_24h: 5.2,
     volume_24h: 150000,
     status: 'fit',
+    market_value_eur: 1000000,
     success_fee_cap_cents: 100000, // 1000 $SCOUT
     is_liquidated: false,
     created_at: '2025-01-01T00:00:00Z',
