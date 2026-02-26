@@ -52,7 +52,7 @@ function StatusBadge({ status }: { status: string }) {
     rejected: 'Abgelehnt',
     countered: 'Gegenangebot',
     expired: 'Abgelaufen',
-    cancelled: 'ZurÃ¼ckgezogen',
+    cancelled: 'Zurückgezogen',
   };
   return (
     <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${styles[status] ?? 'bg-white/10 text-white/40'}`}>
@@ -173,7 +173,7 @@ function OfferCard({
                   onClick={onCancel}
                   disabled={actionId === offer.id}
                   className="p-1.5 rounded-lg bg-white/10 text-white/40 hover:bg-white/20 transition-colors disabled:opacity-50"
-                  title="ZurÃ¼ckziehen"
+                  title="Zurückziehen"
                 >
                   {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
                 </button>
@@ -216,7 +216,7 @@ function CreateOfferModal({
   const handleSubmit = async () => {
     if (!selectedPlayer || !price) return;
     const priceCents = Math.round(parseFloat(price) * 100);
-    if (priceCents <= 0) { addToast('UngÃ¼ltiger Preis', 'error'); return; }
+    if (priceCents <= 0) { addToast('Ungültiger Preis', 'error'); return; }
 
     setLoading(true);
     try {
@@ -341,7 +341,7 @@ function CreateOfferModal({
 
         {/* Receiver (optional) */}
         <div>
-          <label className="text-sm text-white/60 mb-1 block">EmpfÃ¤nger (optional, leer = offenes Gebot)</label>
+          <label className="text-sm text-white/60 mb-1 block">Empfänger (optional, leer = offenes Gebot)</label>
           <input
             type="text"
             value={receiverHandle}
@@ -578,7 +578,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
         <Modal open={true} onClose={() => { setCounterModal(null); setCounterPrice(''); }} title="Gegenangebot">
           <div className="space-y-4">
             <div className="text-sm text-white/60">
-              Original: <span className="font-mono text-[#FFD700]">{fmtScout(centsToBsd(counterModal.price))} $SCOUT</span> fÃ¼r {counterModal.player_first_name} {counterModal.player_last_name}
+              Original: <span className="font-mono text-[#FFD700]">{fmtScout(centsToBsd(counterModal.price))} $SCOUT</span> für {counterModal.player_first_name} {counterModal.player_last_name}
             </div>
             <div>
               <label className="text-sm text-white/60 mb-1 block">Dein Preis ($SCOUT)</label>

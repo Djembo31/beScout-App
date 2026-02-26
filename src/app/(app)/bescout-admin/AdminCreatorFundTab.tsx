@@ -90,7 +90,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
       <Card className="p-4">
         <h3 className="font-black mb-3 flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-cyan-400" />
-          Auszahlungen auslÃ¶sen (letzte 7 Tage)
+          Auszahlungen auslösen (letzte 7 Tage)
         </h3>
         <div className="flex gap-3">
           <Button
@@ -155,7 +155,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
                         p.status === 'rolled_over' ? 'bg-amber-500/20 text-amber-400' :
                         'bg-white/10 text-white/40'
                       }`}>
-                        {p.status === 'paid' ? 'Bezahlt' : p.status === 'rolled_over' ? 'Ãœbertragen' : 'Ausstehend'}
+                        {p.status === 'paid' ? 'Bezahlt' : p.status === 'rolled_over' ? 'Übertragen' : 'Ausstehend'}
                       </span>
                     </td>
                   </tr>

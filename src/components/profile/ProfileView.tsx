@@ -437,7 +437,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                   <>{formatScout(balanceCents)} $SCOUT</>
                 )}
               </div>
-              <div className="text-sm text-white/50 mb-4">VerfÃ¼gbares Guthaben</div>
+              <div className="text-sm text-white/50 mb-4">Verfügbares Guthaben</div>
               <div className="grid grid-cols-1 gap-2">
                 <Button variant="gold" size="sm">Einzahlen</Button>
               </div>
@@ -465,7 +465,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               <ScoreCircle label="S" value={userStats?.scout_score ?? 0} size={48} />
             </div>
             <div className="text-sm text-white/50 mb-2">
-              Trading Â· Manager Â· Scout
+              Trading · Manager · Scout
             </div>
             <div className="flex items-center justify-between">
               <div>

@@ -28,9 +28,9 @@ import { AdminCreatorFundTab } from './AdminCreatorFundTab';
 type AdminTab = 'overview' | 'users' | 'fees' | 'ipos' | 'gameweeks' | 'airdrop' | 'sponsors' | 'creator_fund' | 'debug';
 
 const TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
-  { id: 'overview', label: 'Ãœbersicht', icon: BarChart3 },
+  { id: 'overview', label: 'Übersicht', icon: BarChart3 },
   { id: 'users', label: 'Benutzer', icon: Users },
-  { id: 'fees', label: 'GebÃ¼hren', icon: Percent },
+  { id: 'fees', label: 'Gebühren', icon: Percent },
   { id: 'ipos', label: 'IPOs', icon: Zap },
   { id: 'gameweeks', label: 'Spieltage', icon: Calendar },
   { id: 'airdrop', label: 'Airdrop', icon: Rocket },
@@ -121,7 +121,7 @@ function DebugTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-bold text-white">Letzte AktivitÃ¤ten</span>
+        <span className="text-sm font-bold text-white">Letzte Aktivitäten</span>
         <a
           href="https://supabase.com/dashboard/project/skzjfhvgccaeplydsunz"
           target="_blank"
