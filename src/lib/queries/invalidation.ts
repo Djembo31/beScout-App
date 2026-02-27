@@ -6,10 +6,8 @@
 import { queryClient } from '@/lib/queryClient';
 import { qk } from './keys';
 
-/** Invalidate caches affected by a trade action */
+/** Invalidate caches affected by a trade action (narrowed — only affected player + user) */
 export function invalidateTradeQueries(playerId: string, userId?: string): void {
-  queryClient.invalidateQueries({ queryKey: qk.players.all });
-  queryClient.invalidateQueries({ queryKey: qk.orders.all });
   if (playerId) {
     queryClient.invalidateQueries({ queryKey: qk.players.byId(playerId) });
     queryClient.invalidateQueries({ queryKey: qk.orders.byPlayer(playerId) });
@@ -19,9 +17,6 @@ export function invalidateTradeQueries(playerId: string, userId?: string): void 
     queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(userId) });
     queryClient.invalidateQueries({ queryKey: qk.transactions.byUser(userId, 10) });
   }
-  queryClient.invalidateQueries({ queryKey: ['ipos'] });
-  queryClient.invalidateQueries({ queryKey: ['trending'] });
-  queryClient.invalidateQueries({ queryKey: ['priceHist'] });
 }
 
 /** Invalidate caches affected by social/reputation actions */
@@ -85,7 +80,7 @@ export function invalidateFantasyQueries(userId?: string, clubId?: string): void
   }
 }
 
-/** Invalidate player detail-related caches */
+/** Invalidate player detail-related caches (narrowed — only affected player + user) */
 export function invalidatePlayerDetailQueries(playerId: string, userId?: string): void {
   queryClient.invalidateQueries({ queryKey: qk.orders.byPlayer(playerId) });
   queryClient.invalidateQueries({ queryKey: qk.trades.byPlayer(playerId) });
@@ -96,8 +91,4 @@ export function invalidatePlayerDetailQueries(playerId: string, userId?: string)
     queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(userId) });
     queryClient.invalidateQueries({ queryKey: qk.transactions.byUser(userId, 10) });
   }
-  // Also invalidate global lists
-  queryClient.invalidateQueries({ queryKey: qk.players.all });
-  queryClient.invalidateQueries({ queryKey: qk.orders.all });
-  queryClient.invalidateQueries({ queryKey: ['ipos'] });
 }

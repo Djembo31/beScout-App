@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Trophy, Briefcase, Building2, Compass } from 'lucide-react';
@@ -13,7 +14,7 @@ const BOTTOM_TABS = [
   { label: 'Community', href: '/community', icon: Compass, tourId: undefined as string | undefined },
 ];
 
-export function BottomNav() {
+export const BottomNav = memo(function BottomNav() {
   const pathname = usePathname();
   const { activeClub } = useClub();
 
@@ -64,4 +65,4 @@ export function BottomNav() {
       </div>
     </nav>
   );
-}
+});

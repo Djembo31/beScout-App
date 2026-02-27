@@ -25,7 +25,7 @@ export async function getWallet(userId: string): Promise<DbWallet | null> {
     .eq('user_id', userId)
     .maybeSingle();
 
-  if (error) return null;
+  if (error) throw new Error(error.message);
   return data as DbWallet;
 }
 

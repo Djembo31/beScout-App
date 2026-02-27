@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -27,7 +27,7 @@ interface SideNavProps {
   onMobileClose?: () => void;
 }
 
-export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
+export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useUser();
@@ -311,4 +311,4 @@ export function SideNav({ mobileOpen, onMobileClose }: SideNavProps) {
       )}
     </>
   );
-}
+});

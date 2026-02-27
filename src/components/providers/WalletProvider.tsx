@@ -6,6 +6,8 @@ import { getWallet } from '@/lib/services/wallet';
 import { withTimeout } from '@/lib/utils';
 
 const WALLET_SESSION_KEY = 'bescout-wallet-balance';
+const MAX_RETRIES = 3;
+const RETRY_DELAYS = [0, 1000, 3000]; // exponential backoff
 
 interface WalletContextValue {
     /** Balance in cents — null while loading */
@@ -44,7 +46,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         return null;
     });
 
-    const loaded = useRef(false);
+    const retryCount = useRef(0);
+    const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const prevUserId = useRef<string | null>(null);
 
     const setBalanceCents = useCallback((cents: number) => {
         setBalanceCentsRaw(cents);
@@ -54,32 +58,48 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         } catch { /* ignore */ }
     }, []);
 
-    const refreshBalance = useCallback(async () => {
+    const fetchBalance = useCallback(async () => {
         if (!user) return;
         try {
             const wallet = await withTimeout(getWallet(user.id), 5000);
             const newBalance = wallet?.balance ?? 0;
             setBalanceCents(newBalance);
+            // Success — prevent further retries
+            retryCount.current = MAX_RETRIES;
         } catch (err) {
-            console.error('[Wallet] Balance fetch failed:', err);
-            // Set to 0 so UI doesn't show perpetual loading skeleton
-            setBalanceCentsRaw(prev => prev === null ? 0 : prev);
-        } finally {
-            loaded.current = true;
+            console.error(`[Wallet] Balance fetch failed (attempt ${retryCount.current + 1}/${MAX_RETRIES}):`, err);
+            retryCount.current += 1;
+
+            if (retryCount.current < MAX_RETRIES) {
+                // Schedule retry with backoff
+                const delay = RETRY_DELAYS[retryCount.current] ?? 3000;
+                retryTimer.current = setTimeout(() => {
+                    fetchBalance();
+                }, delay);
+            } else {
+                // All retries exhausted — set to 0 so UI doesn't show perpetual loading
+                setBalanceCentsRaw(prev => prev === null ? 0 : prev);
+            }
         }
     }, [user, setBalanceCents]);
 
-    // Load balance when user becomes available (skip if already loaded for same user)
-    const prevUserId = useRef<string | null>(null);
+    // Expose refreshBalance that resets retry counter
+    const refreshBalance = useCallback(async () => {
+        retryCount.current = 0;
+        await fetchBalance();
+    }, [fetchBalance]);
+
+    // Load balance when user becomes available
     useEffect(() => {
         if (!user) {
-            loaded.current = false;
+            retryCount.current = 0;
             prevUserId.current = null;
             setBalanceCentsRaw(null);
+            if (retryTimer.current) clearTimeout(retryTimer.current);
             try { sessionStorage.removeItem(WALLET_SESSION_KEY); } catch { /* ignore */ }
             return;
         }
-        // Reset balance on user change — clear stale data from previous user
+        // Reset on user change — clear stale data from previous user
         if (prevUserId.current !== user.id) {
             const cachedUid = (() => {
                 try {
@@ -89,13 +109,30 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 return null;
             })();
             prevUserId.current = user.id;
-            loaded.current = false;
+            retryCount.current = 0;
+            if (retryTimer.current) clearTimeout(retryTimer.current);
             // Only keep cached balance if it belongs to this user
             if (cachedUid !== user.id) setBalanceCentsRaw(null);
         }
-        if (loaded.current) return;
-        refreshBalance();
-    }, [user, refreshBalance]);
+        if (retryCount.current >= MAX_RETRIES) return;
+        fetchBalance();
+    }, [user, fetchBalance]);
+
+    // Fallback recovery: retry on tab focus / visibility change
+    useEffect(() => {
+        const handleVisibility = () => {
+            if (document.visibilityState === 'visible' && user && retryCount.current >= MAX_RETRIES) {
+                // Reset and retry — user came back to the tab
+                retryCount.current = 0;
+                fetchBalance();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibility);
+            if (retryTimer.current) clearTimeout(retryTimer.current);
+        };
+    }, [user, fetchBalance]);
 
     const value = useMemo<WalletContextValue>(
         () => ({ balanceCents, setBalanceCents, refreshBalance }),
