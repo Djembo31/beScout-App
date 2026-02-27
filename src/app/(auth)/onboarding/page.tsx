@@ -265,8 +265,8 @@ function OnboardingContent() {
     <div className="w-full max-w-lg">
       {/* Logo */}
       <div className="flex flex-col items-center mb-8">
-        <Image src="/logo.png" alt="BeScout" width={56} height={56} className="mb-3" priority />
-        <Image src="/schrift.png" alt="BeScout" width={140} height={36} className="mb-2" priority />
+        <Image src="/logo.svg" alt="BeScout" width={56} height={56} className="mb-3" priority />
+        <Image src="/schrift.svg" alt="BeScout" width={140} height={36} className="mb-2" priority />
         <p className="text-sm text-white/50">Erstelle dein Manager-Profil</p>
       </div>
 

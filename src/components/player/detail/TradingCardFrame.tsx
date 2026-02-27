@@ -228,7 +228,7 @@ export default function TradingCardFrame({
 
             {/* BeScout branding */}
             <div className="relative z-10 flex justify-center pb-2">
-              <img src="/logo_schrift.png" alt="BeScout" className="h-3 md:h-3.5 opacity-30" />
+              <img src="/logo_schrift.svg" alt="BeScout" className="h-3 md:h-3.5 opacity-30" />
             </div>
           </div>
 
@@ -317,7 +317,7 @@ export default function TradingCardFrame({
 
               {/* BeScout branding */}
               <div className="relative z-10 flex justify-center pb-2 mt-auto">
-                <img src="/logo_schrift.png" alt="BeScout" className="h-3 md:h-3.5 opacity-30" />
+                <img src="/logo_schrift.svg" alt="BeScout" className="h-3 md:h-3.5 opacity-30" />
               </div>
             </div>
           )}

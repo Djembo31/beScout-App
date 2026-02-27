@@ -55,7 +55,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
         <Link href="/" className="flex items-center gap-3" onClick={handleNavClick}>
           <div className="relative w-10 h-10 flex-shrink-0">
             <Image
-              src="/logo.png"
+              src="/logo.svg"
               alt="BeScout"
               fill
               className="object-contain"
@@ -65,7 +65,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
           {!collapsed && (
             <div className="relative h-10 w-28">
               <Image
-                src="/schrift.png"
+                src="/schrift.svg"
                 alt="BeScout"
                 fill
                 className="object-contain object-left"

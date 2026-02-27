@@ -91,8 +91,8 @@ export default function WelcomePage() {
       {/* ── 1. Hero ── */}
       <section className="relative flex flex-col items-center justify-center min-h-screen px-4 text-center">
         <div className="flex items-center gap-3 mb-6">
-          <Image src="/logo.png" alt="BeScout Logo" width={48} height={48} className="w-10 h-10 md:w-12 md:h-12" />
-          <Image src="/schrift.png" alt="BeScout" width={160} height={40} className="h-8 md:h-10 w-auto" />
+          <Image src="/logo.svg" alt="BeScout Logo" width={48} height={48} className="w-10 h-10 md:w-12 md:h-12" />
+          <Image src="/schrift.svg" alt="BeScout" width={160} height={40} className="h-8 md:h-10 w-auto" />
         </div>
 
         <h1 className="text-3xl md:text-5xl lg:text-6xl font-black leading-tight max-w-3xl">
@@ -234,7 +234,7 @@ export default function WelcomePage() {
       <footer className="relative border-t border-white/[0.06] bg-white/[0.01]">
         <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="BeScout" width={24} height={24} className="w-6 h-6" />
+            <Image src="/logo.svg" alt="BeScout" width={24} height={24} className="w-6 h-6" />
             <span className="text-xs text-white/40">&copy; 2026 BeScout</span>
           </div>
           <div className="flex items-center gap-6 text-xs text-white/30">

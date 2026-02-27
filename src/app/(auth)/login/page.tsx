@@ -164,7 +164,7 @@ function LoginContent() {
       {/* Logo Section */}
       <div className="flex flex-col items-center mb-8">
         <Image
-          src="/logo.png"
+          src="/logo.svg"
           alt="BeScout Logo"
           width={72}
           height={72}
@@ -172,7 +172,7 @@ function LoginContent() {
           priority
         />
         <Image
-          src="/schrift.png"
+          src="/schrift.svg"
           alt="BeScout"
           width={160}
           height={40}
