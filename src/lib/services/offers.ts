@@ -60,7 +60,7 @@ async function enrichOffers(offers: DbOffer[]): Promise<OfferWithDetails[]> {
 export async function getIncomingOffers(userId: string): Promise<OfferWithDetails[]> {
   const { data, error } = await supabase
     .from('offers')
-    .select('*')
+    .select('id, player_id, sender_id, receiver_id, side, price, quantity, status, counter_offer_id, message, expires_at, created_at, updated_at')
     .eq('receiver_id', userId)
     .eq('status', 'pending')
     .gt('expires_at', new Date().toISOString())
@@ -73,7 +73,7 @@ export async function getIncomingOffers(userId: string): Promise<OfferWithDetail
 export async function getOutgoingOffers(userId: string): Promise<OfferWithDetails[]> {
   const { data, error } = await supabase
     .from('offers')
-    .select('*')
+    .select('id, player_id, sender_id, receiver_id, side, price, quantity, status, counter_offer_id, message, expires_at, created_at, updated_at')
     .eq('sender_id', userId)
     .in('status', ['pending'])
     .gt('expires_at', new Date().toISOString())
@@ -86,7 +86,7 @@ export async function getOutgoingOffers(userId: string): Promise<OfferWithDetail
 export async function getOpenBids(playerId?: string): Promise<OfferWithDetails[]> {
   let query = supabase
     .from('offers')
-    .select('*')
+    .select('id, player_id, sender_id, receiver_id, side, price, quantity, status, counter_offer_id, message, expires_at, created_at, updated_at')
     .is('receiver_id', null)
     .eq('status', 'pending')
     .gt('expires_at', new Date().toISOString())
@@ -100,12 +100,13 @@ export async function getOpenBids(playerId?: string): Promise<OfferWithDetails[]
 
 /** Offer history for a user (accepted, rejected, countered, expired, cancelled) */
 export async function getOfferHistory(userId: string): Promise<OfferWithDetails[]> {
+  const offerCols = 'id, player_id, sender_id, receiver_id, side, price, quantity, status, counter_offer_id, message, expires_at, created_at, updated_at';
   const [sentRes, recvRes] = await Promise.allSettled([
-    supabase.from('offers').select('*')
+    supabase.from('offers').select(offerCols)
       .eq('sender_id', userId)
       .in('status', ['accepted', 'rejected', 'countered', 'expired', 'cancelled'])
       .order('updated_at', { ascending: false }).limit(25),
-    supabase.from('offers').select('*')
+    supabase.from('offers').select(offerCols)
       .eq('receiver_id', userId)
       .in('status', ['accepted', 'rejected', 'countered', 'expired', 'cancelled'])
       .order('updated_at', { ascending: false }).limit(25),

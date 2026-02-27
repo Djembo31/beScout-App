@@ -104,7 +104,7 @@ export async function liquidatePlayer(
 export async function getLiquidationEvent(playerId: string): Promise<DbLiquidationEvent | null> {
   const { data } = await supabase
     .from('liquidation_events')
-    .select('*')
+    .select('id, player_id, club_id, triggered_by, pbt_balance_cents, success_fee_cents, distributed_cents, holder_count, transfer_value_eur, fee_per_dpc_cents, created_at')
     .eq('player_id', playerId)
     .order('created_at', { ascending: false })
     .limit(1)
@@ -115,7 +115,7 @@ export async function getLiquidationEvent(playerId: string): Promise<DbLiquidati
 export async function getLiquidationPayouts(liquidationId: string): Promise<(DbLiquidationPayout & { handle?: string })[]> {
   const { data } = await supabase
     .from('liquidation_payouts')
-    .select('*')
+    .select('id, liquidation_id, user_id, dpc_quantity, payout_cents, pbt_payout_cents, success_fee_payout_cents, created_at')
     .eq('liquidation_id', liquidationId)
     .order('payout_cents', { ascending: false });
   if (!data) return [];

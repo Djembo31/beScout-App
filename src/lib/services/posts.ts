@@ -20,7 +20,7 @@ export async function getPosts(options: {
 
   let query = supabase
     .from('posts')
-    .select('*')
+    .select('id, user_id, player_id, club_name, club_id, content, tags, category, post_type, upvotes, downvotes, replies_count, is_pinned, is_exclusive, parent_id, event_id, rumor_source, rumor_club_target, created_at')
     .order('is_pinned', { ascending: false })
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
@@ -103,7 +103,7 @@ export async function getPosts(options: {
 export async function getTopPostByUser(userId: string): Promise<PostWithAuthor | null> {
   const { data, error } = await supabase
     .from('posts')
-    .select('*')
+    .select('id, user_id, player_id, club_name, club_id, content, tags, category, post_type, upvotes, downvotes, replies_count, is_pinned, is_exclusive, parent_id, event_id, rumor_source, rumor_club_target, created_at')
     .eq('user_id', userId)
     .is('parent_id', null)
     .order('upvotes', { ascending: false })
@@ -185,7 +185,7 @@ export async function createClubNews(
 export async function getReplies(parentId: string): Promise<PostWithAuthor[]> {
   const { data, error } = await supabase
     .from('posts')
-    .select('*')
+    .select('id, user_id, player_id, club_name, club_id, content, tags, category, post_type, upvotes, downvotes, replies_count, is_pinned, is_exclusive, parent_id, event_id, rumor_source, rumor_club_target, created_at')
     .eq('parent_id', parentId)
     .order('created_at', { ascending: true });
 

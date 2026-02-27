@@ -160,7 +160,7 @@ export async function getFollowingIds(userId: string): Promise<string[]> {
 export async function getUserStats(userId: string): Promise<DbUserStats | null> {
   const { data, error } = await supabase
     .from('user_stats')
-    .select('*')
+    .select('user_id, trading_score, manager_score, scout_score, total_score, trades_count, trading_volume_cents, portfolio_value_cents, holdings_diversity, events_count, avg_rank, best_rank, total_rewards_cents, followers_count, following_count, votes_cast, achievements_count, rank, tier, valuation_score, updated_at')
     .eq('user_id', userId)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -234,7 +234,7 @@ export async function getLeaderboard(limit = 50): Promise<LeaderboardUser[]> {
 export async function getUserAchievements(userId: string): Promise<DbUserAchievement[]> {
   const { data, error } = await supabase
     .from('user_achievements')
-    .select('*')
+    .select('id, user_id, achievement_key, unlocked_at')
     .eq('user_id', userId)
     .order('unlocked_at', { ascending: false });
   if (error) throw new Error(error.message);

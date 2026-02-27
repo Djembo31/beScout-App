@@ -20,7 +20,7 @@ export async function getClubBySlug(slug: string, userId?: string): Promise<Club
 export async function getClubById(clubId: string): Promise<DbClub | null> {
   const { data, error } = await supabase
     .from('clubs')
-    .select('*')
+    .select('id, slug, name, short, league, league_id, country, city, stadium, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
     .eq('id', clubId)
     .single();
   if (error) return null;
@@ -31,7 +31,7 @@ export async function getClubById(clubId: string): Promise<DbClub | null> {
 export async function getAllClubs(): Promise<DbClub[]> {
   const { data, error } = await supabase
     .from('clubs')
-    .select('*')
+    .select('id, slug, name, short, league, league_id, country, city, stadium, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
     .order('name');
   if (error) throw new Error(error.message);
   return (data ?? []) as DbClub[];
@@ -292,7 +292,7 @@ export async function setUserPrimaryClub(userId: string, clubId: string): Promis
 export async function getClubsWithStats(): Promise<Array<DbClub & { follower_count: number; player_count: number }>> {
   const { data: clubs, error } = await supabase
       .from('clubs')
-      .select('*')
+      .select('id, slug, name, short, league, league_id, country, city, stadium, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
       .order('name');
 
   if (error || !clubs) return [];
@@ -388,7 +388,7 @@ export async function getClubRecentTrades(
   const { data: trades, error } = await supabase
     .from('trades')
     .select(`
-      *,
+      id, player_id, buyer_id, seller_id, buy_order_id, sell_order_id, ipo_id, price, quantity, platform_fee, pbt_fee, club_fee, executed_at,
       player:players!player_id (
         first_name,
         last_name,
@@ -400,7 +400,7 @@ export async function getClubRecentTrades(
     .limit(limit);
 
   if (error) return [];
-  return (trades ?? []) as (DbTrade & { player: { first_name: string; last_name: string; position: string } })[];
+  return (trades ?? []) as unknown as (DbTrade & { player: { first_name: string; last_name: string; position: string } })[];
 }
 
 // ============================================

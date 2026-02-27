@@ -13,7 +13,7 @@ export async function getSponsorForPlacement(
   const now = new Date().toISOString();
   let query = supabase
     .from('sponsors')
-    .select('*')
+    .select('id, name, logo_url, link_url, placement, club_id, is_active, priority, starts_at, ends_at, created_by, revenue_cents_per_impression, created_at, updated_at')
     .eq('placement', placement)
     .eq('is_active', true)
     .lte('starts_at', now)
@@ -44,7 +44,7 @@ export async function getSponsorForPlacement(
 export async function getAllSponsors(): Promise<DbSponsor[]> {
   const { data, error } = await supabase
     .from('sponsors')
-    .select('*')
+    .select('id, name, logo_url, link_url, placement, club_id, is_active, priority, starts_at, ends_at, created_by, revenue_cents_per_impression, created_at, updated_at')
     .order('placement')
     .order('priority', { ascending: false });
 

@@ -99,7 +99,7 @@ export async function getPlayerHolderCount(playerId: string): Promise<number> {
 export async function getTransactions(userId: string, limit = 20, offset = 0): Promise<DbTransaction[]> {
   const { data, error } = await supabase
     .from('transactions')
-    .select('*')
+    .select('id, user_id, type, amount, balance_after, reference_id, description, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);

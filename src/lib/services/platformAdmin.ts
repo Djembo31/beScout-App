@@ -157,7 +157,7 @@ export async function adjustWallet(
 export async function getAllFeeConfigs(): Promise<DbFeeConfig[]> {
   const { data, error } = await supabase
     .from('fee_config')
-    .select('*')
+    .select('id, club_id, club_name, trade_fee_bps, trade_platform_bps, trade_pbt_bps, trade_club_bps, ipo_club_bps, ipo_platform_bps, ipo_pbt_bps, updated_by, created_at, updated_at')
     .order('club_name', { ascending: true });
   if (error) throw new Error(error.message);
   return (data ?? []) as DbFeeConfig[];

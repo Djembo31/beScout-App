@@ -38,11 +38,26 @@ import type { Player, DbIpo } from '@/types';
 
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import NewUserTip from '@/components/onboarding/NewUserTip';
-const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
-const ManagerKaderTab = dynamic(() => import('@/components/manager/ManagerKaderTab'), { ssr: false });
-const ManagerBestandTab = dynamic(() => import('@/components/manager/ManagerBestandTab'), { ssr: false });
-const ManagerOffersTab = dynamic(() => import('@/components/manager/ManagerOffersTab'), { ssr: false });
-const KaufenDiscovery = dynamic(() => import('@/components/market/KaufenDiscovery'), { ssr: false });
+const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
+  ssr: false,
+  loading: () => <div className="h-16 rounded-2xl bg-white/[0.02] animate-pulse" />,
+});
+const ManagerKaderTab = dynamic(() => import('@/components/manager/ManagerKaderTab'), {
+  ssr: false,
+  loading: () => <div className="space-y-3">{[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-20" />)}</div>,
+});
+const ManagerBestandTab = dynamic(() => import('@/components/manager/ManagerBestandTab'), {
+  ssr: false,
+  loading: () => <div className="space-y-3">{[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-20" />)}</div>,
+});
+const ManagerOffersTab = dynamic(() => import('@/components/manager/ManagerOffersTab'), {
+  ssr: false,
+  loading: () => <div className="space-y-3">{[...Array(3)].map((_, i) => <SkeletonCard key={i} className="h-24" />)}</div>,
+});
+const KaufenDiscovery = dynamic(() => import('@/components/market/KaufenDiscovery'), {
+  ssr: false,
+  loading: () => <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">{[...Array(8)].map((_, i) => <SkeletonCard key={i} className="h-64" />)}</div>,
+});
 
 // ============================================
 // TYPES

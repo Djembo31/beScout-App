@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { memo, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronDown, Search, Compass } from 'lucide-react';
 import { useClub } from '@/components/providers/ClubProvider';
 import { cn } from '@/lib/utils';
 
-export function ClubSwitcher({ collapsed }: { collapsed: boolean }) {
+export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapsed: boolean }) {
   const { activeClub, followedClubs, setActiveClub, loading } = useClub();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -119,4 +119,4 @@ export function ClubSwitcher({ collapsed }: { collapsed: boolean }) {
       )}
     </div>
   );
-}
+});

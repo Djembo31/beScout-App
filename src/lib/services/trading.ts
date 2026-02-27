@@ -217,7 +217,7 @@ export async function getSellOrders(playerId: string): Promise<DbOrder[]> {
 export async function getPlayerTrades(playerId: string, limit = 20) {
   const { data, error } = await supabase
     .from('trades')
-    .select('*')
+    .select('id, player_id, buyer_id, seller_id, buy_order_id, sell_order_id, ipo_id, price, quantity, platform_fee, pbt_fee, club_fee, executed_at')
     .eq('player_id', playerId)
     .order('executed_at', { ascending: false })
     .limit(limit);

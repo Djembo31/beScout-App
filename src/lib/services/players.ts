@@ -17,7 +17,7 @@ export async function getPlayers(): Promise<DbPlayer[]> {
 export async function getPlayerById(id: string): Promise<DbPlayer | null> {
   const { data, error } = await supabase
     .from('players')
-    .select('*')
+    .select('id, first_name, last_name, position, club, club_id, age, shirt_number, nationality, image_url, matches, goals, assists, clean_sheets, perf_l5, perf_l15, perf_season, dpc_total, dpc_available, floor_price, last_price, ipo_price, price_change_24h, volume_24h, status, market_value_eur, success_fee_cap_cents, max_supply, is_liquidated, created_at, updated_at')
     .eq('id', id)
     .single();
 
@@ -29,7 +29,7 @@ export async function getPlayerById(id: string): Promise<DbPlayer | null> {
 export async function getPlayersByClubId(clubId: string): Promise<DbPlayer[]> {
   const { data, error } = await supabase
     .from('players')
-    .select('*')
+    .select('id, first_name, last_name, position, club, club_id, age, shirt_number, nationality, image_url, matches, goals, assists, clean_sheets, perf_l5, perf_l15, perf_season, dpc_total, dpc_available, floor_price, last_price, ipo_price, price_change_24h, volume_24h, status, market_value_eur, success_fee_cap_cents, max_supply, is_liquidated, created_at, updated_at')
     .eq('club_id', clubId)
     .order('last_name');
 

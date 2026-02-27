@@ -26,7 +26,7 @@ export async function getResearchPosts(options: {
 
   let query = supabase
       .from('research_posts')
-      .select('*')
+      .select('id, user_id, player_id, club_name, club_id, title, preview, content, tags, category, call, horizon, price, unlock_count, total_earned, ratings_count, avg_rating, price_at_creation, price_at_resolution, outcome, price_change_pct, resolved_at, evaluation, fixture_id, created_at, updated_at')
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 

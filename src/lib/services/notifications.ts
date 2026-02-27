@@ -75,7 +75,7 @@ export const NOTIFICATION_CATEGORIES: { key: NotificationCategory; icon: string 
 export async function getNotificationPreferences(userId: string): Promise<NotificationPreferences> {
   const { data } = await supabase
     .from('notification_preferences')
-    .select('*')
+    .select('user_id, trading, offers, fantasy, social, bounties, rewards, updated_at')
     .eq('user_id', userId)
     .maybeSingle();
 
@@ -128,7 +128,7 @@ export async function getUnreadCount(userId: string): Promise<number> {
 export async function getNotifications(userId: string, limit = 20, offset = 0): Promise<DbNotification[]> {
   const { data, error } = await supabase
     .from('notifications')
-    .select('*')
+    .select('id, user_id, type, title, body, reference_id, reference_type, read, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);

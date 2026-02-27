@@ -10,7 +10,7 @@ export function isValidHandle(handle: string): boolean {
 export async function getProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, handle, display_name, avatar_url, bio, favorite_club, favorite_club_id, language, plan, level, verified, top_role, created_at, updated_at, referral_code, invited_by, invited_by_club, subscription_enabled, subscription_price_cents, subscription_description, is_demo, region')
     .eq('id', userId)
     .single();
 
@@ -108,7 +108,7 @@ export async function getProfilesByIds(
 export async function getProfileByHandle(handle: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, handle, display_name, avatar_url, bio, favorite_club, favorite_club_id, language, plan, level, verified, top_role, created_at, updated_at, referral_code, invited_by, invited_by_club, subscription_enabled, subscription_price_cents, subscription_description, is_demo, region')
     .eq('handle', handle.toLowerCase())
     .single();
 

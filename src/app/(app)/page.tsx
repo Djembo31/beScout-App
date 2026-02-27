@@ -38,9 +38,18 @@ import PortfolioStrip from '@/components/home/PortfolioStrip';
 import DiscoveryCard from '@/components/market/DiscoveryCard';
 import { updateLoginStreak, STREAK_KEY, SectionHeader, formatPrize, getTimeUntil, getStoryMessage } from '@/components/home/helpers';
 
-const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
-const OnboardingChecklist = dynamic(() => import('@/components/onboarding/OnboardingChecklist'), { ssr: false });
-const MissionBanner = dynamic(() => import('@/components/missions/MissionBanner'), { ssr: false });
+const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
+  ssr: false,
+  loading: () => <div className="h-16 rounded-2xl bg-white/[0.02] animate-pulse" />,
+});
+const OnboardingChecklist = dynamic(() => import('@/components/onboarding/OnboardingChecklist'), {
+  ssr: false,
+  loading: () => <div className="h-24 rounded-2xl bg-white/[0.02] animate-pulse" />,
+});
+const MissionBanner = dynamic(() => import('@/components/missions/MissionBanner'), {
+  ssr: false,
+  loading: () => <div className="h-16 rounded-2xl bg-white/[0.02] animate-pulse" />,
+});
 
 import type { DpcHolding, DbEvent, Pos } from '@/types';
 

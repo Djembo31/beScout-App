@@ -4,6 +4,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { useRouter } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
+import { getAuthState } from '@/lib/services/auth-state';
 import { getProfile } from '@/lib/services/profiles';
 import { getPlatformAdminRole, type PlatformAdminRole } from '@/lib/services/platformAdmin';
 import { getClubAdminFor } from '@/lib/services/club';
@@ -119,32 +120,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadProfile = useCallback(async (userId: string) => {
     try {
-      const [p, pRole, cAdmin] = await Promise.allSettled([
-        withTimeout(getProfile(userId), 5000),
-        withTimeout(getPlatformAdminRole(userId), 5000),
-        withTimeout(getClubAdminFor(userId), 5000),
-      ]);
+      // Single RPC call for profile + platformRole + clubAdmin
+      const authState = await withTimeout(getAuthState(userId), 5000);
 
-      if (p.status === 'fulfilled') {
-        setProfile(p.value);
-        if (p.value) {
-          ssSet(SS_PROFILE, p.value);
-          // Sync locale cookie from profile language for next-intl
-          if (typeof document !== 'undefined' && p.value.language) {
-            document.cookie = `bescout-locale=${p.value.language};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
-          }
+      setProfile(authState.profile);
+      if (authState.profile) {
+        ssSet(SS_PROFILE, authState.profile);
+        if (typeof document !== 'undefined' && authState.profile.language) {
+          document.cookie = `bescout-locale=${authState.profile.language};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
         }
       }
 
-      const role = pRole.status === 'fulfilled' ? pRole.value : null;
-      setPlatformRole(role);
-      if (role) ssSet(SS_PLATFORM_ROLE, role); else try { sessionStorage.removeItem(SS_PLATFORM_ROLE); } catch (err) { console.error('[AuthProvider] removeItem platformRole:', err); }
+      setPlatformRole(authState.platformRole);
+      if (authState.platformRole) ssSet(SS_PLATFORM_ROLE, authState.platformRole); else try { sessionStorage.removeItem(SS_PLATFORM_ROLE); } catch (err) { console.error('[AuthProvider] removeItem platformRole:', err); }
 
-      const ca = cAdmin.status === 'fulfilled' ? cAdmin.value : null;
-      setClubAdmin(ca);
-      if (ca) ssSet(SS_CLUB_ADMIN, ca); else try { sessionStorage.removeItem(SS_CLUB_ADMIN); } catch (err) { console.error('[AuthProvider] removeItem clubAdmin:', err); }
+      setClubAdmin(authState.clubAdmin);
+      if (authState.clubAdmin) ssSet(SS_CLUB_ADMIN, authState.clubAdmin); else try { sessionStorage.removeItem(SS_CLUB_ADMIN); } catch (err) { console.error('[AuthProvider] removeItem clubAdmin:', err); }
     } catch (err) {
-      console.error('[AuthProvider] loadProfile:', err);
+      console.error('[AuthProvider] loadProfile RPC failed, falling back to 3 queries:', err);
+      // Fallback: 3 separate queries for resilience
+      try {
+        const [p, pRole, cAdmin] = await Promise.allSettled([
+          withTimeout(getProfile(userId), 5000),
+          withTimeout(getPlatformAdminRole(userId), 5000),
+          withTimeout(getClubAdminFor(userId), 5000),
+        ]);
+
+        if (p.status === 'fulfilled') {
+          setProfile(p.value);
+          if (p.value) {
+            ssSet(SS_PROFILE, p.value);
+            if (typeof document !== 'undefined' && p.value.language) {
+              document.cookie = `bescout-locale=${p.value.language};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
+            }
+          }
+        }
+
+        const role = pRole.status === 'fulfilled' ? pRole.value : null;
+        setPlatformRole(role);
+        if (role) ssSet(SS_PLATFORM_ROLE, role); else try { sessionStorage.removeItem(SS_PLATFORM_ROLE); } catch (err2) { console.error('[AuthProvider] removeItem platformRole:', err2); }
+
+        const ca = cAdmin.status === 'fulfilled' ? cAdmin.value : null;
+        setClubAdmin(ca);
+        if (ca) ssSet(SS_CLUB_ADMIN, ca); else try { sessionStorage.removeItem(SS_CLUB_ADMIN); } catch (err2) { console.error('[AuthProvider] removeItem clubAdmin:', err2); }
+      } catch (fallbackErr) {
+        console.error('[AuthProvider] loadProfile fallback:', fallbackErr);
+      }
     }
   }, []);
 

@@ -28,7 +28,7 @@ export async function getBountiesByClub(
 
   const { data, error } = await supabase
     .from('bounties')
-    .select('*')
+    .select('id, club_id, club_name, created_by, title, description, reward_cents, deadline_at, max_submissions, player_id, position, status, submission_count, min_tier, type, fixture_id, is_user_bounty, created_at, updated_at')
     .eq('club_id', clubId)
     .order('created_at', { ascending: false });
 
@@ -47,7 +47,7 @@ export async function getAllActiveBounties(
 
   let query = supabase
     .from('bounties')
-    .select('*')
+    .select('id, club_id, club_name, created_by, title, description, reward_cents, deadline_at, max_submissions, player_id, position, status, submission_count, min_tier, type, fixture_id, is_user_bounty, created_at, updated_at')
     .eq('status', 'open')
     .gt('deadline_at', new Date().toISOString())
     .order('created_at', { ascending: false });
@@ -117,7 +117,7 @@ export async function getBountySubmissions(
 ): Promise<BountySubmissionWithUser[]> {
   const { data, error } = await supabase
     .from('bounty_submissions')
-    .select('*')
+    .select('id, bounty_id, user_id, title, content, status, admin_feedback, reviewed_by, reviewed_at, reward_paid, evaluation, created_at, updated_at')
     .eq('bounty_id', bountyId)
     .order('created_at', { ascending: false });
 
