@@ -12,8 +12,10 @@ import {
   syncTeamMapping,
   syncPlayerMapping,
   syncFixtureMapping,
+  importGameweek,
   type MappingStatus,
   type MappingResult,
+  type ImportResult,
 } from '@/lib/services/footballData';
 import { canPerformAction, getRoleBadge } from '@/lib/adminRoles';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -25,11 +27,12 @@ import type { ClubWithAdmin, ClubAdminRole, DbClubAdmin } from '@/types';
 // API-Football Mapping Section
 // ============================================
 
-function ApiFootballSection() {
+function ApiFootballSection({ userId }: { userId: string }) {
   const [status, setStatus] = useState<MappingStatus | null>(null);
   const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState<'teams' | 'players' | 'fixtures' | null>(null);
+  const [syncing, setSyncing] = useState<'teams' | 'players' | 'fixtures' | 'import' | null>(null);
   const [lastResult, setLastResult] = useState<{ type: string; result: MappingResult } | null>(null);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [fixtureGw, setFixtureGw] = useState<number>(1);
   const apiReady = isApiConfigured();
 
@@ -50,8 +53,9 @@ function ApiFootballSection() {
   const handleSyncTeams = async () => {
     setSyncing('teams');
     setLastResult(null);
+    setImportResult(null);
     try {
-      const result = await syncTeamMapping();
+      const result = await syncTeamMapping(userId);
       setLastResult({ type: 'Teams', result });
       await loadStatus();
     } catch (e) {
@@ -63,8 +67,9 @@ function ApiFootballSection() {
   const handleSyncPlayers = async () => {
     setSyncing('players');
     setLastResult(null);
+    setImportResult(null);
     try {
-      const result = await syncPlayerMapping();
+      const result = await syncPlayerMapping(userId);
       setLastResult({ type: 'Spieler', result });
       await loadStatus();
     } catch (e) {
@@ -76,12 +81,26 @@ function ApiFootballSection() {
   const handleSyncFixtures = async () => {
     setSyncing('fixtures');
     setLastResult(null);
+    setImportResult(null);
     try {
-      const result = await syncFixtureMapping(fixtureGw);
+      const result = await syncFixtureMapping(userId, fixtureGw);
       setLastResult({ type: `Fixtures GW ${fixtureGw}`, result });
       await loadStatus();
     } catch (e) {
       setLastResult({ type: `Fixtures GW ${fixtureGw}`, result: { matched: 0, unmatched: [], errors: [e instanceof Error ? e.message : 'Fehler'] } });
+    }
+    setSyncing(null);
+  };
+
+  const handleImportGameweek = async () => {
+    setSyncing('import');
+    setLastResult(null);
+    setImportResult(null);
+    try {
+      const result = await importGameweek(userId, fixtureGw);
+      setImportResult(result);
+    } catch (e) {
+      setImportResult({ success: false, fixturesImported: 0, statsImported: 0, scoresSynced: 0, errors: [e instanceof Error ? e.message : 'Fehler'] });
     }
     setSyncing(null);
   };
@@ -157,9 +176,22 @@ function ApiFootballSection() {
                 Fixtures syncen
               </Button>
             </div>
+
+            {/* Import Gameweek */}
+            <div className="flex items-center gap-3">
+              <div className="w-28" />
+              <Button
+                onClick={handleImportGameweek}
+                disabled={!!syncing || (status?.fixturesMapped ?? 0) === 0}
+                className="flex-1"
+              >
+                {syncing === 'import' ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trophy className="w-4 h-4 mr-2" />}
+                Spieltag importieren
+              </Button>
+            </div>
           </div>
 
-          {/* Last Result */}
+          {/* Last Mapping Result */}
           {lastResult && (
             <div className={`p-3 rounded-xl text-sm ${lastResult.result.errors.length > 0 ? 'bg-red-500/10 border border-red-500/20' : 'bg-[#22C55E]/10 border border-[#22C55E]/20'}`}>
               <div className="font-bold mb-1">
@@ -176,6 +208,20 @@ function ApiFootballSection() {
               {lastResult.result.unmatched.length > 0 && lastResult.result.unmatched.length <= 10 && (
                 <div className="text-orange-400/70 text-xs mt-1">
                   Nicht gefunden: {lastResult.result.unmatched.join(', ')}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Import Result */}
+          {importResult && (
+            <div className={`p-3 rounded-xl text-sm ${importResult.errors.length > 0 ? 'bg-red-500/10 border border-red-500/20' : 'bg-[#22C55E]/10 border border-[#22C55E]/20'}`}>
+              <div className="font-bold mb-1">
+                Import GW {fixtureGw}: {importResult.fixturesImported} Fixtures, {importResult.statsImported} Stats, {importResult.scoresSynced} Scores
+              </div>
+              {importResult.errors.length > 0 && (
+                <div className="text-red-400 text-xs space-y-0.5">
+                  {importResult.errors.map((e, i) => <div key={i}>{e}</div>)}
                 </div>
               )}
             </div>
@@ -374,7 +420,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
       )}
 
       {/* API-Football Integration — Owner + Admin */}
-      {canSyncApi && <ApiFootballSection />}
+      {canSyncApi && user?.id && <ApiFootballSection userId={user.id} />}
 
       {/* Fantasy Settings — Owner only for jurisdiction */}
       {canSetJurisdiction && (

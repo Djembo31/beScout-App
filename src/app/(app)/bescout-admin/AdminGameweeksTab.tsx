@@ -5,11 +5,13 @@ import { Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useClub } from '@/components/providers/ClubProvider';
+import { useUser } from '@/components/providers/AuthProvider';
 import { getFullGameweekStatus, simulateGameweekFlow, type FullGameweekStatus } from '@/lib/services/scoring';
 
 export function AdminGameweeksTab() {
   const { addToast } = useToast();
   const { activeClub } = useClub();
+  const { user } = useUser();
   const selectedClubId = activeClub?.id ?? '';
   const [gwStatus, setGwStatus] = useState<FullGameweekStatus[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +37,7 @@ export function AdminGameweeksTab() {
   const handleSimAndScore = async (gw: number) => {
     setSimulating(gw);
     try {
-      const result = await simulateGameweekFlow(selectedClubId, gw);
+      const result = await simulateGameweekFlow(selectedClubId, gw, user?.id);
       if (result.success) {
         addToast(`GW ${gw}: ${result.fixturesSimulated} Fixtures, ${result.eventsScored} Events gescort`, 'success');
         setActiveGw(result.nextGameweek);

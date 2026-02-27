@@ -453,7 +453,7 @@ export function SpieltagTab({
     setShowConfirm(false);
     setSimulating(true);
     try {
-      const result = await simulateGameweekFlow(clubId, gameweek);
+      const result = await simulateGameweekFlow(clubId, gameweek, userId);
       // Always refresh + notify parent — even if some events had no lineups
       if (result.eventsScored > 0 || result.fixturesSimulated > 0) {
         await loadFixtures(gameweek);

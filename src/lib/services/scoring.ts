@@ -147,7 +147,7 @@ export type GameweekFlowResult = {
  * 3. Score each event sequentially
  * 4. Advance active_gameweek to gw + 1
  */
-export async function simulateGameweekFlow(clubId: string, gameweek: number): Promise<GameweekFlowResult> {
+export async function simulateGameweekFlow(clubId: string, gameweek: number, adminId?: string): Promise<GameweekFlowResult> {
   const errors: string[] = [];
   let fixturesSimulated = 0;
   let eventsScored = 0;
@@ -161,7 +161,7 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number): Pr
       const hasMapped = await hasApiFixtures(gameweek);
       if (hasMapped) {
         useApi = true;
-        const importResult = await importGameweek(gameweek);
+        const importResult = await importGameweek(adminId || '', gameweek);
         if (importResult.success) {
           fixturesSimulated = importResult.fixturesImported;
         } else {

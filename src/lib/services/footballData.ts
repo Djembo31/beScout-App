@@ -188,8 +188,8 @@ export type MappingResult = {
   errors: string[];
 };
 
-/** Fetch API teams → auto-match to our clubs by name → save api_football_id */
-export async function syncTeamMapping(): Promise<MappingResult> {
+/** Fetch API teams → auto-match to our clubs by name → save api_football_id via RPC */
+export async function syncTeamMapping(adminId: string): Promise<MappingResult> {
   const result: MappingResult = { matched: 0, unmatched: [], errors: [] };
 
   try {
@@ -207,6 +207,8 @@ export async function syncTeamMapping(): Promise<MappingResult> {
       return result;
     }
 
+    const mappings: Array<{ club_id: string; api_football_id: number }> = [];
+
     for (const apiTeam of apiTeams) {
       const apiName = apiTeam.team.name.toLowerCase().trim();
 
@@ -219,18 +221,25 @@ export async function syncTeamMapping(): Promise<MappingResult> {
       );
 
       if (match) {
-        const { error: updateErr } = await supabase
-          .from('clubs')
-          .update({ api_football_id: apiTeam.team.id })
-          .eq('id', match.id);
-
-        if (updateErr) {
-          result.errors.push(`Club ${match.name}: ${updateErr.message}`);
-        } else {
-          result.matched++;
-        }
+        mappings.push({ club_id: match.id, api_football_id: apiTeam.team.id });
       } else {
         result.unmatched.push(apiTeam.team.name);
+      }
+    }
+
+    if (mappings.length > 0) {
+      const { data, error: rpcErr } = await supabase.rpc('admin_map_clubs', {
+        p_admin_id: adminId,
+        p_mappings: mappings,
+      });
+
+      const rpcResult = data as { success: boolean; updated_count?: number; error?: string } | null;
+      if (rpcErr) {
+        result.errors.push(`RPC: ${rpcErr.message}`);
+      } else if (rpcResult && !rpcResult.success) {
+        result.errors.push(rpcResult.error ?? 'RPC fehlgeschlagen');
+      } else {
+        result.matched = rpcResult?.updated_count ?? mappings.length;
       }
     }
   } catch (e) {
@@ -240,8 +249,8 @@ export async function syncTeamMapping(): Promise<MappingResult> {
   return result;
 }
 
-/** Fetch API squads for all mapped clubs → auto-match players → save api_football_id */
-export async function syncPlayerMapping(): Promise<MappingResult> {
+/** Fetch API squads for all mapped clubs → auto-match players → save api_football_id via RPC */
+export async function syncPlayerMapping(adminId: string): Promise<MappingResult> {
   const result: MappingResult = { matched: 0, unmatched: [], errors: [] };
 
   try {
@@ -255,6 +264,8 @@ export async function syncPlayerMapping(): Promise<MappingResult> {
       result.errors.push('Keine gemappten Clubs gefunden — zuerst Teams syncen');
       return result;
     }
+
+    const mappings: Array<{ player_id: string; api_football_id: number }> = [];
 
     for (const club of clubs) {
       try {
@@ -293,22 +304,29 @@ export async function syncPlayerMapping(): Promise<MappingResult> {
           });
 
           if (match) {
-            const { error: updateErr } = await supabase
-              .from('players')
-              .update({ api_football_id: apiPlayer.id })
-              .eq('id', match.id);
-
-            if (updateErr) {
-              result.errors.push(`Player ${match.last_name}: ${updateErr.message}`);
-            } else {
-              result.matched++;
-            }
+            mappings.push({ player_id: match.id, api_football_id: apiPlayer.id });
           } else {
             result.unmatched.push(`${apiPlayer.name} (${club.name})`);
           }
         }
       } catch (e) {
         result.errors.push(`Club ${club.name}: ${e instanceof Error ? e.message : 'Fehler'}`);
+      }
+    }
+
+    if (mappings.length > 0) {
+      const { data, error: rpcErr } = await supabase.rpc('admin_map_players', {
+        p_admin_id: adminId,
+        p_mappings: mappings,
+      });
+
+      const rpcResult = data as { success: boolean; updated_count?: number; error?: string } | null;
+      if (rpcErr) {
+        result.errors.push(`RPC: ${rpcErr.message}`);
+      } else if (rpcResult && !rpcResult.success) {
+        result.errors.push(rpcResult.error ?? 'RPC fehlgeschlagen');
+      } else {
+        result.matched = rpcResult?.updated_count ?? mappings.length;
       }
     }
   } catch (e) {
@@ -318,8 +336,8 @@ export async function syncPlayerMapping(): Promise<MappingResult> {
   return result;
 }
 
-/** Fetch API fixtures for a GW → match to our fixtures via home/away team → save api_fixture_id */
-export async function syncFixtureMapping(gameweek: number): Promise<MappingResult> {
+/** Fetch API fixtures for a GW → match to our fixtures via home/away team → save api_fixture_id via RPC */
+export async function syncFixtureMapping(adminId: string, gameweek: number): Promise<MappingResult> {
   const result: MappingResult = { matched: 0, unmatched: [], errors: [] };
 
   try {
@@ -350,6 +368,8 @@ export async function syncFixtureMapping(gameweek: number): Promise<MappingResul
       return result;
     }
 
+    const mappings: Array<{ fixture_id: string; api_fixture_id: number }> = [];
+
     for (const apiFix of apiFixtures) {
       const homeClubId = apiIdToClub.get(apiFix.teams.home.id);
       const awayClubId = apiIdToClub.get(apiFix.teams.away.id);
@@ -364,18 +384,25 @@ export async function syncFixtureMapping(gameweek: number): Promise<MappingResul
       );
 
       if (match) {
-        const { error: updateErr } = await supabase
-          .from('fixtures')
-          .update({ api_fixture_id: apiFix.fixture.id })
-          .eq('id', match.id);
-
-        if (updateErr) {
-          result.errors.push(`Fixture: ${updateErr.message}`);
-        } else {
-          result.matched++;
-        }
+        mappings.push({ fixture_id: match.id, api_fixture_id: apiFix.fixture.id });
       } else {
         result.unmatched.push(`${apiFix.teams.home.name} vs ${apiFix.teams.away.name}`);
+      }
+    }
+
+    if (mappings.length > 0) {
+      const { data, error: rpcErr } = await supabase.rpc('admin_map_fixtures', {
+        p_admin_id: adminId,
+        p_mappings: mappings,
+      });
+
+      const rpcResult = data as { success: boolean; updated_count?: number; error?: string } | null;
+      if (rpcErr) {
+        result.errors.push(`RPC: ${rpcErr.message}`);
+      } else if (rpcResult && !rpcResult.success) {
+        result.errors.push(rpcResult.error ?? 'RPC fehlgeschlagen');
+      } else {
+        result.matched = rpcResult?.updated_count ?? mappings.length;
       }
     }
   } catch (e) {
@@ -431,8 +458,8 @@ export type ImportResult = {
   errors: string[];
 };
 
-/** Import real match data for a gameweek from API-Football */
-export async function importGameweek(gameweek: number): Promise<ImportResult> {
+/** Import real match data for a gameweek from API-Football via single RPC */
+export async function importGameweek(adminId: string, gameweek: number): Promise<ImportResult> {
   const result: ImportResult = { success: false, fixturesImported: 0, statsImported: 0, scoresSynced: 0, errors: [] };
 
   try {
@@ -469,57 +496,38 @@ export async function importGameweek(gameweek: number): Promise<ImportResult> {
 
     const apiClubMap = new Map((clubs ?? []).map(c => [c.api_football_id!, c.id as string]));
 
-    // 4. For each mapped fixture, fetch real stats from API
+    // 4. Fetch GW fixtures from API once (used for scores)
+    const apiFixData = await fetchApiFixtures(gameweek);
+
+    // 5. Collect fixture results + player stats for all fixtures
+    const fixtureResults: Array<{ fixture_id: string; home_score: number; away_score: number }> = [];
+    const playerStats: Array<{
+      fixture_id: string; player_id: string; club_id: string;
+      minutes_played: number; goals: number; assists: number;
+      clean_sheet: boolean; goals_conceded: number;
+      yellow_card: boolean; red_card: boolean;
+      saves: number; bonus: number; fantasy_points: number;
+    }> = [];
+
     for (const fixture of ourFixtures) {
       try {
         const apiStats = await fetchApiFixtureStats(fixture.api_fixture_id!);
-
-        // Also get fixture result
-        const apiFixData = await fetchApiFixtures(gameweek);
         const apiMatch = apiFixData.response.find(f => f.fixture.id === fixture.api_fixture_id);
 
-        // Update fixture scores
+        // Collect fixture score
         if (apiMatch && apiMatch.goals.home != null && apiMatch.goals.away != null) {
-          await supabase
-            .from('fixtures')
-            .update({
-              home_score: apiMatch.goals.home,
-              away_score: apiMatch.goals.away,
-              status: 'finished',
-            })
-            .eq('id', fixture.id);
-
-          result.fixturesImported++;
+          fixtureResults.push({
+            fixture_id: fixture.id,
+            home_score: apiMatch.goals.home,
+            away_score: apiMatch.goals.away,
+          });
         }
 
-        // Delete old stats for this fixture, then insert new
-        await supabase
-          .from('fixture_player_stats')
-          .delete()
-          .eq('fixture_id', fixture.id);
-
         // Process player stats from both teams
-        const statsToInsert: Array<{
-          fixture_id: string;
-          player_id: string;
-          club_id: string;
-          minutes_played: number;
-          goals: number;
-          assists: number;
-          clean_sheet: boolean;
-          goals_conceded: number;
-          yellow_card: boolean;
-          red_card: boolean;
-          saves: number;
-          bonus: number;
-          fantasy_points: number;
-        }> = [];
-
         for (const teamData of apiStats.response) {
           const clubId = apiClubMap.get(teamData.team.id);
           if (!clubId) continue;
 
-          // Determine if clean sheet (0 goals conceded by this team)
           const isHome = fixture.home_club_id === clubId;
           const goalsAgainst = apiMatch
             ? (isHome ? apiMatch.goals.away : apiMatch.goals.home) ?? 0
@@ -549,7 +557,7 @@ export async function importGameweek(gameweek: number): Promise<ImportResult> {
               yellowCard, redCard, saves, 0
             );
 
-            statsToInsert.push({
+            playerStats.push({
               fixture_id: fixture.id,
               player_id: ourPlayer.id,
               club_id: clubId,
@@ -566,33 +574,34 @@ export async function importGameweek(gameweek: number): Promise<ImportResult> {
             });
           }
         }
-
-        // Insert all stats
-        if (statsToInsert.length > 0) {
-          const { error: insertErr } = await supabase
-            .from('fixture_player_stats')
-            .insert(statsToInsert);
-
-          if (insertErr) {
-            result.errors.push(`Stats Insert fixture ${fixture.id}: ${insertErr.message}`);
-          } else {
-            result.statsImported += statsToInsert.length;
-          }
-        }
       } catch (e) {
         result.errors.push(`Fixture ${fixture.id}: ${e instanceof Error ? e.message : 'Fehler'}`);
       }
     }
 
-    // 5. Bridge: sync_fixture_scores RPC → player_gameweek_scores
-    const { data: syncResult, error: syncErr } = await supabase.rpc('sync_fixture_scores', {
-      p_gameweek: gameweek,
-    });
+    // 6. Single RPC call: import all data + sync scores
+    if (fixtureResults.length > 0 || playerStats.length > 0) {
+      const { data, error: rpcErr } = await supabase.rpc('admin_import_gameweek_stats', {
+        p_admin_id: adminId,
+        p_gameweek: gameweek,
+        p_fixture_results: fixtureResults,
+        p_player_stats: playerStats,
+      });
 
-    if (syncErr) {
-      result.errors.push(`Score-Sync: ${syncErr.message}`);
-    } else {
-      result.scoresSynced = (syncResult as { synced_count?: number })?.synced_count ?? 0;
+      const rpcResult = data as {
+        success: boolean; fixtures_imported?: number;
+        stats_imported?: number; scores_synced?: number; error?: string;
+      } | null;
+
+      if (rpcErr) {
+        result.errors.push(`RPC: ${rpcErr.message}`);
+      } else if (rpcResult && !rpcResult.success) {
+        result.errors.push(rpcResult.error ?? 'RPC fehlgeschlagen');
+      } else if (rpcResult) {
+        result.fixturesImported = rpcResult.fixtures_imported ?? 0;
+        result.statsImported = rpcResult.stats_imported ?? 0;
+        result.scoresSynced = rpcResult.scores_synced ?? 0;
+      }
     }
 
     result.success = result.errors.length === 0;
