@@ -58,8 +58,9 @@ function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAffo
   onBuy: (qty: number) => void;
 }) {
   const [qty, setQty] = useState(1);
-  const totalBsd = priceBsd * qty;
-  const totalCents = priceCents * qty;
+  const clampedQty = maxQty > 0 ? Math.min(qty, maxQty) : qty;
+  const totalBsd = priceBsd * clampedQty;
+  const totalCents = priceCents * clampedQty;
   const afford = balanceCents !== null && balanceCents >= totalCents;
 
   return (
@@ -69,6 +70,7 @@ function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAffo
         <div className="flex-1 bg-black/20 rounded-xl px-3 py-2 text-center">
           <div className="text-[10px] text-white/30">Preis/DPC</div>
           <div className="font-mono font-black text-[#FFD700]">{fmtScout(priceBsd)}</div>
+          {maxQty > 0 && <div className="text-[9px] text-white/20">max. {maxQty}</div>}
         </div>
         <div className="flex items-center gap-1.5">
           <button onClick={() => setQty(Math.max(1, qty - 1))}
@@ -92,12 +94,12 @@ function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAffo
             <div className="flex items-center justify-between text-[10px]">
               <span className="text-white/20">Danach</span>
               <span className={cn('font-mono', afford ? 'text-[#22C55E]' : 'text-red-400')}>
-                {formatScout(balanceCents - totalCents)}
+                {formatScout(Math.max(0, balanceCents - totalCents))}
               </span>
             </div>
           )}
         </div>
-        <Button variant="gold" size="lg" onClick={() => onBuy(qty)} disabled={isBuying || !afford} className="shrink-0">
+        <Button variant="gold" size="lg" onClick={() => onBuy(clampedQty)} disabled={isBuying || !afford || clampedQty < 1} className="shrink-0">
           {isBuying ? <Loader2 className="w-4 h-4 animate-spin" /> : icon}
           {isBuying ? '...' : label}
         </Button>
@@ -214,6 +216,7 @@ export default function BuyModal({
                       <div className="text-center py-2 text-xs text-white/30">
                         <Lock className="w-4 h-4 mx-auto mb-1 text-white/15" />
                         Limit erreicht
+                        {hasMarket && <div className="text-[10px] text-white/20 mt-1">Weitere DPCs über den Markt verfügbar ↓</div>}
                       </div>
                     )}
                   </div>

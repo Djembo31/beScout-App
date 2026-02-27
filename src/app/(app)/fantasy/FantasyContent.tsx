@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import {
   Trophy, Plus, AlertCircle, RefreshCw, Loader2, Calendar, Users, BarChart3, Globe,
 } from 'lucide-react';
-import { Button, Skeleton, SkeletonCard } from '@/components/ui';
+import { Button, Skeleton, SkeletonCard, ErrorBoundary } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
@@ -31,7 +31,7 @@ import { ErgebnisseTab } from '@/components/fantasy/ErgebnisseTab';
 import { EventsTab } from '@/components/fantasy/EventsTab';
 
 import { useClub } from '@/components/providers/ClubProvider';
-import EventSummaryModal from '@/components/fantasy/EventSummaryModal';
+import EventSummaryModal, { isEventSeen, markEventSeen } from '@/components/fantasy/EventSummaryModal';
 import NewUserTip from '@/components/onboarding/NewUserTip';
 
 // Lazy-load EventDetailModal (1387 lines) — only loaded when user opens an event
@@ -146,7 +146,7 @@ export default function FantasyContent() {
   const userId = user?.id;
 
   // ── React Query Hooks (BEFORE any early returns) ──
-  const { data: dbEvents = [], isLoading: eventsLoading, isError: eventsError } = useEvents();
+  const { data: dbEvents = [], isLoading: eventsLoading, isError: eventsError, refetch: refetchEvents } = useEvents();
   const { data: joinedIdsArr = [] } = useJoinedEventIds(userId);
   const { data: usageMap } = usePlayerEventUsage(userId);
   const { data: activeGw = 1 } = useActiveGameweek(clubId || undefined);
@@ -199,7 +199,6 @@ export default function FantasyContent() {
   // Check for unseen scored events → show summary modal
   useEffect(() => {
     if (lineupMap.size === 0 || !userId) return;
-    const { isEventSeen } = require('@/components/fantasy/EventSummaryModal');
     const scoredJoined = dbEvents.filter(e => e.scored_at && joinedSet.has(e.id));
     const unseen = scoredJoined.find(e => !isEventSeen(e.id));
     if (!unseen) return;
@@ -207,7 +206,7 @@ export default function FantasyContent() {
     const ev = dbEventToFantasyEvent(unseen, joinedSet, lineup);
     setSummaryEvent(ev);
     import('@/lib/services/scoring').then(({ getEventLeaderboard }) => {
-      getEventLeaderboard(unseen.id).then(setSummaryLeaderboard).catch(() => {});
+      getEventLeaderboard(unseen.id).then(setSummaryLeaderboard).catch(err => console.error('[Fantasy] Leaderboard load failed:', err));
     });
   }, [lineupMap, dbEvents, joinedSet, userId]);
 
@@ -353,6 +352,7 @@ export default function FantasyContent() {
 
     invalidateFantasyQueries(user.id, clubId);
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
+    setLocalEvents(null); // Clear local overrides so React Query refetches authoritative data
 
     // Mission tracking — only after full join succeeds (lineup + fee)
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
@@ -393,6 +393,7 @@ export default function FantasyContent() {
 
     invalidateFantasyQueries(user.id, clubId);
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
+    setLocalEvents(null); // Clear local overrides so React Query refetches authoritative data
 
     addToast(`Vom Event "${event.name}" abgemeldet.${event.buyIn > 0 ? ` ${event.buyIn} $SCOUT zurückerstattet.` : ''}`, 'success');
   }, [user, setBalanceCents, addToast, events]);
@@ -446,10 +447,10 @@ export default function FantasyContent() {
     addToast(`Event "${newEvent.name}" wurde erstellt!`, 'success');
   }, [addToast, currentGw, events]);
 
-  // Reload handler for error state
+  // Reload handler for error state — use React Query refetch instead of page reload
   const handleRetry = useCallback(() => {
-    window.location.reload();
-  }, []);
+    refetchEvents();
+  }, [refetchEvents]);
 
   // After gameweek simulation: reload data + auto-navigate to new GW
   const handleSimulated = useCallback(() => {
@@ -633,36 +634,41 @@ export default function FantasyContent() {
       )}
 
       {/* EVENT DETAIL MODAL */}
-      <EventDetailModal
-        event={selectedEvent}
-        isOpen={!!selectedEvent}
-        onClose={() => setSelectedEvent(null)}
-        onJoin={handleJoinEvent}
-        onLeave={handleLeaveEvent}
-        onReset={handleResetEvent}
-        userHoldings={holdings}
-      />
+      <ErrorBoundary>
+        <EventDetailModal
+          event={selectedEvent}
+          isOpen={!!selectedEvent}
+          onClose={() => setSelectedEvent(null)}
+          onJoin={handleJoinEvent}
+          onLeave={handleLeaveEvent}
+          onReset={handleResetEvent}
+          userHoldings={holdings}
+        />
+      </ErrorBoundary>
 
       {/* CREATE EVENT MODAL */}
-      <CreateEventModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onCreate={handleCreateEvent}
-      />
+      <ErrorBoundary>
+        <CreateEventModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreateEvent}
+        />
+      </ErrorBoundary>
 
       {/* POST-EVENT SUMMARY MODAL */}
       {summaryEvent && (
-        <EventSummaryModal
-          event={summaryEvent}
-          leaderboard={summaryLeaderboard}
-          open={true}
-          onClose={() => {
-            const { markEventSeen } = require('@/components/fantasy/EventSummaryModal');
-            markEventSeen(summaryEvent.id);
-            setSummaryEvent(null);
-            setSummaryLeaderboard([]);
-          }}
-        />
+        <ErrorBoundary>
+          <EventSummaryModal
+            event={summaryEvent}
+            leaderboard={summaryLeaderboard}
+            open={true}
+            onClose={() => {
+              markEventSeen(summaryEvent.id);
+              setSummaryEvent(null);
+              setSummaryLeaderboard([]);
+            }}
+          />
+        </ErrorBoundary>
       )}
 
     </div>

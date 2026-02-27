@@ -196,8 +196,9 @@ export default function MarktTab({
         </div>
         <div className="p-4">
           {tradesLoading ? (
-            <div className="flex items-center justify-center py-8">
+            <div className="flex flex-col items-center justify-center py-8 gap-2">
               <Loader2 className="w-6 h-6 animate-spin text-white/30" />
+              <span className="text-xs text-white/20">Trades laden...</span>
             </div>
           ) : trades.length === 0 ? (
             <div className="text-center py-6 text-white/40 text-sm">Noch keine Trades für diesen Spieler</div>

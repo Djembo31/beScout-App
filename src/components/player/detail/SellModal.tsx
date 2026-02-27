@@ -18,16 +18,20 @@ interface SellModalProps {
   onCancelOrder: (orderId: string) => void;
   selling: boolean;
   cancellingId: string | null;
+  sellError?: string | null;
 }
 
 export default function SellModal({
   open, onClose, player, holdingQty, userOrders,
   onSell, onCancelOrder, selling, cancellingId,
+  sellError: parentSellError,
 }: SellModalProps) {
   const [sellQty, setSellQty] = useState(1);
   const [sellPriceBsd, setSellPriceBsd] = useState('');
   const [sellSuccess, setSellSuccess] = useState<string | null>(null);
-  const [sellError, setSellError] = useState<string | null>(null);
+  const [localSellError, setLocalSellError] = useState<string | null>(null);
+
+  const sellError = parentSellError || localSellError;
 
   const circulation = player.dpc.circulation || 1;
   const share = holdingQty / circulation;
@@ -37,17 +41,24 @@ export default function SellModal({
   const floorBsd = floorPriceCents / 100;
 
   const handleSell = () => {
+    if (player.isLiquidated) return;
     const priceCents = Math.round(Number(sellPriceBsd) * 100);
-    if (priceCents > 0 && sellQty > 0) {
-      setSellError(null);
-      onSell(sellQty, priceCents);
+    if (priceCents < 1) {
+      setLocalSellError('Mindestpreis: 1 $SCOUT');
+      return;
     }
+    if (sellQty < 1 || sellQty > availableToSell) {
+      setLocalSellError('Ungültige Anzahl');
+      return;
+    }
+    setLocalSellError(null);
+    onSell(sellQty, priceCents);
   };
 
-  // Fee breakdown
+  // Fee breakdown — must match TRADE_FEE_TOTAL_PCT in backend RPCs
   const gross = sellQty * Number(sellPriceBsd || 0);
-  const feePct = 6;
-  const fee = gross * feePct / 100;
+  const TRADE_FEE_PCT = 6;
+  const fee = gross * TRADE_FEE_PCT / 100;
   const net = gross - fee;
   const showFee = sellPriceBsd && Number(sellPriceBsd) > 0;
 
@@ -167,7 +178,7 @@ export default function SellModal({
                     <span className="font-mono text-white/40">{fmtScout(gross)} $SCOUT</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-white/40">Gebühr ({feePct}%)</span>
+                    <span className="text-white/40">Gebühr ({TRADE_FEE_PCT}%)</span>
                     <span className="font-mono text-red-400/70">-{fmtScout(fee)} $SCOUT</span>
                   </div>
                   <div className="border-t border-white/10 pt-1.5 flex items-center justify-between text-sm">

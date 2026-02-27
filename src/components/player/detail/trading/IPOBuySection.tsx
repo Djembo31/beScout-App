@@ -7,6 +7,7 @@ import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
 import type { DbIpo } from '@/types';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 
 const formatCountdown = (isoDate: string) => {
   const ms = Math.max(0, new Date(isoDate).getTime() - Date.now());
@@ -126,7 +127,7 @@ export default function IPOBuySection({
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-white/40">Guthaben danach</span>
                   <span className={`font-mono font-bold ${canAfford ? 'text-[#22C55E]' : 'text-red-400'}`}>
-                    {formatScout(balanceCents - totalCents)} $SCOUT
+                    {formatScout(Math.max(0, balanceCents - totalCents))} $SCOUT
                   </span>
                 </div>
               )}
@@ -136,6 +137,7 @@ export default function IPOBuySection({
               {buying ? 'Wird gekauft...' : `${buyQty} DPC verpflichten`}
             </Button>
             {!canAfford && !buying && <div className="text-xs text-red-400 text-center">Nicht genug $SCOUT</div>}
+            <TradingDisclaimer />
           </>
         ) : (
           <div className="bg-white/[0.03] rounded-xl p-4 text-center">

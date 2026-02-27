@@ -29,7 +29,7 @@ export function usePlayerTrading({
   activeIpo, allSellOrders, holdingQty, balanceCents,
   userIpoPurchased,
 }: UsePlayerTradingParams) {
-  const { setBalanceCents } = useWallet();
+  const { setBalanceCents, refreshBalance } = useWallet();
   const { addToast } = useToast();
   const queryClient = useQueryClient();
 
@@ -39,6 +39,7 @@ export function usePlayerTrading({
   const [selling, setSelling] = useState(false);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [buyError, setBuyError] = useState<string | null>(null);
+  const [sellError, setSellError] = useState<string | null>(null);
   const [buySuccess, setBuySuccess] = useState<string | null>(null);
   const [shared, setShared] = useState(false);
   const [pendingBuyQty, setPendingBuyQty] = useState<number | null>(null);
@@ -68,7 +69,7 @@ export function usePlayerTrading({
   // ─── Handlers ──────────────────────────────
 
   const executeBuy = useCallback(async (quantity: number) => {
-    if (!userId || !player) return;
+    if (!userId || !player || buying) return;
     setPendingBuyQty(null);
     setBuying(true); setBuyError(null); setBuySuccess(null); setShared(false);
     try {
@@ -80,11 +81,12 @@ export function usePlayerTrading({
         setBalanceCents(result.new_balance ?? balanceCents ?? 0);
         queryClient.setQueryData(['holdings', 'qty', userId, playerId], (old: number | undefined) => (old ?? 0) + quantity);
         invalidateAfterTrade(playerId, userId);
+        refreshBalance();
         setTimeout(() => setBuySuccess(null), 5000);
       }
     } catch (err) { setBuyError(err instanceof Error ? err.message : 'Unbekannter Fehler'); }
     finally { setBuying(false); }
-  }, [userId, player, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, queryClient]);
+  }, [userId, player, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, queryClient, buying, refreshBalance]);
 
   const handleBuy = useCallback((quantity: number) => {
     if (!userId || !player || player.isLiquidated) return;
@@ -93,7 +95,7 @@ export function usePlayerTrading({
   }, [userId, player, userOrders, executeBuy]);
 
   const handleIpoBuy = useCallback(async (quantity: number) => {
-    if (!userId || !activeIpo) return;
+    if (!userId || !activeIpo || ipoBuying) return;
     setIpoBuying(true); setBuyError(null); setBuySuccess(null); setShared(false);
     try {
       const result = await buyFromIpo(userId, activeIpo.id, quantity);
@@ -107,26 +109,28 @@ export function usePlayerTrading({
           queryClient.setQueryData(['ipos', 'purchases', userId, activeIpo.id], result.user_total_purchased);
         }
         invalidateAfterTrade(playerId, userId);
+        refreshBalance();
         setTimeout(() => setBuySuccess(null), 5000);
       }
     } catch (err) { setBuyError(err instanceof Error ? err.message : 'Unbekannter Fehler'); }
     finally { setIpoBuying(false); }
-  }, [userId, activeIpo, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, queryClient]);
+  }, [userId, activeIpo, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, queryClient, ipoBuying, refreshBalance]);
 
   const handleSell = useCallback(async (quantity: number, priceCents: number) => {
-    if (!userId || player?.isLiquidated) return;
-    setSelling(true); setBuyError(null); setBuySuccess(null); setShared(false);
+    if (!userId || player?.isLiquidated || selling) return;
+    setSelling(true); setSellError(null); setBuySuccess(null); setShared(false);
     try {
       const result = await placeSellOrder(userId, playerId, quantity, priceCents);
-      if (!result.success) { setBuyError(result.error || 'Listing fehlgeschlagen'); }
+      if (!result.success) { setSellError(result.error || 'Listing fehlgeschlagen'); }
       else {
         setBuySuccess(`${quantity} DPC für ${formatScout(priceCents)} $SCOUT gelistet`);
         invalidateAfterTrade(playerId, userId);
+        setSellModalOpen(false);
         setTimeout(() => setBuySuccess(null), 5000);
       }
-    } catch (err) { setBuyError(err instanceof Error ? err.message : 'Unbekannter Fehler'); }
+    } catch (err) { setSellError(err instanceof Error ? err.message : 'Unbekannter Fehler'); }
     finally { setSelling(false); }
-  }, [userId, player, playerId, invalidateAfterTrade]);
+  }, [userId, player, playerId, invalidateAfterTrade, selling]);
 
   const handleCancelOrder = useCallback(async (orderId: string) => {
     if (!userId) return;
@@ -198,7 +202,7 @@ export function usePlayerTrading({
   return {
     // State
     buying, ipoBuying, selling, cancellingId,
-    buyError, buySuccess, shared,
+    buyError, sellError, buySuccess, shared,
     pendingBuyQty, buyModalOpen, sellModalOpen,
     showOfferModal, offerPrice, offerMessage, offerLoading,
     acceptingBidId,

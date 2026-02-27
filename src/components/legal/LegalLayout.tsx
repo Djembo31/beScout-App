@@ -18,7 +18,7 @@ export function LegalLayout({ children, title }: LegalLayoutProps) {
       {/* Header */}
       <header className="border-b border-white/[0.06]">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Link href="/welcome" className="flex items-center gap-2 text-white/50 hover:text-white/80 transition-colors">
+          <Link href="/" className="flex items-center gap-2 text-white/50 hover:text-white/80 transition-colors">
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm">{t('backToHome')}</span>
           </Link>

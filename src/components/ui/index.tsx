@@ -333,6 +333,7 @@ export { PosFilter } from './PosFilter';
 export { SortPills } from './SortPills';
 export { EmptyState } from './EmptyState';
 export { RangBadge, RangScorePill, RangProgress, DimensionRangRow, DimensionRangStack } from './RangBadge';
+export { ErrorBoundary } from './ErrorBoundary';
 
 export function ErrorState({
   message = 'Daten konnten nicht geladen werden.',

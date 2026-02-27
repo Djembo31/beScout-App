@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { XCircle } from 'lucide-react';
-import { Button, ErrorState, TabBar } from '@/components/ui';
+import { Button, ErrorState, TabBar, ErrorBoundary } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -310,55 +310,60 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         )}
       </div>
 
-      {/* Buy Modal */}
-      <BuyModal
-        open={trading.buyModalOpen}
-        onClose={trading.closeBuyModal}
-        player={playerWithOwnership}
-        activeIpo={activeIpo ?? null}
-        userIpoPurchased={userIpoPurchased}
-        balanceCents={balanceCents}
-        allSellOrders={allSellOrders}
-        userOrders={trading.userOrders}
-        userId={uid}
-        buying={trading.buying}
-        ipoBuying={trading.ipoBuying}
-        buyError={trading.buyError}
-        buySuccess={trading.buySuccess}
-        shared={trading.shared}
-        pendingBuyQty={trading.pendingBuyQty}
-        onBuy={trading.handleBuy}
-        onIpoBuy={trading.handleIpoBuy}
-        onConfirmBuy={trading.executeBuy}
-        onCancelPendingBuy={trading.cancelPendingBuy}
-        onShareTrade={trading.handleShareTrade}
-        onOpenOfferModal={trading.openOfferModal}
-      />
+      {/* Trading Modals — wrapped in ErrorBoundary */}
+      <ErrorBoundary>
+        <BuyModal
+          open={trading.buyModalOpen}
+          onClose={trading.closeBuyModal}
+          player={playerWithOwnership}
+          activeIpo={activeIpo ?? null}
+          userIpoPurchased={userIpoPurchased}
+          balanceCents={balanceCents}
+          allSellOrders={allSellOrders}
+          userOrders={trading.userOrders}
+          userId={uid}
+          buying={trading.buying}
+          ipoBuying={trading.ipoBuying}
+          buyError={trading.buyError}
+          buySuccess={trading.buySuccess}
+          shared={trading.shared}
+          pendingBuyQty={trading.pendingBuyQty}
+          onBuy={trading.handleBuy}
+          onIpoBuy={trading.handleIpoBuy}
+          onConfirmBuy={trading.executeBuy}
+          onCancelPendingBuy={trading.cancelPendingBuy}
+          onShareTrade={trading.handleShareTrade}
+          onOpenOfferModal={trading.openOfferModal}
+        />
+      </ErrorBoundary>
 
-      {/* Sell Modal */}
-      <SellModal
-        open={trading.sellModalOpen}
-        onClose={trading.closeSellModal}
-        player={playerWithOwnership}
-        holdingQty={holdingQty}
-        userOrders={trading.userOrders}
-        onSell={trading.handleSell}
-        onCancelOrder={trading.handleCancelOrder}
-        selling={trading.selling}
-        cancellingId={trading.cancellingId}
-      />
+      <ErrorBoundary>
+        <SellModal
+          open={trading.sellModalOpen}
+          onClose={trading.closeSellModal}
+          player={playerWithOwnership}
+          holdingQty={holdingQty}
+          userOrders={trading.userOrders}
+          onSell={trading.handleSell}
+          onCancelOrder={trading.handleCancelOrder}
+          selling={trading.selling}
+          cancellingId={trading.cancellingId}
+          sellError={trading.sellError}
+        />
+      </ErrorBoundary>
 
-      {/* Offer Modal */}
-      <OfferModal
-        open={trading.showOfferModal}
-        onClose={trading.closeOfferModal}
-        offerPrice={trading.offerPrice}
-        offerMessage={trading.offerMessage}
-        offerLoading={trading.offerLoading}
-        onPriceChange={trading.setOfferPrice}
-        onMessageChange={trading.setOfferMessage}
-        onSubmit={trading.handleCreateOffer}
-      />
+      <ErrorBoundary>
+        <OfferModal
+          open={trading.showOfferModal}
+          onClose={trading.closeOfferModal}
+          offerPrice={trading.offerPrice}
+          offerMessage={trading.offerMessage}
+          offerLoading={trading.offerLoading}
+          onPriceChange={trading.setOfferPrice}
+          onMessageChange={trading.setOfferMessage}
+          onSubmit={trading.handleCreateOffer}
+        />
+      </ErrorBoundary>
 
       {/* Sponsor: Player Footer */}
       <SponsorBanner placement="player_footer" />
