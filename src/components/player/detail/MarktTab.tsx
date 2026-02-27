@@ -163,7 +163,7 @@ export default function MarktTab({
                 const isOwn = userId && order.user_id === userId;
                 const sellerHandle = profileMap[order.user_id]?.handle;
                 return (
-                  <div key={order.id} className={`grid grid-cols-4 gap-2 items-center px-3 py-2 rounded-lg text-sm ${isOwn ? 'bg-[#FFD700]/5 border border-[#FFD700]/20' : 'bg-surface-base'}`}>
+                  <div key={order.id} className={`grid grid-cols-4 gap-2 items-center px-3 py-2 rounded-lg text-sm transition-colors ${isOwn ? 'bg-[#FFD700]/5 border border-[#FFD700]/20' : 'bg-surface-base hover:bg-white/[0.04]'}`}>
                     <span className="font-mono font-bold text-[#FFD700]">{formatScout(order.price)}</span>
                     <span className="font-mono">{remaining} DPC</span>
                     <span className="font-mono text-white/60">{formatScout(order.price * remaining)}</span>

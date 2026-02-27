@@ -37,10 +37,10 @@ export function CookieConsent() {
           })}
         </p>
         <div className="flex items-center gap-2 shrink-0">
-          <Button variant="outline" onClick={() => accept('essential')} className="text-xs px-3 py-1.5 min-h-[36px]">
+          <Button variant="outline" onClick={() => accept('essential')} className="text-xs px-3 py-1.5 min-h-[44px]">
             {t('cookieEssential')}
           </Button>
-          <Button variant="gold" onClick={() => accept('accepted')} className="text-xs px-3 py-1.5 min-h-[36px]">
+          <Button variant="gold" onClick={() => accept('accepted')} className="text-xs px-3 py-1.5 min-h-[44px]">
             {t('cookieAccept')}
           </Button>
         </div>

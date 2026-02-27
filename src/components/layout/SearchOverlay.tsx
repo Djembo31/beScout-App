@@ -202,6 +202,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
           {query && (
             <button
               onClick={() => setQuery('')}
+              aria-label="Suche leeren"
               className="p-1 rounded-lg hover:bg-white/10 transition-colors"
             >
               <X className="w-4 h-4 text-white/40" />
@@ -222,7 +223,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
               key={f.key}
               onClick={() => setFilter(f.key)}
               className={cn(
-                'px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all min-h-[32px]',
+                'px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all min-h-[44px]',
                 filter === f.key
                   ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/30'
                   : 'bg-white/5 text-white/50 border border-white/[0.06] hover:bg-white/10',
@@ -244,7 +245,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
                 </span>
                 <button
                   onClick={handleClearRecent}
-                  className="flex items-center gap-1 text-[11px] text-white/30 hover:text-white/50 min-h-[32px]"
+                  className="flex items-center gap-1 text-[11px] text-white/30 hover:text-white/50 min-h-[44px]"
                 >
                   <Trash2 className="w-3 h-3" />
                   {t('clearRecent')}

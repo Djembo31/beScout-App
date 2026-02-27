@@ -135,12 +135,12 @@ export default function SellModal({
               <div>
                 <label className="text-xs text-white/50 mb-1 block">Anzahl (max. {availableToSell})</label>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setSellQty(Math.max(1, sellQty - 1))}
+                  <button onClick={() => setSellQty(Math.max(1, sellQty - 1))} aria-label="Menge reduzieren"
                     className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 text-sm">-</button>
                   <input type="number" inputMode="numeric" value={sellQty} min={1} max={availableToSell}
                     onChange={(e) => setSellQty(Math.max(1, Math.min(availableToSell, parseInt(e.target.value) || 1)))}
                     className="flex-1 text-center bg-white/5 border border-white/10 rounded-lg py-1.5 font-mono font-bold text-base" />
-                  <button onClick={() => setSellQty(Math.min(availableToSell, sellQty + 1))}
+                  <button onClick={() => setSellQty(Math.min(availableToSell, sellQty + 1))} aria-label="Menge erhöhen"
                     className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 text-sm">+</button>
                 </div>
               </div>

@@ -151,7 +151,7 @@ export function TopScorerShowcase({ scorers, gameweek }: Props) {
           <button
             key={f.id}
             onClick={() => setPosFilter(f.id)}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all min-h-[32px] ${
+            className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all min-h-[44px] ${
               posFilter === f.id
                 ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/30'
                 : 'bg-white/[0.04] text-white/40 border border-white/[0.06] hover:text-white/60'

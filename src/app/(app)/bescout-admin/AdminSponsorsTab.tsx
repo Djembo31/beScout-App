@@ -227,13 +227,14 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
                     onClick={() => handleToggle(s)}
                     className="text-white/40 hover:text-white transition-colors"
                     title={s.is_active ? 'Deaktivieren' : 'Aktivieren'}
+                    aria-label={s.is_active ? 'Deaktivieren' : 'Aktivieren'}
                   >
                     {s.is_active ? <ToggleRight className="w-5 h-5 text-[#22C55E]" /> : <ToggleLeft className="w-5 h-5" />}
                   </button>
-                  <button onClick={() => openEdit(s)} className="text-white/40 hover:text-white transition-colors" title="Bearbeiten">
+                  <button onClick={() => openEdit(s)} className="text-white/40 hover:text-white transition-colors" title="Bearbeiten" aria-label="Bearbeiten">
                     <Edit2 className="w-4 h-4" />
                   </button>
-                  <button onClick={() => handleDelete(s.id)} className="text-white/40 hover:text-red-400 transition-colors" title="Löschen">
+                  <button onClick={() => handleDelete(s.id)} className="text-white/40 hover:text-red-400 transition-colors" title="Löschen" aria-label="Löschen">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -381,7 +382,7 @@ function SponsorStatsSection({
             <button
               key={d}
               onClick={() => onDaysChange(d)}
-              className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-colors min-h-[32px] ${
+              className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-colors min-h-[44px] ${
                 days === d ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/25' : 'bg-white/5 text-white/40 border border-white/10 hover:text-white/60'
               }`}
             >

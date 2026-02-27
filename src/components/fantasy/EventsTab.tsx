@@ -129,7 +129,7 @@ export function EventsTab({
               <button
                 key={cat.id}
                 onClick={() => setCategory(cat.id)}
-                className={`flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 min-h-[32px] rounded-lg text-[11px] font-semibold transition-all whitespace-nowrap ${
+                className={`flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 min-h-[44px] rounded-lg text-[11px] font-semibold transition-all whitespace-nowrap ${
                   isActive
                     ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/20'
                     : 'bg-white/[0.04] text-white/50 border border-white/[0.06] hover:text-white/70'
@@ -149,6 +149,7 @@ export function EventsTab({
         <div className="flex-shrink-0 flex items-center bg-white/[0.04] border border-white/[0.06] rounded-lg p-0.5">
           <button
             onClick={() => setViewMode('table')}
+            aria-label="Listenansicht"
             className={`p-1.5 rounded transition-all ${
               viewMode === 'table' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50'
             }`}
@@ -157,6 +158,7 @@ export function EventsTab({
           </button>
           <button
             onClick={() => setViewMode('cards')}
+            aria-label="Kartenansicht"
             className={`p-1.5 rounded transition-all ${
               viewMode === 'cards' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50'
             }`}
