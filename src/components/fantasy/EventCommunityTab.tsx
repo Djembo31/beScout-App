@@ -45,7 +45,7 @@ function getPhaseInfo(status: EventStatus): { label: string; color: string; icon
     case 'running':
       return {
         label: 'Live',
-        color: 'text-[#22C55E] bg-[#22C55E]/10 border-[#22C55E]/20',
+        color: 'text-green-500 bg-green-500/10 border-green-500/20',
         icon: <Play className="w-3.5 h-3.5" />,
         hint: 'Diskutiere die laufenden Performances!',
       };
@@ -204,7 +204,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                     : 'Teile deine Prediction...'
               }
               rows={2}
-              className="flex-1 bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-[#FFD700]/30"
+              className="flex-1 bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-gold/30"
               onKeyDown={e => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
@@ -255,14 +255,14 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                       onClick={() => handleVote(post.id, myVote === 1 ? 0 : 1)}
                       className={cn(
                         'p-1 rounded transition-colors',
-                        myVote === 1 ? 'text-[#22C55E] bg-[#22C55E]/10' : 'text-white/20 hover:text-[#22C55E]'
+                        myVote === 1 ? 'text-green-500 bg-green-500/10' : 'text-white/20 hover:text-green-500'
                       )}
                     >
                       <ArrowUp className="w-3.5 h-3.5" />
                     </button>
                     <span className={cn(
                       'text-xs font-mono font-bold',
-                      netScore > 0 ? 'text-[#22C55E]' : netScore < 0 ? 'text-red-400' : 'text-white/30'
+                      netScore > 0 ? 'text-green-500' : netScore < 0 ? 'text-red-400' : 'text-white/30'
                     )}>
                       {netScore}
                     </span>
@@ -280,11 +280,11 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <Link href={`/profile/${post.author_handle}`} className="text-xs font-bold text-white/70 truncate hover:text-[#FFD700] transition-colors">
+                      <Link href={`/profile/${post.author_handle}`} className="text-xs font-bold text-white/70 truncate hover:text-gold transition-colors">
                         {post.author_display_name ?? post.author_handle}
                       </Link>
                       {post.author_verified && (
-                        <Sparkles className="w-3 h-3 text-[#FFD700] shrink-0" />
+                        <Sparkles className="w-3 h-3 text-gold shrink-0" />
                       )}
                       {catStyle && (
                         <span className={cn('px-1.5 py-0.5 rounded text-[9px] font-bold border', catStyle.color)}>

@@ -30,7 +30,7 @@ export function TopspielCard({ fixture, onSelect }: Props) {
     >
       {/* Topspiel label */}
       <div className="flex items-center justify-center pt-3 pb-1">
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#FFD700]/70">
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gold/70">
           Topspiel
         </span>
       </div>

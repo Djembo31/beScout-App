@@ -76,7 +76,7 @@ function FixtureCard({ fixture, onSelect }: { fixture: Fixture; onSelect: () => 
 
       {/* Status bar */}
       <div className="flex items-center justify-between mt-2 text-[10px]">
-        <span className={isSimulated ? 'text-[#22C55E] font-bold' : 'text-white/30'}>
+        <span className={isSimulated ? 'text-green-500 font-bold' : 'text-white/30'}>
           {isSimulated ? 'Simuliert' : 'Geplant'}
         </span>
         <span className="text-white/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
@@ -147,7 +147,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose }: { fixture: Fixture | n
 
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-[#FFD700]" />
+            <Loader2 className="w-6 h-6 animate-spin text-gold" />
           </div>
         ) : stats.length === 0 ? (
           <div className="text-center text-white/30 py-8">Keine Spielerdaten verfügbar</div>
@@ -185,13 +185,13 @@ function TeamStats({ label, stats, color }: { label: string; stats: FixturePlaye
               {s.player_first_name.charAt(0)}. {s.player_last_name}
             </span>
             <span className="text-white/30 font-mono text-[10px]">{s.minutes_played}&apos;</span>
-            {s.goals > 0 && <span className="text-[#FFD700] font-bold">{s.goals}G</span>}
+            {s.goals > 0 && <span className="text-gold font-bold">{s.goals}G</span>}
             {s.assists > 0 && <span className="text-sky-400 font-bold">{s.assists}A</span>}
             {s.clean_sheet && <span className="text-emerald-400 text-[10px]">CS</span>}
             {s.yellow_card && <span className="w-2.5 h-3 bg-yellow-400 rounded-[1px] inline-block" />}
             {s.red_card && <span className="w-2.5 h-3 bg-red-500 rounded-[1px] inline-block" />}
             {s.bonus > 0 && (
-              <span className="flex items-center gap-0.5 text-[#FFD700]">
+              <span className="flex items-center gap-0.5 text-gold">
                 <Star className="w-2.5 h-2.5" />{s.bonus}
               </span>
             )}
@@ -247,7 +247,7 @@ export function GameweekTab() {
           <div className="text-xl font-black">Spieltag {gameweek}</div>
           <div className="text-xs text-white/40">
             {simulatedCount === 10 ? (
-              <span className="text-[#22C55E]">{totalGoals} Tore • Alle Spiele simuliert</span>
+              <span className="text-green-500">{totalGoals} Tore • Alle Spiele simuliert</span>
             ) : simulatedCount > 0 ? (
               <span>{simulatedCount}/10 simuliert</span>
             ) : (
@@ -273,7 +273,7 @@ export function GameweekTab() {
             onClick={() => setGameweek(gw)}
             className={`flex-shrink-0 w-9 h-9 rounded-lg text-xs font-bold transition-all ${
               gw === gameweek
-                ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/30'
+                ? 'bg-gold/15 text-gold border border-gold/30'
                 : 'bg-white/[0.03] text-white/40 border border-white/[0.06] hover:border-white/15'
             }`}
           >
@@ -349,13 +349,13 @@ function TopScorersSummary({ gameweek }: { gameweek: number }) {
   return (
     <Card className="p-4">
       <div className="flex items-center gap-2 mb-3">
-        <Trophy className="w-4 h-4 text-[#FFD700]" />
+        <Trophy className="w-4 h-4 text-gold" />
         <span className="text-sm font-black">Top Scorer — Spieltag {gameweek}</span>
       </div>
       <div className="space-y-1.5">
         {topScorers.map((s, i) => (
           <div key={s.id} className="flex items-center gap-2 text-xs">
-            <span className={`w-5 text-center font-bold ${i < 3 ? 'text-[#FFD700]' : 'text-white/30'}`}>
+            <span className={`w-5 text-center font-bold ${i < 3 ? 'text-gold' : 'text-white/30'}`}>
               {i + 1}
             </span>
             <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${posColor(s.player_position)}`}>
@@ -365,7 +365,7 @@ function TopScorersSummary({ gameweek }: { gameweek: number }) {
               {s.player_first_name} {s.player_last_name}
             </span>
             <span className="text-white/40">{s.club_short}</span>
-            {s.goals > 0 && <span className="text-[#FFD700]">{s.goals}G</span>}
+            {s.goals > 0 && <span className="text-gold">{s.goals}G</span>}
             {s.assists > 0 && <span className="text-sky-400">{s.assists}A</span>}
             <span className="font-mono font-bold w-8 text-right">{s.fantasy_points} Pkt</span>
           </div>

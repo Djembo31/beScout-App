@@ -18,8 +18,8 @@ export function FixtureCard({ fixture, onSelect }: Props) {
   const totalGoals = (fixture.home_score ?? 0) + (fixture.away_score ?? 0);
 
   const borderGlow = isSimulated
-    ? 'border-[#22C55E]/15 hover:border-[#22C55E]/25'
-    : 'border-white/[0.08] hover:border-[#FFD700]/15';
+    ? 'border-green-500/15 hover:border-green-500/25'
+    : 'border-white/[0.08] hover:border-gold/15';
 
   return (
     <button
@@ -28,7 +28,7 @@ export function FixtureCard({ fixture, onSelect }: Props) {
     >
       {/* Top bar: status + label */}
       <div className="flex items-center gap-2 mb-2">
-        <div className={`w-[6px] h-[6px] rounded-full flex-shrink-0 ${isSimulated ? 'bg-[#22C55E]' : 'bg-white/15'}`} />
+        <div className={`w-[6px] h-[6px] rounded-full flex-shrink-0 ${isSimulated ? 'bg-green-500' : 'bg-white/15'}`} />
         <span className="text-[10px] text-white/30 font-semibold">
           {isSimulated ? 'Beendet' : `Spieltag ${fixture.gameweek}`}
         </span>

@@ -50,11 +50,11 @@ export const DashboardTab = ({
     <div className="space-y-6">
       {/* Stats Overview */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
-        <Card className="p-3 md:p-4 bg-gradient-to-br from-[#FFD700]/10 to-transparent border-[#FFD700]/20">
+        <Card className="p-3 md:p-4 bg-gradient-to-br from-gold/10 to-transparent border-gold/20">
           <div className="text-xs text-white/50 mb-1 flex items-center gap-1">
             <Coins className="w-3 h-3" /> Gewonnene $SCOUT
           </div>
-          <div className="text-xl md:text-3xl font-mono font-black text-[#FFD700]">{fmtScout(totalRewardBsd)}</div>
+          <div className="text-xl md:text-3xl font-mono font-black text-gold">{fmtScout(totalRewardBsd)}</div>
         </Card>
         <Card className="p-3 md:p-4">
           <div className="text-xs text-white/50 mb-1">Gesamt Punkte</div>
@@ -66,7 +66,7 @@ export const DashboardTab = ({
         </Card>
         <Card className="p-3 md:p-4">
           <div className="text-xs text-white/50 mb-1">Beste Platzierung</div>
-          <div className="text-xl md:text-3xl font-mono font-black text-[#22C55E]">{bestRank ? `#${bestRank}` : '\u2014'}</div>
+          <div className="text-xl md:text-3xl font-mono font-black text-green-500">{bestRank ? `#${bestRank}` : '\u2014'}</div>
         </Card>
       </div>
 
@@ -102,14 +102,14 @@ export const DashboardTab = ({
           <Card className="p-5 lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-[#FFD700]" />
+                <Trophy className="w-4 h-4 text-gold" />
                 Letztes Event: {lastEvent.eventName}
               </h3>
               <Chip className="bg-white/10">{lastEvent.points} Punkte</Chip>
             </div>
             <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4">
               <div className="text-center p-3 bg-white/[0.03] rounded-lg">
-                <div className="text-lg md:text-2xl font-mono font-black text-[#22C55E]">#{lastEvent.rank}</div>
+                <div className="text-lg md:text-2xl font-mono font-black text-green-500">#{lastEvent.rank}</div>
                 <div className="text-[10px] text-white/40">Platzierung</div>
               </div>
               <div className="text-center p-3 bg-white/[0.03] rounded-lg">
@@ -122,8 +122,8 @@ export const DashboardTab = ({
               </div>
             </div>
             {lastEvent.rewardCents > 0 && (
-              <div className="p-3 bg-[#FFD700]/10 rounded-lg border border-[#FFD700]/20 flex items-center gap-2">
-                <Gift className="w-4 h-4 text-[#FFD700]" />
+              <div className="p-3 bg-gold/10 rounded-lg border border-gold/20 flex items-center gap-2">
+                <Gift className="w-4 h-4 text-gold" />
                 <span className="text-sm">Reward: <strong>{fmtScout(centsToBsd(lastEvent.rewardCents))} $SCOUT</strong></span>
               </div>
             )}
@@ -135,7 +135,7 @@ export const DashboardTab = ({
       <Card className="p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold flex items-center gap-2">
-            <Shield className="w-4 h-4 text-[#22C55E]" />
+            <Shield className="w-4 h-4 text-green-500" />
             Aufstellung
           </h3>
           {currentLineup && <div className="text-sm text-white/50">GW{currentLineup.gameweek}</div>}
@@ -150,7 +150,7 @@ export const DashboardTab = ({
                 onClick={() => setSelectedIdx(idx)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
                   idx === selectedIdx
-                    ? 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30'
+                    ? 'bg-gold/15 text-gold border-gold/30'
                     : 'bg-white/[0.03] text-white/50 border-white/[0.06] hover:bg-white/[0.06]'
                 }`}
               >
@@ -163,7 +163,7 @@ export const DashboardTab = ({
         {currentLineup && currentLineup.players.length > 0 ? (
           <div className="space-y-4">
             {/* Pitch with Side Sponsor Boards */}
-            <div className="rounded-xl overflow-hidden border border-[#22C55E]/20 flex">
+            <div className="rounded-xl overflow-hidden border border-green-500/20 flex">
               {/* Left LED Board */}
               <div className="hidden md:flex w-10 flex-shrink-0 bg-[#0c0c14] flex-col items-center justify-between py-3 gap-2 border-r border-white/[0.06]">
                 {leftBoard.map((label, i) => (
@@ -255,15 +255,15 @@ export const DashboardTab = ({
             </div>
 
             {/* Summary Bar */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg bg-white/[0.04] border border-[#FFD700]/20 gap-2 sm:gap-0">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg bg-white/[0.04] border border-gold/20 gap-2 sm:gap-0">
               <div className="flex items-center gap-4">
                 <span className="font-bold text-sm">Gesamt</span>
-                <span className="font-mono font-black text-lg text-[#FFD700]">{totalScore}</span>
+                <span className="font-mono font-black text-lg text-gold">{totalScore}</span>
               </div>
               <div className="flex items-center gap-4 text-sm">
-                <span className="text-white/50">Platz <span className="font-mono font-bold text-[#22C55E]">#{currentLineup.rank}</span> / {currentLineup.totalParticipants}</span>
+                <span className="text-white/50">Platz <span className="font-mono font-bold text-green-500">#{currentLineup.rank}</span> / {currentLineup.totalParticipants}</span>
                 {currentLineup.rewardCents > 0 && (
-                  <span className="text-[#FFD700] font-mono font-bold flex items-center gap-1">
+                  <span className="text-gold font-mono font-bold flex items-center gap-1">
                     <Gift className="w-3 h-3" /> {fmtScout(centsToBsd(currentLineup.rewardCents))} $SCOUT
                   </span>
                 )}
@@ -283,10 +283,10 @@ export const DashboardTab = ({
         <Card className="p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold flex items-center gap-2">
-              <Play className="w-4 h-4 text-[#22C55E]" />
+              <Play className="w-4 h-4 text-green-500" />
               Aktiv
             </h3>
-            <Chip className="bg-[#22C55E]/15 text-[#22C55E] border-[#22C55E]/25">{activeEvents.length}</Chip>
+            <Chip className="bg-green-500/15 text-green-500 border-green-500/25">{activeEvents.length}</Chip>
           </div>
           {activeEvents.length > 0 ? (
             <div className="space-y-2">
@@ -294,11 +294,11 @@ export const DashboardTab = ({
                 <button
                   key={event.id}
                   onClick={() => onViewEvent(event)}
-                  className="w-full p-3 bg-white/[0.02] rounded-lg text-left hover:bg-white/[0.05] transition-all border border-white/5 hover:border-[#22C55E]/30"
+                  className="w-full p-3 bg-white/[0.02] rounded-lg text-left hover:bg-white/[0.05] transition-all border border-white/5 hover:border-green-500/30"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm truncate">{event.name}</span>
-                    <span className="font-mono text-xs text-[#22C55E]">#{event.userRank}</span>
+                    <span className="font-mono text-xs text-green-500">#{event.userRank}</span>
                   </div>
                   <div className="text-[10px] text-white/40 mt-1">{event.userPoints} Punkte</div>
                 </button>

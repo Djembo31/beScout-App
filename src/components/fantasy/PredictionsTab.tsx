@@ -52,7 +52,7 @@ export function PredictionsTab({ gameweek, userId }: PredictionsTabProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Target className="w-5 h-5 text-[#FFD700]" />
+          <Target className="w-5 h-5 text-gold" />
           <h3 className="font-black">{t('myPredictions')}</h3>
           <span className={cn(
             'text-xs font-bold px-2 py-0.5 rounded-full',
@@ -99,7 +99,7 @@ export function PredictionsTab({ gameweek, userId }: PredictionsTabProps) {
               <span className="text-xs text-white/40">{t('resolved')}</span>
             </div>
             <div className="flex items-center gap-3 ml-auto">
-              <span className="flex items-center gap-1 text-xs font-bold text-[#22C55E]">
+              <span className="flex items-center gap-1 text-xs font-bold text-green-500">
                 <CheckCircle className="w-3.5 h-3.5" /> {correctCount}
               </span>
               <span className="flex items-center gap-1 text-xs font-bold text-red-400">

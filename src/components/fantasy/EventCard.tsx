@@ -25,7 +25,7 @@ export const EventCard = ({
   const isArena = event.eventTier === 'arena';
 
   return (
-    <Card className={`p-4 hover:border-white/20 transition-all ${event.isJoined ? 'border-[#22C55E]/30 bg-[#22C55E]/[0.02]' : isArena ? 'border-amber-500/20 bg-amber-500/[0.02]' : ''}`}>
+    <Card className={`p-4 hover:border-white/20 transition-all ${event.isJoined ? 'border-green-500/30 bg-green-500/[0.02]' : isArena ? 'border-amber-500/20 bg-amber-500/[0.02]' : ''}`}>
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -43,7 +43,7 @@ export const EventCard = ({
               <span className="text-[10px] font-bold">Beendet</span>
             </div>
           ) : event.isJoined ? (
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#22C55E] text-white">
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-green-500 text-white">
               <CheckCircle2 className="w-3 h-3" />
               <span className="text-[10px] font-bold">Nimmt teil</span>
             </div>
@@ -85,7 +85,7 @@ export const EventCard = ({
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2 mb-3">
         <div className="text-center p-2 bg-white/[0.03] rounded-lg">
-          <div className={`font-mono font-bold text-sm ${event.buyIn === 0 ? 'text-[#22C55E]' : 'text-[#FFD700]'}`}>
+          <div className={`font-mono font-bold text-sm ${event.buyIn === 0 ? 'text-green-500' : 'text-gold'}`}>
             {event.buyIn === 0 ? 'Kostenlos' : event.buyIn}
           </div>
           <div className="text-[9px] text-white/40">Teilnahme</div>
@@ -112,7 +112,7 @@ export const EventCard = ({
           )}
           {event.minSubscriptionTier && (
             <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border ${
-              event.minSubscriptionTier === 'gold' ? 'bg-[#FFD700]/15 border-[#FFD700]/25 text-[#FFD700]' :
+              event.minSubscriptionTier === 'gold' ? 'bg-gold/15 border-gold/25 text-gold' :
               event.minSubscriptionTier === 'silber' ? 'bg-white/10 border-white/20 text-gray-300' :
               'bg-orange-500/15 border-orange-500/25 text-orange-300'
             }`}>
@@ -126,9 +126,9 @@ export const EventCard = ({
 
       {/* User Status */}
       {event.isJoined && event.userRank && (
-        <div className="p-2 bg-[#22C55E]/10 rounded-lg mb-3 flex items-center justify-between">
-          <span className="text-xs text-[#22C55E]">Dein Rang</span>
-          <span className="font-mono font-bold text-[#22C55E]">#{event.userRank}</span>
+        <div className="p-2 bg-green-500/10 rounded-lg mb-3 flex items-center justify-between">
+          <span className="text-xs text-green-500">Dein Rang</span>
+          <span className="font-mono font-bold text-green-500">#{event.userRank}</span>
         </div>
       )}
 

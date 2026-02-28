@@ -44,7 +44,7 @@ export default function EventSummaryModal({
         {/* Event name */}
         <div className="text-center">
           <div className="text-xs text-white/40 uppercase tracking-wider mb-1">{event.name}</div>
-          <div className="text-4xl mb-2">{myRank && myRank <= 3 ? RANK_MEDALS[myRank] : <Trophy className="w-10 h-10 mx-auto text-[#FFD700]" />}</div>
+          <div className="text-4xl mb-2">{myRank && myRank <= 3 ? RANK_MEDALS[myRank] : <Trophy className="w-10 h-10 mx-auto text-gold" />}</div>
           <div className="text-2xl font-black">
             {myRank ? `${t('summary.rank')} #${myRank}` : t('summary.played')}
           </div>
@@ -57,9 +57,9 @@ export default function EventSummaryModal({
             <div className="text-lg font-mono font-black text-white">{myScore}</div>
           </div>
           {myReward > 0 && (
-            <div className="flex-1 bg-[#FFD700]/[0.05] border border-[#FFD700]/15 rounded-xl p-3 text-center">
-              <div className="text-[10px] text-[#FFD700]/60 uppercase mb-0.5">{t('summary.reward')}</div>
-              <div className="text-lg font-mono font-black text-[#FFD700]">{fmtScout(myReward)} $SCOUT</div>
+            <div className="flex-1 bg-gold/[0.05] border border-gold/15 rounded-xl p-3 text-center">
+              <div className="text-[10px] text-gold/60 uppercase mb-0.5">{t('summary.reward')}</div>
+              <div className="text-lg font-mono font-black text-gold">{fmtScout(myReward)} $SCOUT</div>
             </div>
           )}
         </div>

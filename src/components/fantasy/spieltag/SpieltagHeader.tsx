@@ -33,9 +33,9 @@ export function SpieltagHeader({
 
   // Color scheme
   const numberColor = isActive
-    ? 'text-[#FFD700]'
+    ? 'text-gold'
     : isFinished
-    ? 'text-[#22C55E]'
+    ? 'text-green-500'
     : 'text-white/30';
 
   const numberShadow = isActive
@@ -45,13 +45,13 @@ export function SpieltagHeader({
     : 'none';
 
   const bgGradient = isActive
-    ? 'from-[#FFD700]/[0.06] via-transparent to-transparent'
+    ? 'from-gold/[0.06] via-transparent to-transparent'
     : isFinished
-    ? 'from-[#22C55E]/[0.04] via-transparent to-transparent'
+    ? 'from-green-500/[0.04] via-transparent to-transparent'
     : 'from-white/[0.02] via-transparent to-transparent';
 
   const progressPct = Math.round((gameweek / 38) * 100);
-  const progressColor = isActive ? 'bg-[#FFD700]' : isFinished ? 'bg-[#22C55E]' : 'bg-white/20';
+  const progressColor = isActive ? 'bg-gold' : isFinished ? 'bg-green-500' : 'bg-white/20';
 
   return (
     <div className={`relative rounded-2xl border border-white/[0.08] overflow-hidden bg-gradient-to-br ${bgGradient}`}>
@@ -66,11 +66,11 @@ export function SpieltagHeader({
         </button>
 
         {isActive ? (
-          <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#FFD700] bg-[#FFD700]/10 border border-[#FFD700]/20 animate-pulse">
+          <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-gold bg-gold/10 border border-gold/20 animate-pulse">
             Aktuell
           </span>
         ) : isFinished ? (
-          <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#22C55E] bg-[#22C55E]/10 border border-[#22C55E]/20">
+          <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-green-500 bg-green-500/10 border border-green-500/20">
             Beendet
           </span>
         ) : (
@@ -104,14 +104,14 @@ export function SpieltagHeader({
         <div className="flex items-center justify-center gap-1.5 mt-1.5 text-xs">
           {isFinished ? (
             <>
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#22C55E]" />
-              <span className="text-[#22C55E] font-semibold">Beendet</span>
+              <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+              <span className="text-green-500 font-semibold">Beendet</span>
               {totalGoals > 0 && <span className="text-white/30">· {totalGoals} Tore · {fixtureCount} Spiele</span>}
             </>
           ) : isActive ? (
             <>
-              <div className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-              <span className="text-[#22C55E] font-bold">Offen</span>
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-green-500 font-bold">Offen</span>
               <span className="text-white/30">· {eventCount} Events · {fixtureCount} Spiele</span>
             </>
           ) : isPast ? (
@@ -136,7 +136,7 @@ export function SpieltagHeader({
           <button
             onClick={onSimulate}
             disabled={simulating}
-            className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-xl text-sm font-bold text-[#FFD700] hover:bg-[#FFD700]/20 disabled:opacity-50 transition-all active:scale-[0.97]"
+            className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-gold/10 border border-gold/30 rounded-xl text-sm font-bold text-gold hover:bg-gold/20 disabled:opacity-50 transition-all active:scale-[0.97]"
           >
             {simulating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
             {simulating ? 'Wird gestartet...' : apiAvailable ? 'Daten importieren' : 'Spieltag starten'}
@@ -147,7 +147,7 @@ export function SpieltagHeader({
         <div className="flex justify-center pb-3 px-4">
           <button
             onClick={onAdvance}
-            className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-[#22C55E]/10 border border-[#22C55E]/30 rounded-xl text-sm font-bold text-[#22C55E] hover:bg-[#22C55E]/20 transition-all active:scale-[0.97]"
+            className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-green-500/10 border border-green-500/30 rounded-xl text-sm font-bold text-green-500 hover:bg-green-500/20 transition-all active:scale-[0.97]"
           >
             <ArrowRight className="w-4 h-4" />
             Nächster Spieltag

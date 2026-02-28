@@ -72,12 +72,12 @@ function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
       </div>
       <div className="hidden md:flex items-center justify-center gap-0.5 text-[9px] text-white/30">
         <span>{stat.minutes_played}&apos;</span>
-        {stat.goals > 0 && <span className="text-[#FFD700]">{stat.goals}G</span>}
+        {stat.goals > 0 && <span className="text-gold">{stat.goals}G</span>}
         {stat.assists > 0 && <span className="text-sky-400">{stat.assists}A</span>}
         {stat.yellow_card && <span className="w-1.5 h-2 bg-yellow-400 rounded-[0.5px] inline-block" />}
         {stat.red_card && <span className="w-1.5 h-2 bg-red-500 rounded-[0.5px] inline-block" />}
         {stat.clean_sheet && <span className="text-emerald-400">CS</span>}
-        {stat.bonus > 0 && <span className="text-[#FFD700]">{stat.bonus}</span>}
+        {stat.bonus > 0 && <span className="text-gold">{stat.bonus}</span>}
       </div>
     </div>
   );
@@ -205,14 +205,14 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
         <div className="p-4 md:p-6">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-[#FFD700]" />
+              <Loader2 className="w-6 h-6 animate-spin text-gold" />
             </div>
           ) : stats.length === 0 ? (
             <div className="text-center text-white/30 py-12">
               {isSimulated ? 'Keine Spielerdaten verfügbar' : 'Spiel noch nicht simuliert — Aufstellungen werden nach Simulation angezeigt'}
             </div>
           ) : detailTab === 'formation' ? (
-            <div className="rounded-xl overflow-hidden border border-[#22C55E]/20">
+            <div className="rounded-xl overflow-hidden border border-green-500/20">
               {/* Sponsor Banner Top */}
               {(() => {
                 const sponsor = sponsorName ? { sponsorName, sponsorLogo } : null;
@@ -221,13 +221,13 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
                     {sponsor?.sponsorLogo ? (
                       <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
                     ) : (
-                      <Star className="w-3 h-3 text-[#FFD700]" />
+                      <Star className="w-3 h-3 text-gold" />
                     )}
                     <span className="text-xs font-bold tracking-widest text-white/50 uppercase">{sponsor?.sponsorName || 'Sponsor-Fläche'}</span>
                     {sponsor?.sponsorLogo ? (
                       <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
                     ) : (
-                      <Star className="w-3 h-3 text-[#FFD700]" />
+                      <Star className="w-3 h-3 text-gold" />
                     )}
                   </div>
                 );
@@ -350,13 +350,13 @@ function TeamStatsList({ label, stats, color }: { label: string; stats: FixtureP
               {s.player_first_name.charAt(0)}. {s.player_last_name}
             </span>
             <span className="text-white/30 font-mono text-[10px]">{s.minutes_played}&apos;</span>
-            {s.goals > 0 && <span className="text-[#FFD700] font-bold">{s.goals}G</span>}
+            {s.goals > 0 && <span className="text-gold font-bold">{s.goals}G</span>}
             {s.assists > 0 && <span className="text-sky-400 font-bold">{s.assists}A</span>}
             {s.clean_sheet && <span className="text-emerald-400 text-[10px]">CS</span>}
             {s.yellow_card && <span className="w-2.5 h-3 bg-yellow-400 rounded-[1px] inline-block" />}
             {s.red_card && <span className="w-2.5 h-3 bg-red-500 rounded-[1px] inline-block" />}
             {s.bonus > 0 && (
-              <span className="flex items-center gap-0.5 text-[#FFD700]">
+              <span className="flex items-center gap-0.5 text-gold">
                 <Star className="w-2.5 h-2.5" />{s.bonus}
               </span>
             )}
@@ -487,14 +487,14 @@ export function SpieltagTab({
             <button
               onClick={() => setShowConfirm(true)}
               disabled={simulating}
-              className="flex items-center gap-1.5 px-3 py-2 min-h-[40px] bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-xl text-xs font-bold text-[#FFD700] hover:bg-[#FFD700]/20 disabled:opacity-50 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 min-h-[40px] bg-gold/10 border border-gold/30 rounded-xl text-xs font-bold text-gold hover:bg-gold/20 disabled:opacity-50 transition-all"
             >
               {simulating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
               {apiAvailable ? 'Import' : 'Starten'}
             </button>
           )}
           {isAdmin && gwStatus === 'simulated' && isCurrentGw && (
-            <span className="text-[10px] text-[#22C55E] font-bold px-2 py-1 bg-[#22C55E]/10 rounded-lg">Beendet</span>
+            <span className="text-[10px] text-green-500 font-bold px-2 py-1 bg-green-500/10 rounded-lg">Beendet</span>
           )}
         </div>
       </div>
@@ -565,12 +565,12 @@ export function SpieltagTab({
               )}
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-[#FFD700] mt-0.5">3.</span>
-              <span>Events werden <strong className="text-[#FFD700]">gescored</strong> und Ergebnisse stehen fest</span>
+              <span className="text-gold mt-0.5">3.</span>
+              <span>Events werden <strong className="text-gold">gescored</strong> und Ergebnisse stehen fest</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-[#22C55E] mt-0.5">4.</span>
-              <span>Events für <strong className="text-[#22C55E]">Spieltag {gameweek + 1}</strong> werden automatisch erstellt</span>
+              <span className="text-green-500 mt-0.5">4.</span>
+              <span>Events für <strong className="text-green-500">Spieltag {gameweek + 1}</strong> werden automatisch erstellt</span>
             </li>
           </ul>
           {apiAvailable && (
@@ -587,7 +587,7 @@ export function SpieltagTab({
             </button>
             <button
               onClick={handleSimulate}
-              className="flex-1 px-4 py-2.5 min-h-[44px] bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-xl text-sm font-bold text-[#FFD700] hover:bg-[#FFD700]/20 transition-all"
+              className="flex-1 px-4 py-2.5 min-h-[44px] bg-gold/10 border border-gold/30 rounded-xl text-sm font-bold text-gold hover:bg-gold/20 transition-all"
             >
               {apiAvailable ? 'Daten importieren' : 'Spieltag starten'}
             </button>

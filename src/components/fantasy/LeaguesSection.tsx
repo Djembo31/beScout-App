@@ -55,7 +55,7 @@ function CreateLeagueModal({ open, onClose }: { open: boolean; onClose: () => vo
             onChange={e => setName(e.target.value)}
             placeholder={t('namePlaceholder')}
             maxLength={40}
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/30"
+            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
           />
         </div>
         <div>
@@ -67,7 +67,7 @@ function CreateLeagueModal({ open, onClose }: { open: boolean; onClose: () => vo
             onChange={e => setMaxMembers(e.target.value)}
             min="2"
             max="100"
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white font-mono focus:outline-none focus:border-[#FFD700]/30"
+            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white font-mono focus:outline-none focus:border-gold/30"
           />
         </div>
         <Button onClick={handleCreate} disabled={!name.trim() || loading} className="w-full min-h-[44px]">
@@ -118,7 +118,7 @@ function JoinLeagueModal({ open, onClose }: { open: boolean; onClose: () => void
             value={code}
             onChange={e => setCode(e.target.value)}
             placeholder={t('codePlaceholder')}
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-mono placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/30"
+            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-mono placeholder:text-white/30 focus:outline-none focus:border-gold/30"
           />
         </div>
         <Button onClick={handleJoin} disabled={!code.trim() || loading} className="w-full min-h-[44px]">
@@ -176,7 +176,7 @@ function LeagueCard({ league, userId }: { league: DbFantasyLeague; userId: strin
               <div className="flex items-center gap-2 text-xs text-white/40">
                 <Users className="w-3 h-3" />
                 <span>{league.member_count ?? 0}/{league.max_members}</span>
-                {isCreator && <Crown className="w-3 h-3 text-[#FFD700]" />}
+                {isCreator && <Crown className="w-3 h-3 text-gold" />}
               </div>
             </div>
           </div>
@@ -215,7 +215,7 @@ function LeagueCard({ league, userId }: { league: DbFantasyLeague; userId: strin
           ) : (
             <div className="space-y-1">
               {leaderboard.map((entry, i) => (
-                <div key={entry.user_id} className={`flex items-center gap-3 p-2 rounded-lg ${entry.user_id === userId ? 'bg-[#FFD700]/[0.05] border border-[#FFD700]/10' : 'bg-white/[0.02]'}`}>
+                <div key={entry.user_id} className={`flex items-center gap-3 p-2 rounded-lg ${entry.user_id === userId ? 'bg-gold/[0.05] border border-gold/10' : 'bg-white/[0.02]'}`}>
                   <span className="w-6 text-center text-sm">{RANK_MEDALS[i + 1] ?? `#${i + 1}`}</span>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-bold truncate">{entry.display_name ?? entry.handle ?? 'Anonym'}</div>
@@ -266,7 +266,7 @@ export default function LeaguesSection({ mode = 'full' }: { mode?: 'compact' | '
               <LogIn className="w-3.5 h-3.5 inline mr-1" />
               {t('join')}
             </button>
-            <button onClick={() => setShowCreate(true)} className="px-3 py-2 min-h-[44px] text-xs font-semibold rounded-lg bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] hover:bg-[#FFD700]/20 transition-all active:scale-[0.95]">
+            <button onClick={() => setShowCreate(true)} className="px-3 py-2 min-h-[44px] text-xs font-semibold rounded-lg bg-gold/10 border border-gold/20 text-gold hover:bg-gold/20 transition-all active:scale-[0.95]">
               <Plus className="w-3.5 h-3.5 inline mr-1" />
               {t('create')}
             </button>

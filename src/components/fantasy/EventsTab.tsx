@@ -38,7 +38,7 @@ function EventRow({ event, onClick }: { event: FantasyEvent; onClick: () => void
       onClick={onClick}
       className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-all text-left active:scale-[0.98] ${
         event.isJoined
-          ? 'bg-[#22C55E]/[0.04] border-[#22C55E]/20'
+          ? 'bg-green-500/[0.04] border-green-500/20'
           : 'bg-white/[0.02] border-white/[0.06] hover:border-white/10'
       }`}
     >
@@ -62,11 +62,11 @@ function EventRow({ event, onClick }: { event: FantasyEvent; onClick: () => void
       {/* Status */}
       <div className="flex-shrink-0 flex items-center gap-1.5">
         {event.isJoined ? (
-          <CheckCircle2 className="w-4 h-4 text-[#22C55E]" />
+          <CheckCircle2 className="w-4 h-4 text-green-500" />
         ) : event.status === 'running' ? (
-          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#22C55E]/15">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
-            <span className="text-[9px] font-bold text-[#22C55E]">LIVE</span>
+          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-green-500/15">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-[9px] font-bold text-green-500">LIVE</span>
           </div>
         ) : event.status === 'ended' ? (
           <Lock className="w-3.5 h-3.5 text-white/25" />
@@ -131,13 +131,13 @@ export function EventsTab({
                 onClick={() => setCategory(cat.id)}
                 className={`flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 min-h-[44px] rounded-lg text-[11px] font-semibold transition-all whitespace-nowrap ${
                   isActive
-                    ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/20'
+                    ? 'bg-gold/15 text-gold border border-gold/20'
                     : 'bg-white/[0.04] text-white/50 border border-white/[0.06] hover:text-white/70'
                 }`}
               >
                 <Icon className="w-3 h-3" />
                 <span>{t(`eventCategories.${cat.labelKey}`)}</span>
-                <span className={`text-[9px] font-mono ${isActive ? 'text-[#FFD700]/60' : 'text-white/20'}`}>
+                <span className={`text-[9px] font-mono ${isActive ? 'text-gold/60' : 'text-white/20'}`}>
                   {count}
                 </span>
               </button>

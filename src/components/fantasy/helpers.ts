@@ -5,7 +5,7 @@ import {
 
 export const getStatusStyle = (status: EventStatus) => {
   switch (status) {
-    case 'running': return { bg: 'bg-[#22C55E]', text: 'text-white', label: 'LIVE', pulse: true };
+    case 'running': return { bg: 'bg-green-500', text: 'text-white', label: 'LIVE', pulse: true };
     case 'late-reg': return { bg: 'bg-orange-500', text: 'text-white', label: 'Late Reg', pulse: true };
     case 'registering': return { bg: 'bg-sky-500', text: 'text-white', label: 'Anmelden', pulse: false };
     case 'upcoming': return { bg: 'bg-purple-500/50', text: 'text-purple-200', label: 'Bald', pulse: false };
@@ -16,8 +16,8 @@ export const getStatusStyle = (status: EventStatus) => {
 
 export const getTypeStyle = (type: EventType) => {
   switch (type) {
-    case 'bescout': return { color: 'text-[#FFD700]', bg: 'bg-[#FFD700]/15', icon: Sparkles };
-    case 'club': return { color: 'text-[#22C55E]', bg: 'bg-[#22C55E]/15', icon: Building2 };
+    case 'bescout': return { color: 'text-gold', bg: 'bg-gold/15', icon: Sparkles };
+    case 'club': return { color: 'text-green-500', bg: 'bg-green-500/15', icon: Building2 };
     case 'sponsor': return { color: 'text-sky-400', bg: 'bg-sky-500/15', icon: Gift };
     case 'creator': return { color: 'text-orange-400', bg: 'bg-orange-500/15', icon: UserPlus };
     case 'special': return { color: 'text-purple-400', bg: 'bg-purple-500/15', icon: Star };
@@ -28,7 +28,7 @@ export const getTypeStyle = (type: EventType) => {
 export const getTierStyle = (tier: 'arena' | 'club' | 'user') => {
   switch (tier) {
     case 'arena': return { color: 'text-amber-400', bg: 'bg-amber-500/15', border: 'border-amber-500/30', icon: Swords, label: 'Arena', pointsLabel: '+50 / −15' };
-    case 'club': return { color: 'text-[#22C55E]', bg: 'bg-[#22C55E]/10', border: 'border-[#22C55E]/20', icon: Building2, label: 'Club', pointsLabel: '+1 bis +15' };
+    case 'club': return { color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20', icon: Building2, label: 'Club', pointsLabel: '+1 bis +15' };
     case 'user': return { color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', icon: UserPlus, label: 'User', pointsLabel: '' };
     default: return { color: 'text-white/50', bg: 'bg-white/5', border: 'border-white/10', icon: Trophy, label: '', pointsLabel: '' };
   }
@@ -77,8 +77,8 @@ export const formatCountdown = (timestamp: number) => {
 
 export const getFormResult = (rank: number, total: number): { color: string; label: string } => {
   const percentile = (rank / total) * 100;
-  if (percentile <= 1) return { color: 'bg-[#FFD700]', label: '\u{1F3C6}' };
-  if (percentile <= 5) return { color: 'bg-[#22C55E]', label: '' };
+  if (percentile <= 1) return { color: 'bg-gold', label: '\u{1F3C6}' };
+  if (percentile <= 5) return { color: 'bg-green-500', label: '' };
   if (percentile <= 20) return { color: 'bg-sky-500', label: '' };
   if (percentile <= 50) return { color: 'bg-yellow-500', label: '' };
   return { color: 'bg-red-500', label: '' };

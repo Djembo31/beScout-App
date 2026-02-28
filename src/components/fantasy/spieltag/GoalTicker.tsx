@@ -26,7 +26,7 @@ export function GoalTicker({ scorers }: Props) {
           >
             <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${getPosDotColor(s.player_position)}`} />
             <span className="font-semibold text-white/80">{s.player_last_name}</span>
-            {s.goals > 1 && <span className="text-[#FFD700] font-bold">x{s.goals}</span>}
+            {s.goals > 1 && <span className="text-gold font-bold">x{s.goals}</span>}
           </div>
         ))}
       </div>

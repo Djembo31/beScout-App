@@ -23,7 +23,7 @@ const MEDALS = ['', '', ''];
 
 function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
   return (
-    <div className="rounded-2xl border-2 border-[#FFD700]/30 bg-gradient-to-br from-[#FFD700]/[0.08] via-transparent to-transparent p-4 relative overflow-hidden"
+    <div className="rounded-2xl border-2 border-gold/30 bg-gradient-to-br from-gold/[0.08] via-transparent to-transparent p-4 relative overflow-hidden"
       style={{ boxShadow: '0 0 20px rgba(255,215,0,0.08)' }}
     >
       {/* Medal */}
@@ -50,8 +50,8 @@ function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
       <div className="flex items-center gap-3 mt-3">
         {stat.goals > 0 && (
           <div className="flex items-center gap-1 text-xs">
-            <Target className="w-3.5 h-3.5 text-[#FFD700]" />
-            <span className="font-bold text-[#FFD700]">{stat.goals}</span>
+            <Target className="w-3.5 h-3.5 text-gold" />
+            <span className="font-bold text-gold">{stat.goals}</span>
           </div>
         )}
         {stat.assists > 0 && (
@@ -68,8 +68,8 @@ function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
         )}
         {stat.bonus > 0 && (
           <div className="flex items-center gap-1 text-xs">
-            <Star className="w-3.5 h-3.5 text-[#FFD700]" />
-            <span className="font-bold text-[#FFD700]">{stat.bonus}</span>
+            <Star className="w-3.5 h-3.5 text-gold" />
+            <span className="font-bold text-gold">{stat.bonus}</span>
           </div>
         )}
       </div>
@@ -113,7 +113,7 @@ function CompactRow({ stat, rank }: { stat: FixturePlayerStat; rank: number }) {
         {stat.player_first_name.charAt(0)}. {stat.player_last_name}
       </span>
       <span className="text-white/30">{stat.club_short}</span>
-      {stat.goals > 0 && <span className="text-[#FFD700] font-bold">{stat.goals}G</span>}
+      {stat.goals > 0 && <span className="text-gold font-bold">{stat.goals}G</span>}
       {stat.assists > 0 && <span className="text-sky-400 font-bold">{stat.assists}A</span>}
       <span className={`px-1.5 py-0.5 rounded text-[10px] font-black ${scoreBadgeColor(stat.fantasy_points)}`}>
         {stat.fantasy_points}
@@ -140,7 +140,7 @@ export function TopScorerShowcase({ scorers, gameweek }: Props) {
     <div>
       {/* Section header */}
       <div className="flex items-center gap-2 mb-3">
-        <Trophy className="w-4 h-4 text-[#FFD700]" />
+        <Trophy className="w-4 h-4 text-gold" />
         <h2 className="text-sm font-black uppercase tracking-wider">Top Scorer</h2>
         <span className="text-[10px] text-white/25">Spieltag {gameweek}</span>
       </div>
@@ -153,7 +153,7 @@ export function TopScorerShowcase({ scorers, gameweek }: Props) {
             onClick={() => setPosFilter(f.id)}
             className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all min-h-[44px] ${
               posFilter === f.id
-                ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/30'
+                ? 'bg-gold/15 text-gold border border-gold/30'
                 : 'bg-white/[0.04] text-white/40 border border-white/[0.06] hover:text-white/60'
             }`}
           >

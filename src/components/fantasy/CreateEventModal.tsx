@@ -84,7 +84,7 @@ export const CreateEventModal = ({
             onChange={(e) => setName(e.target.value)}
             placeholder="z.B. Meine Private Liga"
             maxLength={100}
-            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-[#FFD700]/40"
+            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
           />
         </div>
 
@@ -96,7 +96,7 @@ export const CreateEventModal = ({
             placeholder="Beschreibe dein Event..."
             rows={3}
             maxLength={500}
-            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-[#FFD700]/40 resize-none"
+            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 resize-none"
           />
         </div>
 
@@ -106,7 +106,7 @@ export const CreateEventModal = ({
             <select
               value={mode}
               onChange={(e) => setMode(e.target.value as EventMode)}
-              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-[#FFD700]/40"
+              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
             >
               <option value="tournament">Turnier</option>
               <option value="league">Liga</option>
@@ -117,7 +117,7 @@ export const CreateEventModal = ({
             <select
               value={format}
               onChange={(e) => setFormat(e.target.value as LineupFormat)}
-              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-[#FFD700]/40"
+              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
             >
               <option value="6er">6er Lineup</option>
               <option value="11er">11er Lineup</option>
@@ -136,7 +136,7 @@ export const CreateEventModal = ({
               min={0}
               max={0}
               disabled
-              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-[#FFD700]/40 opacity-50"
+              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 opacity-50"
             />
             <div className="text-[10px] text-white/30 mt-1">Pilot: immer 0 $SCOUT (regulatorisch)</div>
           </div>
@@ -149,7 +149,7 @@ export const CreateEventModal = ({
               onChange={(e) => setMaxParticipants(Number(e.target.value))}
               min={2}
               max={500}
-              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-[#FFD700]/40"
+              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
             />
           </div>
         </div>
@@ -161,17 +161,17 @@ export const CreateEventModal = ({
           </div>
           <button
             onClick={() => setIsPrivate(!isPrivate)}
-            className={`w-12 h-6 rounded-full transition-all ${isPrivate ? 'bg-[#FFD700]' : 'bg-white/20'}`}
+            className={`w-12 h-6 rounded-full transition-all ${isPrivate ? 'bg-gold' : 'bg-white/20'}`}
           >
             <div className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-all ${isPrivate ? 'translate-x-6' : 'translate-x-0.5'}`} />
           </button>
         </div>
 
-        <div className="p-4 bg-[#22C55E]/10 rounded-xl border border-[#22C55E]/20">
+        <div className="p-4 bg-green-500/10 rounded-xl border border-green-500/20">
           <div className="text-sm text-white/60 mb-2">Vorschau</div>
           <div className="grid grid-cols-3 gap-3 text-center">
             <div>
-              <div className="font-mono font-bold text-lg text-[#FFD700]">{buyIn} $SCOUT</div>
+              <div className="font-mono font-bold text-lg text-gold">{buyIn} $SCOUT</div>
               <div className="text-[10px] text-white/40">Teilnahme</div>
             </div>
             <div>

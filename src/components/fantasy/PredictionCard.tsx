@@ -24,8 +24,8 @@ export function PredictionCard({ prediction }: PredictionCardProps) {
   const actualLabel = prediction.actual_value ? getValueLabel(prediction.condition, prediction.actual_value, t) : null;
 
   const statusConfig = getStatusConfig(prediction.status, prediction.points_awarded, t);
-  const confidenceColor = prediction.confidence >= 86 ? 'text-[#FFD700] bg-[#FFD700]/15' :
-    prediction.confidence >= 66 ? 'text-[#22C55E] bg-[#22C55E]/15' :
+  const confidenceColor = prediction.confidence >= 86 ? 'text-gold bg-gold/15' :
+    prediction.confidence >= 66 ? 'text-green-500 bg-green-500/15' :
     'text-amber-400 bg-amber-400/15';
 
   return (
@@ -117,7 +117,7 @@ function getStatusConfig(
       return {
         icon: <CheckCircle className="w-3.5 h-3.5" />,
         label: `+${points.toFixed(1)}`,
-        className: 'text-[#22C55E] bg-[#22C55E]/10',
+        className: 'text-green-500 bg-green-500/10',
       };
     case 'wrong':
       return {

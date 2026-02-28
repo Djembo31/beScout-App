@@ -28,9 +28,9 @@ export function SpieltagSelector({
   const isPast = gameweek < activeGameweek;
 
   const statusColor = isCurrentGw && !isFinished
-    ? 'text-[#22C55E]'
+    ? 'text-green-500'
     : isFinished
-    ? 'text-[#22C55E]'
+    ? 'text-green-500'
     : 'text-white/30';
 
   const statusLabel = isCurrentGw && !isFinished
@@ -42,9 +42,9 @@ export function SpieltagSelector({
     : t('statusUpcoming');
 
   const borderColor = isCurrentGw && !isFinished
-    ? 'border-[#FFD700]/20'
+    ? 'border-gold/20'
     : isFinished
-    ? 'border-[#22C55E]/15'
+    ? 'border-green-500/15'
     : 'border-white/[0.08]';
 
   return (
@@ -66,7 +66,7 @@ export function SpieltagSelector({
             {t('label')} {gameweek}
           </span>
           {isCurrentGw && !isFinished && (
-            <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse flex-shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
           )}
         </div>
         <div className="flex items-center justify-center gap-1.5 text-[10px] text-white/40 mt-0.5">

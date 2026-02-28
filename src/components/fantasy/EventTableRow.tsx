@@ -22,7 +22,7 @@ export const EventTableRow = ({
   return (
     <tr
       onClick={onView}
-      className={`border-b border-white/5 cursor-pointer transition-all hover:bg-white/[0.02] ${event.isJoined ? 'bg-[#22C55E]/[0.02]' : ''}`}
+      className={`border-b border-white/5 cursor-pointer transition-all hover:bg-white/[0.02] ${event.isJoined ? 'bg-green-500/[0.02]' : ''}`}
     >
       {/* Status */}
       <td className="py-3 px-4">
@@ -43,7 +43,7 @@ export const EventTableRow = ({
 
       {/* Teilnahme */}
       <td className="py-3 px-3 text-right">
-        <span className={`font-mono text-sm ${event.buyIn === 0 ? 'text-[#22C55E]' : 'text-white'}`}>
+        <span className={`font-mono text-sm ${event.buyIn === 0 ? 'text-green-500' : 'text-white'}`}>
           {event.buyIn === 0 ? 'Kostenlos' : event.buyIn}
         </span>
       </td>
@@ -59,7 +59,7 @@ export const EventTableRow = ({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className={`font-medium truncate ${typeStyle.color}`}>{event.name}</span>
-              {event.isJoined && <CheckCircle2 className="w-3 h-3 text-[#22C55E] flex-shrink-0" />}
+              {event.isJoined && <CheckCircle2 className="w-3 h-3 text-green-500 flex-shrink-0" />}
             </div>
           </div>
         </div>

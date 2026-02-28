@@ -177,11 +177,11 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
       <div className="space-y-4">
         {/* Step indicator */}
         <div className="flex items-center gap-2 text-xs text-white/40">
-          <span className={cn(step === 'fixture' && 'text-[#FFD700] font-bold')}>{t('selectFixture')}</span>
+          <span className={cn(step === 'fixture' && 'text-gold font-bold')}>{t('selectFixture')}</span>
           <ChevronRight className="w-3 h-3" />
-          <span className={cn(step === 'condition' && 'text-[#FFD700] font-bold')}>{t('selectCondition')}</span>
+          <span className={cn(step === 'condition' && 'text-gold font-bold')}>{t('selectCondition')}</span>
           <ChevronRight className="w-3 h-3" />
-          <span className={cn(step === 'confirm' && 'text-[#FFD700] font-bold')}>{t('confidence')}</span>
+          <span className={cn(step === 'confirm' && 'text-gold font-bold')}>{t('confidence')}</span>
         </div>
 
         {/* Step 1: Select Fixture */}
@@ -221,7 +221,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                 onClick={() => { setPredType('match'); setSelectedPlayerId(null); setSelectedPlayerName(''); setSelectedCondition(null); setSelectedValue(null); }}
                 className={cn(
                   'flex-1 py-2 rounded-lg text-sm font-bold transition-colors',
-                  predType === 'match' ? 'bg-[#FFD700]/15 text-[#FFD700]' : 'bg-white/5 text-white/40'
+                  predType === 'match' ? 'bg-gold/15 text-gold' : 'bg-white/5 text-white/40'
                 )}
               >
                 <Target className="w-3.5 h-3.5 inline mr-1" />
@@ -231,7 +231,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                 onClick={() => { handlePlayerTypeSelect(); setSelectedCondition(null); setSelectedValue(null); }}
                 className={cn(
                   'flex-1 py-2 rounded-lg text-sm font-bold transition-colors',
-                  predType === 'player' ? 'bg-[#FFD700]/15 text-[#FFD700]' : 'bg-white/5 text-white/40'
+                  predType === 'player' ? 'bg-gold/15 text-gold' : 'bg-white/5 text-white/40'
                 )}
               >
                 <User className="w-3.5 h-3.5 inline mr-1" />
@@ -247,7 +247,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                   placeholder={t('searchPlayer')}
                   value={playerSearch}
                   onChange={e => setPlayerSearch(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#FFD700]/50"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold/50"
                 />
                 {loadingPlayers ? (
                   <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>
@@ -273,7 +273,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
             {/* Selected player badge */}
             {predType === 'player' && selectedPlayerId && (
               <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg">
-                <User className="w-3.5 h-3.5 text-[#FFD700]" />
+                <User className="w-3.5 h-3.5 text-gold" />
                 <span className="text-sm font-bold">{selectedPlayerName}</span>
                 <button onClick={() => { setSelectedPlayerId(null); setSelectedPlayerName(''); setSelectedCondition(null); setSelectedValue(null); }} className="ml-auto text-xs text-white/40 hover:text-white/60">
                   {t('change')}
@@ -297,7 +297,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                             className={cn(
                               'px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors border',
                               isSelected
-                                ? 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30'
+                                ? 'bg-gold/15 text-gold border-gold/30'
                                 : 'bg-white/[0.03] text-white/60 border-white/[0.06] hover:bg-white/[0.06]'
                             )}
                           >
@@ -336,7 +336,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                 <label className="text-sm font-bold">{t('confidence')}</label>
                 <span className={cn(
                   'text-lg font-mono font-black',
-                  confidence >= 86 ? 'text-[#FFD700]' : confidence >= 66 ? 'text-[#22C55E]' : 'text-amber-400'
+                  confidence >= 86 ? 'text-gold' : confidence >= 66 ? 'text-green-500' : 'text-amber-400'
                 )}>
                   {confidence}%
                 </span>
@@ -347,7 +347,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                 max={100}
                 value={confidence}
                 onChange={e => setConfidence(Number(e.target.value))}
-                className="w-full accent-[#FFD700]"
+                className="w-full accent-gold"
               />
               <p className="text-[11px] text-white/30 mt-1">{t('confidenceHint')}</p>
             </div>
@@ -356,9 +356,9 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
             {scorePreview && (
               <div>
                 <div className="flex gap-4 text-center">
-                  <div className="flex-1 p-2 rounded-lg bg-[#22C55E]/10">
-                    <p className="text-[10px] text-[#22C55E]/60">{t('correct')}</p>
-                    <p className="text-sm font-mono font-bold text-[#22C55E]">~+{scorePreview.correct}</p>
+                  <div className="flex-1 p-2 rounded-lg bg-green-500/10">
+                    <p className="text-[10px] text-green-500/60">{t('correct')}</p>
+                    <p className="text-sm font-mono font-bold text-green-500">~+{scorePreview.correct}</p>
                   </div>
                   <div className="flex-1 p-2 rounded-lg bg-red-400/10">
                     <p className="text-[10px] text-red-400/60">{t('wrong')}</p>

@@ -11,8 +11,8 @@ export const posColor = (pos: string) => {
 };
 
 export const scoreBadgeColor = (pts: number): string => {
-  if (pts >= 80) return 'bg-[#FFD700] text-black';
-  if (pts >= 60) return 'bg-[#22C55E] text-white';
+  if (pts >= 80) return 'bg-gold text-black';
+  if (pts >= 60) return 'bg-green-500 text-white';
   if (pts >= 40) return 'bg-sky-500 text-white';
   if (pts >= 20) return 'bg-orange-500 text-white';
   return 'bg-red-500 text-white';

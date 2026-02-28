@@ -34,14 +34,14 @@ export const GameweekSelector = ({
         onClick={() => onSelect(activeGameweek)}
         className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border font-bold transition-all min-w-[180px] justify-center ${
           isActive
-            ? 'bg-[#22C55E]/10 border-[#22C55E]/30 text-[#22C55E]'
+            ? 'bg-green-500/10 border-green-500/30 text-green-500'
             : 'bg-white/5 border-white/10 text-white hover:border-white/20'
         }`}
       >
         <span className="text-base font-black">Spieltag {selectedGameweek}</span>
         {isActive && (
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             <span className="text-[10px] font-bold">AKTIV</span>
           </span>
         )}

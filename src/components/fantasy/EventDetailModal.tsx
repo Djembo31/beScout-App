@@ -228,7 +228,7 @@ export const EventDetailModal = ({
 
   const getPlayerStatusStyle = (s: UserDpcHolding['status']) => {
     switch (s) {
-      case 'fit': return { icon: '🟢', label: 'Fit', color: 'text-[#22C55E]' };
+      case 'fit': return { icon: '🟢', label: 'Fit', color: 'text-green-500' };
       case 'injured': return { icon: '🔴', label: 'Verletzt', color: 'text-red-400' };
       case 'suspended': return { icon: '⛔', label: 'Gesperrt', color: 'text-orange-400' };
       case 'doubtful': return { icon: '🟡', label: 'Fraglich', color: 'text-yellow-400' };
@@ -366,7 +366,7 @@ export const EventDetailModal = ({
               <span className="text-xs font-bold">Ausgewertet</span>
             </div>
           ) : event.isJoined ? (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#22C55E] text-white">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-green-500 text-white">
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span className="text-xs font-bold">Nimmt teil</span>
             </div>
@@ -377,7 +377,7 @@ export const EventDetailModal = ({
             </div>
           )}
           <Chip className={`${typeStyle.bg} ${typeStyle.color}`}>{event.mode === 'league' ? 'Liga' : 'Turnier'} • {event.format}</Chip>
-          {event.status === 'running' && !isScored && <Chip className="bg-[#22C55E] text-white">LIVE</Chip>}
+          {event.status === 'running' && !isScored && <Chip className="bg-green-500 text-white">LIVE</Chip>}
           {isScored && (
             <button
               onClick={handleResetEvent}
@@ -400,11 +400,11 @@ export const EventDetailModal = ({
             <button
               key={t}
               onClick={() => { setTab(t); setViewingUserLineup(null); }}
-              className={`flex-1 px-4 py-3 min-h-[44px] font-medium text-sm transition-all relative ${tab === t ? 'text-[#FFD700]' : 'text-white/50 hover:text-white'
+              className={`flex-1 px-4 py-3 min-h-[44px] font-medium text-sm transition-all relative ${tab === t ? 'text-gold' : 'text-white/50 hover:text-white'
                 }`}
             >
               {t === 'overview' ? 'Übersicht' : t === 'lineup' ? 'Aufstellung' : t === 'leaderboard' ? 'Rangliste' : 'Community'}
-              {tab === t && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FFD700]" />}
+              {tab === t && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold" />}
             </button>
           ))}
         </div>
@@ -432,10 +432,10 @@ export const EventDetailModal = ({
                   </p>
                   <div className="grid grid-cols-4 gap-1.5">
                     {[
-                      { label: 'Top 1%', pts: '+50', color: 'text-[#FFD700]' },
-                      { label: 'Top 5%', pts: '+40', color: 'text-[#FFD700]' },
-                      { label: 'Top 10%', pts: '+30', color: 'text-[#22C55E]' },
-                      { label: 'Top 25%', pts: '+20', color: 'text-[#22C55E]' },
+                      { label: 'Top 1%', pts: '+50', color: 'text-gold' },
+                      { label: 'Top 5%', pts: '+40', color: 'text-gold' },
+                      { label: 'Top 10%', pts: '+30', color: 'text-green-500' },
+                      { label: 'Top 25%', pts: '+20', color: 'text-green-500' },
                       { label: 'Top 50%', pts: '+10', color: 'text-sky-400' },
                       { label: 'Top 75%', pts: '±0', color: 'text-white/40' },
                       { label: '75–90%', pts: '−5', color: 'text-red-300' },
@@ -456,11 +456,11 @@ export const EventDetailModal = ({
                 <div className="grid grid-cols-2 gap-2">
                   <div className="p-3 bg-white/[0.03] rounded-lg">
                     <div className="text-xs text-white/40">Eintritt</div>
-                    <div className="font-mono font-bold text-[#FFD700]">{event.buyIn === 0 ? 'Kostenlos' : `${event.buyIn} $SCOUT`}</div>
+                    <div className="font-mono font-bold text-gold">{event.buyIn === 0 ? 'Kostenlos' : `${event.buyIn} $SCOUT`}</div>
                   </div>
                   <div className="p-3 bg-white/[0.03] rounded-lg">
                     <div className="text-xs text-white/40">Preispool</div>
-                    <div className="font-mono font-bold text-[#FFD700]">{event.prizePool} $SCOUT</div>
+                    <div className="font-mono font-bold text-gold">{event.prizePool} $SCOUT</div>
                   </div>
                   <div className="p-3 bg-white/[0.03] rounded-lg">
                     <div className="text-xs text-white/40">Format</div>
@@ -488,27 +488,27 @@ export const EventDetailModal = ({
                   {/* Always show DPC per slot requirement */}
                   <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                     <div className="flex items-center gap-2">
-                      <Layers className="w-4 h-4 text-[#FFD700]" />
+                      <Layers className="w-4 h-4 text-gold" />
                       <span>{event.requirements.dpcPerSlot ?? 1} DPC pro Aufstellungsplatz</span>
                     </div>
-                    <CheckCircle2 className="w-5 h-5 text-[#22C55E]" />
+                    <CheckCircle2 className="w-5 h-5 text-green-500" />
                   </div>
                   {event.requirements.minDpc && (
                     <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
-                        <Briefcase className="w-4 h-4 text-[#FFD700]" />
+                        <Briefcase className="w-4 h-4 text-gold" />
                         <span>Min. {event.requirements.minDpc} DPC gesamt</span>
                       </div>
-                      <CheckCircle2 className="w-5 h-5 text-[#22C55E]" />
+                      <CheckCircle2 className="w-5 h-5 text-green-500" />
                     </div>
                   )}
                   {event.requirements.minClubPlayers && (
                     <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
-                        <Building2 className="w-4 h-4 text-[#22C55E]" />
+                        <Building2 className="w-4 h-4 text-green-500" />
                         <span>Min. {event.requirements.minClubPlayers} {event.clubName || 'Club'}-Spieler</span>
                       </div>
-                      <CheckCircle2 className="w-5 h-5 text-[#22C55E]" />
+                      <CheckCircle2 className="w-5 h-5 text-green-500" />
                     </div>
                   )}
                   {event.requirements.minScoutLevel && (
@@ -517,7 +517,7 @@ export const EventDetailModal = ({
                         <Star className="w-4 h-4 text-purple-400" />
                         <span>Scout Level {event.requirements.minScoutLevel}+</span>
                       </div>
-                      <CheckCircle2 className="w-5 h-5 text-[#22C55E]" />
+                      <CheckCircle2 className="w-5 h-5 text-green-500" />
                     </div>
                   )}
                   {event.requirements.specificClub && (
@@ -526,17 +526,17 @@ export const EventDetailModal = ({
                         <Shield className="w-4 h-4 text-sky-400" />
                         <span>Nur {event.requirements.specificClub}-Spieler</span>
                       </div>
-                      <CheckCircle2 className="w-5 h-5 text-[#22C55E]" />
+                      <CheckCircle2 className="w-5 h-5 text-green-500" />
                     </div>
                   )}
                   {/* Entry fee condition */}
                   {event.buyIn > 0 && (
                     <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
-                        <Coins className="w-4 h-4 text-[#FFD700]" />
+                        <Coins className="w-4 h-4 text-gold" />
                         <span>Eintrittsgebühr: {event.buyIn} $SCOUT</span>
                       </div>
-                      <CheckCircle2 className="w-5 h-5 text-[#22C55E]" />
+                      <CheckCircle2 className="w-5 h-5 text-green-500" />
                     </div>
                   )}
                 </div>
@@ -549,7 +549,7 @@ export const EventDetailModal = ({
                   {event.rewards.map((r, i) => (
                     <div key={i} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
-                        <Medal className={`w-4 h-4 ${i === 0 ? 'text-[#FFD700]' : i === 1 ? 'text-white/70' : 'text-orange-400'}`} />
+                        <Medal className={`w-4 h-4 ${i === 0 ? 'text-gold' : i === 1 ? 'text-white/70' : 'text-orange-400'}`} />
                         <span className="font-bold">{r.rank}</span>
                       </div>
                       <span className="text-white/70">{r.reward}</span>
@@ -569,12 +569,12 @@ export const EventDetailModal = ({
                     <div className="text-white/40 text-xs">Noch keine Teilnehmer. Sei der Erste!</div>
                   ) : (
                     participants.slice(0, 5).map(p => (
-                      <div key={p.id} className={`flex items-center gap-3 p-2 rounded-lg ${p.id === user?.id ? 'bg-[#FFD700]/10 border border-[#FFD700]/30' : 'bg-white/5'}`}>
+                      <div key={p.id} className={`flex items-center gap-3 p-2 rounded-lg ${p.id === user?.id ? 'bg-gold/10 border border-gold/30' : 'bg-white/5'}`}>
                         <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
                           {p.avatar_url ? <img src={p.avatar_url} alt={p.handle} className="w-full h-full object-cover" /> : <div className="text-xs flex items-center justify-center w-full h-full">👤</div>}
                         </div>
                         <div className="flex-1 text-xs">
-                          <div className={`font-medium ${p.id === user?.id ? 'text-[#FFD700]' : 'text-white'}`}>
+                          <div className={`font-medium ${p.id === user?.id ? 'text-gold' : 'text-white'}`}>
                             {p.display_name || p.handle} {p.id === user?.id && '(Du)'}
                           </div>
                         </div>
@@ -591,11 +591,11 @@ export const EventDetailModal = ({
 
               {/* User Status if joined */}
               {event.isJoined && event.userRank && (
-                <div className="p-4 bg-[#22C55E]/10 rounded-xl border border-[#22C55E]/20">
+                <div className="p-4 bg-green-500/10 rounded-xl border border-green-500/20">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm text-[#22C55E]">Dein Rang</div>
-                      <div className="text-2xl font-mono font-black text-[#22C55E]">#{event.userRank}</div>
+                      <div className="text-sm text-green-500">Dein Rang</div>
+                      <div className="text-2xl font-mono font-black text-green-500">#{event.userRank}</div>
                     </div>
                     <div className="text-right">
                       <div className="text-sm text-white/50">Punkte</div>
@@ -661,7 +661,7 @@ export const EventDetailModal = ({
                   <div className="text-xs font-bold text-white/60 mb-2">Aufstellungs-Vorlagen (max 5)</div>
                   {loadPresets().map((preset, i) => (
                     <div key={i} className="flex items-center justify-between p-2 bg-surface-base rounded-lg">
-                      <button onClick={() => applyPreset(preset)} className="text-sm font-medium hover:text-[#FFD700] transition-all flex-1 text-left">
+                      <button onClick={() => applyPreset(preset)} className="text-sm font-medium hover:text-gold transition-all flex-1 text-left">
                         {preset.name} <span className="text-white/30 text-xs">({preset.formation})</span>
                       </button>
                       <button onClick={() => deletePreset(i)} className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-red-500/20 rounded text-red-400">
@@ -680,7 +680,7 @@ export const EventDetailModal = ({
                     <button
                       onClick={savePreset}
                       disabled={!presetName.trim() || selectedPlayers.length === 0}
-                      className="px-3 py-1.5 bg-[#FFD700]/20 text-[#FFD700] rounded-lg text-xs font-bold disabled:opacity-30"
+                      className="px-3 py-1.5 bg-gold/20 text-gold rounded-lg text-xs font-bold disabled:opacity-30"
                     >
                       Speichern
                     </button>
@@ -689,22 +689,22 @@ export const EventDetailModal = ({
               )}
 
               {/* Formation Display — Pitch with Markings & Sponsor Zones */}
-              <div className="rounded-xl overflow-hidden border border-[#22C55E]/20">
+              <div className="rounded-xl overflow-hidden border border-green-500/20">
                 {/* Sponsor Banner Top (Bandenwerbung) */}
                 <div className="bg-gradient-to-r from-[#1a1a2e] via-[#16213e] to-[#1a1a2e] px-4 py-2.5 flex items-center justify-center gap-3 border-b border-white/10">
                   {event.sponsorLogo ? (
                     <img src={event.sponsorLogo} alt={event.sponsorName || 'Sponsor'} className="h-5 w-auto object-contain" />
                   ) : (
-                    <div className="w-5 h-5 rounded bg-[#FFD700]/20 flex items-center justify-center">
-                      <Sparkles className="w-3 h-3 text-[#FFD700]" />
+                    <div className="w-5 h-5 rounded bg-gold/20 flex items-center justify-center">
+                      <Sparkles className="w-3 h-3 text-gold" />
                     </div>
                   )}
                   <span className="text-xs font-bold tracking-widest text-white/50 uppercase">{event.sponsorName || 'Sponsor-Fläche'}</span>
                   {event.sponsorLogo ? (
                     <img src={event.sponsorLogo} alt="" className="h-5 w-auto object-contain" />
                   ) : (
-                    <div className="w-5 h-5 rounded bg-[#FFD700]/20 flex items-center justify-center">
-                      <Sparkles className="w-3 h-3 text-[#FFD700]" />
+                    <div className="w-5 h-5 rounded bg-gold/20 flex items-center justify-center">
+                      <Sparkles className="w-3 h-3 text-gold" />
                     </div>
                   )}
                 </div>
@@ -762,13 +762,13 @@ export const EventDetailModal = ({
                               <div key={slot.slot} className="flex flex-col items-center relative">
                                 {/* Captain Crown (top-left) */}
                                 {player && isCaptain && (
-                                  <div className="absolute -top-2 -left-2 z-30 w-5 h-5 rounded-full bg-[#FFD700] flex items-center justify-center shadow-lg">
+                                  <div className="absolute -top-2 -left-2 z-30 w-5 h-5 rounded-full bg-gold flex items-center justify-center shadow-lg">
                                     <Crown className="w-3 h-3 text-black" />
                                   </div>
                                 )}
                                 {/* Captain ×1.5 badge (scored view) */}
                                 {player && hasScore && isCaptain && (
-                                  <div className="absolute -top-2 left-4 z-30 px-1 py-0.5 rounded bg-[#FFD700]/90 text-[9px] font-black text-black shadow-lg">×1.5</div>
+                                  <div className="absolute -top-2 left-4 z-30 px-1 py-0.5 rounded bg-gold/90 text-[9px] font-black text-black shadow-lg">×1.5</div>
                                 )}
                                 {/* Score badge (top-right, overlapping circle) */}
                                 {player && hasScore && (
@@ -848,8 +848,8 @@ export const EventDetailModal = ({
                     {event.sponsorLogo ? (
                       <img src={event.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
                     ) : (
-                      <div className="w-4 h-4 rounded bg-[#FFD700]/20 flex items-center justify-center">
-                        <Building2 className="w-2.5 h-2.5 text-[#FFD700]/60" />
+                      <div className="w-4 h-4 rounded bg-gold/20 flex items-center justify-center">
+                        <Building2 className="w-2.5 h-2.5 text-gold/60" />
                       </div>
                     )}
                     <span className="text-[9px] text-white/30 font-medium">{event.sponsorName || 'Sponsor Logo'}</span>
@@ -859,8 +859,8 @@ export const EventDetailModal = ({
                     {event.sponsorLogo ? (
                       <img src={event.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
                     ) : (
-                      <div className="w-4 h-4 rounded bg-[#FFD700]/20 flex items-center justify-center">
-                        <Building2 className="w-2.5 h-2.5 text-[#FFD700]/60" />
+                      <div className="w-4 h-4 rounded bg-gold/20 flex items-center justify-center">
+                        <Building2 className="w-2.5 h-2.5 text-gold/60" />
                       </div>
                     )}
                     <span className="text-[9px] text-white/30 font-medium">{event.sponsorName || 'Sponsor Logo'}</span>
@@ -870,24 +870,24 @@ export const EventDetailModal = ({
 
               {/* Team Score Banner (only when scored) */}
               {isScored && myTotalScore != null && (
-                <div className={`relative overflow-hidden rounded-xl border ${scoringJustFinished ? 'border-[#FFD700]/40' : 'border-[#FFD700]/20'}`}>
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#FFD700]/15 via-[#FFD700]/5 to-[#FFD700]/15" />
-                  {scoringJustFinished && <div className="absolute inset-0 bg-[#FFD700]/5 animate-pulse" />}
+                <div className={`relative overflow-hidden rounded-xl border ${scoringJustFinished ? 'border-gold/40' : 'border-gold/20'}`}>
+                  <div className="absolute inset-0 bg-gradient-to-r from-gold/15 via-gold/5 to-gold/15" />
+                  {scoringJustFinished && <div className="absolute inset-0 bg-gold/5 animate-pulse" />}
                   <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 md:p-5 gap-3 sm:gap-0">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-[#FFD700]/20 flex items-center justify-center">
-                        <Trophy className="w-6 h-6 text-[#FFD700]" />
+                      <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center">
+                        <Trophy className="w-6 h-6 text-gold" />
                       </div>
                       <div>
                         <div className="text-xs text-white/50 uppercase tracking-wider font-bold">Dein Teamscore</div>
-                        <div className="text-3xl font-mono font-black text-[#FFD700]">{myTotalScore} <span className="text-lg">Pkt</span></div>
+                        <div className="text-3xl font-mono font-black text-gold">{myTotalScore} <span className="text-lg">Pkt</span></div>
                       </div>
                     </div>
                     <div className="flex items-center gap-5">
                       {myRank && (
                         <div className="text-right">
                           <div className="text-xs text-white/50 uppercase tracking-wider font-bold">Platzierung</div>
-                          <div className={`text-3xl font-mono font-black ${myRank === 1 ? 'text-[#FFD700]' : myRank <= 3 ? 'text-[#22C55E]' : 'text-white'}`}>
+                          <div className={`text-3xl font-mono font-black ${myRank === 1 ? 'text-gold' : myRank <= 3 ? 'text-green-500' : 'text-white'}`}>
                             #{myRank}
                           </div>
                         </div>
@@ -898,7 +898,7 @@ export const EventDetailModal = ({
                           return (
                             <div className="text-right">
                               <div className="text-xs text-white/50 uppercase tracking-wider font-bold">Prämie</div>
-                              <div className="text-xl font-mono font-black text-[#22C55E]">+{fmtScout(myEntry.rewardAmount / 100)} $SCOUT</div>
+                              <div className="text-xl font-mono font-black text-green-500">+{fmtScout(myEntry.rewardAmount / 100)} $SCOUT</div>
                             </div>
                           );
                         }
@@ -912,9 +912,9 @@ export const EventDetailModal = ({
               {/* Post-Game Nudge: Trading */}
               {isScored && myRank && myRank > 3 && (
                 <Link href="/market?tab=kaufen" onClick={onClose}>
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-[#FFD700]/[0.06] to-purple-500/[0.06] border border-[#FFD700]/15 hover:border-[#FFD700]/30 transition-all">
-                    <div className="w-8 h-8 rounded-lg bg-[#FFD700]/15 flex items-center justify-center flex-shrink-0">
-                      <Zap className="w-4 h-4 text-[#FFD700]" />
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-gold/[0.06] to-purple-500/[0.06] border border-gold/15 hover:border-gold/30 transition-all">
+                    <div className="w-8 h-8 rounded-lg bg-gold/15 flex items-center justify-center flex-shrink-0">
+                      <Zap className="w-4 h-4 text-gold" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-bold text-white">Portfolio stärken?</div>
@@ -938,11 +938,11 @@ export const EventDetailModal = ({
                     const tier = getScoreTier(score);
                     const tierCfg = tier !== 'none' ? SCORE_TIER_CONFIG[tier] : null;
                     return (
-                      <div key={slot.slot} className={`flex items-center justify-between p-3 rounded-lg bg-surface-base border ${isCpt ? 'border-[#FFD700]/30' : 'border-white/[0.06]'}`}>
+                      <div key={slot.slot} className={`flex items-center justify-between p-3 rounded-lg bg-surface-base border ${isCpt ? 'border-gold/30' : 'border-white/[0.06]'}`}>
                         <div className="flex items-center gap-3">
                           {isCpt ? (
-                            <div className="w-6 h-6 rounded-full bg-[#FFD700]/20 flex items-center justify-center flex-shrink-0">
-                              <Crown className="w-3.5 h-3.5 text-[#FFD700]" />
+                            <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
+                              <Crown className="w-3.5 h-3.5 text-gold" />
                             </div>
                           ) : (
                             <PositionBadge pos={player.pos as Pos} size="sm" />
@@ -950,7 +950,7 @@ export const EventDetailModal = ({
                           <div>
                             <div className="font-medium text-sm flex items-center gap-1.5">
                               {player.first} {player.last}
-                              {isCpt && <span className="text-[9px] font-bold text-[#FFD700] bg-[#FFD700]/10 px-1 rounded">C ×1.5</span>}
+                              {isCpt && <span className="text-[9px] font-bold text-gold bg-gold/10 px-1 rounded">C ×1.5</span>}
                             </div>
                             <div className="text-[10px] text-white/40 flex items-center gap-1.5">
                               {player.club}
@@ -1009,9 +1009,9 @@ export const EventDetailModal = ({
 
               {/* Captain Selection Hint */}
               {!isScored && !isReadOnly && selectedPlayers.length > 0 && (
-                <div className="flex items-center gap-2 p-3 bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-lg">
-                  <Crown className="w-4 h-4 text-[#FFD700]" />
-                  <span className="text-xs text-[#FFD700]/80">
+                <div className="flex items-center gap-2 p-3 bg-gold/5 border border-gold/20 rounded-lg">
+                  <Crown className="w-4 h-4 text-gold" />
+                  <span className="text-xs text-gold/80">
                     {captainSlot ? `Kapitän: ${(() => { const idx = slotDbKeys.indexOf(captainSlot); const p = idx >= 0 ? getSelectedPlayer(idx) : null; return p ? `${p.first} ${p.last} (×1.5)` : captainSlot; })()}` : 'Doppelklick auf einen Spieler = Kapitän (×1.5 Score)'}
                   </span>
                   {captainSlot && (
@@ -1036,9 +1036,9 @@ export const EventDetailModal = ({
               {/* Lineup Status (only when not scored — no need to show "3/6 selected" after scoring) */}
               {!isScored && !isReadOnly && (
                 isLineupComplete ? (
-                  <div className="flex items-center gap-2 p-3 bg-[#22C55E]/10 border border-[#22C55E]/30 rounded-xl">
-                    <CheckCircle2 className="w-5 h-5 text-[#22C55E] shrink-0" />
-                    <span className="text-sm font-bold text-[#22C55E]">Aufstellung vollständig — unten Teilnahme bestätigen!</span>
+                  <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-xl">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                    <span className="text-sm font-bold text-green-500">Aufstellung vollständig — unten Teilnahme bestätigen!</span>
                   </div>
                 ) : (
                   <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
@@ -1061,7 +1061,7 @@ export const EventDetailModal = ({
                   return (
                     <div
                       key={player.id}
-                      className={`flex items-center justify-between p-3 rounded-xl border transition-all ${isSelected ? 'bg-[#22C55E]/10 border-[#22C55E]/30' :
+                      className={`flex items-center justify-between p-3 rounded-xl border transition-all ${isSelected ? 'bg-green-500/10 border-green-500/30' :
                         player.isLocked ? 'bg-surface-base border-white/5 opacity-50' :
                           player.status === 'injured' ? 'bg-red-500/5 border-red-500/20' :
                             player.status === 'suspended' ? 'bg-orange-500/5 border-orange-500/20' :
@@ -1089,7 +1089,7 @@ export const EventDetailModal = ({
                             <Lock className="w-3 h-3" /> Alle eingesetzt
                           </span>
                         ) : isSelected ? (
-                          <CheckCircle2 className="w-4 h-4 text-[#22C55E]" />
+                          <CheckCircle2 className="w-4 h-4 text-green-500" />
                         ) : null}
                       </div>
                     </div>
@@ -1120,7 +1120,7 @@ export const EventDetailModal = ({
                   {/* User header */}
                   <div className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/10 rounded-xl">
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${viewingUserLineup.entry.rank === 1 ? 'bg-[#FFD700]/20 text-[#FFD700]' :
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${viewingUserLineup.entry.rank === 1 ? 'bg-gold/20 text-gold' :
                         viewingUserLineup.entry.rank === 2 ? 'bg-white/10 text-white/70' :
                           viewingUserLineup.entry.rank === 3 ? 'bg-orange-500/20 text-orange-400' :
                             'bg-white/5 text-white/50'
@@ -1133,9 +1133,9 @@ export const EventDetailModal = ({
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-mono font-black text-[#FFD700]">{viewingUserLineup.entry.totalScore} Pkt</div>
+                      <div className="text-2xl font-mono font-black text-gold">{viewingUserLineup.entry.totalScore} Pkt</div>
                       {viewingUserLineup.entry.rewardAmount > 0 && (
-                        <div className="text-xs font-mono text-[#22C55E]">+{fmtScout(viewingUserLineup.entry.rewardAmount / 100)} $SCOUT</div>
+                        <div className="text-xs font-mono text-green-500">+{fmtScout(viewingUserLineup.entry.rewardAmount / 100)} $SCOUT</div>
                       )}
                     </div>
                   </div>
@@ -1280,10 +1280,10 @@ export const EventDetailModal = ({
                                 setViewingUserLoading(false);
                               }
                             }}
-                            className={`w-full flex items-center justify-between p-4 rounded-lg border transition-all hover:brightness-110 cursor-pointer ${isCurrentUser ? 'bg-[#FFD700]/10 border-[#FFD700]/30' : 'bg-surface-base border-white/10 hover:border-white/20'}`}
+                            className={`w-full flex items-center justify-between p-4 rounded-lg border transition-all hover:brightness-110 cursor-pointer ${isCurrentUser ? 'bg-gold/10 border-gold/30' : 'bg-surface-base border-white/10 hover:border-white/20'}`}
                           >
                             <div className="flex items-center gap-3">
-                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${entry.rank === 1 ? 'bg-[#FFD700]/20 text-[#FFD700]' :
+                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${entry.rank === 1 ? 'bg-gold/20 text-gold' :
                                 entry.rank === 2 ? 'bg-white/10 text-white/70' :
                                   entry.rank === 3 ? 'bg-orange-500/20 text-orange-400' :
                                     'bg-white/5 text-white/50'
@@ -1296,14 +1296,14 @@ export const EventDetailModal = ({
                                 ) : (
                                   <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px]">👤</div>
                                 )}
-                                <span className={`text-left ${isCurrentUser ? 'font-bold text-[#FFD700]' : ''}`}>
+                                <span className={`text-left ${isCurrentUser ? 'font-bold text-gold' : ''}`}>
                                   {entry.displayName || entry.handle} {isCurrentUser && '(Du)'}
                                 </span>
                               </div>
                             </div>
                             <div className="flex items-center gap-3">
                               {entry.rewardAmount > 0 && (
-                                <span className="text-xs font-mono text-[#22C55E]">+{fmtScout(entry.rewardAmount / 100)} $SCOUT</span>
+                                <span className="text-xs font-mono text-green-500">+{fmtScout(entry.rewardAmount / 100)} $SCOUT</span>
                               )}
                               <span className="font-mono font-bold">{entry.totalScore}</span>
                               <ChevronRight className="w-4 h-4 text-white/30" />
@@ -1339,8 +1339,8 @@ export const EventDetailModal = ({
           <div className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
             <div className="bg-[#141414] border border-white/10 rounded-2xl p-6 max-w-sm w-full">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
-                  <Trophy className="w-5 h-5 text-[#FFD700]" />
+                <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
+                  <Trophy className="w-5 h-5 text-gold" />
                 </div>
                 <div>
                   <h3 className="font-bold text-white">Teilnahme bestätigen</h3>
@@ -1351,7 +1351,7 @@ export const EventDetailModal = ({
                 {event.buyIn > 0 && (
                   <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
                     <span className="text-white/60">Teilnahmegebühr</span>
-                    <span className="font-bold text-[#FFD700]">{fmtScout(event.buyIn)} $SCOUT</span>
+                    <span className="font-bold text-gold">{fmtScout(event.buyIn)} $SCOUT</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
@@ -1365,7 +1365,7 @@ export const EventDetailModal = ({
                 {captainSlot && (
                   <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
                     <span className="text-white/60">Kapitän</span>
-                    <span className="text-[#FFD700]">
+                    <span className="text-gold">
                       <Crown className="w-3.5 h-3.5 inline mr-1" />
                       Gewählt (2x Punkte)
                     </span>
@@ -1398,17 +1398,17 @@ export const EventDetailModal = ({
           const totalSlots = formationSlots.length;
           const canJoin = isLineupComplete && reqCheck.ok && !isFull && !overBudget;
           return (
-            <div className="flex-shrink-0 border-t border-white/10 bg-[#0a0a0a]">
+            <div className="flex-shrink-0 border-t border-white/10 bg-bg-main">
               {/* Lineup progress indicator */}
               {!isLineupComplete && (
                 <div className="px-3 pt-3 md:px-5 md:pt-4">
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-xs text-white/50">Aufstellung</span>
-                    <span className="text-xs font-mono font-bold text-[#FFD700]">{filledSlots}/{totalSlots} Spieler</span>
+                    <span className="text-xs font-mono font-bold text-gold">{filledSlots}/{totalSlots} Spieler</span>
                   </div>
                   <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-full transition-all"
+                      className="h-full bg-gradient-to-r from-gold to-[#FFA500] rounded-full transition-all"
                       style={{ width: `${(filledSlots / totalSlots) * 100}%` }}
                     />
                   </div>
@@ -1419,14 +1419,14 @@ export const EventDetailModal = ({
                 <div className="px-3 pt-2 md:px-5 md:pt-3">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs text-white/50">Budget</span>
-                    <span className={`text-xs font-mono font-bold ${overBudget ? 'text-red-400' : 'text-[#22C55E]'}`}>
+                    <span className={`text-xs font-mono font-bold ${overBudget ? 'text-red-400' : 'text-green-500'}`}>
                       {totalSalary} / {salaryCap}
                     </span>
                   </div>
                   <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${
-                        overBudget ? 'bg-red-500' : totalSalary / salaryCap > 0.85 ? 'bg-amber-500' : 'bg-[#22C55E]'
+                        overBudget ? 'bg-red-500' : totalSalary / salaryCap > 0.85 ? 'bg-amber-500' : 'bg-green-500'
                       }`}
                       style={{ width: `${Math.min(100, (totalSalary / salaryCap) * 100)}%` }}
                     />
@@ -1487,9 +1487,9 @@ export const EventDetailModal = ({
         {/* Running event — joined user sees locked status */}
         {event.isJoined && event.status === 'running' && (
           <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
-            <div className="flex items-center justify-center gap-2 py-3 px-4 bg-[#22C55E]/10 border border-[#22C55E]/30 rounded-xl">
-              <Lock className="w-4 h-4 text-[#22C55E]" />
-              <span className="text-sm font-bold text-[#22C55E]">Nimmt teil — Aufstellung gesperrt</span>
+            <div className="flex items-center justify-center gap-2 py-3 px-4 bg-green-500/10 border border-green-500/30 rounded-xl">
+              <Lock className="w-4 h-4 text-green-500" />
+              <span className="text-sm font-bold text-green-500">Nimmt teil — Aufstellung gesperrt</span>
             </div>
           </div>
         )}
@@ -1554,9 +1554,9 @@ export const EventDetailModal = ({
             {/* Desktop: backdrop + centered modal */}
             <div className="hidden md:block fixed inset-0 bg-black/60 z-[60]" onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }} />
             {/* Mobile: full-screen | Desktop: centered modal */}
-            <div className="fixed inset-0 z-[60] bg-[#0a0a0a] flex flex-col md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[calc(100%-2rem)] md:max-w-md md:max-h-[70vh] md:rounded-xl md:border md:border-white/10 md:shadow-2xl md:overflow-hidden">
+            <div className="fixed inset-0 z-[60] bg-bg-main flex flex-col md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[calc(100%-2rem)] md:max-w-md md:max-h-[70vh] md:rounded-xl md:border md:border-white/10 md:shadow-2xl md:overflow-hidden">
               {/* ── Sticky Header ── */}
-              <div className="shrink-0 bg-[#0a0a0a] border-b border-white/10">
+              <div className="shrink-0 bg-bg-main border-b border-white/10">
                 {/* Top bar: Back + Title + Count + Sort */}
                 <div className="flex items-center gap-3 px-4 pt-3 pb-2">
                   <button
@@ -1578,7 +1578,7 @@ export const EventDetailModal = ({
                         key={s}
                         onClick={() => setPickerSort(s === 'l5' ? 'l5' : 'name')}
                         className={cn('px-2 py-1 rounded text-[10px] font-bold min-h-[44px]',
-                          pickerSort === s ? 'bg-[#FFD700]/15 text-[#FFD700]' : 'text-white/30'
+                          pickerSort === s ? 'bg-gold/15 text-gold' : 'text-white/30'
                         )}
                       >{s === 'l5' ? 'L5' : 'A-Z'}</button>
                     ))}
@@ -1593,7 +1593,7 @@ export const EventDetailModal = ({
                       placeholder="Spieler suchen..."
                       value={pickerSearch}
                       onChange={e => setPickerSearch(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
+                      className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/30"
                     />
                   </div>
                 </div>
@@ -1610,7 +1610,7 @@ export const EventDetailModal = ({
                     <Link
                       href="/market?tab=kaufen"
                       onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }}
-                      className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-[#FFD700]/15 text-[#FFD700] text-xs font-bold rounded-xl hover:bg-[#FFD700]/25 transition-all"
+                      className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-gold/15 text-gold text-xs font-bold rounded-xl hover:bg-gold/25 transition-all"
                     >
                       <ShoppingCart className="w-3.5 h-3.5" />
                       Spieler kaufen
@@ -1619,7 +1619,7 @@ export const EventDetailModal = ({
                 ) : (
                   <div className="divide-y divide-white/[0.04]">
                     {availablePlayers.map(player => {
-                      const scoreColor = player.perfL5 >= 70 ? 'text-[#22C55E]' : player.perfL5 >= 50 ? 'text-white' : 'text-red-300';
+                      const scoreColor = player.perfL5 >= 70 ? 'text-green-500' : player.perfL5 >= 50 ? 'text-white' : 'text-red-300';
                       return (
                         <button
                           key={player.id}

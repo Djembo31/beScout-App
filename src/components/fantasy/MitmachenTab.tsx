@@ -69,7 +69,7 @@ export function MitmachenTab({
       {/* ── SECTION 1: Meine Aufstellungen ── */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <Trophy className="w-4 h-4 text-[#FFD700]" />
+          <Trophy className="w-4 h-4 text-gold" />
           <h3 className="font-bold text-sm">{t('myLineups')}</h3>
           {joinedEvents.length > 0 && (
             <span className="text-[10px] text-white/30 font-mono">{joinedEvents.length}</span>
@@ -78,7 +78,7 @@ export function MitmachenTab({
 
         {joinedEvents.length === 0 ? (
           <Card className="p-6 text-center">
-            <Trophy className="w-8 h-8 text-[#FFD700]/30 mx-auto mb-2" />
+            <Trophy className="w-8 h-8 text-gold/30 mx-auto mb-2" />
             <div className="text-sm text-white/50 font-medium">{tf('mitmachen.noLineups')}</div>
             <div className="text-xs text-white/30 mt-1 max-w-[280px] mx-auto leading-relaxed">{tf('mitmachen.noLineupsCta')}</div>
             <Button variant="gold" size="sm" className="mt-3" onClick={() => { const el = document.querySelector('[data-tab="events"]'); if (el instanceof HTMLElement) el.click(); }}>
@@ -103,12 +103,12 @@ export function MitmachenTab({
                 >
                   <div className="flex-shrink-0">
                     {isScored && rank != null ? (
-                      <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
-                        <span className="text-sm font-black text-[#FFD700]">#{rank}</span>
+                      <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
+                        <span className="text-sm font-black text-gold">#{rank}</span>
                       </div>
                     ) : hasLineup ? (
-                      <div className="w-10 h-10 rounded-xl bg-[#22C55E]/10 flex items-center justify-center">
-                        <CheckCircle2 className="w-5 h-5 text-[#22C55E]" />
+                      <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
                       </div>
                     ) : (
                       <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
@@ -122,7 +122,7 @@ export function MitmachenTab({
                       {isScored ? (
                         <span>{score ?? 0} Punkte · Platz {rank ?? '-'} / {event.participants}</span>
                       ) : hasLineup ? (
-                        <span className="text-[#22C55E]">{tf('mitmachen.lineupSet')}</span>
+                        <span className="text-green-500">{tf('mitmachen.lineupSet')}</span>
                       ) : (
                         <span className="text-orange-400">{tf('mitmachen.noLineup')}</span>
                       )}

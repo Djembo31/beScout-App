@@ -131,7 +131,7 @@ export function ErgebnisseTab({
   if (events.length === 0) {
     return (
       <div className="py-16 text-center">
-        <Trophy className="w-12 h-12 mx-auto mb-4 text-[#FFD700]/20" />
+        <Trophy className="w-12 h-12 mx-auto mb-4 text-gold/20" />
         <div className="text-white/50 font-medium">{tf('ergebnisse.noData')}</div>
         <div className="text-xs text-white/30 mt-1 max-w-[280px] mx-auto leading-relaxed">{tf('ergebnisse.noDataDesc')}</div>
       </div>
@@ -144,7 +144,7 @@ export function ErgebnisseTab({
       {joinedScoredEvents.length > 0 && (
         <section>
           <div className="flex items-center gap-2 mb-3">
-            <Trophy className="w-4 h-4 text-[#FFD700]" />
+            <Trophy className="w-4 h-4 text-gold" />
             <h3 className="font-bold text-sm">{t('results')}</h3>
           </div>
           <div className="space-y-2">
@@ -158,7 +158,7 @@ export function ErgebnisseTab({
                   key={event.id}
                   className="flex items-center gap-3 p-3 bg-white/[0.03] border border-white/10 rounded-2xl"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
                     <span className="text-sm font-bold">{medalEmoji || `#${rank ?? '-'}`}</span>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -168,7 +168,7 @@ export function ErgebnisseTab({
                     </div>
                   </div>
                   {event.userReward && event.userReward > 0 && (
-                    <span className="text-xs font-bold text-[#FFD700]">+{(event.userReward / 100).toFixed(0)} $SCOUT</span>
+                    <span className="text-xs font-bold text-gold">+{(event.userReward / 100).toFixed(0)} $SCOUT</span>
                   )}
                 </div>
               );
@@ -195,7 +195,7 @@ export function ErgebnisseTab({
       {resolvedPredictions.length > 0 && (
         <section>
           <div className="flex items-center gap-2 mb-3">
-            <Target className="w-4 h-4 text-[#FFD700]" />
+            <Target className="w-4 h-4 text-gold" />
             <h3 className="font-bold text-sm">{tf('ergebnisse.predictions')}</h3>
           </div>
           <Card className="p-3 flex items-center gap-4">
@@ -204,7 +204,7 @@ export function ErgebnisseTab({
               <span className="text-xs text-white/40">{tp('resolved')}</span>
             </div>
             <div className="flex items-center gap-3 ml-auto">
-              <span className="flex items-center gap-1 text-xs font-bold text-[#22C55E]">
+              <span className="flex items-center gap-1 text-xs font-bold text-green-500">
                 <CheckCircle className="w-3.5 h-3.5" /> {correctCount}
               </span>
               <span className="flex items-center gap-1 text-xs font-bold text-red-400">
