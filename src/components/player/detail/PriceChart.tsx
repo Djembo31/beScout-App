@@ -55,17 +55,17 @@ export default function PriceChart({ trades, ipoPrice, className = '' }: PriceCh
     <Card className={`p-4 md:p-6 ${className}`}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-black text-lg flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-[#FFD700]" />
+          <BarChart3 className="w-5 h-5 text-gold" />
           Preisverlauf
         </h3>
         <div className="flex items-center gap-2">
           <span className="text-sm font-mono font-bold">{fmtScout(prices[prices.length - 1])} $SCOUT</span>
-          <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-lg ${up ? 'bg-[#00E676]/10 text-[#00E676]' : 'bg-[#FF3B69]/10 text-[#FF3B69]'}`}>
+          <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-lg ${up ? 'bg-vivid-green/10 text-vivid-green' : 'bg-vivid-red/10 text-vivid-red'}`}>
             {change >= 0 ? '+' : ''}{fmtScout(change)} ({changePct >= 0 ? '+' : ''}{changePct.toFixed(1)}%)
           </span>
         </div>
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Preisverlauf-Chart">
         {/* Grid lines */}
         {yLabels.map((v, i) => {
           const y = padY + (1 - (v - min) / range) * chartH;
@@ -80,15 +80,15 @@ export default function PriceChart({ trades, ipoPrice, className = '' }: PriceCh
         })}
         {/* IPO baseline */}
         {ipoY !== null && (
-          <line x1={padX} y1={ipoY} x2={W - 10} y2={ipoY} stroke="#FFD700" strokeWidth="1" strokeDasharray="6,4" opacity={0.3} />
+          <line x1={padX} y1={ipoY} x2={W - 10} y2={ipoY} stroke="var(--gold)" strokeWidth="1" strokeDasharray="6,4" opacity={0.3} />
         )}
         {/* Area fill */}
-        <path d={areaPath} fill={up ? 'rgba(0,230,118,0.10)' : 'rgba(255,59,105,0.10)'} />
+        <path d={areaPath} fill={up ? 'color-mix(in srgb, var(--vivid-green) 10%, transparent)' : 'color-mix(in srgb, var(--vivid-red) 10%, transparent)'} />
         {/* Line */}
-        <polyline points={polyline} fill="none" stroke={up ? '#00E676' : '#FF3B69'} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        <polyline points={polyline} fill="none" stroke={up ? 'var(--vivid-green)' : 'var(--vivid-red)'} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
         {/* Data points */}
         {pts.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r="3" fill={up ? '#00E676' : '#FF3B69'} stroke="#0a0a0a" strokeWidth="1.5" />
+          <circle key={i} cx={p.x} cy={p.y} r="3" fill={up ? 'var(--vivid-green)' : 'var(--vivid-red)'} stroke="#0a0a0a" strokeWidth="1.5" />
         ))}
       </svg>
       <div className="flex justify-between text-[10px] text-white/30 mt-1 px-1">

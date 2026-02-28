@@ -56,16 +56,20 @@ export default function PlayerDetailSkeleton() {
       {/* Tabs */}
       <Skeleton className="h-12 rounded-2xl" />
 
-      {/* Content (single column) */}
+      {/* Content (single column — matches ProfilTab layout) */}
       <div className="space-y-4">
+        {/* Quick Stats grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 rounded-2xl" />
+            <Skeleton key={i} className="h-[72px] rounded-2xl" />
           ))}
         </div>
-        <SkeletonCard className="h-48" />
-        <SkeletonCard className="h-36" />
-        <SkeletonCard className="h-48" />
+        {/* Attribute Radar */}
+        <SkeletonCard className="h-[320px]" />
+        {/* Spieler-Info */}
+        <SkeletonCard className="h-[120px]" />
+        {/* DPC Verteilung */}
+        <SkeletonCard className="h-[240px]" />
       </div>
     </div>
   );

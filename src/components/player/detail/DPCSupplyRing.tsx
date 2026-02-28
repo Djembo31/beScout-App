@@ -43,7 +43,7 @@ export default function DPCSupplyRing({ supply, released, sold, owned, className
   return (
     <div className={`flex items-center gap-6 ${className}`}>
       <div className="relative shrink-0" style={{ width: size, height: size }}>
-        <svg viewBox={`0 0 ${size} ${size}`} className="transform -rotate-90">
+        <svg viewBox={`0 0 ${size} ${size}`} className="transform -rotate-90" role="img" aria-label={`DPC Verteilung: ${fmtScout(sold)} von ${fmtScout(supply)} verkauft`}>
           {/* Background ring */}
           <circle
             cx={cx} cy={cy} r={radius}
@@ -73,7 +73,7 @@ export default function DPCSupplyRing({ supply, released, sold, owned, className
           {othersPct > 0 && (
             <circle
               cx={cx} cy={cy} r={radius}
-              fill="none" stroke="#FFD700" strokeWidth={strokeWidth}
+              fill="none" stroke="var(--gold)" strokeWidth={strokeWidth}
               strokeDasharray={`${othersPct * circumference} ${circumference}`}
               strokeDashoffset={-othersOffset}
               strokeLinecap="round"
@@ -84,7 +84,7 @@ export default function DPCSupplyRing({ supply, released, sold, owned, className
           {ownedPct > 0 && (
             <circle
               cx={cx} cy={cy} r={radius}
-              fill="none" stroke="#38BDF8" strokeWidth={strokeWidth}
+              fill="none" stroke="var(--sky)" strokeWidth={strokeWidth}
               strokeDasharray={`${ownedPct * circumference} ${circumference}`}
               strokeDashoffset={-ownedOffset}
               strokeLinecap="round"
@@ -118,7 +118,7 @@ export default function DPCSupplyRing({ supply, released, sold, owned, className
         </div>
         {others > 0 && (
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-sm bg-[#FFD700]/60 shrink-0" />
+            <div className="w-3 h-3 rounded-sm bg-gold/60 shrink-0" />
             <div>
               <div className="text-xs text-white/50">Andere Holder</div>
               <div className="font-mono font-bold text-sm">{fmtScout(others)}</div>

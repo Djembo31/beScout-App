@@ -51,8 +51,8 @@ export default function ScoreMasteryStrip({
         <div className="flex flex-col items-center gap-0.5">
           {trend === 'UP' && (
             <>
-              <TrendingUp className="w-4 h-4 text-[#22C55E]" />
-              <span className="text-[10px] font-bold text-[#22C55E]">Hot</span>
+              <TrendingUp className="w-4 h-4 text-green-500" />
+              <span className="text-[10px] font-bold text-green-500">Hot</span>
             </>
           )}
           {trend === 'DOWN' && (
@@ -77,14 +77,14 @@ export default function ScoreMasteryStrip({
           <div className="flex flex-col justify-center gap-1.5 px-4 py-3 min-w-[130px]">
             <div className="flex items-center gap-2">
               <span className="text-[9px] font-bold text-white/40 uppercase tracking-wider">Mastery</span>
-              <span className="px-1.5 py-0.5 rounded-md bg-[#FFD700]/15 text-[#FFD700] text-[9px] font-black border border-[#FFD700]/25">
+              <span className="px-1.5 py-0.5 rounded-md bg-gold/15 text-gold text-[9px] font-black border border-gold/25">
                 Lv{mastery.level} {MASTERY_LEVEL_LABELS[mastery.level]}
               </span>
             </div>
             {mastery.level < 5 && (
               <div className="h-1 rounded-full bg-white/5 overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#FFD700]/50 to-[#FFD700]/20 transition-all"
+                  className="h-full rounded-full bg-gradient-to-r from-gold/50 to-gold/20 transition-all"
                   style={{ width: `${Math.min((mastery.xp / MASTERY_XP_THRESHOLDS[mastery.level]) * 100, 100)}%` }}
                 />
               </div>

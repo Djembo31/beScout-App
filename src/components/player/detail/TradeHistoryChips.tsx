@@ -35,7 +35,7 @@ export default function TradeHistoryChips({ trades, maxDisplay = 10, className =
               key={trade.id}
               className="shrink-0 bg-white/[0.03] border border-white/[0.08] rounded-xl px-3 py-2 min-w-[90px] flex flex-col items-center gap-0.5"
             >
-              <span className="font-mono font-bold text-[#FFD700] text-sm">
+              <span className="font-mono font-bold text-gold text-sm">
                 {fmtScout(price)}
               </span>
               <span className="text-[9px] text-white/40">$SCOUT</span>
@@ -45,7 +45,7 @@ export default function TradeHistoryChips({ trades, maxDisplay = 10, className =
               <span
                 className={`text-[8px] font-black px-1.5 py-0.5 rounded-md mt-0.5 ${
                   isIpo
-                    ? 'bg-[#22C55E]/15 text-[#22C55E] border border-[#22C55E]/20'
+                    ? 'bg-green-500/15 text-green-500 border border-green-500/20'
                     : 'bg-sky-500/15 text-sky-300 border border-sky-500/20'
                 }`}
               >

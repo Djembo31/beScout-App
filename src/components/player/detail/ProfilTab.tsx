@@ -66,11 +66,9 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
         </Card>
         <Card className="p-3 text-center">
           <div className="text-[10px] text-white/40 mb-1 flex items-center justify-center gap-1">
-            <Users className="w-3 h-3" /> Du besitzt
+            <Users className="w-3 h-3" /> Holder
           </div>
-          <div className={`font-mono font-bold text-sm ${holdingQty > 0 ? 'text-sky-300' : 'text-white/30'}`}>
-            {holdingQty} DPC
-          </div>
+          <div className="font-mono font-bold text-sm">{holderCount}</div>
         </Card>
       </div>
 
@@ -132,7 +130,7 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
       {/* DPC Supply Ring */}
       <Card className="p-4 md:p-6">
         <h3 className="font-black text-lg mb-4 flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-[#FFD700]" />
+          <BarChart3 className="w-5 h-5 text-gold" />
           DPC Verteilung
         </h3>
         <DPCSupplyRing
@@ -164,7 +162,7 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
             <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
               <Unlock className="w-3 h-3" />Verfügbar
             </div>
-            <div className="font-mono font-bold text-[#FFD700]">{fmtScout(dpcAvailable)}</div>
+            <div className="font-mono font-bold text-gold">{fmtScout(dpcAvailable)}</div>
           </div>
         </div>
       </Card>
@@ -203,7 +201,7 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
           <div className="mt-3">
             <div className="h-2 bg-black/30 rounded-full overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all ${contract.urgent ? 'bg-red-400' : player.contractMonthsLeft <= 12 ? 'bg-orange-400' : 'bg-[#22C55E]'}`}
+                className={`h-full rounded-full transition-all ${contract.urgent ? 'bg-red-400' : player.contractMonthsLeft <= 12 ? 'bg-orange-400' : 'bg-green-500'}`}
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -222,7 +220,7 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
                   Bei Vertragsende werden alle DPCs liquidiert. Der PBT wird anteilig an alle Holder ausgezahlt.
                 </div>
                 <div className="flex items-center gap-2 mt-2 text-xs">
-                  <CheckCircle2 className="w-3 h-3 text-[#22C55E]" />
+                  <CheckCircle2 className="w-3 h-3 text-green-500" />
                   <span className="text-white/60">PBT Reward wird automatisch verteilt</span>
                 </div>
               </div>
@@ -233,10 +231,10 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
 
       {/* PBT Widget */}
       <Card className="overflow-hidden">
-        <div className={`${player.isLiquidated ? 'bg-gradient-to-r from-white/5 to-white/[0.02]' : 'bg-gradient-to-r from-[#FFD700]/20 to-orange-500/10'} border-b border-[#FFD700]/20 p-4`}>
+        <div className={`${player.isLiquidated ? 'bg-gradient-to-r from-white/5 to-white/[0.02]' : 'bg-gradient-to-r from-gold/20 to-orange-500/10'} border-b border-gold/20 p-4`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <PiggyBank className={`w-5 h-5 ${player.isLiquidated ? 'text-white/30' : 'text-[#FFD700]'}`} />
+              <PiggyBank className={`w-5 h-5 ${player.isLiquidated ? 'text-white/30' : 'text-gold'}`} />
               <span className="font-black">Player Bound Treasury</span>
             </div>
             <div className="flex items-center gap-1 text-xs text-white/50">
@@ -249,7 +247,7 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
           <div className="bg-black/20 rounded-xl p-4">
             <div className="flex items-center justify-between">
               <span className="text-white/50 text-sm">{player.isLiquidated ? 'Reserviert (Success Fee)' : 'Treasury Guthaben'}</span>
-              <span className={`font-mono font-black text-2xl ${player.isLiquidated ? 'text-white/30' : 'text-[#FFD700]'}`}>{fmtScout(pbt.balance)} $SCOUT</span>
+              <span className={`font-mono font-black text-2xl ${player.isLiquidated ? 'text-white/30' : 'text-gold'}`}>{fmtScout(pbt.balance)} $SCOUT</span>
             </div>
           </div>
           {pbt.sources && (

@@ -38,10 +38,10 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Intro */}
-      <Card className="p-4 md:p-6 border-[#22C55E]/20 bg-gradient-to-br from-[#22C55E]/5 to-transparent">
+      <Card className="p-4 md:p-6 border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#22C55E]/10 flex items-center justify-center shrink-0">
-            <Trophy className="w-5 h-5 text-[#22C55E]" />
+          <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
+            <Trophy className="w-5 h-5 text-green-500" />
           </div>
           <div>
             <h3 className="font-black text-base mb-1">Mögliche Rewards</h3>
@@ -71,7 +71,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
       {/* Reward Ladder */}
       <Card className="p-4 md:p-6">
         <h3 className="font-black text-lg mb-1 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-[#FFD700]" />
+          <TrendingUp className="w-5 h-5 text-gold" />
           Reward-Treppe
         </h3>
         <p className="text-xs text-white/40 mb-4">Erfolgsbonus pro DPC bei steigendem Marktwert</p>
@@ -90,7 +90,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                 key={tier.label}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all ${
                   isActive
-                    ? 'bg-[#FFD700]/[0.08] border-[#FFD700]/30 ring-1 ring-[#FFD700]/20'
+                    ? 'bg-gold/[0.08] border-gold/30 ring-2 ring-gold/40 shadow-glow-gold scale-[1.02]'
                     : isPast
                     ? 'bg-white/[0.01] border-white/[0.04] opacity-40'
                     : 'bg-white/[0.02] border-white/[0.06]'
@@ -99,13 +99,13 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                 {/* Tier indicator */}
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                   isActive
-                    ? 'bg-[#FFD700]/20'
+                    ? 'bg-gold/20'
                     : isFuture
                     ? 'bg-white/5'
                     : 'bg-white/[0.03]'
                 }`}>
                   {isActive ? (
-                    <Star className="w-4 h-4 text-[#FFD700]" />
+                    <Star className="w-4 h-4 text-gold" />
                   ) : isFuture ? (
                     <Zap className="w-4 h-4 text-white/30" />
                   ) : (
@@ -115,31 +115,31 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
 
                 {/* Tier range */}
                 <div className="flex-1 min-w-0">
-                  <div className={`text-sm font-bold ${isActive ? 'text-[#FFD700]' : ''}`}>
+                  <div className={`text-sm font-bold ${isActive ? 'text-gold' : ''}`}>
                     {tier.maxValue === Infinity ? `ab ${formatMarketValue(tier.minValue)}` : formatMarketValue(tier.maxValue)}
                   </div>
                   {multiplier && isFuture && (
-                    <div className="text-[10px] text-[#22C55E] font-mono">{multiplier} Marktwert-Wachstum</div>
+                    <div className="text-[10px] text-green-500 font-mono">{multiplier} Marktwert-Wachstum</div>
                   )}
                   {isActive && (
-                    <div className="text-[10px] text-[#FFD700]/60">Aktueller Tier</div>
+                    <div className="text-[10px] text-gold/50">Aktueller Tier</div>
                   )}
                 </div>
 
                 {/* Reward amount */}
                 <div className="text-right shrink-0">
                   <div className={`font-mono font-bold text-sm ${
-                    isActive ? 'text-[#FFD700]' : isFuture ? 'text-[#22C55E]' : 'text-white/30'
+                    isActive ? 'text-gold' : isFuture ? 'text-green-500' : 'text-white/30'
                   }`}>
                     {fmtScout(reward)} $SCOUT
                   </div>
                   {isFuture && roi > 1 && (
-                    <div className="text-[10px] font-mono text-[#22C55E]/70">
+                    <div className="text-[10px] font-mono text-green-500/70">
                       x{roi >= 10 ? Math.round(roi) : roi.toFixed(1)} Bonus
                     </div>
                   )}
                   {isActive && (
-                    <div className="text-[10px] font-mono text-[#FFD700]/50">/DPC</div>
+                    <div className="text-[10px] font-mono text-gold/50">/DPC</div>
                   )}
                 </div>
               </div>
@@ -170,7 +170,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                   <div className="text-right">
                     <span className="font-mono font-bold text-sm">{fmtScout(totalReward)} $SCOUT</span>
                     {profit > 0 && (
-                      <span className="text-[10px] text-[#22C55E] ml-2">+{fmtScout(profit)}</span>
+                      <span className="text-[10px] text-green-500 ml-2">+{fmtScout(profit)}</span>
                     )}
                   </div>
                 </div>

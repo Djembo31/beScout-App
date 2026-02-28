@@ -10,12 +10,12 @@ import { useTilt } from '@/lib/hooks/useTilt';
 import { fmtScout } from '@/lib/utils';
 import type { Pos, Trend } from '@/types';
 
-// Position glow ring colors (for the photo circle border)
+// Position glow ring — matches Tailwind shadow-glow-* tokens from tailwind.config
 const posRingGlow: Record<Pos, string> = {
-  GK: '0 0 16px rgba(16,185,129,0.5), 0 0 40px rgba(16,185,129,0.2)',
-  DEF: '0 0 16px rgba(245,158,11,0.5), 0 0 40px rgba(245,158,11,0.2)',
-  MID: '0 0 16px rgba(14,165,233,0.5), 0 0 40px rgba(14,165,233,0.2)',
-  ATT: '0 0 16px rgba(244,63,94,0.5), 0 0 40px rgba(244,63,94,0.2)',
+  GK: '0 0 24px rgba(16,185,129,0.25), 0 0 48px rgba(16,185,129,0.12)',
+  DEF: '0 0 24px rgba(245,158,11,0.25), 0 0 48px rgba(245,158,11,0.12)',
+  MID: '0 0 24px rgba(14,165,233,0.25), 0 0 48px rgba(14,165,233,0.12)',
+  ATT: '0 0 24px rgba(244,63,94,0.25), 0 0 48px rgba(244,63,94,0.12)',
 };
 
 // Ambient glow radial colors
@@ -74,7 +74,7 @@ function StatItem({ label, value }: { label: string; value: string | number }) {
 }
 
 const TrendIcon = ({ trend }: { trend: Trend }) => {
-  if (trend === 'UP') return <TrendingUp className="w-3 h-3 text-[#22C55E]" />;
+  if (trend === 'UP') return <TrendingUp className="w-3 h-3 text-green-500" />;
   if (trend === 'DOWN') return <TrendingDown className="w-3 h-3 text-red-400" />;
   return <Minus className="w-3 h-3 text-white/40" />;
 };
@@ -194,7 +194,7 @@ export default function TradingCardFrame({
 
             {/* Gold separator line */}
             <div className="relative z-10 mx-4 mt-2 md:mt-3">
-              <div className="h-px bg-gradient-to-r from-transparent via-[#FFD700]/40 to-transparent" />
+              <div className="h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
             </div>
 
             {/* Glassmorphism Name Bar */}
@@ -280,7 +280,7 @@ export default function TradingCardFrame({
 
               {/* Gold separator */}
               <div className="relative z-10 mx-4 mt-2">
-                <div className="h-px bg-gradient-to-r from-transparent via-[#FFD700]/40 to-transparent" />
+                <div className="h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
               </div>
 
               {/* Stats Grid */}

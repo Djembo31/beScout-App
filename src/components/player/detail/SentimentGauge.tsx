@@ -24,13 +24,13 @@ export default function SentimentGauge({ buyCount, sellCount, className = '' }: 
 
   // Label
   const label = pct >= 70 ? 'Bullish' : pct >= 40 ? 'Neutral' : 'Bearish';
-  const labelColor = pct >= 70 ? 'text-[#22C55E]' : pct >= 40 ? 'text-[#FFD700]' : 'text-red-400';
-  const strokeColor = pct >= 70 ? '#22C55E' : pct >= 40 ? '#FFD700' : '#EF4444';
+  const labelColor = pct >= 70 ? 'text-green-500' : pct >= 40 ? 'text-gold' : 'text-red-400';
+  const strokeColor = pct >= 70 ? 'var(--green)' : pct >= 40 ? 'var(--gold)' : 'var(--red)';
 
   return (
     <div className={`flex flex-col items-center ${className}`}>
       <div className="relative" style={{ width: size, height: size / 2 + 20 }}>
-        <svg viewBox={`0 0 ${size} ${size / 2 + 30}`} className="w-full h-full">
+        <svg viewBox={`0 0 ${size} ${size / 2 + 30}`} className="w-full h-full" role="img" aria-label={`Marktstimmung: ${pct}% ${label}`}>
           {/* Background arc */}
           <path
             d={`M ${cx - radius} ${cy} A ${radius} ${radius} 0 0 1 ${cx + radius} ${cy}`}
@@ -60,7 +60,7 @@ export default function SentimentGauge({ buyCount, sellCount, className = '' }: 
       {/* Stats */}
       <div className="flex items-center gap-6 mt-2">
         <div className="text-center">
-          <div className="font-mono font-bold text-sm text-[#22C55E]">{buyCount}</div>
+          <div className="font-mono font-bold text-sm text-green-500">{buyCount}</div>
           <div className="text-[10px] text-white/40">Käufe</div>
         </div>
         <div className="w-px h-6 bg-white/10" />

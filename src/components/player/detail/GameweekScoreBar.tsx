@@ -13,13 +13,13 @@ interface GameweekScoreBarProps {
 
 /** Get bar color based on score thresholds */
 function getBarColor(score: number): string {
-  if (score >= 100) return '#FFD700';     // Gold
-  if (score >= 70) return 'rgba(255,255,255,0.30)'; // White/30
-  return '#FF3B69';                        // Red
+  if (score >= 100) return 'var(--gold)';
+  if (score >= 70) return 'rgba(255,255,255,0.30)';
+  return 'var(--vivid-red)';
 }
 
 function getScoreTextClass(score: number): string {
-  if (score >= 100) return 'text-[#FFD700]';
+  if (score >= 100) return 'text-gold';
   if (score >= 70) return 'text-white';
   return 'text-red-400';
 }
@@ -29,11 +29,12 @@ export default function GameweekScoreBar({ scores, maxDisplay = 10, className = 
     return (
       <Card className={`p-4 md:p-6 ${className}`}>
         <h3 className="font-black text-lg mb-4 flex items-center gap-2">
-          <Star className="w-5 h-5 text-[#FFD700]" />
+          <Star className="w-5 h-5 text-gold" />
           Spieltag-Bewertungen
         </h3>
-        <div className="text-center py-6 text-white/40">
-          Noch keine Spieltag-Bewertungen
+        <div className="text-center py-6">
+          <Star className="w-8 h-8 text-white/10 mx-auto mb-2" />
+          <div className="text-sm text-white/30">Noch keine Spieltag-Bewertungen</div>
         </div>
       </Card>
     );
@@ -59,15 +60,15 @@ export default function GameweekScoreBar({ scores, maxDisplay = 10, className = 
   return (
     <Card className={`p-4 md:p-6 ${className}`}>
       <h3 className="font-black text-lg mb-4 flex items-center gap-2">
-        <Star className="w-5 h-5 text-[#FFD700]" />
+        <Star className="w-5 h-5 text-gold" />
         Spieltag-Bewertungen
       </h3>
 
       <div className="relative">
         {/* Threshold lines */}
         <div className="absolute inset-x-0 pointer-events-none" style={{ bottom: `${getBarHeight(100) + 28}px` }}>
-          <div className="border-t border-dashed border-[#FFD700]/20 w-full" />
-          <span className="absolute -top-3 right-0 text-[8px] font-mono text-[#FFD700]/30">100</span>
+          <div className="border-t border-dashed border-gold/20 w-full" />
+          <span className="absolute -top-3 right-0 text-[8px] font-mono text-gold/30">100</span>
         </div>
         <div className="absolute inset-x-0 pointer-events-none" style={{ bottom: `${getBarHeight(70) + 28}px` }}>
           <div className="border-t border-dashed border-white/10 w-full" />

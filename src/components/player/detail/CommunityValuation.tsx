@@ -102,7 +102,7 @@ export default function CommunityValuation({ playerId, userId, floorPriceCents, 
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="bg-surface-base border border-white/10 rounded-xl p-3 text-center">
             <div className="text-[10px] text-white/40 mb-1">Fair Value</div>
-            <div className="font-mono font-bold text-[#FFD700]">{fmtScout(centsToBsd(fairValue.medianCents))}</div>
+            <div className="font-mono font-bold text-gold">{fmtScout(centsToBsd(fairValue.medianCents))}</div>
           </div>
           <div className="bg-surface-base border border-white/10 rounded-xl p-3 text-center">
             <div className="text-[10px] text-white/40 mb-1">Floor Preis</div>
@@ -135,7 +135,7 @@ export default function CommunityValuation({ playerId, userId, floorPriceCents, 
             step={100}
             value={myEstimate}
             onChange={(e) => setMyEstimate(Number(e.target.value))}
-            className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-sky-400"
+            className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-sky-400 focus-visible:ring-2 focus-visible:ring-sky-400/40"
             disabled={submitting}
           />
           <div className="flex items-center justify-between text-[10px] text-white/30">
@@ -143,9 +143,9 @@ export default function CommunityValuation({ playerId, userId, floorPriceCents, 
             <span>{fmtScout(centsToBsd(maxCents))}</span>
           </div>
           {hasVoted ? (
-            <div className="flex items-center gap-2 p-2 bg-[#22C55E]/10 border border-[#22C55E]/20 rounded-lg">
-              <CheckCircle2 className="w-4 h-4 text-[#22C55E]" />
-              <span className="text-xs text-[#22C55E]/80">Bewertung abgegeben — du kannst sie jederzeit ändern</span>
+            <div className="flex items-center gap-2 p-2 bg-green-500/10 border border-green-500/20 rounded-lg">
+              <CheckCircle2 className="w-4 h-4 text-green-500" />
+              <span className="text-xs text-green-500/80">Bewertung abgegeben — du kannst sie jederzeit ändern</span>
             </div>
           ) : null}
           <Button
