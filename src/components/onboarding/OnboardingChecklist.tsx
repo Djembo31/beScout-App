@@ -43,7 +43,7 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
   const tasks: TaskDef[] = useMemo(() => [
     {
       key: 'buyDpc',
-      icon: <Zap className="w-4 h-4 text-[#FFD700]" />,
+      icon: <Zap className="w-4 h-4 text-gold" />,
       href: '/market?tab=kaufen',
       completed: holdings.length > 0,
     },
@@ -91,7 +91,7 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
   return (
     <>
       <Confetti active={showConfetti} />
-      <div className="relative overflow-hidden rounded-2xl border border-[#FFD700]/20 bg-gradient-to-r from-[#FFD700]/[0.06] via-purple-500/[0.03] to-[#22C55E]/[0.03]">
+      <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-r from-gold/[0.06] via-purple-500/[0.03] to-green-500/[0.03]">
         {/* Dismiss button */}
         <button
           onClick={() => { localStorage.setItem(DISMISSED_KEY, '1'); setDismissed(true); }}
@@ -104,8 +104,8 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
         <div className="p-4">
           {/* Header */}
           <div className="flex items-center gap-2 mb-1">
-            <Rocket className="w-5 h-5 text-[#FFD700]" />
-            <span className="text-sm font-black text-[#FFD700] uppercase tracking-wide">{t('title')}</span>
+            <Rocket className="w-5 h-5 text-gold" />
+            <span className="text-sm font-black text-gold uppercase tracking-wide">{t('title')}</span>
           </div>
           <p className="text-xs text-white/50 mb-3">
             {t('subtitle', { completed: completedCount, total: tasks.length })}
@@ -114,7 +114,7 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
           {/* Progress bar */}
           <div className="h-1.5 rounded-full bg-white/[0.06] mb-4 overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#FFD700] to-[#22C55E] transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-gold to-green-500 transition-all duration-500"
               style={{ width: `${(completedCount / tasks.length) * 100}%` }}
             />
           </div>
@@ -125,7 +125,7 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
               if (task.completed) {
                 return (
                   <div key={task.key} className="flex items-center gap-3 px-2 py-2 rounded-xl opacity-50">
-                    <CheckCircle2 className="w-5 h-5 text-[#22C55E] shrink-0" />
+                    <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
                     <span className="flex items-center gap-2 text-sm">
                       {task.icon}
                       <span className="line-through">{t(task.key)}</span>

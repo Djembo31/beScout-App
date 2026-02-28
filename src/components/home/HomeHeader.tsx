@@ -37,11 +37,11 @@ export default function HomeHeader({
       {/* ━━━ GREETING + STREAK ━━━ */}
       <div className="flex items-center justify-between">
         <div className="relative">
-          <div className="absolute -inset-6 bg-[#FFD700]/[0.10] rounded-full blur-2xl -z-10" />
+          <div className="absolute -inset-6 bg-gold/[0.10] rounded-full blur-2xl -z-10" />
           <div className="text-xs text-white/40 tracking-wide">{t(getGreetingKey())},</div>
           <h1 className="text-2xl md:text-3xl font-black tracking-tight" suppressHydrationWarning>
             {loading ? '...' : firstName}
-            <span className="text-[#FFD700]">.</span>
+            <span className="text-gold">.</span>
           </h1>
         </div>
         <div className="flex items-center gap-2">
@@ -67,7 +67,7 @@ export default function HomeHeader({
 
       {/* ━━━ STAT CARDS — 2x2 mobile, 4-col desktop ━━━ */}
       <div data-tour-id="home-stats" className="grid grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2 md:gap-3">
-        <div className="bg-gradient-to-br from-[#FFD700]/[0.10] to-transparent border border-[#FFD700]/[0.15] shadow-card-sm rounded-xl p-3 md:p-4 border-l-3 border-l-[#FFD700]">
+        <div className="bg-gradient-to-br from-gold/[0.10] to-transparent border border-gold/[0.15] shadow-card-sm rounded-xl p-3 md:p-4 border-l-3 border-l-gold">
           <div className="flex items-center gap-1 mb-1">
             <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">{t('portfolioRoster')}</span>
             <InfoTooltip text={t('portfolioRosterTooltip')} />
@@ -78,29 +78,29 @@ export default function HomeHeader({
         <div className={cn(
           'bg-gradient-to-br shadow-card-sm rounded-xl p-3 md:p-4 border-l-3 border',
           pnl >= 0
-            ? 'from-[#00E676]/[0.10] to-transparent border-[#00E676]/[0.15] border-l-[#00E676]'
-            : 'from-[#FF3B69]/[0.10] to-transparent border-[#FF3B69]/[0.15] border-l-[#FF3B69]'
+            ? 'from-vivid-green/[0.10] to-transparent border-vivid-green/[0.15] border-l-vivid-green'
+            : 'from-vivid-red/[0.10] to-transparent border-vivid-red/[0.15] border-l-vivid-red'
         )}>
           <div className="flex items-center gap-1 mb-1">
             <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">{t('pnl')}</span>
             <InfoTooltip text={t('pnlTooltip')} />
           </div>
-          <div className={cn('font-mono font-black text-base md:text-xl truncate', pnl >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]')}>
+          <div className={cn('font-mono font-black text-base md:text-xl truncate', pnl >= 0 ? 'text-vivid-green' : 'text-vivid-red')}>
             {pnl >= 0 ? '+' : ''}{fmtScout(pnl)}
           </div>
-          <div className={cn('text-[10px]', pnl >= 0 ? 'text-[#00E676]/60' : 'text-[#FF3B69]/60')}>
+          <div className={cn('text-[10px]', pnl >= 0 ? 'text-vivid-green/60' : 'text-vivid-red/60')}>
             {pnl >= 0 ? '+' : ''}{pnlPct.toFixed(1)}%
           </div>
         </div>
-        <div className="bg-gradient-to-br from-[#FFD700]/[0.08] to-transparent border border-[#FFD700]/[0.12] shadow-card-sm rounded-xl p-3 md:p-4 border-l-3 border-l-[#FFD700]">
+        <div className="bg-gradient-to-br from-gold/[0.08] to-transparent border border-gold/[0.12] shadow-card-sm rounded-xl p-3 md:p-4 border-l-3 border-l-gold">
           <div className="flex items-center gap-1 mb-1">
             <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">{tc('balance')}</span>
             <InfoTooltip text={t('balanceTooltip')} />
           </div>
           {balanceCents === null ? (
-            <div className="h-6 md:h-7 w-20 rounded bg-[#FFD700]/10 animate-pulse mt-1" />
+            <div className="h-6 md:h-7 w-20 rounded bg-gold/10 animate-pulse mt-1" />
           ) : (
-            <div className="font-mono font-black text-base md:text-xl text-[#FFD700] truncate" style={{ textShadow: '0 0 12px rgba(255,215,0,0.4)' }}>{fmtScout(centsToBsd(balanceCents))}</div>
+            <div className="font-mono font-black text-base md:text-xl text-gold truncate" style={{ textShadow: '0 0 12px rgba(255,215,0,0.4)' }}>{fmtScout(centsToBsd(balanceCents))}</div>
           )}
           <div className="text-[10px] text-white/40">$SCOUT</div>
         </div>

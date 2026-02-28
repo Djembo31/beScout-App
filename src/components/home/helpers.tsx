@@ -36,7 +36,7 @@ export function SectionHeader({ title, href, badge }: { title: string; href?: st
   const content = (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2.5">
-        <h2 className="text-base md:text-lg font-black uppercase tracking-wide border-b-2 border-[#FFD700]/25 pb-1 inline-block">{title}</h2>
+        <h2 className="text-base md:text-lg font-black uppercase tracking-wide border-b-2 border-gold/25 pb-1 inline-block">{title}</h2>
         {badge}
       </div>
       {href && <ChevronRight className="w-5 h-5 text-white/30" />}
@@ -77,16 +77,16 @@ export function getActivityColorLocal(type: string): string { return actColor(ty
 // ── Feed Icons ──
 
 export const FEED_ICON_MAP: Record<string, { Icon: React.ElementType; color: string }> = {
-  trade_buy: { Icon: CircleDollarSign, color: 'text-[#FFD700] bg-[#FFD700]/10' },
-  trade_sell: { Icon: CircleDollarSign, color: 'text-[#22C55E] bg-[#22C55E]/10' },
+  trade_buy: { Icon: CircleDollarSign, color: 'text-gold bg-gold/10' },
+  trade_sell: { Icon: CircleDollarSign, color: 'text-green-500 bg-green-500/10' },
   research_create: { Icon: FileText, color: 'text-purple-400 bg-purple-400/10' },
   post_create: { Icon: MessageCircle, color: 'text-sky-400 bg-sky-400/10' },
   lineup_submit: { Icon: Trophy, color: 'text-purple-400 bg-purple-400/10' },
-  follow: { Icon: UserPlus, color: 'text-[#22C55E] bg-[#22C55E]/10' },
+  follow: { Icon: UserPlus, color: 'text-green-500 bg-green-500/10' },
   bounty_submit: { Icon: Target, color: 'text-amber-400 bg-amber-400/10' },
   bounty_create: { Icon: Target, color: 'text-amber-400 bg-amber-400/10' },
   offer_create: { Icon: Send, color: 'text-amber-400 bg-amber-400/10' },
-  offer_accept: { Icon: ArrowRightLeft, color: 'text-[#22C55E] bg-[#22C55E]/10' },
+  offer_accept: { Icon: ArrowRightLeft, color: 'text-green-500 bg-green-500/10' },
   poll_create: { Icon: Vote, color: 'text-amber-400 bg-amber-400/10' },
   vote_create: { Icon: Vote, color: 'text-amber-400 bg-amber-400/10' },
 };

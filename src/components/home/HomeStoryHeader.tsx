@@ -37,11 +37,11 @@ export default function HomeStoryHeader({
       {/* ━━━ GREETING + STREAK ━━━ */}
       <div className="flex items-center justify-between">
         <div className="relative">
-          <div className="absolute -inset-6 bg-[#FFD700]/[0.10] rounded-full blur-2xl -z-10" />
+          <div className="absolute -inset-6 bg-gold/[0.10] rounded-full blur-2xl -z-10" />
           <div className="text-xs text-white/40 tracking-wide">{t(getGreetingKey())},</div>
           <h1 className="text-2xl md:text-3xl font-black tracking-tight" suppressHydrationWarning>
             {loading ? '...' : firstName}
-            <span className="text-[#FFD700]">.</span>
+            <span className="text-gold">.</span>
           </h1>
           {storyMessage && (
             <p className="text-xs text-white/50 mt-1 max-w-[300px] leading-relaxed">
@@ -83,12 +83,12 @@ export default function HomeStoryHeader({
         <div className={cn(
           'flex flex-col items-center justify-center py-2.5 rounded-xl border',
           pnlPositive
-            ? 'bg-[#00E676]/[0.06] border-[#00E676]/15'
-            : 'bg-[#FF3B69]/[0.06] border-[#FF3B69]/15'
+            ? 'bg-vivid-green/[0.06] border-vivid-green/15'
+            : 'bg-vivid-red/[0.06] border-vivid-red/15'
         )}>
           <div className="flex items-center gap-1">
-            <PnlIcon className={cn('w-3 h-3', pnlPositive ? 'text-[#00E676]' : 'text-[#FF3B69]')} />
-            <span className={cn('font-mono font-black text-sm', pnlPositive ? 'text-[#00E676]' : 'text-[#FF3B69]')} style={{ textShadow: `0 0 12px ${pnlPositive ? 'rgba(0,230,118,0.4)' : 'rgba(255,59,105,0.4)'}` }}>
+            <PnlIcon className={cn('w-3 h-3', pnlPositive ? 'text-vivid-green' : 'text-vivid-red')} />
+            <span className={cn('font-mono font-black text-sm', pnlPositive ? 'text-vivid-green' : 'text-vivid-red')} style={{ textShadow: `0 0 12px ${pnlPositive ? 'rgba(0,230,118,0.4)' : 'rgba(255,59,105,0.4)'}` }}>
               {pnlPositive ? '+' : ''}{pnlPct.toFixed(1)}%
             </span>
           </div>

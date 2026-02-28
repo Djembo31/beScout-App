@@ -243,9 +243,9 @@ export default function HomePage() {
                 </Link>
               );
             })}
-            <Link href="/clubs" className="flex items-center gap-2 px-3 py-2 bg-[#FFD700]/[0.03] border border-[#FFD700]/10 rounded-xl hover:bg-[#FFD700]/[0.06] transition-all shrink-0">
-              <Compass className="w-4 h-4 text-[#FFD700]/60" />
-              <span className="text-xs font-medium text-[#FFD700]/60">{t('discover')}</span>
+            <Link href="/clubs" className="flex items-center gap-2 px-3 py-2 bg-gold/[0.03] border border-gold/10 rounded-xl hover:bg-gold/[0.06] transition-all shrink-0">
+              <Compass className="w-4 h-4 text-gold/60" />
+              <span className="text-xs font-medium text-gold/60">{t('discover')}</span>
             </Link>
           </div>
         </div>
@@ -286,7 +286,7 @@ export default function HomePage() {
                   </div>
                   <div className="text-right shrink-0">
                     <div className="text-[10px] text-white/40 mb-0.5">Preisgeld</div>
-                    <div className="text-xl md:text-2xl font-black font-mono text-[#FFD700] gold-glow">
+                    <div className="text-xl md:text-2xl font-black font-mono text-gold gold-glow">
                       {formatPrize(centsToBsd(nextEvent.prize_pool))}
                     </div>
                     <div className="text-[10px] text-white/40">$SCOUT</div>
@@ -301,18 +301,18 @@ export default function HomePage() {
       {/* IPO Banner only if Spotlight doesn't already show it */}
       {activeIPOs.length > 0 && spotlightType !== 'ipo' && (
         <Link href={`/player/${activeIPOs[0].id}`} className="block">
-          <div className="relative overflow-hidden rounded-2xl border border-[#22C55E]/30 bg-gradient-to-r from-[#22C55E]/[0.15] via-transparent to-[#FFD700]/[0.06] shadow-glow-live">
+          <div className="relative overflow-hidden rounded-2xl border border-green-500/30 bg-gradient-to-r from-green-500/[0.15] via-transparent to-gold/[0.06] shadow-glow-live">
             <div className="relative flex items-center justify-between p-4 gap-4">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-[#22C55E]/15 border border-[#22C55E]/25 shrink-0">
-                  <Rocket className="w-5 h-5 text-[#22C55E]" />
+                <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-green-500/15 border border-green-500/25 shrink-0">
+                  <Rocket className="w-5 h-5 text-green-500" />
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#22C55E]">{t('liveIPO')}</span>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-green-500">{t('liveIPO')}</span>
                     <span className="relative flex h-2.5 w-2.5 live-ring">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#22C55E]" style={{ boxShadow: '0 0 8px rgba(34,197,94,0.6)' }} />
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" style={{ boxShadow: '0 0 8px rgba(34,197,94,0.6)' }} />
                     </span>
                   </div>
                   <div className="font-black text-sm truncate">
@@ -324,7 +324,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="shrink-0 text-right">
-                <div className="font-mono font-black text-[#FFD700] text-lg">{activeIPOs[0].ipo.price}</div>
+                <div className="font-mono font-black text-gold text-lg">{activeIPOs[0].ipo.price}</div>
                 <div className="text-[10px] text-white/40">$SCOUT/DPC</div>
               </div>
             </div>

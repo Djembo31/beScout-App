@@ -36,13 +36,13 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
             <div className="relative">
               <PlayerPhoto imageUrl={ipo.imageUrl} first={ipo.first} last={ipo.last} pos={ipo.pos} size={48} />
               <span className="absolute -bottom-1 -right-1 flex h-3 w-3 live-ring">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-75" />
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-[#22C55E]" style={{ boxShadow: '0 0 8px rgba(34,197,94,0.6)' }} />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500" style={{ boxShadow: '0 0 8px rgba(34,197,94,0.6)' }} />
               </span>
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
-                <span className="text-[10px] font-black uppercase tracking-wider text-[#22C55E]">{t('spotlightIpo')}</span>
+                <span className="text-[10px] font-black uppercase tracking-wider text-green-500">{t('spotlightIpo')}</span>
                 <PositionBadge pos={ipo.pos} size="sm" />
               </div>
               <div className="font-black text-sm truncate">{ipo.first} {ipo.last}</div>
@@ -59,7 +59,7 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
             <div className="relative mt-3">
               <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden border border-white/[0.06]">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#22C55E] to-[#FFD700] transition-all duration-500"
+                  className="h-full rounded-full bg-gradient-to-r from-green-500 to-gold transition-all duration-500"
                   style={{ width: `${Math.min(ipo.ipo.progress, 100)}%`, boxShadow: '0 0 8px rgba(34,197,94,0.3)' }}
                 />
               </div>
@@ -101,7 +101,7 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
               </div>
               <div className="text-right shrink-0">
                 <div className="text-[10px] text-white/40 mb-0.5">Preisgeld</div>
-                <div className="text-xl font-black font-mono text-[#FFD700] gold-glow">
+                <div className="text-xl font-black font-mono text-gold gold-glow">
                   {formatPrize(centsToBsd(nextEvent.prize_pool))}
                 </div>
                 <div className="text-[10px] text-white/40">$SCOUT</div>
@@ -128,8 +128,8 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
               <PlayerPhoto imageUrl={best.imageUrl} first={best.player.split(' ')[0]} last={best.player.split(' ').slice(1).join(' ')} pos={best.pos} size={44} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <TrendingUp className="w-3 h-3 text-[#FFD700]" />
-                  <span className="text-[10px] font-black uppercase tracking-wider text-[#FFD700]">{t('spotlightTopMover')}</span>
+                  <TrendingUp className="w-3 h-3 text-gold" />
+                  <span className="text-[10px] font-black uppercase tracking-wider text-gold">{t('spotlightTopMover')}</span>
                 </div>
                 <div className="font-black text-sm truncate">{best.player}</div>
                 <div className="flex items-center gap-2 mt-0.5">
@@ -138,7 +138,7 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
                 </div>
               </div>
               <div className="text-right shrink-0">
-                <div className={cn('font-mono font-black text-lg', best.change24h >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]')}>
+                <div className={cn('font-mono font-black text-lg', best.change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red')}>
                   {best.change24h >= 0 ? '+' : ''}{best.change24h.toFixed(1)}%
                 </div>
                 {history && history.length >= 2 && (
@@ -174,10 +174,10 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
               <div className="text-[10px] text-white/40">{tp.club} · {tp.tradeCount}x Trades</div>
             </div>
             <div className="text-right shrink-0">
-              <div className="font-mono font-black text-[#FFD700]" style={{ textShadow: '0 0 10px rgba(255,215,0,0.4)' }}>
+              <div className="font-mono font-black text-gold" style={{ textShadow: '0 0 10px rgba(255,215,0,0.4)' }}>
                 {fmtScout(tp.floorPrice)}
               </div>
-              <span className={cn('text-[10px] font-mono font-bold', tp.change24h >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]')}>
+              <span className={cn('text-[10px] font-mono font-bold', tp.change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red')}>
                 {tp.change24h >= 0 ? '+' : ''}{tp.change24h.toFixed(1)}%
               </span>
             </div>
@@ -191,16 +191,16 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
   return (
     <Link href="/market?tab=kaufen" className="block">
       <Card surface="hero" className="p-4 relative overflow-hidden group">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700]/[0.12] via-[#FFD700]/[0.04] to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-gold/[0.12] via-gold/[0.04] to-transparent" />
         <div className="relative flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Zap className="w-4 h-4 text-[#FFD700]" />
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#FFD700]">{t('spotlightCta')}</span>
+              <Zap className="w-4 h-4 text-gold" />
+              <span className="text-[10px] font-black uppercase tracking-wider text-gold">{t('spotlightCta')}</span>
             </div>
             <div className="font-black text-sm">{t('emptyPortfolioDesc')}</div>
           </div>
-          <Rocket className="w-8 h-8 text-[#FFD700]/30 group-hover:text-[#FFD700]/60 transition-colors" />
+          <Rocket className="w-8 h-8 text-gold/30 group-hover:text-gold/60 transition-colors" />
         </div>
       </Card>
     </Link>

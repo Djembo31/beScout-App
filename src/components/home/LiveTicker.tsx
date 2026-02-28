@@ -32,7 +32,7 @@ export default function LiveTicker({ trades }: LiveTickerProps) {
               <span className="text-[10px] text-white/60 whitespace-nowrap">
                 {trade.quantity}× {trade.playerName}
               </span>
-              <span className="text-[9px] font-mono text-[#FFD700]/60">
+              <span className="text-[9px] font-mono text-gold/60">
                 {fmtScout(centsToBsd(trade.price))}
               </span>
             </div>

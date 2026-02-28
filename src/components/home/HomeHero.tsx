@@ -55,13 +55,13 @@ export default function HomeHero({
   if (!scoutScores && !userStats) {
     return (
       <Link href="/market?tab=kaufen" className="block">
-        <Card className="p-4 border-[#FFD700]/15 hover:border-[#FFD700]/30 transition-all group">
+        <Card className="p-4 border-gold/15 hover:border-gold/30 transition-all group">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xs text-white/40 mb-0.5">{t('hero.startTitle')}</div>
               <div className="text-sm font-bold">{t('hero.startCta')}</div>
             </div>
-            <ArrowUpRight className="w-5 h-5 text-[#FFD700] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            <ArrowUpRight className="w-5 h-5 text-gold group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </div>
         </Card>
       </Link>
