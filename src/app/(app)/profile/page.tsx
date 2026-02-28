@@ -168,23 +168,23 @@ function SettingsTab() {
     <div className="space-y-6">
       {/* Profile Section */}
       <Card className="p-6">
-        <h3 className="font-black text-lg mb-5">{t('title')}</h3>
+        <h3 className="font-black text-lg text-balance mb-5">{t('title')}</h3>
 
         {/* Avatar Upload */}
         <div className="flex items-center gap-4 mb-6">
           <div className="relative group">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold/20 to-green-500/20 border border-white/10 flex items-center justify-center overflow-hidden">
+            <div className="size-16 rounded-2xl bg-gold/10 border border-white/10 flex items-center justify-center overflow-hidden">
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
               ) : (
-                <User className="w-8 h-8 text-white/70" />
+                <User className="size-8 text-white/70" />
               )}
             </div>
             <label className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
               {uploadingAvatar ? (
-                <Loader2 className="w-5 h-5 text-white animate-spin" />
+                <Loader2 className="size-5 text-white animate-spin motion-reduce:animate-none" />
               ) : (
-                <Camera className="w-5 h-5 text-white" />
+                <Camera className="size-5 text-white" />
               )}
               <input type="file" accept="image/png,image/jpeg" onChange={handleAvatarUpload} className="hidden" />
             </label>
@@ -208,17 +208,17 @@ function SettingsTab() {
                 'w-full pl-8 pr-10 py-2.5 rounded-xl text-sm',
                 'bg-white/5 border',
                 'placeholder:text-white/30 text-white',
-                'focus:outline-none transition-all',
+                'focus:outline-none transition-colors',
                 handleStatus === 'available' && 'border-green-500/40',
                 (handleStatus === 'taken' || handleStatus === 'invalid') && 'border-red-400/40',
                 (handleStatus === 'idle' || handleStatus === 'checking' || handleStatus === 'unchanged') && 'border-white/10 focus:border-gold/40'
               )}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              {handleStatus === 'checking' && <Loader2 className="w-4 h-4 text-white/40 animate-spin" />}
-              {handleStatus === 'available' && <Check className="w-4 h-4 text-green-500" />}
-              {handleStatus === 'taken' && <X className="w-4 h-4 text-red-400" />}
-              {handleStatus === 'invalid' && <X className="w-4 h-4 text-red-400" />}
+              {handleStatus === 'checking' && <Loader2 className="size-4 text-white/40 animate-spin motion-reduce:animate-none" />}
+              {handleStatus === 'available' && <Check className="size-4 text-green-500" />}
+              {handleStatus === 'taken' && <X className="size-4 text-red-400" />}
+              {handleStatus === 'invalid' && <X className="size-4 text-red-400" />}
             </div>
           </div>
           {handleStatus === 'taken' && <div className="mt-1 text-xs text-red-400">{t('handleTaken')}</div>}
@@ -233,7 +233,7 @@ function SettingsTab() {
             value={displayNameVal}
             onChange={(e) => setDisplayNameVal(e.target.value.slice(0, 50))}
             placeholder={t('displayNamePlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 placeholder:text-white/30 text-white focus:outline-none focus:border-gold/40 transition-all"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 placeholder:text-white/30 text-white focus:outline-none focus:border-gold/40 transition-colors"
           />
         </div>
 
@@ -241,7 +241,7 @@ function SettingsTab() {
         <div className="mb-4">
           <label className="text-xs text-white/50 font-semibold mb-1.5 flex items-center justify-between">
             <span>{t('bioLabel')}</span>
-            <span className={cn('font-mono', bio.length > 140 ? 'text-amber-400' : 'text-white/30')}>
+            <span className={cn('font-mono tabular-nums', bio.length > 140 ? 'text-amber-400' : 'text-white/30')}>
               {bio.length}/160
             </span>
           </label>
@@ -250,7 +250,7 @@ function SettingsTab() {
             onChange={(e) => setBio(e.target.value.slice(0, 160))}
             rows={3}
             placeholder={t('bioPlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 placeholder:text-white/30 text-white focus:outline-none focus:border-gold/40 transition-all resize-none"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 placeholder:text-white/30 text-white focus:outline-none focus:border-gold/40 transition-colors resize-none"
           />
         </div>
 
@@ -260,7 +260,7 @@ function SettingsTab() {
           <select
             value={favoriteClub}
             onChange={(e) => setFavoriteClub(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-gold/40 transition-all"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-gold/40 transition-colors"
           >
             <option value="">{t('favoriteClubNone')}</option>
             {getAllClubsCached().map((club) => (
@@ -274,7 +274,7 @@ function SettingsTab() {
             'flex items-center gap-2 p-3 mb-4 rounded-xl border text-sm',
             profileMsg.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-400/20 text-red-200'
           )}>
-            {profileMsg.type === 'success' ? <Check className="w-4 h-4 shrink-0" /> : <X className="w-4 h-4 shrink-0" />}
+            {profileMsg.type === 'success' ? <Check className="size-4 shrink-0" /> : <X className="size-4 shrink-0" />}
             {profileMsg.text}
           </div>
         )}
@@ -286,7 +286,7 @@ function SettingsTab() {
 
       {/* Account Section */}
       <Card className="p-6">
-        <h3 className="font-black text-lg mb-5">{t('account')}</h3>
+        <h3 className="font-black text-lg text-balance mb-5">{t('account')}</h3>
 
         <div className="mb-4">
           <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('emailLabel')}</label>
@@ -301,13 +301,13 @@ function SettingsTab() {
 
         <div className="mb-6">
           <label className="text-xs text-white/50 font-semibold mb-1.5 flex items-center gap-1.5">
-            <Globe className="w-3.5 h-3.5" />
+            <Globe className="size-3.5" />
             {t('languageLabel')}
           </label>
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value as 'de' | 'tr' | 'en')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-gold/40 transition-all"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-gold/40 transition-colors"
           >
             <option value="de">{t('languageDe')}</option>
             <option value="tr">{t('languageTr')}</option>
@@ -320,7 +320,7 @@ function SettingsTab() {
             'flex items-center gap-2 p-3 mb-4 rounded-xl border text-sm',
             accountMsg.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-400/20 text-red-200'
           )}>
-            {accountMsg.type === 'success' ? <Check className="w-4 h-4 shrink-0" /> : <X className="w-4 h-4 shrink-0" />}
+            {accountMsg.type === 'success' ? <Check className="size-4 shrink-0" /> : <X className="size-4 shrink-0" />}
             {accountMsg.text}
           </div>
         )}
@@ -333,25 +333,25 @@ function SettingsTab() {
       {/* Notification Preferences */}
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-1">
-          <Bell className="w-4 h-4 text-gold" />
-          <h3 className="font-black text-lg">{t('notificationPrefs')}</h3>
+          <Bell className="size-4 text-gold" />
+          <h3 className="font-black text-lg text-balance">{t('notificationPrefs')}</h3>
         </div>
-        <p className="text-xs text-white/40 mb-5">{t('notificationPrefsDesc')}</p>
+        <p className="text-xs text-white/40 text-pretty mb-5">{t('notificationPrefsDesc')}</p>
 
         {!notifPrefsLoaded ? (
           <div className="flex justify-center py-4">
-            <Loader2 className="w-5 h-5 animate-spin text-white/30" />
+            <Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" />
           </div>
         ) : (
           <div className="space-y-1">
             {NOTIFICATION_CATEGORIES.map(({ key }) => {
               const icons: Record<NotificationCategory, React.ReactNode> = {
-                trading: <ArrowLeftRight className="w-4 h-4" />,
-                offers: <Send className="w-4 h-4" />,
-                fantasy: <Trophy className="w-4 h-4" />,
-                social: <UserPlus className="w-4 h-4" />,
-                bounties: <Target className="w-4 h-4" />,
-                rewards: <Gift className="w-4 h-4" />,
+                trading: <ArrowLeftRight className="size-4" />,
+                offers: <Send className="size-4" />,
+                fantasy: <Trophy className="size-4" />,
+                social: <UserPlus className="size-4" />,
+                bounties: <Target className="size-4" />,
+                rewards: <Gift className="size-4" />,
               };
               return (
                 <button
@@ -359,7 +359,7 @@ function SettingsTab() {
                   onClick={() => toggleNotifPref(key)}
                   className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/[0.04] transition-colors min-h-[44px]"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/60 shrink-0">
+                  <div className="size-8 rounded-lg bg-white/5 flex items-center justify-center text-white/60 shrink-0">
                     {icons[key]}
                   </div>
                   <div className="flex-1 text-left min-w-0">
@@ -374,7 +374,7 @@ function SettingsTab() {
                   >
                     <div
                       className={cn(
-                        'absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform',
+                        'absolute top-0.5 size-5 rounded-full bg-white shadow-sm transition-transform',
                         notifPrefs[key] ? 'translate-x-[22px]' : 'translate-x-0.5'
                       )}
                     />
@@ -388,18 +388,18 @@ function SettingsTab() {
 
       {/* Danger Zone */}
       <Card className="p-6 border-red-500/20">
-        <h3 className="font-black text-lg mb-2 text-red-400">{t('dangerZone')}</h3>
-        <p className="text-sm text-white/40 mb-4">
+        <h3 className="font-black text-lg text-balance mb-2 text-red-400">{t('dangerZone')}</h3>
+        <p className="text-sm text-white/40 text-pretty mb-4">
           {t('deleteWarning')}
         </p>
         <Button variant="danger" onClick={() => setShowDeleteModal(true)}>
-          <AlertTriangle className="w-4 h-4" />
+          <AlertTriangle className="size-4" />
           {t('deleteAccount')}
         </Button>
       </Card>
 
       <Modal open={showDeleteModal} title={t('deleteTitle')} onClose={() => setShowDeleteModal(false)}>
-        <p className="text-sm text-white/60 mb-6">
+        <p className="text-sm text-white/60 text-pretty mb-6">
           {t('deleteMessage')}
         </p>
         <Button variant="outline" fullWidth onClick={() => setShowDeleteModal(false)}>
@@ -423,7 +423,7 @@ export default function ProfilePage() {
         {/* Hero skeleton */}
         <div className="animate-pulse bg-white/[0.02] border border-white/10 rounded-2xl h-48 relative">
           <div className="absolute bottom-4 left-4 flex items-end gap-4">
-            <Skeleton className="w-20 h-20 rounded-2xl" />
+            <Skeleton className="size-20 rounded-2xl" />
             <div className="space-y-2">
               <Skeleton className="h-6 w-40" />
               <Skeleton className="h-4 w-24" />
