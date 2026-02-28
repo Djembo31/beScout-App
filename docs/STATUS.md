@@ -1,13 +1,13 @@
 # BeScout Status
 
-> Letzte Aktualisierung: 23.02.2026 (Session 136)
+> Letzte Aktualisierung: 28.02.2026 (Session 160)
 > Für Session-Details → `memory/sessions.md`. Für Archiv → `memory/sessions-archive.md`.
 
 ## Aktueller Stand
 
-**207 Migrations** + 1 Edge Function (send-push v2) + 2 pg_cron Jobs + 13 Gamification-Triggers + 21 Sponsor-Placements.
+**225 Migrations** + 2 Edge Functions (send-push v2, create-demo-accounts) + 2 pg_cron Jobs + 13 Gamification-Triggers + 21 Sponsor-Placements.
 
-**22 Routes** | **195 Unit Tests** (Vitest) | **55 E2E Tests** (Playwright) | Build: 0 Fehler
+**23 Routes** | **195 Unit Tests** (Vitest) | **70 E2E Tests** (Playwright) | Build: 0 Fehler
 
 ### Infrastruktur
 - Next.js 14.2.35 / TypeScript strict / Tailwind / Supabase / next-intl
@@ -37,23 +37,20 @@
 
 ## Letzte 3 Sessions
 
-### Session 136 (23.02.2026) — Memory-System Refactoring
-- CLAUDE.md 334→107 Zeilen, MEMORY.md 208→80, sessions.md 2712→108
-- Neues 3-Schichten-Gehirn: CLAUDE.md + MEMORY.md + Topic-Files
-- `current-sprint.md` + `sessions-archive.md` neu erstellt
-- docs/ aufgeräumt: 21 obsolete Dateien gelöscht, ROADMAP/TODO/STATUS aktualisiert
+### Session 160 (28.02.2026) — Fantasy Security Deep Dive
+- 8 Critical Fixes: Auth guards auf 5 admin RPCs, REVOKE auf 6 RPCs + 3 Tables, Lineups RLS locked check
+- 4 Migrations (DB-only, keine Client-Änderungen)
 
-### Session 135 (23.02.2026) — E2E + Unit Tests
-- 55 E2E Tests (10 Specs, Playwright), 146 neue Unit Tests (195 gesamt)
-- gamification, achievements, activityHelpers, settledHelpers, utils getestet
+### Session 159 (28.02.2026) — Wallet & Trading Security
+- 11 Fixes: locked_balance Race Condition, auth.uid() Guards, REVOKE Trading RPCs
+- 8 Migrations + 2 Client-Dateien (bounties.ts, wallet.ts)
 
-### Session 134 (23.02.2026) — QA-Audit Fix Sprint
-- 11 Bugs gefixt (1C+3H+5M+2L), 9 Dateien
-- Critical: Bounty `balance_cents` → `balance` (Erstellung war kaputt)
+### Session 158 (28.02.2026) — Trading Must-Fix
+- 4 Fixes: Double-Submit Ref Guards, SellModal Liquidation UI, mapRpcError deutsch
 
 ---
 
-## Migration-Übersicht (207 total)
+## Migration-Übersicht (225 total)
 
 | Range | Inhalt |
 |-------|--------|
@@ -68,3 +65,5 @@
 | #187-#195 | Score Road, Predictions, Beta Must-Haves, Nav Umbau |
 | #196-#199 | Security (auth.uid()), Gamification Triggers, Notifications |
 | #200-#207 | Demo, Geofencing, Realtime Fix, Salary Cap, Ligen, Referral, Sponsors |
+| #208-#218 | Performance (auth RPC, explicit cols), API-Football RPCs, Success Fee |
+| #219-#225 | Security Deep Dive: Wallet locked_balance, Trading auth guards, Fantasy auth guards, REVOKE, Lineups RLS |
