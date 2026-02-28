@@ -215,7 +215,7 @@ export function IPOBadge({ status, progress }: { status: string; progress?: numb
   if (!isLive && !isAnnounced) return null;
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-xl border text-[11px] font-black ${isLive ? 'bg-[#22C55E]/15 border-[#22C55E]/25 text-[#22C55E]' : 'bg-[#FFD700]/15 border-[#FFD700]/25 text-[#FFD700]'
+      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-xl border text-[11px] font-black ${isLive ? 'bg-green-500/15 border-green-500/25 text-green-500' : 'bg-gold/15 border-gold/25 text-gold'
         }`}
     >
       {isLive ? 'ERSTVERKAUF' : 'BALD'}
@@ -274,7 +274,7 @@ export function PlayerIdentity({ player, size = 'md', showMeta = true, showStatu
         <PlayerPhoto imageUrl={player.imageUrl} first={player.first} last={player.last} pos={player.pos} size={photoSize} />
         {clubData && (
           <div
-            className="absolute -bottom-0.5 -right-0.5 rounded-full ring-2 ring-[#0a0a0a] overflow-hidden bg-[#0a0a0a]"
+            className="absolute -bottom-0.5 -right-0.5 rounded-full ring-2 ring-bg-main overflow-hidden bg-bg-main"
             style={{ width: clubLogoSize, height: clubLogoSize }}
           >
             {clubData.logo ? (
@@ -353,7 +353,7 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
   // 4. IPO
   if (player.ipo.status === 'open' || player.ipo.status === 'early_access') {
     badges.push(
-      <span key="ipo" className={`inline-flex items-center gap-0.5 ${chipCls} bg-[#22C55E]/10 border-[#22C55E]/20 text-[#22C55E]`}>
+      <span key="ipo" className={`inline-flex items-center gap-0.5 ${chipCls} bg-green-500/10 border-green-500/20 text-green-500`}>
         <ShoppingCart className="w-2.5 h-2.5" />Neu {player.ipo.progress ?? 0}%
       </span>
     );
@@ -371,7 +371,7 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
   // 6. PBT
   if (player.pbt && player.pbt.balance > 0) {
     badges.push(
-      <span key="pbt" className={`inline-flex items-center gap-0.5 ${chipCls} bg-[#FFD700]/10 border-[#FFD700]/20 text-[#FFD700]/80`}>
+      <span key="pbt" className={`inline-flex items-center gap-0.5 ${chipCls} bg-gold/10 border-gold/20 text-gold/80`}>
         <PiggyBank className="w-2.5 h-2.5" />PBT {fmtScout(player.pbt.balance)}
       </span>
     );
@@ -380,7 +380,7 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
   // 7. Owned (only when NOT in holding context)
   if (!holding && player.dpc.owned > 0) {
     badges.push(
-      <span key="own" className={`inline-flex items-center gap-0.5 ${chipCls} bg-[#22C55E]/10 border-[#22C55E]/20 text-[#22C55E]/80`}>
+      <span key="own" className={`inline-flex items-center gap-0.5 ${chipCls} bg-green-500/10 border-green-500/20 text-green-500/80`}>
         Du: {player.dpc.owned}
       </span>
     );
@@ -420,14 +420,14 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       const pnl = holding ? (floor - holding.avgBuyPriceBsd) * holding.quantity : 0;
       const pnlPct = holding && holding.avgBuyPriceBsd > 0 ? ((floor - holding.avgBuyPriceBsd) / holding.avgBuyPriceBsd) * 100 : 0;
       const upPnl = pnl >= 0;
-      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
+      kpis.push(<span key="fl" className={`${kpiCls} text-gold`}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
       kpis.push(
-        <span key="pnl" className={`${kpiCls} ${upPnl ? 'text-[#00E676]' : 'text-[#FF3B69]'}`}>
+        <span key="pnl" className={`${kpiCls} ${upPnl ? 'text-vivid-green' : 'text-vivid-red'}`}>
           <span className={labelCls}>G/V</span>{upPnl ? '+' : ''}{fmtScout(Math.round(pnl))} ({upPnl ? '+' : ''}{pnlPct.toFixed(1)}%)
         </span>
       );
       kpis.push(
-        <span key="ch" className={`${kpiCls} ${up ? 'text-[#00E676]' : 'text-[#FF3B69]'}`}>
+        <span key="ch" className={`${kpiCls} ${up ? 'text-vivid-green' : 'text-vivid-red'}`}>
           {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
         </span>
       );
@@ -438,9 +438,9 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       break;
     }
     case 'market':
-      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
+      kpis.push(<span key="fl" className={`${kpiCls} text-gold`}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
       kpis.push(
-        <span key="ch" className={`${kpiCls} ${up ? 'text-[#00E676]' : 'text-[#FF3B69]'}`}>
+        <span key="ch" className={`${kpiCls} ${up ? 'text-vivid-green' : 'text-vivid-red'}`}>
           {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
         </span>
       );
@@ -449,7 +449,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       kpis.push(
         <span key="st" className={`${kpiCls} text-white/50`}>
           {player.stats.matches}<span className="text-white/20">/</span>
-          <span className="text-[#00E676]">{player.stats.goals}</span><span className="text-white/20">/</span>
+          <span className="text-vivid-green">{player.stats.goals}</span><span className="text-white/20">/</span>
           <span className="text-sky-300">{player.stats.assists}</span>
         </span>
       );
@@ -461,7 +461,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       kpis.push(
         <span key="st" className={`${kpiCls} text-white/50`}>
           {player.stats.matches}<span className="text-white/20">/</span>
-          <span className="text-[#22C55E]">{player.stats.goals}</span><span className="text-white/20">/</span>
+          <span className="text-green-500">{player.stats.goals}</span><span className="text-white/20">/</span>
           <span className="text-sky-300">{player.stats.assists}</span>
         </span>
       );
@@ -475,12 +475,12 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       kpis.push(
         <span key="st" className={`${kpiCls} text-white/50`}>
           {player.stats.matches}<span className="text-white/20">/</span>
-          <span className="text-[#22C55E]">{player.stats.goals}</span><span className="text-white/20">/</span>
+          <span className="text-green-500">{player.stats.goals}</span><span className="text-white/20">/</span>
           <span className="text-sky-300">{player.stats.assists}</span>
         </span>
       );
       kpis.push(
-        <span key="ch" className={`${kpiCls} ${up ? 'text-[#22C55E]' : 'text-red-400'}`}>
+        <span key="ch" className={`${kpiCls} ${up ? 'text-green-500' : 'text-red-400'}`}>
           {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
         </span>
       );
@@ -491,40 +491,40 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       kpis.push(
         <span key="st" className={`${kpiCls} text-white/50`}>
           {player.stats.matches}<span className="text-white/20">/</span>
-          <span className="text-[#22C55E]">{player.stats.goals}</span><span className="text-white/20">/</span>
+          <span className="text-green-500">{player.stats.goals}</span><span className="text-white/20">/</span>
           <span className="text-sky-300">{player.stats.assists}</span>
         </span>
       );
-      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}>{fmtScout(floor)}</span>);
+      kpis.push(<span key="fl" className={`${kpiCls} text-gold`}>{fmtScout(floor)}</span>);
       kpis.push(<span key="ctr" className={`${kpiCls} text-white/40`}>{player.contractMonthsLeft}M</span>);
       kpis.push(<span key="tr" className={`${kpiCls} text-white/40`}>{player.perf.trend === 'UP' ? '↑' : player.perf.trend === 'DOWN' ? '↓' : '→'}</span>);
       break;
 
     case 'ipo':
-      kpis.push(<span key="pr" className={`${kpiCls} text-[#FFD700] font-bold`}>{fmtScout(ipoData?.price ?? player.ipo.price ?? 0)}</span>);
+      kpis.push(<span key="pr" className={`${kpiCls} text-gold font-bold`}>{fmtScout(ipoData?.price ?? player.ipo.price ?? 0)}</span>);
       if (ipoData) {
-        kpis.push(<span key="pg" className={`${kpiCls} text-[#22C55E]`}>{ipoData.progress.toFixed(0)}%</span>);
+        kpis.push(<span key="pg" className={`${kpiCls} text-green-500`}>{ipoData.progress.toFixed(0)}%</span>);
         if (ipoData.remaining != null) kpis.push(<span key="rem" className={`${kpiCls} text-white/50`}>{fmtScout(ipoData.remaining)} verf.</span>);
       }
       kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
       break;
 
     case 'search':
-      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}>{fmtScout(floor)}</span>);
+      kpis.push(<span key="fl" className={`${kpiCls} text-gold`}>{fmtScout(floor)}</span>);
       kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
       kpis.push(
         <span key="st" className={`${kpiCls} text-white/50`}>
           {player.stats.matches}<span className="text-white/20">/</span>
-          <span className="text-[#22C55E]">{player.stats.goals}</span><span className="text-white/20">/</span>
+          <span className="text-green-500">{player.stats.goals}</span><span className="text-white/20">/</span>
           <span className="text-sky-300">{player.stats.assists}</span>
         </span>
       );
       break;
 
     default: // 'default'
-      kpis.push(<span key="fl" className={`${kpiCls} text-[#FFD700]`}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
+      kpis.push(<span key="fl" className={`${kpiCls} text-gold`}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
       kpis.push(
-        <span key="ch" className={`${kpiCls} ${up ? 'text-[#22C55E]' : 'text-red-400'}`}>
+        <span key="ch" className={`${kpiCls} ${up ? 'text-green-500' : 'text-red-400'}`}>
           {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
         </span>
       );
@@ -532,7 +532,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       kpis.push(
         <span key="st" className={`${kpiCls} text-white/50`}>
           {player.stats.matches}<span className="text-white/20">/</span>
-          <span className="text-[#22C55E]">{player.stats.goals}</span><span className="text-white/20">/</span>
+          <span className="text-green-500">{player.stats.goals}</span><span className="text-white/20">/</span>
           <span className="text-sky-300">{player.stats.assists}</span>
         </span>
       );

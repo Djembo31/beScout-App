@@ -81,7 +81,7 @@ export default function BestandToolbar({
           className={cn(
             'p-2 rounded-xl border transition-all shrink-0',
             groupByClub
-              ? 'bg-[#FFD700]/15 border-[#FFD700]/30 text-[#FFD700]'
+              ? 'bg-gold/15 border-gold/30 text-gold'
               : 'bg-white/5 border-white/10 text-white/40 hover:text-white/60'
           )}
           title={t('bestandGroupByClub')}
@@ -94,13 +94,13 @@ export default function BestandToolbar({
           className={cn(
             'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all shrink-0',
             showFilters || hasActiveFilters
-              ? 'bg-[#FFD700]/15 border-[#FFD700]/30 text-[#FFD700]'
+              ? 'bg-gold/15 border-gold/30 text-gold'
               : 'bg-white/5 border-white/10 text-white/50'
           )}
         >
           <Filter className="w-3.5 h-3.5" />
           {hasActiveFilters && (
-            <span className="px-1.5 py-0.5 bg-[#FFD700] text-black text-[10px] font-black rounded-full">
+            <span className="px-1.5 py-0.5 bg-gold text-black text-[10px] font-black rounded-full">
               {(posFilter.size > 0 ? 1 : 0) + (clubFilter ? 1 : 0)}
             </span>
           )}

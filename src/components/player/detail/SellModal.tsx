@@ -106,7 +106,7 @@ export default function SellModal({
 
           {/* Position Info */}
           <Card className="overflow-hidden">
-            <div className="bg-gradient-to-r from-[#22C55E]/20 to-[#22C55E]/5 border-b border-green-500/20 p-4">
+            <div className="bg-gradient-to-r from-green-500/20 to-green-500/5 border-b border-green-500/20 p-4">
               <div className="flex items-center gap-2">
                 <Briefcase className="w-5 h-5 text-green-500" />
                 <span className="font-black text-green-500">Deine Position</span>

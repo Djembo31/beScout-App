@@ -21,7 +21,7 @@ export default function DpcMasteryCard({ mastery }: DpcMasteryCardProps) {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-white/50 uppercase tracking-wider">DPC Mastery</span>
-          <span className="px-2 py-0.5 rounded-lg bg-[#FFD700]/15 text-[#FFD700] text-[10px] font-black border border-[#FFD700]/25">
+          <span className="px-2 py-0.5 rounded-lg bg-gold/15 text-gold text-[10px] font-black border border-gold/25">
             Lv {mastery.level} — {MASTERY_LEVEL_LABELS[mastery.level]}
           </span>
         </div>
@@ -32,7 +32,7 @@ export default function DpcMasteryCard({ mastery }: DpcMasteryCardProps) {
       {mastery.level < 5 && (
         <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-[#FFD700]/40 to-[#FFD700]/20 transition-all"
+            className="h-full rounded-full bg-gradient-to-r from-gold/40 to-gold/20 transition-all"
             style={{ width: `${Math.min((mastery.xp / MASTERY_XP_THRESHOLDS[mastery.level]) * 100, 100)}%` }}
           />
         </div>

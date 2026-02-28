@@ -212,7 +212,7 @@ export default function ManagerBestandTab({
     [sellPlayerId, bestandItems]
   );
 
-  const getPnlColor = (pnl: number) => pnl >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]';
+  const getPnlColor = (pnl: number) => pnl >= 0 ? 'text-vivid-green' : 'text-vivid-red';
 
   const renderRow = (item: BestandPlayer) => (
     <BestandPlayerRow
@@ -234,11 +234,11 @@ export default function ManagerBestandTab({
           <div className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">Spieler</div>
           <div className="text-xl font-black font-mono">{summary.totalPlayers}</div>
         </div>
-        <div className="bg-gradient-to-br from-[#FFD700]/[0.08] to-transparent border border-[#FFD700]/[0.12] rounded-xl px-4 py-3 shadow-card-sm">
+        <div className="bg-gradient-to-br from-gold/[0.08] to-transparent border border-gold/[0.12] rounded-xl px-4 py-3 shadow-card-sm">
           <div className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">Kaderwert</div>
-          <div className="text-xl font-black font-mono text-[#FFD700]" style={{ textShadow: '0 0 10px rgba(255,215,0,0.3)' }}>{fmtScout(Math.round(summary.totalValue))}</div>
+          <div className="text-xl font-black font-mono text-gold" style={{ textShadow: '0 0 10px rgba(255,215,0,0.3)' }}>{fmtScout(Math.round(summary.totalValue))}</div>
         </div>
-        <div className={cn('bg-gradient-to-br rounded-xl px-4 py-3 shadow-card-sm border', summary.pnl >= 0 ? 'from-[#00E676]/[0.08] to-transparent border-[#00E676]/[0.12]' : 'from-[#FF3B69]/[0.08] to-transparent border-[#FF3B69]/[0.12]')}>
+        <div className={cn('bg-gradient-to-br rounded-xl px-4 py-3 shadow-card-sm border', summary.pnl >= 0 ? 'from-vivid-green/[0.08] to-transparent border-vivid-green/[0.12]' : 'from-vivid-red/[0.08] to-transparent border-vivid-red/[0.12]')}>
           <div className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">G/V</div>
           <div className={cn('text-xl font-black font-mono', getPnlColor(summary.pnl))}>
             {summary.pnl >= 0 ? '+' : ''}{fmtScout(Math.round(summary.pnl))}
@@ -249,7 +249,7 @@ export default function ManagerBestandTab({
           <div className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">Aktivität</div>
           <div className="flex items-center gap-3 mt-1">
             {summary.totalListed > 0 && (
-              <span className="flex items-center gap-1 text-xs font-bold text-[#FFD700]">
+              <span className="flex items-center gap-1 text-xs font-bold text-gold">
                 <Tag className="w-3 h-3" />{summary.totalListed} gelistet
               </span>
             )}

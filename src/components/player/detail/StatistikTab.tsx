@@ -18,14 +18,14 @@ export default function StatistikTab({ player, gwScores }: StatistikTabProps) {
   const avgScore = gwScores.length > 0
     ? Math.round(gwScores.reduce((s, g) => s + g.score, 0) / gwScores.length)
     : 0;
-  const scoreColor = avgScore >= 100 ? 'text-[#FFD700]' : avgScore >= 70 ? 'text-white' : avgScore > 0 ? 'text-red-400' : 'text-white/30';
+  const scoreColor = avgScore >= 100 ? 'text-gold' : avgScore >= 70 ? 'text-white' : avgScore > 0 ? 'text-red-400' : 'text-white/30';
 
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Score Overview */}
       <Card className="p-4 md:p-6">
         <h3 className="font-black text-lg mb-4 flex items-center gap-2">
-          <Activity className="w-5 h-5 text-[#FFD700]" />
+          <Activity className="w-5 h-5 text-gold" />
           Performance-Übersicht
         </h3>
 
@@ -54,7 +54,7 @@ export default function StatistikTab({ player, gwScores }: StatistikTabProps) {
             </div>
           )}
           <div className="flex flex-col items-center gap-0.5 ml-2">
-            <div className={`font-bold flex items-center gap-1 ${player.perf.trend === 'UP' ? 'text-[#22C55E]' : player.perf.trend === 'DOWN' ? 'text-red-300' : 'text-white/60'}`}>
+            <div className={`font-bold flex items-center gap-1 ${player.perf.trend === 'UP' ? 'text-green-500' : player.perf.trend === 'DOWN' ? 'text-red-300' : 'text-white/60'}`}>
               {player.perf.trend === 'UP' ? <TrendingUp className="w-4 h-4" /> : player.perf.trend === 'DOWN' ? <TrendingDown className="w-4 h-4" /> : null}
               {player.perf.trend === 'UP' ? 'Hot' : player.perf.trend === 'DOWN' ? 'Cold' : 'Stable'}
             </div>
@@ -71,7 +71,7 @@ export default function StatistikTab({ player, gwScores }: StatistikTabProps) {
               <div className="text-[10px] text-white/50">Spiele</div>
             </div>
             <div className="text-center bg-black/20 rounded-xl py-3">
-              <div className="text-2xl font-mono font-black text-[#22C55E]">{player.stats.goals}</div>
+              <div className="text-2xl font-mono font-black text-green-500">{player.stats.goals}</div>
               <div className="text-[10px] text-white/50">Tore</div>
             </div>
             <div className="text-center bg-black/20 rounded-xl py-3">

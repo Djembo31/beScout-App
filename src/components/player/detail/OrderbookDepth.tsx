@@ -43,7 +43,7 @@ export default function OrderbookDepth({ orders, className = '' }: OrderbookDept
           return (
             <div key={price} className="flex items-center gap-3">
               <div className="w-16 text-right shrink-0">
-                <span className="text-xs font-mono font-bold text-[#FFD700]">{fmtScout(price)}</span>
+                <span className="text-xs font-mono font-bold text-gold">{fmtScout(price)}</span>
               </div>
               <div className="flex-1 h-5 bg-white/[0.02] rounded relative overflow-hidden">
                 <div

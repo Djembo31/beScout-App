@@ -62,7 +62,7 @@ export const DEFAULT_SORT: Record<BestandLens, string> = {
 // ============================================
 
 export const STATUS_CONFIG: Record<PlayerStatus, { label: string; short: string; bg: string; border: string; text: string; icon: typeof Heart }> = {
-  fit: { label: 'Fit', short: 'Fit', bg: 'bg-[#22C55E]/10', border: 'border-[#22C55E]/20', text: 'text-[#22C55E]', icon: Heart },
+  fit: { label: 'Fit', short: 'Fit', bg: 'bg-green-500/10', border: 'border-green-500/20', text: 'text-green-500', icon: Heart },
   injured: { label: 'Verletzt', short: 'Verl.', bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', icon: AlertTriangle },
   suspended: { label: 'Gesperrt', short: 'Gesp.', bg: 'bg-orange-500/10', border: 'border-orange-500/20', text: 'text-orange-400', icon: AlertTriangle },
   doubtful: { label: 'Fraglich', short: 'Fragl.', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', text: 'text-yellow-400', icon: HelpCircle },
@@ -88,7 +88,7 @@ export function MinutesPill({ minutes }: { minutes: number[] | undefined }) {
     return <span className="text-[10px] text-white/30 font-mono">&mdash;&apos;</span>;
   }
   const avg = Math.round(minutes.reduce((s, m) => s + m, 0) / minutes.length);
-  const color = avg >= 75 ? 'text-[#22C55E]' : avg >= 45 ? 'text-yellow-400' : 'text-red-400';
+  const color = avg >= 75 ? 'text-green-500' : avg >= 45 ? 'text-yellow-400' : 'text-red-400';
   return (
     <span className={cn('text-[10px] font-mono font-bold', color)}>
       &empty;{avg}&apos;
@@ -101,7 +101,7 @@ export function MinutesBar({ minutes }: { minutes: number[] }) {
     <div className="flex items-end gap-0.5 h-5">
       {minutes.slice(0, 5).map((m, i) => {
         const pct = Math.min(100, (m / 90) * 100);
-        const color = m >= 75 ? 'bg-[#22C55E]' : m >= 45 ? 'bg-yellow-400' : m > 0 ? 'bg-red-400' : 'bg-white/10';
+        const color = m >= 75 ? 'bg-green-500' : m >= 45 ? 'bg-yellow-400' : m > 0 ? 'bg-red-400' : 'bg-white/10';
         return (
           <div key={i} className="w-2.5 rounded-sm" style={{ height: `${Math.max(2, pct)}%` }}>
             <div className={cn('w-full h-full rounded-sm', color)} />
@@ -118,7 +118,7 @@ export function MinutesBar({ minutes }: { minutes: number[] }) {
 
 export function PerfPills({ l5, l15, trend }: { l5: number; l15: number; trend: string }) {
   const TrendIcon = trend === 'UP' ? TrendingUp : trend === 'DOWN' ? TrendingDown : Minus;
-  const trendColor = trend === 'UP' ? 'text-[#22C55E]' : trend === 'DOWN' ? 'text-red-400' : 'text-white/40';
+  const trendColor = trend === 'UP' ? 'text-green-500' : trend === 'DOWN' ? 'text-red-400' : 'text-white/40';
 
   return (
     <div className="flex items-center gap-1.5">
@@ -137,7 +137,7 @@ export function NextMatchBadge({ fixture }: { fixture: NextFixtureInfo | undefin
   if (!fixture) return <span className="text-[10px] text-white/30">&mdash;</span>;
   return (
     <span className="text-[10px] text-white/50 font-mono">
-      <span className={fixture.isHome ? 'text-[#22C55E]' : 'text-sky-300'}>
+      <span className={fixture.isHome ? 'text-green-500' : 'text-sky-300'}>
         {fixture.isHome ? 'H' : 'A'}
       </span>
       {' '}{fixture.opponentShort}
@@ -161,7 +161,7 @@ export function MarketBadges({ hasIpo, listedQty, offerCount }: { hasIpo: boolea
         </span>
       )}
       {listedQty > 0 && (
-        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded text-[9px] font-bold text-[#FFD700]" title="Auf Transferliste">
+        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-gold/10 border border-gold/20 rounded text-[9px] font-bold text-gold" title="Auf Transferliste">
           <Tag className="w-2.5 h-2.5" />{listedQty}
         </span>
       )}

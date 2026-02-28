@@ -22,9 +22,9 @@ export default function SquadSummaryStats({ players, ownedPlayers, assignedCount
 
   return (
     <div className="flex flex-wrap items-center gap-2 md:gap-3 text-xs">
-      <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-lg">
+      <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gold/10 border border-gold/20 rounded-lg">
         <span className="text-white/50">Kaderwert:</span>
-        <span className="font-mono font-bold text-[#FFD700]">{fmtScout(totalValue)} $SCOUT</span>
+        <span className="font-mono font-bold text-gold">{fmtScout(totalValue)} $SCOUT</span>
       </div>
       <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg">
         <span className="text-white/50">Aufstellung:</span>
@@ -42,7 +42,7 @@ export default function SquadSummaryStats({ players, ownedPlayers, assignedCount
       {avgPerf > 0 && (
         <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg">
           <span className="text-white/50">Perf:</span>
-          <span className={`font-mono font-bold ${avgPerf >= 70 ? 'text-[#FFD700]' : avgPerf >= 50 ? 'text-white' : 'text-red-400'}`}>
+          <span className={`font-mono font-bold ${avgPerf >= 70 ? 'text-gold' : avgPerf >= 50 ? 'text-white' : 'text-red-400'}`}>
             {avgPerf}
           </span>
         </div>

@@ -103,10 +103,10 @@ export default function CommunityTab({
           {/* Votes */}
           <div className="flex flex-col items-center gap-0.5">
             <button onClick={() => onVotePost(post.id, myVote === 1 ? 0 : 1)}
-              className={cn('p-1 rounded transition-colors', myVote === 1 ? 'bg-[#22C55E]/20 text-[#22C55E]' : 'text-white/30 hover:text-[#22C55E]')}>
+              className={cn('p-1 rounded transition-colors', myVote === 1 ? 'bg-green-500/20 text-green-500' : 'text-white/30 hover:text-green-500')}>
               <ArrowUp className="w-3.5 h-3.5" />
             </button>
-            <span className={cn('font-mono text-xs font-bold', netScore > 10 ? 'text-[#22C55E]' : netScore < 0 ? 'text-red-300' : 'text-white/50')}>{netScore}</span>
+            <span className={cn('font-mono text-xs font-bold', netScore > 10 ? 'text-green-500' : netScore < 0 ? 'text-red-300' : 'text-white/50')}>{netScore}</span>
             <button onClick={() => onVotePost(post.id, myVote === -1 ? 0 : -1)}
               className={cn('p-1 rounded transition-colors', myVote === -1 ? 'bg-red-500/20 text-red-300' : 'text-white/30 hover:text-red-300')}>
               <ArrowDown className="w-3.5 h-3.5" />
@@ -117,7 +117,7 @@ export default function CommunityTab({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 mb-1 flex-wrap">
               <span className="font-bold text-xs">{post.author_display_name || post.author_handle}</span>
-              {post.author_verified && <BadgeCheck className="w-3 h-3 text-[#FFD700]" />}
+              {post.author_verified && <BadgeCheck className="w-3 h-3 text-gold" />}
               <span className="text-[9px] text-white/30 px-1 py-0.5 bg-white/5 rounded">Lv{post.author_level}</span>
               <span className="text-[10px] text-white/40">{formatTimeAgo(post.created_at)}</span>
             </div>
@@ -157,7 +157,7 @@ export default function CommunityTab({
               <span className="flex items-center gap-0.5">
                 <MessageSquare className="w-3 h-3" /> {post.replies_count}
               </span>
-              <button onClick={() => sharePost(post)} className={cn('flex items-center gap-0.5', copied ? 'text-[#22C55E]' : 'hover:text-white')}>
+              <button onClick={() => sharePost(post)} className={cn('flex items-center gap-0.5', copied ? 'text-green-500' : 'hover:text-white')}>
                 {copied ? <CheckCircle2 className="w-3 h-3" /> : <Send className="w-3 h-3" />}
                 {copied ? 'Kopiert!' : 'Teilen'}
               </button>
@@ -250,7 +250,7 @@ export default function CommunityTab({
             <FileText className="w-5 h-5 text-white/50" />
             Research-Berichte
           </h3>
-          <Link href="/community" className="text-xs text-[#FFD700] flex items-center gap-1 hover:underline">
+          <Link href="/community" className="text-xs text-gold flex items-center gap-1 hover:underline">
             Alle anzeigen <ChevronRight className="w-3 h-3" />
           </Link>
         </div>
@@ -297,13 +297,13 @@ export default function CommunityTab({
             </label>
             <textarea value={postContent} onChange={e => setPostContent(e.target.value.slice(0, 500))} rows={4}
               placeholder={`Was denkst du über ${playerName}?`}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none" />
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none" />
           </div>
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">Tags (kommagetrennt)</label>
             <input type="text" value={postTags} onChange={e => setPostTags(e.target.value)}
               placeholder="z.B. Form, Value, Tactics"
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40" />
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
           </div>
           <Button variant="gold" fullWidth loading={postLoading} onClick={handleSubmitPost}>Posten</Button>
         </div>
@@ -330,13 +330,13 @@ export default function CommunityTab({
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">Ziel-Club (optional)</label>
             <input type="text" value={rumorClubTarget} onChange={e => setRumorClubTarget(e.target.value)}
               placeholder="z.B. Galatasaray, Fenerbahçe"
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40" />
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
           </div>
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">Quelle (optional)</label>
             <input type="text" value={rumorSource} onChange={e => setRumorSource(e.target.value)}
               placeholder="z.B. Fanatik, Sabah, Twitter"
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40" />
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
           </div>
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 flex justify-between">
@@ -345,7 +345,7 @@ export default function CommunityTab({
             </label>
             <textarea value={rumorContent} onChange={e => setRumorContent(e.target.value.slice(0, 500))} rows={4}
               placeholder={`Was hast du über ${playerName} gehört?`}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none" />
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none" />
           </div>
           <Button variant="gold" fullWidth loading={postLoading} onClick={handleSubmitRumor}>Gerücht posten</Button>
         </div>

@@ -102,7 +102,7 @@ function OfferCard({
               {offer.side === 'buy' ? 'Kaufangebot' : 'Verkaufsangebot'}
             </span>
             <span className="text-white/30">â€¢</span>
-            <span className="font-mono font-bold text-[#FFD700]">
+            <span className="font-mono font-bold text-gold">
               {fmtScout(centsToBsd(offer.price))} $SCOUT
             </span>
             <span className="text-white/30">â€¢</span>
@@ -270,7 +270,7 @@ function CreateOfferModal({
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Spieler suchen..."
-                className="w-full pl-10 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/30"
+                className="w-full pl-10 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
               />
             </div>
             {filteredPlayers.length > 0 && (
@@ -335,7 +335,7 @@ function CreateOfferModal({
             placeholder="z.B. 150"
             min="1"
             step="1"
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/30 font-mono"
+            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30 font-mono"
           />
         </div>
 
@@ -347,7 +347,7 @@ function CreateOfferModal({
             value={receiverHandle}
             onChange={e => setReceiverHandle(e.target.value)}
             placeholder="@username"
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/30"
+            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
           />
         </div>
 
@@ -360,7 +360,7 @@ function CreateOfferModal({
             onChange={e => setMessage(e.target.value)}
             placeholder="z.B. Interessiert an deinem DPC..."
             maxLength={200}
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/30"
+            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
           />
         </div>
 
@@ -510,7 +510,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
               onClick={() => setSubTab(t.id)}
               className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                 subTab === t.id
-                  ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20'
+                  ? 'bg-gold/10 text-gold border border-gold/20'
                   : 'text-white/40 hover:text-white/60'
               }`}
             >
@@ -578,7 +578,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
         <Modal open={true} onClose={() => { setCounterModal(null); setCounterPrice(''); }} title="Gegenangebot">
           <div className="space-y-4">
             <div className="text-sm text-white/60">
-              Original: <span className="font-mono text-[#FFD700]">{fmtScout(centsToBsd(counterModal.price))} $SCOUT</span> für {counterModal.player_first_name} {counterModal.player_last_name}
+              Original: <span className="font-mono text-gold">{fmtScout(centsToBsd(counterModal.price))} $SCOUT</span> für {counterModal.player_first_name} {counterModal.player_last_name}
             </div>
             <div>
               <label className="text-sm text-white/60 mb-1 block">Dein Preis ($SCOUT)</label>
@@ -586,7 +586,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
                 type="number" inputMode="numeric"
                 value={counterPrice}
                 onChange={e => setCounterPrice(e.target.value)}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white font-mono focus:outline-none focus:border-[#FFD700]/30"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white font-mono focus:outline-none focus:border-gold/30"
               />
             </div>
             <Button onClick={handleCounter} disabled={countering} className="w-full">

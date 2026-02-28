@@ -43,11 +43,11 @@ export default function IPOBuySection({
 
   return (
     <Card className="overflow-hidden">
-      <div className="bg-gradient-to-r from-[#22C55E]/20 to-[#22C55E]/5 border-b border-[#22C55E]/20 p-4">
+      <div className="bg-gradient-to-r from-green-500/20 to-green-500/5 border-b border-green-500/20 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-            <span className="font-black text-[#22C55E]">ERSTVERKAUF</span>
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="font-black text-green-500">ERSTVERKAUF</span>
             <span className="text-[10px] text-white/40 ml-1">Festpreis</span>
           </div>
           <div className="flex items-center gap-1 text-xs text-white/50">
@@ -61,10 +61,10 @@ export default function IPOBuySection({
         <div>
           <div className="flex items-center justify-between text-sm mb-1">
             <span className="text-white/50">Fortschritt</span>
-            <span className="font-mono font-bold text-[#FFD700]">{progress.toFixed(0)}%</span>
+            <span className="font-mono font-bold text-gold">{progress.toFixed(0)}%</span>
           </div>
           <div className="h-3 bg-black/30 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-full" style={{ width: `${progress}%` }} />
+            <div className="h-full bg-gradient-to-r from-gold to-orange-500 rounded-full" style={{ width: `${progress}%` }} />
           </div>
           <div className="flex items-center justify-between text-xs text-white/40 mt-1">
             <span>{fmtScout(ipo.sold)} verkauft</span>
@@ -75,7 +75,7 @@ export default function IPOBuySection({
         <div className="bg-black/20 rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-white/50 text-sm">Club-Preis</span>
-            <span className="font-mono font-black text-2xl text-[#FFD700]">{fmtScout(priceBsd)} $SCOUT</span>
+            <span className="font-mono font-black text-2xl text-gold">{fmtScout(priceBsd)} $SCOUT</span>
           </div>
         </div>
         {/* Limits */}
@@ -117,7 +117,7 @@ export default function IPOBuySection({
               )}
               <div className="border-t border-white/10 pt-2 flex items-center justify-between">
                 <span className="text-white/50 text-sm">Gesamtkosten</span>
-                <span className="font-mono font-black text-xl text-[#FFD700]">{fmtScout(totalBsd)} $SCOUT</span>
+                <span className="font-mono font-black text-xl text-gold">{fmtScout(totalBsd)} $SCOUT</span>
               </div>
               <div className="border-t border-white/10 pt-2 flex items-center justify-between text-xs">
                 <span className="text-white/40">Dein Guthaben</span>
@@ -126,7 +126,7 @@ export default function IPOBuySection({
               {balanceCents !== null && (
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-white/40">Guthaben danach</span>
-                  <span className={`font-mono font-bold ${canAfford ? 'text-[#22C55E]' : 'text-red-400'}`}>
+                  <span className={`font-mono font-bold ${canAfford ? 'text-green-500' : 'text-red-400'}`}>
                     {formatScout(Math.max(0, balanceCents - totalCents))} $SCOUT
                   </span>
                 </div>

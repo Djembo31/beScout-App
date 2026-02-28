@@ -82,7 +82,7 @@ function PerformanceCols({ item, minutes, nextFixture }: { item: BestandPlayer; 
 }
 
 function MarktCols({ item }: { item: BestandPlayer }) {
-  const pnlColor = item.pnlBsd >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]';
+  const pnlColor = item.pnlBsd >= 0 ? 'text-vivid-green' : 'text-vivid-red';
   const TrendIcon = item.pnlBsd > 0 ? TrendingUp : item.pnlBsd < 0 ? TrendingDown : Minus;
   return (
     <>
@@ -91,7 +91,7 @@ function MarktCols({ item }: { item: BestandPlayer }) {
         <span className="text-white/50">{item.quantity}<span className="text-white/25">×</span></span>
         <span className="text-white/40">EK {fmtScout(item.avgBuyPriceBsd)}</span>
         <span className="text-white/50">Floor {item.floorBsd != null ? fmtScout(item.floorBsd) : '—'}</span>
-        <span className="text-[#FFD700] font-bold">{fmtScout(item.valueBsd * item.quantity)}</span>
+        <span className="text-gold font-bold">{fmtScout(item.valueBsd * item.quantity)}</span>
         <span className={cn('flex items-center gap-0.5', pnlColor)}>
           <TrendIcon className="w-2.5 h-2.5" />
           {item.pnlBsd >= 0 ? '+' : ''}{fmtScout(Math.round(item.pnlBsd))}
@@ -102,7 +102,7 @@ function MarktCols({ item }: { item: BestandPlayer }) {
       {/* Mobile */}
       <div className="md:hidden flex items-center gap-2 flex-wrap mt-0.5 text-[10px] font-mono">
         <span className="text-white/50">{item.quantity}<span className="text-white/25">×</span> EK {fmtScout(item.avgBuyPriceBsd)}</span>
-        <span className="text-[#FFD700] font-bold">{fmtScout(item.valueBsd * item.quantity)}</span>
+        <span className="text-gold font-bold">{fmtScout(item.valueBsd * item.quantity)}</span>
         <span className={cn('flex items-center gap-0.5', pnlColor)}>
           <TrendIcon className="w-2.5 h-2.5" />
           {item.pnlBsd >= 0 ? '+' : ''}{fmtScout(Math.round(item.pnlBsd))}
@@ -118,7 +118,7 @@ function HandelCols({ item }: { item: BestandPlayer }) {
       {/* Desktop */}
       <div className="hidden md:flex items-center gap-3 shrink-0 text-[11px] font-mono">
         {item.listedQty > 0 ? (
-          <span className="text-[#FFD700]">{item.listedQty} gelistet</span>
+          <span className="text-gold">{item.listedQty} gelistet</span>
         ) : (
           <span className="text-white/30">Nicht gelistet</span>
         )}
@@ -194,7 +194,7 @@ function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onS
             <Link href={`/player/${p.id}`} className="hover:opacity-80 transition-opacity">
               <PlayerIdentity player={p} size="sm" showMeta={false} showStatus={false} />
             </Link>
-            {inLineup && <span className="shrink-0" title="In Aufstellung"><Shield className="w-3 h-3 text-[#22C55E]" /></span>}
+            {inLineup && <span className="shrink-0" title="In Aufstellung"><Shield className="w-3 h-3 text-green-500" /></span>}
           </div>
 
           {/* Lens columns */}
@@ -208,15 +208,15 @@ function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onS
         <div className="shrink-0 flex items-center gap-2">
           {lens === 'performance' && (
             <div className="text-right hidden sm:block">
-              <div className="text-xs font-mono font-bold text-[#FFD700]">{fmtScout(item.valueBsd * item.quantity)}</div>
-              <div className={cn('text-[9px] font-mono', item.pnlBsd >= 0 ? 'text-[#22C55E]' : 'text-red-300')}>
+              <div className="text-xs font-mono font-bold text-gold">{fmtScout(item.valueBsd * item.quantity)}</div>
+              <div className={cn('text-[9px] font-mono', item.pnlBsd >= 0 ? 'text-green-500' : 'text-red-300')}>
                 {item.pnlBsd >= 0 ? '+' : ''}{fmtScout(Math.round(item.pnlBsd))}
               </div>
             </div>
           )}
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onSellClick(p.id); }}
-            className="p-2 rounded-lg bg-white/5 border border-white/10 text-white/40 hover:text-[#FFD700] hover:border-[#FFD700]/20 hover:bg-[#FFD700]/5 transition-all"
+            className="p-2 rounded-lg bg-white/5 border border-white/10 text-white/40 hover:text-gold hover:border-gold/20 hover:bg-gold/5 transition-all"
             title="Verkaufen"
           >
             <DollarSign className="w-3.5 h-3.5" />

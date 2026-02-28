@@ -32,7 +32,7 @@ export default function BuyConfirmation({
       </div>
       <div className="p-4 space-y-3">
         <div className="text-sm text-white/80">
-          Du hast aktuell <span className="font-bold text-[#FFD700]">
+          Du hast aktuell <span className="font-bold text-gold">
             {userOrders.reduce((sum, o) => sum + (o.quantity - o.filled_qty), 0)} DPC
           </span> zum Verkauf gelistet.
         </div>
@@ -42,12 +42,12 @@ export default function BuyConfirmation({
         <div className="bg-black/20 rounded-lg px-3 py-2 space-y-1.5">
           <div className="flex items-center justify-between text-xs">
             <span className="text-white/40">ca. Kosten ({pendingBuyQty} &times; {fmtScout(floorBsd)})</span>
-            <span className="font-mono font-bold text-[#FFD700]">{fmtScout(floorBsd * pendingBuyQty)} $SCOUT</span>
+            <span className="font-mono font-bold text-gold">{fmtScout(floorBsd * pendingBuyQty)} $SCOUT</span>
           </div>
           {balanceCents !== null && (
             <div className="flex items-center justify-between text-xs">
               <span className="text-white/40">Guthaben danach</span>
-              <span className={`font-mono font-bold ${balanceCents >= estTotalCents ? 'text-[#22C55E]' : 'text-red-400'}`}>
+              <span className={`font-mono font-bold ${balanceCents >= estTotalCents ? 'text-green-500' : 'text-red-400'}`}>
                 {formatScout(balanceCents - estTotalCents)} $SCOUT
               </span>
             </div>

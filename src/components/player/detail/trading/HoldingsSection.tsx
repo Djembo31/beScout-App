@@ -32,10 +32,10 @@ export default function HoldingsSection({
 
   return (
     <Card className="overflow-hidden">
-      <div className="bg-gradient-to-r from-[#22C55E]/20 to-[#22C55E]/5 border-b border-[#22C55E]/20 p-4">
+      <div className="bg-gradient-to-r from-green-500/20 to-green-500/5 border-b border-green-500/20 p-4">
         <div className="flex items-center gap-2">
-          <Briefcase className="w-5 h-5 text-[#22C55E]" />
-          <span className="font-black text-[#22C55E]">Deine Position</span>
+          <Briefcase className="w-5 h-5 text-green-500" />
+          <span className="font-black text-green-500">Deine Position</span>
         </div>
       </div>
       <div className="p-4 space-y-3">
@@ -126,7 +126,7 @@ export default function HoldingsSection({
                       </div>
                       <div className="border-t border-white/10 pt-1.5 flex items-center justify-between text-sm">
                         <span className="text-white/50">Netto-Erlös</span>
-                        <span className="font-mono font-bold text-[#FFD700]">{fmtScout(net)} $SCOUT</span>
+                        <span className="font-mono font-bold text-gold">{fmtScout(net)} $SCOUT</span>
                       </div>
                     </div>
                   );
@@ -158,10 +158,10 @@ export default function HoldingsSection({
                 return (
                   <div key={order.id} className="flex items-center justify-between p-2 bg-white/[0.02] rounded-lg border border-white/10">
                     <div>
-                      <div className="font-mono font-bold text-sm text-[#FFD700]">{formatScout(order.price)} $SCOUT</div>
+                      <div className="font-mono font-bold text-sm text-gold">{formatScout(order.price)} $SCOUT</div>
                       <div className="text-[10px] text-white/40">
                         {remaining}/{order.quantity} DPC
-                        {order.filled_qty > 0 && <span className="text-[#22C55E]"> &middot; {order.filled_qty} verkauft</span>}
+                        {order.filled_qty > 0 && <span className="text-green-500"> &middot; {order.filled_qty} verkauft</span>}
                       </div>
                     </div>
                     <button

@@ -51,7 +51,7 @@ export default function TransferBuySection({
                   <ShoppingCart className="w-4 h-4 text-sky-300" />
                   <span className="text-sm text-sky-300 font-bold">User-Angebote</span>
                 </div>
-                <span className="font-mono font-black text-lg text-[#FFD700]">{fmtScout(floorBsd)} $SCOUT</span>
+                <span className="font-mono font-black text-lg text-gold">{fmtScout(floorBsd)} $SCOUT</span>
               </div>
               <div className="text-[10px] text-white/40 mt-1">{sellOrderCount} Angebot{sellOrderCount !== 1 ? 'e' : ''} von Usern</div>
             </div>
@@ -80,7 +80,7 @@ export default function TransferBuySection({
               )}
               <div className="border-t border-white/10 pt-2 flex items-center justify-between">
                 <span className="text-white/50 text-sm">Gesamtkosten</span>
-                <span className="font-mono font-black text-xl text-[#FFD700]">{fmtScout(totalBsd)} $SCOUT</span>
+                <span className="font-mono font-black text-xl text-gold">{fmtScout(totalBsd)} $SCOUT</span>
               </div>
               <div className="border-t border-white/10 pt-2 flex items-center justify-between text-xs">
                 <span className="text-white/40">Dein Guthaben</span>
@@ -89,7 +89,7 @@ export default function TransferBuySection({
               {balanceCents !== null && (
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-white/40">Guthaben danach</span>
-                  <span className={`font-mono font-bold ${canAfford ? 'text-[#22C55E]' : 'text-red-400'}`}>
+                  <span className={`font-mono font-bold ${canAfford ? 'text-green-500' : 'text-red-400'}`}>
                     {formatScout(balanceCents - floorCents * buyQty)} $SCOUT
                   </span>
                 </div>

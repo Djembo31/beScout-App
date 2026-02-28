@@ -30,7 +30,7 @@ export default function ComparePlayerCard({ player, isHighest }: ComparePlayerCa
         <StatRow label="Assists" value={String(player.stats.assists)} gold={isHighest.assists} />
         <StatRow label="Floor" value={`${fmtScout(player.prices.floor ?? 0)} $SCOUT`} gold={isHighest.floor} />
         <StatRow label="24h" value={`${player.prices.change24h >= 0 ? '+' : ''}${player.prices.change24h.toFixed(1)}%`}
-          color={player.prices.change24h >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]'} gold={isHighest.change} />
+          color={player.prices.change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red'} gold={isHighest.change} />
       </div>
     </Link>
   );
@@ -42,7 +42,7 @@ function StatRow({ label, value, gold, color }: { label: string; value: string; 
       <span className="text-white/40">{label}</span>
       <span className={cn(
         'font-mono font-bold',
-        gold ? 'text-[#FFD700]' : color ?? 'text-white/80'
+        gold ? 'text-gold' : color ?? 'text-white/80'
       )}>
         {value}
       </span>

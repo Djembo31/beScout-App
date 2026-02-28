@@ -25,7 +25,7 @@ import type { NextFixtureInfo } from '@/lib/services/fixtures';
 function EventUsageBadge({ count }: { count: number }) {
   if (count === 0) return null;
   return (
-    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#22C55E]/10 border border-[#22C55E]/20 rounded text-[9px] font-bold text-[#22C55E]"
+    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-green-500/10 border border-green-500/20 rounded text-[9px] font-bold text-green-500"
           title={`In ${count} aktiven Event(s) aufgestellt`}>
       <Shield className="w-2.5 h-2.5" />{count}
     </span>
@@ -44,8 +44,8 @@ function ScoreCircle({ score }: { score: number | null }) {
       </div>
     );
   }
-  const bg = score >= 100 ? 'bg-[#FFD700]/15 border-[#FFD700]/30' : score >= 70 ? 'bg-white/[0.06] border-white/15' : 'bg-red-500/10 border-red-400/20';
-  const text = score >= 100 ? 'text-[#FFD700]' : score >= 70 ? 'text-white' : 'text-red-300';
+  const bg = score >= 100 ? 'bg-gold/15 border-gold/30' : score >= 70 ? 'bg-white/[0.06] border-white/15' : 'bg-red-500/10 border-red-400/20';
+  const text = score >= 100 ? 'text-gold' : score >= 70 ? 'text-white' : 'text-red-300';
   return (
     <div className={cn('w-7 h-7 md:w-10 md:h-10 rounded-full border flex items-center justify-center', bg)}>
       <span className={cn('text-xs md:text-sm font-black font-mono', text)}>{score}</span>
@@ -88,7 +88,7 @@ function L5ScoreBars({ scores, minutes }: { scores: number[] | undefined; minute
         }
         // Normalize: score 40-150 → height 15%-100%
         const pct = Math.min(100, Math.max(15, ((s.score - 40) / 110) * 100));
-        const color = s.score >= 100 ? 'bg-[#FFD700]' : s.score >= 70 ? 'bg-[#22C55E]' : 'bg-red-400';
+        const color = s.score >= 100 ? 'bg-gold' : s.score >= 70 ? 'bg-green-500' : 'bg-red-400';
         // Minutes overlay: opacity based on minutes (0'=dim, 90'=full)
         const opacity = s.min != null ? Math.max(0.4, s.min / 90) : 0.6;
         return (
@@ -137,10 +137,10 @@ function CompactPickerRow({ player, scores, minutes, onClick }: {
       {lastScore != null ? (
         <div className={cn(
           'w-7 h-7 rounded-full border flex items-center justify-center shrink-0',
-          lastScore >= 100 ? 'bg-[#FFD700]/15 border-[#FFD700]/30' : lastScore >= 70 ? 'bg-white/[0.06] border-white/15' : 'bg-red-500/10 border-red-400/20',
+          lastScore >= 100 ? 'bg-gold/15 border-gold/30' : lastScore >= 70 ? 'bg-white/[0.06] border-white/15' : 'bg-red-500/10 border-red-400/20',
         )}>
           <span className={cn('text-[10px] font-black font-mono',
-            lastScore >= 100 ? 'text-[#FFD700]' : lastScore >= 70 ? 'text-white' : 'text-red-300',
+            lastScore >= 100 ? 'text-gold' : lastScore >= 70 ? 'text-white' : 'text-red-300',
           )}>{lastScore}</span>
         </div>
       ) : (
@@ -174,7 +174,7 @@ function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAss
       className={cn(
         'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border-l-2 transition-all text-left',
         'bg-white/[0.02] border border-white/[0.06]',
-        isAssigned && 'bg-[#22C55E]/[0.06] border-[#22C55E]/20',
+        isAssigned && 'bg-green-500/[0.06] border-green-500/20',
       )}
       style={{ borderLeftColor: borderColor }}
     >
@@ -184,7 +184,7 @@ function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAss
           <PlayerIdentity player={p} size="md" showStatus={false} />
           {isAssigned && (
             <span className="shrink-0" title="In Aufstellung">
-              <Shield className="w-3 h-3 text-[#22C55E]" />
+              <Shield className="w-3 h-3 text-green-500" />
             </span>
           )}
         </div>
@@ -394,7 +394,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
           <button
             onClick={() => { setSidePanelPos(null); setSidePanelSlot(null); }}
             className={cn('px-2.5 py-1 rounded-lg text-[10px] font-black transition-all',
-              !sidePanelPos ? 'bg-[#FFD700]/15 text-[#FFD700]' : 'text-white/40 hover:text-white/70'
+              !sidePanelPos ? 'bg-gold/15 text-gold' : 'text-white/40 hover:text-white/70'
             )}
           >Alle</button>
           {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map(pos => {
@@ -419,7 +419,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             placeholder="Spieler suchen..."
             value={pickerSearch}
             onChange={e => setPickerSearch(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
+            className="w-full pl-8 pr-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-gold/40 placeholder:text-white/30"
           />
         </div>
       </div>
@@ -439,7 +439,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
               key={s}
               onClick={() => setSortBy(s)}
               className={cn('px-1.5 py-0.5 rounded text-[9px] font-bold transition-all',
-                sortBy === s ? 'bg-[#FFD700]/15 text-[#FFD700]' : 'text-white/30 hover:text-white/60'
+                sortBy === s ? 'bg-gold/15 text-gold' : 'text-white/30 hover:text-white/60'
               )}
             >{s === 'perf' ? 'L5' : s === 'price' ? 'Wert' : 'A-Z'}</button>
           ))}
@@ -458,7 +458,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                   ? `Keine eigenen ${sidePanelPos}-Spieler`
                   : 'Keine Spieler gefunden'}
               </div>
-              <Link href="/market?tab=kaufen" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FFD700]/15 text-[#FFD700] text-[10px] font-bold rounded-lg hover:bg-[#FFD700]/25 transition-all mt-2">
+              <Link href="/market?tab=kaufen" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gold/15 text-gold text-[10px] font-bold rounded-lg hover:bg-gold/25 transition-all mt-2">
                 <ShoppingCart className="w-3 h-3" />
                 Spieler kaufen
               </Link>
@@ -479,7 +479,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
           sortedOwned.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-xs text-white/30 mb-2">Noch keine Spieler im Kader</div>
-              <Link href="/market?tab=kaufen" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FFD700]/15 text-[#FFD700] text-[10px] font-bold rounded-lg hover:bg-[#FFD700]/25 transition-all">
+              <Link href="/market?tab=kaufen" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gold/15 text-gold text-[10px] font-bold rounded-lg hover:bg-gold/25 transition-all">
                 <ShoppingCart className="w-3 h-3" />
                 Spieler kaufen
               </Link>
@@ -521,7 +521,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
               className={cn(
                 'px-3 py-1 rounded-full text-xs font-black transition-all',
                 squadSize === size
-                  ? 'bg-[#FFD700] text-black'
+                  ? 'bg-gold text-black'
                   : 'text-white/50 hover:text-white'
               )}
             >
@@ -537,7 +537,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             className={cn(
               'px-3 py-1.5 rounded-full text-xs font-bold border transition-all',
               formationId === f.id
-                ? 'bg-[#FFD700]/15 border-[#FFD700]/30 text-[#FFD700]'
+                ? 'bg-gold/15 border-gold/30 text-gold'
                 : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:border-white/20'
             )}
           >
@@ -563,9 +563,9 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                     placeholder="Name..."
                     value={presetName}
                     onChange={e => setPresetName(e.target.value)}
-                    className="flex-1 px-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
+                    className="flex-1 px-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-gold/40 placeholder:text-white/30"
                   />
-                  <button onClick={handleSavePreset} disabled={!presetName.trim()} className="px-2 py-1.5 bg-[#FFD700]/20 text-[#FFD700] text-xs font-bold rounded-lg disabled:opacity-30">
+                  <button onClick={handleSavePreset} disabled={!presetName.trim()} className="px-2 py-1.5 bg-gold/20 text-gold text-xs font-bold rounded-lg disabled:opacity-30">
                     Speichern
                   </button>
                 </div>
@@ -610,9 +610,9 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
 
       {/* ═══ Mobile: Full-Screen Picker ═══ */}
       {pickerOpen && (
-        <div className="fixed inset-0 z-[70] bg-[#0a0a0a] flex flex-col lg:hidden">
+        <div className="fixed inset-0 z-[70] bg-bg-main flex flex-col lg:hidden">
           {/* ── Sticky Header ── */}
-          <div className="shrink-0 bg-[#0a0a0a] border-b border-white/10">
+          <div className="shrink-0 bg-bg-main border-b border-white/10">
             {/* Top bar: Back + Title + Count */}
             <div className="flex items-center gap-3 px-4 pt-3 pb-2">
               <button
@@ -634,7 +634,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                     key={s}
                     onClick={() => setSortBy(s === 'perf' ? 'perf' : 'name')}
                     className={cn('px-2 py-1 rounded text-[10px] font-bold',
-                      sortBy === s ? 'bg-[#FFD700]/15 text-[#FFD700]' : 'text-white/30'
+                      sortBy === s ? 'bg-gold/15 text-gold' : 'text-white/30'
                     )}
                   >{s === 'perf' ? 'L5' : 'A-Z'}</button>
                 ))}
@@ -650,7 +650,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                   value={pickerSearch}
                   onChange={e => setPickerSearch(e.target.value)}
                   autoFocus
-                  className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/30"
+                  className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/30"
                 />
               </div>
             </div>
@@ -669,7 +669,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                 <Link
                   href="/market?tab=kaufen"
                   onClick={() => { setPickerOpen(null); setSidePanelPos(null); setSidePanelSlot(null); }}
-                  className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-[#FFD700]/15 text-[#FFD700] text-xs font-bold rounded-xl hover:bg-[#FFD700]/25 transition-all"
+                  className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-gold/15 text-gold text-xs font-bold rounded-xl hover:bg-gold/25 transition-all"
                 >
                   <ShoppingCart className="w-3.5 h-3.5" />
                   Spieler kaufen
@@ -680,7 +680,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                 {pickerPlayers.map(p => {
                   const lastScore = scoresMap?.get(p.id)?.[0] ?? null;
                   const scoreColor = lastScore != null
-                    ? (lastScore >= 100 ? 'text-[#FFD700]' : lastScore >= 70 ? 'text-white' : 'text-red-300')
+                    ? (lastScore >= 100 ? 'text-gold' : lastScore >= 70 ? 'text-white' : 'text-red-300')
                     : 'text-white/15';
                   return (
                     <button
@@ -720,7 +720,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                 onClick={() => setSortBy(s)}
                 className={cn(
                   'px-2 py-1 rounded-lg text-[10px] font-bold transition-all',
-                  sortBy === s ? 'bg-[#FFD700]/15 text-[#FFD700]' : 'text-white/40 hover:text-white/70'
+                  sortBy === s ? 'bg-gold/15 text-gold' : 'text-white/40 hover:text-white/70'
                 )}
               >
                 {s === 'perf' ? 'L5' : s === 'price' ? 'Wert' : 'Name'}
