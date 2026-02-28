@@ -227,13 +227,13 @@ export default function HomePage() {
                 <Link
                   key={club.id}
                   href={`/club/${club.slug}`}
-                  className="flex items-center gap-2 px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] hover:border-white/15 transition-all shrink-0"
+                  className="flex items-center gap-2 px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] hover:border-white/15 transition-colors shrink-0"
                 >
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${color}20` }}>
+                  <div className="size-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${color}20` }}>
                     {club.logo_url ? (
-                      <img src={club.logo_url} alt="" className="w-5 h-5 object-contain" />
+                      <img src={club.logo_url} alt="" className="size-5 object-contain" />
                     ) : (
-                      <Shield className="w-3.5 h-3.5" style={{ color }} />
+                      <Shield className="size-3.5" style={{ color }} />
                     )}
                   </div>
                   <div className="min-w-0">
@@ -243,8 +243,8 @@ export default function HomePage() {
                 </Link>
               );
             })}
-            <Link href="/clubs" className="flex items-center gap-2 px-3 py-2 bg-gold/[0.03] border border-gold/10 rounded-xl hover:bg-gold/[0.06] transition-all shrink-0">
-              <Compass className="w-4 h-4 text-gold/60" />
+            <Link href="/clubs" className="flex items-center gap-2 px-3 py-2 bg-gold/[0.03] border border-gold/10 rounded-xl hover:bg-gold/[0.06] transition-colors shrink-0">
+              <Compass className="size-4 text-gold/60" />
               <span className="text-xs font-medium text-gold/60">{t('discover')}</span>
             </Link>
           </div>
@@ -259,7 +259,7 @@ export default function HomePage() {
             href="/fantasy"
             badge={
               <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-400/25">
-                <Clock className="w-3 h-3 text-purple-400" />
+                <Clock className="size-3 text-purple-400" />
                 <span className="text-[10px] font-bold text-purple-300">
                   {nextEvent.status === 'running' ? getTimeUntil(nextEvent.ends_at) : getTimeUntil(nextEvent.starts_at)}
                 </span>
@@ -267,18 +267,18 @@ export default function HomePage() {
             }
           />
           <Link href="/fantasy" className="block mt-3">
-            <div className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-gradient-to-br from-purple-600/20 via-purple-500/8 to-transparent shadow-card-md" style={{ boxShadow: '0 0 30px rgba(168,85,247,0.12), 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)' }}>
+            <div className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-purple-500/10 shadow-lg">
               <div className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <Trophy className="w-4 h-4 text-purple-400" />
-                      <span className="text-[10px] font-black uppercase tracking-wider text-purple-400">{nextEvent.format}</span>
+                      <Trophy className="size-4 text-purple-400" />
+                      <span className="text-[10px] font-black uppercase text-purple-400">{nextEvent.format}</span>
                     </div>
-                    <h3 className="text-base md:text-lg font-black">{nextEvent.name}</h3>
+                    <h3 className="text-base md:text-lg font-black text-balance">{nextEvent.name}</h3>
                     <div className="flex items-center gap-3 mt-1 text-xs text-white/50">
                       <span className="flex items-center gap-1">
-                        <Users className="w-3.5 h-3.5" />
+                        <Users className="size-3.5" />
                         {nextEvent.current_entries}/{nextEvent.max_entries ?? '\u221E'}
                       </span>
                       <span>Eintritt: {nextEvent.entry_fee === 0 ? 'Gratis' : `${fmtScout(centsToBsd(nextEvent.entry_fee))} $SCOUT`}</span>
@@ -286,7 +286,7 @@ export default function HomePage() {
                   </div>
                   <div className="text-right shrink-0">
                     <div className="text-[10px] text-white/40 mb-0.5">Preisgeld</div>
-                    <div className="text-xl md:text-2xl font-black font-mono text-gold gold-glow">
+                    <div className="text-xl md:text-2xl font-black font-mono tabular-nums text-gold">
                       {formatPrize(centsToBsd(nextEvent.prize_pool))}
                     </div>
                     <div className="text-[10px] text-white/40">$SCOUT</div>
@@ -301,18 +301,18 @@ export default function HomePage() {
       {/* IPO Banner only if Spotlight doesn't already show it */}
       {activeIPOs.length > 0 && spotlightType !== 'ipo' && (
         <Link href={`/player/${activeIPOs[0].id}`} className="block">
-          <div className="relative overflow-hidden rounded-2xl border border-green-500/30 bg-gradient-to-r from-green-500/[0.15] via-transparent to-gold/[0.06] shadow-glow-live">
+          <div className="relative overflow-hidden rounded-2xl border border-green-500/30 bg-green-500/10">
             <div className="relative flex items-center justify-between p-4 gap-4">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-green-500/15 border border-green-500/25 shrink-0">
-                  <Rocket className="w-5 h-5 text-green-500" />
+                <div className="flex items-center justify-center size-10 rounded-2xl bg-green-500/15 border border-green-500/25 shrink-0">
+                  <Rocket className="size-5 text-green-500" />
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-green-500">{t('liveIPO')}</span>
-                    <span className="relative flex h-2.5 w-2.5 live-ring">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" style={{ boxShadow: '0 0 8px rgba(34,197,94,0.6)' }} />
+                    <span className="text-[10px] font-black uppercase text-green-500">{t('liveIPO')}</span>
+                    <span className="relative flex size-2.5">
+                      <span className="animate-ping motion-reduce:animate-none absolute inline-flex size-full rounded-full bg-green-500 opacity-75" />
+                      <span className="relative inline-flex rounded-full size-2.5 bg-green-500" />
                     </span>
                   </div>
                   <div className="font-black text-sm truncate">
