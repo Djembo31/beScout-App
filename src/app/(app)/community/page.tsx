@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Users, MessageCircle } from 'lucide-react';
 import { Skeleton, ErrorState } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import NewUserTip from '@/components/onboarding/NewUserTip';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -464,8 +465,8 @@ export default function CommunityPage() {
     <div className="max-w-[1200px] mx-auto space-y-6">
       {/* [A] Hero + Quick Actions */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-black mb-1">{t('scoutingZone.title')}</h1>
-        <p className="text-sm text-white/50 mb-4">{t('scoutingZone.subtitle')}</p>
+        <h1 className="text-2xl md:text-3xl font-black mb-1 text-balance">{t('scoutingZone.title')}</h1>
+        <p className="text-sm text-white/50 mb-4 text-pretty">{t('scoutingZone.subtitle')}</p>
         <CommunityHero
           onCreatePost={() => { setDefaultPostType('general'); setCreatePostOpen(true); }}
           onCreateRumor={() => { setDefaultPostType('transfer_rumor'); setCreatePostOpen(true); }}
@@ -481,7 +482,7 @@ export default function CommunityPage() {
       {/* New User Tip */}
       <NewUserTip
         tipKey="community-first-post"
-        icon={<MessageCircle className="w-4 h-4" />}
+        icon={<MessageCircle className="size-4" />}
         title={tt('communityTitle')}
         description={tt('communityDesc')}
         show={!!uid && !posts.some(p => p.user_id === uid)}
@@ -495,17 +496,17 @@ export default function CommunityPage() {
             <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl">
               <button
                 onClick={() => setClubScope('all')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] ${
+                className={cn('px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px]',
                   clubScope === 'all' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
-                }`}
+                )}
               >
                 {t('allClubs')}
               </button>
               <button
                 onClick={() => setClubScope('myclub')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] ${
+                className={cn('px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px]',
                   clubScope === 'myclub' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
-                }`}
+                )}
               >
                 {activeClub.short ?? t('myClub')}
               </button>
@@ -518,9 +519,9 @@ export default function CommunityPage() {
               <button
                 key={mode}
                 onClick={() => setFeedMode(mode)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] ${
+                className={cn('px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px]',
                   feedMode === mode ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
-                }`}
+                )}
               >
                 {mode === 'all' ? t('filterAll') : t('filterFollowing')}
               </button>
@@ -530,19 +531,19 @@ export default function CommunityPage() {
 
         {/* Network Bar */}
         <div className="flex items-center gap-3">
-          <Users className="w-4 h-4 text-sky-400/60" />
+          <Users className="size-4 text-sky-400/60" />
           <button
             onClick={() => setFollowListMode('followers')}
             className="text-xs text-white/40 hover:text-white/70 transition-colors min-h-[44px] flex items-center"
           >
-            <span className="font-bold text-white/60">{followerCount}</span>&nbsp;Follower
+            <span className="font-bold tabular-nums text-white/60">{followerCount}</span>&nbsp;Follower
           </button>
           <span className="text-white/10">·</span>
           <button
             onClick={() => setFollowListMode('following')}
             className="text-xs text-white/40 hover:text-white/70 transition-colors min-h-[44px] flex items-center"
           >
-            <span className="font-bold text-white/60">{followingCountNum}</span>&nbsp;{t('filterFollowing')}
+            <span className="font-bold tabular-nums text-white/60">{followingCountNum}</span>&nbsp;{t('filterFollowing')}
           </button>
         </div>
       </div>
@@ -557,7 +558,7 @@ export default function CommunityPage() {
           {[1, 2, 3].map(i => (
             <div key={i} className="bg-white/[0.02] border border-white/10 rounded-2xl p-4 space-y-3">
               <div className="flex items-center gap-3">
-                <Skeleton className="w-8 h-8 rounded-full" />
+                <Skeleton className="size-8 rounded-full" />
                 <Skeleton className="h-4 w-24" />
               </div>
               <Skeleton className="h-4 w-full" />
