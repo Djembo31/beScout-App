@@ -256,7 +256,7 @@ function OnboardingContent() {
   if (loading || profile) {
     return (
       <div className="flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-gold animate-spin" />
+        <Loader2 className="size-8 text-gold animate-spin motion-reduce:animate-none" />
       </div>
     );
   }
@@ -267,22 +267,22 @@ function OnboardingContent() {
       <div className="flex flex-col items-center mb-8">
         <Image src="/logo.svg" alt="BeScout" width={56} height={56} className="mb-3" priority />
         <Image src="/schrift.svg" alt="BeScout" width={140} height={36} className="mb-2" priority />
-        <p className="text-sm text-white/50">Erstelle dein Manager-Profil</p>
+        <p className="text-sm text-white/50 text-pretty">Erstelle dein Manager-Profil</p>
       </div>
 
       {/* Progress Dots (3 steps) */}
       <div className="flex items-center justify-center gap-2 mb-6">
-        <div className={cn('w-2.5 h-2.5 rounded-full transition-all', step >= 1 ? 'bg-gold' : 'bg-white/20')} />
-        <div className={cn('w-8 h-0.5 transition-all', step >= 2 ? 'bg-gold' : 'bg-white/10')} />
-        <div className={cn('w-2.5 h-2.5 rounded-full transition-all', step >= 2 ? 'bg-gold' : 'bg-white/20')} />
-        <div className={cn('w-8 h-0.5 transition-all', step >= 3 ? 'bg-gold' : 'bg-white/10')} />
-        <div className={cn('w-2.5 h-2.5 rounded-full transition-all', step >= 3 ? 'bg-gold' : 'bg-white/20')} />
+        <div className={cn('size-2.5 rounded-full transition-colors', step >= 1 ? 'bg-gold' : 'bg-white/20')} />
+        <div className={cn('w-8 h-0.5 transition-colors', step >= 2 ? 'bg-gold' : 'bg-white/10')} />
+        <div className={cn('size-2.5 rounded-full transition-colors', step >= 2 ? 'bg-gold' : 'bg-white/20')} />
+        <div className={cn('w-8 h-0.5 transition-colors', step >= 3 ? 'bg-gold' : 'bg-white/10')} />
+        <div className={cn('size-2.5 rounded-full transition-colors', step >= 3 ? 'bg-gold' : 'bg-white/20')} />
       </div>
 
       {/* Referral Banner */}
       {referrer && (
         <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-gold/[0.06] border border-gold/15">
-          <Gift className="w-5 h-5 text-gold shrink-0" />
+          <Gift className="size-5 text-gold shrink-0" />
           <div className="text-sm">
             <span className="text-white/70">Eingeladen von </span>
             <span className="font-bold text-gold">@{referrer.handle}</span>
@@ -294,9 +294,9 @@ function OnboardingContent() {
       {referralClub && !referrer && (
         <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-green-500/[0.06] border border-green-500/15">
           {referralClub.logo_url ? (
-            <img src={referralClub.logo_url} alt="" className="w-6 h-6 object-contain shrink-0" />
+            <img src={referralClub.logo_url} alt="" className="size-6 object-contain shrink-0" />
           ) : (
-            <Shield className="w-5 h-5 text-green-500 shrink-0" />
+            <Shield className="size-5 text-green-500 shrink-0" />
           )}
           <div className="text-sm">
             <span className="text-white/70">Eingeladen von </span>
@@ -308,8 +308,8 @@ function OnboardingContent() {
       <Card className="p-6 sm:p-8">
         {step === 1 && (
           <>
-            <h2 className="text-xl font-black mb-1">Dein Profil</h2>
-            <p className="text-sm text-white/50 mb-6">
+            <h2 className="text-xl font-black text-balance mb-1">Dein Profil</h2>
+            <p className="text-sm text-white/50 text-pretty mb-6">
               {hasPassword
                 ? 'Wähle deinen einzigartigen Handle für BeScout.'
                 : 'Handle wählen und Passwort setzen für zukünftige Anmeldungen.'}
@@ -329,7 +329,7 @@ function OnboardingContent() {
                     'w-full pl-8 pr-10 py-3 rounded-xl text-sm',
                     'bg-white/5 border',
                     'placeholder:text-white/30 text-white',
-                    'focus:outline-none transition-all',
+                    'focus:outline-none transition-colors',
                     handleStatus === 'available' && 'border-green-500/40 focus:border-green-500/60',
                     handleStatus === 'taken' && 'border-red-400/40 focus:border-red-400/60',
                     handleStatus === 'invalid' && 'border-red-400/40 focus:border-red-400/60',
@@ -337,10 +337,10 @@ function OnboardingContent() {
                   )}
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  {handleStatus === 'checking' && <Loader2 className="w-4 h-4 text-white/40 animate-spin" />}
-                  {handleStatus === 'available' && <Check className="w-4 h-4 text-green-500" />}
-                  {handleStatus === 'taken' && <X className="w-4 h-4 text-red-400" />}
-                  {handleStatus === 'invalid' && <X className="w-4 h-4 text-red-400" />}
+                  {handleStatus === 'checking' && <Loader2 className="size-4 text-white/40 animate-spin motion-reduce:animate-none" />}
+                  {handleStatus === 'available' && <Check className="size-4 text-green-500" />}
+                  {handleStatus === 'taken' && <X className="size-4 text-red-400" />}
+                  {handleStatus === 'invalid' && <X className="size-4 text-red-400" />}
                 </div>
               </div>
               <div className="mt-1.5 text-xs">
@@ -363,7 +363,7 @@ function OnboardingContent() {
                   'w-full px-4 py-3 rounded-xl text-sm',
                   'bg-white/5 border border-white/10',
                   'placeholder:text-white/30 text-white',
-                  'focus:outline-none focus:border-gold/40 transition-all'
+                  'focus:outline-none focus:border-gold/40 transition-colors'
                 )}
               />
             </div>
@@ -372,14 +372,14 @@ function OnboardingContent() {
             {!hasPassword && (
               <>
                 <div className="my-5 border-t border-white/10" />
-                <p className="text-xs text-white/40 mb-3">
+                <p className="text-xs text-white/40 text-pretty mb-3">
                   Setze ein Passwort, damit du dich beim nächsten Mal mit E-Mail + Passwort anmelden kannst.
                 </p>
 
                 <div className="mb-3">
                   <label className="text-xs text-white/50 font-semibold mb-1.5 block">Passwort</label>
                   <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       value={password}
@@ -389,15 +389,16 @@ function OnboardingContent() {
                         'w-full pl-11 pr-11 py-3 rounded-xl text-sm',
                         'bg-white/5 border border-white/10',
                         'placeholder:text-white/30 text-white',
-                        'focus:outline-none focus:border-gold/40 transition-all'
+                        'focus:outline-none focus:border-gold/40 transition-colors'
                       )}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                      aria-label="Passwort anzeigen"
                     >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                     </button>
                   </div>
                 </div>
@@ -405,7 +406,7 @@ function OnboardingContent() {
                 <div className="mb-4">
                   <label className="text-xs text-white/50 font-semibold mb-1.5 block">Passwort bestätigen</label>
                   <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       value={passwordConfirm}
@@ -415,22 +416,23 @@ function OnboardingContent() {
                         'w-full pl-11 pr-11 py-3 rounded-xl text-sm',
                         'bg-white/5 border border-white/10',
                         'placeholder:text-white/30 text-white',
-                        'focus:outline-none focus:border-gold/40 transition-all'
+                        'focus:outline-none focus:border-gold/40 transition-colors'
                       )}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                      aria-label="Passwort anzeigen"
                     >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                     </button>
                   </div>
                 </div>
 
                 {passwordError && (
                   <div className="flex items-center gap-2 p-3 mb-4 rounded-xl bg-red-500/10 border border-red-400/20">
-                    <X className="w-4 h-4 text-red-400 shrink-0" />
+                    <X className="size-4 text-red-400 shrink-0" />
                     <span className="text-sm text-red-200">{passwordError}</span>
                   </div>
                 )}
@@ -456,28 +458,28 @@ function OnboardingContent() {
               onClick={handleStep1Next}
             >
               Weiter
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="size-4" />
             </Button>
           </>
         )}
 
         {step === 2 && (
           <>
-            <h2 className="text-xl font-black mb-1">Profilbild & Sprache</h2>
-            <p className="text-sm text-white/50 mb-6">Lade ein Bild hoch und wähle deine Sprache.</p>
+            <h2 className="text-xl font-black text-balance mb-1">Profilbild & Sprache</h2>
+            <p className="text-sm text-white/50 text-pretty mb-6">Lade ein Bild hoch und wähle deine Sprache.</p>
 
             {/* Avatar Upload */}
             <div className="flex flex-col items-center mb-6">
               <label className="relative group cursor-pointer">
-                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-gold/20 to-green-500/20 border-2 border-dashed border-white/20 group-hover:border-gold/40 flex items-center justify-center overflow-hidden transition-all">
+                <div className="size-24 rounded-2xl bg-gold/10 border-2 border-dashed border-white/20 group-hover:border-gold/40 flex items-center justify-center overflow-hidden transition-colors">
                   {avatarPreview ? (
                     <img src={avatarPreview} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <User className="w-10 h-10 text-white/30" />
+                    <User className="size-10 text-white/30" />
                   )}
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gold flex items-center justify-center shadow-lg">
-                  <Camera className="w-4 h-4 text-black" />
+                <div className="absolute -bottom-1 -right-1 size-8 rounded-full bg-gold flex items-center justify-center shadow-lg">
+                  <Camera className="size-4 text-black" />
                 </div>
                 <input
                   type="file"
@@ -494,7 +496,7 @@ function OnboardingContent() {
             {/* Language */}
             <div className="mb-6">
               <label className="text-xs text-white/50 font-semibold mb-1.5 flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5" />
+                <Globe className="size-3.5" />
                 Sprache
               </label>
               <select
@@ -504,7 +506,7 @@ function OnboardingContent() {
                   'w-full px-4 py-3 rounded-xl text-sm',
                   'bg-white/5 border border-white/10',
                   'text-white appearance-none',
-                  'focus:outline-none focus:border-gold/40 transition-all'
+                  'focus:outline-none focus:border-gold/40 transition-colors'
                 )}
               >
                 <option value="de">Deutsch</option>
@@ -515,7 +517,7 @@ function OnboardingContent() {
 
             {error && (
               <div className="flex items-center gap-2 p-3 mb-4 rounded-xl bg-red-500/10 border border-red-400/20">
-                <X className="w-4 h-4 text-red-400 shrink-0" />
+                <X className="size-4 text-red-400 shrink-0" />
                 <span className="text-sm text-red-200">{error}</span>
               </div>
             )}
@@ -531,7 +533,7 @@ function OnboardingContent() {
                 onClick={() => setStep(3)}
               >
                 Weiter
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="size-4" />
               </Button>
             </div>
           </>
@@ -539,27 +541,27 @@ function OnboardingContent() {
 
         {step === 3 && (
           <>
-            <h2 className="text-xl font-black mb-1">Wähle deinen Club</h2>
-            <p className="text-sm text-white/50 mb-4">
+            <h2 className="text-xl font-black text-balance mb-1">Wähle deinen Club</h2>
+            <p className="text-sm text-white/50 text-pretty mb-4">
               Folge mindestens einem Club um loszulegen. Du kannst später weitere hinzufügen.
             </p>
 
             {/* Club Search */}
             <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30" />
               <input
                 type="text"
                 value={clubSearch}
                 onChange={(e) => setClubSearch(e.target.value)}
                 placeholder="Club suchen..."
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 transition-all"
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 transition-colors"
               />
             </div>
 
             {/* Club Grid */}
             {clubsLoading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 text-gold animate-spin" />
+                <Loader2 className="size-6 text-gold animate-spin motion-reduce:animate-none" />
               </div>
             ) : (
               <div className="max-h-[260px] overflow-y-auto space-y-1.5 mb-4 pr-1">
@@ -571,18 +573,18 @@ function OnboardingContent() {
                       key={club.id}
                       onClick={() => toggleClub(club.id)}
                       className={cn(
-                        'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all',
+                        'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors',
                         selected
                           ? 'bg-gold/10 border border-gold/30'
                           : 'bg-white/[0.03] border border-white/[0.06] hover:bg-white/5'
                       )}
                     >
                       <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-black"
+                        className="size-8 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-black"
                         style={{ backgroundColor: `${color}20`, color }}
                       >
                         {club.logo_url ? (
-                          <img src={club.logo_url} alt="" className="w-5 h-5 object-contain" />
+                          <img src={club.logo_url} alt="" className="size-5 object-contain" />
                         ) : (
                           club.short?.slice(0, 3)
                         )}
@@ -593,10 +595,10 @@ function OnboardingContent() {
                         </div>
                         <div className="text-[10px] text-white/40">{club.league}</div>
                       </div>
-                      {club.is_verified && <Shield className="w-3.5 h-3.5 text-gold/50 flex-shrink-0" />}
+                      {club.is_verified && <Shield className="size-3.5 text-gold/50 flex-shrink-0" />}
                       {selected && (
-                        <div className="w-5 h-5 rounded-full bg-gold flex items-center justify-center flex-shrink-0">
-                          <Check className="w-3 h-3 text-black" />
+                        <div className="size-5 rounded-full bg-gold flex items-center justify-center flex-shrink-0">
+                          <Check className="size-3 text-black" />
                         </div>
                       )}
                     </button>
@@ -616,7 +618,7 @@ function OnboardingContent() {
 
             {error && (
               <div className="flex items-center gap-2 p-3 mb-4 rounded-xl bg-red-500/10 border border-red-400/20">
-                <X className="w-4 h-4 text-red-400 shrink-0" />
+                <X className="size-4 text-red-400 shrink-0" />
                 <span className="text-sm text-red-200">{error}</span>
               </div>
             )}
@@ -649,7 +651,7 @@ export default function OnboardingPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center">
-          <Loader2 className="w-8 h-8 text-gold animate-spin" />
+          <Loader2 className="size-8 text-gold animate-spin motion-reduce:animate-none" />
         </div>
       }
     >
