@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Users, BarChart3, Send, CheckCircle2 } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
@@ -23,24 +23,29 @@ export default function CommunityValuation({ playerId, userId, floorPriceCents, 
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Default slider to floor price or ipo price
-  const defaultCents = floorPriceCents > 0 ? floorPriceCents : ipoPriceCents;
+  // Default slider to floor price or ipo price (stabilized reference)
+  const defaultCents = useMemo(
+    () => floorPriceCents > 0 ? floorPriceCents : ipoPriceCents,
+    [floorPriceCents, ipoPriceCents]
+  );
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       try {
-        const fv = await getPlayerFairValue(playerId);
-        if (!cancelled) setFairValue(fv);
+        const [fv, uv] = await Promise.all([
+          getPlayerFairValue(playerId),
+          userId && currentGameweek > 0
+            ? getUserValuation(userId, playerId, currentGameweek)
+            : Promise.resolve(null),
+        ]);
 
-        if (userId && currentGameweek > 0) {
-          const uv = await getUserValuation(userId, playerId, currentGameweek);
-          if (!cancelled && uv) {
-            setMyEstimate(uv.estimatedCents);
-            setHasVoted(true);
-          } else if (!cancelled) {
-            setMyEstimate(defaultCents);
-          }
+        if (cancelled) return;
+
+        setFairValue(fv);
+        if (uv) {
+          setMyEstimate(uv.estimatedCents);
+          setHasVoted(true);
         } else {
           setMyEstimate(defaultCents);
         }

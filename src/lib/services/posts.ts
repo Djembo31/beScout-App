@@ -39,44 +39,36 @@ export async function getPosts(options: {
   if (error) throw new Error(error.message);
   if (!data || data.length === 0) return [];
 
-  // Fetch author profiles
+  // Fetch author profiles, player names, and tip aggregates in parallel
   const authorIds = Array.from(new Set((data as DbPost[]).map(p => p.user_id)));
-  const { data: profiles, error: pErr } = await supabase
-    .from('profiles')
-    .select('id, handle, display_name, avatar_url, level, verified, top_role')
-    .in('id', authorIds);
-  if (pErr) throw new Error(pErr.message);
-
-  const profileMap = new Map((profiles ?? []).map(p => [p.id, p]));
-
-  // Fetch player names for posts with player_id
   const playerIds = Array.from(new Set(
     (data as DbPost[]).filter(p => p.player_id).map(p => p.player_id as string)
   ));
-  let playerMap = new Map<string, { name: string; pos: string }>();
-  if (playerIds.length > 0) {
-    const { data: players } = await supabase
-      .from('players')
-      .select('id, first_name, last_name, position')
-      .in('id', playerIds);
-    playerMap = new Map(
-      (players ?? []).map(p => [p.id, { name: `${p.first_name} ${p.last_name}`, pos: p.position }])
-    );
-  }
-
-  // Fetch tip aggregates for all posts
   const postIds = (data as DbPost[]).map(p => p.id);
+
+  const [profilesRes, playersRes, tipsRes] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, handle, display_name, avatar_url, level, verified, top_role')
+      .in('id', authorIds),
+    playerIds.length > 0
+      ? supabase.from('players').select('id, first_name, last_name, position').in('id', playerIds)
+      : Promise.resolve({ data: null, error: null }),
+    postIds.length > 0
+      ? supabase.from('tips').select('content_id, amount_cents').eq('content_type', 'post').in('content_id', postIds)
+      : Promise.resolve({ data: null, error: null }),
+  ]);
+
+  if (profilesRes.error) throw new Error(profilesRes.error.message);
+
+  const profileMap = new Map((profilesRes.data ?? []).map(p => [p.id, p]));
+  const playerMap = new Map<string, { name: string; pos: string }>(
+    (playersRes.data ?? []).map(p => [p.id, { name: `${p.first_name} ${p.last_name}`, pos: p.position }])
+  );
   const tipMap = new Map<string, { count: number; total: number }>();
-  if (postIds.length > 0) {
-    const { data: tips } = await supabase
-      .from('tips')
-      .select('content_id, amount_cents')
-      .eq('content_type', 'post')
-      .in('content_id', postIds);
-    for (const t of tips ?? []) {
-      const prev = tipMap.get(t.content_id) ?? { count: 0, total: 0 };
-      tipMap.set(t.content_id, { count: prev.count + 1, total: prev.total + t.amount_cents });
-    }
+  for (const t of tipsRes.data ?? []) {
+    const prev = tipMap.get(t.content_id) ?? { count: 0, total: 0 };
+    tipMap.set(t.content_id, { count: prev.count + 1, total: prev.total + t.amount_cents });
   }
 
   return (data as DbPost[]).map(post => {

@@ -5,12 +5,10 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
-  Search, Briefcase, Zap,
-  MessageSquare, Trophy,
-  CheckCircle2,
+  Briefcase, Zap,
+  CheckCircle2, X,
 } from 'lucide-react';
-import { Confetti } from '@/components/ui/Confetti';
-import { Card, ErrorState, Skeleton, SkeletonCard, TabBar, TabPanel } from '@/components/ui';
+import { ErrorState, Skeleton, SkeletonCard, TabBar, TabPanel } from '@/components/ui';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { fmtScout, cn } from '@/lib/utils';
 
@@ -129,13 +127,15 @@ function dbIpoToLocal(ipo: DbIpo): IPOData {
 
 function MarketSkeleton() {
   return (
-    <div className="max-w-[1400px] mx-auto space-y-6">
-      <div>
-        <Skeleton className="h-4 w-20 mb-1" />
-        <Skeleton className="h-9 w-48 mb-1" />
-        <Skeleton className="h-4 w-36 mt-1" />
+    <div className="max-w-[1400px] mx-auto space-y-5">
+      {/* Header row — matches real header */}
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-8 w-40" />
+        <Skeleton className="h-9 w-44 rounded-xl" />
       </div>
-      <Skeleton className="h-12 rounded-2xl" />
+      {/* TabBar */}
+      <Skeleton className="h-[52px] rounded-2xl" />
+      {/* Card grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
         {[...Array(8)].map((_, i) => (
           <SkeletonCard key={i} className="h-64" />
@@ -234,6 +234,15 @@ export default function MarketPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buyIsSuccess, ipoBuyIsSuccess]);
 
+  // Auto-dismiss error after 5s
+  useEffect(() => {
+    if (!buyIsError && !ipoBuyIsError) return;
+    const reset = buyIsError ? resetBuy : resetIpoBuy;
+    const timer = setTimeout(reset, 5000);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buyIsError, ipoBuyIsError]);
+
   // ── Watchlist toggle (optimistic via cache) ──
   const toggleWatch = useCallback((id: string) => {
     if (!user) return;
@@ -319,14 +328,21 @@ export default function MarketPage() {
   }, [players]);
   const getFloor = useCallback((p: Player) => floorMap.get(p.id) ?? 0, [floorMap]);
 
+  // Player lookup map for O(1) access
+  const playerMap = useMemo(() => {
+    const m = new Map<string, Player>();
+    for (const p of players) m.set(p.id, p);
+    return m;
+  }, [players]);
+
   // "Kaufen" tab: IPOs + P2P listings merged
   const ipoItems = useMemo(() => {
     return ipoList.map(ipo => {
-      const player = players.find(p => p.id === ipo.player_id);
+      const player = playerMap.get(ipo.player_id);
       if (!player) return null;
       return { player, ipo: dbIpoToLocal(ipo) };
     }).filter((x): x is { player: Player; ipo: IPOData } => x !== null);
-  }, [ipoList, players]);
+  }, [ipoList, playerMap]);
 
   const mySquadPlayers = useMemo(() => {
     return players.filter(p => p.dpc.owned > 0 && !p.isLiquidated);
@@ -344,71 +360,57 @@ export default function MarketPage() {
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-5">
-      {/* Buy Celebration */}
-      <Confetti active={!!buySuccess} />
+      {/* Buy Success Toast — subtle gold glow instead of confetti */}
       {buySuccess && (
-        <div className="fixed top-4 right-4 z-50 bg-gradient-to-r from-[#22C55E]/20 via-[#22C55E]/10 to-[#22C55E]/20 border border-[#22C55E]/30 text-[#22C55E] px-5 py-4 rounded-2xl font-bold text-sm anim-scale-pop anim-pulse-green flex items-center gap-4 shadow-lg shadow-[#22C55E]/10">
-          <div className="w-8 h-8 rounded-full bg-[#22C55E]/20 flex items-center justify-center flex-shrink-0">
-            <CheckCircle2 className="w-5 h-5 text-[#22C55E]" />
-          </div>
-          <span className="text-base">{buySuccess}</span>
+        <div className="fixed top-4 right-4 z-[70] bg-green-500/15 border border-green-500/30 text-green-400 px-4 py-3 rounded-xl font-bold text-sm anim-scale-pop flex items-center gap-3 shadow-lg shadow-green-500/10 anim-pulse-green">
+          <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+          <span>{buySuccess}</span>
           {lastBoughtId && (
-            <div className="flex items-center gap-2">
-              <Link href="/fantasy"
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FFD700]/15 rounded-lg text-[11px] font-bold text-[#FFD700] hover:bg-[#FFD700]/25 transition-all">
-                <Trophy className="w-3 h-3" />
-                Fantasy
-              </Link>
-              <Link href={`/player/${lastBoughtId}`}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 rounded-lg text-[11px] font-bold text-white/80 hover:bg-white/15 transition-all">
-                <MessageSquare className="w-3 h-3" />
-                {t('discuss')}
-              </Link>
-            </div>
+            <Link href={`/player/${lastBoughtId}`}
+              className="px-3 py-1.5 bg-white/10 rounded-lg text-[11px] font-bold text-white/70 hover:bg-white/15 transition-colors whitespace-nowrap">
+              Zum Spieler →
+            </Link>
           )}
         </div>
       )}
       {buyError && (
-        <div className="fixed top-4 right-4 z-50 bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm cursor-pointer" onClick={() => resetBuy()}>
-          {buyError}
+        <div role="alert" aria-live="assertive" className="fixed top-4 right-4 z-[70] bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm flex items-center gap-3 anim-scale-pop">
+          <span>{buyError}</span>
+          <button onClick={() => { resetBuy(); resetIpoBuy(); }} aria-label="Schließen" className="p-1 rounded-lg hover:bg-red-500/20 transition-colors flex-shrink-0">
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
 
       {/* Header */}
-      <div>
-        <div className="text-xs text-white/50">{t('title')}</div>
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl md:text-3xl font-black flex items-center gap-3">
-          <Briefcase className="w-7 h-7 text-[#FFD700]" />
+          <Briefcase className="w-7 h-7 text-gold" />
           {t('title')}
         </h1>
-        <div className="mt-1 text-sm text-white/50">
-          {tc('balance')}: <span className="font-mono font-bold text-[#FFD700]">{fmtScout(centsToBsd(balanceCents))} $SCOUT</span>
+        <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-1.5">
+          <span className="text-xs text-white/50">{tc('balance')}:</span>
+          <span className="font-mono font-bold text-base text-gold">{fmtScout(centsToBsd(balanceCents))} $SCOUT</span>
         </div>
       </div>
 
       {/* 4 Tabs */}
       <TabBar tabs={tabs} activeTab={tab} onChange={(id) => setTab(id as MarketTab)} />
 
-      {/* Trading Disclaimer */}
-      <TradingDisclaimer variant="card" />
-
-      {/* ━━━ SPONSOR: MARKET TOP ━━━ */}
-      <SponsorBanner placement="market_top" />
-
       {/* ━━━ TAB: MEIN KADER ━━━ */}
       <TabPanel id="portfolio" activeTab={tab}>
         {/* Toggle: Kader / Portfolio */}
-        <div className="flex items-center gap-1 mb-4 p-1 bg-white/[0.02] border border-white/10 rounded-xl w-fit">
+        <div className="flex items-center gap-1 mb-4 p-1 bg-white/[0.04] border border-white/[0.08] rounded-xl w-fit">
           <button
             onClick={() => setPortfolioView('portfolio')}
             className={cn('px-3 py-1.5 rounded-lg text-sm font-bold transition-all',
-              portfolioView === 'portfolio' ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20' : 'text-white/40 border border-transparent'
+              portfolioView === 'portfolio' ? 'bg-gold/10 text-gold border border-gold/20' : 'text-white/60 hover:text-white/80 hover:bg-white/[0.04] border border-transparent'
             )}
           >{t('team')}</button>
           <button
             onClick={() => setPortfolioView('kader')}
             className={cn('px-3 py-1.5 rounded-lg text-sm font-bold transition-all',
-              portfolioView === 'kader' ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20' : 'text-white/40 border border-transparent'
+              portfolioView === 'kader' ? 'bg-gold/10 text-gold border border-gold/20' : 'text-white/60 hover:text-white/80 hover:bg-white/[0.04] border border-transparent'
             )}
           >{t('lineups')}</button>
         </div>
@@ -417,6 +419,8 @@ export default function MarketPage() {
         ) : (
           <ManagerBestandTab players={players} holdings={holdings} ipoList={ipoList} userId={user?.id} incomingOffers={incomingOffers} onSell={handleSell} onCancelOrder={handleCancelOrder} />
         )}
+        <SponsorBanner placement="market_top" />
+        <TradingDisclaimer variant="card" />
       </TabPanel>
 
       {/* ━━━ TAB: KAUFEN (Discovery + Search) ━━━ */}
@@ -441,11 +445,14 @@ export default function MarketPage() {
           onWatch={toggleWatch}
           buyingId={buyingId}
         />
+        <SponsorBanner placement="market_top" />
+        <TradingDisclaimer variant="card" />
       </TabPanel>
 
       {/* ━━━ TAB: ANGEBOTE ━━━ */}
       <TabPanel id="angebote" activeTab={tab}>
         <ManagerOffersTab players={players} />
+        <TradingDisclaimer variant="card" />
       </TabPanel>
 
     </div>

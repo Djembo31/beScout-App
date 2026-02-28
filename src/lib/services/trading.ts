@@ -58,6 +58,7 @@ export async function buyFromMarket(
   quantity: number
 ): Promise<TradeResult> {
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Ungültige Menge.');
+  if (quantity > 10000) throw new Error('Maximale Kaufmenge überschritten.');
   // Guard: check if player is liquidated
   const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).maybeSingle();
   if (!pl) throw new Error('Spieler nicht gefunden.');
@@ -120,7 +121,9 @@ export async function placeSellOrder(
   priceCents: number
 ): Promise<TradeResult> {
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Ungültige Menge.');
+  if (quantity > 10000) throw new Error('Maximale Kaufmenge überschritten.');
   if (!Number.isInteger(priceCents) || priceCents < 1) throw new Error('Ungültiger Preis.');
+  if (priceCents > 100_000_000) throw new Error('Maximaler Preis überschritten.');
   // Guard: check if player is liquidated
   const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).maybeSingle();
   if (!pl) throw new Error('Spieler nicht gefunden.');
@@ -149,6 +152,7 @@ export async function buyFromOrder(
   quantity: number
 ): Promise<TradeResult> {
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Ungültige Menge.');
+  if (quantity > 10000) throw new Error('Maximale Kaufmenge überschritten.');
   const { data, error } = await supabase.rpc('buy_from_order', {
     p_buyer_id: buyerId,
     p_order_id: orderId,
@@ -255,7 +259,7 @@ export async function getUserTrades(userId: string, limit = 10): Promise<UserTra
   const { data, error } = await supabase
     .from('trades')
     .select('*, player:players!trades_player_id_fkey(first_name, last_name, position)')
-    .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
+    .or(`buyer_id.eq."${userId}",seller_id.eq."${userId}"`)
     .order('executed_at', { ascending: false })
     .limit(limit);
   if (error) throw new Error(error.message);

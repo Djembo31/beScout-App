@@ -26,7 +26,7 @@ export function SortPills({ options, active, onChange, className = '' }: SortPil
           className={cn(
             'px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all whitespace-nowrap',
             active === opt.id
-              ? 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30'
+              ? 'bg-gold/15 text-gold border-gold/30'
               : 'bg-white/5 text-white/50 border-white/10 hover:text-white hover:bg-white/10'
           )}
         >

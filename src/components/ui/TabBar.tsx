@@ -41,7 +41,7 @@ export function TabBar({ tabs, activeTab, onChange, className, accentColor }: Ta
             onClick={() => onChange(tab.id)}
             className={cn(
               'flex items-center gap-1 md:gap-1.5 px-2.5 py-2 md:px-3 md:py-2 rounded-xl text-xs md:text-sm font-bold transition-all whitespace-nowrap active:scale-[0.97] flex-shrink-0 min-h-[44px]',
-              isActive && !accentColor && 'bg-[#FFD700]/[0.15] text-[#FFD700] border border-[#FFD700]/30 shadow-[0_0_12px_rgba(255,215,0,0.10)]',
+              isActive && !accentColor && 'bg-gold/[0.15] text-gold border border-gold/30 shadow-[0_0_12px_rgba(255,215,0,0.10)]',
               !isActive && 'text-white/50 hover:text-white/70 hover:bg-white/[0.06] border border-transparent'
             )}
             style={isActive && accentColor ? {
@@ -69,7 +69,7 @@ interface TabPanelProps {
 export function TabPanel({ id, activeTab, children }: TabPanelProps) {
   if (activeTab !== id) return null;
   return (
-    <div role="tabpanel" id={`tabpanel-${id}`} aria-labelledby={id}>
+    <div role="tabpanel" id={`tabpanel-${id}`} aria-labelledby={id} className="anim-fade">
       {children}
     </div>
   );

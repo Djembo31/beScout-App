@@ -84,7 +84,7 @@ export default function SellModal({
       <div className="space-y-4">
           {/* Toast messages */}
           {sellSuccess && (
-            <div className="bg-[#22C55E]/20 border border-[#22C55E]/30 text-[#22C55E] rounded-xl px-4 py-3 text-sm font-bold flex items-center gap-2">
+            <div className="bg-green-500/20 border border-green-500/30 text-green-500 rounded-xl px-4 py-3 text-sm font-bold flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4" />
               {sellSuccess}
             </div>
@@ -106,10 +106,10 @@ export default function SellModal({
 
           {/* Position Info */}
           <Card className="overflow-hidden">
-            <div className="bg-gradient-to-r from-[#22C55E]/20 to-[#22C55E]/5 border-b border-[#22C55E]/20 p-4">
+            <div className="bg-gradient-to-r from-[#22C55E]/20 to-[#22C55E]/5 border-b border-green-500/20 p-4">
               <div className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-[#22C55E]" />
-                <span className="font-black text-[#22C55E]">Deine Position</span>
+                <Briefcase className="w-5 h-5 text-green-500" />
+                <span className="font-black text-green-500">Deine Position</span>
               </div>
             </div>
             <div className="p-4 space-y-2">
@@ -123,7 +123,7 @@ export default function SellModal({
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-white/50">Verfügbar</span>
-                <span className="font-mono font-bold text-[#22C55E]">{availableToSell} DPC</span>
+                <span className="font-mono font-bold text-green-500">{availableToSell} DPC</span>
               </div>
               {listedQty > 0 && (
                 <div className="flex items-center justify-between text-sm">
@@ -165,15 +165,15 @@ export default function SellModal({
                 {/* Quick-Price Presets */}
                 {floorBsd > 0 && (
                   <div className="mt-1.5 flex items-center gap-1.5">
-                    <button onClick={() => setSellPriceBsd(floorBsd.toString())}
-                      className="px-2.5 py-1.5 min-h-[44px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">Floor</button>
-                    <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.05).toString())}
-                      className="px-2.5 py-1.5 min-h-[44px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+5%</button>
-                    <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.10).toString())}
-                      className="px-2.5 py-1.5 min-h-[44px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+10%</button>
-                    <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.20).toString())}
-                      className="px-2.5 py-1.5 min-h-[44px] rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all">+20%</button>
-                    <span className="text-[11px] text-white/25 ml-1">Floor: {fmtScout(floorBsd)}</span>
+                    <button onClick={() => setSellPriceBsd(floorBsd.toString())} disabled={selling}
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all disabled:opacity-50">Floor</button>
+                    <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.05).toString())} disabled={selling}
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all disabled:opacity-50">+5%</button>
+                    <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.10).toString())} disabled={selling}
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all disabled:opacity-50">+10%</button>
+                    <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.20).toString())} disabled={selling}
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all disabled:opacity-50">+20%</button>
+                    <span className="text-[11px] text-white/30 ml-1">Floor: {fmtScout(floorBsd)}</span>
                   </div>
                 )}
               </div>
@@ -182,16 +182,16 @@ export default function SellModal({
               {showFee && (
                 <div className="bg-black/20 rounded-lg px-3 py-2 space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-white/40">Brutto</span>
-                    <span className="font-mono text-white/40">{fmtScout(gross)} $SCOUT</span>
+                    <span className="text-white/50">Brutto</span>
+                    <span className="font-mono text-white/50">{fmtScout(gross)} $SCOUT</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-white/40">Gebühr ({TRADE_FEE_PCT}%)</span>
+                    <span className="text-white/50">Gebühr ({TRADE_FEE_PCT}%)</span>
                     <span className="font-mono text-red-400/70">-{fmtScout(fee)} $SCOUT</span>
                   </div>
                   <div className="border-t border-white/10 pt-1.5 flex items-center justify-between text-sm">
                     <span className="text-white/50">Netto-Erlös</span>
-                    <span className="font-mono font-bold text-[#FFD700]">{fmtScout(net)} $SCOUT</span>
+                    <span className="font-mono font-bold text-gold">{fmtScout(net)} $SCOUT</span>
                   </div>
                 </div>
               )}
@@ -202,17 +202,17 @@ export default function SellModal({
           {/* Active Listings */}
           {userOrders.length > 0 && (
             <Card className="p-4">
-              <div className="text-xs text-white/40 mb-3 font-bold">Aktive Listings</div>
+              <div className="text-xs text-white/50 mb-3 font-bold">Aktive Listings</div>
               <div className="space-y-2">
                 {userOrders.map((order) => {
                   const remaining = order.quantity - order.filled_qty;
                   return (
                     <div key={order.id} className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10">
                       <div>
-                        <div className="font-mono font-bold text-sm text-[#FFD700]">{formatScout(order.price)} $SCOUT</div>
-                        <div className="text-[10px] text-white/40">
+                        <div className="font-mono font-bold text-sm text-gold">{formatScout(order.price)} $SCOUT</div>
+                        <div className="text-[10px] text-white/50">
                           {remaining}/{order.quantity} DPC
-                          {order.filled_qty > 0 && <span className="text-[#22C55E]"> &middot; {order.filled_qty} verkauft</span>}
+                          {order.filled_qty > 0 && <span className="text-green-500"> &middot; {order.filled_qty} verkauft</span>}
                         </div>
                       </div>
                       <button

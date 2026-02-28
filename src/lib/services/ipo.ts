@@ -86,6 +86,7 @@ export async function buyFromIpo(
   playerId?: string
 ): Promise<IpoBuyResult> {
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Ungültige Menge.');
+  if (quantity > 10000) throw new Error('Maximale Kaufmenge überschritten.');
 
   const { data, error } = await supabase.rpc('buy_from_ipo', {
     p_user_id: userId,

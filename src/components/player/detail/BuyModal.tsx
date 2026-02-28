@@ -69,17 +69,17 @@ function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAffo
       <div className="flex items-center gap-2">
         <div className="flex-1 bg-black/20 rounded-xl px-3 py-2 text-center">
           <div className="text-[10px] text-white/30">Preis/DPC</div>
-          <div className="font-mono font-black text-[#FFD700]">{fmtScout(priceBsd)}</div>
-          {maxQty > 0 && <div className="text-[9px] text-white/20">max. {maxQty}</div>}
+          <div className="font-mono font-black text-gold">{fmtScout(priceBsd)}</div>
+          {maxQty > 0 && <div className="text-[9px] text-white/30">max. {maxQty}</div>}
         </div>
         <div className="flex items-center gap-1.5">
-          <button onClick={() => setQty(Math.max(1, qty - 1))} aria-label="Menge reduzieren"
-            className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 transition-colors flex items-center justify-center">−</button>
-          <input type="number" inputMode="numeric" value={qty} min={1} max={maxQty || undefined}
+          <button onClick={() => setQty(Math.max(1, qty - 1))} aria-label="Menge reduzieren" disabled={isBuying}
+            className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 transition-colors flex items-center justify-center disabled:opacity-50">−</button>
+          <input type="number" inputMode="numeric" value={qty} min={1} max={maxQty || undefined} disabled={isBuying}
             onChange={(e) => setQty(Math.max(1, Math.min(maxQty || 999, parseInt(e.target.value) || 1)))}
-            className="w-12 text-center bg-white/5 border border-white/10 rounded-lg py-1.5 font-mono font-bold text-base" />
-          <button onClick={() => setQty(Math.min(maxQty || qty + 1, qty + 1))} aria-label="Menge erhöhen"
-            className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 transition-colors flex items-center justify-center">+</button>
+            className="w-12 text-center bg-white/5 border border-white/10 rounded-lg py-1.5 font-mono font-bold text-base disabled:opacity-50" />
+          <button onClick={() => setQty(Math.min(maxQty || qty + 1, qty + 1))} aria-label="Menge erhöhen" disabled={isBuying}
+            className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 transition-colors flex items-center justify-center disabled:opacity-50">+</button>
         </div>
       </div>
 
@@ -88,12 +88,12 @@ function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAffo
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between text-xs">
             <span className="text-white/30">Gesamt</span>
-            <span className="font-mono font-bold text-[#FFD700]">{fmtScout(totalBsd)} $SCOUT</span>
+            <span className="font-mono font-bold text-gold">{fmtScout(totalBsd)} $SCOUT</span>
           </div>
           {balanceCents !== null && (
             <div className="flex items-center justify-between text-[10px]">
-              <span className="text-white/20">Danach</span>
-              <span className={cn('font-mono', afford ? 'text-[#22C55E]' : 'text-red-400')}>
+              <span className="text-white/30">Danach</span>
+              <span className={cn('font-mono', afford ? 'text-green-500' : 'text-red-400')}>
                 {formatScout(Math.max(0, balanceCents - totalCents))}
               </span>
             </div>
@@ -175,12 +175,12 @@ export default function BuyModal({
             <>
               {/* ── 1. IPO Section (top) ── */}
               {isIPO && activeIpo && (
-                <div className="border border-[#22C55E]/20 rounded-2xl overflow-hidden">
+                <div className="border border-green-500/20 rounded-2xl overflow-hidden">
                   {/* IPO Header */}
-                  <div className="flex items-center justify-between px-4 py-2.5 bg-[#22C55E]/[0.06]">
+                  <div className="flex items-center justify-between px-4 py-2.5 bg-green-500/[0.06]">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-                      <span className="font-black text-sm text-[#22C55E]">Erstverkauf</span>
+                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                      <span className="font-black text-sm text-green-500">Erstverkauf</span>
                       <span className="text-[10px] text-white/30">Festpreis vom Verein</span>
                     </div>
                     <div className="flex items-center gap-1 text-[10px] text-white/30">
@@ -192,7 +192,7 @@ export default function BuyModal({
                     {/* Progress */}
                     <div>
                       <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-full" style={{ width: `${ipoProgress}%` }} />
+                        <div className="h-full bg-gradient-to-r from-gold to-gold-hover rounded-full" style={{ width: `${ipoProgress}%` }} />
                       </div>
                       <div className="flex items-center justify-between text-[10px] text-white/30 mt-0.5">
                         <span>{fmtScout(activeIpo.sold)}/{fmtScout(activeIpo.total_offered)} verkauft</span>
@@ -216,7 +216,7 @@ export default function BuyModal({
                       <div className="text-center py-2 text-xs text-white/30">
                         <Lock className="w-4 h-4 mx-auto mb-1 text-white/15" />
                         Limit erreicht
-                        {hasMarket && <div className="text-[10px] text-white/20 mt-1">Weitere DPCs über den Markt verfügbar ↓</div>}
+                        {hasMarket && <div className="text-[10px] text-white/30 mt-1">Weitere DPCs über den Markt verfügbar ↓</div>}
                       </div>
                     )}
                   </div>
@@ -233,7 +233,7 @@ export default function BuyModal({
                       <span className="font-black text-sm text-sky-300">Markt</span>
                       <span className="text-[10px] text-white/30">{transferAvailable} Angebot{transferAvailable !== 1 ? 'e' : ''}</span>
                     </div>
-                    <span className="text-[10px] text-white/25">Günstigstes zuerst</span>
+                    <span className="text-[10px] text-white/30">Günstigstes zuerst</span>
                   </div>
                   <div className="p-3">
                     <BuyForm
@@ -256,10 +256,10 @@ export default function BuyModal({
                 <div className="py-6 text-center">
                   <ShoppingCart className="w-8 h-8 mx-auto mb-2 text-white/10" />
                   <div className="text-sm text-white/40 mb-1">Nicht verfügbar</div>
-                  <div className="text-xs text-white/25 mb-3">Kein Erstverkauf aktiv und keine Markt-Angebote</div>
+                  <div className="text-xs text-white/30 mb-3">Kein Erstverkauf aktiv und keine Markt-Angebote</div>
                   <button
                     onClick={onOpenOfferModal}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-xl bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20 hover:bg-[#FFD700]/20 transition-colors text-xs font-bold"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-xl bg-gold/10 text-gold border border-gold/20 hover:bg-gold/20 transition-colors text-xs font-bold"
                   >
                     <Send className="w-3.5 h-3.5" />
                     Kaufangebot machen
@@ -271,7 +271,7 @@ export default function BuyModal({
               {!hasMarket && isIPO && userId && (
                 <button
                   onClick={onOpenOfferModal}
-                  className="w-full flex items-center justify-center gap-1.5 py-2 text-[10px] text-white/25 hover:text-[#FFD700] transition-colors"
+                  className="w-full flex items-center justify-center gap-1.5 py-2 text-[10px] text-white/30 hover:text-gold transition-colors"
                 >
                   <Send className="w-3 h-3" />
                   Oder: Kaufangebot an andere User senden

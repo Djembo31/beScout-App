@@ -62,6 +62,13 @@ export default function TipButton({
     return () => document.removeEventListener('keydown', handleKey);
   }, [open]);
 
+  // Auto-dismiss error after 5s
+  useEffect(() => {
+    if (!error) return;
+    const timer = setTimeout(() => setError(null), 5000);
+    return () => clearTimeout(timer);
+  }, [error]);
+
   const handleSend = async (cents: number) => {
     setSending(true);
     setError(null);
@@ -99,7 +106,7 @@ export default function TipButton({
         onClick={() => { setOpen(!open); setError(null); }}
         className={cn(
           'flex items-center gap-1 transition-colors text-xs',
-          success ? 'text-[#FFD700] animate-pulse' : 'text-white/40 hover:text-pink-400'
+          success ? 'text-gold animate-pulse' : 'text-white/50 hover:text-pink-400'
         )}
         aria-label="Tipp senden"
       >
@@ -148,7 +155,7 @@ export default function TipButton({
           </div>
           <div className="text-[9px] text-white/25 mt-1">Max. 10.000 $SCOUT</div>
           {error && (
-            <div className="mt-2 text-[10px] text-red-400 bg-red-500/10 rounded-lg px-2 py-1">{error}</div>
+            <div role="alert" aria-live="polite" className="mt-2 text-[10px] text-red-400 bg-red-500/10 rounded-lg px-2 py-1">{error}</div>
           )}
         </div>
       )}
