@@ -114,7 +114,7 @@ function HeroSection({
         <div className="text-center space-y-2 md:space-y-4">
           {/* Club Logo + Name row on mobile, stacked on desktop */}
           <div className="flex items-center justify-center gap-3 md:flex-col md:gap-3">
-            <div className="relative w-12 h-12 md:w-24 md:h-24 bg-white/10 backdrop-blur-md rounded-full p-1 md:p-2 border-2 md:border-4 border-white/20 shadow-2xl flex-shrink-0">
+            <div className="relative size-12 md:size-24 bg-white/10 rounded-full p-1 md:p-2 border-2 md:border-4 border-white/20 shadow-2xl flex-shrink-0">
               <div className="relative w-full h-full">
                 {club.logo_url ? (
                   <Image src={club.logo_url} alt={club.name} fill className="object-contain p-1 md:p-2" />
@@ -125,13 +125,13 @@ function HeroSection({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base md:text-lg lg:text-4xl font-black tracking-tight text-white drop-shadow-lg truncate">
+                <h1 className="text-base md:text-lg lg:text-4xl font-black text-balance text-white drop-shadow-lg truncate">
                   {club.name.toUpperCase()}
                 </h1>
-                {club.is_verified && <BadgeCheck className="w-5 h-5 md:w-8 md:h-8 text-gold" />}
+                {club.is_verified && <BadgeCheck className="size-5 md:size-8 text-gold" />}
               </div>
               <div className="flex items-center gap-2 text-[10px] md:text-sm text-white/70 md:justify-center">
-                <Trophy className="w-3 h-3 md:w-4 md:h-4" />
+                <Trophy className="size-3 md:size-4" />
                 <span>{club.league}</span>
                 {club.city && (
                   <>
@@ -146,17 +146,17 @@ function HeroSection({
           {/* Quick Stats + Follow */}
           <div className="flex items-center justify-center gap-3 md:gap-6">
             <div className="text-center">
-              <div className="text-sm md:text-2xl font-black text-white">{followerCount.toLocaleString()}</div>
+              <div className="text-sm md:text-2xl font-black tabular-nums text-white">{followerCount.toLocaleString()}</div>
               <div className="text-[10px] md:text-xs text-white/50">{t('scouts')}</div>
             </div>
             <div className="w-px h-5 md:h-10 bg-white/20" />
             <div className="text-center">
-              <div className="text-sm md:text-2xl font-black text-gold">{fmtScout(totalVolume24h)}</div>
+              <div className="text-sm md:text-2xl font-black tabular-nums text-gold">{fmtScout(totalVolume24h)}</div>
               <div className="text-[10px] md:text-xs text-white/50">{t('volume24h')}</div>
             </div>
             <div className="w-px h-5 md:h-10 bg-white/20" />
             <div className="text-center">
-              <div className="text-sm md:text-2xl font-black text-green-500">{playerCount}</div>
+              <div className="text-sm md:text-2xl font-black tabular-nums text-green-500">{playerCount}</div>
               <div className="text-[10px] md:text-xs text-white/50">{t('players')}</div>
             </div>
             <div className="w-px h-5 md:h-10 bg-white/20 hidden md:block" />
@@ -172,7 +172,7 @@ function HeroSection({
                 disabled={followLoading}
                 className="hidden md:flex"
               >
-                {followLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFollowing ? <><CheckCircle2 className="w-4 h-4" /> {t('subscribed')}</> : <><Bell className="w-4 h-4" /> {t('follow')}</>}
+                {followLoading ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" /> : isFollowing ? <><CheckCircle2 className="size-4" /> {t('subscribed')}</> : <><Bell className="size-4" /> {t('follow')}</>}
               </Button>
             )}
           </div>
@@ -190,7 +190,7 @@ function HeroSection({
                 onClick={onFollow}
                 disabled={followLoading}
               >
-                {followLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFollowing ? t('subscribed') : t('follow')}
+                {followLoading ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" /> : isFollowing ? t('subscribed') : t('follow')}
               </Button>
             )}
           </div>
@@ -234,21 +234,21 @@ function StatsBar({
     <div className="space-y-3">
       {/* Primary stats — big */}
       <div className="grid grid-cols-2 gap-3">
-        <Card className="p-4 hover:border-white/20 transition-all" style={{ borderColor: `${clubColor}25` }}>
+        <Card className="p-4 hover:border-white/20 transition-colors" style={{ borderColor: `${clubColor}25` }}>
           <div className="flex items-center gap-2 mb-1">
-            <Users2 className="w-5 h-5" style={{ color: clubColor }} />
+            <Users2 className="size-5" style={{ color: clubColor }} />
             <span className="text-xs text-white/50">{t('scouts')}</span>
           </div>
-          <div className="text-2xl md:text-3xl font-mono font-black" style={{ color: clubColor }}>
+          <div className="text-2xl md:text-3xl font-mono font-black tabular-nums" style={{ color: clubColor }}>
             {followerCount.toLocaleString()}
           </div>
         </Card>
-        <Card className="p-4 hover:border-white/20 transition-all border-gold/15">
+        <Card className="p-4 hover:border-white/20 transition-colors border-gold/15">
           <div className="flex items-center gap-2 mb-1">
-            <BarChart3 className="w-5 h-5 text-gold" />
+            <BarChart3 className="size-5 text-gold" />
             <span className="text-xs text-white/50">{t('volume24h')}</span>
           </div>
-          <div className="text-2xl md:text-3xl font-mono font-black text-gold">
+          <div className="text-2xl md:text-3xl font-mono font-black tabular-nums text-gold">
             {fmtScout(totalVolume24h)}
             <span className="text-sm text-white/40 ml-1">$SCOUT</span>
           </div>
@@ -259,9 +259,9 @@ function StatsBar({
       <div className="flex items-center gap-3">
         {secondary.map((stat, i) => (
           <div key={i} className="flex-1 flex items-center gap-2 p-2.5 bg-surface-base border border-white/[0.06] rounded-xl">
-            <stat.icon className="w-4 h-4 text-white/30 flex-shrink-0" />
+            <stat.icon className="size-4 text-white/30 flex-shrink-0" />
             <div className="min-w-0">
-              <div className="font-mono font-bold text-sm text-white/80">{stat.value}</div>
+              <div className="font-mono font-bold tabular-nums text-sm text-white/80">{stat.value}</div>
               <div className="text-[10px] text-white/30">{stat.label}</div>
             </div>
           </div>
@@ -274,7 +274,7 @@ function StatsBar({
                 <div
                   key={i}
                   className={cn(
-                    'w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black',
+                    'size-5 rounded-full flex items-center justify-center text-[9px] font-black',
                     r === 'W' && 'bg-green-500 text-black',
                     r === 'D' && 'bg-yellow-500 text-black',
                     r === 'L' && 'bg-red-500 text-white',
@@ -293,7 +293,7 @@ function StatsBar({
           const Icon = cfg.icon;
           return (
             <div className="flex-shrink-0 flex items-center gap-2 p-2.5 bg-surface-base border border-white/[0.06] rounded-xl">
-              <Icon className={cn('w-4 h-4', cfg.color)} />
+              <Icon className={cn('size-4', cfg.color)} />
               <div className="min-w-0">
                 <div className={cn('text-sm font-bold', cfg.color)}>{t(cfg.labelKey)}</div>
                 <div className="text-[10px] text-white/30">{t('prestige')}</div>
@@ -326,7 +326,7 @@ function ClubVoteCard({ vote, hasVoted, onVote, voting }: {
   const timeLeft = diffMs > 0 ? `${days}d ${hours}h` : 'Beendet';
 
   return (
-    <div className="p-4 bg-surface-base rounded-xl border border-white/10 hover:border-purple-400/40 transition-all">
+    <div className="p-4 bg-surface-base rounded-xl border border-white/10 hover:border-purple-400/40 transition-colors">
       <div className="font-bold mb-3 line-clamp-2">{vote.question}</div>
       <div className="space-y-2 mb-3">
         {(vote.options as { label: string; votes: number }[]).map((opt, idx) => {
@@ -344,7 +344,7 @@ function ClubVoteCard({ vote, hasVoted, onVote, voting }: {
             >
               <div className="flex items-center justify-between text-xs mb-1">
                 <span className="text-white/70">{opt.label}</span>
-                <span className="font-mono font-bold">{pct}%</span>
+                <span className="font-mono font-bold tabular-nums">{pct}%</span>
               </div>
               <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
                 <div className="h-full bg-purple-500/50 rounded-full transition-all" style={{ width: `${pct}%` }} />
@@ -354,8 +354,8 @@ function ClubVoteCard({ vote, hasVoted, onVote, voting }: {
         })}
       </div>
       <div className="flex items-center justify-between text-xs text-white/50">
-        <span><Users className="w-3 h-3 inline mr-1" />{totalVotes.toLocaleString()}</span>
-        <span><Clock className="w-3 h-3 inline mr-1" />{timeLeft}</span>
+        <span><Users className="size-3 inline mr-1" />{totalVotes.toLocaleString()}</span>
+        <span><Clock className="size-3 inline mr-1" />{timeLeft}</span>
       </div>
       {hasVoted && (
         <Chip className="mt-2 bg-purple-500/15 text-purple-300 border-purple-500/25">{t('voted')}</Chip>
@@ -391,25 +391,25 @@ function TopPlayersWidget({
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Flame className="w-5 h-5 text-orange-400" />
-          <span className="font-black text-lg">{t('trendingPlayers')}</span>
+          <Flame className="size-5 text-orange-400" />
+          <span className="font-black text-balance text-lg">{t('trendingPlayers')}</span>
         </div>
         <button onClick={onViewAll} className="text-xs text-gold hover:underline flex items-center gap-1">
-          {tc('viewAll')} <ChevronRight className="w-4 h-4" />
+          {tc('viewAll')} <ChevronRight className="size-4" />
         </button>
       </div>
       <div className="space-y-3">
         {topPlayers.map((player, i) => (
           <Link key={player.id} href={`/player/${player.id}`}>
             <div
-              className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10 transition-all"
+              className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10 transition-colors"
               style={{ ['--hover-border' as string]: `${clubColor}50` }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = `${clubColor}50`)}
               onMouseLeave={e => (e.currentTarget.style.borderColor = '')}
             >
               <div className="flex items-center gap-3">
                 <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm"
+                  className="size-8 rounded-lg flex items-center justify-center font-black text-sm"
                   style={i === 0 ? { backgroundColor: `${clubColor}30`, color: clubColor } : undefined}
                 >
                   {i + 1}
@@ -417,8 +417,8 @@ function TopPlayersWidget({
                 <PlayerIdentity player={player} size="sm" showMeta={false} showStatus={false} />
                 <div className="text-[10px] text-white/40 shrink-0">{fmtScout(player.prices.lastTrade)} $SCOUT</div>
               </div>
-              <div className={`flex items-center gap-1 font-mono font-bold ${player.prices.change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red'}`}>
-                {player.prices.change24h >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+              <div className={cn('flex items-center gap-1 font-mono font-bold tabular-nums', player.prices.change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red')}>
+                {player.prices.change24h >= 0 ? <ArrowUpRight className="size-4" /> : <ArrowDownRight className="size-4" />}
                 {Math.abs(player.prices.change24h).toFixed(1)}%
               </div>
             </div>
@@ -451,13 +451,13 @@ function SquadOverviewWidget({ players }: { players: Player[] }) {
   return (
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-4">
-        <Shield className="w-5 h-5 text-white/50" />
-        <span className="font-black text-lg">{t('squadOverview')}</span>
+        <Shield className="size-5 text-white/50" />
+        <span className="font-black text-balance text-lg">{t('squadOverview')}</span>
       </div>
       <div className="h-4 bg-white/5 rounded-full overflow-hidden flex mb-4">
         {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map((pos) => (
           breakdown[pos] > 0 ? (
-            <div key={pos} className={`h-full ${posColors[pos]}`} style={{ width: `${(breakdown[pos] / total) * 100}%` }} />
+            <div key={pos} className={cn('h-full', posColors[pos])} style={{ width: `${(breakdown[pos] / total) * 100}%` }} />
           ) : null
         ))}
       </div>
@@ -465,10 +465,10 @@ function SquadOverviewWidget({ players }: { players: Player[] }) {
         {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map((pos) => (
           <div key={pos} className="flex items-center justify-between p-2 bg-surface-base rounded-lg">
             <div className="flex items-center gap-2">
-              <div className={`w-3 h-3 rounded-full ${posColors[pos]}`} />
+              <div className={cn('size-3 rounded-full', posColors[pos])} />
               <span className="text-sm text-white/70">{posLabels[pos]}</span>
             </div>
-            <span className="font-mono text-sm font-bold">{breakdown[pos]}</span>
+            <span className="font-mono tabular-nums text-sm font-bold">{breakdown[pos]}</span>
           </div>
         ))}
       </div>
@@ -496,20 +496,20 @@ function TopScoutsWidget({ scouts, clubColor }: { scouts: TopScout[]; clubColor:
   return (
     <Card className="p-4 md:p-6">
       <div className="flex items-center gap-2 mb-4">
-        <Trophy className="w-5 h-5" style={{ color: clubColor }} />
-        <span className="font-black">{t('topScoutsTitle')}</span>
+        <Trophy className="size-5" style={{ color: clubColor }} />
+        <span className="font-black text-balance">{t('topScoutsTitle')}</span>
       </div>
       <div className="space-y-2">
         {scouts.slice(0, 3).map((scout, i) => (
           <Link key={scout.userId} href={`/profile/${scout.handle}`}>
-            <div className="flex items-center gap-3 p-2.5 bg-surface-base rounded-xl border border-white/[0.06] hover:border-white/15 transition-all">
-              <span className={cn('w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black', podiumColors[i] ?? 'bg-white/5 text-white/40')}>
+            <div className="flex items-center gap-3 p-2.5 bg-surface-base rounded-xl border border-white/[0.06] hover:border-white/15 transition-colors">
+              <span className={cn('size-7 rounded-lg flex items-center justify-center text-xs font-black', podiumColors[i] ?? 'bg-white/5 text-white/40')}>
                 {i + 1}
               </span>
               {scout.avatarUrl ? (
-                <Image src={scout.avatarUrl} alt="" width={28} height={28} className="w-7 h-7 rounded-full object-cover" />
+                <Image src={scout.avatarUrl} alt="" width={28} height={28} className="size-7 rounded-full object-cover" />
               ) : (
-                <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/50">
+                <div className="size-7 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/50">
                   {(scout.displayName ?? scout.handle).charAt(0).toUpperCase()}
                 </div>
               )}
@@ -566,12 +566,12 @@ function FixtureRow({ fixture, clubId, accent }: { fixture: Fixture; clubId: str
 
   return (
     <div className={cn(
-      'flex items-center gap-3 p-3 rounded-xl border transition-all',
+      'flex items-center gap-3 p-3 rounded-xl border transition-colors',
       isPlayed ? 'bg-surface-base border-white/10' : 'bg-white/[0.01] border-white/[0.06]',
     )}>
       {/* H/A Badge */}
       <div className={cn(
-        'w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black flex-shrink-0',
+        'size-7 rounded-lg flex items-center justify-center text-[10px] font-black flex-shrink-0',
         isHome ? 'bg-green-500/15 text-green-500' : 'bg-sky-500/15 text-sky-400',
       )}>
         {isHome ? 'H' : 'A'}
@@ -580,11 +580,11 @@ function FixtureRow({ fixture, clubId, accent }: { fixture: Fixture; clubId: str
       {/* Opponent */}
       <div className="flex items-center gap-2 flex-1 min-w-0">
         <div
-          className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0"
+          className="size-7 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0"
           style={{ backgroundColor: (oppColor ?? '#666') + '20', color: oppColor ?? '#aaa' }}
         >
           {oppClub?.logo ? (
-            <img src={oppClub.logo} alt="" className="w-5 h-5 object-contain" />
+            <img src={oppClub.logo} alt="" className="size-5 object-contain" />
           ) : (
             oppShort.slice(0, 2)
           )}
@@ -595,7 +595,7 @@ function FixtureRow({ fixture, clubId, accent }: { fixture: Fixture; clubId: str
       {/* Score or Status */}
       {isPlayed ? (
         <div className="flex items-center gap-2">
-          <span className="font-mono font-black text-sm">
+          <span className="font-mono font-black tabular-nums text-sm">
             {fixture.home_score} - {fixture.away_score}
           </span>
           {result && (
@@ -628,24 +628,24 @@ function SeasonSummary({ fixtures, clubId }: { fixtures: Fixture[]; clubId: stri
   return (
     <div className="flex items-center gap-4 p-3 bg-surface-base rounded-xl border border-white/10">
       <div className="text-center flex-1">
-        <div className="text-lg font-mono font-black text-white">{played}</div>
+        <div className="text-lg font-mono font-black tabular-nums text-white">{played}</div>
         <div className="text-[10px] text-white/40">{t('played')}</div>
       </div>
       <div className="text-center flex-1">
-        <div className="text-lg font-mono font-black text-green-500">{w}</div>
+        <div className="text-lg font-mono font-black tabular-nums text-green-500">{w}</div>
         <div className="text-[10px] text-white/40">{t('wins')}</div>
       </div>
       <div className="text-center flex-1">
-        <div className="text-lg font-mono font-black text-yellow-400">{d}</div>
+        <div className="text-lg font-mono font-black tabular-nums text-yellow-400">{d}</div>
         <div className="text-[10px] text-white/40">{t('draws')}</div>
       </div>
       <div className="text-center flex-1">
-        <div className="text-lg font-mono font-black text-red-400">{l}</div>
+        <div className="text-lg font-mono font-black tabular-nums text-red-400">{l}</div>
         <div className="text-[10px] text-white/40">{t('losses')}</div>
       </div>
       <div className="w-px h-8 bg-white/10" />
       <div className="text-center flex-1">
-        <div className="text-lg font-mono font-black text-gold">{points}</div>
+        <div className="text-lg font-mono font-black tabular-nums text-gold">{points}</div>
         <div className="text-[10px] text-white/40">{t('seasonPoints')}</div>
       </div>
     </div>
@@ -668,10 +668,10 @@ function NextMatchCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: stri
   const oppClub = getClub(oppShort) || getClub(oppName);
 
   return (
-    <Card className="p-4 border-green-500/20 bg-gradient-to-r from-green-500/5 to-transparent">
+    <Card className="p-4 border-green-500/20 bg-green-500/[0.04]">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0">
-          <Swords className="w-5 h-5 text-green-500" />
+        <div className="size-10 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0">
+          <Swords className="size-5 text-green-500" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-xs text-white/40 mb-0.5">{t('nextMatch', { gw: next.gameweek })}</div>
@@ -684,11 +684,11 @@ function NextMatchCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: stri
             </span>
             <div className="flex items-center gap-2">
               <div
-                className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0"
+                className="size-6 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0"
                 style={{ backgroundColor: (oppColor ?? '#666') + '20', color: oppColor ?? '#aaa' }}
               >
                 {oppClub?.logo ? (
-                  <img src={oppClub.logo} alt="" className="w-4 h-4 object-contain" />
+                  <img src={oppClub.logo} alt="" className="size-4 object-contain" />
                 ) : (
                   oppShort.slice(0, 2)
                 )}
@@ -718,8 +718,8 @@ function LastResultsCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: st
   return (
     <Card className="p-4 md:p-6">
       <div className="flex items-center gap-2 mb-4">
-        <Calendar className="w-5 h-5 text-white/50" />
-        <span className="font-black">{t('lastResults')}</span>
+        <Calendar className="size-5 text-white/50" />
+        <span className="font-black text-balance">{t('lastResults')}</span>
       </div>
       <div className="space-y-2">
         {played.map(f => {
@@ -731,19 +731,19 @@ function LastResultsCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: st
 
           return (
             <div key={f.id} className="flex items-center gap-3 text-sm">
-              <span className="text-xs text-white/30 font-mono w-8 text-right flex-shrink-0">GW {f.gameweek}</span>
+              <span className="text-xs text-white/30 font-mono tabular-nums w-8 text-right flex-shrink-0">GW {f.gameweek}</span>
               <div
-                className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0"
+                className="size-5 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0"
                 style={{ backgroundColor: (oppColor ?? '#666') + '20', color: oppColor ?? '#aaa' }}
               >
                 {oppClub?.logo ? (
-                  <img src={oppClub.logo} alt="" className="w-3.5 h-3.5 object-contain" />
+                  <img src={oppClub.logo} alt="" className="size-3.5 object-contain" />
                 ) : (
                   oppName.slice(0, 2)
                 )}
               </div>
               <span className="flex-1 truncate text-white/70">{isHome ? f.away_club_name : f.home_club_name}</span>
-              <span className="font-mono font-bold text-xs">{f.home_score} - {f.away_score}</span>
+              <span className="font-mono font-bold tabular-nums text-xs">{f.home_score} - {f.away_score}</span>
               {result && (
                 <span className={cn('px-1.5 py-0.5 rounded text-[9px] font-black w-5 text-center', resultBadge[result].color)}>
                   {resultBadge[result].label}
@@ -773,8 +773,8 @@ function ActivityFeed({
   return (
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-4">
-        <Zap className="w-5 h-5 text-gold" />
-        <span className="font-black text-lg">{title}</span>
+        <Zap className="size-5 text-gold" />
+        <span className="font-black text-balance text-lg">{title}</span>
       </div>
       <div className="space-y-3">
         {trades.length === 0 ? (
@@ -785,8 +785,8 @@ function ActivityFeed({
             return (
               <div key={trade.id} className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-gold/10 flex items-center justify-center">
-                    <ArrowUpRight className="w-4 h-4 text-gold" />
+                  <div className="size-8 rounded-lg bg-gold/10 flex items-center justify-center">
+                    <ArrowUpRight className="size-4 text-gold" />
                   </div>
                   <div>
                     <div className="font-bold text-sm">
@@ -798,7 +798,7 @@ function ActivityFeed({
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-mono font-bold text-gold">{fmtScout(priceBsd)} $SCOUT</div>
+                  <div className="font-mono font-bold tabular-nums text-gold">{fmtScout(priceBsd)} $SCOUT</div>
                   <div className="text-[10px] text-white/40">pro DPC</div>
                 </div>
               </div>
@@ -822,10 +822,10 @@ function ClubSkeleton() {
   return (
     <div className="max-w-[1200px] mx-auto">
       <div className="relative h-[300px] md:h-[550px] -mx-4 md:-mx-6 -mt-4 md:-mt-6 mb-6 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.03] to-bg-main" />
+        <div className="absolute inset-0 bg-white/[0.02]" />
         <div className="absolute inset-0 flex items-center justify-center pt-8">
           <div className="text-center space-y-5">
-            <Skeleton className="w-20 h-20 md:w-32 md:h-32 rounded-full mx-auto" />
+            <Skeleton className="size-20 md:size-32 rounded-full mx-auto" />
             <Skeleton className="h-10 w-64 mx-auto" />
             <Skeleton className="h-4 w-48 mx-auto" />
             <div className="flex justify-center gap-6">
@@ -1086,9 +1086,9 @@ export default function ClubContent({ slug }: { slug: string }) {
   if (notFound) {
     return (
       <div className="max-w-xl mx-auto mt-20 text-center">
-        <Building2 className="w-16 h-16 mx-auto mb-4 text-white/20" />
-        <h2 className="text-2xl font-black mb-2">{t('notFoundTitle')}</h2>
-        <p className="text-white/50 mb-6">{t('notFoundDesc', { slug })}</p>
+        <Building2 className="size-16 mx-auto mb-4 text-white/20" />
+        <h2 className="text-2xl font-black text-balance mb-2">{t('notFoundTitle')}</h2>
+        <p className="text-white/50 text-pretty mb-6">{t('notFoundDesc', { slug })}</p>
         <Link href="/">
           <Button variant="outline">{t('backHome')}</Button>
         </Link>
@@ -1128,11 +1128,11 @@ export default function ClubContent({ slug }: { slug: string }) {
 
         {/* CTA Banner */}
         <div className="mb-6">
-          <Card className="p-6 border-gold/20 bg-gradient-to-r from-gold/10 to-gold/5">
+          <Card className="p-6 border-gold/20 bg-gold/[0.06]">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="text-center md:text-left">
-                <h2 className="text-lg font-black mb-1">{t('publicCta')}</h2>
-                <p className="text-sm text-white/50">{t('publicCtaDesc')}</p>
+                <h2 className="text-lg font-black text-balance mb-1">{t('publicCta')}</h2>
+                <p className="text-sm text-white/50 text-pretty">{t('publicCtaDesc')}</p>
               </div>
               <Link href={loginUrl}>
                 <Button variant="gold">{t('publicCtaButton')}</Button>
@@ -1166,11 +1166,11 @@ export default function ClubContent({ slug }: { slug: string }) {
         <Card className="p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Users className="w-5 h-5" style={{ color: clubColor }} />
-              <span className="font-black text-lg">{t('squadPreview')}</span>
+              <Users className="size-5" style={{ color: clubColor }} />
+              <span className="font-black text-balance text-lg">{t('squadPreview')}</span>
             </div>
             <Link href={loginUrl} className="text-xs text-gold hover:underline flex items-center gap-1">
-              {t('publicAllPlayers', { count: players.length })} <ChevronRight className="w-4 h-4" />
+              {t('publicAllPlayers', { count: players.length })} <ChevronRight className="size-4" />
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -1201,8 +1201,8 @@ export default function ClubContent({ slug }: { slug: string }) {
         {/* Club Info */}
         <Card className="p-4 md:p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
-            <Building2 className="w-5 h-5 text-white/50" />
-            <span className="font-black">{t('clubInfo')}</span>
+            <Building2 className="size-5 text-white/50" />
+            <span className="font-black text-balance">{t('clubInfo')}</span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
             {club.stadium && (
@@ -1223,14 +1223,14 @@ export default function ClubContent({ slug }: { slug: string }) {
             </div>
             <div className="bg-surface-base rounded-xl p-3">
               <div className="text-xs text-white/50 mb-1">{t('players')}</div>
-              <div className="font-bold text-sm text-green-500">{players.length}</div>
+              <div className="font-bold tabular-nums text-sm text-green-500">{players.length}</div>
             </div>
           </div>
         </Card>
 
         {/* Bottom CTA */}
         <div className="text-center py-8">
-          <p className="text-white/40 text-sm mb-3">{t('publicCtaDesc')}</p>
+          <p className="text-white/40 text-sm text-pretty mb-3">{t('publicCtaDesc')}</p>
           <Link href={loginUrl}>
             <Button variant="gold" className="px-8">{t('publicCtaButton')}</Button>
           </Link>
@@ -1273,18 +1273,18 @@ export default function ClubContent({ slug }: { slug: string }) {
       {user && (
         <div className="mb-4">
           {subscription ? (
-            <Card className={`p-3 border flex items-center justify-between ${
+            <Card className={cn('p-3 border flex items-center justify-between',
               subscription.tier === 'gold' ? 'border-gold/30 bg-gold/5' :
               subscription.tier === 'silber' ? 'border-[#C0C0C0]/30 bg-[#C0C0C0]/5' :
               'border-[#CD7F32]/30 bg-[#CD7F32]/5'
-            }`}>
+            )}>
               <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm ${
+                <div className={cn('size-8 rounded-full flex items-center justify-center font-black text-sm',
                   subscription.tier === 'gold' ? 'bg-gold/20 text-gold' :
                   subscription.tier === 'silber' ? 'bg-[#C0C0C0]/20 text-[#C0C0C0]' :
                   'bg-[#CD7F32]/20 text-[#CD7F32]'
-                }`}>
-                  <Crown className="w-4 h-4" />
+                )}>
+                  <Crown className="size-4" />
                 </div>
                 <div>
                   <div className="text-sm font-bold">{t('member', { tier: TIER_CONFIG[subscription.tier as SubscriptionTier]?.label })}</div>
@@ -1301,20 +1301,20 @@ export default function ClubContent({ slug }: { slug: string }) {
             </Card>
           ) : (
             <Card
-              className="p-3 border border-gold/20 bg-gradient-to-r from-gold/5 to-transparent cursor-pointer hover:border-gold/30 transition-all"
+              className="p-3 border border-gold/20 bg-gold/[0.04] cursor-pointer hover:border-gold/30 transition-colors"
               onClick={() => setSubModalOpen(true)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center">
-                    <Crown className="w-4 h-4 text-gold" />
+                  <div className="size-8 rounded-full bg-gold/10 flex items-center justify-center">
+                    <Crown className="size-4 text-gold" />
                   </div>
                   <div>
                     <div className="text-sm font-bold">{t('joinClub')}</div>
                     <div className="text-[10px] text-white/40">{t('joinClubDesc')}</div>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-white/30" />
+                <ChevronRight className="size-4 text-white/30" />
               </div>
             </Card>
           )}
@@ -1332,9 +1332,9 @@ export default function ClubContent({ slug }: { slug: string }) {
         {club.is_admin && (
           <Link
             href={`/club/${slug}/admin`}
-            className="flex-shrink-0 px-3 py-2 text-sm font-semibold text-white/60 hover:text-white transition-all whitespace-nowrap flex items-center gap-1.5"
+            className="flex-shrink-0 px-3 py-2 text-sm font-semibold text-white/60 hover:text-white transition-colors whitespace-nowrap flex items-center gap-1.5"
           >
-            <Settings className="w-4 h-4" />
+            <Settings className="size-4" />
             <span className="hidden md:inline">{t('admin')}</span>
           </Link>
         )}
@@ -1348,10 +1348,10 @@ export default function ClubContent({ slug }: { slug: string }) {
 
           {/* Dein DPC-Bestand */}
           {userClubDpc > 0 && (
-            <Card className="p-4 bg-gradient-to-br from-gold/10 to-gold/5 border-gold/20">
+            <Card className="p-4 bg-gold/[0.06] border-gold/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <ShoppingBag className="w-6 h-6 text-gold" />
+                  <ShoppingBag className="size-6 text-gold" />
                   <div>
                     <div className="font-black">{userClubDpc} DPC</div>
                     <div className="text-xs text-white/50">{t('yourHoldingsDesc')}</div>
@@ -1375,8 +1375,8 @@ export default function ClubContent({ slug }: { slug: string }) {
           {clubNews.length > 0 && (
             <Card className="p-4 md:p-6">
               <div className="flex items-center gap-2 mb-4">
-                <MessageCircle className="w-5 h-5" style={{ color: clubColor }} />
-                <span className="font-black">{t('news')}</span>
+                <MessageCircle className="size-5" style={{ color: clubColor }} />
+                <span className="font-black text-balance">{t('news')}</span>
               </div>
               <div className="space-y-3">
                 {clubNews.map(news => (
@@ -1403,8 +1403,8 @@ export default function ClubContent({ slug }: { slug: string }) {
             <Card className="p-4 md:p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Vote className="w-5 h-5" style={{ color: clubColor }} />
-                  <span className="font-black">{t('activeVotes')}</span>
+                  <Vote className="size-5" style={{ color: clubColor }} />
+                  <span className="font-black text-balance">{t('activeVotes')}</span>
                 </div>
               </div>
               <div className="space-y-2">
@@ -1433,8 +1433,8 @@ export default function ClubContent({ slug }: { slug: string }) {
           {/* Club Info */}
           <Card className="p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Building2 className="w-5 h-5 text-white/50" />
-              <span className="font-black">{t('clubInfo')}</span>
+              <Building2 className="size-5 text-white/50" />
+              <span className="font-black text-balance">{t('clubInfo')}</span>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
               {club.stadium && (
@@ -1455,7 +1455,7 @@ export default function ClubContent({ slug }: { slug: string }) {
               </div>
               <div className="bg-surface-base rounded-xl p-3">
                 <div className="text-xs text-white/50 mb-1">{t('players')}</div>
-                <div className="font-bold text-sm text-green-500">{players.length}</div>
+                <div className="font-bold tabular-nums text-sm text-green-500">{players.length}</div>
               </div>
             </div>
           </Card>
@@ -1540,13 +1540,13 @@ export default function ClubContent({ slug }: { slug: string }) {
                   key={chip.id}
                   onClick={() => setFixtureFilter(chip.id)}
                   className={cn(
-                    'px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap border transition-all flex items-center gap-1.5',
+                    'px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap border transition-colors flex items-center gap-1.5',
                     fixtureFilter === chip.id
                       ? 'bg-gold/15 text-gold border-gold/30'
                       : 'bg-surface-base text-white/50 border-white/10 hover:border-white/20'
                   )}
                 >
-                  {chip.icon && <chip.icon className="w-3 h-3" />}
+                  {chip.icon && <chip.icon className="size-3" />}
                   {chip.label}
                 </button>
               ))}
@@ -1570,7 +1570,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                           if (next.has(gw)) next.delete(gw); else next.add(gw);
                           return next;
                         })}
-                        className="w-full flex items-center justify-between px-4 py-3 bg-surface-base hover:bg-white/[0.04] transition-all"
+                        className="w-full flex items-center justify-between px-4 py-3 bg-surface-base hover:bg-white/[0.04] transition-colors"
                       >
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-black">{t('fixtureGameweek', { gw })}</span>
@@ -1578,7 +1578,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                             <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-500/15 text-green-500">{t('fixturePlayed')}</span>
                           )}
                         </div>
-                        <ChevronDown className={cn('w-4 h-4 text-white/30 transition-transform', isExpanded && 'rotate-180')} />
+                        <ChevronDown className={cn('size-4 text-white/30 transition-transform', isExpanded && 'rotate-180')} />
                       </button>
                       {isExpanded && (
                         <div className="p-3 space-y-2 border-t border-white/[0.06]">
@@ -1600,12 +1600,12 @@ export default function ClubContent({ slug }: { slug: string }) {
       <Modal title={t('subscription')} open={subModalOpen} onClose={() => { setSubModalOpen(false); setSubError(null); }}>
         <div className="p-6 max-w-lg">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
-              <Crown className="w-5 h-5 text-gold" />
+            <div className="size-10 rounded-xl bg-gold/10 flex items-center justify-center">
+              <Crown className="size-5 text-gold" />
             </div>
             <div>
-              <h3 className="text-lg font-black">{t('subscription')}</h3>
-              <p className="text-xs text-white/40">{club.name} — {t('chooseTier')}</p>
+              <h3 className="text-lg font-black text-balance">{t('subscription')}</h3>
+              <p className="text-xs text-white/40 text-pretty">{club.name} — {t('chooseTier')}</p>
             </div>
           </div>
 
@@ -1619,26 +1619,26 @@ export default function ClubContent({ slug }: { slug: string }) {
               return (
                 <div
                   key={tier}
-                  className={`rounded-xl border p-4 transition-all ${
+                  className={cn('rounded-xl border p-4 transition-colors',
                     isActive
                       ? `border-[${cfg.color}]/40 bg-[${cfg.color}]/10`
                       : 'border-white/10 bg-surface-base hover:border-white/20'
-                  }`}
+                  )}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: `${cfg.color}20`, color: cfg.color }}>
-                        <Crown className="w-3 h-3" />
+                      <div className="size-6 rounded-full flex items-center justify-center" style={{ backgroundColor: `${cfg.color}20`, color: cfg.color }}>
+                        <Crown className="size-3" />
                       </div>
                       <span className="font-black" style={{ color: cfg.color }}>{cfg.label}</span>
                       {isActive && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-500/20 text-green-500">Aktiv</span>}
                     </div>
-                    <span className="font-mono font-bold text-sm">{fmtScout(cfg.priceBsd)} $SCOUT<span className="text-white/30 text-[10px]">/Monat</span></span>
+                    <span className="font-mono font-bold tabular-nums text-sm">{fmtScout(cfg.priceBsd)} $SCOUT<span className="text-white/30 text-[10px]">/Monat</span></span>
                   </div>
                   <ul className="space-y-1 mb-3">
                     {cfg.benefits.map(b => (
                       <li key={b} className="text-xs text-white/50 flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3 h-3 text-green-500 flex-shrink-0" />
+                        <CheckCircle2 className="size-3 text-green-500 flex-shrink-0" />
                         {b}
                       </li>
                     ))}
@@ -1661,7 +1661,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                       onClick={() => handleSubscribe(tier)}
                       disabled={subLoading}
                     >
-                      {subLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('subscribe', { tier: cfg.label })}
+                      {subLoading ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" /> : t('subscribe', { tier: cfg.label })}
                     </Button>
                   )}
                 </div>
