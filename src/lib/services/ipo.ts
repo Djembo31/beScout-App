@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { mapRpcError } from '@/lib/services/trading';
 import type { DbIpo } from '@/types';
 
 // ============================================
@@ -92,7 +93,7 @@ export async function buyFromIpo(
     p_quantity: quantity,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(mapRpcError(error.message));
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'ipo_buy', 'trading', { ipoId, quantity, playerId });

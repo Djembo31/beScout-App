@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Send, Briefcase, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { Send, Briefcase, Loader2, CheckCircle2, XCircle, Lock } from 'lucide-react';
 import { Modal, Card, Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { formatScout } from '@/lib/services/wallet';
@@ -68,7 +68,7 @@ export default function SellModal({
       onClose={onClose}
       title="Verkaufen"
       subtitle={`${player.first} ${player.last}`}
-      footer={availableToSell > 0 ? (
+      footer={availableToSell > 0 && !player.isLiquidated ? (
         <div>
           <Button variant="gold" fullWidth size="lg"
             onClick={handleSell}
@@ -93,6 +93,14 @@ export default function SellModal({
             <div className="bg-red-500/20 border border-red-500/30 text-red-300 rounded-xl px-4 py-3 text-sm font-bold flex items-center gap-2">
               <XCircle className="w-4 h-4" />
               {sellError}
+            </div>
+          )}
+
+          {/* Liquidation Warning */}
+          {player.isLiquidated && (
+            <div className="bg-red-500/20 border border-red-500/30 text-red-300 rounded-xl px-4 py-3 text-sm font-bold flex items-center gap-2">
+              <Lock className="w-4 h-4" />
+              Trading gesperrt — Spieler wurde liquidiert
             </div>
           )}
 
@@ -127,7 +135,7 @@ export default function SellModal({
           </Card>
 
           {/* Sell Form */}
-          {availableToSell > 0 && (
+          {availableToSell > 0 && !player.isLiquidated && (
             <Card className="p-4 space-y-3">
               <span className="font-bold text-sm">Neue Order</span>
 

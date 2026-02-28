@@ -3,6 +3,30 @@ import type { DbOrder, UserTradeWithPlayer, Pos } from '@/types';
 import { toPos } from '@/types';
 
 // ============================================
+// Error Mapping
+// ============================================
+
+/** Map Supabase/RPC error messages to German user-facing messages */
+export function mapRpcError(message: string): string {
+  const lower = message.toLowerCase();
+  if (lower.includes('insufficient balance') || lower.includes('not enough'))
+    return 'Nicht genug $SCOUT-Guthaben.';
+  if (lower.includes('not found') || lower.includes('does not exist'))
+    return 'Spieler oder Order nicht gefunden.';
+  if (lower.includes('already liquidated') || lower.includes('liquidat'))
+    return 'Spieler wurde liquidiert. Trading nicht möglich.';
+  if (lower.includes('exceeds') || lower.includes('limit'))
+    return 'Maximale Kaufmenge überschritten.';
+  if (lower.includes('no open orders') || lower.includes('no matching'))
+    return 'Keine passenden Angebote verfügbar.';
+  if (lower.includes('own order'))
+    return 'Du kannst deine eigene Order nicht kaufen.';
+  if (lower.includes('permission') || lower.includes('denied') || lower.includes('unauthorized'))
+    return 'Keine Berechtigung für diese Aktion.';
+  return message;
+}
+
+// ============================================
 // Types
 // ============================================
 
@@ -45,7 +69,7 @@ export async function buyFromMarket(
     p_quantity: quantity,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(mapRpcError(error.message));
   const result = data as TradeResult;
   // Gamification (stats, missions, airdrop, scores) handled by DB triggers on trades/orders tables
   // Fire-and-forget: referral reward (triggers on first trade by referred user)
@@ -109,7 +133,7 @@ export async function placeSellOrder(
     p_price: priceCents,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(mapRpcError(error.message));
   // Gamification (stats, missions, airdrop) handled by DB triggers on orders table
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
@@ -131,7 +155,7 @@ export async function buyFromOrder(
     p_quantity: quantity,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(mapRpcError(error.message));
   const result = data as TradeResult;
   // Gamification (stats, missions, airdrop, scores) handled by DB triggers on trades table
   // Notify the seller
@@ -174,7 +198,7 @@ export async function cancelOrder(
     p_order_id: orderId,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(mapRpcError(error.message));
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'order_cancel', 'trading', { orderId });
