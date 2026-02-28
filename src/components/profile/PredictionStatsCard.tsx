@@ -36,7 +36,7 @@ export default function PredictionStatsCard({ userId }: PredictionStatsCardProps
         <div className="text-center p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
           <p className={cn(
             'text-lg font-mono font-black',
-            stats.accuracy >= 70 ? 'text-[#22C55E]' : stats.accuracy >= 50 ? 'text-amber-400' : 'text-red-400'
+            stats.accuracy >= 70 ? 'text-green-500' : stats.accuracy >= 50 ? 'text-amber-400' : 'text-red-400'
           )}>
             {stats.accuracy}%
           </p>
@@ -45,7 +45,7 @@ export default function PredictionStatsCard({ userId }: PredictionStatsCardProps
 
         {/* Correct */}
         <div className="text-center p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
-          <p className="text-lg font-mono font-black text-[#22C55E] flex items-center justify-center gap-1">
+          <p className="text-lg font-mono font-black text-green-500 flex items-center justify-center gap-1">
             <CheckCircle className="w-3.5 h-3.5" /> {stats.correct}
           </p>
           <p className="text-[10px] text-white/40 mt-0.5">{t('correct')}</p>
@@ -61,7 +61,7 @@ export default function PredictionStatsCard({ userId }: PredictionStatsCardProps
 
         {/* Streak */}
         <div className="text-center p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
-          <p className="text-lg font-mono font-black text-[#FFD700] flex items-center justify-center gap-1">
+          <p className="text-lg font-mono font-black text-gold flex items-center justify-center gap-1">
             <Flame className="w-3.5 h-3.5" /> {stats.bestStreak}
           </p>
           <p className="text-[10px] text-white/40 mt-0.5">{t('bestStreak')}</p>
@@ -73,7 +73,7 @@ export default function PredictionStatsCard({ userId }: PredictionStatsCardProps
         <span className="text-xs text-white/40">{t('totalPoints')}</span>
         <span className={cn(
           'text-sm font-mono font-bold',
-          stats.totalPoints >= 0 ? 'text-[#22C55E]' : 'text-red-400'
+          stats.totalPoints >= 0 ? 'text-green-500' : 'text-red-400'
         )}>
           {stats.totalPoints >= 0 ? '+' : ''}{stats.totalPoints.toFixed(1)}
         </span>

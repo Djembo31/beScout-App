@@ -95,13 +95,13 @@ export default function ProfilePortfolioTab({ holdings }: ProfilePortfolioTabPro
         <div className="flex items-center justify-between mb-3">
           <div>
             <div className="text-xs text-white/40 mb-1">Portfolio-Wert</div>
-            <div className="text-2xl md:text-3xl font-mono font-black text-[#FFD700]">
+            <div className="text-2xl md:text-3xl font-mono font-black text-gold">
               {formatScout(portfolioValueCents)} $SCOUT
             </div>
           </div>
           <div className="text-right">
             <div className="text-xs text-white/40 mb-1">Wertentwicklung</div>
-            <div className={cn('text-lg font-mono font-bold flex items-center gap-1 justify-end', pnlCents >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]')}>
+            <div className={cn('text-lg font-mono font-bold flex items-center gap-1 justify-end', pnlCents >= 0 ? 'text-vivid-green' : 'text-vivid-red')}>
               {pnlCents >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
               {pnlCents >= 0 ? '+' : ''}{formatScout(pnlCents)} $SCOUT
             </div>
@@ -119,7 +119,7 @@ export default function ProfilePortfolioTab({ holdings }: ProfilePortfolioTabPro
               key={opt.id}
               onClick={() => setSortBy(opt.id)}
               className={`text-xs px-2.5 py-1 rounded-lg transition-colors ${
-                sortBy === opt.id ? 'bg-[#FFD700]/10 text-[#FFD700]' : 'bg-white/5 text-white/40'
+                sortBy === opt.id ? 'bg-gold/10 text-gold' : 'bg-white/5 text-white/40'
               }`}
             >
               {opt.label}

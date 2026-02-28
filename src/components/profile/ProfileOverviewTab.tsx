@@ -60,11 +60,11 @@ interface ProfileOverviewTabProps {
 const EARNING_TYPES: { type: string; label: string; icon: React.ElementType; color: string }[] = [
   { type: 'research_earning', label: 'Berichte', icon: FileText, color: 'text-purple-400' },
   { type: 'bounty_reward', label: 'Bounties', icon: Target, color: 'text-amber-400' },
-  { type: 'fantasy_reward', label: 'Fantasy', icon: Trophy, color: 'text-[#FFD700]' },
+  { type: 'fantasy_reward', label: 'Fantasy', icon: Trophy, color: 'text-gold' },
   { type: 'poll_revenue', label: 'Umfragen', icon: Vote, color: 'text-sky-400' },
   { type: 'mission_reward', label: 'Missionen', icon: Crosshair, color: 'text-emerald-400' },
   { type: 'streak_reward', label: 'Streaks', icon: Flame, color: 'text-orange-400' },
-  { type: 'pbt_liquidation', label: 'PBT', icon: Banknote, color: 'text-[#FFD700]' },
+  { type: 'pbt_liquidation', label: 'PBT', icon: Banknote, color: 'text-gold' },
   { type: 'tip_receive', label: 'Scout-Tipps', icon: Coins, color: 'text-pink-400' },
   { type: 'scout_subscription_earning', label: 'Beratervertrag', icon: UserCheck, color: 'text-indigo-400' },
   { type: 'creator_fund_payout', label: 'Creator Fund', icon: Sparkles, color: 'text-cyan-400' },
@@ -117,9 +117,9 @@ export default function ProfileOverviewTab({
     <>
       {/* Welcome Card for new users */}
       {isSelf && holdings.length === 0 && !earnings && (
-        <Card className="p-5 border-[#FFD700]/20 bg-[#FFD700]/[0.03]">
+        <Card className="p-5 border-gold/20 bg-gold/[0.03]">
           <div className="flex items-start gap-3">
-            <Sparkles className="w-5 h-5 text-[#FFD700] flex-shrink-0 mt-0.5" />
+            <Sparkles className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
             <div>
               <div className="font-bold text-sm">{tp('overviewWelcomeTitle')}</div>
               <div className="text-xs text-white/50 mt-1">{tp('overviewWelcomeDesc')}</div>
@@ -138,7 +138,7 @@ export default function ProfileOverviewTab({
           label="Wertentwicklung"
           value={`${pnlCents >= 0 ? '+' : ''}${formatScout(pnlCents)} $SCOUT`}
           trend={pnlCents >= 0 ? 'up' : 'down'}
-          icon={pnlCents >= 0 ? <TrendingUp className="w-4 h-4 text-[#00E676]" /> : <TrendingDown className="w-4 h-4 text-[#FF3B69]" />}
+          icon={pnlCents >= 0 ? <TrendingUp className="w-4 h-4 text-vivid-green" /> : <TrendingDown className="w-4 h-4 text-vivid-red" />}
         />
         <StatCard label="Spieler" value={holdings.length} />
         <StatCard label="DPCs" value={totalDpcs} />
@@ -149,10 +149,10 @@ export default function ProfileOverviewTab({
         <Card className="p-4 md:p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-black flex items-center gap-2">
-              <Coins className="w-4 h-4 text-[#FFD700]" />
+              <Coins className="w-4 h-4 text-gold" />
               Verdienste
             </h3>
-            <span className="text-sm font-mono font-bold text-[#22C55E]">+{fmtScout(centsToBsd(earnings.total))} $SCOUT</span>
+            <span className="text-sm font-mono font-bold text-green-500">+{fmtScout(centsToBsd(earnings.total))} $SCOUT</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             {EARNING_TYPES.map(et => {
@@ -177,11 +177,11 @@ export default function ProfileOverviewTab({
       {trackRecord && trackRecord.totalCalls > 0 && (
         <Card className="p-4 md:p-6">
           <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="w-5 h-5 text-[#FFD700]" />
+            <BarChart3 className="w-5 h-5 text-gold" />
             <h3 className="font-black">Track Record</h3>
             <div className="flex-1" />
             {trackRecord.totalCalls >= 5 && trackRecord.hitRate >= 60 ? (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/25">
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-gold/15 text-gold border border-gold/25">
                 <Shield className="w-3 h-3" />
                 Verifizierter Scout
               </span>
@@ -201,7 +201,7 @@ export default function ProfileOverviewTab({
             <div className="text-center">
               <div className={cn(
                 'text-3xl font-mono font-black',
-                trackRecord.hitRate >= 60 ? 'text-[#FFD700]' : trackRecord.hitRate >= 40 ? 'text-white' : 'text-red-400'
+                trackRecord.hitRate >= 60 ? 'text-gold' : trackRecord.hitRate >= 40 ? 'text-white' : 'text-red-400'
               )}>
                 {trackRecord.hitRate}%
               </div>
@@ -213,13 +213,13 @@ export default function ProfileOverviewTab({
               </div>
               <div className="w-40 h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#FFD700] to-[#22C55E] rounded-full transition-all"
+                  className="h-full bg-gradient-to-r from-gold to-green-500 rounded-full transition-all"
                   style={{ width: `${trackRecord.hitRate}%` }}
                 />
               </div>
               <div className="flex items-center gap-3 mt-2 text-xs text-white/50">
                 <span className="flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3 text-[#22C55E]" />
+                  <CheckCircle className="w-3 h-3 text-green-500" />
                   {trackRecord.correctCalls}
                 </span>
                 <span className="flex items-center gap-1">
@@ -246,12 +246,12 @@ export default function ProfileOverviewTab({
         return (
           <Card className="p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <CircleDollarSign className="w-5 h-5 text-[#22C55E]" />
+              <CircleDollarSign className="w-5 h-5 text-green-500" />
               <h3 className="font-black">Research-Einnahmen</h3>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-3 bg-[#22C55E]/5 border border-[#22C55E]/10 rounded-xl">
-                <div className="text-2xl font-mono font-black text-[#22C55E]">{fmtScout(centsToBsd(totalEarned))}</div>
+              <div className="text-center p-3 bg-green-500/5 border border-green-500/10 rounded-xl">
+                <div className="text-2xl font-mono font-black text-green-500">{fmtScout(centsToBsd(totalEarned))}</div>
                 <div className="text-[10px] text-white/40 mt-1">$SCOUT verdient</div>
               </div>
               <div className="text-center p-3 bg-surface-base border border-white/[0.06] rounded-xl">
@@ -259,7 +259,7 @@ export default function ProfileOverviewTab({
                 <div className="text-[10px] text-white/40 mt-1">Verkäufe</div>
               </div>
               <div className="text-center p-3 bg-surface-base border border-white/[0.06] rounded-xl">
-                <div className="text-2xl font-mono font-black text-[#FFD700]">{avgRating > 0 ? avgRating.toFixed(1) : '-'}</div>
+                <div className="text-2xl font-mono font-black text-gold">{avgRating > 0 ? avgRating.toFixed(1) : '-'}</div>
                 <div className="text-[10px] text-white/40 mt-1 flex items-center justify-center gap-0.5">
                   <Star className="w-3 h-3" /> Ø Bewertung
                 </div>
@@ -295,8 +295,8 @@ export default function ProfileOverviewTab({
                       </div>
                       <div className="text-xs text-white/40 mb-1">{h.player.club} · {h.quantity}x</div>
                       <div className="flex items-center justify-between">
-                        <span className="font-mono font-bold text-[#FFD700] text-sm">{fmtScout(centsToBsd(valueCents))}</span>
-                        <span className={cn('text-xs font-mono', pnl >= 0 ? 'text-[#22C55E]' : 'text-red-400')}>
+                        <span className="font-mono font-bold text-gold text-sm">{fmtScout(centsToBsd(valueCents))}</span>
+                        <span className={cn('text-xs font-mono', pnl >= 0 ? 'text-green-500' : 'text-red-400')}>
                           {pnl >= 0 ? '+' : ''}{fmtScout(centsToBsd(pnl))}
                         </span>
                       </div>
@@ -323,7 +323,7 @@ export default function ProfileOverviewTab({
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold truncate max-w-[140px]">{playerName}</span>
                   </div>
-                  <span className="px-2 py-0.5 rounded-lg bg-[#FFD700]/15 text-[#FFD700] text-[10px] font-black border border-[#FFD700]/25">
+                  <span className="px-2 py-0.5 rounded-lg bg-gold/15 text-gold text-[10px] font-black border border-gold/25">
                     {tg('mastery.level', { level: m.level })} — {tg(`mastery.level${m.level}`)}
                   </span>
                 </div>
@@ -357,11 +357,11 @@ export default function ProfileOverviewTab({
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {visibleItems.map(({ key, def, isUnlocked, isHidden }) => isHidden ? (
-                <div key={key} className="p-3 bg-[#FFD700]/[0.04] rounded-xl border border-[#FFD700]/15">
+                <div key={key} className="p-3 bg-gold/[0.04] rounded-xl border border-gold/15">
                   <div className="text-xl mb-1">{def.icon}</div>
-                  <div className="text-sm font-bold text-[#FFD700]">{def.label}</div>
+                  <div className="text-sm font-bold text-gold">{def.label}</div>
                   <div className="text-[10px] text-white/40 mt-0.5">{def.description}</div>
-                  <div className="text-[9px] text-[#FFD700]/50 mt-1 uppercase tracking-wider font-bold">{tg('achievement.hidden')}</div>
+                  <div className="text-[9px] text-gold/50 mt-1 uppercase tracking-wider font-bold">{tg('achievement.hidden')}</div>
                 </div>
               ) : (
                 <div key={key} className={cn(
@@ -415,7 +415,7 @@ export default function ProfileOverviewTab({
                   <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors">
                     <div className={cn(
                       'flex items-center justify-center w-8 h-8 rounded-lg shrink-0',
-                      isBuy ? 'text-[#FFD700] bg-[#FFD700]/10' : 'text-[#22C55E] bg-[#22C55E]/10'
+                      isBuy ? 'text-gold bg-gold/10' : 'text-green-500 bg-green-500/10'
                     )}>
                       {isBuy ? <ArrowDownRight className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
                     </div>
@@ -427,7 +427,7 @@ export default function ProfileOverviewTab({
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className={cn(
                           'px-1.5 py-0.5 rounded text-[10px] font-bold',
-                          isBuy ? 'bg-[#FFD700]/15 text-[#FFD700]' : 'bg-[#22C55E]/15 text-[#22C55E]'
+                          isBuy ? 'bg-gold/15 text-gold' : 'bg-green-500/15 text-green-500'
                         )}>
                           {isBuy ? 'Kauf' : 'Verkauf'}
                         </span>
@@ -435,7 +435,7 @@ export default function ProfileOverviewTab({
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <div className={cn('text-sm font-mono font-bold', isBuy ? 'text-white' : 'text-[#22C55E]')}>
+                      <div className={cn('text-sm font-mono font-bold', isBuy ? 'text-white' : 'text-green-500')}>
                         {isBuy ? '-' : '+'}{fmtScout(centsToBsd(totalCents))} $SCOUT
                       </div>
                       <div className="text-[10px] text-white/30 font-mono">à {fmtScout(unitBsd)}</div>
@@ -474,13 +474,13 @@ export default function ProfileOverviewTab({
               <div className="text-[10px] text-white/40">Avg Score</div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-mono font-black text-[#FFD700]">
+              <div className="text-lg font-mono font-black text-gold">
                 #{Math.min(...fantasyResults.filter(r => r.rank > 0).map(r => r.rank))}
               </div>
               <div className="text-[10px] text-white/40">Bester Rang</div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-mono font-black text-[#22C55E]">
+              <div className="text-lg font-mono font-black text-green-500">
                 {fmtScout(centsToBsd(fantasyResults.reduce((s, r) => s + r.rewardAmount, 0)))}
               </div>
               <div className="text-[10px] text-white/40">Gewonnen</div>
@@ -489,8 +489,8 @@ export default function ProfileOverviewTab({
           {/* Event List */}
           <div className="space-y-1">
             {fantasyResults.map((result) => {
-              const rankColor = result.rank === 1 ? 'text-[#FFD700]' : result.rank === 2 ? 'text-zinc-300' : result.rank === 3 ? 'text-amber-600' : 'text-white/50';
-              const scoreColor = result.totalScore >= 100 ? 'text-[#FFD700]' : result.totalScore >= 70 ? 'text-white' : 'text-red-400';
+              const rankColor = result.rank === 1 ? 'text-gold' : result.rank === 2 ? 'text-zinc-300' : result.rank === 3 ? 'text-amber-600' : 'text-white/50';
+              const scoreColor = result.totalScore >= 100 ? 'text-gold' : result.totalScore >= 70 ? 'text-white' : 'text-red-400';
               return (
                 <div key={result.eventId} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors">
                   <div className={cn('flex items-center justify-center w-8 h-8 rounded-lg shrink-0', rankColor, 'bg-white/5')}>
@@ -514,7 +514,7 @@ export default function ProfileOverviewTab({
                     </div>
                     {result.rewardAmount > 0 && (
                       <div className="text-right">
-                        <div className="text-sm font-mono font-bold text-[#22C55E]">+{fmtScout(centsToBsd(result.rewardAmount))}</div>
+                        <div className="text-sm font-mono font-bold text-green-500">+{fmtScout(centsToBsd(result.rewardAmount))}</div>
                         <div className="text-[10px] text-white/30">$SCOUT</div>
                       </div>
                     )}
@@ -553,7 +553,7 @@ export default function ProfileOverviewTab({
                     </div>
                     <div className="text-right">
                       <div className="font-mono font-bold">{h.quantity} DPC</div>
-                      <div className={`text-xs font-mono ${holdingPnl >= 0 ? 'text-[#22C55E]' : 'text-red-300'}`}>
+                      <div className={`text-xs font-mono ${holdingPnl >= 0 ? 'text-green-500' : 'text-red-300'}`}>
                         {holdingPnl >= 0 ? '+' : ''}{fmtScout(Math.round(holdingPnl))} $SCOUT
                       </div>
                     </div>

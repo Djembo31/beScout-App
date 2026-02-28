@@ -240,7 +240,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
       {/* Header â€” Sorare-Style */}
       <div className="flex items-start gap-4 md:gap-5">
         {/* Avatar â€” 96px */}
-        <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#FFD700]/20 to-[#22C55E]/20 border-2 border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+        <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-gold/20 to-green-500/20 border-2 border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
           {targetProfile.avatar_url ? (
             <img src={targetProfile.avatar_url} alt="" className="w-full h-full object-cover" />
           ) : (
@@ -250,15 +250,15 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-xl md:text-3xl font-black truncate">{name}</h1>
-            {targetProfile.verified && <BadgeCheck className="w-5 h-5 md:w-6 md:h-6 text-[#FFD700] flex-shrink-0" />}
-            <Chip className="bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/25">{userPlan}</Chip>
+            {targetProfile.verified && <BadgeCheck className="w-5 h-5 md:w-6 md:h-6 text-gold flex-shrink-0" />}
+            <Chip className="bg-gold/15 text-gold border-gold/25">{userPlan}</Chip>
           </div>
           <div className="text-sm md:text-base text-white/50">{userHandle}</div>
 
           {/* Portfolio Value â€” Hero */}
           {(isSelf || portfolioValueCents > 0) && (
             <div className="mt-1">
-              <span className="text-2xl md:text-3xl font-mono font-black text-[#FFD700]">
+              <span className="text-2xl md:text-3xl font-mono font-black text-gold">
                 {fmtScout(centsToBsd(portfolioValueCents))} $SCOUT
               </span>
               <span className="text-xs text-white/30 ml-2">Portfolio-Wert</span>
@@ -277,7 +277,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                 <div className="flex items-center gap-1.5 mb-1">
                   <MessageCircle className="w-3 h-3 text-sky-400" />
                   <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400">Top Beitrag</span>
-                  <span className="flex items-center gap-0.5 ml-auto text-[10px] font-mono font-bold text-[#22C55E]">
+                  <span className="flex items-center gap-0.5 ml-auto text-[10px] font-mono font-bold text-green-500">
                     <ArrowUp className="w-3 h-3" />
                     {topPost.upvotes - topPost.downvotes}
                   </span>
@@ -338,7 +338,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                 <span className="font-mono font-bold text-white/70">{scoutingStats.reportCount}</span> Berichte
               </span>
               {scoutingStats.totalCalls >= 5 && (
-                <span className={cn('inline-flex items-center gap-1', scoutingStats.hitRate >= 60 ? 'text-[#FFD700]' : '')}>
+                <span className={cn('inline-flex items-center gap-1', scoutingStats.hitRate >= 60 ? 'text-gold' : '')}>
                   <TargetIcon className="w-3.5 h-3.5" />
                   <span className="font-mono font-bold">{scoutingStats.hitRate}%</span> Hit-Rate
                 </span>
@@ -350,7 +350,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                 </span>
               )}
               {scoutingStats.approvedBounties > 0 && (
-                <span className="inline-flex items-center gap-1 text-[#22C55E]">
+                <span className="inline-flex items-center gap-1 text-green-500">
                   <CheckCircle className="w-3.5 h-3.5" />
                   <span className="font-mono font-bold">{scoutingStats.approvedBounties}</span> genehmigt
                 </span>
@@ -414,11 +414,11 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`px-2.5 md:px-5 py-2.5 md:py-3 text-xs md:text-base font-semibold transition-all relative whitespace-nowrap flex-shrink-0 ${
-              tab === t.id ? 'text-[#FFD700]' : 'text-white/60 hover:text-white'
+              tab === t.id ? 'text-gold' : 'text-white/60 hover:text-white'
             }`}
           >
             {tp(t.id)}
-            {tab === t.id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FFD700]" />}
+            {tab === t.id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold" />}
           </button>
         ))}
       </div>
@@ -430,9 +430,9 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           {isSelf && (
             <Card className="p-4 md:p-6">
               <h3 className="font-black mb-4">Guthaben</h3>
-              <div className="text-2xl md:text-3xl font-mono font-black text-[#FFD700] mb-2">
+              <div className="text-2xl md:text-3xl font-mono font-black text-gold mb-2">
                 {balanceCents === null ? (
-                  <span className="inline-block w-24 h-8 rounded bg-[#FFD700]/10 animate-pulse" />
+                  <span className="inline-block w-24 h-8 rounded bg-gold/10 animate-pulse" />
                 ) : (
                   <>{formatScout(balanceCents)} $SCOUT</>
                 )}
@@ -469,11 +469,11 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-2xl font-mono font-black text-[#FFD700]">{userStats?.total_score ?? 0}</span>
+                <span className="text-2xl font-mono font-black text-gold">{userStats?.total_score ?? 0}</span>
                 <span className="text-white/30 text-sm ml-1">Pkt</span>
               </div>
               {userStats && userStats.rank > 0 && (
-                <Chip className="bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/25">
+                <Chip className="bg-gold/15 text-gold border-gold/25">
                   Rang #{userStats.rank}
                 </Chip>
               )}
@@ -553,7 +553,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
 
           {holdingsLoading && !dataError && (
             <div className="flex justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-[#FFD700]" />
+              <Loader2 className="w-8 h-8 animate-spin text-gold" />
             </div>
           )}
 

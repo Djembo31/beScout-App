@@ -96,7 +96,7 @@ export default function ProfileActivityTab({ transactions: initial, userId, isSe
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className={cn(
                         'text-xs font-mono font-bold',
-                        positive ? 'text-[#22C55E]' : 'text-white/40'
+                        positive ? 'text-green-500' : 'text-white/40'
                       )}>
                         {positive ? '+' : ''}{formatScout(tx.amount)} $SCOUT
                       </span>

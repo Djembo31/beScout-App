@@ -173,7 +173,7 @@ function SettingsTab() {
         {/* Avatar Upload */}
         <div className="flex items-center gap-4 mb-6">
           <div className="relative group">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FFD700]/20 to-[#22C55E]/20 border border-white/10 flex items-center justify-center overflow-hidden">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold/20 to-green-500/20 border border-white/10 flex items-center justify-center overflow-hidden">
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
               ) : (
@@ -209,14 +209,14 @@ function SettingsTab() {
                 'bg-white/5 border',
                 'placeholder:text-white/30 text-white',
                 'focus:outline-none transition-all',
-                handleStatus === 'available' && 'border-[#22C55E]/40',
+                handleStatus === 'available' && 'border-green-500/40',
                 (handleStatus === 'taken' || handleStatus === 'invalid') && 'border-red-400/40',
-                (handleStatus === 'idle' || handleStatus === 'checking' || handleStatus === 'unchanged') && 'border-white/10 focus:border-[#FFD700]/40'
+                (handleStatus === 'idle' || handleStatus === 'checking' || handleStatus === 'unchanged') && 'border-white/10 focus:border-gold/40'
               )}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
               {handleStatus === 'checking' && <Loader2 className="w-4 h-4 text-white/40 animate-spin" />}
-              {handleStatus === 'available' && <Check className="w-4 h-4 text-[#22C55E]" />}
+              {handleStatus === 'available' && <Check className="w-4 h-4 text-green-500" />}
               {handleStatus === 'taken' && <X className="w-4 h-4 text-red-400" />}
               {handleStatus === 'invalid' && <X className="w-4 h-4 text-red-400" />}
             </div>
@@ -233,7 +233,7 @@ function SettingsTab() {
             value={displayNameVal}
             onChange={(e) => setDisplayNameVal(e.target.value.slice(0, 50))}
             placeholder={t('displayNamePlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 placeholder:text-white/30 text-white focus:outline-none focus:border-[#FFD700]/40 transition-all"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 placeholder:text-white/30 text-white focus:outline-none focus:border-gold/40 transition-all"
           />
         </div>
 
@@ -250,7 +250,7 @@ function SettingsTab() {
             onChange={(e) => setBio(e.target.value.slice(0, 160))}
             rows={3}
             placeholder={t('bioPlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 placeholder:text-white/30 text-white focus:outline-none focus:border-[#FFD700]/40 transition-all resize-none"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 placeholder:text-white/30 text-white focus:outline-none focus:border-gold/40 transition-all resize-none"
           />
         </div>
 
@@ -260,7 +260,7 @@ function SettingsTab() {
           <select
             value={favoriteClub}
             onChange={(e) => setFavoriteClub(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-[#FFD700]/40 transition-all"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-gold/40 transition-all"
           >
             <option value="">{t('favoriteClubNone')}</option>
             {getAllClubsCached().map((club) => (
@@ -272,7 +272,7 @@ function SettingsTab() {
         {profileMsg && (
           <div className={cn(
             'flex items-center gap-2 p-3 mb-4 rounded-xl border text-sm',
-            profileMsg.type === 'success' ? 'bg-[#22C55E]/10 border-[#22C55E]/20 text-[#22C55E]' : 'bg-red-500/10 border-red-400/20 text-red-200'
+            profileMsg.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-400/20 text-red-200'
           )}>
             {profileMsg.type === 'success' ? <Check className="w-4 h-4 shrink-0" /> : <X className="w-4 h-4 shrink-0" />}
             {profileMsg.text}
@@ -307,7 +307,7 @@ function SettingsTab() {
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value as 'de' | 'tr' | 'en')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-[#FFD700]/40 transition-all"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-gold/40 transition-all"
           >
             <option value="de">{t('languageDe')}</option>
             <option value="tr">{t('languageTr')}</option>
@@ -318,7 +318,7 @@ function SettingsTab() {
         {accountMsg && (
           <div className={cn(
             'flex items-center gap-2 p-3 mb-4 rounded-xl border text-sm',
-            accountMsg.type === 'success' ? 'bg-[#22C55E]/10 border-[#22C55E]/20 text-[#22C55E]' : 'bg-red-500/10 border-red-400/20 text-red-200'
+            accountMsg.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-400/20 text-red-200'
           )}>
             {accountMsg.type === 'success' ? <Check className="w-4 h-4 shrink-0" /> : <X className="w-4 h-4 shrink-0" />}
             {accountMsg.text}
@@ -333,7 +333,7 @@ function SettingsTab() {
       {/* Notification Preferences */}
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-1">
-          <Bell className="w-4 h-4 text-[#FFD700]" />
+          <Bell className="w-4 h-4 text-gold" />
           <h3 className="font-black text-lg">{t('notificationPrefs')}</h3>
         </div>
         <p className="text-xs text-white/40 mb-5">{t('notificationPrefsDesc')}</p>
@@ -369,7 +369,7 @@ function SettingsTab() {
                   <div
                     className={cn(
                       'w-11 h-6 rounded-full relative transition-colors shrink-0',
-                      notifPrefs[key] ? 'bg-[#FFD700]' : 'bg-white/10'
+                      notifPrefs[key] ? 'bg-gold' : 'bg-white/10'
                     )}
                   >
                     <div

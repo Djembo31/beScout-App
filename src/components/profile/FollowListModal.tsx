@@ -127,7 +127,7 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
                     className={`text-xs px-2.5 py-1 rounded-lg transition-colors ${
                       isFollowingThem
                         ? 'bg-white/10 text-white/40 hover:bg-red-500/10 hover:text-red-400'
-                        : 'bg-[#FFD700]/10 text-[#FFD700] hover:bg-[#FFD700]/20'
+                        : 'bg-gold/10 text-gold hover:bg-gold/20'
                     }`}
                   >
                     {toggling === p.userId ? (
