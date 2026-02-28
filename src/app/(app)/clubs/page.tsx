@@ -80,10 +80,10 @@ export default function ClubsDiscoveryPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <Compass className="w-6 h-6 text-gold" />
-          <h1 className="text-2xl font-black">Clubs entdecken</h1>
+          <Compass className="size-6 text-gold" />
+          <h1 className="text-2xl font-black text-balance">Clubs entdecken</h1>
         </div>
-        <p className="text-sm text-white/50">Folge Clubs um ihre Spieler zu traden, an Events teilzunehmen und in der Community mitzureden.</p>
+        <p className="text-sm text-white/50 text-pretty">Folge Clubs um ihre Spieler zu traden, an Events teilzunehmen und in der Community mitzureden.</p>
       </div>
 
       {/* Search */}
@@ -116,7 +116,7 @@ export default function ClubsDiscoveryPage() {
       {/* Club Grid by League */}
       {!loading && Array.from(grouped.entries()).map(([league, leagueClubs]) => (
         <div key={league}>
-          <h2 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-3">{league}</h2>
+          <h2 className="text-sm font-bold text-white/60 uppercase text-balance mb-3">{league}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {leagueClubs.map((club) => {
               const color = club.primary_color ?? '#FFD700';
@@ -128,18 +128,18 @@ export default function ClubsDiscoveryPage() {
                 <Card
                   key={club.id}
                   className={cn(
-                    'p-4 transition-all hover:border-white/20',
+                    'p-4 transition-colors hover:border-white/20',
                     isActive && 'ring-1 ring-gold/30'
                   )}
                 >
                   <div className="flex items-start gap-3">
                     {/* Club Logo */}
                     <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-sm font-black"
+                      className="size-12 rounded-xl flex items-center justify-center flex-shrink-0 text-sm font-black"
                       style={{ backgroundColor: `${color}15`, color }}
                     >
                       {club.logo_url ? (
-                        <img src={club.logo_url} alt="" className="w-8 h-8 object-contain" />
+                        <img src={club.logo_url} alt="" className="size-8 object-contain" />
                       ) : (
                         club.short?.slice(0, 3)
                       )}
@@ -156,15 +156,15 @@ export default function ClubsDiscoveryPage() {
                         {club.city && <span>{club.city}</span>}
                         {club.is_verified && (
                           <span className="flex items-center gap-0.5 text-gold">
-                            <Shield className="w-3 h-3" /> Verifiziert
+                            <Shield className="size-3" /> Verifiziert
                           </span>
                         )}
                       </div>
 
                       {/* Stats */}
                       <div className="flex items-center gap-4 mt-2 text-xs text-white/50">
-                        <span className="flex items-center gap-1">
-                          <Users className="w-3 h-3" />
+                        <span className="flex items-center gap-1 tabular-nums">
+                          <Users className="size-3" />
                           {club.follower_count} Fans
                         </span>
                         <span>{club.player_count} Spieler</span>
@@ -177,8 +177,8 @@ export default function ClubsDiscoveryPage() {
                     const nf = nextFixtures.get(club.id)!;
                     return (
                       <div className="flex items-center gap-2 mt-2 px-2 py-1.5 bg-white/[0.02] rounded-lg text-xs text-white/50">
-                        <Calendar className="w-3 h-3 text-green-500 flex-shrink-0" />
-                        <span className="font-mono text-white/30">GW {nf.gameweek}</span>
+                        <Calendar className="size-3 text-green-500 flex-shrink-0" />
+                        <span className="font-mono tabular-nums text-white/30">GW {nf.gameweek}</span>
                         <span className={cn('px-1 py-0.5 rounded text-[9px] font-bold', nf.isHome ? 'bg-green-500/10 text-green-500' : 'bg-sky-500/10 text-sky-400')}>
                           {nf.isHome ? 'H' : 'A'}
                         </span>
@@ -197,9 +197,9 @@ export default function ClubsDiscoveryPage() {
                       onClick={() => handleToggleFollow(club)}
                     >
                       {following ? (
-                        <><UserMinus className="w-3.5 h-3.5" /> Entfolgen</>
+                        <><UserMinus className="size-3.5" /> Entfolgen</>
                       ) : (
-                        <><UserPlus className="w-3.5 h-3.5" /> Folgen</>
+                        <><UserPlus className="size-3.5" /> Folgen</>
                       )}
                     </Button>
                     {following && !isActive && (
