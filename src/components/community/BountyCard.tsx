@@ -13,7 +13,7 @@ const TIER_LABELS: Record<string, string> = { bronze: 'Bronze', silber: 'Silber'
 const TIER_COLORS: Record<string, string> = {
   bronze: 'text-orange-300 bg-orange-500/15 border-orange-500/20',
   silber: 'text-gray-300 bg-white/10 border-white/20',
-  gold: 'text-[#FFD700] bg-[#FFD700]/15 border-[#FFD700]/20',
+  gold: 'text-gold bg-gold/15 border-gold/20',
 };
 
 const EMPTY_EVALUATION: ScoutingEvaluation = {
@@ -119,8 +119,8 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
           {/* Info row */}
           <div className="flex items-center justify-between text-sm mb-4">
             <div className="flex items-center gap-1.5">
-              <Coins className="w-4 h-4 text-[#FFD700]" />
-              <span className="text-[#FFD700] font-bold">{formatScout(bounty.reward_cents)} $SCOUT</span>
+              <Coins className="w-4 h-4 text-gold" />
+              <span className="text-gold font-bold">{formatScout(bounty.reward_cents)} $SCOUT</span>
             </div>
             <div className="flex items-center gap-1.5 text-white/50">
               <Users className="w-4 h-4" />
@@ -130,7 +130,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
 
           {/* Action */}
           {hasSubmitted && (
-            <Chip className="bg-[#22C55E]/15 text-[#22C55E] border-[#22C55E]/25">
+            <Chip className="bg-green-500/15 text-green-500 border-green-500/25">
               <CheckCircle className="w-3 h-3 inline mr-1" />
               {tb('submitted')}
             </Chip>
@@ -170,7 +170,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
           <div className="text-sm text-white/50 mb-2">
             <span className="font-bold text-white">{bounty.title}</span>
             <span className="mx-2">&bull;</span>
-            <span className="text-[#FFD700] font-bold">{formatScout(bounty.reward_cents)} $SCOUT</span>
+            <span className="text-gold font-bold">{formatScout(bounty.reward_cents)} $SCOUT</span>
           </div>
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">{tb('title')}</label>
@@ -179,7 +179,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
               value={title}
               onChange={(e) => setTitle(e.target.value.slice(0, 200))}
               placeholder={tb('titlePlaceholder')}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40"
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
             />
           </div>
 
@@ -203,7 +203,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
               onChange={(e) => setContent(e.target.value.slice(0, 10000))}
               rows={6}
               placeholder={isScouting ? tb('contentScoutingPlaceholder') : tb('contentGeneralPlaceholder')}
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none"
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
             />
             <div className="text-[10px] text-white/30 mt-1">{tb('charCount', { count: content.length })}</div>
           </div>

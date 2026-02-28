@@ -20,7 +20,7 @@ interface CommunitySidebarProps {
 }
 
 const callColor: Record<string, string> = {
-  Bullish: 'bg-[#22C55E]/20 text-[#22C55E]',
+  Bullish: 'bg-green-500/20 text-green-500',
   Bearish: 'bg-red-500/20 text-red-400',
   Neutral: 'bg-zinc-500/20 text-zinc-300',
 };
@@ -85,10 +85,10 @@ export default function CommunitySidebar({
       <Card className="p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-[#FFD700]" />
+            <Trophy className="w-4 h-4 text-gold" />
             <span className="font-bold text-sm">Top Scouts</span>
           </div>
-          <Link href="/community?tab=ranking" className="text-xs text-[#FFD700] hover:underline">
+          <Link href="/community?tab=ranking" className="text-xs text-gold hover:underline">
             {t('sidebar.showAll')}
           </Link>
         </div>
@@ -108,7 +108,7 @@ export default function CommunitySidebar({
               <Link key={scout.userId} href={`/profile/${scout.handle}`} className="flex items-center gap-3 py-1.5 hover:bg-white/[0.03] rounded-lg px-1 -mx-1 transition-colors">
                 <span className={cn(
                   'w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black',
-                  i === 0 ? 'bg-[#FFD700]/20 text-[#FFD700]' : 'bg-white/5 text-white/50'
+                  i === 0 ? 'bg-gold/20 text-gold' : 'bg-white/5 text-white/50'
                 )}>
                   {i + 1}
                 </span>
@@ -125,7 +125,7 @@ export default function CommunitySidebar({
                     )}
                   </div>
                 </div>
-                <span className="text-xs font-mono text-[#FFD700]">{scout.analystScore}</span>
+                <span className="text-xs font-mono text-gold">{scout.analystScore}</span>
               </Link>
             );
           })}

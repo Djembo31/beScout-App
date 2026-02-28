@@ -118,7 +118,7 @@ export default function CommunityResearchTab({
               className={cn(
                 'px-3 py-2 rounded-lg text-xs font-semibold transition-all border',
                 researchSort === s.id
-                  ? 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/25'
+                  ? 'bg-gold/15 text-gold border-gold/25'
                   : 'text-white/50 hover:text-white bg-white/5 border-white/10'
               )}
             >

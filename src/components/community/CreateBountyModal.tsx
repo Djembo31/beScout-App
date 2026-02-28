@@ -69,8 +69,8 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
       footer={
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-1.5 text-xs text-white/40">
-            <Coins className="w-3.5 h-3.5 text-[#FFD700]" />
-            <span>{t('common.balance', { defaultMessage: 'Guthaben' })}: <span className="text-[#FFD700] font-bold">{formatScout(availableCents)} $SCOUT</span></span>
+            <Coins className="w-3.5 h-3.5 text-gold" />
+            <span>{t('common.balance', { defaultMessage: 'Guthaben' })}: <span className="text-gold font-bold">{formatScout(availableCents)} $SCOUT</span></span>
           </div>
           <Button
             variant="gold"
@@ -92,7 +92,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
             value={title}
             onChange={(e) => setTitle(e.target.value.slice(0, 200))}
             placeholder={t('createBounty.titlePlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 text-base"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 text-base"
           />
         </div>
 
@@ -104,7 +104,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
             onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
             rows={4}
             placeholder={t('createBounty.descPlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none text-base"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none text-base"
           />
           <div className="text-[10px] text-white/30 mt-1">{description.length}/2000</div>
         </div>
@@ -122,9 +122,9 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
                 setRewardScout(v);
               }}
               placeholder="50"
-              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 pr-20 text-base"
+              className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 pr-20 text-base"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#FFD700] font-bold">$SCOUT</span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gold font-bold">$SCOUT</span>
           </div>
           {rewardCents > 0 && rewardCents < MIN_REWARD && (
             <div className="text-[10px] text-red-400 mt-1">{t('createBounty.minReward')}</div>
@@ -144,7 +144,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
                 onClick={() => setDeadlineDays(opt.days)}
                 className={`flex-1 py-2 rounded-xl text-xs font-semibold border transition-all min-h-[44px] ${
                   deadlineDays === opt.days
-                    ? 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30'
+                    ? 'bg-gold/15 text-gold border-gold/30'
                     : 'bg-white/[0.02] text-white/40 border-white/10 hover:text-white/60'
                 }`}
               >
@@ -164,7 +164,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
                 onClick={() => setMaxSubmissions(n)}
                 className={`flex-1 py-2 rounded-xl text-xs font-semibold border transition-all min-h-[44px] ${
                   maxSubmissions === n
-                    ? 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30'
+                    ? 'bg-gold/15 text-gold border-gold/30'
                     : 'bg-white/[0.02] text-white/40 border-white/10 hover:text-white/60'
                 }`}
               >

@@ -124,7 +124,7 @@ export default function CreatePostModal({
                 className={cn(
                   'flex-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all border text-center',
                   postType === pt.id
-                    ? pt.id === 'transfer_rumor' ? 'bg-red-500/15 text-red-300 border-red-500/20' : 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/25'
+                    ? pt.id === 'transfer_rumor' ? 'bg-red-500/15 text-red-300 border-red-500/20' : 'bg-gold/15 text-gold border-gold/25'
                     : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
                 )}
               >
@@ -144,7 +144,7 @@ export default function CreatePostModal({
             onKeyDown={(e) => { if (e.key === 'Escape') setPlayerDropdownOpen(false); }}
             placeholder={playerId ? players.find(p => p.id === playerId)?.name ?? 'Spieler suchen...' : 'Spieler suchen...'}
             className={cn(
-              'w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40',
+              'w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40',
               playerId && !playerSearch && 'text-white/70'
             )}
           />
@@ -158,7 +158,7 @@ export default function CreatePostModal({
             </button>
           )}
           {playerDropdownOpen && (
-            <div className="absolute z-20 mt-1 w-full max-h-48 overflow-y-auto rounded-xl bg-[#1a1a1a] border border-white/10 shadow-xl">
+            <div className="absolute z-20 mt-1 w-full max-h-48 overflow-y-auto rounded-xl bg-surface-popover border border-white/10 shadow-xl">
               <button
                 type="button"
                 onClick={() => { setPlayerId(''); setPlayerSearch(''); setPlayerDropdownOpen(false); }}
@@ -176,7 +176,7 @@ export default function CreatePostModal({
                     onClick={() => { setPlayerId(p.id); setPlayerSearch(p.name); setPlayerDropdownOpen(false); }}
                     className={cn(
                       'w-full px-4 py-2 text-left text-sm hover:bg-white/5 flex items-center justify-between',
-                      playerId === p.id ? 'text-[#FFD700]' : 'text-white/80'
+                      playerId === p.id ? 'text-gold' : 'text-white/80'
                     )}
                   >
                     <span>{p.name}</span>
@@ -200,7 +200,7 @@ export default function CreatePostModal({
             onChange={(e) => setContent(e.target.value.slice(0, 500))}
             rows={4}
             placeholder="Was denkst du?"
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
           />
         </div>
 
@@ -211,7 +211,7 @@ export default function CreatePostModal({
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             placeholder="z.B. Form, Value, Tactics"
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
           />
         </div>
 

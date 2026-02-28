@@ -126,7 +126,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
                     {/* Author line */}
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="font-bold text-xs">{reply.author_display_name || reply.author_handle}</span>
-                      {reply.author_verified && <BadgeCheck className="w-3 h-3 text-[#FFD700]" />}
+                      {reply.author_verified && <BadgeCheck className="w-3 h-3 text-gold" />}
                       <span className="text-[10px] text-white/30 px-1 py-0.5 bg-white/5 rounded">Lv{reply.author_level}</span>
                       <span className="text-[10px] text-white/30">{formatTimeAgo(reply.created_at)}</span>
                     </div>
@@ -142,14 +142,14 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
                         className={cn(
                           'flex items-center gap-0.5 transition-colors',
                           votingId === reply.id ? 'opacity-50' : '',
-                          myVote === 1 ? 'text-[#22C55E]' : 'hover:text-[#22C55E]'
+                          myVote === 1 ? 'text-green-500' : 'hover:text-green-500'
                         )}
                       >
                         <ArrowUp className="w-3 h-3" />
                       </button>
                       <span className={cn(
                         'font-mono text-[11px]',
-                        netScore > 0 ? 'text-[#22C55E]' : netScore < 0 ? 'text-red-300' : 'text-white/30'
+                        netScore > 0 ? 'text-green-500' : netScore < 0 ? 'text-red-300' : 'text-white/30'
                       )}>
                         {netScore}
                       </span>
@@ -196,7 +196,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
                 onChange={(e) => setReplyText(e.target.value.slice(0, 300))}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
                 placeholder="Antwort schreiben..."
-                className="w-full px-3 py-1.5 rounded-lg text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 pr-12"
+                className="w-full px-3 py-1.5 rounded-lg text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 pr-12"
               />
               {replyText.length > 0 && (
                 <span className={cn('absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono', replyText.length > 250 ? 'text-amber-400' : 'text-white/20')}>
@@ -209,7 +209,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
               disabled={!replyText.trim() || submitting}
               className={cn(
                 'p-1.5 rounded-lg transition-colors',
-                replyText.trim() ? 'text-[#FFD700] hover:bg-[#FFD700]/10' : 'text-white/20'
+                replyText.trim() ? 'text-gold hover:bg-gold/10' : 'text-white/20'
               )}
             >
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}

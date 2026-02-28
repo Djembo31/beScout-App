@@ -97,8 +97,8 @@ export default function PostCard({
   return (
     <Card className={cn(
       'p-3 md:p-4 hover:border-white/20 transition-all',
-      isOwnedPlayer && 'border-[#FFD700]/20 bg-[#FFD700]/[0.02]',
-      post.post_type === 'club_news' && 'border-[#FFD700]/30 bg-[#FFD700]/[0.03]',
+      isOwnedPlayer && 'border-gold/20 bg-gold/[0.02]',
+      post.post_type === 'club_news' && 'border-gold/30 bg-gold/[0.03]',
     )}>
       <div className="flex gap-2 md:gap-3">
         {/* Vote Buttons */}
@@ -108,7 +108,7 @@ export default function PostCard({
             aria-label={myVote === 1 ? 'Upvote entfernen' : 'Upvote'}
             className={cn(
               'p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors',
-              myVote === 1 ? 'bg-[#22C55E]/20 text-[#22C55E]' : 'text-white/30 hover:text-[#22C55E] hover:bg-white/5'
+              myVote === 1 ? 'bg-green-500/20 text-green-500' : 'text-white/30 hover:text-green-500 hover:bg-white/5'
             )}
           >
             <ArrowUp className="w-4 h-4" />
@@ -116,7 +116,7 @@ export default function PostCard({
           <span
             className={cn(
               'font-mono font-bold text-sm',
-              netScore > 20 ? 'text-[#22C55E]' : netScore < 0 ? 'text-red-300' : 'text-white/50'
+              netScore > 20 ? 'text-green-500' : netScore < 0 ? 'text-red-300' : 'text-white/50'
             )}
             aria-label={`Score: ${netScore}`}
           >
@@ -139,7 +139,7 @@ export default function PostCard({
           {/* Author Row */}
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
-              <Link href={`/profile/${post.author_handle}`} className="font-bold text-sm hover:text-[#FFD700] transition-colors">{post.author_display_name || post.author_handle}</Link>
+              <Link href={`/profile/${post.author_handle}`} className="font-bold text-sm hover:text-gold transition-colors">{post.author_display_name || post.author_handle}</Link>
               {post.author_top_role && (
                 <span className={cn(
                   'px-1.5 py-0.5 rounded text-[9px] font-bold border',
@@ -150,16 +150,16 @@ export default function PostCard({
                   {post.author_top_role}
                 </span>
               )}
-              {post.author_verified && <BadgeCheck className="w-3.5 h-3.5 text-[#FFD700]" />}
+              {post.author_verified && <BadgeCheck className="w-3.5 h-3.5 text-gold" />}
               {authorSubscriptionTier && <SubscriptionBadge tier={authorSubscriptionTier} size="sm" />}
               {post.post_type === 'club_news' && (
-                <span className="text-[10px] bg-[#FFD700]/15 text-[#FFD700] px-1.5 py-0.5 rounded-full border border-[#FFD700]/20 font-semibold">
+                <span className="text-[10px] bg-gold/15 text-gold px-1.5 py-0.5 rounded-full border border-gold/20 font-semibold">
                   Offiziell
                 </span>
               )}
               <span className="text-[10px] text-white/30 px-1.5 py-0.5 bg-white/5 rounded">Lv{post.author_level}</span>
               {post.is_pinned && (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20">
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gold/10 text-gold border border-gold/20">
                   <Pin className="w-2.5 h-2.5" />
                   Gepinnt
                 </span>
@@ -172,7 +172,7 @@ export default function PostCard({
                   <MoreHorizontal className="w-4 h-4" />
                 </button>
                 {showMenu && (
-                  <div className="absolute right-0 top-8 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-xl z-10 py-1 min-w-[160px]">
+                  <div className="absolute right-0 top-8 bg-surface-popover border border-white/10 rounded-xl shadow-xl z-10 py-1 min-w-[160px]">
                     {isClubAdmin && onTogglePin && (
                       <button
                         onClick={() => { onTogglePin(post.id, !post.is_pinned); setShowMenu(false); }}
@@ -241,7 +241,7 @@ export default function PostCard({
                 </span>
               )}
               {post.post_type === 'player_take' && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/20">
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border bg-gold/10 text-gold border-gold/20">
                   Spieler-Take
                 </span>
               )}
@@ -251,7 +251,7 @@ export default function PostCard({
                 </span>
               )}
               {post.post_type === 'club_news' && (
-                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-semibold border bg-[#FFD700]/10 text-[#FFD700] border-[#FFD700]/20">
+                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-semibold border bg-gold/10 text-gold border-gold/20">
                   Club-Nachricht
                 </span>
               )}
@@ -264,7 +264,7 @@ export default function PostCard({
               <div className={cn(
                 'inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs mb-2 hover:opacity-80 transition-opacity',
                 isOwnedPlayer
-                  ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/20'
+                  ? 'bg-gold/15 text-gold border border-gold/20'
                   : 'bg-white/5 text-white/70'
               )}>
                 <Target className="w-3 h-3" />
@@ -316,7 +316,7 @@ export default function PostCard({
               onClick={() => setShowReplies(!showReplies)}
               className={cn(
                 'flex items-center gap-1 transition-colors',
-                showReplies ? 'text-[#FFD700]' : 'hover:text-white'
+                showReplies ? 'text-gold' : 'hover:text-white'
               )}
             >
               <MessageSquare className="w-3 h-3" />
@@ -332,7 +332,7 @@ export default function PostCard({
                 tipTotalCents={tipTotalCents}
               />
             )}
-            <button className={cn('flex items-center gap-1 transition-colors', copied ? 'text-[#22C55E]' : 'hover:text-white')}
+            <button className={cn('flex items-center gap-1 transition-colors', copied ? 'text-green-500' : 'hover:text-white')}
               onClick={async () => {
                 const url = `${window.location.origin}/community?post=${post.id}`;
                 const text = `${post.author_display_name || post.author_handle}: "${post.content.slice(0, 80)}…"`;

@@ -13,11 +13,13 @@ const config: Config = {
         "gold-hover": "#FFA500",
         "vivid-green": "#00E676",
         "vivid-red": "#FF3B69",
+        "bg-main": "#0a0a0a",
         surface: {
           base: "rgba(255,255,255,0.05)",
           elevated: "rgba(255,255,255,0.08)",
           featured: "rgba(255,255,255,0.14)",
           hero: "rgba(255,255,255,0.20)",
+          popover: "#1a1a1a",
         },
       },
       boxShadow: {

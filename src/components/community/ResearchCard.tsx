@@ -27,7 +27,7 @@ function formatTimeAgo(dateStr: string): string {
 }
 
 const callColor: Record<string, string> = {
-  Bullish: 'bg-[#22C55E]/20 text-[#22C55E]',
+  Bullish: 'bg-green-500/20 text-green-500',
   Bearish: 'bg-red-500/20 text-red-300',
   Neutral: 'bg-white/10 text-white/60',
 };
@@ -91,9 +91,9 @@ function StarRating({
               className={cn(
                 'w-3.5 h-3.5 transition-colors',
                 interactive && star <= displayRating
-                  ? 'text-[#FFD700] fill-[#FFD700]'
+                  ? 'text-gold fill-gold'
                   : !interactive && star <= Math.round(avgRating)
-                  ? 'text-[#FFD700]/60 fill-[#FFD700]/60'
+                  ? 'text-gold/60 fill-gold/60'
                   : 'text-white/20'
               )}
             />
@@ -149,7 +149,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
           </span>
           {/* Outcome Badge */}
           {post.outcome === 'correct' && (
-            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold bg-[#22C55E]/20 text-[#22C55E] border border-[#22C55E]/25">
+            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/20 text-green-500 border border-green-500/25">
               <CheckCircle className="w-3 h-3" />
               {post.price_change_pct !== null && `${post.price_change_pct > 0 ? '+' : ''}${post.price_change_pct}%`}
             </span>
@@ -167,7 +167,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
 
         {/* Author Row */}
         <div className="flex items-center gap-2 text-xs text-white/50 mb-3">
-          <Link href={`/profile/${post.author_handle}`} className="font-medium text-white/70 hover:text-[#FFD700] transition-colors">
+          <Link href={`/profile/${post.author_handle}`} className="font-medium text-white/70 hover:text-gold transition-colors">
             {post.author_display_name || post.author_handle}
           </Link>
           {post.author_top_role && (
@@ -180,7 +180,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
               {post.author_top_role}
             </span>
           )}
-          {post.author_verified && <BadgeCheck className="w-3.5 h-3.5 text-[#FFD700]" />}
+          {post.author_verified && <BadgeCheck className="w-3.5 h-3.5 text-gold" />}
           <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold border', rang.bgColor, rang.borderColor, rang.color)}>
             {tg(`rang.${rang.i18nKey}`)}
           </span>
@@ -193,7 +193,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
               <span className={cn(
                 'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold border',
                 isVerified
-                  ? 'text-[#FFD700] bg-[#FFD700]/10 border-[#FFD700]/20'
+                  ? 'text-gold bg-gold/10 border-gold/20'
                   : hasEnough
                   ? 'text-white/50 bg-white/5 border-white/10'
                   : 'text-white/30 bg-white/[0.02] border-white/[0.06]'
@@ -225,8 +225,8 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
               ].map(d => (
                 <span key={d.key} className={cn(
                   'px-1.5 py-0.5 rounded text-[10px] font-mono font-bold border',
-                  d.val >= 8 ? 'text-[#FFD700] bg-[#FFD700]/10 border-[#FFD700]/20' :
-                  d.val >= 6 ? 'text-[#22C55E] bg-[#22C55E]/10 border-[#22C55E]/20' :
+                  d.val >= 8 ? 'text-gold bg-gold/10 border-gold/20' :
+                  d.val >= 6 ? 'text-green-500 bg-green-500/10 border-green-500/20' :
                   'text-white/50 bg-white/5 border-white/10'
                 )}>
                   {d.key}{d.val}
@@ -260,7 +260,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
             <p className="text-sm text-white/30 leading-relaxed blur-sm select-none">
               {post.preview} {post.preview} {post.preview}
             </p>
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0a0a]/60 to-[#0a0a0a]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-bg-main/60 to-bg-main" />
           </div>
           {/* Unlock button */}
           <div className="flex flex-col items-center gap-2 -mt-2">
@@ -279,7 +279,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
                 )}
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl bg-[#FFD700]/5 border border-[#FFD700]/15">
+              <div className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl bg-gold/5 border border-gold/15">
                 <span className="text-xs text-white/60">{fmtScout(priceBsd)} $SCOUT werden von deinem Wallet abgezogen</span>
                 <div className="flex gap-2">
                   <Button
@@ -326,7 +326,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
             <Unlock className="w-3 h-3" />
             {post.unlock_count}
           </span>
-          <span className="font-mono text-[#FFD700] font-bold">{fmtScout(priceBsd)} $SCOUT</span>
+          <span className="font-mono text-gold font-bold">{fmtScout(priceBsd)} $SCOUT</span>
         </div>
       </div>
     </Card>

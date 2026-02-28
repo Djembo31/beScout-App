@@ -132,13 +132,13 @@ function InlineFeedVoteCard({ vote, hasVoted, onVote, voting }: {
 // ============================================
 
 const FILTER_OPTIONS: { id: ContentFilter; colorActive: string }[] = [
-  { id: 'all', colorActive: 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30' },
+  { id: 'all', colorActive: 'bg-gold/15 text-gold border-gold/30' },
   { id: 'posts', colorActive: 'bg-sky-500/15 text-sky-300 border-sky-500/30' },
   { id: 'rumors', colorActive: 'bg-red-500/15 text-red-300 border-red-500/30' },
   { id: 'research', colorActive: 'bg-purple-500/15 text-purple-300 border-purple-500/30' },
   { id: 'bounties', colorActive: 'bg-amber-500/15 text-amber-300 border-amber-500/30' },
   { id: 'votes', colorActive: 'bg-purple-500/15 text-purple-300 border-purple-500/30' },
-  { id: 'news', colorActive: 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30' },
+  { id: 'news', colorActive: 'bg-gold/15 text-gold border-gold/30' },
 ];
 
 // ============================================

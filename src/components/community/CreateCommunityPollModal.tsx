@@ -103,7 +103,7 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
             value={question}
             onChange={(e) => setQuestion(e.target.value.slice(0, 200))}
             placeholder="z.B. Wer sollte Kapitän werden?"
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
           />
         </div>
 
@@ -118,7 +118,7 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
             onChange={(e) => setDescription(e.target.value.slice(0, 500))}
             rows={2}
             placeholder="Mehr Kontext zur Umfrage..."
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
           />
         </div>
 
@@ -133,7 +133,7 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
                   value={opt}
                   onChange={(e) => updateOption(idx, e.target.value)}
                   placeholder={`Option ${idx + 1}`}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40"
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
                 />
                 {options.length > 2 && (
                   <button
@@ -149,7 +149,7 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
           {options.length < 4 && (
             <button
               onClick={addOption}
-              className="mt-2 flex items-center gap-1.5 text-xs text-[#FFD700] hover:text-[#FFD700]/80 transition-colors"
+              className="mt-2 flex items-center gap-1.5 text-xs text-gold hover:text-gold/80 transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               Option hinzufügen
@@ -171,7 +171,7 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
             }}
             min={1}
             max={10000}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white font-mono focus:outline-none focus:border-[#FFD700]/40"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white font-mono focus:outline-none focus:border-gold/40"
           />
           <div className="text-[10px] text-white/30 mt-1">70% gehen an dich, 30% Plattform</div>
         </div>
@@ -187,7 +187,7 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
                 className={cn(
                   'flex-1 px-2 py-2 rounded-xl text-xs font-bold border transition-all',
                   durationDays === d.days
-                    ? 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/25'
+                    ? 'bg-gold/15 text-gold border-gold/25'
                     : 'bg-white/5 text-white/50 border-white/10'
                 )}
               >

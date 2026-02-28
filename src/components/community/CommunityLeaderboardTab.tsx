@@ -74,7 +74,7 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
 }) {
   const tg = useTranslations('gamification');
   const rankStyle = rank === 1
-    ? 'bg-[#FFD700]/20 text-[#FFD700] border-[#FFD700]/30'
+    ? 'bg-gold/20 text-gold border-gold/30'
     : rank === 2
     ? 'bg-white/10 text-white/80 border-white/20'
     : rank === 3
@@ -91,7 +91,7 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
     <Link href={`/profile/${lUser.handle}`} className="block">
       <div className={cn(
         'flex items-center gap-4 p-4 border rounded-xl hover:bg-white/[0.04] hover:border-white/20 transition-all',
-        isSelf ? 'bg-[#FFD700]/[0.04] border-[#FFD700]/20' : isFollowed ? 'bg-[#22C55E]/[0.02] border-[#22C55E]/20' : 'bg-white/[0.02] border-white/10'
+        isSelf ? 'bg-gold/[0.04] border-gold/20' : isFollowed ? 'bg-green-500/[0.02] border-green-500/20' : 'bg-white/[0.02] border-white/10'
       )}>
         <div className="relative">
           <div className={cn('w-10 h-10 rounded-xl border flex items-center justify-center font-black', rankStyle)}>
@@ -100,7 +100,7 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
           {rankChange !== null && rankChange !== 0 && (
             <div className={cn(
               'absolute -top-1.5 -right-1.5 flex items-center gap-0.5 px-1 py-0.5 rounded-md text-[9px] font-black',
-              rankChange > 0 ? 'bg-[#22C55E]/20 text-[#22C55E]' : 'bg-red-500/20 text-red-400'
+              rankChange > 0 ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-400'
             )}>
               {rankChange > 0 ? <TrendingUp className="w-2 h-2" /> : <TrendingDown className="w-2 h-2" />}
               {Math.abs(rankChange)}
@@ -111,8 +111,8 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="font-bold">{lUser.displayName || lUser.handle}</span>
-            {isSelf && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/20">Du</span>}
-            {lUser.verified && <BadgeCheck className="w-4 h-4 text-[#FFD700]" />}
+            {isSelf && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gold/15 text-gold border border-gold/20">Du</span>}
+            {lUser.verified && <BadgeCheck className="w-4 h-4 text-gold" />}
             {topRole && (
               <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold border', topRole.color)}>
                 {topRole.icon}
@@ -163,7 +163,7 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
             </div>
           </div>
           <div className="text-center">
-            <div className="font-mono font-bold text-[#FFD700]">{lUser.totalScore}</div>
+            <div className="font-mono font-bold text-gold">{lUser.totalScore}</div>
             <div className="text-[10px] text-white/40">Score</div>
           </div>
         </div>
@@ -181,7 +181,7 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
 // ============================================
 
 const SCORE_TABS: { id: ScoreTab; dimKey: string; color: string }[] = [
-  { id: 'overall', dimKey: 'overall', color: 'text-[#FFD700]' },
+  { id: 'overall', dimKey: 'overall', color: 'text-gold' },
   { id: 'trader', dimKey: 'trader', color: 'text-sky-400' },
   { id: 'manager', dimKey: 'manager', color: 'text-purple-400' },
   { id: 'analyst', dimKey: 'analyst', color: 'text-emerald-400' },
@@ -264,11 +264,11 @@ export default function CommunityLeaderboardTab({
                 <Link key={entry.user_id} href={`/profile/${entry.handle}`} className="block">
                   <div className={cn(
                     'flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors',
-                    isSelf && 'bg-[#FFD700]/[0.04]'
+                    isSelf && 'bg-gold/[0.04]'
                   )}>
                     <div className={cn(
                       'w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm',
-                      rank === 1 ? 'bg-[#FFD700]/20 text-[#FFD700]' :
+                      rank === 1 ? 'bg-gold/20 text-gold' :
                       rank === 2 ? 'bg-white/10 text-white/70' :
                       rank === 3 ? 'bg-orange-500/20 text-orange-300' :
                       'bg-white/5 text-white/40'
@@ -284,7 +284,7 @@ export default function CommunityLeaderboardTab({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm truncate">{entry.display_name ?? entry.handle}</span>
-                        {isSelf && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-[#FFD700]/15 text-[#FFD700]">Du</span>}
+                        {isSelf && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-gold/15 text-gold">Du</span>}
                       </div>
                       <RangScorePill score={displayScore} />
                     </div>
