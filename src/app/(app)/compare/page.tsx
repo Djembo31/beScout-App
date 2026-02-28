@@ -10,7 +10,7 @@ import { RadarChart, buildPlayerRadarAxes } from '@/components/player/RadarChart
 import type { RadarDataSet } from '@/components/player/RadarChart';
 import { centsToBsd } from '@/lib/services/players';
 import { useRawPlayers } from '@/lib/queries/players';
-import { fmtScout } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import type { DbPlayer, Pos } from '@/types';
 
 const COLORS = ['#38bdf8', '#fb7185', '#fbbf24'];
@@ -128,20 +128,20 @@ export default function ComparePage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/market" className="p-2 hover:bg-white/10 rounded-lg transition-all">
-            <ChevronLeft className="w-5 h-5" />
+          <Link href="/market" className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+            <ChevronLeft className="size-5" />
           </Link>
           <div>
-            <h1 className="text-xl md:text-2xl font-black flex items-center gap-2">
-              <ArrowLeftRight className="w-5 h-5 text-sky-400" />
+            <h1 className="text-xl md:text-2xl font-black text-balance flex items-center gap-2">
+              <ArrowLeftRight className="size-5 text-sky-400" />
               Spieler vergleichen
             </h1>
-            <p className="text-xs text-white/40">Bis zu 3 Spieler side-by-side</p>
+            <p className="text-xs text-white/40 text-pretty">Bis zu 3 Spieler side-by-side</p>
           </div>
         </div>
         {selectedPlayers.length >= 2 && (
           <Button variant="outline" size="sm" onClick={handleShare}>
-            <Share2 className="w-4 h-4" /> Link teilen
+            <Share2 className="size-4" /> Link teilen
           </Button>
         )}
       </div>
@@ -156,9 +156,10 @@ export default function ComparePage() {
                 <Card className="p-3 relative">
                   <button
                     onClick={() => handleRemovePlayer(idx)}
-                    className="absolute top-1 right-1 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white/10 hover:bg-red-500/20 rounded-full transition-all"
+                    className="absolute top-1 right-1 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white/10 hover:bg-red-500/20 rounded-full transition-colors"
+                    aria-label="Spieler entfernen"
                   >
-                    <X className="w-3 h-3" />
+                    <X className="size-3" />
                   </button>
                   <div className="flex flex-col items-center text-center gap-1">
                     <PlayerIdentity
@@ -170,9 +171,9 @@ export default function ComparePage() {
               ) : (
                 <button
                   onClick={() => { setActiveSlot(idx); setSearch(''); }}
-                  className="w-full p-3 border border-dashed border-white/20 rounded-2xl hover:border-white/40 transition-all flex flex-col items-center justify-center gap-2 min-h-[120px]"
+                  className="w-full p-3 border border-dashed border-white/20 rounded-2xl hover:border-white/40 transition-colors flex flex-col items-center justify-center gap-2 min-h-[120px]"
                 >
-                  <Search className="w-5 h-5 text-white/30" />
+                  <Search className="size-5 text-white/30" />
                   <span className="text-xs text-white/30">Spieler {idx + 1}</span>
                 </button>
               )}
@@ -184,7 +185,7 @@ export default function ComparePage() {
       {/* Search */}
       {(activeSlot !== null || selectedPlayers.length < 3) && (
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30" />
           <input
             type="text"
             value={search}
@@ -199,13 +200,13 @@ export default function ComparePage() {
                 <button
                   key={p.id}
                   onClick={() => handleAddPlayer(p.id)}
-                  className="w-full flex items-center gap-3 p-3 hover:bg-white/5 transition-all text-left"
+                  className="w-full flex items-center gap-3 p-3 hover:bg-white/5 transition-colors text-left"
                 >
                   <PlayerIdentity
                     player={{ first: p.first_name, last: p.last_name, pos: p.position as Pos, status: 'fit', club: p.club, ticket: p.shirt_number ?? 0, age: p.age ?? 0, imageUrl: p.image_url }}
                     size="sm" showStatus={false}
                   />
-                  <div className="text-xs text-white/40 font-mono">L5: {p.perf_l5}</div>
+                  <div className="text-xs text-white/40 font-mono tabular-nums">L5: {p.perf_l5}</div>
                 </button>
               ))}
             </div>
@@ -216,8 +217,8 @@ export default function ComparePage() {
       {/* Radar Chart Overlay */}
       {selectedPlayers.length >= 2 && (
         <Card className="p-4 md:p-6">
-          <h3 className="font-black text-lg mb-4 flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-sky-400" />
+          <h3 className="font-black text-lg text-balance mb-4 flex items-center gap-2">
+            <BarChart3 className="size-5 text-sky-400" />
             Radar-Vergleich
           </h3>
           <div className="flex justify-center max-w-[300px] mx-auto md:max-w-none">
@@ -226,7 +227,7 @@ export default function ComparePage() {
           <div className="flex justify-center gap-4 mt-4">
             {selectedPlayers.map((p, i) => (
               <div key={p.id} className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i] }} />
+                <div className="size-3 rounded-full" style={{ backgroundColor: COLORS[i] }} />
                 <span className="text-xs text-white/60">{p.first_name} {p.last_name}</span>
               </div>
             ))}
@@ -237,7 +238,7 @@ export default function ComparePage() {
       {/* Stats Comparison Table */}
       {selectedPlayers.length >= 2 && (
         <Card className="p-4 md:p-6 overflow-x-auto">
-          <h3 className="font-black text-lg mb-4">Statistik-Vergleich</h3>
+          <h3 className="font-black text-lg text-balance mb-4">Statistik-Vergleich</h3>
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10">
@@ -265,7 +266,7 @@ export default function ComparePage() {
                       const isBest = v === maxVal && maxVal !== minVal;
                       const isWorst = v === minVal && maxVal !== minVal;
                       return (
-                        <td key={i} className={`py-2.5 text-right font-mono font-bold ${isBest ? 'text-gold' : isWorst ? 'text-red-400' : 'text-white'}`}>
+                        <td key={i} className={cn('py-2.5 text-right font-mono font-bold tabular-nums', isBest ? 'text-gold' : isWorst ? 'text-red-400' : 'text-white')}>
                           {row.isBsd ? fmtScout(centsToBsd(v)) : v}
                         </td>
                       );
@@ -280,7 +281,7 @@ export default function ComparePage() {
 
       {selectedPlayers.length < 2 && (
         <div className="text-center py-12">
-          <ArrowLeftRight className="w-12 h-12 mx-auto mb-4 text-white/10" />
+          <ArrowLeftRight className="size-12 mx-auto mb-4 text-white/10" />
           <div className="text-white/30 text-sm">Wähle mindestens 2 Spieler zum Vergleichen</div>
           <div className="text-white/20 text-xs mt-1">Suche oben nach Name, Verein oder Position</div>
         </div>
