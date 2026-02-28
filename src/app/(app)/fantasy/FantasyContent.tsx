@@ -17,7 +17,7 @@ import { submitLineup, getLineup } from '@/lib/services/lineups';
 import { invalidateFantasyQueries } from '@/lib/queries/invalidation';
 import { useEvents, useJoinedEventIds, usePlayerEventUsage, useActiveGameweek, useIsClubAdmin } from '@/lib/queries/events';
 import { useHoldings } from '@/lib/queries/holdings';
-import { fmtScout } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import type { DbEvent } from '@/types';
 import {
   type EventStatus, type FantasyTab, type FantasyEvent,
@@ -40,9 +40,9 @@ const EventDetailModal = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-center justify-center">
+      <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-gold" />
+          <Loader2 className="size-8 animate-spin text-gold" />
           <span className="text-sm text-white/50">Event wird geladen...</span>
         </div>
       </div>
@@ -494,12 +494,12 @@ export default function FantasyContent() {
   if (eventsError && events.length === 0) {
     return (
       <div className="max-w-[1400px] mx-auto flex flex-col items-center justify-center py-32 gap-4">
-        <div className="w-12 h-12 rounded-full bg-red-500/15 border border-red-400/25 flex items-center justify-center">
-          <AlertCircle className="w-6 h-6 text-red-400" />
+        <div className="size-12 rounded-full bg-red-500/15 border border-red-400/25 flex items-center justify-center">
+          <AlertCircle className="size-6 text-red-400" />
         </div>
         <div className="text-white/70 font-bold">{t('dataLoadFailed')}</div>
         <Button variant="outline" onClick={handleRetry}>
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw className="size-4" />
           {tc('retry')}
         </Button>
       </div>
@@ -518,24 +518,25 @@ export default function FantasyContent() {
     <div className="max-w-[1400px] mx-auto space-y-4 md:space-y-5">
       {/* HEADER — Compact */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl md:text-2xl font-black flex items-center gap-2">
-          <Trophy className="w-6 h-6 text-gold" />
+        <h1 className="text-xl md:text-2xl font-black flex items-center gap-2 text-balance">
+          <Trophy className="size-6 text-gold" />
           Fantasy
         </h1>
         <div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-3 mr-2">
             <div className="flex items-center gap-1.5 text-sm">
-              <div className="w-2 h-2 rounded-full bg-green-500" />
-              <span className="font-mono font-bold text-green-500">{activeEvents.length}</span>
+              <div className="size-2 rounded-full bg-green-500" />
+              <span className="font-mono font-bold tabular-nums text-green-500">{activeEvents.length}</span>
               <span className="text-white/40 text-xs">{tc('active')}</span>
             </div>
           </div>
           {isAdmin && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-1.5 px-3 py-2 bg-gold/10 border border-gold/20 rounded-xl text-sm font-semibold text-gold hover:bg-gold/20 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 bg-gold/10 border border-gold/20 rounded-xl text-sm font-semibold text-gold hover:bg-gold/20 transition-colors"
+              aria-label={tc('create')}
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="size-4" />
               <span className="hidden sm:inline">{tc('create')}</span>
             </button>
           )}
@@ -545,7 +546,7 @@ export default function FantasyContent() {
       {/* New User Tip */}
       <NewUserTip
         tipKey="fantasy-first-event"
-        icon={<Trophy className="w-4 h-4" />}
+        icon={<Trophy className="size-4" />}
         title={tt('fantasyTitle')}
         description={tt('fantasyDesc')}
         show={joinedIdsArr.length === 0}
@@ -567,13 +568,13 @@ export default function FantasyContent() {
           <button
             key={tab.id}
             onClick={() => setMainTab(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[40px] ${
+            className={cn('flex-1 flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap min-h-[40px]',
               mainTab === tab.id
                 ? 'bg-gold/15 text-gold shadow-sm'
                 : 'text-white/50 hover:text-white/70'
-            }`}
+            )}
           >
-            <tab.icon className="w-3.5 h-3.5 flex-shrink-0" />
+            <tab.icon className="size-3.5 flex-shrink-0" />
             <span className="hidden sm:inline">{tab.label}</span>
             <span className="sm:hidden">{tab.mobileLabel}</span>
           </button>
