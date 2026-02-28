@@ -42,7 +42,7 @@ export default function AuthCallbackPage() {
           <p className="text-white/50 text-sm mb-4">Der Link ist ungültig oder abgelaufen.</p>
           <a
             href="/login"
-            className="inline-block px-6 py-2.5 bg-[#FFD700] text-black font-bold rounded-xl text-sm hover:bg-[#FFD700]/90 transition-colors"
+            className="inline-block px-6 py-2.5 bg-gold text-black font-bold rounded-xl text-sm hover:bg-gold/90 transition-colors"
           >
             Zurück zum Login
           </a>
@@ -54,7 +54,7 @@ export default function AuthCallbackPage() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#FFD700] mx-auto mb-4" />
+        <Loader2 className="w-8 h-8 animate-spin text-gold mx-auto mb-4" />
         <p className="text-white/50 text-sm">Anmeldung wird verarbeitet...</p>
         {slow && <p className="text-white/30 text-xs mt-2">Dauert länger als erwartet...</p>}
       </div>

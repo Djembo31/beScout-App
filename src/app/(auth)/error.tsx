@@ -26,7 +26,7 @@ export default function AuthError({
         </p>
         <button
           onClick={reset}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[#FFD700] text-black text-sm font-bold rounded-xl hover:bg-[#FFD700]/90 transition-all"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-gold text-black text-sm font-bold rounded-xl hover:bg-gold/90 transition-all"
         >
           <RefreshCw className="w-4 h-4" />
           Erneut versuchen

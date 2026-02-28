@@ -189,8 +189,8 @@ function LoginContent() {
         {emailSent ? (
           /* Magic Link Sent */
           <div className="flex flex-col items-center text-center py-4">
-            <div className="w-14 h-14 rounded-full bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-center justify-center mb-4">
-              <CheckCircle className="w-7 h-7 text-[#22C55E]" />
+            <div className="w-14 h-14 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mb-4">
+              <CheckCircle className="w-7 h-7 text-green-500" />
             </div>
             <h2 className="text-xl font-black mb-2">{t('linkSent')}</h2>
             <p className="text-sm text-white/60 mb-1">
@@ -202,7 +202,7 @@ function LoginContent() {
             </p>
             <button
               onClick={resetForm}
-              className="mt-6 text-sm text-[#FFD700]/70 hover:text-[#FFD700] transition-colors"
+              className="mt-6 text-sm text-gold/70 hover:text-gold transition-colors"
             >
               {t('otherEmail')}
             </button>
@@ -210,8 +210,8 @@ function LoginContent() {
         ) : registered ? (
           /* Registration Success */
           <div className="flex flex-col items-center text-center py-4">
-            <div className="w-14 h-14 rounded-full bg-[#22C55E]/10 border border-[#22C55E]/20 flex items-center justify-center mb-4">
-              <CheckCircle className="w-7 h-7 text-[#22C55E]" />
+            <div className="w-14 h-14 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mb-4">
+              <CheckCircle className="w-7 h-7 text-green-500" />
             </div>
             <h2 className="text-xl font-black mb-2">{t('registrationSuccess')}</h2>
             <p className="text-sm text-white/60 mb-1">
@@ -223,7 +223,7 @@ function LoginContent() {
             </p>
             <button
               onClick={() => { resetForm(); setMode('login'); }}
-              className="mt-6 text-sm text-[#FFD700]/70 hover:text-[#FFD700] transition-colors"
+              className="mt-6 text-sm text-gold/70 hover:text-gold transition-colors"
             >
               {t('goToLogin')}
             </button>
@@ -306,7 +306,7 @@ function LoginContent() {
                       'w-full pl-11 pr-4 py-3 rounded-xl text-sm',
                       'bg-white/5 border border-white/10',
                       'placeholder:text-white/30 text-white',
-                      'focus:outline-none focus:border-[#FFD700]/40 focus:bg-white/[0.07]',
+                      'focus:outline-none focus:border-gold/40 focus:bg-white/[0.07]',
                       'transition-all'
                     )}
                   />
@@ -324,7 +324,7 @@ function LoginContent() {
                       'w-full pl-11 pr-11 py-3 rounded-xl text-sm',
                       'bg-white/5 border border-white/10',
                       'placeholder:text-white/30 text-white',
-                      'focus:outline-none focus:border-[#FFD700]/40 focus:bg-white/[0.07]',
+                      'focus:outline-none focus:border-gold/40 focus:bg-white/[0.07]',
                       'transition-all'
                     )}
                   />
@@ -351,7 +351,7 @@ function LoginContent() {
                         'w-full pl-11 pr-4 py-3 rounded-xl text-sm',
                         'bg-white/5 border border-white/10',
                         'placeholder:text-white/30 text-white',
-                        'focus:outline-none focus:border-[#FFD700]/40 focus:bg-white/[0.07]',
+                        'focus:outline-none focus:border-gold/40 focus:bg-white/[0.07]',
                         'transition-all'
                       )}
                     />
@@ -384,7 +384,7 @@ function LoginContent() {
                       'w-full pl-11 pr-4 py-3 rounded-xl text-sm',
                       'bg-white/5 border border-white/10',
                       'placeholder:text-white/30 text-white',
-                      'focus:outline-none focus:border-[#FFD700]/40 focus:bg-white/[0.07]',
+                      'focus:outline-none focus:border-gold/40 focus:bg-white/[0.07]',
                       'transition-all'
                     )}
                   />
@@ -415,7 +415,7 @@ function LoginContent() {
                   <span className="text-white/20">·</span>
                   <button
                     onClick={() => { setMode('register'); setError(null); }}
-                    className="px-4 py-2 rounded-xl border border-[#FFD700]/30 text-[#FFD700] hover:bg-[#FFD700]/10 transition-all font-bold text-sm"
+                    className="px-4 py-2 rounded-xl border border-gold/30 text-gold hover:bg-gold/10 transition-all font-bold text-sm"
                   >
                     {t('noAccount')}
                   </button>
@@ -424,7 +424,7 @@ function LoginContent() {
               {mode === 'register' && (
                 <button
                   onClick={() => { setMode('login'); setError(null); }}
-                  className="text-[#FFD700]/70 hover:text-[#FFD700] transition-colors font-semibold"
+                  className="text-gold/70 hover:text-gold transition-colors font-semibold"
                 >
                   {t('hasAccount')}
                 </button>

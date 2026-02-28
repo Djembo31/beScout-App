@@ -256,7 +256,7 @@ function OnboardingContent() {
   if (loading || profile) {
     return (
       <div className="flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-[#FFD700] animate-spin" />
+        <Loader2 className="w-8 h-8 text-gold animate-spin" />
       </div>
     );
   }
@@ -272,35 +272,35 @@ function OnboardingContent() {
 
       {/* Progress Dots (3 steps) */}
       <div className="flex items-center justify-center gap-2 mb-6">
-        <div className={cn('w-2.5 h-2.5 rounded-full transition-all', step >= 1 ? 'bg-[#FFD700]' : 'bg-white/20')} />
-        <div className={cn('w-8 h-0.5 transition-all', step >= 2 ? 'bg-[#FFD700]' : 'bg-white/10')} />
-        <div className={cn('w-2.5 h-2.5 rounded-full transition-all', step >= 2 ? 'bg-[#FFD700]' : 'bg-white/20')} />
-        <div className={cn('w-8 h-0.5 transition-all', step >= 3 ? 'bg-[#FFD700]' : 'bg-white/10')} />
-        <div className={cn('w-2.5 h-2.5 rounded-full transition-all', step >= 3 ? 'bg-[#FFD700]' : 'bg-white/20')} />
+        <div className={cn('w-2.5 h-2.5 rounded-full transition-all', step >= 1 ? 'bg-gold' : 'bg-white/20')} />
+        <div className={cn('w-8 h-0.5 transition-all', step >= 2 ? 'bg-gold' : 'bg-white/10')} />
+        <div className={cn('w-2.5 h-2.5 rounded-full transition-all', step >= 2 ? 'bg-gold' : 'bg-white/20')} />
+        <div className={cn('w-8 h-0.5 transition-all', step >= 3 ? 'bg-gold' : 'bg-white/10')} />
+        <div className={cn('w-2.5 h-2.5 rounded-full transition-all', step >= 3 ? 'bg-gold' : 'bg-white/20')} />
       </div>
 
       {/* Referral Banner */}
       {referrer && (
-        <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-[#FFD700]/[0.06] border border-[#FFD700]/15">
-          <Gift className="w-5 h-5 text-[#FFD700] shrink-0" />
+        <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-gold/[0.06] border border-gold/15">
+          <Gift className="w-5 h-5 text-gold shrink-0" />
           <div className="text-sm">
             <span className="text-white/70">Eingeladen von </span>
-            <span className="font-bold text-[#FFD700]">@{referrer.handle}</span>
+            <span className="font-bold text-gold">@{referrer.handle}</span>
           </div>
         </div>
       )}
 
       {/* Club Referral Banner */}
       {referralClub && !referrer && (
-        <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-[#22C55E]/[0.06] border border-[#22C55E]/15">
+        <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-green-500/[0.06] border border-green-500/15">
           {referralClub.logo_url ? (
             <img src={referralClub.logo_url} alt="" className="w-6 h-6 object-contain shrink-0" />
           ) : (
-            <Shield className="w-5 h-5 text-[#22C55E] shrink-0" />
+            <Shield className="w-5 h-5 text-green-500 shrink-0" />
           )}
           <div className="text-sm">
             <span className="text-white/70">Eingeladen von </span>
-            <span className="font-bold text-[#22C55E]">{referralClub.name}</span>
+            <span className="font-bold text-green-500">{referralClub.name}</span>
           </div>
         </div>
       )}
@@ -330,15 +330,15 @@ function OnboardingContent() {
                     'bg-white/5 border',
                     'placeholder:text-white/30 text-white',
                     'focus:outline-none transition-all',
-                    handleStatus === 'available' && 'border-[#22C55E]/40 focus:border-[#22C55E]/60',
+                    handleStatus === 'available' && 'border-green-500/40 focus:border-green-500/60',
                     handleStatus === 'taken' && 'border-red-400/40 focus:border-red-400/60',
                     handleStatus === 'invalid' && 'border-red-400/40 focus:border-red-400/60',
-                    (handleStatus === 'idle' || handleStatus === 'checking') && 'border-white/10 focus:border-[#FFD700]/40'
+                    (handleStatus === 'idle' || handleStatus === 'checking') && 'border-white/10 focus:border-gold/40'
                   )}
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
                   {handleStatus === 'checking' && <Loader2 className="w-4 h-4 text-white/40 animate-spin" />}
-                  {handleStatus === 'available' && <Check className="w-4 h-4 text-[#22C55E]" />}
+                  {handleStatus === 'available' && <Check className="w-4 h-4 text-green-500" />}
                   {handleStatus === 'taken' && <X className="w-4 h-4 text-red-400" />}
                   {handleStatus === 'invalid' && <X className="w-4 h-4 text-red-400" />}
                 </div>
@@ -346,7 +346,7 @@ function OnboardingContent() {
               <div className="mt-1.5 text-xs">
                 {handleStatus === 'taken' && <span className="text-red-400">Dieser Name ist bereits vergeben.</span>}
                 {handleStatus === 'invalid' && <span className="text-red-400">3-20 Zeichen, nur a-z, 0-9 und _</span>}
-                {handleStatus === 'available' && <span className="text-[#22C55E]">Verfügbar!</span>}
+                {handleStatus === 'available' && <span className="text-green-500">Verfügbar!</span>}
                 {handleStatus === 'idle' && <span className="text-white/30">3-20 Zeichen, nur a-z, 0-9 und _</span>}
               </div>
             </div>
@@ -363,7 +363,7 @@ function OnboardingContent() {
                   'w-full px-4 py-3 rounded-xl text-sm',
                   'bg-white/5 border border-white/10',
                   'placeholder:text-white/30 text-white',
-                  'focus:outline-none focus:border-[#FFD700]/40 transition-all'
+                  'focus:outline-none focus:border-gold/40 transition-all'
                 )}
               />
             </div>
@@ -389,7 +389,7 @@ function OnboardingContent() {
                         'w-full pl-11 pr-11 py-3 rounded-xl text-sm',
                         'bg-white/5 border border-white/10',
                         'placeholder:text-white/30 text-white',
-                        'focus:outline-none focus:border-[#FFD700]/40 transition-all'
+                        'focus:outline-none focus:border-gold/40 transition-all'
                       )}
                     />
                     <button
@@ -415,7 +415,7 @@ function OnboardingContent() {
                         'w-full pl-11 pr-11 py-3 rounded-xl text-sm',
                         'bg-white/5 border border-white/10',
                         'placeholder:text-white/30 text-white',
-                        'focus:outline-none focus:border-[#FFD700]/40 transition-all'
+                        'focus:outline-none focus:border-gold/40 transition-all'
                       )}
                     />
                     <button
@@ -469,14 +469,14 @@ function OnboardingContent() {
             {/* Avatar Upload */}
             <div className="flex flex-col items-center mb-6">
               <label className="relative group cursor-pointer">
-                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-[#FFD700]/20 to-[#22C55E]/20 border-2 border-dashed border-white/20 group-hover:border-[#FFD700]/40 flex items-center justify-center overflow-hidden transition-all">
+                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-gold/20 to-green-500/20 border-2 border-dashed border-white/20 group-hover:border-gold/40 flex items-center justify-center overflow-hidden transition-all">
                   {avatarPreview ? (
                     <img src={avatarPreview} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <User className="w-10 h-10 text-white/30" />
                   )}
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#FFD700] flex items-center justify-center shadow-lg">
+                <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gold flex items-center justify-center shadow-lg">
                   <Camera className="w-4 h-4 text-black" />
                 </div>
                 <input
@@ -504,7 +504,7 @@ function OnboardingContent() {
                   'w-full px-4 py-3 rounded-xl text-sm',
                   'bg-white/5 border border-white/10',
                   'text-white appearance-none',
-                  'focus:outline-none focus:border-[#FFD700]/40 transition-all'
+                  'focus:outline-none focus:border-gold/40 transition-all'
                 )}
               >
                 <option value="de">Deutsch</option>
@@ -552,14 +552,14 @@ function OnboardingContent() {
                 value={clubSearch}
                 onChange={(e) => setClubSearch(e.target.value)}
                 placeholder="Club suchen..."
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 transition-all"
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 transition-all"
               />
             </div>
 
             {/* Club Grid */}
             {clubsLoading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 text-[#FFD700] animate-spin" />
+                <Loader2 className="w-6 h-6 text-gold animate-spin" />
               </div>
             ) : (
               <div className="max-h-[260px] overflow-y-auto space-y-1.5 mb-4 pr-1">
@@ -573,7 +573,7 @@ function OnboardingContent() {
                       className={cn(
                         'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all',
                         selected
-                          ? 'bg-[#FFD700]/10 border border-[#FFD700]/30'
+                          ? 'bg-gold/10 border border-gold/30'
                           : 'bg-white/[0.03] border border-white/[0.06] hover:bg-white/5'
                       )}
                     >
@@ -588,14 +588,14 @@ function OnboardingContent() {
                         )}
                       </div>
                       <div className="flex-1 text-left min-w-0">
-                        <div className={cn('text-sm font-semibold truncate', selected ? 'text-[#FFD700]' : 'text-white')}>
+                        <div className={cn('text-sm font-semibold truncate', selected ? 'text-gold' : 'text-white')}>
                           {club.name}
                         </div>
                         <div className="text-[10px] text-white/40">{club.league}</div>
                       </div>
-                      {club.is_verified && <Shield className="w-3.5 h-3.5 text-[#FFD700]/50 flex-shrink-0" />}
+                      {club.is_verified && <Shield className="w-3.5 h-3.5 text-gold/50 flex-shrink-0" />}
                       {selected && (
-                        <div className="w-5 h-5 rounded-full bg-[#FFD700] flex items-center justify-center flex-shrink-0">
+                        <div className="w-5 h-5 rounded-full bg-gold flex items-center justify-center flex-shrink-0">
                           <Check className="w-3 h-3 text-black" />
                         </div>
                       )}
@@ -609,7 +609,7 @@ function OnboardingContent() {
             )}
 
             {selectedClubIds.size > 0 && (
-              <p className="text-xs text-[#FFD700]/70 mb-3">
+              <p className="text-xs text-gold/70 mb-3">
                 {selectedClubIds.size} Club{selectedClubIds.size > 1 ? 's' : ''} ausgewählt
               </p>
             )}
@@ -649,7 +649,7 @@ export default function OnboardingPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center">
-          <Loader2 className="w-8 h-8 text-[#FFD700] animate-spin" />
+          <Loader2 className="w-8 h-8 text-gold animate-spin" />
         </div>
       }
     >

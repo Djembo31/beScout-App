@@ -30,7 +30,7 @@ function HeroSection() {
     <section className="relative text-center py-16 md:py-24 px-4">
       <div className="max-w-3xl mx-auto">
         <Image src="/logo.svg" alt="BeScout" width={80} height={80} className="mx-auto mb-4" priority />
-        <h1 className="text-3xl md:text-5xl font-black mb-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] bg-clip-text text-transparent">
+        <h1 className="text-3xl md:text-5xl font-black mb-3 bg-gradient-to-r from-gold to-orange-500 bg-clip-text text-transparent">
           {t('heroTitle')}
         </h1>
         <p className="text-lg md:text-xl text-white/70 mb-8 max-w-2xl mx-auto">
@@ -64,9 +64,9 @@ function FeaturesSection() {
         <h2 className="text-2xl md:text-3xl font-black text-center mb-10">{t('featuresTitle')}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {features.map(({ icon: Icon, key }) => (
-            <div key={key} className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-[#FFD700]/20 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center mb-3">
-                <Icon className="w-5 h-5 text-[#FFD700]" />
+            <div key={key} className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-gold/20 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center mb-3">
+                <Icon className="w-5 h-5 text-gold" />
               </div>
               <h3 className="font-bold text-sm mb-1.5">{t(`feature_${key}_title`)}</h3>
               <p className="text-xs text-white/50 leading-relaxed">{t(`feature_${key}_desc`)}</p>
@@ -113,12 +113,12 @@ function PackageSection() {
               <tr>
                 <th className="text-left p-3 text-white/40 font-medium">{t('pkg_feature')}</th>
                 {packages.map(({ tier, price, yearly, recommended }) => (
-                  <th key={tier} className={cn('p-3 text-center min-w-[140px]', recommended && 'bg-[#FFD700]/5 rounded-t-xl')}>
+                  <th key={tier} className={cn('p-3 text-center min-w-[140px]', recommended && 'bg-gold/5 rounded-t-xl')}>
                     <div className="font-black text-base">{t(`pkg_${tier}`)}</div>
-                    <div className="text-[#FFD700] font-mono font-bold">{price}<span className="text-white/40 font-normal text-xs">/ay</span></div>
+                    <div className="text-gold font-mono font-bold">{price}<span className="text-white/40 font-normal text-xs">/ay</span></div>
                     <div className="text-white/30 text-xs mt-0.5">{yearly}/yıl</div>
                     {recommended && (
-                      <span className="inline-block mt-1.5 px-2 py-0.5 rounded-full bg-[#FFD700] text-black text-[10px] font-bold">
+                      <span className="inline-block mt-1.5 px-2 py-0.5 rounded-full bg-gold text-black text-[10px] font-bold">
                         {t('pkg_recommended')}
                       </span>
                     )}
@@ -131,7 +131,7 @@ function PackageSection() {
                 <tr key={key} className="border-t border-white/[0.06]">
                   <td className="p-3 text-white/60">{t(`pkg_row_${key}`)}</td>
                   {vals.map((val, i) => (
-                    <td key={i} className={cn('p-3 text-center', i === 1 && 'bg-[#FFD700]/5')}>
+                    <td key={i} className={cn('p-3 text-center', i === 1 && 'bg-gold/5')}>
                       {typeof val === 'boolean' ? (
                         val ? <Check className="w-4 h-4 text-emerald-400 mx-auto" /> : <X className="w-4 h-4 text-white/20 mx-auto" />
                       ) : (
@@ -178,7 +178,7 @@ function CalculatorSection() {
           <div>
             <div className="flex justify-between text-sm mb-2">
               <span className="text-white/60">{t('calcAdSpaces')}</span>
-              <span className="font-mono font-bold text-[#FFD700]">{adSpaces}</span>
+              <span className="font-mono font-bold text-gold">{adSpaces}</span>
             </div>
             <input
               type="range"
@@ -186,7 +186,7 @@ function CalculatorSection() {
               max={12}
               value={adSpaces}
               onChange={(e) => setAdSpaces(Number(e.target.value))}
-              className="w-full accent-[#FFD700] h-2 rounded-full bg-white/10"
+              className="w-full accent-gold h-2 rounded-full bg-white/10"
             />
           </div>
 
@@ -194,7 +194,7 @@ function CalculatorSection() {
           <div>
             <div className="flex justify-between text-sm mb-2">
               <span className="text-white/60">{t('calcPricePerSpace')}</span>
-              <span className="font-mono font-bold text-[#FFD700]">{`€${pricePerSpace}`}</span>
+              <span className="font-mono font-bold text-gold">{`€${pricePerSpace}`}</span>
             </div>
             <input
               type="range"
@@ -203,7 +203,7 @@ function CalculatorSection() {
               step={50}
               value={pricePerSpace}
               onChange={(e) => setPricePerSpace(Number(e.target.value))}
-              className="w-full accent-[#FFD700] h-2 rounded-full bg-white/10"
+              className="w-full accent-gold h-2 rounded-full bg-white/10"
             />
           </div>
 
@@ -211,7 +211,7 @@ function CalculatorSection() {
           <div className="pt-4 border-t border-white/10">
             <div className="flex justify-between items-center mb-4">
               <span className="text-white/60 text-sm">{t('calcSponsorRevenue')}</span>
-              <span className="text-xl font-mono font-black text-[#FFD700]">{`€${sponsorRevenue.toLocaleString('de-DE')}`}/ay</span>
+              <span className="text-xl font-mono font-black text-gold">{`€${sponsorRevenue.toLocaleString('de-DE')}`}/ay</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -228,7 +228,7 @@ function CalculatorSection() {
             </div>
           </div>
 
-          <p className="text-center text-xs text-[#FFD700]/60 font-semibold pt-2">
+          <p className="text-center text-xs text-gold/60 font-semibold pt-2">
             {t('calcPunchline')}
           </p>
         </div>
@@ -307,10 +307,10 @@ function FoundingPartnerSection() {
   return (
     <section className="py-12 px-4">
       <div className="max-w-3xl mx-auto">
-        <div className="p-6 md:p-8 rounded-2xl bg-gradient-to-br from-[#FFD700]/5 to-[#FFA500]/5 border border-[#FFD700]/20">
+        <div className="p-6 md:p-8 rounded-2xl bg-gradient-to-br from-gold/5 to-orange-500/5 border border-gold/20">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-black">{t('foundingTitle')}</h2>
-            <span className="px-3 py-1 rounded-full bg-[#FFD700] text-black text-xs font-bold">
+            <span className="px-3 py-1 rounded-full bg-gold text-black text-xs font-bold">
               {t('foundingBadge')}
             </span>
           </div>
@@ -318,7 +318,7 @@ function FoundingPartnerSection() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
             {perks.map(({ key }) => (
               <div key={key} className="flex items-start gap-2">
-                <Check className="w-4 h-4 text-[#FFD700] mt-0.5 flex-shrink-0" />
+                <Check className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
                 <span className="text-sm text-white/70">{t(`founding_${key}`)}</span>
               </div>
             ))}
@@ -350,7 +350,7 @@ function CTASection() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/login?demo=true"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#FFD700] text-black font-bold text-sm hover:bg-[#FFD700]/90 transition-colors min-h-[44px]"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gold text-black font-bold text-sm hover:bg-gold/90 transition-colors min-h-[44px]"
           >
             <Monitor className="w-4 h-4" />
             {t('ctaDemo')}
@@ -375,7 +375,7 @@ function CTASection() {
 // ─── Main Page ──────────────────────────────────────
 export default function PitchPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white print:bg-white print:text-black">
+    <div className="min-h-screen bg-bg-main text-white print:bg-white print:text-black">
       {/* Print styles */}
       <style>{`
         @media print {

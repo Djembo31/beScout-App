@@ -12,8 +12,8 @@ export default function WelcomePage() {
   const features = [
     {
       icon: TrendingUp,
-      color: 'text-[#FFD700]',
-      bg: 'bg-[#FFD700]/10',
+      color: 'text-gold',
+      bg: 'bg-gold/10',
       title: t('featureDpcTitle'),
       text: t('featureDpcText'),
     },
@@ -33,8 +33,8 @@ export default function WelcomePage() {
     },
     {
       icon: Vote,
-      color: 'text-[#22C55E]',
-      bg: 'bg-[#22C55E]/10',
+      color: 'text-green-500',
+      bg: 'bg-green-500/10',
       title: t('featureVotesTitle'),
       text: t('featureVotesText'),
     },
@@ -69,7 +69,7 @@ export default function WelcomePage() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
+    <div className="relative min-h-screen bg-bg-main text-white overflow-x-hidden">
       {/* ── Background Effects ── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <img
@@ -78,8 +78,8 @@ export default function WelcomePage() {
           className="absolute inset-0 w-full h-full object-cover blur-[25px] scale-110 opacity-[0.3]"
           style={{ maskImage: 'linear-gradient(to bottom, black 20%, transparent 65%)', WebkitMaskImage: 'linear-gradient(to bottom, black 20%, transparent 65%)' }}
         />
-        <div className="absolute top-0 right-1/4 w-[640px] h-[640px] bg-[#FFD700]/[0.03] rounded-full blur-[140px]" />
-        <div className="absolute bottom-0 left-1/4 w-[820px] h-[820px] bg-[#22C55E]/[0.035] rounded-full blur-[160px]" />
+        <div className="absolute top-0 right-1/4 w-[640px] h-[640px] bg-gold/[0.03] rounded-full blur-[140px]" />
+        <div className="absolute bottom-0 left-1/4 w-[820px] h-[820px] bg-green-500/[0.035] rounded-full blur-[160px]" />
         <div
           className="absolute inset-0 opacity-[0.015]"
           style={{
@@ -97,7 +97,7 @@ export default function WelcomePage() {
 
         <h1 className="text-3xl md:text-5xl lg:text-6xl font-black leading-tight max-w-3xl">
           {t('heroTitle')}{' '}
-          <span className="text-[#FFD700]">{t('heroHighlight')}</span>.
+          <span className="text-gold">{t('heroHighlight')}</span>.
         </h1>
 
         <p className="mt-4 md:mt-6 text-base md:text-lg text-white/60 max-w-xl leading-relaxed">
@@ -124,7 +124,7 @@ export default function WelcomePage() {
         <div className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           {stats.map((s) => (
             <div key={s.label}>
-              <div className="text-xl md:text-2xl font-black font-mono text-[#FFD700]">{s.value}</div>
+              <div className="text-xl md:text-2xl font-black font-mono text-gold">{s.value}</div>
               <div className="text-xs text-white/50 mt-0.5">{s.label}</div>
             </div>
           ))}
@@ -163,10 +163,10 @@ export default function WelcomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {steps.map((s) => (
               <div key={s.num} className="text-center md:text-left">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#FFD700]/10 mb-4">
-                  <s.icon className="w-7 h-7 text-[#FFD700]" />
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gold/10 mb-4">
+                  <s.icon className="w-7 h-7 text-gold" />
                 </div>
-                <div className="text-xs font-mono text-[#FFD700]/60 mb-1">{t('step')} {s.num}</div>
+                <div className="text-xs font-mono text-gold/60 mb-1">{t('step')} {s.num}</div>
                 <h3 className="text-lg font-black mb-2">{s.title}</h3>
                 <p className="text-sm text-white/50 leading-relaxed">{s.text}</p>
               </div>
@@ -197,7 +197,7 @@ export default function WelcomePage() {
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-bg-main via-transparent to-transparent" />
             </div>
             <div className="text-center lg:text-left">
               <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
