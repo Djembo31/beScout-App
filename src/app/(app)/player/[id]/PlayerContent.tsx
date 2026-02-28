@@ -192,7 +192,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   if (!player || !playerWithOwnership) {
     return (
       <div className="flex flex-col items-center justify-center py-32">
-        <XCircle className="w-12 h-12 text-white/20 mb-4" />
+        <XCircle className="size-12 text-white/20 mb-4" />
         <div className="text-white/50 mb-2">{t('notFound')}</div>
         <Link href="/market">
           <Button variant="outline">{t('backToMarket')}</Button>

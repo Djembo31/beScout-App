@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import {
@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui';
 import { StatusBadge } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
-import { fmtScout } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getClub } from '@/lib/clubs';
 import type { Player, DbIpo } from '@/types';
@@ -43,6 +43,14 @@ export default function PlayerHero({
   const [showAlertInput, setShowAlertInput] = useState(false);
   const [alertInput, setAlertInput] = useState(priceAlert?.target.toString() ?? '');
 
+  // Escape key closes overflow menu
+  useEffect(() => {
+    if (!showOverflow) return;
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowOverflow(false); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [showOverflow]);
+
   const floor = player.prices.floor ?? 0;
   const change24h = player.prices.change24h ?? 0;
   const up = change24h >= 0;
@@ -62,29 +70,32 @@ export default function PlayerHero({
       {/* Top bar: Back + Actions */}
       <div className="flex items-center justify-between px-4 pt-4 md:px-6 md:pt-5">
         <Link href="/market">
-          <Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4" /></Button>
+          <Button variant="outline" size="sm"><ArrowLeft className="size-4" /></Button>
         </Link>
         <div className="flex items-center gap-2">
           <button
             onClick={onToggleWatchlist}
-            className={`p-2 rounded-xl transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${isWatchlisted ? 'text-gold bg-gold/10' : 'text-white/30 hover:text-white/60 hover:bg-white/5'}`}
+            className={cn('p-2 rounded-xl transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center',
+              isWatchlisted ? 'text-gold bg-gold/10' : 'text-white/30 hover:text-white/60 hover:bg-white/5'
+            )}
             aria-label="Watchlist"
           >
-            <Star className="w-4 h-4" fill={isWatchlisted ? 'currentColor' : 'none'} />
+            <Star className="size-4" fill={isWatchlisted ? 'currentColor' : 'none'} />
           </button>
           <button
             onClick={onShare}
             className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-label={t('hero.share')}
           >
-            <Share2 className="w-4 h-4" />
+            <Share2 className="size-4" />
           </button>
           <div className="relative">
             <button
               onClick={() => setShowOverflow(v => !v)}
               className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Mehr Optionen"
             >
-              <MoreVertical className="w-4 h-4" />
+              <MoreVertical className="size-4" />
             </button>
             {showOverflow && (
               <>
@@ -94,20 +105,20 @@ export default function PlayerHero({
                     onClick={() => { onToggleWatchlist(); setShowOverflow(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors min-h-[44px]"
                   >
-                    <Star className="w-4 h-4" fill={isWatchlisted ? 'currentColor' : 'none'} />
+                    <Star className="size-4" fill={isWatchlisted ? 'currentColor' : 'none'} />
                     {isWatchlisted ? t('hero.removeWatchlist') : t('hero.addWatchlist')}
                   </button>
                   <button
                     onClick={() => { onShare(); setShowOverflow(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors min-h-[44px]"
                   >
-                    <Share2 className="w-4 h-4" /> {t('hero.share')}
+                    <Share2 className="size-4" /> {t('hero.share')}
                   </button>
                   <button
                     onClick={() => { setShowAlertInput(true); setShowOverflow(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors min-h-[44px]"
                   >
-                    <Bell className="w-4 h-4" /> {t('hero.priceAlert')}
+                    <Bell className="size-4" /> {t('hero.priceAlert')}
                   </button>
                 </div>
               </>
@@ -151,7 +162,7 @@ export default function PlayerHero({
             {/* Club · Position · Age */}
             <div className="flex items-center gap-2 text-xs md:text-sm text-white/60 mt-1 flex-wrap justify-center md:justify-start">
               {clubData?.logo && (
-                <img src={clubData.logo} alt={clubData.name} className="w-4 h-4 rounded-full object-cover" />
+                <img src={clubData.logo} alt={clubData.name} className="size-4 rounded-full object-cover" />
               )}
               <span>{player.club}</span>
               <span className="text-white/20">&middot;</span>
@@ -165,13 +176,13 @@ export default function PlayerHero({
               <StatusBadge status={player.status} />
               {isIPO && (
                 <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 border border-green-500/30 rounded-lg">
-                  <div className="w-2 h-2 rounded-full bg-green-500 live-ring" />
+                  <div className="size-2 rounded-full bg-green-500 live-ring" />
                   <span className="text-xs font-bold text-green-500">ERSTVERKAUF</span>
                 </div>
               )}
               {holderCount > 0 && (
                 <span className="flex items-center gap-1 px-2 py-1 bg-sky-500/10 border border-sky-500/20 rounded-lg text-xs text-sky-300">
-                  <Users className="w-3 h-3" />
+                  <Users className="size-3" />
                   {holderCount} Scouts
                 </span>
               )}
@@ -185,13 +196,15 @@ export default function PlayerHero({
             {/* Price Strip */}
             <div className="mt-4 pt-4 border-t border-white/[0.06] w-full">
               <div className="flex items-end gap-2 justify-center md:justify-start">
-                <span className="text-xl md:text-3xl font-mono font-black text-gold gold-glow">
+                <span className="text-xl md:text-3xl font-mono font-black tabular-nums text-gold">
                   {isIPO && activeIpo ? fmtScout(centsToBsd(activeIpo.price)) : fmtScout(floor)}
                 </span>
                 <span className="text-white/40 mb-0.5">$SCOUT</span>
                 {!isIPO && change24h !== 0 && (
-                  <span className={`flex items-center gap-0.5 mb-0.5 font-mono font-bold text-sm px-1.5 py-0.5 rounded-md ${up ? 'text-green-500 bg-green-500/10' : 'text-red-300 bg-red-500/10'}`}>
-                    {up ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                  <span className={cn('flex items-center gap-0.5 mb-0.5 font-mono font-bold tabular-nums text-sm px-1.5 py-0.5 rounded-md',
+                    up ? 'text-green-500 bg-green-500/10' : 'text-red-300 bg-red-500/10'
+                  )}>
+                    {up ? <TrendingUp className="size-3.5" /> : <TrendingDown className="size-3.5" />}
                     {up ? '+' : ''}{change24h.toFixed(1)}%
                   </span>
                 )}
@@ -204,12 +217,12 @@ export default function PlayerHero({
             {/* CTA Buttons (desktop only — mobile has sticky bar) */}
             {!player.isLiquidated && (
               <div className="hidden md:flex gap-2 mt-4 w-full">
-                <Button variant="gold" className="text-sm font-bold px-6 btn-gold-glow" onClick={onBuyClick}>
-                  <ShoppingCart className="w-4 h-4" /> {t('hero.buy')}
+                <Button variant="gold" className="text-sm font-bold px-6" onClick={onBuyClick}>
+                  <ShoppingCart className="size-4" /> {t('hero.buy')}
                 </Button>
                 {holdingQty > 0 && (
                   <Button variant="outline" className="text-sm font-bold px-6" onClick={onSellClick}>
-                    <Send className="w-4 h-4" /> {t('hero.sell')}
+                    <Send className="size-4" /> {t('hero.sell')}
                   </Button>
                 )}
               </div>
@@ -222,17 +235,17 @@ export default function PlayerHero({
           <div className="mt-4">
             {priceAlert ? (
               <div className="flex items-center gap-2 px-3 py-2 bg-gold/5 border border-gold/20 rounded-xl">
-                <Bell className="w-3.5 h-3.5 text-gold" />
+                <Bell className="size-3.5 text-gold" />
                 <span className="text-xs text-gold/70">
                   Alert: {priceAlert.dir === 'below' ? '\u2264' : '\u2265'} {fmtScout(priceAlert.target)} $SCOUT
                 </span>
-                <button onClick={() => { onRemovePriceAlert(); setShowAlertInput(false); }} className="ml-auto text-white/30 hover:text-white/60">
-                  <XCircle className="w-3.5 h-3.5" />
+                <button onClick={() => { onRemovePriceAlert(); setShowAlertInput(false); }} className="ml-auto text-white/30 hover:text-white/60" aria-label="Alert entfernen">
+                  <XCircle className="size-3.5" />
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-1.5">
-                <Bell className="w-3 h-3 text-white/30" />
+                <Bell className="size-3 text-white/30" />
                 <input
                   type="number" inputMode="numeric" step="0.01" placeholder={t('hero.targetPrice')}
                   value={alertInput}
@@ -246,15 +259,16 @@ export default function PlayerHero({
                     if (target > 0) { onSetPriceAlert(target); setShowAlertInput(false); }
                   }}
                   disabled={!alertInput}
-                  className="px-2 py-1 bg-gold/10 border border-gold/20 rounded-lg text-[10px] font-bold text-gold hover:bg-gold/20 disabled:opacity-30 transition-all min-h-[44px]"
+                  className="px-2 py-1 bg-gold/10 border border-gold/20 rounded-lg text-[10px] font-bold text-gold hover:bg-gold/20 disabled:opacity-30 transition-colors min-h-[44px]"
                 >
                   Alert
                 </button>
                 <button
                   onClick={() => setShowAlertInput(false)}
                   className="text-white/30 hover:text-white/60 min-h-[44px] flex items-center"
+                  aria-label="Schließen"
                 >
-                  <XCircle className="w-3.5 h-3.5" />
+                  <XCircle className="size-3.5" />
                 </button>
               </div>
             )}
