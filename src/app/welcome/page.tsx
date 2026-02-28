@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { TrendingUp, Trophy, Users, Vote, ChevronDown, Wallet, ShoppingCart, BarChart3 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui';
+import { cn } from '@/lib/utils';
 
 export default function WelcomePage() {
   const t = useTranslations('welcome');
@@ -69,17 +70,15 @@ export default function WelcomePage() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-bg-main text-white overflow-x-hidden">
+    <div className="relative min-h-dvh bg-bg-main text-white overflow-x-hidden">
       {/* ── Background Effects ── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <img
           src="/stadiums/default.jpg"
           alt=""
-          className="absolute inset-0 w-full h-full object-cover blur-[25px] scale-110 opacity-[0.3]"
+          className="absolute inset-0 w-full h-full object-cover scale-110 opacity-[0.15]"
           style={{ maskImage: 'linear-gradient(to bottom, black 20%, transparent 65%)', WebkitMaskImage: 'linear-gradient(to bottom, black 20%, transparent 65%)' }}
         />
-        <div className="absolute top-0 right-1/4 w-[640px] h-[640px] bg-gold/[0.03] rounded-full blur-[140px]" />
-        <div className="absolute bottom-0 left-1/4 w-[820px] h-[820px] bg-green-500/[0.035] rounded-full blur-[160px]" />
         <div
           className="absolute inset-0 opacity-[0.015]"
           style={{
@@ -89,18 +88,18 @@ export default function WelcomePage() {
       </div>
 
       {/* ── 1. Hero ── */}
-      <section className="relative flex flex-col items-center justify-center min-h-screen px-4 text-center">
+      <section className="relative flex flex-col items-center justify-center min-h-dvh px-4 text-center">
         <div className="flex items-center gap-3 mb-6">
           <Image src="/logo.svg" alt="BeScout Logo" width={48} height={48} className="w-10 h-10 md:w-12 md:h-12" />
           <Image src="/schrift.svg" alt="BeScout" width={160} height={40} className="h-8 md:h-10 w-auto" />
         </div>
 
-        <h1 className="text-3xl md:text-5xl lg:text-6xl font-black leading-tight max-w-3xl">
+        <h1 className="text-3xl md:text-5xl lg:text-6xl font-black leading-tight text-balance max-w-3xl">
           {t('heroTitle')}{' '}
           <span className="text-gold">{t('heroHighlight')}</span>.
         </h1>
 
-        <p className="mt-4 md:mt-6 text-base md:text-lg text-white/60 max-w-xl leading-relaxed">
+        <p className="mt-4 md:mt-6 text-base md:text-lg text-white/60 text-pretty max-w-xl leading-relaxed">
           {t('heroSubtitle')}
         </p>
 
@@ -115,7 +114,7 @@ export default function WelcomePage() {
           className="absolute bottom-10 flex flex-col items-center gap-1 text-white/30 hover:text-white/50 transition-colors"
         >
           <span className="text-xs">{t('learnMore')}</span>
-          <ChevronDown className="w-5 h-5 animate-bounce" />
+          <ChevronDown className="size-5 animate-bounce motion-reduce:animate-none" />
         </button>
       </section>
 
@@ -124,7 +123,7 @@ export default function WelcomePage() {
         <div className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           {stats.map((s) => (
             <div key={s.label}>
-              <div className="text-xl md:text-2xl font-black font-mono text-gold">{s.value}</div>
+              <div className="text-xl md:text-2xl font-black font-mono tabular-nums text-gold">{s.value}</div>
               <div className="text-xs text-white/50 mt-0.5">{s.label}</div>
             </div>
           ))}
@@ -133,7 +132,7 @@ export default function WelcomePage() {
 
       {/* ── 3. Features ── */}
       <section className="relative max-w-6xl mx-auto px-4 py-20 md:py-28">
-        <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-center mb-12 md:mb-16">
+        <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-center text-balance mb-12 md:mb-16">
           {t('featuresTitle')}
         </h2>
 
@@ -143,11 +142,11 @@ export default function WelcomePage() {
               key={f.title}
               className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 md:p-8 hover:border-white/20 transition-colors"
             >
-              <div className={`w-12 h-12 rounded-xl ${f.bg} flex items-center justify-center mb-4`}>
-                <f.icon className={`w-6 h-6 ${f.color}`} />
+              <div className={cn('size-12 rounded-xl flex items-center justify-center mb-4', f.bg)}>
+                <f.icon className={cn('size-6', f.color)} />
               </div>
-              <h3 className="text-lg font-black mb-2">{f.title}</h3>
-              <p className="text-sm text-white/50 leading-relaxed">{f.text}</p>
+              <h3 className="text-lg font-black text-balance mb-2">{f.title}</h3>
+              <p className="text-sm text-white/50 text-pretty leading-relaxed">{f.text}</p>
             </div>
           ))}
         </div>
@@ -156,19 +155,19 @@ export default function WelcomePage() {
       {/* ── 4. How It Works ── */}
       <section className="relative border-y border-white/[0.06] bg-white/[0.01]">
         <div className="max-w-6xl mx-auto px-4 py-20 md:py-28">
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-center mb-12 md:mb-16">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-center text-balance mb-12 md:mb-16">
             {t('howItWorksTitle')}
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {steps.map((s) => (
               <div key={s.num} className="text-center md:text-left">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gold/10 mb-4">
-                  <s.icon className="w-7 h-7 text-gold" />
+                <div className="inline-flex items-center justify-center size-14 rounded-2xl bg-gold/10 mb-4">
+                  <s.icon className="size-7 text-gold" />
                 </div>
-                <div className="text-xs font-mono text-gold/60 mb-1">{t('step')} {s.num}</div>
-                <h3 className="text-lg font-black mb-2">{s.title}</h3>
-                <p className="text-sm text-white/50 leading-relaxed">{s.text}</p>
+                <div className="text-xs font-mono tabular-nums text-gold/60 mb-1">{t('step')} {s.num}</div>
+                <h3 className="text-lg font-black text-balance mb-2">{s.title}</h3>
+                <p className="text-sm text-white/50 text-pretty leading-relaxed">{s.text}</p>
               </div>
             ))}
           </div>
@@ -177,10 +176,10 @@ export default function WelcomePage() {
 
       {/* ── 5. Vision Quote ── */}
       <section className="relative max-w-4xl mx-auto px-4 py-20 md:py-28 text-center">
-        <blockquote className="text-xl md:text-2xl lg:text-3xl font-black leading-snug text-white/90">
+        <blockquote className="text-xl md:text-2xl lg:text-3xl font-black leading-snug text-balance text-white/90">
           &ldquo;{t('visionQuote')}&rdquo;
         </blockquote>
-        <p className="mt-6 text-sm md:text-base text-white/40 max-w-lg mx-auto leading-relaxed">
+        <p className="mt-6 text-sm md:text-base text-white/40 text-pretty max-w-lg mx-auto leading-relaxed">
           {t('visionSub')}
         </p>
       </section>
@@ -201,13 +200,13 @@ export default function WelcomePage() {
             </div>
             <div className="text-center lg:text-left">
               <div className="flex items-center justify-center lg:justify-start gap-3 mb-4">
-                <Image src="/Sakarya_logo.png" alt="Sakaryaspor" width={48} height={48} className="w-12 h-12" />
+                <Image src="/Sakarya_logo.png" alt="Sakaryaspor" width={48} height={48} className="size-12" />
                 <span className="text-lg font-black">{t('pilotPartner')}</span>
               </div>
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-black mb-4">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-balance mb-4">
                 {t('pilotTitle')}
               </h2>
-              <p className="text-sm md:text-base text-white/50 leading-relaxed">
+              <p className="text-sm md:text-base text-white/50 text-pretty leading-relaxed">
                 {t('pilotDesc')}
               </p>
             </div>
@@ -217,10 +216,10 @@ export default function WelcomePage() {
 
       {/* ── 7. Final CTA ── */}
       <section className="relative max-w-4xl mx-auto px-4 py-20 md:py-28 text-center">
-        <h2 className="text-2xl md:text-4xl lg:text-5xl font-black mb-6">
+        <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-balance mb-6">
           {t('finalCtaTitle')}
         </h2>
-        <p className="text-sm md:text-base text-white/50 mb-8 max-w-md mx-auto">
+        <p className="text-sm md:text-base text-white/50 text-pretty mb-8 max-w-md mx-auto">
           {t('finalCtaDesc')}
         </p>
         <Link href="/login">
@@ -234,7 +233,7 @@ export default function WelcomePage() {
       <footer className="relative border-t border-white/[0.06] bg-white/[0.01]">
         <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Image src="/logo.svg" alt="BeScout" width={24} height={24} className="w-6 h-6" />
+            <Image src="/logo.svg" alt="BeScout" width={24} height={24} className="size-6" />
             <span className="text-xs text-white/40">&copy; 2026 BeScout</span>
           </div>
           <div className="flex items-center gap-6 text-xs text-white/30">
