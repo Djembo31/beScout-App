@@ -23,7 +23,7 @@ export function mapRpcError(message: string): string {
     return 'Du kannst deine eigene Order nicht kaufen.';
   if (lower.includes('permission') || lower.includes('denied') || lower.includes('unauthorized'))
     return 'Keine Berechtigung für diese Aktion.';
-  return message;
+  return 'Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut.';
 }
 
 // ============================================

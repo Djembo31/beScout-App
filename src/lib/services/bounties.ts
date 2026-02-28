@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { mapRpcError } from '@/lib/services/trading';
 import type {
   DbBounty,
   BountyWithCreator,
@@ -244,9 +245,9 @@ export async function createUserBounty(params: {
     p_player_id: params.playerId || null,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(mapRpcError(error.message));
   const result = data as { success: boolean; error?: string; bounty_id?: string };
-  if (!result.success) throw new Error(result.error ?? 'Bounty-Erstellung fehlgeschlagen');
+  if (!result.success) throw new Error(mapRpcError(result.error ?? 'Bounty-Erstellung fehlgeschlagen'));
 
   invalidateBountyData(params.userId, params.clubId);
   import('@/lib/services/activityLog').then(({ logActivity }) => {
@@ -262,9 +263,9 @@ export async function cancelBounty(userId: string, bountyId: string): Promise<vo
     p_bounty_id: bountyId,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(mapRpcError(error.message));
   const result = data as { success: boolean; error?: string };
-  if (!result.success) throw new Error(result.error ?? 'Stornierung fehlgeschlagen');
+  if (!result.success) throw new Error(mapRpcError(result.error ?? 'Stornierung fehlgeschlagen'));
 
   invalidateBountyData(userId);
   // Activity log
@@ -290,7 +291,7 @@ export async function submitBountyResponse(
     p_evaluation: evaluation ?? null,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(mapRpcError(error.message));
   const result = data as SubmitBountyResult;
 
   if (result.success) {
@@ -341,7 +342,7 @@ export async function approveBountySubmission(
     p_feedback: feedback || null,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(mapRpcError(error.message));
   const result = data as ApproveBountyResult;
 
   if (result.success) {
@@ -418,7 +419,7 @@ export async function rejectBountySubmission(
     p_feedback: feedback || null,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(mapRpcError(error.message));
   const result = data as RejectBountyResult;
 
   if (result.success) {

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { mapRpcError } from '@/lib/services/trading';
 import type { DbLiquidationEvent, DbLiquidationPayout } from '@/types';
 
 // ============================================
@@ -15,7 +16,7 @@ export async function setSuccessFeeCap(
     p_player_id: playerId,
     p_cap_cents: capCents,
   });
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: mapRpcError(error.message) };
   return { success: true };
 }
 
@@ -42,7 +43,7 @@ export async function liquidatePlayer(
     p_player_id: playerId,
     p_transfer_value_eur: transferValueEur ?? 0,
   });
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: mapRpcError(error.message) };
 
   const result = data as {
     success: boolean;

@@ -14,20 +14,38 @@ import { useTranslations } from 'next-intl';
 
 const LS_KEY = 'bescout-recent-searches';
 const MAX_RECENT = 5;
+const RECENT_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 function getRecent(): string[] {
   if (typeof window === 'undefined') return [];
   try {
-    return JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+    const raw = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+    // Support legacy format (string[]) and new format ({q,t}[])
+    if (!Array.isArray(raw)) return [];
+    const now = Date.now();
+    const entries = raw
+      .map((item: string | { q: string; t: number }) =>
+        typeof item === 'string' ? { q: item, t: now } : item
+      )
+      .filter((item: { q: string; t: number }) => now - item.t < RECENT_EXPIRY_MS);
+    return entries.map((item: { q: string; t: number }) => item.q);
   } catch {
     return [];
   }
 }
 
 function saveRecent(q: string) {
-  const list = getRecent().filter((s) => s !== q);
-  list.unshift(q);
-  localStorage.setItem(LS_KEY, JSON.stringify(list.slice(0, MAX_RECENT)));
+  const now = Date.now();
+  try {
+    const raw = JSON.parse(localStorage.getItem(LS_KEY) || '[]') as (string | { q: string; t: number })[];
+    const entries = raw
+      .map((item) => typeof item === 'string' ? { q: item, t: now } : item)
+      .filter((item) => item.q !== q && now - item.t < RECENT_EXPIRY_MS);
+    entries.unshift({ q, t: now });
+    localStorage.setItem(LS_KEY, JSON.stringify(entries.slice(0, MAX_RECENT)));
+  } catch {
+    localStorage.setItem(LS_KEY, JSON.stringify([{ q, t: now }]));
+  }
 }
 
 function clearRecent() {
@@ -197,6 +215,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
             placeholder={t('placeholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            maxLength={200}
             className="flex-1 bg-transparent text-base text-white placeholder:text-white/40 focus:outline-none"
           />
           {query && (

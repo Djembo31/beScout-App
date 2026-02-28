@@ -12,6 +12,8 @@ const RETRY_DELAYS = [0, 1000, 3000]; // exponential backoff
 interface WalletContextValue {
     /** Balance in cents — null while loading */
     balanceCents: number | null;
+    /** Locked balance in cents (bounty escrow) — null while loading */
+    lockedBalanceCents: number | null;
     /** Optimistic update — set immediately after buy/sell */
     setBalanceCents: (cents: number) => void;
     /** Re-fetch wallet from Supabase */
@@ -20,6 +22,7 @@ interface WalletContextValue {
 
 const WalletContext = createContext<WalletContextValue>({
     balanceCents: null,
+    lockedBalanceCents: null,
     setBalanceCents: () => { },
     refreshBalance: async () => { },
 });
@@ -46,6 +49,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         return null;
     });
 
+    const [lockedBalanceCents, setLockedBalanceCents] = useState<number | null>(null);
+
     const retryCount = useRef(0);
     const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const prevUserId = useRef<string | null>(null);
@@ -64,6 +69,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             const wallet = await withTimeout(getWallet(user.id), 5000);
             const newBalance = wallet?.balance ?? 0;
             setBalanceCents(newBalance);
+            setLockedBalanceCents(wallet?.locked_balance ?? 0);
             // Success — prevent further retries
             retryCount.current = MAX_RETRIES;
         } catch (err) {
@@ -95,6 +101,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             retryCount.current = 0;
             prevUserId.current = null;
             setBalanceCentsRaw(null);
+            setLockedBalanceCents(null);
             if (retryTimer.current) clearTimeout(retryTimer.current);
             try { sessionStorage.removeItem(WALLET_SESSION_KEY); } catch { /* ignore */ }
             return;
@@ -135,8 +142,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     }, [user, fetchBalance]);
 
     const value = useMemo<WalletContextValue>(
-        () => ({ balanceCents, setBalanceCents, refreshBalance }),
-        [balanceCents, setBalanceCents, refreshBalance],
+        () => ({ balanceCents, lockedBalanceCents, setBalanceCents, refreshBalance }),
+        [balanceCents, lockedBalanceCents, setBalanceCents, refreshBalance],
     );
 
     return (
