@@ -77,17 +77,17 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
 
       {/* Wallet */}
       <div className={`p-4 border-b border-white/10 ${collapsed ? 'px-3' : ''}`}>
-        <div data-tour-id="sidebar-wallet" className={`bg-gradient-to-br from-[#FFD700]/[0.10] to-transparent rounded-xl p-3 border border-[#FFD700]/[0.18] shadow-card-sm ${collapsed ? 'px-2' : ''}`}>
+        <div data-tour-id="sidebar-wallet" className={`bg-gradient-to-br from-gold/[0.10] to-transparent rounded-xl p-3 border border-gold/[0.18] shadow-card-sm ${collapsed ? 'px-2' : ''}`}>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#FFD700]/25 flex items-center justify-center flex-shrink-0 shadow-glow-gold">
-              <DollarSign className="w-4 h-4 text-[#FFD700]" />
+            <div className="w-8 h-8 rounded-lg bg-gold/25 flex items-center justify-center flex-shrink-0 shadow-glow-gold">
+              <DollarSign className="w-4 h-4 text-gold" />
             </div>
             {!collapsed && (
               <div>
                 <div className="text-[11px] text-white/50">{tc('balance')}</div>
-                <div className="font-mono font-black text-[#FFD700] text-sm">
+                <div className="font-mono font-black text-gold text-sm">
                   {balanceCents === null ? (
-                    <span className="inline-block w-16 h-4 rounded bg-[#FFD700]/20 animate-pulse" />
+                    <span className="inline-block w-16 h-4 rounded bg-gold/20 animate-pulse" />
                   ) : (
                     <>{formatScout(balanceCents)} $SCOUT</>
                   )}
@@ -123,7 +123,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
                 className={`
                   flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.97] min-h-[44px]
                   ${isActive
-                    ? 'bg-[#FFD700]/[0.15] text-[#FFD700] border border-[#FFD700]/30 shadow-[0_0_16px_rgba(255,215,0,0.15)]'
+                    ? 'bg-gold/[0.15] text-gold border border-gold/30 shadow-[0_0_16px_rgba(255,215,0,0.15)]'
                     : 'text-white/60 hover:bg-white/[0.08] hover:text-white border border-transparent'
                   }
                   ${collapsed ? 'justify-center' : ''}
@@ -215,8 +215,8 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
                 className={`
                   flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all
                   ${isAdminActive
-                    ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20'
-                    : 'text-[#FFD700]/60 hover:bg-[#FFD700]/5 hover:text-[#FFD700]/80'
+                    ? 'bg-gold/10 text-gold border border-gold/20'
+                    : 'text-gold/60 hover:bg-gold/5 hover:text-gold/80'
                   }
                   ${collapsed ? 'justify-center' : ''}
                 `}
@@ -226,7 +226,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
                 {!collapsed && (
                   <>
                     <span className="font-medium">{t(NAV_ADMIN.label)}</span>
-                    <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-[#FFD700]/10 text-[#FFD700]/60">
+                    <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-gold/10 text-gold/60">
                       {NAV_ADMIN.badge ? t(NAV_ADMIN.badge) : ''}
                     </span>
                   </>
@@ -267,7 +267,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
       {/* Collapse Toggle — desktop only */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-20 w-6 h-6 bg-[#0a0a0a] border border-white/10 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:border-white/20 hover:scale-110 active:scale-90 transition-all hidden lg:flex"
+        className="absolute -right-3 top-20 w-6 h-6 bg-bg-main border border-white/10 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:border-white/20 hover:scale-110 active:scale-90 transition-all hidden lg:flex"
       >
         {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
       </button>
@@ -297,7 +297,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
             onClick={onMobileClose}
           />
           {/* Drawer */}
-          <aside className="relative w-[min(280px,85vw)] h-full flex flex-col bg-[#0a0a0a] border-r border-white/10 shadow-2xl anim-slide-left">
+          <aside className="relative w-[min(280px,85vw)] h-full flex flex-col bg-bg-main border-r border-white/10 shadow-2xl anim-slide-left">
             {/* Close button */}
             <button
               onClick={onMobileClose}

@@ -107,7 +107,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/10">
+    <header className="sticky top-0 z-30 bg-bg-main/80 backdrop-blur-xl border-b border-white/10">
       <div className="flex items-center justify-between px-4 lg:px-6 py-3">
         {/* Left side */}
         <div className="flex items-center gap-3 flex-1">
@@ -144,12 +144,12 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
         {/* Right side */}
         <div className="flex items-center gap-2 md:gap-3">
           {/* $SCOUT Balance pill — compact on mobile */}
-          <div data-tour-id="topbar-balance" className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-xl">
-            <DollarSign className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#FFD700]" />
+          <div data-tour-id="topbar-balance" className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 bg-gold/10 border border-gold/20 rounded-xl">
+            <DollarSign className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gold" />
             {balanceCents === null ? (
-              <span className="inline-block w-10 sm:w-12 h-3.5 rounded bg-[#FFD700]/20 animate-pulse" />
+              <span className="inline-block w-10 sm:w-12 h-3.5 rounded bg-gold/20 animate-pulse" />
             ) : (
-              <span className="font-mono font-bold text-[#FFD700] text-[10px] sm:text-xs">{formatScout(balanceCents)}</span>
+              <span className="font-mono font-bold text-gold text-[10px] sm:text-xs">{formatScout(balanceCents)}</span>
             )}
           </div>
 
@@ -168,14 +168,14 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             disabled={pushLoading}
             className={`hidden sm:flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] border rounded-xl transition-all ${
               pushEnabled
-                ? 'bg-[#22C55E]/10 border-[#22C55E]/20 hover:bg-[#22C55E]/20'
+                ? 'bg-green-500/10 border-green-500/20 hover:bg-green-500/20'
                 : 'bg-white/5 border-white/10 hover:bg-white/10'
             }`}
             aria-label={pushEnabled ? t('pushDisable') : t('pushEnable')}
             title={pushEnabled ? t('pushActive') : t('pushActivate')}
           >
             {pushEnabled
-              ? <BellRing className="w-4 h-4 md:w-5 md:h-5 text-[#22C55E]" />
+              ? <BellRing className="w-4 h-4 md:w-5 md:h-5 text-green-500" />
               : <BellOff className="w-4 h-4 md:w-5 md:h-5 text-white/40" />
             }
           </button>
@@ -190,7 +190,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             >
               <Bell className="w-4 h-4 md:w-5 md:h-5 text-white/70" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#FFD700] text-black text-[10px] font-black rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-gold text-black text-[10px] font-black rounded-full flex items-center justify-center">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -224,7 +224,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
               <div className="text-[10px] text-white/50">{t('levelPlan', { level, plan })}</div>
             </div>
             <Link href="/profile" className="group">
-              <div className={`relative w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-[#FFD700]/20 to-[#22C55E]/20 border flex items-center justify-center overflow-hidden transition-all group-hover:border-[#FFD700]/40 ${pathname.startsWith('/profile') ? 'border-[#FFD700]/60 ring-2 ring-[#FFD700]/20' : 'border-white/10'}`}>
+              <div className={`relative w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-gold/20 to-green-500/20 border flex items-center justify-center overflow-hidden transition-all group-hover:border-gold/40 ${pathname.startsWith('/profile') ? 'border-gold/60 ring-2 ring-gold/20' : 'border-white/10'}`}>
                 {loading ? (
                   <User className="w-4 h-4 md:w-5 md:h-5 text-white/70" />
                 ) : profile?.avatar_url ? (

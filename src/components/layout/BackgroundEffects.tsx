@@ -18,11 +18,11 @@ export const BackgroundEffects = memo(function BackgroundEffects() {
         style={{ maskImage: 'linear-gradient(to bottom, black 20%, transparent 65%)', WebkitMaskImage: 'linear-gradient(to bottom, black 20%, transparent 65%)' }}
       />
       {/* Top floodlight — golden wash from above */}
-      <div className="absolute top-0 inset-x-0 h-[350px] bg-gradient-to-b from-[#FFD700]/[0.05] via-[#FFD700]/[0.02] to-transparent" />
+      <div className="absolute top-0 inset-x-0 h-[350px] bg-gradient-to-b from-gold/[0.05] via-gold/[0.02] to-transparent" />
       {/* Gold ambient blob — top right */}
-      <div className="absolute -top-[200px] right-[10%] w-[700px] h-[700px] bg-[#FFD700]/[0.06] rounded-full blur-[160px]" />
+      <div className="absolute -top-[200px] right-[10%] w-[700px] h-[700px] bg-gold/[0.06] rounded-full blur-[160px]" />
       {/* Green ambient blob — bottom left */}
-      <div className="absolute -bottom-[200px] left-[15%] w-[800px] h-[800px] bg-[#22C55E]/[0.04] rounded-full blur-[180px]" />
+      <div className="absolute -bottom-[200px] left-[15%] w-[800px] h-[800px] bg-green-500/[0.04] rounded-full blur-[180px]" />
       {/* Subtle purple accent — center */}
       <div className="absolute top-[40%] left-[50%] -translate-x-1/2 w-[600px] h-[400px] bg-purple-500/[0.02] rounded-full blur-[200px]" />
       {/* Noise texture — DexScreener-inspired grain */}

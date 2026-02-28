@@ -110,7 +110,7 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
           <Link
             href="/clubs"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2 px-3 py-2.5 border-t border-white/10 text-[#FFD700]/70 hover:text-[#FFD700] hover:bg-[#FFD700]/5 transition-all"
+            className="flex items-center gap-2 px-3 py-2.5 border-t border-white/10 text-gold/70 hover:text-gold hover:bg-gold/5 transition-all"
           >
             <Compass className="w-4 h-4" />
             <span className="text-sm font-medium">Clubs entdecken</span>

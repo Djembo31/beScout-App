@@ -52,38 +52,38 @@ function getNotifColor(type: NotificationType): string {
   switch (type) {
     case 'research_unlock': return 'text-purple-400 bg-purple-400/10';
     case 'research_rating': return 'text-amber-400 bg-amber-400/10';
-    case 'follow': return 'text-[#22C55E] bg-[#22C55E]/10';
-    case 'fantasy_reward': return 'text-[#FFD700] bg-[#FFD700]/10';
+    case 'follow': return 'text-green-500 bg-green-500/10';
+    case 'fantasy_reward': return 'text-gold bg-gold/10';
     case 'poll_vote': return 'text-amber-400 bg-amber-400/10';
     case 'reply': return 'text-sky-400 bg-sky-400/10';
-    case 'trade': return 'text-[#FFD700] bg-[#FFD700]/10';
+    case 'trade': return 'text-gold bg-gold/10';
     case 'bounty_submission': return 'text-amber-400 bg-amber-400/10';
-    case 'bounty_approved': return 'text-[#22C55E] bg-[#22C55E]/10';
+    case 'bounty_approved': return 'text-green-500 bg-green-500/10';
     case 'bounty_rejected': return 'text-red-400 bg-red-400/10';
-    case 'pbt_liquidation': return 'text-[#FFD700] bg-[#FFD700]/10';
+    case 'pbt_liquidation': return 'text-gold bg-gold/10';
     case 'offer_received': return 'text-amber-400 bg-amber-400/10';
-    case 'offer_accepted': return 'text-[#22C55E] bg-[#22C55E]/10';
+    case 'offer_accepted': return 'text-green-500 bg-green-500/10';
     case 'offer_rejected': return 'text-red-400 bg-red-400/10';
     case 'offer_countered': return 'text-blue-400 bg-blue-400/10';
-    case 'dpc_of_week': return 'text-[#FFD700] bg-[#FFD700]/10';
+    case 'dpc_of_week': return 'text-gold bg-gold/10';
     case 'tier_promotion': return 'text-purple-400 bg-purple-400/10';
     case 'price_alert': return 'text-amber-400 bg-amber-400/10';
     case 'mission_reward': return 'text-sky-400 bg-sky-400/10';
-    case 'event_starting': return 'text-[#22C55E] bg-[#22C55E]/10';
+    case 'event_starting': return 'text-green-500 bg-green-500/10';
     case 'event_closing_soon': return 'text-amber-400 bg-amber-400/10';
     case 'event_scored': return 'text-sky-400 bg-sky-400/10';
     case 'bounty_expiring': return 'text-orange-400 bg-orange-400/10';
-    case 'new_ipo_available': return 'text-[#FFD700] bg-[#FFD700]/10';
-    case 'referral_reward': return 'text-[#22C55E] bg-[#22C55E]/10';
+    case 'new_ipo_available': return 'text-gold bg-gold/10';
+    case 'referral_reward': return 'text-green-500 bg-green-500/10';
     case 'tip_received': return 'text-pink-400 bg-pink-400/10';
     case 'subscription_new': return 'text-indigo-400 bg-indigo-400/10';
     case 'creator_fund_payout': return 'text-cyan-400 bg-cyan-400/10';
     case 'ad_revenue_payout': return 'text-lime-400 bg-lime-400/10';
-    case 'achievement': return 'text-[#FFD700] bg-[#FFD700]/10';
+    case 'achievement': return 'text-gold bg-gold/10';
     case 'level_up': return 'text-purple-400 bg-purple-400/10';
-    case 'rang_up': return 'text-[#22C55E] bg-[#22C55E]/10';
+    case 'rang_up': return 'text-green-500 bg-green-500/10';
     case 'rang_down': return 'text-red-400 bg-red-400/10';
-    case 'mastery_level_up': return 'text-[#FFD700] bg-[#FFD700]/10';
+    case 'mastery_level_up': return 'text-gold bg-gold/10';
     case 'prediction_resolved': return 'text-purple-400 bg-purple-400/10';
     case 'system': return 'text-sky-400 bg-sky-400/10';
   }
@@ -212,7 +212,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
         <span className="font-bold text-sm">Benachrichtigungen</span>
-        <button onClick={handleMarkAllRead} className="text-xs text-[#FFD700] hover:underline flex items-center gap-1 min-h-[44px] md:min-h-0">
+        <button onClick={handleMarkAllRead} className="text-xs text-gold hover:underline flex items-center gap-1 min-h-[44px] md:min-h-0">
           <Check className="w-3 h-3" />
           Alle gelesen
         </button>
@@ -251,7 +251,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
                 <div className="text-xs text-white/25 mt-1">{timeAgo(notif.created_at)}</div>
               </div>
               {!notif.read && (
-                <div className="w-2 h-2 rounded-full bg-[#FFD700] shrink-0 mt-2" />
+                <div className="w-2 h-2 rounded-full bg-gold shrink-0 mt-2" />
               )}
             </button>
           ))

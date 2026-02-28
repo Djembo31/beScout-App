@@ -244,7 +244,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
               className={cn(
                 'px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all min-h-[44px]',
                 filter === f.key
-                  ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/30'
+                  ? 'bg-gold/15 text-gold border border-gold/30'
                   : 'bg-white/5 text-white/50 border border-white/[0.06] hover:bg-white/10',
               )}
             >
@@ -392,7 +392,7 @@ function PlayerResultRow({ r }: { r: RichSearchResult }) {
       </div>
       {floor !== null && (
         <div className="text-right shrink-0">
-          <div className="text-xs font-mono font-bold text-[#FFD700]">{fmtScout(floor)}</div>
+          <div className="text-xs font-mono font-bold text-gold">{fmtScout(floor)}</div>
           <div className="text-[10px] text-white/30">{t('floor')}</div>
         </div>
       )}
@@ -434,7 +434,7 @@ function ProfileResultRow({ r }: { r: RichSearchResult }) {
   const t = useTranslations('search');
   return (
     <>
-      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#FFD700]/20 to-[#22C55E]/20 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold/20 to-green-500/20 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
         {r.avatarUrl ? (
           <img src={r.avatarUrl} alt="" className="w-9 h-9 object-cover" />
         ) : (
