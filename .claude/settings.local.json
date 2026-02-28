@@ -239,7 +239,31 @@
       "Bash(git -C C:/bescout-app commit -m \"Fix mobile tab overflow: use scrollable tabs instead of flex-1\n\n- Replace flex-1 with flex-shrink-0 on segment tabs for proper horizontal scroll on iPhone\n- Shorten tab labels \\(Spieltag→ST, Vorhersagen→Tipps, Ligen, Verlauf\\) to fit mobile\n- Reduce tab font/icon size \\(text-xs, w-3.5\\) for compact mobile layout\n- Add scrollbar-hide class for clean horizontal scroll\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\")",
       "Bash(git show:*)",
       "Bash(git ls-tree:*)",
-      "Bash(migrations \")"
+      "Bash(migrations \")",
+      "Bash(if not exist \"C:\\\\bescout-app\\\\.auth\" mkdir \"C:\\\\bescout-app\\\\.auth\")",
+      "mcp__supabase__list_edge_functions",
+      "Bash(npx playwright:*)",
+      "Bash(git -C C:/bescout-app diff -- \"src/app/\\(app\\)/layout.tsx\" \"src/app/\\(auth\\)/layout.tsx\" \"src/app/welcome/page.tsx\")",
+      "Bash(git -C C:/bescout-app add \"src/app/\\(app\\)/layout.tsx\" \"src/app/\\(auth\\)/layout.tsx\" \"src/app/welcome/page.tsx\")",
+      "Bash(git -C C:/bescout-app commit -m \"$\\(cat <<''EOF''\nAdd blurred stadium background image to all layouts\n\nAdds the Sakaryaspor stadium photo as a subtle blurred base layer\n\\(blur 50px, 15% opacity\\) beneath the existing gradient blobs on app,\nauth, and welcome layouts for Spotify-style atmosphere.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(npm update:*)",
+      "Skill(pm)",
+      "Bash(^-)",
+      "Bash(^\\\\\\( \")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd legal pages \\(Impressum, Datenschutz, AGB\\) with MiCA-compliant content\n\nCritical beta-launch blocker: adds placeholder legal pages with professional,\nlawyer-ready texts. Fixes dead links in welcome footer, login footer, and\nCookieConsent. All content available in DE and TR via next-intl.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nFix UTF-8 encoding corruption \\(mojibake\\) in 4 files\n\nFixes 12 instances of corrupted German umlauts across ManagerOffersTab,\nProfileView, AdminCreatorFundTab, and BescoutAdminContent.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(npm run lint:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(more:*)",
+      "Bash(npx vitest run:*)",
+      "Bash(git -C C:/bescout-app diff:*)",
+      "Bash(git -C C:/bescout-app add next.config.mjs \"src/app/\\(app\\)/layout.tsx\" \"src/app/\\(auth\\)/layout.tsx\" src/components/layout/BackgroundEffects.tsx src/components/layout/BottomNav.tsx src/components/layout/SideNav.tsx src/components/providers/WalletProvider.tsx src/lib/queries/invalidation.ts src/lib/services/wallet.ts)",
+      "Bash(git -C C:/bescout-app commit -m \"$\\(cat <<''EOF''\nOptimize performance: wallet retry, nav memoization, targeted cache invalidation\n\n- Fix wallet balance not appearing without refresh: replace loaded flag with\n  retry + exponential backoff \\(0ms/1s/3s\\) and visibility change recovery\n- Extract BackgroundEffects into memo''d component \\(renders once, not on every\n  route change\\), wrap BottomNav and SideNav in React.memo\n- Debounce activity log \\(1s delay\\) so it doesn''t block navigation\n- Narrow invalidateTradeQueries from 9 to 5 cache keys and\n  invalidatePlayerDetailQueries from 8 to 5 \\(staleTime handles natural refetch\\)\n- Add optimizePackageImports for lucide-react tree-shaking\n- Replace raw <img> with Next.js <Image> for stadium backgrounds \\(quality=40\\)\n- getWallet\\(\\) now throws on error instead of silent null return\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(gh run list:*)",
+      "Skill(review-code)",
+      "Bash(npx playwright test)",
+      "Bash(config)",
+      "Bash(.env\" 2>/dev/null || echo \"No matching files \")"
     ]
   }
 }

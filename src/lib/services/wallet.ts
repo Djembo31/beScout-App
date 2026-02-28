@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import type { DbWallet, DbHolding, DbTransaction } from '@/types';
+import { mapRpcError } from '@/lib/services/trading';
 
 export type HoldingWithPlayer = DbHolding & {
   player: {
@@ -123,9 +124,9 @@ export async function deductEntryFee(userId: string, amountCents: number, eventN
     p_description: eventName ? `Event-Eintritt: ${eventName}` : 'Event-Eintritt',
     p_reference_id: eventId ?? null,
   });
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(mapRpcError(error.message));
   const result = data as WalletRpcResult;
-  if (!result.success) throw new Error(result.error ?? 'Wallet-Fehler');
+  if (!result.success) throw new Error(mapRpcError(result.error ?? 'Wallet-Fehler'));
   return result.new_balance!;
 }
 
@@ -138,9 +139,9 @@ export async function refundEntryFee(userId: string, amountCents: number, eventN
     p_description: eventName ? `Event-Erstattung: ${eventName}` : 'Event-Erstattung',
     p_reference_id: eventId ?? null,
   });
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(mapRpcError(error.message));
   const result = data as WalletRpcResult;
-  if (!result.success) throw new Error(result.error ?? 'Wallet-Fehler');
+  if (!result.success) throw new Error(mapRpcError(result.error ?? 'Wallet-Fehler'));
   return result.new_balance!;
 }
 

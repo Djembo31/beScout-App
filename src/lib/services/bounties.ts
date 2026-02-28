@@ -230,73 +230,42 @@ export async function createUserBounty(params: {
   deadlineDays: number;
   maxSubmissions: number;
   playerId?: string;
-}): Promise<DbBounty> {
-  // 1. Check wallet balance
-  const { data: wallet, error: walletErr } = await supabase
-    .from('wallets')
-    .select('balance, locked_balance')
-    .eq('user_id', params.userId)
-    .maybeSingle();
-  if (walletErr) throw new Error(walletErr.message);
-  if (!wallet) throw new Error('Wallet nicht gefunden');
+}): Promise<{ bounty_id: string }> {
+  // Atomic RPC: locks wallet (FOR UPDATE), checks available balance, locks funds, creates bounty
+  const { data, error } = await supabase.rpc('create_user_bounty', {
+    p_user_id: params.userId,
+    p_club_id: params.clubId,
+    p_club_name: params.clubName,
+    p_title: params.title,
+    p_description: params.description,
+    p_reward_cents: params.rewardCents,
+    p_deadline_days: params.deadlineDays,
+    p_max_submissions: params.maxSubmissions,
+    p_player_id: params.playerId || null,
+  });
 
-  const available = (wallet.balance ?? 0) - (wallet.locked_balance ?? 0);
-  if (available < params.rewardCents) {
-    throw new Error('Nicht genug $SCOUT. Du brauchst ' + Math.ceil(params.rewardCents / 100) + ' $SCOUT.');
-  }
-
-  // 2. Lock the reward amount (escrow)
-  const { error: lockErr } = await supabase
-    .from('wallets')
-    .update({ locked_balance: (wallet.locked_balance ?? 0) + params.rewardCents })
-    .eq('user_id', params.userId);
-  if (lockErr) throw new Error(lockErr.message);
-
-  // 3. Create bounty
-  const deadlineAt = new Date(Date.now() + params.deadlineDays * 24 * 60 * 60 * 1000).toISOString();
-  const { data, error } = await supabase
-    .from('bounties')
-    .insert({
-      club_id: params.clubId,
-      club_name: params.clubName,
-      created_by: params.userId,
-      title: params.title,
-      description: params.description,
-      reward_cents: params.rewardCents,
-      deadline_at: deadlineAt,
-      max_submissions: params.maxSubmissions,
-      player_id: params.playerId || null,
-      type: 'general',
-      is_user_bounty: true,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    // Rollback lock on failure
-    await supabase
-      .from('wallets')
-      .update({ locked_balance: wallet.locked_balance ?? 0 })
-      .eq('user_id', params.userId);
-    throw new Error(error.message);
-  }
+  if (error) throw new Error(error.message);
+  const result = data as { success: boolean; error?: string; bounty_id?: string };
+  if (!result.success) throw new Error(result.error ?? 'Bounty-Erstellung fehlgeschlagen');
 
   invalidateBountyData(params.userId, params.clubId);
   import('@/lib/services/activityLog').then(({ logActivity }) => {
-    logActivity(params.userId, 'bounty_create', 'community', { bountyId: data.id, title: params.title, rewardCents: params.rewardCents, isUserBounty: true });
+    logActivity(params.userId, 'bounty_create', 'community', { bountyId: result.bounty_id, title: params.title, rewardCents: params.rewardCents, isUserBounty: true });
   }).catch(err => console.error('[Bounties] Activity log failed:', err));
-  return data as DbBounty;
+  return { bounty_id: result.bounty_id! };
 }
 
 export async function cancelBounty(userId: string, bountyId: string): Promise<void> {
-  const { error } = await supabase
-    .from('bounties')
-    .update({ status: 'cancelled', updated_at: new Date().toISOString() })
-    .eq('id', bountyId)
-    .eq('created_by', userId)
-    .eq('submission_count', 0);
+  // Atomic RPC: cancels bounty + releases locked_balance for user bounties
+  const { data, error } = await supabase.rpc('cancel_user_bounty', {
+    p_user_id: userId,
+    p_bounty_id: bountyId,
+  });
 
   if (error) throw new Error(error.message);
+  const result = data as { success: boolean; error?: string };
+  if (!result.success) throw new Error(result.error ?? 'Stornierung fehlgeschlagen');
+
   invalidateBountyData(userId);
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
