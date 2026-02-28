@@ -362,8 +362,8 @@ export default function MarketPage() {
     <div className="max-w-[1400px] mx-auto space-y-5">
       {/* Buy Success Toast — subtle gold glow instead of confetti */}
       {buySuccess && (
-        <div className="fixed top-4 right-4 z-[70] bg-green-500/15 border border-green-500/30 text-green-400 px-4 py-3 rounded-xl font-bold text-sm anim-scale-pop flex items-center gap-3 shadow-lg shadow-green-500/10 anim-pulse-green">
-          <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+        <div className="fixed top-[max(1rem,env(safe-area-inset-top))] right-4 z-50 bg-green-500/15 border border-green-500/30 text-green-400 px-4 py-3 rounded-xl font-bold text-sm anim-scale-pop flex items-center gap-3 shadow-lg shadow-green-500/10 anim-pulse-green motion-reduce:animate-none">
+          <CheckCircle2 className="size-5 flex-shrink-0" />
           <span>{buySuccess}</span>
           {lastBoughtId && (
             <Link href={`/player/${lastBoughtId}`}
@@ -374,23 +374,23 @@ export default function MarketPage() {
         </div>
       )}
       {buyError && (
-        <div role="alert" aria-live="assertive" className="fixed top-4 right-4 z-[70] bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm flex items-center gap-3 anim-scale-pop">
+        <div role="alert" aria-live="assertive" className="fixed top-[max(1rem,env(safe-area-inset-top))] right-4 z-50 bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm flex items-center gap-3 anim-scale-pop">
           <span>{buyError}</span>
           <button onClick={() => { resetBuy(); resetIpoBuy(); }} aria-label="Schließen" className="p-1 rounded-lg hover:bg-red-500/20 transition-colors flex-shrink-0">
-            <X className="w-4 h-4" />
+            <X className="size-4" />
           </button>
         </div>
       )}
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl md:text-3xl font-black flex items-center gap-3">
-          <Briefcase className="w-7 h-7 text-gold" />
+        <h1 className="text-2xl md:text-3xl font-black flex items-center gap-3 text-balance">
+          <Briefcase className="size-7 text-gold" />
           {t('title')}
         </h1>
         <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-1.5">
           <span className="text-xs text-white/50">{tc('balance')}:</span>
-          <span className="font-mono font-bold text-base text-gold">{fmtScout(centsToBsd(balanceCents))} $SCOUT</span>
+          <span className="font-mono font-bold text-base tabular-nums text-gold">{fmtScout(centsToBsd(balanceCents))} $SCOUT</span>
         </div>
       </div>
 
@@ -403,13 +403,13 @@ export default function MarketPage() {
         <div className="flex items-center gap-1 mb-4 p-1 bg-white/[0.04] border border-white/[0.08] rounded-xl w-fit">
           <button
             onClick={() => setPortfolioView('portfolio')}
-            className={cn('px-3 py-1.5 rounded-lg text-sm font-bold transition-all',
+            className={cn('px-3 py-1.5 rounded-lg text-sm font-bold transition-colors',
               portfolioView === 'portfolio' ? 'bg-gold/10 text-gold border border-gold/20' : 'text-white/60 hover:text-white/80 hover:bg-white/[0.04] border border-transparent'
             )}
           >{t('team')}</button>
           <button
             onClick={() => setPortfolioView('kader')}
-            className={cn('px-3 py-1.5 rounded-lg text-sm font-bold transition-all',
+            className={cn('px-3 py-1.5 rounded-lg text-sm font-bold transition-colors',
               portfolioView === 'kader' ? 'bg-gold/10 text-gold border border-gold/20' : 'text-white/60 hover:text-white/80 hover:bg-white/[0.04] border border-transparent'
             )}
           >{t('lineups')}</button>
@@ -427,7 +427,7 @@ export default function MarketPage() {
       <TabPanel id="kaufen" activeTab={tab}>
         <NewUserTip
           tipKey="market-first-buy"
-          icon={<Zap className="w-4 h-4" />}
+          icon={<Zap className="size-4" />}
           title={tt('marketTitle')}
           description={tt('marketDesc')}
           show={holdings.length === 0}
