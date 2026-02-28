@@ -57,6 +57,47 @@ Features die eine Lizenz brauchen werden NICHT gebaut bevor die Phase erreicht i
 - Kein Withdrawal-Feature bauen. Kein Fiat-Auszahlungs-Flow. Auch nicht versteckt.
 - Club-Balance Withdrawal nur als B2B-Invoicing (Fiat, nicht $SCOUT)
 
+## Arbeitsweise
+
+### Plan vor Code
+**Bei Features oder größeren Änderungen (> 10 Zeilen):**
+1. **Research:** Relevante Dateien lesen, kurz erklären was existiert
+2. **Plan:** Welche Dateien, was ändert sich, was bleibt unberührt
+3. **Warten:** Anil gibt OK oder korrigiert
+4. **Umsetzen:** Erst dann coden
+5. **Verify:** `npx next build` + Quality Check
+
+**Bei kleinen Bugfixes (< 10 Zeilen):** Direkt fixen, kurz erklären was und warum.
+
+### Rollback-Regel
+Wenn etwas schiefgeht → NICHT drauf aufbauen und flicken.
+Stattdessen: Git zurücksetzen, Plan anpassen, sauber neu machen.
+
+### Anti-AI-Slop (UI-Qualität)
+Damit Output nicht generisch aussieht — bei JEDER UI-Änderung prüfen:
+- **Keine** zufälligen Gradient-Hintergründe
+- **Keine** übertriebenen Border-Radius auf alles
+- **IMMER** Hover, Active, Focus UND Disabled States
+- **IMMER** Loading States (Skeleton Screens, nicht Spinner)
+- **IMMER** Empty States mit hilfreicher Message
+- **IMMER** Error States mit Retry-Option
+- Spacing konsistent — bestehende Patterns übernehmen, nicht neu erfinden
+
+### Mobile-First (unsere User sind am Handy!)
+- Mobile zuerst bauen, dann Desktop erweitern
+- `100dvh` statt `100vh` (iOS Safari Bug)
+- Touch Targets: minimum **44x44px** (`min-h-[44px]`)
+- Font-Size nie unter **16px** (verhindert iOS Auto-Zoom)
+- Bottom Nav: `padding-bottom: env(safe-area-inset-bottom)`
+- Kein horizontaler Overflow — niemals
+- Modals auf Mobile → Bottom Sheets
+- `inputMode="numeric"` bei Zahlenfeldern
+
+### Quality Pipeline (nach UI-Änderungen)
+1. `/baseline-ui [datei]` → Spacing, States, Typografie aufräumen
+2. `/fixing-accessibility [datei]` → ARIA, Focus, Keyboard
+3. `/fixing-motion-performance [datei]` → Animationen optimieren
+
 ## Kern-Konventionen
 
 ### Spieler-Darstellung
@@ -114,6 +155,7 @@ Verwende **immer** `PlayerDisplay` aus `@/components/player/PlayerRow`:
 4. Shared Components nutzen, Types in types/index.ts, Service Layer
 5. Cache-Invalidation nach Writes, deutsche Labels
 6. Neuer Fehler → `errors.md` | Neue Entscheidung → `decisions.md` | Neues Pattern → `patterns.md`
+7. Bei Fehler: Rollback-Regel anwenden (git zurück, sauber neu) — NICHT flicken
 
 **Ende (PFLICHT!):**
 7. `memory/sessions.md` updaten (Session-Nr, Datum, was gemacht, gelernt)
