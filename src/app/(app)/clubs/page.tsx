@@ -80,7 +80,7 @@ export default function ClubsDiscoveryPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <Compass className="w-6 h-6 text-[#FFD700]" />
+          <Compass className="w-6 h-6 text-gold" />
           <h1 className="text-2xl font-black">Clubs entdecken</h1>
         </div>
         <p className="text-sm text-white/50">Folge Clubs um ihre Spieler zu traden, an Events teilzunehmen und in der Community mitzureden.</p>
@@ -129,7 +129,7 @@ export default function ClubsDiscoveryPage() {
                   key={club.id}
                   className={cn(
                     'p-4 transition-all hover:border-white/20',
-                    isActive && 'ring-1 ring-[#FFD700]/30'
+                    isActive && 'ring-1 ring-gold/30'
                   )}
                 >
                   <div className="flex items-start gap-3">
@@ -148,14 +148,14 @@ export default function ClubsDiscoveryPage() {
                     <div className="flex-1 min-w-0">
                       <Link
                         href={`/club/${club.slug}`}
-                        className="text-sm font-bold text-white hover:text-[#FFD700] transition-colors truncate block"
+                        className="text-sm font-bold text-white hover:text-gold transition-colors truncate block"
                       >
                         {club.name}
                       </Link>
                       <div className="flex items-center gap-3 mt-0.5 text-xs text-white/40">
                         {club.city && <span>{club.city}</span>}
                         {club.is_verified && (
-                          <span className="flex items-center gap-0.5 text-[#FFD700]">
+                          <span className="flex items-center gap-0.5 text-gold">
                             <Shield className="w-3 h-3" /> Verifiziert
                           </span>
                         )}
@@ -177,9 +177,9 @@ export default function ClubsDiscoveryPage() {
                     const nf = nextFixtures.get(club.id)!;
                     return (
                       <div className="flex items-center gap-2 mt-2 px-2 py-1.5 bg-white/[0.02] rounded-lg text-xs text-white/50">
-                        <Calendar className="w-3 h-3 text-[#22C55E] flex-shrink-0" />
+                        <Calendar className="w-3 h-3 text-green-500 flex-shrink-0" />
                         <span className="font-mono text-white/30">GW {nf.gameweek}</span>
-                        <span className={cn('px-1 py-0.5 rounded text-[9px] font-bold', nf.isHome ? 'bg-[#22C55E]/10 text-[#22C55E]' : 'bg-sky-500/10 text-sky-400')}>
+                        <span className={cn('px-1 py-0.5 rounded text-[9px] font-bold', nf.isHome ? 'bg-green-500/10 text-green-500' : 'bg-sky-500/10 text-sky-400')}>
                           {nf.isHome ? 'H' : 'A'}
                         </span>
                         <span className="truncate">vs {nf.opponentShort || nf.opponentName}</span>

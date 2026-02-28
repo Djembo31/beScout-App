@@ -78,7 +78,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
   return (
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-5">
-        <Trophy className="w-4 h-4 text-[#FFD700]" />
+        <Trophy className="w-4 h-4 text-gold" />
         <h3 className="font-black">{tsr('title')}</h3>
       </div>
 
@@ -99,7 +99,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
                 <div className={cn(
                   'absolute left-[7px] top-[22px] w-[2px] bottom-0',
                   effectiveState === 'claimed' ? 'bg-emerald-500/40' :
-                  effectiveState === 'claimable' ? 'bg-[#FFD700]/30' :
+                  effectiveState === 'claimable' ? 'bg-gold/30' :
                   'bg-white/[0.06]'
                 )} />
               )}
@@ -108,7 +108,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
               <div className={cn(
                 'relative z-10 flex items-center justify-center w-4 h-4 rounded-full mt-1 shrink-0',
                 effectiveState === 'claimed' ? 'bg-emerald-500' :
-                effectiveState === 'claimable' ? 'bg-[#FFD700] shadow-[0_0_12px_rgba(255,215,0,0.4)]' :
+                effectiveState === 'claimable' ? 'bg-gold shadow-[0_0_12px_rgba(255,215,0,0.4)]' :
                 effectiveState === 'active' ? 'bg-white/20 border-2 border-white/30' :
                 'bg-white/10 border border-white/[0.06]'
               )}>
@@ -132,7 +132,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
                   <div className="flex items-center gap-2 shrink-0">
                     {/* Reward badge */}
                     {ms.rewardBsd > 0 ? (
-                      <span className="text-xs font-mono font-bold text-[#FFD700]">
+                      <span className="text-xs font-mono font-bold text-gold">
                         {fmtScout(centsToBsd(ms.rewardBsd))} $SCOUT
                       </span>
                     ) : (
@@ -182,7 +182,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
                         const pct = Math.min(100, Math.max(0, ((medianScore - prevMs) / (ms.score - prevMs)) * 100));
                         return (
                           <div
-                            className="h-full bg-gradient-to-r from-[#FFD700]/60 to-[#FFD700] rounded-full transition-all duration-500"
+                            className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full transition-all duration-500"
                             style={{ width: `${pct}%` }}
                           />
                         );
@@ -198,7 +198,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
 
       {/* All claimed message */}
       {allClaimed && (
-        <div className="text-center text-sm text-[#FFD700] font-bold mt-2">
+        <div className="text-center text-sm text-gold font-bold mt-2">
           {tsr('allClaimed')}
         </div>
       )}

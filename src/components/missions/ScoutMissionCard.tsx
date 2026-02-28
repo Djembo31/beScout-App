@@ -54,8 +54,8 @@ export default function ScoutMissionCard({ mission, progress, userTier, onSubmit
       {/* Reward + Action */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Gift className="w-4 h-4 text-[#FFD700]" />
-          <span className="font-mono font-bold text-sm text-[#FFD700]">{fmtScout(mission.rewardCents / 100)} $SCOUT</span>
+          <Gift className="w-4 h-4 text-gold" />
+          <span className="font-mono font-bold text-sm text-gold">{fmtScout(mission.rewardCents / 100)} $SCOUT</span>
           {mission.minTier && (
             <TierBadge tier={mission.minTier as FanTier} size="sm" />
           )}
@@ -67,7 +67,7 @@ export default function ScoutMissionCard({ mission, progress, userTier, onSubmit
             <span>{mission.minTier} nötig</span>
           </div>
         ) : isClaimed ? (
-          <div className="flex items-center gap-1 text-xs text-[#22C55E]">
+          <div className="flex items-center gap-1 text-xs text-green-500">
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>Abgeschlossen</span>
           </div>

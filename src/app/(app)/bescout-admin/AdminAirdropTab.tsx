@@ -81,10 +81,10 @@ export function AdminAirdropTab() {
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard icon={<Users className="w-5 h-5 text-[#FFD700]" />} label="Teilnehmer" value={String(stats.total_users)} />
+          <StatCard icon={<Users className="w-5 h-5 text-gold" />} label="Teilnehmer" value={String(stats.total_users)} />
           <StatCard icon={<Trophy className="w-5 h-5 text-purple-400" />} label="Ø Score" value={String(stats.avg_score)} />
           <StatCard icon={<Rocket className="w-5 h-5 text-[#B9F2FF]" />} label="Diamond" value={String(stats.tier_distribution.diamond)} />
-          <StatCard icon={<Zap className="w-5 h-5 text-[#FFD700]" />} label="Gold" value={String(stats.tier_distribution.gold)} />
+          <StatCard icon={<Zap className="w-5 h-5 text-gold" />} label="Gold" value={String(stats.tier_distribution.gold)} />
         </div>
       )}
 

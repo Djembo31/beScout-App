@@ -46,12 +46,12 @@ export default function ReferralCard({ userId }: Props) {
   };
 
   return (
-    <Card className="p-4 bg-gradient-to-r from-[#FFD700]/[0.04] to-purple-500/[0.04] border-[#FFD700]/15">
+    <Card className="p-4 bg-gradient-to-r from-gold/[0.04] to-purple-500/[0.04] border-gold/15">
       <div className="flex items-center gap-2 mb-3">
-        <Users className="w-4 h-4 text-[#FFD700]" />
+        <Users className="w-4 h-4 text-gold" />
         <span className="text-xs font-bold text-white/50 uppercase tracking-wider">Freunde einladen</span>
         {count > 0 && (
-          <span className="ml-auto px-2 py-0.5 rounded-full bg-[#22C55E]/10 text-[#22C55E] text-[10px] font-bold">
+          <span className="ml-auto px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 text-[10px] font-bold">
             {count} eingeladen
           </span>
         )}
@@ -59,7 +59,7 @@ export default function ReferralCard({ userId }: Props) {
 
       {/* Referral Code */}
       <div className="flex items-center gap-2 mb-3">
-        <div className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 font-mono text-sm text-[#FFD700] tracking-widest select-all">
+        <div className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 font-mono text-sm text-gold tracking-widest select-all">
           {code}
         </div>
         <button
@@ -67,7 +67,7 @@ export default function ReferralCard({ userId }: Props) {
           className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
           aria-label="Kopieren"
         >
-          {copied ? <Check className="w-4 h-4 text-[#22C55E]" /> : <Copy className="w-4 h-4 text-white/50" />}
+          {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-white/50" />}
         </button>
       </div>
 

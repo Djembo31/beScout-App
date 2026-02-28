@@ -69,7 +69,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
   // Compact version for sidebar
   if (compact) {
     return (
-      <Card className="p-3 bg-gradient-to-r from-purple-500/[0.04] to-[#FFD700]/[0.04] border-purple-500/15">
+      <Card className="p-3 bg-gradient-to-r from-purple-500/[0.04] to-gold/[0.04] border-purple-500/15">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: tier.bg, border: `1px solid ${tier.border}` }}>
             <Rocket className="w-4.5 h-4.5" style={{ color: tier.color }} />
@@ -98,7 +98,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
 
   // Full version
   return (
-    <Card className="p-4 bg-gradient-to-br from-purple-500/[0.04] via-transparent to-[#FFD700]/[0.04] border-purple-500/15">
+    <Card className="p-4 bg-gradient-to-br from-purple-500/[0.04] via-transparent to-gold/[0.04] border-purple-500/15">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -119,7 +119,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
         <div className="flex items-center gap-1.5 pb-1">
           {score.rank && (
             <>
-              <Trophy className="w-3.5 h-3.5 text-[#FFD700]/60" />
+              <Trophy className="w-3.5 h-3.5 text-gold/60" />
               <span className="text-sm font-bold text-white/40">#{score.rank}</span>
               {totalUsers && <span className="text-xs text-white/20">von {totalUsers}</span>}
             </>
@@ -158,7 +158,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
           {/* Multipliers */}
           <div className="pt-2 border-t border-white/[0.06] flex gap-3 text-[10px]">
             {score.founding_multiplier > 1 && (
-              <span className="px-2 py-0.5 rounded-lg bg-[#FFD700]/15 text-[#FFD700] font-bold border border-[#FFD700]/25">
+              <span className="px-2 py-0.5 rounded-lg bg-gold/15 text-gold font-bold border border-gold/25">
                 Founding {score.founding_multiplier}x
               </span>
             )}

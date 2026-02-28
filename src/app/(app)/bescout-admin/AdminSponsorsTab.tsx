@@ -40,17 +40,17 @@ const PLACEMENT_COLORS: Record<string, string> = {
   club_hero: 'bg-amber-500/15 text-amber-300 border-amber-400/25',
   player_mid: 'bg-sky-500/15 text-sky-300 border-sky-400/25',
   player_footer: 'bg-sky-500/10 text-sky-200 border-sky-400/20',
-  event: 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/25',
+  event: 'bg-gold/15 text-gold border-gold/25',
   market_transferlist: 'bg-purple-500/10 text-purple-200 border-purple-400/20',
   market_ipo: 'bg-purple-500/12 text-purple-300 border-purple-400/22',
   market_portfolio: 'bg-purple-500/8 text-purple-200 border-purple-400/18',
   market_offers: 'bg-purple-500/10 text-purple-200 border-purple-400/20',
   club_community: 'bg-amber-500/10 text-amber-200 border-amber-400/20',
   club_players: 'bg-amber-500/12 text-amber-300 border-amber-400/22',
-  fantasy_spieltag: 'bg-[#FFD700]/10 text-[#FFD700]/80 border-[#FFD700]/20',
-  fantasy_pitch: 'bg-[#FFD700]/12 text-[#FFD700]/85 border-[#FFD700]/22',
-  fantasy_leaderboard: 'bg-[#FFD700]/8 text-[#FFD700]/75 border-[#FFD700]/18',
-  fantasy_history: 'bg-[#FFD700]/10 text-[#FFD700]/80 border-[#FFD700]/20',
+  fantasy_spieltag: 'bg-gold/10 text-gold/80 border-gold/20',
+  fantasy_pitch: 'bg-gold/12 text-gold/85 border-gold/22',
+  fantasy_leaderboard: 'bg-gold/8 text-gold/75 border-gold/18',
+  fantasy_history: 'bg-gold/10 text-gold/80 border-gold/20',
   profile_hero: 'bg-emerald-500/15 text-emerald-300 border-emerald-400/25',
   profile_footer: 'bg-emerald-500/10 text-emerald-200 border-emerald-400/20',
   community_feed: 'bg-rose-500/15 text-rose-300 border-rose-400/25',
@@ -229,7 +229,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
                     title={s.is_active ? 'Deaktivieren' : 'Aktivieren'}
                     aria-label={s.is_active ? 'Deaktivieren' : 'Aktivieren'}
                   >
-                    {s.is_active ? <ToggleRight className="w-5 h-5 text-[#22C55E]" /> : <ToggleLeft className="w-5 h-5" />}
+                    {s.is_active ? <ToggleRight className="w-5 h-5 text-green-500" /> : <ToggleLeft className="w-5 h-5" />}
                   </button>
                   <button onClick={() => openEdit(s)} className="text-white/40 hover:text-white transition-colors" title="Bearbeiten" aria-label="Bearbeiten">
                     <Edit2 className="w-4 h-4" />
@@ -254,7 +254,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
               value={form.name}
               onChange={(e) => setForm(f => ({ ...f, name: e.target.value.slice(0, 40) }))}
               placeholder="z.B. Nike"
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
             />
           </div>
           <div>
@@ -264,7 +264,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
               value={form.logo_url}
               onChange={(e) => setForm(f => ({ ...f, logo_url: e.target.value }))}
               placeholder="https://..."
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
             />
             {form.logo_url && (
               <div className="mt-2 flex items-center gap-2">
@@ -280,7 +280,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
               value={form.link_url}
               onChange={(e) => setForm(f => ({ ...f, link_url: e.target.value }))}
               placeholder="https://..."
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -289,7 +289,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
               <select
                 value={form.placement}
                 onChange={(e) => setForm(f => ({ ...f, placement: e.target.value as SponsorPlacement }))}
-                className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/40"
+                className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
               >
                 {PLACEMENT_OPTIONS.map(o => (
                   <option key={o.value} value={o.value}>{o.label}</option>
@@ -304,7 +304,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
                 min="0"
                 value={form.priority}
                 onChange={(e) => setForm(f => ({ ...f, priority: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40"
               />
             </div>
           </div>
@@ -315,7 +315,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
                 type="datetime-local"
                 value={form.starts_at}
                 onChange={(e) => setForm(f => ({ ...f, starts_at: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 text-white [color-scheme:dark]"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 text-white [color-scheme:dark]"
               />
             </div>
             <div>
@@ -324,7 +324,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
                 type="datetime-local"
                 value={form.ends_at}
                 onChange={(e) => setForm(f => ({ ...f, ends_at: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 text-white [color-scheme:dark]"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 text-white [color-scheme:dark]"
               />
             </div>
           </div>
@@ -383,7 +383,7 @@ function SponsorStatsSection({
               key={d}
               onClick={() => onDaysChange(d)}
               className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-colors min-h-[44px] ${
-                days === d ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/25' : 'bg-white/5 text-white/40 border border-white/10 hover:text-white/60'
+                days === d ? 'bg-gold/15 text-gold border border-gold/25' : 'bg-white/5 text-white/40 border border-white/10 hover:text-white/60'
               }`}
             >
               {d}T
@@ -422,7 +422,7 @@ function SponsorStatsSection({
                   </td>
                   <td className="py-2 text-right font-mono text-white/60">{fmtScout(r.total_impressions)}</td>
                   <td className="py-2 text-right font-mono text-white/60">{fmtScout(r.total_clicks)}</td>
-                  <td className="py-2 text-right font-mono text-[#FFD700]">{r.ctr}%</td>
+                  <td className="py-2 text-right font-mono text-gold">{r.ctr}%</td>
                 </tr>
               ))}
             </tbody>

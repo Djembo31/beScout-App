@@ -193,7 +193,7 @@ function ApiFootballSection({ userId }: { userId: string }) {
 
           {/* Last Mapping Result */}
           {lastResult && (
-            <div className={`p-3 rounded-xl text-sm ${lastResult.result.errors.length > 0 ? 'bg-red-500/10 border border-red-500/20' : 'bg-[#22C55E]/10 border border-[#22C55E]/20'}`}>
+            <div className={`p-3 rounded-xl text-sm ${lastResult.result.errors.length > 0 ? 'bg-red-500/10 border border-red-500/20' : 'bg-green-500/10 border border-green-500/20'}`}>
               <div className="font-bold mb-1">
                 {lastResult.type}: {lastResult.result.matched} gemappt
                 {lastResult.result.unmatched.length > 0 && (
@@ -215,7 +215,7 @@ function ApiFootballSection({ userId }: { userId: string }) {
 
           {/* Import Result */}
           {importResult && (
-            <div className={`p-3 rounded-xl text-sm ${importResult.errors.length > 0 ? 'bg-red-500/10 border border-red-500/20' : 'bg-[#22C55E]/10 border border-[#22C55E]/20'}`}>
+            <div className={`p-3 rounded-xl text-sm ${importResult.errors.length > 0 ? 'bg-red-500/10 border border-red-500/20' : 'bg-green-500/10 border border-green-500/20'}`}>
               <div className="font-bold mb-1">
                 Import GW {fixtureGw}: {importResult.fixturesImported} Fixtures, {importResult.statsImported} Stats, {importResult.scoresSynced} Scores
               </div>
@@ -234,7 +234,7 @@ function ApiFootballSection({ userId }: { userId: string }) {
 
 function StatusPill({ label, mapped, total, icon }: { label: string; mapped: number; total: number; icon: React.ReactNode }) {
   const pct = total > 0 ? Math.round((mapped / total) * 100) : 0;
-  const color = pct === 100 ? 'text-[#22C55E]' : pct > 0 ? 'text-[#FFD700]' : 'text-white/30';
+  const color = pct === 100 ? 'text-green-500' : pct > 0 ? 'text-gold' : 'text-white/30';
 
   return (
     <div className="p-3 bg-surface-base rounded-xl border border-white/[0.06] text-center">
@@ -375,15 +375,15 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
       {canSetGw && (
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-[#FFD700]" />
+            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-gold" />
             </div>
             <div>
               <div className="font-bold">Aktiver Spieltag</div>
               <div className="text-xs text-white/50">
                 Steuert welcher Spieltag in Fantasy aktiv ist
                 {currentGw != null && (
-                  <span className="ml-1 text-[#22C55E]">• Aktuell: GW {currentGw}</span>
+                  <span className="ml-1 text-green-500">• Aktuell: GW {currentGw}</span>
                 )}
               </div>
             </div>
@@ -410,7 +410,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : saved ? (
-                <Check className="w-4 h-4 text-[#22C55E]" />
+                <Check className="w-4 h-4 text-green-500" />
               ) : (
                 'Setzen'
               )}
@@ -499,7 +499,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
               {fantasySaving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : fantasySaved ? (
-                <><Check className="w-4 h-4 text-[#22C55E]" /> Gespeichert</>
+                <><Check className="w-4 h-4 text-green-500" /> Gespeichert</>
               ) : (
                 'Fantasy-Einstellungen speichern'
               )}
@@ -535,11 +535,11 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl">
             <span className="text-white/50">Plan</span>
-            <span className="text-[#FFD700] font-bold">{club.plan}</span>
+            <span className="text-gold font-bold">{club.plan}</span>
           </div>
           <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl">
             <span className="text-white/50">Verifiziert</span>
-            <span className={club.is_verified ? 'text-[#22C55E]' : 'text-white/50'}>{club.is_verified ? 'Ja' : 'Nein'}</span>
+            <span className={club.is_verified ? 'text-green-500' : 'text-white/50'}>{club.is_verified ? 'Ja' : 'Nein'}</span>
           </div>
         </div>
       </Card>
@@ -548,8 +548,8 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
-              <Users className="w-5 h-5 text-[#FFD700]" />
+            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
+              <Users className="w-5 h-5 text-gold" />
             </div>
             <div>
               <div className="font-bold">Team-Verwaltung</div>

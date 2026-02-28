@@ -50,13 +50,13 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
       <h2 className="text-xl font-black">Einnahmen</h2>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="p-4 bg-gradient-to-br from-[#FFD700]/10 to-[#FFD700]/[0.02] border-[#FFD700]/20">
+        <Card className="p-4 bg-gradient-to-br from-gold/10 to-gold/[0.02] border-gold/20">
           <div className="flex items-center gap-2 mb-2">
-            <DollarSign className="w-5 h-5 text-[#FFD700]" />
+            <DollarSign className="w-5 h-5 text-gold" />
             <span className="text-xs text-white/50">Gesamt</span>
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black text-[#FFD700]">{formatScout(totalRevenue)} $SCOUT</div>
+            <div className="text-xl font-mono font-black text-gold">{formatScout(totalRevenue)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">

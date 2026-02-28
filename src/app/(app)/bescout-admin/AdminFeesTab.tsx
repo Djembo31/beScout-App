@@ -63,7 +63,7 @@ export function AdminFeesTab({ adminId }: { adminId: string }) {
               ) : (
                 <div className="flex gap-2">
                   <button onClick={() => setEditId(null)} className="text-xs px-3 py-1 rounded-lg bg-white/10 text-white/40">Abbrechen</button>
-                  <button onClick={() => handleSave(config.id)} className="text-xs px-3 py-1 rounded-lg bg-[#FFD700]/20 text-[#FFD700]">Speichern</button>
+                  <button onClick={() => handleSave(config.id)} className="text-xs px-3 py-1 rounded-lg bg-gold/20 text-gold">Speichern</button>
                 </div>
               )}
             </div>

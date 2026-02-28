@@ -42,7 +42,7 @@ const EventDetailModal = dynamic(
     loading: () => (
       <div className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-[#FFD700]" />
+          <Loader2 className="w-8 h-8 animate-spin text-gold" />
           <span className="text-sm text-white/50">Event wird geladen...</span>
         </div>
       </div>
@@ -519,21 +519,21 @@ export default function FantasyContent() {
       {/* HEADER — Compact */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl md:text-2xl font-black flex items-center gap-2">
-          <Trophy className="w-6 h-6 text-[#FFD700]" />
+          <Trophy className="w-6 h-6 text-gold" />
           Fantasy
         </h1>
         <div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-3 mr-2">
             <div className="flex items-center gap-1.5 text-sm">
-              <div className="w-2 h-2 rounded-full bg-[#22C55E]" />
-              <span className="font-mono font-bold text-[#22C55E]">{activeEvents.length}</span>
+              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <span className="font-mono font-bold text-green-500">{activeEvents.length}</span>
               <span className="text-white/40 text-xs">{tc('active')}</span>
             </div>
           </div>
           {isAdmin && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-1.5 px-3 py-2 bg-[#FFD700]/10 border border-[#FFD700]/20 rounded-xl text-sm font-semibold text-[#FFD700] hover:bg-[#FFD700]/20 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 bg-gold/10 border border-gold/20 rounded-xl text-sm font-semibold text-gold hover:bg-gold/20 transition-all"
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">{tc('create')}</span>
@@ -569,7 +569,7 @@ export default function FantasyContent() {
             onClick={() => setMainTab(tab.id)}
             className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-h-[40px] ${
               mainTab === tab.id
-                ? 'bg-[#FFD700]/15 text-[#FFD700] shadow-sm'
+                ? 'bg-gold/15 text-gold shadow-sm'
                 : 'text-white/50 hover:text-white/70'
             }`}
           >

@@ -13,7 +13,7 @@ type SortKey = 'reportCount' | 'avgOverall' | 'avgTechnik' | 'avgTaktik' | 'avgA
 
 function DimBar({ value, max = 10 }: { value: number; max?: number }) {
   const pct = (value / max) * 100;
-  const color = value >= 8 ? 'bg-[#FFD700]' : value >= 6 ? 'bg-[#22C55E]' : value >= 4 ? 'bg-sky-400' : 'bg-white/30';
+  const color = value >= 8 ? 'bg-gold' : value >= 6 ? 'bg-green-500' : value >= 4 ? 'bg-sky-400' : 'bg-white/30';
   return (
     <div className="flex items-center gap-1.5 min-w-[80px]">
       <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
@@ -53,7 +53,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
     <button
       onClick={() => toggleSort(field)}
       className={`flex items-center gap-0.5 text-[10px] font-bold uppercase tracking-wider ${
-        sortKey === field ? 'text-[#FFD700]' : 'text-white/40 hover:text-white/60'
+        sortKey === field ? 'text-gold' : 'text-white/40 hover:text-white/60'
       }`}
     >
       {label}
@@ -98,7 +98,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
                 {sortedSummaries.map(s => (
                   <tr key={s.playerId} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
                     <td className="px-3 py-2">
-                      <Link href={`/player/${s.playerId}`} className="flex items-center gap-2 hover:text-[#FFD700] transition-colors">
+                      <Link href={`/player/${s.playerId}`} className="flex items-center gap-2 hover:text-gold transition-colors">
                         <span className="font-bold text-sm">{s.firstName} {s.lastName}</span>
                         <PositionBadge pos={s.position} size="sm" />
                       </Link>
@@ -113,7 +113,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
                     <td className="px-2 py-2"><DimBar value={s.avgPotenzial} /></td>
                     <td className="px-2 py-2">
                       <span className={`font-mono font-bold text-sm ${
-                        s.avgOverall >= 8 ? 'text-[#FFD700]' : s.avgOverall >= 6 ? 'text-[#22C55E]' : 'text-white/60'
+                        s.avgOverall >= 8 ? 'text-gold' : s.avgOverall >= 6 ? 'text-green-500' : 'text-white/60'
                       }`}>{s.avgOverall.toFixed(1)}</span>
                     </td>
                   </tr>
@@ -140,7 +140,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
             {topScouts.map((scout, idx) => (
               <Card key={scout.userId} className="p-3 flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                  idx === 0 ? 'bg-[#FFD700]/20 text-[#FFD700]' :
+                  idx === 0 ? 'bg-gold/20 text-gold' :
                   idx === 1 ? 'bg-white/10 text-white/60' :
                   idx === 2 ? 'bg-orange-500/15 text-orange-300' :
                   'bg-white/5 text-white/30'
@@ -155,16 +155,16 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <Link href={`/profile/${scout.handle}`} className="font-bold text-sm hover:text-[#FFD700] transition-colors truncate block">
+                  <Link href={`/profile/${scout.handle}`} className="font-bold text-sm hover:text-gold transition-colors truncate block">
                     {scout.displayName || `@${scout.handle}`}
                   </Link>
                   <div className="flex items-center gap-2 text-[10px] text-white/40">
                     <span><FileText className="w-2.5 h-2.5 inline mr-0.5" />{scout.reportCount} {ts('reports')}</span>
                     {scout.approvedBounties > 0 && (
-                      <span className="text-[#22C55E]">{scout.approvedBounties} {ts('approved')}</span>
+                      <span className="text-green-500">{scout.approvedBounties} {ts('approved')}</span>
                     )}
                     {scout.avgRating > 0 && (
-                      <span><Star className="w-2.5 h-2.5 inline mr-0.5 text-[#FFD700]" />{scout.avgRating.toFixed(1)}</span>
+                      <span><Star className="w-2.5 h-2.5 inline mr-0.5 text-gold" />{scout.avgRating.toFixed(1)}</span>
                     )}
                   </div>
                 </div>
@@ -192,7 +192,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
             {recentReports.map(r => (
               <Card key={r.playerId} className="p-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Link href={`/player/${r.playerId}`} className="font-bold text-sm hover:text-[#FFD700] transition-colors">
+                  <Link href={`/player/${r.playerId}`} className="font-bold text-sm hover:text-gold transition-colors">
                     {r.firstName} {r.lastName}
                   </Link>
                   <PositionBadge pos={r.position} size="sm" />
@@ -205,7 +205,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
                     <span className="text-[10px] ml-1">M</span>{r.avgMentalitaet.toFixed(0)}
                     <span className="text-[10px] ml-1">P</span>{r.avgPotenzial.toFixed(0)}
                   </div>
-                  <span className={`font-bold ${r.avgOverall >= 8 ? 'text-[#FFD700]' : r.avgOverall >= 6 ? 'text-[#22C55E]' : 'text-white/60'}`}>
+                  <span className={`font-bold ${r.avgOverall >= 8 ? 'text-gold' : r.avgOverall >= 6 ? 'text-green-500' : 'text-white/60'}`}>
                     {r.avgOverall.toFixed(1)}
                   </span>
                   <span className="text-white/30">{new Date(r.lastScoutedAt).toLocaleDateString('de-DE')}</span>

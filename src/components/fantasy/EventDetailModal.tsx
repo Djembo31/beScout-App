@@ -1408,7 +1408,7 @@ export const EventDetailModal = ({
                   </div>
                   <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-gold to-[#FFA500] rounded-full transition-all"
+                      className="h-full bg-gradient-to-r from-gold to-orange-500 rounded-full transition-all"
                       style={{ width: `${(filledSlots / totalSlots) * 100}%` }}
                     />
                   </div>

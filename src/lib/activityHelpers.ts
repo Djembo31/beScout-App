@@ -22,22 +22,22 @@ export function getActivityIcon(type: string): string {
 }
 
 export function getActivityColor(type: string): string {
-  if (type === 'trade_buy' || type === 'buy') return 'text-[#FFD700] bg-[#FFD700]/10';
-  if (type === 'trade_sell' || type === 'sell') return 'text-[#22C55E] bg-[#22C55E]/10';
-  if (type === 'ipo_buy') return 'text-[#FFD700] bg-[#FFD700]/10';
+  if (type === 'trade_buy' || type === 'buy') return 'text-gold bg-gold/10';
+  if (type === 'trade_sell' || type === 'sell') return 'text-green-500 bg-green-500/10';
+  if (type === 'ipo_buy') return 'text-gold bg-gold/10';
   if (type === 'entry_fee') return 'text-purple-400 bg-purple-400/10';
   if (type === 'entry_refund') return 'text-emerald-400 bg-emerald-400/10';
   if (type === 'fantasy_reward' || type === 'reward') return 'text-emerald-400 bg-emerald-400/10';
   if (type === 'vote_fee') return 'text-amber-400 bg-amber-400/10';
   if (type === 'deposit') return 'text-sky-400 bg-sky-400/10';
   if (type === 'research_unlock') return 'text-purple-400 bg-purple-400/10';
-  if (type === 'research_earning') return 'text-[#22C55E] bg-[#22C55E]/10';
+  if (type === 'research_earning') return 'text-green-500 bg-green-500/10';
   if (type === 'poll_vote_cost') return 'text-amber-400 bg-amber-400/10';
-  if (type === 'poll_earning') return 'text-[#22C55E] bg-[#22C55E]/10';
-  if (type === 'mission_reward') return 'text-[#FFD700] bg-[#FFD700]/10';
+  if (type === 'poll_earning') return 'text-green-500 bg-green-500/10';
+  if (type === 'mission_reward') return 'text-gold bg-gold/10';
   if (type === 'bounty_cost') return 'text-amber-400 bg-amber-400/10';
-  if (type === 'bounty_reward') return 'text-[#22C55E] bg-[#22C55E]/10';
-  if (type === 'pbt_liquidation') return 'text-[#FFD700] bg-[#FFD700]/10';
+  if (type === 'bounty_reward') return 'text-green-500 bg-green-500/10';
+  if (type === 'pbt_liquidation') return 'text-gold bg-gold/10';
   if (type === 'streak_bonus') return 'text-orange-400 bg-orange-400/10';
   return 'text-white/50 bg-white/5';
 }

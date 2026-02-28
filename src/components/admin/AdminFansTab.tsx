@@ -23,7 +23,7 @@ const SEGMENT_COLORS: Record<string, string> = {
   free: 'text-white/60 bg-white/5 border-white/10',
   bronze: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
   silber: 'text-slate-300 bg-slate-400/10 border-slate-400/20',
-  gold: 'text-[#FFD700] bg-[#FFD700]/10 border-[#FFD700]/20',
+  gold: 'text-gold bg-gold/10 border-gold/20',
   trader: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
 };
 
@@ -133,7 +133,7 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
               onClick={() => handleSegmentClick(seg.id)}
               className={`p-4 rounded-2xl border text-left transition-all ${
                 isActive
-                  ? 'border-[#FFD700]/30 bg-[#FFD700]/5 ring-1 ring-[#FFD700]/20'
+                  ? 'border-gold/30 bg-gold/5 ring-1 ring-gold/20'
                   : `border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]`
               }`}
             >

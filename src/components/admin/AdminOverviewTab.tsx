@@ -65,13 +65,13 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
     <div className="space-y-6">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="p-4 bg-gradient-to-br from-[#FFD700]/10 to-[#FFD700]/[0.02] border-[#FFD700]/20">
+        <Card className="p-4 bg-gradient-to-br from-gold/10 to-gold/[0.02] border-gold/20">
           <div className="flex items-center gap-2 mb-2">
-            <DollarSign className="w-5 h-5 text-[#FFD700]" />
+            <DollarSign className="w-5 h-5 text-gold" />
             <span className="text-xs text-white/50">IPO Umsatz</span>
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black text-[#FFD700]">
+            <div className="text-xl font-mono font-black text-gold">
               {formatScout(stats?.ipo_revenue_cents ?? 0)} <span className="text-sm text-white/50">$SCOUT</span>
             </div>
           )}
@@ -106,29 +106,29 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
       {/* Subscriber Stats */}
       {subData && subData.total > 0 && (
         <div className="grid grid-cols-2 gap-3">
-          <Card className="p-4 border-[#FFD700]/20">
+          <Card className="p-4 border-gold/20">
             <div className="flex items-center gap-2 mb-2">
-              <Crown className="w-5 h-5 text-[#FFD700]" />
+              <Crown className="w-5 h-5 text-gold" />
               <span className="text-xs text-white/50">Aktive Abonnenten</span>
             </div>
-            <div className="text-xl font-mono font-black text-[#FFD700]">{subData.total}</div>
+            <div className="text-xl font-mono font-black text-gold">{subData.total}</div>
           </Card>
-          <Card className="p-4 border-[#FFD700]/20">
+          <Card className="p-4 border-gold/20">
             <div className="flex items-center gap-2 mb-2">
-              <DollarSign className="w-5 h-5 text-[#FFD700]" />
+              <DollarSign className="w-5 h-5 text-gold" />
               <span className="text-xs text-white/50">Abo-Einnahmen</span>
             </div>
-            <div className="text-xl font-mono font-black text-[#FFD700]">{formatScout(subData.revenueCents)} $SCOUT</div>
+            <div className="text-xl font-mono font-black text-gold">{formatScout(subData.revenueCents)} $SCOUT</div>
           </Card>
         </div>
       )}
 
       {/* Referral Link Card */}
-      <Card className="p-4 border-[#22C55E]/20 bg-gradient-to-r from-[#22C55E]/5 to-transparent">
+      <Card className="p-4 border-green-500/20 bg-gradient-to-r from-green-500/5 to-transparent">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#22C55E]/10 flex items-center justify-center">
-              <Share2 className="w-5 h-5 text-[#22C55E]" />
+            <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+              <Share2 className="w-5 h-5 text-green-500" />
             </div>
             <div>
               <div className="text-sm font-bold">Club-Referral-Link</div>
@@ -151,9 +151,9 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
                   setTimeout(() => setCopied(false), 2000);
                 }).catch(err => console.error('[Admin] Copy failed:', err));
               }}
-              className="p-2 rounded-lg bg-[#22C55E]/10 hover:bg-[#22C55E]/20 transition-all"
+              className="p-2 rounded-lg bg-green-500/10 hover:bg-green-500/20 transition-all"
             >
-              {copied ? <Check className="w-4 h-4 text-[#22C55E]" /> : <Copy className="w-4 h-4 text-[#22C55E]" />}
+              {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-green-500" />}
             </button>
           </div>
         </div>
@@ -161,11 +161,11 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
 
       {/* Publish Club News — Owner + Admin only */}
       {canPublishNews && (
-        <Card className="p-4 border-[#FFD700]/20 bg-gradient-to-r from-[#FFD700]/5 to-transparent">
+        <Card className="p-4 border-gold/20 bg-gradient-to-r from-gold/5 to-transparent">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
-                <Megaphone className="w-5 h-5 text-[#FFD700]" />
+              <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
+                <Megaphone className="w-5 h-5 text-gold" />
               </div>
               <div>
                 <div className="text-sm font-bold">Club-News veröffentlichen</div>
@@ -187,7 +187,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
             value={newsContent}
             onChange={e => setNewsContent(e.target.value)}
             placeholder="Was gibt es Neues? (z.B. Neuzugang, Event, Trainingscamp...)"
-            className="w-full h-32 bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-[#FFD700]/40"
+            className="w-full h-32 bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-gold/40"
             maxLength={1000}
           />
           <div className="flex items-center justify-between">
@@ -226,7 +226,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
         {/* Top Fans */}
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Trophy className="w-5 h-5 text-[#FFD700]" />
+            <Trophy className="w-5 h-5 text-gold" />
             <span className="font-black text-lg">Top Fans</span>
           </div>
           {loading ? (
@@ -242,10 +242,10 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
               {(stats?.top_fans ?? []).map((fan, i) => (
                 <div key={fan.user_id} className={cn(
                   'flex items-center gap-3 p-3 rounded-xl border',
-                  i === 0 ? 'bg-[#FFD700]/[0.06] border-[#FFD700]/20' : 'bg-white/[0.02] border-white/10'
+                  i === 0 ? 'bg-gold/[0.06] border-gold/20' : 'bg-white/[0.02] border-white/10'
                 )}>
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-xs ${
-                    i === 0 ? 'bg-[#FFD700]/20 text-[#FFD700]' : 'bg-white/5 text-white/40'
+                    i === 0 ? 'bg-gold/20 text-gold' : 'bg-white/5 text-white/40'
                   }`}>{i + 1}</div>
                   {fan.avatar_url ? (
                     <Image src={fan.avatar_url} alt={fan.handle} width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
@@ -276,15 +276,15 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
             <div className="space-y-2">
               {topTraded.map((p, i) => (
                 <Link key={p.id} href={`/player/${p.id}`}>
-                  <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10 hover:border-[#FFD700]/30 transition-all">
+                  <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10 hover:border-gold/30 transition-all">
                     <div className="flex items-center gap-3">
                       <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs ${
-                        i === 0 ? 'bg-[#FFD700]/20 text-[#FFD700]' : 'bg-white/5 text-white/40'
+                        i === 0 ? 'bg-gold/20 text-gold' : 'bg-white/5 text-white/40'
                       }`}>{i + 1}</div>
                       <PositionBadge pos={p.position as Pos} size="sm" />
                       <div className="font-bold text-sm">{p.first_name} {p.last_name}</div>
                     </div>
-                    <div className="font-mono text-sm text-[#FFD700]">{fmtScout(centsToBsd(p.volume_24h))} $SCOUT</div>
+                    <div className="font-mono text-sm text-gold">{fmtScout(centsToBsd(p.volume_24h))} $SCOUT</div>
                   </div>
                 </Link>
               ))}

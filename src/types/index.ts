@@ -629,7 +629,7 @@ export function calculateSynergyPreview(clubs: string[]): { totalPct: number; de
 export type ScoreTier = 'decisive' | 'strong' | 'good' | 'none';
 
 export const SCORE_TIER_CONFIG: Record<Exclude<ScoreTier, 'none'>, { label: string; labelDe: string; minScore: number; color: string; bg: string; border: string; bonusCents: number }> = {
-  decisive: { label: 'Decisive', labelDe: 'Entscheidend', minScore: 120, color: 'text-[#FFD700]', bg: 'bg-[#FFD700]/20', border: 'border-[#FFD700]/40', bonusCents: 500 },
+  decisive: { label: 'Decisive', labelDe: 'Entscheidend', minScore: 120, color: 'text-gold', bg: 'bg-gold/20', border: 'border-gold/40', bonusCents: 500 },
   strong:   { label: 'Strong', labelDe: 'Stark', minScore: 100, color: 'text-purple-400', bg: 'bg-purple-500/20', border: 'border-purple-500/40', bonusCents: 300 },
   good:     { label: 'Good', labelDe: 'Gut', minScore: 80, color: 'text-sky-400', bg: 'bg-sky-500/20', border: 'border-sky-500/40', bonusCents: 100 },
 };

@@ -67,7 +67,7 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
         <input
           type="text" value={search} onChange={e => setSearch(e.target.value)}
           placeholder="Benutzer suchen..."
-          className="w-full pl-10 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/30"
+          className="w-full pl-10 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
         />
       </div>
 
@@ -90,12 +90,12 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
               {users.map(u => (
                 <tr key={u.id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
                   <td className="py-2.5 px-3">
-                    <Link href={`/profile/${u.handle}`} className="text-white hover:text-[#FFD700] font-medium">
+                    <Link href={`/profile/${u.handle}`} className="text-white hover:text-gold font-medium">
                       @{u.handle}
                     </Link>
                     {u.displayName && <span className="text-white/40 ml-1 text-xs">{u.displayName}</span>}
                   </td>
-                  <td className="py-2.5 px-3 text-right font-mono text-[#FFD700]">
+                  <td className="py-2.5 px-3 text-right font-mono text-gold">
                     {fmtScout(centsToBsd(u.balance))}
                   </td>
                   <td className="py-2.5 px-3 text-right text-white/60">{u.holdingsCount}</td>
@@ -126,14 +126,14 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
         <Modal open={true} onClose={() => setAdjustModal(null)} title={`Wallet-Korrektur: @${adjustModal.handle}`}>
           <div className="space-y-4">
             <div className="text-sm text-white/60">
-              Aktuelles Guthaben: <span className="font-mono text-[#FFD700]">{fmtScout(centsToBsd(adjustModal.balance))} $SCOUT</span>
+              Aktuelles Guthaben: <span className="font-mono text-gold">{fmtScout(centsToBsd(adjustModal.balance))} $SCOUT</span>
             </div>
             <div>
               <label className="text-xs text-white/60 mb-1 block">Betrag ($SCOUT, negativ = abziehen)</label>
               <input
                 type="number" inputMode="numeric" value={adjustAmount} onChange={e => setAdjustAmount(e.target.value)}
                 placeholder="z.B. 1000 oder -500"
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-mono focus:outline-none focus:border-[#FFD700]/30"
+                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-mono focus:outline-none focus:border-gold/30"
               />
             </div>
             <div>
@@ -141,7 +141,7 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
               <input
                 type="text" value={adjustReason} onChange={e => setAdjustReason(e.target.value)}
                 placeholder="z.B. Beta-Bonus, Bug-Fix..."
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/30"
+                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/30"
               />
             </div>
             {GEOFENCING_ENABLED && (
@@ -160,7 +160,7 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
                       addToast(err instanceof Error ? err.message : 'Fehler', 'error');
                     }
                   }}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/30"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/30"
                 >
                   <option value="">Nicht gesetzt</option>
                   {GEO_REGIONS.map(r => (

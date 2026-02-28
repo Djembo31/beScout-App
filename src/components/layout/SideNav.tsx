@@ -280,7 +280,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
       <aside
         className={`
           hidden lg:flex fixed left-0 top-0 h-screen z-40 flex-col
-          bg-gradient-to-b from-[#111114] to-[#0a0a0a] backdrop-blur-xl border-r border-white/[0.08]
+          bg-gradient-to-b from-[#111114] to-bg-main backdrop-blur-xl border-r border-white/[0.08]
           transition-all duration-300
           ${collapsed ? 'w-[72px]' : 'w-[260px]'}
         `}

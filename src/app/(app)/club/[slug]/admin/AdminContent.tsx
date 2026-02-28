@@ -118,7 +118,7 @@ export default function AdminContent({ slug }: { slug: string }) {
         </div>
         <button
           onClick={() => router.push(`/club/${slug}`)}
-          className="text-sm text-[#FFD700] hover:underline"
+          className="text-sm text-gold hover:underline"
         >
           Zurück zur Club-Seite
         </button>
@@ -131,12 +131,12 @@ export default function AdminContent({ slug }: { slug: string }) {
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`flex-shrink-0 px-2.5 md:px-4 py-2.5 text-xs md:text-sm font-semibold transition-all relative whitespace-nowrap flex items-center gap-1 md:gap-1.5 min-h-[44px] ${
-              tab === t.id ? 'text-[#FFD700]' : 'text-white/60 hover:text-white'
+              tab === t.id ? 'text-gold' : 'text-white/60 hover:text-white'
             }`}
           >
             <t.icon className="w-4 h-4" />
             {t.label}
-            {tab === t.id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FFD700]" />}
+            {tab === t.id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold" />}
           </button>
         ))}
       </div>

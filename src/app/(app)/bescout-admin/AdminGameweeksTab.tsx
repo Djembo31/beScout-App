@@ -60,7 +60,7 @@ export function AdminGameweeksTab() {
     <div className="space-y-4">
       <div className="flex items-center gap-3">
         <span className="text-sm text-white/60">Aktiver Spieltag:</span>
-        <span className="font-bold text-[#FFD700] text-lg">GW {activeGw}</span>
+        <span className="font-bold text-gold text-lg">GW {activeGw}</span>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2">
@@ -71,12 +71,12 @@ export function AdminGameweeksTab() {
             <Card
               key={gw.gameweek}
               className={`p-3 text-center ${
-                isCurrent ? 'border-[#FFD700]/30 bg-[#FFD700]/5' :
+                isCurrent ? 'border-gold/30 bg-gold/5' :
                 isPast && gw.isFullyScored ? 'border-green-500/20' :
                 ''
               }`}
             >
-              <div className={`text-xs font-bold mb-1 ${isCurrent ? 'text-[#FFD700]' : 'text-white/60'}`}>
+              <div className={`text-xs font-bold mb-1 ${isCurrent ? 'text-gold' : 'text-white/60'}`}>
                 GW {gw.gameweek}
               </div>
               <div className="space-y-0.5 text-[10px] text-white/40">
@@ -85,13 +85,13 @@ export function AdminGameweeksTab() {
               </div>
               <div className="mt-1.5 flex justify-center gap-1">
                 {gw.isSimulated && <span className="w-2 h-2 rounded-full bg-green-500" title="Simuliert" />}
-                {gw.isFullyScored && <span className="w-2 h-2 rounded-full bg-[#FFD700]" title="Gescort" />}
+                {gw.isFullyScored && <span className="w-2 h-2 rounded-full bg-gold" title="Gescort" />}
               </div>
               {isCurrent && (
                 <button
                   onClick={() => handleSimAndScore(gw.gameweek)}
                   disabled={simulating !== null}
-                  className="mt-2 w-full text-[10px] px-2 py-1 rounded bg-[#FFD700]/20 text-[#FFD700] hover:bg-[#FFD700]/30 disabled:opacity-50"
+                  className="mt-2 w-full text-[10px] px-2 py-1 rounded bg-gold/20 text-gold hover:bg-gold/30 disabled:opacity-50"
                 >
                   {simulating === gw.gameweek ? <Loader2 className="w-3 h-3 animate-spin mx-auto" /> : 'Sim & Score'}
                 </button>

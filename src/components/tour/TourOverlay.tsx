@@ -180,7 +180,7 @@ export function TourOverlay() {
 
               <button
                 onClick={nextStep}
-                className="px-3.5 py-1.5 rounded-xl bg-[#FFD700] text-black text-xs font-bold hover:bg-[#FFD700]/90 transition-colors"
+                className="px-3.5 py-1.5 rounded-xl bg-gold text-black text-xs font-bold hover:bg-gold/90 transition-colors"
               >
                 {isLast ? 'Fertig' : 'Weiter'}
                 {!isLast && <ChevronRight className="w-3.5 h-3.5 inline ml-0.5 -mr-0.5" />}
@@ -221,7 +221,7 @@ export function TourOverlay() {
                 </span>
                 <button
                   onClick={nextStep}
-                  className="px-3.5 py-1.5 rounded-xl bg-[#FFD700] text-black text-xs font-bold hover:bg-[#FFD700]/90 transition-colors"
+                  className="px-3.5 py-1.5 rounded-xl bg-gold text-black text-xs font-bold hover:bg-gold/90 transition-colors"
                 >
                   {isLast ? 'Fertig' : 'Weiter'}
                   {!isLast && <ChevronRight className="w-3.5 h-3.5 inline ml-0.5 -mr-0.5" />}

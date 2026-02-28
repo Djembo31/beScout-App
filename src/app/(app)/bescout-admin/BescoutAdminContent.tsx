@@ -49,7 +49,7 @@ function OverviewTab({ stats, error }: { stats: SystemStats | null; error?: bool
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
       <StatCard label="Benutzer" value={stats.totalUsers.toString()} icon={<Users className="w-4 h-4 text-white/40" />} />
-      <StatCard label="$SCOUT Gesamt" value={`${fmtScout(centsToBsd(stats.totalBsdCirculation))}`} icon={<DollarSign className="w-4 h-4 text-[#FFD700]" />} />
+      <StatCard label="$SCOUT Gesamt" value={`${fmtScout(centsToBsd(stats.totalBsdCirculation))}`} icon={<DollarSign className="w-4 h-4 text-gold" />} />
       <StatCard label="24h Volumen" value={`${fmtScout(centsToBsd(stats.volume24h))}`} icon={<BarChart3 className="w-4 h-4 text-white/40" />} />
       <StatCard label="Aktive Events" value={stats.activeEvents.toString()} icon={<Calendar className="w-4 h-4 text-white/40" />} />
       <StatCard label="Offene Angebote" value={stats.pendingOffers.toString()} icon={<Zap className="w-4 h-4 text-white/40" />} />
@@ -93,7 +93,7 @@ function IposTab() {
                 }`}>
                   {ipo.status as string}
                 </span>
-                <span className="font-mono text-[#FFD700]">{fmtScout(centsToBsd(ipo.price as number))} $SCOUT</span>
+                <span className="font-mono text-gold">{fmtScout(centsToBsd(ipo.price as number))} $SCOUT</span>
                 <span className="text-white/40">{ipo.sold as number}/{ipo.total_offered as number}</span>
               </div>
             </div>
@@ -126,7 +126,7 @@ function DebugTab() {
           href="https://supabase.com/dashboard/project/skzjfhvgccaeplydsunz"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-[#FFD700] hover:underline flex items-center gap-1"
+          className="text-xs text-gold hover:underline flex items-center gap-1"
         >
           Supabase Dashboard <ExternalLink className="w-3 h-3" />
         </a>
@@ -208,8 +208,8 @@ export default function BescoutAdminContent() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-[#FFD700]/20 flex items-center justify-center">
-          <Shield className="w-5 h-5 text-[#FFD700]" />
+        <div className="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center">
+          <Shield className="w-5 h-5 text-gold" />
         </div>
         <div>
           <h1 className="text-xl font-black text-white">BeScout Admin</h1>
@@ -227,7 +227,7 @@ export default function BescoutAdminContent() {
               onClick={() => setTab(t.id)}
               className={`flex items-center gap-1 md:gap-1.5 px-2.5 md:px-3 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 min-h-[44px] ${
                 tab === t.id
-                  ? 'bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20'
+                  ? 'bg-gold/10 text-gold border border-gold/20'
                   : 'text-white/40 hover:text-white/60'
               }`}
             >

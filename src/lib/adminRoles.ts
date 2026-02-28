@@ -32,7 +32,7 @@ export function canPerformAction(action: string, role: ClubAdminRole): boolean {
 export function getRoleBadge(role: ClubAdminRole): { label: string; color: string; bg: string; border: string } {
   switch (role) {
     case 'owner':
-      return { label: 'Eigentümer', color: 'text-[#FFD700]', bg: 'bg-[#FFD700]/10', border: 'border-[#FFD700]/20' };
+      return { label: 'Eigentümer', color: 'text-gold', bg: 'bg-gold/10', border: 'border-gold/20' };
     case 'admin':
       return { label: 'Verwalter', color: 'text-sky-400', bg: 'bg-sky-400/10', border: 'border-sky-400/20' };
     case 'editor':

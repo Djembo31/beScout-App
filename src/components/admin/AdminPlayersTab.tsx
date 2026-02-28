@@ -264,7 +264,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
   const statusConfig: Record<string, { bg: string; border: string; text: string; label: string }> = {
     announced: { bg: 'bg-blue-500/15', border: 'border-blue-400/25', text: 'text-blue-300', label: 'Angekündigt' },
     early_access: { bg: 'bg-purple-500/15', border: 'border-purple-400/25', text: 'text-purple-300', label: 'Vorkaufsrecht' },
-    open: { bg: 'bg-[#22C55E]/15', border: 'border-[#22C55E]/25', text: 'text-[#22C55E]', label: 'Live' },
+    open: { bg: 'bg-green-500/15', border: 'border-green-500/25', text: 'text-green-500', label: 'Live' },
     ended: { bg: 'bg-white/5', border: 'border-white/10', text: 'text-white/50', label: 'Beendet' },
     cancelled: { bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', label: 'Abgebrochen' },
   };
@@ -275,7 +275,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
   return (
     <div className="space-y-6">
       {ipoSuccess && (
-        <div className="bg-[#22C55E]/20 border border-[#22C55E]/30 text-[#22C55E] px-4 py-3 rounded-xl font-bold text-sm">{ipoSuccess}</div>
+        <div className="bg-green-500/20 border border-green-500/30 text-green-500 px-4 py-3 rounded-xl font-bold text-sm">{ipoSuccess}</div>
       )}
       {ipoError && (
         <div className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm cursor-pointer" onClick={() => setIpoError(null)}>{ipoError}</div>
@@ -327,10 +327,10 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                         <div className="flex-1">
                           <div className="flex items-center justify-between text-[10px] mb-1">
                             <span className="text-white/50">{ipo.sold}/{ipo.total_offered} verkauft</span>
-                            <span className="font-mono font-bold text-[#FFD700]">{progress.toFixed(0)}%</span>
+                            <span className="font-mono font-bold text-gold">{progress.toFixed(0)}%</span>
                           </div>
                           <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-full" style={{ width: `${progress}%` }} />
+                            <div className="h-full bg-gradient-to-r from-gold to-orange-500 rounded-full" style={{ width: `${progress}%` }} />
                           </div>
                         </div>
                         <div className="text-xs text-white/40 whitespace-nowrap flex-shrink-0">
@@ -410,7 +410,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 <div className="flex items-center gap-3 min-w-0">
                   <PlayerIdentity player={p} size="sm" showStatus={false} className="min-w-0 flex-1" />
                   {p.successFeeCap != null && (
-                    <Chip className="bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20 text-[10px] px-1.5 py-0 shrink-0">
+                    <Chip className="bg-gold/10 text-gold border border-gold/20 text-[10px] px-1.5 py-0 shrink-0">
                       Cap: {fmtScout(p.successFeeCap)} $SCOUT
                     </Chip>
                   )}
@@ -419,7 +419,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                       {canSetFee && (
                         <button
                           onClick={() => { setCapModalPlayer(p); setCapValue(p.successFeeCap != null ? String(p.successFeeCap) : ''); }}
-                          className="p-2 rounded-lg bg-white/5 hover:bg-[#FFD700]/10 text-white/50 hover:text-[#FFD700] transition-colors"
+                          className="p-2 rounded-lg bg-white/5 hover:bg-gold/10 text-white/50 hover:text-gold transition-colors"
                           title="Success Fee Cap setzen"
                         >
                           <Shield className="w-4 h-4" />
@@ -474,12 +474,12 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 value={capValue}
                 onChange={(e) => setCapValue(e.target.value)}
                 placeholder="z.B. 500.00"
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
               />
             </div>
             {capModalPlayer.successFeeCap != null && (
               <div className="text-xs text-white/40">
-                Aktueller Cap: <span className="text-[#FFD700] font-mono font-bold">{fmtScout(capModalPlayer.successFeeCap)} $SCOUT</span>
+                Aktueller Cap: <span className="text-gold font-mono font-bold">{fmtScout(capModalPlayer.successFeeCap)} $SCOUT</span>
               </div>
             )}
             <Button variant="gold" fullWidth onClick={handleSetCap} disabled={capLoading || !capValue}>
@@ -518,19 +518,19 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                   value={liqTransferValue}
                   onChange={(e) => setLiqTransferValue(e.target.value)}
                   placeholder="z.B. 1000000"
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
                 />
                 <div className="text-xs text-white/40 mt-1">Bestimmt den Community Bonus Tier. 0 = gespeicherter Marktwert.</div>
               </div>
-              <div className="bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-xl p-3 space-y-2 text-sm">
-                <div className="text-xs font-bold text-[#FFD700]/70 mb-1">Live-Vorschau</div>
+              <div className="bg-gold/5 border border-gold/20 rounded-xl p-3 space-y-2 text-sm">
+                <div className="text-xs font-bold text-gold/70 mb-1">Live-Vorschau</div>
                 <div className="flex items-center justify-between">
                   <span className="text-white/50">Tier</span>
-                  <span className="font-mono font-bold text-[#FFD700]">{tier.label}</span>
+                  <span className="font-mono font-bold text-gold">{tier.label}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-white/50">Fee pro DPC</span>
-                  <span className="font-mono font-bold text-[#FFD700]">
+                  <span className="font-mono font-bold text-gold">
                     {fmtScout(effectiveFeeBsd)} $SCOUT
                     {capCents != null && capCents > 0 && capCents < feeCents && <span className="text-white/40 text-xs ml-1">(Cap)</span>}
                   </span>
@@ -542,15 +542,15 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 <div className="border-t border-white/10 pt-2 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-white/50">PBT-Ausschüttung</span>
-                    <span className="font-mono font-bold text-[#22C55E]">{fmtScout(liqPbtBalance)} $SCOUT</span>
+                    <span className="font-mono font-bold text-green-500">{fmtScout(liqPbtBalance)} $SCOUT</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-white/50">Community Bonus</span>
-                    <span className="font-mono font-bold text-[#FFD700]">{fmtScout(totalSfBsd)} $SCOUT</span>
+                    <span className="font-mono font-bold text-gold">{fmtScout(totalSfBsd)} $SCOUT</span>
                   </div>
                   <div className="flex items-center justify-between border-t border-white/10 pt-1">
                     <span className="text-white font-bold">Gesamt</span>
-                    <span className="font-mono font-bold text-[#22C55E]">{fmtScout(liqPbtBalance + totalSfBsd)} $SCOUT</span>
+                    <span className="font-mono font-bold text-green-500">{fmtScout(liqPbtBalance + totalSfBsd)} $SCOUT</span>
                   </div>
                 </div>
               </div>
@@ -573,8 +573,8 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
         })()}
         {liqModalPlayer && liqResult && (
           <div className="space-y-4 p-4 md:p-6">
-            <div className="bg-[#22C55E]/10 border border-[#22C55E]/20 rounded-xl p-4 text-center">
-              <div className="text-[#22C55E] font-black text-lg mb-1">Liquidierung abgeschlossen</div>
+            <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center">
+              <div className="text-green-500 font-black text-lg mb-1">Liquidierung abgeschlossen</div>
               <div className="text-sm text-white/60">{liqModalPlayer.first} {liqModalPlayer.last} wurde erfolgreich liquidiert.</div>
             </div>
             <div className="space-y-2 text-sm">
@@ -588,20 +588,20 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/50">Fee pro DPC</span>
-                <span className="font-mono font-bold text-[#FFD700]">{fmtScout(centsToBsd(liqResult.fee_per_dpc_cents))} $SCOUT</span>
+                <span className="font-mono font-bold text-gold">{fmtScout(centsToBsd(liqResult.fee_per_dpc_cents))} $SCOUT</span>
               </div>
               <div className="border-t border-white/10 pt-2 space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-white/50">PBT-Ausschüttung</span>
-                  <span className="font-mono font-bold text-[#22C55E]">{fmtScout(centsToBsd(liqResult.pbt_distributed_cents))} $SCOUT</span>
+                  <span className="font-mono font-bold text-green-500">{fmtScout(centsToBsd(liqResult.pbt_distributed_cents))} $SCOUT</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-white/50">Community Bonus</span>
-                  <span className="font-mono font-bold text-[#FFD700]">{fmtScout(centsToBsd(liqResult.success_fee_cents))} $SCOUT</span>
+                  <span className="font-mono font-bold text-gold">{fmtScout(centsToBsd(liqResult.success_fee_cents))} $SCOUT</span>
                 </div>
                 <div className="flex items-center justify-between border-t border-white/10 pt-1">
                   <span className="text-white font-bold">Gesamt</span>
-                  <span className="font-mono font-bold text-[#22C55E]">{fmtScout(centsToBsd(liqResult.distributed_cents))} $SCOUT</span>
+                  <span className="font-mono font-bold text-green-500">{fmtScout(centsToBsd(liqResult.distributed_cents))} $SCOUT</span>
                 </div>
               </div>
             </div>
@@ -620,7 +620,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             <select
               value={ipoPlayerId}
               onChange={(e) => setIpoPlayerId(e.target.value)}
-              className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/40"
+              className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
             >
               <option value="" className="bg-[#1a1a2e] text-white/50">Spieler wählen...</option>
               {eligiblePlayers.map(p => (
@@ -630,11 +630,11 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">Preis pro DPC ($SCOUT)</label>
-            <input type="number" inputMode="numeric" step="0.01" min="0.01" value={ipoPrice} onChange={(e) => setIpoPrice(e.target.value)} placeholder="z.B. 5.00" className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25" />
+            <input type="number" inputMode="numeric" step="0.01" min="0.01" value={ipoPrice} onChange={(e) => setIpoPrice(e.target.value)} placeholder="z.B. 5.00" className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">Anzahl DPC</label>
-            <input type="number" inputMode="numeric" min="1" max={(() => { const sp = players.find(p => p.id === ipoPlayerId); return sp ? sp.dpc.supply - sp.dpc.circulation : 300; })()} value={ipoQty} onChange={(e) => setIpoQty(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40" />
+            <input type="number" inputMode="numeric" min="1" max={(() => { const sp = players.find(p => p.id === ipoPlayerId); return sp ? sp.dpc.supply - sp.dpc.circulation : 300; })()} value={ipoQty} onChange={(e) => setIpoQty(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40" />
             {ipoPlayerId && (() => {
               const sp = players.find(p => p.id === ipoPlayerId);
               if (!sp) return null;
@@ -648,11 +648,11 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">Max pro User</label>
-            <input type="number" inputMode="numeric" min="1" value={ipoMaxPerUser} onChange={(e) => setIpoMaxPerUser(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40" />
+            <input type="number" inputMode="numeric" min="1" value={ipoMaxPerUser} onChange={(e) => setIpoMaxPerUser(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40" />
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">Laufzeit</label>
-            <select value={ipoDuration} onChange={(e) => setIpoDuration(e.target.value)} className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/40">
+            <select value={ipoDuration} onChange={(e) => setIpoDuration(e.target.value)} className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40">
               <option value="7">7 Tage</option>
               <option value="14">14 Tage</option>
               <option value="21">21 Tage</option>
@@ -666,20 +666,20 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             </div>
             <button
               onClick={() => setIpoStartNow(!ipoStartNow)}
-              className={`w-12 h-6 rounded-full transition-all relative ${ipoStartNow ? 'bg-[#22C55E]' : 'bg-white/10'}`}
+              className={`w-12 h-6 rounded-full transition-all relative ${ipoStartNow ? 'bg-green-500' : 'bg-white/10'}`}
             >
               <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${ipoStartNow ? 'left-6' : 'left-0.5'}`} />
             </button>
           </div>
           {ipoPlayerId && ipoPrice && (
-            <div className="bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-xl p-3 text-sm">
+            <div className="bg-gold/5 border border-gold/20 rounded-xl p-3 text-sm">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-white/50">Gesamtvolumen</span>
-                <span className="font-mono font-bold text-[#FFD700]">{fmtScout(parseFloat(ipoPrice) * parseInt(ipoQty || '0'))} $SCOUT</span>
+                <span className="font-mono font-bold text-gold">{fmtScout(parseFloat(ipoPrice) * parseInt(ipoQty || '0'))} $SCOUT</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/50">Status nach Erstellung</span>
-                <span className={ipoStartNow ? 'text-[#22C55E] font-bold' : 'text-blue-300 font-bold'}>{ipoStartNow ? 'Live' : 'Angekündigt'}</span>
+                <span className={ipoStartNow ? 'text-green-500 font-bold' : 'text-blue-300 font-bold'}>{ipoStartNow ? 'Live' : 'Angekündigt'}</span>
               </div>
             </div>
           )}
@@ -701,7 +701,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 value={cpFirstName}
                 onChange={(e) => setCpFirstName(e.target.value.slice(0, 30))}
                 placeholder="Vorname"
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
               />
             </div>
             <div>
@@ -711,7 +711,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 value={cpLastName}
                 onChange={(e) => setCpLastName(e.target.value.slice(0, 30))}
                 placeholder="Nachname"
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
               />
             </div>
           </div>
@@ -721,7 +721,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               <select
                 value={cpPosition}
                 onChange={(e) => setCpPosition(e.target.value)}
-                className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/40"
+                className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
               >
                 <option value="GK">GK</option>
                 <option value="DEF">DEF</option>
@@ -739,7 +739,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 value={cpShirtNumber}
                 onChange={(e) => setCpShirtNumber(e.target.value)}
                 placeholder="z.B. 10"
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
               />
             </div>
           </div>
@@ -754,7 +754,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 value={cpAge}
                 onChange={(e) => setCpAge(e.target.value)}
                 placeholder="z.B. 24"
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
               />
             </div>
             <div>
@@ -764,7 +764,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 value={cpNationality}
                 onChange={(e) => setCpNationality(e.target.value.slice(0, 3).toUpperCase())}
                 placeholder="TR"
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
               />
             </div>
           </div>
@@ -778,7 +778,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               value={cpIpoPrice}
               onChange={(e) => setCpIpoPrice(e.target.value)}
               placeholder="z.B. 5.00"
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
             />
           </div>
           <div className="bg-white/[0.02] rounded-xl p-3 text-xs text-white/40">

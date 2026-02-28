@@ -61,7 +61,7 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
   return (
     <div className="space-y-6">
       {msg && (
-        <div className={`px-4 py-3 rounded-xl text-sm font-bold ${msg.type === 'success' ? 'bg-[#22C55E]/20 border border-[#22C55E]/30 text-[#22C55E]' : 'bg-red-500/20 border border-red-500/30 text-red-300'}`}>{msg.text}</div>
+        <div className={`px-4 py-3 rounded-xl text-sm font-bold ${msg.type === 'success' ? 'bg-green-500/20 border border-green-500/30 text-green-500' : 'bg-red-500/20 border border-red-500/30 text-red-300'}`}>{msg.text}</div>
       )}
 
       <div className="flex items-center justify-between">
@@ -92,7 +92,7 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
               <Card key={vote.id} className={`p-4 ${!isActive ? 'opacity-60' : ''}`}>
                 <div className="flex items-start justify-between mb-3">
                   <div className="font-bold line-clamp-2 flex-1">{vote.question}</div>
-                  <Chip className={isActive ? 'bg-[#22C55E]/15 text-[#22C55E] border-[#22C55E]/25' : 'bg-white/5 text-white/50 border-white/10'}>{isActive ? 'Aktiv' : 'Beendet'}</Chip>
+                  <Chip className={isActive ? 'bg-green-500/15 text-green-500 border-green-500/25' : 'bg-white/5 text-white/50 border-white/10'}>{isActive ? 'Aktiv' : 'Beendet'}</Chip>
                 </div>
                 <div className="space-y-1.5 mb-3">
                   {(vote.options as { label: string; votes: number }[]).map((opt, idx) => {
@@ -125,12 +125,12 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
         <div className="space-y-4">
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">Frage</label>
-            <input type="text" value={question} onChange={(e) => setQuestion(e.target.value.slice(0, 200))} placeholder="z.B. Welches Trikot-Design bevorzugt ihr?" className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40" />
+            <input type="text" value={question} onChange={(e) => setQuestion(e.target.value.slice(0, 200))} placeholder="z.B. Welches Trikot-Design bevorzugt ihr?" className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
           </div>
           {options.map((opt, idx) => (
             <div key={idx}>
               <label className="text-xs text-white/50 font-semibold mb-1.5 block">Option {idx + 1}</label>
-              <input type="text" value={opt} onChange={(e) => { const n = [...options]; n[idx] = e.target.value.slice(0, 100); setOptions(n); }} placeholder={`Option ${idx + 1}`} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40" />
+              <input type="text" value={opt} onChange={(e) => { const n = [...options]; n[idx] = e.target.value.slice(0, 100); setOptions(n); }} placeholder={`Option ${idx + 1}`} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
             </div>
           ))}
           {options.length < 4 && (
@@ -139,11 +139,11 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-white/50 font-semibold mb-1.5 block">Kosten ($SCOUT)</label>
-              <input type="number" inputMode="numeric" value={cost} onChange={(e) => setCost(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#FFD700]/40" />
+              <input type="number" inputMode="numeric" value={cost} onChange={(e) => setCost(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-gold/40" />
             </div>
             <div>
               <label className="text-xs text-white/50 font-semibold mb-1.5 block">Laufzeit (Tage)</label>
-              <input type="number" inputMode="numeric" value={days} onChange={(e) => setDays(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#FFD700]/40" />
+              <input type="number" inputMode="numeric" value={days} onChange={(e) => setDays(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-gold/40" />
             </div>
           </div>
           <Button variant="gold" fullWidth loading={creating} onClick={handleCreate}>Abstimmung erstellen</Button>

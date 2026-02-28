@@ -21,9 +21,9 @@ function timeAgo(dateStr: string): string {
 
 const STATUS_MAP: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   pending: { label: 'Ausstehend', color: 'text-amber-400', icon: Clock },
-  approved: { label: 'Genehmigt', color: 'text-[#22C55E]', icon: CheckCircle },
+  approved: { label: 'Genehmigt', color: 'text-green-500', icon: CheckCircle },
   rejected: { label: 'Abgelehnt', color: 'text-red-400', icon: XCircle },
-  paid: { label: 'Ausgezahlt', color: 'text-[#FFD700]', icon: CheckCircle },
+  paid: { label: 'Ausgezahlt', color: 'text-gold', icon: CheckCircle },
 };
 
 export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
@@ -90,10 +90,10 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
 
       {/* Balance Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="p-4 bg-gradient-to-br from-[#FFD700]/10 to-[#FFD700]/[0.02] border-[#FFD700]/20">
+        <Card className="p-4 bg-gradient-to-br from-gold/10 to-gold/[0.02] border-gold/20">
           <div className="text-[10px] text-white/40 uppercase tracking-wider mb-1">Verfügbar</div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black text-[#FFD700]">{formatScout(balance?.available ?? 0)} $SCOUT</div>
+            <div className="text-xl font-mono font-black text-gold">{formatScout(balance?.available ?? 0)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
@@ -134,7 +134,7 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="z.B. 500"
-                className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FFD700]/50"
+                className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gold/50"
                 required
               />
             </div>
@@ -146,19 +146,19 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
                 onChange={e => setNote(e.target.value)}
                 placeholder="z.B. Monatliche Auszahlung"
                 maxLength={200}
-                className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#FFD700]/50"
+                className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gold/50"
               />
             </div>
           </div>
           {feedback && (
-            <div className={`text-sm px-3 py-2 rounded-lg ${feedback.type === 'success' ? 'bg-[#22C55E]/10 text-[#22C55E]' : 'bg-red-500/10 text-red-400'}`}>
+            <div className={`text-sm px-3 py-2 rounded-lg ${feedback.type === 'success' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-400'}`}>
               {feedback.msg}
             </div>
           )}
           <button
             type="submit"
             disabled={submitting || loading}
-            className="px-6 py-2.5 bg-[#FFD700] text-black rounded-xl font-bold text-sm hover:bg-[#FFD700]/90 disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-2.5 bg-gold text-black rounded-xl font-bold text-sm hover:bg-gold/90 disabled:opacity-50 flex items-center gap-2"
           >
             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wallet className="w-4 h-4" />}
             Auszahlung beantragen

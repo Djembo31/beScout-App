@@ -54,7 +54,7 @@ export default function AchievementUnlockModal({
             <Link
               href="/profile?tab=overview"
               onClick={onClose}
-              className="flex-1 py-3 rounded-xl bg-[#FFD700]/10 border border-[#FFD700]/20 text-sm font-bold text-[#FFD700] hover:bg-[#FFD700]/20 transition-colors flex items-center justify-center min-h-[44px]"
+              className="flex-1 py-3 rounded-xl bg-gold/10 border border-gold/20 text-sm font-bold text-gold hover:bg-gold/20 transition-colors flex items-center justify-center min-h-[44px]"
             >
               {t('viewAll')}
             </Link>

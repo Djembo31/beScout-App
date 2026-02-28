@@ -13,7 +13,7 @@ export function DemoBanner() {
   if (!profile?.is_demo || dismissed) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[70] flex items-center justify-center gap-2 px-4 py-1.5 bg-[#FFD700] text-black text-xs font-bold">
+    <div className="fixed top-0 left-0 right-0 z-[70] flex items-center justify-center gap-2 px-4 py-1.5 bg-gold text-black text-xs font-bold">
       <Lock className="w-3 h-3" />
       <span>{t('banner')} — {t('bannerSub')}</span>
       <button

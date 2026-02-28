@@ -30,7 +30,7 @@ export type ScoutAssignment = {
 export const BADGE_STYLES: Record<BadgeLevel, { label: string; color: string; bg: string; border: string; icon: string }> = {
   bronze: { label: 'Bronze Scout', color: 'text-orange-400', bg: 'bg-orange-500/20', border: 'border-orange-500/30', icon: '🥉' },
   silver: { label: 'Silver Scout', color: 'text-zinc-300', bg: 'bg-zinc-400/20', border: 'border-zinc-400/30', icon: '🥈' },
-  gold:   { label: 'Gold Scout', color: 'text-[#FFD700]', bg: 'bg-[#FFD700]/20', border: 'border-[#FFD700]/30', icon: '🥇' },
+  gold:   { label: 'Gold Scout', color: 'text-gold', bg: 'bg-gold/20', border: 'border-gold/30', icon: '🥇' },
 };
 
 // ============================================

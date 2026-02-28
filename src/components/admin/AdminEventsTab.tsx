@@ -14,8 +14,8 @@ const EVENT_STATUS_CONFIG: Record<string, { bg: string; border: string; text: st
   upcoming: { bg: 'bg-white/5', border: 'border-white/10', text: 'text-white/50', label: 'Geplant' },
   registering: { bg: 'bg-blue-500/15', border: 'border-blue-400/25', text: 'text-blue-300', label: 'Anmeldung' },
   'late-reg': { bg: 'bg-purple-500/15', border: 'border-purple-400/25', text: 'text-purple-300', label: 'Late-Reg' },
-  running: { bg: 'bg-[#22C55E]/15', border: 'border-[#22C55E]/25', text: 'text-[#22C55E]', label: 'Live' },
-  scoring: { bg: 'bg-[#FFD700]/15', border: 'border-[#FFD700]/25', text: 'text-[#FFD700]', label: 'Scoring' },
+  running: { bg: 'bg-green-500/15', border: 'border-green-500/25', text: 'text-green-500', label: 'Live' },
+  scoring: { bg: 'bg-gold/15', border: 'border-gold/25', text: 'text-gold', label: 'Scoring' },
   ended: { bg: 'bg-white/5', border: 'border-white/10', text: 'text-white/40', label: 'Beendet' },
   cancelled: { bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', label: 'Abgebrochen' },
 };
@@ -186,7 +186,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
   return (
     <div className="space-y-6">
       {success && (
-        <div className="bg-[#22C55E]/20 border border-[#22C55E]/30 text-[#22C55E] px-4 py-3 rounded-xl font-bold text-sm">{success}</div>
+        <div className="bg-green-500/20 border border-green-500/30 text-green-500 px-4 py-3 rounded-xl font-bold text-sm">{success}</div>
       )}
       {error && (
         <div className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm cursor-pointer" onClick={() => setError(null)}>{error}</div>
@@ -195,14 +195,14 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
       {/* ===== GAMEWEEK SIMULATION ===== */}
       <Card className="p-4">
         <div className="flex items-center gap-2 mb-3">
-          <Zap className="w-5 h-5 text-[#FFD700]" />
+          <Zap className="w-5 h-5 text-gold" />
           <h3 className="font-black text-sm">Spieltag simulieren</h3>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <select
             value={simGw}
             onChange={(e) => setSimGw(parseInt(e.target.value))}
-            className="px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/40"
+            className="px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
           >
             {Array.from({ length: 38 }, (_, i) => i + 1).map(gw => {
               const status = gwStatuses.find(s => s.gameweek === gw);
@@ -223,7 +223,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
             {simulating ? 'Simuliere...' : 'Simulieren'}
           </Button>
           {gwStatuses.find(s => s.gameweek === simGw)?.is_complete && (
-            <span className="text-[#22C55E] text-xs flex items-center gap-1">
+            <span className="text-green-500 text-xs flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5" /> Bereits simuliert
             </span>
           )}
@@ -237,9 +237,9 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                 key={gw}
                 className={`w-6 h-6 rounded text-[9px] font-bold flex items-center justify-center cursor-pointer transition-all ${
                   status?.is_complete
-                    ? 'bg-[#22C55E]/20 text-[#22C55E] border border-[#22C55E]/30'
+                    ? 'bg-green-500/20 text-green-500 border border-green-500/30'
                     : gw === simGw
-                    ? 'bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/30'
+                    ? 'bg-gold/15 text-gold border border-gold/30'
                     : 'bg-white/[0.03] text-white/30 border border-white/[0.06]'
                 }`}
                 onClick={() => setSimGw(gw)}
@@ -358,7 +358,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               value={name}
               onChange={(e) => setName(e.target.value.slice(0, 60))}
               placeholder="z.B. Sakaryaspor GW 14"
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -367,7 +367,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/40"
+                className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
               >
                 <option value="club">Club</option>
                 <option value="bescout">BeScout</option>
@@ -380,7 +380,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               <select
                 value={format}
                 onChange={(e) => setFormat(e.target.value)}
-                className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/40"
+                className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
               >
                 <option value="6er">6er</option>
                 <option value="11er">11er</option>
@@ -392,7 +392,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
             <select
               value={eventTier}
               onChange={(e) => setEventTier(e.target.value as 'arena' | 'club' | 'user')}
-              className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/40"
+              className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
             >
               <option value="club">Club Event (+1 bis +15 Punkte)</option>
               <option value="arena">Arena Event (+50/−15 Punkte)</option>
@@ -406,7 +406,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
             <select
               value={minSubTier}
               onChange={(e) => setMinSubTier(e.target.value)}
-              className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#FFD700]/40"
+              className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
             >
               <option value="">Alle (kein Abo nötig)</option>
               <option value="bronze">Bronze+</option>
@@ -426,7 +426,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               value={salaryCap}
               onChange={(e) => setSalaryCap(e.target.value)}
               placeholder="z.B. 400 (Summe der L5-Scores)"
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
             />
             {salaryCap && <p className="mt-1 text-[10px] text-white/40">Max. Summe der L5-Scores aller Spieler im Lineup</p>}
           </div>
@@ -440,7 +440,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                 value={gameweek}
                 onChange={(e) => setGameweek(e.target.value)}
                 placeholder="z.B. 14"
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
               />
             </div>
             <div>
@@ -451,7 +451,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                 min="0"
                 value={maxEntries}
                 onChange={(e) => setMaxEntries(e.target.value)}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40"
               />
             </div>
           </div>
@@ -465,7 +465,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                 min="0"
                 value={entryFee}
                 onChange={(e) => setEntryFee(e.target.value)}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40"
               />
             </div>
             <div>
@@ -477,7 +477,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                 min="0"
                 value={prizePool}
                 onChange={(e) => setPrizePool(e.target.value)}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40"
               />
             </div>
           </div>
@@ -487,7 +487,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               type="datetime-local"
               value={startsAt}
               onChange={(e) => setStartsAt(e.target.value)}
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 text-white [color-scheme:dark]"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 text-white [color-scheme:dark]"
             />
           </div>
           <div>
@@ -496,7 +496,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               type="datetime-local"
               value={locksAt}
               onChange={(e) => setLocksAt(e.target.value)}
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 text-white [color-scheme:dark]"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 text-white [color-scheme:dark]"
             />
           </div>
           <div>
@@ -505,12 +505,12 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               type="datetime-local"
               value={endsAt}
               onChange={(e) => setEndsAt(e.target.value)}
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 text-white [color-scheme:dark]"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 text-white [color-scheme:dark]"
             />
           </div>
           {type === 'sponsor' && (
-            <div className="space-y-3 p-3 bg-[#FFD700]/5 border border-[#FFD700]/15 rounded-xl">
-              <div className="text-xs font-bold text-[#FFD700]/70 uppercase tracking-wider">Sponsor-Daten</div>
+            <div className="space-y-3 p-3 bg-gold/5 border border-gold/15 rounded-xl">
+              <div className="text-xs font-bold text-gold/70 uppercase tracking-wider">Sponsor-Daten</div>
               <div>
                 <label className="block text-sm font-bold text-white/70 mb-1">Sponsor Name</label>
                 <input
@@ -518,7 +518,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                   value={sponsorName}
                   onChange={(e) => setSponsorName(e.target.value.slice(0, 40))}
                   placeholder="z.B. Nike"
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
                 />
               </div>
               <div>
@@ -528,20 +528,20 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                   value={sponsorLogo}
                   onChange={(e) => setSponsorLogo(e.target.value)}
                   placeholder="https://..."
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
                 />
               </div>
             </div>
           )}
           {name && startsAt && (
-            <div className="bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-xl p-3 text-sm">
+            <div className="bg-gold/5 border border-gold/20 rounded-xl p-3 text-sm">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-white/50">Teilnahmegebühr</span>
                 <span className="font-mono font-bold">{parseFloat(entryFee) > 0 ? `${fmtScout(parseFloat(entryFee))} $SCOUT` : 'Kostenlos'}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/50">Preisgeld</span>
-                <span className="font-mono font-bold text-[#FFD700]">{fmtScout(parseFloat(prizePool) || 0)} $SCOUT</span>
+                <span className="font-mono font-bold text-gold">{fmtScout(parseFloat(prizePool) || 0)} $SCOUT</span>
               </div>
             </div>
           )}

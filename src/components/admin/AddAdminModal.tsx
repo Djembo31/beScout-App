@@ -94,7 +94,7 @@ export default function AddAdminModal({ open, onClose, clubId, onAdded }: AddAdm
                 onChange={(e) => setHandle(e.target.value.replace(/[^a-zA-Z0-9_.-]/g, ''))}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="handle eingeben"
-                className="w-full pl-7 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40 placeholder:text-white/25"
+                className="w-full pl-7 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
               />
             </div>
             <Button variant="outline" onClick={handleSearch} disabled={searching || !handle.trim()}>
@@ -115,7 +115,7 @@ export default function AddAdminModal({ open, onClose, clubId, onAdded }: AddAdm
         {/* Found profile preview */}
         {foundProfile && (
           <div className="space-y-4">
-            <div className="flex items-center gap-3 p-3 bg-[#22C55E]/5 border border-[#22C55E]/20 rounded-xl">
+            <div className="flex items-center gap-3 p-3 bg-green-500/5 border border-green-500/20 rounded-xl">
               {foundProfile.avatar_url ? (
                 <Image src={foundProfile.avatar_url} alt={foundProfile.handle} width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
               ) : (

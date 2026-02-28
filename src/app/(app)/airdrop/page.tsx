@@ -73,7 +73,7 @@ export default function AirdropPage() {
           </div>
         </div>
       ) : (
-        <Card className="p-5 text-center bg-gradient-to-r from-purple-500/[0.06] to-[#FFD700]/[0.06] border-purple-500/20">
+        <Card className="p-5 text-center bg-gradient-to-r from-purple-500/[0.06] to-gold/[0.06] border-purple-500/20">
           <Rocket className="w-8 h-8 mx-auto mb-2 text-purple-400" />
           <div className="font-bold text-sm">Der Airdrop startet bald!</div>
           <div className="text-xs text-white/40 mt-1">Sammle jetzt Punkte durch Trading, Fantasy und Community-Aktivität</div>
@@ -82,7 +82,7 @@ export default function AirdropPage() {
 
       {/* My Score Highlight */}
       {myEntry && (
-        <Card className="p-4 bg-gradient-to-r from-purple-500/[0.06] to-[#FFD700]/[0.06] border-purple-500/20">
+        <Card className="p-4 bg-gradient-to-r from-purple-500/[0.06] to-gold/[0.06] border-purple-500/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div
@@ -118,7 +118,7 @@ export default function AirdropPage() {
       <Card className="overflow-hidden">
         <div className="p-4 border-b border-white/10 flex items-center justify-between">
           <h2 className="font-bold flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-[#FFD700]" />
+            <Trophy className="w-4 h-4 text-gold" />
             Top 100 Rangliste
           </h2>
           <div className="text-sm text-white/40">{leaderboard.length} Scouts</div>
@@ -139,7 +139,7 @@ export default function AirdropPage() {
               const isMe = entry.user_id === uid;
               const tier = TIER_CONFIG[entry.tier];
               const r = entry.rank ?? 999;
-              const rankColor = r === 1 ? 'text-[#FFD700]' : r === 2 ? 'text-zinc-300' : r === 3 ? 'text-amber-600' : 'text-white/50';
+              const rankColor = r === 1 ? 'text-gold' : r === 2 ? 'text-zinc-300' : r === 3 ? 'text-amber-600' : 'text-white/50';
               return (
                 <Link key={entry.user_id} href={`/profile/${entry.handle}`}>
                   <div className={cn(
@@ -165,7 +165,7 @@ export default function AirdropPage() {
                     </div>
                     <div className="flex items-center gap-1.5">
                       {entry.founding_multiplier > 1 && (
-                        <span className="px-1 py-0.5 rounded text-[9px] font-black bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/25">
+                        <span className="px-1 py-0.5 rounded text-[9px] font-black bg-gold/15 text-gold border border-gold/25">
                           {entry.founding_multiplier}x
                         </span>
                       )}
@@ -184,13 +184,13 @@ export default function AirdropPage() {
       {/* How to improve */}
       <Card className="p-4">
         <h3 className="font-bold flex items-center gap-2 mb-3">
-          <TrendingUp className="w-4 h-4 text-[#22C55E]" />
+          <TrendingUp className="w-4 h-4 text-green-500" />
           Wie verbessere ich meinen Score?
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {SCORE_TIPS.map(tip => (
             <div key={tip.label} className="flex items-start gap-3 p-3 bg-white/[0.02] rounded-xl border border-white/[0.06]">
-              <Star className="w-4 h-4 text-[#FFD700] mt-0.5 shrink-0" />
+              <Star className="w-4 h-4 text-gold mt-0.5 shrink-0" />
               <div>
                 <div className="text-sm font-bold">{tip.label} <span className="text-white/20 font-normal">({tip.weight})</span></div>
                 <div className="text-[10px] text-white/40">{tip.desc}</div>

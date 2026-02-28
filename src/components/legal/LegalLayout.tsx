@@ -14,7 +14,7 @@ export function LegalLayout({ children, title }: LegalLayoutProps) {
   const t = useTranslations('legal');
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-bg-main text-white">
       {/* Header */}
       <header className="border-b border-white/[0.06]">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">

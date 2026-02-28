@@ -148,7 +148,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
                     <td className="py-1.5 px-2 text-white/60">{p.period_start} â€” {p.period_end}</td>
                     <td className="py-1.5 px-2 text-right font-mono text-white/60">{p.impression_count}</td>
                     <td className="py-1.5 px-2 text-right font-mono text-white/60">{p.impression_share_pct.toFixed(1)}%</td>
-                    <td className="py-1.5 px-2 text-right font-mono text-[#22C55E] font-bold">{fmtScout(centsToBsd(p.payout_cents))} $SCOUT</td>
+                    <td className="py-1.5 px-2 text-right font-mono text-green-500 font-bold">{fmtScout(centsToBsd(p.payout_cents))} $SCOUT</td>
                     <td className="py-1.5 px-2">
                       <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
                         p.status === 'paid' ? 'bg-green-500/20 text-green-400' :

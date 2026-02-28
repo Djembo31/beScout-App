@@ -57,13 +57,13 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
             <div className="text-xl font-mono font-black text-sky-400">{data?.totalFollowers ?? 0}</div>
           )}
         </Card>
-        <Card className="p-4 bg-gradient-to-br from-[#22C55E]/10 to-[#22C55E]/[0.02] border-[#22C55E]/20">
+        <Card className="p-4 bg-gradient-to-br from-green-500/10 to-green-500/[0.02] border-green-500/20">
           <div className="flex items-center gap-2 mb-2">
-            <UserCheck className="w-5 h-5 text-[#22C55E]" />
+            <UserCheck className="w-5 h-5 text-green-500" />
             <span className="text-xs text-white/50">Aktive Fans (7d)</span>
           </div>
           {loading ? <Skeleton className="h-7 w-16" /> : (
-            <div className="text-xl font-mono font-black text-[#22C55E]">{data?.activeFans7d ?? 0}</div>
+            <div className="text-xl font-mono font-black text-green-500">{data?.activeFans7d ?? 0}</div>
           )}
         </Card>
         <Card className="p-4">
@@ -77,11 +77,11 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-5 h-5 text-[#FFD700]" />
+            <TrendingUp className="w-5 h-5 text-gold" />
             <span className="text-xs text-white/50">Gesamtes Volume</span>
           </div>
           {loading ? <Skeleton className="h-7 w-16" /> : (
-            <div className="text-xl font-mono font-black text-[#FFD700]">
+            <div className="text-xl font-mono font-black text-gold">
               {formatScout(data?.topFans.reduce((s, f) => s + f.volume_cents, 0) ?? 0)} $SCOUT
             </div>
           )}
@@ -118,7 +118,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
                   )}
                 </div>
                 <div className="col-span-3 text-right text-sm font-mono">{fan.trade_count}</div>
-                <div className="col-span-3 text-right text-sm font-mono text-[#FFD700]">{formatScout(fan.volume_cents)}</div>
+                <div className="col-span-3 text-right text-sm font-mono text-gold">{formatScout(fan.volume_cents)}</div>
               </div>
             ))}
           </div>
@@ -147,7 +147,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
                   </div>
                   <div className="w-full h-2 bg-white/[0.04] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-[#FFD700]/60 to-[#FFD700] rounded-full transition-all"
+                      className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full transition-all"
                       style={{ width: `${pct}%` }}
                     />
                   </div>

@@ -31,11 +31,11 @@ interface DiscoveryCardProps {
 }
 
 const VARIANT_STYLES: Record<DiscoveryVariant, { badge: string; badgeBg: string; label: string; glow?: string }> = {
-  ipo: { badge: 'text-[#00E676]', badgeBg: 'bg-[#00E676]/15', label: 'Live', glow: 'shadow-[0_0_8px_rgba(0,230,118,0.3)]' },
-  trending: { badge: 'text-white', badgeBg: 'bg-gradient-to-r from-[#FF3B69] to-[#FF6B3B]', label: 'HOT', glow: 'shadow-[0_0_8px_rgba(255,59,105,0.3)]' },
-  deal: { badge: 'text-[#00E676]', badgeBg: 'bg-[#00E676]/15', label: 'Wert!' },
+  ipo: { badge: 'text-vivid-green', badgeBg: 'bg-vivid-green/15', label: 'Live', glow: 'shadow-[0_0_8px_rgba(0,230,118,0.3)]' },
+  trending: { badge: 'text-white', badgeBg: 'bg-gradient-to-r from-vivid-red to-[#FF6B3B]', label: 'HOT', glow: 'shadow-[0_0_8px_rgba(255,59,105,0.3)]' },
+  deal: { badge: 'text-vivid-green', badgeBg: 'bg-vivid-green/15', label: 'Wert!' },
   new: { badge: 'text-sky-300', badgeBg: 'bg-sky-500/15', label: 'Neu' },
-  listing: { badge: 'text-[#FFD700]', badgeBg: 'bg-[#FFD700]/15', label: 'Am Markt' },
+  listing: { badge: 'text-gold', badgeBg: 'bg-gold/15', label: 'Am Markt' },
 };
 
 export default function DiscoveryCard({
@@ -78,7 +78,7 @@ export default function DiscoveryCard({
         {onWatch && (
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onWatch(p.id); }}
-            className={cn('p-2 -m-1.5 rounded transition-all active:scale-[0.90] shrink-0', isWatchlisted ? 'text-[#FFD700]' : 'text-white/20 hover:text-white/40')}
+            className={cn('p-2 -m-1.5 rounded transition-all active:scale-[0.90] shrink-0', isWatchlisted ? 'text-gold' : 'text-white/20 hover:text-white/40')}
           >
             <Star className="w-3 h-3" fill={isWatchlisted ? 'currentColor' : 'none'} />
           </button>
@@ -97,15 +97,15 @@ export default function DiscoveryCard({
       {/* Stat micro-row: Goals · Assists · Matches  Trend  Age */}
       <div className="flex items-center justify-between mt-0.5 text-[9px] font-mono leading-none">
         <div className="flex items-center gap-0.5">
-          <span className="text-[#00E676]">{p.stats.goals}T</span>
+          <span className="text-vivid-green">{p.stats.goals}T</span>
           <span className="text-white/15">·</span>
           <span className="text-sky-300">{p.stats.assists}A</span>
           <span className="text-white/15">·</span>
           <span className="text-white/40">{p.stats.matches}Sp</span>
         </div>
         <div className="flex items-center gap-0.5">
-          {p.perf.trend === 'UP' && <TrendingUp className="w-2.5 h-2.5 text-[#00E676]" />}
-          {p.perf.trend === 'DOWN' && <TrendingDown className="w-2.5 h-2.5 text-[#FF3B69]" />}
+          {p.perf.trend === 'UP' && <TrendingUp className="w-2.5 h-2.5 text-vivid-green" />}
+          {p.perf.trend === 'DOWN' && <TrendingDown className="w-2.5 h-2.5 text-vivid-red" />}
           {p.perf.trend === 'FLAT' && <Minus className="w-2.5 h-2.5 text-white/30" />}
           <span className="text-white/40">{p.age}J.</span>
         </div>
@@ -116,7 +116,7 @@ export default function DiscoveryCard({
         <div className="relative mt-1.5">
           <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden border border-white/[0.06]">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#00E676] to-[#FFD700] transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-vivid-green to-gold transition-all duration-500"
               style={{
                 width: `${Math.min(ipoProgress, 100)}%`,
                 boxShadow: '0 0 8px rgba(0,230,118,0.3)',
@@ -133,7 +133,7 @@ export default function DiscoveryCard({
         <div className="mt-1.5 flex items-center justify-between">
           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded text-white/60">{tradeCount}× Trades</span>
           {change24h !== undefined && (
-            <span className={cn('text-[10px] font-mono font-bold', change24h >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]')}>
+            <span className={cn('text-[10px] font-mono font-bold', change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red')}>
               {change24h >= 0 ? '+' : ''}{change24h.toFixed(1)}%
             </span>
           )}
@@ -157,7 +157,7 @@ export default function DiscoveryCard({
 
       {variant === 'listing' && (
         <div className="mt-1.5 flex items-center gap-1.5 text-[9px] text-white/40">
-          <span className="font-mono font-bold text-[#FFD700]/70">{p.dpc.onMarket} DPC</span>
+          <span className="font-mono font-bold text-gold/70">{p.dpc.onMarket} DPC</span>
           {listingCount !== undefined && listingCount > 1 && (
             <><span className="text-white/15">·</span><span>{listingCount} Seller</span></>
           )}
@@ -172,7 +172,7 @@ export default function DiscoveryCard({
       )}
       {variant === 'ipo' && (
         <div className={cn('absolute top-1.5 right-1.5 inline-flex items-center gap-1 text-[9px] font-black px-1.5 py-0.5 rounded-md', vs.badgeBg, vs.badge, vs.glow)}>
-          <span className="w-1.5 h-1.5 rounded-full bg-[#00E676] live-ring" />
+          <span className="w-1.5 h-1.5 rounded-full bg-vivid-green live-ring" />
           {vs.label}
         </div>
       )}
@@ -187,7 +187,7 @@ export default function DiscoveryCard({
         <button
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onBuy(p.id); }}
           disabled={buying}
-          className="mt-2 w-full py-2 min-h-[44px] bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#FFD700] rounded-lg text-xs font-black hover:bg-[#FFD700]/20 hover:btn-gold-glow transition-all active:scale-[0.95] disabled:opacity-50 flex items-center justify-center gap-1"
+          className="mt-2 w-full py-2 min-h-[44px] bg-gold/10 border border-gold/20 text-gold rounded-lg text-xs font-black hover:bg-gold/20 hover:btn-gold-glow transition-all active:scale-[0.95] disabled:opacity-50 flex items-center justify-center gap-1"
         >
           {buying ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Kaufen'}
         </button>

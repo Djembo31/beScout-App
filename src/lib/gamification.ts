@@ -72,8 +72,8 @@ const RANG_DEFS: RangDef[] = [
   {
     id: 'gold', name: 'Gold',
     thresholds: [2200, 2800, 3400],     // I=2200-2799, II=2800-3399, III=3400-3999
-    color: 'text-[#FFD700]', bgColor: 'bg-[#FFD700]/15', borderColor: 'border-[#FFD700]/25',
-    gradientFrom: 'from-[#FFD700]/20',
+    color: 'text-gold', bgColor: 'bg-gold/15', borderColor: 'border-gold/25',
+    gradientFrom: 'from-gold/20',
   },
   {
     id: 'diamant', name: 'Diamant',
@@ -90,8 +90,8 @@ const RANG_DEFS: RangDef[] = [
   {
     id: 'legendaer', name: 'Legendär',
     thresholds: null,                    // 7000+
-    color: 'text-[#FFD700]', bgColor: 'bg-[#FFD700]/20', borderColor: 'border-[#FFD700]/30',
-    gradientFrom: 'from-[#FFD700]/25',
+    color: 'text-gold', bgColor: 'bg-gold/20', borderColor: 'border-gold/30',
+    gradientFrom: 'from-gold/25',
   },
 ];
 

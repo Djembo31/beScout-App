@@ -106,7 +106,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
       {/* Community-Richtlinien */}
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Shield className="w-5 h-5 text-[#FFD700]" />
+          <Shield className="w-5 h-5 text-gold" />
           <span className="font-black text-lg">Community-Richtlinien</span>
         </div>
         <p className="text-sm text-white/50 mb-3">
@@ -118,7 +118,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
           readOnly={!canEditGuidelines}
           placeholder="Regeln und Richtlinien für die Club-Community..."
           className={cn(
-            'w-full h-32 p-3 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#FFD700]/40 resize-none',
+            'w-full h-32 p-3 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none',
             !canEditGuidelines && 'opacity-60 cursor-not-allowed'
           )}
         />
@@ -141,7 +141,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
       {/* Gepinnte Posts */}
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Pin className="w-5 h-5 text-[#FFD700]" />
+          <Pin className="w-5 h-5 text-gold" />
           <span className="font-black text-lg">Gepinnte Posts</span>
           <span className="text-xs text-white/40">{pinnedPosts.length}/3</span>
         </div>
@@ -150,8 +150,8 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
         ) : (
           <div className="space-y-2">
             {pinnedPosts.map(post => (
-              <div key={post.id} className="flex items-center gap-3 p-3 rounded-xl bg-[#FFD700]/[0.03] border border-[#FFD700]/10">
-                <Pin className="w-4 h-4 text-[#FFD700] flex-shrink-0" />
+              <div key={post.id} className="flex items-center gap-3 p-3 rounded-xl bg-gold/[0.03] border border-gold/10">
+                <Pin className="w-4 h-4 text-gold flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm truncate">{post.content.slice(0, 80)}</p>
                   <span className="text-[10px] text-white/40">von {post.author_display_name || post.author_handle}</span>
@@ -189,13 +189,13 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
               <div key={post.id} className={cn(
                 'flex items-start gap-3 p-3 rounded-xl border transition-colors',
                 post.is_pinned
-                  ? 'bg-[#FFD700]/[0.03] border-[#FFD700]/10'
+                  ? 'bg-gold/[0.03] border-gold/10'
                   : 'bg-white/[0.02] border-white/[0.06] hover:border-white/10'
               )}>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-sm font-semibold">{post.author_display_name || post.author_handle}</span>
-                    {post.is_pinned && <Pin className="w-3 h-3 text-[#FFD700]" />}
+                    {post.is_pinned && <Pin className="w-3 h-3 text-gold" />}
                     <span className="text-[10px] text-white/30">{new Date(post.created_at).toLocaleDateString('de-DE')}</span>
                   </div>
                   <p className="text-sm text-white/70 line-clamp-2">{post.content}</p>
@@ -207,7 +207,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
                         onClick={() => handleTogglePin(post.id, !post.is_pinned)}
                         className={cn(
                           'p-1.5 rounded-lg transition-colors',
-                          post.is_pinned ? 'text-[#FFD700] hover:bg-[#FFD700]/10' : 'text-white/30 hover:text-white hover:bg-white/5'
+                          post.is_pinned ? 'text-gold hover:bg-gold/10' : 'text-white/30 hover:text-white hover:bg-white/5'
                         )}
                         title={post.is_pinned ? 'Lösen' : 'Anpinnen'}
                       >

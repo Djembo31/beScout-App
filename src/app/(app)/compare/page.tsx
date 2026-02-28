@@ -190,11 +190,11 @@ export default function ComparePage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Spieler suchen..."
-            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#FFD700]/40"
+            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40"
             autoFocus={activeSlot !== null}
           />
           {filteredPlayers.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-[#0a0a0a] border border-white/10 rounded-xl shadow-2xl z-20 max-h-60 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-bg-main border border-white/10 rounded-xl shadow-2xl z-20 max-h-60 overflow-y-auto">
               {filteredPlayers.map(p => (
                 <button
                   key={p.id}
@@ -265,7 +265,7 @@ export default function ComparePage() {
                       const isBest = v === maxVal && maxVal !== minVal;
                       const isWorst = v === minVal && maxVal !== minVal;
                       return (
-                        <td key={i} className={`py-2.5 text-right font-mono font-bold ${isBest ? 'text-[#FFD700]' : isWorst ? 'text-red-400' : 'text-white'}`}>
+                        <td key={i} className={`py-2.5 text-right font-mono font-bold ${isBest ? 'text-gold' : isWorst ? 'text-red-400' : 'text-white'}`}>
                           {row.isBsd ? fmtScout(centsToBsd(v)) : v}
                         </td>
                       );

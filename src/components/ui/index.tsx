@@ -18,7 +18,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const btnVariants: Record<ButtonVariant, string> = {
-  gold: 'bg-gradient-to-b from-[#FFE44D] to-[#E6B800] hover:from-[#FFD700] hover:to-[#CC9900] text-black btn-gold-glow',
+  gold: 'bg-gradient-to-b from-[#FFE44D] to-[#E6B800] hover:from-gold hover:to-[#CC9900] text-black btn-gold-glow',
   outline: 'bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.12] text-white',
   ghost: 'hover:bg-white/[0.08] text-white/80',
   danger: 'bg-red-500/15 hover:bg-red-500/25 border border-red-400/30 text-red-200',
@@ -46,7 +46,7 @@ export function Button({
       disabled={disabled || loading}
       className={`
         inline-flex items-center justify-center gap-2 font-bold rounded-xl transition-all active:scale-[0.97]
-        focus-visible:ring-2 focus-visible:ring-[#FFD700]/50 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a] outline-none
+        focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none
         ${btnVariants[variant]} ${btnSizes[size]}
         ${fullWidth ? 'w-full' : ''}
         ${disabled || loading ? 'opacity-40 cursor-not-allowed' : ''}
@@ -226,16 +226,16 @@ export function Modal({ open, title, subtitle, children, footer, onClose, preven
 export type StatCardAccent = 'gold' | 'green' | 'red' | 'purple' | 'sky';
 
 const accentBorderColors: Record<StatCardAccent, string> = {
-  gold: 'border-l-[#FFD700]',
-  green: 'border-l-[#22C55E]',
+  gold: 'border-l-gold',
+  green: 'border-l-green-500',
   red: 'border-l-red-400',
   purple: 'border-l-purple-400',
   sky: 'border-l-sky-400',
 };
 
 const accentGradients: Record<StatCardAccent, string> = {
-  gold: 'from-[#FFD700]/[0.10] to-transparent',
-  green: 'from-[#22C55E]/[0.10] to-transparent',
+  gold: 'from-gold/[0.10] to-transparent',
+  green: 'from-green-500/[0.10] to-transparent',
   red: 'from-red-400/[0.10] to-transparent',
   purple: 'from-purple-400/[0.10] to-transparent',
   sky: 'from-sky-400/[0.10] to-transparent',
@@ -256,7 +256,7 @@ export function StatCard({
   trend?: 'up' | 'down';
   accent?: StatCardAccent;
 }) {
-  const trendColor = trend === 'up' ? 'text-[#00E676]' : trend === 'down' ? 'text-[#FF3B69]' : 'text-white';
+  const trendColor = trend === 'up' ? 'text-vivid-green' : trend === 'down' ? 'text-vivid-red' : 'text-white';
 
   return (
     <div className={cn(

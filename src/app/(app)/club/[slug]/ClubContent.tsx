@@ -105,7 +105,7 @@ function HeroSection({
           priority
           onError={() => setStadiumSrc('/stadiums/default.jpg')}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-[#0a0a0a]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-bg-main" />
         <div className="absolute inset-0" style={{ background: `linear-gradient(to right, ${clubColor}33, transparent)` }} />
       </div>
 
@@ -128,7 +128,7 @@ function HeroSection({
                 <h1 className="text-base md:text-lg lg:text-4xl font-black tracking-tight text-white drop-shadow-lg truncate">
                   {club.name.toUpperCase()}
                 </h1>
-                {club.is_verified && <BadgeCheck className="w-5 h-5 md:w-8 md:h-8 text-[#FFD700]" />}
+                {club.is_verified && <BadgeCheck className="w-5 h-5 md:w-8 md:h-8 text-gold" />}
               </div>
               <div className="flex items-center gap-2 text-[10px] md:text-sm text-white/70 md:justify-center">
                 <Trophy className="w-3 h-3 md:w-4 md:h-4" />
@@ -151,12 +151,12 @@ function HeroSection({
             </div>
             <div className="w-px h-5 md:h-10 bg-white/20" />
             <div className="text-center">
-              <div className="text-sm md:text-2xl font-black text-[#FFD700]">{fmtScout(totalVolume24h)}</div>
+              <div className="text-sm md:text-2xl font-black text-gold">{fmtScout(totalVolume24h)}</div>
               <div className="text-[10px] md:text-xs text-white/50">{t('volume24h')}</div>
             </div>
             <div className="w-px h-5 md:h-10 bg-white/20" />
             <div className="text-center">
-              <div className="text-sm md:text-2xl font-black text-[#22C55E]">{playerCount}</div>
+              <div className="text-sm md:text-2xl font-black text-green-500">{playerCount}</div>
               <div className="text-[10px] md:text-xs text-white/50">{t('players')}</div>
             </div>
             <div className="w-px h-5 md:h-10 bg-white/20 hidden md:block" />
@@ -243,12 +243,12 @@ function StatsBar({
             {followerCount.toLocaleString()}
           </div>
         </Card>
-        <Card className="p-4 hover:border-white/20 transition-all border-[#FFD700]/15">
+        <Card className="p-4 hover:border-white/20 transition-all border-gold/15">
           <div className="flex items-center gap-2 mb-1">
-            <BarChart3 className="w-5 h-5 text-[#FFD700]" />
+            <BarChart3 className="w-5 h-5 text-gold" />
             <span className="text-xs text-white/50">{t('volume24h')}</span>
           </div>
-          <div className="text-2xl md:text-3xl font-mono font-black text-[#FFD700]">
+          <div className="text-2xl md:text-3xl font-mono font-black text-gold">
             {fmtScout(totalVolume24h)}
             <span className="text-sm text-white/40 ml-1">$SCOUT</span>
           </div>
@@ -275,7 +275,7 @@ function StatsBar({
                   key={i}
                   className={cn(
                     'w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black',
-                    r === 'W' && 'bg-[#22C55E] text-black',
+                    r === 'W' && 'bg-green-500 text-black',
                     r === 'D' && 'bg-yellow-500 text-black',
                     r === 'L' && 'bg-red-500 text-white',
                   )}
@@ -394,7 +394,7 @@ function TopPlayersWidget({
           <Flame className="w-5 h-5 text-orange-400" />
           <span className="font-black text-lg">{t('trendingPlayers')}</span>
         </div>
-        <button onClick={onViewAll} className="text-xs text-[#FFD700] hover:underline flex items-center gap-1">
+        <button onClick={onViewAll} className="text-xs text-gold hover:underline flex items-center gap-1">
           {tc('viewAll')} <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -417,7 +417,7 @@ function TopPlayersWidget({
                 <PlayerIdentity player={player} size="sm" showMeta={false} showStatus={false} />
                 <div className="text-[10px] text-white/40 shrink-0">{fmtScout(player.prices.lastTrade)} $SCOUT</div>
               </div>
-              <div className={`flex items-center gap-1 font-mono font-bold ${player.prices.change24h >= 0 ? 'text-[#00E676]' : 'text-[#FF3B69]'}`}>
+              <div className={`flex items-center gap-1 font-mono font-bold ${player.prices.change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red'}`}>
                 {player.prices.change24h >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                 {Math.abs(player.prices.change24h).toFixed(1)}%
               </div>
@@ -483,15 +483,15 @@ function SquadOverviewWidget({ players }: { players: Player[] }) {
 const PRESTIGE_CONFIG: Record<PrestigeTier, { icon: typeof Star; color: string; labelKey: string }> = {
   starter: { icon: Shield, color: 'text-white/30', labelKey: 'prestigeStarter' },
   aktiv: { icon: Shield, color: 'text-white/60', labelKey: 'prestigeAktiv' },
-  engagiert: { icon: Award, color: 'text-[#22C55E]', labelKey: 'prestigeEngagiert' },
-  vorbildlich: { icon: Star, color: 'text-[#FFD700]', labelKey: 'prestigeVorbildlich' },
+  engagiert: { icon: Award, color: 'text-green-500', labelKey: 'prestigeEngagiert' },
+  vorbildlich: { icon: Star, color: 'text-gold', labelKey: 'prestigeVorbildlich' },
 };
 
 function TopScoutsWidget({ scouts, clubColor }: { scouts: TopScout[]; clubColor: string }) {
   const t = useTranslations('club');
   if (scouts.length === 0) return null;
 
-  const podiumColors = ['text-[#FFD700] bg-[#FFD700]/15', 'text-white/70 bg-white/10', 'text-amber-600 bg-amber-600/15'];
+  const podiumColors = ['text-gold bg-gold/15', 'text-white/70 bg-white/10', 'text-amber-600 bg-amber-600/15'];
 
   return (
     <Card className="p-4 md:p-6">
@@ -520,7 +520,7 @@ function TopScoutsWidget({ scouts, clubColor }: { scouts: TopScout[]; clubColor:
                 </div>
               </div>
               {scout.approvedBounties > 0 && (
-                <span className="text-[10px] text-[#22C55E] font-bold">{scout.approvedBounties} ✓</span>
+                <span className="text-[10px] text-green-500 font-bold">{scout.approvedBounties} ✓</span>
               )}
             </div>
           </Link>
@@ -547,7 +547,7 @@ function getFixtureResult(fixture: Fixture, clubId: string): 'W' | 'D' | 'L' | n
 }
 
 const resultBadge: Record<'W' | 'D' | 'L', { label: string; color: string }> = {
-  W: { label: 'S', color: 'bg-[#22C55E]/20 text-[#22C55E]' },
+  W: { label: 'S', color: 'bg-green-500/20 text-green-500' },
   D: { label: 'U', color: 'bg-yellow-500/20 text-yellow-400' },
   L: { label: 'N', color: 'bg-red-500/20 text-red-400' },
 };
@@ -572,7 +572,7 @@ function FixtureRow({ fixture, clubId, accent }: { fixture: Fixture; clubId: str
       {/* H/A Badge */}
       <div className={cn(
         'w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black flex-shrink-0',
-        isHome ? 'bg-[#22C55E]/15 text-[#22C55E]' : 'bg-sky-500/15 text-sky-400',
+        isHome ? 'bg-green-500/15 text-green-500' : 'bg-sky-500/15 text-sky-400',
       )}>
         {isHome ? 'H' : 'A'}
       </div>
@@ -632,7 +632,7 @@ function SeasonSummary({ fixtures, clubId }: { fixtures: Fixture[]; clubId: stri
         <div className="text-[10px] text-white/40">{t('played')}</div>
       </div>
       <div className="text-center flex-1">
-        <div className="text-lg font-mono font-black text-[#22C55E]">{w}</div>
+        <div className="text-lg font-mono font-black text-green-500">{w}</div>
         <div className="text-[10px] text-white/40">{t('wins')}</div>
       </div>
       <div className="text-center flex-1">
@@ -645,7 +645,7 @@ function SeasonSummary({ fixtures, clubId }: { fixtures: Fixture[]; clubId: stri
       </div>
       <div className="w-px h-8 bg-white/10" />
       <div className="text-center flex-1">
-        <div className="text-lg font-mono font-black text-[#FFD700]">{points}</div>
+        <div className="text-lg font-mono font-black text-gold">{points}</div>
         <div className="text-[10px] text-white/40">{t('seasonPoints')}</div>
       </div>
     </div>
@@ -668,17 +668,17 @@ function NextMatchCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: stri
   const oppClub = getClub(oppShort) || getClub(oppName);
 
   return (
-    <Card className="p-4 border-[#22C55E]/20 bg-gradient-to-r from-[#22C55E]/5 to-transparent">
+    <Card className="p-4 border-green-500/20 bg-gradient-to-r from-green-500/5 to-transparent">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-[#22C55E]/10 flex items-center justify-center flex-shrink-0">
-          <Swords className="w-5 h-5 text-[#22C55E]" />
+        <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0">
+          <Swords className="w-5 h-5 text-green-500" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-xs text-white/40 mb-0.5">{t('nextMatch', { gw: next.gameweek })}</div>
           <div className="flex items-center gap-2">
             <span className={cn(
               'px-1.5 py-0.5 rounded text-[10px] font-black',
-              isHome ? 'bg-[#22C55E]/15 text-[#22C55E]' : 'bg-sky-500/15 text-sky-400',
+              isHome ? 'bg-green-500/15 text-green-500' : 'bg-sky-500/15 text-sky-400',
             )}>
               {isHome ? t('home') : t('away')}
             </span>
@@ -773,7 +773,7 @@ function ActivityFeed({
   return (
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-4">
-        <Zap className="w-5 h-5 text-[#FFD700]" />
+        <Zap className="w-5 h-5 text-gold" />
         <span className="font-black text-lg">{title}</span>
       </div>
       <div className="space-y-3">
@@ -785,8 +785,8 @@ function ActivityFeed({
             return (
               <div key={trade.id} className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#FFD700]/10 flex items-center justify-center">
-                    <ArrowUpRight className="w-4 h-4 text-[#FFD700]" />
+                  <div className="w-8 h-8 rounded-lg bg-gold/10 flex items-center justify-center">
+                    <ArrowUpRight className="w-4 h-4 text-gold" />
                   </div>
                   <div>
                     <div className="font-bold text-sm">
@@ -798,7 +798,7 @@ function ActivityFeed({
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-mono font-bold text-[#FFD700]">{fmtScout(priceBsd)} $SCOUT</div>
+                  <div className="font-mono font-bold text-gold">{fmtScout(priceBsd)} $SCOUT</div>
                   <div className="text-[10px] text-white/40">pro DPC</div>
                 </div>
               </div>
@@ -822,7 +822,7 @@ function ClubSkeleton() {
   return (
     <div className="max-w-[1200px] mx-auto">
       <div className="relative h-[300px] md:h-[550px] -mx-4 md:-mx-6 -mt-4 md:-mt-6 mb-6 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.03] to-[#0a0a0a]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.03] to-bg-main" />
         <div className="absolute inset-0 flex items-center justify-center pt-8">
           <div className="text-center space-y-5">
             <Skeleton className="w-20 h-20 md:w-32 md:h-32 rounded-full mx-auto" />
@@ -1128,7 +1128,7 @@ export default function ClubContent({ slug }: { slug: string }) {
 
         {/* CTA Banner */}
         <div className="mb-6">
-          <Card className="p-6 border-[#FFD700]/20 bg-gradient-to-r from-[#FFD700]/10 to-[#FFD700]/5">
+          <Card className="p-6 border-gold/20 bg-gradient-to-r from-gold/10 to-gold/5">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="text-center md:text-left">
                 <h2 className="text-lg font-black mb-1">{t('publicCta')}</h2>
@@ -1169,7 +1169,7 @@ export default function ClubContent({ slug }: { slug: string }) {
               <Users className="w-5 h-5" style={{ color: clubColor }} />
               <span className="font-black text-lg">{t('squadPreview')}</span>
             </div>
-            <Link href={loginUrl} className="text-xs text-[#FFD700] hover:underline flex items-center gap-1">
+            <Link href={loginUrl} className="text-xs text-gold hover:underline flex items-center gap-1">
               {t('publicAllPlayers', { count: players.length })} <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
@@ -1223,7 +1223,7 @@ export default function ClubContent({ slug }: { slug: string }) {
             </div>
             <div className="bg-surface-base rounded-xl p-3">
               <div className="text-xs text-white/50 mb-1">{t('players')}</div>
-              <div className="font-bold text-sm text-[#22C55E]">{players.length}</div>
+              <div className="font-bold text-sm text-green-500">{players.length}</div>
             </div>
           </div>
         </Card>
@@ -1274,13 +1274,13 @@ export default function ClubContent({ slug }: { slug: string }) {
         <div className="mb-4">
           {subscription ? (
             <Card className={`p-3 border flex items-center justify-between ${
-              subscription.tier === 'gold' ? 'border-[#FFD700]/30 bg-[#FFD700]/5' :
+              subscription.tier === 'gold' ? 'border-gold/30 bg-gold/5' :
               subscription.tier === 'silber' ? 'border-[#C0C0C0]/30 bg-[#C0C0C0]/5' :
               'border-[#CD7F32]/30 bg-[#CD7F32]/5'
             }`}>
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm ${
-                  subscription.tier === 'gold' ? 'bg-[#FFD700]/20 text-[#FFD700]' :
+                  subscription.tier === 'gold' ? 'bg-gold/20 text-gold' :
                   subscription.tier === 'silber' ? 'bg-[#C0C0C0]/20 text-[#C0C0C0]' :
                   'bg-[#CD7F32]/20 text-[#CD7F32]'
                 }`}>
@@ -1301,13 +1301,13 @@ export default function ClubContent({ slug }: { slug: string }) {
             </Card>
           ) : (
             <Card
-              className="p-3 border border-[#FFD700]/20 bg-gradient-to-r from-[#FFD700]/5 to-transparent cursor-pointer hover:border-[#FFD700]/30 transition-all"
+              className="p-3 border border-gold/20 bg-gradient-to-r from-gold/5 to-transparent cursor-pointer hover:border-gold/30 transition-all"
               onClick={() => setSubModalOpen(true)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#FFD700]/10 flex items-center justify-center">
-                    <Crown className="w-4 h-4 text-[#FFD700]" />
+                  <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center">
+                    <Crown className="w-4 h-4 text-gold" />
                   </div>
                   <div>
                     <div className="text-sm font-bold">{t('joinClub')}</div>
@@ -1348,10 +1348,10 @@ export default function ClubContent({ slug }: { slug: string }) {
 
           {/* Dein DPC-Bestand */}
           {userClubDpc > 0 && (
-            <Card className="p-4 bg-gradient-to-br from-[#FFD700]/10 to-[#FFD700]/5 border-[#FFD700]/20">
+            <Card className="p-4 bg-gradient-to-br from-gold/10 to-gold/5 border-gold/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <ShoppingBag className="w-6 h-6 text-[#FFD700]" />
+                  <ShoppingBag className="w-6 h-6 text-gold" />
                   <div>
                     <div className="font-black">{userClubDpc} DPC</div>
                     <div className="text-xs text-white/50">{t('yourHoldingsDesc')}</div>
@@ -1380,9 +1380,9 @@ export default function ClubContent({ slug }: { slug: string }) {
               </div>
               <div className="space-y-3">
                 {clubNews.map(news => (
-                  <div key={news.id} className="p-3 bg-[#FFD700]/[0.03] rounded-xl border border-[#FFD700]/15">
+                  <div key={news.id} className="p-3 bg-gold/[0.03] rounded-xl border border-gold/15">
                     <div className="flex items-center gap-2 mb-1.5">
-                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#FFD700]/10 text-[#FFD700] border border-[#FFD700]/20">
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gold/10 text-gold border border-gold/20">
                         Club-Nachricht
                       </span>
                       <span className="text-[10px] text-white/30">{formatTimeAgo(news.created_at)}</span>
@@ -1455,7 +1455,7 @@ export default function ClubContent({ slug }: { slug: string }) {
               </div>
               <div className="bg-surface-base rounded-xl p-3">
                 <div className="text-xs text-white/50 mb-1">{t('players')}</div>
-                <div className="font-bold text-sm text-[#22C55E]">{players.length}</div>
+                <div className="font-bold text-sm text-green-500">{players.length}</div>
               </div>
             </div>
           </Card>
@@ -1542,7 +1542,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                   className={cn(
                     'px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap border transition-all flex items-center gap-1.5',
                     fixtureFilter === chip.id
-                      ? 'bg-[#FFD700]/15 text-[#FFD700] border-[#FFD700]/30'
+                      ? 'bg-gold/15 text-gold border-gold/30'
                       : 'bg-surface-base text-white/50 border-white/10 hover:border-white/20'
                   )}
                 >
@@ -1575,7 +1575,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-black">{t('fixtureGameweek', { gw })}</span>
                           {gwPlayed && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#22C55E]/15 text-[#22C55E]">{t('fixturePlayed')}</span>
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-500/15 text-green-500">{t('fixturePlayed')}</span>
                           )}
                         </div>
                         <ChevronDown className={cn('w-4 h-4 text-white/30 transition-transform', isExpanded && 'rotate-180')} />
@@ -1600,8 +1600,8 @@ export default function ClubContent({ slug }: { slug: string }) {
       <Modal title={t('subscription')} open={subModalOpen} onClose={() => { setSubModalOpen(false); setSubError(null); }}>
         <div className="p-6 max-w-lg">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-[#FFD700]/10 flex items-center justify-center">
-              <Crown className="w-5 h-5 text-[#FFD700]" />
+            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
+              <Crown className="w-5 h-5 text-gold" />
             </div>
             <div>
               <h3 className="text-lg font-black">{t('subscription')}</h3>
@@ -1631,14 +1631,14 @@ export default function ClubContent({ slug }: { slug: string }) {
                         <Crown className="w-3 h-3" />
                       </div>
                       <span className="font-black" style={{ color: cfg.color }}>{cfg.label}</span>
-                      {isActive && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#22C55E]/20 text-[#22C55E]">Aktiv</span>}
+                      {isActive && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-500/20 text-green-500">Aktiv</span>}
                     </div>
                     <span className="font-mono font-bold text-sm">{fmtScout(cfg.priceBsd)} $SCOUT<span className="text-white/30 text-[10px]">/Monat</span></span>
                   </div>
                   <ul className="space-y-1 mb-3">
                     {cfg.benefits.map(b => (
                       <li key={b} className="text-xs text-white/50 flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3 h-3 text-[#22C55E] flex-shrink-0" />
+                        <CheckCircle2 className="w-3 h-3 text-green-500 flex-shrink-0" />
                         {b}
                       </li>
                     ))}

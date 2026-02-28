@@ -37,7 +37,7 @@ export type MilestoneProgress = {
 };
 
 export const PHASE_STYLES: Record<MilestonePhase, { label: string; color: string; bg: string; icon: string }> = {
-  trading:  { label: 'Trading', color: 'text-[#FFD700]', bg: 'bg-[#FFD700]/20', icon: '📊' },
+  trading:  { label: 'Trading', color: 'text-gold', bg: 'bg-gold/20', icon: '📊' },
   fantasy:  { label: 'Fantasy', color: 'text-purple-400', bg: 'bg-purple-500/20', icon: '🏆' },
   research: { label: 'Research', color: 'text-sky-400', bg: 'bg-sky-500/20', icon: '🔬' },
 };
