@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { AlertTriangle, PiggyBank, Tag, ShoppingCart } from 'lucide-react';
 import type { Pos, PlayerStatus, Player } from '@/types';
 import { getClub } from '@/lib/clubs';
-import { fmtScout } from '@/lib/utils';
+import { cn, fmtScout } from '@/lib/utils';
 
 // ============================================
 // L5 COLOR TOKENS (Single Source of Truth)
@@ -53,7 +53,7 @@ const posBadgeClasses: Record<Pos, string> = {
 export function PositionBadge({ pos, size = 'md' }: { pos: Pos; size?: 'sm' | 'md' | 'lg' }) {
   const sizes = { sm: 'px-1.5 py-0.5 text-[10px]', md: 'px-2 py-1 text-[11px]', lg: 'px-3 py-1.5 text-xs' };
   return (
-    <span className={`inline-flex items-center justify-center rounded-xl border font-black ${posBadgeClasses[pos]} ${sizes[size]}`}>
+    <span className={cn('inline-flex items-center justify-center rounded-xl border font-black', posBadgeClasses[pos], sizes[size])}>
       {pos}
     </span>
   );
@@ -73,8 +73,8 @@ const statusClasses: Record<PlayerStatus, string> = {
 export function StatusBadge({ status }: { status: PlayerStatus }) {
   if (status === 'fit') return null;
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl border text-[11px] font-black ${statusClasses[status]}`}>
-      <AlertTriangle className="w-3.5 h-3.5" />
+    <span className={cn('inline-flex items-center gap-1 px-2 py-1 rounded-xl border text-[11px] font-black', statusClasses[status])}>
+      <AlertTriangle className="size-3.5" />
       {status.toUpperCase()}
     </span>
   );
@@ -100,12 +100,12 @@ export function ScoreCircle({ label, value, size = 48 }: { label: string; value:
   const tone = value >= L5_THRESHOLDS.good ? 'good' : value >= L5_THRESHOLDS.mid ? 'mid' : value > 0 ? 'bad' : 'neutral';
   return (
     <div
-      className={`rounded-full border flex flex-col items-center justify-center ${toneClasses[tone]}`}
+      className={cn('rounded-full border flex flex-col items-center justify-center', toneClasses[tone])}
       style={{ width: size, height: size }}
       title={SCORE_TOOLTIPS[label] ?? label}
     >
       <div className="text-[10px] font-black opacity-70 leading-none">{label}</div>
-      <div className="text-base font-black leading-none mt-1">{Math.round(value)}</div>
+      <div className="text-base font-black leading-none mt-1 tabular-nums">{Math.round(value)}</div>
     </div>
   );
 }
@@ -185,7 +185,7 @@ export function PlayerPhoto({ imageUrl, first, last, pos, size = 32, className =
   if (imageUrl) {
     return (
       <div
-        className={`rounded-full overflow-hidden shrink-0 border ${borderColor} ${className}`}
+        className={cn('rounded-full overflow-hidden shrink-0 border', borderColor, className)}
         style={{ width: s, height: s }}
       >
         <img src={imageUrl} alt={`${first} ${last}`} className="w-full h-full object-cover" />
@@ -195,7 +195,7 @@ export function PlayerPhoto({ imageUrl, first, last, pos, size = 32, className =
 
   return (
     <div
-      className={`rounded-full shrink-0 border ${borderColor} bg-white/[0.06] flex items-center justify-center ${className}`}
+      className={cn('rounded-full shrink-0 border bg-white/[0.06] flex items-center justify-center', borderColor, className)}
       style={{ width: s, height: s }}
     >
       <span className="font-bold text-white/30" style={{ fontSize: `${size * 0.28}px` }}>
@@ -215,11 +215,10 @@ export function IPOBadge({ status, progress }: { status: string; progress?: numb
   if (!isLive && !isAnnounced) return null;
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-xl border text-[11px] font-black ${isLive ? 'bg-green-500/15 border-green-500/25 text-green-500' : 'bg-gold/15 border-gold/25 text-gold'
-        }`}
+      className={cn('inline-flex items-center gap-1.5 px-2 py-1 rounded-xl border text-[11px] font-black', isLive ? 'bg-green-500/15 border-green-500/25 text-green-500' : 'bg-gold/15 border-gold/25 text-gold')}
     >
       {isLive ? 'ERSTVERKAUF' : 'BALD'}
-      {isLive && progress !== undefined && <span className="font-mono">{progress}%</span>}
+      {isLive && progress !== undefined && <span className="font-mono tabular-nums">{progress}%</span>}
     </span>
   );
 }
@@ -268,7 +267,7 @@ export function PlayerIdentity({ player, size = 'md', showMeta = true, showStatu
   const useTrikot = player.ticket > 0;
 
   return (
-    <div className={`flex items-center gap-2 min-w-0 ${className}`}>
+    <div className={cn('flex items-center gap-2 min-w-0', className)}>
       {/* Photo with ClubLogo overlay */}
       <div className="relative shrink-0">
         <PlayerPhoto imageUrl={player.imageUrl} first={player.first} last={player.last} pos={player.pos} size={photoSize} />
@@ -289,7 +288,7 @@ export function PlayerIdentity({ player, size = 'md', showMeta = true, showStatu
       {/* Name + Meta */}
       <div className="min-w-0">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className={`font-bold ${nameClass} break-words`}>
+          <span className={cn('font-bold break-words', nameClass)}>
             {player.first} {player.last}
           </span>
           <PositionBadge pos={player.pos} size={posBadgeSize} />
@@ -328,23 +327,23 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
 
   // 1. Status (only if not fit — duplicates StatusBadge but as inline chip)
   if (player.status === 'injured') {
-    badges.push(<span key="st" className={`inline-flex items-center gap-0.5 ${chipCls} bg-red-500/10 border-red-500/20 text-red-300`}><AlertTriangle className="w-2.5 h-2.5" />Verletzt</span>);
+    badges.push(<span key="st" className={cn('inline-flex items-center gap-0.5 bg-red-500/10 border-red-500/20 text-red-300', chipCls)}><AlertTriangle className="size-2.5" />Verletzt</span>);
   } else if (player.status === 'suspended') {
-    badges.push(<span key="st" className={`inline-flex items-center gap-0.5 ${chipCls} bg-purple-500/10 border-purple-500/20 text-purple-300`}>Gesperrt</span>);
+    badges.push(<span key="st" className={cn('inline-flex items-center gap-0.5 bg-purple-500/10 border-purple-500/20 text-purple-300', chipCls)}>Gesperrt</span>);
   } else if (player.status === 'doubtful') {
-    badges.push(<span key="st" className={`inline-flex items-center gap-0.5 ${chipCls} bg-yellow-500/10 border-yellow-500/20 text-yellow-300`}>Fraglich</span>);
+    badges.push(<span key="st" className={cn('inline-flex items-center gap-0.5 bg-yellow-500/10 border-yellow-500/20 text-yellow-300', chipCls)}>Fraglich</span>);
   }
 
   // 2. Liquidated
   if (player.isLiquidated) {
-    badges.push(<span key="liq" className={`inline-flex items-center gap-0.5 ${chipCls} bg-red-500/10 border-red-500/20 text-red-300`}>LIQUIDIERT</span>);
+    badges.push(<span key="liq" className={cn('inline-flex items-center gap-0.5 bg-red-500/10 border-red-500/20 text-red-300', chipCls)}>LIQUIDIERT</span>);
   }
 
   // 3. Contract <= 12M
   if (player.contractMonthsLeft <= 12) {
     const urgent = player.contractMonthsLeft <= 6;
     badges.push(
-      <span key="ctr" className={`inline-flex items-center gap-0.5 ${chipCls} ${urgent ? 'bg-red-500/10 border-red-500/20 text-red-300' : 'bg-orange-500/10 border-orange-500/20 text-orange-300'}`}>
+      <span key="ctr" className={cn('inline-flex items-center gap-0.5', chipCls, urgent ? 'bg-red-500/10 border-red-500/20 text-red-300' : 'bg-orange-500/10 border-orange-500/20 text-orange-300')}>
         {player.contractMonthsLeft}M
       </span>
     );
@@ -353,8 +352,8 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
   // 4. IPO
   if (player.ipo.status === 'open' || player.ipo.status === 'early_access') {
     badges.push(
-      <span key="ipo" className={`inline-flex items-center gap-0.5 ${chipCls} bg-green-500/10 border-green-500/20 text-green-500`}>
-        <ShoppingCart className="w-2.5 h-2.5" />Neu {player.ipo.progress ?? 0}%
+      <span key="ipo" className={cn('inline-flex items-center gap-0.5 bg-green-500/10 border-green-500/20 text-green-500', chipCls)}>
+        <ShoppingCart className="size-2.5" />Neu {player.ipo.progress ?? 0}%
       </span>
     );
   }
@@ -362,8 +361,8 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
   // 5. Listed
   if (holding?.isOnTransferList) {
     badges.push(
-      <span key="list" className={`inline-flex items-center gap-0.5 ${chipCls} bg-sky-500/10 border-sky-400/20 text-sky-300`}>
-        <Tag className="w-2.5 h-2.5" />Gelistet
+      <span key="list" className={cn('inline-flex items-center gap-0.5 bg-sky-500/10 border-sky-400/20 text-sky-300', chipCls)}>
+        <Tag className="size-2.5" />Gelistet
       </span>
     );
   }
@@ -371,8 +370,8 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
   // 6. PBT
   if (player.pbt && player.pbt.balance > 0) {
     badges.push(
-      <span key="pbt" className={`inline-flex items-center gap-0.5 ${chipCls} bg-gold/10 border-gold/20 text-gold/80`}>
-        <PiggyBank className="w-2.5 h-2.5" />PBT {fmtScout(player.pbt.balance)}
+      <span key="pbt" className={cn('inline-flex items-center gap-0.5 bg-gold/10 border-gold/20 text-gold/80', chipCls)}>
+        <PiggyBank className="size-2.5" />PBT {fmtScout(player.pbt.balance)}
       </span>
     );
   }
@@ -380,7 +379,7 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
   // 7. Owned (only when NOT in holding context)
   if (!holding && player.dpc.owned > 0) {
     badges.push(
-      <span key="own" className={`inline-flex items-center gap-0.5 ${chipCls} bg-green-500/10 border-green-500/20 text-green-500/80`}>
+      <span key="own" className={cn('inline-flex items-center gap-0.5 bg-green-500/10 border-green-500/20 text-green-500/80', chipCls)}>
         Du: {player.dpc.owned}
       </span>
     );
@@ -410,7 +409,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
   const l5Color = getL5Color(l5);
   const up = player.prices.change24h >= 0;
 
-  const kpiCls = 'text-[10px] md:text-[11px] font-mono';
+  const kpiCls = 'text-[10px] md:text-[11px] font-mono tabular-nums';
   const labelCls = 'text-white/30 mr-0.5';
 
   const kpis: React.ReactNode[] = [];
@@ -420,34 +419,34 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       const pnl = holding ? (floor - holding.avgBuyPriceBsd) * holding.quantity : 0;
       const pnlPct = holding && holding.avgBuyPriceBsd > 0 ? ((floor - holding.avgBuyPriceBsd) / holding.avgBuyPriceBsd) * 100 : 0;
       const upPnl = pnl >= 0;
-      kpis.push(<span key="fl" className={`${kpiCls} text-gold`}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
+      kpis.push(<span key="fl" className={cn(kpiCls, 'text-gold')}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
       kpis.push(
-        <span key="pnl" className={`${kpiCls} ${upPnl ? 'text-vivid-green' : 'text-vivid-red'}`}>
+        <span key="pnl" className={cn(kpiCls, upPnl ? 'text-vivid-green' : 'text-vivid-red')}>
           <span className={labelCls}>G/V</span>{upPnl ? '+' : ''}{fmtScout(Math.round(pnl))} ({upPnl ? '+' : ''}{pnlPct.toFixed(1)}%)
         </span>
       );
       kpis.push(
-        <span key="ch" className={`${kpiCls} ${up ? 'text-vivid-green' : 'text-vivid-red'}`}>
+        <span key="ch" className={cn(kpiCls, up ? 'text-vivid-green' : 'text-vivid-red')}>
           {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
         </span>
       );
       if (holding) {
-        kpis.push(<span key="qty" className={`${kpiCls} text-white/60`}>{holding.quantity} DPC</span>);
-        kpis.push(<span key="ek" className={`${kpiCls} text-white/40`}><span className={labelCls}>EK</span>{fmtScout(holding.avgBuyPriceBsd)}</span>);
+        kpis.push(<span key="qty" className={cn(kpiCls, 'text-white/60')}>{holding.quantity} DPC</span>);
+        kpis.push(<span key="ek" className={cn(kpiCls, 'text-white/40')}><span className={labelCls}>EK</span>{fmtScout(holding.avgBuyPriceBsd)}</span>);
       }
       break;
     }
     case 'market':
-      kpis.push(<span key="fl" className={`${kpiCls} text-gold`}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
+      kpis.push(<span key="fl" className={cn(kpiCls, 'text-gold')}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
       kpis.push(
-        <span key="ch" className={`${kpiCls} ${up ? 'text-vivid-green' : 'text-vivid-red'}`}>
+        <span key="ch" className={cn(kpiCls, up ? 'text-vivid-green' : 'text-vivid-red')}>
           {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
         </span>
       );
-      kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
-      if (player.dpc.onMarket > 0) kpis.push(<span key="om" className={`${kpiCls} text-white/50`}>{player.dpc.onMarket} am Markt</span>);
+      kpis.push(<span key="l5" className={cn(kpiCls, l5Color)}><span className={labelCls}>L5</span>{l5}</span>);
+      if (player.dpc.onMarket > 0) kpis.push(<span key="om" className={cn(kpiCls, 'text-white/50')}>{player.dpc.onMarket} am Markt</span>);
       kpis.push(
-        <span key="st" className={`${kpiCls} text-white/50`}>
+        <span key="st" className={cn(kpiCls, 'text-white/50')}>
           {player.stats.matches}<span className="text-white/20">/</span>
           <span className="text-vivid-green">{player.stats.goals}</span><span className="text-white/20">/</span>
           <span className="text-sky-300">{player.stats.assists}</span>
@@ -456,64 +455,64 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       break;
 
     case 'lineup':
-      kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
-      kpis.push(<span key="l15" className={`${kpiCls} text-white/60`}><span className={labelCls}>L15</span>{player.perf.l15}</span>);
+      kpis.push(<span key="l5" className={cn(kpiCls, l5Color)}><span className={labelCls}>L5</span>{l5}</span>);
+      kpis.push(<span key="l15" className={cn(kpiCls, 'text-white/60')}><span className={labelCls}>L15</span>{player.perf.l15}</span>);
       kpis.push(
-        <span key="st" className={`${kpiCls} text-white/50`}>
+        <span key="st" className={cn(kpiCls, 'text-white/50')}>
           {player.stats.matches}<span className="text-white/20">/</span>
           <span className="text-green-500">{player.stats.goals}</span><span className="text-white/20">/</span>
           <span className="text-sky-300">{player.stats.assists}</span>
         </span>
       );
-      kpis.push(<span key="ctr" className={`${kpiCls} text-white/40`}>{player.contractMonthsLeft}M</span>);
-      kpis.push(<span key="tr" className={`${kpiCls} text-white/40`}>{player.perf.trend === 'UP' ? '↑' : player.perf.trend === 'DOWN' ? '↓' : '→'}</span>);
+      kpis.push(<span key="ctr" className={cn(kpiCls, 'text-white/40')}>{player.contractMonthsLeft}M</span>);
+      kpis.push(<span key="tr" className={cn(kpiCls, 'text-white/40')}>{player.perf.trend === 'UP' ? '↑' : player.perf.trend === 'DOWN' ? '↓' : '→'}</span>);
       break;
 
     case 'result':
-      if (score !== undefined) kpis.push(<span key="sc" className={`${kpiCls} font-bold text-white`}>{score} Pkt</span>);
-      kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
+      if (score !== undefined) kpis.push(<span key="sc" className={cn(kpiCls, 'font-bold text-white')}>{score} Pkt</span>);
+      kpis.push(<span key="l5" className={cn(kpiCls, l5Color)}><span className={labelCls}>L5</span>{l5}</span>);
       kpis.push(
-        <span key="st" className={`${kpiCls} text-white/50`}>
+        <span key="st" className={cn(kpiCls, 'text-white/50')}>
           {player.stats.matches}<span className="text-white/20">/</span>
           <span className="text-green-500">{player.stats.goals}</span><span className="text-white/20">/</span>
           <span className="text-sky-300">{player.stats.assists}</span>
         </span>
       );
       kpis.push(
-        <span key="ch" className={`${kpiCls} ${up ? 'text-green-500' : 'text-red-400'}`}>
+        <span key="ch" className={cn(kpiCls, up ? 'text-green-500' : 'text-red-400')}>
           {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
         </span>
       );
       break;
 
     case 'picker':
-      kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
+      kpis.push(<span key="l5" className={cn(kpiCls, l5Color)}><span className={labelCls}>L5</span>{l5}</span>);
       kpis.push(
-        <span key="st" className={`${kpiCls} text-white/50`}>
+        <span key="st" className={cn(kpiCls, 'text-white/50')}>
           {player.stats.matches}<span className="text-white/20">/</span>
           <span className="text-green-500">{player.stats.goals}</span><span className="text-white/20">/</span>
           <span className="text-sky-300">{player.stats.assists}</span>
         </span>
       );
-      kpis.push(<span key="fl" className={`${kpiCls} text-gold`}>{fmtScout(floor)}</span>);
-      kpis.push(<span key="ctr" className={`${kpiCls} text-white/40`}>{player.contractMonthsLeft}M</span>);
-      kpis.push(<span key="tr" className={`${kpiCls} text-white/40`}>{player.perf.trend === 'UP' ? '↑' : player.perf.trend === 'DOWN' ? '↓' : '→'}</span>);
+      kpis.push(<span key="fl" className={cn(kpiCls, 'text-gold')}>{fmtScout(floor)}</span>);
+      kpis.push(<span key="ctr" className={cn(kpiCls, 'text-white/40')}>{player.contractMonthsLeft}M</span>);
+      kpis.push(<span key="tr" className={cn(kpiCls, 'text-white/40')}>{player.perf.trend === 'UP' ? '↑' : player.perf.trend === 'DOWN' ? '↓' : '→'}</span>);
       break;
 
     case 'ipo':
-      kpis.push(<span key="pr" className={`${kpiCls} text-gold font-bold`}>{fmtScout(ipoData?.price ?? player.ipo.price ?? 0)}</span>);
+      kpis.push(<span key="pr" className={cn(kpiCls, 'text-gold font-bold')}>{fmtScout(ipoData?.price ?? player.ipo.price ?? 0)}</span>);
       if (ipoData) {
-        kpis.push(<span key="pg" className={`${kpiCls} text-green-500`}>{ipoData.progress.toFixed(0)}%</span>);
-        if (ipoData.remaining != null) kpis.push(<span key="rem" className={`${kpiCls} text-white/50`}>{fmtScout(ipoData.remaining)} verf.</span>);
+        kpis.push(<span key="pg" className={cn(kpiCls, 'text-green-500')}>{ipoData.progress.toFixed(0)}%</span>);
+        if (ipoData.remaining != null) kpis.push(<span key="rem" className={cn(kpiCls, 'text-white/50')}>{fmtScout(ipoData.remaining)} verf.</span>);
       }
-      kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
+      kpis.push(<span key="l5" className={cn(kpiCls, l5Color)}><span className={labelCls}>L5</span>{l5}</span>);
       break;
 
     case 'search':
-      kpis.push(<span key="fl" className={`${kpiCls} text-gold`}>{fmtScout(floor)}</span>);
-      kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
+      kpis.push(<span key="fl" className={cn(kpiCls, 'text-gold')}>{fmtScout(floor)}</span>);
+      kpis.push(<span key="l5" className={cn(kpiCls, l5Color)}><span className={labelCls}>L5</span>{l5}</span>);
       kpis.push(
-        <span key="st" className={`${kpiCls} text-white/50`}>
+        <span key="st" className={cn(kpiCls, 'text-white/50')}>
           {player.stats.matches}<span className="text-white/20">/</span>
           <span className="text-green-500">{player.stats.goals}</span><span className="text-white/20">/</span>
           <span className="text-sky-300">{player.stats.assists}</span>
@@ -522,21 +521,21 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       break;
 
     default: // 'default'
-      kpis.push(<span key="fl" className={`${kpiCls} text-gold`}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
+      kpis.push(<span key="fl" className={cn(kpiCls, 'text-gold')}><span className={labelCls}>Floor</span>{fmtScout(floor)}</span>);
       kpis.push(
-        <span key="ch" className={`${kpiCls} ${up ? 'text-green-500' : 'text-red-400'}`}>
+        <span key="ch" className={cn(kpiCls, up ? 'text-green-500' : 'text-red-400')}>
           {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
         </span>
       );
-      kpis.push(<span key="l5" className={`${kpiCls} ${l5Color}`}><span className={labelCls}>L5</span>{l5}</span>);
+      kpis.push(<span key="l5" className={cn(kpiCls, l5Color)}><span className={labelCls}>L5</span>{l5}</span>);
       kpis.push(
-        <span key="st" className={`${kpiCls} text-white/50`}>
+        <span key="st" className={cn(kpiCls, 'text-white/50')}>
           {player.stats.matches}<span className="text-white/20">/</span>
           <span className="text-green-500">{player.stats.goals}</span><span className="text-white/20">/</span>
           <span className="text-sky-300">{player.stats.assists}</span>
         </span>
       );
-      if (player.dpc.onMarket > 0) kpis.push(<span key="om" className={`${kpiCls} text-white/50`}>{player.dpc.onMarket} am Markt</span>);
+      if (player.dpc.onMarket > 0) kpis.push(<span key="om" className={cn(kpiCls, 'text-white/50')}>{player.dpc.onMarket} am Markt</span>);
       break;
   }
 

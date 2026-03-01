@@ -8,7 +8,7 @@ import {
   Target,
 } from 'lucide-react';
 import type { Player, Pos } from '@/types';
-import { fmtScout } from '@/lib/utils';
+import { cn, fmtScout } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import {
   MiniSparkline, PlayerPhoto, getL5Color, getL5Hex, getL5Bg,
@@ -34,11 +34,11 @@ export const posTintColors: Record<Pos, string> = {
   ATT: '#fb7185',  // rose-400
 };
 
-const posCardGradients: Record<Pos, string> = {
-  GK: 'from-emerald-500/[0.15] via-emerald-500/[0.04] to-transparent',
-  DEF: 'from-amber-500/[0.15] via-amber-500/[0.04] to-transparent',
-  MID: 'from-sky-500/[0.15] via-sky-500/[0.04] to-transparent',
-  ATT: 'from-rose-500/[0.15] via-rose-500/[0.04] to-transparent',
+const posCardBg: Record<Pos, string> = {
+  GK: 'bg-emerald-500/[0.06]',
+  DEF: 'bg-amber-500/[0.06]',
+  MID: 'bg-sky-500/[0.06]',
+  ATT: 'bg-rose-500/[0.06]',
 };
 
 const posGlowShadows: Record<Pos, string> = {
@@ -72,23 +72,23 @@ export function TrikotBadge({ number, pos, club, size = 'sm' }: { number: number
     const { primary, secondary } = clubData.colors;
     return (
       <div
-        className={`relative ${isLg ? 'w-14 h-14 rounded-2xl border-2' : 'w-8 h-8 rounded-lg border'} flex items-center justify-center shrink-0`}
+        className={cn('relative flex items-center justify-center shrink-0', isLg ? 'size-14 rounded-2xl border-2' : 'size-8 rounded-lg border')}
         style={{ backgroundColor: `${primary}33`, borderColor: `${primary}66` }}
       >
-        <svg viewBox="0 0 24 24" className={`absolute ${isLg ? 'w-10 h-10' : 'w-6 h-6'} opacity-30`} style={{ color: primary }}>
+        <svg viewBox="0 0 24 24" className={cn('absolute opacity-30', isLg ? 'size-10' : 'size-6')} style={{ color: primary }}>
           <path fill="currentColor" d="M16.21 3L12 7.21 7.79 3H2v6l4 3v9h12v-9l4-3V3h-5.79zM6 7V5h2.29L12 8.71 15.71 5H18v2l-4 3v8H10v-8l-4-3z" />
         </svg>
-        <span className={`relative font-mono font-black ${isLg ? 'text-xl' : 'text-sm'}`} style={{ color: isColorDark(secondary) ? '#FFFFFF' : secondary }}>{number}</span>
+        <span className={cn('relative font-mono font-black', isLg ? 'text-xl' : 'text-sm')} style={{ color: isColorDark(secondary) ? '#FFFFFF' : secondary }}>{number}</span>
       </div>
     );
   }
 
   return (
-    <div className={`relative ${isLg ? 'w-14 h-14 rounded-2xl border-2' : 'w-8 h-8 rounded-lg border'} ${c.bg} ${c.border} flex items-center justify-center shrink-0`}>
-      <svg viewBox="0 0 24 24" className={`absolute ${isLg ? 'w-10 h-10' : 'w-6 h-6'} ${c.text} opacity-30`}>
+    <div className={cn('relative flex items-center justify-center shrink-0', isLg ? 'size-14 rounded-2xl border-2' : 'size-8 rounded-lg border', c.bg, c.border)}>
+      <svg viewBox="0 0 24 24" className={cn('absolute opacity-30', isLg ? 'size-10' : 'size-6', c.text)}>
         <path fill="currentColor" d="M16.21 3L12 7.21 7.79 3H2v6l4 3v9h12v-9l4-3V3h-5.79zM6 7V5h2.29L12 8.71 15.71 5H18v2l-4 3v8H10v-8l-4-3z" />
       </svg>
-      <span className={`relative font-mono font-black ${isLg ? 'text-xl' : 'text-sm'} ${c.text}`}>{number}</span>
+      <span className={cn('relative font-mono font-black', isLg ? 'text-xl' : 'text-sm', c.text)}>{number}</span>
     </div>
   );
 }
@@ -195,9 +195,9 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
   const watchBtn = onWatch ? (
     <button
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); onWatch(); }}
-      className={`p-1 rounded-lg transition-colors shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center ${isWatchlisted ? 'text-gold' : 'text-white/25 hover:text-white/50'}`}
+      className={cn('p-1 rounded-lg transition-colors shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center', isWatchlisted ? 'text-gold' : 'text-white/25 hover:text-white/50')}
     >
-      <Star className="w-3.5 h-3.5" fill={isWatchlisted ? 'currentColor' : 'none'} />
+      <Star className="size-3.5" fill={isWatchlisted ? 'currentColor' : 'none'} />
     </button>
   ) : null;
 
@@ -206,9 +206,9 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
     <button
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); onBuy(player.id); }}
       disabled={buying}
-      className="py-1.5 px-3 min-h-[44px] bg-gold text-black text-xs font-bold rounded-lg hover:bg-gold/90 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+      className="py-1.5 px-3 min-h-[44px] bg-gold text-black text-xs font-bold rounded-lg hover:bg-gold/90 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
     >
-      {buying ? <Loader2 className="w-3 h-3 animate-spin" /> : <Target className="w-3 h-3" />}
+      {buying ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none" /> : <Target className="size-3" />}
       {buying ? 'Kaufe...' : 'Verpflichten'}
     </button>
   ) : null;
@@ -218,7 +218,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
     return (
       <Link
         href={`/player/${player.id}`}
-        className={`block p-3 rounded-xl bg-white/[0.02] border-2 card-lift group ${className}`}
+        className={cn('block p-3 rounded-xl bg-white/[0.02] border-2 card-lift group', className)}
         style={{
           borderColor: posTintColors[player.pos],
           backgroundImage: `linear-gradient(to right, transparent 50%, ${posTintColors[player.pos]}15)`,
@@ -251,7 +251,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
   return (
     <Link
       href={`/player/${player.id}`}
-      className={`block bg-gradient-to-br ${posCardGradients[player.pos]} border rounded-xl overflow-hidden card-lift ${player.perf.l5 >= 80 ? 'holo-rainbow' : player.perf.l5 >= 65 ? 'foil-shimmer' : ''} ${className}`}
+      className={cn('block border rounded-xl overflow-hidden card-lift', posCardBg[player.pos], player.perf.l5 >= 80 && 'holo-rainbow', player.perf.l5 >= 65 && player.perf.l5 < 80 && 'foil-shimmer', className)}
       style={{ borderColor: `${posTintColors[player.pos]}55`, boxShadow: posGlowShadows[player.pos] }}
     >
       {/* Header: Identity + L5 + Watch */}
@@ -259,7 +259,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
         <div className="flex items-start justify-between gap-2">
           <PlayerIdentity player={player} size="md" />
           <div className="flex items-center gap-1.5 shrink-0">
-            <div className={`font-mono font-bold text-sm ${getL5Color(player.perf.l5)}`}>
+            <div className={cn('font-mono font-bold text-sm tabular-nums', getL5Color(player.perf.l5))}>
               {player.perf.l5}
             </div>
             {watchBtn}
@@ -274,12 +274,12 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
       <div className="px-3 pt-2 pb-1.5">
         <div className="flex items-center justify-between">
           <div className="flex items-baseline gap-1.5">
-            <span className="font-mono font-black text-gold text-lg gold-glow">
+            <span className="font-mono font-black text-gold text-lg gold-glow tabular-nums">
               {ipoData ? fmtScout(ipoData.price) : fmtScout(floor)}
             </span>
             <span className="text-white/30 text-[10px]">$SCOUT</span>
             {!ipoData && (
-              <span className={`text-[11px] font-mono font-bold ml-1 ${up ? 'text-green-500' : 'text-red-400'}`}>
+              <span className={cn('text-[11px] font-mono font-bold ml-1 tabular-nums', up ? 'text-green-500' : 'text-red-400')}>
                 {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
               </span>
             )}
