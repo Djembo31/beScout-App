@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { Card, StatCard } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
-import { fmtScout } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import {
   getPlatformAdminRole, getSystemStats, getAllIposAcrossClubs,
@@ -44,15 +44,15 @@ const TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
 // ============================================
 
 function OverviewTab({ stats, error }: { stats: SystemStats | null; error?: boolean }) {
-  if (error) return <Card className="p-6 text-center text-white/40"><BarChart3 className="w-8 h-8 mx-auto mb-2 text-white/15" /><div className="text-sm">Statistiken konnten nicht geladen werden.</div></Card>;
-  if (!stats) return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>;
+  if (error) return <Card className="p-6 text-center text-white/40"><BarChart3 className="size-8 mx-auto mb-2 text-white/15" /><div className="text-sm">Statistiken konnten nicht geladen werden.</div></Card>;
+  if (!stats) return <div className="flex justify-center py-8"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" /></div>;
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-      <StatCard label="Benutzer" value={stats.totalUsers.toString()} icon={<Users className="w-4 h-4 text-white/40" />} />
-      <StatCard label="$SCOUT Gesamt" value={`${fmtScout(centsToBsd(stats.totalBsdCirculation))}`} icon={<DollarSign className="w-4 h-4 text-gold" />} />
-      <StatCard label="24h Volumen" value={`${fmtScout(centsToBsd(stats.volume24h))}`} icon={<BarChart3 className="w-4 h-4 text-white/40" />} />
-      <StatCard label="Aktive Events" value={stats.activeEvents.toString()} icon={<Calendar className="w-4 h-4 text-white/40" />} />
-      <StatCard label="Offene Angebote" value={stats.pendingOffers.toString()} icon={<Zap className="w-4 h-4 text-white/40" />} />
+      <StatCard label="Benutzer" value={stats.totalUsers.toString()} icon={<Users className="size-4 text-white/40" />} />
+      <StatCard label="$SCOUT Gesamt" value={`${fmtScout(centsToBsd(stats.totalBsdCirculation))}`} icon={<DollarSign className="size-4 text-gold" />} />
+      <StatCard label="24h Volumen" value={`${fmtScout(centsToBsd(stats.volume24h))}`} icon={<BarChart3 className="size-4 text-white/40" />} />
+      <StatCard label="Aktive Events" value={stats.activeEvents.toString()} icon={<Calendar className="size-4 text-white/40" />} />
+      <StatCard label="Offene Angebote" value={stats.pendingOffers.toString()} icon={<Zap className="size-4 text-white/40" />} />
     </div>
   );
 }
@@ -69,7 +69,7 @@ function IposTab() {
     getAllIposAcrossClubs().then(data => { setIpos(data); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>;
+  if (loading) return <div className="flex justify-center py-8"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" /></div>;
 
   return (
     <div className="space-y-3">
@@ -86,15 +86,15 @@ function IposTab() {
                 <span className="text-white/40 text-xs ml-2">{player?.club}</span>
               </div>
               <div className="flex items-center gap-3 text-xs">
-                <span className={`px-2 py-0.5 rounded-full font-medium ${
+                <span className={cn('px-2 py-0.5 rounded-full font-medium',
                   ipo.status === 'open' ? 'bg-green-500/20 text-green-400' :
                   ipo.status === 'announced' ? 'bg-amber-500/20 text-amber-400' :
                   'bg-white/10 text-white/40'
-                }`}>
+                )}>
                   {ipo.status as string}
                 </span>
-                <span className="font-mono text-gold">{fmtScout(centsToBsd(ipo.price as number))} $SCOUT</span>
-                <span className="text-white/40">{ipo.sold as number}/{ipo.total_offered as number}</span>
+                <span className="font-mono tabular-nums text-gold">{fmtScout(centsToBsd(ipo.price as number))} $SCOUT</span>
+                <span className="tabular-nums text-white/40">{ipo.sold as number}/{ipo.total_offered as number}</span>
               </div>
             </div>
           </Card>
@@ -128,12 +128,12 @@ function DebugTab() {
           rel="noopener noreferrer"
           className="text-xs text-gold hover:underline flex items-center gap-1"
         >
-          Supabase Dashboard <ExternalLink className="w-3 h-3" />
+          Supabase Dashboard <ExternalLink className="size-3" />
         </a>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>
+        <div className="flex justify-center py-8"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" /></div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
@@ -199,7 +199,7 @@ export default function BescoutAdminContent() {
   if (loading || !adminRole) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-white/30" />
+        <Loader2 className="size-8 animate-spin motion-reduce:animate-none text-white/30" />
       </div>
     );
   }
@@ -208,11 +208,11 @@ export default function BescoutAdminContent() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center">
-          <Shield className="w-5 h-5 text-gold" />
+        <div className="size-10 rounded-xl bg-gold/20 flex items-center justify-center">
+          <Shield className="size-5 text-gold" />
         </div>
         <div>
-          <h1 className="text-xl font-black text-white">BeScout Admin</h1>
+          <h1 className="text-xl font-black text-balance text-white">BeScout Admin</h1>
           <div className="text-xs text-white/40">Rolle: {adminRole}</div>
         </div>
       </div>
@@ -225,13 +225,13 @@ export default function BescoutAdminContent() {
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`flex items-center gap-1 md:gap-1.5 px-2.5 md:px-3 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 min-h-[44px] ${
+              className={cn('flex items-center gap-1 md:gap-1.5 px-2.5 md:px-3 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 min-h-[44px]',
                 tab === t.id
                   ? 'bg-gold/10 text-gold border border-gold/20'
                   : 'text-white/40 hover:text-white/60'
-              }`}
+              )}
             >
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className="size-3.5" />
               <span className="hidden md:inline">{t.label}</span>
               <span className="md:hidden">{t.label.slice(0, 4)}</span>
             </button>
