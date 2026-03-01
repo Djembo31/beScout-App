@@ -194,7 +194,7 @@ export default function TradingCardFrame({
 
             {/* Gold separator line */}
             <div className="relative z-10 mx-4 mt-2 md:mt-3">
-              <div className="h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
+              <div className="h-px bg-gold/20" />
             </div>
 
             {/* Glassmorphism Name Bar */}
@@ -280,7 +280,7 @@ export default function TradingCardFrame({
 
               {/* Gold separator */}
               <div className="relative z-10 mx-4 mt-2">
-                <div className="h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
+                <div className="h-px bg-gold/20" />
               </div>
 
               {/* Stats Grid */}
