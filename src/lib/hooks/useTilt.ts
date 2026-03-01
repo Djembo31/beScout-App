@@ -74,13 +74,23 @@ export function useTilt<T extends HTMLElement = HTMLDivElement>({
     el.style.transform = buildTransform(0, 0, 1);
   }, [yOffset, buildTransform]);
 
+  const promoteLayer = useCallback(() => {
+    const el = ref.current;
+    if (el) el.style.willChange = 'transform';
+  }, []);
+  const demoteLayer = useCallback(() => {
+    const el = ref.current;
+    if (el) el.style.willChange = 'auto';
+  }, []);
+
   const onMouseMove = useCallback((e: React.MouseEvent) => handleMove(e.clientX, e.clientY), [handleMove]);
-  const onMouseLeave = useCallback(() => reset(), [reset]);
+  const onMouseEnter = useCallback(() => promoteLayer(), [promoteLayer]);
+  const onMouseLeave = useCallback(() => { reset(); demoteLayer(); }, [reset, demoteLayer]);
   const onTouchMove = useCallback((e: React.TouchEvent) => {
     const t = e.touches[0];
-    if (t) handleMove(t.clientX, t.clientY);
-  }, [handleMove]);
-  const onTouchEnd = useCallback(() => reset(), [reset]);
+    if (t) { promoteLayer(); handleMove(t.clientX, t.clientY); }
+  }, [handleMove, promoteLayer]);
+  const onTouchEnd = useCallback(() => { reset(); demoteLayer(); }, [reset, demoteLayer]);
 
   useEffect(() => {
     return () => cancelAnimationFrame(rafId.current);
@@ -90,6 +100,7 @@ export function useTilt<T extends HTMLElement = HTMLDivElement>({
     ref,
     tiltProps: {
       onMouseMove,
+      onMouseEnter,
       onMouseLeave,
       onTouchMove,
       onTouchEnd,
@@ -97,7 +108,6 @@ export function useTilt<T extends HTMLElement = HTMLDivElement>({
       style: {
         transform: buildTransform(0, 0, 1),
         transformStyle: 'preserve-3d' as const,
-        willChange: 'transform',
         '--tilt-x': '0.5',
         '--tilt-y': '0.5',
       } as React.CSSProperties,

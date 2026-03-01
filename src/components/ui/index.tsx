@@ -180,7 +180,7 @@ export function Modal({ open, title, subtitle, children, footer, onClose, preven
 
   return (
     <div
-      className="fixed inset-0 z-[80] bg-black/80 backdrop-blur-md flex items-end md:items-center md:justify-center md:p-4 anim-fade"
+      className="fixed inset-0 z-[80] bg-black/80 backdrop-blur-sm flex items-end md:items-center md:justify-center md:p-4 anim-fade"
       onClick={(e) => { if (!preventClose && e.target === e.currentTarget) onClose(); }}
     >
       <div
