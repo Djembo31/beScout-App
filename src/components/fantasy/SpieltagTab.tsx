@@ -8,7 +8,7 @@ import { Card, Modal } from '@/components/ui';
 import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
 import { getFixturesByGameweek, getFixturePlayerStats } from '@/lib/services/fixtures';
-import { simulateGameweekFlow } from '@/lib/services/scoring';
+import { simulateGameweekFlow, importProgressiveStats, finalizeGameweek } from '@/lib/services/scoring';
 import { isApiConfigured, hasApiFixtures } from '@/lib/services/footballData';
 import type { Fixture, FixturePlayerStat } from '@/types';
 import type { FantasyEvent } from './types';
@@ -392,7 +392,10 @@ export function SpieltagTab({
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
   const [fixturesLoading, setFixturesLoading] = useState(true);
   const [simulating, setSimulating] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
   const [selectedFixture, setSelectedFixture] = useState<Fixture | null>(null);
   const [apiAvailable, setApiAvailable] = useState(false);
   const [selectedLeague, setSelectedLeague] = useState<LeagueId>('tff1');
@@ -430,6 +433,8 @@ export function SpieltagTab({
 
   // Derived state
   const simulatedCount = fixtures.filter(f => f.status === 'simulated' || f.status === 'finished').length;
+  const finishedCount = fixtures.filter(f => f.status === 'finished').length;
+  const allFixturesFinished = finishedCount === fixtures.length && fixtures.length > 0;
   const gwEvents = events;
   const allEnded = gwEvents.length > 0 && gwEvents.every(e => e.status === 'ended' || e.scoredAt);
   const isCurrentGw = gameweek === activeGameweek;
@@ -448,13 +453,49 @@ export function SpieltagTab({
     return fixtures.filter(f => f.id !== topspiel.id);
   }, [fixtures, topspiel]);
 
+  const handleImport = async () => {
+    if (!isAdmin || importing) return;
+    setImporting(true);
+    setImportResult(null);
+    try {
+      const result = await importProgressiveStats(clubId, gameweek, userId);
+      if (result.fixturesImported > 0 || result.scoresSynced > 0) {
+        await loadFixtures(gameweek);
+      }
+      setImportResult(`${result.fixturesImported} Fixtures, ${result.scoresSynced} Scores`);
+      if (result.errors.length > 0) {
+        console.warn('[Spieltag] Import warnings:', result.errors);
+      }
+    } catch (e) {
+      setImportResult(`Fehler: ${e instanceof Error ? e.message : 'Unbekannt'}`);
+    }
+    setImporting(false);
+  };
+
+  const handleFinalize = async () => {
+    if (!isAdmin || simulating) return;
+    setShowFinalizeConfirm(false);
+    setSimulating(true);
+    try {
+      const result = await finalizeGameweek(clubId, gameweek, userId);
+      if (result.eventsScored > 0) {
+        await loadFixtures(gameweek);
+        onSimulated();
+      }
+      if (result.errors.length > 0) {
+        console.warn('[Spieltag] Finalize warnings:', result.errors);
+      }
+    } catch { /* handled via toast in parent */ }
+    setSimulating(false);
+  };
+
+  // Legacy: full flow (fallback for non-API mode)
   const handleSimulate = async () => {
     if (!isAdmin || simulating) return;
     setShowConfirm(false);
     setSimulating(true);
     try {
       const result = await simulateGameweekFlow(clubId, gameweek, userId);
-      // Always refresh + notify parent — even if some events had no lineups
       if (result.eventsScored > 0 || result.fixturesSimulated > 0) {
         await loadFixtures(gameweek);
         onSimulated();
@@ -483,14 +524,37 @@ export function SpieltagTab({
 
         {/* Admin */}
         <div className="flex items-center gap-2">
-          {isAdmin && isCurrentGw && gwStatus === 'open' && gwEvents.length > 0 && (
+          {/* Import Button (sky, repeatable) — available when API is configured */}
+          {isAdmin && isCurrentGw && apiAvailable && gwEvents.length > 0 && !allEnded && (
+            <button
+              onClick={handleImport}
+              disabled={importing}
+              className="flex items-center gap-1.5 px-3 py-2 min-h-[40px] bg-sky-500/10 border border-sky-500/30 rounded-xl text-xs font-bold text-sky-400 hover:bg-sky-500/20 disabled:opacity-50 transition-colors"
+            >
+              {importing ? <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" /> : <ArrowRight aria-hidden="true" className="size-3.5" />}
+              Import ({finishedCount}/{fixtures.length})
+            </button>
+          )}
+          {/* Auswerten Button (gold, once at end) — available when all fixtures finished */}
+          {isAdmin && isCurrentGw && allFixturesFinished && !allEnded && gwEvents.length > 0 && (
+            <button
+              onClick={() => setShowFinalizeConfirm(true)}
+              disabled={simulating}
+              className="flex items-center gap-1.5 px-3 py-2 min-h-[40px] bg-gold/10 border border-gold/30 rounded-xl text-xs font-bold text-gold hover:bg-gold/20 disabled:opacity-50 transition-colors"
+            >
+              {simulating ? <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" /> : <Trophy aria-hidden="true" className="size-3.5" />}
+              Auswerten
+            </button>
+          )}
+          {/* Fallback: Starten Button (non-API mode, legacy behavior) */}
+          {isAdmin && isCurrentGw && !apiAvailable && gwStatus === 'open' && gwEvents.length > 0 && (
             <button
               onClick={() => setShowConfirm(true)}
               disabled={simulating}
               className="flex items-center gap-1.5 px-3 py-2 min-h-[40px] bg-gold/10 border border-gold/30 rounded-xl text-xs font-bold text-gold hover:bg-gold/20 disabled:opacity-50 transition-colors"
             >
               {simulating ? <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" /> : <Play aria-hidden="true" className="size-3.5" />}
-              {apiAvailable ? 'Import' : 'Starten'}
+              Starten
             </button>
           )}
           {isAdmin && gwStatus === 'simulated' && isCurrentGw && (
@@ -498,6 +562,14 @@ export function SpieltagTab({
           )}
         </div>
       </div>
+
+      {/* Import Result Toast */}
+      {importResult && (
+        <div className="flex items-center justify-between p-3 bg-sky-500/10 border border-sky-500/20 rounded-xl">
+          <span className="text-xs text-sky-300 font-medium">{importResult}</span>
+          <button onClick={() => setImportResult(null)} className="text-xs text-white/40 hover:text-white/60 transition-colors" aria-label="Schließen">✕</button>
+        </div>
+      )}
 
       {/* 2. SPONSOR BANNER */}
       <SponsorBanner placement="fantasy_spieltag" />
@@ -546,38 +618,26 @@ export function SpieltagTab({
       )}
 
       {/* 11. MODALS — unchanged */}
-      <Modal open={showConfirm} title={apiAvailable ? 'Echte Daten importieren' : 'Spieltag starten'} onClose={() => setShowConfirm(false)}>
+      {/* Legacy Starten Modal (non-API simulation mode) */}
+      <Modal open={showConfirm} title="Spieltag starten" onClose={() => setShowConfirm(false)}>
         <div className="space-y-4 p-2">
           <p className="text-sm text-white/70">
             Spieltag {gameweek} wird gestartet. Folgendes passiert:
           </p>
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
-              <span className="text-red-400 mt-0.5">1.</span>
-              <span>Anmeldung wird <strong className="text-red-400">geschlossen</strong> — {gwEvents.length} Event{gwEvents.length !== 1 ? 's' : ''} werden auf &quot;running&quot; gesetzt</span>
+              <span className="text-sky-400 mt-0.5">1.</span>
+              <span>{fixtures.length} Spiele werden <strong className="text-sky-400">simuliert</strong></span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-sky-400 mt-0.5">2.</span>
-              {apiAvailable ? (
-                <span>Echte Match-Daten werden von <strong className="text-sky-400">API-Football</strong> importiert</span>
-              ) : (
-                <span>{fixtures.length} Spiele werden <strong className="text-sky-400">simuliert</strong></span>
-              )}
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-gold mt-0.5">3.</span>
+              <span className="text-gold mt-0.5">2.</span>
               <span>Events werden <strong className="text-gold">gescored</strong> und Ergebnisse stehen fest</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-0.5">4.</span>
+              <span className="text-green-500 mt-0.5">3.</span>
               <span>Events für <strong className="text-green-500">Spieltag {gameweek + 1}</strong> werden automatisch erstellt</span>
             </li>
           </ul>
-          {apiAvailable && (
-            <div className="p-2 rounded-lg bg-sky-500/10 border border-sky-500/20 text-xs text-sky-300">
-              API-Football aktiv — Ergebnisse basieren auf echten Spielerleistungen
-            </div>
-          )}
           <div className="flex items-center gap-3 pt-2">
             <button
               onClick={() => setShowConfirm(false)}
@@ -589,7 +649,47 @@ export function SpieltagTab({
               onClick={handleSimulate}
               className="flex-1 px-4 py-2.5 min-h-[44px] bg-gold/10 border border-gold/30 rounded-xl text-sm font-bold text-gold hover:bg-gold/20 transition-colors"
             >
-              {apiAvailable ? 'Daten importieren' : 'Spieltag starten'}
+              Spieltag starten
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Finalize Confirmation Modal */}
+      <Modal open={showFinalizeConfirm} title="Spieltag auswerten" onClose={() => setShowFinalizeConfirm(false)}>
+        <div className="space-y-4 p-2">
+          <p className="text-sm text-white/70">
+            Spieltag {gameweek} wird final ausgewertet. Folgendes passiert:
+          </p>
+          <ul className="space-y-2 text-sm">
+            <li className="flex items-start gap-2">
+              <span className="text-gold mt-0.5">1.</span>
+              <span>{gwEvents.length} Event{gwEvents.length !== 1 ? 's' : ''} werden <strong className="text-gold">gescored</strong> und Rankings erstellt</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 mt-0.5">2.</span>
+              <span>Events für <strong className="text-green-500">Spieltag {gameweek + 1}</strong> werden automatisch erstellt</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-sky-400 mt-0.5">3.</span>
+              <span>Spieltag wird auf <strong className="text-sky-400">{gameweek + 1}</strong> vorgerückt</span>
+            </li>
+          </ul>
+          <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300">
+            Dieser Schritt kann nicht rückgängig gemacht werden. Stelle sicher, dass alle Fixtures importiert sind.
+          </div>
+          <div className="flex items-center gap-3 pt-2">
+            <button
+              onClick={() => setShowFinalizeConfirm(false)}
+              className="flex-1 px-4 py-2.5 min-h-[44px] bg-white/5 border border-white/10 rounded-xl text-sm font-semibold hover:bg-white/10 transition-colors"
+            >
+              Abbrechen
+            </button>
+            <button
+              onClick={handleFinalize}
+              className="flex-1 px-4 py-2.5 min-h-[44px] bg-gold/10 border border-gold/30 rounded-xl text-sm font-bold text-gold hover:bg-gold/20 transition-colors"
+            >
+              Jetzt auswerten
             </button>
           </div>
         </div>

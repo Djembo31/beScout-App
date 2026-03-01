@@ -19,7 +19,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { centsToBsd } from '@/lib/services/players';
 import { getLineup, getEventParticipants, getEventParticipantCount, getLineupWithPlayers } from '@/lib/services/lineups';
 import type { LineupWithPlayers } from '@/lib/services/lineups';
-import { resetEvent, getEventLeaderboard } from '@/lib/services/scoring';
+import { resetEvent, getEventLeaderboard, getProgressiveScores } from '@/lib/services/scoring';
 import type { LeaderboardEntry } from '@/lib/services/scoring';
 import { cn, fmtScout } from '@/lib/utils';
 import type { Pos } from '@/types';
@@ -70,6 +70,7 @@ export const EventDetailModal = ({
   const [myTotalScore, setMyTotalScore] = useState<number | null>(null);
   const [myRank, setMyRank] = useState<number | null>(null);
   const [scoringJustFinished, setScoringJustFinished] = useState(false);
+  const [progressiveScores, setProgressiveScores] = useState<Map<string, number>>(new Map());
   const [viewingUserLineup, setViewingUserLineup] = useState<{ entry: LeaderboardEntry; data: LineupWithPlayers } | null>(null);
   const [viewingUserLoading, setViewingUserLoading] = useState(false);
   const [captainSlot, setCaptainSlot] = useState<string | null>(null);
@@ -103,6 +104,21 @@ export const EventDetailModal = ({
     }
   }, [isOpen, event?.id, tab, event?.scoredAt]);
 
+  // Poll progressive scores when event is running and user has a lineup
+  useEffect(() => {
+    if (!isOpen || !event || event.status !== 'running' || !event.isJoined || !event.gameweek) return;
+    if (selectedPlayers.length === 0) return;
+
+    const loadScores = () => {
+      const playerIds = selectedPlayers.map(p => p.playerId).filter(Boolean);
+      if (playerIds.length === 0) return;
+      getProgressiveScores(event.gameweek!, playerIds).then(setProgressiveScores).catch(console.error);
+    };
+
+    loadScores();
+    const interval = setInterval(loadScores, 60_000);
+    return () => clearInterval(interval);
+  }, [isOpen, event?.id, event?.status, event?.gameweek, selectedPlayers.length]);
 
   // Handle reset event (testing tool)
   const handleResetEvent = async () => {
@@ -706,6 +722,31 @@ export const EventDetailModal = ({
                   <span className="text-sm text-green-300">Alle Spiele laufen — Aufstellung gesperrt</span>
                 </div>
               )}
+              {/* Progressive Score Banner */}
+              {event.status === 'running' && event.isJoined && progressiveScores.size > 0 && !isScored && (
+                <div className="px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <BarChart3 aria-hidden="true" className="size-4 text-green-400" />
+                    <span className="text-xs font-semibold text-green-300">Live-Punkte</span>
+                  </div>
+                  <div className="text-sm font-mono font-bold text-green-400 tabular-nums">
+                    {(() => {
+                      let total = 0;
+                      let playersScored = 0;
+                      formationSlots.forEach(slot => {
+                        const player = getSelectedPlayer(slot.slot);
+                        if (!player) return;
+                        const score = progressiveScores.get(player.id);
+                        if (score == null) return;
+                        const isCpt = captainSlot === slotDbKeys[slot.slot];
+                        total += isCpt ? Math.min(225, Math.round(score * 1.5)) : score;
+                        playersScored++;
+                      });
+                      return `${total} Pkt (${playersScored}/${formationSlots.length} Spieler)`;
+                    })()}
+                  </div>
+                </div>
+              )}
               {isScored && (
                 <div className="flex items-center gap-2 p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
                   <Award aria-hidden="true" className="size-4 text-purple-400" />
@@ -842,14 +883,19 @@ export const EventDetailModal = ({
                           {posSlots.map(slot => {
                             const player = getSelectedPlayer(slot.slot);
                             const pStatus = player ? getPlayerStatusStyle(player.status) : null;
-                            const slotScore = (isScored && slotScores) ? slotScores[slotDbKeys[slot.slot]] : undefined;
+                            const finalScore = (isScored && slotScores) ? slotScores[slotDbKeys[slot.slot]] : undefined;
+                            const liveScore = (!isScored && event?.status === 'running' && player)
+                              ? progressiveScores.get(player.id) ?? undefined
+                              : undefined;
+                            const slotScore = finalScore ?? liveScore;
                             const hasScore = slotScore != null;
+                            const isLiveScore = !isScored && liveScore != null;
                             const isCaptain = captainSlot === slotDbKeys[slot.slot];
                             const slotLocked = player ? isPlayerLocked(player.id) : false;
                             const slotReadOnly = isReadOnly || slotLocked;
                             return (
                               <div key={slot.slot} className="flex flex-col items-center relative">
-                                {/* LIVE badge for locked players */}
+                                {/* LIVE badge for locked players (only if no score yet) */}
                                 {player && slotLocked && !hasScore && (
                                   <div className="absolute -top-2 -right-2 z-30 px-1.5 py-0.5 rounded bg-green-500 text-[8px] font-black text-white shadow-lg animate-pulse">LIVE</div>
                                 )}
@@ -863,10 +909,13 @@ export const EventDetailModal = ({
                                 {player && hasScore && isCaptain && (
                                   <div className="absolute -top-2 left-4 z-30 px-1 py-0.5 rounded bg-gold/90 text-[9px] font-black text-black shadow-lg">×1.5</div>
                                 )}
-                                {/* Score badge (top-right, overlapping circle) */}
+                                {/* Score badge (top-right, overlapping circle) — final or live */}
                                 {player && hasScore && (
                                   <div
-                                    className="absolute -top-2 -right-3 z-20 min-w-[2rem] px-1.5 py-0.5 rounded-full text-[10px] font-mono font-black text-center shadow-lg"
+                                    className={cn(
+                                      "absolute -top-2 -right-3 z-20 min-w-[2rem] px-1.5 py-0.5 rounded-full text-[10px] font-mono font-black text-center shadow-lg",
+                                      isLiveScore && "ring-1 ring-green-400/50"
+                                    )}
                                     style={{
                                       backgroundColor: slotScore >= 100 ? '#FFD700' : slotScore >= 70 ? 'rgba(255,255,255,0.9)' : '#ff6b6b',
                                       color: slotScore >= 100 ? '#000' : slotScore >= 70 ? '#000' : '#fff',
@@ -1018,17 +1067,22 @@ export const EventDetailModal = ({
                 </Link>
               )}
 
-              {/* Scored Player Breakdown List */}
-              {isScored && slotScores && (
+              {/* Scored OR Progressive Player Breakdown List */}
+              {((isScored && slotScores) || (event?.status === 'running' && progressiveScores.size > 0)) && (
                 <div className="space-y-1.5">
-                  <div className="text-xs text-white/40 font-bold uppercase px-1">Einzelbewertungen</div>
+                  <div className="text-xs text-white/40 font-bold uppercase px-1">
+                    {isScored ? 'Einzelbewertungen' : 'Live-Bewertungen'}
+                  </div>
                   {formationSlots.map(slot => {
                     const player = getSelectedPlayer(slot.slot);
                     const scoreKey = slotDbKeys[slot.slot];
-                    const score = slotScores[scoreKey];
+                    const score = isScored
+                      ? slotScores?.[scoreKey]
+                      : progressiveScores.get(player?.id ?? '');
                     if (!player || score == null) return null;
                     const isCpt = captainSlot === scoreKey;
-                    const tier = getScoreTier(score);
+                    const displayScore = isCpt ? Math.min(225, Math.round(score * 1.5)) : score;
+                    const tier = getScoreTier(isScored ? score : displayScore);
                     const tierCfg = tier !== 'none' ? SCORE_TIER_CONFIG[tier] : null;
                     return (
                       <div key={slot.slot} className={`flex items-center justify-between p-3 rounded-lg bg-surface-base border ${isCpt ? 'border-gold/30' : 'border-white/[0.06]'}`}>

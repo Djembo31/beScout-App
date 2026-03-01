@@ -128,76 +128,87 @@ export async function resetEvent(eventId: string): Promise<ResetResult> {
 }
 
 // ============================================
-// Gameweek Flow (Simulate + Score all events)
+// Progressive Import (Phase 2 Live-Betrieb)
 // ============================================
 
-export type GameweekFlowResult = {
+export type ImportResult = {
   success: boolean;
-  fixturesSimulated: number;
-  eventsScored: number;
-  nextGameweek: number;
-  nextGwEventsCreated: number;
+  fixturesImported: number;
+  scoresSynced: number;
   errors: string[];
 };
 
 /**
- * Client-side orchestration: simulate fixtures + score all events for a gameweek.
- * 1. simulateGameweek(gw) → fixtures
- * 2. Find all non-ended events for this GW + club
- * 3. Score each event sequentially
- * 4. Advance active_gameweek to gw + 1
+ * Import stats + sync scores for a gameweek (idempotent, safe to call multiple times).
+ * admin_import_gameweek_stats RPC: DELETE + reimport → idempotent
+ * sync_fixture_scores RPC: ON CONFLICT DO UPDATE → idempotent
  */
-export async function simulateGameweekFlow(clubId: string, gameweek: number, adminId?: string): Promise<GameweekFlowResult> {
+export async function importProgressiveStats(
+  clubId: string,
+  gameweek: number,
+  adminId?: string
+): Promise<ImportResult> {
   const errors: string[] = [];
-  let fixturesSimulated = 0;
-  let eventsScored = 0;
-  let nextGwEventsCreated = 0;
+  let fixturesImported = 0;
 
-  // 1. Try API import first, fallback to simulation
-  let useApi = false;
+  // 1. Try API import (importGameweek calls admin_import_gameweek_stats which internally calls sync_fixture_scores)
   try {
     const { isApiConfigured, hasApiFixtures, importGameweek } = await import('@/lib/services/footballData');
     if (isApiConfigured()) {
       const hasMapped = await hasApiFixtures(gameweek);
       if (hasMapped) {
-        useApi = true;
         const importResult = await importGameweek(adminId || '', gameweek);
         if (importResult.success) {
-          fixturesSimulated = importResult.fixturesImported;
+          return {
+            success: true,
+            fixturesImported: importResult.fixturesImported,
+            scoresSynced: importResult.scoresSynced ?? 0,
+            errors: importResult.errors,
+          };
         } else {
           errors.push(...importResult.errors.map(e => `API-Import: ${e}`));
         }
       }
     }
   } catch (e) {
-    console.error('[GW Flow] API import failed, falling back to simulation:', e);
+    errors.push(`Import: ${e instanceof Error ? e.message : 'Fehler'}`);
   }
 
-  // Fallback: simulate if API not used or failed
-  if (!useApi) {
-    const { simulateGameweek } = await import('@/lib/services/fixtures');
-    const simResult = await simulateGameweek(gameweek);
-    if (simResult.success) {
-      fixturesSimulated = simResult.fixtures_simulated ?? 0;
-    } else {
-      if (simResult.error && !simResult.error.includes('already')) {
-        errors.push(`Fixture-Simulation: ${simResult.error}`);
-      }
-    }
-  }
-
-  // Bridge: sync fixture_player_stats → player_gameweek_scores
+  // 2. Fallback: manual sync_fixture_scores if API not available
   try {
     const { syncFixtureScores } = await import('@/lib/services/fixtures');
     const syncResult = await syncFixtureScores(gameweek);
-    if (!syncResult.success && syncResult.error) {
-      errors.push(`Score-Sync: ${syncResult.error}`);
-    }
+    return {
+      success: errors.length === 0,
+      fixturesImported,
+      scoresSynced: syncResult.synced_count ?? 0,
+      errors,
+    };
   } catch (e) {
     errors.push(`Score-Sync: ${e instanceof Error ? e.message : 'Fehler'}`);
   }
 
-  // 1.5 Resolve predictions for this gameweek
+  return { success: false, fixturesImported, scoresSynced: 0, errors };
+}
+
+// ============================================
+// Finalize Gameweek (Score + Advance)
+// ============================================
+
+/**
+ * Finalize a gameweek: resolve predictions, score events, create next GW events, advance GW.
+ * Should only be called once when all fixtures are finished.
+ */
+export async function finalizeGameweek(
+  clubId: string,
+  gameweek: number,
+  adminId?: string
+): Promise<GameweekFlowResult> {
+  const errors: string[] = [];
+  let eventsScored = 0;
+  let nextGwEventsCreated = 0;
+
+  // 1. Resolve predictions for this gameweek
   try {
     const { resolvePredictions } = await import('@/lib/services/predictions');
     const predResult = await resolvePredictions(gameweek);
@@ -225,7 +236,6 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number, adm
   // 3. Score events with lineups, close empty events directly
   for (const evt of eventsToScore) {
     if ((evt.current_entries ?? 0) === 0) {
-      // No participants: skip RPC, close directly
       const { error: closeErr } = await supabase
         .from('events')
         .update({ status: 'ended', scored_at: new Date().toISOString() })
@@ -233,7 +243,6 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number, adm
       if (closeErr) errors.push(`Event ${evt.id} schließen: ${closeErr.message}`);
       else eventsScored++;
     } else {
-      // Has participants: score via RPC (RPC sets status to 'ended' internally)
       const result = await scoreEvent(evt.id);
       if (result.success) {
         eventsScored++;
@@ -243,7 +252,7 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number, adm
     }
   }
 
-  // 4. Auto-create events for next GW (clone from current)
+  // 4. Auto-create events for next GW
   const { createNextGameweekEvents } = await import('@/lib/services/events');
   try {
     const cloneResult = await createNextGameweekEvents(clubId, gameweek);
@@ -264,21 +273,80 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number, adm
     errors.push(`GW advance: ${e instanceof Error ? e.message : 'Fehler'}`);
   }
 
-  // 6. Bust API cache so next fetch gets fresh data
+  // 6. Bust API cache
   try { await fetch('/api/events?bust=1'); } catch { /* best-effort */ }
 
-  // 7. Calculate DPC of the Week (fire-and-forget)
+  // 7. DPC of the Week (fire-and-forget)
   import('@/lib/services/dpcOfTheWeek').then(({ calculateDpcOfWeek }) => {
     calculateDpcOfWeek(gameweek).catch(err => console.error('[GW Flow] DPC of Week failed:', err));
   }).catch(err => console.error('[GW Flow] DPC of Week import failed:', err));
 
   return {
     success: errors.length === 0,
-    fixturesSimulated,
+    fixturesSimulated: 0,
     eventsScored,
     nextGameweek: nextGw,
     nextGwEventsCreated,
     errors,
+  };
+}
+
+// ============================================
+// Progressive Scores (Client-readable)
+// ============================================
+
+/**
+ * Get live/progressive scores for players in a gameweek.
+ * Uses player_gameweek_scores table (SELECT RLS: qual=true for authenticated).
+ * Safe to call from any user context — no admin required.
+ */
+export async function getProgressiveScores(
+  gameweek: number,
+  playerIds: string[]
+): Promise<Map<string, number>> {
+  if (playerIds.length === 0) return new Map();
+
+  const { data } = await supabase
+    .from('player_gameweek_scores')
+    .select('player_id, score')
+    .eq('gameweek', gameweek)
+    .in('player_id', playerIds);
+
+  const result = new Map<string, number>();
+  for (const row of data ?? []) {
+    result.set(row.player_id as string, row.score as number);
+  }
+  return result;
+}
+
+// ============================================
+// Gameweek Flow (Convenience Wrapper)
+// ============================================
+
+export type GameweekFlowResult = {
+  success: boolean;
+  fixturesSimulated: number;
+  eventsScored: number;
+  nextGameweek: number;
+  nextGwEventsCreated: number;
+  errors: string[];
+};
+
+/**
+ * Full gameweek flow: import + finalize in one call.
+ * Kept for backward compatibility — new code should use importProgressiveStats + finalizeGameweek.
+ */
+export async function simulateGameweekFlow(clubId: string, gameweek: number, adminId?: string): Promise<GameweekFlowResult> {
+  // Step 1: Import + Sync
+  const importResult = await importProgressiveStats(clubId, gameweek, adminId);
+
+  // Step 2: Finalize (Score + Advance)
+  const finalResult = await finalizeGameweek(clubId, gameweek, adminId);
+
+  return {
+    ...finalResult,
+    fixturesSimulated: importResult.fixturesImported,
+    errors: [...importResult.errors, ...finalResult.errors],
   };
 }
 
