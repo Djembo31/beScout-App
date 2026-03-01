@@ -129,7 +129,7 @@ export function MitmachenTab({
                     </div>
                   </div>
                   <div className={`flex items-center gap-1 px-2 py-0.5 rounded ${sStyle.bg} ${sStyle.text}`}>
-                    {sStyle.pulse && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
+                    {sStyle.pulse && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" />}
                     <span className="text-[9px] font-bold">{sStyle.label}</span>
                   </div>
                   <Eye className="w-4 h-4 text-white/20 flex-shrink-0" />

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { Plus, Play, XCircle, Package, Loader2, Shield, Flame, AlertTriangle, UserPlus } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Card, Button, Chip, Modal } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -321,7 +322,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                       <div className="flex items-center gap-3 min-w-0">
                         <PlayerIdentity player={player} size="sm" showStatus={false} className="min-w-0 flex-1" />
                         <span className="text-xs text-white/40 shrink-0">{fmtScout(priceBsd)} $SCOUT</span>
-                        <Chip className={`${sc.bg} ${sc.text} ${sc.border} border flex-shrink-0`}>{sc.label}</Chip>
+                        <Chip className={cn(sc.bg, sc.text, sc.border, 'border flex-shrink-0')}>{sc.label}</Chip>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="flex-1">
@@ -330,7 +331,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                             <span className="font-mono font-bold text-gold">{progress.toFixed(0)}%</span>
                           </div>
                           <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-gold to-orange-500 rounded-full" style={{ width: `${progress}%` }} />
+                            <div className="h-full bg-gold rounded-full" style={{ width: `${progress}%` }} />
                           </div>
                         </div>
                         <div className="text-xs text-white/40 whitespace-nowrap flex-shrink-0">
@@ -381,7 +382,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                     <div className="flex items-center gap-3 min-w-0">
                       <PlayerIdentity player={player} size="sm" showStatus={false} className="min-w-0 flex-1" />
                       <span className="text-xs text-white/40 shrink-0">{fmtScout(centsToBsd(ipo.price))} $SCOUT · {progress.toFixed(0)}%</span>
-                      <Chip className={`${sc.bg} ${sc.text} ${sc.border} border flex-shrink-0`}>{sc.label}</Chip>
+                      <Chip className={cn(sc.bg, sc.text, sc.border, 'border flex-shrink-0')}>{sc.label}</Chip>
                     </div>
                   </Card>
                 );
@@ -666,9 +667,9 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             </div>
             <button
               onClick={() => setIpoStartNow(!ipoStartNow)}
-              className={`w-12 h-6 rounded-full transition-all relative ${ipoStartNow ? 'bg-green-500' : 'bg-white/10'}`}
+              className={cn('w-12 h-6 rounded-full transition-colors relative', ipoStartNow ? 'bg-green-500' : 'bg-white/10')}
             >
-              <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${ipoStartNow ? 'left-6' : 'left-0.5'}`} />
+              <div className={cn('absolute top-0.5 size-5 rounded-full bg-white shadow transition-all', ipoStartNow ? 'left-6' : 'left-0.5')} />
             </button>
           </div>
           {ipoPlayerId && ipoPrice && (

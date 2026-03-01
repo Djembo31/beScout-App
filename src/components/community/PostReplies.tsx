@@ -104,7 +104,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
     <div className="ml-10 border-t border-white/[0.06] pt-3 mt-2">
       {loading ? (
         <div className="flex justify-center py-3">
-          <Loader2 className="w-4 h-4 animate-spin text-white/30" />
+          <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none text-white/30" />
         </div>
       ) : (
         <>
@@ -212,7 +212,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
                 replyText.trim() ? 'text-gold hover:bg-gold/10' : 'text-white/20'
               )}
             >
-              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              {submitting ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <Send className="w-4 h-4" />}
             </button>
           </div>
         </>

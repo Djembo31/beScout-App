@@ -100,7 +100,7 @@ export default function CreatePostModal({
                 type="button"
                 onClick={() => setCategory(cat.id)}
                 className={cn(
-                  'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border',
+                  'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border',
                   category === cat.id
                     ? cat.color
                     : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
@@ -122,7 +122,7 @@ export default function CreatePostModal({
                 type="button"
                 onClick={() => setPostType(pt.id)}
                 className={cn(
-                  'flex-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all border text-center',
+                  'flex-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-colors border text-center',
                   postType === pt.id
                     ? pt.id === 'transfer_rumor' ? 'bg-red-500/15 text-red-300 border-red-500/20' : 'bg-gold/15 text-gold border-gold/25'
                     : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'

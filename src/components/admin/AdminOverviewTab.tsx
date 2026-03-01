@@ -65,7 +65,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
     <div className="space-y-6">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="p-4 bg-gradient-to-br from-gold/10 to-gold/[0.02] border-gold/20">
+        <Card className="p-4 bg-gold/[0.06] border-gold/20">
           <div className="flex items-center gap-2 mb-2">
             <DollarSign className="w-5 h-5 text-gold" />
             <span className="text-xs text-white/50">IPO Umsatz</span>
@@ -124,7 +124,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
       )}
 
       {/* Referral Link Card */}
-      <Card className="p-4 border-green-500/20 bg-gradient-to-r from-green-500/5 to-transparent">
+      <Card className="p-4 border-green-500/20 bg-green-500/[0.04]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
@@ -161,7 +161,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
 
       {/* Publish Club News — Owner + Admin only */}
       {canPublishNews && (
-        <Card className="p-4 border-gold/20 bg-gradient-to-r from-gold/5 to-transparent">
+        <Card className="p-4 border-gold/20 bg-gold/[0.04]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
@@ -244,13 +244,11 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
                   'flex items-center gap-3 p-3 rounded-xl border',
                   i === 0 ? 'bg-gold/[0.06] border-gold/20' : 'bg-white/[0.02] border-white/10'
                 )}>
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-xs ${
-                    i === 0 ? 'bg-gold/20 text-gold' : 'bg-white/5 text-white/40'
-                  }`}>{i + 1}</div>
+                  <div className={cn('size-7 rounded-full flex items-center justify-center font-black text-xs', i === 0 ? 'bg-gold/20 text-gold' : 'bg-white/5 text-white/40')}>{i + 1}</div>
                   {fan.avatar_url ? (
-                    <Image src={fan.avatar_url} alt={fan.handle} width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
+                    <Image src={fan.avatar_url} alt={fan.handle} width={32} height={32} className="size-8 rounded-full object-cover" />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/50">
+                    <div className="size-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/50">
                       {fan.handle.charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -278,9 +276,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
                 <Link key={p.id} href={`/player/${p.id}`}>
                   <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10 hover:border-gold/30 transition-all">
                     <div className="flex items-center gap-3">
-                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs ${
-                        i === 0 ? 'bg-gold/20 text-gold' : 'bg-white/5 text-white/40'
-                      }`}>{i + 1}</div>
+                      <div className={cn('size-7 rounded-lg flex items-center justify-center font-black text-xs', i === 0 ? 'bg-gold/20 text-gold' : 'bg-white/5 text-white/40')}>{i + 1}</div>
                       <PositionBadge pos={p.position as Pos} size="sm" />
                       <div className="font-bold text-sm">{p.first_name} {p.last_name}</div>
                     </div>

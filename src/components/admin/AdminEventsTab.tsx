@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Calendar, Play, Square, XCircle, Loader2, Zap, CheckCircle2 } from 'lucide-react';
 import { Card, Button, Chip, Modal } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getEventsByClubId, createEvent, updateEventStatus } from '@/lib/services/events';
 import { simulateGameweek, getGameweekStatuses } from '@/lib/services/fixtures';
@@ -219,7 +220,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
             onClick={handleSimulate}
             disabled={simulating || gwStatuses.find(s => s.gameweek === simGw)?.is_complete === true}
           >
-            {simulating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+            {simulating ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <Play className="w-4 h-4" />}
             {simulating ? 'Simuliere...' : 'Simulieren'}
           </Button>
           {gwStatuses.find(s => s.gameweek === simGw)?.is_complete && (
@@ -288,7 +289,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                             {ev.max_entries && ` • ${ev.current_entries}/${ev.max_entries}`}
                           </div>
                         </div>
-                        <Chip className={`${sc.bg} ${sc.text} ${sc.border} border flex-shrink-0`}>{sc.label}</Chip>
+                        <Chip className={cn(sc.bg, sc.text, sc.border, 'border flex-shrink-0')}>{sc.label}</Chip>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-white/40">
                         <span>Start: {new Date(ev.starts_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
@@ -298,21 +299,21 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                         {ev.status === 'registering' && (
                           <>
                             <Button variant="gold" size="sm" onClick={() => handleStatusChange(ev.id, 'running')} disabled={changingId === ev.id}>
-                              {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}Starten
+                              {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <Play className="w-3 h-3" />}Starten
                             </Button>
                             <Button variant="outline" size="sm" onClick={() => handleStatusChange(ev.id, 'cancelled')} disabled={changingId === ev.id}>
-                              {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <XCircle className="w-3 h-3" />}Abbrechen
+                              {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <XCircle className="w-3 h-3" />}Abbrechen
                             </Button>
                           </>
                         )}
                         {ev.status === 'running' && (
                           <Button variant="outline" size="sm" onClick={() => handleStatusChange(ev.id, 'ended')} disabled={changingId === ev.id}>
-                            {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Square className="w-3 h-3" />}Beenden
+                            {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <Square className="w-3 h-3" />}Beenden
                           </Button>
                         )}
                         {ev.status === 'scoring' && (
                           <Button variant="outline" size="sm" onClick={() => handleStatusChange(ev.id, 'ended')} disabled={changingId === ev.id}>
-                            {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Square className="w-3 h-3" />}Abschließen
+                            {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <Square className="w-3 h-3" />}Abschließen
                           </Button>
                         )}
                       </div>
@@ -338,7 +339,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                           GW {ev.gameweek} • {ev.current_entries} Teilnehmer • {fmtScout(centsToBsd(ev.prize_pool))} $SCOUT
                         </div>
                       </div>
-                      <Chip className={`${sc.bg} ${sc.text} ${sc.border} border flex-shrink-0`}>{sc.label}</Chip>
+                      <Chip className={cn(sc.bg, sc.text, sc.border, 'border flex-shrink-0')}>{sc.label}</Chip>
                     </div>
                   </Card>
                 );
@@ -510,7 +511,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
           </div>
           {type === 'sponsor' && (
             <div className="space-y-3 p-3 bg-gold/5 border border-gold/15 rounded-xl">
-              <div className="text-xs font-bold text-gold/70 uppercase tracking-wider">Sponsor-Daten</div>
+              <div className="text-xs font-bold text-gold/70 uppercase">Sponsor-Daten</div>
               <div>
                 <label className="block text-sm font-bold text-white/70 mb-1">Sponsor Name</label>
                 <input
@@ -551,7 +552,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
             onClick={handleCreate}
             disabled={saving || !name || !startsAt || !locksAt || !endsAt}
           >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+            {saving ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <Plus className="w-4 h-4" />}
             {saving ? 'Erstelle...' : 'Event erstellen'}
           </Button>
         </div>

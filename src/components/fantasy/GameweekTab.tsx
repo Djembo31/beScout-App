@@ -33,7 +33,7 @@ function FixtureCard({ fixture, onSelect }: { fixture: Fixture; onSelect: () => 
   return (
     <button
       onClick={onSelect}
-      className="w-full p-3 md:p-4 bg-white/[0.02] border border-white/10 rounded-2xl hover:bg-white/[0.05] hover:border-white/15 transition-all text-left group"
+      className="w-full p-3 md:p-4 bg-white/[0.02] border border-white/10 rounded-2xl hover:bg-white/[0.05] hover:border-white/15 transition-colors text-left group"
     >
       <div className="flex items-center gap-3">
         {/* Home team */}
@@ -147,7 +147,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose }: { fixture: Fixture | n
 
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-gold" />
+            <Loader2 className="w-6 h-6 animate-spin motion-reduce:animate-none text-gold" />
           </div>
         ) : stats.length === 0 ? (
           <div className="text-center text-white/30 py-8">Keine Spielerdaten verfügbar</div>
@@ -238,7 +238,7 @@ export function GameweekTab() {
         <button
           onClick={() => setGameweek(gw => Math.max(1, gw - 1))}
           disabled={gameweek <= 1}
-          className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-30 transition-all"
+          className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-30 transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
@@ -259,7 +259,7 @@ export function GameweekTab() {
         <button
           onClick={() => setGameweek(gw => Math.min(38, gw + 1))}
           disabled={gameweek >= 38}
-          className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-30 transition-all"
+          className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-30 transition-colors"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
@@ -271,7 +271,7 @@ export function GameweekTab() {
           <button
             key={gw}
             onClick={() => setGameweek(gw)}
-            className={`flex-shrink-0 w-9 h-9 rounded-lg text-xs font-bold transition-all ${
+            className={`flex-shrink-0 w-9 h-9 rounded-lg text-xs font-bold transition-colors ${
               gw === gameweek
                 ? 'bg-gold/15 text-gold border border-gold/30'
                 : 'bg-white/[0.03] text-white/40 border border-white/[0.06] hover:border-white/15'
@@ -286,7 +286,7 @@ export function GameweekTab() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {Array.from({ length: 10 }).map((_, i) => (
-            <Card key={i} className="h-[85px] animate-pulse" />
+            <Card key={i} className="h-[85px] animate-pulse motion-reduce:animate-none" />
           ))}
         </div>
       ) : fixtures.length === 0 ? (

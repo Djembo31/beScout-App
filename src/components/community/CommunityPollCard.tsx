@@ -28,7 +28,7 @@ export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCan
   return (
     <Card className="overflow-hidden">
       {/* Header */}
-      <div className="p-4 flex items-center justify-between bg-gradient-to-r from-amber-500/10 to-amber-500/5 border-b border-amber-500/20">
+      <div className="p-4 flex items-center justify-between bg-amber-500/[0.06] border-b border-amber-500/20">
         <div className="flex items-center gap-2">
           <Coins className="w-5 h-5 text-amber-400" />
           <span className="font-bold text-amber-300">Bezahlte Umfrage</span>

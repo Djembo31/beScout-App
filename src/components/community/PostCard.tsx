@@ -96,7 +96,7 @@ export default function PostCard({
 
   return (
     <Card className={cn(
-      'p-3 md:p-4 hover:border-white/20 transition-all',
+      'p-3 md:p-4 hover:border-white/20 transition-colors',
       isOwnedPlayer && 'border-gold/20 bg-gold/[0.02]',
       post.post_type === 'club_news' && 'border-gold/30 bg-gold/[0.03]',
     )}>

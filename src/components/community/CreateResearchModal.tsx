@@ -186,7 +186,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
                 type="button"
                 onClick={() => setCategory(catId)}
                 className={cn(
-                  'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border',
+                  'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border',
                   category === catId
                     ? CATEGORY_COLORS[catId]
                     : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
@@ -288,7 +288,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
                     key={c}
                     onClick={() => setCall(c)}
                     className={cn(
-                      'flex-1 px-2 py-2 rounded-xl text-xs font-bold border transition-all',
+                      'flex-1 px-2 py-2 rounded-xl text-xs font-bold border transition-colors',
                       call === c ? callStyle[c].active : callStyle[c].inactive
                     )}
                   >
@@ -305,7 +305,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
                     key={h}
                     onClick={() => setHorizon(h)}
                     className={cn(
-                      'flex-1 px-2 py-2 rounded-xl text-xs font-bold border transition-all',
+                      'flex-1 px-2 py-2 rounded-xl text-xs font-bold border transition-colors',
                       horizon === h ? 'bg-gold/15 text-gold border-gold/25' : 'bg-white/5 text-white/50 border-white/10'
                     )}
                   >

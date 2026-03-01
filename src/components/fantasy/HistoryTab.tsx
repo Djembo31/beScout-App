@@ -54,9 +54,9 @@ export const HistoryTab = ({
       {/* User Stats Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Profile Card */}
-        <Card className="p-4 md:p-6 bg-gradient-to-br from-gold/5 to-purple-500/5 border-gold/20">
+        <Card className="p-4 md:p-6 bg-gold/[0.04] border-gold/20">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold/30 to-purple-500/30 flex items-center justify-center text-2xl font-black">
+            <div className="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center text-2xl font-black">
               {userDisplayName[0] || '?'}
             </div>
             <div>

@@ -85,7 +85,7 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
     <Modal open={true} onClose={onClose} title={mode === 'followers' ? 'Follower' : 'Folgt'}>
       {loading ? (
         <div className="flex justify-center py-8">
-          <Loader2 className="w-5 h-5 animate-spin text-white/30" />
+          <Loader2 className="w-5 h-5 animate-spin motion-reduce:animate-none text-white/30" />
         </div>
       ) : list.length === 0 ? (
         <div className="py-8 text-center text-sm text-white/30">
@@ -131,7 +131,7 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
                     }`}
                   >
                     {toggling === p.userId ? (
-                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" />
                     ) : isFollowingThem ? (
                       <UserMinus className="w-3.5 h-3.5" />
                     ) : (

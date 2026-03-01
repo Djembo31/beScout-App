@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Users, Clock } from 'lucide-react';
 import { Card, Button, Chip, Modal } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getAllVotes, createVote } from '@/lib/services/votes';
 import { formatScout } from '@/lib/services/wallet';
@@ -61,7 +62,7 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
   return (
     <div className="space-y-6">
       {msg && (
-        <div className={`px-4 py-3 rounded-xl text-sm font-bold ${msg.type === 'success' ? 'bg-green-500/20 border border-green-500/30 text-green-500' : 'bg-red-500/20 border border-red-500/30 text-red-300'}`}>{msg.text}</div>
+        <div className={cn('px-4 py-3 rounded-xl text-sm font-bold', msg.type === 'success' ? 'bg-green-500/20 border border-green-500/30 text-green-500' : 'bg-red-500/20 border border-red-500/30 text-red-300')}>{msg.text}</div>
       )}
 
       <div className="flex items-center justify-between">
@@ -89,7 +90,7 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
             const d = Math.floor(diffMs / 86400000);
             const h = Math.floor((diffMs % 86400000) / 3600000);
             return (
-              <Card key={vote.id} className={`p-4 ${!isActive ? 'opacity-60' : ''}`}>
+              <Card key={vote.id} className={cn('p-4', !isActive && 'opacity-60')}>
                 <div className="flex items-start justify-between mb-3">
                   <div className="font-bold line-clamp-2 flex-1">{vote.question}</div>
                   <Chip className={isActive ? 'bg-green-500/15 text-green-500 border-green-500/25' : 'bg-white/5 text-white/50 border-white/10'}>{isActive ? 'Aktiv' : 'Beendet'}</Chip>

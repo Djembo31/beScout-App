@@ -240,7 +240,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
       {/* Header â€” Sorare-Style */}
       <div className="flex items-start gap-4 md:gap-5">
         {/* Avatar â€” 96px */}
-        <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-gold/20 to-green-500/20 border-2 border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+        <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gold/[0.12] border-2 border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
           {targetProfile.avatar_url ? (
             <img src={targetProfile.avatar_url} alt="" className="w-full h-full object-cover" />
           ) : (
@@ -276,7 +276,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               <div className="px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06]">
                 <div className="flex items-center gap-1.5 mb-1">
                   <MessageCircle className="w-3 h-3 text-sky-400" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400">Top Beitrag</span>
+                  <span className="text-[10px] font-bold uppercase text-sky-400">Top Beitrag</span>
                   <span className="flex items-center gap-0.5 ml-auto text-[10px] font-mono font-bold text-green-500">
                     <ArrowUp className="w-3 h-3" />
                     {topPost.upvotes - topPost.downvotes}
@@ -413,7 +413,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`px-2.5 md:px-5 py-2.5 md:py-3 text-xs md:text-base font-semibold transition-all relative whitespace-nowrap flex-shrink-0 ${
+            className={`px-2.5 md:px-5 py-2.5 md:py-3 text-xs md:text-base font-semibold transition-colors relative whitespace-nowrap flex-shrink-0 ${
               tab === t.id ? 'text-gold' : 'text-white/60 hover:text-white'
             }`}
           >
@@ -432,7 +432,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               <h3 className="font-black mb-4">Guthaben</h3>
               <div className="text-2xl md:text-3xl font-mono font-black text-gold mb-2">
                 {balanceCents === null ? (
-                  <span className="inline-block w-24 h-8 rounded bg-gold/10 animate-pulse" />
+                  <span className="inline-block w-24 h-8 rounded bg-gold/10 animate-pulse motion-reduce:animate-none" />
                 ) : (
                   <>{formatScout(balanceCents)} $SCOUT</>
                 )}
@@ -455,7 +455,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                   className="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-white/40 hover:text-white/70"
                   title="Aktualisieren"
                 >
-                  <RefreshCw className={cn('w-4 h-4', statsRefreshing && 'animate-spin')} />
+                  <RefreshCw className={cn('w-4 h-4', statsRefreshing && 'animate-spin motion-reduce:animate-none')} />
                 </button>
               )}
             </div>
@@ -506,7 +506,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                       <div
                         key={badge.key}
                         className={cn(
-                          'flex items-center gap-3 p-3 rounded-xl border transition-all',
+                          'flex items-center gap-3 p-3 rounded-xl border transition-colors',
                           badge.earned
                             ? `${badge.bgColor} border`
                             : 'bg-white/[0.02] border-white/[0.06] opacity-50'
@@ -528,7 +528,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                             <div className="mt-1">
                               <div className="h-1 rounded-full bg-white/5 overflow-hidden">
                                 <div
-                                  className="h-full rounded-full bg-white/20 transition-all"
+                                  className="h-full rounded-full bg-white/20 transition-colors"
                                   style={{ width: `${badge.progress}%` }}
                                 />
                               </div>
@@ -553,7 +553,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
 
           {holdingsLoading && !dataError && (
             <div className="flex justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-gold" />
+              <Loader2 className="w-8 h-8 animate-spin motion-reduce:animate-none text-gold" />
             </div>
           )}
 

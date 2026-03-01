@@ -50,7 +50,7 @@ export const DashboardTab = ({
     <div className="space-y-6">
       {/* Stats Overview */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
-        <Card className="p-3 md:p-4 bg-gradient-to-br from-gold/10 to-transparent border-gold/20">
+        <Card className="p-3 md:p-4 bg-gold/[0.06] border-gold/20">
           <div className="text-xs text-white/50 mb-1 flex items-center gap-1">
             <Coins className="w-3 h-3" /> Gewonnene $SCOUT
           </div>

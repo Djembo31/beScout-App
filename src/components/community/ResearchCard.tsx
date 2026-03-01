@@ -81,7 +81,7 @@ function StarRating({
             onClick={() => interactive && onRate(star)}
             onMouseEnter={() => interactive && setHoverStar(star)}
             className={cn(
-              'transition-all',
+              'transition-colors',
               interactive
                 ? 'cursor-pointer hover:scale-110'
                 : 'cursor-default'
@@ -119,7 +119,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
   const canRate = post.is_unlocked && !post.is_own;
 
   return (
-    <Card className="overflow-hidden hover:border-white/20 transition-all">
+    <Card className="overflow-hidden hover:border-white/20 transition-colors">
       {/* Header */}
       <div className="p-4 pb-3">
         <div className="flex items-center gap-2 flex-wrap mb-2">

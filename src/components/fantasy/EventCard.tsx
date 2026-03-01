@@ -25,7 +25,7 @@ export const EventCard = ({
   const isArena = event.eventTier === 'arena';
 
   return (
-    <Card className={`p-4 hover:border-white/20 transition-all ${event.isJoined ? 'border-green-500/30 bg-green-500/[0.02]' : isArena ? 'border-amber-500/20 bg-amber-500/[0.02]' : ''}`}>
+    <Card className={`p-4 hover:border-white/20 transition-colors ${event.isJoined ? 'border-green-500/30 bg-green-500/[0.02]' : isArena ? 'border-amber-500/20 bg-amber-500/[0.02]' : ''}`}>
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -56,7 +56,7 @@ export const EventCard = ({
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); onToggleInterest(); }}
-          className={`p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-all ${event.isInterested ? 'bg-pink-500/20 text-pink-400' : 'hover:bg-white/10 text-white/30'}`}
+          className={`p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors ${event.isInterested ? 'bg-pink-500/20 text-pink-400' : 'hover:bg-white/10 text-white/30'}`}
         >
           <Heart className={`w-4 h-4 ${event.isInterested ? 'fill-current' : ''}`} />
         </button>

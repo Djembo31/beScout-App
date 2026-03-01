@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Telescope, Users, FileText, Star, ArrowUpDown } from 'lucide-react';
 import { Card, Chip } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { PositionBadge } from '@/components/player';
 import { usePlayerScoutingSummaries, useTopScouts } from '@/lib/queries';
 import type { ClubWithAdmin, PlayerScoutingSummary } from '@/types';
@@ -17,7 +18,7 @@ function DimBar({ value, max = 10 }: { value: number; max?: number }) {
   return (
     <div className="flex items-center gap-1.5 min-w-[80px]">
       <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
-        <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
+        <div className={cn('h-full rounded-full', color)} style={{ width: `${pct}%` }} />
       </div>
       <span className="text-[10px] font-mono text-white/60 w-6 text-right">{value.toFixed(1)}</span>
     </div>
@@ -52,9 +53,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
   const SortHeader = ({ label, field }: { label: string; field: SortKey }) => (
     <button
       onClick={() => toggleSort(field)}
-      className={`flex items-center gap-0.5 text-[10px] font-bold uppercase tracking-wider ${
-        sortKey === field ? 'text-gold' : 'text-white/40 hover:text-white/60'
-      }`}
+      className={cn('flex items-center gap-0.5 text-[10px] font-bold uppercase', sortKey === field ? 'text-gold' : 'text-white/40 hover:text-white/60')}
     >
       {label}
       {sortKey === field && <ArrowUpDown className="w-2.5 h-2.5" />}
@@ -84,7 +83,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white/40">{ts('player')}</th>
+                  <th className="text-left px-3 py-2 text-[10px] font-bold uppercase text-white/40">{ts('player')}</th>
                   <th className="px-2 py-2"><SortHeader label={ts('reports')} field="reportCount" /></th>
                   <th className="px-2 py-2"><SortHeader label={ts('dim.technik')} field="avgTechnik" /></th>
                   <th className="px-2 py-2"><SortHeader label={ts('dim.taktik')} field="avgTaktik" /></th>
@@ -112,9 +111,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
                     <td className="px-2 py-2"><DimBar value={s.avgMentalitaet} /></td>
                     <td className="px-2 py-2"><DimBar value={s.avgPotenzial} /></td>
                     <td className="px-2 py-2">
-                      <span className={`font-mono font-bold text-sm ${
-                        s.avgOverall >= 8 ? 'text-gold' : s.avgOverall >= 6 ? 'text-green-500' : 'text-white/60'
-                      }`}>{s.avgOverall.toFixed(1)}</span>
+                      <span className={cn('font-mono font-bold text-sm', s.avgOverall >= 8 ? 'text-gold' : s.avgOverall >= 6 ? 'text-green-500' : 'text-white/60')}>{s.avgOverall.toFixed(1)}</span>
                     </td>
                   </tr>
                 ))}
@@ -139,12 +136,12 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {topScouts.map((scout, idx) => (
               <Card key={scout.userId} className="p-3 flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                <div className={cn('size-8 rounded-full flex items-center justify-center font-bold text-sm',
                   idx === 0 ? 'bg-gold/20 text-gold' :
                   idx === 1 ? 'bg-white/10 text-white/60' :
                   idx === 2 ? 'bg-orange-500/15 text-orange-300' :
                   'bg-white/5 text-white/30'
-                }`}>
+                )}>
                   {idx + 1}
                 </div>
                 {scout.avatarUrl ? (
@@ -205,7 +202,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
                     <span className="text-[10px] ml-1">M</span>{r.avgMentalitaet.toFixed(0)}
                     <span className="text-[10px] ml-1">P</span>{r.avgPotenzial.toFixed(0)}
                   </div>
-                  <span className={`font-bold ${r.avgOverall >= 8 ? 'text-gold' : r.avgOverall >= 6 ? 'text-green-500' : 'text-white/60'}`}>
+                  <span className={cn('font-bold', r.avgOverall >= 8 ? 'text-gold' : r.avgOverall >= 6 ? 'text-green-500' : 'text-white/60')}>
                     {r.avgOverall.toFixed(1)}
                   </span>
                   <span className="text-white/30">{new Date(r.lastScoutedAt).toLocaleDateString('de-DE')}</span>

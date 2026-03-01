@@ -36,7 +36,7 @@ function EventRow({ event, onClick }: { event: FantasyEvent; onClick: () => void
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-all text-left active:scale-[0.98] ${
+      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-colors text-left active:scale-[0.98] ${
         event.isJoined
           ? 'bg-green-500/[0.04] border-green-500/20'
           : 'bg-white/[0.02] border-white/[0.06] hover:border-white/10'
@@ -129,7 +129,7 @@ export function EventsTab({
               <button
                 key={cat.id}
                 onClick={() => setCategory(cat.id)}
-                className={`flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 min-h-[44px] rounded-lg text-[11px] font-semibold transition-all whitespace-nowrap ${
+                className={`flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 min-h-[44px] rounded-lg text-[11px] font-semibold transition-colors whitespace-nowrap ${
                   isActive
                     ? 'bg-gold/15 text-gold border border-gold/20'
                     : 'bg-white/[0.04] text-white/50 border border-white/[0.06] hover:text-white/70'
@@ -150,7 +150,7 @@ export function EventsTab({
           <button
             onClick={() => setViewMode('table')}
             aria-label="Listenansicht"
-            className={`p-1.5 rounded transition-all ${
+            className={`p-1.5 rounded transition-colors ${
               viewMode === 'table' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50'
             }`}
           >
@@ -159,7 +159,7 @@ export function EventsTab({
           <button
             onClick={() => setViewMode('cards')}
             aria-label="Kartenansicht"
-            className={`p-1.5 rounded transition-all ${
+            className={`p-1.5 rounded transition-colors ${
               viewMode === 'cards' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50'
             }`}
           >

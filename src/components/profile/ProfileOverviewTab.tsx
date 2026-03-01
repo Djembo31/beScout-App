@@ -213,7 +213,7 @@ export default function ProfileOverviewTab({
               </div>
               <div className="w-40 h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-gold to-green-500 rounded-full transition-all"
+                  className="h-full bg-gold rounded-full transition-colors"
                   style={{ width: `${trackRecord.hitRate}%` }}
                 />
               </div>
@@ -361,7 +361,7 @@ export default function ProfileOverviewTab({
                   <div className="text-xl mb-1">{def.icon}</div>
                   <div className="text-sm font-bold text-gold">{def.label}</div>
                   <div className="text-[10px] text-white/40 mt-0.5">{def.description}</div>
-                  <div className="text-[9px] text-gold/50 mt-1 uppercase tracking-wider font-bold">{tg('achievement.hidden')}</div>
+                  <div className="text-[9px] text-gold/50 mt-1 uppercase font-bold">{tg('achievement.hidden')}</div>
                 </div>
               ) : (
                 <div key={key} className={cn(
@@ -544,7 +544,7 @@ export default function ProfileOverviewTab({
               const holdingPnl = (floorBsd - avgBsd) * h.quantity;
               return (
                 <Link key={h.id} href={`/player/${h.player_id}`}>
-                  <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl hover:bg-white/[0.04] transition-all">
+                  <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl hover:bg-white/[0.04] transition-colors">
                     <div className="flex items-center gap-3">
                       <PlayerIdentity
                         player={{ first: h.player?.first_name ?? '', last: h.player?.last_name ?? '', pos: (h.player?.position ?? 'MID') as Pos, status: 'fit', club: h.player?.club ?? '', ticket: 0, age: 0, imageUrl: h.player?.image_url }}

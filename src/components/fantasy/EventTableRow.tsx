@@ -27,7 +27,7 @@ export const EventTableRow = ({
       {/* Status */}
       <td className="py-3 px-4">
         <div className="flex items-center gap-2">
-          {statusStyle.pulse && <div className={`w-2 h-2 rounded-full ${statusStyle.bg} animate-pulse`} />}
+          {statusStyle.pulse && <div className={`w-2 h-2 rounded-full ${statusStyle.bg} animate-pulse motion-reduce:animate-none`} />}
           <span className={`text-xs font-medium ${statusStyle.text.replace('text-white', 'text-' + statusStyle.bg.split('-')[1])}`}>
             {event.status === 'ended' ? 'Beendet' : event.status === 'running' ? 'Läuft' : event.status === 'late-reg' ? 'Late Reg' : formatCountdown(event.lockTime)}
           </span>

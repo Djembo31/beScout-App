@@ -184,7 +184,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                 key={cat.id}
                 onClick={() => setCategory(cat.id)}
                 className={cn(
-                  'px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all',
+                  'px-2 py-0.5 rounded-full text-[10px] font-bold border transition-colors',
                   category === cat.id ? cat.color : 'text-white/30 border-white/10 hover:border-white/20'
                 )}
               >
@@ -219,7 +219,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
               disabled={!content.trim() || posting}
               className="self-end"
             >
-              {posting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              {posting ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <Send className="w-4 h-4" />}
             </Button>
           </div>
           <div className="text-[10px] text-white/20 mt-1">Enter zum Senden, Shift+Enter für neue Zeile</div>
@@ -229,7 +229,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
       {/* Posts List */}
       {loading ? (
         <div className="flex items-center justify-center py-8 gap-2 text-white/30">
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" />
           <span className="text-sm">Lade Diskussion...</span>
         </div>
       ) : posts.length === 0 ? (

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Wallet, ArrowDownToLine, Clock, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { Card, Skeleton } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { getClubBalance, getClubWithdrawals, requestClubWithdrawal } from '@/lib/services/club';
 import { formatScout } from '@/lib/services/wallet';
 import type { ClubWithAdmin, ClubBalance, DbClubWithdrawal } from '@/types';
@@ -90,26 +91,26 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
 
       {/* Balance Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="p-4 bg-gradient-to-br from-gold/10 to-gold/[0.02] border-gold/20">
-          <div className="text-[10px] text-white/40 uppercase tracking-wider mb-1">Verfügbar</div>
+        <Card className="p-4 bg-gold/[0.06] border-gold/20">
+          <div className="text-[10px] text-white/40 uppercase mb-1">Verfügbar</div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
             <div className="text-xl font-mono font-black text-gold">{formatScout(balance?.available ?? 0)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
-          <div className="text-[10px] text-white/40 uppercase tracking-wider mb-1">Gesamt verdient</div>
+          <div className="text-[10px] text-white/40 uppercase mb-1">Gesamt verdient</div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
             <div className="text-xl font-mono font-black">{formatScout(balance?.total_earned ?? 0)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
-          <div className="text-[10px] text-white/40 uppercase tracking-wider mb-1">Trading-Fees</div>
+          <div className="text-[10px] text-white/40 uppercase mb-1">Trading-Fees</div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
             <div className="text-sm font-mono font-bold text-emerald-400">{formatScout(balance?.trade_fees ?? 0)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
-          <div className="text-[10px] text-white/40 uppercase tracking-wider mb-1">Bereits ausgezahlt</div>
+          <div className="text-[10px] text-white/40 uppercase mb-1">Bereits ausgezahlt</div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
             <div className="text-sm font-mono font-bold text-white/60">{formatScout(balance?.total_withdrawn ?? 0)} $SCOUT</div>
           )}
@@ -151,7 +152,7 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
             </div>
           </div>
           {feedback && (
-            <div className={`text-sm px-3 py-2 rounded-lg ${feedback.type === 'success' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-400'}`}>
+            <div className={cn('text-sm px-3 py-2 rounded-lg', feedback.type === 'success' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-400')}>
               {feedback.msg}
             </div>
           )}
@@ -183,14 +184,14 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
               return (
                 <div key={w.id} className="flex items-center justify-between bg-white/[0.02] rounded-xl px-4 py-3 border border-white/[0.06]">
                   <div className="flex items-center gap-3">
-                    <StatusIcon className={`w-4 h-4 ${status.color}`} />
+                    <StatusIcon className={cn('size-4', status.color)} />
                     <div>
                       <div className="text-sm font-mono font-bold">{formatScout(w.amount_cents)} $SCOUT</div>
                       {w.note && <div className="text-xs text-white/40">{w.note}</div>}
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className={`text-xs font-semibold ${status.color}`}>{status.label}</div>
+                    <div className={cn('text-xs font-semibold', status.color)}>{status.label}</div>
                     <div className="text-[10px] text-white/25">{timeAgo(w.created_at)}</div>
                   </div>
                 </div>

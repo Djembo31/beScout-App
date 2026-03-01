@@ -66,7 +66,7 @@ export function SpieltagHeader({
         </button>
 
         {isActive ? (
-          <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-gold bg-gold/10 border border-gold/20 animate-pulse">
+          <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-gold bg-gold/10 border border-gold/20 animate-pulse motion-reduce:animate-none">
             Aktuell
           </span>
         ) : isFinished ? (
@@ -110,7 +110,7 @@ export function SpieltagHeader({
             </>
           ) : isActive ? (
             <>
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none" />
               <span className="text-green-500 font-bold">Offen</span>
               <span className="text-white/30">· {eventCount} Events · {fixtureCount} Spiele</span>
             </>
@@ -138,7 +138,7 @@ export function SpieltagHeader({
             disabled={simulating}
             className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-gold/10 border border-gold/30 rounded-xl text-sm font-bold text-gold hover:bg-gold/20 disabled:opacity-50 transition-all active:scale-[0.97]"
           >
-            {simulating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+            {simulating ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <Play className="w-4 h-4" />}
             {simulating ? 'Wird gestartet...' : apiAvailable ? 'Daten importieren' : 'Spieltag starten'}
           </button>
         </div>

@@ -71,7 +71,7 @@ function CreateLeagueModal({ open, onClose }: { open: boolean; onClose: () => vo
           />
         </div>
         <Button onClick={handleCreate} disabled={!name.trim() || loading} className="w-full min-h-[44px]">
-          {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('creating')}</> : t('create')}
+          {loading ? <><Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> {t('creating')}</> : t('create')}
         </Button>
       </div>
     </Modal>
@@ -122,7 +122,7 @@ function JoinLeagueModal({ open, onClose }: { open: boolean; onClose: () => void
           />
         </div>
         <Button onClick={handleJoin} disabled={!code.trim() || loading} className="w-full min-h-[44px]">
-          {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('joining')}</> : t('join')}
+          {loading ? <><Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> {t('joining')}</> : t('join')}
         </Button>
       </div>
     </Modal>
@@ -195,7 +195,7 @@ function LeagueCard({ league, userId }: { league: DbFantasyLeague; userId: strin
                 className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-all active:scale-[0.95] text-red-400 disabled:opacity-50"
                 title={t('leave')}
               >
-                {leavingId === league.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <LogOut className="w-3.5 h-3.5" />}
+                {leavingId === league.id ? <Loader2 className="w-3.5 h-3.5 animate-spin motion-reduce:animate-none" /> : <LogOut className="w-3.5 h-3.5" />}
               </button>
             )}
           </div>

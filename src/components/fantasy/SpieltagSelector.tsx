@@ -66,7 +66,7 @@ export function SpieltagSelector({
             {t('label')} {gameweek}
           </span>
           {isCurrentGw && !isFinished && (
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none flex-shrink-0" />
           )}
         </div>
         <div className="flex items-center justify-center gap-1.5 text-[10px] text-white/40 mt-0.5">

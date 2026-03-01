@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Target, Clock, Users, Loader2, Eye, CheckCircle, XCircle, X, AlertTriangle, Telescope } from 'lucide-react';
 import { Card, Button, Chip, Modal } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { formatScout } from '@/lib/services/wallet';
 import {
@@ -175,7 +176,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
   return (
     <div className="space-y-6">
       {msg && (
-        <div className={`px-4 py-3 rounded-xl text-sm font-bold ${msg.type === 'success' ? 'bg-green-500/20 border border-green-500/30 text-green-500' : 'bg-red-500/20 border border-red-500/30 text-red-300'}`}>{msg.text}</div>
+        <div className={cn('px-4 py-3 rounded-xl text-sm font-bold', msg.type === 'success' ? 'bg-green-500/20 border border-green-500/30 text-green-500' : 'bg-red-500/20 border border-red-500/30 text-red-300')}>{msg.text}</div>
       )}
 
       <div className="flex items-center justify-between">
@@ -205,7 +206,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
             const d = Math.floor(diffMs / 86400000);
             const h = Math.floor((diffMs % 86400000) / 3600000);
             return (
-              <Card key={bounty.id} className={`p-4 ${!isOpen ? 'opacity-60' : ''}`}>
+              <Card key={bounty.id} className={cn('p-4', !isOpen && 'opacity-60')}>
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1 min-w-0">
                     <div className="font-bold line-clamp-1 flex items-center gap-2">

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Users, User, Shield, Crown, TrendingUp, Search, Loader2, Activity } from 'lucide-react';
 import { Card, SearchInput } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import {
   getClubFanSegments, getClubFanList, getClubRetentionMetrics,
@@ -116,7 +117,7 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
           ].map(kpi => (
             <Card key={kpi.label} className="p-4 text-center">
               <div className="text-2xl font-black font-mono">{kpi.value}</div>
-              <div className="text-[10px] text-white/40 font-semibold uppercase tracking-wider mt-1">{kpi.label}</div>
+              <div className="text-[10px] text-white/40 font-semibold uppercase mt-1">{kpi.label}</div>
             </Card>
           ))}
         </div>
@@ -131,13 +132,9 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
             <button
               key={seg.id}
               onClick={() => handleSegmentClick(seg.id)}
-              className={`p-4 rounded-2xl border text-left transition-all ${
-                isActive
-                  ? 'border-gold/30 bg-gold/5 ring-1 ring-gold/20'
-                  : `border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]`
-              }`}
+              className={cn('p-4 rounded-2xl border text-left transition-colors', isActive ? 'border-gold/30 bg-gold/5 ring-1 ring-gold/20' : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]')}
             >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-2 border ${colors}`}>
+              <div className={cn('size-10 rounded-xl flex items-center justify-center mb-2 border', colors)}>
                 {SEGMENT_ICONS[seg.icon] ?? <Users className="w-5 h-5" />}
               </div>
               <div className="text-xl font-black font-mono">{seg.count}</div>
@@ -190,7 +187,7 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
 
                 {/* Tier Badge */}
                 {fan.tier && (
-                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${SEGMENT_COLORS[fan.tier] ?? ''}`}>
+                  <span className={cn('px-2 py-0.5 rounded-md text-[10px] font-bold border', SEGMENT_COLORS[fan.tier])}>
                     {fan.tier.charAt(0).toUpperCase() + fan.tier.slice(1)}
                   </span>
                 )}

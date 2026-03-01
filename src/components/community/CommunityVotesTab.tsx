@@ -45,7 +45,7 @@ function CommunityVoteCard({ vote, hasVoted, onVote, voting }: {
 
   return (
     <Card className="overflow-hidden">
-      <div className="p-4 flex items-center justify-between bg-gradient-to-r from-purple-500/10 to-purple-500/5 border-b border-purple-500/20">
+      <div className="p-4 flex items-center justify-between bg-purple-500/[0.06] border-b border-purple-500/20">
         <div className="flex items-center gap-2">
           <Vote className="w-5 h-5 text-purple-400" />
           <span className="font-bold text-purple-300">Club-Abstimmung</span>

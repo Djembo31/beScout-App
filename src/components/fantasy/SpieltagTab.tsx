@@ -205,7 +205,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
         <div className="p-4 md:p-6">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-gold" />
+              <Loader2 className="w-6 h-6 animate-spin motion-reduce:animate-none text-gold" />
             </div>
           ) : stats.length === 0 ? (
             <div className="text-center text-white/30 py-12">
@@ -489,7 +489,7 @@ export function SpieltagTab({
               disabled={simulating}
               className="flex items-center gap-1.5 px-3 py-2 min-h-[40px] bg-gold/10 border border-gold/30 rounded-xl text-xs font-bold text-gold hover:bg-gold/20 disabled:opacity-50 transition-all"
             >
-              {simulating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+              {simulating ? <Loader2 className="w-3.5 h-3.5 animate-spin motion-reduce:animate-none" /> : <Play className="w-3.5 h-3.5" />}
               {apiAvailable ? 'Import' : 'Starten'}
             </button>
           )}
@@ -532,7 +532,7 @@ export function SpieltagTab({
 
       {fixturesLoading && (
         <Card className="p-8 flex items-center justify-center">
-          <Loader2 className="w-5 h-5 animate-spin text-white/30" />
+          <Loader2 className="w-5 h-5 animate-spin motion-reduce:animate-none text-white/30" />
         </Card>
       )}
 

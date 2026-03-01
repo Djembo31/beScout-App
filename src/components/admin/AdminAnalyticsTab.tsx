@@ -48,7 +48,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="p-4 bg-gradient-to-br from-sky-500/10 to-sky-500/[0.02] border-sky-500/20">
+        <Card className="p-4 bg-sky-500/[0.06] border-sky-500/20">
           <div className="flex items-center gap-2 mb-2">
             <Users className="w-5 h-5 text-sky-400" />
             <span className="text-xs text-white/50">Follower</span>
@@ -57,7 +57,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
             <div className="text-xl font-mono font-black text-sky-400">{data?.totalFollowers ?? 0}</div>
           )}
         </Card>
-        <Card className="p-4 bg-gradient-to-br from-green-500/10 to-green-500/[0.02] border-green-500/20">
+        <Card className="p-4 bg-green-500/[0.06] border-green-500/20">
           <div className="flex items-center gap-2 mb-2">
             <UserCheck className="w-5 h-5 text-green-500" />
             <span className="text-xs text-white/50">Aktive Fans (7d)</span>
@@ -100,7 +100,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
         ) : (
           <div className="space-y-1">
             {/* Header */}
-            <div className="grid grid-cols-12 gap-2 px-3 py-1 text-[10px] text-white/30 uppercase tracking-wider">
+            <div className="grid grid-cols-12 gap-2 px-3 py-1 text-[10px] text-white/30 uppercase">
               <div className="col-span-1">#</div>
               <div className="col-span-5">Fan</div>
               <div className="col-span-3 text-right">Trades</div>
@@ -147,7 +147,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
                   </div>
                   <div className="w-full h-2 bg-white/[0.04] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full transition-all"
+                      className="h-full bg-gold rounded-full transition-colors"
                       style={{ width: `${pct}%` }}
                     />
                   </div>

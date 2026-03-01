@@ -50,7 +50,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
       <h2 className="text-xl font-black">Einnahmen</h2>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="p-4 bg-gradient-to-br from-gold/10 to-gold/[0.02] border-gold/20">
+        <Card className="p-4 bg-gold/[0.06] border-gold/20">
           <div className="flex items-center gap-2 mb-2">
             <DollarSign className="w-5 h-5 text-gold" />
             <span className="text-xs text-white/50">Gesamt</span>
@@ -97,7 +97,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
               <Landmark className="w-4 h-4 text-emerald-400" />
             </div>
             <div>
-              <div className="text-[10px] text-white/40 uppercase tracking-wider">Club-Fee (1%)</div>
+              <div className="text-[10px] text-white/40 uppercase">Club-Fee (1%)</div>
               {loading ? <Skeleton className="h-5 w-16" /> : (
                 <div className="text-sm font-mono font-bold">{formatScout(tradingFees?.totalClubFee ?? 0)} $SCOUT</div>
               )}
@@ -108,7 +108,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
               <PiggyBank className="w-4 h-4 text-sky-400" />
             </div>
             <div>
-              <div className="text-[10px] text-white/40 uppercase tracking-wider">PBT-Fee (1,5%)</div>
+              <div className="text-[10px] text-white/40 uppercase">PBT-Fee (1,5%)</div>
               {loading ? <Skeleton className="h-5 w-16" /> : (
                 <div className="text-sm font-mono font-bold">{formatScout(tradingFees?.totalPbtFee ?? 0)} $SCOUT</div>
               )}
@@ -119,7 +119,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
               <DollarSign className="w-4 h-4 text-white/40" />
             </div>
             <div>
-              <div className="text-[10px] text-white/40 uppercase tracking-wider">Plattform (3,5%)</div>
+              <div className="text-[10px] text-white/40 uppercase">Plattform (3,5%)</div>
               {loading ? <Skeleton className="h-5 w-16" /> : (
                 <div className="text-sm font-mono font-bold">{formatScout(tradingFees?.totalPlatformFee ?? 0)} $SCOUT</div>
               )}
@@ -130,7 +130,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
               <TrendingUp className="w-4 h-4 text-white/40" />
             </div>
             <div>
-              <div className="text-[10px] text-white/40 uppercase tracking-wider">Trading Vol. 24h</div>
+              <div className="text-[10px] text-white/40 uppercase">Trading Vol. 24h</div>
               <div className="text-sm font-mono font-bold">{fmtScout(totalVolume)} $SCOUT</div>
             </div>
           </div>

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Target, Clock, Users, Coins, CheckCircle, Lock, Telescope } from 'lucide-react';
 import { Card, Chip, Button, Modal } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { formatScout } from '@/lib/services/wallet';
 import ScoutingEvaluationForm from '@/components/community/ScoutingEvaluationForm';
 import type { BountyWithCreator, ScoutingEvaluation } from '@/types';
@@ -81,8 +82,8 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
         {/* Header */}
         <div className={`p-4 flex items-center justify-between border-b ${
           isScouting
-            ? 'bg-gradient-to-r from-rose-500/10 to-rose-500/5 border-rose-500/20'
-            : 'bg-gradient-to-r from-amber-500/10 to-amber-500/5 border-amber-500/20'
+            ? 'bg-rose-500/[0.06] border-rose-500/20'
+            : 'bg-amber-500/[0.06] border-amber-500/20'
         }`}>
           <div className="flex items-center gap-2">
             {isScouting ? (
@@ -90,11 +91,11 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
             ) : (
               <Target className="w-5 h-5 text-amber-400" />
             )}
-            <span className={`font-bold ${isScouting ? 'text-rose-300' : 'text-amber-300'}`}>
+            <span className={cn('font-bold', isScouting ? 'text-rose-300' : 'text-amber-300')}>
               {isScouting ? tb('scoutingTask') : bounty.is_user_bounty ? tb('userTask') : tb('clubTask')}
             </span>
             {bounty.min_tier && (
-              <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border ${TIER_COLORS[bounty.min_tier] ?? ''}`}>
+              <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border', TIER_COLORS[bounty.min_tier])}>
                 <Lock className="w-2.5 h-2.5" />
                 {TIER_LABELS[bounty.min_tier] ?? bounty.min_tier}+
               </span>
@@ -146,7 +147,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
             </Button>
           )}
           {isTierLocked && !hasSubmitted && (
-            <Chip className={`${TIER_COLORS[bounty.min_tier ?? 'bronze']}`}>
+            <Chip className={TIER_COLORS[bounty.min_tier ?? 'bronze']}>
               <Lock className="w-3 h-3 inline mr-1" />
               {tb('tierRequired', { tier: TIER_LABELS[bounty.min_tier ?? ''] ?? 'Abo' })}
             </Chip>

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Target, Coins } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { formatScout } from '@/lib/services/wallet';
 import { useTranslations } from 'next-intl';
@@ -142,11 +143,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
               <button
                 key={opt.days}
                 onClick={() => setDeadlineDays(opt.days)}
-                className={`flex-1 py-2 rounded-xl text-xs font-semibold border transition-all min-h-[44px] ${
-                  deadlineDays === opt.days
-                    ? 'bg-gold/15 text-gold border-gold/30'
-                    : 'bg-white/[0.02] text-white/40 border-white/10 hover:text-white/60'
-                }`}
+                className={cn('flex-1 py-2 rounded-xl text-xs font-semibold border transition-colors min-h-[44px]', deadlineDays === opt.days ? 'bg-gold/15 text-gold border-gold/30' : 'bg-white/[0.02] text-white/40 border-white/10 hover:text-white/60')}
               >
                 {opt.label}
               </button>
@@ -162,11 +159,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
               <button
                 key={n}
                 onClick={() => setMaxSubmissions(n)}
-                className={`flex-1 py-2 rounded-xl text-xs font-semibold border transition-all min-h-[44px] ${
-                  maxSubmissions === n
-                    ? 'bg-gold/15 text-gold border-gold/30'
-                    : 'bg-white/[0.02] text-white/40 border-white/10 hover:text-white/60'
-                }`}
+                className={cn('flex-1 py-2 rounded-xl text-xs font-semibold border transition-colors min-h-[44px]', maxSubmissions === n ? 'bg-gold/15 text-gold border-gold/30' : 'bg-white/[0.02] text-white/40 border-white/10 hover:text-white/60')}
               >
                 {n}
               </button>

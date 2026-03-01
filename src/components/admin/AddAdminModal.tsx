@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { UserPlus, Loader2, Search, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 import { Modal, Button } from '@/components/ui';
 import { getProfileByHandle } from '@/lib/services/profiles';
 import { addClubAdmin } from '@/lib/services/club';
@@ -135,13 +136,9 @@ export default function AddAdminModal({ open, onClose, clubId, onAdded }: AddAdm
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setSelectedRole('admin')}
-                  className={`p-3 rounded-xl border text-left transition-all ${
-                    selectedRole === 'admin'
-                      ? `${adminBadge.bg} ${adminBadge.border} border`
-                      : 'bg-white/[0.02] border-white/10 hover:border-white/20'
-                  }`}
+                  className={cn('p-3 rounded-xl border text-left transition-colors', selectedRole === 'admin' ? `${adminBadge.bg} ${adminBadge.border}` : 'bg-white/[0.02] border-white/10 hover:border-white/20')}
                 >
-                  <div className={`text-sm font-bold ${selectedRole === 'admin' ? adminBadge.color : 'text-white/70'}`}>
+                  <div className={cn('text-sm font-bold', selectedRole === 'admin' ? adminBadge.color : 'text-white/70')}>
                     Verwalter
                   </div>
                   <div className="text-[10px] text-white/40 mt-0.5">
@@ -150,13 +147,9 @@ export default function AddAdminModal({ open, onClose, clubId, onAdded }: AddAdm
                 </button>
                 <button
                   onClick={() => setSelectedRole('editor')}
-                  className={`p-3 rounded-xl border text-left transition-all ${
-                    selectedRole === 'editor'
-                      ? `${editorBadge.bg} ${editorBadge.border} border`
-                      : 'bg-white/[0.02] border-white/10 hover:border-white/20'
-                  }`}
+                  className={cn('p-3 rounded-xl border text-left transition-colors', selectedRole === 'editor' ? `${editorBadge.bg} ${editorBadge.border}` : 'bg-white/[0.02] border-white/10 hover:border-white/20')}
                 >
-                  <div className={`text-sm font-bold ${selectedRole === 'editor' ? editorBadge.color : 'text-white/70'}`}>
+                  <div className={cn('text-sm font-bold', selectedRole === 'editor' ? editorBadge.color : 'text-white/70')}>
                     Redakteur
                   </div>
                   <div className="text-[10px] text-white/40 mt-0.5">

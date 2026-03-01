@@ -32,7 +32,7 @@ interface DiscoveryCardProps {
 
 const VARIANT_STYLES: Record<DiscoveryVariant, { badge: string; badgeBg: string; label: string; glow?: string }> = {
   ipo: { badge: 'text-vivid-green', badgeBg: 'bg-vivid-green/15', label: 'Live', glow: 'shadow-[0_0_8px_rgba(0,230,118,0.3)]' },
-  trending: { badge: 'text-white', badgeBg: 'bg-gradient-to-r from-vivid-red to-[#FF6B3B]', label: 'HOT', glow: 'shadow-[0_0_8px_rgba(255,59,105,0.3)]' },
+  trending: { badge: 'text-white', badgeBg: 'bg-vivid-red', label: 'HOT', glow: 'shadow-[0_0_8px_rgba(255,59,105,0.3)]' },
   deal: { badge: 'text-vivid-green', badgeBg: 'bg-vivid-green/15', label: 'Wert!' },
   new: { badge: 'text-sky-300', badgeBg: 'bg-sky-500/15', label: 'Neu' },
   listing: { badge: 'text-gold', badgeBg: 'bg-gold/15', label: 'Am Markt' },
@@ -116,7 +116,7 @@ export default function DiscoveryCard({
         <div className="relative mt-1.5">
           <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden border border-white/[0.06]">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-vivid-green to-gold transition-all duration-500"
+              className="h-full rounded-full bg-vivid-green transition-colors duration-500"
               style={{
                 width: `${Math.min(ipoProgress, 100)}%`,
                 boxShadow: '0 0 8px rgba(0,230,118,0.3)',
@@ -149,7 +149,7 @@ export default function DiscoveryCard({
       {variant === 'new' && listedAt && (
         <div className="mt-1.5">
           <span className={cn('inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded', vs.badgeBg, vs.badge)}>
-            <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse motion-reduce:animate-none" />
             {getRelativeTime(listedAt)}
           </span>
         </div>
@@ -189,7 +189,7 @@ export default function DiscoveryCard({
           disabled={buying}
           className="mt-2 w-full py-2 min-h-[44px] bg-gold/10 border border-gold/20 text-gold rounded-lg text-xs font-black hover:bg-gold/20 hover:btn-gold-glow transition-all active:scale-[0.95] disabled:opacity-50 flex items-center justify-center gap-1"
         >
-          {buying ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Kaufen'}
+          {buying ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : 'Kaufen'}
         </button>
       )}
     </Link>

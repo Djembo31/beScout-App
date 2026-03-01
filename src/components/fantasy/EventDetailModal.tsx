@@ -372,7 +372,7 @@ export const EventDetailModal = ({
             </div>
           ) : (
             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded ${statusStyle.bg} ${statusStyle.text}`}>
-              {statusStyle.pulse && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
+              {statusStyle.pulse && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" />}
               <span className="text-xs font-bold">{statusStyle.label}</span>
             </div>
           )}
@@ -384,7 +384,7 @@ export const EventDetailModal = ({
               disabled={resetting}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-50 ml-auto"
             >
-              {resetting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <History className="w-3.5 h-3.5" />}
+              {resetting ? <RefreshCw className="w-3.5 h-3.5 animate-spin motion-reduce:animate-none" /> : <History className="w-3.5 h-3.5" />}
               {resetting ? 'Wird zurückgesetzt...' : 'Zurücksetzen'}
             </button>
           )}
@@ -871,8 +871,8 @@ export const EventDetailModal = ({
               {/* Team Score Banner (only when scored) */}
               {isScored && myTotalScore != null && (
                 <div className={`relative overflow-hidden rounded-xl border ${scoringJustFinished ? 'border-gold/40' : 'border-gold/20'}`}>
-                  <div className="absolute inset-0 bg-gradient-to-r from-gold/15 via-gold/5 to-gold/15" />
-                  {scoringJustFinished && <div className="absolute inset-0 bg-gold/5 animate-pulse" />}
+                  <div className="absolute inset-0 bg-gold/[0.08]" />
+                  {scoringJustFinished && <div className="absolute inset-0 bg-gold/5 animate-pulse motion-reduce:animate-none" />}
                   <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 md:p-5 gap-3 sm:gap-0">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center">
@@ -912,7 +912,7 @@ export const EventDetailModal = ({
               {/* Post-Game Nudge: Trading */}
               {isScored && myRank && myRank > 3 && (
                 <Link href="/market?tab=kaufen" onClick={onClose}>
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-gold/[0.06] to-purple-500/[0.06] border border-gold/15 hover:border-gold/30 transition-all">
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gold/[0.06] border border-gold/15 hover:border-gold/30 transition-all">
                     <div className="w-8 h-8 rounded-lg bg-gold/15 flex items-center justify-center flex-shrink-0">
                       <Zap className="w-4 h-4 text-gold" />
                     </div>
@@ -1247,7 +1247,7 @@ export const EventDetailModal = ({
                 <>
                   {leaderboardLoading ? (
                     <div className="text-center py-8">
-                      <RefreshCw className="w-6 h-6 mx-auto mb-2 text-white/30 animate-spin" />
+                      <RefreshCw className="w-6 h-6 mx-auto mb-2 text-white/30 animate-spin motion-reduce:animate-none" />
                       <div className="text-sm text-white/40">Rangliste wird geladen...</div>
                     </div>
                   ) : leaderboard.length === 0 ? (
@@ -1313,7 +1313,7 @@ export const EventDetailModal = ({
                       })}
                       {viewingUserLoading && (
                         <div className="text-center py-3">
-                          <RefreshCw className="w-4 h-4 mx-auto text-white/30 animate-spin" />
+                          <RefreshCw className="w-4 h-4 mx-auto text-white/30 animate-spin motion-reduce:animate-none" />
                         </div>
                       )}
                     </>
@@ -1382,7 +1382,7 @@ export const EventDetailModal = ({
                   Abbrechen
                 </Button>
                 <Button variant="gold" size="lg" fullWidth onClick={handleFinalJoin} disabled={joining}>
-                  {joining ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                  {joining ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <CheckCircle2 className="w-4 h-4" />}
                   {joining ? 'Wird angemeldet...' : 'Bestätigen'}
                 </Button>
               </div>
@@ -1408,7 +1408,7 @@ export const EventDetailModal = ({
                   </div>
                   <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-gold to-orange-500 rounded-full transition-all"
+                      className="h-full bg-gold rounded-full transition-colors"
                       style={{ width: `${(filledSlots / totalSlots) * 100}%` }}
                     />
                   </div>
@@ -1440,7 +1440,7 @@ export const EventDetailModal = ({
                   size="lg"
                   onClick={handleConfirmJoin}
                   disabled={!canJoin}
-                  className={!canJoin ? 'opacity-60' : 'animate-pulse-subtle'}
+                  className={!canJoin ? 'opacity-60' : 'animate-pulse motion-reduce:animate-none-subtle'}
                 >
                   <CheckCircle2 className="w-5 h-5" />
                   {isFull
@@ -1469,7 +1469,7 @@ export const EventDetailModal = ({
               onClick={handleLeave}
               disabled={leaving}
             >
-              {leaving ? <><Loader2 className="w-4 h-4 animate-spin" /> Abmelden...</> : 'Abmelden'}
+              {leaving ? <><Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> Abmelden...</> : 'Abmelden'}
             </Button>
             <Button
               variant="gold"

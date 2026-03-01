@@ -107,7 +107,7 @@ function DiscoverySection({ icon, title, accent, onShowAll, showAllLabel, childr
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
           {icon}
-          <span className={cn('text-xs font-black uppercase tracking-wider', accent || 'text-white/50')}>{title}</span>
+          <span className={cn('text-xs font-black uppercase', accent || 'text-white/50')}>{title}</span>
         </div>
         {onShowAll && (
           <button onClick={onShowAll} className="text-[11px] font-bold text-white/30 hover:text-gold transition-colors flex items-center gap-1 min-h-[44px]">
@@ -365,7 +365,7 @@ export default function KaufenDiscovery({
         {isSearchMode && (
           <button
             onClick={goDiscovery}
-            className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold border bg-white/5 border-white/10 text-white/60 hover:text-gold hover:border-gold/30 transition-all shrink-0"
+            className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold border bg-white/5 border-white/10 text-white/60 hover:text-gold hover:border-gold/30 transition-colors shrink-0"
           >
             <Layers className="w-3.5 h-3.5" />
             {t('backToDiscovery')}
@@ -403,7 +403,7 @@ export default function KaufenDiscovery({
               <button
                 key={threshold}
                 onClick={() => setDiscoveryMinL5(discoveryMinL5 === threshold ? 0 : threshold)}
-                className={cn('px-2.5 py-1.5 rounded-lg text-[10px] font-bold border transition-all shrink-0 whitespace-nowrap',
+                className={cn('px-2.5 py-1.5 rounded-lg text-[10px] font-bold border transition-colors shrink-0 whitespace-nowrap',
                   discoveryMinL5 === threshold
                     ? 'bg-gold/10 border-gold/20 text-gold'
                     : 'bg-white/[0.03] border-white/[0.06] text-white/40'
@@ -413,7 +413,7 @@ export default function KaufenDiscovery({
             {/* Only Fit */}
             <button
               onClick={() => setDiscoveryOnlyFit(!discoveryOnlyFit)}
-              className={cn('px-2.5 py-1.5 rounded-lg text-[10px] font-bold border transition-all shrink-0 flex items-center gap-1',
+              className={cn('px-2.5 py-1.5 rounded-lg text-[10px] font-bold border transition-colors shrink-0 flex items-center gap-1',
                 discoveryOnlyFit
                   ? 'bg-green-500/15 border-green-500/30 text-green-500'
                   : 'bg-white/[0.03] border-white/[0.06] text-white/40'
@@ -426,7 +426,7 @@ export default function KaufenDiscovery({
               <button
                 key={pos}
                 onClick={() => setDiscoveryPos(discoveryPos === pos ? null : pos)}
-                className={cn('px-2.5 py-1.5 rounded-lg text-[10px] font-bold border transition-all shrink-0',
+                className={cn('px-2.5 py-1.5 rounded-lg text-[10px] font-bold border transition-colors shrink-0',
                   discoveryPos === pos
                     ? 'bg-gold/10 border-gold/20 text-gold'
                     : 'bg-white/[0.03] border-white/[0.06] text-white/40'
@@ -545,7 +545,7 @@ export default function KaufenDiscovery({
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-1.5">
                 <Star className="w-3.5 h-3.5 text-gold/60" />
-                <span className="text-[10px] font-black uppercase tracking-wider text-gold/80">{t('yourClubs')}</span>
+                <span className="text-[10px] font-black uppercase text-gold/80">{t('yourClubs')}</span>
               </div>
             </div>
 
@@ -567,7 +567,7 @@ export default function KaufenDiscovery({
                 <div key={clubName} className="border border-white/[0.06] rounded-2xl overflow-hidden mb-1.5">
                   <button
                     onClick={() => toggleDiscoveryClub(clubName)}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-all"
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors"
                     style={{ borderLeft: `3px solid ${primaryColor}` }}
                   >
                     {clubData?.logo ? (
@@ -619,7 +619,7 @@ export default function KaufenDiscovery({
             {clubGroups.length > 5 && (
               <button
                 onClick={() => setShowMoreClubs(!showMoreClubs)}
-                className="w-full py-2.5 text-center text-xs font-bold text-white/40 hover:text-white/70 border border-white/[0.06] rounded-xl hover:bg-white/[0.03] transition-all mt-1"
+                className="w-full py-2.5 text-center text-xs font-bold text-white/40 hover:text-white/70 border border-white/[0.06] rounded-xl hover:bg-white/[0.03] transition-colors mt-1"
               >
                 {showMoreClubs ? t('showLessClubs') : t('moreClubs')}
               </button>
@@ -631,19 +631,19 @@ export default function KaufenDiscovery({
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-1.5">
                 <Layers className="w-3.5 h-3.5 text-purple-400/60" />
-                <span className="text-[10px] font-black uppercase tracking-wider text-purple-400/80">{t('byPosition')}</span>
+                <span className="text-[10px] font-black uppercase text-purple-400/80">{t('byPosition')}</span>
               </div>
               {/* IPO / Transferliste Toggle */}
               <div className="flex rounded-lg border border-white/[0.06] overflow-hidden">
                 <button
                   onClick={() => setPosMode('ipo')}
-                  className={cn('px-2.5 py-1 text-[10px] font-bold transition-all',
+                  className={cn('px-2.5 py-1 text-[10px] font-bold transition-colors',
                     posMode === 'ipo' ? 'bg-green-500/15 text-green-500' : 'text-white/30 hover:text-white/50'
                   )}
                 >{t('posModeIpo')}</button>
                 <button
                   onClick={() => setPosMode('listing')}
-                  className={cn('px-2.5 py-1 text-[10px] font-bold transition-all border-l border-white/[0.06]',
+                  className={cn('px-2.5 py-1 text-[10px] font-bold transition-colors border-l border-white/[0.06]',
                     posMode === 'listing' ? 'bg-gold/15 text-gold' : 'text-white/30 hover:text-white/50'
                   )}
                 >{t('posModeListing')}</button>
@@ -672,7 +672,7 @@ export default function KaufenDiscovery({
             {discoveryPos && byPosition.length > 0 && (
               <button
                 onClick={() => goSearch({ pos: discoveryPos })}
-                className="w-full py-2 mt-2 text-center text-[10px] font-bold text-white/30 hover:text-gold border border-white/[0.06] rounded-xl hover:bg-white/[0.03] transition-all"
+                className="w-full py-2 mt-2 text-center text-[10px] font-bold text-white/30 hover:text-gold border border-white/[0.06] rounded-xl hover:bg-white/[0.03] transition-colors"
               >
                 {t('showAllPos', { pos: POS_LABELS[discoveryPos] })} →
               </button>
@@ -721,7 +721,7 @@ export default function KaufenDiscovery({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={cn('flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold border transition-all shrink-0',
+                className={cn('flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold border transition-colors shrink-0',
                   showFilters || activeFilterCount > 0
                     ? 'bg-gold/15 border-gold/30 text-gold'
                     : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:bg-white/10'
@@ -735,8 +735,8 @@ export default function KaufenDiscovery({
                 <ChevronDown className={`w-3 h-3 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
               </button>
               <div className="hidden md:flex items-center border border-white/10 rounded-xl overflow-hidden">
-                <button onClick={() => setView('grid')} className={`p-2.5 transition-all ${view === 'grid' ? 'bg-gold/20 text-gold' : 'text-white/40 hover:text-white hover:bg-white/5'}`}><Grid className="w-4 h-4" /></button>
-                <button onClick={() => setView('list')} className={`p-2.5 transition-all ${view === 'list' ? 'bg-gold/20 text-gold' : 'text-white/40 hover:text-white hover:bg-white/5'}`}><List className="w-4 h-4" /></button>
+                <button onClick={() => setView('grid')} className={`p-2.5 transition-colors ${view === 'grid' ? 'bg-gold/20 text-gold' : 'text-white/40 hover:text-white hover:bg-white/5'}`}><Grid className="w-4 h-4" /></button>
+                <button onClick={() => setView('list')} className={`p-2.5 transition-colors ${view === 'list' ? 'bg-gold/20 text-gold' : 'text-white/40 hover:text-white hover:bg-white/5'}`}><List className="w-4 h-4" /></button>
               </div>
             </div>
             {/* Position Toggles */}
@@ -757,7 +757,7 @@ export default function KaufenDiscovery({
                 )}
                 <div className="relative">
                   <button onClick={() => setShowClubDropdown(!showClubDropdown)}
-                    className={cn('flex items-center gap-2 px-3 py-2 border rounded-xl text-xs hover:bg-white/10 transition-all min-w-[160px]',
+                    className={cn('flex items-center gap-2 px-3 py-2 border rounded-xl text-xs hover:bg-white/10 transition-colors min-w-[160px]',
                       clubFilter.size > 0 ? 'bg-gold/10 border-gold/30 text-gold' : 'bg-white/5 border-white/10 text-white/70')}
                   >
                     <Users className="w-3.5 h-3.5 opacity-50" />
@@ -773,7 +773,7 @@ export default function KaufenDiscovery({
                       <div className="p-1">
                         {filteredClubs.map(club => (
                           <button key={club} onClick={() => toggleClub(club)}
-                            className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex items-center justify-between ${clubFilter.has(club) ? 'bg-gold/15 text-gold' : 'text-white/70 hover:bg-white/10'}`}
+                            className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center justify-between ${clubFilter.has(club) ? 'bg-gold/15 text-gold' : 'text-white/70 hover:bg-white/10'}`}
                           >
                             <span>{club}</span>
                             {clubFilter.has(club) && <span className="text-gold">✓</span>}
@@ -813,12 +813,12 @@ export default function KaufenDiscovery({
                 </div>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setOnlyAvailable(!onlyAvailable)}
-                    className={cn('flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all',
+                    className={cn('flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-colors',
                       onlyAvailable ? 'bg-green-500/15 border-green-500/30 text-green-500' : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70')}>
                     <Package className="w-3.5 h-3.5" />{t('available')}
                   </button>
                   <button onClick={() => setOnlyWatched(!onlyWatched)}
-                    className={cn('flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all',
+                    className={cn('flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-colors',
                       onlyWatched ? 'bg-gold/15 border-gold/30 text-gold' : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70')}>
                     <Star className="w-3.5 h-3.5" />{t('watched')}
                   </button>
@@ -844,15 +844,15 @@ export default function KaufenDiscovery({
                 <div className="flex-1 overflow-y-auto px-4 py-5 space-y-6">
                   {availableLeagues.length > 0 && (
                     <div>
-                      <div className="text-[10px] font-black uppercase tracking-wider text-white/40 mb-2.5">{t('leagueLabel')}</div>
+                      <div className="text-[10px] font-black uppercase text-white/40 mb-2.5">{t('leagueLabel')}</div>
                       <div className="flex gap-2 flex-wrap">
                         <button onClick={() => setLeagueFilter('')}
-                          className={cn('px-3.5 py-2 rounded-xl text-xs font-bold border transition-all active:scale-95',
+                          className={cn('px-3.5 py-2 rounded-xl text-xs font-bold border transition-colors active:scale-95',
                             !leagueFilter ? 'bg-gold/10 border-gold/20 text-gold' : 'bg-white/[0.03] border-white/[0.06] text-white/50'
                           )}>{t('allLeagues')}</button>
                         {availableLeagues.map(l => (
                           <button key={l} onClick={() => setLeagueFilter(leagueFilter === l ? '' : l)}
-                            className={cn('px-3.5 py-2 rounded-xl text-xs font-bold border transition-all active:scale-95 flex items-center gap-1.5',
+                            className={cn('px-3.5 py-2 rounded-xl text-xs font-bold border transition-colors active:scale-95 flex items-center gap-1.5',
                               leagueFilter === l ? 'bg-gold/10 border-gold/20 text-gold' : 'bg-white/[0.03] border-white/[0.06] text-white/50'
                             )}
                           >
@@ -864,7 +864,7 @@ export default function KaufenDiscovery({
                     </div>
                   )}
                   <div>
-                    <div className="text-[10px] font-black uppercase tracking-wider text-white/40 mb-2.5">{t('clubLabel')}</div>
+                    <div className="text-[10px] font-black uppercase text-white/40 mb-2.5">{t('clubLabel')}</div>
                     <input type="text" placeholder={t('clubSearch')} value={clubSearch} onChange={(e) => setClubSearch(e.target.value)}
                       className="w-full mb-3 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs focus:outline-none focus:border-gold/40 placeholder:text-white/30" />
                     <div className="grid grid-cols-4 gap-2">
@@ -874,7 +874,7 @@ export default function KaufenDiscovery({
                         const color = cd?.colors.primary ?? '#666';
                         return (
                           <button key={club} onClick={() => toggleClub(club)}
-                            className={cn('flex flex-col items-center gap-1.5 p-2.5 rounded-xl border transition-all active:scale-95',
+                            className={cn('flex flex-col items-center gap-1.5 p-2.5 rounded-xl border transition-colors active:scale-95',
                               active
                                 ? 'border-gold/40 bg-gold/10'
                                 : 'border-white/[0.06] bg-surface-base'
@@ -895,11 +895,11 @@ export default function KaufenDiscovery({
                     </div>
                   </div>
                   <div>
-                    <div className="text-[10px] font-black uppercase tracking-wider text-white/40 mb-2.5">{t('positionLabel')}</div>
+                    <div className="text-[10px] font-black uppercase text-white/40 mb-2.5">{t('positionLabel')}</div>
                     <PosFilter multi selected={posFilter} onChange={togglePos} />
                   </div>
                   <div>
-                    <div className="text-[10px] font-black uppercase tracking-wider text-white/40 mb-2.5">{t('sortLabel')}</div>
+                    <div className="text-[10px] font-black uppercase text-white/40 mb-2.5">{t('sortLabel')}</div>
                     <div className="space-y-1.5">
                       {([
                         { value: 'floor_asc' as SortOption, label: t('sortFloorAsc') },
@@ -915,7 +915,7 @@ export default function KaufenDiscovery({
                         { value: 'name' as SortOption, label: t('sortName') },
                       ]).map(opt => (
                         <button key={opt.value} onClick={() => setSortBy(opt.value)}
-                          className={cn('w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all',
+                          className={cn('w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold transition-colors',
                             sortBy === opt.value
                               ? 'bg-gold/10 border border-gold/20 text-gold'
                               : 'bg-surface-base border border-white/[0.06] text-white/50'
@@ -932,7 +932,7 @@ export default function KaufenDiscovery({
                     </div>
                   </div>
                   <div>
-                    <div className="text-[10px] font-black uppercase tracking-wider text-white/40 mb-2.5">{t('priceLabel')}</div>
+                    <div className="text-[10px] font-black uppercase text-white/40 mb-2.5">{t('priceLabel')}</div>
                     <div className="flex items-center gap-2">
                       <input type="number" inputMode="numeric" placeholder={t('min')} value={priceMin} onChange={(e) => setPriceMin(e.target.value)}
                         className="flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white/70 focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
@@ -944,12 +944,12 @@ export default function KaufenDiscovery({
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => setOnlyAvailable(!onlyAvailable)}
-                      className={cn('flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border transition-all active:scale-95',
+                      className={cn('flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border transition-colors active:scale-95',
                         onlyAvailable ? 'bg-green-500/15 border-green-500/30 text-green-500' : 'bg-surface-base border-white/[0.06] text-white/40')}>
                       <Package className="w-4 h-4" />{t('available')}
                     </button>
                     <button onClick={() => setOnlyWatched(!onlyWatched)}
-                      className={cn('flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border transition-all active:scale-95',
+                      className={cn('flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border transition-colors active:scale-95',
                         onlyWatched ? 'bg-gold/15 border-gold/30 text-gold' : 'bg-surface-base border-white/[0.06] text-white/40')}>
                       <Star className="w-4 h-4" />{t('watched')}
                     </button>
