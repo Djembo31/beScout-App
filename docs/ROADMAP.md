@@ -1,6 +1,6 @@
 # BeScout — Roadmap
 
-> Letzte Aktualisierung: 23.02.2026 (Session 136)
+> Letzte Aktualisierung: 02.03.2026 (Session 176)
 > Siehe `docs/VISION.md` für die vollständige Produktvision.
 
 ---
@@ -18,10 +18,16 @@ ABGESCHLOSSEN:
   Phase 6: Club Tools (Dashboard, Multi-Club, Bounties)    ✅ (6.1-6.5)
   Phase 7: Engagement & Career Features                    ✅ (größtenteils)
   Phase A-D: Perfektionierung + Match-Data                 ✅
+  Phase E: Security + Quality Pipeline                     ✅
+  Phase F: Live-Betrieb (Progressive Scoring, Locking)     ✅
+
+AKTIV:
+  Beta-Launch mit 50 Testern                               🔄 ← JETZT (GW 28 live)
 
 NÄCHSTE SCHRITTE:
-  Beta-Launch mit 50 Testern                               ⬜ ← JETZT
+  Visuelle Anpassungen                                     ⬜
   Galatasaray-Pitch                                        ⬜
+  Multi-Liga Expansion                                     ⬜
   Native App                                               ⬜ Post-Pilot
 ```
 
@@ -44,7 +50,8 @@ NÄCHSTE SCHRITTE:
 - **6.3** Bounties (Verein→Fan-Aufträge, 3 RPCs, Missions) ✅
 - **6.4** Community-Moderation (Admin Pin/Delete, Guidelines, Moderation-Tab) ✅
 - **6.5** Success Fee + Liquidierung (PBT-Distribution, Trading-Guards) ✅
-- **6.6** Galatasaray-Pitch → offen (Case Study, Mockup, Revenue-Projektion)
+- **6.6** Admin-Architektur 3-Ebenen (Fan / Club / BeScout Platform) ✅
+- **6.7** Galatasaray-Pitch → offen (Case Study, Mockup, Revenue-Projektion)
 
 ---
 
@@ -80,10 +87,38 @@ NÄCHSTE SCHRITTE:
 
 ---
 
-## Beta-Launch Blocker ⬜
+## Phase E: Security + Quality ✅
 
+- **Security Deep Dive** — 9/9 Bereiche auditiert, 25+ Fixes, 12 Migrations (Sessions 160-162, 169)
+- **Baseline UI Audit** — Alle 22 Pages, ~500+ Fixes (Sessions 163-164)
+- **Accessibility Audit** — 32 Files, 50+ Fixes, ARIA + Focus + Keyboard (Session 165)
+- **Motion Performance** — will-change, backdrop-blur, blur optimiert (Session 165)
+- **Quality Pipeline** — Alle Component Groups + App-Level Files (Sessions 165-168)
+
+---
+
+## Phase F: Live-Betrieb ✅
+
+- **Progressive Scoring** — Import (wiederholbar) + Auswerten (einmal) + Live-Scores auf Pitch (Session 175)
+- **Per-Fixture Deadline Locking** — Spieler sperren individuell zum Fixture-Anstoß (Session 174)
+- **Live-Daten Pipeline** — API-Football: 20 Clubs, 497 Spieler, 380 Fixtures, 6.446 Stats (Session 173)
+- **Admin-Architektur** — 3-Ebenen-Modell: Trading-Sperre + Platform Bypass + Clubs Tab (Session 171)
+- **i18n** — DashboardTab + AdminSettingsTab, 37 Keys DE+TR (Session 172)
+- **Systemharmonie** — Loading/Error States + League Parametrization (Session 170)
+- **Live-Setup GW 28** — active_gameweek=28, 12 Events, 6.517 Scores (Session 176)
+
+---
+
+## Beta-Launch 🔄 AKTIV
+
+- [x] API-Football Account + Key + Admin-Mapping ✅
+- [x] SUPABASE_SERVICE_ROLE_KEY in Vercel ✅
+- [x] Live-Daten Pipeline komplett ✅
+- [x] Progressive Scoring + Live-Scores ✅
+- [x] Per-Fixture Deadline Locking ✅
+- [x] GW 28 Events erstellt + Scores synced ✅
 - [ ] VAPID Public Key in Vercel setzen
-- [ ] API-Football Account + Key + Admin-Mapping
+- [ ] Visuelle Anpassungen
 - [ ] 50 Beta-Tester einladen
 - [ ] Bug-Tracking + schnelle Fixes
 - [ ] KPI-Tracking einrichten
@@ -91,6 +126,7 @@ NÄCHSTE SCHRITTE:
 ## Post-Pilot ⬜
 
 - [ ] Galatasaray-Pitch (Case Study, Mockup, Revenue-Projektion, Demo)
+- [ ] Multi-Liga Expansion (Events aus mehreren Ligen zusammensetzen)
 - [ ] Native App (React Native)
 - [ ] Next.js 15/16 Migration
 - [ ] Creator-Abos, Recommendation Engine, Email Digest
@@ -116,3 +152,5 @@ NÄCHSTE SCHRITTE:
 | Blockchain | Nein — zentrale DB | ✅ |
 | i18n | next-intl (DE+TR), Cookie-basiert | ✅ |
 | Legal | MiCA/CASP-konform, kein Finanzprodukt | ✅ |
+| Live-Daten | API-Football Plus (TFF 1. Lig 2025/26) | ✅ |
+| Live-Scoring | Progressive Import + Finalize (nicht monolithisch) | ✅ |

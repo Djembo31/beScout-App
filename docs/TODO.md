@@ -1,23 +1,28 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 28.02.2026 (Session 162)
-> Modus: PILOT SPRINT — 242 Migrations, 23 Routes, 195 Unit + 70 E2E Tests
+> Letzte Aktualisierung: 02.03.2026 (Session 176)
+> Modus: LIVE BETA — 247 Migrations, 24 Routes, 195 Unit + 70 E2E Tests
 > Für erledigte Tasks → `memory/sessions.md` und `memory/sessions-archive.md`
 
 ---
 
 ## Nächste Priorität
 
-1. [ ] VAPID Public Key in Vercel Environment Variables setzen
-2. [ ] API-Football Account erstellen + Key in `.env.local`
-3. [ ] API-Football Admin-Mapping (Teams/Spieler/Fixtures, ~30 Min)
-4. [ ] Real User Testing mit 50 Beta-Testern
-5. [ ] Demo-Accounts für Beta-Tester einrichten
+1. [ ] Visuelle Anpassungen (Anil definiert nach Review)
+2. [ ] VAPID Public Key in Vercel Environment Variables setzen
+3. [ ] Real User Testing mit 50 Beta-Testern
+4. [ ] GW 28 auswerten (nach letztem Fixture: Import → Auswerten)
+5. [ ] GW 29 Events erstellen (automatisch via "Auswerten" Button)
 
 ## Beta-Launch Blocker
 
 - [ ] Push Notifications: VAPID Key fehlt in Vercel → Edge Function kann nicht senden
-- [ ] Match-Data: API-Football Account noch nicht erstellt → Simulation als Fallback
+- [x] ~~Match-Data: API-Football~~ ✅ Komplett (20 Clubs, 497 Spieler, 380 Fixtures, 6.446 Stats)
+- [x] ~~SUPABASE_SERVICE_ROLE_KEY~~ ✅ Gesetzt in Vercel
+- [x] ~~Live-Daten Pipeline~~ ✅ Teams + Players + Fixtures + Stats (GW1-28)
+- [x] ~~Progressive Scoring~~ ✅ Import/Auswerten Buttons + Live-Scores
+- [x] ~~Per-Fixture Deadline Locking~~ ✅ Individuelle Spieler-Locks
+- [x] ~~Live-Setup GW 28~~ ✅ active_gameweek=28, 12 Events, 6.517 Scores
 
 ## Backlog (Post-Pilot)
 
@@ -28,12 +33,15 @@
 - [ ] Creator-Abos, Recommendation Engine, Email Digest
 - [ ] Supabase Pro Tier ($25/mo)
 - [ ] Edge Function `create-demo-accounts` im Dashboard löschen
+- [ ] Bandırmaspor Kader-Update (0/29 gemappt — neuer Kader nach Transfer-Fenster)
+- [ ] Multi-Liga Navigation + Event-Konstellation
 
-## Zuletzt erledigt (Sessions 155-160)
+## Zuletzt erledigt (Sessions 170-176)
 
-- [x] Fantasy Security Deep Dive: 8 Critical Fixes, 4 Migrations (Session 160)
-- [x] Wallet & Trading Security: 11 Fixes, locked_balance, auth guards (Session 159)
-- [x] Trading Must-Fix: Ref guards, Liquidation UI, mapRpcError (Session 158)
-- [x] SVG Logo Replacement: PNG→SVG across all branding (Session 157)
-- [x] API-Football RLS Fix + Import UI: 4 SECURITY DEFINER RPCs (Session 156)
-- [x] Performance Phase 2: Auth RPC merge, explicit columns, memo (Session 155)
+- [x] Live-Setup GW 28: active_gameweek=28, 12 Events, Scores synced (Session 176)
+- [x] Progressive Scoring: Import/Auswerten Buttons, Live-Scores auf Pitch (Session 175)
+- [x] Per-Fixture Deadline Locking: individuelle Spieler-Locks (Session 174)
+- [x] Live-Daten Pipeline: 20 Clubs, 497 Spieler, 380 Fixtures, 6.446 Stats (Session 173)
+- [x] i18n String Extraction: DashboardTab + AdminSettingsTab, 37 Keys (Session 172)
+- [x] Admin-Architektur 3-Ebenen: Trading-Sperre + Platform Bypass + Clubs Tab (Session 171)
+- [x] Systemharmonie Deep Dive Phase 1-4: Loading/Error States, League Params (Session 170)
