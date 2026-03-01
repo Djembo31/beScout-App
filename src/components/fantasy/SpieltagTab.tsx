@@ -190,7 +190,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
               <button
                 key={tab}
                 onClick={() => setDetailTab(tab)}
-                className={`py-3 text-sm font-semibold border-b-2 transition-all ${
+                className={`py-3 text-sm font-semibold border-b-2 transition-colors ${
                   detailTab === tab
                     ? 'text-white border-white'
                     : 'text-white/40 border-transparent hover:text-white/60'
@@ -205,7 +205,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
         <div className="p-4 md:p-6">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin motion-reduce:animate-none text-gold" />
+              <Loader2 aria-hidden="true" className="size-6 animate-spin motion-reduce:animate-none text-gold" />
             </div>
           ) : stats.length === 0 ? (
             <div className="text-center text-white/30 py-12">
@@ -221,13 +221,13 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
                     {sponsor?.sponsorLogo ? (
                       <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
                     ) : (
-                      <Star className="w-3 h-3 text-gold" />
+                      <Star aria-hidden="true" className="size-3 text-gold" />
                     )}
-                    <span className="text-xs font-bold tracking-widest text-white/50 uppercase">{sponsor?.sponsorName || 'Sponsor-Fläche'}</span>
+                    <span className="text-xs font-bold text-white/50 uppercase">{sponsor?.sponsorName || 'Sponsor-Fläche'}</span>
                     {sponsor?.sponsorLogo ? (
                       <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
                     ) : (
-                      <Star className="w-3 h-3 text-gold" />
+                      <Star aria-hidden="true" className="size-3 text-gold" />
                     )}
                   </div>
                 );
@@ -254,9 +254,9 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
                   const sponsor = sponsorName ? { sponsorName, sponsorLogo } : null;
                   return (
                     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                      <div className="w-16 h-16 rounded-full border border-white/[0.06] flex items-center justify-center">
+                      <div className="size-16 rounded-full border border-white/[0.06] flex items-center justify-center">
                         {sponsor?.sponsorLogo ? (
-                          <img src={sponsor.sponsorLogo} alt="" className="w-10 h-10 object-contain opacity-30" />
+                          <img src={sponsor.sponsorLogo} alt="" className="size-10 object-contain opacity-30" />
                         ) : (
                           <span className="text-[9px] text-white/15 font-bold tracking-wider uppercase">Sponsor</span>
                         )}
@@ -309,7 +309,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
                       {sponsor?.sponsorLogo && <img src={sponsor.sponsorLogo} alt="" className="h-3.5 w-auto object-contain" />}
                       <span className="text-[9px] text-white/30 font-medium">{sponsor?.sponsorName || 'Sponsor Logo'}</span>
                     </div>
-                    <span className="text-[9px] text-white/20 font-bold tracking-widest uppercase">{sponsor?.sponsorName ? `${sponsor.sponsorName} × BeScout` : 'Powered by BeScout'}</span>
+                    <span className="text-[9px] text-white/20 font-bold uppercase">{sponsor?.sponsorName ? `${sponsor.sponsorName} × BeScout` : 'Powered by BeScout'}</span>
                     <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.04] rounded-lg border border-white/[0.06]">
                       {sponsor?.sponsorLogo && <img src={sponsor.sponsorLogo} alt="" className="h-3.5 w-auto object-contain" />}
                       <span className="text-[9px] text-white/30 font-medium">{sponsor?.sponsorName || 'Sponsor Logo'}</span>
@@ -357,7 +357,7 @@ function TeamStatsList({ label, stats, color }: { label: string; stats: FixtureP
             {s.red_card && <span className="w-2.5 h-3 bg-red-500 rounded-[1px] inline-block" />}
             {s.bonus > 0 && (
               <span className="flex items-center gap-0.5 text-gold">
-                <Star className="w-2.5 h-2.5" />{s.bonus}
+                <Star aria-hidden="true" className="size-2.5" />{s.bonus}
               </span>
             )}
             <span className={`px-1.5 py-0.5 rounded text-[10px] font-black ${scoreBadgeColor(s.fantasy_points)}`}>
@@ -474,10 +474,10 @@ export function SpieltagTab({
       <div className="flex items-center justify-between gap-2">
         {/* League selector */}
         <div className="relative">
-          <button className="flex items-center gap-2 px-3 py-2 min-h-[40px] bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm font-semibold hover:bg-white/[0.06] transition-all">
+          <button className="flex items-center gap-2 px-3 py-2 min-h-[40px] bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm font-semibold hover:bg-white/[0.06] transition-colors">
             <span>{activeLeague.flag}</span>
             <span>{activeLeague.label}</span>
-            {LEAGUES.length > 1 && <ChevronDown className="w-3.5 h-3.5 text-white/30" />}
+            {LEAGUES.length > 1 && <ChevronDown aria-hidden="true" className="size-3.5 text-white/30" />}
           </button>
         </div>
 
@@ -487,9 +487,9 @@ export function SpieltagTab({
             <button
               onClick={() => setShowConfirm(true)}
               disabled={simulating}
-              className="flex items-center gap-1.5 px-3 py-2 min-h-[40px] bg-gold/10 border border-gold/30 rounded-xl text-xs font-bold text-gold hover:bg-gold/20 disabled:opacity-50 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 min-h-[40px] bg-gold/10 border border-gold/30 rounded-xl text-xs font-bold text-gold hover:bg-gold/20 disabled:opacity-50 transition-colors"
             >
-              {simulating ? <Loader2 className="w-3.5 h-3.5 animate-spin motion-reduce:animate-none" /> : <Play className="w-3.5 h-3.5" />}
+              {simulating ? <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" /> : <Play aria-hidden="true" className="size-3.5" />}
               {apiAvailable ? 'Import' : 'Starten'}
             </button>
           )}
@@ -532,14 +532,14 @@ export function SpieltagTab({
 
       {fixturesLoading && (
         <Card className="p-8 flex items-center justify-center">
-          <Loader2 className="w-5 h-5 animate-spin motion-reduce:animate-none text-white/30" />
+          <Loader2 aria-hidden="true" className="size-5 animate-spin motion-reduce:animate-none text-white/30" />
         </Card>
       )}
 
       {/* 6. EMPTY STATE */}
       {!fixturesLoading && fixtures.length === 0 && (
         <Card className="p-12 text-center">
-          <Calendar className="w-12 h-12 mx-auto mb-4 text-white/20" />
+          <Calendar aria-hidden="true" className="size-12 mx-auto mb-4 text-white/20" />
           <div className="text-white/50 mb-1">{ts('noActivity', { gw: gameweek })}</div>
           <div className="text-white/30 text-xs">{ts('noActivityDesc')}</div>
         </Card>
@@ -581,13 +581,13 @@ export function SpieltagTab({
           <div className="flex items-center gap-3 pt-2">
             <button
               onClick={() => setShowConfirm(false)}
-              className="flex-1 px-4 py-2.5 min-h-[44px] bg-white/5 border border-white/10 rounded-xl text-sm font-semibold hover:bg-white/10 transition-all"
+              className="flex-1 px-4 py-2.5 min-h-[44px] bg-white/5 border border-white/10 rounded-xl text-sm font-semibold hover:bg-white/10 transition-colors"
             >
               Abbrechen
             </button>
             <button
               onClick={handleSimulate}
-              className="flex-1 px-4 py-2.5 min-h-[44px] bg-gold/10 border border-gold/30 rounded-xl text-sm font-bold text-gold hover:bg-gold/20 transition-all"
+              className="flex-1 px-4 py-2.5 min-h-[44px] bg-gold/10 border border-gold/30 rounded-xl text-sm font-bold text-gold hover:bg-gold/20 transition-colors"
             >
               {apiAvailable ? 'Daten importieren' : 'Spieltag starten'}
             </button>

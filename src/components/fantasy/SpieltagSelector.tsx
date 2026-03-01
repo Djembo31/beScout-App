@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
 
 type SpieltagSelectorProps = {
   gameweek: number;
@@ -48,29 +49,30 @@ export function SpieltagSelector({
     : 'border-white/[0.08]';
 
   return (
-    <div className={`flex items-center gap-2 p-2.5 rounded-2xl border ${borderColor} bg-white/[0.02]`}>
+    <div className={cn('flex items-center gap-2 p-2.5 rounded-2xl border bg-white/[0.02]', borderColor)}>
       {/* Prev */}
       <button
         onClick={() => onGameweekChange(Math.max(1, gameweek - 1))}
         disabled={gameweek <= 1}
-        className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-all active:scale-[0.95]"
+        aria-label="Vorheriger Spieltag"
+        className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-colors active:scale-[0.95]"
       >
-        <ChevronLeft className="w-4 h-4" />
+        <ChevronLeft className="size-4" aria-hidden="true" />
       </button>
 
       {/* Center info */}
       <div className="flex-1 text-center min-w-0">
         <div className="flex items-center justify-center gap-2">
-          <Calendar className="w-3.5 h-3.5 text-white/30" />
+          <Calendar className="size-3.5 text-white/30" aria-hidden="true" />
           <span className="font-black text-base">
             {t('label')} {gameweek}
           </span>
           {isCurrentGw && !isFinished && (
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none flex-shrink-0" />
+            <span className="size-2 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none flex-shrink-0" />
           )}
         </div>
         <div className="flex items-center justify-center gap-1.5 text-[10px] text-white/40 mt-0.5">
-          <span className={`font-bold ${statusColor}`}>{statusLabel}</span>
+          <span className={cn('font-bold', statusColor)}>{statusLabel}</span>
           {fixtureCount > 0 && <span>· {fixtureCount} {t('fixturesShort')}</span>}
           {eventCount > 0 && <span>· {eventCount} Events</span>}
         </div>
@@ -80,9 +82,10 @@ export function SpieltagSelector({
       <button
         onClick={() => onGameweekChange(Math.min(maxGameweek, gameweek + 1))}
         disabled={gameweek >= maxGameweek}
-        className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-all active:scale-[0.95]"
+        aria-label="Nächster Spieltag"
+        className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-colors active:scale-[0.95]"
       >
-        <ChevronRight className="w-4 h-4" />
+        <ChevronRight className="size-4" aria-hidden="true" />
       </button>
     </div>
   );

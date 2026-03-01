@@ -6,6 +6,7 @@ import {
   Trophy, CheckCircle2, Play, Flag, Heart, Lock, Plus, Edit3, Eye,
 } from 'lucide-react';
 import { Card, Button, Chip } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import type { FantasyEvent } from './types';
 import { getStatusStyle, getTypeStyle, getTierStyle, formatCountdown } from './helpers';
 
@@ -25,31 +26,31 @@ export const EventCard = ({
   const isArena = event.eventTier === 'arena';
 
   return (
-    <Card className={`p-4 hover:border-white/20 transition-colors ${event.isJoined ? 'border-green-500/30 bg-green-500/[0.02]' : isArena ? 'border-amber-500/20 bg-amber-500/[0.02]' : ''}`}>
+    <Card className={cn('p-4 hover:border-white/20 transition-colors', event.isJoined ? 'border-green-500/30 bg-green-500/[0.02]' : isArena ? 'border-amber-500/20 bg-amber-500/[0.02]' : '')}>
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className={`p-1.5 rounded-lg ${typeStyle.bg}`}>
-            <TypeIcon className={`w-4 h-4 ${typeStyle.color}`} />
+          <div className={cn('p-1.5 rounded-lg', typeStyle.bg)}>
+            <TypeIcon className={cn('size-4', typeStyle.color)} aria-hidden="true" />
           </div>
           {event.status === 'ended' && event.scoredAt ? (
             <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-purple-500 text-white">
-              <Trophy className="w-3 h-3" />
+              <Trophy className="size-3" aria-hidden="true" />
               <span className="text-[10px] font-bold">Ausgewertet</span>
             </div>
           ) : event.status === 'ended' ? (
             <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-white/20 text-white/60">
-              <Flag className="w-3 h-3" />
+              <Flag className="size-3" aria-hidden="true" />
               <span className="text-[10px] font-bold">Beendet</span>
             </div>
           ) : event.isJoined ? (
             <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-green-500 text-white">
-              <CheckCircle2 className="w-3 h-3" />
+              <CheckCircle2 className="size-3" aria-hidden="true" />
               <span className="text-[10px] font-bold">Nimmt teil</span>
             </div>
           ) : (
             <div className={`flex items-center gap-1 px-2 py-0.5 rounded ${statusStyle.bg} ${statusStyle.text}`}>
-              {statusStyle.pulse && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
+              {statusStyle.pulse && <div className="size-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" />}
               <span className="text-[10px] font-bold">{statusStyle.label}</span>
             </div>
           )}
@@ -67,7 +68,7 @@ export const EventCard = ({
       {(event.clubLogo || event.sponsorLogo) && (
         <div className="flex items-center gap-2 mb-3">
           {event.clubLogo && (
-            <div className="relative w-8 h-8">
+            <div className="relative size-8">
               <Image src={event.clubLogo} alt="" fill className="object-contain" />
             </div>
           )}
@@ -107,17 +108,18 @@ export const EventCard = ({
           <span>{event.format} • {event.mode === 'league' ? 'Liga' : 'Turnier'}</span>
           {isArena && (
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/15 border border-amber-500/25 text-amber-400">
-              <tierStyle.icon className="w-3 h-3" />
+              <tierStyle.icon className="size-3" aria-hidden="true" />
               {tierStyle.pointsLabel}
             </span>
           )}
           {event.minSubscriptionTier && (
-            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border ${
+            <span className={cn(
+              'inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border',
               event.minSubscriptionTier === 'gold' ? 'bg-gold/15 border-gold/25 text-gold' :
               event.minSubscriptionTier === 'silber' ? 'bg-white/10 border-white/20 text-gray-300' :
               'bg-orange-500/15 border-orange-500/25 text-orange-300'
-            }`}>
-              <Lock className="w-2.5 h-2.5" />
+            )}>
+              <Lock className="size-2.5" aria-hidden="true" />
               {event.minSubscriptionTier === 'gold' ? 'Gold' : event.minSubscriptionTier === 'silber' ? 'Silber' : 'Bronze'}+
             </span>
           )}
@@ -141,17 +143,17 @@ export const EventCard = ({
         onClick={onView}
       >
         {event.isJoined && event.status === 'ended' ? (
-          <><Eye className="w-4 h-4" /> Ergebnisse</>
+          <><Eye className="size-4" aria-hidden="true" /> Ergebnisse</>
         ) : event.isJoined && event.status === 'running' ? (
-          <><Lock className="w-4 h-4" /> Nimmt teil</>
+          <><Lock className="size-4" aria-hidden="true" /> Nimmt teil</>
         ) : event.isJoined ? (
-          <><Edit3 className="w-4 h-4" /> Aufstellung</>
+          <><Edit3 className="size-4" aria-hidden="true" /> Aufstellung</>
         ) : event.status === 'ended' ? (
-          <><Eye className="w-4 h-4" /> Ergebnisse</>
+          <><Eye className="size-4" aria-hidden="true" /> Ergebnisse</>
         ) : event.status === 'running' ? (
-          <><Play className="w-4 h-4" /> Läuft</>
+          <><Play className="size-4" aria-hidden="true" /> Läuft</>
         ) : (
-          <><Plus className="w-4 h-4" /> {event.buyIn === 0 ? 'Beitreten' : `${event.buyIn} $SCOUT`}</>
+          <><Plus className="size-4" aria-hidden="true" /> {event.buyIn === 0 ? 'Beitreten' : `${event.buyIn} $SCOUT`}</>
         )}
       </Button>
     </Card>

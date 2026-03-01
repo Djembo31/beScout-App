@@ -109,7 +109,7 @@ export function ErgebnisseTab({
   if (isUpcoming) {
     return (
       <div className="py-16 text-center">
-        <Clock className="w-12 h-12 mx-auto mb-4 text-white/15" />
+        <Clock className="size-12 mx-auto mb-4 text-white/15" aria-hidden="true" />
         <div className="text-white/40 font-medium">{tf('ergebnisse.upcoming')}</div>
         <div className="text-white/20 text-xs mt-1">{tf('ergebnisse.upcomingDesc')}</div>
       </div>
@@ -120,7 +120,7 @@ export function ErgebnisseTab({
   if (scoredEvents.length === 0 && events.length > 0) {
     return (
       <div className="py-16 text-center">
-        <Clock className="w-12 h-12 mx-auto mb-4 text-white/15" />
+        <Clock className="size-12 mx-auto mb-4 text-white/15" aria-hidden="true" />
         <div className="text-white/40 font-medium">{tf('ergebnisse.pending')}</div>
         <div className="text-white/20 text-xs mt-1">{tf('ergebnisse.pendingDesc')}</div>
       </div>
@@ -131,7 +131,7 @@ export function ErgebnisseTab({
   if (events.length === 0) {
     return (
       <div className="py-16 text-center">
-        <Trophy className="w-12 h-12 mx-auto mb-4 text-gold/20" />
+        <Trophy className="size-12 mx-auto mb-4 text-gold/20" aria-hidden="true" />
         <div className="text-white/50 font-medium">{tf('ergebnisse.noData')}</div>
         <div className="text-xs text-white/30 mt-1 max-w-[280px] mx-auto leading-relaxed">{tf('ergebnisse.noDataDesc')}</div>
       </div>
@@ -144,7 +144,7 @@ export function ErgebnisseTab({
       {joinedScoredEvents.length > 0 && (
         <section>
           <div className="flex items-center gap-2 mb-3">
-            <Trophy className="w-4 h-4 text-gold" />
+            <Trophy className="size-4 text-gold" aria-hidden="true" />
             <h3 className="font-bold text-sm">{t('results')}</h3>
           </div>
           <div className="space-y-2">
@@ -158,7 +158,7 @@ export function ErgebnisseTab({
                   key={event.id}
                   className="flex items-center gap-3 p-3 bg-white/[0.03] border border-white/10 rounded-2xl"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
+                  <div className="size-10 rounded-xl bg-gold/10 flex items-center justify-center">
                     <span className="text-sm font-bold">{medalEmoji || `#${rank ?? '-'}`}</span>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -195,20 +195,20 @@ export function ErgebnisseTab({
       {resolvedPredictions.length > 0 && (
         <section>
           <div className="flex items-center gap-2 mb-3">
-            <Target className="w-4 h-4 text-gold" />
+            <Target className="size-4 text-gold" aria-hidden="true" />
             <h3 className="font-bold text-sm">{tf('ergebnisse.predictions')}</h3>
           </div>
           <Card className="p-3 flex items-center gap-4">
             <div className="flex items-center gap-1.5">
-              <BarChart3 className="w-4 h-4 text-white/30" />
+              <BarChart3 className="size-4 text-white/30" aria-hidden="true" />
               <span className="text-xs text-white/40">{tp('resolved')}</span>
             </div>
             <div className="flex items-center gap-3 ml-auto">
               <span className="flex items-center gap-1 text-xs font-bold text-green-500">
-                <CheckCircle className="w-3.5 h-3.5" /> {correctCount}
+                <CheckCircle className="size-3.5" aria-hidden="true" /> {correctCount}
               </span>
               <span className="flex items-center gap-1 text-xs font-bold text-red-400">
-                <XCircle className="w-3.5 h-3.5" /> {wrongCount}
+                <XCircle className="size-3.5" aria-hidden="true" /> {wrongCount}
               </span>
               <span className="text-xs font-mono font-bold text-white/60">
                 {accuracy}%
@@ -227,16 +227,16 @@ export function ErgebnisseTab({
       <section>
         <button
           onClick={() => setShowSeason(!showSeason)}
-          className="w-full flex items-center justify-between p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl hover:bg-white/[0.04] transition-all"
+          className="w-full flex items-center justify-between p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl hover:bg-white/[0.04] transition-colors"
         >
           <div className="flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-purple-400" />
+            <BarChart3 className="size-4 text-purple-400" aria-hidden="true" />
             <span className="font-bold text-sm">{tf('ergebnisse.seasonStats')}</span>
           </div>
           {showSeason ? (
-            <ChevronUp className="w-4 h-4 text-white/30" />
+            <ChevronUp className="size-4 text-white/30" aria-hidden="true" />
           ) : (
-            <ChevronDown className="w-4 h-4 text-white/30" />
+            <ChevronDown className="size-4 text-white/30" aria-hidden="true" />
           )}
         </button>
         {showSeason && (

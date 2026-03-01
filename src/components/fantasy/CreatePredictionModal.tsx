@@ -144,7 +144,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
         step === 'condition' ? (
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => { setStep('fixture'); setSelectedCondition(null); setSelectedValue(null); setPredType('match'); }}>
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="size-4" aria-hidden="true" />
             </Button>
             <Button
               className="flex-1"
@@ -157,7 +157,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
         ) : step === 'confirm' ? (
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setStep('condition')}>
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="size-4" aria-hidden="true" />
             </Button>
             <Button
               className="flex-1"
@@ -165,7 +165,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
               disabled={createMutation.isPending}
             >
               {createMutation.isPending ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
               ) : (
                 t('submit')
               )}
@@ -178,9 +178,9 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
         {/* Step indicator */}
         <div className="flex items-center gap-2 text-xs text-white/40">
           <span className={cn(step === 'fixture' && 'text-gold font-bold')}>{t('selectFixture')}</span>
-          <ChevronRight className="w-3 h-3" />
+          <ChevronRight className="size-3" aria-hidden="true" />
           <span className={cn(step === 'condition' && 'text-gold font-bold')}>{t('selectCondition')}</span>
-          <ChevronRight className="w-3 h-3" />
+          <ChevronRight className="size-3" aria-hidden="true" />
           <span className={cn(step === 'confirm' && 'text-gold font-bold')}>{t('confidence')}</span>
         </div>
 
@@ -204,7 +204,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                       {f.homeClubShort} <span className="text-white/30">vs</span> {f.awayClubShort}
                     </span>
                     <FixtureClubLogo club={away} />
-                    <ChevronRight className="w-4 h-4 text-white/20" />
+                    <ChevronRight className="size-4 text-white/20" aria-hidden="true" />
                   </button>
                 );
               })
@@ -224,7 +224,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                   predType === 'match' ? 'bg-gold/15 text-gold' : 'bg-white/5 text-white/40'
                 )}
               >
-                <Target className="w-3.5 h-3.5 inline mr-1" />
+                <Target className="size-3.5 inline mr-1" aria-hidden="true" />
                 Match
               </button>
               <button
@@ -234,7 +234,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                   predType === 'player' ? 'bg-gold/15 text-gold' : 'bg-white/5 text-white/40'
                 )}
               >
-                <User className="w-3.5 h-3.5 inline mr-1" />
+                <User className="size-3.5 inline mr-1" aria-hidden="true" />
                 {t('playerLabel')}
               </button>
             </div>
@@ -251,7 +251,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold/50"
                 />
                 {loadingPlayers ? (
-                  <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-white/30" aria-hidden="true" /></div>
+                  <div className="flex justify-center py-4"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" /></div>
                 ) : (
                   <div className="max-h-40 overflow-y-auto space-y-1">
                     {filteredPlayers.map(p => (
@@ -274,7 +274,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
             {/* Selected player badge */}
             {predType === 'player' && selectedPlayerId && (
               <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg">
-                <User className="w-3.5 h-3.5 text-gold" />
+                <User className="size-3.5 text-gold" aria-hidden="true" />
                 <span className="text-sm font-bold">{selectedPlayerName}</span>
                 <button onClick={() => { setSelectedPlayerId(null); setSelectedPlayerName(''); setSelectedCondition(null); setSelectedValue(null); }} className="ml-auto text-xs text-white/40 hover:text-white/60">
                   {t('change')}
@@ -370,7 +370,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
               </div>
             )}
 
-            {error && <p className="text-xs text-red-400">{error}</p>}
+            {error && <p className="text-xs text-red-400" role="alert">{error}</p>}
           </div>
         )}
       </div>
@@ -382,9 +382,9 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
 
 function FixtureClubLogo({ club }: { club: { logo?: string | null; colors?: { primary: string } } | null }) {
   if (club?.logo) {
-    return <img src={club.logo} alt="" className="w-6 h-6 rounded-full object-cover" />;
+    return <img src={club.logo} alt="" className="size-6 rounded-full object-cover" />;
   }
-  return <div className="w-5 h-5 rounded-full" style={{ backgroundColor: club?.colors?.primary ?? '#666' }} />;
+  return <div className="size-5 rounded-full" style={{ backgroundColor: club?.colors?.primary ?? '#666' }} />;
 }
 
 function getConditionLabel(condition: string, t: ReturnType<typeof useTranslations<'predictions'>>): string {

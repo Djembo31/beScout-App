@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 /**
  * Compact Gameweek Selector — [<] Spieltag 11 [>]
@@ -25,23 +26,25 @@ export const GameweekSelector = ({
       <button
         onClick={() => canPrev && onSelect(selectedGameweek - 1)}
         disabled={!canPrev}
-        className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        aria-label="Vorheriger Spieltag"
+        className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
-        <ChevronLeft className="w-5 h-5" />
+        <ChevronLeft className="size-5" aria-hidden="true" />
       </button>
 
       <button
         onClick={() => onSelect(activeGameweek)}
-        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border font-bold transition-all min-w-[180px] justify-center ${
+        className={cn(
+          'flex items-center gap-2 px-5 py-2.5 rounded-xl border font-bold transition-colors min-w-[180px] justify-center',
           isActive
             ? 'bg-green-500/10 border-green-500/30 text-green-500'
             : 'bg-white/5 border-white/10 text-white hover:border-white/20'
-        }`}
+        )}
       >
         <span className="text-base font-black">Spieltag {selectedGameweek}</span>
         {isActive && (
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="size-2 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none" />
             <span className="text-[10px] font-bold">AKTIV</span>
           </span>
         )}
@@ -50,9 +53,10 @@ export const GameweekSelector = ({
       <button
         onClick={() => canNext && onSelect(selectedGameweek + 1)}
         disabled={!canNext}
-        className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        aria-label="Nächster Spieltag"
+        className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
-        <ChevronRight className="w-5 h-5" />
+        <ChevronRight className="size-5" aria-hidden="true" />
       </button>
     </div>
   );

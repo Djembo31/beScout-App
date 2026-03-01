@@ -56,14 +56,14 @@ export const HistoryTab = ({
         {/* Profile Card */}
         <Card className="p-4 md:p-6 bg-gold/[0.04] border-gold/20">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center text-2xl font-black">
+            <div className="size-16 rounded-full bg-gold/20 flex items-center justify-center text-2xl font-black">
               {userDisplayName[0] || '?'}
             </div>
             <div>
               <span className="text-xl font-black">{userDisplayName}</span>
               {userFavoriteClub && (
                 <div className="text-xs text-white/40 flex items-center gap-1 mt-1">
-                  <Heart className="w-3 h-3 fill-pink-400 text-pink-400" />
+                  <Heart className="size-3 fill-pink-400 text-pink-400" aria-hidden="true" />
                   {userFavoriteClub}
                 </div>
               )}
@@ -84,7 +84,7 @@ export const HistoryTab = ({
         {/* Performance Stats */}
         <Card className="p-4 md:p-6">
           <h3 className="font-bold mb-4 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-purple-400" />
+            <BarChart3 className="size-4 text-purple-400" aria-hidden="true" />
             Performance
           </h3>
           <div className="grid grid-cols-2 gap-4">
@@ -110,7 +110,7 @@ export const HistoryTab = ({
         {/* Advanced Stats */}
         <Card className="p-4 md:p-6">
           <h3 className="font-bold mb-4 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-green-500" />
+            <TrendingUp className="size-4 text-green-500" aria-hidden="true" />
             Statistiken
           </h3>
           <div className="space-y-3">
@@ -140,7 +140,7 @@ export const HistoryTab = ({
       <Card className="overflow-hidden">
         <div className="p-4 border-b border-white/10 flex items-center justify-between">
           <h3 className="font-bold flex items-center gap-2">
-            <Crown className="w-4 h-4 text-gold" />
+            <Crown className="size-4 text-gold" aria-hidden="true" />
             Saison-Rangliste
           </h3>
           <div className="text-sm text-white/40">{seasonBoard.length} Manager</div>
@@ -151,7 +151,7 @@ export const HistoryTab = ({
           </div>
         ) : seasonBoard.length === 0 ? (
           <div className="text-center py-12 text-white/40">
-            <Trophy className="w-10 h-10 mx-auto mb-3 text-white/20" />
+            <Trophy className="size-10 mx-auto mb-3 text-white/20" aria-hidden="true" />
             <div className="text-sm">Noch keine Saison-Daten</div>
           </div>
         ) : (
@@ -175,7 +175,7 @@ export const HistoryTab = ({
                   return (
                     <tr key={entry.userId} className={cn('border-b border-white/5 hover:bg-white/[0.02]', isMe && 'bg-gold/[0.04]')}>
                       <td className={cn('py-3 px-4 font-mono font-bold text-sm', rankColor)}>
-                        {entry.rank <= 3 ? <Trophy className={cn('w-4 h-4 inline', rankColor)} /> : `#${entry.rank}`}
+                        {entry.rank <= 3 ? <Trophy className={cn('size-4 inline', rankColor)} aria-hidden="true" /> : `#${entry.rank}`}
                       </td>
                       <td className="py-3 px-4">
                         <Link href={`/profile/${entry.handle}`} className="hover:text-gold transition-colors">
@@ -213,7 +213,7 @@ export const HistoryTab = ({
                       isMe ? 'bg-gold/[0.06]' : 'bg-white/[0.02]'
                     )}>
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0',
+                        <div className={cn('size-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0',
                           entry.rank <= 3 ? 'bg-gold/15' : 'bg-white/5', rankColor
                         )}>
                           #{entry.rank}
@@ -249,7 +249,7 @@ export const HistoryTab = ({
         </div>
         {participations.length === 0 ? (
           <div className="text-center py-12 text-white/40">
-            <History className="w-10 h-10 mx-auto mb-3 text-white/20" />
+            <History className="size-10 mx-auto mb-3 text-white/20" aria-hidden="true" />
             <div className="text-sm">Noch keine ausgewerteten Events</div>
             <div className="text-xs text-white/25 mt-1">Tritt einem Event bei und warte auf die Auswertung.</div>
           </div>
@@ -277,7 +277,7 @@ export const HistoryTab = ({
                       </td>
                       <td className="py-3 px-4 text-center text-sm">{p.gameweek}</td>
                       <td className="py-3 px-4 text-center">
-                        <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded ${formResult.color} text-white text-sm font-bold`}>
+                        <div className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded text-white text-sm font-bold', formResult.color)}>
                           #{p.rank}
                         </div>
                       </td>
@@ -302,7 +302,7 @@ export const HistoryTab = ({
                 return (
                   <div key={i} className="flex items-center justify-between gap-3 p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${formResult.color} text-white shrink-0`}>
+                      <div className={cn('size-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0', formResult.color)}>
                         #{p.rank}
                       </div>
                       <div className="min-w-0">

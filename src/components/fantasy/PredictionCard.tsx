@@ -97,11 +97,11 @@ export function PredictionCard({ prediction }: PredictionCardProps) {
 
 function ClubDot({ club }: { club: { colors?: { primary: string }; logo?: string | null } | null }) {
   if (club?.logo) {
-    return <img src={club.logo} alt="" className="w-4 h-4 rounded-full object-cover" />;
+    return <img src={club.logo} alt="" className="size-4 rounded-full object-cover" />;
   }
   return (
     <div
-      className="w-3 h-3 rounded-full"
+      className="size-3 rounded-full"
       style={{ backgroundColor: club?.colors?.primary ?? '#666' }}
     />
   );
@@ -115,25 +115,25 @@ function getStatusConfig(
   switch (status) {
     case 'correct':
       return {
-        icon: <CheckCircle className="w-3.5 h-3.5" />,
+        icon: <CheckCircle className="size-3.5" aria-hidden="true" />,
         label: `+${points.toFixed(1)}`,
         className: 'text-green-500 bg-green-500/10',
       };
     case 'wrong':
       return {
-        icon: <XCircle className="w-3.5 h-3.5" />,
+        icon: <XCircle className="size-3.5" aria-hidden="true" />,
         label: `${points.toFixed(1)}`,
         className: 'text-red-400 bg-red-400/10',
       };
     case 'void':
       return {
-        icon: <MinusCircle className="w-3.5 h-3.5" />,
+        icon: <MinusCircle className="size-3.5" aria-hidden="true" />,
         label: t('void'),
         className: 'text-white/40 bg-white/5',
       };
     default:
       return {
-        icon: <Clock className="w-3.5 h-3.5 animate-pulse" />,
+        icon: <Clock className="size-3.5 animate-pulse motion-reduce:animate-none" aria-hidden="true" />,
         label: t('pending'),
         className: 'text-white/40 bg-white/5',
       };

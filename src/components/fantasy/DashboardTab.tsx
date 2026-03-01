@@ -52,7 +52,7 @@ export const DashboardTab = ({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
         <Card className="p-3 md:p-4 bg-gold/[0.06] border-gold/20">
           <div className="text-xs text-white/50 mb-1 flex items-center gap-1">
-            <Coins className="w-3 h-3" /> Gewonnene $SCOUT
+            <Coins className="size-3" aria-hidden="true" /> Gewonnene $SCOUT
           </div>
           <div className="text-xl md:text-3xl font-mono font-black text-gold">{fmtScout(totalRewardBsd)}</div>
         </Card>
@@ -76,13 +76,13 @@ export const DashboardTab = ({
         <Card className="p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold flex items-center gap-2">
-              <Activity className="w-4 h-4 text-purple-400" />
+              <Activity className="size-4 text-purple-400" aria-hidden="true" />
               Form (letzte 5)
             </h3>
           </div>
           <div className="flex items-center gap-2 mb-4">
             {formResults.map((result, i) => (
-              <div key={i} className={`w-8 h-8 rounded-full ${result.color} flex items-center justify-center text-xs font-bold`}>
+              <div key={i} className={`size-8 rounded-full ${result.color} flex items-center justify-center text-xs font-bold`}>
                 {result.label || (i + 1)}
               </div>
             ))}
@@ -102,7 +102,7 @@ export const DashboardTab = ({
           <Card className="p-5 lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-gold" />
+                <Trophy className="size-4 text-gold" aria-hidden="true" />
                 Letztes Event: {lastEvent.eventName}
               </h3>
               <Chip className="bg-white/10">{lastEvent.points} Punkte</Chip>
@@ -123,7 +123,7 @@ export const DashboardTab = ({
             </div>
             {lastEvent.rewardCents > 0 && (
               <div className="p-3 bg-gold/10 rounded-lg border border-gold/20 flex items-center gap-2">
-                <Gift className="w-4 h-4 text-gold" />
+                <Gift className="size-4 text-gold" aria-hidden="true" />
                 <span className="text-sm">Reward: <strong>{fmtScout(centsToBsd(lastEvent.rewardCents))} $SCOUT</strong></span>
               </div>
             )}
@@ -135,7 +135,7 @@ export const DashboardTab = ({
       <Card className="p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold flex items-center gap-2">
-            <Shield className="w-4 h-4 text-green-500" />
+            <Shield className="size-4 text-green-500" aria-hidden="true" />
             Aufstellung
           </h3>
           {currentLineup && <div className="text-sm text-white/50">GW{currentLineup.gameweek}</div>}
@@ -148,7 +148,7 @@ export const DashboardTab = ({
               <button
                 key={sl.eventId}
                 onClick={() => setSelectedIdx(idx)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
                   idx === selectedIdx
                     ? 'bg-gold/15 text-gold border-gold/30'
                     : 'bg-white/[0.03] text-white/50 border-white/[0.06] hover:bg-white/[0.06]'
@@ -264,7 +264,7 @@ export const DashboardTab = ({
                 <span className="text-white/50">Platz <span className="font-mono font-bold text-green-500">#{currentLineup.rank}</span> / {currentLineup.totalParticipants}</span>
                 {currentLineup.rewardCents > 0 && (
                   <span className="text-gold font-mono font-bold flex items-center gap-1">
-                    <Gift className="w-3 h-3" /> {fmtScout(centsToBsd(currentLineup.rewardCents))} $SCOUT
+                    <Gift className="size-3" aria-hidden="true" /> {fmtScout(centsToBsd(currentLineup.rewardCents))} $SCOUT
                   </span>
                 )}
               </div>
@@ -283,7 +283,7 @@ export const DashboardTab = ({
         <Card className="p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold flex items-center gap-2">
-              <Play className="w-4 h-4 text-green-500" />
+              <Play className="size-4 text-green-500" aria-hidden="true" />
               Aktiv
             </h3>
             <Chip className="bg-green-500/15 text-green-500 border-green-500/25">{activeEvents.length}</Chip>
@@ -294,7 +294,7 @@ export const DashboardTab = ({
                 <button
                   key={event.id}
                   onClick={() => onViewEvent(event)}
-                  className="w-full p-3 bg-white/[0.02] rounded-lg text-left hover:bg-white/[0.05] transition-all border border-white/5 hover:border-green-500/30"
+                  className="w-full p-3 bg-white/[0.02] rounded-lg text-left hover:bg-white/[0.05] transition-colors border border-white/5 hover:border-green-500/30"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm truncate">{event.name}</span>
@@ -313,7 +313,7 @@ export const DashboardTab = ({
         <Card className="p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-sky-400" />
+              <CheckCircle2 className="size-4 text-sky-400" aria-hidden="true" />
               Registriert
             </h3>
             <Chip className="bg-sky-500/15 text-sky-400 border-sky-500/25">{registeredEvents.length}</Chip>
@@ -324,7 +324,7 @@ export const DashboardTab = ({
                 <button
                   key={event.id}
                   onClick={() => onViewEvent(event)}
-                  className="w-full p-3 bg-white/[0.02] rounded-lg text-left hover:bg-white/[0.05] transition-all border border-white/5 hover:border-sky-500/30"
+                  className="w-full p-3 bg-white/[0.02] rounded-lg text-left hover:bg-white/[0.05] transition-colors border border-white/5 hover:border-sky-500/30"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm truncate">{event.name}</span>
@@ -343,7 +343,7 @@ export const DashboardTab = ({
         <Card className="p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold flex items-center gap-2">
-              <Heart className="w-4 h-4 text-pink-400" />
+              <Heart className="size-4 text-pink-400" aria-hidden="true" />
               Interessiert
             </h3>
             <Chip className="bg-pink-500/15 text-pink-400 border-pink-500/25">{interestedEvents.length}</Chip>
@@ -354,7 +354,7 @@ export const DashboardTab = ({
                 <button
                   key={event.id}
                   onClick={() => onViewEvent(event)}
-                  className="w-full p-3 bg-white/[0.02] rounded-lg text-left hover:bg-white/[0.05] transition-all border border-white/5 hover:border-pink-500/30"
+                  className="w-full p-3 bg-white/[0.02] rounded-lg text-left hover:bg-white/[0.05] transition-colors border border-white/5 hover:border-pink-500/30"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm truncate">{event.name}</span>

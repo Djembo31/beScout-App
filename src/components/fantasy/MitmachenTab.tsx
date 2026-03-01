@@ -69,7 +69,7 @@ export function MitmachenTab({
       {/* ── SECTION 1: Meine Aufstellungen ── */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <Trophy className="w-4 h-4 text-gold" />
+          <Trophy className="size-4 text-gold" aria-hidden="true" />
           <h3 className="font-bold text-sm">{t('myLineups')}</h3>
           {joinedEvents.length > 0 && (
             <span className="text-[10px] text-white/30 font-mono">{joinedEvents.length}</span>
@@ -78,7 +78,7 @@ export function MitmachenTab({
 
         {joinedEvents.length === 0 ? (
           <Card className="p-6 text-center">
-            <Trophy className="w-8 h-8 text-gold/30 mx-auto mb-2" />
+            <Trophy className="size-8 text-gold/30 mx-auto mb-2" aria-hidden="true" />
             <div className="text-sm text-white/50 font-medium">{tf('mitmachen.noLineups')}</div>
             <div className="text-xs text-white/30 mt-1 max-w-[280px] mx-auto leading-relaxed">{tf('mitmachen.noLineupsCta')}</div>
             <Button variant="gold" size="sm" className="mt-3" onClick={() => { const el = document.querySelector('[data-tab="events"]'); if (el instanceof HTMLElement) el.click(); }}>
@@ -99,20 +99,20 @@ export function MitmachenTab({
                 <button
                   key={event.id}
                   onClick={() => onEventClick(event)}
-                  className="w-full flex items-center gap-3 p-3 bg-white/[0.03] border border-white/10 rounded-2xl hover:bg-white/[0.06] transition-all text-left active:scale-[0.98]"
+                  className="w-full flex items-center gap-3 p-3 bg-white/[0.03] border border-white/10 rounded-2xl hover:bg-white/[0.06] transition-colors text-left active:scale-[0.98]"
                 >
                   <div className="flex-shrink-0">
                     {isScored && rank != null ? (
-                      <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
+                      <div className="size-10 rounded-xl bg-gold/10 flex items-center justify-center">
                         <span className="text-sm font-black text-gold">#{rank}</span>
                       </div>
                     ) : hasLineup ? (
-                      <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      <div className="size-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                        <CheckCircle2 className="size-5 text-green-500" aria-hidden="true" />
                       </div>
                     ) : (
-                      <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
-                        <AlertTriangle className="w-5 h-5 text-orange-400" />
+                      <div className="size-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
+                        <AlertTriangle className="size-5 text-orange-400" aria-hidden="true" />
                       </div>
                     )}
                   </div>
@@ -129,10 +129,10 @@ export function MitmachenTab({
                     </div>
                   </div>
                   <div className={`flex items-center gap-1 px-2 py-0.5 rounded ${sStyle.bg} ${sStyle.text}`}>
-                    {sStyle.pulse && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" />}
+                    {sStyle.pulse && <div className="size-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" />}
                     <span className="text-[9px] font-bold">{sStyle.label}</span>
                   </div>
-                  <Eye className="w-4 h-4 text-white/20 flex-shrink-0" />
+                  <Eye className="size-4 text-white/20 flex-shrink-0" aria-hidden="true" />
                 </button>
               );
             })}

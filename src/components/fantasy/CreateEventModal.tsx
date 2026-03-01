@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button, Modal } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import type { FantasyEvent, EventMode, LineupFormat } from './types';
 
 export const CreateEventModal = ({
@@ -63,7 +64,7 @@ export const CreateEventModal = ({
             Abbrechen
           </Button>
           <Button variant="gold" onClick={handleCreate} disabled={!canSubmit} className="flex-1">
-            <Plus className="w-4 h-4" />
+            <Plus className="size-4" aria-hidden="true" />
             Event erstellen
           </Button>
         </div>
@@ -71,14 +72,15 @@ export const CreateEventModal = ({
     >
       <div className="space-y-4">
         {error && (
-          <div className="text-sm text-red-300 bg-red-500/10 border border-red-400/20 rounded-xl px-3 py-2">
+          <div role="alert" className="text-sm text-red-300 bg-red-500/10 border border-red-400/20 rounded-xl px-3 py-2">
             {error}
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-medium mb-2">Event-Name *</label>
+          <label htmlFor="create-event-name" className="block text-sm font-medium mb-2">Event-Name *</label>
           <input
+            id="create-event-name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -89,8 +91,9 @@ export const CreateEventModal = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Beschreibung</label>
+          <label htmlFor="create-event-desc" className="block text-sm font-medium mb-2">Beschreibung</label>
           <textarea
+            id="create-event-desc"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Beschreibe dein Event..."
@@ -102,8 +105,9 @@ export const CreateEventModal = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Modus</label>
+            <label htmlFor="create-event-mode" className="block text-sm font-medium mb-2">Modus</label>
             <select
+              id="create-event-mode"
               value={mode}
               onChange={(e) => setMode(e.target.value as EventMode)}
               className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
@@ -113,8 +117,9 @@ export const CreateEventModal = ({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Format</label>
+            <label htmlFor="create-event-format" className="block text-sm font-medium mb-2">Format</label>
             <select
+              id="create-event-format"
               value={format}
               onChange={(e) => setFormat(e.target.value as LineupFormat)}
               className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
@@ -127,8 +132,9 @@ export const CreateEventModal = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Teilnahmegebühr ($SCOUT)</label>
+            <label htmlFor="create-event-buyin" className="block text-sm font-medium mb-2">Teilnahmegebühr ($SCOUT)</label>
             <input
+              id="create-event-buyin"
               type="number"
               inputMode="numeric"
               value={buyIn}
@@ -141,8 +147,9 @@ export const CreateEventModal = ({
             <div className="text-[10px] text-white/30 mt-1">Pilot: immer 0 $SCOUT (regulatorisch)</div>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Max. Teilnehmer</label>
+            <label htmlFor="create-event-max" className="block text-sm font-medium mb-2">Max. Teilnehmer</label>
             <input
+              id="create-event-max"
               type="number"
               inputMode="numeric"
               value={maxParticipants}
@@ -160,10 +167,13 @@ export const CreateEventModal = ({
             <div className="text-xs text-white/50">Nur mit Einladungslink beitreten</div>
           </div>
           <button
+            role="switch"
+            aria-checked={isPrivate}
+            aria-label="Privates Event"
             onClick={() => setIsPrivate(!isPrivate)}
-            className={`w-12 h-6 rounded-full transition-all ${isPrivate ? 'bg-gold' : 'bg-white/20'}`}
+            className={cn('w-12 h-6 rounded-full transition-colors', isPrivate ? 'bg-gold' : 'bg-white/20')}
           >
-            <div className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-all ${isPrivate ? 'translate-x-6' : 'translate-x-0.5'}`} />
+            <div className={cn('size-5 rounded-full bg-white shadow-md transform transition-transform', isPrivate ? 'translate-x-6' : 'translate-x-0.5')} />
           </button>
         </div>
 

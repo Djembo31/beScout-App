@@ -40,7 +40,7 @@ function FixtureCard({ fixture, onSelect }: { fixture: Fixture; onSelect: () => 
         <div className="flex-1 flex items-center gap-2 justify-end min-w-0">
           <span className="font-bold text-sm truncate">{fixture.home_club_short}</span>
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0"
+            className="size-8 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0"
             style={{ backgroundColor: (homeClub?.colors.primary ?? fixture.home_club_primary_color ?? '#333') + '30', color: homeClub?.colors.primary ?? fixture.home_club_primary_color ?? '#fff' }}
           >
             {fixture.home_club_short.slice(0, 2)}
@@ -65,7 +65,7 @@ function FixtureCard({ fixture, onSelect }: { fixture: Fixture; onSelect: () => 
         {/* Away team */}
         <div className="flex-1 flex items-center gap-2 min-w-0">
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0"
+            className="size-8 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0"
             style={{ backgroundColor: (awayClub?.colors.primary ?? fixture.away_club_primary_color ?? '#333') + '30', color: awayClub?.colors.primary ?? fixture.away_club_primary_color ?? '#fff' }}
           >
             {fixture.away_club_short.slice(0, 2)}
@@ -80,7 +80,7 @@ function FixtureCard({ fixture, onSelect }: { fixture: Fixture; onSelect: () => 
           {isSimulated ? 'Simuliert' : 'Geplant'}
         </span>
         <span className="text-white/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-          <Eye className="w-3 h-3" /> Details
+          <Eye className="size-3" aria-hidden="true" /> Details
         </span>
       </div>
     </button>
@@ -122,7 +122,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose }: { fixture: Fixture | n
         <div className="flex items-center justify-center gap-4">
           <div className="flex items-center gap-2">
             <div
-              className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black"
+              className="size-10 rounded-full flex items-center justify-center text-sm font-black"
               style={{ backgroundColor: (homeClub?.colors.primary ?? '#333') + '30', color: homeClub?.colors.primary ?? '#fff' }}
             >
               {fixture.home_club_short.slice(0, 2)}
@@ -137,7 +137,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose }: { fixture: Fixture | n
           <div className="flex items-center gap-2">
             <span className="font-bold">{fixture.away_club_name}</span>
             <div
-              className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black"
+              className="size-10 rounded-full flex items-center justify-center text-sm font-black"
               style={{ backgroundColor: (awayClub?.colors.primary ?? '#333') + '30', color: awayClub?.colors.primary ?? '#fff' }}
             >
               {fixture.away_club_short.slice(0, 2)}
@@ -147,7 +147,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose }: { fixture: Fixture | n
 
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin motion-reduce:animate-none text-gold" />
+            <Loader2 className="size-6 animate-spin motion-reduce:animate-none text-gold" aria-hidden="true" />
           </div>
         ) : stats.length === 0 ? (
           <div className="text-center text-white/30 py-8">Keine Spielerdaten verfügbar</div>
@@ -174,7 +174,7 @@ function TeamStats({ label, stats, color }: { label: string; stats: FixturePlaye
 
   return (
     <div>
-      <div className="text-xs font-black uppercase tracking-wider mb-2" style={{ color }}>{label}</div>
+      <div className="text-xs font-black uppercase mb-2" style={{ color }}>{label}</div>
       <div className="space-y-1">
         {sorted.map(s => (
           <div key={s.id} className="flex items-center gap-2 px-2 py-1.5 bg-white/[0.02] rounded-lg text-xs">
@@ -192,7 +192,7 @@ function TeamStats({ label, stats, color }: { label: string; stats: FixturePlaye
             {s.red_card && <span className="w-2.5 h-3 bg-red-500 rounded-[1px] inline-block" />}
             {s.bonus > 0 && (
               <span className="flex items-center gap-0.5 text-gold">
-                <Star className="w-2.5 h-2.5" />{s.bonus}
+                <Star className="size-2.5" aria-hidden="true" />{s.bonus}
               </span>
             )}
             <span className="font-mono font-bold text-white/80 w-6 text-right">{s.fantasy_points}</span>
@@ -239,8 +239,9 @@ export function GameweekTab() {
           onClick={() => setGameweek(gw => Math.max(1, gw - 1))}
           disabled={gameweek <= 1}
           className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-30 transition-colors"
+          aria-label="Vorheriger Spieltag"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="size-5" aria-hidden="true" />
         </button>
 
         <div className="text-center">
@@ -251,7 +252,7 @@ export function GameweekTab() {
             ) : simulatedCount > 0 ? (
               <span>{simulatedCount}/10 simuliert</span>
             ) : (
-              <span className="flex items-center gap-1 justify-center"><Clock className="w-3 h-3" /> Noch nicht simuliert</span>
+              <span className="flex items-center gap-1 justify-center"><Clock className="size-3" aria-hidden="true" /> Noch nicht simuliert</span>
             )}
           </div>
         </div>
@@ -260,8 +261,9 @@ export function GameweekTab() {
           onClick={() => setGameweek(gw => Math.min(38, gw + 1))}
           disabled={gameweek >= 38}
           className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-30 transition-colors"
+          aria-label="Nächster Spieltag"
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="size-5" aria-hidden="true" />
         </button>
       </div>
 
@@ -271,7 +273,7 @@ export function GameweekTab() {
           <button
             key={gw}
             onClick={() => setGameweek(gw)}
-            className={`flex-shrink-0 w-9 h-9 rounded-lg text-xs font-bold transition-colors ${
+            className={`flex-shrink-0 size-9 rounded-lg text-xs font-bold transition-colors ${
               gw === gameweek
                 ? 'bg-gold/15 text-gold border border-gold/30'
                 : 'bg-white/[0.03] text-white/40 border border-white/[0.06] hover:border-white/15'
@@ -291,7 +293,7 @@ export function GameweekTab() {
         </div>
       ) : fixtures.length === 0 ? (
         <Card className="p-12 text-center">
-          <Trophy className="w-12 h-12 mx-auto mb-4 text-white/20" />
+          <Trophy className="size-12 mx-auto mb-4 text-white/20" aria-hidden="true" />
           <div className="text-white/30">Keine Spiele für Spieltag {gameweek}</div>
         </Card>
       ) : (
@@ -349,7 +351,7 @@ function TopScorersSummary({ gameweek }: { gameweek: number }) {
   return (
     <Card className="p-4">
       <div className="flex items-center gap-2 mb-3">
-        <Trophy className="w-4 h-4 text-gold" />
+        <Trophy className="size-4 text-gold" aria-hidden="true" />
         <span className="text-sm font-black">Top Scorer — Spieltag {gameweek}</span>
       </div>
       <div className="space-y-1.5">

@@ -362,17 +362,17 @@ export const EventDetailModal = ({
         <div className="flex items-center flex-wrap gap-2 mb-3">
           {isScored ? (
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-purple-500/20 text-purple-300">
-              <Trophy className="w-3.5 h-3.5" />
+              <Trophy aria-hidden="true" className="size-3.5" />
               <span className="text-xs font-bold">Ausgewertet</span>
             </div>
           ) : event.isJoined ? (
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-green-500 text-white">
-              <CheckCircle2 className="w-3.5 h-3.5" />
+              <CheckCircle2 aria-hidden="true" className="size-3.5" />
               <span className="text-xs font-bold">Nimmt teil</span>
             </div>
           ) : (
             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded ${statusStyle.bg} ${statusStyle.text}`}>
-              {statusStyle.pulse && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" />}
+              {statusStyle.pulse && <div className="size-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" />}
               <span className="text-xs font-bold">{statusStyle.label}</span>
             </div>
           )}
@@ -382,16 +382,16 @@ export const EventDetailModal = ({
             <button
               onClick={handleResetEvent}
               disabled={resetting}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-50 ml-auto"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50 ml-auto"
             >
-              {resetting ? <RefreshCw className="w-3.5 h-3.5 animate-spin motion-reduce:animate-none" /> : <History className="w-3.5 h-3.5" />}
+              {resetting ? <RefreshCw aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" /> : <History aria-hidden="true" className="size-3.5" />}
               {resetting ? 'Wird zurückgesetzt...' : 'Zurücksetzen'}
             </button>
           )}
         </div>
         <div className="flex items-center gap-4 text-sm text-white/50 mb-4">
-          <span className="flex items-center gap-1"><Users className="w-4 h-4" />{event.participants}{event.maxParticipants ? `/${event.maxParticipants}` : ''}</span>
-          <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{event.status === 'ended' ? 'Beendet' : formatCountdown(event.lockTime)}</span>
+          <span className="flex items-center gap-1"><Users aria-hidden="true" className="size-4" />{event.participants}{event.maxParticipants ? `/${event.maxParticipants}` : ''}</span>
+          <span className="flex items-center gap-1"><Clock aria-hidden="true" className="size-4" />{event.status === 'ended' ? 'Beendet' : formatCountdown(event.lockTime)}</span>
         </div>
 
         {/* Tabs */}
@@ -400,7 +400,7 @@ export const EventDetailModal = ({
             <button
               key={t}
               onClick={() => { setTab(t); setViewingUserLineup(null); }}
-              className={`flex-1 px-4 py-3 min-h-[44px] font-medium text-sm transition-all relative ${tab === t ? 'text-gold' : 'text-white/50 hover:text-white'
+              className={`flex-1 px-4 py-3 min-h-[44px] font-medium text-sm transition-colors relative ${tab === t ? 'text-gold' : 'text-white/50 hover:text-white'
                 }`}
             >
               {t === 'overview' ? 'Übersicht' : t === 'lineup' ? 'Aufstellung' : t === 'leaderboard' ? 'Rangliste' : 'Community'}
@@ -424,7 +424,7 @@ export const EventDetailModal = ({
               {event.eventTier === 'arena' && (
                 <div className="p-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/20">
                   <div className="flex items-center gap-2 mb-3">
-                    <Swords className="w-5 h-5 text-amber-400" />
+                    <Swords aria-hidden="true" className="size-5 text-amber-400" />
                     <h3 className="font-bold text-amber-400">Arena-Wertung</h3>
                   </div>
                   <p className="text-xs text-white/60 mb-3">
@@ -488,55 +488,55 @@ export const EventDetailModal = ({
                   {/* Always show DPC per slot requirement */}
                   <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                     <div className="flex items-center gap-2">
-                      <Layers className="w-4 h-4 text-gold" />
+                      <Layers aria-hidden="true" className="size-4 text-gold" />
                       <span>{event.requirements.dpcPerSlot ?? 1} DPC pro Aufstellungsplatz</span>
                     </div>
-                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
                   </div>
                   {event.requirements.minDpc && (
                     <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
-                        <Briefcase className="w-4 h-4 text-gold" />
+                        <Briefcase aria-hidden="true" className="size-4 text-gold" />
                         <span>Min. {event.requirements.minDpc} DPC gesamt</span>
                       </div>
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
                     </div>
                   )}
                   {event.requirements.minClubPlayers && (
                     <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
-                        <Building2 className="w-4 h-4 text-green-500" />
+                        <Building2 aria-hidden="true" className="size-4 text-green-500" />
                         <span>Min. {event.requirements.minClubPlayers} {event.clubName || 'Club'}-Spieler</span>
                       </div>
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
                     </div>
                   )}
                   {event.requirements.minScoutLevel && (
                     <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
-                        <Star className="w-4 h-4 text-purple-400" />
+                        <Star aria-hidden="true" className="size-4 text-purple-400" />
                         <span>Scout Level {event.requirements.minScoutLevel}+</span>
                       </div>
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
                     </div>
                   )}
                   {event.requirements.specificClub && (
                     <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
-                        <Shield className="w-4 h-4 text-sky-400" />
+                        <Shield aria-hidden="true" className="size-4 text-sky-400" />
                         <span>Nur {event.requirements.specificClub}-Spieler</span>
                       </div>
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
                     </div>
                   )}
                   {/* Entry fee condition */}
                   {event.buyIn > 0 && (
                     <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
-                        <Coins className="w-4 h-4 text-gold" />
+                        <Coins aria-hidden="true" className="size-4 text-gold" />
                         <span>Eintrittsgebühr: {event.buyIn} $SCOUT</span>
                       </div>
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
                     </div>
                   )}
                 </div>
@@ -549,7 +549,7 @@ export const EventDetailModal = ({
                   {event.rewards.map((r, i) => (
                     <div key={i} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
-                        <Medal className={`w-4 h-4 ${i === 0 ? 'text-gold' : i === 1 ? 'text-white/70' : 'text-orange-400'}`} />
+                        <Medal aria-hidden="true" className={`size-4 ${i === 0 ? 'text-gold' : i === 1 ? 'text-white/70' : 'text-orange-400'}`} />
                         <span className="font-bold">{r.rank}</span>
                       </div>
                       <span className="text-white/70">{r.reward}</span>
@@ -570,7 +570,7 @@ export const EventDetailModal = ({
                   ) : (
                     participants.slice(0, 5).map(p => (
                       <div key={p.id} className={`flex items-center gap-3 p-2 rounded-lg ${p.id === user?.id ? 'bg-gold/10 border border-gold/30' : 'bg-white/5'}`}>
-                        <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
+                        <div className="size-6 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
                           {p.avatar_url ? <img src={p.avatar_url} alt={p.handle} className="w-full h-full object-cover" /> : <div className="text-xs flex items-center justify-center w-full h-full">👤</div>}
                         </div>
                         <div className="flex-1 text-xs">
@@ -615,13 +615,13 @@ export const EventDetailModal = ({
               {/* Status banner */}
               {isReadOnly && !isScored && (
                 <div className="flex items-center gap-2 p-3 bg-white/[0.03] border border-white/10 rounded-lg">
-                  <Lock className="w-4 h-4 text-white/40" />
+                  <Lock aria-hidden="true" className="size-4 text-white/40" />
                   <span className="text-sm text-white/50">{event.status === 'running' ? 'Event läuft — Aufstellung gesperrt' : 'Event beendet'}</span>
                 </div>
               )}
               {isScored && (
                 <div className="flex items-center gap-2 p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                  <Award className="w-4 h-4 text-purple-400" />
+                  <Award aria-hidden="true" className="size-4 text-purple-400" />
                   <span className="text-sm text-purple-300 font-bold">
                     {scoringJustFinished ? 'Gameweek ausgewertet — Deine Ergebnisse:' : 'Ausgewertet'}
                     {event.scoredAt && !scoringJustFinished && (
@@ -647,9 +647,9 @@ export const EventDetailModal = ({
                     <div className="flex-1" />
                     <button
                       onClick={() => setShowPresets(!showPresets)}
-                      className="px-3 py-2 min-h-[44px] bg-white/5 border border-white/10 rounded-lg text-xs font-bold hover:bg-white/10 transition-all flex items-center gap-1"
+                      className="px-3 py-2 min-h-[44px] bg-white/5 border border-white/10 rounded-lg text-xs font-bold hover:bg-white/10 transition-colors flex items-center gap-1"
                     >
-                      <Briefcase className="w-3.5 h-3.5" /> Vorlagen
+                      <Briefcase aria-hidden="true" className="size-3.5" /> Vorlagen
                     </button>
                   </>
                 )}
@@ -661,11 +661,11 @@ export const EventDetailModal = ({
                   <div className="text-xs font-bold text-white/60 mb-2">Aufstellungs-Vorlagen (max 5)</div>
                   {loadPresets().map((preset, i) => (
                     <div key={i} className="flex items-center justify-between p-2 bg-surface-base rounded-lg">
-                      <button onClick={() => applyPreset(preset)} className="text-sm font-medium hover:text-gold transition-all flex-1 text-left">
+                      <button onClick={() => applyPreset(preset)} className="text-sm font-medium hover:text-gold transition-colors flex-1 text-left">
                         {preset.name} <span className="text-white/30 text-xs">({preset.formation})</span>
                       </button>
-                      <button onClick={() => deletePreset(i)} className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-red-500/20 rounded text-red-400">
-                        <X className="w-3 h-3" />
+                      <button onClick={() => deletePreset(i)} aria-label="Vorlage löschen" className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-red-500/20 rounded text-red-400">
+                        <X aria-hidden="true" className="size-3" />
                       </button>
                     </div>
                   ))}
@@ -695,16 +695,16 @@ export const EventDetailModal = ({
                   {event.sponsorLogo ? (
                     <img src={event.sponsorLogo} alt={event.sponsorName || 'Sponsor'} className="h-5 w-auto object-contain" />
                   ) : (
-                    <div className="w-5 h-5 rounded bg-gold/20 flex items-center justify-center">
-                      <Sparkles className="w-3 h-3 text-gold" />
+                    <div className="size-5 rounded bg-gold/20 flex items-center justify-center">
+                      <Sparkles aria-hidden="true" className="size-3 text-gold" />
                     </div>
                   )}
-                  <span className="text-xs font-bold tracking-widest text-white/50 uppercase">{event.sponsorName || 'Sponsor-Fläche'}</span>
+                  <span className="text-xs font-bold text-white/50 uppercase">{event.sponsorName || 'Sponsor-Fläche'}</span>
                   {event.sponsorLogo ? (
                     <img src={event.sponsorLogo} alt="" className="h-5 w-auto object-contain" />
                   ) : (
-                    <div className="w-5 h-5 rounded bg-gold/20 flex items-center justify-center">
-                      <Sparkles className="w-3 h-3 text-gold" />
+                    <div className="size-5 rounded bg-gold/20 flex items-center justify-center">
+                      <Sparkles aria-hidden="true" className="size-3 text-gold" />
                     </div>
                   )}
                 </div>
@@ -734,11 +734,11 @@ export const EventDetailModal = ({
 
                   {/* Midfield Sponsor (Center Circle) */}
                   <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                    <div className="w-20 h-20 rounded-full border border-white/[0.06] flex items-center justify-center">
+                    <div className="size-20 rounded-full border border-white/[0.06] flex items-center justify-center">
                       {event.sponsorLogo ? (
-                        <img src={event.sponsorLogo} alt="" className="w-12 h-12 object-contain opacity-30" />
+                        <img src={event.sponsorLogo} alt="" className="size-12 object-contain opacity-30" />
                       ) : (
-                        <span className="text-[9px] text-white/15 font-bold tracking-wider uppercase">Sponsor</span>
+                        <span className="text-[9px] text-white/15 font-bold uppercase">Sponsor</span>
                       )}
                     </div>
                   </div>
@@ -762,8 +762,8 @@ export const EventDetailModal = ({
                               <div key={slot.slot} className="flex flex-col items-center relative">
                                 {/* Captain Crown (top-left) */}
                                 {player && isCaptain && (
-                                  <div className="absolute -top-2 -left-2 z-30 w-5 h-5 rounded-full bg-gold flex items-center justify-center shadow-lg">
-                                    <Crown className="w-3 h-3 text-black" />
+                                  <div className="absolute -top-2 -left-2 z-30 size-5 rounded-full bg-gold flex items-center justify-center shadow-lg">
+                                    <Crown aria-hidden="true" className="size-3 text-black" />
                                   </div>
                                 )}
                                 {/* Captain ×1.5 badge (scored view) */}
@@ -820,7 +820,7 @@ export const EventDetailModal = ({
                                   {player ? (
                                     <span className="font-bold text-sm" style={{ color: hasScore ? '#fff' : isCaptain ? '#FFD700' : getPosAccentColor(player.pos) }}>{player.first[0]}{player.last[0]}</span>
                                   ) : (
-                                    <Plus className="w-5 h-5 text-white/30" />
+                                    <Plus aria-hidden="true" className="size-5 text-white/30" />
                                   )}
                                 </div>
                                 {pStatus && !hasScore && pStatus.icon !== '🟢' && !isCaptain && (
@@ -848,19 +848,19 @@ export const EventDetailModal = ({
                     {event.sponsorLogo ? (
                       <img src={event.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
                     ) : (
-                      <div className="w-4 h-4 rounded bg-gold/20 flex items-center justify-center">
-                        <Building2 className="w-2.5 h-2.5 text-gold/60" />
+                      <div className="size-4 rounded bg-gold/20 flex items-center justify-center">
+                        <Building2 aria-hidden="true" className="size-2.5 text-gold/60" />
                       </div>
                     )}
                     <span className="text-[9px] text-white/30 font-medium">{event.sponsorName || 'Sponsor Logo'}</span>
                   </div>
-                  <span className="text-[9px] text-white/20 font-bold tracking-widest uppercase">{event.sponsorName ? `${event.sponsorName} × BeScout` : 'Powered by BeScout'}</span>
+                  <span className="text-[9px] text-white/20 font-bold uppercase">{event.sponsorName ? `${event.sponsorName} × BeScout` : 'Powered by BeScout'}</span>
                   <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.04] rounded-lg border border-white/[0.06]">
                     {event.sponsorLogo ? (
                       <img src={event.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
                     ) : (
-                      <div className="w-4 h-4 rounded bg-gold/20 flex items-center justify-center">
-                        <Building2 className="w-2.5 h-2.5 text-gold/60" />
+                      <div className="size-4 rounded bg-gold/20 flex items-center justify-center">
+                        <Building2 aria-hidden="true" className="size-2.5 text-gold/60" />
                       </div>
                     )}
                     <span className="text-[9px] text-white/30 font-medium">{event.sponsorName || 'Sponsor Logo'}</span>
@@ -875,18 +875,18 @@ export const EventDetailModal = ({
                   {scoringJustFinished && <div className="absolute inset-0 bg-gold/5 animate-pulse motion-reduce:animate-none" />}
                   <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 md:p-5 gap-3 sm:gap-0">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center">
-                        <Trophy className="w-6 h-6 text-gold" />
+                      <div className="size-12 rounded-xl bg-gold/20 flex items-center justify-center">
+                        <Trophy aria-hidden="true" className="size-6 text-gold" />
                       </div>
                       <div>
-                        <div className="text-xs text-white/50 uppercase tracking-wider font-bold">Dein Teamscore</div>
+                        <div className="text-xs text-white/50 uppercase font-bold">Dein Teamscore</div>
                         <div className="text-3xl font-mono font-black text-gold">{myTotalScore} <span className="text-lg">Pkt</span></div>
                       </div>
                     </div>
                     <div className="flex items-center gap-5">
                       {myRank && (
                         <div className="text-right">
-                          <div className="text-xs text-white/50 uppercase tracking-wider font-bold">Platzierung</div>
+                          <div className="text-xs text-white/50 uppercase font-bold">Platzierung</div>
                           <div className={`text-3xl font-mono font-black ${myRank === 1 ? 'text-gold' : myRank <= 3 ? 'text-green-500' : 'text-white'}`}>
                             #{myRank}
                           </div>
@@ -897,7 +897,7 @@ export const EventDetailModal = ({
                         if (myEntry && myEntry.rewardAmount > 0) {
                           return (
                             <div className="text-right">
-                              <div className="text-xs text-white/50 uppercase tracking-wider font-bold">Prämie</div>
+                              <div className="text-xs text-white/50 uppercase font-bold">Prämie</div>
                               <div className="text-xl font-mono font-black text-green-500">+{fmtScout(myEntry.rewardAmount / 100)} $SCOUT</div>
                             </div>
                           );
@@ -912,15 +912,15 @@ export const EventDetailModal = ({
               {/* Post-Game Nudge: Trading */}
               {isScored && myRank && myRank > 3 && (
                 <Link href="/market?tab=kaufen" onClick={onClose}>
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gold/[0.06] border border-gold/15 hover:border-gold/30 transition-all">
-                    <div className="w-8 h-8 rounded-lg bg-gold/15 flex items-center justify-center flex-shrink-0">
-                      <Zap className="w-4 h-4 text-gold" />
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gold/[0.06] border border-gold/15 hover:border-gold/30 transition-colors">
+                    <div className="size-8 rounded-lg bg-gold/15 flex items-center justify-center flex-shrink-0">
+                      <Zap aria-hidden="true" className="size-4 text-gold" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-bold text-white">Portfolio stärken?</div>
                       <div className="text-[11px] text-white/40">Bessere Spieler = höhere Scores. Zum Marktplatz →</div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-white/30 flex-shrink-0" />
+                    <ChevronRight aria-hidden="true" className="size-4 text-white/30 flex-shrink-0" />
                   </div>
                 </Link>
               )}
@@ -928,7 +928,7 @@ export const EventDetailModal = ({
               {/* Scored Player Breakdown List */}
               {isScored && slotScores && (
                 <div className="space-y-1.5">
-                  <div className="text-xs text-white/40 font-bold uppercase tracking-wider px-1">Einzelbewertungen</div>
+                  <div className="text-xs text-white/40 font-bold uppercase px-1">Einzelbewertungen</div>
                   {formationSlots.map(slot => {
                     const player = getSelectedPlayer(slot.slot);
                     const scoreKey = slotDbKeys[slot.slot];
@@ -941,8 +941,8 @@ export const EventDetailModal = ({
                       <div key={slot.slot} className={`flex items-center justify-between p-3 rounded-lg bg-surface-base border ${isCpt ? 'border-gold/30' : 'border-white/[0.06]'}`}>
                         <div className="flex items-center gap-3">
                           {isCpt ? (
-                            <div className="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
-                              <Crown className="w-3.5 h-3.5 text-gold" />
+                            <div className="size-6 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
+                              <Crown aria-hidden="true" className="size-3.5 text-gold" />
                             </div>
                           ) : (
                             <PositionBadge pos={player.pos as Pos} size="sm" />
@@ -985,7 +985,7 @@ export const EventDetailModal = ({
               {/* Synergy Bonus (scored view) */}
               {isScored && synergyPreview.totalPct > 0 && (
                 <div className="flex items-center gap-3 p-3 bg-sky-500/5 border border-sky-500/20 rounded-lg">
-                  <Building2 className="w-5 h-5 text-sky-400 flex-shrink-0" />
+                  <Building2 aria-hidden="true" className="size-5 text-sky-400 flex-shrink-0" />
                   <div>
                     <div className="text-sm font-bold text-sky-300">Synergy Bonus +{synergyPreview.totalPct}%</div>
                     <div className="text-[10px] text-white/40">
@@ -999,18 +999,18 @@ export const EventDetailModal = ({
               {isScored && (
                 <button
                   onClick={() => setTab('leaderboard')}
-                  className="w-full flex items-center justify-center gap-2 p-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-xl transition-all text-sm font-bold text-white/70 hover:text-white"
+                  className="w-full flex items-center justify-center gap-2 p-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-xl transition-colors text-sm font-bold text-white/70 hover:text-white"
                 >
-                  <BarChart3 className="w-4 h-4" />
+                  <BarChart3 aria-hidden="true" className="size-4" />
                   Rangliste anzeigen
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight aria-hidden="true" className="size-4" />
                 </button>
               )}
 
               {/* Captain Selection Hint */}
               {!isScored && !isReadOnly && selectedPlayers.length > 0 && (
                 <div className="flex items-center gap-2 p-3 bg-gold/5 border border-gold/20 rounded-lg">
-                  <Crown className="w-4 h-4 text-gold" />
+                  <Crown aria-hidden="true" className="size-4 text-gold" />
                   <span className="text-xs text-gold/80">
                     {captainSlot ? `Kapitän: ${(() => { const idx = slotDbKeys.indexOf(captainSlot); const p = idx >= 0 ? getSelectedPlayer(idx) : null; return p ? `${p.first} ${p.last} (×1.5)` : captainSlot; })()}` : 'Doppelklick auf einen Spieler = Kapitän (×1.5 Score)'}
                   </span>
@@ -1023,7 +1023,7 @@ export const EventDetailModal = ({
               {/* Synergy Banner (during lineup building) */}
               {!isScored && !isReadOnly && synergyPreview.totalPct > 0 && (
                 <div className="flex items-center gap-2 p-3 bg-sky-500/5 border border-sky-500/20 rounded-lg">
-                  <Building2 className="w-4 h-4 text-sky-400 flex-shrink-0" />
+                  <Building2 aria-hidden="true" className="size-4 text-sky-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <span className="text-xs text-sky-300 font-bold">Synergy +{synergyPreview.totalPct}%</span>
                     <span className="text-xs text-white/40 ml-2">
@@ -1037,7 +1037,7 @@ export const EventDetailModal = ({
               {!isScored && !isReadOnly && (
                 isLineupComplete ? (
                   <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-xl">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                    <CheckCircle2 aria-hidden="true" className="size-5 text-green-500 shrink-0" />
                     <span className="text-sm font-bold text-green-500">Aufstellung vollständig — unten Teilnahme bestätigen!</span>
                   </div>
                 ) : (
@@ -1045,7 +1045,7 @@ export const EventDetailModal = ({
                     <span className="text-sm text-white/60">{selectedPlayers.length}/{formationSlots.length} Spieler ausgewählt</span>
                     {!reqCheck.ok && (
                       <span className="text-xs text-orange-400 flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
+                        <AlertCircle aria-hidden="true" className="size-3" />
                         {reqCheck.message}
                       </span>
                     )}
@@ -1061,7 +1061,7 @@ export const EventDetailModal = ({
                   return (
                     <div
                       key={player.id}
-                      className={`flex items-center justify-between p-3 rounded-xl border transition-all ${isSelected ? 'bg-green-500/10 border-green-500/30' :
+                      className={`flex items-center justify-between p-3 rounded-xl border transition-colors ${isSelected ? 'bg-green-500/10 border-green-500/30' :
                         player.isLocked ? 'bg-surface-base border-white/5 opacity-50' :
                           player.status === 'injured' ? 'bg-red-500/5 border-red-500/20' :
                             player.status === 'suspended' ? 'bg-orange-500/5 border-orange-500/20' :
@@ -1086,10 +1086,10 @@ export const EventDetailModal = ({
                         </div>
                         {player.isLocked ? (
                           <span className="text-xs text-orange-400 flex items-center gap-1" title={`In ${player.eventsUsing} Events`}>
-                            <Lock className="w-3 h-3" /> Alle eingesetzt
+                            <Lock aria-hidden="true" className="size-3" /> Alle eingesetzt
                           </span>
                         ) : isSelected ? (
-                          <CheckCircle2 className="w-4 h-4 text-green-500" />
+                          <CheckCircle2 aria-hidden="true" className="size-4 text-green-500" />
                         ) : null}
                       </div>
                     </div>
@@ -1113,14 +1113,14 @@ export const EventDetailModal = ({
                     onClick={() => setViewingUserLineup(null)}
                     className="flex items-center gap-1.5 text-sm text-white/50 hover:text-white transition-colors"
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft aria-hidden="true" className="size-4" />
                     Zurück zur Rangliste
                   </button>
 
                   {/* User header */}
                   <div className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/10 rounded-xl">
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${viewingUserLineup.entry.rank === 1 ? 'bg-gold/20 text-gold' :
+                      <div className={`size-10 rounded-lg flex items-center justify-center font-bold ${viewingUserLineup.entry.rank === 1 ? 'bg-gold/20 text-gold' :
                         viewingUserLineup.entry.rank === 2 ? 'bg-white/10 text-white/70' :
                           viewingUserLineup.entry.rank === 3 ? 'bg-orange-500/20 text-orange-400' :
                             'bg-white/5 text-white/50'
@@ -1209,7 +1209,7 @@ export const EventDetailModal = ({
 
                   {/* Player breakdown list */}
                   <div className="space-y-1.5">
-                    <div className="text-xs text-white/40 font-bold uppercase tracking-wider px-1">Einzelbewertungen</div>
+                    <div className="text-xs text-white/40 font-bold uppercase px-1">Einzelbewertungen</div>
                     {viewingUserLineup.data.players.map(sp => (
                       <div key={sp.slotKey} className="flex items-center justify-between p-3 rounded-lg bg-surface-base border border-white/[0.06]">
                         <div className="flex items-center gap-3">
@@ -1247,12 +1247,12 @@ export const EventDetailModal = ({
                 <>
                   {leaderboardLoading ? (
                     <div className="text-center py-8">
-                      <RefreshCw className="w-6 h-6 mx-auto mb-2 text-white/30 animate-spin motion-reduce:animate-none" />
+                      <RefreshCw aria-hidden="true" className="size-6 mx-auto mb-2 text-white/30 animate-spin motion-reduce:animate-none" />
                       <div className="text-sm text-white/40">Rangliste wird geladen...</div>
                     </div>
                   ) : leaderboard.length === 0 ? (
                     <div className="text-center py-8">
-                      <Trophy className="w-10 h-10 mx-auto mb-3 text-white/20" />
+                      <Trophy aria-hidden="true" className="size-10 mx-auto mb-3 text-white/20" />
                       <div className="text-white/50 text-sm">Noch keine Ergebnisse</div>
                       <div className="text-white/30 text-xs mt-1">
                         Die Auswertung steht noch aus.
@@ -1283,7 +1283,7 @@ export const EventDetailModal = ({
                             className={`w-full flex items-center justify-between p-4 rounded-lg border transition-all hover:brightness-110 cursor-pointer ${isCurrentUser ? 'bg-gold/10 border-gold/30' : 'bg-surface-base border-white/10 hover:border-white/20'}`}
                           >
                             <div className="flex items-center gap-3">
-                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${entry.rank === 1 ? 'bg-gold/20 text-gold' :
+                              <div className={`size-8 rounded-lg flex items-center justify-center font-bold text-sm ${entry.rank === 1 ? 'bg-gold/20 text-gold' :
                                 entry.rank === 2 ? 'bg-white/10 text-white/70' :
                                   entry.rank === 3 ? 'bg-orange-500/20 text-orange-400' :
                                     'bg-white/5 text-white/50'
@@ -1292,9 +1292,9 @@ export const EventDetailModal = ({
                               </div>
                               <div className="flex items-center gap-2">
                                 {entry.avatarUrl ? (
-                                  <img src={entry.avatarUrl} alt="" className="w-6 h-6 rounded-full object-cover" />
+                                  <img src={entry.avatarUrl} alt="" className="size-6 rounded-full object-cover" />
                                 ) : (
-                                  <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px]">👤</div>
+                                  <div className="size-6 rounded-full bg-white/10 flex items-center justify-center text-[10px]">👤</div>
                                 )}
                                 <span className={`text-left ${isCurrentUser ? 'font-bold text-gold' : ''}`}>
                                   {entry.displayName || entry.handle} {isCurrentUser && '(Du)'}
@@ -1306,14 +1306,14 @@ export const EventDetailModal = ({
                                 <span className="text-xs font-mono text-green-500">+{fmtScout(entry.rewardAmount / 100)} $SCOUT</span>
                               )}
                               <span className="font-mono font-bold">{entry.totalScore}</span>
-                              <ChevronRight className="w-4 h-4 text-white/30" />
+                              <ChevronRight aria-hidden="true" className="size-4 text-white/30" />
                             </div>
                           </button>
                         );
                       })}
                       {viewingUserLoading && (
                         <div className="text-center py-3">
-                          <RefreshCw className="w-4 h-4 mx-auto text-white/30 animate-spin motion-reduce:animate-none" />
+                          <RefreshCw aria-hidden="true" className="size-4 mx-auto text-white/30 animate-spin motion-reduce:animate-none" />
                         </div>
                       )}
                     </>
@@ -1339,8 +1339,8 @@ export const EventDetailModal = ({
           <div className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
             <div className="bg-[#141414] border border-white/10 rounded-2xl p-6 max-w-sm w-full">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center">
-                  <Trophy className="w-5 h-5 text-gold" />
+                <div className="size-10 rounded-xl bg-gold/10 flex items-center justify-center">
+                  <Trophy aria-hidden="true" className="size-5 text-gold" />
                 </div>
                 <div>
                   <h3 className="font-bold text-white">Teilnahme bestätigen</h3>
@@ -1366,7 +1366,7 @@ export const EventDetailModal = ({
                   <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
                     <span className="text-white/60">Kapitän</span>
                     <span className="text-gold">
-                      <Crown className="w-3.5 h-3.5 inline mr-1" />
+                      <Crown aria-hidden="true" className="size-3.5 inline mr-1" />
                       Gewählt (2x Punkte)
                     </span>
                   </div>
@@ -1382,7 +1382,7 @@ export const EventDetailModal = ({
                   Abbrechen
                 </Button>
                 <Button variant="gold" size="lg" fullWidth onClick={handleFinalJoin} disabled={joining}>
-                  {joining ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <CheckCircle2 className="w-4 h-4" />}
+                  {joining ? <Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> : <CheckCircle2 aria-hidden="true" className="size-4" />}
                   {joining ? 'Wird angemeldet...' : 'Bestätigen'}
                 </Button>
               </div>
@@ -1442,7 +1442,7 @@ export const EventDetailModal = ({
                   disabled={!canJoin}
                   className={!canJoin ? 'opacity-60' : 'animate-pulse motion-reduce:animate-none-subtle'}
                 >
-                  <CheckCircle2 className="w-5 h-5" />
+                  <CheckCircle2 aria-hidden="true" className="size-5" />
                   {isFull
                     ? 'Event voll'
                     : !isLineupComplete
@@ -1469,7 +1469,7 @@ export const EventDetailModal = ({
               onClick={handleLeave}
               disabled={leaving}
             >
-              {leaving ? <><Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> Abmelden...</> : 'Abmelden'}
+              {leaving ? <><Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> Abmelden...</> : 'Abmelden'}
             </Button>
             <Button
               variant="gold"
@@ -1478,7 +1478,7 @@ export const EventDetailModal = ({
               onClick={handleConfirmJoin}
               className={!isLineupComplete || !reqCheck.ok ? 'opacity-50' : ''}
             >
-              <Save className="w-5 h-5" />
+              <Save aria-hidden="true" className="size-5" />
               Aufstellung ändern
             </Button>
           </div>
@@ -1488,7 +1488,7 @@ export const EventDetailModal = ({
         {event.isJoined && event.status === 'running' && (
           <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
             <div className="flex items-center justify-center gap-2 py-3 px-4 bg-green-500/10 border border-green-500/30 rounded-xl">
-              <Lock className="w-4 h-4 text-green-500" />
+              <Lock aria-hidden="true" className="size-4 text-green-500" />
               <span className="text-sm font-bold text-green-500">Nimmt teil — Aufstellung gesperrt</span>
             </div>
           </div>
@@ -1498,7 +1498,7 @@ export const EventDetailModal = ({
         {!event.isJoined && event.status === 'running' && (
           <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
             <div className="flex items-center justify-center gap-2 py-3 px-4 bg-white/[0.03] border border-white/10 rounded-xl">
-              <Play className="w-4 h-4 text-white/50" />
+              <Play aria-hidden="true" className="size-4 text-white/50" />
               <span className="text-sm text-white/50">Event läuft — Anmeldung geschlossen</span>
             </div>
           </div>
@@ -1509,9 +1509,9 @@ export const EventDetailModal = ({
           <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
             <button
               onClick={() => setTab('leaderboard')}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-purple-500/10 border border-purple-500/30 rounded-xl hover:bg-purple-500/20 transition-all"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-purple-500/10 border border-purple-500/30 rounded-xl hover:bg-purple-500/20 transition-colors"
             >
-              <Trophy className="w-4 h-4 text-purple-400" />
+              <Trophy aria-hidden="true" className="size-4 text-purple-400" />
               <span className="text-sm font-bold text-purple-400">
                 {event.userRank ? `Platz ${event.userRank}` : 'Ausgewertet'} — Ergebnisse ansehen
               </span>
@@ -1523,7 +1523,7 @@ export const EventDetailModal = ({
         {event.isJoined && event.status === 'ended' && !event.scoredAt && (
           <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
             <div className="flex items-center justify-center gap-2 py-3 px-4 bg-white/[0.03] border border-white/10 rounded-xl">
-              <Clock className="w-4 h-4 text-white/40" />
+              <Clock aria-hidden="true" className="size-4 text-white/40" />
               <span className="text-sm text-white/40">Event beendet — Auswertung ausstehend</span>
             </div>
           </div>
@@ -1538,7 +1538,7 @@ export const EventDetailModal = ({
               size="lg"
               onClick={() => setTab('leaderboard')}
             >
-              <Eye className="w-5 h-5" />
+              <Eye aria-hidden="true" className="size-5" />
               Ergebnisse ansehen
             </Button>
           </div>
@@ -1561,9 +1561,10 @@ export const EventDetailModal = ({
                 <div className="flex items-center gap-3 px-4 pt-3 pb-2">
                   <button
                     onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }}
+                    aria-label="Spielerauswahl schließen"
                     className="p-1.5 -ml-1.5 rounded-lg hover:bg-white/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                   >
-                    <X className="w-5 h-5 text-white/60" />
+                    <X aria-hidden="true" className="size-5 text-white/60" />
                   </button>
                   <div className="flex-1">
                     <h3 className="font-black text-base">
@@ -1587,7 +1588,7 @@ export const EventDetailModal = ({
                 {/* Search */}
                 <div className="px-4 pb-2.5">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+                    <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-white/30" />
                     <input
                       type="text"
                       placeholder="Spieler suchen..."
@@ -1610,9 +1611,9 @@ export const EventDetailModal = ({
                     <Link
                       href="/market?tab=kaufen"
                       onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }}
-                      className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-gold/15 text-gold text-xs font-bold rounded-xl hover:bg-gold/25 transition-all"
+                      className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-gold/15 text-gold text-xs font-bold rounded-xl hover:bg-gold/25 transition-colors"
                     >
-                      <ShoppingCart className="w-3.5 h-3.5" />
+                      <ShoppingCart aria-hidden="true" className="size-3.5" />
                       Spieler kaufen
                     </Link>
                   </div>

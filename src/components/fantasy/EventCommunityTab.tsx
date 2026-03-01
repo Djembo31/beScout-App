@@ -39,21 +39,21 @@ function getPhaseInfo(status: EventStatus): { label: string; color: string; icon
       return {
         label: 'Vorschau',
         color: 'text-sky-400 bg-sky-400/10 border-sky-400/20',
-        icon: <Clock className="w-3.5 h-3.5" />,
+        icon: <Clock className="size-3.5" aria-hidden="true" />,
         hint: 'Teile deine Predictions und Lineup-Tipps!',
       };
     case 'running':
       return {
         label: 'Live',
         color: 'text-green-500 bg-green-500/10 border-green-500/20',
-        icon: <Play className="w-3.5 h-3.5" />,
+        icon: <Play className="size-3.5" aria-hidden="true" />,
         hint: 'Diskutiere die laufenden Performances!',
       };
     case 'ended':
       return {
         label: 'Auswertung',
         color: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
-        icon: <Trophy className="w-3.5 h-3.5" />,
+        icon: <Trophy className="size-3.5" aria-hidden="true" />,
         hint: 'Analysiere die Ergebnisse und Spielerbewertungen!',
       };
   }
@@ -196,6 +196,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
             <textarea
               value={content}
               onChange={e => setContent(e.target.value)}
+              aria-label="Beitrag verfassen"
               placeholder={
                 eventStatus === 'ended'
                   ? 'Was denkst du über die Ergebnisse?'
@@ -219,7 +220,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
               disabled={!content.trim() || posting}
               className="self-end"
             >
-              {posting ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <Send className="w-4 h-4" />}
+              {posting ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Send className="size-4" aria-hidden="true" />}
             </Button>
           </div>
           <div className="text-[10px] text-white/20 mt-1">Enter zum Senden, Shift+Enter für neue Zeile</div>
@@ -229,12 +230,12 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
       {/* Posts List */}
       {loading ? (
         <div className="flex items-center justify-center py-8 gap-2 text-white/30">
-          <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" />
+          <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
           <span className="text-sm">Lade Diskussion...</span>
         </div>
       ) : posts.length === 0 ? (
         <div className="text-center py-8">
-          <MessageCircle className="w-10 h-10 mx-auto mb-3 text-white/10" />
+          <MessageCircle className="size-10 mx-auto mb-3 text-white/10" aria-hidden="true" />
           <div className="text-sm text-white/30">Noch keine Beiträge</div>
           <div className="text-xs text-white/20 mt-1">Sei der Erste und starte die Diskussion!</div>
         </div>
@@ -253,12 +254,13 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                   <div className="flex flex-col items-center gap-0.5 pt-0.5">
                     <button
                       onClick={() => handleVote(post.id, myVote === 1 ? 0 : 1)}
+                      aria-label="Upvote"
                       className={cn(
                         'p-1 rounded transition-colors',
                         myVote === 1 ? 'text-green-500 bg-green-500/10' : 'text-white/20 hover:text-green-500'
                       )}
                     >
-                      <ArrowUp className="w-3.5 h-3.5" />
+                      <ArrowUp className="size-3.5" aria-hidden="true" />
                     </button>
                     <span className={cn(
                       'text-xs font-mono font-bold',
@@ -268,12 +270,13 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                     </span>
                     <button
                       onClick={() => handleVote(post.id, myVote === -1 ? 0 : -1)}
+                      aria-label="Downvote"
                       className={cn(
                         'p-1 rounded transition-colors',
                         myVote === -1 ? 'text-red-400 bg-red-400/10' : 'text-white/20 hover:text-red-400'
                       )}
                     >
-                      <ArrowDown className="w-3.5 h-3.5" />
+                      <ArrowDown className="size-3.5" aria-hidden="true" />
                     </button>
                   </div>
 
@@ -284,7 +287,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                         {post.author_display_name ?? post.author_handle}
                       </Link>
                       {post.author_verified && (
-                        <Sparkles className="w-3 h-3 text-gold shrink-0" />
+                        <Sparkles className="size-3 text-gold shrink-0" aria-hidden="true" />
                       )}
                       {catStyle && (
                         <span className={cn('px-1.5 py-0.5 rounded text-[9px] font-bold border', catStyle.color)}>
@@ -296,7 +299,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                     <p className="text-sm text-white/80 whitespace-pre-wrap break-words">{post.content}</p>
                     {post.replies_count > 0 && (
                       <div className="flex items-center gap-1 mt-1.5 text-[10px] text-white/30">
-                        <MessageCircle className="w-3 h-3" />
+                        <MessageCircle className="size-3" aria-hidden="true" />
                         {post.replies_count} {post.replies_count === 1 ? 'Antwort' : 'Antworten'}
                       </div>
                     )}
@@ -306,9 +309,10 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                   {isOwn && (
                     <button
                       onClick={() => handleDelete(post.id)}
+                      aria-label="Beitrag löschen"
                       className="p-1 text-white/20 hover:text-red-400 transition-colors self-start"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="size-3.5" aria-hidden="true" />
                     </button>
                   )}
                 </div>

@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { CheckCircle2, Heart } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import type { FantasyEvent } from './types';
 import { getStatusStyle, getTypeStyle, formatCountdown } from './helpers';
 
@@ -22,12 +23,12 @@ export const EventTableRow = ({
   return (
     <tr
       onClick={onView}
-      className={`border-b border-white/5 cursor-pointer transition-all hover:bg-white/[0.02] ${event.isJoined ? 'bg-green-500/[0.02]' : ''}`}
+      className={cn('border-b border-white/5 cursor-pointer transition-colors hover:bg-white/[0.02]', event.isJoined && 'bg-green-500/[0.02]')}
     >
       {/* Status */}
       <td className="py-3 px-4">
         <div className="flex items-center gap-2">
-          {statusStyle.pulse && <div className={`w-2 h-2 rounded-full ${statusStyle.bg} animate-pulse motion-reduce:animate-none`} />}
+          {statusStyle.pulse && <div className={cn('size-2 rounded-full animate-pulse motion-reduce:animate-none', statusStyle.bg)} />}
           <span className={`text-xs font-medium ${statusStyle.text.replace('text-white', 'text-' + statusStyle.bg.split('-')[1])}`}>
             {event.status === 'ended' ? 'Beendet' : event.status === 'running' ? 'Läuft' : event.status === 'late-reg' ? 'Late Reg' : formatCountdown(event.lockTime)}
           </span>
@@ -36,8 +37,8 @@ export const EventTableRow = ({
 
       {/* Type */}
       <td className="py-3 px-3">
-        <div className={`w-6 h-6 rounded flex items-center justify-center ${typeStyle.bg}`}>
-          {React.createElement(typeStyle.icon, { className: `w-3 h-3 ${typeStyle.color}` })}
+        <div className={cn('size-6 rounded flex items-center justify-center', typeStyle.bg)}>
+          {React.createElement(typeStyle.icon, { className: cn('size-3', typeStyle.color), 'aria-hidden': true })}
         </div>
       </td>
 
@@ -52,14 +53,14 @@ export const EventTableRow = ({
       <td className="py-3 px-3">
         <div className="flex items-center gap-2">
           {event.clubLogo && (
-            <div className="relative w-5 h-5 flex-shrink-0">
+            <div className="relative size-5 flex-shrink-0">
               <Image src={event.clubLogo} alt="" fill className="object-contain" />
             </div>
           )}
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className={`font-medium truncate ${typeStyle.color}`}>{event.name}</span>
-              {event.isJoined && <CheckCircle2 className="w-3 h-3 text-green-500 flex-shrink-0" />}
+              {event.isJoined && <CheckCircle2 className="size-3 text-green-500 flex-shrink-0" aria-hidden="true" />}
             </div>
           </div>
         </div>
@@ -81,9 +82,10 @@ export const EventTableRow = ({
       <td className="py-3 px-2">
         <button
           onClick={(e) => { e.stopPropagation(); onToggleInterest(); }}
-          className={`p-1 rounded transition-all ${event.isInterested ? 'text-pink-400' : 'text-white/20 hover:text-white/40'}`}
+          aria-label={event.isInterested ? 'Aus Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
+          className={cn('p-1 rounded transition-colors', event.isInterested ? 'text-pink-400' : 'text-white/20 hover:text-white/40')}
         >
-          <Heart className={`w-4 h-4 ${event.isInterested ? 'fill-current' : ''}`} />
+          <Heart className={cn('size-4', event.isInterested && 'fill-current')} aria-hidden="true" />
         </button>
       </td>
 

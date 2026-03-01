@@ -6,6 +6,7 @@ import {
   CheckCircle2, ChevronRight, Lock, LayoutGrid, List,
 } from 'lucide-react';
 import { Card } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import type { FantasyEvent, EventType, ViewMode } from './types';
 import { getTypeStyle, formatCountdown } from './helpers';
@@ -36,15 +37,16 @@ function EventRow({ event, onClick }: { event: FantasyEvent; onClick: () => void
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-colors text-left active:scale-[0.98] ${
+      className={cn(
+        'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-colors text-left active:scale-[0.98]',
         event.isJoined
           ? 'bg-green-500/[0.04] border-green-500/20'
           : 'bg-white/[0.02] border-white/[0.06] hover:border-white/10'
-      }`}
+      )}
     >
       {/* Type icon */}
-      <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${typeStyle.bg}`}>
-        <TypeIcon className={`w-4 h-4 ${typeStyle.color}`} />
+      <div className={cn('flex-shrink-0 size-8 rounded-lg flex items-center justify-center', typeStyle.bg)}>
+        <TypeIcon className={cn('size-4', typeStyle.color)} aria-hidden="true" />
       </div>
 
       {/* Name + Meta */}
@@ -62,18 +64,18 @@ function EventRow({ event, onClick }: { event: FantasyEvent; onClick: () => void
       {/* Status */}
       <div className="flex-shrink-0 flex items-center gap-1.5">
         {event.isJoined ? (
-          <CheckCircle2 className="w-4 h-4 text-green-500" />
+          <CheckCircle2 className="size-4 text-green-500" aria-hidden="true" />
         ) : event.status === 'running' ? (
           <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-green-500/15">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            <div className="size-1.5 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none" />
             <span className="text-[9px] font-bold text-green-500">LIVE</span>
           </div>
         ) : event.status === 'ended' ? (
-          <Lock className="w-3.5 h-3.5 text-white/25" />
+          <Lock className="size-3.5 text-white/25" aria-hidden="true" />
         ) : (
           <span className="text-[10px] font-medium text-white/30">{formatCountdown(event.lockTime)}</span>
         )}
-        <ChevronRight className="w-3.5 h-3.5 text-white/15" />
+        <ChevronRight className="size-3.5 text-white/15" aria-hidden="true" />
       </div>
     </button>
   );
@@ -129,15 +131,16 @@ export function EventsTab({
               <button
                 key={cat.id}
                 onClick={() => setCategory(cat.id)}
-                className={`flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 min-h-[44px] rounded-lg text-[11px] font-semibold transition-colors whitespace-nowrap ${
+                className={cn(
+                  'flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 min-h-[44px] rounded-lg text-[11px] font-semibold transition-colors whitespace-nowrap',
                   isActive
                     ? 'bg-gold/15 text-gold border border-gold/20'
                     : 'bg-white/[0.04] text-white/50 border border-white/[0.06] hover:text-white/70'
-                }`}
+                )}
               >
-                <Icon className="w-3 h-3" />
+                <Icon className="size-3" aria-hidden="true" />
                 <span>{t(`eventCategories.${cat.labelKey}`)}</span>
-                <span className={`text-[9px] font-mono ${isActive ? 'text-gold/60' : 'text-white/20'}`}>
+                <span className={cn('text-[9px] font-mono', isActive ? 'text-gold/60' : 'text-white/20')}>
                   {count}
                 </span>
               </button>
@@ -150,20 +153,16 @@ export function EventsTab({
           <button
             onClick={() => setViewMode('table')}
             aria-label="Listenansicht"
-            className={`p-1.5 rounded transition-colors ${
-              viewMode === 'table' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50'
-            }`}
+            className={cn('p-1.5 rounded transition-colors', viewMode === 'table' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50')}
           >
-            <List className="w-3.5 h-3.5" />
+            <List className="size-3.5" aria-hidden="true" />
           </button>
           <button
             onClick={() => setViewMode('cards')}
             aria-label="Kartenansicht"
-            className={`p-1.5 rounded transition-colors ${
-              viewMode === 'cards' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50'
-            }`}
+            className={cn('p-1.5 rounded transition-colors', viewMode === 'cards' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50')}
           >
-            <LayoutGrid className="w-3.5 h-3.5" />
+            <LayoutGrid className="size-3.5" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -194,7 +193,7 @@ export function EventsTab({
         )
       ) : (
         <Card className="p-10 text-center">
-          <Trophy className="w-10 h-10 mx-auto mb-3 text-white/15" />
+          <Trophy className="size-10 mx-auto mb-3 text-white/15" aria-hidden="true" />
           <div className="text-sm text-white/40">{t('noEventsForCategory')}</div>
         </Card>
       )}

@@ -52,7 +52,7 @@ export function PredictionsTab({ gameweek, userId }: PredictionsTabProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Target className="w-5 h-5 text-gold" />
+          <Target className="size-5 text-gold" aria-hidden="true" />
           <h3 className="font-black">{t('myPredictions')}</h3>
           <span className={cn(
             'text-xs font-bold px-2 py-0.5 rounded-full',
@@ -66,7 +66,7 @@ export function PredictionsTab({ gameweek, userId }: PredictionsTabProps) {
           onClick={() => setShowModal(true)}
           disabled={limitReached}
         >
-          <Plus className="w-4 h-4 mr-1" />
+          <Plus className="size-4 mr-1" aria-hidden="true" />
           {limitReached ? t('limitReached') : t('create')}
         </Button>
       </div>
@@ -83,7 +83,7 @@ export function PredictionsTab({ gameweek, userId }: PredictionsTabProps) {
       {/* Empty state */}
       {predictions.length === 0 && (
         <Card className="p-6 text-center">
-          <Target className="w-8 h-8 text-white/20 mx-auto mb-2" />
+          <Target className="size-8 text-white/20 mx-auto mb-2" aria-hidden="true" />
           <p className="text-sm text-white/40">{t('empty')}</p>
           <p className="text-xs text-white/20 mt-1">{t('emptyHint')}</p>
         </Card>
@@ -95,15 +95,15 @@ export function PredictionsTab({ gameweek, userId }: PredictionsTabProps) {
           {/* Stats bar */}
           <Card className="p-3 flex items-center gap-4">
             <div className="flex items-center gap-1.5">
-              <BarChart3 className="w-4 h-4 text-white/30" />
+              <BarChart3 className="size-4 text-white/30" aria-hidden="true" />
               <span className="text-xs text-white/40">{t('resolved')}</span>
             </div>
             <div className="flex items-center gap-3 ml-auto">
               <span className="flex items-center gap-1 text-xs font-bold text-green-500">
-                <CheckCircle className="w-3.5 h-3.5" /> {correctCount}
+                <CheckCircle className="size-3.5" aria-hidden="true" /> {correctCount}
               </span>
               <span className="flex items-center gap-1 text-xs font-bold text-red-400">
-                <XCircle className="w-3.5 h-3.5" /> {wrongCount}
+                <XCircle className="size-3.5" aria-hidden="true" /> {wrongCount}
               </span>
               <span className="text-xs font-mono font-bold text-white/60">
                 {accuracy}%
