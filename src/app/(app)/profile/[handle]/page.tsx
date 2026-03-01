@@ -54,7 +54,7 @@ export default function PublicProfilePage() {
       <div className="max-w-[1400px] mx-auto space-y-6">
         <div className="animate-pulse bg-white/[0.02] border border-white/10 rounded-2xl h-48 relative">
           <div className="absolute bottom-4 left-4 flex items-end gap-4">
-            <Skeleton className="w-20 h-20 rounded-2xl" />
+            <Skeleton className="size-20 rounded-2xl" />
             <div className="space-y-2">
               <Skeleton className="h-6 w-40" />
               <Skeleton className="h-4 w-24" />
@@ -75,7 +75,7 @@ export default function PublicProfilePage() {
   if (notFound || !targetProfile) {
     return (
       <div className="max-w-[1400px] mx-auto text-center py-20">
-        <div className="text-4xl font-black mb-4 text-white/20">404</div>
+        <div className="text-4xl font-black tabular-nums mb-4 text-white/20">404</div>
         <div className="text-white/50 mb-4">Profil @{handle} nicht gefunden.</div>
         <button
           onClick={() => router.push('/profile')}
