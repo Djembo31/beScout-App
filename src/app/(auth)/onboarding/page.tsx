@@ -256,7 +256,7 @@ function OnboardingContent() {
   if (loading || profile) {
     return (
       <div className="flex items-center justify-center">
-        <Loader2 className="size-8 text-gold animate-spin motion-reduce:animate-none" />
+        <Loader2 className="size-8 text-gold animate-spin motion-reduce:animate-none" aria-hidden="true" />
       </div>
     );
   }
@@ -282,7 +282,7 @@ function OnboardingContent() {
       {/* Referral Banner */}
       {referrer && (
         <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-gold/[0.06] border border-gold/15">
-          <Gift className="size-5 text-gold shrink-0" />
+          <Gift className="size-5 text-gold shrink-0" aria-hidden="true" />
           <div className="text-sm">
             <span className="text-white/70">Eingeladen von </span>
             <span className="font-bold text-gold">@{referrer.handle}</span>
@@ -296,7 +296,7 @@ function OnboardingContent() {
           {referralClub.logo_url ? (
             <img src={referralClub.logo_url} alt="" className="size-6 object-contain shrink-0" />
           ) : (
-            <Shield className="size-5 text-green-500 shrink-0" />
+            <Shield className="size-5 text-green-500 shrink-0" aria-hidden="true" />
           )}
           <div className="text-sm">
             <span className="text-white/70">Eingeladen von </span>
@@ -317,10 +317,11 @@ function OnboardingContent() {
 
             {/* Handle Input */}
             <div className="mb-4">
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Handle</label>
+              <label htmlFor="onboard-handle" className="text-xs text-white/50 font-semibold mb-1.5 block">Handle</label>
               <div className="relative">
                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30 text-sm">@</span>
                 <input
+                  id="onboard-handle"
                   type="text"
                   value={handle}
                   onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20))}
@@ -337,10 +338,10 @@ function OnboardingContent() {
                   )}
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  {handleStatus === 'checking' && <Loader2 className="size-4 text-white/40 animate-spin motion-reduce:animate-none" />}
-                  {handleStatus === 'available' && <Check className="size-4 text-green-500" />}
-                  {handleStatus === 'taken' && <X className="size-4 text-red-400" />}
-                  {handleStatus === 'invalid' && <X className="size-4 text-red-400" />}
+                  {handleStatus === 'checking' && <Loader2 className="size-4 text-white/40 animate-spin motion-reduce:animate-none" aria-hidden="true" />}
+                  {handleStatus === 'available' && <Check className="size-4 text-green-500" aria-hidden="true" />}
+                  {handleStatus === 'taken' && <X className="size-4 text-red-400" aria-hidden="true" />}
+                  {handleStatus === 'invalid' && <X className="size-4 text-red-400" aria-hidden="true" />}
                 </div>
               </div>
               <div className="mt-1.5 text-xs">
@@ -353,8 +354,9 @@ function OnboardingContent() {
 
             {/* Display Name */}
             <div className="mb-4">
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Anzeigename (optional)</label>
+              <label htmlFor="onboard-display-name" className="text-xs text-white/50 font-semibold mb-1.5 block">Anzeigename (optional)</label>
               <input
+                id="onboard-display-name"
                 type="text"
                 value={displayNameValue}
                 onChange={(e) => setDisplayNameValue(e.target.value.slice(0, 50))}
@@ -377,10 +379,11 @@ function OnboardingContent() {
                 </p>
 
                 <div className="mb-3">
-                  <label className="text-xs text-white/50 font-semibold mb-1.5 block">Passwort</label>
+                  <label htmlFor="onboard-password" className="text-xs text-white/50 font-semibold mb-1.5 block">Passwort</label>
                   <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" />
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" aria-hidden="true" />
                     <input
+                      id="onboard-password"
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => { setPassword(e.target.value); setPasswordError(null); }}
@@ -398,16 +401,17 @@ function OnboardingContent() {
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
                       aria-label="Passwort anzeigen"
                     >
-                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                      {showPassword ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
                     </button>
                   </div>
                 </div>
 
                 <div className="mb-4">
-                  <label className="text-xs text-white/50 font-semibold mb-1.5 block">Passwort bestätigen</label>
+                  <label htmlFor="onboard-password-confirm" className="text-xs text-white/50 font-semibold mb-1.5 block">Passwort bestätigen</label>
                   <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" />
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" aria-hidden="true" />
                     <input
+                      id="onboard-password-confirm"
                       type={showPassword ? 'text' : 'password'}
                       value={passwordConfirm}
                       onChange={(e) => { setPasswordConfirm(e.target.value); setPasswordError(null); }}
@@ -425,14 +429,14 @@ function OnboardingContent() {
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
                       aria-label="Passwort anzeigen"
                     >
-                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                      {showPassword ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
                     </button>
                   </div>
                 </div>
 
                 {passwordError && (
-                  <div className="flex items-center gap-2 p-3 mb-4 rounded-xl bg-red-500/10 border border-red-400/20">
-                    <X className="size-4 text-red-400 shrink-0" />
+                  <div className="flex items-center gap-2 p-3 mb-4 rounded-xl bg-red-500/10 border border-red-400/20" role="alert">
+                    <X className="size-4 text-red-400 shrink-0" aria-hidden="true" />
                     <span className="text-sm text-red-200">{passwordError}</span>
                   </div>
                 )}
@@ -458,7 +462,7 @@ function OnboardingContent() {
               onClick={handleStep1Next}
             >
               Weiter
-              <ChevronRight className="size-4" />
+              <ChevronRight className="size-4" aria-hidden="true" />
             </Button>
           </>
         )}
@@ -470,16 +474,16 @@ function OnboardingContent() {
 
             {/* Avatar Upload */}
             <div className="flex flex-col items-center mb-6">
-              <label className="relative group cursor-pointer">
+              <label className="relative group cursor-pointer" aria-label="Profilbild hochladen">
                 <div className="size-24 rounded-2xl bg-gold/10 border-2 border-dashed border-white/20 group-hover:border-gold/40 flex items-center justify-center overflow-hidden transition-colors">
                   {avatarPreview ? (
                     <img src={avatarPreview} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <User className="size-10 text-white/30" />
+                    <User className="size-10 text-white/30" aria-hidden="true" />
                   )}
                 </div>
                 <div className="absolute -bottom-1 -right-1 size-8 rounded-full bg-gold flex items-center justify-center shadow-lg">
-                  <Camera className="size-4 text-black" />
+                  <Camera className="size-4 text-black" aria-hidden="true" />
                 </div>
                 <input
                   type="file"
@@ -495,11 +499,12 @@ function OnboardingContent() {
 
             {/* Language */}
             <div className="mb-6">
-              <label className="text-xs text-white/50 font-semibold mb-1.5 flex items-center gap-1.5">
-                <Globe className="size-3.5" />
+              <label htmlFor="onboard-language" className="text-xs text-white/50 font-semibold mb-1.5 flex items-center gap-1.5">
+                <Globe className="size-3.5" aria-hidden="true" />
                 Sprache
               </label>
               <select
+                id="onboard-language"
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as 'de' | 'tr' | 'en')}
                 className={cn(
@@ -516,8 +521,8 @@ function OnboardingContent() {
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 p-3 mb-4 rounded-xl bg-red-500/10 border border-red-400/20">
-                <X className="size-4 text-red-400 shrink-0" />
+              <div className="flex items-center gap-2 p-3 mb-4 rounded-xl bg-red-500/10 border border-red-400/20" role="alert">
+                <X className="size-4 text-red-400 shrink-0" aria-hidden="true" />
                 <span className="text-sm text-red-200">{error}</span>
               </div>
             )}
@@ -533,7 +538,7 @@ function OnboardingContent() {
                 onClick={() => setStep(3)}
               >
                 Weiter
-                <ChevronRight className="size-4" />
+                <ChevronRight className="size-4" aria-hidden="true" />
               </Button>
             </div>
           </>
@@ -548,12 +553,13 @@ function OnboardingContent() {
 
             {/* Club Search */}
             <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30" aria-hidden="true" />
               <input
                 type="text"
                 value={clubSearch}
                 onChange={(e) => setClubSearch(e.target.value)}
                 placeholder="Club suchen..."
+                aria-label="Club suchen"
                 className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 transition-colors"
               />
             </div>
@@ -561,7 +567,7 @@ function OnboardingContent() {
             {/* Club Grid */}
             {clubsLoading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="size-6 text-gold animate-spin motion-reduce:animate-none" />
+                <Loader2 className="size-6 text-gold animate-spin motion-reduce:animate-none" aria-hidden="true" />
               </div>
             ) : (
               <div className="max-h-[260px] overflow-y-auto space-y-1.5 mb-4 pr-1">
@@ -595,10 +601,10 @@ function OnboardingContent() {
                         </div>
                         <div className="text-[10px] text-white/40">{club.league}</div>
                       </div>
-                      {club.is_verified && <Shield className="size-3.5 text-gold/50 flex-shrink-0" />}
+                      {club.is_verified && <Shield className="size-3.5 text-gold/50 flex-shrink-0" aria-hidden="true" />}
                       {selected && (
                         <div className="size-5 rounded-full bg-gold flex items-center justify-center flex-shrink-0">
-                          <Check className="size-3 text-black" />
+                          <Check className="size-3 text-black" aria-hidden="true" />
                         </div>
                       )}
                     </button>
@@ -617,8 +623,8 @@ function OnboardingContent() {
             )}
 
             {error && (
-              <div className="flex items-center gap-2 p-3 mb-4 rounded-xl bg-red-500/10 border border-red-400/20">
-                <X className="size-4 text-red-400 shrink-0" />
+              <div className="flex items-center gap-2 p-3 mb-4 rounded-xl bg-red-500/10 border border-red-400/20" role="alert">
+                <X className="size-4 text-red-400 shrink-0" aria-hidden="true" />
                 <span className="text-sm text-red-200">{error}</span>
               </div>
             )}
@@ -651,7 +657,7 @@ export default function OnboardingPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center">
-          <Loader2 className="size-8 text-gold animate-spin motion-reduce:animate-none" />
+          <Loader2 className="size-8 text-gold animate-spin motion-reduce:animate-none" aria-hidden="true" />
         </div>
       }
     >

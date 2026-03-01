@@ -114,7 +114,7 @@ export default function WelcomePage() {
           className="absolute bottom-10 flex flex-col items-center gap-1 text-white/30 hover:text-white/50 transition-colors"
         >
           <span className="text-xs">{t('learnMore')}</span>
-          <ChevronDown className="size-5 animate-bounce motion-reduce:animate-none" />
+          <ChevronDown className="size-5 animate-bounce motion-reduce:animate-none" aria-hidden="true" />
         </button>
       </section>
 
@@ -143,7 +143,7 @@ export default function WelcomePage() {
               className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 md:p-8 hover:border-white/20 transition-colors"
             >
               <div className={cn('size-12 rounded-xl flex items-center justify-center mb-4', f.bg)}>
-                <f.icon className={cn('size-6', f.color)} />
+                <f.icon className={cn('size-6', f.color)} aria-hidden="true" />
               </div>
               <h3 className="text-lg font-black text-balance mb-2">{f.title}</h3>
               <p className="text-sm text-white/50 text-pretty leading-relaxed">{f.text}</p>
@@ -163,7 +163,7 @@ export default function WelcomePage() {
             {steps.map((s) => (
               <div key={s.num} className="text-center md:text-left">
                 <div className="inline-flex items-center justify-center size-14 rounded-2xl bg-gold/10 mb-4">
-                  <s.icon className="size-7 text-gold" />
+                  <s.icon className="size-7 text-gold" aria-hidden="true" />
                 </div>
                 <div className="text-xs font-mono tabular-nums text-gold/60 mb-1">{t('step')} {s.num}</div>
                 <h3 className="text-lg font-black text-balance mb-2">{s.title}</h3>

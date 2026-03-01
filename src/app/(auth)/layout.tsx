@@ -29,7 +29,7 @@ export default function AuthLayout({
       </div>
 
       {/* Centered Content */}
-      <div className="relative flex items-center justify-center min-h-screen px-4">
+      <div className="relative flex items-center justify-center min-h-dvh px-4">
         {children}
       </div>
     </>

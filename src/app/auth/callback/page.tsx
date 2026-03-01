@@ -54,7 +54,7 @@ export default function AuthCallbackPage() {
   return (
     <div className="min-h-dvh flex items-center justify-center">
       <div className="text-center">
-        <Loader2 className="size-8 animate-spin motion-reduce:animate-none text-gold mx-auto mb-4" />
+        <Loader2 className="size-8 animate-spin motion-reduce:animate-none text-gold mx-auto mb-4" aria-hidden="true" />
         <p className="text-white/50 text-sm">Anmeldung wird verarbeitet...</p>
         {slow && <p className="text-white/30 text-xs mt-2">Dauert länger als erwartet...</p>}
       </div>

@@ -190,7 +190,7 @@ function LoginContent() {
           /* Magic Link Sent */
           <div className="flex flex-col items-center text-center py-4">
             <div className="size-14 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mb-4">
-              <CheckCircle className="size-7 text-green-500" />
+              <CheckCircle className="size-7 text-green-500" aria-hidden="true" />
             </div>
             <h2 className="text-xl font-black text-balance mb-2">{t('linkSent')}</h2>
             <p className="text-sm text-white/60 text-pretty mb-1">
@@ -211,7 +211,7 @@ function LoginContent() {
           /* Registration Success */
           <div className="flex flex-col items-center text-center py-4">
             <div className="size-14 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mb-4">
-              <CheckCircle className="size-7 text-green-500" />
+              <CheckCircle className="size-7 text-green-500" aria-hidden="true" />
             </div>
             <h2 className="text-xl font-black text-balance mb-2">{t('registrationSuccess')}</h2>
             <p className="text-sm text-white/60 text-pretty mb-1">
@@ -237,11 +237,11 @@ function LoginContent() {
 
             {/* Error Display */}
             {error && (
-              <div className="flex items-center gap-2 p-3 mb-5 rounded-xl bg-red-500/10 border border-red-400/20">
-                <AlertCircle className="size-4 text-red-400 shrink-0" />
+              <div role="alert" className="flex items-center gap-2 p-3 mb-5 rounded-xl bg-red-500/10 border border-red-400/20">
+                <AlertCircle className="size-4 text-red-400 shrink-0" aria-hidden="true" />
                 <span className="text-sm text-red-200 flex-1">{error}</span>
                 <button onClick={() => setError(null)} className="text-red-400/60 hover:text-red-400 shrink-0" aria-label={t('close', { ns: 'common' })}>
-                  <X className="size-3.5" />
+                  <X className="size-3.5" aria-hidden="true" />
                 </button>
               </div>
             )}
@@ -258,7 +258,7 @@ function LoginContent() {
                     disabled={loadingMethod !== null}
                     onClick={() => handleOAuth('google')}
                   >
-                    <svg className="size-5" viewBox="0 0 24 24">
+                    <svg className="size-5" viewBox="0 0 24 24" aria-hidden="true">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
                       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                       <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
@@ -275,7 +275,7 @@ function LoginContent() {
                     disabled={loadingMethod !== null}
                     onClick={() => handleOAuth('apple')}
                   >
-                    <svg className="size-5" viewBox="0 0 24 24" fill="currentColor">
+                    <svg className="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                       <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.52-3.23 0-1.44.62-2.2.44-3.06-.4C3.79 16.17 4.36 9.51 8.82 9.26c1.27.06 2.15.72 2.9.75.93-.19 1.82-.9 3.16-.77 1.59.16 2.63.86 3.23 2.1-2.95 1.74-2.25 5.58.53 6.66-.65 1.55-1.49 3.08-2.59 4.28zM12.1 9.21C11.95 7.06 13.7 5.3 15.75 5.14c.29 2.46-2.24 4.28-3.65 4.07z" />
                     </svg>
                     {`Mit Apple ${mode === 'register' ? 'registrieren' : 'anmelden'}`}
@@ -295,10 +295,11 @@ function LoginContent() {
             {mode !== 'magic' ? (
               <form onSubmit={handlePasswordAuth} className="flex flex-col gap-3">
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" aria-hidden="true" />
                   <input
                     type="email"
                     placeholder={t('emailPlaceholder')}
+                    aria-label={t('emailPlaceholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -312,10 +313,11 @@ function LoginContent() {
                   />
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" aria-hidden="true" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     placeholder={t('passwordPlaceholder')}
+                    aria-label={t('passwordPlaceholder')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -334,16 +336,17 @@ function LoginContent() {
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
                     aria-label="Passwort anzeigen"
                   >
-                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    {showPassword ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
                   </button>
                 </div>
 
                 {mode === 'register' && (
                   <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" />
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" aria-hidden="true" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       placeholder={t('confirmPasswordPlaceholder')}
+                      aria-label={t('confirmPasswordPlaceholder')}
                       value={passwordConfirm}
                       onChange={(e) => setPasswordConfirm(e.target.value)}
                       required
@@ -374,10 +377,11 @@ function LoginContent() {
               /* Magic Link Form */
               <form onSubmit={handleMagicLink} className="flex flex-col gap-3">
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" aria-hidden="true" />
                   <input
                     type="email"
                     placeholder={t('emailPlaceholder')}
+                    aria-label={t('emailPlaceholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
