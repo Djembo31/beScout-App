@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import {
   Trophy, Users, Clock, Star, Shield, Award, Crown,
@@ -73,6 +73,7 @@ export const EventDetailModal = ({
   const [showJoinConfirm, setShowJoinConfirm] = useState(false);
   const [joining, setJoining] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [presets, setPresets] = useState<LineupPreset[]>([]);
 
   // Set default tab based on join status when modal opens — reset transient state
   useEffect(() => {
@@ -85,6 +86,7 @@ export const EventDetailModal = ({
       // Reset formation to match event format (6er vs 11er)
       setSelectedFormation(getDefaultFormation(event.format));
       setSelectedPlayers([]);
+      try { setPresets(JSON.parse(localStorage.getItem(PRESET_KEY) || '[]')); } catch { setPresets([]); }
     }
   }, [isOpen, event?.id]);
 
@@ -198,33 +200,133 @@ export const EventDetailModal = ({
     }
   };
 
+  // ── Memoized derived state (before early return — React hook rules) ──
+
+  // Free up 1 DPC for players already committed to THIS event (user is editing their own lineup)
+  const effectiveHoldings = useMemo(() => {
+    if (!event) return userHoldings;
+    return userHoldings.map(h => {
+      if (h.activeEventIds.includes(event.id)) {
+        const newEventsUsing = h.eventsUsing - 1;
+        const newAvailable = Math.max(0, h.dpcOwned - newEventsUsing);
+        return { ...h, eventsUsing: newEventsUsing, dpcAvailable: newAvailable, isLocked: newAvailable <= 0 };
+      }
+      return h;
+    });
+  }, [userHoldings, event?.id]);
+
+  // Formation data — only recalculates when format or selection changes
+  const availableFormations = useMemo(
+    () => getFormationsForFormat(event?.format ?? '6er'),
+    [event?.format]
+  );
+
+  const currentFormation = useMemo(
+    () => availableFormations.find(f => f.id === selectedFormation) || availableFormations[0],
+    [availableFormations, selectedFormation]
+  );
+
+  const formationSlots = useMemo(() => {
+    const slots: { pos: string; slot: number }[] = [];
+    let idx = 0;
+    for (const s of currentFormation.slots) {
+      for (let i = 0; i < s.count; i++) slots.push({ pos: s.pos, slot: idx++ });
+    }
+    return slots;
+  }, [currentFormation]);
+
+  const slotDbKeys = useMemo(() => buildSlotDbKeys(currentFormation), [currentFormation]);
+
+  // O(1) slot→player lookup (replaces O(n) find() called 44 times per render)
+  const selectedPlayerMap = useMemo(() => {
+    const map = new Map<number, string>();
+    selectedPlayers.forEach(p => map.set(p.slot, p.playerId));
+    return map;
+  }, [selectedPlayers]);
+
+  const getSelectedPlayer = useCallback((slot: number) => {
+    const playerId = selectedPlayerMap.get(slot);
+    if (!playerId) return null;
+    return effectiveHoldings.find(h => h.id === playerId) ?? null;
+  }, [selectedPlayerMap, effectiveHoldings]);
+
+  // Synergy preview — only recalculates when lineup changes
+  const synergyPreview = useMemo(() => {
+    const clubs = selectedPlayers
+      .map(sp => effectiveHoldings.find(h => h.id === sp.playerId)?.club)
+      .filter(Boolean) as string[];
+    return calculateSynergyPreview(clubs);
+  }, [selectedPlayers, effectiveHoldings]);
+
+  // Player picker — expensive filter+sort, memoized per search/sort/selection change
+  const getAvailablePlayersForPosition = useCallback((position: string) => {
+    const posMap: Record<string, string[]> = {
+      'GK': ['GK'], 'DEF': ['DEF', 'CB', 'LB', 'RB'],
+      'MID': ['MID', 'CM', 'CDM', 'CAM', 'LM', 'RM'],
+      'ATT': ['ATT', 'FW', 'ST', 'CF', 'LW', 'RW'],
+    };
+    const validPos = posMap[position] || [position];
+    const usedIds = new Set(selectedPlayers.map(p => p.playerId));
+    let players = effectiveHoldings.filter(h =>
+      validPos.some(vp => h.pos.toUpperCase().includes(vp)) && !usedIds.has(h.id) && !h.isLocked
+    );
+    if (pickerSearch) {
+      const q = pickerSearch.toLowerCase();
+      players = players.filter(h => `${h.first} ${h.last} ${h.club}`.toLowerCase().includes(q));
+    }
+    return [...players].sort((a, b) => {
+      if (pickerSort === 'l5') return b.perfL5 - a.perfL5;
+      if (pickerSort === 'dpc') return b.dpcAvailable - a.dpcAvailable;
+      return a.last.localeCompare(b.last);
+    });
+  }, [selectedPlayers, effectiveHoldings, pickerSearch, pickerSort]);
+
+  // Stable handler refs — prevent child re-renders
+  const handleSelectPlayer = useCallback((playerId: string, position: string, slot: number) => {
+    setSelectedPlayers(prev => [...prev.filter(p => p.slot !== slot), { playerId, position, slot, isLocked: false }]);
+    setShowPlayerPicker(null);
+    setPickerSearch('');
+  }, []);
+
+  const handleRemovePlayer = useCallback((slot: number) => {
+    setSelectedPlayers(prev => prev.filter(p => p.slot !== slot));
+  }, []);
+
+  const handleFormationChange = useCallback((fId: string) => {
+    setSelectedFormation(fId);
+    setSelectedPlayers([]);
+  }, []);
+
+  const isLineupComplete = selectedPlayers.length === formationSlots.length;
+
+  // Salary Cap check — perfL5 as proxy "salary" (0-100 per player)
+  const totalSalary = useMemo(() =>
+    selectedPlayers.reduce((sum, sp) => {
+      const player = effectiveHoldings.find(h => h.id === sp.playerId);
+      return sum + (player?.perfL5 ?? 50);
+    }, 0),
+    [selectedPlayers, effectiveHoldings]
+  );
+
+  const reqCheck = useMemo(() => {
+    if (!event) return { ok: true, message: '' };
+    if (event.requirements.minClubPlayers && event.requirements.specificClub) {
+      const clubPlayers = selectedPlayers.filter(sp => {
+        const player = effectiveHoldings.find(h => h.id === sp.playerId);
+        return player?.club.toLowerCase().includes(event.requirements.specificClub!.toLowerCase());
+      });
+      if (clubPlayers.length < event.requirements.minClubPlayers) {
+        return { ok: false, message: `Min. ${event.requirements.minClubPlayers} ${event.clubName}-Spieler erforderlich` };
+      }
+    }
+    return { ok: true, message: '' };
+  }, [selectedPlayers, effectiveHoldings, event]);
+
   if (!isOpen || !event) return null;
 
   const statusStyle = getStatusStyle(event.status);
   const typeStyle = getTypeStyle(event.type);
   const TypeIcon = typeStyle.icon;
-
-  // Dynamic formation slots — use format-specific formations
-  const availableFormations = getFormationsForFormat(event.format);
-  const currentFormation = availableFormations.find(f => f.id === selectedFormation) || availableFormations[0];
-  const formationSlots: { pos: string; slot: number }[] = [];
-  let slotIdx = 0;
-  for (const s of currentFormation.slots) {
-    for (let i = 0; i < s.count; i++) formationSlots.push({ pos: s.pos, slot: slotIdx++ });
-  }
-
-  // Slot key mapping for this formation (used for scores, captain, etc.)
-  const slotDbKeys = buildSlotDbKeys(currentFormation);
-
-  // Free up 1 DPC for players already committed to THIS event (user is editing their own lineup)
-  const effectiveHoldings = userHoldings.map(h => {
-    if (h.activeEventIds.includes(event.id)) {
-      const newEventsUsing = h.eventsUsing - 1;
-      const newAvailable = Math.max(0, h.dpcOwned - newEventsUsing);
-      return { ...h, eventsUsing: newEventsUsing, dpcAvailable: newAvailable, isLocked: newAvailable <= 0 };
-    }
-    return h;
-  });
 
   const getPlayerStatusStyle = (s: UserDpcHolding['status']) => {
     switch (s) {
@@ -236,75 +338,8 @@ export const EventDetailModal = ({
     }
   };
 
-  const getSelectedPlayer = (slot: number) => {
-    const selected = selectedPlayers.find(p => p.slot === slot);
-    if (!selected) return null;
-    return effectiveHoldings.find(h => h.id === selected.playerId);
-  };
-
-  // Synergy preview — detect club duos in selected lineup
-  const synergyPreview = (() => {
-    const clubs = selectedPlayers
-      .map(sp => effectiveHoldings.find(h => h.id === sp.playerId)?.club)
-      .filter(Boolean) as string[];
-    return calculateSynergyPreview(clubs);
-  })();
-
-  const getAvailablePlayersForPosition = (position: string) => {
-    const posMap: Record<string, string[]> = {
-      'GK': ['GK'], 'DEF': ['DEF', 'CB', 'LB', 'RB'],
-      'MID': ['MID', 'CM', 'CDM', 'CAM', 'LM', 'RM'],
-      'ATT': ['ATT', 'FW', 'ST', 'CF', 'LW', 'RW'],
-    };
-    const validPos = posMap[position] || [position];
-    const usedIds = selectedPlayers.map(p => p.playerId);
-    let players = effectiveHoldings.filter(h =>
-      validPos.some(vp => h.pos.toUpperCase().includes(vp)) && !usedIds.includes(h.id) && !h.isLocked
-    );
-    if (pickerSearch) {
-      const q = pickerSearch.toLowerCase();
-      players = players.filter(h => `${h.first} ${h.last} ${h.club}`.toLowerCase().includes(q));
-    }
-    return [...players].sort((a, b) => {
-      if (pickerSort === 'l5') return b.perfL5 - a.perfL5;
-      if (pickerSort === 'dpc') return b.dpcAvailable - a.dpcAvailable;
-      return a.last.localeCompare(b.last);
-    });
-  };
-
-  const handleSelectPlayer = (playerId: string, position: string, slot: number) => {
-    setSelectedPlayers(prev => [...prev.filter(p => p.slot !== slot), { playerId, position, slot, isLocked: false }]);
-    setShowPlayerPicker(null);
-    setPickerSearch('');
-  };
-
-  const handleRemovePlayer = (slot: number) => setSelectedPlayers(prev => prev.filter(p => p.slot !== slot));
-  const handleFormationChange = (fId: string) => { setSelectedFormation(fId); setSelectedPlayers([]); };
-
-  const isLineupComplete = selectedPlayers.length === formationSlots.length;
-
-  // Salary Cap check — perfL5 as proxy "salary" (0-100 per player)
-  const totalSalary = selectedPlayers.reduce((sum, sp) => {
-    const player = effectiveHoldings.find(h => h.id === sp.playerId);
-    return sum + (player?.perfL5 ?? 50);
-  }, 0);
   const salaryCap = event.salaryCap ?? null;
   const overBudget = salaryCap != null && totalSalary > salaryCap;
-
-  const checkRequirements = () => {
-    if (event.requirements.minClubPlayers && event.requirements.specificClub) {
-      const clubPlayers = selectedPlayers.filter(sp => {
-        const player = effectiveHoldings.find(h => h.id === sp.playerId);
-        return player?.club.toLowerCase().includes(event.requirements.specificClub!.toLowerCase());
-      });
-      if (clubPlayers.length < event.requirements.minClubPlayers) {
-        return { ok: false, message: `Min. ${event.requirements.minClubPlayers} ${event.clubName}-Spieler erforderlich` };
-      }
-    }
-    return { ok: true, message: '' };
-  };
-
-  const reqCheck = checkRequirements();
 
   const handleConfirmJoin = () => {
     if (!isLineupComplete) { alert('Bitte stelle deine komplette Aufstellung auf!'); return; }
@@ -323,17 +358,14 @@ export const EventDetailModal = ({
     }
   };
 
-  // Presets (localStorage)
-  type LineupPreset = { name: string; formation: string; playerIds: string[] };
-  const PRESET_KEY = 'bescout-lineup-presets';
-  const loadPresets = (): LineupPreset[] => { try { return JSON.parse(localStorage.getItem(PRESET_KEY) || '[]'); } catch { return []; } };
+  // Presets — use state instead of parsing localStorage on every render
   const savePreset = () => {
     if (!presetName.trim()) return;
-    const presets = loadPresets();
     const ids = formationSlots.map(s => { const sp = selectedPlayers.find(p => p.slot === s.slot); return sp?.playerId || ''; });
-    presets.push({ name: presetName, formation: selectedFormation, playerIds: ids });
-    if (presets.length > 5) presets.shift();
-    localStorage.setItem(PRESET_KEY, JSON.stringify(presets));
+    const updated = [...presets, { name: presetName, formation: selectedFormation, playerIds: ids }];
+    if (updated.length > 5) updated.shift();
+    localStorage.setItem(PRESET_KEY, JSON.stringify(updated));
+    setPresets(updated);
     setPresetName(''); setShowPresets(false);
   };
   const applyPreset = (preset: LineupPreset) => {
@@ -350,8 +382,10 @@ export const EventDetailModal = ({
     setSelectedPlayers(lineup); setShowPresets(false);
   };
   const deletePreset = (index: number) => {
-    const presets = loadPresets(); presets.splice(index, 1);
-    localStorage.setItem(PRESET_KEY, JSON.stringify(presets)); setShowPresets(false);
+    const updated = [...presets]; updated.splice(index, 1);
+    localStorage.setItem(PRESET_KEY, JSON.stringify(updated));
+    setPresets(updated);
+    setShowPresets(false);
   };
 
   const isScored = !!event.scoredAt;
@@ -659,7 +693,7 @@ export const EventDetailModal = ({
               {showPresets && (
                 <div className="p-3 bg-white/[0.03] rounded-lg border border-white/10 space-y-2">
                   <div className="text-xs font-bold text-white/60 mb-2">Aufstellungs-Vorlagen (max 5)</div>
-                  {loadPresets().map((preset, i) => (
+                  {presets.map((preset, i) => (
                     <div key={i} className="flex items-center justify-between p-2 bg-surface-base rounded-lg">
                       <button onClick={() => applyPreset(preset)} className="text-sm font-medium hover:text-gold transition-colors flex-1 text-left">
                         {preset.name} <span className="text-white/30 text-xs">({preset.formation})</span>
@@ -669,7 +703,7 @@ export const EventDetailModal = ({
                       </button>
                     </div>
                   ))}
-                  {loadPresets().length === 0 && <div className="text-xs text-white/30 text-center py-2">Keine Vorlagen gespeichert</div>}
+                  {presets.length === 0 && <div className="text-xs text-white/30 text-center py-2">Keine Vorlagen gespeichert</div>}
                   <div className="flex gap-2 mt-2">
                     <input
                       value={presetName}
