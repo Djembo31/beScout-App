@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Settings, Shield, Calendar, Loader2, Check, Database, RefreshCw, Users, Shirt, Trophy, AlertCircle, Gamepad2, Globe, UserPlus, Trash2, Crown } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -29,6 +30,7 @@ import type { ClubWithAdmin, ClubAdminRole, DbClubAdmin } from '@/types';
 // ============================================
 
 function ApiFootballSection({ userId }: { userId: string }) {
+  const t = useTranslations('admin');
   const [status, setStatus] = useState<MappingStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState<'teams' | 'players' | 'fixtures' | 'import' | null>(null);
@@ -57,10 +59,10 @@ function ApiFootballSection({ userId }: { userId: string }) {
     setImportResult(null);
     try {
       const result = await syncTeamMapping(userId);
-      setLastResult({ type: 'Teams', result });
+      setLastResult({ type: t('syncTeams'), result });
       await loadStatus();
     } catch (e) {
-      setLastResult({ type: 'Teams', result: { matched: 0, unmatched: [], errors: [e instanceof Error ? e.message : 'Fehler'] } });
+      setLastResult({ type: t('syncTeams'), result: { matched: 0, unmatched: [], errors: [e instanceof Error ? e.message : String(e)] } });
     }
     setSyncing(null);
   };
@@ -71,10 +73,10 @@ function ApiFootballSection({ userId }: { userId: string }) {
     setImportResult(null);
     try {
       const result = await syncPlayerMapping(userId);
-      setLastResult({ type: 'Spieler', result });
+      setLastResult({ type: t('syncPlayers'), result });
       await loadStatus();
     } catch (e) {
-      setLastResult({ type: 'Spieler', result: { matched: 0, unmatched: [], errors: [e instanceof Error ? e.message : 'Fehler'] } });
+      setLastResult({ type: t('syncPlayers'), result: { matched: 0, unmatched: [], errors: [e instanceof Error ? e.message : String(e)] } });
     }
     setSyncing(null);
   };
@@ -85,10 +87,10 @@ function ApiFootballSection({ userId }: { userId: string }) {
     setImportResult(null);
     try {
       const result = await syncFixtureMapping(userId, fixtureGw);
-      setLastResult({ type: `Fixtures GW ${fixtureGw}`, result });
+      setLastResult({ type: `${t('labelFixtures')} GW ${fixtureGw}`, result });
       await loadStatus();
     } catch (e) {
-      setLastResult({ type: `Fixtures GW ${fixtureGw}`, result: { matched: 0, unmatched: [], errors: [e instanceof Error ? e.message : 'Fehler'] } });
+      setLastResult({ type: `${t('labelFixtures')} GW ${fixtureGw}`, result: { matched: 0, unmatched: [], errors: [e instanceof Error ? e.message : String(e)] } });
     }
     setSyncing(null);
   };
@@ -101,7 +103,7 @@ function ApiFootballSection({ userId }: { userId: string }) {
       const result = await importGameweek(userId, fixtureGw);
       setImportResult(result);
     } catch (e) {
-      setImportResult({ success: false, fixturesImported: 0, statsImported: 0, scoresSynced: 0, errors: [e instanceof Error ? e.message : 'Fehler'] });
+      setImportResult({ success: false, fixturesImported: 0, statsImported: 0, scoresSynced: 0, errors: [e instanceof Error ? e.message : String(e)] });
     }
     setSyncing(null);
   };
@@ -113,9 +115,9 @@ function ApiFootballSection({ userId }: { userId: string }) {
           <Database className="w-5 h-5 text-sky-400" />
         </div>
         <div>
-          <div className="font-bold">API-Football Integration</div>
+          <div className="font-bold">{t('apiFootball')}</div>
           <div className="text-xs text-white/50">
-            Echte Match-Daten importieren (TFF 1. Lig)
+            {t('apiFootballDesc')}
           </div>
         </div>
       </div>
@@ -123,8 +125,8 @@ function ApiFootballSection({ userId }: { userId: string }) {
       {!apiReady ? (
         <div className="text-sm text-white/40 p-4 bg-surface-base rounded-xl border border-dashed border-white/10 text-center">
           <AlertCircle className="w-5 h-5 mx-auto mb-2 text-orange-400" />
-          <div className="font-semibold text-white/60 mb-1">API Key nicht konfiguriert</div>
-          <div>Setze <code className="text-sky-400 font-mono text-xs">NEXT_PUBLIC_API_FOOTBALL_KEY</code> in <code className="text-white/60 font-mono text-xs">.env.local</code></div>
+          <div className="font-semibold text-white/60 mb-1">{t('apiKeyNotConfigured')}</div>
+          <div>{t('apiKeySetHint', { key: 'NEXT_PUBLIC_API_FOOTBALL_KEY', file: '.env.local' })}</div>
         </div>
       ) : loading ? (
         <div className="flex items-center justify-center py-8">
@@ -135,9 +137,9 @@ function ApiFootballSection({ userId }: { userId: string }) {
           {/* Mapping Status Dashboard */}
           {status && (
             <div className="grid grid-cols-3 gap-3">
-              <StatusPill label="Clubs" mapped={status.clubsMapped} total={status.clubsTotal} icon={<Shield className="w-3.5 h-3.5" />} />
-              <StatusPill label="Spieler" mapped={status.playersMapped} total={status.playersTotal} icon={<Shirt className="w-3.5 h-3.5" />} />
-              <StatusPill label="Fixtures" mapped={status.fixturesMapped} total={status.fixturesTotal} icon={<Trophy className="w-3.5 h-3.5" />} />
+              <StatusPill label={t('labelClubs')} mapped={status.clubsMapped} total={status.clubsTotal} icon={<Shield className="w-3.5 h-3.5" />} />
+              <StatusPill label={t('labelPlayers')} mapped={status.playersMapped} total={status.playersTotal} icon={<Shirt className="w-3.5 h-3.5" />} />
+              <StatusPill label={t('labelFixtures')} mapped={status.fixturesMapped} total={status.fixturesTotal} icon={<Trophy className="w-3.5 h-3.5" />} />
             </div>
           )}
 
@@ -147,7 +149,7 @@ function ApiFootballSection({ userId }: { userId: string }) {
             <div className="flex items-center gap-3">
               <Button onClick={handleSyncTeams} disabled={!!syncing} className="flex-1">
                 {syncing === 'teams' ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none mr-2" /> : <Users className="w-4 h-4 mr-2" />}
-                Teams syncen
+                {t('syncTeams')}
               </Button>
             </div>
 
@@ -155,7 +157,7 @@ function ApiFootballSection({ userId }: { userId: string }) {
             <div className="flex items-center gap-3">
               <Button onClick={handleSyncPlayers} disabled={!!syncing || (status?.clubsMapped ?? 0) === 0} className="flex-1">
                 {syncing === 'players' ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none mr-2" /> : <Shirt className="w-4 h-4 mr-2" />}
-                Spieler syncen
+                {t('syncPlayers')}
               </Button>
             </div>
 
@@ -174,7 +176,7 @@ function ApiFootballSection({ userId }: { userId: string }) {
               </select>
               <Button onClick={handleSyncFixtures} disabled={!!syncing || (status?.clubsMapped ?? 0) === 0} className="flex-1">
                 {syncing === 'fixtures' ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-                Fixtures syncen
+                {t('syncFixtures')}
               </Button>
             </div>
 
@@ -187,7 +189,7 @@ function ApiFootballSection({ userId }: { userId: string }) {
                 className="flex-1"
               >
                 {syncing === 'import' ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none mr-2" /> : <Trophy className="w-4 h-4 mr-2" />}
-                Spieltag importieren
+                {t('importGameweek')}
               </Button>
             </div>
           </div>
@@ -196,9 +198,9 @@ function ApiFootballSection({ userId }: { userId: string }) {
           {lastResult && (
             <div className={cn('p-3 rounded-xl text-sm', lastResult.result.errors.length > 0 ? 'bg-red-500/10 border border-red-500/20' : 'bg-green-500/10 border border-green-500/20')}>
               <div className="font-bold mb-1">
-                {lastResult.type}: {lastResult.result.matched} gemappt
+                {lastResult.type}: {t('mapped', { count: lastResult.result.matched })}
                 {lastResult.result.unmatched.length > 0 && (
-                  <span className="text-orange-400 font-normal"> / {lastResult.result.unmatched.length} nicht gefunden</span>
+                  <span className="text-orange-400 font-normal"> / {t('notFoundCount', { count: lastResult.result.unmatched.length })}</span>
                 )}
               </div>
               {lastResult.result.errors.length > 0 && (
@@ -208,7 +210,7 @@ function ApiFootballSection({ userId }: { userId: string }) {
               )}
               {lastResult.result.unmatched.length > 0 && lastResult.result.unmatched.length <= 10 && (
                 <div className="text-orange-400/70 text-xs mt-1">
-                  Nicht gefunden: {lastResult.result.unmatched.join(', ')}
+                  {t('notFoundLabel')} {lastResult.result.unmatched.join(', ')}
                 </div>
               )}
             </div>
@@ -218,7 +220,7 @@ function ApiFootballSection({ userId }: { userId: string }) {
           {importResult && (
             <div className={cn('p-3 rounded-xl text-sm', importResult.errors.length > 0 ? 'bg-red-500/10 border border-red-500/20' : 'bg-green-500/10 border border-green-500/20')}>
               <div className="font-bold mb-1">
-                Import GW {fixtureGw}: {importResult.fixturesImported} Fixtures, {importResult.statsImported} Stats, {importResult.scoresSynced} Scores
+                {t('importResult', { gw: fixtureGw, fixtures: importResult.fixturesImported, stats: importResult.statsImported, scores: importResult.scoresSynced })}
               </div>
               {importResult.errors.length > 0 && (
                 <div className="text-red-400 text-xs space-y-0.5">
@@ -253,19 +255,22 @@ function StatusPill({ label, mapped, total, icon }: { label: string; mapped: num
 // Main Component
 // ============================================
 
-const JURISDICTIONS: { value: ClubFantasySettings['fantasy_jurisdiction_preset']; label: string; desc: string }[] = [
-  { value: 'TR', label: 'Türkei', desc: 'Entry Fees deaktiviert (Regulierung)' },
-  { value: 'DE', label: 'Deutschland', desc: 'Entry Fees deaktiviert (Regulierung)' },
-  { value: 'OTHER', label: 'Andere', desc: 'Entry Fees möglich (Eigenverantwortung)' },
-];
+const JURISDICTION_VALUES: ClubFantasySettings['fantasy_jurisdiction_preset'][] = ['TR', 'DE', 'OTHER'];
 
 type AdminWithProfile = DbClubAdmin & { handle: string; display_name: string | null };
 
 export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
   const { user } = useUser();
   const { addToast } = useToast();
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
   const role = club.admin_role ?? 'editor';
   const isOwner = canPerformAction('manage_admins', role);
+  const jurisdictions = JURISDICTION_VALUES.map(value => ({
+    value,
+    label: t(`jurisdiction${value}` as any),
+    desc: t(`jurisdiction${value}Desc` as any),
+  }));
 
   const [currentGw, setCurrentGw] = useState<number | null>(null);
   const [selectedGw, setSelectedGw] = useState<number>(1);
@@ -335,13 +340,13 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
     try {
       const result = await removeClubAdmin(club.id, userId);
       if (result.success) {
-        addToast('Team-Mitglied entfernt', 'success');
+        addToast(t('memberRemoved'), 'success');
         await loadAdmins();
       } else {
-        addToast(result.error ?? 'Fehler beim Entfernen', 'error');
+        addToast(result.error ?? t('removeError'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+      addToast(err instanceof Error ? err.message : tc('error'), 'error');
     } finally {
       setRemovingId(null);
     }
@@ -352,13 +357,13 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
     try {
       const result = await addClubAdmin(club.id, userId, newRole);
       if (result.success) {
-        addToast('Rolle geändert', 'success');
+        addToast(t('roleChanged'), 'success');
         await loadAdmins();
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        addToast(result.error ?? tc('error'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+      addToast(err instanceof Error ? err.message : tc('error'), 'error');
     } finally {
       setChangingRole(null);
     }
@@ -370,7 +375,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-black">Einstellungen</h2>
+      <h2 className="text-xl font-black">{t('settings')}</h2>
 
       {/* Active Gameweek Control — Owner only */}
       {canSetGw && (
@@ -380,11 +385,11 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
               <Calendar className="w-5 h-5 text-gold" />
             </div>
             <div>
-              <div className="font-bold">Aktiver Spieltag</div>
+              <div className="font-bold">{t('activeGameweek')}</div>
               <div className="text-xs text-white/50">
-                Steuert welcher Spieltag in Fantasy aktiv ist
+                {t('activeGameweekDesc')}
                 {currentGw != null && (
-                  <span className="ml-1 text-green-500">• Aktuell: GW {currentGw}</span>
+                  <span className="ml-1 text-green-500">• {t('current')}: GW {currentGw}</span>
                 )}
               </div>
             </div>
@@ -399,7 +404,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
             >
               {Array.from({ length: 38 }, (_, i) => i + 1).map(gw => (
                 <option key={gw} value={gw}>
-                  Spieltag {gw} {gw === currentGw ? '(aktuell)' : ''}
+                  {t('gameweekLabel', { gw })} {gw === currentGw ? t('gameweekCurrent') : ''}
                 </option>
               ))}
             </select>
@@ -413,7 +418,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
               ) : saved ? (
                 <Check className="w-4 h-4 text-green-500" />
               ) : (
-                'Setzen'
+                t('set')
               )}
             </Button>
           </div>
@@ -431,8 +436,8 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
             <Gamepad2 className="w-5 h-5 text-purple-400" />
           </div>
           <div>
-            <div className="font-bold">Fantasy-Einstellungen</div>
-            <div className="text-xs text-white/50">Jurisdiktion und Event-Defaults für diesen Club</div>
+            <div className="font-bold">{t('fantasySettings')}</div>
+            <div className="text-xs text-white/50">{t('fantasySettingsDesc')}</div>
           </div>
         </div>
 
@@ -446,7 +451,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
             <div>
               <label htmlFor="jurisdiction" className="block text-sm font-medium mb-2 flex items-center gap-1.5">
                 <Globe className="w-3.5 h-3.5 text-white/40" />
-                Jurisdiktion
+                {t('jurisdiction')}
               </label>
               <select
                 id="jurisdiction"
@@ -458,7 +463,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
                 }}
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm min-h-[44px]"
               >
-                {JURISDICTIONS.map(j => (
+                {jurisdictions.map(j => (
                   <option key={j.value} value={j.value}>{j.label} — {j.desc}</option>
                 ))}
               </select>
@@ -469,7 +474,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
               <div className="flex items-start gap-2.5 p-3 bg-amber-500/5 border border-amber-500/15 rounded-xl">
                 <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
                 <div className="text-xs text-amber-300/80">
-                  Entry Fees sind in <strong>{fantasySettings.fantasy_jurisdiction_preset === 'TR' ? 'der Türkei' : 'Deutschland'}</strong> aus regulatorischen Gründen deaktiviert. Alle Events dieses Clubs werden automatisch auf 0 $SCOUT gesetzt.
+                  {t('entryFeesDisabled', { country: t(fantasySettings.fantasy_jurisdiction_preset === 'TR' ? 'countryTR' : 'countryDE') })}
                 </div>
               </div>
             )}
@@ -477,7 +482,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
             {/* Default Entry Fee (only if allowed) */}
             {fantasySettings.fantasy_allow_entry_fees && (
               <div>
-                <label htmlFor="entry-fee" className="block text-sm font-medium mb-2">Standard-Teilnahmegebühr ($SCOUT)</label>
+                <label htmlFor="entry-fee" className="block text-sm font-medium mb-2">{t('defaultEntryFee')}</label>
                 <input
                   id="entry-fee"
                   type="number"
@@ -488,7 +493,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
                   max={1000}
                   className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm min-h-[44px]"
                 />
-                <div className="text-[10px] text-white/30 mt-1">Wird als Default in neue Events übernommen</div>
+                <div className="text-[10px] text-white/30 mt-1">{t('defaultEntryFeeHint')}</div>
               </div>
             )}
 
@@ -500,9 +505,9 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
               {fantasySaving ? (
                 <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" />
               ) : fantasySaved ? (
-                <><Check className="w-4 h-4 text-green-500" /> Gespeichert</>
+                <><Check className="w-4 h-4 text-green-500" /> {t('saved')}</>
               ) : (
-                'Fantasy-Einstellungen speichern'
+                t('saveFantasySettings')
               )}
             </Button>
           </div>
@@ -517,30 +522,30 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
             <Shield className="w-5 h-5 text-white/50" />
           </div>
           <div>
-            <div className="font-bold">Club Info</div>
-            <div className="text-xs text-white/50">Grundlegende Informationen</div>
+            <div className="font-bold">{t('clubInfo')}</div>
+            <div className="text-xs text-white/50">{t('basicInfo')}</div>
           </div>
         </div>
         <div className="space-y-3 text-sm">
           <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl">
-            <span className="text-white/50">Name</span>
+            <span className="text-white/50">{t('fieldName')}</span>
             <span className="font-bold">{club.name}</span>
           </div>
           <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl">
-            <span className="text-white/50">Slug</span>
+            <span className="text-white/50">{t('fieldSlug')}</span>
             <span className="font-mono text-white/70">{club.slug}</span>
           </div>
           <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl">
-            <span className="text-white/50">Liga</span>
+            <span className="text-white/50">{t('fieldLeague')}</span>
             <span>{club.league}</span>
           </div>
           <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl">
-            <span className="text-white/50">Plan</span>
+            <span className="text-white/50">{t('fieldPlan')}</span>
             <span className="text-gold font-bold">{club.plan}</span>
           </div>
           <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl">
-            <span className="text-white/50">Verifiziert</span>
-            <span className={club.is_verified ? 'text-green-500' : 'text-white/50'}>{club.is_verified ? 'Ja' : 'Nein'}</span>
+            <span className="text-white/50">{t('fieldVerified')}</span>
+            <span className={club.is_verified ? 'text-green-500' : 'text-white/50'}>{club.is_verified ? tc('yes') : tc('no')}</span>
           </div>
         </div>
       </Card>
@@ -553,14 +558,14 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
               <Users className="w-5 h-5 text-gold" />
             </div>
             <div>
-              <div className="font-bold">Team-Verwaltung</div>
-              <div className="text-xs text-white/50">Admins und Redakteure verwalten</div>
+              <div className="font-bold">{t('teamManagement')}</div>
+              <div className="text-xs text-white/50">{t('teamManagementDesc')}</div>
             </div>
           </div>
           {isOwner && (
             <Button variant="gold" size="sm" onClick={() => setAddModalOpen(true)}>
               <UserPlus className="w-3.5 h-3.5" />
-              Hinzufügen
+              {t('addMember')}
             </Button>
           )}
         </div>
@@ -583,7 +588,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-bold truncate">
                       {admin.display_name || admin.handle}
-                      {isSelf && <span className="text-[10px] text-white/30 ml-1">(Du)</span>}
+                      {isSelf && <span className="text-[10px] text-white/30 ml-1">{t('you')}</span>}
                     </div>
                     <div className="text-[10px] text-white/40">@{admin.handle}</div>
                   </div>
@@ -596,8 +601,8 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
                       disabled={changingRole === admin.user_id}
                       className={cn('px-2 py-2 rounded-lg text-xs font-bold border min-h-[44px] bg-transparent cursor-pointer', badge.bg, badge.color, badge.border)}
                     >
-                      <option value="admin">Verwalter</option>
-                      <option value="editor">Redakteur</option>
+                      <option value="admin">{t('roleAdmin')}</option>
+                      <option value="editor">{t('roleEditor')}</option>
                     </select>
                   ) : (
                     <span className={cn('px-2 py-1 rounded-lg text-xs font-bold border flex items-center gap-1', badge.bg, badge.color, badge.border)}>
@@ -628,7 +633,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
 
         {!isOwner && (
           <div className="text-sm text-white/40 p-4 bg-surface-base rounded-xl border border-dashed border-white/10 text-center mt-4">
-            Nur der Eigentümer kann das Team verwalten.
+            {t('ownerOnlyTeam')}
           </div>
         )}
       </Card>
