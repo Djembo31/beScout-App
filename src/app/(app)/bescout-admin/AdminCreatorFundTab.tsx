@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Loader2, Play, Megaphone } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
-import { fmtScout } from '@/lib/utils';
+import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { triggerCreatorFundPayout, getCreatorFundStats } from '@/lib/services/creatorFund';
 import { triggerAdRevenuePayout, getAdRevenueStats } from '@/lib/services/adRevenueShare';
@@ -62,7 +62,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
     });
   };
 
-  if (loading) return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>;
+  if (loading) return <div className="flex justify-center py-8"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" /></div>;
 
   return (
     <div className="space-y-4">
@@ -89,7 +89,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
       {/* Actions */}
       <Card className="p-4">
         <h3 className="font-black mb-3 flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-cyan-400" />
+          <Sparkles className="size-4 text-cyan-400" aria-hidden="true" />
           Auszahlungen auslösen (letzte 7 Tage)
         </h3>
         <div className="flex gap-3">
@@ -99,7 +99,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
             disabled={paying !== null}
             onClick={() => handlePayout('fund')}
           >
-            {paying === 'fund' ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Play className="w-3 h-3 mr-1" />}
+            {paying === 'fund' ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none mr-1" aria-hidden="true" /> : <Play className="size-3 mr-1" aria-hidden="true" />}
             Creator Fund Auszahlen
           </Button>
           <Button
@@ -108,7 +108,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
             disabled={paying !== null}
             onClick={() => handlePayout('ad')}
           >
-            {paying === 'ad' ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Megaphone className="w-3 h-3 mr-1" />}
+            {paying === 'ad' ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none mr-1" aria-hidden="true" /> : <Megaphone className="size-3 mr-1" aria-hidden="true" />}
             Werbeanteil Auszahlen
           </Button>
         </div>
@@ -150,11 +150,12 @@ export function AdminCreatorFundTab({ adminId }: Props) {
                     <td className="py-1.5 px-2 text-right font-mono text-white/60">{p.impression_share_pct.toFixed(1)}%</td>
                     <td className="py-1.5 px-2 text-right font-mono text-green-500 font-bold">{fmtScout(centsToBsd(p.payout_cents))} $SCOUT</td>
                     <td className="py-1.5 px-2">
-                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                      <span className={cn(
+                        'px-1.5 py-0.5 rounded text-[10px] font-semibold',
                         p.status === 'paid' ? 'bg-green-500/20 text-green-400' :
                         p.status === 'rolled_over' ? 'bg-amber-500/20 text-amber-400' :
                         'bg-white/10 text-white/40'
-                      }`}>
+                      )}>
                         {p.status === 'paid' ? 'Bezahlt' : p.status === 'rolled_over' ? 'Übertragen' : 'Ausstehend'}
                       </span>
                     </td>

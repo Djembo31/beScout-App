@@ -14,14 +14,14 @@ export function DemoBanner() {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[70] flex items-center justify-center gap-2 px-4 py-1.5 bg-gold text-black text-xs font-bold">
-      <Lock className="w-3 h-3" />
+      <Lock className="size-3" aria-hidden="true" />
       <span>{t('banner')} — {t('bannerSub')}</span>
       <button
         onClick={() => setDismissed(true)}
         className="ml-2 p-0.5 rounded hover:bg-black/10 transition-colors"
         aria-label={t('banner')}
       >
-        <X className="w-3 h-3" />
+        <X className="size-3" aria-hidden="true" />
       </button>
     </div>
   );

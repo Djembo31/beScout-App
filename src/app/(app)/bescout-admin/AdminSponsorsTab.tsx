@@ -6,7 +6,7 @@ import { Card, Button, Chip, Modal, StatCard } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
 import { getAllSponsors, createSponsor, updateSponsor, deleteSponsor } from '@/lib/services/sponsors';
 import { useSponsorStats } from '@/lib/queries';
-import { fmtScout } from '@/lib/utils';
+import { cn, fmtScout } from '@/lib/utils';
 import type { DbSponsor, SponsorPlacement, SponsorStatsSummary } from '@/types';
 
 const PLACEMENT_OPTIONS: { value: SponsorPlacement; label: string }[] = [
@@ -180,7 +180,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
     }
   };
 
-  if (loading) return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>;
+  if (loading) return <div className="flex justify-center py-8"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" /></div>;
 
   return (
     <div className="space-y-4">
@@ -190,7 +190,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
           <p className="text-xs text-white/40">{sponsors.length} Einträge • {sponsors.filter(s => s.is_active).length} aktiv</p>
         </div>
         <Button variant="gold" size="sm" onClick={openCreate}>
-          <Plus className="w-4 h-4" /> Neu
+          <Plus className="size-4" aria-hidden="true" /> Neu
         </Button>
       </div>
 
@@ -199,7 +199,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
 
       {sponsors.length === 0 ? (
         <Card className="p-8 text-center">
-          <ImageIcon className="w-8 h-8 mx-auto mb-2 text-white/15" />
+          <ImageIcon className="size-8 mx-auto mb-2 text-white/15" aria-hidden="true" />
           <div className="text-sm text-white/30">Keine Sponsoren vorhanden</div>
         </Card>
       ) : (
@@ -208,12 +208,12 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
             const placementColor = PLACEMENT_COLORS[s.placement] ?? 'bg-white/10 text-white/50';
             const placementLabel = PLACEMENT_OPTIONS.find(p => p.value === s.placement)?.label ?? s.placement;
             return (
-              <Card key={s.id} className={`p-3 ${!s.is_active ? 'opacity-40' : ''}`}>
+              <Card key={s.id} className={cn('p-3', !s.is_active && 'opacity-40')}>
                 <div className="flex items-center gap-3">
                   <img
                     src={s.logo_url}
                     alt={s.name}
-                    className="w-8 h-8 rounded-lg object-contain bg-white/5 p-1 flex-shrink-0"
+                    className="size-8 rounded-lg object-contain bg-white/5 p-1 flex-shrink-0"
                     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                   />
                   <div className="flex-1 min-w-0">
@@ -222,20 +222,20 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
                       Priorität {s.priority} • {s.ends_at ? `bis ${new Date(s.ends_at).toLocaleDateString('de-DE')}` : 'Unbegrenzt'}
                     </div>
                   </div>
-                  <Chip className={`${placementColor} border text-[10px] flex-shrink-0`}>{placementLabel}</Chip>
+                  <Chip className={cn(placementColor, 'border text-[10px] flex-shrink-0')}>{placementLabel}</Chip>
                   <button
                     onClick={() => handleToggle(s)}
                     className="text-white/40 hover:text-white transition-colors"
                     title={s.is_active ? 'Deaktivieren' : 'Aktivieren'}
                     aria-label={s.is_active ? 'Deaktivieren' : 'Aktivieren'}
                   >
-                    {s.is_active ? <ToggleRight className="w-5 h-5 text-green-500" /> : <ToggleLeft className="w-5 h-5" />}
+                    {s.is_active ? <ToggleRight className="size-5 text-green-500" aria-hidden="true" /> : <ToggleLeft className="size-5" aria-hidden="true" />}
                   </button>
                   <button onClick={() => openEdit(s)} className="text-white/40 hover:text-white transition-colors" title="Bearbeiten" aria-label="Bearbeiten">
-                    <Edit2 className="w-4 h-4" />
+                    <Edit2 className="size-4" aria-hidden="true" />
                   </button>
                   <button onClick={() => handleDelete(s.id)} className="text-white/40 hover:text-red-400 transition-colors" title="Löschen" aria-label="Löschen">
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="size-4" aria-hidden="true" />
                   </button>
                 </div>
               </Card>
@@ -248,8 +248,9 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
       <Modal open={modalOpen} title={editId ? 'Sponsor bearbeiten' : 'Neuer Sponsor'} onClose={() => setModalOpen(false)}>
         <div className="space-y-4 p-4 md:p-6">
           <div>
-            <label className="block text-sm font-bold text-white/70 mb-1">Name</label>
+            <label htmlFor="sponsor-name" className="block text-sm font-bold text-white/70 mb-1">Name</label>
             <input
+              id="sponsor-name"
               type="text"
               value={form.name}
               onChange={(e) => setForm(f => ({ ...f, name: e.target.value.slice(0, 40) }))}
@@ -258,8 +259,9 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-white/70 mb-1">Logo URL</label>
+            <label htmlFor="sponsor-logo-url" className="block text-sm font-bold text-white/70 mb-1">Logo URL</label>
             <input
+              id="sponsor-logo-url"
               type="url"
               value={form.logo_url}
               onChange={(e) => setForm(f => ({ ...f, logo_url: e.target.value }))}
@@ -268,14 +270,15 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
             />
             {form.logo_url && (
               <div className="mt-2 flex items-center gap-2">
-                <img src={form.logo_url} alt="Preview" className="w-8 h-8 rounded object-contain bg-white/5 p-1" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                <img src={form.logo_url} alt="Preview" className="size-8 rounded object-contain bg-white/5 p-1" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                 <span className="text-xs text-white/30">Vorschau</span>
               </div>
             )}
           </div>
           <div>
-            <label className="block text-sm font-bold text-white/70 mb-1">Link URL (optional)</label>
+            <label htmlFor="sponsor-link-url" className="block text-sm font-bold text-white/70 mb-1">Link URL (optional)</label>
             <input
+              id="sponsor-link-url"
               type="url"
               value={form.link_url}
               onChange={(e) => setForm(f => ({ ...f, link_url: e.target.value }))}
@@ -285,8 +288,9 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Platzierung</label>
+              <label htmlFor="sponsor-placement" className="block text-sm font-bold text-white/70 mb-1">Platzierung</label>
               <select
+                id="sponsor-placement"
                 value={form.placement}
                 onChange={(e) => setForm(f => ({ ...f, placement: e.target.value as SponsorPlacement }))}
                 className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
@@ -297,8 +301,9 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Priorität</label>
+              <label htmlFor="sponsor-priority" className="block text-sm font-bold text-white/70 mb-1">Priorität</label>
               <input
+                id="sponsor-priority"
                 type="number"
                 inputMode="numeric"
                 min="0"
@@ -310,8 +315,9 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Start</label>
+              <label htmlFor="sponsor-starts-at" className="block text-sm font-bold text-white/70 mb-1">Start</label>
               <input
+                id="sponsor-starts-at"
                 type="datetime-local"
                 value={form.starts_at}
                 onChange={(e) => setForm(f => ({ ...f, starts_at: e.target.value }))}
@@ -319,8 +325,9 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Ende (optional)</label>
+              <label htmlFor="sponsor-ends-at" className="block text-sm font-bold text-white/70 mb-1">Ende (optional)</label>
               <input
+                id="sponsor-ends-at"
                 type="datetime-local"
                 value={form.ends_at}
                 onChange={(e) => setForm(f => ({ ...f, ends_at: e.target.value }))}
@@ -334,7 +341,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
             onClick={handleSave}
             disabled={saving || !form.name || !form.logo_url}
           >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+            {saving ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Plus className="size-4" aria-hidden="true" />}
             {saving ? 'Speichere...' : editId ? 'Aktualisieren' : 'Erstellen'}
           </Button>
         </div>
@@ -382,9 +389,10 @@ function SponsorStatsSection({
             <button
               key={d}
               onClick={() => onDaysChange(d)}
-              className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-colors min-h-[44px] ${
+              className={cn(
+                'px-2.5 py-1 text-[10px] font-bold rounded-lg transition-colors min-h-[44px]',
                 days === d ? 'bg-gold/15 text-gold border border-gold/25' : 'bg-white/5 text-white/40 border border-white/10 hover:text-white/60'
-              }`}
+              )}
             >
               {d}T
             </button>
@@ -393,10 +401,10 @@ function SponsorStatsSection({
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="Impressions" value={fmtScout(totalImpressions)} icon={<Eye className="w-4 h-4" />} />
-        <StatCard label="Clicks" value={fmtScout(totalClicks)} icon={<MousePointerClick className="w-4 h-4" />} />
-        <StatCard label="CTR" value={`${avgCtr.toFixed(2)}%`} icon={<TrendingUp className="w-4 h-4" />} />
-        <StatCard label="Est. Umsatz" value={`${fmtScout(Math.round(estRevenueCents / 100))} $SCOUT`} icon={<DollarSign className="w-4 h-4" />} />
+        <StatCard label="Impressions" value={fmtScout(totalImpressions)} icon={<Eye className="size-4" aria-hidden="true" />} />
+        <StatCard label="Clicks" value={fmtScout(totalClicks)} icon={<MousePointerClick className="size-4" aria-hidden="true" />} />
+        <StatCard label="CTR" value={`${avgCtr.toFixed(2)}%`} icon={<TrendingUp className="size-4" aria-hidden="true" />} />
+        <StatCard label="Est. Umsatz" value={`${fmtScout(Math.round(estRevenueCents / 100))} $SCOUT`} icon={<DollarSign className="size-4" aria-hidden="true" />} />
       </div>
 
       {stats.length > 0 && (
@@ -416,7 +424,7 @@ function SponsorStatsSection({
                 <tr key={`${r.sponsor_id}-${r.placement}-${i}`} className="border-b border-white/[0.04]">
                   <td className="py-2 font-bold text-white/80">{r.sponsor_name}</td>
                   <td className="py-2">
-                    <Chip className={`${PLACEMENT_COLORS[r.placement] ?? 'bg-white/10 text-white/50'} border text-[9px]`}>
+                    <Chip className={cn(PLACEMENT_COLORS[r.placement] ?? 'bg-white/10 text-white/50', 'border text-[9px]')}>
                       {placementLabel(r.placement)}
                     </Chip>
                   </td>

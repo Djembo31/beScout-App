@@ -44,15 +44,15 @@ const TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
 // ============================================
 
 function OverviewTab({ stats, error }: { stats: SystemStats | null; error?: boolean }) {
-  if (error) return <Card className="p-6 text-center text-white/40"><BarChart3 className="size-8 mx-auto mb-2 text-white/15" /><div className="text-sm">Statistiken konnten nicht geladen werden.</div></Card>;
-  if (!stats) return <div className="flex justify-center py-8"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" /></div>;
+  if (error) return <Card className="p-6 text-center text-white/40"><BarChart3 className="size-8 mx-auto mb-2 text-white/15" aria-hidden="true" /><div className="text-sm">Statistiken konnten nicht geladen werden.</div></Card>;
+  if (!stats) return <div className="flex justify-center py-8"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" /></div>;
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-      <StatCard label="Benutzer" value={stats.totalUsers.toString()} icon={<Users className="size-4 text-white/40" />} />
-      <StatCard label="$SCOUT Gesamt" value={`${fmtScout(centsToBsd(stats.totalBsdCirculation))}`} icon={<DollarSign className="size-4 text-gold" />} />
-      <StatCard label="24h Volumen" value={`${fmtScout(centsToBsd(stats.volume24h))}`} icon={<BarChart3 className="size-4 text-white/40" />} />
-      <StatCard label="Aktive Events" value={stats.activeEvents.toString()} icon={<Calendar className="size-4 text-white/40" />} />
-      <StatCard label="Offene Angebote" value={stats.pendingOffers.toString()} icon={<Zap className="size-4 text-white/40" />} />
+      <StatCard label="Benutzer" value={stats.totalUsers.toString()} icon={<Users className="size-4 text-white/40" aria-hidden="true" />} />
+      <StatCard label="$SCOUT Gesamt" value={`${fmtScout(centsToBsd(stats.totalBsdCirculation))}`} icon={<DollarSign className="size-4 text-gold" aria-hidden="true" />} />
+      <StatCard label="24h Volumen" value={`${fmtScout(centsToBsd(stats.volume24h))}`} icon={<BarChart3 className="size-4 text-white/40" aria-hidden="true" />} />
+      <StatCard label="Aktive Events" value={stats.activeEvents.toString()} icon={<Calendar className="size-4 text-white/40" aria-hidden="true" />} />
+      <StatCard label="Offene Angebote" value={stats.pendingOffers.toString()} icon={<Zap className="size-4 text-white/40" aria-hidden="true" />} />
     </div>
   );
 }
@@ -128,12 +128,12 @@ function DebugTab() {
           rel="noopener noreferrer"
           className="text-xs text-gold hover:underline flex items-center gap-1"
         >
-          Supabase Dashboard <ExternalLink className="size-3" />
+          Supabase Dashboard <ExternalLink className="size-3" aria-hidden="true" />
         </a>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-8"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" /></div>
+        <div className="flex justify-center py-8"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" /></div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
@@ -199,7 +199,7 @@ export default function BescoutAdminContent() {
   if (loading || !adminRole) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-8 animate-spin motion-reduce:animate-none text-white/30" />
+        <Loader2 className="size-8 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" />
       </div>
     );
   }
@@ -209,7 +209,7 @@ export default function BescoutAdminContent() {
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="size-10 rounded-xl bg-gold/20 flex items-center justify-center">
-          <Shield className="size-5 text-gold" />
+          <Shield className="size-5 text-gold" aria-hidden="true" />
         </div>
         <div>
           <h1 className="text-xl font-black text-balance text-white">BeScout Admin</h1>
@@ -231,7 +231,7 @@ export default function BescoutAdminContent() {
                   : 'text-white/40 hover:text-white/60'
               )}
             >
-              <Icon className="size-3.5" />
+              <Icon className="size-3.5" aria-hidden="true" />
               <span className="hidden md:inline">{t.label}</span>
               <span className="md:hidden">{t.label.slice(0, 4)}</span>
             </button>

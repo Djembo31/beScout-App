@@ -44,7 +44,7 @@ export function AdminFeesTab({ adminId }: { adminId: string }) {
     }
   };
 
-  if (loading) return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>;
+  if (loading) return <div className="flex justify-center py-8"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" /></div>;
 
   return (
     <div className="space-y-4">

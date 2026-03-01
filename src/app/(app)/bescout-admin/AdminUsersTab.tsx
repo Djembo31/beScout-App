@@ -63,16 +63,16 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
   return (
     <div className="space-y-4">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+        <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30" />
         <input
           type="text" value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Benutzer suchen..."
+          placeholder="Benutzer suchen..." aria-label="Benutzer suchen"
           className="w-full pl-10 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
         />
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>
+        <div className="flex justify-center py-8"><Loader2 aria-hidden="true" className="size-5 animate-spin motion-reduce:animate-none text-white/30" /></div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -129,16 +129,18 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
               Aktuelles Guthaben: <span className="font-mono text-gold">{fmtScout(centsToBsd(adjustModal.balance))} $SCOUT</span>
             </div>
             <div>
-              <label className="text-xs text-white/60 mb-1 block">Betrag ($SCOUT, negativ = abziehen)</label>
+              <label htmlFor="adjust-amount" className="text-xs text-white/60 mb-1 block">Betrag ($SCOUT, negativ = abziehen)</label>
               <input
+                id="adjust-amount"
                 type="number" inputMode="numeric" value={adjustAmount} onChange={e => setAdjustAmount(e.target.value)}
                 placeholder="z.B. 1000 oder -500"
                 className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white font-mono focus:outline-none focus:border-gold/30"
               />
             </div>
             <div>
-              <label className="text-xs text-white/60 mb-1 block">Grund</label>
+              <label htmlFor="adjust-reason" className="text-xs text-white/60 mb-1 block">Grund</label>
               <input
+                id="adjust-reason"
                 type="text" value={adjustReason} onChange={e => setAdjustReason(e.target.value)}
                 placeholder="z.B. Beta-Bonus, Bug-Fix..."
                 className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/30"
@@ -146,8 +148,9 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
             </div>
             {GEOFENCING_ENABLED && (
               <div>
-                <label className="text-xs text-white/60 mb-1 block">Region</label>
+                <label htmlFor="adjust-region" className="text-xs text-white/60 mb-1 block">Region</label>
                 <select
+                  id="adjust-region"
                   value={adjustModal.region ?? ''}
                   onChange={async (e) => {
                     const val = e.target.value || null;

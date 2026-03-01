@@ -73,7 +73,7 @@ export function AdminAirdropTab() {
   };
 
   if (loading) {
-    return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>;
+    return <div className="flex justify-center py-8"><Loader2 aria-hidden="true" className="size-5 animate-spin motion-reduce:animate-none text-white/30" /></div>;
   }
 
   return (
@@ -81,17 +81,17 @@ export function AdminAirdropTab() {
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard icon={<Users className="w-5 h-5 text-gold" />} label="Teilnehmer" value={String(stats.total_users)} />
-          <StatCard icon={<Trophy className="w-5 h-5 text-purple-400" />} label="Ø Score" value={String(stats.avg_score)} />
-          <StatCard icon={<Rocket className="w-5 h-5 text-[#B9F2FF]" />} label="Diamond" value={String(stats.tier_distribution.diamond)} />
-          <StatCard icon={<Zap className="w-5 h-5 text-gold" />} label="Gold" value={String(stats.tier_distribution.gold)} />
+          <StatCard icon={<Users aria-hidden="true" className="size-5 text-gold" />} label="Teilnehmer" value={String(stats.total_users)} />
+          <StatCard icon={<Trophy aria-hidden="true" className="size-5 text-purple-400" />} label="Ø Score" value={String(stats.avg_score)} />
+          <StatCard icon={<Rocket aria-hidden="true" className="size-5 text-[#B9F2FF]" />} label="Diamond" value={String(stats.tier_distribution.diamond)} />
+          <StatCard icon={<Zap aria-hidden="true" className="size-5 text-gold" />} label="Gold" value={String(stats.tier_distribution.gold)} />
         </div>
       )}
 
       {/* Tier Distribution Bar */}
       {stats && stats.total_users > 0 && (
         <Card className="p-4">
-          <div className="text-xs font-bold text-white/50 uppercase tracking-wider mb-3">Tier-Verteilung</div>
+          <div className="text-xs font-bold text-white/50 uppercase mb-3">Tier-Verteilung</div>
           <div className="flex h-4 rounded-full overflow-hidden bg-white/5">
             {(['bronze', 'silver', 'gold', 'diamond'] as const).map(t => {
               const pct = (stats.tier_distribution[t] / stats.total_users) * 100;
@@ -99,7 +99,7 @@ export function AdminAirdropTab() {
               return (
                 <div
                   key={t}
-                  className="h-full transition-all"
+                  className="h-full transition-colors"
                   style={{ width: `${pct}%`, backgroundColor: TIER_COLORS[t] }}
                   title={`${t}: ${stats.tier_distribution[t]} (${pct.toFixed(1)}%)`}
                 />
@@ -109,7 +109,7 @@ export function AdminAirdropTab() {
           <div className="flex gap-4 mt-2 text-[10px] text-white/40">
             {(['bronze', 'silver', 'gold', 'diamond'] as const).map(t => (
               <span key={t} className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: TIER_COLORS[t] }} />
+                <span className="size-2 rounded-full" style={{ backgroundColor: TIER_COLORS[t] }} />
                 {t}: {stats.tier_distribution[t]}
               </span>
             ))}
@@ -120,11 +120,11 @@ export function AdminAirdropTab() {
       {/* Actions */}
       <div className="flex items-center gap-3">
         <Button variant="gold" size="sm" onClick={handleRefreshAll} disabled={refreshing} className="gap-1.5">
-          <RefreshCw className={cn('w-3.5 h-3.5', refreshing && 'animate-spin')} />
+          <RefreshCw aria-hidden="true" className={cn('size-3.5', refreshing && 'animate-spin motion-reduce:animate-none')} />
           Alle Scores aktualisieren
         </Button>
         <Button variant="outline" size="sm" onClick={handleExportCsv} className="gap-1.5">
-          <Download className="w-3.5 h-3.5" />
+          <Download aria-hidden="true" className="size-3.5" />
           CSV Export
         </Button>
       </div>

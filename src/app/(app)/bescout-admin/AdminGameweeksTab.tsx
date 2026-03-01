@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -54,7 +55,7 @@ export function AdminGameweeksTab() {
     }
   };
 
-  if (loading) return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>;
+  if (loading) return <div className="flex justify-center py-8"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" /></div>;
 
   return (
     <div className="space-y-4">
@@ -70,13 +71,13 @@ export function AdminGameweeksTab() {
           return (
             <Card
               key={gw.gameweek}
-              className={`p-3 text-center ${
-                isCurrent ? 'border-gold/30 bg-gold/5' :
-                isPast && gw.isFullyScored ? 'border-green-500/20' :
-                ''
-              }`}
+              className={cn(
+                'p-3 text-center',
+                isCurrent && 'border-gold/30 bg-gold/5',
+                isPast && gw.isFullyScored && 'border-green-500/20'
+              )}
             >
-              <div className={`text-xs font-bold mb-1 ${isCurrent ? 'text-gold' : 'text-white/60'}`}>
+              <div className={cn('text-xs font-bold mb-1', isCurrent ? 'text-gold' : 'text-white/60')}>
                 GW {gw.gameweek}
               </div>
               <div className="space-y-0.5 text-[10px] text-white/40">
@@ -84,8 +85,8 @@ export function AdminGameweeksTab() {
                 <div>{gw.scoredEvents}/{gw.eventCount} Events</div>
               </div>
               <div className="mt-1.5 flex justify-center gap-1">
-                {gw.isSimulated && <span className="w-2 h-2 rounded-full bg-green-500" title="Simuliert" />}
-                {gw.isFullyScored && <span className="w-2 h-2 rounded-full bg-gold" title="Gescort" />}
+                {gw.isSimulated && <span className="size-2 rounded-full bg-green-500" title="Simuliert" aria-label="Simuliert" aria-hidden="true" />}
+                {gw.isFullyScored && <span className="size-2 rounded-full bg-gold" title="Gescort" aria-label="Gescort" aria-hidden="true" />}
               </div>
               {isCurrent && (
                 <button
@@ -93,7 +94,7 @@ export function AdminGameweeksTab() {
                   disabled={simulating !== null}
                   className="mt-2 w-full text-[10px] px-2 py-1 rounded bg-gold/20 text-gold hover:bg-gold/30 disabled:opacity-50"
                 >
-                  {simulating === gw.gameweek ? <Loader2 className="w-3 h-3 animate-spin mx-auto" /> : 'Sim & Score'}
+                  {simulating === gw.gameweek ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none mx-auto" aria-hidden="true" /> : 'Sim & Score'}
                 </button>
               )}
             </Card>
