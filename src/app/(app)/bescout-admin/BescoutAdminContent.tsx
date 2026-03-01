@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Shield, BarChart3, Users, Percent, Zap, Calendar, Bug, Rocket,
-  DollarSign, ExternalLink, Loader2, Megaphone, Sparkles,
+  DollarSign, ExternalLink, Loader2, Megaphone, Sparkles, Building2,
 } from 'lucide-react';
 import { Card, StatCard } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -20,16 +20,18 @@ import { AdminGameweeksTab } from './AdminGameweeksTab';
 import { AdminAirdropTab } from './AdminAirdropTab';
 import { AdminSponsorsTab } from './AdminSponsorsTab';
 import { AdminCreatorFundTab } from './AdminCreatorFundTab';
+import { AdminClubsTab } from './AdminClubsTab';
 
 // ============================================
 // Tab Config
 // ============================================
 
-type AdminTab = 'overview' | 'users' | 'fees' | 'ipos' | 'gameweeks' | 'airdrop' | 'sponsors' | 'creator_fund' | 'debug';
+type AdminTab = 'overview' | 'users' | 'clubs' | 'fees' | 'ipos' | 'gameweeks' | 'airdrop' | 'sponsors' | 'creator_fund' | 'debug';
 
 const TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
   { id: 'overview', label: 'Übersicht', icon: BarChart3 },
   { id: 'users', label: 'Benutzer', icon: Users },
+  { id: 'clubs', label: 'Clubs', icon: Building2 },
   { id: 'fees', label: 'Gebühren', icon: Percent },
   { id: 'ipos', label: 'IPOs', icon: Zap },
   { id: 'gameweeks', label: 'Spieltage', icon: Calendar },
@@ -242,6 +244,7 @@ export default function BescoutAdminContent() {
       {/* Tab Content */}
       {tab === 'overview' && <OverviewTab stats={stats} error={statsError} />}
       {tab === 'users' && user && <AdminUsersTab adminId={user.id} role={adminRole} />}
+      {tab === 'clubs' && user && <AdminClubsTab adminId={user.id} role={adminRole} />}
       {tab === 'fees' && user && <AdminFeesTab adminId={user.id} />}
       {tab === 'ipos' && <IposTab />}
       {tab === 'gameweeks' && <AdminGameweeksTab />}

@@ -74,7 +74,7 @@ const TABS: { id: string; label: string }[] = [
 // ============================================
 
 export default function PlayerContent({ playerId }: { playerId: string }) {
-  const { user } = useUser();
+  const { user, clubAdmin } = useUser();
   const { balanceCents } = useWallet();
   const { addToast } = useToast();
   const t = useTranslations('player');
@@ -164,6 +164,15 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     };
   }, [player, holdingQty, pbtTreasury]);
 
+  // ─── Club Admin Trading Restriction ──────
+  const isRestrictedAdmin = !!(clubAdmin && dbPlayer?.club_id === clubAdmin.clubId);
+  const guardedBuy = isRestrictedAdmin
+    ? () => addToast('Als Club-Admin darfst du keine DPCs deines eigenen Clubs handeln.', 'error')
+    : trading.openBuyModal;
+  const guardedSell = isRestrictedAdmin
+    ? () => addToast('Als Club-Admin darfst du keine DPCs deines eigenen Clubs handeln.', 'error')
+    : trading.openSellModal;
+
   // ─── Share handler ────────────────────────
 
   const handleShare = async () => {
@@ -221,8 +230,8 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         priceAlert={alerts.priceAlert}
         onToggleWatchlist={() => setIsWatchlisted(!isWatchlisted)}
         onShare={handleShare}
-        onBuyClick={trading.openBuyModal}
-        onSellClick={trading.openSellModal}
+        onBuyClick={guardedBuy}
+        onSellClick={guardedSell}
         onSetPriceAlert={alerts.handleSetPriceAlert}
         onRemovePriceAlert={alerts.handleRemovePriceAlert}
       />
@@ -277,6 +286,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             onAcceptBid={trading.handleAcceptBid}
             acceptingBidId={trading.acceptingBidId}
             onOpenOfferModal={trading.openOfferModal}
+            isRestrictedAdmin={isRestrictedAdmin}
           />
           </>
         )}
@@ -373,9 +383,9 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         floor={player.prices.floor ?? 0}
         holdingQty={holdingQty}
         change24h={player.prices.change24h ?? 0}
-        isLiquidated={player.isLiquidated}
-        onBuyClick={trading.openBuyModal}
-        onSellClick={trading.openSellModal}
+        isLiquidated={player.isLiquidated || isRestrictedAdmin}
+        onBuyClick={guardedBuy}
+        onSellClick={guardedSell}
       />
     </div>
   );

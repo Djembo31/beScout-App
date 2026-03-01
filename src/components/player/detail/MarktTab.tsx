@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import {
   Users, ShoppingCart, Clock, Layers, History,
-  ArrowRight, Shield, BadgeCheck, Loader2, MessageSquare,
+  ArrowRight, Shield, ShieldAlert, BadgeCheck, Loader2, MessageSquare,
 } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
@@ -28,6 +28,7 @@ interface MarktTabProps {
   onAcceptBid?: (offerId: string) => void;
   acceptingBidId?: string | null;
   onOpenOfferModal?: () => void;
+  isRestrictedAdmin?: boolean;
 }
 
 export default function MarktTab({
@@ -35,9 +36,20 @@ export default function MarktTab({
   profileMap, userId, dpcAvailable,
   openBids = [], holdingQty = 0,
   onAcceptBid, acceptingBidId, onOpenOfferModal,
+  isRestrictedAdmin,
 }: MarktTabProps) {
   return (
     <div className="space-y-4 md:space-y-6">
+      {/* Club Admin Trading Restriction Notice */}
+      {isRestrictedAdmin && (
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+          <ShieldAlert className="size-5 text-red-400 shrink-0" aria-hidden="true" />
+          <p className="text-sm text-red-300 text-pretty">
+            Als Club-Admin darfst du keine DPCs deines eigenen Clubs handeln (Interessenkonflikt).
+          </p>
+        </div>
+      )}
+
       {/* Price Chart */}
       <PriceChart trades={trades} ipoPrice={player.prices.ipoPrice ? Math.round(player.prices.ipoPrice * 100) : undefined} />
 

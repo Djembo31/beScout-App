@@ -192,6 +192,80 @@ export async function updateFeeConfig(
 }
 
 // ============================================
+// Club Management
+// ============================================
+
+export type AdminClub = {
+  id: string;
+  name: string;
+  slug: string;
+  short: string;
+  league: string;
+  country: string;
+  city: string | null;
+  plan: string;
+  is_verified: boolean;
+  created_at: string;
+  follower_count: number;
+  player_count: number;
+};
+
+export async function getAllClubs(): Promise<AdminClub[]> {
+  const { data: clubs, error } = await supabase
+    .from('clubs')
+    .select('id, name, slug, short, league, country, city, plan, is_verified, created_at')
+    .order('name', { ascending: true });
+  if (error || !clubs) return [];
+
+  const clubIds = clubs.map(c => c.id);
+  if (clubIds.length === 0) return clubs.map(c => ({ ...c, follower_count: 0, player_count: 0 }));
+
+  // Fetch follower counts
+  const { data: followers } = await supabase
+    .from('club_followers')
+    .select('club_id')
+    .in('club_id', clubIds);
+  const followerMap = new Map<string, number>();
+  (followers ?? []).forEach(f => {
+    followerMap.set(f.club_id, (followerMap.get(f.club_id) ?? 0) + 1);
+  });
+
+  // Fetch player counts
+  const { data: players } = await supabase
+    .from('players')
+    .select('club_id')
+    .in('club_id', clubIds);
+  const playerMap = new Map<string, number>();
+  (players ?? []).forEach(p => {
+    playerMap.set(p.club_id, (playerMap.get(p.club_id) ?? 0) + 1);
+  });
+
+  return clubs.map(c => ({
+    ...c,
+    follower_count: followerMap.get(c.id) ?? 0,
+    player_count: playerMap.get(c.id) ?? 0,
+  }));
+}
+
+export async function createClub(
+  adminId: string,
+  clubData: { name: string; slug: string; short: string; league: string; country: string; city?: string; plan?: string },
+): Promise<{ success: boolean; error?: string; club_id?: string; slug?: string }> {
+  const { data, error } = await supabase.rpc('create_club_by_platform_admin', {
+    p_admin_id: adminId,
+    p_name: clubData.name,
+    p_slug: clubData.slug,
+    p_short: clubData.short,
+    p_league: clubData.league,
+    p_country: clubData.country,
+    p_city: clubData.city ?? null,
+    p_plan: clubData.plan ?? 'baslangic',
+  });
+  if (error) throw new Error(error.message);
+  return data as { success: boolean; error?: string; club_id?: string; slug?: string };
+}
+
+// ============================================
 // IPO Overview
 // ============================================
 
@@ -203,6 +277,23 @@ export async function getAllIposAcrossClubs() {
     .limit(100);
   if (error) throw new Error(error.message);
   return data ?? [];
+}
+
+// ============================================
+// Club Admin Invitation (calls API route)
+// ============================================
+
+export async function inviteClubAdmin(
+  email: string,
+  clubId: string,
+  role: string,
+): Promise<{ success: boolean; message?: string; error?: string }> {
+  const res = await fetch('/api/admin/invite-club-admin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, clubId, role }),
+  });
+  return res.json();
 }
 
 // ============================================

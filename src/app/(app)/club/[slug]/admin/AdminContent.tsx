@@ -40,7 +40,7 @@ const ADMIN_TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
 ];
 
 export default function AdminContent({ slug }: { slug: string }) {
-  const { user } = useUser();
+  const { user, platformRole } = useUser();
   const router = useRouter();
   const [club, setClub] = useState<ClubWithAdmin | null>(null);
   const [loading, setLoading] = useState(true);
@@ -64,7 +64,16 @@ export default function AdminContent({ slug }: { slug: string }) {
       try {
         const data = await getClubBySlug(slug, user?.id);
         if (cancelled) return;
-        if (!data || !data.is_admin) {
+        if (!data) {
+          router.replace(`/club/${slug}`);
+          return;
+        }
+        // Platform admin override: synthetic owner access
+        if (platformRole && !data.is_admin) {
+          data.is_admin = true;
+          data.admin_role = 'owner';
+        }
+        if (!data.is_admin) {
           router.replace(`/club/${slug}`);
           return;
         }

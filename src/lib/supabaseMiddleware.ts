@@ -78,16 +78,25 @@ export async function updateSession(request: NextRequest) {
                 .eq("slug", slug)
                 .maybeSingle();
             if (clubRow) {
-                const { data: caRow } = await supabase
-                    .from("club_admins")
-                    .select("id")
+                // Platform admins can access any club's admin panel
+                const { data: platformRow } = await supabase
+                    .from("platform_admins")
+                    .select("role")
                     .eq("user_id", user.id)
-                    .eq("club_id", clubRow.id)
                     .maybeSingle();
-                if (!caRow) {
-                    const url = request.nextUrl.clone();
-                    url.pathname = `/club/${slug}`;
-                    return NextResponse.redirect(url);
+                if (!platformRow) {
+                    // Not a platform admin — check club_admins
+                    const { data: caRow } = await supabase
+                        .from("club_admins")
+                        .select("id")
+                        .eq("user_id", user.id)
+                        .eq("club_id", clubRow.id)
+                        .maybeSingle();
+                    if (!caRow) {
+                        const url = request.nextUrl.clone();
+                        url.pathname = `/club/${slug}`;
+                        return NextResponse.redirect(url);
+                    }
                 }
             } else {
                 // Club doesn't exist → redirect to /club
