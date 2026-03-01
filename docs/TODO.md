@@ -1,7 +1,7 @@
 # BeScout - Aktuelle Tasks
 
-> Letzte Aktualisierung: 28.02.2026 (Session 160)
-> Modus: PILOT SPRINT — 225 Migrations, 23 Routes, 195 Unit + 70 E2E Tests
+> Letzte Aktualisierung: 28.02.2026 (Session 162)
+> Modus: PILOT SPRINT — 242 Migrations, 23 Routes, 195 Unit + 70 E2E Tests
 > Für erledigte Tasks → `memory/sessions.md` und `memory/sessions-archive.md`
 
 ---

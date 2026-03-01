@@ -1,11 +1,11 @@
 # BeScout Status
 
-> Letzte Aktualisierung: 28.02.2026 (Session 160)
+> Letzte Aktualisierung: 28.02.2026 (Session 162)
 > Für Session-Details → `memory/sessions.md`. Für Archiv → `memory/sessions-archive.md`.
 
 ## Aktueller Stand
 
-**225 Migrations** + 2 Edge Functions (send-push v2, create-demo-accounts) + 2 pg_cron Jobs + 13 Gamification-Triggers + 21 Sponsor-Placements.
+**242 Migrations** + 2 Edge Functions (send-push v2, create-demo-accounts) + 2 pg_cron Jobs + 13 Gamification-Triggers + 21 Sponsor-Placements.
 
 **23 Routes** | **195 Unit Tests** (Vitest) | **70 E2E Tests** (Playwright) | Build: 0 Fehler
 

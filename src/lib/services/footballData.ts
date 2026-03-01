@@ -9,8 +9,20 @@ import { supabase } from '@/lib/supabaseClient';
 // Free Plan: Seasons 2022-2024 only (Pro Plan $19/mo for 2025+)
 
 const API_BASE = 'https://v3.football.api-sports.io';
-const TFF_1_LIG_ID = 204;
-const CURRENT_SEASON = 2024;
+
+// League + season config — parametrized for multi-league expansion
+const DEFAULT_LEAGUE_ID = 204;  // TFF 1. Lig (203 = Süper Lig)
+const DEFAULT_SEASON = 2024;
+
+function getLeagueId(): number {
+  const envVal = process.env.NEXT_PUBLIC_LEAGUE_ID;
+  return envVal ? parseInt(envVal, 10) : DEFAULT_LEAGUE_ID;
+}
+
+function getCurrentSeason(): number {
+  const envVal = process.env.NEXT_PUBLIC_SEASON;
+  return envVal ? parseInt(envVal, 10) : DEFAULT_SEASON;
+}
 
 function getApiKey(): string | null {
   return typeof window !== 'undefined'
@@ -92,7 +104,7 @@ type ApiFixturePlayerResponse = {
 // ============================================
 
 export async function fetchApiTeams(): Promise<ApiTeamResponse> {
-  return apiFetch<ApiTeamResponse>(`/teams?league=${TFF_1_LIG_ID}&season=${CURRENT_SEASON}`);
+  return apiFetch<ApiTeamResponse>(`/teams?league=${getLeagueId()}&season=${getCurrentSeason()}`);
 }
 
 export async function fetchApiPlayers(teamId: number): Promise<ApiSquadResponse> {
@@ -101,7 +113,7 @@ export async function fetchApiPlayers(teamId: number): Promise<ApiSquadResponse>
 
 export async function fetchApiFixtures(gameweek: number): Promise<ApiFixtureResponse> {
   return apiFetch<ApiFixtureResponse>(
-    `/fixtures?league=${TFF_1_LIG_ID}&season=${CURRENT_SEASON}&round=Regular Season - ${gameweek}`
+    `/fixtures?league=${getLeagueId()}&season=${getCurrentSeason()}&round=Regular Season - ${gameweek}`
   );
 }
 
