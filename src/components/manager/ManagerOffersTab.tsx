@@ -7,6 +7,7 @@ import {
   ArrowRight, Search, Plus, Loader2,
 } from 'lucide-react';
 import { Card, Button, Modal } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { PlayerIdentity } from '@/components/player';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -145,7 +146,7 @@ function OfferCard({
                   className="p-1.5 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors disabled:opacity-50"
                   title="Annehmen"
                 >
-                  {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <Check className="w-4 h-4" />}
                 </button>
               )}
               {isIncoming && onCounter && (
@@ -165,7 +166,7 @@ function OfferCard({
                   className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors disabled:opacity-50"
                   title="Ablehnen"
                 >
-                  {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
+                  {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <X className="w-4 h-4" />}
                 </button>
               )}
               {isSender && onCancel && (
@@ -175,7 +176,7 @@ function OfferCard({
                   className="p-1.5 rounded-lg bg-white/10 text-white/40 hover:bg-white/20 transition-colors disabled:opacity-50"
                   title="Zurückziehen"
                 >
-                  {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
+                  {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <X className="w-4 h-4" />}
                 </button>
               )}
             </div>
@@ -308,17 +309,19 @@ function CreateOfferModal({
           <div className="flex gap-2">
             <button
               onClick={() => setSide('buy')}
-              className={`flex-1 py-2 rounded-xl text-sm font-medium transition-colors ${
-                side === 'buy' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-white/5 text-white/40 border border-white/10'
-              }`}
+              className={cn(
+                'flex-1 py-2 rounded-xl text-sm font-medium transition-colors border',
+                side === 'buy' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-white/5 text-white/40 border-white/10'
+              )}
             >
               Kaufen
             </button>
             <button
               onClick={() => setSide('sell')}
-              className={`flex-1 py-2 rounded-xl text-sm font-medium transition-colors ${
-                side === 'sell' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-white/5 text-white/40 border border-white/10'
-              }`}
+              className={cn(
+                'flex-1 py-2 rounded-xl text-sm font-medium transition-colors border',
+                side === 'sell' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-white/5 text-white/40 border-white/10'
+              )}
             >
               Verkaufen
             </button>
@@ -590,7 +593,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
               />
             </div>
             <Button onClick={handleCounter} disabled={countering} className="w-full">
-              {countering ? <><Loader2 className="w-4 h-4 animate-spin" /> Wird gesendet...</> : 'Gegenangebot senden'}
+              {countering ? <><Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> Wird gesendet...</> : 'Gegenangebot senden'}
             </Button>
           </div>
         </Modal>

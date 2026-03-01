@@ -74,7 +74,7 @@ export default function BestandSellModal({ item, open, onClose, onSell, onCancel
       footer={item.availableToSell > 0 ? (
         <div className="space-y-2">
           <Button onClick={handleSubmit} disabled={!isValid || selling} variant="gold" className="w-full">
-            {selling ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Tag className="w-4 h-4 mr-2" />}
+            {selling ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none mr-2" /> : <Tag className="w-4 h-4 mr-2" />}
             {selling ? 'Wird gelistet...' : `${qty}× für ${priceNum > 0 ? fmtScout(priceNum) : '–'} $SCOUT listen`}
           </Button>
           {error && <div className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{error}</div>}
@@ -86,7 +86,7 @@ export default function BestandSellModal({ item, open, onClose, onSell, onCancel
         {/* My Listings */}
         {item.myListings.length > 0 && (
           <div>
-            <div className="flex items-center gap-2 text-[10px] text-gold/60 uppercase tracking-wider font-black mb-2">
+            <div className="flex items-center gap-2 text-[10px] text-gold/60 uppercase  font-black mb-2">
               <Tag className="w-3 h-3" /> Meine Listings
             </div>
             <div className="space-y-1.5">
@@ -99,7 +99,7 @@ export default function BestandSellModal({ item, open, onClose, onSell, onCancel
                   </div>
                   <button onClick={() => handleCancel(listing.id)} disabled={cancellingId === listing.id}
                     className="flex items-center gap-1 px-2 py-1 text-[10px] font-bold text-red-400/70 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all">
-                    {cancellingId === listing.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                    {cancellingId === listing.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <Trash2 className="w-3 h-3" />}
                     Stornieren
                   </button>
                 </div>
@@ -111,7 +111,7 @@ export default function BestandSellModal({ item, open, onClose, onSell, onCancel
         {/* Incoming Offers */}
         {item.offers.length > 0 && (
           <div>
-            <div className="flex items-center gap-2 text-[10px] text-sky-400/60 uppercase tracking-wider font-black mb-2">
+            <div className="flex items-center gap-2 text-[10px] text-sky-400/60 uppercase  font-black mb-2">
               <MessageSquare className="w-3 h-3" /> Eingehende Angebote
             </div>
             <div className="space-y-1.5">

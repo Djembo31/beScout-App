@@ -426,7 +426,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
 
       {/* Title */}
       <div className="px-3 pt-2.5 pb-1 shrink-0 flex items-center justify-between">
-        <div className="text-xs font-black uppercase tracking-wide text-white/60">
+        <div className="text-xs font-black uppercase text-white/60">
           {sidePanelPos ? (
             <>Wähle deinen <span style={{ color: getPosColor(sidePanelPos) }}>{POS_LABEL[sidePanelPos]}</span></>
           ) : (
@@ -712,7 +712,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
       {/* ═══ Below-pitch player list (mobile + small desktop without side panel) ═══ */}
       <div className="lg:hidden">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-black uppercase tracking-wide">Alle Spieler ({ownedPlayers.length})</h3>
+          <h3 className="text-sm font-black uppercase">Alle Spieler ({ownedPlayers.length})</h3>
           <div className="flex items-center gap-1">
             {(['perf', 'price', 'name'] as const).map(s => (
               <button
