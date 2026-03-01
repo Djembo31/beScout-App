@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Shield, Star, Gem, Crown, Flame, TrendingUp } from 'lucide-react';
+import { Shield, Star, Gem, Crown, Flame } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { getRang, getGesamtRang, getDimensionColor, getDimensionBgColor, getDimensionBorderColor, type RangId, type DimensionScores, type Dimension } from '@/lib/gamification';
 import { useTranslations } from 'next-intl';
 
@@ -21,9 +22,9 @@ const RANG_ICONS: Record<RangId, React.ElementType> = {
 type RangBadgeSize = 'sm' | 'md' | 'lg';
 
 const sizeClasses: Record<RangBadgeSize, { badge: string; icon: string; text: string }> = {
-  sm: { badge: 'px-2 py-0.5 gap-1', icon: 'w-3 h-3', text: 'text-[10px]' },
-  md: { badge: 'px-2.5 py-1 gap-1.5', icon: 'w-3.5 h-3.5', text: 'text-[11px]' },
-  lg: { badge: 'px-3 py-1.5 gap-2', icon: 'w-4 h-4', text: 'text-xs' },
+  sm: { badge: 'px-2 py-0.5 gap-1', icon: 'size-3', text: 'text-[10px]' },
+  md: { badge: 'px-2.5 py-1 gap-1.5', icon: 'size-3.5', text: 'text-[11px]' },
+  lg: { badge: 'px-3 py-1.5 gap-2', icon: 'size-4', text: 'text-xs' },
 };
 
 export interface RangBadgeProps {
@@ -48,13 +49,13 @@ export function RangBadge({ score, scores, size = 'md', showScore, className = '
 
   return (
     <span
-      className={`inline-flex items-center rounded-xl border font-black ${rang.bgColor} ${rang.borderColor} ${rang.color} ${s.badge} ${className}`}
+      className={cn('inline-flex items-center rounded-xl border font-black', rang.bgColor, rang.borderColor, rang.color, s.badge, className)}
       title={`${rangLabel} — ${displayScore.toLocaleString('de-DE')} Punkte`}
     >
       <Icon className={s.icon} />
       <span className={s.text}>{rangLabel}</span>
       {showScore && (
-        <span className={`${s.text} font-mono opacity-70`}>
+        <span className={cn(s.text, 'font-mono tabular-nums opacity-70')}>
           {displayScore.toLocaleString('de-DE')}
         </span>
       )}
@@ -70,11 +71,11 @@ export function RangScorePill({ score, className = '' }: { score: number; classN
 
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg ${rang.bgColor} ${rang.borderColor} border ${rang.color} ${className}`}
+      className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border', rang.bgColor, rang.borderColor, rang.color, className)}
       title={t(`rang.${rang.i18nKey}`)}
     >
-      <Icon className="w-3 h-3" />
-      <span className="text-[11px] font-mono font-bold">{score.toLocaleString('de-DE')}</span>
+      <Icon className="size-3" />
+      <span className="text-[11px] font-mono font-bold tabular-nums">{score.toLocaleString('de-DE')}</span>
     </span>
   );
 }
@@ -87,11 +88,11 @@ export function RangProgress({ score, className = '' }: { score: number; classNa
 
   if (maxScore === null) {
     return (
-      <div className={`flex items-center gap-2 ${className}`}>
+      <div className={cn('flex items-center gap-2', className)}>
         <div className="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
-          <div className={`h-full rounded-full bg-gradient-to-r ${rang.gradientFrom} to-transparent w-full`} />
+          <div className={cn('h-full rounded-full w-full', rang.bgColor)} />
         </div>
-        <span className={`text-[10px] font-mono ${rang.color}`}>MAX</span>
+        <span className={cn('text-[10px] font-mono tabular-nums', rang.color)}>MAX</span>
       </div>
     );
   }
@@ -100,14 +101,14 @@ export function RangProgress({ score, className = '' }: { score: number; classNa
   const progress = Math.min(((score - minScore) / range) * 100, 100);
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={cn('flex items-center gap-2', className)}>
       <div className="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
         <div
-          className={`h-full rounded-full bg-gradient-to-r ${rang.gradientFrom} to-white/20 transition-all`}
+          className={cn('h-full rounded-full transition-[width]', rang.bgColor)}
           style={{ width: `${progress}%` }}
         />
       </div>
-      <span className="text-[10px] font-mono text-white/40">
+      <span className="text-[10px] font-mono tabular-nums text-white/40">
         {(maxScore + 1 - score).toLocaleString('de-DE')}
       </span>
     </div>
@@ -129,17 +130,17 @@ export function DimensionRangRow({ dimension, score, className = '' }: {
   const dimColor = getDimensionColor(dimension);
 
   return (
-    <div className={`flex items-center justify-between gap-2 ${className}`}>
+    <div className={cn('flex items-center justify-between gap-2', className)}>
       <div className="flex items-center gap-2">
-        <span className={`text-[10px] font-bold uppercase tracking-wider ${dimColor} w-16`}>
+        <span className={cn('text-[10px] font-bold uppercase w-16', dimColor)}>
           {t(`dimension.${dimension}`)}
         </span>
-        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg border ${rang.bgColor} ${rang.borderColor} ${rang.color}`}>
-          <Icon className="w-3 h-3" />
+        <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg border', rang.bgColor, rang.borderColor, rang.color)}>
+          <Icon className="size-3" />
           <span className="text-[10px] font-bold">{t(`rang.${rang.i18nKey}`)}</span>
         </span>
       </div>
-      <span className="text-[11px] font-mono text-white/50">{score.toLocaleString('de-DE')}</span>
+      <span className="text-[11px] font-mono tabular-nums text-white/50">{score.toLocaleString('de-DE')}</span>
     </div>
   );
 }
@@ -155,7 +156,7 @@ export function DimensionRangStack({ scores, className = '' }: {
   const dimensions: Dimension[] = ['trader', 'manager', 'analyst'];
 
   return (
-    <div className={`flex flex-col gap-1.5 ${className}`}>
+    <div className={cn('flex flex-col gap-1.5', className)}>
       {dimensions.map(dim => (
         <DimensionRangRow
           key={dim}

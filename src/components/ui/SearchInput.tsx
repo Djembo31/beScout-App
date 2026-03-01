@@ -2,6 +2,7 @@
 
 import React, { useRef } from 'react';
 import { Search, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export interface SearchInputProps {
   value: string;
@@ -14,8 +15,8 @@ export function SearchInput({ value, onChange, placeholder = 'Suchen...', classN
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className={`relative ${className}`}>
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+    <div className={cn('relative', className)}>
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30" />
       <input
         ref={inputRef}
         type="text"
@@ -30,7 +31,7 @@ export function SearchInput({ value, onChange, placeholder = 'Suchen...', classN
           className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-white/10 transition-colors"
           aria-label="Suche löschen"
         >
-          <X className="w-3.5 h-3.5 text-white/40" />
+          <X className="size-3.5 text-white/40" />
         </button>
       )}
     </div>

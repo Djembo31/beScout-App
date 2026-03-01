@@ -3,6 +3,7 @@
 import React from 'react';
 import type { FanTier } from '@/types';
 import { FAN_TIER_STYLES } from '@/types';
+import { cn } from '@/lib/utils';
 
 type TierBadgeSize = 'sm' | 'md' | 'lg';
 
@@ -16,7 +17,7 @@ export const TierBadge = ({ tier, size = 'sm' }: { tier: FanTier; size?: TierBad
   };
 
   return (
-    <span className={`inline-flex items-center rounded-full font-bold ${sizeClasses[size]} ${style.bg} ${style.color} border ${style.border}`}>
+    <span className={cn('inline-flex items-center rounded-full font-bold border', sizeClasses[size], style.bg, style.color, style.border)}>
       <span>{style.icon}</span>
       <span>{tier}</span>
     </span>

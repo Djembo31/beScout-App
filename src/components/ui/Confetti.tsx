@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 const COLORS = ['#FFD700', '#22C55E', '#ffffff', '#FFA500', '#38BDF8', '#A855F7'];
 const PARTICLE_COUNT = 24;
@@ -35,7 +36,7 @@ export function Confetti({ active }: { active: boolean }) {
         return (
           <div
             key={i}
-            className={`absolute ${shape}`}
+            className={cn('absolute', shape)}
             style={{
               left: `${left}%`,
               top: '-2%',

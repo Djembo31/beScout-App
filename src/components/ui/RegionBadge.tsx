@@ -2,6 +2,7 @@
 
 import { Globe, MapPin } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
 import type { GeoRegion } from '@/lib/geofencing';
 
 const REGION_STYLES: Record<GeoRegion, { bg: string; text: string }> = {
@@ -21,8 +22,8 @@ export function RegionBadge({ region }: { region: string | null | undefined }) {
   const label = t(`region.${region}` as 'region.turkey' | 'region.eu_strict' | 'region.eu_rest' | 'region.global');
 
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${style.bg} ${style.text}`}>
-      <Icon className="w-3 h-3" />
+    <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium', style.bg, style.text)}>
+      <Icon className="size-3" />
       {label}
     </span>
   );

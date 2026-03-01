@@ -36,7 +36,7 @@ export function MobileTableCard<T>({
           <thead>
             <tr className="border-b border-white/10">
               {columns.map(col => (
-                <th key={col.key} className="text-left px-3 py-2 text-xs text-white/50 font-bold uppercase tracking-wider">
+                <th key={col.key} className="text-left px-3 py-2 text-xs text-white/50 font-bold uppercase">
                   {col.header}
                 </th>
               ))}

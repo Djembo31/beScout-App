@@ -23,11 +23,11 @@ export function LoadMoreButton({ loading, hasMore, onLoadMore }: LoadMoreButtonP
         onClick={onLoadMore}
         disabled={loading}
         aria-busy={loading}
-        className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px]"
+        className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px]"
       >
         {loading ? (
           <>
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin motion-reduce:animate-none" />
             Laden...
           </>
         ) : (

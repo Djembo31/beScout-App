@@ -33,15 +33,15 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       return (
         <div className="p-6 text-center">
-          <div className="w-12 h-12 rounded-full bg-red-500/15 border border-red-400/25 flex items-center justify-center mx-auto mb-3">
-            <AlertTriangle className="w-6 h-6 text-red-400" />
+          <div className="size-12 rounded-full bg-red-500/15 border border-red-400/25 flex items-center justify-center mx-auto mb-3">
+            <AlertTriangle className="size-6 text-red-400" />
           </div>
-          <div className="text-sm text-red-300 mb-3">Etwas ist schiefgelaufen.</div>
+          <div className="text-sm text-red-300 text-pretty mb-3">Etwas ist schiefgelaufen.</div>
           <button
             onClick={() => this.setState({ hasError: false, error: null })}
-            className="inline-flex items-center gap-2 px-4 py-2 min-h-[44px] text-sm font-semibold bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2 min-h-[44px] text-sm font-semibold bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="size-4" />
             Erneut versuchen
           </button>
         </div>

@@ -41,20 +41,20 @@ export function PosFilter(props: PosFilterProps) {
   const { counts, className = '' } = props;
 
   return (
-    <div className={`flex items-center gap-1 ${className}`}>
+    <div className={cn('flex items-center gap-1', className)}>
       {/* "Alle" button for single-select mode */}
       {!props.multi && props.showAll && (
         <button
           onClick={() => (props as PosFilterSingleProps).onChange('ALL')}
           className={cn(
-            'px-3 py-1.5 rounded-lg text-xs font-black border transition-all',
+            'px-3 py-1.5 rounded-lg text-xs font-black border transition-colors',
             props.selected === 'ALL'
               ? 'bg-white/10 border-white/20 text-white'
               : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70 hover:bg-white/10'
           )}
         >
           Alle
-          {props.allCount != null && <span className="ml-1 text-white/30">{props.allCount}</span>}
+          {props.allCount != null && <span className="ml-1 tabular-nums text-white/30">{props.allCount}</span>}
         </button>
       )}
       {POSITIONS.map(pos => {
@@ -69,14 +69,14 @@ export function PosFilter(props: PosFilterProps) {
             key={pos}
             onClick={() => props.onChange(pos)}
             className={cn(
-              'px-3 py-1.5 rounded-lg text-xs font-black border transition-all',
+              'px-3 py-1.5 rounded-lg text-xs font-black border transition-colors',
               active
-                ? `${c.bg} ${c.border} ${c.text}`
+                ? cn(c.bg, c.border, c.text)
                 : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70 hover:bg-white/10'
             )}
           >
             {pos}
-            {count != null && <span className="ml-1 text-white/30">{count}</span>}
+            {count != null && <span className="ml-1 tabular-nums text-white/30">{count}</span>}
           </button>
         );
       })}

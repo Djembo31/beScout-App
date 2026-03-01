@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { cn } from '@/lib/utils';
 
 interface FoundingScoutBadgeProps {
   rank?: number;
@@ -12,16 +13,14 @@ export default function FoundingScoutBadge({ rank, size = 'md' }: FoundingScoutB
 
   return (
     <div
-      className={`inline-flex items-center gap-1.5 rounded-lg border border-gold/30 bg-gradient-to-r from-gold/15 to-amber-500/10 ${
-        isSm ? 'px-2 py-0.5' : 'px-2.5 py-1'
-      }`}
+      className={cn('inline-flex items-center gap-1.5 rounded-lg border border-gold/30 bg-gold/15', isSm ? 'px-2 py-0.5' : 'px-2.5 py-1')}
     >
       <span className={isSm ? 'text-xs' : 'text-sm'}>🌟</span>
-      <span className={`font-black text-gold ${isSm ? 'text-[10px]' : 'text-xs'}`}>
+      <span className={cn('font-black text-gold', isSm ? 'text-[10px]' : 'text-xs')}>
         Founding Scout
       </span>
       {rank && (
-        <span className={`font-mono font-bold text-gold/50 ${isSm ? 'text-[9px]' : 'text-[10px]'}`}>
+        <span className={cn('font-mono font-bold tabular-nums text-gold/50', isSm ? 'text-[9px]' : 'text-[10px]')}>
           #{rank}
         </span>
       )}
