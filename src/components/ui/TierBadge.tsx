@@ -18,7 +18,7 @@ export const TierBadge = ({ tier, size = 'sm' }: { tier: FanTier; size?: TierBad
 
   return (
     <span className={cn('inline-flex items-center rounded-full font-bold border', sizeClasses[size], style.bg, style.color, style.border)}>
-      <span>{style.icon}</span>
+      <span aria-hidden="true">{style.icon}</span>
       <span>{tier}</span>
     </span>
   );

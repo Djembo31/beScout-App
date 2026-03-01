@@ -22,8 +22,8 @@ export function ScoutBadge({ level, size = 'sm' }: ScoutBadgeProps) {
 
   return (
     <span className={cn('inline-flex items-center gap-1 py-0.5 rounded-full font-bold border', s.wrapper, style.bg, style.color, style.border)}>
-      <Shield className={s.icon} />
-      {style.icon} {style.label}
+      <Shield className={s.icon} aria-hidden="true" />
+      <span aria-hidden="true">{style.icon}</span> {style.label}
     </span>
   );
 }

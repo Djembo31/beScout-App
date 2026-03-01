@@ -417,6 +417,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
           <input
             type="text"
             placeholder="Spieler suchen..."
+            aria-label="Spieler suchen"
             value={pickerSearch}
             onChange={e => setPickerSearch(e.target.value)}
             className="w-full pl-8 pr-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-gold/40 placeholder:text-white/30"
@@ -549,6 +550,8 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
           <div className="relative">
             <button
               onClick={() => setShowPresets(!showPresets)}
+              aria-label="Vorlagen"
+              aria-expanded={showPresets}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all"
             >
               <Save className="w-3.5 h-3.5" />
@@ -561,6 +564,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                   <input
                     type="text"
                     placeholder="Name..."
+                    aria-label="Vorlagenname"
                     value={presetName}
                     onChange={e => setPresetName(e.target.value)}
                     className="flex-1 px-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-gold/40 placeholder:text-white/30"
@@ -576,7 +580,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                         <div className="font-medium truncate">{p.name}</div>
                         <div className="text-[10px] text-white/30">{p.formationId}</div>
                       </button>
-                      <button onClick={() => handleDeletePreset(p.name)} className="text-white/30 hover:text-red-400 p-1"><X className="w-3 h-3" /></button>
+                      <button onClick={() => handleDeletePreset(p.name)} aria-label={`Vorlage ${p.name} löschen`} className="text-white/30 hover:text-red-400 p-1"><X className="w-3 h-3" aria-hidden="true" /></button>
                     </div>
                   ))}
                 </div>}
@@ -586,6 +590,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
           </div>
           <button
             onClick={() => { setAssignments(new Map()); setSidePanelPos(null); setSidePanelSlot(null); }}
+            aria-label="Aufstellung zurücksetzen"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -617,9 +622,10 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             <div className="flex items-center gap-3 px-4 pt-3 pb-2">
               <button
                 onClick={() => { setPickerOpen(null); setSidePanelPos(null); setSidePanelSlot(null); }}
+                aria-label="Schließen"
                 className="p-1.5 -ml-1.5 rounded-lg hover:bg-white/10 transition-colors"
               >
-                <X className="w-5 h-5 text-white/60" />
+                <X className="w-5 h-5 text-white/60" aria-hidden="true" />
               </button>
               <div className="flex-1">
                 <h3 className="font-black text-base">
@@ -647,6 +653,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                 <input
                   type="text"
                   placeholder="Spieler suchen..."
+                  aria-label="Spieler suchen"
                   value={pickerSearch}
                   onChange={e => setPickerSearch(e.target.value)}
                   autoFocus

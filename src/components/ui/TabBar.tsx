@@ -35,6 +35,7 @@ export function TabBar({ tabs, activeTab, onChange, className, accentColor }: Ta
         return (
           <button
             key={tab.id}
+            id={`tab-${tab.id}`}
             role="tab"
             aria-selected={isActive}
             aria-controls={`tabpanel-${tab.id}`}
@@ -69,7 +70,7 @@ interface TabPanelProps {
 export function TabPanel({ id, activeTab, children }: TabPanelProps) {
   if (activeTab !== id) return null;
   return (
-    <div role="tabpanel" id={`tabpanel-${id}`} aria-labelledby={id} className="anim-fade">
+    <div role="tabpanel" id={`tabpanel-${id}`} aria-labelledby={`tab-${id}`} className="anim-fade">
       {children}
     </div>
   );

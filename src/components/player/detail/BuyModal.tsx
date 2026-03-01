@@ -76,6 +76,7 @@ function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAffo
           <button onClick={() => setQty(Math.max(1, qty - 1))} aria-label="Menge reduzieren" disabled={isBuying}
             className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 transition-colors flex items-center justify-center disabled:opacity-50">−</button>
           <input type="number" inputMode="numeric" value={qty} min={1} max={maxQty || undefined} disabled={isBuying}
+            aria-label="Menge"
             onChange={(e) => setQty(Math.max(1, Math.min(maxQty || 999, parseInt(e.target.value) || 1)))}
             className="w-12 text-center bg-white/5 border border-white/10 rounded-lg py-1.5 font-mono font-bold text-base disabled:opacity-50" />
           <button onClick={() => setQty(Math.min(maxQty || qty + 1, qty + 1))} aria-label="Menge erhöhen" disabled={isBuying}

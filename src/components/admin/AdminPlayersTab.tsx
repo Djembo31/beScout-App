@@ -279,7 +279,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
         <div className="bg-green-500/20 border border-green-500/30 text-green-500 px-4 py-3 rounded-xl font-bold text-sm">{ipoSuccess}</div>
       )}
       {ipoError && (
-        <div className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm cursor-pointer" onClick={() => setIpoError(null)}>{ipoError}</div>
+        <div role="alert" className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm cursor-pointer" onClick={() => setIpoError(null)}>{ipoError}</div>
       )}
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -421,18 +421,18 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                         <button
                           onClick={() => { setCapModalPlayer(p); setCapValue(p.successFeeCap != null ? String(p.successFeeCap) : ''); }}
                           className="p-2 rounded-lg bg-white/5 hover:bg-gold/10 text-white/50 hover:text-gold transition-colors"
-                          title="Success Fee Cap setzen"
+                          aria-label="Success Fee Cap setzen"
                         >
-                          <Shield className="w-4 h-4" />
+                          <Shield className="w-4 h-4" aria-hidden="true" />
                         </button>
                       )}
                       {canLiquidate && (
                         <button
                           onClick={() => openLiquidationModal(p)}
                           className="p-2 rounded-lg bg-white/5 hover:bg-red-500/10 text-white/50 hover:text-red-400 transition-colors"
-                          title="Spieler liquidieren"
+                          aria-label="Spieler liquidieren"
                         >
-                          <Flame className="w-4 h-4" />
+                          <Flame className="w-4 h-4" aria-hidden="true" />
                         </button>
                       )}
                     </div>
@@ -466,8 +466,9 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               Der Cap begrenzt die maximale Community Success Fee pro DPC bei Liquidierung von <span className="text-white font-bold">{capModalPlayer.first} {capModalPlayer.last}</span>.
             </div>
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Cap-Betrag ($SCOUT)</label>
+              <label htmlFor="cap-amount" className="block text-sm font-bold text-white/70 mb-1">Cap-Betrag ($SCOUT)</label>
               <input
+                id="cap-amount"
                 type="number"
                 inputMode="numeric"
                 step="0.01"
@@ -484,7 +485,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               </div>
             )}
             <Button variant="gold" fullWidth onClick={handleSetCap} disabled={capLoading || !capValue}>
-              {capLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
+              {capLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Shield className="w-4 h-4" aria-hidden="true" />}
               {capLoading ? 'Speichere...' : 'Cap setzen'}
             </Button>
           </div>

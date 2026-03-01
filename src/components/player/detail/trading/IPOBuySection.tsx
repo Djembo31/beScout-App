@@ -98,6 +98,7 @@ export default function IPOBuySection({
                 <button onClick={() => setBuyQty(Math.max(1, buyQty - 1))}
                   className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white/5 border border-white/10 font-bold hover:bg-white/10">-</button>
                 <input type="number" inputMode="numeric" value={buyQty} min={1} max={maxBuy}
+                  aria-label="Anzahl"
                   onChange={(e) => setBuyQty(Math.max(1, Math.min(maxBuy, parseInt(e.target.value) || 1)))}
                   className="flex-1 text-center bg-white/5 border border-white/10 rounded-xl py-2 font-mono font-bold text-base" />
                 <button onClick={() => setBuyQty(Math.min(maxBuy, buyQty + 1))}

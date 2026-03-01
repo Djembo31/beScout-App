@@ -25,7 +25,7 @@ export default function SubscriptionBadge({ tier, size = 'sm' }: Props) {
         borderColor: `${cfg.color}25`,
       }}
     >
-      <Crown className={isSm ? 'size-2.5' : 'size-3'} />
+      <Crown className={isSm ? 'size-2.5' : 'size-3'} aria-hidden="true" />
       {cfg.label}
     </span>
   );

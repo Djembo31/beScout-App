@@ -245,12 +245,13 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                 <input
                   type="text"
                   placeholder={t('searchPlayer')}
+                  aria-label={t('searchPlayer')}
                   value={playerSearch}
                   onChange={e => setPlayerSearch(e.target.value)}
                   className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-gold/50"
                 />
                 {loadingPlayers ? (
-                  <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-white/30" /></div>
+                  <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-white/30" aria-hidden="true" /></div>
                 ) : (
                   <div className="max-h-40 overflow-y-auto space-y-1">
                     {filteredPlayers.map(p => (

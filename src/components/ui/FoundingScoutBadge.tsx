@@ -15,7 +15,7 @@ export default function FoundingScoutBadge({ rank, size = 'md' }: FoundingScoutB
     <div
       className={cn('inline-flex items-center gap-1.5 rounded-lg border border-gold/30 bg-gold/15', isSm ? 'px-2 py-0.5' : 'px-2.5 py-1')}
     >
-      <span className={isSm ? 'text-xs' : 'text-sm'}>🌟</span>
+      <span className={isSm ? 'text-xs' : 'text-sm'} aria-hidden="true">🌟</span>
       <span className={cn('font-black text-gold', isSm ? 'text-[10px]' : 'text-xs')}>
         Founding Scout
       </span>

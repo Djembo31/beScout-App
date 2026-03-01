@@ -144,7 +144,7 @@ function OfferCard({
                   onClick={onAccept}
                   disabled={actionId === offer.id}
                   className="p-1.5 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors disabled:opacity-50"
-                  title="Annehmen"
+                  aria-label="Annehmen"
                 >
                   {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <Check className="w-4 h-4" />}
                 </button>
@@ -154,7 +154,7 @@ function OfferCard({
                   onClick={onCounter}
                   disabled={actionId === offer.id}
                   className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors disabled:opacity-50"
-                  title="Gegenangebot"
+                  aria-label="Gegenangebot"
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
@@ -164,7 +164,7 @@ function OfferCard({
                   onClick={onReject}
                   disabled={actionId === offer.id}
                   className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors disabled:opacity-50"
-                  title="Ablehnen"
+                  aria-label="Ablehnen"
                 >
                   {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <X className="w-4 h-4" />}
                 </button>
@@ -174,7 +174,7 @@ function OfferCard({
                   onClick={onCancel}
                   disabled={actionId === offer.id}
                   className="p-1.5 rounded-lg bg-white/10 text-white/40 hover:bg-white/20 transition-colors disabled:opacity-50"
-                  title="Zurückziehen"
+                  aria-label="Zurückziehen"
                 >
                   {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <X className="w-4 h-4" />}
                 </button>
@@ -263,10 +263,11 @@ function CreateOfferModal({
         {/* Player Search */}
         {!selectedPlayer ? (
           <div>
-            <label className="text-sm text-white/60 mb-1 block">Spieler suchen</label>
+            <label htmlFor="offer-player-search" className="text-sm text-white/60 mb-1 block">Spieler suchen</label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" aria-hidden="true" />
               <input
+                id="offer-player-search"
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
@@ -297,8 +298,8 @@ function CreateOfferModal({
               player={{ first: selectedPlayer.first, last: selectedPlayer.last, pos: selectedPlayer.pos, status: 'fit', club: selectedPlayer.club, ticket: selectedPlayer.ticket, age: selectedPlayer.age, imageUrl: selectedPlayer.imageUrl }}
               size="sm" showMeta={false} showStatus={false}
             />
-            <button onClick={() => setSelectedPlayer(null)} className="ml-auto text-white/40 hover:text-white">
-              <X className="w-4 h-4" />
+            <button onClick={() => setSelectedPlayer(null)} aria-label="Spieler entfernen" className="ml-auto text-white/40 hover:text-white">
+              <X className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         )}
@@ -330,8 +331,9 @@ function CreateOfferModal({
 
         {/* Price */}
         <div>
-          <label className="text-sm text-white/60 mb-1 block">Preis pro DPC ($SCOUT)</label>
+          <label htmlFor="offer-price" className="text-sm text-white/60 mb-1 block">Preis pro DPC ($SCOUT)</label>
           <input
+            id="offer-price"
             type="number" inputMode="numeric"
             value={price}
             onChange={e => setPrice(e.target.value)}
@@ -344,8 +346,9 @@ function CreateOfferModal({
 
         {/* Receiver (optional) */}
         <div>
-          <label className="text-sm text-white/60 mb-1 block">Empfänger (optional, leer = offenes Gebot)</label>
+          <label htmlFor="offer-receiver" className="text-sm text-white/60 mb-1 block">Empfänger (optional, leer = offenes Gebot)</label>
           <input
+            id="offer-receiver"
             type="text"
             value={receiverHandle}
             onChange={e => setReceiverHandle(e.target.value)}
@@ -356,8 +359,9 @@ function CreateOfferModal({
 
         {/* Message */}
         <div>
-          <label className="text-sm text-white/60 mb-1 block">Nachricht (optional)</label>
+          <label htmlFor="offer-message" className="text-sm text-white/60 mb-1 block">Nachricht (optional)</label>
           <input
+            id="offer-message"
             type="text"
             value={message}
             onChange={e => setMessage(e.target.value)}
@@ -584,8 +588,9 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
               Original: <span className="font-mono text-gold">{fmtScout(centsToBsd(counterModal.price))} $SCOUT</span> für {counterModal.player_first_name} {counterModal.player_last_name}
             </div>
             <div>
-              <label className="text-sm text-white/60 mb-1 block">Dein Preis ($SCOUT)</label>
+              <label htmlFor="counter-price" className="text-sm text-white/60 mb-1 block">Dein Preis ($SCOUT)</label>
               <input
+                id="counter-price"
                 type="number" inputMode="numeric"
                 value={counterPrice}
                 onChange={e => setCounterPrice(e.target.value)}

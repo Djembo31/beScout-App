@@ -310,6 +310,7 @@ export function InfoTooltip({ text }: { text: string }) {
         onClick={() => setOpen(!open)}
         className="size-4 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:text-white/60 hover:bg-white/10 transition-colors"
         aria-label="Info"
+        aria-expanded={open}
       >
         <span className="text-[9px] font-bold leading-none">?</span>
       </button>
@@ -342,14 +343,14 @@ export function ErrorState({
 }) {
   return (
     <Card className="p-8 md:p-12 text-center">
-      <AlertTriangle className="size-10 mx-auto mb-3 text-red-400/70" />
+      <AlertTriangle className="size-10 mx-auto mb-3 text-red-400/70" aria-hidden="true" />
       <div className="text-sm text-red-300 text-pretty mb-4">{message}</div>
       {onRetry && (
         <button
           onClick={onRetry}
           className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
         >
-          <RefreshCw className="size-3.5" />
+          <RefreshCw className="size-3.5" aria-hidden="true" />
           Nochmal versuchen
         </button>
       )}

@@ -9,18 +9,20 @@ export interface SearchInputProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  ariaLabel?: string;
 }
 
-export function SearchInput({ value, onChange, placeholder = 'Suchen...', className = '' }: SearchInputProps) {
+export function SearchInput({ value, onChange, placeholder = 'Suchen...', className = '', ariaLabel }: SearchInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className={cn('relative', className)}>
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30" aria-hidden="true" />
       <input
         ref={inputRef}
         type="text"
         placeholder={placeholder}
+        aria-label={ariaLabel ?? placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full pl-10 pr-9 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main placeholder:text-white/40 transition-colors"

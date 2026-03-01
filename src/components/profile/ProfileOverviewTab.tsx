@@ -261,7 +261,7 @@ export default function ProfileOverviewTab({
               <div className="text-center p-3 bg-surface-base border border-white/[0.06] rounded-xl">
                 <div className="text-2xl font-mono font-black text-gold">{avgRating > 0 ? avgRating.toFixed(1) : '-'}</div>
                 <div className="text-[10px] text-white/40 mt-1 flex items-center justify-center gap-0.5">
-                  <Star className="w-3 h-3" /> Ø Bewertung
+                  <Star className="w-3 h-3" aria-hidden="true" /> Ø Bewertung
                 </div>
               </div>
               <div className="text-center p-3 bg-surface-base border border-white/[0.06] rounded-xl">

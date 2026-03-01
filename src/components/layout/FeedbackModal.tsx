@@ -94,6 +94,7 @@ export function FeedbackModal({ open, onClose, pageUrl }: FeedbackModalProps) {
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder={PLACEHOLDERS[type]}
+        aria-label="Feedback-Nachricht"
         maxLength={2000}
         rows={5}
         className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"

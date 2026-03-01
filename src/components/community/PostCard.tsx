@@ -168,8 +168,8 @@ export default function PostCard({
             </div>
             {(isOwn || isClubAdmin) && (
               <div className="relative">
-                <button onClick={() => setShowMenu(!showMenu)} className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-white/10 rounded-lg text-white/30 hover:text-white">
-                  <MoreHorizontal className="w-4 h-4" />
+                <button onClick={() => setShowMenu(!showMenu)} aria-label="Post-Optionen" aria-expanded={showMenu} className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-white/10 rounded-lg text-white/30 hover:text-white">
+                  <MoreHorizontal className="w-4 h-4" aria-hidden="true" />
                 </button>
                 {showMenu && (
                   <div className="absolute right-0 top-8 bg-surface-popover border border-white/10 rounded-xl shadow-xl z-10 py-1 min-w-[160px]">

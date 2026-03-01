@@ -104,7 +104,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
     <div className="ml-10 border-t border-white/[0.06] pt-3 mt-2">
       {loading ? (
         <div className="flex justify-center py-3">
-          <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none text-white/30" />
+          <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" />
         </div>
       ) : (
         <>

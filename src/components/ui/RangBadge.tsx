@@ -52,7 +52,7 @@ export function RangBadge({ score, scores, size = 'md', showScore, className = '
       className={cn('inline-flex items-center rounded-xl border font-black', rang.bgColor, rang.borderColor, rang.color, s.badge, className)}
       title={`${rangLabel} — ${displayScore.toLocaleString('de-DE')} Punkte`}
     >
-      <Icon className={s.icon} />
+      <Icon className={s.icon} aria-hidden="true" />
       <span className={s.text}>{rangLabel}</span>
       {showScore && (
         <span className={cn(s.text, 'font-mono tabular-nums opacity-70')}>
@@ -74,7 +74,7 @@ export function RangScorePill({ score, className = '' }: { score: number; classN
       className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border', rang.bgColor, rang.borderColor, rang.color, className)}
       title={t(`rang.${rang.i18nKey}`)}
     >
-      <Icon className="size-3" />
+      <Icon className="size-3" aria-hidden="true" />
       <span className="text-[11px] font-mono font-bold tabular-nums">{score.toLocaleString('de-DE')}</span>
     </span>
   );
@@ -136,7 +136,7 @@ export function DimensionRangRow({ dimension, score, className = '' }: {
           {t(`dimension.${dimension}`)}
         </span>
         <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg border', rang.bgColor, rang.borderColor, rang.color)}>
-          <Icon className="size-3" />
+          <Icon className="size-3" aria-hidden="true" />
           <span className="text-[10px] font-bold">{t(`rang.${rang.i18nKey}`)}</span>
         </span>
       </div>

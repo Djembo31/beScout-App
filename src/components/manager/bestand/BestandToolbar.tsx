@@ -68,6 +68,7 @@ export default function BestandToolbar({
           <select
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
+            aria-label="Sortieren nach"
             className="px-2 py-2 bg-white/5 border border-white/10 rounded-xl text-[11px] text-white/60 focus:outline-none"
           >
             {sortOptions.map(opt => (
@@ -84,13 +85,16 @@ export default function BestandToolbar({
               ? 'bg-gold/15 border-gold/30 text-gold'
               : 'bg-white/5 border-white/10 text-white/40 hover:text-white/60'
           )}
-          title={t('bestandGroupByClub')}
+          aria-label={t('bestandGroupByClub')}
+          aria-pressed={groupByClub}
         >
-          <Layers className="w-3.5 h-3.5" />
+          <Layers className="w-3.5 h-3.5" aria-hidden="true" />
         </button>
 
         <button
           onClick={() => onShowFiltersChange(!showFilters)}
+          aria-label="Filter anzeigen"
+          aria-expanded={showFilters}
           className={cn(
             'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all shrink-0',
             showFilters || hasActiveFilters
@@ -98,7 +102,7 @@ export default function BestandToolbar({
               : 'bg-white/5 border-white/10 text-white/50'
           )}
         >
-          <Filter className="w-3.5 h-3.5" />
+          <Filter className="w-3.5 h-3.5" aria-hidden="true" />
           {hasActiveFilters && (
             <span className="px-1.5 py-0.5 bg-gold text-black text-[10px] font-black rounded-full">
               {(posFilter.size > 0 ? 1 : 0) + (clubFilter ? 1 : 0)}
@@ -114,6 +118,7 @@ export default function BestandToolbar({
           <select
             value={clubFilter}
             onChange={(e) => onClubFilterChange(e.target.value)}
+            aria-label="Club Filter"
             className="px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60 focus:outline-none"
           >
             <option value="">{t('allClubs')}</option>

@@ -118,6 +118,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
               type="text"
               inputMode="numeric"
               value={rewardScout}
+              aria-label="Belohnungsbetrag"
               onChange={(e) => {
                 const v = e.target.value.replace(/[^0-9.]/g, '');
                 setRewardScout(v);

@@ -56,9 +56,10 @@ export const EventCard = ({
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); onToggleInterest(); }}
+          aria-label={event.isInterested ? 'Aus Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
           className={`p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors ${event.isInterested ? 'bg-pink-500/20 text-pink-400' : 'hover:bg-white/10 text-white/30'}`}
         >
-          <Heart className={`w-4 h-4 ${event.isInterested ? 'fill-current' : ''}`} />
+          <Heart className={`w-4 h-4 ${event.isInterested ? 'fill-current' : ''}`} aria-hidden="true" />
         </button>
       </div>
 

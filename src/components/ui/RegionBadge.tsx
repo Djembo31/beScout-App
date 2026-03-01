@@ -23,7 +23,7 @@ export function RegionBadge({ region }: { region: string | null | undefined }) {
 
   return (
     <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium', style.bg, style.text)}>
-      <Icon className="size-3" />
+      <Icon className="size-3" aria-hidden="true" />
       {label}
     </span>
   );

@@ -146,6 +146,7 @@ export default function SellModal({
                   <button onClick={() => setSellQty(Math.max(1, sellQty - 1))} aria-label="Menge reduzieren"
                     className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 text-sm">-</button>
                   <input type="number" inputMode="numeric" value={sellQty} min={1} max={availableToSell}
+                    aria-label="Verkaufsmenge"
                     onChange={(e) => setSellQty(Math.max(1, Math.min(availableToSell, parseInt(e.target.value) || 1)))}
                     className="flex-1 text-center bg-white/5 border border-white/10 rounded-lg py-1.5 font-mono font-bold text-base" />
                   <button onClick={() => setSellQty(Math.min(availableToSell, sellQty + 1))} aria-label="Menge erhöhen"
@@ -159,6 +160,7 @@ export default function SellModal({
                 <input
                   type="number" inputMode="numeric" value={sellPriceBsd} min={1} step={1}
                   placeholder={floorBsd > 0 ? `z.B. ${floorBsd}` : 'Preis eingeben'}
+                  aria-label="Preis pro DPC"
                   onChange={(e) => setSellPriceBsd(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 font-mono font-bold text-base"
                 />

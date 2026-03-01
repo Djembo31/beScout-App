@@ -27,7 +27,7 @@ export function LoadMoreButton({ loading, hasMore, onLoadMore }: LoadMoreButtonP
       >
         {loading ? (
           <>
-            <Loader2 className="size-4 animate-spin motion-reduce:animate-none" />
+            <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
             Laden...
           </>
         ) : (

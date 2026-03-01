@@ -17,10 +17,11 @@ export default function FollowBtn({ isFollowed, onToggle, size = 'sm' }: FollowB
     return (
       <button
         onClick={onToggle}
+        aria-label="Entfolgen"
         className={cn(sizeClasses, 'rounded-lg font-medium transition-colors active:scale-[0.95] flex items-center gap-1 bg-green-500/15 text-green-500 border border-green-500/25 hover:bg-red-500/15 hover:text-red-300 hover:border-red-500/25 group')}
       >
-        <UserCheck className="w-3 h-3 group-hover:hidden" />
-        <X className="w-3 h-3 hidden group-hover:block" />
+        <UserCheck className="w-3 h-3 group-hover:hidden" aria-hidden="true" />
+        <X className="w-3 h-3 hidden group-hover:block" aria-hidden="true" />
         <span className="group-hover:hidden">Folgst du</span>
         <span className="hidden group-hover:block">Entfolgen</span>
       </button>
@@ -32,7 +33,7 @@ export default function FollowBtn({ isFollowed, onToggle, size = 'sm' }: FollowB
       onClick={onToggle}
       className={cn(sizeClasses, 'rounded-lg font-medium transition-colors active:scale-[0.95] flex items-center gap-1 bg-white/5 border border-white/10 hover:bg-green-500/15 hover:text-green-500 hover:border-green-500/25')}
     >
-      <UserPlus className="w-3 h-3" />
+      <UserPlus className="w-3 h-3" aria-hidden="true" />
       <span>Folgen</span>
     </button>
   );

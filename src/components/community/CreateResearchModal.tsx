@@ -220,6 +220,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
             <button
               type="button"
               onClick={() => { setPlayerId(''); setPlayerSearch(''); }}
+              aria-label="Spieler entfernen"
               className="absolute right-3 top-[34px] text-white/30 hover:text-white text-xs"
             >
               ✕

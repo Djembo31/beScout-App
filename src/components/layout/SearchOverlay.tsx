@@ -214,6 +214,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
             ref={inputRef}
             type="text"
             placeholder={t('placeholder')}
+            aria-label={t('placeholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             maxLength={200}
