@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Bug, Lightbulb, HelpCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Modal, Button } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -15,9 +16,9 @@ interface FeedbackModalProps {
 }
 
 const TYPE_OPTIONS: { value: FeedbackType; label: string; icon: React.ReactNode }[] = [
-  { value: 'bug', label: 'Bug melden', icon: <Bug className="w-4 h-4" /> },
-  { value: 'feature', label: 'Feature-Wunsch', icon: <Lightbulb className="w-4 h-4" /> },
-  { value: 'sonstiges', label: 'Sonstiges', icon: <HelpCircle className="w-4 h-4" /> },
+  { value: 'bug', label: 'Bug melden', icon: <Bug className="size-4" /> },
+  { value: 'feature', label: 'Feature-Wunsch', icon: <Lightbulb className="size-4" /> },
+  { value: 'sonstiges', label: 'Sonstiges', icon: <HelpCircle className="size-4" /> },
 ];
 
 const PLACEHOLDERS: Record<FeedbackType, string> = {
@@ -75,11 +76,12 @@ export function FeedbackModal({ open, onClose, pageUrl }: FeedbackModalProps) {
           <button
             key={opt.value}
             onClick={() => setType(opt.value)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-bold transition-all border ${
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-bold transition-colors border',
               type === opt.value
                 ? 'bg-gold/15 border-gold/40 text-gold'
                 : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
-            }`}
+            )}
           >
             {opt.icon}
             <span className="hidden sm:inline">{opt.label}</span>
@@ -102,7 +104,7 @@ export function FeedbackModal({ open, onClose, pageUrl }: FeedbackModalProps) {
         <span className="text-[11px] text-white/40 truncate max-w-[60%]">
           Seite: {pageUrl}
         </span>
-        <span className={`text-xs font-mono ${charCount > 0 && charCount < 10 ? 'text-red-400' : 'text-white/40'}`}>
+        <span className={cn('text-xs font-mono tabular-nums', charCount > 0 && charCount < 10 ? 'text-red-400' : 'text-white/40')}>
           {charCount}/2.000
         </span>
       </div>

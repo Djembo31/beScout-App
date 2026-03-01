@@ -9,42 +9,42 @@ import type { DbNotification, NotificationType } from '@/types';
 
 function getNotifIcon(type: NotificationType) {
   switch (type) {
-    case 'research_unlock': return <FileText className="w-4 h-4" />;
-    case 'research_rating': return <Star className="w-4 h-4" />;
-    case 'follow': return <UserPlus className="w-4 h-4" />;
-    case 'fantasy_reward': return <Trophy className="w-4 h-4" />;
-    case 'poll_vote': return <Vote className="w-4 h-4" />;
-    case 'reply': return <MessageCircle className="w-4 h-4" />;
-    case 'bounty_submission': return <Target className="w-4 h-4" />;
-    case 'bounty_approved': return <CheckCircle className="w-4 h-4" />;
-    case 'bounty_rejected': return <XCircle className="w-4 h-4" />;
-    case 'pbt_liquidation': return <Banknote className="w-4 h-4" />;
-    case 'trade': return <ArrowLeftRight className="w-4 h-4" />;
-    case 'offer_received': return <Send className="w-4 h-4" />;
-    case 'offer_accepted': return <CheckCircle className="w-4 h-4" />;
-    case 'offer_rejected': return <XCircle className="w-4 h-4" />;
-    case 'offer_countered': return <RotateCcw className="w-4 h-4" />;
-    case 'dpc_of_week': return <Crown className="w-4 h-4" />;
-    case 'tier_promotion': return <Star className="w-4 h-4" />;
-    case 'price_alert': return <TrendingUp className="w-4 h-4" />;
-    case 'mission_reward': return <Crosshair className="w-4 h-4" />;
-    case 'event_starting': return <Play className="w-4 h-4" />;
-    case 'event_closing_soon': return <Clock className="w-4 h-4" />;
-    case 'event_scored': return <BarChart3 className="w-4 h-4" />;
-    case 'bounty_expiring': return <Clock className="w-4 h-4" />;
-    case 'new_ipo_available': return <Zap className="w-4 h-4" />;
-    case 'referral_reward': return <Gift className="w-4 h-4" />;
-    case 'tip_received': return <Coins className="w-4 h-4" />;
-    case 'subscription_new': return <UserCheck className="w-4 h-4" />;
-    case 'creator_fund_payout': return <Sparkles className="w-4 h-4" />;
-    case 'ad_revenue_payout': return <Megaphone className="w-4 h-4" />;
-    case 'achievement': return <Award className="w-4 h-4" />;
-    case 'level_up': return <Zap className="w-4 h-4" />;
-    case 'rang_up': return <TrendingUp className="w-4 h-4" />;
-    case 'rang_down': return <TrendingUp className="w-4 h-4 rotate-180" />;
-    case 'mastery_level_up': return <Star className="w-4 h-4" />;
-    case 'prediction_resolved': return <Target className="w-4 h-4" />;
-    case 'system': return <Info className="w-4 h-4" />;
+    case 'research_unlock': return <FileText className="size-4" />;
+    case 'research_rating': return <Star className="size-4" />;
+    case 'follow': return <UserPlus className="size-4" />;
+    case 'fantasy_reward': return <Trophy className="size-4" />;
+    case 'poll_vote': return <Vote className="size-4" />;
+    case 'reply': return <MessageCircle className="size-4" />;
+    case 'bounty_submission': return <Target className="size-4" />;
+    case 'bounty_approved': return <CheckCircle className="size-4" />;
+    case 'bounty_rejected': return <XCircle className="size-4" />;
+    case 'pbt_liquidation': return <Banknote className="size-4" />;
+    case 'trade': return <ArrowLeftRight className="size-4" />;
+    case 'offer_received': return <Send className="size-4" />;
+    case 'offer_accepted': return <CheckCircle className="size-4" />;
+    case 'offer_rejected': return <XCircle className="size-4" />;
+    case 'offer_countered': return <RotateCcw className="size-4" />;
+    case 'dpc_of_week': return <Crown className="size-4" />;
+    case 'tier_promotion': return <Star className="size-4" />;
+    case 'price_alert': return <TrendingUp className="size-4" />;
+    case 'mission_reward': return <Crosshair className="size-4" />;
+    case 'event_starting': return <Play className="size-4" />;
+    case 'event_closing_soon': return <Clock className="size-4" />;
+    case 'event_scored': return <BarChart3 className="size-4" />;
+    case 'bounty_expiring': return <Clock className="size-4" />;
+    case 'new_ipo_available': return <Zap className="size-4" />;
+    case 'referral_reward': return <Gift className="size-4" />;
+    case 'tip_received': return <Coins className="size-4" />;
+    case 'subscription_new': return <UserCheck className="size-4" />;
+    case 'creator_fund_payout': return <Sparkles className="size-4" />;
+    case 'ad_revenue_payout': return <Megaphone className="size-4" />;
+    case 'achievement': return <Award className="size-4" />;
+    case 'level_up': return <Zap className="size-4" />;
+    case 'rang_up': return <TrendingUp className="size-4" />;
+    case 'rang_down': return <TrendingUp className="size-4 rotate-180" />;
+    case 'mastery_level_up': return <Star className="size-4" />;
+    case 'prediction_resolved': return <Target className="size-4" />;
+    case 'system': return <Info className="size-4" />;
   }
 }
 
@@ -213,7 +213,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
         <span className="font-bold text-sm">Benachrichtigungen</span>
         <button onClick={handleMarkAllRead} className="text-xs text-gold hover:underline flex items-center gap-1 min-h-[44px] md:min-h-0">
-          <Check className="w-3 h-3" />
+          <Check className="size-3" />
           Alle gelesen
         </button>
       </div>
@@ -222,7 +222,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
       <div className="max-h-[60vh] md:max-h-[400px] overflow-y-auto">
         {loading ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin text-white/30" />
+            <Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" />
           </div>
         ) : notifications.length === 0 ? (
           <div className="py-8 text-center text-sm text-white/30">
@@ -238,7 +238,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
                 !notif.read && 'bg-white/[0.02]'
               )}
             >
-              <div className={cn('flex items-center justify-center w-8 h-8 rounded-lg shrink-0 mt-0.5', getNotifColor(notif.type))}>
+              <div className={cn('flex items-center justify-center size-8 rounded-lg shrink-0 mt-0.5', getNotifColor(notif.type))}>
                 {getNotifIcon(notif.type)}
               </div>
               <div className="flex-1 min-w-0">
@@ -251,7 +251,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
                 <div className="text-xs text-white/25 mt-1">{timeAgo(notif.created_at)}</div>
               </div>
               {!notif.read && (
-                <div className="w-2 h-2 rounded-full bg-gold shrink-0 mt-2" />
+                <div className="size-2 rounded-full bg-gold shrink-0 mt-2" />
               )}
             </button>
           ))

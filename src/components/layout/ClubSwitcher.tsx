@@ -45,11 +45,11 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
       >
         {/* Club Logo / Color Dot */}
         <div
-          className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-black"
+          className="size-7 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-black"
           style={{ backgroundColor: `${clubColor}20`, color: clubColor }}
         >
           {activeClub.logo_url ? (
-            <img src={activeClub.logo_url} alt="" className="w-5 h-5 object-contain" />
+            <img src={activeClub.logo_url} alt="" className="size-5 object-contain" />
           ) : (
             activeClub.short?.slice(0, 3)
           )}
@@ -61,7 +61,7 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
               <div className="text-sm font-semibold text-white truncate">{activeClub.name}</div>
               <div className="text-[10px] text-white/40">{activeClub.league}</div>
             </div>
-            <ChevronDown className={cn('w-4 h-4 text-white/40 transition-transform', open && 'rotate-180')} />
+            <ChevronDown className={cn('size-4 text-white/40 transition-transform', open && 'rotate-180')} />
           </>
         )}
       </button>
@@ -86,11 +86,11 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
                   )}
                 >
                   <div
-                    className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-[9px] font-black"
+                    className="size-6 rounded-md flex items-center justify-center flex-shrink-0 text-[9px] font-black"
                     style={{ backgroundColor: `${color}20`, color }}
                   >
                     {club.logo_url ? (
-                      <img src={club.logo_url} alt="" className="w-4 h-4 object-contain" />
+                      <img src={club.logo_url} alt="" className="size-4 object-contain" />
                     ) : (
                       club.short?.slice(0, 3)
                     )}
@@ -99,7 +99,7 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
                     {club.name}
                   </span>
                   {isActive && (
-                    <div className="ml-auto w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
+                    <div className="ml-auto size-1.5 rounded-full" style={{ backgroundColor: color }} />
                   )}
                 </button>
               );
@@ -110,9 +110,9 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
           <Link
             href="/clubs"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2 px-3 py-2.5 border-t border-white/10 text-gold/70 hover:text-gold hover:bg-gold/5 transition-all"
+            className="flex items-center gap-2 px-3 py-2.5 border-t border-white/10 text-gold/70 hover:text-gold hover:bg-gold/5 transition-colors"
           >
-            <Compass className="w-4 h-4" />
+            <Compass className="size-4" />
             <span className="text-sm font-medium">Clubs entdecken</span>
           </Link>
         </div>

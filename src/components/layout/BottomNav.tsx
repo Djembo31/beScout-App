@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Trophy, Briefcase, Building2, Compass } from 'lucide-react';
 import { useClub } from '@/components/providers/ClubProvider';
+import { cn } from '@/lib/utils';
 
 const BOTTOM_TABS = [
   { label: 'Home', href: '/', icon: Home, tourId: undefined as string | undefined },
@@ -48,17 +49,18 @@ export const BottomNav = memo(function BottomNav() {
               key={tab.href}
               href={href}
               data-tour-id={tab.tourId}
-              className={`relative flex flex-col items-center justify-center gap-0.5 w-16 py-1.5 rounded-xl transition-all ${
+              className={cn(
+                'relative flex flex-col items-center justify-center gap-0.5 w-16 py-1.5 rounded-xl transition-colors',
                 isActive
                   ? 'text-gold bg-gold/[0.12]'
                   : 'text-white/50 active:text-white/70 active:bg-white/[0.08] active:scale-95'
-              }`}
+              )}
             >
               {isActive && (
                 <div className="absolute -top-[1px] w-10 h-[3px] bg-gold rounded-full shadow-glow-gold" />
               )}
-              <Icon className={`w-5 h-5 ${isActive ? 'drop-shadow-[0_0_10px_rgba(255,215,0,0.6)]' : ''}`} />
-              <span className={`text-[10px] leading-none ${isActive ? 'font-black' : 'font-medium'}`}>{tab.label}</span>
+              <Icon className={cn('size-5', isActive && 'drop-shadow-[0_0_10px_rgba(255,215,0,0.6)]')} />
+              <span className={cn('text-[10px] leading-none', isActive ? 'font-black' : 'font-medium')}>{tab.label}</span>
             </Link>
           );
         })}

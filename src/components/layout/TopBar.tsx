@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Bell, BellOff, BellRing, Search, User, Menu, DollarSign, MessageSquarePlus } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { formatScout } from '@/lib/services/wallet';
@@ -113,7 +114,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
         <div className="flex items-center gap-3 flex-1">
           {/* Mobile: Logo */}
           <Link href="/" className="lg:hidden flex items-center">
-            <div className="relative w-8 h-8 shrink-0">
+            <div className="relative size-8 shrink-0">
               <Image src="/logo.svg" alt="BeScout" fill className="object-contain" priority />
             </div>
           </Link>
@@ -121,19 +122,19 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           {/* Hamburger — mobile only, opens SideNav drawer */}
           <button
             onClick={onMobileMenuToggle}
-            className="lg:hidden p-2 rounded-xl hover:bg-white/10 active:scale-90 transition-all"
+            className="lg:hidden p-2 rounded-xl hover:bg-white/10 active:scale-90 transition-colors"
             aria-label="Menu"
           >
-            <Menu className="w-5 h-5 text-white/70" />
+            <Menu className="size-5 text-white/70" />
           </button>
 
           {/* Search trigger — desktop only */}
           <button
             data-tour-id="topbar-search"
             onClick={() => setSpotlightOpen(true)}
-            className="hidden lg:flex items-center gap-2 w-full max-w-[280px] px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white/40 hover:bg-white/[0.08] hover:border-white/15 transition-all"
+            className="hidden lg:flex items-center gap-2 w-full max-w-[280px] px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white/40 hover:bg-white/[0.08] hover:border-white/15 transition-colors"
           >
-            <Search className="w-4 h-4 shrink-0" />
+            <Search className="size-4 shrink-0" />
             <span className="flex-1 text-left truncate">{t('searchPlaceholder')}</span>
             <kbd className="hidden xl:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono text-white/25 bg-white/5 border border-white/10 rounded-md">
               <span className="text-[11px]">&#8984;</span>K
@@ -145,38 +146,39 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
         <div className="flex items-center gap-2 md:gap-3">
           {/* $SCOUT Balance pill — compact on mobile */}
           <div data-tour-id="topbar-balance" className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 bg-gold/10 border border-gold/20 rounded-xl">
-            <DollarSign className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gold" />
+            <DollarSign className="size-3 sm:size-3.5 text-gold" />
             {balanceCents === null ? (
-              <span className="inline-block w-10 sm:w-12 h-3.5 rounded bg-gold/20 animate-pulse" />
+              <span className="inline-block w-10 sm:w-12 h-3.5 rounded bg-gold/20 animate-pulse motion-reduce:animate-none" />
             ) : (
-              <span className="font-mono font-bold text-gold text-[10px] sm:text-xs">{formatScout(balanceCents)}</span>
+              <span className="font-mono font-bold text-gold text-[10px] sm:text-xs tabular-nums">{formatScout(balanceCents)}</span>
             )}
           </div>
 
           {/* Search icon — mobile only */}
           <button
             onClick={() => setSpotlightOpen(true)}
-            className="lg:hidden p-2.5 bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 rounded-xl transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="lg:hidden p-2.5 bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 rounded-xl transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label={t('searchPlaceholder')}
           >
-            <Search className="w-4 h-4 text-white/70" />
+            <Search className="size-4 text-white/70" />
           </button>
 
           {/* Push Toggle — hidden on mobile to save space */}
           <button
             onClick={togglePush}
             disabled={pushLoading}
-            className={`hidden sm:flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] border rounded-xl transition-all ${
+            className={cn(
+              'hidden sm:flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] border rounded-xl transition-colors',
               pushEnabled
                 ? 'bg-green-500/10 border-green-500/20 hover:bg-green-500/20'
                 : 'bg-white/5 border-white/10 hover:bg-white/10'
-            }`}
+            )}
             aria-label={pushEnabled ? t('pushDisable') : t('pushEnable')}
             title={pushEnabled ? t('pushActive') : t('pushActivate')}
           >
             {pushEnabled
-              ? <BellRing className="w-4 h-4 md:w-5 md:h-5 text-green-500" />
-              : <BellOff className="w-4 h-4 md:w-5 md:h-5 text-white/40" />
+              ? <BellRing className="size-4 md:size-5 text-green-500" />
+              : <BellOff className="size-4 md:size-5 text-white/40" />
             }
           </button>
 
@@ -185,12 +187,12 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             <button
               data-tour-id="topbar-notifications"
               onClick={() => { setNotifOpen(o => { if (!o) refetchNotifs(); return !o; }); }}
-              className="relative p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
+              className="relative p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
               aria-label={t('notifications')}
             >
-              <Bell className="w-4 h-4 md:w-5 md:h-5 text-white/70" />
+              <Bell className="size-4 md:size-5 text-white/70" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-gold text-black text-[10px] font-black rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 size-4 bg-gold text-black text-[10px] font-black rounded-full flex items-center justify-center">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -211,10 +213,10 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           {/* Feedback */}
           <button
             onClick={() => setFeedbackOpen(true)}
-            className="hidden sm:flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
+            className="hidden sm:flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
             aria-label={t('feedback')}
           >
-            <MessageSquarePlus className="w-4 h-4 md:w-5 md:h-5 text-white/70" />
+            <MessageSquarePlus className="size-4 md:size-5 text-white/70" />
           </button>
 
           {/* User avatar */}
@@ -224,9 +226,9 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
               <div className="text-[10px] text-white/50">{t('levelPlan', { level, plan })}</div>
             </div>
             <Link href="/profile" className="group">
-              <div className={`relative w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-gold/20 to-green-500/20 border flex items-center justify-center overflow-hidden transition-all group-hover:border-gold/40 ${pathname.startsWith('/profile') ? 'border-gold/60 ring-2 ring-gold/20' : 'border-white/10'}`}>
+              <div className={cn('relative size-8 md:size-10 rounded-xl bg-gold/10 border flex items-center justify-center overflow-hidden transition-colors group-hover:border-gold/40', pathname.startsWith('/profile') ? 'border-gold/60 ring-2 ring-gold/20' : 'border-white/10')}>
                 {loading ? (
-                  <User className="w-4 h-4 md:w-5 md:h-5 text-white/70" />
+                  <User className="size-4 md:size-5 text-white/70" />
                 ) : profile?.avatar_url ? (
                   <Image src={profile.avatar_url} alt="" fill sizes="40px" className="object-cover" />
                 ) : (
