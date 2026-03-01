@@ -93,15 +93,15 @@ export default function MissionBanner() {
   const weeklyPeriodEnd = weeklyMissions[0]?.period_end;
 
   return (
-    <div className="bg-gradient-to-r from-gold/[0.06] to-purple-500/[0.04] border border-gold/15 rounded-2xl overflow-hidden">
+    <div className="bg-gold/[0.04] border border-gold/15 rounded-2xl overflow-hidden">
       {/* Header — always visible */}
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between p-4 text-left"
       >
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gold/15 border border-gold/25 flex items-center justify-center">
-            <Target className="w-5 h-5 text-gold" />
+          <div className="size-9 rounded-xl bg-gold/15 border border-gold/25 flex items-center justify-center">
+            <Target className="size-5 text-gold" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -116,14 +116,14 @@ export default function MissionBanner() {
               <span>{dailyCompleted}/{dailyMissions.length} Tages · {weeklyCompleted}/{weeklyMissions.length} Wochen</span>
               {dailyUnclaimed.length > 0 && (
                 <span className="flex items-center gap-0.5 text-gold/60">
-                  <Clock className="w-2.5 h-2.5" />
+                  <Clock className="size-2.5" />
                   {getTimeUntilMidnight()}
                 </span>
               )}
             </div>
           </div>
         </div>
-        <ChevronDown className={cn('w-4 h-4 text-white/30 transition-transform', expanded && 'rotate-180')} />
+        <ChevronDown className={cn('size-4 text-white/30 transition-transform', expanded && 'rotate-180')} />
       </button>
 
       {/* Expanded content */}
@@ -172,18 +172,18 @@ function MissionSection({ type, missions, completedCount, claiming, onClaim }: {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           {isDaily ? (
-            <Target className="w-3.5 h-3.5 text-gold" />
+            <Target className="size-3.5 text-gold" />
           ) : (
-            <Calendar className="w-3.5 h-3.5 text-purple-400" />
+            <Calendar className="size-3.5 text-purple-400" />
           )}
-          <span className={cn('text-[10px] font-black uppercase tracking-wider', isDaily ? 'text-gold' : 'text-purple-400')}>
+          <span className={cn('text-[10px] font-black uppercase', isDaily ? 'text-gold' : 'text-purple-400')}>
             {isDaily ? 'Tages-Missionen' : 'Wochen-Missionen'}
           </span>
         </div>
         <div className="flex items-center gap-2">
           {remaining > 0 && !isDaily && periodEnd && (
             <span className="text-[10px] text-purple-400/60 flex items-center gap-0.5">
-              <Clock className="w-2.5 h-2.5" />
+              <Clock className="size-2.5" />
               {getDaysUntilEnd(periodEnd)}d
             </span>
           )}
@@ -204,7 +204,7 @@ function MissionSection({ type, missions, completedCount, claiming, onClaim }: {
             <div
               key={m.id}
               className={cn(
-                'flex items-center gap-3 p-2.5 rounded-xl transition-all',
+                'flex items-center gap-3 p-2.5 rounded-xl transition-colors',
                 isClaimed ? 'bg-white/[0.02] opacity-60' : 'bg-white/[0.03]'
               )}
             >
@@ -224,7 +224,7 @@ function MissionSection({ type, missions, completedCount, claiming, onClaim }: {
                 <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
                   <div
                     className={cn(
-                      'h-full rounded-full transition-all',
+                      'h-full rounded-full transition-colors',
                       isClaimed ? 'bg-green-500/50' : isCompleted ? 'bg-gold' : 'bg-gold/60'
                     )}
                     style={{ width: `${pct}%` }}
@@ -236,16 +236,16 @@ function MissionSection({ type, missions, completedCount, claiming, onClaim }: {
               <div className="shrink-0">
                 {isClaimed ? (
                   <div className="flex items-center gap-1 text-green-500">
-                    <Check className="w-3.5 h-3.5" />
+                    <Check className="size-3.5" />
                     <span className="text-[10px] font-bold">{rewardBsd}</span>
                   </div>
                 ) : isCompleted ? (
                   <button
                     onClick={() => onClaim(m.id)}
                     disabled={claiming === m.id}
-                    className="flex items-center gap-1 px-2.5 py-1 bg-gold text-black text-[10px] font-black rounded-full hover:bg-gold/90 transition-all disabled:opacity-50"
+                    className="flex items-center gap-1 px-2.5 py-1 bg-gold text-black text-[10px] font-black rounded-full hover:bg-gold/90 transition-colors disabled:opacity-50"
                   >
-                    <Gift className="w-3 h-3" />
+                    <Gift className="size-3" />
                     {claiming === m.id ? '...' : `+${rewardBsd}`}
                   </button>
                 ) : (

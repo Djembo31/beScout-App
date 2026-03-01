@@ -61,7 +61,7 @@ export default function HomeHero({
               <div className="text-xs text-white/40 mb-0.5">{t('hero.startTitle')}</div>
               <div className="text-sm font-bold">{t('hero.startCta')}</div>
             </div>
-            <ArrowUpRight className="w-5 h-5 text-gold group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            <ArrowUpRight className="size-5 text-gold group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </div>
         </Card>
       </Link>
@@ -82,7 +82,7 @@ export default function HomeHero({
     <Link href="/profile" className="block group">
       <Card className="p-4 hover:border-white/15 transition-all relative overflow-hidden">
         {/* Subtle glow from rang color */}
-        <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full ${gesamtRang.bgColor} blur-3xl opacity-50`} />
+        <div className={`absolute -top-10 -right-10 size-32 rounded-full ${gesamtRang.bgColor} blur-3xl opacity-50`} />
 
         <div className="relative">
           {/* Header: Rang + Profil link */}
@@ -96,7 +96,7 @@ export default function HomeHero({
             </div>
             <div className="flex items-center gap-1 text-xs text-white/30 group-hover:text-white/50 transition-colors">
               {t('hero.profile')}
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <ArrowUpRight className="size-3.5" />
             </div>
           </div>
 

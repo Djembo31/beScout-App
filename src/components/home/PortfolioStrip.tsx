@@ -23,12 +23,12 @@ export default function PortfolioStrip({ holdings }: PortfolioStripProps) {
       <div>
         <SectionHeader title={t('myRoster')} href="/market?tab=portfolio" />
         <Card className="p-6 text-center mt-3">
-          <Briefcase className="w-10 h-10 mx-auto mb-2 text-white/20" />
+          <Briefcase className="size-10 mx-auto mb-2 text-white/20" />
           <div className="text-sm font-medium text-white/50">{t('emptyPortfolioTitle')}</div>
           <div className="text-xs text-white/30 mt-1">{t('emptyPortfolioDesc')}</div>
           <Link href="/market?tab=kaufen" className="inline-block mt-3">
             <Button variant="gold" size="sm" className="gap-1.5">
-              <Zap className="w-3.5 h-3.5" />
+              <Zap className="size-3.5" />
               {t('buyFirstPlayer')}
             </Button>
           </Link>
@@ -90,9 +90,9 @@ export default function PortfolioStrip({ holdings }: PortfolioStripProps) {
         {holdings.length > 6 && (
           <Link
             href="/market?tab=portfolio"
-            className="flex-shrink-0 w-[100px] flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-surface-base hover:bg-surface-elevated transition-all"
+            className="flex-shrink-0 w-[100px] flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-surface-base hover:bg-surface-elevated transition-colors"
           >
-            <ChevronRight className="w-5 h-5 text-gold mb-1" />
+            <ChevronRight className="size-5 text-gold mb-1" />
             <span className="text-[10px] text-gold font-bold">+{holdings.length - 6}</span>
           </Link>
         )}

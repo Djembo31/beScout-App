@@ -55,7 +55,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
 
   if (loading) {
     return (
-      <Card className="p-4 animate-pulse">
+      <Card className="p-4 animate-pulse motion-reduce:animate-none">
         <div className="h-4 bg-white/5 rounded w-1/2 mb-2" />
         <div className="h-8 bg-white/5 rounded w-1/3" />
       </Card>
@@ -69,14 +69,14 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
   // Compact version for sidebar
   if (compact) {
     return (
-      <Card className="p-3 bg-gradient-to-r from-purple-500/[0.04] to-gold/[0.04] border-purple-500/15">
+      <Card className="p-3 bg-purple-500/[0.04] border-purple-500/15">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: tier.bg, border: `1px solid ${tier.border}` }}>
+          <div className="size-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: tier.bg, border: `1px solid ${tier.border}` }}>
             <Rocket className="w-4.5 h-4.5" style={{ color: tier.color }} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-white/50 uppercase tracking-wider">$SCOUT Airdrop</span>
+              <span className="text-xs font-bold text-white/50 uppercase">$SCOUT Airdrop</span>
               <span
                 className="px-1.5 py-0.5 rounded text-[9px] font-black"
                 style={{ backgroundColor: tier.bg, color: tier.color, border: `1px solid ${tier.border}` }}
@@ -98,12 +98,12 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
 
   // Full version
   return (
-    <Card className="p-4 bg-gradient-to-br from-purple-500/[0.04] via-transparent to-gold/[0.04] border-purple-500/15">
+    <Card className="p-4 bg-purple-500/[0.04] border-purple-500/15">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Rocket className="w-4 h-4 text-purple-400" />
-          <span className="text-xs font-bold text-white/50 uppercase tracking-wider">$SCOUT Airdrop Score</span>
+          <Rocket className="size-4 text-purple-400" />
+          <span className="text-xs font-bold text-white/50 uppercase">$SCOUT Airdrop Score</span>
         </div>
         <span
           className="px-2 py-0.5 rounded-lg text-[10px] font-black"
@@ -119,7 +119,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
         <div className="flex items-center gap-1.5 pb-1">
           {score.rank && (
             <>
-              <Trophy className="w-3.5 h-3.5 text-gold/60" />
+              <Trophy className="size-3.5 text-gold/60" />
               <span className="text-sm font-bold text-white/40">#{score.rank}</span>
               {totalUsers && <span className="text-xs text-white/20">von {totalUsers}</span>}
             </>
@@ -133,7 +133,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
         className="w-full flex items-center justify-between text-xs text-white/40 hover:text-white/60 transition-colors mb-2"
       >
         <span>Score-Aufschlüsselung</span>
-        {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+        {expanded ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
       </button>
 
       {expanded && (
@@ -174,11 +174,11 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
       {/* Improve + Coming Soon */}
       <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-2">
         <a href="/airdrop" className="flex items-center gap-2 text-[10px] text-purple-400/70 hover:text-purple-300 transition-colors">
-          <Trophy className="w-3 h-3" />
+          <Trophy className="size-3" />
           <span>Rangliste ansehen</span>
         </a>
         <div className="flex items-center gap-2 text-[10px] text-white/30">
-          <TrendingUp className="w-3 h-3" />
+          <TrendingUp className="size-3" />
           <span>$SCOUT Airdrop — Coming Soon</span>
         </div>
       </div>

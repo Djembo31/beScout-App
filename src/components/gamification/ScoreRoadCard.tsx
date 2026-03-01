@@ -78,7 +78,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
   return (
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-5">
-        <Trophy className="w-4 h-4 text-gold" />
+        <Trophy className="size-4 text-gold" />
         <h3 className="font-black">{tsr('title')}</h3>
       </div>
 
@@ -106,14 +106,14 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
 
               {/* Dot */}
               <div className={cn(
-                'relative z-10 flex items-center justify-center w-4 h-4 rounded-full mt-1 shrink-0',
+                'relative z-10 flex items-center justify-center size-4 rounded-full mt-1 shrink-0',
                 effectiveState === 'claimed' ? 'bg-emerald-500' :
                 effectiveState === 'claimable' ? 'bg-gold shadow-[0_0_12px_rgba(255,215,0,0.4)]' :
                 effectiveState === 'active' ? 'bg-white/20 border-2 border-white/30' :
                 'bg-white/10 border border-white/[0.06]'
               )}>
-                {effectiveState === 'claimed' && <Check className="w-2.5 h-2.5 text-white" />}
-                {effectiveState === 'claimable' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                {effectiveState === 'claimed' && <Check className="size-2.5 text-white" />}
+                {effectiveState === 'claimable' && <div className="size-1.5 rounded-full bg-white" />}
               </div>
 
               {/* Content */}
@@ -142,7 +142,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
                     {/* State indicator */}
                     {effectiveState === 'claimed' && (
                       <span className="flex items-center gap-1 text-[10px] text-emerald-400">
-                        <Check className="w-3 h-3" />
+                        <Check className="size-3" />
                       </span>
                     )}
                     {effectiveState === 'claimable' && (
@@ -151,13 +151,13 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
                         size="sm"
                         onClick={() => handleClaim(ms.score)}
                         disabled={claimingMs !== null}
-                        className="text-[10px] px-2.5 py-1 h-auto animate-pulse"
+                        className="text-[10px] px-2.5 py-1 h-auto animate-pulse motion-reduce:animate-none"
                       >
                         {claimingMs === ms.score ? '...' : tsr('claim')}
                       </Button>
                     )}
                     {effectiveState === 'locked' && (
-                      <Lock className="w-3 h-3 text-white/20" />
+                      <Lock className="size-3 text-white/20" />
                     )}
                   </div>
                 </div>
@@ -211,12 +211,12 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
         >
           {expanded ? (
             <>
-              <ChevronUp className="w-3 h-3" />
+              <ChevronUp className="size-3" />
               Weniger
             </>
           ) : (
             <>
-              <ChevronDown className="w-3 h-3" />
+              <ChevronDown className="size-3" />
               Alle {SCORE_ROAD.length} Meilensteine
             </>
           )}

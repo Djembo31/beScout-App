@@ -43,31 +43,31 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
   const tasks: TaskDef[] = useMemo(() => [
     {
       key: 'buyDpc',
-      icon: <Zap className="w-4 h-4 text-gold" />,
+      icon: <Zap className="size-4 text-gold" />,
       href: '/market?tab=kaufen',
       completed: holdings.length > 0,
     },
     {
       key: 'joinFantasy',
-      icon: <Trophy className="w-4 h-4 text-purple-400" />,
+      icon: <Trophy className="size-4 text-purple-400" />,
       href: '/fantasy',
       completed: joinedEventIds.length > 0,
     },
     {
       key: 'followScout',
-      icon: <UserPlus className="w-4 h-4 text-sky-400" />,
+      icon: <UserPlus className="size-4 text-sky-400" />,
       href: '/community',
       completed: followingCount > 0,
     },
     {
       key: 'createPost',
-      icon: <MessageCircle className="w-4 h-4 text-emerald-400" />,
+      icon: <MessageCircle className="size-4 text-emerald-400" />,
       href: '/community',
       completed: userPosts.length > 0,
     },
     {
       key: 'makePrediction',
-      icon: <Target className="w-4 h-4 text-amber-400" />,
+      icon: <Target className="size-4 text-amber-400" />,
       href: '/fantasy',
       completed: hasPrediction,
     },
@@ -91,21 +91,21 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
   return (
     <>
       <Confetti active={showConfetti} />
-      <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-r from-gold/[0.06] via-purple-500/[0.03] to-green-500/[0.03]">
+      <div className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gold/[0.04]">
         {/* Dismiss button */}
         <button
           onClick={() => { localStorage.setItem(DISMISSED_KEY, '1'); setDismissed(true); }}
-          className="absolute top-2 right-2 p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 active:scale-90 transition-all z-10"
+          className="absolute top-2 right-2 p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 active:scale-90 transition-colors z-10"
           aria-label={tc('close')}
         >
-          <X className="w-4 h-4" />
+          <X className="size-4" />
         </button>
 
         <div className="p-4">
           {/* Header */}
           <div className="flex items-center gap-2 mb-1">
-            <Rocket className="w-5 h-5 text-gold" />
-            <span className="text-sm font-black text-gold uppercase tracking-wide">{t('title')}</span>
+            <Rocket className="size-5 text-gold" />
+            <span className="text-sm font-black text-gold uppercase ">{t('title')}</span>
           </div>
           <p className="text-xs text-white/50 mb-3">
             {t('subtitle', { completed: completedCount, total: tasks.length })}
@@ -114,7 +114,7 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
           {/* Progress bar */}
           <div className="h-1.5 rounded-full bg-white/[0.06] mb-4 overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-gold to-green-500 transition-all duration-500"
+              className="h-full rounded-full bg-gold transition-[width] duration-500"
               style={{ width: `${(completedCount / tasks.length) * 100}%` }}
             />
           </div>
@@ -125,7 +125,7 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
               if (task.completed) {
                 return (
                   <div key={task.key} className="flex items-center gap-3 px-2 py-2 rounded-xl opacity-50">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                    <CheckCircle2 className="size-5 text-green-500 shrink-0" />
                     <span className="flex items-center gap-2 text-sm">
                       {task.icon}
                       <span className="line-through">{t(task.key)}</span>
@@ -139,12 +139,12 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
                   href={task.href}
                   className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/[0.04] active:bg-white/[0.06] transition-colors group"
                 >
-                  <Circle className="w-5 h-5 text-white/20 shrink-0" />
+                  <Circle className="size-5 text-white/20 shrink-0" />
                   <span className="flex items-center gap-2 flex-1 min-w-0">
                     {task.icon}
                     <span className="text-sm font-medium">{t(task.key)}</span>
                   </span>
-                  <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-white/40 shrink-0 transition-colors" />
+                  <ChevronRight className="size-4 text-white/20 group-hover:text-white/40 shrink-0 transition-colors" />
                 </Link>
               );
             })}

@@ -2,6 +2,7 @@
 
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { X, AlertCircle, CheckCircle2, Info, Sparkles } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Confetti } from '@/components/ui/Confetti';
 
 type ToastType = 'error' | 'success' | 'info' | 'celebration';
@@ -28,14 +29,14 @@ const TOAST_STYLES: Record<ToastType, { bg: string; border: string }> = {
   error: { bg: 'bg-red-950/90', border: 'border-red-500/30' },
   success: { bg: 'bg-emerald-950/90', border: 'border-emerald-500/30' },
   info: { bg: 'bg-bg-main/90', border: 'border-gold/30' },
-  celebration: { bg: 'bg-gradient-to-r from-gold/20 via-orange-500/15 to-gold/20', border: 'border-gold/40' },
+  celebration: { bg: 'bg-gold/[0.12]', border: 'border-gold/40' },
 };
 
 const TOAST_ICONS: Record<ToastType, React.ReactNode> = {
-  error: <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />,
-  success: <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />,
-  info: <Info className="w-4 h-4 text-gold flex-shrink-0" />,
-  celebration: <Sparkles className="w-4 h-4 text-gold flex-shrink-0" />,
+  error: <AlertCircle className="size-4 text-red-400 flex-shrink-0" />,
+  success: <CheckCircle2 className="size-4 text-emerald-400 flex-shrink-0" />,
+  info: <Info className="size-4 text-gold flex-shrink-0" />,
+  celebration: <Sparkles className="size-4 text-gold flex-shrink-0" />,
 };
 
 let nextId = 0;
@@ -74,15 +75,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           return (
             <div
               key={toast.id}
-              className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl ${s.bg} border ${s.border} backdrop-blur-xl shadow-lg max-w-sm ${isCelebration ? 'anim-scale-pop' : 'animate-in slide-in-from-right'}`}
+              className={cn('pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border backdrop-blur-xl shadow-lg max-w-sm', s.bg, s.border, isCelebration ? 'anim-scale-pop' : 'animate-in slide-in-from-right')}
             >
               {TOAST_ICONS[toast.type]}
-              <span className={`text-sm flex-1 ${isCelebration ? 'text-gold font-bold' : 'text-white/90'}`}>{toast.message}</span>
+              <span className={cn('text-sm flex-1', isCelebration ? 'text-gold font-bold' : 'text-white/90')}>{toast.message}</span>
               <button
                 onClick={() => removeToast(toast.id)}
                 className="p-1 rounded-lg hover:bg-white/10 transition-colors flex-shrink-0"
               >
-                <X className="w-3.5 h-3.5 text-white/50" />
+                <X className="size-3.5 text-white/50" />
               </button>
             </div>
           );

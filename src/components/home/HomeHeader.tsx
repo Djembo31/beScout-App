@@ -38,7 +38,7 @@ export default function HomeHeader({
       <div className="flex items-center justify-between">
         <div className="relative">
           <div className="absolute -inset-6 bg-gold/[0.10] rounded-full blur-2xl -z-10" />
-          <div className="text-xs text-white/40 tracking-wide">{t(getGreetingKey())},</div>
+          <div className="text-xs text-white/40">{t(getGreetingKey())},</div>
           <h1 className="text-2xl md:text-3xl font-black tracking-tight" suppressHydrationWarning>
             {loading ? '...' : firstName}
             <span className="text-gold">.</span>
@@ -48,7 +48,7 @@ export default function HomeHeader({
           {userStats?.tier && <TierBadge tier={userStats.tier} size="md" />}
           {streak >= 2 && (
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-400/20 anim-fade">
-              <Flame className="w-4 h-4 text-orange-400" />
+              <Flame className="size-4 text-orange-400" />
               <span className="text-sm font-black text-orange-300">{streak}</span>
               <span className="text-[10px] text-orange-400/60 hidden sm:inline">{t('streakDays')}</span>
             </div>
@@ -58,7 +58,7 @@ export default function HomeHeader({
               className="flex items-center gap-1 px-2 py-1.5 rounded-xl bg-sky-500/10 border border-sky-400/20 anim-fade"
               title={tg('streak.shieldHint')}
             >
-              <Shield className="w-3.5 h-3.5 text-sky-400" />
+              <Shield className="size-3.5 text-sky-400" />
               <span className="text-xs font-black text-sky-300">{shieldsRemaining}</span>
             </div>
           )}
@@ -69,7 +69,7 @@ export default function HomeHeader({
       <div data-tour-id="home-stats" className="grid grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2 md:gap-3">
         <div className="bg-gradient-to-br from-gold/[0.10] to-transparent border border-gold/[0.15] shadow-card-sm rounded-xl p-3 md:p-4 border-l-3 border-l-gold">
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">{t('portfolioRoster')}</span>
+            <span className="text-[10px] text-white/50 uppercase font-semibold">{t('portfolioRoster')}</span>
             <InfoTooltip text={t('portfolioRosterTooltip')} />
           </div>
           <div className="font-mono font-black text-base md:text-xl text-white truncate">{fmtScout(portfolioValue)}</div>
@@ -82,7 +82,7 @@ export default function HomeHeader({
             : 'from-vivid-red/[0.10] to-transparent border-vivid-red/[0.15] border-l-vivid-red'
         )}>
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">{t('pnl')}</span>
+            <span className="text-[10px] text-white/50 uppercase font-semibold">{t('pnl')}</span>
             <InfoTooltip text={t('pnlTooltip')} />
           </div>
           <div className={cn('font-mono font-black text-base md:text-xl truncate', pnl >= 0 ? 'text-vivid-green' : 'text-vivid-red')}>
@@ -94,11 +94,11 @@ export default function HomeHeader({
         </div>
         <div className="bg-gradient-to-br from-gold/[0.08] to-transparent border border-gold/[0.12] shadow-card-sm rounded-xl p-3 md:p-4 border-l-3 border-l-gold">
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">{tc('balance')}</span>
+            <span className="text-[10px] text-white/50 uppercase font-semibold">{tc('balance')}</span>
             <InfoTooltip text={t('balanceTooltip')} />
           </div>
           {balanceCents === null ? (
-            <div className="h-6 md:h-7 w-20 rounded bg-gold/10 animate-pulse mt-1" />
+            <div className="h-6 md:h-7 w-20 rounded bg-gold/10 animate-pulse motion-reduce:animate-none mt-1" />
           ) : (
             <div className="font-mono font-black text-base md:text-xl text-gold truncate" style={{ textShadow: '0 0 12px rgba(255,215,0,0.4)' }}>{fmtScout(centsToBsd(balanceCents))}</div>
           )}
@@ -106,12 +106,12 @@ export default function HomeHeader({
         </div>
         <div className="bg-gradient-to-br from-purple-500/[0.10] to-transparent border border-purple-400/[0.15] shadow-card-sm rounded-xl p-3 md:p-4 border-l-3 border-l-purple-400">
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">{t('bescoutScore')}</span>
+            <span className="text-[10px] text-white/50 uppercase font-semibold">{t('bescoutScore')}</span>
             <InfoTooltip text={t('bescoutScoreTooltip')} />
           </div>
           {scoutScores ? (
             <>
-              <div className={`font-black text-base md:text-xl ${getGesamtRang(scoutScores).color}`}>
+              <div className={cn('font-black text-base md:text-xl', getGesamtRang(scoutScores).color)}>
                 {tg(`rang.${getGesamtRang(scoutScores).i18nKey}`)}
               </div>
               <div className="flex gap-2 mt-1">

@@ -6,7 +6,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 
 function ContentSkeleton() {
   return (
-    <div className="space-y-6 animate-pulse">
+    <div className="space-y-6 animate-pulse motion-reduce:animate-none">
       <div className="flex items-center justify-between">
         <div className="h-8 w-48 bg-white/[0.04] rounded-lg" />
         <div className="h-8 w-24 bg-white/[0.04] rounded-lg" />

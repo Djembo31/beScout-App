@@ -47,8 +47,8 @@ export function InstallPrompt() {
   return (
     <div className="fixed bottom-20 left-4 right-4 lg:bottom-4 lg:left-auto lg:right-4 lg:w-[340px] z-[85] animate-in slide-in-from-bottom-4">
       <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-[#111] border border-white/15 shadow-2xl backdrop-blur-xl">
-        <div className="w-10 h-10 rounded-xl bg-gold/15 border border-gold/25 flex items-center justify-center shrink-0">
-          <Download className="w-5 h-5 text-gold" />
+        <div className="size-10 rounded-xl bg-gold/15 border border-gold/25 flex items-center justify-center shrink-0">
+          <Download className="size-5 text-gold" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-sm font-bold">App installieren</div>
@@ -65,7 +65,7 @@ export function InstallPrompt() {
           className="p-1.5 rounded-lg hover:bg-white/10 transition-colors shrink-0"
           aria-label="Schließen"
         >
-          <X className="w-4 h-4 text-white/40" />
+          <X className="size-4 text-white/40" />
         </button>
       </div>
     </div>

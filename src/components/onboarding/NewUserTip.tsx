@@ -42,18 +42,18 @@ export default function NewUserTip({ tipKey, icon, title, description, action, s
     <Card className="relative p-4 border-gold/20 bg-gold/[0.03]">
       <button
         onClick={handleDismiss}
-        className="absolute top-2 right-2 p-1.5 rounded-lg text-white/30 hover:text-white/60 hover:bg-white/5 transition-all"
+        className="absolute top-2 right-2 p-1.5 rounded-lg text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors"
         aria-label={t('dismiss')}
       >
-        <X className="w-3.5 h-3.5" />
+        <X className="size-3.5" />
       </button>
       <div className="flex items-start gap-3 pr-6">
-        <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gold/10 text-gold flex-shrink-0 mt-0.5">
+        <div className="flex items-center justify-center size-9 rounded-xl bg-gold/10 text-gold flex-shrink-0 mt-0.5">
           {icon}
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 mb-0.5">
-            <Sparkles className="w-3 h-3 text-gold" />
+            <Sparkles className="size-3 text-gold" />
             <span className="text-sm font-bold">{title}</span>
           </div>
           <div className="text-xs text-white/50 leading-relaxed">{description}</div>

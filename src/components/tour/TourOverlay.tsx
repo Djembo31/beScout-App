@@ -170,7 +170,7 @@ export function TourOverlay() {
                   className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
                   aria-label="Zurück"
                 >
-                  <ChevronLeft className="w-4 h-4 text-white/50" />
+                  <ChevronLeft className="size-4 text-white/50" />
                 </button>
               )}
 
@@ -183,7 +183,7 @@ export function TourOverlay() {
                 className="px-3.5 py-1.5 rounded-xl bg-gold text-black text-xs font-bold hover:bg-gold/90 transition-colors"
               >
                 {isLast ? 'Fertig' : 'Weiter'}
-                {!isLast && <ChevronRight className="w-3.5 h-3.5 inline ml-0.5 -mr-0.5" />}
+                {!isLast && <ChevronRight className="size-3.5 inline ml-0.5 -mr-0.5" />}
               </button>
             </div>
           </div>
@@ -213,7 +213,7 @@ export function TourOverlay() {
                     className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
                     aria-label="Zurück"
                   >
-                    <ChevronLeft className="w-4 h-4 text-white/50" />
+                    <ChevronLeft className="size-4 text-white/50" />
                   </button>
                 )}
                 <span className="text-[10px] text-white/30 font-mono min-w-[40px] text-center">
@@ -224,7 +224,7 @@ export function TourOverlay() {
                   className="px-3.5 py-1.5 rounded-xl bg-gold text-black text-xs font-bold hover:bg-gold/90 transition-colors"
                 >
                   {isLast ? 'Fertig' : 'Weiter'}
-                  {!isLast && <ChevronRight className="w-3.5 h-3.5 inline ml-0.5 -mr-0.5" />}
+                  {!isLast && <ChevronRight className="size-3.5 inline ml-0.5 -mr-0.5" />}
                 </button>
               </div>
             </div>

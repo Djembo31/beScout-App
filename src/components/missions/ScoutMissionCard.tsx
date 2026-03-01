@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Search, CheckCircle2, Gift, Lock, Crosshair } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Card, Button } from '@/components/ui';
 import { TierBadge } from '@/components/ui/TierBadge';
 import { fmtScout } from '@/lib/utils';
@@ -28,14 +29,14 @@ export default function ScoutMissionCard({ mission, progress, userTier, onSubmit
   const criteriaItems = buildCriteriaLabels(mission.criteria);
 
   return (
-    <Card className={`p-4 relative overflow-hidden ${isClaimed ? 'opacity-60' : ''}`}>
+    <Card className={cn('p-4 relative overflow-hidden', isClaimed && 'opacity-60')}>
       {/* Difficulty badge */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Crosshair className="w-4 h-4 text-sky-400" />
+          <Crosshair className="size-4 text-sky-400" />
           <span className="font-bold text-sm">{mission.title}</span>
         </div>
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${diff.bg} ${diff.color} ${diff.border} border`}>
+        <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full border', diff.bg, diff.color, diff.border)}>
           {diff.label}
         </span>
       </div>
@@ -54,7 +55,7 @@ export default function ScoutMissionCard({ mission, progress, userTier, onSubmit
       {/* Reward + Action */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Gift className="w-4 h-4 text-gold" />
+          <Gift className="size-4 text-gold" />
           <span className="font-mono font-bold text-sm text-gold">{fmtScout(mission.rewardCents / 100)} $SCOUT</span>
           {mission.minTier && (
             <TierBadge tier={mission.minTier as FanTier} size="sm" />
@@ -63,12 +64,12 @@ export default function ScoutMissionCard({ mission, progress, userTier, onSubmit
 
         {tierLocked ? (
           <div className="flex items-center gap-1 text-xs text-white/30">
-            <Lock className="w-3 h-3" />
+            <Lock className="size-3" />
             <span>{mission.minTier} nötig</span>
           </div>
         ) : isClaimed ? (
           <div className="flex items-center gap-1 text-xs text-green-500">
-            <CheckCircle2 className="w-3.5 h-3.5" />
+            <CheckCircle2 className="size-3.5" />
             <span>Abgeschlossen</span>
           </div>
         ) : isCompleted ? (
@@ -77,7 +78,7 @@ export default function ScoutMissionCard({ mission, progress, userTier, onSubmit
             onClick={() => onClaim(mission.id)}
             disabled={claiming}
           >
-            <Gift className="w-3 h-3" /> Belohnung abholen
+            <Gift className="size-3" /> Belohnung abholen
           </Button>
         ) : (
           <Button
@@ -85,7 +86,7 @@ export default function ScoutMissionCard({ mission, progress, userTier, onSubmit
             size="sm"
             onClick={() => onSubmit(mission.id)}
           >
-            <Search className="w-3 h-3" /> Spieler einreichen
+            <Search className="size-3" /> Spieler einreichen
           </Button>
         )}
       </div>
