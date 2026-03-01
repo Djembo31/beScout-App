@@ -177,14 +177,14 @@ function SettingsTab() {
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
               ) : (
-                <User className="size-8 text-white/70" />
+                <User className="size-8 text-white/70" aria-hidden="true" />
               )}
             </div>
-            <label className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+            <label aria-label="Avatar hochladen" className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
               {uploadingAvatar ? (
                 <Loader2 className="size-5 text-white animate-spin motion-reduce:animate-none" />
               ) : (
-                <Camera className="size-5 text-white" />
+                <Camera className="size-5 text-white" aria-hidden="true" />
               )}
               <input type="file" accept="image/png,image/jpeg" onChange={handleAvatarUpload} className="hidden" />
             </label>
@@ -197,10 +197,11 @@ function SettingsTab() {
 
         {/* Handle */}
         <div className="mb-4">
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('handleLabel')}</label>
+          <label htmlFor="settings-handle" className="text-xs text-white/50 font-semibold mb-1.5 block">{t('handleLabel')}</label>
           <div className="relative">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30 text-sm">@</span>
             <input
+              id="settings-handle"
               type="text"
               value={handle}
               onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20))}
@@ -227,8 +228,9 @@ function SettingsTab() {
 
         {/* Display Name */}
         <div className="mb-4">
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('displayNameLabel')}</label>
+          <label htmlFor="settings-displayname" className="text-xs text-white/50 font-semibold mb-1.5 block">{t('displayNameLabel')}</label>
           <input
+            id="settings-displayname"
             type="text"
             value={displayNameVal}
             onChange={(e) => setDisplayNameVal(e.target.value.slice(0, 50))}
@@ -239,13 +241,14 @@ function SettingsTab() {
 
         {/* Bio */}
         <div className="mb-4">
-          <label className="text-xs text-white/50 font-semibold mb-1.5 flex items-center justify-between">
+          <label htmlFor="settings-bio" className="text-xs text-white/50 font-semibold mb-1.5 flex items-center justify-between">
             <span>{t('bioLabel')}</span>
             <span className={cn('font-mono tabular-nums', bio.length > 140 ? 'text-amber-400' : 'text-white/30')}>
               {bio.length}/160
             </span>
           </label>
           <textarea
+            id="settings-bio"
             value={bio}
             onChange={(e) => setBio(e.target.value.slice(0, 160))}
             rows={3}
@@ -256,8 +259,9 @@ function SettingsTab() {
 
         {/* Favorite Club */}
         <div className="mb-6">
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('favoriteClubLabel')}</label>
+          <label htmlFor="settings-club" className="text-xs text-white/50 font-semibold mb-1.5 block">{t('favoriteClubLabel')}</label>
           <select
+            id="settings-club"
             value={favoriteClub}
             onChange={(e) => setFavoriteClub(e.target.value)}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-gold/40 transition-colors"
@@ -270,11 +274,11 @@ function SettingsTab() {
         </div>
 
         {profileMsg && (
-          <div className={cn(
+          <div role="alert" className={cn(
             'flex items-center gap-2 p-3 mb-4 rounded-xl border text-sm',
             profileMsg.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-400/20 text-red-200'
           )}>
-            {profileMsg.type === 'success' ? <Check className="size-4 shrink-0" /> : <X className="size-4 shrink-0" />}
+            {profileMsg.type === 'success' ? <Check className="size-4 shrink-0" aria-hidden="true" /> : <X className="size-4 shrink-0" aria-hidden="true" />}
             {profileMsg.text}
           </div>
         )}
@@ -289,8 +293,9 @@ function SettingsTab() {
         <h3 className="font-black text-lg text-balance mb-5">{t('account')}</h3>
 
         <div className="mb-4">
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('emailLabel')}</label>
+          <label htmlFor="settings-email" className="text-xs text-white/50 font-semibold mb-1.5 block">{t('emailLabel')}</label>
           <input
+            id="settings-email"
             type="email"
             value={user?.email ?? ''}
             readOnly
@@ -300,11 +305,12 @@ function SettingsTab() {
         </div>
 
         <div className="mb-6">
-          <label className="text-xs text-white/50 font-semibold mb-1.5 flex items-center gap-1.5">
-            <Globe className="size-3.5" />
+          <label htmlFor="settings-language" className="text-xs text-white/50 font-semibold mb-1.5 flex items-center gap-1.5">
+            <Globe className="size-3.5" aria-hidden="true" />
             {t('languageLabel')}
           </label>
           <select
+            id="settings-language"
             value={language}
             onChange={(e) => setLanguage(e.target.value as 'de' | 'tr' | 'en')}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white appearance-none focus:outline-none focus:border-gold/40 transition-colors"
@@ -316,11 +322,11 @@ function SettingsTab() {
         </div>
 
         {accountMsg && (
-          <div className={cn(
+          <div role="alert" className={cn(
             'flex items-center gap-2 p-3 mb-4 rounded-xl border text-sm',
             accountMsg.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-500' : 'bg-red-500/10 border-red-400/20 text-red-200'
           )}>
-            {accountMsg.type === 'success' ? <Check className="size-4 shrink-0" /> : <X className="size-4 shrink-0" />}
+            {accountMsg.type === 'success' ? <Check className="size-4 shrink-0" aria-hidden="true" /> : <X className="size-4 shrink-0" aria-hidden="true" />}
             {accountMsg.text}
           </div>
         )}
@@ -333,7 +339,7 @@ function SettingsTab() {
       {/* Notification Preferences */}
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-1">
-          <Bell className="size-4 text-gold" />
+          <Bell className="size-4 text-gold" aria-hidden="true" />
           <h3 className="font-black text-lg text-balance">{t('notificationPrefs')}</h3>
         </div>
         <p className="text-xs text-white/40 text-pretty mb-5">{t('notificationPrefsDesc')}</p>
@@ -357,9 +363,11 @@ function SettingsTab() {
                 <button
                   key={key}
                   onClick={() => toggleNotifPref(key)}
+                  role="switch"
+                  aria-checked={notifPrefs[key]}
                   className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/[0.04] transition-colors min-h-[44px]"
                 >
-                  <div className="size-8 rounded-lg bg-white/5 flex items-center justify-center text-white/60 shrink-0">
+                  <div className="size-8 rounded-lg bg-white/5 flex items-center justify-center text-white/60 shrink-0" aria-hidden="true">
                     {icons[key]}
                   </div>
                   <div className="flex-1 text-left min-w-0">
@@ -367,6 +375,7 @@ function SettingsTab() {
                     <div className="text-xs text-white/40 line-clamp-1">{t(`notifCat_${key}_desc` as any)}</div>
                   </div>
                   <div
+                    aria-hidden="true"
                     className={cn(
                       'w-11 h-6 rounded-full relative transition-colors shrink-0',
                       notifPrefs[key] ? 'bg-gold' : 'bg-white/10'
@@ -393,7 +402,7 @@ function SettingsTab() {
           {t('deleteWarning')}
         </p>
         <Button variant="danger" onClick={() => setShowDeleteModal(true)}>
-          <AlertTriangle className="size-4" />
+          <AlertTriangle className="size-4" aria-hidden="true" />
           {t('deleteAccount')}
         </Button>
       </Card>
@@ -421,7 +430,7 @@ export default function ProfilePage() {
     return (
       <div className="max-w-[1400px] mx-auto space-y-6">
         {/* Hero skeleton */}
-        <div className="animate-pulse bg-white/[0.02] border border-white/10 rounded-2xl h-48 relative">
+        <div className="animate-pulse motion-reduce:animate-none bg-white/[0.02] border border-white/10 rounded-2xl h-48 relative">
           <div className="absolute bottom-4 left-4 flex items-end gap-4">
             <Skeleton className="size-20 rounded-2xl" />
             <div className="space-y-2">

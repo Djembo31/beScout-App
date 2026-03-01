@@ -102,7 +102,7 @@ export default function ProfilePortfolioTab({ holdings }: ProfilePortfolioTabPro
           <div className="text-right">
             <div className="text-xs text-white/40 mb-1">Wertentwicklung</div>
             <div className={cn('text-lg font-mono font-bold flex items-center gap-1 justify-end', pnlCents >= 0 ? 'text-vivid-green' : 'text-vivid-red')}>
-              {pnlCents >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+              {pnlCents >= 0 ? <TrendingUp className="size-4" aria-hidden="true" /> : <TrendingDown className="size-4" aria-hidden="true" />}
               {pnlCents >= 0 ? '+' : ''}{formatScout(pnlCents)} $SCOUT
             </div>
           </div>
@@ -118,9 +118,10 @@ export default function ProfilePortfolioTab({ holdings }: ProfilePortfolioTabPro
             <button
               key={opt.id}
               onClick={() => setSortBy(opt.id)}
-              className={`text-xs px-2.5 py-1 rounded-lg transition-colors ${
+              className={cn(
+                'text-xs px-2.5 py-1 rounded-lg transition-colors',
                 sortBy === opt.id ? 'bg-gold/10 text-gold' : 'bg-white/5 text-white/40'
-              }`}
+              )}
             >
               {opt.label}
             </button>

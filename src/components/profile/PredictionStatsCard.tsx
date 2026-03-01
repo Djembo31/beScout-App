@@ -23,11 +23,11 @@ export default function PredictionStatsCard({ userId }: PredictionStatsCardProps
     <Card className="p-4 md:p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-black flex items-center gap-2">
-          <Target className="w-4 h-4 text-purple-400" />
+          <Target className="size-4 text-purple-400" aria-hidden="true" />
           {t('statsTitle')}
         </h3>
         <Link href="/fantasy" className="text-xs text-white/40 hover:text-white/60 flex items-center gap-1">
-          {t('viewAll')} <ChevronRight className="w-3 h-3" />
+          {t('viewAll')} <ChevronRight className="size-3" aria-hidden="true" />
         </Link>
       </div>
 
@@ -46,7 +46,7 @@ export default function PredictionStatsCard({ userId }: PredictionStatsCardProps
         {/* Correct */}
         <div className="text-center p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
           <p className="text-lg font-mono font-black text-green-500 flex items-center justify-center gap-1">
-            <CheckCircle className="w-3.5 h-3.5" /> {stats.correct}
+            <CheckCircle className="size-3.5" aria-hidden="true" /> {stats.correct}
           </p>
           <p className="text-[10px] text-white/40 mt-0.5">{t('correct')}</p>
         </div>
@@ -54,7 +54,7 @@ export default function PredictionStatsCard({ userId }: PredictionStatsCardProps
         {/* Wrong */}
         <div className="text-center p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
           <p className="text-lg font-mono font-black text-red-400 flex items-center justify-center gap-1">
-            <XCircle className="w-3.5 h-3.5" /> {stats.wrong}
+            <XCircle className="size-3.5" aria-hidden="true" /> {stats.wrong}
           </p>
           <p className="text-[10px] text-white/40 mt-0.5">{t('wrong')}</p>
         </div>
@@ -62,7 +62,7 @@ export default function PredictionStatsCard({ userId }: PredictionStatsCardProps
         {/* Streak */}
         <div className="text-center p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
           <p className="text-lg font-mono font-black text-gold flex items-center justify-center gap-1">
-            <Flame className="w-3.5 h-3.5" /> {stats.bestStreak}
+            <Flame className="size-3.5" aria-hidden="true" /> {stats.bestStreak}
           </p>
           <p className="text-[10px] text-white/40 mt-0.5">{t('bestStreak')}</p>
         </div>

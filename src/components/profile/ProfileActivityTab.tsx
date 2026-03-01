@@ -19,7 +19,7 @@ const ICON_MAP: Record<string, React.ElementType> = { CircleDollarSign, Trophy, 
 function renderActivityIcon(type: string) {
   const iconName = getActivityIcon(type);
   const Icon = ICON_MAP[iconName] ?? Activity;
-  return <Icon className="w-4 h-4" />;
+  return <Icon className="size-4" aria-hidden="true" />;
 }
 
 // ============================================
@@ -62,7 +62,7 @@ export default function ProfileActivityTab({ transactions: initial, userId, isSe
       <h3 className="font-black mb-4">Letzte Aktivität</h3>
       {transactions.length === 0 ? (
         <div className="text-center py-10">
-          <Activity className="w-10 h-10 mx-auto mb-3 text-white/20" />
+          <Activity className="size-10 mx-auto mb-3 text-white/20" aria-hidden="true" />
           <div className="text-white/40 font-semibold text-sm mb-1">
             {isSelf ? t('activityEmptyTitle') : t('activityEmptyOther')}
           </div>
@@ -86,7 +86,7 @@ export default function ProfileActivityTab({ transactions: initial, userId, isSe
                   className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors"
                 >
                   <div className={cn(
-                    'flex items-center justify-center w-8 h-8 rounded-lg shrink-0 mt-0.5',
+                    'flex items-center justify-center size-8 rounded-lg shrink-0 mt-0.5',
                     getActivityColor(tx.type)
                   )}>
                     {renderActivityIcon(tx.type)}

@@ -79,7 +79,7 @@ export default function PublicProfilePage() {
         <div className="text-white/50 mb-4">Profil @{handle} nicht gefunden.</div>
         <button
           onClick={() => router.push('/profile')}
-          className="text-gold hover:underline text-sm"
+          className="text-gold hover:underline text-sm min-h-[44px]"
         >
           Zurück zum eigenen Profil
         </button>

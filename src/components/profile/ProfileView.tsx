@@ -240,7 +240,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
       {/* Header â€” Sorare-Style */}
       <div className="flex items-start gap-4 md:gap-5">
         {/* Avatar â€” 96px */}
-        <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gold/[0.12] border-2 border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+        <div className="size-20 md:size-24 rounded-2xl bg-gold/[0.12] border-2 border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
           {targetProfile.avatar_url ? (
             <img src={targetProfile.avatar_url} alt="" className="w-full h-full object-cover" />
           ) : (
@@ -250,7 +250,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-xl md:text-3xl font-black truncate">{name}</h1>
-            {targetProfile.verified && <BadgeCheck className="w-5 h-5 md:w-6 md:h-6 text-gold flex-shrink-0" />}
+            {targetProfile.verified && <BadgeCheck className="size-5 md:size-6 text-gold flex-shrink-0" aria-hidden="true" />}
             <Chip className="bg-gold/15 text-gold border-gold/25">{userPlan}</Chip>
           </div>
           <div className="text-sm md:text-base text-white/50">{userHandle}</div>
@@ -275,10 +275,10 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             <div className="mt-2 max-w-lg">
               <div className="px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06]">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <MessageCircle className="w-3 h-3 text-sky-400" />
+                  <MessageCircle className="size-3 text-sky-400" aria-hidden="true" />
                   <span className="text-[10px] font-bold uppercase text-sky-400">Top Beitrag</span>
                   <span className="flex items-center gap-0.5 ml-auto text-[10px] font-mono font-bold text-green-500">
-                    <ArrowUp className="w-3 h-3" />
+                    <ArrowUp className="size-3" aria-hidden="true" />
                     {topPost.upvotes - topPost.downvotes}
                   </span>
                 </div>
@@ -298,7 +298,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               onClick={() => setFollowListMode('followers')}
               className="text-white/50 hover:text-white/80 transition-colors flex items-center gap-1"
             >
-              <Users className="w-3 h-3" />
+              <Users className="size-3" aria-hidden="true" />
               <strong>{followerCount}</strong> Follower
             </button>
             <button
@@ -319,7 +319,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
 
             {/* Mitglied seit */}
             <span className="text-white/30 flex items-center gap-1">
-              <Calendar className="w-3 h-3" />
+              <Calendar className="size-3" aria-hidden="true" />
               Mitglied seit {new Date(targetProfile.created_at).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' })}
             </span>
           </div>
@@ -334,24 +334,24 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           {scoutingStats && scoutingStats.reportCount > 0 && (
             <div className="mt-2 flex items-center gap-3 flex-wrap text-xs text-white/50">
               <span className="inline-flex items-center gap-1">
-                <FileText className="w-3.5 h-3.5 text-white/40" />
+                <FileText className="size-3.5 text-white/40" aria-hidden="true" />
                 <span className="font-mono font-bold text-white/70">{scoutingStats.reportCount}</span> Berichte
               </span>
               {scoutingStats.totalCalls >= 5 && (
                 <span className={cn('inline-flex items-center gap-1', scoutingStats.hitRate >= 60 ? 'text-gold' : '')}>
-                  <TargetIcon className="w-3.5 h-3.5" />
+                  <TargetIcon className="size-3.5" aria-hidden="true" />
                   <span className="font-mono font-bold">{scoutingStats.hitRate}%</span> Hit-Rate
                 </span>
               )}
               {scoutingStats.avgRating > 0 && (
                 <span className="inline-flex items-center gap-1 text-amber-400">
-                  <Star className="w-3.5 h-3.5" />
+                  <Star className="size-3.5" aria-hidden="true" />
                   <span className="font-mono font-bold">{scoutingStats.avgRating.toFixed(1)}</span>
                 </span>
               )}
               {scoutingStats.approvedBounties > 0 && (
                 <span className="inline-flex items-center gap-1 text-green-500">
-                  <CheckCircle className="w-3.5 h-3.5" />
+                  <CheckCircle className="size-3.5" aria-hidden="true" />
                   <span className="font-mono font-bold">{scoutingStats.approvedBounties}</span> genehmigt
                 </span>
               )}
@@ -361,7 +361,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           <div className="flex items-center gap-2 mt-2 md:mt-3">
             {isSelf && (
               <Button variant="outline" size="sm" onClick={() => setTab('settings')}>
-                <Settings className="w-3.5 h-3.5" />
+                <Settings className="size-3.5" aria-hidden="true" />
                 <span className="hidden sm:inline">Profil</span> bearbeiten
               </Button>
             )}
@@ -389,7 +389,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                 }
               }}
             >
-              <Share2 className="w-3.5 h-3.5" />
+              <Share2 className="size-3.5" aria-hidden="true" />
               Teilen
             </Button>
           </div>
@@ -413,9 +413,10 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`px-2.5 md:px-5 py-2.5 md:py-3 text-xs md:text-base font-semibold transition-colors relative whitespace-nowrap flex-shrink-0 ${
+            className={cn(
+              'px-2.5 md:px-5 py-2.5 md:py-3 text-xs md:text-base font-semibold transition-colors relative whitespace-nowrap flex-shrink-0',
               tab === t.id ? 'text-gold' : 'text-white/60 hover:text-white'
-            }`}
+            )}
           >
             {tp(t.id)}
             {tab === t.id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold" />}
@@ -453,9 +454,9 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                   onClick={handleRefreshStats}
                   disabled={statsRefreshing}
                   className="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-white/40 hover:text-white/70"
-                  title="Aktualisieren"
+                  aria-label="Aktualisieren"
                 >
-                  <RefreshCw className={cn('w-4 h-4', statsRefreshing && 'animate-spin motion-reduce:animate-none')} />
+                  <RefreshCw className={cn('size-4', statsRefreshing && 'animate-spin motion-reduce:animate-none')} aria-hidden="true" />
                 </button>
               )}
             </div>
@@ -513,12 +514,12 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                         )}
                       >
                         <div className={cn(
-                          'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0',
+                          'size-8 rounded-lg flex items-center justify-center flex-shrink-0',
                           badge.earned ? badge.bgColor : 'bg-white/5'
                         )}>
                           {badge.earned
-                            ? <IconComp className={cn('w-4 h-4', badge.color)} />
-                            : <Lock className="w-3.5 h-3.5 text-white/20" />}
+                            ? <IconComp className={cn('size-4', badge.color)} aria-hidden="true" />
+                            : <Lock className="size-3.5 text-white/20" aria-hidden="true" />}
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className={cn('text-xs font-bold', badge.earned ? badge.color : 'text-white/30')}>
@@ -553,7 +554,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
 
           {holdingsLoading && !dataError && (
             <div className="flex justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin motion-reduce:animate-none text-gold" />
+              <Loader2 className="size-8 animate-spin motion-reduce:animate-none text-gold" aria-hidden="true" />
             </div>
           )}
 

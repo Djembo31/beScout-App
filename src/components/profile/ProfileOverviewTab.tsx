@@ -119,7 +119,7 @@ export default function ProfileOverviewTab({
       {isSelf && holdings.length === 0 && !earnings && (
         <Card className="p-5 border-gold/20 bg-gold/[0.03]">
           <div className="flex items-start gap-3">
-            <Sparkles className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
+            <Sparkles className="size-5 text-gold flex-shrink-0 mt-0.5" aria-hidden="true" />
             <div>
               <div className="font-bold text-sm">{tp('overviewWelcomeTitle')}</div>
               <div className="text-xs text-white/50 mt-1">{tp('overviewWelcomeDesc')}</div>
@@ -133,12 +133,12 @@ export default function ProfileOverviewTab({
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Portfoliowert" value={`${formatScout(portfolioValueCents)} $SCOUT`} icon={<BarChart3 className="w-4 h-4 text-white/40" />} />
+        <StatCard label="Portfoliowert" value={`${formatScout(portfolioValueCents)} $SCOUT`} icon={<BarChart3 className="size-4 text-white/40" aria-hidden="true" />} />
         <StatCard
           label="Wertentwicklung"
           value={`${pnlCents >= 0 ? '+' : ''}${formatScout(pnlCents)} $SCOUT`}
           trend={pnlCents >= 0 ? 'up' : 'down'}
-          icon={pnlCents >= 0 ? <TrendingUp className="w-4 h-4 text-vivid-green" /> : <TrendingDown className="w-4 h-4 text-vivid-red" />}
+          icon={pnlCents >= 0 ? <TrendingUp className="size-4 text-vivid-green" aria-hidden="true" /> : <TrendingDown className="size-4 text-vivid-red" aria-hidden="true" />}
         />
         <StatCard label="Spieler" value={holdings.length} />
         <StatCard label="DPCs" value={totalDpcs} />
@@ -149,7 +149,7 @@ export default function ProfileOverviewTab({
         <Card className="p-4 md:p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-black flex items-center gap-2">
-              <Coins className="w-4 h-4 text-gold" />
+              <Coins className="size-4 text-gold" aria-hidden="true" />
               Verdienste
             </h3>
             <span className="text-sm font-mono font-bold text-green-500">+{fmtScout(centsToBsd(earnings.total))} $SCOUT</span>
@@ -162,7 +162,7 @@ export default function ProfileOverviewTab({
               return (
                 <div key={et.type} className="p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
                   <div className="flex items-center gap-2 mb-1.5">
-                    <Icon className={cn('w-3.5 h-3.5', et.color)} />
+                    <Icon className={cn('size-3.5', et.color)} aria-hidden="true" />
                     <span className="text-xs text-white/50">{et.label}</span>
                   </div>
                   <div className="text-sm font-mono font-bold text-white">+{fmtScout(centsToBsd(amount))} $SCOUT</div>
@@ -177,22 +177,22 @@ export default function ProfileOverviewTab({
       {trackRecord && trackRecord.totalCalls > 0 && (
         <Card className="p-4 md:p-6">
           <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="w-5 h-5 text-gold" />
+            <BarChart3 className="size-5 text-gold" aria-hidden="true" />
             <h3 className="font-black">Track Record</h3>
             <div className="flex-1" />
             {trackRecord.totalCalls >= 5 && trackRecord.hitRate >= 60 ? (
               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-gold/15 text-gold border border-gold/25">
-                <Shield className="w-3 h-3" />
+                <Shield className="size-3" aria-hidden="true" />
                 Verifizierter Scout
               </span>
             ) : trackRecord.totalCalls < 5 ? (
               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-white/5 text-white/40 border border-white/10">
-                <Shield className="w-3 h-3" />
+                <Shield className="size-3" aria-hidden="true" />
                 {trackRecord.totalCalls}/5 Calls
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-white/5 text-white/40 border border-white/10">
-                <Shield className="w-3 h-3" />
+                <Shield className="size-3" aria-hidden="true" />
                 {trackRecord.hitRate}%/60% Hit-Rate
               </span>
             )}
@@ -219,15 +219,15 @@ export default function ProfileOverviewTab({
               </div>
               <div className="flex items-center gap-3 mt-2 text-xs text-white/50">
                 <span className="flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3 text-green-500" />
+                  <CheckCircle className="size-3 text-green-500" aria-hidden="true" />
                   {trackRecord.correctCalls}
                 </span>
                 <span className="flex items-center gap-1">
-                  <XCircle className="w-3 h-3 text-red-400" />
+                  <XCircle className="size-3 text-red-400" aria-hidden="true" />
                   {trackRecord.incorrectCalls}
                 </span>
                 <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-white/30" />
+                  <Clock className="size-3 text-white/30" aria-hidden="true" />
                   {trackRecord.pendingCalls}
                 </span>
               </div>
@@ -246,7 +246,7 @@ export default function ProfileOverviewTab({
         return (
           <Card className="p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <CircleDollarSign className="w-5 h-5 text-green-500" />
+              <CircleDollarSign className="size-5 text-green-500" aria-hidden="true" />
               <h3 className="font-black">Research-Einnahmen</h3>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -414,10 +414,10 @@ export default function ProfileOverviewTab({
                 <Link key={trade.id} href={`/player/${trade.player_id}`}>
                   <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors">
                     <div className={cn(
-                      'flex items-center justify-center w-8 h-8 rounded-lg shrink-0',
+                      'flex items-center justify-center size-8 rounded-lg shrink-0',
                       isBuy ? 'text-gold bg-gold/10' : 'text-green-500 bg-green-500/10'
                     )}>
-                      {isBuy ? <ArrowDownRight className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
+                      {isBuy ? <ArrowDownRight className="size-4" aria-hidden="true" /> : <ArrowUpRight className="size-4" aria-hidden="true" />}
                     </div>
                     <PositionBadge pos={trade.player_position as Pos} size="sm" />
                     <div className="flex-1 min-w-0">
@@ -493,8 +493,8 @@ export default function ProfileOverviewTab({
               const scoreColor = result.totalScore >= 100 ? 'text-gold' : result.totalScore >= 70 ? 'text-white' : 'text-red-400';
               return (
                 <div key={result.eventId} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors">
-                  <div className={cn('flex items-center justify-center w-8 h-8 rounded-lg shrink-0', rankColor, 'bg-white/5')}>
-                    <Trophy className="w-4 h-4" />
+                  <div className={cn('flex items-center justify-center size-8 rounded-lg shrink-0', rankColor, 'bg-white/5')}>
+                    <Trophy className="size-4" aria-hidden="true" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold truncate">{result.eventName}</div>
@@ -553,7 +553,7 @@ export default function ProfileOverviewTab({
                     </div>
                     <div className="text-right">
                       <div className="font-mono font-bold">{h.quantity} DPC</div>
-                      <div className={`text-xs font-mono ${holdingPnl >= 0 ? 'text-green-500' : 'text-red-300'}`}>
+                      <div className={cn('text-xs font-mono', holdingPnl >= 0 ? 'text-green-500' : 'text-red-300')}>
                         {holdingPnl >= 0 ? '+' : ''}{fmtScout(Math.round(holdingPnl))} $SCOUT
                       </div>
                     </div>
