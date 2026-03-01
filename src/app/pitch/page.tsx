@@ -30,10 +30,10 @@ function HeroSection() {
     <section className="relative text-center py-16 md:py-24 px-4">
       <div className="max-w-3xl mx-auto">
         <Image src="/logo.svg" alt="BeScout" width={80} height={80} className="mx-auto mb-4" priority />
-        <h1 className="text-3xl md:text-5xl font-black mb-3 bg-gradient-to-r from-gold to-orange-500 bg-clip-text text-transparent">
+        <h1 className="text-3xl md:text-5xl font-black mb-3 text-balance text-gold">
           {t('heroTitle')}
         </h1>
-        <p className="text-lg md:text-xl text-white/70 mb-8 max-w-2xl mx-auto">
+        <p className="text-lg md:text-xl text-white/70 mb-8 max-w-2xl mx-auto text-pretty">
           {t('heroSubtitle')}
         </p>
         <div className="flex flex-wrap justify-center gap-3 text-sm">
@@ -61,15 +61,15 @@ function FeaturesSection() {
   return (
     <section className="py-12 px-4">
       <div className="max-w-5xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-black text-center mb-10">{t('featuresTitle')}</h2>
+        <h2 className="text-2xl md:text-3xl font-black text-center text-balance mb-10">{t('featuresTitle')}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {features.map(({ icon: Icon, key }) => (
             <div key={key} className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-gold/20 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center mb-3">
-                <Icon className="w-5 h-5 text-gold" />
+              <div className="size-10 rounded-xl bg-gold/10 flex items-center justify-center mb-3">
+                <Icon className="size-5 text-gold" />
               </div>
-              <h3 className="font-bold text-sm mb-1.5">{t(`feature_${key}_title`)}</h3>
-              <p className="text-xs text-white/50 leading-relaxed">{t(`feature_${key}_desc`)}</p>
+              <h3 className="font-bold text-sm text-balance mb-1.5">{t(`feature_${key}_title`)}</h3>
+              <p className="text-xs text-white/50 text-pretty leading-relaxed">{t(`feature_${key}_desc`)}</p>
             </div>
           ))}
         </div>
@@ -106,7 +106,7 @@ function PackageSection() {
   return (
     <section className="py-12 px-4">
       <div className="max-w-5xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-black text-center mb-10">{t('packagesTitle')}</h2>
+        <h2 className="text-2xl md:text-3xl font-black text-center text-balance mb-10">{t('packagesTitle')}</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -115,8 +115,8 @@ function PackageSection() {
                 {packages.map(({ tier, price, yearly, recommended }) => (
                   <th key={tier} className={cn('p-3 text-center min-w-[140px]', recommended && 'bg-gold/5 rounded-t-xl')}>
                     <div className="font-black text-base">{t(`pkg_${tier}`)}</div>
-                    <div className="text-gold font-mono font-bold">{price}<span className="text-white/40 font-normal text-xs">/ay</span></div>
-                    <div className="text-white/30 text-xs mt-0.5">{yearly}/yıl</div>
+                    <div className="text-gold font-mono font-bold tabular-nums">{price}<span className="text-white/40 font-normal text-xs">/ay</span></div>
+                    <div className="text-white/30 text-xs mt-0.5 tabular-nums">{yearly}/yıl</div>
                     {recommended && (
                       <span className="inline-block mt-1.5 px-2 py-0.5 rounded-full bg-gold text-black text-[10px] font-bold">
                         {t('pkg_recommended')}
@@ -133,9 +133,9 @@ function PackageSection() {
                   {vals.map((val, i) => (
                     <td key={i} className={cn('p-3 text-center', i === 1 && 'bg-gold/5')}>
                       {typeof val === 'boolean' ? (
-                        val ? <Check className="w-4 h-4 text-emerald-400 mx-auto" /> : <X className="w-4 h-4 text-white/20 mx-auto" />
+                        val ? <Check className="size-4 text-emerald-400 mx-auto" /> : <X className="size-4 text-white/20 mx-auto" />
                       ) : (
-                        <span className="font-mono font-semibold">{val}</span>
+                        <span className="font-mono font-semibold tabular-nums">{val}</span>
                       )}
                     </td>
                   ))}
@@ -170,15 +170,15 @@ function CalculatorSection() {
   return (
     <section className="py-12 px-4">
       <div className="max-w-3xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-black text-center mb-2">{t('calcTitle')}</h2>
-        <p className="text-center text-white/50 text-sm mb-8">{t('calcSubtitle')}</p>
+        <h2 className="text-2xl md:text-3xl font-black text-center text-balance mb-2">{t('calcTitle')}</h2>
+        <p className="text-center text-white/50 text-sm text-pretty mb-8">{t('calcSubtitle')}</p>
 
         <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 space-y-6">
           {/* Slider: Ad Spaces */}
           <div>
             <div className="flex justify-between text-sm mb-2">
               <span className="text-white/60">{t('calcAdSpaces')}</span>
-              <span className="font-mono font-bold text-gold">{adSpaces}</span>
+              <span className="font-mono font-bold tabular-nums text-gold">{adSpaces}</span>
             </div>
             <input
               type="range"
@@ -194,7 +194,7 @@ function CalculatorSection() {
           <div>
             <div className="flex justify-between text-sm mb-2">
               <span className="text-white/60">{t('calcPricePerSpace')}</span>
-              <span className="font-mono font-bold text-gold">{`€${pricePerSpace}`}</span>
+              <span className="font-mono font-bold tabular-nums text-gold">{`€${pricePerSpace}`}</span>
             </div>
             <input
               type="range"
@@ -211,7 +211,7 @@ function CalculatorSection() {
           <div className="pt-4 border-t border-white/10">
             <div className="flex justify-between items-center mb-4">
               <span className="text-white/60 text-sm">{t('calcSponsorRevenue')}</span>
-              <span className="text-xl font-mono font-black text-gold">{`€${sponsorRevenue.toLocaleString('de-DE')}`}/ay</span>
+              <span className="text-xl font-mono font-black tabular-nums text-gold">{`€${sponsorRevenue.toLocaleString('de-DE')}`}/ay</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -219,7 +219,7 @@ function CalculatorSection() {
                 <div key={tier} className={cn('p-3 rounded-xl border text-center', net >= 0 ? 'border-emerald-500/20 bg-emerald-950/20' : 'border-red-500/20 bg-red-950/20')}>
                   <div className="text-xs text-white/40 mb-1">{t(`pkg_${tier}`)}</div>
                   <div className="text-xs text-white/50 mb-1">{t('calcCost')}: €{cost}/ay</div>
-                  <div className={cn('font-mono font-bold text-lg', net >= 0 ? 'text-emerald-400' : 'text-red-400')}>
+                  <div className={cn('font-mono font-bold tabular-nums text-lg', net >= 0 ? 'text-emerald-400' : 'text-red-400')}>
                     {net >= 0 ? '+' : ''}{`€${net.toLocaleString('de-DE')}`}
                   </div>
                   <div className="text-[10px] text-white/30 mt-0.5">{t('calcNetPerMonth')}</div>
@@ -253,16 +253,16 @@ function RegionSection() {
   const regions = ['turkey', 'strictEu', 'restEu', 'global'] as const;
 
   const cellIcon = (val: CellValue) => {
-    if (val === 'yes') return <Check className="w-4 h-4 text-emerald-400 mx-auto" />;
-    if (val === 'no') return <X className="w-4 h-4 text-red-400 mx-auto" />;
-    return <AlertTriangle className="w-3.5 h-3.5 text-amber-400 mx-auto" />;
+    if (val === 'yes') return <Check className="size-4 text-emerald-400 mx-auto" />;
+    if (val === 'no') return <X className="size-4 text-red-400 mx-auto" />;
+    return <AlertTriangle className="size-3.5 text-amber-400 mx-auto" />;
   };
 
   return (
     <section className="py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-black text-center mb-2">{t('regionTitle')}</h2>
-        <p className="text-center text-white/50 text-sm mb-8">{t('regionSubtitle')}</p>
+        <h2 className="text-2xl md:text-3xl font-black text-center text-balance mb-2">{t('regionTitle')}</h2>
+        <p className="text-center text-white/50 text-sm text-pretty mb-8">{t('regionSubtitle')}</p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -307,9 +307,9 @@ function FoundingPartnerSection() {
   return (
     <section className="py-12 px-4">
       <div className="max-w-3xl mx-auto">
-        <div className="p-6 md:p-8 rounded-2xl bg-gradient-to-br from-gold/5 to-orange-500/5 border border-gold/20">
+        <div className="p-6 md:p-8 rounded-2xl bg-gold/5 border border-gold/20">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-black">{t('foundingTitle')}</h2>
+            <h2 className="text-2xl font-black text-balance">{t('foundingTitle')}</h2>
             <span className="px-3 py-1 rounded-full bg-gold text-black text-xs font-bold">
               {t('foundingBadge')}
             </span>
@@ -318,19 +318,19 @@ function FoundingPartnerSection() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
             {perks.map(({ key }) => (
               <div key={key} className="flex items-start gap-2">
-                <Check className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                <Check className="size-4 text-gold mt-0.5 flex-shrink-0" />
                 <span className="text-sm text-white/70">{t(`founding_${key}`)}</span>
               </div>
             ))}
           </div>
 
           <div className="p-4 rounded-xl bg-black/30 border border-white/[0.06]">
-            <h3 className="font-bold text-sm mb-3 text-white/80">{t('foundingRequirementsTitle')}</h3>
+            <h3 className="font-bold text-sm text-balance mb-3 text-white/80">{t('foundingRequirementsTitle')}</h3>
             <ul className="space-y-1.5 text-xs text-white/50">
-              <li className="flex items-start gap-2"><ArrowRight className="w-3 h-3 mt-0.5 flex-shrink-0 text-white/30" />{t('foundingReq1')}</li>
-              <li className="flex items-start gap-2"><ArrowRight className="w-3 h-3 mt-0.5 flex-shrink-0 text-white/30" />{t('foundingReq2')}</li>
-              <li className="flex items-start gap-2"><ArrowRight className="w-3 h-3 mt-0.5 flex-shrink-0 text-white/30" />{t('foundingReq3')}</li>
-              <li className="flex items-start gap-2"><ArrowRight className="w-3 h-3 mt-0.5 flex-shrink-0 text-white/30" />{t('foundingReq4')}</li>
+              <li className="flex items-start gap-2"><ArrowRight className="size-3 mt-0.5 flex-shrink-0 text-white/30" />{t('foundingReq1')}</li>
+              <li className="flex items-start gap-2"><ArrowRight className="size-3 mt-0.5 flex-shrink-0 text-white/30" />{t('foundingReq2')}</li>
+              <li className="flex items-start gap-2"><ArrowRight className="size-3 mt-0.5 flex-shrink-0 text-white/30" />{t('foundingReq3')}</li>
+              <li className="flex items-start gap-2"><ArrowRight className="size-3 mt-0.5 flex-shrink-0 text-white/30" />{t('foundingReq4')}</li>
             </ul>
           </div>
         </div>
@@ -345,26 +345,26 @@ function CTASection() {
   return (
     <section className="py-16 px-4">
       <div className="max-w-2xl mx-auto text-center">
-        <h2 className="text-2xl md:text-3xl font-black mb-4">{t('ctaTitle')}</h2>
-        <p className="text-white/50 text-sm mb-8">{t('ctaSubtitle')}</p>
+        <h2 className="text-2xl md:text-3xl font-black text-balance mb-4">{t('ctaTitle')}</h2>
+        <p className="text-white/50 text-sm text-pretty mb-8">{t('ctaSubtitle')}</p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/login?demo=true"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gold text-black font-bold text-sm hover:bg-gold/90 transition-colors min-h-[44px]"
           >
-            <Monitor className="w-4 h-4" />
+            <Monitor className="size-4" />
             {t('ctaDemo')}
           </Link>
           <Link
             href="/club/sakaryaspor"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-sm hover:bg-white/10 transition-colors min-h-[44px]"
           >
-            <Globe className="w-4 h-4" />
+            <Globe className="size-4" />
             {t('ctaClubPage')}
           </Link>
         </div>
         <div className="mt-8 flex items-center justify-center gap-2 text-white/40 text-sm">
-          <Mail className="w-4 h-4" />
+          <Mail className="size-4" />
           <a href="mailto:anil@bescout.app" className="hover:text-white/70 transition-colors">anil@bescout.app</a>
         </div>
       </div>
@@ -375,7 +375,7 @@ function CTASection() {
 // ─── Main Page ──────────────────────────────────────
 export default function PitchPage() {
   return (
-    <div className="min-h-screen bg-bg-main text-white print:bg-white print:text-black">
+    <div className="min-h-dvh bg-bg-main text-white print:bg-white print:text-black">
       {/* Print styles */}
       <style>{`
         @media print {
