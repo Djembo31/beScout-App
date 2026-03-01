@@ -20,11 +20,11 @@ const formatMarketValue = (value: number) => {
   return `${value}€`;
 };
 
-const getMultiplier = (currentValue: number, tierMaxValue: number): string => {
+const formatGrowthLabel = (currentValue: number, tierMaxValue: number): string => {
   if (tierMaxValue === Infinity || currentValue <= 0) return '';
   const mult = tierMaxValue / currentValue;
   if (mult <= 1) return '';
-  return `x${mult >= 10 ? Math.round(mult) : mult.toFixed(1)}`;
+  return `${formatMarketValue(tierMaxValue)} Marktwert`;
 };
 
 export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
@@ -40,14 +40,14 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
       {/* Intro */}
       <Card className="p-4 md:p-6 border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
-            <Trophy className="w-5 h-5 text-green-500" />
+          <div className="size-10 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
+            <Trophy aria-hidden="true" className="size-5 text-green-500" />
           </div>
           <div>
             <h3 className="font-black text-base mb-1">Mögliche Rewards</h3>
-            <p className="text-sm text-white/60 leading-relaxed">
+            <p className="text-sm text-white/60 leading-relaxed text-pretty">
               Je höher der Marktwert von <span className="text-white font-bold">{player.first} {player.last}</span> steigt,
-              desto mehr verdienst du als DPC-Holder. Der Verein beteiligt dich am Erfolg.
+              desto höher die mögliche Belohnung als DPC-Holder. Der Verein kann dich am Erfolg beteiligen.
             </p>
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
       {/* Reward Ladder */}
       <Card className="p-4 md:p-6">
         <h3 className="font-black text-lg mb-1 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-gold" />
+          <TrendingUp aria-hidden="true" className="size-5 text-gold" />
           Reward-Treppe
         </h3>
         <p className="text-xs text-white/40 mb-4">Erfolgsbonus pro DPC bei steigendem Marktwert</p>
@@ -82,8 +82,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
             const isPast = i < currentIdx;
             const isFuture = i > currentIdx;
             const reward = centsToBsd(tier.fee);
-            const roi = ipoPrice > 0 ? reward / ipoPrice : 0;
-            const multiplier = getMultiplier(marketValue, tier.maxValue);
+            const growthLabel = formatGrowthLabel(marketValue, tier.maxValue);
 
             return (
               <div
@@ -97,7 +96,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                 }`}
               >
                 {/* Tier indicator */}
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                <div className={`size-8 rounded-lg flex items-center justify-center shrink-0 ${
                   isActive
                     ? 'bg-gold/20'
                     : isFuture
@@ -105,11 +104,11 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                     : 'bg-white/[0.03]'
                 }`}>
                   {isActive ? (
-                    <Star className="w-4 h-4 text-gold" />
+                    <Star aria-hidden="true" className="size-4 text-gold" />
                   ) : isFuture ? (
-                    <Zap className="w-4 h-4 text-white/30" />
+                    <Zap aria-hidden="true" className="size-4 text-white/30" />
                   ) : (
-                    <div className="w-2 h-2 rounded-full bg-white/20" />
+                    <div className="size-2 rounded-full bg-white/20" />
                   )}
                 </div>
 
@@ -118,8 +117,8 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                   <div className={`text-sm font-bold ${isActive ? 'text-gold' : ''}`}>
                     {tier.maxValue === Infinity ? `ab ${formatMarketValue(tier.minValue)}` : formatMarketValue(tier.maxValue)}
                   </div>
-                  {multiplier && isFuture && (
-                    <div className="text-[10px] text-green-500 font-mono">{multiplier} Marktwert-Wachstum</div>
+                  {growthLabel && isFuture && (
+                    <div className="text-[10px] text-white/40 font-mono">ab {growthLabel}</div>
                   )}
                   {isActive && (
                     <div className="text-[10px] text-gold/50">Aktueller Tier</div>
@@ -133,11 +132,6 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                   }`}>
                     {fmtScout(reward)} $SCOUT
                   </div>
-                  {isFuture && roi > 1 && (
-                    <div className="text-[10px] font-mono text-green-500/70">
-                      x{roi >= 10 ? Math.round(roi) : roi.toFixed(1)} Bonus
-                    </div>
-                  )}
                   {isActive && (
                     <div className="text-[10px] font-mono text-gold/50">/DPC</div>
                   )}
@@ -152,15 +146,13 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
       {holdingQty > 0 && (
         <Card className="p-4 md:p-6 border-sky-400/20 bg-gradient-to-br from-sky-400/5 to-transparent">
           <h3 className="font-black text-base mb-3 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-sky-400" />
+            <Zap aria-hidden="true" className="size-5 text-sky-400" />
             Dein Potenzial
           </h3>
           <div className="space-y-2">
             {SUCCESS_FEE_TIERS.filter((_, i) => i >= currentIdx).slice(0, 4).map(tier => {
               const reward = centsToBsd(tier.fee);
               const totalReward = reward * holdingQty;
-              const totalInvested = ipoPrice * holdingQty;
-              const profit = totalReward - totalInvested;
 
               return (
                 <div key={tier.label} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
@@ -168,18 +160,16 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                     Bei {tier.maxValue === Infinity ? `ab ${formatMarketValue(tier.minValue)}` : formatMarketValue(tier.maxValue)}
                   </div>
                   <div className="text-right">
-                    <span className="font-mono font-bold text-sm">{fmtScout(totalReward)} $SCOUT</span>
-                    {profit > 0 && (
-                      <span className="text-[10px] text-green-500 ml-2">+{fmtScout(profit)}</span>
-                    )}
+                    <span className="font-mono font-bold text-sm tabular-nums">{fmtScout(totalReward)} $SCOUT</span>
+                    <div className="text-[10px] text-white/30">{holdingQty} DPC</div>
                   </div>
                 </div>
               );
             })}
           </div>
           <div className="mt-3 flex items-start gap-2 text-[10px] text-white/30">
-            <Info className="w-3 h-3 mt-0.5 shrink-0" />
-            <span>Erfolgsbonus = Belohnung vom Verein bei Marktwert-Wachstum. Zusätzlich zu Trading-Gewinnen und PBT-Ausschüttung.</span>
+            <Info aria-hidden="true" className="size-3 mt-0.5 shrink-0" />
+            <span>Erfolgsbonus = optionale Belohnung vom Verein nach eigenem Ermessen. Kein Anspruch, keine Garantie. Zusätzlich zur PBT-Ausschüttung.</span>
           </div>
           <TradingDisclaimer className="mt-3" />
         </Card>

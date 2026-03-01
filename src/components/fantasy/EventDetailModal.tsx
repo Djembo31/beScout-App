@@ -928,12 +928,15 @@ export const EventDetailModal = ({
                                   onClick={() => !slotReadOnly && (player ? handleRemovePlayer(slot.slot) : setShowPlayerPicker({ position: slot.pos, slot: slot.slot }))}
                                   onContextMenu={(e) => {
                                     e.preventDefault();
-                                    if (!slotReadOnly && player) {
+                                    if (!isReadOnly && player) {
+                                      // Captain can only be set/changed on unlocked slots
+                                      if (slotLocked && !isCaptain) return;
                                       setCaptainSlot(isCaptain ? null : slotDbKeys[slot.slot]);
                                     }
                                   }}
                                   onDoubleClick={() => {
-                                    if (!slotReadOnly && player) {
+                                    if (!isReadOnly && player) {
+                                      if (slotLocked && !isCaptain) return;
                                       setCaptainSlot(isCaptain ? null : slotDbKeys[slot.slot]);
                                     }
                                   }}
@@ -1161,9 +1164,16 @@ export const EventDetailModal = ({
                   <span className="text-xs text-gold/80">
                     {captainSlot ? `Kapitän: ${(() => { const idx = slotDbKeys.indexOf(captainSlot); const p = idx >= 0 ? getSelectedPlayer(idx) : null; return p ? `${p.first} ${p.last} (×1.5)` : captainSlot; })()}` : 'Doppelklick auf einen Spieler = Kapitän (×1.5 Score)'}
                   </span>
-                  {captainSlot && (
-                    <button onClick={() => setCaptainSlot(null)} className="ml-auto text-[10px] text-white/40 hover:text-white/60">Entfernen</button>
-                  )}
+                  {captainSlot && (() => {
+                    const captainIdx = slotDbKeys.indexOf(captainSlot);
+                    const captainPlayer = captainIdx >= 0 ? getSelectedPlayer(captainIdx) : null;
+                    const captainLocked = captainPlayer ? isPlayerLocked(captainPlayer.id) : false;
+                    return !captainLocked ? (
+                      <button onClick={() => setCaptainSlot(null)} className="ml-auto text-[10px] text-white/40 hover:text-white/60">Entfernen</button>
+                    ) : (
+                      <span className="ml-auto text-[10px] text-white/20">Gesperrt</span>
+                    );
+                  })()}
                 </div>
               )}
 
