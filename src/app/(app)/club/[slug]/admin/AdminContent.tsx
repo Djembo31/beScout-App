@@ -8,6 +8,7 @@ import {
 import { useUser } from '@/components/providers/AuthProvider';
 import { getClubBySlug } from '@/lib/services/club';
 import { ErrorState, Skeleton } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import AdminOverviewTab from '@/components/admin/AdminOverviewTab';
 import AdminPlayersTab from '@/components/admin/AdminPlayersTab';
 import AdminEventsTab from '@/components/admin/AdminEventsTab';
@@ -104,13 +105,13 @@ export default function AdminContent({ slug }: { slug: string }) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-2xl md:text-3xl font-black">{club.name} Admin</h1>
-            <p className="text-sm text-white/50">Club-Verwaltung</p>
+            <h1 className="text-2xl md:text-3xl font-black text-balance">{club.name} Admin</h1>
+            <p className="text-sm text-white/50 text-pretty">Club-Verwaltung</p>
           </div>
           {(() => {
             const badge = getRoleBadge(role);
             return (
-              <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${badge.color} ${badge.bg} ${badge.border}`}>
+              <span className={cn('px-2.5 py-1 rounded-lg text-xs font-bold border', badge.color, badge.bg, badge.border)}>
                 {badge.label}
               </span>
             );
@@ -130,11 +131,11 @@ export default function AdminContent({ slug }: { slug: string }) {
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`flex-shrink-0 px-2.5 md:px-4 py-2.5 text-xs md:text-sm font-semibold transition-all relative whitespace-nowrap flex items-center gap-1 md:gap-1.5 min-h-[44px] ${
+            className={cn('flex-shrink-0 px-2.5 md:px-4 py-2.5 text-xs md:text-sm font-semibold transition-colors relative whitespace-nowrap flex items-center gap-1 md:gap-1.5 min-h-[44px]',
               tab === t.id ? 'text-gold' : 'text-white/60 hover:text-white'
-            }`}
+            )}
           >
-            <t.icon className="w-4 h-4" />
+            <t.icon className="size-4" />
             {t.label}
             {tab === t.id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold" />}
           </button>
