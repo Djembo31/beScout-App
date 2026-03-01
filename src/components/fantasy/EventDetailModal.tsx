@@ -31,6 +31,7 @@ import {
 } from './helpers';
 import EventCommunityTab from './EventCommunityTab';
 import SponsorBanner from '@/components/player/detail/SponsorBanner';
+import type { FixtureDeadline } from '@/lib/services/fixtures';
 
 export const EventDetailModal = ({
   event,
@@ -40,6 +41,7 @@ export const EventDetailModal = ({
   onLeave,
   onReset,
   userHoldings,
+  fixtureDeadlines,
 }: {
   event: FantasyEvent | null;
   isOpen: boolean;
@@ -48,6 +50,7 @@ export const EventDetailModal = ({
   onLeave: (event: FantasyEvent) => void | Promise<void>;
   onReset: (event: FantasyEvent) => void;
   userHoldings: UserDpcHolding[];
+  fixtureDeadlines?: Map<string, FixtureDeadline>;
 }) => {
   const { user } = useUser();
   const [tab, setTab] = useState<EventDetailTab>('overview');
@@ -161,7 +164,7 @@ export const EventDetailModal = ({
               const colKey = `slot_${dbKeys[i]}` as keyof typeof dbLineup;
               const playerId = dbLineup[colKey] as string | null;
               if (playerId) {
-                finalLineup.push({ playerId, position: slot.pos, slot: slot.slot, isLocked: false });
+                finalLineup.push({ playerId, position: slot.pos, slot: slot.slot, isLocked: isPlayerLocked(playerId) });
               }
             });
 
@@ -237,6 +240,36 @@ export const EventDetailModal = ({
 
   const slotDbKeys = useMemo(() => buildSlotDbKeys(currentFormation), [currentFormation]);
 
+  // Per-fixture lock check: is a specific player's fixture already started?
+  const isPlayerLocked = useCallback((playerId: string): boolean => {
+    if (!fixtureDeadlines?.size || event?.status !== 'running') return false;
+    const holding = effectiveHoldings.find(h => h.id === playerId);
+    if (!holding?.clubId) return false;
+    return fixtureDeadlines.get(holding.clubId)?.isLocked ?? false;
+  }, [fixtureDeadlines, effectiveHoldings, event?.status]);
+
+  // Is the event partially locked (some fixtures started, some not)?
+  const isPartiallyLocked = useMemo(() => {
+    if (event?.status !== 'running' || !fixtureDeadlines?.size) return false;
+    const deadlineValues = Array.from(fixtureDeadlines.values());
+    const lockedCount = deadlineValues.filter(d => d.isLocked).length;
+    return lockedCount > 0 && lockedCount < deadlineValues.length;
+  }, [event?.status, fixtureDeadlines]);
+
+  // Next fixture kickoff (for countdown display)
+  const nextKickoff = useMemo(() => {
+    if (!fixtureDeadlines?.size) return null;
+    const now = Date.now();
+    let earliest: number | null = null;
+    fixtureDeadlines.forEach(d => {
+      if (d.playedAt && !d.isLocked) {
+        const t = new Date(d.playedAt).getTime();
+        if (t > now && (earliest === null || t < earliest)) earliest = t;
+      }
+    });
+    return earliest;
+  }, [fixtureDeadlines]);
+
   // O(1) slot→player lookup (replaces O(n) find() called 44 times per render)
   const selectedPlayerMap = useMemo(() => {
     const map = new Map<number, string>();
@@ -268,7 +301,7 @@ export const EventDetailModal = ({
     const validPos = posMap[position] || [position];
     const usedIds = new Set(selectedPlayers.map(p => p.playerId));
     let players = effectiveHoldings.filter(h =>
-      validPos.some(vp => h.pos.toUpperCase().includes(vp)) && !usedIds.has(h.id) && !h.isLocked
+      validPos.some(vp => h.pos.toUpperCase().includes(vp)) && !usedIds.has(h.id) && !h.isLocked && !isPlayerLocked(h.id)
     );
     if (pickerSearch) {
       const q = pickerSearch.toLowerCase();
@@ -279,7 +312,7 @@ export const EventDetailModal = ({
       if (pickerSort === 'dpc') return b.dpcAvailable - a.dpcAvailable;
       return a.last.localeCompare(b.last);
     });
-  }, [selectedPlayers, effectiveHoldings, pickerSearch, pickerSort]);
+  }, [selectedPlayers, effectiveHoldings, pickerSearch, pickerSort, isPlayerLocked]);
 
   // Stable handler refs — prevent child re-renders
   const handleSelectPlayer = useCallback((playerId: string, position: string, slot: number) => {
@@ -643,14 +676,34 @@ export const EventDetailModal = ({
 
           {/* LINEUP TAB */}
           {tab === 'lineup' && (() => {
-            const isReadOnly = event.status === 'running' || event.status === 'ended';
+            const isFullyLocked = event.status === 'ended';
+            const isReadOnly = isFullyLocked;
             return (
             <div className="space-y-4">
-              {/* Status banner */}
-              {isReadOnly && !isScored && (
+              {/* Status banner — fully locked */}
+              {isFullyLocked && !isScored && (
                 <div className="flex items-center gap-2 p-3 bg-white/[0.03] border border-white/10 rounded-lg">
                   <Lock aria-hidden="true" className="size-4 text-white/40" />
-                  <span className="text-sm text-white/50">{event.status === 'running' ? 'Event läuft — Aufstellung gesperrt' : 'Event beendet'}</span>
+                  <span className="text-sm text-white/50">Event beendet</span>
+                </div>
+              )}
+              {/* Status banner — partially locked (per-fixture) */}
+              {isPartiallyLocked && !isScored && (
+                <div className="flex items-center gap-2 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                  <Lock aria-hidden="true" className="size-4 text-amber-400" />
+                  <span className="text-sm text-amber-300">Teilweise gesperrt — Spieler mit laufendem Spiel sind fixiert</span>
+                  {nextKickoff && (
+                    <span className="text-xs text-amber-400/60 ml-auto font-mono tabular-nums">
+                      Nächster Anstoß: {new Date(nextKickoff).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
+                </div>
+              )}
+              {/* Status banner — all fixtures running */}
+              {event.status === 'running' && !isPartiallyLocked && !isScored && (
+                <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                  <Play aria-hidden="true" className="size-4 text-green-400" />
+                  <span className="text-sm text-green-300">Alle Spiele laufen — Aufstellung gesperrt</span>
                 </div>
               )}
               {isScored && (
@@ -792,8 +845,14 @@ export const EventDetailModal = ({
                             const slotScore = (isScored && slotScores) ? slotScores[slotDbKeys[slot.slot]] : undefined;
                             const hasScore = slotScore != null;
                             const isCaptain = captainSlot === slotDbKeys[slot.slot];
+                            const slotLocked = player ? isPlayerLocked(player.id) : false;
+                            const slotReadOnly = isReadOnly || slotLocked;
                             return (
                               <div key={slot.slot} className="flex flex-col items-center relative">
+                                {/* LIVE badge for locked players */}
+                                {player && slotLocked && !hasScore && (
+                                  <div className="absolute -top-2 -right-2 z-30 px-1.5 py-0.5 rounded bg-green-500 text-[8px] font-black text-white shadow-lg animate-pulse">LIVE</div>
+                                )}
                                 {/* Captain Crown (top-left) */}
                                 {player && isCaptain && (
                                   <div className="absolute -top-2 -left-2 z-30 size-5 rounded-full bg-gold flex items-center justify-center shadow-lg">
@@ -817,19 +876,19 @@ export const EventDetailModal = ({
                                   </div>
                                 )}
                                 <button
-                                  onClick={() => !isReadOnly && (player ? handleRemovePlayer(slot.slot) : setShowPlayerPicker({ position: slot.pos, slot: slot.slot }))}
+                                  onClick={() => !slotReadOnly && (player ? handleRemovePlayer(slot.slot) : setShowPlayerPicker({ position: slot.pos, slot: slot.slot }))}
                                   onContextMenu={(e) => {
                                     e.preventDefault();
-                                    if (!isReadOnly && player) {
+                                    if (!slotReadOnly && player) {
                                       setCaptainSlot(isCaptain ? null : slotDbKeys[slot.slot]);
                                     }
                                   }}
                                   onDoubleClick={() => {
-                                    if (!isReadOnly && player) {
+                                    if (!slotReadOnly && player) {
                                       setCaptainSlot(isCaptain ? null : slotDbKeys[slot.slot]);
                                     }
                                   }}
-                                  className={`flex flex-col items-center ${isReadOnly ? 'cursor-default' : ''}`}
+                                  className={`flex flex-col items-center ${slotReadOnly ? 'cursor-default' : ''}`}
                                 >
                                 <div
                                   className={`w-11 h-11 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 transition-all ${player
@@ -1087,15 +1146,17 @@ export const EventDetailModal = ({
                 )
               )}
 
-              {/* Player List with Stats & Status — hidden when locked or scored */}
+              {/* Player List with Stats & Status — hidden when fully locked or scored */}
               {!isReadOnly && !isScored && <div className="space-y-2">
                 <div className="text-sm font-bold text-white/70">Deine Spieler</div>
                 {effectiveHoldings.map(player => {
                   const isSelected = selectedPlayers.some(sp => sp.playerId === player.id);
+                  const fixtureLocked = isPlayerLocked(player.id);
                   return (
                     <div
                       key={player.id}
                       className={`flex items-center justify-between p-3 rounded-xl border transition-colors ${isSelected ? 'bg-green-500/10 border-green-500/30' :
+                        fixtureLocked ? 'bg-green-500/5 border-green-500/10 opacity-60' :
                         player.isLocked ? 'bg-surface-base border-white/5 opacity-50' :
                           player.status === 'injured' ? 'bg-red-500/5 border-red-500/20' :
                             player.status === 'suspended' ? 'bg-orange-500/5 border-orange-500/20' :
@@ -1109,7 +1170,7 @@ export const EventDetailModal = ({
                           showMeta={false}
                         />
                         <div className="text-[10px] text-white/40">
-                          <span className={player.isLocked ? 'text-orange-400' : player.dpcAvailable < player.dpcOwned ? 'text-yellow-400' : 'text-white/40'}>{player.dpcAvailable}/{player.dpcOwned} DPC</span>
+                          <span className={fixtureLocked ? 'text-green-400' : player.isLocked ? 'text-orange-400' : player.dpcAvailable < player.dpcOwned ? 'text-yellow-400' : 'text-white/40'}>{player.dpcAvailable}/{player.dpcOwned} DPC</span>
                           {player.eventsUsing > 0 && <span className="text-white/30"> ({player.eventsUsing} Event{player.eventsUsing > 1 ? 's' : ''})</span>}
                         </div>
                       </div>
@@ -1118,7 +1179,11 @@ export const EventDetailModal = ({
                           <div className="text-xs text-white/50">L5: <span className={`font-mono font-bold ${getL5Color(player.perfL5)}`}>{player.perfL5}</span></div>
                           <div className="text-[10px] text-white/30">{player.goals}T {player.assists}A {player.matches}S</div>
                         </div>
-                        {player.isLocked ? (
+                        {fixtureLocked ? (
+                          <span className="text-xs text-green-400 flex items-center gap-1">
+                            <Play aria-hidden="true" className="size-3" /> LIVE
+                          </span>
+                        ) : player.isLocked ? (
                           <span className="text-xs text-orange-400 flex items-center gap-1" title={`In ${player.eventsUsing} Events`}>
                             <Lock aria-hidden="true" className="size-3" /> Alle eingesetzt
                           </span>

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { getFixtureDeadlinesByGameweek } from '@/lib/services/fixtures';
 import type { DbLineup, DbPlayer, Pos, UserFantasyResult } from '@/types';
 
 // ============================================
@@ -74,8 +75,84 @@ export async function submitLineup(params: {
     throw new Error('Event nicht gefunden.');
   }
 
-  if (ev.status === 'ended' || ev.status === 'running' || ev.status === 'scoring') {
-    throw new Error('Event ist bereits gestartet oder beendet — Anmeldung nicht möglich.');
+  if (ev.status === 'ended' || ev.status === 'scoring') {
+    throw new Error('Event ist beendet — Änderung nicht möglich.');
+  }
+
+  // Per-fixture locking: when event is running, only block slots with active fixtures
+  if (ev.status === 'running') {
+    // Load event gameweek
+    const { data: evFull } = await supabase
+      .from('events')
+      .select('gameweek')
+      .eq('id', params.eventId)
+      .single();
+
+    if (!evFull?.gameweek) {
+      throw new Error('Event-Gameweek nicht gefunden.');
+    }
+
+    // Load fixture deadlines for this gameweek
+    const deadlines = await getFixtureDeadlinesByGameweek(evFull.gameweek);
+
+    // Load existing lineup to check which slots are changing
+    const { data: existingLineup } = await supabase
+      .from('lineups')
+      .select('*')
+      .eq('event_id', params.eventId)
+      .eq('user_id', params.userId)
+      .maybeSingle();
+
+    // Collect all player IDs (old + new) to look up their club_ids
+    const allPlayerIds = new Set<string>();
+    if (existingLineup) {
+      for (const col of ALL_SLOT_COLUMNS) {
+        const pid = (existingLineup as Record<string, unknown>)[col] as string | null;
+        if (pid) allPlayerIds.add(pid);
+      }
+    }
+    Object.values(params.slots).forEach(pid => { if (pid) allPlayerIds.add(pid); });
+
+    // Fetch club_ids for all involved players
+    const playerClubMap = new Map<string, string | null>();
+    if (allPlayerIds.size > 0) {
+      const { data: players } = await supabase
+        .from('players')
+        .select('id, club_id')
+        .in('id', Array.from(allPlayerIds));
+      if (players) {
+        for (const p of players) {
+          playerClubMap.set(p.id as string, (p.club_id as string) ?? null);
+        }
+      }
+    }
+
+    // Check each slot: if old or new player is locked → error (unless slot unchanged)
+    for (let i = 0; i < ALL_SLOT_KEYS.length; i++) {
+      const slotKey = ALL_SLOT_KEYS[i];
+      const slotCol = ALL_SLOT_COLUMNS[i];
+      const newPlayerId = params.slots[slotKey] ?? null;
+      const oldPlayerId = existingLineup ? ((existingLineup as Record<string, unknown>)[slotCol] as string | null) : null;
+
+      // Slot unchanged → skip
+      if (newPlayerId === oldPlayerId) continue;
+
+      // Check if old player in this slot is locked (can't remove locked player)
+      if (oldPlayerId) {
+        const oldClubId = playerClubMap.get(oldPlayerId);
+        if (oldClubId && deadlines.get(oldClubId)?.isLocked) {
+          throw new Error(`Spieler kann nicht entfernt werden — Spiel bereits gestartet.`);
+        }
+      }
+
+      // Check if new player being added is locked (can't add locked player)
+      if (newPlayerId) {
+        const newClubId = playerClubMap.get(newPlayerId);
+        if (newClubId && deadlines.get(newClubId)?.isLocked) {
+          throw new Error(`Spieler kann nicht aufgestellt werden — sein Spiel hat bereits begonnen.`);
+        }
+      }
+    }
   }
 
   if (ev && ev.max_entries && ev.current_entries >= ev.max_entries) {

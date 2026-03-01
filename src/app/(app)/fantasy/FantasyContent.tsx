@@ -14,6 +14,8 @@ import { centsToBsd } from '@/lib/services/players';
 import { deductEntryFee, refundEntryFee } from '@/lib/services/wallet';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 import { submitLineup, getLineup } from '@/lib/services/lineups';
+import { getFixtureDeadlinesByGameweek } from '@/lib/services/fixtures';
+import type { FixtureDeadline } from '@/lib/services/fixtures';
 import { invalidateFantasyQueries } from '@/lib/queries/invalidation';
 import { useEvents, useJoinedEventIds, usePlayerEventUsage, useActiveGameweek, useIsClubAdmin } from '@/lib/queries/events';
 import { useHoldings } from '@/lib/queries/holdings';
@@ -115,6 +117,7 @@ function dbHoldingToUserDpcHolding(h: HoldingWithPlayer): UserDpcHolding {
     last: h.player?.last_name ?? '',
     pos: h.player?.position ?? 'MID',
     club: h.player?.club ?? '',
+    clubId: h.player?.club_id ?? null,
     dpcOwned: h.quantity,
     eventsUsing: 0,
     dpcAvailable: h.quantity,
@@ -175,6 +178,22 @@ export default function FantasyContent() {
   }, [activeGw, selectedGameweek]);
 
   const currentGw = selectedGameweek ?? activeGw;
+
+  // Per-fixture deadline locking — refresh when GW changes or events are running
+  const [fixtureDeadlines, setFixtureDeadlines] = useState<Map<string, FixtureDeadline>>(new Map());
+
+  useEffect(() => {
+    if (!currentGw) return;
+    getFixtureDeadlinesByGameweek(currentGw).then(setFixtureDeadlines);
+    // Poll every 60s when events are running to update lock status
+    const hasRunning = dbEvents.some(e => e.status === 'running');
+    if (hasRunning) {
+      const interval = setInterval(() => {
+        getFixtureDeadlinesByGameweek(currentGw).then(setFixtureDeadlines);
+      }, 60_000);
+      return () => clearInterval(interval);
+    }
+  }, [currentGw, dbEvents]);
 
   // Load user lineups for scored events to get rank + points
   const joinedSet = useMemo(() => new Set(joinedIdsArr), [joinedIdsArr]);
@@ -286,8 +305,8 @@ export default function FantasyContent() {
   const handleJoinEvent = useCallback(async (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null = null) => {
     if (!user) return;
 
-    if (event.status === 'ended' || event.status === 'running') {
-      addToast('Anmeldung nicht möglich — Event ist bereits gestartet oder beendet.', 'error');
+    if (event.status === 'ended') {
+      addToast('Anmeldung nicht möglich — Event ist beendet.', 'error');
       return;
     }
 
@@ -644,6 +663,7 @@ export default function FantasyContent() {
           onLeave={handleLeaveEvent}
           onReset={handleResetEvent}
           userHoldings={holdings}
+          fixtureDeadlines={fixtureDeadlines}
         />
       </ErrorBoundary>
 

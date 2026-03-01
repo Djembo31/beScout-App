@@ -199,6 +199,54 @@ export async function getGameweekTopScorers(gw: number, limit: number = 5): Prom
 }
 
 // ============================================
+// Per-Fixture Deadline Locking
+// ============================================
+
+export type FixtureDeadline = {
+  fixtureId: string;
+  playedAt: string | null;
+  status: string;
+  isLocked: boolean;
+  opponentShort: string;
+  isHome: boolean;
+};
+
+/** Build a Map<clubId, FixtureDeadline> for per-fixture lock checks.
+ *  A club's players are locked when their fixture has started (playedAt <= now)
+ *  and the fixture is not postponed. */
+export async function getFixtureDeadlinesByGameweek(gw: number): Promise<Map<string, FixtureDeadline>> {
+  const fixtures = await getFixturesByGameweek(gw);
+  const now = new Date();
+  const result = new Map<string, FixtureDeadline>();
+
+  for (const f of fixtures) {
+    const isLocked = f.played_at != null && new Date(f.played_at) <= now && f.status !== 'scheduled';
+
+    // Home club entry
+    result.set(f.home_club_id, {
+      fixtureId: f.id,
+      playedAt: f.played_at,
+      status: f.status,
+      isLocked,
+      opponentShort: f.away_club_short,
+      isHome: true,
+    });
+
+    // Away club entry
+    result.set(f.away_club_id, {
+      fixtureId: f.id,
+      playedAt: f.played_at,
+      status: f.status,
+      isLocked,
+      opponentShort: f.home_club_short,
+      isHome: false,
+    });
+  }
+
+  return result;
+}
+
+// ============================================
 // Manager Data (Minutes + Next Fixture)
 // ============================================
 

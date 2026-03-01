@@ -92,6 +92,7 @@ export type UserDpcHolding = {
   last: string;
   pos: string;
   club: string;
+  clubId: string | null;
   clubLogo?: string;
   dpcOwned: number;
   eventsUsing: number;

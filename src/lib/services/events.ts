@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { getFixturesByGameweek } from '@/lib/services/fixtures';
 import type { DbEvent } from '@/types';
 
 // ============================================
@@ -151,9 +152,29 @@ export async function createNextGameweekEvents(
     return { created: 0, skipped: false, error: tplErr?.message ?? 'Keine Events zum Klonen gefunden' };
   }
 
+  // Derive timing from fixture data for the next GW
+  const fixtures = await getFixturesByGameweek(nextGw);
+  let startsAt: string;
+  let locksAt: string;
+  let endsAt: string;
+
+  if (fixtures.length > 0 && fixtures.some(f => f.played_at)) {
+    const fixturesWithTime = fixtures.filter(f => f.played_at);
+    const times = fixturesWithTime.map(f => new Date(f.played_at!).getTime());
+    const earliest = Math.min(...times);
+    const latest = Math.max(...times);
+    startsAt = new Date(earliest).toISOString();
+    locksAt = new Date(earliest).toISOString();
+    endsAt = new Date(latest + 3 * 60 * 60 * 1000).toISOString(); // +3h after last kickoff
+  } else {
+    // No fixture times yet — use fallback
+    const farFuture = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    startsAt = farFuture;
+    locksAt = farFuture;
+    endsAt = farFuture;
+  }
+
   // Create clones for next GW
-  const now = new Date().toISOString();
-  const farFuture = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
   const clones = templates.map(t => ({
     name: t.name.replace(/Spieltag \d+/i, `Spieltag ${nextGw}`).replace(/GW\s*\d+/i, `GW ${nextGw}`),
     type: t.type,
@@ -166,9 +187,9 @@ export async function createNextGameweekEvents(
     created_by: t.created_by,
     sponsor_name: t.sponsor_name,
     sponsor_logo: t.sponsor_logo,
-    starts_at: farFuture,
-    locks_at: farFuture,
-    ends_at: farFuture,
+    starts_at: startsAt,
+    locks_at: locksAt,
+    ends_at: endsAt,
     status: 'registering',
     current_entries: 0,
   }));

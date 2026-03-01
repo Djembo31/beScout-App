@@ -5,6 +5,7 @@ import { mapRpcError } from '@/lib/services/trading';
 export type HoldingWithPlayer = DbHolding & {
   player: {
     first_name: string; last_name: string; position: string; club: string;
+    club_id: string | null;
     floor_price: number; price_change_24h: number;
     perf_l5: number; perf_l15: number;
     matches: number; goals: number; assists: number; status: string;
@@ -48,6 +49,7 @@ export async function getHoldings(userId: string): Promise<HoldingWithPlayer[]> 
         image_url,
         position,
         club,
+        club_id,
         floor_price,
         price_change_24h,
         perf_l5,
