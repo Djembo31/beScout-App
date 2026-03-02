@@ -37,7 +37,7 @@ import { RangBadge, DimensionRangStack } from '@/components/ui/RangBadge';
 import FoundingScoutBadge from '@/components/ui/FoundingScoutBadge';
 import { useScoutScores, useScoutingStats } from '@/lib/queries';
 import { FileText, Target as TargetIcon, CheckCircle, Star } from 'lucide-react';
-import { useTranslations as useProfileTranslations } from 'next-intl';
+import { useTranslations as useProfileTranslations, useLocale } from 'next-intl';
 
 const TAB_IDS: { id: ProfileTab; selfOnly?: boolean }[] = [
   { id: 'overview' },
@@ -66,6 +66,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
   const { balanceCents } = useWallet();
   const { addToast } = useToast();
   const tp = useProfileTranslations('profile');
+  const locale = useLocale();
   const [tab, setTab] = useState<ProfileTab>('overview');
 
   // Real holdings from DB
@@ -320,7 +321,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             {/* Mitglied seit */}
             <span className="text-white/30 flex items-center gap-1">
               <Calendar className="size-3" aria-hidden="true" />
-              Mitglied seit {new Date(targetProfile.created_at).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' })}
+              {tp('memberSince', { date: new Date(targetProfile.created_at).toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { month: 'short', year: 'numeric' }) })}
             </span>
           </div>
           {/* 3-Dimension Scout Scores */}

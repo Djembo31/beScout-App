@@ -120,7 +120,7 @@ export function MitmachenTab({
                     <div className="font-semibold text-sm truncate">{event.name}</div>
                     <div className="text-[11px] text-white/40">
                       {isScored ? (
-                        <span>{score ?? 0} Punkte · Platz {rank ?? '-'} / {event.participants}</span>
+                        <span>{tf('scoredRankOf', { score: score ?? 0, rank: rank ?? '-', participants: event.participants })}</span>
                       ) : hasLineup ? (
                         <span className="text-green-500">{tf('mitmachen.lineupSet')}</span>
                       ) : (

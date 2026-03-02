@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -896,6 +896,8 @@ export default function ClubContent({ slug }: { slug: string }) {
 
   const t = useTranslations('club');
   const tc = useTranslations('common');
+  const tcom = useTranslations('community');
+  const locale = useLocale();
 
   // ---- Derived data from hooks ----
   const players = useMemo(() => dbToPlayers(dbPlayersRaw), [dbPlayersRaw]);
@@ -1383,14 +1385,14 @@ export default function ClubContent({ slug }: { slug: string }) {
                   <div key={news.id} className="p-3 bg-gold/[0.03] rounded-xl border border-gold/15">
                     <div className="flex items-center gap-2 mb-1.5">
                       <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gold/10 text-gold border border-gold/20">
-                        Club-Nachricht
+                        {tcom('clubNewsLabel')}
                       </span>
                       <span className="text-[10px] text-white/30">{formatTimeAgo(news.created_at)}</span>
                     </div>
                     <p className="text-sm text-white/80 leading-relaxed">{news.content}</p>
                     <div className="flex items-center gap-3 mt-2 text-[10px] text-white/30">
                       <span>{news.author_display_name || news.author_handle}</span>
-                      <span>{news.upvotes - news.downvotes} Stimmen</span>
+                      <span>{tcom('votesCount', { count: news.upvotes - news.downvotes })}</span>
                     </div>
                   </div>
                 ))}
@@ -1417,8 +1419,8 @@ export default function ClubContent({ slug }: { slug: string }) {
                     >
                       <div className="font-bold text-sm mb-1 truncate">{vote.question}</div>
                       <div className="flex items-center gap-3 text-xs text-white/40">
-                        <span>{totalVotes} Stimme{totalVotes !== 1 ? 'n' : ''}</span>
-                        <span>Endet {new Date(vote.ends_at).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })}</span>
+                        <span>{totalVotes === 1 ? tcom('voteCountSingular', { count: totalVotes }) : tcom('votesCount', { count: totalVotes })}</span>
+                        <span>{tcom('endsAt', { date: new Date(vote.ends_at).toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { day: 'numeric', month: 'short' }) })}</span>
                       </div>
                     </div>
                   );

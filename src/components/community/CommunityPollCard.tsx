@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Users, Clock, Coins, Vote, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card, Chip } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { formatScout } from '@/lib/services/wallet';
@@ -17,6 +18,7 @@ type Props = {
 };
 
 export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCancel, voting }: Props) {
+  const tc = useTranslations('community');
   const totalVotes = poll.total_votes;
   const isActive = poll.status === 'active' && new Date(poll.ends_at) > new Date();
   const diffMs = new Date(poll.ends_at).getTime() - Date.now();
@@ -83,7 +85,7 @@ export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCan
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-2 text-white/50">
             <Users className="w-4 h-4" />
-            <span>{totalVotes} Stimmen</span>
+            <span>{tc('votesCount', { count: totalVotes })}</span>
           </div>
           {poll.cost_bsd > 0 && (
             <div className="flex items-center gap-2">

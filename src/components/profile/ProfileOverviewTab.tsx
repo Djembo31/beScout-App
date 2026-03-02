@@ -183,12 +183,12 @@ export default function ProfileOverviewTab({
             {trackRecord.totalCalls >= 5 && trackRecord.hitRate >= 60 ? (
               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-gold/15 text-gold border border-gold/25">
                 <Shield className="size-3" aria-hidden="true" />
-                Verifizierter Scout
+                {tp('verifiedScout')}
               </span>
             ) : trackRecord.totalCalls < 5 ? (
               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-white/5 text-white/40 border border-white/10">
                 <Shield className="size-3" aria-hidden="true" />
-                {trackRecord.totalCalls}/5 Calls
+                {tp('callsProgress', { n: trackRecord.totalCalls })}
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-white/5 text-white/40 border border-white/10">

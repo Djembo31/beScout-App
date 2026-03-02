@@ -661,7 +661,9 @@
     "statusEnded": "Beendet",
     "statusRunning": "Läuft",
     "freeLabel": "Kostenlos",
-    "joinedBtn": "Nimmt teil"
+    "joinedBtn": "Nimmt teil",
+    "rankOfParticipants": "Platz {rank} / {participants} — {score} Punkte",
+    "scoredRankOf": "{score} Punkte · Platz {rank} / {participants}"
   },
   "predictions": {
     "title": "Vorhersagen",
@@ -1137,7 +1139,11 @@
     "replyYes": "Ja",
     "replyNo": "Nein",
     "replyPlaceholder": "Antwort schreiben...",
-    "timeJust": "Jetzt"
+    "timeJust": "Jetzt",
+    "votesCount": "{count} Stimmen",
+    "voteCountSingular": "{count} Stimme",
+    "endsAt": "Endet {date}",
+    "clubNewsLabel": "Club-Nachricht"
   },
   "profile": {
     "title": "Profil",
@@ -1224,7 +1230,9 @@
     "followsNobody": "Folgt niemandem.",
     "profileNotFound": "Profil @{handle} nicht gefunden.",
     "backToOwnProfile": "Zurück zum eigenen Profil",
-    "recentActivity": "Letzte Aktivität"
+    "recentActivity": "Letzte Aktivität",
+    "verifiedScout": "Verifizierter Scout",
+    "callsProgress": "{n}/5 Calls"
   },
   "player": {
     "overview": "Übersicht",
@@ -1797,7 +1805,22 @@
     "markAllRead": "Alle gelesen",
     "noNew": "Keine neuen Benachrichtigungen",
     "loadFailed": "Laden fehlgeschlagen",
-    "now": "Jetzt"
+    "now": "Jetzt",
+    "eventScoredTitle": "Ergebnisse für {name} sind da!",
+    "eventScoredBody": "Dein Platz: #{rank} mit {score} Punkten",
+    "fantasyRewardTitle": "Platz #{rank} bei {name}",
+    "fantasyRewardBody": "Du hast {score} Punkte erzielt!",
+    "eventStartedTitle": "Event gestartet!",
+    "eventStartedBody": "{name} ist jetzt live — die Punkte zählen!",
+    "newVoteTitle": "Neue Stimme",
+    "newVoteBody": "Jemand hat bei \"{question}\" abgestimmt",
+    "liquidationTitle": "DPC liquidiert",
+    "liquidationWithSF": "Du hast {total} $SCOUT erhalten ({pbt} PBT + {sf} Community Bonus).",
+    "liquidationPBTOnly": "Du hast {total} $SCOUT aus der PBT-Ausschüttung erhalten.",
+    "newOfferTitle": "Neues Angebot",
+    "newOfferBody": "Du hast ein neues Angebot erhalten",
+    "counterOfferTitle": "Gegenangebot",
+    "counterOfferBody": "Du hast ein Gegenangebot erhalten"
   },
   "gamification": {
     "rang": {
@@ -1915,7 +1938,8 @@
       "celebration": "{reward} erhalten!"
     },
     "gesamtRang": "Gesamt-Rang",
-    "median": "Median der 3 Dimensionen"
+    "median": "Median der 3 Dimensionen",
+    "pointsLabel": "Punkte"
   },
   "onboarding": {
     "title": "Erste Schritte",

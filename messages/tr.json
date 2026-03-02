@@ -658,7 +658,9 @@
     "statusEnded": "Bitti",
     "statusRunning": "Devam ediyor",
     "freeLabel": "Ücretsiz",
-    "joinedBtn": "Katılıyor"
+    "joinedBtn": "Katılıyor",
+    "rankOfParticipants": "{rank}. sıra / {participants} — {score} Puan",
+    "scoredRankOf": "{score} Puan · {rank}. sıra / {participants}"
   },
   "predictions": {
     "title": "Tahminler",
@@ -1129,7 +1131,11 @@
     "replyYes": "Evet",
     "replyNo": "Hayır",
     "replyPlaceholder": "Yanıt yaz...",
-    "timeJust": "Şimdi"
+    "timeJust": "Şimdi",
+    "votesCount": "{count} Oy",
+    "voteCountSingular": "{count} Oy",
+    "endsAt": "{date} tarihinde bitiyor",
+    "clubNewsLabel": "Kulüp haberi"
   },
   "profile": {
     "title": "Profil",
@@ -1216,7 +1222,9 @@
     "followsNobody": "Kimseyi takip etmiyor.",
     "profileNotFound": "Profil @{handle} bulunamadı.",
     "backToOwnProfile": "Kendi profiline dön",
-    "recentActivity": "Son aktivite"
+    "recentActivity": "Son aktivite",
+    "verifiedScout": "Doğrulanmış Scout",
+    "callsProgress": "{n}/5 Değerlendirme"
   },
   "player": {
     "overview": "Genel Bakış",
@@ -1789,7 +1797,22 @@
     "markAllRead": "Tümünü okundu işaretle",
     "noNew": "Yeni bildirim yok",
     "loadFailed": "Yükleme başarısız",
-    "now": "Şimdi"
+    "now": "Şimdi",
+    "eventScoredTitle": "{name} sonuçları açıklandı!",
+    "eventScoredBody": "Sıralamanız: #{rank}, {score} Puan ile",
+    "fantasyRewardTitle": "{name} etkinliğinde #{rank}. sıra",
+    "fantasyRewardBody": "{score} Puan kazandın!",
+    "eventStartedTitle": "Etkinlik başladı!",
+    "eventStartedBody": "{name} şimdi canlı — puanlar sayılıyor!",
+    "newVoteTitle": "Yeni oy",
+    "newVoteBody": "Biri \"{question}\" anketinde oy kullandı",
+    "liquidationTitle": "DPC tasfiye edildi",
+    "liquidationWithSF": "{total} $SCOUT aldın ({pbt} PBT + {sf} Topluluk Bonusu).",
+    "liquidationPBTOnly": "PBT dağıtımından {total} $SCOUT aldın.",
+    "newOfferTitle": "Yeni teklif",
+    "newOfferBody": "Yeni bir teklif aldın",
+    "counterOfferTitle": "Karşı teklif",
+    "counterOfferBody": "Bir karşı teklif aldın"
   },
   "gamification": {
     "rang": {
@@ -1907,7 +1930,8 @@
       "celebration": "{reward} kazanıldı!"
     },
     "gesamtRang": "Genel Rütbe",
-    "median": "3 boyutun ortancası"
+    "median": "3 boyutun ortancası",
+    "pointsLabel": "Puan"
   },
   "onboarding": {
     "title": "İlk Adımlar",

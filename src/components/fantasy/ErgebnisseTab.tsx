@@ -164,7 +164,7 @@ export function ErgebnisseTab({
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-sm truncate">{event.name}</div>
                     <div className="text-[11px] text-white/40">
-                      Platz {rank ?? '-'} / {event.participants} — {score ?? 0} Punkte
+                      {tf('rankOfParticipants', { rank: rank ?? '-', participants: event.participants, score: score ?? 0 })}
                     </div>
                   </div>
                   {event.userReward && event.userReward > 0 && (

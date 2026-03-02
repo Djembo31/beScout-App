@@ -86,6 +86,7 @@ function InlineFeedVoteCard({ vote, hasVoted, onVote, voting }: {
   onVote?: (voteId: string, optionIndex: number) => void;
   voting?: string | null;
 }) {
+  const t = useTranslations('community');
   const totalVotes = vote.total_votes;
   const isActive = vote.status === 'active' && new Date(vote.ends_at) > new Date();
 
@@ -121,7 +122,7 @@ function InlineFeedVoteCard({ vote, hasVoted, onVote, voting }: {
             );
           })}
         </div>
-        <div className="text-xs text-white/40">{totalVotes} Stimmen</div>
+        <div className="text-xs text-white/40">{t('votesCount', { count: totalVotes })}</div>
       </div>
     </Card>
   );

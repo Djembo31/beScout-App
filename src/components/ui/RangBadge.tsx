@@ -4,7 +4,7 @@ import React from 'react';
 import { Shield, Star, Gem, Crown, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getRang, getGesamtRang, getDimensionColor, getDimensionBgColor, getDimensionBorderColor, type RangId, type DimensionScores, type Dimension } from '@/lib/gamification';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 // ============================================
 // RANG BADGE — 3-Dimension Elo System
@@ -39,6 +39,8 @@ export interface RangBadgeProps {
 
 export function RangBadge({ score, scores, size = 'md', showScore, className = '' }: RangBadgeProps) {
   const t = useTranslations('gamification');
+  const locale = useLocale();
+  const numLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
   const rang = scores ? getGesamtRang(scores) : getRang(score ?? 0);
   const displayScore = scores
     ? Math.round((scores.trader_score + scores.manager_score + scores.analyst_score) / 3)
@@ -50,13 +52,13 @@ export function RangBadge({ score, scores, size = 'md', showScore, className = '
   return (
     <span
       className={cn('inline-flex items-center rounded-xl border font-black', rang.bgColor, rang.borderColor, rang.color, s.badge, className)}
-      title={`${rangLabel} — ${displayScore.toLocaleString('de-DE')} Punkte`}
+      title={`${rangLabel} — ${displayScore.toLocaleString(numLocale)} ${t('pointsLabel')}`}
     >
       <Icon className={s.icon} aria-hidden="true" />
       <span className={s.text}>{rangLabel}</span>
       {showScore && (
         <span className={cn(s.text, 'font-mono tabular-nums opacity-70')}>
-          {displayScore.toLocaleString('de-DE')}
+          {displayScore.toLocaleString(numLocale)}
         </span>
       )}
     </span>
@@ -66,6 +68,8 @@ export function RangBadge({ score, scores, size = 'md', showScore, className = '
 /** Kompakte Rang-Anzeige nur mit Icon + Score (für Leaderboards, Tabellen) */
 export function RangScorePill({ score, className = '' }: { score: number; className?: string }) {
   const t = useTranslations('gamification');
+  const locale = useLocale();
+  const numLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
   const rang = getRang(score);
   const Icon = RANG_ICONS[rang.id];
 
@@ -75,13 +79,15 @@ export function RangScorePill({ score, className = '' }: { score: number; classN
       title={t(`rang.${rang.i18nKey}`)}
     >
       <Icon className="size-3" aria-hidden="true" />
-      <span className="text-[11px] font-mono font-bold tabular-nums">{score.toLocaleString('de-DE')}</span>
+      <span className="text-[11px] font-mono font-bold tabular-nums">{score.toLocaleString(numLocale)}</span>
     </span>
   );
 }
 
 /** Score-Fortschrittsbalken zum nächsten Rang */
 export function RangProgress({ score, className = '' }: { score: number; className?: string }) {
+  const locale = useLocale();
+  const numLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
   const rang = getRang(score);
   const minScore = rang.minScore;
   const maxScore = rang.maxScore;
@@ -109,7 +115,7 @@ export function RangProgress({ score, className = '' }: { score: number; classNa
         />
       </div>
       <span className="text-[10px] font-mono tabular-nums text-white/40">
-        {(maxScore + 1 - score).toLocaleString('de-DE')}
+        {(maxScore + 1 - score).toLocaleString(numLocale)}
       </span>
     </div>
   );
