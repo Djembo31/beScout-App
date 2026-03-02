@@ -130,6 +130,7 @@ function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
 // ============================================
 
 function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo }: { fixture: Fixture | null; isOpen: boolean; onClose: () => void; sponsorName?: string; sponsorLogo?: string }) {
+  const ts = useTranslations('spieltag');
   const [stats, setStats] = useState<FixturePlayerStat[]>([]);
   const [loading, setLoading] = useState(false);
   const [detailTab, setDetailTab] = useState<'formation' | 'players'>('formation');
@@ -196,7 +197,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
                     : 'text-white/40 border-transparent hover:text-white/60'
                 }`}
               >
-                {tab === 'formation' ? 'Aufstellungen' : 'Spieler'}
+                {tab === 'formation' ? ts('lineups') : ts('playersTab')}
               </button>
             ))}
           </div>
@@ -209,7 +210,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
             </div>
           ) : stats.length === 0 ? (
             <div className="text-center text-white/30 py-12">
-              {isSimulated ? 'Keine Spielerdaten verfügbar' : 'Spiel noch nicht simuliert — Aufstellungen werden nach Simulation angezeigt'}
+              {isSimulated ? ts('noPlayerData') : ts('notSimulated')}
             </div>
           ) : detailTab === 'formation' ? (
             <div className="rounded-xl overflow-hidden border border-green-500/20">

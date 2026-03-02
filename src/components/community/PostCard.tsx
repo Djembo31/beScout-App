@@ -7,6 +7,7 @@ import {
   MoreHorizontal, Target, Briefcase, BadgeCheck, CheckCircle2,
   Pin, Trash2, Lock,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { cn } from '@/lib/utils';
@@ -86,6 +87,7 @@ export default function PostCard({
   isLockedExclusive = false,
   authorSubscriptionTier,
 }: PostCardProps) {
+  const tc = useTranslations('community');
   const netScore = post.upvotes - post.downvotes;
   const isOwnedPlayer = post.player_id ? ownedPlayerIds.has(post.player_id) : false;
   const [showMenu, setShowMenu] = useState(false);
@@ -279,12 +281,12 @@ export default function PostCard({
           {isLockedExclusive ? (
             <div className="relative mb-2">
               <p className="text-sm text-white/80 leading-relaxed blur-sm select-none" aria-hidden>
-                Dieser Inhalt ist exklusiv für Abonnenten dieses Scouts verfügbar...
+                {tc('subscriberContent')}
               </p>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-500/15 border border-indigo-500/20 text-indigo-300 text-xs font-semibold">
                   <Lock className="w-3.5 h-3.5" />
-                  Exklusiv für Abonnenten
+                  {tc('subscriberExclusive')}
                 </div>
               </div>
             </div>
@@ -295,7 +297,7 @@ export default function PostCard({
           {post.is_exclusive && !isLockedExclusive && (
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/20 mb-2">
               <Lock className="w-2.5 h-2.5" />
-              Exklusiv
+              {tc('exclusiveTag')}
             </span>
           )}
 

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { AlertTriangle, PiggyBank, Tag, ShoppingCart } from 'lucide-react';
 import type { Pos, PlayerStatus, Player } from '@/types';
 import { getClub } from '@/lib/clubs';
@@ -91,18 +92,15 @@ const toneClasses = {
   neutral: 'border-white/10 bg-white/5 text-white/70',
 };
 
-const SCORE_TOOLTIPS: Record<string, string> = {
-  L5: 'Letzte 5 Spiele Performance (0–100)',
-  L15: 'Letzte 15 Spiele Performance (0–100)',
-};
-
 export function ScoreCircle({ label, value, size = 48 }: { label: string; value: number; size?: number }) {
+  const tp = useTranslations('player');
+  const scoreTooltips: Record<string, string> = { L5: tp('l5Tooltip'), L15: tp('l15Tooltip') };
   const tone = value >= L5_THRESHOLDS.good ? 'good' : value >= L5_THRESHOLDS.mid ? 'mid' : value > 0 ? 'bad' : 'neutral';
   return (
     <div
       className={cn('rounded-full border flex flex-col items-center justify-center', toneClasses[tone])}
       style={{ width: size, height: size }}
-      title={SCORE_TOOLTIPS[label] ?? label}
+      title={scoreTooltips[label] ?? label}
     >
       <div className="text-[10px] font-black opacity-70 leading-none">{label}</div>
       <div className="text-base font-black leading-none mt-1 tabular-nums">{Math.round(value)}</div>

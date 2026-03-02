@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { FileText, Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import ResearchCard from '@/components/community/ResearchCard';
@@ -13,11 +14,7 @@ import type { ResearchPostWithAuthor } from '@/types';
 
 type ResearchSort = 'new' | 'top_rated' | 'most_sold';
 
-const RESEARCH_SORTS: { id: ResearchSort; label: string }[] = [
-  { id: 'new', label: 'Neueste' },
-  { id: 'top_rated', label: 'Top bewertet' },
-  { id: 'most_sold', label: 'Meistverkauft' },
-];
+const RESEARCH_SORT_IDS: ResearchSort[] = ['new', 'top_rated', 'most_sold'];
 
 const RESEARCH_CALLS: { id: string; label: string; color: string }[] = [
   { id: 'Bullish', label: 'Bullish', color: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/20' },
@@ -58,7 +55,9 @@ export default function CommunityResearchTab({
   onRate,
   ratingId,
 }: CommunityResearchTabProps) {
+  const tc = useTranslations('community');
   const [researchSort, setResearchSort] = useState<ResearchSort>('new');
+  const sortLabel: Record<ResearchSort, string> = { new: tc('sortNewest'), top_rated: tc('sortTopRated'), most_sold: tc('sortMostSold') };
   const [researchCallFilter, setResearchCallFilter] = useState<string | null>(null);
   const [researchCategoryFilter, setResearchCategoryFilter] = useState<string | null>(null);
 
@@ -111,18 +110,18 @@ export default function CommunityResearchTab({
       {/* Sort Pills */}
       <div className="flex items-center gap-2">
         <div className="flex gap-1">
-          {RESEARCH_SORTS.map(s => (
+          {RESEARCH_SORT_IDS.map(sid => (
             <button
-              key={s.id}
-              onClick={() => setResearchSort(s.id)}
+              key={sid}
+              onClick={() => setResearchSort(sid)}
               className={cn(
                 'px-3 py-2 rounded-lg text-xs font-semibold transition-all border',
-                researchSort === s.id
+                researchSort === sid
                   ? 'bg-gold/15 text-gold border-gold/25'
                   : 'text-white/50 hover:text-white bg-white/5 border-white/10'
               )}
             >
-              {s.label}
+              {sortLabel[sid]}
             </button>
           ))}
         </div>
@@ -166,7 +165,7 @@ export default function CommunityResearchTab({
             onClick={() => { setResearchCallFilter(null); setResearchCategoryFilter(null); }}
             className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-white/30 hover:text-white/60 transition-colors"
           >
-            Filter zurücksetzen
+            {tc('resetFilters')}
           </button>
         )}
       </div>
@@ -175,14 +174,14 @@ export default function CommunityResearchTab({
         <Card className="p-12 text-center">
           <FileText className="w-12 h-12 mx-auto mb-4 text-white/20" />
           <div className="text-white/50 mb-2">
-            {(researchCallFilter || researchCategoryFilter) ? 'Keine Berichte mit diesem Filter' : 'Noch keine Research-Berichte'}
+            {(researchCallFilter || researchCategoryFilter) ? tc('noReportsFilter') : tc('noReportsYet')}
           </div>
           <div className="text-xs text-white/30 mb-4">
-            {(researchCallFilter || researchCategoryFilter) ? 'Probiere einen anderen Filter.' : 'Schreibe den ersten Bericht und verdiene $SCOUT!'}
+            {(researchCallFilter || researchCategoryFilter) ? tc('tryOtherFilter') : tc('writeFirstReport')}
           </div>
           {!(researchCallFilter || researchCategoryFilter) && (
             <Button variant="gold" size="sm" onClick={onCreateResearch}>
-              Ersten Bericht schreiben
+              {tc('writeFirstReportBtn')}
             </Button>
           )}
         </Card>

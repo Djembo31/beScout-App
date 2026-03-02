@@ -365,7 +365,7 @@ export default function FantasyContent() {
       setLocalEvents(prev => (prev ?? events).map(ev =>
         ev.id === event.id ? { ...ev, isJoined: wasJoined, participants: wasJoined ? ev.participants : Math.max(0, (ev.participants || 1) - 1) } : ev
       ));
-      addToast(`Fehler: ${e instanceof Error ? e.message : 'Unbekannter Fehler'}`, 'error');
+      addToast(t('errorGeneric', { error: e instanceof Error ? e.message : t('unknownError') }), 'error');
       return;
     }
 
@@ -378,7 +378,7 @@ export default function FantasyContent() {
       triggerMissionProgress(user.id, ['weekly_fantasy']);
     }).catch(err => console.error('[Fantasy] Mission tracking failed:', err));
 
-    addToast(`Erfolgreich angemeldet für "${event.name}"!`, 'success');
+    addToast(t('joinedSuccess', { name: event.name }), 'success');
   }, [user, balanceCents, setBalanceCents, addToast, events]);
 
   const handleLeaveEvent = useCallback(async (event: FantasyEvent) => {
@@ -414,7 +414,7 @@ export default function FantasyContent() {
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
     setLocalEvents(null); // Clear local overrides so React Query refetches authoritative data
 
-    addToast(`Vom Event "${event.name}" abgemeldet.${event.buyIn > 0 ? ` ${event.buyIn} $SCOUT zurückerstattet.` : ''}`, 'success');
+    addToast(`${t('leftEvent', { name: event.name })}${event.buyIn > 0 ? ` ${t('refundNote', { amount: event.buyIn })}` : ''}`, 'success');
   }, [user, setBalanceCents, addToast, events]);
 
   // Refetch all events from DB (used after score, reset, simulation)
@@ -435,7 +435,7 @@ export default function FantasyContent() {
   const handleCreateEvent = useCallback((eventData: Partial<FantasyEvent>) => {
     const newEvent: FantasyEvent = {
       id: `e${Date.now()}`,
-      name: eventData.name || 'Neues Event',
+      name: eventData.name || t('newEventDefault'),
       description: eventData.description || '',
       type: 'creator',
       mode: eventData.mode || 'tournament',
@@ -527,10 +527,10 @@ export default function FantasyContent() {
 
   // Tab definitions — 4 tabs
   const tabs: { id: FantasyTab; label: string; mobileLabel: string; icon: typeof Calendar }[] = [
-    { id: 'paarungen', label: 'Paarungen', mobileLabel: 'Spiele', icon: Calendar },
-    { id: 'events', label: 'Events', mobileLabel: 'Events', icon: Globe },
-    { id: 'mitmachen', label: 'Mitmachen', mobileLabel: 'Aktiv', icon: Users },
-    { id: 'ergebnisse', label: 'Ergebnisse', mobileLabel: 'Ergebnis', icon: BarChart3 },
+    { id: 'paarungen', label: t('tabFixtures'), mobileLabel: t('tabFixturesShort'), icon: Calendar },
+    { id: 'events', label: t('events'), mobileLabel: t('tabEventsShort'), icon: Globe },
+    { id: 'mitmachen', label: t('tabJoined'), mobileLabel: t('tabJoinedShort'), icon: Users },
+    { id: 'ergebnisse', label: t('tabResults'), mobileLabel: t('tabResultsShort'), icon: BarChart3 },
   ];
 
   return (

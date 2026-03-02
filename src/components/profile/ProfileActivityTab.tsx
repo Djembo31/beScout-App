@@ -59,7 +59,7 @@ export default function ProfileActivityTab({ transactions: initial, userId, isSe
 
   return (
     <Card className="p-4 md:p-6">
-      <h3 className="font-black mb-4">Letzte Aktivität</h3>
+      <h3 className="font-black mb-4">{t('recentActivity')}</h3>
       {transactions.length === 0 ? (
         <div className="text-center py-10">
           <Activity className="size-10 mx-auto mb-3 text-white/20" aria-hidden="true" />

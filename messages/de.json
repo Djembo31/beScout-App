@@ -292,7 +292,10 @@
     "spotlightEvent": "Nächstes Event",
     "spotlightTopMover": "Dein Top-Spieler heute",
     "spotlightTrending": "Trending",
-    "spotlightCta": "Entdecke den Markt"
+    "spotlightCta": "Entdecke den Markt",
+    "entryLabel": "Eintritt: ",
+    "entryFree": "Gratis",
+    "prizeMoney": "Preisgeld"
   },
   "fantasy": {
     "title": "Spieltag",
@@ -528,7 +531,20 @@
     "thGw": "GW",
     "thRank": "Rang",
     "participantsLabel": "Teilnehmer",
-    "ptsLabel": "Pkt"
+    "ptsLabel": "Pkt",
+    "errorGeneric": "Fehler: {error}",
+    "unknownError": "Unbekannter Fehler",
+    "joinedSuccess": "Erfolgreich angemeldet für „{name}\"!",
+    "leftEvent": "Vom Event „{name}\" abgemeldet.",
+    "refundNote": "{amount} $SCOUT zurückerstattet.",
+    "newEventDefault": "Neues Event",
+    "tabFixtures": "Paarungen",
+    "tabFixturesShort": "Spiele",
+    "tabEventsShort": "Events",
+    "tabJoined": "Mitmachen",
+    "tabJoinedShort": "Aktiv",
+    "tabResults": "Ergebnisse",
+    "tabResultsShort": "Ergebnis"
   },
   "predictions": {
     "title": "Vorhersagen",
@@ -967,7 +983,19 @@
     "typePlayerTake": "Spieler-Take",
     "typePlayerTakeDesc": "Dein Take zu einem Spieler",
     "typeRumor": "Gerücht",
-    "typeRumorDesc": "Transfer­gerücht oder Insider-Info"
+    "typeRumorDesc": "Transfer­gerücht oder Insider-Info",
+    "subscriberExclusive": "Exklusiv für Abonnenten",
+    "subscriberContent": "Dieser Inhalt ist exklusiv für Abonnenten dieses Scouts verfügbar...",
+    "exclusiveTag": "Exklusiv",
+    "noReportsFilter": "Keine Berichte mit diesem Filter",
+    "noReportsYet": "Noch keine Research-Berichte",
+    "tryOtherFilter": "Probiere einen anderen Filter.",
+    "writeFirstReport": "Schreibe den ersten Bericht und verdiene $SCOUT!",
+    "writeFirstReportBtn": "Ersten Bericht schreiben",
+    "resetFilters": "Filter zurücksetzen",
+    "sortNewest": "Neueste",
+    "sortTopRated": "Top bewertet",
+    "sortMostSold": "Meistverkauft"
   },
   "profile": {
     "title": "Profil",
@@ -1048,7 +1076,13 @@
     "notifCat_rewards_desc": "Achievements, Level-Ups, Ränge, Missionen",
     "notFoundTitle": "Profil nicht gefunden",
     "notFoundDesc": "Dieser Scout existiert nicht oder hat sein Profil deaktiviert.",
-    "toHome": "Zur Startseite"
+    "toHome": "Zur Startseite",
+    "followingTitle": "Folgt",
+    "noFollowersYet": "Noch keine Follower.",
+    "followsNobody": "Folgt niemandem.",
+    "profileNotFound": "Profil @{handle} nicht gefunden.",
+    "backToOwnProfile": "Zurück zum eigenen Profil",
+    "recentActivity": "Letzte Aktivität"
   },
   "player": {
     "overview": "Übersicht",
@@ -1126,7 +1160,10 @@
     "offerAccepted": "Angebot angenommen",
     "sharedToCommunity": "In der Community geteilt!",
     "priceHistory": "Preisverlauf",
-    "priceHistoryChart": "Preisverlauf-Chart"
+    "priceHistoryChart": "Preisverlauf-Chart",
+    "couldNotLoadProfiles": "Profilnamen konnten nicht geladen werden",
+    "l5Tooltip": "Letzte 5 Spiele Performance (0–100)",
+    "l15Tooltip": "Letzte 15 Spiele Performance (0–100)"
   },
   "club": {
     "overview": "Übersicht",
@@ -1251,7 +1288,22 @@
     "tipDailyDesc": "Login-Streak, Trades, Missionen",
     "tipReferral": "Freunde einladen",
     "tipReferralDesc": "Referral-Code teilen (Founding Scout 3x!)",
-    "tierSilver": "Silber"
+    "tierSilver": "Silber",
+    "tierBronze": "Bronze",
+    "tierSilber": "Silber",
+    "tierGold": "Gold",
+    "tierDiamond": "Diamond",
+    "barScoutRang": "Scout Rang",
+    "barMastery": "DPC Mastery",
+    "barActivity": "Aktivität",
+    "barTrading": "Trading",
+    "barResearch": "Research",
+    "barReferral": "Referral",
+    "scoreBreakdown": "Score-Aufschlüsselung",
+    "foundingMultiplier": "Founding {n}x",
+    "aboMultiplier": "Abo {n}x",
+    "airdropComingSoon": "$SCOUT Airdrop — Coming Soon",
+    "rankOf": "von {total}"
   },
   "admin": {
     "overview": "Übersicht",
@@ -2129,7 +2181,8 @@
     "communityTitle": "Willkommen in der Scouting Zone",
     "communityDesc": "Teile deine Meinung, bewerte Spieler oder entdecke Transfer-Gerüchte.",
     "writePost": "Post schreiben",
-    "dismiss": "Verstanden"
+    "dismiss": "Verstanden",
+    "sendError": "Fehler beim Senden"
   },
   "spieltag": {
     "label": "Spieltag",
@@ -2145,7 +2198,11 @@
     "noEvents": "Noch keine Events für Spieltag {gw}",
     "noEventsDesc": "{count} Paarungen vorhanden — Events werden vom Admin erstellt.",
     "noActivity": "Keine Aktivität für Spieltag {gw}",
-    "noActivityDesc": "Events und Fixtures sind für diesen Spieltag noch nicht eingerichtet."
+    "noActivityDesc": "Events und Fixtures sind für diesen Spieltag noch nicht eingerichtet.",
+    "lineups": "Aufstellungen",
+    "playersTab": "Spieler",
+    "noPlayerData": "Keine Spielerdaten verfügbar",
+    "notSimulated": "Spiel noch nicht simuliert — Aufstellungen werden nach Simulation angezeigt"
   },
   "sponsorStats": {
     "title": "Sponsor-KPIs",

@@ -138,7 +138,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     if (ids.length > 0) {
       getProfilesByIds(ids).then(setProfileMap).catch(err => {
         console.error('[Player] Profile map failed:', err);
-        addToast('Profilnamen konnten nicht geladen werden', 'error');
+        addToast(t('couldNotLoadProfiles'), 'error');
       });
     }
   }, [trades, allSellOrders]);

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Skeleton, SkeletonCard } from '@/components/ui';
+import { useTranslations } from 'next-intl';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getProfileByHandle } from '@/lib/services/profiles';
 import ProfileView from '@/components/profile/ProfileView';
@@ -15,6 +16,7 @@ export default function PublicProfilePage() {
   const handle = typeof params.handle === 'string' ? params.handle : '';
 
   const [targetProfile, setTargetProfile] = useState<Profile | null>(null);
+  const t = useTranslations('profile');
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -76,12 +78,12 @@ export default function PublicProfilePage() {
     return (
       <div className="max-w-[1400px] mx-auto text-center py-20">
         <div className="text-4xl font-black tabular-nums mb-4 text-white/20">404</div>
-        <div className="text-white/50 mb-4">Profil @{handle} nicht gefunden.</div>
+        <div className="text-white/50 mb-4">{t('profileNotFound', { handle })}</div>
         <button
           onClick={() => router.push('/profile')}
           className="text-gold hover:underline text-sm min-h-[44px]"
         >
-          Zurück zum eigenen Profil
+          {t('backToOwnProfile')}
         </button>
       </div>
     );

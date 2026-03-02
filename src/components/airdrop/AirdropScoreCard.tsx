@@ -2,27 +2,28 @@
 
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, Trophy, ChevronDown, ChevronUp, Rocket } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { getAirdropScore, refreshAirdropScore } from '@/lib/services/airdropScore';
 import type { DbAirdropScore, AirdropTier } from '@/types';
 
-const TIER_CONFIG: Record<AirdropTier, { label: string; color: string; bg: string; border: string }> = {
-  bronze:  { label: 'Bronze',  color: '#CD7F32', bg: 'rgba(205,127,50,0.12)',  border: 'rgba(205,127,50,0.25)' },
-  silver:  { label: 'Silber',  color: '#C0C0C0', bg: 'rgba(192,192,192,0.12)', border: 'rgba(192,192,192,0.25)' },
-  gold:    { label: 'Gold',    color: '#FFD700', bg: 'rgba(255,215,0,0.12)',   border: 'rgba(255,215,0,0.25)' },
-  diamond: { label: 'Diamond', color: '#B9F2FF', bg: 'rgba(185,242,255,0.12)', border: 'rgba(185,242,255,0.25)' },
+const TIER_CONFIG: Record<AirdropTier, { color: string; bg: string; border: string }> = {
+  bronze:  { color: '#CD7F32', bg: 'rgba(205,127,50,0.12)',  border: 'rgba(205,127,50,0.25)' },
+  silver:  { color: '#C0C0C0', bg: 'rgba(192,192,192,0.12)', border: 'rgba(192,192,192,0.25)' },
+  gold:    { color: '#FFD700', bg: 'rgba(255,215,0,0.12)',   border: 'rgba(255,215,0,0.25)' },
+  diamond: { color: '#B9F2FF', bg: 'rgba(185,242,255,0.12)', border: 'rgba(185,242,255,0.25)' },
 };
 
-type ScoreBarDef = { key: string; label: string; color: string; getValue: (s: DbAirdropScore) => number };
+type ScoreBarDef = { key: string; color: string; getValue: (s: DbAirdropScore) => number };
 
 const SCORE_BARS: ScoreBarDef[] = [
-  { key: 'scout_rang',  label: 'Scout Rang',  color: '#FFD700', getValue: (s) => (s as Record<string, unknown>).scout_rang_score as number ?? 0 },
-  { key: 'mastery',     label: 'DPC Mastery', color: '#8B5CF6', getValue: (s) => (s as Record<string, unknown>).mastery_score as number ?? 0 },
-  { key: 'activity',    label: 'Aktivität',   color: '#EC4899', getValue: (s) => s.active_days * 2 },
-  { key: 'trades',      label: 'Trading',     color: '#3B82F6', getValue: (s) => s.total_trades },
-  { key: 'research',    label: 'Research',    color: '#22C55E', getValue: (s) => s.research_count * 3 },
-  { key: 'referral',    label: 'Referral',    color: '#06B6D4', getValue: (s) => s.referral_count * 5 },
+  { key: 'scout_rang',  color: '#FFD700', getValue: (s) => (s as Record<string, unknown>).scout_rang_score as number ?? 0 },
+  { key: 'mastery',     color: '#8B5CF6', getValue: (s) => (s as Record<string, unknown>).mastery_score as number ?? 0 },
+  { key: 'activity',    color: '#EC4899', getValue: (s) => s.active_days * 2 },
+  { key: 'trades',      color: '#3B82F6', getValue: (s) => s.total_trades },
+  { key: 'research',    color: '#22C55E', getValue: (s) => s.research_count * 3 },
+  { key: 'referral',    color: '#06B6D4', getValue: (s) => s.referral_count * 5 },
 ];
 
 type Props = {
@@ -32,6 +33,9 @@ type Props = {
 };
 
 export default function AirdropScoreCard({ userId, compact = false, totalUsers }: Props) {
+  const ta = useTranslations('airdrop');
+  const tierLabel: Record<AirdropTier, string> = { bronze: ta('tierBronze'), silver: ta('tierSilber'), gold: ta('tierGold'), diamond: ta('tierDiamond') };
+  const barLabel: Record<string, string> = { scout_rang: ta('barScoutRang'), mastery: ta('barMastery'), activity: ta('barActivity'), trades: ta('barTrading'), research: ta('barResearch'), referral: ta('barReferral') };
   const [score, setScore] = useState<DbAirdropScore | null>(null);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -81,13 +85,13 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
                 className="px-1.5 py-0.5 rounded text-[9px] font-black"
                 style={{ backgroundColor: tier.bg, color: tier.color, border: `1px solid ${tier.border}` }}
               >
-                {tier.label}
+                {tierLabel[score.tier]}
               </span>
             </div>
             <div className="flex items-baseline gap-2 mt-0.5">
               <span className="text-lg font-mono font-black" style={{ color: tier.color }}>{score.total_score}</span>
               {score.rank && (
-                <span className="text-[10px] text-white/30">#{score.rank}{totalUsers ? ` von ${totalUsers}` : ''}</span>
+                <span className="text-[10px] text-white/30">#{score.rank}{totalUsers ? ` ${ta('rankOf', { total: totalUsers })}` : ''}</span>
               )}
             </div>
           </div>
@@ -109,7 +113,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
           className="px-2 py-0.5 rounded-lg text-[10px] font-black"
           style={{ backgroundColor: tier.bg, color: tier.color, border: `1px solid ${tier.border}` }}
         >
-          {tier.label}
+          {tierLabel[score.tier]}
         </span>
       </div>
 
@@ -121,7 +125,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
             <>
               <Trophy className="size-3.5 text-gold/60" />
               <span className="text-sm font-bold text-white/40">#{score.rank}</span>
-              {totalUsers && <span className="text-xs text-white/20">von {totalUsers}</span>}
+              {totalUsers && <span className="text-xs text-white/20">{ta('rankOf', { total: totalUsers })}</span>}
             </>
           )}
         </div>
@@ -132,7 +136,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between text-xs text-white/40 hover:text-white/60 transition-colors mb-2"
       >
-        <span>Score-Aufschlüsselung</span>
+        <span>{ta('scoreBreakdown')}</span>
         {expanded ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
       </button>
 
@@ -143,7 +147,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
             return (
               <div key={bar.key}>
                 <div className="flex items-center justify-between text-[10px] mb-0.5">
-                  <span className="text-white/50">{bar.label}</span>
+                  <span className="text-white/50">{barLabel[bar.key]}</span>
                   <span className="font-mono font-bold" style={{ color: bar.color }}>{val}</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
@@ -159,12 +163,12 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
           <div className="pt-2 border-t border-white/[0.06] flex gap-3 text-[10px]">
             {score.founding_multiplier > 1 && (
               <span className="px-2 py-0.5 rounded-lg bg-gold/15 text-gold font-bold border border-gold/25">
-                Founding {score.founding_multiplier}x
+                {ta('foundingMultiplier', { n: score.founding_multiplier })}
               </span>
             )}
             {((score as Record<string, unknown>).abo_multiplier as number ?? 1) > 1 && (
               <span className="px-2 py-0.5 rounded-lg bg-purple-400/15 text-purple-400 font-bold border border-purple-400/25">
-                Abo {((score as Record<string, unknown>).abo_multiplier as number).toFixed(1)}x
+                {ta('aboMultiplier', { n: ((score as Record<string, unknown>).abo_multiplier as number).toFixed(1) })}
               </span>
             )}
           </div>
@@ -175,11 +179,11 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
       <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-2">
         <a href="/airdrop" className="flex items-center gap-2 text-[10px] text-purple-400/70 hover:text-purple-300 transition-colors">
           <Trophy className="size-3" />
-          <span>Rangliste ansehen</span>
+          <span>{ta('viewLeaderboard')}</span>
         </a>
         <div className="flex items-center gap-2 text-[10px] text-white/30">
           <TrendingUp className="size-3" />
-          <span>$SCOUT Airdrop — Coming Soon</span>
+          <span>{ta('airdropComingSoon')}</span>
         </div>
       </div>
     </Card>

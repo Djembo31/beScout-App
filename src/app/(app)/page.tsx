@@ -281,11 +281,11 @@ export default function HomePage() {
                         <Users className="size-3.5" />
                         {nextEvent.current_entries}/{nextEvent.max_entries ?? '\u221E'}
                       </span>
-                      <span>Eintritt: {nextEvent.entry_fee === 0 ? 'Gratis' : `${fmtScout(centsToBsd(nextEvent.entry_fee))} $SCOUT`}</span>
+                      <span>{t('entryLabel')}{nextEvent.entry_fee === 0 ? t('entryFree') : `${fmtScout(centsToBsd(nextEvent.entry_fee))} $SCOUT`}</span>
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="text-[10px] text-white/40 mb-0.5">Preisgeld</div>
+                    <div className="text-[10px] text-white/40 mb-0.5">{t('prizeMoney')}</div>
                     <div className="text-xl md:text-2xl font-black font-mono tabular-nums text-gold">
                       {formatPrize(centsToBsd(nextEvent.prize_pool))}
                     </div>

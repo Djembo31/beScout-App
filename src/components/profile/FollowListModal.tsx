@@ -20,6 +20,7 @@ interface FollowListModalProps {
 export default function FollowListModal({ userId, mode, onClose }: FollowListModalProps) {
   const { user } = useUser();
   const tg = useTranslations('gamification');
+  const tp = useTranslations('profile');
   const [list, setList] = useState<ProfileSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [followingMap, setFollowingMap] = useState<Map<string, boolean>>(new Map());
@@ -83,14 +84,14 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
   };
 
   return (
-    <Modal open={true} onClose={onClose} title={mode === 'followers' ? 'Follower' : 'Folgt'}>
+    <Modal open={true} onClose={onClose} title={mode === 'followers' ? tp('followers') : tp('followingTitle')}>
       {loading ? (
         <div className="flex justify-center py-8">
           <Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" />
         </div>
       ) : list.length === 0 ? (
         <div className="py-8 text-center text-sm text-white/30">
-          {mode === 'followers' ? 'Noch keine Follower.' : 'Folgt niemandem.'}
+          {mode === 'followers' ? tp('noFollowersYet') : tp('followsNobody')}
         </div>
       ) : (
         <div className="space-y-1 max-h-[400px] overflow-y-auto">

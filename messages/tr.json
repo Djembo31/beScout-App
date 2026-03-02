@@ -291,7 +291,10 @@
     "spotlightEvent": "Sonraki Etkinlik",
     "spotlightTopMover": "Bugünkü en iyi oyuncun",
     "spotlightTrending": "Trend",
-    "spotlightCta": "Piyasayı keşfet"
+    "spotlightCta": "Piyasayı keşfet",
+    "entryLabel": "Giriş: ",
+    "entryFree": "Ücretsiz",
+    "prizeMoney": "Ödül havuzu"
   },
   "fantasy": {
     "title": "Maç Günü",
@@ -525,7 +528,20 @@
     "thGw": "HF",
     "thRank": "Sıra",
     "participantsLabel": "Katılımcı",
-    "ptsLabel": "Puan"
+    "ptsLabel": "Puan",
+    "errorGeneric": "Hata: {error}",
+    "unknownError": "Bilinmeyen hata",
+    "joinedSuccess": "„{name}\" etkinliğine başarıyla katıldın!",
+    "leftEvent": "„{name}\" etkinliğinden ayrıldın.",
+    "refundNote": "{amount} $SCOUT iade edildi.",
+    "newEventDefault": "Yeni Etkinlik",
+    "tabFixtures": "Maçlar",
+    "tabFixturesShort": "Maçlar",
+    "tabEventsShort": "Etkinlik",
+    "tabJoined": "Katıl",
+    "tabJoinedShort": "Aktif",
+    "tabResults": "Sonuçlar",
+    "tabResultsShort": "Sonuç"
   },
   "predictions": {
     "title": "Tahminler",
@@ -959,7 +975,19 @@
     "typePlayerTake": "Oyuncu Yorumu",
     "typePlayerTakeDesc": "Bir oyuncu hakkındaki görüşün",
     "typeRumor": "Söylenti",
-    "typeRumorDesc": "Transfer söylentisi veya iç bilgi"
+    "typeRumorDesc": "Transfer söylentisi veya iç bilgi",
+    "subscriberExclusive": "Abonelere özel",
+    "subscriberContent": "Bu içerik sadece bu Scout'un abonelerine özeldir...",
+    "exclusiveTag": "Özel",
+    "noReportsFilter": "Bu filtreyle rapor bulunamadı",
+    "noReportsYet": "Henüz araştırma raporu yok",
+    "tryOtherFilter": "Başka bir filtre dene.",
+    "writeFirstReport": "İlk raporu yaz ve $SCOUT kazan!",
+    "writeFirstReportBtn": "İlk raporu yaz",
+    "resetFilters": "Filtreleri sıfırla",
+    "sortNewest": "En yeni",
+    "sortTopRated": "En iyi puan",
+    "sortMostSold": "En çok satılan"
   },
   "profile": {
     "title": "Profil",
@@ -1040,7 +1068,13 @@
     "notifCat_rewards_desc": "Başarılar, seviye atlamaları, rütbeler, görevler",
     "notFoundTitle": "Profil bulunamadı",
     "notFoundDesc": "Bu Scout mevcut değil veya profilini devre dışı bırakmış.",
-    "toHome": "Ana sayfaya git"
+    "toHome": "Ana sayfaya git",
+    "followingTitle": "Takip ettikleri",
+    "noFollowersYet": "Henüz takipçi yok.",
+    "followsNobody": "Kimseyi takip etmiyor.",
+    "profileNotFound": "Profil @{handle} bulunamadı.",
+    "backToOwnProfile": "Kendi profiline dön",
+    "recentActivity": "Son aktivite"
   },
   "player": {
     "overview": "Genel Bakış",
@@ -1118,7 +1152,10 @@
     "offerAccepted": "Teklif kabul edildi",
     "sharedToCommunity": "Toplulukta paylaşıldı!",
     "priceHistory": "Fiyat Geçmişi",
-    "priceHistoryChart": "Fiyat Geçmişi Grafiği"
+    "priceHistoryChart": "Fiyat Geçmişi Grafiği",
+    "couldNotLoadProfiles": "Profil adları yüklenemedi",
+    "l5Tooltip": "Son 5 maç performansı (0–100)",
+    "l15Tooltip": "Son 15 maç performansı (0–100)"
   },
   "club": {
     "overview": "Genel Bakış",
@@ -1243,7 +1280,22 @@
     "tipDailyDesc": "Giriş serisi, Trade'ler, Görevler",
     "tipReferral": "Arkadaşlarını davet et",
     "tipReferralDesc": "Referans kodunu paylaş (Kurucu Scout 3x!)",
-    "tierSilver": "Gümüş"
+    "tierSilver": "Gümüş",
+    "tierBronze": "Bronz",
+    "tierSilber": "Gümüş",
+    "tierGold": "Altın",
+    "tierDiamond": "Elmas",
+    "barScoutRang": "Scout Sıralaması",
+    "barMastery": "DPC Ustalığı",
+    "barActivity": "Aktivite",
+    "barTrading": "Al-Sat",
+    "barResearch": "Araştırma",
+    "barReferral": "Davet",
+    "scoreBreakdown": "Skor dağılımı",
+    "foundingMultiplier": "Kurucu {n}x",
+    "aboMultiplier": "Abonelik {n}x",
+    "airdropComingSoon": "$SCOUT Airdrop — Çok Yakında",
+    "rankOf": "{total} içinden"
   },
   "admin": {
     "overview": "Genel Bakış",
@@ -2121,7 +2173,8 @@
     "communityTitle": "Scouting Zone'a Hoş Geldin",
     "communityDesc": "Fikirlerini paylaş, oyuncuları değerlendir veya transfer söylentilerini keşfet.",
     "writePost": "Gönderi yaz",
-    "dismiss": "Anladım"
+    "dismiss": "Anladım",
+    "sendError": "Gönderme hatası"
   },
   "spieltag": {
     "label": "Maç Haftası",
@@ -2137,7 +2190,11 @@
     "noEvents": "Maç Haftası {gw} için henüz etkinlik yok",
     "noEventsDesc": "{count} eşleşme mevcut — etkinlikler yönetici tarafından oluşturulur.",
     "noActivity": "Maç Haftası {gw} için aktivite yok",
-    "noActivityDesc": "Bu maç haftası için etkinlikler ve maçlar henüz ayarlanmadı."
+    "noActivityDesc": "Bu maç haftası için etkinlikler ve maçlar henüz ayarlanmadı.",
+    "lineups": "Kadrolar",
+    "playersTab": "Oyuncular",
+    "noPlayerData": "Oyuncu verisi mevcut değil",
+    "notSimulated": "Maç henüz simüle edilmedi — Kadrolar simülasyondan sonra gösterilecek"
   },
   "sponsorStats": {
     "title": "Sponsor KPI'ları",

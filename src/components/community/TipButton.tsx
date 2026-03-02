@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Coins, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { sendTip } from '@/lib/services/tips';
 import { logActivity } from '@/lib/services/activityLog';
@@ -34,6 +35,7 @@ export default function TipButton({
   tipCount,
   tipTotalCents,
 }: TipButtonProps) {
+  const tt = useTranslations('tips');
   const [open, setOpen] = useState(false);
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -76,7 +78,7 @@ export default function TipButton({
     setSending(false);
 
     if (!result.success) {
-      setError(result.error ?? 'Fehler beim Senden');
+      setError(result.error ?? tt('sendError'));
       return;
     }
 
