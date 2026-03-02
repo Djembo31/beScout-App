@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
 interface Column<T> {
   key: string;
@@ -22,10 +23,12 @@ export function MobileTableCard<T>({
   data,
   keyFn,
   renderCard,
-  emptyMessage = 'Keine Daten',
+  emptyMessage,
 }: MobileTableCardProps<T>) {
+  const t = useTranslations('common');
+  const resolvedEmpty = emptyMessage ?? t('noData');
   if (data.length === 0) {
-    return <div className="py-8 text-center text-sm text-white/30">{emptyMessage}</div>;
+    return <div className="py-8 text-center text-sm text-white/30">{resolvedEmpty}</div>;
   }
 
   return (

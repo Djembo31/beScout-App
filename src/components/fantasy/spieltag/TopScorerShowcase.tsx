@@ -2,17 +2,11 @@
 
 import React, { useState, useMemo } from 'react';
 import { Trophy, Target, HandHelping, ShieldCheck, Star } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { FixturePlayerStat } from '@/types';
 import { posColor, scoreBadgeColor } from './helpers';
 
 type PosFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'ATT';
-const POS_FILTERS: { id: PosFilter; label: string }[] = [
-  { id: 'all', label: 'Alle' },
-  { id: 'GK', label: 'GK' },
-  { id: 'DEF', label: 'DEF' },
-  { id: 'MID', label: 'MID' },
-  { id: 'ATT', label: 'ATT' },
-];
 
 type Props = {
   scorers: FixturePlayerStat[];
@@ -31,7 +25,7 @@ function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
 
       <div className="flex items-start gap-3">
         {/* Score badge */}
-        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black ${scoreBadgeColor(stat.fantasy_points)}`}>
+        <div className={`size-14 rounded-2xl flex items-center justify-center text-xl font-black tabular-nums ${scoreBadgeColor(stat.fantasy_points)}`}>
           {stat.fantasy_points}
         </div>
 
@@ -50,26 +44,26 @@ function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
       <div className="flex items-center gap-3 mt-3">
         {stat.goals > 0 && (
           <div className="flex items-center gap-1 text-xs">
-            <Target className="w-3.5 h-3.5 text-gold" />
-            <span className="font-bold text-gold">{stat.goals}</span>
+            <Target className="size-3.5 text-gold" aria-hidden="true" />
+            <span className="font-bold text-gold tabular-nums">{stat.goals}</span>
           </div>
         )}
         {stat.assists > 0 && (
           <div className="flex items-center gap-1 text-xs">
-            <HandHelping className="w-3.5 h-3.5 text-sky-400" />
-            <span className="font-bold text-sky-400">{stat.assists}</span>
+            <HandHelping className="size-3.5 text-sky-400" aria-hidden="true" />
+            <span className="font-bold text-sky-400 tabular-nums">{stat.assists}</span>
           </div>
         )}
         {stat.clean_sheet && (
           <div className="flex items-center gap-1 text-xs">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <ShieldCheck className="size-3.5 text-emerald-400" aria-hidden="true" />
             <span className="font-bold text-emerald-400">CS</span>
           </div>
         )}
         {stat.bonus > 0 && (
           <div className="flex items-center gap-1 text-xs">
-            <Star className="w-3.5 h-3.5 text-gold" />
-            <span className="font-bold text-gold">{stat.bonus}</span>
+            <Star className="size-3.5 text-gold" aria-hidden="true" />
+            <span className="font-bold text-gold tabular-nums">{stat.bonus}</span>
           </div>
         )}
       </div>
@@ -82,10 +76,10 @@ function PodiumCard({ stat, rank, medal }: { stat: FixturePlayerStat; rank: numb
     <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3">
       <div className="flex items-center gap-1.5 mb-2">
         <span className="text-sm">{medal}</span>
-        <span className="text-[10px] text-white/30 font-bold">#{rank}</span>
+        <span className="text-[10px] text-white/30 font-bold tabular-nums">#{rank}</span>
       </div>
       <div className="flex items-center gap-2">
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-black ${scoreBadgeColor(stat.fantasy_points)}`}>
+        <div className={`size-9 rounded-xl flex items-center justify-center text-sm font-black tabular-nums ${scoreBadgeColor(stat.fantasy_points)}`}>
           {stat.fantasy_points}
         </div>
         <div className="min-w-0 flex-1">
@@ -105,7 +99,7 @@ function PodiumCard({ stat, rank, medal }: { stat: FixturePlayerStat; rank: numb
 function CompactRow({ stat, rank }: { stat: FixturePlayerStat; rank: number }) {
   return (
     <div className="flex items-center gap-2 px-2 py-1.5 text-xs">
-      <span className="w-5 text-center font-bold text-white/25">{rank}</span>
+      <span className="w-5 text-center font-bold text-white/25 tabular-nums">{rank}</span>
       <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${posColor(stat.player_position)}`}>
         {stat.player_position}
       </span>
@@ -113,9 +107,9 @@ function CompactRow({ stat, rank }: { stat: FixturePlayerStat; rank: number }) {
         {stat.player_first_name.charAt(0)}. {stat.player_last_name}
       </span>
       <span className="text-white/30">{stat.club_short}</span>
-      {stat.goals > 0 && <span className="text-gold font-bold">{stat.goals}G</span>}
-      {stat.assists > 0 && <span className="text-sky-400 font-bold">{stat.assists}A</span>}
-      <span className={`px-1.5 py-0.5 rounded text-[10px] font-black ${scoreBadgeColor(stat.fantasy_points)}`}>
+      {stat.goals > 0 && <span className="text-gold font-bold tabular-nums">{stat.goals}G</span>}
+      {stat.assists > 0 && <span className="text-sky-400 font-bold tabular-nums">{stat.assists}A</span>}
+      <span className={`px-1.5 py-0.5 rounded text-[10px] font-black tabular-nums ${scoreBadgeColor(stat.fantasy_points)}`}>
         {stat.fantasy_points}
       </span>
     </div>
@@ -123,7 +117,16 @@ function CompactRow({ stat, rank }: { stat: FixturePlayerStat; rank: number }) {
 }
 
 export function TopScorerShowcase({ scorers, gameweek }: Props) {
+  const t = useTranslations('fantasy');
   const [posFilter, setPosFilter] = useState<PosFilter>('all');
+
+  const POS_FILTERS: { id: PosFilter; label: string }[] = [
+    { id: 'all', label: t('posFilterAll') },
+    { id: 'GK', label: 'GK' },
+    { id: 'DEF', label: 'DEF' },
+    { id: 'MID', label: 'MID' },
+    { id: 'ATT', label: 'ATT' },
+  ];
 
   const filtered = useMemo(() => {
     if (posFilter === 'all') return scorers;
@@ -140,9 +143,9 @@ export function TopScorerShowcase({ scorers, gameweek }: Props) {
     <div>
       {/* Section header */}
       <div className="flex items-center gap-2 mb-3">
-        <Trophy className="w-4 h-4 text-gold" />
-        <h2 className="text-sm font-black uppercase tracking-wider">Top Scorer</h2>
-        <span className="text-[10px] text-white/25">Spieltag {gameweek}</span>
+        <Trophy className="size-4 text-gold" aria-hidden="true" />
+        <h2 className="text-sm font-black uppercase tracking-wider text-balance">{t('topScorer')}</h2>
+        <span className="text-[10px] text-white/25">{t('gameweekN', { gw: gameweek })}</span>
       </div>
 
       {/* Position filter pills */}
@@ -151,7 +154,7 @@ export function TopScorerShowcase({ scorers, gameweek }: Props) {
           <button
             key={f.id}
             onClick={() => setPosFilter(f.id)}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all min-h-[44px] ${
+            className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors min-h-[44px] ${
               posFilter === f.id
                 ? 'bg-gold/15 text-gold border border-gold/30'
                 : 'bg-white/[0.04] text-white/40 border border-white/[0.06] hover:text-white/60'
@@ -164,7 +167,7 @@ export function TopScorerShowcase({ scorers, gameweek }: Props) {
 
       {filtered.length === 0 ? (
         <div className="text-center py-6 text-white/30 text-sm">
-          Keine Spieler für diese Position
+          {t('noPlayersForPos')}
         </div>
       ) : (
         <>

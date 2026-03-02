@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Users, Star } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { FixturePlayerStat } from '@/types';
 import { getPosAccent, scoreBadgeColor } from './helpers';
 
@@ -104,12 +105,12 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
   return (
     <div className="flex flex-col items-center w-[48px] md:w-[56px]">
       {/* Score badge */}
-      <div className={`mb-0.5 min-w-[1.3rem] px-1 py-0.5 rounded-full text-[8px] md:text-[9px] font-mono font-black text-center shadow-lg ${badge}`}>
+      <div className={`mb-0.5 min-w-[1.3rem] px-1.5 py-0.5 rounded-full text-[8px] md:text-[9px] font-mono font-black text-center shadow-lg tabular-nums ${badge}`}>
         {stat.fantasy_points}
       </div>
       {/* Circle with initials */}
       <div
-        className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center border-2 bg-black/40"
+        className="size-10 md:size-12 rounded-full flex items-center justify-center border-2 bg-black/40"
         style={{ borderColor: accent, boxShadow: `0 0 10px ${accent}30` }}
       >
         <span className="font-bold text-[9px] md:text-[10px]" style={{ color: accent }}>
@@ -129,6 +130,7 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
 }
 
 export function BestElevenShowcase({ scorers, gameweek }: Props) {
+  const t = useTranslations('fantasy');
   const [mode, setMode] = useState<Mode>('6er');
 
   const players = useMemo(() => {
@@ -151,9 +153,9 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
       {/* Section header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Star className="w-4 h-4 text-gold" />
-          <h2 className="text-sm font-black uppercase tracking-wider">Top {mode === '11er' ? '11' : '6'} der Woche</h2>
-          <span className="text-[10px] text-white/25">Spieltag {gameweek}</span>
+          <Star className="size-4 text-gold" aria-hidden="true" />
+          <h2 className="text-sm font-black uppercase tracking-wider text-balance">{t('bestOfWeek', { n: mode === '11er' ? '11' : '6' })}</h2>
+          <span className="text-[10px] text-white/25">{t('gameweekN', { gw: gameweek })}</span>
         </div>
 
         {/* 6er / 11er Toggle */}
@@ -162,7 +164,7 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
             <button
               key={m}
               onClick={() => setMode(m)}
-              className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all min-h-[28px] ${
+              className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors min-h-[28px] ${
                 mode === m
                   ? 'bg-gold/15 text-gold'
                   : 'text-white/40 hover:text-white/60'
@@ -178,11 +180,11 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
       <div className="rounded-2xl border border-green-500/20 overflow-hidden">
         {/* Top bar with total points */}
         <div className="bg-gradient-to-r from-[#1a1a2e] via-[#16213e] to-[#1a1a2e] px-4 py-2 flex items-center justify-center gap-3 border-b border-white/10">
-          <Users className="w-3.5 h-3.5 text-gold" />
+          <Users className="size-3.5 text-gold" aria-hidden="true" />
           <span className="text-xs font-bold tracking-widest text-white/50 uppercase">
-            Best {mode === '11er' ? 'XI' : 'VI'}
+            {t('bestLabel', { label: mode === '11er' ? 'XI' : 'VI' })}
           </span>
-          <span className="text-xs font-mono font-bold text-gold">{totalPoints} pts</span>
+          <span className="text-xs font-mono font-bold text-gold tabular-nums">{totalPoints} pts</span>
         </div>
 
         {/* Green pitch field */}
@@ -220,7 +222,7 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
 
         {/* Bottom bar */}
         <div className="bg-gradient-to-r from-[#1a1a2e] via-[#0f3460] to-[#1a1a2e] px-3 py-1.5 flex items-center justify-center border-t border-white/10">
-          <span className="text-[9px] text-white/20 font-bold tracking-widest uppercase">Powered by BeScout Fantasy</span>
+          <span className="text-[9px] text-white/20 font-bold tracking-widest uppercase">{t('poweredBy')}</span>
         </div>
       </div>
     </div>

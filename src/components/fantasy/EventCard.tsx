@@ -5,6 +5,7 @@ import Image from 'next/image';
 import {
   Trophy, CheckCircle2, Play, Flag, Heart, Lock, Plus, Edit3, Eye,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card, Button, Chip } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import type { FantasyEvent } from './types';
@@ -19,11 +20,21 @@ export const EventCard = ({
   onView: () => void;
   onToggleInterest: () => void;
 }) => {
+  const t = useTranslations('fantasy');
   const statusStyle = getStatusStyle(event.status);
   const typeStyle = getTypeStyle(event.type);
   const TypeIcon = typeStyle.icon;
   const tierStyle = getTierStyle(event.eventTier);
   const isArena = event.eventTier === 'arena';
+
+  // i18n status labels (override helpers.ts)
+  const statusLabelMap: Record<string, string> = {
+    running: t('statusLive'),
+    'late-reg': t('statusLateReg'),
+    registering: t('statusRegistering'),
+    upcoming: t('statusUpcoming'),
+    ended: t('ended'),
+  };
 
   return (
     <Card className={cn('p-4 hover:border-white/20 transition-colors', event.isJoined ? 'border-green-500/30 bg-green-500/[0.02]' : isArena ? 'border-amber-500/20 bg-amber-500/[0.02]' : '')}>
@@ -36,31 +47,31 @@ export const EventCard = ({
           {event.status === 'ended' && event.scoredAt ? (
             <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-purple-500 text-white">
               <Trophy className="size-3" aria-hidden="true" />
-              <span className="text-[10px] font-bold">Ausgewertet</span>
+              <span className="text-[10px] font-bold">{t('eventScored')}</span>
             </div>
           ) : event.status === 'ended' ? (
             <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-white/20 text-white/60">
               <Flag className="size-3" aria-hidden="true" />
-              <span className="text-[10px] font-bold">Beendet</span>
+              <span className="text-[10px] font-bold">{t('ended')}</span>
             </div>
           ) : event.isJoined ? (
             <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-green-500 text-white">
               <CheckCircle2 className="size-3" aria-hidden="true" />
-              <span className="text-[10px] font-bold">Nimmt teil</span>
+              <span className="text-[10px] font-bold">{t('eventJoined')}</span>
             </div>
           ) : (
             <div className={`flex items-center gap-1 px-2 py-0.5 rounded ${statusStyle.bg} ${statusStyle.text}`}>
               {statusStyle.pulse && <div className="size-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" />}
-              <span className="text-[10px] font-bold">{statusStyle.label}</span>
+              <span className="text-[10px] font-bold">{statusLabelMap[event.status] ?? statusStyle.label}</span>
             </div>
           )}
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); onToggleInterest(); }}
-          aria-label={event.isInterested ? 'Aus Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
+          aria-label={event.isInterested ? t('removeFavorite') : t('addFavorite')}
           className={`p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors ${event.isInterested ? 'bg-pink-500/20 text-pink-400' : 'hover:bg-white/10 text-white/30'}`}
         >
-          <Heart className={`w-4 h-4 ${event.isInterested ? 'fill-current' : ''}`} aria-hidden="true" />
+          <Heart className={cn('size-4', event.isInterested && 'fill-current')} aria-hidden="true" />
         </button>
       </div>
 
@@ -81,31 +92,31 @@ export const EventCard = ({
       )}
 
       {/* Title */}
-      <h3 className="font-bold mb-1 line-clamp-1">{event.name}</h3>
-      <p className="text-xs text-white/50 line-clamp-2 mb-3">{event.description}</p>
+      <h3 className="font-bold mb-1 line-clamp-1 text-balance">{event.name}</h3>
+      <p className="text-xs text-white/50 line-clamp-2 mb-3 text-pretty">{event.description}</p>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2 mb-3">
         <div className="text-center p-2 bg-white/[0.03] rounded-lg">
-          <div className={`font-mono font-bold text-sm ${event.buyIn === 0 ? 'text-green-500' : 'text-gold'}`}>
-            {event.buyIn === 0 ? 'Kostenlos' : event.buyIn}
+          <div className={cn('font-mono font-bold text-sm tabular-nums', event.buyIn === 0 ? 'text-green-500' : 'text-gold')}>
+            {event.buyIn === 0 ? t('freeEntry') : event.buyIn}
           </div>
-          <div className="text-[9px] text-white/40">Teilnahme</div>
+          <div className="text-[9px] text-white/40">{t('entryLabel')}</div>
         </div>
         <div className="text-center p-2 bg-white/[0.03] rounded-lg">
-          <div className="font-mono font-bold text-sm text-purple-400">{event.prizePool >= 1000 ? `${(event.prizePool / 1000).toFixed(0)}K` : event.prizePool}</div>
-          <div className="text-[9px] text-white/40">Prize</div>
+          <div className="font-mono font-bold text-sm text-purple-400 tabular-nums">{event.prizePool >= 1000 ? `${(event.prizePool / 1000).toFixed(0)}K` : event.prizePool}</div>
+          <div className="text-[9px] text-white/40">{t('prizeLabel')}</div>
         </div>
         <div className="text-center p-2 bg-white/[0.03] rounded-lg">
-          <div className="font-mono font-bold text-sm">{event.participants}</div>
-          <div className="text-[9px] text-white/40">Spieler</div>
+          <div className="font-mono font-bold text-sm tabular-nums">{event.participants}</div>
+          <div className="text-[9px] text-white/40">{t('playersCountLabel')}</div>
         </div>
       </div>
 
       {/* Timer + Arena Badge */}
       <div className="flex items-center justify-between text-xs text-white/50 mb-3">
         <div className="flex items-center gap-2">
-          <span>{event.format} • {event.mode === 'league' ? 'Liga' : 'Turnier'}</span>
+          <span>{event.format} · {event.mode === 'league' ? t('modeLeague') : t('modeTournament')}</span>
           {isArena && (
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/15 border border-amber-500/25 text-amber-400">
               <tierStyle.icon className="size-3" aria-hidden="true" />
@@ -120,18 +131,24 @@ export const EventCard = ({
               'bg-orange-500/15 border-orange-500/25 text-orange-300'
             )}>
               <Lock className="size-2.5" aria-hidden="true" />
-              {event.minSubscriptionTier === 'gold' ? 'Gold' : event.minSubscriptionTier === 'silber' ? 'Silber' : 'Bronze'}+
+              {event.minSubscriptionTier === 'gold' ? t('tierGold') : event.minSubscriptionTier === 'silber' ? t('tierSilber') : t('tierBronze')}+
             </span>
           )}
         </div>
-        <span>{event.status === 'ended' ? 'Beendet' : formatCountdown(event.lockTime)}</span>
+        <span>
+          {event.status === 'ended'
+            ? t('ended')
+            : event.lockTime <= Date.now()
+              ? t('countdownStarted')
+              : formatCountdown(event.lockTime)}
+        </span>
       </div>
 
       {/* User Status */}
       {event.isJoined && event.userRank && (
         <div className="p-2 bg-green-500/10 rounded-lg mb-3 flex items-center justify-between">
-          <span className="text-xs text-green-500">Dein Rang</span>
-          <span className="font-mono font-bold text-green-500">#{event.userRank}</span>
+          <span className="text-xs text-green-500">{t('yourRank')}</span>
+          <span className="font-mono font-bold text-green-500 tabular-nums">#{event.userRank}</span>
         </div>
       )}
 
@@ -143,17 +160,17 @@ export const EventCard = ({
         onClick={onView}
       >
         {event.isJoined && event.status === 'ended' ? (
-          <><Eye className="size-4" aria-hidden="true" /> Ergebnisse</>
+          <><Eye className="size-4" aria-hidden="true" /> {t('resultsBtn')}</>
         ) : event.isJoined && event.status === 'running' ? (
-          <><Lock className="size-4" aria-hidden="true" /> Nimmt teil</>
+          <><Lock className="size-4" aria-hidden="true" /> {t('eventJoined')}</>
         ) : event.isJoined ? (
-          <><Edit3 className="size-4" aria-hidden="true" /> Aufstellung</>
+          <><Edit3 className="size-4" aria-hidden="true" /> {t('lineupBtn')}</>
         ) : event.status === 'ended' ? (
-          <><Eye className="size-4" aria-hidden="true" /> Ergebnisse</>
+          <><Eye className="size-4" aria-hidden="true" /> {t('resultsBtn')}</>
         ) : event.status === 'running' ? (
-          <><Play className="size-4" aria-hidden="true" /> Läuft</>
+          <><Play className="size-4" aria-hidden="true" /> {t('runningBtn')}</>
         ) : (
-          <><Plus className="size-4" aria-hidden="true" /> {event.buyIn === 0 ? 'Beitreten' : `${event.buyIn} $SCOUT`}</>
+          <><Plus className="size-4" aria-hidden="true" /> {event.buyIn === 0 ? t('joinBtn') : `${event.buyIn} $SCOUT`}</>
         )}
       </Button>
     </Card>

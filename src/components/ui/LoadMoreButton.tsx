@@ -1,6 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface LoadMoreButtonProps {
   loading: boolean;
@@ -9,10 +10,12 @@ interface LoadMoreButtonProps {
 }
 
 export function LoadMoreButton({ loading, hasMore, onLoadMore }: LoadMoreButtonProps) {
+  const t = useTranslations('common');
+
   if (!hasMore) {
     return (
       <div className="text-center py-4">
-        <span className="text-xs text-white/30">Alle geladen</span>
+        <span className="text-xs text-white/30">{t('allLoaded')}</span>
       </div>
     );
   }
@@ -28,10 +31,10 @@ export function LoadMoreButton({ loading, hasMore, onLoadMore }: LoadMoreButtonP
         {loading ? (
           <>
             <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-            Laden...
+            {t('loadingEllipsis')}
           </>
         ) : (
-          'Mehr laden'
+          t('loadMore')
         )}
       </button>
     </div>

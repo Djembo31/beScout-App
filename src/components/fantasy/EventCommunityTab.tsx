@@ -6,6 +6,8 @@ import {
   MessageCircle, Send, ArrowUp, ArrowDown,
   Loader2, Clock, Trophy, Play, Sparkles, Trash2,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { Card, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -17,53 +19,19 @@ import type { EventStatus } from './types';
 // HELPERS
 // ============================================
 
-function formatTimeAgo(dateStr: string): string {
+function formatTimeAgo(dateStr: string, nowLabel: string, locale: string): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
   const diffMs = now - then;
   const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return 'Jetzt';
+  if (mins < 1) return nowLabel;
   if (mins < 60) return `${mins}m`;
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}h`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d`;
-  return new Date(dateStr).toLocaleDateString('de-DE');
+  return new Date(dateStr).toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE');
 }
-
-function getPhaseInfo(status: EventStatus): { label: string; color: string; icon: React.ReactNode; hint: string } {
-  switch (status) {
-    case 'registering':
-    case 'late-reg':
-    case 'upcoming':
-      return {
-        label: 'Vorschau',
-        color: 'text-sky-400 bg-sky-400/10 border-sky-400/20',
-        icon: <Clock className="size-3.5" aria-hidden="true" />,
-        hint: 'Teile deine Predictions und Lineup-Tipps!',
-      };
-    case 'running':
-      return {
-        label: 'Live',
-        color: 'text-green-500 bg-green-500/10 border-green-500/20',
-        icon: <Play className="size-3.5" aria-hidden="true" />,
-        hint: 'Diskutiere die laufenden Performances!',
-      };
-    case 'ended':
-      return {
-        label: 'Auswertung',
-        color: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
-        icon: <Trophy className="size-3.5" aria-hidden="true" />,
-        hint: 'Analysiere die Ergebnisse und Spielerbewertungen!',
-      };
-  }
-}
-
-const CATEGORIES = [
-  { id: 'Meinung', label: 'Meinung', color: 'bg-amber-500/15 text-amber-300 border-amber-500/20' },
-  { id: 'Prediction', label: 'Prediction', color: 'bg-purple-500/15 text-purple-300 border-purple-500/20' },
-  { id: 'Analyse', label: 'Analyse', color: 'bg-sky-500/15 text-sky-300 border-sky-500/20' },
-];
 
 // ============================================
 // COMPONENT
@@ -77,6 +45,8 @@ interface EventCommunityTabProps {
 }
 
 export default function EventCommunityTab({ eventId, eventStatus, eventName, gameweek }: EventCommunityTabProps) {
+  const t = useTranslations('fantasy');
+  const locale = useLocale();
   const { user } = useUser();
   const [posts, setPosts] = useState<PostWithAuthor[]>([]);
   const [myVotes, setMyVotes] = useState<Map<string, number>>(new Map());
@@ -85,7 +55,39 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('Meinung');
 
-  const phase = getPhaseInfo(eventStatus);
+  const CATEGORIES = [
+    { id: 'Meinung', label: t('catOpinion'), color: 'bg-amber-500/15 text-amber-300 border-amber-500/20' },
+    { id: 'Prediction', label: t('catPrediction'), color: 'bg-purple-500/15 text-purple-300 border-purple-500/20' },
+    { id: 'Analyse', label: t('catAnalysis'), color: 'bg-sky-500/15 text-sky-300 border-sky-500/20' },
+  ];
+
+  const phaseInfo = (() => {
+    switch (eventStatus) {
+      case 'registering':
+      case 'late-reg':
+      case 'upcoming':
+        return {
+          label: t('phasePreview'),
+          color: 'text-sky-400 bg-sky-400/10 border-sky-400/20',
+          icon: <Clock className="size-3.5" aria-hidden="true" />,
+          hint: t('phasePreviewHint'),
+        };
+      case 'running':
+        return {
+          label: t('phaseLive'),
+          color: 'text-green-500 bg-green-500/10 border-green-500/20',
+          icon: <Play className="size-3.5" aria-hidden="true" />,
+          hint: t('phaseLiveHint'),
+        };
+      case 'ended':
+        return {
+          label: t('phaseReview'),
+          color: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
+          icon: <Trophy className="size-3.5" aria-hidden="true" />,
+          hint: t('phaseReviewHint'),
+        };
+    }
+  })();
 
   // Load posts for this event
   const loadPosts = useCallback(async () => {
@@ -166,13 +168,19 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
     }
   };
 
+  const getPlaceholder = () => {
+    if (eventStatus === 'ended') return t('placeholderEnded');
+    if (eventStatus === 'running') return t('placeholderRunning');
+    return t('placeholderDefault');
+  };
+
   return (
     <div className="space-y-4">
       {/* Phase Banner */}
-      <div className={cn('flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium', phase.color)}>
-        {phase.icon}
-        <span>{phase.label}</span>
-        <span className="text-white/40 ml-1">— {phase.hint}</span>
+      <div className={cn('flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium', phaseInfo.color)}>
+        {phaseInfo.icon}
+        <span>{phaseInfo.label}</span>
+        <span className="text-white/40 ml-1">— {phaseInfo.hint}</span>
       </div>
 
       {/* Compose Box */}
@@ -196,14 +204,8 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
             <textarea
               value={content}
               onChange={e => setContent(e.target.value)}
-              aria-label="Beitrag verfassen"
-              placeholder={
-                eventStatus === 'ended'
-                  ? 'Was denkst du über die Ergebnisse?'
-                  : eventStatus === 'running'
-                    ? 'Wie laufen die Spieler?'
-                    : 'Teile deine Prediction...'
-              }
+              aria-label={t('composeLabel')}
+              placeholder={getPlaceholder()}
               rows={2}
               className="flex-1 bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-gold/30"
               onKeyDown={e => {
@@ -223,7 +225,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
               {posting ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Send className="size-4" aria-hidden="true" />}
             </Button>
           </div>
-          <div className="text-[10px] text-white/20 mt-1">Enter zum Senden, Shift+Enter für neue Zeile</div>
+          <div className="text-[10px] text-white/20 mt-1">{t('sendHint')}</div>
         </Card>
       )}
 
@@ -231,13 +233,13 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
       {loading ? (
         <div className="flex items-center justify-center py-8 gap-2 text-white/30">
           <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-          <span className="text-sm">Lade Diskussion...</span>
+          <span className="text-sm">{t('loadingDiscussion')}</span>
         </div>
       ) : posts.length === 0 ? (
         <div className="text-center py-8">
           <MessageCircle className="size-10 mx-auto mb-3 text-white/10" aria-hidden="true" />
-          <div className="text-sm text-white/30">Noch keine Beiträge</div>
-          <div className="text-xs text-white/20 mt-1">Sei der Erste und starte die Diskussion!</div>
+          <div className="text-sm text-white/30">{t('noPostsYet')}</div>
+          <div className="text-xs text-white/20 mt-1 text-pretty">{t('beFirstToPost')}</div>
         </div>
       ) : (
         <div className="space-y-2">
@@ -263,7 +265,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                       <ArrowUp className="size-3.5" aria-hidden="true" />
                     </button>
                     <span className={cn(
-                      'text-xs font-mono font-bold',
+                      'text-xs font-mono font-bold tabular-nums',
                       netScore > 0 ? 'text-green-500' : netScore < 0 ? 'text-red-400' : 'text-white/30'
                     )}>
                       {netScore}
@@ -294,13 +296,13 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                           {catStyle.label}
                         </span>
                       )}
-                      <span className="text-[10px] text-white/20 ml-auto shrink-0">{formatTimeAgo(post.created_at)}</span>
+                      <span className="text-[10px] text-white/20 ml-auto shrink-0">{formatTimeAgo(post.created_at, t('timeNow'), locale)}</span>
                     </div>
-                    <p className="text-sm text-white/80 whitespace-pre-wrap break-words">{post.content}</p>
+                    <p className="text-sm text-white/80 whitespace-pre-wrap break-words text-pretty">{post.content}</p>
                     {post.replies_count > 0 && (
                       <div className="flex items-center gap-1 mt-1.5 text-[10px] text-white/30">
                         <MessageCircle className="size-3" aria-hidden="true" />
-                        {post.replies_count} {post.replies_count === 1 ? 'Antwort' : 'Antworten'}
+                        {post.replies_count} {t('replyCount', { count: post.replies_count })}
                       </div>
                     )}
                   </div>
@@ -309,7 +311,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                   {isOwn && (
                     <button
                       onClick={() => handleDelete(post.id)}
-                      aria-label="Beitrag löschen"
+                      aria-label={t('deletePostLabel')}
                       className="p-1 text-white/20 hover:text-red-400 transition-colors self-start"
                     >
                       <Trash2 className="size-3.5" aria-hidden="true" />

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button, Modal } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import type { FantasyEvent, EventMode, LineupFormat } from './types';
@@ -15,6 +16,7 @@ export const CreateEventModal = ({
   onClose: () => void;
   onCreate: (event: Partial<FantasyEvent>) => void;
 }) => {
+  const t = useTranslations('fantasy');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [mode, setMode] = useState<EventMode>('tournament');
@@ -29,7 +31,7 @@ export const CreateEventModal = ({
   const handleCreate = () => {
     setError(null);
     if (!canSubmit) {
-      setError('Event-Name muss mindestens 3 Zeichen lang sein.');
+      setError(t('eventNameRequired'));
       return;
     }
     onCreate({
@@ -56,16 +58,16 @@ export const CreateEventModal = ({
   return (
     <Modal
       open={isOpen}
-      title="Community Event erstellen"
+      title={t('createEventTitle')}
       onClose={onClose}
       footer={
         <div className="flex items-center gap-3">
           <Button variant="outline" onClick={onClose} className="flex-1">
-            Abbrechen
+            {t('cancelBtn')}
           </Button>
           <Button variant="gold" onClick={handleCreate} disabled={!canSubmit} className="flex-1">
             <Plus className="size-4" aria-hidden="true" />
-            Event erstellen
+            {t('createEventBtn')}
           </Button>
         </div>
       }
@@ -78,25 +80,25 @@ export const CreateEventModal = ({
         )}
 
         <div>
-          <label htmlFor="create-event-name" className="block text-sm font-medium mb-2">Event-Name *</label>
+          <label htmlFor="create-event-name" className="block text-sm font-medium mb-2">{t('eventNameLabel')} *</label>
           <input
             id="create-event-name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="z.B. Meine Private Liga"
+            placeholder={t('eventNamePlaceholder')}
             maxLength={100}
             className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
           />
         </div>
 
         <div>
-          <label htmlFor="create-event-desc" className="block text-sm font-medium mb-2">Beschreibung</label>
+          <label htmlFor="create-event-desc" className="block text-sm font-medium mb-2">{t('descriptionLabel')}</label>
           <textarea
             id="create-event-desc"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Beschreibe dein Event..."
+            placeholder={t('descriptionPlaceholder')}
             rows={3}
             maxLength={500}
             className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 resize-none"
@@ -105,34 +107,34 @@ export const CreateEventModal = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="create-event-mode" className="block text-sm font-medium mb-2">Modus</label>
+            <label htmlFor="create-event-mode" className="block text-sm font-medium mb-2">{t('modeLabel')}</label>
             <select
               id="create-event-mode"
               value={mode}
               onChange={(e) => setMode(e.target.value as EventMode)}
               className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
             >
-              <option value="tournament">Turnier</option>
-              <option value="league">Liga</option>
+              <option value="tournament">{t('modeTournament')}</option>
+              <option value="league">{t('modeLeague')}</option>
             </select>
           </div>
           <div>
-            <label htmlFor="create-event-format" className="block text-sm font-medium mb-2">Format</label>
+            <label htmlFor="create-event-format" className="block text-sm font-medium mb-2">{t('formatLabel')}</label>
             <select
               id="create-event-format"
               value={format}
               onChange={(e) => setFormat(e.target.value as LineupFormat)}
               className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
             >
-              <option value="6er">6er Lineup</option>
-              <option value="11er">11er Lineup</option>
+              <option value="6er">{t('formatSix')}</option>
+              <option value="11er">{t('formatEleven')}</option>
             </select>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="create-event-buyin" className="block text-sm font-medium mb-2">Teilnahmegebühr ($SCOUT)</label>
+            <label htmlFor="create-event-buyin" className="block text-sm font-medium mb-2">{t('buyInLabel')}</label>
             <input
               id="create-event-buyin"
               type="number"
@@ -144,10 +146,10 @@ export const CreateEventModal = ({
               disabled
               className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 opacity-50"
             />
-            <div className="text-[10px] text-white/30 mt-1">Pilot: immer 0 $SCOUT (regulatorisch)</div>
+            <div className="text-[10px] text-white/30 mt-1">{t('buyInPilotHint')}</div>
           </div>
           <div>
-            <label htmlFor="create-event-max" className="block text-sm font-medium mb-2">Max. Teilnehmer</label>
+            <label htmlFor="create-event-max" className="block text-sm font-medium mb-2">{t('maxParticipantsLabel')}</label>
             <input
               id="create-event-max"
               type="number"
@@ -163,13 +165,13 @@ export const CreateEventModal = ({
 
         <div className="flex items-center justify-between p-4 bg-white/[0.02] rounded-xl">
           <div>
-            <div className="font-medium">Privates Event</div>
-            <div className="text-xs text-white/50">Nur mit Einladungslink beitreten</div>
+            <div className="font-medium">{t('privateEvent')}</div>
+            <div className="text-xs text-white/50">{t('privateEventHint')}</div>
           </div>
           <button
             role="switch"
             aria-checked={isPrivate}
-            aria-label="Privates Event"
+            aria-label={t('privateEvent')}
             onClick={() => setIsPrivate(!isPrivate)}
             className={cn('w-12 h-6 rounded-full transition-colors', isPrivate ? 'bg-gold' : 'bg-white/20')}
           >
@@ -178,19 +180,19 @@ export const CreateEventModal = ({
         </div>
 
         <div className="p-4 bg-green-500/10 rounded-xl border border-green-500/20">
-          <div className="text-sm text-white/60 mb-2">Vorschau</div>
+          <div className="text-sm text-white/60 mb-2">{t('previewSection')}</div>
           <div className="grid grid-cols-3 gap-3 text-center">
             <div>
-              <div className="font-mono font-bold text-lg text-gold">{buyIn} $SCOUT</div>
-              <div className="text-[10px] text-white/40">Teilnahme</div>
+              <div className="font-mono font-bold text-lg text-gold tabular-nums">{buyIn} $SCOUT</div>
+              <div className="text-[10px] text-white/40">{t('entryLabel')}</div>
             </div>
             <div>
-              <div className="font-mono font-bold text-lg text-purple-400">{prizePool} $SCOUT</div>
-              <div className="text-[10px] text-white/40">Preisgeld</div>
+              <div className="font-mono font-bold text-lg text-purple-400 tabular-nums">{prizePool} $SCOUT</div>
+              <div className="text-[10px] text-white/40">{t('prizeMoney')}</div>
             </div>
             <div>
-              <div className="font-mono font-bold text-lg text-white/60">{creatorFee} $SCOUT</div>
-              <div className="text-[10px] text-white/40">Deine Fee (5%)</div>
+              <div className="font-mono font-bold text-lg text-white/60 tabular-nums">{creatorFee} $SCOUT</div>
+              <div className="text-[10px] text-white/40">{t('creatorFee')}</div>
             </div>
           </div>
         </div>

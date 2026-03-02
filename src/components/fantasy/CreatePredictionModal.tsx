@@ -126,10 +126,10 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
       if (result.ok) {
         handleClose();
       } else {
-        setError(result.error ?? 'Fehler');
+        setError(result.error ?? t('genericError'));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Netzwerkfehler');
+      setError(err instanceof Error ? err.message : t('networkError'));
     }
   };
 
@@ -225,7 +225,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                 )}
               >
                 <Target className="size-3.5 inline mr-1" aria-hidden="true" />
-                Match
+                {t('matchLabel')}
               </button>
               <button
                 onClick={() => { handlePlayerTypeSelect(); setSelectedCondition(null); setSelectedValue(null); }}

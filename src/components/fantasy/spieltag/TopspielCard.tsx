@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { Fixture } from '@/types';
-import type { ClubLookup } from '@/lib/clubs';
 import { getClub } from '@/lib/clubs';
 import { ClubLogo } from './ClubLogo';
 
@@ -14,6 +14,7 @@ type Props = {
 };
 
 export function TopspielCard({ fixture, onSelect }: Props) {
+  const t = useTranslations('fantasy');
   const homeClub = getClub(fixture.home_club_short) || getClub(fixture.home_club_name);
   const awayClub = getClub(fixture.away_club_short) || getClub(fixture.away_club_name);
   const isSimulated = fixture.status === 'simulated' || fixture.status === 'finished';
@@ -23,7 +24,7 @@ export function TopspielCard({ fixture, onSelect }: Props) {
   return (
     <button
       onClick={() => onSelect(fixture)}
-      className="w-full rounded-2xl border border-white/[0.12] overflow-hidden transition-all active:scale-[0.98] group relative"
+      className="w-full rounded-2xl border border-white/[0.12] overflow-hidden transition-colors active:scale-[0.98] group relative"
       style={{
         background: `linear-gradient(135deg, ${homeColor}12 0%, rgba(13,13,15,0.95) 50%, ${awayColor}12 100%)`,
       }}
@@ -31,7 +32,7 @@ export function TopspielCard({ fixture, onSelect }: Props) {
       {/* Topspiel label */}
       <div className="flex items-center justify-center pt-3 pb-1">
         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gold/70">
-          Topspiel
+          {t('topMatch')}
         </span>
       </div>
 
@@ -44,15 +45,15 @@ export function TopspielCard({ fixture, onSelect }: Props) {
         </div>
 
         {/* Score */}
-        <div className="flex-shrink-0 text-center px-2">
+        <div className="shrink-0 text-center px-2">
           {isSimulated ? (
-            <div className="font-mono font-black text-2xl md:text-3xl" style={{ textShadow: '0 0 12px rgba(255,215,0,0.25)' }}>
+            <div className="font-mono font-black text-2xl md:text-3xl tabular-nums" style={{ textShadow: '0 0 12px rgba(255,215,0,0.25)' }}>
               {fixture.home_score} <span className="text-white/20">-</span> {fixture.away_score}
             </div>
           ) : (
             <div className="flex flex-col items-center gap-1">
               <span className="text-white/20 text-lg font-bold">vs</span>
-              <span className="text-[10px] text-white/20">Kommend</span>
+              <span className="text-[10px] text-white/20">{t('matchUpcoming')}</span>
             </div>
           )}
         </div>
@@ -66,7 +67,7 @@ export function TopspielCard({ fixture, onSelect }: Props) {
 
       {/* Subtle chevron hint */}
       <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <ChevronRight className="w-4 h-4 text-white/20" />
+        <ChevronRight className="size-4 text-white/20" aria-hidden="true" />
       </div>
 
       {/* Bottom glow line */}

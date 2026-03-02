@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import {
   ChevronLeft, ChevronRight, CheckCircle2, Clock, Play, ArrowRight, Loader2,
 } from 'lucide-react';
@@ -28,6 +29,7 @@ export function SpieltagHeader({
   totalGoals, eventCount, isAdmin, simulating, apiAvailable,
   onPrev, onNext, onSimulate, onAdvance,
 }: Props) {
+  const t = useTranslations('fantasy');
   const isActive = isCurrentGw && gwStatus === 'open';
   const isFinished = gwStatus === 'simulated';
 
@@ -60,31 +62,33 @@ export function SpieltagHeader({
         <button
           onClick={onPrev}
           disabled={gameweek <= 1}
-          className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-all active:scale-[0.95]"
+          aria-label={t('prevGameweek')}
+          className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-colors active:scale-[0.95]"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="size-5" aria-hidden="true" />
         </button>
 
         {isActive ? (
           <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-gold bg-gold/10 border border-gold/20 animate-pulse motion-reduce:animate-none">
-            Aktuell
+            {t('headerCurrent')}
           </span>
         ) : isFinished ? (
           <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-green-500 bg-green-500/10 border border-green-500/20">
-            Beendet
+            {t('ended')}
           </span>
         ) : (
           <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white/30 bg-white/[0.04] border border-white/[0.06]">
-            {isPast ? 'Vergangen' : 'Kommend'}
+            {isPast ? t('headerPast') : t('upcoming')}
           </span>
         )}
 
         <button
           onClick={onNext}
           disabled={gameweek >= 38}
-          className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-all active:scale-[0.95]"
+          aria-label={t('nextGameweek')}
+          className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-colors active:scale-[0.95]"
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="size-5" aria-hidden="true" />
         </button>
       </div>
 
@@ -97,34 +101,34 @@ export function SpieltagHeader({
           >
             {String(gameweek).padStart(2, '0')}
           </span>
-          <span className="text-xs md:text-sm text-white/20 font-medium">von 38</span>
+          <span className="text-xs md:text-sm text-white/20 font-medium">{t('ofTotal', { total: 38 })}</span>
         </div>
 
         {/* Status line */}
         <div className="flex items-center justify-center gap-1.5 mt-1.5 text-xs">
           {isFinished ? (
             <>
-              <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-              <span className="text-green-500 font-semibold">Beendet</span>
-              {totalGoals > 0 && <span className="text-white/30">· {totalGoals} Tore · {fixtureCount} Spiele</span>}
+              <CheckCircle2 className="size-3.5 text-green-500" aria-hidden="true" />
+              <span className="text-green-500 font-semibold">{t('ended')}</span>
+              {totalGoals > 0 && <span className="text-white/30">· {t('goalsAndGames', { goals: totalGoals, games: fixtureCount })}</span>}
             </>
           ) : isActive ? (
             <>
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none" />
-              <span className="text-green-500 font-bold">Offen</span>
-              <span className="text-white/30">· {eventCount} Events · {fixtureCount} Spiele</span>
+              <div className="size-2 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none" />
+              <span className="text-green-500 font-bold">{t('statusOpen')}</span>
+              <span className="text-white/30">· {t('eventsAndGames', { events: eventCount, games: fixtureCount })}</span>
             </>
           ) : isPast ? (
             <>
-              <Clock className="w-3.5 h-3.5 text-white/30" />
+              <Clock className="size-3.5 text-white/30" aria-hidden="true" />
               <span className="text-white/30">
-                {simulatedCount > 0 ? `${simulatedCount}/${fixtureCount} simuliert` : 'Vergangener Spieltag'}
+                {simulatedCount > 0 ? t('simulatedCount', { done: simulatedCount, total: fixtureCount }) : t('pastGameweek')}
               </span>
             </>
           ) : (
             <>
-              <Clock className="w-3.5 h-3.5 text-white/20" />
-              <span className="text-white/20">Kommender Spieltag</span>
+              <Clock className="size-3.5 text-white/20" aria-hidden="true" />
+              <span className="text-white/20">{t('upcomingGameweek')}</span>
             </>
           )}
         </div>
@@ -136,10 +140,10 @@ export function SpieltagHeader({
           <button
             onClick={onSimulate}
             disabled={simulating}
-            className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-gold/10 border border-gold/30 rounded-xl text-sm font-bold text-gold hover:bg-gold/20 disabled:opacity-50 transition-all active:scale-[0.97]"
+            className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-gold/10 border border-gold/30 rounded-xl text-sm font-bold text-gold hover:bg-gold/20 disabled:opacity-50 transition-colors active:scale-[0.97]"
           >
-            {simulating ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <Play className="w-4 h-4" />}
-            {simulating ? 'Wird gestartet...' : apiAvailable ? 'Daten importieren' : 'Spieltag starten'}
+            {simulating ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Play className="size-4" aria-hidden="true" />}
+            {simulating ? t('simulating') : apiAvailable ? t('importData') : t('startGameweek')}
           </button>
         </div>
       )}
@@ -147,10 +151,10 @@ export function SpieltagHeader({
         <div className="flex justify-center pb-3 px-4">
           <button
             onClick={onAdvance}
-            className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-green-500/10 border border-green-500/30 rounded-xl text-sm font-bold text-green-500 hover:bg-green-500/20 transition-all active:scale-[0.97]"
+            className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-green-500/10 border border-green-500/30 rounded-xl text-sm font-bold text-green-500 hover:bg-green-500/20 transition-colors active:scale-[0.97]"
           >
-            <ArrowRight className="w-4 h-4" />
-            Nächster Spieltag
+            <ArrowRight className="size-4" aria-hidden="true" />
+            {t('nextGameweek')}
           </button>
         </div>
       )}
@@ -158,8 +162,8 @@ export function SpieltagHeader({
       {/* Progress bar */}
       <div className="px-4 pb-3">
         <div className="flex items-center justify-between text-[10px] text-white/20 mb-1">
-          <span>Saison-Fortschritt</span>
-          <span>{progressPct}%</span>
+          <span>{t('seasonProgress')}</span>
+          <span className="tabular-nums">{progressPct}%</span>
         </div>
         <div className="h-1 rounded-full bg-white/[0.06] overflow-hidden">
           <div

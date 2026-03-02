@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 /**
  * Compact Gameweek Selector — [<] Spieltag 11 [>]
@@ -17,6 +18,7 @@ export const GameweekSelector = ({
   onSelect: (gw: number) => void;
   compact?: boolean;
 }) => {
+  const t = useTranslations('fantasy');
   const isActive = selectedGameweek === activeGameweek;
   const canPrev = selectedGameweek > 1;
   const canNext = selectedGameweek < 38;
@@ -26,7 +28,7 @@ export const GameweekSelector = ({
       <button
         onClick={() => canPrev && onSelect(selectedGameweek - 1)}
         disabled={!canPrev}
-        aria-label="Vorheriger Spieltag"
+        aria-label={t('prevGameweek')}
         className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
         <ChevronLeft className="size-5" aria-hidden="true" />
@@ -41,11 +43,11 @@ export const GameweekSelector = ({
             : 'bg-white/5 border-white/10 text-white hover:border-white/20'
         )}
       >
-        <span className="text-base font-black">Spieltag {selectedGameweek}</span>
+        <span className="text-base font-black">{t('gameweekN', { gw: selectedGameweek })}</span>
         {isActive && (
           <span className="flex items-center gap-1">
             <span className="size-2 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none" />
-            <span className="text-[10px] font-bold">AKTIV</span>
+            <span className="text-[10px] font-bold">{t('active')}</span>
           </span>
         )}
       </button>
@@ -53,7 +55,7 @@ export const GameweekSelector = ({
       <button
         onClick={() => canNext && onSelect(selectedGameweek + 1)}
         disabled={!canNext}
-        aria-label="Nächster Spieltag"
+        aria-label={t('nextGameweek')}
         className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
         <ChevronRight className="size-5" aria-hidden="true" />

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Heart, BarChart3, TrendingUp, History, Trophy, Crown } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card, Skeleton } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
@@ -37,6 +38,7 @@ export const HistoryTab = ({
   avgRank: number;
   userId?: string;
 }) => {
+  const t = useTranslations('fantasy');
   const [seasonBoard, setSeasonBoard] = useState<SeasonLeaderboardEntry[]>([]);
   const [boardLoading, setBoardLoading] = useState(true);
 
@@ -71,64 +73,64 @@ export const HistoryTab = ({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="text-center p-3 bg-white/[0.03] rounded-lg">
-              <div className="text-lg md:text-2xl font-mono font-black text-gold">{fmtScout(totalRewardBsd)}</div>
-              <div className="text-[10px] text-white/40">Gewonnene $SCOUT</div>
+              <div className="text-lg md:text-2xl font-mono font-black text-gold tabular-nums">{fmtScout(totalRewardBsd)}</div>
+              <div className="text-[10px] text-white/40">{t('wonScout')}</div>
             </div>
             <div className="text-center p-3 bg-white/[0.03] rounded-lg">
-              <div className="text-lg md:text-2xl font-mono font-black">{seasonPoints.toLocaleString()}</div>
-              <div className="text-[10px] text-white/40">Season Punkte</div>
+              <div className="text-lg md:text-2xl font-mono font-black tabular-nums">{seasonPoints.toLocaleString()}</div>
+              <div className="text-[10px] text-white/40">{t('seasonPoints')}</div>
             </div>
           </div>
         </Card>
 
         {/* Performance Stats */}
         <Card className="p-4 md:p-6">
-          <h3 className="font-bold mb-4 flex items-center gap-2">
+          <h3 className="font-bold mb-4 flex items-center gap-2 text-balance">
             <BarChart3 className="size-4 text-purple-400" aria-hidden="true" />
-            Performance
+            {t('performanceTitle')}
           </h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="text-lg md:text-2xl font-mono font-black text-green-500">{wins}</div>
-              <div className="text-xs text-white/50">Siege</div>
+              <div className="text-lg md:text-2xl font-mono font-black text-green-500 tabular-nums">{wins}</div>
+              <div className="text-xs text-white/50">{t('winsLabel')}</div>
             </div>
             <div>
-              <div className="text-lg md:text-2xl font-mono font-black text-sky-400">{top10}</div>
-              <div className="text-xs text-white/50">Top 10</div>
+              <div className="text-lg md:text-2xl font-mono font-black text-sky-400 tabular-nums">{top10}</div>
+              <div className="text-xs text-white/50">{t('topTen')}</div>
             </div>
             <div>
-              <div className="text-lg md:text-2xl font-mono font-black">{bestRank ? `#${bestRank}` : '\u2014'}</div>
-              <div className="text-xs text-white/50">Beste Platzierung</div>
+              <div className="text-lg md:text-2xl font-mono font-black tabular-nums">{bestRank ? `#${bestRank}` : '\u2014'}</div>
+              <div className="text-xs text-white/50">{t('bestPlacement')}</div>
             </div>
             <div>
-              <div className="text-lg md:text-2xl font-mono font-black text-purple-400">{eventsPlayed}</div>
-              <div className="text-xs text-white/50">Events gespielt</div>
+              <div className="text-lg md:text-2xl font-mono font-black text-purple-400 tabular-nums">{eventsPlayed}</div>
+              <div className="text-xs text-white/50">{t('eventsPlayedLabel')}</div>
             </div>
           </div>
         </Card>
 
         {/* Advanced Stats */}
         <Card className="p-4 md:p-6">
-          <h3 className="font-bold mb-4 flex items-center gap-2">
+          <h3 className="font-bold mb-4 flex items-center gap-2 text-balance">
             <TrendingUp className="size-4 text-green-500" aria-hidden="true" />
-            Statistiken
+            {t('statisticsTitle')}
           </h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-white/50">Avg. Punkte</span>
-              <span className="font-mono font-bold">{avgPoints}</span>
+              <span className="text-sm text-white/50">{t('avgPointsLabel')}</span>
+              <span className="font-mono font-bold tabular-nums">{avgPoints}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-white/50">Avg. Rang</span>
-              <span className="font-mono font-bold">{avgRank > 0 ? `#${avgRank}` : '\u2014'}</span>
+              <span className="text-sm text-white/50">{t('avgRankLabel')}</span>
+              <span className="font-mono font-bold tabular-nums">{avgRank > 0 ? `#${avgRank}` : '\u2014'}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-white/50">Beste Platzierung</span>
-              <span className="font-mono font-bold text-gold">{bestRank ? `#${bestRank}` : '\u2014'}</span>
+              <span className="text-sm text-white/50">{t('bestPlacement')}</span>
+              <span className="font-mono font-bold text-gold tabular-nums">{bestRank ? `#${bestRank}` : '\u2014'}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-white/50">Total Prämien</span>
-              <span className="font-mono font-bold text-purple-400">{fmtScout(totalRewardBsd)} $SCOUT</span>
+              <span className="text-sm text-white/50">{t('totalRewards')}</span>
+              <span className="font-mono font-bold text-purple-400 tabular-nums">{fmtScout(totalRewardBsd)} $SCOUT</span>
             </div>
           </div>
         </Card>
@@ -139,11 +141,11 @@ export const HistoryTab = ({
       {/* Season Leaderboard */}
       <Card className="overflow-hidden">
         <div className="p-4 border-b border-white/10 flex items-center justify-between">
-          <h3 className="font-bold flex items-center gap-2">
+          <h3 className="font-bold flex items-center gap-2 text-balance">
             <Crown className="size-4 text-gold" aria-hidden="true" />
-            Saison-Rangliste
+            {t('seasonLeaderboard')}
           </h3>
-          <div className="text-sm text-white/40">{seasonBoard.length} Manager</div>
+          <div className="text-sm text-white/40">{t('managerCount', { count: seasonBoard.length })}</div>
         </div>
         {boardLoading ? (
           <div className="p-4 space-y-2">
@@ -152,7 +154,7 @@ export const HistoryTab = ({
         ) : seasonBoard.length === 0 ? (
           <div className="text-center py-12 text-white/40">
             <Trophy className="size-10 mx-auto mb-3 text-white/20" aria-hidden="true" />
-            <div className="text-sm">Noch keine Saison-Daten</div>
+            <div className="text-sm">{t('noSeasonData')}</div>
           </div>
         ) : (
           <>
@@ -161,11 +163,11 @@ export const HistoryTab = ({
               <thead>
                 <tr className="border-b border-white/10 text-xs text-white/40">
                   <th className="py-3 px-4 text-left w-12">#</th>
-                  <th className="py-3 px-4 text-left">Manager</th>
-                  <th className="py-3 px-4 text-center">Events</th>
-                  <th className="py-3 px-4 text-center">Siege</th>
-                  <th className="py-3 px-4 text-center">Punkte</th>
-                  <th className="py-3 px-4 text-right">Prämie</th>
+                  <th className="py-3 px-4 text-left">{t('thManager')}</th>
+                  <th className="py-3 px-4 text-center">{t('thEvents')}</th>
+                  <th className="py-3 px-4 text-center">{t('thWins')}</th>
+                  <th className="py-3 px-4 text-center">{t('thPoints')}</th>
+                  <th className="py-3 px-4 text-right">{t('thReward')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -174,7 +176,7 @@ export const HistoryTab = ({
                   const rankColor = entry.rank === 1 ? 'text-gold' : entry.rank === 2 ? 'text-zinc-300' : entry.rank === 3 ? 'text-amber-600' : 'text-white/50';
                   return (
                     <tr key={entry.userId} className={cn('border-b border-white/5 hover:bg-white/[0.02]', isMe && 'bg-gold/[0.04]')}>
-                      <td className={cn('py-3 px-4 font-mono font-bold text-sm', rankColor)}>
+                      <td className={cn('py-3 px-4 font-mono font-bold text-sm tabular-nums', rankColor)}>
                         {entry.rank <= 3 ? <Trophy className={cn('size-4 inline', rankColor)} aria-hidden="true" /> : `#${entry.rank}`}
                       </td>
                       <td className="py-3 px-4">
@@ -182,15 +184,15 @@ export const HistoryTab = ({
                           <span className={cn('font-semibold', isMe && 'text-gold')}>
                             {entry.displayName ?? `@${entry.handle}`}
                           </span>
-                          {isMe && <span className="ml-1.5 text-[10px] text-gold/60">(Du)</span>}
+                          {isMe && <span className="ml-1.5 text-[10px] text-gold/60">{t('youLabel')}</span>}
                         </Link>
                       </td>
-                      <td className="py-3 px-4 text-center text-sm font-mono">{entry.eventsPlayed}</td>
-                      <td className="py-3 px-4 text-center text-sm font-mono text-green-500">{entry.wins}</td>
-                      <td className="py-3 px-4 text-center text-sm font-mono font-bold">{entry.totalPoints.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-center text-sm font-mono tabular-nums">{entry.eventsPlayed}</td>
+                      <td className="py-3 px-4 text-center text-sm font-mono text-green-500 tabular-nums">{entry.wins}</td>
+                      <td className="py-3 px-4 text-center text-sm font-mono font-bold tabular-nums">{entry.totalPoints.toLocaleString()}</td>
                       <td className="py-3 px-4 text-right">
                         {entry.totalRewardCents > 0 ? (
-                          <span className="font-mono font-bold text-sm text-gold">+{fmtScout(centsToBsd(entry.totalRewardCents))} $SCOUT</span>
+                          <span className="font-mono font-bold text-sm text-gold tabular-nums">+{fmtScout(centsToBsd(entry.totalRewardCents))} $SCOUT</span>
                         ) : (
                           <span className="text-white/30">{'\u2014'}</span>
                         )}
@@ -221,15 +223,15 @@ export const HistoryTab = ({
                         <div className="min-w-0">
                           <div className={cn('font-medium text-sm truncate', isMe && 'text-gold')}>
                             {entry.displayName ?? `@${entry.handle}`}
-                            {isMe && <span className="text-[10px] text-gold/60 ml-1">(Du)</span>}
+                            {isMe && <span className="text-[10px] text-gold/60 ml-1">{t('youLabel')}</span>}
                           </div>
-                          <div className="text-[10px] text-white/40">{entry.eventsPlayed} Events · {entry.wins} Siege</div>
+                          <div className="text-[10px] text-white/40">{t('eventsAndWins', { events: entry.eventsPlayed, wins: entry.wins })}</div>
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="font-mono font-bold text-sm">{entry.totalPoints.toLocaleString()}</div>
+                        <div className="font-mono font-bold text-sm tabular-nums">{entry.totalPoints.toLocaleString()}</div>
                         {entry.totalRewardCents > 0 && (
-                          <div className="text-[11px] font-mono font-bold text-gold">+{fmtScout(centsToBsd(entry.totalRewardCents))}</div>
+                          <div className="text-[11px] font-mono font-bold text-gold tabular-nums">+{fmtScout(centsToBsd(entry.totalRewardCents))}</div>
                         )}
                       </div>
                     </div>
@@ -244,14 +246,14 @@ export const HistoryTab = ({
       {/* Event History Table */}
       <Card className="overflow-hidden">
         <div className="p-4 border-b border-white/10 flex items-center justify-between">
-          <h3 className="font-bold">Event-Verlauf</h3>
-          <div className="text-sm text-white/40">{participations.length} Events</div>
+          <h3 className="font-bold text-balance">{t('eventHistory')}</h3>
+          <div className="text-sm text-white/40">{t('eventHistoryCount', { count: participations.length })}</div>
         </div>
         {participations.length === 0 ? (
           <div className="text-center py-12 text-white/40">
             <History className="size-10 mx-auto mb-3 text-white/20" aria-hidden="true" />
-            <div className="text-sm">Noch keine ausgewerteten Events</div>
-            <div className="text-xs text-white/25 mt-1">Tritt einem Event bei und warte auf die Auswertung.</div>
+            <div className="text-sm">{t('noScoredEvents')}</div>
+            <div className="text-xs text-white/25 mt-1 text-pretty">{t('joinEventHint')}</div>
           </div>
         ) : (
           <>
@@ -259,11 +261,11 @@ export const HistoryTab = ({
             <table className="w-full hidden md:table">
               <thead>
                 <tr className="border-b border-white/10 text-xs text-white/40">
-                  <th className="py-3 px-4 text-left">Event</th>
-                  <th className="py-3 px-4 text-center">GW</th>
-                  <th className="py-3 px-4 text-center">Rang</th>
-                  <th className="py-3 px-4 text-center">Punkte</th>
-                  <th className="py-3 px-4 text-right">Reward</th>
+                  <th className="py-3 px-4 text-left">{t('thEvent')}</th>
+                  <th className="py-3 px-4 text-center">{t('thGw')}</th>
+                  <th className="py-3 px-4 text-center">{t('thRank')}</th>
+                  <th className="py-3 px-4 text-center">{t('thPoints')}</th>
+                  <th className="py-3 px-4 text-right">{t('thReward')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -273,18 +275,18 @@ export const HistoryTab = ({
                     <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
                       <td className="py-3 px-4">
                         <div className="font-medium">{p.eventName}</div>
-                        <div className="text-[10px] text-white/40">{p.totalParticipants} Teilnehmer</div>
+                        <div className="text-[10px] text-white/40">{p.totalParticipants} {t('participantsLabel')}</div>
                       </td>
-                      <td className="py-3 px-4 text-center text-sm">{p.gameweek}</td>
+                      <td className="py-3 px-4 text-center text-sm tabular-nums">{p.gameweek}</td>
                       <td className="py-3 px-4 text-center">
-                        <div className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded text-white text-sm font-bold', formResult.color)}>
+                        <div className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded text-white text-sm font-bold tabular-nums', formResult.color)}>
                           #{p.rank}
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-center font-mono">{p.points}</td>
+                      <td className="py-3 px-4 text-center font-mono tabular-nums">{p.points}</td>
                       <td className="py-3 px-4 text-right text-sm">
                         {p.rewardCents > 0 ? (
-                          <span className="font-mono font-bold text-gold">+{fmtScout(centsToBsd(p.rewardCents))} $SCOUT</span>
+                          <span className="font-mono font-bold text-gold tabular-nums">+{fmtScout(centsToBsd(p.rewardCents))} $SCOUT</span>
                         ) : (
                           <span className="text-white/30">{'\u2014'}</span>
                         )}
@@ -302,18 +304,18 @@ export const HistoryTab = ({
                 return (
                   <div key={i} className="flex items-center justify-between gap-3 p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className={cn('size-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0', formResult.color)}>
+                      <div className={cn('size-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0 tabular-nums', formResult.color)}>
                         #{p.rank}
                       </div>
                       <div className="min-w-0">
                         <div className="font-medium text-sm truncate">{p.eventName}</div>
-                        <div className="text-[10px] text-white/40">GW{p.gameweek} · {p.totalParticipants} Teilnehmer</div>
+                        <div className="text-[10px] text-white/40">{t('thGw')}{p.gameweek} · {p.totalParticipants} {t('participantsLabel')}</div>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="font-mono font-bold text-sm">{p.points} Pkt</div>
+                      <div className="font-mono font-bold text-sm tabular-nums">{p.points} {t('ptsLabel')}</div>
                       {p.rewardCents > 0 ? (
-                        <div className="text-[11px] font-mono font-bold text-gold">+{fmtScout(centsToBsd(p.rewardCents))}</div>
+                        <div className="text-[11px] font-mono font-bold text-gold tabular-nums">+{fmtScout(centsToBsd(p.rewardCents))}</div>
                       ) : (
                         <div className="text-[11px] text-white/30">{'\u2014'}</div>
                       )}

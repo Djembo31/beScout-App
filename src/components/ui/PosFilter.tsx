@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 import type { Pos } from '@/types';
 
 const POS_COLORS: Record<Pos, { bg: string; border: string; text: string }> = {
@@ -38,6 +39,7 @@ interface PosFilterSingleProps {
 export type PosFilterProps = PosFilterMultiProps | PosFilterSingleProps;
 
 export function PosFilter(props: PosFilterProps) {
+  const t = useTranslations('common');
   const { counts, className = '' } = props;
 
   return (
@@ -53,7 +55,7 @@ export function PosFilter(props: PosFilterProps) {
               : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70 hover:bg-white/10'
           )}
         >
-          Alle
+          {t('allFilter')}
           {props.allCount != null && <span className="ml-1 tabular-nums text-white/30">{props.allCount}</span>}
         </button>
       )}
