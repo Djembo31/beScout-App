@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { MASTERY_LEVEL_LABELS, MASTERY_XP_THRESHOLDS } from '@/lib/services/mastery';
+import { MASTERY_XP_THRESHOLDS } from '@/lib/services/mastery';
 
 interface DpcMasteryCardProps {
   mastery: {
@@ -22,7 +22,7 @@ export default function DpcMasteryCard({ mastery }: DpcMasteryCardProps) {
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-white/50 uppercase tracking-wider">DPC Mastery</span>
           <span className="px-2 py-0.5 rounded-lg bg-gold/15 text-gold text-[10px] font-black border border-gold/25">
-            Lv {mastery.level} — {MASTERY_LEVEL_LABELS[mastery.level]}
+            Lv {mastery.level} — {t(`masteryLevel${mastery.level}`)}
           </span>
         </div>
         <span className="text-[10px] font-mono text-white/30">

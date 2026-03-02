@@ -39,7 +39,7 @@ export default function ScoutMissionCard({ mission, progress, userTier, onSubmit
           <span className="font-bold text-sm">{mission.title}</span>
         </div>
         <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full border', diff.bg, diff.color, diff.border)}>
-          {diff.label}
+          {tc(`diff_${mission.difficulty}`)}
         </span>
       </div>
 

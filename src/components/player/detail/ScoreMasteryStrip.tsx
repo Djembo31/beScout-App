@@ -4,7 +4,7 @@ import React from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ScoreCircle, getL5Hex } from '@/components/player';
-import { MASTERY_LEVEL_LABELS, MASTERY_XP_THRESHOLDS } from '@/lib/services/mastery';
+import { MASTERY_XP_THRESHOLDS } from '@/lib/services/mastery';
 import type { Trend } from '@/types';
 
 interface ScoreMasteryStripProps {
@@ -78,7 +78,7 @@ export default function ScoreMasteryStrip({
             <div className="flex items-center gap-2">
               <span className="text-[9px] font-bold text-white/40 uppercase tracking-wider">Mastery</span>
               <span className="px-1.5 py-0.5 rounded-md bg-gold/15 text-gold text-[9px] font-black border border-gold/25">
-                Lv{mastery.level} {MASTERY_LEVEL_LABELS[mastery.level]}
+                Lv{mastery.level} {t(`masteryLevel${mastery.level}`)}
               </span>
             </div>
             {mastery.level < 5 && (

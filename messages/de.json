@@ -1233,7 +1233,10 @@
     "rumorCatSource": "Quelle",
     "readersCount": "{count} Leser",
     "unlockDeduction": "{price} $SCOUT werden von deinem Wallet abgezogen",
-    "clubVote": "Club-Abstimmung"
+    "clubVote": "Club-Abstimmung",
+    "diff_easy": "Einfach",
+    "diff_medium": "Mittel",
+    "diff_hard": "Schwer"
   },
   "profile": {
     "title": "Profil",
@@ -1480,7 +1483,12 @@
     "priceAlertTriggered": "Preis-Alert: {first} {last} ist {direction} {target} $SCOUT",
     "priceAlertSet": "Preis-Alert gesetzt: {symbol} {target} $SCOUT",
     "priceAlertBelow": "unter",
-    "priceAlertAbove": "über"
+    "priceAlertAbove": "über",
+    "masteryLevel1": "Neuling",
+    "masteryLevel2": "Kenner",
+    "masteryLevel3": "Experte",
+    "masteryLevel4": "Meister",
+    "masteryLevel5": "Legende"
   },
   "club": {
     "overview": "Übersicht",
@@ -3284,6 +3292,9 @@
     "fantasyRewardBody": "Du hast {score} Punkte erzielt!",
     "liquidationTitle": "DPC liquidiert",
     "liquidationBodyFull": "Du hast {total} $SCOUT erhalten ({pbt} PBT + {sf} Community Bonus).",
-    "liquidationBodyPbt": "Du hast {total} $SCOUT aus der PBT-Ausschüttung erhalten."
+    "liquidationBodyPbt": "Du hast {total} $SCOUT aus der PBT-Ausschüttung erhalten.",
+    "unknownFallback": "Unbekannt",
+    "someoneFallback": "Jemand",
+    "replyNotifTitle": "{name} hat auf deinen Post geantwortet"
   }
 }

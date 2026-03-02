@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { notifText } from '@/lib/notifText';
 import type { DbPost, PostWithAuthor, PostType } from '@/types';
 import { toPos } from '@/types';
 
@@ -245,11 +246,11 @@ export async function createReply(
         .select('handle')
         .eq('id', userId)
         .maybeSingle();
-      const name = replier?.handle ?? 'Jemand';
+      const name = replier?.handle ?? notifText('someoneFallback');
       await createNotification(
         parent.user_id,
         'reply',
-        `${name} hat auf deinen Post geantwortet`,
+        notifText('replyNotifTitle', { name }),
         content.slice(0, 100)
       );
     } catch (err) { console.error('[Posts] Reply notification failed:', err); }

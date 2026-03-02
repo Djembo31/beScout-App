@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { getFixtureDeadlinesByGameweek } from '@/lib/services/fixtures';
+import { notifText } from '@/lib/notifText';
 import type { DbLineup, DbPlayer, Pos, UserFantasyResult } from '@/types';
 
 // ============================================
@@ -363,7 +364,7 @@ export async function getUserFantasyHistory(userId: string, limit = 10): Promise
     const event = row.event as { name?: string; gameweek?: number; starts_at?: string } | null;
     return {
       eventId: row.event_id as string,
-      eventName: event?.name ?? 'Unbekannt',
+      eventName: event?.name ?? notifText('unknownFallback'),
       gameweek: event?.gameweek ?? null,
       eventDate: event?.starts_at ?? '',
       totalScore: row.total_score as number,

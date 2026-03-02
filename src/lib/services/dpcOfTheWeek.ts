@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { notifText } from '@/lib/notifText';
 
 // ============================================
 // Types
@@ -79,7 +80,7 @@ async function notifyHolders(playerId: string, gameweek: number, score: number):
     .eq('id', playerId)
     .single();
 
-  const playerName = player ? `${player.first_name} ${player.last_name}` : 'Unbekannt';
+  const playerName = player ? `${player.first_name} ${player.last_name}` : notifText('unknownFallback');
 
   // Get all holders
   const { data: holders } = await supabase

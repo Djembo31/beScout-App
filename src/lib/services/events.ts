@@ -128,7 +128,7 @@ export async function createNextGameweekEvents(
   currentGw: number
 ): Promise<{ created: number; skipped: boolean; error?: string }> {
   const nextGw = currentGw + 1;
-  if (nextGw > 38) return { created: 0, skipped: true, error: 'Max GW 38 erreicht' };
+  if (nextGw > 38) return { created: 0, skipped: true, error: 'Max GW 38 reached' };
 
   // Check if events already exist for next GW
   const { data: existing } = await supabase
@@ -150,7 +150,7 @@ export async function createNextGameweekEvents(
     .eq('gameweek', currentGw);
 
   if (tplErr || !templates || templates.length === 0) {
-    return { created: 0, skipped: false, error: tplErr?.message ?? 'Keine Events zum Klonen gefunden' };
+    return { created: 0, skipped: false, error: tplErr?.message ?? 'No events found to clone' };
   }
 
   // Derive timing from fixture data for the next GW

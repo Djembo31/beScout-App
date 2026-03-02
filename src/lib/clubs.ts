@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { notifText } from '@/lib/notifText';
 
 // ============================================
 // Club Lookup Type (used by all consumers)
@@ -55,7 +56,7 @@ export async function initClubCache(): Promise<void> {
           logo: c.logo_url,
           league: c.league,
           league_id: c.league_id,
-          country: c.country ?? 'Unbekannt',
+          country: c.country ?? notifText('unknownFallback'),
         };
         // Index by multiple keys for flexible lookup
         newCache.set(c.id, lookup);         // UUID

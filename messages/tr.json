@@ -1225,7 +1225,10 @@
     "rumorCatSource": "Kaynak",
     "readersCount": "{count} Okuyucu",
     "unlockDeduction": "{price} $SCOUT bakiyenden düşürülecek",
-    "clubVote": "Kulüp Oylaması"
+    "clubVote": "Kulüp Oylaması",
+    "diff_easy": "Kolay",
+    "diff_medium": "Orta",
+    "diff_hard": "Zor"
   },
   "profile": {
     "title": "Profil",
@@ -1472,7 +1475,12 @@
     "priceAlertTriggered": "Fiyat Uyarısı: {first} {last} {target} $SCOUT {direction}",
     "priceAlertSet": "Fiyat uyarısı ayarlandı: {symbol} {target} $SCOUT",
     "priceAlertBelow": "altında",
-    "priceAlertAbove": "üstünde"
+    "priceAlertAbove": "üstünde",
+    "masteryLevel1": "Çaylak",
+    "masteryLevel2": "Bilgili",
+    "masteryLevel3": "Uzman",
+    "masteryLevel4": "Usta",
+    "masteryLevel5": "Efsane"
   },
   "club": {
     "overview": "Genel Bakış",
@@ -3276,6 +3284,9 @@
     "fantasyRewardBody": "{score} puan kazandın!",
     "liquidationTitle": "DPC tasfiye edildi",
     "liquidationBodyFull": "{total} $SCOUT aldın ({pbt} PBT + {sf} Topluluk Bonusu).",
-    "liquidationBodyPbt": "{total} $SCOUT PBT dağıtımından aldın."
+    "liquidationBodyPbt": "{total} $SCOUT PBT dağıtımından aldın.",
+    "unknownFallback": "Bilinmiyor",
+    "someoneFallback": "Birisi",
+    "replyNotifTitle": "{name} gönderine yanıt verdi"
   }
 }

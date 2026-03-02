@@ -422,7 +422,7 @@ export async function getEventLeaderboard(eventId: string): Promise<LeaderboardE
     return {
       rank: l.rank as number,
       userId: l.user_id,
-      handle: profile?.handle ?? 'Unbekannt',
+      handle: profile?.handle ?? notifText('unknownFallback'),
       displayName: profile?.display_name ?? null,
       avatarUrl: profile?.avatar_url ?? null,
       totalScore: l.total_score as number,
@@ -495,7 +495,7 @@ export async function getSeasonLeaderboard(limit = 50): Promise<SeasonLeaderboar
     return {
       rank: idx + 1,
       userId: uid,
-      handle: profile?.handle ?? 'Unbekannt',
+      handle: profile?.handle ?? notifText('unknownFallback'),
       displayName: profile?.display_name ?? null,
       avatarUrl: profile?.avatar_url ?? null,
       totalPoints: stats.totalPoints,
