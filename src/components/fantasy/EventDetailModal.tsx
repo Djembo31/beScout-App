@@ -21,6 +21,7 @@ import { getLineup, getEventParticipants, getEventParticipantCount, getLineupWit
 import type { LineupWithPlayers } from '@/lib/services/lineups';
 import { resetEvent, getEventLeaderboard, getProgressiveScores } from '@/lib/services/scoring';
 import type { LeaderboardEntry } from '@/lib/services/scoring';
+import { useTranslations, useLocale } from 'next-intl';
 import { cn, fmtScout } from '@/lib/utils';
 import type { Pos } from '@/types';
 import type { FantasyEvent, EventDetailTab, LineupPlayer, UserDpcHolding, LineupPreset } from './types';
@@ -53,6 +54,8 @@ export const EventDetailModal = ({
   fixtureDeadlines?: Map<string, FixtureDeadline>;
 }) => {
   const { user } = useUser();
+  const t = useTranslations('fantasy');
+  const locale = useLocale();
   const [tab, setTab] = useState<EventDetailTab>('overview');
   const [selectedPlayers, setSelectedPlayers] = useState<LineupPlayer[]>([]);
   const [showPlayerPicker, setShowPlayerPicker] = useState<{ position: string; slot: number } | null>(null);
@@ -459,7 +462,7 @@ export const EventDetailModal = ({
               <span className="text-xs font-bold">{statusStyle.label}</span>
             </div>
           )}
-          <Chip className={`${typeStyle.bg} ${typeStyle.color}`}>{event.mode === 'league' ? 'Liga' : 'Turnier'} • {event.format}</Chip>
+          <Chip className={`${typeStyle.bg} ${typeStyle.color}`}>{event.mode === 'league' ? t('modeLiga') : t('modeTurnier')} • {event.format}</Chip>
           {event.status === 'running' && !isScored && <Chip className="bg-green-500 text-white">LIVE</Chip>}
           {isScored && (
             <button
@@ -468,26 +471,26 @@ export const EventDetailModal = ({
               className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50 ml-auto"
             >
               {resetting ? <RefreshCw aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" /> : <History aria-hidden="true" className="size-3.5" />}
-              {resetting ? 'Wird zurückgesetzt...' : 'Zurücksetzen'}
+              {resetting ? t('resettingBtn') : t('resetBtn')}
             </button>
           )}
         </div>
         <div className="flex items-center gap-4 text-sm text-white/50 mb-4">
           <span className="flex items-center gap-1"><Users aria-hidden="true" className="size-4" />{event.participants}{event.maxParticipants ? `/${event.maxParticipants}` : ''}</span>
-          <span className="flex items-center gap-1"><Clock aria-hidden="true" className="size-4" />{event.status === 'ended' ? 'Beendet' : formatCountdown(event.lockTime)}</span>
+          <span className="flex items-center gap-1"><Clock aria-hidden="true" className="size-4" />{event.status === 'ended' ? t('ended') : formatCountdown(event.lockTime)}</span>
         </div>
 
         {/* Tabs */}
         <div className="flex -mx-4 md:-mx-5 border-b border-white/10 mb-4">
-          {(['overview', 'lineup', 'leaderboard', 'community'] as EventDetailTab[]).map(t => (
+          {(['overview', 'lineup', 'leaderboard', 'community'] as EventDetailTab[]).map(tabId => (
             <button
-              key={t}
-              onClick={() => { setTab(t); setViewingUserLineup(null); }}
-              className={`flex-1 px-4 py-3 min-h-[44px] font-medium text-sm transition-colors relative ${tab === t ? 'text-gold' : 'text-white/50 hover:text-white'
+              key={tabId}
+              onClick={() => { setTab(tabId); setViewingUserLineup(null); }}
+              className={`flex-1 px-4 py-3 min-h-[44px] font-medium text-sm transition-colors relative ${tab === tabId ? 'text-gold' : 'text-white/50 hover:text-white'
                 }`}
             >
-              {t === 'overview' ? 'Übersicht' : t === 'lineup' ? 'Aufstellung' : t === 'leaderboard' ? 'Rangliste' : 'Community'}
-              {tab === t && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold" />}
+              {tabId === 'overview' ? t('tabOverview') : tabId === 'lineup' ? t('tabLineup') : tabId === 'leaderboard' ? t('tabRanking') : t('tabCommunity')}
+              {tab === tabId && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold" />}
             </button>
           ))}
         </div>
@@ -499,7 +502,7 @@ export const EventDetailModal = ({
           {tab === 'overview' && (
             <div className="space-y-6">
               <div>
-                <h3 className="font-bold mb-2">Beschreibung</h3>
+                <h3 className="font-bold mb-2">{t('descriptionLabel')}</h3>
                 <p className="text-white/70">{event.description}</p>
               </div>
 
@@ -508,10 +511,10 @@ export const EventDetailModal = ({
                 <div className="p-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/20">
                   <div className="flex items-center gap-2 mb-3">
                     <Swords aria-hidden="true" className="size-5 text-amber-400" />
-                    <h3 className="font-bold text-amber-400">Arena-Wertung</h3>
+                    <h3 className="font-bold text-amber-400">{t('arenaScoring')}</h3>
                   </div>
                   <p className="text-xs text-white/60 mb-3">
-                    Deine Platzierung beeinflusst deinen BeScout Score. Top-Platzierungen geben Punkte, schlechte Platzierungen kosten Punkte!
+                    {t('arenaDesc')}
                   </p>
                   <div className="grid grid-cols-4 gap-1.5">
                     {[
@@ -1137,7 +1140,7 @@ export const EventDetailModal = ({
                 <div className="flex items-center gap-3 p-3 bg-sky-500/5 border border-sky-500/20 rounded-lg">
                   <Building2 aria-hidden="true" className="size-5 text-sky-400 flex-shrink-0" />
                   <div>
-                    <div className="text-sm font-bold text-sky-300">Synergy Bonus +{synergyPreview.totalPct}%</div>
+                    <div className="text-sm font-bold text-sky-300">{t('synergyBonus', { pct: synergyPreview.totalPct })}</div>
                     <div className="text-[10px] text-white/40">
                       {synergyPreview.details.map(d => `${d.source} (${d.bonus_pct}%)`).join(' + ')}
                     </div>
@@ -1152,7 +1155,7 @@ export const EventDetailModal = ({
                   className="w-full flex items-center justify-center gap-2 p-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-xl transition-colors text-sm font-bold text-white/70 hover:text-white"
                 >
                   <BarChart3 aria-hidden="true" className="size-4" />
-                  Rangliste anzeigen
+                  {t('showRanking')}
                   <ChevronRight aria-hidden="true" className="size-4" />
                 </button>
               )}
@@ -1162,16 +1165,16 @@ export const EventDetailModal = ({
                 <div className="flex items-center gap-2 p-3 bg-gold/5 border border-gold/20 rounded-lg">
                   <Crown aria-hidden="true" className="size-4 text-gold" />
                   <span className="text-xs text-gold/80">
-                    {captainSlot ? `Kapitän: ${(() => { const idx = slotDbKeys.indexOf(captainSlot); const p = idx >= 0 ? getSelectedPlayer(idx) : null; return p ? `${p.first} ${p.last} (×1.5)` : captainSlot; })()}` : 'Doppelklick auf einen Spieler = Kapitän (×1.5 Score)'}
+                    {captainSlot ? t('captainSet', { name: (() => { const idx = slotDbKeys.indexOf(captainSlot); const p = idx >= 0 ? getSelectedPlayer(idx) : null; return p ? `${p.first} ${p.last}` : captainSlot; })() }) : t('captainHint')}
                   </span>
                   {captainSlot && (() => {
                     const captainIdx = slotDbKeys.indexOf(captainSlot);
                     const captainPlayer = captainIdx >= 0 ? getSelectedPlayer(captainIdx) : null;
                     const captainLocked = captainPlayer ? isPlayerLocked(captainPlayer.id) : false;
                     return !captainLocked ? (
-                      <button onClick={() => setCaptainSlot(null)} className="ml-auto text-[10px] text-white/40 hover:text-white/60">Entfernen</button>
+                      <button onClick={() => setCaptainSlot(null)} className="ml-auto text-[10px] text-white/40 hover:text-white/60">{t('captainRemove')}</button>
                     ) : (
-                      <span className="ml-auto text-[10px] text-white/20">Gesperrt</span>
+                      <span className="ml-auto text-[10px] text-white/20">{t('captainLocked')}</span>
                     );
                   })()}
                 </div>
@@ -1277,7 +1280,7 @@ export const EventDetailModal = ({
                     className="flex items-center gap-1.5 text-sm text-white/50 hover:text-white transition-colors"
                   >
                     <ChevronLeft aria-hidden="true" className="size-4" />
-                    Zurück zur Rangliste
+                    {t('backToRanking')}
                   </button>
 
                   {/* User header */}
@@ -1411,21 +1414,21 @@ export const EventDetailModal = ({
                   {leaderboardLoading ? (
                     <div className="text-center py-8">
                       <RefreshCw aria-hidden="true" className="size-6 mx-auto mb-2 text-white/30 animate-spin motion-reduce:animate-none" />
-                      <div className="text-sm text-white/40">Rangliste wird geladen...</div>
+                      <div className="text-sm text-white/40">{t('rankingLoading')}</div>
                     </div>
                   ) : leaderboard.length === 0 ? (
                     <div className="text-center py-8">
                       <Trophy aria-hidden="true" className="size-10 mx-auto mb-3 text-white/20" />
-                      <div className="text-white/50 text-sm">Noch keine Ergebnisse</div>
+                      <div className="text-white/50 text-sm">{t('noResultsYet')}</div>
                       <div className="text-white/30 text-xs mt-1">
-                        Die Auswertung steht noch aus.
+                        {t('scoringPending')}
                       </div>
                     </div>
                   ) : (
                     <>
                       {isScored && (
                         <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl mb-3 text-center">
-                          <div className="text-xs text-purple-300">Ausgewertet am {new Date(event.scoredAt!).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                          <div className="text-xs text-purple-300">{t('scoredAt', { date: new Date(event.scoredAt!).toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) })}</div>
                         </div>
                       )}
                       {leaderboard.map((entry) => {
@@ -1506,47 +1509,47 @@ export const EventDetailModal = ({
                   <Trophy aria-hidden="true" className="size-5 text-gold" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white">Teilnahme bestätigen</h3>
+                  <h3 className="font-bold text-white">{t('confirmJoinTitle')}</h3>
                   <p className="text-xs text-white/50">{event.name}</p>
                 </div>
               </div>
               <div className="space-y-2 mb-5 text-sm">
                 {event.buyIn > 0 && (
                   <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                    <span className="text-white/60">Teilnahmegebühr</span>
+                    <span className="text-white/60">{t('entryFeeLabel')}</span>
                     <span className="font-bold text-gold">{fmtScout(event.buyIn)} $SCOUT</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                  <span className="text-white/60">Formation</span>
+                  <span className="text-white/60">{t('formationLabel')}</span>
                   <span className="font-mono text-white">{selectedFormation}</span>
                 </div>
                 <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                  <span className="text-white/60">Spieler</span>
-                  <span className="text-white">{selectedPlayers.length} aufgestellt</span>
+                  <span className="text-white/60">{t('playersLabel')}</span>
+                  <span className="text-white">{t('playersDeployed', { count: selectedPlayers.length })}</span>
                 </div>
                 {captainSlot && (
                   <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                    <span className="text-white/60">Kapitän</span>
+                    <span className="text-white/60">{t('captainLabel')}</span>
                     <span className="text-gold">
                       <Crown aria-hidden="true" className="size-3.5 inline mr-1" />
-                      Gewählt (2x Punkte)
+                      {t('captainChosen')}
                     </span>
                   </div>
                 )}
               </div>
               {event.buyIn > 0 && (
                 <p className="text-[11px] text-white/40 mb-4">
-                  Die Teilnahmegebühr wird sofort von deinem Wallet abgezogen. Bei Abmeldung vor Event-Start wird sie erstattet.
+                  {t('entryFeeNote')}
                 </p>
               )}
               <div className="flex gap-3">
                 <Button variant="outline" size="lg" fullWidth onClick={() => setShowJoinConfirm(false)}>
-                  Abbrechen
+                  {t('cancelBtn')}
                 </Button>
                 <Button variant="gold" size="lg" fullWidth onClick={handleFinalJoin} disabled={joining}>
                   {joining ? <Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> : <CheckCircle2 aria-hidden="true" className="size-4" />}
-                  {joining ? 'Wird angemeldet...' : 'Bestätigen'}
+                  {joining ? t('confirming') : t('confirmBtn')}
                 </Button>
               </div>
             </div>
@@ -1676,7 +1679,7 @@ export const EventDetailModal = ({
             >
               <Trophy aria-hidden="true" className="size-4 text-purple-400" />
               <span className="text-sm font-bold text-purple-400">
-                {event.userRank ? `Platz ${event.userRank}` : 'Ausgewertet'} — Ergebnisse ansehen
+                {event.userRank ? t('rankResult', { rank: event.userRank }) : t('scored')} — {t('viewResults')}
               </span>
             </button>
           </div>
@@ -1687,7 +1690,7 @@ export const EventDetailModal = ({
           <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
             <div className="flex items-center justify-center gap-2 py-3 px-4 bg-white/[0.03] border border-white/10 rounded-xl">
               <Clock aria-hidden="true" className="size-4 text-white/40" />
-              <span className="text-sm text-white/40">Event beendet — Auswertung ausstehend</span>
+              <span className="text-sm text-white/40">{t('eventEndedPending')}</span>
             </div>
           </div>
         )}
@@ -1702,14 +1705,14 @@ export const EventDetailModal = ({
               onClick={() => setTab('leaderboard')}
             >
               <Eye aria-hidden="true" className="size-5" />
-              Ergebnisse ansehen
+              {t('viewResults')}
             </Button>
           </div>
         )}
 
       {/* Player Picker Modal — Enhanced with Search, Sort, Stats, Status */}
       {showPlayerPicker && (() => {
-        const POS_LABEL: Record<string, string> = { GK: 'Torwart', DEF: 'Verteidiger', MID: 'Mittelfeldspieler', ATT: 'Angreifer' };
+        const POS_LABEL: Record<string, string> = { GK: t('posGK'), DEF: t('posDEF'), MID: t('posMID'), ATT: t('posATT') };
         const posColor = getPosAccentColor(showPlayerPicker.position);
         const availablePlayers = getAvailablePlayersForPosition(showPlayerPicker.position);
         return (
@@ -1724,16 +1727,16 @@ export const EventDetailModal = ({
                 <div className="flex items-center gap-3 px-4 pt-3 pb-2">
                   <button
                     onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }}
-                    aria-label="Spielerauswahl schließen"
+                    aria-label={t('closePickerLabel')}
                     className="p-1.5 -ml-1.5 rounded-lg hover:bg-white/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                   >
                     <X aria-hidden="true" className="size-5 text-white/60" />
                   </button>
                   <div className="flex-1">
                     <h3 className="font-black text-base">
-                      <span style={{ color: posColor }}>{POS_LABEL[showPlayerPicker.position] || showPlayerPicker.position}</span> wählen
+                      {t('selectPos', { pos: POS_LABEL[showPlayerPicker.position] || showPlayerPicker.position })}
                     </h3>
-                    <div className="text-[10px] text-white/40">{availablePlayers.length} verfügbar</div>
+                    <div className="text-[10px] text-white/40">{t('availableCount', { count: availablePlayers.length })}</div>
                   </div>
                   {/* Sort pills */}
                   <div className="flex items-center gap-0.5">
@@ -1754,7 +1757,7 @@ export const EventDetailModal = ({
                     <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-white/30" />
                     <input
                       type="text"
-                      placeholder="Spieler suchen..."
+                      placeholder={t('searchPlayerPlaceholder')}
                       value={pickerSearch}
                       onChange={e => setPickerSearch(e.target.value)}
                       className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/30"
@@ -1769,7 +1772,7 @@ export const EventDetailModal = ({
                   <div className="flex flex-col items-center justify-center py-16 px-6">
                     <PositionBadge pos={showPlayerPicker.position as Pos} size="lg" />
                     <div className="text-sm text-white/30 mt-3 text-center">
-                      Keine {POS_LABEL[showPlayerPicker.position] || 'Spieler'} verfügbar
+                      {t('noPosAvailable', { pos: POS_LABEL[showPlayerPicker.position] || t('playersLabel') })}
                     </div>
                     <Link
                       href="/market?tab=kaufen"
@@ -1777,7 +1780,7 @@ export const EventDetailModal = ({
                       className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-gold/15 text-gold text-xs font-bold rounded-xl hover:bg-gold/25 transition-colors"
                     >
                       <ShoppingCart aria-hidden="true" className="size-3.5" />
-                      Spieler kaufen
+                      {t('buyPlayer')}
                     </Link>
                   </div>
                 ) : (
