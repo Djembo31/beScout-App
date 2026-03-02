@@ -95,7 +95,7 @@ function InlineFeedVoteCard({ vote, hasVoted, onVote, voting }: {
       <div className="p-3 flex items-center justify-between bg-purple-500/[0.06] border-b border-purple-500/20">
         <div className="flex items-center gap-2">
           <Vote className="w-4 h-4 text-purple-400" />
-          <span className="font-bold text-sm text-purple-300">Club-Abstimmung</span>
+          <span className="font-bold text-sm text-purple-300">{t('clubVote')}</span>
         </div>
       </div>
       <div className="p-4">

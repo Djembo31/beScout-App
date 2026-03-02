@@ -689,7 +689,8 @@
     "notEnoughScout": "Nicht genug $SCOUT! Du brauchst {needed} $SCOUT, hast aber nur {balance}.",
     "gameweekDone": "Spieltag abgeschlossen! Nächster Spieltag wird geladen...",
     "lineupLabel": "Aufstellung",
-    "playersProgress": "{filled}/{total} Spieler"
+    "playersProgress": "{filled}/{total} Spieler",
+    "individualRatings": "Einzelbewertungen"
   },
   "predictions": {
     "title": "Vorhersagen",
@@ -1228,7 +1229,8 @@
     "rumorCatInsider": "Insider",
     "rumorCatSource": "Quelle",
     "readersCount": "{count} Leser",
-    "unlockDeduction": "{price} $SCOUT werden von deinem Wallet abgezogen"
+    "unlockDeduction": "{price} $SCOUT werden von deinem Wallet abgezogen",
+    "clubVote": "Club-Abstimmung"
   },
   "profile": {
     "title": "Profil",
@@ -1355,7 +1357,12 @@
     "scoutScoreTitle": "Scout Score",
     "pointsLabel": "Pkt",
     "rankLabel2": "Rang #{rank}",
-    "unlockFor": "Freischalten für {price} $SCOUT"
+    "unlockFor": "Freischalten für {price} $SCOUT",
+    "portfolioDev": "Wertentwicklung",
+    "reports": "Berichte",
+    "sortValue": "Wert",
+    "sortPnl": "P&L",
+    "sortPosition": "Position"
   },
   "player": {
     "overview": "Übersicht",
@@ -1457,7 +1464,16 @@
     "supplyAvailable": "Verfügbar",
     "supplyOtherHolders": "Andere Holder",
     "supplyYouOwn": "Du besitzt",
-    "tradeHistory": "Kaufhistorie"
+    "tradeHistory": "Kaufhistorie",
+    "injured": "Verletzt",
+    "suspended": "Gesperrt",
+    "doubtful": "Fraglich",
+    "liquidatedBadge": "LIQUIDIERT",
+    "newIpo": "Neu {progress}%",
+    "listed": "Gelistet",
+    "gwScores": "Spieltag-Bewertungen",
+    "noGwScores": "Noch keine Spieltag-Bewertungen",
+    "individualRatings": "Einzelbewertungen"
   },
   "club": {
     "overview": "Übersicht",
@@ -2601,7 +2617,8 @@
     "importResult": "{fixtures} Fixtures, {scores} Scores",
     "importError": "Fehler: {message}",
     "lineupLabel": "Aufstellung",
-    "playersProgress": "{filled}/{total} Spieler"
+    "playersProgress": "{filled}/{total} Spieler",
+    "substitutions": "Einwechslungen"
   },
   "sponsorStats": {
     "title": "Sponsor-KPIs",

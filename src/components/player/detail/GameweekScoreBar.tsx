@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Star } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui';
 import type { PlayerGameweekScore } from '@/lib/services/scoring';
 
@@ -25,16 +26,17 @@ function getScoreTextClass(score: number): string {
 }
 
 export default function GameweekScoreBar({ scores, maxDisplay = 10, className = '' }: GameweekScoreBarProps) {
+  const tp = useTranslations('player');
   if (scores.length === 0) {
     return (
       <Card className={`p-4 md:p-6 ${className}`}>
         <h3 className="font-black text-lg mb-4 flex items-center gap-2">
           <Star className="w-5 h-5 text-gold" />
-          Spieltag-Bewertungen
+          {tp('gwScores')}
         </h3>
         <div className="text-center py-6">
           <Star className="w-8 h-8 text-white/10 mx-auto mb-2" />
-          <div className="text-sm text-white/30">Noch keine Spieltag-Bewertungen</div>
+          <div className="text-sm text-white/30">{tp('noGwScores')}</div>
         </div>
       </Card>
     );
@@ -61,7 +63,7 @@ export default function GameweekScoreBar({ scores, maxDisplay = 10, className = 
     <Card className={`p-4 md:p-6 ${className}`}>
       <h3 className="font-black text-lg mb-4 flex items-center gap-2">
         <Star className="w-5 h-5 text-gold" />
-        Spieltag-Bewertungen
+        {tp('gwScores')}
       </h3>
 
       <div className="relative">

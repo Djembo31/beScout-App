@@ -318,6 +318,7 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
   maxBadges?: number;
   size?: 'sm' | 'md';
 }) {
+  const tp = useTranslations('player');
   const badges: React.ReactNode[] = [];
   const chipCls = size === 'md'
     ? 'px-2 py-0.5 text-[10px] font-bold rounded border'
@@ -325,16 +326,16 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
 
   // 1. Status (only if not fit — duplicates StatusBadge but as inline chip)
   if (player.status === 'injured') {
-    badges.push(<span key="st" className={cn('inline-flex items-center gap-0.5 bg-red-500/10 border-red-500/20 text-red-300', chipCls)}><AlertTriangle className="size-2.5" />Verletzt</span>);
+    badges.push(<span key="st" className={cn('inline-flex items-center gap-0.5 bg-red-500/10 border-red-500/20 text-red-300', chipCls)}><AlertTriangle className="size-2.5" />{tp('injured')}</span>);
   } else if (player.status === 'suspended') {
-    badges.push(<span key="st" className={cn('inline-flex items-center gap-0.5 bg-purple-500/10 border-purple-500/20 text-purple-300', chipCls)}>Gesperrt</span>);
+    badges.push(<span key="st" className={cn('inline-flex items-center gap-0.5 bg-purple-500/10 border-purple-500/20 text-purple-300', chipCls)}>{tp('suspended')}</span>);
   } else if (player.status === 'doubtful') {
-    badges.push(<span key="st" className={cn('inline-flex items-center gap-0.5 bg-yellow-500/10 border-yellow-500/20 text-yellow-300', chipCls)}>Fraglich</span>);
+    badges.push(<span key="st" className={cn('inline-flex items-center gap-0.5 bg-yellow-500/10 border-yellow-500/20 text-yellow-300', chipCls)}>{tp('doubtful')}</span>);
   }
 
   // 2. Liquidated
   if (player.isLiquidated) {
-    badges.push(<span key="liq" className={cn('inline-flex items-center gap-0.5 bg-red-500/10 border-red-500/20 text-red-300', chipCls)}>LIQUIDIERT</span>);
+    badges.push(<span key="liq" className={cn('inline-flex items-center gap-0.5 bg-red-500/10 border-red-500/20 text-red-300', chipCls)}>{tp('liquidatedBadge')}</span>);
   }
 
   // 3. Contract <= 12M
@@ -351,7 +352,7 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
   if (player.ipo.status === 'open' || player.ipo.status === 'early_access') {
     badges.push(
       <span key="ipo" className={cn('inline-flex items-center gap-0.5 bg-green-500/10 border-green-500/20 text-green-500', chipCls)}>
-        <ShoppingCart className="size-2.5" />Neu {player.ipo.progress ?? 0}%
+        <ShoppingCart className="size-2.5" />{tp('newIpo', { progress: player.ipo.progress ?? 0 })}
       </span>
     );
   }
@@ -360,7 +361,7 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
   if (holding?.isOnTransferList) {
     badges.push(
       <span key="list" className={cn('inline-flex items-center gap-0.5 bg-sky-500/10 border-sky-400/20 text-sky-300', chipCls)}>
-        <Tag className="size-2.5" />Gelistet
+        <Tag className="size-2.5" />{tp('listed')}
       </span>
     );
   }

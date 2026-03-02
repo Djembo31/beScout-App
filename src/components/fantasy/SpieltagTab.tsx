@@ -280,7 +280,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
                       </div>
                       {allBench.length > 0 && (
                         <div className="relative z-10 mt-3 pt-3 border-t border-white/[0.06]">
-                          <div className="text-[9px] font-bold text-white/25 uppercase tracking-wider text-center mb-2">Einwechslungen</div>
+                          <div className="text-[9px] font-bold text-white/25 uppercase tracking-wider text-center mb-2">{ts('substitutions')}</div>
                           <div className="flex gap-1.5 flex-wrap justify-center">
                             {allBench.map(s => (
                               <div key={s.id} className="flex items-center gap-1 px-2 py-1 bg-black/20 rounded-lg text-[9px] border border-white/[0.06]">

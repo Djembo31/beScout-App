@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowUpDown, TrendingUp, TrendingDown } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card, Button } from '@/components/ui';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { centsToBsd } from '@/lib/services/players';
@@ -55,6 +56,7 @@ function holdingRowToPlayer(h: HoldingRow) {
 type SortKey = 'value' | 'pnl' | 'position';
 
 export default function ProfilePortfolioTab({ holdings }: ProfilePortfolioTabProps) {
+  const tp = useTranslations('profile');
   const [sortBy, setSortBy] = useState<SortKey>('value');
 
   const portfolioValueCents = holdings.reduce((s, h) => s + h.quantity * (h.player?.floor_price ?? 0), 0);
@@ -94,13 +96,13 @@ export default function ProfilePortfolioTab({ holdings }: ProfilePortfolioTabPro
       <Card className="p-4 md:p-6">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <div className="text-xs text-white/40 mb-1">Portfolio-Wert</div>
+            <div className="text-xs text-white/40 mb-1">{tp('portfolioValue')}</div>
             <div className="text-2xl md:text-3xl font-mono font-black text-gold">
               {formatScout(portfolioValueCents)} $SCOUT
             </div>
           </div>
           <div className="text-right">
-            <div className="text-xs text-white/40 mb-1">Wertentwicklung</div>
+            <div className="text-xs text-white/40 mb-1">{tp('portfolioDev')}</div>
             <div className={cn('text-lg font-mono font-bold flex items-center gap-1 justify-end', pnlCents >= 0 ? 'text-vivid-green' : 'text-vivid-red')}>
               {pnlCents >= 0 ? <TrendingUp className="size-4" aria-hidden="true" /> : <TrendingDown className="size-4" aria-hidden="true" />}
               {pnlCents >= 0 ? '+' : ''}{formatScout(pnlCents)} $SCOUT
@@ -111,9 +113,9 @@ export default function ProfilePortfolioTab({ holdings }: ProfilePortfolioTabPro
         {/* Sort Options */}
         <div className="flex gap-2">
           {([
-            { id: 'value' as const, label: 'Wert' },
-            { id: 'pnl' as const, label: 'P&L' },
-            { id: 'position' as const, label: 'Position' },
+            { id: 'value' as const, label: tp('sortValue') },
+            { id: 'pnl' as const, label: tp('sortPnl') },
+            { id: 'position' as const, label: tp('sortPosition') },
           ]).map(opt => (
             <button
               key={opt.id}
@@ -131,9 +133,9 @@ export default function ProfilePortfolioTab({ holdings }: ProfilePortfolioTabPro
 
       {holdings.length === 0 ? (
         <Card className="p-8 text-center">
-          <div className="text-white/30 mb-3">Noch keine DPCs im Portfolio</div>
+          <div className="text-white/30 mb-3">{tp('noHoldings')}</div>
           <Link href="/market">
-            <Button variant="gold" size="sm">Zum Marktplatz</Button>
+            <Button variant="gold" size="sm">{tp('goToMarket')}</Button>
           </Link>
         </Card>
       ) : (

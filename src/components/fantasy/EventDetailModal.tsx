@@ -1383,7 +1383,7 @@ export const EventDetailModal = ({
 
                   {/* Player breakdown list */}
                   <div className="space-y-1.5">
-                    <div className="text-xs text-white/40 font-bold uppercase px-1">Einzelbewertungen</div>
+                    <div className="text-xs text-white/40 font-bold uppercase px-1">{t('individualRatings')}</div>
                     {viewingUserLineup.data.players.map(sp => (
                       <div key={sp.slotKey} className="flex items-center justify-between p-3 rounded-lg bg-surface-base border border-white/[0.06]">
                         <div className="flex items-center gap-3">

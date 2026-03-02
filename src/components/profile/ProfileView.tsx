@@ -264,7 +264,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               <span className="text-2xl md:text-3xl font-mono font-black text-gold">
                 {fmtScout(centsToBsd(portfolioValueCents))} $SCOUT
               </span>
-              <span className="text-xs text-white/30 ml-2">Portfolio-Wert</span>
+              <span className="text-xs text-white/30 ml-2">{tp('portfolioValue')}</span>
             </div>
           )}
 
@@ -338,7 +338,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             <div className="mt-2 flex items-center gap-3 flex-wrap text-xs text-white/50">
               <span className="inline-flex items-center gap-1">
                 <FileText className="size-3.5 text-white/40" aria-hidden="true" />
-                <span className="font-mono font-bold text-white/70">{scoutingStats.reportCount}</span> Berichte
+                <span className="font-mono font-bold text-white/70">{scoutingStats.reportCount}</span> {tp('reports')}
               </span>
               {scoutingStats.totalCalls >= 5 && (
                 <span className={cn('inline-flex items-center gap-1', scoutingStats.hitRate >= 60 ? 'text-gold' : '')}>
