@@ -7,6 +7,7 @@ import {
   Loader2,
   Target,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { Player, Pos } from '@/types';
 import { cn, fmtScout } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
@@ -183,6 +184,8 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
   className = '',
 }: PlayerDisplayProps) {
 
+  const tp = useTranslations('player');
+
   // Auto-detect context if not explicitly set
   const context: PlayerContext = explicitContext
     ?? (holding ? 'portfolio' : ipoData ? 'ipo' : 'default');
@@ -209,7 +212,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
       className="py-1.5 px-3 min-h-[44px] bg-gold text-black text-xs font-bold rounded-lg hover:bg-gold/90 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
     >
       {buying ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none" /> : <Target className="size-3" />}
-      {buying ? 'Kaufe...' : 'Verpflichten'}
+      {buying ? tp('recruitingBtn') : tp('recruitBtn')}
     </button>
   ) : null;
 

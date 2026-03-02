@@ -1,6 +1,7 @@
 'use client';
 
 import { Layers } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
@@ -12,6 +13,7 @@ interface OrderbookDepthProps {
 }
 
 export default function OrderbookDepth({ orders, className = '' }: OrderbookDepthProps) {
+  const tp = useTranslations('player');
   if (orders.length === 0) return null;
 
   // Aggregate by price level
@@ -35,7 +37,7 @@ export default function OrderbookDepth({ orders, className = '' }: OrderbookDept
     <Card className={`p-4 md:p-6 ${className}`}>
       <h3 className="font-black text-lg mb-4 flex items-center gap-2">
         <Layers className="w-5 h-5 text-sky-400" />
-        Orderbook-Tiefe
+        {tp('orderbookTitle')}
       </h3>
       <div className="space-y-1.5">
         {withCum.map(({ price, qty, cumQty }) => {
@@ -62,8 +64,8 @@ export default function OrderbookDepth({ orders, className = '' }: OrderbookDept
         })}
       </div>
       <div className="flex items-center justify-between mt-2 text-[10px] text-white/30">
-        <span>Preis ($SCOUT)</span>
-        <span>&Sigma; Kumuliert</span>
+        <span>{tp('orderbookPrice')}</span>
+        <span>{tp('orderbookCumulative')}</span>
       </div>
     </Card>
   );

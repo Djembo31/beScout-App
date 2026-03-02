@@ -110,19 +110,19 @@ export default function TipButton({
           'flex items-center gap-1 transition-colors text-xs',
           success ? 'text-gold animate-pulse' : 'text-white/50 hover:text-pink-400'
         )}
-        aria-label="Tipp senden"
+        aria-label={tt('sendTipAria')}
       >
         <Coins className="w-3 h-3" />
         {tipCount > 0 ? (
           <span>{tipCount} · {fmtScout(centsToBsd(tipTotalCents))} $SCOUT</span>
         ) : (
-          <span>Tipp</span>
+          <span>{tt('tipLabel')}</span>
         )}
       </button>
 
       {open && (
         <div className="absolute left-0 bottom-8 bg-surface-popover border border-white/10 rounded-xl shadow-xl z-20 p-3 min-w-[180px]">
-          <div className="text-[10px] text-white/40 mb-2 font-semibold">Scout-Tipp senden</div>
+          <div className="text-[10px] text-white/40 mb-2 font-semibold">{tt('sendTipTitle')}</div>
           <div className="grid grid-cols-2 gap-1.5">
             {PRESET_AMOUNTS.map(p => (
               <button
@@ -144,7 +144,7 @@ export default function TipButton({
               max="10000"
               value={customAmount}
               onChange={e => setCustomAmount(e.target.value)}
-              placeholder="Betrag..."
+              placeholder={tt('amountPlaceholder')}
               className="flex-1 px-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-base text-white font-mono text-sm placeholder:text-white/30 focus:outline-none focus:border-pink-500/30 min-w-0"
             />
             <button
@@ -152,10 +152,10 @@ export default function TipButton({
               onClick={() => { const c = Math.floor(Number(customAmount) * 100); if (c >= 100) handleSend(c); }}
               className="px-3 py-1.5 rounded-lg text-xs font-bold bg-pink-500/15 text-pink-300 hover:bg-pink-500/25 transition-colors border border-pink-500/20 disabled:opacity-40 whitespace-nowrap"
             >
-              {sending ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : 'Senden'}
+              {sending ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : tt('sendBtn')}
             </button>
           </div>
-          <div className="text-[9px] text-white/25 mt-1">Max. 10.000 $SCOUT</div>
+          <div className="text-[9px] text-white/25 mt-1">{tt('maxAmountHint')}</div>
           {error && (
             <div role="alert" aria-live="polite" className="mt-2 text-[10px] text-red-400 bg-red-500/10 rounded-lg px-2 py-1">{error}</div>
           )}

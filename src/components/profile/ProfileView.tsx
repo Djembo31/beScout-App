@@ -228,7 +228,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
 
   const name = targetProfile.display_name || targetProfile.handle;
   const userHandle = `@${targetProfile.handle}`;
-  const userPlan = targetProfile.plan ?? 'Kostenlos';
+  const userPlan = targetProfile.plan ?? tp('freePlan');
   const initial = name.charAt(0).toUpperCase();
 
   // Computed portfolio stats from real holdings (all in cents)

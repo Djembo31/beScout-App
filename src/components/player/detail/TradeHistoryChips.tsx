@@ -52,7 +52,7 @@ export default function TradeHistoryChips({ trades, maxDisplay = 10, className =
                     : 'bg-sky-500/15 text-sky-300 border border-sky-500/20'
                 }`}
               >
-                {isIpo ? 'Club' : 'Markt'}
+                {isIpo ? t('tradeSourceClub') : t('tradeSourceMarket')}
               </span>
             </div>
           );

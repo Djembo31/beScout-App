@@ -1256,8 +1256,11 @@
     "editProfile": "Profil bearbeiten",
     "follow": "Folgen",
     "unfollow": "Entfolgen",
+    "unfollowAria": "Entfolgen",
+    "followingState": "Folgst du",
     "followers": "Follower",
     "following": "Folge ich",
+    "freePlan": "Kostenlos",
     "memberSince": "Mitglied seit",
     "scoutScore": "Scout Score",
     "refresh": "Aktualisieren",
@@ -1488,7 +1491,19 @@
     "masteryLevel2": "Kenner",
     "masteryLevel3": "Experte",
     "masteryLevel4": "Meister",
-    "masteryLevel5": "Legende"
+    "masteryLevel5": "Legende",
+    "ipoFirstSale": "ERSTVERKAUF",
+    "ipoSoon": "BALD",
+    "ownedBadge": "Du: {count}",
+    "onMarketCount": "{count} am Markt",
+    "ipoRemainingCount": "{count} verf.",
+    "recruitBtn": "Verpflichten",
+    "recruitingBtn": "Kaufe...",
+    "orderbookTitle": "Orderbook-Tiefe",
+    "orderbookPrice": "Preis ($SCOUT)",
+    "orderbookCumulative": "\u03a3 Kumuliert",
+    "tradeSourceClub": "Club",
+    "tradeSourceMarket": "Markt"
   },
   "club": {
     "overview": "Übersicht",
@@ -2600,7 +2615,22 @@
     "communityDesc": "Teile deine Meinung, bewerte Spieler oder entdecke Transfer-Gerüchte.",
     "writePost": "Post schreiben",
     "dismiss": "Verstanden",
-    "sendError": "Fehler beim Senden"
+    "sendError": "Fehler beim Senden",
+    "tipLabel": "Tipp",
+    "sendTipAria": "Tipp senden",
+    "sendTipTitle": "Scout-Tipp senden",
+    "amountPlaceholder": "Betrag...",
+    "sendBtn": "Senden",
+    "maxAmountHint": "Max. 10.000 $SCOUT"
+  },
+  "missions": {
+    "title": "Missionen",
+    "dailyShort": "Tages",
+    "weeklyShort": "Wochen",
+    "dailyMissions": "Tages-Missionen",
+    "weeklyMissions": "Wochen-Missionen",
+    "allDone": "Alle erledigt!",
+    "openCount": "{count} offen"
   },
   "spieltag": {
     "label": "Spieltag",

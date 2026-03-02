@@ -208,6 +208,7 @@ export function PlayerPhoto({ imageUrl, first, last, pos, size = 32, className =
 // ============================================
 
 export function IPOBadge({ status, progress }: { status: string; progress?: number }) {
+  const tp = useTranslations('player');
   const isLive = status === 'open' || status === 'early_access';
   const isAnnounced = status === 'announced';
   if (!isLive && !isAnnounced) return null;
@@ -215,7 +216,7 @@ export function IPOBadge({ status, progress }: { status: string; progress?: numb
     <span
       className={cn('inline-flex items-center gap-1.5 px-2 py-1 rounded-xl border text-[11px] font-black', isLive ? 'bg-green-500/15 border-green-500/25 text-green-500' : 'bg-gold/15 border-gold/25 text-gold')}
     >
-      {isLive ? 'ERSTVERKAUF' : 'BALD'}
+      {isLive ? tp('ipoFirstSale') : tp('ipoSoon')}
       {isLive && progress !== undefined && <span className="font-mono tabular-nums">{progress}%</span>}
     </span>
   );
@@ -379,7 +380,7 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
   if (!holding && player.dpc.owned > 0) {
     badges.push(
       <span key="own" className={cn('inline-flex items-center gap-0.5 bg-green-500/10 border-green-500/20 text-green-500/80', chipCls)}>
-        Du: {player.dpc.owned}
+        {tp('ownedBadge', { count: player.dpc.owned })}
       </span>
     );
   }
@@ -401,6 +402,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
   score?: number;
   rank?: number;
 }) {
+  const tp = useTranslations('player');
   const floor = player.listings.length > 0
     ? Math.min(...player.listings.map(l => l.price))
     : player.prices.floor ?? 0;
@@ -443,7 +445,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
         </span>
       );
       kpis.push(<span key="l5" className={cn(kpiCls, l5Color)}><span className={labelCls}>L5</span>{l5}</span>);
-      if (player.dpc.onMarket > 0) kpis.push(<span key="om" className={cn(kpiCls, 'text-white/50')}>{player.dpc.onMarket} am Markt</span>);
+      if (player.dpc.onMarket > 0) kpis.push(<span key="om" className={cn(kpiCls, 'text-white/50')}>{tp('onMarketCount', { count: player.dpc.onMarket })}</span>);
       kpis.push(
         <span key="st" className={cn(kpiCls, 'text-white/50')}>
           {player.stats.matches}<span className="text-white/20">/</span>
@@ -502,7 +504,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
       kpis.push(<span key="pr" className={cn(kpiCls, 'text-gold font-bold')}>{fmtScout(ipoData?.price ?? player.ipo.price ?? 0)}</span>);
       if (ipoData) {
         kpis.push(<span key="pg" className={cn(kpiCls, 'text-green-500')}>{ipoData.progress.toFixed(0)}%</span>);
-        if (ipoData.remaining != null) kpis.push(<span key="rem" className={cn(kpiCls, 'text-white/50')}>{fmtScout(ipoData.remaining)} verf.</span>);
+        if (ipoData.remaining != null) kpis.push(<span key="rem" className={cn(kpiCls, 'text-white/50')}>{tp('ipoRemainingCount', { count: fmtScout(ipoData.remaining) })}</span>);
       }
       kpis.push(<span key="l5" className={cn(kpiCls, l5Color)}><span className={labelCls}>L5</span>{l5}</span>);
       break;
@@ -534,7 +536,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
           <span className="text-sky-300">{player.stats.assists}</span>
         </span>
       );
-      if (player.dpc.onMarket > 0) kpis.push(<span key="om" className={cn(kpiCls, 'text-white/50')}>{player.dpc.onMarket} am Markt</span>);
+      if (player.dpc.onMarket > 0) kpis.push(<span key="om" className={cn(kpiCls, 'text-white/50')}>{tp('onMarketCount', { count: player.dpc.onMarket })}</span>);
       break;
   }
 

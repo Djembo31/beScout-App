@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Target, Calendar, Check, ChevronDown, Gift, Clock } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn, fmtScout } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
@@ -27,6 +28,7 @@ function getDaysUntilEnd(endStr: string): number {
 export default function MissionBanner() {
   const { user } = useUser();
   const { setBalanceCents } = useWallet();
+  const tm = useTranslations('missions');
   const [missions, setMissions] = useState<UserMissionWithDef[]>([]);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState<string | null>(null);
@@ -105,7 +107,7 @@ export default function MissionBanner() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-black text-sm">Missionen</span>
+              <span className="font-black text-sm">{tm('title')}</span>
               {unclaimedReward > 0 && (
                 <span className="text-[10px] font-bold text-gold bg-gold/10 px-1.5 py-0.5 rounded-full">
                   +{fmtScout(centsToBsd(unclaimedReward))} $SCOUT
@@ -113,7 +115,7 @@ export default function MissionBanner() {
               )}
             </div>
             <div className="text-[10px] text-white/40 flex items-center gap-1.5">
-              <span>{dailyCompleted}/{dailyMissions.length} Tages · {weeklyCompleted}/{weeklyMissions.length} Wochen</span>
+              <span>{dailyCompleted}/{dailyMissions.length} {tm('dailyShort')} · {weeklyCompleted}/{weeklyMissions.length} {tm('weeklyShort')}</span>
               {dailyUnclaimed.length > 0 && (
                 <span className="flex items-center gap-0.5 text-gold/60">
                   <Clock className="size-2.5" />
@@ -137,6 +139,7 @@ export default function MissionBanner() {
               completedCount={dailyCompleted}
               claiming={claiming}
               onClaim={handleClaim}
+              tm={tm}
             />
           )}
 
@@ -148,6 +151,7 @@ export default function MissionBanner() {
               completedCount={weeklyCompleted}
               claiming={claiming}
               onClaim={handleClaim}
+              tm={tm}
             />
           )}
         </div>
@@ -156,12 +160,13 @@ export default function MissionBanner() {
   );
 }
 
-function MissionSection({ type, missions, completedCount, claiming, onClaim }: {
+function MissionSection({ type, missions, completedCount, claiming, onClaim, tm }: {
   type: MissionType;
   missions: UserMissionWithDef[];
   completedCount: number;
   claiming: string | null;
   onClaim: (id: string) => void;
+  tm: ReturnType<typeof useTranslations>;
 }) {
   const isDaily = type === 'daily';
   const periodEnd = missions[0]?.period_end;
@@ -177,7 +182,7 @@ function MissionSection({ type, missions, completedCount, claiming, onClaim }: {
             <Calendar className="size-3.5 text-purple-400" />
           )}
           <span className={cn('text-[10px] font-black uppercase', isDaily ? 'text-gold' : 'text-purple-400')}>
-            {isDaily ? 'Tages-Missionen' : 'Wochen-Missionen'}
+            {isDaily ? tm('dailyMissions') : tm('weeklyMissions')}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -188,7 +193,7 @@ function MissionSection({ type, missions, completedCount, claiming, onClaim }: {
             </span>
           )}
           <span className="text-[10px] text-white/40">
-            {completedCount === missions.length ? 'Alle erledigt!' : `${remaining} offen`}
+            {completedCount === missions.length ? tm('allDone') : tm('openCount', { count: remaining })}
           </span>
         </div>
       </div>

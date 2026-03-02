@@ -1471,7 +1471,7 @@ export const EventDetailModal = ({
                                   <div className="size-6 rounded-full bg-white/10 flex items-center justify-center text-[10px]">👤</div>
                                 )}
                                 <span className={`text-left ${isCurrentUser ? 'font-bold text-gold' : ''}`}>
-                                  {entry.displayName || entry.handle} {isCurrentUser && '(Du)'}
+                                  {entry.displayName || entry.handle} {isCurrentUser && t('youLabel')}
                                 </span>
                               </div>
                             </div>

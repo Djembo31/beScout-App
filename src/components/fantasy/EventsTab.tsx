@@ -31,6 +31,7 @@ type EventsTabProps = {
 
 /** Event row — same density as Kader FullPlayerRow (gap-2.5, px-3, py-2.5) */
 function EventRow({ event, onClick }: { event: FantasyEvent; onClick: () => void }) {
+  const t = useTranslations('fantasy');
   const typeStyle = getTypeStyle(event.type);
   const TypeIcon = typeStyle.icon;
 
@@ -57,7 +58,7 @@ function EventRow({ event, onClick }: { event: FantasyEvent; onClick: () => void
           <span className="text-white/15">·</span>
           <span>{event.participants}/{event.maxParticipants ?? '∞'}</span>
           <span className="text-white/15">·</span>
-          <span>{event.buyIn === 0 ? 'Kostenlos' : `${event.buyIn} $SCOUT`}</span>
+          <span>{event.buyIn === 0 ? t('freeEntry') : `${event.buyIn} $SCOUT`}</span>
         </div>
       </div>
 

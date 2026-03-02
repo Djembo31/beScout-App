@@ -1248,8 +1248,11 @@
     "editProfile": "Profili düzenle",
     "follow": "Takip et",
     "unfollow": "Takibi bırak",
+    "unfollowAria": "Takibi bırak",
+    "followingState": "Takip ediyorsun",
     "followers": "Takipçi",
     "following": "Takip edilen",
+    "freePlan": "Ücretsiz",
     "memberSince": "Üyelik tarihi",
     "scoutScore": "İzci Puanı",
     "refresh": "Yenile",
@@ -1480,7 +1483,19 @@
     "masteryLevel2": "Bilgili",
     "masteryLevel3": "Uzman",
     "masteryLevel4": "Usta",
-    "masteryLevel5": "Efsane"
+    "masteryLevel5": "Efsane",
+    "ipoFirstSale": "İLK SATIŞ",
+    "ipoSoon": "YAKINDA",
+    "ownedBadge": "Sen: {count}",
+    "onMarketCount": "{count} markette",
+    "ipoRemainingCount": "{count} mevcut",
+    "recruitBtn": "Transfer et",
+    "recruitingBtn": "Alınıyor...",
+    "orderbookTitle": "Orderbook Derinliği",
+    "orderbookPrice": "Fiyat ($SCOUT)",
+    "orderbookCumulative": "\u03a3 Kümülatif",
+    "tradeSourceClub": "Kulüp",
+    "tradeSourceMarket": "Market"
   },
   "club": {
     "overview": "Genel Bakış",
@@ -2592,7 +2607,22 @@
     "communityDesc": "Fikirlerini paylaş, oyuncuları değerlendir veya transfer söylentilerini keşfet.",
     "writePost": "Gönderi yaz",
     "dismiss": "Anladım",
-    "sendError": "Gönderme hatası"
+    "sendError": "Gönderme hatası",
+    "tipLabel": "Bahşiş",
+    "sendTipAria": "Bahşiş gönder",
+    "sendTipTitle": "Scout Bahşişi Gönder",
+    "amountPlaceholder": "Miktar...",
+    "sendBtn": "Gönder",
+    "maxAmountHint": "Maks. 10.000 $SCOUT"
+  },
+  "missions": {
+    "title": "Görevler",
+    "dailyShort": "Günlük",
+    "weeklyShort": "Haftalık",
+    "dailyMissions": "Günlük Görevler",
+    "weeklyMissions": "Haftalık Görevler",
+    "allDone": "Hepsi tamamlandı!",
+    "openCount": "{count} açık"
   },
   "spieltag": {
     "label": "Maç Haftası",
