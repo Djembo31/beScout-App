@@ -2,36 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Plus, Trash2, Edit2, Loader2, ImageIcon, ToggleLeft, ToggleRight, Eye, MousePointerClick, TrendingUp, DollarSign } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card, Button, Chip, Modal, StatCard } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
 import { getAllSponsors, createSponsor, updateSponsor, deleteSponsor } from '@/lib/services/sponsors';
 import { useSponsorStats } from '@/lib/queries';
 import { cn, fmtScout } from '@/lib/utils';
 import type { DbSponsor, SponsorPlacement, SponsorStatsSummary } from '@/types';
-
-const PLACEMENT_OPTIONS: { value: SponsorPlacement; label: string }[] = [
-  { value: 'home_hero', label: 'Home Hero' },
-  { value: 'home_mid', label: 'Home Mitte' },
-  { value: 'market_top', label: 'Marktplatz' },
-  { value: 'club_hero', label: 'Club-Seite' },
-  { value: 'player_mid', label: 'Spieler Mitte' },
-  { value: 'player_footer', label: 'Spieler Footer' },
-  { value: 'event', label: 'Fantasy Event' },
-  { value: 'market_transferlist', label: 'Transferliste' },
-  { value: 'market_ipo', label: 'IPO-Bereich' },
-  { value: 'market_portfolio', label: 'Portfolio' },
-  { value: 'market_offers', label: 'Angebote' },
-  { value: 'club_community', label: 'Club Community' },
-  { value: 'club_players', label: 'Club Spieler' },
-  { value: 'fantasy_spieltag', label: 'Spieltag' },
-  { value: 'fantasy_pitch', label: 'Fantasy Pitch' },
-  { value: 'fantasy_leaderboard', label: 'Fantasy Rangliste' },
-  { value: 'fantasy_history', label: 'Fantasy Verlauf' },
-  { value: 'profile_hero', label: 'Profil Hero' },
-  { value: 'profile_footer', label: 'Profil Footer' },
-  { value: 'community_feed', label: 'Community Feed' },
-  { value: 'community_research', label: 'Community Research' },
-];
 
 const PLACEMENT_COLORS: Record<string, string> = {
   home_hero: 'bg-blue-500/15 text-blue-300 border-blue-400/25',
@@ -78,7 +55,33 @@ const EMPTY_FORM: FormState = {
 };
 
 export function AdminSponsorsTab({ adminId }: { adminId: string }) {
+  const t = useTranslations('bescoutAdmin');
   const { addToast } = useToast();
+
+  const PLACEMENT_OPTIONS: { value: SponsorPlacement; label: string }[] = [
+    { value: 'home_hero', label: t('placementHomeHero') },
+    { value: 'home_mid', label: t('placementHomeMid') },
+    { value: 'market_top', label: t('placementMarketTop') },
+    { value: 'club_hero', label: t('placementClubHero') },
+    { value: 'player_mid', label: t('placementPlayerMid') },
+    { value: 'player_footer', label: t('placementPlayerFooter') },
+    { value: 'event', label: t('placementEvent') },
+    { value: 'market_transferlist', label: t('placementTransferlist') },
+    { value: 'market_ipo', label: t('placementIpo') },
+    { value: 'market_portfolio', label: t('placementPortfolio') },
+    { value: 'market_offers', label: t('placementOffers') },
+    { value: 'club_community', label: t('placementClubCommunity') },
+    { value: 'club_players', label: t('placementClubPlayers') },
+    { value: 'fantasy_spieltag', label: t('placementSpieltag') },
+    { value: 'fantasy_pitch', label: t('placementPitch') },
+    { value: 'fantasy_leaderboard', label: t('placementLeaderboard') },
+    { value: 'fantasy_history', label: t('placementHistory') },
+    { value: 'profile_hero', label: t('placementProfileHero') },
+    { value: 'profile_footer', label: t('placementProfileFooter') },
+    { value: 'community_feed', label: t('placementCommunityFeed') },
+    { value: 'community_research', label: t('placementCommunityResearch') },
+  ];
+
   const [sponsors, setSponsors] = useState<DbSponsor[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -135,8 +138,8 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
           starts_at: form.starts_at ? new Date(form.starts_at).toISOString() : undefined,
           ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
         });
-        if (!result.success) { addToast(result.error ?? 'Fehler', 'error'); return; }
-        addToast('Sponsor aktualisiert', 'success');
+        if (!result.success) { addToast(result.error ?? t('error'), 'error'); return; }
+        addToast(t('sponsorUpdated'), 'success');
       } else {
         const result = await createSponsor({
           name: form.name,
@@ -148,13 +151,13 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
           ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
           created_by: adminId,
         });
-        if (!result.success) { addToast(result.error ?? 'Fehler', 'error'); return; }
-        addToast('Sponsor erstellt', 'success');
+        if (!result.success) { addToast(result.error ?? t('error'), 'error'); return; }
+        addToast(t('sponsorCreated'), 'success');
       }
       setModalOpen(false);
       load();
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+      addToast(err instanceof Error ? err.message : t('error'), 'error');
     } finally {
       setSaving(false);
     }
@@ -165,20 +168,23 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
     if (result.success) {
       setSponsors(prev => prev.map(sp => sp.id === s.id ? { ...sp, is_active: !sp.is_active } : sp));
     } else {
-      addToast(result.error ?? 'Fehler', 'error');
+      addToast(result.error ?? t('error'), 'error');
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Sponsor wirklich löschen?')) return;
+    if (!confirm(t('confirmDeleteSponsor'))) return;
     const result = await deleteSponsor(id);
     if (result.success) {
       setSponsors(prev => prev.filter(s => s.id !== id));
-      addToast('Sponsor gelöscht', 'success');
+      addToast(t('sponsorDeleted'), 'success');
     } else {
-      addToast(result.error ?? 'Fehler', 'error');
+      addToast(result.error ?? t('error'), 'error');
     }
   };
+
+  const placementLabel = (key: string) =>
+    PLACEMENT_OPTIONS.find(p => p.value === key)?.label ?? key;
 
   if (loading) return <div className="flex justify-center py-8"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" /></div>;
 
@@ -186,27 +192,27 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-black">Sponsoren</h3>
-          <p className="text-xs text-white/40">{sponsors.length} Einträge • {sponsors.filter(s => s.is_active).length} aktiv</p>
+          <h3 className="font-black text-balance">{t('sponsors')}</h3>
+          <p className="text-xs text-white/40">{t('sponsorCount', { count: sponsors.length, active: sponsors.filter(s => s.is_active).length })}</p>
         </div>
         <Button variant="gold" size="sm" onClick={openCreate}>
-          <Plus className="size-4" aria-hidden="true" /> Neu
+          <Plus className="size-4" aria-hidden="true" /> {t('newSponsor')}
         </Button>
       </div>
 
       {/* Stats Dashboard */}
-      <SponsorStatsSection stats={stats ?? []} days={statsDays} onDaysChange={setStatsDays} sponsors={sponsors} />
+      <SponsorStatsSection stats={stats ?? []} days={statsDays} onDaysChange={setStatsDays} sponsors={sponsors} placementLabel={placementLabel} />
 
       {sponsors.length === 0 ? (
         <Card className="p-8 text-center">
           <ImageIcon className="size-8 mx-auto mb-2 text-white/15" aria-hidden="true" />
-          <div className="text-sm text-white/30">Keine Sponsoren vorhanden</div>
+          <div className="text-sm text-white/30">{t('noSponsors')}</div>
         </Card>
       ) : (
         <div className="space-y-2">
           {sponsors.map(s => {
             const placementColor = PLACEMENT_COLORS[s.placement] ?? 'bg-white/10 text-white/50';
-            const placementLabel = PLACEMENT_OPTIONS.find(p => p.value === s.placement)?.label ?? s.placement;
+            const pLabel = placementLabel(s.placement);
             return (
               <Card key={s.id} className={cn('p-3', !s.is_active && 'opacity-40')}>
                 <div className="flex items-center gap-3">
@@ -219,22 +225,22 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-sm truncate">{s.name}</div>
                     <div className="text-[10px] text-white/40">
-                      Priorität {s.priority} • {s.ends_at ? `bis ${new Date(s.ends_at).toLocaleDateString('de-DE')}` : 'Unbegrenzt'}
+                      {t('priorityInfo', { priority: s.priority })} • {s.ends_at ? t('untilDate', { date: new Date(s.ends_at).toLocaleDateString('de-DE') }) : t('unlimited')}
                     </div>
                   </div>
-                  <Chip className={cn(placementColor, 'border text-[10px] flex-shrink-0')}>{placementLabel}</Chip>
+                  <Chip className={cn(placementColor, 'border text-[10px] flex-shrink-0')}>{pLabel}</Chip>
                   <button
                     onClick={() => handleToggle(s)}
                     className="text-white/40 hover:text-white transition-colors"
-                    title={s.is_active ? 'Deaktivieren' : 'Aktivieren'}
-                    aria-label={s.is_active ? 'Deaktivieren' : 'Aktivieren'}
+                    title={s.is_active ? t('deactivate') : t('activate')}
+                    aria-label={s.is_active ? t('deactivate') : t('activate')}
                   >
                     {s.is_active ? <ToggleRight className="size-5 text-green-500" aria-hidden="true" /> : <ToggleLeft className="size-5" aria-hidden="true" />}
                   </button>
-                  <button onClick={() => openEdit(s)} className="text-white/40 hover:text-white transition-colors" title="Bearbeiten" aria-label="Bearbeiten">
+                  <button onClick={() => openEdit(s)} className="text-white/40 hover:text-white transition-colors" title={t('edit')} aria-label={t('edit')}>
                     <Edit2 className="size-4" aria-hidden="true" />
                   </button>
-                  <button onClick={() => handleDelete(s.id)} className="text-white/40 hover:text-red-400 transition-colors" title="Löschen" aria-label="Löschen">
+                  <button onClick={() => handleDelete(s.id)} className="text-white/40 hover:text-red-400 transition-colors" title={t('delete')} aria-label={t('delete')}>
                     <Trash2 className="size-4" aria-hidden="true" />
                   </button>
                 </div>
@@ -245,21 +251,21 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
       )}
 
       {/* Create / Edit Modal */}
-      <Modal open={modalOpen} title={editId ? 'Sponsor bearbeiten' : 'Neuer Sponsor'} onClose={() => setModalOpen(false)}>
+      <Modal open={modalOpen} title={editId ? t('editSponsor') : t('newSponsorTitle')} onClose={() => setModalOpen(false)}>
         <div className="space-y-4 p-4 md:p-6">
           <div>
-            <label htmlFor="sponsor-name" className="block text-sm font-bold text-white/70 mb-1">Name</label>
+            <label htmlFor="sponsor-name" className="block text-sm font-bold text-white/70 mb-1">{t('nameLabel')}</label>
             <input
               id="sponsor-name"
               type="text"
               value={form.name}
               onChange={(e) => setForm(f => ({ ...f, name: e.target.value.slice(0, 40) }))}
-              placeholder="z.B. Nike"
+              placeholder={t('namePlaceholder')}
               className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
             />
           </div>
           <div>
-            <label htmlFor="sponsor-logo-url" className="block text-sm font-bold text-white/70 mb-1">Logo URL</label>
+            <label htmlFor="sponsor-logo-url" className="block text-sm font-bold text-white/70 mb-1">{t('logoUrlLabel')}</label>
             <input
               id="sponsor-logo-url"
               type="url"
@@ -270,13 +276,13 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
             />
             {form.logo_url && (
               <div className="mt-2 flex items-center gap-2">
-                <img src={form.logo_url} alt="Preview" className="size-8 rounded object-contain bg-white/5 p-1" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                <span className="text-xs text-white/30">Vorschau</span>
+                <img src={form.logo_url} alt={t('preview')} className="size-8 rounded object-contain bg-white/5 p-1" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                <span className="text-xs text-white/30">{t('preview')}</span>
               </div>
             )}
           </div>
           <div>
-            <label htmlFor="sponsor-link-url" className="block text-sm font-bold text-white/70 mb-1">Link URL (optional)</label>
+            <label htmlFor="sponsor-link-url" className="block text-sm font-bold text-white/70 mb-1">{t('linkUrlLabel')}</label>
             <input
               id="sponsor-link-url"
               type="url"
@@ -288,7 +294,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="sponsor-placement" className="block text-sm font-bold text-white/70 mb-1">Platzierung</label>
+              <label htmlFor="sponsor-placement" className="block text-sm font-bold text-white/70 mb-1">{t('placementLabel')}</label>
               <select
                 id="sponsor-placement"
                 value={form.placement}
@@ -301,7 +307,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
               </select>
             </div>
             <div>
-              <label htmlFor="sponsor-priority" className="block text-sm font-bold text-white/70 mb-1">Priorität</label>
+              <label htmlFor="sponsor-priority" className="block text-sm font-bold text-white/70 mb-1">{t('priorityLabel')}</label>
               <input
                 id="sponsor-priority"
                 type="number"
@@ -315,7 +321,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="sponsor-starts-at" className="block text-sm font-bold text-white/70 mb-1">Start</label>
+              <label htmlFor="sponsor-starts-at" className="block text-sm font-bold text-white/70 mb-1">{t('startLabel')}</label>
               <input
                 id="sponsor-starts-at"
                 type="datetime-local"
@@ -325,7 +331,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
               />
             </div>
             <div>
-              <label htmlFor="sponsor-ends-at" className="block text-sm font-bold text-white/70 mb-1">Ende (optional)</label>
+              <label htmlFor="sponsor-ends-at" className="block text-sm font-bold text-white/70 mb-1">{t('endLabel')}</label>
               <input
                 id="sponsor-ends-at"
                 type="datetime-local"
@@ -342,7 +348,7 @@ export function AdminSponsorsTab({ adminId }: { adminId: string }) {
             disabled={saving || !form.name || !form.logo_url}
           >
             {saving ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Plus className="size-4" aria-hidden="true" />}
-            {saving ? 'Speichere...' : editId ? 'Aktualisieren' : 'Erstellen'}
+            {saving ? t('saving') : editId ? t('update') : t('create')}
           </Button>
         </div>
       </Modal>
@@ -359,12 +365,15 @@ function SponsorStatsSection({
   days,
   onDaysChange,
   sponsors,
+  placementLabel,
 }: {
   stats: SponsorStatsSummary[];
   days: number;
   onDaysChange: (d: number) => void;
   sponsors: DbSponsor[];
+  placementLabel: (key: string) => string;
 }) {
+  const t = useTranslations('bescoutAdmin');
   const totalImpressions = stats.reduce((s, r) => s + r.total_impressions, 0);
   const totalClicks = stats.reduce((s, r) => s + r.total_clicks, 0);
   const avgCtr = totalImpressions > 0 ? (totalClicks / totalImpressions * 100) : 0;
@@ -377,13 +386,10 @@ function SponsorStatsSection({
     return sum + r.total_impressions * cpi;
   }, 0);
 
-  const placementLabel = (key: string) =>
-    PLACEMENT_OPTIONS.find(p => p.value === key)?.label ?? key;
-
   return (
     <Card className="p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="font-black text-sm">Sponsor-KPIs</h4>
+        <h4 className="font-black text-sm">{t('sponsorKpis')}</h4>
         <div className="flex gap-1">
           {DAYS_OPTIONS.map(d => (
             <button
@@ -401,10 +407,10 @@ function SponsorStatsSection({
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="Impressions" value={fmtScout(totalImpressions)} icon={<Eye className="size-4" aria-hidden="true" />} />
-        <StatCard label="Clicks" value={fmtScout(totalClicks)} icon={<MousePointerClick className="size-4" aria-hidden="true" />} />
-        <StatCard label="CTR" value={`${avgCtr.toFixed(2)}%`} icon={<TrendingUp className="size-4" aria-hidden="true" />} />
-        <StatCard label="Est. Umsatz" value={`${fmtScout(Math.round(estRevenueCents / 100))} $SCOUT`} icon={<DollarSign className="size-4" aria-hidden="true" />} />
+        <StatCard label={t('thImpressions')} value={fmtScout(totalImpressions)} icon={<Eye className="size-4" aria-hidden="true" />} />
+        <StatCard label={t('thClicks')} value={fmtScout(totalClicks)} icon={<MousePointerClick className="size-4" aria-hidden="true" />} />
+        <StatCard label={t('thCtr')} value={`${avgCtr.toFixed(2)}%`} icon={<TrendingUp className="size-4" aria-hidden="true" />} />
+        <StatCard label={t('estRevenue')} value={`${fmtScout(Math.round(estRevenueCents / 100))} $SCOUT`} icon={<DollarSign className="size-4" aria-hidden="true" />} />
       </div>
 
       {stats.length > 0 && (
@@ -412,11 +418,11 @@ function SponsorStatsSection({
           <table className="w-full text-xs">
             <thead>
               <tr className="text-white/40 text-left border-b border-white/[0.06]">
-                <th className="pb-2 font-bold">Sponsor</th>
-                <th className="pb-2 font-bold">Platzierung</th>
-                <th className="pb-2 font-bold text-right">Impressions</th>
-                <th className="pb-2 font-bold text-right">Clicks</th>
-                <th className="pb-2 font-bold text-right">CTR</th>
+                <th className="pb-2 font-bold">{t('thSponsor')}</th>
+                <th className="pb-2 font-bold">{t('thPlacement')}</th>
+                <th className="pb-2 font-bold text-right">{t('thImpressions')}</th>
+                <th className="pb-2 font-bold text-right">{t('thClicks')}</th>
+                <th className="pb-2 font-bold text-right">{t('thCtr')}</th>
               </tr>
             </thead>
             <tbody>
@@ -428,9 +434,9 @@ function SponsorStatsSection({
                       {placementLabel(r.placement)}
                     </Chip>
                   </td>
-                  <td className="py-2 text-right font-mono text-white/60">{fmtScout(r.total_impressions)}</td>
-                  <td className="py-2 text-right font-mono text-white/60">{fmtScout(r.total_clicks)}</td>
-                  <td className="py-2 text-right font-mono text-gold">{r.ctr}%</td>
+                  <td className="py-2 text-right font-mono tabular-nums text-white/60">{fmtScout(r.total_impressions)}</td>
+                  <td className="py-2 text-right font-mono tabular-nums text-white/60">{fmtScout(r.total_clicks)}</td>
+                  <td className="py-2 text-right font-mono tabular-nums text-gold">{r.ctr}%</td>
                 </tr>
               ))}
             </tbody>
@@ -440,7 +446,7 @@ function SponsorStatsSection({
 
       {stats.length === 0 && (
         <div className="text-center text-white/25 text-xs py-4">
-          Noch keine Tracking-Daten vorhanden
+          {t('noTrackingData')}
         </div>
       )}
     </Card>

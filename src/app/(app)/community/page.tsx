@@ -219,7 +219,7 @@ export default function CommunityPage() {
       );
     } catch (err) {
       console.error('[Community] Vote post failed:', err);
-      addToast('Fehler beim Abstimmen', 'error');
+      addToast(t('voteError'), 'error');
       setMyPostVotes(prevVotes);
       queryClient.invalidateQueries({ queryKey: ['posts'] });
     }
@@ -232,9 +232,9 @@ export default function CommunityPage() {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
     } catch (err) {
       console.error('[Community] Delete post failed:', err);
-      addToast('Fehler beim Löschen', 'error');
+      addToast(t('deleteError'), 'error');
     }
-  }, [uid, addToast]);
+  }, [uid, addToast, t]);
 
   const handleAdminDeletePost = useCallback(async (postId: string) => {
     if (!uid) return;
@@ -242,14 +242,14 @@ export default function CommunityPage() {
       const result = await adminDeletePost(uid, postId);
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ['posts'] });
-        addToast('Post entfernt', 'success');
+        addToast(t('postRemoved'), 'success');
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        addToast(result.error ?? t('genericError'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler beim Löschen', 'error');
+      addToast(err instanceof Error ? err.message : t('deleteError'), 'error');
     }
-  }, [uid, addToast]);
+  }, [uid, addToast, t]);
 
   const handleTogglePin = useCallback(async (postId: string, pinned: boolean) => {
     if (!uid) return;
@@ -262,29 +262,29 @@ export default function CommunityPage() {
             p.id === postId ? { ...p, is_pinned: pinned } : p
           ),
         );
-        addToast(pinned ? 'Post angepinnt' : 'Post gelöst', 'success');
+        addToast(pinned ? t('postPinned') : t('postUnpinned'), 'success');
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        addToast(result.error ?? t('genericError'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+      addToast(err instanceof Error ? err.message : t('genericError'), 'error');
     }
-  }, [uid, addToast, scopeClubId]);
+  }, [uid, addToast, scopeClubId, t]);
 
   const handleCreatePost = useCallback(async (playerId: string | null, content: string, tags: string[], category: string, postType: PostType = 'general') => {
     if (!uid) return;
-    if (!clubId) { addToast('Kein Club ausgewählt. Bitte zuerst einen Club folgen.', 'error'); return; }
+    if (!clubId) { addToast(t('noClubSelected'), 'error'); return; }
     setPostLoading(true);
     try {
       await createPost(uid, playerId, clubName, content, tags, category, clubId, postType);
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       setCreatePostOpen(false);
     } catch {
-      addToast('Beitrag konnte nicht erstellt werden.', 'error');
+      addToast(t('postCreateError'), 'error');
     } finally {
       setPostLoading(false);
     }
-  }, [uid, clubName, clubId, addToast]);
+  }, [uid, clubName, clubId, addToast, t]);
 
   const handleCreateResearch = useCallback(async (params: {
     playerId: string | null;
@@ -322,9 +322,9 @@ export default function CommunityPage() {
       });
       invalidateResearchQueries(uid);
       setCreateResearchOpen(false);
-      addToast('Bericht veröffentlicht!', 'success');
+      addToast(t('researchPublished'), 'success');
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Bericht konnte nicht veröffentlicht werden', 'error');
+      addToast(err instanceof Error ? err.message : t('researchPublishError'), 'error');
     } finally {
       setResearchLoading(false);
     }
@@ -339,11 +339,11 @@ export default function CommunityPage() {
         queryClient.invalidateQueries({ queryKey: ['bounties'] });
         addToast(t('bountySection.submitted'), 'success');
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        addToast(result.error ?? t('genericError'), 'error');
       }
     } catch (err) {
       console.error('[Community] Bounty submit failed:', err);
-      addToast('Fehler beim Einreichen', 'error');
+      addToast(t('submitError'), 'error');
     } finally {
       setBountySubmitting(null);
     }
@@ -356,16 +356,16 @@ export default function CommunityPage() {
       const result = await unlockResearch(uid, postId);
       if (result.success) {
         invalidateResearchQueries(uid);
-        addToast('Bericht freigeschaltet!', 'success');
+        addToast(t('researchUnlocked'), 'success');
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        addToast(result.error ?? t('genericError'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+      addToast(err instanceof Error ? err.message : t('genericError'), 'error');
     } finally {
       setUnlockingResearchId(null);
     }
-  }, [uid, addToast]);
+  }, [uid, addToast, t]);
 
   const handleRateResearch = useCallback(async (postId: string, rating: number) => {
     if (!uid) return;
@@ -374,16 +374,16 @@ export default function CommunityPage() {
       const result = await rateResearch(uid, postId, rating);
       if (result.success) {
         invalidateResearchQueries(uid);
-        addToast('Bewertung gespeichert!', 'success');
+        addToast(t('ratingSaved'), 'success');
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        addToast(result.error ?? t('genericError'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+      addToast(err instanceof Error ? err.message : t('genericError'), 'error');
     } finally {
       setRatingResearchId(null);
     }
-  }, [uid, addToast]);
+  }, [uid, addToast, t]);
 
   const handleCastVote = useCallback(async (voteId: string, optionIndex: number) => {
     if (!uid) return;
@@ -392,13 +392,13 @@ export default function CommunityPage() {
       await castVote(uid, voteId, optionIndex);
       setUserVotedIds(prev => new Set([...Array.from(prev), voteId]));
       queryClient.invalidateQueries({ queryKey: ['clubVotes'] });
-      addToast('Stimme abgegeben!', 'success');
+      addToast(t('voteCast'), 'success');
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+      addToast(err instanceof Error ? err.message : t('genericError'), 'error');
     } finally {
       setVotingId(null);
     }
-  }, [uid, addToast]);
+  }, [uid, addToast, t]);
 
   const handleCastPollVote = useCallback(async (pollId: string, optionIndex: number) => {
     if (!uid) return;
@@ -407,24 +407,24 @@ export default function CommunityPage() {
       await castCommunityPollVote(uid, pollId, optionIndex);
       setUserPollVotedIds(prev => new Set([...Array.from(prev), pollId]));
       queryClient.invalidateQueries({ queryKey: ['polls'] });
-      addToast('Stimme abgegeben!', 'success');
+      addToast(t('voteCast'), 'success');
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+      addToast(err instanceof Error ? err.message : t('genericError'), 'error');
     } finally {
       setPollVotingId(null);
     }
-  }, [uid, addToast]);
+  }, [uid, addToast, t]);
 
   const handleCancelPoll = useCallback(async (pollId: string) => {
     if (!uid) return;
     try {
       await cancelCommunityPoll(uid, pollId);
       queryClient.invalidateQueries({ queryKey: ['polls'] });
-      addToast('Umfrage abgebrochen', 'success');
+      addToast(t('pollCancelled'), 'success');
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+      addToast(err instanceof Error ? err.message : t('genericError'), 'error');
     }
-  }, [uid, addToast]);
+  }, [uid, addToast, t]);
 
   const handleCreateBounty = useCallback(async (params: {
     title: string;
@@ -453,7 +453,7 @@ export default function CommunityPage() {
       setCreateBountyOpen(false);
       addToast(t('createBounty.success'), 'success');
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+      addToast(err instanceof Error ? err.message : t('genericError'), 'error');
     } finally {
       setBountyCreating(false);
     }
