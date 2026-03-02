@@ -122,6 +122,9 @@ export async function checkHandleAvailable(handle: string): Promise<boolean> {
     .select('id', { count: 'exact', head: true })
     .eq('handle', handle.toLowerCase());
 
-  if (error) return false;
+  if (error) {
+    console.error('[Profiles] checkHandleAvailable query failed:', error.message);
+    return false;
+  }
   return count === 0;
 }

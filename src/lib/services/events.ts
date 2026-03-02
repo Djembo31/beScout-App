@@ -204,12 +204,15 @@ export async function updateEventStatus(
   eventId: string,
   status: string
 ): Promise<{ success: boolean; error?: string }> {
-  const { error } = await supabase
+  const { error, count } = await supabase
     .from('events')
     .update({ status })
     .eq('id', eventId);
 
   if (error) return { success: false, error: error.message };
+  if (count === 0) {
+    console.warn(`[Events] updateEventStatus: 0 rows affected (event=${eventId}, status=${status}) — possible RLS silent block`);
+  }
 
   // Notify participants when event starts running
   if (status === 'running') {

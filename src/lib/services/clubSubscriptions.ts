@@ -129,7 +129,10 @@ export async function cancelSubscription(userId: string, clubId: string): Promis
     .eq('club_id', clubId)
     .eq('status', 'active');
 
-  if (error) return false;
+  if (error) {
+    console.error(`[Subscriptions] cancelSubscription failed (user=${userId}, club=${clubId}):`, error.message);
+    return false;
+  }
   return true;
 }
 

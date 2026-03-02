@@ -183,23 +183,29 @@ export async function toggleFollowClub(
 
       if (nextClub) {
         // Promote next club to primary
-        await supabase
+        const { error: promoteErr } = await supabase
           .from('club_followers')
           .update({ is_primary: true })
           .eq('user_id', userId)
           .eq('club_id', nextClub.club_id);
 
+        if (promoteErr) console.error(`[Club] toggleFollowClub: promote next primary failed:`, promoteErr.message);
+
         const clubs = nextClub.clubs as unknown as { name: string } | null;
-        await supabase
+        const { error: profileErr } = await supabase
           .from('profiles')
           .update({ favorite_club: clubs?.name ?? null, favorite_club_id: nextClub.club_id })
           .eq('id', userId);
+
+        if (profileErr) console.error(`[Club] toggleFollowClub: profile sync failed:`, profileErr.message);
       } else {
         // No more followed clubs
-        await supabase
+        const { error: clearErr } = await supabase
           .from('profiles')
           .update({ favorite_club: null, favorite_club_id: null })
           .eq('id', userId);
+
+        if (clearErr) console.error(`[Club] toggleFollowClub: profile clear failed:`, clearErr.message);
       }
     }
   }
@@ -260,10 +266,14 @@ export async function getUserPrimaryClub(userId: string): Promise<DbClub | null>
 /** Set a club as the user's primary club */
 export async function setUserPrimaryClub(userId: string, clubId: string): Promise<void> {
   // Unset all primary flags for this user
-  await supabase
+  const { error: unsetError } = await supabase
     .from('club_followers')
     .update({ is_primary: false })
     .eq('user_id', userId);
+
+  if (unsetError) {
+    console.error(`[Club] setUserPrimaryClub: unset failed (user=${userId}):`, unsetError.message);
+  }
 
   // Set new primary
   const { error } = await supabase
@@ -426,7 +436,10 @@ export async function isClubAdmin(userId: string, clubId: string): Promise<boole
     p_user_id: userId,
     p_club_id: clubId,
   });
-  if (error) return false;
+  if (error) {
+    console.error(`[Club] isClubAdmin RPC failed (user=${userId}, club=${clubId}):`, error.message);
+    return false;
+  }
   return data as boolean;
 }
 
@@ -437,7 +450,10 @@ export async function getClubAdmins(clubId: string): Promise<(DbClubAdmin & { ha
     .select('*, profiles!user_id(handle, display_name)')
     .eq('club_id', clubId);
 
-  if (error) return [];
+  if (error) {
+    console.error(`[Club] getClubAdmins failed (club=${clubId}):`, error.message);
+    return [];
+  }
   return (data ?? []).map((row: Record<string, unknown>) => {
     const profiles = row.profiles as { handle: string; display_name: string | null } | null;
     return {
@@ -538,13 +554,19 @@ export async function getClubFantasySettings(clubId: string): Promise<ClubFantas
   return data as ClubFantasySettings;
 }
 
-/** Update fantasy settings for a club (admin only) */
+/** Update fantasy settings for a club (admin only).
+ *  WARNING: clubs table has RLS qual=false for UPDATE — this .update() may silently fail.
+ *  TODO: Migrate to RPC like setActiveGameweek for guaranteed execution. */
 export async function updateClubFantasySettings(clubId: string, settings: Partial<ClubFantasySettings>): Promise<void> {
-  const { error } = await supabase
+  const { error, count } = await supabase
     .from('clubs')
     .update(settings)
     .eq('id', clubId);
+
   if (error) throw new Error(error.message);
+  if (count === 0) {
+    console.warn(`[Club] updateClubFantasySettings: 0 rows affected (club=${clubId}) — possible RLS silent block`);
+  }
 }
 
 // ============================================
@@ -566,7 +588,10 @@ export async function getClubWithdrawals(clubId: string): Promise<(DbClubWithdra
     .eq('club_id', clubId)
     .order('created_at', { ascending: false });
 
-  if (error) return [];
+  if (error) {
+    console.error(`[Club] getClubWithdrawals failed (club=${clubId}):`, error.message);
+    return [];
+  }
   return (data ?? []).map((row: Record<string, unknown>) => {
     const profiles = row.profiles as { handle: string } | null;
     return {

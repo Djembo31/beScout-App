@@ -29,11 +29,17 @@ export async function getLeagueActiveGameweek(leagueId: string): Promise<number>
   return league?.active_gameweek ?? 1;
 }
 
-/** Set the active gameweek for a league (admin only) */
+/** Set the active gameweek for a league (admin only).
+ *  WARNING: Direct .update() on leagues — may silently fail if RLS blocks UPDATE.
+ *  TODO: Migrate to RPC like clubs.setActiveGameweek for guaranteed execution. */
 export async function setLeagueActiveGameweek(leagueId: string, gw: number): Promise<void> {
-  const { error } = await supabase
+  const { error, count } = await supabase
     .from('leagues')
     .update({ active_gameweek: gw, updated_at: new Date().toISOString() })
     .eq('id', leagueId);
+
   if (error) throw new Error(error.message);
+  if (count === 0) {
+    console.warn(`[Leagues] setLeagueActiveGameweek: 0 rows affected (league=${leagueId}) — possible RLS silent block`);
+  }
 }

@@ -227,8 +227,31 @@ export async function getPlayersForFixture(
   return data;
 }
 
-/** Resolve predictions for a gameweek via RPC */
+/** Resolve predictions for a gameweek via RPC.
+ *  Pre-checks that all fixtures in the gameweek are finished before resolving. */
 export async function resolvePredictions(gameweek: number): Promise<ResolveResult> {
+  // Safety: ensure all fixtures in this GW are finished before resolving
+  const { data: fixtures, error: fxError } = await supabase
+    .from('fixtures')
+    .select('id, status')
+    .eq('gameweek', gameweek);
+
+  if (fxError) {
+    return { success: false, error: `Fixture-Check fehlgeschlagen: ${fxError.message}` };
+  }
+
+  if (!fixtures || fixtures.length === 0) {
+    return { success: false, error: `Keine Fixtures für GW ${gameweek} gefunden` };
+  }
+
+  const unfinished = fixtures.filter(f => f.status !== 'finished');
+  if (unfinished.length > 0) {
+    return {
+      success: false,
+      error: `${unfinished.length}/${fixtures.length} Fixtures noch nicht fertig — Predictions können erst nach allen Spielen aufgelöst werden`,
+    };
+  }
+
   const { data, error } = await supabase.rpc('resolve_gameweek_predictions', {
     p_gameweek: gameweek,
   });

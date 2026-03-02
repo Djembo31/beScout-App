@@ -79,7 +79,10 @@ export async function getHoldingQty(userId: string, playerId: string): Promise<n
     .eq('player_id', playerId)
     .maybeSingle();
 
-  if (error) return 0;
+  if (error) {
+    console.error(`[Wallet] getHoldingQty failed (user=${userId}, player=${playerId}):`, error.message);
+    return 0;
+  }
   return data?.quantity ?? 0;
 }
 
@@ -90,7 +93,10 @@ export async function getPlayerHolderCount(playerId: string): Promise<number> {
     .select('*', { count: 'exact', head: true })
     .eq('player_id', playerId)
     .gt('quantity', 0);
-  if (error) return 0;
+  if (error) {
+    console.error(`[Wallet] getPlayerHolderCount failed (player=${playerId}):`, error.message);
+    return 0;
+  }
   return count ?? 0;
 }
 

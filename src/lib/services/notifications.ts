@@ -171,7 +171,7 @@ export async function createNotification(
     if (!prefs[category]) return; // User disabled this category
   }
 
-  await supabase.from('notifications').insert({
+  const { error } = await supabase.from('notifications').insert({
     user_id: userId,
     type,
     title,
@@ -179,4 +179,8 @@ export async function createNotification(
     reference_id: referenceId ?? null,
     reference_type: referenceType ?? null,
   });
+
+  if (error) {
+    console.error(`[Notifications] Failed to create notification (type=${type}, user=${userId}):`, error.message);
+  }
 }

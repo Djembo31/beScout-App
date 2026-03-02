@@ -345,7 +345,10 @@ export async function rateResearch(
 
 export async function resolveExpiredResearch(): Promise<number> {
   const { data, error } = await supabase.rpc('resolve_expired_research');
-  if (error) return 0;
+  if (error) {
+    console.error('[Research] resolveExpiredResearch RPC failed:', error.message);
+    return 0;
+  }
   const resolved = (data as { resolved: number })?.resolved ?? 0;
   return resolved;
 }
