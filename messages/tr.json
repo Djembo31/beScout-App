@@ -49,7 +49,12 @@
     "discoverClubs": "Kulüpleri Keşfet",
     "somethingWentWrong": "Bir şeyler yanlış gitti",
     "unexpectedError": "Beklenmeyen bir hata oluştu.",
-    "retryBtn": "Tekrar dene"
+    "retryBtn": "Tekrar dene",
+    "navHome": "Ana Sayfa",
+    "navSpieltag": "Maç Günü",
+    "navMarkt": "Pazar",
+    "navClub": "Kulüp",
+    "navCommunity": "Topluluk"
   },
   "auth": {
     "subtitle": "TFF 1. Lig Fan Platformu",
@@ -660,7 +665,9 @@
     "freeLabel": "Ücretsiz",
     "joinedBtn": "Katılıyor",
     "rankOfParticipants": "{rank}. sıra / {participants} — {score} Puan",
-    "scoredRankOf": "{score} Puan · {rank}. sıra / {participants}"
+    "scoredRankOf": "{score} Puan · {rank}. sıra / {participants}",
+    "gwSimulatedLabel": "Tamamlandı",
+    "startSimulation": "Başlat"
   },
   "predictions": {
     "title": "Tahminler",
@@ -1135,7 +1142,21 @@
     "votesCount": "{count} Oy",
     "voteCountSingular": "{count} Oy",
     "endsAt": "{date} tarihinde bitiyor",
-    "clubNewsLabel": "Kulüp haberi"
+    "clubNewsLabel": "Kulüp haberi",
+    "paidPollLabel": "Ücretli Anket",
+    "cancelledLabel": "İptal Edildi",
+    "byCreatorPrefix": "tarafından",
+    "yourPollLabel": "Senin Anketin",
+    "votedLabel": "Oy Verildi",
+    "cancelPollLabel": "Anketi İptal Et",
+    "clubVoteLabel": "Kulüp Oylaması",
+    "votesTabTitle": "Oylamalar",
+    "createPollBtn": "Anket Oluştur",
+    "clubVotesDivider": "Kulüp Oylamaları",
+    "noVotesYet": "Henüz oylama yok",
+    "noVotesHint": "İlk ücretli anketi oluştur!",
+    "createFirstPollBtn": "İlk Anketi Oluştur",
+    "pollEndedLabel": "Sona Erdi"
   },
   "profile": {
     "title": "Profil",
@@ -1897,7 +1918,43 @@
       "complete_scout": "Tam İzci",
       "complete_scoutDesc": "3 boyutta da Gümüş+",
       "scout_specialist": "Keşif Uzmanı",
-      "scout_specialistDesc": "Ø 4.0+ değerlendirmeyle 10 keşif raporu"
+      "scout_specialistDesc": "Ø 4.0+ değerlendirmeyle 10 keşif raporu",
+      "50_trades": "Profesyonel Tüccar",
+      "50_tradesDesc": "50 işlem tamamlandı",
+      "portfolio_1000": "Koleksiyoncu",
+      "portfolio_1000Desc": "1.000 $SCOUT üstü kadro",
+      "diverse_5": "Çeşitlendirilmiş",
+      "diverse_5Desc": "Portföyde 5 farklı oyuncu",
+      "diverse_15": "Kadro Koleksiyoncusu",
+      "diverse_15Desc": "Portföyde 15 farklı oyuncu",
+      "sell_order": "İlk Satış",
+      "sell_orderDesc": "İlk satış emri oluşturuldu",
+      "diamond_hands": "Elmas Eller",
+      "diamond_handsDesc": "DPC'yi satmadan 30 gün tutma",
+      "3_events": "Maç Günü Hayranı",
+      "3_eventsDesc": "3 fantezi etkinlik oynandı",
+      "5_events": "Devamlı Müşteri",
+      "5_eventsDesc": "5 fantezi etkinlik oynandı",
+      "verified": "Doğrulanmış",
+      "verifiedDesc": "Profil doğrulandı",
+      "research_sold": "Çok Satan",
+      "research_soldDesc": "İlk araştırma analizi satıldı",
+      "5_followers": "Yükselen Yıldız",
+      "5_followersDesc": "5 takipçiye ulaşıldı",
+      "10_followers": "Influencer",
+      "10_followersDesc": "10 takipçiye ulaşıldı",
+      "50_followers": "Topluluk Yıldızı",
+      "50_followersDesc": "50 takipçiye ulaşıldı",
+      "first_vote": "Oy Veren",
+      "first_voteDesc": "İlk oy kullanıldı",
+      "10_votes": "Demokrat",
+      "10_votesDesc": "10 oy kullanıldı",
+      "first_bounty": "Kulüp Scoutu",
+      "first_bountyDesc": "İlk görev tamamlandı",
+      "founding_scout": "Kurucu Scout",
+      "founding_scoutDesc": "BeScout'un ilk 50 scoutu arasında",
+      "showLess": "Daha az göster",
+      "showAll": "Tümünü göster ({count})"
     },
     "notification": {
       "rangUp": "{dim}: {rang} rütbesine yükseldin!",
@@ -1931,7 +1988,21 @@
     },
     "gesamtRang": "Genel Rütbe",
     "median": "3 boyutun ortancası",
-    "pointsLabel": "Puan"
+    "pointsLabel": "Puan",
+    "badge": {
+      "trading_expert": "Trading Uzmanı",
+      "trading_expertDesc": "En az 500 Trading Puanına ulaş",
+      "fantasy_pro": "Fantasy Profesyoneli",
+      "fantasy_proDesc": "En az 500 Menajer Puanına ulaş",
+      "star_scout": "Yıldız Scout",
+      "star_scoutDesc": "En az 500 Scout Puanına ulaş",
+      "top_10": "İlk 10",
+      "top_10Desc": "Sıralamada ilk 10'a gir",
+      "community_voice": "Topluluk Sesi",
+      "community_voiceDesc": "En az 20 takipçi kazan",
+      "rising_star": "Yükselen Yıldız",
+      "rising_starDesc": "Toplam Puan ≥ 300 ve Sıralama ≤ 30"
+    }
   },
   "onboarding": {
     "title": "İlk Adımlar",
@@ -2360,7 +2431,9 @@
     "lineups": "Kadrolar",
     "playersTab": "Oyuncular",
     "noPlayerData": "Oyuncu verisi mevcut değil",
-    "notSimulated": "Maç henüz simüle edilmedi — Kadrolar simülasyondan sonra gösterilecek"
+    "notSimulated": "Maç henüz simüle edilmedi — Kadrolar simülasyondan sonra gösterilecek",
+    "startSimulation": "Başlat",
+    "gwSimulatedLabel": "Tamamlandı"
   },
   "sponsorStats": {
     "title": "Sponsor KPI'ları",

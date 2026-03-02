@@ -555,11 +555,11 @@ export function SpieltagTab({
               className="flex items-center gap-1.5 px-3 py-2 min-h-[40px] bg-gold/10 border border-gold/30 rounded-xl text-xs font-bold text-gold hover:bg-gold/20 disabled:opacity-50 transition-colors"
             >
               {simulating ? <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" /> : <Play aria-hidden="true" className="size-3.5" />}
-              Starten
+              {ts('startSimulation')}
             </button>
           )}
           {isAdmin && gwStatus === 'simulated' && isCurrentGw && (
-            <span className="text-[10px] text-green-500 font-bold px-2 py-1 bg-green-500/10 rounded-lg">Beendet</span>
+            <span className="text-[10px] text-green-500 font-bold px-2 py-1 bg-green-500/10 rounded-lg">{ts('gwSimulatedLabel')}</span>
           )}
         </div>
       </div>

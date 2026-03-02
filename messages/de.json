@@ -49,7 +49,12 @@
     "discoverClubs": "Clubs entdecken",
     "somethingWentWrong": "Etwas ist schiefgelaufen",
     "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
-    "retryBtn": "Erneut versuchen"
+    "retryBtn": "Erneut versuchen",
+    "navHome": "Home",
+    "navSpieltag": "Spieltag",
+    "navMarkt": "Markt",
+    "navClub": "Club",
+    "navCommunity": "Community"
   },
   "auth": {
     "subtitle": "Werde Teil der TFF 1. Lig — handle Spielerkarten, spiele Fantasy und verdiene Belohnungen.",
@@ -663,7 +668,9 @@
     "freeLabel": "Kostenlos",
     "joinedBtn": "Nimmt teil",
     "rankOfParticipants": "Platz {rank} / {participants} — {score} Punkte",
-    "scoredRankOf": "{score} Punkte · Platz {rank} / {participants}"
+    "scoredRankOf": "{score} Punkte · Platz {rank} / {participants}",
+    "gwSimulatedLabel": "Beendet",
+    "startSimulation": "Starten"
   },
   "predictions": {
     "title": "Vorhersagen",
@@ -1143,7 +1150,21 @@
     "votesCount": "{count} Stimmen",
     "voteCountSingular": "{count} Stimme",
     "endsAt": "Endet {date}",
-    "clubNewsLabel": "Club-Nachricht"
+    "clubNewsLabel": "Club-Nachricht",
+    "paidPollLabel": "Bezahlte Umfrage",
+    "cancelledLabel": "Abgebrochen",
+    "byCreatorPrefix": "von",
+    "yourPollLabel": "Deine Umfrage",
+    "votedLabel": "Abgestimmt",
+    "cancelPollLabel": "Umfrage abbrechen",
+    "clubVoteLabel": "Club-Abstimmung",
+    "votesTabTitle": "Abstimmungen",
+    "createPollBtn": "Umfrage erstellen",
+    "clubVotesDivider": "Club-Abstimmungen",
+    "noVotesYet": "Noch keine Abstimmungen",
+    "noVotesHint": "Erstelle die erste bezahlte Umfrage!",
+    "createFirstPollBtn": "Erste Umfrage erstellen",
+    "pollEndedLabel": "Beendet"
   },
   "profile": {
     "title": "Profil",
@@ -1905,7 +1926,43 @@
       "complete_scout": "Complete Scout",
       "complete_scoutDesc": "In allen 3 Dimensionen Silber+",
       "scout_specialist": "Scout-Spezialist",
-      "scout_specialistDesc": "10 Scouting-Reports mit Ø 4.0+ Bewertung"
+      "scout_specialistDesc": "10 Scouting-Reports mit Ø 4.0+ Bewertung",
+      "50_trades": "Profi-Händler",
+      "50_tradesDesc": "50 Trades abgeschlossen",
+      "portfolio_1000": "Sammler",
+      "portfolio_1000Desc": "Kader über 1.000 $SCOUT",
+      "diverse_5": "Diversifiziert",
+      "diverse_5Desc": "5 verschiedene Spieler im Portfolio",
+      "diverse_15": "Kader-Sammler",
+      "diverse_15Desc": "15 verschiedene Spieler im Portfolio",
+      "sell_order": "Erstverkauf",
+      "sell_orderDesc": "Ersten Sell-Order erstellt",
+      "diamond_hands": "Diamond Hands",
+      "diamond_handsDesc": "DPC 30 Tage gehalten ohne zu verkaufen",
+      "3_events": "Spieltag-Fan",
+      "3_eventsDesc": "3 Fantasy-Events gespielt",
+      "5_events": "Stammgast",
+      "5_eventsDesc": "5 Fantasy-Events gespielt",
+      "verified": "Verifiziert",
+      "verifiedDesc": "Profil verifiziert",
+      "research_sold": "Bestseller",
+      "research_soldDesc": "Erste Research-Analyse verkauft",
+      "5_followers": "Aufsteiger",
+      "5_followersDesc": "5 Follower erreicht",
+      "10_followers": "Influencer",
+      "10_followersDesc": "10 Follower erreicht",
+      "50_followers": "Community-Star",
+      "50_followersDesc": "50 Follower erreicht",
+      "first_vote": "Mitbestimmer",
+      "first_voteDesc": "Erste Abstimmung abgegeben",
+      "10_votes": "Demokrat",
+      "10_votesDesc": "10 Abstimmungen abgegeben",
+      "first_bounty": "Club Scout",
+      "first_bountyDesc": "Erste Bounty abgeschlossen",
+      "founding_scout": "Founding Scout",
+      "founding_scoutDesc": "Unter den ersten 50 Scouts auf BeScout",
+      "showLess": "Weniger anzeigen",
+      "showAll": "Alle {count} anzeigen"
     },
     "notification": {
       "rangUp": "{dim}: Aufstieg zu {rang}!",
@@ -1939,7 +1996,21 @@
     },
     "gesamtRang": "Gesamt-Rang",
     "median": "Median der 3 Dimensionen",
-    "pointsLabel": "Punkte"
+    "pointsLabel": "Punkte",
+    "badge": {
+      "trading_expert": "Trading-Experte",
+      "trading_expertDesc": "Trading Score von mindestens 500 erreichen",
+      "fantasy_pro": "Fantasy-Profi",
+      "fantasy_proDesc": "Manager Score von mindestens 500 erreichen",
+      "star_scout": "Star Scout",
+      "star_scoutDesc": "Scout Score von mindestens 500 erreichen",
+      "top_10": "Top 10",
+      "top_10Desc": "Unter die Top 10 im Leaderboard kommen",
+      "community_voice": "Community Voice",
+      "community_voiceDesc": "Mindestens 20 Follower gewinnen",
+      "rising_star": "Aufsteiger",
+      "rising_starDesc": "Total Score ≥ 300 und Rang ≤ 30 erreichen"
+    }
   },
   "onboarding": {
     "title": "Erste Schritte",
@@ -2368,7 +2439,9 @@
     "lineups": "Aufstellungen",
     "playersTab": "Spieler",
     "noPlayerData": "Keine Spielerdaten verfügbar",
-    "notSimulated": "Spiel noch nicht simuliert — Aufstellungen werden nach Simulation angezeigt"
+    "notSimulated": "Spiel noch nicht simuliert — Aufstellungen werden nach Simulation angezeigt",
+    "startSimulation": "Starten",
+    "gwSimulatedLabel": "Beendet"
   },
   "sponsorStats": {
     "title": "Sponsor-KPIs",

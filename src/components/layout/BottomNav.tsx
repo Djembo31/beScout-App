@@ -4,20 +4,22 @@ import { memo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Trophy, Briefcase, Building2, Compass } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useClub } from '@/components/providers/ClubProvider';
 import { cn } from '@/lib/utils';
 
 const BOTTOM_TABS = [
-  { label: 'Home', href: '/', icon: Home, tourId: undefined as string | undefined },
-  { label: 'Spieltag', href: '/fantasy', icon: Trophy, tourId: 'bottomnav-fantasy' },
-  { label: 'Markt', href: '/market', icon: Briefcase, tourId: 'bottomnav-market' },
-  { label: 'Club', href: '/club', icon: Building2, tourId: undefined as string | undefined },
-  { label: 'Community', href: '/community', icon: Compass, tourId: undefined as string | undefined },
+  { labelKey: 'navHome', href: '/', icon: Home, tourId: undefined as string | undefined },
+  { labelKey: 'navSpieltag', href: '/fantasy', icon: Trophy, tourId: 'bottomnav-fantasy' },
+  { labelKey: 'navMarkt', href: '/market', icon: Briefcase, tourId: 'bottomnav-market' },
+  { labelKey: 'navClub', href: '/club', icon: Building2, tourId: undefined as string | undefined },
+  { labelKey: 'navCommunity', href: '/community', icon: Compass, tourId: undefined as string | undefined },
 ];
 
 export const BottomNav = memo(function BottomNav() {
   const pathname = usePathname();
   const { activeClub } = useClub();
+  const tc = useTranslations('common');
 
   return (
     <nav
@@ -60,7 +62,7 @@ export const BottomNav = memo(function BottomNav() {
                 <div className="absolute -top-[1px] w-10 h-[3px] bg-gold rounded-full shadow-glow-gold" />
               )}
               <Icon className={cn('size-5', isActive && 'drop-shadow-[0_0_10px_rgba(255,215,0,0.6)]')} />
-              <span className={cn('text-[10px] leading-none', isActive ? 'font-black' : 'font-medium')}>{tab.label}</span>
+              <span className={cn('text-[10px] leading-none', isActive ? 'font-black' : 'font-medium')}>{tc(tab.labelKey)}</span>
             </Link>
           );
         })}

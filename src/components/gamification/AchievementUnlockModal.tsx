@@ -22,6 +22,7 @@ export default function AchievementUnlockModal({
   onClose: () => void;
 }) {
   const t = useTranslations('achievement');
+  const tg = useTranslations('gamification');
   const cat = CATEGORY_COLORS[achievement.category] ?? CATEGORY_COLORS.trading;
 
   return (
@@ -33,8 +34,8 @@ export default function AchievementUnlockModal({
           <div className="text-6xl mb-4 anim-scale-pop">{achievement.icon}</div>
 
           {/* Name */}
-          <h3 className="text-xl font-black text-white mb-1">{achievement.label}</h3>
-          <p className="text-sm text-white/50 mb-4">{achievement.description}</p>
+          <h3 className="text-xl font-black text-white mb-1">{tg(`achievement.${achievement.key}`)}</h3>
+          <p className="text-sm text-white/50 mb-4">{tg(`achievement.${achievement.key}Desc`)}</p>
 
           {/* Category badge */}
           <div className="flex justify-center mb-6">

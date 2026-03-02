@@ -459,7 +459,14 @@ export const EventDetailModal = ({
           ) : (
             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded ${statusStyle.bg} ${statusStyle.text}`}>
               {statusStyle.pulse && <div className="size-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" />}
-              <span className="text-xs font-bold">{statusStyle.label}</span>
+              <span className="text-xs font-bold">{
+                event.status === 'running' ? t('statusLive')
+                : event.status === 'late-reg' ? t('statusLateReg')
+                : event.status === 'registering' ? t('statusRegistering')
+                : event.status === 'upcoming' ? t('statusUpcoming')
+                : event.status === 'ended' ? t('statusEnded')
+                : statusStyle.label
+              }</span>
             </div>
           )}
           <Chip className={`${typeStyle.bg} ${typeStyle.color}`}>{event.mode === 'league' ? t('modeLiga') : t('modeTurnier')} • {event.format}</Chip>

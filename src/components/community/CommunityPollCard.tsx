@@ -24,7 +24,7 @@ export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCan
   const diffMs = new Date(poll.ends_at).getTime() - Date.now();
   const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const timeLeft = diffMs > 0 ? `${days}d ${hours}h` : 'Beendet';
+  const timeLeft = diffMs > 0 ? `${days}d ${hours}h` : tc('pollEndedLabel');
   const isCancelled = poll.status === 'cancelled';
 
   return (
@@ -33,18 +33,18 @@ export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCan
       <div className="p-4 flex items-center justify-between bg-amber-500/[0.06] border-b border-amber-500/20">
         <div className="flex items-center gap-2">
           <Coins className="w-5 h-5 text-amber-400" />
-          <span className="font-bold text-amber-300">Bezahlte Umfrage</span>
+          <span className="font-bold text-amber-300">{tc('paidPollLabel')}</span>
         </div>
         <div className="flex items-center gap-2 text-xs text-white/50">
           <Clock className="w-3 h-3" />
-          <span>{isCancelled ? 'Abgebrochen' : timeLeft}</span>
+          <span>{isCancelled ? tc('cancelledLabel') : timeLeft}</span>
         </div>
       </div>
 
       <div className="p-4">
         {/* Creator */}
         <div className="flex items-center gap-2 mb-2 text-xs text-white/50">
-          <span>von <strong className="text-white/70">{poll.creator_display_name || poll.creator_handle}</strong></span>
+          <span>{tc('byCreatorPrefix')} <strong className="text-white/70">{poll.creator_display_name || poll.creator_handle}</strong></span>
         </div>
 
         {/* Question */}
@@ -98,13 +98,13 @@ export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCan
         {/* Status chips */}
         <div className="flex items-center gap-2 mt-2 flex-wrap">
           {isOwn && (
-            <Chip className="bg-amber-500/15 text-amber-300 border-amber-500/25">Deine Umfrage</Chip>
+            <Chip className="bg-amber-500/15 text-amber-300 border-amber-500/25">{tc('yourPollLabel')}</Chip>
           )}
           {hasVoted && (
-            <Chip className="bg-amber-500/15 text-amber-300 border-amber-500/25">Abgestimmt</Chip>
+            <Chip className="bg-amber-500/15 text-amber-300 border-amber-500/25">{tc('votedLabel')}</Chip>
           )}
           {isCancelled && (
-            <Chip className="bg-red-500/15 text-red-300 border-red-500/25">Abgebrochen</Chip>
+            <Chip className="bg-red-500/15 text-red-300 border-red-500/25">{tc('cancelledLabel')}</Chip>
           )}
         </div>
 
@@ -115,7 +115,7 @@ export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCan
             className="mt-3 flex items-center gap-1.5 text-xs text-red-300 hover:text-red-200 transition-colors"
           >
             <X className="w-3.5 h-3.5" />
-            Umfrage abbrechen
+            {tc('cancelPollLabel')}
           </button>
         )}
       </div>

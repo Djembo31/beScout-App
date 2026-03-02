@@ -66,6 +66,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
   const { balanceCents } = useWallet();
   const { addToast } = useToast();
   const tp = useProfileTranslations('profile');
+  const tg = useProfileTranslations('gamification');
   const locale = useLocale();
   const [tab, setTab] = useState<ProfileTab>('overview');
 
@@ -498,8 +499,8 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             return (
               <Card className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-black">Expert-Badges</h3>
-                  <span className="text-xs text-white/40">{earnedCount}/{badges.length} verdient</span>
+                  <h3 className="font-black">{tp('expertBadges')}</h3>
+                  <span className="text-xs text-white/40">{earnedCount}/{badges.length} {tp('earned')}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {badges.map(badge => {
@@ -524,7 +525,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className={cn('text-xs font-bold', badge.earned ? badge.color : 'text-white/30')}>
-                            {badge.label}
+                            {tg(`badge.${badge.key}`)}
                           </div>
                           {!badge.earned && (
                             <div className="mt-1">

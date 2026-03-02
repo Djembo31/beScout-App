@@ -359,8 +359,8 @@ export default function ProfileOverviewTab({
               {visibleItems.map(({ key, def, isUnlocked, isHidden }) => isHidden ? (
                 <div key={key} className="p-3 bg-gold/[0.04] rounded-xl border border-gold/15">
                   <div className="text-xl mb-1">{def.icon}</div>
-                  <div className="text-sm font-bold text-gold">{def.label}</div>
-                  <div className="text-[10px] text-white/40 mt-0.5">{def.description}</div>
+                  <div className="text-sm font-bold text-gold">{tg(`achievement.${def.key}`)}</div>
+                  <div className="text-[10px] text-white/40 mt-0.5">{tg(`achievement.${def.key}Desc`)}</div>
                   <div className="text-[9px] text-gold/50 mt-1 uppercase font-bold">{tg('achievement.hidden')}</div>
                 </div>
               ) : (
@@ -371,8 +371,8 @@ export default function ProfileOverviewTab({
                     : 'bg-white/[0.01] border-white/[0.03] opacity-40'
                 )}>
                   <div className="text-xl mb-1">{isUnlocked ? def.icon : '🔒'}</div>
-                  <div className="text-sm font-bold">{def.label}</div>
-                  <div className="text-[10px] text-white/40 mt-0.5">{def.description}</div>
+                  <div className="text-sm font-bold">{tg(`achievement.${def.key}`)}</div>
+                  <div className="text-[10px] text-white/40 mt-0.5">{tg(`achievement.${def.key}Desc`)}</div>
                 </div>
               ))}
             </div>
@@ -381,7 +381,7 @@ export default function ProfileOverviewTab({
                 onClick={() => setShowAllAchievements(prev => !prev)}
                 className="w-full mt-3 py-2 text-xs text-white/40 hover:text-white/60 transition-colors"
               >
-                {showAllAchievements ? 'Weniger anzeigen' : `Alle ${allItems.length} anzeigen`}
+                {showAllAchievements ? tg('achievement.showLess') : tg('achievement.showAll', { count: allItems.length })}
               </button>
             )}
           </Card>

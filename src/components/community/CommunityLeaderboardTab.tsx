@@ -139,7 +139,7 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
                 return (
                   <span key={b.key} className={cn('inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-bold border', b.bgColor, b.color)}>
                     <I className="w-2.5 h-2.5" />
-                    {b.label}
+                    {tg(`badge.${b.key}`)}
                   </span>
                 );
               });
