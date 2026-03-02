@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { PlayerIdentity, getL5Color } from '@/components/player';
 import { fmtScout, cn } from '@/lib/utils';
 import type { Player } from '@/types';
@@ -12,6 +13,7 @@ interface ComparePlayerCardProps {
 }
 
 export default function ComparePlayerCard({ player, isHighest }: ComparePlayerCardProps) {
+  const t = useTranslations('market');
   return (
     <Link href={`/player/${player.id}`} className="block text-center p-3 hover:bg-white/[0.02] rounded-xl transition-colors">
       <div className="flex flex-col items-center gap-2 mb-3">
@@ -25,9 +27,9 @@ export default function ComparePlayerCard({ player, isHighest }: ComparePlayerCa
       <div className="space-y-2 text-xs">
         <StatRow label="L5 Perf" value={String(player.perf.l5)} gold={isHighest.l5} color={isHighest.l5 ? undefined : getL5Color(player.perf.l5)} />
         <StatRow label="L15 Perf" value={String(player.perf.l15)} gold={isHighest.l15} color={isHighest.l15 ? undefined : getL5Color(player.perf.l15)} />
-        <StatRow label="Spiele" value={String(player.stats.matches)} gold={isHighest.matches} />
-        <StatRow label="Tore" value={String(player.stats.goals)} gold={isHighest.goals} />
-        <StatRow label="Assists" value={String(player.stats.assists)} gold={isHighest.assists} />
+        <StatRow label={t('compareMatches')} value={String(player.stats.matches)} gold={isHighest.matches} />
+        <StatRow label={t('compareGoals')} value={String(player.stats.goals)} gold={isHighest.goals} />
+        <StatRow label={t('compareAssists')} value={String(player.stats.assists)} gold={isHighest.assists} />
         <StatRow label="Floor" value={`${fmtScout(player.prices.floor ?? 0)} $SCOUT`} gold={isHighest.floor} />
         <StatRow label="24h" value={`${player.prices.change24h >= 0 ? '+' : ''}${player.prices.change24h.toFixed(1)}%`}
           color={player.prices.change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red'} gold={isHighest.change} />
@@ -41,7 +43,7 @@ function StatRow({ label, value, gold, color }: { label: string; value: string; 
     <div className="flex items-center justify-between py-1.5 border-b border-white/5">
       <span className="text-white/40">{label}</span>
       <span className={cn(
-        'font-mono font-bold',
+        'font-mono font-bold tabular-nums',
         gold ? 'text-gold' : color ?? 'text-white/80'
       )}>
         {value}

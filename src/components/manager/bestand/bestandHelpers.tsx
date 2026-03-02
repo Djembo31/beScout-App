@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import {
   TrendingUp, TrendingDown, Minus,
   Heart, AlertTriangle, HelpCircle,
@@ -68,13 +69,21 @@ export const STATUS_CONFIG: Record<PlayerStatus, { label: string; short: string;
   doubtful: { label: 'Fraglich', short: 'Fragl.', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', text: 'text-yellow-400', icon: HelpCircle },
 };
 
+const STATUS_SHORT_KEY: Record<PlayerStatus, string> = {
+  fit: 'statusFitShort',
+  injured: 'statusInjuredShort',
+  suspended: 'statusSuspendedShort',
+  doubtful: 'statusDoubtfulShort',
+};
+
 export function StatusPill({ status }: { status: PlayerStatus }) {
+  const t = useTranslations('market');
   const cfg = STATUS_CONFIG[status];
   const Icon = cfg.icon;
   return (
     <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border', cfg.bg, cfg.border, cfg.text)}>
-      <Icon className="w-2.5 h-2.5" />
-      <span className="hidden sm:inline">{cfg.short}</span>
+      <Icon className="size-2.5" aria-hidden="true" />
+      <span className="hidden sm:inline">{t(STATUS_SHORT_KEY[status])}</span>
     </span>
   );
 }
@@ -150,24 +159,25 @@ export function NextMatchBadge({ fixture }: { fixture: NextFixtureInfo | undefin
 // ============================================
 
 export function MarketBadges({ hasIpo, listedQty, offerCount }: { hasIpo: boolean; listedQty: number; offerCount: number }) {
+  const t = useTranslations('market');
   const hasAny = hasIpo || listedQty > 0 || offerCount > 0;
   if (!hasAny) return null;
 
   return (
     <div className="flex items-center gap-1">
       {hasIpo && (
-        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-purple-500/10 border border-purple-400/20 rounded text-[9px] font-bold text-purple-300" title="Aktive IPO">
-          <Rocket className="w-2.5 h-2.5" />IPO
+        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-purple-500/10 border border-purple-400/20 rounded text-[9px] font-bold text-purple-300" title={t('badgeActiveIpo')}>
+          <Rocket className="size-2.5" aria-hidden="true" />IPO
         </span>
       )}
       {listedQty > 0 && (
-        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-gold/10 border border-gold/20 rounded text-[9px] font-bold text-gold" title="Auf Transferliste">
-          <Tag className="w-2.5 h-2.5" />{listedQty}
+        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-gold/10 border border-gold/20 rounded text-[9px] font-bold text-gold" title={t('badgeOnTransferList')}>
+          <Tag className="size-2.5" aria-hidden="true" />{listedQty}
         </span>
       )}
       {offerCount > 0 && (
-        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-sky-500/10 border border-sky-400/20 rounded text-[9px] font-bold text-sky-300" title="Eingehende Angebote">
-          <MessageSquare className="w-2.5 h-2.5" />{offerCount}
+        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-sky-500/10 border border-sky-400/20 rounded text-[9px] font-bold text-sky-300" title={t('badgeIncomingOffers')}>
+          <MessageSquare className="size-2.5" aria-hidden="true" />{offerCount}
         </span>
       )}
     </div>

@@ -2,6 +2,7 @@
 
 import React, { memo } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import {
   TrendingUp, TrendingDown, Minus, DollarSign, Shield,
 } from 'lucide-react';
@@ -51,16 +52,17 @@ interface BestandPlayerRowProps {
 // ============================================
 
 function PerformanceCols({ item, minutes, nextFixture }: { item: BestandPlayer; minutes?: number[]; nextFixture?: NextFixtureInfo }) {
+  const t = useTranslations('market');
   const p = item.player;
   return (
     <>
       {/* Desktop columns */}
       <div className="hidden md:flex items-center gap-3 shrink-0">
         <PerfPills l5={p.perf.l5} l15={p.perf.l15} trend={p.perf.trend} />
-        <span className="text-[10px] font-mono text-white/50">
-          {p.stats.matches}<span className="text-white/35">S</span>{' '}
-          {p.stats.goals}<span className="text-white/35">T</span>{' '}
-          {p.stats.assists}<span className="text-white/35">A</span>
+        <span className="text-[10px] font-mono text-white/50 tabular-nums">
+          {p.stats.matches}<span className="text-white/35">{t('statMatchesAbbr')}</span>{' '}
+          {p.stats.goals}<span className="text-white/35">{t('statGoalsAbbr')}</span>{' '}
+          {p.stats.assists}<span className="text-white/35">{t('statAssistsAbbr')}</span>
         </span>
         <MinutesPill minutes={minutes} />
         <StatusPill status={p.status} />
@@ -69,10 +71,10 @@ function PerformanceCols({ item, minutes, nextFixture }: { item: BestandPlayer; 
       {/* Mobile row 2 */}
       <div className="md:hidden flex items-center gap-2 flex-wrap mt-0.5">
         <PerfPills l5={p.perf.l5} l15={p.perf.l15} trend={p.perf.trend} />
-        <span className="text-[10px] font-mono text-white/50">
-          {p.stats.matches}<span className="text-white/35">S</span>{' '}
-          {p.stats.goals}<span className="text-white/35">T</span>{' '}
-          {p.stats.assists}<span className="text-white/35">A</span>
+        <span className="text-[10px] font-mono text-white/50 tabular-nums">
+          {p.stats.matches}<span className="text-white/35">{t('statMatchesAbbr')}</span>{' '}
+          {p.stats.goals}<span className="text-white/35">{t('statGoalsAbbr')}</span>{' '}
+          {p.stats.assists}<span className="text-white/35">{t('statAssistsAbbr')}</span>
         </span>
         <MinutesPill minutes={minutes} />
         <StatusPill status={p.status} />
@@ -82,18 +84,19 @@ function PerformanceCols({ item, minutes, nextFixture }: { item: BestandPlayer; 
 }
 
 function MarktCols({ item }: { item: BestandPlayer }) {
+  const t = useTranslations('market');
   const pnlColor = item.pnlBsd >= 0 ? 'text-vivid-green' : 'text-vivid-red';
   const TrendIcon = item.pnlBsd > 0 ? TrendingUp : item.pnlBsd < 0 ? TrendingDown : Minus;
   return (
     <>
       {/* Desktop */}
       <div className="hidden md:flex items-center gap-3 shrink-0 text-[11px] font-mono">
-        <span className="text-white/50">{item.quantity}<span className="text-white/25">×</span></span>
-        <span className="text-white/40">EK {fmtScout(item.avgBuyPriceBsd)}</span>
-        <span className="text-white/50">Floor {item.floorBsd != null ? fmtScout(item.floorBsd) : '—'}</span>
-        <span className="text-gold font-bold">{fmtScout(item.valueBsd * item.quantity)}</span>
-        <span className={cn('flex items-center gap-0.5', pnlColor)}>
-          <TrendIcon className="w-2.5 h-2.5" />
+        <span className="text-white/50 tabular-nums">{item.quantity}<span className="text-white/25">×</span></span>
+        <span className="text-white/40 tabular-nums">{t('bestandBuyPrice')} {fmtScout(item.avgBuyPriceBsd)}</span>
+        <span className="text-white/50 tabular-nums">{t('bestandFloor')} {item.floorBsd != null ? fmtScout(item.floorBsd) : '—'}</span>
+        <span className="text-gold font-bold tabular-nums">{fmtScout(item.valueBsd * item.quantity)}</span>
+        <span className={cn('flex items-center gap-0.5 tabular-nums', pnlColor)}>
+          <TrendIcon className="size-2.5" aria-hidden="true" />
           {item.pnlBsd >= 0 ? '+' : ''}{fmtScout(Math.round(item.pnlBsd))}
           <span className="text-white/30 ml-0.5">({item.pnlPct >= 0 ? '+' : ''}{item.pnlPct.toFixed(1)}%)</span>
         </span>
@@ -101,10 +104,10 @@ function MarktCols({ item }: { item: BestandPlayer }) {
       </div>
       {/* Mobile */}
       <div className="md:hidden flex items-center gap-2 flex-wrap mt-0.5 text-[10px] font-mono">
-        <span className="text-white/50">{item.quantity}<span className="text-white/25">×</span> EK {fmtScout(item.avgBuyPriceBsd)}</span>
-        <span className="text-gold font-bold">{fmtScout(item.valueBsd * item.quantity)}</span>
-        <span className={cn('flex items-center gap-0.5', pnlColor)}>
-          <TrendIcon className="w-2.5 h-2.5" />
+        <span className="text-white/50 tabular-nums">{item.quantity}<span className="text-white/25">×</span> {t('bestandBuyPrice')} {fmtScout(item.avgBuyPriceBsd)}</span>
+        <span className="text-gold font-bold tabular-nums">{fmtScout(item.valueBsd * item.quantity)}</span>
+        <span className={cn('flex items-center gap-0.5 tabular-nums', pnlColor)}>
+          <TrendIcon className="size-2.5" aria-hidden="true" />
           {item.pnlBsd >= 0 ? '+' : ''}{fmtScout(Math.round(item.pnlBsd))}
         </span>
       </div>
@@ -113,34 +116,36 @@ function MarktCols({ item }: { item: BestandPlayer }) {
 }
 
 function HandelCols({ item }: { item: BestandPlayer }) {
+  const t = useTranslations('market');
   return (
     <>
       {/* Desktop */}
       <div className="hidden md:flex items-center gap-3 shrink-0 text-[11px] font-mono">
         {item.listedQty > 0 ? (
-          <span className="text-gold">{item.listedQty} gelistet</span>
+          <span className="text-gold tabular-nums">{t('bestandListedCount', { count: item.listedQty })}</span>
         ) : (
-          <span className="text-white/30">Nicht gelistet</span>
+          <span className="text-white/30">{t('bestandNotListed')}</span>
         )}
         {item.offers.length > 0 ? (
-          <span className="text-sky-300">{item.offers.length} Angebot{item.offers.length > 1 ? 'e' : ''}</span>
+          <span className="text-sky-300 tabular-nums">{t('bestandOfferCount', { count: item.offers.length })}</span>
         ) : (
-          <span className="text-white/30">Kein Angebot</span>
+          <span className="text-white/30">{t('bestandNoOffer')}</span>
         )}
-        <span className="text-white/50">{item.availableToSell} verfügbar</span>
-        <span className="text-white/50">Floor {item.floorBsd != null ? fmtScout(item.floorBsd) : '—'}</span>
+        <span className="text-white/50 tabular-nums">{t('bestandAvailableCount', { count: item.availableToSell })}</span>
+        <span className="text-white/50 tabular-nums">{t('bestandFloor')} {item.floorBsd != null ? fmtScout(item.floorBsd) : '—'}</span>
       </div>
       {/* Mobile */}
       <div className="md:hidden flex items-center gap-2 flex-wrap mt-0.5 text-[10px] font-mono">
         <MarketBadges hasIpo={item.hasActiveIpo} listedQty={item.listedQty} offerCount={item.offers.length} />
-        <span className="text-white/40">{item.availableToSell} verfüg.</span>
-        <span className="text-white/50">Floor {item.floorBsd != null ? fmtScout(item.floorBsd) : '—'}</span>
+        <span className="text-white/40 tabular-nums">{t('bestandAvailableShort', { count: item.availableToSell })}</span>
+        <span className="text-white/50 tabular-nums">{t('bestandFloor')} {item.floorBsd != null ? fmtScout(item.floorBsd) : '—'}</span>
       </div>
     </>
   );
 }
 
 function VertragCols({ item }: { item: BestandPlayer }) {
+  const t = useTranslations('market');
   const p = item.player;
   const months = p.contractMonthsLeft;
   const contractColor = months <= 6 ? 'text-red-400' : months <= 12 ? 'text-orange-400' : 'text-white/60';
@@ -149,23 +154,23 @@ function VertragCols({ item }: { item: BestandPlayer }) {
     <>
       {/* Desktop */}
       <div className="hidden md:flex items-center gap-3 shrink-0 text-[11px] font-mono">
-        <span className="text-white/50">{p.age} J.</span>
+        <span className="text-white/50 tabular-nums">{p.age} {t('bestandAgeYears')}</span>
         <span className="text-white/40">{p.country || '—'}</span>
-        <span className={cn('font-bold', contractColor)}>{months}M</span>
+        <span className={cn('font-bold tabular-nums', contractColor)}>{months}M</span>
         <StatusPill status={p.status} />
         <span className="text-white/40 flex items-center gap-1">
           {clubData?.logo ? (
-            <img src={clubData.logo} alt="" className="w-3.5 h-3.5 rounded-full object-cover" />
+            <img src={clubData.logo} alt="" className="size-3.5 rounded-full object-cover" />
           ) : clubData?.colors?.primary ? (
-            <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: clubData.colors.primary }} />
+            <div className="size-3.5 rounded-full" style={{ backgroundColor: clubData.colors.primary }} />
           ) : null}
           {p.club}
         </span>
       </div>
       {/* Mobile */}
       <div className="md:hidden flex items-center gap-2 flex-wrap mt-0.5 text-[10px] font-mono">
-        <span className="text-white/50">{p.age} J.</span>
-        <span className={cn('font-bold', contractColor)}>{months}M</span>
+        <span className="text-white/50 tabular-nums">{p.age} {t('bestandAgeYears')}</span>
+        <span className={cn('font-bold tabular-nums', contractColor)}>{months}M</span>
         <StatusPill status={p.status} />
       </div>
     </>
@@ -177,13 +182,13 @@ function VertragCols({ item }: { item: BestandPlayer }) {
 // ============================================
 
 function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onSellClick }: BestandPlayerRowProps) {
+  const t = useTranslations('market');
   const p = item.player;
-  const clubData = p.clubId ? getClub(p.clubId) : null;
 
   return (
     <div
       className={cn(
-        'bg-surface-base border border-white/[0.06] rounded-xl transition-all hover:bg-surface-elevated hover:border-white/[0.12] border-l-2',
+        'bg-surface-base border border-white/[0.06] rounded-xl transition-colors hover:bg-surface-elevated hover:border-white/[0.12] border-l-2',
       )}
       style={{ borderLeftColor: posTintColors[p.pos] }}
     >
@@ -194,7 +199,7 @@ function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onS
             <Link href={`/player/${p.id}`} className="hover:opacity-80 transition-opacity">
               <PlayerIdentity player={p} size="sm" showMeta={false} showStatus={false} />
             </Link>
-            {inLineup && <span className="shrink-0" title="In Aufstellung"><Shield className="w-3 h-3 text-green-500" /></span>}
+            {inLineup && <span className="shrink-0" title={t('bestandInLineup')}><Shield className="size-3 text-green-500" aria-hidden="true" /></span>}
           </div>
 
           {/* Lens columns */}
@@ -208,18 +213,18 @@ function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onS
         <div className="shrink-0 flex items-center gap-2">
           {lens === 'performance' && (
             <div className="text-right hidden sm:block">
-              <div className="text-xs font-mono font-bold text-gold">{fmtScout(item.valueBsd * item.quantity)}</div>
-              <div className={cn('text-[9px] font-mono', item.pnlBsd >= 0 ? 'text-green-500' : 'text-red-300')}>
+              <div className="text-xs font-mono font-bold tabular-nums text-gold">{fmtScout(item.valueBsd * item.quantity)}</div>
+              <div className={cn('text-[9px] font-mono tabular-nums', item.pnlBsd >= 0 ? 'text-green-500' : 'text-red-300')}>
                 {item.pnlBsd >= 0 ? '+' : ''}{fmtScout(Math.round(item.pnlBsd))}
               </div>
             </div>
           )}
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onSellClick(p.id); }}
-            className="p-2 rounded-lg bg-white/5 border border-white/10 text-white/40 hover:text-gold hover:border-gold/20 hover:bg-gold/5 transition-all"
-            title="Verkaufen"
+            className="p-2 rounded-lg bg-white/5 border border-white/10 text-white/40 hover:text-gold hover:border-gold/20 hover:bg-gold/5 transition-colors"
+            aria-label={t('bestandSell')}
           >
-            <DollarSign className="w-3.5 h-3.5" />
+            <DollarSign className="size-3.5" aria-hidden="true" />
           </button>
         </div>
       </div>

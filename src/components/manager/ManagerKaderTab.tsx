@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui';
@@ -22,12 +23,12 @@ import type { NextFixtureInfo } from '@/lib/services/fixtures';
 // EVENT USAGE BADGE
 // ============================================
 
-function EventUsageBadge({ count }: { count: number }) {
+function EventUsageBadge({ count, title }: { count: number; title: string }) {
   if (count === 0) return null;
   return (
     <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-green-500/10 border border-green-500/20 rounded text-[9px] font-bold text-green-500"
-          title={`In ${count} aktiven Event(s) aufgestellt`}>
-      <Shield className="w-2.5 h-2.5" />{count}
+          title={title}>
+      <Shield className="size-2.5" aria-hidden="true" />{count}
     </span>
   );
 }
@@ -39,7 +40,7 @@ function EventUsageBadge({ count }: { count: number }) {
 function ScoreCircle({ score }: { score: number | null }) {
   if (score == null) {
     return (
-      <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center">
+      <div className="size-7 md:size-10 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center">
         <span className="text-[9px] md:text-[10px] font-mono text-white/20">&mdash;</span>
       </div>
     );
@@ -47,8 +48,8 @@ function ScoreCircle({ score }: { score: number | null }) {
   const bg = score >= 100 ? 'bg-gold/15 border-gold/30' : score >= 70 ? 'bg-white/[0.06] border-white/15' : 'bg-red-500/10 border-red-400/20';
   const text = score >= 100 ? 'text-gold' : score >= 70 ? 'text-white' : 'text-red-300';
   return (
-    <div className={cn('w-7 h-7 md:w-10 md:h-10 rounded-full border flex items-center justify-center', bg)}>
-      <span className={cn('text-xs md:text-sm font-black font-mono', text)}>{score}</span>
+    <div className={cn('size-7 md:size-10 rounded-full border flex items-center justify-center', bg)}>
+      <span className={cn('text-xs md:text-sm font-black font-mono tabular-nums', text)}>{score}</span>
     </div>
   );
 }
@@ -136,15 +137,15 @@ function CompactPickerRow({ player, scores, minutes, onClick }: {
       {/* Score mini circle 28px */}
       {lastScore != null ? (
         <div className={cn(
-          'w-7 h-7 rounded-full border flex items-center justify-center shrink-0',
+          'size-7 rounded-full border flex items-center justify-center shrink-0',
           lastScore >= 100 ? 'bg-gold/15 border-gold/30' : lastScore >= 70 ? 'bg-white/[0.06] border-white/15' : 'bg-red-500/10 border-red-400/20',
         )}>
-          <span className={cn('text-[10px] font-black font-mono',
+          <span className={cn('text-[10px] font-black font-mono tabular-nums',
             lastScore >= 100 ? 'text-gold' : lastScore >= 70 ? 'text-white' : 'text-red-300',
           )}>{lastScore}</span>
         </div>
       ) : (
-        <div className="w-7 h-7 rounded-full bg-white/[0.03] border border-white/[0.06] flex items-center justify-center shrink-0">
+        <div className="size-7 rounded-full bg-white/[0.03] border border-white/[0.06] flex items-center justify-center shrink-0">
           <span className="text-[9px] font-mono text-white/15">&mdash;</span>
         </div>
       )}
@@ -156,23 +157,25 @@ function CompactPickerRow({ player, scores, minutes, onClick }: {
 // FULL PLAYER ROW (for below-pitch list + desktop "Alle" view)
 // ============================================
 
-function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAssigned }: {
+function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAssigned, eventUsageTitle, inLineupTitle }: {
   player: Player;
   minutes: number[] | undefined;
   scores: number[] | undefined;
   nextFixture: NextFixtureInfo | undefined;
   eventCount: number;
   isAssigned: boolean;
+  eventUsageTitle: string;
+  inLineupTitle: string;
 }) {
+  const t = useTranslations('market');
   const p = player;
-  const clubData = p.clubId ? getClub(p.clubId) : null;
   const borderColor = p.pos === 'GK' ? '#34d399' : p.pos === 'DEF' ? '#fbbf24' : p.pos === 'MID' ? '#38bdf8' : '#fb7185';
   const lastScore = scores && scores.length > 0 ? scores[0] : null;
 
   return (
     <div
       className={cn(
-        'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border-l-2 transition-all text-left',
+        'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border-l-2 transition-colors text-left',
         'bg-white/[0.02] border border-white/[0.06]',
         isAssigned && 'bg-green-500/[0.06] border-green-500/20',
       )}
@@ -183,18 +186,18 @@ function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAss
         <div className="flex items-center gap-1.5">
           <PlayerIdentity player={p} size="md" showStatus={false} />
           {isAssigned && (
-            <span className="shrink-0" title="In Aufstellung">
-              <Shield className="w-3 h-3 text-green-500" />
+            <span className="shrink-0" title={inLineupTitle}>
+              <Shield className="size-3 text-green-500" aria-hidden="true" />
             </span>
           )}
         </div>
         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
           <StatusPill status={p.status} />
-          <EventUsageBadge count={eventCount} />
-          <span className="text-[10px] font-mono text-white/40">
-            {p.stats.matches}<span className="text-white/25">S</span>{' '}
-            {p.stats.goals}<span className="text-white/25">T</span>{' '}
-            {p.stats.assists}<span className="text-white/25">A</span>
+          <EventUsageBadge count={eventCount} title={eventUsageTitle} />
+          <span className="text-[10px] font-mono text-white/40 tabular-nums">
+            {p.stats.matches}<span className="text-white/25">{t('statMatchesAbbr')}</span>{' '}
+            {p.stats.goals}<span className="text-white/25">{t('statGoalsAbbr')}</span>{' '}
+            {p.stats.assists}<span className="text-white/25">{t('statAssistsAbbr')}</span>
           </span>
           <MinutesPill minutes={minutes} />
           <NextMatchBadge fixture={nextFixture} />
@@ -220,6 +223,7 @@ interface ManagerKaderTabProps {
 }
 
 export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderTabProps) {
+  const t = useTranslations('market');
   const { user } = useUser();
   const [squadSize, setSquadSize] = useState<SquadSize>(() => {
     if (typeof window === 'undefined') return DEFAULT_SQUAD_SIZE;
@@ -245,6 +249,14 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
 
   const availableFormations = FORMATIONS[squadSize];
   const formation = useMemo(() => availableFormations.find(f => f.id === formationId) ?? availableFormations[0], [formationId, availableFormations]);
+
+  // Position labels map
+  const POS_LABEL: Record<Pos, string> = {
+    GK: t('kaderPosGk'),
+    DEF: t('kaderPosDef'),
+    MID: t('kaderPosMid'),
+    ATT: t('kaderPosAtt'),
+  };
 
   // Load presets from localStorage
   useEffect(() => {
@@ -382,9 +394,6 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
     });
   }, [ownedPlayers, sortBy]);
 
-  // The side panel position label
-  const POS_LABEL: Record<Pos, string> = { GK: 'Torwart', DEF: 'Verteidiger', MID: 'Mittelfeldspieler', ATT: 'Angreifer' };
-
   // ── Desktop Side Panel (right of pitch) ──
   const sidePanel = (
     <div className="flex flex-col h-full min-h-0">
@@ -393,17 +402,17 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
         <div className="flex items-center gap-1">
           <button
             onClick={() => { setSidePanelPos(null); setSidePanelSlot(null); }}
-            className={cn('px-2.5 py-1 rounded-lg text-[10px] font-black transition-all',
+            className={cn('px-2.5 py-1 rounded-lg text-[10px] font-black transition-colors',
               !sidePanelPos ? 'bg-gold/15 text-gold' : 'text-white/40 hover:text-white/70'
             )}
-          >Alle</button>
+          >{t('kaderAllTab')}</button>
           {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map(pos => {
             const active = sidePanelPos === pos;
             return (
               <button
                 key={pos}
                 onClick={() => { setSidePanelPos(pos); setSidePanelSlot(null); }}
-                className={cn('px-2.5 py-1 rounded-lg text-[10px] font-black transition-all',
+                className={cn('px-2.5 py-1 rounded-lg text-[10px] font-black transition-colors',
                   active ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/70'
                 )}
                 style={active ? { color: getPosColor(pos) } : undefined}
@@ -413,11 +422,11 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
         </div>
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-white/30" aria-hidden="true" />
           <input
             type="text"
-            placeholder="Spieler suchen..."
-            aria-label="Spieler suchen"
+            placeholder={t('kaderSearchPlaceholder')}
+            aria-label={t('kaderSearchLabel')}
             value={pickerSearch}
             onChange={e => setPickerSearch(e.target.value)}
             className="w-full pl-8 pr-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-gold/40 placeholder:text-white/30"
@@ -429,9 +438,9 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
       <div className="px-3 pt-2.5 pb-1 shrink-0 flex items-center justify-between">
         <div className="text-xs font-black uppercase text-white/60">
           {sidePanelPos ? (
-            <>Wähle deinen <span style={{ color: getPosColor(sidePanelPos) }}>{POS_LABEL[sidePanelPos]}</span></>
+            <>{t('kaderPickTitle', { pos: '' })}<span style={{ color: getPosColor(sidePanelPos) }}>{POS_LABEL[sidePanelPos]}</span></>
           ) : (
-            <>Dein Kader ({ownedPlayers.length})</>
+            <>{t('kaderYourSquad', { count: ownedPlayers.length })}</>
           )}
         </div>
         <div className="flex items-center gap-0.5">
@@ -439,10 +448,10 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             <button
               key={s}
               onClick={() => setSortBy(s)}
-              className={cn('px-1.5 py-0.5 rounded text-[9px] font-bold transition-all',
+              className={cn('px-1.5 py-0.5 rounded text-[9px] font-bold transition-colors',
                 sortBy === s ? 'bg-gold/15 text-gold' : 'text-white/30 hover:text-white/60'
               )}
-            >{s === 'perf' ? 'L5' : s === 'price' ? 'Wert' : 'A-Z'}</button>
+            >{s === 'perf' ? 'L5' : s === 'price' ? t('kaderSortValue') : 'A-Z'}</button>
           ))}
         </div>
       </div>
@@ -456,12 +465,12 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
               <PositionBadge pos={sidePanelPos} size="lg" />
               <div className="text-xs text-white/30 mt-2">
                 {ownedPlayers.filter(p => p.pos === sidePanelPos).length === 0
-                  ? `Keine eigenen ${sidePanelPos}-Spieler`
-                  : 'Keine Spieler gefunden'}
+                  ? t('kaderNoOwnedPos', { pos: sidePanelPos })
+                  : t('kaderNoPlayersFound')}
               </div>
-              <Link href="/market?tab=kaufen" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gold/15 text-gold text-[10px] font-bold rounded-lg hover:bg-gold/25 transition-all mt-2">
-                <ShoppingCart className="w-3 h-3" />
-                Spieler kaufen
+              <Link href="/market?tab=kaufen" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gold/15 text-gold text-[10px] font-bold rounded-lg hover:bg-gold/25 transition-colors mt-2">
+                <ShoppingCart className="size-3" aria-hidden="true" />
+                {t('kaderBuyPlayers')}
               </Link>
             </div>
           ) : (
@@ -479,10 +488,10 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
           // All owned players
           sortedOwned.length === 0 ? (
             <div className="text-center py-8">
-              <div className="text-xs text-white/30 mb-2">Noch keine Spieler im Kader</div>
-              <Link href="/market?tab=kaufen" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gold/15 text-gold text-[10px] font-bold rounded-lg hover:bg-gold/25 transition-all">
-                <ShoppingCart className="w-3 h-3" />
-                Spieler kaufen
+              <div className="text-xs text-white/30 mb-2">{t('kaderNoPlayersYet')}</div>
+              <Link href="/market?tab=kaufen" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gold/15 text-gold text-[10px] font-bold rounded-lg hover:bg-gold/25 transition-colors">
+                <ShoppingCart className="size-3" aria-hidden="true" />
+                {t('kaderBuyPlayers')}
               </Link>
             </div>
           ) : (
@@ -520,7 +529,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
               key={size}
               onClick={() => handleSquadSizeChange(size)}
               className={cn(
-                'px-3 py-1 rounded-full text-xs font-black transition-all',
+                'px-3 py-1 rounded-full text-xs font-black transition-colors',
                 squadSize === size
                   ? 'bg-gold text-black'
                   : 'text-white/50 hover:text-white'
@@ -536,7 +545,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             key={f.id}
             onClick={() => handleFormationChange(f.id)}
             className={cn(
-              'px-3 py-1.5 rounded-full text-xs font-bold border transition-all',
+              'px-3 py-1.5 rounded-full text-xs font-bold border transition-colors',
               formationId === f.id
                 ? 'bg-gold/15 border-gold/30 text-gold'
                 : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:border-white/20'
@@ -550,13 +559,13 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
           <div className="relative">
             <button
               onClick={() => setShowPresets(!showPresets)}
-              aria-label="Vorlagen"
+              aria-label={t('kaderPresetsLabel')}
               aria-expanded={showPresets}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 border border-white/10 text-white/50 hover:text-white transition-colors"
             >
-              <Save className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Vorlagen</span>
-              <ChevronDown className={cn('w-3 h-3 transition-transform', showPresets && 'rotate-180')} />
+              <Save className="size-3.5" aria-hidden="true" />
+              <span className="hidden sm:inline">{t('kaderPresetsLabel')}</span>
+              <ChevronDown className={cn('size-3 transition-transform', showPresets && 'rotate-180')} aria-hidden="true" />
             </button>
             {showPresets && (
               <div className="absolute right-0 top-full mt-1 w-64 bg-[#1a1a2e] border border-white/15 rounded-xl shadow-2xl z-50 p-3 space-y-2">
@@ -564,13 +573,13 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                   <input
                     type="text"
                     placeholder="Name..."
-                    aria-label="Vorlagenname"
+                    aria-label={t('kaderPresetNameLabel')}
                     value={presetName}
                     onChange={e => setPresetName(e.target.value)}
                     className="flex-1 px-2 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-gold/40 placeholder:text-white/30"
                   />
                   <button onClick={handleSavePreset} disabled={!presetName.trim()} className="px-2 py-1.5 bg-gold/20 text-gold text-xs font-bold rounded-lg disabled:opacity-30">
-                    Speichern
+                    {t('kaderSavePreset')}
                   </button>
                 </div>
                 {presets.length > 0 && <div className="border-t border-white/10 pt-2 space-y-1">
@@ -580,21 +589,21 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                         <div className="font-medium truncate">{p.name}</div>
                         <div className="text-[10px] text-white/30">{p.formationId}</div>
                       </button>
-                      <button onClick={() => handleDeletePreset(p.name)} aria-label={`Vorlage ${p.name} löschen`} className="text-white/30 hover:text-red-400 p-1"><X className="w-3 h-3" aria-hidden="true" /></button>
+                      <button onClick={() => handleDeletePreset(p.name)} aria-label={t('kaderDeletePreset', { name: p.name })} className="text-white/30 hover:text-red-400 p-1"><X className="size-3" aria-hidden="true" /></button>
                     </div>
                   ))}
                 </div>}
-                {presets.length === 0 && <div className="text-[10px] text-white/30 text-center py-2">Noch keine Vorlagen</div>}
+                {presets.length === 0 && <div className="text-[10px] text-white/30 text-center py-2">{t('kaderNoPresets')}</div>}
               </div>
             )}
           </div>
           <button
             onClick={() => { setAssignments(new Map()); setSidePanelPos(null); setSidePanelSlot(null); }}
-            aria-label="Aufstellung zurücksetzen"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all"
+            aria-label={t('kaderResetLabel')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 border border-white/10 text-white/50 hover:text-white transition-colors"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Reset</span>
+            <RotateCcw className="size-3.5" aria-hidden="true" />
+            <span className="hidden sm:inline">{t('kaderReset')}</span>
           </button>
         </div>
       </div>
@@ -622,16 +631,16 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             <div className="flex items-center gap-3 px-4 pt-3 pb-2">
               <button
                 onClick={() => { setPickerOpen(null); setSidePanelPos(null); setSidePanelSlot(null); }}
-                aria-label="Schließen"
+                aria-label={t('kaderClose')}
                 className="p-1.5 -ml-1.5 rounded-lg hover:bg-white/10 transition-colors"
               >
-                <X className="w-5 h-5 text-white/60" aria-hidden="true" />
+                <X className="size-5 text-white/60" aria-hidden="true" />
               </button>
               <div className="flex-1">
-                <h3 className="font-black text-base">
-                  <span style={{ color: getPosColor(pickerOpen.pos) }}>{POS_LABEL[pickerOpen.pos]}</span> wählen
+                <h3 className="font-black text-base text-balance">
+                  {t('kaderPickPos', { pos: '' })}<span style={{ color: getPosColor(pickerOpen.pos) }}>{POS_LABEL[pickerOpen.pos]}</span>
                 </h3>
-                <div className="text-[10px] text-white/40">{pickerPlayers.length} verfügbar</div>
+                <div className="text-[10px] text-white/40 tabular-nums">{t('kaderAvailableCount', { count: pickerPlayers.length })}</div>
               </div>
               {/* Sort pills */}
               <div className="flex items-center gap-0.5">
@@ -639,7 +648,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                   <button
                     key={s}
                     onClick={() => setSortBy(s === 'perf' ? 'perf' : 'name')}
-                    className={cn('px-2 py-1 rounded text-[10px] font-bold',
+                    className={cn('px-2 py-1 rounded text-[10px] font-bold transition-colors',
                       sortBy === s ? 'bg-gold/15 text-gold' : 'text-white/30'
                     )}
                   >{s === 'perf' ? 'L5' : 'A-Z'}</button>
@@ -649,11 +658,11 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             {/* Search */}
             <div className="px-4 pb-2.5">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-white/30" aria-hidden="true" />
                 <input
                   type="text"
-                  placeholder="Spieler suchen..."
-                  aria-label="Spieler suchen"
+                  placeholder={t('kaderSearchPlaceholder')}
+                  aria-label={t('kaderSearchLabel')}
                   value={pickerSearch}
                   onChange={e => setPickerSearch(e.target.value)}
                   autoFocus
@@ -668,18 +677,18 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             {pickerPlayers.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 px-6">
                 <PositionBadge pos={pickerOpen.pos} size="lg" />
-                <div className="text-sm text-white/30 mt-3 text-center">
+                <div className="text-sm text-white/30 mt-3 text-center text-pretty">
                   {ownedPlayers.filter(p => p.pos === pickerOpen.pos).length === 0
-                    ? `Du besitzt keine ${POS_LABEL[pickerOpen.pos]}`
-                    : 'Keine Spieler gefunden'}
+                    ? t('kaderNoOwnedPosAlt', { pos: POS_LABEL[pickerOpen.pos] })
+                    : t('kaderNoPlayersFound')}
                 </div>
                 <Link
                   href="/market?tab=kaufen"
                   onClick={() => { setPickerOpen(null); setSidePanelPos(null); setSidePanelSlot(null); }}
-                  className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-gold/15 text-gold text-xs font-bold rounded-xl hover:bg-gold/25 transition-all"
+                  className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-gold/15 text-gold text-xs font-bold rounded-xl hover:bg-gold/25 transition-colors"
                 >
-                  <ShoppingCart className="w-3.5 h-3.5" />
-                  Spieler kaufen
+                  <ShoppingCart className="size-3.5" aria-hidden="true" />
+                  {t('kaderBuyPlayers')}
                 </Link>
               </div>
             ) : (
@@ -701,7 +710,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                       <div className="shrink-0 flex items-center gap-2.5">
                         <L5ScoreBars scores={scoresMap?.get(p.id)} minutes={minutesMap?.get(p.id)} />
                         <div className="w-10 text-right">
-                          <div className={cn('text-lg font-black font-mono leading-none', scoreColor)}>
+                          <div className={cn('text-lg font-black font-mono tabular-nums leading-none', scoreColor)}>
                             {lastScore ?? '–'}
                           </div>
                           <div className="text-[9px] text-white/25 font-mono">Score</div>
@@ -719,18 +728,18 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
       {/* ═══ Below-pitch player list (mobile + small desktop without side panel) ═══ */}
       <div className="lg:hidden">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-black uppercase">Alle Spieler ({ownedPlayers.length})</h3>
+          <h3 className="text-sm font-black uppercase text-balance">{t('kaderAllPlayers', { count: ownedPlayers.length })}</h3>
           <div className="flex items-center gap-1">
             {(['perf', 'price', 'name'] as const).map(s => (
               <button
                 key={s}
                 onClick={() => setSortBy(s)}
                 className={cn(
-                  'px-2 py-1 rounded-lg text-[10px] font-bold transition-all',
+                  'px-2 py-1 rounded-lg text-[10px] font-bold transition-colors',
                   sortBy === s ? 'bg-gold/15 text-gold' : 'text-white/40 hover:text-white/70'
                 )}
               >
-                {s === 'perf' ? 'L5' : s === 'price' ? 'Wert' : 'Name'}
+                {s === 'perf' ? 'L5' : s === 'price' ? t('kaderSortValue') : t('kaderSortNameLabel')}
               </button>
             ))}
           </div>
@@ -745,12 +754,14 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
               nextFixture={getNextFixture(p)}
               eventCount={getEventCount(p.id)}
               isAssigned={assignedIds.has(p.id)}
+              eventUsageTitle={t('kaderEventUsage', { count: getEventCount(p.id) })}
+              inLineupTitle={t('bestandInLineup')}
             />
           ))}
           {ownedPlayers.length === 0 && (
             <Card className="p-8 text-center">
-              <div className="text-white/30 mb-2">Noch keine Spieler im Kader</div>
-              <div className="text-sm text-white/50">Verpflichte Spieler über Scouting oder Transferliste</div>
+              <div className="text-white/30 mb-2">{t('kaderNoPlayersYet')}</div>
+              <div className="text-sm text-white/50 text-pretty">{t('kaderEmptyDesc')}</div>
             </Card>
           )}
         </div>

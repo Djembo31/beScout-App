@@ -68,7 +68,7 @@ export default function BestandToolbar({
           <select
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
-            aria-label="Sortieren nach"
+            aria-label={t('bestandSortLabel')}
             className="px-2 py-2 bg-white/5 border border-white/10 rounded-xl text-[11px] text-white/60 focus:outline-none"
           >
             {sortOptions.map(opt => (
@@ -93,7 +93,7 @@ export default function BestandToolbar({
 
         <button
           onClick={() => onShowFiltersChange(!showFilters)}
-          aria-label="Filter anzeigen"
+          aria-label={t('bestandFilterLabel')}
           aria-expanded={showFilters}
           className={cn(
             'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all shrink-0',

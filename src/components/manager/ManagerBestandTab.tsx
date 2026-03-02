@@ -231,35 +231,35 @@ export default function ManagerBestandTab({
       {/* Summary Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-surface-elevated border border-white/[0.10] rounded-xl px-4 py-3 shadow-card-sm">
-          <div className="text-[10px] text-white/50 uppercase  font-semibold">Spieler</div>
-          <div className="text-xl font-black font-mono">{summary.totalPlayers}</div>
+          <div className="text-[10px] text-white/50 uppercase font-semibold">{t('bestandSummaryPlayers')}</div>
+          <div className="text-xl font-black font-mono tabular-nums">{summary.totalPlayers}</div>
         </div>
         <div className="bg-gold/[0.05] border border-gold/[0.12] rounded-xl px-4 py-3 shadow-card-sm">
-          <div className="text-[10px] text-white/50 uppercase  font-semibold">Kaderwert</div>
-          <div className="text-xl font-black font-mono text-gold" style={{ textShadow: '0 0 10px rgba(255,215,0,0.3)' }}>{fmtScout(Math.round(summary.totalValue))}</div>
+          <div className="text-[10px] text-white/50 uppercase font-semibold">{t('bestandSummarySquadValue')}</div>
+          <div className="text-xl font-black font-mono tabular-nums text-gold" style={{ textShadow: '0 0 10px rgba(255,215,0,0.3)' }}>{fmtScout(Math.round(summary.totalValue))}</div>
         </div>
         <div className={cn('rounded-xl px-4 py-3 shadow-card-sm border', summary.pnl >= 0 ? 'bg-vivid-green/[0.05] border-vivid-green/[0.12]' : 'bg-vivid-red/[0.05] border-vivid-red/[0.12]')}>
-          <div className="text-[10px] text-white/50 uppercase  font-semibold">G/V</div>
-          <div className={cn('text-xl font-black font-mono', getPnlColor(summary.pnl))}>
+          <div className="text-[10px] text-white/50 uppercase font-semibold">{t('bestandSummaryPnl')}</div>
+          <div className={cn('text-xl font-black font-mono tabular-nums', getPnlColor(summary.pnl))}>
             {summary.pnl >= 0 ? '+' : ''}{fmtScout(Math.round(summary.pnl))}
             <span className="text-sm ml-1">({summary.pnlPct >= 0 ? '+' : ''}{summary.pnlPct.toFixed(1)}%)</span>
           </div>
         </div>
         <div className="bg-surface-elevated border border-white/[0.10] rounded-xl px-4 py-3 shadow-card-sm">
-          <div className="text-[10px] text-white/50 uppercase  font-semibold">Aktivität</div>
+          <div className="text-[10px] text-white/50 uppercase font-semibold">{t('bestandSummaryActivity')}</div>
           <div className="flex items-center gap-3 mt-1">
             {summary.totalListed > 0 && (
               <span className="flex items-center gap-1 text-xs font-bold text-gold">
-                <Tag className="w-3 h-3" />{summary.totalListed} gelistet
+                <Tag className="size-3" aria-hidden="true" />{t('bestandListedCount', { count: summary.totalListed })}
               </span>
             )}
             {summary.totalOffers > 0 && (
               <span className="flex items-center gap-1 text-xs font-bold text-sky-300">
-                <MessageSquare className="w-3 h-3" />{summary.totalOffers} Angebote
+                <MessageSquare className="size-3" aria-hidden="true" />{t('bestandOfferCount', { count: summary.totalOffers })}
               </span>
             )}
             {summary.totalListed === 0 && summary.totalOffers === 0 && (
-              <span className="text-xs text-white/30">Keine</span>
+              <span className="text-xs text-white/30">{t('bestandSummaryNone')}</span>
             )}
           </div>
         </div>
