@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Search, X, Share2, ChevronLeft, BarChart3, ArrowLeftRight } from 'lucide-react';
 import { Card, Button, ErrorState, Skeleton, SkeletonCard } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
@@ -18,6 +19,7 @@ const COLORS = ['#38bdf8', '#fb7185', '#fbbf24'];
 export default function ComparePage() {
   const searchParams = useSearchParams();
   const { data: allPlayers = [], isLoading, isError, refetch } = useRawPlayers();
+  const t = useTranslations('compare');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
@@ -69,7 +71,7 @@ export default function ComparePage() {
   const handleShare = () => {
     const params = selectedIds.map((id, i) => `p${i + 1}=${id}`).join('&');
     const url = `${window.location.origin}/compare?${params}`;
-    navigator.clipboard.writeText(url).then(() => alert('Link kopiert!')).catch(err => console.error('[Compare] Clipboard write failed:', err));
+    navigator.clipboard.writeText(url).then(() => alert(t('linkCopied'))).catch(err => console.error('[Compare] Clipboard write failed:', err));
   };
 
   // Build radar datasets
@@ -90,14 +92,14 @@ export default function ComparePage() {
 
   // Stats rows for comparison table
   const statRows = [
-    { label: 'Spiele', key: 'matches' as const },
-    { label: 'Tore', key: 'goals' as const },
+    { label: t('matches'), key: 'matches' as const },
+    { label: t('goals'), key: 'goals' as const },
     { label: 'Assists', key: 'assists' as const },
     { label: 'Clean Sheets', key: 'clean_sheets' as const },
     { label: 'L5', key: 'perf_l5' as const },
     { label: 'L15', key: 'perf_l15' as const },
-    { label: 'Floor Preis', key: 'floor_price' as const, isBsd: true },
-    { label: 'Alter', key: 'age' as const },
+    { label: t('floorPrice'), key: 'floor_price' as const, isBsd: true },
+    { label: t('age'), key: 'age' as const },
   ];
 
   if (isLoading) {
@@ -133,15 +135,15 @@ export default function ComparePage() {
           </Link>
           <div>
             <h1 className="text-xl md:text-2xl font-black text-balance flex items-center gap-2">
-              <ArrowLeftRight className="size-5 text-sky-400" />
-              Spieler vergleichen
+              <ArrowLeftRight className="size-5 text-sky-400" aria-hidden="true" />
+              {t('title')}
             </h1>
-            <p className="text-xs text-white/40 text-pretty">Bis zu 3 Spieler side-by-side</p>
+            <p className="text-xs text-white/40 text-pretty">{t('subtitle')}</p>
           </div>
         </div>
         {selectedPlayers.length >= 2 && (
           <Button variant="outline" size="sm" onClick={handleShare}>
-            <Share2 className="size-4" /> Link teilen
+            <Share2 className="size-4" aria-hidden="true" /> {t('shareLink')}
           </Button>
         )}
       </div>
@@ -157,7 +159,7 @@ export default function ComparePage() {
                   <button
                     onClick={() => handleRemovePlayer(idx)}
                     className="absolute top-1 right-1 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white/10 hover:bg-red-500/20 rounded-full transition-colors"
-                    aria-label="Spieler entfernen"
+                    aria-label={t('removePlayer')}
                   >
                     <X className="size-3" />
                   </button>
@@ -174,7 +176,7 @@ export default function ComparePage() {
                   className="w-full p-3 border border-dashed border-white/20 rounded-2xl hover:border-white/40 transition-colors flex flex-col items-center justify-center gap-2 min-h-[120px]"
                 >
                   <Search className="size-5 text-white/30" />
-                  <span className="text-xs text-white/30">Spieler {idx + 1}</span>
+                  <span className="text-xs text-white/30">{t('playerSlot', { idx: idx + 1 })}</span>
                 </button>
               )}
             </div>
@@ -190,7 +192,7 @@ export default function ComparePage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Spieler suchen..."
+            placeholder={t('searchPlaceholder')}
             className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40"
             autoFocus={activeSlot !== null}
           />
@@ -218,8 +220,8 @@ export default function ComparePage() {
       {selectedPlayers.length >= 2 && (
         <Card className="p-4 md:p-6">
           <h3 className="font-black text-lg text-balance mb-4 flex items-center gap-2">
-            <BarChart3 className="size-5 text-sky-400" />
-            Radar-Vergleich
+            <BarChart3 className="size-5 text-sky-400" aria-hidden="true" />
+            {t('radarTitle')}
           </h3>
           <div className="flex justify-center max-w-[300px] mx-auto md:max-w-none">
             <RadarChart datasets={radarDatasets} size={280} />
@@ -238,11 +240,11 @@ export default function ComparePage() {
       {/* Stats Comparison Table */}
       {selectedPlayers.length >= 2 && (
         <Card className="p-4 md:p-6 overflow-x-auto">
-          <h3 className="font-black text-lg text-balance mb-4">Statistik-Vergleich</h3>
+          <h3 className="font-black text-lg text-balance mb-4">{t('statsTitle')}</h3>
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10">
-                <th className="text-left py-2 text-white/40 font-medium text-xs">Attribut</th>
+                <th className="text-left py-2 text-white/40 font-medium text-xs">{t('attribute')}</th>
                 {selectedPlayers.map((p, i) => (
                   <th key={p.id} className="text-right py-2 font-medium text-xs" style={{ color: COLORS[i] }}>
                     {p.last_name}
@@ -282,8 +284,8 @@ export default function ComparePage() {
       {selectedPlayers.length < 2 && (
         <div className="text-center py-12">
           <ArrowLeftRight className="size-12 mx-auto mb-4 text-white/10" />
-          <div className="text-white/30 text-sm">Wähle mindestens 2 Spieler zum Vergleichen</div>
-          <div className="text-white/20 text-xs mt-1">Suche oben nach Name, Verein oder Position</div>
+          <div className="text-white/30 text-sm">{t('emptyTitle')}</div>
+          <div className="text-white/20 text-xs mt-1">{t('emptyDesc')}</div>
         </div>
       )}
     </div>

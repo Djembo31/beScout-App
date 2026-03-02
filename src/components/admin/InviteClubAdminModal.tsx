@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -13,14 +14,16 @@ interface InviteClubAdminModalProps {
   onInvited?: () => void;
 }
 
-const ROLES = [
-  { value: 'owner', label: 'Owner', desc: 'Voller Zugang, alle Tabs' },
-  { value: 'admin', label: 'Admin', desc: 'Alles außer Einstellungen' },
-  { value: 'editor', label: 'Editor', desc: 'Content, Events, Spieler, Moderation' },
-];
-
 export default function InviteClubAdminModal({ open, onClose, clubId, clubName, onInvited }: InviteClubAdminModalProps) {
   const { addToast } = useToast();
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
+
+  const ROLES = [
+    { value: 'owner', label: 'Owner', desc: t('roleOwnerDesc') },
+    { value: 'admin', label: 'Admin', desc: t('roleAdminDesc') },
+    { value: 'editor', label: 'Editor', desc: t('roleEditorDesc') },
+  ];
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('admin');
   const [loading, setLoading] = useState(false);
@@ -28,7 +31,7 @@ export default function InviteClubAdminModal({ open, onClose, clubId, clubName, 
   const handleSubmit = async () => {
     const trimmed = email.trim().toLowerCase();
     if (!trimmed || !trimmed.includes('@')) {
-      addToast('Bitte gib eine gültige E-Mail-Adresse ein.', 'error');
+      addToast(t('invalidEmail'), 'error');
       return;
     }
 
@@ -42,16 +45,16 @@ export default function InviteClubAdminModal({ open, onClose, clubId, clubName, 
 
       const data = await res.json();
       if (data.success) {
-        addToast(data.message ?? `${trimmed} eingeladen!`, 'success');
+        addToast(data.message ?? t('invited', { email: trimmed }), 'success');
         onInvited?.();
         onClose();
         setEmail('');
         setRole('admin');
       } else {
-        addToast(data.error ?? 'Einladung fehlgeschlagen.', 'error');
+        addToast(data.error ?? t('inviteFailed'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Netzwerkfehler.', 'error');
+      addToast(err instanceof Error ? err.message : t('networkError'), 'error');
     } finally {
       setLoading(false);
     }
@@ -60,14 +63,14 @@ export default function InviteClubAdminModal({ open, onClose, clubId, clubName, 
   return (
     <Modal
       open={open}
-      title="Club-Admin einladen"
-      subtitle={`Einladung für ${clubName}`}
+      title={t('inviteTitle')}
+      subtitle={t('inviteSubtitle', { club: clubName })}
       onClose={onClose}
       footer={
         <div className="flex gap-2 justify-end">
-          <Button variant="ghost" onClick={onClose} disabled={loading}>Abbrechen</Button>
+          <Button variant="ghost" onClick={onClose} disabled={loading}>{tc('cancel')}</Button>
           <Button variant="gold" onClick={handleSubmit} disabled={loading || !email.trim()}>
-            {loading ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" /> : 'Einladen'}
+            {loading ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : t('invite')}
           </Button>
         </div>
       }
@@ -75,7 +78,7 @@ export default function InviteClubAdminModal({ open, onClose, clubId, clubName, 
       <div className="space-y-4">
         {/* Email */}
         <div>
-          <label htmlFor="invite-email" className="block text-xs text-white/60 mb-1">E-Mail-Adresse *</label>
+          <label htmlFor="invite-email" className="block text-xs text-white/60 mb-1">{t('emailLabel')}</label>
           <input
             id="invite-email"
             type="email"
@@ -90,7 +93,7 @@ export default function InviteClubAdminModal({ open, onClose, clubId, clubName, 
 
         {/* Role */}
         <div>
-          <label className="block text-xs text-white/60 mb-2">Rolle *</label>
+          <label className="block text-xs text-white/60 mb-2">{t('roleLabel')}</label>
           <div className="space-y-2">
             {ROLES.map(r => (
               <label
@@ -119,8 +122,7 @@ export default function InviteClubAdminModal({ open, onClose, clubId, clubName, 
         </div>
 
         <p className="text-xs text-white/30 text-pretty">
-          Der eingeladene Nutzer erhält eine E-Mail mit einem Link zum Passwort-Reset.
-          Falls noch kein Account existiert, wird dieser automatisch erstellt.
+          {t('inviteInfo')}
         </p>
       </div>
     </Modal>

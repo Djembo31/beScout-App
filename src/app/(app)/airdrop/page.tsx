@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Rocket, Trophy, ChevronLeft, TrendingUp, Users, Star } from 'lucide-react';
 import { Card, Skeleton } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
@@ -9,20 +10,13 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useAirdropLeaderboard, useAirdropStats } from '@/lib/queries';
 import type { DbAirdropScore, AirdropTier } from '@/types';
 
-// ── Tier Config ──
-const TIER_CONFIG: Record<AirdropTier, { label: string; color: string; bg: string; border: string }> = {
-  bronze:  { label: 'Bronze',  color: '#CD7F32', bg: 'rgba(205,127,50,0.12)',  border: 'rgba(205,127,50,0.25)' },
-  silver:  { label: 'Silber',  color: '#C0C0C0', bg: 'rgba(192,192,192,0.12)', border: 'rgba(192,192,192,0.25)' },
-  gold:    { label: 'Gold',    color: '#FFD700', bg: 'rgba(255,215,0,0.12)',   border: 'rgba(255,215,0,0.25)' },
-  diamond: { label: 'Diamond', color: '#B9F2FF', bg: 'rgba(185,242,255,0.12)', border: 'rgba(185,242,255,0.25)' },
+// ── Tier Config (labels are static — Bronze/Gold/Diamond are brand names) ──
+const TIER_STYLES: Record<AirdropTier, { color: string; bg: string; border: string }> = {
+  bronze:  { color: '#CD7F32', bg: 'rgba(205,127,50,0.12)',  border: 'rgba(205,127,50,0.25)' },
+  silver:  { color: '#C0C0C0', bg: 'rgba(192,192,192,0.12)', border: 'rgba(192,192,192,0.25)' },
+  gold:    { color: '#FFD700', bg: 'rgba(255,215,0,0.12)',   border: 'rgba(255,215,0,0.25)' },
+  diamond: { color: '#B9F2FF', bg: 'rgba(185,242,255,0.12)', border: 'rgba(185,242,255,0.25)' },
 };
-
-const SCORE_TIPS = [
-  { label: 'Scout Rang aufbauen', desc: 'Trader, Manager & Analyst Skill-Rating steigern', weight: '40%' },
-  { label: 'DPC Mastery leveln', desc: 'DPCs halten, im Fantasy einsetzen, Content erstellen', weight: '25%' },
-  { label: 'Täglich aktiv sein', desc: 'Login-Streak, Trades, Missionen', weight: '20%' },
-  { label: 'Freunde einladen', desc: 'Referral-Code teilen (Founding Scout 3x!)', weight: '15%' },
-];
 
 export default function AirdropPage() {
   const { user } = useUser();
@@ -30,6 +24,18 @@ export default function AirdropPage() {
 
   const { data: leaderboard = [], isLoading } = useAirdropLeaderboard(100);
   const { data: stats } = useAirdropStats();
+  const t = useTranslations('airdrop');
+
+  const TIER_LABELS: Record<AirdropTier, string> = {
+    bronze: 'Bronze', silver: t('tierSilver'), gold: 'Gold', diamond: 'Diamond',
+  };
+
+  const SCORE_TIPS = [
+    { label: t('tipRank'), desc: t('tipRankDesc'), weight: '40%' },
+    { label: t('tipMastery'), desc: t('tipMasteryDesc'), weight: '25%' },
+    { label: t('tipDaily'), desc: t('tipDailyDesc'), weight: '20%' },
+    { label: t('tipReferral'), desc: t('tipReferralDesc'), weight: '15%' },
+  ];
 
   const myEntry = useMemo(() =>
     uid ? leaderboard.find(e => e.user_id === uid) : null,
@@ -45,10 +51,10 @@ export default function AirdropPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-black text-balance flex items-center gap-2">
-            <Rocket className="size-6 text-purple-400" />
-            $SCOUT Airdrop
+            <Rocket className="size-6 text-purple-400" aria-hidden="true" />
+            {t('title')}
           </h1>
-          <p className="text-xs text-white/40 mt-0.5 text-pretty">Sammle Punkte und steige im Rang auf</p>
+          <p className="text-xs text-white/40 mt-0.5 text-pretty">{t('subtitle')}</p>
         </div>
       </div>
 
@@ -57,11 +63,11 @@ export default function AirdropPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 text-center">
             <div className="text-lg font-mono font-black tabular-nums text-white">{stats.total_users}</div>
-            <div className="text-[10px] text-white/40">Teilnehmer</div>
+            <div className="text-[10px] text-white/40">{t('participants')}</div>
           </div>
           <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 text-center">
             <div className="text-lg font-mono font-black tabular-nums text-white">{Math.round(stats.avg_score)}</div>
-            <div className="text-[10px] text-white/40">Avg. Score</div>
+            <div className="text-[10px] text-white/40">{t('avgScore')}</div>
           </div>
           <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 text-center">
             <div className="text-lg font-mono font-black tabular-nums" style={{ color: '#FFD700' }}>{stats.tier_distribution.gold}</div>
@@ -75,8 +81,8 @@ export default function AirdropPage() {
       ) : (
         <Card className="p-5 text-center bg-purple-500/[0.06] border-purple-500/20">
           <Rocket className="size-8 mx-auto mb-2 text-purple-400" />
-          <div className="font-bold text-sm">Der Airdrop startet bald!</div>
-          <div className="text-xs text-white/40 mt-1">Sammle jetzt Punkte durch Trading, Fantasy und Community-Aktivität</div>
+          <div className="font-bold text-sm">{t('comingSoon')}</div>
+          <div className="text-xs text-white/40 mt-1">{t('collectPoints')}</div>
         </Card>
       )}
 
@@ -87,27 +93,27 @@ export default function AirdropPage() {
             <div className="flex items-center gap-3">
               <div
                 className="size-12 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: TIER_CONFIG[myEntry.tier].bg, border: `1px solid ${TIER_CONFIG[myEntry.tier].border}` }}
+                style={{ backgroundColor: TIER_STYLES[myEntry.tier].bg, border: `1px solid ${TIER_STYLES[myEntry.tier].border}` }}
               >
-                <Rocket className="size-6" style={{ color: TIER_CONFIG[myEntry.tier].color }} />
+                <Rocket className="size-6" style={{ color: TIER_STYLES[myEntry.tier].color }} />
               </div>
               <div>
-                <div className="text-xs text-white/50">Dein Rang</div>
-                <div className="text-2xl font-mono font-black tabular-nums" style={{ color: TIER_CONFIG[myEntry.tier].color }}>
+                <div className="text-xs text-white/50">{t('yourRank')}</div>
+                <div className="text-2xl font-mono font-black tabular-nums" style={{ color: TIER_STYLES[myEntry.tier].color }}>
                   #{myEntry.rank}
                 </div>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-xs text-white/50">Score</div>
-              <div className="text-2xl font-mono font-black tabular-nums" style={{ color: TIER_CONFIG[myEntry.tier].color }}>
+              <div className="text-xs text-white/50">{t('score')}</div>
+              <div className="text-2xl font-mono font-black tabular-nums" style={{ color: TIER_STYLES[myEntry.tier].color }}>
                 {myEntry.total_score}
               </div>
               <span
                 className="px-2 py-0.5 rounded-lg text-[10px] font-black"
-                style={{ backgroundColor: TIER_CONFIG[myEntry.tier].bg, color: TIER_CONFIG[myEntry.tier].color, border: `1px solid ${TIER_CONFIG[myEntry.tier].border}` }}
+                style={{ backgroundColor: TIER_STYLES[myEntry.tier].bg, color: TIER_STYLES[myEntry.tier].color, border: `1px solid ${TIER_STYLES[myEntry.tier].border}` }}
               >
-                {TIER_CONFIG[myEntry.tier].label}
+                {TIER_LABELS[myEntry.tier]}
               </span>
             </div>
           </div>
@@ -118,10 +124,10 @@ export default function AirdropPage() {
       <Card className="overflow-hidden">
         <div className="p-4 border-b border-white/10 flex items-center justify-between">
           <h2 className="font-bold text-balance flex items-center gap-2">
-            <Trophy className="size-4 text-gold" />
-            Top 100 Rangliste
+            <Trophy className="size-4 text-gold" aria-hidden="true" />
+            {t('top100')}
           </h2>
-          <div className="text-sm tabular-nums text-white/40">{leaderboard.length} Scouts</div>
+          <div className="text-sm tabular-nums text-white/40">{leaderboard.length} {t('scouts')}</div>
         </div>
 
         {isLoading ? (
@@ -131,13 +137,13 @@ export default function AirdropPage() {
         ) : leaderboard.length === 0 ? (
           <div className="text-center py-12 text-white/40">
             <Rocket className="size-10 mx-auto mb-3 text-white/20" />
-            <div className="text-sm">Noch keine Airdrop-Daten</div>
+            <div className="text-sm">{t('noData')}</div>
           </div>
         ) : (
           <div className="divide-y divide-white/[0.04]">
             {leaderboard.map((entry) => {
               const isMe = entry.user_id === uid;
-              const tier = TIER_CONFIG[entry.tier];
+              const tier = TIER_STYLES[entry.tier];
               const r = entry.rank ?? 999;
               const rankColor = r === 1 ? 'text-gold' : r === 2 ? 'text-zinc-300' : r === 3 ? 'text-amber-600' : 'text-white/50';
               return (
@@ -154,12 +160,12 @@ export default function AirdropPage() {
                         <span className={cn('text-sm font-semibold truncate', isMe && 'text-purple-300')}>
                           {entry.display_name || `@${entry.handle}`}
                         </span>
-                        {isMe && <span className="text-[10px] text-purple-400/60">(Du)</span>}
+                        {isMe && <span className="text-[10px] text-purple-400/60">({t('you')})</span>}
                         <span
                           className="px-1.5 py-0.5 rounded text-[9px] font-black"
                           style={{ backgroundColor: tier.bg, color: tier.color, border: `1px solid ${tier.border}` }}
                         >
-                          {tier.label}
+                          {TIER_LABELS[entry.tier]}
                         </span>
                       </div>
                     </div>
@@ -184,8 +190,8 @@ export default function AirdropPage() {
       {/* How to improve */}
       <Card className="p-4">
         <h3 className="font-bold text-balance flex items-center gap-2 mb-3">
-          <TrendingUp className="size-4 text-green-500" />
-          Wie verbessere ich meinen Score?
+          <TrendingUp className="size-4 text-green-500" aria-hidden="true" />
+          {t('howToImprove')}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {SCORE_TIPS.map(tip => (

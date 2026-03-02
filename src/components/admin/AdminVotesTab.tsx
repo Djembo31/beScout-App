@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Plus, Users, Clock } from 'lucide-react';
 import { Card, Button, Chip, Modal } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -11,6 +12,7 @@ import type { ClubWithAdmin, DbClubVote } from '@/types';
 
 export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
   const { user } = useUser();
+  const t = useTranslations('admin');
   const [votes, setVotes] = useState<DbClubVote[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -48,7 +50,7 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
       setOptions(['', '']);
       const updated = await getAllVotes(club.id);
       setVotes(updated);
-      setMsg({ type: 'success', text: 'Abstimmung erstellt!' });
+      setMsg({ type: 'success', text: t('voteCreated') });
     } catch (err) {
       setMsg({ type: 'error', text: err instanceof Error ? err.message : 'Fehler' });
     } finally {
@@ -67,12 +69,12 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-black">Abstimmungen</h2>
-          <p className="text-xs text-white/50">{active.length} aktiv • {ended.length} beendet</p>
+          <h2 className="text-xl font-black text-balance">{t('votesTitle')}</h2>
+          <p className="text-xs text-white/50">{active.length} {t('votesActive')} • {ended.length} {t('votesEnded')}</p>
         </div>
         <Button variant="gold" onClick={() => setModalOpen(true)}>
-          <Plus className="w-4 h-4" />
-          Neue Abstimmung
+          <Plus className="size-4" aria-hidden="true" />
+          {t('newVote')}
         </Button>
       </div>
 
@@ -80,7 +82,7 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
         <div className="space-y-3">{[...Array(3)].map((_, i) => <Card key={i} className="h-24 animate-pulse" />)}</div>
       ) : votes.length === 0 ? (
         <Card className="p-12 text-center">
-          <div className="text-white/30 font-bold">Keine Abstimmungen</div>
+          <div className="text-white/30 font-bold">{t('noVotes')}</div>
         </Card>
       ) : (
         <div className="space-y-4">
@@ -93,7 +95,7 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
               <Card key={vote.id} className={cn('p-4', !isActive && 'opacity-60')}>
                 <div className="flex items-start justify-between mb-3">
                   <div className="font-bold line-clamp-2 flex-1">{vote.question}</div>
-                  <Chip className={isActive ? 'bg-green-500/15 text-green-500 border-green-500/25' : 'bg-white/5 text-white/50 border-white/10'}>{isActive ? 'Aktiv' : 'Beendet'}</Chip>
+                  <Chip className={isActive ? 'bg-green-500/15 text-green-500 border-green-500/25' : 'bg-white/5 text-white/50 border-white/10'}>{isActive ? t('activeLabel') : t('endedLabel')}</Chip>
                 </div>
                 <div className="space-y-1.5 mb-3">
                   {(vote.options as { label: string; votes: number }[]).map((opt, idx) => {
@@ -112,9 +114,9 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
                   })}
                 </div>
                 <div className="flex items-center justify-between text-xs text-white/50">
-                  <span><Users className="w-3 h-3 inline mr-1" />{vote.total_votes} Stimmen</span>
-                  <span><Clock className="w-3 h-3 inline mr-1" />{diffMs > 0 ? `${d}d ${h}h` : 'Beendet'}</span>
-                  {vote.cost_bsd > 0 && <span>{formatScout(vote.cost_bsd)} $SCOUT/Stimme</span>}
+                  <span><Users className="size-3 inline mr-1" aria-hidden="true" />{vote.total_votes} {t('votesCount')}</span>
+                  <span><Clock className="size-3 inline mr-1" aria-hidden="true" />{diffMs > 0 ? `${d}d ${h}h` : t('endedLabel')}</span>
+                  {vote.cost_bsd > 0 && <span>{formatScout(vote.cost_bsd)} {t('votePerVote')}</span>}
                 </div>
               </Card>
             );
@@ -122,32 +124,32 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
         </div>
       )}
 
-      <Modal open={modalOpen} title="Neue Abstimmung" onClose={() => setModalOpen(false)}>
+      <Modal open={modalOpen} title={t('newVote')} onClose={() => setModalOpen(false)}>
         <div className="space-y-4">
           <div>
-            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Frage</label>
-            <input type="text" value={question} onChange={(e) => setQuestion(e.target.value.slice(0, 200))} placeholder="z.B. Welches Trikot-Design bevorzugt ihr?" className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
+            <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('questionLabel')}</label>
+            <input type="text" value={question} onChange={(e) => setQuestion(e.target.value.slice(0, 200))} placeholder={t('questionPlaceholder')} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
           </div>
           {options.map((opt, idx) => (
             <div key={idx}>
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Option {idx + 1}</label>
-              <input type="text" value={opt} onChange={(e) => { const n = [...options]; n[idx] = e.target.value.slice(0, 100); setOptions(n); }} placeholder={`Option ${idx + 1}`} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
+              <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('optionLabel', { idx: idx + 1 })}</label>
+              <input type="text" value={opt} onChange={(e) => { const n = [...options]; n[idx] = e.target.value.slice(0, 100); setOptions(n); }} placeholder={t('optionLabel', { idx: idx + 1 })} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
             </div>
           ))}
           {options.length < 4 && (
-            <Button variant="outline" size="sm" onClick={() => setOptions([...options, ''])}><Plus className="w-3.5 h-3.5" />Option hinzufügen</Button>
+            <Button variant="outline" size="sm" onClick={() => setOptions([...options, ''])}><Plus className="size-3.5" aria-hidden="true" />{t('addOption')}</Button>
           )}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Kosten ($SCOUT)</label>
+              <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('costLabel')}</label>
               <input type="number" inputMode="numeric" value={cost} onChange={(e) => setCost(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-gold/40" />
             </div>
             <div>
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">Laufzeit (Tage)</label>
+              <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('durationLabel')}</label>
               <input type="number" inputMode="numeric" value={days} onChange={(e) => setDays(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-gold/40" />
             </div>
           </div>
-          <Button variant="gold" fullWidth loading={creating} onClick={handleCreate}>Abstimmung erstellen</Button>
+          <Button variant="gold" fullWidth loading={creating} onClick={handleCreate}>{t('createVote')}</Button>
         </div>
       </Modal>
     </div>

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { Check, X, Loader2, ChevronRight, Globe, Camera, User, Lock, Eye, EyeOff, Search, Shield, Gift } from 'lucide-react';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { createProfile, checkHandleAvailable, isValidHandle } from '@/lib/services/profiles';
@@ -21,6 +22,7 @@ function OnboardingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, profile, loading, refreshProfile } = useUser();
+  const t = useTranslations('auth');
 
   const [step, setStep] = useState(1);
   const [handle, setHandle] = useState('');
@@ -147,11 +149,11 @@ function OnboardingContent() {
 
     if (!hasPassword) {
       if (password.length < 6) {
-        setPasswordError('Passwort muss mindestens 6 Zeichen lang sein.');
+        setPasswordError(t('pwMinLength'));
         return;
       }
       if (password !== passwordConfirm) {
-        setPasswordError('Passwörter stimmen nicht überein.');
+        setPasswordError(t('pwMismatch'));
         return;
       }
     }
@@ -164,7 +166,7 @@ function OnboardingContent() {
     if (!file) return;
     if (!file.type.startsWith('image/')) return;
     if (file.size > 2 * 1024 * 1024) {
-      setError('Bild darf maximal 2MB groß sein.');
+      setError(t('avatarTooLarge'));
       return;
     }
     setAvatarFile(file);
@@ -198,7 +200,7 @@ function OnboardingContent() {
       // Set password if user doesn't have one yet (OAuth / Magic Link)
       if (!hasPassword && password) {
         const { error: pwError } = await updateUserPassword(password);
-        if (pwError) throw new Error(`Passwort konnte nicht gesetzt werden: ${pwError.message}`);
+        if (pwError) throw new Error(t('pwSetError', { error: pwError.message }));
       }
 
       // Determine primary club (first selected)
@@ -241,7 +243,7 @@ function OnboardingContent() {
       localStorage.setItem('bescout-tour-pending', '1');
       router.push('/');
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Profil konnte nicht erstellt werden.';
+      const msg = err instanceof Error ? err.message : t('profileCreateError');
       // Stale session: user was deleted but session token remains
       if (msg.includes('foreign key') || msg.includes('fkey')) {
         await signOut();
@@ -267,7 +269,7 @@ function OnboardingContent() {
       <div className="flex flex-col items-center mb-8">
         <Image src="/logo.svg" alt="BeScout" width={56} height={56} className="mb-3" priority />
         <Image src="/schrift.svg" alt="BeScout" width={140} height={36} className="mb-2" priority />
-        <p className="text-sm text-white/50 text-pretty">Erstelle dein Manager-Profil</p>
+        <p className="text-sm text-white/50 text-pretty">{t('createProfile')}</p>
       </div>
 
       {/* Progress Dots (3 steps) */}
@@ -284,7 +286,7 @@ function OnboardingContent() {
         <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-gold/[0.06] border border-gold/15">
           <Gift className="size-5 text-gold shrink-0" aria-hidden="true" />
           <div className="text-sm">
-            <span className="text-white/70">Eingeladen von </span>
+            <span className="text-white/70">{t('invitedBy')} </span>
             <span className="font-bold text-gold">@{referrer.handle}</span>
           </div>
         </div>
@@ -299,7 +301,7 @@ function OnboardingContent() {
             <Shield className="size-5 text-green-500 shrink-0" aria-hidden="true" />
           )}
           <div className="text-sm">
-            <span className="text-white/70">Eingeladen von </span>
+            <span className="text-white/70">{t('invitedBy')} </span>
             <span className="font-bold text-green-500">{referralClub.name}</span>
           </div>
         </div>
@@ -308,16 +310,14 @@ function OnboardingContent() {
       <Card className="p-6 sm:p-8">
         {step === 1 && (
           <>
-            <h2 className="text-xl font-black text-balance mb-1">Dein Profil</h2>
+            <h2 className="text-xl font-black text-balance mb-1">{t('yourProfile')}</h2>
             <p className="text-sm text-white/50 text-pretty mb-6">
-              {hasPassword
-                ? 'Wähle deinen einzigartigen Handle für BeScout.'
-                : 'Handle wählen und Passwort setzen für zukünftige Anmeldungen.'}
+              {hasPassword ? t('chooseHandle') : t('chooseHandleAndPw')}
             </p>
 
             {/* Handle Input */}
             <div className="mb-4">
-              <label htmlFor="onboard-handle" className="text-xs text-white/50 font-semibold mb-1.5 block">Handle</label>
+              <label htmlFor="onboard-handle" className="text-xs text-white/50 font-semibold mb-1.5 block">{t('handleLabel')}</label>
               <div className="relative">
                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30 text-sm">@</span>
                 <input
@@ -325,7 +325,7 @@ function OnboardingContent() {
                   type="text"
                   value={handle}
                   onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20))}
-                  placeholder="dein_name"
+                  placeholder={t('handlePlaceholder')}
                   className={cn(
                     'w-full pl-8 pr-10 py-3 rounded-xl text-sm',
                     'bg-white/5 border',
@@ -345,22 +345,22 @@ function OnboardingContent() {
                 </div>
               </div>
               <div className="mt-1.5 text-xs">
-                {handleStatus === 'taken' && <span className="text-red-400">Dieser Name ist bereits vergeben.</span>}
-                {handleStatus === 'invalid' && <span className="text-red-400">3-20 Zeichen, nur a-z, 0-9 und _</span>}
-                {handleStatus === 'available' && <span className="text-green-500">Verfügbar!</span>}
-                {handleStatus === 'idle' && <span className="text-white/30">3-20 Zeichen, nur a-z, 0-9 und _</span>}
+                {handleStatus === 'taken' && <span className="text-red-400">{t('handleTaken')}</span>}
+                {handleStatus === 'invalid' && <span className="text-red-400">{t('handleInvalid')}</span>}
+                {handleStatus === 'available' && <span className="text-green-500">{t('handleAvailable')}</span>}
+                {handleStatus === 'idle' && <span className="text-white/30">{t('handleInvalid')}</span>}
               </div>
             </div>
 
             {/* Display Name */}
             <div className="mb-4">
-              <label htmlFor="onboard-display-name" className="text-xs text-white/50 font-semibold mb-1.5 block">Anzeigename (optional)</label>
+              <label htmlFor="onboard-display-name" className="text-xs text-white/50 font-semibold mb-1.5 block">{t('displayNameLabel')}</label>
               <input
                 id="onboard-display-name"
                 type="text"
                 value={displayNameValue}
                 onChange={(e) => setDisplayNameValue(e.target.value.slice(0, 50))}
-                placeholder="Dein Name"
+                placeholder={t('displayNamePlaceholder')}
                 className={cn(
                   'w-full px-4 py-3 rounded-xl text-sm',
                   'bg-white/5 border border-white/10',
@@ -375,11 +375,11 @@ function OnboardingContent() {
               <>
                 <div className="my-5 border-t border-white/10" />
                 <p className="text-xs text-white/40 text-pretty mb-3">
-                  Setze ein Passwort, damit du dich beim nächsten Mal mit E-Mail + Passwort anmelden kannst.
+                  {t('pwSetHint')}
                 </p>
 
                 <div className="mb-3">
-                  <label htmlFor="onboard-password" className="text-xs text-white/50 font-semibold mb-1.5 block">Passwort</label>
+                  <label htmlFor="onboard-password" className="text-xs text-white/50 font-semibold mb-1.5 block">{t('passwordLabel')}</label>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" aria-hidden="true" />
                     <input
@@ -387,7 +387,7 @@ function OnboardingContent() {
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => { setPassword(e.target.value); setPasswordError(null); }}
-                      placeholder="Min. 6 Zeichen"
+                      placeholder={t('pwPlaceholder')}
                       className={cn(
                         'w-full pl-11 pr-11 py-3 rounded-xl text-sm',
                         'bg-white/5 border border-white/10',
@@ -399,7 +399,7 @@ function OnboardingContent() {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
-                      aria-label="Passwort anzeigen"
+                      aria-label={t('pwShowLabel')}
                     >
                       {showPassword ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
                     </button>
@@ -407,7 +407,7 @@ function OnboardingContent() {
                 </div>
 
                 <div className="mb-4">
-                  <label htmlFor="onboard-password-confirm" className="text-xs text-white/50 font-semibold mb-1.5 block">Passwort bestätigen</label>
+                  <label htmlFor="onboard-password-confirm" className="text-xs text-white/50 font-semibold mb-1.5 block">{t('pwConfirmLabel')}</label>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" aria-hidden="true" />
                     <input
@@ -415,7 +415,7 @@ function OnboardingContent() {
                       type={showPassword ? 'text' : 'password'}
                       value={passwordConfirm}
                       onChange={(e) => { setPasswordConfirm(e.target.value); setPasswordError(null); }}
-                      placeholder="Passwort wiederholen"
+                      placeholder={t('pwConfirmPlaceholder')}
                       className={cn(
                         'w-full pl-11 pr-11 py-3 rounded-xl text-sm',
                         'bg-white/5 border border-white/10',
@@ -427,7 +427,7 @@ function OnboardingContent() {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
-                      aria-label="Passwort anzeigen"
+                      aria-label={t('pwShowLabel')}
                     >
                       {showPassword ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
                     </button>
@@ -445,11 +445,11 @@ function OnboardingContent() {
 
             {!validateStep1() && handle.length >= 1 && (
               <div className="text-xs text-white/30 mb-3">
-                {handleStatus === 'checking' ? 'Handle wird geprüft...' :
-                 handleStatus === 'taken' ? 'Handle ist vergeben — wähle einen anderen.' :
-                 handleStatus === 'invalid' ? 'Handle: 3-20 Zeichen, nur a-z, 0-9 und _' :
-                 !hasPassword && password.length > 0 && password.length < 6 ? 'Passwort: min. 6 Zeichen.' :
-                 !hasPassword && password.length >= 6 && password !== passwordConfirm ? 'Passwörter stimmen nicht überein.' :
+                {handleStatus === 'checking' ? t('handleChecking') :
+                 handleStatus === 'taken' ? t('handleTakenShort') :
+                 handleStatus === 'invalid' ? t('handleInvalid') :
+                 !hasPassword && password.length > 0 && password.length < 6 ? t('pwMinShort') :
+                 !hasPassword && password.length >= 6 && password !== passwordConfirm ? t('pwMismatch') :
                  null}
               </div>
             )}
@@ -461,7 +461,7 @@ function OnboardingContent() {
               disabled={!validateStep1()}
               onClick={handleStep1Next}
             >
-              Weiter
+              {t('next')}
               <ChevronRight className="size-4" aria-hidden="true" />
             </Button>
           </>
@@ -469,12 +469,12 @@ function OnboardingContent() {
 
         {step === 2 && (
           <>
-            <h2 className="text-xl font-black text-balance mb-1">Profilbild & Sprache</h2>
-            <p className="text-sm text-white/50 text-pretty mb-6">Lade ein Bild hoch und wähle deine Sprache.</p>
+            <h2 className="text-xl font-black text-balance mb-1">{t('profilePicAndLang')}</h2>
+            <p className="text-sm text-white/50 text-pretty mb-6">{t('uploadHint')}</p>
 
             {/* Avatar Upload */}
             <div className="flex flex-col items-center mb-6">
-              <label className="relative group cursor-pointer" aria-label="Profilbild hochladen">
+              <label className="relative group cursor-pointer" aria-label={t('uploadLabel')}>
                 <div className="size-24 rounded-2xl bg-gold/10 border-2 border-dashed border-white/20 group-hover:border-gold/40 flex items-center justify-center overflow-hidden transition-colors">
                   {avatarPreview ? (
                     <img src={avatarPreview} alt="" className="w-full h-full object-cover" />
@@ -493,7 +493,7 @@ function OnboardingContent() {
                 />
               </label>
               <div className="mt-3 text-xs text-white/40">
-                {avatarPreview ? 'Bild ausgewählt' : 'JPG/PNG, max. 2MB (optional)'}
+                {avatarPreview ? t('imageSelected') : t('imageHint')}
               </div>
             </div>
 
@@ -501,7 +501,7 @@ function OnboardingContent() {
             <div className="mb-6">
               <label htmlFor="onboard-language" className="text-xs text-white/50 font-semibold mb-1.5 flex items-center gap-1.5">
                 <Globe className="size-3.5" aria-hidden="true" />
-                Sprache
+                {t('languageLabel')}
               </label>
               <select
                 id="onboard-language"
@@ -529,7 +529,7 @@ function OnboardingContent() {
 
             <div className="flex gap-3">
               <Button variant="outline" size="lg" onClick={() => setStep(1)} disabled={submitting}>
-                Zurück
+                {t('back')}
               </Button>
               <Button
                 variant="gold"
@@ -537,7 +537,7 @@ function OnboardingContent() {
                 fullWidth
                 onClick={() => setStep(3)}
               >
-                Weiter
+                {t('next')}
                 <ChevronRight className="size-4" aria-hidden="true" />
               </Button>
             </div>
@@ -546,9 +546,9 @@ function OnboardingContent() {
 
         {step === 3 && (
           <>
-            <h2 className="text-xl font-black text-balance mb-1">Wähle deinen Club</h2>
+            <h2 className="text-xl font-black text-balance mb-1">{t('chooseClub')}</h2>
             <p className="text-sm text-white/50 text-pretty mb-4">
-              Folge mindestens einem Club um loszulegen. Du kannst später weitere hinzufügen.
+              {t('chooseClubHint')}
             </p>
 
             {/* Club Search */}
@@ -558,8 +558,8 @@ function OnboardingContent() {
                 type="text"
                 value={clubSearch}
                 onChange={(e) => setClubSearch(e.target.value)}
-                placeholder="Club suchen..."
-                aria-label="Club suchen"
+                placeholder={t('clubSearchPlaceholder')}
+                aria-label={t('clubSearchLabel')}
                 className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 transition-colors"
               />
             </div>
@@ -611,14 +611,14 @@ function OnboardingContent() {
                   );
                 })}
                 {filteredClubs.length === 0 && (
-                  <p className="text-center text-sm text-white/40 py-4">Keine Clubs gefunden.</p>
+                  <p className="text-center text-sm text-white/40 py-4">{t('noClubsFound')}</p>
                 )}
               </div>
             )}
 
             {selectedClubIds.size > 0 && (
               <p className="text-xs text-gold/70 mb-3">
-                {selectedClubIds.size} Club{selectedClubIds.size > 1 ? 's' : ''} ausgewählt
+                {selectedClubIds.size > 1 ? t('clubsSelectedPlural', { count: selectedClubIds.size }) : t('clubsSelected', { count: selectedClubIds.size })}
               </p>
             )}
 
@@ -631,7 +631,7 @@ function OnboardingContent() {
 
             <div className="flex gap-3">
               <Button variant="outline" size="lg" onClick={() => setStep(2)} disabled={submitting}>
-                Zurück
+                {t('back')}
               </Button>
               <Button
                 variant="gold"
@@ -641,7 +641,7 @@ function OnboardingContent() {
                 disabled={selectedClubIds.size === 0}
                 onClick={handleSubmit}
               >
-                Los geht&apos;s
+                {t('letsGo')}
               </Button>
             </div>
 

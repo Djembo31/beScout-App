@@ -45,7 +45,7 @@ const EventDetailModal = dynamic(
       <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="size-8 animate-spin text-gold" />
-          <span className="text-sm text-white/50">Event wird geladen...</span>
+          <span className="text-sm text-white/50">...</span>
         </div>
       </div>
     ),
@@ -406,7 +406,7 @@ export default function FantasyContent() {
       setLocalEvents(prev => (prev ?? events).map(ev =>
         ev.id === event.id ? { ...ev, isJoined: wasJoined, participants: prevParticipants } : ev
       ));
-      addToast(`Abmeldung fehlgeschlagen: ${e instanceof Error ? e.message : 'Unbekannter Fehler'}`, 'error');
+      addToast(t('unregisterFailed', { error: e instanceof Error ? e.message : tc('unknownError') }), 'error');
       return;
     }
 
@@ -463,7 +463,7 @@ export default function FantasyContent() {
       rewards: [{ rank: '1st', reward: 'League Champion' }],
     };
     setLocalEvents(prev => [newEvent, ...(prev ?? events)]);
-    addToast(`Event "${newEvent.name}" wurde erstellt!`, 'success');
+    addToast(t('eventCreated', { name: newEvent.name }), 'success');
   }, [addToast, currentGw, events]);
 
   // Reload handler for error state — use React Query refetch instead of page reload

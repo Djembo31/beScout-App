@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Search, Users, UserPlus, UserMinus, Shield, Compass, Calendar } from 'lucide-react';
 import { Card, Button, ErrorState, SearchInput, EmptyState, Skeleton, SkeletonCard } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -17,6 +18,7 @@ type ClubWithStats = DbClub & { follower_count: number; player_count: number };
 export default function ClubsDiscoveryPage() {
   const { user } = useUser();
   const { isFollowing, toggleFollow, activeClub, setActiveClub } = useClub();
+  const t = useTranslations('clubs');
   const [clubs, setClubs] = useState<ClubWithStats[]>([]);
   const [nextFixtures, setNextFixtures] = useState<Map<string, NextFixtureInfo>>(new Map());
   const [loading, setLoading] = useState(true);
@@ -52,7 +54,7 @@ export default function ClubsDiscoveryPage() {
   // Group by league
   const grouped = new Map<string, ClubWithStats[]>();
   for (const club of filtered) {
-    const league = club.league || 'Sonstige';
+    const league = club.league || t('other');
     if (!grouped.has(league)) grouped.set(league, []);
     grouped.get(league)!.push(club);
   }
@@ -80,14 +82,14 @@ export default function ClubsDiscoveryPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <Compass className="size-6 text-gold" />
-          <h1 className="text-2xl font-black text-balance">Clubs entdecken</h1>
+          <Compass className="size-6 text-gold" aria-hidden="true" />
+          <h1 className="text-2xl font-black text-balance">{t('discoverTitle')}</h1>
         </div>
-        <p className="text-sm text-white/50 text-pretty">Folge Clubs um ihre Spieler zu traden, an Events teilzunehmen und in der Community mitzureden.</p>
+        <p className="text-sm text-white/50 text-pretty">{t('discoverDesc')}</p>
       </div>
 
       {/* Search */}
-      <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Club, Stadt oder Liga suchen..." />
+      <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder={t('searchPlaceholder')} />
 
       {/* Loading */}
       {loading && (
@@ -108,8 +110,8 @@ export default function ClubsDiscoveryPage() {
       {!loading && !dataError && filtered.length === 0 && (
         <EmptyState
           icon={<Search />}
-          title={searchQuery ? `Keine Clubs für "${searchQuery}" gefunden` : 'Keine Clubs verfügbar'}
-          action={searchQuery ? { label: 'Suche zurücksetzen', onClick: () => setSearchQuery('') } : undefined}
+          title={searchQuery ? t('noClubsSearch', { query: searchQuery }) : t('noClubsAvailable')}
+          action={searchQuery ? { label: t('resetSearch'), onClick: () => setSearchQuery('') } : undefined}
         />
       )}
 
@@ -156,7 +158,7 @@ export default function ClubsDiscoveryPage() {
                         {club.city && <span>{club.city}</span>}
                         {club.is_verified && (
                           <span className="flex items-center gap-0.5 text-gold">
-                            <Shield className="size-3" /> Verifiziert
+                            <Shield className="size-3" aria-hidden="true" /> {t('verified')}
                           </span>
                         )}
                       </div>
@@ -164,10 +166,10 @@ export default function ClubsDiscoveryPage() {
                       {/* Stats */}
                       <div className="flex items-center gap-4 mt-2 text-xs text-white/50">
                         <span className="flex items-center gap-1 tabular-nums">
-                          <Users className="size-3" />
-                          {club.follower_count} Fans
+                          <Users className="size-3" aria-hidden="true" />
+                          {club.follower_count} {t('fans')}
                         </span>
-                        <span>{club.player_count} Spieler</span>
+                        <span>{club.player_count} {t('players')}</span>
                       </div>
                     </div>
                   </div>
@@ -197,9 +199,9 @@ export default function ClubsDiscoveryPage() {
                       onClick={() => handleToggleFollow(club)}
                     >
                       {following ? (
-                        <><UserMinus className="size-3.5" /> Entfolgen</>
+                        <><UserMinus className="size-3.5" aria-hidden="true" /> {t('unfollow')}</>
                       ) : (
-                        <><UserPlus className="size-3.5" /> Folgen</>
+                        <><UserPlus className="size-3.5" aria-hidden="true" /> {t('follow')}</>
                       )}
                     </Button>
                     {following && !isActive && (
@@ -207,9 +209,9 @@ export default function ClubsDiscoveryPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => setActiveClub(club)}
-                        title="Als aktiven Club setzen"
+                        title={t('setActiveTitle')}
                       >
-                        Aktivieren
+                        {t('activate')}
                       </Button>
                     )}
                   </div>

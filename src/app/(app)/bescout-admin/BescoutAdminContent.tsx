@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Shield, BarChart3, Users, Percent, Zap, Calendar, Bug, Rocket,
   DollarSign, ExternalLink, Loader2, Megaphone, Sparkles, Building2,
@@ -28,33 +29,28 @@ import { AdminClubsTab } from './AdminClubsTab';
 
 type AdminTab = 'overview' | 'users' | 'clubs' | 'fees' | 'ipos' | 'gameweeks' | 'airdrop' | 'sponsors' | 'creator_fund' | 'debug';
 
-const TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
-  { id: 'overview', label: 'Übersicht', icon: BarChart3 },
-  { id: 'users', label: 'Benutzer', icon: Users },
-  { id: 'clubs', label: 'Clubs', icon: Building2 },
-  { id: 'fees', label: 'Gebühren', icon: Percent },
-  { id: 'ipos', label: 'IPOs', icon: Zap },
-  { id: 'gameweeks', label: 'Spieltage', icon: Calendar },
-  { id: 'airdrop', label: 'Airdrop', icon: Rocket },
-  { id: 'sponsors', label: 'Sponsoren', icon: Megaphone },
-  { id: 'creator_fund', label: 'Creator Fund', icon: Sparkles },
-  { id: 'debug', label: 'Debug', icon: Bug },
-];
+const TAB_ICONS: Record<AdminTab, React.ElementType> = {
+  overview: BarChart3, users: Users, clubs: Building2, fees: Percent,
+  ipos: Zap, gameweeks: Calendar, airdrop: Rocket, sponsors: Megaphone,
+  creator_fund: Sparkles, debug: Bug,
+};
+const TAB_ORDER: AdminTab[] = ['overview', 'users', 'clubs', 'fees', 'ipos', 'gameweeks', 'airdrop', 'sponsors', 'creator_fund', 'debug'];
 
 // ============================================
 // Overview Tab (inline â€” 12 lines)
 // ============================================
 
 function OverviewTab({ stats, error }: { stats: SystemStats | null; error?: boolean }) {
-  if (error) return <Card className="p-6 text-center text-white/40"><BarChart3 className="size-8 mx-auto mb-2 text-white/15" aria-hidden="true" /><div className="text-sm">Statistiken konnten nicht geladen werden.</div></Card>;
+  const t = useTranslations('bescoutAdmin');
+  if (error) return <Card className="p-6 text-center text-white/40"><BarChart3 className="size-8 mx-auto mb-2 text-white/15" aria-hidden="true" /><div className="text-sm">{t('statsLoadError')}</div></Card>;
   if (!stats) return <div className="flex justify-center py-8"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" /></div>;
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-      <StatCard label="Benutzer" value={stats.totalUsers.toString()} icon={<Users className="size-4 text-white/40" aria-hidden="true" />} />
-      <StatCard label="$SCOUT Gesamt" value={`${fmtScout(centsToBsd(stats.totalBsdCirculation))}`} icon={<DollarSign className="size-4 text-gold" aria-hidden="true" />} />
-      <StatCard label="24h Volumen" value={`${fmtScout(centsToBsd(stats.volume24h))}`} icon={<BarChart3 className="size-4 text-white/40" aria-hidden="true" />} />
-      <StatCard label="Aktive Events" value={stats.activeEvents.toString()} icon={<Calendar className="size-4 text-white/40" aria-hidden="true" />} />
-      <StatCard label="Offene Angebote" value={stats.pendingOffers.toString()} icon={<Zap className="size-4 text-white/40" aria-hidden="true" />} />
+      <StatCard label={t('labelUsers')} value={stats.totalUsers.toString()} icon={<Users className="size-4 text-white/40" aria-hidden="true" />} />
+      <StatCard label={t('labelScoutTotal')} value={`${fmtScout(centsToBsd(stats.totalBsdCirculation))}`} icon={<DollarSign className="size-4 text-gold" aria-hidden="true" />} />
+      <StatCard label={t('labelVolume24h')} value={`${fmtScout(centsToBsd(stats.volume24h))}`} icon={<BarChart3 className="size-4 text-white/40" aria-hidden="true" />} />
+      <StatCard label={t('labelActiveEvents')} value={stats.activeEvents.toString()} icon={<Calendar className="size-4 text-white/40" aria-hidden="true" />} />
+      <StatCard label={t('labelPendingOffers')} value={stats.pendingOffers.toString()} icon={<Zap className="size-4 text-white/40" aria-hidden="true" />} />
     </div>
   );
 }
@@ -71,12 +67,14 @@ function IposTab() {
     getAllIposAcrossClubs().then(data => { setIpos(data); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="flex justify-center py-8"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" /></div>;
+  const t = useTranslations('bescoutAdmin');
+
+  if (loading) return <div className="flex justify-center py-8"><Loader2 className="size-5 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" /></div>;
 
   return (
     <div className="space-y-3">
       {ipos.length === 0 && (
-        <Card className="p-8 text-center text-white/30">Keine IPOs gefunden.</Card>
+        <Card className="p-8 text-center text-white/30">{t('noIpos')}</Card>
       )}
       {ipos.map((ipo) => {
         const player = ipo.player as { first_name?: string; last_name?: string; club?: string } | null;
@@ -120,10 +118,12 @@ function DebugTab() {
     });
   }, []);
 
+  const t = useTranslations('bescoutAdmin');
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-bold text-white">Letzte Aktivitäten</span>
+        <span className="text-sm font-bold text-white">{t('recentActivity')}</span>
         <a
           href="https://supabase.com/dashboard/project/skzjfhvgccaeplydsunz"
           target="_blank"
@@ -141,10 +141,10 @@ function DebugTab() {
           <table className="w-full text-xs">
             <thead>
               <tr className="text-white/40 border-b border-white/10">
-                <th className="text-left py-2 px-2">Zeit</th>
-                <th className="text-left py-2 px-2">Aktion</th>
-                <th className="text-left py-2 px-2">Kategorie</th>
-                <th className="text-left py-2 px-2">Details</th>
+                <th className="text-left py-2 px-2">{t('thTime')}</th>
+                <th className="text-left py-2 px-2">{t('thAction')}</th>
+                <th className="text-left py-2 px-2">{t('thCategory')}</th>
+                <th className="text-left py-2 px-2">{t('thDetails')}</th>
               </tr>
             </thead>
             <tbody>
@@ -175,6 +175,7 @@ function DebugTab() {
 export default function BescoutAdminContent() {
   const { user } = useUser();
   const router = useRouter();
+  const t = useTranslations('bescoutAdmin');
   const [tab, setTab] = useState<AdminTab>('overview');
   const [adminRole, setAdminRole] = useState<PlatformAdminRole | null>(null);
   const [loading, setLoading] = useState(true);
@@ -215,31 +216,41 @@ export default function BescoutAdminContent() {
         </div>
         <div>
           <h1 className="text-xl font-black text-balance text-white">BeScout Admin</h1>
-          <div className="text-xs text-white/40">Rolle: {adminRole}</div>
+          <div className="text-xs text-white/40">{t('rolePrefix')}: {adminRole}</div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-white/[0.02] rounded-xl p-1 border border-white/[0.06] overflow-x-auto scrollbar-hide">
-        {TABS.map(t => {
-          const Icon = t.icon;
-          return (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={cn('flex items-center gap-1 md:gap-1.5 px-2.5 md:px-3 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 min-h-[44px]',
-                tab === t.id
-                  ? 'bg-gold/10 text-gold border border-gold/20'
-                  : 'text-white/40 hover:text-white/60'
-              )}
-            >
-              <Icon className="size-3.5" aria-hidden="true" />
-              <span className="hidden md:inline">{t.label}</span>
-              <span className="md:hidden">{t.label.slice(0, 4)}</span>
-            </button>
-          );
-        })}
-      </div>
+      {(() => {
+        const TAB_LABELS: Record<AdminTab, string> = {
+          overview: t('tabOverview'), users: t('tabUsers'), clubs: 'Clubs', fees: t('tabFees'),
+          ipos: 'IPOs', gameweeks: t('tabGameweeks'), airdrop: 'Airdrop',
+          sponsors: t('tabSponsors'), creator_fund: 'Creator Fund', debug: 'Debug',
+        };
+        return (
+          <div className="flex gap-1 bg-white/[0.02] rounded-xl p-1 border border-white/[0.06] overflow-x-auto scrollbar-hide">
+            {TAB_ORDER.map(tabId => {
+              const Icon = TAB_ICONS[tabId];
+              const label = TAB_LABELS[tabId];
+              return (
+                <button
+                  key={tabId}
+                  onClick={() => setTab(tabId)}
+                  className={cn('flex items-center gap-1 md:gap-1.5 px-2.5 md:px-3 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 min-h-[44px]',
+                    tab === tabId
+                      ? 'bg-gold/10 text-gold border border-gold/20'
+                      : 'text-white/40 hover:text-white/60'
+                  )}
+                >
+                  <Icon className="size-3.5" aria-hidden="true" />
+                  <span className="hidden md:inline">{label}</span>
+                  <span className="md:hidden">{label.slice(0, 4)}</span>
+                </button>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       {/* Tab Content */}
       {tab === 'overview' && <OverviewTab stats={stats} error={statsError} />}
