@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Search, CheckCircle2, Gift, Lock, Crosshair } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { Card, Button } from '@/components/ui';
 import { TierBadge } from '@/components/ui/TierBadge';
@@ -20,13 +21,14 @@ type ScoutMissionCardProps = {
 };
 
 export default function ScoutMissionCard({ mission, progress, userTier, onSubmit, onClaim, claiming }: ScoutMissionCardProps) {
+  const tc = useTranslations('community');
   const diff = DIFFICULTY_STYLES[mission.difficulty];
   const isCompleted = progress?.status === 'completed';
   const isClaimed = progress?.status === 'claimed';
   const tierLocked = mission.minTier ? isTierBelow(userTier, mission.minTier as FanTier) : false;
 
   // Build criteria description
-  const criteriaItems = buildCriteriaLabels(mission.criteria);
+  const criteriaItems = buildCriteriaLabels(mission.criteria, tc);
 
   return (
     <Card className={cn('p-4 relative overflow-hidden', isClaimed && 'opacity-60')}>
@@ -65,12 +67,12 @@ export default function ScoutMissionCard({ mission, progress, userTier, onSubmit
         {tierLocked ? (
           <div className="flex items-center gap-1 text-xs text-white/30">
             <Lock className="size-3" />
-            <span>{mission.minTier} nötig</span>
+            <span>{tc('missionTierRequired', { tier: mission.minTier ?? '' })}</span>
           </div>
         ) : isClaimed ? (
           <div className="flex items-center gap-1 text-xs text-green-500">
             <CheckCircle2 className="size-3.5" />
-            <span>Abgeschlossen</span>
+            <span>{tc('missionCompleted')}</span>
           </div>
         ) : isCompleted ? (
           <Button
@@ -78,7 +80,7 @@ export default function ScoutMissionCard({ mission, progress, userTier, onSubmit
             onClick={() => onClaim(mission.id)}
             disabled={claiming}
           >
-            <Gift className="size-3" /> Belohnung abholen
+            <Gift className="size-3" /> {tc('missionClaimReward')}
           </Button>
         ) : (
           <Button
@@ -86,7 +88,7 @@ export default function ScoutMissionCard({ mission, progress, userTier, onSubmit
             size="sm"
             onClick={() => onSubmit(mission.id)}
           >
-            <Search className="size-3" /> Spieler einreichen
+            <Search className="size-3" /> {tc('missionSubmitPlayer')}
           </Button>
         )}
       </div>
@@ -104,14 +106,14 @@ function isTierBelow(userTier: FanTier, requiredTier: FanTier): boolean {
   return TIER_ORDER.indexOf(userTier) < TIER_ORDER.indexOf(requiredTier);
 }
 
-function buildCriteriaLabels(criteria: ScoutMission['criteria']): string[] {
+function buildCriteriaLabels(criteria: ScoutMission['criteria'], t: (key: string, values?: Record<string, string | number | Date>) => string): string[] {
   const labels: string[] = [];
-  if (criteria.max_age) labels.push(`Alter ≤ ${criteria.max_age}`);
-  if (criteria.position) labels.push(`Position: ${criteria.position}`);
-  if (criteria.min_perf_l5) labels.push(`L5 ≥ ${criteria.min_perf_l5}`);
-  if (criteria.min_goals) labels.push(`Tore ≥ ${criteria.min_goals}`);
-  if (criteria.min_assists) labels.push(`Assists ≥ ${criteria.min_assists}`);
-  if (criteria.min_clean_sheets) labels.push(`CS ≥ ${criteria.min_clean_sheets}`);
-  if (criteria.max_floor_price_cents) labels.push(`Floor ≤ ${fmtScout(criteria.max_floor_price_cents / 100)} $SCOUT`);
+  if (criteria.max_age) labels.push(t('criteriaAge', { value: criteria.max_age }));
+  if (criteria.position) labels.push(t('criteriaPosition', { value: criteria.position }));
+  if (criteria.min_perf_l5) labels.push(t('criteriaL5', { value: criteria.min_perf_l5 }));
+  if (criteria.min_goals) labels.push(t('criteriaGoals', { value: criteria.min_goals }));
+  if (criteria.min_assists) labels.push(t('criteriaAssists', { value: criteria.min_assists }));
+  if (criteria.min_clean_sheets) labels.push(t('criteriaCS', { value: criteria.min_clean_sheets }));
+  if (criteria.max_floor_price_cents) labels.push(t('criteriaFloor', { value: `${fmtScout(criteria.max_floor_price_cents / 100)} $SCOUT` }));
   return labels;
 }

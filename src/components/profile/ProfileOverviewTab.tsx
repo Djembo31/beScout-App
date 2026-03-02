@@ -14,7 +14,7 @@ import { useUserMasteryAll } from '@/lib/queries/mastery';
 import ScoreRoadCard from '@/components/gamification/ScoreRoadCard';
 import PredictionStatsCard from '@/components/profile/PredictionStatsCard';
 import type { Pos, DbUserAchievement, DbTransaction, UserTradeWithPlayer, UserFantasyResult, ResearchPostWithAuthor, AuthorTrackRecord } from '@/types';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 // ============================================
 // TYPES
@@ -57,18 +57,18 @@ interface ProfileOverviewTabProps {
   isSelf?: boolean;
 }
 
-const EARNING_TYPES: { type: string; label: string; icon: React.ElementType; color: string }[] = [
-  { type: 'research_earning', label: 'Berichte', icon: FileText, color: 'text-purple-400' },
-  { type: 'bounty_reward', label: 'Bounties', icon: Target, color: 'text-amber-400' },
-  { type: 'fantasy_reward', label: 'Fantasy', icon: Trophy, color: 'text-gold' },
-  { type: 'poll_revenue', label: 'Umfragen', icon: Vote, color: 'text-sky-400' },
-  { type: 'mission_reward', label: 'Missionen', icon: Crosshair, color: 'text-emerald-400' },
-  { type: 'streak_reward', label: 'Streaks', icon: Flame, color: 'text-orange-400' },
-  { type: 'pbt_liquidation', label: 'PBT', icon: Banknote, color: 'text-gold' },
-  { type: 'tip_receive', label: 'Scout-Tipps', icon: Coins, color: 'text-pink-400' },
-  { type: 'scout_subscription_earning', label: 'Beratervertrag', icon: UserCheck, color: 'text-indigo-400' },
-  { type: 'creator_fund_payout', label: 'Creator Fund', icon: Sparkles, color: 'text-cyan-400' },
-  { type: 'ad_revenue_payout', label: 'Werbeanteil', icon: Megaphone, color: 'text-lime-400' },
+const EARNING_TYPES: { type: string; labelKey: string; icon: React.ElementType; color: string }[] = [
+  { type: 'research_earning', labelKey: 'earningReports', icon: FileText, color: 'text-purple-400' },
+  { type: 'bounty_reward', labelKey: 'earningBounties', icon: Target, color: 'text-amber-400' },
+  { type: 'fantasy_reward', labelKey: 'earningFantasy', icon: Trophy, color: 'text-gold' },
+  { type: 'poll_revenue', labelKey: 'earningPolls', icon: Vote, color: 'text-sky-400' },
+  { type: 'mission_reward', labelKey: 'earningMissions', icon: Crosshair, color: 'text-emerald-400' },
+  { type: 'streak_reward', labelKey: 'earningStreaks', icon: Flame, color: 'text-orange-400' },
+  { type: 'pbt_liquidation', labelKey: 'earningPbt', icon: Banknote, color: 'text-gold' },
+  { type: 'tip_receive', labelKey: 'earningTips', icon: Coins, color: 'text-pink-400' },
+  { type: 'scout_subscription_earning', labelKey: 'earningSubscription', icon: UserCheck, color: 'text-indigo-400' },
+  { type: 'creator_fund_payout', labelKey: 'earningCreatorFund', icon: Sparkles, color: 'text-cyan-400' },
+  { type: 'ad_revenue_payout', labelKey: 'earningAdRevenue', icon: Megaphone, color: 'text-lime-400' },
 ];
 
 // ============================================
@@ -91,6 +91,7 @@ export default function ProfileOverviewTab({
 }: ProfileOverviewTabProps) {
   const tg = useTranslations('gamification');
   const tp = useTranslations('profile');
+  const locale = useLocale();
   const [showAllAchievements, setShowAllAchievements] = useState(false);
   const [showAllTrades, setShowAllTrades] = useState(false);
   const pnlCents = portfolioValueCents - portfolioCostCents;
@@ -133,14 +134,14 @@ export default function ProfileOverviewTab({
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Portfoliowert" value={`${formatScout(portfolioValueCents)} $SCOUT`} icon={<BarChart3 className="size-4 text-white/40" aria-hidden="true" />} />
+        <StatCard label={tp('portfolioValue')} value={`${formatScout(portfolioValueCents)} $SCOUT`} icon={<BarChart3 className="size-4 text-white/40" aria-hidden="true" />} />
         <StatCard
-          label="Wertentwicklung"
+          label={tp('valueChange')}
           value={`${pnlCents >= 0 ? '+' : ''}${formatScout(pnlCents)} $SCOUT`}
           trend={pnlCents >= 0 ? 'up' : 'down'}
           icon={pnlCents >= 0 ? <TrendingUp className="size-4 text-vivid-green" aria-hidden="true" /> : <TrendingDown className="size-4 text-vivid-red" aria-hidden="true" />}
         />
-        <StatCard label="Spieler" value={holdings.length} />
+        <StatCard label={tp('playersLabel')} value={holdings.length} />
         <StatCard label="DPCs" value={totalDpcs} />
       </div>
 
@@ -150,7 +151,7 @@ export default function ProfileOverviewTab({
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-black flex items-center gap-2">
               <Coins className="size-4 text-gold" aria-hidden="true" />
-              Verdienste
+              {tp('earnings')}
             </h3>
             <span className="text-sm font-mono font-bold text-green-500">+{fmtScout(centsToBsd(earnings.total))} $SCOUT</span>
           </div>
@@ -163,7 +164,7 @@ export default function ProfileOverviewTab({
                 <div key={et.type} className="p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
                   <div className="flex items-center gap-2 mb-1.5">
                     <Icon className={cn('size-3.5', et.color)} aria-hidden="true" />
-                    <span className="text-xs text-white/50">{et.label}</span>
+                    <span className="text-xs text-white/50">{tp(et.labelKey)}</span>
                   </div>
                   <div className="text-sm font-mono font-bold text-white">+{fmtScout(centsToBsd(amount))} $SCOUT</div>
                 </div>
@@ -247,26 +248,26 @@ export default function ProfileOverviewTab({
           <Card className="p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4">
               <CircleDollarSign className="size-5 text-green-500" aria-hidden="true" />
-              <h3 className="font-black">Research-Einnahmen</h3>
+              <h3 className="font-black">{tp('researchEarnings')}</h3>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center p-3 bg-green-500/5 border border-green-500/10 rounded-xl">
                 <div className="text-2xl font-mono font-black text-green-500">{fmtScout(centsToBsd(totalEarned))}</div>
-                <div className="text-[10px] text-white/40 mt-1">$SCOUT verdient</div>
+                <div className="text-[10px] text-white/40 mt-1">{tp('scoutEarned')}</div>
               </div>
               <div className="text-center p-3 bg-surface-base border border-white/[0.06] rounded-xl">
                 <div className="text-2xl font-mono font-black">{totalUnlocks}</div>
-                <div className="text-[10px] text-white/40 mt-1">Verkäufe</div>
+                <div className="text-[10px] text-white/40 mt-1">{tp('salesLabel')}</div>
               </div>
               <div className="text-center p-3 bg-surface-base border border-white/[0.06] rounded-xl">
                 <div className="text-2xl font-mono font-black text-gold">{avgRating > 0 ? avgRating.toFixed(1) : '-'}</div>
                 <div className="text-[10px] text-white/40 mt-1 flex items-center justify-center gap-0.5">
-                  <Star className="w-3 h-3" aria-hidden="true" /> Ø Bewertung
+                  <Star className="w-3 h-3" aria-hidden="true" /> {tp('avgRating')}
                 </div>
               </div>
               <div className="text-center p-3 bg-surface-base border border-white/[0.06] rounded-xl">
                 <div className="text-2xl font-mono font-black">{myResearch.length}</div>
-                <div className="text-[10px] text-white/40 mt-1">Berichte</div>
+                <div className="text-[10px] text-white/40 mt-1">{tp('reportsCount')}</div>
               </div>
             </div>
           </Card>
@@ -276,7 +277,7 @@ export default function ProfileOverviewTab({
       {/* Top Holdings */}
       {holdings.length > 0 && (
         <Card className="p-4 md:p-6">
-          <h3 className="font-black mb-3">Top Positionen</h3>
+          <h3 className="font-black mb-3">{tp('topPositions')}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {holdings
               .sort((a, b) => (b.quantity * b.player.floor_price) - (a.quantity * a.player.floor_price))
@@ -402,8 +403,8 @@ export default function ProfileOverviewTab({
         return (
         <Card className="p-4 md:p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-black">Letzte Trades</h3>
-            <span className="text-xs text-white/40">{recentTrades.length} Trades</span>
+            <h3 className="font-black">{tp('recentTrades')}</h3>
+            <span className="text-xs text-white/40">{tp('tradesCount', { count: recentTrades.length })}</span>
           </div>
           <div className="space-y-1">
             {visibleTrades.map((trade) => {
@@ -429,7 +430,7 @@ export default function ProfileOverviewTab({
                           'px-1.5 py-0.5 rounded text-[10px] font-bold',
                           isBuy ? 'bg-gold/15 text-gold' : 'bg-green-500/15 text-green-500'
                         )}>
-                          {isBuy ? 'Kauf' : 'Verkauf'}
+                          {isBuy ? tp('tradeBuy') : tp('tradeSell')}
                         </span>
                         <span className="text-[10px] text-white/30">{trade.quantity}x · {getRelativeTime(trade.executed_at)}</span>
                       </div>
@@ -450,7 +451,7 @@ export default function ProfileOverviewTab({
               onClick={() => setShowAllTrades(prev => !prev)}
               className="w-full mt-3 py-2 text-xs text-white/40 hover:text-white/60 transition-colors"
             >
-              {showAllTrades ? 'Weniger anzeigen' : `Alle ${recentTrades.length} anzeigen`}
+              {showAllTrades ? tp('showLessTrades') : tp('showAllTrades', { count: recentTrades.length })}
             </button>
           )}
         </Card>
@@ -460,7 +461,7 @@ export default function ProfileOverviewTab({
       {/* Fantasy-Ergebnisse */}
       {fantasyResults.length > 0 && (
         <Card className="p-4 md:p-6">
-          <h3 className="font-black mb-4">Fantasy-Ergebnisse</h3>
+          <h3 className="font-black mb-4">{tp('fantasyResults')}</h3>
           {/* Summary */}
           <div className="grid grid-cols-4 gap-3 mb-4 p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
             <div className="text-center">
@@ -477,13 +478,13 @@ export default function ProfileOverviewTab({
               <div className="text-lg font-mono font-black text-gold">
                 #{Math.min(...fantasyResults.filter(r => r.rank > 0).map(r => r.rank))}
               </div>
-              <div className="text-[10px] text-white/40">Bester Rang</div>
+              <div className="text-[10px] text-white/40">{tp('bestRank')}</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-mono font-black text-green-500">
                 {fmtScout(centsToBsd(fantasyResults.reduce((s, r) => s + r.rewardAmount, 0)))}
               </div>
-              <div className="text-[10px] text-white/40">Gewonnen</div>
+              <div className="text-[10px] text-white/40">{tp('wonLabel')}</div>
             </div>
           </div>
           {/* Event List */}
@@ -500,13 +501,13 @@ export default function ProfileOverviewTab({
                     <div className="text-sm font-semibold truncate">{result.eventName}</div>
                     <div className="flex items-center gap-2 mt-0.5 text-[10px] text-white/30">
                       {result.gameweek && <span>GW {result.gameweek}</span>}
-                      {result.eventDate && <span>{new Date(result.eventDate).toLocaleDateString('de-DE')}</span>}
+                      {result.eventDate && <span>{new Date(result.eventDate).toLocaleDateString(locale)}</span>}
                     </div>
                   </div>
                   <div className="flex items-center gap-4 flex-shrink-0">
                     <div className="text-right">
                       <div className={cn('text-sm font-mono font-bold', rankColor)}>#{result.rank}</div>
-                      <div className="text-[10px] text-white/30">Rang</div>
+                      <div className="text-[10px] text-white/30">{tp('rankLabel')}</div>
                     </div>
                     <div className="text-right">
                       <div className={cn('text-sm font-mono font-bold', scoreColor)}>{result.totalScore}</div>
@@ -528,12 +529,12 @@ export default function ProfileOverviewTab({
 
       {/* Bestande */}
       <Card className="p-6">
-        <h3 className="font-black mb-4">Bestände</h3>
+        <h3 className="font-black mb-4">{tp('holdingsTitle')}</h3>
         {holdings.length === 0 ? (
           <div className="text-center py-8">
-            <div className="text-white/30 mb-3">Noch keine DPCs im Portfolio</div>
+            <div className="text-white/30 mb-3">{tp('noHoldings')}</div>
             <Link href="/market">
-              <Button variant="gold" size="sm">Zum Marktplatz</Button>
+              <Button variant="gold" size="sm">{tp('goToMarket')}</Button>
             </Link>
           </div>
         ) : (

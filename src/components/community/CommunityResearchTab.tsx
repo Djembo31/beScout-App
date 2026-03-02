@@ -22,12 +22,12 @@ const RESEARCH_CALLS: { id: string; label: string; color: string }[] = [
   { id: 'Neutral', label: 'Neutral', color: 'bg-zinc-500/15 text-zinc-300 border-zinc-500/20' },
 ];
 
-const RESEARCH_CATEGORIES: { id: string; label: string; color: string }[] = [
-  { id: 'Spieler-Analyse', label: 'Spieler-Analyse', color: 'bg-sky-500/15 text-sky-300 border-sky-500/20' },
-  { id: 'Transfer-Empfehlung', label: 'Transfer-Empfehlung', color: 'bg-purple-500/15 text-purple-300 border-purple-500/20' },
-  { id: 'Taktik', label: 'Taktik', color: 'bg-amber-500/15 text-amber-300 border-amber-500/20' },
-  { id: 'Saisonvorschau', label: 'Saisonvorschau', color: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/20' },
-  { id: 'Scouting-Report', label: 'Scouting-Report', color: 'bg-rose-500/15 text-rose-300 border-rose-500/20' },
+const RESEARCH_CATEGORIES: { id: string; labelKey: string; color: string }[] = [
+  { id: 'Spieler-Analyse', labelKey: 'catPlayerAnalysis', color: 'bg-sky-500/15 text-sky-300 border-sky-500/20' },
+  { id: 'Transfer-Empfehlung', labelKey: 'catTransferRec', color: 'bg-purple-500/15 text-purple-300 border-purple-500/20' },
+  { id: 'Taktik', labelKey: 'catTactics', color: 'bg-amber-500/15 text-amber-300 border-amber-500/20' },
+  { id: 'Saisonvorschau', labelKey: 'catSeasonPreview', color: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/20' },
+  { id: 'Scouting-Report', labelKey: 'catScoutingReport', color: 'bg-rose-500/15 text-rose-300 border-rose-500/20' },
 ];
 
 // ============================================
@@ -94,16 +94,16 @@ export default function CommunityResearchTab({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FileText className="w-5 h-5 text-purple-400" />
-          <span className="font-bold">Research Hub</span>
+          <span className="font-bold">{tc('researchHub')}</span>
           <span className="text-xs text-white/40">
             {(researchCallFilter || researchCategoryFilter)
-              ? `${sortedResearchPosts.length} von ${researchPosts.length} Berichten`
-              : `${sortedResearchPosts.length} Berichte`}
+              ? tc('reportsFiltered', { shown: sortedResearchPosts.length, total: researchPosts.length })
+              : tc('reportsCountLabel', { count: sortedResearchPosts.length })}
           </span>
         </div>
         <Button variant="gold" size="sm" onClick={onCreateResearch}>
           <Plus className="w-4 h-4" />
-          Bericht schreiben
+          {tc('writeReport')}
         </Button>
       </div>
 
@@ -157,7 +157,7 @@ export default function CommunityResearchTab({
                 : 'text-white/40 bg-white/[0.02] border-white/[0.06] hover:bg-white/5 hover:text-white/60'
             )}
           >
-            {cat.label}
+            {tc(cat.labelKey)}
           </button>
         ))}
         {(researchCallFilter || researchCategoryFilter) && (

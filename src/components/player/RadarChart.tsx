@@ -173,10 +173,10 @@ const DEFAULT_AXES_CONFIG = [
   { key: 'minutes', label: 'Minuten', max: 3420 },
 ];
 
-export function buildPlayerRadarAxes(data: PlayerRadarData): RadarAxis[] {
+export function buildPlayerRadarAxes(data: PlayerRadarData, labels?: Record<string, string>): RadarAxis[] {
   return DEFAULT_AXES_CONFIG.map(cfg => ({
     key: cfg.key,
-    label: cfg.label,
+    label: labels?.[cfg.key] ?? cfg.label,
     value: Math.min(100, Math.round(((data[cfg.key as keyof PlayerRadarData] ?? 0) / cfg.max) * 100)),
     maxValue: cfg.max,
   }));

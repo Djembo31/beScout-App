@@ -36,7 +36,13 @@ const formatMarketValue = (value: number) => {
 
 export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCount, gwScores, userId, currentGameweek = 0 }: ProfilTabProps) {
   const t = useTranslations('playerDetail');
+  const tp = useTranslations('player');
   const contract = getContractInfo(player.contractMonthsLeft);
+  const radarLabels = {
+    goals: tp('statGoals'), assists: tp('statAssists'), cleanSheets: tp('statCS'),
+    matches: tp('statMatches'), perfL5: tp('statL5'), perfL15: tp('statL15'),
+    bonus: tp('statBonus'), minutes: tp('statMinutes'),
+  };
   const progressPercent = Math.max(0, Math.min(100, ((36 - player.contractMonthsLeft) / 36) * 100));
   const pbt = player.pbt || { balance: 0, sources: { trading: 0, votes: 0, content: 0, ipo: 0 } };
 
@@ -92,7 +98,7 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
                 perfL15: player.perf.l15,
                 bonus: 0,
                 minutes: player.stats.matches * 90,
-              }),
+              }, radarLabels),
               color: player.pos === 'GK' ? '#34d399' : player.pos === 'DEF' ? '#fbbf24' : player.pos === 'MID' ? '#38bdf8' : '#fb7185',
             }]}
             size={260}

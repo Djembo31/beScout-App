@@ -20,6 +20,12 @@ export default function ComparePage() {
   const searchParams = useSearchParams();
   const { data: allPlayers = [], isLoading, isError, refetch } = useRawPlayers();
   const t = useTranslations('compare');
+  const tp = useTranslations('player');
+  const radarLabels = {
+    goals: tp('statGoals'), assists: tp('statAssists'), cleanSheets: tp('statCS'),
+    matches: tp('statMatches'), perfL5: tp('statL5'), perfL15: tp('statL15'),
+    bonus: tp('statBonus'), minutes: tp('statMinutes'),
+  };
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
@@ -85,7 +91,7 @@ export default function ComparePage() {
       perfL15: p.perf_l15,
       bonus: 0,
       minutes: p.matches * 90,
-    }),
+    }, radarLabels),
     color: COLORS[i % COLORS.length],
     label: `${p.first_name} ${p.last_name}`,
   }));
@@ -94,8 +100,8 @@ export default function ComparePage() {
   const statRows = [
     { label: t('matches'), key: 'matches' as const },
     { label: t('goals'), key: 'goals' as const },
-    { label: 'Assists', key: 'assists' as const },
-    { label: 'Clean Sheets', key: 'clean_sheets' as const },
+    { label: t('assists'), key: 'assists' as const },
+    { label: t('cleanSheets'), key: 'clean_sheets' as const },
     { label: 'L5', key: 'perf_l5' as const },
     { label: 'L15', key: 'perf_l15' as const },
     { label: t('floorPrice'), key: 'floor_price' as const, isBsd: true },

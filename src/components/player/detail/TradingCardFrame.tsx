@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { ScoreCircle } from '@/components/player';
@@ -82,6 +83,7 @@ const TrendIcon = ({ trend }: { trend: Trend }) => {
 export default function TradingCardFrame({
   first, last, pos, club, shirtNumber, imageUrl, l5, edition, className = '', backStats,
 }: TradingCardFrameProps) {
+  const tp = useTranslations('player');
   const [flipped, setFlipped] = useState(false);
   const canFlip = !!backStats;
 
@@ -285,16 +287,16 @@ export default function TradingCardFrame({
 
               {/* Stats Grid */}
               <div className="relative z-10 grid grid-cols-3 gap-y-3 gap-x-2 px-4 mt-3">
-                <StatItem label="Tore" value={backStats.goals} />
-                <StatItem label="Assists" value={backStats.assists} />
-                <StatItem label="Spiele" value={backStats.matches} />
-                <StatItem label="L15" value={backStats.l15} />
+                <StatItem label={tp('statGoals')} value={backStats.goals} />
+                <StatItem label={tp('statAssists')} value={backStats.assists} />
+                <StatItem label={tp('statMatches')} value={backStats.matches} />
+                <StatItem label={tp('statL15')} value={backStats.l15} />
                 <div className="flex flex-col items-center">
-                  <span className="text-[10px] text-white/40 font-medium">Trend</span>
+                  <span className="text-[10px] text-white/40 font-medium">{tp('statTrend')}</span>
                   <TrendIcon trend={backStats.trend} />
                 </div>
                 <StatItem
-                  label="Floor"
+                  label={tp('statFloor')}
                   value={backStats.floorPrice != null ? fmtScout(backStats.floorPrice) : '—'}
                 />
               </div>
@@ -311,7 +313,7 @@ export default function TradingCardFrame({
                   {first} {last}
                 </div>
                 <div className="text-[9px] text-white/30 text-center mt-0.5">
-                  Tippen zum Drehen
+                  {tp('tapToFlip')}
                 </div>
               </div>
 
