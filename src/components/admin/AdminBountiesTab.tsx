@@ -16,11 +16,13 @@ import {
   invalidateBountyData,
 } from '@/lib/services/bounties';
 import type { ClubWithAdmin, BountyWithCreator, BountySubmissionWithUser } from '@/types';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import { useTranslations } from 'next-intl';
 
 export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
   const { user } = useUser();
   const t = useTranslations('bountyAdmin');
+  const te = useTranslations('errors');
   const [bounties, setBounties] = useState<BountyWithCreator[]>([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -91,7 +93,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
       await reload();
       setMsg({ type: 'success', text: t('bountyCreated') });
     } catch (err) {
-      setMsg({ type: 'error', text: err instanceof Error ? err.message : t('error') });
+      setMsg({ type: 'error', text: te(mapErrorToKey(normalizeError(err))) });
     } finally {
       setCreating(false);
     }
@@ -104,7 +106,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
       await reload();
       setMsg({ type: 'success', text: t('bountyCancelled') });
     } catch (err) {
-      setMsg({ type: 'error', text: err instanceof Error ? err.message : t('error') });
+      setMsg({ type: 'error', text: te(mapErrorToKey(normalizeError(err))) });
     }
   }, [user, reload, t]);
 
@@ -137,10 +139,10 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
           setSubmissions(subs);
         }
       } else {
-        setMsg({ type: 'error', text: result.error ?? t('error') });
+        setMsg({ type: 'error', text: result.error ? te(mapErrorToKey(result.error)) : t('error') });
       }
     } catch (err) {
-      setMsg({ type: 'error', text: err instanceof Error ? err.message : t('error') });
+      setMsg({ type: 'error', text: te(mapErrorToKey(normalizeError(err))) });
     } finally {
       setReviewing(false);
     }
@@ -160,10 +162,10 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
           setSubmissions(subs);
         }
       } else {
-        setMsg({ type: 'error', text: result.error ?? t('error') });
+        setMsg({ type: 'error', text: result.error ? te(mapErrorToKey(result.error)) : t('error') });
       }
     } catch (err) {
-      setMsg({ type: 'error', text: err instanceof Error ? err.message : t('error') });
+      setMsg({ type: 'error', text: te(mapErrorToKey(normalizeError(err))) });
     } finally {
       setReviewing(false);
     }

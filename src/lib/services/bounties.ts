@@ -247,7 +247,7 @@ export async function createUserBounty(params: {
 
   if (error) throw new Error(mapRpcError(error.message));
   const result = data as { success: boolean; error?: string; bounty_id?: string };
-  if (!result.success) throw new Error(mapRpcError(result.error ?? 'Bounty-Erstellung fehlgeschlagen'));
+  if (!result.success) throw new Error(mapRpcError(result.error ?? 'bountyCreateFailed'));
 
   invalidateBountyData(params.userId, params.clubId);
   import('@/lib/services/activityLog').then(({ logActivity }) => {
@@ -265,7 +265,7 @@ export async function cancelBounty(userId: string, bountyId: string): Promise<vo
 
   if (error) throw new Error(mapRpcError(error.message));
   const result = data as { success: boolean; error?: string };
-  if (!result.success) throw new Error(mapRpcError(result.error ?? 'Stornierung fehlgeschlagen'));
+  if (!result.success) throw new Error(mapRpcError(result.error ?? 'bountyCancelFailed'));
 
   invalidateBountyData(userId);
   // Activity log

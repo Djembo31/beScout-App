@@ -17,6 +17,7 @@ import { submitLineup, getLineup } from '@/lib/services/lineups';
 import { getFixtureDeadlinesByGameweek } from '@/lib/services/fixtures';
 import type { FixtureDeadline } from '@/lib/services/fixtures';
 import { invalidateFantasyQueries } from '@/lib/queries/invalidation';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import { useEvents, useJoinedEventIds, usePlayerEventUsage, useActiveGameweek, useIsClubAdmin } from '@/lib/queries/events';
 import { useHoldings } from '@/lib/queries/holdings';
 import { fmtScout, cn } from '@/lib/utils';
@@ -159,6 +160,7 @@ export default function FantasyContent() {
   const t = useTranslations('fantasy');
   const tc = useTranslations('common');
   const tt = useTranslations('tips');
+  const te = useTranslations('errors');
 
   // State — 4 tabs
   const [mainTab, setMainTab] = useState<FantasyTab>('paarungen');
@@ -365,7 +367,7 @@ export default function FantasyContent() {
       setLocalEvents(prev => (prev ?? events).map(ev =>
         ev.id === event.id ? { ...ev, isJoined: wasJoined, participants: wasJoined ? ev.participants : Math.max(0, (ev.participants || 1) - 1) } : ev
       ));
-      addToast(t('errorGeneric', { error: e instanceof Error ? e.message : t('unknownError') }), 'error');
+      addToast(t('errorGeneric', { error: te(mapErrorToKey(normalizeError(e))) }), 'error');
       return;
     }
 
@@ -406,7 +408,7 @@ export default function FantasyContent() {
       setLocalEvents(prev => (prev ?? events).map(ev =>
         ev.id === event.id ? { ...ev, isJoined: wasJoined, participants: prevParticipants } : ev
       ));
-      addToast(t('unregisterFailed', { error: e instanceof Error ? e.message : tc('unknownError') }), 'error');
+      addToast(t('unregisterFailed', { error: te(mapErrorToKey(normalizeError(e))) }), 'error');
       return;
     }
 

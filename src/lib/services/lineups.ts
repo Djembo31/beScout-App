@@ -72,11 +72,11 @@ export async function submitLineup(params: {
     .single();
 
   if (evError || !ev) {
-    throw new Error('Event nicht gefunden.');
+    throw new Error('eventNotFound');
   }
 
   if (ev.status === 'ended' || ev.status === 'scoring') {
-    throw new Error('Event ist beendet — Änderung nicht möglich.');
+    throw new Error('eventEnded');
   }
 
   // Per-fixture locking: when event is running, only block slots with active fixtures
@@ -89,7 +89,7 @@ export async function submitLineup(params: {
       .single();
 
     if (!evFull?.gameweek) {
-      throw new Error('Event-Gameweek nicht gefunden.');
+      throw new Error('eventGameweekNotFound');
     }
 
     // Load fixture deadlines for this gameweek
@@ -141,7 +141,7 @@ export async function submitLineup(params: {
       if (oldPlayerId) {
         const oldClubId = playerClubMap.get(oldPlayerId);
         if (oldClubId && deadlines.get(oldClubId)?.isLocked) {
-          throw new Error(`Spieler kann nicht entfernt werden — Spiel bereits gestartet.`);
+          throw new Error('playerLockedRemove');
         }
       }
 
@@ -149,21 +149,21 @@ export async function submitLineup(params: {
       if (newPlayerId) {
         const newClubId = playerClubMap.get(newPlayerId);
         if (newClubId && deadlines.get(newClubId)?.isLocked) {
-          throw new Error(`Spieler kann nicht aufgestellt werden — sein Spiel hat bereits begonnen.`);
+          throw new Error('playerLockedAdd');
         }
       }
     }
   }
 
   if (ev && ev.max_entries && ev.current_entries >= ev.max_entries) {
-    throw new Error('Event ist voll — maximale Teilnehmerzahl erreicht.');
+    throw new Error('eventFull');
   }
 
   // Guard: prevent duplicate players across slots
   const slotPlayerIds = Object.values(params.slots).filter((id): id is string => id != null);
   const uniqueIds = new Set(slotPlayerIds);
   if (uniqueIds.size < slotPlayerIds.length) {
-    throw new Error('Jeder Spieler darf nur einmal aufgestellt werden.');
+    throw new Error('duplicatePlayer');
   }
 
   // Build DB row with all slot columns
@@ -208,7 +208,7 @@ export async function removeLineup(eventId: string, userId: string): Promise<voi
   if (error) throw new Error(`removeLineup failed: ${error.message}`);
 
   if (count === 0) {
-    throw new Error('Lineup konnte nicht gelöscht werden. Bitte Admin kontaktieren.');
+    throw new Error('lineupDeleteFailed');
   }
 }
 

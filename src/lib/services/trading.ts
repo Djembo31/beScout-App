@@ -6,26 +6,26 @@ import { toPos } from '@/types';
 // Error Mapping
 // ============================================
 
-/** Map Supabase/RPC error messages to German user-facing messages */
+/** Map Supabase/RPC error messages to i18n error keys (errors namespace) */
 export function mapRpcError(message: string): string {
   const lower = message.toLowerCase();
   if (lower.includes('insufficient balance') || lower.includes('not enough'))
-    return 'Nicht genug $SCOUT-Guthaben.';
+    return 'insufficientBalance';
   if (lower.includes('not found') || lower.includes('does not exist'))
-    return 'Spieler oder Order nicht gefunden.';
+    return 'orderNotFound';
   if (lower.includes('already liquidated') || lower.includes('liquidat'))
-    return 'Spieler wurde liquidiert. Trading nicht möglich.';
+    return 'playerLiquidated';
   if (lower.includes('exceeds') || lower.includes('limit'))
-    return 'Maximale Kaufmenge überschritten.';
+    return 'maxQuantityExceeded';
   if (lower.includes('no open orders') || lower.includes('no matching'))
-    return 'Keine passenden Angebote verfügbar.';
+    return 'noMatchingOrders';
   if (lower.includes('own order'))
-    return 'Du kannst deine eigene Order nicht kaufen.';
+    return 'cannotBuyOwn';
   if (lower.includes('club-admin') || lower.includes('club admin'))
-    return 'Als Club-Admin darfst du keine DPCs deines eigenen Clubs handeln.';
+    return 'clubAdminRestricted';
   if (lower.includes('permission') || lower.includes('denied') || lower.includes('unauthorized'))
-    return 'Keine Berechtigung für diese Aktion.';
-  return 'Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut.';
+    return 'permissionDenied';
+  return 'generic';
 }
 
 // ============================================
@@ -71,16 +71,16 @@ export async function buyFromMarket(
   playerId: string,
   quantity: number
 ): Promise<TradeResult> {
-  if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Ungültige Menge.');
-  if (quantity > 10000) throw new Error('Maximale Kaufmenge überschritten.');
+  if (!Number.isInteger(quantity) || quantity < 1) throw new Error('invalidQuantity');
+  if (quantity > 10000) throw new Error('maxQuantityExceeded');
   // Guard: check if player is liquidated
   const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).maybeSingle();
-  if (!pl) throw new Error('Spieler nicht gefunden.');
-  if (pl.is_liquidated) throw new Error('Spieler wurde liquidiert. Trading nicht möglich.');
+  if (!pl) throw new Error('playerNotFound');
+  if (pl.is_liquidated) throw new Error('playerLiquidated');
 
   // Club Admin Trading Restriction (defense-in-depth — DB RPC also checks)
   const restricted = await isRestrictedFromTrading(userId, playerId);
-  if (restricted) throw new Error('Als Club-Admin darfst du keine DPCs deines eigenen Clubs handeln.');
+  if (restricted) throw new Error('clubAdminRestricted');
 
   const { data, error } = await supabase.rpc('buy_player_dpc', {
     p_user_id: userId,
@@ -138,18 +138,18 @@ export async function placeSellOrder(
   quantity: number,
   priceCents: number
 ): Promise<TradeResult> {
-  if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Ungültige Menge.');
-  if (quantity > 10000) throw new Error('Maximale Kaufmenge überschritten.');
-  if (!Number.isInteger(priceCents) || priceCents < 1) throw new Error('Ungültiger Preis.');
-  if (priceCents > 100_000_000) throw new Error('Maximaler Preis überschritten.');
+  if (!Number.isInteger(quantity) || quantity < 1) throw new Error('invalidQuantity');
+  if (quantity > 10000) throw new Error('maxQuantityExceeded');
+  if (!Number.isInteger(priceCents) || priceCents < 1) throw new Error('invalidPrice');
+  if (priceCents > 100_000_000) throw new Error('maxPriceExceeded');
   // Guard: check if player is liquidated
   const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).maybeSingle();
-  if (!pl) throw new Error('Spieler nicht gefunden.');
-  if (pl.is_liquidated) throw new Error('Spieler wurde liquidiert. Trading nicht möglich.');
+  if (!pl) throw new Error('playerNotFound');
+  if (pl.is_liquidated) throw new Error('playerLiquidated');
 
   // Club Admin Trading Restriction (defense-in-depth — DB RPC also checks)
   const restricted = await isRestrictedFromTrading(userId, playerId);
-  if (restricted) throw new Error('Als Club-Admin darfst du keine DPCs deines eigenen Clubs handeln.');
+  if (restricted) throw new Error('clubAdminRestricted');
 
   const { data, error } = await supabase.rpc('place_sell_order', {
     p_user_id: userId,
@@ -173,14 +173,14 @@ export async function buyFromOrder(
   orderId: string,
   quantity: number
 ): Promise<TradeResult> {
-  if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Ungültige Menge.');
-  if (quantity > 10000) throw new Error('Maximale Kaufmenge überschritten.');
+  if (!Number.isInteger(quantity) || quantity < 1) throw new Error('invalidQuantity');
+  if (quantity > 10000) throw new Error('maxQuantityExceeded');
 
   // Club Admin Trading Restriction (defense-in-depth — DB RPC also checks)
   const { data: orderLookup } = await supabase.from('orders').select('player_id').eq('id', orderId).maybeSingle();
   if (orderLookup) {
     const restricted = await isRestrictedFromTrading(buyerId, orderLookup.player_id);
-    if (restricted) throw new Error('Als Club-Admin darfst du keine DPCs deines eigenen Clubs handeln.');
+    if (restricted) throw new Error('clubAdminRestricted');
   }
 
   const { data, error } = await supabase.rpc('buy_from_order', {

@@ -12,6 +12,7 @@ import { createPost } from '@/lib/services/posts';
 import { formatScout } from '@/lib/services/wallet';
 import { invalidateTradeQueries, invalidatePlayerDetailQueries } from '@/lib/queries/invalidation';
 import { qk } from '@/lib/queries/keys';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { Player, DbIpo, DbOrder } from '@/types';
 
 interface UsePlayerTradingParams {
@@ -35,6 +36,7 @@ export function usePlayerTrading({
   const queryClient = useQueryClient();
   const t = useTranslations('player');
   const tc = useTranslations('common');
+  const te = useTranslations('errors');
 
   // ─── Refs for synchronous double-submit guard ─
   const buyingRef = useRef(false);
@@ -93,7 +95,7 @@ export function usePlayerTrading({
         refreshBalance();
         setTimeout(() => setBuySuccess(null), 5000);
       }
-    } catch (err) { setBuyError(err instanceof Error ? err.message : tc('unknownError')); }
+    } catch (err) { setBuyError(te(mapErrorToKey(normalizeError(err)))); }
     finally { buyingRef.current = false; setBuying(false); }
   }, [userId, player, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, queryClient, refreshBalance, t, tc]);
 
@@ -122,7 +124,7 @@ export function usePlayerTrading({
         refreshBalance();
         setTimeout(() => setBuySuccess(null), 5000);
       }
-    } catch (err) { setBuyError(err instanceof Error ? err.message : tc('unknownError')); }
+    } catch (err) { setBuyError(te(mapErrorToKey(normalizeError(err)))); }
     finally { ipoBuyingRef.current = false; setIpoBuying(false); }
   }, [userId, activeIpo, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, queryClient, refreshBalance, t, tc]);
 
@@ -139,7 +141,7 @@ export function usePlayerTrading({
         setSellModalOpen(false);
         setTimeout(() => setBuySuccess(null), 5000);
       }
-    } catch (err) { setSellError(err instanceof Error ? err.message : tc('unknownError')); }
+    } catch (err) { setSellError(te(mapErrorToKey(normalizeError(err)))); }
     finally { sellingRef.current = false; setSelling(false); }
   }, [userId, player, playerId, invalidateAfterTrade, t, tc]);
 
@@ -157,7 +159,7 @@ export function usePlayerTrading({
         invalidateAfterTrade(playerId, userId);
         setTimeout(() => setBuySuccess(null), 5000);
       }
-    } catch (err) { setBuyError(err instanceof Error ? err.message : tc('unknownError')); }
+    } catch (err) { setBuyError(te(mapErrorToKey(normalizeError(err)))); }
     finally { setCancellingId(null); }
   }, [userId, playerId, invalidateAfterTrade, queryClient, t, tc]);
 
@@ -176,7 +178,7 @@ export function usePlayerTrading({
         setShowOfferModal(false); setOfferPrice(''); setOfferMessage('');
         queryClient.invalidateQueries({ queryKey: ['offers', 'bids', playerId] });
       } else { addToast(result.error ?? tc('unknownError'), 'error'); }
-    } catch (e) { addToast(e instanceof Error ? e.message : tc('unknownError'), 'error'); }
+    } catch (e) { addToast(te(mapErrorToKey(normalizeError(e))), 'error'); }
     finally { setOfferLoading(false); }
   }, [userId, offerPrice, offerMessage, playerId, addToast, queryClient, t, tc]);
 
@@ -189,7 +191,7 @@ export function usePlayerTrading({
         addToast(t('offerAccepted'), 'success');
         invalidateAfterTrade(playerId, userId);
       } else { addToast(result.error ?? tc('unknownError'), 'error'); }
-    } catch (e) { addToast(e instanceof Error ? e.message : tc('unknownError'), 'error'); }
+    } catch (e) { addToast(te(mapErrorToKey(normalizeError(e))), 'error'); }
     finally { setAcceptingBidId(null); }
   }, [userId, acceptingBidId, playerId, addToast, invalidateAfterTrade, t, tc]);
 

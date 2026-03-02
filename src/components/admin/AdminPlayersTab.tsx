@@ -15,10 +15,12 @@ import { setSuccessFeeCap, liquidatePlayer } from '@/lib/services/liquidation';
 import { fmtScout } from '@/lib/utils';
 import { canPerformAction } from '@/lib/adminRoles';
 import { getSuccessFeeTier } from '@/components/player/PlayerRow';
+import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { ClubWithAdmin, Player, DbIpo } from '@/types';
 
 export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
   const t = useTranslations('admin');
+  const te = useTranslations('errors');
   const role = club.admin_role ?? 'editor';
   const canCreateIpo = canPerformAction('create_ipo', role);
   const canLiquidate = canPerformAction('liquidate', role);
@@ -122,7 +124,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
         startImmediately: ipoStartNow,
       });
       if (!result.success) {
-        setIpoError(result.error || t('ipoCreateError'));
+        setIpoError(result.error ? te(mapErrorToKey(result.error)) : t('ipoCreateError'));
       } else {
         setIpoSuccess(t('ipoCreateSuccess'));
         const refreshed = await getIposByClubId(club.id);
@@ -137,7 +139,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
         setTimeout(() => setIpoSuccess(null), 3000);
       }
     } catch (err) {
-      setIpoError(err instanceof Error ? err.message : t('unknownError'));
+      setIpoError(te(mapErrorToKey(normalizeError(err))));
     } finally {
       setIpoLoading(false);
     }
@@ -150,13 +152,13 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
     try {
       const result = await updateIpoStatus(user.id, ipoId, newStatus);
       if (!result.success) {
-        setIpoError(result.error || t('statusChangeError'));
+        setIpoError(result.error ? te(mapErrorToKey(result.error)) : t('statusChangeError'));
       } else {
         const refreshed = await getIposByClubId(club.id);
         setClubIpos(refreshed);
       }
     } catch (err) {
-      setIpoError(err instanceof Error ? err.message : t('unknownError'));
+      setIpoError(te(mapErrorToKey(normalizeError(err))));
     } finally {
       setIpoLoading(false);
     }
@@ -170,7 +172,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
     try {
       const result = await setSuccessFeeCap(user.id, capModalPlayer.id, bsdToCents(parseFloat(capValue)));
       if (!result.success) {
-        setIpoError(result.error || t('capSetError'));
+        setIpoError(result.error ? te(mapErrorToKey(result.error)) : t('capSetError'));
       } else {
         setIpoSuccess(t('capSetSuccess', { value: capValue }));
         // Refresh players
@@ -181,7 +183,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
         setTimeout(() => setIpoSuccess(null), 3000);
       }
     } catch (err) {
-      setIpoError(err instanceof Error ? err.message : t('unknownError'));
+      setIpoError(te(mapErrorToKey(normalizeError(err))));
     } finally {
       setCapLoading(false);
     }
@@ -208,7 +210,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
       const tvEur = parseInt(liqTransferValue) || 0;
       const result = await liquidatePlayer(user.id, liqModalPlayer.id, tvEur);
       if (!result.success) {
-        setIpoError(result.error || t('liquidationError'));
+        setIpoError(result.error ? te(mapErrorToKey(result.error)) : t('liquidationError'));
         setLiqModalPlayer(null);
       } else {
         setLiqResult({
@@ -224,7 +226,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
         setPlayers(dbToPlayers(dbPlayers));
       }
     } catch (err) {
-      setIpoError(err instanceof Error ? err.message : t('unknownError'));
+      setIpoError(te(mapErrorToKey(normalizeError(err))));
       setLiqModalPlayer(null);
     } finally {
       setLiqLoading(false);
@@ -248,7 +250,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
         ipoPrice: parseFloat(cpIpoPrice) || 5,
       });
       if (!result.success) {
-        setIpoError(result.error || t('playerCreateError'));
+        setIpoError(result.error ? te(mapErrorToKey(result.error)) : t('playerCreateError'));
       } else {
         setIpoSuccess(t('playerCreateSuccess'));
         const dbPlayers = await getPlayersByClubId(club.id);
@@ -264,7 +266,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
         setTimeout(() => setIpoSuccess(null), 3000);
       }
     } catch (err) {
-      setIpoError(err instanceof Error ? err.message : t('unknownError'));
+      setIpoError(te(mapErrorToKey(normalizeError(err))));
     } finally {
       setCreateLoading(false);
     }
