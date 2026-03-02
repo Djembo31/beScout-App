@@ -1,6 +1,8 @@
 'use client';
 
 import { BarChart3 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { Card } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
@@ -13,6 +15,9 @@ interface PriceChartProps {
 }
 
 export default function PriceChart({ trades, ipoPrice, className = '' }: PriceChartProps) {
+  const t = useTranslations('player');
+  const locale = useLocale();
+
   if (trades.length < 2) return null;
 
   const sorted = [...trades].sort((a, b) => new Date(a.executed_at).getTime() - new Date(b.executed_at).getTime());
@@ -54,9 +59,9 @@ export default function PriceChart({ trades, ipoPrice, className = '' }: PriceCh
   return (
     <Card className={`p-4 md:p-6 ${className}`}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-black text-lg flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-gold" />
-          Preisverlauf
+        <h3 className="font-black text-lg flex items-center gap-2 text-balance">
+          <BarChart3 className="size-5 text-gold" aria-hidden="true" />
+          {t('priceHistory')}
         </h3>
         <div className="flex items-center gap-2">
           <span className="text-sm font-mono font-bold">{fmtScout(prices[prices.length - 1])} $SCOUT</span>
@@ -65,7 +70,7 @@ export default function PriceChart({ trades, ipoPrice, className = '' }: PriceCh
           </span>
         </div>
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Preisverlauf-Chart">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label={t('priceHistoryChart')}>
         {/* Grid lines */}
         {yLabels.map((v, i) => {
           const y = padY + (1 - (v - min) / range) * chartH;
@@ -92,11 +97,11 @@ export default function PriceChart({ trades, ipoPrice, className = '' }: PriceCh
         ))}
       </svg>
       <div className="flex justify-between text-[10px] text-white/30 mt-1 px-1">
-        <span>{dates[0].toLocaleDateString('de-DE', { day: '2-digit', month: 'short' })}</span>
+        <span>{dates[0].toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { day: '2-digit', month: 'short' })}</span>
         {dates.length > 2 && (
-          <span>{dates[Math.floor(dates.length / 2)].toLocaleDateString('de-DE', { day: '2-digit', month: 'short' })}</span>
+          <span>{dates[Math.floor(dates.length / 2)].toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { day: '2-digit', month: 'short' })}</span>
         )}
-        <span>{dates[dates.length - 1].toLocaleDateString('de-DE', { day: '2-digit', month: 'short' })}</span>
+        <span>{dates[dates.length - 1].toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { day: '2-digit', month: 'short' })}</span>
       </div>
     </Card>
   );

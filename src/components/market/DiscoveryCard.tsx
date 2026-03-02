@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Star, Loader2 } from 'lucide-react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { PlayerIdentity, PlayerKPIs, PlayerBadgeStrip, getL5Color } from '@/components/player';
@@ -30,12 +31,12 @@ interface DiscoveryCardProps {
   buying?: boolean;
 }
 
-const VARIANT_STYLES: Record<DiscoveryVariant, { badge: string; badgeBg: string; label: string; glow?: string }> = {
-  ipo: { badge: 'text-vivid-green', badgeBg: 'bg-vivid-green/15', label: 'Live', glow: 'shadow-[0_0_8px_rgba(0,230,118,0.3)]' },
-  trending: { badge: 'text-white', badgeBg: 'bg-vivid-red', label: 'HOT', glow: 'shadow-[0_0_8px_rgba(255,59,105,0.3)]' },
-  deal: { badge: 'text-vivid-green', badgeBg: 'bg-vivid-green/15', label: 'Wert!' },
-  new: { badge: 'text-sky-300', badgeBg: 'bg-sky-500/15', label: 'Neu' },
-  listing: { badge: 'text-gold', badgeBg: 'bg-gold/15', label: 'Am Markt' },
+const VARIANT_STYLES: Record<DiscoveryVariant, { badge: string; badgeBg: string; glow?: string }> = {
+  ipo: { badge: 'text-vivid-green', badgeBg: 'bg-vivid-green/15', glow: 'shadow-[0_0_8px_rgba(0,230,118,0.3)]' },
+  trending: { badge: 'text-white', badgeBg: 'bg-vivid-red', glow: 'shadow-[0_0_8px_rgba(255,59,105,0.3)]' },
+  deal: { badge: 'text-vivid-green', badgeBg: 'bg-vivid-green/15' },
+  new: { badge: 'text-sky-300', badgeBg: 'bg-sky-500/15' },
+  listing: { badge: 'text-gold', badgeBg: 'bg-gold/15' },
 };
 
 export default function DiscoveryCard({
@@ -45,9 +46,18 @@ export default function DiscoveryCard({
   valueRatio, listingPrice, listedAt, listingCount,
   isWatchlisted, onWatch, onBuy, buying,
 }: DiscoveryCardProps) {
+  const t = useTranslations('market');
   const { ref, tiltProps } = useTilt<HTMLAnchorElement>({ maxTilt: 8, scale: 1.02 });
   const vs = VARIANT_STYLES[variant];
   const posBorderColor = posTintColors[p.pos];
+
+  const variantLabel: Record<DiscoveryVariant, string> = {
+    ipo: 'Live',
+    trending: 'HOT',
+    deal: t('discoveryDealLabel'),
+    new: t('discoveryNewLabel'),
+    listing: t('discoveryListingLabel'),
+  };
 
   const price = variant === 'ipo' ? (ipoPrice ?? 0)
     : variant === 'new' || variant === 'listing' ? (listingPrice ?? p.prices.floor ?? 0)
@@ -97,17 +107,17 @@ export default function DiscoveryCard({
       {/* Stat micro-row: Goals · Assists · Matches  Trend  Age */}
       <div className="flex items-center justify-between mt-0.5 text-[9px] font-mono leading-none">
         <div className="flex items-center gap-0.5">
-          <span className="text-vivid-green">{p.stats.goals}T</span>
+          <span className="text-vivid-green">{p.stats.goals}{t('discoveryGoalsSuffix')}</span>
           <span className="text-white/15">·</span>
-          <span className="text-sky-300">{p.stats.assists}A</span>
+          <span className="text-sky-300">{p.stats.assists}{t('discoveryAssistsSuffix')}</span>
           <span className="text-white/15">·</span>
-          <span className="text-white/40">{p.stats.matches}Sp</span>
+          <span className="text-white/40">{p.stats.matches}{t('discoveryMatchesSuffix')}</span>
         </div>
         <div className="flex items-center gap-0.5">
           {p.perf.trend === 'UP' && <TrendingUp className="w-2.5 h-2.5 text-vivid-green" />}
           {p.perf.trend === 'DOWN' && <TrendingDown className="w-2.5 h-2.5 text-vivid-red" />}
           {p.perf.trend === 'FLAT' && <Minus className="w-2.5 h-2.5 text-white/30" />}
-          <span className="text-white/40">{p.age}J.</span>
+          <span className="text-white/40">{p.age}{t('discoveryAgeSuffix')}</span>
         </div>
       </div>
 
@@ -124,14 +134,14 @@ export default function DiscoveryCard({
             />
           </div>
           <span className="absolute inset-0 flex items-center justify-center text-[8px] font-mono font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-            {ipoProgress.toFixed(0)}% verkauft
+            {t('discoveryIpoSold', { pct: ipoProgress.toFixed(0) })}
           </span>
         </div>
       )}
 
       {variant === 'trending' && tradeCount !== undefined && (
         <div className="mt-1.5 flex items-center justify-between">
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded text-white/60">{tradeCount}× Trades</span>
+          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded text-white/60">{t('discoveryTradeCount', { count: tradeCount })}</span>
           {change24h !== undefined && (
             <span className={cn('text-[10px] font-mono font-bold', change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red')}>
               {change24h >= 0 ? '+' : ''}{change24h.toFixed(1)}%
@@ -142,7 +152,7 @@ export default function DiscoveryCard({
 
       {variant === 'deal' && (
         <div className="mt-1.5">
-          <span className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded', vs.badgeBg, vs.badge)}>Wert!</span>
+          <span className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded', vs.badgeBg, vs.badge)}>{variantLabel.deal}</span>
         </div>
       )}
 
@@ -159,7 +169,7 @@ export default function DiscoveryCard({
         <div className="mt-1.5 flex items-center gap-1.5 text-[9px] text-white/40">
           <span className="font-mono font-bold text-gold/70">{p.dpc.onMarket} DPC</span>
           {listingCount !== undefined && listingCount > 1 && (
-            <><span className="text-white/15">·</span><span>{listingCount} Seller</span></>
+            <><span className="text-white/15">·</span><span>{t('discoverySellerCount', { count: listingCount })}</span></>
           )}
         </div>
       )}
@@ -167,18 +177,18 @@ export default function DiscoveryCard({
       {/* Badge */}
       {variant === 'trending' && (
         <div className={cn('absolute top-1.5 right-1.5 text-[9px] font-black px-1.5 py-0.5 rounded-md', vs.badgeBg, vs.badge, vs.glow)}>
-          {vs.label}
+          {variantLabel[variant]}
         </div>
       )}
       {variant === 'ipo' && (
         <div className={cn('absolute top-1.5 right-1.5 inline-flex items-center gap-1 text-[9px] font-black px-1.5 py-0.5 rounded-md', vs.badgeBg, vs.badge, vs.glow)}>
           <span className="w-1.5 h-1.5 rounded-full bg-vivid-green live-ring" />
-          {vs.label}
+          {variantLabel[variant]}
         </div>
       )}
-      {vs.label && variant !== 'trending' && variant !== 'ipo' && variant !== 'new' && variant !== 'listing' && (
+      {variantLabel[variant] && variant !== 'trending' && variant !== 'ipo' && variant !== 'new' && variant !== 'listing' && (
         <div className={cn('absolute top-1.5 right-1.5 text-[9px] font-black px-1.5 py-0.5 rounded-md', vs.badgeBg, vs.badge, vs.glow)}>
-          {vs.label}
+          {variantLabel[variant]}
         </div>
       )}
 
@@ -189,7 +199,7 @@ export default function DiscoveryCard({
           disabled={buying}
           className="mt-2 w-full py-2 min-h-[44px] bg-gold/10 border border-gold/20 text-gold rounded-lg text-xs font-black hover:bg-gold/20 hover:btn-gold-glow transition-all active:scale-[0.95] disabled:opacity-50 flex items-center justify-center gap-1"
         >
-          {buying ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : 'Kaufen'}
+          {buying ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : t('buy')}
         </button>
       )}
     </Link>

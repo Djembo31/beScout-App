@@ -45,7 +45,8 @@
     "loadingEllipsis": "Laden...",
     "loadMore": "Mehr laden",
     "allFilter": "Alle",
-    "noData": "Keine Daten"
+    "noData": "Keine Daten",
+    "discoverClubs": "Clubs entdecken"
   },
   "auth": {
     "subtitle": "Werde Teil der TFF 1. Lig — handle Spielerkarten, spiele Fantasy und verdiene Belohnungen.",
@@ -819,7 +820,17 @@
     "badgeOnTransferList": "Auf Transferliste",
     "badgeIncomingOffers": "Eingehende Angebote",
     "bestandSortLabel": "Sortieren nach",
-    "bestandFilterLabel": "Filter anzeigen"
+    "bestandFilterLabel": "Filter anzeigen",
+    "discoveryDealLabel": "Wert!",
+    "discoveryNewLabel": "Neu",
+    "discoveryListingLabel": "Am Markt",
+    "discoveryGoalsSuffix": "T",
+    "discoveryAssistsSuffix": "A",
+    "discoveryMatchesSuffix": "Sp",
+    "discoveryAgeSuffix": "J.",
+    "discoveryIpoSold": "{pct}% verkauft",
+    "discoveryTradeCount": "{count}× Trades",
+    "discoverySellerCount": "{count} Seller"
   },
   "community": {
     "title": "Community",
@@ -936,7 +947,27 @@
     "voteCast": "Stimme abgegeben!",
     "pollCancelled": "Umfrage abgebrochen",
     "errorTitle": "Community nicht verfügbar",
-    "errorDesc": "Im Community-Bereich ist ein Fehler aufgetreten. Deine Posts und Beiträge sind sicher gespeichert."
+    "errorDesc": "Im Community-Bereich ist ein Fehler aufgetreten. Deine Posts und Beiträge sind sicher gespeichert.",
+    "newPost": "Neuer Post",
+    "postBtn": "Posten",
+    "minCharsPost": "Mindestens 10 Zeichen ({count}/10)",
+    "categoryLabel": "Kategorie",
+    "typeLabel": "Art",
+    "playerOptional": "Spieler (optional)",
+    "messageLabel": "Nachricht",
+    "tagsLabel": "Tags (kommagetrennt)",
+    "messagePlaceholder": "Was denkst du?",
+    "tagsPlaceholder": "z.B. Form, Value, Tactics",
+    "searchPlayer": "Spieler suchen...",
+    "noPlayer": "Kein Spieler",
+    "noPlayerFound": "Kein Spieler gefunden",
+    "removePlayer": "Spieler entfernen",
+    "typeGeneral": "Allgemein",
+    "typeGeneralDesc": "Meinung, Analyse, News",
+    "typePlayerTake": "Spieler-Take",
+    "typePlayerTakeDesc": "Dein Take zu einem Spieler",
+    "typeRumor": "Gerücht",
+    "typeRumorDesc": "Transfer­gerücht oder Insider-Info"
   },
   "profile": {
     "title": "Profil",
@@ -1050,7 +1081,17 @@
       "removeWatchlist": "Watchlist entfernen",
       "edition": "Edition",
       "tradeHistory": "Kaufhistorie",
-      "scoreBonus": "Score Bonus"
+      "scoreBonus": "Score Bonus",
+      "watchlist": "Watchlist",
+      "moreOptions": "Mehr Optionen",
+      "ipo": "ERSTVERKAUF",
+      "scoutsCount": "{count} Scouts",
+      "yourDpc": "Du: {count} DPC",
+      "clubSaleFixed": "Club Sale · Festpreis",
+      "floorCheapest": "Floor · günstigstes Angebot",
+      "removeAlert": "Alert entfernen",
+      "alertBtn": "Alert",
+      "close": "Schließen"
     },
     "mastery": {
       "held": "gehalten"
@@ -1083,7 +1124,9 @@
     "postCreateError": "Beitrag konnte nicht erstellt werden",
     "invalidPrice": "Ungültiger Preis",
     "offerAccepted": "Angebot angenommen",
-    "sharedToCommunity": "In der Community geteilt!"
+    "sharedToCommunity": "In der Community geteilt!",
+    "priceHistory": "Preisverlauf",
+    "priceHistoryChart": "Preisverlauf-Chart"
   },
   "club": {
     "overview": "Übersicht",
@@ -1543,7 +1586,10 @@
     "optionLabel": "Option {idx}",
     "addOption": "Option hinzufügen",
     "costLabel": "Kosten ($SCOUT)",
-    "createVote": "Abstimmung erstellen"
+    "createVote": "Abstimmung erstellen",
+    "fansCrm": "Fans CRM",
+    "clubAdmin": "Club-Verwaltung",
+    "backToClub": "Zurück zur Club-Seite"
   },
   "adminFans": {
     "totalFollowers": "Follower",
@@ -1853,7 +1899,8 @@
     "errorPlayer": "Spieler ist Pflichtfeld",
     "errorEval": "Alle 5 Dimensionen + Texte ausfüllen",
     "publishScouting": "Scouting-Report veröffentlichen",
-    "publishResearch": "Bericht veröffentlichen"
+    "publishResearch": "Bericht veröffentlichen",
+    "removePlayer": "Spieler entfernen"
   },
   "achievement": {
     "unlocked": "Erfolg freigeschaltet!",

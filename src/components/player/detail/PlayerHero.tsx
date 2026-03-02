@@ -78,7 +78,7 @@ export default function PlayerHero({
             className={cn('p-2 rounded-xl transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center',
               isWatchlisted ? 'text-gold bg-gold/10' : 'text-white/30 hover:text-white/60 hover:bg-white/5'
             )}
-            aria-label="Watchlist"
+            aria-label={t('hero.watchlist')}
           >
             <Star className="size-4" fill={isWatchlisted ? 'currentColor' : 'none'} />
           </button>
@@ -93,7 +93,7 @@ export default function PlayerHero({
             <button
               onClick={() => setShowOverflow(v => !v)}
               className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-              aria-label="Mehr Optionen"
+              aria-label={t('hero.moreOptions')}
             >
               <MoreVertical className="size-4" />
             </button>
@@ -177,18 +177,18 @@ export default function PlayerHero({
               {isIPO && (
                 <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 border border-green-500/30 rounded-lg">
                   <div className="size-2 rounded-full bg-green-500 live-ring" />
-                  <span className="text-xs font-bold text-green-500">ERSTVERKAUF</span>
+                  <span className="text-xs font-bold text-green-500">{t('hero.ipo')}</span>
                 </div>
               )}
               {holderCount > 0 && (
                 <span className="flex items-center gap-1 px-2 py-1 bg-sky-500/10 border border-sky-500/20 rounded-lg text-xs text-sky-300">
-                  <Users className="size-3" />
-                  {holderCount} Scouts
+                  <Users className="size-3" aria-hidden="true" />
+                  {t('hero.scoutsCount', { count: holderCount })}
                 </span>
               )}
               {holdingQty > 0 && (
                 <span className="flex items-center gap-1 px-2 py-1 bg-green-500/10 border border-green-500/20 rounded-lg text-xs font-bold text-green-500">
-                  Du: {holdingQty} DPC
+                  {t('hero.yourDpc', { count: holdingQty })}
                 </span>
               )}
             </div>
@@ -210,7 +210,7 @@ export default function PlayerHero({
                 )}
               </div>
               <div className="text-[10px] text-white/30 font-medium mt-0.5 text-center md:text-left">
-                {isIPO ? 'Club Sale \u00B7 Festpreis' : 'Floor \u00B7 g\u00FCnstigstes Angebot'}
+                {isIPO ? t('hero.clubSaleFixed') : t('hero.floorCheapest')}
               </div>
             </div>
 
@@ -239,7 +239,7 @@ export default function PlayerHero({
                 <span className="text-xs text-gold/70">
                   Alert: {priceAlert.dir === 'below' ? '\u2264' : '\u2265'} {fmtScout(priceAlert.target)} $SCOUT
                 </span>
-                <button onClick={() => { onRemovePriceAlert(); setShowAlertInput(false); }} className="ml-auto text-white/30 hover:text-white/60" aria-label="Alert entfernen">
+                <button onClick={() => { onRemovePriceAlert(); setShowAlertInput(false); }} className="ml-auto text-white/30 hover:text-white/60" aria-label={t('hero.removeAlert')}>
                   <XCircle className="size-3.5" />
                 </button>
               </div>
@@ -261,12 +261,12 @@ export default function PlayerHero({
                   disabled={!alertInput}
                   className="px-2 py-1 bg-gold/10 border border-gold/20 rounded-lg text-[10px] font-bold text-gold hover:bg-gold/20 disabled:opacity-30 transition-colors min-h-[44px]"
                 >
-                  Alert
+                  {t('hero.alertBtn')}
                 </button>
                 <button
                   onClick={() => setShowAlertInput(false)}
                   className="text-white/30 hover:text-white/60 min-h-[44px] flex items-center"
-                  aria-label="Schließen"
+                  aria-label={t('hero.close')}
                 >
                   <XCircle className="size-3.5" />
                 </button>

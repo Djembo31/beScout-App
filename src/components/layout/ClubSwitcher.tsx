@@ -2,11 +2,13 @@
 
 import React, { memo, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { ChevronDown, Search, Compass } from 'lucide-react';
 import { useClub } from '@/components/providers/ClubProvider';
 import { cn } from '@/lib/utils';
 
 export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapsed: boolean }) {
+  const t = useTranslations('common');
   const { activeClub, followedClubs, setActiveClub, loading } = useClub();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -112,8 +114,8 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 px-3 py-2.5 border-t border-white/10 text-gold/70 hover:text-gold hover:bg-gold/5 transition-colors"
           >
-            <Compass className="size-4" />
-            <span className="text-sm font-medium">Clubs entdecken</span>
+            <Compass className="size-4" aria-hidden="true" />
+            <span className="text-sm font-medium">{t('discoverClubs')}</span>
           </Link>
         </div>
       )}

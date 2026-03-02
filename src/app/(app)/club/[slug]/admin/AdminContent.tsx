@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import {
   BarChart3, Users, Trophy, Vote, DollarSign, Settings, Loader2, Target, Shield, Activity, Wallet, Telescope, Heart,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getClubBySlug } from '@/lib/services/club';
 import { ErrorState, Skeleton } from '@/components/ui';
@@ -24,22 +25,23 @@ import AdminFansTab from '@/components/admin/AdminFansTab';
 import { canAccessTab, getRoleBadge, type AdminTab } from '@/lib/adminRoles';
 import type { ClubWithAdmin } from '@/types';
 
-const ADMIN_TABS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
-  { id: 'overview', label: 'Übersicht', icon: BarChart3 },
-  { id: 'players', label: 'Spieler', icon: Users },
-  { id: 'events', label: 'Events', icon: Trophy },
-  { id: 'votes', label: 'Abstimmungen', icon: Vote },
-  { id: 'bounties', label: 'Aufträge', icon: Target },
-  { id: 'scouting', label: 'Scouting', icon: Telescope },
-  { id: 'moderation', label: 'Moderation', icon: Shield },
-  { id: 'analytics', label: 'Fan-Analyse', icon: Activity },
-  { id: 'fans', label: 'Fans CRM', icon: Heart },
-  { id: 'revenue', label: 'Einnahmen', icon: DollarSign },
-  { id: 'withdrawal', label: 'Auszahlung', icon: Wallet },
-  { id: 'settings', label: 'Einstellungen', icon: Settings },
+const ADMIN_TAB_ICONS: { id: AdminTab; icon: React.ElementType }[] = [
+  { id: 'overview', icon: BarChart3 },
+  { id: 'players', icon: Users },
+  { id: 'events', icon: Trophy },
+  { id: 'votes', icon: Vote },
+  { id: 'bounties', icon: Target },
+  { id: 'scouting', icon: Telescope },
+  { id: 'moderation', icon: Shield },
+  { id: 'analytics', icon: Activity },
+  { id: 'fans', icon: Heart },
+  { id: 'revenue', icon: DollarSign },
+  { id: 'withdrawal', icon: Wallet },
+  { id: 'settings', icon: Settings },
 ];
 
 export default function AdminContent({ slug }: { slug: string }) {
+  const t = useTranslations('admin');
   const { user, platformRole } = useUser();
   const router = useRouter();
   const [club, setClub] = useState<ClubWithAdmin | null>(null);
@@ -47,7 +49,8 @@ export default function AdminContent({ slug }: { slug: string }) {
   const [error, setError] = useState(false);
   const [tab, setTab] = useState<AdminTab>('overview');
   const role = club?.admin_role ?? 'editor';
-  const visibleTabs = ADMIN_TABS.filter(t => canAccessTab(t.id, role));
+  const tabLabel = (id: AdminTab): string => id === 'fans' ? t('fansCrm') : t(id);
+  const visibleTabs = ADMIN_TAB_ICONS.filter(tab => canAccessTab(tab.id, role));
 
   // Reset tab if current tab not accessible for this role
   useEffect(() => {
@@ -115,7 +118,7 @@ export default function AdminContent({ slug }: { slug: string }) {
         <div className="flex items-center gap-3">
           <div>
             <h1 className="text-2xl md:text-3xl font-black text-balance">{club.name} Admin</h1>
-            <p className="text-sm text-white/50 text-pretty">Club-Verwaltung</p>
+            <p className="text-sm text-white/50 text-pretty">{t('clubAdmin')}</p>
           </div>
           {(() => {
             const badge = getRoleBadge(role);
@@ -130,23 +133,23 @@ export default function AdminContent({ slug }: { slug: string }) {
           onClick={() => router.push(`/club/${slug}`)}
           className="text-sm text-gold hover:underline"
         >
-          Zurück zur Club-Seite
+          {t('backToClub')}
         </button>
       </div>
 
       {/* Tabs */}
       <div className="flex items-center border-b border-white/10 overflow-x-auto mb-6 scrollbar-hide -mx-4 px-4 lg:mx-0 lg:px-0">
-        {visibleTabs.map((t) => (
+        {visibleTabs.map((item) => (
           <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
+            key={item.id}
+            onClick={() => setTab(item.id)}
             className={cn('flex-shrink-0 px-2.5 md:px-4 py-2.5 text-xs md:text-sm font-semibold transition-colors relative whitespace-nowrap flex items-center gap-1 md:gap-1.5 min-h-[44px]',
-              tab === t.id ? 'text-gold' : 'text-white/60 hover:text-white'
+              tab === item.id ? 'text-gold' : 'text-white/60 hover:text-white'
             )}
           >
-            <t.icon className="size-4" />
-            {t.label}
-            {tab === t.id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold" />}
+            <item.icon className="size-4" aria-hidden="true" />
+            {tabLabel(item.id)}
+            {tab === item.id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold" />}
           </button>
         ))}
       </div>

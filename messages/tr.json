@@ -45,7 +45,8 @@
     "loadingEllipsis": "Yükleniyor...",
     "loadMore": "Daha fazla yükle",
     "allFilter": "Tümü",
-    "noData": "Veri yok"
+    "noData": "Veri yok",
+    "discoverClubs": "Kulüpleri Keşfet"
   },
   "auth": {
     "subtitle": "TFF 1. Lig Fan Platformu",
@@ -811,7 +812,17 @@
     "badgeOnTransferList": "Transfer Listesinde",
     "badgeIncomingOffers": "Gelen Teklifler",
     "bestandSortLabel": "Sıralama",
-    "bestandFilterLabel": "Filtreleri göster"
+    "bestandFilterLabel": "Filtreleri göster",
+    "discoveryDealLabel": "Fırsat!",
+    "discoveryNewLabel": "Yeni",
+    "discoveryListingLabel": "Piyasada",
+    "discoveryGoalsSuffix": "G",
+    "discoveryAssistsSuffix": "A",
+    "discoveryMatchesSuffix": "M",
+    "discoveryAgeSuffix": "Y.",
+    "discoveryIpoSold": "%{pct} satıldı",
+    "discoveryTradeCount": "{count}× İşlem",
+    "discoverySellerCount": "{count} Satıcı"
   },
   "community": {
     "title": "Topluluk",
@@ -928,7 +939,27 @@
     "voteCast": "Oy verildi!",
     "pollCancelled": "Anket iptal edildi",
     "errorTitle": "Topluluk kullanılamıyor",
-    "errorDesc": "Topluluk bölümünde bir hata oluştu. Gönderileriniz güvenle kaydedildi."
+    "errorDesc": "Topluluk bölümünde bir hata oluştu. Gönderileriniz güvenle kaydedildi.",
+    "newPost": "Yeni Gönderi",
+    "postBtn": "Paylaş",
+    "minCharsPost": "En az 10 karakter ({count}/10)",
+    "categoryLabel": "Kategori",
+    "typeLabel": "Tür",
+    "playerOptional": "Oyuncu (isteğe bağlı)",
+    "messageLabel": "Mesaj",
+    "tagsLabel": "Etiketler (virgülle ayrılmış)",
+    "messagePlaceholder": "Ne düşünüyorsun?",
+    "tagsPlaceholder": "Örn. Form, Değer, Taktik",
+    "searchPlayer": "Oyuncu ara...",
+    "noPlayer": "Oyuncu yok",
+    "noPlayerFound": "Oyuncu bulunamadı",
+    "removePlayer": "Oyuncuyu kaldır",
+    "typeGeneral": "Genel",
+    "typeGeneralDesc": "Görüş, Analiz, Haberler",
+    "typePlayerTake": "Oyuncu Yorumu",
+    "typePlayerTakeDesc": "Bir oyuncu hakkındaki görüşün",
+    "typeRumor": "Söylenti",
+    "typeRumorDesc": "Transfer söylentisi veya iç bilgi"
   },
   "profile": {
     "title": "Profil",
@@ -1042,7 +1073,17 @@
       "removeWatchlist": "İzleme listesinden çıkar",
       "edition": "Edisyon",
       "tradeHistory": "Alım Geçmişi",
-      "scoreBonus": "Puan Bonusu"
+      "scoreBonus": "Puan Bonusu",
+      "watchlist": "İzleme Listesi",
+      "moreOptions": "Diğer Seçenekler",
+      "ipo": "İLK SATIŞ",
+      "scoutsCount": "{count} Scout",
+      "yourDpc": "Sen: {count} DPC",
+      "clubSaleFixed": "Kulüp Satışı · Sabit Fiyat",
+      "floorCheapest": "Taban · en ucuz teklif",
+      "removeAlert": "Alarmı kaldır",
+      "alertBtn": "Alarm",
+      "close": "Kapat"
     },
     "mastery": {
       "held": "tutuldu"
@@ -1075,7 +1116,9 @@
     "postCreateError": "Gönderi oluşturulamadı",
     "invalidPrice": "Geçersiz fiyat",
     "offerAccepted": "Teklif kabul edildi",
-    "sharedToCommunity": "Toplulukta paylaşıldı!"
+    "sharedToCommunity": "Toplulukta paylaşıldı!",
+    "priceHistory": "Fiyat Geçmişi",
+    "priceHistoryChart": "Fiyat Geçmişi Grafiği"
   },
   "club": {
     "overview": "Genel Bakış",
@@ -1535,7 +1578,10 @@
     "optionLabel": "Seçenek {idx}",
     "addOption": "Seçenek ekle",
     "costLabel": "Maliyet ($SCOUT)",
-    "createVote": "Oylama oluştur"
+    "createVote": "Oylama oluştur",
+    "fansCrm": "Taraftar CRM",
+    "clubAdmin": "Kulüp Yönetimi",
+    "backToClub": "Kulüp sayfasına dön"
   },
   "adminFans": {
     "totalFollowers": "Takipçi",
@@ -1845,7 +1891,8 @@
     "errorPlayer": "Oyuncu zorunludur",
     "errorEval": "Tüm 5 boyut + metinleri doldurun",
     "publishScouting": "Keşif Raporunu yayınla",
-    "publishResearch": "Raporu yayınla"
+    "publishResearch": "Raporu yayınla",
+    "removePlayer": "Oyuncuyu kaldır"
   },
   "achievement": {
     "unlocked": "Başarı açıldı!",
