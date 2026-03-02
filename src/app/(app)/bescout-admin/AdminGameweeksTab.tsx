@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -10,6 +11,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { getFullGameweekStatus, simulateGameweekFlow, type FullGameweekStatus } from '@/lib/services/scoring';
 
 export function AdminGameweeksTab() {
+  const t = useTranslations('bescoutAdmin');
   const { addToast } = useToast();
   const { activeClub } = useClub();
   const { user } = useUser();
@@ -40,16 +42,15 @@ export function AdminGameweeksTab() {
     try {
       const result = await simulateGameweekFlow(selectedClubId, gw, user?.id);
       if (result.success) {
-        addToast(`GW ${gw}: ${result.fixturesSimulated} Fixtures, ${result.eventsScored} Events gescort`, 'success');
+        addToast(t('gwResult', { gw, fixtures: result.fixturesSimulated, events: result.eventsScored }), 'success');
         setActiveGw(result.nextGameweek);
       } else {
-        addToast(`Fehler: ${result.errors.join(', ')}`, 'error');
+        addToast(t('gwError', { errors: result.errors.join(', ') }), 'error');
       }
-      // Reload status
       const updated = await getFullGameweekStatus();
       setGwStatus(updated);
     } catch (e) {
-      addToast(e instanceof Error ? e.message : 'Fehler', 'error');
+      addToast(e instanceof Error ? e.message : t('error'), 'error');
     } finally {
       setSimulating(null);
     }
@@ -60,8 +61,8 @@ export function AdminGameweeksTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <span className="text-sm text-white/60">Aktiver Spieltag:</span>
-        <span className="font-bold text-gold text-lg">GW {activeGw}</span>
+        <span className="text-sm text-white/60">{t('activeGameweek')}</span>
+        <span className="font-bold text-gold text-lg tabular-nums">GW {activeGw}</span>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2">
@@ -77,24 +78,24 @@ export function AdminGameweeksTab() {
                 isPast && gw.isFullyScored && 'border-green-500/20'
               )}
             >
-              <div className={cn('text-xs font-bold mb-1', isCurrent ? 'text-gold' : 'text-white/60')}>
+              <div className={cn('text-xs font-bold mb-1 tabular-nums', isCurrent ? 'text-gold' : 'text-white/60')}>
                 GW {gw.gameweek}
               </div>
-              <div className="space-y-0.5 text-[10px] text-white/40">
+              <div className="space-y-0.5 text-[10px] text-white/40 tabular-nums">
                 <div>{gw.simulatedFixtures}/{gw.totalFixtures} Fixtures</div>
                 <div>{gw.scoredEvents}/{gw.eventCount} Events</div>
               </div>
               <div className="mt-1.5 flex justify-center gap-1">
-                {gw.isSimulated && <span className="size-2 rounded-full bg-green-500" title="Simuliert" aria-label="Simuliert" aria-hidden="true" />}
-                {gw.isFullyScored && <span className="size-2 rounded-full bg-gold" title="Gescort" aria-label="Gescort" aria-hidden="true" />}
+                {gw.isSimulated && <span className="size-2 rounded-full bg-green-500" title={t('simulated')} aria-label={t('simulated')} aria-hidden="true" />}
+                {gw.isFullyScored && <span className="size-2 rounded-full bg-gold" title={t('scored')} aria-label={t('scored')} aria-hidden="true" />}
               </div>
               {isCurrent && (
                 <button
                   onClick={() => handleSimAndScore(gw.gameweek)}
                   disabled={simulating !== null}
-                  className="mt-2 w-full text-[10px] px-2 py-1 rounded bg-gold/20 text-gold hover:bg-gold/30 disabled:opacity-50"
+                  className="mt-2 w-full text-[10px] px-2 py-1 rounded bg-gold/20 text-gold hover:bg-gold/30 disabled:opacity-50 transition-colors"
                 >
-                  {simulating === gw.gameweek ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none mx-auto" aria-hidden="true" /> : 'Sim & Score'}
+                  {simulating === gw.gameweek ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none mx-auto" aria-hidden="true" /> : t('simAndScore')}
                 </button>
               )}
             </Card>

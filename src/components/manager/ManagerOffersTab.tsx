@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Inbox, Send, Globe, Clock,
   Check, X, RotateCcw, MessageSquare,
@@ -27,18 +28,13 @@ import SponsorBanner from '@/components/player/detail/SponsorBanner';
 
 type SubTab = 'incoming' | 'outgoing' | 'open' | 'history';
 
-const SUB_TABS: { id: SubTab; label: string; icon: React.ElementType }[] = [
-  { id: 'incoming', label: 'Eingehend', icon: Inbox },
-  { id: 'outgoing', label: 'Ausgehend', icon: Send },
-  { id: 'open', label: 'Offene Gebote', icon: Globe },
-  { id: 'history', label: 'Verlauf', icon: Clock },
-];
-
 // ============================================
 // Status Badge
 // ============================================
 
 function StatusBadge({ status }: { status: string }) {
+  const t = useTranslations('offers');
+
   const styles: Record<string, string> = {
     pending: 'bg-amber-500/20 text-amber-400',
     accepted: 'bg-green-500/20 text-green-400',
@@ -47,14 +43,16 @@ function StatusBadge({ status }: { status: string }) {
     expired: 'bg-white/10 text-white/40',
     cancelled: 'bg-white/10 text-white/40',
   };
+
   const labels: Record<string, string> = {
-    pending: 'Ausstehend',
-    accepted: 'Angenommen',
-    rejected: 'Abgelehnt',
-    countered: 'Gegenangebot',
-    expired: 'Abgelaufen',
-    cancelled: 'Zurückgezogen',
+    pending: t('statusPending'),
+    accepted: t('statusAccepted'),
+    rejected: t('statusRejected'),
+    countered: t('statusCountered'),
+    expired: t('statusExpired'),
+    cancelled: t('statusCancelled'),
   };
+
   return (
     <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${styles[status] ?? 'bg-white/10 text-white/40'}`}>
       {labels[status] ?? status}
@@ -77,6 +75,7 @@ function OfferCard({
   onCancel?: () => void;
   actionId?: string | null;
 }) {
+  const t = useTranslations('offers');
   const isIncoming = offer.receiver_id === userId || (offer.receiver_id === null && offer.sender_id !== userId);
   const isSender = offer.sender_id === userId;
   const expiresAt = new Date(offer.expires_at);
@@ -100,27 +99,27 @@ function OfferCard({
           {/* Offer details */}
           <div className="flex items-center gap-3 text-sm mb-2">
             <span className={offer.side === 'buy' ? 'text-green-400' : 'text-red-400'}>
-              {offer.side === 'buy' ? 'Kaufangebot' : 'Verkaufsangebot'}
+              {offer.side === 'buy' ? t('buyOffer') : t('sellOffer')}
             </span>
-            <span className="text-white/30">â€¢</span>
-            <span className="font-mono font-bold text-gold">
+            <span className="text-white/30">&bull;</span>
+            <span className="font-mono font-bold tabular-nums text-gold">
               {fmtScout(centsToBsd(offer.price))} $SCOUT
             </span>
-            <span className="text-white/30">â€¢</span>
-            <span className="text-white/60">{offer.quantity}x</span>
+            <span className="text-white/30">&bull;</span>
+            <span className="text-white/60 tabular-nums">{offer.quantity}x</span>
           </div>
 
           {/* Sender/Receiver */}
           <div className="flex items-center gap-2 text-xs text-white/40">
             {isSender ? (
-              <span>An: {offer.receiver_handle ?? 'Offen (alle Besitzer)'}</span>
+              <span>{t('offerTo', { receiver: offer.receiver_handle ?? t('openAllOwners') })}</span>
             ) : (
-              <span>Von: @{offer.sender_handle}</span>
+              <span>{t('offerFrom', { sender: offer.sender_handle })}</span>
             )}
             {!isExpired && offer.status === 'pending' && (
               <>
-                <span>â€¢</span>
-                <span>{timeLeft}h verbleibend</span>
+                <span>&bull;</span>
+                <span>{t('timeRemaining', { hours: timeLeft })}</span>
               </>
             )}
           </div>
@@ -144,9 +143,9 @@ function OfferCard({
                   onClick={onAccept}
                   disabled={actionId === offer.id}
                   className="p-1.5 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors disabled:opacity-50"
-                  aria-label="Annehmen"
+                  aria-label={t('statusAccepted')}
                 >
-                  {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <Check className="w-4 h-4" />}
+                  {actionId === offer.id ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Check className="size-4" aria-hidden="true" />}
                 </button>
               )}
               {isIncoming && onCounter && (
@@ -154,9 +153,9 @@ function OfferCard({
                   onClick={onCounter}
                   disabled={actionId === offer.id}
                   className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors disabled:opacity-50"
-                  aria-label="Gegenangebot"
+                  aria-label={t('counterOffer')}
                 >
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="size-4" aria-hidden="true" />
                 </button>
               )}
               {(isIncoming && onReject) && (
@@ -164,9 +163,9 @@ function OfferCard({
                   onClick={onReject}
                   disabled={actionId === offer.id}
                   className="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors disabled:opacity-50"
-                  aria-label="Ablehnen"
+                  aria-label={t('statusRejected')}
                 >
-                  {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <X className="w-4 h-4" />}
+                  {actionId === offer.id ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <X className="size-4" aria-hidden="true" />}
                 </button>
               )}
               {isSender && onCancel && (
@@ -174,9 +173,9 @@ function OfferCard({
                   onClick={onCancel}
                   disabled={actionId === offer.id}
                   className="p-1.5 rounded-lg bg-white/10 text-white/40 hover:bg-white/20 transition-colors disabled:opacity-50"
-                  aria-label="Zurückziehen"
+                  aria-label={t('statusCancelled')}
                 >
-                  {actionId === offer.id ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <X className="w-4 h-4" />}
+                  {actionId === offer.id ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <X className="size-4" aria-hidden="true" />}
                 </button>
               )}
             </div>
@@ -199,6 +198,7 @@ function CreateOfferModal({
   players: Player[];
   userId: string;
 }) {
+  const t = useTranslations('offers');
   const { addToast } = useToast();
   const [search, setSearch] = useState('');
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
@@ -217,16 +217,15 @@ function CreateOfferModal({
   const handleSubmit = async () => {
     if (!selectedPlayer || !price) return;
     const priceCents = Math.round(parseFloat(price) * 100);
-    if (priceCents <= 0) { addToast('Ungültiger Preis', 'error'); return; }
+    if (priceCents <= 0) { addToast(t('invalidPrice'), 'error'); return; }
 
     setLoading(true);
     try {
-      // Resolve receiver handle to user_id
       let receiverId: string | undefined;
       if (receiverHandle.trim()) {
         const { getProfileByHandle } = await import('@/lib/services/profiles');
         const profile = await getProfileByHandle(receiverHandle.trim().replace('@', ''));
-        if (!profile) { addToast('Benutzer nicht gefunden', 'error'); setLoading(false); return; }
+        if (!profile) { addToast(t('userNotFound'), 'error'); setLoading(false); return; }
         receiverId = profile.id;
       }
 
@@ -241,37 +240,37 @@ function CreateOfferModal({
       });
 
       if (result.success) {
-        addToast('Angebot erstellt', 'success');
+        addToast(t('offerCreated'), 'success');
         onClose();
         setSelectedPlayer(null);
         setPrice('');
         setReceiverHandle('');
         setMessage('');
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        addToast(result.error ?? t('error'), 'error');
       }
     } catch (e) {
-      addToast(e instanceof Error ? e.message : 'Fehler', 'error');
+      addToast(e instanceof Error ? e.message : t('error'), 'error');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Neues Angebot">
+    <Modal open={open} onClose={onClose} title={t('newOffer')}>
       <div className="space-y-4">
         {/* Player Search */}
         {!selectedPlayer ? (
           <div>
-            <label htmlFor="offer-player-search" className="text-sm text-white/60 mb-1 block">Spieler suchen</label>
+            <label htmlFor="offer-player-search" className="text-sm text-white/60 mb-1 block">{t('searchPlayer')}</label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" aria-hidden="true" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30" aria-hidden="true" />
               <input
                 id="offer-player-search"
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Spieler suchen..."
+                placeholder={t('searchPlayerPlaceholder')}
                 className="w-full pl-10 pr-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
               />
             </div>
@@ -281,7 +280,7 @@ function CreateOfferModal({
                   <button
                     key={p.id}
                     onClick={() => { setSelectedPlayer(p); setSearch(''); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 text-left"
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 text-left transition-colors"
                   >
                     <PlayerIdentity
                       player={{ first: p.first, last: p.last, pos: p.pos, status: 'fit', club: p.club, ticket: p.ticket, age: p.age, imageUrl: p.imageUrl }}
@@ -298,15 +297,15 @@ function CreateOfferModal({
               player={{ first: selectedPlayer.first, last: selectedPlayer.last, pos: selectedPlayer.pos, status: 'fit', club: selectedPlayer.club, ticket: selectedPlayer.ticket, age: selectedPlayer.age, imageUrl: selectedPlayer.imageUrl }}
               size="sm" showMeta={false} showStatus={false}
             />
-            <button onClick={() => setSelectedPlayer(null)} aria-label="Spieler entfernen" className="ml-auto text-white/40 hover:text-white">
-              <X className="w-4 h-4" aria-hidden="true" />
+            <button onClick={() => setSelectedPlayer(null)} aria-label={t('statusCancelled')} className="ml-auto text-white/40 hover:text-white transition-colors">
+              <X className="size-4" aria-hidden="true" />
             </button>
           </div>
         )}
 
         {/* Side */}
         <div>
-          <label className="text-sm text-white/60 mb-1 block">Art</label>
+          <label className="text-sm text-white/60 mb-1 block">{t('offerType')}</label>
           <div className="flex gap-2">
             <button
               onClick={() => setSide('buy')}
@@ -315,7 +314,7 @@ function CreateOfferModal({
                 side === 'buy' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-white/5 text-white/40 border-white/10'
               )}
             >
-              Kaufen
+              {t('buy')}
             </button>
             <button
               onClick={() => setSide('sell')}
@@ -324,29 +323,29 @@ function CreateOfferModal({
                 side === 'sell' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-white/5 text-white/40 border-white/10'
               )}
             >
-              Verkaufen
+              {t('sell')}
             </button>
           </div>
         </div>
 
         {/* Price */}
         <div>
-          <label htmlFor="offer-price" className="text-sm text-white/60 mb-1 block">Preis pro DPC ($SCOUT)</label>
+          <label htmlFor="offer-price" className="text-sm text-white/60 mb-1 block">{t('priceLabel')}</label>
           <input
             id="offer-price"
             type="number" inputMode="numeric"
             value={price}
             onChange={e => setPrice(e.target.value)}
-            placeholder="z.B. 150"
+            placeholder={t('pricePlaceholder')}
             min="1"
             step="1"
-            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30 font-mono"
+            className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30 font-mono tabular-nums"
           />
         </div>
 
         {/* Receiver (optional) */}
         <div>
-          <label htmlFor="offer-receiver" className="text-sm text-white/60 mb-1 block">Empfänger (optional, leer = offenes Gebot)</label>
+          <label htmlFor="offer-receiver" className="text-sm text-white/60 mb-1 block">{t('receiverLabel')}</label>
           <input
             id="offer-receiver"
             type="text"
@@ -359,13 +358,13 @@ function CreateOfferModal({
 
         {/* Message */}
         <div>
-          <label htmlFor="offer-message" className="text-sm text-white/60 mb-1 block">Nachricht (optional)</label>
+          <label htmlFor="offer-message" className="text-sm text-white/60 mb-1 block">{t('messageLabel')}</label>
           <input
             id="offer-message"
             type="text"
             value={message}
             onChange={e => setMessage(e.target.value)}
-            placeholder="z.B. Interessiert an deinem DPC..."
+            placeholder={t('messagePlaceholder')}
             maxLength={200}
             className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-gold/30"
           />
@@ -376,7 +375,7 @@ function CreateOfferModal({
           disabled={!selectedPlayer || !price || loading}
           className="w-full"
         >
-          {loading ? 'Wird erstellt...' : 'Angebot erstellen'}
+          {loading ? t('creating') : t('createOffer')}
         </Button>
       </div>
     </Modal>
@@ -388,6 +387,7 @@ function CreateOfferModal({
 // ============================================
 
 export default function ManagerOffersTab({ players }: { players: Player[] }) {
+  const t = useTranslations('offers');
   const { user } = useUser();
   const { addToast } = useToast();
   const { showError } = useErrorToast();
@@ -401,6 +401,20 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
   const [countering, setCountering] = useState(false);
 
   const uid = user?.id;
+
+  const SUB_TABS: { id: SubTab; label: string; icon: React.ElementType }[] = [
+    { id: 'incoming', label: t('tabIncoming'), icon: Inbox },
+    { id: 'outgoing', label: t('tabOutgoing'), icon: Send },
+    { id: 'open', label: t('tabOpenBids'), icon: Globe },
+    { id: 'history', label: t('tabHistory'), icon: Clock },
+  ];
+
+  const EMPTY_STATES: Record<SubTab, { title: string; desc: string }> = {
+    incoming: { title: t('noIncoming'), desc: t('noIncomingDesc') },
+    outgoing: { title: t('noOutgoing'), desc: t('noOutgoingDesc') },
+    open: { title: t('noOpenBids'), desc: t('noOpenBidsDesc') },
+    history: { title: t('noHistory'), desc: t('noHistoryDesc') },
+  };
 
   const loadOffers = useCallback(async () => {
     if (!uid) return;
@@ -427,7 +441,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
     try {
       const result = await acceptOffer(uid, offerId);
       if (result.success) {
-        addToast('Angebot angenommen', 'success');
+        addToast(t('offerAccepted'), 'success');
         loadOffers();
       } else {
         showError(result.error ?? 'generic');
@@ -445,7 +459,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
     try {
       const result = await rejectOffer(uid, offerId);
       if (result.success) {
-        addToast('Angebot abgelehnt', 'success');
+        addToast(t('offerRejected'), 'success');
         loadOffers();
       } else {
         showError(result.error ?? 'generic');
@@ -460,12 +474,12 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
   const handleCounter = async () => {
     if (!uid || !counterModal || !counterPrice || countering) return;
     const priceCents = Math.round(parseFloat(counterPrice) * 100);
-    if (priceCents <= 0) { addToast('Ungültiger Preis', 'error'); return; }
+    if (priceCents <= 0) { addToast(t('invalidPrice'), 'error'); return; }
     setCountering(true);
     try {
       const result = await counterOffer(uid, counterModal.id, priceCents);
       if (result.success) {
-        addToast('Gegenangebot erstellt', 'success');
+        addToast(t('counterCreated'), 'success');
         setCounterModal(null);
         setCounterPrice('');
         loadOffers();
@@ -485,7 +499,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
     try {
       const result = await cancelOffer(uid, offerId);
       if (result.success) {
-        addToast('Angebot zurückgezogen', 'success');
+        addToast(t('offerCancelled'), 'success');
         loadOffers();
       } else {
         showError(result.error ?? 'generic');
@@ -501,28 +515,29 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-white">Angebote</h2>
+        <h2 className="text-lg font-bold text-balance text-white">{t('offersTitle')}</h2>
         <Button onClick={() => setShowCreate(true)} className="gap-2">
-          <Plus className="w-4 h-4" /> Neues Angebot
+          <Plus aria-hidden="true" className="size-4" /> {t('newOffer')}
         </Button>
       </div>
 
       {/* Sub Tabs */}
       <div className="flex gap-1 bg-white/[0.02] rounded-xl p-1 border border-white/[0.06]">
-        {SUB_TABS.map(t => {
-          const Icon = t.icon;
+        {SUB_TABS.map(tab => {
+          const Icon = tab.icon;
           return (
             <button
-              key={t.id}
-              onClick={() => setSubTab(t.id)}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                subTab === t.id
+              key={tab.id}
+              onClick={() => setSubTab(tab.id)}
+              className={cn(
+                'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
+                subTab === tab.id
                   ? 'bg-gold/10 text-gold border border-gold/20'
                   : 'text-white/40 hover:text-white/60'
-              }`}
+              )}
             >
-              <Icon className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{t.label}</span>
+              <Icon aria-hidden="true" className="size-3.5" />
+              <span className="hidden sm:inline">{tab.label}</span>
             </button>
           );
         })}
@@ -539,18 +554,12 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
         </div>
       ) : offers.length === 0 ? (
         <Card className="p-12 text-center">
-          <MessageSquare className="w-12 h-12 mx-auto mb-4 text-white/20" />
-          <div className="text-white/30 mb-2">
-            {subTab === 'incoming' && 'Keine eingehenden Angebote'}
-            {subTab === 'outgoing' && 'Keine ausgehenden Angebote'}
-            {subTab === 'open' && 'Keine offenen Gebote'}
-            {subTab === 'history' && 'Kein Angebotsverlauf'}
+          <MessageSquare aria-hidden="true" className="size-12 mx-auto mb-4 text-white/20" />
+          <div className="text-white/30 text-pretty mb-2">
+            {EMPTY_STATES[subTab].title}
           </div>
-          <div className="text-sm text-white/50">
-            {subTab === 'incoming' && 'Sobald dir jemand ein Angebot macht, siehst du es hier.'}
-            {subTab === 'outgoing' && 'Erstelle ein Angebot um zu verhandeln.'}
-            {subTab === 'open' && 'Erstelle ein offenes Gebot, das jeder Besitzer annehmen kann.'}
-            {subTab === 'history' && 'Abgeschlossene Angebote erscheinen hier.'}
+          <div className="text-sm text-pretty text-white/50">
+            {EMPTY_STATES[subTab].desc}
           </div>
         </Card>
       ) : (
@@ -582,23 +591,23 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
 
       {/* Counter Modal */}
       {counterModal && (
-        <Modal open={true} onClose={() => { setCounterModal(null); setCounterPrice(''); }} title="Gegenangebot">
+        <Modal open={true} onClose={() => { setCounterModal(null); setCounterPrice(''); }} title={t('counterOffer')}>
           <div className="space-y-4">
             <div className="text-sm text-white/60">
-              Original: <span className="font-mono text-gold">{fmtScout(centsToBsd(counterModal.price))} $SCOUT</span> für {counterModal.player_first_name} {counterModal.player_last_name}
+              {t('originalPrice')} <span className="font-mono tabular-nums text-gold">{fmtScout(centsToBsd(counterModal.price))} $SCOUT</span> — {counterModal.player_first_name} {counterModal.player_last_name}
             </div>
             <div>
-              <label htmlFor="counter-price" className="text-sm text-white/60 mb-1 block">Dein Preis ($SCOUT)</label>
+              <label htmlFor="counter-price" className="text-sm text-white/60 mb-1 block">{t('yourPrice')}</label>
               <input
                 id="counter-price"
                 type="number" inputMode="numeric"
                 value={counterPrice}
                 onChange={e => setCounterPrice(e.target.value)}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white font-mono focus:outline-none focus:border-gold/30"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white font-mono tabular-nums focus:outline-none focus:border-gold/30"
               />
             </div>
             <Button onClick={handleCounter} disabled={countering} className="w-full">
-              {countering ? <><Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> Wird gesendet...</> : 'Gegenangebot senden'}
+              {countering ? <><Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> {t('sending')}</> : t('sendCounter')}
             </Button>
           </div>
         </Modal>

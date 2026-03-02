@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -10,6 +11,7 @@ import type { DbFeeConfig } from '@/types';
 type FeeKey = 'trade_fee_bps' | 'trade_platform_bps' | 'trade_pbt_bps' | 'trade_club_bps' | 'ipo_club_bps' | 'ipo_platform_bps' | 'ipo_pbt_bps';
 
 export function AdminFeesTab({ adminId }: { adminId: string }) {
+  const t = useTranslations('bescoutAdmin');
   const { addToast } = useToast();
   const [configs, setConfigs] = useState<DbFeeConfig[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,15 +34,15 @@ export function AdminFeesTab({ adminId }: { adminId: string }) {
         ipo_pbt_bps: editValues.ipo_pbt_bps,
       });
       if (result.success) {
-        addToast('Gebühren aktualisiert', 'success');
+        addToast(t('feesUpdated'), 'success');
         setEditId(null);
         const data = await getAllFeeConfigs();
         setConfigs(data);
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        addToast(result.error ?? t('error'), 'error');
       }
     } catch (e) {
-      addToast(e instanceof Error ? e.message : 'Fehler', 'error');
+      addToast(e instanceof Error ? e.message : t('error'), 'error');
     }
   };
 
@@ -54,16 +56,16 @@ export function AdminFeesTab({ adminId }: { adminId: string }) {
         return (
           <Card key={config.id} className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <span className="font-bold text-white">{config.club_name ?? 'Standard (alle Clubs)'}</span>
+              <span className="font-bold text-white">{config.club_name ?? t('feeDefaultClub')}</span>
               {!isEditing ? (
                 <button onClick={() => { setEditId(config.id); setEditValues(config); }}
-                  className="text-xs px-3 py-1 rounded-lg bg-white/10 text-white/60 hover:bg-white/20">
-                  Bearbeiten
+                  className="text-xs px-3 py-1 rounded-lg bg-white/10 text-white/60 hover:bg-white/20 transition-colors">
+                  {t('edit')}
                 </button>
               ) : (
                 <div className="flex gap-2">
-                  <button onClick={() => setEditId(null)} className="text-xs px-3 py-1 rounded-lg bg-white/10 text-white/40">Abbrechen</button>
-                  <button onClick={() => handleSave(config.id)} className="text-xs px-3 py-1 rounded-lg bg-gold/20 text-gold">Speichern</button>
+                  <button onClick={() => setEditId(null)} className="text-xs px-3 py-1 rounded-lg bg-white/10 text-white/40 hover:bg-white/20 transition-colors">{t('cancel')}</button>
+                  <button onClick={() => handleSave(config.id)} className="text-xs px-3 py-1 rounded-lg bg-gold/20 text-gold hover:bg-gold/30 transition-colors">{t('save')}</button>
                 </div>
               )}
             </div>
@@ -87,10 +89,10 @@ export function AdminFeesTab({ adminId }: { adminId: string }) {
                       max={10000}
                       value={editValues[key] ?? 0}
                       onChange={e => setEditValues(prev => ({ ...prev, [key]: Math.min(10000, Math.max(0, parseInt(e.target.value) || 0)) }))}
-                      className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white font-mono text-xs"
+                      className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white font-mono text-xs tabular-nums"
                     />
                   ) : (
-                    <div className="font-mono text-white">{config[key]} bps</div>
+                    <div className="font-mono tabular-nums text-white">{config[key]} bps</div>
                   )}
                 </div>
               ))}

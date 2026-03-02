@@ -778,7 +778,7 @@ function ActivityFeed({
       </div>
       <div className="space-y-3">
         {trades.length === 0 ? (
-          <div className="text-center text-white/40 py-6">{emptyText || 'Keine Aktivität'}</div>
+          <div className="text-center text-white/40 py-6">{emptyText}</div>
         ) : (
           trades.map((trade) => {
             const priceBsd = centsToBsd(trade.price);
@@ -1041,7 +1041,7 @@ export default function ClubContent({ slug }: { slug: string }) {
     } catch {
       setLocalFollowing(!newFollowing);
       setLocalFollowerDelta(prev => prev + (newFollowing ? -1 : 1));
-      addToast('Fehler beim Folgen/Entfolgen', 'error');
+      addToast(t('followError'), 'error');
     } finally {
       setFollowLoading(false);
     }
@@ -1055,13 +1055,13 @@ export default function ClubContent({ slug }: { slug: string }) {
     try {
       const result = await subscribeTo(user.id, club.id, tier);
       if (!result.success) {
-        setSubError(result.error || 'Fehler beim Abonnieren');
+        setSubError(result.error || t('subscribeError'));
       } else {
         queryClient.invalidateQueries({ queryKey: qk.clubs.subscription(user.id, club.id) });
         setSubModalOpen(false);
       }
     } catch (err) {
-      setSubError(err instanceof Error ? err.message : 'Unbekannter Fehler');
+      setSubError(err instanceof Error ? err.message : t('unknownError'));
     } finally {
       setSubLoading(false);
     }
@@ -1075,7 +1075,7 @@ export default function ClubContent({ slug }: { slug: string }) {
       setSubscription(prev => prev ? { ...prev, auto_renew: false } : null);
     } catch (err) {
       console.error('[Club] Cancel subscription failed:', err);
-      addToast('Fehler beim Kündigen', 'error');
+      addToast(t('cancelSubError'), 'error');
     }
     finally { setSubLoading(false); }
   }, [user, club]);
