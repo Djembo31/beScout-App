@@ -368,7 +368,7 @@ export const EventDetailModal = ({
         return player?.club.toLowerCase().includes(event.requirements.specificClub!.toLowerCase());
       });
       if (clubPlayers.length < event.requirements.minClubPlayers) {
-        return { ok: false, message: `Min. ${event.requirements.minClubPlayers} ${event.clubName}-Spieler erforderlich` };
+        return { ok: false, message: t('minClubPlayersReq', { count: event.requirements.minClubPlayers, club: event.clubName ?? '' }) };
       }
     }
     return { ok: true, message: '' };
@@ -545,19 +545,19 @@ export const EventDetailModal = ({
 
               {/* Event Details */}
               <div>
-                <h3 className="font-bold mb-2">Event-Details</h3>
+                <h3 className="font-bold mb-2">{t('eventDetails')}</h3>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="p-3 bg-white/[0.03] rounded-lg">
-                    <div className="text-xs text-white/40">Eintritt</div>
-                    <div className="font-mono font-bold text-gold">{event.buyIn === 0 ? 'Kostenlos' : `${event.buyIn} $SCOUT`}</div>
+                    <div className="text-xs text-white/40">{t('entryLabel')}</div>
+                    <div className="font-mono font-bold text-gold">{event.buyIn === 0 ? t('entryFree') : `${event.buyIn} $SCOUT`}</div>
                   </div>
                   <div className="p-3 bg-white/[0.03] rounded-lg">
-                    <div className="text-xs text-white/40">Preispool</div>
+                    <div className="text-xs text-white/40">{t('prizePoolLabel')}</div>
                     <div className="font-mono font-bold text-gold">{event.prizePool} $SCOUT</div>
                   </div>
                   <div className="p-3 bg-white/[0.03] rounded-lg">
-                    <div className="text-xs text-white/40">Format</div>
-                    <div className="font-bold">{event.format} • {event.mode === 'league' ? 'Liga' : 'Turnier'}</div>
+                    <div className="text-xs text-white/40">{t('formatLabel')}</div>
+                    <div className="font-bold">{event.format} • {event.mode === 'league' ? t('modeLeague') : t('modeTournament')}</div>
                   </div>
                   <div className="p-3 bg-white/[0.03] rounded-lg">
                     <div className="text-xs text-white/40">{t('dpcPerSlotLabel')}</div>
@@ -1576,8 +1576,8 @@ export const EventDetailModal = ({
               {!isLineupComplete && (
                 <div className="px-3 pt-3 md:px-5 md:pt-4">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-white/50">Aufstellung</span>
-                    <span className="text-xs font-mono font-bold text-gold">{filledSlots}/{totalSlots} Spieler</span>
+                    <span className="text-xs text-white/50">{t('lineupLabel')}</span>
+                    <span className="text-xs font-mono font-bold text-gold">{t('playersProgress', { filled: filledSlots, total: totalSlots })}</span>
                   </div>
                   <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                     <div

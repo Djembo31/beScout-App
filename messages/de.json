@@ -54,7 +54,8 @@
     "navSpieltag": "Spieltag",
     "navMarkt": "Markt",
     "navClub": "Club",
-    "navCommunity": "Community"
+    "navCommunity": "Community",
+    "closeLabel": "Schließen"
   },
   "auth": {
     "subtitle": "Werde Teil der TFF 1. Lig — handle Spielerkarten, spiele Fantasy und verdiene Belohnungen.",
@@ -670,7 +671,16 @@
     "rankOfParticipants": "Platz {rank} / {participants} — {score} Punkte",
     "scoredRankOf": "{score} Punkte · Platz {rank} / {participants}",
     "gwSimulatedLabel": "Beendet",
-    "startSimulation": "Starten"
+    "startSimulation": "Starten",
+    "eventDetails": "Event-Details",
+    "entryFree": "Kostenlos",
+    "prizePoolLabel": "Preispool",
+    "eventEndedError": "Anmeldung nicht möglich — Event ist beendet.",
+    "eventFullError": "Event ist voll — maximale Teilnehmerzahl erreicht.",
+    "notEnoughScout": "Nicht genug $SCOUT! Du brauchst {needed} $SCOUT, hast aber nur {balance}.",
+    "gameweekDone": "Spieltag abgeschlossen! Nächster Spieltag wird geladen...",
+    "lineupLabel": "Aufstellung",
+    "playersProgress": "{filled}/{total} Spieler"
   },
   "predictions": {
     "title": "Vorhersagen",
@@ -972,7 +982,8 @@
     "discoveryAgeSuffix": "J.",
     "discoveryIpoSold": "{pct}% verkauft",
     "discoveryTradeCount": "{count}× Trades",
-    "discoverySellerCount": "{count} Seller"
+    "discoverySellerCount": "{count} Seller",
+    "goToPlayer": "Zum Spieler →"
   },
   "community": {
     "title": "Community",
@@ -1184,7 +1195,9 @@
     "criteriaGoals": "Tore ≥ {value}",
     "criteriaAssists": "Assists ≥ {value}",
     "criteriaCS": "CS ≥ {value}",
-    "criteriaFloor": "Floor ≤ {value}"
+    "criteriaFloor": "Floor ≤ {value}",
+    "unlockConfirm": "Ja, freischalten",
+    "cancelBtn": "Abbrechen"
   },
   "profile": {
     "title": "Profil",
@@ -2503,7 +2516,21 @@
     "noPlayerData": "Keine Spielerdaten verfügbar",
     "notSimulated": "Spiel noch nicht simuliert — Aufstellungen werden nach Simulation angezeigt",
     "startSimulation": "Starten",
-    "gwSimulatedLabel": "Beendet"
+    "gwSimulatedLabel": "Beendet",
+    "cancelBtn": "Abbrechen",
+    "startGameweekBtn": "Spieltag starten",
+    "finalizeTitle": "Spieltag auswerten",
+    "finalizeDesc": "Spieltag {gw} wird final ausgewertet. Folgendes passiert:",
+    "finalizeStep1": "Events werden gescored und Rankings erstellt",
+    "finalizeStep1Simple": "Events werden gescored und Ergebnisse stehen fest",
+    "finalizeStep2": "Events für Spieltag {nextGw} werden automatisch erstellt",
+    "finalizeStep3": "Spieltag wird auf {nextGw} vorgerückt",
+    "finalizeWarning": "Dieser Schritt kann nicht rückgängig gemacht werden. Stelle sicher, dass alle Fixtures importiert sind.",
+    "finalizeNowBtn": "Jetzt auswerten",
+    "importResult": "{fixtures} Fixtures, {scores} Scores",
+    "importError": "Fehler: {message}",
+    "lineupLabel": "Aufstellung",
+    "playersProgress": "{filled}/{total} Spieler"
   },
   "sponsorStats": {
     "title": "Sponsor-KPIs",

@@ -368,7 +368,7 @@ export default function MarketPage() {
           {lastBoughtId && (
             <Link href={`/player/${lastBoughtId}`}
               className="px-3 py-1.5 bg-white/10 rounded-lg text-[11px] font-bold text-white/70 hover:bg-white/15 transition-colors whitespace-nowrap">
-              Zum Spieler →
+              {t('goToPlayer')}
             </Link>
           )}
         </div>
@@ -376,7 +376,7 @@ export default function MarketPage() {
       {buyError && (
         <div role="alert" aria-live="assertive" className="fixed top-[max(1rem,env(safe-area-inset-top))] right-4 z-50 bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm flex items-center gap-3 anim-scale-pop">
           <span>{buyError}</span>
-          <button onClick={() => { resetBuy(); resetIpoBuy(); }} aria-label="Schließen" className="p-1 rounded-lg hover:bg-red-500/20 transition-colors flex-shrink-0">
+          <button onClick={() => { resetBuy(); resetIpoBuy(); }} aria-label={tc('closeLabel')} className="p-1 rounded-lg hover:bg-red-500/20 transition-colors flex-shrink-0">
             <X className="size-4" />
           </button>
         </div>

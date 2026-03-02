@@ -112,6 +112,7 @@ function StarRating({
 export default function ResearchCard({ post, onUnlock, unlockingId, onRate, ratingId, authorScore }: Props) {
   const tg = useTranslations('gamification');
   const ts = useTranslations('scouting');
+  const tc = useTranslations('community');
   const [confirmUnlock, setConfirmUnlock] = useState(false);
   const canSeeContent = post.is_own || post.is_unlocked;
   const rang = getRang(authorScore ?? 500);
@@ -289,13 +290,13 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
                     onClick={() => { onUnlock(post.id); setConfirmUnlock(false); }}
                   >
                     <Unlock className="w-3.5 h-3.5" />
-                    Ja, freischalten
+                    {tc('unlockConfirm')}
                   </Button>
                   <button
                     onClick={() => setConfirmUnlock(false)}
                     className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 text-white/50 hover:bg-white/10 transition-colors"
                   >
-                    Abbrechen
+                    {tc('cancelBtn')}
                   </button>
                 </div>
               </div>

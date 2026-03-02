@@ -390,6 +390,7 @@ export function SpieltagTab({
   onSimulated,
 }: SpieltagTabProps) {
   const ts = useTranslations('spieltag');
+  const tc = useTranslations('common');
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
   const [fixturesLoading, setFixturesLoading] = useState(true);
   const [simulating, setSimulating] = useState(false);
@@ -463,12 +464,12 @@ export function SpieltagTab({
       if (result.fixturesImported > 0 || result.scoresSynced > 0) {
         await loadFixtures(gameweek);
       }
-      setImportResult(`${result.fixturesImported} Fixtures, ${result.scoresSynced} Scores`);
+      setImportResult(ts('importResult', { fixtures: result.fixturesImported, scores: result.scoresSynced }));
       if (result.errors.length > 0) {
         console.warn('[Spieltag] Import warnings:', result.errors);
       }
     } catch (e) {
-      setImportResult(`Fehler: ${e instanceof Error ? e.message : 'Unbekannt'}`);
+      setImportResult(ts('importError', { message: e instanceof Error ? e.message : 'Unknown' }));
     }
     setImporting(false);
   };
@@ -568,7 +569,7 @@ export function SpieltagTab({
       {importResult && (
         <div className="flex items-center justify-between p-3 bg-sky-500/10 border border-sky-500/20 rounded-xl">
           <span className="text-xs text-sky-300 font-medium">{importResult}</span>
-          <button onClick={() => setImportResult(null)} className="text-xs text-white/40 hover:text-white/60 transition-colors" aria-label="Schließen">✕</button>
+          <button onClick={() => setImportResult(null)} className="text-xs text-white/40 hover:text-white/60 transition-colors" aria-label={tc('closeLabel')}>✕</button>
         </div>
       )}
 
@@ -620,23 +621,23 @@ export function SpieltagTab({
 
       {/* 11. MODALS — unchanged */}
       {/* Legacy Starten Modal (non-API simulation mode) */}
-      <Modal open={showConfirm} title="Spieltag starten" onClose={() => setShowConfirm(false)}>
+      <Modal open={showConfirm} title={ts('startGameweekBtn')} onClose={() => setShowConfirm(false)}>
         <div className="space-y-4 p-2">
           <p className="text-sm text-white/70">
-            Spieltag {gameweek} wird gestartet. Folgendes passiert:
+            {ts('finalizeDesc', { gw: gameweek })}
           </p>
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
               <span className="text-sky-400 mt-0.5">1.</span>
-              <span>{fixtures.length} Spiele werden <strong className="text-sky-400">simuliert</strong></span>
+              <span>{fixtures.length} Fixtures</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-gold mt-0.5">2.</span>
-              <span>Events werden <strong className="text-gold">gescored</strong> und Ergebnisse stehen fest</span>
+              <span>{ts('finalizeStep1Simple')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-green-500 mt-0.5">3.</span>
-              <span>Events für <strong className="text-green-500">Spieltag {gameweek + 1}</strong> werden automatisch erstellt</span>
+              <span>{ts('finalizeStep2', { nextGw: gameweek + 1 })}</span>
             </li>
           </ul>
           <div className="flex items-center gap-3 pt-2">
@@ -644,53 +645,53 @@ export function SpieltagTab({
               onClick={() => setShowConfirm(false)}
               className="flex-1 px-4 py-2.5 min-h-[44px] bg-white/5 border border-white/10 rounded-xl text-sm font-semibold hover:bg-white/10 transition-colors"
             >
-              Abbrechen
+              {ts('cancelBtn')}
             </button>
             <button
               onClick={handleSimulate}
               className="flex-1 px-4 py-2.5 min-h-[44px] bg-gold/10 border border-gold/30 rounded-xl text-sm font-bold text-gold hover:bg-gold/20 transition-colors"
             >
-              Spieltag starten
+              {ts('startGameweekBtn')}
             </button>
           </div>
         </div>
       </Modal>
 
       {/* Finalize Confirmation Modal */}
-      <Modal open={showFinalizeConfirm} title="Spieltag auswerten" onClose={() => setShowFinalizeConfirm(false)}>
+      <Modal open={showFinalizeConfirm} title={ts('finalizeTitle')} onClose={() => setShowFinalizeConfirm(false)}>
         <div className="space-y-4 p-2">
           <p className="text-sm text-white/70">
-            Spieltag {gameweek} wird final ausgewertet. Folgendes passiert:
+            {ts('finalizeDesc', { gw: gameweek })}
           </p>
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
               <span className="text-gold mt-0.5">1.</span>
-              <span>{gwEvents.length} Event{gwEvents.length !== 1 ? 's' : ''} werden <strong className="text-gold">gescored</strong> und Rankings erstellt</span>
+              <span>{ts('finalizeStep1')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-green-500 mt-0.5">2.</span>
-              <span>Events für <strong className="text-green-500">Spieltag {gameweek + 1}</strong> werden automatisch erstellt</span>
+              <span>{ts('finalizeStep2', { nextGw: gameweek + 1 })}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-sky-400 mt-0.5">3.</span>
-              <span>Spieltag wird auf <strong className="text-sky-400">{gameweek + 1}</strong> vorgerückt</span>
+              <span>{ts('finalizeStep3', { nextGw: gameweek + 1 })}</span>
             </li>
           </ul>
           <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300">
-            Dieser Schritt kann nicht rückgängig gemacht werden. Stelle sicher, dass alle Fixtures importiert sind.
+            {ts('finalizeWarning')}
           </div>
           <div className="flex items-center gap-3 pt-2">
             <button
               onClick={() => setShowFinalizeConfirm(false)}
               className="flex-1 px-4 py-2.5 min-h-[44px] bg-white/5 border border-white/10 rounded-xl text-sm font-semibold hover:bg-white/10 transition-colors"
             >
-              Abbrechen
+              {ts('cancelBtn')}
             </button>
             <button
               onClick={handleFinalize}
               className="flex-1 px-4 py-2.5 min-h-[44px] bg-gold/10 border border-gold/30 rounded-xl text-sm font-bold text-gold hover:bg-gold/20 transition-colors"
             >
-              Jetzt auswerten
+              {ts('finalizeNowBtn')}
             </button>
           </div>
         </div>

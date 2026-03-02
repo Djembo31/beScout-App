@@ -306,18 +306,18 @@ export default function FantasyContent() {
     if (!user) return;
 
     if (event.status === 'ended') {
-      addToast('Anmeldung nicht möglich — Event ist beendet.', 'error');
+      addToast(t('eventEndedError'), 'error');
       return;
     }
 
     if (event.maxParticipants && event.participants >= event.maxParticipants) {
-      addToast('Event ist voll — maximale Teilnehmerzahl erreicht.', 'error');
+      addToast(t('eventFullError'), 'error');
       return;
     }
 
     const bal = balanceCents ?? 0;
     if (event.entryFeeCents > 0 && bal < event.entryFeeCents) {
-      addToast(`Nicht genug $SCOUT! Du brauchst ${event.buyIn} $SCOUT, hast aber nur ${fmtScout(bal / 100)}.`, 'error');
+      addToast(t('notEnoughScout', { needed: event.buyIn, balance: fmtScout(bal / 100) }), 'error');
       return;
     }
 
@@ -473,7 +473,7 @@ export default function FantasyContent() {
 
   // After gameweek simulation: reload data + auto-navigate to new GW
   const handleSimulated = useCallback(() => {
-    addToast('Spieltag abgeschlossen! Nächster Spieltag wird geladen...', 'success');
+    addToast(t('gameweekDone'), 'success');
     (async () => {
       await reloadEvents();
       // Re-fetch active GW (may have advanced) and auto-navigate

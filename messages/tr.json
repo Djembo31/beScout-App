@@ -54,7 +54,8 @@
     "navSpieltag": "Maç Günü",
     "navMarkt": "Pazar",
     "navClub": "Kulüp",
-    "navCommunity": "Topluluk"
+    "navCommunity": "Topluluk",
+    "closeLabel": "Kapat"
   },
   "auth": {
     "subtitle": "TFF 1. Lig Fan Platformu",
@@ -667,7 +668,16 @@
     "rankOfParticipants": "{rank}. sıra / {participants} — {score} Puan",
     "scoredRankOf": "{score} Puan · {rank}. sıra / {participants}",
     "gwSimulatedLabel": "Tamamlandı",
-    "startSimulation": "Başlat"
+    "startSimulation": "Başlat",
+    "eventDetails": "Etkinlik Detayları",
+    "entryFree": "Ücretsiz",
+    "prizePoolLabel": "Ödül Havuzu",
+    "eventEndedError": "Kayıt mümkün değil — etkinlik sona erdi.",
+    "eventFullError": "Etkinlik dolu — maksimum katılımcı sayısına ulaşıldı.",
+    "notEnoughScout": "Yeterli $SCOUT yok! {needed} $SCOUT gerekli, bakiyen {balance}.",
+    "gameweekDone": "Hafta tamamlandı! Sonraki hafta yükleniyor...",
+    "lineupLabel": "Kadro",
+    "playersProgress": "{filled}/{total} Oyuncu"
   },
   "predictions": {
     "title": "Tahminler",
@@ -964,7 +974,8 @@
     "discoveryAgeSuffix": "Y.",
     "discoveryIpoSold": "%{pct} satıldı",
     "discoveryTradeCount": "{count}× İşlem",
-    "discoverySellerCount": "{count} Satıcı"
+    "discoverySellerCount": "{count} Satıcı",
+    "goToPlayer": "Oyuncuya Git →"
   },
   "community": {
     "title": "Topluluk",
@@ -1176,7 +1187,9 @@
     "criteriaGoals": "Gol ≥ {value}",
     "criteriaAssists": "Asist ≥ {value}",
     "criteriaCS": "CS ≥ {value}",
-    "criteriaFloor": "Floor ≤ {value}"
+    "criteriaFloor": "Floor ≤ {value}",
+    "unlockConfirm": "Evet, aç",
+    "cancelBtn": "İptal"
   },
   "profile": {
     "title": "Profil",
@@ -2495,7 +2508,21 @@
     "noPlayerData": "Oyuncu verisi mevcut değil",
     "notSimulated": "Maç henüz simüle edilmedi — Kadrolar simülasyondan sonra gösterilecek",
     "startSimulation": "Başlat",
-    "gwSimulatedLabel": "Tamamlandı"
+    "gwSimulatedLabel": "Tamamlandı",
+    "cancelBtn": "İptal",
+    "startGameweekBtn": "Haftayı Başlat",
+    "finalizeTitle": "Haftayı Değerlendir",
+    "finalizeDesc": "Hafta {gw} değerlendirilecek. Şunlar olacak:",
+    "finalizeStep1": "Etkinlikler puanlanır ve sıralama oluşturulur",
+    "finalizeStep1Simple": "Etkinlikler puanlanır ve sonuçlar belirlenir",
+    "finalizeStep2": "Hafta {nextGw} için etkinlikler otomatik oluşturulur",
+    "finalizeStep3": "Hafta {nextGw} olarak ilerletilir",
+    "finalizeWarning": "Bu adım geri alınamaz. Tüm maçların içe aktarıldığından emin olun.",
+    "finalizeNowBtn": "Şimdi Değerlendir",
+    "importResult": "{fixtures} Maç, {scores} Puan",
+    "importError": "Hata: {message}",
+    "lineupLabel": "Kadro",
+    "playersProgress": "{filled}/{total} Oyuncu"
   },
   "sponsorStats": {
     "title": "Sponsor KPI'ları",
