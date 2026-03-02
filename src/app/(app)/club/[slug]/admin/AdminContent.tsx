@@ -42,6 +42,7 @@ const ADMIN_TAB_ICONS: { id: AdminTab; icon: React.ElementType }[] = [
 
 export default function AdminContent({ slug }: { slug: string }) {
   const t = useTranslations('admin');
+  const tr = useTranslations('roles');
   const { user, platformRole } = useUser();
   const router = useRouter();
   const [club, setClub] = useState<ClubWithAdmin | null>(null);
@@ -124,7 +125,7 @@ export default function AdminContent({ slug }: { slug: string }) {
             const badge = getRoleBadge(role);
             return (
               <span className={cn('px-2.5 py-1 rounded-lg text-xs font-bold border', badge.color, badge.bg, badge.border)}>
-                {badge.label}
+                {tr(badge.labelKey)}
               </span>
             );
           })()}

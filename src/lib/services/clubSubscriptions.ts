@@ -25,36 +25,36 @@ export type SubscribeResult = {
 };
 
 export const TIER_CONFIG: Record<SubscriptionTier, {
-  label: string;
+  labelKey: string;
   priceBsd: number;
   priceCents: number;
   color: string;
   feeDiscountBps: number;
-  benefits: string[];
+  benefitKeys: string[];
 }> = {
   bronze: {
-    label: 'Bronze',
+    labelKey: 'bronze',
     priceBsd: 500,
     priceCents: 50000,
     color: '#CD7F32',
     feeDiscountBps: 50,
-    benefits: ['Profil-Abzeichen', 'Stimmgewicht ×2 bei Votes', 'Trading-Rabatt (0.5%)'],
+    benefitKeys: ['benefitBadge', 'benefitVoteWeight', 'benefitTradingDiscount05'],
   },
   silber: {
-    label: 'Silber',
+    labelKey: 'silber',
     priceBsd: 1500,
     priceCents: 150000,
     color: '#C0C0C0',
     feeDiscountBps: 100,
-    benefits: ['Alle Bronze-Vorteile', 'IPO-Vorkaufsrecht (24h)', 'Exklusive Aufträge', 'Trading-Rabatt (1%)'],
+    benefitKeys: ['benefitAllBronze', 'benefitIpoEarlyAccess', 'benefitExclusiveBounties', 'benefitTradingDiscount1'],
   },
   gold: {
-    label: 'Gold',
+    labelKey: 'gold',
     priceBsd: 3000,
     priceCents: 300000,
     color: '#FFD700',
     feeDiscountBps: 150,
-    benefits: ['Alle Silber-Vorteile', 'Score Boost (+20%)', 'Premium Fantasy Events', 'Trading-Rabatt (1.5%)'],
+    benefitKeys: ['benefitAllSilber', 'benefitScoreBoost', 'benefitPremiumFantasy', 'benefitTradingDiscount15'],
   },
 };
 

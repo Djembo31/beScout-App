@@ -6,7 +6,7 @@ import { CircleDollarSign, Trophy, Award, Users, Zap, FileText, Vote, Activity }
 import { Card, Button, LoadMoreButton } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { formatScout, getTransactions } from '@/lib/services/wallet';
-import { getActivityIcon, getActivityColor, getActivityLabel, getRelativeTime } from '@/lib/activityHelpers';
+import { getActivityIcon, getActivityColor, getActivityLabelKey, getRelativeTime } from '@/lib/activityHelpers';
 import { useTranslations } from 'next-intl';
 import type { DbTransaction } from '@/types';
 
@@ -40,6 +40,7 @@ interface ProfileActivityTabProps {
 
 export default function ProfileActivityTab({ transactions: initial, userId, isSelf = false }: ProfileActivityTabProps) {
   const t = useTranslations('profile');
+  const ta = useTranslations('activity');
   const [transactions, setTransactions] = useState(initial);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(initial.length >= PAGE_SIZE);
@@ -92,7 +93,7 @@ export default function ProfileActivityTab({ transactions: initial, userId, isSe
                     {renderActivityIcon(tx.type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium leading-snug">{getActivityLabel(tx)}</div>
+                    <div className="text-sm font-medium leading-snug">{tx.description || ta(getActivityLabelKey(tx.type))}</div>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className={cn(
                         'text-xs font-mono font-bold',
@@ -100,7 +101,7 @@ export default function ProfileActivityTab({ transactions: initial, userId, isSe
                       )}>
                         {positive ? '+' : ''}{formatScout(tx.amount)} $SCOUT
                       </span>
-                      <span className="text-[10px] text-white/25">· {getRelativeTime(tx.created_at)}</span>
+                      <span className="text-[10px] text-white/25">· {getRelativeTime(tx.created_at, ta('justNow'))}</span>
                     </div>
                   </div>
                 </div>

@@ -29,13 +29,13 @@ export function canPerformAction(action: string, role: ClubAdminRole): boolean {
   return true;
 }
 
-export function getRoleBadge(role: ClubAdminRole): { label: string; color: string; bg: string; border: string } {
+export function getRoleBadge(role: ClubAdminRole): { labelKey: string; color: string; bg: string; border: string } {
   switch (role) {
     case 'owner':
-      return { label: 'Eigentümer', color: 'text-gold', bg: 'bg-gold/10', border: 'border-gold/20' };
+      return { labelKey: 'owner', color: 'text-gold', bg: 'bg-gold/10', border: 'border-gold/20' };
     case 'admin':
-      return { label: 'Verwalter', color: 'text-sky-400', bg: 'bg-sky-400/10', border: 'border-sky-400/20' };
+      return { labelKey: 'admin', color: 'text-sky-400', bg: 'bg-sky-400/10', border: 'border-sky-400/20' };
     case 'editor':
-      return { label: 'Redakteur', color: 'text-white/60', bg: 'bg-white/5', border: 'border-white/10' };
+      return { labelKey: 'editor', color: 'text-white/60', bg: 'bg-white/5', border: 'border-white/10' };
   }
 }

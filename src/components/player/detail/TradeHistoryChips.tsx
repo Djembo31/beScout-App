@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { History } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getRelativeTime } from '@/lib/activityHelpers';
@@ -14,6 +15,8 @@ interface TradeHistoryChipsProps {
 }
 
 export default function TradeHistoryChips({ trades, maxDisplay = 10, className = '' }: TradeHistoryChipsProps) {
+  const ta = useTranslations('activity');
+  const t = useTranslations('player');
   if (trades.length === 0) return null;
 
   const displayed = trades.slice(0, maxDisplay);
@@ -22,7 +25,7 @@ export default function TradeHistoryChips({ trades, maxDisplay = 10, className =
     <div className={className}>
       <div className="flex items-center gap-2 mb-2">
         <History className="w-4 h-4 text-white/30" />
-        <span className="text-xs font-bold text-white/40 uppercase tracking-wider">Kaufhistorie</span>
+        <span className="text-xs font-bold text-white/40 uppercase tracking-wider">{t('tradeHistory')}</span>
       </div>
 
       <div className="flex gap-2 overflow-x-auto scrollbar-hide scroll-touch pb-1">
@@ -40,7 +43,7 @@ export default function TradeHistoryChips({ trades, maxDisplay = 10, className =
               </span>
               <span className="text-[9px] text-white/40">$SCOUT</span>
               <span className="text-[9px] text-white/30">
-                {getRelativeTime(trade.executed_at)}
+                {getRelativeTime(trade.executed_at, ta('justNow'))}
               </span>
               <span
                 className={`text-[8px] font-black px-1.5 py-0.5 rounded-md mt-0.5 ${

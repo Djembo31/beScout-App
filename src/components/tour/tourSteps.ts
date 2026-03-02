@@ -2,8 +2,8 @@ export type TourStepPosition = 'top' | 'bottom' | 'left' | 'right';
 
 export type TourStep = {
   targetSelector: string;
-  title: string;
-  description: string;
+  titleKey: string;
+  descKey: string;
   position: TourStepPosition;
   /** Only show on screens < 1024px */
   mobileOnly?: boolean;
@@ -15,15 +15,15 @@ export const TOUR_STEPS: TourStep[] = [
   // 1. $SCOUT Balance — different target per device
   {
     targetSelector: '[data-tour-id="sidebar-wallet"]',
-    title: 'Dein Guthaben',
-    description: 'Hier siehst du dein $SCOUT-Guthaben. Verdiene $SCOUT durch Trading, Fantasy-Turniere und Analysen.',
+    titleKey: 'balanceTitle',
+    descKey: 'balanceDescDesktop',
     position: 'right',
     desktopOnly: true,
   },
   {
     targetSelector: '[data-tour-id="topbar-balance"]',
-    title: 'Dein Guthaben',
-    description: 'Hier siehst du dein $SCOUT-Guthaben. Verdiene $SCOUT durch Trading, Fantasy und Analysen.',
+    titleKey: 'balanceTitle',
+    descKey: 'balanceDescMobile',
     position: 'bottom',
     mobileOnly: true,
   },
@@ -31,8 +31,8 @@ export const TOUR_STEPS: TourStep[] = [
   // 2. Global Search — desktop only
   {
     targetSelector: '[data-tour-id="topbar-search"]',
-    title: 'Globale Suche',
-    description: 'Finde Spieler, Research und andere Nutzer mit der Suche.',
+    titleKey: 'searchTitle',
+    descKey: 'searchDesc',
     position: 'bottom',
     desktopOnly: true,
   },
@@ -40,31 +40,31 @@ export const TOUR_STEPS: TourStep[] = [
   // 3. Notifications
   {
     targetSelector: '[data-tour-id="topbar-notifications"]',
-    title: 'Benachrichtigungen',
-    description: 'Trades, Fantasy-Ergebnisse und Community-Updates — alles auf einen Blick.',
+    titleKey: 'notificationsTitle',
+    descKey: 'notificationsDesc',
     position: 'bottom',
   },
 
   // 4. Dashboard Stats
   {
     targetSelector: '[data-tour-id="home-stats"]',
-    title: 'Dein Dashboard',
-    description: 'Kader-Wert, Wertentwicklung und Spieler-Anzahl — deine wichtigsten Kennzahlen.',
+    titleKey: 'dashboardTitle',
+    descKey: 'dashboardDesc',
     position: 'bottom',
   },
 
   // 5. Manager Office / Market — different target per device
   {
     targetSelector: '[data-tour-id="nav-market"]',
-    title: 'Manager Office',
-    description: 'Kaufe und verkaufe Digital Player Cards, verwalte dein Portfolio und finde IPOs.',
+    titleKey: 'managerTitle',
+    descKey: 'managerDescDesktop',
     position: 'right',
     desktopOnly: true,
   },
   {
     targetSelector: '[data-tour-id="bottomnav-market"]',
-    title: 'Manager Office',
-    description: 'Kaufe und verkaufe Digital Player Cards und verwalte dein Portfolio.',
+    titleKey: 'managerTitle',
+    descKey: 'managerDescMobile',
     position: 'top',
     mobileOnly: true,
   },
@@ -72,15 +72,15 @@ export const TOUR_STEPS: TourStep[] = [
   // 7. Fantasy — different target per device
   {
     targetSelector: '[data-tour-id="nav-fantasy"]',
-    title: 'Fantasy Events',
-    description: 'Stelle dein Lineup auf, tritt gegen andere an und gewinne $SCOUT-Preisgelder!',
+    titleKey: 'fantasyTitle',
+    descKey: 'fantasyDesc',
     position: 'right',
     desktopOnly: true,
   },
   {
     targetSelector: '[data-tour-id="bottomnav-fantasy"]',
-    title: 'Fantasy Events',
-    description: 'Stelle dein Lineup auf, tritt gegen andere an und gewinne $SCOUT-Preisgelder!',
+    titleKey: 'fantasyTitle',
+    descKey: 'fantasyDesc',
     position: 'top',
     mobileOnly: true,
   },

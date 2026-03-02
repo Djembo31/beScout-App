@@ -1448,7 +1448,8 @@
     "supplyReserved": "Rezerve",
     "supplyAvailable": "Mevcut",
     "supplyOtherHolders": "Diğer Sahipler",
-    "supplyYouOwn": "Senin"
+    "supplyYouOwn": "Senin",
+    "tradeHistory": "İşlem Geçmişi"
   },
   "club": {
     "overview": "Genel Bakış",
@@ -1930,7 +1931,9 @@
     "createVote": "Oylama oluştur",
     "fansCrm": "Taraftar CRM",
     "clubAdmin": "Kulüp Yönetimi",
-    "backToClub": "Kulüp sayfasına dön"
+    "backToClub": "Kulüp sayfasına dön",
+    "roleFor": "{name} için rol",
+    "removeAdmin": "{name} kaldır"
   },
   "adminFans": {
     "totalFollowers": "Takipçi",
@@ -3117,5 +3120,65 @@
     "sponsoredBy": "Sponsor",
     "partner": "Partner",
     "sponsorPlaceholder": "Sponsor Alanı"
+  },
+  "activity": {
+    "tradeBuy": "DPC satın alındı",
+    "tradeSell": "DPC satıldı",
+    "ipoBuy": "IPO alımı",
+    "entryFee": "Etkinlik girişi",
+    "entryRefund": "Etkinlik iadesi",
+    "fantasyReward": "Fantezi ödülü",
+    "voteFee": "Oylama",
+    "deposit": "Yatırma",
+    "researchUnlock": "Rapor açıldı",
+    "researchEarning": "Rapor geliri",
+    "pollVoteCost": "Anket katılımı",
+    "pollEarning": "Anket geliri",
+    "missionReward": "Görev ödülü",
+    "bountyCost": "Bounty ödemesi",
+    "bountyReward": "Bounty ödülü",
+    "pbtLiquidation": "PBT dağıtımı",
+    "streakBonus": "Seri bonusu",
+    "justNow": "az önce"
+  },
+  "roles": {
+    "owner": "Sahip",
+    "admin": "Yönetici",
+    "editor": "Editör"
+  },
+  "tour": {
+    "balanceTitle": "Bakiyen",
+    "balanceDescDesktop": "Burada $SCOUT bakiyeni görürsün. Trading, fantezi turnuvaları ve analizlerle $SCOUT kazan.",
+    "balanceDescMobile": "Burada $SCOUT bakiyeni görürsün. Trading, fantezi ve analizlerle $SCOUT kazan.",
+    "searchTitle": "Genel Arama",
+    "searchDesc": "Oyuncuları, araştırmaları ve diğer kullanıcıları bul.",
+    "notificationsTitle": "Bildirimler",
+    "notificationsDesc": "İşlemler, fantezi sonuçları ve topluluk güncellemeleri — hepsi bir arada.",
+    "dashboardTitle": "Pano",
+    "dashboardDesc": "Kadro değeri, değer gelişimi ve oyuncu sayısı — en önemli göstergelerin.",
+    "managerTitle": "Menajer Ofisi",
+    "managerDescDesktop": "Dijital Oyuncu Kartlarını al ve sat, portföyünü yönet ve IPO'ları keşfet.",
+    "managerDescMobile": "Dijital Oyuncu Kartlarını al ve sat, portföyünü yönet.",
+    "fantasyTitle": "Fantezi Etkinlikler",
+    "fantasyDesc": "Kadronuzu kur, rakiplerinizle yarış ve $SCOUT ödüllerini kazan!"
+  },
+  "subscription": {
+    "bronze": "Bronz",
+    "silber": "Gümüş",
+    "gold": "Altın",
+    "benefitBadge": "Profil rozeti",
+    "benefitVoteWeight": "Oylarda ×2 oy ağırlığı",
+    "benefitTradingDiscount05": "İşlem indirimi (%0,5)",
+    "benefitAllBronze": "Tüm Bronz avantajları",
+    "benefitIpoEarlyAccess": "IPO ön alım hakkı (24s)",
+    "benefitExclusiveBounties": "Özel görevler",
+    "benefitTradingDiscount1": "İşlem indirimi (%1)",
+    "benefitAllSilber": "Tüm Gümüş avantajları",
+    "benefitScoreBoost": "Skor artışı (+%20)",
+    "benefitPremiumFantasy": "Premium Fantezi Etkinlikler",
+    "benefitTradingDiscount15": "İşlem indirimi (%1,5)",
+    "renewalDisabled": "Yenileme devre dışı",
+    "activeLabel": "Aktif",
+    "perMonth": "/Ay"
   }
 }

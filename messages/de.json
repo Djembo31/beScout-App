@@ -1456,7 +1456,8 @@
     "supplyReserved": "Reserviert",
     "supplyAvailable": "Verfügbar",
     "supplyOtherHolders": "Andere Holder",
-    "supplyYouOwn": "Du besitzt"
+    "supplyYouOwn": "Du besitzt",
+    "tradeHistory": "Kaufhistorie"
   },
   "club": {
     "overview": "Übersicht",
@@ -1938,7 +1939,9 @@
     "createVote": "Abstimmung erstellen",
     "fansCrm": "Fans CRM",
     "clubAdmin": "Club-Verwaltung",
-    "backToClub": "Zurück zur Club-Seite"
+    "backToClub": "Zurück zur Club-Seite",
+    "roleFor": "Rolle für {name}",
+    "removeAdmin": "{name} entfernen"
   },
   "adminFans": {
     "totalFollowers": "Follower",
@@ -3125,5 +3128,65 @@
     "sponsoredBy": "Gesponsert von",
     "partner": "Partner",
     "sponsorPlaceholder": "Sponsor-Fläche"
+  },
+  "activity": {
+    "tradeBuy": "DPC gekauft",
+    "tradeSell": "DPC verkauft",
+    "ipoBuy": "IPO-Kauf",
+    "entryFee": "Event-Eintritt",
+    "entryRefund": "Event-Erstattung",
+    "fantasyReward": "Fantasy-Belohnung",
+    "voteFee": "Abstimmung",
+    "deposit": "Einzahlung",
+    "researchUnlock": "Bericht freigeschaltet",
+    "researchEarning": "Bericht-Einnahme",
+    "pollVoteCost": "Umfrage-Teilnahme",
+    "pollEarning": "Umfrage-Einnahme",
+    "missionReward": "Missions-Belohnung",
+    "bountyCost": "Bounty-Zahlung",
+    "bountyReward": "Bounty-Belohnung",
+    "pbtLiquidation": "PBT-Ausschüttung",
+    "streakBonus": "Streak-Bonus",
+    "justNow": "gerade eben"
+  },
+  "roles": {
+    "owner": "Eigentümer",
+    "admin": "Verwalter",
+    "editor": "Redakteur"
+  },
+  "tour": {
+    "balanceTitle": "Dein Guthaben",
+    "balanceDescDesktop": "Hier siehst du dein $SCOUT-Guthaben. Verdiene $SCOUT durch Trading, Fantasy-Turniere und Analysen.",
+    "balanceDescMobile": "Hier siehst du dein $SCOUT-Guthaben. Verdiene $SCOUT durch Trading, Fantasy und Analysen.",
+    "searchTitle": "Globale Suche",
+    "searchDesc": "Finde Spieler, Research und andere Nutzer mit der Suche.",
+    "notificationsTitle": "Benachrichtigungen",
+    "notificationsDesc": "Trades, Fantasy-Ergebnisse und Community-Updates — alles auf einen Blick.",
+    "dashboardTitle": "Dein Dashboard",
+    "dashboardDesc": "Kader-Wert, Wertentwicklung und Spieler-Anzahl — deine wichtigsten Kennzahlen.",
+    "managerTitle": "Manager Office",
+    "managerDescDesktop": "Kaufe und verkaufe Digital Player Cards, verwalte dein Portfolio und finde IPOs.",
+    "managerDescMobile": "Kaufe und verkaufe Digital Player Cards und verwalte dein Portfolio.",
+    "fantasyTitle": "Fantasy Events",
+    "fantasyDesc": "Stelle dein Lineup auf, tritt gegen andere an und gewinne $SCOUT-Preisgelder!"
+  },
+  "subscription": {
+    "bronze": "Bronze",
+    "silber": "Silber",
+    "gold": "Gold",
+    "benefitBadge": "Profil-Abzeichen",
+    "benefitVoteWeight": "Stimmgewicht ×2 bei Votes",
+    "benefitTradingDiscount05": "Trading-Rabatt (0.5%)",
+    "benefitAllBronze": "Alle Bronze-Vorteile",
+    "benefitIpoEarlyAccess": "IPO-Vorkaufsrecht (24h)",
+    "benefitExclusiveBounties": "Exklusive Aufträge",
+    "benefitTradingDiscount1": "Trading-Rabatt (1%)",
+    "benefitAllSilber": "Alle Silber-Vorteile",
+    "benefitScoreBoost": "Score Boost (+20%)",
+    "benefitPremiumFantasy": "Premium Fantasy Events",
+    "benefitTradingDiscount15": "Trading-Rabatt (1.5%)",
+    "renewalDisabled": "Verlängerung deaktiviert",
+    "activeLabel": "Aktiv",
+    "perMonth": "/Monat"
   }
 }

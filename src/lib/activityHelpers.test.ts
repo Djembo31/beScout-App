@@ -2,10 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   getActivityIcon,
   getActivityColor,
-  getActivityLabel,
+  getActivityLabelKey,
   getRelativeTime,
 } from './activityHelpers';
-import type { DbTransaction } from '@/types';
 
 // ============================================
 // getActivityIcon
@@ -78,37 +77,29 @@ describe('getActivityColor', () => {
 });
 
 // ============================================
-// getActivityLabel
+// getActivityLabelKey
 // ============================================
 
-describe('getActivityLabel', () => {
-  function makeTx(type: string, description?: string): DbTransaction {
-    return { type, description } as DbTransaction;
-  }
-
-  it('returns description if present', () => {
-    expect(getActivityLabel(makeTx('trade_buy', 'Custom label'))).toBe('Custom label');
-  });
-
-  it('returns German labels for known types', () => {
-    expect(getActivityLabel(makeTx('trade_buy'))).toBe('DPC gekauft');
-    expect(getActivityLabel(makeTx('trade_sell'))).toBe('DPC verkauft');
-    expect(getActivityLabel(makeTx('ipo_buy'))).toBe('IPO-Kauf');
-    expect(getActivityLabel(makeTx('entry_fee'))).toBe('Event-Eintritt');
-    expect(getActivityLabel(makeTx('entry_refund'))).toBe('Event-Erstattung');
-    expect(getActivityLabel(makeTx('fantasy_reward'))).toBe('Fantasy-Belohnung');
-    expect(getActivityLabel(makeTx('deposit'))).toBe('Einzahlung');
-    expect(getActivityLabel(makeTx('research_unlock'))).toBe('Bericht freigeschaltet');
-    expect(getActivityLabel(makeTx('research_earning'))).toBe('Bericht-Einnahme');
-    expect(getActivityLabel(makeTx('mission_reward'))).toBe('Missions-Belohnung');
-    expect(getActivityLabel(makeTx('bounty_cost'))).toBe('Bounty-Zahlung');
-    expect(getActivityLabel(makeTx('bounty_reward'))).toBe('Bounty-Belohnung');
-    expect(getActivityLabel(makeTx('pbt_liquidation'))).toBe('PBT-Ausschüttung');
-    expect(getActivityLabel(makeTx('streak_bonus'))).toBe('Streak-Bonus');
+describe('getActivityLabelKey', () => {
+  it('returns i18n keys for known types', () => {
+    expect(getActivityLabelKey('trade_buy')).toBe('tradeBuy');
+    expect(getActivityLabelKey('trade_sell')).toBe('tradeSell');
+    expect(getActivityLabelKey('ipo_buy')).toBe('ipoBuy');
+    expect(getActivityLabelKey('entry_fee')).toBe('entryFee');
+    expect(getActivityLabelKey('entry_refund')).toBe('entryRefund');
+    expect(getActivityLabelKey('fantasy_reward')).toBe('fantasyReward');
+    expect(getActivityLabelKey('deposit')).toBe('deposit');
+    expect(getActivityLabelKey('research_unlock')).toBe('researchUnlock');
+    expect(getActivityLabelKey('research_earning')).toBe('researchEarning');
+    expect(getActivityLabelKey('mission_reward')).toBe('missionReward');
+    expect(getActivityLabelKey('bounty_cost')).toBe('bountyCost');
+    expect(getActivityLabelKey('bounty_reward')).toBe('bountyReward');
+    expect(getActivityLabelKey('pbt_liquidation')).toBe('pbtLiquidation');
+    expect(getActivityLabelKey('streak_bonus')).toBe('streakBonus');
   });
 
   it('returns raw type for unknown types', () => {
-    expect(getActivityLabel(makeTx('custom_action'))).toBe('custom_action');
+    expect(getActivityLabelKey('custom_action')).toBe('custom_action');
   });
 });
 
@@ -126,8 +117,9 @@ describe('getRelativeTime', () => {
     vi.useRealTimers();
   });
 
-  it('returns "gerade eben" for less than 1 minute ago', () => {
+  it('returns justNowLabel for less than 1 minute ago', () => {
     expect(getRelativeTime('2026-02-23T11:59:30Z')).toBe('gerade eben');
+    expect(getRelativeTime('2026-02-23T11:59:30Z', 'az önce')).toBe('az önce');
   });
 
   it('returns minutes format', () => {
@@ -144,7 +136,7 @@ describe('getRelativeTime', () => {
 
   it('returns localized date for 7+ days', () => {
     const result = getRelativeTime('2026-02-10T12:00:00Z');
-    // Should be a German locale date string
+    // Should be a German locale date string (default locale)
     expect(result).toMatch(/\d{1,2}\.\d{1,2}\.\d{4}/);
   });
 });

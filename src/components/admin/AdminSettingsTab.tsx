@@ -264,6 +264,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
   const { addToast } = useToast();
   const t = useTranslations('admin');
   const tc = useTranslations('common');
+  const tr = useTranslations('roles');
   const role = club.admin_role ?? 'editor';
   const isOwner = canPerformAction('manage_admins', role);
   const jurisdictions = JURISDICTION_VALUES.map(value => ({
@@ -595,7 +596,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
                   {/* Role badge / dropdown */}
                   {isOwner && !isAdminOwner ? (
                     <select
-                      aria-label={`Rolle für ${admin.handle}`}
+                      aria-label={t('roleFor', { name: admin.handle })}
                       value={admin.role}
                       onChange={(e) => handleChangeRole(admin.user_id, e.target.value as ClubAdminRole)}
                       disabled={changingRole === admin.user_id}
@@ -607,7 +608,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
                   ) : (
                     <span className={cn('px-2 py-1 rounded-lg text-xs font-bold border flex items-center gap-1', badge.bg, badge.color, badge.border)}>
                       {isAdminOwner && <Crown className="w-3 h-3" />}
-                      {badge.label}
+                      {tr(badge.labelKey)}
                     </span>
                   )}
                   {/* Remove button — Owner only, can't remove self */}
@@ -615,7 +616,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
                     <button
                       onClick={() => handleRemoveAdmin(admin.user_id)}
                       disabled={removingId === admin.user_id}
-                      aria-label={`${admin.handle} entfernen`}
+                      aria-label={t('removeAdmin', { name: admin.handle })}
                       className="p-2.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                     >
                       {removingId === admin.user_id ? (

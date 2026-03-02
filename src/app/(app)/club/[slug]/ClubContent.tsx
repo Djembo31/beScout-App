@@ -897,6 +897,7 @@ export default function ClubContent({ slug }: { slug: string }) {
   const t = useTranslations('club');
   const tc = useTranslations('common');
   const tcom = useTranslations('community');
+  const tsub = useTranslations('subscription');
   const locale = useLocale();
 
   // ---- Derived data from hooks ----
@@ -1289,7 +1290,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                   <Crown className="size-4" />
                 </div>
                 <div>
-                  <div className="text-sm font-bold">{t('member', { tier: TIER_CONFIG[subscription.tier as SubscriptionTier]?.label })}</div>
+                  <div className="text-sm font-bold">{t('member', { tier: tsub(TIER_CONFIG[subscription.tier as SubscriptionTier]?.labelKey) })}</div>
                   <div className="text-[10px] text-white/40">
                     {subscription.auto_renew ? t('renewsAt') : t('expiresAt')} {new Date(subscription.expires_at).toLocaleDateString('de-DE')}
                   </div>
@@ -1632,16 +1633,16 @@ export default function ClubContent({ slug }: { slug: string }) {
                       <div className="size-6 rounded-full flex items-center justify-center" style={{ backgroundColor: `${cfg.color}20`, color: cfg.color }}>
                         <Crown className="size-3" />
                       </div>
-                      <span className="font-black" style={{ color: cfg.color }}>{cfg.label}</span>
-                      {isActive && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-500/20 text-green-500">Aktiv</span>}
+                      <span className="font-black" style={{ color: cfg.color }}>{tsub(cfg.labelKey)}</span>
+                      {isActive && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-500/20 text-green-500">{tsub('activeLabel')}</span>}
                     </div>
-                    <span className="font-mono font-bold tabular-nums text-sm">{fmtScout(cfg.priceBsd)} $SCOUT<span className="text-white/30 text-[10px]">/Monat</span></span>
+                    <span className="font-mono font-bold tabular-nums text-sm">{fmtScout(cfg.priceBsd)} $SCOUT<span className="text-white/30 text-[10px]">{tsub('perMonth')}</span></span>
                   </div>
                   <ul className="space-y-1 mb-3">
-                    {cfg.benefits.map(b => (
-                      <li key={b} className="text-xs text-white/50 flex items-center gap-1.5">
+                    {cfg.benefitKeys.map(bk => (
+                      <li key={bk} className="text-xs text-white/50 flex items-center gap-1.5">
                         <CheckCircle2 className="size-3 text-green-500 flex-shrink-0" />
-                        {b}
+                        {tsub(bk)}
                       </li>
                     ))}
                   </ul>
@@ -1652,7 +1653,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                           {t('disableAutoRenew')}
                         </Button>
                       ) : (
-                        <span className="text-xs text-white/30">Verlängerung deaktiviert</span>
+                        <span className="text-xs text-white/30">{tsub('renewalDisabled')}</span>
                       )}
                     </div>
                   ) : (
@@ -1663,7 +1664,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                       onClick={() => handleSubscribe(tier)}
                       disabled={subLoading}
                     >
-                      {subLoading ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" /> : t('subscribe', { tier: cfg.label })}
+                      {subLoading ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" /> : t('subscribe', { tier: tsub(cfg.labelKey) })}
                     </Button>
                   )}
                 </div>

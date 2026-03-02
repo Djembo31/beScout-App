@@ -47,6 +47,7 @@ export default function DiscoveryCard({
   isWatchlisted, onWatch, onBuy, buying,
 }: DiscoveryCardProps) {
   const t = useTranslations('market');
+  const ta = useTranslations('activity');
   const { ref, tiltProps } = useTilt<HTMLAnchorElement>({ maxTilt: 8, scale: 1.02 });
   const vs = VARIANT_STYLES[variant];
   const posBorderColor = posTintColors[p.pos];
@@ -160,7 +161,7 @@ export default function DiscoveryCard({
         <div className="mt-1.5">
           <span className={cn('inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded', vs.badgeBg, vs.badge)}>
             <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse motion-reduce:animate-none" />
-            {getRelativeTime(listedAt)}
+            {getRelativeTime(listedAt, ta('justNow'))}
           </span>
         </div>
       )}

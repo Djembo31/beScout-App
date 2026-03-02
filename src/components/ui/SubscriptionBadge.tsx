@@ -1,6 +1,7 @@
 'use client';
 
 import { Crown } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import { TIER_CONFIG } from '@/lib/services/clubSubscriptions';
 import { cn } from '@/lib/utils';
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export default function SubscriptionBadge({ tier, size = 'sm' }: Props) {
+  const ts = useTranslations('subscription');
   const cfg = TIER_CONFIG[tier];
   if (!cfg) return null;
 
@@ -26,7 +28,7 @@ export default function SubscriptionBadge({ tier, size = 'sm' }: Props) {
       }}
     >
       <Crown className={isSm ? 'size-2.5' : 'size-3'} aria-hidden="true" />
-      {cfg.label}
+      {ts(cfg.labelKey)}
     </span>
   );
 }

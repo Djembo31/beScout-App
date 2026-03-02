@@ -91,6 +91,7 @@ export default function ProfileOverviewTab({
 }: ProfileOverviewTabProps) {
   const tg = useTranslations('gamification');
   const tp = useTranslations('profile');
+  const ta = useTranslations('activity');
   const locale = useLocale();
   const [showAllAchievements, setShowAllAchievements] = useState(false);
   const [showAllTrades, setShowAllTrades] = useState(false);
@@ -432,7 +433,7 @@ export default function ProfileOverviewTab({
                         )}>
                           {isBuy ? tp('tradeBuy') : tp('tradeSell')}
                         </span>
-                        <span className="text-[10px] text-white/30">{trade.quantity}x · {getRelativeTime(trade.executed_at)}</span>
+                        <span className="text-[10px] text-white/30">{trade.quantity}x · {getRelativeTime(trade.executed_at, ta('justNow'), locale)}</span>
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">

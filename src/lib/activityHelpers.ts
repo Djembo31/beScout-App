@@ -42,38 +42,38 @@ export function getActivityColor(type: string): string {
   return 'text-white/50 bg-white/5';
 }
 
-export function getActivityLabel(tx: DbTransaction): string {
-  if (tx.description) return tx.description;
-  if (tx.type === 'trade_buy' || tx.type === 'buy') return 'DPC gekauft';
-  if (tx.type === 'trade_sell' || tx.type === 'sell') return 'DPC verkauft';
-  if (tx.type === 'ipo_buy') return 'IPO-Kauf';
-  if (tx.type === 'entry_fee') return 'Event-Eintritt';
-  if (tx.type === 'entry_refund') return 'Event-Erstattung';
-  if (tx.type === 'fantasy_reward' || tx.type === 'reward') return 'Fantasy-Belohnung';
-  if (tx.type === 'vote_fee') return 'Abstimmung';
-  if (tx.type === 'deposit') return 'Einzahlung';
-  if (tx.type === 'research_unlock') return 'Bericht freigeschaltet';
-  if (tx.type === 'research_earning') return 'Bericht-Einnahme';
-  if (tx.type === 'poll_vote_cost') return 'Umfrage-Teilnahme';
-  if (tx.type === 'poll_earning') return 'Umfrage-Einnahme';
-  if (tx.type === 'mission_reward') return 'Missions-Belohnung';
-  if (tx.type === 'bounty_cost') return 'Bounty-Zahlung';
-  if (tx.type === 'bounty_reward') return 'Bounty-Belohnung';
-  if (tx.type === 'pbt_liquidation') return 'PBT-Ausschüttung';
-  if (tx.type === 'streak_bonus') return 'Streak-Bonus';
-  return tx.type;
+/** Returns an i18n key for the activity namespace. Callers translate via t(key). */
+export function getActivityLabelKey(type: string): string {
+  if (type === 'trade_buy' || type === 'buy') return 'tradeBuy';
+  if (type === 'trade_sell' || type === 'sell') return 'tradeSell';
+  if (type === 'ipo_buy') return 'ipoBuy';
+  if (type === 'entry_fee') return 'entryFee';
+  if (type === 'entry_refund') return 'entryRefund';
+  if (type === 'fantasy_reward' || type === 'reward') return 'fantasyReward';
+  if (type === 'vote_fee') return 'voteFee';
+  if (type === 'deposit') return 'deposit';
+  if (type === 'research_unlock') return 'researchUnlock';
+  if (type === 'research_earning') return 'researchEarning';
+  if (type === 'poll_vote_cost') return 'pollVoteCost';
+  if (type === 'poll_earning') return 'pollEarning';
+  if (type === 'mission_reward') return 'missionReward';
+  if (type === 'bounty_cost') return 'bountyCost';
+  if (type === 'bounty_reward') return 'bountyReward';
+  if (type === 'pbt_liquidation') return 'pbtLiquidation';
+  if (type === 'streak_bonus') return 'streakBonus';
+  return type;
 }
 
-export function getRelativeTime(dateStr: string): string {
+export function getRelativeTime(dateStr: string, justNowLabel = 'gerade eben', locale = 'de-DE'): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
   const diffMs = now - then;
   const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return 'gerade eben';
+  if (mins < 1) return justNowLabel;
   if (mins < 60) return `${mins}m`;
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}h`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d`;
-  return new Date(dateStr).toLocaleDateString('de-DE');
+  return new Date(dateStr).toLocaleDateString(locale);
 }
