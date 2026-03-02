@@ -10,20 +10,20 @@ import { centsToBsd } from '@/lib/services/players';
 import { fmtScout } from '@/lib/utils';
 import { getRang } from '@/lib/gamification';
 import type { ResearchPostWithAuthor, ScoutingEvaluation } from '@/types';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
-function formatTimeAgo(dateStr: string): string {
+function formatTimeAgo(dateStr: string, nowLabel = 'just now', dateLocale = 'de-DE'): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
   const diffMs = now - then;
   const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return 'Jetzt';
+  if (mins < 1) return nowLabel;
   if (mins < 60) return `${mins}m`;
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}h`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d`;
-  return new Date(dateStr).toLocaleDateString('de-DE');
+  return new Date(dateStr).toLocaleDateString(dateLocale);
 }
 
 const callColor: Record<string, string> = {
@@ -114,6 +114,8 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
   const ts = useTranslations('scouting');
   const tc = useTranslations('community');
   const tp = useTranslations('profile');
+  const locale = useLocale();
+  const dateLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
   const [confirmUnlock, setConfirmUnlock] = useState(false);
   const canSeeContent = post.is_own || post.is_unlocked;
   const rang = getRang(authorScore ?? 500);
@@ -209,7 +211,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
           })()}
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            {formatTimeAgo(post.created_at)}
+            {formatTimeAgo(post.created_at, tc('timeJust'), dateLocale)}
           </span>
         </div>
 

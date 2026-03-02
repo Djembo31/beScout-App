@@ -375,7 +375,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                 onClick={handleToggleFollow}
                 disabled={followLoading}
               >
-                {following ? 'Entfolgen' : 'Folgen'}
+                {following ? tp('unfollow') : tp('follow')}
               </Button>
             )}
             <Button

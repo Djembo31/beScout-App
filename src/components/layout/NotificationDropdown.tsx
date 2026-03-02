@@ -4,7 +4,7 @@ import React, { useEffect, useCallback, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight, Send, RotateCcw, Crown, TrendingUp, Star, Crosshair, Play, Clock, Zap, Gift, Coins, UserCheck, Sparkles, Megaphone, Award, BarChart3 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { DbNotification, NotificationType } from '@/types';
 
@@ -106,18 +106,18 @@ function getNotifHref(notif: DbNotification): string | null {
   }
 }
 
-function timeAgo(dateStr: string): string {
+function timeAgo(dateStr: string, nowLabel = 'just now', dateLocale = 'de-DE'): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
   const diffMs = now - then;
   const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return 'Jetzt';
+  if (mins < 1) return nowLabel;
   if (mins < 60) return `${mins}m`;
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}h`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d`;
-  return new Date(dateStr).toLocaleDateString('de-DE');
+  return new Date(dateStr).toLocaleDateString(dateLocale);
 }
 
 interface NotificationDropdownProps {
@@ -134,6 +134,9 @@ const EXIT_MS = 200;
 
 export default function NotificationDropdown({ userId, open, onClose, notifications, loading, onMarkRead, onMarkAllRead }: NotificationDropdownProps) {
   const tn = useTranslations('notifications');
+  const tc = useTranslations('common');
+  const locale = useLocale();
+  const dateLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
   const router = useRouter();
   const desktopRef = useRef<HTMLDivElement>(null);
   const mobileRef = useRef<HTMLDivElement>(null);
@@ -250,7 +253,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
                 {notif.body && (
                   <div className="text-xs text-white/40 mt-0.5 line-clamp-2">{notif.body}</div>
                 )}
-                <div className="text-xs text-white/25 mt-1">{timeAgo(notif.created_at)}</div>
+                <div className="text-xs text-white/25 mt-1">{timeAgo(notif.created_at, tc('timeNow'), dateLocale)}</div>
               </div>
               {!notif.read && (
                 <div className="size-2 rounded-full bg-gold shrink-0 mt-2" />

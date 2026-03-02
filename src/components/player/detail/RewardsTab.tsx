@@ -21,15 +21,12 @@ const formatMarketValue = (value: number) => {
   return `${value}\u20AC`;
 };
 
-const formatGrowthLabel = (currentValue: number, tierMaxValue: number): string => {
+const formatGrowthLabel = (currentValue: number, tierMaxValue: number, mvLabel: string): string => {
   if (tierMaxValue === Infinity || currentValue <= 0) return '';
   const mult = tierMaxValue / currentValue;
   if (mult <= 1) return '';
-  return `${formatMarketValue(tierMaxValue)} ${t_static_marketValue}`;
+  return `${formatMarketValue(tierMaxValue)} ${mvLabel}`;
 };
-
-// Static label for formatGrowthLabel (outside component scope)
-const t_static_marketValue = 'Marktwert';
 
 export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
   const t = useTranslations('playerDetail');
@@ -86,7 +83,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
             const isPast = i < currentIdx;
             const isFuture = i > currentIdx;
             const reward = centsToBsd(tier.fee);
-            const growthLabel = formatGrowthLabel(marketValue, tier.maxValue);
+            const growthLabel = formatGrowthLabel(marketValue, tier.maxValue, t('marketValueSuffix'));
 
             return (
               <div
@@ -119,10 +116,10 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                 {/* Tier range */}
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm font-bold ${isActive ? 'text-gold' : ''}`}>
-                    {tier.maxValue === Infinity ? `ab ${formatMarketValue(tier.minValue)}` : formatMarketValue(tier.maxValue)}
+                    {tier.maxValue === Infinity ? `${t('fromPrefix')} ${formatMarketValue(tier.minValue)}` : formatMarketValue(tier.maxValue)}
                   </div>
                   {growthLabel && isFuture && (
-                    <div className="text-[10px] text-white/40 font-mono">ab {growthLabel}</div>
+                    <div className="text-[10px] text-white/40 font-mono">{t('fromPrefix')} {growthLabel}</div>
                   )}
                   {isActive && (
                     <div className="text-[10px] text-gold/50">{t('currentTier')}</div>
@@ -161,7 +158,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
               return (
                 <div key={tier.label} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
                   <div className="text-sm text-white/60">
-                    {t('atValue', { value: tier.maxValue === Infinity ? `ab ${formatMarketValue(tier.minValue)}` : formatMarketValue(tier.maxValue) })}
+                    {t('atValue', { value: tier.maxValue === Infinity ? `${t('fromPrefix')} ${formatMarketValue(tier.minValue)}` : formatMarketValue(tier.maxValue) })}
                   </div>
                   <div className="text-right">
                     <span className="font-mono font-bold tabular-nums text-sm">{fmtScout(totalReward)} $SCOUT</span>

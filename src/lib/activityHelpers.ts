@@ -64,7 +64,7 @@ export function getActivityLabelKey(type: string): string {
   return type;
 }
 
-export function getRelativeTime(dateStr: string, justNowLabel = 'gerade eben', locale = 'de-DE'): string {
+export function getRelativeTime(dateStr: string, justNowLabel = 'just now', locale = 'de-DE'): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
   const diffMs = now - then;

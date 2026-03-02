@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { FileText, ChevronRight, Plus, MessageSquare, ArrowUp, ArrowDown, Trash2, BadgeCheck, Send, CheckCircle2 } from 'lucide-react';
 import { Card, Button, Modal } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
@@ -44,6 +44,8 @@ export default function CommunityTab({
 }: CommunityTabProps) {
   const t = useTranslations('playerDetail');
   const tc = useTranslations('community');
+  const locale = useLocale();
+  const dateLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [showCreateRumor, setShowCreateRumor] = useState(false);
   const [postContent, setPostContent] = useState('');
@@ -122,7 +124,7 @@ export default function CommunityTab({
               <span className="font-bold text-xs">{post.author_display_name || post.author_handle}</span>
               {post.author_verified && <BadgeCheck className="size-3 text-gold" aria-hidden="true" />}
               <span className="text-[9px] text-white/30 px-1 py-0.5 bg-white/5 rounded">Lv{post.author_level}</span>
-              <span className="text-[10px] text-white/40">{formatTimeAgo(post.created_at)}</span>
+              <span className="text-[10px] text-white/40">{formatTimeAgo(post.created_at, tc('timeJust'), dateLocale)}</span>
             </div>
 
             {/* Category/Type Badge */}

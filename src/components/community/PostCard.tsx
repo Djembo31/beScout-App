@@ -7,7 +7,7 @@ import {
   MoreHorizontal, Target, Briefcase, BadgeCheck, CheckCircle2,
   Pin, Trash2, Lock,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Card } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { cn } from '@/lib/utils';
@@ -21,18 +21,18 @@ import type { PostWithAuthor } from '@/types';
 // HELPERS
 // ============================================
 
-export function formatTimeAgo(dateStr: string): string {
+export function formatTimeAgo(dateStr: string, nowLabel = 'just now', dateLocale = 'de-DE'): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
   const diffMs = now - then;
   const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return 'Jetzt';
+  if (mins < 1) return nowLabel;
   if (mins < 60) return `${mins}m`;
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}h`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d`;
-  return new Date(dateStr).toLocaleDateString('de-DE');
+  return new Date(dateStr).toLocaleDateString(dateLocale);
 }
 
 // ============================================
@@ -88,6 +88,8 @@ export default function PostCard({
   authorSubscriptionTier,
 }: PostCardProps) {
   const tc = useTranslations('community');
+  const locale = useLocale();
+  const dateLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
   const netScore = post.upvotes - post.downvotes;
   const isOwnedPlayer = post.player_id ? ownedPlayerIds.has(post.player_id) : false;
   const [showMenu, setShowMenu] = useState(false);
@@ -166,7 +168,7 @@ export default function PostCard({
                   {tc('pinnedLabel')}
                 </span>
               )}
-              <span className="text-xs text-white/40">{formatTimeAgo(post.created_at)}</span>
+              <span className="text-xs text-white/40">{formatTimeAgo(post.created_at, tc('timeJust'), dateLocale)}</span>
             </div>
             {(isOwn || isClubAdmin) && (
               <div className="relative">
@@ -254,7 +256,7 @@ export default function PostCard({
               )}
               {post.post_type === 'club_news' && (
                 <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-semibold border bg-gold/10 text-gold border-gold/20">
-                  Club-Nachricht
+                  {tc('clubNewsLabel')}
                 </span>
               )}
             </div>

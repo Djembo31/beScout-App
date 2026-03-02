@@ -126,7 +126,7 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
                   <button
                     onClick={() => handleToggleFollow(p.userId)}
                     disabled={toggling === p.userId}
-                    aria-label={isFollowingThem ? 'Entfolgen' : 'Folgen'}
+                    aria-label={isFollowingThem ? tp('unfollow') : tp('follow')}
                     className={cn(
                       'text-xs px-2.5 py-1 rounded-lg transition-colors',
                       isFollowingThem
