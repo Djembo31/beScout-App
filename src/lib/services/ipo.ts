@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { mapRpcError } from '@/lib/services/trading';
+import { notifText } from '@/lib/notifText';
 import type { DbIpo } from '@/types';
 
 // ============================================
@@ -158,7 +159,7 @@ export async function updateIpoStatus(
           const { createNotification } = await import('@/lib/services/notifications');
           const name = `${player.first_name} ${player.last_name}`;
           for (const f of followers) {
-            await createNotification(f.user_id, 'new_ipo_available', 'Neuer IPO!', `${name} ist jetzt als DPC verfügbar — sichere dir deine Anteile!`, ipo.player_id, 'player');
+            await createNotification(f.user_id, 'new_ipo_available', notifText('newIpoTitle'), notifText('newIpoBody', { name }), ipo.player_id, 'player');
           }
         }
       } catch (err) { console.error('[IPO] new_ipo_available notification failed:', err); }

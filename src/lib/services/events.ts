@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { getFixturesByGameweek } from '@/lib/services/fixtures';
+import { notifText } from '@/lib/notifText';
 import type { DbEvent } from '@/types';
 
 // ============================================
@@ -108,7 +109,7 @@ export async function createEvent(params: {
         if (followers && followers.length > 0) {
           const { createNotification } = await import('@/lib/services/notifications');
           await Promise.all(followers.map(f =>
-            createNotification(f.user_id, 'event_closing_soon', 'Neues Fantasy Event!', `"${params.name}" — Jetzt anmelden und mitspielen!`, data.id, 'event')
+            createNotification(f.user_id, 'event_closing_soon', notifText('eventNewTitle'), notifText('eventNewBody', { name: params.name }), data.id, 'event')
           ));
         }
       } catch (err) { console.error('[Events] new event notification failed:', err); }
@@ -223,7 +224,7 @@ export async function updateEventStatus(
         if (lineups && lineups.length > 0) {
           const { createNotification } = await import('@/lib/services/notifications');
           await Promise.all(lineups.map(l =>
-            createNotification(l.user_id, 'event_starting', 'Event gestartet!', `${event?.name ?? 'Ein Event'} ist jetzt live — die Punkte zählen!`, eventId, 'event')
+            createNotification(l.user_id, 'event_starting', notifText('eventStartedTitle'), notifText('eventStartedBody', { name: event?.name ?? notifText('eventFallbackName') }), eventId, 'event')
           ));
         }
       } catch (err) { console.error('[Events] event_starting notification failed:', err); }

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { notifText } from '@/lib/notifText';
 import type { DbResearchPost, ResearchPostWithAuthor, AuthorTrackRecord } from '@/types';
 import { toPos } from '@/types';
 
@@ -135,7 +136,7 @@ export async function getResearchPosts(options: {
         author_level: author?.level ?? 1,
         author_verified: author?.verified ?? false,
         author_top_role: author?.top_role ?? null,
-        player_name: post.player_id ? (player?.name ?? 'Unbekannter Spieler') : undefined,
+        player_name: post.player_id ? (player?.name ?? notifText('researchFallbackPlayer')) : undefined,
         player_position: player ? toPos(player.pos) : undefined,
         is_unlocked: unlockedIds.has(post.id),
         is_own: post.user_id === currentUserId,
@@ -261,8 +262,8 @@ export async function unlockResearch(userId: string, researchId: string): Promis
           createNotification(
             post.user_id,
             'research_unlock',
-            'Bericht freigeschaltet',
-            `Jemand hat deinen Bericht "${post.title}" freigeschaltet`,
+            notifText('researchUnlockTitle'),
+            notifText('researchUnlockBody', { title: post.title }),
             researchId,
             'research'
           );
@@ -326,8 +327,8 @@ export async function rateResearch(
           createNotification(
             post.user_id,
             'research_rating',
-            `Bewertung: ${rating}/5 Sterne`,
-            `Jemand hat deinen Bericht "${post.title}" bewertet`,
+            notifText('researchRatingTitle', { rating }),
+            notifText('researchRatingBody', { title: post.title }),
             researchId,
             'research'
           );

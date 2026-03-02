@@ -775,7 +775,8 @@
     "events": "Events",
     "best": "Best",
     "emptyTitle": "Keine Ligen",
-    "emptyDesc": "Erstelle eine Liga oder tritt einer bei, um mit Freunden zu spielen."
+    "emptyDesc": "Erstelle eine Liga oder tritt einer bei, um mit Freunden zu spielen.",
+    "unknownError": "Unbekannter Fehler"
   },
   "market": {
     "title": "Manager Office",
@@ -2143,7 +2144,9 @@
       "claimedAt": "Eingelöst am {date}",
       "nextMilestone": "Nächster Meilenstein",
       "allClaimed": "Alle Meilensteine eingelöst!",
-      "celebration": "{reward} erhalten!"
+      "celebration": "{reward} erhalten!",
+      "showLess": "Weniger",
+      "showAllMilestones": "Alle {count} Meilensteine"
     },
     "gesamtRang": "Gesamt-Rang",
     "median": "Median der 3 Dimensionen",
@@ -2161,7 +2164,8 @@
       "community_voiceDesc": "Mindestens 20 Follower gewinnen",
       "rising_star": "Aufsteiger",
       "rising_starDesc": "Total Score ≥ 300 und Rang ≤ 30 erreichen"
-    }
+    },
+    "unknownError": "Unbekannter Fehler"
   },
   "onboarding": {
     "title": "Erste Schritte",
@@ -2223,7 +2227,8 @@
     "noScoutActivity": "Noch keine Scout-Aktivität",
     "noScoutingReports": "Noch keine Scouting-Reports",
     "scoreLabel": "Score",
-    "dimShortMentalitaet": "Mentalit."
+    "dimShortMentalitaet": "Mentalit.",
+    "ratingRequired": "Bewertung erforderlich"
   },
   "bounty": {
     "expired": "Abgelaufen",
@@ -3240,5 +3245,45 @@
     "alreadyRole": "{email} ist bereits {role} für diesen Club.",
     "adminCreateError": "Club-Admin konnte nicht erstellt werden: {error}",
     "invited": "{email} wurde als {role} für \"{club}\" eingeladen."
+  },
+  "notifTemplates": {
+    "newIpoTitle": "Neuer IPO!",
+    "newIpoBody": "{name} ist jetzt als DPC verfügbar — sichere dir deine Anteile!",
+    "offerReceivedTitle": "Neues Angebot",
+    "offerReceivedBody": "Du hast ein neues Angebot erhalten",
+    "offerAcceptedTitle": "Angebot angenommen",
+    "offerAcceptedBody": "Dein Angebot wurde angenommen",
+    "offerRejectedTitle": "Angebot abgelehnt",
+    "offerRejectedBody": "Dein Angebot wurde abgelehnt",
+    "offerCounteredTitle": "Gegenangebot",
+    "offerCounteredBody": "Du hast ein Gegenangebot erhalten",
+    "tradeSoldTitle": "DPC verkauft",
+    "tradeSoldBody": "Dein Angebot für {name} wurde angenommen",
+    "tradeFallbackPlayer": "Spieler",
+    "bountySubmissionTitle": "Neue Einreichung",
+    "bountySubmissionBody": "Jemand hat eine Lösung für \"{title}\" eingereicht",
+    "bountyApprovedTitle": "Auftrag genehmigt!",
+    "bountyApprovedBody": "Deine Lösung für \"{title}\" wurde angenommen",
+    "bountyRejectedTitle": "Auftrag abgelehnt",
+    "bountyRejectedBody": "Deine Lösung für \"{title}\" wurde abgelehnt",
+    "bountyRejectedWithFeedback": "Deine Lösung für \"{title}\" wurde abgelehnt: {feedback}",
+    "bountyFallbackTitle": "Auftrag",
+    "eventNewTitle": "Neues Fantasy Event!",
+    "eventNewBody": "\"{name}\" — Jetzt anmelden und mitspielen!",
+    "eventStartedTitle": "Event gestartet!",
+    "eventStartedBody": "{name} ist jetzt live — die Punkte zählen!",
+    "eventFallbackName": "Ein Event",
+    "researchUnlockTitle": "Bericht freigeschaltet",
+    "researchUnlockBody": "Jemand hat deinen Bericht \"{title}\" freigeschaltet",
+    "researchRatingTitle": "Bewertung: {rating}/5 Sterne",
+    "researchRatingBody": "Jemand hat deinen Bericht \"{title}\" bewertet",
+    "researchFallbackPlayer": "Unbekannter Spieler",
+    "eventScoredTitle": "Ergebnisse für {name} sind da!",
+    "eventScoredBody": "Dein Platz: #{rank} mit {score} Punkten",
+    "fantasyRewardTitle": "Platz #{rank} bei {name}",
+    "fantasyRewardBody": "Du hast {score} Punkte erzielt!",
+    "liquidationTitle": "DPC liquidiert",
+    "liquidationBodyFull": "Du hast {total} $SCOUT erhalten ({pbt} PBT + {sf} Community Bonus).",
+    "liquidationBodyPbt": "Du hast {total} $SCOUT aus der PBT-Ausschüttung erhalten."
   }
 }

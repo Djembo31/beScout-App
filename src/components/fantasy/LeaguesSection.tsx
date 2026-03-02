@@ -35,10 +35,10 @@ function CreateLeagueModal({ open, onClose }: { open: boolean; onClose: () => vo
         onClose();
         setName('');
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        addToast(result.error ?? t('unknownError'), 'error');
       }
     } catch (e) {
-      addToast(e instanceof Error ? e.message : 'Fehler', 'error');
+      addToast(e instanceof Error ? e.message : t('unknownError'), 'error');
     } finally {
       setLoading(false);
     }
@@ -101,10 +101,10 @@ function JoinLeagueModal({ open, onClose }: { open: boolean; onClose: () => void
         onClose();
         setCode('');
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        addToast(result.error ?? t('unknownError'), 'error');
       }
     } catch (e) {
-      addToast(e instanceof Error ? e.message : 'Fehler', 'error');
+      addToast(e instanceof Error ? e.message : t('unknownError'), 'error');
     } finally {
       setLoading(false);
     }
@@ -159,7 +159,7 @@ function LeagueCard({ league, userId }: { league: DbFantasyLeague; userId: strin
         addToast(t('left'), 'success');
         queryClient.invalidateQueries({ queryKey: ['fantasy-leagues'] });
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        addToast(result.error ?? t('unknownError'), 'error');
       }
     } finally {
       setLeavingId(null);

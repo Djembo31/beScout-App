@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { notifText } from '@/lib/notifText';
 import type { DbOrder, UserTradeWithPlayer, Pos } from '@/types';
 import { toPos } from '@/types';
 
@@ -114,13 +115,13 @@ export async function buyFromMarket(
             .select('first_name, last_name')
             .eq('id', playerId)
             .single();
-          const name = pl ? `${pl.first_name} ${pl.last_name}` : 'Spieler';
+          const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer');
           const { createNotification } = await import('@/lib/services/notifications');
           createNotification(
             order.user_id,
             'trade',
-            'DPC verkauft',
-            `Dein Angebot für ${name} wurde angenommen`,
+            notifText('tradeSoldTitle'),
+            notifText('tradeSoldBody', { name }),
             playerId,
             'player'
           );

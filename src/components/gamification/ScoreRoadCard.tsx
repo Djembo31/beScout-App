@@ -69,7 +69,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
       queryClient.invalidateQueries({ queryKey: qk.gamification.scoreRoad(userId) });
       queryClient.invalidateQueries({ queryKey: ['wallet'] });
     } else {
-      addToast(result.error ?? 'Fehler', 'error');
+      addToast(result.error ?? tg('unknownError'), 'error');
     }
   }, [userId, addToast, tsr, queryClient]);
 
@@ -212,12 +212,12 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
           {expanded ? (
             <>
               <ChevronUp className="size-3" />
-              Weniger
+              {tsr('showLess')}
             </>
           ) : (
             <>
               <ChevronDown className="size-3" />
-              Alle {SCORE_ROAD.length} Meilensteine
+              {tsr('showAllMilestones', { count: SCORE_ROAD.length })}
             </>
           )}
         </button>

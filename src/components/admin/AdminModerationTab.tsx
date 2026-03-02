@@ -62,10 +62,10 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
       if (result.success) {
         addToast(t('guidelinesSaved'), 'success');
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        addToast(result.error ?? t('unknownError'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+      addToast(err instanceof Error ? err.message : t('unknownError'), 'error');
     } finally {
       setGuidelinesSaving(false);
     }
@@ -81,10 +81,10 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
         ));
         addToast(pinned ? t('postPinned') : t('postUnpinned'), 'success');
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        addToast(result.error ?? t('unknownError'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+      addToast(err instanceof Error ? err.message : t('unknownError'), 'error');
     }
   }, [user, addToast]);
 
@@ -96,10 +96,10 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
         setPosts(prev => prev.filter(p => p.id !== postId));
         addToast(t('postRemoved'), 'success');
       } else {
-        addToast(result.error ?? 'Fehler', 'error');
+        addToast(result.error ?? t('unknownError'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+      addToast(err instanceof Error ? err.message : t('unknownError'), 'error');
     }
   }, [user, addToast]);
 

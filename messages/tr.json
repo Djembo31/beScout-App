@@ -772,7 +772,8 @@
     "events": "Etkinlik",
     "best": "En iyi",
     "emptyTitle": "Lig yok",
-    "emptyDesc": "Bir lig oluştur veya katıl, arkadaşlarınla oyna."
+    "emptyDesc": "Bir lig oluştur veya katıl, arkadaşlarınla oyna.",
+    "unknownError": "Bilinmeyen hata"
   },
   "market": {
     "title": "Menajer Ofisi",
@@ -2135,7 +2136,9 @@
       "claimedAt": "{date} tarihinde talep edildi",
       "nextMilestone": "Sonraki hedef",
       "allClaimed": "Tüm kilometretaşları talep edildi!",
-      "celebration": "{reward} kazanıldı!"
+      "celebration": "{reward} kazanıldı!",
+      "showLess": "Daha az",
+      "showAllMilestones": "Tüm {count} aşama"
     },
     "gesamtRang": "Genel Rütbe",
     "median": "3 boyutun ortancası",
@@ -2153,7 +2156,8 @@
       "community_voiceDesc": "En az 20 takipçi kazan",
       "rising_star": "Yükselen Yıldız",
       "rising_starDesc": "Toplam Puan ≥ 300 ve Sıralama ≤ 30"
-    }
+    },
+    "unknownError": "Bilinmeyen hata"
   },
   "onboarding": {
     "title": "İlk Adımlar",
@@ -2215,7 +2219,8 @@
     "noScoutActivity": "Henüz izci aktivitesi yok",
     "noScoutingReports": "Henüz keşif raporu yok",
     "scoreLabel": "Skor",
-    "dimShortMentalitaet": "Mental."
+    "dimShortMentalitaet": "Mental.",
+    "ratingRequired": "Değerlendirme gerekli"
   },
   "bounty": {
     "expired": "Süresi doldu",
@@ -3232,5 +3237,45 @@
     "alreadyRole": "{email} zaten bu kulüp için {role}.",
     "adminCreateError": "Kulüp-Admin oluşturulamadı: {error}",
     "invited": "{email}, \"{club}\" için {role} olarak davet edildi."
+  },
+  "notifTemplates": {
+    "newIpoTitle": "Yeni IPO!",
+    "newIpoBody": "{name} artık DPC olarak mevcut — payını al!",
+    "offerReceivedTitle": "Yeni Teklif",
+    "offerReceivedBody": "Yeni bir teklif aldın",
+    "offerAcceptedTitle": "Teklif kabul edildi",
+    "offerAcceptedBody": "Teklifin kabul edildi",
+    "offerRejectedTitle": "Teklif reddedildi",
+    "offerRejectedBody": "Teklifin reddedildi",
+    "offerCounteredTitle": "Karşı teklif",
+    "offerCounteredBody": "Karşı teklif aldın",
+    "tradeSoldTitle": "DPC satıldı",
+    "tradeSoldBody": "{name} için teklifin kabul edildi",
+    "tradeFallbackPlayer": "Oyuncu",
+    "bountySubmissionTitle": "Yeni başvuru",
+    "bountySubmissionBody": "Birisi \"{title}\" için çözüm gönderdi",
+    "bountyApprovedTitle": "Görev onaylandı!",
+    "bountyApprovedBody": "\"{title}\" için çözümün kabul edildi",
+    "bountyRejectedTitle": "Görev reddedildi",
+    "bountyRejectedBody": "\"{title}\" için çözümün reddedildi",
+    "bountyRejectedWithFeedback": "\"{title}\" için çözümün reddedildi: {feedback}",
+    "bountyFallbackTitle": "Görev",
+    "eventNewTitle": "Yeni Fantezi Etkinlik!",
+    "eventNewBody": "\"{name}\" — Şimdi kaydol ve katıl!",
+    "eventStartedTitle": "Etkinlik başladı!",
+    "eventStartedBody": "{name} şimdi canlı — puanlar sayılıyor!",
+    "eventFallbackName": "Bir etkinlik",
+    "researchUnlockTitle": "Rapor açıldı",
+    "researchUnlockBody": "Birisi \"{title}\" raporunu açtı",
+    "researchRatingTitle": "Değerlendirme: {rating}/5 Yıldız",
+    "researchRatingBody": "Birisi \"{title}\" raporunu değerlendirdi",
+    "researchFallbackPlayer": "Bilinmeyen oyuncu",
+    "eventScoredTitle": "{name} sonuçları geldi!",
+    "eventScoredBody": "Sıran: #{rank}, {score} puanla",
+    "fantasyRewardTitle": "{name} etkinliğinde #{rank}. sıra",
+    "fantasyRewardBody": "{score} puan kazandın!",
+    "liquidationTitle": "DPC tasfiye edildi",
+    "liquidationBodyFull": "{total} $SCOUT aldın ({pbt} PBT + {sf} Topluluk Bonusu).",
+    "liquidationBodyPbt": "{total} $SCOUT PBT dağıtımından aldın."
   }
 }

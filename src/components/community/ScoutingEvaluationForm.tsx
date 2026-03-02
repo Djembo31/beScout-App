@@ -25,6 +25,7 @@ function DimensionRow({
   value,
   onChange,
   tried,
+  errorText,
 }: {
   dimKey: ScoutingDimension;
   label: string;
@@ -32,6 +33,7 @@ function DimensionRow({
   value: number;
   onChange: (v: number) => void;
   tried: boolean;
+  errorText: string;
 }) {
   return (
     <div>
@@ -64,7 +66,7 @@ function DimensionRow({
         ))}
       </div>
       {tried && value === 0 && (
-        <div className="text-[10px] text-red-400 mt-0.5">Bewertung erforderlich</div>
+        <div className="text-[10px] text-red-400 mt-0.5">{errorText}</div>
       )}
     </div>
   );
@@ -98,6 +100,7 @@ export default function ScoutingEvaluationForm({
             value={evaluation[dim.key]}
             onChange={(v) => setDim(dim.key, v)}
             tried={tried}
+            errorText={ts('ratingRequired')}
           />
         ))}
       </div>

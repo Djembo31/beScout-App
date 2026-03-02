@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { mapRpcError } from '@/lib/services/trading';
+import { notifText } from '@/lib/notifText';
 import type {
   DbBounty,
   BountyWithCreator,
@@ -106,7 +107,7 @@ async function enrichBounties(
       creator_handle: creator?.handle ?? 'unknown',
       creator_display_name: creator?.display_name ?? null,
       creator_avatar_url: creator?.avatar_url ?? null,
-      player_name: b.player_id ? (player?.name ?? 'Unbekannter Spieler') : null,
+      player_name: b.player_id ? (player?.name ?? notifText('researchFallbackPlayer')) : null,
       player_position: player?.position ?? null,
       has_user_submitted: userSubmittedIds.has(b.id),
     };
@@ -312,8 +313,8 @@ export async function submitBountyResponse(
         await createNotification(
           bounty.created_by,
           'bounty_submission',
-          'Neue Einreichung',
-          `Jemand hat eine Lösung für "${bounty.title}" eingereicht`,
+          notifText('bountySubmissionTitle'),
+          notifText('bountySubmissionBody', { title: bounty.title }),
           bountyId,
           'bounty',
         );
@@ -365,8 +366,8 @@ export async function approveBountySubmission(
         await createNotification(
           sub.user_id,
           'bounty_approved',
-          'Auftrag genehmigt!',
-          `Deine Lösung für "${bounty?.title ?? 'Auftrag'}" wurde angenommen`,
+          notifText('bountyApprovedTitle'),
+          notifText('bountyApprovedBody', { title: bounty?.title ?? notifText('bountyFallbackTitle') }),
           sub.bounty_id,
           'bounty',
         );
@@ -440,8 +441,10 @@ export async function rejectBountySubmission(
         await createNotification(
           sub.user_id,
           'bounty_rejected',
-          'Auftrag abgelehnt',
-          `Deine Lösung für "${bounty?.title ?? 'Auftrag'}" wurde abgelehnt${feedback ? ': ' + feedback : ''}`,
+          notifText('bountyRejectedTitle'),
+          feedback
+            ? notifText('bountyRejectedWithFeedback', { title: bounty?.title ?? notifText('bountyFallbackTitle'), feedback })
+            : notifText('bountyRejectedBody', { title: bounty?.title ?? notifText('bountyFallbackTitle') }),
           sub.bounty_id,
           'bounty',
         );

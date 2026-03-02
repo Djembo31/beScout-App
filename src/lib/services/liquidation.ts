@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { mapRpcError } from '@/lib/services/trading';
+import { notifText } from '@/lib/notifText';
 import type { DbLiquidationEvent, DbLiquidationPayout } from '@/types';
 
 // ============================================
@@ -70,12 +71,12 @@ export async function liquidatePlayer(
           const pbtBsd = (Math.round(p.pbt_payout_cents ?? 0) / 100).toFixed(2);
           const sfBsd = (Math.round(p.success_fee_payout_cents ?? 0) / 100).toFixed(2);
           const msg = Number(p.success_fee_payout_cents) > 0
-            ? `Du hast ${totalBsd} $SCOUT erhalten (${pbtBsd} PBT + ${sfBsd} Community Bonus).`
-            : `Du hast ${totalBsd} $SCOUT aus der PBT-Ausschüttung erhalten.`;
+            ? notifText('liquidationBodyFull', { total: totalBsd, pbt: pbtBsd, sf: sfBsd })
+            : notifText('liquidationBodyPbt', { total: totalBsd });
           await createNotification(
             p.user_id,
             'pbt_liquidation',
-            'DPC liquidiert',
+            notifText('liquidationTitle'),
             msg,
             playerId,
             'player',

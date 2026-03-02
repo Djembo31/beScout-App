@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { notifText } from '@/lib/notifText';
 
 // ============================================
 // Scoring Service
@@ -51,8 +52,8 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
           createNotification(
             entry.userId,
             'event_scored',
-            `Ergebnisse für ${eventName} sind da!`,
-            `Dein Platz: #${entry.rank} mit ${entry.totalScore} Punkten`,
+            notifText('eventScoredTitle', { name: eventName }),
+            notifText('eventScoredBody', { rank: entry.rank, score: entry.totalScore }),
             eventId,
             'event'
           );
@@ -62,8 +63,8 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
           createNotification(
             entry.userId,
             'fantasy_reward',
-            `Platz #${entry.rank} bei ${eventName}`,
-            `Du hast ${entry.totalScore} Punkte erzielt!`,
+            notifText('fantasyRewardTitle', { rank: entry.rank, name: eventName }),
+            notifText('fantasyRewardBody', { score: entry.totalScore }),
             eventId,
             'event'
           );
