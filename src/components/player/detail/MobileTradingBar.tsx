@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { ShoppingCart, Send, TrendingUp, TrendingDown } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
@@ -16,6 +17,7 @@ interface MobileTradingBarProps {
 export default function MobileTradingBar({
   floor, holdingQty, change24h = 0, isLiquidated, onBuyClick, onSellClick,
 }: MobileTradingBarProps) {
+  const t = useTranslations('playerDetail');
   if (isLiquidated) return null;
 
   const up = change24h >= 0;
@@ -42,7 +44,7 @@ export default function MobileTradingBar({
             )}
             {holdingQty > 0 && (
               <span className="text-[10px] font-bold text-green-500 bg-green-500/10 px-1.5 py-0.5 rounded-md">
-                Du: {holdingQty} DPC
+                {t('youOwn', { count: holdingQty })}
               </span>
             )}
           </div>
@@ -55,8 +57,8 @@ export default function MobileTradingBar({
             className="text-sm font-bold btn-gold-glow min-h-[44px] px-5"
             onClick={onBuyClick}
           >
-            <ShoppingCart className="w-4 h-4" />
-            Kaufen
+            <ShoppingCart className="size-4" aria-hidden="true" />
+            {t('buy')}
           </Button>
           {holdingQty > 0 && (
             <Button

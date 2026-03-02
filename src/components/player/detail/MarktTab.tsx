@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import {
   Users, ShoppingCart, Clock, Layers, History,
   ArrowRight, Shield, ShieldAlert, BadgeCheck, Loader2, MessageSquare,
@@ -38,6 +39,17 @@ export default function MarktTab({
   onAcceptBid, acceptingBidId, onOpenOfferModal,
   isRestrictedAdmin,
 }: MarktTabProps) {
+  const t = useTranslations('playerDetail');
+
+  const formatTradeTime = (executedAt: string) => {
+    const d = new Date(executedAt);
+    const diff = Date.now() - d.getTime();
+    if (diff < 60000) return t('justNow');
+    if (diff < 3600000) return t('minutesAgo', { count: Math.floor(diff / 60000) });
+    if (diff < 86400000) return t('hoursAgo', { count: Math.floor(diff / 3600000) });
+    return d.toLocaleDateString('de-DE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+  };
+
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Club Admin Trading Restriction Notice */}
@@ -45,7 +57,7 @@ export default function MarktTab({
         <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
           <ShieldAlert className="size-5 text-red-400 shrink-0" aria-hidden="true" />
           <p className="text-sm text-red-300 text-pretty">
-            Als Club-Admin darfst du keine DPCs deines eigenen Clubs handeln (Interessenkonflikt).
+            {t('adminTradeRestriction')}
           </p>
         </div>
       )}
@@ -62,15 +74,15 @@ export default function MarktTab({
           <div className="bg-gradient-to-r from-gold/10 to-gold/5 border-b border-gold/20 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-gold" />
-                <span className="font-black">Angebote</span>
+                <MessageSquare className="size-5 text-gold" aria-hidden="true" />
+                <span className="font-black">{t('offers')}</span>
               </div>
               {onOpenOfferModal && (
                 <button
                   onClick={onOpenOfferModal}
                   className="text-xs px-3 py-1.5 min-h-[44px] rounded-lg bg-gold/10 text-gold border border-gold/20 hover:bg-gold/20 transition-colors font-medium"
                 >
-                  Kaufangebot machen
+                  {t('makeOffer')}
                 </button>
               )}
             </div>
@@ -84,18 +96,18 @@ export default function MarktTab({
                       <div className="text-sm">
                         <span className="text-white/60">@{bid.sender_handle}</span>
                         <span className="text-white/30 mx-2">&middot;</span>
-                        <span className="font-mono text-xs text-white/40">{bid.quantity} DPC</span>
+                        <span className="font-mono tabular-nums text-xs text-white/40">{bid.quantity} DPC</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="font-mono font-bold text-gold">{fmtScout(centsToBsd(bid.price))} $SCOUT</span>
+                      <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(centsToBsd(bid.price))} $SCOUT</span>
                       {holdingQty > 0 && bid.sender_id !== userId && onAcceptBid && (
                         <button
                           onClick={() => onAcceptBid(bid.id)}
                           disabled={acceptingBidId === bid.id}
                           className="text-xs px-3 py-2 min-h-[44px] rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors disabled:opacity-50"
                         >
-                          {acceptingBidId === bid.id ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Annehmen'}
+                          {acceptingBidId === bid.id ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : t('accept')}
                         </button>
                       )}
                     </div>
@@ -103,7 +115,7 @@ export default function MarktTab({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-4 text-white/30 text-sm">Keine offenen Gebote für diesen Spieler.</div>
+              <div className="text-center py-4 text-white/30 text-sm">{t('noOpenBids')}</div>
             )}
           </div>
         </Card>
@@ -114,34 +126,34 @@ export default function MarktTab({
         <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5 text-white/50" />
-              <span className="font-bold">Aktive Angebote</span>
+              <ShoppingCart className="size-5 text-white/50" aria-hidden="true" />
+              <span className="font-bold">{t('activeOffers')}</span>
             </div>
-            <span className="text-xs text-white/40">{player.listings.length} Listings</span>
+            <span className="text-xs text-white/40">{t('listingsCount', { count: player.listings.length })}</span>
           </div>
           <div className="space-y-2">
             {player.listings.map((listing) => (
-              <div key={listing.id} className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10 hover:bg-white/[0.04] transition-all">
+              <div key={listing.id} className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10 hover:bg-white/[0.04] transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center">
+                  <div className="size-9 rounded-xl bg-white/5 flex items-center justify-center">
                     <span className="font-bold text-xs">Lv{listing.sellerLevel}</span>
                   </div>
                   <div>
                     <div className="font-bold text-sm flex items-center gap-1">
                       {listing.sellerName}
-                      {listing.verified && <BadgeCheck className="w-3 h-3 text-gold" />}
+                      {listing.verified && <BadgeCheck className="size-3 text-gold" aria-hidden="true" />}
                     </div>
-                    <div className="text-[10px] text-white/40">{listing.qty || 1} DPC</div>
+                    <div className="text-[10px] text-white/40 font-mono tabular-nums">{listing.qty || 1} DPC</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-mono font-bold text-gold">{fmtScout(listing.price)}</div>
+                  <div className="font-mono font-bold tabular-nums text-gold">{fmtScout(listing.price)}</div>
                   <div className="text-[10px] text-white/40 flex items-center gap-1">
-                    <Clock className="w-2.5 h-2.5" />
+                    <Clock className="size-2.5" aria-hidden="true" />
                     {Math.floor((listing.expiresAt - Date.now()) / 3600000)}h
                   </div>
                 </div>
-                <div className="ml-3 px-2.5 py-1 rounded-lg bg-gold/10 border border-gold/20 text-[10px] font-bold text-gold">Angebot</div>
+                <div className="ml-3 px-2.5 py-1 rounded-lg bg-gold/10 border border-gold/20 text-[10px] font-bold text-gold">{t('offer')}</div>
               </div>
             ))}
           </div>
@@ -153,22 +165,26 @@ export default function MarktTab({
         <div className="bg-gradient-to-r from-orange-500/10 to-orange-500/5 border-b border-orange-500/20 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Layers className="w-5 h-5 text-orange-300" />
-              <span className="font-black">Transfermarkt (User-Angebote)</span>
+              <Layers className="size-5 text-orange-300" aria-hidden="true" />
+              <span className="font-black">{t('transferMarketOrders')}</span>
             </div>
-            <span className="text-xs text-white/40">{allSellOrders.length} Order{allSellOrders.length !== 1 ? 's' : ''}</span>
+            <span className="text-xs text-white/40">
+              {allSellOrders.length !== 1
+                ? t('ordersCountPlural', { count: allSellOrders.length })
+                : t('ordersCount', { count: allSellOrders.length })}
+            </span>
           </div>
         </div>
         <div className="p-4">
           {allSellOrders.length === 0 ? (
-            <div className="text-center py-6 text-white/40 text-sm">Keine offenen User-Angebote</div>
+            <div className="text-center py-6 text-white/40 text-sm">{t('noUserOffers')}</div>
           ) : (
             <div className="space-y-2">
               <div className="grid grid-cols-4 gap-2 text-[10px] text-white/40 px-3 pb-1 border-b border-white/5">
-                <span>Preis</span>
-                <span>Menge</span>
-                <span>Gesamt</span>
-                <span>Verkäufer</span>
+                <span>{t('price')}</span>
+                <span>{t('quantity')}</span>
+                <span>{t('total')}</span>
+                <span>{t('seller')}</span>
               </div>
               {allSellOrders.map((order) => {
                 const remaining = order.quantity - order.filled_qty;
@@ -176,12 +192,12 @@ export default function MarktTab({
                 const sellerHandle = profileMap[order.user_id]?.handle;
                 return (
                   <div key={order.id} className={`grid grid-cols-4 gap-2 items-center px-3 py-2 rounded-lg text-sm transition-colors ${isOwn ? 'bg-gold/5 border border-gold/20' : 'bg-surface-base hover:bg-white/[0.04]'}`}>
-                    <span className="font-mono font-bold text-gold">{formatScout(order.price)}</span>
-                    <span className="font-mono">{remaining} DPC</span>
-                    <span className="font-mono text-white/60">{formatScout(order.price * remaining)}</span>
+                    <span className="font-mono font-bold tabular-nums text-gold">{formatScout(order.price)}</span>
+                    <span className="font-mono tabular-nums">{remaining} DPC</span>
+                    <span className="font-mono tabular-nums text-white/60">{formatScout(order.price * remaining)}</span>
                     <span className="text-xs">
                       {isOwn
-                        ? <span className="text-gold font-bold">Du</span>
+                        ? <span className="text-gold font-bold">{t('you')}</span>
                         : sellerHandle
                           ? <Link href={`/profile/${sellerHandle}`} className="text-white/60 hover:text-gold transition-colors">@{sellerHandle}</Link>
                           : <span className="text-white/60">@{order.user_id.slice(0, 8)}</span>
@@ -200,20 +216,24 @@ export default function MarktTab({
         <div className="bg-gradient-to-r from-sky-500/10 to-sky-500/5 border-b border-sky-500/20 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <History className="w-5 h-5 text-sky-300" />
-              <span className="font-black">Trade-Historie</span>
+              <History className="size-5 text-sky-300" aria-hidden="true" />
+              <span className="font-black">{t('tradeHistory')}</span>
             </div>
-            <span className="text-xs text-white/40">{trades.length} Trade{trades.length !== 1 ? 's' : ''}</span>
+            <span className="text-xs text-white/40">
+              {trades.length !== 1
+                ? t('tradesCountPlural', { count: trades.length })
+                : t('tradesCount', { count: trades.length })}
+            </span>
           </div>
         </div>
         <div className="p-4">
           {tradesLoading ? (
             <div className="flex flex-col items-center justify-center py-8 gap-2">
-              <Loader2 className="w-6 h-6 animate-spin text-white/30" />
-              <span className="text-xs text-white/20">Trades laden...</span>
+              <Loader2 className="size-6 animate-spin motion-reduce:animate-none text-white/30" aria-hidden="true" />
+              <span className="text-xs text-white/20">{t('tradesLoading')}</span>
             </div>
           ) : trades.length === 0 ? (
-            <div className="text-center py-6 text-white/40 text-sm">Noch keine Trades für diesen Spieler</div>
+            <div className="text-center py-6 text-white/40 text-sm">{t('noTrades')}</div>
           ) : (
             <div className="space-y-1">
               {trades.map((trade) => {
@@ -222,14 +242,7 @@ export default function MarktTab({
                 const isSeller = userId && trade.seller_id === userId;
                 const buyerHandle = profileMap[trade.buyer_id]?.handle;
                 const sellerHandle = trade.seller_id ? profileMap[trade.seller_id]?.handle : null;
-                const tradeTime = (() => {
-                  const d = new Date(trade.executed_at);
-                  const diff = Date.now() - d.getTime();
-                  if (diff < 60000) return 'gerade eben';
-                  if (diff < 3600000) return `vor ${Math.floor(diff / 60000)}m`;
-                  if (diff < 86400000) return `vor ${Math.floor(diff / 3600000)}h`;
-                  return d.toLocaleDateString('de-DE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-                })();
+                const tradeTime = formatTradeTime(trade.executed_at);
                 return (
                   <div key={trade.id} className={`px-3 py-2.5 rounded-lg text-sm ${isBuyer || isSeller ? 'bg-sky-500/5 border border-sky-500/10' : 'bg-surface-base'}`}>
                     <div className="flex items-center justify-between mb-1">
@@ -238,28 +251,28 @@ export default function MarktTab({
                         {isIpoBuy ? (
                           <span className="px-1.5 py-0.5 rounded bg-green-500/20 text-green-500 font-bold text-[10px]">Club</span>
                         ) : (
-                          <span className="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 font-bold text-[10px]">Markt</span>
+                          <span className="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 font-bold text-[10px]">{t('market')}</span>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-gold">{formatScout(trade.price)} $SCOUT</span>
-                        <span className="text-white/40 font-mono text-xs">&times;{trade.quantity}</span>
+                        <span className="font-mono font-bold tabular-nums text-gold">{formatScout(trade.price)} $SCOUT</span>
+                        <span className="text-white/40 font-mono tabular-nums text-xs">&times;{trade.quantity}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1 text-xs text-white/50">
                       {isBuyer
-                        ? <span className="text-green-500 font-bold">Du</span>
+                        ? <span className="text-green-500 font-bold">{t('you')}</span>
                         : buyerHandle
                           ? <Link href={`/profile/${buyerHandle}`} className="hover:text-gold transition-colors">@{buyerHandle}</Link>
                           : <span>@{trade.buyer_id.slice(0, 8)}</span>
                       }
-                      <ArrowRight className="w-3 h-3 text-white/30" />
-                      <span className="text-white/30">kauft von</span>
-                      <ArrowRight className="w-3 h-3 text-white/30" />
+                      <ArrowRight className="size-3 text-white/30" aria-hidden="true" />
+                      <span className="text-white/30">{t('buysFrom')}</span>
+                      <ArrowRight className="size-3 text-white/30" aria-hidden="true" />
                       {isIpoBuy
                         ? <span className="text-green-500">Club</span>
                         : isSeller
-                          ? <span className="text-red-300 font-bold">Du</span>
+                          ? <span className="text-red-300 font-bold">{t('you')}</span>
                           : sellerHandle
                             ? <Link href={`/profile/${sellerHandle}`} className="hover:text-gold transition-colors">@{sellerHandle}</Link>
                             : <span>@{trade.seller_id?.slice(0, 8)}</span>
@@ -277,39 +290,39 @@ export default function MarktTab({
       <Card className="overflow-hidden">
         <div className="bg-gradient-to-r from-white/10 to-white/5 border-b border-white/10 p-4">
           <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-white/50" />
-            <span className="font-black">Preis-Info</span>
+            <Shield className="size-5 text-white/50" aria-hidden="true" />
+            <span className="font-black">{t('priceInfo')}</span>
           </div>
         </div>
         <div className="p-4">
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3">
-              <div className="text-xs text-purple-300">Club-Preis</div>
-              <div className="font-mono font-bold text-purple-200">{fmtScout(player.prices.ipoPrice ?? 0)} $SCOUT</div>
-              <div className="text-[10px] text-white/30 mt-0.5">Fest, vom Club gesetzt</div>
+              <div className="text-xs text-purple-300">{t('clubPrice')}</div>
+              <div className="font-mono font-bold tabular-nums text-purple-200">{fmtScout(player.prices.ipoPrice ?? 0)} $SCOUT</div>
+              <div className="text-[10px] text-white/30 mt-0.5">{t('fixedByClub')}</div>
             </div>
             <div className="bg-sky-500/10 border border-sky-500/20 rounded-lg p-3">
-              <div className="text-xs text-sky-300">Markt Floor</div>
-              <div className="font-mono font-bold text-gold">{fmtScout(player.prices.floor ?? 0)} $SCOUT</div>
-              <div className="text-[10px] text-white/30 mt-0.5">Günstigstes User-Angebot</div>
+              <div className="text-xs text-sky-300">{t('marketFloor')}</div>
+              <div className="font-mono font-bold tabular-nums text-gold">{fmtScout(player.prices.floor ?? 0)} $SCOUT</div>
+              <div className="text-[10px] text-white/30 mt-0.5">{t('cheapestUserOffer')}</div>
             </div>
             <div className="bg-surface-base rounded-lg p-3">
-              <div className="text-xs text-white/40">Letzter Trade</div>
-              <div className="font-mono font-bold">{fmtScout(player.prices.lastTrade ?? 0)} $SCOUT</div>
+              <div className="text-xs text-white/40">{t('lastTrade')}</div>
+              <div className="font-mono font-bold tabular-nums">{fmtScout(player.prices.lastTrade ?? 0)} $SCOUT</div>
             </div>
             <div className="bg-surface-base rounded-lg p-3">
-              <div className="text-xs text-white/40">24h Change</div>
-              <div className={`font-mono font-bold ${player.prices.change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red'}`}>
+              <div className="text-xs text-white/40">{t('change24h')}</div>
+              <div className={`font-mono font-bold tabular-nums ${player.prices.change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red'}`}>
                 {player.prices.change24h >= 0 ? '+' : ''}{player.prices.change24h.toFixed(1)}%
               </div>
             </div>
             <div className="bg-surface-base rounded-lg p-3">
-              <div className="text-xs text-white/40">Club-Pool DPCs</div>
-              <div className="font-mono font-bold">{dpcAvailable}</div>
+              <div className="text-xs text-white/40">{t('clubPoolDpc')}</div>
+              <div className="font-mono font-bold tabular-nums">{dpcAvailable}</div>
             </div>
             <div className="bg-surface-base rounded-lg p-3">
-              <div className="text-xs text-white/40">Im Umlauf</div>
-              <div className="font-mono font-bold">{player.dpc.circulation}</div>
+              <div className="text-xs text-white/40">{t('inCirculation')}</div>
+              <div className="font-mono font-bold tabular-nums">{player.dpc.circulation}</div>
             </div>
           </div>
         </div>
@@ -320,29 +333,29 @@ export default function MarktTab({
         <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-white/50" />
-              <span className="font-bold">Top Besitzer</span>
+              <Users className="size-5 text-white/50" aria-hidden="true" />
+              <span className="font-bold">{t('topOwners')}</span>
             </div>
-            <span className="text-xs text-white/40">{player.topOwners.length} Holder</span>
+            <span className="text-xs text-white/40">{t('holderCount', { count: player.topOwners.length })}</span>
           </div>
           <div className="space-y-3">
             {player.topOwners.map((owner, i) => (
               <div key={owner.id} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${i === 0 ? 'bg-gold/20 text-gold' : i === 1 ? 'bg-white/10 text-white/70' : i === 2 ? 'bg-orange-500/20 text-orange-300' : 'bg-white/5 text-white/50'}`}>
+                  <div className={`size-7 rounded-lg flex items-center justify-center text-xs font-bold ${i === 0 ? 'bg-gold/20 text-gold' : i === 1 ? 'bg-white/10 text-white/70' : i === 2 ? 'bg-orange-500/20 text-orange-300' : 'bg-white/5 text-white/50'}`}>
                     #{i + 1}
                   </div>
                   <div>
                     <div className="font-bold text-sm flex items-center gap-1">
                       {owner.name}
-                      {owner.verified && <BadgeCheck className="w-3 h-3 text-gold" />}
+                      {owner.verified && <BadgeCheck className="size-3 text-gold" aria-hidden="true" />}
                     </div>
                     <div className="text-[10px] text-white/40">Lv {owner.level}</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-mono font-bold text-sm">{owner.owned}</div>
-                  <div className="text-[10px] text-white/40">{owner.acceptance}% accept</div>
+                  <div className="font-mono font-bold tabular-nums text-sm">{owner.owned}</div>
+                  <div className="text-[10px] text-white/40 tabular-nums">{owner.acceptance}% accept</div>
                 </div>
               </div>
             ))}

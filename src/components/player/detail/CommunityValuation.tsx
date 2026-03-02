@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { Users, BarChart3, Send, CheckCircle2 } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
@@ -17,6 +18,7 @@ type CommunityValuationProps = {
 };
 
 export default function CommunityValuation({ playerId, userId, floorPriceCents, ipoPriceCents, currentGameweek }: CommunityValuationProps) {
+  const t = useTranslations('playerDetail');
   const [fairValue, setFairValue] = useState<PlayerFairValue | null>(null);
   const [myEstimate, setMyEstimate] = useState<number>(0);
   const [hasVoted, setHasVoted] = useState(false);
@@ -92,32 +94,32 @@ export default function CommunityValuation({ playerId, userId, floorPriceCents, 
 
   return (
     <Card className="p-4 md:p-6">
-      <h3 className="font-black text-lg mb-4 flex items-center gap-2">
-        <Users className="w-5 h-5 text-sky-400" />
-        Community-Bewertung
+      <h3 className="font-black text-lg mb-4 flex items-center gap-2 text-balance">
+        <Users className="size-5 text-sky-400" aria-hidden="true" />
+        {t('communityValuation')}
       </h3>
 
       {/* Fair Value Display */}
       {fairValue && fairValue.voteCount > 0 ? (
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="bg-surface-base border border-white/10 rounded-xl p-3 text-center">
-            <div className="text-[10px] text-white/40 mb-1">Fair Value</div>
-            <div className="font-mono font-bold text-gold">{fmtScout(centsToBsd(fairValue.medianCents))}</div>
+            <div className="text-[10px] text-white/40 mb-1">{t('fairValue')}</div>
+            <div className="font-mono font-bold tabular-nums text-gold">{fmtScout(centsToBsd(fairValue.medianCents))}</div>
           </div>
           <div className="bg-surface-base border border-white/10 rounded-xl p-3 text-center">
-            <div className="text-[10px] text-white/40 mb-1">Floor Preis</div>
-            <div className="font-mono font-bold text-white/70">{fmtScout(centsToBsd(floorPriceCents))}</div>
+            <div className="text-[10px] text-white/40 mb-1">{t('floorPrice')}</div>
+            <div className="font-mono font-bold tabular-nums text-white/70">{fmtScout(centsToBsd(floorPriceCents))}</div>
           </div>
           <div className="bg-surface-base border border-white/10 rounded-xl p-3 text-center">
-            <div className="text-[10px] text-white/40 mb-1">Bewertungen</div>
-            <div className="font-mono font-bold text-sky-300">{fairValue.voteCount}</div>
+            <div className="text-[10px] text-white/40 mb-1">{t('valuations')}</div>
+            <div className="font-mono font-bold tabular-nums text-sky-300">{fairValue.voteCount}</div>
           </div>
         </div>
       ) : (
         <div className="text-center py-4 mb-4 bg-surface-base border border-white/10 rounded-xl">
-          <BarChart3 className="w-8 h-8 text-white/10 mx-auto mb-2" />
-          <div className="text-sm text-white/30">Noch keine Bewertungen</div>
-          <div className="text-[10px] text-white/20">Sei der Erste!</div>
+          <BarChart3 className="size-8 text-white/10 mx-auto mb-2" aria-hidden="true" />
+          <div className="text-sm text-white/30">{t('noValuations')}</div>
+          <div className="text-[10px] text-white/20">{t('beFirst')}</div>
         </div>
       )}
 
@@ -125,8 +127,8 @@ export default function CommunityValuation({ playerId, userId, floorPriceCents, 
       {userId && currentGameweek > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-white/50">Deine Einschätzung (GW {currentGameweek})</span>
-            <span className="font-mono font-bold text-sm">{fmtScout(centsToBsd(myEstimate))} $SCOUT</span>
+            <span className="text-xs text-white/50">{t('yourEstimate', { gw: currentGameweek })}</span>
+            <span className="font-mono font-bold tabular-nums text-sm">{fmtScout(centsToBsd(myEstimate))} $SCOUT</span>
           </div>
           <input
             type="range"
@@ -137,15 +139,16 @@ export default function CommunityValuation({ playerId, userId, floorPriceCents, 
             onChange={(e) => setMyEstimate(Number(e.target.value))}
             className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-sky-400 focus-visible:ring-2 focus-visible:ring-sky-400/40"
             disabled={submitting}
+            aria-label={t('yourEstimate', { gw: currentGameweek })}
           />
-          <div className="flex items-center justify-between text-[10px] text-white/30">
+          <div className="flex items-center justify-between text-[10px] text-white/30 tabular-nums">
             <span>{fmtScout(centsToBsd(minCents))}</span>
             <span>{fmtScout(centsToBsd(maxCents))}</span>
           </div>
           {hasVoted ? (
             <div className="flex items-center gap-2 p-2 bg-green-500/10 border border-green-500/20 rounded-lg">
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
-              <span className="text-xs text-green-500/80">Bewertung abgegeben — du kannst sie jederzeit ändern</span>
+              <CheckCircle2 className="size-4 text-green-500" aria-hidden="true" />
+              <span className="text-xs text-green-500/80">{t('valuationSubmitted')}</span>
             </div>
           ) : null}
           <Button
@@ -155,10 +158,10 @@ export default function CommunityValuation({ playerId, userId, floorPriceCents, 
             onClick={handleSubmit}
             disabled={submitting || myEstimate <= 0}
           >
-            {submitting ? 'Wird gespeichert...' : hasVoted ? (
-              <><Send className="w-3 h-3" /> Bewertung aktualisieren</>
+            {submitting ? t('saving') : hasVoted ? (
+              <><Send className="size-3" aria-hidden="true" /> {t('updateValuation')}</>
             ) : (
-              <><Send className="w-3 h-3" /> Bewertung abgeben</>
+              <><Send className="size-3" aria-hidden="true" /> {t('submitValuation')}</>
             )}
           </Button>
         </div>

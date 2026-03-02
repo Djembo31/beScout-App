@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Send, Briefcase, Loader2, CheckCircle2, XCircle, Lock } from 'lucide-react';
 import { Modal, Card, Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
@@ -26,6 +27,7 @@ export default function SellModal({
   onSell, onCancelOrder, selling, cancellingId,
   sellError: parentSellError,
 }: SellModalProps) {
+  const t = useTranslations('playerDetail');
   const [sellQty, setSellQty] = useState(1);
   const [sellPriceBsd, setSellPriceBsd] = useState('');
   const [sellSuccess, setSellSuccess] = useState<string | null>(null);
@@ -44,11 +46,11 @@ export default function SellModal({
     if (player.isLiquidated) return;
     const priceCents = Math.round(Number(sellPriceBsd) * 100);
     if (priceCents < 1) {
-      setLocalSellError('Mindestpreis: 1 $SCOUT');
+      setLocalSellError(t('minPriceError'));
       return;
     }
     if (sellQty < 1 || sellQty > availableToSell) {
-      setLocalSellError('Ungültige Anzahl');
+      setLocalSellError(t('invalidQty'));
       return;
     }
     setLocalSellError(null);
@@ -66,7 +68,7 @@ export default function SellModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Verkaufen"
+      title={t('sell')}
       subtitle={`${player.first} ${player.last}`}
       footer={availableToSell > 0 && !player.isLiquidated ? (
         <div>
@@ -74,8 +76,8 @@ export default function SellModal({
             onClick={handleSell}
             disabled={selling || !sellPriceBsd || Number(sellPriceBsd) <= 0}
           >
-            {selling ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            {selling ? 'Wird gelistet...' : `Für ${showFee ? fmtScout(Number(sellPriceBsd)) : '...'} $SCOUT listen`}
+            {selling ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Send className="size-4" aria-hidden="true" />}
+            {selling ? t('listing') : t('listForPrice', { price: showFee ? fmtScout(Number(sellPriceBsd)) : '...' })}
           </Button>
           <TradingDisclaimer />
         </div>
@@ -85,13 +87,13 @@ export default function SellModal({
           {/* Toast messages */}
           {sellSuccess && (
             <div className="bg-green-500/20 border border-green-500/30 text-green-500 rounded-xl px-4 py-3 text-sm font-bold flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4" />
+              <CheckCircle2 className="size-4" aria-hidden="true" />
               {sellSuccess}
             </div>
           )}
           {sellError && (
             <div className="bg-red-500/20 border border-red-500/30 text-red-300 rounded-xl px-4 py-3 text-sm font-bold flex items-center gap-2">
-              <XCircle className="w-4 h-4" />
+              <XCircle className="size-4" aria-hidden="true" />
               {sellError}
             </div>
           )}
@@ -99,8 +101,8 @@ export default function SellModal({
           {/* Liquidation Warning */}
           {player.isLiquidated && (
             <div className="bg-red-500/20 border border-red-500/30 text-red-300 rounded-xl px-4 py-3 text-sm font-bold flex items-center gap-2">
-              <Lock className="w-4 h-4" />
-              Trading gesperrt — Spieler wurde liquidiert
+              <Lock className="size-4" aria-hidden="true" />
+              {t('tradingLockedLiquidated')}
             </div>
           )}
 
@@ -108,27 +110,27 @@ export default function SellModal({
           <Card className="overflow-hidden">
             <div className="bg-gradient-to-r from-green-500/20 to-green-500/5 border-b border-green-500/20 p-4">
               <div className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-green-500" />
-                <span className="font-black text-green-500">Deine Position</span>
+                <Briefcase className="size-5 text-green-500" aria-hidden="true" />
+                <span className="font-black text-green-500">{t('yourPosition')}</span>
               </div>
             </div>
             <div className="p-4 space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-white/50">DPC Besitz</span>
-                <span className="font-mono font-bold text-lg">{holdingQty} DPC</span>
+                <span className="text-white/50">{t('dpcOwned')}</span>
+                <span className="font-mono font-bold tabular-nums text-lg">{holdingQty} DPC</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-white/50">Anteil am Float</span>
-                <span className="font-mono font-bold">{(share * 100).toFixed(2)}%</span>
+                <span className="text-white/50">{t('floatShare')}</span>
+                <span className="font-mono font-bold tabular-nums">{(share * 100).toFixed(2)}%</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-white/50">Verfügbar</span>
-                <span className="font-mono font-bold text-green-500">{availableToSell} DPC</span>
+                <span className="text-white/50">{t('available')}</span>
+                <span className="font-mono font-bold tabular-nums text-green-500">{availableToSell} DPC</span>
               </div>
               {listedQty > 0 && (
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-white/50">Gelistet</span>
-                  <span className="font-mono font-bold text-orange-300">{listedQty} DPC</span>
+                  <span className="text-white/50">{t('listed')}</span>
+                  <span className="font-mono font-bold tabular-nums text-orange-300">{listedQty} DPC</span>
                 </div>
               )}
             </div>
@@ -137,30 +139,30 @@ export default function SellModal({
           {/* Sell Form */}
           {availableToSell > 0 && !player.isLiquidated && (
             <Card className="p-4 space-y-3">
-              <span className="font-bold text-sm">Neue Order</span>
+              <span className="font-bold text-sm">{t('newOrder')}</span>
 
               {/* Quantity */}
               <div>
-                <label className="text-xs text-white/50 mb-1 block">Anzahl (max. {availableToSell})</label>
+                <label className="text-xs text-white/50 mb-1 block">{t('qtyMax', { max: availableToSell })}</label>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setSellQty(Math.max(1, sellQty - 1))} aria-label="Menge reduzieren"
-                    className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 text-sm">-</button>
+                  <button onClick={() => setSellQty(Math.max(1, sellQty - 1))} aria-label={t('decreaseQty')}
+                    className="size-11 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 text-sm">-</button>
                   <input type="number" inputMode="numeric" value={sellQty} min={1} max={availableToSell}
-                    aria-label="Verkaufsmenge"
+                    aria-label={t('sellQtyAria')}
                     onChange={(e) => setSellQty(Math.max(1, Math.min(availableToSell, parseInt(e.target.value) || 1)))}
                     className="flex-1 text-center bg-white/5 border border-white/10 rounded-lg py-1.5 font-mono font-bold text-base" />
-                  <button onClick={() => setSellQty(Math.min(availableToSell, sellQty + 1))} aria-label="Menge erhöhen"
-                    className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 text-sm">+</button>
+                  <button onClick={() => setSellQty(Math.min(availableToSell, sellQty + 1))} aria-label={t('increaseQty')}
+                    className="size-11 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 text-sm">+</button>
                 </div>
               </div>
 
               {/* Price */}
               <div>
-                <label className="text-xs text-white/50 mb-1 block">Preis pro DPC ($SCOUT)</label>
+                <label className="text-xs text-white/50 mb-1 block">{t('pricePerDpcScout')}</label>
                 <input
                   type="number" inputMode="numeric" value={sellPriceBsd} min={1} step={1}
-                  placeholder={floorBsd > 0 ? `z.B. ${floorBsd}` : 'Preis eingeben'}
-                  aria-label="Preis pro DPC"
+                  placeholder={floorBsd > 0 ? t('examplePrice', { price: floorBsd }) : t('enterPrice')}
+                  aria-label={t('pricePerDpcLabel')}
                   onChange={(e) => setSellPriceBsd(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 font-mono font-bold text-base"
                 />
@@ -168,13 +170,13 @@ export default function SellModal({
                 {floorBsd > 0 && (
                   <div className="mt-1.5 flex items-center gap-1.5">
                     <button onClick={() => setSellPriceBsd(floorBsd.toString())} disabled={selling}
-                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all disabled:opacity-50">Floor</button>
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">Floor</button>
                     <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.05).toString())} disabled={selling}
-                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all disabled:opacity-50">+5%</button>
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">+5%</button>
                     <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.10).toString())} disabled={selling}
-                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all disabled:opacity-50">+10%</button>
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">+10%</button>
                     <button onClick={() => setSellPriceBsd(Math.ceil(floorBsd * 1.20).toString())} disabled={selling}
-                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-all disabled:opacity-50">+20%</button>
+                      className="px-2.5 min-h-[44px] flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50">+20%</button>
                     <span className="text-[11px] text-white/30 ml-1">Floor: {fmtScout(floorBsd)}</span>
                   </div>
                 )}
@@ -184,16 +186,16 @@ export default function SellModal({
               {showFee && (
                 <div className="bg-black/20 rounded-lg px-3 py-2 space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-white/50">Brutto</span>
-                    <span className="font-mono text-white/50">{fmtScout(gross)} $SCOUT</span>
+                    <span className="text-white/50">{t('gross')}</span>
+                    <span className="font-mono tabular-nums text-white/50">{fmtScout(gross)} $SCOUT</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-white/50">Gebühr ({TRADE_FEE_PCT}%)</span>
-                    <span className="font-mono text-red-400/70">-{fmtScout(fee)} $SCOUT</span>
+                    <span className="text-white/50">{t('feePercent', { pct: TRADE_FEE_PCT })}</span>
+                    <span className="font-mono tabular-nums text-red-400/70">-{fmtScout(fee)} $SCOUT</span>
                   </div>
                   <div className="border-t border-white/10 pt-1.5 flex items-center justify-between text-sm">
-                    <span className="text-white/50">Netto-Erlös</span>
-                    <span className="font-mono font-bold text-gold">{fmtScout(net)} $SCOUT</span>
+                    <span className="text-white/50">{t('netProceeds')}</span>
+                    <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(net)} $SCOUT</span>
                   </div>
                 </div>
               )}
@@ -204,25 +206,25 @@ export default function SellModal({
           {/* Active Listings */}
           {userOrders.length > 0 && (
             <Card className="p-4">
-              <div className="text-xs text-white/50 mb-3 font-bold">Aktive Listings</div>
+              <div className="text-xs text-white/50 mb-3 font-bold">{t('activeListings')}</div>
               <div className="space-y-2">
                 {userOrders.map((order) => {
                   const remaining = order.quantity - order.filled_qty;
                   return (
                     <div key={order.id} className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10">
                       <div>
-                        <div className="font-mono font-bold text-sm text-gold">{formatScout(order.price)} $SCOUT</div>
+                        <div className="font-mono font-bold tabular-nums text-sm text-gold">{formatScout(order.price)} $SCOUT</div>
                         <div className="text-[10px] text-white/50">
                           {remaining}/{order.quantity} DPC
-                          {order.filled_qty > 0 && <span className="text-green-500"> &middot; {order.filled_qty} verkauft</span>}
+                          {order.filled_qty > 0 && <span className="text-green-500"> &middot; {t('soldCount', { count: order.filled_qty })}</span>}
                         </div>
                       </div>
                       <button
                         onClick={() => onCancelOrder(order.id)}
                         disabled={cancellingId === order.id}
-                        className="text-xs text-red-400 hover:text-red-300 px-3 py-2 min-h-[44px] rounded-lg hover:bg-red-500/10 transition-all disabled:opacity-50"
+                        className="text-xs text-red-400 hover:text-red-300 px-3 py-2 min-h-[44px] rounded-lg hover:bg-red-500/10 transition-colors disabled:opacity-50"
                       >
-                        {cancellingId === order.id ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Stornieren'}
+                        {cancellingId === order.id ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : t('storno')}
                       </button>
                     </div>
                   );

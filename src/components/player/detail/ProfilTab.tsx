@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Info, Calendar, AlertTriangle, Flame, CheckCircle2,
   PiggyBank, BarChart3, Users, Unlock, ShoppingBag,
@@ -34,6 +35,7 @@ const formatMarketValue = (value: number) => {
 };
 
 export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCount, gwScores, userId, currentGameweek = 0 }: ProfilTabProps) {
+  const t = useTranslations('playerDetail');
   const contract = getContractInfo(player.contractMonthsLeft);
   const progressPercent = Math.max(0, Math.min(100, ((36 - player.contractMonthsLeft) / 36) * 100));
   const pbt = player.pbt || { balance: 0, sources: { trading: 0, votes: 0, content: 0, ipo: 0 } };
@@ -44,13 +46,13 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
         <Card className="p-3 text-center">
           <div className="text-[10px] text-white/40 mb-1 flex items-center justify-center gap-1">
-            <Activity className="w-3 h-3" /> Performance
+            <Activity className="size-3" aria-hidden="true" /> {t('performance')}
           </div>
           <ScoreCircle label="L5" value={player.perf.l5} size={36} />
         </Card>
         <Card className="p-3 text-center">
           <div className="text-[10px] text-white/40 mb-1 flex items-center justify-center gap-1">
-            <TrendingUp className="w-3 h-3" /> Sparkline
+            <TrendingUp className="size-3" aria-hidden="true" /> {t('sparkline')}
           </div>
           {player.prices.history7d ? (
             <MiniSparkline values={player.prices.history7d} width={80} height={28} />
@@ -60,23 +62,23 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
         </Card>
         <Card className="p-3 text-center">
           <div className="text-[10px] text-white/40 mb-1 flex items-center justify-center gap-1">
-            <BarChart3 className="w-3 h-3" /> DPC Supply
+            <BarChart3 className="size-3" aria-hidden="true" /> {t('dpcSupply')}
           </div>
-          <div className="font-mono font-bold text-sm">{fmtScout(player.dpc.supply)}</div>
+          <div className="font-mono font-bold tabular-nums text-sm">{fmtScout(player.dpc.supply)}</div>
         </Card>
         <Card className="p-3 text-center">
           <div className="text-[10px] text-white/40 mb-1 flex items-center justify-center gap-1">
-            <Users className="w-3 h-3" /> Holder
+            <Users className="size-3" aria-hidden="true" /> {t('holder')}
           </div>
-          <div className="font-mono font-bold text-sm">{holderCount}</div>
+          <div className="font-mono font-bold tabular-nums text-sm">{holderCount}</div>
         </Card>
       </div>
 
       {/* Attribute Radar */}
       <Card className="p-4 md:p-6">
-        <h3 className="font-black text-lg mb-4 flex items-center gap-2">
-          <Activity className="w-5 h-5 text-sky-400" />
-          Attribut-Radar
+        <h3 className="font-black text-lg mb-4 flex items-center gap-2 text-balance">
+          <Activity className="size-5 text-sky-400" aria-hidden="true" />
+          {t('attributeRadar')}
         </h3>
         <div className="flex justify-center">
           <RadarChart
@@ -100,38 +102,38 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
 
       {/* Spieler-Info */}
       <Card className="p-4 md:p-6">
-        <h3 className="font-black text-lg mb-4 flex items-center gap-2">
-          <Info className="w-5 h-5 text-white/50" />
-          Spieler-Information
+        <h3 className="font-black text-lg mb-4 flex items-center gap-2 text-balance">
+          <Info className="size-5 text-white/50" aria-hidden="true" />
+          {t('playerInfo')}
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           <div>
-            <div className="text-xs text-white/50">Marktwert</div>
+            <div className="text-xs text-white/50">{t('marketValue')}</div>
             <div className="font-bold">{formatMarketValue(player.marketValue || 500000)}</div>
           </div>
           <div>
-            <div className="text-xs text-white/50">Position</div>
+            <div className="text-xs text-white/50">{t('position')}</div>
             <div className="font-bold flex items-center gap-2">
               <PositionBadge pos={player.pos} size="sm" />
               {player.pos}
             </div>
           </div>
           <div>
-            <div className="text-xs text-white/50">Nationalität</div>
+            <div className="text-xs text-white/50">{t('nationality')}</div>
             <div className="font-bold">{player.country}</div>
           </div>
           <div>
-            <div className="text-xs text-white/50">Holder</div>
-            <div className="font-bold">{holderCount}</div>
+            <div className="text-xs text-white/50">{t('holder')}</div>
+            <div className="font-bold tabular-nums">{holderCount}</div>
           </div>
         </div>
       </Card>
 
       {/* DPC Supply Ring */}
       <Card className="p-4 md:p-6">
-        <h3 className="font-black text-lg mb-4 flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-gold" />
-          DPC Verteilung
+        <h3 className="font-black text-lg mb-4 flex items-center gap-2 text-balance">
+          <BarChart3 className="size-5 text-gold" aria-hidden="true" />
+          {t('dpcDistribution')}
         </h3>
         <DPCSupplyRing
           supply={player.dpc.supply}
@@ -142,27 +144,27 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
           <div className="bg-surface-base border border-white/10 rounded-xl p-3">
             <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
-              <BarChart3 className="w-3 h-3" />Supply
+              <BarChart3 className="size-3" aria-hidden="true" />{t('supply')}
             </div>
-            <div className="font-mono font-bold">{fmtScout(player.dpc.supply)}</div>
+            <div className="font-mono font-bold tabular-nums">{fmtScout(player.dpc.supply)}</div>
           </div>
           <div className="bg-surface-base border border-white/10 rounded-xl p-3">
             <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
-              <ShoppingBag className="w-3 h-3" />Freigegeben
+              <ShoppingBag className="size-3" aria-hidden="true" />{t('released')}
             </div>
-            <div className="font-mono font-bold">{fmtScout(player.dpc.float)}</div>
+            <div className="font-mono font-bold tabular-nums">{fmtScout(player.dpc.float)}</div>
           </div>
           <div className="bg-surface-base border border-white/10 rounded-xl p-3">
             <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
-              <Users className="w-3 h-3" />Verkauft
+              <Users className="size-3" aria-hidden="true" />{t('sold')}
             </div>
-            <div className="font-mono font-bold">{fmtScout(player.dpc.circulation)}</div>
+            <div className="font-mono font-bold tabular-nums">{fmtScout(player.dpc.circulation)}</div>
           </div>
           <div className="bg-surface-base border border-white/10 rounded-xl p-3">
             <div className="flex items-center gap-2 text-white/50 text-xs mb-1">
-              <Unlock className="w-3 h-3" />Verfügbar
+              <Unlock className="size-3" aria-hidden="true" />{t('available')}
             </div>
-            <div className="font-mono font-bold text-gold">{fmtScout(dpcAvailable)}</div>
+            <div className="font-mono font-bold tabular-nums text-gold">{fmtScout(dpcAvailable)}</div>
           </div>
         </div>
       </Card>
@@ -172,36 +174,36 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
         <div className={`p-4 ${contract.urgent ? 'bg-red-500/10' : player.contractMonthsLeft <= 12 ? 'bg-orange-500/10' : 'bg-surface-base'}`}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-white/50" />
-              <span className="font-bold">Vertragsstatus</span>
+              <Calendar className="size-5 text-white/50" aria-hidden="true" />
+              <span className="font-bold">{t('contractStatus')}</span>
             </div>
             {contract.urgent && (
               <div className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold bg-red-500/20 text-red-300">
-                <AlertTriangle className="w-3 h-3" />
-                Bald auslaufend!
+                <AlertTriangle className="size-3" aria-hidden="true" />
+                {t('expiringSoon')}
               </div>
             )}
             {!contract.urgent && player.contractMonthsLeft <= 12 && (
               <div className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold bg-orange-500/20 text-orange-300">
-                <AlertTriangle className="w-3 h-3" />
-                Läuft aus
+                <AlertTriangle className="size-3" aria-hidden="true" />
+                {t('expiringLabel')}
               </div>
             )}
           </div>
           <div className="flex items-end justify-between mb-2">
             <div>
-              <div className="text-xs text-white/40">Vertragsende</div>
-              <div className={`font-mono font-bold text-lg ${contract.color}`}>{contract.dateStr}</div>
+              <div className="text-xs text-white/40">{t('contractEnd')}</div>
+              <div className={`font-mono font-bold tabular-nums text-lg ${contract.color}`}>{contract.dateStr}</div>
             </div>
             <div className="text-right">
-              <div className="text-xs text-white/40">Restlaufzeit</div>
-              <div className={`font-mono font-bold text-lg ${contract.color}`}>{contract.monthsLeft} Monate</div>
+              <div className="text-xs text-white/40">{t('remainingTerm')}</div>
+              <div className={`font-mono font-bold tabular-nums text-lg ${contract.color}`}>{t('monthsCount', { count: contract.monthsLeft })}</div>
             </div>
           </div>
           <div className="mt-3">
             <div className="h-2 bg-black/30 rounded-full overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all ${contract.urgent ? 'bg-red-400' : player.contractMonthsLeft <= 12 ? 'bg-orange-400' : 'bg-green-500'}`}
+                className={`h-full rounded-full transition-colors ${contract.urgent ? 'bg-red-400' : player.contractMonthsLeft <= 12 ? 'bg-orange-400' : 'bg-green-500'}`}
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -211,17 +213,17 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
         {(contract.urgent || player.contractMonthsLeft <= 12) && (
           <div className={`p-4 border-t ${contract.urgent ? 'border-red-500/20 bg-red-500/5' : 'border-orange-500/20 bg-orange-500/5'}`}>
             <div className="flex items-start gap-3">
-              <Flame className={`w-5 h-5 mt-0.5 ${contract.urgent ? 'text-red-400' : 'text-orange-400'}`} />
+              <Flame className={`size-5 mt-0.5 ${contract.urgent ? 'text-red-400' : 'text-orange-400'}`} aria-hidden="true" />
               <div>
                 <div className={`font-bold text-sm ${contract.urgent ? 'text-red-300' : 'text-orange-300'}`}>
-                  DPC Burn in {contract.monthsLeft} Monaten
+                  {t('dpcBurnIn', { months: contract.monthsLeft })}
                 </div>
-                <div className="text-xs text-white/50 mt-1">
-                  Bei Vertragsende werden alle DPCs liquidiert. Der PBT wird anteilig an alle Holder ausgezahlt.
+                <div className="text-xs text-white/50 mt-1 text-pretty">
+                  {t('dpcBurnInfo')}
                 </div>
                 <div className="flex items-center gap-2 mt-2 text-xs">
-                  <CheckCircle2 className="w-3 h-3 text-green-500" />
-                  <span className="text-white/60">PBT Reward wird automatisch verteilt</span>
+                  <CheckCircle2 className="size-3 text-green-500" aria-hidden="true" />
+                  <span className="text-white/60">{t('pbtRewardAuto')}</span>
                 </div>
               </div>
             </div>
@@ -234,41 +236,41 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
         <div className={`${player.isLiquidated ? 'bg-gradient-to-r from-white/5 to-white/[0.02]' : 'bg-gradient-to-r from-gold/20 to-orange-500/10'} border-b border-gold/20 p-4`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <PiggyBank className={`w-5 h-5 ${player.isLiquidated ? 'text-white/30' : 'text-gold'}`} />
-              <span className="font-black">Player Bound Treasury</span>
+              <PiggyBank className={`size-5 ${player.isLiquidated ? 'text-white/30' : 'text-gold'}`} aria-hidden="true" />
+              <span className="font-black">{t('pbt')}</span>
             </div>
             <div className="flex items-center gap-1 text-xs text-white/50">
-              <Info className="w-3 h-3" />
-              <span>{player.isLiquidated ? 'PBT wurde an Holder verteilt' : 'Wird bei Liquidierung an DPC-Holder ausgeschüttet'}</span>
+              <Info className="size-3" aria-hidden="true" />
+              <span>{player.isLiquidated ? t('pbtDistributed') : t('pbtLiquidationInfo')}</span>
             </div>
           </div>
         </div>
         <div className="p-4 space-y-4">
           <div className="bg-black/20 rounded-xl p-4">
             <div className="flex items-center justify-between">
-              <span className="text-white/50 text-sm">{player.isLiquidated ? 'Reserviert (Success Fee)' : 'Treasury Guthaben'}</span>
-              <span className={`font-mono font-black text-2xl ${player.isLiquidated ? 'text-white/30' : 'text-gold'}`}>{fmtScout(pbt.balance)} $SCOUT</span>
+              <span className="text-white/50 text-sm">{player.isLiquidated ? t('reservedSuccessFee') : t('treasuryBalance')}</span>
+              <span className={`font-mono font-black tabular-nums text-2xl ${player.isLiquidated ? 'text-white/30' : 'text-gold'}`}>{fmtScout(pbt.balance)} $SCOUT</span>
             </div>
           </div>
           {pbt.sources && (
             <div>
-              <div className="text-xs text-white/40 mb-2">Zuflüsse nach Quelle</div>
+              <div className="text-xs text-white/40 mb-2">{t('inflowsBySource')}</div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="bg-surface-base rounded-lg p-2 flex items-center justify-between">
-                  <span className="text-xs text-white/50">Trading Fees</span>
-                  <span className="font-mono text-sm">{fmtScout(pbt.sources.trading)}</span>
+                  <span className="text-xs text-white/50">{t('tradingFees')}</span>
+                  <span className="font-mono tabular-nums text-sm">{fmtScout(pbt.sources.trading)}</span>
                 </div>
                 <div className="bg-surface-base rounded-lg p-2 flex items-center justify-between">
-                  <span className="text-xs text-white/50">Votes</span>
-                  <span className="font-mono text-sm">{fmtScout(pbt.sources.votes)}</span>
+                  <span className="text-xs text-white/50">{t('votesLabel')}</span>
+                  <span className="font-mono tabular-nums text-sm">{fmtScout(pbt.sources.votes)}</span>
                 </div>
                 <div className="bg-surface-base rounded-lg p-2 flex items-center justify-between">
-                  <span className="text-xs text-white/50">Content</span>
-                  <span className="font-mono text-sm">{fmtScout(pbt.sources.content)}</span>
+                  <span className="text-xs text-white/50">{t('contentLabel')}</span>
+                  <span className="font-mono tabular-nums text-sm">{fmtScout(pbt.sources.content)}</span>
                 </div>
                 <div className="bg-surface-base rounded-lg p-2 flex items-center justify-between">
-                  <span className="text-xs text-white/50">Erstverkauf</span>
-                  <span className="font-mono text-sm">{fmtScout(pbt.sources.ipo)}</span>
+                  <span className="text-xs text-white/50">{t('initialSale')}</span>
+                  <span className="font-mono tabular-nums text-sm">{fmtScout(pbt.sources.ipo)}</span>
                 </div>
               </div>
             </div>

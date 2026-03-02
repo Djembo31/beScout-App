@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { FileText, ChevronRight, Plus, MessageSquare, ArrowUp, ArrowDown, Trash2, BadgeCheck, Send, CheckCircle2 } from 'lucide-react';
 import { Card, Button, Modal } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
@@ -41,6 +42,7 @@ export default function CommunityTab({
   unlockingId, ratingId, postLoading,
   onUnlock, onRate, onCreatePost, onVotePost, onDeletePost,
 }: CommunityTabProps) {
+  const t = useTranslations('playerDetail');
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [showCreateRumor, setShowCreateRumor] = useState(false);
   const [postContent, setPostContent] = useState('');
@@ -102,14 +104,14 @@ export default function CommunityTab({
         <div className="flex gap-2.5">
           {/* Votes */}
           <div className="flex flex-col items-center gap-0.5">
-            <button onClick={() => onVotePost(post.id, myVote === 1 ? 0 : 1)}
+            <button onClick={() => onVotePost(post.id, myVote === 1 ? 0 : 1)} aria-label="Upvote"
               className={cn('p-1 rounded transition-colors', myVote === 1 ? 'bg-green-500/20 text-green-500' : 'text-white/30 hover:text-green-500')}>
-              <ArrowUp className="w-3.5 h-3.5" />
+              <ArrowUp className="size-3.5" aria-hidden="true" />
             </button>
-            <span className={cn('font-mono text-xs font-bold', netScore > 10 ? 'text-green-500' : netScore < 0 ? 'text-red-300' : 'text-white/50')}>{netScore}</span>
-            <button onClick={() => onVotePost(post.id, myVote === -1 ? 0 : -1)}
+            <span className={cn('font-mono tabular-nums text-xs font-bold', netScore > 10 ? 'text-green-500' : netScore < 0 ? 'text-red-300' : 'text-white/50')}>{netScore}</span>
+            <button onClick={() => onVotePost(post.id, myVote === -1 ? 0 : -1)} aria-label="Downvote"
               className={cn('p-1 rounded transition-colors', myVote === -1 ? 'bg-red-500/20 text-red-300' : 'text-white/30 hover:text-red-300')}>
-              <ArrowDown className="w-3.5 h-3.5" />
+              <ArrowDown className="size-3.5" aria-hidden="true" />
             </button>
           </div>
 
@@ -117,7 +119,7 @@ export default function CommunityTab({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 mb-1 flex-wrap">
               <span className="font-bold text-xs">{post.author_display_name || post.author_handle}</span>
-              {post.author_verified && <BadgeCheck className="w-3 h-3 text-gold" />}
+              {post.author_verified && <BadgeCheck className="size-3 text-gold" aria-hidden="true" />}
               <span className="text-[9px] text-white/30 px-1 py-0.5 bg-white/5 rounded">Lv{post.author_level}</span>
               <span className="text-[10px] text-white/40">{formatTimeAgo(post.created_at)}</span>
             </div>
@@ -125,7 +127,7 @@ export default function CommunityTab({
             {/* Category/Type Badge */}
             {isRumor ? (
               <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold border mb-1.5 bg-red-500/15 text-red-300 border-red-500/20">
-                {post.rumor_source ? `📡 ${post.rumor_source}` : '📡 Gerücht'}
+                {post.rumor_source ? `📡 ${post.rumor_source}` : `📡 ${t('rumor')}`}
               </span>
             ) : post.category ? (
               <span className={cn(
@@ -155,15 +157,15 @@ export default function CommunityTab({
 
             <div className="flex items-center gap-3 text-[10px] text-white/40">
               <span className="flex items-center gap-0.5">
-                <MessageSquare className="w-3 h-3" /> {post.replies_count}
+                <MessageSquare className="size-3" aria-hidden="true" /> {post.replies_count}
               </span>
               <button onClick={() => sharePost(post)} className={cn('flex items-center gap-0.5', copied ? 'text-green-500' : 'hover:text-white')}>
-                {copied ? <CheckCircle2 className="w-3 h-3" /> : <Send className="w-3 h-3" />}
-                {copied ? 'Kopiert!' : 'Teilen'}
+                {copied ? <CheckCircle2 className="size-3" aria-hidden="true" /> : <Send className="size-3" aria-hidden="true" />}
+                {copied ? t('copied') : t('share')}
               </button>
               {isOwn && (
                 <button onClick={() => onDeletePost(post.id)} className="flex items-center gap-0.5 hover:text-red-300">
-                  <Trash2 className="w-3 h-3" /> Löschen
+                  <Trash2 className="size-3" aria-hidden="true" /> {t('deleteAction')}
                 </button>
               )}
             </div>
@@ -177,36 +179,36 @@ export default function CommunityTab({
     <div className="space-y-4 md:space-y-6">
       {/* Sentiment Gauge */}
       <Card className="p-4 md:p-6">
-        <h3 className="font-black text-lg mb-4">Community-Stimmung</h3>
+        <h3 className="font-black text-lg mb-4 text-balance">{t('communitySentiment')}</h3>
         <div className="flex justify-center">
           <SentimentGauge buyCount={recentTrades.length} sellCount={recentTrades.filter(t => t.seller_id !== null).length} />
         </div>
         <div className="text-center mt-2 text-xs text-white/40">
-          Basiert auf {recentTrades.length} Trades der letzten 7 Tage
+          {t('sentimentBasis', { count: recentTrades.length })}
         </div>
       </Card>
 
       {/* Player Takes */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-black text-lg flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-white/50" />
-            Aussagen zu {playerName}
+          <h3 className="font-black text-lg flex items-center gap-2 text-balance">
+            <MessageSquare className="size-5 text-white/50" aria-hidden="true" />
+            {t('statementsAbout', { name: playerName })}
           </h3>
           {userId && (
             <Button variant="outline" onClick={() => setShowCreatePost(true)} className="text-xs gap-1">
-              <Plus className="w-3 h-3" /> Posten
+              <Plus className="size-3" aria-hidden="true" /> {t('post')}
             </Button>
           )}
         </div>
 
         {takes.length === 0 ? (
           <Card className="p-6 text-center">
-            <MessageSquare className="w-8 h-8 mx-auto mb-2 text-white/20" />
-            <div className="text-white/50 text-sm mb-2">Noch keine Aussagen</div>
+            <MessageSquare className="size-8 mx-auto mb-2 text-white/20" aria-hidden="true" />
+            <div className="text-white/50 text-sm mb-2">{t('noStatements')}</div>
             {userId && (
               <Button variant="gold" onClick={() => setShowCreatePost(true)} className="text-xs">
-                Erste Meinung teilen
+                {t('shareFirstOpinion')}
               </Button>
             )}
           </Card>
@@ -218,12 +220,12 @@ export default function CommunityTab({
       {/* Transfer Rumors */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-black text-lg flex items-center gap-2">
-            📡 Gerüchteküche
+          <h3 className="font-black text-lg flex items-center gap-2 text-balance">
+            📡 {t('rumorKitchen')}
           </h3>
           {userId && (
             <Button variant="outline" onClick={() => setShowCreateRumor(true)} className="text-xs gap-1">
-              <Plus className="w-3 h-3" /> Gerücht
+              <Plus className="size-3" aria-hidden="true" /> {t('rumor')}
             </Button>
           )}
         </div>
@@ -231,10 +233,10 @@ export default function CommunityTab({
         {rumors.length === 0 ? (
           <Card className="p-6 text-center border-red-500/10">
             <div className="text-2xl mb-2">📡</div>
-            <div className="text-white/50 text-sm mb-2">Keine Transfergerüchte</div>
+            <div className="text-white/50 text-sm mb-2">{t('noTransferRumors')}</div>
             {userId && (
               <Button variant="outline" onClick={() => setShowCreateRumor(true)} className="text-xs">
-                Gerücht teilen
+                {t('shareRumor')}
               </Button>
             )}
           </Card>
@@ -246,18 +248,18 @@ export default function CommunityTab({
       {/* Research Posts */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-black text-lg flex items-center gap-2">
-            <FileText className="w-5 h-5 text-white/50" />
-            Research-Berichte
+          <h3 className="font-black text-lg flex items-center gap-2 text-balance">
+            <FileText className="size-5 text-white/50" aria-hidden="true" />
+            {t('researchReports')}
           </h3>
           <Link href="/community" className="text-xs text-gold flex items-center gap-1 hover:underline">
-            Alle anzeigen <ChevronRight className="w-3 h-3" />
+            {t('showAll')} <ChevronRight className="size-3" aria-hidden="true" />
           </Link>
         </div>
         {playerResearch.length === 0 ? (
           <Card className="p-8 text-center">
-            <FileText className="w-10 h-10 mx-auto mb-3 text-white/20" />
-            <div className="text-white/50 text-sm">Noch keine Research-Berichte</div>
+            <FileText className="size-10 mx-auto mb-3 text-white/20" aria-hidden="true" />
+            <div className="text-white/50 text-sm">{t('noResearch')}</div>
           </Card>
         ) : (
           playerResearch.map(post => (
@@ -274,15 +276,15 @@ export default function CommunityTab({
       </div>
 
       {/* Create Player Take Modal */}
-      <Modal open={showCreatePost} title={`Aussage zu ${playerName}`} onClose={() => setShowCreatePost(false)}>
+      <Modal open={showCreatePost} title={t('statementAbout', { name: playerName })} onClose={() => setShowCreatePost(false)}>
         <div className="space-y-4">
           <div>
-            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Kategorie</label>
+            <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('category')}</label>
             <div className="flex gap-1.5 flex-wrap">
               {POST_CATEGORIES.map(cat => (
                 <button key={cat.id} type="button" onClick={() => setPostCategory(cat.id)}
                   className={cn(
-                    'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border',
+                    'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border',
                     postCategory === cat.id ? cat.color : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
                   )}>
                   {cat.label}
@@ -292,33 +294,33 @@ export default function CommunityTab({
           </div>
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 flex justify-between">
-              <span>Deine Meinung</span>
-              <span className={cn('font-mono', postContent.length > 400 ? 'text-amber-400' : 'text-white/30')}>{postContent.length}/500</span>
+              <span>{t('yourOpinion')}</span>
+              <span className={cn('font-mono tabular-nums', postContent.length > 400 ? 'text-amber-400' : 'text-white/30')}>{postContent.length}/500</span>
             </label>
             <textarea value={postContent} onChange={e => setPostContent(e.target.value.slice(0, 500))} rows={4}
-              placeholder={`Was denkst du über ${playerName}?`}
+              placeholder={t('thinkAbout', { name: playerName })}
               className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none" />
           </div>
           <div>
-            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Tags (kommagetrennt)</label>
+            <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('tagsComma')}</label>
             <input type="text" value={postTags} onChange={e => setPostTags(e.target.value)}
-              placeholder="z.B. Form, Value, Tactics"
+              placeholder={t('tagsPlaceholder')}
               className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
           </div>
-          <Button variant="gold" fullWidth loading={postLoading} onClick={handleSubmitPost}>Posten</Button>
+          <Button variant="gold" fullWidth loading={postLoading} onClick={handleSubmitPost}>{t('post')}</Button>
         </div>
       </Modal>
 
       {/* Create Transfer Rumor Modal */}
-      <Modal open={showCreateRumor} title={`Gerücht zu ${playerName}`} onClose={() => setShowCreateRumor(false)}>
+      <Modal open={showCreateRumor} title={t('rumorAbout', { name: playerName })} onClose={() => setShowCreateRumor(false)}>
         <div className="space-y-4">
           <div>
-            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Art</label>
+            <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('typeLabel')}</label>
             <div className="flex gap-1.5 flex-wrap">
               {RUMOR_CATEGORIES.map(cat => (
                 <button key={cat.id} type="button" onClick={() => setRumorCategory(cat.id)}
                   className={cn(
-                    'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border',
+                    'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border',
                     rumorCategory === cat.id ? cat.color : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
                   )}>
                   {cat.label}
@@ -327,27 +329,27 @@ export default function CommunityTab({
             </div>
           </div>
           <div>
-            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Ziel-Club (optional)</label>
+            <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('targetClub')}</label>
             <input type="text" value={rumorClubTarget} onChange={e => setRumorClubTarget(e.target.value)}
-              placeholder="z.B. Galatasaray, Fenerbahçe"
+              placeholder={t('targetClubPlaceholder')}
               className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
           </div>
           <div>
-            <label className="text-xs text-white/50 font-semibold mb-1.5 block">Quelle (optional)</label>
+            <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('sourceLabel')}</label>
             <input type="text" value={rumorSource} onChange={e => setRumorSource(e.target.value)}
-              placeholder="z.B. Fanatik, Sabah, Twitter"
+              placeholder={t('sourcePlaceholder')}
               className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
           </div>
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 flex justify-between">
-              <span>Gerücht</span>
-              <span className={cn('font-mono', rumorContent.length > 400 ? 'text-amber-400' : 'text-white/30')}>{rumorContent.length}/500</span>
+              <span>{t('rumorText')}</span>
+              <span className={cn('font-mono tabular-nums', rumorContent.length > 400 ? 'text-amber-400' : 'text-white/30')}>{rumorContent.length}/500</span>
             </label>
             <textarea value={rumorContent} onChange={e => setRumorContent(e.target.value.slice(0, 500))} rows={4}
-              placeholder={`Was hast du über ${playerName} gehört?`}
+              placeholder={t('heardAbout', { name: playerName })}
               className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none" />
           </div>
-          <Button variant="gold" fullWidth loading={postLoading} onClick={handleSubmitRumor}>Gerücht posten</Button>
+          <Button variant="gold" fullWidth loading={postLoading} onClick={handleSubmitRumor}>{t('postRumor')}</Button>
         </div>
       </Modal>
     </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Lock, Zap, Clock, ShoppingCart, Target, Loader2, Send } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
@@ -57,6 +58,7 @@ function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAffo
   icon: React.ReactNode;
   onBuy: (qty: number) => void;
 }) {
+  const t = useTranslations('playerDetail');
   const [qty, setQty] = useState(1);
   const clampedQty = maxQty > 0 ? Math.min(qty, maxQty) : qty;
   const totalBsd = priceBsd * clampedQty;
@@ -68,19 +70,19 @@ function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAffo
       {/* Price + Qty in one row */}
       <div className="flex items-center gap-2">
         <div className="flex-1 bg-black/20 rounded-xl px-3 py-2 text-center">
-          <div className="text-[10px] text-white/30">Preis/DPC</div>
-          <div className="font-mono font-black text-gold">{fmtScout(priceBsd)}</div>
-          {maxQty > 0 && <div className="text-[9px] text-white/30">max. {maxQty}</div>}
+          <div className="text-[10px] text-white/30">{t('pricePerDpc')}</div>
+          <div className="font-mono font-black tabular-nums text-gold">{fmtScout(priceBsd)}</div>
+          {maxQty > 0 && <div className="text-[9px] text-white/30">{t('maxLabel', { max: maxQty })}</div>}
         </div>
         <div className="flex items-center gap-1.5">
-          <button onClick={() => setQty(Math.max(1, qty - 1))} aria-label="Menge reduzieren" disabled={isBuying}
-            className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 transition-colors flex items-center justify-center disabled:opacity-50">−</button>
+          <button onClick={() => setQty(Math.max(1, qty - 1))} aria-label={t('decreaseQty')} disabled={isBuying}
+            className="size-9 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 transition-colors flex items-center justify-center disabled:opacity-50">−</button>
           <input type="number" inputMode="numeric" value={qty} min={1} max={maxQty || undefined} disabled={isBuying}
-            aria-label="Menge"
+            aria-label={t('qtyLabel')}
             onChange={(e) => setQty(Math.max(1, Math.min(maxQty || 999, parseInt(e.target.value) || 1)))}
             className="w-12 text-center bg-white/5 border border-white/10 rounded-lg py-1.5 font-mono font-bold text-base disabled:opacity-50" />
-          <button onClick={() => setQty(Math.min(maxQty || qty + 1, qty + 1))} aria-label="Menge erhöhen" disabled={isBuying}
-            className="w-9 h-9 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 transition-colors flex items-center justify-center disabled:opacity-50">+</button>
+          <button onClick={() => setQty(Math.min(maxQty || qty + 1, qty + 1))} aria-label={t('increaseQty')} disabled={isBuying}
+            className="size-9 min-w-[44px] min-h-[44px] rounded-lg bg-white/5 border border-white/10 font-bold hover:bg-white/10 transition-colors flex items-center justify-center disabled:opacity-50">+</button>
         </div>
       </div>
 
@@ -88,24 +90,24 @@ function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAffo
       <div className="flex items-center gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-white/30">Gesamt</span>
-            <span className="font-mono font-bold text-gold">{fmtScout(totalBsd)} $SCOUT</span>
+            <span className="text-white/30">{t('total')}</span>
+            <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(totalBsd)} $SCOUT</span>
           </div>
           {balanceCents !== null && (
             <div className="flex items-center justify-between text-[10px]">
-              <span className="text-white/30">Danach</span>
-              <span className={cn('font-mono', afford ? 'text-green-500' : 'text-red-400')}>
+              <span className="text-white/30">{t('after')}</span>
+              <span className={cn('font-mono tabular-nums', afford ? 'text-green-500' : 'text-red-400')}>
                 {formatScout(Math.max(0, balanceCents - totalCents))}
               </span>
             </div>
           )}
         </div>
         <Button variant="gold" size="lg" onClick={() => onBuy(clampedQty)} disabled={isBuying || !afford || clampedQty < 1} className="shrink-0">
-          {isBuying ? <Loader2 className="w-4 h-4 animate-spin" /> : icon}
+          {isBuying ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : icon}
           {isBuying ? '...' : label}
         </Button>
       </div>
-      {!afford && !isBuying && <div className="text-[10px] text-red-400 text-center">Nicht genug $SCOUT</div>}
+      {!afford && !isBuying && <div className="text-[10px] text-red-400 text-center">{t('notEnoughScout')}</div>}
     </div>
   );
 }
@@ -118,6 +120,7 @@ export default function BuyModal({
   onBuy, onIpoBuy, onConfirmBuy, onCancelPendingBuy,
   onShareTrade, onOpenOfferModal,
 }: BuyModalProps) {
+  const t = useTranslations('playerDetail');
   const isLiquidated = player.isLiquidated;
   const isIPO = activeIpo !== null && (activeIpo.status === 'open' || activeIpo.status === 'early_access');
 
@@ -145,13 +148,13 @@ export default function BuyModal({
     : 0;
 
   return (
-    <Modal open={open} onClose={onClose} title="DPC kaufen" subtitle={`${player.first} ${player.last}`}>
+    <Modal open={open} onClose={onClose} title={t('buyDpc')} subtitle={`${player.first} ${player.last}`}>
       <div className="space-y-3">
           {/* Liquidated Guard */}
           {isLiquidated && (
             <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-300">
-              <Lock className="w-4 h-4 shrink-0" />
-              <span className="text-sm font-bold">Trading gesperrt — Spieler liquidiert</span>
+              <Lock className="size-4 shrink-0" aria-hidden="true" />
+              <span className="text-sm font-bold">{t('tradingLocked')}</span>
             </div>
           )}
 
@@ -180,12 +183,12 @@ export default function BuyModal({
                   {/* IPO Header */}
                   <div className="flex items-center justify-between px-4 py-2.5 bg-green-500/[0.06]">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                      <span className="font-black text-sm text-green-500">Erstverkauf</span>
-                      <span className="text-[10px] text-white/30">Festpreis vom Verein</span>
+                      <div className="size-2 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none" />
+                      <span className="font-black text-sm text-green-500">{t('initialSale')}</span>
+                      <span className="text-[10px] text-white/30">{t('fixedPriceFromClub')}</span>
                     </div>
                     <div className="flex items-center gap-1 text-[10px] text-white/30">
-                      <Clock className="w-3 h-3" />
+                      <Clock className="size-3" aria-hidden="true" />
                       {formatCountdown(activeIpo.ends_at)}
                     </div>
                   </div>
@@ -196,8 +199,8 @@ export default function BuyModal({
                         <div className="h-full bg-gradient-to-r from-gold to-gold-hover rounded-full" style={{ width: `${ipoProgress}%` }} />
                       </div>
                       <div className="flex items-center justify-between text-[10px] text-white/30 mt-0.5">
-                        <span>{fmtScout(activeIpo.sold)}/{fmtScout(activeIpo.total_offered)} verkauft</span>
-                        <span>Limit: {userIpoPurchased}/{activeIpo.max_per_user}</span>
+                        <span>{t('soldOfTotal', { sold: fmtScout(activeIpo.sold), total: fmtScout(activeIpo.total_offered) })}</span>
+                        <span>{t('limitUsed', { used: userIpoPurchased, max: activeIpo.max_per_user })}</span>
                       </div>
                     </div>
                     {/* Buy Form or Limit Reached */}
@@ -209,15 +212,15 @@ export default function BuyModal({
                         balanceCents={balanceCents}
                         isBuying={ipoBuying}
                         canAfford={balanceCents !== null && balanceCents >= activeIpo.price}
-                        label="Verpflichten"
-                        icon={<Zap className="w-4 h-4" />}
+                        label={t('commit')}
+                        icon={<Zap className="size-4" aria-hidden="true" />}
                         onBuy={onIpoBuy}
                       />
                     ) : (
                       <div className="text-center py-2 text-xs text-white/30">
-                        <Lock className="w-4 h-4 mx-auto mb-1 text-white/15" />
-                        Limit erreicht
-                        {hasMarket && <div className="text-[10px] text-white/30 mt-1">Weitere DPCs über den Markt verfügbar ↓</div>}
+                        <Lock className="size-4 mx-auto mb-1 text-white/15" aria-hidden="true" />
+                        {t('limitReached')}
+                        {hasMarket && <div className="text-[10px] text-white/30 mt-1">{t('moreDpcViaMarket')}</div>}
                       </div>
                     )}
                   </div>
@@ -230,11 +233,11 @@ export default function BuyModal({
                   {/* Market Header */}
                   <div className="flex items-center justify-between px-4 py-2.5 bg-sky-500/[0.04]">
                     <div className="flex items-center gap-2">
-                      <ShoppingCart className="w-4 h-4 text-sky-300" />
-                      <span className="font-black text-sm text-sky-300">Markt</span>
-                      <span className="text-[10px] text-white/30">{transferAvailable} Angebot{transferAvailable !== 1 ? 'e' : ''}</span>
+                      <ShoppingCart className="size-4 text-sky-300" aria-hidden="true" />
+                      <span className="font-black text-sm text-sky-300">{t('market')}</span>
+                      <span className="text-[10px] text-white/30">{transferAvailable !== 1 ? t('offersCountPlural', { count: transferAvailable }) : t('offersCount', { count: transferAvailable })}</span>
                     </div>
-                    <span className="text-[10px] text-white/30">Günstigstes zuerst</span>
+                    <span className="text-[10px] text-white/30">{t('cheapestFirst')}</span>
                   </div>
                   <div className="p-3">
                     <BuyForm
@@ -244,8 +247,8 @@ export default function BuyModal({
                       balanceCents={balanceCents}
                       isBuying={buying}
                       canAfford={balanceCents !== null && balanceCents >= floorCents}
-                      label="Kaufen"
-                      icon={<Target className="w-4 h-4" />}
+                      label={t('buy')}
+                      icon={<Target className="size-4" aria-hidden="true" />}
                       onBuy={onBuy}
                     />
                   </div>
@@ -255,15 +258,15 @@ export default function BuyModal({
               {/* ── 3. No source — Offer CTA ── */}
               {!isIPO && !hasMarket && userId && (
                 <div className="py-6 text-center">
-                  <ShoppingCart className="w-8 h-8 mx-auto mb-2 text-white/10" />
-                  <div className="text-sm text-white/40 mb-1">Nicht verfügbar</div>
-                  <div className="text-xs text-white/30 mb-3">Kein Erstverkauf aktiv und keine Markt-Angebote</div>
+                  <ShoppingCart className="size-8 mx-auto mb-2 text-white/10" aria-hidden="true" />
+                  <div className="text-sm text-white/40">{t('notAvailable')}</div>
+                  <div className="text-xs text-white/30 mb-3">{t('noSaleNoOffers')}</div>
                   <button
                     onClick={onOpenOfferModal}
                     className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-xl bg-gold/10 text-gold border border-gold/20 hover:bg-gold/20 transition-colors text-xs font-bold"
                   >
-                    <Send className="w-3.5 h-3.5" />
-                    Kaufangebot machen
+                    <Send className="size-3.5" aria-hidden="true" />
+                    {t('makeOffer')}
                   </button>
                 </div>
               )}
@@ -274,8 +277,8 @@ export default function BuyModal({
                   onClick={onOpenOfferModal}
                   className="w-full flex items-center justify-center gap-1.5 py-2 text-[10px] text-white/30 hover:text-gold transition-colors"
                 >
-                  <Send className="w-3 h-3" />
-                  Oder: Kaufangebot an andere User senden
+                  <Send className="size-3" aria-hidden="true" />
+                  {t('sendOfferToUsers')}
                 </button>
               )}
             </>
