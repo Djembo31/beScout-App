@@ -18,6 +18,7 @@ export default function InviteClubAdminModal({ open, onClose, clubId, clubName, 
   const { addToast } = useToast();
   const t = useTranslations('admin');
   const tc = useTranslations('common');
+  const ta = useTranslations('adminApi');
 
   const ROLES = [
     { value: 'owner', label: 'Owner', desc: t('roleOwnerDesc') },
@@ -45,13 +46,15 @@ export default function InviteClubAdminModal({ open, onClose, clubId, clubName, 
 
       const data = await res.json();
       if (data.success) {
-        addToast(data.message ?? t('invited', { email: trimmed }), 'success');
+        const msg = data.messageKey ? ta(data.messageKey, data.params ?? {}) : t('invited', { email: trimmed });
+        addToast(msg, 'success');
         onInvited?.();
         onClose();
         setEmail('');
         setRole('admin');
       } else {
-        addToast(data.error ?? t('inviteFailed'), 'error');
+        const errMsg = data.errorKey ? ta(data.errorKey, data.params ?? {}) : t('inviteFailed');
+        addToast(errMsg, 'error');
       }
     } catch (err) {
       addToast(err instanceof Error ? err.message : t('networkError'), 'error');

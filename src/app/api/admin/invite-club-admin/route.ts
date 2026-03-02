@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   // 1. Verify service role key is configured
   if (!serviceRoleKey) {
     return NextResponse.json(
-      { success: false, error: 'Service Role Key nicht konfiguriert. Bitte in Vercel Env Vars setzen.' },
+      { success: false, errorKey: 'serviceKeyMissing' },
       { status: 500 },
     );
   }
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
   const { data: { user } } = await supabaseAuth.auth.getUser();
   if (!user) {
-    return NextResponse.json({ success: false, error: 'Nicht authentifiziert.' }, { status: 401 });
+    return NextResponse.json({ success: false, errorKey: 'notAuthenticated' }, { status: 401 });
   }
 
   // Check platform admin role
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     .maybeSingle();
 
   if (!adminRow || !['superadmin', 'admin'].includes(adminRow.role)) {
-    return NextResponse.json({ success: false, error: 'Keine Berechtigung.' }, { status: 403 });
+    return NextResponse.json({ success: false, errorKey: 'noPermission' }, { status: 403 });
   }
 
   // 3. Parse request body
@@ -47,17 +47,17 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ success: false, error: 'Ungültige Anfrage.' }, { status: 400 });
+    return NextResponse.json({ success: false, errorKey: 'invalidRequest' }, { status: 400 });
   }
 
   const { email, clubId, role } = body;
   if (!email || !clubId || !role) {
-    return NextResponse.json({ success: false, error: 'Email, Club-ID und Rolle sind erforderlich.' }, { status: 400 });
+    return NextResponse.json({ success: false, errorKey: 'emailClubRoleRequired' }, { status: 400 });
   }
 
   const validRoles = ['owner', 'admin', 'editor'];
   if (!validRoles.includes(role)) {
-    return NextResponse.json({ success: false, error: `Ungültige Rolle. Erlaubt: ${validRoles.join(', ')}` }, { status: 400 });
+    return NextResponse.json({ success: false, errorKey: 'invalidRole', params: { roles: validRoles.join(', ') } }, { status: 400 });
   }
 
   // 4. Use service role client for admin operations
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     .maybeSingle();
 
   if (!club) {
-    return NextResponse.json({ success: false, error: 'Club nicht gefunden.' }, { status: 404 });
+    return NextResponse.json({ success: false, errorKey: 'clubNotFound' }, { status: 404 });
   }
 
   // 6. Find or create user by email
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
 
     if (createError || !newUser?.user) {
       return NextResponse.json(
-        { success: false, error: `User konnte nicht erstellt werden: ${createError?.message ?? 'Unbekannter Fehler'}` },
+        { success: false, errorKey: 'userCreateError', params: { error: createError?.message ?? 'Unknown' } },
         { status: 500 },
       );
     }
@@ -137,9 +137,9 @@ export async function POST(req: NextRequest) {
         .from('club_admins')
         .update({ role })
         .eq('id', existingAdmin.id);
-      return NextResponse.json({ success: true, message: `Rolle für ${email} auf "${role}" aktualisiert.` });
+      return NextResponse.json({ success: true, messageKey: 'roleUpdated', params: { email, role } });
     }
-    return NextResponse.json({ success: true, message: `${email} ist bereits ${role} für diesen Club.` });
+    return NextResponse.json({ success: true, messageKey: 'alreadyRole', params: { email, role } });
   }
 
   // 8. Create club_admins entry
@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
 
   if (insertError) {
     return NextResponse.json(
-      { success: false, error: `Club-Admin konnte nicht erstellt werden: ${insertError.message}` },
+      { success: false, errorKey: 'adminCreateError', params: { error: insertError.message } },
       { status: 500 },
     );
   }
@@ -171,6 +171,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     success: true,
-    message: `${email} wurde als ${role} für "${club.name}" eingeladen.`,
+    messageKey: 'invited',
+    params: { email, role, club: club.name },
   });
 }

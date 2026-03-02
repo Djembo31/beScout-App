@@ -32,8 +32,8 @@ export async function getProfileByReferralCode(code: string): Promise<{ id: stri
 export async function applyReferralCode(userId: string, referrerCode: string): Promise<{ success: boolean; error?: string }> {
   // Look up referrer
   const referrer = await getProfileByReferralCode(referrerCode);
-  if (!referrer) return { success: false, error: 'Ungültiger Einladungscode.' };
-  if (referrer.id === userId) return { success: false, error: 'Du kannst dich nicht selbst einladen.' };
+  if (!referrer) return { success: false, error: 'invalidCode' };
+  if (referrer.id === userId) return { success: false, error: 'selfInvite' };
 
   // Check if already has invited_by
   const { data: profile } = await supabase
@@ -41,7 +41,7 @@ export async function applyReferralCode(userId: string, referrerCode: string): P
     .select('invited_by')
     .eq('id', userId)
     .single();
-  if (profile?.invited_by) return { success: false, error: 'Du wurdest bereits eingeladen.' };
+  if (profile?.invited_by) return { success: false, error: 'alreadyInvited' };
 
   // Set invited_by
   const { error } = await supabase

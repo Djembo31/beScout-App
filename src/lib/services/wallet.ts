@@ -124,12 +124,12 @@ export async function getTransactions(userId: string, limit = 20, offset = 0): P
 type WalletRpcResult = { success: boolean; error?: string; new_balance?: number };
 
 /** Entry Fee vom Wallet abziehen (atomar, mit TX-Log) */
-export async function deductEntryFee(userId: string, amountCents: number, eventName?: string, eventId?: string): Promise<number> {
+export async function deductEntryFee(userId: string, amountCents: number, eventName?: string, eventId?: string, description?: string): Promise<number> {
   const { data, error } = await supabase.rpc('deduct_wallet_balance', {
     p_user_id: userId,
     p_amount: amountCents,
     p_type: 'entry_fee',
-    p_description: eventName ? `Event-Eintritt: ${eventName}` : 'Event-Eintritt',
+    p_description: description ?? (eventName ? `Event-Eintritt: ${eventName}` : 'Event-Eintritt'),
     p_reference_id: eventId ?? null,
   });
   if (error) throw new Error(mapRpcError(error.message));
@@ -139,12 +139,12 @@ export async function deductEntryFee(userId: string, amountCents: number, eventN
 }
 
 /** Entry Fee zurück auf Wallet gutschreiben (atomar, mit TX-Log) */
-export async function refundEntryFee(userId: string, amountCents: number, eventName?: string, eventId?: string): Promise<number> {
+export async function refundEntryFee(userId: string, amountCents: number, eventName?: string, eventId?: string, description?: string): Promise<number> {
   const { data, error } = await supabase.rpc('refund_wallet_balance', {
     p_user_id: userId,
     p_amount: amountCents,
     p_type: 'entry_refund',
-    p_description: eventName ? `Event-Erstattung: ${eventName}` : 'Event-Erstattung',
+    p_description: description ?? (eventName ? `Event-Erstattung: ${eventName}` : 'Event-Erstattung'),
     p_reference_id: eventId ?? null,
   });
   if (error) throw new Error(mapRpcError(error.message));

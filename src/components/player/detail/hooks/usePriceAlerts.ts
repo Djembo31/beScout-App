@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { useToast } from '@/components/providers/ToastProvider';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
@@ -26,6 +27,7 @@ interface UsePriceAlertsParams {
 }
 
 export function usePriceAlerts({ playerId, player }: UsePriceAlertsParams) {
+  const tp = useTranslations('player');
   const { addToast } = useToast();
   const [priceAlert, setPriceAlert] = useState<{ target: number; dir: 'above' | 'below' } | null>(null);
 
@@ -38,7 +40,7 @@ export function usePriceAlerts({ playerId, player }: UsePriceAlertsParams) {
       const floorBsd = centsToBsd(player.prices.floor ?? 0);
       const triggered = existing.dir === 'below' ? floorBsd <= existing.target : floorBsd >= existing.target;
       if (triggered && floorBsd > 0) {
-        addToast(`Preis-Alert: ${player.first} ${player.last} ist ${existing.dir === 'below' ? 'unter' : 'über'} ${fmtScout(existing.target)} $SCOUT`, 'success');
+        addToast(tp('priceAlertTriggered', { first: player.first, last: player.last, direction: tp(existing.dir === 'below' ? 'priceAlertBelow' : 'priceAlertAbove'), target: fmtScout(existing.target) }), 'success');
         delete alerts[playerId];
         savePriceAlerts(alerts);
         setPriceAlert(null);
@@ -56,7 +58,7 @@ export function usePriceAlerts({ playerId, player }: UsePriceAlertsParams) {
     alerts[playerId] = { target, dir };
     savePriceAlerts(alerts);
     setPriceAlert({ target, dir });
-    addToast(`Preis-Alert gesetzt: ${dir === 'below' ? '\u2264' : '\u2265'} ${fmtScout(target)} $SCOUT`, 'success');
+    addToast(tp('priceAlertSet', { symbol: dir === 'below' ? '\u2264' : '\u2265', target: fmtScout(target) }), 'success');
   }, [player, playerId, addToast]);
 
   const handleRemovePriceAlert = useCallback(() => {

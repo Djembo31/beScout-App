@@ -57,7 +57,7 @@ export async function canEnableSubscriptions(
     .eq('id', userId)
     .maybeSingle();
 
-  if (!profile) return { eligible: false, reason: 'Profil nicht gefunden', minLevel, minFollowers };
+  if (!profile) return { eligible: false, reason: 'profileNotFound', minLevel, minFollowers };
 
   // Get follower count
   const { count } = await supabase
@@ -68,11 +68,11 @@ export async function canEnableSubscriptions(
   const followerCount = count ?? 0;
 
   if (profile.level < minLevel) {
-    return { eligible: false, reason: `Mindestens Level ${minLevel} benötigt (aktuell: ${profile.level})`, minLevel, minFollowers };
+    return { eligible: false, reason: 'minLevelRequired', minLevel, minFollowers };
   }
 
   if (followerCount < minFollowers) {
-    return { eligible: false, reason: `Mindestens ${minFollowers} Follower benötigt (aktuell: ${followerCount})`, minLevel, minFollowers };
+    return { eligible: false, reason: 'minFollowersRequired', minLevel, minFollowers };
   }
 
   return { eligible: true, minLevel, minFollowers };
@@ -93,7 +93,7 @@ export async function enableSubscriptions(
   const maxPrice = Number(config.beratervertrag_max_price_cents ?? 500000);
 
   if (priceCents < minPrice || priceCents > maxPrice) {
-    return { success: false, error: `Preis muss zwischen ${minPrice / 100} und ${maxPrice / 100} $SCOUT liegen` };
+    return { success: false, error: 'priceOutOfRange' };
   }
 
   const { error } = await supabase

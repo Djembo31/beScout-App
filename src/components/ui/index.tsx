@@ -338,9 +338,11 @@ export { ErrorBoundary } from './ErrorBoundary';
 
 export function ErrorState({
   message = 'Daten konnten nicht geladen werden.',
+  retryLabel = 'Nochmal versuchen',
   onRetry,
 }: {
   message?: string;
+  retryLabel?: string;
   onRetry?: () => void;
 }) {
   return (
@@ -353,7 +355,7 @@ export function ErrorState({
           className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
         >
           <RefreshCw className="size-3.5" aria-hidden="true" />
-          Nochmal versuchen
+          {retryLabel}
         </button>
       )}
     </Card>

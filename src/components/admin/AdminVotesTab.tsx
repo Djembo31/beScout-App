@@ -52,7 +52,7 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
       setVotes(updated);
       setMsg({ type: 'success', text: t('voteCreated') });
     } catch (err) {
-      setMsg({ type: 'error', text: err instanceof Error ? err.message : 'Fehler' });
+      setMsg({ type: 'error', text: err instanceof Error ? err.message : t('unknownError') });
     } finally {
       setCreating(false);
     }

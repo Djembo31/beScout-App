@@ -64,7 +64,9 @@
     "refreshLabel": "Yenile",
     "pageLabel": "Sayfa",
     "prevGameweek": "Önceki Hafta",
-    "nextGameweek": "Sonraki Hafta"
+    "nextGameweek": "Sonraki Hafta",
+    "loadError": "Veriler yüklenemedi.",
+    "tryAgain": "Tekrar dene"
   },
   "auth": {
     "subtitle": "TFF 1. Lig Fan Platformu",
@@ -1465,7 +1467,11 @@
     "listed": "Listelendi",
     "gwScores": "Hafta Puanları",
     "noGwScores": "Henüz hafta puanı yok",
-    "individualRatings": "Bireysel Puanlar"
+    "individualRatings": "Bireysel Puanlar",
+    "priceAlertTriggered": "Fiyat Uyarısı: {first} {last} {target} $SCOUT {direction}",
+    "priceAlertSet": "Fiyat uyarısı ayarlandı: {symbol} {target} $SCOUT",
+    "priceAlertBelow": "altında",
+    "priceAlertAbove": "üstünde"
   },
   "club": {
     "overview": "Genel Bakış",
@@ -3196,6 +3202,35 @@
     "benefitTradingDiscount15": "İşlem indirimi (%1,5)",
     "renewalDisabled": "Yenileme devre dışı",
     "activeLabel": "Aktif",
-    "perMonth": "/Ay"
+    "perMonth": "/Ay",
+    "profileNotFound": "Profil bulunamadı",
+    "minLevelRequired": "En az seviye {minLevel} gerekli (mevcut: {current})",
+    "minFollowersRequired": "En az {minFollowers} takipçi gerekli (mevcut: {current})",
+    "priceOutOfRange": "Fiyat {min} ile {max} $SCOUT arasında olmalıdır"
+  },
+  "referral": {
+    "invalidCode": "Geçersiz davet kodu.",
+    "selfInvite": "Kendini davet edemezsin.",
+    "alreadyInvited": "Zaten davet edildin."
+  },
+  "wallet": {
+    "entryFeeDesc": "Etkinlik Girişi: {name}",
+    "entryFeeDescDefault": "Etkinlik Girişi",
+    "refundDesc": "Etkinlik İadesi: {name}",
+    "refundDescDefault": "Etkinlik İadesi"
+  },
+  "adminApi": {
+    "serviceKeyMissing": "Service Role Key yapılandırılmamış. Vercel Env Vars ayarlarına ekleyin.",
+    "notAuthenticated": "Kimlik doğrulanmadı.",
+    "noPermission": "Yetki yok.",
+    "invalidRequest": "Geçersiz istek.",
+    "emailClubRoleRequired": "Email, Kulüp-ID ve Rol gereklidir.",
+    "invalidRole": "Geçersiz rol. İzin verilen: {roles}",
+    "clubNotFound": "Kulüp bulunamadı.",
+    "userCreateError": "Kullanıcı oluşturulamadı: {error}",
+    "roleUpdated": "{email} rolü \"{role}\" olarak güncellendi.",
+    "alreadyRole": "{email} zaten bu kulüp için {role}.",
+    "adminCreateError": "Kulüp-Admin oluşturulamadı: {error}",
+    "invited": "{email}, \"{club}\" için {role} olarak davet edildi."
   }
 }

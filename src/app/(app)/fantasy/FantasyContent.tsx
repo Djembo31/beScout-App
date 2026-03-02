@@ -161,6 +161,7 @@ export default function FantasyContent() {
   const tc = useTranslations('common');
   const tt = useTranslations('tips');
   const te = useTranslations('errors');
+  const tw = useTranslations('wallet');
 
   // State — 4 tabs
   const [mainTab, setMainTab] = useState<FantasyTab>('paarungen');
@@ -332,7 +333,7 @@ export default function FantasyContent() {
     try {
       // 1. Deduct fee FIRST — money is the critical resource, prevents free entries
       if (event.entryFeeCents > 0) {
-        const newBalance = await deductEntryFee(user.id, event.entryFeeCents, event.name, event.id);
+        const newBalance = await deductEntryFee(user.id, event.entryFeeCents, event.name, event.id, event.name ? tw('entryFeeDesc', { name: event.name }) : tw('entryFeeDescDefault'));
         setBalanceCents(newBalance);
       }
 
@@ -357,7 +358,7 @@ export default function FantasyContent() {
         // Lineup failed — refund the fee to keep state consistent
         if (event.entryFeeCents > 0) {
           try {
-            const refundedBalance = await refundEntryFee(user.id, event.entryFeeCents, event.name, event.id);
+            const refundedBalance = await refundEntryFee(user.id, event.entryFeeCents, event.name, event.id, event.name ? tw('refundDesc', { name: event.name }) : tw('refundDescDefault'));
             setBalanceCents(refundedBalance);
           } catch (refundErr) { console.error('[Fantasy] Fee refund failed:', refundErr); }
         }
@@ -400,7 +401,7 @@ export default function FantasyContent() {
 
       // Then refund entry fee
       if (event.entryFeeCents > 0) {
-        const newBalance = await refundEntryFee(user.id, event.entryFeeCents, event.name, event.id);
+        const newBalance = await refundEntryFee(user.id, event.entryFeeCents, event.name, event.id, event.name ? tw('refundDesc', { name: event.name }) : tw('refundDescDefault'));
         setBalanceCents(newBalance);
       }
     } catch (e: unknown) {

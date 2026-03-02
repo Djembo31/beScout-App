@@ -64,7 +64,9 @@
     "refreshLabel": "Aktualisieren",
     "pageLabel": "Seite",
     "prevGameweek": "Vorheriger Spieltag",
-    "nextGameweek": "Nächster Spieltag"
+    "nextGameweek": "Nächster Spieltag",
+    "loadError": "Daten konnten nicht geladen werden.",
+    "tryAgain": "Nochmal versuchen"
   },
   "auth": {
     "subtitle": "Werde Teil der TFF 1. Lig — handle Spielerkarten, spiele Fantasy und verdiene Belohnungen.",
@@ -1473,7 +1475,11 @@
     "listed": "Gelistet",
     "gwScores": "Spieltag-Bewertungen",
     "noGwScores": "Noch keine Spieltag-Bewertungen",
-    "individualRatings": "Einzelbewertungen"
+    "individualRatings": "Einzelbewertungen",
+    "priceAlertTriggered": "Preis-Alert: {first} {last} ist {direction} {target} $SCOUT",
+    "priceAlertSet": "Preis-Alert gesetzt: {symbol} {target} $SCOUT",
+    "priceAlertBelow": "unter",
+    "priceAlertAbove": "über"
   },
   "club": {
     "overview": "Übersicht",
@@ -3204,6 +3210,35 @@
     "benefitTradingDiscount15": "Trading-Rabatt (1.5%)",
     "renewalDisabled": "Verlängerung deaktiviert",
     "activeLabel": "Aktiv",
-    "perMonth": "/Monat"
+    "perMonth": "/Monat",
+    "profileNotFound": "Profil nicht gefunden",
+    "minLevelRequired": "Mindestens Level {minLevel} benötigt (aktuell: {current})",
+    "minFollowersRequired": "Mindestens {minFollowers} Follower benötigt (aktuell: {current})",
+    "priceOutOfRange": "Preis muss zwischen {min} und {max} $SCOUT liegen"
+  },
+  "referral": {
+    "invalidCode": "Ungültiger Einladungscode.",
+    "selfInvite": "Du kannst dich nicht selbst einladen.",
+    "alreadyInvited": "Du wurdest bereits eingeladen."
+  },
+  "wallet": {
+    "entryFeeDesc": "Event-Eintritt: {name}",
+    "entryFeeDescDefault": "Event-Eintritt",
+    "refundDesc": "Event-Erstattung: {name}",
+    "refundDescDefault": "Event-Erstattung"
+  },
+  "adminApi": {
+    "serviceKeyMissing": "Service Role Key nicht konfiguriert. Bitte in Vercel Env Vars setzen.",
+    "notAuthenticated": "Nicht authentifiziert.",
+    "noPermission": "Keine Berechtigung.",
+    "invalidRequest": "Ungültige Anfrage.",
+    "emailClubRoleRequired": "Email, Club-ID und Rolle sind erforderlich.",
+    "invalidRole": "Ungültige Rolle. Erlaubt: {roles}",
+    "clubNotFound": "Club nicht gefunden.",
+    "userCreateError": "User konnte nicht erstellt werden: {error}",
+    "roleUpdated": "Rolle für {email} auf \"{role}\" aktualisiert.",
+    "alreadyRole": "{email} ist bereits {role} für diesen Club.",
+    "adminCreateError": "Club-Admin konnte nicht erstellt werden: {error}",
+    "invited": "{email} wurde als {role} für \"{club}\" eingeladen."
   }
 }
