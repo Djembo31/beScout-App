@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { DollarSign, Package, Vote, TrendingUp, ArrowRightLeft, Landmark, PiggyBank } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card, Skeleton } from '@/components/ui';
 import { getClubDashboardStats, getClubTradingFees } from '@/lib/services/club';
 import { getPlayersByClubId, centsToBsd } from '@/lib/services/players';
@@ -11,6 +12,7 @@ import { formatScout } from '@/lib/services/wallet';
 import type { ClubWithAdmin, ClubDashboardStats, DbClubVote } from '@/types';
 
 export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
+  const t = useTranslations('admin');
   const [stats, setStats] = useState<ClubDashboardStats | null>(null);
   const [votes, setVotes] = useState<DbClubVote[]>([]);
   const [totalVolume, setTotalVolume] = useState(0);
@@ -47,13 +49,13 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-black">Einnahmen</h2>
+      <h2 className="text-xl font-black text-balance">{t('revenueTitle')}</h2>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card className="p-4 bg-gold/[0.06] border-gold/20">
           <div className="flex items-center gap-2 mb-2">
             <DollarSign className="w-5 h-5 text-gold" />
-            <span className="text-xs text-white/50">Gesamt</span>
+            <span className="text-xs text-white/50">{t('total')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
             <div className="text-xl font-mono font-black text-gold">{formatScout(totalRevenue)} $SCOUT</div>
@@ -62,7 +64,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
         <Card className="p-4">
           <div className="flex items-center gap-2 mb-2">
             <Package className="w-5 h-5 text-white/50" />
-            <span className="text-xs text-white/50">DPC/IPO Umsatz</span>
+            <span className="text-xs text-white/50">{t('dpcIpoRevenue')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
             <div className="text-xl font-mono font-black">{formatScout(stats?.ipo_revenue_cents ?? 0)} $SCOUT</div>
@@ -71,7 +73,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
         <Card className="p-4">
           <div className="flex items-center gap-2 mb-2">
             <ArrowRightLeft className="w-5 h-5 text-emerald-400" />
-            <span className="text-xs text-white/50">Trading Gebühren</span>
+            <span className="text-xs text-white/50">{t('tradingFees')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
             <div className="text-xl font-mono font-black text-emerald-400">{formatScout(clubFeeRevenue)} $SCOUT</div>
@@ -80,7 +82,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
         <Card className="p-4">
           <div className="flex items-center gap-2 mb-2">
             <Vote className="w-5 h-5 text-purple-400" />
-            <span className="text-xs text-white/50">Vote Einnahmen</span>
+            <span className="text-xs text-white/50">{t('voteRevenue')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
             <div className="text-xl font-mono font-black text-purple-400">{formatScout(voteRevenue)} $SCOUT</div>
@@ -90,14 +92,14 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
 
       {/* Fee Breakdown */}
       <Card className="p-6">
-        <h3 className="text-sm font-bold text-white/70 mb-4">Gebühren-Aufschlüsselung</h3>
+        <h3 className="text-sm font-bold text-white/70 mb-4">{t('feeBreakdown')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
               <Landmark className="w-4 h-4 text-emerald-400" />
             </div>
             <div>
-              <div className="text-[10px] text-white/40 uppercase">Club-Fee (1%)</div>
+              <div className="text-[10px] text-white/40 uppercase">{t('clubFee')}</div>
               {loading ? <Skeleton className="h-5 w-16" /> : (
                 <div className="text-sm font-mono font-bold">{formatScout(tradingFees?.totalClubFee ?? 0)} $SCOUT</div>
               )}
@@ -108,7 +110,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
               <PiggyBank className="w-4 h-4 text-sky-400" />
             </div>
             <div>
-              <div className="text-[10px] text-white/40 uppercase">PBT-Fee (1,5%)</div>
+              <div className="text-[10px] text-white/40 uppercase">{t('pbtFee')}</div>
               {loading ? <Skeleton className="h-5 w-16" /> : (
                 <div className="text-sm font-mono font-bold">{formatScout(tradingFees?.totalPbtFee ?? 0)} $SCOUT</div>
               )}
@@ -119,7 +121,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
               <DollarSign className="w-4 h-4 text-white/40" />
             </div>
             <div>
-              <div className="text-[10px] text-white/40 uppercase">Plattform (3,5%)</div>
+              <div className="text-[10px] text-white/40 uppercase">{t('platformFee')}</div>
               {loading ? <Skeleton className="h-5 w-16" /> : (
                 <div className="text-sm font-mono font-bold">{formatScout(tradingFees?.totalPlatformFee ?? 0)} $SCOUT</div>
               )}
@@ -130,14 +132,14 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
               <TrendingUp className="w-4 h-4 text-white/40" />
             </div>
             <div>
-              <div className="text-[10px] text-white/40 uppercase">Trading Vol. 24h</div>
+              <div className="text-[10px] text-white/40 uppercase">{t('tradingVol24h')}</div>
               <div className="text-sm font-mono font-bold">{fmtScout(totalVolume)} $SCOUT</div>
             </div>
           </div>
         </div>
         {!loading && tradingFees && (
           <div className="mt-4 pt-3 border-t border-white/[0.06] text-xs text-white/30">
-            Basierend auf {tradingFees.tradeCount} Trades. Gebührenstruktur: 6% gesamt (3,5% Plattform + 1,5% PBT + 1% Club).
+            {t('feeExplanation', { count: tradingFees.tradeCount })}
           </div>
         )}
       </Card>

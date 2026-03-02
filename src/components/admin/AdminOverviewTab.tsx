@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { DollarSign, Users2, TrendingUp, Trophy, Flame, Crown, Share2, Copy, Check, Megaphone, Send, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { Card, Skeleton, Button, Modal } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { getClubDashboardStats, getClubFollowerCount } from '@/lib/services/club';
@@ -18,6 +19,7 @@ import { canPerformAction } from '@/lib/adminRoles';
 import type { ClubWithAdmin, ClubDashboardStats, DbPlayer, Pos } from '@/types';
 
 export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
+  const t = useTranslations('admin');
   const role = club.admin_role ?? 'editor';
   const canPublishNews = canPerformAction('publish_news', role);
   const { user } = useUser();
@@ -68,7 +70,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
         <Card className="p-4 bg-gold/[0.06] border-gold/20">
           <div className="flex items-center gap-2 mb-2">
             <DollarSign className="w-5 h-5 text-gold" />
-            <span className="text-xs text-white/50">IPO Umsatz</span>
+            <span className="text-xs text-white/50">{t('ipoRevenue')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
             <div className="text-xl font-mono font-black text-gold">
@@ -79,7 +81,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
         <Card className="p-4">
           <div className="flex items-center gap-2 mb-2">
             <Users2 className="w-5 h-5 text-sky-400" />
-            <span className="text-xs text-white/50">Fans</span>
+            <span className="text-xs text-white/50">{t('fans')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-16" /> : (
             <div className="text-xl font-mono font-black text-sky-400">{stats?.total_fans ?? 0}</div>
@@ -88,7 +90,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
         <Card className="p-4">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="w-5 h-5 text-white/50" />
-            <span className="text-xs text-white/50">Trading Vol. 24h</span>
+            <span className="text-xs text-white/50">{t('tradingVol24h')}</span>
           </div>
           <div className="text-xl font-mono font-black text-white">
             {fmtScout(totalVolume)} <span className="text-sm text-white/50">$SCOUT</span>
@@ -97,7 +99,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
         <Card className="p-4">
           <div className="flex items-center gap-2 mb-2">
             <Users2 className="w-5 h-5 text-white/50" />
-            <span className="text-xs text-white/50">Follower</span>
+            <span className="text-xs text-white/50">{t('follower')}</span>
           </div>
           <div className="text-xl font-mono font-black text-white">{followerCount}</div>
         </Card>
@@ -109,14 +111,14 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
           <Card className="p-4 border-gold/20">
             <div className="flex items-center gap-2 mb-2">
               <Crown className="w-5 h-5 text-gold" />
-              <span className="text-xs text-white/50">Aktive Abonnenten</span>
+              <span className="text-xs text-white/50">{t('activeSubscribers')}</span>
             </div>
             <div className="text-xl font-mono font-black text-gold">{subData.total}</div>
           </Card>
           <Card className="p-4 border-gold/20">
             <div className="flex items-center gap-2 mb-2">
               <DollarSign className="w-5 h-5 text-gold" />
-              <span className="text-xs text-white/50">Abo-Einnahmen</span>
+              <span className="text-xs text-white/50">{t('subRevenue')}</span>
             </div>
             <div className="text-xl font-mono font-black text-gold">{formatScout(subData.revenueCents)} $SCOUT</div>
           </Card>
@@ -131,11 +133,11 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
               <Share2 className="w-5 h-5 text-green-500" />
             </div>
             <div>
-              <div className="text-sm font-bold">Club-Referral-Link</div>
+              <div className="text-sm font-bold">{t('referralLink')}</div>
               <div className="text-[10px] text-white/40">
                 {followerCount > 0
-                  ? `${followerCount} Fan${followerCount !== 1 ? 's' : ''} folgen deinem Club`
-                  : 'Teile diesen Link um Fans zu gewinnen'}
+                  ? t('referralFollowing', { count: followerCount })
+                  : t('referralShareHint')}
               </div>
             </div>
           </div>
@@ -168,32 +170,32 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
                 <Megaphone className="w-5 h-5 text-gold" />
               </div>
               <div>
-                <div className="text-sm font-bold">Club-News veröffentlichen</div>
-                <div className="text-[10px] text-white/40">Neuigkeiten für Fans sichtbar im Feed + Club-Seite</div>
+                <div className="text-sm font-bold">{t('publishNews')}</div>
+                <div className="text-[10px] text-white/40">{t('publishNewsDesc')}</div>
               </div>
             </div>
             <Button variant="gold" size="sm" onClick={() => setNewsOpen(true)}>
               <Send className="w-3.5 h-3.5" />
-              News schreiben
+              {t('writeNews')}
             </Button>
           </div>
         </Card>
       )}
 
       {/* News Modal */}
-      <Modal open={newsOpen} onClose={() => setNewsOpen(false)} title="Club-News veröffentlichen">
+      <Modal open={newsOpen} onClose={() => setNewsOpen(false)} title={t('publishNews')}>
         <div className="space-y-4">
           <textarea
             value={newsContent}
             onChange={e => setNewsContent(e.target.value)}
-            placeholder="Was gibt es Neues? (z.B. Neuzugang, Event, Trainingscamp...)"
+            placeholder={t('newsPlaceholder')}
             className="w-full h-32 bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-gold/40"
             maxLength={1000}
           />
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-white/30">{newsContent.length}/1000</span>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => setNewsOpen(false)}>Abbrechen</Button>
+              <Button variant="outline" size="sm" onClick={() => setNewsOpen(false)}>{t('cancel')}</Button>
               <Button
                 variant="gold"
                 size="sm"
@@ -203,19 +205,19 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
                   setNewsPublishing(true);
                   try {
                     await createClubNews(user.id, club.id, club.name, newsContent.trim());
-                    addToast('News veröffentlicht!', 'success');
+                    addToast(t('newsPublished'), 'success');
                     setNewsContent('');
                     setNewsOpen(false);
                   } catch (err) {
                     console.error('[Admin] News publish:', err);
-                    addToast('Fehler beim Veröffentlichen', 'error');
+                    addToast(t('publishError'), 'error');
                   } finally {
                     setNewsPublishing(false);
                   }
                 }}
               >
                 {newsPublishing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                Veröffentlichen
+                {t('publish')}
               </Button>
             </div>
           </div>
@@ -227,7 +229,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-4">
             <Trophy className="w-5 h-5 text-gold" />
-            <span className="font-black text-lg">Top Fans</span>
+            <span className="font-black text-lg">{t('topFans')}</span>
           </div>
           {loading ? (
             <div className="space-y-3">
@@ -236,7 +238,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
               ))}
             </div>
           ) : (stats?.top_fans ?? []).length === 0 ? (
-            <div className="text-center py-8 text-white/40 text-sm">Noch keine Fans</div>
+            <div className="text-center py-8 text-white/40 text-sm">{t('noFans')}</div>
           ) : (
             <div className="space-y-2">
               {(stats?.top_fans ?? []).map((fan, i) => (
@@ -266,10 +268,10 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-4">
             <Flame className="w-5 h-5 text-orange-400" />
-            <span className="font-black text-lg">Meistgehandelt</span>
+            <span className="font-black text-lg">{t('mostTraded')}</span>
           </div>
           {topTraded.length === 0 ? (
-            <div className="text-center py-8 text-white/40 text-sm">Keine Spieler</div>
+            <div className="text-center py-8 text-white/40 text-sm">{t('noPlayers')}</div>
           ) : (
             <div className="space-y-2">
               {topTraded.map((p, i) => (

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Shield, Pin, Trash2, FileText, Loader2, Save, AlertTriangle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -16,6 +17,7 @@ import type { ClubWithAdmin, PostWithAuthor } from '@/types';
 // ============================================
 
 export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
+  const t = useTranslations('admin');
   const role = club.admin_role ?? 'editor';
   const canPin = canPerformAction('pin_post', role);
   const canDelete = canPerformAction('delete_post', role);
@@ -58,7 +60,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
     try {
       const result = await updateCommunityGuidelines(user.id, club.id, guidelines || null);
       if (result.success) {
-        addToast('Richtlinien gespeichert', 'success');
+        addToast(t('guidelinesSaved'), 'success');
       } else {
         addToast(result.error ?? 'Fehler', 'error');
       }
@@ -77,7 +79,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
         setPosts(prev => prev.map(p =>
           p.id === postId ? { ...p, is_pinned: pinned } : p
         ));
-        addToast(pinned ? 'Post angepinnt' : 'Post gelöst', 'success');
+        addToast(pinned ? t('postPinned') : t('postUnpinned'), 'success');
       } else {
         addToast(result.error ?? 'Fehler', 'error');
       }
@@ -92,7 +94,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
       const result = await adminDeletePost(user.id, postId);
       if (result.success) {
         setPosts(prev => prev.filter(p => p.id !== postId));
-        addToast('Post entfernt', 'success');
+        addToast(t('postRemoved'), 'success');
       } else {
         addToast(result.error ?? 'Fehler', 'error');
       }
@@ -107,16 +109,16 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <Shield className="w-5 h-5 text-gold" />
-          <span className="font-black text-lg">Community-Richtlinien</span>
+          <span className="font-black text-lg">{t('communityGuidelines')}</span>
         </div>
         <p className="text-sm text-white/50 mb-3">
-          Wird auf der Club-Seite angezeigt. Max 1000 Zeichen.
+          {t('guidelinesDesc')}
         </p>
         <textarea
           value={guidelines}
           onChange={(e) => canEditGuidelines && setGuidelines(e.target.value.slice(0, 1000))}
           readOnly={!canEditGuidelines}
-          placeholder="Regeln und Richtlinien für die Club-Community..."
+          placeholder={t('guidelinesPlaceholder')}
           className={cn(
             'w-full h-32 p-3 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none',
             !canEditGuidelines && 'opacity-60 cursor-not-allowed'
@@ -132,7 +134,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
               disabled={!guidelinesChanged || guidelinesSaving}
             >
               {guidelinesSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Speichern
+              {t('save')}
             </Button>
           )}
         </div>
@@ -142,11 +144,11 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <Pin className="w-5 h-5 text-gold" />
-          <span className="font-black text-lg">Gepinnte Posts</span>
+          <span className="font-black text-lg">{t('pinnedPosts')}</span>
           <span className="text-xs text-white/40">{pinnedPosts.length}/3</span>
         </div>
         {pinnedPosts.length === 0 ? (
-          <p className="text-sm text-white/40">Keine gepinnten Posts. Pinne Posts aus der Liste unten an.</p>
+          <p className="text-sm text-white/40">{t('noPinnedPosts')}</p>
         ) : (
           <div className="space-y-2">
             {pinnedPosts.map(post => (
@@ -154,14 +156,14 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
                 <Pin className="w-4 h-4 text-gold flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm truncate">{post.content.slice(0, 80)}</p>
-                  <span className="text-[10px] text-white/40">von {post.author_display_name || post.author_handle}</span>
+                  <span className="text-[10px] text-white/40">{t('by')} {post.author_display_name || post.author_handle}</span>
                 </div>
                 {canPin && (
                   <button
                     onClick={() => handleTogglePin(post.id, false)}
                     className="text-xs text-white/50 hover:text-red-300 px-2 py-1 rounded-lg hover:bg-white/5"
                   >
-                    Lösen
+                    {t('unpin')}
                   </button>
                 )}
               </div>
@@ -174,7 +176,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <FileText className="w-5 h-5 text-purple-400" />
-          <span className="font-black text-lg">Club-Posts</span>
+          <span className="font-black text-lg">{t('clubPosts')}</span>
           <span className="text-xs text-white/40">{posts.length} Posts</span>
         </div>
         {loading ? (
@@ -182,7 +184,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
             <Loader2 className="w-6 h-6 animate-spin text-white/30" />
           </div>
         ) : posts.length === 0 ? (
-          <p className="text-sm text-white/40">Noch keine Posts für diesen Club.</p>
+          <p className="text-sm text-white/40">{t('noPosts')}</p>
         ) : (
           <div className="space-y-2 max-h-[600px] overflow-y-auto">
             {posts.map(post => (
@@ -209,7 +211,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
                           'p-1.5 rounded-lg transition-colors',
                           post.is_pinned ? 'text-gold hover:bg-gold/10' : 'text-white/30 hover:text-white hover:bg-white/5'
                         )}
-                        title={post.is_pinned ? 'Lösen' : 'Anpinnen'}
+                        title={post.is_pinned ? t('unpin') : t('pin')}
                       >
                         <Pin className="w-4 h-4" />
                       </button>
@@ -218,7 +220,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
                       <button
                         onClick={() => handleAdminDelete(post.id)}
                         className="p-1.5 rounded-lg text-white/30 hover:text-red-300 hover:bg-red-500/10 transition-colors"
-                        title="Löschen"
+                        title={t('delete')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

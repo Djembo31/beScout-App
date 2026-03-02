@@ -2,20 +2,22 @@
 
 import React, { useState, useEffect } from 'react';
 import { Users, Activity, TrendingUp, UserCheck } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card, Skeleton } from '@/components/ui';
 import { getClubFanAnalytics, getClubFollowerCount } from '@/lib/services/club';
 import { formatScout } from '@/lib/services/wallet';
 import type { ClubWithAdmin } from '@/types';
 
-const ACTION_LABELS: Record<string, string> = {
-  trade_buy: 'Käufe',
-  trade_sell: 'Verkäufe',
-  ipo_buy: 'IPO-Käufe',
-  offer_created: 'Angebote',
-  offer_accepted: 'Angenommene Angebote',
-};
-
 export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
+  const t = useTranslations('admin');
+
+  const ACTION_LABELS: Record<string, string> = {
+    trade_buy: t('actionBuy'),
+    trade_sell: t('actionSell'),
+    ipo_buy: t('actionIpoBuy'),
+    offer_created: t('actionOfferCreated'),
+    offer_accepted: t('actionOfferAccepted'),
+  };
   const [data, setData] = useState<{
     activeFans7d: number;
     activeFans30d: number;
@@ -44,14 +46,14 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-black">Fan-Analyse</h2>
+      <h2 className="text-xl font-black text-balance">{t('fanAnalysis')}</h2>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card className="p-4 bg-sky-500/[0.06] border-sky-500/20">
           <div className="flex items-center gap-2 mb-2">
             <Users className="w-5 h-5 text-sky-400" />
-            <span className="text-xs text-white/50">Follower</span>
+            <span className="text-xs text-white/50">{t('follower')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-16" /> : (
             <div className="text-xl font-mono font-black text-sky-400">{data?.totalFollowers ?? 0}</div>
@@ -60,7 +62,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
         <Card className="p-4 bg-green-500/[0.06] border-green-500/20">
           <div className="flex items-center gap-2 mb-2">
             <UserCheck className="w-5 h-5 text-green-500" />
-            <span className="text-xs text-white/50">Aktive Fans (7d)</span>
+            <span className="text-xs text-white/50">{t('activeFans7d')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-16" /> : (
             <div className="text-xl font-mono font-black text-green-500">{data?.activeFans7d ?? 0}</div>
@@ -69,7 +71,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
         <Card className="p-4">
           <div className="flex items-center gap-2 mb-2">
             <Activity className="w-5 h-5 text-amber-400" />
-            <span className="text-xs text-white/50">Aktive Fans (30d)</span>
+            <span className="text-xs text-white/50">{t('activeFans30d')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-16" /> : (
             <div className="text-xl font-mono font-black">{data?.activeFans30d ?? 0}</div>
@@ -78,7 +80,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
         <Card className="p-4">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="w-5 h-5 text-gold" />
-            <span className="text-xs text-white/50">Gesamtes Volume</span>
+            <span className="text-xs text-white/50">{t('totalVolume')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-16" /> : (
             <div className="text-xl font-mono font-black text-gold">
@@ -90,21 +92,21 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
 
       {/* Top Fans */}
       <Card className="p-6">
-        <h3 className="text-sm font-bold text-white/70 mb-4">Top 10 Fans (nach Trading-Volumen, 30 Tage)</h3>
+        <h3 className="text-sm font-bold text-white/70 mb-4">{t('topFansTrading')}</h3>
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map(i => <Skeleton key={i} className="h-10 w-full rounded-xl" />)}
           </div>
         ) : !data?.topFans.length ? (
-          <div className="text-center py-6 text-sm text-white/30">Noch keine Trading-Aktivität.</div>
+          <div className="text-center py-6 text-sm text-white/30">{t('noTradingActivity')}</div>
         ) : (
           <div className="space-y-1">
             {/* Header */}
             <div className="grid grid-cols-12 gap-2 px-3 py-1 text-[10px] text-white/30 uppercase">
               <div className="col-span-1">#</div>
               <div className="col-span-5">Fan</div>
-              <div className="col-span-3 text-right">Trades</div>
-              <div className="col-span-3 text-right">Volumen</div>
+              <div className="col-span-3 text-right">{t('trades')}</div>
+              <div className="col-span-3 text-right">{t('volume')}</div>
             </div>
             {data.topFans.map((fan, idx) => (
               <div key={fan.user_id} className="grid grid-cols-12 gap-2 items-center px-3 py-2.5 bg-white/[0.02] rounded-xl border border-white/[0.04] hover:bg-white/[0.04] transition-colors">
@@ -127,13 +129,13 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
 
       {/* Engagement Breakdown */}
       <Card className="p-6">
-        <h3 className="text-sm font-bold text-white/70 mb-4">Engagement-Verteilung (30 Tage)</h3>
+        <h3 className="text-sm font-bold text-white/70 mb-4">{t('engagementBreakdown')}</h3>
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map(i => <Skeleton key={i} className="h-8 w-full rounded-xl" />)}
           </div>
         ) : !data?.engagementByType.length ? (
-          <div className="text-center py-6 text-sm text-white/30">Noch keine Engagement-Daten.</div>
+          <div className="text-center py-6 text-sm text-white/30">{t('noEngagementData')}</div>
         ) : (
           <div className="space-y-3">
             {data.engagementByType.map(item => {
