@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Building2, Trophy, MapPin, Plus, Settings, Loader2, BadgeCheck, UserPlus,
 } from 'lucide-react';
@@ -25,6 +26,8 @@ const PLAN_BADGE: Record<string, { label: string; color: string }> = {
 
 export function AdminClubsTab({ adminId, role }: AdminClubsTabProps) {
   const router = useRouter();
+  const t = useTranslations('bescoutAdmin');
+  const tc = useTranslations('common');
   const { addToast } = useToast();
   const [clubs, setClubs] = useState<AdminClub[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +43,7 @@ export function AdminClubsTab({ adminId, role }: AdminClubsTabProps) {
       setClubs(data);
     } catch (err) {
       console.error('[AdminClubs] Load failed:', err);
-      addToast('Clubs konnten nicht geladen werden.', 'error');
+      addToast(t('clubsLoadError'), 'error');
     } finally {
       setLoading(false);
     }
@@ -64,7 +67,7 @@ export function AdminClubsTab({ adminId, role }: AdminClubsTabProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Building2 className="size-5 text-white/50" aria-hidden="true" />
-          <span className="font-bold text-white">{clubs.length} Club{clubs.length !== 1 ? 's' : ''}</span>
+          <span className="font-bold text-white tabular-nums">{clubs.length} Club{clubs.length !== 1 ? 's' : ''}</span>
         </div>
         {canCreate && (
           <Button
@@ -73,8 +76,8 @@ export function AdminClubsTab({ adminId, role }: AdminClubsTabProps) {
             onClick={() => setShowCreateModal(true)}
             className="min-h-[44px]"
           >
-            <Plus className="size-4" />
-            Club erstellen
+            <Plus className="size-4" aria-hidden="true" />
+            {t('createClubBtn')}
           </Button>
         )}
       </div>
@@ -83,7 +86,7 @@ export function AdminClubsTab({ adminId, role }: AdminClubsTabProps) {
       {clubs.length === 0 ? (
         <Card className="p-8 text-center text-white/30">
           <Building2 className="size-8 mx-auto mb-2 text-white/15" aria-hidden="true" />
-          <p className="text-sm text-pretty">Noch keine Clubs vorhanden.</p>
+          <p className="text-sm text-pretty">{t('noClubs')}</p>
         </Card>
       ) : (
         <div className="grid gap-3">
@@ -96,7 +99,7 @@ export function AdminClubsTab({ adminId, role }: AdminClubsTabProps) {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-bold text-white truncate">{club.name}</span>
-                      {club.is_verified && <BadgeCheck className="size-4 text-gold shrink-0" />}
+                      {club.is_verified && <BadgeCheck className="size-4 text-gold shrink-0" aria-hidden="true" />}
                       <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-medium shrink-0', planBadge.color)}>
                         {planBadge.label}
                       </span>
@@ -117,10 +120,10 @@ export function AdminClubsTab({ adminId, role }: AdminClubsTabProps) {
                   <div className="flex items-center gap-4 shrink-0">
                     <div className="text-right hidden sm:block">
                       <div className="text-xs text-white/40">
-                        <span className="tabular-nums">{club.player_count}</span> Spieler
+                        <span className="tabular-nums">{club.player_count}</span> {t('clubPlayers')}
                       </div>
                       <div className="text-xs text-white/40">
-                        <span className="tabular-nums">{club.follower_count}</span> Follower
+                        <span className="tabular-nums">{club.follower_count}</span> {t('clubFollowers')}
                       </div>
                     </div>
                     {canCreate && (
@@ -129,9 +132,9 @@ export function AdminClubsTab({ adminId, role }: AdminClubsTabProps) {
                         size="sm"
                         onClick={() => setInviteClub(club)}
                         className="min-h-[44px]"
-                        aria-label={`Admin für ${club.name} einladen`}
+                        aria-label={t('inviteAdmin', { club: club.name })}
                       >
-                        <UserPlus className="size-4" />
+                        <UserPlus className="size-4" aria-hidden="true" />
                       </Button>
                     )}
                     <Button
@@ -140,8 +143,8 @@ export function AdminClubsTab({ adminId, role }: AdminClubsTabProps) {
                       onClick={() => router.push(`/club/${club.slug}/admin`)}
                       className="min-h-[44px]"
                     >
-                      <Settings className="size-4" />
-                      Verwalten
+                      <Settings className="size-4" aria-hidden="true" />
+                      {tc('manage')}
                     </Button>
                   </div>
                 </div>

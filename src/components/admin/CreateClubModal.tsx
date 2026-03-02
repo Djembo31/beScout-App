@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { createClub } from '@/lib/services/platformAdmin';
@@ -34,6 +35,8 @@ function slugify(text: string): string {
 }
 
 export default function CreateClubModal({ open, onClose, adminId, onCreated }: CreateClubModalProps) {
+  const t = useTranslations('bescoutAdmin');
+  const tc = useTranslations('common');
   const { addToast } = useToast();
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
@@ -54,7 +57,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
 
   const handleSubmit = async () => {
     if (!name.trim() || !slug.trim() || !short.trim() || !league.trim() || !country.trim()) {
-      addToast('Bitte fülle alle Pflichtfelder aus.', 'error');
+      addToast(t('fillRequired'), 'error');
       return;
     }
     setLoading(true);
@@ -69,16 +72,16 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
         plan,
       });
       if (result.success) {
-        addToast(`Club "${name}" erstellt!`, 'success');
+        addToast(t('clubCreated', { name }), 'success');
         onCreated();
         onClose();
         // Reset form
         setName(''); setSlug(''); setShort(''); setCity('');
       } else {
-        addToast(result.error ?? 'Club konnte nicht erstellt werden.', 'error');
+        addToast(result.error ?? t('clubCreateError'), 'error');
       }
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler beim Erstellen.', 'error');
+      addToast(err instanceof Error ? err.message : t('clubCreateError'), 'error');
     } finally {
       setLoading(false);
     }
@@ -87,14 +90,14 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
   return (
     <Modal
       open={open}
-      title="Club erstellen"
-      subtitle="Neuen Club auf der Plattform anlegen"
+      title={t('createClubTitle')}
+      subtitle={t('createClubSubtitle')}
       onClose={onClose}
       footer={
         <div className="flex gap-2 justify-end">
-          <Button variant="ghost" onClick={onClose} disabled={loading}>Abbrechen</Button>
+          <Button variant="ghost" onClick={onClose} disabled={loading}>{tc('cancel')}</Button>
           <Button variant="gold" onClick={handleSubmit} disabled={loading || !name.trim() || !slug.trim()}>
-            {loading ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" /> : 'Erstellen'}
+            {loading ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : tc('create')}
           </Button>
         </div>
       }
@@ -102,13 +105,13 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
       <div className="space-y-4">
         {/* Name */}
         <div>
-          <label htmlFor="club-name" className="block text-xs text-white/60 mb-1">Name *</label>
+          <label htmlFor="club-name" className="block text-xs text-white/60 mb-1">{t('clubNameLabel')}</label>
           <input
             id="club-name"
             type="text"
             value={name}
             onChange={(e) => handleNameChange(e.target.value)}
-            placeholder="z.B. Sakaryaspor"
+            placeholder={t('clubNamePlaceholder')}
             className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
           />
         </div>
@@ -116,7 +119,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
         {/* Slug + Short */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label htmlFor="club-slug" className="block text-xs text-white/60 mb-1">Slug *</label>
+            <label htmlFor="club-slug" className="block text-xs text-white/60 mb-1">{t('slugLabel')}</label>
             <input
               id="club-slug"
               type="text"
@@ -127,7 +130,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
             />
           </div>
           <div>
-            <label htmlFor="club-short" className="block text-xs text-white/60 mb-1">Kürzel *</label>
+            <label htmlFor="club-short" className="block text-xs text-white/60 mb-1">{t('shortLabel')}</label>
             <input
               id="club-short"
               type="text"
@@ -143,7 +146,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
         {/* League + Country */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label htmlFor="club-league" className="block text-xs text-white/60 mb-1">Liga *</label>
+            <label htmlFor="club-league" className="block text-xs text-white/60 mb-1">{t('clubLeagueLabel')}</label>
             <input
               id="club-league"
               type="text"
@@ -154,7 +157,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
             />
           </div>
           <div>
-            <label htmlFor="club-country" className="block text-xs text-white/60 mb-1">Land *</label>
+            <label htmlFor="club-country" className="block text-xs text-white/60 mb-1">{t('clubCountryLabel')}</label>
             <input
               id="club-country"
               type="text"
@@ -168,20 +171,20 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
 
         {/* City */}
         <div>
-          <label htmlFor="club-city" className="block text-xs text-white/60 mb-1">Stadt</label>
+          <label htmlFor="club-city" className="block text-xs text-white/60 mb-1">{t('cityLabel')}</label>
           <input
             id="club-city"
             type="text"
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            placeholder="z.B. Sakarya"
+            placeholder={t('clubNamePlaceholder').replace('Sakaryaspor', 'Sakarya')}
             className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
           />
         </div>
 
         {/* Plan */}
         <div>
-          <label htmlFor="club-plan" className="block text-xs text-white/60 mb-1">Paket</label>
+          <label htmlFor="club-plan" className="block text-xs text-white/60 mb-1">{t('planLabel')}</label>
           <select
             id="club-plan"
             value={plan}

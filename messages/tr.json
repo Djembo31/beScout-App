@@ -36,7 +36,9 @@
     "days": "Gün",
     "create": "Oluştur",
     "active": "Aktif",
-    "ended": "Bitti"
+    "ended": "Bitti",
+    "errorTitle": "Bir şeyler ters gitti",
+    "errorDesc": "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin."
   },
   "auth": {
     "subtitle": "TFF 1. Lig Fan Platformu",
@@ -70,7 +72,9 @@
     "termsPrefix": "Giriş yaparak kabul ediyorsun:",
     "terms": "Kullanım Koşulları",
     "and": "ve",
-    "privacy": "Gizlilik Politikası"
+    "privacy": "Gizlilik Politikası",
+    "errorTitle": "Hata",
+    "errorDesc": "Bir hata oluştu. Lütfen tekrar deneyin."
   },
   "welcome": {
     "heroTitle": "Futbol bilgin artık bir",
@@ -329,7 +333,9 @@
       "noMarkedEvents": "İşaretlenmiş etkinlik yok",
       "registered": "Kayıtlı",
       "interested": "İlgileniyor"
-    }
+    },
+    "errorTitle": "Fantasy bölümü kullanılamıyor",
+    "errorDesc": "Fantasy bölümünde bir hata oluştu. Kadrolarınız ve sonuçlarınız güvenle kaydedildi."
   },
   "predictions": {
     "title": "Tahminler",
@@ -531,7 +537,9 @@
     "bestandNoOffer": "Teklif Yok",
     "bestandAvailable": "Mevcut",
     "bestandPlayersInSquad": "Kadroda {count} oyuncu",
-    "bestandContractMonths": "{months}A"
+    "bestandContractMonths": "{months}A",
+    "errorTitle": "Pazar yeri kullanılamıyor",
+    "errorDesc": "Pazar yerinde bir hata oluştu. DPC'lerin ve siparişlerin güvenle kaydedildi."
   },
   "community": {
     "title": "Topluluk",
@@ -646,7 +654,9 @@
     "researchUnlocked": "Rapor kilidi açıldı!",
     "ratingSaved": "Değerlendirme kaydedildi!",
     "voteCast": "Oy verildi!",
-    "pollCancelled": "Anket iptal edildi"
+    "pollCancelled": "Anket iptal edildi",
+    "errorTitle": "Topluluk kullanılamıyor",
+    "errorDesc": "Topluluk bölümünde bir hata oluştu. Gönderileriniz güvenle kaydedildi."
   },
   "profile": {
     "title": "Profil",
@@ -772,7 +782,25 @@
       "cancel": "İptal",
       "send": "Teklif gönder",
       "sending": "Oluşturuluyor..."
-    }
+    },
+    "notFoundTitle": "Oyuncu bulunamadı",
+    "notFoundDesc": "Bu oyuncu mevcut değil veya kaldırılmış.",
+    "toMarket": "Pazar yerine git",
+    "buyFailed": "Satın alma başarısız",
+    "buySuccess": "{quantity} DPC transfer listesinden {price} $SCOUT'a satın alındı",
+    "ipoBuyFailed": "IPO satın alma başarısız",
+    "ipoBuySuccess": "{quantity} DPC IPO ile {price} $SCOUT'a satın alındı",
+    "listFailed": "Listeleme başarısız",
+    "listSuccess": "{quantity} DPC {price} $SCOUT'a listelendi",
+    "cancelFailed": "İptal başarısız",
+    "orderCancelled": "Sipariş iptal edildi!",
+    "buyOfferCreated": "Satın alma teklifi oluşturuldu",
+    "shareFailed": "Paylaşım başarısız",
+    "postCreated": "Gönderi paylaşıldı!",
+    "postCreateError": "Gönderi oluşturulamadı",
+    "invalidPrice": "Geçersiz fiyat",
+    "offerAccepted": "Teklif kabul edildi",
+    "sharedToCommunity": "Toplulukta paylaşıldı!"
   },
   "club": {
     "overview": "Genel Bakış",
@@ -867,7 +895,9 @@
     "subscribeError": "Abone olurken hata",
     "unknownError": "Bilinmeyen hata",
     "cancelSubError": "İptal ederken hata",
-    "noActivity": "Etkinlik yok"
+    "noActivity": "Etkinlik yok",
+    "notFoundDescGeneric": "Bu kulüp mevcut değil veya kaldırılmış.",
+    "discoverClubs": "Kulüpleri keşfet"
   },
   "airdrop": {
     "title": "$SCOUT Airdrop",
@@ -1164,7 +1194,29 @@
     "searchError": "Arama sırasında hata oluştu.",
     "addError": "Eklenirken hata oluştu.",
     "cancelBtn": "İptal",
-    "addingMember": "Ekleniyor..."
+    "addingMember": "Ekleniyor...",
+    "withdrawalTitle": "Ödeme",
+    "wdAvailable": "Kullanılabilir",
+    "wdTotalEarned": "Toplam kazanılan",
+    "wdTradingFees": "İşlem Ücretleri",
+    "wdAlreadyPaid": "Zaten ödenmiş",
+    "wdRequestTitle": "Ödeme talep et",
+    "wdAmountLabel": "Tutar ($SCOUT)",
+    "wdAmountPlaceholder": "örn. 500",
+    "wdNoteLabel": "Not (isteğe bağlı)",
+    "wdNotePlaceholder": "örn. Aylık ödeme",
+    "wdSubmitBtn": "Ödeme talep et",
+    "wdMinAmount": "Minimum tutar: 1 $SCOUT.",
+    "wdInsufficientBalance": "Yeterli bakiye yok. Kullanılabilir: {available} $SCOUT.",
+    "wdCreated": "Ödeme talebi oluşturuldu!",
+    "wdCreateError": "Oluştururken hata.",
+    "wdUnknownError": "Bilinmeyen hata.",
+    "wdHistoryTitle": "Ödeme Geçmişi",
+    "wdNoWithdrawals": "Henüz ödeme talep edilmedi.",
+    "wdStatusPending": "Beklemede",
+    "wdStatusApproved": "Onaylandı",
+    "wdStatusRejected": "Reddedildi",
+    "wdStatusPaid": "Ödendi"
   },
   "adminFans": {
     "totalFollowers": "Takipçi",
@@ -1853,7 +1905,45 @@
     "csvFantasy": "Fantasy",
     "csvSocial": "Sosyal",
     "csvActivity": "Aktivite",
-    "csvReferral": "Referans"
+    "csvReferral": "Referans",
+    "clubsLoadError": "Kulüpler yüklenemedi.",
+    "createClubBtn": "Kulüp oluştur",
+    "noClubs": "Henüz kulüp yok.",
+    "clubPlayers": "Oyuncular",
+    "clubFollowers": "Takipçiler",
+    "inviteAdmin": "{club} için admin davet et",
+    "cfPaidLabel": "Creator Fund Ödendi",
+    "cfPayoutsLabel": "Creator Fund Ödemeler",
+    "adPaidLabel": "Reklam Payı Ödendi",
+    "adPayoutsLabel": "Reklam Payı Ödemeler",
+    "triggerPayouts": "Ödemeleri başlat (son 7 gün)",
+    "cfPayoutBtn": "Creator Fund Öde",
+    "adPayoutBtn": "Reklam Payı Öde",
+    "cfPayoutResult": "Creator Fund: {count} Creator'a ödendi, {amount} $SCOUT dağıtıldı",
+    "adPayoutResult": "Reklam Payı: {count} Creator'a ödendi, {amount} $SCOUT dağıtıldı",
+    "payoutError": "Hata: {error}",
+    "lastPayoutsTitle": "Son Ödemeler",
+    "thPayoutType": "Tür",
+    "thPeriod": "Dönem",
+    "thShare": "Pay",
+    "thPayoutAmount": "Tutar",
+    "thPayoutStatus": "Durum",
+    "payoutStatusPaid": "Ödendi",
+    "payoutStatusRolledOver": "Aktarıldı",
+    "payoutStatusPending": "Beklemede",
+    "fillRequired": "Lütfen tüm zorunlu alanları doldurun.",
+    "clubCreated": "\"{name}\" kulübü oluşturuldu!",
+    "clubCreateError": "Kulüp oluşturulamadı.",
+    "createClubTitle": "Kulüp oluştur",
+    "createClubSubtitle": "Platformda yeni kulüp oluştur",
+    "clubNameLabel": "İsim *",
+    "clubNamePlaceholder": "örn. Sakaryaspor",
+    "slugLabel": "Slug *",
+    "shortLabel": "Kısaltma *",
+    "clubLeagueLabel": "Lig *",
+    "clubCountryLabel": "Ülke *",
+    "cityLabel": "Şehir",
+    "planLabel": "Paket"
   },
   "offers": {
     "statusPending": "Beklemede",

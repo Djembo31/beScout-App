@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useToast } from '@/components/providers/ToastProvider';
 import { createPost, votePost, getUserPostVotes, deletePost } from '@/lib/services/posts';
 import { unlockResearch, rateResearch, resolveExpiredResearch } from '@/lib/services/research';
@@ -20,6 +21,7 @@ export function usePlayerCommunity({
 }: UsePlayerCommunityParams) {
   const { addToast } = useToast();
   const queryClient = useQueryClient();
+  const t = useTranslations('player');
 
   const [postLoading, setPostLoading] = useState(false);
   const [unlockingId, setUnlockingId] = useState<string | null>(null);
@@ -49,10 +51,10 @@ export function usePlayerCommunity({
     try {
       await createPost(userId, playerId, playerClub, content, tags, category, null, postType, rumorSource ?? null, rumorClubTarget ?? null);
       queryClient.invalidateQueries({ queryKey: ['posts'] });
-      addToast('Beitrag gepostet!', 'success');
-    } catch { addToast('Beitrag konnte nicht erstellt werden', 'error'); }
+      addToast(t('postCreated'), 'success');
+    } catch { addToast(t('postCreateError'), 'error'); }
     finally { setPostLoading(false); }
-  }, [userId, playerClub, playerId, addToast, queryClient]);
+  }, [userId, playerClub, playerId, addToast, queryClient, t]);
 
   const handleVotePlayerPost = useCallback(async (postId: string, voteType: number) => {
     if (!userId) return;

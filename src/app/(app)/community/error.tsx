@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 
@@ -11,6 +12,9 @@ export default function CommunityError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations('community');
+  const tc = useTranslations('common');
+
   useEffect(() => {
     console.error('Community error:', error);
   }, [error]);
@@ -21,9 +25,9 @@ export default function CommunityError({
         <div className="size-12 mx-auto rounded-full bg-red-500/15 border border-red-400/25 flex items-center justify-center">
           <AlertCircle aria-hidden="true" className="size-6 text-red-400" />
         </div>
-        <h2 className="text-xl font-black text-balance">Community nicht verfügbar</h2>
+        <h2 className="text-xl font-black text-balance">{t('errorTitle')}</h2>
         <p className="text-sm text-white/50 text-pretty">
-          Im Community-Bereich ist ein Fehler aufgetreten. Deine Posts und Beiträge sind sicher gespeichert.
+          {t('errorDesc')}
         </p>
         {process.env.NODE_ENV === 'development' && (
           <pre className="text-left text-xs text-red-300/70 bg-red-500/5 border border-red-500/10 rounded-xl p-3 overflow-auto max-h-32">
@@ -32,7 +36,7 @@ export default function CommunityError({
         )}
         <Button variant="gold" onClick={reset}>
           <RefreshCw aria-hidden="true" className="size-4" />
-          Erneut versuchen
+          {tc('retry')}
         </Button>
       </Card>
     </div>

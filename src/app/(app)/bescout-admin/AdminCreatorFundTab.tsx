@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Sparkles, Loader2, Play, Megaphone } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function AdminCreatorFundTab({ adminId }: Props) {
+  const t = useTranslations('bescoutAdmin');
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState<'fund' | 'ad' | null>(null);
   const [stats, setStats] = useState<{ totalPaid: number; payoutCount: number; recentPayouts: DbCreatorFundPayout[] } | null>(null);
@@ -41,16 +43,16 @@ export function AdminCreatorFundTab({ adminId }: Props) {
     if (type === 'fund') {
       const res = await triggerCreatorFundPayout(adminId, startStr, endStr);
       if (res.success) {
-        setResult(`Creator Fund: ${res.paid_count ?? 0} Creators bezahlt, ${fmtScout(centsToBsd(res.total_paid_cents ?? 0))} $SCOUT ausgezahlt`);
+        setResult(t('cfPayoutResult', { count: res.paid_count ?? 0, amount: fmtScout(centsToBsd(res.total_paid_cents ?? 0)) }));
       } else {
-        setResult(`Fehler: ${res.error}`);
+        setResult(t('payoutError', { error: res.error ?? '' }));
       }
     } else {
       const res = await triggerAdRevenuePayout(adminId, startStr, endStr);
       if (res.success) {
-        setResult(`Werbeanteil: ${res.paid_count ?? 0} Creators bezahlt, ${fmtScout(centsToBsd(res.total_paid_cents ?? 0))} $SCOUT ausgezahlt`);
+        setResult(t('adPayoutResult', { count: res.paid_count ?? 0, amount: fmtScout(centsToBsd(res.total_paid_cents ?? 0)) }));
       } else {
-        setResult(`Fehler: ${res.error}`);
+        setResult(t('payoutError', { error: res.error ?? '' }));
       }
     }
     setPaying(null);
@@ -69,28 +71,28 @@ export function AdminCreatorFundTab({ adminId }: Props) {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card className="p-4">
-          <div className="text-xs text-white/40 mb-1">Creator Fund Ausgezahlt</div>
-          <div className="text-lg font-mono font-black text-cyan-400">{fmtScout(centsToBsd(stats?.totalPaid ?? 0))} $SCOUT</div>
+          <div className="text-xs text-white/40 mb-1">{t('cfPaidLabel')}</div>
+          <div className="text-lg font-mono font-black text-cyan-400 tabular-nums">{fmtScout(centsToBsd(stats?.totalPaid ?? 0))} $SCOUT</div>
         </Card>
         <Card className="p-4">
-          <div className="text-xs text-white/40 mb-1">Creator Fund Payouts</div>
-          <div className="text-lg font-mono font-black text-white">{stats?.payoutCount ?? 0}</div>
+          <div className="text-xs text-white/40 mb-1">{t('cfPayoutsLabel')}</div>
+          <div className="text-lg font-mono font-black text-white tabular-nums">{stats?.payoutCount ?? 0}</div>
         </Card>
         <Card className="p-4">
-          <div className="text-xs text-white/40 mb-1">Werbeanteil Ausgezahlt</div>
-          <div className="text-lg font-mono font-black text-lime-400">{fmtScout(centsToBsd(adStats?.totalPaid ?? 0))} $SCOUT</div>
+          <div className="text-xs text-white/40 mb-1">{t('adPaidLabel')}</div>
+          <div className="text-lg font-mono font-black text-lime-400 tabular-nums">{fmtScout(centsToBsd(adStats?.totalPaid ?? 0))} $SCOUT</div>
         </Card>
         <Card className="p-4">
-          <div className="text-xs text-white/40 mb-1">Werbeanteil Payouts</div>
-          <div className="text-lg font-mono font-black text-white">{adStats?.payoutCount ?? 0}</div>
+          <div className="text-xs text-white/40 mb-1">{t('adPayoutsLabel')}</div>
+          <div className="text-lg font-mono font-black text-white tabular-nums">{adStats?.payoutCount ?? 0}</div>
         </Card>
       </div>
 
       {/* Actions */}
       <Card className="p-4">
-        <h3 className="font-black mb-3 flex items-center gap-2">
+        <h3 className="font-black mb-3 flex items-center gap-2 text-balance">
           <Sparkles className="size-4 text-cyan-400" aria-hidden="true" />
-          Auszahlungen auslösen (letzte 7 Tage)
+          {t('triggerPayouts')}
         </h3>
         <div className="flex gap-3">
           <Button
@@ -100,7 +102,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
             onClick={() => handlePayout('fund')}
           >
             {paying === 'fund' ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none mr-1" aria-hidden="true" /> : <Play className="size-3 mr-1" aria-hidden="true" />}
-            Creator Fund Auszahlen
+            {t('cfPayoutBtn')}
           </Button>
           <Button
             variant="outline"
@@ -109,7 +111,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
             onClick={() => handlePayout('ad')}
           >
             {paying === 'ad' ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none mr-1" aria-hidden="true" /> : <Megaphone className="size-3 mr-1" aria-hidden="true" />}
-            Werbeanteil Auszahlen
+            {t('adPayoutBtn')}
           </Button>
         </div>
         {result && (
@@ -122,17 +124,17 @@ export function AdminCreatorFundTab({ adminId }: Props) {
       {/* Recent Payouts */}
       {stats && stats.recentPayouts.length > 0 && (
         <Card className="p-4">
-          <h3 className="font-black mb-3">Letzte Auszahlungen</h3>
+          <h3 className="font-black mb-3 text-balance">{t('lastPayoutsTitle')}</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-white/40 border-b border-white/10">
-                  <th className="text-left py-2 px-2">Typ</th>
-                  <th className="text-left py-2 px-2">Zeitraum</th>
+                  <th className="text-left py-2 px-2">{t('thPayoutType')}</th>
+                  <th className="text-left py-2 px-2">{t('thPeriod')}</th>
                   <th className="text-right py-2 px-2">Impressions</th>
-                  <th className="text-right py-2 px-2">Anteil</th>
-                  <th className="text-right py-2 px-2">Betrag</th>
-                  <th className="text-left py-2 px-2">Status</th>
+                  <th className="text-right py-2 px-2">{t('thShare')}</th>
+                  <th className="text-right py-2 px-2">{t('thPayoutAmount')}</th>
+                  <th className="text-left py-2 px-2">{t('thPayoutStatus')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -142,13 +144,13 @@ export function AdminCreatorFundTab({ adminId }: Props) {
                       {p.payout_type === 'creator_fund' ? (
                         <span className="text-cyan-400">Creator Fund</span>
                       ) : (
-                        <span className="text-lime-400">Werbeanteil</span>
+                        <span className="text-lime-400">{t('adPaidLabel').split(' ')[0]}</span>
                       )}
                     </td>
-                    <td className="py-1.5 px-2 text-white/60">{p.period_start} â€” {p.period_end}</td>
-                    <td className="py-1.5 px-2 text-right font-mono text-white/60">{p.impression_count}</td>
-                    <td className="py-1.5 px-2 text-right font-mono text-white/60">{p.impression_share_pct.toFixed(1)}%</td>
-                    <td className="py-1.5 px-2 text-right font-mono text-green-500 font-bold">{fmtScout(centsToBsd(p.payout_cents))} $SCOUT</td>
+                    <td className="py-1.5 px-2 text-white/60">{p.period_start} – {p.period_end}</td>
+                    <td className="py-1.5 px-2 text-right font-mono text-white/60 tabular-nums">{p.impression_count}</td>
+                    <td className="py-1.5 px-2 text-right font-mono text-white/60 tabular-nums">{p.impression_share_pct.toFixed(1)}%</td>
+                    <td className="py-1.5 px-2 text-right font-mono text-green-500 font-bold tabular-nums">{fmtScout(centsToBsd(p.payout_cents))} $SCOUT</td>
                     <td className="py-1.5 px-2">
                       <span className={cn(
                         'px-1.5 py-0.5 rounded text-[10px] font-semibold',
@@ -156,7 +158,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
                         p.status === 'rolled_over' ? 'bg-amber-500/20 text-amber-400' :
                         'bg-white/10 text-white/40'
                       )}>
-                        {p.status === 'paid' ? 'Bezahlt' : p.status === 'rolled_over' ? 'Übertragen' : 'Ausstehend'}
+                        {p.status === 'paid' ? t('payoutStatusPaid') : p.status === 'rolled_over' ? t('payoutStatusRolledOver') : t('payoutStatusPending')}
                       </span>
                     </td>
                   </tr>

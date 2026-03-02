@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 
@@ -11,6 +12,8 @@ export default function AppError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations('common');
+
   useEffect(() => {
     console.error('App error:', error);
   }, [error]);
@@ -18,12 +21,12 @@ export default function AppError({
   return (
     <div className="flex items-center justify-center min-h-[60vh] p-4">
       <Card className="max-w-md w-full p-8 text-center space-y-4">
-        <div className="w-12 h-12 mx-auto rounded-full bg-red-500/15 border border-red-400/25 flex items-center justify-center">
-          <AlertCircle className="w-6 h-6 text-red-400" />
+        <div className="size-12 mx-auto rounded-full bg-red-500/15 border border-red-400/25 flex items-center justify-center">
+          <AlertCircle aria-hidden="true" className="size-6 text-red-400" />
         </div>
-        <h2 className="text-xl font-black">Etwas ist schiefgelaufen</h2>
-        <p className="text-sm text-white/50">
-          Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut.
+        <h2 className="text-xl font-black text-balance">{t('errorTitle')}</h2>
+        <p className="text-sm text-white/50 text-pretty">
+          {t('errorDesc')}
         </p>
         {process.env.NODE_ENV === 'development' && (
           <pre className="text-left text-xs text-red-300/70 bg-red-500/5 border border-red-500/10 rounded-xl p-3 overflow-auto max-h-32">
@@ -31,8 +34,8 @@ export default function AppError({
           </pre>
         )}
         <Button variant="gold" onClick={reset}>
-          <RefreshCw className="w-4 h-4" />
-          Erneut versuchen
+          <RefreshCw aria-hidden="true" className="size-4" />
+          {t('retry')}
         </Button>
       </Card>
     </div>

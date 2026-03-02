@@ -36,7 +36,9 @@
     "days": "Tage",
     "create": "Erstellen",
     "active": "Aktiv",
-    "ended": "Beendet"
+    "ended": "Beendet",
+    "errorTitle": "Etwas ist schiefgelaufen",
+    "errorDesc": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut."
   },
   "auth": {
     "subtitle": "Werde Teil der TFF 1. Lig — handle Spielerkarten, spiele Fantasy und verdiene Belohnungen.",
@@ -70,7 +72,9 @@
     "termsPrefix": "Mit der Anmeldung akzeptierst du unsere",
     "terms": "Nutzungsbedingungen",
     "and": "und",
-    "privacy": "Datenschutzerklärung"
+    "privacy": "Datenschutzerklärung",
+    "errorTitle": "Fehler",
+    "errorDesc": "Ein Fehler ist aufgetreten. Bitte versuche es erneut."
   },
   "welcome": {
     "heroTitle": "Dein Fußball-Wissen hat endlich einen",
@@ -332,7 +336,9 @@
       "noMarkedEvents": "Keine markierten Events",
       "registered": "Registriert",
       "interested": "Interessiert"
-    }
+    },
+    "errorTitle": "Fantasy-Bereich nicht verfügbar",
+    "errorDesc": "Im Fantasy-Bereich ist ein Fehler aufgetreten. Deine Lineups und Ergebnisse sind sicher gespeichert."
   },
   "predictions": {
     "title": "Vorhersagen",
@@ -539,7 +545,9 @@
     "bestandEmptyDesc": "Kaufe deine erste Spielerkarte über einen Erstverkauf oder den Transfermarkt — schon ab 100 $SCOUT.",
     "bestandEmptyCta": "Spieler entdecken",
     "bestandFilterEmpty": "Keine Spieler gefunden",
-    "bestandFilterEmptyDesc": "Versuche andere Suchbegriffe oder Filter"
+    "bestandFilterEmptyDesc": "Versuche andere Suchbegriffe oder Filter",
+    "errorTitle": "Marktplatz nicht verfügbar",
+    "errorDesc": "Im Marktplatz ist ein Fehler aufgetreten. Deine DPCs und Orders sind sicher gespeichert."
   },
   "community": {
     "title": "Community",
@@ -654,7 +662,9 @@
     "researchUnlocked": "Bericht freigeschaltet!",
     "ratingSaved": "Bewertung gespeichert!",
     "voteCast": "Stimme abgegeben!",
-    "pollCancelled": "Umfrage abgebrochen"
+    "pollCancelled": "Umfrage abgebrochen",
+    "errorTitle": "Community nicht verfügbar",
+    "errorDesc": "Im Community-Bereich ist ein Fehler aufgetreten. Deine Posts und Beiträge sind sicher gespeichert."
   },
   "profile": {
     "title": "Profil",
@@ -780,7 +790,25 @@
       "cancel": "Abbrechen",
       "send": "Angebot senden",
       "sending": "Wird erstellt..."
-    }
+    },
+    "notFoundTitle": "Spieler nicht gefunden",
+    "notFoundDesc": "Dieser Spieler existiert nicht oder wurde entfernt.",
+    "toMarket": "Zum Marktplatz",
+    "buyFailed": "Kauf fehlgeschlagen",
+    "buySuccess": "{quantity} DPC vom Transfermarkt für {price} $SCOUT gekauft",
+    "ipoBuyFailed": "IPO-Kauf fehlgeschlagen",
+    "ipoBuySuccess": "{quantity} DPC per IPO für {price} $SCOUT gekauft",
+    "listFailed": "Listing fehlgeschlagen",
+    "listSuccess": "{quantity} DPC für {price} $SCOUT gelistet",
+    "cancelFailed": "Stornierung fehlgeschlagen",
+    "orderCancelled": "Order storniert!",
+    "buyOfferCreated": "Kaufangebot erstellt",
+    "shareFailed": "Teilen fehlgeschlagen",
+    "postCreated": "Beitrag gepostet!",
+    "postCreateError": "Beitrag konnte nicht erstellt werden",
+    "invalidPrice": "Ungültiger Preis",
+    "offerAccepted": "Angebot angenommen",
+    "sharedToCommunity": "In der Community geteilt!"
   },
   "club": {
     "overview": "Übersicht",
@@ -875,7 +903,9 @@
     "subscribeError": "Fehler beim Abonnieren",
     "unknownError": "Unbekannter Fehler",
     "cancelSubError": "Fehler beim Kündigen",
-    "noActivity": "Keine Aktivität"
+    "noActivity": "Keine Aktivität",
+    "notFoundDescGeneric": "Dieser Club existiert nicht oder wurde entfernt.",
+    "discoverClubs": "Clubs entdecken"
   },
   "airdrop": {
     "title": "$SCOUT Airdrop",
@@ -1172,7 +1202,29 @@
     "searchError": "Fehler bei der Suche.",
     "addError": "Fehler beim Hinzufügen.",
     "cancelBtn": "Abbrechen",
-    "addingMember": "Hinzufügen..."
+    "addingMember": "Hinzufügen...",
+    "withdrawalTitle": "Auszahlung",
+    "wdAvailable": "Verfügbar",
+    "wdTotalEarned": "Gesamt verdient",
+    "wdTradingFees": "Trading-Fees",
+    "wdAlreadyPaid": "Bereits ausgezahlt",
+    "wdRequestTitle": "Auszahlung beantragen",
+    "wdAmountLabel": "Betrag ($SCOUT)",
+    "wdAmountPlaceholder": "z.B. 500",
+    "wdNoteLabel": "Notiz (optional)",
+    "wdNotePlaceholder": "z.B. Monatliche Auszahlung",
+    "wdSubmitBtn": "Auszahlung beantragen",
+    "wdMinAmount": "Mindestbetrag: 1 $SCOUT.",
+    "wdInsufficientBalance": "Nicht genug Guthaben. Verfügbar: {available} $SCOUT.",
+    "wdCreated": "Auszahlungsantrag erstellt!",
+    "wdCreateError": "Fehler beim Erstellen.",
+    "wdUnknownError": "Unbekannter Fehler.",
+    "wdHistoryTitle": "Auszahlungsverlauf",
+    "wdNoWithdrawals": "Noch keine Auszahlungen beantragt.",
+    "wdStatusPending": "Ausstehend",
+    "wdStatusApproved": "Genehmigt",
+    "wdStatusRejected": "Abgelehnt",
+    "wdStatusPaid": "Ausgezahlt"
   },
   "adminFans": {
     "totalFollowers": "Follower",
@@ -1861,7 +1913,45 @@
     "csvFantasy": "Fantasy",
     "csvSocial": "Social",
     "csvActivity": "Aktivität",
-    "csvReferral": "Referral"
+    "csvReferral": "Referral",
+    "clubsLoadError": "Clubs konnten nicht geladen werden.",
+    "createClubBtn": "Club erstellen",
+    "noClubs": "Noch keine Clubs vorhanden.",
+    "clubPlayers": "Spieler",
+    "clubFollowers": "Follower",
+    "inviteAdmin": "Admin für {club} einladen",
+    "cfPaidLabel": "Creator Fund Ausgezahlt",
+    "cfPayoutsLabel": "Creator Fund Payouts",
+    "adPaidLabel": "Werbeanteil Ausgezahlt",
+    "adPayoutsLabel": "Werbeanteil Payouts",
+    "triggerPayouts": "Auszahlungen auslösen (letzte 7 Tage)",
+    "cfPayoutBtn": "Creator Fund Auszahlen",
+    "adPayoutBtn": "Werbeanteil Auszahlen",
+    "cfPayoutResult": "Creator Fund: {count} Creators bezahlt, {amount} $SCOUT ausgezahlt",
+    "adPayoutResult": "Werbeanteil: {count} Creators bezahlt, {amount} $SCOUT ausgezahlt",
+    "payoutError": "Fehler: {error}",
+    "lastPayoutsTitle": "Letzte Auszahlungen",
+    "thPayoutType": "Typ",
+    "thPeriod": "Zeitraum",
+    "thShare": "Anteil",
+    "thPayoutAmount": "Betrag",
+    "thPayoutStatus": "Status",
+    "payoutStatusPaid": "Bezahlt",
+    "payoutStatusRolledOver": "Übertragen",
+    "payoutStatusPending": "Ausstehend",
+    "fillRequired": "Bitte fülle alle Pflichtfelder aus.",
+    "clubCreated": "Club \"{name}\" erstellt!",
+    "clubCreateError": "Club konnte nicht erstellt werden.",
+    "createClubTitle": "Club erstellen",
+    "createClubSubtitle": "Neuen Club auf der Plattform anlegen",
+    "clubNameLabel": "Name *",
+    "clubNamePlaceholder": "z.B. Sakaryaspor",
+    "slugLabel": "Slug *",
+    "shortLabel": "Kürzel *",
+    "clubLeagueLabel": "Liga *",
+    "clubCountryLabel": "Land *",
+    "cityLabel": "Stadt",
+    "planLabel": "Paket"
   },
   "offers": {
     "statusPending": "Ausstehend",
