@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Calendar, Play, Square, XCircle, Loader2, Zap, CheckCircle2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card, Button, Chip, Modal } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -11,18 +12,20 @@ import { centsToBsd, bsdToCents } from '@/lib/services/players';
 import { fmtScout } from '@/lib/utils';
 import type { ClubWithAdmin, DbEvent, GameweekStatus } from '@/types';
 
-const EVENT_STATUS_CONFIG: Record<string, { bg: string; border: string; text: string; label: string }> = {
-  upcoming: { bg: 'bg-white/5', border: 'border-white/10', text: 'text-white/50', label: 'Geplant' },
-  registering: { bg: 'bg-blue-500/15', border: 'border-blue-400/25', text: 'text-blue-300', label: 'Anmeldung' },
-  'late-reg': { bg: 'bg-purple-500/15', border: 'border-purple-400/25', text: 'text-purple-300', label: 'Late-Reg' },
-  running: { bg: 'bg-green-500/15', border: 'border-green-500/25', text: 'text-green-500', label: 'Live' },
-  scoring: { bg: 'bg-gold/15', border: 'border-gold/25', text: 'text-gold', label: 'Scoring' },
-  ended: { bg: 'bg-white/5', border: 'border-white/10', text: 'text-white/40', label: 'Beendet' },
-  cancelled: { bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', label: 'Abgebrochen' },
-};
-
 export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
+  const t = useTranslations('admin');
   const { user } = useUser();
+
+  const EVENT_STATUS_CONFIG: Record<string, { bg: string; border: string; text: string; label: string }> = {
+    upcoming: { bg: 'bg-white/5', border: 'border-white/10', text: 'text-white/50', label: t('evStatusPlanned') },
+    registering: { bg: 'bg-blue-500/15', border: 'border-blue-400/25', text: 'text-blue-300', label: t('evStatusRegistering') },
+    'late-reg': { bg: 'bg-purple-500/15', border: 'border-purple-400/25', text: 'text-purple-300', label: t('evStatusLateReg') },
+    running: { bg: 'bg-green-500/15', border: 'border-green-500/25', text: 'text-green-500', label: t('evStatusLive') },
+    scoring: { bg: 'bg-gold/15', border: 'border-gold/25', text: 'text-gold', label: t('evStatusScoring') },
+    ended: { bg: 'bg-white/5', border: 'border-white/10', text: 'text-white/40', label: t('evStatusEnded') },
+    cancelled: { bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', label: t('evStatusCancelled') },
+  };
+
   const [events, setEvents] = useState<DbEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -81,9 +84,9 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     try {
       const result = await simulateGameweek(simGw);
       if (!result.success) {
-        setError(result.error || 'Simulation fehlgeschlagen');
+        setError(result.error || t('simulationFailed'));
       } else {
-        setSuccess(`Spieltag ${simGw} simuliert: ${result.fixtures_simulated} Spiele, ${result.player_stats_created} Spieler-Stats`);
+        setSuccess(t('simulationResult', { gw: simGw, fixtures: result.fixtures_simulated ?? 0, stats: result.player_stats_created ?? 0 }));
         setTimeout(() => setSuccess(null), 5000);
         // Refresh GW statuses
         const statuses = await getGameweekStatuses(1, 38);
@@ -93,11 +96,11 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
         if (nextUnsim) setSimGw(nextUnsim.gameweek);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unbekannter Fehler');
+      setError(err instanceof Error ? err.message : t('unknownError'));
     } finally {
       setSimulating(false);
     }
-  }, [simGw]);
+  }, [simGw, t]);
 
   const resetForm = useCallback(() => {
     setName('');
@@ -142,9 +145,9 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
         salaryCap: salaryCap ? parseInt(salaryCap) : null,
       });
       if (!result.success) {
-        setError(result.error || 'Event konnte nicht erstellt werden.');
+        setError(result.error || t('eventCreateError'));
       } else {
-        setSuccess('Event erfolgreich erstellt!');
+        setSuccess(t('eventCreateSuccess'));
         const refreshed = await getEventsByClubId(club.id);
         setEvents(refreshed);
         resetForm();
@@ -152,11 +155,11 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
         setTimeout(() => setSuccess(null), 3000);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unbekannter Fehler');
+      setError(err instanceof Error ? err.message : t('unknownError'));
     } finally {
       setSaving(false);
     }
-  }, [user, name, type, format, gameweek, entryFee, prizePool, maxEntries, startsAt, locksAt, endsAt, club.id, resetForm, sponsorName, sponsorLogo]);
+  }, [user, name, type, format, gameweek, entryFee, prizePool, maxEntries, startsAt, locksAt, endsAt, club.id, resetForm, sponsorName, sponsorLogo, t]);
 
   const [changingId, setChangingId] = useState<string | null>(null);
 
@@ -167,17 +170,17 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     try {
       const result = await updateEventStatus(eventId, newStatus);
       if (!result.success) {
-        setError(result.error || 'Status konnte nicht geändert werden.');
+        setError(result.error || t('statusChangeError'));
       } else {
         const refreshed = await getEventsByClubId(club.id);
         setEvents(refreshed);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unbekannter Fehler');
+      setError(err instanceof Error ? err.message : t('unknownError'));
     } finally {
       setChangingId(null);
     }
-  }, [club.id, changingId]);
+  }, [club.id, changingId, t]);
 
   if (loading) return <div className="space-y-3">{[...Array(3)].map((_, i) => <Card key={i} className="h-20 animate-pulse" />)}</div>;
 
@@ -197,19 +200,20 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
       <Card className="p-4">
         <div className="flex items-center gap-2 mb-3">
           <Zap className="w-5 h-5 text-gold" />
-          <h3 className="font-black text-sm">Spieltag simulieren</h3>
+          <h3 className="font-black text-sm">{t('simulateGameweek')}</h3>
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <select
             value={simGw}
             onChange={(e) => setSimGw(parseInt(e.target.value))}
+            aria-label={t('simulateGameweek')}
             className="px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
           >
             {Array.from({ length: 38 }, (_, i) => i + 1).map(gw => {
               const status = gwStatuses.find(s => s.gameweek === gw);
               return (
                 <option key={gw} value={gw}>
-                  Spieltag {gw} {status?.is_complete ? '✓' : ''}
+                  {t('spieltag')} {gw} {status?.is_complete ? '✓' : ''}
                 </option>
               );
             })}
@@ -221,11 +225,11 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
             disabled={simulating || gwStatuses.find(s => s.gameweek === simGw)?.is_complete === true}
           >
             {simulating ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <Play className="w-4 h-4" />}
-            {simulating ? 'Simuliere...' : 'Simulieren'}
+            {simulating ? t('simulating') : t('simulate')}
           </Button>
           {gwStatuses.find(s => s.gameweek === simGw)?.is_complete && (
             <span className="text-green-500 text-xs flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Bereits simuliert
+              <CheckCircle2 className="w-3.5 h-3.5" /> {t('alreadySimulated')}
             </span>
           )}
         </div>
@@ -236,15 +240,16 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
             return (
               <div
                 key={gw}
-                className={`w-6 h-6 rounded text-[9px] font-bold flex items-center justify-center cursor-pointer transition-all ${
+                className={cn(
+                  'size-6 rounded text-[9px] font-bold flex items-center justify-center cursor-pointer transition-colors',
                   status?.is_complete
                     ? 'bg-green-500/20 text-green-500 border border-green-500/30'
                     : gw === simGw
                     ? 'bg-gold/15 text-gold border border-gold/30'
                     : 'bg-white/[0.03] text-white/30 border border-white/[0.06]'
-                }`}
+                )}
                 onClick={() => setSimGw(gw)}
-                title={`Spieltag ${gw}${status?.is_complete ? ' (simuliert)' : ''}`}
+                title={`${t('spieltag')} ${gw}${status?.is_complete ? ` ${t('simulated')}` : ''}`}
               >
                 {gw}
               </div>
@@ -255,65 +260,65 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-black">Fantasy Events</h2>
-          <p className="text-xs text-white/50">{events.length} Events • {activeEvents.length} aktiv</p>
+          <h2 className="text-xl font-black text-balance">{t('fantasyEvents')}</h2>
+          <p className="text-xs text-white/50">{t('eventsActiveCount', { count: events.length, active: activeEvents.length })}</p>
         </div>
         <Button variant="gold" onClick={() => setModalOpen(true)}>
           <Plus className="w-4 h-4" />
-          Neues Event
+          {t('newEvent')}
         </Button>
       </div>
 
       {events.length === 0 ? (
         <Card className="p-12 text-center">
-          <Calendar className="w-12 h-12 mx-auto mb-4 text-white/20" />
-          <div className="text-white/30 mb-2">Keine Events vorhanden</div>
-          <div className="text-sm text-white/50">Erstelle ein Event, um Fantasy-Turniere für deine Fans zu starten.</div>
+          <Calendar className="w-12 h-12 mx-auto mb-4 text-white/20" aria-hidden="true" />
+          <div className="text-white/30 mb-2">{t('noEvents')}</div>
+          <div className="text-sm text-white/50 text-pretty">{t('noEventsDesc')}</div>
         </Card>
       ) : (
         <div className="space-y-6">
           {activeEvents.length > 0 && (
             <div className="space-y-3">
-              <div className="text-sm font-bold text-white/50">Aktive Events ({activeEvents.length})</div>
+              <div className="text-sm font-bold text-white/50">{t('activeEventsCount', { count: activeEvents.length })}</div>
               {activeEvents.map(ev => {
                 const sc = EVENT_STATUS_CONFIG[ev.status] || EVENT_STATUS_CONFIG.ended;
                 return (
                   <Card key={ev.id} className="p-3 md:p-4">
                     <div className="space-y-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <Calendar className="w-5 h-5 text-white/30 flex-shrink-0" />
+                        <Calendar className="w-5 h-5 text-white/30 flex-shrink-0" aria-hidden="true" />
                         <div className="min-w-0 flex-1">
                           <div className="font-bold truncate">{ev.name}</div>
                           <div className="text-xs text-white/40">
-                            GW {ev.gameweek} • {ev.format} • {centsToBsd(ev.entry_fee) > 0 ? `${fmtScout(centsToBsd(ev.entry_fee))} $SCOUT` : 'Kostenlos'}
+                            GW {ev.gameweek} • {ev.format} • {centsToBsd(ev.entry_fee) > 0 ? `${fmtScout(centsToBsd(ev.entry_fee))} $SCOUT` : t('free')}
                             {ev.max_entries && ` • ${ev.current_entries}/${ev.max_entries}`}
                           </div>
                         </div>
                         <Chip className={cn(sc.bg, sc.text, sc.border, 'border flex-shrink-0')}>{sc.label}</Chip>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-white/40">
-                        <span>Start: {new Date(ev.starts_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
-                        <span>Preis: {fmtScout(centsToBsd(ev.prize_pool))} $SCOUT</span>
+                        <span>{t('startColonLabel')} {new Date(ev.starts_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
+                        <span>{t('priceColonLabel')} <span className="tabular-nums">{fmtScout(centsToBsd(ev.prize_pool))}</span> $SCOUT</span>
                       </div>
                       <div className="flex items-center gap-2">
                         {ev.status === 'registering' && (
                           <>
                             <Button variant="gold" size="sm" onClick={() => handleStatusChange(ev.id, 'running')} disabled={changingId === ev.id}>
-                              {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <Play className="w-3 h-3" />}Starten
+                              {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <Play className="w-3 h-3" />}{t('start')}
                             </Button>
                             <Button variant="outline" size="sm" onClick={() => handleStatusChange(ev.id, 'cancelled')} disabled={changingId === ev.id}>
-                              {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <XCircle className="w-3 h-3" />}Abbrechen
+                              {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <XCircle className="w-3 h-3" />}{t('cancel')}
                             </Button>
                           </>
                         )}
                         {ev.status === 'running' && (
                           <Button variant="outline" size="sm" onClick={() => handleStatusChange(ev.id, 'ended')} disabled={changingId === ev.id}>
-                            {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <Square className="w-3 h-3" />}Beenden
+                            {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <Square className="w-3 h-3" />}{t('end')}
                           </Button>
                         )}
                         {ev.status === 'scoring' && (
                           <Button variant="outline" size="sm" onClick={() => handleStatusChange(ev.id, 'ended')} disabled={changingId === ev.id}>
-                            {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <Square className="w-3 h-3" />}Abschließen
+                            {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <Square className="w-3 h-3" />}{t('finalize')}
                           </Button>
                         )}
                       </div>
@@ -326,17 +331,17 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
 
           {pastEvents.length > 0 && (
             <div className="space-y-3">
-              <div className="text-sm font-bold text-white/30">Beendete Events ({pastEvents.length})</div>
+              <div className="text-sm font-bold text-white/30">{t('pastEventsCount', { count: pastEvents.length })}</div>
               {pastEvents.map(ev => {
                 const sc = EVENT_STATUS_CONFIG[ev.status] || EVENT_STATUS_CONFIG.ended;
                 return (
                   <Card key={ev.id} className="p-3 md:p-4 opacity-60">
                     <div className="flex items-center gap-3 min-w-0">
-                      <Calendar className="w-5 h-5 text-white/20 flex-shrink-0" />
+                      <Calendar className="w-5 h-5 text-white/20 flex-shrink-0" aria-hidden="true" />
                       <div className="min-w-0 flex-1">
                         <div className="font-bold truncate">{ev.name}</div>
                         <div className="text-xs text-white/40">
-                          GW {ev.gameweek} • {ev.current_entries} Teilnehmer • {fmtScout(centsToBsd(ev.prize_pool))} $SCOUT
+                          GW {ev.gameweek} • <span className="tabular-nums">{ev.current_entries}</span> {t('participantsLabel')} • <span className="tabular-nums">{fmtScout(centsToBsd(ev.prize_pool))}</span> $SCOUT
                         </div>
                       </div>
                       <Chip className={cn(sc.bg, sc.text, sc.border, 'border flex-shrink-0')}>{sc.label}</Chip>
@@ -350,24 +355,25 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
       )}
 
       {/* Create Event Modal */}
-      <Modal open={modalOpen} title="Neues Event erstellen" onClose={() => setModalOpen(false)}>
+      <Modal open={modalOpen} title={t('createEventTitle')} onClose={() => setModalOpen(false)}>
         <div className="space-y-4 p-4 md:p-6">
           <div>
-            <label className="block text-sm font-bold text-white/70 mb-1">Name</label>
+            <label className="block text-sm font-bold text-white/70 mb-1">{t('nameLabel')}</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value.slice(0, 60))}
-              placeholder="z.B. Sakaryaspor GW 14"
+              placeholder={t('eventNamePlaceholder')}
               className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Typ</label>
+              <label className="block text-sm font-bold text-white/70 mb-1">{t('typeLabel')}</label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
+                aria-label={t('typeLabel')}
                 className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
               >
                 <option value="club">Club</option>
@@ -377,10 +383,11 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Format</label>
+              <label className="block text-sm font-bold text-white/70 mb-1">{t('formatLabel')}</label>
               <select
                 value={format}
                 onChange={(e) => setFormat(e.target.value)}
+                aria-label={t('formatLabel')}
                 className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
               >
                 <option value="6er">6er</option>
@@ -389,63 +396,65 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-bold text-white/70 mb-1">Wertung</label>
+            <label className="block text-sm font-bold text-white/70 mb-1">{t('ratingLabel')}</label>
             <select
               value={eventTier}
               onChange={(e) => setEventTier(e.target.value as 'arena' | 'club' | 'user')}
+              aria-label={t('ratingLabel')}
               className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
             >
-              <option value="club">Club Event (+1 bis +15 Punkte)</option>
-              <option value="arena">Arena Event (+50/−15 Punkte)</option>
+              <option value="club">{t('clubEventOption')}</option>
+              <option value="arena">{t('arenaEventOption')}</option>
             </select>
             {eventTier === 'arena' && (
-              <p className="mt-1 text-[10px] text-amber-400/70">Arena-Events vergeben +/− BeScout Score nach Platzierung. Untere 10% verlieren Punkte!</p>
+              <p className="mt-1 text-[10px] text-amber-400/70">{t('arenaWarning')}</p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-bold text-white/70 mb-1">Mindest-Abo (optional)</label>
+            <label className="block text-sm font-bold text-white/70 mb-1">{t('minSubLabel')}</label>
             <select
               value={minSubTier}
               onChange={(e) => setMinSubTier(e.target.value)}
+              aria-label={t('minSubLabel')}
               className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
             >
-              <option value="">Alle (kein Abo nötig)</option>
+              <option value="">{t('allNoSub')}</option>
               <option value="bronze">Bronze+</option>
               <option value="silber">Silber+</option>
-              <option value="gold">Nur Gold</option>
+              <option value="gold">{t('onlyGold')}</option>
             </select>
             {minSubTier && (
-              <p className="mt-1 text-[10px] text-amber-400/70">Nur {minSubTier === 'bronze' ? 'Bronze' : minSubTier === 'silber' ? 'Silber' : 'Gold'}+ Mitglieder können teilnehmen</p>
+              <p className="mt-1 text-[10px] text-amber-400/70">{t('onlyTierCanJoin', { tier: minSubTier === 'bronze' ? 'Bronze' : minSubTier === 'silber' ? 'Silber' : 'Gold' })}</p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-bold text-white/70 mb-1">Salary Cap (optional)</label>
+            <label className="block text-sm font-bold text-white/70 mb-1">{t('salaryCapLabel')}</label>
             <input
               type="number"
               inputMode="numeric"
               min="0"
               value={salaryCap}
               onChange={(e) => setSalaryCap(e.target.value)}
-              placeholder="z.B. 400 (Summe der L5-Scores)"
+              placeholder={t('salaryCapPlaceholder')}
               className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
             />
-            {salaryCap && <p className="mt-1 text-[10px] text-white/40">Max. Summe der L5-Scores aller Spieler im Lineup</p>}
+            {salaryCap && <p className="mt-1 text-[10px] text-white/40">{t('salaryCapHint')}</p>}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Gameweek</label>
+              <label className="block text-sm font-bold text-white/70 mb-1">{t('gameweekFormLabel')}</label>
               <input
                 type="number"
                 inputMode="numeric"
                 min="1"
                 value={gameweek}
                 onChange={(e) => setGameweek(e.target.value)}
-                placeholder="z.B. 14"
+                placeholder={t('gameweekPlaceholder')}
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Max Teilnehmer</label>
+              <label className="block text-sm font-bold text-white/70 mb-1">{t('maxParticipants')}</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -458,7 +467,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Teilnahmegebühr ($SCOUT)</label>
+              <label className="block text-sm font-bold text-white/70 mb-1">{t('entryFeeLabel')}</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -470,7 +479,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Preisgeld ($SCOUT)</label>
+              <label className="block text-sm font-bold text-white/70 mb-1">{t('prizeMoneyLabel')}</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -483,7 +492,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-bold text-white/70 mb-1">Startzeit</label>
+            <label className="block text-sm font-bold text-white/70 mb-1">{t('startTime')}</label>
             <input
               type="datetime-local"
               value={startsAt}
@@ -492,7 +501,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-white/70 mb-1">Lock-Zeit (Lineup-Deadline)</label>
+            <label className="block text-sm font-bold text-white/70 mb-1">{t('lockTime')}</label>
             <input
               type="datetime-local"
               value={locksAt}
@@ -501,7 +510,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-white/70 mb-1">Endzeit</label>
+            <label className="block text-sm font-bold text-white/70 mb-1">{t('endTime')}</label>
             <input
               type="datetime-local"
               value={endsAt}
@@ -511,19 +520,19 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
           </div>
           {type === 'sponsor' && (
             <div className="space-y-3 p-3 bg-gold/5 border border-gold/15 rounded-xl">
-              <div className="text-xs font-bold text-gold/70 uppercase">Sponsor-Daten</div>
+              <div className="text-xs font-bold text-gold/70 uppercase">{t('sponsorData')}</div>
               <div>
-                <label className="block text-sm font-bold text-white/70 mb-1">Sponsor Name</label>
+                <label className="block text-sm font-bold text-white/70 mb-1">{t('sponsorNameLabel')}</label>
                 <input
                   type="text"
                   value={sponsorName}
                   onChange={(e) => setSponsorName(e.target.value.slice(0, 40))}
-                  placeholder="z.B. Nike"
+                  placeholder={t('sponsorNamePlaceholder')}
                   className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-white/70 mb-1">Sponsor Logo URL</label>
+                <label className="block text-sm font-bold text-white/70 mb-1">{t('sponsorLogoLabel')}</label>
                 <input
                   type="url"
                   value={sponsorLogo}
@@ -537,12 +546,12 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
           {name && startsAt && (
             <div className="bg-gold/5 border border-gold/20 rounded-xl p-3 text-sm">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-white/50">Teilnahmegebühr</span>
-                <span className="font-mono font-bold">{parseFloat(entryFee) > 0 ? `${fmtScout(parseFloat(entryFee))} $SCOUT` : 'Kostenlos'}</span>
+                <span className="text-white/50">{t('entryFeePreview')}</span>
+                <span className="font-mono font-bold tabular-nums">{parseFloat(entryFee) > 0 ? `${fmtScout(parseFloat(entryFee))} $SCOUT` : t('free')}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-white/50">Preisgeld</span>
-                <span className="font-mono font-bold text-gold">{fmtScout(parseFloat(prizePool) || 0)} $SCOUT</span>
+                <span className="text-white/50">{t('prizePreview')}</span>
+                <span className="font-mono font-bold text-gold tabular-nums">{fmtScout(parseFloat(prizePool) || 0)} $SCOUT</span>
               </div>
             </div>
           )}
@@ -553,7 +562,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
             disabled={saving || !name || !startsAt || !locksAt || !endsAt}
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" /> : <Plus className="w-4 h-4" />}
-            {saving ? 'Erstelle...' : 'Event erstellen'}
+            {saving ? t('eventCreating') : t('eventCreate')}
           </Button>
         </div>
       </Modal>
