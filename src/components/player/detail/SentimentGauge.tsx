@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface SentimentGaugeProps {
   buyCount: number;
   sellCount: number;
@@ -7,6 +9,7 @@ interface SentimentGaugeProps {
 }
 
 export default function SentimentGauge({ buyCount, sellCount, className = '' }: SentimentGaugeProps) {
+  const tp = useTranslations('player');
   const total = buyCount + sellCount;
   const ratio = total > 0 ? buyCount / total : 0.5;
   const pct = Math.round(ratio * 100);
@@ -30,7 +33,7 @@ export default function SentimentGauge({ buyCount, sellCount, className = '' }: 
   return (
     <div className={`flex flex-col items-center ${className}`}>
       <div className="relative" style={{ width: size, height: size / 2 + 20 }}>
-        <svg viewBox={`0 0 ${size} ${size / 2 + 30}`} className="w-full h-full" role="img" aria-label={`Marktstimmung: ${pct}% ${label}`}>
+        <svg viewBox={`0 0 ${size} ${size / 2 + 30}`} className="w-full h-full" role="img" aria-label={tp('sentimentAria', { pct: String(pct), label })}>
           {/* Background arc */}
           <path
             d={`M ${cx - radius} ${cy} A ${radius} ${radius} 0 0 1 ${cx + radius} ${cy}`}
@@ -61,12 +64,12 @@ export default function SentimentGauge({ buyCount, sellCount, className = '' }: 
       <div className="flex items-center gap-6 mt-2">
         <div className="text-center">
           <div className="font-mono font-bold text-sm text-green-500">{buyCount}</div>
-          <div className="text-[10px] text-white/40">Käufe</div>
+          <div className="text-[10px] text-white/40">{tp('buysSentiment')}</div>
         </div>
         <div className="w-px h-6 bg-white/10" />
         <div className="text-center">
           <div className="font-mono font-bold text-sm text-red-400">{sellCount}</div>
-          <div className="text-[10px] text-white/40">Verkäufe</div>
+          <div className="text-[10px] text-white/40">{tp('sellsSentiment')}</div>
         </div>
       </div>
     </div>

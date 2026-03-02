@@ -67,6 +67,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
   const { addToast } = useToast();
   const tp = useProfileTranslations('profile');
   const tg = useProfileTranslations('gamification');
+  const tc = useProfileTranslations('common');
   const locale = useLocale();
   const [tab, setTab] = useState<ProfileTab>('overview');
 
@@ -432,7 +433,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           {/* Wallet â€” self only */}
           {isSelf && (
             <Card className="p-4 md:p-6">
-              <h3 className="font-black mb-4">Guthaben</h3>
+              <h3 className="font-black mb-4">{tp('walletTitle')}</h3>
               <div className="text-2xl md:text-3xl font-mono font-black text-gold mb-2">
                 {balanceCents === null ? (
                   <span className="inline-block w-24 h-8 rounded bg-gold/10 animate-pulse motion-reduce:animate-none" />
@@ -440,9 +441,9 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                   <>{formatScout(balanceCents)} $SCOUT</>
                 )}
               </div>
-              <div className="text-sm text-white/50 mb-4">Verfügbares Guthaben</div>
+              <div className="text-sm text-white/50 mb-4">{tp('walletAvailable')}</div>
               <div className="grid grid-cols-1 gap-2">
-                <Button variant="gold" size="sm">Einzahlen</Button>
+                <Button variant="gold" size="sm">{tp('depositBtn')}</Button>
               </div>
             </Card>
           )}
@@ -450,13 +451,13 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           {/* Scores */}
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-black">Scout Score</h3>
+              <h3 className="font-black">{tp('scoutScoreTitle')}</h3>
               {isSelf && (
                 <button
                   onClick={handleRefreshStats}
                   disabled={statsRefreshing}
                   className="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-white/40 hover:text-white/70"
-                  aria-label="Aktualisieren"
+                  aria-label={tc('refreshLabel')}
                 >
                   <RefreshCw className={cn('size-4', statsRefreshing && 'animate-spin motion-reduce:animate-none')} aria-hidden="true" />
                 </button>
@@ -473,11 +474,11 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-2xl font-mono font-black text-gold">{userStats?.total_score ?? 0}</span>
-                <span className="text-white/30 text-sm ml-1">Pkt</span>
+                <span className="text-white/30 text-sm ml-1">{tp('pointsLabel')}</span>
               </div>
               {userStats && userStats.rank > 0 && (
                 <Chip className="bg-gold/15 text-gold border-gold/25">
-                  Rang #{userStats.rank}
+                  {tp('rankLabel2', { rank: userStats.rank })}
                 </Chip>
               )}
             </div>

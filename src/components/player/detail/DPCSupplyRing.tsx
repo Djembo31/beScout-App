@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { fmtScout } from '@/lib/utils';
 
 interface DPCSupplyRingProps {
@@ -15,6 +16,7 @@ interface DPCSupplyRingProps {
 }
 
 export default function DPCSupplyRing({ supply, released, sold, owned, className = '' }: DPCSupplyRingProps) {
+  const tp = useTranslations('player');
   const reserved = supply - released;       // Future tranches
   const available = released - sold;         // Buyable now
   const others = sold - owned;              // Other holders
@@ -43,7 +45,7 @@ export default function DPCSupplyRing({ supply, released, sold, owned, className
   return (
     <div className={`flex items-center gap-6 ${className}`}>
       <div className="relative shrink-0" style={{ width: size, height: size }}>
-        <svg viewBox={`0 0 ${size} ${size}`} className="transform -rotate-90" role="img" aria-label={`DPC Verteilung: ${fmtScout(sold)} von ${fmtScout(supply)} verkauft`}>
+        <svg viewBox={`0 0 ${size} ${size}`} className="transform -rotate-90" role="img" aria-label={tp('supplyAria', { sold: fmtScout(sold), supply: fmtScout(supply) })}>
           {/* Background ring */}
           <circle
             cx={cx} cy={cy} r={radius}
@@ -94,7 +96,7 @@ export default function DPCSupplyRing({ supply, released, sold, owned, className
         {/* Center text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="font-mono font-black text-xl">{fmtScout(sold)}</span>
-          <span className="text-[10px] text-white/40">von {fmtScout(supply)} verkauft</span>
+          <span className="text-[10px] text-white/40">{tp('supplySold', { supply: fmtScout(supply) })}</span>
         </div>
       </div>
 
@@ -104,7 +106,7 @@ export default function DPCSupplyRing({ supply, released, sold, owned, className
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-sm bg-white/[0.06] border border-white/10 shrink-0" />
             <div>
-              <div className="text-xs text-white/50">Reserviert</div>
+              <div className="text-xs text-white/50">{tp('supplyReserved')}</div>
               <div className="font-mono font-bold text-sm text-white/30">{fmtScout(reserved)}</div>
             </div>
           </div>
@@ -112,7 +114,7 @@ export default function DPCSupplyRing({ supply, released, sold, owned, className
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-sm bg-white/15 shrink-0" />
           <div>
-            <div className="text-xs text-white/50">Verfügbar</div>
+            <div className="text-xs text-white/50">{tp('supplyAvailable')}</div>
             <div className="font-mono font-bold text-sm">{fmtScout(available)}</div>
           </div>
         </div>
@@ -120,7 +122,7 @@ export default function DPCSupplyRing({ supply, released, sold, owned, className
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-sm bg-gold/60 shrink-0" />
             <div>
-              <div className="text-xs text-white/50">Andere Holder</div>
+              <div className="text-xs text-white/50">{tp('supplyOtherHolders')}</div>
               <div className="font-mono font-bold text-sm">{fmtScout(others)}</div>
             </div>
           </div>
@@ -129,7 +131,7 @@ export default function DPCSupplyRing({ supply, released, sold, owned, className
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-sm bg-sky-400 shrink-0" />
             <div>
-              <div className="text-xs text-white/50">Du besitzt</div>
+              <div className="text-xs text-white/50">{tp('supplyYouOwn')}</div>
               <div className="font-mono font-bold text-sm text-sky-300">{owned}</div>
             </div>
           </div>

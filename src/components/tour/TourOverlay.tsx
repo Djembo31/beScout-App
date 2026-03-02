@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useTour } from './TourProvider';
 import type { TourStepPosition } from './tourSteps';
 
@@ -54,6 +55,7 @@ function getTooltipStyle(
 }
 
 export function TourOverlay() {
+  const tc = useTranslations('common');
   const { isTourActive, currentStep, stepIndex, totalSteps, nextStep, prevStep, skipTour } = useTour();
   const [targetRect, setTargetRect] = useState<Rect | null>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -160,7 +162,7 @@ export function TourOverlay() {
               onClick={skipTour}
               className="text-[11px] text-white/40 hover:text-white/70 transition-colors"
             >
-              Überspringen
+              {tc('skipLabel')}
             </button>
 
             <div className="flex items-center gap-2">
@@ -168,7 +170,7 @@ export function TourOverlay() {
                 <button
                   onClick={prevStep}
                   className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-                  aria-label="Zurück"
+                  aria-label={tc('backLabel')}
                 >
                   <ChevronLeft className="size-4 text-white/50" />
                 </button>
@@ -182,7 +184,7 @@ export function TourOverlay() {
                 onClick={nextStep}
                 className="px-3.5 py-1.5 rounded-xl bg-gold text-black text-xs font-bold hover:bg-gold/90 transition-colors"
               >
-                {isLast ? 'Fertig' : 'Weiter'}
+                {isLast ? tc('doneLabel') : tc('nextLabel')}
                 {!isLast && <ChevronRight className="size-3.5 inline ml-0.5 -mr-0.5" />}
               </button>
             </div>
@@ -204,14 +206,14 @@ export function TourOverlay() {
                 onClick={skipTour}
                 className="text-[11px] text-white/40 hover:text-white/70 transition-colors"
               >
-                Überspringen
+                {tc('skipLabel')}
               </button>
               <div className="flex items-center gap-2">
                 {!isFirst && (
                   <button
                     onClick={prevStep}
                     className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-                    aria-label="Zurück"
+                    aria-label={tc('backLabel')}
                   >
                     <ChevronLeft className="size-4 text-white/50" />
                   </button>
@@ -223,7 +225,7 @@ export function TourOverlay() {
                   onClick={nextStep}
                   className="px-3.5 py-1.5 rounded-xl bg-gold text-black text-xs font-bold hover:bg-gold/90 transition-colors"
                 >
-                  {isLast ? 'Fertig' : 'Weiter'}
+                  {isLast ? tc('doneLabel') : tc('nextLabel')}
                   {!isLast && <ChevronRight className="size-3.5 inline ml-0.5 -mr-0.5" />}
                 </button>
               </div>

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { X, AlertTriangle, RefreshCw, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
 // ============================================
@@ -132,6 +133,7 @@ const modalMaxW = {
 };
 
 export function Modal({ open, title, subtitle, children, footer, onClose, preventClose, size = 'md' }: ModalProps) {
+  const tcModal = useTranslations('common');
   const dialogRef = useRef<HTMLDivElement>(null);
 
   // ESC key closes modal
@@ -200,7 +202,7 @@ export function Modal({ open, title, subtitle, children, footer, onClose, preven
             {subtitle && <div className="text-xs text-white/50">{subtitle}</div>}
             <div id="modal-title" className="text-base md:text-lg font-black truncate">{title}</div>
           </div>
-          <button onClick={onClose} className="p-2 min-w-[44px] min-h-[44px] rounded-xl hover:bg-white/5 hover:scale-110 active:scale-95 transition-transform flex-shrink-0 ml-2 flex items-center justify-center" aria-label="Schließen">
+          <button onClick={onClose} className="p-2 min-w-[44px] min-h-[44px] rounded-xl hover:bg-white/5 hover:scale-110 active:scale-95 transition-transform flex-shrink-0 ml-2 flex items-center justify-center" aria-label={tcModal('closeLabel')}>
             <X className="size-5 text-white/70" />
           </button>
         </div>

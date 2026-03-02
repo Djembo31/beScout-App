@@ -2,11 +2,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Download, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { BeforeInstallPromptEvent } from '@/types';
 
 const DISMISS_KEY = 'bescout-install-dismissed';
 
 export function InstallPrompt() {
+  const t = useTranslations('pwa');
+  const tc = useTranslations('common');
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
 
@@ -51,19 +54,19 @@ export function InstallPrompt() {
           <Download className="size-5 text-gold" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-bold">App installieren</div>
-          <div className="text-[11px] text-white/50">BeScout auf deinem Homescreen</div>
+          <div className="text-sm font-bold">{t('installTitle')}</div>
+          <div className="text-[11px] text-white/50">{t('installSubtitle')}</div>
         </div>
         <button
           onClick={handleInstall}
           className="px-3.5 py-2 rounded-xl bg-gold text-black text-xs font-bold hover:bg-gold/90 transition-colors shrink-0"
         >
-          Installieren
+          {t('installBtn')}
         </button>
         <button
           onClick={handleDismiss}
           className="p-1.5 rounded-lg hover:bg-white/10 transition-colors shrink-0"
-          aria-label="Schließen"
+          aria-label={tc('closeLabel')}
         >
           <X className="size-4 text-white/40" />
         </button>

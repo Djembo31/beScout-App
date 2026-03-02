@@ -32,9 +32,9 @@ interface CommunityTabProps {
 
 // Rumor categories for transfer rumors
 const RUMOR_CATEGORIES = [
-  { id: 'Gerücht', label: 'Gerücht', color: 'bg-red-500/15 text-red-300 border-red-500/20' },
-  { id: 'Insider', label: 'Insider', color: 'bg-purple-500/15 text-purple-300 border-purple-500/20' },
-  { id: 'Quelle', label: 'Quelle', color: 'bg-amber-500/15 text-amber-300 border-amber-500/20' },
+  { id: 'Gerücht', labelKey: 'rumorCatRumor', color: 'bg-red-500/15 text-red-300 border-red-500/20' },
+  { id: 'Insider', labelKey: 'rumorCatInsider', color: 'bg-purple-500/15 text-purple-300 border-purple-500/20' },
+  { id: 'Quelle', labelKey: 'rumorCatSource', color: 'bg-amber-500/15 text-amber-300 border-amber-500/20' },
 ];
 
 export default function CommunityTab({
@@ -43,6 +43,7 @@ export default function CommunityTab({
   onUnlock, onRate, onCreatePost, onVotePost, onDeletePost,
 }: CommunityTabProps) {
   const t = useTranslations('playerDetail');
+  const tc = useTranslations('community');
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [showCreateRumor, setShowCreateRumor] = useState(false);
   const [postContent, setPostContent] = useState('');
@@ -323,7 +324,7 @@ export default function CommunityTab({
                     'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border',
                     rumorCategory === cat.id ? cat.color : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
                   )}>
-                  {cat.label}
+                  {tc(cat.labelKey)}
                 </button>
               ))}
             </div>

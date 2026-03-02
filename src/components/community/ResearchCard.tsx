@@ -113,6 +113,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
   const tg = useTranslations('gamification');
   const ts = useTranslations('scouting');
   const tc = useTranslations('community');
+  const tp = useTranslations('profile');
   const [confirmUnlock, setConfirmUnlock] = useState(false);
   const canSeeContent = post.is_own || post.is_unlocked;
   const rang = getRang(authorScore ?? 500);
@@ -273,15 +274,15 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
                   onClick={() => setConfirmUnlock(true)}
                 >
                   <Lock className="w-3.5 h-3.5" />
-                  Freischalten für {fmtScout(priceBsd)} $SCOUT
+                  {tp('unlockFor', { price: fmtScout(priceBsd) })}
                 </Button>
                 {post.unlock_count > 0 && (
-                  <span className="text-[10px] text-white/30">{post.unlock_count} {post.unlock_count === 1 ? 'Leser' : 'Leser'}</span>
+                  <span className="text-[10px] text-white/30">{tc('readersCount', { count: post.unlock_count })}</span>
                 )}
               </div>
             ) : (
               <div className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl bg-gold/5 border border-gold/15">
-                <span className="text-xs text-white/60">{fmtScout(priceBsd)} $SCOUT werden von deinem Wallet abgezogen</span>
+                <span className="text-xs text-white/60">{tc('unlockDeduction', { price: fmtScout(priceBsd) })}</span>
                 <div className="flex gap-2">
                   <Button
                     variant="gold"

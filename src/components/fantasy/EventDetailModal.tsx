@@ -55,6 +55,7 @@ export const EventDetailModal = ({
 }) => {
   const { user } = useUser();
   const t = useTranslations('fantasy');
+  const tsp = useTranslations('sponsor');
   const locale = useLocale();
   const [tab, setTab] = useState<EventDetailTab>('overview');
   const [selectedPlayers, setSelectedPlayers] = useState<LineupPlayer[]>([]);
@@ -837,7 +838,7 @@ export const EventDetailModal = ({
                       <Sparkles aria-hidden="true" className="size-3 text-gold" />
                     </div>
                   )}
-                  <span className="text-xs font-bold text-white/50 uppercase">{event.sponsorName || 'Sponsor-Fläche'}</span>
+                  <span className="text-xs font-bold text-white/50 uppercase">{event.sponsorName || tsp('sponsorPlaceholder')}</span>
                   {event.sponsorLogo ? (
                     <img src={event.sponsorLogo} alt="" className="h-5 w-auto object-contain" />
                   ) : (

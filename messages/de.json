@@ -55,7 +55,16 @@
     "navMarkt": "Markt",
     "navClub": "Club",
     "navCommunity": "Community",
-    "closeLabel": "Schließen"
+    "closeLabel": "Schließen",
+    "backLabel": "Zurück",
+    "skipLabel": "Überspringen",
+    "nextLabel": "Weiter",
+    "doneLabel": "Fertig",
+    "copyLabel": "Kopieren",
+    "refreshLabel": "Aktualisieren",
+    "pageLabel": "Seite",
+    "prevGameweek": "Vorheriger Spieltag",
+    "nextGameweek": "Nächster Spieltag"
   },
   "auth": {
     "subtitle": "Werde Teil der TFF 1. Lig — handle Spielerkarten, spiele Fantasy und verdiene Belohnungen.",
@@ -1197,7 +1206,29 @@
     "criteriaCS": "CS ≥ {value}",
     "criteriaFloor": "Floor ≤ {value}",
     "unlockConfirm": "Ja, freischalten",
-    "cancelBtn": "Abbrechen"
+    "cancelBtn": "Abbrechen",
+    "pollTitle": "Neue Umfrage",
+    "pollQuestionLabel": "Frage",
+    "pollQuestionPlaceholder": "z.B. Wer sollte Kapitän werden?",
+    "pollDescriptionLabel": "Beschreibung (optional)",
+    "pollDescriptionPlaceholder": "Mehr Kontext zur Umfrage...",
+    "pollOptionsLabel": "Optionen (2-4)",
+    "pollAddOption": "Option hinzufügen",
+    "pollPriceLabel": "Preis ($SCOUT)",
+    "pollPriceHint": "70% gehen an dich, 30% Plattform",
+    "pollDurationLabel": "Laufzeit",
+    "pollDuration1d": "1 Tag",
+    "pollDuration3d": "3 Tage",
+    "pollDuration7d": "7 Tage",
+    "pollSubmitBtn": "Umfrage erstellen",
+    "pollErrorQuestion": "Frage: mind. 5 Zeichen ({count}/5)",
+    "pollErrorOptions": "Mind. 2 Optionen erforderlich",
+    "pollErrorPrice": "Preis: 1-10.000 $SCOUT",
+    "rumorCatRumor": "Gerücht",
+    "rumorCatInsider": "Insider",
+    "rumorCatSource": "Quelle",
+    "readersCount": "{count} Leser",
+    "unlockDeduction": "{price} $SCOUT werden von deinem Wallet abgezogen"
   },
   "profile": {
     "title": "Profil",
@@ -1317,7 +1348,14 @@
     "rankLabel": "Rang",
     "holdingsTitle": "Bestände",
     "noHoldings": "Noch keine DPCs im Portfolio",
-    "goToMarket": "Zum Marktplatz"
+    "goToMarket": "Zum Marktplatz",
+    "walletTitle": "Guthaben",
+    "walletAvailable": "Verfügbares Guthaben",
+    "depositBtn": "Einzahlen",
+    "scoutScoreTitle": "Scout Score",
+    "pointsLabel": "Pkt",
+    "rankLabel2": "Rang #{rank}",
+    "unlockFor": "Freischalten für {price} $SCOUT"
   },
   "player": {
     "overview": "Übersicht",
@@ -1409,7 +1447,16 @@
     "statMinutes": "Minuten",
     "statTrend": "Trend",
     "statFloor": "Floor",
-    "tapToFlip": "Tippen zum Drehen"
+    "tapToFlip": "Tippen zum Drehen",
+    "buysSentiment": "Käufe",
+    "sellsSentiment": "Verkäufe",
+    "sentimentAria": "Marktstimmung: {pct}% {label}",
+    "supplyAria": "DPC Verteilung: {sold} von {supply} verkauft",
+    "supplySold": "von {supply} verkauft",
+    "supplyReserved": "Reserviert",
+    "supplyAvailable": "Verfügbar",
+    "supplyOtherHolders": "Andere Holder",
+    "supplyYouOwn": "Du besitzt"
   },
   "club": {
     "overview": "Übersicht",
@@ -1549,7 +1596,11 @@
     "foundingMultiplier": "Founding {n}x",
     "aboMultiplier": "Abo {n}x",
     "airdropComingSoon": "$SCOUT Airdrop — Coming Soon",
-    "rankOf": "von {total}"
+    "rankOf": "von {total}",
+    "inviteFriends": "Freunde einladen",
+    "invitedCount": "{count} eingeladen",
+    "shareLink": "Link teilen",
+    "referralShareText": "Komm zu BeScout — DPC-Trading, Fantasy & mehr für Fußball-Fans!"
   },
   "admin": {
     "overview": "Übersicht",
@@ -3033,5 +3084,29 @@
     "saving": "Wird gespeichert...",
     "updateValuation": "Bewertung aktualisieren",
     "submitValuation": "Bewertung abgeben"
+  },
+  "pwa": {
+    "installTitle": "App installieren",
+    "installSubtitle": "BeScout auf deinem Homescreen",
+    "installBtn": "Installieren"
+  },
+  "feedback": {
+    "title": "Feedback senden",
+    "typeBug": "Bug melden",
+    "typeFeature": "Feature-Wunsch",
+    "typeOther": "Sonstiges",
+    "placeholderBug": "Beschreibe den Bug — was hast du erwartet, was ist passiert?",
+    "placeholderFeature": "Welches Feature wünschst du dir und warum?",
+    "placeholderOther": "Was möchtest du uns mitteilen?",
+    "messageLabel": "Feedback-Nachricht",
+    "submitBtn": "Feedback senden",
+    "successToast": "Danke für dein Feedback!",
+    "errorToast": "Feedback konnte nicht gesendet werden."
+  },
+  "sponsor": {
+    "presentedBy": "Präsentiert von",
+    "sponsoredBy": "Gesponsert von",
+    "partner": "Partner",
+    "sponsorPlaceholder": "Sponsor-Fläche"
   }
 }

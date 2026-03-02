@@ -24,6 +24,7 @@ export function SpieltagSelector({
   onGameweekChange,
 }: SpieltagSelectorProps) {
   const t = useTranslations('spieltag');
+  const tc = useTranslations('common');
   const isCurrentGw = gameweek === activeGameweek;
   const isFinished = status === 'simulated';
   const isPast = gameweek < activeGameweek;
@@ -54,7 +55,7 @@ export function SpieltagSelector({
       <button
         onClick={() => onGameweekChange(Math.max(1, gameweek - 1))}
         disabled={gameweek <= 1}
-        aria-label="Vorheriger Spieltag"
+        aria-label={tc('prevGameweek')}
         className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-colors active:scale-[0.95]"
       >
         <ChevronLeft className="size-4" aria-hidden="true" />
@@ -82,7 +83,7 @@ export function SpieltagSelector({
       <button
         onClick={() => onGameweekChange(Math.min(maxGameweek, gameweek + 1))}
         disabled={gameweek >= maxGameweek}
-        aria-label="Nächster Spieltag"
+        aria-label={tc('nextGameweek')}
         className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-colors active:scale-[0.95]"
       >
         <ChevronRight className="size-4" aria-hidden="true" />

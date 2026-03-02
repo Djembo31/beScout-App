@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Modal, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
@@ -18,13 +19,14 @@ type Props = {
   loading: boolean;
 };
 
-const DURATIONS: { label: string; days: number }[] = [
-  { label: '1 Tag', days: 1 },
-  { label: '3 Tage', days: 3 },
-  { label: '7 Tage', days: 7 },
+const DURATIONS: { labelKey: string; days: number }[] = [
+  { labelKey: 'pollDuration1d', days: 1 },
+  { labelKey: 'pollDuration3d', days: 3 },
+  { labelKey: 'pollDuration7d', days: 7 },
 ];
 
 export default function CreateCommunityPollModal({ open, onClose, onSubmit, loading }: Props) {
+  const tc = useTranslations('community');
   const [question, setQuestion] = useState('');
   const [description, setDescription] = useState('');
   const [options, setOptions] = useState(['', '']);
@@ -74,19 +76,19 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
   return (
     <Modal
       open={open}
-      title="Neue Umfrage"
+      title={tc('pollTitle')}
       onClose={onClose}
       footer={
         <div className="space-y-2">
           {!canSubmit && (tried || question.length > 0 || validOptions.length > 0) && (
             <div className="text-xs text-red-400/80 space-y-0.5">
-              {question.length < 5 && <div>Frage: mind. 5 Zeichen ({question.length}/5)</div>}
-              {validOptions.length < 2 && <div>Mind. 2 Optionen erforderlich</div>}
-              {(priceBsd < 1 || priceBsd > 10000) && <div>Preis: 1-10.000 $SCOUT</div>}
+              {question.length < 5 && <div>{tc('pollErrorQuestion', { count: question.length })}</div>}
+              {validOptions.length < 2 && <div>{tc('pollErrorOptions')}</div>}
+              {(priceBsd < 1 || priceBsd > 10000) && <div>{tc('pollErrorPrice')}</div>}
             </div>
           )}
           <Button variant="gold" fullWidth loading={loading} disabled={!canSubmit} onClick={handleSubmit}>
-            Umfrage erstellen
+            {tc('pollSubmitBtn')}
           </Button>
         </div>
       }
@@ -95,14 +97,14 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
         {/* Question */}
         <div>
           <label className="text-xs text-white/50 font-semibold mb-1.5 flex justify-between">
-            <span>Frage</span>
+            <span>{tc('pollQuestionLabel')}</span>
             <span className={cn('font-mono', question.length > 180 ? 'text-amber-400' : 'text-white/30')}>{question.length}/200</span>
           </label>
           <input
             type="text"
             value={question}
             onChange={(e) => setQuestion(e.target.value.slice(0, 200))}
-            placeholder="z.B. Wer sollte Kapitän werden?"
+            placeholder={tc('pollQuestionPlaceholder')}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40"
           />
         </div>
@@ -110,21 +112,21 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
         {/* Description */}
         <div>
           <label className="text-xs text-white/50 font-semibold mb-1.5 flex justify-between">
-            <span>Beschreibung (optional)</span>
+            <span>{tc('pollDescriptionLabel')}</span>
             <span className={cn('font-mono', description.length > 450 ? 'text-amber-400' : 'text-white/30')}>{description.length}/500</span>
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value.slice(0, 500))}
             rows={2}
-            placeholder="Mehr Kontext zur Umfrage..."
+            placeholder={tc('pollDescriptionPlaceholder')}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
           />
         </div>
 
         {/* Options */}
         <div>
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">Optionen (2-4)</label>
+          <label className="text-xs text-white/50 font-semibold mb-1.5 block">{tc('pollOptionsLabel')}</label>
           <div className="space-y-2">
             {options.map((opt, idx) => (
               <div key={idx} className="flex items-center gap-2">
@@ -152,14 +154,14 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
               className="mt-2 flex items-center gap-1.5 text-xs text-gold hover:text-gold/80 transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
-              Option hinzufügen
+              {tc('pollAddOption')}
             </button>
           )}
         </div>
 
         {/* Price */}
         <div>
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">Preis ($SCOUT)</label>
+          <label className="text-xs text-white/50 font-semibold mb-1.5 block">{tc('pollPriceLabel')}</label>
           <input
             type="number" inputMode="numeric"
             value={priceBsd}
@@ -173,12 +175,12 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
             max={10000}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white font-mono focus:outline-none focus:border-gold/40"
           />
-          <div className="text-[10px] text-white/30 mt-1">70% gehen an dich, 30% Plattform</div>
+          <div className="text-[10px] text-white/30 mt-1">{tc('pollPriceHint')}</div>
         </div>
 
         {/* Duration */}
         <div>
-          <label className="text-xs text-white/50 font-semibold mb-1.5 block">Laufzeit</label>
+          <label className="text-xs text-white/50 font-semibold mb-1.5 block">{tc('pollDurationLabel')}</label>
           <div className="flex gap-1.5">
             {DURATIONS.map(d => (
               <button
@@ -191,7 +193,7 @@ export default function CreateCommunityPollModal({ open, onClose, onSubmit, load
                     : 'bg-white/5 text-white/50 border-white/10'
                 )}
               >
-                {d.label}
+                {tc(d.labelKey)}
               </button>
             ))}
           </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Copy, Share2, Users, Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card, Button } from '@/components/ui';
 import { getUserReferralCode, getUserReferralCount } from '@/lib/services/referral';
 
@@ -10,6 +11,8 @@ type Props = {
 };
 
 export default function ReferralCard({ userId }: Props) {
+  const ta = useTranslations('airdrop');
+  const tc = useTranslations('common');
   const [code, setCode] = useState<string | null>(null);
   const [count, setCount] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -36,7 +39,7 @@ export default function ReferralCard({ userId }: Props) {
       try {
         await navigator.share({
           title: 'BeScout',
-          text: 'Komm zu BeScout — DPC-Trading, Fantasy & mehr für Fußball-Fans!',
+          text: ta('referralShareText'),
           url: referralUrl,
         });
       } catch (err) { console.error('[ReferralCard] share:', err); }
@@ -49,10 +52,10 @@ export default function ReferralCard({ userId }: Props) {
     <Card className="p-4 bg-gold/[0.04] border-gold/15">
       <div className="flex items-center gap-2 mb-3">
         <Users className="size-4 text-gold" />
-        <span className="text-xs font-bold text-white/50 uppercase">Freunde einladen</span>
+        <span className="text-xs font-bold text-white/50 uppercase">{ta('inviteFriends')}</span>
         {count > 0 && (
           <span className="ml-auto px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 text-[10px] font-bold">
-            {count} eingeladen
+            {ta('invitedCount', { count })}
           </span>
         )}
       </div>
@@ -65,7 +68,7 @@ export default function ReferralCard({ userId }: Props) {
         <button
           onClick={handleCopy}
           className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
-          aria-label="Kopieren"
+          aria-label={tc('copyLabel')}
         >
           {copied ? <Check className="size-4 text-green-500" /> : <Copy className="size-4 text-white/50" />}
         </button>
@@ -73,7 +76,7 @@ export default function ReferralCard({ userId }: Props) {
 
       <Button variant="gold" size="sm" className="w-full gap-1.5" onClick={handleShare}>
         <Share2 className="size-3.5" />
-        Link teilen
+        {ta('shareLink')}
       </Button>
     </Card>
   );

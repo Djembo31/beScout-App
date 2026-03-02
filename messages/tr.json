@@ -55,7 +55,16 @@
     "navMarkt": "Pazar",
     "navClub": "Kulüp",
     "navCommunity": "Topluluk",
-    "closeLabel": "Kapat"
+    "closeLabel": "Kapat",
+    "backLabel": "Geri",
+    "skipLabel": "Atla",
+    "nextLabel": "İleri",
+    "doneLabel": "Tamam",
+    "copyLabel": "Kopyala",
+    "refreshLabel": "Yenile",
+    "pageLabel": "Sayfa",
+    "prevGameweek": "Önceki Hafta",
+    "nextGameweek": "Sonraki Hafta"
   },
   "auth": {
     "subtitle": "TFF 1. Lig Fan Platformu",
@@ -1189,7 +1198,29 @@
     "criteriaCS": "CS ≥ {value}",
     "criteriaFloor": "Floor ≤ {value}",
     "unlockConfirm": "Evet, aç",
-    "cancelBtn": "İptal"
+    "cancelBtn": "İptal",
+    "pollTitle": "Yeni Anket",
+    "pollQuestionLabel": "Soru",
+    "pollQuestionPlaceholder": "Örn. Kaptan kim olmalı?",
+    "pollDescriptionLabel": "Açıklama (isteğe bağlı)",
+    "pollDescriptionPlaceholder": "Anket hakkında daha fazla bilgi...",
+    "pollOptionsLabel": "Seçenekler (2-4)",
+    "pollAddOption": "Seçenek ekle",
+    "pollPriceLabel": "Fiyat ($SCOUT)",
+    "pollPriceHint": "%70 sana, %30 platform",
+    "pollDurationLabel": "Süre",
+    "pollDuration1d": "1 Gün",
+    "pollDuration3d": "3 Gün",
+    "pollDuration7d": "7 Gün",
+    "pollSubmitBtn": "Anket Oluştur",
+    "pollErrorQuestion": "Soru: min. 5 karakter ({count}/5)",
+    "pollErrorOptions": "Min. 2 seçenek gerekli",
+    "pollErrorPrice": "Fiyat: 1-10.000 $SCOUT",
+    "rumorCatRumor": "Söylenti",
+    "rumorCatInsider": "İç Bilgi",
+    "rumorCatSource": "Kaynak",
+    "readersCount": "{count} Okuyucu",
+    "unlockDeduction": "{price} $SCOUT bakiyenden düşürülecek"
   },
   "profile": {
     "title": "Profil",
@@ -1309,7 +1340,14 @@
     "rankLabel": "Sıra",
     "holdingsTitle": "Varlıklar",
     "noHoldings": "Portföyde henüz DPC yok",
-    "goToMarket": "Pazara Git"
+    "goToMarket": "Pazara Git",
+    "walletTitle": "Bakiye",
+    "walletAvailable": "Kullanılabilir bakiye",
+    "depositBtn": "Yatır",
+    "scoutScoreTitle": "Scout Puanı",
+    "pointsLabel": "Puan",
+    "rankLabel2": "Sıra #{rank}",
+    "unlockFor": "{price} $SCOUT ile aç"
   },
   "player": {
     "overview": "Genel Bakış",
@@ -1401,7 +1439,16 @@
     "statMinutes": "Dakika",
     "statTrend": "Trend",
     "statFloor": "Floor",
-    "tapToFlip": "Çevirmek için dokun"
+    "tapToFlip": "Çevirmek için dokun",
+    "buysSentiment": "Alışlar",
+    "sellsSentiment": "Satışlar",
+    "sentimentAria": "Piyasa duyarlılığı: %{pct} {label}",
+    "supplyAria": "DPC Dağılımı: {sold} / {supply} satıldı",
+    "supplySold": "{supply} içinden satıldı",
+    "supplyReserved": "Rezerve",
+    "supplyAvailable": "Mevcut",
+    "supplyOtherHolders": "Diğer Sahipler",
+    "supplyYouOwn": "Senin"
   },
   "club": {
     "overview": "Genel Bakış",
@@ -1541,7 +1588,11 @@
     "foundingMultiplier": "Kurucu {n}x",
     "aboMultiplier": "Abonelik {n}x",
     "airdropComingSoon": "$SCOUT Airdrop — Çok Yakında",
-    "rankOf": "{total} içinden"
+    "rankOf": "{total} içinden",
+    "inviteFriends": "Arkadaşlarını Davet Et",
+    "invitedCount": "{count} davet edildi",
+    "shareLink": "Bağlantı paylaş",
+    "referralShareText": "BeScout'a katıl — Futbol fanları için DPC işlemleri, Fantasy ve daha fazlası!"
   },
   "admin": {
     "overview": "Genel Bakış",
@@ -3025,5 +3076,29 @@
     "saving": "Kaydediliyor...",
     "updateValuation": "Değerlendirmeyi güncelle",
     "submitValuation": "Değerlendirme gönder"
+  },
+  "pwa": {
+    "installTitle": "Uygulamayı Yükle",
+    "installSubtitle": "BeScout ana ekranında",
+    "installBtn": "Yükle"
+  },
+  "feedback": {
+    "title": "Geri Bildirim Gönder",
+    "typeBug": "Hata Bildir",
+    "typeFeature": "Özellik İsteği",
+    "typeOther": "Diğer",
+    "placeholderBug": "Hatayı açıkla — ne bekliyordun, ne oldu?",
+    "placeholderFeature": "Hangi özelliği istiyorsun ve neden?",
+    "placeholderOther": "Bize ne söylemek istersin?",
+    "messageLabel": "Geri bildirim mesajı",
+    "submitBtn": "Geri Bildirim Gönder",
+    "successToast": "Geri bildirimin için teşekkürler!",
+    "errorToast": "Geri bildirim gönderilemedi."
+  },
+  "sponsor": {
+    "presentedBy": "Sunan",
+    "sponsoredBy": "Sponsor",
+    "partner": "Partner",
+    "sponsorPlaceholder": "Sponsor Alanı"
   }
 }

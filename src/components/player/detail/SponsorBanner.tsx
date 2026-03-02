@@ -2,32 +2,33 @@
 
 import { useRef, useEffect, useCallback } from 'react';
 import { Zap } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useSponsor } from '@/lib/queries';
 import { trackImpression, trackClick } from '@/lib/services/sponsorTracking';
 import type { SponsorPlacement } from '@/types';
 
-const PLACEMENT_LABELS: Record<SponsorPlacement, string> = {
-  home_hero: 'Präsentiert von',
-  home_mid: 'Gesponsert von',
-  market_top: 'Gesponsert von',
-  club_hero: 'Präsentiert von',
-  player_mid: 'Gesponsert von',
-  player_footer: 'Partner',
-  event: 'Gesponsert von',
-  market_transferlist: 'Gesponsert von',
-  market_ipo: 'Gesponsert von',
-  market_portfolio: 'Partner',
-  market_offers: 'Gesponsert von',
-  club_community: 'Gesponsert von',
-  club_players: 'Gesponsert von',
-  fantasy_spieltag: 'Gesponsert von',
-  fantasy_pitch: 'Präsentiert von',
-  fantasy_leaderboard: 'Gesponsert von',
-  fantasy_history: 'Gesponsert von',
-  profile_hero: 'Präsentiert von',
-  profile_footer: 'Partner',
-  community_feed: 'Gesponsert von',
-  community_research: 'Gesponsert von',
+const PLACEMENT_LABEL_KEYS: Record<SponsorPlacement, string> = {
+  home_hero: 'presentedBy',
+  home_mid: 'sponsoredBy',
+  market_top: 'sponsoredBy',
+  club_hero: 'presentedBy',
+  player_mid: 'sponsoredBy',
+  player_footer: 'partner',
+  event: 'sponsoredBy',
+  market_transferlist: 'sponsoredBy',
+  market_ipo: 'sponsoredBy',
+  market_portfolio: 'partner',
+  market_offers: 'sponsoredBy',
+  club_community: 'sponsoredBy',
+  club_players: 'sponsoredBy',
+  fantasy_spieltag: 'sponsoredBy',
+  fantasy_pitch: 'presentedBy',
+  fantasy_leaderboard: 'sponsoredBy',
+  fantasy_history: 'sponsoredBy',
+  profile_hero: 'presentedBy',
+  profile_footer: 'partner',
+  community_feed: 'sponsoredBy',
+  community_research: 'sponsoredBy',
 };
 
 interface SponsorBannerProps {
@@ -39,6 +40,7 @@ interface SponsorBannerProps {
 }
 
 export default function SponsorBanner({ placement, clubId, sponsor: directSponsor, className = '' }: SponsorBannerProps) {
+  const ts = useTranslations('sponsor');
   const { data: dbSponsor } = useSponsor(placement, clubId);
   const bannerRef = useRef<HTMLDivElement>(null);
   const impressionTracked = useRef(false);
@@ -89,7 +91,7 @@ export default function SponsorBanner({ placement, clubId, sponsor: directSponso
 
   if (!sponsor) return null;
 
-  const label = PLACEMENT_LABELS[placement];
+  const label = ts(PLACEMENT_LABEL_KEYS[placement]);
 
   const content = (
     <div ref={bannerRef} className={`bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-2.5 flex items-center justify-between ${className}`}>

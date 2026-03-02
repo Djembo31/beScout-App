@@ -131,6 +131,7 @@ function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
 
 function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo }: { fixture: Fixture | null; isOpen: boolean; onClose: () => void; sponsorName?: string; sponsorLogo?: string }) {
   const ts = useTranslations('spieltag');
+  const tsp = useTranslations('sponsor');
   const [stats, setStats] = useState<FixturePlayerStat[]>([]);
   const [loading, setLoading] = useState(false);
   const [detailTab, setDetailTab] = useState<'formation' | 'players'>('formation');
@@ -224,7 +225,7 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
                     ) : (
                       <Star aria-hidden="true" className="size-3 text-gold" />
                     )}
-                    <span className="text-xs font-bold text-white/50 uppercase">{sponsor?.sponsorName || 'Sponsor-Fläche'}</span>
+                    <span className="text-xs font-bold text-white/50 uppercase">{sponsor?.sponsorName || tsp('sponsorPlaceholder')}</span>
                     {sponsor?.sponsorLogo ? (
                       <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
                     ) : (
