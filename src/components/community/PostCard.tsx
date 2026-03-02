@@ -107,7 +107,7 @@ export default function PostCard({
         <div className="flex flex-col items-center gap-0.5">
           <button
             onClick={() => onVote(post.id, myVote === 1 ? 0 : 1)}
-            aria-label={myVote === 1 ? 'Upvote entfernen' : 'Upvote'}
+            aria-label={myVote === 1 ? tc('removeUpvote') : tc('upvoteLabel')}
             className={cn(
               'p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors',
               myVote === 1 ? 'bg-green-500/20 text-green-500' : 'text-white/30 hover:text-green-500 hover:bg-white/5'
@@ -126,7 +126,7 @@ export default function PostCard({
           </span>
           <button
             onClick={() => onVote(post.id, myVote === -1 ? 0 : -1)}
-            aria-label={myVote === -1 ? 'Downvote entfernen' : 'Downvote'}
+            aria-label={myVote === -1 ? tc('removeDownvote') : tc('downvoteLabel')}
             className={cn(
               'p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors',
               myVote === -1 ? 'bg-red-500/20 text-red-300' : 'text-white/30 hover:text-red-300 hover:bg-white/5'
@@ -156,21 +156,21 @@ export default function PostCard({
               {authorSubscriptionTier && <SubscriptionBadge tier={authorSubscriptionTier} size="sm" />}
               {post.post_type === 'club_news' && (
                 <span className="text-[10px] bg-gold/15 text-gold px-1.5 py-0.5 rounded-full border border-gold/20 font-semibold">
-                  Offiziell
+                  {tc('officialLabel')}
                 </span>
               )}
               <span className="text-[10px] text-white/30 px-1.5 py-0.5 bg-white/5 rounded">Lv{post.author_level}</span>
               {post.is_pinned && (
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gold/10 text-gold border border-gold/20">
                   <Pin className="w-2.5 h-2.5" />
-                  Gepinnt
+                  {tc('pinnedLabel')}
                 </span>
               )}
               <span className="text-xs text-white/40">{formatTimeAgo(post.created_at)}</span>
             </div>
             {(isOwn || isClubAdmin) && (
               <div className="relative">
-                <button onClick={() => setShowMenu(!showMenu)} aria-label="Post-Optionen" aria-expanded={showMenu} className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-white/10 rounded-lg text-white/30 hover:text-white">
+                <button onClick={() => setShowMenu(!showMenu)} aria-label={tc('postOptionsLabel')} aria-expanded={showMenu} className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-white/10 rounded-lg text-white/30 hover:text-white">
                   <MoreHorizontal className="w-4 h-4" aria-hidden="true" />
                 </button>
                 {showMenu && (
@@ -181,7 +181,7 @@ export default function PostCard({
                         className="w-full px-3 py-2 text-left text-sm text-white/70 hover:bg-white/5 flex items-center gap-2"
                       >
                         <Pin className="w-3.5 h-3.5" />
-                        {post.is_pinned ? 'Lösen' : 'Anpinnen'}
+                        {post.is_pinned ? tc('unpinAction') : tc('pinAction')}
                       </button>
                     )}
                     {isOwn && (
@@ -190,7 +190,7 @@ export default function PostCard({
                         className="w-full px-3 py-2 text-left text-sm text-red-300 hover:bg-white/5 flex items-center gap-2"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                        Löschen
+                        {tc('deleteAction')}
                       </button>
                     )}
                     {isClubAdmin && !isOwn && onAdminDelete && (
@@ -199,7 +199,7 @@ export default function PostCard({
                         className="w-full px-3 py-2 text-left text-sm text-red-300 hover:bg-white/5 flex items-center gap-2"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                        Admin: Löschen
+                        {tc('adminDeleteAction')}
                       </button>
                     )}
                   </div>
@@ -211,7 +211,7 @@ export default function PostCard({
           {/* Delete Confirmation */}
           {confirmDelete && (
             <div className="flex items-center gap-2 mb-2 px-2 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20">
-              <span className="text-xs text-red-300 flex-1">Post unwiderruflich löschen?</span>
+              <span className="text-xs text-red-300 flex-1">{tc('deleteConfirmMsg')}</span>
               <button
                 onClick={() => {
                   if (confirmDelete === 'admin' && onAdminDelete) onAdminDelete(post.id);
@@ -220,13 +220,13 @@ export default function PostCard({
                 }}
                 className="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-colors"
               >
-                Ja, löschen
+                {tc('deleteConfirmYes')}
               </button>
               <button
                 onClick={() => setConfirmDelete(null)}
                 className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white/5 text-white/50 hover:bg-white/10 transition-colors"
               >
-                Abbrechen
+                {tc('cancelAction')}
               </button>
             </div>
           )}
@@ -244,12 +244,12 @@ export default function PostCard({
               )}
               {post.post_type === 'player_take' && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border bg-gold/10 text-gold border-gold/20">
-                  Spieler-Take
+                  {tc('playerTakeLabel')}
                 </span>
               )}
               {post.post_type === 'transfer_rumor' && (
                 <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] font-semibold border bg-red-500/15 text-red-300 border-red-500/20">
-                  Gerücht
+                  {tc('transferRumorLabel')}
                 </span>
               )}
               {post.post_type === 'club_news' && (
@@ -347,7 +347,7 @@ export default function PostCard({
                 }
               }}>
               {copied ? <CheckCircle2 className="w-3 h-3" /> : <Send className="w-3 h-3" />}
-              {copied ? 'Kopiert!' : 'Teilen'}
+              {copied ? tc('copiedLabel') : tc('shareLabel')}
             </button>
           </div>
 

@@ -2,22 +2,23 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowUp, ArrowDown, Trash2, Loader2, Send, BadgeCheck, MessageSquare } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { getReplies, createReply, deletePost, votePost, getUserPostVotes } from '@/lib/services/posts';
 import type { PostWithAuthor } from '@/types';
 
-function formatTimeAgo(dateStr: string): string {
+function formatTimeAgo(dateStr: string, nowLabel: string, dateLocale: string): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
   const diffMs = now - then;
   const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return 'Jetzt';
+  if (mins < 1) return nowLabel;
   if (mins < 60) return `${mins}m`;
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}h`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d`;
-  return new Date(dateStr).toLocaleDateString('de-DE');
+  return new Date(dateStr).toLocaleDateString(dateLocale);
 }
 
 type Props = {
@@ -27,6 +28,9 @@ type Props = {
 };
 
 export default function PostReplies({ postId, userId, onRepliesCountChange }: Props) {
+  const tc = useTranslations('community');
+  const locale = useLocale();
+  const dateLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
   const [replies, setReplies] = useState<PostWithAuthor[]>([]);
   const [loading, setLoading] = useState(true);
   const [replyText, setReplyText] = useState('');
@@ -111,7 +115,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
           {replies.length === 0 && (
             <div className="text-center py-2 mb-3">
               <MessageSquare className="w-6 h-6 mx-auto mb-1 text-white/10" />
-              <div className="text-xs text-white/30 italic">Noch keine Antworten — sei der Erste!</div>
+              <div className="text-xs text-white/30 italic">{tc('noRepliesYet')}</div>
             </div>
           )}
           {replies.length > 0 && (
@@ -128,7 +132,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
                       <span className="font-bold text-xs">{reply.author_display_name || reply.author_handle}</span>
                       {reply.author_verified && <BadgeCheck className="w-3 h-3 text-gold" />}
                       <span className="text-[10px] text-white/30 px-1 py-0.5 bg-white/5 rounded">Lv{reply.author_level}</span>
-                      <span className="text-[10px] text-white/30">{formatTimeAgo(reply.created_at)}</span>
+                      <span className="text-[10px] text-white/30">{formatTimeAgo(reply.created_at, tc('timeJust'), dateLocale)}</span>
                     </div>
 
                     {/* Reply text */}
@@ -170,14 +174,14 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
                           className="flex items-center gap-0.5 hover:text-red-300 transition-colors opacity-0 group-hover:opacity-100"
                         >
                           <Trash2 className="w-3 h-3" />
-                          <span>Löschen</span>
+                          <span>{tc('replyDeleteLabel')}</span>
                         </button>
                       )}
                       {confirmDeleteId === reply.id && (
                         <>
-                          <span className="text-red-300 text-[10px]">Löschen?</span>
-                          <button onClick={() => { handleDelete(reply.id); setConfirmDeleteId(null); }} className="text-red-300 hover:text-red-200 font-bold text-[10px]">Ja</button>
-                          <button onClick={() => setConfirmDeleteId(null)} className="text-white/40 hover:text-white text-[10px]">Nein</button>
+                          <span className="text-red-300 text-[10px]">{tc('replyDeleteConfirm')}</span>
+                          <button onClick={() => { handleDelete(reply.id); setConfirmDeleteId(null); }} className="text-red-300 hover:text-red-200 font-bold text-[10px]">{tc('replyYes')}</button>
+                          <button onClick={() => setConfirmDeleteId(null)} className="text-white/40 hover:text-white text-[10px]">{tc('replyNo')}</button>
                         </>
                       )}
                     </div>
@@ -195,7 +199,7 @@ export default function PostReplies({ postId, userId, onRepliesCountChange }: Pr
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value.slice(0, 300))}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
-                placeholder="Antwort schreiben..."
+                placeholder={tc('replyPlaceholder')}
                 className="w-full px-3 py-1.5 rounded-lg text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 pr-12"
               />
               {replyText.length > 0 && (

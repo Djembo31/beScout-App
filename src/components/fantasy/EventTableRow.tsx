@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { CheckCircle2, Heart } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import type { FantasyEvent } from './types';
@@ -17,6 +18,7 @@ export const EventTableRow = ({
   onView: () => void;
   onToggleInterest: () => void;
 }) => {
+  const t = useTranslations('fantasy');
   const statusStyle = getStatusStyle(event.status);
   const typeStyle = getTypeStyle(event.type);
 
@@ -30,7 +32,7 @@ export const EventTableRow = ({
         <div className="flex items-center gap-2">
           {statusStyle.pulse && <div className={cn('size-2 rounded-full animate-pulse motion-reduce:animate-none', statusStyle.bg)} />}
           <span className={`text-xs font-medium ${statusStyle.text.replace('text-white', 'text-' + statusStyle.bg.split('-')[1])}`}>
-            {event.status === 'ended' ? 'Beendet' : event.status === 'running' ? 'Läuft' : event.status === 'late-reg' ? 'Late Reg' : formatCountdown(event.lockTime)}
+            {event.status === 'ended' ? t('statusEnded') : event.status === 'running' ? t('statusRunning') : event.status === 'late-reg' ? t('statusLateReg') : formatCountdown(event.lockTime)}
           </span>
         </div>
       </td>
@@ -45,7 +47,7 @@ export const EventTableRow = ({
       {/* Teilnahme */}
       <td className="py-3 px-3 text-right">
         <span className={`font-mono text-sm ${event.buyIn === 0 ? 'text-green-500' : 'text-white'}`}>
-          {event.buyIn === 0 ? 'Kostenlos' : event.buyIn}
+          {event.buyIn === 0 ? t('freeLabel') : event.buyIn}
         </span>
       </td>
 
@@ -82,7 +84,7 @@ export const EventTableRow = ({
       <td className="py-3 px-2">
         <button
           onClick={(e) => { e.stopPropagation(); onToggleInterest(); }}
-          aria-label={event.isInterested ? 'Aus Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
+          aria-label={event.isInterested ? t('removeFavorite') : t('addFavorite')}
           className={cn('p-1 rounded transition-colors', event.isInterested ? 'text-pink-400' : 'text-white/20 hover:text-white/40')}
         >
           <Heart className={cn('size-4', event.isInterested && 'fill-current')} aria-hidden="true" />
@@ -92,7 +94,7 @@ export const EventTableRow = ({
       {/* Action */}
       <td className="py-3 px-3">
         <Button variant={event.isJoined ? 'outline' : 'gold'} size="sm" onClick={(e) => { e.stopPropagation(); onView(); }}>
-          {event.isJoined && event.status === 'ended' ? 'Ergebnisse' : event.isJoined && event.status === 'running' ? 'Nimmt teil' : event.isJoined ? 'Lineup' : event.status === 'ended' ? 'Ergebnisse' : event.status === 'running' ? 'Läuft' : 'Join'}
+          {event.isJoined && event.status === 'ended' ? t('resultsBtn') : event.isJoined && event.status === 'running' ? t('joinedBtn') : event.isJoined ? t('lineupBtn') : event.status === 'ended' ? t('resultsBtn') : event.status === 'running' ? t('runningBtn') : 'Join'}
         </Button>
       </td>
     </tr>

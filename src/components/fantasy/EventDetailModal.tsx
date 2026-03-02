@@ -126,7 +126,7 @@ export const EventDetailModal = ({
   // Handle reset event (testing tool)
   const handleResetEvent = async () => {
     if (!event || resetting) return;
-    if (!confirm('Event wirklich zurücksetzen? Scores, Ranks und Rewards werden gelöscht.')) return;
+    if (!confirm(t('confirmResetMsg'))) return;
     setResetting(true);
     try {
       const result = await resetEvent(event.id);
@@ -139,12 +139,12 @@ export const EventDetailModal = ({
         setScoringJustFinished(false);
         setTab('overview');
         onReset(event);
-        alert('Event wurde zurückgesetzt!');
+        alert(t('resetSuccess'));
       } else {
-        alert(`Reset fehlgeschlagen: ${result.error}`);
+        alert(t('resetFailed', { error: result.error ?? 'Unknown' }));
       }
     } catch (e: unknown) {
-      alert(`Fehler: ${e instanceof Error ? e.message : 'Unbekannt'}`);
+      alert(t('errorShort', { msg: e instanceof Error ? e.message : 'Unknown' }));
     } finally {
       setResetting(false);
     }
@@ -208,14 +208,14 @@ export const EventDetailModal = ({
 
   const handleLeave = async () => {
     if (!user || !event || leaving) return;
-    if (confirm(`Möchtest du dich wirklich vom Event "${event.name}" abmelden?`)) {
+    if (confirm(t('confirmLeaveMsg', { name: event.name }))) {
       setLeaving(true);
       try {
         // Parent (handleLeaveEvent) handles: removeLineup + refund + cache invalidation
         await onLeave(event);
         onClose();
       } catch (e: unknown) {
-        alert(`Fehler beim Abmelden: ${e instanceof Error ? e.message : 'Unbekannter Fehler'}`);
+        alert(t('leaveError', { msg: e instanceof Error ? e.message : 'Unknown' }));
       } finally {
         setLeaving(false);
       }
@@ -382,11 +382,11 @@ export const EventDetailModal = ({
 
   const getPlayerStatusStyle = (s: UserDpcHolding['status']) => {
     switch (s) {
-      case 'fit': return { icon: '🟢', label: 'Fit', color: 'text-green-500' };
-      case 'injured': return { icon: '🔴', label: 'Verletzt', color: 'text-red-400' };
-      case 'suspended': return { icon: '⛔', label: 'Gesperrt', color: 'text-orange-400' };
-      case 'doubtful': return { icon: '🟡', label: 'Fraglich', color: 'text-yellow-400' };
-      default: return { icon: '🟢', label: 'Fit', color: 'text-white/50' };
+      case 'fit': return { icon: '🟢', label: t('statusFit'), color: 'text-green-500' };
+      case 'injured': return { icon: '🔴', label: t('statusInjured'), color: 'text-red-400' };
+      case 'suspended': return { icon: '⛔', label: t('statusSuspended'), color: 'text-orange-400' };
+      case 'doubtful': return { icon: '🟡', label: t('statusDoubtful'), color: 'text-yellow-400' };
+      default: return { icon: '🟢', label: t('statusFit'), color: 'text-white/50' };
     }
   };
 
@@ -394,7 +394,7 @@ export const EventDetailModal = ({
   const overBudget = salaryCap != null && totalSalary > salaryCap;
 
   const handleConfirmJoin = () => {
-    if (!isLineupComplete) { alert('Bitte stelle deine komplette Aufstellung auf!'); return; }
+    if (!isLineupComplete) { alert(t('incompleteLineupAlert')); return; }
     if (!reqCheck.ok) { alert(reqCheck.message); return; }
     setShowJoinConfirm(true);
   };
@@ -449,12 +449,12 @@ export const EventDetailModal = ({
           {isScored ? (
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-purple-500/20 text-purple-300">
               <Trophy aria-hidden="true" className="size-3.5" />
-              <span className="text-xs font-bold">Ausgewertet</span>
+              <span className="text-xs font-bold">{t('statusScored')}</span>
             </div>
           ) : event.isJoined ? (
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-green-500 text-white">
               <CheckCircle2 aria-hidden="true" className="size-3.5" />
-              <span className="text-xs font-bold">Nimmt teil</span>
+              <span className="text-xs font-bold">{t('statusJoined')}</span>
             </div>
           ) : (
             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded ${statusStyle.bg} ${statusStyle.text}`}>
@@ -553,29 +553,29 @@ export const EventDetailModal = ({
                     <div className="font-bold">{event.format} • {event.mode === 'league' ? 'Liga' : 'Turnier'}</div>
                   </div>
                   <div className="p-3 bg-white/[0.03] rounded-lg">
-                    <div className="text-xs text-white/40">DPC pro Slot</div>
+                    <div className="text-xs text-white/40">{t('dpcPerSlotLabel')}</div>
                     <div className="font-bold">{event.requirements.dpcPerSlot ?? 1} DPC</div>
                   </div>
                   <div className="p-3 bg-white/[0.03] rounded-lg">
-                    <div className="text-xs text-white/40">Start</div>
-                    <div className="text-sm">{new Date(event.startTime).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                    <div className="text-xs text-white/40">{t('startLabel')}</div>
+                    <div className="text-sm">{new Date(event.startTime).toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                   </div>
                   <div className="p-3 bg-white/[0.03] rounded-lg">
-                    <div className="text-xs text-white/40">Teilnehmer</div>
-                    <div className="font-bold">{event.participants}{event.maxParticipants ? ` / ${event.maxParticipants}` : ' (unbegrenzt)'}</div>
+                    <div className="text-xs text-white/40">{t('participantsLabel')}</div>
+                    <div className="font-bold">{event.participants}{event.maxParticipants ? ` / ${event.maxParticipants}` : ` (${t('unlimited')})`}</div>
                   </div>
                 </div>
               </div>
 
               {/* Teilnahmebedingungen */}
               <div>
-                <h3 className="font-bold mb-2">Teilnahmebedingungen</h3>
+                <h3 className="font-bold mb-2">{t('requirementsTitle')}</h3>
                 <div className="space-y-2">
                   {/* Always show DPC per slot requirement */}
                   <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                     <div className="flex items-center gap-2">
                       <Layers aria-hidden="true" className="size-4 text-gold" />
-                      <span>{event.requirements.dpcPerSlot ?? 1} DPC pro Aufstellungsplatz</span>
+                      <span>{t('dpcPerSlotReq', { n: event.requirements.dpcPerSlot ?? 1 })}</span>
                     </div>
                     <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
                   </div>
@@ -583,7 +583,7 @@ export const EventDetailModal = ({
                     <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
                         <Briefcase aria-hidden="true" className="size-4 text-gold" />
-                        <span>Min. {event.requirements.minDpc} DPC gesamt</span>
+                        <span>{t('minDpcReq', { n: event.requirements.minDpc })}</span>
                       </div>
                       <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
                     </div>
@@ -592,7 +592,7 @@ export const EventDetailModal = ({
                     <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
                         <Building2 aria-hidden="true" className="size-4 text-green-500" />
-                        <span>Min. {event.requirements.minClubPlayers} {event.clubName || 'Club'}-Spieler</span>
+                        <span>{t('minClubPlayersReq', { n: event.requirements.minClubPlayers, club: event.clubName || 'Club' })}</span>
                       </div>
                       <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
                     </div>
@@ -601,7 +601,7 @@ export const EventDetailModal = ({
                     <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
                         <Star aria-hidden="true" className="size-4 text-purple-400" />
-                        <span>Scout Level {event.requirements.minScoutLevel}+</span>
+                        <span>{t('minScoutLevelReq', { n: event.requirements.minScoutLevel })}</span>
                       </div>
                       <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
                     </div>
@@ -610,7 +610,7 @@ export const EventDetailModal = ({
                     <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
                         <Shield aria-hidden="true" className="size-4 text-sky-400" />
-                        <span>Nur {event.requirements.specificClub}-Spieler</span>
+                        <span>{t('specificClubReq', { club: event.requirements.specificClub })}</span>
                       </div>
                       <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
                     </div>
@@ -620,7 +620,7 @@ export const EventDetailModal = ({
                     <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                       <div className="flex items-center gap-2">
                         <Coins aria-hidden="true" className="size-4 text-gold" />
-                        <span>Eintrittsgebühr: {event.buyIn} $SCOUT</span>
+                        <span>{t('entryFeeReq', { n: event.buyIn })}</span>
                       </div>
                       <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
                     </div>
@@ -630,7 +630,7 @@ export const EventDetailModal = ({
 
               {/* Rewards */}
               <div>
-                <h3 className="font-bold mb-2">Rewards</h3>
+                <h3 className="font-bold mb-2">{t('rewardsTitle')}</h3>
                 <div className="space-y-2">
                   {event.rewards.map((r, i) => (
                     <div key={i} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
@@ -647,12 +647,12 @@ export const EventDetailModal = ({
               {/* Participants List */}
               <div className="pt-4 border-t border-white/10">
                 <div className="font-bold mb-3 flex items-center justify-between">
-                  <span>Teilnehmer ({participantCount}{event.maxParticipants ? ` / ${event.maxParticipants}` : ''})</span>
-                  {participantCount > 0 && <span className="text-xs text-white/50">Top 10 + Du</span>}
+                  <span>{event.maxParticipants ? t('participantsCountMax', { count: participantCount, max: event.maxParticipants }) : t('participantsCount', { count: participantCount })}</span>
+                  {participantCount > 0 && <span className="text-xs text-white/50">{t('topPlusYou')}</span>}
                 </div>
                 <div className="space-y-2">
                   {participants.length === 0 ? (
-                    <div className="text-white/40 text-xs">Noch keine Teilnehmer. Sei der Erste!</div>
+                    <div className="text-white/40 text-xs">{t('noParticipantsYet')}</div>
                   ) : (
                     participants.slice(0, 5).map(p => (
                       <div key={p.id} className={`flex items-center gap-3 p-2 rounded-lg ${p.id === user?.id ? 'bg-gold/10 border border-gold/30' : 'bg-white/5'}`}>
@@ -661,7 +661,7 @@ export const EventDetailModal = ({
                         </div>
                         <div className="flex-1 text-xs">
                           <div className={`font-medium ${p.id === user?.id ? 'text-gold' : 'text-white'}`}>
-                            {p.display_name || p.handle} {p.id === user?.id && '(Du)'}
+                            {p.display_name || p.handle} {p.id === user?.id && t('youLabel')}
                           </div>
                         </div>
                       </div>
@@ -669,7 +669,7 @@ export const EventDetailModal = ({
                   )}
                   {participantCount > participants.length && (
                     <div className="text-center text-xs text-white/40 pt-1">
-                      + {participantCount - participants.length} weitere
+                      {t('moreParticipants', { n: participantCount - participants.length })}
                     </div>
                   )}
                 </div>
@@ -680,11 +680,11 @@ export const EventDetailModal = ({
                 <div className="p-4 bg-green-500/10 rounded-xl border border-green-500/20">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm text-green-500">Dein Rang</div>
+                      <div className="text-sm text-green-500">{t('yourRankLabel')}</div>
                       <div className="text-2xl font-mono font-black text-green-500">#{event.userRank}</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm text-white/50">Punkte</div>
+                      <div className="text-sm text-white/50">{t('pointsLabel')}</div>
                       <div className="text-2xl font-mono font-bold">{event.userPoints}</div>
                     </div>
                   </div>
@@ -703,17 +703,17 @@ export const EventDetailModal = ({
               {isFullyLocked && !isScored && (
                 <div className="flex items-center gap-2 p-3 bg-white/[0.03] border border-white/10 rounded-lg">
                   <Lock aria-hidden="true" className="size-4 text-white/40" />
-                  <span className="text-sm text-white/50">Event beendet</span>
+                  <span className="text-sm text-white/50">{t('eventEndedBanner')}</span>
                 </div>
               )}
               {/* Status banner — partially locked (per-fixture) */}
               {isPartiallyLocked && !isScored && (
                 <div className="flex items-center gap-2 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
                   <Lock aria-hidden="true" className="size-4 text-amber-400" />
-                  <span className="text-sm text-amber-300">Teilweise gesperrt — Spieler mit laufendem Spiel sind fixiert</span>
+                  <span className="text-sm text-amber-300">{t('partiallyLockedBanner')}</span>
                   {nextKickoff && (
                     <span className="text-xs text-amber-400/60 ml-auto font-mono tabular-nums">
-                      Nächster Anstoß: {new Date(nextKickoff).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                      {t('nextKickoffLabel', { time: new Date(nextKickoff).toLocaleTimeString(locale === 'tr' ? 'tr-TR' : 'de-DE', { hour: '2-digit', minute: '2-digit' }) })}
                     </span>
                   )}
                 </div>
@@ -722,7 +722,7 @@ export const EventDetailModal = ({
               {event.status === 'running' && !isPartiallyLocked && !isScored && (
                 <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
                   <Play aria-hidden="true" className="size-4 text-green-400" />
-                  <span className="text-sm text-green-300">Alle Spiele laufen — Aufstellung gesperrt</span>
+                  <span className="text-sm text-green-300">{t('allRunningBanner')}</span>
                 </div>
               )}
               {/* Progressive Score Banner */}
@@ -730,7 +730,7 @@ export const EventDetailModal = ({
                 <div className="px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <BarChart3 aria-hidden="true" className="size-4 text-green-400" />
-                    <span className="text-xs font-semibold text-green-300">Live-Punkte</span>
+                    <span className="text-xs font-semibold text-green-300">{t('livePointsLabel')}</span>
                   </div>
                   <div className="text-sm font-mono font-bold text-green-400 tabular-nums">
                     {(() => {
@@ -745,7 +745,7 @@ export const EventDetailModal = ({
                         total += isCpt ? Math.min(225, Math.round(score * 1.5)) : score;
                         playersScored++;
                       });
-                      return `${total} Pkt (${playersScored}/${formationSlots.length} Spieler)`;
+                      return t('livePtsCount', { total, scored: playersScored, max: formationSlots.length });
                     })()}
                   </div>
                 </div>
@@ -754,9 +754,9 @@ export const EventDetailModal = ({
                 <div className="flex items-center gap-2 p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
                   <Award aria-hidden="true" className="size-4 text-purple-400" />
                   <span className="text-sm text-purple-300 font-bold">
-                    {scoringJustFinished ? 'Gameweek ausgewertet — Deine Ergebnisse:' : 'Ausgewertet'}
+                    {scoringJustFinished ? t('gwScoredResults') : t('statusScored')}
                     {event.scoredAt && !scoringJustFinished && (
-                      <span className="font-normal text-purple-300/60"> am {new Date(event.scoredAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
+                      <span className="font-normal text-purple-300/60"> {t('scoredAt', { date: new Date(event.scoredAt).toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) })}</span>
                     )}
                   </span>
                 </div>
@@ -780,7 +780,7 @@ export const EventDetailModal = ({
                       onClick={() => setShowPresets(!showPresets)}
                       className="px-3 py-2 min-h-[44px] bg-white/5 border border-white/10 rounded-lg text-xs font-bold hover:bg-white/10 transition-colors flex items-center gap-1"
                     >
-                      <Briefcase aria-hidden="true" className="size-3.5" /> Vorlagen
+                      <Briefcase aria-hidden="true" className="size-3.5" /> {t('presetsLabel')}
                     </button>
                   </>
                 )}
@@ -789,23 +789,23 @@ export const EventDetailModal = ({
               {/* Presets Dropdown */}
               {showPresets && (
                 <div className="p-3 bg-white/[0.03] rounded-lg border border-white/10 space-y-2">
-                  <div className="text-xs font-bold text-white/60 mb-2">Aufstellungs-Vorlagen (max 5)</div>
+                  <div className="text-xs font-bold text-white/60 mb-2">{t('presetsTitle')}</div>
                   {presets.map((preset, i) => (
                     <div key={i} className="flex items-center justify-between p-2 bg-surface-base rounded-lg">
                       <button onClick={() => applyPreset(preset)} className="text-sm font-medium hover:text-gold transition-colors flex-1 text-left">
                         {preset.name} <span className="text-white/30 text-xs">({preset.formation})</span>
                       </button>
-                      <button onClick={() => deletePreset(i)} aria-label="Vorlage löschen" className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-red-500/20 rounded text-red-400">
+                      <button onClick={() => deletePreset(i)} aria-label={t('deletePresetLabel')} className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-red-500/20 rounded text-red-400">
                         <X aria-hidden="true" className="size-3" />
                       </button>
                     </div>
                   ))}
-                  {presets.length === 0 && <div className="text-xs text-white/30 text-center py-2">Keine Vorlagen gespeichert</div>}
+                  {presets.length === 0 && <div className="text-xs text-white/30 text-center py-2">{t('noPresets')}</div>}
                   <div className="flex gap-2 mt-2">
                     <input
                       value={presetName}
                       onChange={(e) => setPresetName(e.target.value)}
-                      placeholder="Vorlagenname..."
+                      placeholder={t('presetNamePlaceholder')}
                       className="flex-1 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs"
                     />
                     <button
@@ -813,7 +813,7 @@ export const EventDetailModal = ({
                       disabled={!presetName.trim() || selectedPlayers.length === 0}
                       className="px-3 py-1.5 bg-gold/20 text-gold rounded-lg text-xs font-bold disabled:opacity-30"
                     >
-                      Speichern
+                      {t('saveBtn')}
                     </button>
                   </div>
                 </div>
@@ -1027,14 +1027,14 @@ export const EventDetailModal = ({
                         <Trophy aria-hidden="true" className="size-6 text-gold" />
                       </div>
                       <div>
-                        <div className="text-xs text-white/50 uppercase font-bold">Dein Teamscore</div>
-                        <div className="text-3xl font-mono font-black text-gold">{myTotalScore} <span className="text-lg">Pkt</span></div>
+                        <div className="text-xs text-white/50 uppercase font-bold">{t('yourTeamScore')}</div>
+                        <div className="text-3xl font-mono font-black text-gold">{myTotalScore} <span className="text-lg">{t('ptsShort')}</span></div>
                       </div>
                     </div>
                     <div className="flex items-center gap-5">
                       {myRank && (
                         <div className="text-right">
-                          <div className="text-xs text-white/50 uppercase font-bold">Platzierung</div>
+                          <div className="text-xs text-white/50 uppercase font-bold">{t('placementLabel')}</div>
                           <div className={`text-3xl font-mono font-black ${myRank === 1 ? 'text-gold' : myRank <= 3 ? 'text-green-500' : 'text-white'}`}>
                             #{myRank}
                           </div>
@@ -1045,7 +1045,7 @@ export const EventDetailModal = ({
                         if (myEntry && myEntry.rewardAmount > 0) {
                           return (
                             <div className="text-right">
-                              <div className="text-xs text-white/50 uppercase font-bold">Prämie</div>
+                              <div className="text-xs text-white/50 uppercase font-bold">{t('rewardLabel')}</div>
                               <div className="text-xl font-mono font-black text-green-500">+{fmtScout(myEntry.rewardAmount / 100)} $SCOUT</div>
                             </div>
                           );
@@ -1065,8 +1065,8 @@ export const EventDetailModal = ({
                       <Zap aria-hidden="true" className="size-4 text-gold" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-bold text-white">Portfolio stärken?</div>
-                      <div className="text-[11px] text-white/40">Bessere Spieler = höhere Scores. Zum Marktplatz →</div>
+                      <div className="text-sm font-bold text-white">{t('strengthenPortfolio')}</div>
+                      <div className="text-[11px] text-white/40">{t('portfolioHint')}</div>
                     </div>
                     <ChevronRight aria-hidden="true" className="size-4 text-white/30 flex-shrink-0" />
                   </div>
@@ -1077,7 +1077,7 @@ export const EventDetailModal = ({
               {((isScored && slotScores) || (event?.status === 'running' && progressiveScores.size > 0)) && (
                 <div className="space-y-1.5">
                   <div className="text-xs text-white/40 font-bold uppercase px-1">
-                    {isScored ? 'Einzelbewertungen' : 'Live-Bewertungen'}
+                    {isScored ? t('scoreBreakdownLabel') : t('liveBreakdownLabel')}
                   </div>
                   {formationSlots.map(slot => {
                     const player = getSelectedPlayer(slot.slot);
@@ -1198,11 +1198,11 @@ export const EventDetailModal = ({
                 isLineupComplete ? (
                   <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/30 rounded-xl">
                     <CheckCircle2 aria-hidden="true" className="size-5 text-green-500 shrink-0" />
-                    <span className="text-sm font-bold text-green-500">Aufstellung vollständig — unten Teilnahme bestätigen!</span>
+                    <span className="text-sm font-bold text-green-500">{t('lineupComplete')}</span>
                   </div>
                 ) : (
                   <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
-                    <span className="text-sm text-white/60">{selectedPlayers.length}/{formationSlots.length} Spieler ausgewählt</span>
+                    <span className="text-sm text-white/60">{t('playersSelected', { n: selectedPlayers.length, m: formationSlots.length })}</span>
                     {!reqCheck.ok && (
                       <span className="text-xs text-orange-400 flex items-center gap-1">
                         <AlertCircle aria-hidden="true" className="size-3" />
@@ -1215,7 +1215,7 @@ export const EventDetailModal = ({
 
               {/* Player List with Stats & Status — hidden when fully locked or scored */}
               {!isReadOnly && !isScored && <div className="space-y-2">
-                <div className="text-sm font-bold text-white/70">Deine Spieler</div>
+                <div className="text-sm font-bold text-white/70">{t('yourPlayers')}</div>
                 {effectiveHoldings.map(player => {
                   const isSelected = selectedPlayers.some(sp => sp.playerId === player.id);
                   const fixtureLocked = isPlayerLocked(player.id);
@@ -1252,7 +1252,7 @@ export const EventDetailModal = ({
                           </span>
                         ) : player.isLocked ? (
                           <span className="text-xs text-orange-400 flex items-center gap-1" title={`In ${player.eventsUsing} Events`}>
-                            <Lock aria-hidden="true" className="size-3" /> Alle eingesetzt
+                            <Lock aria-hidden="true" className="size-3" /> {t('allDeployed')}
                           </span>
                         ) : isSelected ? (
                           <CheckCircle2 aria-hidden="true" className="size-4 text-green-500" />
@@ -1610,14 +1610,14 @@ export const EventDetailModal = ({
                 >
                   <CheckCircle2 aria-hidden="true" className="size-5" />
                   {isFull
-                    ? 'Event voll'
+                    ? t('eventFull')
                     : !isLineupComplete
-                    ? `Noch ${totalSlots - filledSlots} Spieler aufstellen`
+                    ? t('morePlayers', { n: totalSlots - filledSlots })
                     : !reqCheck.ok
                     ? reqCheck.message
                     : event.buyIn === 0
-                    ? 'Anmeldung bestätigen'
-                    : `Anmelden & ${fmtScout(event.buyIn)} $SCOUT zahlen`}
+                    ? t('confirmRegistration')
+                    : t('joinAndPay', { amount: fmtScout(event.buyIn) })}
                 </Button>
               </div>
             </div>
@@ -1635,7 +1635,7 @@ export const EventDetailModal = ({
               onClick={handleLeave}
               disabled={leaving}
             >
-              {leaving ? <><Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> Abmelden...</> : 'Abmelden'}
+              {leaving ? <><Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> {t('leavingBtn')}</> : t('leaveBtn')}
             </Button>
             <Button
               variant="gold"
@@ -1645,7 +1645,7 @@ export const EventDetailModal = ({
               className={!isLineupComplete || !reqCheck.ok ? 'opacity-50' : ''}
             >
               <Save aria-hidden="true" className="size-5" />
-              Aufstellung ändern
+              {t('editLineup')}
             </Button>
           </div>
         )}
@@ -1655,7 +1655,7 @@ export const EventDetailModal = ({
           <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
             <div className="flex items-center justify-center gap-2 py-3 px-4 bg-green-500/10 border border-green-500/30 rounded-xl">
               <Lock aria-hidden="true" className="size-4 text-green-500" />
-              <span className="text-sm font-bold text-green-500">Nimmt teil — Aufstellung gesperrt</span>
+              <span className="text-sm font-bold text-green-500">{t('joinedLocked')}</span>
             </div>
           </div>
         )}
@@ -1665,7 +1665,7 @@ export const EventDetailModal = ({
           <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
             <div className="flex items-center justify-center gap-2 py-3 px-4 bg-white/[0.03] border border-white/10 rounded-xl">
               <Play aria-hidden="true" className="size-4 text-white/50" />
-              <span className="text-sm text-white/50">Event läuft — Anmeldung geschlossen</span>
+              <span className="text-sm text-white/50">{t('eventRunningClosed')}</span>
             </div>
           </div>
         )}
