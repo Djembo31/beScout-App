@@ -83,8 +83,8 @@ export default function TradingCardFrame({
   const ringGlow = posRingGlow[pos];
   const flag = country ? countryToFlag(country) : '';
 
-  // Foil/holo effect based on L5 performance
-  const effectClass = l5 >= 80 ? 'holo-rainbow' : l5 >= 65 ? 'foil-shimmer' : '';
+  // Refractor on all cards, rainbow variant for ultra-rare
+  const effectClass = cn('refractor', l5 >= 80 && 'refractor-rainbow');
 
   // Initials fallback
   const initials = `${first?.[0] ?? ''}${last?.[0] ?? ''}`;

@@ -73,8 +73,8 @@ export default function DiscoveryCard({
         'flex-shrink-0 w-[calc((100vw-48px)/2.5)] md:w-[140px] max-w-[160px] bg-surface-base border border-white/[0.10] rounded-xl p-2.5 group relative overflow-hidden',
         variant === 'ipo' && 'shadow-glow-live',
         variant === 'trending' && 'shadow-[0_0_16px_rgba(255,59,105,0.15)]',
-        (variant === 'ipo' || variant === 'trending') && p.perf.l5 >= 65 && 'foil-shimmer',
-        p.perf.l5 >= 80 && 'holo-rainbow',
+        'refractor',
+        p.perf.l5 >= 80 && 'refractor-rainbow',
       )}
       style={{
         ...tiltProps.style,

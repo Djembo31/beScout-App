@@ -164,52 +164,60 @@ body {
 
 /* ── Design Identity: Trading Card × Stadium Atmosphere (Bold Pass) ── */
 
-/* Holographic foil for top performers (L5 ≥ 65) — Sorare-inspired */
+/* ── Refractor (Topps Chrome) — geometric grid + holographic color shift ── */
 @keyframes card-shimmer {
   0% { background-position: 200% 50%; }
   100% { background-position: -200% 50%; }
 }
-.foil-shimmer { position: relative; overflow: hidden; }
-.foil-shimmer::after {
-  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
-  background: linear-gradient(
-    115deg,
-    transparent 25%,
-    rgba(255,215,0,0.08) 35%,
-    rgba(14,165,233,0.12) 45%,
-    rgba(255,255,255,0.18) 50%,
-    rgba(244,63,94,0.12) 55%,
-    rgba(255,215,0,0.08) 65%,
-    transparent 75%
-  );
-  background-size: 200% 200%;
-  mix-blend-mode: screen;
-  animation: card-shimmer 4s ease-in-out infinite;
+
+.refractor { position: relative; overflow: hidden; }
+
+/* Static diamond grid lattice */
+.refractor::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; z-index: 2;
+  background:
+    repeating-linear-gradient(60deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 14px),
+    repeating-linear-gradient(-60deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 14px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 14px);
 }
 
-/* Holographic rainbow for ultra-rare (L5 ≥ 80) */
-.holo-rainbow { position: relative; overflow: hidden; }
-.holo-rainbow::after {
-  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+/* Holographic color sweep — fragments through the grid */
+.refractor::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; z-index: 3;
   background: linear-gradient(
     115deg,
     transparent 20%,
-    rgba(16,185,129,0.15) 30%,
-    rgba(14,165,233,0.20) 40%,
-    rgba(168,85,247,0.20) 50%,
-    rgba(244,63,94,0.20) 60%,
-    rgba(255,215,0,0.15) 70%,
-    transparent 80%
+    rgba(255,215,0,0.06) 28%,
+    rgba(16,185,129,0.10) 35%,
+    rgba(14,165,233,0.14) 42%,
+    rgba(168,85,247,0.10) 50%,
+    rgba(244,63,94,0.10) 58%,
+    rgba(255,215,0,0.06) 65%,
+    transparent 75%
   );
-  background-size: 200% 200%;
+  background-size: 300% 300%;
   mix-blend-mode: screen;
-  animation: card-shimmer 3s ease-in-out infinite;
+  animation: card-shimmer 5s ease-in-out infinite;
 }
 
-/* Foil/holo shimmer follows cursor on tilt-enabled cards */
+/* Ultra-rare rainbow variant (L5 ≥ 80) — intense holographic */
+.refractor-rainbow::after {
+  background: linear-gradient(
+    115deg,
+    transparent 15%,
+    rgba(16,185,129,0.18) 25%,
+    rgba(14,165,233,0.24) 35%,
+    rgba(168,85,247,0.24) 45%,
+    rgba(244,63,94,0.24) 55%,
+    rgba(255,215,0,0.18) 65%,
+    transparent 80%
+  );
+  animation: card-shimmer 3.5s ease-in-out infinite;
+}
+
+/* Refractor follows cursor on tilt-enabled cards */
 @media (hover: hover) {
-  [data-tilt].foil-shimmer::after,
-  [data-tilt].holo-rainbow::after {
+  [data-tilt].refractor::after {
     animation: none;
     background-position: calc(var(--tilt-x, 0.5) * 400% - 100%) calc(var(--tilt-y, 0.5) * 400% - 100%);
     transition: background-position 150ms ease-out;
