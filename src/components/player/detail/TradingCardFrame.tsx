@@ -120,7 +120,7 @@ export default function TradingCardFrame({
         >
           {/* ===== FRONT FACE ===== */}
           <div
-            className="absolute inset-0 rounded-2xl overflow-hidden"
+            className="absolute inset-0 rounded-2xl overflow-hidden card-metallic"
             style={{ backfaceVisibility: 'hidden' }}
           >
             {/* Background: carbon fiber + position color wash */}
@@ -267,7 +267,7 @@ export default function TradingCardFrame({
           {/* ===== BACK FACE ===== */}
           {backStats && (
             <div
-              className="absolute inset-0 rounded-2xl overflow-hidden"
+              className="absolute inset-0 rounded-2xl overflow-hidden card-metallic"
               style={{
                 backfaceVisibility: 'hidden',
                 transform: 'rotateY(180deg)',

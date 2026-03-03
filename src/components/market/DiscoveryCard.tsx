@@ -70,7 +70,7 @@ export default function DiscoveryCard({
       {...tiltProps}
       href={`/player/${p.id}`}
       className={cn(
-        'flex-shrink-0 w-[calc((100vw-48px)/2.5)] md:w-[140px] max-w-[160px] bg-surface-base border border-white/[0.10] rounded-xl p-2.5 group relative overflow-hidden',
+        'flex-shrink-0 w-[calc((100vw-48px)/2.5)] md:w-[140px] max-w-[160px] bg-surface-base border border-white/[0.10] rounded-xl p-2.5 group relative overflow-hidden card-metallic',
         variant === 'ipo' && 'shadow-glow-live',
         variant === 'trending' && 'shadow-[0_0_16px_rgba(255,59,105,0.15)]',
       )}

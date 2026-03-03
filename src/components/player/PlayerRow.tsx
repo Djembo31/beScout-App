@@ -256,7 +256,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
   return (
     <Link
       href={`/player/${player.id}`}
-      className={cn('block rounded-xl overflow-hidden card-lift card-carbon-mini card-gold-frame', className)}
+      className={cn('block rounded-xl overflow-hidden card-lift card-carbon-mini card-gold-frame card-metallic', className)}
     >
       {/* Header: Identity + L5 + Flag + Watch */}
       <div className="p-3 pb-2">

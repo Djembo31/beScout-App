@@ -55,7 +55,7 @@ export default function PortfolioStrip({ holdings }: PortfolioStripProps) {
               key={h.id}
               href={`/player/${h.playerId}`}
               className={cn(
-                'flex-shrink-0 w-[130px] bg-surface-base border border-white/[0.10] rounded-xl p-3 card-lift group relative overflow-hidden',
+                'flex-shrink-0 w-[130px] bg-surface-base border border-white/[0.10] rounded-xl p-3 card-lift group relative overflow-hidden card-metallic',
               )}
               style={{
                 borderLeftColor: posColor,
