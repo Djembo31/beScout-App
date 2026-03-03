@@ -50,7 +50,6 @@ export function useTilt<T extends HTMLElement = HTMLDivElement>({
       const rY = ((x - centerX) / centerX) * maxTilt;
       const rX = ((centerY - y) / centerY) * maxTilt;
       applyTransform(rX, rY, scale, 'transform 100ms ease-out');
-      // CSS vars for foil shimmer follow
       el.style.setProperty('--tilt-x', (x / rect.width).toFixed(3));
       el.style.setProperty('--tilt-y', (y / rect.height).toFixed(3));
     });
