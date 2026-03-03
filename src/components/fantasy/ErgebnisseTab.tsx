@@ -75,12 +75,11 @@ export function ErgebnisseTab({
     () => scoredEvents.filter(e => e.isJoined),
     [scoredEvents]
   );
-  const allSimulated = scoredEvents.length > 0 && scoredEvents.length === events.length && events.length > 0;
 
-  // Top scorers
+  // Top scorers — load for any non-upcoming GW (independent of events)
   const [topScorers, setTopScorers] = useState<FixturePlayerStat[]>([]);
   useEffect(() => {
-    if (!allSimulated) { setTopScorers([]); return; }
+    if (isUpcoming) { setTopScorers([]); return; }
     let cancelled = false;
     getGameweekTopScorers(gameweek, 20).then(data => {
       if (!cancelled) setTopScorers(data);
@@ -88,7 +87,7 @@ export function ErgebnisseTab({
       if (!cancelled) setTopScorers([]);
     });
     return () => { cancelled = true; };
-  }, [gameweek, allSimulated]);
+  }, [gameweek, isUpcoming]);
 
   // Predictions for this GW
   const { data: predictions = [] } = usePredictions(userId, gameweek);
@@ -116,19 +115,8 @@ export function ErgebnisseTab({
     );
   }
 
-  // No scored events yet for this GW
-  if (scoredEvents.length === 0 && events.length > 0) {
-    return (
-      <div className="py-16 text-center">
-        <Clock className="size-12 mx-auto mb-4 text-white/15" aria-hidden="true" />
-        <div className="text-white/40 font-medium">{tf('ergebnisse.pending')}</div>
-        <div className="text-white/20 text-xs mt-1">{tf('ergebnisse.pendingDesc')}</div>
-      </div>
-    );
-  }
-
-  // No events at all
-  if (events.length === 0) {
+  // No data at all (no events AND no player stats)
+  if (events.length === 0 && topScorers.length === 0) {
     return (
       <div className="py-16 text-center">
         <Trophy className="size-12 mx-auto mb-4 text-gold/20" aria-hidden="true" />
@@ -178,14 +166,14 @@ export function ErgebnisseTab({
       )}
 
       {/* ── SECTION 2: Top Scorer Showcase ── */}
-      {allSimulated && topScorers.length > 0 && (
+      {topScorers.length > 0 && (
         <section>
           <TopScorerShowcase scorers={topScorers} gameweek={gameweek} />
         </section>
       )}
 
       {/* ── SECTION 3: Best XI Pitch View ── */}
-      {allSimulated && topScorers.length >= 6 && (
+      {topScorers.length >= 6 && (
         <section>
           <BestElevenShowcase scorers={topScorers} gameweek={gameweek} />
         </section>
