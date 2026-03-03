@@ -124,12 +124,27 @@ export default function TradingCardFrame({
             className="absolute inset-0 rounded-2xl overflow-hidden"
             style={{ backfaceVisibility: 'hidden' }}
           >
-            {/* Background: carbon fiber */}
+            {/* Background: carbon fiber + position color wash */}
             <div className="absolute inset-0 card-carbon" />
-            {/* Subtle position gradient at top */}
+            {/* Full-card position tint */}
             <div
-              className="absolute inset-x-0 top-0 h-1/3 opacity-15"
-              style={{ background: `linear-gradient(180deg, ${tint}40 0%, transparent 100%)` }}
+              className="absolute inset-0 opacity-[0.08]"
+              style={{ background: tint }}
+            />
+            {/* Strong position gradient top → center */}
+            <div
+              className="absolute inset-x-0 top-0 h-2/3 opacity-20"
+              style={{ background: `linear-gradient(180deg, ${tint}55 0%, ${tint}20 40%, transparent 100%)` }}
+            />
+            {/* Position edge glow — left side accent */}
+            <div
+              className="absolute inset-y-0 left-0 w-12 opacity-25"
+              style={{ background: `linear-gradient(90deg, ${tint}30 0%, transparent 100%)` }}
+            />
+            {/* Subtle bottom gradient */}
+            <div
+              className="absolute inset-x-0 bottom-0 h-1/4 opacity-10"
+              style={{ background: `linear-gradient(0deg, ${tint}30 0%, transparent 100%)` }}
             />
 
             {/* Top Bar: Club Logo | Flag + Age | Position Pill */}
@@ -147,7 +162,7 @@ export default function TradingCardFrame({
               <div className="flex items-center gap-1.5">
                 {flag && <span className="text-base leading-none" aria-label={country}>{flag}</span>}
                 {age != null && age > 0 && (
-                  <span className="text-[10px] font-bold text-white/50 tabular-nums">{age}</span>
+                  <span className="text-[10px] font-bold text-white/50 tabular-nums">{age}Y</span>
                 )}
               </div>
 
@@ -229,9 +244,16 @@ export default function TradingCardFrame({
               />
             </div>
 
-            {/* BeScout Logo — veredelt gold */}
-            <div className="relative z-10 flex justify-center mt-auto pb-2.5 pt-1.5">
-              <img src="/logo_schrift.svg" alt="BeScout" className="h-3 md:h-3.5 logo-veredelt-glow" />
+            {/* BeScout Logo — seitlich rechts, vertikal */}
+            <div
+              className="absolute z-10 right-1 top-1/2 -translate-y-1/2"
+              style={{ writingMode: 'vertical-rl' }}
+            >
+              <img
+                src="/logo_schrift.svg"
+                alt="BeScout"
+                className="h-auto w-3.5 md:w-4 logo-veredelt-glow rotate-180"
+              />
             </div>
           </div>
 
@@ -244,12 +266,19 @@ export default function TradingCardFrame({
                 transform: 'rotateY(180deg)',
               }}
             >
-              {/* Background: carbon fiber */}
+              {/* Background: carbon fiber + position color wash */}
               <div className="absolute inset-0 card-carbon" />
-              {/* Subtle position gradient */}
               <div
-                className="absolute inset-x-0 top-0 h-1/2 opacity-15"
-                style={{ background: `linear-gradient(180deg, ${tint}40 0%, transparent 100%)` }}
+                className="absolute inset-0 opacity-[0.08]"
+                style={{ background: tint }}
+              />
+              <div
+                className="absolute inset-x-0 top-0 h-2/3 opacity-20"
+                style={{ background: `linear-gradient(180deg, ${tint}55 0%, ${tint}20 40%, transparent 100%)` }}
+              />
+              <div
+                className="absolute inset-y-0 left-0 w-12 opacity-25"
+                style={{ background: `linear-gradient(90deg, ${tint}30 0%, transparent 100%)` }}
               />
 
               {/* Radar Chart */}
@@ -310,9 +339,16 @@ export default function TradingCardFrame({
                 </div>
               </div>
 
-              {/* BeScout branding — veredelt gold */}
-              <div className="relative z-10 flex justify-center pb-2.5 mt-auto">
-                <img src="/logo_schrift.svg" alt="BeScout" className="h-3 md:h-3.5 logo-veredelt-glow" />
+              {/* BeScout Logo — seitlich rechts, vertikal */}
+              <div
+                className="absolute z-10 right-1 top-1/2 -translate-y-1/2"
+                style={{ writingMode: 'vertical-rl' }}
+              >
+                <img
+                  src="/logo_schrift.svg"
+                  alt="BeScout"
+                  className="h-auto w-3.5 md:w-4 logo-veredelt-glow rotate-180"
+                />
               </div>
             </div>
           )}
