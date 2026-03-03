@@ -142,7 +142,7 @@ export function useHoldingQty(userId: string | undefined, playerId: string | und
     queryKey: ['holdings', 'qty', userId, playerId],
     queryFn: () => getHoldingQty(userId!, playerId!),
     enabled: !!userId && !!playerId,
-    staleTime: 0,
+    staleTime: 30_000,
   });
 }
 
