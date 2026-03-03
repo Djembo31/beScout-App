@@ -51,14 +51,14 @@ function splitStartersBench(stats: FixturePlayerStat[]): {
 }
 
 function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
-  const pts = stat.fantasy_points;
+  const rating = stat.rating ?? stat.fantasy_points / 10;
   const accent = getPosAccent(stat.player_position);
-  const badge = scoreBadgeColor(pts);
+  const badge = scoreBadgeColor(rating);
 
   return (
     <div className="flex flex-col items-center relative w-[52px] md:w-[60px] lg:w-[72px]">
       <div className={`absolute -top-1 -right-0.5 md:-top-1.5 md:-right-2 z-20 min-w-[1.4rem] md:min-w-[1.6rem] px-1 py-0.5 rounded-full text-[9px] md:text-[9px] font-mono font-black text-center shadow-lg ${badge}`}>
-        {pts}
+        {rating.toFixed(1)}
       </div>
       <div
         className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center border-2 bg-black/30"
@@ -106,7 +106,7 @@ function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
 
   const rows = Array.from(grouped.entries())
     .sort((a, b) => order(a[0]) - order(b[0]))
-    .map(([, players]) => players.sort((a, b) => b.fantasy_points - a.fantasy_points));
+    .map(([, players]) => players.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)));
 
   return (
     <div className="flex flex-col gap-3 py-2">
@@ -290,8 +290,8 @@ function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, sponsorLogo
                                 </span>
                                 <span className="text-white/50">{s.player_last_name}</span>
                                 <span className="text-white/25 font-mono">{s.minutes_played}&apos;</span>
-                                <span className={`px-1 py-0.5 rounded text-[9px] font-bold ${scoreBadgeColor(s.fantasy_points)}`}>
-                                  {s.fantasy_points}
+                                <span className={`px-1 py-0.5 rounded text-[9px] font-bold tabular-nums ${scoreBadgeColor(s.rating ?? s.fantasy_points / 10)}`}>
+                                  {(s.rating ?? s.fantasy_points / 10).toFixed(1)}
                                 </span>
                               </div>
                             ))}
@@ -337,7 +337,7 @@ function TeamStatsList({ label, stats, color }: { label: string; stats: FixtureP
   const sorted = [...stats].sort((a, b) => {
     if (a.minutes_played >= 60 && b.minutes_played < 60) return -1;
     if (a.minutes_played < 60 && b.minutes_played >= 60) return 1;
-    return b.fantasy_points - a.fantasy_points;
+    return (b.rating ?? 0) - (a.rating ?? 0);
   });
 
   return (
@@ -363,8 +363,8 @@ function TeamStatsList({ label, stats, color }: { label: string; stats: FixtureP
                 <Star aria-hidden="true" className="size-2.5" />{s.bonus}
               </span>
             )}
-            <span className={`px-1.5 py-0.5 rounded text-[10px] font-black ${scoreBadgeColor(s.fantasy_points)}`}>
-              {s.fantasy_points}
+            <span className={`px-1.5 py-0.5 rounded text-[10px] font-black tabular-nums ${scoreBadgeColor(s.rating ?? s.fantasy_points / 10)}`}>
+              {(s.rating ?? s.fantasy_points / 10).toFixed(1)}
             </span>
           </div>
         ))}

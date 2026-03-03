@@ -1204,6 +1204,7 @@ export type DbFixturePlayerStat = {
   saves: number;
   bonus: number;
   fantasy_points: number;
+  rating: number | null;
 };
 
 export type Fixture = DbFixture & {

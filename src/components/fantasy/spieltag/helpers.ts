@@ -10,11 +10,12 @@ export const posColor = (pos: string) => {
   }
 };
 
-export const scoreBadgeColor = (pts: number): string => {
-  if (pts >= 80) return 'bg-gold text-black';
-  if (pts >= 60) return 'bg-green-500 text-white';
-  if (pts >= 40) return 'bg-sky-500 text-white';
-  if (pts >= 20) return 'bg-orange-500 text-white';
+/** Score badge color based on API-Football rating (0.0-10.0) */
+export const scoreBadgeColor = (rating: number): string => {
+  if (rating >= 8.0) return 'bg-gold text-black';
+  if (rating >= 7.0) return 'bg-green-500 text-white';
+  if (rating >= 6.5) return 'bg-sky-500 text-white';
+  if (rating >= 6.0) return 'bg-orange-500 text-white';
   return 'bg-red-500 text-white';
 };
 

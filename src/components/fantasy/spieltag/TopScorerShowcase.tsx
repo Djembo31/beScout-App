@@ -25,8 +25,8 @@ function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
 
       <div className="flex items-start gap-3">
         {/* Score badge */}
-        <div className={`size-14 rounded-2xl flex items-center justify-center text-xl font-black tabular-nums ${scoreBadgeColor(stat.fantasy_points)}`}>
-          {stat.fantasy_points}
+        <div className={`size-14 rounded-2xl flex items-center justify-center text-xl font-black tabular-nums ${scoreBadgeColor(stat.rating ?? stat.fantasy_points / 10)}`}>
+          {(stat.rating ?? stat.fantasy_points / 10).toFixed(1)}
         </div>
 
         <div className="flex-1 min-w-0">
@@ -79,8 +79,8 @@ function PodiumCard({ stat, rank, medal }: { stat: FixturePlayerStat; rank: numb
         <span className="text-[10px] text-white/30 font-bold tabular-nums">#{rank}</span>
       </div>
       <div className="flex items-center gap-2">
-        <div className={`size-9 rounded-xl flex items-center justify-center text-sm font-black tabular-nums ${scoreBadgeColor(stat.fantasy_points)}`}>
-          {stat.fantasy_points}
+        <div className={`size-9 rounded-xl flex items-center justify-center text-sm font-black tabular-nums ${scoreBadgeColor(stat.rating ?? stat.fantasy_points / 10)}`}>
+          {(stat.rating ?? stat.fantasy_points / 10).toFixed(1)}
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-xs font-bold truncate">{stat.player_first_name.charAt(0)}. {stat.player_last_name}</div>
@@ -109,8 +109,8 @@ function CompactRow({ stat, rank }: { stat: FixturePlayerStat; rank: number }) {
       <span className="text-white/30">{stat.club_short}</span>
       {stat.goals > 0 && <span className="text-gold font-bold tabular-nums">{stat.goals}G</span>}
       {stat.assists > 0 && <span className="text-sky-400 font-bold tabular-nums">{stat.assists}A</span>}
-      <span className={`px-1.5 py-0.5 rounded text-[10px] font-black tabular-nums ${scoreBadgeColor(stat.fantasy_points)}`}>
-        {stat.fantasy_points}
+      <span className={`px-1.5 py-0.5 rounded text-[10px] font-black tabular-nums ${scoreBadgeColor(stat.rating ?? stat.fantasy_points / 10)}`}>
+        {(stat.rating ?? stat.fantasy_points / 10).toFixed(1)}
       </span>
     </div>
   );

@@ -23,8 +23,8 @@ function buildBestEleven(scorers: FixturePlayerStat[]): FixturePlayerStat[] {
     byPos.set(pos, arr);
   }
 
-  // Sort each group by fantasy_points desc
-  Array.from(byPos.values()).forEach(arr => arr.sort((a, b) => b.fantasy_points - a.fantasy_points));
+  // Sort each group by rating desc
+  Array.from(byPos.values()).forEach(arr => arr.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)));
 
   const gk = (byPos.get('GK') || []).slice(0, 1);
   const def = (byPos.get('DEF') || []).slice(0, 4);
@@ -38,7 +38,7 @@ function buildBestEleven(scorers: FixturePlayerStat[]): FixturePlayerStat[] {
     const pickedIds = new Set(picked.map(p => p.id));
     const remaining = scorers
       .filter(s => !pickedIds.has(s.id))
-      .sort((a, b) => b.fantasy_points - a.fantasy_points);
+      .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
     for (const s of remaining) {
       if (picked.length >= 11) break;
       picked.push(s);
@@ -58,7 +58,7 @@ function buildBestSix(scorers: FixturePlayerStat[]): FixturePlayerStat[] {
     byPos.set(pos, arr);
   }
 
-  Array.from(byPos.values()).forEach(arr => arr.sort((a, b) => b.fantasy_points - a.fantasy_points));
+  Array.from(byPos.values()).forEach(arr => arr.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)));
 
   const gk = (byPos.get('GK') || []).slice(0, 1);
   const def = (byPos.get('DEF') || []).slice(0, 2);
@@ -71,7 +71,7 @@ function buildBestSix(scorers: FixturePlayerStat[]): FixturePlayerStat[] {
     const pickedIds = new Set(picked.map(p => p.id));
     const remaining = scorers
       .filter(s => !pickedIds.has(s.id))
-      .sort((a, b) => b.fantasy_points - a.fantasy_points);
+      .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
     for (const s of remaining) {
       if (picked.length >= 6) break;
       picked.push(s);
@@ -94,19 +94,20 @@ function getFormationRows(players: FixturePlayerStat[], mode: Mode): FixturePlay
   }
 
   return posOrder
-    .map(pos => (grouped.get(pos) || []).sort((a, b) => b.fantasy_points - a.fantasy_points))
+    .map(pos => (grouped.get(pos) || []).sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)))
     .filter(row => row.length > 0);
 }
 
 function PitchNode({ stat }: { stat: FixturePlayerStat }) {
   const accent = getPosAccent(stat.player_position);
-  const badge = scoreBadgeColor(stat.fantasy_points);
+  const rating = stat.rating ?? stat.fantasy_points / 10;
+  const badge = scoreBadgeColor(rating);
 
   return (
     <div className="flex flex-col items-center w-[48px] md:w-[56px]">
       {/* Score badge */}
       <div className={`mb-0.5 min-w-[1.3rem] px-1.5 py-0.5 rounded-full text-[8px] md:text-[9px] font-mono font-black text-center shadow-lg tabular-nums ${badge}`}>
-        {stat.fantasy_points}
+        {rating.toFixed(1)}
       </div>
       {/* Circle with initials */}
       <div
@@ -146,7 +147,9 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
 
   if (players.length === 0) return null;
 
-  const totalPoints = players.reduce((s, p) => s + p.fantasy_points, 0);
+  const avgRating = players.length > 0
+    ? players.reduce((s, p) => s + (p.rating ?? p.fantasy_points / 10), 0) / players.length
+    : 0;
 
   return (
     <div>
@@ -184,7 +187,7 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
           <span className="text-xs font-bold tracking-widest text-white/50 uppercase">
             {t('bestLabel', { label: mode === '11er' ? 'XI' : 'VI' })}
           </span>
-          <span className="text-xs font-mono font-bold text-gold tabular-nums">{totalPoints} pts</span>
+          <span className="text-xs font-mono font-bold text-gold tabular-nums">Ø {avgRating.toFixed(1)}</span>
         </div>
 
         {/* Green pitch field */}

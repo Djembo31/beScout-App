@@ -27,7 +27,7 @@ type ApiFixturePlayerResponse = {
     players: Array<{
       player: { id: number };
       statistics: Array<{
-        games: { minutes: number | null };
+        games: { minutes: number | null; rating: string | null };
         goals: {
           total: number | null;
           assists: number | null;
@@ -344,6 +344,7 @@ export async function GET(request: Request) {
         saves: number;
         bonus: number;
         fantasy_points: number;
+        rating: number | null;
       }> = [];
 
       for (const fixture of mappings.fixtures) {
@@ -395,18 +396,22 @@ export async function GET(request: Request) {
             const redCard = (stat.cards.red ?? 0) > 0;
             const saves = stat.goals.saves ?? 0;
 
-            const fantasyPoints = calcFantasyPoints(
-              ourPlayer.position,
-              minutes,
-              goals,
-              assists,
-              isCleanSheet && minutes >= 60,
-              goalsConceded,
-              yellowCard,
-              redCard,
-              saves,
-              0,
-            );
+            // API-Football rating as primary source
+            const rating = stat.games.rating ? parseFloat(stat.games.rating) : null;
+            const fantasyPoints = rating
+              ? Math.round(rating * 10)
+              : calcFantasyPoints(
+                  ourPlayer.position,
+                  minutes,
+                  goals,
+                  assists,
+                  isCleanSheet && minutes >= 60,
+                  goalsConceded,
+                  yellowCard,
+                  redCard,
+                  saves,
+                  0,
+                );
 
             playerStats.push({
               fixture_id: fixture.id,
@@ -422,6 +427,7 @@ export async function GET(request: Request) {
               saves,
               bonus: 0,
               fantasy_points: fantasyPoints,
+              rating,
             });
           }
         }

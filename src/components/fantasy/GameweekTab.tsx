@@ -168,11 +168,11 @@ function FixtureDetailModal({ fixture, isOpen, onClose }: { fixture: Fixture | n
 }
 
 function TeamStats({ label, stats, color }: { label: string; stats: FixturePlayerStat[]; color: string }) {
-  // Sort: starters first (90 min), then subs, by fantasy points desc
+  // Sort: starters first (90 min), then subs, by rating desc
   const sorted = [...stats].sort((a, b) => {
     if (a.minutes_played >= 60 && b.minutes_played < 60) return -1;
     if (a.minutes_played < 60 && b.minutes_played >= 60) return 1;
-    return b.fantasy_points - a.fantasy_points;
+    return (b.rating ?? 0) - (a.rating ?? 0);
   });
 
   return (
@@ -198,7 +198,7 @@ function TeamStats({ label, stats, color }: { label: string; stats: FixturePlaye
                 <Star className="size-2.5" aria-hidden="true" /><span className="tabular-nums">{s.bonus}</span>
               </span>
             )}
-            <span className="font-mono font-bold text-white/80 w-6 text-right tabular-nums">{s.fantasy_points}</span>
+            <span className="font-mono font-bold text-white/80 w-8 text-right tabular-nums">{(s.rating ?? s.fantasy_points / 10).toFixed(1)}</span>
           </div>
         ))}
       </div>
@@ -374,7 +374,7 @@ function TopScorersSummary({ gameweek }: { gameweek: number }) {
             <span className="text-white/40">{s.club_short}</span>
             {s.goals > 0 && <span className="text-gold tabular-nums">{s.goals}G</span>}
             {s.assists > 0 && <span className="text-sky-400 tabular-nums">{s.assists}A</span>}
-            <span className="font-mono font-bold w-8 text-right tabular-nums">{s.fantasy_points} {t('pointsAbbr')}</span>
+            <span className="font-mono font-bold w-8 text-right tabular-nums">{(s.rating ?? s.fantasy_points / 10).toFixed(1)}</span>
           </div>
         ))}
       </div>

@@ -153,7 +153,7 @@ export default function FantasyContent() {
   const { data: dbEvents = [], isLoading: eventsLoading, isError: eventsError, refetch: refetchEvents } = useEvents();
   const { data: joinedIdsArr = [] } = useJoinedEventIds(userId);
   const { data: usageMap } = usePlayerEventUsage(userId);
-  const { data: activeGw = 1 } = useActiveGameweek(clubId || undefined);
+  const { data: activeGw } = useActiveGameweek(clubId || undefined);
   const { data: isAdmin = false } = useIsClubAdmin(userId, clubId || undefined);
   const { data: dbHoldings = [] } = useHoldings(userId);
 
@@ -174,13 +174,15 @@ export default function FantasyContent() {
   const [summaryLeaderboard, setSummaryLeaderboard] = useState<import('@/lib/services/scoring').LeaderboardEntry[]>([]);
 
   // Sync selectedGameweek with activeGw on first load
+  // No default on activeGw — stays undefined until DB responds, preventing race condition
+  // where GW1 would be set before the real active GW loads
   useEffect(() => {
-    if (selectedGameweek === null && activeGw > 0) {
+    if (activeGw && activeGw > 0 && selectedGameweek === null) {
       setSelectedGameweek(activeGw);
     }
   }, [activeGw, selectedGameweek]);
 
-  const currentGw = selectedGameweek ?? activeGw;
+  const currentGw = selectedGameweek ?? activeGw ?? 1;
 
   // Per-fixture deadline locking — refresh when GW changes or events are running
   const [fixtureDeadlines, setFixtureDeadlines] = useState<Map<string, FixtureDeadline>>(new Map());
@@ -577,7 +579,7 @@ export default function FantasyContent() {
       {/* PERSISTENT GW SELECTOR — always visible above tabs */}
       <SpieltagSelector
         gameweek={currentGw}
-        activeGameweek={activeGw}
+        activeGameweek={activeGw ?? currentGw}
         status={gwStatus}
         fixtureCount={fixtureCount}
         eventCount={gwEvents.length}
@@ -607,7 +609,7 @@ export default function FantasyContent() {
       {mainTab === 'paarungen' && user && (
         <SpieltagTab
           gameweek={currentGw}
-          activeGameweek={activeGw}
+          activeGameweek={activeGw ?? currentGw}
           clubId={clubId}
           isAdmin={isAdmin}
           events={gwEvents}
@@ -628,7 +630,7 @@ export default function FantasyContent() {
       {mainTab === 'mitmachen' && user && (
         <MitmachenTab
           gameweek={currentGw}
-          activeGameweek={activeGw}
+          activeGameweek={activeGw ?? currentGw}
           events={gwEvents}
           userId={user.id}
           onEventClick={setSelectedEvent}
@@ -639,7 +641,7 @@ export default function FantasyContent() {
       {mainTab === 'ergebnisse' && user && (
         <ErgebnisseTab
           gameweek={currentGw}
-          activeGameweek={activeGw}
+          activeGameweek={activeGw ?? currentGw}
           events={gwEvents}
           userId={user.id}
           participations={dashboardStats.pastParticipations}

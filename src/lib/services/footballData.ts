@@ -574,6 +574,7 @@ export async function importGameweek(adminId: string, gameweek: number): Promise
       clean_sheet: boolean; goals_conceded: number;
       yellow_card: boolean; red_card: boolean;
       saves: number; bonus: number; fantasy_points: number;
+      rating: number | null;
     }> = [];
 
     for (const fixture of ourFixtures) {
@@ -618,11 +619,15 @@ export async function importGameweek(adminId: string, gameweek: number): Promise
             const redCard = (stat.cards.red ?? 0) > 0;
             const saves = stat.goals.saves ?? 0;
 
-            const fantasyPoints = calcFantasyPoints(
-              ourPlayer.position, minutes, goals, assists,
-              isCleanSheet && minutes >= 60, goalsConceded,
-              yellowCard, redCard, saves, 0
-            );
+            // API-Football rating as primary source
+            const rating = stat.games.rating ? parseFloat(stat.games.rating) : null;
+            const fantasyPoints = rating
+              ? Math.round(rating * 10)
+              : calcFantasyPoints(
+                  ourPlayer.position, minutes, goals, assists,
+                  isCleanSheet && minutes >= 60, goalsConceded,
+                  yellowCard, redCard, saves, 0
+                );
 
             playerStats.push({
               fixture_id: fixture.id,
@@ -638,6 +643,7 @@ export async function importGameweek(adminId: string, gameweek: number): Promise
               saves,
               bonus: 0,
               fantasy_points: fantasyPoints,
+              rating,
             });
           }
         }

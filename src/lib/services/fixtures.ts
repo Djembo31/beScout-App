@@ -89,7 +89,7 @@ export async function getFixturePlayerStats(fixtureId: string): Promise<FixtureP
       club:clubs!fixture_player_stats_club_id_fkey(short)
     `)
     .eq('fixture_id', fixtureId)
-    .order('fantasy_points', { ascending: false });
+    .order('rating', { ascending: false, nullsFirst: false });
 
   if (error || !data) return [];
 
@@ -111,6 +111,7 @@ export async function getFixturePlayerStats(fixtureId: string): Promise<FixtureP
       saves: row.saves as number,
       bonus: row.bonus as number,
       fantasy_points: row.fantasy_points as number,
+      rating: (row.rating as number | null) ?? null,
       player_first_name: player?.first_name ?? '',
       player_last_name: player?.last_name ?? '',
       player_position: player?.position ?? '',
@@ -167,7 +168,7 @@ export async function getGameweekTopScorers(gw: number, limit: number = 5): Prom
       club:clubs!fixture_player_stats_club_id_fkey(short)
     `)
     .in('fixture_id', fixtureIds)
-    .order('fantasy_points', { ascending: false })
+    .order('rating', { ascending: false, nullsFirst: false })
     .limit(limit);
 
   if (error || !data) return [];
@@ -190,6 +191,7 @@ export async function getGameweekTopScorers(gw: number, limit: number = 5): Prom
       saves: row.saves as number,
       bonus: row.bonus as number,
       fantasy_points: row.fantasy_points as number,
+      rating: (row.rating as number | null) ?? null,
       player_first_name: player?.first_name ?? '',
       player_last_name: player?.last_name ?? '',
       player_position: player?.position ?? '',
