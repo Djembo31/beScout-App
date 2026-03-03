@@ -6,6 +6,9 @@
       "main": true
     }
   },
+  "crons": [
+    { "path": "/api/cron/gameweek-sync", "schedule": "0 22,23 * * *" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

@@ -25,9 +25,11 @@ function getCurrentSeason(): number {
 }
 
 function getApiKey(): string | null {
-  return typeof window !== 'undefined'
-    ? process.env.NEXT_PUBLIC_API_FOOTBALL_KEY ?? null
-    : null;
+  if (typeof window !== 'undefined') {
+    return process.env.NEXT_PUBLIC_API_FOOTBALL_KEY ?? null;
+  }
+  // Server-side: prefer dedicated server key, fallback to public key
+  return process.env.API_FOOTBALL_KEY ?? process.env.NEXT_PUBLIC_API_FOOTBALL_KEY ?? null;
 }
 
 export function isApiConfigured(): boolean {
