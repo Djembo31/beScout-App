@@ -84,9 +84,6 @@ export default function TradingCardFrame({
   const ringGlow = posRingGlow[pos];
   const flag = country ? countryToFlag(country) : '';
 
-  // Refractor on all cards, rainbow variant for ultra-rare
-  const effectClass = cn('refractor', l5 >= 80 && 'refractor-rainbow');
-
   // Initials fallback
   const initials = `${first?.[0] ?? ''}${last?.[0] ?? ''}`;
 
@@ -98,7 +95,7 @@ export default function TradingCardFrame({
       <div
         className="absolute inset-0 rounded-3xl blur-2xl opacity-40 pointer-events-none"
         style={{
-          background: `radial-gradient(ellipse at 50% 30%, rgba(255,215,0,0.15) 0%, ${tint}15 40%, transparent 70%)`,
+          background: `radial-gradient(ellipse at 50% 30%, ${tint}25 0%, ${tint}15 40%, transparent 70%)`,
           transform: 'scale(1.4)',
         }}
       />
@@ -111,13 +108,14 @@ export default function TradingCardFrame({
           {...tiltProps}
           onClick={handleClick}
           className={cn(
-            'relative aspect-[3/4] w-[240px] md:w-[280px] rounded-2xl card-gold-frame',
-            effectClass,
+            'relative aspect-[3/4] w-[240px] md:w-[280px] rounded-2xl',
             canFlip && 'cursor-pointer'
           )}
           style={{
             ...tiltProps.style,
             transformStyle: 'preserve-3d',
+            border: `1.5px solid ${tint}40`,
+            boxShadow: `inset 0 0 12px ${tint}10, 0 0 20px ${tint}15`,
           }}
         >
           {/* ===== FRONT FACE ===== */}
@@ -199,47 +197,18 @@ export default function TradingCardFrame({
               </div>
             </div>
 
-            {/* Branding Stripe — left */}
-            <div
-              className="absolute inset-y-0 left-0 w-3 z-[5] flex flex-col items-center justify-center gap-3 pointer-events-none"
-              style={{
-                background: 'linear-gradient(90deg, rgba(0,0,0,0.25) 0%, transparent 100%)',
-                borderRight: '1px solid rgba(255,215,0,0.06)',
-              }}
-            >
+            {/* BeScout Branding */}
+            <div className="absolute bottom-1.5 inset-x-0 z-10 flex items-center justify-center gap-1.5 pointer-events-none">
               <img
                 src="/logo.svg"
                 alt=""
-                className="size-2.5 opacity-20"
+                className="size-3"
                 aria-hidden="true"
-                style={{ filter: 'sepia(1) saturate(3) hue-rotate(15deg) brightness(0.9)' }}
+                style={{ filter: 'brightness(0) invert(1)', opacity: 0.2 }}
               />
               <span
-                className="text-[5px] font-bold tracking-[0.25em] uppercase"
-                style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', color: 'rgba(255,215,0,0.15)' }}
-              >
-                BESCOUT
-              </span>
-            </div>
-
-            {/* Branding Stripe — right */}
-            <div
-              className="absolute inset-y-0 right-0 w-3 z-[5] flex flex-col items-center justify-center gap-3 pointer-events-none"
-              style={{
-                background: 'linear-gradient(270deg, rgba(0,0,0,0.25) 0%, transparent 100%)',
-                borderLeft: '1px solid rgba(255,215,0,0.06)',
-              }}
-            >
-              <img
-                src="/logo.svg"
-                alt=""
-                className="size-2.5 opacity-20"
-                aria-hidden="true"
-                style={{ filter: 'sepia(1) saturate(3) hue-rotate(15deg) brightness(0.9)' }}
-              />
-              <span
-                className="text-[5px] font-bold tracking-[0.25em] uppercase"
-                style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', color: 'rgba(255,215,0,0.15)' }}
+                className="text-[7px] font-bold tracking-[0.3em] uppercase"
+                style={{ color: `${tint}40` }}
               >
                 BESCOUT
               </span>
@@ -247,18 +216,18 @@ export default function TradingCardFrame({
 
             {/* Info Section — delayed entrance */}
             <div className="relative z-10 card-entrance-info">
-              {/* Gold Separator */}
+              {/* Position Separator */}
               <div className="mx-4 mt-2 md:mt-3">
-                <div className="gold-separator" />
+                <div className="h-px" style={{ background: `linear-gradient(90deg, transparent 0%, ${tint}50 20%, ${tint}80 50%, ${tint}50 80%, transparent 100%)` }} />
               </div>
 
-              {/* Glassmorphism Name Bar with gold accent */}
+              {/* Glassmorphism Name Bar */}
               <div
                 className="mt-1.5 md:mt-2 backdrop-blur-md px-3 py-1.5"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.05)',
-                  borderTop: '1px solid rgba(255,215,0,0.15)',
-                  borderBottom: '1px solid rgba(255,215,0,0.15)',
+                  borderTop: `1px solid ${tint}25`,
+                  borderBottom: `1px solid ${tint}25`,
                 }}
               >
                 <div className="text-sm md:text-base font-black text-white leading-tight truncate drop-shadow-lg text-center text-balance">
@@ -342,9 +311,9 @@ export default function TradingCardFrame({
                 />
               </div>
 
-              {/* Gold separator */}
+              {/* Position separator */}
               <div className="relative z-10 mx-4 mt-2">
-                <div className="gold-separator" />
+                <div className="h-px" style={{ background: `linear-gradient(90deg, transparent 0%, ${tint}50 20%, ${tint}80 50%, ${tint}50 80%, transparent 100%)` }} />
               </div>
 
               {/* Stats Grid — same FIFA style */}
@@ -365,8 +334,8 @@ export default function TradingCardFrame({
                 className="relative z-10 mt-3 backdrop-blur-md px-3 py-2"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.05)',
-                  borderTop: '1px solid rgba(255,215,0,0.15)',
-                  borderBottom: '1px solid rgba(255,215,0,0.15)',
+                  borderTop: `1px solid ${tint}25`,
+                  borderBottom: `1px solid ${tint}25`,
                 }}
               >
                 <div className="text-xs font-bold text-white/90 text-center truncate">
@@ -377,47 +346,18 @@ export default function TradingCardFrame({
                 </div>
               </div>
 
-              {/* Branding Stripe — left */}
-              <div
-                className="absolute inset-y-0 left-0 w-3 z-[5] flex flex-col items-center justify-center gap-3 pointer-events-none"
-                style={{
-                  background: 'linear-gradient(90deg, rgba(0,0,0,0.25) 0%, transparent 100%)',
-                  borderRight: '1px solid rgba(255,215,0,0.06)',
-                }}
-              >
+              {/* BeScout Branding */}
+              <div className="absolute bottom-1.5 inset-x-0 z-10 flex items-center justify-center gap-1.5 pointer-events-none">
                 <img
                   src="/logo.svg"
                   alt=""
-                  className="size-2.5 opacity-20"
+                  className="size-3"
                   aria-hidden="true"
-                  style={{ filter: 'sepia(1) saturate(3) hue-rotate(15deg) brightness(0.9)' }}
+                  style={{ filter: 'brightness(0) invert(1)', opacity: 0.2 }}
                 />
                 <span
-                  className="text-[5px] font-bold tracking-[0.25em] uppercase"
-                  style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', color: 'rgba(255,215,0,0.15)' }}
-                >
-                  BESCOUT
-                </span>
-              </div>
-
-              {/* Branding Stripe — right */}
-              <div
-                className="absolute inset-y-0 right-0 w-3 z-[5] flex flex-col items-center justify-center gap-3 pointer-events-none"
-                style={{
-                  background: 'linear-gradient(270deg, rgba(0,0,0,0.25) 0%, transparent 100%)',
-                  borderLeft: '1px solid rgba(255,215,0,0.06)',
-                }}
-              >
-                <img
-                  src="/logo.svg"
-                  alt=""
-                  className="size-2.5 opacity-20"
-                  aria-hidden="true"
-                  style={{ filter: 'sepia(1) saturate(3) hue-rotate(15deg) brightness(0.9)' }}
-                />
-                <span
-                  className="text-[5px] font-bold tracking-[0.25em] uppercase"
-                  style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', color: 'rgba(255,215,0,0.15)' }}
+                  className="text-[7px] font-bold tracking-[0.3em] uppercase"
+                  style={{ color: `${tint}40` }}
                 >
                   BESCOUT
                 </span>

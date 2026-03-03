@@ -83,6 +83,36 @@ export function useTilt<T extends HTMLElement = HTMLDivElement>({
     if (el) el.style.willChange = 'auto';
   }, []);
 
+  // Gyroscope tilt for mobile devices
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.matchMedia('(hover: hover)').matches) return;
+
+    let promoted = false;
+    const handleOrientation = (e: DeviceOrientationEvent) => {
+      const beta = e.beta;
+      const gamma = e.gamma;
+      if (beta == null || gamma == null) return;
+
+      if (!promoted) { promoted = true; promoteLayer(); }
+
+      // Assume phone held at ~60° from horizontal
+      const rX = Math.max(-maxTilt, Math.min(maxTilt, ((beta - 60) / 30) * maxTilt));
+      const rY = Math.max(-maxTilt, Math.min(maxTilt, (gamma / 30) * maxTilt));
+
+      cancelAnimationFrame(rafId.current);
+      rafId.current = requestAnimationFrame(() => {
+        applyTransform(rX, rY, 1, 'transform 200ms ease-out');
+      });
+    };
+
+    window.addEventListener('deviceorientation', handleOrientation);
+    return () => {
+      window.removeEventListener('deviceorientation', handleOrientation);
+      if (promoted) demoteLayer();
+    };
+  }, [maxTilt, applyTransform, promoteLayer, demoteLayer]);
+
   const onMouseMove = useCallback((e: React.MouseEvent) => handleMove(e.clientX, e.clientY), [handleMove]);
   const onMouseEnter = useCallback(() => promoteLayer(), [promoteLayer]);
   const onMouseLeave = useCallback(() => { reset(); demoteLayer(); }, [reset, demoteLayer]);
