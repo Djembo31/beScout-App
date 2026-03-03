@@ -74,6 +74,7 @@ export default function TradingCardFrame({
   const { ref, tiltProps } = useTilt<HTMLDivElement>({
     maxTilt: 7,
     scale: 1.0,
+    speed: 500,
     yOffset: flipped ? 180 : 0,
     perspective: false,
   });
@@ -92,7 +93,7 @@ export default function TradingCardFrame({
   const handleClick = canFlip ? () => setFlipped(f => !f) : undefined;
 
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn('relative card-entrance', className)}>
       {/* Ambient gold + position glow behind card */}
       <div
         className="absolute inset-0 rounded-3xl blur-2xl opacity-40 pointer-events-none"
@@ -198,62 +199,99 @@ export default function TradingCardFrame({
               </div>
             </div>
 
-            {/* Gold Separator */}
-            <div className="relative z-10 mx-4 mt-2 md:mt-3">
-              <div className="gold-separator" />
-            </div>
-
-            {/* Glassmorphism Name Bar with gold accent */}
+            {/* Branding Stripe — left */}
             <div
-              className="relative z-10 mt-1.5 md:mt-2 backdrop-blur-md px-3 py-1.5"
+              className="absolute inset-y-0 left-0 w-3 z-[5] flex flex-col items-center justify-center gap-3 pointer-events-none"
               style={{
-                backgroundColor: 'rgba(255,255,255,0.05)',
-                borderTop: '1px solid rgba(255,215,0,0.15)',
-                borderBottom: '1px solid rgba(255,215,0,0.15)',
+                background: 'linear-gradient(90deg, rgba(0,0,0,0.25) 0%, transparent 100%)',
+                borderRight: '1px solid rgba(255,215,0,0.06)',
               }}
             >
-              <div className="text-sm md:text-base font-black text-white leading-tight truncate drop-shadow-lg text-center text-balance">
-                {first} {last}
-              </div>
-              <div className="text-[10px] text-white/40 mt-0.5 truncate text-center flex items-center justify-center gap-1.5">
-                <span>{clubData?.name ?? club}</span>
-                {edition && (
-                  <>
-                    <span className="text-gold/30">&middot;</span>
-                    <span
-                      className="text-[9px] font-mono font-bold"
-                      style={{ color: `${tint}cc` }}
-                    >
-                      {edition}
-                    </span>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* FIFA 2x3 Stats Grid */}
-            <div className="relative z-10 grid grid-cols-3 gap-y-2 gap-x-1 px-4 mt-2 md:mt-3">
-              <FifaStat label="L5" value={l5} />
-              <FifaStat label="L15" value={backStats?.l15 ?? '—'} />
-              <FifaStat label="GOL" value={backStats?.goals ?? '—'} />
-              <FifaStat label="AST" value={backStats?.assists ?? '—'} />
-              <FifaStat label="MAT" value={backStats?.matches ?? '—'} />
-              <FifaStat
-                label="FLOOR"
-                value={backStats?.floorPrice != null ? fmtScout(backStats.floorPrice) : '—'}
+              <img
+                src="/logo.svg"
+                alt=""
+                className="size-2.5 opacity-20"
+                aria-hidden="true"
+                style={{ filter: 'sepia(1) saturate(3) hue-rotate(15deg) brightness(0.9)' }}
               />
+              <span
+                className="text-[5px] font-bold tracking-[0.25em] uppercase"
+                style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', color: 'rgba(255,215,0,0.15)' }}
+              >
+                BESCOUT
+              </span>
             </div>
 
-            {/* BeScout Logo — seitlich rechts, vertikal */}
+            {/* Branding Stripe — right */}
             <div
-              className="absolute z-10 right-1 top-1/2 -translate-y-1/2"
-              style={{ writingMode: 'vertical-rl' }}
+              className="absolute inset-y-0 right-0 w-3 z-[5] flex flex-col items-center justify-center gap-3 pointer-events-none"
+              style={{
+                background: 'linear-gradient(270deg, rgba(0,0,0,0.25) 0%, transparent 100%)',
+                borderLeft: '1px solid rgba(255,215,0,0.06)',
+              }}
             >
               <img
-                src="/logo_schrift.svg"
-                alt="BeScout"
-                className="h-auto w-3.5 md:w-4 logo-veredelt-glow rotate-180"
+                src="/logo.svg"
+                alt=""
+                className="size-2.5 opacity-20"
+                aria-hidden="true"
+                style={{ filter: 'sepia(1) saturate(3) hue-rotate(15deg) brightness(0.9)' }}
               />
+              <span
+                className="text-[5px] font-bold tracking-[0.25em] uppercase"
+                style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', color: 'rgba(255,215,0,0.15)' }}
+              >
+                BESCOUT
+              </span>
+            </div>
+
+            {/* Info Section — delayed entrance */}
+            <div className="relative z-10 card-entrance-info">
+              {/* Gold Separator */}
+              <div className="mx-4 mt-2 md:mt-3">
+                <div className="gold-separator" />
+              </div>
+
+              {/* Glassmorphism Name Bar with gold accent */}
+              <div
+                className="mt-1.5 md:mt-2 backdrop-blur-md px-3 py-1.5"
+                style={{
+                  backgroundColor: 'rgba(255,255,255,0.05)',
+                  borderTop: '1px solid rgba(255,215,0,0.15)',
+                  borderBottom: '1px solid rgba(255,215,0,0.15)',
+                }}
+              >
+                <div className="text-sm md:text-base font-black text-white leading-tight truncate drop-shadow-lg text-center text-balance">
+                  {first} {last}
+                </div>
+                <div className="text-[10px] text-white/40 mt-0.5 truncate text-center flex items-center justify-center gap-1.5">
+                  <span>{clubData?.name ?? club}</span>
+                  {edition && (
+                    <>
+                      <span className="text-gold/30">&middot;</span>
+                      <span
+                        className="text-[9px] font-mono font-bold"
+                        style={{ color: `${tint}cc` }}
+                      >
+                        {edition}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* FIFA 2x3 Stats Grid */}
+              <div className="grid grid-cols-3 gap-y-2 gap-x-1 px-4 mt-2 md:mt-3">
+                <FifaStat label="L5" value={l5} />
+                <FifaStat label="L15" value={backStats?.l15 ?? '—'} />
+                <FifaStat label="GOL" value={backStats?.goals ?? '—'} />
+                <FifaStat label="AST" value={backStats?.assists ?? '—'} />
+                <FifaStat label="MAT" value={backStats?.matches ?? '—'} />
+                <FifaStat
+                  label="FLOOR"
+                  value={backStats?.floorPrice != null ? fmtScout(backStats.floorPrice) : '—'}
+                />
+              </div>
             </div>
           </div>
 
@@ -339,16 +377,50 @@ export default function TradingCardFrame({
                 </div>
               </div>
 
-              {/* BeScout Logo — seitlich rechts, vertikal */}
+              {/* Branding Stripe — left */}
               <div
-                className="absolute z-10 right-1 top-1/2 -translate-y-1/2"
-                style={{ writingMode: 'vertical-rl' }}
+                className="absolute inset-y-0 left-0 w-3 z-[5] flex flex-col items-center justify-center gap-3 pointer-events-none"
+                style={{
+                  background: 'linear-gradient(90deg, rgba(0,0,0,0.25) 0%, transparent 100%)',
+                  borderRight: '1px solid rgba(255,215,0,0.06)',
+                }}
               >
                 <img
-                  src="/logo_schrift.svg"
-                  alt="BeScout"
-                  className="h-auto w-3.5 md:w-4 logo-veredelt-glow rotate-180"
+                  src="/logo.svg"
+                  alt=""
+                  className="size-2.5 opacity-20"
+                  aria-hidden="true"
+                  style={{ filter: 'sepia(1) saturate(3) hue-rotate(15deg) brightness(0.9)' }}
                 />
+                <span
+                  className="text-[5px] font-bold tracking-[0.25em] uppercase"
+                  style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', color: 'rgba(255,215,0,0.15)' }}
+                >
+                  BESCOUT
+                </span>
+              </div>
+
+              {/* Branding Stripe — right */}
+              <div
+                className="absolute inset-y-0 right-0 w-3 z-[5] flex flex-col items-center justify-center gap-3 pointer-events-none"
+                style={{
+                  background: 'linear-gradient(270deg, rgba(0,0,0,0.25) 0%, transparent 100%)',
+                  borderLeft: '1px solid rgba(255,215,0,0.06)',
+                }}
+              >
+                <img
+                  src="/logo.svg"
+                  alt=""
+                  className="size-2.5 opacity-20"
+                  aria-hidden="true"
+                  style={{ filter: 'sepia(1) saturate(3) hue-rotate(15deg) brightness(0.9)' }}
+                />
+                <span
+                  className="text-[5px] font-bold tracking-[0.25em] uppercase"
+                  style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', color: 'rgba(255,215,0,0.15)' }}
+                >
+                  BESCOUT
+                </span>
               </div>
             </div>
           )}
