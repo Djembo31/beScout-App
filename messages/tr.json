@@ -690,7 +690,9 @@
     "gameweekDone": "Hafta tamamlandı! Sonraki hafta yükleniyor...",
     "lineupLabel": "Kadro",
     "playersProgress": "{filled}/{total} Oyuncu",
-    "individualRatings": "Bireysel Puanlar"
+    "individualRatings": "Bireysel Puanlar",
+    "listViewAria": "Liste görünümü",
+    "cardViewAria": "Kart görünümü"
   },
   "predictions": {
     "title": "Tahminler",
@@ -832,6 +834,7 @@
     "discuss": "Tartış",
     "clubSearch": "Kulüp ara...",
     "allClubs": "Tüm Kulüpler",
+    "clubFilterAria": "Kulüp filtresi",
     "clubCount": "{count} kulüp",
     "clubCountPlural": "{count} kulüp",
     "watchlistError": "Takip listesi güncellenemedi",
@@ -1070,6 +1073,7 @@
       "descLabel": "Açıklama",
       "descPlaceholder": "Ne istediğini ve hangi kriterlerin karşılanması gerektiğini ayrıntılı olarak açıkla...",
       "rewardLabel": "Ödül",
+      "rewardAmountAria": "Ödül tutarı",
       "deadlineLabel": "Süre",
       "maxSubLabel": "Maks. başvuru",
       "submit": "Görev yayınla",
@@ -1266,6 +1270,7 @@
     "languageDe": "Almanca",
     "languageTr": "Türkçe",
     "avatarLabel": "Profil fotoğrafı",
+    "avatarUploadAria": "Avatar yükle",
     "avatarHint": "JPG/PNG, maks. 2MB",
     "handleLabel": "Menajer Adı",
     "handleTaken": "Bu isim alınmış.",
@@ -1980,7 +1985,14 @@
     "clubAdmin": "Kulüp Yönetimi",
     "backToClub": "Kulüp sayfasına dön",
     "roleFor": "{name} için rol",
-    "removeAdmin": "{name} kaldır"
+    "removeAdmin": "{name} kaldır",
+    "gwFixtureSyncAria": "Fikstür senkronizasyonu için hafta",
+    "activeGameweekAria": "Aktif hafta",
+    "examplePrice": "ör. {example}",
+    "format6": "6'lı",
+    "format11": "11'li",
+    "tierBronzePlus": "Bronz+",
+    "tierSilberPlus": "Gümüş+"
   },
   "adminFans": {
     "totalFollowers": "Takipçi",
@@ -2503,7 +2515,8 @@
     "typeToSearch": "Aramak için yazın",
     "floor": "Taban",
     "followers": "Takipçi",
-    "level": "Sv"
+    "level": "Sv",
+    "clearSearchAria": "Aramayı temizle"
   },
   "demo": {
     "blocked": "Demo modu — Değişiklikler devre dışı",
@@ -2831,6 +2844,7 @@
     "shortLabel": "Kısaltma *",
     "clubLeagueLabel": "Lig *",
     "clubCountryLabel": "Ülke *",
+    "clubCountryPlaceholder": "Türkiye",
     "cityLabel": "Şehir",
     "planLabel": "Paket",
     "statsLoadError": "İstatistikler yüklenemedi.",

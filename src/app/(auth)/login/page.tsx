@@ -334,7 +334,7 @@ function LoginContent() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
-                    aria-label="Passwort anzeigen"
+                    aria-label={t('pwShowLabel')}
                   >
                     {showPassword ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
                   </button>

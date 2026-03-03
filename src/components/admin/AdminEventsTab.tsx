@@ -390,8 +390,8 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                 aria-label={t('formatLabel')}
                 className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
               >
-                <option value="6er">6er</option>
-                <option value="11er">11er</option>
+                <option value="6er">{t('format6')}</option>
+                <option value="11er">{t('format11')}</option>
               </select>
             </div>
           </div>
@@ -419,8 +419,8 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
             >
               <option value="">{t('allNoSub')}</option>
-              <option value="bronze">Bronze+</option>
-              <option value="silber">Silber+</option>
+              <option value="bronze">{t('tierBronzePlus')}</option>
+              <option value="silber">{t('tierSilberPlus')}</option>
               <option value="gold">{t('onlyGold')}</option>
             </select>
             {minSubTier && (

@@ -693,7 +693,9 @@
     "gameweekDone": "Spieltag abgeschlossen! Nächster Spieltag wird geladen...",
     "lineupLabel": "Aufstellung",
     "playersProgress": "{filled}/{total} Spieler",
-    "individualRatings": "Einzelbewertungen"
+    "individualRatings": "Einzelbewertungen",
+    "listViewAria": "Listenansicht",
+    "cardViewAria": "Kartenansicht"
   },
   "predictions": {
     "title": "Vorhersagen",
@@ -835,6 +837,7 @@
     "discuss": "Diskutieren",
     "clubSearch": "Verein suchen...",
     "allClubs": "Alle Vereine",
+    "clubFilterAria": "Club Filter",
     "clubCount": "{count} Verein",
     "clubCountPlural": "{count} Vereine",
     "watchlistError": "Watchlist konnte nicht aktualisiert werden",
@@ -1078,6 +1081,7 @@
       "descLabel": "Beschreibung",
       "descPlaceholder": "Beschreibe genau, was du brauchst und welche Kriterien erfüllt sein müssen...",
       "rewardLabel": "Belohnung",
+      "rewardAmountAria": "Belohnungsbetrag",
       "deadlineLabel": "Laufzeit",
       "maxSubLabel": "Max. Einreichungen",
       "submit": "Auftrag veröffentlichen",
@@ -1274,6 +1278,7 @@
     "languageDe": "Deutsch",
     "languageTr": "Türkçe",
     "avatarLabel": "Profilbild",
+    "avatarUploadAria": "Avatar hochladen",
     "avatarHint": "JPG/PNG, max. 2MB",
     "handleLabel": "Manager-Name",
     "handleTaken": "Bereits vergeben.",
@@ -1988,7 +1993,14 @@
     "clubAdmin": "Club-Verwaltung",
     "backToClub": "Zurück zur Club-Seite",
     "roleFor": "Rolle für {name}",
-    "removeAdmin": "{name} entfernen"
+    "removeAdmin": "{name} entfernen",
+    "gwFixtureSyncAria": "Gameweek für Fixture-Sync",
+    "activeGameweekAria": "Aktiver Spieltag",
+    "examplePrice": "z.B. {example}",
+    "format6": "6er",
+    "format11": "11er",
+    "tierBronzePlus": "Bronze+",
+    "tierSilberPlus": "Silber+"
   },
   "adminFans": {
     "totalFollowers": "Follower",
@@ -2511,7 +2523,8 @@
     "typeToSearch": "Tippe um zu suchen",
     "floor": "Floor",
     "followers": "Follower",
-    "level": "Lv"
+    "level": "Lv",
+    "clearSearchAria": "Suche leeren"
   },
   "demo": {
     "blocked": "Demo-Modus — Änderungen sind deaktiviert",
@@ -2839,6 +2852,7 @@
     "shortLabel": "Kürzel *",
     "clubLeagueLabel": "Liga *",
     "clubCountryLabel": "Land *",
+    "clubCountryPlaceholder": "Türkei",
     "cityLabel": "Stadt",
     "planLabel": "Paket",
     "statsLoadError": "Statistiken konnten nicht geladen werden.",

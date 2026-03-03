@@ -163,7 +163,7 @@ export default function CreateClubModal({ open, onClose, adminId, onCreated }: C
               type="text"
               value={country}
               onChange={(e) => setCountry(e.target.value)}
-              placeholder="Türkei"
+              placeholder={t('clubCountryPlaceholder')}
               className="w-full px-3 py-2.5 min-h-[44px] rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-gold/50"
             />
           </div>

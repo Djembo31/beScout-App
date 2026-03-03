@@ -180,7 +180,7 @@ function SettingsTab() {
                 <User className="size-8 text-white/70" aria-hidden="true" />
               )}
             </div>
-            <label aria-label="Avatar hochladen" className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+            <label aria-label={t('avatarUploadAria')} className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
               {uploadingAvatar ? (
                 <Loader2 className="size-5 text-white animate-spin motion-reduce:animate-none" />
               ) : (

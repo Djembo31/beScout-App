@@ -479,7 +479,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 min="0"
                 value={capValue}
                 onChange={(e) => setCapValue(e.target.value)}
-                placeholder="z.B. 500.00"
+                placeholder={t('examplePrice', { example: '500.00' })}
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
               />
             </div>
@@ -523,7 +523,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                   min="0"
                   value={liqTransferValue}
                   onChange={(e) => setLiqTransferValue(e.target.value)}
-                  placeholder="z.B. 1000000"
+                  placeholder={t('examplePrice', { example: '1000000' })}
                   className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
                 />
                 <div className="text-xs text-white/40 mt-1">{t('transferValueHint')}</div>
@@ -636,7 +636,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('pricePerDpc')}</label>
-            <input type="number" inputMode="numeric" step="0.01" min="0.01" value={ipoPrice} onChange={(e) => setIpoPrice(e.target.value)} placeholder="z.B. 5.00" className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
+            <input type="number" inputMode="numeric" step="0.01" min="0.01" value={ipoPrice} onChange={(e) => setIpoPrice(e.target.value)} placeholder={t('examplePrice', { example: '5.00' })} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('dpcCount')}</label>
@@ -744,7 +744,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 max="99"
                 value={cpShirtNumber}
                 onChange={(e) => setCpShirtNumber(e.target.value)}
-                placeholder="z.B. 10"
+                placeholder={t('examplePrice', { example: '10' })}
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
               />
             </div>
@@ -759,7 +759,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 max="45"
                 value={cpAge}
                 onChange={(e) => setCpAge(e.target.value)}
-                placeholder="z.B. 24"
+                placeholder={t('examplePrice', { example: '24' })}
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
               />
             </div>
@@ -783,7 +783,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               min="0.01"
               value={cpIpoPrice}
               onChange={(e) => setCpIpoPrice(e.target.value)}
-              placeholder="z.B. 5.00"
+              placeholder={t('examplePrice', { example: '5.00' })}
               className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
             />
           </div>

@@ -165,7 +165,7 @@ function ApiFootballSection({ userId }: { userId: string }) {
             <div className="flex items-center gap-3">
               <select
                 id="fixture-gw"
-                aria-label="Gameweek für Fixture-Sync"
+                aria-label={t('gwFixtureSyncAria')}
                 value={fixtureGw}
                 onChange={(e) => setFixtureGw(Number(e.target.value))}
                 className="w-28 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm min-h-[44px]"
@@ -398,7 +398,7 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
           <div className="flex items-center gap-3">
             <select
               id="active-gw"
-              aria-label="Aktiver Spieltag"
+              aria-label={t('activeGameweekAria')}
               value={selectedGw}
               onChange={(e) => setSelectedGw(Number(e.target.value))}
               className="flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm min-h-[44px]"

@@ -118,7 +118,7 @@ export default function BestandToolbar({
           <select
             value={clubFilter}
             onChange={(e) => onClubFilterChange(e.target.value)}
-            aria-label="Club Filter"
+            aria-label={t('clubFilterAria')}
             className="px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60 focus:outline-none"
           >
             <option value="">{t('allClubs')}</option>

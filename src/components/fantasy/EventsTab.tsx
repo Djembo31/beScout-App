@@ -153,14 +153,14 @@ export function EventsTab({
         <div className="flex-shrink-0 flex items-center bg-white/[0.04] border border-white/[0.06] rounded-lg p-0.5">
           <button
             onClick={() => setViewMode('table')}
-            aria-label="Listenansicht"
+            aria-label={t('listViewAria')}
             className={cn('p-1.5 rounded transition-colors', viewMode === 'table' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50')}
           >
             <List className="size-3.5" aria-hidden="true" />
           </button>
           <button
             onClick={() => setViewMode('cards')}
-            aria-label="Kartenansicht"
+            aria-label={t('cardViewAria')}
             className={cn('p-1.5 rounded transition-colors', viewMode === 'cards' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50')}
           >
             <LayoutGrid className="size-3.5" aria-hidden="true" />
