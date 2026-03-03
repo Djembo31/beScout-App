@@ -31,7 +31,8 @@ import {
   getScoreColor, getPosAccentColor, formatCountdown,
 } from './helpers';
 import EventCommunityTab from './EventCommunityTab';
-import SponsorBanner from '@/components/player/detail/SponsorBanner';
+import dynamic from 'next/dynamic';
+const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 import type { FixtureDeadline } from '@/lib/services/fixtures';
 
 export const EventDetailModal = ({

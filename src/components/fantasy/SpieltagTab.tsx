@@ -12,7 +12,8 @@ import { simulateGameweekFlow, importProgressiveStats, finalizeGameweek } from '
 import { isApiConfigured, hasApiFixtures } from '@/lib/services/footballData';
 import type { Fixture, FixturePlayerStat } from '@/types';
 import type { FantasyEvent } from './types';
-import SponsorBanner from '@/components/player/detail/SponsorBanner';
+import dynamic from 'next/dynamic';
+const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 import { SectionHeader } from '@/components/home/helpers';
 import {
   ClubLogo, TopspielCard, pickTopspiel,

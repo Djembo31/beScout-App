@@ -7,6 +7,7 @@ export const qk = {
   // ── Players ──
   players: {
     all: ['players'] as const,
+    names: ['players', 'names'] as const,
     byId: (id: string) => ['players', id] as const,
     byClub: (cid: string) => ['players', 'club', cid] as const,
   },

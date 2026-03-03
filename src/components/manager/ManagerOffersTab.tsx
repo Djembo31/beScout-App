@@ -20,7 +20,8 @@ import {
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { OfferWithDetails, Pos, Player } from '@/types';
-import SponsorBanner from '@/components/player/detail/SponsorBanner';
+import dynamic from 'next/dynamic';
+const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 
 // ============================================
 // Sub-Tab Config

@@ -80,6 +80,9 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const t = useTranslations('player');
   const uid = user?.id;
 
+  // ─── UI State (before queries so tab can gate enabled) ─
+  const [tab, setTab] = useState<Tab>('profil');
+
   // ─── React Query Hooks (ALL before early returns) ────
   const { data: dbPlayer, isLoading: playerLoading, isError: playerError, refetch } = useDbPlayerById(playerId);
   const { data: gwScoresData } = usePlayerGwScores(playerId);
@@ -89,9 +92,9 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const { data: holdingQtyData } = useHoldingQty(uid, playerId);
   const { data: holderCountData } = usePlayerHolderCount(playerId);
   const { data: allSellOrdersData } = useSellOrders(playerId);
-  const { data: openBidsData } = useOpenBids(playerId);
+  const { data: openBidsData } = useOpenBids(playerId, tab === 'markt');
   const { data: tradesData, isLoading: tradesLoading } = usePlayerTrades(playerId);
-  const { data: playerResearchData } = usePlayerResearch(playerId, uid);
+  const { data: playerResearchData } = usePlayerResearch(playerId, uid, tab === 'community');
   const { data: playerPostsData } = usePosts({ playerId, limit: 30 });
   const { data: userIpoPurchasedData } = useUserIpoPurchases(uid, activeIpo?.id);
   const { data: masteryData } = useDpcMastery(uid, playerId);
@@ -122,8 +125,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
 
   const alerts = usePriceAlerts({ playerId, player });
 
-  // ─── UI State ─────────────────────────────
-  const [tab, setTab] = useState<Tab>('profil');
+  // ─── UI State (continued) ────────────────
   const [isWatchlisted, setIsWatchlisted] = useState(false);
   const [profileMap, setProfileMap] = useState<Record<string, { handle: string; display_name: string | null }>>({});
 

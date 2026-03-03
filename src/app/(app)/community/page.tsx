@@ -19,7 +19,7 @@ import { castVote, getUserVotedIds } from '@/lib/services/votes';
 import { castCommunityPollVote, getUserPollVotedIds, cancelCommunityPoll } from '@/lib/services/communityPolls';
 import { getGesamtRang } from '@/lib/gamification';
 import {
-  usePlayers, useHoldings, usePosts, useLeaderboard,
+  usePlayerNames, useHoldings, usePosts, useLeaderboard,
   useFollowingIds, useFollowerCount, useFollowingCount,
   useClubVotes, useResearchPosts, useActiveBounties, useClubSubscription,
   useUserStats, useCommunityPolls,
@@ -35,7 +35,8 @@ import CreateResearchModal from '@/components/community/CreateResearchModal';
 import CreateBountyModal from '@/components/community/CreateBountyModal';
 import FollowListModal from '@/components/profile/FollowListModal';
 import type { PostWithAuthor, PostType } from '@/types';
-import SponsorBanner from '@/components/player/detail/SponsorBanner';
+import dynamic from 'next/dynamic';
+const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 
 // ============================================
 // MAIN PAGE — Scouting Zone
@@ -91,7 +92,7 @@ export default function CommunityPage() {
   const { data: leaderboard = [] } = useLeaderboard(50);
   const { data: followingIdsList = [] } = useFollowingIds(uid);
   const { data: rawHoldings = [] } = useHoldings(uid);
-  const { data: rawPlayers = [] } = usePlayers();
+  const { data: playerNames = [] } = usePlayerNames();
   const { data: researchPosts = [] } = useResearchPosts(uid);
   const { data: followerCount = 0 } = useFollowerCount(uid);
   const { data: followingCountNum = 0 } = useFollowingCount(uid);
@@ -103,10 +104,7 @@ export default function CommunityPage() {
   // ---- Derived data ----
   const followingIds = useMemo(() => new Set(followingIdsList), [followingIdsList]);
   const ownedPlayerIds = useMemo(() => new Set(rawHoldings.map(h => h.player_id)), [rawHoldings]);
-  const allPlayers = useMemo(() =>
-    rawPlayers.map(p => ({ id: p.id, name: `${p.first} ${p.last}`, pos: p.pos })),
-    [rawPlayers]
-  );
+  const allPlayers = playerNames;
 
   // User rang tier for research gate (Bronze II = tier 2)
   const userRangTier = useMemo(() => {

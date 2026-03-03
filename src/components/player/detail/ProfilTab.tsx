@@ -14,7 +14,8 @@ import { fmtScout } from '@/lib/utils';
 import type { Player } from '@/types';
 import type { PlayerGameweekScore } from '@/lib/services/scoring';
 import DPCSupplyRing from './DPCSupplyRing';
-import SponsorBanner from './SponsorBanner';
+import dynamic from 'next/dynamic';
+const SponsorBanner = dynamic(() => import('./SponsorBanner'), { ssr: false });
 import CommunityValuation from './CommunityValuation';
 import { RadarChart, buildPlayerRadarAxes } from '@/components/player/RadarChart';
 

@@ -4,7 +4,7 @@
  */
 
 export { qk } from './keys';
-export { usePlayers, usePlayerById } from './players';
+export { usePlayers, usePlayerById, usePlayerNames } from './players';
 export { useHoldings } from './holdings';
 export { useAllOpenOrders } from './orders';
 export { useEnrichedPlayers, enrichPlayersWithData } from './enriched';

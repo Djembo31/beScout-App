@@ -15,7 +15,8 @@ import {
   Star, Award, FileText,
 } from 'lucide-react';
 import { Card, Button, Chip, Modal, ErrorState, Skeleton, SkeletonCard, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
-import SponsorBanner from '@/components/player/detail/SponsorBanner';
+import dynamic from 'next/dynamic';
+const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 import { PlayerIdentity, PlayerKPIs } from '@/components/player';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { useUser } from '@/components/providers/AuthProvider';

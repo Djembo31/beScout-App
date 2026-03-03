@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { DbPlayer, Player, PlayerStatus } from '@/types';
+import type { DbPlayer, Player, PlayerStatus, Pos } from '@/types';
 import { toPos } from '@/types';
 
 // ============================================
@@ -11,6 +11,21 @@ export async function getPlayers(): Promise<DbPlayer[]> {
   const res = await fetch('/api/players');
   if (!res.ok) throw new Error('Failed to fetch players');
   return (await res.json()) as DbPlayer[];
+}
+
+/** Lightweight player names — only id, name, position. For dropdowns/autocomplete. */
+export type PlayerName = { id: string; name: string; pos: Pos };
+export async function getPlayerNames(): Promise<PlayerName[]> {
+  const { data, error } = await supabase
+    .from('players')
+    .select('id, first_name, last_name, position')
+    .order('last_name');
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(p => ({
+    id: p.id,
+    name: `${p.first_name} ${p.last_name}`,
+    pos: toPos(p.position),
+  }));
 }
 
 /** Einzelnen Spieler laden */

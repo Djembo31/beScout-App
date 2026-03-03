@@ -9,7 +9,8 @@ import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getSeasonLeaderboard, type SeasonLeaderboardEntry } from '@/lib/services/scoring';
 import { getFormResult } from './helpers';
-import SponsorBanner from '@/components/player/detail/SponsorBanner';
+import dynamic from 'next/dynamic';
+const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 
 export const HistoryTab = ({
   participations,

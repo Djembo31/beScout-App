@@ -24,11 +24,11 @@ export function useClubResearch(clubId: string | undefined, userId?: string) {
   });
 }
 
-export function usePlayerResearch(playerId: string | undefined, userId?: string) {
+export function usePlayerResearch(playerId: string | undefined, userId?: string, active = true) {
   return useQuery({
     queryKey: qk.research.list({ playerId, currentUserId: userId }),
     queryFn: () => getResearchPosts({ playerId, currentUserId: userId }),
-    enabled: !!playerId,
+    enabled: !!playerId && active,
     staleTime: TWO_MIN,
   });
 }

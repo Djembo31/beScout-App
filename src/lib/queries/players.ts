@@ -2,7 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { qk } from './keys';
-import { getPlayers, getPlayerById, getPlayersByClubId, dbToPlayers, dbToPlayer } from '@/lib/services/players';
+import { getPlayers, getPlayerById, getPlayersByClubId, getPlayerNames, dbToPlayers, dbToPlayer } from '@/lib/services/players';
+import type { PlayerName } from '@/lib/services/players';
 import type { DbPlayer } from '@/types';
 
 const FIVE_MIN = 5 * 60 * 1000;
@@ -44,6 +45,15 @@ export function usePlayerById(id: string | undefined) {
       return db ? dbToPlayer(db) : null;
     },
     enabled: !!id,
+    staleTime: FIVE_MIN,
+  });
+}
+
+/** Lightweight player names — for dropdowns/autocomplete (4 columns vs full DbPlayer) */
+export function usePlayerNames() {
+  return useQuery<PlayerName[]>({
+    queryKey: qk.players.names,
+    queryFn: getPlayerNames,
     staleTime: FIVE_MIN,
   });
 }
