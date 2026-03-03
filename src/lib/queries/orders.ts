@@ -9,6 +9,6 @@ export function useAllOpenOrders() {
   return useQuery({
     queryKey: qk.orders.all,
     queryFn: getAllOpenSellOrders,
-    staleTime: 60_000,
+    staleTime: 2 * 60_000,
   });
 }

@@ -245,14 +245,15 @@ export async function cancelOrder(
 // Order Queries
 // ============================================
 
-/** Alle aktiven Sell-Orders (fuer Markt-Uebersicht) */
+/** Alle aktiven Sell-Orders (fuer Markt-Uebersicht) — capped, price-sorted so cheapest per player included */
 export async function getAllOpenSellOrders(): Promise<DbOrder[]> {
   const { data, error } = await supabase
     .from('orders')
     .select('id, player_id, user_id, side, price, quantity, filled_qty, status, created_at, expires_at')
     .eq('side', 'sell')
     .in('status', ['open', 'partial'])
-    .order('price', { ascending: true });
+    .order('price', { ascending: true })
+    .limit(500);
 
   if (error) throw new Error(error.message);
   return (data ?? []) as DbOrder[];
@@ -330,13 +331,14 @@ export type TrendingPlayer = {
   change24h: number;
 };
 
-/** Top traded players in the last 24h */
+/** Top traded players in the last 24h — capped at 1000 rows for perf */
 export async function getTrendingPlayers(limit = 5): Promise<TrendingPlayer[]> {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const { data, error } = await supabase
     .from('trades')
     .select('player_id, price, quantity')
-    .gte('executed_at', since);
+    .gte('executed_at', since)
+    .limit(1000);
 
   if (error || !data || data.length === 0) return [];
 
@@ -386,7 +388,7 @@ export async function getAllPriceHistories(limit = 10): Promise<Map<string, numb
     .from('trades')
     .select('player_id, price, executed_at')
     .order('executed_at', { ascending: false })
-    .limit(500);
+    .limit(200);
 
   if (error || !data) return new Map();
 
