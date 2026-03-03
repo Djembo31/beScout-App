@@ -141,6 +141,8 @@ export default function PlayerHero({
               imageUrl={player.imageUrl}
               l5={player.perf.l5}
               edition={edition}
+              age={player.age}
+              country={player.country}
               backStats={{
                 goals: player.stats.goals,
                 assists: player.stats.assists,

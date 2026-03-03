@@ -1,14 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
 import { posTintColors } from '@/components/player/PlayerRow';
-import { ScoreCircle } from '@/components/player';
 import { RadarChart, buildPlayerRadarAxes } from '@/components/player/RadarChart';
 import { useTilt } from '@/lib/hooks/useTilt';
-import { fmtScout } from '@/lib/utils';
+import { fmtScout, countryToFlag, cn } from '@/lib/utils';
 import type { Pos, Trend } from '@/types';
 
 // Position glow ring — matches Tailwind shadow-glow-* tokens from tailwind.config
@@ -17,22 +15,6 @@ const posRingGlow: Record<Pos, string> = {
   DEF: '0 0 24px rgba(245,158,11,0.25), 0 0 48px rgba(245,158,11,0.12)',
   MID: '0 0 24px rgba(14,165,233,0.25), 0 0 48px rgba(14,165,233,0.12)',
   ATT: '0 0 24px rgba(244,63,94,0.25), 0 0 48px rgba(244,63,94,0.12)',
-};
-
-// Ambient glow radial colors
-const posGlowColors: Record<Pos, string> = {
-  GK: 'rgba(16,185,129,0.20)',
-  DEF: 'rgba(245,158,11,0.20)',
-  MID: 'rgba(14,165,233,0.20)',
-  ATT: 'rgba(244,63,94,0.20)',
-};
-
-// Position-specific background patterns
-const posBackgroundPattern: Record<Pos, string> = {
-  GK: `repeating-conic-gradient(rgba(16,185,129,0.06) 0% 25%, transparent 0% 50%) 0 0 / 24px 24px`,
-  DEF: `repeating-linear-gradient(180deg, rgba(245,158,11,0.05) 0px, transparent 2px, transparent 10px), repeating-linear-gradient(120deg, rgba(245,158,11,0.04) 0px, transparent 2px, transparent 10px)`,
-  MID: `repeating-radial-gradient(circle at 50% 50%, transparent 0px, transparent 8px, rgba(14,165,233,0.05) 9px, transparent 10px)`,
-  ATT: `repeating-linear-gradient(135deg, rgba(244,63,94,0.05) 0px, rgba(244,63,94,0.05) 1px, transparent 1px, transparent 10px), repeating-linear-gradient(45deg, rgba(244,63,94,0.04) 0px, rgba(244,63,94,0.04) 1px, transparent 1px, transparent 10px)`,
 };
 
 // Radar chart tint for position
@@ -63,41 +45,43 @@ interface TradingCardFrameProps {
   edition?: string;
   className?: string;
   backStats?: CardBackStats;
+  age?: number;
+  country?: string;
 }
 
-function StatItem({ label, value }: { label: string; value: string | number }) {
+/* FIFA-style stat cell: big number on top, tiny label below */
+function FifaStat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="flex flex-col items-center">
-      <span className="text-[10px] text-white/40 font-medium">{label}</span>
-      <span className="text-xs font-bold text-white/90 font-mono">{value}</span>
+    <div className="flex flex-col items-center gap-0.5">
+      <span className="text-[22px] md:text-[26px] font-black text-white/90 leading-none tabular-nums font-mono">
+        {value}
+      </span>
+      <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-white/35 leading-none">
+        {label}
+      </span>
     </div>
   );
 }
 
-const TrendIcon = ({ trend }: { trend: Trend }) => {
-  if (trend === 'UP') return <TrendingUp className="w-3 h-3 text-green-500" />;
-  if (trend === 'DOWN') return <TrendingDown className="w-3 h-3 text-red-400" />;
-  return <Minus className="w-3 h-3 text-white/40" />;
-};
-
 export default function TradingCardFrame({
   first, last, pos, club, shirtNumber, imageUrl, l5, edition, className = '', backStats,
+  age, country,
 }: TradingCardFrameProps) {
   const tp = useTranslations('player');
   const [flipped, setFlipped] = useState(false);
   const canFlip = !!backStats;
 
   const { ref, tiltProps } = useTilt<HTMLDivElement>({
-    maxTilt: 15,
-    scale: 1.03,
+    maxTilt: 7,
+    scale: 1.0,
     yOffset: flipped ? 180 : 0,
     perspective: false,
   });
 
   const tint = posTintColors[pos];
   const clubData = club ? getClub(club) : null;
-  const glowColor = posGlowColors[pos];
   const ringGlow = posRingGlow[pos];
+  const flag = country ? countryToFlag(country) : '';
 
   // Foil/holo effect based on L5 performance
   const effectClass = l5 >= 80 ? 'holo-rainbow' : l5 >= 65 ? 'foil-shimmer' : '';
@@ -108,12 +92,12 @@ export default function TradingCardFrame({
   const handleClick = canFlip ? () => setFlipped(f => !f) : undefined;
 
   return (
-    <div className={`relative ${className}`}>
-      {/* Ambient radial glow behind card */}
+    <div className={cn('relative', className)}>
+      {/* Ambient gold + position glow behind card */}
       <div
-        className="absolute inset-0 rounded-3xl blur-2xl opacity-50 pointer-events-none"
+        className="absolute inset-0 rounded-3xl blur-2xl opacity-40 pointer-events-none"
         style={{
-          background: `radial-gradient(ellipse at 50% 40%, ${glowColor} 0%, transparent 70%)`,
+          background: `radial-gradient(ellipse at 50% 30%, rgba(255,215,0,0.15) 0%, ${tint}15 40%, transparent 70%)`,
           transform: 'scale(1.4)',
         }}
       />
@@ -125,10 +109,13 @@ export default function TradingCardFrame({
           ref={ref}
           {...tiltProps}
           onClick={handleClick}
-          className={`relative aspect-[3/4] w-[180px] md:w-[220px] rounded-2xl border-[2px] ${effectClass} ${canFlip ? 'cursor-pointer' : ''}`}
+          className={cn(
+            'relative aspect-[3/4] w-[240px] md:w-[280px] rounded-2xl card-gold-frame',
+            effectClass,
+            canFlip && 'cursor-pointer'
+          )}
           style={{
             ...tiltProps.style,
-            borderColor: `${tint}55`,
             transformStyle: 'preserve-3d',
           }}
         >
@@ -137,100 +124,114 @@ export default function TradingCardFrame({
             className="absolute inset-0 rounded-2xl overflow-hidden"
             style={{ backfaceVisibility: 'hidden' }}
           >
-            {/* Background: dark base + position pattern */}
-            <div className="absolute inset-0 bg-[#0c0c0c]" />
-            <div
-              className="absolute inset-0"
-              style={{
-                background: posBackgroundPattern[pos],
-                animation: 'pattern-drift 8s linear infinite',
-              }}
-            />
+            {/* Background: carbon fiber */}
+            <div className="absolute inset-0 card-carbon" />
             {/* Subtle position gradient at top */}
             <div
-              className="absolute inset-x-0 top-0 h-1/3 opacity-20"
+              className="absolute inset-x-0 top-0 h-1/3 opacity-15"
               style={{ background: `linear-gradient(180deg, ${tint}40 0%, transparent 100%)` }}
             />
 
-            {/* Top bar: Club logo + Position pill */}
-            <div className="relative z-10 flex items-center justify-between px-3 pt-2">
+            {/* Top Bar: Club Logo | Flag + Age | Position Pill */}
+            <div className="relative z-10 flex items-center justify-between px-3 pt-2.5">
+              {/* Club Logo */}
               {clubData?.logo ? (
-                <div
-                  className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-black/60 border border-white/10 flex items-center justify-center backdrop-blur-sm"
-                >
-                  <img src={clubData.logo} alt={clubData.name} className="w-6 h-6 md:w-7 md:h-7 rounded-full object-cover" />
+                <div className="size-8 md:size-9 rounded-full bg-black/60 border border-white/10 flex items-center justify-center backdrop-blur-sm">
+                  <img src={clubData.logo} alt={clubData.name} className="size-6 md:size-7 rounded-full object-cover" />
                 </div>
               ) : (
-                <div className="w-8 h-8" />
+                <div className="size-8" />
               )}
+
+              {/* Flag + Age */}
+              <div className="flex items-center gap-1.5">
+                {flag && <span className="text-base leading-none" aria-label={country}>{flag}</span>}
+                {age != null && age > 0 && (
+                  <span className="text-[10px] font-bold text-white/50 tabular-nums">{age}</span>
+                )}
+              </div>
+
+              {/* Position Pill with shirt number */}
               <div
                 className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black backdrop-blur-sm"
                 style={{ backgroundColor: `${tint}40`, color: '#fff', border: `1px solid ${tint}60`, textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
               >
-                {pos} {shirtNumber > 0 && <span className="font-mono">{shirtNumber}</span>}
+                {pos} {shirtNumber > 0 && <span className="font-mono tabular-nums">{shirtNumber}</span>}
               </div>
             </div>
 
-            {/* Photo circle with position glow ring */}
-            <div className="relative z-10 flex justify-center mt-1 md:mt-2">
+            {/* Photo with topo overlay + position glow ring */}
+            <div className="relative z-10 flex justify-center mt-2 md:mt-3">
               <div
-                className="w-[80px] h-[80px] md:w-[100px] md:h-[100px] rounded-full border-[3px] overflow-hidden"
+                className="size-[100px] md:size-[120px] rounded-full border-[3px] overflow-hidden topo-overlay"
                 style={{ borderColor: `${tint}99`, boxShadow: ringGlow }}
               >
                 {imageUrl ? (
                   <img
                     src={imageUrl}
                     alt={`${first} ${last}`}
-                    className="w-full h-full object-cover"
+                    className="size-full object-cover"
                   />
                 ) : (
                   <div
-                    className="w-full h-full flex items-center justify-center"
+                    className="size-full flex items-center justify-center"
                     style={{ background: `linear-gradient(135deg, ${tint}30 0%, ${tint}10 100%)` }}
                   >
-                    <span className="font-black text-xl text-white/40">{initials}</span>
+                    <span className="font-black text-2xl text-white/40">{initials}</span>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Gold separator line */}
+            {/* Gold Separator */}
             <div className="relative z-10 mx-4 mt-2 md:mt-3">
-              <div className="h-px bg-gold/20" />
+              <div className="gold-separator" />
             </div>
 
-            {/* Glassmorphism Name Bar */}
+            {/* Glassmorphism Name Bar with gold accent */}
             <div
-              className="relative z-10 mt-1 md:mt-2 backdrop-blur-md border-y px-3 py-1.5"
+              className="relative z-10 mt-1.5 md:mt-2 backdrop-blur-md px-3 py-1.5"
               style={{
-                backgroundColor: 'rgba(255,255,255,0.06)',
-                borderColor: 'rgba(255,255,255,0.08)',
+                backgroundColor: 'rgba(255,255,255,0.05)',
+                borderTop: '1px solid rgba(255,215,0,0.15)',
+                borderBottom: '1px solid rgba(255,215,0,0.15)',
               }}
             >
-              <div className="text-sm md:text-base font-black text-white leading-tight truncate drop-shadow-lg text-center">
+              <div className="text-sm md:text-base font-black text-white leading-tight truncate drop-shadow-lg text-center text-balance">
                 {first} {last}
               </div>
-              <div className="text-[10px] text-white/40 mt-0.5 truncate text-center">
-                {clubData?.name ?? club}
+              <div className="text-[10px] text-white/40 mt-0.5 truncate text-center flex items-center justify-center gap-1.5">
+                <span>{clubData?.name ?? club}</span>
+                {edition && (
+                  <>
+                    <span className="text-gold/30">&middot;</span>
+                    <span
+                      className="text-[9px] font-mono font-bold"
+                      style={{ color: `${tint}cc` }}
+                    >
+                      {edition}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Mini stat circles + edition */}
-            <div className="relative z-10 flex items-center justify-center gap-2 mt-1.5 md:mt-2 px-3 pb-0.5">
-              {l5 > 0 && <ScoreCircle label="L5" value={l5} size={34} />}
-              {edition && (
-                <span
-                  className="text-[9px] font-mono font-bold px-2 py-1 rounded-lg"
-                  style={{ backgroundColor: `${tint}18`, color: tint, border: `1px solid ${tint}30` }}
-                >
-                  {edition}
-                </span>
-              )}
+            {/* FIFA 2x3 Stats Grid */}
+            <div className="relative z-10 grid grid-cols-3 gap-y-2 gap-x-1 px-4 mt-2 md:mt-3">
+              <FifaStat label="L5" value={l5} />
+              <FifaStat label="L15" value={backStats?.l15 ?? '—'} />
+              <FifaStat label="GOL" value={backStats?.goals ?? '—'} />
+              <FifaStat label="AST" value={backStats?.assists ?? '—'} />
+              <FifaStat label="MAT" value={backStats?.matches ?? '—'} />
+              <FifaStat
+                label="FLOOR"
+                value={backStats?.floorPrice != null ? fmtScout(backStats.floorPrice) : '—'}
+              />
             </div>
 
-            {/* BeScout branding */}
-            <div className="relative z-10 flex justify-center pb-2">
-              <img src="/logo_schrift.svg" alt="BeScout" className="h-3 md:h-3.5 opacity-30" />
+            {/* BeScout Logo — veredelt gold */}
+            <div className="relative z-10 flex justify-center mt-auto pb-2.5 pt-1.5">
+              <img src="/logo_schrift.svg" alt="BeScout" className="h-3 md:h-3.5 logo-veredelt-glow" />
             </div>
           </div>
 
@@ -243,22 +244,16 @@ export default function TradingCardFrame({
                 transform: 'rotateY(180deg)',
               }}
             >
-              {/* Background */}
-              <div className="absolute inset-0 bg-[#0c0c0c]" />
-              <div
-                className="absolute inset-0"
-                style={{
-                  background: posBackgroundPattern[pos],
-                  animation: 'pattern-drift 8s linear infinite',
-                }}
-              />
+              {/* Background: carbon fiber */}
+              <div className="absolute inset-0 card-carbon" />
+              {/* Subtle position gradient */}
               <div
                 className="absolute inset-x-0 top-0 h-1/2 opacity-15"
                 style={{ background: `linear-gradient(180deg, ${tint}40 0%, transparent 100%)` }}
               />
 
               {/* Radar Chart */}
-              <div className="relative z-10 flex justify-center pt-3 md:pt-4">
+              <div className="relative z-10 flex justify-center pt-4 md:pt-5">
                 <RadarChart
                   datasets={[{
                     axes: buildPlayerRadarAxes({
@@ -274,7 +269,7 @@ export default function TradingCardFrame({
                     color: posRadarColor[pos],
                     fillOpacity: 0.2,
                   }]}
-                  size={120}
+                  size={130}
                   rings={3}
                   showLabels={false}
                 />
@@ -282,20 +277,17 @@ export default function TradingCardFrame({
 
               {/* Gold separator */}
               <div className="relative z-10 mx-4 mt-2">
-                <div className="h-px bg-gold/20" />
+                <div className="gold-separator" />
               </div>
 
-              {/* Stats Grid */}
+              {/* Stats Grid — same FIFA style */}
               <div className="relative z-10 grid grid-cols-3 gap-y-3 gap-x-2 px-4 mt-3">
-                <StatItem label={tp('statGoals')} value={backStats.goals} />
-                <StatItem label={tp('statAssists')} value={backStats.assists} />
-                <StatItem label={tp('statMatches')} value={backStats.matches} />
-                <StatItem label={tp('statL15')} value={backStats.l15} />
-                <div className="flex flex-col items-center">
-                  <span className="text-[10px] text-white/40 font-medium">{tp('statTrend')}</span>
-                  <TrendIcon trend={backStats.trend} />
-                </div>
-                <StatItem
+                <FifaStat label={tp('statGoals')} value={backStats.goals} />
+                <FifaStat label={tp('statAssists')} value={backStats.assists} />
+                <FifaStat label={tp('statMatches')} value={backStats.matches} />
+                <FifaStat label={tp('statL15')} value={backStats.l15} />
+                <FifaStat label="L5" value={l5} />
+                <FifaStat
                   label={tp('statFloor')}
                   value={backStats.floorPrice != null ? fmtScout(backStats.floorPrice) : '—'}
                 />
@@ -303,10 +295,11 @@ export default function TradingCardFrame({
 
               {/* Name + Flip hint */}
               <div
-                className="relative z-10 mt-3 backdrop-blur-md border-y px-3 py-2"
+                className="relative z-10 mt-3 backdrop-blur-md px-3 py-2"
                 style={{
-                  backgroundColor: 'rgba(255,255,255,0.06)',
-                  borderColor: 'rgba(255,255,255,0.08)',
+                  backgroundColor: 'rgba(255,255,255,0.05)',
+                  borderTop: '1px solid rgba(255,215,0,0.15)',
+                  borderBottom: '1px solid rgba(255,215,0,0.15)',
                 }}
               >
                 <div className="text-xs font-bold text-white/90 text-center truncate">
@@ -317,9 +310,9 @@ export default function TradingCardFrame({
                 </div>
               </div>
 
-              {/* BeScout branding */}
-              <div className="relative z-10 flex justify-center pb-2 mt-auto">
-                <img src="/logo_schrift.svg" alt="BeScout" className="h-3 md:h-3.5 opacity-30" />
+              {/* BeScout branding — veredelt gold */}
+              <div className="relative z-10 flex justify-center pb-2.5 mt-auto">
+                <img src="/logo_schrift.svg" alt="BeScout" className="h-3 md:h-3.5 logo-veredelt-glow" />
               </div>
             </div>
           )}

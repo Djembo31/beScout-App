@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { Player, Pos } from '@/types';
-import { cn, fmtScout } from '@/lib/utils';
+import { cn, fmtScout, countryToFlag } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import {
   MiniSparkline, PlayerPhoto, getL5Color, getL5Hex, getL5Bg,
@@ -250,18 +250,20 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
     );
   }
 
-  // ─── CARD (~170px) ──────────────────────────
+  // ─── CARD (~170px) — Carbon + Gold FIFA UT ──
+  const cardFlag = player.country ? countryToFlag(player.country) : '';
+
   return (
     <Link
       href={`/player/${player.id}`}
-      className={cn('block border rounded-xl overflow-hidden card-lift', posCardBg[player.pos], player.perf.l5 >= 80 && 'holo-rainbow', player.perf.l5 >= 65 && player.perf.l5 < 80 && 'foil-shimmer', className)}
-      style={{ borderColor: `${posTintColors[player.pos]}55`, boxShadow: posGlowShadows[player.pos] }}
+      className={cn('block rounded-xl overflow-hidden card-lift card-carbon-mini card-gold-frame', player.perf.l5 >= 80 && 'holo-rainbow', player.perf.l5 >= 65 && player.perf.l5 < 80 && 'foil-shimmer', className)}
     >
-      {/* Header: Identity + L5 + Watch */}
+      {/* Header: Identity + L5 + Flag + Watch */}
       <div className="p-3 pb-2">
         <div className="flex items-start justify-between gap-2">
           <PlayerIdentity player={player} size="md" />
           <div className="flex items-center gap-1.5 shrink-0">
+            {cardFlag && <span className="text-sm leading-none">{cardFlag}</span>}
             <div className={cn('font-mono font-bold text-sm tabular-nums', getL5Color(player.perf.l5))}>
               {player.perf.l5}
             </div>
@@ -270,8 +272,8 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
         </div>
       </div>
 
-      {/* Divider */}
-      <div className="border-t border-white/[0.08] mx-3" />
+      {/* Gold Divider */}
+      <div className="gold-separator mx-3" />
 
       {/* Price + KPIs + Badges */}
       <div className="px-3 pt-2 pb-1.5">
@@ -295,11 +297,16 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
       </div>
 
       {/* Context KPIs + Action */}
-      <div className="px-3 pb-2.5">
+      <div className="px-3 pb-2">
         <div className="flex items-center justify-between">
           <PlayerKPIs player={player} context={context} holding={holding} ipoData={ipoData} />
           {buyBtn}
         </div>
+      </div>
+
+      {/* Footer: BeScout micro-logo */}
+      <div className="flex justify-center pb-2">
+        <img src="/logo_schrift.svg" alt="BeScout" className="h-2.5 logo-veredelt" />
       </div>
     </Link>
   );
