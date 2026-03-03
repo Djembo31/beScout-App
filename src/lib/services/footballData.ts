@@ -12,7 +12,7 @@ const API_BASE = 'https://v3.football.api-sports.io';
 
 // League + season config — parametrized for multi-league expansion
 const DEFAULT_LEAGUE_ID = 204;  // TFF 1. Lig (203 = Süper Lig)
-const DEFAULT_SEASON = 2024;
+const DEFAULT_SEASON = 2025;
 
 function getLeagueId(): number {
   const envVal = process.env.NEXT_PUBLIC_LEAGUE_ID;
@@ -181,6 +181,19 @@ function calcFantasyPoints(
 // Mapping: API Position → Our Position
 // ============================================
 
+/**
+ * Normalize text for player name matching — handles Turkish characters
+ * İ→i, ı→i, ş→s, ç→c, ğ→g, ö→o, ü→u, ä→a + strip remaining diacritics
+ */
+function normalizeForMatch(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/ı/g, 'i')  // Turkish dotless ı (not decomposed by NFD)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')  // Strip all combining diacritics
+    .trim();
+}
+
 function mapPosition(apiPos: string): 'GK' | 'DEF' | 'MID' | 'ATT' {
   const p = apiPos.toUpperCase();
   if (p.includes('GOAL')) return 'GK';
@@ -278,6 +291,8 @@ export async function syncPlayerMapping(adminId: string): Promise<MappingResult>
     }
 
     const mappings: Array<{ player_id: string; api_football_id: number }> = [];
+    // Track which players are already mapped to prevent duplicates
+    const mappedPlayerIds = new Set<string>();
 
     for (const club of clubs) {
       try {
@@ -293,30 +308,68 @@ export async function syncPlayerMapping(adminId: string): Promise<MappingResult>
         if (!ourPlayers) continue;
 
         for (const apiPlayer of squad) {
-          const apiNameParts = apiPlayer.name.toLowerCase().split(' ');
+          const apiName = normalizeForMatch(apiPlayer.name);
+          const apiNameParts = apiName.split(/\s+/).filter(p => p.length > 0);
 
-          const match = ourPlayers.find(p => {
-            const lastName = p.last_name.toLowerCase();
-            const firstName = p.first_name.toLowerCase();
-            // Match by last name + shirt number (most reliable)
-            if (apiPlayer.number && p.shirt_number === apiPlayer.number &&
-                apiNameParts.some(part => lastName.includes(part) || part.includes(lastName))) {
-              return true;
-            }
-            // Match by full name parts
-            if (apiNameParts.some(part => lastName === part) &&
-                apiNameParts.some(part => firstName === part || firstName.startsWith(part))) {
-              return true;
-            }
-            // Match by last name only (fuzzy)
-            if (apiNameParts.some(part => part.length >= 4 && lastName.includes(part))) {
-              return true;
-            }
-            return false;
-          });
+          // Collect candidates with confidence scores
+          const candidates: Array<{ player: typeof ourPlayers[number]; score: number }> = [];
 
-          if (match) {
-            mappings.push({ player_id: match.id, api_football_id: apiPlayer.id });
+          for (const p of ourPlayers) {
+            const lastName = normalizeForMatch(p.last_name);
+            const firstName = normalizeForMatch(p.first_name);
+            let score = 0;
+
+            const shirtMatch = apiPlayer.number != null && p.shirt_number === apiPlayer.number;
+            const lastNameExact = apiNameParts.some(part => lastName === part);
+            const firstNameExact = apiNameParts.some(part => firstName === part || (firstName.length >= 3 && firstName.startsWith(part) && part.length >= 3));
+
+            // Tier 1: Last name exact + shirt number (most reliable) — score 100
+            if (shirtMatch && lastNameExact) {
+              score = 100;
+            }
+            // Tier 2: Full name parts match (first + last) — score 80-90
+            else if (lastNameExact && firstNameExact) {
+              score = shirtMatch ? 90 : 80;
+            }
+            // Tier 3: Last name exact match only — must be 5+ chars to avoid false positives — score 60-70
+            else if (apiNameParts.some(part => part.length >= 5 && lastName === part && lastName.length >= 5)) {
+              score = shirtMatch ? 70 : 60;
+            }
+            // Tier 4: Shirt number + partial last name (min 5 chars, full word boundary) — score 50
+            else if (shirtMatch && apiNameParts.some(part =>
+              part.length >= 5 && (lastName.startsWith(part) || part.startsWith(lastName)) && lastName.length >= 4
+            )) {
+              score = 50;
+            }
+
+            if (score > 0) {
+              candidates.push({ player: p, score });
+            }
+          }
+
+          if (candidates.length > 0) {
+            // Sort by score descending
+            candidates.sort((a, b) => b.score - a.score);
+            const best = candidates[0];
+
+            // Skip if ambiguous (two top candidates with same score)
+            if (candidates.length > 1 && candidates[0].score === candidates[1].score) {
+              const names = candidates
+                .filter(c => c.score === best.score)
+                .map(c => `${c.player.first_name} ${c.player.last_name}`)
+                .join(', ');
+              result.unmatched.push(`${apiPlayer.name} (${club.name}) — ambiguous: ${names}`);
+              continue;
+            }
+
+            // Skip if this player ID is already mapped (duplicate target)
+            if (mappedPlayerIds.has(best.player.id)) {
+              result.unmatched.push(`${apiPlayer.name} (${club.name}) — duplicate target: ${best.player.first_name} ${best.player.last_name}`);
+              continue;
+            }
+
+            mappings.push({ player_id: best.player.id, api_football_id: apiPlayer.id });
+            mappedPlayerIds.add(best.player.id);
           } else {
             result.unmatched.push(`${apiPlayer.name} (${club.name})`);
           }
