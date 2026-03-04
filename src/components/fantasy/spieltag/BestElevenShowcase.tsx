@@ -131,22 +131,22 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
   const badge = scoreBadgeColor(rating);
 
   return (
-    <Link href={`/player/${stat.player_id}`} className="flex flex-col items-center w-[52px] md:w-[60px] hover:scale-105 transition-transform active:scale-95">
+    <Link href={`/player/${stat.player_id}`} className="flex flex-col items-center w-[44px] sm:w-[52px] md:w-[60px] hover:scale-105 transition-transform active:scale-95">
       {/* Score badge */}
-      <div className={`mb-0.5 min-w-[1.5rem] px-1.5 py-0.5 rounded-full text-[10px] md:text-[11px] font-mono font-black text-center shadow-lg tabular-nums ${badge}`}>
+      <div className={`mb-0.5 min-w-[1.5rem] px-1 sm:px-1.5 py-px sm:py-0.5 rounded-full text-[9px] sm:text-[10px] md:text-[11px] font-mono font-black text-center shadow-lg tabular-nums ${badge}`}>
         {rating.toFixed(1)}
       </div>
       {/* Circle with initials */}
       <div
-        className="size-10 md:size-12 rounded-full flex items-center justify-center border-2 bg-black/40"
+        className="size-8 sm:size-10 md:size-12 rounded-full flex items-center justify-center border-2 bg-black/40"
         style={{ borderColor: accent, boxShadow: `0 0 10px ${accent}30` }}
       >
-        <span className="font-bold text-[10px] md:text-[11px]" style={{ color: accent }}>
+        <span className="font-bold text-[9px] sm:text-[10px] md:text-[11px]" style={{ color: accent }}>
           {stat.player_last_name.slice(0, 3).toUpperCase()}
         </span>
       </div>
       {/* Name */}
-      <div className="text-[10px] md:text-[11px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
+      <div className="text-[9px] sm:text-[10px] md:text-[11px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
         {stat.player_last_name}
       </div>
       {/* Club */}
@@ -217,8 +217,8 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
           <span className="text-xs font-mono font-bold text-gold tabular-nums">Ø {avgRating.toFixed(1)}</span>
         </div>
 
-        {/* Green pitch field */}
-        <div className="relative bg-gradient-to-b from-[#1a5c1a]/40 via-[#1e6b1e]/30 to-[#1a5c1a]/40" style={{ aspectRatio: '4/3' }}>
+        {/* Green pitch field — square on mobile for enough vertical room, 4:3 on larger screens */}
+        <div className="relative bg-gradient-to-b from-[#1a5c1a]/40 via-[#1e6b1e]/30 to-[#1a5c1a]/40 aspect-square sm:aspect-[4/3]">
           {/* SVG field markings */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none" viewBox="0 0 400 300">
             {/* Outer boundary */}
