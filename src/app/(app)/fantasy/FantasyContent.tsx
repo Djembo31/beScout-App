@@ -153,7 +153,7 @@ export default function FantasyContent() {
   const { data: dbEvents = [], isLoading: eventsLoading, isError: eventsError, refetch: refetchEvents } = useEvents();
   const { data: joinedIdsArr = [] } = useJoinedEventIds(userId);
   const { data: usageMap } = usePlayerEventUsage(userId);
-  const { data: activeGw } = useActiveGameweek(clubId || undefined);
+  const { data: activeGw, isLoading: activeGwLoading } = useActiveGameweek(clubId || undefined);
   const { data: isAdmin = false } = useIsClubAdmin(userId, clubId || undefined);
   const { data: dbHoldings = [] } = useHoldings(userId);
 
@@ -513,8 +513,8 @@ export default function FantasyContent() {
 
   const fixtureCount = gwFixtureInfo.count;
 
-  // Loading state — skeleton
-  if (eventsLoading) {
+  // Loading state — skeleton (wait for activeGw to prevent flash of GW1)
+  if (eventsLoading || (!!clubId && activeGwLoading)) {
     return (
       <div className="max-w-[1400px] mx-auto space-y-4">
         <div className="flex items-center justify-between">
