@@ -158,7 +158,7 @@ export type PlayerRadarData = {
   matches: number;
   perfL5: number;
   perfL15: number;
-  bonus: number;
+  saves: number;
   minutes: number;
 };
 
@@ -169,7 +169,7 @@ const DEFAULT_AXES_CONFIG = [
   { key: 'matches', label: 'Spiele', max: 38 },
   { key: 'perfL5', label: 'L5', max: 100 },
   { key: 'perfL15', label: 'L15', max: 100 },
-  { key: 'bonus', label: 'Bonus', max: 30 },
+  { key: 'saves', label: 'Paraden', max: 60 },
   { key: 'minutes', label: 'Minuten', max: 3420 },
 ];
 

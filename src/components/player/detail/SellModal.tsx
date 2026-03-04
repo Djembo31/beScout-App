@@ -8,6 +8,7 @@ import { fmtScout } from '@/lib/utils';
 import { formatScout } from '@/lib/services/wallet';
 import type { Player, DbOrder } from '@/types';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
+import { TRADE_FEE_PCT } from '@/lib/constants';
 
 interface SellModalProps {
   open: boolean;
@@ -57,9 +58,8 @@ export default function SellModal({
     onSell(sellQty, priceCents);
   };
 
-  // Fee breakdown — must match TRADE_FEE_TOTAL_PCT in backend RPCs
+  // Fee breakdown
   const gross = sellQty * Number(sellPriceBsd || 0);
-  const TRADE_FEE_PCT = 6;
   const fee = gross * TRADE_FEE_PCT / 100;
   const net = gross - fee;
   const showFee = sellPriceBsd && Number(sellPriceBsd) > 0;

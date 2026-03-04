@@ -66,6 +66,15 @@ export function bsdToCents(bsd: number): number {
   return Math.round(bsd * 100);
 }
 
+/** Calculate months left from contract_end date string. Returns 0 if unknown. */
+function calcContractMonths(contractEnd?: string | null): number {
+  if (!contractEnd) return 0;
+  const end = new Date(contractEnd);
+  const now = new Date();
+  const months = (end.getFullYear() - now.getFullYear()) * 12 + (end.getMonth() - now.getMonth());
+  return Math.max(0, months);
+}
+
 /**
  * Konvertiert eine DB-Row in den Frontend Player-Type.
  * Felder die nicht in der DB sind (listings, topOwners, pbt, ipo)
@@ -87,7 +96,7 @@ export function dbToPlayer(db: DbPlayer): Player {
     status: (db.status as PlayerStatus) ?? 'fit',
     age: db.age ?? 0,
     country: db.nationality ?? 'TR',
-    contractMonthsLeft: 12,
+    contractMonthsLeft: calcContractMonths(db.contract_end),
     perf: {
       l5: Number(db.perf_l5),
       l15: Number(db.perf_l15),
@@ -97,6 +106,9 @@ export function dbToPlayer(db: DbPlayer): Player {
       matches: db.matches,
       goals: db.goals,
       assists: db.assists,
+      cleanSheets: db.clean_sheets,
+      minutes: db.total_minutes ?? 0,
+      saves: db.total_saves ?? 0,
     },
     prices: {
       lastTrade: lastBsd,

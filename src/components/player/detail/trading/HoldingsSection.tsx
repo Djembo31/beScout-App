@@ -7,6 +7,7 @@ import { Card, Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { formatScout } from '@/lib/services/wallet';
 import type { Player, DbOrder } from '@/types';
+import { TRADE_FEE_PCT } from '@/lib/constants';
 
 interface HoldingsSectionProps {
   player: Player;
@@ -115,7 +116,7 @@ export default function HoldingsSection({
                 {/* Fee breakdown */}
                 {sellPriceBsd && Number(sellPriceBsd) > 0 && (() => {
                   const gross = sellQty * Number(sellPriceBsd);
-                  const feePct = 6;
+                  const feePct = TRADE_FEE_PCT;
                   const fee = gross * feePct / 100;
                   const net = gross - fee;
                   return (

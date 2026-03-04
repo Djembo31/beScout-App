@@ -30,9 +30,9 @@ const formatGrowthLabel = (currentValue: number, tierMaxValue: number, mvLabel: 
 
 export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
   const t = useTranslations('playerDetail');
-  const marketValue = player.marketValue || 500000;
-  const currentTier = getSuccessFeeTier(marketValue);
-  const ipoPrice = player.prices.ipoPrice ?? 100;
+  const marketValue = player.marketValue || 0;
+  const currentTier = marketValue > 0 ? getSuccessFeeTier(marketValue) : null;
+  const ipoPrice = player.prices.ipoPrice ?? 0;
 
   // Find current tier index
   const currentIdx = SUCCESS_FEE_TIERS.findIndex(t => t === currentTier);
@@ -58,11 +58,11 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
       <div className="grid grid-cols-2 gap-3">
         <Card className="p-4">
           <div className="text-[10px] text-white/40 mb-1">{t('currentMarketValue')}</div>
-          <div className="font-mono font-black tabular-nums text-lg">{formatMarketValue(marketValue)}</div>
+          <div className="font-mono font-black tabular-nums text-lg">{marketValue > 0 ? formatMarketValue(marketValue) : '–'}</div>
         </Card>
         <Card className="p-4">
           <div className="text-[10px] text-white/40 mb-1">{t('yourEntry')}</div>
-          <div className="font-mono font-black tabular-nums text-lg">{fmtScout(ipoPrice)} <span className="text-sm text-white/40">$SCOUT</span></div>
+          <div className="font-mono font-black tabular-nums text-lg">{ipoPrice > 0 ? <>{fmtScout(ipoPrice)} <span className="text-sm text-white/40">$SCOUT</span></> : '–'}</div>
           {holdingQty > 0 && (
             <div className="text-[10px] text-sky-300 mt-0.5">{t('dpcOwnership', { count: holdingQty })}</div>
           )}

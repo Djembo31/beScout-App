@@ -42,9 +42,8 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
   const radarLabels = {
     goals: tp('statGoals'), assists: tp('statAssists'), cleanSheets: tp('statCS'),
     matches: tp('statMatches'), perfL5: tp('statL5'), perfL15: tp('statL15'),
-    bonus: tp('statBonus'), minutes: tp('statMinutes'),
+    saves: tp('statSaves'), minutes: tp('statMinutes'),
   };
-  const progressPercent = Math.max(0, Math.min(100, ((36 - player.contractMonthsLeft) / 36) * 100));
   const pbt = player.pbt || { balance: 0, sources: { trading: 0, votes: 0, content: 0, ipo: 0 } };
 
   return (
@@ -93,12 +92,12 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
               axes: buildPlayerRadarAxes({
                 goals: player.stats.goals,
                 assists: player.stats.assists,
-                cleanSheets: 0,
+                cleanSheets: player.stats.cleanSheets,
                 matches: player.stats.matches,
                 perfL5: player.perf.l5,
                 perfL15: player.perf.l15,
-                bonus: 0,
-                minutes: player.stats.matches * 90,
+                saves: player.stats.saves,
+                minutes: player.stats.minutes,
               }, radarLabels),
               color: player.pos === 'GK' ? '#34d399' : player.pos === 'DEF' ? '#fbbf24' : player.pos === 'MID' ? '#38bdf8' : '#fb7185',
             }]}
@@ -116,7 +115,7 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           <div>
             <div className="text-xs text-white/50">{t('marketValue')}</div>
-            <div className="font-bold">{formatMarketValue(player.marketValue || 500000)}</div>
+            <div className="font-bold">{player.marketValue ? formatMarketValue(player.marketValue) : '–'}</div>
           </div>
           <div>
             <div className="text-xs text-white/50">{t('position')}</div>
@@ -176,67 +175,72 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
         </div>
       </Card>
 
-      {/* Contract Status */}
-      <Card className="overflow-hidden">
-        <div className={`p-4 ${contract.urgent ? 'bg-red-500/10' : player.contractMonthsLeft <= 12 ? 'bg-orange-500/10' : 'bg-surface-base'}`}>
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Calendar className="size-5 text-white/50" aria-hidden="true" />
-              <span className="font-bold">{t('contractStatus')}</span>
+      {/* Contract Status — only shown when contract data is available */}
+      {player.contractMonthsLeft > 0 && (() => {
+        const progressPercent = Math.max(0, Math.min(100, ((36 - player.contractMonthsLeft) / 36) * 100));
+        return (
+          <Card className="overflow-hidden">
+            <div className={`p-4 ${contract.urgent ? 'bg-red-500/10' : player.contractMonthsLeft <= 12 ? 'bg-orange-500/10' : 'bg-surface-base'}`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className="size-5 text-white/50" aria-hidden="true" />
+                  <span className="font-bold">{t('contractStatus')}</span>
+                </div>
+                {contract.urgent && (
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold bg-red-500/20 text-red-300">
+                    <AlertTriangle className="size-3" aria-hidden="true" />
+                    {t('expiringSoon')}
+                  </div>
+                )}
+                {!contract.urgent && player.contractMonthsLeft <= 12 && (
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold bg-orange-500/20 text-orange-300">
+                    <AlertTriangle className="size-3" aria-hidden="true" />
+                    {t('expiringLabel')}
+                  </div>
+                )}
+              </div>
+              <div className="flex items-end justify-between mb-2">
+                <div>
+                  <div className="text-xs text-white/40">{t('contractEnd')}</div>
+                  <div className={`font-mono font-bold tabular-nums text-lg ${contract.color}`}>{contract.dateStr}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-white/40">{t('remainingTerm')}</div>
+                  <div className={`font-mono font-bold tabular-nums text-lg ${contract.color}`}>{t('monthsCount', { count: contract.monthsLeft })}</div>
+                </div>
+              </div>
+              <div className="mt-3">
+                <div className="h-2 bg-black/30 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-colors ${contract.urgent ? 'bg-red-400' : player.contractMonthsLeft <= 12 ? 'bg-orange-400' : 'bg-green-500'}`}
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+              </div>
             </div>
-            {contract.urgent && (
-              <div className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold bg-red-500/20 text-red-300">
-                <AlertTriangle className="size-3" aria-hidden="true" />
-                {t('expiringSoon')}
+            {/* DPC Burn Info */}
+            {(contract.urgent || player.contractMonthsLeft <= 12) && (
+              <div className={`p-4 border-t ${contract.urgent ? 'border-red-500/20 bg-red-500/5' : 'border-orange-500/20 bg-orange-500/5'}`}>
+                <div className="flex items-start gap-3">
+                  <Flame className={`size-5 mt-0.5 ${contract.urgent ? 'text-red-400' : 'text-orange-400'}`} aria-hidden="true" />
+                  <div>
+                    <div className={`font-bold text-sm ${contract.urgent ? 'text-red-300' : 'text-orange-300'}`}>
+                      {t('dpcBurnIn', { months: contract.monthsLeft })}
+                    </div>
+                    <div className="text-xs text-white/50 mt-1 text-pretty">
+                      {t('dpcBurnInfo')}
+                    </div>
+                    <div className="flex items-center gap-2 mt-2 text-xs">
+                      <CheckCircle2 className="size-3 text-green-500" aria-hidden="true" />
+                      <span className="text-white/60">{t('pbtRewardAuto')}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
-            {!contract.urgent && player.contractMonthsLeft <= 12 && (
-              <div className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold bg-orange-500/20 text-orange-300">
-                <AlertTriangle className="size-3" aria-hidden="true" />
-                {t('expiringLabel')}
-              </div>
-            )}
-          </div>
-          <div className="flex items-end justify-between mb-2">
-            <div>
-              <div className="text-xs text-white/40">{t('contractEnd')}</div>
-              <div className={`font-mono font-bold tabular-nums text-lg ${contract.color}`}>{contract.dateStr}</div>
-            </div>
-            <div className="text-right">
-              <div className="text-xs text-white/40">{t('remainingTerm')}</div>
-              <div className={`font-mono font-bold tabular-nums text-lg ${contract.color}`}>{t('monthsCount', { count: contract.monthsLeft })}</div>
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="h-2 bg-black/30 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-colors ${contract.urgent ? 'bg-red-400' : player.contractMonthsLeft <= 12 ? 'bg-orange-400' : 'bg-green-500'}`}
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-          </div>
-        </div>
-        {/* DPC Burn Info */}
-        {(contract.urgent || player.contractMonthsLeft <= 12) && (
-          <div className={`p-4 border-t ${contract.urgent ? 'border-red-500/20 bg-red-500/5' : 'border-orange-500/20 bg-orange-500/5'}`}>
-            <div className="flex items-start gap-3">
-              <Flame className={`size-5 mt-0.5 ${contract.urgent ? 'text-red-400' : 'text-orange-400'}`} aria-hidden="true" />
-              <div>
-                <div className={`font-bold text-sm ${contract.urgent ? 'text-red-300' : 'text-orange-300'}`}>
-                  {t('dpcBurnIn', { months: contract.monthsLeft })}
-                </div>
-                <div className="text-xs text-white/50 mt-1 text-pretty">
-                  {t('dpcBurnInfo')}
-                </div>
-                <div className="flex items-center gap-2 mt-2 text-xs">
-                  <CheckCircle2 className="size-3 text-green-500" aria-hidden="true" />
-                  <span className="text-white/60">{t('pbtRewardAuto')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </Card>
+          </Card>
+        );
+      })()}
 
       {/* PBT Widget */}
       <Card className="overflow-hidden">

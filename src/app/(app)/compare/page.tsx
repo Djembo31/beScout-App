@@ -24,7 +24,7 @@ export default function ComparePage() {
   const radarLabels = {
     goals: tp('statGoals'), assists: tp('statAssists'), cleanSheets: tp('statCS'),
     matches: tp('statMatches'), perfL5: tp('statL5'), perfL15: tp('statL15'),
-    bonus: tp('statBonus'), minutes: tp('statMinutes'),
+    saves: tp('statSaves'), minutes: tp('statMinutes'),
   };
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [search, setSearch] = useState('');
@@ -89,8 +89,8 @@ export default function ComparePage() {
       matches: p.matches,
       perfL5: p.perf_l5,
       perfL15: p.perf_l15,
-      bonus: 0,
-      minutes: p.matches * 90,
+      saves: p.total_saves ?? 0,
+      minutes: p.total_minutes ?? 0,
     }, radarLabels),
     color: COLORS[i % COLORS.length],
     label: `${p.first_name} ${p.last_name}`,

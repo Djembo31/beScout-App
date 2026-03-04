@@ -29,6 +29,9 @@ export interface CardBackStats {
   goals: number;
   assists: number;
   matches: number;
+  cleanSheets: number;
+  minutes: number;
+  saves: number;
   l15: number;
   trend: Trend;
   floorPrice?: number;
@@ -295,12 +298,12 @@ export default function TradingCardFrame({
                     axes: buildPlayerRadarAxes({
                       goals: backStats.goals,
                       assists: backStats.assists,
-                      cleanSheets: 0,
+                      cleanSheets: backStats.cleanSheets,
                       matches: backStats.matches,
                       perfL5: l5,
                       perfL15: backStats.l15,
-                      bonus: 0,
-                      minutes: 0,
+                      saves: backStats.saves,
+                      minutes: backStats.minutes,
                     }),
                     color: posRadarColor[pos],
                     fillOpacity: 0.2,

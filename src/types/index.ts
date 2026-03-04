@@ -38,7 +38,7 @@ export type Player = {
   contractMonthsLeft: number;
   marketValue?: number; // Marktwert in € (für Success Fee Tier)
   perf: { l5: number; l15: number; trend: Trend };
-  stats: { matches: number; goals: number; assists: number };
+  stats: { matches: number; goals: number; assists: number; cleanSheets: number; minutes: number; saves: number };
   prices: { lastTrade: number; change24h: number; floor?: number; ipoPrice?: number; history7d?: number[] };
   dpc: { supply: number; float: number; circulation: number; onMarket: number; owned: number };
   pbt?: { // Player Bound Treasury
@@ -461,6 +461,8 @@ export type DbPlayer = {
   goals: number;
   assists: number;
   clean_sheets: number;
+  total_minutes: number;
+  total_saves: number;
   perf_l5: number;
   perf_l15: number;
   perf_season: number;
@@ -476,6 +478,7 @@ export type DbPlayer = {
   success_fee_cap_cents: number | null;
   max_supply?: number;
   api_football_id?: number | null;
+  contract_end?: string | null; // ISO date string e.g. "2026-06-30"
   is_liquidated: boolean;
   created_at: string;
   updated_at: string;
