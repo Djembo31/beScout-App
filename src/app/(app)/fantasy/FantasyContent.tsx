@@ -660,6 +660,7 @@ export default function FantasyContent() {
         <ErgebnisseTab
           gameweek={currentGw}
           activeGameweek={activeGw ?? 1}
+          fixtureCount={fixtureCount}
           events={gwEvents}
           userId={user.id}
           participations={dashboardStats.pastParticipations}

@@ -22,6 +22,7 @@ const LeaguesSection = dynamic(() => import('./LeaguesSection'), { ssr: false })
 type ErgebnisseTabProps = {
   gameweek: number;
   activeGameweek: number;
+  fixtureCount: number;
   events: FantasyEvent[];
   userId: string;
   // History data passed from parent
@@ -49,6 +50,7 @@ type ErgebnisseTabProps = {
 export function ErgebnisseTab({
   gameweek,
   activeGameweek,
+  fixtureCount,
   events,
   userId,
   participations,
@@ -64,7 +66,9 @@ export function ErgebnisseTab({
   avgRank,
 }: ErgebnisseTabProps) {
   const tf = useTranslations('fantasy');
-  const isUpcoming = gameweek > activeGameweek;
+  // Only treat as upcoming when the GW has zero fixtures — not based on activeGameweek alone
+  // (activeGameweek defaults to 1 for users without a club, which would block all GW > 1)
+  const isUpcoming = fixtureCount === 0 && gameweek > activeGameweek;
 
   // Scored events for this GW
   const scoredEvents = useMemo(
