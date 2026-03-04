@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Goal, HandHelping, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui';
-import { PlayerPhoto, PositionBadge } from '@/components/player';
+import { PlayerPhoto, PositionBadge, GoalBadge } from '@/components/player';
 import { scoreBadgeColor } from '../spieltag/helpers';
 import type { FixturePlayerStat } from '@/types';
 import type { Pos } from '@/types';
@@ -36,13 +36,16 @@ export function GwHeroSummary({ summary }: Props) {
           href={`/player/${best.player_id}`}
           className="p-3 flex flex-col items-center gap-1.5 hover:bg-white/[0.04] transition-colors active:bg-white/[0.06] border-r border-white/[0.06]"
         >
-          <PlayerPhoto
-            imageUrl={best.player_image_url}
-            first={best.player_first_name}
-            last={best.player_last_name}
-            pos={best.player_position as Pos}
-            size={44}
-          />
+          <div className="relative">
+            <PlayerPhoto
+              imageUrl={best.player_image_url}
+              first={best.player_first_name}
+              last={best.player_last_name}
+              pos={best.player_position as Pos}
+              size={44}
+            />
+            <GoalBadge goals={best.goals} size={18} />
+          </div>
           <div className="text-center min-w-0 w-full">
             <div className="font-black text-sm truncate">
               {best.player_first_name.charAt(0)}. {best.player_last_name}

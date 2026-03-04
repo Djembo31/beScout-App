@@ -204,6 +204,54 @@ export function PlayerPhoto({ imageUrl, first, last, pos, size = 32, className =
 }
 
 // ============================================
+// GOAL BADGE (football icon overlay for pitch nodes)
+// ============================================
+
+/** Compact goal-count badge using /goal_icon.png.
+ *  - 0 goals → renders nothing
+ *  - 1 goal → ball icon only
+ *  - 2+ goals → ball icon with count inside
+ *
+ *  Usage: place in a `relative` container (e.g. wrapping PlayerPhoto)
+ *  and position via className (default: bottom-right). */
+export function GoalBadge({ goals, size = 18, className = '' }: {
+  goals: number;
+  size?: number;
+  className?: string;
+}) {
+  if (goals <= 0) return null;
+
+  const s = `${size / 16}rem`;
+
+  return (
+    <div
+      className={cn(
+        'absolute z-20 flex items-center justify-center',
+        className || '-bottom-0.5 -right-0.5'
+      )}
+      style={{ width: s, height: s }}
+      aria-label={`${goals} ${goals === 1 ? 'Tor' : 'Tore'}`}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/goal_icon.png"
+        alt=""
+        aria-hidden="true"
+        className="w-full h-full object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
+      />
+      {goals >= 2 && (
+        <span
+          className="absolute inset-0 flex items-center justify-center font-black text-white tabular-nums drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]"
+          style={{ fontSize: `${size * 0.52}px`, lineHeight: 1 }}
+        >
+          {goals}
+        </span>
+      )}
+    </div>
+  );
+}
+
+// ============================================
 // IPO BADGE
 // ============================================
 

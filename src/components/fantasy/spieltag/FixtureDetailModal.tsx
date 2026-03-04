@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
 import { getFixturePlayerStats } from '@/lib/services/fixtures';
 import type { Fixture, FixturePlayerStat, Pos } from '@/types';
-import { PlayerPhoto } from '@/components/player';
+import { PlayerPhoto, GoalBadge } from '@/components/player';
 import { ClubLogo } from './ClubLogo';
 import { posColor, scoreBadgeColor, getPosAccent } from './helpers';
 
@@ -40,14 +40,17 @@ function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
       <div className={`absolute -top-1 -right-0.5 md:-top-1.5 md:-right-2 z-20 min-w-[1.4rem] md:min-w-[1.6rem] px-1 py-0.5 rounded-full text-[9px] md:text-[9px] font-mono font-black text-center shadow-lg ${badge}`}>
         {rating.toFixed(1)}
       </div>
-      <PlayerPhoto
-        imageUrl={stat.player_image_url}
-        first={stat.player_first_name}
-        last={stat.player_last_name}
-        pos={stat.player_position as Pos}
-        size={32}
-        className="md:size-10 lg:size-12"
-      />
+      <div className="relative">
+        <PlayerPhoto
+          imageUrl={stat.player_image_url}
+          first={stat.player_first_name}
+          last={stat.player_last_name}
+          pos={stat.player_position as Pos}
+          size={32}
+          className="md:size-10 lg:size-12"
+        />
+        <GoalBadge goals={stat.goals} size={15} className="-bottom-0.5 -right-1" />
+      </div>
       <div className="text-[9px] md:text-[9px] lg:text-[10px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
         {stat.player_last_name}
       </div>
@@ -55,8 +58,8 @@ function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
         <span>{stat.minutes_played}&apos;</span>
         {stat.goals > 0 && <span className="text-gold">{stat.goals}G</span>}
         {stat.assists > 0 && <span className="text-sky-400">{stat.assists}A</span>}
-        {stat.yellow_card && <span className="w-1.5 h-2 bg-yellow-400 rounded-[0.5px] inline-block" />}
-        {stat.red_card && <span className="w-1.5 h-2 bg-red-500 rounded-[0.5px] inline-block" />}
+        {stat.yellow_card && <span className="w-1.5 h-2.5 bg-yellow-400 rounded-[1px] inline-block" />}
+        {stat.red_card && <span className="w-1.5 h-2.5 bg-red-500 rounded-[1px] inline-block" />}
         {stat.clean_sheet && <span className="text-emerald-400">CS</span>}
         {stat.bonus > 0 && <span className="text-gold">{stat.bonus}</span>}
       </div>

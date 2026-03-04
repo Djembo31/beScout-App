@@ -16,8 +16,9 @@ export function SpieltagPulse({ fixtures, gwStatus }: Props) {
   const ts = useTranslations('spieltag');
 
   const total = fixtures.length;
-  const simulated = fixtures.filter(f => f.status === 'simulated' || f.status === 'finished').length;
-  const totalGoals = fixtures.reduce((sum, f) => sum + (f.home_score ?? 0) + (f.away_score ?? 0), 0);
+  const finished = fixtures.filter(f => f.status === 'simulated' || f.status === 'finished');
+  const simulated = finished.length;
+  const totalGoals = finished.reduce((sum, f) => sum + (f.home_score ?? 0) + (f.away_score ?? 0), 0);
 
   if (total === 0) return null;
 

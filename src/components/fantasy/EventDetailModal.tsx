@@ -955,7 +955,7 @@ export const EventDetailModal = ({
                                   className={`flex flex-col items-center ${slotReadOnly ? 'cursor-default' : ''}`}
                                 >
                                 <div
-                                  className={`w-11 h-11 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 transition-all overflow-hidden ${player
+                                  className={`size-11 md:size-14 rounded-full flex items-center justify-center border-2 transition-colors overflow-hidden ${player
                                     ? hasScore
                                       ? 'bg-black/40'
                                       : player.status === 'injured' ? 'bg-red-500/20 border-red-400' :
@@ -1357,7 +1357,7 @@ export const EventDetailModal = ({
                                     </div>
                                   )}
                                   <div
-                                    className="w-11 h-11 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 bg-black/40 overflow-hidden"
+                                    className="size-11 md:size-14 rounded-full flex items-center justify-center border-2 bg-black/40 overflow-hidden"
                                     style={{
                                       borderColor: sp.score != null ? getScoreColor(sp.score) : getPosAccentColor(sp.player.position),
                                       boxShadow: sp.score != null ? `0 0 12px ${getScoreColor(sp.score)}40` : undefined,

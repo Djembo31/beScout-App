@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Briefcase, Trophy, Target, ShieldCheck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { TabBar, TabPanel } from '@/components/ui/TabBar';
-import { PlayerPhoto, PositionBadge } from '@/components/player';
+import { PlayerPhoto, PositionBadge, GoalBadge } from '@/components/player';
 import { scoreBadgeColor, getPosAccent } from '../spieltag/helpers';
 import { PredictionResults } from './PredictionResults';
 import type { FixturePlayerStat, Prediction } from '@/types';
@@ -70,13 +70,16 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
                     style={{ borderLeftColor: accent, borderLeftWidth: '2px' }}
                   >
                     {/* Player photo */}
-                    <PlayerPhoto
-                      imageUrl={stat.player_image_url ?? holding?.player?.image_url}
-                      first={stat.player_first_name}
-                      last={stat.player_last_name}
-                      pos={stat.player_position as Pos}
-                      size={32}
-                    />
+                    <div className="relative">
+                      <PlayerPhoto
+                        imageUrl={stat.player_image_url ?? holding?.player?.image_url}
+                        first={stat.player_first_name}
+                        last={stat.player_last_name}
+                        pos={stat.player_position as Pos}
+                        size={32}
+                      />
+                      <GoalBadge goals={stat.goals} size={15} />
+                    </div>
 
                     {/* Rating badge */}
                     <span className={`min-w-[2rem] px-1.5 py-0.5 rounded-md text-[11px] font-mono font-black text-center tabular-nums ${scoreBadgeColor(rating)}`}>
@@ -96,9 +99,6 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
 
                     {/* Stats */}
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      {stat.goals > 0 && (
-                        <span className="text-xs font-bold text-gold tabular-nums">{stat.goals}G</span>
-                      )}
                       {stat.assists > 0 && (
                         <span className="text-xs font-bold text-sky-400 tabular-nums">{stat.assists}A</span>
                       )}

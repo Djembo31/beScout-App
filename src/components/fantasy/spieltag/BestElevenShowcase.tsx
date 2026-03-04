@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { PlayerPhoto } from '@/components/player';
+import { PlayerPhoto, GoalBadge } from '@/components/player';
 import type { FixturePlayerStat } from '@/types';
 import type { Pos } from '@/types';
 import { getPosAccent, scoreBadgeColor } from './helpers';
@@ -139,26 +139,29 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
       <div className={`mb-0.5 min-w-[1.5rem] px-1 py-px rounded-full text-[8px] sm:text-[9px] md:text-[10px] font-mono font-black text-center shadow-lg tabular-nums ${badge}`}>
         {rating.toFixed(1)}
       </div>
-      {/* Circle with PlayerPhoto or initials */}
-      {hasImage ? (
-        <PlayerPhoto
-          imageUrl={stat.player_image_url}
-          first={stat.player_first_name}
-          last={stat.player_last_name}
-          pos={stat.player_position as Pos}
-          size={28}
-          className="sm:!w-[2rem] sm:!h-[2rem] md:!w-[2.5rem] md:!h-[2.5rem]"
-        />
-      ) : (
-        <div
-          className="size-7 sm:size-8 md:size-10 rounded-full flex items-center justify-center border-2 bg-black/40"
-          style={{ borderColor: accent, boxShadow: `0 0 10px ${accent}30` }}
-        >
-          <span className="font-bold text-[8px] sm:text-[9px] md:text-[10px]" style={{ color: accent }}>
-            {stat.player_last_name.slice(0, 3).toUpperCase()}
-          </span>
-        </div>
-      )}
+      {/* Circle with PlayerPhoto or initials + GoalBadge overlay */}
+      <div className="relative">
+        {hasImage ? (
+          <PlayerPhoto
+            imageUrl={stat.player_image_url}
+            first={stat.player_first_name}
+            last={stat.player_last_name}
+            pos={stat.player_position as Pos}
+            size={28}
+            className="sm:!w-[2rem] sm:!h-[2rem] md:!w-[2.5rem] md:!h-[2.5rem]"
+          />
+        ) : (
+          <div
+            className="size-7 sm:size-8 md:size-10 rounded-full flex items-center justify-center border-2 bg-black/40"
+            style={{ borderColor: accent, boxShadow: `0 0 10px ${accent}30` }}
+          >
+            <span className="font-bold text-[8px] sm:text-[9px] md:text-[10px]" style={{ color: accent }}>
+              {stat.player_last_name.slice(0, 3).toUpperCase()}
+            </span>
+          </div>
+        )}
+        <GoalBadge goals={stat.goals} size={14} className="-bottom-0.5 -right-1 sm:size-4" />
+      </div>
       {/* Name */}
       <div className="text-[8px] sm:text-[9px] md:text-[10px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
         {stat.player_last_name}

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { PlayerPhoto, PositionBadge } from '@/components/player';
+import { PlayerPhoto, PositionBadge, GoalBadge } from '@/components/player';
 import { scoreBadgeColor, getPosAccent } from '../spieltag/helpers';
 import type { FixturePlayerStat } from '@/types';
 import type { Pos } from '@/types';
@@ -36,13 +36,16 @@ export function Top3Cards({ scorers }: Props) {
 
             <div className="flex flex-col items-center gap-1.5 pt-3">
               {/* Photo */}
-              <PlayerPhoto
-                imageUrl={stat.player_image_url}
-                first={stat.player_first_name}
-                last={stat.player_last_name}
-                pos={stat.player_position as Pos}
-                size={36}
-              />
+              <div className="relative">
+                <PlayerPhoto
+                  imageUrl={stat.player_image_url}
+                  first={stat.player_first_name}
+                  last={stat.player_last_name}
+                  pos={stat.player_position as Pos}
+                  size={36}
+                />
+                <GoalBadge goals={stat.goals} size={16} />
+              </div>
 
               {/* Rating */}
               <span className={`px-1.5 py-0.5 rounded-md text-[11px] font-mono font-black tabular-nums ${scoreBadgeColor(rating)}`}>
@@ -59,7 +62,6 @@ export function Top3Cards({ scorers }: Props) {
 
               {/* Stats row */}
               <div className="flex items-center gap-1.5 text-[9px] font-mono tabular-nums">
-                {stat.goals > 0 && <span className="text-gold font-bold">{stat.goals}G</span>}
                 {stat.assists > 0 && <span className="text-sky-400 font-bold">{stat.assists}A</span>}
                 {stat.clean_sheet && <span className="text-emerald-400 font-bold">CS</span>}
               </div>
