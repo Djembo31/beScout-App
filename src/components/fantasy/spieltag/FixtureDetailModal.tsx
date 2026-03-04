@@ -23,7 +23,8 @@ function splitStartersBench(stats: FixturePlayerStat[]): {
 
   const counts = { DEF: 0, MID: 0, ATT: 0 };
   for (const s of starters) {
-    if (s.player_position in counts) counts[s.player_position as keyof typeof counts]++;
+    const pos = s.match_position || s.player_position || 'MID';
+    if (pos in counts) counts[pos as keyof typeof counts]++;
   }
   const formation = `${counts.DEF}-${counts.MID}-${counts.ATT}`;
 
@@ -77,7 +78,7 @@ function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
 }) {
   const grouped = new Map<string, FixturePlayerStat[]>();
   for (const s of stats) {
-    const pos = s.player_position || 'MID';
+    const pos = s.match_position || s.player_position || 'MID';
     const existing = grouped.get(pos) || [];
     existing.push(s);
     grouped.set(pos, existing);

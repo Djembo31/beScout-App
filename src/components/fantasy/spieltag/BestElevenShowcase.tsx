@@ -16,107 +16,110 @@ type Props = {
 
 type Mode = '6er' | '11er';
 
-/** Build best XI (4-3-3) from scorers, guaranteeing 1 GK + 4 DEF + 3 MID + 3 ATT */
-function buildBestEleven(scorers: FixturePlayerStat[]): FixturePlayerStat[] {
+type FormationDef = {
+  name: string;
+  slots: { pos: string; count: number }[];
+};
+
+// ============================================
+// Effective Position (match_position > player_position > 'MID')
+// ============================================
+
+function getEffectivePosition(stat: FixturePlayerStat): string {
+  return stat.match_position || stat.player_position || 'MID';
+}
+
+// ============================================
+// Formation Definitions
+// ============================================
+
+const FORMATIONS_11: FormationDef[] = [
+  { name: '4-3-3', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 4 }, { pos: 'MID', count: 3 }, { pos: 'ATT', count: 3 }] },
+  { name: '4-4-2', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 4 }, { pos: 'MID', count: 4 }, { pos: 'ATT', count: 2 }] },
+  { name: '3-4-3', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 3 }, { pos: 'MID', count: 4 }, { pos: 'ATT', count: 3 }] },
+  { name: '3-5-2', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 3 }, { pos: 'MID', count: 5 }, { pos: 'ATT', count: 2 }] },
+  { name: '5-3-2', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 5 }, { pos: 'MID', count: 3 }, { pos: 'ATT', count: 2 }] },
+  { name: '5-4-1', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 5 }, { pos: 'MID', count: 4 }, { pos: 'ATT', count: 1 }] },
+  { name: '4-5-1', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 4 }, { pos: 'MID', count: 5 }, { pos: 'ATT', count: 1 }] },
+  { name: '4-2-4', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 4 }, { pos: 'MID', count: 2 }, { pos: 'ATT', count: 4 }] },
+];
+
+const FORMATIONS_6: FormationDef[] = [
+  { name: '1-2-2-1', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 2 }, { pos: 'MID', count: 2 }, { pos: 'ATT', count: 1 }] },
+  { name: '1-3-1-1', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 3 }, { pos: 'MID', count: 1 }, { pos: 'ATT', count: 1 }] },
+  { name: '1-1-3-1', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 1 }, { pos: 'MID', count: 3 }, { pos: 'ATT', count: 1 }] },
+  { name: '1-2-1-2', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 2 }, { pos: 'MID', count: 1 }, { pos: 'ATT', count: 2 }] },
+];
+
+// ============================================
+// Multi-Formation Optimizer
+// ============================================
+
+function optimizeBestTeam(
+  scorers: FixturePlayerStat[],
+  formations: FormationDef[],
+  teamSize: number,
+): { players: FixturePlayerStat[]; formation: FormationDef } {
+  // Group by effective position, sorted by rating DESC
   const byPos = new Map<string, FixturePlayerStat[]>();
   for (const s of scorers) {
-    const pos = s.player_position || 'MID';
+    const pos = getEffectivePosition(s);
     const arr = byPos.get(pos) || [];
     arr.push(s);
     byPos.set(pos, arr);
   }
-
-  // Sort each group by rating desc
   Array.from(byPos.values()).forEach(arr => arr.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)));
 
-  // Formation slots: 1 GK, 4 DEF, 3 MID, 3 ATT
-  const slots: { pos: string; count: number }[] = [
-    { pos: 'GK', count: 1 },
-    { pos: 'DEF', count: 4 },
-    { pos: 'MID', count: 3 },
-    { pos: 'ATT', count: 3 },
-  ];
+  let bestPlayers: FixturePlayerStat[] = [];
+  let bestFormation: FormationDef = formations[0];
+  let bestTotalRating = -1;
 
-  const picked: FixturePlayerStat[] = [];
-  const pickedIds = new Set<string>();
+  for (const formation of formations) {
+    const picked: FixturePlayerStat[] = [];
+    const pickedIds = new Set<string>();
+    let canFill = true;
 
-  // First pass: fill each position with required count
-  for (const { pos, count } of slots) {
-    const candidates = (byPos.get(pos) || []).filter(p => !pickedIds.has(p.id));
-    for (let i = 0; i < Math.min(count, candidates.length); i++) {
-      picked.push(candidates[i]);
-      pickedIds.add(candidates[i].id);
+    for (const { pos, count } of formation.slots) {
+      const candidates = (byPos.get(pos) || []).filter(p => !pickedIds.has(p.id));
+      if (candidates.length < count) {
+        canFill = false;
+        break;
+      }
+      for (let i = 0; i < count; i++) {
+        picked.push(candidates[i]);
+        pickedIds.add(candidates[i].id);
+      }
+    }
+
+    if (!canFill) continue;
+
+    const totalRating = picked.reduce((s, p) => s + (p.rating ?? 0), 0);
+    if (totalRating > bestTotalRating) {
+      bestTotalRating = totalRating;
+      bestPlayers = picked;
+      bestFormation = formation;
     }
   }
 
-  // Second pass: if still < 11, fill from best remaining (any position)
-  if (picked.length < 11) {
-    const remaining = scorers
-      .filter(s => !pickedIds.has(s.id))
-      .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
-    for (const s of remaining) {
-      if (picked.length >= 11) break;
-      picked.push(s);
-      pickedIds.add(s.id);
-    }
+  // Fallback: if NO formation fills completely, take top N by rating (greedy)
+  if (bestPlayers.length === 0) {
+    const sorted = [...scorers].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+    bestPlayers = sorted.slice(0, teamSize);
   }
 
-  return picked.slice(0, 11);
+  return { players: bestPlayers, formation: bestFormation };
 }
 
-/** Build best 6 (1-2-2-1) from scorers, guaranteeing 1 GK + 2 DEF + 2 MID + 1 ATT */
-function buildBestSix(scorers: FixturePlayerStat[]): FixturePlayerStat[] {
-  const byPos = new Map<string, FixturePlayerStat[]>();
-  for (const s of scorers) {
-    const pos = s.player_position || 'MID';
-    const arr = byPos.get(pos) || [];
-    arr.push(s);
-    byPos.set(pos, arr);
-  }
+// ============================================
+// Formation Row Layout
+// ============================================
 
-  Array.from(byPos.values()).forEach(arr => arr.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)));
-
-  // Formation slots: 1 GK, 2 DEF, 2 MID, 1 ATT
-  const slots: { pos: string; count: number }[] = [
-    { pos: 'GK', count: 1 },
-    { pos: 'DEF', count: 2 },
-    { pos: 'MID', count: 2 },
-    { pos: 'ATT', count: 1 },
-  ];
-
-  const picked: FixturePlayerStat[] = [];
-  const pickedIds = new Set<string>();
-
-  for (const { pos, count } of slots) {
-    const candidates = (byPos.get(pos) || []).filter(p => !pickedIds.has(p.id));
-    for (let i = 0; i < Math.min(count, candidates.length); i++) {
-      picked.push(candidates[i]);
-      pickedIds.add(candidates[i].id);
-    }
-  }
-
-  // Fill remaining if < 6
-  if (picked.length < 6) {
-    const remaining = scorers
-      .filter(s => !pickedIds.has(s.id))
-      .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
-    for (const s of remaining) {
-      if (picked.length >= 6) break;
-      picked.push(s);
-      pickedIds.add(s.id);
-    }
-  }
-
-  return picked.slice(0, 6);
-}
-
-/** Get rows for pitch layout — returns array of position groups from GK (bottom) to ATT (top) */
 function getFormationRows(players: FixturePlayerStat[]): FixturePlayerStat[][] {
   const posOrder = ['GK', 'DEF', 'MID', 'ATT'];
   const grouped = new Map<string, FixturePlayerStat[]>();
 
   for (const p of players) {
-    const pos = p.player_position || 'MID';
+    const pos = getEffectivePosition(p);
     const arr = grouped.get(pos) || [];
     arr.push(p);
     grouped.set(pos, arr);
@@ -127,8 +130,13 @@ function getFormationRows(players: FixturePlayerStat[]): FixturePlayerStat[][] {
     .filter(row => row.length > 0);
 }
 
+// ============================================
+// PitchNode — Player on Pitch
+// ============================================
+
 function PitchNode({ stat }: { stat: FixturePlayerStat }) {
-  const accent = getPosAccent(stat.player_position);
+  const effectivePos = getEffectivePosition(stat);
+  const accent = getPosAccent(effectivePos);
   const rating = stat.rating ?? stat.fantasy_points / 10;
   const badge = scoreBadgeColor(rating);
   const hasImage = !!stat.player_image_url;
@@ -139,14 +147,14 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
       <div className={`mb-0.5 min-w-[1.5rem] px-1 py-px rounded-full text-[8px] sm:text-[9px] md:text-[10px] font-mono font-black text-center shadow-lg tabular-nums ${badge}`}>
         {rating.toFixed(1)}
       </div>
-      {/* Circle with PlayerPhoto or initials + GoalBadge overlay */}
+      {/* Circle with PlayerPhoto or initials + badges */}
       <div className="relative">
         {hasImage ? (
           <PlayerPhoto
             imageUrl={stat.player_image_url}
             first={stat.player_first_name}
             last={stat.player_last_name}
-            pos={stat.player_position as Pos}
+            pos={effectivePos as Pos}
             size={28}
             className="sm:!w-[2rem] sm:!h-[2rem] md:!w-[2.5rem] md:!h-[2.5rem]"
           />
@@ -160,7 +168,20 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
             </span>
           </div>
         )}
+        {/* Goal badge — bottom right */}
         <GoalBadge goals={stat.goals} size={14} className="-bottom-0.5 -right-1 sm:size-4" />
+        {/* Assists badge — bottom left */}
+        {stat.assists > 0 && (
+          <span className="absolute -bottom-0.5 -left-1 min-w-[14px] sm:size-4 px-0.5 rounded-full bg-sky-500 text-white text-[7px] sm:text-[8px] font-bold text-center leading-[14px] sm:leading-4 shadow-lg">
+            {stat.assists}A
+          </span>
+        )}
+        {/* Card badge — top left */}
+        {stat.red_card ? (
+          <span className="absolute -top-0.5 -left-0.5 w-[8px] h-[11px] sm:w-[9px] sm:h-[12px] bg-red-500 rounded-[1px] shadow-lg" />
+        ) : stat.yellow_card ? (
+          <span className="absolute -top-0.5 -left-0.5 w-[8px] h-[11px] sm:w-[9px] sm:h-[12px] bg-yellow-400 rounded-[1px] shadow-lg" />
+        ) : null}
       </div>
       {/* Name */}
       <div className="text-[8px] sm:text-[9px] md:text-[10px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
@@ -174,12 +195,18 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
   );
 }
 
+// ============================================
+// Main Component
+// ============================================
+
 export function BestElevenShowcase({ scorers, gameweek }: Props) {
   const t = useTranslations('fantasy');
   const [mode, setMode] = useState<Mode>('6er');
 
-  const players = useMemo(() => {
-    return mode === '11er' ? buildBestEleven(scorers) : buildBestSix(scorers);
+  const { players, formation } = useMemo(() => {
+    const formations = mode === '11er' ? FORMATIONS_11 : FORMATIONS_6;
+    const teamSize = mode === '11er' ? 11 : 6;
+    return optimizeBestTeam(scorers, formations, teamSize);
   }, [scorers, mode]);
 
   const rows = useMemo(() => getFormationRows(players), [players]);
@@ -190,16 +217,19 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
     ? players.reduce((s, p) => s + (p.rating ?? p.fantasy_points / 10), 0) / players.length
     : 0;
 
+  const label = mode === '11er' ? 'XI' : 'VI';
+
   return (
     <div>
       {/* Pitch */}
       <div className="rounded-2xl border border-green-500/20 overflow-hidden">
-        {/* Top bar with avg rating */}
+        {/* Top bar with avg rating + formation name */}
         <div className="bg-gradient-to-r from-[#1a1a2e] via-[#16213e] to-[#1a1a2e] px-4 py-2 flex items-center justify-center gap-3 border-b border-white/10">
           <Users className="size-3.5 text-gold" aria-hidden="true" />
           <span className="text-xs font-bold tracking-widest text-white/50 uppercase">
-            {t('bestLabel', { label: mode === '11er' ? 'XI' : 'VI' })}
+            {t('bestLabel', { label })}
           </span>
+          <span className="text-[10px] font-mono text-white/30">({formation.name})</span>
           <span className="text-xs font-mono font-bold text-gold tabular-nums gold-glow">Ø {avgRating.toFixed(1)}</span>
         </div>
 

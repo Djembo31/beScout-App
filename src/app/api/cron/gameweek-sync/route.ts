@@ -27,7 +27,7 @@ type ApiFixturePlayerResponse = {
     players: Array<{
       player: { id: number };
       statistics: Array<{
-        games: { minutes: number | null; rating: string | null };
+        games: { minutes: number | null; rating: string | null; position: string | null };
         goals: {
           total: number | null;
           assists: number | null;
@@ -94,6 +94,19 @@ function calcFantasyPoints(
   pts += bonus;
 
   return Math.max(0, pts);
+}
+
+// ============================================
+// Position Mapping (same as footballData.ts)
+// ============================================
+
+function mapPosition(apiPos: string): 'GK' | 'DEF' | 'MID' | 'ATT' {
+  const p = apiPos.toUpperCase().trim();
+  if (p === 'G' || p.includes('GOAL')) return 'GK';
+  if (p === 'D' || p.includes('DEF')) return 'DEF';
+  if (p === 'M' || p.includes('MID')) return 'MID';
+  if (p === 'F' || p.includes('ATT') || p.includes('FOR')) return 'ATT';
+  return 'MID';
 }
 
 // ============================================
@@ -345,6 +358,7 @@ export async function GET(request: Request) {
         bonus: number;
         fantasy_points: number;
         rating: number | null;
+        match_position: string | null;
       }> = [];
 
       for (const fixture of mappings.fixtures) {
@@ -386,6 +400,7 @@ export async function GET(request: Request) {
             const stat = pd.statistics[0];
             if (!stat) continue;
 
+            const matchPosition = stat.games.position ? mapPosition(stat.games.position) : null;
             const minutes = stat.games.minutes ?? 0;
             if (minutes === 0) continue;
 
@@ -428,6 +443,7 @@ export async function GET(request: Request) {
               bonus: 0,
               fantasy_points: fantasyPoints,
               rating,
+              match_position: matchPosition,
             });
           }
         }

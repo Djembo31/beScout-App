@@ -1208,6 +1208,7 @@ export type DbFixturePlayerStat = {
   bonus: number;
   fantasy_points: number;
   rating: number | null;
+  match_position: string | null;
 };
 
 export type Fixture = DbFixture & {

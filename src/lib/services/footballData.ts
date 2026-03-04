@@ -197,11 +197,12 @@ function normalizeForMatch(text: string): string {
 }
 
 function mapPosition(apiPos: string): 'GK' | 'DEF' | 'MID' | 'ATT' {
-  const p = apiPos.toUpperCase();
-  if (p.includes('GOAL')) return 'GK';
-  if (p.includes('DEF')) return 'DEF';
-  if (p.includes('MID')) return 'MID';
-  if (p.includes('ATT') || p.includes('FOR')) return 'ATT';
+  const p = apiPos.toUpperCase().trim();
+  // Short codes from fixtures/players endpoint: G, D, M, F
+  if (p === 'G' || p.includes('GOAL')) return 'GK';
+  if (p === 'D' || p.includes('DEF')) return 'DEF';
+  if (p === 'M' || p.includes('MID')) return 'MID';
+  if (p === 'F' || p.includes('ATT') || p.includes('FOR')) return 'ATT';
   return 'MID';
 }
 
@@ -574,7 +575,7 @@ export async function importGameweek(adminId: string, gameweek: number): Promise
       clean_sheet: boolean; goals_conceded: number;
       yellow_card: boolean; red_card: boolean;
       saves: number; bonus: number; fantasy_points: number;
-      rating: number | null;
+      rating: number | null; match_position: string | null;
     }> = [];
 
     for (const fixture of ourFixtures) {
@@ -609,6 +610,7 @@ export async function importGameweek(adminId: string, gameweek: number): Promise
             const stat = playerData.statistics[0];
             if (!stat) continue;
 
+            const matchPosition = stat.games.position ? mapPosition(stat.games.position) : null;
             const minutes = stat.games.minutes ?? 0;
             if (minutes === 0) continue;
 
@@ -644,6 +646,7 @@ export async function importGameweek(adminId: string, gameweek: number): Promise
               bonus: 0,
               fantasy_points: fantasyPoints,
               rating,
+              match_position: matchPosition,
             });
           }
         }
