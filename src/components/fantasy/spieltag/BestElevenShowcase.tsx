@@ -14,7 +14,7 @@ type Props = {
 
 type Mode = '6er' | '11er';
 
-/** Build best XI (4-3-3) from top scorers, grouped by position */
+/** Build best XI (4-3-3) from scorers, guaranteeing 1 GK + 4 DEF + 3 MID + 3 ATT */
 function buildBestEleven(scorers: FixturePlayerStat[]): FixturePlayerStat[] {
   const byPos = new Map<string, FixturePlayerStat[]>();
   for (const s of scorers) {
@@ -27,29 +27,42 @@ function buildBestEleven(scorers: FixturePlayerStat[]): FixturePlayerStat[] {
   // Sort each group by rating desc
   Array.from(byPos.values()).forEach(arr => arr.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)));
 
-  const gk = (byPos.get('GK') || []).slice(0, 1);
-  const def = (byPos.get('DEF') || []).slice(0, 4);
-  const mid = (byPos.get('MID') || []).slice(0, 3);
-  const att = (byPos.get('ATT') || []).slice(0, 3);
+  // Formation slots: 1 GK, 4 DEF, 3 MID, 3 ATT
+  const slots: { pos: string; count: number }[] = [
+    { pos: 'GK', count: 1 },
+    { pos: 'DEF', count: 4 },
+    { pos: 'MID', count: 3 },
+    { pos: 'ATT', count: 3 },
+  ];
 
-  const picked = [...gk, ...def, ...mid, ...att];
+  const picked: FixturePlayerStat[] = [];
+  const pickedIds = new Set<string>();
 
-  // If we don't have 11, fill from remaining best scorers
+  // First pass: fill each position with required count
+  for (const { pos, count } of slots) {
+    const candidates = (byPos.get(pos) || []).filter(p => !pickedIds.has(p.id));
+    for (let i = 0; i < Math.min(count, candidates.length); i++) {
+      picked.push(candidates[i]);
+      pickedIds.add(candidates[i].id);
+    }
+  }
+
+  // Second pass: if still < 11, fill from best remaining (any position)
   if (picked.length < 11) {
-    const pickedIds = new Set(picked.map(p => p.id));
     const remaining = scorers
       .filter(s => !pickedIds.has(s.id))
       .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
     for (const s of remaining) {
       if (picked.length >= 11) break;
       picked.push(s);
+      pickedIds.add(s.id);
     }
   }
 
   return picked.slice(0, 11);
 }
 
-/** Build best 6 (1-2-2-1) from top scorers */
+/** Build best 6 (1-2-2-1) from scorers, guaranteeing 1 GK + 2 DEF + 2 MID + 1 ATT */
 function buildBestSix(scorers: FixturePlayerStat[]): FixturePlayerStat[] {
   const byPos = new Map<string, FixturePlayerStat[]>();
   for (const s of scorers) {
@@ -61,21 +74,34 @@ function buildBestSix(scorers: FixturePlayerStat[]): FixturePlayerStat[] {
 
   Array.from(byPos.values()).forEach(arr => arr.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)));
 
-  const gk = (byPos.get('GK') || []).slice(0, 1);
-  const def = (byPos.get('DEF') || []).slice(0, 2);
-  const mid = (byPos.get('MID') || []).slice(0, 2);
-  const att = (byPos.get('ATT') || []).slice(0, 1);
+  // Formation slots: 1 GK, 2 DEF, 2 MID, 1 ATT
+  const slots: { pos: string; count: number }[] = [
+    { pos: 'GK', count: 1 },
+    { pos: 'DEF', count: 2 },
+    { pos: 'MID', count: 2 },
+    { pos: 'ATT', count: 1 },
+  ];
 
-  const picked = [...gk, ...def, ...mid, ...att];
+  const picked: FixturePlayerStat[] = [];
+  const pickedIds = new Set<string>();
 
+  for (const { pos, count } of slots) {
+    const candidates = (byPos.get(pos) || []).filter(p => !pickedIds.has(p.id));
+    for (let i = 0; i < Math.min(count, candidates.length); i++) {
+      picked.push(candidates[i]);
+      pickedIds.add(candidates[i].id);
+    }
+  }
+
+  // Fill remaining if < 6
   if (picked.length < 6) {
-    const pickedIds = new Set(picked.map(p => p.id));
     const remaining = scorers
       .filter(s => !pickedIds.has(s.id))
       .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
     for (const s of remaining) {
       if (picked.length >= 6) break;
       picked.push(s);
+      pickedIds.add(s.id);
     }
   }
 

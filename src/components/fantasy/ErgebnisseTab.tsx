@@ -82,13 +82,16 @@ export function ErgebnisseTab({
 
   // Top scorers — load for any non-upcoming GW (independent of events)
   const [topScorers, setTopScorers] = useState<FixturePlayerStat[]>([]);
+  const [loadingScorers, setLoadingScorers] = useState(!isUpcoming);
   useEffect(() => {
-    if (isUpcoming) { setTopScorers([]); return; }
+    if (isUpcoming) { setTopScorers([]); setLoadingScorers(false); return; }
+    setLoadingScorers(true);
     let cancelled = false;
-    getGameweekTopScorers(gameweek, 20).then(data => {
-      if (!cancelled) setTopScorers(data);
-    }).catch(() => {
-      if (!cancelled) setTopScorers([]);
+    getGameweekTopScorers(gameweek, 300).then(data => {
+      if (!cancelled) { setTopScorers(data); setLoadingScorers(false); }
+    }).catch((err) => {
+      console.error('[ErgebnisseTab] topScorers fetch failed:', err);
+      if (!cancelled) { setTopScorers([]); setLoadingScorers(false); }
     });
     return () => { cancelled = true; };
   }, [gameweek, isUpcoming]);
@@ -146,7 +149,18 @@ export function ErgebnisseTab({
     );
   }
 
-  // No data at all (no events AND no player stats)
+  // Loading state — show skeleton while topScorers are fetching
+  if (loadingScorers && events.length === 0) {
+    return (
+      <div className="space-y-4 py-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="h-16 rounded-xl bg-white/[0.03] animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
+  // No data at all (no events AND no player stats, loading complete)
   if (events.length === 0 && topScorers.length === 0) {
     return (
       <div className="py-16 text-center">
@@ -284,10 +298,10 @@ export function ErgebnisseTab({
         </section>
       )}
 
-      {/* ── SECTION 2: Top Scorer Showcase ── */}
+      {/* ── SECTION 2: Top Scorer Showcase (top 20 only) ── */}
       {topScorers.length > 0 && (
         <section>
-          <TopScorerShowcase scorers={topScorers} gameweek={gameweek} />
+          <TopScorerShowcase scorers={topScorers.slice(0, 20)} gameweek={gameweek} />
         </section>
       )}
 
