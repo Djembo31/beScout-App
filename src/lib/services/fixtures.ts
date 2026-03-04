@@ -85,7 +85,7 @@ export async function getFixturePlayerStats(fixtureId: string): Promise<FixtureP
     .from('fixture_player_stats')
     .select(`
       *,
-      player:players!fixture_player_stats_player_id_fkey(first_name, last_name, position),
+      player:players!fixture_player_stats_player_id_fkey(first_name, last_name, position, image_url),
       club:clubs!fixture_player_stats_club_id_fkey(short)
     `)
     .eq('fixture_id', fixtureId)
@@ -94,7 +94,7 @@ export async function getFixturePlayerStats(fixtureId: string): Promise<FixtureP
   if (error || !data) return [];
 
   return data.map((row: Record<string, unknown>) => {
-    const player = row.player as { first_name: string; last_name: string; position: string } | null;
+    const player = row.player as { first_name: string; last_name: string; position: string; image_url: string | null } | null;
     const club = row.club as { short: string } | null;
     return {
       id: row.id as string,
@@ -115,6 +115,7 @@ export async function getFixturePlayerStats(fixtureId: string): Promise<FixtureP
       player_first_name: player?.first_name ?? '',
       player_last_name: player?.last_name ?? '',
       player_position: player?.position ?? '',
+      player_image_url: player?.image_url ?? null,
       club_short: club?.short ?? '',
     };
   });

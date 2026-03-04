@@ -14,7 +14,8 @@ import {
 import { getScoreTier, SCORE_TIER_CONFIG, calculateSynergyPreview } from '@/types';
 import type { SynergyDetail } from '@/types';
 import { Modal, Card, Button, Chip } from '@/components/ui';
-import { PositionBadge, PlayerIdentity, getL5Color } from '@/components/player';
+import { PositionBadge, PlayerIdentity, PlayerPhoto, getL5Color } from '@/components/player';
+import type { Pos } from '@/types';
 import { useUser } from '@/components/providers/AuthProvider';
 import { centsToBsd } from '@/lib/services/players';
 import { getLineup, getEventParticipants, getEventParticipantCount, getLineupWithPlayers } from '@/lib/services/lineups';
@@ -23,7 +24,6 @@ import { resetEvent, getEventLeaderboard, getProgressiveScores } from '@/lib/ser
 import type { LeaderboardEntry } from '@/lib/services/scoring';
 import { useTranslations, useLocale } from 'next-intl';
 import { cn, fmtScout } from '@/lib/utils';
-import type { Pos } from '@/types';
 import type { FantasyEvent, EventDetailTab, LineupPlayer, UserDpcHolding, LineupPreset } from './types';
 import { getFormationsForFormat, getDefaultFormation, buildSlotDbKeys, PRESET_KEY } from './constants';
 import {
@@ -955,7 +955,7 @@ export const EventDetailModal = ({
                                   className={`flex flex-col items-center ${slotReadOnly ? 'cursor-default' : ''}`}
                                 >
                                 <div
-                                  className={`w-11 h-11 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 transition-all ${player
+                                  className={`w-11 h-11 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 transition-all overflow-hidden ${player
                                     ? hasScore
                                       ? 'bg-black/40'
                                       : player.status === 'injured' ? 'bg-red-500/20 border-red-400' :
@@ -975,7 +975,7 @@ export const EventDetailModal = ({
                                   }}
                                 >
                                   {player ? (
-                                    <span className="font-bold text-sm" style={{ color: hasScore ? '#fff' : isCaptain ? '#FFD700' : getPosAccentColor(player.pos) }}>{player.first[0]}{player.last[0]}</span>
+                                    <PlayerPhoto imageUrl={player.imageUrl} first={player.first} last={player.last} pos={player.pos as Pos} size={44} className="md:size-14" />
                                   ) : (
                                     <Plus aria-hidden="true" className="size-5 text-white/30" />
                                   )}
@@ -1357,15 +1357,13 @@ export const EventDetailModal = ({
                                     </div>
                                   )}
                                   <div
-                                    className="w-11 h-11 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 bg-black/40"
+                                    className="w-11 h-11 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 bg-black/40 overflow-hidden"
                                     style={{
                                       borderColor: sp.score != null ? getScoreColor(sp.score) : getPosAccentColor(sp.player.position),
                                       boxShadow: sp.score != null ? `0 0 12px ${getScoreColor(sp.score)}40` : undefined,
                                     }}
                                   >
-                                    <span className="font-bold text-sm" style={{ color: sp.score != null ? '#fff' : getPosAccentColor(sp.player.position) }}>
-                                      {sp.player.firstName[0]}{sp.player.lastName[0]}
-                                    </span>
+                                    <PlayerPhoto imageUrl={sp.player.imageUrl} first={sp.player.firstName} last={sp.player.lastName} pos={sp.player.position as Pos} size={44} className="md:size-14" />
                                   </div>
                                   <div className="text-[10px] mt-1" style={{ color: sp.score != null ? '#ffffffcc' : getPosAccentColor(sp.player.position) + 'aa' }}>
                                     {sp.player.lastName.slice(0, 8)}

@@ -80,7 +80,10 @@ export function ErgebnisseTab({
   const [topScorers, setTopScorers] = useState<FixturePlayerStat[]>([]);
   const [loadingScorers, setLoadingScorers] = useState(!isUpcoming);
   useEffect(() => {
-    if (isUpcoming) { setTopScorers([]); setLoadingScorers(false); return; }
+    if (isUpcoming) { setTopScorers([]); setHeldPlayerStats([]); setLoadingScorers(false); return; }
+    // Clear stale data from previous GW before fetching new
+    setTopScorers([]);
+    setHeldPlayerStats([]);
     setLoadingScorers(true);
     let cancelled = false;
     getGameweekTopScorers(gameweek, 300).then(data => {
@@ -138,8 +141,8 @@ export function ErgebnisseTab({
     );
   }
 
-  // Loading state — logo pulse
-  if (loadingScorers && events.length === 0) {
+  // Loading state — logo pulse (show whenever fetching, regardless of events)
+  if (loadingScorers) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <Image

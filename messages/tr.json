@@ -2697,7 +2697,15 @@
     "importError": "Hata: {message}",
     "lineupLabel": "Kadro",
     "playersProgress": "{filled}/{total} Oyuncu",
-    "substitutions": "Oyuncu Değişiklikleri"
+    "substitutions": "Oyuncu Değişiklikleri",
+    "pulsePaarungen": "Maçlar",
+    "pulseBeendet": "Bitti",
+    "pulseTore": "Goller",
+    "pulseStatus": "Durum",
+    "pulseStatusDone": "Tamamlandı",
+    "pulseStatusLive": "Devam",
+    "browserFinished": "Tamamlanan",
+    "browserUpcoming": "Yaklaşan"
   },
   "sponsorStats": {
     "title": "Sponsor KPI'ları",

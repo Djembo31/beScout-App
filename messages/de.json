@@ -2705,7 +2705,15 @@
     "importError": "Fehler: {message}",
     "lineupLabel": "Aufstellung",
     "playersProgress": "{filled}/{total} Spieler",
-    "substitutions": "Einwechslungen"
+    "substitutions": "Einwechslungen",
+    "pulsePaarungen": "Spiele",
+    "pulseBeendet": "Beendet",
+    "pulseTore": "Tore",
+    "pulseStatus": "Status",
+    "pulseStatusDone": "Fertig",
+    "pulseStatusLive": "Läuft",
+    "browserFinished": "Beendet",
+    "browserUpcoming": "Anstehend"
   },
   "sponsorStats": {
     "title": "Sponsor-KPIs",
