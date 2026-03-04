@@ -14,7 +14,7 @@ import { centsToBsd } from '@/lib/services/players';
 import { deductEntryFee, refundEntryFee } from '@/lib/services/wallet';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 import { submitLineup, getLineup } from '@/lib/services/lineups';
-import { getFixtureDeadlinesByGameweek } from '@/lib/services/fixtures';
+import { getFixtureDeadlinesByGameweek, getGameweekStatuses } from '@/lib/services/fixtures';
 import type { FixtureDeadline } from '@/lib/services/fixtures';
 import { invalidateFantasyQueries } from '@/lib/queries/invalidation';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
@@ -261,13 +261,32 @@ export default function FantasyContent() {
     return events.filter(e => e.gameweek === currentGw);
   }, [events, currentGw]);
 
-  // GW status for selector
+  // GW fixture completion — lightweight check (independent of events)
+  const [gwFixtureInfo, setGwFixtureInfo] = useState<{ complete: boolean; count: number }>({ complete: false, count: 0 });
+  useEffect(() => {
+    let cancelled = false;
+    getGameweekStatuses(currentGw, currentGw).then(statuses => {
+      if (!cancelled) {
+        const s = statuses.find(st => st.gameweek === currentGw);
+        setGwFixtureInfo({ complete: s?.is_complete ?? false, count: s?.total ?? 0 });
+      }
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [currentGw]);
+
+  // GW status for selector — considers BOTH fixtures AND events
   const gwStatus = useMemo((): 'open' | 'simulated' | 'empty' => {
+    // All fixtures finished → GW is done (regardless of events)
+    if (gwFixtureInfo.complete) return 'simulated';
+    // Events exist and all ended → done
+    if (gwEvents.length > 0) {
+      const allEnded = gwEvents.every(e => e.status === 'ended' || e.scoredAt);
+      if (allEnded) return 'simulated';
+    }
+    // No fixtures and no events → empty
     if (gwEvents.length === 0) return 'empty';
-    const allEnded = gwEvents.every(e => e.status === 'ended' || e.scoredAt);
-    if (allEnded) return 'simulated';
     return 'open';
-  }, [gwEvents]);
+  }, [gwEvents, gwFixtureInfo.complete]);
 
   // Dashboard stats from real data (for ErgebnisseTab → HistoryTab)
   const dashboardStats = useMemo(() => {
@@ -492,8 +511,7 @@ export default function FantasyContent() {
     })();
   }, [addToast, reloadEvents, clubId]);
 
-  // Fixture count for the GW selector (approximate from events)
-  const fixtureCount = 0; // Fixtures are loaded inside SpieltagTab, selector shows eventCount
+  const fixtureCount = gwFixtureInfo.count;
 
   // Loading state — skeleton
   if (eventsLoading) {
@@ -579,7 +597,7 @@ export default function FantasyContent() {
       {/* PERSISTENT GW SELECTOR — always visible above tabs */}
       <SpieltagSelector
         gameweek={currentGw}
-        activeGameweek={activeGw ?? currentGw}
+        activeGameweek={activeGw ?? 1}
         status={gwStatus}
         fixtureCount={fixtureCount}
         eventCount={gwEvents.length}
@@ -609,7 +627,7 @@ export default function FantasyContent() {
       {mainTab === 'paarungen' && user && (
         <SpieltagTab
           gameweek={currentGw}
-          activeGameweek={activeGw ?? currentGw}
+          activeGameweek={activeGw ?? 1}
           clubId={clubId}
           isAdmin={isAdmin}
           events={gwEvents}
@@ -630,7 +648,7 @@ export default function FantasyContent() {
       {mainTab === 'mitmachen' && user && (
         <MitmachenTab
           gameweek={currentGw}
-          activeGameweek={activeGw ?? currentGw}
+          activeGameweek={activeGw ?? 1}
           events={gwEvents}
           userId={user.id}
           onEventClick={setSelectedEvent}
@@ -641,7 +659,7 @@ export default function FantasyContent() {
       {mainTab === 'ergebnisse' && user && (
         <ErgebnisseTab
           gameweek={currentGw}
-          activeGameweek={activeGw ?? currentGw}
+          activeGameweek={activeGw ?? 1}
           events={gwEvents}
           userId={user.id}
           participations={dashboardStats.pastParticipations}

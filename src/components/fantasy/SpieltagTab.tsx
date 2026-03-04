@@ -445,8 +445,10 @@ export function SpieltagTab({
   const isPast = gameweek < activeGameweek;
   const allSimulated = simulatedCount === fixtures.length && fixtures.length > 0;
 
+  // GW status: fixtures finished → simulated (regardless of events)
   const gwStatus: 'open' | 'simulated' | 'empty' =
-    allEnded && allSimulated ? 'simulated'
+    allSimulated ? 'simulated'
+    : allEnded && simulatedCount > 0 ? 'simulated'
     : gwEvents.length === 0 && fixtures.length === 0 ? 'empty'
     : 'open';
 
