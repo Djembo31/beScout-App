@@ -16,6 +16,7 @@ import type { FixturePlayerStat } from '@/types';
 import type { FantasyEvent } from './types';
 import { TopScorerShowcase, BestElevenShowcase } from './spieltag';
 import { HistoryTab } from './HistoryTab';
+import Image from 'next/image';
 import dynamic from 'next/dynamic';
 
 const LeaguesSection = dynamic(() => import('./LeaguesSection'), { ssr: false });
@@ -149,13 +150,17 @@ export function ErgebnisseTab({
     );
   }
 
-  // Loading state — show skeleton while topScorers are fetching
+  // Loading state — show logo pulse while topScorers are fetching
   if (loadingScorers && events.length === 0) {
     return (
-      <div className="space-y-4 py-4">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="h-16 rounded-xl bg-white/[0.03] animate-pulse" />
-        ))}
+      <div className="flex flex-col items-center justify-center py-20">
+        <Image
+          src="/logo.svg"
+          alt="BeScout"
+          width={48}
+          height={48}
+          className="size-12 animate-pulse"
+        />
       </div>
     );
   }
