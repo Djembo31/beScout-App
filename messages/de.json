@@ -379,6 +379,13 @@
       "special": "Spezial"
     },
     "noEventsForCategory": "Keine Events in dieser Kategorie",
+    "eventsTotal": "Gesamt",
+    "eventsOpenCount": "Offen",
+    "eventsJoinedCount": "Dabei",
+    "eventsLiveNow": "Jetzt LIVE",
+    "eventsActiveGroup": "Jetzt aktiv",
+    "eventsOpenGroup": "Anmeldung offen",
+    "eventsEndedGroup": "Beendet",
     "ergebnisse": {
       "upcoming": "Spieltag hat noch nicht begonnen",
       "upcomingDesc": "Ergebnisse werden nach dem Spieltag angezeigt",

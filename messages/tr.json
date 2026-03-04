@@ -377,6 +377,13 @@
       "special": "Özel"
     },
     "noEventsForCategory": "Bu kategoride etkinlik yok",
+    "eventsTotal": "Toplam",
+    "eventsOpenCount": "Açık",
+    "eventsJoinedCount": "Katılım",
+    "eventsLiveNow": "Şimdi CANLI",
+    "eventsActiveGroup": "Şu an aktif",
+    "eventsOpenGroup": "Kayıt açık",
+    "eventsEndedGroup": "Sona erdi",
     "ergebnisse": {
       "upcoming": "Maç haftası henüz başlamadı",
       "upcomingDesc": "Sonuçlar maç haftası bittikten sonra gösterilecek",
