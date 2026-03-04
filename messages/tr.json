@@ -395,7 +395,13 @@
       "yourDpcsDesc": "Oyuncuların bu hafta nasıl performans gösterdi",
       "noDpcsPlayed": "Bu hafta oyuncularından hiçbiri oynamadı",
       "noDpcsHeld": "Henüz DPC'n yok",
-      "minutesShort": "Dk"
+      "minutesShort": "Dk",
+      "bestFormation": "En İyi XI / VI",
+      "leaguesBtn": "Ligleri yönet",
+      "seasonBtn": "Sezon istatistikleri",
+      "playersActive": "oyuncu aktif",
+      "noEvents": "Etkinlik katılımı yok",
+      "noPredictions": "Bu hafta için tahmin yok"
     },
     "summary": {
       "title": "Etkinlik Sonucu",

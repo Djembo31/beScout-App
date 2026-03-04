@@ -1224,6 +1224,7 @@ export type FixturePlayerStat = DbFixturePlayerStat & {
   player_last_name: string;
   player_position: string;
   club_short: string;
+  player_image_url?: string | null;
 };
 
 export type SimulateResult = {

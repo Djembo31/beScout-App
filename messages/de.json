@@ -398,7 +398,13 @@
       "yourDpcsDesc": "So haben deine Spieler an diesem Spieltag performed",
       "noDpcsPlayed": "Keiner deiner Spieler war im Einsatz",
       "noDpcsHeld": "Du hältst noch keine DPCs",
-      "minutesShort": "Min"
+      "minutesShort": "Min",
+      "bestFormation": "Best XI / VI",
+      "leaguesBtn": "Ligen verwalten",
+      "seasonBtn": "Saison-Stats",
+      "playersActive": "Spieler aktiv",
+      "noEvents": "Keine Event-Teilnahmen",
+      "noPredictions": "Keine Tipps für diesen Spieltag"
     },
     "summary": {
       "title": "Event-Ergebnis",

@@ -164,7 +164,7 @@ export async function getGameweekTopScorers(gw: number, limit: number = 5): Prom
     .from('fixture_player_stats')
     .select(`
       *,
-      player:players!fixture_player_stats_player_id_fkey(first_name, last_name, position),
+      player:players!fixture_player_stats_player_id_fkey(first_name, last_name, position, image_url),
       club:clubs!fixture_player_stats_club_id_fkey(short)
     `)
     .in('fixture_id', fixtureIds)
@@ -174,7 +174,7 @@ export async function getGameweekTopScorers(gw: number, limit: number = 5): Prom
   if (error || !data) return [];
 
   return data.map((row: Record<string, unknown>) => {
-    const player = row.player as { first_name: string; last_name: string; position: string } | null;
+    const player = row.player as { first_name: string; last_name: string; position: string; image_url: string | null } | null;
     const club = row.club as { short: string } | null;
     return {
       id: row.id as string,
@@ -196,6 +196,7 @@ export async function getGameweekTopScorers(gw: number, limit: number = 5): Prom
       player_last_name: player?.last_name ?? '',
       player_position: player?.position ?? '',
       club_short: club?.short ?? '',
+      player_image_url: player?.image_url ?? null,
     };
   });
 }
@@ -218,7 +219,7 @@ export async function getGameweekStatsForPlayers(gw: number, playerIds: string[]
     .from('fixture_player_stats')
     .select(`
       *,
-      player:players!fixture_player_stats_player_id_fkey(first_name, last_name, position),
+      player:players!fixture_player_stats_player_id_fkey(first_name, last_name, position, image_url),
       club:clubs!fixture_player_stats_club_id_fkey(short)
     `)
     .in('fixture_id', fixtureIds)
@@ -228,7 +229,7 @@ export async function getGameweekStatsForPlayers(gw: number, playerIds: string[]
   if (error || !data) return [];
 
   return data.map((row: Record<string, unknown>) => {
-    const player = row.player as { first_name: string; last_name: string; position: string } | null;
+    const player = row.player as { first_name: string; last_name: string; position: string; image_url: string | null } | null;
     const club = row.club as { short: string } | null;
     return {
       id: row.id as string,
@@ -250,6 +251,7 @@ export async function getGameweekStatsForPlayers(gw: number, playerIds: string[]
       player_last_name: player?.last_name ?? '',
       player_position: player?.position ?? '',
       club_short: club?.short ?? '',
+      player_image_url: player?.image_url ?? null,
     };
   });
 }

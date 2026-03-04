@@ -2,9 +2,11 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Users, Star } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { PlayerPhoto } from '@/components/player';
 import type { FixturePlayerStat } from '@/types';
+import type { Pos } from '@/types';
 import { getPosAccent, scoreBadgeColor } from './helpers';
 
 type Props = {
@@ -109,7 +111,7 @@ function buildBestSix(scorers: FixturePlayerStat[]): FixturePlayerStat[] {
 }
 
 /** Get rows for pitch layout — returns array of position groups from GK (bottom) to ATT (top) */
-function getFormationRows(players: FixturePlayerStat[], mode: Mode): FixturePlayerStat[][] {
+function getFormationRows(players: FixturePlayerStat[]): FixturePlayerStat[][] {
   const posOrder = ['GK', 'DEF', 'MID', 'ATT'];
   const grouped = new Map<string, FixturePlayerStat[]>();
 
@@ -129,28 +131,40 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
   const accent = getPosAccent(stat.player_position);
   const rating = stat.rating ?? stat.fantasy_points / 10;
   const badge = scoreBadgeColor(rating);
+  const hasImage = !!stat.player_image_url;
 
   return (
-    <Link href={`/player/${stat.player_id}`} className="flex flex-col items-center w-[44px] sm:w-[52px] md:w-[60px] hover:scale-105 transition-transform active:scale-95">
+    <Link href={`/player/${stat.player_id}`} className="flex flex-col items-center w-[38px] sm:w-[48px] md:w-[56px] hover:scale-105 transition-transform active:scale-95">
       {/* Score badge */}
-      <div className={`mb-0.5 min-w-[1.5rem] px-1 sm:px-1.5 py-px sm:py-0.5 rounded-full text-[9px] sm:text-[10px] md:text-[11px] font-mono font-black text-center shadow-lg tabular-nums ${badge}`}>
+      <div className={`mb-0.5 min-w-[1.5rem] px-1 py-px rounded-full text-[8px] sm:text-[9px] md:text-[10px] font-mono font-black text-center shadow-lg tabular-nums ${badge}`}>
         {rating.toFixed(1)}
       </div>
-      {/* Circle with initials */}
-      <div
-        className="size-8 sm:size-10 md:size-12 rounded-full flex items-center justify-center border-2 bg-black/40"
-        style={{ borderColor: accent, boxShadow: `0 0 10px ${accent}30` }}
-      >
-        <span className="font-bold text-[9px] sm:text-[10px] md:text-[11px]" style={{ color: accent }}>
-          {stat.player_last_name.slice(0, 3).toUpperCase()}
-        </span>
-      </div>
+      {/* Circle with PlayerPhoto or initials */}
+      {hasImage ? (
+        <PlayerPhoto
+          imageUrl={stat.player_image_url}
+          first={stat.player_first_name}
+          last={stat.player_last_name}
+          pos={stat.player_position as Pos}
+          size={28}
+          className="sm:!w-[2rem] sm:!h-[2rem] md:!w-[2.5rem] md:!h-[2.5rem]"
+        />
+      ) : (
+        <div
+          className="size-7 sm:size-8 md:size-10 rounded-full flex items-center justify-center border-2 bg-black/40"
+          style={{ borderColor: accent, boxShadow: `0 0 10px ${accent}30` }}
+        >
+          <span className="font-bold text-[8px] sm:text-[9px] md:text-[10px]" style={{ color: accent }}>
+            {stat.player_last_name.slice(0, 3).toUpperCase()}
+          </span>
+        </div>
+      )}
       {/* Name */}
-      <div className="text-[9px] sm:text-[10px] md:text-[11px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
+      <div className="text-[8px] sm:text-[9px] md:text-[10px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
         {stat.player_last_name}
       </div>
       {/* Club */}
-      <div className="text-[8px] md:text-[9px] text-white/30 text-center truncate max-w-full">
+      <div className="text-[7px] md:text-[8px] text-white/30 text-center truncate max-w-full">
         {stat.club_short}
       </div>
     </Link>
@@ -165,12 +179,7 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
     return mode === '11er' ? buildBestEleven(scorers) : buildBestSix(scorers);
   }, [scorers, mode]);
 
-  const rows = useMemo(() => getFormationRows(players, mode), [players, mode]);
-
-  const minPlayers = mode === '6er' ? 6 : 11;
-  if (scorers.length < minPlayers && mode === '11er') {
-    // Fall back to 6er if not enough players
-  }
+  const rows = useMemo(() => getFormationRows(players), [players]);
 
   if (players.length === 0) return null;
 
@@ -180,45 +189,19 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
 
   return (
     <div>
-      {/* Section header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <Star className="size-4 text-gold" aria-hidden="true" />
-          <h2 className="text-sm font-black uppercase tracking-wider text-balance">{t('bestOfWeek', { n: mode === '11er' ? '11' : '6' })}</h2>
-          <span className="text-[10px] text-white/25">{t('gameweekN', { gw: gameweek })}</span>
-        </div>
-
-        {/* 6er / 11er Toggle */}
-        <div className="flex items-center gap-0.5 p-0.5 bg-white/[0.04] border border-white/[0.08] rounded-lg">
-          {(['6er', '11er'] as Mode[]).map(m => (
-            <button
-              key={m}
-              onClick={() => setMode(m)}
-              className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors min-h-[44px] min-w-[44px] ${
-                mode === m
-                  ? 'bg-gold/15 text-gold'
-                  : 'text-white/40 hover:text-white/60'
-              }`}
-            >
-              {m}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Pitch */}
       <div className="rounded-2xl border border-green-500/20 overflow-hidden">
-        {/* Top bar with total points */}
+        {/* Top bar with avg rating */}
         <div className="bg-gradient-to-r from-[#1a1a2e] via-[#16213e] to-[#1a1a2e] px-4 py-2 flex items-center justify-center gap-3 border-b border-white/10">
           <Users className="size-3.5 text-gold" aria-hidden="true" />
           <span className="text-xs font-bold tracking-widest text-white/50 uppercase">
             {t('bestLabel', { label: mode === '11er' ? 'XI' : 'VI' })}
           </span>
-          <span className="text-xs font-mono font-bold text-gold tabular-nums">Ø {avgRating.toFixed(1)}</span>
+          <span className="text-xs font-mono font-bold text-gold tabular-nums gold-glow">Ø {avgRating.toFixed(1)}</span>
         </div>
 
-        {/* Green pitch field — square on mobile for enough vertical room, 4:3 on larger screens */}
-        <div className="relative bg-gradient-to-b from-[#1a5c1a]/40 via-[#1e6b1e]/30 to-[#1a5c1a]/40 aspect-square sm:aspect-[4/3]">
+        {/* Green pitch — compact aspect ratio on mobile */}
+        <div className="relative bg-gradient-to-b from-[#1a5c1a]/40 via-[#1e6b1e]/30 to-[#1a5c1a]/40 aspect-[5/6] sm:aspect-[4/3]">
           {/* SVG field markings */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none" viewBox="0 0 400 300">
             {/* Outer boundary */}
@@ -241,9 +224,9 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
           </svg>
 
           {/* Player rows — ATT at top, GK at bottom */}
-          <div className="relative z-10 h-full flex flex-col justify-around py-3 px-2">
+          <div className="relative z-10 h-full flex flex-col justify-around py-2 px-1">
             {[...rows].reverse().map((row, rowIdx) => (
-              <div key={rowIdx} className="flex items-center justify-center gap-2 md:gap-4">
+              <div key={rowIdx} className="flex items-center justify-center gap-1 sm:gap-2 md:gap-4">
                 {row.map(s => <PitchNode key={s.id} stat={s} />)}
               </div>
             ))}
@@ -253,6 +236,25 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
         {/* Bottom bar */}
         <div className="bg-gradient-to-r from-[#1a1a2e] via-[#0f3460] to-[#1a1a2e] px-3 py-1.5 flex items-center justify-center border-t border-white/10">
           <span className="text-[9px] text-white/20 font-bold tracking-widest uppercase">{t('poweredBy')}</span>
+        </div>
+      </div>
+
+      {/* 6er / 11er Toggle — BELOW the pitch */}
+      <div className="flex items-center justify-center gap-1 mt-2">
+        <div className="flex items-center gap-0.5 p-0.5 bg-white/[0.04] border border-white/[0.08] rounded-lg">
+          {(['6er', '11er'] as Mode[]).map(m => (
+            <button
+              key={m}
+              onClick={() => setMode(m)}
+              className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-colors min-h-[44px] min-w-[44px] ${
+                mode === m
+                  ? 'bg-gold/15 text-gold'
+                  : 'text-white/40 hover:text-white/60'
+              }`}
+            >
+              {m}
+            </button>
+          ))}
         </div>
       </div>
     </div>
