@@ -384,7 +384,18 @@
       "pendingDesc": "Sonuçlar değerlendirmeden sonra belli olacak",
       "noData": "Bu maç haftası için veri yok",
       "predictions": "Tahmin Sonuçları",
-      "seasonStats": "Sezon İstatistikleri"
+      "seasonStats": "Sezon İstatistikleri",
+      "gwHighlights": "Maç Haftası Özeti",
+      "avgRating": "Ø Puan",
+      "totalGoals": "Goller",
+      "totalAssists": "Asistler",
+      "cleanSheets": "Gol Yemeden",
+      "bestPlayer": "En İyi Oyuncu",
+      "yourDpcs": "Senin DPC'lerin",
+      "yourDpcsDesc": "Oyuncuların bu hafta nasıl performans gösterdi",
+      "noDpcsPlayed": "Bu hafta oyuncularından hiçbiri oynamadı",
+      "noDpcsHeld": "Henüz DPC'n yok",
+      "minutesShort": "Dk"
     },
     "summary": {
       "title": "Etkinlik Sonucu",

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
 import { Users, Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { FixturePlayerStat } from '@/types';
@@ -104,9 +105,9 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
   const badge = scoreBadgeColor(rating);
 
   return (
-    <div className="flex flex-col items-center w-[48px] md:w-[56px]">
+    <Link href={`/player/${stat.player_id}`} className="flex flex-col items-center w-[52px] md:w-[60px] hover:scale-105 transition-transform active:scale-95">
       {/* Score badge */}
-      <div className={`mb-0.5 min-w-[1.3rem] px-1.5 py-0.5 rounded-full text-[8px] md:text-[9px] font-mono font-black text-center shadow-lg tabular-nums ${badge}`}>
+      <div className={`mb-0.5 min-w-[1.5rem] px-1.5 py-0.5 rounded-full text-[10px] md:text-[11px] font-mono font-black text-center shadow-lg tabular-nums ${badge}`}>
         {rating.toFixed(1)}
       </div>
       {/* Circle with initials */}
@@ -114,19 +115,19 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
         className="size-10 md:size-12 rounded-full flex items-center justify-center border-2 bg-black/40"
         style={{ borderColor: accent, boxShadow: `0 0 10px ${accent}30` }}
       >
-        <span className="font-bold text-[9px] md:text-[10px]" style={{ color: accent }}>
+        <span className="font-bold text-[10px] md:text-[11px]" style={{ color: accent }}>
           {stat.player_last_name.slice(0, 3).toUpperCase()}
         </span>
       </div>
       {/* Name */}
-      <div className="text-[8px] md:text-[9px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
+      <div className="text-[10px] md:text-[11px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
         {stat.player_last_name}
       </div>
       {/* Club */}
-      <div className="text-[7px] md:text-[8px] text-white/30 text-center truncate max-w-full">
+      <div className="text-[8px] md:text-[9px] text-white/30 text-center truncate max-w-full">
         {stat.club_short}
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -167,7 +168,7 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
             <button
               key={m}
               onClick={() => setMode(m)}
-              className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors min-h-[28px] ${
+              className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors min-h-[44px] min-w-[44px] ${
                 mode === m
                   ? 'bg-gold/15 text-gold'
                   : 'text-white/40 hover:text-white/60'

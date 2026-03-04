@@ -387,7 +387,18 @@
       "noData": "Noch keine Ergebnisse",
       "noDataDesc": "Melde dich bei einem Event an, um hier deine Ergebnisse zu sehen.",
       "predictions": "Tipp-Ergebnisse",
-      "seasonStats": "Saison-Statistiken"
+      "seasonStats": "Saison-Statistiken",
+      "gwHighlights": "Spieltag-Highlights",
+      "avgRating": "Ø Rating",
+      "totalGoals": "Tore",
+      "totalAssists": "Assists",
+      "cleanSheets": "Weiße Westen",
+      "bestPlayer": "Bester Spieler",
+      "yourDpcs": "Deine DPCs",
+      "yourDpcsDesc": "So haben deine Spieler an diesem Spieltag performed",
+      "noDpcsPlayed": "Keiner deiner Spieler war im Einsatz",
+      "noDpcsHeld": "Du hältst noch keine DPCs",
+      "minutesShort": "Min"
     },
     "summary": {
       "title": "Event-Ergebnis",

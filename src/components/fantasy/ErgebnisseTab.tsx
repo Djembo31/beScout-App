@@ -1,13 +1,17 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import {
   Trophy, BarChart3, ChevronDown, ChevronUp, Clock, Target, CheckCircle, XCircle,
+  Zap, Goal, HandHelping, ShieldCheck, Briefcase,
 } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { useTranslations } from 'next-intl';
 import { usePredictions } from '@/lib/queries/predictions';
-import { getGameweekTopScorers } from '@/lib/services/fixtures';
+import { useHoldings } from '@/lib/queries/holdings';
+import { getGameweekTopScorers, getGameweekStatsForPlayers } from '@/lib/services/fixtures';
+import { scoreBadgeColor } from './spieltag/helpers';
 import type { FixturePlayerStat } from '@/types';
 import type { FantasyEvent } from './types';
 import { TopScorerShowcase, BestElevenShowcase } from './spieltag';
@@ -89,6 +93,33 @@ export function ErgebnisseTab({
     return () => { cancelled = true; };
   }, [gameweek, isUpcoming]);
 
+  // User's DPC holdings — cross-reference with GW stats
+  const { data: holdings = [] } = useHoldings(userId);
+  const heldPlayerIds = useMemo(() => holdings.map(h => h.player_id), [holdings]);
+  const [heldPlayerStats, setHeldPlayerStats] = useState<FixturePlayerStat[]>([]);
+  useEffect(() => {
+    if (isUpcoming || heldPlayerIds.length === 0) { setHeldPlayerStats([]); return; }
+    let cancelled = false;
+    getGameweekStatsForPlayers(gameweek, heldPlayerIds).then(data => {
+      if (!cancelled) setHeldPlayerStats(data);
+    }).catch(() => {
+      if (!cancelled) setHeldPlayerStats([]);
+    });
+    return () => { cancelled = true; };
+  }, [gameweek, isUpcoming, heldPlayerIds]);
+
+  // GW summary stats (from top scorers)
+  const gwSummary = useMemo(() => {
+    if (topScorers.length === 0) return null;
+    const totalGoals = topScorers.reduce((s, p) => s + p.goals, 0);
+    const totalAssists = topScorers.reduce((s, p) => s + p.assists, 0);
+    const cleanSheets = topScorers.filter(p => p.clean_sheet).length;
+    const ratings = topScorers.filter(p => p.rating != null).map(p => p.rating!);
+    const avgRating = ratings.length > 0 ? ratings.reduce((s, r) => s + r, 0) / ratings.length : 0;
+    const best = topScorers[0];
+    return { totalGoals, totalAssists, cleanSheets, avgRating, best };
+  }, [topScorers]);
+
   // Predictions for this GW
   const { data: predictions = [] } = usePredictions(userId, gameweek);
   const resolvedPredictions = useMemo(
@@ -128,10 +159,98 @@ export function ErgebnisseTab({
 
   return (
     <div className="space-y-6">
+      {/* ── SECTION 0: GW Highlights Summary ── */}
+      {gwSummary && (
+        <section>
+          <div className="flex items-center gap-2 mb-3 border-l-2 border-l-emerald-400 pl-2">
+            <Zap className="size-4 text-emerald-400" aria-hidden="true" />
+            <h3 className="font-bold text-sm">{tf('ergebnisse.gwHighlights')}</h3>
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center">
+              <div className="text-lg font-black tabular-nums text-gold">{gwSummary.avgRating.toFixed(1)}</div>
+              <div className="text-[10px] text-white/40 mt-0.5">{tf('ergebnisse.avgRating')}</div>
+            </div>
+            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center">
+              <div className="flex items-center justify-center gap-1">
+                <Goal className="size-4 text-gold" aria-hidden="true" />
+                <span className="text-lg font-black tabular-nums">{gwSummary.totalGoals}</span>
+              </div>
+              <div className="text-[10px] text-white/40 mt-0.5">{tf('ergebnisse.totalGoals')}</div>
+            </div>
+            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center">
+              <div className="flex items-center justify-center gap-1">
+                <HandHelping className="size-4 text-sky-400" aria-hidden="true" />
+                <span className="text-lg font-black tabular-nums">{gwSummary.totalAssists}</span>
+              </div>
+              <div className="text-[10px] text-white/40 mt-0.5">{tf('ergebnisse.totalAssists')}</div>
+            </div>
+            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center">
+              <div className="flex items-center justify-center gap-1">
+                <ShieldCheck className="size-4 text-emerald-400" aria-hidden="true" />
+                <span className="text-lg font-black tabular-nums">{gwSummary.cleanSheets}</span>
+              </div>
+              <div className="text-[10px] text-white/40 mt-0.5">{tf('ergebnisse.cleanSheets')}</div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── SECTION 0.5: Deine DPCs Performance ── */}
+      {holdings.length > 0 && !isUpcoming && (
+        <section>
+          <div className="flex items-center gap-2 mb-3 border-l-2 border-l-orange-400 pl-2">
+            <Briefcase className="size-4 text-orange-400" aria-hidden="true" />
+            <h3 className="font-bold text-sm">{tf('ergebnisse.yourDpcs')}</h3>
+          </div>
+          {heldPlayerStats.length === 0 ? (
+            <div className="py-6 text-center text-white/30 text-xs">
+              {tf('ergebnisse.noDpcsPlayed')}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] divide-y divide-white/[0.04]">
+              {heldPlayerStats.map(stat => {
+                const rating = stat.rating ?? stat.fantasy_points / 10;
+                return (
+                  <Link
+                    key={stat.id}
+                    href={`/player/${stat.player_id}`}
+                    className="flex items-center gap-2.5 px-3 py-2.5 hover:bg-white/[0.04] transition-colors active:bg-white/[0.06]"
+                  >
+                    <span className={`min-w-[2rem] px-1.5 py-0.5 rounded-md text-[11px] font-mono font-black text-center tabular-nums ${scoreBadgeColor(rating)}`}>
+                      {rating.toFixed(1)}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold truncate">
+                        {stat.player_first_name.charAt(0)}. {stat.player_last_name}
+                      </div>
+                      <div className="text-[10px] text-white/40">
+                        {stat.club_short} · {stat.minutes_played}{tf('ergebnisse.minutesShort')}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {stat.goals > 0 && (
+                        <span className="text-xs font-bold text-gold tabular-nums">{stat.goals}G</span>
+                      )}
+                      {stat.assists > 0 && (
+                        <span className="text-xs font-bold text-sky-400 tabular-nums">{stat.assists}A</span>
+                      )}
+                      {stat.clean_sheet && (
+                        <ShieldCheck className="size-3.5 text-emerald-400" aria-hidden="true" />
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      )}
+
       {/* ── SECTION 1: Event-Ergebnisse ── */}
       {joinedScoredEvents.length > 0 && (
         <section>
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-3 border-l-2 border-l-gold pl-2">
             <Trophy className="size-4 text-gold" aria-hidden="true" />
             <h3 className="font-bold text-sm">{t('results')}</h3>
           </div>
@@ -182,8 +301,8 @@ export function ErgebnisseTab({
       {/* ── SECTION 4: Tipp-Ergebnisse ── */}
       {resolvedPredictions.length > 0 && (
         <section>
-          <div className="flex items-center gap-2 mb-3">
-            <Target className="size-4 text-gold" aria-hidden="true" />
+          <div className="flex items-center gap-2 mb-3 border-l-2 border-l-sky-400 pl-2">
+            <Target className="size-4 text-sky-400" aria-hidden="true" />
             <h3 className="font-bold text-sm">{tf('ergebnisse.predictions')}</h3>
           </div>
           <Card className="p-3 flex items-center gap-4">
@@ -217,7 +336,7 @@ export function ErgebnisseTab({
           onClick={() => setShowSeason(!showSeason)}
           className="w-full flex items-center justify-between p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl hover:bg-white/[0.04] transition-colors"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 border-l-2 border-l-purple-400 pl-2">
             <BarChart3 className="size-4 text-purple-400" aria-hidden="true" />
             <span className="font-bold text-sm">{tf('ergebnisse.seasonStats')}</span>
           </div>

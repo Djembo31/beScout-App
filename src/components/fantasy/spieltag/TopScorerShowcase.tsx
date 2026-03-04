@@ -13,12 +13,12 @@ type Props = {
   gameweek: number;
 };
 
-const MEDALS = ['', '', ''];
+const MEDALS = ['\u{1F947}', '\u{1F948}', '\u{1F949}'];
 
 function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
   return (
     <div className="rounded-2xl border-2 border-gold/30 bg-gradient-to-br from-gold/[0.08] via-transparent to-transparent p-4 relative overflow-hidden"
-      style={{ boxShadow: '0 0 20px rgba(255,215,0,0.08)' }}
+      style={{ boxShadow: '0 0 32px rgba(255,215,0,0.12), 0 0 8px rgba(255,215,0,0.06)' }}
     >
       {/* Medal */}
       <div className="absolute top-3 right-3 text-2xl">{medal}</div>

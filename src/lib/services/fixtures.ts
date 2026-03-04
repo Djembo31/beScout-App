@@ -200,6 +200,60 @@ export async function getGameweekTopScorers(gw: number, limit: number = 5): Prom
   });
 }
 
+/** Get GW stats for specific player IDs (for "Deine Spieler" portfolio view) */
+export async function getGameweekStatsForPlayers(gw: number, playerIds: string[]): Promise<FixturePlayerStat[]> {
+  if (playerIds.length === 0) return [];
+
+  const { data: fixtures } = await supabase
+    .from('fixtures')
+    .select('id')
+    .eq('gameweek', gw)
+    .in('status', ['simulated', 'finished']);
+
+  if (!fixtures || fixtures.length === 0) return [];
+
+  const fixtureIds = fixtures.map(f => f.id);
+
+  const { data, error } = await supabase
+    .from('fixture_player_stats')
+    .select(`
+      *,
+      player:players!fixture_player_stats_player_id_fkey(first_name, last_name, position),
+      club:clubs!fixture_player_stats_club_id_fkey(short)
+    `)
+    .in('fixture_id', fixtureIds)
+    .in('player_id', playerIds)
+    .order('rating', { ascending: false, nullsFirst: false });
+
+  if (error || !data) return [];
+
+  return data.map((row: Record<string, unknown>) => {
+    const player = row.player as { first_name: string; last_name: string; position: string } | null;
+    const club = row.club as { short: string } | null;
+    return {
+      id: row.id as string,
+      fixture_id: row.fixture_id as string,
+      player_id: row.player_id as string,
+      club_id: row.club_id as string,
+      minutes_played: row.minutes_played as number,
+      goals: row.goals as number,
+      assists: row.assists as number,
+      clean_sheet: row.clean_sheet as boolean,
+      goals_conceded: row.goals_conceded as number,
+      yellow_card: row.yellow_card as boolean,
+      red_card: row.red_card as boolean,
+      saves: row.saves as number,
+      bonus: row.bonus as number,
+      fantasy_points: row.fantasy_points as number,
+      rating: (row.rating as number | null) ?? null,
+      player_first_name: player?.first_name ?? '',
+      player_last_name: player?.last_name ?? '',
+      player_position: player?.position ?? '',
+      club_short: club?.short ?? '',
+    };
+  });
+}
+
 // ============================================
 // Per-Fixture Deadline Locking
 // ============================================
