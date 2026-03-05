@@ -92,6 +92,49 @@ function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
   );
 }
 
+/** Build pitch rows from API grid_position data.
+ *  grid_position = "row:col" (e.g. "1:1"=GK, "2:3"=3rd defender).
+ *  This is the authoritative formation layout from API-Football lineups.
+ *  Fallback: group by match_position if grid data is missing. */
+function buildFormationRows(starters: FixturePlayerStat[], isHome: boolean): FixturePlayerStat[][] {
+  const hasGrid = starters.some(s => s.grid_position);
+
+  if (hasGrid) {
+    // Group by grid row number
+    const rowMap = new Map<number, FixturePlayerStat[]>();
+    for (const s of starters) {
+      const row = s.grid_position ? parseInt(s.grid_position.split(':')[0], 10) : 0;
+      const existing = rowMap.get(row) || [];
+      existing.push(s);
+      rowMap.set(row, existing);
+    }
+    // Sort rows by row number, within each row sort by column
+    const rows = Array.from(rowMap.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([, players]) => players.sort((a, b) => {
+        const colA = a.grid_position ? parseInt(a.grid_position.split(':')[1], 10) : 0;
+        const colB = b.grid_position ? parseInt(b.grid_position.split(':')[1], 10) : 0;
+        return colA - colB;
+      }));
+    if (!isHome) rows.reverse();
+    return rows;
+  }
+
+  // Fallback: group by match_position
+  const grouped = new Map<string, FixturePlayerStat[]>();
+  for (const s of starters) {
+    const pos = s.match_position || s.player_position || 'MID';
+    const existing = grouped.get(pos) || [];
+    existing.push(s);
+    grouped.set(pos, existing);
+  }
+  const prio = (pos: string) => { switch (pos) { case 'GK': return 0; case 'DEF': return 1; case 'MID': return 2; case 'ATT': return 3; default: return 2; } };
+  const order = isHome ? prio : (pos: string) => 3 - prio(pos);
+  return Array.from(grouped.entries())
+    .sort((a, b) => order(a[0]) - order(b[0]))
+    .map(([, players]) => players.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)));
+}
+
 function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
   stats: FixturePlayerStat[];
   teamName: string;
@@ -100,21 +143,7 @@ function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
   formation: string;
   logo: ReturnType<typeof getClub>;
 }) {
-  const grouped = new Map<string, FixturePlayerStat[]>();
-  for (const s of stats) {
-    const pos = s.match_position || s.player_position || 'MID';
-    const existing = grouped.get(pos) || [];
-    existing.push(s);
-    grouped.set(pos, existing);
-  }
-
-  const order = isHome
-    ? (pos: string) => { switch (pos) { case 'GK': return 0; case 'DEF': return 1; case 'MID': return 2; case 'ATT': return 3; default: return 4; } }
-    : (pos: string) => { switch (pos) { case 'ATT': return 0; case 'MID': return 1; case 'DEF': return 2; case 'GK': return 3; default: return 4; } };
-
-  const rows = Array.from(grouped.entries())
-    .sort((a, b) => order(a[0]) - order(b[0]))
-    .map(([, players]) => players.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)));
+  const rows = buildFormationRows(stats, isHome);
 
   return (
     <div className="flex flex-col gap-3 py-2">
