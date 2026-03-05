@@ -1198,7 +1198,7 @@ export type DbFixture = {
 export type DbFixturePlayerStat = {
   id: string;
   fixture_id: string;
-  player_id: string;
+  player_id: string | null;
   club_id: string;
   minutes_played: number;
   goals: number;
@@ -1212,6 +1212,10 @@ export type DbFixturePlayerStat = {
   fantasy_points: number;
   rating: number | null;
   match_position: string | null;
+  is_starter: boolean;
+  grid_position: string | null;
+  api_football_player_id: number | null;
+  player_name_api: string | null;
 };
 
 export type Fixture = DbFixture & {

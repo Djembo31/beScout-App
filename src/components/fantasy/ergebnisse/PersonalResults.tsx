@@ -59,13 +59,13 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] divide-y divide-white/[0.04]">
               {heldPlayerStats.map(stat => {
                 const rating = stat.rating ?? stat.fantasy_points / 10;
-                const holding = holdingsMap.get(stat.player_id);
+                const holding = stat.player_id ? holdingsMap.get(stat.player_id) : undefined;
                 const accent = getPosAccent(stat.player_position);
 
                 return (
                   <Link
                     key={stat.id}
-                    href={`/player/${stat.player_id}`}
+                    href={`/player/${stat.player_id ?? ''}`}
                     className="flex items-center gap-2.5 px-3 py-2.5 hover:bg-white/[0.04] transition-colors active:bg-white/[0.06]"
                     style={{ borderLeftColor: accent, borderLeftWidth: '2px' }}
                   >

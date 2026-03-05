@@ -11,15 +11,25 @@ import { PlayerPhoto, GoalBadge } from '@/components/player';
 import { ClubLogo } from './ClubLogo';
 import { posColor, scoreBadgeColor, getPosAccent } from './helpers';
 
-/** Split team stats into starters (top 11 by minutes) + bench, derive formation string */
+/** Split team stats into starters + bench using is_starter flag, with minutes fallback for old data */
 function splitStartersBench(stats: FixturePlayerStat[]): {
   starters: FixturePlayerStat[];
   bench: FixturePlayerStat[];
   formation: string;
 } {
-  const sorted = [...stats].sort((a, b) => b.minutes_played - a.minutes_played);
-  const starters = sorted.slice(0, 11);
-  const bench = sorted.slice(11).filter(s => s.minutes_played > 0);
+  let starters: FixturePlayerStat[];
+  let bench: FixturePlayerStat[];
+
+  // Use is_starter flag if any player has it set
+  if (stats.some(s => s.is_starter)) {
+    starters = stats.filter(s => s.is_starter);
+    bench = stats.filter(s => !s.is_starter && s.minutes_played > 0);
+  } else {
+    // Fallback for old data without is_starter
+    const sorted = [...stats].sort((a, b) => b.minutes_played - a.minutes_played);
+    starters = sorted.slice(0, 11);
+    bench = sorted.slice(11).filter(s => s.minutes_played > 0);
+  }
 
   const counts = { DEF: 0, MID: 0, ATT: 0 };
   for (const s of starters) {

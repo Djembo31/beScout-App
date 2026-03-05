@@ -40,12 +40,77 @@ type ApiFixturePlayerResponse = {
   }>;
 };
 
+type ApiLineupPlayer = {
+  id: number;
+  name: string;
+  number: number;
+  pos: string;
+  grid: string | null;
+};
+
 type ApiLineupsResponse = {
   response: Array<{
     team: { id: number };
     formation: string | null;
+    startXI: Array<{ player: ApiLineupPlayer }>;
+    substitutes: Array<{ player: ApiLineupPlayer }>;
   }>;
 };
+
+// ============================================
+// Name-Matching Utilities (Turkish Unicode safe)
+// ============================================
+
+function normalizeForMatch(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ı/g, 'i')
+    .replace(/İ/gi, 'i')
+    .replace(/ş/gi, 's')
+    .replace(/ç/gi, 'c')
+    .replace(/ğ/gi, 'g')
+    .replace(/ö/gi, 'o')
+    .replace(/ü/gi, 'u')
+    .toLowerCase()
+    .trim();
+}
+
+function nameMatchPlayer(
+  apiName: string,
+  clubPlayers: Array<{ id: string; first_name: string; last_name: string; position: string }>,
+): { id: string; position: string } | null {
+  const normalized = normalizeForMatch(apiName);
+  const parts = normalized.split(/\s+/);
+  const apiLast = parts[parts.length - 1];
+
+  let bestMatch: { id: string; position: string } | null = null;
+  let bestScore = 0;
+
+  for (const p of clubPlayers) {
+    const normFirst = normalizeForMatch(p.first_name);
+    const normLast = normalizeForMatch(p.last_name);
+    let score = 0;
+
+    // Exact last name match
+    if (normLast === apiLast) score += 50;
+    // Last name contained in API name
+    else if (normalized.includes(normLast) && normLast.length >= 3) score += 35;
+    // API last part contained in DB last name
+    else if (normLast.includes(apiLast) && apiLast.length >= 3) score += 25;
+
+    // First name bonus
+    if (parts.length > 1 && normFirst === parts[0]) score += 30;
+    else if (normalized.includes(normFirst) && normFirst.length >= 3) score += 15;
+
+    if (score > bestScore && score >= 40) {
+      bestScore = score;
+      bestMatch = { id: p.id, position: p.position };
+    }
+  }
+
+  return bestMatch;
+}
 
 // ============================================
 // Fantasy Points Calculation
@@ -295,7 +360,7 @@ export async function GET(request: Request) {
           .not('api_fixture_id', 'is', null),
         supabaseAdmin
           .from('players')
-          .select('id, api_football_id, fixture_api_football_id, position')
+          .select('id, api_football_id, fixture_api_football_id, position, first_name, last_name, club_id')
           .not('api_football_id', 'is', null),
         supabaseAdmin
           .from('clubs')
@@ -306,6 +371,21 @@ export async function GET(request: Request) {
       if (!fixtureRes.data?.length)
         throw new Error('No mapped fixtures for this gameweek');
       if (!playerRes.data?.length) throw new Error('No mapped players');
+
+      // Build club players map for name matching: clubId → players[]
+      const clubPlayersMap = new Map<string, Array<{ id: string; first_name: string; last_name: string; position: string }>>();
+      for (const p of playerRes.data) {
+        const cid = p.club_id as string;
+        if (!cid) continue;
+        const arr = clubPlayersMap.get(cid) ?? [];
+        arr.push({
+          id: p.id as string,
+          first_name: p.first_name as string,
+          last_name: p.last_name as string,
+          position: p.position as string,
+        });
+        clubPlayersMap.set(cid, arr);
+      }
 
       return {
         fixtures: fixtureRes.data as Array<{
@@ -329,6 +409,7 @@ export async function GET(request: Request) {
             c.id as string,
           ]),
         ),
+        clubPlayersMap,
       };
     });
 
@@ -346,35 +427,51 @@ export async function GET(request: Request) {
       clubs: mappings.clubMap.size,
     });
 
-    // ---- 6. Fetch player stats + compute fantasy points ----
+    // ---- 6. Fetch lineups + player stats (Never-Skip) ----
+    type PlayerStatRow = {
+      fixture_id: string;
+      player_id: string | null;
+      club_id: string;
+      minutes_played: number;
+      goals: number;
+      assists: number;
+      clean_sheet: boolean;
+      goals_conceded: number;
+      yellow_card: boolean;
+      red_card: boolean;
+      saves: number;
+      bonus: number;
+      fantasy_points: number;
+      rating: number | null;
+      match_position: string | null;
+      is_starter: boolean;
+      grid_position: string | null;
+      api_football_player_id: number;
+      player_name_api: string;
+    };
+
     const { result: statsResult } = await runStep('fetch_stats', async () => {
       const fixtureResults: Array<{
         fixture_id: string;
         home_score: number;
         away_score: number;
       }> = [];
-      const playerStats: Array<{
-        fixture_id: string;
-        player_id: string;
-        club_id: string;
-        minutes_played: number;
-        goals: number;
-        assists: number;
-        clean_sheet: boolean;
-        goals_conceded: number;
-        yellow_card: boolean;
-        red_card: boolean;
-        saves: number;
-        bonus: number;
-        fantasy_points: number;
-        rating: number | null;
-        match_position: string | null;
-      }> = [];
+      const playerStats: PlayerStatRow[] = [];
+      let matchedCount = 0;
+      let unmatchedCount = 0;
+      let nameMatchCount = 0;
 
       for (const fixture of mappings.fixtures) {
-        const apiStats = await apiFetch<ApiFixturePlayerResponse>(
-          `/fixtures/players?fixture=${fixture.api_fixture_id}`,
-        );
+        // Fetch lineups and player stats in parallel
+        const [lineupsData, apiStats] = await Promise.all([
+          apiFetch<ApiLineupsResponse>(
+            `/fixtures/lineups?fixture=${fixture.api_fixture_id}`,
+          ).catch(() => ({ response: [] as ApiLineupsResponse['response'] })),
+          apiFetch<ApiFixturePlayerResponse>(
+            `/fixtures/players?fixture=${fixture.api_fixture_id}`,
+          ),
+        ]);
+
         const apiMatch = apiFixData.response.find(
           (f) => f.fixture.id === fixture.api_fixture_id,
         );
@@ -392,6 +489,49 @@ export async function GET(request: Request) {
           });
         }
 
+        // Build lineup map: apiPlayerId → {isStarter, gridPosition, name}
+        type LineupInfo = { isStarter: boolean; gridPosition: string | null; name: string };
+        const lineupMap = new Map<number, LineupInfo>();
+
+        // Store formations on fixture
+        const formationUpdates: Record<string, string> = {};
+
+        for (const teamLineup of lineupsData.response) {
+          const clubId = mappings.clubMap.get(teamLineup.team.id);
+          if (!clubId) continue;
+
+          if (teamLineup.formation) {
+            if (clubId === fixture.home_club_id) formationUpdates.home_formation = teamLineup.formation;
+            if (clubId === fixture.away_club_id) formationUpdates.away_formation = teamLineup.formation;
+          }
+
+          for (const entry of teamLineup.startXI ?? []) {
+            lineupMap.set(entry.player.id, {
+              isStarter: true,
+              gridPosition: entry.player.grid,
+              name: entry.player.name,
+            });
+          }
+          for (const entry of teamLineup.substitutes ?? []) {
+            lineupMap.set(entry.player.id, {
+              isStarter: false,
+              gridPosition: null,
+              name: entry.player.name,
+            });
+          }
+        }
+
+        // Save formations
+        if (Object.keys(formationUpdates).length > 0) {
+          await supabaseAdmin
+            .from('fixtures')
+            .update(formationUpdates)
+            .eq('id', fixture.id);
+        }
+
+        // Track which API player IDs we've already processed (from stats)
+        const processedApiIds = new Set<number>();
+
         // Process player stats from both teams
         for (const teamData of apiStats.response) {
           const clubId = mappings.clubMap.get(teamData.team.id);
@@ -404,16 +544,38 @@ export async function GET(request: Request) {
           const isCleanSheet = goalsAgainst === 0;
 
           for (const pd of teamData.players) {
-            const ourPlayer = mappings.playerMap.get(pd.player.id);
-            if (!ourPlayer) continue;
+            const apiPlayerId = pd.player.id;
+            processedApiIds.add(apiPlayerId);
 
             const stat = pd.statistics[0];
             if (!stat) continue;
 
             const matchPosition = stat.games.position ? mapPosition(stat.games.position) : null;
             const minutes = stat.games.minutes ?? 0;
-            if (minutes === 0) continue;
+            const lineupInfo = lineupMap.get(apiPlayerId);
+            const isStarter = lineupInfo?.isStarter ?? (minutes > 0);
+            const gridPosition = lineupInfo?.gridPosition ?? null;
 
+            // Skip bench players with 0 minutes who are NOT in the lineup
+            if (minutes === 0 && !lineupInfo) continue;
+
+            // Try to match player: 1) Dual-ID lookup 2) Name match 3) null
+            let ourPlayer = mappings.playerMap.get(apiPlayerId);
+            const apiPlayerName = lineupInfo?.name ?? `Player ${apiPlayerId}`;
+
+            if (!ourPlayer) {
+              // Try name matching within the club squad
+              const clubPlayers = mappings.clubPlayersMap.get(clubId);
+              if (clubPlayers) {
+                ourPlayer = nameMatchPlayer(apiPlayerName, clubPlayers) ?? undefined;
+                if (ourPlayer) nameMatchCount++;
+              }
+            }
+
+            if (ourPlayer) matchedCount++;
+            else unmatchedCount++;
+
+            const position = ourPlayer?.position ?? (matchPosition || 'MID');
             const goals = stat.goals.total ?? 0;
             const assists = stat.goals.assists ?? 0;
             const goalsConceded = stat.goals.conceded ?? 0;
@@ -421,12 +583,11 @@ export async function GET(request: Request) {
             const redCard = (stat.cards.red ?? 0) > 0;
             const saves = stat.goals.saves ?? 0;
 
-            // API-Football rating as primary source
             const rating = stat.games.rating ? parseFloat(stat.games.rating) : null;
             const fantasyPoints = rating
               ? Math.round(rating * 10)
               : calcFantasyPoints(
-                  ourPlayer.position,
+                  position,
                   minutes,
                   goals,
                   assists,
@@ -440,7 +601,7 @@ export async function GET(request: Request) {
 
             playerStats.push({
               fixture_id: fixture.id,
-              player_id: ourPlayer.id,
+              player_id: ourPlayer?.id ?? null,
               club_id: clubId,
               minutes_played: minutes,
               goals,
@@ -454,12 +615,72 @@ export async function GET(request: Request) {
               fantasy_points: fantasyPoints,
               rating,
               match_position: matchPosition,
+              is_starter: isStarter,
+              grid_position: gridPosition,
+              api_football_player_id: apiPlayerId,
+              player_name_api: apiPlayerName,
+            });
+          }
+        }
+
+        // Add lineup players who had NO stats entry (e.g. unused subs)
+        for (const teamLineup of lineupsData.response) {
+          const clubId = mappings.clubMap.get(teamLineup.team.id);
+          if (!clubId) continue;
+
+          const isHome = fixture.home_club_id === clubId;
+          const goalsAgainst = apiMatch
+            ? (isHome ? apiMatch.goals.away : apiMatch.goals.home) ?? 0
+            : 0;
+          const isCleanSheet = goalsAgainst === 0;
+
+          const allLineupPlayers = [
+            ...(teamLineup.startXI ?? []).map(e => ({ ...e, isStarter: true })),
+            ...(teamLineup.substitutes ?? []).map(e => ({ ...e, isStarter: false })),
+          ];
+
+          for (const entry of allLineupPlayers) {
+            if (processedApiIds.has(entry.player.id)) continue;
+            processedApiIds.add(entry.player.id);
+
+            let ourPlayer = mappings.playerMap.get(entry.player.id);
+            if (!ourPlayer) {
+              const clubPlayers = mappings.clubPlayersMap.get(clubId);
+              if (clubPlayers) {
+                ourPlayer = nameMatchPlayer(entry.player.name, clubPlayers) ?? undefined;
+                if (ourPlayer) nameMatchCount++;
+              }
+            }
+
+            if (ourPlayer) matchedCount++;
+            else unmatchedCount++;
+
+            playerStats.push({
+              fixture_id: fixture.id,
+              player_id: ourPlayer?.id ?? null,
+              club_id: clubId,
+              minutes_played: 0,
+              goals: 0,
+              assists: 0,
+              clean_sheet: isCleanSheet,
+              goals_conceded: 0,
+              yellow_card: false,
+              red_card: false,
+              saves: 0,
+              bonus: 0,
+              fantasy_points: 0,
+              rating: null,
+              match_position: entry.player.pos ? mapPosition(entry.player.pos) : null,
+              is_starter: entry.isStarter,
+              grid_position: entry.isStarter ? entry.player.grid : null,
+              api_football_player_id: entry.player.id,
+              player_name_api: entry.player.name,
             });
           }
         }
       }
 
-      return { fixtureResults, playerStats };
+      return { fixtureResults, playerStats, matchedCount, unmatchedCount, nameMatchCount };
     });
 
     if (!statsResult) {
@@ -473,41 +694,9 @@ export async function GET(request: Request) {
     await logStep(activeGw, 'fetch_stats', 'success', {
       fixtures: statsResult.fixtureResults.length,
       playerStats: statsResult.playerStats.length,
-    });
-
-    // ---- 6b. Fetch lineups + store formations ----
-    await runStep('fetch_formations', async () => {
-      let stored = 0;
-      for (const fixture of mappings.fixtures) {
-        try {
-          const lineupsData = await apiFetch<ApiLineupsResponse>(
-            `/fixtures/lineups?fixture=${fixture.api_fixture_id}`,
-          );
-          const homeLineup = lineupsData.response.find(t => {
-            const clubId = mappings.clubMap.get(t.team.id);
-            return clubId === fixture.home_club_id;
-          });
-          const awayLineup = lineupsData.response.find(t => {
-            const clubId = mappings.clubMap.get(t.team.id);
-            return clubId === fixture.away_club_id;
-          });
-
-          const updates: Record<string, string> = {};
-          if (homeLineup?.formation) updates.home_formation = homeLineup.formation;
-          if (awayLineup?.formation) updates.away_formation = awayLineup.formation;
-
-          if (Object.keys(updates).length > 0) {
-            await supabaseAdmin
-              .from('fixtures')
-              .update(updates)
-              .eq('id', fixture.id);
-            stored++;
-          }
-        } catch {
-          /* best-effort — formations are supplementary */
-        }
-      }
-      return { stored };
+      matched: statsResult.matchedCount,
+      unmatched: statsResult.unmatchedCount,
+      nameMatched: statsResult.nameMatchCount,
     });
 
     // ---- 7. Import via RPC ----

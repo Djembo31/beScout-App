@@ -83,47 +83,66 @@ export async function getFixturesByClub(clubId: string): Promise<Fixture[]> {
   });
 }
 
-/** Load player stats for a specific fixture */
+/** Parse player_name_api into first/last — "Mehmet Yilmaz" → {first: "Mehmet", last: "Yilmaz"} */
+function parseApiName(name: string | null): { first: string; last: string } {
+  if (!name) return { first: '', last: '' };
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return { first: '', last: parts[0] };
+  return { first: parts.slice(0, -1).join(' '), last: parts[parts.length - 1] };
+}
+
+/** Map a fixture_player_stats row to FixturePlayerStat with fallbacks for unmatched players */
+function mapStatRow(row: Record<string, unknown>): FixturePlayerStat {
+  const player = row.player as { first_name: string; last_name: string; position: string; image_url: string | null } | null;
+  const club = row.club as { short: string } | null;
+  const apiName = parseApiName(row.player_name_api as string | null);
+
+  return {
+    id: row.id as string,
+    fixture_id: row.fixture_id as string,
+    player_id: (row.player_id as string | null) ?? null,
+    club_id: row.club_id as string,
+    minutes_played: row.minutes_played as number,
+    goals: row.goals as number,
+    assists: row.assists as number,
+    clean_sheet: row.clean_sheet as boolean,
+    goals_conceded: row.goals_conceded as number,
+    yellow_card: row.yellow_card as boolean,
+    red_card: row.red_card as boolean,
+    saves: row.saves as number,
+    bonus: row.bonus as number,
+    fantasy_points: row.fantasy_points as number,
+    rating: (row.rating as number | null) ?? null,
+    match_position: (row.match_position as string | null) ?? null,
+    is_starter: (row.is_starter as boolean | null) ?? false,
+    grid_position: (row.grid_position as string | null) ?? null,
+    api_football_player_id: (row.api_football_player_id as number | null) ?? null,
+    player_name_api: (row.player_name_api as string | null) ?? null,
+    player_first_name: player?.first_name ?? apiName.first,
+    player_last_name: player?.last_name ?? apiName.last,
+    player_position: player?.position ?? (row.match_position as string | null) ?? '',
+    player_image_url: player?.image_url ?? null,
+    club_short: club?.short ?? '',
+  };
+}
+
+/** Load player stats for a specific fixture (LEFT JOIN for nullable player_id) */
 export async function getFixturePlayerStats(fixtureId: string): Promise<FixturePlayerStat[]> {
+  // Use !left hint for nullable FK join — cast needed since TS parser doesn't support !left
   const { data, error } = await supabase
     .from('fixture_player_stats')
-    .select(`
-      *,
-      player:players!fixture_player_stats_player_id_fkey(first_name, last_name, position, image_url),
-      club:clubs!fixture_player_stats_club_id_fkey(short)
-    `)
+    .select(
+      '*, player:players!fixture_player_stats_player_id_fkey!left(first_name, last_name, position, image_url), club:clubs!fixture_player_stats_club_id_fkey(short)',
+    )
     .eq('fixture_id', fixtureId)
-    .order('rating', { ascending: false, nullsFirst: false });
+    .order('rating', { ascending: false, nullsFirst: false }) as unknown as {
+    data: Record<string, unknown>[] | null;
+    error: { message: string } | null;
+  };
 
   if (error || !data) return [];
 
-  return data.map((row: Record<string, unknown>) => {
-    const player = row.player as { first_name: string; last_name: string; position: string; image_url: string | null } | null;
-    const club = row.club as { short: string } | null;
-    return {
-      id: row.id as string,
-      fixture_id: row.fixture_id as string,
-      player_id: row.player_id as string,
-      club_id: row.club_id as string,
-      minutes_played: row.minutes_played as number,
-      goals: row.goals as number,
-      assists: row.assists as number,
-      clean_sheet: row.clean_sheet as boolean,
-      goals_conceded: row.goals_conceded as number,
-      yellow_card: row.yellow_card as boolean,
-      red_card: row.red_card as boolean,
-      saves: row.saves as number,
-      bonus: row.bonus as number,
-      fantasy_points: row.fantasy_points as number,
-      rating: (row.rating as number | null) ?? null,
-      match_position: (row.match_position as string | null) ?? null,
-      player_first_name: player?.first_name ?? '',
-      player_last_name: player?.last_name ?? '',
-      player_position: player?.position ?? '',
-      player_image_url: player?.image_url ?? null,
-      club_short: club?.short ?? '',
-    };
-  });
+  return data.map((row) => mapStatRow(row));
 }
 
 /** Get gameweek simulation status for a range */
@@ -168,44 +187,20 @@ export async function getGameweekTopScorers(gw: number, limit: number = 5): Prom
 
   const { data, error } = await supabase
     .from('fixture_player_stats')
-    .select(`
-      *,
-      player:players!fixture_player_stats_player_id_fkey(first_name, last_name, position, image_url),
-      club:clubs!fixture_player_stats_club_id_fkey(short)
-    `)
+    .select(
+      '*, player:players!fixture_player_stats_player_id_fkey!left(first_name, last_name, position, image_url), club:clubs!fixture_player_stats_club_id_fkey(short)',
+    )
     .in('fixture_id', fixtureIds)
+    .not('player_id', 'is', null)
     .order('rating', { ascending: false, nullsFirst: false })
-    .limit(limit);
+    .limit(limit) as unknown as {
+    data: Record<string, unknown>[] | null;
+    error: { message: string } | null;
+  };
 
   if (error || !data) return [];
 
-  return data.map((row: Record<string, unknown>) => {
-    const player = row.player as { first_name: string; last_name: string; position: string; image_url: string | null } | null;
-    const club = row.club as { short: string } | null;
-    return {
-      id: row.id as string,
-      fixture_id: row.fixture_id as string,
-      player_id: row.player_id as string,
-      club_id: row.club_id as string,
-      minutes_played: row.minutes_played as number,
-      goals: row.goals as number,
-      assists: row.assists as number,
-      clean_sheet: row.clean_sheet as boolean,
-      goals_conceded: row.goals_conceded as number,
-      yellow_card: row.yellow_card as boolean,
-      red_card: row.red_card as boolean,
-      saves: row.saves as number,
-      bonus: row.bonus as number,
-      fantasy_points: row.fantasy_points as number,
-      rating: (row.rating as number | null) ?? null,
-      match_position: (row.match_position as string | null) ?? null,
-      player_first_name: player?.first_name ?? '',
-      player_last_name: player?.last_name ?? '',
-      player_position: player?.position ?? '',
-      club_short: club?.short ?? '',
-      player_image_url: player?.image_url ?? null,
-    };
-  });
+  return data.map((row) => mapStatRow(row));
 }
 
 /** Get GW stats for specific player IDs (for "Deine Spieler" portfolio view) */
@@ -224,44 +219,19 @@ export async function getGameweekStatsForPlayers(gw: number, playerIds: string[]
 
   const { data, error } = await supabase
     .from('fixture_player_stats')
-    .select(`
-      *,
-      player:players!fixture_player_stats_player_id_fkey(first_name, last_name, position, image_url),
-      club:clubs!fixture_player_stats_club_id_fkey(short)
-    `)
+    .select(
+      '*, player:players!fixture_player_stats_player_id_fkey!left(first_name, last_name, position, image_url), club:clubs!fixture_player_stats_club_id_fkey(short)',
+    )
     .in('fixture_id', fixtureIds)
     .in('player_id', playerIds)
-    .order('rating', { ascending: false, nullsFirst: false });
+    .order('rating', { ascending: false, nullsFirst: false }) as unknown as {
+    data: Record<string, unknown>[] | null;
+    error: { message: string } | null;
+  };
 
   if (error || !data) return [];
 
-  return data.map((row: Record<string, unknown>) => {
-    const player = row.player as { first_name: string; last_name: string; position: string; image_url: string | null } | null;
-    const club = row.club as { short: string } | null;
-    return {
-      id: row.id as string,
-      fixture_id: row.fixture_id as string,
-      player_id: row.player_id as string,
-      club_id: row.club_id as string,
-      minutes_played: row.minutes_played as number,
-      goals: row.goals as number,
-      assists: row.assists as number,
-      clean_sheet: row.clean_sheet as boolean,
-      goals_conceded: row.goals_conceded as number,
-      yellow_card: row.yellow_card as boolean,
-      red_card: row.red_card as boolean,
-      saves: row.saves as number,
-      bonus: row.bonus as number,
-      fantasy_points: row.fantasy_points as number,
-      rating: (row.rating as number | null) ?? null,
-      match_position: (row.match_position as string | null) ?? null,
-      player_first_name: player?.first_name ?? '',
-      player_last_name: player?.last_name ?? '',
-      player_position: player?.position ?? '',
-      club_short: club?.short ?? '',
-      player_image_url: player?.image_url ?? null,
-    };
-  });
+  return data.map((row) => mapStatRow(row));
 }
 
 // ============================================
@@ -338,7 +308,8 @@ export async function getRecentPlayerMinutes(): Promise<Map<string, number[]>> {
   const { data: stats } = await supabase
     .from('fixture_player_stats')
     .select('player_id, minutes_played, fixture_id')
-    .in('fixture_id', fixtureIds);
+    .in('fixture_id', fixtureIds)
+    .not('player_id', 'is', null);
 
   if (!stats) return new Map();
 
