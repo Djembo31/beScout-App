@@ -79,6 +79,20 @@ function splitStartersBench(stats: FixturePlayerStat[], dbFormation?: string | n
     bench = sorted.slice(11).filter(s => s.minutes_played > 0);
   }
 
+  // GK sanity check: if no GK among starters, swap in a GK from bench
+  const hasGk = starters.some(s => (s.match_position || s.player_position) === 'GK');
+  if (!hasGk) {
+    const benchGk = bench.find(s => (s.match_position || s.player_position) === 'GK' && s.minutes_played > 0);
+    if (benchGk) {
+      // Remove GK from bench, demote lowest-minutes starter
+      bench = bench.filter(s => s !== benchGk);
+      starters.sort((a, b) => b.minutes_played - a.minutes_played);
+      const demoted = starters.pop()!;
+      starters.push(benchGk);
+      bench.push(demoted);
+    }
+  }
+
   const counts = { DEF: 0, MID: 0, ATT: 0 };
   for (const s of starters) {
     const pos = s.match_position || s.player_position || 'MID';
