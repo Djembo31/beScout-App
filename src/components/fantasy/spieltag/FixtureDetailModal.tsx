@@ -11,10 +11,11 @@ import { PlayerPhoto, GoalBadge } from '@/components/player';
 import { ClubLogo } from './ClubLogo';
 import { posColor, scoreBadgeColor, getPosAccent } from './helpers';
 
-/** Split team stats into starters + bench using is_starter flag, with minutes fallback for old data.
- *  Handles dual-ID gaps: when lineup has < 11 starters due to API ID mismatches,
- *  supplements with highest-minutes non-starters to reach 11. */
-function splitStartersBench(stats: FixturePlayerStat[]): {
+/** Split team stats into starters + bench using is_starter flag.
+ *  - < 11 starters: promotes highest-minutes bench players to fill gaps.
+ *  - > 11 starters: uses formation + grid_position to demote the correct excess player.
+ *  @param dbFormation — formation string from DB (e.g. "4-3-3"), used for smart trimming */
+function splitStartersBench(stats: FixturePlayerStat[], dbFormation?: string | null): {
   starters: FixturePlayerStat[];
   bench: FixturePlayerStat[];
   formation: string;
@@ -28,8 +29,41 @@ function splitStartersBench(stats: FixturePlayerStat[]): {
     starters = stats.filter(s => s.is_starter);
     const rest = stats.filter(s => !s.is_starter);
 
-    // Fill gaps: if < 11 starters due to dual-ID mismatches, supplement with top-minutes players
-    if (starters.length < 11) {
+    if (starters.length > 11 && dbFormation) {
+      // API returned too many starters — use formation to find the overflow row
+      const formParts = dbFormation.split('-').map(Number); // e.g. [4,3,3]
+      const expected = [1, ...formParts]; // [1,4,3,3] — GK + outfield rows
+
+      // Group starters by grid row
+      const byRow = new Map<number, FixturePlayerStat[]>();
+      for (const s of starters) {
+        const row = s.grid_position ? parseInt(s.grid_position.split(':')[0], 10) : 0;
+        const arr = byRow.get(row) || [];
+        arr.push(s);
+        byRow.set(row, arr);
+      }
+
+      // For each row, trim to expected count — demote lowest-minutes excess
+      const demoted: FixturePlayerStat[] = [];
+      const rows = Array.from(byRow.entries()).sort((a, b) => a[0] - b[0]);
+      for (let i = 0; i < rows.length; i++) {
+        const [, players] = rows[i];
+        const limit = expected[i] ?? players.length;
+        if (players.length > limit) {
+          players.sort((a, b) => b.minutes_played - a.minutes_played);
+          demoted.push(...players.splice(limit));
+        }
+      }
+      starters = rows.flatMap(([, players]) => players);
+      bench = [...demoted, ...rest].filter(s => s.minutes_played > 0);
+    } else if (starters.length > 11) {
+      // No formation — simple fallback: keep top 11 by minutes
+      const sorted = [...starters].sort((a, b) => b.minutes_played - a.minutes_played);
+      const demoted = sorted.splice(11);
+      starters = sorted;
+      bench = [...demoted, ...rest].filter(s => s.minutes_played > 0);
+    } else if (starters.length < 11) {
+      // Fill gaps: supplement with top-minutes non-starters
       const sorted = [...rest].sort((a, b) => b.minutes_played - a.minutes_played);
       const needed = 11 - starters.length;
       const promoted = sorted.splice(0, needed);
@@ -362,8 +396,8 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                 })()}
 
                 {(() => {
-                  const homeSplit = splitStartersBench(homeStats);
-                  const awaySplit = splitStartersBench(awayStats);
+                  const homeSplit = splitStartersBench(homeStats, fixture.home_formation);
+                  const awaySplit = splitStartersBench(awayStats, fixture.away_formation);
                   const allBench = [...homeSplit.bench, ...awaySplit.bench];
                   // Use real formation from DB, fallback to derived
                   const homeFormation = fixture.home_formation || homeSplit.formation;
