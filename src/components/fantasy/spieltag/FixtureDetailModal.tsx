@@ -109,12 +109,12 @@ function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
   return (
     <div className="flex flex-col items-center relative w-[52px] md:w-[60px] lg:w-[72px]">
       <div
-        className="absolute -top-1 -right-0.5 md:-top-1.5 md:-right-2 z-20 min-w-[1.4rem] md:min-w-[1.6rem] px-1 py-0.5 rounded-full text-xs font-mono font-black text-center shadow-lg"
+        className="absolute -top-1.5 -right-1 md:-top-2 md:-right-2 z-20 min-w-[1.5rem] md:min-w-[1.7rem] px-1 py-0.5 rounded-md text-[10px] md:text-xs font-mono font-black text-center shadow-lg border border-white/[0.08]"
         style={ratingHeatStyle(rating)}
       >
         {rating.toFixed(1)}
       </div>
-      <div className={`relative rounded-full ${getRingFrameClass(stat.player_position)}`}>
+      <div className={`relative rounded-full ${getRingFrameClass(stat.player_position)} shadow-[0_0_12px_rgba(0,0,0,0.5)]`}>
         <PlayerPhoto
           imageUrl={stat.player_image_url}
           first={stat.player_first_name}
@@ -125,17 +125,17 @@ function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
         />
         <GoalBadge goals={stat.goals} size={15} className="-bottom-0.5 -right-1" />
       </div>
-      <div className="text-xs mt-0.5 font-medium text-center truncate max-w-full text-white/70">
+      <div className="text-[10px] md:text-xs mt-1 font-bold text-center truncate max-w-full text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
         {stat.player_last_name}
       </div>
-      <div className="hidden md:flex items-center justify-center gap-0.5 text-xs text-white/30">
-        <span>{stat.minutes_played}&apos;</span>
-        {stat.goals > 0 && <span className="text-gold">{stat.goals}G</span>}
-        {stat.assists > 0 && <span className="text-sky-400">{stat.assists}A</span>}
+      <div className="hidden md:flex items-center justify-center gap-0.5 text-[10px] text-white/30">
+        <span className="tabular-nums">{stat.minutes_played}&apos;</span>
+        {stat.goals > 0 && <span className="text-gold font-bold">{stat.goals}G</span>}
+        {stat.assists > 0 && <span className="text-sky-400 font-bold">{stat.assists}A</span>}
         {stat.yellow_card && <span className="w-1.5 h-2.5 bg-yellow-400 rounded-[1px] inline-block" />}
         {stat.red_card && <span className="w-1.5 h-2.5 bg-red-500 rounded-[1px] inline-block" />}
-        {stat.clean_sheet && <span className="text-emerald-400">CS</span>}
-        {stat.bonus > 0 && <span className="text-gold">{stat.bonus}</span>}
+        {stat.clean_sheet && <span className="text-emerald-400 font-bold">CS</span>}
+        {stat.bonus > 0 && <span className="text-gold font-bold">{stat.bonus}</span>}
       </div>
     </div>
   );
@@ -269,16 +269,18 @@ function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
   const rows = buildFormationRows(stats, formation, isHome);
 
   return (
-    <div className="flex flex-col gap-3 py-2">
+    <div className="flex flex-col gap-3 py-3">
       <div className="flex items-center justify-center gap-2">
-        <ClubLogo club={logo} size={20} />
-        <span className="text-xs font-bold uppercase tracking-widest" style={{ color }}>
-          {teamName}
-        </span>
-        <span className="text-xs text-white/30 font-mono">({formation})</span>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg" style={{ background: `${color}15` }}>
+          <ClubLogo club={logo} size={18} />
+          <span className="text-xs font-black uppercase tracking-wider" style={{ color }}>
+            {teamName}
+          </span>
+          <span className="text-[10px] text-white/25 font-mono font-bold tabular-nums">{formation}</span>
+        </div>
       </div>
       {rows.map((players, rowIdx) => (
-        <div key={rowIdx} className="flex items-center justify-center gap-1 md:gap-2 lg:gap-4">
+        <div key={rowIdx} className="flex items-center justify-center gap-1 md:gap-3 lg:gap-4">
           {players.map(s => <PlayerNode key={s.id} stat={s} />)}
         </div>
       ))}
@@ -295,28 +297,33 @@ function TeamStatsList({ label, stats, color }: { label: string; stats: FixtureP
 
   return (
     <div>
-      <div className="text-xs font-black uppercase tracking-wider mb-2" style={{ color }}>{label}</div>
+      {/* Team header with accent bar */}
+      <div className="flex items-center gap-2 mb-2.5">
+        <div className="w-[3px] h-4 rounded-full" style={{ backgroundColor: color }} />
+        <span className="text-xs font-black uppercase tracking-wider" style={{ color }}>{label}</span>
+        <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${color}20, transparent)` }} />
+      </div>
       <div className="space-y-1">
         {sorted.map(s => (
-          <div key={s.id} className="flex items-center gap-2 px-2 py-1.5 bg-white/[0.02] rounded-lg text-xs">
-            <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${posColor(s.player_position)}`}>
+          <div key={s.id} className="flex items-center gap-2 px-2.5 py-2 bg-white/[0.02] hover:bg-white/[0.04] rounded-xl text-xs transition-colors">
+            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${posColor(s.player_position)}`}>
               {s.player_position}
             </span>
             <span className="flex-1 font-semibold truncate min-w-0">
               {s.player_first_name.charAt(0)}. {s.player_last_name}
             </span>
-            <span className="text-white/30 font-mono text-xs">{s.minutes_played}&apos;</span>
+            <span className="text-white/25 font-mono text-[10px] tabular-nums">{s.minutes_played}&apos;</span>
             {s.goals > 0 && <span className="text-gold font-bold">{s.goals}G</span>}
             {s.assists > 0 && <span className="text-sky-400 font-bold">{s.assists}A</span>}
-            {s.clean_sheet && <span className="text-emerald-400 text-xs">CS</span>}
-            {s.yellow_card && <span className="w-2.5 h-3 bg-yellow-400 rounded-[1px] inline-block" />}
-            {s.red_card && <span className="w-2.5 h-3 bg-red-500 rounded-[1px] inline-block" />}
+            {s.clean_sheet && <span className="text-emerald-400 text-[10px] font-bold">CS</span>}
+            {s.yellow_card && <span className="w-2 h-2.5 bg-yellow-400 rounded-[1px] inline-block" />}
+            {s.red_card && <span className="w-2 h-2.5 bg-red-500 rounded-[1px] inline-block" />}
             {s.bonus > 0 && (
-              <span className="flex items-center gap-0.5 text-gold">
+              <span className="flex items-center gap-0.5 text-gold font-bold">
                 <Star aria-hidden="true" className="size-2.5" />{s.bonus}
               </span>
             )}
-            <span className={`px-1.5 py-0.5 rounded text-xs font-black tabular-nums ${scoreBadgeColor(s.rating ?? s.fantasy_points / 10)}`}>
+            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-black tabular-nums ${scoreBadgeColor(s.rating ?? s.fantasy_points / 10)}`}>
               {(s.rating ?? s.fantasy_points / 10).toFixed(1)}
             </span>
           </div>
@@ -375,56 +382,90 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
   const awayColor = awayClub?.colors.primary ?? '#3B82F6';
 
   return (
-    <Modal open={isOpen} title="" onClose={onClose}>
+    <Modal open={isOpen} title="" onClose={onClose} size="lg">
       <div className="max-h-[80vh] overflow-y-auto">
-        {/* Score Header */}
+        {/* Score Header — Stadium Atmosphere */}
         <div className="relative overflow-hidden">
+          {/* Multi-layer gradient background */}
           <div className="absolute inset-0" style={{
-            background: `linear-gradient(135deg, ${homeColor}25 0%, transparent 50%, ${awayColor}25 100%)`,
+            background: `
+              radial-gradient(ellipse 80% 50% at 15% 50%, ${homeColor}20 0%, transparent 70%),
+              radial-gradient(ellipse 80% 50% at 85% 50%, ${awayColor}20 0%, transparent 70%),
+              radial-gradient(ellipse 100% 80% at 50% 0%, rgba(255,215,0,0.04) 0%, transparent 60%)
+            `,
           }} />
-          <div className="relative flex items-center justify-center gap-4 md:gap-8 py-6 px-4">
-            <div className="flex flex-col items-center gap-1.5">
-              <div style={{ filter: `drop-shadow(0 0 8px ${homeColor}40)` }}>
-                <ClubLogo club={homeClub} size={56} short={fixture.home_club_short} />
+          {/* Subtle noise texture via top gradient */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent" />
+
+          <div className="relative flex items-center justify-center gap-5 md:gap-10 pt-4 pb-5 px-4">
+            {/* Home Club */}
+            <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+              <div className="relative" style={{ filter: `drop-shadow(0 0 16px ${homeColor}30)` }}>
+                <ClubLogo club={homeClub} size={64} short={fixture.home_club_short} />
+                {/* Ambient ring */}
+                <div className="absolute inset-0 rounded-full" style={{
+                  boxShadow: `0 0 24px 4px ${homeColor}15`,
+                }} />
               </div>
-              <span className="font-bold text-sm md:text-base">{fixture.home_club_name}</span>
-              <div className="h-[1px] w-12 opacity-30" style={{ background: homeColor }} />
+              <span className="font-black text-sm md:text-base text-center truncate max-w-[100px] md:max-w-[140px]">{fixture.home_club_name}</span>
             </div>
-            <div className="text-center">
+
+            {/* Score Center */}
+            <div className="text-center shrink-0">
               {isSimulated ? (
-                <div className="flex items-center gap-3">
-                  <span className="font-mono font-black text-4xl md:text-5xl tabular-nums score-glow">{fixture.home_score}</span>
-                  <div className="w-[2px] h-6 bg-gold/30 rounded-full" />
-                  <span className="font-mono font-black text-4xl md:text-5xl tabular-nums score-glow">{fixture.away_score}</span>
-                </div>
+                <>
+                  <div className="flex items-center gap-2.5 md:gap-4">
+                    <span className="font-mono font-black text-5xl md:text-6xl tabular-nums score-glow leading-none">{fixture.home_score}</span>
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="w-[3px] h-3 rounded-full bg-gold/40" />
+                      <div className="w-[3px] h-3 rounded-full bg-gold/20" />
+                    </div>
+                    <span className="font-mono font-black text-5xl md:text-6xl tabular-nums score-glow leading-none">{fixture.away_score}</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2 mt-2.5">
+                    <span className="px-2 py-0.5 rounded-md bg-gold/10 border border-gold/20 text-[10px] font-black text-gold uppercase tracking-wider">FT</span>
+                    <span className="text-[10px] text-white/25 font-medium">Spieltag {fixture.gameweek}</span>
+                  </div>
+                </>
               ) : (
-                <div className="font-mono font-black text-4xl md:text-5xl">vs</div>
-              )}
-              {isSimulated && (
-                <div className="text-xs text-white/30 mt-1">Spieltag {fixture.gameweek}</div>
+                <>
+                  <div className="font-mono font-black text-4xl md:text-5xl text-white/20">vs</div>
+                  <div className="flex items-center justify-center gap-2 mt-2">
+                    <span className="text-[10px] text-white/25 font-medium">Spieltag {fixture.gameweek}</span>
+                  </div>
+                </>
               )}
             </div>
-            <div className="flex flex-col items-center gap-1.5">
-              <div style={{ filter: `drop-shadow(0 0 8px ${awayColor}40)` }}>
-                <ClubLogo club={awayClub} size={56} short={fixture.away_club_short} />
+
+            {/* Away Club */}
+            <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+              <div className="relative" style={{ filter: `drop-shadow(0 0 16px ${awayColor}30)` }}>
+                <ClubLogo club={awayClub} size={64} short={fixture.away_club_short} />
+                <div className="absolute inset-0 rounded-full" style={{
+                  boxShadow: `0 0 24px 4px ${awayColor}15`,
+                }} />
               </div>
-              <span className="font-bold text-sm md:text-base">{fixture.away_club_name}</span>
-              <div className="h-[1px] w-12 opacity-30" style={{ background: awayColor }} />
+              <span className="font-black text-sm md:text-base text-center truncate max-w-[100px] md:max-w-[140px]">{fixture.away_club_name}</span>
             </div>
           </div>
+
+          {/* Bottom edge glow */}
+          <div className="h-[2px]" style={{
+            background: `linear-gradient(90deg, transparent, ${homeColor}30, #FFD70025, ${awayColor}30, transparent)`,
+          }} />
         </div>
 
-        {/* Tabs — gold active state */}
+        {/* Tabs — Pill style */}
         {stats.length > 0 && (
-          <div className="flex items-center justify-center gap-6 border-b border-white/[0.06] px-4">
+          <div className="flex items-center justify-center gap-2 px-4 py-3">
             {(['formation', 'players'] as const).map(tab => (
               <button
                 key={tab}
                 onClick={() => setDetailTab(tab)}
-                className={`py-3 text-sm font-semibold border-b-2 transition-colors ${
+                className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-colors ${
                   detailTab === tab
-                    ? 'text-gold border-gold'
-                    : 'text-white/40 border-transparent hover:text-white/60'
+                    ? 'bg-gold/15 text-gold border border-gold/20'
+                    : 'text-white/35 hover:text-white/55 hover:bg-white/[0.04] border border-transparent'
                 }`}
               >
                 {tab === 'formation' ? ts('lineups') : ts('playersTab')}
@@ -443,53 +484,72 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
               {isSimulated ? ts('noPlayerData') : ts('notSimulated')}
             </div>
           ) : detailTab === 'formation' ? (
-            <div className="rounded-xl overflow-hidden border border-green-500/20">
+            <div className="rounded-2xl overflow-hidden border border-white/[0.08] shadow-[0_0_40px_rgba(0,0,0,0.4)]">
               {/* Sponsor Banner Top */}
               {(() => {
                 const sponsor = sponsorName ? { sponsorName, sponsorLogo } : null;
                 return (
-                  <div className="bg-gradient-to-r from-[#1a1a2e] via-[#16213e] to-[#1a1a2e] px-4 py-2 flex items-center justify-center gap-3 border-b border-white/10">
+                  <div className="bg-gradient-to-r from-[#0a0a12] via-[#111827] to-[#0a0a12] px-4 py-2 flex items-center justify-center gap-3 border-b border-white/[0.06]">
                     {sponsor?.sponsorLogo ? (
-                      <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
+                      <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain opacity-60" />
                     ) : (
-                      <Star aria-hidden="true" className="size-3 text-gold" />
+                      <div className="size-1 rounded-full bg-gold/40" />
                     )}
-                    <span className="text-xs font-bold text-white/50 uppercase">{sponsor?.sponsorName || tsp('sponsorPlaceholder')}</span>
+                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.15em]">{sponsor?.sponsorName || tsp('sponsorPlaceholder')}</span>
                     {sponsor?.sponsorLogo ? (
-                      <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
+                      <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain opacity-60" />
                     ) : (
-                      <Star aria-hidden="true" className="size-3 text-gold" />
+                      <div className="size-1 rounded-full bg-gold/40" />
                     )}
                   </div>
                 );
               })()}
 
-              {/* Green Pitch */}
-              <div className="relative bg-gradient-to-b from-[#1a5c1a]/40 via-[#1e6b1e]/30 to-[#1a5c1a]/40 px-3 md:px-6 py-4">
+              {/* Green Pitch — enhanced atmosphere */}
+              <div className="relative px-3 md:px-6 py-4" style={{
+                background: `
+                  linear-gradient(180deg,
+                    rgba(22,80,22,0.45) 0%,
+                    rgba(26,90,26,0.35) 25%,
+                    rgba(30,100,30,0.30) 50%,
+                    rgba(26,90,26,0.35) 75%,
+                    rgba(22,80,22,0.45) 100%
+                  )
+                `,
+              }}>
+                {/* Pitch markings SVG — sharper lines */}
                 <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none" viewBox="0 0 400 600">
-                  <rect x="20" y="10" width="360" height="580" fill="none" stroke="white" strokeOpacity="0.1" strokeWidth="1.5" />
-                  <line x1="20" y1="300" x2="380" y2="300" stroke="white" strokeOpacity="0.08" strokeWidth="1" />
-                  <circle cx="200" cy="300" r="45" fill="none" stroke="white" strokeOpacity="0.08" strokeWidth="1" />
-                  <circle cx="200" cy="300" r="3" fill="white" fillOpacity="0.1" />
-                  <rect x="110" y="10" width="180" height="70" fill="none" stroke="white" strokeOpacity="0.08" strokeWidth="1" />
-                  <rect x="145" y="10" width="110" height="30" fill="none" stroke="white" strokeOpacity="0.06" strokeWidth="1" />
-                  <rect x="110" y="520" width="180" height="70" fill="none" stroke="white" strokeOpacity="0.08" strokeWidth="1" />
-                  <rect x="145" y="560" width="110" height="30" fill="none" stroke="white" strokeOpacity="0.06" strokeWidth="1" />
-                  {[0, 1, 2, 3, 4, 5].map(i => (
-                    <rect key={i} x="20" y={10 + i * 96.67} width="360" height="48.33" fill="white" fillOpacity="0.015" />
+                  {/* Outer boundary */}
+                  <rect x="16" y="8" width="368" height="584" fill="none" stroke="white" strokeOpacity="0.12" strokeWidth="1.5" rx="2" />
+                  {/* Halfway line */}
+                  <line x1="16" y1="300" x2="384" y2="300" stroke="white" strokeOpacity="0.10" strokeWidth="1" />
+                  {/* Center circle */}
+                  <circle cx="200" cy="300" r="48" fill="none" stroke="white" strokeOpacity="0.10" strokeWidth="1" />
+                  <circle cx="200" cy="300" r="3" fill="white" fillOpacity="0.12" />
+                  {/* Penalty areas */}
+                  <rect x="105" y="8" width="190" height="75" fill="none" stroke="white" strokeOpacity="0.10" strokeWidth="1" />
+                  <rect x="140" y="8" width="120" height="32" fill="none" stroke="white" strokeOpacity="0.07" strokeWidth="1" />
+                  <rect x="105" y="517" width="190" height="75" fill="none" stroke="white" strokeOpacity="0.10" strokeWidth="1" />
+                  <rect x="140" y="560" width="120" height="32" fill="none" stroke="white" strokeOpacity="0.07" strokeWidth="1" />
+                  {/* Penalty arcs */}
+                  <path d="M 160 83 Q 200 110 240 83" fill="none" stroke="white" strokeOpacity="0.06" strokeWidth="1" />
+                  <path d="M 160 517 Q 200 490 240 517" fill="none" stroke="white" strokeOpacity="0.06" strokeWidth="1" />
+                  {/* Grass stripes — alternating bands */}
+                  {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => (
+                    i % 2 === 0 ? <rect key={i} x="16" y={8 + i * 48.67} width="368" height="48.67" fill="white" fillOpacity="0.018" /> : null
                   ))}
                 </svg>
 
-                {/* Center circle sponsor */}
+                {/* Center circle sponsor watermark */}
                 {(() => {
                   const sponsor = sponsorName ? { sponsorName, sponsorLogo } : null;
                   return (
                     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                      <div className="size-16 rounded-full border border-white/[0.06] flex items-center justify-center">
+                      <div className="size-20 rounded-full border border-white/[0.04] flex items-center justify-center">
                         {sponsor?.sponsorLogo ? (
-                          <img src={sponsor.sponsorLogo} alt="" className="size-10 object-contain opacity-30" />
+                          <img src={sponsor.sponsorLogo} alt="" className="size-12 object-contain opacity-20" />
                         ) : (
-                          <span className="text-xs text-white/15 font-bold tracking-wider uppercase">Sponsor</span>
+                          <span className="text-[10px] text-white/10 font-black tracking-widest uppercase">BeScout</span>
                         )}
                       </div>
                     </div>
@@ -524,25 +584,25 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                       </div>
                       {/* Substitutions: livescore-style if data available, fallback to bench list */}
                       {substitutions.length > 0 ? (
-                        <div className="relative z-10 mt-3 pt-3 border-t border-white/[0.06]">
-                          <div className="text-xs font-bold text-white/25 uppercase tracking-wider text-center mb-2">{ts('substitutions')}</div>
-                          <div className="space-y-1">
+                        <div className="relative z-10 mt-4 pt-3 border-t border-white/[0.08]">
+                          <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-center mb-2.5">{ts('substitutions')}</div>
+                          <div className="space-y-1.5">
                             {substitutions.map(sub => {
-                              const isHome = sub.club_id === fixture.home_club_id;
-                              const accentColor = isHome ? homeColor : awayColor;
+                              const isHomeSub = sub.club_id === fixture.home_club_id;
+                              const accentColor = isHomeSub ? homeColor : awayColor;
                               return (
-                                <div key={sub.id} className="flex items-center gap-1.5 px-2 py-1.5 bg-black/20 rounded-lg text-xs border border-white/[0.06]">
-                                  <div className="w-0.5 h-5 rounded-full flex-shrink-0" style={{ backgroundColor: accentColor }} />
-                                  <span className="text-white/30 font-mono tabular-nums w-8 text-right flex-shrink-0">
+                                <div key={sub.id} className="flex items-center gap-2 px-2.5 py-2 bg-black/30 rounded-xl text-xs border border-white/[0.05] backdrop-blur-sm">
+                                  <div className="w-[3px] h-5 rounded-full flex-shrink-0" style={{ backgroundColor: accentColor }} />
+                                  <span className="text-white/25 font-mono font-bold tabular-nums w-9 text-right flex-shrink-0">
                                     {sub.minute}&apos;{sub.extra_minute ? `+${sub.extra_minute}` : ''}
                                   </span>
-                                  <span className="text-red-400 flex-shrink-0" aria-label="ausgewechselt">▼</span>
-                                  <span className="text-white/50 truncate min-w-0">
+                                  <span className="text-red-400/80 flex-shrink-0 text-[10px]" aria-label="ausgewechselt">▼</span>
+                                  <span className="text-white/40 truncate min-w-0 text-xs">
                                     {sub.player_out_last_name}
                                   </span>
-                                  <span className="text-white/20 flex-shrink-0">→</span>
-                                  <span className="text-emerald-400 flex-shrink-0" aria-label="eingewechselt">▲</span>
-                                  <span className="text-white/70 font-medium truncate min-w-0">
+                                  <span className="text-white/15 flex-shrink-0">→</span>
+                                  <span className="text-emerald-400/80 flex-shrink-0 text-[10px]" aria-label="eingewechselt">▲</span>
+                                  <span className="text-white/70 font-semibold truncate min-w-0 text-xs">
                                     {sub.player_in_last_name}
                                   </span>
                                 </div>
@@ -551,17 +611,17 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                           </div>
                         </div>
                       ) : allBench.length > 0 && (
-                        <div className="relative z-10 mt-3 pt-3 border-t border-white/[0.06]">
-                          <div className="text-xs font-bold text-white/25 uppercase tracking-wider text-center mb-2">{ts('substitutions')}</div>
+                        <div className="relative z-10 mt-4 pt-3 border-t border-white/[0.08]">
+                          <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-center mb-2.5">{ts('substitutions')}</div>
                           <div className="flex gap-1.5 flex-wrap justify-center">
                             {allBench.map(s => (
-                              <div key={s.id} className="flex items-center gap-1 px-2 py-1 bg-black/20 rounded-lg text-xs border border-white/[0.06]">
-                                <span className={`px-1 py-0.5 rounded text-xs font-bold ${posColor(s.player_position)}`}>
+                              <div key={s.id} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-black/30 rounded-xl text-xs border border-white/[0.05]">
+                                <span className={`px-1 py-0.5 rounded text-[10px] font-bold ${posColor(s.player_position)}`}>
                                   {s.player_position}
                                 </span>
-                                <span className="text-white/50">{s.player_last_name}</span>
-                                <span className="text-white/25 font-mono">{s.minutes_played}&apos;</span>
-                                <span className={`px-1 py-0.5 rounded text-xs font-bold tabular-nums ${scoreBadgeColor(s.rating ?? s.fantasy_points / 10)}`}>
+                                <span className="text-white/50 font-medium">{s.player_last_name}</span>
+                                <span className="text-white/20 font-mono tabular-nums">{s.minutes_played}&apos;</span>
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold tabular-nums ${scoreBadgeColor(s.rating ?? s.fantasy_points / 10)}`}>
                                   {(s.rating ?? s.fantasy_points / 10).toFixed(1)}
                                 </span>
                               </div>
@@ -578,16 +638,20 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
               {(() => {
                 const sponsor = sponsorName ? { sponsorName, sponsorLogo } : null;
                 return (
-                  <div className="bg-gradient-to-r from-[#1a1a2e] via-[#0f3460] to-[#1a1a2e] px-3 py-2 flex items-center justify-between border-t border-white/10">
-                    <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.04] rounded-lg border border-white/[0.06]">
-                      {sponsor?.sponsorLogo && <img src={sponsor.sponsorLogo} alt="" className="h-3.5 w-auto object-contain" />}
-                      <span className="text-xs text-white/30 font-medium">{sponsor?.sponsorName || 'Sponsor Logo'}</span>
-                    </div>
-                    <span className="text-xs text-white/20 font-bold uppercase">{sponsor?.sponsorName ? `${sponsor.sponsorName} × BeScout` : 'Powered by BeScout'}</span>
-                    <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.04] rounded-lg border border-white/[0.06]">
-                      {sponsor?.sponsorLogo && <img src={sponsor.sponsorLogo} alt="" className="h-3.5 w-auto object-contain" />}
-                      <span className="text-xs text-white/30 font-medium">{sponsor?.sponsorName || 'Sponsor Logo'}</span>
-                    </div>
+                  <div className="bg-gradient-to-r from-[#0a0a12] via-[#0f1a2e] to-[#0a0a12] px-4 py-2.5 flex items-center justify-center gap-3 border-t border-white/[0.06]">
+                    {sponsor?.sponsorLogo ? (
+                      <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain opacity-40" />
+                    ) : (
+                      <div className="size-1 rounded-full bg-gold/30" />
+                    )}
+                    <span className="text-[10px] text-white/20 font-bold uppercase tracking-[0.15em]">
+                      {sponsor?.sponsorName ? `${sponsor.sponsorName} × BeScout` : 'Powered by BeScout'}
+                    </span>
+                    {sponsor?.sponsorLogo ? (
+                      <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain opacity-40" />
+                    ) : (
+                      <div className="size-1 rounded-full bg-gold/30" />
+                    )}
                   </div>
                 );
               })()}
