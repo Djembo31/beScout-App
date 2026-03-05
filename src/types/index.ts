@@ -1243,6 +1243,31 @@ export type SimulateResult = {
   error?: string;
 };
 
+// ============================================
+// FIXTURE SUBSTITUTION TYPES
+// ============================================
+
+export type DbFixtureSubstitution = {
+  id: string;
+  fixture_id: string;
+  club_id: string;
+  minute: number;
+  extra_minute: number | null;
+  player_in_id: string | null;
+  player_out_id: string | null;
+  player_in_api_id: number;
+  player_out_api_id: number;
+  player_in_name: string;
+  player_out_name: string;
+};
+
+export type FixtureSubstitution = DbFixtureSubstitution & {
+  player_in_first_name?: string;
+  player_in_last_name?: string;
+  player_out_first_name?: string;
+  player_out_last_name?: string;
+};
+
 export type GameweekStatus = {
   gameweek: number;
   total: number;

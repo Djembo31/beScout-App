@@ -1,13 +1,13 @@
 # BeScout Status
 
-> Letzte Aktualisierung: 02.03.2026 (Session 176)
+> Letzte Aktualisierung: 05.03.2026 (Session 195)
 > Für Session-Details → `memory/sessions.md`. Für Archiv → `memory/sessions-archive.md`.
 
 ## Aktueller Stand
 
-**247 Migrations** + 2 Edge Functions (send-push v2, create-demo-accounts) + 2 pg_cron Jobs + 13 Gamification-Triggers + 21 Sponsor-Placements.
+**263 Migrations** + 2 Edge Functions (send-push v2, create-demo-accounts) + 2 pg_cron Jobs + 13 Gamification-Triggers + 21 Sponsor-Placements.
 
-**24 Routes** | **195 Unit Tests** (Vitest) | **70 E2E Tests** (Playwright) | Build: 0 Fehler
+**25 Routes** | **195 Unit Tests** (Vitest) | **70 E2E Tests** (Playwright) | Build: 0 Fehler
 
 ### Infrastruktur
 - Next.js 14.2.35 / TypeScript strict / Tailwind / Supabase / next-intl
@@ -16,11 +16,12 @@
 - Supabase: `skzjfhvgccaeplydsunz` (eu-west-1)
 
 ### Daten
-- 20 Clubs (TFF 1. Lig 2025/26), 566 Spieler, 505 Player Images (89%)
-- 100 IPOs, 380 Fixtures (38 GW, echte API-Football Daten), 15 Bounties, 10 Votes
+- 20 Clubs (TFF 1. Lig 2025/26), 570 Spieler, 505 Player Images (89%)
+- 100 IPOs, 380 Fixtures (38 GW, echte API-Football Daten, 271 mit Formation), 15 Bounties, 10 Votes
 - 33 Achievements, 12 Rang-Stufen, 3 Gamification-Dimensionen
-- 6.446 Fixture Player Stats (GW1-28), 6.517 Player Gameweek Scores
-- 497/566 Spieler gemappt (api_football_id), 20/20 Clubs gemappt
+- 7.467 Fixture Player Stats (GW1-28, Dual-ID backfilled), 7.467 Player Gameweek Scores
+- 163 Fixture Substitutions (GW1-2, ~80/GW, livescore-style in FixtureDetailModal)
+- 544/570 Spieler gemappt (api_football_id) + 48 fixture_api_football_id, 20/20 Clubs gemappt
 - Active Gameweek: 28, 36 Events (GW1: 12, GW2: 12, GW28: 12)
 
 ### Features (alle live)
@@ -44,33 +45,28 @@
 
 ## Letzte 5 Sessions
 
-### Session 176 (02.03.2026) — Live-Setup GW 28
-- active_gameweek von 2 auf 28 gesetzt (aktueller TFF 1. Lig Spieltag)
-- 12 Events für GW 28 erstellt (running), GW 2-28 Scores synced (6.517 total)
-- GW 2 Events retroaktiv gescored (2 mit Teilnehmern), 10 leere → ended
+### Session 195 (05.03.2026) — Livescore-Style Auswechslungen
+- `fixture_substitutions` Tabelle + API Events Integration (Cron + Backfill)
+- FixtureDetailModal: Minute, ▼ raus → ▲ rein, Club-Accent, Fallback auf Bench-Liste
+- 163 Substitutions backfilled (GW1+GW2)
 
-### Session 175 (02.03.2026) — Progressive Scoring + Auto-Trigger
-- scoring.ts Monolith aufgeteilt: importProgressiveStats + finalizeGameweek + getProgressiveScores
-- SpieltagTab: Import-Button (sky, wiederholbar) + Auswerten-Button (gold, einmal)
-- EventDetailModal: Live-Scores auf Pitch (60s Polling), Running-Total-Banner
+### Session 194 (05.03.2026) — Player Identity Refactoring
+- `player_external_ids` Tabelle: 592 IDs migriert, 16 Consumer-Dateien aktualisiert
+- `DbPlayer` bereinigt, league dynamisch aus ClubLookup
 
-### Session 174 (01.03.2026) — Per-Fixture Deadline Locking
-- Spieler sperren individuell zum Fixture-Anstoß statt alle gleichzeitig
-- Server-Enforcement in submitLineup(), UI LIVE-Badges + Partial-Lock-Banner
-- Lock-Status dynamisch aus fixtures.played_at — keine Migrations nötig
+### Session 192 (05.03.2026) — Fixture-Datenintegrität: Dual-ID + Formationen
+- `fixture_api_football_id` auf players — 48 Spieler reconciled
+- 271/280 echte Formationen, Team-Fixtures <11: 97→52 (-46%)
 
-### Session 173 (01.03.2026) — API-Football Live-Daten Pipeline
-- 20 Clubs gemappt, 497/566 Spieler, 380 echte Fixtures, 6.446 Stats importiert
-- Alte simulierte Fixtures + Stats komplett ersetzt (Migration)
-- FPL-style Fantasy-Punkte berechnet (calcFantasyPoints)
+### Session 191 (04.03.2026) — Ergebnisse-Tab Bug
+- `isUpcoming` blockierte GW >1 für neue User (ohne Club → activeGW=1)
 
-### Session 172 (01.03.2026) — i18n String Extraction
-- DashboardTab + AdminSettingsTab: 37 neue Keys (de + tr)
-- SUPABASE_SERVICE_ROLE_KEY in Vercel gesetzt
+### Session 190 (04.03.2026) — Ergebnisse-Tab Redesign
+- 3-Zonen-Layout: GwHeroSummary + VisualShowcase + PersonalResults
 
 ---
 
-## Migration-Übersicht (247 total)
+## Migration-Übersicht (257 total)
 
 | Range | Inhalt |
 |-------|--------|
@@ -88,6 +84,9 @@
 | #208-#218 | Performance (auth RPC, explicit cols), API-Football RPCs, Success Fee |
 | #219-#241 | Security Deep Dive (8 Bereiche), Community REVOKE anon |
 | #242-#247 | Admin-Architektur (3-Ebenen), Live-Daten Migration (replace simulated fixtures) |
+| #248-#255 | API-Football Ratings, Player Mapping, Cron Sync, Contract Data, match_position |
+| #256-#257 | Fixture formations (home/away), fixture_api_football_id + index |
+| #258-#263 | Player external IDs migration, fixture_substitutions |
 
 ## Security Status
 

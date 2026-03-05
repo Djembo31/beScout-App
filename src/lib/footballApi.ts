@@ -121,6 +121,18 @@ export type ApiLineupPlayer = {
   grid: string | null;
 };
 
+export type ApiFixtureEventsResponse = {
+  response: Array<{
+    time: { elapsed: number | null; extra: number | null };
+    team: { id: number; name: string };
+    player: { id: number; name: string };
+    assist: { id: number | null; name: string | null };
+    type: string;
+    detail: string;
+    comments: string | null;
+  }>;
+};
+
 export type ApiLineupsResponse = {
   response: Array<{
     team: { id: number; name: string };
@@ -198,6 +210,124 @@ export function calcFantasyPoints(
   pts += bonus;
 
   return Math.max(0, pts);
+}
+
+// ============================================
+// Utils: Ghost Starter Deduplication
+// ============================================
+// Structural football guarantee: a team has EXACTLY 11 starters.
+// API-Football sometimes uses different player IDs in lineup vs stats endpoints.
+// When name-matching fails (nicknames, transliterations), we get ghost entries:
+// a starter with 0 minutes + null rating alongside the real stats entry.
+//
+// This guard catches ALL edge cases regardless of name format — it relies on the
+// structural constraint that >11 starters means ghost duplicates exist.
+
+export type PlayerStatEntry = {
+  fixture_id: string;
+  club_id: string;
+  player_id: string | null;
+  minutes_played: number;
+  rating: number | null;
+  is_starter: boolean;
+  grid_position: string | null;
+  match_position: string | null;
+  api_football_player_id: number;
+  player_name_api: string;
+  [key: string]: unknown; // preserve all other fields
+};
+
+/**
+ * Grid row → expected position for smart grid transfer.
+ * Row 1 = GK, Row 2 = DEF, Row 3 = MID/DEF, Row 4 = MID/ATT, Row 5 = ATT
+ */
+function gridRowToPosition(grid: string): string | null {
+  const row = parseInt(grid.split(':')[0], 10);
+  if (row === 1) return 'GK';
+  if (row === 2) return 'DEF';
+  if (row === 3) return 'MID';
+  if (row === 4) return 'MID';
+  if (row === 5) return 'ATT';
+  return null;
+}
+
+/**
+ * Remove ghost starters and transfer their grid_positions to the real entries.
+ * Works on a per-fixture, per-club basis.
+ *
+ * A ghost = is_starter:true, minutes:0, rating:null (lineup-only entry from dual-ID mismatch)
+ *
+ * This function is idempotent and safe — if there are no ghosts, the data passes through unchanged.
+ */
+export function deduplicateGhostStarters<T extends PlayerStatEntry>(stats: T[]): T[] {
+  // Group by fixture+club
+  const groups = new Map<string, T[]>();
+  for (const s of stats) {
+    const key = `${s.fixture_id}:${s.club_id}`;
+    const arr = groups.get(key) ?? [];
+    arr.push(s);
+    groups.set(key, arr);
+  }
+
+  const result: T[] = [];
+
+  for (const [, clubStats] of Array.from(groups.entries())) {
+    const starters = clubStats.filter(s => s.is_starter);
+
+    // No problem — pass through unchanged
+    if (starters.length <= 11) {
+      result.push(...clubStats);
+      continue;
+    }
+
+    // Identify ghosts: starters with zero stats (dual-ID lineup-only entries)
+    const ghosts = starters.filter(s => s.minutes_played === 0 && s.rating === null);
+    const ghostApiIds = new Set(ghosts.map(g => g.api_football_player_id));
+
+    if (ghosts.length === 0) {
+      // >11 starters but no ghosts — unusual, pass through
+      result.push(...clubStats);
+      continue;
+    }
+
+    // Collect grid positions from ghosts (these are the correct formation positions)
+    const availableGrids = ghosts
+      .filter(g => g.grid_position)
+      .map(g => ({ grid: g.grid_position!, pos: gridRowToPosition(g.grid_position!) }));
+
+    // Remove ghosts
+    const cleaned = clubStats.filter(s => !ghostApiIds.has(s.api_football_player_id));
+
+    // Find real players that need promotion (have stats but aren't marked as starters)
+    const currentStarters = cleaned.filter(s => s.is_starter);
+    const nonStarters = cleaned.filter(s => !s.is_starter && s.minutes_played > 0);
+    const needed = 11 - currentStarters.length;
+
+    if (needed > 0 && nonStarters.length > 0) {
+      // Sort by minutes played (highest first) — most likely actual starters
+      const candidates = [...nonStarters].sort((a, b) => b.minutes_played - a.minutes_played);
+
+      for (let i = 0; i < Math.min(needed, candidates.length); i++) {
+        candidates[i].is_starter = true;
+
+        // Transfer grid_position from ghost — match by position compatibility
+        if (availableGrids.length > 0) {
+          const playerPos = candidates[i].match_position;
+          // Try position-compatible grid first
+          const matchIdx = playerPos
+            ? availableGrids.findIndex(g => g.pos === playerPos)
+            : -1;
+          const gridIdx = matchIdx >= 0 ? matchIdx : 0;
+          candidates[i].grid_position = availableGrids[gridIdx].grid;
+          availableGrids.splice(gridIdx, 1);
+        }
+      }
+    }
+
+    result.push(...cleaned);
+  }
+
+  return result;
 }
 
 // ============================================

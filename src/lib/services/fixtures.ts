@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { Fixture, FixturePlayerStat, GameweekStatus, SimulateResult } from '@/types';
+import type { Fixture, FixturePlayerStat, FixtureSubstitution, GameweekStatus, SimulateResult } from '@/types';
 
 // ============================================
 // Queries
@@ -232,6 +232,59 @@ export async function getGameweekStatsForPlayers(gw: number, playerIds: string[]
   if (error || !data) return [];
 
   return data.map((row) => mapStatRow(row));
+}
+
+// ============================================
+// Substitutions
+// ============================================
+
+/** Load substitution events for a fixture, ordered by minute */
+export async function getFixtureSubstitutions(fixtureId: string): Promise<FixtureSubstitution[]> {
+  const { data, error } = await supabase
+    .from('fixture_substitutions')
+    .select(
+      '*, player_in:players!fixture_substitutions_player_in_id_fkey!left(first_name, last_name), player_out:players!fixture_substitutions_player_out_id_fkey!left(first_name, last_name)',
+    )
+    .eq('fixture_id', fixtureId)
+    .order('minute', { ascending: true }) as unknown as {
+    data: Record<string, unknown>[] | null;
+    error: { message: string } | null;
+  };
+
+  if (error || !data) return [];
+
+  return data.map((row) => {
+    const playerIn = row.player_in as { first_name: string; last_name: string } | null;
+    const playerOut = row.player_out as { first_name: string; last_name: string } | null;
+    const apiInName = (row.player_in_name as string) ?? '';
+    const apiOutName = (row.player_out_name as string) ?? '';
+    const parseApi = (name: string) => {
+      const parts = name.trim().split(/\s+/);
+      return parts.length === 1
+        ? { first: '', last: parts[0] }
+        : { first: parts.slice(0, -1).join(' '), last: parts[parts.length - 1] };
+    };
+    const inParsed = parseApi(apiInName);
+    const outParsed = parseApi(apiOutName);
+
+    return {
+      id: row.id as string,
+      fixture_id: row.fixture_id as string,
+      club_id: row.club_id as string,
+      minute: row.minute as number,
+      extra_minute: (row.extra_minute as number | null) ?? null,
+      player_in_id: (row.player_in_id as string | null) ?? null,
+      player_out_id: (row.player_out_id as string | null) ?? null,
+      player_in_api_id: row.player_in_api_id as number,
+      player_out_api_id: row.player_out_api_id as number,
+      player_in_name: row.player_in_name as string,
+      player_out_name: row.player_out_name as string,
+      player_in_first_name: playerIn?.first_name ?? inParsed.first,
+      player_in_last_name: playerIn?.last_name ?? inParsed.last,
+      player_out_first_name: playerOut?.first_name ?? outParsed.first,
+      player_out_last_name: playerOut?.last_name ?? outParsed.last,
+    };
+  });
 }
 
 // ============================================

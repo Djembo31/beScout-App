@@ -12,6 +12,7 @@ import {
   type ApiFixturePlayerResponse,
   type ApiLineupsResponse,
   type ApiLineupPlayer,
+  type ApiFixtureEventsResponse,
 } from '@/lib/footballApi';
 
 const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN']);
@@ -355,6 +356,18 @@ export async function GET(request: Request) {
         away_score: number;
       }> = [];
       const playerStats: PlayerStatRow[] = [];
+      const allSubstitutions: Array<{
+        fixture_id: string;
+        club_id: string;
+        minute: number;
+        extra_minute: number | null;
+        player_in_id: string | null;
+        player_out_id: string | null;
+        player_in_api_id: number;
+        player_out_api_id: number;
+        player_in_name: string;
+        player_out_name: string;
+      }> = [];
       let matchedCount = 0;
       let unmatchedCount = 0;
       let nameMatchCount = 0;
@@ -362,14 +375,17 @@ export async function GET(request: Request) {
       const newExternalIds: Array<{ player_id: string; external_id: number }> = [];
 
       for (const fixture of mappings.fixtures) {
-        // Fetch lineups and player stats in parallel
-        const [lineupsData, apiStats] = await Promise.all([
+        // Fetch lineups, player stats, and events in parallel
+        const [lineupsData, apiStats, eventsData] = await Promise.all([
           apiFetch<ApiLineupsResponse>(
             `/fixtures/lineups?fixture=${fixture.api_fixture_id}`,
           ).catch(() => ({ response: [] as ApiLineupsResponse['response'] })),
           apiFetch<ApiFixturePlayerResponse>(
             `/fixtures/players?fixture=${fixture.api_fixture_id}`,
           ),
+          apiFetch<ApiFixtureEventsResponse>(
+            `/fixtures/events?fixture=${fixture.api_fixture_id}`,
+          ).catch(() => ({ response: [] as ApiFixtureEventsResponse['response'] })),
         ]);
 
         const apiMatch = apiFixData.response.find(
@@ -656,9 +672,38 @@ export async function GET(request: Request) {
             });
           }
         }
+
+        // Process substitution events
+        for (const evt of eventsData.response) {
+          if (evt.type !== 'subst') continue;
+          if (evt.time?.elapsed == null) continue;
+          if (!evt.player?.id || !evt.assist?.id) continue;
+          const clubId = mappings.clubMap.get(evt.team.id);
+          if (!clubId) continue;
+
+          // In API-Football subst events: player = OUT, assist = IN
+          const playerOutApiId = evt.player.id;
+          const playerInApiId = evt.assist.id;
+
+          const playerOut = mappings.playerMap.get(playerOutApiId);
+          const playerIn = mappings.playerMap.get(playerInApiId);
+
+          allSubstitutions.push({
+            fixture_id: fixture.id,
+            club_id: clubId,
+            minute: evt.time.elapsed,
+            extra_minute: evt.time.extra,
+            player_in_id: playerIn?.id ?? null,
+            player_out_id: playerOut?.id ?? null,
+            player_in_api_id: playerInApiId,
+            player_out_api_id: playerOutApiId,
+            player_in_name: evt.assist.name ?? `Player ${playerInApiId}`,
+            player_out_name: evt.player.name ?? `Player ${playerOutApiId}`,
+          });
+        }
       }
 
-      return { fixtureResults, playerStats, matchedCount, unmatchedCount, nameMatchCount, shirtBridgeCount, newExternalIds };
+      return { fixtureResults, playerStats, allSubstitutions, matchedCount, unmatchedCount, nameMatchCount, shirtBridgeCount, newExternalIds };
     });
 
     if (!statsResult) {
@@ -716,7 +761,24 @@ export async function GET(request: Request) {
         : undefined,
     );
 
-    // ---- 7b. Auto-reconcile: persist newly discovered fixture API IDs ----
+    // ---- 7b. Save substitution events ----
+    if (statsResult.allSubstitutions.length > 0) {
+      await runStep('save_substitutions', async () => {
+        const { error: subErr } = await supabaseAdmin
+          .from('fixture_substitutions')
+          .upsert(statsResult.allSubstitutions, {
+            onConflict: 'fixture_id,club_id,minute,player_in_api_id',
+          });
+        if (subErr) throw new Error(subErr.message);
+        return { saved: statsResult.allSubstitutions.length };
+      });
+
+      await logStep(activeGw, 'save_substitutions', 'success', {
+        count: statsResult.allSubstitutions.length,
+      });
+    }
+
+    // ---- 7c. Auto-reconcile: persist newly discovered fixture API IDs ----
     if (statsResult.newExternalIds.length > 0) {
       // Deduplicate by player_id (keep first occurrence)
       const seen = new Set<string>();

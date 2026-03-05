@@ -198,6 +198,7 @@ for (let gw = startGW; gw <= endGW; gw++) {
 
   const fixtureResults = [];
   const playerStats = [];
+  const allSubstitutions = [];
   let gwMatched = 0;
   let gwUnmatched = 0;
   let gwNameMatched = 0;
@@ -214,8 +215,9 @@ for (let gw = startGW; gw <= endGW; gw++) {
       });
     }
 
-    // Fetch lineups + stats
+    // Fetch lineups + stats + events
     let lineupsData = { response: [] };
+    let eventsData = { response: [] };
     try {
       lineupsData = await apiFetch(`/fixtures/lineups?fixture=${fixture.api_fixture_id}`);
       apiCalls++;
@@ -225,6 +227,13 @@ for (let gw = startGW; gw <= endGW; gw++) {
 
     const apiStats = await apiFetch(`/fixtures/players?fixture=${fixture.api_fixture_id}`);
     apiCalls++;
+
+    try {
+      eventsData = await apiFetch(`/fixtures/events?fixture=${fixture.api_fixture_id}`);
+      apiCalls++;
+    } catch (e) {
+      console.log(`  Events fetch failed for fixture ${fixture.api_fixture_id}: ${e.message}`);
+    }
 
     // Build lineup map (by ID + by name + by last-name for dual-ID cross-reference)
     const lineupMap = new Map();
@@ -461,6 +470,33 @@ for (let gw = startGW; gw <= endGW; gw++) {
       }
     }
 
+    // Process substitution events
+    for (const evt of eventsData.response) {
+      if (evt.type !== 'subst') continue;
+      if (evt.time?.elapsed == null) continue;
+      if (!evt.player?.id || !evt.assist?.id) continue;
+      const evtClubId = clubMap.get(evt.team.id);
+      if (!evtClubId) continue;
+
+      const playerOutApiId = evt.player.id;
+      const playerInApiId = evt.assist.id;
+      const playerOut = playerMap.get(playerOutApiId);
+      const playerIn = playerMap.get(playerInApiId);
+
+      allSubstitutions.push({
+        fixture_id: fixture.id,
+        club_id: evtClubId,
+        minute: evt.time.elapsed,
+        extra_minute: evt.time.extra ?? null,
+        player_in_id: playerIn?.id ?? null,
+        player_out_id: playerOut?.id ?? null,
+        player_in_api_id: playerInApiId,
+        player_out_api_id: playerOutApiId,
+        player_in_name: evt.assist.name ?? `Player ${playerInApiId}`,
+        player_out_name: evt.player.name ?? `Player ${playerOutApiId}`,
+      });
+    }
+
     // Rate limit: pause between fixtures
     await sleep(500);
   }
@@ -577,6 +613,25 @@ for (let gw = startGW; gw <= endGW; gw++) {
         if (info) playerMap.set(e.external_id, { id: e.player_id, position: info.position });
       }
     }
+  }
+
+  // 6. Save substitution events
+  if (allSubstitutions.length > 0) {
+    // Delete existing subs for this GW's fixtures first (idempotent)
+    await supabase.from('fixture_substitutions').delete().in('fixture_id', gwFixtureIds);
+
+    const SUBS_BATCH = 500;
+    let subsInserted = 0;
+    for (let i = 0; i < allSubstitutions.length; i += SUBS_BATCH) {
+      const batch = allSubstitutions.slice(i, i + SUBS_BATCH);
+      const { error: subsErr } = await supabase.from('fixture_substitutions').insert(batch);
+      if (subsErr) {
+        console.error(`  Subs insert error (batch ${i}): ${subsErr.message}`);
+      } else {
+        subsInserted += batch.length;
+      }
+    }
+    console.log(`  Substitutions: ${subsInserted}/${allSubstitutions.length}`);
   }
 
   console.log(`  Imported: ${inserted}/${dedupedStats.length} stats (deduped from ${playerStats.length}) | Matched: ${gwMatched}, Name: ${gwNameMatched}, ShirtBridge: ${gwShirtBridged}, Unmatched: ${gwUnmatched}`);

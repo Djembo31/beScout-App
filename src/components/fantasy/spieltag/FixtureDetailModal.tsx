@@ -5,8 +5,8 @@ import { Loader2, Star } from 'lucide-react';
 import { Modal } from '@/components/ui';
 import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
-import { getFixturePlayerStats } from '@/lib/services/fixtures';
-import type { Fixture, FixturePlayerStat, Pos } from '@/types';
+import { getFixturePlayerStats, getFixtureSubstitutions } from '@/lib/services/fixtures';
+import type { Fixture, FixturePlayerStat, FixtureSubstitution, Pos } from '@/types';
 import { PlayerPhoto, GoalBadge } from '@/components/player';
 import { ClubLogo } from './ClubLogo';
 import { posColor, scoreBadgeColor, getPosAccent } from './helpers';
@@ -190,6 +190,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
   const ts = useTranslations('spieltag');
   const tsp = useTranslations('sponsor');
   const [stats, setStats] = useState<FixturePlayerStat[]>([]);
+  const [substitutions, setSubstitutions] = useState<FixtureSubstitution[]>([]);
   const [loading, setLoading] = useState(false);
   const [detailTab, setDetailTab] = useState<'formation' | 'players'>('formation');
 
@@ -198,8 +199,15 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
     let cancelled = false;
     setLoading(true);
     setDetailTab('formation');
-    getFixturePlayerStats(fixture.id).then(data => {
-      if (!cancelled) { setStats(data); setLoading(false); }
+    Promise.all([
+      getFixturePlayerStats(fixture.id),
+      getFixtureSubstitutions(fixture.id),
+    ]).then(([statsData, subsData]) => {
+      if (!cancelled) {
+        setStats(statsData);
+        setSubstitutions(subsData);
+        setLoading(false);
+      }
     }).catch(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [fixture, isOpen]);
@@ -350,7 +358,35 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                         <div className="h-4 md:h-6" />
                         <FormationHalf stats={awaySplit.starters} teamName={fixture.away_club_name} color={awayColor} isHome={false} formation={awayFormation} logo={awayClub} />
                       </div>
-                      {allBench.length > 0 && (
+                      {/* Substitutions: livescore-style if data available, fallback to bench list */}
+                      {substitutions.length > 0 ? (
+                        <div className="relative z-10 mt-3 pt-3 border-t border-white/[0.06]">
+                          <div className="text-[9px] font-bold text-white/25 uppercase tracking-wider text-center mb-2">{ts('substitutions')}</div>
+                          <div className="space-y-1">
+                            {substitutions.map(sub => {
+                              const isHome = sub.club_id === fixture.home_club_id;
+                              const accentColor = isHome ? homeColor : awayColor;
+                              return (
+                                <div key={sub.id} className="flex items-center gap-1.5 px-2 py-1.5 bg-black/20 rounded-lg text-[10px] border border-white/[0.06]">
+                                  <div className="w-0.5 h-5 rounded-full flex-shrink-0" style={{ backgroundColor: accentColor }} />
+                                  <span className="text-white/30 font-mono tabular-nums w-8 text-right flex-shrink-0">
+                                    {sub.minute}&apos;{sub.extra_minute ? `+${sub.extra_minute}` : ''}
+                                  </span>
+                                  <span className="text-red-400 flex-shrink-0" aria-label="ausgewechselt">▼</span>
+                                  <span className="text-white/50 truncate min-w-0">
+                                    {sub.player_out_last_name}
+                                  </span>
+                                  <span className="text-white/20 flex-shrink-0">→</span>
+                                  <span className="text-emerald-400 flex-shrink-0" aria-label="eingewechselt">▲</span>
+                                  <span className="text-white/70 font-medium truncate min-w-0">
+                                    {sub.player_in_last_name}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ) : allBench.length > 0 && (
                         <div className="relative z-10 mt-3 pt-3 border-t border-white/[0.06]">
                           <div className="text-[9px] font-bold text-white/25 uppercase tracking-wider text-center mb-2">{ts('substitutions')}</div>
                           <div className="flex gap-1.5 flex-wrap justify-center">
