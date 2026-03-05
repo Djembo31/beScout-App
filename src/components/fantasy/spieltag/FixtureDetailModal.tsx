@@ -126,35 +126,85 @@ function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
   );
 }
 
-/** Build pitch rows from API grid_position data.
- *  grid_position = "row:col" (e.g. "1:1"=GK, "2:3"=3rd defender).
- *  This is the authoritative formation layout from API-Football lineups.
- *  Fallback: group by match_position if grid data is missing. */
-function buildFormationRows(starters: FixturePlayerStat[], isHome: boolean): FixturePlayerStat[][] {
+/** Position priority: GK=0, DEF=1, MID=2, ATT=3 */
+function posPriority(pos: string): number {
+  switch (pos) { case 'GK': return 0; case 'DEF': return 1; case 'MID': return 2; case 'ATT': return 3; default: return 2; }
+}
+
+/** Build pitch rows. Strategy:
+ *  1. Try grid_position grouping — validate it produces correct row count matching formation
+ *  2. If grid is invalid (missing GK row, wrong row count) → force formation layout
+ *  3. If no grid data at all → group by match_position */
+function buildFormationRows(starters: FixturePlayerStat[], formation: string, isHome: boolean): FixturePlayerStat[][] {
+  const formParts = formation.split('-').map(Number);
+  const validFormation = formParts.length >= 2 && !formParts.some(isNaN) && formParts.reduce((a, b) => a + b, 0) === 10;
+  const expectedRowCount = validFormation ? formParts.length + 1 : 0; // +1 for GK
+
   const hasGrid = starters.some(s => s.grid_position);
 
   if (hasGrid) {
-    // Group by grid row number
+    // Group by grid row
     const rowMap = new Map<number, FixturePlayerStat[]>();
     for (const s of starters) {
-      const row = s.grid_position ? parseInt(s.grid_position.split(':')[0], 10) : 0;
+      const row = s.grid_position ? parseInt(s.grid_position.split(':')[0], 10) : -1;
       const existing = rowMap.get(row) || [];
       existing.push(s);
       rowMap.set(row, existing);
     }
-    // Sort rows by row number, within each row sort by column
-    const rows = Array.from(rowMap.entries())
-      .sort((a, b) => a[0] - b[0])
-      .map(([, players]) => players.sort((a, b) => {
+
+    const gridRows = Array.from(rowMap.entries())
+      .filter(([r]) => r > 0) // exclude players without grid
+      .sort((a, b) => a[0] - b[0]);
+
+    // Validate: grid should have GK row (row 1 with 1 player) and match formation row count
+    const hasGkRow = gridRows.length > 0 && gridRows[0][0] === 1 && gridRows[0][1].length === 1;
+    const rowCountMatches = gridRows.length === expectedRowCount;
+
+    if (hasGkRow && rowCountMatches) {
+      // Grid is valid — use it directly
+      const rows = gridRows.map(([, players]) => players.sort((a, b) => {
         const colA = a.grid_position ? parseInt(a.grid_position.split(':')[1], 10) : 0;
         const colB = b.grid_position ? parseInt(b.grid_position.split(':')[1], 10) : 0;
         return colA - colB;
       }));
+      if (!isHome) rows.reverse();
+      return rows;
+    }
+    // Grid is broken — fall through to formation-forced layout
+  }
+
+  // Formation-forced layout: sort starters by position, slice into formation rows
+  if (validFormation) {
+    const sorted = [...starters].sort((a, b) => {
+      const pa = posPriority(a.match_position || a.player_position || 'MID');
+      const pb = posPriority(b.match_position || b.player_position || 'MID');
+      return pa - pb;
+    });
+
+    const rows: FixturePlayerStat[][] = [];
+    // GK row
+    const gk = sorted.filter(s => (s.match_position || s.player_position) === 'GK');
+    const nonGk = sorted.filter(s => (s.match_position || s.player_position) !== 'GK');
+
+    if (gk.length > 0) {
+      rows.push([gk[0]]);
+    } else {
+      // No GK found — put first player as GK row (best guess)
+      rows.push([nonGk.shift()!]);
+    }
+
+    // Outfield rows from formation
+    let offset = 0;
+    for (const count of formParts) {
+      rows.push(nonGk.slice(offset, offset + count));
+      offset += count;
+    }
+
     if (!isHome) rows.reverse();
     return rows;
   }
 
-  // Fallback: group by match_position
+  // Last fallback: group by match_position
   const grouped = new Map<string, FixturePlayerStat[]>();
   for (const s of starters) {
     const pos = s.match_position || s.player_position || 'MID';
@@ -162,8 +212,7 @@ function buildFormationRows(starters: FixturePlayerStat[], isHome: boolean): Fix
     existing.push(s);
     grouped.set(pos, existing);
   }
-  const prio = (pos: string) => { switch (pos) { case 'GK': return 0; case 'DEF': return 1; case 'MID': return 2; case 'ATT': return 3; default: return 2; } };
-  const order = isHome ? prio : (pos: string) => 3 - prio(pos);
+  const order = isHome ? (pos: string) => posPriority(pos) : (pos: string) => 3 - posPriority(pos);
   return Array.from(grouped.entries())
     .sort((a, b) => order(a[0]) - order(b[0]))
     .map(([, players]) => players.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)));
@@ -177,7 +226,7 @@ function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
   formation: string;
   logo: ReturnType<typeof getClub>;
 }) {
-  const rows = buildFormationRows(stats, isHome);
+  const rows = buildFormationRows(stats, formation, isHome);
 
   return (
     <div className="flex flex-col gap-3 py-2">
