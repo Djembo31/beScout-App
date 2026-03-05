@@ -158,9 +158,8 @@ function buildFormationRows(starters: FixturePlayerStat[], formation: string, is
 
     // Validate: grid should have GK row (row 1 with 1 player) and match formation row count
     const hasGkRow = gridRows.length > 0 && gridRows[0][0] === 1 && gridRows[0][1].length === 1;
-    const rowCountMatches = gridRows.length === expectedRowCount;
 
-    if (hasGkRow && rowCountMatches) {
+    if (hasGkRow && gridRows.length === expectedRowCount) {
       // Grid is valid — use it directly
       const rows = gridRows.map(([, players]) => players.sort((a, b) => {
         const colA = a.grid_position ? parseInt(a.grid_position.split(':')[1], 10) : 0;
@@ -170,7 +169,33 @@ function buildFormationRows(starters: FixturePlayerStat[], formation: string, is
       if (!isHome) rows.reverse();
       return rows;
     }
-    // Grid is broken — fall through to formation-forced layout
+
+    // Grid broken but fixable: no GK row + some row has overflow → extract lowest-minutes player as GK
+    if (!hasGkRow && validFormation && gridRows.length > 0) {
+      const expectedSizes = formParts; // e.g. [4,2,3,1] for "4-2-3-1"
+      // Find overflow row (more players than formation expects)
+      let extractedGk: FixturePlayerStat | null = null;
+      for (let i = 0; i < gridRows.length && i < expectedSizes.length; i++) {
+        const [, players] = gridRows[i];
+        if (players.length > expectedSizes[i]) {
+          // Sort by minutes — lowest minutes = likely misplaced GK
+          players.sort((a, b) => a.minutes_played - b.minutes_played);
+          extractedGk = players.shift()!;
+          break;
+        }
+      }
+      if (extractedGk) {
+        const sortByCol = (players: FixturePlayerStat[]) => players.sort((a, b) => {
+          const colA = a.grid_position ? parseInt(a.grid_position.split(':')[1], 10) : 0;
+          const colB = b.grid_position ? parseInt(b.grid_position.split(':')[1], 10) : 0;
+          return colA - colB;
+        });
+        const rows: FixturePlayerStat[][] = [[extractedGk], ...gridRows.map(([, p]) => sortByCol(p))];
+        if (!isHome) rows.reverse();
+        return rows;
+      }
+    }
+    // Grid completely broken — fall through to formation-forced layout
   }
 
   // Formation-forced layout: sort starters by position, slice into formation rows
