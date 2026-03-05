@@ -11,7 +11,9 @@ import { PlayerPhoto, GoalBadge } from '@/components/player';
 import { ClubLogo } from './ClubLogo';
 import { posColor, scoreBadgeColor, getPosAccent } from './helpers';
 
-/** Split team stats into starters + bench using is_starter flag, with minutes fallback for old data */
+/** Split team stats into starters + bench using is_starter flag, with minutes fallback for old data.
+ *  Handles dual-ID gaps: when lineup has < 11 starters due to API ID mismatches,
+ *  supplements with highest-minutes non-starters to reach 11. */
 function splitStartersBench(stats: FixturePlayerStat[]): {
   starters: FixturePlayerStat[];
   bench: FixturePlayerStat[];
@@ -20,10 +22,22 @@ function splitStartersBench(stats: FixturePlayerStat[]): {
   let starters: FixturePlayerStat[];
   let bench: FixturePlayerStat[];
 
-  // Use is_starter flag if any player has it set
-  if (stats.some(s => s.is_starter)) {
+  const hasStarterFlags = stats.some(s => s.is_starter);
+
+  if (hasStarterFlags) {
     starters = stats.filter(s => s.is_starter);
-    bench = stats.filter(s => !s.is_starter && s.minutes_played > 0);
+    const rest = stats.filter(s => !s.is_starter);
+
+    // Fill gaps: if < 11 starters due to dual-ID mismatches, supplement with top-minutes players
+    if (starters.length < 11) {
+      const sorted = [...rest].sort((a, b) => b.minutes_played - a.minutes_played);
+      const needed = 11 - starters.length;
+      const promoted = sorted.splice(0, needed);
+      starters = [...starters, ...promoted];
+      bench = sorted.filter(s => s.minutes_played > 0);
+    } else {
+      bench = rest.filter(s => s.minutes_played > 0);
+    }
   } else {
     // Fallback for old data without is_starter
     const sorted = [...stats].sort((a, b) => b.minutes_played - a.minutes_played);
