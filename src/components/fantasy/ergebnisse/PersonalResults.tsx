@@ -6,7 +6,7 @@ import { Briefcase, Trophy, Target, ShieldCheck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { TabBar, TabPanel } from '@/components/ui/TabBar';
 import { PlayerPhoto, PositionBadge, GoalBadge } from '@/components/player';
-import { scoreBadgeColor, getPosAccent } from '../spieltag/helpers';
+import { scoreBadgeColor, getPosAccent, getRingFrameClass, ratingHeatStyle } from '../spieltag/helpers';
 import { PredictionResults } from './PredictionResults';
 import type { FixturePlayerStat, Prediction } from '@/types';
 import type { Pos } from '@/types';
@@ -69,20 +69,23 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
                     className="flex items-center gap-2.5 px-3 py-2.5 hover:bg-white/[0.04] transition-colors active:bg-white/[0.06]"
                     style={{ borderLeftColor: accent, borderLeftWidth: '2px' }}
                   >
-                    {/* Player photo */}
-                    <div className="relative">
+                    {/* Player photo with ring frame */}
+                    <div className={`relative rounded-full ${getRingFrameClass(stat.player_position)}`}>
                       <PlayerPhoto
                         imageUrl={stat.player_image_url ?? holding?.player?.image_url}
                         first={stat.player_first_name}
                         last={stat.player_last_name}
                         pos={stat.player_position as Pos}
-                        size={32}
+                        size={40}
                       />
                       <GoalBadge goals={stat.goals} size={15} />
                     </div>
 
-                    {/* Rating badge */}
-                    <span className={`min-w-[2rem] px-1.5 py-0.5 rounded-md text-[11px] font-mono font-black text-center tabular-nums ${scoreBadgeColor(rating)}`}>
+                    {/* Rating badge — heat-map */}
+                    <span
+                      className="min-w-[2rem] px-1.5 py-0.5 rounded-md text-xs font-mono font-black text-center tabular-nums"
+                      style={ratingHeatStyle(rating)}
+                    >
                       {rating.toFixed(1)}
                     </span>
 
@@ -91,9 +94,9 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
                       <div className="text-sm font-semibold truncate">
                         {stat.player_first_name.charAt(0)}. {stat.player_last_name}
                       </div>
-                      <div className="text-[10px] text-white/40">
+                      <div className="text-xs text-white/40">
                         {stat.club_short} · {stat.minutes_played}{tf('ergebnisse.minutesShort')}
-                        {holding && <span className="ml-1 text-gold/60">{holding.quantity}x DPC</span>}
+                        {holding && <span className="ml-1 text-gold font-bold">{holding.quantity}x DPC</span>}
                       </div>
                     </div>
 
@@ -112,7 +115,8 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
             </div>
 
             {/* Summary row */}
-            <div className="flex items-center justify-center gap-3 mt-2 text-[10px] text-white/30">
+            <div className="floodlight-divider mt-2" />
+            <div className="flex items-center justify-center gap-3 mt-2 text-xs text-white/30">
               <span>Ø {dpcAvgRating.toFixed(1)}</span>
               <span>·</span>
               <span>{heldPlayerStats.length} {tf('ergebnisse.playersActive')}</span>
@@ -144,12 +148,12 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-xs truncate">{event.name}</div>
-                    <div className="text-[10px] text-white/40">
+                    <div className="text-xs text-white/40">
                       {tf('rankOfParticipants', { rank: rank ?? '-', participants: event.participants, score: score ?? 0 })}
                     </div>
                   </div>
                   {event.userReward && event.userReward > 0 && (
-                    <span className="text-[10px] font-bold text-gold flex-shrink-0">+{(event.userReward / 100).toFixed(0)} $SCOUT</span>
+                    <span className="text-xs font-bold text-gold flex-shrink-0">+{(event.userReward / 100).toFixed(0)} $SCOUT</span>
                   )}
                 </div>
               );

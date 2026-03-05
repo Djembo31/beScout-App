@@ -24,14 +24,14 @@ export function TopspielCard({ fixture, onSelect }: Props) {
   return (
     <button
       onClick={() => onSelect(fixture)}
-      className="w-full rounded-2xl border border-white/[0.12] overflow-hidden transition-colors active:scale-[0.98] group relative"
+      className={`w-full rounded-2xl border border-white/[0.12] overflow-hidden transition-colors active:scale-[0.98] group relative ${isSimulated ? 'status-ended' : ''}`}
       style={{
-        background: `linear-gradient(135deg, ${homeColor}12 0%, rgba(13,13,15,0.95) 50%, ${awayColor}12 100%)`,
+        background: `linear-gradient(135deg, ${homeColor}20 0%, rgba(13,13,15,0.95) 50%, ${awayColor}20 100%)`,
       }}
     >
       {/* Topspiel label */}
       <div className="flex items-center justify-center pt-3 pb-1">
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gold/70">
+        <span className="text-xs font-black uppercase tracking-[0.2em] text-gold/70">
           {t('topMatch')}
         </span>
       </div>
@@ -40,28 +40,34 @@ export function TopspielCard({ fixture, onSelect }: Props) {
       <div className="flex items-center justify-center gap-3 px-4 pb-4">
         {/* Home team */}
         <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
-          <ClubLogo club={homeClub} size={36} short={fixture.home_club_short} />
-          <span className="text-xs font-bold truncate max-w-[60px] md:max-w-[80px] text-center">{fixture.home_club_short || fixture.home_club_name}</span>
+          <div style={{ filter: `drop-shadow(0 0 8px ${homeColor}40)` }}>
+            <ClubLogo club={homeClub} size={48} short={fixture.home_club_short} />
+          </div>
+          <span className="text-xs font-bold truncate max-w-[80px] md:max-w-[100px] text-center">{fixture.home_club_short || fixture.home_club_name}</span>
         </div>
 
         {/* Score */}
         <div className="shrink-0 text-center px-2">
           {isSimulated ? (
-            <div className="font-mono font-black text-2xl md:text-3xl tabular-nums" style={{ textShadow: '0 0 12px rgba(255,215,0,0.25)' }}>
-              {fixture.home_score} <span className="text-white/20">-</span> {fixture.away_score}
+            <div className="flex items-center gap-3">
+              <span className="font-mono font-black text-4xl md:text-5xl tabular-nums score-glow">{fixture.home_score}</span>
+              <div className="w-[2px] h-6 bg-gold/30 rounded-full" />
+              <span className="font-mono font-black text-4xl md:text-5xl tabular-nums score-glow">{fixture.away_score}</span>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-1">
               <span className="text-white/20 text-lg font-bold">vs</span>
-              <span className="text-[10px] text-white/20">{t('matchUpcoming')}</span>
+              <span className="text-xs text-white/20">{t('matchUpcoming')}</span>
             </div>
           )}
         </div>
 
         {/* Away team */}
         <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
-          <ClubLogo club={awayClub} size={36} short={fixture.away_club_short} />
-          <span className="text-xs font-bold truncate max-w-[60px] md:max-w-[80px] text-center">{fixture.away_club_short || fixture.away_club_name}</span>
+          <div style={{ filter: `drop-shadow(0 0 8px ${awayColor}40)` }}>
+            <ClubLogo club={awayClub} size={48} short={fixture.away_club_short} />
+          </div>
+          <span className="text-xs font-bold truncate max-w-[80px] md:max-w-[100px] text-center">{fixture.away_club_short || fixture.away_club_name}</span>
         </div>
       </div>
 
@@ -71,7 +77,7 @@ export function TopspielCard({ fixture, onSelect }: Props) {
       </div>
 
       {/* Bottom glow line */}
-      <div className="h-[2px]" style={{
+      <div className="h-[3px]" style={{
         background: `linear-gradient(90deg, ${homeColor}40, #FFD70040, ${awayColor}40)`,
       }} />
     </button>

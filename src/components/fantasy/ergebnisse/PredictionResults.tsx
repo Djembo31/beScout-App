@@ -15,7 +15,7 @@ function ConfidenceStars({ confidence }: { confidence: number }) {
   // confidence 1-5
   const filled = Math.min(5, Math.max(1, confidence));
   return (
-    <span className="text-[9px] text-gold/60 tracking-tight" aria-label={`${filled} von 5 Sterne`}>
+    <span className="text-xs text-gold/60 tracking-tight" aria-label={`${filled} von 5 Sterne`}>
       {'★'.repeat(filled)}{'☆'.repeat(5 - filled)}
     </span>
   );
@@ -67,8 +67,8 @@ export function PredictionResults({ predictions }: Props) {
         <span className="text-xs font-bold text-white/60">
           {correctCount}/{totalResolved} {tp('correct')}
         </span>
-        <span className="text-[10px] text-white/30">·</span>
-        <span className="text-xs font-mono font-bold tabular-nums text-white/50">{accuracy}%</span>
+        <span className="text-xs text-white/30">·</span>
+        <span className={`text-xs font-mono font-bold tabular-nums ${accuracy >= 70 ? 'text-gold gold-glow' : 'text-white/50'}`}>{accuracy}%</span>
       </div>
 
       {/* Individual prediction rows */}
@@ -78,7 +78,7 @@ export function PredictionResults({ predictions }: Props) {
           const isVoid = p.status === 'void';
 
           return (
-            <div key={p.id} className="flex items-center gap-2 px-3 py-2">
+            <div key={p.id} className={`flex items-center gap-2 px-3 py-2 ${isCorrect ? 'border-l-2 border-l-green-500/40' : ''}`}>
               {/* Status icon */}
               {isVoid ? (
                 <MinusCircle className="size-4 text-white/25 flex-shrink-0" aria-hidden="true" />
@@ -92,14 +92,14 @@ export function PredictionResults({ predictions }: Props) {
               <div className="flex-1 min-w-0">
                 <div className="text-xs font-semibold truncate">{getConditionText(p)}</div>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-[9px] text-white/30 truncate">{getFixtureContext(p)}</span>
+                  <span className="text-xs text-white/30 truncate">{getFixtureContext(p)}</span>
                   <ConfidenceStars confidence={p.confidence} />
                 </div>
               </div>
 
               {/* Points */}
               <span className={`text-xs font-mono font-bold tabular-nums flex-shrink-0 ${
-                p.points_awarded > 0 ? 'text-green-400' : 'text-white/20'
+                p.points_awarded > 0 ? 'text-vivid-green' : 'text-white/20'
               }`}>
                 {p.points_awarded > 0 ? `+${p.points_awarded}` : '0'}
               </span>

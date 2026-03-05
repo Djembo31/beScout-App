@@ -1,4 +1,5 @@
 /** Spieltag helper functions — extracted from SpieltagTab */
+import type React from 'react';
 
 export const posColor = (pos: string) => {
   switch (pos) {
@@ -42,4 +43,40 @@ export const getPosDotColor = (pos: string): string => {
     case 'ATT': return 'bg-rose-400';
     default: return 'bg-white/50';
   }
+};
+
+/** Status accent classes for fixture/event status */
+export const getStatusAccent = (status: string) => {
+  switch (status) {
+    case 'running': case 'live':
+      return { border: 'border-vivid-green/30', dot: 'bg-vivid-green', glow: 'status-live' };
+    case 'simulated': case 'finished':
+      return { border: 'border-gold/20', dot: 'bg-gold', glow: 'status-ended' };
+    default:
+      return { border: 'border-white/[0.08]', dot: 'bg-white/20', glow: '' };
+  }
+};
+
+/** Position ring frame class for player photos */
+export const getRingFrameClass = (pos: string): string => {
+  switch (pos) {
+    case 'GK': return 'ring-frame-gk';
+    case 'DEF': return 'ring-frame-def';
+    case 'MID': return 'ring-frame-mid';
+    case 'ATT': return 'ring-frame-att';
+    default: return '';
+  }
+};
+
+/** Heat-map rating style — continuous gradient instead of 5-tier flat */
+export const ratingHeatStyle = (rating: number): React.CSSProperties => {
+  const t = Math.max(0, Math.min(1, (rating - 5) / 4));
+  const r = Math.round(239 - t * 80);
+  const g = Math.round(68 + t * 147);
+  const b = Math.round(68 - t * 68);
+  return {
+    background: `rgba(${r},${g},${b},0.20)`,
+    color: `rgb(${r},${g},${b})`,
+    textShadow: rating >= 8 ? '0 0 8px rgba(255,215,0,0.3)' : 'none',
+  };
 };

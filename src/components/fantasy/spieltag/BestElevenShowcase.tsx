@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { PlayerPhoto, GoalBadge } from '@/components/player';
 import type { FixturePlayerStat } from '@/types';
 import type { Pos } from '@/types';
-import { getPosAccent, scoreBadgeColor } from './helpers';
+import { getPosAccent, scoreBadgeColor, getRingFrameClass, ratingHeatStyle } from './helpers';
 
 type Props = {
   scorers: FixturePlayerStat[];
@@ -138,32 +138,34 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
   const effectivePos = getEffectivePosition(stat);
   const accent = getPosAccent(effectivePos);
   const rating = stat.rating ?? stat.fantasy_points / 10;
-  const badge = scoreBadgeColor(rating);
   const hasImage = !!stat.player_image_url;
 
   return (
-    <Link href={`/player/${stat.player_id}`} className="flex flex-col items-center w-[38px] sm:w-[48px] md:w-[56px] hover:scale-105 transition-transform active:scale-95">
-      {/* Score badge */}
-      <div className={`mb-0.5 min-w-[1.5rem] px-1 py-px rounded-full text-[8px] sm:text-[9px] md:text-[10px] font-mono font-black text-center shadow-lg tabular-nums ${badge}`}>
+    <Link href={`/player/${stat.player_id}`} className="flex flex-col items-center w-[42px] sm:w-[52px] md:w-[60px] hover:scale-105 transition-transform active:scale-95">
+      {/* Score badge — heat-map */}
+      <div
+        className="mb-0.5 min-w-[1.5rem] px-1 py-px rounded-full text-xs font-mono font-black text-center shadow-lg tabular-nums"
+        style={ratingHeatStyle(rating)}
+      >
         {rating.toFixed(1)}
       </div>
-      {/* Circle with PlayerPhoto or initials + badges */}
-      <div className="relative">
+      {/* Circle with PlayerPhoto or initials + ring frame + badges */}
+      <div className={`relative rounded-full ${getRingFrameClass(effectivePos)}`}>
         {hasImage ? (
           <PlayerPhoto
             imageUrl={stat.player_image_url}
             first={stat.player_first_name}
             last={stat.player_last_name}
             pos={effectivePos as Pos}
-            size={28}
-            className="sm:!w-[2rem] sm:!h-[2rem] md:!w-[2.5rem] md:!h-[2.5rem]"
+            size={32}
+            className="sm:!w-[2.25rem] sm:!h-[2.25rem] md:!w-[2.75rem] md:!h-[2.75rem]"
           />
         ) : (
           <div
-            className="size-7 sm:size-8 md:size-10 rounded-full flex items-center justify-center border-2 bg-black/40"
+            className="size-8 sm:size-9 md:size-11 rounded-full flex items-center justify-center border-2 bg-black/40"
             style={{ borderColor: accent, boxShadow: `0 0 10px ${accent}30` }}
           >
-            <span className="font-bold text-[8px] sm:text-[9px] md:text-[10px]" style={{ color: accent }}>
+            <span className="font-bold text-xs" style={{ color: accent }}>
               {stat.player_last_name.slice(0, 3).toUpperCase()}
             </span>
           </div>
@@ -172,7 +174,7 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
         <GoalBadge goals={stat.goals} size={14} className="-bottom-0.5 -right-1 sm:size-4" />
         {/* Assists badge — bottom left */}
         {stat.assists > 0 && (
-          <span className="absolute -bottom-0.5 -left-1 min-w-[14px] sm:size-4 px-0.5 rounded-full bg-sky-500 text-white text-[7px] sm:text-[8px] font-bold text-center leading-[14px] sm:leading-4 shadow-lg">
+          <span className="absolute -bottom-0.5 -left-1 min-w-[14px] sm:size-4 px-0.5 rounded-full bg-sky-500 text-white text-xs font-bold text-center leading-[14px] sm:leading-4 shadow-lg">
             {stat.assists}A
           </span>
         )}
@@ -184,11 +186,11 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
         ) : null}
       </div>
       {/* Name */}
-      <div className="text-[8px] sm:text-[9px] md:text-[10px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
+      <div className="text-xs mt-0.5 font-medium text-center truncate max-w-full text-white/70">
         {stat.player_last_name}
       </div>
       {/* Club */}
-      <div className="text-[7px] md:text-[8px] text-white/30 text-center truncate max-w-full">
+      <div className="text-xs text-white/30 text-center truncate max-w-full">
         {stat.club_short}
       </div>
     </Link>
@@ -229,12 +231,14 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
           <span className="text-xs font-bold tracking-widest text-white/50 uppercase">
             {t('bestLabel', { label })}
           </span>
-          <span className="text-[10px] font-mono text-white/30">({formation.name})</span>
+          <span className="text-xs font-mono text-white/30">({formation.name})</span>
           <span className="text-xs font-mono font-bold text-gold tabular-nums gold-glow">Ø {avgRating.toFixed(1)}</span>
         </div>
 
         {/* Green pitch — compact aspect ratio on mobile */}
         <div className="relative bg-gradient-to-b from-[#1a5c1a]/40 via-[#1e6b1e]/30 to-[#1a5c1a]/40 aspect-[5/6] sm:aspect-[4/3]">
+          {/* Floodlight glow from above */}
+          <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.04) 0%, transparent 60%)' }} />
           {/* SVG field markings */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none" viewBox="0 0 400 300">
             {/* Outer boundary */}
@@ -268,7 +272,7 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
 
         {/* Bottom bar */}
         <div className="bg-gradient-to-r from-[#1a1a2e] via-[#0f3460] to-[#1a1a2e] px-3 py-1.5 flex items-center justify-center border-t border-white/10">
-          <span className="text-[9px] text-white/20 font-bold tracking-widest uppercase">{t('poweredBy')}</span>
+          <span className="text-xs text-white/20 font-bold tracking-widest uppercase">{t('poweredBy')}</span>
         </div>
       </div>
 
@@ -279,7 +283,7 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
             <button
               key={m}
               onClick={() => setMode(m)}
-              className={`px-3 py-1.5 rounded-md text-[10px] font-bold transition-colors min-h-[44px] min-w-[44px] ${
+              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors min-h-[44px] min-w-[44px] ${
                 mode === m
                   ? 'bg-gold/15 text-gold'
                   : 'text-white/40 hover:text-white/60'

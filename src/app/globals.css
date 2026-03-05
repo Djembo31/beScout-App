@@ -393,3 +393,42 @@ body {
     inset 0 0 12px rgba(255,215,0,0.06),
     0 0 20px rgba(255,215,0,0.08);
 }
+
+/* ── Match Day Energy: Status + Scoreboard + Position Rings ── */
+
+/* Status accent system */
+@keyframes status-pulse-live {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,230,118,0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(0,230,118,0); }
+}
+.status-live { animation: status-pulse-live 2s ease-in-out infinite; }
+.status-ended { box-shadow: 0 0 16px rgba(255,215,0,0.08); }
+
+/* Scoreboard score glow */
+.score-glow { text-shadow: 0 0 20px rgba(255,215,0,0.4), 0 0 40px rgba(255,215,0,0.15); }
+
+/* MVP crown glow */
+.mvp-crown-glow {
+  box-shadow: 0 0 32px rgba(255,215,0,0.20), 0 0 64px rgba(255,215,0,0.08);
+  border: 1.5px solid rgba(255,215,0,0.30);
+}
+
+/* Position ring frames for player photos */
+.ring-frame-gk  { box-shadow: 0 0 0 2.5px rgba(52,211,153,0.5), 0 0 12px rgba(52,211,153,0.15); }
+.ring-frame-def { box-shadow: 0 0 0 2.5px rgba(251,191,36,0.5), 0 0 12px rgba(251,191,36,0.15); }
+.ring-frame-mid { box-shadow: 0 0 0 2.5px rgba(56,189,248,0.5), 0 0 12px rgba(56,189,248,0.15); }
+.ring-frame-att { box-shadow: 0 0 0 2.5px rgba(251,113,133,0.5), 0 0 12px rgba(251,113,133,0.15); }
+
+/* Stronger floodlight for section headers */
+.flutlicht-header {
+  background: linear-gradient(90deg, transparent, rgba(255,215,0,0.15) 50%, transparent);
+  height: 2px;
+}
+
+/* prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .status-live { animation: none; }
+  .score-glow { text-shadow: none; }
+  .mvp-crown-glow { box-shadow: 0 0 0 1.5px rgba(255,215,0,0.30); }
+  .ring-frame-gk,.ring-frame-def,.ring-frame-mid,.ring-frame-att { box-shadow: 0 0 0 2px currentColor; }
+}

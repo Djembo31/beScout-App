@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { PlayerPhoto, PositionBadge, GoalBadge } from '@/components/player';
-import { scoreBadgeColor, getPosAccent } from '../spieltag/helpers';
+import { scoreBadgeColor, getPosAccent, getRingFrameClass } from '../spieltag/helpers';
 import type { FixturePlayerStat } from '@/types';
 import type { Pos } from '@/types';
 
@@ -28,27 +28,27 @@ export function Top3Cards({ scorers }: Props) {
           <Link
             key={stat.id}
             href={`/player/${stat.player_id}`}
-            className={`flex-shrink-0 w-[120px] snap-start rounded-xl p-2.5 card-carbon-mini border border-white/[0.06] hover:bg-white/[0.04] transition-colors active:bg-white/[0.06] relative ${isFirst ? 'card-gold-frame' : ''}`}
+            className={`flex-shrink-0 w-[130px] snap-start rounded-xl p-2.5 card-carbon-mini border border-white/[0.06] hover:bg-white/[0.04] transition-colors active:bg-white/[0.06] relative ${isFirst ? 'card-gold-frame mvp-crown-glow' : ''}`}
             style={{ borderLeftColor: accent, borderLeftWidth: '2px' }}
           >
             {/* Medal */}
             <div className="absolute top-1.5 left-1.5 text-sm">{MEDALS[i]}</div>
 
             <div className="flex flex-col items-center gap-1.5 pt-3">
-              {/* Photo */}
-              <div className="relative">
+              {/* Photo with ring frame */}
+              <div className={`relative rounded-full ${getRingFrameClass(stat.player_position)}`}>
                 <PlayerPhoto
                   imageUrl={stat.player_image_url}
                   first={stat.player_first_name}
                   last={stat.player_last_name}
                   pos={stat.player_position as Pos}
-                  size={36}
+                  size={isFirst ? 44 : 36}
                 />
                 <GoalBadge goals={stat.goals} size={16} />
               </div>
 
               {/* Rating */}
-              <span className={`px-1.5 py-0.5 rounded-md text-[11px] font-mono font-black tabular-nums ${scoreBadgeColor(rating)}`}>
+              <span className={`px-1.5 py-0.5 rounded-md text-xs font-mono font-black tabular-nums ${scoreBadgeColor(rating)}`}>
                 {rating.toFixed(1)}
               </span>
 
@@ -58,10 +58,10 @@ export function Top3Cards({ scorers }: Props) {
               </div>
 
               {/* Club */}
-              <div className="text-[9px] text-white/40">{stat.club_short}</div>
+              <div className="text-xs text-white/40">{stat.club_short}</div>
 
               {/* Stats row */}
-              <div className="flex items-center gap-1.5 text-[9px] font-mono tabular-nums">
+              <div className="flex items-center gap-1.5 text-xs font-mono tabular-nums">
                 {stat.assists > 0 && <span className="text-sky-400 font-bold">{stat.assists}A</span>}
                 {stat.clean_sheet && <span className="text-emerald-400 font-bold">CS</span>}
               </div>

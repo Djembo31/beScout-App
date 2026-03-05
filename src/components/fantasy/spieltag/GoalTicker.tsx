@@ -17,18 +17,18 @@ export function GoalTicker({ scorers }: Props) {
 
   return (
     <div>
-      <div className="text-[10px] font-black uppercase tracking-widest text-white/25 mb-2">
+      <div className="text-xs font-black uppercase tracking-widest text-white/25 mb-2">
         {t('goalsThisWeek')}
       </div>
       <div className="flex gap-1.5 flex-wrap">
         {goalScorers.map(s => (
           <div
             key={s.id}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/[0.03] border border-white/[0.06] rounded-lg text-xs"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gold/[0.03] border border-white/[0.06] border-l-2 border-l-gold/30 rounded-lg text-xs"
           >
             <div className={`size-1.5 rounded-full shrink-0 ${getPosDotColor(s.player_position)}`} />
             <span className="font-semibold text-white/80">{s.player_last_name}</span>
-            {s.goals > 1 && <span className="text-gold font-bold tabular-nums">x{s.goals}</span>}
+            {s.goals > 1 && <span className="text-gold font-bold tabular-nums gold-glow">x{s.goals}</span>}
           </div>
         ))}
       </div>

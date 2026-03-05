@@ -208,7 +208,7 @@ export function SpieltagTab({
             </button>
           )}
           {isAdmin && gwStatus === 'simulated' && isCurrentGw && (
-            <span className="text-[10px] text-green-500 font-bold px-2 py-1 bg-green-500/10 rounded-lg">{ts('gwSimulatedLabel')}</span>
+            <span className="text-xs text-green-500 font-bold px-2 py-1 bg-green-500/10 rounded-lg">{ts('gwSimulatedLabel')}</span>
           )}
         </div>
       </div>
@@ -223,7 +223,9 @@ export function SpieltagTab({
 
       {/* ZONE 1: Pulse — GW stats at a glance */}
       {!fixturesLoading && fixtures.length > 0 && (
-        <SpieltagPulse fixtures={fixtures} gwStatus={gwStatus} />
+        <div className="card-entrance" style={{ animationDelay: '0s' }}>
+          <SpieltagPulse fixtures={fixtures} gwStatus={gwStatus} />
+        </div>
       )}
 
       {/* Sponsor Banner */}
@@ -231,19 +233,29 @@ export function SpieltagTab({
 
       {/* ZONE 2: Spotlight — Topspiel hero card */}
       {topspiel && !fixturesLoading && (
-        <TopspielCard
-          fixture={topspiel}
-          userClubId={clubId}
-          onSelect={(f) => setSelectedFixture(f)}
-        />
+        <>
+          <div className="floodlight-divider" />
+          <div className="card-entrance" style={{ animationDelay: '0.1s' }}>
+            <TopspielCard
+              fixture={topspiel}
+              userClubId={clubId}
+              onSelect={(f) => setSelectedFixture(f)}
+            />
+          </div>
+        </>
       )}
 
       {/* ZONE 3: Browser — Grouped fixture list */}
       {!fixturesLoading && otherFixtures.length > 0 && (
-        <SpieltagBrowser
-          fixtures={otherFixtures}
-          onSelect={(f) => setSelectedFixture(f)}
-        />
+        <>
+          <div className="floodlight-divider" />
+          <div className="card-entrance" style={{ animationDelay: '0.2s' }}>
+            <SpieltagBrowser
+              fixtures={otherFixtures}
+              onSelect={(f) => setSelectedFixture(f)}
+            />
+          </div>
+        </>
       )}
 
       {/* Loading State — BeScout logo pulse */}

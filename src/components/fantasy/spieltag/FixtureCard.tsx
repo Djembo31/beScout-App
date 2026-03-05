@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import type { Fixture } from '@/types';
 import { getClub } from '@/lib/clubs';
 import { ClubLogo } from './ClubLogo';
+import { getStatusAccent } from './helpers';
 
 type Props = {
   fixture: Fixture;
@@ -19,19 +20,17 @@ export function FixtureCard({ fixture, onSelect }: Props) {
   const isSimulated = fixture.status === 'simulated' || fixture.status === 'finished';
   const totalGoals = (fixture.home_score ?? 0) + (fixture.away_score ?? 0);
 
-  const borderGlow = isSimulated
-    ? 'border-green-500/15 hover:border-green-500/25'
-    : 'border-white/[0.08] hover:border-gold/15';
+  const accent = getStatusAccent(fixture.status);
 
   return (
     <button
       onClick={onSelect}
-      className={`w-full rounded-2xl bg-surface-base border ${borderGlow} min-h-[88px] px-4 py-3 transition-colors active:scale-[0.98] group`}
+      className={`w-full rounded-2xl bg-surface-base border ${accent.border} min-h-[88px] px-4 py-3 transition-colors active:scale-[0.98] group ${accent.glow}`}
     >
       {/* Top bar: status + label */}
       <div className="flex items-center gap-2 mb-2">
-        <div className={`size-1.5 rounded-full shrink-0 ${isSimulated ? 'bg-green-500' : 'bg-white/15'}`} />
-        <span className="text-[10px] text-white/30 font-semibold">
+        <div className={`size-1.5 rounded-full shrink-0 ${accent.dot}`} />
+        <span className="text-xs text-white/30 font-semibold">
           {isSimulated ? t('ended') : t('gameweekN', { gw: fixture.gameweek })}
         </span>
       </div>
@@ -47,8 +46,8 @@ export function FixtureCard({ fixture, onSelect }: Props) {
         {/* Score pill */}
         <div className="shrink-0 w-[72px] flex justify-center">
           {isSimulated ? (
-            <div className="px-3 py-1.5 bg-white/[0.06] rounded-lg">
-              <span className="font-mono font-black text-lg tabular-nums">
+            <div className="px-3 py-1.5 bg-gold/[0.06] border border-gold/10 rounded-lg">
+              <span className="font-mono font-black text-xl tabular-nums score-glow">
                 {fixture.home_score} <span className="text-white/25">-</span> {fixture.away_score}
               </span>
             </div>
@@ -66,7 +65,7 @@ export function FixtureCard({ fixture, onSelect }: Props) {
 
       {/* Bottom row: goal count + chevron */}
       <div className="flex items-center justify-between mt-2">
-        <span className="text-[10px] text-white/20">
+        <span className="text-xs text-white/20">
           {isSimulated && totalGoals > 0 ? t('goalsCount', { count: totalGoals }) : ''}
         </span>
         <ChevronRight className="size-3.5 text-white/0 group-hover:text-white/30 transition-colors" aria-hidden="true" />

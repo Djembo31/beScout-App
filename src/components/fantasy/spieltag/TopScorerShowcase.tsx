@@ -4,7 +4,9 @@ import React, { useState, useMemo } from 'react';
 import { Trophy, Target, HandHelping, ShieldCheck, Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { FixturePlayerStat } from '@/types';
-import { posColor, scoreBadgeColor } from './helpers';
+import type { Pos } from '@/types';
+import { PlayerPhoto } from '@/components/player';
+import { posColor, scoreBadgeColor, getRingFrameClass, ratingHeatStyle } from './helpers';
 
 type PosFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'ATT';
 
@@ -16,6 +18,7 @@ type Props = {
 const MEDALS = ['\u{1F947}', '\u{1F948}', '\u{1F949}'];
 
 function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
+  const rating = stat.rating ?? stat.fantasy_points / 10;
   return (
     <div className="rounded-2xl border-2 border-gold/30 bg-gradient-to-br from-gold/[0.08] via-transparent to-transparent p-4 relative overflow-hidden"
       style={{ boxShadow: '0 0 32px rgba(255,215,0,0.12), 0 0 8px rgba(255,215,0,0.06)' }}
@@ -24,71 +27,89 @@ function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
       <div className="absolute top-3 right-3 text-2xl">{medal}</div>
 
       <div className="flex items-start gap-3">
-        {/* Score badge */}
-        <div className={`size-14 rounded-2xl flex items-center justify-center text-xl font-black tabular-nums ${scoreBadgeColor(stat.rating ?? stat.fantasy_points / 10)}`}>
-          {(stat.rating ?? stat.fantasy_points / 10).toFixed(1)}
+        {/* Photo + score badge */}
+        <div className="flex flex-col items-center gap-1.5">
+          <div className={`rounded-full ${getRingFrameClass(stat.player_position)}`}>
+            <PlayerPhoto
+              imageUrl={stat.player_image_url}
+              first={stat.player_first_name}
+              last={stat.player_last_name}
+              pos={stat.player_position as Pos}
+              size={48}
+            />
+          </div>
+          <div
+            className="size-16 rounded-2xl flex items-center justify-center text-xl font-black tabular-nums"
+            style={ratingHeatStyle(rating)}
+          >
+            {rating.toFixed(1)}
+          </div>
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="text-lg font-bold truncate">{stat.player_first_name} {stat.player_last_name}</div>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${posColor(stat.player_position)}`}>
+            <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${posColor(stat.player_position)}`}>
               {stat.player_position}
             </span>
             <span className="text-xs text-white/40">{stat.club_short}</span>
           </div>
-        </div>
-      </div>
 
-      {/* Stats row */}
-      <div className="flex items-center gap-3 mt-3">
-        {stat.goals > 0 && (
-          <div className="flex items-center gap-1 text-xs">
-            <Target className="size-3.5 text-gold" aria-hidden="true" />
-            <span className="font-bold text-gold tabular-nums">{stat.goals}</span>
+          {/* Stats row */}
+          <div className="flex items-center gap-3 mt-3">
+            {stat.goals > 0 && (
+              <div className="flex items-center gap-1 text-xs">
+                <Target className="size-3.5 text-gold" aria-hidden="true" />
+                <span className="font-bold text-gold tabular-nums">{stat.goals}</span>
+              </div>
+            )}
+            {stat.assists > 0 && (
+              <div className="flex items-center gap-1 text-xs">
+                <HandHelping className="size-3.5 text-sky-400" aria-hidden="true" />
+                <span className="font-bold text-sky-400 tabular-nums">{stat.assists}</span>
+              </div>
+            )}
+            {stat.clean_sheet && (
+              <div className="flex items-center gap-1 text-xs">
+                <ShieldCheck className="size-3.5 text-emerald-400" aria-hidden="true" />
+                <span className="font-bold text-emerald-400">CS</span>
+              </div>
+            )}
+            {stat.bonus > 0 && (
+              <div className="flex items-center gap-1 text-xs">
+                <Star className="size-3.5 text-gold" aria-hidden="true" />
+                <span className="font-bold text-gold tabular-nums">{stat.bonus}</span>
+              </div>
+            )}
           </div>
-        )}
-        {stat.assists > 0 && (
-          <div className="flex items-center gap-1 text-xs">
-            <HandHelping className="size-3.5 text-sky-400" aria-hidden="true" />
-            <span className="font-bold text-sky-400 tabular-nums">{stat.assists}</span>
-          </div>
-        )}
-        {stat.clean_sheet && (
-          <div className="flex items-center gap-1 text-xs">
-            <ShieldCheck className="size-3.5 text-emerald-400" aria-hidden="true" />
-            <span className="font-bold text-emerald-400">CS</span>
-          </div>
-        )}
-        {stat.bonus > 0 && (
-          <div className="flex items-center gap-1 text-xs">
-            <Star className="size-3.5 text-gold" aria-hidden="true" />
-            <span className="font-bold text-gold tabular-nums">{stat.bonus}</span>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
 }
 
 function PodiumCard({ stat, rank, medal }: { stat: FixturePlayerStat; rank: number; medal: string }) {
+  const rating = stat.rating ?? stat.fantasy_points / 10;
   return (
-    <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3">
+    <div className="rounded-xl card-carbon-mini border border-white/[0.06] p-3">
       <div className="flex items-center gap-1.5 mb-2">
         <span className="text-sm">{medal}</span>
-        <span className="text-[10px] text-white/30 font-bold tabular-nums">#{rank}</span>
+        <span className="text-xs text-white/30 font-bold tabular-nums">#{rank}</span>
       </div>
       <div className="flex items-center gap-2">
-        <div className={`size-9 rounded-xl flex items-center justify-center text-sm font-black tabular-nums ${scoreBadgeColor(stat.rating ?? stat.fantasy_points / 10)}`}>
-          {(stat.rating ?? stat.fantasy_points / 10).toFixed(1)}
+        <div
+          className="size-10 rounded-xl flex items-center justify-center text-sm font-black tabular-nums"
+          style={ratingHeatStyle(rating)}
+        >
+          {rating.toFixed(1)}
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-xs font-bold truncate">{stat.player_first_name.charAt(0)}. {stat.player_last_name}</div>
           <div className="flex items-center gap-1.5">
-            <span className={`px-1 py-0.5 rounded text-[9px] font-bold ${posColor(stat.player_position)}`}>
+            <span className={`px-1 py-0.5 rounded text-xs font-bold ${posColor(stat.player_position)}`}>
               {stat.player_position}
             </span>
-            <span className="text-[10px] text-white/30">{stat.club_short}</span>
+            <span className="text-xs text-white/30">{stat.club_short}</span>
           </div>
         </div>
       </div>
@@ -97,10 +118,11 @@ function PodiumCard({ stat, rank, medal }: { stat: FixturePlayerStat; rank: numb
 }
 
 function CompactRow({ stat, rank }: { stat: FixturePlayerStat; rank: number }) {
+  const rating = stat.rating ?? stat.fantasy_points / 10;
   return (
     <div className="flex items-center gap-2 px-2 py-1.5 text-xs">
       <span className="w-5 text-center font-bold text-white/25 tabular-nums">{rank}</span>
-      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${posColor(stat.player_position)}`}>
+      <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${posColor(stat.player_position)}`}>
         {stat.player_position}
       </span>
       <span className="flex-1 font-semibold truncate min-w-0">
@@ -109,8 +131,11 @@ function CompactRow({ stat, rank }: { stat: FixturePlayerStat; rank: number }) {
       <span className="text-white/30">{stat.club_short}</span>
       {stat.goals > 0 && <span className="text-gold font-bold tabular-nums">{stat.goals}G</span>}
       {stat.assists > 0 && <span className="text-sky-400 font-bold tabular-nums">{stat.assists}A</span>}
-      <span className={`px-1.5 py-0.5 rounded text-[10px] font-black tabular-nums ${scoreBadgeColor(stat.rating ?? stat.fantasy_points / 10)}`}>
-        {(stat.rating ?? stat.fantasy_points / 10).toFixed(1)}
+      <span
+        className="px-1.5 py-0.5 rounded text-xs font-black tabular-nums"
+        style={ratingHeatStyle(rating)}
+      >
+        {rating.toFixed(1)}
       </span>
     </div>
   );
@@ -142,11 +167,12 @@ export function TopScorerShowcase({ scorers, gameweek }: Props) {
   return (
     <div>
       {/* Section header */}
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-1">
         <Trophy className="size-4 text-gold" aria-hidden="true" />
         <h2 className="text-sm font-black uppercase tracking-wider text-balance">{t('topScorer')}</h2>
-        <span className="text-[10px] text-white/25">{t('gameweekN', { gw: gameweek })}</span>
+        <span className="text-xs text-white/25">{t('gameweekN', { gw: gameweek })}</span>
       </div>
+      <div className="flutlicht-header mb-3" />
 
       {/* Position filter pills */}
       <div className="flex items-center gap-1.5 mb-3 overflow-x-auto pb-1 -mx-1 px-1">

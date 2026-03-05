@@ -6,7 +6,7 @@ import { Goal, HandHelping, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui';
 import { PlayerPhoto, PositionBadge, GoalBadge } from '@/components/player';
-import { scoreBadgeColor } from '../spieltag/helpers';
+import { scoreBadgeColor, getRingFrameClass, ratingHeatStyle } from '../spieltag/helpers';
 import type { FixturePlayerStat } from '@/types';
 import type { Pos } from '@/types';
 
@@ -30,63 +30,66 @@ export function GwHeroSummary({ summary }: Props) {
 
   return (
     <Card surface="elevated" className="rounded-2xl overflow-hidden">
-      <div className="grid grid-cols-[1fr_1fr] gap-0">
-        {/* MVP (left) */}
-        <Link
-          href={`/player/${best.player_id}`}
-          className="p-3 flex flex-col items-center gap-1.5 hover:bg-white/[0.04] transition-colors active:bg-white/[0.06] border-r border-white/[0.06]"
-        >
-          <div className="relative">
+      {/* MVP Hero Row — full width */}
+      <Link
+        href={`/player/${best.player_id}`}
+        className="relative flex items-center gap-3 p-3 hover:bg-white/[0.04] transition-colors active:bg-white/[0.06]"
+        style={{ background: 'linear-gradient(135deg, rgba(255,215,0,0.06), transparent, rgba(255,215,0,0.04))' }}
+      >
+        {/* MVP label */}
+        <div className="absolute top-2 left-3 text-xs text-gold/70 font-black uppercase tracking-[0.15em]">MVP</div>
+
+        {/* Photo with crown glow + position ring */}
+        <div className="relative mt-3">
+          <div className={`rounded-full mvp-crown-glow ${getRingFrameClass(best.player_position)}`}>
             <PlayerPhoto
               imageUrl={best.player_image_url}
               first={best.player_first_name}
               last={best.player_last_name}
               pos={best.player_position as Pos}
-              size={44}
+              size={56}
             />
-            <GoalBadge goals={best.goals} size={18} />
           </div>
-          <div className="text-center min-w-0 w-full">
-            <div className="font-black text-sm truncate">
-              {best.player_first_name.charAt(0)}. {best.player_last_name}
-            </div>
-            <div className="flex items-center justify-center gap-1.5 mt-0.5">
-              <span className={`px-1.5 py-0.5 rounded-md text-[11px] font-mono font-black tabular-nums ${scoreBadgeColor(mvpRating)}`}>
-                {mvpRating.toFixed(1)}
-              </span>
-              <PositionBadge pos={best.player_position as Pos} size="sm" />
-            </div>
-          </div>
-          <div className="text-[9px] text-white/30 font-bold uppercase tracking-wider">MVP</div>
-        </Link>
+          <GoalBadge goals={best.goals} size={18} />
+        </div>
 
-        {/* Stats (right) */}
-        <div className="p-3 flex flex-col items-center justify-center gap-2">
-          {/* Avg Rating — hero number */}
-          <div className="text-center">
-            <div className="text-xl font-mono font-black tabular-nums gold-glow">{avgRating.toFixed(1)}</div>
-            <div className="text-[9px] text-white/40 mt-0.5">{tf('ergebnisse.avgRating')}</div>
+        {/* Name + position */}
+        <div className="flex-1 min-w-0 mt-3">
+          <div className="font-black text-sm truncate">
+            {best.player_first_name.charAt(0)}. {best.player_last_name}
           </div>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span className={`px-1.5 py-0.5 rounded-md text-xs font-mono font-black tabular-nums ${scoreBadgeColor(mvpRating)}`}>
+              {mvpRating.toFixed(1)}
+            </span>
+            <PositionBadge pos={best.player_position as Pos} size="sm" />
+          </div>
+        </div>
 
-          {/* 2x2 mini stats */}
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-            <div className="flex items-center gap-1">
-              <Goal className="size-3 text-gold" aria-hidden="true" />
-              <span className="font-mono font-bold tabular-nums text-sm">{totalGoals}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <HandHelping className="size-3 text-sky-400" aria-hidden="true" />
-              <span className="font-mono font-bold tabular-nums text-sm">{totalAssists}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <ShieldCheck className="size-3 text-emerald-400" aria-hidden="true" />
-              <span className="font-mono font-bold tabular-nums text-sm">{cleanSheets}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <AlertTriangle className="size-3 text-amber-400" aria-hidden="true" />
-              <span className="font-mono font-bold tabular-nums text-sm">{yellowCards}</span>
-            </div>
-          </div>
+        {/* Avg Rating — right side */}
+        <div className="text-center flex-shrink-0 mt-3">
+          <div className="text-2xl font-mono font-black tabular-nums gold-glow">{avgRating.toFixed(1)}</div>
+          <div className="text-xs text-white/40">{tf('ergebnisse.avgRating')}</div>
+        </div>
+      </Link>
+
+      {/* 4-col stat strip */}
+      <div className="grid grid-cols-4 border-t border-white/[0.06]">
+        <div className="p-2.5 flex items-center justify-center gap-1.5">
+          <Goal className="size-3.5 text-gold" aria-hidden="true" />
+          <span className="font-mono font-bold tabular-nums text-sm">{totalGoals}</span>
+        </div>
+        <div className="p-2.5 flex items-center justify-center gap-1.5 border-l border-white/[0.06]">
+          <HandHelping className="size-3.5 text-sky-400" aria-hidden="true" />
+          <span className="font-mono font-bold tabular-nums text-sm">{totalAssists}</span>
+        </div>
+        <div className="p-2.5 flex items-center justify-center gap-1.5 border-l border-white/[0.06]">
+          <ShieldCheck className="size-3.5 text-emerald-400" aria-hidden="true" />
+          <span className="font-mono font-bold tabular-nums text-sm">{cleanSheets}</span>
+        </div>
+        <div className="p-2.5 flex items-center justify-center gap-1.5 border-l border-white/[0.06]">
+          <AlertTriangle className="size-3.5 text-amber-400" aria-hidden="true" />
+          <span className="font-mono font-bold tabular-nums text-sm">{yellowCards}</span>
         </div>
       </div>
 

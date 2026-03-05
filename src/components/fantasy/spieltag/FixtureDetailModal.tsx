@@ -9,7 +9,7 @@ import { getFixturePlayerStats, getFixtureSubstitutions } from '@/lib/services/f
 import type { Fixture, FixturePlayerStat, FixtureSubstitution, Pos } from '@/types';
 import { PlayerPhoto, GoalBadge } from '@/components/player';
 import { ClubLogo } from './ClubLogo';
-import { posColor, scoreBadgeColor, getPosAccent } from './helpers';
+import { posColor, scoreBadgeColor, getPosAccent, getRingFrameClass, ratingHeatStyle } from './helpers';
 
 /** Split team stats into starters + bench using is_starter flag.
  *  - < 11 starters: promotes highest-minutes bench players to fill gaps.
@@ -105,29 +105,30 @@ function splitStartersBench(stats: FixturePlayerStat[], dbFormation?: string | n
 
 function PlayerNode({ stat }: { stat: FixturePlayerStat }) {
   const rating = stat.rating ?? stat.fantasy_points / 10;
-  const accent = getPosAccent(stat.player_position);
-  const badge = scoreBadgeColor(rating);
 
   return (
     <div className="flex flex-col items-center relative w-[52px] md:w-[60px] lg:w-[72px]">
-      <div className={`absolute -top-1 -right-0.5 md:-top-1.5 md:-right-2 z-20 min-w-[1.4rem] md:min-w-[1.6rem] px-1 py-0.5 rounded-full text-[9px] md:text-[9px] font-mono font-black text-center shadow-lg ${badge}`}>
+      <div
+        className="absolute -top-1 -right-0.5 md:-top-1.5 md:-right-2 z-20 min-w-[1.4rem] md:min-w-[1.6rem] px-1 py-0.5 rounded-full text-xs font-mono font-black text-center shadow-lg"
+        style={ratingHeatStyle(rating)}
+      >
         {rating.toFixed(1)}
       </div>
-      <div className="relative">
+      <div className={`relative rounded-full ${getRingFrameClass(stat.player_position)}`}>
         <PlayerPhoto
           imageUrl={stat.player_image_url}
           first={stat.player_first_name}
           last={stat.player_last_name}
           pos={stat.player_position as Pos}
-          size={32}
+          size={36}
           className="md:size-10 lg:size-12"
         />
         <GoalBadge goals={stat.goals} size={15} className="-bottom-0.5 -right-1" />
       </div>
-      <div className="text-[9px] md:text-[9px] lg:text-[10px] mt-0.5 font-medium text-center truncate max-w-full text-white/70">
+      <div className="text-xs mt-0.5 font-medium text-center truncate max-w-full text-white/70">
         {stat.player_last_name}
       </div>
-      <div className="hidden md:flex items-center justify-center gap-0.5 text-[9px] text-white/30">
+      <div className="hidden md:flex items-center justify-center gap-0.5 text-xs text-white/30">
         <span>{stat.minutes_played}&apos;</span>
         {stat.goals > 0 && <span className="text-gold">{stat.goals}G</span>}
         {stat.assists > 0 && <span className="text-sky-400">{stat.assists}A</span>}
@@ -271,10 +272,10 @@ function FormationHalf({ stats, teamName, color, isHome, formation, logo }: {
     <div className="flex flex-col gap-3 py-2">
       <div className="flex items-center justify-center gap-2">
         <ClubLogo club={logo} size={20} />
-        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color }}>
+        <span className="text-xs font-bold uppercase tracking-widest" style={{ color }}>
           {teamName}
         </span>
-        <span className="text-[9px] text-white/30 font-mono">({formation})</span>
+        <span className="text-xs text-white/30 font-mono">({formation})</span>
       </div>
       {rows.map((players, rowIdx) => (
         <div key={rowIdx} className="flex items-center justify-center gap-1 md:gap-2 lg:gap-4">
@@ -298,16 +299,16 @@ function TeamStatsList({ label, stats, color }: { label: string; stats: FixtureP
       <div className="space-y-1">
         {sorted.map(s => (
           <div key={s.id} className="flex items-center gap-2 px-2 py-1.5 bg-white/[0.02] rounded-lg text-xs">
-            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${posColor(s.player_position)}`}>
+            <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${posColor(s.player_position)}`}>
               {s.player_position}
             </span>
             <span className="flex-1 font-semibold truncate min-w-0">
               {s.player_first_name.charAt(0)}. {s.player_last_name}
             </span>
-            <span className="text-white/30 font-mono text-[10px]">{s.minutes_played}&apos;</span>
+            <span className="text-white/30 font-mono text-xs">{s.minutes_played}&apos;</span>
             {s.goals > 0 && <span className="text-gold font-bold">{s.goals}G</span>}
             {s.assists > 0 && <span className="text-sky-400 font-bold">{s.assists}A</span>}
-            {s.clean_sheet && <span className="text-emerald-400 text-[10px]">CS</span>}
+            {s.clean_sheet && <span className="text-emerald-400 text-xs">CS</span>}
             {s.yellow_card && <span className="w-2.5 h-3 bg-yellow-400 rounded-[1px] inline-block" />}
             {s.red_card && <span className="w-2.5 h-3 bg-red-500 rounded-[1px] inline-block" />}
             {s.bonus > 0 && (
@@ -315,7 +316,7 @@ function TeamStatsList({ label, stats, color }: { label: string; stats: FixtureP
                 <Star aria-hidden="true" className="size-2.5" />{s.bonus}
               </span>
             )}
-            <span className={`px-1.5 py-0.5 rounded text-[10px] font-black tabular-nums ${scoreBadgeColor(s.rating ?? s.fantasy_points / 10)}`}>
+            <span className={`px-1.5 py-0.5 rounded text-xs font-black tabular-nums ${scoreBadgeColor(s.rating ?? s.fantasy_points / 10)}`}>
               {(s.rating ?? s.fantasy_points / 10).toFixed(1)}
             </span>
           </div>
@@ -379,29 +380,41 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
         {/* Score Header */}
         <div className="relative overflow-hidden">
           <div className="absolute inset-0" style={{
-            background: `linear-gradient(135deg, ${homeColor}15 0%, transparent 50%, ${awayColor}15 100%)`,
+            background: `linear-gradient(135deg, ${homeColor}25 0%, transparent 50%, ${awayColor}25 100%)`,
           }} />
           <div className="relative flex items-center justify-center gap-4 md:gap-8 py-6 px-4">
             <div className="flex flex-col items-center gap-1.5">
-              <ClubLogo club={homeClub} size={52} short={fixture.home_club_short} />
+              <div style={{ filter: `drop-shadow(0 0 8px ${homeColor}40)` }}>
+                <ClubLogo club={homeClub} size={56} short={fixture.home_club_short} />
+              </div>
               <span className="font-bold text-sm md:text-base">{fixture.home_club_name}</span>
+              <div className="h-[1px] w-12 opacity-30" style={{ background: homeColor }} />
             </div>
             <div className="text-center">
-              <div className="font-mono font-black text-3xl md:text-4xl">
-                {isSimulated ? `${fixture.home_score} - ${fixture.away_score}` : 'vs'}
-              </div>
+              {isSimulated ? (
+                <div className="flex items-center gap-3">
+                  <span className="font-mono font-black text-4xl md:text-5xl tabular-nums score-glow">{fixture.home_score}</span>
+                  <div className="w-[2px] h-6 bg-gold/30 rounded-full" />
+                  <span className="font-mono font-black text-4xl md:text-5xl tabular-nums score-glow">{fixture.away_score}</span>
+                </div>
+              ) : (
+                <div className="font-mono font-black text-4xl md:text-5xl">vs</div>
+              )}
               {isSimulated && (
-                <div className="text-[10px] text-white/30 mt-1">Spieltag {fixture.gameweek}</div>
+                <div className="text-xs text-white/30 mt-1">Spieltag {fixture.gameweek}</div>
               )}
             </div>
             <div className="flex flex-col items-center gap-1.5">
-              <ClubLogo club={awayClub} size={52} short={fixture.away_club_short} />
+              <div style={{ filter: `drop-shadow(0 0 8px ${awayColor}40)` }}>
+                <ClubLogo club={awayClub} size={56} short={fixture.away_club_short} />
+              </div>
               <span className="font-bold text-sm md:text-base">{fixture.away_club_name}</span>
+              <div className="h-[1px] w-12 opacity-30" style={{ background: awayColor }} />
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs — gold active state */}
         {stats.length > 0 && (
           <div className="flex items-center justify-center gap-6 border-b border-white/[0.06] px-4">
             {(['formation', 'players'] as const).map(tab => (
@@ -410,7 +423,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                 onClick={() => setDetailTab(tab)}
                 className={`py-3 text-sm font-semibold border-b-2 transition-colors ${
                   detailTab === tab
-                    ? 'text-white border-white'
+                    ? 'text-gold border-gold'
                     : 'text-white/40 border-transparent hover:text-white/60'
                 }`}
               >
@@ -476,7 +489,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                         {sponsor?.sponsorLogo ? (
                           <img src={sponsor.sponsorLogo} alt="" className="size-10 object-contain opacity-30" />
                         ) : (
-                          <span className="text-[9px] text-white/15 font-bold tracking-wider uppercase">Sponsor</span>
+                          <span className="text-xs text-white/15 font-bold tracking-wider uppercase">Sponsor</span>
                         )}
                       </div>
                     </div>
@@ -512,13 +525,13 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                       {/* Substitutions: livescore-style if data available, fallback to bench list */}
                       {substitutions.length > 0 ? (
                         <div className="relative z-10 mt-3 pt-3 border-t border-white/[0.06]">
-                          <div className="text-[9px] font-bold text-white/25 uppercase tracking-wider text-center mb-2">{ts('substitutions')}</div>
+                          <div className="text-xs font-bold text-white/25 uppercase tracking-wider text-center mb-2">{ts('substitutions')}</div>
                           <div className="space-y-1">
                             {substitutions.map(sub => {
                               const isHome = sub.club_id === fixture.home_club_id;
                               const accentColor = isHome ? homeColor : awayColor;
                               return (
-                                <div key={sub.id} className="flex items-center gap-1.5 px-2 py-1.5 bg-black/20 rounded-lg text-[10px] border border-white/[0.06]">
+                                <div key={sub.id} className="flex items-center gap-1.5 px-2 py-1.5 bg-black/20 rounded-lg text-xs border border-white/[0.06]">
                                   <div className="w-0.5 h-5 rounded-full flex-shrink-0" style={{ backgroundColor: accentColor }} />
                                   <span className="text-white/30 font-mono tabular-nums w-8 text-right flex-shrink-0">
                                     {sub.minute}&apos;{sub.extra_minute ? `+${sub.extra_minute}` : ''}
@@ -539,16 +552,16 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                         </div>
                       ) : allBench.length > 0 && (
                         <div className="relative z-10 mt-3 pt-3 border-t border-white/[0.06]">
-                          <div className="text-[9px] font-bold text-white/25 uppercase tracking-wider text-center mb-2">{ts('substitutions')}</div>
+                          <div className="text-xs font-bold text-white/25 uppercase tracking-wider text-center mb-2">{ts('substitutions')}</div>
                           <div className="flex gap-1.5 flex-wrap justify-center">
                             {allBench.map(s => (
-                              <div key={s.id} className="flex items-center gap-1 px-2 py-1 bg-black/20 rounded-lg text-[9px] border border-white/[0.06]">
-                                <span className={`px-1 py-0.5 rounded text-[9px] font-bold ${posColor(s.player_position)}`}>
+                              <div key={s.id} className="flex items-center gap-1 px-2 py-1 bg-black/20 rounded-lg text-xs border border-white/[0.06]">
+                                <span className={`px-1 py-0.5 rounded text-xs font-bold ${posColor(s.player_position)}`}>
                                   {s.player_position}
                                 </span>
                                 <span className="text-white/50">{s.player_last_name}</span>
                                 <span className="text-white/25 font-mono">{s.minutes_played}&apos;</span>
-                                <span className={`px-1 py-0.5 rounded text-[9px] font-bold tabular-nums ${scoreBadgeColor(s.rating ?? s.fantasy_points / 10)}`}>
+                                <span className={`px-1 py-0.5 rounded text-xs font-bold tabular-nums ${scoreBadgeColor(s.rating ?? s.fantasy_points / 10)}`}>
                                   {(s.rating ?? s.fantasy_points / 10).toFixed(1)}
                                 </span>
                               </div>
@@ -568,12 +581,12 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                   <div className="bg-gradient-to-r from-[#1a1a2e] via-[#0f3460] to-[#1a1a2e] px-3 py-2 flex items-center justify-between border-t border-white/10">
                     <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.04] rounded-lg border border-white/[0.06]">
                       {sponsor?.sponsorLogo && <img src={sponsor.sponsorLogo} alt="" className="h-3.5 w-auto object-contain" />}
-                      <span className="text-[9px] text-white/30 font-medium">{sponsor?.sponsorName || 'Sponsor Logo'}</span>
+                      <span className="text-xs text-white/30 font-medium">{sponsor?.sponsorName || 'Sponsor Logo'}</span>
                     </div>
-                    <span className="text-[9px] text-white/20 font-bold uppercase">{sponsor?.sponsorName ? `${sponsor.sponsorName} × BeScout` : 'Powered by BeScout'}</span>
+                    <span className="text-xs text-white/20 font-bold uppercase">{sponsor?.sponsorName ? `${sponsor.sponsorName} × BeScout` : 'Powered by BeScout'}</span>
                     <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.04] rounded-lg border border-white/[0.06]">
                       {sponsor?.sponsorLogo && <img src={sponsor.sponsorLogo} alt="" className="h-3.5 w-auto object-contain" />}
-                      <span className="text-[9px] text-white/30 font-medium">{sponsor?.sponsorName || 'Sponsor Logo'}</span>
+                      <span className="text-xs text-white/30 font-medium">{sponsor?.sponsorName || 'Sponsor Logo'}</span>
                     </div>
                   </div>
                 );

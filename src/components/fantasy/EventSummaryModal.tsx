@@ -53,13 +53,13 @@ export default function EventSummaryModal({
         {/* Score + Reward */}
         <div className="flex gap-3">
           <div className="flex-1 bg-white/[0.03] border border-white/[0.08] rounded-xl p-3 text-center">
-            <div className="text-[10px] text-white/40 uppercase mb-0.5">{t('summary.score')}</div>
-            <div className="text-lg font-mono font-black text-white">{myScore}</div>
+            <div className="text-xs text-white/40 uppercase mb-0.5">{t('summary.score')}</div>
+            <div className="text-xl font-mono font-black text-white">{myScore}</div>
           </div>
           {myReward > 0 && (
-            <div className="flex-1 bg-gold/[0.05] border border-gold/15 rounded-xl p-3 text-center">
-              <div className="text-[10px] text-gold/60 uppercase mb-0.5">{t('summary.reward')}</div>
-              <div className="text-lg font-mono font-black text-gold">{fmtScout(myReward)} $SCOUT</div>
+            <div className="flex-1 bg-gold/[0.08] rounded-xl p-3 text-center mvp-crown-glow">
+              <div className="text-xs text-gold/60 uppercase mb-0.5">{t('summary.reward')}</div>
+              <div className="text-xl font-mono font-black text-gold">{fmtScout(myReward)} $SCOUT</div>
             </div>
           )}
         </div>
@@ -70,7 +70,7 @@ export default function EventSummaryModal({
             <div className="text-xs font-bold text-white/40 uppercase mb-2">{t('summary.top3')}</div>
             <div className="space-y-1.5">
               {top3.map((entry, i) => (
-                <div key={entry.userId} className="flex items-center gap-3 bg-white/[0.02] rounded-xl p-2.5">
+                <div key={entry.userId} className={`flex items-center gap-3 bg-white/[0.02] rounded-xl p-2.5 ${i === 0 ? 'mvp-crown-glow' : ''}`}>
                   <span className="text-lg w-8 text-center">{RANK_MEDALS[i + 1] ?? `#${i + 1}`}</span>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-bold truncate">{entry.displayName ?? entry.handle ?? 'Anonym'}</div>
