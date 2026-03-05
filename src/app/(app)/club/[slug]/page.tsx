@@ -1,15 +1,11 @@
 import type { Metadata } from 'next';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import ClubContent from './ClubContent';
 
 type Props = { params: Promise<{ slug: string }> };
 
 async function getClubMeta(slug: string) {
-  const sb = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-  const { data } = await sb
+  const { data } = await supabaseAdmin
     .from('clubs')
     .select('name, logo_url, league, city')
     .eq('slug', slug)

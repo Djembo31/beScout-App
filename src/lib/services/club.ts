@@ -568,18 +568,15 @@ export async function getClubFantasySettings(clubId: string): Promise<ClubFantas
 }
 
 /** Update fantasy settings for a club (admin only).
- *  WARNING: clubs table has RLS qual=false for UPDATE — this .update() may silently fail.
- *  TODO: Migrate to RPC like setActiveGameweek for guaranteed execution. */
+ *  Uses SECURITY DEFINER RPC to bypass RLS — guaranteed execution. */
 export async function updateClubFantasySettings(clubId: string, settings: Partial<ClubFantasySettings>): Promise<void> {
-  const { error, count } = await supabase
-    .from('clubs')
-    .update(settings)
-    .eq('id', clubId);
-
+  const { error } = await supabase.rpc('update_club_fantasy_settings', {
+    p_club_id: clubId,
+    p_entry_fee_cents: settings.fantasy_entry_fee_cents ?? null,
+    p_jurisdiction_preset: settings.fantasy_jurisdiction_preset ?? null,
+    p_allow_entry_fees: settings.fantasy_allow_entry_fees ?? null,
+  });
   if (error) throw new Error(error.message);
-  if (count === 0) {
-    console.warn(`[Club] updateClubFantasySettings: 0 rows affected (club=${clubId}) — possible RLS silent block`);
-  }
 }
 
 // ============================================

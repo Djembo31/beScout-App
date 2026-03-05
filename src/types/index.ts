@@ -289,7 +289,6 @@ export type DbClub = {
   secondary_color: string | null;
   community_guidelines: string | null;
   active_gameweek: number;
-  api_football_id?: number | null;
   referral_code?: string | null;
   plan: string;
   is_verified: boolean;
@@ -477,13 +476,14 @@ export type DbPlayer = {
   market_value_eur: number;
   success_fee_cap_cents: number | null;
   max_supply?: number;
-  api_football_id?: number | null;
-  fixture_api_football_id?: number | null;
   contract_end?: string | null; // ISO date string e.g. "2026-06-30"
   is_liquidated: boolean;
   created_at: string;
   updated_at: string;
 };
+
+export type ExternalIdSource = 'api_football_squad' | 'api_football_fixture' | 'transfermarkt';
+export type ClubExternalIdSource = 'api_football' | 'transfermarkt';
 
 export type DbWallet = {
   user_id: string;

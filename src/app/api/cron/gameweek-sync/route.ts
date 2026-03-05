@@ -1,80 +1,23 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import {
+  apiFetch,
+  getLeagueId,
+  getCurrentSeason,
+  calcFantasyPoints,
+  mapPosition,
+  normalizeForMatch,
+  type ApiFixtureResponse,
+  type ApiFixturePlayerResponse,
+  type ApiLineupsResponse,
+  type ApiLineupPlayer,
+} from '@/lib/footballApi';
 
-// ============================================
-// Constants
-// ============================================
-
-const API_BASE = 'https://v3.football.api-sports.io';
 const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN']);
 
 // ============================================
-// API-Football Response Types
-// (duplicated from footballData.ts — that module imports supabaseClient)
+// Name-Matching (cron-route specific, uses shared normalizeForMatch)
 // ============================================
-
-type ApiFixtureResponse = {
-  response: Array<{
-    fixture: { id: number; date: string; status: { short: string } };
-    teams: { home: { id: number }; away: { id: number } };
-    goals: { home: number | null; away: number | null };
-  }>;
-};
-
-type ApiFixturePlayerResponse = {
-  response: Array<{
-    team: { id: number };
-    players: Array<{
-      player: { id: number };
-      statistics: Array<{
-        games: { minutes: number | null; rating: string | null; position: string | null };
-        goals: {
-          total: number | null;
-          assists: number | null;
-          conceded: number | null;
-          saves: number | null;
-        };
-        cards: { yellow: number | null; red: number | null };
-      }>;
-    }>;
-  }>;
-};
-
-type ApiLineupPlayer = {
-  id: number;
-  name: string;
-  number: number;
-  pos: string;
-  grid: string | null;
-};
-
-type ApiLineupsResponse = {
-  response: Array<{
-    team: { id: number };
-    formation: string | null;
-    startXI: Array<{ player: ApiLineupPlayer }>;
-    substitutes: Array<{ player: ApiLineupPlayer }>;
-  }>;
-};
-
-// ============================================
-// Name-Matching Utilities (Turkish Unicode safe)
-// ============================================
-
-function normalizeForMatch(name: string): string {
-  return name
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/ı/g, 'i')
-    .replace(/İ/gi, 'i')
-    .replace(/ş/gi, 's')
-    .replace(/ç/gi, 'c')
-    .replace(/ğ/gi, 'g')
-    .replace(/ö/gi, 'o')
-    .replace(/ü/gi, 'u')
-    .toLowerCase()
-    .trim();
-}
 
 function nameMatchPlayer(
   apiName: string,
@@ -112,74 +55,6 @@ function nameMatchPlayer(
   return bestMatch;
 }
 
-// ============================================
-// Fantasy Points Calculation
-// (duplicated from footballData.ts — same formula as simulate_gameweek RPC)
-// ============================================
-
-function calcFantasyPoints(
-  position: string,
-  minutes: number,
-  goals: number,
-  assists: number,
-  cleanSheet: boolean,
-  goalsConceded: number,
-  yellowCard: boolean,
-  redCard: boolean,
-  saves: number,
-  bonus: number,
-): number {
-  let pts = 0;
-
-  // Appearance
-  if (minutes > 0) pts += 1;
-  if (minutes >= 60) pts += 1;
-
-  // Goals
-  const pos = position.toUpperCase();
-  if (pos === 'GK' || pos === 'DEF') pts += goals * 6;
-  else if (pos === 'MID') pts += goals * 5;
-  else pts += goals * 4;
-
-  // Assists
-  pts += assists * 3;
-
-  // Clean sheet (only DEF/GK, 60+ min)
-  if (cleanSheet && minutes >= 60) {
-    if (pos === 'GK' || pos === 'DEF') pts += 4;
-    else if (pos === 'MID') pts += 1;
-  }
-
-  // Goals conceded (GK/DEF)
-  if ((pos === 'GK' || pos === 'DEF') && goalsConceded >= 2) {
-    pts -= Math.floor(goalsConceded / 2);
-  }
-
-  // Cards
-  if (yellowCard) pts -= 1;
-  if (redCard) pts -= 3;
-
-  // GK saves
-  if (pos === 'GK') pts += Math.floor(saves / 3);
-
-  // Bonus
-  pts += bonus;
-
-  return Math.max(0, pts);
-}
-
-// ============================================
-// Position Mapping (same as footballData.ts)
-// ============================================
-
-function mapPosition(apiPos: string): 'GK' | 'DEF' | 'MID' | 'ATT' {
-  const p = apiPos.toUpperCase().trim();
-  if (p === 'G' || p.includes('GOAL')) return 'GK';
-  if (p === 'D' || p.includes('DEF')) return 'DEF';
-  if (p === 'M' || p.includes('MID')) return 'MID';
-  if (p === 'F' || p.includes('ATT') || p.includes('FOR')) return 'ATT';
-  return 'MID';
-}
 
 // ============================================
 // Step Result Tracking
@@ -211,23 +86,14 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'SUPABASE_SERVICE_ROLE_KEY not configured' }, { status: 500 });
   }
 
-  const apiKey = process.env.API_FOOTBALL_KEY || process.env.NEXT_PUBLIC_API_FOOTBALL_KEY;
-  if (!apiKey) {
+  if (!process.env.API_FOOTBALL_KEY && !process.env.NEXT_PUBLIC_API_FOOTBALL_KEY) {
     return NextResponse.json({ error: 'API_FOOTBALL_KEY not configured' }, { status: 500 });
   }
 
-  const leagueId = parseInt(process.env.NEXT_PUBLIC_LEAGUE_ID || '204', 10);
-  const season = parseInt(process.env.NEXT_PUBLIC_SEASON || '2025', 10);
+  const leagueId = getLeagueId();
+  const season = getCurrentSeason();
 
   // ---- Helpers ----
-
-  async function apiFetch<T>(endpoint: string): Promise<T> {
-    const res = await fetch(`${API_BASE}${endpoint}`, {
-      headers: { 'x-apisports-key': apiKey! },
-    });
-    if (!res.ok) throw new Error(`API-Football ${res.status}: ${res.statusText}`);
-    return res.json() as Promise<T>;
-  }
 
   async function logStep(
     gameweek: number,
@@ -352,29 +218,38 @@ export async function GET(request: Request) {
 
     // ---- 5. Load DB mappings ----
     const { result: mappings } = await runStep('load_mappings', async () => {
-      const [fixtureRes, playerRes, clubRes] = await Promise.all([
+      const [fixtureRes, extIdRes, playerRes, clubExtRes] = await Promise.all([
         supabaseAdmin
           .from('fixtures')
           .select('id, home_club_id, away_club_id, api_fixture_id')
           .eq('gameweek', activeGw)
           .not('api_fixture_id', 'is', null),
         supabaseAdmin
-          .from('players')
-          .select('id, api_football_id, fixture_api_football_id, position, first_name, last_name, club_id')
-          .not('api_football_id', 'is', null),
+          .from('player_external_ids')
+          .select('player_id, external_id')
+          .in('source', ['api_football_squad', 'api_football_fixture']),
         supabaseAdmin
-          .from('clubs')
-          .select('id, api_football_id')
-          .not('api_football_id', 'is', null),
+          .from('players')
+          .select('id, position, first_name, last_name, club_id'),
+        supabaseAdmin
+          .from('club_external_ids')
+          .select('club_id, external_id')
+          .eq('source', 'api_football'),
       ]);
 
       if (!fixtureRes.data?.length)
         throw new Error('No mapped fixtures for this gameweek');
-      if (!playerRes.data?.length) throw new Error('No mapped players');
+      if (!extIdRes.data?.length) throw new Error('No mapped players');
+
+      // Build player position lookup
+      const posMap = new Map<string, string>();
+      for (const p of playerRes.data ?? []) {
+        posMap.set(p.id as string, p.position as string);
+      }
 
       // Build club players map for name matching: clubId → players[]
       const clubPlayersMap = new Map<string, Array<{ id: string; first_name: string; last_name: string; position: string }>>();
-      for (const p of playerRes.data) {
+      for (const p of playerRes.data ?? []) {
         const cid = p.club_id as string;
         if (!cid) continue;
         const arr = clubPlayersMap.get(cid) ?? [];
@@ -396,19 +271,24 @@ export async function GET(request: Request) {
         }>,
         playerMap: (() => {
           const m = new Map<number, { id: string; position: string }>();
-          for (const p of playerRes.data) {
-            const entry = { id: p.id as string, position: p.position as string };
-            if (p.api_football_id) m.set(p.api_football_id as number, entry);
-            if (p.fixture_api_football_id) m.set(p.fixture_api_football_id as number, entry);
+          for (const ext of extIdRes.data) {
+            const numId = parseInt(ext.external_id as string, 10);
+            if (isNaN(numId)) continue;
+            m.set(numId, {
+              id: ext.player_id as string,
+              position: posMap.get(ext.player_id as string) ?? 'MID',
+            });
           }
           return m;
         })(),
-        clubMap: new Map(
-          (clubRes.data ?? []).map((c) => [
-            c.api_football_id as number,
-            c.id as string,
-          ]),
-        ),
+        clubMap: (() => {
+          const m = new Map<number, string>();
+          for (const ext of (clubExtRes.data ?? [])) {
+            const numId = parseInt(ext.external_id as string, 10);
+            if (!isNaN(numId)) m.set(numId, ext.club_id as string);
+          }
+          return m;
+        })(),
         clubPlayersMap,
       };
     });
@@ -490,8 +370,10 @@ export async function GET(request: Request) {
         }
 
         // Build lineup map: apiPlayerId → {isStarter, gridPosition, name}
+        // Also build name-based map for cross-referencing (handles dual-ID mismatches)
         type LineupInfo = { isStarter: boolean; gridPosition: string | null; name: string };
         const lineupMap = new Map<number, LineupInfo>();
+        const lineupByName = new Map<string, LineupInfo>();
 
         // Store formations on fixture
         const formationUpdates: Record<string, string> = {};
@@ -506,18 +388,22 @@ export async function GET(request: Request) {
           }
 
           for (const entry of teamLineup.startXI ?? []) {
-            lineupMap.set(entry.player.id, {
+            const info: LineupInfo = {
               isStarter: true,
               gridPosition: entry.player.grid,
               name: entry.player.name,
-            });
+            };
+            lineupMap.set(entry.player.id, info);
+            lineupByName.set(normalizeForMatch(entry.player.name), info);
           }
           for (const entry of teamLineup.substitutes ?? []) {
-            lineupMap.set(entry.player.id, {
+            const info: LineupInfo = {
               isStarter: false,
               gridPosition: null,
               name: entry.player.name,
-            });
+            };
+            lineupMap.set(entry.player.id, info);
+            lineupByName.set(normalizeForMatch(entry.player.name), info);
           }
         }
 
@@ -552,8 +438,12 @@ export async function GET(request: Request) {
 
             const matchPosition = stat.games.position ? mapPosition(stat.games.position) : null;
             const minutes = stat.games.minutes ?? 0;
-            const lineupInfo = lineupMap.get(apiPlayerId);
-            const isStarter = lineupInfo?.isStarter ?? (minutes > 0);
+            // Try ID lookup first, then name-based cross-reference (handles dual-ID mismatches)
+            let lineupInfo = lineupMap.get(apiPlayerId);
+            if (!lineupInfo && pd.player.name) {
+              lineupInfo = lineupByName.get(normalizeForMatch(pd.player.name)) ?? undefined;
+            }
+            const isStarter = lineupInfo?.isStarter ?? false;
             const gridPosition = lineupInfo?.gridPosition ?? null;
 
             // Skip bench players with 0 minutes who are NOT in the lineup
@@ -561,7 +451,7 @@ export async function GET(request: Request) {
 
             // Try to match player: 1) Dual-ID lookup 2) Name match 3) null
             let ourPlayer = mappings.playerMap.get(apiPlayerId);
-            const apiPlayerName = lineupInfo?.name ?? `Player ${apiPlayerId}`;
+            const apiPlayerName = lineupInfo?.name ?? pd.player.name ?? `Player ${apiPlayerId}`;
 
             if (!ourPlayer) {
               // Try name matching within the club squad

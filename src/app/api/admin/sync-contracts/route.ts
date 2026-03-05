@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { apiFetch, getLeagueId, getCurrentSeason } from '@/lib/footballApi';
 
 /**
  * Admin API: Sync contract end dates from API-Football /players/profiles endpoint.
@@ -18,18 +19,6 @@ import { createClient } from '@supabase/supabase-js';
  *
  * Run monthly or after transfer windows.
  */
-
-const API_BASE = 'https://v3.football.api-sports.io';
-const LEAGUE_ID = 204; // TFF 1. Lig
-const SEASON = 2025;
-
-async function apiFetch<T>(endpoint: string, apiKey: string): Promise<T> {
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    headers: { 'x-apisports-key': apiKey },
-  });
-  if (!res.ok) throw new Error(`API-Football ${res.status}: ${res.statusText}`);
-  return (await res.json()) as T;
-}
 
 type PlayerResponse = {
   paging: { current: number; total: number };
@@ -73,26 +62,42 @@ export async function POST(req: Request) {
     dryRun = body?.dryRun === true;
   } catch { /* empty body is fine */ }
 
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
 
   try {
-    // Load clubs + players
-    const [{ data: clubs }, { data: players }] = await Promise.all([
-      supabaseAdmin.from('clubs').select('id, api_football_id, name').not('api_football_id', 'is', null),
-      supabaseAdmin.from('players').select('id, api_football_id, first_name, last_name, contract_end').not('api_football_id', 'is', null),
+    // Load clubs + players (via external_ids tables)
+    const [{ data: clubExtIds }, { data: clubRows }, { data: extIds }, { data: players }] = await Promise.all([
+      supabaseAdmin.from('club_external_ids').select('club_id, external_id').eq('source', 'api_football'),
+      supabaseAdmin.from('clubs').select('id, name'),
+      supabaseAdmin.from('player_external_ids').select('player_id, external_id').in('source', ['api_football_squad', 'api_football_fixture']),
+      supabaseAdmin.from('players').select('id, first_name, last_name, contract_end'),
     ]);
 
-    if (!clubs?.length) return NextResponse.json({ error: 'No clubs with api_football_id' }, { status: 500 });
-    if (!players?.length) return NextResponse.json({ error: 'No mapped players' }, { status: 500 });
+    // Build club API ID lookup
+    const clubApiIdMap = new Map<string, number>();
+    for (const ext of (clubExtIds ?? [])) {
+      const numId = parseInt(ext.external_id as string, 10);
+      if (!isNaN(numId)) clubApiIdMap.set(ext.club_id as string, numId);
+    }
+    const clubs = (clubRows ?? [])
+      .filter(c => clubApiIdMap.has(c.id as string))
+      .map(c => ({ ...c, _apiFootballId: clubApiIdMap.get(c.id as string)! }));
+
+    if (!clubs?.length) return NextResponse.json({ error: 'No clubs with api_football external ID' }, { status: 500 });
+    if (!extIds?.length) return NextResponse.json({ error: 'No mapped players' }, { status: 500 });
+
+    const playerNameMap = new Map<string, string>();
+    for (const p of (players ?? [])) {
+      playerNameMap.set(p.id as string, `${p.first_name} ${p.last_name}`);
+    }
 
     const apiToLocal = new Map<number, { id: string; name: string }>();
-    for (const p of players) {
-      if (p.api_football_id) {
-        apiToLocal.set(p.api_football_id, { id: p.id, name: `${p.first_name} ${p.last_name}` });
-      }
+    for (const ext of extIds) {
+      const numId = parseInt(ext.external_id as string, 10);
+      if (isNaN(numId)) continue;
+      apiToLocal.set(numId, {
+        id: ext.player_id as string,
+        name: playerNameMap.get(ext.player_id as string) ?? 'Unknown',
+      });
     }
 
     // Step 1: Probe one player to check if contract info is in the response
@@ -102,7 +107,7 @@ export async function POST(req: Request) {
         player: Record<string, unknown>;
         statistics: Array<Record<string, unknown>>;
       }>;
-    }>(`/players?id=${probeId}&season=${SEASON}`, apiKey);
+    }>(`/players?id=${probeId}&season=${getCurrentSeason()}`, apiKey);
 
     const probePlayer = probeData.response[0];
     const probeStat = probePlayer?.statistics?.[0];
@@ -140,7 +145,7 @@ export async function POST(req: Request) {
         while (page <= totalPages) {
           apiCalls++;
           const data = await apiFetch<PlayerResponse>(
-            `/players?team=${club.api_football_id}&league=${LEAGUE_ID}&season=${SEASON}&page=${page}`,
+            `/players?team=${club._apiFootballId}&league=${getLeagueId()}&season=${getCurrentSeason()}&page=${page}`,
             apiKey,
           );
           totalPages = data.paging.total;

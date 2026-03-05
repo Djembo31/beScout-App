@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { apiFetch, type ApiFixturePlayerResponse } from '@/lib/footballApi';
 
 /**
  * Admin API: Backfill real API-Football ratings for completed gameweeks.
@@ -13,30 +14,6 @@ import { createClient } from '@supabase/supabase-js';
  *
  * Also reports unmapped API-Football players (for completeness check).
  */
-
-const API_BASE = 'https://v3.football.api-sports.io';
-
-type ApiFixturePlayerResponse = {
-  response: Array<{
-    team: { id: number; name: string };
-    players: Array<{
-      player: { id: number; name: string };
-      statistics: Array<{
-        games: { minutes: number | null; rating: string | null; position: string | null };
-        goals: { total: number | null; assists: number | null; conceded: number | null; saves: number | null };
-        cards: { yellow: number | null; red: number | null };
-      }>;
-    }>;
-  }>;
-};
-
-async function apiFetch<T>(endpoint: string, apiKey: string): Promise<T> {
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    headers: { 'x-apisports-key': apiKey },
-  });
-  if (!res.ok) throw new Error(`API-Football ${res.status}: ${res.statusText}`);
-  return (await res.json()) as T;
-}
 
 export async function POST(req: Request) {
   // Auth guard
@@ -66,29 +43,44 @@ export async function POST(req: Request) {
     gameweeks.push(Number(gwInput));
   }
 
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
 
-  // Load player + club maps once (dual-ID: squad + fixture)
-  const { data: playerRows } = await supabaseAdmin
-    .from('players')
-    .select('id, api_football_id, fixture_api_football_id, club_id, first_name, last_name, position')
-    .not('api_football_id', 'is', null);
+  // Load player + club maps once (via external_ids tables)
+  const [extIdRes, playerRows2, clubExtRes] = await Promise.all([
+    supabaseAdmin
+      .from('player_external_ids')
+      .select('player_id, external_id')
+      .in('source', ['api_football_squad', 'api_football_fixture']),
+    supabaseAdmin
+      .from('players')
+      .select('id, club_id, first_name, last_name, position'),
+    supabaseAdmin
+      .from('club_external_ids')
+      .select('club_id, external_id')
+      .eq('source', 'api_football'),
+  ]);
 
-  const { data: clubRows } = await supabaseAdmin
-    .from('clubs')
-    .select('id, api_football_id')
-    .not('api_football_id', 'is', null);
+  const playerInfoMap = new Map<string, { clubId: string; position: string; name: string }>();
+  for (const p of (playerRows2.data ?? [])) {
+    playerInfoMap.set(p.id as string, {
+      clubId: p.club_id as string,
+      position: p.position as string,
+      name: `${p.first_name} ${p.last_name}`,
+    });
+  }
 
   const playerMap = new Map<number, { id: string; clubId: string; position: string; name: string }>();
-  for (const p of (playerRows ?? [])) {
-    const entry = { id: p.id as string, clubId: p.club_id as string, position: p.position as string, name: `${p.first_name} ${p.last_name}` };
-    if (p.api_football_id) playerMap.set(p.api_football_id, entry);
-    if (p.fixture_api_football_id) playerMap.set(p.fixture_api_football_id as number, entry);
+  for (const ext of (extIdRes.data ?? [])) {
+    const numId = parseInt(ext.external_id as string, 10);
+    if (isNaN(numId)) continue;
+    const info = playerInfoMap.get(ext.player_id as string);
+    if (!info) continue;
+    playerMap.set(numId, { id: ext.player_id as string, ...info });
   }
-  const clubMap = new Map((clubRows ?? []).map(c => [c.api_football_id!, c.id as string]));
+  const clubMap = new Map<number, string>();
+  for (const ext of (clubExtRes.data ?? [])) {
+    const numId = parseInt(ext.external_id as string, 10);
+    if (!isNaN(numId)) clubMap.set(numId, ext.club_id as string);
+  }
 
   const gwResults: Array<{
     gameweek: number;

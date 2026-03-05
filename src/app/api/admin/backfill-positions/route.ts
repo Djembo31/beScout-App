@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { apiFetch, mapPosition, type ApiFixturePlayerResponse } from '@/lib/footballApi';
 
 /**
  * Admin API: Backfill match_position from API-Football for completed gameweeks.
@@ -11,39 +12,6 @@ import { createClient } from '@supabase/supabase-js';
  * Per gameweek: ~10 API calls (1 per fixture).
  * API-Football Plus: 100 calls/day → max ~10 GWs/day.
  */
-
-const API_BASE = 'https://v3.football.api-sports.io';
-
-type ApiFixturePlayerResponse = {
-  response: Array<{
-    team: { id: number; name: string };
-    players: Array<{
-      player: { id: number; name: string };
-      statistics: Array<{
-        games: { minutes: number | null; rating: string | null; position: string | null };
-        goals: { total: number | null; assists: number | null; conceded: number | null; saves: number | null };
-        cards: { yellow: number | null; red: number | null };
-      }>;
-    }>;
-  }>;
-};
-
-function mapPosition(apiPos: string): 'GK' | 'DEF' | 'MID' | 'ATT' {
-  const p = apiPos.toUpperCase().trim();
-  if (p === 'G' || p.includes('GOAL')) return 'GK';
-  if (p === 'D' || p.includes('DEF')) return 'DEF';
-  if (p === 'M' || p.includes('MID')) return 'MID';
-  if (p === 'F' || p.includes('ATT') || p.includes('FOR')) return 'ATT';
-  return 'MID';
-}
-
-async function apiFetch<T>(endpoint: string, apiKey: string): Promise<T> {
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    headers: { 'x-apisports-key': apiKey },
-  });
-  if (!res.ok) throw new Error(`API-Football ${res.status}: ${res.statusText}`);
-  return (await res.json()) as T;
-}
 
 export async function POST(req: Request) {
   // Auth guard
@@ -73,29 +41,29 @@ export async function POST(req: Request) {
     gameweeks.push(Number(gwInput));
   }
 
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
 
-  // Load player map once (dual-ID: squad + fixture)
-  const { data: playerRows } = await supabaseAdmin
-    .from('players')
-    .select('id, api_football_id, fixture_api_football_id')
-    .not('api_football_id', 'is', null);
+  // Load player map once (via player_external_ids)
+  const { data: extIds } = await supabaseAdmin
+    .from('player_external_ids')
+    .select('player_id, external_id')
+    .in('source', ['api_football_squad', 'api_football_fixture']);
 
   const playerMap = new Map<number, string>();
-  for (const p of (playerRows ?? [])) {
-    if (p.api_football_id) playerMap.set(p.api_football_id, p.id as string);
-    if (p.fixture_api_football_id) playerMap.set(p.fixture_api_football_id as number, p.id as string);
+  for (const ext of (extIds ?? [])) {
+    const numId = parseInt(ext.external_id as string, 10);
+    if (!isNaN(numId)) playerMap.set(numId, ext.player_id as string);
   }
 
-  const { data: clubRows } = await supabaseAdmin
-    .from('clubs')
-    .select('id, api_football_id')
-    .not('api_football_id', 'is', null);
+  const { data: clubExtIds } = await supabaseAdmin
+    .from('club_external_ids')
+    .select('club_id, external_id')
+    .eq('source', 'api_football');
 
-  const clubMap = new Map((clubRows ?? []).map(c => [c.api_football_id!, c.id as string]));
+  const clubMap = new Map<number, string>();
+  for (const ext of (clubExtIds ?? [])) {
+    const numId = parseInt(ext.external_id as string, 10);
+    if (!isNaN(numId)) clubMap.set(numId, ext.club_id as string);
+  }
 
   const gwResults: Array<{
     gameweek: number;

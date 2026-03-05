@@ -1,112 +1,20 @@
 import { supabase } from '@/lib/supabaseClient';
+import {
+  apiFetch,
+  getLeagueId,
+  getCurrentSeason,
+  isApiConfigured,
+  mapPosition,
+  calcFantasyPoints,
+  normalizeForMatch,
+  type ApiTeamResponse,
+  type ApiSquadResponse,
+  type ApiFixtureResponse,
+  type ApiFixturePlayerResponse,
+  type ApiLineupsResponse,
+} from '@/lib/footballApi';
 
-// ============================================
-// API-Football Integration Service
-// ============================================
-// Provider: api-football.com (RapidAPI)
-// TFF 1. Lig League ID: 204 (203 = Süper Lig!)
-// Docs: https://www.api-football.com/documentation-v3
-// Free Plan: Seasons 2022-2024 only (Pro Plan $19/mo for 2025+)
-
-const API_BASE = 'https://v3.football.api-sports.io';
-
-// League + season config — parametrized for multi-league expansion
-const DEFAULT_LEAGUE_ID = 204;  // TFF 1. Lig (203 = Süper Lig)
-const DEFAULT_SEASON = 2025;
-
-function getLeagueId(): number {
-  const envVal = process.env.NEXT_PUBLIC_LEAGUE_ID;
-  return envVal ? parseInt(envVal, 10) : DEFAULT_LEAGUE_ID;
-}
-
-function getCurrentSeason(): number {
-  const envVal = process.env.NEXT_PUBLIC_SEASON;
-  return envVal ? parseInt(envVal, 10) : DEFAULT_SEASON;
-}
-
-function getApiKey(): string | null {
-  if (typeof window !== 'undefined') {
-    return process.env.NEXT_PUBLIC_API_FOOTBALL_KEY ?? null;
-  }
-  // Server-side: prefer dedicated server key, fallback to public key
-  return process.env.API_FOOTBALL_KEY ?? process.env.NEXT_PUBLIC_API_FOOTBALL_KEY ?? null;
-}
-
-export function isApiConfigured(): boolean {
-  return !!getApiKey();
-}
-
-async function apiFetch<T>(endpoint: string): Promise<T> {
-  const key = getApiKey();
-  if (!key) throw new Error('API-Football key not configured');
-
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    headers: {
-      'x-apisports-key': key,
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error(`API-Football ${res.status}: ${res.statusText}`);
-  }
-
-  const json = await res.json();
-  return json as T;
-}
-
-// ============================================
-// API Response Types
-// ============================================
-
-type ApiTeamResponse = {
-  response: Array<{
-    team: { id: number; name: string; code: string | null; logo: string };
-  }>;
-};
-
-type ApiSquadResponse = {
-  response: Array<{
-    team: { id: number; name: string };
-    players: Array<{
-      id: number;
-      name: string;
-      number: number | null;
-      position: string;
-    }>;
-  }>;
-};
-
-type ApiFixtureResponse = {
-  response: Array<{
-    fixture: { id: number; date: string; status: { short: string } };
-    teams: {
-      home: { id: number; name: string };
-      away: { id: number; name: string };
-    };
-    goals: { home: number | null; away: number | null };
-  }>;
-};
-
-type ApiFixturePlayerResponse = {
-  response: Array<{
-    team: { id: number; name: string };
-    players: Array<{
-      player: { id: number; name: string };
-      statistics: Array<{
-        games: { minutes: number | null; position: string; rating: string | null };
-        goals: { total: number | null; assists: number | null; conceded: number | null; saves: number | null };
-        cards: { yellow: number | null; red: number | null };
-      }>;
-    }>;
-  }>;
-};
-
-type ApiLineupsResponse = {
-  response: Array<{
-    team: { id: number; name: string };
-    formation: string | null;
-  }>;
-};
+export { isApiConfigured };
 
 // ============================================
 // Fetchers
@@ -134,88 +42,6 @@ export async function fetchApiLineups(fixtureId: number): Promise<ApiLineupsResp
   return apiFetch<ApiLineupsResponse>(`/fixtures/lineups?fixture=${fixtureId}`);
 }
 
-// ============================================
-// FPL-Style Fantasy Points Calculation
-// (Same formula as simulate_gameweek RPC)
-// ============================================
-
-function calcFantasyPoints(
-  position: string,
-  minutes: number,
-  goals: number,
-  assists: number,
-  cleanSheet: boolean,
-  goalsConceded: number,
-  yellowCard: boolean,
-  redCard: boolean,
-  saves: number,
-  bonus: number,
-): number {
-  let pts = 0;
-
-  // Appearance
-  if (minutes > 0) pts += 1;
-  if (minutes >= 60) pts += 1;
-
-  // Goals
-  const pos = position.toUpperCase();
-  if (pos === 'GK' || pos === 'DEF') pts += goals * 6;
-  else if (pos === 'MID') pts += goals * 5;
-  else pts += goals * 4;
-
-  // Assists
-  pts += assists * 3;
-
-  // Clean sheet (only DEF/GK, 60+ min)
-  if (cleanSheet && minutes >= 60) {
-    if (pos === 'GK' || pos === 'DEF') pts += 4;
-    else if (pos === 'MID') pts += 1;
-  }
-
-  // Goals conceded (GK/DEF)
-  if ((pos === 'GK' || pos === 'DEF') && goalsConceded >= 2) {
-    pts -= Math.floor(goalsConceded / 2);
-  }
-
-  // Cards
-  if (yellowCard) pts -= 1;
-  if (redCard) pts -= 3;
-
-  // GK saves
-  if (pos === 'GK') pts += Math.floor(saves / 3);
-
-  // Bonus
-  pts += bonus;
-
-  return Math.max(0, pts);
-}
-
-// ============================================
-// Mapping: API Position → Our Position
-// ============================================
-
-/**
- * Normalize text for player name matching — handles Turkish characters
- * İ→i, ı→i, ş→s, ç→c, ğ→g, ö→o, ü→u, ä→a + strip remaining diacritics
- */
-function normalizeForMatch(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/ı/g, 'i')  // Turkish dotless ı (not decomposed by NFD)
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')  // Strip all combining diacritics
-    .trim();
-}
-
-function mapPosition(apiPos: string): 'GK' | 'DEF' | 'MID' | 'ATT' {
-  const p = apiPos.toUpperCase().trim();
-  // Short codes from fixtures/players endpoint: G, D, M, F
-  if (p === 'G' || p.includes('GOAL')) return 'GK';
-  if (p === 'D' || p.includes('DEF')) return 'DEF';
-  if (p === 'M' || p.includes('MID')) return 'MID';
-  if (p === 'F' || p.includes('ATT') || p.includes('FOR')) return 'ATT';
-  return 'MID';
-}
 
 // ============================================
 // Team Mapping (Auto-match by name)
@@ -227,7 +53,7 @@ export type MappingResult = {
   errors: string[];
 };
 
-/** Fetch API teams → auto-match to our clubs by name → save api_football_id via RPC */
+/** Fetch API teams → auto-match to our clubs by name → save to club_external_ids */
 export async function syncTeamMapping(adminId: string): Promise<MappingResult> {
   const result: MappingResult = { matched: 0, unmatched: [], errors: [] };
 
@@ -246,7 +72,7 @@ export async function syncTeamMapping(adminId: string): Promise<MappingResult> {
       return result;
     }
 
-    const mappings: Array<{ club_id: string; api_football_id: number }> = [];
+    const mappings: Array<{ club_id: string; source: string; external_id: string }> = [];
 
     for (const apiTeam of apiTeams) {
       const apiName = apiTeam.team.name.toLowerCase().trim();
@@ -260,7 +86,7 @@ export async function syncTeamMapping(adminId: string): Promise<MappingResult> {
       );
 
       if (match) {
-        mappings.push({ club_id: match.id, api_football_id: apiTeam.team.id });
+        mappings.push({ club_id: match.id, source: 'api_football', external_id: String(apiTeam.team.id) });
       } else {
         result.unmatched.push(apiTeam.team.name);
       }
@@ -288,21 +114,30 @@ export async function syncTeamMapping(adminId: string): Promise<MappingResult> {
   return result;
 }
 
-/** Fetch API squads for all mapped clubs → auto-match players → save api_football_id via RPC */
+/** Fetch API squads for all mapped clubs → auto-match players → save to player_external_ids */
 export async function syncPlayerMapping(adminId: string): Promise<MappingResult> {
   const result: MappingResult = { matched: 0, unmatched: [], errors: [] };
 
   try {
-    // Get mapped clubs
-    const { data: clubs, error } = await supabase
-      .from('clubs')
-      .select('id, name, api_football_id')
-      .not('api_football_id', 'is', null);
+    // Get mapped clubs (via club_external_ids)
+    const [{ data: clubExtIds, error: extErr }, { data: allClubs, error }] = await Promise.all([
+      supabase.from('club_external_ids').select('club_id, external_id').eq('source', 'api_football'),
+      supabase.from('clubs').select('id, name'),
+    ]);
 
-    if (error || !clubs || clubs.length === 0) {
+    if (extErr || error || !clubExtIds?.length) {
       result.errors.push('Keine gemappten Clubs gefunden — zuerst Teams syncen');
       return result;
     }
+
+    const clubApiMap = new Map<string, number>();
+    for (const ext of clubExtIds) {
+      const numId = parseInt(ext.external_id as string, 10);
+      if (!isNaN(numId)) clubApiMap.set(ext.club_id as string, numId);
+    }
+    const clubs = (allClubs ?? [])
+      .filter(c => clubApiMap.has(c.id as string))
+      .map(c => ({ id: c.id as string, name: c.name as string, _apiFootballId: clubApiMap.get(c.id as string)! }));
 
     const mappings: Array<{ player_id: string; api_football_id: number }> = [];
     // Track which players are already mapped to prevent duplicates
@@ -310,7 +145,7 @@ export async function syncPlayerMapping(adminId: string): Promise<MappingResult>
 
     for (const club of clubs) {
       try {
-        const apiData = await fetchApiPlayers(club.api_football_id!);
+        const apiData = await fetchApiPlayers(club._apiFootballId);
         const squad = apiData.response[0]?.players ?? [];
 
         // Load our players for this club
@@ -396,7 +231,11 @@ export async function syncPlayerMapping(adminId: string): Promise<MappingResult>
     if (mappings.length > 0) {
       const { data, error: rpcErr } = await supabase.rpc('admin_map_players', {
         p_admin_id: adminId,
-        p_mappings: mappings,
+        p_mappings: mappings.map(m => ({
+          player_id: m.player_id,
+          source: 'api_football_squad',
+          external_id: String(m.api_football_id),
+        })),
       });
 
       const rpcResult = data as { success: boolean; updated_count?: number; error?: string } | null;
@@ -423,18 +262,22 @@ export async function syncFixtureMapping(adminId: string, gameweek: number): Pro
     const apiData = await fetchApiFixtures(gameweek);
     const apiFixtures = apiData.response;
 
-    // Load club mapping (api_football_id → our club_id)
-    const { data: clubs } = await supabase
-      .from('clubs')
-      .select('id, api_football_id')
-      .not('api_football_id', 'is', null);
+    // Load club mapping (api_football external_id → our club_id)
+    const { data: clubExtIds } = await supabase
+      .from('club_external_ids')
+      .select('club_id, external_id')
+      .eq('source', 'api_football');
 
-    if (!clubs || clubs.length === 0) {
+    if (!clubExtIds || clubExtIds.length === 0) {
       result.errors.push('Keine gemappten Clubs — zuerst Teams syncen');
       return result;
     }
 
-    const apiIdToClub = new Map(clubs.map(c => [c.api_football_id!, c.id as string]));
+    const apiIdToClub = new Map<number, string>();
+    for (const ext of clubExtIds) {
+      const numId = parseInt(ext.external_id as string, 10);
+      if (!isNaN(numId)) apiIdToClub.set(numId, ext.club_id as string);
+    }
 
     // Load our fixtures for this GW
     const { data: ourFixtures } = await supabase
@@ -505,21 +348,25 @@ export type MappingStatus = {
 };
 
 export async function getMappingStatus(): Promise<MappingStatus> {
-  const [clubsRes, playersRes, fixturesRes] = await Promise.allSettled([
-    supabase.from('clubs').select('id, api_football_id'),
-    supabase.from('players').select('id, api_football_id').limit(1000),
+  const [clubsRes, clubExtIdsRes, playersRes, playerExtIdsRes, fixturesRes] = await Promise.allSettled([
+    supabase.from('clubs').select('id'),
+    supabase.from('club_external_ids').select('club_id').eq('source', 'api_football'),
+    supabase.from('players').select('id').limit(1000),
+    supabase.from('player_external_ids').select('player_id').eq('source', 'api_football_squad'),
     supabase.from('fixtures').select('id, api_fixture_id'),
   ]);
 
   const clubs = clubsRes.status === 'fulfilled' ? clubsRes.value.data ?? [] : [];
+  const clubExtIds = clubExtIdsRes.status === 'fulfilled' ? clubExtIdsRes.value.data ?? [] : [];
   const players = playersRes.status === 'fulfilled' ? playersRes.value.data ?? [] : [];
+  const playerExtIds = playerExtIdsRes.status === 'fulfilled' ? playerExtIdsRes.value.data ?? [] : [];
   const fixtures = fixturesRes.status === 'fulfilled' ? fixturesRes.value.data ?? [] : [];
 
   return {
     clubsTotal: clubs.length,
-    clubsMapped: clubs.filter(c => c.api_football_id != null).length,
+    clubsMapped: clubExtIds.length,
     playersTotal: players.length,
-    playersMapped: players.filter(p => p.api_football_id != null).length,
+    playersMapped: playerExtIds.length,
     fixturesTotal: fixtures.length,
     fixturesMapped: fixtures.filter(f => f.api_fixture_id != null).length,
   };
@@ -554,31 +401,48 @@ export async function importGameweek(adminId: string, gameweek: number): Promise
       return result;
     }
 
-    // 2. Build player API ID → our player ID lookup (dual-ID: squad + fixture)
-    const { data: players } = await supabase
-      .from('players')
-      .select('id, api_football_id, fixture_api_football_id, position')
-      .not('api_football_id', 'is', null);
+    // 2. Build player API ID → our player ID lookup (via player_external_ids)
+    const [{ data: extIds }, { data: playerPositions }] = await Promise.all([
+      supabase
+        .from('player_external_ids')
+        .select('player_id, external_id')
+        .in('source', ['api_football_squad', 'api_football_fixture']),
+      supabase
+        .from('players')
+        .select('id, position'),
+    ]);
 
-    if (!players || players.length === 0) {
+    if (!extIds || extIds.length === 0) {
       result.errors.push('Keine gemappten Spieler');
       return result;
     }
 
-    const apiPlayerMap = new Map<number, { id: string; position: string }>();
-    for (const p of players) {
-      const entry = { id: p.id as string, position: p.position as string };
-      if (p.api_football_id) apiPlayerMap.set(p.api_football_id, entry);
-      if (p.fixture_api_football_id) apiPlayerMap.set(p.fixture_api_football_id as number, entry);
+    const posMap = new Map<string, string>();
+    for (const p of (playerPositions ?? [])) {
+      posMap.set(p.id as string, p.position as string);
     }
 
-    // 3. Build club API ID → our club ID lookup
-    const { data: clubs } = await supabase
-      .from('clubs')
-      .select('id, api_football_id')
-      .not('api_football_id', 'is', null);
+    const apiPlayerMap = new Map<number, { id: string; position: string }>();
+    for (const ext of extIds) {
+      const numId = parseInt(ext.external_id as string, 10);
+      if (isNaN(numId)) continue;
+      apiPlayerMap.set(numId, {
+        id: ext.player_id as string,
+        position: posMap.get(ext.player_id as string) ?? 'MID',
+      });
+    }
 
-    const apiClubMap = new Map((clubs ?? []).map(c => [c.api_football_id!, c.id as string]));
+    // 3. Build club API ID → our club ID lookup (via club_external_ids)
+    const { data: clubExtIds } = await supabase
+      .from('club_external_ids')
+      .select('club_id, external_id')
+      .eq('source', 'api_football');
+
+    const apiClubMap = new Map<number, string>();
+    for (const ext of (clubExtIds ?? [])) {
+      const numId = parseInt(ext.external_id as string, 10);
+      if (!isNaN(numId)) apiClubMap.set(numId, ext.club_id as string);
+    }
 
     // 4. Fetch GW fixtures from API once (used for scores)
     const apiFixData = await fetchApiFixtures(gameweek);
