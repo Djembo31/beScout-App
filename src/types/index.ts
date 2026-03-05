@@ -478,6 +478,7 @@ export type DbPlayer = {
   success_fee_cap_cents: number | null;
   max_supply?: number;
   api_football_id?: number | null;
+  fixture_api_football_id?: number | null;
   contract_end?: string | null; // ISO date string e.g. "2026-06-30"
   is_liquidated: boolean;
   created_at: string;
@@ -1189,6 +1190,8 @@ export type DbFixture = {
   api_fixture_id?: number | null;
   league_id?: string | null;
   played_at: string | null;
+  home_formation?: string | null;
+  away_formation?: string | null;
   created_at: string;
 };
 

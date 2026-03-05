@@ -40,6 +40,13 @@ type ApiFixturePlayerResponse = {
   }>;
 };
 
+type ApiLineupsResponse = {
+  response: Array<{
+    team: { id: number };
+    formation: string | null;
+  }>;
+};
+
 // ============================================
 // Fantasy Points Calculation
 // (duplicated from footballData.ts — same formula as simulate_gameweek RPC)
@@ -288,7 +295,7 @@ export async function GET(request: Request) {
           .not('api_fixture_id', 'is', null),
         supabaseAdmin
           .from('players')
-          .select('id, api_football_id, position')
+          .select('id, api_football_id, fixture_api_football_id, position')
           .not('api_football_id', 'is', null),
         supabaseAdmin
           .from('clubs')
@@ -307,12 +314,15 @@ export async function GET(request: Request) {
           away_club_id: string;
           api_fixture_id: number;
         }>,
-        playerMap: new Map(
-          playerRes.data.map((p) => [
-            p.api_football_id as number,
-            { id: p.id as string, position: p.position as string },
-          ]),
-        ),
+        playerMap: (() => {
+          const m = new Map<number, { id: string; position: string }>();
+          for (const p of playerRes.data) {
+            const entry = { id: p.id as string, position: p.position as string };
+            if (p.api_football_id) m.set(p.api_football_id as number, entry);
+            if (p.fixture_api_football_id) m.set(p.fixture_api_football_id as number, entry);
+          }
+          return m;
+        })(),
         clubMap: new Map(
           (clubRes.data ?? []).map((c) => [
             c.api_football_id as number,
@@ -463,6 +473,41 @@ export async function GET(request: Request) {
     await logStep(activeGw, 'fetch_stats', 'success', {
       fixtures: statsResult.fixtureResults.length,
       playerStats: statsResult.playerStats.length,
+    });
+
+    // ---- 6b. Fetch lineups + store formations ----
+    await runStep('fetch_formations', async () => {
+      let stored = 0;
+      for (const fixture of mappings.fixtures) {
+        try {
+          const lineupsData = await apiFetch<ApiLineupsResponse>(
+            `/fixtures/lineups?fixture=${fixture.api_fixture_id}`,
+          );
+          const homeLineup = lineupsData.response.find(t => {
+            const clubId = mappings.clubMap.get(t.team.id);
+            return clubId === fixture.home_club_id;
+          });
+          const awayLineup = lineupsData.response.find(t => {
+            const clubId = mappings.clubMap.get(t.team.id);
+            return clubId === fixture.away_club_id;
+          });
+
+          const updates: Record<string, string> = {};
+          if (homeLineup?.formation) updates.home_formation = homeLineup.formation;
+          if (awayLineup?.formation) updates.away_formation = awayLineup.formation;
+
+          if (Object.keys(updates).length > 0) {
+            await supabaseAdmin
+              .from('fixtures')
+              .update(updates)
+              .eq('id', fixture.id);
+            stored++;
+          }
+        } catch {
+          /* best-effort — formations are supplementary */
+        }
+      }
+      return { stored };
     });
 
     // ---- 7. Import via RPC ----

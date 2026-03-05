@@ -101,6 +101,13 @@ type ApiFixturePlayerResponse = {
   }>;
 };
 
+type ApiLineupsResponse = {
+  response: Array<{
+    team: { id: number; name: string };
+    formation: string | null;
+  }>;
+};
+
 // ============================================
 // Fetchers
 // ============================================
@@ -121,6 +128,10 @@ export async function fetchApiFixtures(gameweek: number): Promise<ApiFixtureResp
 
 export async function fetchApiFixtureStats(fixtureId: number): Promise<ApiFixturePlayerResponse> {
   return apiFetch<ApiFixturePlayerResponse>(`/fixtures/players?fixture=${fixtureId}`);
+}
+
+export async function fetchApiLineups(fixtureId: number): Promise<ApiLineupsResponse> {
+  return apiFetch<ApiLineupsResponse>(`/fixtures/lineups?fixture=${fixtureId}`);
 }
 
 // ============================================
@@ -543,10 +554,10 @@ export async function importGameweek(adminId: string, gameweek: number): Promise
       return result;
     }
 
-    // 2. Build player API ID → our player ID lookup
+    // 2. Build player API ID → our player ID lookup (dual-ID: squad + fixture)
     const { data: players } = await supabase
       .from('players')
-      .select('id, api_football_id, position')
+      .select('id, api_football_id, fixture_api_football_id, position')
       .not('api_football_id', 'is', null);
 
     if (!players || players.length === 0) {
@@ -554,7 +565,12 @@ export async function importGameweek(adminId: string, gameweek: number): Promise
       return result;
     }
 
-    const apiPlayerMap = new Map(players.map(p => [p.api_football_id!, { id: p.id as string, position: p.position as string }]));
+    const apiPlayerMap = new Map<number, { id: string; position: string }>();
+    for (const p of players) {
+      const entry = { id: p.id as string, position: p.position as string };
+      if (p.api_football_id) apiPlayerMap.set(p.api_football_id, entry);
+      if (p.fixture_api_football_id) apiPlayerMap.set(p.fixture_api_football_id as number, entry);
+    }
 
     // 3. Build club API ID → our club ID lookup
     const { data: clubs } = await supabase
@@ -655,7 +671,35 @@ export async function importGameweek(adminId: string, gameweek: number): Promise
       }
     }
 
-    // 6. Single RPC call: import all data + sync scores
+    // 6. Fetch lineups + store formations
+    for (const fixture of ourFixtures) {
+      try {
+        const lineupsData = await fetchApiLineups(fixture.api_fixture_id!);
+        const homeLineup = lineupsData.response.find(t => {
+          const clubId = apiClubMap.get(t.team.id);
+          return clubId === fixture.home_club_id;
+        });
+        const awayLineup = lineupsData.response.find(t => {
+          const clubId = apiClubMap.get(t.team.id);
+          return clubId === fixture.away_club_id;
+        });
+
+        const updates: Record<string, string> = {};
+        if (homeLineup?.formation) updates.home_formation = homeLineup.formation;
+        if (awayLineup?.formation) updates.away_formation = awayLineup.formation;
+
+        if (Object.keys(updates).length > 0) {
+          await supabase
+            .from('fixtures')
+            .update(updates)
+            .eq('id', fixture.id);
+        }
+      } catch (e) {
+        result.errors.push(`Lineups ${fixture.id}: ${e instanceof Error ? e.message : 'Fehler'}`);
+      }
+    }
+
+    // 7. Single RPC call: import all data + sync scores
     if (fixtureResults.length > 0 || playerStats.length > 0) {
       const { data, error: rpcErr } = await supabase.rpc('admin_import_gameweek_stats', {
         p_admin_id: adminId,

@@ -78,15 +78,17 @@ export async function POST(req: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
-  // Load player map once
+  // Load player map once (dual-ID: squad + fixture)
   const { data: playerRows } = await supabaseAdmin
     .from('players')
-    .select('id, api_football_id')
+    .select('id, api_football_id, fixture_api_football_id')
     .not('api_football_id', 'is', null);
 
-  const playerMap = new Map(
-    (playerRows ?? []).map(p => [p.api_football_id!, p.id as string]),
-  );
+  const playerMap = new Map<number, string>();
+  for (const p of (playerRows ?? [])) {
+    if (p.api_football_id) playerMap.set(p.api_football_id, p.id as string);
+    if (p.fixture_api_football_id) playerMap.set(p.fixture_api_football_id as number, p.id as string);
+  }
 
   const { data: clubRows } = await supabaseAdmin
     .from('clubs')

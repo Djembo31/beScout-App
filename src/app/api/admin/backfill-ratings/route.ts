@@ -71,10 +71,10 @@ export async function POST(req: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
-  // Load player + club maps once
+  // Load player + club maps once (dual-ID: squad + fixture)
   const { data: playerRows } = await supabaseAdmin
     .from('players')
-    .select('id, api_football_id, club_id, first_name, last_name, position')
+    .select('id, api_football_id, fixture_api_football_id, club_id, first_name, last_name, position')
     .not('api_football_id', 'is', null);
 
   const { data: clubRows } = await supabaseAdmin
@@ -82,12 +82,12 @@ export async function POST(req: Request) {
     .select('id, api_football_id')
     .not('api_football_id', 'is', null);
 
-  const playerMap = new Map(
-    (playerRows ?? []).map(p => [
-      p.api_football_id!,
-      { id: p.id as string, clubId: p.club_id as string, position: p.position as string, name: `${p.first_name} ${p.last_name}` },
-    ]),
-  );
+  const playerMap = new Map<number, { id: string; clubId: string; position: string; name: string }>();
+  for (const p of (playerRows ?? [])) {
+    const entry = { id: p.id as string, clubId: p.club_id as string, position: p.position as string, name: `${p.first_name} ${p.last_name}` };
+    if (p.api_football_id) playerMap.set(p.api_football_id, entry);
+    if (p.fixture_api_football_id) playerMap.set(p.fixture_api_football_id as number, entry);
+  }
   const clubMap = new Map((clubRows ?? []).map(c => [c.api_football_id!, c.id as string]));
 
   const gwResults: Array<{

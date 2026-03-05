@@ -304,12 +304,27 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                   const homeSplit = splitStartersBench(homeStats);
                   const awaySplit = splitStartersBench(awayStats);
                   const allBench = [...homeSplit.bench, ...awaySplit.bench];
+                  // Use real formation from DB, fallback to derived
+                  const homeFormation = fixture.home_formation || homeSplit.formation;
+                  const awayFormation = fixture.away_formation || awaySplit.formation;
+                  // Safeguard: if either team has < 11 starters, fall back to list view
+                  const hasEnoughData = homeSplit.starters.length >= 11 && awaySplit.starters.length >= 11;
+
+                  if (!hasEnoughData) {
+                    return (
+                      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 px-2 py-4">
+                        <TeamStatsList label={`${fixture.home_club_name} ${homeFormation ? `(${homeFormation})` : ''}`} stats={homeStats} color={homeColor} />
+                        <TeamStatsList label={`${fixture.away_club_name} ${awayFormation ? `(${awayFormation})` : ''}`} stats={awayStats} color={awayColor} />
+                      </div>
+                    );
+                  }
+
                   return (
                     <>
                       <div className="relative z-10">
-                        <FormationHalf stats={homeSplit.starters} teamName={fixture.home_club_name} color={homeColor} isHome={true} formation={homeSplit.formation} logo={homeClub} />
+                        <FormationHalf stats={homeSplit.starters} teamName={fixture.home_club_name} color={homeColor} isHome={true} formation={homeFormation} logo={homeClub} />
                         <div className="h-4 md:h-6" />
-                        <FormationHalf stats={awaySplit.starters} teamName={fixture.away_club_name} color={awayColor} isHome={false} formation={awaySplit.formation} logo={awayClub} />
+                        <FormationHalf stats={awaySplit.starters} teamName={fixture.away_club_name} color={awayColor} isHome={false} formation={awayFormation} logo={awayClub} />
                       </div>
                       {allBench.length > 0 && (
                         <div className="relative z-10 mt-3 pt-3 border-t border-white/[0.06]">

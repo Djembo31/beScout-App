@@ -47,15 +47,17 @@ async function main() {
 
   console.log(`Backfilling match_position for GW ${startGw}-${endGw}...`);
 
-  // Load maps
+  // Load maps (dual-ID: squad + fixture)
   const { data: playerRows } = await supabase
     .from('players')
-    .select('id, api_football_id')
+    .select('id, api_football_id, fixture_api_football_id')
     .not('api_football_id', 'is', null);
 
-  const playerMap = new Map(
-    (playerRows ?? []).map(p => [p.api_football_id, p.id]),
-  );
+  const playerMap = new Map();
+  for (const p of (playerRows ?? [])) {
+    if (p.api_football_id) playerMap.set(p.api_football_id, p.id);
+    if (p.fixture_api_football_id) playerMap.set(p.fixture_api_football_id, p.id);
+  }
 
   const { data: clubRows } = await supabase
     .from('clubs')
