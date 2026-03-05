@@ -47,24 +47,33 @@ const endGW = parseInt(process.argv[3] || '28', 10);
 
 console.log(`\n=== Backfill Ratings GW ${startGW}-${endGW} ===\n`);
 
-// Load maps
-const { data: playerRows } = await supabase
-  .from('players')
-  .select('id, api_football_id, first_name, last_name, position, club_id')
-  .not('api_football_id', 'is', null);
+// Load maps (via player_external_ids)
+const [{ data: extIds }, { data: playerRows }, { data: clubExtIds }, { data: clubRows }] = await Promise.all([
+  supabase.from('player_external_ids').select('player_id, external_id').in('source', ['api_football_squad', 'api_football_fixture']),
+  supabase.from('players').select('id, first_name, last_name, position, club_id'),
+  supabase.from('club_external_ids').select('club_id, external_id').eq('source', 'api_football'),
+  supabase.from('clubs').select('id, short'),
+]);
 
-const { data: clubRows } = await supabase
-  .from('clubs')
-  .select('id, api_football_id, short')
-  .not('api_football_id', 'is', null);
+const playerInfoMap = new Map();
+for (const p of (playerRows ?? [])) {
+  playerInfoMap.set(p.id, { clubId: p.club_id, position: p.position, name: `${p.first_name} ${p.last_name}`.trim() });
+}
 
-const playerMap = new Map(
-  (playerRows ?? []).map(p => [p.api_football_id, {
-    id: p.id, clubId: p.club_id, position: p.position,
-    name: `${p.first_name} ${p.last_name}`.trim(),
-  }]),
-);
-const clubMap = new Map((clubRows ?? []).map(c => [c.api_football_id, { id: c.id, short: c.short }]));
+const playerMap = new Map();
+for (const ext of (extIds ?? [])) {
+  const numId = parseInt(ext.external_id, 10);
+  if (isNaN(numId)) continue;
+  const info = playerInfoMap.get(ext.player_id);
+  if (info) playerMap.set(numId, { id: ext.player_id, ...info });
+}
+
+const clubShortMap = new Map((clubRows ?? []).map(c => [c.id, c.short]));
+const clubMap = new Map();
+for (const ext of (clubExtIds ?? [])) {
+  const numId = parseInt(ext.external_id, 10);
+  if (!isNaN(numId)) clubMap.set(numId, { id: ext.club_id, short: clubShortMap.get(ext.club_id) ?? '' });
+}
 
 console.log(`Players mapped: ${playerMap.size}, Clubs mapped: ${clubMap.size}`);
 

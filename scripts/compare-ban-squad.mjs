@@ -45,11 +45,12 @@ const { data: banClub } = await supabase
   .eq('short', 'BAN')
   .single();
 
-const { data: localPlayers } = await supabase
-  .from('players')
-  .select('id, first_name, last_name, shirt_number, position, api_football_id')
-  .eq('club_id', banClub.id)
-  .order('last_name');
+const [{ data: localPlayersRaw }, { data: extIds }] = await Promise.all([
+  supabase.from('players').select('id, first_name, last_name, shirt_number, position').eq('club_id', banClub.id).order('last_name'),
+  supabase.from('player_external_ids').select('player_id').eq('source', 'api_football_squad'),
+]);
+const mappedPlayerIds = new Set((extIds ?? []).map(e => e.player_id));
+const localPlayers = (localPlayersRaw ?? []).map(p => ({ ...p, isMapped: mappedPlayerIds.has(p.id) }));
 
 console.log(`\n=== Bandırmaspor Squad Comparison ===\n`);
 console.log(`API-Football: ${apiSquad.length} players`);
@@ -64,7 +65,7 @@ for (const p of apiSquad.sort((a, b) => a.name.localeCompare(b.name))) {
 
 console.log('\n--- Local DB Squad (unmapped) ---');
 for (const p of (localPlayers ?? [])) {
-  if (p.api_football_id) continue;
+  if (p.isMapped) continue;
   const normFirst = normalizeForMatch(p.first_name);
   const normLast = normalizeForMatch(p.last_name);
   console.log(`  #${String(p.shirt_number).padStart(2)} ${p.position.padEnd(4)} ${(p.first_name + ' ' + p.last_name).padEnd(30)} [norm: ${normFirst} ${normLast}]`);
@@ -76,7 +77,7 @@ for (const apiP of apiSquad) {
   const apiParts = normalizeForMatch(apiP.name).split(/\s+/).filter(p => p.length >= 4);
 
   for (const localP of (localPlayers ?? [])) {
-    if (localP.api_football_id) continue;
+    if (localP.isMapped) continue;
     const localParts = [
       ...normalizeForMatch(localP.first_name).split(/\s+/).filter(p => p.length >= 4),
       ...normalizeForMatch(localP.last_name).split(/\s+/).filter(p => p.length >= 4),

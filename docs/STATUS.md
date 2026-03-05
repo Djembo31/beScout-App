@@ -20,7 +20,7 @@
 - 100 IPOs, 380 Fixtures (38 GW, echte API-Football Daten, 271 mit Formation), 15 Bounties, 10 Votes
 - 33 Achievements, 12 Rang-Stufen, 3 Gamification-Dimensionen
 - 7.467 Fixture Player Stats (GW1-28, Dual-ID backfilled), 7.467 Player Gameweek Scores
-- 163 Fixture Substitutions (GW1-2, ~80/GW, livescore-style in FixtureDetailModal)
+- 2.388 Fixture Substitutions (GW1-28 komplett, ~85/GW, livescore-style in FixtureDetailModal)
 - 544/570 Spieler gemappt (api_football_id) + 48 fixture_api_football_id, 20/20 Clubs gemappt
 - Active Gameweek: 28, 36 Events (GW1: 12, GW2: 12, GW28: 12)
 

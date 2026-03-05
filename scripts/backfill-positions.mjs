@@ -47,24 +47,28 @@ async function main() {
 
   console.log(`Backfilling match_position for GW ${startGw}-${endGw}...`);
 
-  // Load maps (dual-ID: squad + fixture)
-  const { data: playerRows } = await supabase
-    .from('players')
-    .select('id, api_football_id, fixture_api_football_id')
-    .not('api_football_id', 'is', null);
+  // Load maps (via player_external_ids)
+  const { data: extIds } = await supabase
+    .from('player_external_ids')
+    .select('player_id, external_id')
+    .in('source', ['api_football_squad', 'api_football_fixture']);
 
   const playerMap = new Map();
-  for (const p of (playerRows ?? [])) {
-    if (p.api_football_id) playerMap.set(p.api_football_id, p.id);
-    if (p.fixture_api_football_id) playerMap.set(p.fixture_api_football_id, p.id);
+  for (const ext of (extIds ?? [])) {
+    const numId = parseInt(ext.external_id, 10);
+    if (!isNaN(numId)) playerMap.set(numId, ext.player_id);
   }
 
-  const { data: clubRows } = await supabase
-    .from('clubs')
-    .select('id, api_football_id')
-    .not('api_football_id', 'is', null);
+  const { data: clubExtIds } = await supabase
+    .from('club_external_ids')
+    .select('club_id, external_id')
+    .eq('source', 'api_football');
 
-  const clubMap = new Map((clubRows ?? []).map(c => [c.api_football_id, c.id]));
+  const clubMap = new Map();
+  for (const ext of (clubExtIds ?? [])) {
+    const numId = parseInt(ext.external_id, 10);
+    if (!isNaN(numId)) clubMap.set(numId, ext.club_id);
+  }
 
   console.log(`Loaded ${playerMap.size} players, ${clubMap.size} clubs`);
 

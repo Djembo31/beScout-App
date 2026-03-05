@@ -38,16 +38,29 @@ async function apiFetch(endpoint) {
 
 console.log('\n=== Import BAN Fixture Stats ===\n');
 
-// Load all clubs (api_football_id → club_id)
-const { data: allClubs } = await supabase.from('clubs').select('id, api_football_id').not('api_football_id', 'is', null);
-const clubApiMap = new Map((allClubs ?? []).map(c => [c.api_football_id, c.id]));
+// Load all clubs (apiFootballId → club_id) via club_external_ids
+const { data: clubExtIds } = await supabase.from('club_external_ids').select('club_id, external_id').eq('source', 'api_football');
+const clubApiMap = new Map();
+for (const ext of (clubExtIds ?? [])) {
+  const numId = parseInt(ext.external_id, 10);
+  if (!isNaN(numId)) clubApiMap.set(numId, ext.club_id);
+}
 
 // Load BAN club
-const { data: banClub } = await supabase.from('clubs').select('id, api_football_id').eq('short', 'BAN').single();
+const { data: banClub } = await supabase.from('clubs').select('id').eq('short', 'BAN').single();
 
-// Load ALL players with api_football_id
-const { data: allPlayers } = await supabase.from('players').select('id, api_football_id, position').not('api_football_id', 'is', null);
-const playerMap = new Map((allPlayers ?? []).map(p => [p.api_football_id, p]));
+// Load ALL player external IDs (via player_external_ids)
+const [{ data: extIds }, { data: allPlayerRows }] = await Promise.all([
+  supabase.from('player_external_ids').select('player_id, external_id').in('source', ['api_football_squad', 'api_football_fixture']),
+  supabase.from('players').select('id, position'),
+]);
+const posLookup = new Map((allPlayerRows ?? []).map(p => [p.id, p.position]));
+const playerMap = new Map();
+for (const ext of (extIds ?? [])) {
+  const numId = parseInt(ext.external_id, 10);
+  if (isNaN(numId)) continue;
+  playerMap.set(numId, { id: ext.player_id, api_football_id: numId, position: posLookup.get(ext.player_id) ?? 'MID' });
+}
 console.log(`Players mapped: ${playerMap.size}`);
 
 // Load BAN finished fixtures

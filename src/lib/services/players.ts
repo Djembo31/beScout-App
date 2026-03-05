@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { getClub } from '@/lib/clubs';
 import type { DbPlayer, Player, PlayerStatus, Pos } from '@/types';
 import { toPos } from '@/types';
 
@@ -91,7 +92,7 @@ export function dbToPlayer(db: DbPlayer): Player {
     last: db.last_name,
     club: db.club,
     clubId: db.club_id ?? undefined,
-    league: 'TFF 1. Lig',
+    league: db.club_id ? (getClub(db.club_id)?.league ?? undefined) : undefined,
     pos: toPos(db.position),
     status: (db.status as PlayerStatus) ?? 'fit',
     age: db.age ?? 0,

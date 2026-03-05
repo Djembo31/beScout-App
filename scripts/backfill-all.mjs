@@ -81,28 +81,33 @@ async function main() {
 
   console.log(`\n=== Backfill All: GW ${startGw}-${endGw} ===\n`);
 
-  // 1. Load dual-ID player map
-  const { data: playerRows } = await supabase
-    .from('players')
-    .select('id, api_football_id, fixture_api_football_id, position')
-    .not('api_football_id', 'is', null);
+  // 1. Load player map (via player_external_ids)
+  const [{ data: extIds }, { data: playerRows }] = await Promise.all([
+    supabase.from('player_external_ids').select('player_id, external_id').in('source', ['api_football_squad', 'api_football_fixture']),
+    supabase.from('players').select('id, position'),
+  ]);
 
+  const posMap = new Map((playerRows ?? []).map(p => [p.id, p.position]));
   const apiPlayerMap = new Map();
-  for (const p of (playerRows ?? [])) {
-    const entry = { id: p.id, position: p.position };
-    if (p.api_football_id) apiPlayerMap.set(p.api_football_id, entry);
-    if (p.fixture_api_football_id) apiPlayerMap.set(p.fixture_api_football_id, entry);
+  for (const ext of (extIds ?? [])) {
+    const numId = parseInt(ext.external_id, 10);
+    if (isNaN(numId)) continue;
+    apiPlayerMap.set(numId, { id: ext.player_id, position: posMap.get(ext.player_id) ?? 'MID' });
   }
 
-  // 2. Load club map
-  const { data: clubRows } = await supabase
-    .from('clubs')
-    .select('id, api_football_id')
-    .not('api_football_id', 'is', null);
+  // 2. Load club map (via club_external_ids)
+  const { data: clubExtIds } = await supabase
+    .from('club_external_ids')
+    .select('club_id, external_id')
+    .eq('source', 'api_football');
 
-  const apiClubMap = new Map((clubRows ?? []).map(c => [c.api_football_id, c.id]));
+  const apiClubMap = new Map();
+  for (const ext of (clubExtIds ?? [])) {
+    const numId = parseInt(ext.external_id, 10);
+    if (!isNaN(numId)) apiClubMap.set(numId, ext.club_id);
+  }
 
-  console.log(`Loaded ${apiPlayerMap.size} player IDs (dual), ${apiClubMap.size} clubs\n`);
+  console.log(`Loaded ${apiPlayerMap.size} player IDs, ${apiClubMap.size} clubs\n`);
 
   let totalApiCalls = 0;
   let totalStatsImported = 0;

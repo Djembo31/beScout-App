@@ -60,18 +60,28 @@ function parseApiName(fullName) {
 
 console.log(`\n=== Rebuild Bandırmaspor Squad ${DRY_RUN ? '(DRY RUN)' : ''} ===\n`);
 
-// Get BAN club
+// Get BAN club + its API-Football external ID
 const { data: banClub } = await supabase
   .from('clubs')
-  .select('id, name, api_football_id')
+  .select('id, name')
   .eq('short', 'BAN')
   .single();
 
 if (!banClub) { console.error('BAN club not found'); process.exit(1); }
-console.log(`Club: ${banClub.name} (API#${banClub.api_football_id})`);
+
+const { data: banExtId } = await supabase
+  .from('club_external_ids')
+  .select('external_id')
+  .eq('club_id', banClub.id)
+  .eq('source', 'api_football')
+  .single();
+
+const banApiFootballId = banExtId ? parseInt(banExtId.external_id, 10) : null;
+if (!banApiFootballId) { console.error('BAN has no api_football external ID'); process.exit(1); }
+console.log(`Club: ${banClub.name} (API#${banApiFootballId})`);
 
 // Fetch API squad
-const res = await fetch(`https://v3.football.api-sports.io/players/squads?team=${banClub.api_football_id}`, {
+const res = await fetch(`https://v3.football.api-sports.io/players/squads?team=${banApiFootballId}`, {
   headers: { 'x-apisports-key': API_KEY },
 });
 const data = await res.json();
@@ -86,7 +96,7 @@ const { data: oldPlayers } = await supabase
 
 console.log(`Old DB players: ${oldPlayers?.length ?? 0}\n`);
 
-// Build new player records
+// Build new player records (without api_football_id — goes to player_external_ids)
 const newPlayers = apiSquad.map(ap => {
   const { first, last } = parseApiName(ap.name);
   return {
@@ -95,7 +105,7 @@ const newPlayers = apiSquad.map(ap => {
     club_id: banClub.id,
     position: mapPosition(ap.position),
     shirt_number: ap.number ?? 0,
-    api_football_id: ap.id,
+    _apiFootballId: ap.id, // Stored in player_external_ids after insert
     // Default values for required fields
     market_value_eur: 0,
     ipo_price: 100,  // Minimum
@@ -113,7 +123,7 @@ const newPlayers = apiSquad.map(ap => {
 
 console.log('New players to insert:');
 for (const p of newPlayers) {
-  console.log(`  #${String(p.shirt_number).padStart(2)} ${p.position.padEnd(3)} ${p.first_name} ${p.last_name} (API#${p.api_football_id})`);
+  console.log(`  #${String(p.shirt_number).padStart(2)} ${p.position.padEnd(3)} ${p.first_name} ${p.last_name} (API#${p._apiFootballId})`);
 }
 
 if (DRY_RUN) {
@@ -137,12 +147,13 @@ if (oldIds.length > 0) {
   console.log(`  Deleted ${oldIds.length} old players`);
 }
 
-// Step 2: Insert new players
+// Step 2: Insert new players (strip _apiFootballId before insert)
 console.log(`\nStep 2: Inserting ${newPlayers.length} new players...`);
+const playersToInsert = newPlayers.map(({ _apiFootballId, ...rest }) => rest);
 const { data: inserted, error: insErr } = await supabase
   .from('players')
-  .insert(newPlayers)
-  .select('id, first_name, last_name, api_football_id');
+  .insert(playersToInsert)
+  .select('id, first_name, last_name');
 
 if (insErr) {
   console.error(`Insert error: ${insErr.message}`);
@@ -150,15 +161,42 @@ if (insErr) {
 }
 console.log(`  Inserted ${inserted?.length ?? 0} new players`);
 
+// Step 2b: Insert external IDs into player_external_ids
+console.log(`\nStep 2b: Writing external IDs to player_external_ids...`);
+const extIdRows = [];
+for (let i = 0; i < (inserted ?? []).length; i++) {
+  const player = inserted[i];
+  const apiId = newPlayers[i]._apiFootballId;
+  if (player && apiId) {
+    extIdRows.push({
+      player_id: player.id,
+      source: 'api_football_squad',
+      external_id: String(apiId),
+    });
+  }
+}
+if (extIdRows.length > 0) {
+  const { error: extErr } = await supabase
+    .from('player_external_ids')
+    .upsert(extIdRows, { onConflict: 'player_id,source' });
+  if (extErr) console.error(`External ID insert error: ${extErr.message}`);
+  else console.log(`  Mapped ${extIdRows.length} external IDs`);
+}
+
 // Step 3: Verify
 const { data: verify } = await supabase
   .from('players')
-  .select('id, first_name, last_name, api_football_id, position, shirt_number')
+  .select('id, first_name, last_name, position, shirt_number')
   .eq('club_id', banClub.id)
   .order('last_name');
 
+const { data: verifyExtIds } = await supabase
+  .from('player_external_ids')
+  .select('player_id')
+  .eq('source', 'api_football_squad')
+  .in('player_id', (verify ?? []).map(v => v.id));
+
 console.log(`\nVerification: ${verify?.length ?? 0} BAN players in DB`);
-const mapped = (verify ?? []).filter(p => p.api_football_id).length;
-console.log(`  With api_football_id: ${mapped}`);
+console.log(`  With external ID: ${verifyExtIds?.length ?? 0}`);
 
 console.log('\nDone! Next: run backfill-ratings for BAN fixtures.');

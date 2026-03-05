@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Sync unmapped players: Fetch API-Football squads for all clubs,
- * match unmapped local players by name/shirt-number, update api_football_id.
+ * match unmapped local players by name/shirt-number, write to player_external_ids.
  *
  * Usage: node scripts/sync-unmapped-players.mjs [--dry-run]
  *
@@ -52,30 +52,40 @@ function normalizeForMatch(text) {
 
 console.log(`\n=== Sync Unmapped Players ${DRY_RUN ? '(DRY RUN)' : ''} ===\n`);
 
-// Load all clubs with api_football_id
-const { data: clubs } = await supabase
-  .from('clubs')
-  .select('id, name, short, api_football_id')
-  .not('api_football_id', 'is', null)
-  .order('short');
+// Load all clubs with api_football external ID
+const [{ data: clubExtIds }, { data: clubRows }] = await Promise.all([
+  supabase.from('club_external_ids').select('club_id, external_id').eq('source', 'api_football'),
+  supabase.from('clubs').select('id, name, short').order('short'),
+]);
+
+const clubApiIdMap = new Map();
+for (const ext of (clubExtIds ?? [])) {
+  const numId = parseInt(ext.external_id, 10);
+  if (!isNaN(numId)) clubApiIdMap.set(ext.club_id, numId);
+}
+
+const clubs = (clubRows ?? [])
+  .filter(c => clubApiIdMap.has(c.id))
+  .map(c => ({ ...c, _apiFootballId: clubApiIdMap.get(c.id) }));
 
 console.log(`Clubs with API mapping: ${clubs?.length ?? 0}`);
 
-// Load ALL players (not just unmapped, we need to prevent duplicate mappings)
-const { data: allPlayers } = await supabase
-  .from('players')
-  .select('id, first_name, last_name, shirt_number, position, club_id, api_football_id');
+// Load ALL players + existing external IDs to prevent duplicate mappings
+const [{ data: allPlayers }, { data: extIds }] = await Promise.all([
+  supabase.from('players').select('id, first_name, last_name, shirt_number, position, club_id'),
+  supabase.from('player_external_ids').select('player_id, external_id').eq('source', 'api_football_squad'),
+]);
 
 const alreadyMappedApiIds = new Set(
-  (allPlayers ?? []).filter(p => p.api_football_id).map(p => p.api_football_id)
+  (extIds ?? []).map(e => parseInt(e.external_id, 10)).filter(n => !isNaN(n))
 );
 const alreadyMappedPlayerIds = new Set(
-  (allPlayers ?? []).filter(p => p.api_football_id).map(p => p.id)
+  (extIds ?? []).map(e => e.player_id)
 );
 
 const unmappedByClub = new Map();
 for (const p of (allPlayers ?? [])) {
-  if (p.api_football_id) continue;
+  if (alreadyMappedPlayerIds.has(p.id)) continue;
   const arr = unmappedByClub.get(p.club_id) || [];
   arr.push(p);
   unmappedByClub.set(p.club_id, arr);
@@ -100,7 +110,7 @@ for (const club of (clubs ?? [])) {
   console.log(`\n--- ${club.short} (${club.name}) — ${unmapped.length} unmapped ---`);
 
   try {
-    const data = await apiFetch(`/players/squads?team=${club.api_football_id}`);
+    const data = await apiFetch(`/players/squads?team=${club._apiFootballId}`);
     totalApiCalls++;
     const squad = data.response?.[0]?.players ?? [];
     console.log(`  API squad: ${squad.length} players`);
@@ -220,9 +230,12 @@ if (!DRY_RUN && allMatches.length > 0) {
 
   for (const m of allMatches) {
     const { error } = await supabase
-      .from('players')
-      .update({ api_football_id: m.apiFootballId })
-      .eq('id', m.playerId);
+      .from('player_external_ids')
+      .upsert({
+        player_id: m.playerId,
+        source: 'api_football_squad',
+        external_id: String(m.apiFootballId),
+      }, { onConflict: 'player_id,source' });
 
     if (error) {
       allErrors.push(`Update ${m.localName}: ${error.message}`);
@@ -265,9 +278,9 @@ if (allErrors.length > 0) {
 // Final status check
 if (!DRY_RUN) {
   const { data: finalStatus } = await supabase
-    .from('players')
-    .select('id, api_football_id')
-    .not('api_football_id', 'is', null);
+    .from('player_external_ids')
+    .select('player_id')
+    .eq('source', 'api_football_squad');
 
   const { data: totalPlayers } = await supabase
     .from('players')

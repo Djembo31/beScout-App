@@ -3,7 +3,7 @@
  *
  * Problem: API-Football uses DIFFERENT player IDs between /players/squads (initial mapping)
  * and /fixtures/players (match stats). This script finds those alternate IDs via name-matching
- * and stores them as fixture_api_football_id on the players table.
+ * and stores them in the player_external_ids table (source: 'api_football_fixture').
  *
  * Usage: node scripts/reconcile-player-ids.mjs [startGw] [endGw]
  *   Default: GW 1-28 (all played gameweeks)
@@ -56,39 +56,53 @@ async function main() {
 
   console.log(`\n=== Reconcile Player IDs: GW ${startGw}-${endGw} ===\n`);
 
-  // 1. Load all DB players with clubs
-  const { data: allPlayers } = await supabase
-    .from('players')
-    .select('id, first_name, last_name, club_id, api_football_id, fixture_api_football_id, shirt_number, position');
+  // 1. Load all DB players with clubs + existing external IDs
+  const [{ data: allPlayers }, { data: extIds }] = await Promise.all([
+    supabase.from('players').select('id, first_name, last_name, club_id, shirt_number, position'),
+    supabase.from('player_external_ids').select('player_id, source, external_id').in('source', ['api_football_squad', 'api_football_fixture']),
+  ]);
 
   if (!allPlayers || allPlayers.length === 0) {
     console.error('No players in DB');
     process.exit(1);
   }
 
-  // Build club → players lookup
+  // Track which players already have fixture IDs
+  const playersWithFixtureId = new Set();
+  for (const ext of (extIds ?? [])) {
+    if (ext.source === 'api_football_fixture') playersWithFixtureId.add(ext.player_id);
+  }
+
+  // Build club → players lookup (add hasFixtureId flag)
   const clubPlayers = new Map();
   for (const p of allPlayers) {
     const arr = clubPlayers.get(p.club_id) || [];
-    arr.push(p);
+    arr.push({ ...p, hasFixtureId: playersWithFixtureId.has(p.id) });
     clubPlayers.set(p.club_id, arr);
   }
 
   // Build existing API ID set (to avoid double-mapping)
   const existingApiIds = new Set();
-  for (const p of allPlayers) {
-    if (p.api_football_id) existingApiIds.add(p.api_football_id);
-    if (p.fixture_api_football_id) existingApiIds.add(p.fixture_api_football_id);
+  for (const ext of (extIds ?? [])) {
+    const numId = parseInt(ext.external_id, 10);
+    if (!isNaN(numId)) existingApiIds.add(numId);
   }
 
-  // 2. Load club mapping
-  const { data: clubRows } = await supabase
-    .from('clubs')
-    .select('id, name, api_football_id')
-    .not('api_football_id', 'is', null);
+  // 2. Load club mapping (via club_external_ids)
+  const [{ data: clubExtIds }, { data: clubRows }] = await Promise.all([
+    supabase.from('club_external_ids').select('club_id, external_id').eq('source', 'api_football'),
+    supabase.from('clubs').select('id, name'),
+  ]);
 
-  const clubMap = new Map((clubRows ?? []).map(c => [c.api_football_id, { id: c.id, name: c.name }]));
-  const clubIdToApiId = new Map((clubRows ?? []).map(c => [c.id, c.api_football_id]));
+  const clubNameMap = new Map((clubRows ?? []).map(c => [c.id, c.name]));
+  const clubMap = new Map();
+  const clubIdToApiId = new Map();
+  for (const ext of (clubExtIds ?? [])) {
+    const numId = parseInt(ext.external_id, 10);
+    if (isNaN(numId)) continue;
+    clubMap.set(numId, { id: ext.club_id, name: clubNameMap.get(ext.club_id) ?? '' });
+    clubIdToApiId.set(ext.club_id, numId);
+  }
 
   // 3. Find fixtures with incomplete player data
   const { data: fixtureStats } = await supabase
@@ -157,8 +171,8 @@ async function main() {
 
           const candidates = [];
           for (const p of ourPlayers) {
-            // Skip if this player already has a fixture_api_football_id
-            if (p.fixture_api_football_id) continue;
+            // Skip if this player already has a fixture external ID
+            if (p.hasFixtureId) continue;
 
             const lastName = normalizeForMatch(p.last_name);
             const firstName = normalizeForMatch(p.first_name);
@@ -207,16 +221,19 @@ async function main() {
 
           const best = candidates[0];
 
-          // Write fixture_api_football_id
+          // Write fixture external ID to player_external_ids
           const { error } = await supabase
-            .from('players')
-            .update({ fixture_api_football_id: apiPlayerId })
-            .eq('id', best.player.id);
+            .from('player_external_ids')
+            .upsert({
+              player_id: best.player.id,
+              source: 'api_football_fixture',
+              external_id: String(apiPlayerId),
+            }, { onConflict: 'player_id,source' });
 
           if (!error) {
             totalReconciled++;
             existingApiIds.add(apiPlayerId);
-            best.player.fixture_api_football_id = apiPlayerId; // Prevent re-matching
+            best.player.hasFixtureId = true; // Prevent re-matching
             console.log(`  ✓ ${pd.player.name} (API#${apiPlayerId}) → ${best.player.first_name} ${best.player.last_name} (score: ${best.score})`);
           } else {
             console.error(`  ✗ Update failed for ${best.player.first_name} ${best.player.last_name}: ${error.message}`);
