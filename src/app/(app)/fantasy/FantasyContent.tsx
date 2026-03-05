@@ -147,7 +147,7 @@ export default function FantasyContent() {
   const { user, profile } = useUser();
   const { balanceCents, setBalanceCents } = useWallet();
   const { addToast } = useToast();
-  const { activeClub } = useClub();
+  const { activeClub, loading: clubLoading } = useClub();
   const clubId = activeClub?.id ?? '';
   const userId = user?.id;
 
@@ -528,8 +528,10 @@ export default function FantasyContent() {
 
   const fixtureCount = gwFixtureInfo.count;
 
-  // Loading state — skeleton (wait for activeGw to prevent flash of GW1)
-  if (eventsLoading || (!!clubId && activeGwLoading)) {
+  // Loading state — skeleton (wait for club + activeGw to prevent flash of GW1)
+  // clubLoading: ClubProvider hasn't resolved yet → clubId is '' → query disabled
+  // activeGwLoading: clubId resolved but DB query still in-flight
+  if (eventsLoading || clubLoading || (!!clubId && activeGwLoading)) {
     return (
       <div className="max-w-[1400px] mx-auto space-y-4">
         <div className="flex items-center justify-between">
