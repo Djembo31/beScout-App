@@ -40,7 +40,10 @@ export function useActiveGameweek(clubId: string | undefined) {
     queryKey: qk.events.activeGw(clubId!),
     queryFn: () => getActiveGameweek(clubId!),
     enabled: !!clubId,
-    staleTime: FIVE_MIN,
+    staleTime: 0,                  // Always refetch on mount — critical navigation data
+    gcTime: 60_000,                // Keep 1min for back-nav, but not long enough to go stale
+    placeholderData: undefined,    // Never show stale cached GW — wait for fresh data
+    refetchOnMount: 'always',      // Even if query exists in cache, refetch
   });
 }
 

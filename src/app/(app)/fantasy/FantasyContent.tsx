@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import {
@@ -17,6 +17,8 @@ import { submitLineup, getLineup } from '@/lib/services/lineups';
 import { getFixtureDeadlinesByGameweek, getGameweekStatuses } from '@/lib/services/fixtures';
 import type { FixtureDeadline } from '@/lib/services/fixtures';
 import { invalidateFantasyQueries } from '@/lib/queries/invalidation';
+import { queryClient } from '@/lib/queryClient';
+import { qk } from '@/lib/queries/keys';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import { useEvents, useJoinedEventIds, usePlayerEventUsage, useActiveGameweek, useIsClubAdmin } from '@/lib/queries/events';
 import { useHoldings } from '@/lib/queries/holdings';
@@ -174,13 +176,26 @@ export default function FantasyContent() {
   const [summaryLeaderboard, setSummaryLeaderboard] = useState<import('@/lib/services/scoring').LeaderboardEntry[]>([]);
 
   // Sync selectedGameweek with activeGw on first load
-  // No default on activeGw — stays undefined until DB responds, preventing race condition
-  // where GW1 would be set before the real active GW loads
+  // placeholderData is disabled on useActiveGameweek → activeGw stays undefined
+  // until DB responds, so this only fires with fresh data
   useEffect(() => {
     if (activeGw && activeGw > 0 && selectedGameweek === null) {
       setSelectedGameweek(activeGw);
     }
   }, [activeGw, selectedGameweek]);
+
+  // Safari bfcache: page is restored from memory with stale JS state
+  // → reset selectedGameweek and refetch activeGw to get fresh data
+  useEffect(() => {
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted && clubId) {
+        setSelectedGameweek(null);
+        queryClient.invalidateQueries({ queryKey: qk.events.activeGw(clubId) });
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, [clubId]);
 
   const currentGw = selectedGameweek ?? activeGw ?? 1;
 
