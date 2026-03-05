@@ -7,6 +7,7 @@ import {
   calcFantasyPoints,
   mapPosition,
   normalizeForMatch,
+  deduplicateGhostStarters,
   type ApiFixtureResponse,
   type ApiFixturePlayerResponse,
   type ApiLineupsResponse,
@@ -21,7 +22,8 @@ const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN']);
 
 function nameMatchPlayer(
   apiName: string,
-  clubPlayers: Array<{ id: string; first_name: string; last_name: string; position: string }>,
+  clubPlayers: Array<{ id: string; first_name: string; last_name: string; position: string; shirt_number?: number | null }>,
+  shirtNumber?: number,
 ): { id: string; position: string } | null {
   const normalized = normalizeForMatch(apiName);
   const parts = normalized.split(/\s+/);
@@ -45,6 +47,9 @@ function nameMatchPlayer(
     // First name bonus
     if (parts.length > 1 && normFirst === parts[0]) score += 30;
     else if (normalized.includes(normFirst) && normFirst.length >= 3) score += 15;
+
+    // Shirt-number bonus (strong signal when shirt numbers match)
+    if (shirtNumber != null && p.shirt_number != null && p.shirt_number === shirtNumber) score += 25;
 
     if (score > bestScore && score >= 40) {
       bestScore = score;
@@ -230,7 +235,7 @@ export async function GET(request: Request) {
           .in('source', ['api_football_squad', 'api_football_fixture']),
         supabaseAdmin
           .from('players')
-          .select('id, position, first_name, last_name, club_id'),
+          .select('id, position, first_name, last_name, club_id, shirt_number'),
         supabaseAdmin
           .from('club_external_ids')
           .select('club_id, external_id')
@@ -248,7 +253,8 @@ export async function GET(request: Request) {
       }
 
       // Build club players map for name matching: clubId → players[]
-      const clubPlayersMap = new Map<string, Array<{ id: string; first_name: string; last_name: string; position: string }>>();
+      type ClubPlayerInfo = { id: string; first_name: string; last_name: string; position: string; shirt_number: number | null };
+      const clubPlayersMap = new Map<string, ClubPlayerInfo[]>();
       for (const p of playerRes.data ?? []) {
         const cid = p.club_id as string;
         if (!cid) continue;
@@ -258,8 +264,19 @@ export async function GET(request: Request) {
           first_name: p.first_name as string,
           last_name: p.last_name as string,
           position: p.position as string,
+          shirt_number: (p.shirt_number as number | null) ?? null,
         });
         clubPlayersMap.set(cid, arr);
+      }
+
+      // Build shirt-number index: clubId → shirtNumber → player
+      const clubPlayersByShirtNumber = new Map<string, Map<number, ClubPlayerInfo>>();
+      for (const [cid, players] of Array.from(clubPlayersMap.entries())) {
+        const snMap = new Map<number, ClubPlayerInfo>();
+        for (const p of players) {
+          if (p.shirt_number != null) snMap.set(p.shirt_number, p);
+        }
+        clubPlayersByShirtNumber.set(cid, snMap);
       }
 
       return {
@@ -290,6 +307,7 @@ export async function GET(request: Request) {
           return m;
         })(),
         clubPlayersMap,
+        clubPlayersByShirtNumber,
       };
     });
 
@@ -340,6 +358,8 @@ export async function GET(request: Request) {
       let matchedCount = 0;
       let unmatchedCount = 0;
       let nameMatchCount = 0;
+      let shirtBridgeCount = 0;
+      const newExternalIds: Array<{ player_id: string; external_id: number }> = [];
 
       for (const fixture of mappings.fixtures) {
         // Fetch lineups and player stats in parallel
@@ -371,11 +391,13 @@ export async function GET(request: Request) {
 
         // Build lineup map: apiPlayerId → {isStarter, gridPosition, name}
         // Also build name-based maps for cross-referencing (handles dual-ID mismatches)
-        type LineupInfo = { isStarter: boolean; gridPosition: string | null; name: string };
+        type LineupInfo = { isStarter: boolean; gridPosition: string | null; name: string; apiId: number; shirtNumber: number };
         const lineupMap = new Map<number, LineupInfo>();
         const lineupByName = new Map<string, LineupInfo>();
         // Fuzzy: last-name only map (value = info if unique, null if ambiguous)
         const lineupByLastName = new Map<string, LineupInfo | null>();
+        // Shirt-number map for cross-referencing
+        const lineupByShirtNumber = new Map<number, LineupInfo>();
 
         // Store formations on fixture
         const formationUpdates: Record<string, string> = {};
@@ -398,6 +420,10 @@ export async function GET(request: Request) {
             if (last && last.length >= 3) {
               lineupByLastName.set(last, lineupByLastName.has(last) ? null : info);
             }
+            // Shirt-number index (overwrite if duplicate — rare edge case)
+            if (info.shirtNumber > 0) {
+              lineupByShirtNumber.set(info.shirtNumber, info);
+            }
           };
 
           for (const entry of teamLineup.startXI ?? []) {
@@ -405,6 +431,8 @@ export async function GET(request: Request) {
               isStarter: true,
               gridPosition: entry.player.grid,
               name: entry.player.name,
+              apiId: entry.player.id,
+              shirtNumber: entry.player.number,
             });
           }
           for (const entry of teamLineup.substitutes ?? []) {
@@ -412,6 +440,8 @@ export async function GET(request: Request) {
               isStarter: false,
               gridPosition: null,
               name: entry.player.name,
+              apiId: entry.player.id,
+              shirtNumber: entry.player.number,
             });
           }
         }
@@ -447,12 +477,35 @@ export async function GET(request: Request) {
 
             const matchPosition = stat.games.position ? mapPosition(stat.games.position) : null;
             const minutes = stat.games.minutes ?? 0;
-            // Try ID lookup → exact name → fuzzy last-name (handles dual-ID mismatches)
+            // Resolution order: 1) Direct API-ID  2) Shirt-Number Bridge  3) Name fallback
             let lineupInfo = lineupMap.get(apiPlayerId);
+            let bridgeMethod: 'direct' | 'shirt_bridge' | 'name' | null = lineupInfo ? 'direct' : null;
+
+            // 2) Shirt-Number Bridge: stats-player → DB player → shirt_number → lineup
+            if (!lineupInfo && clubId) {
+              const clubPlayers = mappings.clubPlayersMap.get(clubId);
+              if (clubPlayers) {
+                const dbMatch = nameMatchPlayer(pd.player.name ?? '', clubPlayers, undefined);
+                if (dbMatch) {
+                  const snMap = mappings.clubPlayersByShirtNumber.get(clubId);
+                  const dbPlayer = clubPlayers.find(cp => cp.id === dbMatch.id);
+                  if (dbPlayer?.shirt_number != null && snMap) {
+                    const byShirt = lineupByShirtNumber.get(dbPlayer.shirt_number);
+                    if (byShirt) {
+                      lineupInfo = byShirt;
+                      bridgeMethod = 'shirt_bridge';
+                      shirtBridgeCount++;
+                      console.log(`[SHIRT_BRIDGE] ${pd.player.name}(${apiPlayerId}) → ${byShirt.name}(${byShirt.apiId}) via #${dbPlayer.shirt_number}`);
+                    }
+                  }
+                }
+              }
+            }
+
+            // 3) Name fallback: exact name → fuzzy last-name
             if (!lineupInfo && pd.player.name) {
               const normalizedName = normalizeForMatch(pd.player.name);
               lineupInfo = lineupByName.get(normalizedName) ?? undefined;
-              // Fuzzy: last-name match (only if unambiguous)
               if (!lineupInfo) {
                 const parts = normalizedName.split(/\s+/);
                 const last = parts[parts.length - 1];
@@ -460,6 +513,12 @@ export async function GET(request: Request) {
                   lineupInfo = lineupByLastName.get(last) ?? undefined;
                 }
               }
+              if (lineupInfo) bridgeMethod = 'name';
+            }
+
+            // If cross-referenced (not direct), mark lineup API ID as processed to prevent ghost duplicates
+            if (lineupInfo && lineupInfo.apiId !== apiPlayerId) {
+              processedApiIds.add(lineupInfo.apiId);
             }
             const isStarter = lineupInfo?.isStarter ?? false;
             const gridPosition = lineupInfo?.gridPosition ?? null;
@@ -467,17 +526,23 @@ export async function GET(request: Request) {
             // Skip bench players with 0 minutes who are NOT in the lineup
             if (minutes === 0 && !lineupInfo) continue;
 
-            // Try to match player: 1) Dual-ID lookup 2) Name match 3) null
+            // Try to match player: 1) Dual-ID lookup 2) Name match (with shirt bonus) 3) null
             let ourPlayer = mappings.playerMap.get(apiPlayerId);
             const apiPlayerName = lineupInfo?.name ?? pd.player.name ?? `Player ${apiPlayerId}`;
 
             if (!ourPlayer) {
-              // Try name matching within the club squad
+              // Try name matching within the club squad (pass shirt number for bonus scoring)
               const clubPlayers = mappings.clubPlayersMap.get(clubId);
               if (clubPlayers) {
-                ourPlayer = nameMatchPlayer(apiPlayerName, clubPlayers) ?? undefined;
+                const sn = lineupInfo?.shirtNumber ?? undefined;
+                ourPlayer = nameMatchPlayer(apiPlayerName, clubPlayers, sn) ?? undefined;
                 if (ourPlayer) nameMatchCount++;
               }
+            }
+
+            // Auto-reconcile: if matched by name/shirt but API ID differs from known external IDs
+            if (ourPlayer && !mappings.playerMap.has(apiPlayerId)) {
+              newExternalIds.push({ player_id: ourPlayer.id, external_id: apiPlayerId });
             }
 
             if (ourPlayer) matchedCount++;
@@ -555,9 +620,14 @@ export async function GET(request: Request) {
             if (!ourPlayer) {
               const clubPlayers = mappings.clubPlayersMap.get(clubId);
               if (clubPlayers) {
-                ourPlayer = nameMatchPlayer(entry.player.name, clubPlayers) ?? undefined;
+                ourPlayer = nameMatchPlayer(entry.player.name, clubPlayers, entry.player.number) ?? undefined;
                 if (ourPlayer) nameMatchCount++;
               }
+            }
+
+            // Auto-reconcile: persist newly discovered fixture API IDs
+            if (ourPlayer && !mappings.playerMap.has(entry.player.id)) {
+              newExternalIds.push({ player_id: ourPlayer.id, external_id: entry.player.id });
             }
 
             if (ourPlayer) matchedCount++;
@@ -588,7 +658,7 @@ export async function GET(request: Request) {
         }
       }
 
-      return { fixtureResults, playerStats, matchedCount, unmatchedCount, nameMatchCount };
+      return { fixtureResults, playerStats, matchedCount, unmatchedCount, nameMatchCount, shirtBridgeCount, newExternalIds };
     });
 
     if (!statsResult) {
@@ -599,12 +669,19 @@ export async function GET(request: Request) {
       );
     }
 
+    // Structural dedup: remove ghost starters (dual-ID entries with 0 min, null rating)
+    // Uses the football rule that a team has exactly 11 starters — catches ALL edge cases
+    const dedupedStats = deduplicateGhostStarters(statsResult.playerStats);
+    const ghostsRemoved = statsResult.playerStats.length - dedupedStats.length;
+
     await logStep(activeGw, 'fetch_stats', 'success', {
       fixtures: statsResult.fixtureResults.length,
-      playerStats: statsResult.playerStats.length,
+      playerStats: dedupedStats.length,
       matched: statsResult.matchedCount,
       unmatched: statsResult.unmatchedCount,
       nameMatched: statsResult.nameMatchCount,
+      shirtBridged: statsResult.shirtBridgeCount,
+      ghostsRemoved,
     });
 
     // ---- 7. Import via RPC ----
@@ -614,7 +691,7 @@ export async function GET(request: Request) {
         {
           p_gameweek: activeGw,
           p_fixture_results: statsResult.fixtureResults,
-          p_player_stats: statsResult.playerStats,
+          p_player_stats: dedupedStats,
         },
       );
       if (error) throw new Error(error.message);
@@ -638,6 +715,39 @@ export async function GET(request: Request) {
           }
         : undefined,
     );
+
+    // ---- 7b. Auto-reconcile: persist newly discovered fixture API IDs ----
+    if (statsResult.newExternalIds.length > 0) {
+      // Deduplicate by player_id (keep first occurrence)
+      const seen = new Set<string>();
+      const uniqueIds = statsResult.newExternalIds.filter(e => {
+        if (seen.has(e.player_id)) return false;
+        seen.add(e.player_id);
+        return true;
+      });
+
+      const { error: reconcileErr } = await supabaseAdmin
+        .from('player_external_ids')
+        .upsert(
+          uniqueIds.map(e => ({
+            player_id: e.player_id,
+            source: 'api_football_fixture',
+            external_id: String(e.external_id),
+          })),
+          { onConflict: 'player_id,source' },
+        );
+
+      if (reconcileErr) {
+        console.log(`[AUTO-RECONCILE] Error: ${reconcileErr.message}`);
+      } else {
+        console.log(`[AUTO-RECONCILE] Persisted ${uniqueIds.length} new fixture API IDs`);
+      }
+
+      await logStep(activeGw, 'auto_reconcile', reconcileErr ? 'error' : 'success', {
+        persisted: uniqueIds.length,
+        error: reconcileErr?.message,
+      });
+    }
 
     // ---- 8 & 9. Score events ----
     let eventsScored = 0;
@@ -807,6 +917,14 @@ export async function GET(request: Request) {
     await logStep(activeGw, 'recalc_perf', 'success', {
       updated: perfResult?.updated_count ?? 0,
     });
+
+    // ---- Integrity Validation ----
+    console.log(`[INTEGRITY] GW${activeGw} Match Distribution: direct=${statsResult.matchedCount - statsResult.nameMatchCount - statsResult.shirtBridgeCount}, shirt_bridge=${statsResult.shirtBridgeCount}, name=${statsResult.nameMatchCount}, unmatched=${statsResult.unmatchedCount}, ghosts_removed=${ghostsRemoved}`);
+
+    if (statsResult.unmatchedCount > 0) {
+      const nullPlayerStats = dedupedStats.filter(s => s.player_id === null);
+      console.log(`[INTEGRITY] ${nullPlayerStats.length} stats with null player_id (unmatched players)`);
+    }
 
     // ---- Summary ----
     const totalDuration = Date.now() - runStart;
