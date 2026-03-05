@@ -370,10 +370,12 @@ export async function GET(request: Request) {
         }
 
         // Build lineup map: apiPlayerId → {isStarter, gridPosition, name}
-        // Also build name-based map for cross-referencing (handles dual-ID mismatches)
+        // Also build name-based maps for cross-referencing (handles dual-ID mismatches)
         type LineupInfo = { isStarter: boolean; gridPosition: string | null; name: string };
         const lineupMap = new Map<number, LineupInfo>();
         const lineupByName = new Map<string, LineupInfo>();
+        // Fuzzy: last-name only map (value = info if unique, null if ambiguous)
+        const lineupByLastName = new Map<string, LineupInfo | null>();
 
         // Store formations on fixture
         const formationUpdates: Record<string, string> = {};
@@ -387,23 +389,30 @@ export async function GET(request: Request) {
             if (clubId === fixture.away_club_id) formationUpdates.away_formation = teamLineup.formation;
           }
 
+          const addToLineupMaps = (entry: { player: ApiLineupPlayer }, info: LineupInfo) => {
+            lineupMap.set(entry.player.id, info);
+            lineupByName.set(normalizeForMatch(entry.player.name), info);
+            // Fuzzy last-name index (null = ambiguous if multiple players share last name)
+            const parts = normalizeForMatch(entry.player.name).split(/\s+/);
+            const last = parts[parts.length - 1];
+            if (last && last.length >= 3) {
+              lineupByLastName.set(last, lineupByLastName.has(last) ? null : info);
+            }
+          };
+
           for (const entry of teamLineup.startXI ?? []) {
-            const info: LineupInfo = {
+            addToLineupMaps(entry, {
               isStarter: true,
               gridPosition: entry.player.grid,
               name: entry.player.name,
-            };
-            lineupMap.set(entry.player.id, info);
-            lineupByName.set(normalizeForMatch(entry.player.name), info);
+            });
           }
           for (const entry of teamLineup.substitutes ?? []) {
-            const info: LineupInfo = {
+            addToLineupMaps(entry, {
               isStarter: false,
               gridPosition: null,
               name: entry.player.name,
-            };
-            lineupMap.set(entry.player.id, info);
-            lineupByName.set(normalizeForMatch(entry.player.name), info);
+            });
           }
         }
 
@@ -438,10 +447,19 @@ export async function GET(request: Request) {
 
             const matchPosition = stat.games.position ? mapPosition(stat.games.position) : null;
             const minutes = stat.games.minutes ?? 0;
-            // Try ID lookup first, then name-based cross-reference (handles dual-ID mismatches)
+            // Try ID lookup → exact name → fuzzy last-name (handles dual-ID mismatches)
             let lineupInfo = lineupMap.get(apiPlayerId);
             if (!lineupInfo && pd.player.name) {
-              lineupInfo = lineupByName.get(normalizeForMatch(pd.player.name)) ?? undefined;
+              const normalizedName = normalizeForMatch(pd.player.name);
+              lineupInfo = lineupByName.get(normalizedName) ?? undefined;
+              // Fuzzy: last-name match (only if unambiguous)
+              if (!lineupInfo) {
+                const parts = normalizedName.split(/\s+/);
+                const last = parts[parts.length - 1];
+                if (last && last.length >= 3) {
+                  lineupInfo = lineupByLastName.get(last) ?? undefined;
+                }
+              }
             }
             const isStarter = lineupInfo?.isStarter ?? false;
             const gridPosition = lineupInfo?.gridPosition ?? null;

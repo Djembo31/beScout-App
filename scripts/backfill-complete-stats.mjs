@@ -116,29 +116,33 @@ const endGW = parseInt(process.argv[3] || '28', 10);
 console.log(`\n=== Backfill Complete Stats GW ${startGW}-${endGW} ===`);
 console.log(`League: ${LEAGUE_ID}, Season: ${SEASON}\n`);
 
-// Load DB mappings
-const { data: playerRows } = await supabase
-  .from('players')
-  .select('id, api_football_id, fixture_api_football_id, position, first_name, last_name, club_id')
-  .not('api_football_id', 'is', null);
+// Load DB mappings (via external_ids tables)
+const [{ data: extIds }, { data: playerRows }, { data: clubExtIds }] = await Promise.all([
+  supabase.from('player_external_ids').select('player_id, external_id').in('source', ['api_football_squad', 'api_football_fixture']),
+  supabase.from('players').select('id, position, first_name, last_name, club_id'),
+  supabase.from('club_external_ids').select('club_id, external_id').eq('source', 'api_football'),
+]);
 
-const { data: clubRows } = await supabase
-  .from('clubs')
-  .select('id, api_football_id, short')
-  .not('api_football_id', 'is', null);
+// Player info lookup
+const playerInfoMap = new Map();
+for (const p of playerRows) {
+  playerInfoMap.set(p.id, { position: p.position, first_name: p.first_name, last_name: p.last_name, club_id: p.club_id });
+}
 
 // Player ID map (api_football_id → {id, position})
 const playerMap = new Map();
-for (const p of playerRows) {
-  const entry = { id: p.id, position: p.position };
-  if (p.api_football_id) playerMap.set(p.api_football_id, entry);
-  if (p.fixture_api_football_id) playerMap.set(p.fixture_api_football_id, entry);
+for (const ext of (extIds ?? [])) {
+  const numId = parseInt(ext.external_id, 10);
+  if (isNaN(numId)) continue;
+  const info = playerInfoMap.get(ext.player_id);
+  playerMap.set(numId, { id: ext.player_id, position: info?.position ?? 'MID' });
 }
 
 // Club ID map (api_football_id → uuid)
 const clubMap = new Map();
-for (const c of clubRows) {
-  clubMap.set(c.api_football_id, c.id);
+for (const ext of (clubExtIds ?? [])) {
+  const numId = parseInt(ext.external_id, 10);
+  if (!isNaN(numId)) clubMap.set(numId, ext.club_id);
 }
 
 // Club players map for name matching
@@ -205,9 +209,21 @@ for (let gw = startGW; gw <= endGW; gw++) {
     const apiStats = await apiFetch(`/fixtures/players?fixture=${fixture.api_fixture_id}`);
     apiCalls++;
 
-    // Build lineup map
+    // Build lineup map (by ID + by name + by last-name for dual-ID cross-reference)
     const lineupMap = new Map();
+    const lineupByName = new Map();
+    const lineupByLastName = new Map(); // null = ambiguous
     const formationUpdates = {};
+
+    function addToLineupMaps(entry, info) {
+      lineupMap.set(entry.player.id, info);
+      lineupByName.set(normalizeForMatch(entry.player.name), info);
+      const parts = normalizeForMatch(entry.player.name).split(/\s+/);
+      const last = parts[parts.length - 1];
+      if (last && last.length >= 3) {
+        lineupByLastName.set(last, lineupByLastName.has(last) ? null : info);
+      }
+    }
 
     for (const teamLineup of lineupsData.response) {
       const clubId = clubMap.get(teamLineup.team.id);
@@ -219,14 +235,14 @@ for (let gw = startGW; gw <= endGW; gw++) {
       }
 
       for (const entry of teamLineup.startXI || []) {
-        lineupMap.set(entry.player.id, {
+        addToLineupMaps(entry, {
           isStarter: true,
           gridPosition: entry.player.grid,
           name: entry.player.name,
         });
       }
       for (const entry of teamLineup.substitutes || []) {
-        lineupMap.set(entry.player.id, {
+        addToLineupMaps(entry, {
           isStarter: false,
           gridPosition: null,
           name: entry.player.name,
@@ -261,14 +277,27 @@ for (let gw = startGW; gw <= endGW; gw++) {
 
         const matchPosition = stat.games.position ? mapPosition(stat.games.position) : null;
         const minutes = stat.games.minutes ?? 0;
-        const lineupInfo = lineupMap.get(apiPlayerId);
-        const isStarter = lineupInfo?.isStarter ?? (minutes > 0);
+        // Try ID lookup → exact name → fuzzy last-name (handles dual-ID mismatches)
+        let lineupInfo = lineupMap.get(apiPlayerId);
+        if (!lineupInfo && pd.player.name) {
+          const normalizedName = normalizeForMatch(pd.player.name);
+          lineupInfo = lineupByName.get(normalizedName);
+          // Fuzzy: last-name match (only if unambiguous)
+          if (!lineupInfo) {
+            const parts = normalizedName.split(/\s+/);
+            const last = parts[parts.length - 1];
+            if (last && last.length >= 3) {
+              lineupInfo = lineupByLastName.get(last) || undefined;
+            }
+          }
+        }
+        const isStarter = lineupInfo?.isStarter ?? false;
         const gridPosition = lineupInfo?.gridPosition ?? null;
 
         if (minutes === 0 && !lineupInfo) continue;
 
         let ourPlayer = playerMap.get(apiPlayerId);
-        const apiPlayerName = lineupInfo?.name ?? `Player ${apiPlayerId}`;
+        const apiPlayerName = lineupInfo?.name ?? pd.player.name ?? `Player ${apiPlayerId}`;
 
         if (!ourPlayer) {
           const clubPlayers = clubPlayersMap.get(clubId);
@@ -375,20 +404,57 @@ for (let gw = startGW; gw <= endGW; gw++) {
     await sleep(500);
   }
 
-  // Import via RPC (idempotent)
-  if (fixtureResults.length > 0) {
-    const { data, error } = await supabase.rpc('cron_process_gameweek', {
-      p_gameweek: gw,
-      p_fixture_results: fixtureResults,
-      p_player_stats: playerStats,
-    });
+  // Direct import (bypass RPC to avoid unique constraint issues)
+  const gwFixtureIds = fixtures.map(f => f.id);
 
-    if (error) {
-      console.error(`  RPC error: ${error.message}`);
+  // 1. Update fixture scores
+  for (const fr of fixtureResults) {
+    await supabase.from('fixtures')
+      .update({ home_score: fr.home_score, away_score: fr.away_score, status: 'finished' })
+      .eq('id', fr.fixture_id);
+  }
+
+  // 2. Delete ALL existing stats for this GW's fixtures
+  const { error: delErr } = await supabase.from('fixture_player_stats')
+    .delete()
+    .in('fixture_id', gwFixtureIds);
+  if (delErr) {
+    console.error(`  Delete error: ${delErr.message}`);
+    continue;
+  }
+
+  // 3. Deduplicate: same (fixture_id, player_id) can appear if name-match hits same player
+  const seen = new Set();
+  const dedupedStats = [];
+  for (const s of playerStats) {
+    const key = s.player_id ? `${s.fixture_id}:${s.player_id}` : `${s.fixture_id}:api:${s.api_football_player_id}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    dedupedStats.push({ ...s, id: crypto.randomUUID() });
+  }
+
+  // 4. Batch insert (Supabase max ~1000 rows per request)
+  const BATCH = 500;
+  let inserted = 0;
+  for (let i = 0; i < dedupedStats.length; i += BATCH) {
+    const batch = dedupedStats.slice(i, i + BATCH);
+    const { error: insErr } = await supabase.from('fixture_player_stats').insert(batch);
+    if (insErr) {
+      console.error(`  Insert error (batch ${i}): ${insErr.message}`);
     } else {
-      console.log(`  Imported: ${data.stats_imported} stats, ${data.scores_synced} scores | Matched: ${gwMatched}, Name: ${gwNameMatched}, Unmatched: ${gwUnmatched}`);
+      inserted += batch.length;
     }
   }
+
+  // 5. Sync player_gameweek_scores for matched players
+  const matchedStats = dedupedStats.filter(s => s.player_id);
+  for (const s of matchedStats) {
+    const score = s.rating ? Math.min(100, Math.max(0, Math.round(s.rating * 10))) : Math.min(100, Math.max(0, s.fantasy_points * 5));
+    await supabase.from('player_gameweek_scores')
+      .upsert({ player_id: s.player_id, gameweek: gw, score }, { onConflict: 'player_id,gameweek' });
+  }
+
+  console.log(`  Imported: ${inserted}/${dedupedStats.length} stats (deduped from ${playerStats.length}) | Matched: ${gwMatched}, Name: ${gwNameMatched}, Unmatched: ${gwUnmatched}`);
 
   totalMatched += gwMatched;
   totalUnmatched += gwUnmatched;
