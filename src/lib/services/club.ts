@@ -507,6 +507,19 @@ export async function getActiveGameweek(clubId: string): Promise<number> {
   return (data.active_gameweek as number) ?? 1;
 }
 
+/** Get the league-wide active gameweek (MIN across all clubs).
+ *  Works for EVERY user — no club membership required. */
+export async function getLeagueActiveGameweek(): Promise<number> {
+  const { data, error } = await supabase
+    .from('clubs')
+    .select('active_gameweek')
+    .order('active_gameweek', { ascending: true })
+    .limit(1)
+    .single();
+  if (error || !data) return 1;
+  return (data.active_gameweek as number) ?? 1;
+}
+
 /** Set the active gameweek for a club (admin only) */
 export async function setActiveGameweek(clubId: string, gw: number): Promise<void> {
   const { error } = await supabase.rpc('set_active_gameweek', {

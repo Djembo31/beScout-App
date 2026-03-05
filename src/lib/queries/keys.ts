@@ -30,6 +30,7 @@ export const qk = {
     joinedIds: (uid: string) => ['events', 'joinedIds', uid] as const,
     usage: (uid: string) => ['events', 'usage', uid] as const,
     activeGw: (cid: string) => ['events', 'activeGw', cid] as const,
+    leagueGw: ['events', 'leagueGw'] as const,
   },
 
   // ── User Stats ──

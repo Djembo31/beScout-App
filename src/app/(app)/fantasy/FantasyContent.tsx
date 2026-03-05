@@ -20,7 +20,7 @@ import { invalidateFantasyQueries } from '@/lib/queries/invalidation';
 import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
-import { useEvents, useJoinedEventIds, usePlayerEventUsage, useActiveGameweek, useIsClubAdmin } from '@/lib/queries/events';
+import { useEvents, useJoinedEventIds, usePlayerEventUsage, useLeagueActiveGameweek, useIsClubAdmin } from '@/lib/queries/events';
 import { useHoldings } from '@/lib/queries/holdings';
 import { fmtScout, cn } from '@/lib/utils';
 import type { DbEvent } from '@/types';
@@ -147,7 +147,7 @@ export default function FantasyContent() {
   const { user, profile } = useUser();
   const { balanceCents, setBalanceCents } = useWallet();
   const { addToast } = useToast();
-  const { activeClub, loading: clubLoading } = useClub();
+  const { activeClub } = useClub();
   const clubId = activeClub?.id ?? '';
   const userId = user?.id;
 
@@ -155,7 +155,7 @@ export default function FantasyContent() {
   const { data: dbEvents = [], isLoading: eventsLoading, isError: eventsError, refetch: refetchEvents } = useEvents();
   const { data: joinedIdsArr = [] } = useJoinedEventIds(userId);
   const { data: usageMap } = usePlayerEventUsage(userId);
-  const { data: activeGw, isLoading: activeGwLoading } = useActiveGameweek(clubId || undefined);
+  const { data: activeGw, isLoading: activeGwLoading } = useLeagueActiveGameweek();
   const { data: isAdmin = false } = useIsClubAdmin(userId, clubId || undefined);
   const { data: dbHoldings = [] } = useHoldings(userId);
 
@@ -175,9 +175,7 @@ export default function FantasyContent() {
   const [summaryEvent, setSummaryEvent] = useState<FantasyEvent | null>(null);
   const [summaryLeaderboard, setSummaryLeaderboard] = useState<import('@/lib/services/scoring').LeaderboardEntry[]>([]);
 
-  // Sync selectedGameweek with activeGw on first load
-  // placeholderData is disabled on useActiveGameweek → activeGw stays undefined
-  // until DB responds, so this only fires with fresh data
+  // Sync selectedGameweek with league activeGw on first load
   useEffect(() => {
     if (activeGw && activeGw > 0 && selectedGameweek === null) {
       setSelectedGameweek(activeGw);
@@ -188,14 +186,14 @@ export default function FantasyContent() {
   // → reset selectedGameweek and refetch activeGw to get fresh data
   useEffect(() => {
     const handlePageShow = (e: PageTransitionEvent) => {
-      if (e.persisted && clubId) {
+      if (e.persisted) {
         setSelectedGameweek(null);
-        queryClient.invalidateQueries({ queryKey: qk.events.activeGw(clubId) });
+        queryClient.invalidateQueries({ queryKey: qk.events.leagueGw });
       }
     };
     window.addEventListener('pageshow', handlePageShow);
     return () => window.removeEventListener('pageshow', handlePageShow);
-  }, [clubId]);
+  }, []);
 
   const currentGw = selectedGameweek ?? activeGw ?? 1;
 
@@ -528,10 +526,8 @@ export default function FantasyContent() {
 
   const fixtureCount = gwFixtureInfo.count;
 
-  // Loading state — skeleton (wait for club + activeGw to prevent flash of GW1)
-  // clubLoading: ClubProvider hasn't resolved yet → clubId is '' → query disabled
-  // activeGwLoading: clubId resolved but DB query still in-flight
-  if (eventsLoading || clubLoading || (!!clubId && activeGwLoading)) {
+  // Loading state — skeleton (wait for league GW to prevent flash of GW1)
+  if (eventsLoading || activeGwLoading) {
     return (
       <div className="max-w-[1400px] mx-auto space-y-4">
         <div className="flex items-center justify-between">

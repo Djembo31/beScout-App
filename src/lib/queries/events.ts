@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { qk } from './keys';
 import { getEvents, getUserJoinedEventIds } from '@/lib/services/events';
 import { getPlayerEventUsage } from '@/lib/services/lineups';
-import { getActiveGameweek, isClubAdmin } from '@/lib/services/club';
+import { getActiveGameweek, getLeagueActiveGameweek, isClubAdmin } from '@/lib/services/club';
 
 const ONE_MIN = 60 * 1000;
 const FIVE_MIN = 5 * 60 * 1000;
@@ -44,6 +44,18 @@ export function useActiveGameweek(clubId: string | undefined) {
     gcTime: 60_000,                // Keep 1min for back-nav, but not long enough to go stale
     placeholderData: undefined,    // Never show stale cached GW — wait for fresh data
     refetchOnMount: 'always',      // Even if query exists in cache, refetch
+  });
+}
+
+/** League-wide active gameweek — no club dependency, works for ALL users */
+export function useLeagueActiveGameweek() {
+  return useQuery({
+    queryKey: qk.events.leagueGw,
+    queryFn: getLeagueActiveGameweek,
+    staleTime: 0,
+    gcTime: 60_000,
+    placeholderData: undefined,
+    refetchOnMount: 'always',
   });
 }
 
