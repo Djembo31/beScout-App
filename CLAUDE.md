@@ -26,6 +26,14 @@ ui-components.md, database.md, trading.md, fantasy.md = path-spezifisch.
 4. Bei Fehler: Rollback (git zurueck, sauber neu) — NICHT flicken
 5. Session-Ende: current-sprint.md + Feature-Files sind bereits aktuell (Knowledge Capture Protocol)
 
+## VOR jeder UI-Aenderung (PFLICHT)
+1. .claude/rules/ui-components.md LESEN und aktiv befolgen
+2. Bestehende Components pruefen BEVOR neue gebaut werden:
+   - Spieler: PlayerDisplay (compact/card) aus PlayerRow.tsx — NIEMALS eigene Spielerzeilen
+   - UI-Primitives: EmptyState, Modal, etc. aus components/ui/
+3. Alle States implementieren: Hover, Active, Focus, Disabled, Loading, Empty, Error
+4. Mobile-First: Layout auf 360px testen (kein Umbruch, keine abgeschnittenen Infos)
+
 ## Kern-Business
 - DPC = Digital Player Contract. Marktwert steigt → Community Success Fee
 - $SCOUT = Platform Credits (NIEMALS: Investment, ROI, Profit, Ownership)
