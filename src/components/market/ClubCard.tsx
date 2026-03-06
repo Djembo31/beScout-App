@@ -3,12 +3,27 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronDown, Flame } from 'lucide-react';
-import { PlayerPhoto, PositionBadge, getL5Color } from '@/components/player';
+import { PlayerPhoto, getL5Color } from '@/components/player';
+import type { Pos } from '@/types';
 import CountdownBadge from './CountdownBadge';
 import { fmtScout, cn } from '@/lib/utils';
 import type { ClubLookup } from '@/lib/clubs';
 import type { Player, DbIpo } from '@/types';
 import { centsToBsd } from '@/lib/services/players';
+
+const POS_STRIPE_COLOR: Record<Pos, string> = {
+  GK: 'bg-emerald-400',
+  DEF: 'bg-amber-400',
+  MID: 'bg-sky-400',
+  ATT: 'bg-rose-400',
+};
+
+const POS_LABEL: Record<Pos, string> = {
+  GK: 'TW',
+  DEF: 'DEF',
+  MID: 'MID',
+  ATT: 'STU',
+};
 
 interface ClubCardProps {
   club: ClubLookup;
@@ -84,14 +99,15 @@ export default function ClubCard({
       </div>
 
       {/* Top players preview */}
-      <div className="space-y-1 mb-3">
+      <div className="space-y-0.5 mb-3">
         {topPlayers.map(p => {
           const ipo = ipoMap.get(p.id);
           return (
-            <div key={p.id} className="flex items-center gap-2 text-[11px]">
+            <div key={p.id} className="flex items-center gap-2 text-[11px] relative pl-2.5">
+              <div className={cn('absolute left-0 top-1 bottom-1 w-[3px] rounded-full', POS_STRIPE_COLOR[p.pos])} />
               <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={20} />
-              <PositionBadge pos={p.pos} size="sm" />
               <span className="text-white/70 truncate flex-1">{p.last}</span>
+              <span className="text-[9px] font-bold text-white/30">{POS_LABEL[p.pos]}</span>
               <span className={cn('font-mono font-bold tabular-nums', getL5Color(p.perf.l5))}>{p.perf.l5}</span>
               {ipo && (
                 <span className="font-mono font-bold text-gold tabular-nums">
@@ -102,7 +118,7 @@ export default function ClubCard({
           );
         })}
         {players.length > 3 && (
-          <div className="text-[10px] text-white/30 pl-7">
+          <div className="text-[10px] text-white/30 pl-8">
             +{players.length - 3} {t('morePlayers', { defaultMessage: 'weitere' })}
           </div>
         )}
