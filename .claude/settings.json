@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "permissions": {
+    "Bash(*)": true,
+    "Read(*)": true,
+    "Write(*)": true,
+    "Edit(*)": true
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Check the conversation. Did the assistant handle ALL of these for EVERY changed UI component: 1) hover/active/focus/disabled states 2) aria-labels on interactive elements 3) loading/empty/error states 4) mobile touch targets min 44px 5) tabular-nums on numbers 6) German labels, English code variables? Also: were existing components/services reused instead of rebuilt? Were the active feature-file requirements fully addressed? If ANY item is missing, respond with {\"ok\": false, \"reason\": \"Missing: [list specific items per file]\"}. If all good, respond with {\"ok\": true}."
+          }
+        ]
+      }
+    ]
+  },
+  "settings": {}
+}
