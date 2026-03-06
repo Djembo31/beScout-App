@@ -235,7 +235,7 @@ export default function ClubVerkaufSection({
             'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
             showAdvancedFilters || activeFilterCount > 0
               ? 'bg-white/10 text-white border-white/15'
-              : 'text-white/40 border-white/[0.08] hover:text-white/60'
+              : 'text-white/40 border-white/[0.08] hover:text-white/60 hover:bg-white/[0.04]'
           )}
           aria-expanded={showAdvancedFilters}
           aria-label={t('filterLabel', { defaultMessage: 'Filter' })}

@@ -75,7 +75,7 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
         <select
           value={marketSortBy}
           onChange={(e) => setMarketSortBy(e.target.value as SortOption)}
-          className="bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-[10px] font-bold text-white/70 outline-none focus:border-white/20 min-h-[36px]"
+          className="bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-[10px] font-bold text-white/70 outline-none min-h-[44px] hover:bg-white/[0.08] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main transition-colors"
           aria-label={t('sortByClub', { club: clubName, defaultMessage: '{club} sortieren' })}
         >
           {SORT_OPTIONS.map(o => (
@@ -85,7 +85,7 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
 
         <button
           onClick={onClose}
-          className="p-1.5 rounded-lg hover:bg-white/10 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+          className="p-1.5 rounded-lg hover:bg-white/10 active:scale-[0.95] transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none"
           aria-label={t('closeClub', { defaultMessage: 'Schliessen' })}
         >
           <X className="size-4 text-white/40" aria-hidden="true" />
