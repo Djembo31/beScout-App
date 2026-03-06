@@ -8,6 +8,7 @@ export type MarketTab = 'portfolio' | 'kaufen';
 export type PortfolioSubTab = 'team' | 'bestand' | 'angebote';
 export type KaufenSubTab = 'clubverkauf' | 'transferliste' | 'trending';
 export type KaufenMode = 'discovery' | 'search';
+export type IpoViewState = 'laufend' | 'geplant' | 'beendet';
 
 interface MarketState {
   tab: MarketTab;
@@ -61,6 +62,7 @@ interface MarketState {
   clubVerkaufLeague: string;
   clubVerkaufExpandedClub: string | null;
   showAdvancedFilters: boolean;
+  ipoViewState: IpoViewState;
 
   setTab: (t: MarketTab) => void;
   setPortfolioSubTab: (v: PortfolioSubTab) => void;
@@ -114,6 +116,7 @@ interface MarketState {
   setClubVerkaufLeague: (v: string) => void;
   setClubVerkaufExpandedClub: (v: string | null) => void;
   setShowAdvancedFilters: (v: boolean) => void;
+  setIpoViewState: (v: IpoViewState) => void;
 }
 
 export const useMarketStore = create<MarketState>()((set) => ({
@@ -166,6 +169,7 @@ export const useMarketStore = create<MarketState>()((set) => ({
   clubVerkaufLeague: '',
   clubVerkaufExpandedClub: null,
   showAdvancedFilters: false,
+  ipoViewState: 'laufend' as IpoViewState,
 
   setTab: (t) => set({ tab: t }),
   setPortfolioSubTab: (v) => set({ portfolioSubTab: v }),
@@ -243,6 +247,7 @@ export const useMarketStore = create<MarketState>()((set) => ({
   setMarketSortBy: (s) => set({ marketSortBy: s }),
   setClubVerkaufLeague: (v) => set({ clubVerkaufLeague: v }),
   setShowAdvancedFilters: (v) => set({ showAdvancedFilters: v }),
+  setIpoViewState: (v) => set({ ipoViewState: v }),
   setClubVerkaufExpandedClub: (v) => set((state) => ({
     clubVerkaufExpandedClub: state.clubVerkaufExpandedClub === v ? null : v,
   })),

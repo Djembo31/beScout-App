@@ -18,7 +18,7 @@ interface ClubAccordionProps {
   clubName: string;
   players: Player[];
   ipoMap: Map<string, DbIpo>;
-  onBuy: (playerId: string) => void;
+  onBuy?: (playerId: string) => void;
   buyingId: string | null;
   onClose: () => void;
 }

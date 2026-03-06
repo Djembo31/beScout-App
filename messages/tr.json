@@ -1089,7 +1089,15 @@
     "buyPlayerLabel": "{player} oyuncusunu {price} $SCOUT'a satın al",
     "advancedFilters": "Gelişmiş filtreler",
     "dpcIntroTitle": "DPC nedir?",
-    "dpcIntroDesc": "Favori kulübünün dijital oyuncu sözleşmelerini (DPC) satın al. Oyuncunun piyasa değeri artarsa, Community Success Fee ile sen de kazanırsın."
+    "dpcIntroDesc": "Favori kulübünün dijital oyuncu sözleşmelerini (DPC) satın al. Oyuncunun piyasa değeri artarsa, Community Success Fee ile sen de kazanırsın.",
+    "ipoViewLabel": "IPO g\u00f6r\u00fcn\u00fcm\u00fc",
+    "ipoLaufend": "Aktif",
+    "ipoGeplant": "Planlanan",
+    "ipoBeendet": "Sona erdi",
+    "noPlannedIpos": "Planlanan sat\u0131\u015f yok",
+    "noPlannedIposDesc": "\u015eu anda duyurulan sat\u0131\u015f bulunmuyor.",
+    "noEndedIpos": "Sona eren sat\u0131\u015f yok",
+    "noEndedIposDesc": "Yak\u0131n zamanda sona eren sat\u0131\u015f bulunmuyor."
   },
   "community": {
     "title": "Topluluk",

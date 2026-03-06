@@ -2,9 +2,9 @@
 
 import React, { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { ShoppingCart, SlidersHorizontal, X, Heart, HelpCircle } from 'lucide-react';
+import { ShoppingCart, SlidersHorizontal, X, Heart, HelpCircle, Calendar, CheckCircle2 } from 'lucide-react';
 import { EmptyState } from '@/components/ui';
-import { getClub, getAllClubsCached } from '@/lib/clubs';
+import { getClub } from '@/lib/clubs';
 import type { ClubLookup } from '@/lib/clubs';
 import { useClub } from '@/components/providers/ClubProvider';
 import { useMarketStore } from '@/lib/stores/marketStore';
@@ -18,7 +18,7 @@ import NewUserTip from '@/components/onboarding/NewUserTip';
 import { cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { Player, DbIpo, Pos } from '@/types';
-import type { SortOption } from '@/lib/stores/marketStore';
+import type { SortOption, IpoViewState } from '@/lib/stores/marketStore';
 
 const POSITIONS: Pos[] = ['GK', 'DEF', 'MID', 'ATT'];
 const POS_LABELS: Record<Pos, string> = { GK: 'TW', DEF: 'DEF', MID: 'MID', ATT: 'STU' };
@@ -29,6 +29,12 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'floor_desc', label: 'Preis \u2193' },
   { value: 'goals', label: 'Tore' },
   { value: 'assists', label: 'Assists' },
+];
+
+const VIEW_TABS: { value: IpoViewState; labelKey: string; defaultLabel: string }[] = [
+  { value: 'laufend', labelKey: 'ipoLaufend', defaultLabel: 'Laufend' },
+  { value: 'geplant', labelKey: 'ipoGeplant', defaultLabel: 'Geplant' },
+  { value: 'beendet', labelKey: 'ipoBeendet', defaultLabel: 'Beendet' },
 ];
 
 interface ClubVerkaufSectionProps {
@@ -70,35 +76,40 @@ export default function ClubVerkaufSection({
     marketSortBy, setMarketSortBy,
     showAdvancedFilters, setShowAdvancedFilters,
     resetMarketFilters,
+    ipoViewState, setIpoViewState,
   } = store;
 
   const followedClubIds = useMemo(() => new Set(followedClubs.map(c => c.id)), [followedClubs]);
   const activeFilterCount = getActiveFilterCount(store);
 
-  // All IPOs mapped by player_id
-  const allIposByPlayer = useMemo(() => {
+  // Select IPOs based on view state
+  const viewIpos = useMemo(() => {
+    switch (ipoViewState) {
+      case 'laufend': return activeIpos;
+      case 'geplant': return announcedIpos;
+      case 'beendet': return endedIpos;
+    }
+  }, [ipoViewState, activeIpos, announcedIpos, endedIpos]);
+
+  // IPOs mapped by player_id for current view
+  const iposByPlayer = useMemo(() => {
     const m = new Map<string, DbIpo>();
-    for (const ipo of activeIpos) m.set(ipo.player_id, ipo);
-    for (const ipo of announcedIpos) m.set(ipo.player_id, ipo);
+    for (const ipo of viewIpos) m.set(ipo.player_id, ipo);
     return m;
-  }, [activeIpos, announcedIpos]);
+  }, [viewIpos]);
 
   // Floor price getter for sorting
   const getFloor = useMemo(() => {
     return (p: Player) => {
-      const ipo = allIposByPlayer.get(p.id);
+      const ipo = iposByPlayer.get(p.id);
       return ipo ? centsToBsd(ipo.price) : 0;
     };
-  }, [allIposByPlayer]);
+  }, [iposByPlayer]);
 
   // Build club aggregates
   const clubAggregates = useMemo(() => {
-    const allIpoPlayerIds = new Set([
-      ...activeIpos.map(i => i.player_id),
-      ...announcedIpos.map(i => i.player_id),
-    ]);
-
-    const ipoPlayers = players.filter(p => allIpoPlayerIds.has(p.id));
+    const ipoPlayerIds = new Set(viewIpos.map(i => i.player_id));
+    const ipoPlayers = players.filter(p => ipoPlayerIds.has(p.id));
     const filtered = applyFilters(ipoPlayers, store);
 
     // Group by club
@@ -125,7 +136,7 @@ export default function ClubVerkaufSection({
       let totalOffered = 0;
 
       for (const p of clubPlayers) {
-        const ipo = allIposByPlayer.get(p.id);
+        const ipo = iposByPlayer.get(p.id);
         if (ipo) {
           ipoMap.set(p.id, ipo);
           endDates.push(ipo.ends_at);
@@ -159,33 +170,79 @@ export default function ClubVerkaufSection({
       if (aFollowed !== bFollowed) return bFollowed - aFollowed;
       return b.dpcCount - a.dpcCount;
     });
-  }, [players, activeIpos, announcedIpos, store, clubVerkaufLeague, allIposByPlayer, marketSortBy, getFloor, followedClubIds]);
+  }, [players, viewIpos, store, clubVerkaufLeague, iposByPlayer, marketSortBy, getFloor, followedClubIds]);
 
   const hasContent = clubAggregates.length > 0;
+  const isBuyable = ipoViewState === 'laufend';
+
+  // Count badges for tabs
+  const activeCount = activeIpos.length;
+  const announcedCount = announcedIpos.length;
+  const endedCount = endedIpos.length;
+  const tabCounts: Record<IpoViewState, number> = {
+    laufend: activeCount,
+    geplant: announcedCount,
+    beendet: endedCount,
+  };
 
   return (
     <div className="space-y-4">
-      {/* 1. Urgency: ending soon strip */}
-      <EndingSoonStrip
-        activeIpos={activeIpos}
-        playerMap={playerMap}
-        onBuy={onIpoBuy}
-        buyingId={buyingId}
-      />
-
-      {/* 2. Onboarding: DPC explainer (only for new users) */}
+      {/* 1. Onboarding: DPC explainer (only for new users) */}
       <NewUserTip
         tipKey="club-verkauf-dpc-intro"
         icon={<HelpCircle className="size-4" />}
         title={t('dpcIntroTitle', { defaultMessage: 'Was sind DPCs?' })}
-        description={t('dpcIntroDesc', { defaultMessage: 'Kaufe digitale Spieler-Verträge (DPCs) deines Lieblingsvereins. Steigt der Marktwert des Spielers, profitierst du durch die Community Success Fee.' })}
+        description={t('dpcIntroDesc', { defaultMessage: 'Kaufe digitale Spieler-Vertr\u00e4ge (DPCs) deines Lieblingsvereins. Steigt der Marktwert des Spielers, profitierst du durch die Community Success Fee.' })}
         show={!hasHoldings}
       />
 
-      {/* 3. Navigation: league bar */}
+      {/* 2. IPO View State Tabs */}
+      <div className="flex gap-1 bg-white/[0.03] rounded-xl p-1" role="tablist" aria-label={t('ipoViewLabel', { defaultMessage: 'IPO-Ansicht' })}>
+        {VIEW_TABS.map(tab => (
+          <button
+            key={tab.value}
+            role="tab"
+            aria-selected={ipoViewState === tab.value}
+            onClick={() => setIpoViewState(tab.value)}
+            className={cn(
+              'flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-bold transition-colors min-h-[44px]',
+              'focus-visible:ring-2 focus-visible:ring-gold/50 outline-none',
+              ipoViewState === tab.value
+                ? 'bg-white/10 text-white shadow-sm'
+                : 'text-white/40 hover:text-white/60'
+            )}
+          >
+            {tab.value === 'geplant' && <Calendar className="size-3" aria-hidden="true" />}
+            {tab.value === 'beendet' && <CheckCircle2 className="size-3" aria-hidden="true" />}
+            {t(tab.labelKey, { defaultMessage: tab.defaultLabel })}
+            {tabCounts[tab.value] > 0 && (
+              <span className={cn(
+                'text-[9px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center',
+                ipoViewState === tab.value
+                  ? 'bg-gold text-black'
+                  : 'bg-white/10 text-white/50'
+              )}>
+                {tabCounts[tab.value]}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* 3. Urgency: ending soon strip (only for laufend) */}
+      {ipoViewState === 'laufend' && (
+        <EndingSoonStrip
+          activeIpos={activeIpos}
+          playerMap={playerMap}
+          onBuy={onIpoBuy}
+          buyingId={buyingId}
+        />
+      )}
+
+      {/* 4. Navigation: league bar */}
       <LeagueBar selected={clubVerkaufLeague} onSelect={setClubVerkaufLeague} />
 
-      {/* 4. Controls: sort + filter expand */}
+      {/* 5. Controls: sort + filter expand */}
       <div className="flex items-center gap-2">
         <select
           value={marketSortBy}
@@ -293,22 +350,28 @@ export default function ClubVerkaufSection({
               className="flex items-center gap-1.5 text-[10px] text-red-400/70 hover:text-red-400 transition-colors min-h-[44px]"
             >
               <X className="size-3" aria-hidden="true" />
-              {t('resetFiltersLabel', { defaultMessage: 'Filter zurücksetzen' })}
+              {t('resetFiltersLabel', { defaultMessage: 'Filter zur\u00fccksetzen' })}
             </button>
           )}
         </fieldset>
       )}
 
-      {/* 5. Empty state */}
+      {/* 6. Empty state */}
       {!hasContent && (
         <EmptyState
-          icon={<ShoppingCart />}
-          title={t('noClubSales', { defaultMessage: 'Keine Club Verkäufe aktiv' })}
-          description={t('noClubSalesDesc', { defaultMessage: 'Aktuell gibt es keine aktiven Verkäufe vom Verein.' })}
+          icon={ipoViewState === 'geplant' ? <Calendar /> : ipoViewState === 'beendet' ? <CheckCircle2 /> : <ShoppingCart />}
+          title={t(
+            ipoViewState === 'geplant' ? 'noPlannedIpos' : ipoViewState === 'beendet' ? 'noEndedIpos' : 'noClubSales',
+            { defaultMessage: ipoViewState === 'geplant' ? 'Keine geplanten Verk\u00e4ufe' : ipoViewState === 'beendet' ? 'Keine beendeten Verk\u00e4ufe' : 'Keine Club Verk\u00e4ufe aktiv' }
+          )}
+          description={t(
+            ipoViewState === 'geplant' ? 'noPlannedIposDesc' : ipoViewState === 'beendet' ? 'noEndedIposDesc' : 'noClubSalesDesc',
+            { defaultMessage: ipoViewState === 'geplant' ? 'Aktuell sind keine Verk\u00e4ufe angek\u00fcndigt.' : ipoViewState === 'beendet' ? 'Es gibt keine k\u00fcrzlich beendeten Verk\u00e4ufe.' : 'Aktuell gibt es keine aktiven Verk\u00e4ufe vom Verein.' }
+          )}
         />
       )}
 
-      {/* 6. Club cards grid + accordions */}
+      {/* 7. Club cards grid + accordions */}
       {hasContent && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {clubAggregates.map(agg => (
@@ -320,7 +383,7 @@ export default function ClubVerkaufSection({
                 totalSold={agg.totalSold}
                 totalOffered={agg.totalOffered}
                 earliestEnd={agg.earliestEnd}
-                isHot={agg.isHot}
+                isHot={agg.isHot && isBuyable}
                 isExpanded={clubVerkaufExpandedClub === agg.clubName}
                 isFollowed={followedClubIds.has(agg.club.id)}
                 onToggle={() => setClubVerkaufExpandedClub(agg.clubName)}
@@ -330,8 +393,8 @@ export default function ClubVerkaufSection({
                   clubName={agg.clubName}
                   players={agg.players}
                   ipoMap={agg.ipoMap}
-                  onBuy={onIpoBuy}
-                  buyingId={buyingId}
+                  onBuy={isBuyable ? onIpoBuy : undefined}
+                  buyingId={isBuyable ? buyingId : null}
                   onClose={() => setClubVerkaufExpandedClub(null)}
                 />
               )}

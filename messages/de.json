@@ -1097,7 +1097,15 @@
     "buyPlayerLabel": "{player} für {price} $SCOUT kaufen",
     "advancedFilters": "Erweiterte Filter",
     "dpcIntroTitle": "Was sind DPCs?",
-    "dpcIntroDesc": "Kaufe digitale Spieler-Verträge (DPCs) deines Lieblingsvereins. Steigt der Marktwert des Spielers, profitierst du durch die Community Success Fee."
+    "dpcIntroDesc": "Kaufe digitale Spieler-Verträge (DPCs) deines Lieblingsvereins. Steigt der Marktwert des Spielers, profitierst du durch die Community Success Fee.",
+    "ipoViewLabel": "IPO-Ansicht",
+    "ipoLaufend": "Laufend",
+    "ipoGeplant": "Geplant",
+    "ipoBeendet": "Beendet",
+    "noPlannedIpos": "Keine geplanten Verkäufe",
+    "noPlannedIposDesc": "Aktuell sind keine Verkäufe angekündigt.",
+    "noEndedIpos": "Keine beendeten Verkäufe",
+    "noEndedIposDesc": "Es gibt keine kürzlich beendeten Verkäufe."
   },
   "community": {
     "title": "Community",

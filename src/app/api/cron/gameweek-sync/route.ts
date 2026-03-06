@@ -145,6 +145,19 @@ export async function GET(request: Request) {
   let activeGw = 1;
 
   try {
+    // ---- 2b. Auto-expire IPOs past ends_at ----
+    await runStep('expire_ipos', async () => {
+      const { data, error } = await supabaseAdmin
+        .from('ipos')
+        .update({ status: 'ended' })
+        .in('status', ['open', 'early_access'])
+        .lt('ends_at', new Date().toISOString())
+        .select('id');
+
+      if (error) throw new Error(error.message);
+      return { expired: data?.length ?? 0 };
+    });
+
     // ---- 3. Get active gameweek ----
     const { result: gwResult } = await runStep('get_active_gw', async () => {
       const { data: clubs } = await supabaseAdmin
@@ -180,6 +193,45 @@ export async function GET(request: Request) {
       gameweek: activeGw,
       clubs: clubsToProcess.length,
     });
+
+    // ---- 3b. Quick DB check: any fixtures today? (avoid API calls on non-match days) ----
+    const today = new Date();
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+    const tomorrowStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
+
+    const { data: todayFixtures } = await supabaseAdmin
+      .from('fixtures')
+      .select('id')
+      .eq('gameweek', activeGw)
+      .gte('played_at', todayStart)
+      .lt('played_at', tomorrowStart)
+      .neq('status', 'finished')
+      .limit(1);
+
+    if (!todayFixtures || todayFixtures.length === 0) {
+      // Also check: maybe all GW fixtures are already finished (late sync after midnight)
+      const { data: unfinished } = await supabaseAdmin
+        .from('fixtures')
+        .select('id')
+        .eq('gameweek', activeGw)
+        .neq('status', 'finished')
+        .limit(1);
+
+      if (!unfinished || unfinished.length === 0) {
+        // All finished but not yet processed — proceed to API check
+      } else {
+        // Fixtures exist but not today — skip
+        await logStep(activeGw, 'match_day_check', 'skipped', {
+          reason: 'No fixtures today for active GW',
+        });
+        return NextResponse.json({
+          status: 'skipped',
+          reason: 'No fixtures today',
+          gameweek: activeGw,
+          duration_ms: Date.now() - runStart,
+        });
+      }
+    }
 
     // ---- 4. Check API fixtures ----
     const { result: fixtureCheck } = await runStep(
@@ -814,6 +866,7 @@ export async function GET(request: Request) {
     // ---- 8 & 9. Score events ----
     let eventsScored = 0;
     let eventsClosed = 0;
+    let eventsTransitioned = 0;
 
     await runStep('score_events', async () => {
       for (const club of clubsToProcess) {
@@ -825,6 +878,15 @@ export async function GET(request: Request) {
 
         for (const evt of events ?? []) {
           if (evt.scored_at) continue; // already scored
+
+          // Transition registering/late-reg → running before scoring
+          if (evt.status === 'registering' || evt.status === 'late-reg') {
+            await supabaseAdmin
+              .from('events')
+              .update({ status: 'running' })
+              .eq('id', evt.id);
+            eventsTransitioned++;
+          }
 
           if ((evt.current_entries ?? 0) === 0) {
             // No entries — close directly
@@ -849,13 +911,42 @@ export async function GET(request: Request) {
           }
         }
       }
-      return { scored: eventsScored, closed: eventsClosed };
+      return { scored: eventsScored, closed: eventsClosed, transitioned: eventsTransitioned };
     });
 
     await logStep(activeGw, 'score_events', 'success', {
       scored: eventsScored,
       closed: eventsClosed,
+      transitioned: eventsTransitioned,
     });
+
+    // ---- 9b. Resolve predictions ----
+    await runStep('resolve_predictions', async () => {
+      // Use admin client — predictions.resolvePredictions uses user-auth client and checks status='finished'
+      // The cron_process_gameweek RPC sets fixtures to 'finished', so we can call the RPC directly
+      const { data, error } = await supabaseAdmin.rpc('resolve_gameweek_predictions', {
+        p_gameweek: activeGw,
+      });
+      if (error) throw new Error(error.message);
+      const result = data as { ok: boolean; resolved?: number; correct?: number; wrong?: number; error?: string } | null;
+      if (!result?.ok) throw new Error(result?.error ?? 'resolve_predictions failed');
+      return { resolved: result.resolved, correct: result.correct, wrong: result.wrong };
+    });
+
+    await logStep(activeGw, 'resolve_predictions', 'success');
+
+    // ---- 9c. DPC of the Week ----
+    await runStep('dpc_of_week', async () => {
+      const { data, error } = await supabaseAdmin.rpc('calculate_dpc_of_week', {
+        p_gameweek: activeGw,
+      });
+      if (error) throw new Error(error.message);
+      const result = data as { success: boolean; player_id?: string; error?: string } | null;
+      if (!result?.success) throw new Error(result?.error ?? 'dpc_of_week failed');
+      return { playerId: result.player_id };
+    });
+
+    await logStep(activeGw, 'dpc_of_week', 'success');
 
     // ---- 10. Clone events for next GW ----
     const nextGw = activeGw + 1;
@@ -878,7 +969,7 @@ export async function GET(request: Request) {
           const { data: templates } = await supabaseAdmin
             .from('events')
             .select(
-              'name, type, format, entry_fee, prize_pool, max_entries, club_id, created_by, sponsor_name, sponsor_logo',
+              'name, type, format, entry_fee, prize_pool, max_entries, club_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap',
             )
             .eq('club_id', club.id)
             .eq('gameweek', activeGw);
@@ -932,6 +1023,11 @@ export async function GET(request: Request) {
             created_by: t.created_by,
             sponsor_name: t.sponsor_name,
             sponsor_logo: t.sponsor_logo,
+            event_tier: t.event_tier,
+            tier_bonuses: t.tier_bonuses,
+            min_tier: t.min_tier,
+            min_subscription_tier: t.min_subscription_tier,
+            salary_cap: t.salary_cap,
             starts_at: startsAt,
             locks_at: locksAt,
             ends_at: endsAt,
@@ -953,16 +1049,21 @@ export async function GET(request: Request) {
 
     // ---- 11. Advance active_gameweek ----
     // Direct UPDATE via supabaseAdmin (bypasses RLS, no auth.uid() needed)
-    await runStep('advance_gameweek', async () => {
-      for (const club of clubsToProcess) {
-        const { error } = await supabaseAdmin
-          .from('clubs')
-          .update({ active_gameweek: nextGw })
-          .eq('id', club.id);
-        if (error) throw new Error(`Club ${club.id}: ${error.message}`);
-      }
-      return { from: activeGw, to: nextGw };
-    });
+    // Guard: never advance beyond GW 38
+    if (nextGw <= 38) {
+      await runStep('advance_gameweek', async () => {
+        for (const club of clubsToProcess) {
+          const { error } = await supabaseAdmin
+            .from('clubs')
+            .update({ active_gameweek: nextGw })
+            .eq('id', club.id);
+          if (error) throw new Error(`Club ${club.id}: ${error.message}`);
+        }
+        return { from: activeGw, to: nextGw };
+      });
+    } else {
+      steps.push({ step: 'advance_gameweek', status: 'skipped', duration_ms: 0 });
+    }
 
     await logStep(activeGw, 'advance_gameweek', 'success', {
       from: activeGw,

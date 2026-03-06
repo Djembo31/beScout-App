@@ -13,7 +13,7 @@ import type { Player, DbIpo } from '@/types';
 interface PlayerIPORowProps {
   player: Player;
   ipo: DbIpo;
-  onBuy: (playerId: string) => void;
+  onBuy?: (playerId: string) => void;
   buying: boolean;
 }
 
@@ -49,18 +49,24 @@ export default function PlayerIPORow({ player: p, ipo, onBuy, buying }: PlayerIP
         {fmtScout(priceBsd)}
       </span>
 
-      <button
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onBuy(p.id); }}
-        disabled={buying}
-        aria-label={t('buyPlayerLabel', {
-          player: `${p.first} ${p.last}`,
-          price: fmtScout(priceBsd),
-          defaultMessage: '{player} für {price} $SCOUT kaufen',
-        })}
-        className="px-3 py-1.5 min-h-[44px] min-w-[44px] bg-gold/10 border border-gold/20 text-gold rounded-lg text-[11px] font-black hover:bg-gold/20 transition-colors active:scale-[0.95] disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 flex items-center justify-center gap-1 outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main"
-      >
-        {buying ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : t('buy')}
-      </button>
+      {onBuy ? (
+        <button
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onBuy(p.id); }}
+          disabled={buying}
+          aria-label={t('buyPlayerLabel', {
+            player: `${p.first} ${p.last}`,
+            price: fmtScout(priceBsd),
+            defaultMessage: '{player} für {price} $SCOUT kaufen',
+          })}
+          className="px-3 py-1.5 min-h-[44px] min-w-[44px] bg-gold/10 border border-gold/20 text-gold rounded-lg text-[11px] font-black hover:bg-gold/20 transition-colors active:scale-[0.95] disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 flex items-center justify-center gap-1 outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main"
+        >
+          {buying ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : t('buy')}
+        </button>
+      ) : (
+        <span className="text-[10px] text-white/30 font-bold flex-shrink-0 w-16 text-right">
+          {ipo.status === 'ended' ? t('ipoBeendet', { defaultMessage: 'Beendet' }) : t('ipoGeplant', { defaultMessage: 'Geplant' })}
+        </span>
+      )}
     </Link>
   );
 }

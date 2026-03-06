@@ -40,12 +40,13 @@ type IpoBuyResult = {
 // IPO Queries
 // ============================================
 
-/** All active IPOs (open or early_access) */
+/** All active IPOs (open or early_access, not yet expired) */
 export async function getActiveIpos(): Promise<DbIpo[]> {
   const { data, error } = await supabase
     .from('ipos')
     .select('*')
     .in('status', ['open', 'early_access'])
+    .gt('ends_at', new Date().toISOString())
     .order('starts_at', { ascending: false });
 
   if (error) throw new Error(error.message);
@@ -169,14 +170,14 @@ export async function updateIpoStatus(
   return data as UpdateIpoStatusResult;
 }
 
-/** Recently ended IPOs (last 7 days) for "Beendet" section */
+/** Recently ended IPOs (last 30 days) for "Beendet" section */
 export async function getRecentlyEndedIpos(): Promise<DbIpo[]> {
-  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
   const { data, error } = await supabase
     .from('ipos')
     .select('*')
     .eq('status', 'ended')
-    .gte('ends_at', sevenDaysAgo)
+    .gte('ends_at', thirtyDaysAgo)
     .order('ends_at', { ascending: false });
 
   if (error) throw new Error(error.message);
