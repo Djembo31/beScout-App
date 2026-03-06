@@ -1063,7 +1063,16 @@
     "matchesMinAria": "Maç minimum",
     "priceMinAria": "Fiyat minimum",
     "priceMaxAria": "Fiyat maximum",
-    "filterLabel": "Filtre"
+    "filterLabel": "Filtre",
+    "leagueFilter": "Lig seç",
+    "dpcAvailable": "DPC'ler",
+    "avgSymbol": "Ø",
+    "closeClub": "Kapat",
+    "hotSalesTitle": "Öne Çıkan Satışlar",
+    "hotSalesPlaceholder": "Kulüpler burada DPC'lerini tanıtabilir — yakında.",
+    "trendingTab": "Trend",
+    "trendingComingSoon": "Trend — Yakında",
+    "trendingComingSoonDesc": "Burada yakında en çok işlem gören oyuncuları göreceksiniz."
   },
   "community": {
     "title": "Topluluk",

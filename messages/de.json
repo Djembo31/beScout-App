@@ -1071,7 +1071,16 @@
     "matchesMinAria": "Spiele minimum",
     "priceMinAria": "Preis minimum",
     "priceMaxAria": "Preis maximum",
-    "filterLabel": "Filter"
+    "filterLabel": "Filter",
+    "leagueFilter": "Liga wählen",
+    "dpcAvailable": "DPCs",
+    "avgSymbol": "Ø",
+    "closeClub": "Schließen",
+    "hotSalesTitle": "Featured Sales",
+    "hotSalesPlaceholder": "Clubs können hier ihre DPCs bewerben — bald verfügbar.",
+    "trendingTab": "Trending",
+    "trendingComingSoon": "Trending — Bald verfügbar",
+    "trendingComingSoonDesc": "Hier siehst du bald die meistgehandelten Spieler."
   },
   "community": {
     "title": "Community",
