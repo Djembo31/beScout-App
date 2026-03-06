@@ -44,6 +44,7 @@ export default function PlayerIPORow({ player, ipo, onBuy, buying }: PlayerIPORo
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onBuy(player.id); }}
             disabled={buying}
+            aria-label={`${player.first} ${player.last} ${tp('recruitBtn')}`}
             className={cn(
               'py-1.5 px-3 min-h-[44px] min-w-[44px] bg-gold text-black text-xs font-bold rounded-lg',
               'hover:bg-gold/90 active:scale-[0.95] transition-colors',
@@ -52,7 +53,7 @@ export default function PlayerIPORow({ player, ipo, onBuy, buying }: PlayerIPORo
               'flex items-center gap-1 shrink-0',
             )}
           >
-            {buying ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none" /> : <Target className="size-3" />}
+            {buying ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Target className="size-3" aria-hidden="true" />}
             {buying ? tp('recruitingBtn') : tp('recruitBtn')}
           </button>
         ) : (
@@ -70,9 +71,16 @@ export default function PlayerIPORow({ player, ipo, onBuy, buying }: PlayerIPORo
 
         {/* Progress bar */}
         <div className="flex-1 min-w-0">
-          <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+          <div
+            role="progressbar"
+            aria-valuenow={Math.round(progress)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={t('ipoProgress', { defaultMessage: 'Verkaufsfortschritt' })}
+            className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden"
+          >
             <div
-              className="h-full rounded-full bg-vivid-green transition-all"
+              className="h-full rounded-full bg-vivid-green"
               style={{ width: `${Math.min(progress, 100)}%` }}
             />
           </div>

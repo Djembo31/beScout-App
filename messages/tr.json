@@ -1105,7 +1105,8 @@
     "ipoStatusPlanned": "Sat\u0131\u015f planland\u0131",
     "readOnly": "Sadece g\u00f6r\u00fcnt\u00fcleme",
     "purchasesDisabled": "Sat\u0131n alma m\u00fcmk\u00fcn de\u011fil",
-    "sortByClub": "{club} s\u0131rala"
+    "sortByClub": "{club} s\u0131rala",
+    "ipoProgress": "Sat\u0131\u015f ilerlemesi"
   },
   "community": {
     "title": "Topluluk",

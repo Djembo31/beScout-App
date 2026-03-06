@@ -1113,7 +1113,8 @@
     "ipoStatusPlanned": "Verkauf geplant",
     "readOnly": "Nur Ansicht",
     "purchasesDisabled": "Kauf nicht verfügbar",
-    "sortByClub": "{club} sortieren"
+    "sortByClub": "{club} sortieren",
+    "ipoProgress": "Verkaufsfortschritt"
   },
   "community": {
     "title": "Community",
