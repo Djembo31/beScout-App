@@ -190,9 +190,10 @@ export default function ClubVerkaufSection({
             className={cn(
               'flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-bold transition-colors min-h-[44px]',
               'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
+              'active:scale-[0.97]',
               ipoViewState === tab.value
                 ? 'bg-white/10 text-white shadow-sm'
-                : 'text-white/40 hover:text-white/60'
+                : 'text-white/40 hover:text-white/60 hover:bg-white/[0.04]'
             )}
           >
             {tab.value === 'geplant' && <Calendar className="size-3" aria-hidden="true" />}

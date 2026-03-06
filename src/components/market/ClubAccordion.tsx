@@ -76,7 +76,7 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
           value={marketSortBy}
           onChange={(e) => setMarketSortBy(e.target.value as SortOption)}
           className="bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-[10px] font-bold text-white/70 outline-none focus:border-white/20 min-h-[36px]"
-          aria-label={t('sortBy', { defaultMessage: 'Sortieren' })}
+          aria-label={t('sortByClub', { club: clubName, defaultMessage: '{club} sortieren' })}
         >
           {SORT_OPTIONS.map(o => (
             <option key={o.value} value={o.value} className="bg-[#1a1a1a]">{o.label}</option>

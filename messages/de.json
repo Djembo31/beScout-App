@@ -1112,7 +1112,8 @@
     "ipoStatusEnded": "Verkauf beendet",
     "ipoStatusPlanned": "Verkauf geplant",
     "readOnly": "Nur Ansicht",
-    "purchasesDisabled": "Kauf nicht verfügbar"
+    "purchasesDisabled": "Kauf nicht verfügbar",
+    "sortByClub": "{club} sortieren"
   },
   "community": {
     "title": "Community",

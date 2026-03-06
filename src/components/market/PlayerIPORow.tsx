@@ -40,7 +40,7 @@ export default function PlayerIPORow({ player: p, ipo, onBuy, buying }: PlayerIP
             style={{ width: `${Math.min(progress, 100)}%` }}
           />
         </div>
-        <span className="text-[8px] text-white/30 font-mono tabular-nums">{ipo.sold}/{ipo.total_offered}</span>
+        <span className="text-[8px] text-white/30 font-mono tabular-nums whitespace-nowrap">{ipo.sold}/{ipo.total_offered}</span>
       </div>
 
       <CountdownBadge targetDate={ipo.ends_at} compact className="flex-shrink-0 w-16 text-right" />
