@@ -1,0 +1,37 @@
+{
+  "id": "tailwind-expert",
+  "name": "Tailwind CSS Expert",
+  "version": "1.0.0",
+  "category": "frontend",
+  "tags": ["tailwind", "css", "styling", "utility-first", "postcss", "tailwindcss"],
+  "metadata": {
+    "author": "Claude Code Team",
+    "description": "Expert guidance for Tailwind CSS setup, configuration, and troubleshooting. Proactively catches CSS errors before build time.",
+    "icon": "🎨",
+    "documentation": "https://docs.claude-code.com/plugins/tailwind-expert",
+    "keywords": ["tailwind", "tailwindcss", "css", "utility-classes", "postcss", "styling", "theme", "dark-mode"],
+    "license": "MIT"
+  },
+  "requires": ["frontend-expert"],
+  "enhances": ["shadcn-style-expert", "code-quality"],
+  "provides": {
+    "hooks": [
+      "hooks/tailwind-validator.json",
+      "hooks/pre-build-validator.json"
+    ],
+    "templates": [
+      "templates/validate-config.json",
+      "templates/check-utilities.json",
+      "templates/tailwind-v4-migration.json",
+      "templates/fix-custom-utilities.json",
+      "templates/setup-tailwind.json"
+    ],
+    "agents": [
+      "agents/css-analyzer.md"
+    ],
+    "workflows": [
+      "workflows/tailwind-setup.json",
+      "workflows/validate-styles.json"
+    ]
+  }
+}

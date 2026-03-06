@@ -1,0 +1,31 @@
+{
+  "id": "pre-build-validator",
+  "name": "Pre-Build CSS Validator",
+  "description": "Validates CSS setup before running build commands to prevent errors",
+  "event": "tool_call",
+  "matcher": "Bash",
+  "script": "../../hooks/runtime/pre-build-validator.ts",
+  "config": {
+    "validateOnCommands": [
+      "npm run dev",
+      "npm run build",
+      "pnpm dev",
+      "pnpm build",
+      "yarn dev",
+      "yarn build",
+      "next dev",
+      "next build",
+      "vite",
+      "vite build"
+    ],
+    "checks": {
+      "tailwindSetup": true,
+      "postCSSConfig": true,
+      "cssFiles": true,
+      "componentFiles": true
+    }
+  },
+  "environment": {
+    "NODE_ENV": "development"
+  }
+}

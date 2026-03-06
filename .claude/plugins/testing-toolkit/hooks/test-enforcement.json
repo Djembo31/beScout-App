@@ -1,0 +1,22 @@
+{
+  "id": "test-enforcement",
+  "name": "Test Enforcement",
+  "description": "Automatically runs tests after code changes and blocks further changes if tests fail",
+  "event": "PostToolUse",
+  "matcher": "Edit|MultiEdit|Write",
+  "script": "run_tests_on_change.sh",
+  "config": {
+    "type": "command",
+    "command": "bash $CLAUDE_PROJECT_DIR/.claude/hooks/test-enforcement/run_tests_on_change.sh"
+  },
+  "environment": {
+    "TEST_COMMAND": {
+      "default": "npm test",
+      "description": "Command to run tests"
+    },
+    "ENFORCE_TESTS": {
+      "default": "true",
+      "description": "Block changes if tests fail"
+    }
+  }
+}

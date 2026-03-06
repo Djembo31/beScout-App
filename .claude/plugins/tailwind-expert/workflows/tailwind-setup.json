@@ -1,0 +1,137 @@
+{
+  "id": "tailwind-setup",
+  "name": "Tailwind CSS Setup Workflow",
+  "description": "Complete workflow for setting up Tailwind CSS with error prevention",
+  "steps": [
+    {
+      "id": "detect-project",
+      "name": "Detect Project Type",
+      "description": "Identify the project type and build tool",
+      "action": "analyze",
+      "parameters": {
+        "checks": [
+          "package.json existence",
+          "framework detection (React, Vue, Next.js)",
+          "build tool (Vite, Webpack, etc.)",
+          "existing CSS setup"
+        ]
+      }
+    },
+    {
+      "id": "check-existing",
+      "name": "Check Existing Setup",
+      "description": "Verify if Tailwind is already partially configured",
+      "action": "validate",
+      "parameters": {
+        "files": [
+          "tailwind.config.js",
+          "postcss.config.js",
+          "src/index.css"
+        ]
+      }
+    },
+    {
+      "id": "install-deps",
+      "name": "Install Dependencies",
+      "description": "Install Tailwind and required dependencies",
+      "action": "execute",
+      "parameters": {
+        "commands": [
+          "npm install -D tailwindcss postcss autoprefixer",
+          "npm install -D @tailwindcss/vite (if using Vite)"
+        ]
+      }
+    },
+    {
+      "id": "init-config",
+      "name": "Initialize Configuration",
+      "description": "Create Tailwind and PostCSS config files",
+      "action": "execute",
+      "parameters": {
+        "command": "npx tailwindcss init -p"
+      }
+    },
+    {
+      "id": "configure-tailwind",
+      "name": "Configure Tailwind",
+      "description": "Set up content paths and custom theme",
+      "action": "edit",
+      "parameters": {
+        "file": "tailwind.config.js",
+        "additions": {
+          "content": ["./src/**/*.{js,jsx,ts,tsx,mdx}", "./index.html"],
+          "theme.extend.colors": {
+            "background": "var(--background)",
+            "foreground": "var(--foreground)"
+          }
+        }
+      }
+    },
+    {
+      "id": "create-css",
+      "name": "Create CSS File",
+      "description": "Create main CSS file with Tailwind directives",
+      "action": "create",
+      "parameters": {
+        "file": "src/index.css",
+        "content": "@tailwind directives and CSS variables"
+      }
+    },
+    {
+      "id": "update-build",
+      "name": "Update Build Configuration",
+      "description": "Configure Vite or PostCSS for Tailwind",
+      "action": "edit",
+      "conditions": {
+        "vite": "Add @tailwindcss/vite plugin",
+        "webpack": "Ensure PostCSS loader configured"
+      }
+    },
+    {
+      "id": "import-css",
+      "name": "Import CSS",
+      "description": "Import CSS in main application file",
+      "action": "edit",
+      "parameters": {
+        "file": "src/main.jsx or src/index.jsx",
+        "addition": "import './index.css'"
+      }
+    },
+    {
+      "id": "validate-setup",
+      "name": "Validate Setup",
+      "description": "Run validation to ensure no errors",
+      "action": "validate",
+      "parameters": {
+        "checks": [
+          "All dependencies installed",
+          "Config files valid",
+          "CSS imports present",
+          "No undefined utilities",
+          "Build runs successfully"
+        ]
+      }
+    },
+    {
+      "id": "test-build",
+      "name": "Test Build",
+      "description": "Run dev server to verify setup",
+      "action": "execute",
+      "parameters": {
+        "command": "npm run dev",
+        "validate": "No Tailwind errors"
+      }
+    }
+  ],
+  "requirements": [
+    "Node.js and npm installed",
+    "Project initialized with package.json"
+  ],
+  "outcomes": [
+    "Tailwind CSS fully configured",
+    "Custom utilities defined",
+    "No build errors",
+    "Dark mode ready",
+    "IntelliSense configured"
+  ]
+}

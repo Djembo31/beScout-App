@@ -1,0 +1,17 @@
+{
+  "id": "tailwind-validator",
+  "name": "Tailwind CSS Validator",
+  "description": "Validates Tailwind utility classes in real-time to catch errors before build",
+  "event": "tool_call",
+  "matcher": "Write|Edit|MultiEdit",
+  "script": "../../hooks/runtime/tailwind-validator.ts",
+  "config": {
+    "validateCustomUtilities": true,
+    "checkCSSVariables": true,
+    "tailwindVersion": "auto",
+    "strictMode": false
+  },
+  "environment": {
+    "NODE_ENV": "development"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "testing-toolkit",
+  "name": "Testing Toolkit",
+  "version": "1.0.0",
+  "category": "testing",
+  "tags": ["testing", "tdd", "test-driven", "quality", "automation"],
+  "metadata": {
+    "author": "Claude Code Team",
+    "description": "Comprehensive testing toolkit with TDD workflows, test automation, and enforcement hooks",
+    "icon": "🧪",
+    "documentation": "https://docs.claude-code.com/plugins/testing-toolkit",
+    "keywords": ["testing", "tdd", "jest", "pytest", "test-automation"],
+    "license": "MIT"
+  },
+  "enhances": ["node-developer", "python-developer"],
+  "provides": {
+    "hooks": ["hooks/test-enforcement.json"],
+    "agents": ["agents/tdd-developer.md"],
+    "workflows": ["workflows/tdd-feature.json"],
+    "templates": [
+      "templates/test-patterns.md",
+      "templates/testing-best-practices.md"
+    ]
+  }
+}

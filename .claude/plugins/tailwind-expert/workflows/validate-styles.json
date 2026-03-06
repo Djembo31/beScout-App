@@ -1,0 +1,165 @@
+{
+  "id": "validate-styles",
+  "name": "Validate Tailwind Styles Workflow",
+  "description": "Comprehensive validation of Tailwind CSS setup to catch errors before build",
+  "steps": [
+    {
+      "id": "scan-utilities",
+      "name": "Scan for Utility Classes",
+      "description": "Extract all Tailwind utility classes from the codebase",
+      "action": "analyze",
+      "parameters": {
+        "patterns": [
+          "className=\"...\"",
+          "className={`...`}",
+          "@apply ...",
+          "class=\"...\""
+        ],
+        "files": "**/*.{jsx,tsx,html,vue,svelte,mdx,css}"
+      }
+    },
+    {
+      "id": "load-config",
+      "name": "Load Tailwind Configuration",
+      "description": "Parse tailwind.config.js to understand defined utilities",
+      "action": "read",
+      "parameters": {
+        "file": "tailwind.config.js",
+        "extract": [
+          "theme.extend.colors",
+          "theme.extend.spacing",
+          "plugins"
+        ]
+      }
+    },
+    {
+      "id": "validate-utilities",
+      "name": "Validate Each Utility",
+      "description": "Check if each utility class is valid",
+      "action": "validate",
+      "parameters": {
+        "checks": [
+          "Is standard Tailwind utility",
+          "Is defined in config",
+          "Has required CSS variable",
+          "Correct syntax"
+        ]
+      }
+    },
+    {
+      "id": "check-variables",
+      "name": "Check CSS Variables",
+      "description": "Verify all referenced CSS variables exist",
+      "action": "analyze",
+      "parameters": {
+        "files": "**/*.css",
+        "patterns": [
+          ":root { ... }",
+          ".dark { ... }",
+          "--variable-name: value"
+        ]
+      }
+    },
+    {
+      "id": "version-check",
+      "name": "Check Tailwind Version",
+      "description": "Identify version-specific issues",
+      "action": "analyze",
+      "parameters": {
+        "check": "package.json tailwindcss version",
+        "validate": [
+          "v4 @theme usage",
+          "v3 @layer usage",
+          "Plugin compatibility"
+        ]
+      }
+    },
+    {
+      "id": "postcss-check",
+      "name": "Verify PostCSS Setup",
+      "description": "Ensure PostCSS is configured correctly",
+      "action": "validate",
+      "parameters": {
+        "files": [
+          "postcss.config.js",
+          "vite.config.js"
+        ],
+        "check": "Tailwind plugin presence"
+      }
+    },
+    {
+      "id": "build-preview",
+      "name": "Preview Build Issues",
+      "description": "Identify what errors would occur during build",
+      "action": "analyze",
+      "parameters": {
+        "predict": [
+          "Unknown utility classes",
+          "Missing CSS variables",
+          "Config syntax errors",
+          "Import issues"
+        ]
+      }
+    },
+    {
+      "id": "generate-report",
+      "name": "Generate Validation Report",
+      "description": "Create detailed report of findings",
+      "action": "report",
+      "parameters": {
+        "sections": [
+          "Critical Errors (build will fail)",
+          "Warnings (may cause issues)",
+          "Suggestions (best practices)",
+          "Valid Setup (working correctly)"
+        ]
+      }
+    },
+    {
+      "id": "suggest-fixes",
+      "name": "Suggest Fixes",
+      "description": "Provide specific fixes for each issue",
+      "action": "generate",
+      "parameters": {
+        "for_each_error": [
+          "Exact config to add",
+          "CSS variables to define",
+          "Alternative approaches",
+          "Migration steps if needed"
+        ]
+      }
+    },
+    {
+      "id": "apply-fixes",
+      "name": "Apply Fixes (Optional)",
+      "description": "Automatically apply suggested fixes",
+      "action": "edit",
+      "conditions": {
+        "user_approval": true
+      },
+      "parameters": {
+        "updates": [
+          "tailwind.config.js additions",
+          "CSS variable definitions",
+          "Import statements"
+        ]
+      }
+    }
+  ],
+  "requirements": [
+    "Tailwind CSS project",
+    "Read access to source files"
+  ],
+  "outcomes": [
+    "Complete list of style issues",
+    "Errors that would occur during build",
+    "Specific fixes for each issue",
+    "Clean build after fixes applied"
+  ],
+  "triggers": [
+    "Before running build commands",
+    "After editing className attributes",
+    "When adding new components",
+    "During CI/CD pipeline"
+  ]
+}
