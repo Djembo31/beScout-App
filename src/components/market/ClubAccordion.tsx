@@ -61,7 +61,7 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
   return (
     <div className="col-span-full border border-white/[0.08] rounded-2xl overflow-hidden anim-fade">
       <div
-        className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.06]"
+        className="flex items-center gap-2 px-3 py-2.5 border-b border-white/[0.06]"
         style={{ borderLeft: `3px solid ${primaryColor}` }}
       >
         {club?.logo ? (
@@ -69,8 +69,8 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
         ) : (
           <div className="size-5 rounded-full flex-shrink-0 border border-white/10" style={{ backgroundColor: primaryColor }} />
         )}
-        <span className="font-bold text-sm flex-1">{clubName}</span>
-        <span className="text-[10px] text-white/40 tabular-nums">{players.length} DPCs</span>
+        <span className="font-bold text-xs truncate flex-1 min-w-0">{clubName}</span>
+        <span className="text-[9px] text-white/40 tabular-nums flex-shrink-0">{players.length}</span>
 
         <select
           value={marketSortBy}
