@@ -6,7 +6,7 @@ export type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'l15' | 'change' | 
   | 'goals' | 'assists' | 'matches' | 'age_asc' | 'age_desc' | 'contract';
 export type MarketTab = 'portfolio' | 'kaufen';
 export type PortfolioSubTab = 'team' | 'bestand' | 'angebote';
-export type KaufenSubTab = 'clubverkauf' | 'transferliste';
+export type KaufenSubTab = 'clubverkauf' | 'transferliste' | 'trending';
 export type KaufenMode = 'discovery' | 'search';
 
 interface MarketState {
@@ -57,6 +57,9 @@ interface MarketState {
   filterMinSellers: number;
   filterBestDeals: boolean;
   marketSortBy: SortOption;
+  // Club Verkauf specific
+  clubVerkaufLeague: string;
+  clubVerkaufExpandedClub: string | null;
 
   setTab: (t: MarketTab) => void;
   setPortfolioSubTab: (v: PortfolioSubTab) => void;
@@ -107,6 +110,8 @@ interface MarketState {
   setMarketSortBy: (s: SortOption) => void;
   resetFilters: () => void;
   resetMarketFilters: () => void;
+  setClubVerkaufLeague: (v: string) => void;
+  setClubVerkaufExpandedClub: (v: string | null) => void;
 }
 
 export const useMarketStore = create<MarketState>()((set) => ({
@@ -156,6 +161,8 @@ export const useMarketStore = create<MarketState>()((set) => ({
   filterMinSellers: 0,
   filterBestDeals: false,
   marketSortBy: 'l5',
+  clubVerkaufLeague: '',
+  clubVerkaufExpandedClub: null,
 
   setTab: (t) => set({ tab: t }),
   setPortfolioSubTab: (v) => set({ portfolioSubTab: v }),
@@ -231,6 +238,10 @@ export const useMarketStore = create<MarketState>()((set) => ({
   setFilterMinSellers: (v) => set({ filterMinSellers: v }),
   setFilterBestDeals: (v) => set({ filterBestDeals: v }),
   setMarketSortBy: (s) => set({ marketSortBy: s }),
+  setClubVerkaufLeague: (v) => set({ clubVerkaufLeague: v }),
+  setClubVerkaufExpandedClub: (v) => set((state) => ({
+    clubVerkaufExpandedClub: state.clubVerkaufExpandedClub === v ? null : v,
+  })),
   resetMarketFilters: () => set({
     filterPos: new Set<Pos>(),
     filterMinL5: 0,
