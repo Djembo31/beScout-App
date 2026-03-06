@@ -3,7 +3,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronDown, Flame } from 'lucide-react';
-import { PlayerPhoto, getL5Color } from '@/components/player';
+import { PlayerPhoto, PositionBadge, getL5Color } from '@/components/player';
 import CountdownBadge from './CountdownBadge';
 import { fmtScout, cn } from '@/lib/utils';
 import type { ClubLookup } from '@/lib/clubs';
@@ -90,6 +90,7 @@ export default function ClubCard({
           return (
             <div key={p.id} className="flex items-center gap-2 text-[11px]">
               <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={20} />
+              <PositionBadge pos={p.pos} size="sm" />
               <span className="text-white/70 truncate flex-1">{p.last}</span>
               <span className={cn('font-mono font-bold tabular-nums', getL5Color(p.perf.l5))}>{p.perf.l5}</span>
               {ipo && (
