@@ -4,14 +4,26 @@ import React, { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
 import { getClub } from '@/lib/clubs';
+import { useMarketStore } from '@/lib/stores/marketStore';
+import { applySorting } from './MarketFilters';
+import { centsToBsd } from '@/lib/services/players';
 import PlayerIPORow from './PlayerIPORow';
 import type { Player, DbIpo, Pos } from '@/types';
+import type { SortOption } from '@/lib/stores/marketStore';
 
 const POS_ORDER: { pos: Pos; label: string }[] = [
   { pos: 'GK', label: 'TW' },
   { pos: 'DEF', label: 'DEF' },
   { pos: 'MID', label: 'MID' },
   { pos: 'ATT', label: 'STU' },
+];
+
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: 'l5', label: 'L5' },
+  { value: 'floor_asc', label: 'Preis \u2191' },
+  { value: 'floor_desc', label: 'Preis \u2193' },
+  { value: 'goals', label: 'Tore' },
+  { value: 'assists', label: 'Assists' },
 ];
 
 interface ClubAccordionProps {
@@ -25,17 +37,24 @@ interface ClubAccordionProps {
 
 export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buyingId, onClose }: ClubAccordionProps) {
   const t = useTranslations('market');
+  const { marketSortBy, setMarketSortBy } = useMarketStore();
   const club = getClub(clubName);
   const primaryColor = club?.colors.primary ?? '#666';
 
+  const getFloor = useMemo(() => {
+    return (p: Player) => {
+      const ipo = ipoMap.get(p.id);
+      return ipo ? centsToBsd(ipo.price) : 0;
+    };
+  }, [ipoMap]);
+
   const groups = useMemo(() => {
     return POS_ORDER.map(({ pos, label }) => {
-      const posPlayers = players
-        .filter(p => p.pos === pos)
-        .sort((a, b) => b.perf.l5 - a.perf.l5);
-      return { pos, label, players: posPlayers };
+      const posPlayers = players.filter(p => p.pos === pos);
+      const sorted = applySorting(posPlayers, marketSortBy, getFloor);
+      return { pos, label, players: sorted };
     }).filter(g => g.players.length > 0);
-  }, [players]);
+  }, [players, marketSortBy, getFloor]);
 
   if (groups.length === 0) return null;
 
@@ -52,11 +71,18 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
         )}
         <span className="font-bold text-sm flex-1">{clubName}</span>
         <span className="text-[10px] text-white/40 tabular-nums">{players.length} DPCs</span>
-        {!onBuy && (
-          <span className="text-[9px] text-white/25 font-semibold px-2 py-1 rounded-md bg-white/[0.04]" aria-label={t('purchasesDisabled', { defaultMessage: 'Kauf nicht verfügbar' })}>
-            {t('readOnly', { defaultMessage: 'Nur Ansicht' })}
-          </span>
-        )}
+
+        <select
+          value={marketSortBy}
+          onChange={(e) => setMarketSortBy(e.target.value as SortOption)}
+          className="bg-white/[0.06] border border-white/[0.10] rounded-lg px-2 py-1.5 text-[10px] font-bold text-white/70 outline-none focus:border-white/20 min-h-[36px]"
+          aria-label={t('sortBy', { defaultMessage: 'Sortieren' })}
+        >
+          {SORT_OPTIONS.map(o => (
+            <option key={o.value} value={o.value} className="bg-[#1a1a1a]">{o.label}</option>
+          ))}
+        </select>
+
         <button
           onClick={onClose}
           className="p-1.5 rounded-lg hover:bg-white/10 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"

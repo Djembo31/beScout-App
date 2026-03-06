@@ -8,7 +8,7 @@ import { getClub } from '@/lib/clubs';
 import type { ClubLookup } from '@/lib/clubs';
 import { useClub } from '@/components/providers/ClubProvider';
 import { useMarketStore } from '@/lib/stores/marketStore';
-import { applyFilters, applySorting, getActiveFilterCount } from './MarketFilters';
+import { applyFilters, getActiveFilterCount } from './MarketFilters';
 import EndingSoonStrip from './EndingSoonStrip';
 import LeagueBar from './LeagueBar';
 import ClubCard from './ClubCard';
@@ -18,18 +18,11 @@ import NewUserTip from '@/components/onboarding/NewUserTip';
 import { cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { Player, DbIpo, Pos } from '@/types';
-import type { SortOption, IpoViewState } from '@/lib/stores/marketStore';
+import type { IpoViewState } from '@/lib/stores/marketStore';
 
 const POSITIONS: Pos[] = ['GK', 'DEF', 'MID', 'ATT'];
 const POS_LABELS: Record<Pos, string> = { GK: 'TW', DEF: 'DEF', MID: 'MID', ATT: 'STU' };
 const L5_PRESETS = [45, 55, 65] as const;
-const SORT_OPTIONS: { value: SortOption; label: string }[] = [
-  { value: 'l5', label: 'L5' },
-  { value: 'floor_asc', label: 'Preis \u2191' },
-  { value: 'floor_desc', label: 'Preis \u2193' },
-  { value: 'goals', label: 'Tore' },
-  { value: 'assists', label: 'Assists' },
-];
 
 const VIEW_TABS: { value: IpoViewState; labelKey: string; defaultLabel: string; ariaKey: string; ariaDefault: string }[] = [
   { value: 'laufend', labelKey: 'ipoLaufend', defaultLabel: 'Laufend', ariaKey: 'ipoShowActive', ariaDefault: 'Aktive IPOs anzeigen' },
@@ -59,9 +52,6 @@ type ClubAggregate = {
   avgPrice: number;
   earliestEnd: string | null;
   isHot: boolean;
-  bestL5: number;
-  totalGoals: number;
-  totalAssists: number;
 };
 
 export default function ClubVerkaufSection({
@@ -76,7 +66,6 @@ export default function ClubVerkaufSection({
     filterPos, toggleFilterPos,
     filterMinL5, setFilterMinL5,
     filterOnlyFit, setFilterOnlyFit,
-    marketSortBy, setMarketSortBy,
     showAdvancedFilters, setShowAdvancedFilters,
     resetMarketFilters,
     ipoViewState, setIpoViewState,
@@ -100,14 +89,6 @@ export default function ClubVerkaufSection({
     for (const ipo of viewIpos) m.set(ipo.player_id, ipo);
     return m;
   }, [viewIpos]);
-
-  // Floor price getter for sorting
-  const getFloor = useMemo(() => {
-    return (p: Player) => {
-      const ipo = iposByPlayer.get(p.id);
-      return ipo ? centsToBsd(ipo.price) : 0;
-    };
-  }, [iposByPlayer]);
 
   // Build club aggregates
   const clubAggregates = useMemo(() => {
@@ -150,21 +131,10 @@ export default function ClubVerkaufSection({
         }
       }
 
-      const sorted = applySorting(clubPlayers, marketSortBy, getFloor);
-
-      let bestL5 = 0;
-      let totalGoals = 0;
-      let totalAssists = 0;
-      for (const p of clubPlayers) {
-        if (p.perf.l5 > bestL5) bestL5 = p.perf.l5;
-        totalGoals += p.stats?.goals ?? 0;
-        totalAssists += p.stats?.assists ?? 0;
-      }
-
       result.push({
         clubName,
         club,
-        players: sorted,
+        players: clubPlayers,
         ipoMap,
         dpcCount: clubPlayers.length,
         totalSold,
@@ -172,28 +142,17 @@ export default function ClubVerkaufSection({
         avgPrice: priceCount > 0 ? Math.round(totalPrice / priceCount) : 0,
         earliestEnd: getEarliestEndDate(endDates),
         isHot: clubPlayers.length >= 5,
-        bestL5,
-        totalGoals,
-        totalAssists,
       });
     });
 
-    // Followed clubs first, then by sort criteria
+    // Followed clubs first, then by DPC count
     return result.sort((a, b) => {
       const aFollowed = followedClubIds.has(a.club.id) ? 1 : 0;
       const bFollowed = followedClubIds.has(b.club.id) ? 1 : 0;
       if (aFollowed !== bFollowed) return bFollowed - aFollowed;
-
-      switch (marketSortBy) {
-        case 'l5': return b.bestL5 - a.bestL5;
-        case 'floor_asc': return a.avgPrice - b.avgPrice;
-        case 'floor_desc': return b.avgPrice - a.avgPrice;
-        case 'goals': return b.totalGoals - a.totalGoals;
-        case 'assists': return b.totalAssists - a.totalAssists;
-        default: return b.dpcCount - a.dpcCount;
-      }
+      return b.dpcCount - a.dpcCount;
     });
-  }, [players, viewIpos, store, clubVerkaufLeague, iposByPlayer, marketSortBy, getFloor, followedClubIds]);
+  }, [players, viewIpos, store, clubVerkaufLeague, iposByPlayer, followedClubIds]);
 
   const hasContent = clubAggregates.length > 0;
   const isBuyable = ipoViewState === 'laufend';
@@ -266,19 +225,8 @@ export default function ClubVerkaufSection({
       {/* 4. Navigation: league bar */}
       <LeagueBar selected={clubVerkaufLeague} onSelect={setClubVerkaufLeague} />
 
-      {/* 5. Controls: sort + filter expand */}
+      {/* 5. Controls: filter expand */}
       <div className="flex items-center gap-2">
-        <select
-          value={marketSortBy}
-          onChange={(e) => setMarketSortBy(e.target.value as SortOption)}
-          className="bg-white/[0.06] border border-white/[0.10] rounded-xl px-3 py-2.5 text-xs font-bold text-white/70 outline-none focus:border-white/20 min-h-[44px]"
-          aria-label={t('sortBy', { defaultMessage: 'Sortieren' })}
-        >
-          {SORT_OPTIONS.map(o => (
-            <option key={o.value} value={o.value} className="bg-[#1a1a1a]">{o.label}</option>
-          ))}
-        </select>
-
         <button
           onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
           className={cn(
