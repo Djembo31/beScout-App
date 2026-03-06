@@ -52,6 +52,11 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
         )}
         <span className="font-bold text-sm flex-1">{clubName}</span>
         <span className="text-[10px] text-white/40 tabular-nums">{players.length} DPCs</span>
+        {!onBuy && (
+          <span className="text-[9px] text-white/25 font-semibold px-2 py-1 rounded-md bg-white/[0.04]" aria-label={t('purchasesDisabled', { defaultMessage: 'Kauf nicht verfügbar' })}>
+            {t('readOnly', { defaultMessage: 'Nur Ansicht' })}
+          </span>
+        )}
         <button
           onClick={onClose}
           className="p-1.5 rounded-lg hover:bg-white/10 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"

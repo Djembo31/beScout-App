@@ -63,7 +63,12 @@ export default function PlayerIPORow({ player: p, ipo, onBuy, buying }: PlayerIP
           {buying ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : t('buy')}
         </button>
       ) : (
-        <span className="text-[10px] text-white/30 font-bold flex-shrink-0 w-16 text-right">
+        <span
+          className="text-[10px] text-white/30 font-bold tabular-nums flex-shrink-0 w-16 text-right"
+          aria-label={ipo.status === 'ended'
+            ? t('ipoStatusEnded', { defaultMessage: 'Verkauf beendet' })
+            : t('ipoStatusPlanned', { defaultMessage: 'Verkauf geplant' })}
+        >
           {ipo.status === 'ended' ? t('ipoBeendet', { defaultMessage: 'Beendet' }) : t('ipoGeplant', { defaultMessage: 'Geplant' })}
         </span>
       )}

@@ -1097,7 +1097,14 @@
     "noPlannedIpos": "Planlanan sat\u0131\u015f yok",
     "noPlannedIposDesc": "\u015eu anda duyurulan sat\u0131\u015f bulunmuyor.",
     "noEndedIpos": "Sona eren sat\u0131\u015f yok",
-    "noEndedIposDesc": "Yak\u0131n zamanda sona eren sat\u0131\u015f bulunmuyor."
+    "noEndedIposDesc": "Yak\u0131n zamanda sona eren sat\u0131\u015f bulunmuyor.",
+    "ipoShowActive": "Aktif IPO'lar\u0131 g\u00f6ster",
+    "ipoShowPlanned": "Planlanan IPO'lar\u0131 g\u00f6ster",
+    "ipoShowEnded": "Sona eren IPO'lar\u0131 g\u00f6ster",
+    "ipoStatusEnded": "Sat\u0131\u015f sona erdi",
+    "ipoStatusPlanned": "Sat\u0131\u015f planland\u0131",
+    "readOnly": "Sadece g\u00f6r\u00fcnt\u00fcleme",
+    "purchasesDisabled": "Sat\u0131n alma m\u00fcmk\u00fcn de\u011fil"
   },
   "community": {
     "title": "Topluluk",

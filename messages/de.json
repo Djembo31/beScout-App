@@ -1105,7 +1105,14 @@
     "noPlannedIpos": "Keine geplanten Verkäufe",
     "noPlannedIposDesc": "Aktuell sind keine Verkäufe angekündigt.",
     "noEndedIpos": "Keine beendeten Verkäufe",
-    "noEndedIposDesc": "Es gibt keine kürzlich beendeten Verkäufe."
+    "noEndedIposDesc": "Es gibt keine kürzlich beendeten Verkäufe.",
+    "ipoShowActive": "Aktive IPOs anzeigen",
+    "ipoShowPlanned": "Geplante IPOs anzeigen",
+    "ipoShowEnded": "Beendete IPOs anzeigen",
+    "ipoStatusEnded": "Verkauf beendet",
+    "ipoStatusPlanned": "Verkauf geplant",
+    "readOnly": "Nur Ansicht",
+    "purchasesDisabled": "Kauf nicht verfügbar"
   },
   "community": {
     "title": "Community",

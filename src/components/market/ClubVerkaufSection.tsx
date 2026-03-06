@@ -31,10 +31,10 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'assists', label: 'Assists' },
 ];
 
-const VIEW_TABS: { value: IpoViewState; labelKey: string; defaultLabel: string }[] = [
-  { value: 'laufend', labelKey: 'ipoLaufend', defaultLabel: 'Laufend' },
-  { value: 'geplant', labelKey: 'ipoGeplant', defaultLabel: 'Geplant' },
-  { value: 'beendet', labelKey: 'ipoBeendet', defaultLabel: 'Beendet' },
+const VIEW_TABS: { value: IpoViewState; labelKey: string; defaultLabel: string; ariaKey: string; ariaDefault: string }[] = [
+  { value: 'laufend', labelKey: 'ipoLaufend', defaultLabel: 'Laufend', ariaKey: 'ipoShowActive', ariaDefault: 'Aktive IPOs anzeigen' },
+  { value: 'geplant', labelKey: 'ipoGeplant', defaultLabel: 'Geplant', ariaKey: 'ipoShowPlanned', ariaDefault: 'Geplante IPOs anzeigen' },
+  { value: 'beendet', labelKey: 'ipoBeendet', defaultLabel: 'Beendet', ariaKey: 'ipoShowEnded', ariaDefault: 'Beendete IPOs anzeigen' },
 ];
 
 interface ClubVerkaufSectionProps {
@@ -59,6 +59,9 @@ type ClubAggregate = {
   avgPrice: number;
   earliestEnd: string | null;
   isHot: boolean;
+  bestL5: number;
+  totalGoals: number;
+  totalAssists: number;
 };
 
 export default function ClubVerkaufSection({
@@ -149,6 +152,15 @@ export default function ClubVerkaufSection({
 
       const sorted = applySorting(clubPlayers, marketSortBy, getFloor);
 
+      let bestL5 = 0;
+      let totalGoals = 0;
+      let totalAssists = 0;
+      for (const p of clubPlayers) {
+        if (p.perf.l5 > bestL5) bestL5 = p.perf.l5;
+        totalGoals += p.stats?.goals ?? 0;
+        totalAssists += p.stats?.assists ?? 0;
+      }
+
       result.push({
         clubName,
         club,
@@ -160,15 +172,26 @@ export default function ClubVerkaufSection({
         avgPrice: priceCount > 0 ? Math.round(totalPrice / priceCount) : 0,
         earliestEnd: getEarliestEndDate(endDates),
         isHot: clubPlayers.length >= 5,
+        bestL5,
+        totalGoals,
+        totalAssists,
       });
     });
 
-    // Followed clubs first, then by DPC count
+    // Followed clubs first, then by sort criteria
     return result.sort((a, b) => {
       const aFollowed = followedClubIds.has(a.club.id) ? 1 : 0;
       const bFollowed = followedClubIds.has(b.club.id) ? 1 : 0;
       if (aFollowed !== bFollowed) return bFollowed - aFollowed;
-      return b.dpcCount - a.dpcCount;
+
+      switch (marketSortBy) {
+        case 'l5': return b.bestL5 - a.bestL5;
+        case 'floor_asc': return a.avgPrice - b.avgPrice;
+        case 'floor_desc': return b.avgPrice - a.avgPrice;
+        case 'goals': return b.totalGoals - a.totalGoals;
+        case 'assists': return b.totalAssists - a.totalAssists;
+        default: return b.dpcCount - a.dpcCount;
+      }
     });
   }, [players, viewIpos, store, clubVerkaufLeague, iposByPlayer, marketSortBy, getFloor, followedClubIds]);
 
@@ -203,10 +226,11 @@ export default function ClubVerkaufSection({
             key={tab.value}
             role="tab"
             aria-selected={ipoViewState === tab.value}
+            aria-label={t(tab.ariaKey, { defaultMessage: tab.ariaDefault })}
             onClick={() => setIpoViewState(tab.value)}
             className={cn(
               'flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-bold transition-colors min-h-[44px]',
-              'focus-visible:ring-2 focus-visible:ring-gold/50 outline-none',
+              'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
               ipoViewState === tab.value
                 ? 'bg-white/10 text-white shadow-sm'
                 : 'text-white/40 hover:text-white/60'
