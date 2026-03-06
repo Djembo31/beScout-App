@@ -1,15 +1,14 @@
 'use client';
 
-import React, { useMemo, useCallback, useEffect, useRef } from 'react';
+import React, { useMemo, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
-  Briefcase, Zap,
+  Briefcase, Zap, Search,
   CheckCircle2, X,
 } from 'lucide-react';
-import { ErrorState, Skeleton, SkeletonCard, TabBar, TabPanel } from '@/components/ui';
-import { PlayerDisplay } from '@/components/player/PlayerRow';
+import { ErrorState, Skeleton, SkeletonCard, TabPanel } from '@/components/ui';
 import { fmtScout, cn } from '@/lib/utils';
 
 import { centsToBsd } from '@/lib/services/players';
@@ -21,14 +20,14 @@ import { useClub } from '@/components/providers/ClubProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { useEnrichedPlayers, useHoldings, useAllOpenOrders, invalidateTradeQueries } from '@/lib/queries';
-import { useActiveIpos } from '@/lib/queries/ipos';
+import { useActiveIpos, useAnnouncedIpos, useRecentlyEndedIpos } from '@/lib/queries/ipos';
 import { useTrendingPlayers } from '@/lib/queries/trending';
 import { useAllPriceHistories } from '@/lib/queries/priceHist';
 import { useWatchlist } from '@/lib/queries/watchlist';
 import { useIncomingOffers } from '@/lib/queries/offers';
 import { useBuyFromMarket, useBuyFromIpo } from '@/lib/mutations/trading';
 import { useMarketStore } from '@/lib/stores/marketStore';
-import type { MarketTab } from '@/lib/stores/marketStore';
+import type { MarketTab, PortfolioSubTab, KaufenSubTab } from '@/lib/stores/marketStore';
 import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 import dynamic from 'next/dynamic';
@@ -52,35 +51,21 @@ const ManagerOffersTab = dynamic(() => import('@/components/manager/ManagerOffer
   ssr: false,
   loading: () => <div className="space-y-3">{[...Array(3)].map((_, i) => <SkeletonCard key={i} className="h-24" />)}</div>,
 });
-const KaufenDiscovery = dynamic(() => import('@/components/market/KaufenDiscovery'), {
+const ClubSaleSection = dynamic(() => import('@/components/market/ClubSaleSection'), {
   ssr: false,
-  loading: () => <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">{[...Array(8)].map((_, i) => <SkeletonCard key={i} className="h-64" />)}</div>,
+  loading: () => <div className="space-y-3">{[...Array(3)].map((_, i) => <SkeletonCard key={i} className="h-32" />)}</div>,
 });
+const TransferListSection = dynamic(() => import('@/components/market/TransferListSection'), {
+  ssr: false,
+  loading: () => <div className="space-y-2">{[...Array(5)].map((_, i) => <SkeletonCard key={i} className="h-16" />)}</div>,
+});
+const MarketSearch = dynamic(() => import('@/components/market/MarketSearch'), { ssr: false });
 
 // ============================================
-// TYPES
-// ============================================
-type LocalIPOStatus = 'announced' | 'early_access' | 'live' | 'ended';
-
-type IPOData = {
-  id: string;
-  status: LocalIPOStatus;
-  price: number;
-  totalOffered: number;
-  sold: number;
-  startsAt: number;
-  endsAt: number;
-  earlyAccessEndsAt?: number;
-  userLimit: number;
-  portfolioLimit: number;
-  userPurchased: number;
-};
-
-// ============================================
-// TABS CONFIG — 4 Tabs
+// TABS CONFIG
 // ============================================
 
-const TAB_IDS: MarketTab[] = ['portfolio', 'kaufen', 'angebote'];
+const TAB_IDS: MarketTab[] = ['portfolio', 'kaufen'];
 
 const TAB_ALIAS: Record<string, MarketTab> = {
   kader: 'portfolio',
@@ -89,37 +74,10 @@ const TAB_ALIAS: Record<string, MarketTab> = {
   spieler: 'kaufen',
   transferlist: 'kaufen',
   scouting: 'kaufen',
-  offers: 'angebote',
+  offers: 'portfolio',  // angebote now under portfolio
 };
 
 const VALID_TABS = new Set<string>(TAB_IDS);
-
-// ============================================
-// IPO DATA HELPERS
-// ============================================
-
-function dbIpoToLocal(ipo: DbIpo): IPOData {
-  const statusMap: Record<string, LocalIPOStatus> = {
-    'open': 'live',
-    'early_access': 'early_access',
-    'announced': 'announced',
-    'ended': 'ended',
-    'cancelled': 'ended',
-  };
-  return {
-    id: ipo.id,
-    status: statusMap[ipo.status] || 'ended',
-    price: centsToBsd(ipo.price),
-    totalOffered: ipo.total_offered,
-    sold: ipo.sold,
-    startsAt: new Date(ipo.starts_at).getTime(),
-    endsAt: new Date(ipo.ends_at).getTime(),
-    earlyAccessEndsAt: ipo.early_access_ends_at ? new Date(ipo.early_access_ends_at).getTime() : undefined,
-    userLimit: ipo.max_per_user,
-    portfolioLimit: 500,
-    userPurchased: 0,
-  };
-}
 
 // ============================================
 // SKELETON
@@ -160,8 +118,11 @@ export default function MarketPage() {
   // ── Zustand Store (UI state) ──
   const {
     tab, setTab,
-    portfolioView, setPortfolioView,
+    portfolioSubTab, setPortfolioSubTab,
+    kaufenSubTab, setKaufenSubTab,
   } = useMarketStore();
+
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const t = useTranslations('market');
   const tc = useTranslations('common');
@@ -170,7 +131,6 @@ export default function MarketPage() {
   const TAB_LABELS: Record<MarketTab, string> = {
     portfolio: t('myRoster'),
     kaufen: t('buy'),
-    angebote: t('offers'),
   };
   const tabs = TAB_IDS.map(id => ({ id, label: TAB_LABELS[id] }));
 
@@ -189,6 +149,8 @@ export default function MarketPage() {
   // ── React Query Hooks (data) ──
   const { data: enrichedPlayers = [], isLoading: playersLoading, isError: playersError } = useEnrichedPlayers(user?.id);
   const { data: ipoList = [] } = useActiveIpos();
+  const { data: announcedIpos = [] } = useAnnouncedIpos();
+  const { data: endedIpos = [] } = useRecentlyEndedIpos();
   const { data: trending = [] } = useTrendingPlayers(8);
   const { data: watchlistEntries = [] } = useWatchlist(user?.id);
   const { data: incomingOffers = [] } = useIncomingOffers(user?.id);
@@ -335,15 +297,6 @@ export default function MarketPage() {
     return m;
   }, [players]);
 
-  // "Kaufen" tab: IPOs + P2P listings merged
-  const ipoItems = useMemo(() => {
-    return ipoList.map(ipo => {
-      const player = playerMap.get(ipo.player_id);
-      if (!player) return null;
-      return { player, ipo: dbIpoToLocal(ipo) };
-    }).filter((x): x is { player: Player; ipo: IPOData } => x !== null);
-  }, [ipoList, playerMap]);
-
   const mySquadPlayers = useMemo(() => {
     return players.filter(p => p.dpc.owned > 0 && !p.isLiquidated);
   }, [players]);
@@ -394,37 +347,105 @@ export default function MarketPage() {
         </div>
       </div>
 
-      {/* 4 Tabs */}
-      <TabBar tabs={tabs} activeTab={tab} onChange={(id) => setTab(id as MarketTab)} />
+      {/* Main Tabs — Segmented Control */}
+      <div className="flex gap-1 rounded-xl bg-white/[0.04] border border-white/[0.08] p-1">
+        {tabs.map(tb => (
+          <button
+            key={tb.id}
+            onClick={() => setTab(tb.id as MarketTab)}
+            className={cn(
+              'flex-1 rounded-lg px-4 py-2.5 text-sm font-bold transition-colors min-h-[44px]',
+              tab === tb.id
+                ? 'bg-white/[0.10] text-white'
+                : 'text-white/50 hover:text-white/70'
+            )}
+          >
+            {tb.label}
+          </button>
+        ))}
+      </div>
 
       {/* ━━━ TAB: MEIN KADER ━━━ */}
       <TabPanel id="portfolio" activeTab={tab}>
-        {/* Toggle: Kader / Portfolio */}
-        <div className="flex items-center gap-1 mb-4 p-1 bg-white/[0.04] border border-white/[0.08] rounded-xl w-fit">
-          <button
-            onClick={() => setPortfolioView('portfolio')}
-            className={cn('px-3 py-1.5 rounded-lg text-sm font-bold transition-colors',
-              portfolioView === 'portfolio' ? 'bg-gold/10 text-gold border border-gold/20' : 'text-white/60 hover:text-white/80 hover:bg-white/[0.04] border border-transparent'
-            )}
-          >{t('team')}</button>
-          <button
-            onClick={() => setPortfolioView('kader')}
-            className={cn('px-3 py-1.5 rounded-lg text-sm font-bold transition-colors',
-              portfolioView === 'kader' ? 'bg-gold/10 text-gold border border-gold/20' : 'text-white/60 hover:text-white/80 hover:bg-white/[0.04] border border-transparent'
-            )}
-          >{t('lineups')}</button>
+        {/* Sub-Tabs — Pill Style */}
+        <div className="flex gap-2 mb-4 overflow-x-auto scrollbar-hide">
+          {([
+            { id: 'team' as const, label: t('team') },
+            { id: 'bestand' as const, label: t('inventory') },
+            { id: 'angebote' as const, label: t('offers') },
+          ]).map(st => (
+            <button
+              key={st.id}
+              onClick={() => setPortfolioSubTab(st.id)}
+              className={cn(
+                'rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap flex-shrink-0 min-h-[36px]',
+                portfolioSubTab === st.id
+                  ? 'bg-white/[0.12] text-white border border-white/[0.15]'
+                  : 'text-white/40 hover:text-white/60 border border-transparent'
+              )}
+            >
+              {st.label}
+            </button>
+          ))}
         </div>
-        {portfolioView === 'kader' ? (
+        {portfolioSubTab === 'team' && (
           <ManagerKaderTab players={players} ownedPlayers={mySquadPlayers} />
-        ) : (
+        )}
+        {portfolioSubTab === 'bestand' && (
           <ManagerBestandTab players={players} holdings={holdings} ipoList={ipoList} userId={user?.id} incomingOffers={incomingOffers} onSell={handleSell} onCancelOrder={handleCancelOrder} />
+        )}
+        {portfolioSubTab === 'angebote' && (
+          <ManagerOffersTab players={players} />
         )}
         <SponsorBanner placement="market_top" />
         <TradingDisclaimer variant="card" />
       </TabPanel>
 
-      {/* ━━━ TAB: KAUFEN (Discovery + Search) ━━━ */}
+      {/* ━━━ TAB: KAUFEN ━━━ */}
       <TabPanel id="kaufen" activeTab={tab}>
+        {/* Sub-Tabs + Search toggle */}
+        <div className="flex items-center gap-2 mb-4">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-1">
+            {([
+              { id: 'clubverkauf' as const, label: t('clubSale', { defaultMessage: 'Club Verkauf' }) },
+              { id: 'transferliste' as const, label: t('transferList', { defaultMessage: 'Transferliste' }) },
+            ]).map(st => (
+              <button
+                key={st.id}
+                onClick={() => { setKaufenSubTab(st.id); setSearchOpen(false); }}
+                className={cn(
+                  'rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap flex-shrink-0 min-h-[36px]',
+                  kaufenSubTab === st.id && !searchOpen
+                    ? 'bg-white/[0.12] text-white border border-white/[0.15]'
+                    : 'text-white/40 hover:text-white/60 border border-transparent'
+                )}
+              >
+                {st.label}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setSearchOpen(!searchOpen)}
+            className={cn(
+              'p-2 rounded-lg transition-colors min-h-[36px] flex-shrink-0',
+              searchOpen ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
+            )}
+            aria-label={t('searchPlayers', { defaultMessage: 'Spieler suchen' })}
+          >
+            <Search className="size-4" aria-hidden="true" />
+          </button>
+        </div>
+
+        {/* Search overlay */}
+        {searchOpen && (
+          <MarketSearch
+            players={players}
+            activeIpos={ipoList}
+            sellOrders={recentOrders}
+            onClose={() => setSearchOpen(false)}
+          />
+        )}
+
         <NewUserTip
           tipKey="market-first-buy"
           icon={<Zap className="size-4" />}
@@ -432,28 +453,31 @@ export default function MarketPage() {
           description={tt('marketDesc')}
           show={holdings.length === 0}
         />
-        <KaufenDiscovery
-          players={players}
-          ipoItems={ipoItems}
-          trending={trending}
-          recentOrders={recentOrders}
-          watchlist={watchlist}
-          followedClubs={followedClubs}
-          getFloor={getFloor}
-          onBuy={handleBuy}
-          onIpoBuy={handleIpoBuy}
-          onWatch={toggleWatch}
-          buyingId={buyingId}
-        />
+        {kaufenSubTab === 'clubverkauf' && (
+          <ClubSaleSection
+            players={players}
+            activeIpos={ipoList}
+            announcedIpos={announcedIpos}
+            endedIpos={endedIpos}
+            playerMap={playerMap}
+            onIpoBuy={handleIpoBuy}
+            buyingId={buyingId}
+          />
+        )}
+        {kaufenSubTab === 'transferliste' && (
+          <TransferListSection
+            players={players}
+            sellOrders={recentOrders}
+            playerMap={playerMap}
+            getFloor={getFloor}
+            onBuy={handleBuy}
+            buyingId={buyingId}
+          />
+        )}
         <SponsorBanner placement="market_top" />
         <TradingDisclaimer variant="card" />
       </TabPanel>
 
-      {/* ━━━ TAB: ANGEBOTE ━━━ */}
-      <TabPanel id="angebote" activeTab={tab}>
-        <ManagerOffersTab players={players} />
-        <TradingDisclaimer variant="card" />
-      </TabPanel>
 
     </div>
   );

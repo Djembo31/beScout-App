@@ -3,12 +3,16 @@ import type { Pos } from '@/types';
 import type { BestandLens } from '@/components/manager/bestand/bestandHelpers';
 
 export type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'l15' | 'change' | 'name'
-  | 'goals' | 'assists' | 'matches' | 'age_asc' | 'age_desc';
-export type MarketTab = 'portfolio' | 'kaufen' | 'angebote';
+  | 'goals' | 'assists' | 'matches' | 'age_asc' | 'age_desc' | 'contract';
+export type MarketTab = 'portfolio' | 'kaufen';
+export type PortfolioSubTab = 'team' | 'bestand' | 'angebote';
+export type KaufenSubTab = 'clubverkauf' | 'transferliste';
 export type KaufenMode = 'discovery' | 'search';
 
 interface MarketState {
   tab: MarketTab;
+  portfolioSubTab: PortfolioSubTab;
+  kaufenSubTab: KaufenSubTab;
   portfolioView: 'kader' | 'portfolio';
   kaufenMode: KaufenMode;
   view: 'grid' | 'list';
@@ -39,7 +43,24 @@ interface MarketState {
   discoveryMinL5: number;
   discoveryOnlyFit: boolean;
 
+  // Market filters (shared: Club Verkauf + Transferliste)
+  filterPos: Set<Pos>;
+  filterMinL5: number;
+  filterMinGoals: number;
+  filterMinAssists: number;
+  filterMinMatches: number;
+  filterContractMax: number;   // 0=all, 6, 12 months
+  filterOnlyFit: boolean;
+  // Transferliste-only
+  filterPriceMin: number;
+  filterPriceMax: number;
+  filterMinSellers: number;
+  filterBestDeals: boolean;
+  marketSortBy: SortOption;
+
   setTab: (t: MarketTab) => void;
+  setPortfolioSubTab: (v: PortfolioSubTab) => void;
+  setKaufenSubTab: (v: KaufenSubTab) => void;
   setPortfolioView: (v: 'kader' | 'portfolio') => void;
   setKaufenMode: (v: KaufenMode) => void;
   setView: (v: 'grid' | 'list') => void;
@@ -70,11 +91,28 @@ interface MarketState {
   setDiscoverySortBy: (s: SortOption) => void;
   setDiscoveryMinL5: (v: number) => void;
   setDiscoveryOnlyFit: (v: boolean) => void;
+  // New market filter setters
+  setFilterPos: (pos: Set<Pos>) => void;
+  toggleFilterPos: (pos: Pos) => void;
+  setFilterMinL5: (v: number) => void;
+  setFilterMinGoals: (v: number) => void;
+  setFilterMinAssists: (v: number) => void;
+  setFilterMinMatches: (v: number) => void;
+  setFilterContractMax: (v: number) => void;
+  setFilterOnlyFit: (v: boolean) => void;
+  setFilterPriceMin: (v: number) => void;
+  setFilterPriceMax: (v: number) => void;
+  setFilterMinSellers: (v: number) => void;
+  setFilterBestDeals: (v: boolean) => void;
+  setMarketSortBy: (s: SortOption) => void;
   resetFilters: () => void;
+  resetMarketFilters: () => void;
 }
 
 export const useMarketStore = create<MarketState>()((set) => ({
   tab: 'portfolio',
+  portfolioSubTab: 'team',
+  kaufenSubTab: 'clubverkauf',
   portfolioView: 'portfolio',
   kaufenMode: 'discovery',
   view: 'grid',
@@ -105,7 +143,23 @@ export const useMarketStore = create<MarketState>()((set) => ({
   discoveryMinL5: 0,
   discoveryOnlyFit: false,
 
+  // Market filters
+  filterPos: new Set<Pos>(),
+  filterMinL5: 0,
+  filterMinGoals: 0,
+  filterMinAssists: 0,
+  filterMinMatches: 0,
+  filterContractMax: 0,
+  filterOnlyFit: false,
+  filterPriceMin: 0,
+  filterPriceMax: 0,
+  filterMinSellers: 0,
+  filterBestDeals: false,
+  marketSortBy: 'l5',
+
   setTab: (t) => set({ tab: t }),
+  setPortfolioSubTab: (v) => set({ portfolioSubTab: v }),
+  setKaufenSubTab: (v) => set({ kaufenSubTab: v }),
   setPortfolioView: (v) => set({ portfolioView: v }),
   setKaufenMode: (v) => set({ kaufenMode: v }),
   setView: (v) => set({ view: v }),
@@ -159,6 +213,38 @@ export const useMarketStore = create<MarketState>()((set) => ({
   setDiscoverySortBy: (s) => set({ discoverySortBy: s }),
   setDiscoveryMinL5: (v) => set({ discoveryMinL5: v }),
   setDiscoveryOnlyFit: (v) => set({ discoveryOnlyFit: v }),
+  // Market filter setters
+  setFilterPos: (pos) => set({ filterPos: pos }),
+  toggleFilterPos: (pos) => set((state) => {
+    const next = new Set(state.filterPos);
+    if (next.has(pos)) next.delete(pos); else next.add(pos);
+    return { filterPos: next };
+  }),
+  setFilterMinL5: (v) => set({ filterMinL5: v }),
+  setFilterMinGoals: (v) => set({ filterMinGoals: v }),
+  setFilterMinAssists: (v) => set({ filterMinAssists: v }),
+  setFilterMinMatches: (v) => set({ filterMinMatches: v }),
+  setFilterContractMax: (v) => set({ filterContractMax: v }),
+  setFilterOnlyFit: (v) => set({ filterOnlyFit: v }),
+  setFilterPriceMin: (v) => set({ filterPriceMin: v }),
+  setFilterPriceMax: (v) => set({ filterPriceMax: v }),
+  setFilterMinSellers: (v) => set({ filterMinSellers: v }),
+  setFilterBestDeals: (v) => set({ filterBestDeals: v }),
+  setMarketSortBy: (s) => set({ marketSortBy: s }),
+  resetMarketFilters: () => set({
+    filterPos: new Set<Pos>(),
+    filterMinL5: 0,
+    filterMinGoals: 0,
+    filterMinAssists: 0,
+    filterMinMatches: 0,
+    filterContractMax: 0,
+    filterOnlyFit: false,
+    filterPriceMin: 0,
+    filterPriceMax: 0,
+    filterMinSellers: 0,
+    filterBestDeals: false,
+    marketSortBy: 'l5' as SortOption,
+  }),
   resetFilters: () => set({
     posFilter: new Set<Pos>(),
     clubFilter: new Set<string>(),

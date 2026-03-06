@@ -41,6 +41,8 @@ export const qk = {
   // ── IPOs ──
   ipos: {
     active: ['ipos', 'active'] as const,
+    announced: ['ipos', 'announced'] as const,
+    recentlyEnded: ['ipos', 'recently-ended'] as const,
   },
 
   // ── Watchlist ──

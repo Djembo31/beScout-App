@@ -169,6 +169,32 @@ export async function updateIpoStatus(
   return data as UpdateIpoStatusResult;
 }
 
+/** Recently ended IPOs (last 7 days) for "Beendet" section */
+export async function getRecentlyEndedIpos(): Promise<DbIpo[]> {
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+  const { data, error } = await supabase
+    .from('ipos')
+    .select('*')
+    .eq('status', 'ended')
+    .gte('ends_at', sevenDaysAgo)
+    .order('ends_at', { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DbIpo[];
+}
+
+/** Announced IPOs for "Demnächst" section */
+export async function getAnnouncedIpos(): Promise<DbIpo[]> {
+  const { data, error } = await supabase
+    .from('ipos')
+    .select('*')
+    .eq('status', 'announced')
+    .order('starts_at', { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DbIpo[];
+}
+
 /** Get all IPOs for a club's players (by club name — legacy) */
 export async function getIposByClub(clubName: string): Promise<DbIpo[]> {
   const { data: clubPlayers, error: playersError } = await supabase

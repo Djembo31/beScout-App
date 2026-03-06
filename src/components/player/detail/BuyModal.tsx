@@ -2,8 +2,8 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Lock, Zap, Clock, ShoppingCart, Target, Loader2, Send } from 'lucide-react';
-import { Modal, Button } from '@/components/ui';
+import { Lock, Zap, ShoppingCart, Target, Loader2, Send } from 'lucide-react';
+import { Modal, Button, Countdown } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
@@ -38,13 +38,7 @@ interface BuyModalProps {
   onOpenOfferModal: () => void;
 }
 
-const formatCountdown = (isoDate: string) => {
-  const ms = Math.max(0, new Date(isoDate).getTime() - Date.now());
-  const hours = Math.floor(ms / 3600000);
-  const mins = Math.floor((ms % 3600000) / 60000);
-  if (hours >= 24) return `${Math.floor(hours / 24)}d ${hours % 24}h`;
-  return `${hours}h ${mins}m`;
-};
+// formatCountdown replaced by Countdown component
 
 // ── Compact Buy Form (shared between IPO and Market) ──
 function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAfford, label, icon, onBuy }: {
@@ -184,13 +178,10 @@ export default function BuyModal({
                   <div className="flex items-center justify-between px-4 py-2.5 bg-green-500/[0.06]">
                     <div className="flex items-center gap-2">
                       <div className="size-2 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none" />
-                      <span className="font-black text-sm text-green-500">{t('initialSale')}</span>
+                      <span className="font-black text-sm text-green-500">{t('clubSaleLabel', { defaultMessage: 'Club Verkauf' })}</span>
                       <span className="text-[10px] text-white/30">{t('fixedPriceFromClub')}</span>
                     </div>
-                    <div className="flex items-center gap-1 text-[10px] text-white/30">
-                      <Clock className="size-3" aria-hidden="true" />
-                      {formatCountdown(activeIpo.ends_at)}
-                    </div>
+                    <Countdown targetDate={activeIpo.ends_at} />
                   </div>
                   <div className="p-3 space-y-2.5">
                     {/* Progress */}
@@ -234,7 +225,7 @@ export default function BuyModal({
                   <div className="flex items-center justify-between px-4 py-2.5 bg-sky-500/[0.04]">
                     <div className="flex items-center gap-2">
                       <ShoppingCart className="size-4 text-sky-300" aria-hidden="true" />
-                      <span className="font-black text-sm text-sky-300">{t('market')}</span>
+                      <span className="font-black text-sm text-sky-300">{t('transferListLabel', { defaultMessage: 'Transferliste' })}</span>
                       <span className="text-[10px] text-white/30">{transferAvailable !== 1 ? t('offersCountPlural', { count: transferAvailable }) : t('offersCount', { count: transferAvailable })}</span>
                     </div>
                     <span className="text-[10px] text-white/30">{t('cheapestFirst')}</span>

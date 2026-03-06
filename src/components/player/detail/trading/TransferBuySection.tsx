@@ -37,7 +37,7 @@ export default function TransferBuySection({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Users className="size-5 text-sky-300" aria-hidden="true" />
-            <span className="font-black text-sky-300">{t('transferMarket')}</span>
+            <span className="font-black text-sky-300">{t('transferListLabel', { defaultMessage: 'Transferliste' })}</span>
           </div>
           <div className="flex items-center gap-1 text-xs text-white/50">
             <span>{t('inPossession', { count: holdingQty })}</span>

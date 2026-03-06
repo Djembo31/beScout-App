@@ -2,24 +2,15 @@
 
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Clock, Zap, Lock, Loader2 } from 'lucide-react';
-import { Card, Button } from '@/components/ui';
+import { Zap, Lock, Loader2 } from 'lucide-react';
+import { Card, Button, Countdown } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
 import type { DbIpo } from '@/types';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 
-const formatCountdown = (isoDate: string) => {
-  const ms = Math.max(0, new Date(isoDate).getTime() - Date.now());
-  const hours = Math.floor(ms / 3600000);
-  const mins = Math.floor((ms % 3600000) / 60000);
-  if (hours >= 24) {
-    const days = Math.floor(hours / 24);
-    return `${days}d ${hours % 24}h`;
-  }
-  return `${hours}h ${mins}m`;
-};
+// formatCountdown replaced by Countdown component
 
 interface IPOBuySectionProps {
   ipo: DbIpo;
@@ -49,13 +40,10 @@ export default function IPOBuySection({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="size-2 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none" />
-            <span className="font-black text-green-500">{t('initialSaleUpper')}</span>
+            <span className="font-black text-green-500">{t('clubSale', { defaultMessage: 'Club Verkauf' })}</span>
             <span className="text-[10px] text-white/40 ml-1">{t('fixedPrice')}</span>
           </div>
-          <div className="flex items-center gap-1 text-xs text-white/50">
-            <Clock className="size-3" aria-hidden="true" />
-            <span>{t('endsIn', { time: formatCountdown(ipo.ends_at) })}</span>
-          </div>
+          <Countdown targetDate={ipo.ends_at} />
         </div>
       </div>
       <div className="p-4 space-y-4">
@@ -84,11 +72,11 @@ export default function IPOBuySection({
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="bg-white/[0.02] rounded-lg p-3">
             <div className="text-xs text-white/40">{t('yourLimit')}</div>
-            <div className="font-mono font-bold tabular-nums">{ipo.max_per_user} DPC</div>
+            <div className="font-mono font-bold tabular-nums">{ipo.max_per_user} {t('licensesUnit', { defaultMessage: 'Lizenzen' })}</div>
           </div>
           <div className="bg-white/[0.02] rounded-lg p-3">
             <div className="text-xs text-white/40">{t('alreadyBought')}</div>
-            <div className="font-mono font-bold tabular-nums">{userPurchased} DPC</div>
+            <div className="font-mono font-bold tabular-nums">{userPurchased} {t('licensesUnit', { defaultMessage: 'Lizenzen' })}</div>
           </div>
         </div>
         {/* Buy form */}
