@@ -24,11 +24,11 @@ function formatRemaining(ms: number): string {
 
 function getUrgencyColor(ms: number): string {
   if (ms <= 0) return 'text-white/30';
-  if (ms < 3600000) return 'text-vivid-red';
-  if (ms < 86400000) return 'text-vivid-red';
-  if (ms < 259200000) return 'text-orange-400';
-  if (ms < 604800000) return 'text-vivid-green';
-  return 'text-white/50';
+  if (ms < 3600000) return 'text-vivid-red';      // < 1h: red
+  if (ms < 86400000) return 'text-orange-400';     // < 1d: orange
+  if (ms < 259200000) return 'text-amber-400';     // < 3d: amber
+  if (ms < 604800000) return 'text-vivid-green';   // < 7d: green
+  return 'text-white/50';                           // > 7d: neutral
 }
 
 function shouldPulse(ms: number): boolean {
@@ -61,17 +61,16 @@ export default function CountdownBadge({ targetDate, className, compact, onExpir
 
   return (
     <span className={cn(
-      'inline-flex items-center gap-1 tabular-nums font-mono',
-      compact ? 'text-[10px]' : 'text-xs',
+      'inline-flex items-center gap-1 tabular-nums font-mono font-bold',
+      compact ? 'text-[11px]' : 'text-xs',
       color,
+      pulse && 'animate-pulse motion-reduce:animate-none',
       className,
     )}>
-      {!compact && (
-        <Clock
-          className={cn('size-3', pulse && 'animate-pulse motion-reduce:animate-none')}
-          aria-hidden="true"
-        />
-      )}
+      <Clock
+        className={cn(compact ? 'size-3' : 'size-3.5')}
+        aria-hidden="true"
+      />
       {formatRemaining(remaining)}
     </span>
   );

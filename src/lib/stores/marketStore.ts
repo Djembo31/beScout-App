@@ -60,6 +60,7 @@ interface MarketState {
   // Club Verkauf specific
   clubVerkaufLeague: string;
   clubVerkaufExpandedClub: string | null;
+  showAdvancedFilters: boolean;
 
   setTab: (t: MarketTab) => void;
   setPortfolioSubTab: (v: PortfolioSubTab) => void;
@@ -112,6 +113,7 @@ interface MarketState {
   resetMarketFilters: () => void;
   setClubVerkaufLeague: (v: string) => void;
   setClubVerkaufExpandedClub: (v: string | null) => void;
+  setShowAdvancedFilters: (v: boolean) => void;
 }
 
 export const useMarketStore = create<MarketState>()((set) => ({
@@ -163,6 +165,7 @@ export const useMarketStore = create<MarketState>()((set) => ({
   marketSortBy: 'l5',
   clubVerkaufLeague: '',
   clubVerkaufExpandedClub: null,
+  showAdvancedFilters: false,
 
   setTab: (t) => set({ tab: t }),
   setPortfolioSubTab: (v) => set({ portfolioSubTab: v }),
@@ -239,6 +242,7 @@ export const useMarketStore = create<MarketState>()((set) => ({
   setFilterBestDeals: (v) => set({ filterBestDeals: v }),
   setMarketSortBy: (s) => set({ marketSortBy: s }),
   setClubVerkaufLeague: (v) => set({ clubVerkaufLeague: v }),
+  setShowAdvancedFilters: (v) => set({ showAdvancedFilters: v }),
   setClubVerkaufExpandedClub: (v) => set((state) => ({
     clubVerkaufExpandedClub: state.clubVerkaufExpandedClub === v ? null : v,
   })),

@@ -463,6 +463,7 @@ export default function MarketPage() {
             playerMap={playerMap}
             onIpoBuy={handleIpoBuy}
             buyingId={buyingId}
+            hasHoldings={holdings.length > 0}
           />
         )}
         {kaufenSubTab === 'trending' && (

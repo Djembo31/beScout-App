@@ -40,7 +40,7 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
   if (groups.length === 0) return null;
 
   return (
-    <div className="col-span-2 border border-white/[0.08] rounded-2xl overflow-hidden anim-fade">
+    <div className="col-span-full border border-white/[0.08] rounded-2xl overflow-hidden anim-fade">
       <div
         className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.06]"
         style={{ borderLeft: `3px solid ${primaryColor}` }}
@@ -63,11 +63,11 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
 
       <div className="divide-y divide-white/[0.04]">
         {groups.map(({ pos, label, players: posPlayers }) => (
-          <div key={pos}>
-            <div className="px-4 py-1.5 bg-white/[0.02]">
-              <span className="text-[10px] font-bold text-white/30 uppercase tracking-wide">
-                {label} ({posPlayers.length})
-              </span>
+          <div key={pos} role="group" aria-label={`${label} — ${posPlayers.length} ${t('players', { defaultMessage: 'Spieler' })}`}>
+            <div className="px-4 py-2 bg-white/[0.02]">
+              <h4 className="text-[10px] font-bold text-white/30 uppercase tracking-wide">
+                {label} <span className="tabular-nums">({posPlayers.length})</span>
+              </h4>
             </div>
             <div>
               {posPlayers.map(p => {

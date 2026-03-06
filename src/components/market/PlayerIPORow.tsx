@@ -25,7 +25,7 @@ export default function PlayerIPORow({ player: p, ipo, onBuy, buying }: PlayerIP
   return (
     <Link
       href={`/player/${p.id}`}
-      className="flex items-center gap-2 px-3 py-2 hover:bg-white/[0.03] transition-colors rounded-lg group"
+      className="flex items-center gap-2 px-3 py-2.5 min-h-[44px] hover:bg-white/[0.03] transition-colors rounded-lg group"
     >
       <PlayerIdentity player={p} size="sm" showStatus={false} className="flex-1 min-w-0" />
 
@@ -33,14 +33,14 @@ export default function PlayerIPORow({ player: p, ipo, onBuy, buying }: PlayerIP
         {p.perf.l5}
       </span>
 
-      <div className="w-10 flex-shrink-0 hidden sm:block">
+      <div className="w-10 flex-shrink-0">
         <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
           <div
             className="h-full rounded-full bg-vivid-green"
             style={{ width: `${Math.min(progress, 100)}%` }}
           />
         </div>
-        <span className="text-[8px] text-white/30 tabular-nums">{progress.toFixed(0)}%</span>
+        <span className="text-[8px] text-white/30 font-mono tabular-nums">{ipo.sold}/{ipo.total_offered}</span>
       </div>
 
       <CountdownBadge targetDate={ipo.ends_at} compact className="flex-shrink-0 w-16 text-right" />
@@ -52,7 +52,12 @@ export default function PlayerIPORow({ player: p, ipo, onBuy, buying }: PlayerIP
       <button
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); onBuy(p.id); }}
         disabled={buying}
-        className="px-3 py-1.5 min-h-[36px] bg-gold/10 border border-gold/20 text-gold rounded-lg text-[11px] font-black hover:bg-gold/20 transition-colors active:scale-[0.95] disabled:opacity-50 flex-shrink-0 flex items-center gap-1"
+        aria-label={t('buyPlayerLabel', {
+          player: `${p.first} ${p.last}`,
+          price: fmtScout(priceBsd),
+          defaultMessage: '{player} für {price} $SCOUT kaufen',
+        })}
+        className="px-3 py-1.5 min-h-[44px] min-w-[44px] bg-gold/10 border border-gold/20 text-gold rounded-lg text-[11px] font-black hover:bg-gold/20 transition-colors active:scale-[0.95] disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 flex items-center justify-center gap-1 outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main"
       >
         {buying ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : t('buy')}
       </button>
