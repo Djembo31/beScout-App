@@ -8,7 +8,7 @@ import {
   Briefcase, Zap, Search,
   CheckCircle2, X,
 } from 'lucide-react';
-import { ErrorState, Skeleton, SkeletonCard, TabPanel } from '@/components/ui';
+import { EmptyState, ErrorState, Skeleton, SkeletonCard, TabPanel } from '@/components/ui';
 import { fmtScout, cn } from '@/lib/utils';
 
 import { centsToBsd } from '@/lib/services/players';
@@ -51,7 +51,7 @@ const ManagerOffersTab = dynamic(() => import('@/components/manager/ManagerOffer
   ssr: false,
   loading: () => <div className="space-y-3">{[...Array(3)].map((_, i) => <SkeletonCard key={i} className="h-24" />)}</div>,
 });
-const ClubSaleSection = dynamic(() => import('@/components/market/ClubSaleSection'), {
+const ClubVerkaufSection = dynamic(() => import('@/components/market/ClubVerkaufSection'), {
   ssr: false,
   loading: () => <div className="space-y-3">{[...Array(3)].map((_, i) => <SkeletonCard key={i} className="h-32" />)}</div>,
 });
@@ -409,6 +409,7 @@ export default function MarketPage() {
             {([
               { id: 'clubverkauf' as const, label: t('clubSale', { defaultMessage: 'Club Verkauf' }) },
               { id: 'transferliste' as const, label: t('transferList', { defaultMessage: 'Transferliste' }) },
+              { id: 'trending' as const, label: t('trendingTab', { defaultMessage: 'Trending' }) },
             ]).map(st => (
               <button
                 key={st.id}
@@ -454,7 +455,7 @@ export default function MarketPage() {
           show={holdings.length === 0}
         />
         {kaufenSubTab === 'clubverkauf' && (
-          <ClubSaleSection
+          <ClubVerkaufSection
             players={players}
             activeIpos={ipoList}
             announcedIpos={announcedIpos}
@@ -462,6 +463,13 @@ export default function MarketPage() {
             playerMap={playerMap}
             onIpoBuy={handleIpoBuy}
             buyingId={buyingId}
+          />
+        )}
+        {kaufenSubTab === 'trending' && (
+          <EmptyState
+            icon={<Zap className="size-5" />}
+            title={t('trendingComingSoon', { defaultMessage: 'Trending — Bald verfügbar' })}
+            description={t('trendingComingSoonDesc', { defaultMessage: 'Hier siehst du bald die meistgehandelten Spieler.' })}
           />
         )}
         {kaufenSubTab === 'transferliste' && (
