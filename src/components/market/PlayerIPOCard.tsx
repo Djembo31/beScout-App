@@ -8,7 +8,7 @@ import {
   FileText, Activity,
 } from 'lucide-react';
 import {
-  PlayerPhoto, PositionBadge, getL5Color, getL5Bg, getL5Hex,
+  PlayerPhoto, PositionBadge, getL5Color, getL5Bg,
 } from '@/components/player';
 import { getContractInfo } from '@/components/player/PlayerRow';
 import CountdownBadge from './CountdownBadge';
@@ -50,9 +50,18 @@ interface PlayerIPOCardProps {
   ipo: DbIpo;
   onBuy?: (playerId: string) => void;
   buying: boolean;
+  recentScores?: number[];
 }
 
-export default function PlayerIPOCard({ player, ipo, onBuy, buying }: PlayerIPOCardProps) {
+/** Color for individual score bar (Sorare-style gradient) */
+function getScoreBarColor(score: number): string {
+  if (score >= 80) return '#4ade80';  // green-400
+  if (score >= 60) return '#a3e635';  // lime-400
+  if (score >= 45) return '#facc15';  // yellow-400
+  return '#fb923c';                   // orange-400
+}
+
+export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores }: PlayerIPOCardProps) {
   const t = useTranslations('market');
   const tp = useTranslations('player');
 
@@ -135,22 +144,31 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying }: PlayerIPOC
           </span>
         </div>
 
-        {/* L5 Performance Bar */}
-        <div className="flex items-center gap-2 mt-1.5">
-          <span className="text-[9px] font-bold text-white/30 shrink-0">L5</span>
-          <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all"
-              style={{
-                width: `${Math.min(player.perf.l5, 100)}%`,
-                backgroundColor: getL5Hex(player.perf.l5),
-              }}
-            />
+        {/* L5 Score Bars (Sorare-style) */}
+        {recentScores && recentScores.length > 0 && (
+          <div className="flex items-end gap-1 mt-2 h-10">
+            {recentScores.slice(0, 5).reverse().map((score, i) => {
+              const barH = Math.max(6, ((score - 30) / 120) * 40);
+              return (
+                <div key={i} className="flex flex-col items-center gap-0.5 flex-1 min-w-0">
+                  <span className="text-[8px] font-mono font-black tabular-nums leading-none"
+                    style={{ color: getScoreBarColor(score) }}
+                  >
+                    {score}
+                  </span>
+                  <div
+                    className="w-full max-w-[18px] rounded-t"
+                    style={{
+                      height: `${barH}px`,
+                      backgroundColor: getScoreBarColor(score),
+                      opacity: 0.85,
+                    }}
+                  />
+                </div>
+              );
+            })}
           </div>
-          <span className={cn('text-[10px] font-mono font-black tabular-nums shrink-0', getL5Color(player.perf.l5))}>
-            {player.perf.l5}
-          </span>
-        </div>
+        )}
 
         {/* Contract + Status chips */}
         <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
