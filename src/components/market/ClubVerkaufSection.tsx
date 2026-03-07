@@ -134,11 +134,15 @@ export default function ClubVerkaufSection({
       });
     });
 
-    // Followed clubs first, then by DPC count
+    // Followed clubs first, then by soonest ending
     return result.sort((a, b) => {
       const aFollowed = followedClubIds.has(a.club.id) ? 1 : 0;
       const bFollowed = followedClubIds.has(b.club.id) ? 1 : 0;
       if (aFollowed !== bFollowed) return bFollowed - aFollowed;
+      // Within same group: soonest ending first
+      const aEnd = a.earliestEnd ? new Date(a.earliestEnd).getTime() : Infinity;
+      const bEnd = b.earliestEnd ? new Date(b.earliestEnd).getTime() : Infinity;
+      if (aEnd !== bEnd) return aEnd - bEnd;
       return b.dpcCount - a.dpcCount;
     });
   }, [players, viewIpos, store, clubVerkaufLeague, iposByPlayer, followedClubIds]);
@@ -231,25 +235,67 @@ export default function ClubVerkaufSection({
       )}
 
       {/* 6. Club cards grid — 2 col mobile, 3 col desktop */}
-      {hasContent && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {clubAggregates.map(agg => (
-            <ClubCard
-              key={agg.clubName}
-              club={agg.club}
-              players={agg.players}
-              ipoMap={agg.ipoMap}
-              totalSold={agg.totalSold}
-              totalOffered={agg.totalOffered}
-              earliestEnd={agg.earliestEnd}
-              isHot={agg.isHot && isBuyable}
-              isExpanded={clubVerkaufExpandedClub === agg.clubName}
-              isFollowed={followedClubIds.has(agg.club.id)}
-              onToggle={() => setClubVerkaufExpandedClub(agg.clubName)}
-            />
-          ))}
-        </div>
-      )}
+      {hasContent && (() => {
+        const followed = clubAggregates.filter(a => followedClubIds.has(a.club.id));
+        const rest = clubAggregates.filter(a => !followedClubIds.has(a.club.id));
+
+        const renderCard = (agg: ClubAggregate) => (
+          <ClubCard
+            key={agg.clubName}
+            club={agg.club}
+            players={agg.players}
+            ipoMap={agg.ipoMap}
+            totalSold={agg.totalSold}
+            totalOffered={agg.totalOffered}
+            earliestEnd={agg.earliestEnd}
+            isHot={agg.isHot && isBuyable}
+            isExpanded={clubVerkaufExpandedClub === agg.clubName}
+            isFollowed={followedClubIds.has(agg.club.id)}
+            onToggle={() => setClubVerkaufExpandedClub(agg.clubName)}
+          />
+        );
+
+        return (
+          <div className="space-y-4">
+            {/* Followed clubs section */}
+            {followed.length > 0 && (
+              <div>
+                <h3 className="text-[10px] font-bold text-gold/70 uppercase tracking-wider mb-2">
+                  {t('followedClubs', { defaultMessage: 'Deine Vereine' })}
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {followed.map(renderCard)}
+                </div>
+              </div>
+            )}
+
+            {/* Separator when both sections exist */}
+            {followed.length > 0 && rest.length > 0 && (
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-white/[0.06]" />
+                <span className="text-[9px] text-white/25 font-semibold uppercase tracking-wider">
+                  {t('allClubs', { defaultMessage: 'Alle Vereine' })}
+                </span>
+                <div className="flex-1 h-px bg-white/[0.06]" />
+              </div>
+            )}
+
+            {/* Rest */}
+            {rest.length > 0 && (
+              <div>
+                {followed.length === 0 && rest.length > 0 && (
+                  <h3 className="text-[10px] font-bold text-white/30 uppercase tracking-wider mb-2">
+                    {t('allClubs', { defaultMessage: 'Alle Vereine' })}
+                  </h3>
+                )}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {rest.map(renderCard)}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* 8. Club detail modal — replaces inline accordion */}
       {(() => {
