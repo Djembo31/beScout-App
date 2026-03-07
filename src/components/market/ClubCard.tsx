@@ -83,9 +83,7 @@ export default function ClubCard({
           : 'bg-surface-base border-white/[0.08] hover:border-white/[0.12]'
       )}
       style={{
-        borderTopWidth: 3,
-        borderTopColor: pc,
-        backgroundImage: `linear-gradient(180deg, ${pc}12, transparent 40%)`,
+        backgroundImage: `linear-gradient(180deg, ${pc}10, transparent 40%)`,
       }}
     >
       {/* Badges */}
