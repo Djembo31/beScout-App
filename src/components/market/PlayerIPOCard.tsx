@@ -8,7 +8,7 @@ import {
   FileText, Activity,
 } from 'lucide-react';
 import {
-  PlayerPhoto, PositionBadge, getL5Color, getL5Bg,
+  PlayerPhoto, PositionBadge, getL5Color, getL5Bg, getL5Hex,
 } from '@/components/player';
 import { getContractInfo } from '@/components/player/PlayerRow';
 import CountdownBadge from './CountdownBadge';
@@ -120,22 +120,35 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying }: PlayerIPOC
       {/* ── Stats Row ── */}
       <div className="px-3 pb-2">
         <div className="flex items-center gap-3 text-[10px]">
-          {player.stats.goals > 0 && (
-            <span className="flex items-center gap-1 text-white/60">
-              <span className="font-black text-white/80 tabular-nums font-mono">{player.stats.goals}</span>
-              {tp('goals', { defaultMessage: 'Tore' })}
-            </span>
-          )}
-          {player.stats.assists > 0 && (
-            <span className="flex items-center gap-1 text-white/60">
-              <span className="font-black text-white/80 tabular-nums font-mono">{player.stats.assists}</span>
-              {tp('assists', { defaultMessage: 'Assists' })}
-            </span>
-          )}
+          <span className="flex items-center gap-1 text-white/60">
+            <span className="font-black text-white/80 tabular-nums font-mono">{player.stats.goals}</span>
+            {tp('goals', { defaultMessage: 'Tore' })}
+          </span>
+          <span className="flex items-center gap-1 text-white/60">
+            <span className="font-black text-white/80 tabular-nums font-mono">{player.stats.assists}</span>
+            {tp('assists', { defaultMessage: 'Assists' })}
+          </span>
           <span className="flex items-center gap-1 text-white/60">
             <Activity className="size-2.5 text-white/30" aria-hidden="true" />
             <span className="font-bold text-white/80 tabular-nums font-mono">{player.stats.matches}</span>
             {tp('matches', { defaultMessage: 'Spiele' })}
+          </span>
+        </div>
+
+        {/* L5 Performance Bar */}
+        <div className="flex items-center gap-2 mt-1.5">
+          <span className="text-[9px] font-bold text-white/30 shrink-0">L5</span>
+          <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all"
+              style={{
+                width: `${Math.min(player.perf.l5, 100)}%`,
+                backgroundColor: getL5Hex(player.perf.l5),
+              }}
+            />
+          </div>
+          <span className={cn('text-[10px] font-mono font-black tabular-nums shrink-0', getL5Color(player.perf.l5))}>
+            {player.perf.l5}
           </span>
         </div>
 
@@ -242,8 +255,15 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying }: PlayerIPOC
           </div>
         </div>
 
-        {/* Countdown */}
-        <div className="flex justify-end mt-1.5">
+        {/* Owned + Countdown */}
+        <div className="flex items-center justify-between mt-1.5">
+          {player.dpc.owned > 0 ? (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[9px] font-bold bg-gold/10 border-gold/20 text-gold tabular-nums font-mono">
+              {player.dpc.owned} DPC
+            </span>
+          ) : (
+            <span />
+          )}
           <CountdownBadge targetDate={ipo.ends_at} />
         </div>
       </div>
