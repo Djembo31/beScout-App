@@ -7,6 +7,7 @@ import { getClub } from '@/lib/clubs';
 import { useMarketStore } from '@/lib/stores/marketStore';
 import { applySorting } from './MarketFilters';
 import { centsToBsd } from '@/lib/services/players';
+import PlayerIPOCard from './PlayerIPOCard';
 import PlayerIPORow from './PlayerIPORow';
 import type { Player, DbIpo, Pos } from '@/types';
 import type { SortOption } from '@/lib/stores/marketStore';
@@ -61,7 +62,7 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
   return (
     <div className="col-span-full border border-white/[0.08] rounded-2xl overflow-hidden anim-fade">
       <div
-        className="flex items-center gap-2 px-3 py-2.5 border-b border-white/[0.06]"
+        className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.06]"
         style={{ borderLeft: `3px solid ${primaryColor}` }}
       >
         {club?.logo ? (
@@ -100,12 +101,29 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
                 {label} <span className="tabular-nums">({posPlayers.length})</span>
               </h4>
             </div>
-            <div>
+            {/* Mobile: compact rows */}
+            <div className="sm:hidden">
               {posPlayers.map(p => {
                 const ipo = ipoMap.get(p.id);
                 if (!ipo) return null;
                 return (
                   <PlayerIPORow
+                    key={p.id}
+                    player={p}
+                    ipo={ipo}
+                    onBuy={onBuy}
+                    buying={buyingId === p.id}
+                  />
+                );
+              })}
+            </div>
+            {/* Desktop: rich cards */}
+            <div className="hidden sm:grid sm:grid-cols-2 gap-2.5 p-2.5">
+              {posPlayers.map(p => {
+                const ipo = ipoMap.get(p.id);
+                if (!ipo) return null;
+                return (
+                  <PlayerIPOCard
                     key={p.id}
                     player={p}
                     ipo={ipo}

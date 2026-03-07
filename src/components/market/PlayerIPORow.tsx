@@ -23,11 +23,11 @@ export default function PlayerIPORow({ player, ipo, onBuy, buying }: PlayerIPORo
 
   const priceBsd = useMemo(() => centsToBsd(ipo.price), [ipo.price]);
   const progress = ipo.total_offered > 0 ? (ipo.sold / ipo.total_offered) * 100 : 0;
-  const remaining = ipo.total_offered - ipo.sold;
 
   return (
     <Link
       href={`/player/${player.id}`}
+      aria-label={`${player.first} ${player.last} — ${fmtScout(priceBsd)} $SCOUT`}
       className={cn(
         'block px-3 py-2.5 rounded-xl transition-colors group min-h-[44px]',
         'hover:bg-white/[0.04] active:bg-white/[0.06]',
