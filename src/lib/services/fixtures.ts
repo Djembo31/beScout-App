@@ -389,7 +389,7 @@ export async function getRecentPlayerMinutes(): Promise<Map<string, number[]>> {
  *  Returns Map<playerId, [newest, ..., oldest]> with null for GWs the player didn't play.
  *  Always 5 entries per player, aligned to the 5 most recent scored GWs. */
 export async function getRecentPlayerScores(): Promise<Map<string, (number | null)[]>> {
-  // Step 1: Find the latest GW with real scores (score>0, range 40-150)
+  // Step 1: Find the latest GW with real scores (score>0, range 0-100)
   const { data: latest } = await supabase
     .from('player_gameweek_scores')
     .select('gameweek')
@@ -403,22 +403,26 @@ export async function getRecentPlayerScores(): Promise<Map<string, (number | nul
   const maxGw = latest.gameweek as number;
   const gameweeks = Array.from({ length: 5 }, (_, i) => maxGw - i); // [28,27,26,25,24]
 
-  // Step 2: Fetch only those 5 GWs, skip score=0 (didn't play)
-  const { data: scores } = await supabase
-    .from('player_gameweek_scores')
-    .select('player_id, gameweek, score')
-    .in('gameweek', gameweeks)
-    .gt('score', 0);
-
-  if (!scores || scores.length === 0) return new Map();
-
-  // Step 3: Build lookup playerId → gw → score
+  // Step 2: Fetch each GW separately to stay under Supabase's 1000-row default.
+  // ~570 players per GW → each query well under limit, no silent truncation.
   const lookup = new Map<string, Map<number, number>>();
-  for (const s of scores) {
-    const pid = s.player_id as string;
-    if (!lookup.has(pid)) lookup.set(pid, new Map());
-    lookup.get(pid)!.set(s.gameweek as number, s.score as number);
-  }
+
+  await Promise.all(gameweeks.map(async (gw) => {
+    const { data } = await supabase
+      .from('player_gameweek_scores')
+      .select('player_id, score')
+      .eq('gameweek', gw)
+      .gt('score', 0);
+
+    if (!data) return;
+    for (const s of data) {
+      const pid = s.player_id as string;
+      if (!lookup.has(pid)) lookup.set(pid, new Map());
+      lookup.get(pid)!.set(gw, s.score as number);
+    }
+  }));
+
+  if (lookup.size === 0) return new Map();
 
   // Step 4: Build result — newest→oldest, null for missing GWs
   const result = new Map<string, (number | null)[]>();
