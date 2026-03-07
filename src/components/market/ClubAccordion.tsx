@@ -5,7 +5,6 @@ import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
 import { getClub } from '@/lib/clubs';
 import { useMarketStore } from '@/lib/stores/marketStore';
-import { useRecentScores } from '@/lib/queries/managerData';
 import { applySorting } from './MarketFilters';
 import { centsToBsd } from '@/lib/services/players';
 import PlayerIPOCard from './PlayerIPOCard';
@@ -39,7 +38,6 @@ interface ClubAccordionProps {
 export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buyingId, onClose }: ClubAccordionProps) {
   const t = useTranslations('market');
   const { marketSortBy, setMarketSortBy } = useMarketStore();
-  const { data: recentScores } = useRecentScores();
   const club = getClub(clubName);
   const primaryColor = club?.colors.primary ?? '#666';
 
@@ -113,7 +111,6 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
                     ipo={ipo}
                     onBuy={onBuy}
                     buying={buyingId === p.id}
-                    recentScores={recentScores?.get(p.id)}
                   />
                 );
               })}
