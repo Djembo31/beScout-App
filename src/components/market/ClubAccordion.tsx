@@ -2,8 +2,6 @@
 
 import React, { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { X } from 'lucide-react';
-import { getClub } from '@/lib/clubs';
 import { useMarketStore } from '@/lib/stores/marketStore';
 import { useRecentScores } from '@/lib/queries/managerData';
 import { applySorting } from './MarketFilters';
@@ -36,12 +34,10 @@ interface ClubAccordionProps {
   onClose: () => void;
 }
 
-export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buyingId, onClose }: ClubAccordionProps) {
+export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buyingId }: ClubAccordionProps) {
   const t = useTranslations('market');
   const { marketSortBy, setMarketSortBy } = useMarketStore();
   const { data: recentScores } = useRecentScores();
-  const club = getClub(clubName);
-  const primaryColor = club?.colors.primary ?? '#666';
 
   const getFloor = useMemo(() => {
     return (p: Player) => {
@@ -61,19 +57,12 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
   if (groups.length === 0) return null;
 
   return (
-    <div className="col-span-full border border-white/[0.08] rounded-2xl overflow-hidden anim-fade">
-      <div
-        className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.06]"
-        style={{ borderLeft: `3px solid ${primaryColor}` }}
-      >
-        {club?.logo ? (
-          <img src={club.logo} alt="" className="size-5 rounded-full object-cover flex-shrink-0" />
-        ) : (
-          <div className="size-5 rounded-full flex-shrink-0 border border-white/10" style={{ backgroundColor: primaryColor }} />
-        )}
-        <span className="font-bold text-xs truncate flex-1 min-w-0">{clubName}</span>
-        <span className="text-[9px] text-white/40 tabular-nums flex-shrink-0">{players.length}</span>
-
+    <div className="space-y-1">
+      {/* Sort control */}
+      <div className="flex items-center justify-between px-1 pb-2">
+        <span className="text-[10px] text-white/40 font-semibold">
+          {players.length} {t('players', { defaultMessage: 'Spieler' })}
+        </span>
         <select
           value={marketSortBy}
           onChange={(e) => setMarketSortBy(e.target.value as SortOption)}
@@ -84,25 +73,18 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
             <option key={o.value} value={o.value} className="bg-[#1a1a1a]">{o.label}</option>
           ))}
         </select>
-
-        <button
-          onClick={onClose}
-          className="p-1.5 rounded-lg hover:bg-white/10 active:scale-[0.95] transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none"
-          aria-label={t('closeClub', { defaultMessage: 'Schliessen' })}
-        >
-          <X className="size-4 text-white/40" aria-hidden="true" />
-        </button>
       </div>
 
+      {/* Position groups */}
       <div className="divide-y divide-white/[0.04]">
         {groups.map(({ pos, label, players: posPlayers }) => (
           <div key={pos} role="group" aria-label={`${label} — ${posPlayers.length} ${t('players', { defaultMessage: 'Spieler' })}`}>
-            <div className="px-4 py-2 bg-white/[0.02]">
+            <div className="px-1 py-2">
               <h4 className="text-[10px] font-bold text-white/30 uppercase tracking-wide">
                 {label} <span className="tabular-nums">({posPlayers.length})</span>
               </h4>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pb-2">
               {posPlayers.map(p => {
                 const ipo = ipoMap.get(p.id);
                 if (!ipo) return null;

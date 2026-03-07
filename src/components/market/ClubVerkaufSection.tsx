@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { ShoppingCart, SlidersHorizontal, X, Heart, HelpCircle, Calendar, CheckCircle2 } from 'lucide-react';
-import { EmptyState } from '@/components/ui';
+import { EmptyState, Modal } from '@/components/ui';
 import { getClub } from '@/lib/clubs';
 import type { ClubLookup } from '@/lib/clubs';
 import { useClub } from '@/components/providers/ClubProvider';
@@ -344,37 +344,50 @@ export default function ClubVerkaufSection({
         />
       )}
 
-      {/* 7. Club cards grid + accordions */}
+      {/* 7. Club cards grid */}
       {hasContent && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {clubAggregates.map(agg => (
-            <React.Fragment key={agg.clubName}>
-              <ClubCard
-                club={agg.club}
-                players={agg.players}
-                ipoMap={agg.ipoMap}
-                totalSold={agg.totalSold}
-                totalOffered={agg.totalOffered}
-                earliestEnd={agg.earliestEnd}
-                isHot={agg.isHot && isBuyable}
-                isExpanded={clubVerkaufExpandedClub === agg.clubName}
-                isFollowed={followedClubIds.has(agg.club.id)}
-                onToggle={() => setClubVerkaufExpandedClub(agg.clubName)}
-              />
-              {clubVerkaufExpandedClub === agg.clubName && (
-                <ClubAccordion
-                  clubName={agg.clubName}
-                  players={agg.players}
-                  ipoMap={agg.ipoMap}
-                  onBuy={isBuyable ? onIpoBuy : undefined}
-                  buyingId={isBuyable ? buyingId : null}
-                  onClose={() => setClubVerkaufExpandedClub(null)}
-                />
-              )}
-            </React.Fragment>
+            <ClubCard
+              key={agg.clubName}
+              club={agg.club}
+              players={agg.players}
+              ipoMap={agg.ipoMap}
+              totalSold={agg.totalSold}
+              totalOffered={agg.totalOffered}
+              earliestEnd={agg.earliestEnd}
+              isHot={agg.isHot && isBuyable}
+              isExpanded={clubVerkaufExpandedClub === agg.clubName}
+              isFollowed={followedClubIds.has(agg.club.id)}
+              onToggle={() => setClubVerkaufExpandedClub(agg.clubName)}
+            />
           ))}
         </div>
       )}
+
+      {/* 8. Club detail modal — replaces inline accordion */}
+      {(() => {
+        const expandedAgg = clubAggregates.find(a => a.clubName === clubVerkaufExpandedClub);
+        if (!expandedAgg) return null;
+        return (
+          <Modal
+            open={true}
+            title={expandedAgg.club.name}
+            subtitle={`${expandedAgg.players.length} DPCs ${isBuyable ? t('available', { defaultMessage: 'verfügbar' }) : ''}`}
+            onClose={() => setClubVerkaufExpandedClub(null)}
+            size="lg"
+          >
+            <ClubAccordion
+              clubName={expandedAgg.clubName}
+              players={expandedAgg.players}
+              ipoMap={expandedAgg.ipoMap}
+              onBuy={isBuyable ? onIpoBuy : undefined}
+              buyingId={isBuyable ? buyingId : null}
+              onClose={() => setClubVerkaufExpandedClub(null)}
+            />
+          </Modal>
+        );
+      })()}
     </div>
   );
 }
