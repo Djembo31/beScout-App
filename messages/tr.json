@@ -1106,7 +1106,8 @@
     "readOnly": "Sadece g\u00f6r\u00fcnt\u00fcleme",
     "purchasesDisabled": "Sat\u0131n alma m\u00fcmk\u00fcn de\u011fil",
     "sortByClub": "{club} s\u0131rala",
-    "ipoProgress": "Sat\u0131\u015f ilerlemesi"
+    "ipoProgress": "Sat\u0131\u015f ilerlemesi",
+    "searchPlayers": "Oyuncu ara"
   },
   "community": {
     "title": "Topluluk",
@@ -1615,7 +1616,11 @@
     "orderbookPrice": "Fiyat ($SCOUT)",
     "orderbookCumulative": "\u03a3 Kümülatif",
     "tradeSourceClub": "Kulüp",
-    "tradeSourceMarket": "Market"
+    "tradeSourceMarket": "Market",
+    "matches": "Maç",
+    "goals": "Gol",
+    "assists": "Asist",
+    "fit": "Sağlam"
   },
   "club": {
     "overview": "Genel Bakış",

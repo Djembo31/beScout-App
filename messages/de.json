@@ -1114,7 +1114,8 @@
     "readOnly": "Nur Ansicht",
     "purchasesDisabled": "Kauf nicht verfügbar",
     "sortByClub": "{club} sortieren",
-    "ipoProgress": "Verkaufsfortschritt"
+    "ipoProgress": "Verkaufsfortschritt",
+    "searchPlayers": "Spieler suchen"
   },
   "community": {
     "title": "Community",
@@ -1623,7 +1624,11 @@
     "orderbookPrice": "Preis ($SCOUT)",
     "orderbookCumulative": "\u03a3 Kumuliert",
     "tradeSourceClub": "Club",
-    "tradeSourceMarket": "Markt"
+    "tradeSourceMarket": "Markt",
+    "matches": "Spiele",
+    "goals": "Tore",
+    "assists": "Assists",
+    "fit": "Fit"
   },
   "club": {
     "overview": "Übersicht",
