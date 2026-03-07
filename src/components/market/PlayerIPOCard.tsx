@@ -53,32 +53,35 @@ function miniBarColor(score: number): string {
   return '#fb923c';                   // orange
 }
 
-/** Compact L5 strip: 5 tiny bars + L5 score badge (Sorare-style) */
-function L5Strip({ scores, l5, trend }: { scores?: number[]; l5: number; trend: string }) {
+/** Compact L5 strip: 5 tiny bars + L5 score badge (Sorare-style).
+ *  Always renders exactly 5 bars — grey placeholders for missing GWs. */
+function L5Strip({ scores, l5, trend }: { scores?: (number | null)[]; l5: number; trend: string }) {
   const MAX_H = 18;
-  const bars = scores && scores.length > 0
-    ? scores.slice(0, 5).reverse()  // oldest → newest left→right
-    : null;
+  // scores is newest→oldest from service; reverse for display (oldest→newest, left→right)
+  // Always pad to exactly 5 entries
+  const raw = scores ? [...scores].reverse() : [];
+  const bars: (number | null)[] = raw.length >= 5
+    ? raw.slice(raw.length - 5)
+    : [...Array.from<null>({ length: 5 - raw.length }).fill(null), ...raw];
 
   return (
-    <div className="flex items-center gap-2">
-      {/* 5 Mini bars or placeholder dots */}
+    <div className="flex items-center gap-1.5">
+      {/* 5 Mini bars — always rendered */}
       <div className="flex items-end gap-[3px] h-[22px]" aria-hidden="true">
-        {bars ? bars.map((s, i) => (
+        {bars.map((s, i) => (
           <div
             key={i}
             className="w-[4px] rounded-sm"
             style={{
-              height: `${Math.max(4, (s / 100) * MAX_H)}px`,
-              backgroundColor: miniBarColor(s),
+              height: s != null && s > 0
+                ? `${Math.max(4, (s / 100) * MAX_H)}px`
+                : '4px',
+              backgroundColor: s != null && s > 0
+                ? miniBarColor(s)
+                : 'rgba(255,255,255,0.12)',
             }}
           />
-        )) : (
-          // No data: 5 grey dots
-          Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="w-[4px] h-[4px] rounded-full bg-white/15" />
-          ))
-        )}
+        ))}
       </div>
 
       {/* L5 score badge */}
@@ -103,7 +106,7 @@ interface PlayerIPOCardProps {
   ipo: DbIpo;
   onBuy?: (playerId: string) => void;
   buying: boolean;
-  recentScores?: number[];
+  recentScores?: (number | null)[];
 }
 
 export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores }: PlayerIPOCardProps) {
@@ -129,7 +132,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
       )}
       style={{ boxShadow: tint.glow }}
     >
-      {/* ── Header: Photo + Identity ── */}
+      {/* ── Header: Photo + Identity + L5 Strip ── */}
       <div className="p-3 pb-2">
         <div className="flex items-start gap-3">
           <PlayerPhoto
@@ -156,6 +159,10 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
               )}
             </div>
           </div>
+          {/* L5 Strip — right-aligned in header for visual balance */}
+          <div className="shrink-0">
+            <L5Strip scores={recentScores} l5={player.perf.l5} trend={player.perf.trend} />
+          </div>
         </div>
       </div>
 
@@ -175,11 +182,6 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
             <span className="font-bold text-white/80 tabular-nums font-mono">{player.stats.matches}</span>
             {tp('matches', { defaultMessage: 'Spiele' })}
           </span>
-        </div>
-
-        {/* L5 Strip (Sorare-style: 5 mini bars + score badge + trend) */}
-        <div className="mt-1.5">
-          <L5Strip scores={recentScores} l5={player.perf.l5} trend={player.perf.trend} />
         </div>
 
         {/* Contract + Status chips */}

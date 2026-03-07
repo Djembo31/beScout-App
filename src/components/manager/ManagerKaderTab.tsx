@@ -58,12 +58,12 @@ function ScoreCircle({ score }: { score: number | null }) {
 // LAST 5 SCORE BARS (vertical bars for GW scores + minutes overlay)
 // ============================================
 
-function L5ScoreBars({ scores, minutes }: { scores: number[] | undefined; minutes: number[] | undefined }) {
+function L5ScoreBars({ scores, minutes }: { scores: (number | null)[] | undefined; minutes: number[] | undefined }) {
   // Build 5 slots (most recent first, pad with null)
   const slots: { score: number | null; min: number | null }[] = [];
   for (let i = 0; i < 5; i++) {
     slots.push({
-      score: scores && i < scores.length ? scores[i] : null,
+      score: scores && i < scores.length ? (scores[i] ?? null) : null,
       min: minutes && i < minutes.length ? minutes[i] : null,
     });
   }
@@ -114,12 +114,13 @@ function L5ScoreBars({ scores, minutes }: { scores: number[] | undefined; minute
 
 function CompactPickerRow({ player, scores, minutes, onClick }: {
   player: Player;
-  scores: number[] | undefined;
+  scores: (number | null)[] | undefined;
   minutes: number[] | undefined;
   onClick: () => void;
 }) {
   const p = player;
-  const lastScore = scores && scores.length > 0 ? scores[0] : null;
+  // [0] is newest GW — find first non-null score
+  const lastScore = scores ? scores.find(s => s != null) ?? null : null;
   const borderColor = p.pos === 'GK' ? '#34d399' : p.pos === 'DEF' ? '#fbbf24' : p.pos === 'MID' ? '#38bdf8' : '#fb7185';
 
   return (
@@ -160,7 +161,7 @@ function CompactPickerRow({ player, scores, minutes, onClick }: {
 function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAssigned, eventUsageTitle, inLineupTitle }: {
   player: Player;
   minutes: number[] | undefined;
-  scores: number[] | undefined;
+  scores: (number | null)[] | undefined;
   nextFixture: NextFixtureInfo | undefined;
   eventCount: number;
   isAssigned: boolean;
@@ -170,7 +171,7 @@ function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAss
   const t = useTranslations('market');
   const p = player;
   const borderColor = p.pos === 'GK' ? '#34d399' : p.pos === 'DEF' ? '#fbbf24' : p.pos === 'MID' ? '#38bdf8' : '#fb7185';
-  const lastScore = scores && scores.length > 0 ? scores[0] : null;
+  const lastScore = scores ? scores.find(s => s != null) ?? null : null;
 
   return (
     <div
@@ -694,7 +695,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
             ) : (
               <div className="divide-y divide-white/[0.04]">
                 {pickerPlayers.map(p => {
-                  const lastScore = scoresMap?.get(p.id)?.[0] ?? null;
+                  const lastScore = scoresMap?.get(p.id)?.find(s => s != null) ?? null;
                   const scoreColor = lastScore != null
                     ? (lastScore >= 100 ? 'text-gold' : lastScore >= 70 ? 'text-white' : 'text-red-300')
                     : 'text-white/15';

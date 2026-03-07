@@ -385,35 +385,45 @@ export async function getRecentPlayerMinutes(): Promise<Map<string, number[]>> {
   return result;
 }
 
-/** Recent gameweek scores per player (last 5 completed GWs) — batch query for all players */
-export async function getRecentPlayerScores(): Promise<Map<string, number[]>> {
-  // Get completed gameweeks with scores
+/** Recent gameweek scores per player (last 5 completed GWs) — batch query for all players.
+ *  Returns Map<playerId, [newest, ..., oldest]> with null for GWs the player didn't play.
+ *  Always 5 entries per player, aligned to the 5 most recent scored GWs. */
+export async function getRecentPlayerScores(): Promise<Map<string, (number | null)[]>> {
+  // Step 1: Find the latest GW with real scores (score>0, range 40-150)
+  const { data: latest } = await supabase
+    .from('player_gameweek_scores')
+    .select('gameweek')
+    .gt('score', 0)
+    .order('gameweek', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (!latest) return new Map();
+
+  const maxGw = latest.gameweek as number;
+  const gameweeks = Array.from({ length: 5 }, (_, i) => maxGw - i); // [28,27,26,25,24]
+
+  // Step 2: Fetch only those 5 GWs, skip score=0 (didn't play)
   const { data: scores } = await supabase
     .from('player_gameweek_scores')
     .select('player_id, gameweek, score')
-    .order('gameweek', { ascending: false });
+    .in('gameweek', gameweeks)
+    .gt('score', 0);
 
   if (!scores || scores.length === 0) return new Map();
 
-  // Get unique gameweeks (last 5)
-  const gameweeks = Array.from(new Set(scores.map(s => s.gameweek as number)))
-    .sort((a, b) => b - a)
-    .slice(0, 5);
-
-  const result = new Map<string, number[]>();
-  const filtered = scores.filter(s => gameweeks.includes(s.gameweek as number));
-
-  const playerScores = new Map<string, { gw: number; score: number }[]>();
-  for (const s of filtered) {
+  // Step 3: Build lookup playerId → gw → score
+  const lookup = new Map<string, Map<number, number>>();
+  for (const s of scores) {
     const pid = s.player_id as string;
-    const arr = playerScores.get(pid) ?? [];
-    arr.push({ gw: s.gameweek as number, score: s.score as number });
-    playerScores.set(pid, arr);
+    if (!lookup.has(pid)) lookup.set(pid, new Map());
+    lookup.get(pid)!.set(s.gameweek as number, s.score as number);
   }
 
-  playerScores.forEach((arr, playerId) => {
-    arr.sort((a, b) => b.gw - a.gw);
-    result.set(playerId, arr.map(a => a.score));
+  // Step 4: Build result — newest→oldest, null for missing GWs
+  const result = new Map<string, (number | null)[]>();
+  lookup.forEach((gwMap, playerId) => {
+    result.set(playerId, gameweeks.map(gw => gwMap.get(gw) ?? null));
   });
 
   return result;
