@@ -8,7 +8,7 @@ import {
   FileText, Activity,
 } from 'lucide-react';
 import {
-  PlayerPhoto, PositionBadge, getL5Color, getL5Bg, getL5Hex,
+  PlayerPhoto, PositionBadge,
 } from '@/components/player';
 import { getContractInfo } from '@/components/player/PlayerRow';
 import CountdownBadge from './CountdownBadge';
@@ -45,14 +45,68 @@ const trendIcon: Record<string, React.ReactNode> = {
   FLAT: <Minus className="size-3 text-white/30" aria-hidden="true" />,
 };
 
+/** Mini bar color per score (Sorare-style) */
+function miniBarColor(score: number): string {
+  if (score >= 80) return '#4ade80';  // green
+  if (score >= 60) return '#a3e635';  // lime
+  if (score >= 45) return '#facc15';  // yellow
+  return '#fb923c';                   // orange
+}
+
+/** Compact L5 strip: 5 tiny bars + L5 score badge (Sorare-style) */
+function L5Strip({ scores, l5, trend }: { scores?: number[]; l5: number; trend: string }) {
+  const MAX_H = 18;
+  const bars = scores && scores.length > 0
+    ? scores.slice(0, 5).reverse()  // oldest → newest left→right
+    : null;
+
+  return (
+    <div className="flex items-center gap-2">
+      {/* 5 Mini bars or placeholder dots */}
+      <div className="flex items-end gap-[3px] h-[22px]" aria-hidden="true">
+        {bars ? bars.map((s, i) => (
+          <div
+            key={i}
+            className="w-[4px] rounded-sm"
+            style={{
+              height: `${Math.max(4, (s / 100) * MAX_H)}px`,
+              backgroundColor: miniBarColor(s),
+            }}
+          />
+        )) : (
+          // No data: 5 grey dots
+          Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="w-[4px] h-[4px] rounded-full bg-white/15" />
+          ))
+        )}
+      </div>
+
+      {/* L5 score badge */}
+      <span className={cn(
+        'font-mono font-black text-[11px] tabular-nums leading-none px-1.5 py-0.5 rounded',
+        l5 >= 70 ? 'bg-emerald-500/20 text-emerald-400'
+          : l5 >= 45 ? 'bg-amber-500/20 text-amber-400'
+          : l5 > 0 ? 'bg-red-500/20 text-red-400'
+          : 'bg-white/[0.06] text-white/30',
+      )}>
+        {l5}
+      </span>
+
+      {/* Trend icon */}
+      {trendIcon[trend]}
+    </div>
+  );
+}
+
 interface PlayerIPOCardProps {
   player: Player;
   ipo: DbIpo;
   onBuy?: (playerId: string) => void;
   buying: boolean;
+  recentScores?: number[];
 }
 
-export default function PlayerIPOCard({ player, ipo, onBuy, buying }: PlayerIPOCardProps) {
+export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores }: PlayerIPOCardProps) {
   const t = useTranslations('market');
   const tp = useTranslations('player');
 
@@ -102,18 +156,6 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying }: PlayerIPOC
               )}
             </div>
           </div>
-          {/* L5 Circle */}
-          <div className={cn(
-            'shrink-0 flex flex-col items-center justify-center rounded-xl border px-2 py-1',
-            getL5Bg(player.perf.l5),
-            'border-white/[0.08]',
-          )}>
-            <span className="text-[8px] font-bold text-white/40 leading-none">L5</span>
-            <span className={cn('font-mono font-black text-base tabular-nums leading-tight', getL5Color(player.perf.l5))}>
-              {player.perf.l5}
-            </span>
-            <span className="flex items-center">{trendIcon[player.perf.trend]}</span>
-          </div>
         </div>
       </div>
 
@@ -135,21 +177,9 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying }: PlayerIPOC
           </span>
         </div>
 
-        {/* L5 Performance Bar */}
-        <div className="flex items-center gap-2 mt-1.5">
-          <span className="text-[9px] font-bold text-white/30 shrink-0">L5</span>
-          <div className="flex-1 h-1 bg-white/[0.06] rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full"
-              style={{
-                width: `${Math.min(player.perf.l5, 100)}%`,
-                backgroundColor: getL5Hex(player.perf.l5),
-              }}
-            />
-          </div>
-          <span className={cn('text-[9px] font-mono font-bold tabular-nums shrink-0', getL5Color(player.perf.l5))}>
-            {player.perf.l5}/100
-          </span>
+        {/* L5 Strip (Sorare-style: 5 mini bars + score badge + trend) */}
+        <div className="mt-1.5">
+          <L5Strip scores={recentScores} l5={player.perf.l5} trend={player.perf.trend} />
         </div>
 
         {/* Contract + Status chips */}
