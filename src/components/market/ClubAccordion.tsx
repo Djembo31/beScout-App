@@ -8,7 +8,6 @@ import { useMarketStore } from '@/lib/stores/marketStore';
 import { applySorting } from './MarketFilters';
 import { centsToBsd } from '@/lib/services/players';
 import PlayerIPOCard from './PlayerIPOCard';
-import PlayerIPORow from './PlayerIPORow';
 import type { Player, DbIpo, Pos } from '@/types';
 import type { SortOption } from '@/lib/stores/marketStore';
 
@@ -101,24 +100,7 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
                 {label} <span className="tabular-nums">({posPlayers.length})</span>
               </h4>
             </div>
-            {/* Mobile: compact rows */}
-            <div className="sm:hidden">
-              {posPlayers.map(p => {
-                const ipo = ipoMap.get(p.id);
-                if (!ipo) return null;
-                return (
-                  <PlayerIPORow
-                    key={p.id}
-                    player={p}
-                    ipo={ipo}
-                    onBuy={onBuy}
-                    buying={buyingId === p.id}
-                  />
-                );
-              })}
-            </div>
-            {/* Desktop: rich cards */}
-            <div className="hidden sm:grid sm:grid-cols-2 gap-2.5 p-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-2.5">
               {posPlayers.map(p => {
                 const ipo = ipoMap.get(p.id);
                 if (!ipo) return null;
