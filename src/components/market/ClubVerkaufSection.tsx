@@ -2,13 +2,13 @@
 
 import React, { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { ShoppingCart, SlidersHorizontal, X, Heart, HelpCircle, Calendar, CheckCircle2 } from 'lucide-react';
+import { ShoppingCart, HelpCircle, Calendar, CheckCircle2 } from 'lucide-react';
 import { EmptyState, Modal } from '@/components/ui';
 import { getClub } from '@/lib/clubs';
 import type { ClubLookup } from '@/lib/clubs';
 import { useClub } from '@/components/providers/ClubProvider';
 import { useMarketStore } from '@/lib/stores/marketStore';
-import { applyFilters, getActiveFilterCount } from './MarketFilters';
+import { applyFilters } from './MarketFilters';
 import EndingSoonStrip from './EndingSoonStrip';
 import LeagueBar from './LeagueBar';
 import ClubCard from './ClubCard';
@@ -19,10 +19,6 @@ import { cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { Player, DbIpo, Pos } from '@/types';
 import type { IpoViewState } from '@/lib/stores/marketStore';
-
-const POSITIONS: Pos[] = ['GK', 'DEF', 'MID', 'ATT'];
-const POS_LABELS: Record<Pos, string> = { GK: 'TW', DEF: 'DEF', MID: 'MID', ATT: 'STU' };
-const L5_PRESETS = [45, 55, 65] as const;
 
 const VIEW_TABS: { value: IpoViewState; labelKey: string; defaultLabel: string; ariaKey: string; ariaDefault: string }[] = [
   { value: 'laufend', labelKey: 'ipoLaufend', defaultLabel: 'Laufend', ariaKey: 'ipoShowActive', ariaDefault: 'Aktive IPOs anzeigen' },
@@ -63,17 +59,10 @@ export default function ClubVerkaufSection({
   const {
     clubVerkaufLeague, setClubVerkaufLeague,
     clubVerkaufExpandedClub, setClubVerkaufExpandedClub,
-    filterPos, toggleFilterPos,
-    filterMinL5, setFilterMinL5,
-    filterOnlyFit, setFilterOnlyFit,
-    showAdvancedFilters, setShowAdvancedFilters,
-    resetMarketFilters,
     ipoViewState, setIpoViewState,
   } = store;
 
   const followedClubIds = useMemo(() => new Set(followedClubs.map(c => c.id)), [followedClubs]);
-  const activeFilterCount = getActiveFilterCount(store);
-
   // Select IPOs based on view state
   const viewIpos = useMemo(() => {
     switch (ipoViewState) {
@@ -226,110 +215,7 @@ export default function ClubVerkaufSection({
       {/* 4. Navigation: league bar */}
       <LeagueBar selected={clubVerkaufLeague} onSelect={setClubVerkaufLeague} />
 
-      {/* 5. Controls: filter expand */}
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-          className={cn(
-            'flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors min-h-[44px] border',
-            'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
-            showAdvancedFilters || activeFilterCount > 0
-              ? 'bg-white/10 text-white border-white/15'
-              : 'text-white/40 border-white/[0.08] hover:text-white/60 hover:bg-white/[0.04]'
-          )}
-          aria-expanded={showAdvancedFilters}
-          aria-label={t('filterLabel', { defaultMessage: 'Filter' })}
-        >
-          <SlidersHorizontal className="size-3.5" aria-hidden="true" />
-          {t('filterLabel', { defaultMessage: 'Filter' })}
-          {activeFilterCount > 0 && (
-            <span className="size-4 rounded-full bg-gold text-black text-[9px] font-black flex items-center justify-center">
-              {activeFilterCount}
-            </span>
-          )}
-        </button>
-      </div>
-
-      {/* Expandable advanced filters */}
-      {showAdvancedFilters && (
-        <fieldset className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-3 space-y-3 anim-fade">
-          <legend className="sr-only">{t('advancedFilters', { defaultMessage: 'Erweiterte Filter' })}</legend>
-
-          {/* Position pills */}
-          <div>
-            <div className="text-[10px] text-white/40 font-semibold mb-1.5">{t('position', { defaultMessage: 'Position' })}</div>
-            <div className="flex gap-1.5">
-              {POSITIONS.map(pos => (
-                <button
-                  key={pos}
-                  onClick={() => toggleFilterPos(pos)}
-                  aria-pressed={filterPos.has(pos)}
-                  aria-label={t('posFilterLabel', { pos: POS_LABELS[pos], defaultMessage: 'Position {pos} filtern' })}
-                  className={cn(
-                    'px-3 py-2 rounded-lg text-xs font-bold border transition-colors min-h-[44px] min-w-[44px]',
-                    'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
-                    filterPos.has(pos)
-                      ? 'bg-white/15 text-white border-white/20'
-                      : 'bg-white/[0.03] border-white/[0.06] text-white/40'
-                  )}
-                >
-                  {POS_LABELS[pos]}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* L5 + Fit */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="text-[10px] text-white/40 font-semibold mr-1">{t('minPerformance', { defaultMessage: 'Min. L5' })}</div>
-            {L5_PRESETS.map(threshold => (
-              <button
-                key={threshold}
-                onClick={() => setFilterMinL5(filterMinL5 === threshold ? 0 : threshold)}
-                aria-pressed={filterMinL5 === threshold}
-                aria-label={t('l5FilterLabel', { value: threshold, defaultMessage: 'Minimum L5 Score {value}' })}
-                className={cn(
-                  'px-3 py-2 rounded-lg text-xs font-bold border transition-colors min-h-[44px] min-w-[44px]',
-                  'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
-                  filterMinL5 === threshold
-                    ? 'bg-gold/10 border-gold/20 text-gold'
-                    : 'bg-white/[0.03] border-white/[0.06] text-white/40'
-                )}
-              >
-                {threshold}+
-              </button>
-            ))}
-            <button
-              onClick={() => setFilterOnlyFit(!filterOnlyFit)}
-              aria-pressed={filterOnlyFit}
-              aria-label={t('fitFilterLabel', { defaultMessage: 'Nur fitte Spieler anzeigen' })}
-              className={cn(
-                'px-3 py-2 rounded-lg text-xs font-bold border transition-colors min-h-[44px] flex items-center gap-1',
-                'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
-                filterOnlyFit
-                  ? 'bg-green-500/15 border-green-500/30 text-green-500'
-                  : 'bg-white/[0.03] border-white/[0.06] text-white/40'
-              )}
-            >
-              <Heart className="size-3" aria-hidden="true" />
-              {t('discoveryOnlyFit', { defaultMessage: 'Fit' })}
-            </button>
-          </div>
-
-          {/* Reset if active */}
-          {activeFilterCount > 0 && (
-            <button
-              onClick={resetMarketFilters}
-              className="flex items-center gap-1.5 text-[10px] text-red-400/70 hover:text-red-400 transition-colors min-h-[44px]"
-            >
-              <X className="size-3" aria-hidden="true" />
-              {t('resetFiltersLabel', { defaultMessage: 'Filter zur\u00fccksetzen' })}
-            </button>
-          )}
-        </fieldset>
-      )}
-
-      {/* 6. Empty state */}
+      {/* 5. Empty state */}
       {!hasContent && (
         <EmptyState
           icon={ipoViewState === 'geplant' ? <Calendar /> : ipoViewState === 'beendet' ? <CheckCircle2 /> : <ShoppingCart />}
@@ -344,9 +230,9 @@ export default function ClubVerkaufSection({
         />
       )}
 
-      {/* 7. Club cards grid */}
+      {/* 6. Club cards grid — 2 col mobile, 3 col desktop */}
       {hasContent && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {clubAggregates.map(agg => (
             <ClubCard
               key={agg.clubName}

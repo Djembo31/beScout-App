@@ -1,17 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { ChevronDown, Flame } from 'lucide-react';
+import { Flame } from 'lucide-react';
 import { PlayerPhoto, getL5Color } from '@/components/player';
 import type { Pos } from '@/types';
 import CountdownBadge from './CountdownBadge';
-import { fmtScout, cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import type { ClubLookup } from '@/lib/clubs';
 import type { Player, DbIpo } from '@/types';
-import { centsToBsd } from '@/lib/services/players';
 
-const POS_STRIPE_COLOR: Record<Pos, string> = {
+const POS_DOT: Record<Pos, string> = {
   GK: 'bg-emerald-400',
   DEF: 'bg-amber-400',
   MID: 'bg-sky-400',
@@ -45,7 +44,26 @@ export default function ClubCard({
   const t = useTranslations('market');
   const pc = club.colors.primary;
   const progress = totalOffered > 0 ? (totalSold / totalOffered) * 100 : 0;
-  const topPlayers = players.slice(0, 3);
+
+  // Position breakdown
+  const posCounts = useMemo(() => {
+    const counts: Partial<Record<Pos, number>> = {};
+    for (const p of players) counts[p.pos] = (counts[p.pos] ?? 0) + 1;
+    return counts;
+  }, [players]);
+
+  // Soonest-ending player
+  const soonestPlayer = useMemo(() => {
+    let best: { player: Player; endsAt: string } | null = null;
+    for (const p of players) {
+      const ipo = ipoMap.get(p.id);
+      if (!ipo) continue;
+      if (!best || new Date(ipo.ends_at).getTime() < new Date(best.endsAt).getTime()) {
+        best = { player: p, endsAt: ipo.ends_at };
+      }
+    }
+    return best;
+  }, [players, ipoMap]);
 
   return (
     <button
@@ -57,106 +75,103 @@ export default function ClubCard({
         defaultMessage: '{club} — {count} DPCs verfügbar',
       })}
       className={cn(
-        'relative w-full text-left rounded-2xl border p-3.5 transition-all min-h-[44px]',
+        'relative w-full text-left rounded-xl border p-2.5 transition-all min-h-[44px]',
         'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
-        'active:scale-[0.98]',
+        'active:scale-[0.97]',
         isExpanded
           ? 'bg-white/[0.06] border-white/[0.15]'
           : 'bg-surface-base border-white/[0.08] hover:border-white/[0.12]'
       )}
       style={{
-        borderLeftWidth: 4,
-        borderLeftColor: pc,
-        backgroundImage: `linear-gradient(135deg, ${pc}18, transparent 50%)`,
+        borderTopWidth: 3,
+        borderTopColor: pc,
+        backgroundImage: `linear-gradient(180deg, ${pc}12, transparent 40%)`,
       }}
     >
-      {/* Top-right badges */}
-      <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5">
-        {isFollowed && (
-          <span className="px-1.5 py-0.5 bg-gold/15 rounded text-[9px] font-black text-gold">
-            {t('followedBadge', { defaultMessage: 'Mein Club' })}
-          </span>
-        )}
-        {isHot && (
-          <span className="flex items-center gap-0.5 px-1.5 py-0.5 bg-vivid-red/15 rounded text-[9px] font-black text-vivid-red">
-            <Flame className="size-2.5" aria-hidden="true" />
-            HOT
-          </span>
-        )}
-      </div>
+      {/* Badges */}
+      {(isFollowed || isHot) && (
+        <div className="flex items-center gap-1 mb-1.5">
+          {isFollowed && (
+            <span className="px-1 py-0.5 bg-gold/15 rounded text-[8px] font-black text-gold leading-none">
+              {t('followedBadge', { defaultMessage: 'Mein Club' })}
+            </span>
+          )}
+          {isHot && (
+            <span className="flex items-center gap-0.5 px-1 py-0.5 bg-vivid-red/15 rounded text-[8px] font-black text-vivid-red leading-none">
+              <Flame className="size-2" aria-hidden="true" />
+              HOT
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Club identity */}
-      <div className="flex items-center gap-3 mb-3">
+      <div className="flex items-center gap-2 mb-2">
         {club.logo ? (
-          <img src={club.logo} alt="" className="size-10 rounded-full object-cover flex-shrink-0 ring-2 ring-white/10" />
+          <img src={club.logo} alt="" className="size-7 rounded-full object-cover flex-shrink-0 ring-1 ring-white/10" />
         ) : (
-          <div className="size-10 rounded-full flex-shrink-0 border-2 border-white/10" style={{ backgroundColor: pc }} />
+          <div className="size-7 rounded-full flex-shrink-0 border border-white/10" style={{ backgroundColor: pc }} />
         )}
         <div className="min-w-0 flex-1">
-          <div className="font-black text-sm text-white truncate">{club.name}</div>
-          <div className="text-[10px] text-white/40 truncate">{club.league}</div>
+          <div className="font-black text-[11px] text-white truncate leading-tight">{club.name}</div>
+          <div className="text-[9px] text-white/35 truncate leading-tight">{club.league}</div>
         </div>
       </div>
 
-      {/* Top players preview */}
-      <div className="space-y-0.5 mb-3">
-        {topPlayers.map(p => {
-          const ipo = ipoMap.get(p.id);
+      {/* Stats: DPC count + position dots */}
+      <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+        <span className="font-mono font-black text-[11px] text-gold tabular-nums">{players.length}</span>
+        <span className="text-[9px] text-white/40">DPCs</span>
+        <span className="text-white/10 mx-0.5">|</span>
+        {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map(pos => {
+          const count = posCounts[pos];
+          if (!count) return null;
           return (
-            <div key={p.id} className="flex items-center gap-2 text-[11px] relative pl-2.5">
-              <div className={cn('absolute left-0 top-1 bottom-1 w-[3px] rounded-full', POS_STRIPE_COLOR[p.pos])} />
-              <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={20} />
-              <span className="text-white/70 truncate flex-1">{p.last}</span>
-              <span className="text-[9px] font-bold text-white/30">{POS_LABEL[p.pos]}</span>
-              <span className={cn('font-mono font-bold tabular-nums', getL5Color(p.perf.l5))}>{p.perf.l5}</span>
-              {ipo && (
-                <span className="font-mono font-bold text-gold tabular-nums">
-                  {fmtScout(centsToBsd(ipo.price))}
-                </span>
-              )}
-            </div>
+            <span key={pos} className="flex items-center gap-0.5">
+              <span className={cn('size-1.5 rounded-full', POS_DOT[pos])} />
+              <span className="text-[9px] text-white/50 font-mono tabular-nums">{count}</span>
+            </span>
           );
         })}
-        {players.length > 3 && (
-          <div className="text-[10px] text-white/30 pl-8">
-            +{players.length - 3} {t('morePlayers', { defaultMessage: 'weitere' })}
-          </div>
-        )}
       </div>
 
-      {/* Scarcity bar */}
+      {/* Progress bar — compact */}
       <div className="mb-2">
-        <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+        <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
           <div
             className="h-full rounded-full bg-vivid-green transition-all"
             style={{ width: `${Math.min(progress, 100)}%` }}
           />
         </div>
-        <div className="flex items-center justify-between mt-0.5 text-[10px] tabular-nums font-mono">
-          <span className="text-white/40">
-            {totalSold}/{totalOffered} {t('sold', { defaultMessage: 'verkauft' })}
+        <div className="flex items-center justify-between mt-0.5">
+          <span className="text-[9px] text-white/35 tabular-nums font-mono">
+            {totalSold}/{totalOffered}
           </span>
-          <span className="text-white/50">
+          <span className="text-[9px] text-white/45 tabular-nums font-mono font-bold">
             {totalOffered - totalSold} {t('available', { defaultMessage: 'verfügbar' })}
           </span>
         </div>
       </div>
 
-      {/* Countdown + expand hint */}
-      <div className="flex items-center justify-between">
-        {earliestEnd ? (
-          <CountdownBadge targetDate={earliestEnd} />
-        ) : (
-          <span />
-        )}
-        <ChevronDown
-          className={cn(
-            'size-4 text-white/30 transition-transform',
-            isExpanded && 'rotate-180'
-          )}
-          aria-hidden="true"
-        />
-      </div>
+      {/* Soonest-ending player preview + countdown */}
+      {soonestPlayer && (
+        <div className="flex items-center gap-1.5 pt-1.5 border-t border-white/[0.06]">
+          <PlayerPhoto
+            imageUrl={soonestPlayer.player.imageUrl}
+            first={soonestPlayer.player.first}
+            last={soonestPlayer.player.last}
+            pos={soonestPlayer.player.pos}
+            size={18}
+          />
+          <span className="text-[9px] text-white/50 truncate flex-1 min-w-0">
+            {soonestPlayer.player.last}
+          </span>
+          <span className={cn('font-mono font-bold text-[9px] tabular-nums', getL5Color(soonestPlayer.player.perf.l5))}>
+            {soonestPlayer.player.perf.l5}
+          </span>
+          <CountdownBadge targetDate={soonestPlayer.endsAt} compact />
+        </div>
+      )}
     </button>
   );
 }
