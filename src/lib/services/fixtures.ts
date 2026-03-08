@@ -515,3 +515,23 @@ export async function syncFixtureScores(gameweek: number): Promise<{ success: bo
 
   return data as { success: boolean; synced_count: number };
 }
+
+// ============================================
+// Floor Prices
+// ============================================
+
+/** Bulk-fetch floor prices for a list of player IDs.
+ *  Returns Map<playerId, floorPriceCents>. Players without DPCs (floor_price=0) are omitted. */
+export async function getFloorPricesForPlayers(playerIds: string[]): Promise<Map<string, number>> {
+  if (playerIds.length === 0) return new Map();
+  const { data } = await supabase
+    .from('players')
+    .select('id, floor_price')
+    .in('id', playerIds)
+    .gt('floor_price', 0);
+  const map = new Map<string, number>();
+  for (const row of data ?? []) {
+    map.set(row.id, row.floor_price);
+  }
+  return map;
+}
