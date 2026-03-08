@@ -61,12 +61,8 @@ Domaenen-spezifische Regeln laden automatisch per Glob-Pattern.
 3. Bei UI: Alle States (Hover/Active/Focus/Disabled/Loading/Empty/Error), Mobile-First 360px
 4. Nicht raten — nachschauen. Code lesen, nicht annehmen.
 
-## Session-Start Protokoll (ERSTE AKTION)
-1. MEMORY.md ist auto-loaded → Projekt-Kontext da
-2. `current-sprint.md` lesen → Stand, Aktive Features, Blocker
-3. Wenn aktives Feature: Feature-File lesen → Kontext, offene Fragen, **wo zuletzt unterbrochen**
-4. Anil sagt was ansteht → los
-5. Vollstaendiger Workflow + Feature-Lifecycle + Knowledge Limits → siehe `core.md`
+## Session + Workflow → `core.md`
+Session-Start, Session-Ende, Feature-Lifecycle, Spec-Driven Workflow, Context-Budget — alles in `core.md`.
 
 ## Kern-Business
 - DPC = Digital Player Contract. Marktwert steigt → Community Success Fee
@@ -76,15 +72,9 @@ Domaenen-spezifische Regeln laden automatisch per Glob-Pattern.
 - Fee-Split Trading: 6% total (Platform 3.5% + PBT 1.5% + Club 1%)
 - IPO Fee: 85% Club, 10% Platform, 5% PBT
 
-## Code-Konventionen
-- `'use client'` auf allen Pages (Client Components)
-- Types zentral in `src/types/index.ts`, Shared UI in `src/components/ui/index.tsx`
-- `cn()` fuer classNames, `fmtScout()` fuer Zahlen (deutsch: 1.000)
-- Services in `lib/services/`, Queries in `lib/queries/`, Stores in `lib/stores/`
-- Component → Service → Supabase (NIE direkt Supabase in Components)
-- Cache-Invalidation nach Writes via `invalidateTradeData()` / `invalidate(prefix)`
-- Deutsche UI-Labels, englische Code-Variablen/Kommentare
-- Tab-Extraction: >100 Zeilen → eigene Datei, <60 Zeilen → inline
+## Code-Konventionen → `core.md`
+Kurzfassung: `'use client'` alle Pages | Types in `types/index.ts` | UI in `ui/index.tsx` |
+`cn()` classNames | `fmtScout()` Zahlen | Component→Service→Supabase | DE Labels, EN Code
 
 ## Quality Pipeline (nach UI-Aenderungen)
 1. `npx next build` → gruener Build

@@ -182,5 +182,20 @@ export async function createNotification(
 
   if (error) {
     console.error(`[Notifications] Failed to create notification (type=${type}, user=${userId}):`, error.message);
+    return;
+  }
+
+  // Fire-and-forget push notification (server-side only)
+  if (typeof window === 'undefined') {
+    import('./pushSender').then(({ sendPushToUser }) => {
+      const url = referenceType === 'event' ? '/fantasy'
+        : referenceType === 'player' ? `/player/${referenceId}`
+        : referenceType === 'offer' ? '/market?tab=angebote'
+        : referenceType === 'research' ? '/community?tab=research'
+        : referenceType === 'bounty' ? '/community?tab=aktionen'
+        : referenceType === 'poll' ? '/community?tab=aktionen'
+        : '/';
+      sendPushToUser(userId, { title, body: body ?? undefined, url, tag: type });
+    }).catch((err) => console.error('[Push] Dynamic import failed:', err));
   }
 }

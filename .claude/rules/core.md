@@ -80,6 +80,13 @@ description: Kern-Workflow, Knowledge Lifecycle und Session-Protokoll
 - Bestehend: [was wiederverwendet wird]
 - Neu: [was gebaut werden muss]
 
+## Context Manifest (was muss waehrend Implementation geladen werden)
+- Rules: [welche .claude/rules/ Files]
+- Services: [welche lib/services/ Files lesen]
+- Components: [welche bestehenden Components lesen]
+- Types: [welche Types/Interfaces relevant]
+- DB Tables: [welche Tabellen betroffen]
+
 ## UI States
 Loading | Empty | Error | Success | Disabled
 
@@ -110,12 +117,25 @@ Loading | Empty | Error | Success | Disabled
 
 Feedback: "pattern notiert: X" oder "error dokumentiert: Y"
 
-## Knowledge Limits (gegen Overload)
+## Context-Budget (VERBINDLICH)
+
+| Tier | Was | Budget | Wann |
+|------|-----|--------|------|
+| **T1 Auto** | CLAUDE.md, MEMORY.md, always-on Rules | ~15% | Immer geladen |
+| **T2 Spec** | Feature-Spec + Context Manifest Files | ~10% | Nach Spec-Review |
+| **T3 On-Demand** | Topic-Files (patterns, errors, decisions) | NUR bei Bedarf | Wenn stuck |
+
+- **75% Kontext reserviert** fuer Code lesen + Implementation + Chat
+- **NIEMALS** patterns.md (768Z) oder errors.md (58KB) komplett laden → Grep statt Full-Read
+- **Spec-Phase** (breite Recherche): Alles lesen erlaubt, Ergebnisse IN die Spec schreiben
+- **Implementation-Phase** (fokussiert): NUR Context Manifest laden, nichts Extra
+
+## Knowledge Limits
 
 | Schicht | Max | Wenn ueber Limit |
 |---------|-----|------------------|
 | CLAUDE.md | ~100 Zeilen | Weniger Kritisches in MEMORY.md verschieben |
-| MEMORY.md | 195 Zeilen | System truncated bei 200 — priorisieren |
+| MEMORY.md | ~150 Zeilen | Detail in Topic-Files auslagern |
 | Jedes Rule-File | ~80 Zeilen | Detail in Topic-File verschieben, Rule nur Essenz |
 | Topic-Files | kein Limit | Quartals-Review: Stale Eintraege archivieren |
 | Feature-Files | — | Archivieren wenn Done |
