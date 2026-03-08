@@ -76,6 +76,7 @@ export type FantasyEvent = {
     specificClub?: string;
   };
   rewards: { rank: string; reward: string }[];
+  rewardStructure?: Array<{ rank: number; pct: number }> | null;
 };
 
 export type LineupPlayer = {

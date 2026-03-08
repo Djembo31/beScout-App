@@ -720,7 +720,8 @@
     "playersProgress": "{filled}/{total} Spieler",
     "individualRatings": "Einzelbewertungen",
     "listViewAria": "Listenansicht",
-    "cardViewAria": "Kartenansicht"
+    "cardViewAria": "Kartenansicht",
+    "rewardRankLabel": "Platz {rank}"
   },
   "predictions": {
     "title": "Vorhersagen",
@@ -2120,7 +2121,18 @@
     "format6": "6er",
     "format11": "11er",
     "tierBronzePlus": "Bronze+",
-    "tierSilberPlus": "Silber+"
+    "tierSilberPlus": "Silber+",
+    "rewardStructure": "Belohnungsstruktur",
+    "rewardTemplate_top3": "Top 3",
+    "rewardTemplate_top5": "Top 5",
+    "rewardTemplate_winner": "Winner",
+    "rewardTemplate_top10": "Top 10",
+    "rewardRank": "Rang",
+    "rewardPctFor": "Prozent fuer Rang",
+    "rewardAddRank": "Rang hinzufuegen",
+    "rewardRemoveRank": "Rang entfernen",
+    "rewardSum": "Summe",
+    "rewardMust100": "muss 100% ergeben"
   },
   "adminFans": {
     "totalFollowers": "Follower",
@@ -3001,7 +3013,27 @@
     "labelScoutTotal": "$SCOUT Gesamt",
     "labelVolume24h": "24h Volumen",
     "labelActiveEvents": "Aktive Events",
-    "labelPendingOffers": "Offene Angebote"
+    "labelPendingOffers": "Offene Angebote",
+    "eventsTitle": "Events verwalten",
+    "eventsCreate": "Neues Event",
+    "eventsSearch": "Events durchsuchen",
+    "eventsFilterStatus": "Filter: Status",
+    "eventsFilterType": "Filter: Typ",
+    "eventsFilterClub": "Filter: Verein",
+    "eventsFilterGw": "Filter: Spieltag",
+    "eventsEmpty": "Keine Events gefunden",
+    "eventsEmptyCta": "Jetzt Event erstellen",
+    "eventsError": "Fehler beim Laden",
+    "eventsRetry": "Erneut versuchen",
+    "eventsBulkAction": "Aktion fuer ausgewaehlte Events",
+    "eventsBulkExecute": "Ausfuehren",
+    "eventsSelectEvent": "Event auswaehlen",
+    "eventsEditEvent": "Event bearbeiten",
+    "eventsStatsActive": "Aktiv",
+    "eventsStatsParticipants": "Teilnehmer",
+    "eventsStatsPool": "Pool gesamt",
+    "eventsClubOptional": "Verein (optional)",
+    "eventsGlobal": "Global (kein Verein)"
   },
   "offers": {
     "statusPending": "Ausstehend",

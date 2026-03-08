@@ -717,7 +717,8 @@
     "playersProgress": "{filled}/{total} Oyuncu",
     "individualRatings": "Bireysel Puanlar",
     "listViewAria": "Liste görünümü",
-    "cardViewAria": "Kart görünümü"
+    "cardViewAria": "Kart görünümü",
+    "rewardRankLabel": "Siralama {rank}"
   },
   "predictions": {
     "title": "Tahminler",
@@ -2112,7 +2113,18 @@
     "format6": "6'lı",
     "format11": "11'li",
     "tierBronzePlus": "Bronz+",
-    "tierSilberPlus": "Gümüş+"
+    "tierSilberPlus": "Gümüş+",
+    "rewardStructure": "Odul Yapisi",
+    "rewardTemplate_top3": "Ilk 3",
+    "rewardTemplate_top5": "Ilk 5",
+    "rewardTemplate_winner": "Kazanan",
+    "rewardTemplate_top10": "Ilk 10",
+    "rewardRank": "Siralama",
+    "rewardPctFor": "Yuzde, siralama",
+    "rewardAddRank": "Siralama ekle",
+    "rewardRemoveRank": "Siralamayi kaldir",
+    "rewardSum": "Toplam",
+    "rewardMust100": "%100 olmali"
   },
   "adminFans": {
     "totalFollowers": "Takipçi",
@@ -2993,7 +3005,27 @@
     "labelScoutTotal": "$SCOUT Toplam",
     "labelVolume24h": "24s Hacim",
     "labelActiveEvents": "Aktif Etkinlikler",
-    "labelPendingOffers": "Bekleyen Teklifler"
+    "labelPendingOffers": "Bekleyen Teklifler",
+    "eventsTitle": "Etkinlikleri yonet",
+    "eventsCreate": "Yeni Etkinlik",
+    "eventsSearch": "Etkinlik ara",
+    "eventsFilterStatus": "Filtre: Durum",
+    "eventsFilterType": "Filtre: Tur",
+    "eventsFilterClub": "Filtre: Kulup",
+    "eventsFilterGw": "Filtre: Hafta",
+    "eventsEmpty": "Etkinlik bulunamadi",
+    "eventsEmptyCta": "Simdi etkinlik olustur",
+    "eventsError": "Yukleme hatasi",
+    "eventsRetry": "Tekrar dene",
+    "eventsBulkAction": "Secili etkinlikler icin islem",
+    "eventsBulkExecute": "Uygula",
+    "eventsSelectEvent": "Etkinlik sec",
+    "eventsEditEvent": "Etkinligi duzenle",
+    "eventsStatsActive": "Aktif",
+    "eventsStatsParticipants": "Katilimci",
+    "eventsStatsPool": "Toplam Havuz",
+    "eventsClubOptional": "Kulup (istege bagli)",
+    "eventsGlobal": "Global (kulupsuz)"
   },
   "offers": {
     "statusPending": "Beklemede",

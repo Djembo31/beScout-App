@@ -72,6 +72,7 @@ export async function createEvent(params: {
   eventTier?: 'arena' | 'club' | 'user';
   minSubscriptionTier?: string | null;
   salaryCap?: number | null;
+  rewardStructure?: Array<{ rank: number; pct: number }> | null;
 }): Promise<{ success: boolean; eventId?: string; error?: string }> {
   const { data, error } = await supabase
     .from('events')
@@ -93,6 +94,7 @@ export async function createEvent(params: {
       event_tier: params.eventTier || 'club',
       min_subscription_tier: params.minSubscriptionTier || null,
       salary_cap: params.salaryCap || null,
+      reward_structure: params.rewardStructure ?? null,
       status: 'registering',
       current_entries: 0,
     })
@@ -145,7 +147,7 @@ export async function createNextGameweekEvents(
   // Load current GW events as templates
   const { data: templates, error: tplErr } = await supabase
     .from('events')
-    .select('name, type, format, entry_fee, prize_pool, max_entries, club_id, created_by, sponsor_name, sponsor_logo')
+    .select('name, type, format, entry_fee, prize_pool, max_entries, club_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap')
     .eq('club_id', clubId)
     .eq('gameweek', currentGw);
 
@@ -188,6 +190,11 @@ export async function createNextGameweekEvents(
     created_by: t.created_by,
     sponsor_name: t.sponsor_name,
     sponsor_logo: t.sponsor_logo,
+    event_tier: t.event_tier,
+    tier_bonuses: t.tier_bonuses,
+    min_tier: t.min_tier,
+    min_subscription_tier: t.min_subscription_tier,
+    salary_cap: t.salary_cap,
     starts_at: startsAt,
     locks_at: locksAt,
     ends_at: endsAt,
@@ -232,4 +239,200 @@ export async function updateEventStatus(
   }
 
   return { success: true };
+}
+
+// ============================================
+// Admin Event Management
+// ============================================
+
+/** Which fields can be edited per event status */
+export const EDITABLE_FIELDS: Record<string, string[]> = {
+  upcoming: [
+    'name', 'type', 'format', 'gameweek', 'entry_fee', 'prize_pool',
+    'max_entries', 'starts_at', 'locks_at', 'ends_at', 'sponsor_name',
+    'sponsor_logo', 'event_tier', 'min_subscription_tier', 'salary_cap',
+    'reward_structure',
+  ],
+  registering: [
+    'name', 'type', 'format', 'gameweek', 'entry_fee', 'prize_pool',
+    'max_entries', 'starts_at', 'locks_at', 'ends_at', 'sponsor_name',
+    'sponsor_logo', 'event_tier', 'min_subscription_tier', 'salary_cap',
+    'reward_structure',
+  ],
+  'late-reg': ['name', 'prize_pool', 'ends_at', 'max_entries', 'sponsor_name', 'sponsor_logo'],
+  running: ['name', 'prize_pool', 'ends_at', 'max_entries', 'sponsor_name', 'sponsor_logo'],
+  scoring: [],
+  ended: [],
+  cancelled: [],
+};
+
+/** Allowed status transitions */
+export const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+  upcoming: ['registering', 'cancelled'],
+  registering: ['late-reg', 'running', 'cancelled'],
+  'late-reg': ['running', 'cancelled'],
+  running: ['scoring', 'ended'],
+  scoring: ['ended'],
+  ended: [],
+  cancelled: [],
+};
+
+/** Update specific fields on an event with editability guard */
+export async function updateEvent(
+  eventId: string,
+  fields: Record<string, unknown>
+): Promise<{ success: boolean; error?: string }> {
+  // Fetch current status
+  const { data: event, error: fetchErr } = await supabase
+    .from('events')
+    .select('status')
+    .eq('id', eventId)
+    .single();
+
+  if (fetchErr || !event) {
+    return { success: false, error: fetchErr?.message ?? 'Event nicht gefunden' };
+  }
+
+  const allowed = EDITABLE_FIELDS[event.status] ?? [];
+  const blocked = Object.keys(fields).filter(k => !allowed.includes(k));
+
+  if (blocked.length > 0) {
+    return {
+      success: false,
+      error: `Felder nicht editierbar im Status "${event.status}": ${blocked.join(', ')}`,
+    };
+  }
+
+  const { error } = await supabase
+    .from('events')
+    .update(fields)
+    .eq('id', eventId);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+/** Fetch all events with optional filters (admin view) */
+export async function getAllEventsAdmin(filters?: {
+  status?: string[];
+  type?: string[];
+  clubId?: string;
+  gameweek?: number;
+  search?: string;
+}): Promise<DbEvent[]> {
+  let query = supabase
+    .from('events')
+    .select('id, name, type, status, format, gameweek, entry_fee, prize_pool, max_entries, current_entries, starts_at, locks_at, ends_at, scored_at, created_by, club_id, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, reward_structure, created_at, clubs(name, slug)')
+    .order('created_at', { ascending: false });
+
+  if (filters?.status && filters.status.length > 0) {
+    query = query.in('status', filters.status);
+  }
+  if (filters?.type && filters.type.length > 0) {
+    query = query.in('type', filters.type);
+  }
+  if (filters?.clubId) {
+    query = query.eq('club_id', filters.clubId);
+  }
+  if (filters?.gameweek != null) {
+    query = query.eq('gameweek', filters.gameweek);
+  }
+  if (filters?.search) {
+    query = query.ilike('name', `%${filters.search}%`);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('[Events] getAllEventsAdmin error:', error.message);
+    return [];
+  }
+  return (data ?? []) as unknown as DbEvent[];
+}
+
+/** Bulk update event statuses with per-event validation */
+export async function bulkUpdateStatus(
+  eventIds: string[],
+  newStatus: string
+): Promise<{ success: boolean; results: Array<{ eventId: string; ok: boolean; error?: string }> }> {
+  if (eventIds.length === 0) {
+    return { success: true, results: [] };
+  }
+
+  // Fetch current statuses for all events
+  const { data: events, error: fetchErr } = await supabase
+    .from('events')
+    .select('id, status')
+    .in('id', eventIds);
+
+  if (fetchErr || !events) {
+    return {
+      success: false,
+      results: eventIds.map(eventId => ({
+        eventId,
+        ok: false,
+        error: fetchErr?.message ?? 'Events nicht gefunden',
+      })),
+    };
+  }
+
+  const statusMap = new Map(events.map(e => [e.id, e.status as string]));
+  const results: Array<{ eventId: string; ok: boolean; error?: string }> = [];
+
+  for (const eventId of eventIds) {
+    const currentStatus = statusMap.get(eventId);
+    if (!currentStatus) {
+      results.push({ eventId, ok: false, error: 'Event nicht gefunden' });
+      continue;
+    }
+
+    const allowed = ALLOWED_TRANSITIONS[currentStatus] ?? [];
+    if (!allowed.includes(newStatus)) {
+      results.push({
+        eventId,
+        ok: false,
+        error: `Übergang "${currentStatus}" → "${newStatus}" nicht erlaubt`,
+      });
+      continue;
+    }
+
+    const { error } = await supabase
+      .from('events')
+      .update({ status: newStatus })
+      .eq('id', eventId);
+
+    if (error) {
+      results.push({ eventId, ok: false, error: error.message });
+    } else {
+      results.push({ eventId, ok: true });
+    }
+  }
+
+  const allOk = results.every(r => r.ok);
+  return { success: allOk, results };
+}
+
+/** Aggregate stats for admin dashboard */
+export async function getEventAdminStats(): Promise<{
+  activeCount: number;
+  totalParticipants: number;
+  totalPool: number;
+}> {
+  const { data, error } = await supabase
+    .from('events')
+    .select('status, current_entries, prize_pool');
+
+  if (error) {
+    console.error('[Events] getEventAdminStats error:', error.message);
+    return { activeCount: 0, totalParticipants: 0, totalPool: 0 };
+  }
+
+  const activeStatuses = new Set(['registering', 'late-reg', 'running']);
+  const active = (data ?? []).filter(e => activeStatuses.has(e.status));
+
+  return {
+    activeCount: active.length,
+    totalParticipants: active.reduce((sum, e) => sum + (e.current_entries ?? 0), 0),
+    totalPool: active.reduce((sum, e) => sum + (e.prize_pool ?? 0), 0),
+  };
 }

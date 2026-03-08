@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
   Shield, BarChart3, Users, Percent, Zap, Calendar, Bug, Rocket,
-  DollarSign, ExternalLink, Loader2, Megaphone, Sparkles, Building2,
+  DollarSign, ExternalLink, Loader2, Megaphone, Sparkles, Building2, Trophy,
 } from 'lucide-react';
 import { Card, StatCard } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -22,19 +22,20 @@ import { AdminAirdropTab } from './AdminAirdropTab';
 import { AdminSponsorsTab } from './AdminSponsorsTab';
 import { AdminCreatorFundTab } from './AdminCreatorFundTab';
 import { AdminClubsTab } from './AdminClubsTab';
+import { AdminEventsManagementTab } from './AdminEventsManagementTab';
 
 // ============================================
 // Tab Config
 // ============================================
 
-type AdminTab = 'overview' | 'users' | 'clubs' | 'fees' | 'ipos' | 'gameweeks' | 'airdrop' | 'sponsors' | 'creator_fund' | 'debug';
+type AdminTab = 'overview' | 'users' | 'clubs' | 'fees' | 'ipos' | 'gameweeks' | 'events' | 'airdrop' | 'sponsors' | 'creator_fund' | 'debug';
 
 const TAB_ICONS: Record<AdminTab, React.ElementType> = {
   overview: BarChart3, users: Users, clubs: Building2, fees: Percent,
-  ipos: Zap, gameweeks: Calendar, airdrop: Rocket, sponsors: Megaphone,
+  ipos: Zap, gameweeks: Calendar, events: Trophy, airdrop: Rocket, sponsors: Megaphone,
   creator_fund: Sparkles, debug: Bug,
 };
-const TAB_ORDER: AdminTab[] = ['overview', 'users', 'clubs', 'fees', 'ipos', 'gameweeks', 'airdrop', 'sponsors', 'creator_fund', 'debug'];
+const TAB_ORDER: AdminTab[] = ['overview', 'users', 'clubs', 'fees', 'ipos', 'gameweeks', 'events', 'airdrop', 'sponsors', 'creator_fund', 'debug'];
 
 // ============================================
 // Overview Tab (inline â€” 12 lines)
@@ -224,7 +225,7 @@ export default function BescoutAdminContent() {
       {(() => {
         const TAB_LABELS: Record<AdminTab, string> = {
           overview: t('tabOverview'), users: t('tabUsers'), clubs: 'Clubs', fees: t('tabFees'),
-          ipos: 'IPOs', gameweeks: t('tabGameweeks'), airdrop: 'Airdrop',
+          ipos: 'IPOs', gameweeks: t('tabGameweeks'), events: 'Events', airdrop: 'Airdrop',
           sponsors: t('tabSponsors'), creator_fund: 'Creator Fund', debug: 'Debug',
         };
         return (
@@ -259,6 +260,7 @@ export default function BescoutAdminContent() {
       {tab === 'fees' && user && <AdminFeesTab adminId={user.id} />}
       {tab === 'ipos' && <IposTab />}
       {tab === 'gameweeks' && <AdminGameweeksTab />}
+      {tab === 'events' && user && <AdminEventsManagementTab adminId={user.id} />}
       {tab === 'airdrop' && <AdminAirdropTab />}
       {tab === 'sponsors' && user && <AdminSponsorsTab adminId={user.id} />}
       {tab === 'creator_fund' && user && <AdminCreatorFundTab adminId={user.id} />}

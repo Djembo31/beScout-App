@@ -572,8 +572,11 @@ export type DbEvent = {
   min_tier?: string | null;
   min_subscription_tier?: string | null;
   salary_cap?: number | null;
+  reward_structure?: RewardTier[] | null;
   created_at: string;
 };
+
+export type RewardTier = { rank: number; pct: number };
 
 export type DbLineup = {
   id: string;

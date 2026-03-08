@@ -109,6 +109,7 @@ function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userLineup?:
       { rank: '1st', reward: 'Champion Badge' },
       { rank: 'Top 10', reward: 'Gold Frame' },
     ],
+    rewardStructure: db.reward_structure ?? null,
   };
 }
 
@@ -498,6 +499,7 @@ export default function FantasyContent() {
       eventTier: 'user',
       requirements: { dpcPerSlot: 1 },
       rewards: [{ rank: '1st', reward: 'League Champion' }],
+      rewardStructure: null,
     };
     setLocalEvents(prev => [newEvent, ...(prev ?? events)]);
     addToast(t('eventCreated', { name: newEvent.name }), 'success');
@@ -607,33 +609,35 @@ export default function FantasyContent() {
         show={joinedIdsArr.length === 0}
       />
 
-      {/* PERSISTENT GW SELECTOR — always visible above tabs */}
-      <SpieltagSelector
-        gameweek={currentGw}
-        activeGameweek={activeGw ?? 1}
-        status={gwStatus}
-        fixtureCount={fixtureCount}
-        eventCount={gwEvents.length}
-        onGameweekChange={setSelectedGameweek}
-      />
+      {/* STICKY NAV — GW Selector + Tabs stay visible on scroll */}
+      <div className="sticky top-[57px] z-20 -mx-4 px-4 py-2 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/[0.04] space-y-2 lg:static lg:mx-0 lg:px-0 lg:py-0 lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:space-y-4">
+        <SpieltagSelector
+          gameweek={currentGw}
+          activeGameweek={activeGw ?? 1}
+          status={gwStatus}
+          fixtureCount={fixtureCount}
+          eventCount={gwEvents.length}
+          onGameweekChange={setSelectedGameweek}
+        />
 
-      {/* SEGMENT TABS — 4 Tabs, always fit */}
-      <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl">
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setMainTab(tab.id)}
-            className={cn('flex-1 flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap min-h-[40px]',
-              mainTab === tab.id
-                ? 'bg-gold/15 text-gold shadow-sm'
-                : 'text-white/50 hover:text-white/70'
-            )}
-          >
-            <tab.icon className="size-3.5 flex-shrink-0" />
-            <span className="hidden sm:inline">{tab.label}</span>
-            <span className="sm:hidden">{tab.mobileLabel}</span>
-          </button>
-        ))}
+        {/* SEGMENT TABS — 4 Tabs, always fit */}
+        <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setMainTab(tab.id)}
+              className={cn('flex-1 flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap min-h-[44px]',
+                mainTab === tab.id
+                  ? 'bg-gold/15 text-gold shadow-sm'
+                  : 'text-white/50 hover:text-white/70'
+              )}
+            >
+              <tab.icon className="size-3.5 flex-shrink-0" />
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden">{tab.mobileLabel}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ========== PAARUNGEN TAB — Lobby: WAS passiert? ========== */}
@@ -665,6 +669,7 @@ export default function FantasyContent() {
           events={gwEvents}
           userId={user.id}
           onEventClick={setSelectedEvent}
+          onTabChange={setMainTab}
         />
       )}
 

@@ -10,7 +10,8 @@ import { getEventsByClubId, createEvent, updateEventStatus } from '@/lib/service
 import { simulateGameweek, getGameweekStatuses } from '@/lib/services/fixtures';
 import { centsToBsd, bsdToCents } from '@/lib/services/players';
 import { fmtScout } from '@/lib/utils';
-import type { ClubWithAdmin, DbEvent, GameweekStatus } from '@/types';
+import type { ClubWithAdmin, DbEvent, GameweekStatus, RewardTier } from '@/types';
+import RewardStructureEditor from './RewardStructureEditor';
 
 export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
   const t = useTranslations('admin');
@@ -54,6 +55,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
   const [eventTier, setEventTier] = useState<'arena' | 'club' | 'user'>('club');
   const [minSubTier, setMinSubTier] = useState('');
   const [salaryCap, setSalaryCap] = useState('');
+  const [rewardStructure, setRewardStructure] = useState<RewardTier[] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -118,6 +120,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     setEventTier('club');
     setMinSubTier('');
     setSalaryCap('');
+    setRewardStructure(null);
   }, []);
 
   const handleCreate = useCallback(async () => {
@@ -143,6 +146,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
         eventTier,
         minSubscriptionTier: minSubTier || null,
         salaryCap: salaryCap ? parseInt(salaryCap) : null,
+        rewardStructure: rewardStructure,
       });
       if (!result.success) {
         setError(result.error || t('eventCreateError'));
@@ -159,7 +163,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     } finally {
       setSaving(false);
     }
-  }, [user, name, type, format, gameweek, entryFee, prizePool, maxEntries, startsAt, locksAt, endsAt, club.id, resetForm, sponsorName, sponsorLogo, t]);
+  }, [user, name, type, format, gameweek, entryFee, prizePool, maxEntries, startsAt, locksAt, endsAt, club.id, resetForm, sponsorName, sponsorLogo, rewardStructure, t]);
 
   const [changingId, setChangingId] = useState<string | null>(null);
 
@@ -491,6 +495,11 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
               />
             </div>
           </div>
+          <RewardStructureEditor
+            value={rewardStructure}
+            onChange={setRewardStructure}
+            prizePool={bsdToCents(parseFloat(prizePool) || 0)}
+          />
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('startTime')}</label>
             <input

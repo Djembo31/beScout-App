@@ -538,7 +538,7 @@ export const EventDetailModal = ({
                     ].map(r => (
                       <div key={r.label} className="text-center p-1.5 bg-black/20 rounded-lg">
                         <div className={`font-mono font-bold text-xs ${r.color}`}>{r.pts}</div>
-                        <div className="text-[9px] text-white/30">{r.label}</div>
+                        <div className="text-xs text-white/30">{r.label}</div>
                       </div>
                     ))}
                   </div>
@@ -640,16 +640,25 @@ export const EventDetailModal = ({
               {/* Rewards */}
               <div>
                 <h3 className="font-bold mb-2">{t('rewardsTitle')}</h3>
-                <div className="space-y-2">
-                  {event.rewards.map((r, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <Medal aria-hidden="true" className={`size-4 ${i === 0 ? 'text-gold' : i === 1 ? 'text-white/70' : 'text-orange-400'}`} />
-                        <span className="font-bold">{r.rank}</span>
+                <div className="space-y-2" aria-label={t('rewardsTitle')}>
+                  {(event.rewardStructure ?? [
+                    { rank: 1, pct: 50 }, { rank: 2, pct: 30 }, { rank: 3, pct: 20 }
+                  ]).map((tier: { rank: number; pct: number }, i: number) => {
+                    const amount = event.prizePool > 0
+                      ? Math.floor(event.prizePool * tier.pct / 100)
+                      : 0;
+                    return (
+                      <div key={tier.rank} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Medal aria-hidden="true" className={`size-4 ${i === 0 ? 'text-gold' : i === 1 ? 'text-white/70' : i === 2 ? 'text-orange-400' : 'text-white/20'}`} />
+                          <span className="font-bold">Platz {tier.rank}</span>
+                        </div>
+                        <span className="text-white/70 font-mono tabular-nums">
+                          {tier.pct}%{amount > 0 ? ` (${fmtScout(amount)})` : ''}
+                        </span>
                       </div>
-                      <span className="text-white/70">{r.reward}</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -878,7 +887,7 @@ export const EventDetailModal = ({
                       {event.sponsorLogo ? (
                         <img src={event.sponsorLogo} alt="" className="size-12 object-contain opacity-30" />
                       ) : (
-                        <span className="text-[9px] text-white/15 font-bold uppercase">Sponsor</span>
+                        <span className="text-xs text-white/15 font-bold uppercase">Sponsor</span>
                       )}
                     </div>
                   </div>
@@ -909,7 +918,7 @@ export const EventDetailModal = ({
                               <div key={slot.slot} className="flex flex-col items-center relative">
                                 {/* LIVE badge for locked players (only if no score yet) */}
                                 {player && slotLocked && !hasScore && (
-                                  <div className="absolute -top-2 -right-2 z-30 px-1.5 py-0.5 rounded bg-green-500 text-[8px] font-black text-white shadow-lg animate-pulse">LIVE</div>
+                                  <div className="absolute -top-2 -right-2 z-30 px-1.5 py-0.5 rounded bg-green-500 text-xs font-black text-white shadow-lg animate-pulse">LIVE</div>
                                 )}
                                 {/* Captain Crown (top-left) */}
                                 {player && isCaptain && (
@@ -919,13 +928,13 @@ export const EventDetailModal = ({
                                 )}
                                 {/* Captain ×1.5 badge (scored view) */}
                                 {player && hasScore && isCaptain && (
-                                  <div className="absolute -top-2 left-4 z-30 px-1 py-0.5 rounded bg-gold/90 text-[9px] font-black text-black shadow-lg">×1.5</div>
+                                  <div className="absolute -top-2 left-4 z-30 px-1 py-0.5 rounded bg-gold/90 text-xs font-black text-black shadow-lg">×1.5</div>
                                 )}
                                 {/* Score badge (top-right, overlapping circle) — final or live */}
                                 {player && hasScore && (
                                   <div
                                     className={cn(
-                                      "absolute -top-2 -right-3 z-20 min-w-[2rem] px-1.5 py-0.5 rounded-full text-[10px] font-mono font-black text-center shadow-lg",
+                                      "absolute -top-2 -right-3 z-20 min-w-[2rem] px-1.5 py-0.5 rounded-full text-xs font-mono font-black text-center shadow-lg",
                                       isLiveScore && "ring-1 ring-green-400/50"
                                     )}
                                     style={{
@@ -983,11 +992,11 @@ export const EventDetailModal = ({
                                 {pStatus && !hasScore && pStatus.icon !== '🟢' && !isCaptain && (
                                   <span className="absolute -top-1 -right-1 text-xs">{pStatus.icon}</span>
                                 )}
-                                <div className="text-[10px] mt-1" style={{ color: player ? (hasScore ? '#ffffffcc' : isCaptain ? '#FFD700' : getPosAccentColor(player.pos) + 'aa') : getPosAccentColor(slot.pos) + '80' }}>
+                                <div className="text-xs mt-1" style={{ color: player ? (hasScore ? '#ffffffcc' : isCaptain ? '#FFD700' : getPosAccentColor(player.pos) + 'aa') : getPosAccentColor(slot.pos) + '80' }}>
                                   {player ? player.last.slice(0, 8) : slot.pos}
                                 </div>
                                 {player && !hasScore && (
-                                  <div className="text-[9px] text-white/30">L5: {player.perfL5} • {player.dpcAvailable}/{player.dpcOwned}</div>
+                                  <div className="text-xs text-white/30">L5: {player.perfL5} • {player.dpcAvailable}/{player.dpcOwned}</div>
                                 )}
                                 </button>
                               </div>
@@ -1009,9 +1018,9 @@ export const EventDetailModal = ({
                         <Building2 aria-hidden="true" className="size-2.5 text-gold/60" />
                       </div>
                     )}
-                    <span className="text-[9px] text-white/30 font-medium">{event.sponsorName || 'Sponsor Logo'}</span>
+                    <span className="text-xs text-white/30 font-medium">{event.sponsorName || 'Sponsor Logo'}</span>
                   </div>
-                  <span className="text-[9px] text-white/20 font-bold uppercase">{event.sponsorName ? `${event.sponsorName} × BeScout` : 'Powered by BeScout'}</span>
+                  <span className="text-xs text-white/20 font-bold uppercase">{event.sponsorName ? `${event.sponsorName} × BeScout` : 'Powered by BeScout'}</span>
                   <div className="flex items-center gap-2 px-3 py-1 bg-white/[0.04] rounded-lg border border-white/[0.06]">
                     {event.sponsorLogo ? (
                       <img src={event.sponsorLogo} alt="" className="h-4 w-auto object-contain" />
@@ -1020,7 +1029,7 @@ export const EventDetailModal = ({
                         <Building2 aria-hidden="true" className="size-2.5 text-gold/60" />
                       </div>
                     )}
-                    <span className="text-[9px] text-white/30 font-medium">{event.sponsorName || 'Sponsor Logo'}</span>
+                    <span className="text-xs text-white/30 font-medium">{event.sponsorName || 'Sponsor Logo'}</span>
                   </div>
                 </div>
               </div>
@@ -1075,7 +1084,7 @@ export const EventDetailModal = ({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-bold text-white">{t('strengthenPortfolio')}</div>
-                      <div className="text-[11px] text-white/40">{t('portfolioHint')}</div>
+                      <div className="text-xs text-white/40">{t('portfolioHint')}</div>
                     </div>
                     <ChevronRight aria-hidden="true" className="size-4 text-white/30 flex-shrink-0" />
                   </div>
@@ -1112,12 +1121,12 @@ export const EventDetailModal = ({
                           <div>
                             <div className="font-medium text-sm flex items-center gap-1.5">
                               {player.first} {player.last}
-                              {isCpt && <span className="text-[9px] font-bold text-gold bg-gold/10 px-1 rounded">C ×1.5</span>}
+                              {isCpt && <span className="text-xs font-bold text-gold bg-gold/10 px-1 rounded">C ×1.5</span>}
                             </div>
-                            <div className="text-[10px] text-white/40 flex items-center gap-1.5">
+                            <div className="text-xs text-white/40 flex items-center gap-1.5">
                               {player.club}
                               {tierCfg && (
-                                <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${tierCfg.bg} ${tierCfg.color}`}>
+                                <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${tierCfg.bg} ${tierCfg.color}`}>
                                   {tierCfg.labelDe} +{tierCfg.bonusCents / 100} $SCOUT
                                 </span>
                               )}
@@ -1150,7 +1159,7 @@ export const EventDetailModal = ({
                   <Building2 aria-hidden="true" className="size-5 text-sky-400 flex-shrink-0" />
                   <div>
                     <div className="text-sm font-bold text-sky-300">{t('synergyBonus', { pct: synergyPreview.totalPct })}</div>
-                    <div className="text-[10px] text-white/40">
+                    <div className="text-xs text-white/40">
                       {synergyPreview.details.map(d => `${d.source} (${d.bonus_pct}%)`).join(' + ')}
                     </div>
                   </div>
@@ -1181,9 +1190,9 @@ export const EventDetailModal = ({
                     const captainPlayer = captainIdx >= 0 ? getSelectedPlayer(captainIdx) : null;
                     const captainLocked = captainPlayer ? isPlayerLocked(captainPlayer.id) : false;
                     return !captainLocked ? (
-                      <button onClick={() => setCaptainSlot(null)} className="ml-auto text-[10px] text-white/40 hover:text-white/60">{t('captainRemove')}</button>
+                      <button onClick={() => setCaptainSlot(null)} className="ml-auto text-xs text-white/40 hover:text-white/60">{t('captainRemove')}</button>
                     ) : (
-                      <span className="ml-auto text-[10px] text-white/20">{t('captainLocked')}</span>
+                      <span className="ml-auto text-xs text-white/20">{t('captainLocked')}</span>
                     );
                   })()}
                 </div>
@@ -1245,7 +1254,7 @@ export const EventDetailModal = ({
                           size="sm"
                           showMeta={false}
                         />
-                        <div className="text-[10px] text-white/40">
+                        <div className="text-xs text-white/40">
                           <span className={fixtureLocked ? 'text-green-400' : player.isLocked ? 'text-orange-400' : player.dpcAvailable < player.dpcOwned ? 'text-yellow-400' : 'text-white/40'}>{player.dpcAvailable}/{player.dpcOwned} DPC</span>
                           {player.eventsUsing > 0 && <span className="text-white/30"> ({player.eventsUsing} Event{player.eventsUsing > 1 ? 's' : ''})</span>}
                         </div>
@@ -1253,7 +1262,7 @@ export const EventDetailModal = ({
                       <div className="flex items-center gap-3">
                         <div className="text-right">
                           <div className="text-xs text-white/50">L5: <span className={`font-mono font-bold ${getL5Color(player.perfL5)}`}>{player.perfL5}</span></div>
-                          <div className="text-[10px] text-white/30">{player.goals}T {player.assists}A {player.matches}S</div>
+                          <div className="text-xs text-white/30">{player.goals}T {player.assists}A {player.matches}S</div>
                         </div>
                         {fixtureLocked ? (
                           <span className="text-xs text-green-400 flex items-center gap-1">
@@ -1347,7 +1356,7 @@ export const EventDetailModal = ({
                                   {/* Score badge */}
                                   {sp.score != null && (
                                     <div
-                                      className="absolute -top-2 -right-3 z-20 min-w-[2rem] px-1.5 py-0.5 rounded-full text-[10px] font-mono font-black text-center shadow-lg"
+                                      className="absolute -top-2 -right-3 z-20 min-w-[2rem] px-1.5 py-0.5 rounded-full text-xs font-mono font-black text-center shadow-lg"
                                       style={{
                                         backgroundColor: sp.score >= 100 ? '#FFD700' : sp.score >= 70 ? 'rgba(255,255,255,0.9)' : '#ff6b6b',
                                         color: sp.score >= 100 ? '#000' : sp.score >= 70 ? '#000' : '#fff',
@@ -1365,11 +1374,11 @@ export const EventDetailModal = ({
                                   >
                                     <PlayerPhoto imageUrl={sp.player.imageUrl} first={sp.player.firstName} last={sp.player.lastName} pos={sp.player.position as Pos} size={44} className="md:size-14" />
                                   </div>
-                                  <div className="text-[10px] mt-1" style={{ color: sp.score != null ? '#ffffffcc' : getPosAccentColor(sp.player.position) + 'aa' }}>
+                                  <div className="text-xs mt-1" style={{ color: sp.score != null ? '#ffffffcc' : getPosAccentColor(sp.player.position) + 'aa' }}>
                                     {sp.player.lastName.slice(0, 8)}
                                   </div>
                                   {sp.score == null && (
-                                    <div className="text-[9px] text-white/30">L5: {sp.player.perfL5}</div>
+                                    <div className="text-xs text-white/30">L5: {sp.player.perfL5}</div>
                                   )}
                                 </div>
                               ))}
@@ -1467,7 +1476,7 @@ export const EventDetailModal = ({
                                 {entry.avatarUrl ? (
                                   <img src={entry.avatarUrl} alt="" className="size-6 rounded-full object-cover" />
                                 ) : (
-                                  <div className="size-6 rounded-full bg-white/10 flex items-center justify-center text-[10px]">👤</div>
+                                  <div className="size-6 rounded-full bg-white/10 flex items-center justify-center text-xs">👤</div>
                                 )}
                                 <span className={`text-left ${isCurrentUser ? 'font-bold text-gold' : ''}`}>
                                   {entry.displayName || entry.handle} {isCurrentUser && t('youLabel')}
@@ -1546,7 +1555,7 @@ export const EventDetailModal = ({
                 )}
               </div>
               {event.buyIn > 0 && (
-                <p className="text-[11px] text-white/40 mb-4">
+                <p className="text-xs text-white/40 mb-4">
                   {t('entryFeeNote')}
                 </p>
               )}
@@ -1724,10 +1733,14 @@ export const EventDetailModal = ({
         const availablePlayers = getAvailablePlayersForPosition(showPlayerPicker.position);
         return (
           <>
-            {/* Desktop: backdrop + centered modal */}
-            <div className="hidden md:block fixed inset-0 bg-black/60 z-[60]" onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }} />
-            {/* Mobile: full-screen | Desktop: centered modal */}
-            <div className="fixed inset-0 z-[60] bg-bg-main flex flex-col md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[calc(100%-2rem)] md:max-w-md md:max-h-[70vh] md:rounded-xl md:border md:border-white/10 md:shadow-2xl md:overflow-hidden">
+            {/* Backdrop */}
+            <div className="fixed inset-0 bg-black/60 z-[60] animate-in fade-in duration-200" onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }} />
+            {/* Mobile: bottom sheet | Desktop: centered modal */}
+            <div className="fixed inset-x-0 bottom-0 z-[60] bg-bg-main flex flex-col max-h-[85dvh] rounded-t-3xl border-t border-white/10 shadow-2xl animate-in slide-in-from-bottom duration-300 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[calc(100%-2rem)] md:max-w-md md:max-h-[70vh] md:rounded-xl md:border md:border-white/10 md:bottom-auto">
+              {/* Swipe handle (mobile) */}
+              <div className="flex justify-center pt-2 pb-1 md:hidden">
+                <div className="w-10 h-1 rounded-full bg-white/20" />
+              </div>
               {/* ── Sticky Header ── */}
               <div className="shrink-0 bg-bg-main border-b border-white/10">
                 {/* Top bar: Back + Title + Count + Sort */}
@@ -1743,7 +1756,7 @@ export const EventDetailModal = ({
                     <h3 className="font-black text-base">
                       {t('selectPos', { pos: POS_LABEL[showPlayerPicker.position] || showPlayerPicker.position })}
                     </h3>
-                    <div className="text-[10px] text-white/40">{t('availableCount', { count: availablePlayers.length })}</div>
+                    <div className="text-xs text-white/40">{t('availableCount', { count: availablePlayers.length })}</div>
                   </div>
                   {/* Sort pills */}
                   <div className="flex items-center gap-0.5">
@@ -1751,7 +1764,7 @@ export const EventDetailModal = ({
                       <button
                         key={s}
                         onClick={() => setPickerSort(s === 'l5' ? 'l5' : 'name')}
-                        className={cn('px-2 py-1 rounded text-[10px] font-bold min-h-[44px]',
+                        className={cn('px-2 py-1 rounded text-xs font-bold min-h-[44px]',
                           pickerSort === s ? 'bg-gold/15 text-gold' : 'text-white/30'
                         )}
                       >{s === 'l5' ? 'L5' : 'A-Z'}</button>
@@ -1811,17 +1824,17 @@ export const EventDetailModal = ({
                             {/* Compact stats */}
                             <div className="flex flex-col items-end gap-0.5">
                               <div className="flex gap-1">
-                                {player.goals > 0 && <span className="text-[9px] font-mono bg-white/5 px-1 py-0.5 rounded text-white/50">{player.goals}T</span>}
-                                {player.assists > 0 && <span className="text-[9px] font-mono bg-white/5 px-1 py-0.5 rounded text-white/50">{player.assists}A</span>}
+                                {player.goals > 0 && <span className="text-xs font-mono bg-white/5 px-1 py-0.5 rounded text-white/50">{player.goals}T</span>}
+                                {player.assists > 0 && <span className="text-xs font-mono bg-white/5 px-1 py-0.5 rounded text-white/50">{player.assists}A</span>}
                               </div>
-                              <span className="text-[9px] text-white/25 font-mono">{player.dpcAvailable}/{player.dpcOwned} DPC</span>
+                              <span className="text-xs text-white/25 font-mono">{player.dpcAvailable}/{player.dpcOwned} DPC</span>
                             </div>
                             {/* L5 Score — prominent */}
                             <div className="w-10 text-right">
                               <div className={cn('text-lg font-black font-mono leading-none', scoreColor)}>
                                 {player.perfL5}
                               </div>
-                              <div className="text-[9px] text-white/25 font-mono">L5</div>
+                              <div className="text-xs text-white/25 font-mono">L5</div>
                             </div>
                           </div>
                         </button>
