@@ -82,7 +82,7 @@ export async function POST(req: Request) {
       .from('fixtures')
       .select('id, api_fixture_id, home_club_id, away_club_id')
       .eq('gameweek', gw)
-      .eq('status', 'finished')
+      .in('status', ['simulated', 'finished'])
       .not('api_fixture_id', 'is', null);
 
     if (!fixtures || fixtures.length === 0) {

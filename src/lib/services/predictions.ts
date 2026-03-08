@@ -244,7 +244,7 @@ export async function resolvePredictions(gameweek: number): Promise<ResolveResul
     return { success: false, error: `Keine Fixtures für GW ${gameweek} gefunden` };
   }
 
-  const unfinished = fixtures.filter(f => f.status !== 'finished');
+  const unfinished = fixtures.filter(f => f.status !== 'finished' && f.status !== 'simulated');
   if (unfinished.length > 0) {
     return {
       success: false,
