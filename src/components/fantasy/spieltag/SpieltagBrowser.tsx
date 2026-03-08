@@ -89,7 +89,7 @@ export function SpieltagBrowser({ fixtures, onSelect }: Props) {
       {/* Upcoming group */}
       {upcoming.length > 0 && (
         <div>
-          <div className="flex items-center gap-1.5 px-1 pb-1.5 min-h-[44px]">
+          <div className="flex items-center gap-1.5 px-1 pb-1.5 min-h-[44px]" aria-label={`${ts('browserUpcoming')} (${upcoming.length})`}>
             <span className="text-xs font-bold text-sky-400 uppercase tracking-wider">{ts('browserUpcoming')}</span>
             <span className="text-xs text-white/20 font-mono tabular-nums">{upcoming.length}</span>
           </div>

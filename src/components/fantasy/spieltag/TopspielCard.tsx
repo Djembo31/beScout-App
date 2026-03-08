@@ -26,7 +26,7 @@ export function TopspielCard({ fixture, onSelect }: Props) {
   return (
     <button
       onClick={() => onSelect(fixture)}
-      className={`w-full rounded-2xl border border-white/[0.12] overflow-hidden transition-colors active:scale-[0.98] group relative ${isSimulated ? 'status-ended' : ''}`}
+      className={`w-full rounded-2xl border border-white/[0.12] overflow-hidden transition-colors active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold/50 group relative ${isSimulated ? 'status-ended' : ''}`}
       style={{
         background: `linear-gradient(135deg, ${homeColor}20 0%, rgba(13,13,15,0.95) 50%, ${awayColor}20 100%)`,
       }}
