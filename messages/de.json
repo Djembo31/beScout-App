@@ -2808,7 +2808,9 @@
     "pulseStatusDone": "Fertig",
     "pulseStatusLive": "Läuft",
     "browserFinished": "Beendet",
-    "browserUpcoming": "Anstehend"
+    "browserUpcoming": "Anstehend",
+    "browserPending": "Ergebnis ausstehend",
+    "resultPending": "Ergebnis ausstehend"
   },
   "sponsorStats": {
     "title": "Sponsor-KPIs",

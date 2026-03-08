@@ -2800,7 +2800,9 @@
     "pulseStatusDone": "Tamamlandı",
     "pulseStatusLive": "Devam",
     "browserFinished": "Tamamlanan",
-    "browserUpcoming": "Yaklaşan"
+    "browserUpcoming": "Yaklaşan",
+    "browserPending": "Sonuç bekleniyor",
+    "resultPending": "Sonuç bekleniyor"
   },
   "sponsorStats": {
     "title": "Sponsor KPI'ları",
