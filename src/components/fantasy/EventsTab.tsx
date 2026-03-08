@@ -24,6 +24,7 @@ export function EventsTab({
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <div className="text-4xl mb-3" aria-hidden="true">🏆</div>
         <div className="text-sm font-semibold text-white/40">{t('noEventsForGameweek', { gw: '' })}</div>
+        <div className="text-xs text-white/25 mt-1 max-w-[240px]">{t('noEventsHint')}</div>
       </div>
     );
   }

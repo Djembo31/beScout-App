@@ -564,11 +564,11 @@ export default function FantasyContent() {
   }
 
   // Tab definitions — 4 tabs
-  const tabs: { id: FantasyTab; label: string; mobileLabel: string; icon: typeof Calendar }[] = [
-    { id: 'paarungen', label: t('tabFixtures'), mobileLabel: t('tabFixturesShort'), icon: Calendar },
-    { id: 'events', label: t('events'), mobileLabel: t('tabEventsShort'), icon: Globe },
-    { id: 'mitmachen', label: t('tabJoined'), mobileLabel: t('tabJoinedShort'), icon: Users },
-    { id: 'ergebnisse', label: t('tabResults'), mobileLabel: t('tabResultsShort'), icon: BarChart3 },
+  const tabs: { id: FantasyTab; label: string; icon: typeof Calendar }[] = [
+    { id: 'paarungen', label: t('tabFixtures'), icon: Calendar },
+    { id: 'events', label: t('events'), icon: Globe },
+    { id: 'mitmachen', label: t('tabJoined'), icon: Users },
+    { id: 'ergebnisse', label: t('tabResults'), icon: BarChart3 },
   ];
 
   return (
@@ -633,8 +633,7 @@ export default function FantasyContent() {
               )}
             >
               <tab.icon className="size-3.5 flex-shrink-0" />
-              <span className="hidden sm:inline">{tab.label}</span>
-              <span className="sm:hidden">{tab.mobileLabel}</span>
+              <span>{tab.label}</span>
             </button>
           ))}
         </div>
@@ -650,6 +649,7 @@ export default function FantasyContent() {
           events={gwEvents}
           userId={user.id}
           onSimulated={handleSimulated}
+          onTabChange={setMainTab}
         />
       )}
 

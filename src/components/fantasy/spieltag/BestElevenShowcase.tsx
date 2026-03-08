@@ -141,7 +141,7 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
   const hasImage = !!stat.player_image_url;
 
   return (
-    <Link href={`/player/${stat.player_id}`} className="flex flex-col items-center w-[42px] sm:w-[52px] md:w-[60px] hover:scale-105 transition-transform active:scale-95">
+    <Link href={stat.player_id ? `/player/${stat.player_id}` : '#'} className="flex flex-col items-center w-[42px] sm:w-[52px] md:w-[60px] hover:scale-105 transition-transform active:scale-95">
       {/* Score badge — heat-map */}
       <div
         className="mb-0.5 min-w-[1.5rem] px-1 py-px rounded-full text-xs font-mono font-black text-center shadow-lg tabular-nums"
@@ -166,7 +166,7 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
             style={{ borderColor: accent, boxShadow: `0 0 10px ${accent}30` }}
           >
             <span className="font-bold text-xs" style={{ color: accent }}>
-              {stat.player_last_name.slice(0, 3).toUpperCase()}
+              {(stat.player_last_name || '?').slice(0, 3).toUpperCase()}
             </span>
           </div>
         )}
@@ -187,7 +187,7 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
       </div>
       {/* Name */}
       <div className="text-xs mt-0.5 font-medium text-center truncate max-w-full text-white/70">
-        {stat.player_last_name}
+        {stat.player_last_name || '?'}
       </div>
       {/* Club */}
       <div className="text-xs text-white/30 text-center truncate max-w-full">

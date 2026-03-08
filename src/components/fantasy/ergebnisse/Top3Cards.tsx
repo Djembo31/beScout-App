@@ -27,7 +27,7 @@ export function Top3Cards({ scorers }: Props) {
         return (
           <Link
             key={stat.id}
-            href={`/player/${stat.player_id}`}
+            href={stat.player_id ? `/player/${stat.player_id}` : '#'}
             className={`flex-shrink-0 w-[130px] snap-start rounded-xl p-2.5 card-carbon-mini border border-white/[0.06] hover:bg-white/[0.04] transition-colors active:bg-white/[0.06] relative ${isFirst ? 'card-gold-frame mvp-crown-glow' : ''}`}
             style={{ borderLeftColor: accent, borderLeftWidth: '2px' }}
           >
@@ -54,7 +54,7 @@ export function Top3Cards({ scorers }: Props) {
 
               {/* Name */}
               <div className="text-xs font-bold truncate max-w-full text-center">
-                {stat.player_first_name.charAt(0)}. {stat.player_last_name}
+                {(stat.player_first_name || '?').charAt(0)}. {stat.player_last_name || '?'}
               </div>
 
               {/* Club */}
