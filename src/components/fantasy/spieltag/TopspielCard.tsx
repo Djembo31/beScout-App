@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { Fixture } from '@/types';
@@ -18,7 +18,8 @@ export function TopspielCard({ fixture, onSelect }: Props) {
   const homeClub = getClub(fixture.home_club_short) || getClub(fixture.home_club_name);
   const awayClub = getClub(fixture.away_club_short) || getClub(fixture.away_club_name);
   const isSimulated = fixture.status === 'simulated' || fixture.status === 'finished';
-  const isPendingResult = !isSimulated && fixture.played_at && new Date(fixture.played_at) < new Date();
+  const now = useMemo(() => new Date(), []);
+  const isPendingResult = !isSimulated && fixture.played_at && new Date(fixture.played_at) < now;
   const homeColor = homeClub?.colors.primary ?? '#22C55E';
   const awayColor = awayClub?.colors.primary ?? '#3B82F6';
 
