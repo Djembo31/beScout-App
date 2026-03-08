@@ -471,6 +471,7 @@
     "poweredBy": "BeScout Fantasy tarafından",
     "topMatch": "Öne Çıkan Maç",
     "matchUpcoming": "Yakında",
+    "matchPendingResult": "Sonuç bekleniyor",
     "allSimulated": "{goals} Gol • Tüm maçlar simüle edildi",
     "partialSimulated": "{done}/10 simüle edildi",
     "notSimulated": "Henüz simüle edilmedi",

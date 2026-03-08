@@ -18,6 +18,7 @@ export function TopspielCard({ fixture, onSelect }: Props) {
   const homeClub = getClub(fixture.home_club_short) || getClub(fixture.home_club_name);
   const awayClub = getClub(fixture.away_club_short) || getClub(fixture.away_club_name);
   const isSimulated = fixture.status === 'simulated' || fixture.status === 'finished';
+  const isPendingResult = !isSimulated && fixture.played_at && new Date(fixture.played_at) < new Date();
   const homeColor = homeClub?.colors.primary ?? '#22C55E';
   const awayColor = awayClub?.colors.primary ?? '#3B82F6';
 
@@ -53,6 +54,15 @@ export function TopspielCard({ fixture, onSelect }: Props) {
               <span className="font-mono font-black text-4xl md:text-5xl tabular-nums score-glow">{fixture.home_score}</span>
               <div className="w-[2px] h-6 bg-gold/30 rounded-full" />
               <span className="font-mono font-black text-4xl md:text-5xl tabular-nums score-glow">{fixture.away_score}</span>
+            </div>
+          ) : isPendingResult ? (
+            <div className="flex flex-col items-center gap-1">
+              <div className="flex items-center gap-3">
+                <span className="font-mono font-black text-4xl md:text-5xl tabular-nums text-amber-400/60">?</span>
+                <div className="w-[2px] h-6 bg-amber-400/30 rounded-full" />
+                <span className="font-mono font-black text-4xl md:text-5xl tabular-nums text-amber-400/60">?</span>
+              </div>
+              <span className="text-xs text-amber-400/60">{t('matchPendingResult')}</span>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-1">

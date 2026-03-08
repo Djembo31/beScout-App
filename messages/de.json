@@ -474,6 +474,7 @@
     "poweredBy": "Powered by BeScout Fantasy",
     "topMatch": "Topspiel",
     "matchUpcoming": "Kommend",
+    "matchPendingResult": "Ergebnis ausstehend",
     "allSimulated": "{goals} Tore • Alle Spiele simuliert",
     "partialSimulated": "{done}/10 simuliert",
     "notSimulated": "Noch nicht simuliert",
