@@ -30,7 +30,7 @@ function FixtureCard({ fixture, onSelect }: { fixture: Fixture; onSelect: () => 
   const t = useTranslations('fantasy');
   const homeClub = getClub(fixture.home_club_short) || getClub(fixture.home_club_name);
   const awayClub = getClub(fixture.away_club_short) || getClub(fixture.away_club_name);
-  const isSimulated = fixture.status === 'simulated';
+  const isSimulated = fixture.status === 'simulated' || fixture.status === 'finished';
 
   return (
     <button
@@ -77,7 +77,7 @@ function FixtureCard({ fixture, onSelect }: { fixture: Fixture; onSelect: () => 
       </div>
 
       {/* Status bar */}
-      <div className="flex items-center justify-between mt-2 text-[10px]">
+      <div className="flex items-center justify-between mt-2 text-xs">
         <span className={isSimulated ? 'text-green-500 font-bold' : 'text-white/30'}>
           {isSimulated ? t('fixtureSimulated') : t('fixturePlanned')}
         </span>
@@ -181,16 +181,16 @@ function TeamStats({ label, stats, color }: { label: string; stats: FixturePlaye
       <div className="space-y-1">
         {sorted.map(s => (
           <div key={s.id} className="flex items-center gap-2 px-2 py-1.5 bg-white/[0.02] rounded-lg text-xs">
-            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${posColor(s.player_position)}`}>
+            <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${posColor(s.player_position)}`}>
               {s.player_position}
             </span>
             <span className="flex-1 font-semibold truncate min-w-0">
               {s.player_first_name.charAt(0)}. {s.player_last_name}
             </span>
-            <span className="text-white/30 font-mono text-[10px] tabular-nums">{s.minutes_played}&apos;</span>
+            <span className="text-white/30 font-mono text-xs tabular-nums">{s.minutes_played}&apos;</span>
             {s.goals > 0 && <span className="text-gold font-bold tabular-nums">{s.goals}G</span>}
             {s.assists > 0 && <span className="text-sky-400 font-bold tabular-nums">{s.assists}A</span>}
-            {s.clean_sheet && <span className="text-emerald-400 text-[10px]">CS</span>}
+            {s.clean_sheet && <span className="text-emerald-400 text-xs">CS</span>}
             {s.yellow_card && <span className="w-2.5 h-3 bg-yellow-400 rounded-[1px] inline-block" />}
             {s.red_card && <span className="w-2.5 h-3 bg-red-500 rounded-[1px] inline-block" />}
             {s.bonus > 0 && (
@@ -232,7 +232,7 @@ export function GameweekTab() {
     loadGameweek(gameweek);
   }, [gameweek, loadGameweek]);
 
-  const simulatedCount = fixtures.filter(f => f.status === 'simulated').length;
+  const simulatedCount = fixtures.filter(f => f.status === 'simulated' || f.status === 'finished').length;
   const totalGoals = fixtures.reduce((s, f) => s + (f.home_score ?? 0) + (f.away_score ?? 0), 0);
 
   return (
@@ -365,7 +365,7 @@ function TopScorersSummary({ gameweek }: { gameweek: number }) {
             <span className={`w-5 text-center font-bold tabular-nums ${i < 3 ? 'text-gold' : 'text-white/30'}`}>
               {i + 1}
             </span>
-            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${posColor(s.player_position)}`}>
+            <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${posColor(s.player_position)}`}>
               {s.player_position}
             </span>
             <span className="flex-1 font-semibold truncate">

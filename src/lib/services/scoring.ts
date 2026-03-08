@@ -379,7 +379,7 @@ export async function getFullGameweekStatus(): Promise<FullGameweekStatus[]> {
   for (let gw = 1; gw <= 38; gw++) {
     const gwFixtures = fixtures.filter(f => f.gameweek === gw);
     const gwEvents = events.filter(e => e.gameweek === gw);
-    const simulatedCount = gwFixtures.filter(f => f.status === 'simulated').length;
+    const simulatedCount = gwFixtures.filter(f => f.status === 'simulated' || f.status === 'finished').length;
     const scoredCount = gwEvents.filter(e => e.scored_at !== null).length;
 
     result.push({
