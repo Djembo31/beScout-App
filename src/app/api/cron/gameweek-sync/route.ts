@@ -194,42 +194,43 @@ export async function GET(request: Request) {
       clubs: clubsToProcess.length,
     });
 
-    // ---- 3b. Quick DB check: any fixtures today? (avoid API calls on non-match days) ----
-    const today = new Date();
-    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
-    const tomorrowStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
-
-    const { data: todayFixtures } = await supabaseAdmin
+    // ---- 3b. Check for processable fixtures (past played_at OR all already finished) ----
+    const { data: unfinishedFixtures } = await supabaseAdmin
       .from('fixtures')
-      .select('id')
+      .select('id, played_at')
       .eq('gameweek', activeGw)
-      .gte('played_at', todayStart)
-      .lt('played_at', tomorrowStart)
       .neq('status', 'finished')
       .limit(1);
 
-    if (!todayFixtures || todayFixtures.length === 0) {
-      // Also check: maybe all GW fixtures are already finished (late sync after midnight)
-      const { data: unfinished } = await supabaseAdmin
+    if (!unfinishedFixtures || unfinishedFixtures.length === 0) {
+      // All fixtures already 'finished' in DB — check if GW finalization is needed
+      const { data: unscoredEvents } = await supabaseAdmin
+        .from('events')
+        .select('id')
+        .in('club_id', clubsToProcess.map(c => c.id))
+        .eq('gameweek', activeGw)
+        .is('scored_at', null)
+        .limit(1);
+
+      if (!unscoredEvents || unscoredEvents.length === 0) {
+        await logStep(activeGw, 'already_complete', 'skipped', { reason: 'All fixtures finished, all events scored' });
+        return NextResponse.json({ status: 'skipped', reason: 'GW already fully processed', gameweek: activeGw, duration_ms: Date.now() - runStart });
+      }
+      // Fixtures done but events not scored — fall through to Phase B
+    } else {
+      // There are unfinished fixtures — check if any have played_at in the past
+      const { data: pastUnfinished } = await supabaseAdmin
         .from('fixtures')
         .select('id')
         .eq('gameweek', activeGw)
         .neq('status', 'finished')
+        .lt('played_at', new Date().toISOString())
         .limit(1);
 
-      if (!unfinished || unfinished.length === 0) {
-        // All finished but not yet processed — proceed to API check
-      } else {
-        // Fixtures exist but not today — skip
-        await logStep(activeGw, 'match_day_check', 'skipped', {
-          reason: 'No fixtures today for active GW',
-        });
-        return NextResponse.json({
-          status: 'skipped',
-          reason: 'No fixtures today',
-          gameweek: activeGw,
-          duration_ms: Date.now() - runStart,
-        });
+      if (!pastUnfinished || pastUnfinished.length === 0) {
+        // All unfinished fixtures are in the future — nothing to sync
+        await logStep(activeGw, 'no_past_fixtures', 'skipped', { reason: 'No fixtures past kickoff yet' });
+        return NextResponse.json({ status: 'skipped', reason: 'No fixtures past kickoff', gameweek: activeGw, duration_ms: Date.now() - runStart });
       }
     }
 
@@ -255,7 +256,7 @@ export async function GET(request: Request) {
       },
     );
 
-    if (!fixtureCheck || !fixtureCheck.allDone) {
+    if (!fixtureCheck || fixtureCheck.finished === 0) {
       const info = fixtureCheck ?? { total: 0, finished: 0 };
       await logStep(activeGw, 'check_fixtures', 'skipped', {
         total: info.total,
@@ -264,14 +265,17 @@ export async function GET(request: Request) {
       return NextResponse.json({
         skipped: true,
         gameweek: activeGw,
-        reason: `Not all fixtures finished (${info.finished}/${info.total})`,
+        reason: `No finished fixtures on API (${info.finished}/${info.total})`,
         steps,
       });
     }
 
     const apiFixData = fixtureCheck.apiData;
+    const allFixturesDone = fixtureCheck.allDone;
     await logStep(activeGw, 'check_fixtures', 'success', {
       total: fixtureCheck.total,
+      finished: fixtureCheck.finished,
+      allDone: allFixturesDone,
     });
 
     // ---- 5. Load DB mappings ----
@@ -378,7 +382,44 @@ export async function GET(request: Request) {
       clubs: mappings.clubMap.size,
     });
 
-    // ---- 6. Fetch lineups + player stats (Never-Skip) ----
+    // ---- 5b. Identify newly finished fixtures (API=FT, DB!=finished) ----
+    const dbFinishedIds = new Set<string>();
+    {
+      const { data: alreadyFinished } = await supabaseAdmin
+        .from('fixtures')
+        .select('id')
+        .eq('gameweek', activeGw)
+        .eq('status', 'finished');
+      for (const f of alreadyFinished ?? []) {
+        dbFinishedIds.add(f.id as string);
+      }
+    }
+
+    const finishedApiFixtureIds = new Set(
+      apiFixData.response
+        .filter(f => FINISHED_STATUSES.has(f.fixture.status.short))
+        .map(f => f.fixture.id)
+    );
+
+    const newlyFinishedFixtures = mappings.fixtures.filter(f =>
+      !dbFinishedIds.has(f.id) && finishedApiFixtureIds.has(f.api_fixture_id)
+    );
+
+    if (newlyFinishedFixtures.length === 0 && !allFixturesDone) {
+      // No new fixtures to process and GW not complete — skip gracefully
+      await logStep(activeGw, 'no_new_fixtures', 'skipped', { alreadyFinished: dbFinishedIds.size, total: mappings.fixtures.length });
+      return NextResponse.json({
+        status: 'partial',
+        gameweek: activeGw,
+        reason: `No newly finished fixtures (${dbFinishedIds.size}/${mappings.fixtures.length} already done)`,
+        duration_ms: Date.now() - runStart,
+        steps,
+      });
+    }
+
+    const fixturesToProcess = newlyFinishedFixtures;
+
+    // ---- 6. Fetch lineups + player stats ----
     type PlayerStatRow = {
       fixture_id: string;
       player_id: string | null;
@@ -426,7 +467,7 @@ export async function GET(request: Request) {
       let shirtBridgeCount = 0;
       const newExternalIds: Array<{ player_id: string; external_id: number }> = [];
 
-      for (const fixture of mappings.fixtures) {
+      for (const fixture of fixturesToProcess) {
         // Fetch lineups, player stats, and events in parallel
         const [lineupsData, apiStats, eventsData] = await Promise.all([
           apiFetch<ApiLineupsResponse>(
@@ -863,10 +904,26 @@ export async function GET(request: Request) {
       });
     }
 
-    // ---- 8 & 9. Score events ----
+    // ============================================
+    // PHASE B: GW Finalization (only when ALL fixtures done)
+    // ============================================
     let eventsScored = 0;
     let eventsClosed = 0;
     let eventsTransitioned = 0;
+    const nextGw = activeGw + 1;
+    let nextGwEventsCreated = 0;
+
+    if (!allFixturesDone) {
+      steps.push({ step: 'phase_b_skipped', status: 'skipped', details: { reason: `${fixtureCheck.finished}/${fixtureCheck.total} finished`, newlyProcessed: fixturesToProcess.length }, duration_ms: 0 });
+      await logStep(activeGw, 'phase_b_skipped', 'skipped', {
+        finished: fixtureCheck.finished,
+        total: fixtureCheck.total,
+        newlyProcessed: fixturesToProcess.length,
+      });
+    }
+
+    if (allFixturesDone) {
+    // ---- 8 & 9. Score events ----
 
     await runStep('score_events', async () => {
       for (const club of clubsToProcess) {
@@ -949,9 +1006,6 @@ export async function GET(request: Request) {
     await logStep(activeGw, 'dpc_of_week', 'success');
 
     // ---- 10. Clone events for next GW ----
-    const nextGw = activeGw + 1;
-    let nextGwEventsCreated = 0;
-
     if (nextGw <= 38) {
       await runStep('clone_events', async () => {
         for (const club of clubsToProcess) {
@@ -1081,12 +1135,16 @@ export async function GET(request: Request) {
       updated: perfResult?.updated_count ?? 0,
     });
 
-    // ---- Integrity Validation ----
-    console.log(`[INTEGRITY] GW${activeGw} Match Distribution: direct=${statsResult.matchedCount - statsResult.nameMatchCount - statsResult.shirtBridgeCount}, shirt_bridge=${statsResult.shirtBridgeCount}, name=${statsResult.nameMatchCount}, unmatched=${statsResult.unmatchedCount}, ghosts_removed=${ghostsRemoved}`);
+    } // END Phase B (allFixturesDone)
 
-    if (statsResult.unmatchedCount > 0) {
-      const nullPlayerStats = dedupedStats.filter(s => s.player_id === null);
-      console.log(`[INTEGRITY] ${nullPlayerStats.length} stats with null player_id (unmatched players)`);
+    // ---- Integrity Validation ----
+    if (statsResult) {
+      console.log(`[INTEGRITY] GW${activeGw} Match Distribution: direct=${statsResult.matchedCount - statsResult.nameMatchCount - statsResult.shirtBridgeCount}, shirt_bridge=${statsResult.shirtBridgeCount}, name=${statsResult.nameMatchCount}, unmatched=${statsResult.unmatchedCount}, ghosts_removed=${ghostsRemoved}`);
+
+      if (statsResult.unmatchedCount > 0) {
+        const nullPlayerStats = dedupedStats.filter(s => s.player_id === null);
+        console.log(`[INTEGRITY] ${nullPlayerStats.length} stats with null player_id (unmatched players)`);
+      }
     }
 
     // ---- Summary ----
@@ -1111,7 +1169,9 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       gameweek: activeGw,
-      nextGameweek: nextGw,
+      phase: allFixturesDone ? 'full' : 'partial',
+      newlyProcessed: fixturesToProcess.length,
+      nextGameweek: allFixturesDone ? nextGw : activeGw,
       duration_ms: totalDuration,
       fixturesImported: importResult?.fixtures_imported ?? 0,
       statsImported: importResult?.stats_imported ?? 0,
