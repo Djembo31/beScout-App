@@ -63,7 +63,7 @@ export function SpieltagSelector({
         onClick={() => onGameweekChange(Math.max(1, gameweek - 1))}
         disabled={gameweek <= 1}
         aria-label={tc('prevGameweek')}
-        className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-colors active:scale-[0.95]"
+        className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-colors active:scale-[0.95]"
       >
         <ChevronLeft className="size-4" aria-hidden="true" />
       </button>
@@ -79,7 +79,7 @@ export function SpieltagSelector({
             <span className="size-2 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none flex-shrink-0" />
           )}
         </div>
-        <div className="flex items-center justify-center gap-1.5 text-[10px] text-white/40 mt-0.5">
+        <div className="flex items-center justify-center gap-1.5 text-xs text-white/40 mt-0.5">
           <span className={cn('font-bold', statusColor)}>{statusLabel}</span>
           {fixtureCount > 0 && <span>· {fixtureCount} {t('fixturesShort')}</span>}
           {eventCount > 0 && <span>· {eventCount} Events</span>}
@@ -91,7 +91,7 @@ export function SpieltagSelector({
         onClick={() => onGameweekChange(Math.min(maxGameweek, gameweek + 1))}
         disabled={gameweek >= maxGameweek}
         aria-label={tc('nextGameweek')}
-        className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-colors active:scale-[0.95]"
+        className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] disabled:opacity-20 transition-colors active:scale-[0.95]"
       >
         <ChevronRight className="size-4" aria-hidden="true" />
       </button>

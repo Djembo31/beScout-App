@@ -208,7 +208,7 @@ function LeagueCard({ league, userId }: { league: DbFantasyLeague; userId: strin
       {/* Expanded: Leaderboard */}
       {expanded && (
         <div className="border-t border-white/[0.06] px-4 pb-4">
-          <div className="text-[10px] text-white/30 uppercase tracking-wider font-bold mt-3 mb-2">{t('leaderboard')}</div>
+          <div className="text-xs text-white/30 uppercase tracking-wider font-bold mt-3 mb-2">{t('leaderboard')}</div>
           {isLoading ? (
             <div className="space-y-2">
               {[1, 2, 3].map(i => <div key={i} className="h-10 rounded-lg bg-white/[0.03] animate-pulse motion-reduce:animate-none" />)}
@@ -222,17 +222,17 @@ function LeagueCard({ league, userId }: { league: DbFantasyLeague; userId: strin
                   <span className="w-6 text-center text-sm">{RANK_MEDALS[i + 1] ?? `#${i + 1}`}</span>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-bold truncate">{entry.display_name ?? entry.handle ?? 'Anonym'}</div>
-                    <div className="text-[10px] text-white/40">{entry.events_played} {t('events')}</div>
+                    <div className="text-xs text-white/40">{entry.events_played} {t('events')}</div>
                   </div>
                   <div className="text-right shrink-0">
                     <div className="font-mono font-bold text-sm">{entry.total_score}</div>
-                    {entry.best_rank && <div className="text-[10px] text-white/40">{t('best')}: #{entry.best_rank}</div>}
+                    {entry.best_rank && <div className="text-xs text-white/40">{t('best')}: #{entry.best_rank}</div>}
                   </div>
                 </div>
               ))}
             </div>
           )}
-          <div className="mt-2 text-[10px] text-white/30 text-center">
+          <div className="mt-2 text-xs text-white/30 text-center">
             Code: <span className="font-mono text-white/50">{league.invite_code}</span>
           </div>
         </div>
@@ -261,7 +261,7 @@ export default function LeaguesSection({ mode = 'full' }: { mode?: 'compact' | '
             <Trophy className="size-4 text-purple-400" aria-hidden="true" />
             <h3 className="font-bold text-sm">{t('title')}</h3>
             {leagues.length > 0 && (
-              <span className="text-[10px] text-white/30 font-mono">{leagues.length}</span>
+              <span className="text-xs text-white/30 font-mono">{leagues.length}</span>
             )}
           </div>
           <div className="flex gap-1.5">
@@ -293,7 +293,7 @@ export default function LeaguesSection({ mode = 'full' }: { mode?: 'compact' | '
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-sm truncate">{l.name}</div>
-                  <div className="text-[10px] text-white/40 flex items-center gap-1.5">
+                  <div className="text-xs text-white/40 flex items-center gap-1.5">
                     <Users className="size-3" aria-hidden="true" />
                     <span>{l.member_count ?? 0}/{l.max_members}</span>
                   </div>

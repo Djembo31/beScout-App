@@ -113,15 +113,15 @@ export const DashboardTab = ({
             <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4">
               <div className="text-center p-3 bg-white/[0.03] rounded-lg">
                 <div className="text-lg md:text-2xl font-mono font-black text-green-500">#{lastEvent.rank}</div>
-                <div className="text-[10px] text-white/40">{t('dashboard.placement')}</div>
+                <div className="text-xs text-white/40">{t('dashboard.placement')}</div>
               </div>
               <div className="text-center p-3 bg-white/[0.03] rounded-lg">
                 <div className="text-lg md:text-2xl font-mono font-black">{lastEvent.points}</div>
-                <div className="text-[10px] text-white/40">{tc('points')}</div>
+                <div className="text-xs text-white/40">{tc('points')}</div>
               </div>
               <div className="text-center p-3 bg-white/[0.03] rounded-lg">
                 <div className="text-lg md:text-2xl font-mono font-black text-purple-400">{lastEvent.totalParticipants}</div>
-                <div className="text-[10px] text-white/40">{t('participants')}</div>
+                <div className="text-xs text-white/40">{t('participants')}</div>
               </div>
             </div>
             {lastEvent.rewardCents > 0 && (
@@ -171,7 +171,7 @@ export const DashboardTab = ({
               <div className="hidden md:flex w-10 flex-shrink-0 bg-[#0c0c14] flex-col items-center justify-between py-3 gap-2 border-r border-white/[0.06]">
                 {leftBoard.map((label, i) => (
                   <div key={i} className="flex-1 w-full flex items-center justify-center border-y border-white/[0.04] bg-gradient-to-b from-white/[0.02] to-transparent">
-                    <span className="text-[9px] font-bold tracking-wider text-white/20 [writing-mode:vertical-lr] rotate-180">{label}</span>
+                    <span className="text-xs font-bold tracking-wider text-white/20 [writing-mode:vertical-lr] rotate-180">{label}</span>
                   </div>
                 ))}
               </div>
@@ -215,7 +215,7 @@ export const DashboardTab = ({
                             {/* Score badge */}
                             {sp.score != null && (
                               <div
-                                className="absolute -top-2 -right-3 z-20 min-w-[2rem] px-1.5 py-0.5 rounded-full text-[10px] font-mono font-black text-center shadow-lg"
+                                className="absolute -top-2 -right-3 z-20 min-w-[2rem] px-1.5 py-0.5 rounded-full text-xs font-mono font-black text-center shadow-lg"
                                 style={{
                                   backgroundColor: sp.score >= 100 ? '#FFD700' : sp.score >= 70 ? 'rgba(255,255,255,0.9)' : '#ff6b6b',
                                   color: sp.score >= 100 ? '#000' : sp.score >= 70 ? '#000' : '#fff',
@@ -236,7 +236,7 @@ export const DashboardTab = ({
                                 {sp.player.firstName[0]}{sp.player.lastName[0]}
                               </span>
                             </div>
-                            <div className="text-[10px] mt-1" style={{ color: sp.score != null ? '#ffffffcc' : getPosAccentColor(sp.player.position) + 'aa' }}>
+                            <div className="text-xs mt-1" style={{ color: sp.score != null ? '#ffffffcc' : getPosAccentColor(sp.player.position) + 'aa' }}>
                               {sp.player.lastName.slice(0, 8)}
                             </div>
                           </div>
@@ -251,7 +251,7 @@ export const DashboardTab = ({
               <div className="hidden md:flex w-10 flex-shrink-0 bg-[#0c0c14] flex-col items-center justify-between py-3 gap-2 border-l border-white/[0.06]">
                 {rightBoard.map((label, i) => (
                   <div key={i} className="flex-1 w-full flex items-center justify-center border-y border-white/[0.04] bg-gradient-to-b from-white/[0.02] to-transparent">
-                    <span className="text-[9px] font-bold tracking-wider text-white/20 [writing-mode:vertical-lr] rotate-180">{label}</span>
+                    <span className="text-xs font-bold tracking-wider text-white/20 [writing-mode:vertical-lr] rotate-180">{label}</span>
                   </div>
                 ))}
               </div>
@@ -303,7 +303,7 @@ export const DashboardTab = ({
                     <span className="font-medium text-sm truncate">{event.name}</span>
                     <span className="font-mono text-xs text-green-500">#{event.userRank}</span>
                   </div>
-                  <div className="text-[10px] text-white/40 mt-1">{event.userPoints} {tc('points')}</div>
+                  <div className="text-xs text-white/40 mt-1">{event.userPoints} {tc('points')}</div>
                 </button>
               ))}
             </div>
@@ -331,9 +331,9 @@ export const DashboardTab = ({
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm truncate">{event.name}</span>
-                    <span className="text-[10px] text-white/40">{event.status === 'ended' ? tc('ended') : formatCountdown(event.lockTime)}</span>
+                    <span className="text-xs text-white/40">{event.status === 'ended' ? tc('ended') : formatCountdown(event.lockTime)}</span>
                   </div>
-                  <div className="text-[10px] text-white/40 mt-1">{event.format} • {event.buyIn === 0 ? tc('free') : `${event.buyIn} $SCOUT`}</div>
+                  <div className="text-xs text-white/40 mt-1">{event.format} • {event.buyIn === 0 ? tc('free') : `${event.buyIn} $SCOUT`}</div>
                 </button>
               ))}
             </div>
@@ -361,9 +361,9 @@ export const DashboardTab = ({
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm truncate">{event.name}</span>
-                    <span className="text-[10px] text-white/40">{formatCountdown(event.startTime)}</span>
+                    <span className="text-xs text-white/40">{formatCountdown(event.startTime)}</span>
                   </div>
-                  <div className="text-[10px] text-white/40 mt-1">{event.buyIn === 0 ? tc('free') : `${event.buyIn} $SCOUT`}</div>
+                  <div className="text-xs text-white/40 mt-1">{event.buyIn === 0 ? tc('free') : `${event.buyIn} $SCOUT`}</div>
                 </button>
               ))}
             </div>

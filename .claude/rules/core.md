@@ -1,25 +1,137 @@
 ---
-description: Kern-Workflow und Knowledge Capture Protocol
+description: Kern-Workflow, Knowledge Lifecycle und Session-Protokoll
 ---
 
-## Workflow
-- Features/groessere Aenderungen (>10 Zeilen): Research → Plan → Anil OK → Code → Build → Verify
-- Kleine Bugfixes (<10 Zeilen): Direkt fixen, kurz erklaeren
-- Rollback-Regel: Nicht flicken. Git zuruecksetzen, Plan anpassen, sauber neu
+## Session-Start (ERSTE AKTION jeder Session)
+1. MEMORY.md ist auto-loaded → Projekt-Kontext da
+2. `current-sprint.md` lesen → Stand, Aktive Features, Blocker
+3. Wenn aktives Feature: Feature-File lesen → Kontext, Requirements, offene Fragen
+4. Wenn unterbrochene Session: letzten Stand aus Feature-File + current-sprint.md rekonstruieren
+5. Anil sagt was ansteht → los
 
-## Knowledge Capture Protocol
-Wenn waehrend der Arbeit neues Wissen entsteht — sofort festhalten:
-- Neues Requirement → `memory/features/*.md` updaten
-- Neue Erkenntnis/Pattern → passende `rules/*.md` oder `memory/patterns.md` updaten
-- Neue Entscheidung → `memory/features/*.md` oder `memory/decisions.md` updaten
-- Neues Feature gestartet → File in `memory/features/` erstellen + `current-sprint.md` Router updaten
-- Feature fertig → nach `memory/features/archive/` verschieben + Router updaten
-- Kurzes Feedback geben: "requirement aktualisiert: X" oder "pattern notiert: Y"
+## Workflow
+- Features (>10 Zeilen): **Spec schreiben → Anil Review → Code → Build → Verify**
+- Bugfixes (<10 Zeilen): Direkt fixen, kurz erklaeren
+- Rollback-Regel: Nicht flicken. Git zuruecksetzen, Plan anpassen, sauber neu
+- DB-first: Migration → Service → Query Hook → UI → Build
+
+## Skills (gezielt einsetzen)
+### Feature-Arbeit
+1. Spec schreiben → `memory/features/[name].md` (ICH schreibe, Anil reviewed)
+2. Anil sagt "passt" → Code implementieren
+3. `npx next build` → gruener Build
+4. `/baseline-ui` → UI-Qualitaet pruefen
+5. `/fixing-accessibility` → a11y pruefen
+6. `/fixing-motion-performance` → Animationen pruefen
+7. `/simplify` → Reuse + Code-Qualitaet pruefen
+
+### Bug-Fixing
+1. `/systematic-debugging` → Root Cause finden, nicht raten
+2. Fix → Build → Verify
+
+### MCP Server nutzen
+- **context7:** Library-Docs nachschlagen wenn unsicher (React Query, next-intl, Supabase)
+- **supabase:** SQL, Migrations, Schema-Abfragen
+- **playwright:** Screenshots nach UI-Aenderungen zur visuellen Kontrolle
+
+## Feature-Lifecycle (VERBINDLICH — Spec-Driven)
+
+### 1. Spec (ICH schreibe, Anil reviewed)
+1. Anil beschreibt Feature (1-3 Saetze reichen)
+2. Ich schreibe vollstaendige Spec → `memory/features/[name].md`
+3. Ich recherchiere Codebase: bestehende Services, Tables, Components
+4. `current-sprint.md` → Aktive Features updaten
+5. **STOP — Anil muss "passt" sagen bevor Code geschrieben wird**
+6. Status: **Spec Review**
+
+### 2. Implementation
+7. Code nach Spec, Spec als Single Source of Truth
+8. Feature-File laufend updaten: Requirements abhaken, Entscheidungen, Files
+9. Bei Unterbrechung: Feature-File + `current-sprint.md` updaten
+10. Status: **In Progress**
+
+### 3. Abschluss
+11. Build gruen, Feature komplett
+12. Feature-File → `features/archive/` verschieben
+13. `current-sprint.md` → Feature aus Aktive-Tabelle entfernen
+14. Erkenntnisse → relevante Rules/Topic-Files updaten
+15. Status: **Done**
+
+## Spec Template (`memory/features/`)
+```markdown
+# Feature: [Name]
+## Status: Spec Review | In Progress | Done
+## Gestartet: [Datum]
+
+## Was (Ziel in 2-3 Saetzen)
+...
+
+## Verhalten
+- [ ] Happy Path (Schritt fuer Schritt)
+- [ ] Edge Cases
+- [ ] Error States
+
+## Daten (DB-Aenderungen)
+- Tables/Columns (exakt mit Types)
+- Neue RPCs (Input → Output)
+- RLS Rules
+
+## Betroffene Services/Components
+- Bestehend: [was wiederverwendet wird]
+- Neu: [was gebaut werden muss]
+
+## UI States
+Loading | Empty | Error | Success | Disabled
+
+## Nicht im Scope
+- ...
+
+## Abnahme (woran erkennt man "fertig"?)
+- [ ] ...
+
+## Aktueller Stand (bei Unterbrechung updaten!)
+...
+
+## Geaenderte Files
+- ...
+```
+
+## Knowledge Capture (waehrend Arbeit)
+
+| Ereignis | Ziel | Promotion |
+|----------|------|-----------|
+| Neuer Fehler | `errors.md` | 2x gleicher Fehler → `common-errors.md` |
+| Neues Pattern | `patterns.md` | In 3+ Files benutzt → Domain-Rule |
+| Architektur-Entscheidung | `decisions.md` | Betrifft alle Domains → MEMORY.md |
+| Feature-Wissen | Feature-File | Feature fertig → relevante Rules updaten |
+| Cross-Domain Abhaengigkeit | Betroffene Rule → Cross-Domain Sektion | Sofort wenn bemerkt |
+| Neue Domain/Rule erstellt | Cross-Domain in ALLEN verwandten Rules ergaenzen | Sofort |
+| Zukunfts-Idee | `current-sprint.md` Backlog | — |
+
+Feedback: "pattern notiert: X" oder "error dokumentiert: Y"
+
+## Knowledge Limits (gegen Overload)
+
+| Schicht | Max | Wenn ueber Limit |
+|---------|-----|------------------|
+| CLAUDE.md | ~100 Zeilen | Weniger Kritisches in MEMORY.md verschieben |
+| MEMORY.md | 195 Zeilen | System truncated bei 200 — priorisieren |
+| Jedes Rule-File | ~80 Zeilen | Detail in Topic-File verschieben, Rule nur Essenz |
+| Topic-Files | kein Limit | Quartals-Review: Stale Eintraege archivieren |
+| Feature-Files | — | Archivieren wenn Done |
+| Sessions | letzte 3 | Rest in sessions-archive.md |
+
+**Duplikat-Regel:** Jede Info an EINER Stelle. Rules duerfen auf Topic-Files verweisen, nicht duplizieren.
+
+## Session-Ende (PFLICHT — auch wenn Anil nicht fragt)
+1. `current-sprint.md` — Letzter Stand + Aktive Features updaten
+2. Feature-File — **Aktueller Stand** Sektion updaten (wo stehen wir, was kommt als naechstes)
+3. `sessions.md` — Session #, Datum, Thema, Ergebnis
+4. Betroffene Topic-Files — errors.md, patterns.md, decisions.md wenn relevant
 
 ## Session-Hygiene
-- /compact bei Themenwechsel (ich manage das)
+- /compact bei Themenwechsel
 - Bestehende Components/Services IMMER pruefen bevor neu gebaut wird
-- Session-Ende: `current-sprint.md` updaten (Router + letzter Stand)
 
 ## Code-Konventionen
 - `'use client'` auf allen Pages (Client Components)

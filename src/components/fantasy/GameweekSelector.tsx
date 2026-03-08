@@ -47,7 +47,7 @@ export const GameweekSelector = ({
         {isActive && (
           <span className="flex items-center gap-1">
             <span className="size-2 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none" />
-            <span className="text-[10px] font-bold">{t('active')}</span>
+            <span className="text-xs font-bold">{t('active')}</span>
           </span>
         )}
       </button>

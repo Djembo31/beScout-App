@@ -68,7 +68,7 @@ export async function submitLineup(params: {
   // Check event status + capacity before submitting
   const { data: ev, error: evError } = await supabase
     .from('events')
-    .select('status, max_entries, current_entries')
+    .select('status, max_entries, current_entries, locks_at')
     .eq('id', params.eventId)
     .single();
 
@@ -78,6 +78,11 @@ export async function submitLineup(params: {
 
   if (ev.status === 'ended' || ev.status === 'scoring') {
     throw new Error('eventEnded');
+  }
+
+  // locks_at enforcement: block submissions if locks_at has passed (regardless of status)
+  if (ev.locks_at && new Date(ev.locks_at) <= new Date()) {
+    throw new Error('eventLocked');
   }
 
   // Per-fixture locking: when event is running, only block slots with active fixtures

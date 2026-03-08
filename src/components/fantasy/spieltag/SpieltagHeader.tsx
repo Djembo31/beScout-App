@@ -69,15 +69,15 @@ export function SpieltagHeader({
         </button>
 
         {isActive ? (
-          <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-gold bg-gold/10 border border-gold/20 animate-pulse motion-reduce:animate-none">
+          <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest text-gold bg-gold/10 border border-gold/20 animate-pulse motion-reduce:animate-none">
             {t('headerCurrent')}
           </span>
         ) : isFinished ? (
-          <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-green-500 bg-green-500/10 border border-green-500/20">
+          <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest text-green-500 bg-green-500/10 border border-green-500/20">
             {t('ended')}
           </span>
         ) : (
-          <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white/30 bg-white/[0.04] border border-white/[0.06]">
+          <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest text-white/30 bg-white/[0.04] border border-white/[0.06]">
             {isPast ? t('headerPast') : t('upcoming')}
           </span>
         )}
@@ -161,7 +161,7 @@ export function SpieltagHeader({
 
       {/* Progress bar */}
       <div className="px-4 pb-3">
-        <div className="flex items-center justify-between text-[10px] text-white/20 mb-1">
+        <div className="flex items-center justify-between text-xs text-white/20 mb-1">
           <span>{t('seasonProgress')}</span>
           <span className="tabular-nums">{progressPct}%</span>
         </div>

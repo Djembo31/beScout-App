@@ -34,7 +34,7 @@ export function EventCompactRow({ event, onClick }: Props) {
       {/* Name + Meta */}
       <div className="flex-1 min-w-0">
         <div className="truncate text-sm font-semibold">{event.name}</div>
-        <div className="flex items-center gap-1.5 text-[10px] text-white/40 mt-0.5 flex-wrap">
+        <div className="flex items-center gap-1.5 text-xs text-white/40 mt-0.5 flex-wrap">
           <span>{event.format}</span>
           <span className="text-white/15">·</span>
           <span>{event.participants}/{event.maxParticipants ?? '∞'}</span>
@@ -60,17 +60,17 @@ export function EventCompactRow({ event, onClick }: Props) {
         ) : event.status === 'running' ? (
           <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-green-500/15">
             <div className="size-1.5 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none" />
-            <span className="text-[9px] font-bold text-green-500">LIVE</span>
+            <span className="text-xs font-bold text-green-500">LIVE</span>
           </div>
         ) : event.status === 'late-reg' ? (
           <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-orange-500/15">
             <div className="size-1.5 rounded-full bg-orange-500 animate-pulse motion-reduce:animate-none" />
-            <span className="text-[9px] font-bold text-orange-400">Late</span>
+            <span className="text-xs font-bold text-orange-400">Late</span>
           </div>
         ) : event.status === 'ended' ? (
           <Lock className="size-3.5 text-white/25" aria-hidden="true" />
         ) : (
-          <span className="text-[10px] font-medium text-white/30 tabular-nums">{formatCountdown(event.lockTime)}</span>
+          <span className="text-xs font-medium text-white/30 tabular-nums">{formatCountdown(event.lockTime)}</span>
         )}
         <ChevronRight className="size-3.5 text-white/15" aria-hidden="true" />
       </div>

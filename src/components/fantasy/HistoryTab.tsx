@@ -75,11 +75,11 @@ export const HistoryTab = ({
           <div className="grid grid-cols-2 gap-3">
             <div className="text-center p-3 bg-white/[0.03] rounded-lg">
               <div className="text-lg md:text-2xl font-mono font-black text-gold tabular-nums">{fmtScout(totalRewardBsd)}</div>
-              <div className="text-[10px] text-white/40">{t('wonScout')}</div>
+              <div className="text-xs text-white/40">{t('wonScout')}</div>
             </div>
             <div className="text-center p-3 bg-white/[0.03] rounded-lg">
               <div className="text-lg md:text-2xl font-mono font-black tabular-nums">{seasonPoints.toLocaleString()}</div>
-              <div className="text-[10px] text-white/40">{t('seasonPoints')}</div>
+              <div className="text-xs text-white/40">{t('seasonPoints')}</div>
             </div>
           </div>
         </Card>
@@ -185,7 +185,7 @@ export const HistoryTab = ({
                           <span className={cn('font-semibold', isMe && 'text-gold')}>
                             {entry.displayName ?? `@${entry.handle}`}
                           </span>
-                          {isMe && <span className="ml-1.5 text-[10px] text-gold/60">{t('youLabel')}</span>}
+                          {isMe && <span className="ml-1.5 text-xs text-gold/60">{t('youLabel')}</span>}
                         </Link>
                       </td>
                       <td className="py-3 px-4 text-center text-sm font-mono tabular-nums">{entry.eventsPlayed}</td>
@@ -224,15 +224,15 @@ export const HistoryTab = ({
                         <div className="min-w-0">
                           <div className={cn('font-medium text-sm truncate', isMe && 'text-gold')}>
                             {entry.displayName ?? `@${entry.handle}`}
-                            {isMe && <span className="text-[10px] text-gold/60 ml-1">{t('youLabel')}</span>}
+                            {isMe && <span className="text-xs text-gold/60 ml-1">{t('youLabel')}</span>}
                           </div>
-                          <div className="text-[10px] text-white/40">{t('eventsAndWins', { events: entry.eventsPlayed, wins: entry.wins })}</div>
+                          <div className="text-xs text-white/40">{t('eventsAndWins', { events: entry.eventsPlayed, wins: entry.wins })}</div>
                         </div>
                       </div>
                       <div className="text-right shrink-0">
                         <div className="font-mono font-bold text-sm tabular-nums">{entry.totalPoints.toLocaleString()}</div>
                         {entry.totalRewardCents > 0 && (
-                          <div className="text-[11px] font-mono font-bold text-gold tabular-nums">+{fmtScout(centsToBsd(entry.totalRewardCents))}</div>
+                          <div className="text-xs font-mono font-bold text-gold tabular-nums">+{fmtScout(centsToBsd(entry.totalRewardCents))}</div>
                         )}
                       </div>
                     </div>
@@ -276,7 +276,7 @@ export const HistoryTab = ({
                     <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
                       <td className="py-3 px-4">
                         <div className="font-medium">{p.eventName}</div>
-                        <div className="text-[10px] text-white/40">{p.totalParticipants} {t('participantsLabel')}</div>
+                        <div className="text-xs text-white/40">{p.totalParticipants} {t('participantsLabel')}</div>
                       </td>
                       <td className="py-3 px-4 text-center text-sm tabular-nums">{p.gameweek}</td>
                       <td className="py-3 px-4 text-center">
@@ -310,15 +310,15 @@ export const HistoryTab = ({
                       </div>
                       <div className="min-w-0">
                         <div className="font-medium text-sm truncate">{p.eventName}</div>
-                        <div className="text-[10px] text-white/40">{t('thGw')}{p.gameweek} · {p.totalParticipants} {t('participantsLabel')}</div>
+                        <div className="text-xs text-white/40">{t('thGw')}{p.gameweek} · {p.totalParticipants} {t('participantsLabel')}</div>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
                       <div className="font-mono font-bold text-sm tabular-nums">{p.points} {t('ptsLabel')}</div>
                       {p.rewardCents > 0 ? (
-                        <div className="text-[11px] font-mono font-bold text-gold tabular-nums">+{fmtScout(centsToBsd(p.rewardCents))}</div>
+                        <div className="text-xs font-mono font-bold text-gold tabular-nums">+{fmtScout(centsToBsd(p.rewardCents))}</div>
                       ) : (
-                        <div className="text-[11px] text-white/30">{'\u2014'}</div>
+                        <div className="text-xs text-white/30">{'\u2014'}</div>
                       )}
                     </div>
                   </div>

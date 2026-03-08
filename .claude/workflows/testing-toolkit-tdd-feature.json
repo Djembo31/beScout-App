@@ -1,0 +1,76 @@
+{
+  "id": "tdd-feature",
+  "name": "TDD Feature Development",
+  "description": "Test-driven development workflow for implementing new features",
+  "requirements": [
+    "Feature requirements defined",
+    "Testing framework installed",
+    "Development environment ready"
+  ],
+  "outcomes": [
+    "Tests written before code",
+    "Feature implemented",
+    "All tests passing",
+    "Code coverage maintained",
+    "Documentation updated"
+  ],
+  "steps": [
+    {
+      "id": "write-tests",
+      "name": "Write Failing Tests",
+      "description": "Create tests that define the expected behavior",
+      "action": "agent",
+      "parameters": {
+        "agent": "tdd-developer",
+        "prompt": "Write tests for the feature"
+      }
+    },
+    {
+      "id": "run-tests-fail",
+      "name": "Verify Tests Fail",
+      "description": "Ensure tests fail before implementation",
+      "action": "command",
+      "parameters": {
+        "command": "npm test || echo 'Tests failing as expected'"
+      }
+    },
+    {
+      "id": "implement",
+      "name": "Implement Feature",
+      "description": "Write minimal code to make tests pass",
+      "action": "agent",
+      "parameters": {
+        "agent": "tdd-developer",
+        "prompt": "Implement feature to make tests pass"
+      }
+    },
+    {
+      "id": "run-tests-pass",
+      "name": "Run Tests",
+      "description": "Verify all tests pass",
+      "action": "hook",
+      "parameters": {
+        "hook": "test-enforcement"
+      }
+    },
+    {
+      "id": "refactor",
+      "name": "Refactor",
+      "description": "Improve code while keeping tests green",
+      "action": "agent",
+      "parameters": {
+        "agent": "tdd-developer",
+        "prompt": "Refactor for clarity and performance"
+      }
+    },
+    {
+      "id": "document",
+      "name": "Update Documentation",
+      "description": "Document the new feature",
+      "action": "template",
+      "parameters": {
+        "template": "generate-docs"
+      }
+    }
+  ]
+}

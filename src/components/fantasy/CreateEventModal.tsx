@@ -146,7 +146,7 @@ export const CreateEventModal = ({
               disabled
               className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 opacity-50"
             />
-            <div className="text-[10px] text-white/30 mt-1">{t('buyInPilotHint')}</div>
+            <div className="text-xs text-white/30 mt-1">{t('buyInPilotHint')}</div>
           </div>
           <div>
             <label htmlFor="create-event-max" className="block text-sm font-medium mb-2">{t('maxParticipantsLabel')}</label>
@@ -184,15 +184,15 @@ export const CreateEventModal = ({
           <div className="grid grid-cols-3 gap-3 text-center">
             <div>
               <div className="font-mono font-bold text-lg text-gold tabular-nums">{buyIn} $SCOUT</div>
-              <div className="text-[10px] text-white/40">{t('entryLabel')}</div>
+              <div className="text-xs text-white/40">{t('entryLabel')}</div>
             </div>
             <div>
               <div className="font-mono font-bold text-lg text-purple-400 tabular-nums">{prizePool} $SCOUT</div>
-              <div className="text-[10px] text-white/40">{t('prizeMoney')}</div>
+              <div className="text-xs text-white/40">{t('prizeMoney')}</div>
             </div>
             <div>
               <div className="font-mono font-bold text-lg text-white/60 tabular-nums">{creatorFee} $SCOUT</div>
-              <div className="text-[10px] text-white/40">{t('creatorFee')}</div>
+              <div className="text-xs text-white/40">{t('creatorFee')}</div>
             </div>
           </div>
         </div>

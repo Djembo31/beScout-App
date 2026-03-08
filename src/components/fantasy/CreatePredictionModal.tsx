@@ -350,7 +350,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                 onChange={e => setConfidence(Number(e.target.value))}
                 className="w-full accent-gold"
               />
-              <p className="text-[11px] text-white/30 mt-1">{t('confidenceHint')}</p>
+              <p className="text-xs text-white/30 mt-1">{t('confidenceHint')}</p>
             </div>
 
             {/* Score preview (estimate — actual difficulty computed server-side) */}
@@ -358,15 +358,15 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
               <div>
                 <div className="flex gap-4 text-center">
                   <div className="flex-1 p-2 rounded-lg bg-green-500/10">
-                    <p className="text-[10px] text-green-500/60">{t('correct')}</p>
+                    <p className="text-xs text-green-500/60">{t('correct')}</p>
                     <p className="text-sm font-mono font-bold text-green-500">~+{scorePreview.correct}</p>
                   </div>
                   <div className="flex-1 p-2 rounded-lg bg-red-400/10">
-                    <p className="text-[10px] text-red-400/60">{t('wrong')}</p>
+                    <p className="text-xs text-red-400/60">{t('wrong')}</p>
                     <p className="text-sm font-mono font-bold text-red-400">~{scorePreview.wrong}</p>
                   </div>
                 </div>
-                <p className="text-[10px] text-white/20 text-center mt-1">{t('scoreEstimate')}</p>
+                <p className="text-xs text-white/20 text-center mt-1">{t('scoreEstimate')}</p>
               </div>
             )}
 

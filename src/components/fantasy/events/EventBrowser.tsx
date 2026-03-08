@@ -75,7 +75,7 @@ export function EventBrowser({ events, onEventClick }: Props) {
               key={cat.id}
               onClick={() => setCategory(cat.id)}
               className={cn(
-                'flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 min-h-[44px] rounded-lg text-[11px] font-semibold transition-colors whitespace-nowrap',
+                'flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 min-h-[44px] rounded-lg text-xs font-semibold transition-colors whitespace-nowrap',
                 isActive
                   ? 'bg-gold/15 text-gold border border-gold/20'
                   : 'bg-white/[0.04] text-white/50 border border-white/[0.06] hover:text-white/70'
@@ -83,7 +83,7 @@ export function EventBrowser({ events, onEventClick }: Props) {
             >
               <Icon className="size-3" aria-hidden="true" />
               <span>{t(`eventCategories.${cat.labelKey}`)}</span>
-              <span className={cn('text-[9px] font-mono', isActive ? 'text-gold/60' : 'text-white/20')}>
+              <span className={cn('text-xs font-mono', isActive ? 'text-gold/60' : 'text-white/20')}>
                 {count}
               </span>
             </button>
@@ -103,7 +103,7 @@ export function EventBrowser({ events, onEventClick }: Props) {
             <div>
               <div className="flex items-center gap-1.5 px-1 pb-1.5">
                 <div className="size-1.5 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none" />
-                <span className="text-[10px] font-bold text-green-500 uppercase tracking-wider">{t('eventsActiveGroup')}</span>
+                <span className="text-xs font-bold text-green-500 uppercase tracking-wider">{t('eventsActiveGroup')}</span>
               </div>
               <div className="rounded-xl border border-green-500/15 bg-green-500/[0.02] divide-y divide-white/[0.04] overflow-hidden">
                 {activeEvents.map(event => (
@@ -117,7 +117,7 @@ export function EventBrowser({ events, onEventClick }: Props) {
           {openEvents.length > 0 && (
             <div>
               <div className="flex items-center gap-1.5 px-1 pb-1.5">
-                <span className="text-[10px] font-bold text-sky-400 uppercase tracking-wider">{t('eventsOpenGroup')}</span>
+                <span className="text-xs font-bold text-sky-400 uppercase tracking-wider">{t('eventsOpenGroup')}</span>
               </div>
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] divide-y divide-white/[0.04] overflow-hidden">
                 {openEvents.map(event => (
@@ -134,8 +134,8 @@ export function EventBrowser({ events, onEventClick }: Props) {
                 onClick={() => setShowEnded(!showEnded)}
                 className="flex items-center gap-1.5 px-1 pb-1.5 w-full text-left"
               >
-                <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider">{t('eventsEndedGroup')}</span>
-                <span className="text-[9px] text-white/20 font-mono tabular-nums">{endedEvents.length}</span>
+                <span className="text-xs font-bold text-white/30 uppercase tracking-wider">{t('eventsEndedGroup')}</span>
+                <span className="text-xs text-white/20 font-mono tabular-nums">{endedEvents.length}</span>
                 {showEnded ? (
                   <ChevronUp className="size-3 text-white/20 ml-auto" aria-hidden="true" />
                 ) : (

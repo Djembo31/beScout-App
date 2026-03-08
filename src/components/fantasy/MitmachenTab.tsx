@@ -7,7 +7,7 @@ import {
 import { Card, Button } from '@/components/ui';
 import { useTranslations } from 'next-intl';
 import { getLineup } from '@/lib/services/lineups';
-import type { FantasyEvent } from './types';
+import type { FantasyEvent, FantasyTab } from './types';
 import { getStatusStyle } from './helpers';
 import { PredictionsTab } from './PredictionsTab';
 import dynamic from 'next/dynamic';
@@ -20,6 +20,7 @@ type MitmachenTabProps = {
   events: FantasyEvent[];
   userId: string;
   onEventClick: (event: FantasyEvent) => void;
+  onTabChange?: (tab: FantasyTab) => void;
 };
 
 export function MitmachenTab({
@@ -28,6 +29,7 @@ export function MitmachenTab({
   events,
   userId,
   onEventClick,
+  onTabChange,
 }: MitmachenTabProps) {
   const t = useTranslations('spieltag');
   const tf = useTranslations('fantasy');
@@ -44,20 +46,17 @@ export function MitmachenTab({
     }
     let cancelled = false;
     const loadStatuses = async () => {
-      const statusMap = new Map<string, { hasLineup: boolean; score: number | null; rank: number | null }>();
-      for (const evt of joinedEvents) {
-        try {
-          const lineup = await getLineup(evt.id, userId);
-          statusMap.set(evt.id, {
-            hasLineup: !!lineup,
-            score: lineup?.total_score ?? null,
-            rank: lineup?.rank ?? null,
-          });
-        } catch {
-          statusMap.set(evt.id, { hasLineup: false, score: null, rank: null });
-        }
-      }
-      if (!cancelled) setLineupStatuses(statusMap);
+      const results = await Promise.all(
+        joinedEvents.map(async (evt) => {
+          try {
+            const lineup = await getLineup(evt.id, userId);
+            return [evt.id, { hasLineup: !!lineup, score: lineup?.total_score ?? null, rank: lineup?.rank ?? null }] as const;
+          } catch {
+            return [evt.id, { hasLineup: false, score: null as number | null, rank: null as number | null }] as const;
+          }
+        })
+      );
+      if (!cancelled) setLineupStatuses(new Map(results));
     };
     loadStatuses();
     return () => { cancelled = true; };
@@ -72,7 +71,7 @@ export function MitmachenTab({
           <Trophy className="size-4 text-gold" aria-hidden="true" />
           <h3 className="font-bold text-sm">{t('myLineups')}</h3>
           {joinedEvents.length > 0 && (
-            <span className="text-[10px] text-white/30 font-mono">{joinedEvents.length}</span>
+            <span className="text-xs text-white/30 font-mono">{joinedEvents.length}</span>
           )}
         </div>
 
@@ -81,7 +80,7 @@ export function MitmachenTab({
             <Trophy className="size-8 text-gold/30 mx-auto mb-2" aria-hidden="true" />
             <div className="text-sm text-white/50 font-medium">{tf('mitmachen.noLineups')}</div>
             <div className="text-xs text-white/30 mt-1 max-w-[280px] mx-auto leading-relaxed">{tf('mitmachen.noLineupsCta')}</div>
-            <Button variant="gold" size="sm" className="mt-3" onClick={() => { const el = document.querySelector('[data-tab="events"]'); if (el instanceof HTMLElement) el.click(); }}>
+            <Button variant="gold" size="sm" className="mt-3" onClick={() => onTabChange?.('events')}>
               {tf('mitmachen.noLineupsAction')}
             </Button>
           </Card>
@@ -118,7 +117,7 @@ export function MitmachenTab({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-sm truncate">{event.name}</div>
-                    <div className="text-[11px] text-white/40">
+                    <div className="text-xs text-white/40">
                       {isScored ? (
                         <span>{tf('scoredRankOf', { score: score ?? 0, rank: rank ?? '-', participants: event.participants })}</span>
                       ) : hasLineup ? (
@@ -130,7 +129,7 @@ export function MitmachenTab({
                   </div>
                   <div className={`flex items-center gap-1 px-2 py-0.5 rounded ${sStyle.bg} ${sStyle.text}`}>
                     {sStyle.pulse && <div className="size-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" />}
-                    <span className="text-[9px] font-bold">{sStyle.label}</span>
+                    <span className="text-xs font-bold">{sStyle.label}</span>
                   </div>
                   <Eye className="size-4 text-white/20 flex-shrink-0" aria-hidden="true" />
                 </button>

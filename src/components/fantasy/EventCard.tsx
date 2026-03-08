@@ -47,22 +47,22 @@ export const EventCard = ({
           {event.status === 'ended' && event.scoredAt ? (
             <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-purple-500 text-white">
               <Trophy className="size-3" aria-hidden="true" />
-              <span className="text-[10px] font-bold">{t('eventScored')}</span>
+              <span className="text-xs font-bold">{t('eventScored')}</span>
             </div>
           ) : event.status === 'ended' ? (
             <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-white/20 text-white/60">
               <Flag className="size-3" aria-hidden="true" />
-              <span className="text-[10px] font-bold">{t('ended')}</span>
+              <span className="text-xs font-bold">{t('ended')}</span>
             </div>
           ) : event.isJoined ? (
             <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-green-500 text-white">
               <CheckCircle2 className="size-3" aria-hidden="true" />
-              <span className="text-[10px] font-bold">{t('eventJoined')}</span>
+              <span className="text-xs font-bold">{t('eventJoined')}</span>
             </div>
           ) : (
             <div className={`flex items-center gap-1 px-2 py-0.5 rounded ${statusStyle.bg} ${statusStyle.text}`}>
               {statusStyle.pulse && <div className="size-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" />}
-              <span className="text-[10px] font-bold">{statusLabelMap[event.status] ?? statusStyle.label}</span>
+              <span className="text-xs font-bold">{statusLabelMap[event.status] ?? statusStyle.label}</span>
             </div>
           )}
         </div>
@@ -101,15 +101,15 @@ export const EventCard = ({
           <div className={cn('font-mono font-bold text-sm tabular-nums', event.buyIn === 0 ? 'text-green-500' : 'text-gold')}>
             {event.buyIn === 0 ? t('freeEntry') : event.buyIn}
           </div>
-          <div className="text-[9px] text-white/40">{t('entryLabel')}</div>
+          <div className="text-xs text-white/40">{t('entryLabel')}</div>
         </div>
         <div className="text-center p-2 bg-white/[0.03] rounded-lg">
           <div className="font-mono font-bold text-sm text-purple-400 tabular-nums">{event.prizePool >= 1000 ? `${(event.prizePool / 1000).toFixed(0)}K` : event.prizePool}</div>
-          <div className="text-[9px] text-white/40">{t('prizeLabel')}</div>
+          <div className="text-xs text-white/40">{t('prizeLabel')}</div>
         </div>
         <div className="text-center p-2 bg-white/[0.03] rounded-lg">
           <div className="font-mono font-bold text-sm tabular-nums">{event.participants}</div>
-          <div className="text-[9px] text-white/40">{t('playersCountLabel')}</div>
+          <div className="text-xs text-white/40">{t('playersCountLabel')}</div>
         </div>
       </div>
 
@@ -118,14 +118,14 @@ export const EventCard = ({
         <div className="flex items-center gap-2">
           <span>{event.format} · {event.mode === 'league' ? t('modeLeague') : t('modeTournament')}</span>
           {isArena && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/15 border border-amber-500/25 text-amber-400">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold bg-amber-500/15 border border-amber-500/25 text-amber-400">
               <tierStyle.icon className="size-3" aria-hidden="true" />
               {tierStyle.pointsLabel}
             </span>
           )}
           {event.minSubscriptionTier && (
             <span className={cn(
-              'inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border',
+              'inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold border',
               event.minSubscriptionTier === 'gold' ? 'bg-gold/15 border-gold/25 text-gold' :
               event.minSubscriptionTier === 'silber' ? 'bg-white/10 border-white/20 text-gray-300' :
               'bg-orange-500/15 border-orange-500/25 text-orange-300'

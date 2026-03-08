@@ -192,7 +192,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                 key={cat.id}
                 onClick={() => setCategory(cat.id)}
                 className={cn(
-                  'px-2 py-0.5 rounded-full text-[10px] font-bold border transition-colors',
+                  'px-2 py-0.5 rounded-full text-xs font-bold border transition-colors',
                   category === cat.id ? cat.color : 'text-white/30 border-white/10 hover:border-white/20'
                 )}
               >
@@ -225,7 +225,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
               {posting ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Send className="size-4" aria-hidden="true" />}
             </Button>
           </div>
-          <div className="text-[10px] text-white/20 mt-1">{t('sendHint')}</div>
+          <div className="text-xs text-white/20 mt-1">{t('sendHint')}</div>
         </Card>
       )}
 
@@ -292,15 +292,15 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                         <Sparkles className="size-3 text-gold shrink-0" aria-hidden="true" />
                       )}
                       {catStyle && (
-                        <span className={cn('px-1.5 py-0.5 rounded text-[9px] font-bold border', catStyle.color)}>
+                        <span className={cn('px-1.5 py-0.5 rounded text-xs font-bold border', catStyle.color)}>
                           {catStyle.label}
                         </span>
                       )}
-                      <span className="text-[10px] text-white/20 ml-auto shrink-0">{formatTimeAgo(post.created_at, t('timeNow'), locale)}</span>
+                      <span className="text-xs text-white/20 ml-auto shrink-0">{formatTimeAgo(post.created_at, t('timeNow'), locale)}</span>
                     </div>
                     <p className="text-sm text-white/80 whitespace-pre-wrap break-words text-pretty">{post.content}</p>
                     {post.replies_count > 0 && (
-                      <div className="flex items-center gap-1 mt-1.5 text-[10px] text-white/30">
+                      <div className="flex items-center gap-1 mt-1.5 text-xs text-white/30">
                         <MessageCircle className="size-3" aria-hidden="true" />
                         {post.replies_count} {t('replyCount', { count: post.replies_count })}
                       </div>

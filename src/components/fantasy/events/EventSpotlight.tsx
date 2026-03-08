@@ -59,7 +59,7 @@ export function EventSpotlight({ events, onEventClick }: Props) {
                     isLive ? 'bg-green-500' : 'bg-orange-500'
                   )} />
                   <span className={cn(
-                    'text-[9px] font-bold',
+                    'text-xs font-bold',
                     isLive ? 'text-green-500' : 'text-orange-400'
                   )}>
                     {isLive ? 'LIVE' : 'Late Reg'}
@@ -71,7 +71,7 @@ export function EventSpotlight({ events, onEventClick }: Props) {
               <div className="font-bold text-xs truncate mb-1">{event.name}</div>
 
               {/* Meta */}
-              <div className="flex items-center gap-1.5 text-[9px] text-white/40 mb-3">
+              <div className="flex items-center gap-1.5 text-xs text-white/40 mb-3">
                 <span>{event.format}</span>
                 <span className="text-white/15">·</span>
                 <span>{event.participants} {t('playersCountLabel')}</span>
@@ -84,11 +84,11 @@ export function EventSpotlight({ events, onEventClick }: Props) {
               {/* Rank or CTA */}
               {event.isJoined && event.userRank ? (
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-green-500">{t('yourRank')}</span>
+                  <span className="text-xs text-green-500">{t('yourRank')}</span>
                   <span className="font-mono font-bold text-green-500 text-xs tabular-nums">#{event.userRank}</span>
                 </div>
               ) : event.isJoined ? (
-                <div className="flex items-center gap-1.5 text-[10px] text-green-500 font-bold">
+                <div className="flex items-center gap-1.5 text-xs text-green-500 font-bold">
                   {event.status === 'running' ? (
                     <><Lock className="size-3" aria-hidden="true" /> {t('eventJoined')}</>
                   ) : (
@@ -96,12 +96,12 @@ export function EventSpotlight({ events, onEventClick }: Props) {
                   )}
                 </div>
               ) : isLateReg ? (
-                <div className="flex items-center gap-1.5 text-[10px] text-gold font-bold">
+                <div className="flex items-center gap-1.5 text-xs text-gold font-bold">
                   <Plus className="size-3" aria-hidden="true" />
                   {event.buyIn === 0 ? t('joinBtn') : `${event.buyIn} $SCOUT`}
                 </div>
               ) : (
-                <div className="flex items-center gap-1.5 text-[10px] text-white/40 font-bold">
+                <div className="flex items-center gap-1.5 text-xs text-white/40 font-bold">
                   <Play className="size-3" aria-hidden="true" /> {t('runningBtn')}
                 </div>
               )}

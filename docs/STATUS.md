@@ -1,6 +1,6 @@
 # BeScout Status
 
-> Letzte Aktualisierung: 05.03.2026 (Session 195)
+> Letzte Aktualisierung: 05.03.2026 (Session 196)
 > Für Session-Details → `memory/sessions.md`. Für Archiv → `memory/sessions-archive.md`.
 
 ## Aktueller Stand
@@ -26,6 +26,7 @@
 
 ### Features (alle live)
 - Trading + IPO + Fantasy + Scoring + Predictions
+- **Vollautomatischer Cron** — Alle 30 Min an Spieltagen: Stats → Scores → Events → GW-Advance
 - **Progressive Scoring** — Import (wiederholbar) + Auswerten (einmal) + Live-Scores auf Pitch
 - **Per-Fixture Deadline Locking** — Spieler sperren individuell zum Fixture-Anstoß
 - Community (Scouting Zone, 7 Content-Filter, Research Paywall 80/20)
@@ -44,6 +45,11 @@
 ---
 
 ## Letzte 5 Sessions
+
+### Session 196 (05.03.2026) — Formation Fixes + Cron alle 30 Min
+- `buildFormationRows()` 3-Tier: valides Grid → GK-Extract → Formation-Forced
+- `splitStartersBench()` hardened: >11 Trim, <11 Fill, GK-Swap
+- Vercel Cron `*/30 * * * *` + DB-Guard (kein API-Call an Nicht-Spieltagen)
 
 ### Session 195 (05.03.2026) — Livescore-Style Auswechslungen
 - `fixture_substitutions` Tabelle + API Events Integration (Cron + Backfill)
