@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { Loader2, Star, Crown, ChevronRight, ChevronDown } from 'lucide-react';
+import { Loader2, ChevronRight, ChevronDown } from 'lucide-react';
 import { Modal } from '@/components/ui';
 import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
@@ -10,8 +10,24 @@ import { getFixturePlayerStats, getFixtureSubstitutions, getFloorPricesForPlayer
 import type { Fixture, FixturePlayerStat, FixtureSubstitution, Pos } from '@/types';
 import { PlayerPhoto, GoalBadge } from '@/components/player';
 import { ClubLogo } from './ClubLogo';
-import { posColor, scoreBadgeColor, getPosAccent, getRingFrameClass, ratingHeatStyle, getPosDotColor } from './helpers';
+import { posColor, scoreBadgeColor, getPosAccent, getPosDotColor, getRingFrameClass, ratingHeatStyle, getRating } from './helpers';
+import { GoalIcon, AssistIcon, YellowCardIcon, RedCardIcon, CleanSheetIcon, MvpCrownIcon, SubInIcon, SubOutIcon } from './MatchIcons';
 import { cn, fmtScout } from '@/lib/utils';
+
+const goldTextStyle = {
+  background: 'linear-gradient(180deg, #FFE44D, #E6B800)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  filter: 'drop-shadow(0 0 12px rgba(255,215,0,0.25))',
+} as const;
+
+const scoreHeaderBg = {
+  background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(255,255,255,0.04)',
+} as const;
+
+const mvpRowShadow = { boxShadow: '0 0 12px rgba(255,215,0,0.06), inset 0 1px 0 rgba(255,255,255,0.04)' } as const;
+const normalRowShadow = { boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)' } as const;
 
 /** Split team stats into starters + bench using is_starter flag.
  *  - < 11 starters: promotes highest-minutes bench players to fill gaps.
@@ -106,34 +122,32 @@ function splitStartersBench(stats: FixturePlayerStat[], dbFormation?: string | n
 }
 
 function PlayerNode({ stat, isMvp }: { stat: FixturePlayerStat; isMvp?: boolean }) {
-  const rating = stat.rating ?? stat.fantasy_points / 10;
-  const hasGoals = stat.goals > 0;
+  const rating = getRating(stat);
   const hasAssists = stat.assists > 0;
 
   return (
-    <div className="flex flex-col items-center relative w-[52px] md:w-[60px] lg:w-[72px]">
+    <div className="flex flex-col items-center relative w-[52px] md:w-[60px] lg:w-[72px]" aria-label={`${stat.player_last_name || '?'}, ${stat.player_position}, Rating ${rating.toFixed(1)}`} role="group">
       <div
-        className="absolute -top-1.5 -right-1 md:-top-2 md:-right-2 z-20 min-w-[1.5rem] md:min-w-[1.7rem] px-1 py-0.5 rounded-md text-[10px] md:text-xs font-mono font-black text-center tabular-nums shadow-lg border border-white/[0.08]"
+        className="absolute -top-1.5 -right-1 md:-top-2 md:-right-2 z-20 min-w-[1.5rem] md:min-w-[1.7rem] px-1 py-0.5 rounded-md text-[10px] md:text-xs font-mono font-black text-center tabular-nums shadow-[0_2px_8px_rgba(0,0,0,0.4)] border border-white/[0.08]"
         style={ratingHeatStyle(rating)}
+        aria-hidden="true"
       >
         {rating.toFixed(1)}
       </div>
       {/* Card badges — top-left */}
       {(stat.yellow_card || stat.red_card) && (
         <div className="absolute -top-1 -left-1 z-20 flex flex-col gap-0.5">
-          {stat.yellow_card && <div className="w-2 h-2.5 bg-yellow-400 rounded-[1px]" aria-hidden="true" />}
-          {stat.red_card && <div className="w-2 h-2.5 bg-red-500 rounded-[1px]" aria-hidden="true" />}
+          {stat.yellow_card && <YellowCardIcon size={10} />}
+          {stat.red_card && <RedCardIcon size={10} />}
         </div>
       )}
       <div className={cn(
-        'relative rounded-full shadow-[0_0_12px_rgba(0,0,0,0.5)]',
+        'relative rounded-full shadow-lg',
         getRingFrameClass(stat.player_position),
         isMvp && 'card-gold-frame mvp-crown-glow',
-        hasGoals && !isMvp && 'shadow-[0_0_12px_rgba(255,215,0,0.4)]',
-        hasAssists && !hasGoals && !isMvp && 'shadow-[0_0_8px_rgba(56,189,248,0.25)]',
       )}>
         {isMvp && (
-          <Crown aria-hidden="true" className="absolute -top-2.5 left-1/2 -translate-x-1/2 size-3.5 text-gold z-30 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
+          <MvpCrownIcon size={14} className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-30 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
         )}
         <PlayerPhoto
           imageUrl={stat.player_image_url}
@@ -147,23 +161,28 @@ function PlayerNode({ stat, isMvp }: { stat: FixturePlayerStat; isMvp?: boolean 
         {/* Assist badge — bottom-left */}
         {hasAssists && (
           <div
-            className="absolute -bottom-0.5 -left-1 z-20 size-5 rounded-full bg-sky-500 flex items-center justify-center text-[9px] font-black text-white shadow-md"
-            aria-label={`${stat.assists} assist${stat.assists > 1 ? 's' : ''}`}
+            className="absolute -bottom-0.5 -left-1 z-20 flex items-center justify-center shadow-md"
+            aria-label={`${stat.assists} Assist${stat.assists > 1 ? 's' : ''}`}
           >
-            {stat.assists > 1 ? stat.assists : 'A'}
+            <AssistIcon size={16} />
+            {stat.assists > 1 && (
+              <span className="absolute -top-1 -right-1 text-[8px] font-black text-white bg-sky-500 rounded-full size-3 flex items-center justify-center">
+                {stat.assists}
+              </span>
+            )}
           </div>
         )}
       </div>
-      <div className="text-[10px] md:text-xs mt-1 font-bold text-center truncate max-w-full text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+      <div className="text-[10px] md:text-xs mt-1 font-bold text-center truncate max-w-full text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
         {stat.player_last_name || '?'}
       </div>
-      <div className="hidden md:flex items-center justify-center gap-0.5 text-[10px] text-white/30">
+      <div className="hidden md:flex items-center justify-center gap-0.5 text-[10px] text-white/25">
         <span className="font-mono tabular-nums">{stat.minutes_played}&apos;</span>
-        {stat.goals > 0 && <span className="text-gold font-bold">{stat.goals}G</span>}
-        {stat.assists > 0 && <span className="text-sky-400 font-bold">{stat.assists}A</span>}
-        {stat.yellow_card && <span className="w-1.5 h-2.5 bg-yellow-400 rounded-[1px] inline-block" aria-hidden="true" />}
-        {stat.red_card && <span className="w-1.5 h-2.5 bg-red-500 rounded-[1px] inline-block" aria-hidden="true" />}
-        {stat.clean_sheet && <span className="text-emerald-400 font-bold">CS</span>}
+        {stat.goals > 0 && <span className="flex items-center gap-0.5"><GoalIcon size={10} className="text-white/50" />{stat.goals > 1 && <span className="text-[9px] text-white/50 font-mono">{stat.goals}</span>}</span>}
+        {stat.assists > 0 && <span className="flex items-center gap-0.5"><AssistIcon size={10} />{stat.assists > 1 && <span className="text-[9px] text-white/50 font-mono">{stat.assists}</span>}</span>}
+        {stat.yellow_card && <YellowCardIcon size={8} />}
+        {stat.red_card && <RedCardIcon size={8} />}
+        {stat.clean_sheet && <CleanSheetIcon size={10} />}
         {stat.bonus > 0 && <span className="text-gold font-bold">{stat.bonus}</span>}
       </div>
     </div>
@@ -303,7 +322,7 @@ function FormationHalf({ stats, teamName, color, isHome, formation, logo, mvpId 
       <div className="flex items-center justify-center gap-2">
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg" style={{ background: `${color}15` }}>
           <ClubLogo club={logo} size={18} />
-          <span className="text-xs font-black uppercase tracking-wider" style={{ color }}>
+          <span className="text-xs font-black uppercase tracking-wide text-white/90">
             {teamName}
           </span>
           <span className="text-[10px] text-white/25 font-mono font-bold tabular-nums">{formation}</span>
@@ -324,7 +343,7 @@ function RankingRow({ stat, isMvp, floorPrice }: {
   isMvp: boolean;
   floorPrice?: number;
 }) {
-  const rating = stat.rating ?? stat.fantasy_points / 10;
+  const rating = getRating(stat);
   const href = stat.player_id ? `/player/${stat.player_id}` : '#';
 
   return (
@@ -332,14 +351,18 @@ function RankingRow({ stat, isMvp, floorPrice }: {
       href={href}
       aria-label={`${(stat.player_first_name || '?').charAt(0)}. ${stat.player_last_name || '?'} — Rating ${rating.toFixed(1)}`}
       className={cn(
-        'flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs transition-all min-h-[44px] active:scale-[0.97]',
+        'flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs transition-colors min-h-[44px] active:scale-[0.97] motion-reduce:active:scale-100 border-l-2',
         isMvp
-          ? 'bg-gold/[0.06] border border-gold/20 hover:bg-gold/[0.10]'
-          : 'bg-white/[0.02] hover:bg-white/[0.04] border border-transparent',
+          ? 'bg-gold/[0.06] border border-gold/15 hover:bg-gold/[0.10]'
+          : 'bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.04]',
       )}
+      style={{
+        ...(isMvp ? mvpRowShadow : normalRowShadow),
+        borderLeftColor: getPosAccent(stat.player_position),
+      }}
     >
       {/* MVP Crown */}
-      {isMvp && <Crown aria-hidden="true" className="size-3.5 text-gold flex-shrink-0" />}
+      {isMvp && <MvpCrownIcon size={14} />}
 
       {/* Player Photo */}
       <div className="relative flex-shrink-0">
@@ -358,84 +381,95 @@ function RankingRow({ stat, isMvp, floorPrice }: {
       </span>
 
       {/* Name */}
-      <span className="flex-1 font-semibold truncate min-w-0">
-        {(stat.player_first_name || '?').charAt(0)}. {stat.player_last_name || '?'}
+      <span className="flex-1 text-[13px] font-semibold text-white/90 truncate min-w-0">
+        <span className="md:hidden">{stat.player_last_name || '?'}</span>
+        <span className="hidden md:inline">{(stat.player_first_name || '?').charAt(0)}. {stat.player_last_name || '?'}</span>
       </span>
 
-      {/* Minutes */}
-      <span className="text-white/25 font-mono text-[10px] tabular-nums flex-shrink-0">{stat.minutes_played}&apos;</span>
+      {/* Minutes — hidden on mobile to save space */}
+      <span className="hidden md:inline text-[11px] font-mono text-white/25 tabular-nums flex-shrink-0">{stat.minutes_played}&apos;</span>
 
       {/* Goals */}
       {stat.goals > 0 && (
-        <span className="text-gold font-bold flex-shrink-0">
-          &#9917;{stat.goals > 1 ? ` ${stat.goals}` : ''}
+        <span className="flex items-center gap-0.5 flex-shrink-0">
+          <GoalIcon size={14} />
+          {stat.goals > 1 && <span className="text-[10px] font-mono text-white/50">{stat.goals}</span>}
         </span>
       )}
 
       {/* Assists */}
       {stat.assists > 0 && (
-        <span className="text-sky-400 font-bold flex-shrink-0">
-          &#127344;{stat.assists > 1 ? ` ${stat.assists}` : ''}
+        <span className="flex items-center gap-0.5 flex-shrink-0">
+          <AssistIcon size={14} />
+          {stat.assists > 1 && <span className="text-[10px] font-mono text-white/50">{stat.assists}</span>}
         </span>
       )}
 
       {/* Cards */}
-      {stat.yellow_card && <span className="w-2 h-2.5 bg-yellow-400 rounded-[1px] inline-block flex-shrink-0" aria-hidden="true" />}
-      {stat.red_card && <span className="w-2 h-2.5 bg-red-500 rounded-[1px] inline-block flex-shrink-0" aria-hidden="true" />}
+      {stat.yellow_card && <YellowCardIcon size={12} />}
+      {stat.red_card && <RedCardIcon size={12} />}
 
       {/* Rating badge */}
       <span
-        className="min-w-[2rem] px-1.5 py-0.5 rounded-md text-[10px] font-black font-mono tabular-nums text-center flex-shrink-0"
+        className="min-w-[2rem] px-1.5 py-0.5 rounded-md text-[10px] font-black font-mono tabular-nums text-center flex-shrink-0 shadow-sm"
         style={ratingHeatStyle(rating)}
       >
         {rating.toFixed(1)}
       </span>
 
-      {/* Floor price */}
+      {/* Floor price — hidden on mobile */}
       {floorPrice != null && floorPrice > 0 && (
-        <span className="text-white/30 font-mono text-[10px] tabular-nums flex-shrink-0">
+        <span className="hidden md:inline text-[11px] font-mono text-white/50 tabular-nums flex-shrink-0">
           {fmtScout(floorPrice / 100)}
         </span>
       )}
 
       {/* Chevron */}
-      <ChevronRight aria-hidden="true" className="size-3.5 text-white/20 flex-shrink-0" />
+      <ChevronRight aria-hidden="true" className="size-3.5 text-white/25 flex-shrink-0" />
     </Link>
   );
 }
 
 /** Ranking list for one team */
-function RankingList({ stats, color, label, mvpId, floorPrices }: {
+function RankingList({ stats, color, label, mvpId, floorPrices, clubLogo, clubShort }: {
   stats: FixturePlayerStat[];
   color: string;
   label: string;
   mvpId: string | null;
   floorPrices: Map<string, number>;
+  clubLogo?: ReturnType<typeof getClub>;
+  clubShort?: string;
 }) {
   const ts = useTranslations('spieltag');
   const [showUnused, setShowUnused] = useState(false);
 
-  // Sort by rating DESC
-  const sorted = [...stats].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
-
-  // Groups: starters, substituted (non-starter with minutes>0), unused (0 minutes)
-  const starters = sorted.filter(s => s.is_starter && s.minutes_played > 0);
-  const substituted = sorted.filter(s => !s.is_starter && s.minutes_played > 0);
-  const unused = sorted.filter(s => s.minutes_played === 0);
+  // Sort by rating DESC, split into 3 groups in a single pass
+  const { starters, substituted, unused } = useMemo(() => {
+    const sorted = [...stats].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+    const st: FixturePlayerStat[] = [];
+    const sub: FixturePlayerStat[] = [];
+    const un: FixturePlayerStat[] = [];
+    for (const s of sorted) {
+      if (s.minutes_played === 0) un.push(s);
+      else if (s.is_starter) st.push(s);
+      else sub.push(s);
+    }
+    return { starters: st, substituted: sub, unused: un };
+  }, [stats]);
 
   return (
     <div>
-      {/* Team header with accent bar */}
-      <div className="flex items-center gap-2 mb-2.5">
-        <div className="w-[3px] h-4 rounded-full" style={{ backgroundColor: color }} />
-        <span className="text-xs font-black uppercase tracking-wider" style={{ color }}>{label}</span>
-        <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${color}20, transparent)` }} />
+      {/* Team header with club logo */}
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-[3px] h-5 rounded-full" style={{ backgroundColor: color }} />
+        {clubLogo && <ClubLogo club={clubLogo} size={20} short={clubShort} />}
+        <span className="text-xs font-black uppercase tracking-wide text-white/90">{label}</span>
       </div>
 
       {/* Starters */}
       {starters.length > 0 && (
-        <div className="mb-2">
-          <div className="text-[10px] font-bold text-white/20 uppercase tracking-wider mb-1 px-1">{ts('starters')}</div>
+        <div className="mb-3">
+          <div className="text-[10px] font-bold text-white/25 uppercase tracking-wide mb-1.5 px-1">{ts('starters')}</div>
           <div className="space-y-1">
             {starters.map(s => (
               <RankingRow
@@ -451,8 +485,8 @@ function RankingList({ stats, color, label, mvpId, floorPrices }: {
 
       {/* Substituted */}
       {substituted.length > 0 && (
-        <div className="mb-2">
-          <div className="text-[10px] font-bold text-white/20 uppercase tracking-wider mb-1 px-1">{ts('substitutesGroup')}</div>
+        <div className="mb-3 pt-2 border-t border-white/[0.04]">
+          <div className="text-[10px] font-bold text-white/25 uppercase tracking-wide mb-1.5 px-1">{ts('substitutesGroup')}</div>
           <div className="space-y-1">
             {substituted.map(s => (
               <RankingRow
@@ -468,12 +502,12 @@ function RankingList({ stats, color, label, mvpId, floorPrices }: {
 
       {/* Unused — collapsed by default */}
       {unused.length > 0 && (
-        <div>
+        <div className="pt-2 border-t border-white/[0.04]">
           <button
             onClick={() => setShowUnused(prev => !prev)}
-            aria-pressed={showUnused}
+            aria-expanded={showUnused}
             aria-label={`${ts('unused')} (${unused.length})`}
-            className="flex items-center gap-1.5 text-[10px] font-bold text-white/20 uppercase tracking-wider mb-1 px-1 hover:text-white/40 transition-colors min-h-[44px]"
+            className="flex items-center gap-1.5 text-[10px] font-bold text-white/25 uppercase tracking-wide mb-1 px-1 hover:text-white/50 transition-colors min-h-[44px]"
           >
             <ChevronDown
               aria-hidden="true"
@@ -500,37 +534,45 @@ function RankingList({ stats, color, label, mvpId, floorPrices }: {
 }
 
 /** Goal Ticker strip between score header and tabs */
-function GoalTicker({ stats, homeClubId }: { stats: FixturePlayerStat[]; homeClubId: string }) {
-  const scorers = stats
+function GoalTicker({ stats, homeClubId, homeClubLogo, awayClubLogo, homeShort, awayShort }: {
+  stats: FixturePlayerStat[];
+  homeClubId: string;
+  homeClubLogo?: ReturnType<typeof getClub>;
+  awayClubLogo?: ReturnType<typeof getClub>;
+  homeShort?: string;
+  awayShort?: string;
+}) {
+  const ts = useTranslations('spieltag');
+  const scorers = useMemo(() => stats
     .filter(s => s.goals > 0)
     .sort((a, b) => {
-      // Home goals first
       const aHome = a.club_id === homeClubId ? 0 : 1;
       const bHome = b.club_id === homeClubId ? 0 : 1;
       if (aHome !== bHome) return aHome - bHome;
-      // Then by goals DESC
       return b.goals - a.goals;
-    });
+    }), [stats, homeClubId]);
 
   if (scorers.length === 0) return null;
 
   return (
-    <div className="overflow-x-auto scrollbar-hide snap-x px-4 py-2 border-b border-white/[0.06]">
+    <div className="overflow-x-auto scrollbar-hide snap-x px-4 py-2 border-b border-white/[0.06]" tabIndex={0} role="region" aria-label={ts('goalScorers')}>
       <div className="flex items-center gap-2">
         {scorers.map(s => {
           const href = s.player_id ? `/player/${s.player_id}` : '#';
+          const isHome = s.club_id === homeClubId;
           return (
             <Link
               key={s.id}
               href={href}
-              aria-label={`${s.player_last_name || '?'} — ${s.goals} goal${s.goals > 1 ? 's' : ''}`}
-              className="flex items-center gap-1.5 snap-start px-3 py-1.5 rounded-lg bg-gold/[0.06] border border-gold/15 hover:bg-gold/[0.10] transition-colors min-h-[44px] flex-shrink-0 active:scale-[0.97]"
+              aria-label={`${s.player_last_name || '?'} — ${ts('goalCount', { count: s.goals })}`}
+              className="flex items-center gap-1.5 snap-start px-2.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.06] transition-colors min-h-[44px] flex-shrink-0 active:scale-[0.97] motion-reduce:active:scale-100"
             >
-              <div className={cn('size-1.5 rounded-full flex-shrink-0', getPosDotColor(s.player_position))} aria-hidden="true" />
-              <span className="text-xs font-bold text-gold whitespace-nowrap">
+              <ClubLogo club={isHome ? (homeClubLogo ?? null) : (awayClubLogo ?? null)} size={14} short={isHome ? homeShort : awayShort} />
+              <GoalIcon size={10} className="text-white/50" />
+              <span className="text-xs font-bold text-white/90 whitespace-nowrap">
                 {s.player_last_name || '?'}
-                {s.goals > 1 && <span className="font-mono tabular-nums ml-0.5">&times;{s.goals}</span>}
               </span>
+              {s.goals > 1 && <span className="text-gold font-black font-mono tabular-nums text-[10px]">&times;{s.goals}</span>}
             </Link>
           );
         })}
@@ -539,76 +581,310 @@ function GoalTicker({ stats, homeClubId }: { stats: FixturePlayerStat[]; homeClu
   );
 }
 
-/** Match timeline with substitutions */
-function MatchTimeline({ substitutions, homeClubId, homeColor, awayColor }: {
+/** Match timeline — SofaScore-style dual-column layout (home left, away right) */
+function MatchTimeline({ substitutions, homeClubId }: {
   substitutions: FixtureSubstitution[];
   homeClubId: string;
-  homeColor: string;
-  awayColor: string;
 }) {
   const ts = useTranslations('spieltag');
   const [showAll, setShowAll] = useState(false);
 
-  if (substitutions.length === 0) return null;
-
-  const sorted = [...substitutions].sort((a, b) => {
+  const sorted = useMemo(() => [...substitutions].sort((a, b) => {
     const minA = a.minute + (a.extra_minute ?? 0) / 100;
     const minB = b.minute + (b.extra_minute ?? 0) / 100;
     return minA - minB;
-  });
+  }), [substitutions]);
+
+  if (substitutions.length === 0) return null;
 
   const visible = showAll ? sorted : sorted.slice(0, 6);
   const hasMore = sorted.length > 6;
 
+  const fmtMinute = (sub: FixtureSubstitution) =>
+    `${sub.minute}'${sub.extra_minute ? `+${sub.extra_minute}` : ''}`;
+
   return (
     <div className="relative z-10 mt-4 pt-3 border-t border-white/[0.08]">
-      <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-center mb-2.5">{ts('matchTimeline')}</div>
-      <div className="relative pl-4">
-        {/* Vertical timeline line */}
-        <div className="absolute left-1.5 top-0 bottom-0 w-px bg-white/[0.08]" aria-hidden="true" />
+      <div className="text-[10px] font-black text-white/25 uppercase tracking-wide text-center mb-2.5">{ts('matchTimeline')}</div>
 
-        <div className="space-y-1.5">
-          {visible.map(sub => {
-            const isHomeSub = sub.club_id === homeClubId;
-            const accentColor = isHomeSub ? homeColor : awayColor;
-            return (
-              <div key={sub.id} className="relative flex items-center gap-2 px-2.5 py-2 bg-black/30 rounded-xl text-xs border border-white/[0.05] backdrop-blur-sm min-h-[44px]">
-                {/* Timeline dot */}
-                <div
-                  className="absolute -left-[13px] top-1/2 -translate-y-1/2 size-2 rounded-full border border-white/20"
-                  style={{ backgroundColor: accentColor }}
-                  aria-hidden="true"
-                />
-                <div className="w-[3px] h-5 rounded-full flex-shrink-0" style={{ backgroundColor: accentColor }} />
-                <span className="text-white/25 font-mono font-bold tabular-nums w-9 text-right flex-shrink-0">
-                  {sub.minute}&apos;{sub.extra_minute ? `+${sub.extra_minute}` : ''}
-                </span>
-                <span className="text-red-400/80 flex-shrink-0 text-[10px]" aria-label="ausgewechselt">&#9660;</span>
-                <span className="text-white/40 truncate min-w-0 text-xs">
-                  {sub.player_out_last_name || sub.player_out_name}
-                </span>
-                <span className="text-white/15 flex-shrink-0" aria-hidden="true">&rarr;</span>
-                <span className="text-emerald-400/80 flex-shrink-0 text-[10px]" aria-label="eingewechselt">&#9650;</span>
-                <span className="text-white/70 font-semibold truncate min-w-0 text-xs">
-                  {sub.player_in_last_name || sub.player_in_name}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-start">
+        {visible.map(sub => {
+          const isHome = sub.club_id === homeClubId;
+          const outName = sub.player_out_last_name || sub.player_out_name;
+          const inName = sub.player_in_last_name || sub.player_in_name;
+
+          return (
+            <React.Fragment key={sub.id}>
+              {/* Home side — right-aligned */}
+              {isHome ? (
+                <div className="flex items-center justify-end gap-1 pr-3 py-1.5 min-w-0">
+                  <span className="text-white/25 text-xs truncate min-w-0 line-through">{outName}</span>
+                  <SubOutIcon size={10} />
+                  <SubInIcon size={10} />
+                  <span className="text-white/90 text-xs font-semibold truncate min-w-0">{inName}</span>
+                </div>
+              ) : (
+                <div />
+              )}
+
+              {/* Center minute pill */}
+              <div className="flex flex-col items-center relative py-1">
+                <div className="absolute top-0 bottom-0 w-px bg-white/[0.06]" aria-hidden="true" />
+                <span className="relative z-10 px-2 py-0.5 rounded-full bg-white/[0.08] text-[10px] font-mono text-white/50 tabular-nums whitespace-nowrap shadow-sm">
+                  {fmtMinute(sub)}
                 </span>
               </div>
-            );
-          })}
-        </div>
+
+              {/* Away side — left-aligned */}
+              {!isHome ? (
+                <div className="flex items-center gap-1 pl-3 py-1.5 min-w-0">
+                  <span className="text-white/25 text-xs truncate min-w-0 line-through">{outName}</span>
+                  <SubOutIcon size={10} />
+                  <SubInIcon size={10} />
+                  <span className="text-white/90 text-xs font-semibold truncate min-w-0">{inName}</span>
+                </div>
+              ) : (
+                <div />
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
 
       {hasMore && (
         <button
           onClick={() => setShowAll(prev => !prev)}
-          aria-pressed={showAll}
+          aria-expanded={showAll}
           aria-label={showAll ? ts('showLess') : ts('showMore')}
-          className="mt-2 w-full text-center text-[10px] font-bold text-white/30 hover:text-white/50 transition-colors py-2 min-h-[44px]"
+          className="mt-2 w-full text-center text-[10px] font-bold text-white/25 hover:text-white/50 transition-colors py-2 min-h-[44px]"
         >
           {showAll ? ts('showLess') : ts('showMore')} ({sorted.length - 6})
         </button>
       )}
     </div>
+  );
+}
+
+// ============================================
+// Overview Tab — MVP Highlight + Quick Stats + Events + Top Performers
+// ============================================
+
+function OverviewTab({ stats, homeStats, awayStats, substitutions, fixture, mvpId, floorPrices, homeClub, awayClub, homeColor, awayColor }: {
+  stats: FixturePlayerStat[];
+  homeStats: FixturePlayerStat[];
+  awayStats: FixturePlayerStat[];
+  substitutions: FixtureSubstitution[];
+  fixture: Fixture;
+  mvpId: string | null;
+  floorPrices: Map<string, number>;
+  homeClub: ReturnType<typeof getClub>;
+  awayClub: ReturnType<typeof getClub>;
+  homeColor: string;
+  awayColor: string;
+}) {
+  const ts = useTranslations('spieltag');
+  const mvp = mvpId ? stats.find(s => s.player_id === mvpId) : null;
+  const mvpRating = mvp ? getRating(mvp) : 0;
+
+  // Quick stats — home vs away
+  const homeGoals = homeStats.reduce((sum, s) => sum + s.goals, 0);
+  const awayGoals = awayStats.reduce((sum, s) => sum + s.goals, 0);
+  const homeCards = homeStats.filter(s => s.yellow_card || s.red_card).length;
+  const awayCards = awayStats.filter(s => s.yellow_card || s.red_card).length;
+  const homeSubs = substitutions.filter(s => s.club_id === fixture.home_club_id).length;
+  const awaySubs = substitutions.length - homeSubs;
+
+  // Top 3 performers from each team (filter for minutes_played > 0)
+  const homeTop3 = useMemo(() => [...homeStats].filter(s => s.minutes_played > 0).sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)).slice(0, 3), [homeStats]);
+  const awayTop3 = useMemo(() => [...awayStats].filter(s => s.minutes_played > 0).sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)).slice(0, 3), [awayStats]);
+
+  return (
+    <div className="space-y-6">
+      {/* MVP Highlight Card */}
+      {mvp && (
+        <Link
+          href={mvp.player_id ? `/player/${mvp.player_id}` : '#'}
+          aria-label={`${mvp.player_first_name || ''} ${mvp.player_last_name || ''} ${ts('mvpLabel')} — Rating ${mvpRating.toFixed(1)}`}
+          className="block relative overflow-hidden rounded-2xl border border-gold/20 active:scale-[0.98] motion-reduce:active:scale-100 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
+          style={{
+            background: `linear-gradient(135deg, rgba(255,215,0,0.08) 0%, rgba(255,215,0,0.03) 50%, transparent 100%)`,
+            boxShadow: '0 0 40px rgba(255,215,0,0.08), 0 0 80px rgba(255,215,0,0.03), inset 0 1px 0 rgba(255,255,255,0.08)',
+          }}
+        >
+          <div className="flex items-center gap-4 p-4">
+            {/* MVP Photo */}
+            <div className="relative flex-shrink-0">
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 z-10">
+                <MvpCrownIcon size={20} />
+              </div>
+              <div className="card-gold-frame rounded-full shadow-lg">
+                <PlayerPhoto
+                  imageUrl={mvp.player_image_url}
+                  first={mvp.player_first_name || '?'}
+                  last={mvp.player_last_name || '?'}
+                  pos={mvp.player_position as Pos}
+                  size={56}
+                />
+              </div>
+            </div>
+
+            {/* MVP Info */}
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-bold text-gold/60 uppercase tracking-widest mb-0.5">{ts('mvpLabel')}</div>
+              <div className="text-lg font-black text-white tracking-tight truncate">
+                {mvp.player_first_name ? `${mvp.player_first_name.charAt(0)}. ` : ''}{mvp.player_last_name || '?'}
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold', posColor(mvp.player_position))}>
+                  {mvp.player_position}
+                </span>
+                {mvp.goals > 0 && <span className="flex items-center gap-0.5 text-[11px] text-white/60"><GoalIcon size={12} /> {mvp.goals}</span>}
+                {mvp.assists > 0 && <span className="flex items-center gap-0.5 text-[11px] text-white/60"><AssistIcon size={12} /> {mvp.assists}</span>}
+                {mvp.clean_sheet && <CleanSheetIcon size={14} />}
+              </div>
+            </div>
+
+            {/* Rating Badge — large */}
+            <div
+              className="flex-shrink-0 size-14 rounded-xl flex items-center justify-center font-mono font-black text-xl tabular-nums shadow-lg"
+              style={{
+                ...ratingHeatStyle(mvpRating),
+                boxShadow: mvpRating >= 9.0 ? '0 0 20px rgba(55,77,245,0.3)' : undefined,
+              }}
+            >
+              {mvpRating.toFixed(1)}
+            </div>
+          </div>
+        </Link>
+      )}
+
+      {/* Quick Stats — Home vs Away comparison bars */}
+      <div className="space-y-3 rounded-xl bg-white/[0.03] border border-white/[0.06] px-4 py-3" style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)' }} role="group" aria-label={ts('matchDetails')}>
+        {[
+          { label: ts('quickGoals'), home: homeGoals, away: awayGoals, hColor: homeColor, aColor: awayColor },
+          { label: ts('quickCards'), home: homeCards, away: awayCards, hColor: '#EAB308', aColor: '#EAB308' },
+          { label: ts('quickSubs'), home: homeSubs, away: awaySubs, hColor: homeColor, aColor: awayColor },
+        ].map(({ label, home, away, hColor, aColor }) => {
+          const total = home + away || 1;
+          const hPct = Math.round((home / total) * 100);
+          const aPct = 100 - hPct;
+          return (
+            <div key={label} aria-label={`${label}: ${home} - ${away}`}>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[13px] font-bold font-mono tabular-nums text-white/90">{home}</span>
+                <span className="text-[10px] font-bold text-white/30 uppercase tracking-wide">{label}</span>
+                <span className="text-[13px] font-bold font-mono tabular-nums text-white/90">{away}</span>
+              </div>
+              <div className="flex h-1 rounded-full overflow-hidden gap-0.5 bg-white/[0.04]">
+                <div className="rounded-full transition-colors" style={{ width: `${hPct}%`, backgroundColor: hColor, opacity: home >= away ? 1 : 0.35 }} />
+                <div className="rounded-full transition-colors" style={{ width: `${aPct}%`, backgroundColor: aColor, opacity: away >= home ? 1 : 0.35 }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Top Performers — side-by-side */}
+      <div>
+        <div className="text-[10px] font-black text-white/25 uppercase tracking-widest mb-3">{ts('topPerformers')}</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* Home Top 3 */}
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-[3px] h-4 rounded-full" style={{ backgroundColor: homeColor }} />
+              <ClubLogo club={homeClub} size={16} short={fixture.home_club_short} />
+              <span className="text-[11px] font-bold text-white/50 truncate">{fixture.home_club_name}</span>
+            </div>
+            {homeTop3.map((s, i) => (
+              <TopPerformerRow key={s.id} stat={s} rank={i + 1} isMvp={s.player_id === mvpId} floorPrice={s.player_id ? floorPrices.get(s.player_id) : undefined} />
+            ))}
+          </div>
+          {/* Away Top 3 */}
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-[3px] h-4 rounded-full" style={{ backgroundColor: awayColor }} />
+              <ClubLogo club={awayClub} size={16} short={fixture.away_club_short} />
+              <span className="text-[11px] font-bold text-white/50 truncate">{fixture.away_club_name}</span>
+            </div>
+            {awayTop3.map((s, i) => (
+              <TopPerformerRow key={s.id} stat={s} rank={i + 1} isMvp={s.player_id === mvpId} floorPrice={s.player_id ? floorPrices.get(s.player_id) : undefined} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Match Timeline */}
+      {substitutions.length > 0 && (
+        <MatchTimeline substitutions={substitutions} homeClubId={fixture.home_club_id} />
+      )}
+    </div>
+  );
+}
+
+/** Compact performer row for Overview tab */
+function TopPerformerRow({ stat, rank, isMvp, floorPrice }: {
+  stat: FixturePlayerStat;
+  rank: number;
+  isMvp: boolean;
+  floorPrice?: number;
+}) {
+  const rating = getRating(stat);
+  const href = stat.player_id ? `/player/${stat.player_id}` : '#';
+
+  const playerName = `${(stat.player_first_name || '?').charAt(0)}. ${stat.player_last_name || '?'}`;
+
+  return (
+    <Link
+      href={href}
+      aria-label={`${rank} ${playerName} ${stat.player_position} — Rating ${rating.toFixed(1)}`}
+      className={cn(
+        'flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs transition-colors min-h-[44px] active:scale-[0.97] motion-reduce:active:scale-100 border-l-2',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50',
+        isMvp
+          ? 'bg-gold/[0.06] border border-gold/15'
+          : 'bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04]',
+      )}
+      style={{
+        ...(isMvp ? mvpRowShadow : normalRowShadow),
+        borderLeftColor: getPosAccent(stat.player_position),
+      }}
+    >
+      {/* Rank */}
+      <span className="text-[10px] font-mono font-bold text-white/20 tabular-nums w-3 text-center">{rank}</span>
+
+      {/* Photo */}
+      <PlayerPhoto
+        imageUrl={stat.player_image_url}
+        first={stat.player_first_name || '?'}
+        last={stat.player_last_name || '?'}
+        pos={stat.player_position as Pos}
+        size={32}
+      />
+
+      {/* Position */}
+      <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold flex-shrink-0', posColor(stat.player_position))}>
+        {stat.player_position}
+      </span>
+
+      {/* Name */}
+      <span className="flex-1 text-[13px] font-semibold text-white/90 truncate min-w-0">
+        {(stat.player_first_name || '?').charAt(0)}. {stat.player_last_name || '?'}
+      </span>
+
+      {/* Goals/Assists inline */}
+      {stat.goals > 0 && <span className="flex items-center gap-0.5 flex-shrink-0"><GoalIcon size={12} />{stat.goals > 1 && <span className="text-[10px] font-mono text-white/50">{stat.goals}</span>}</span>}
+      {stat.assists > 0 && <span className="flex items-center gap-0.5 flex-shrink-0"><AssistIcon size={12} />{stat.assists > 1 && <span className="text-[10px] font-mono text-white/50">{stat.assists}</span>}</span>}
+
+      {/* Rating */}
+      <span
+        className="min-w-[2rem] px-1.5 py-0.5 rounded-md text-[11px] font-black font-mono tabular-nums text-center flex-shrink-0 shadow-sm"
+        style={ratingHeatStyle(rating)}
+      >
+        {rating.toFixed(1)}
+      </span>
+
+      <ChevronRight aria-hidden="true" className="size-3 text-white/15 flex-shrink-0" />
+    </Link>
   );
 }
 
@@ -630,14 +906,14 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
   const [stats, setStats] = useState<FixturePlayerStat[]>([]);
   const [substitutions, setSubstitutions] = useState<FixtureSubstitution[]>([]);
   const [loading, setLoading] = useState(false);
-  const [detailTab, setDetailTab] = useState<'ranking' | 'formation'>('ranking');
+  const [detailTab, setDetailTab] = useState<'overview' | 'ranking' | 'formation'>('overview');
   const [floorPrices, setFloorPrices] = useState<Map<string, number>>(new Map());
 
   useEffect(() => {
     if (!fixture || !isOpen) return;
     let cancelled = false;
     setLoading(true);
-    setDetailTab('ranking');
+    setDetailTab('overview');
     Promise.all([
       getFixturePlayerStats(fixture.id),
       getFixtureSubstitutions(fixture.id),
@@ -647,7 +923,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
         setSubstitutions(subsData);
         setLoading(false);
       }
-    }).catch(() => { if (!cancelled) setLoading(false); });
+    }).catch((err) => { console.error('FixtureDetailModal fetch failed:', err); if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [fixture, isOpen]);
 
@@ -669,18 +945,21 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
     let best: FixturePlayerStat | null = null;
     for (const s of stats) {
       if (s.minutes_played === 0) continue;
-      const rating = s.rating ?? s.fantasy_points / 10;
-      if (!best || rating > (best.rating ?? best.fantasy_points / 10)) {
+      const rating = getRating(s);
+      if (!best || rating > getRating(best)) {
         best = s;
       }
     }
     return best?.player_id ?? null;
   }, [stats]);
 
+  const { homeStats, awayStats } = useMemo(() => ({
+    homeStats: stats.filter(s => s.club_id === fixture?.home_club_id),
+    awayStats: stats.filter(s => s.club_id === fixture?.away_club_id),
+  }), [stats, fixture?.home_club_id, fixture?.away_club_id]);
+
   if (!fixture) return null;
 
-  const homeStats = stats.filter(s => s.club_id === fixture.home_club_id);
-  const awayStats = stats.filter(s => s.club_id === fixture.away_club_id);
   const homeClub = getClub(fixture.home_club_short) || getClub(fixture.home_club_name);
   const awayClub = getClub(fixture.away_club_short) || getClub(fixture.away_club_name);
   const isSimulated = fixture.status === 'simulated' || fixture.status === 'finished';
@@ -689,137 +968,135 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
 
   return (
     <Modal open={isOpen} title="" onClose={onClose} size="lg">
-      {/* Score Header — outside scroll area */}
+      {/* Score Header — premium glassmorphism */}
       <div
         className="relative overflow-hidden"
-        style={{
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
-        }}
+        style={scoreHeaderBg}
       >
-        {/* Multi-layer gradient background */}
+        {/* Team color accents — vivid radials for premium depth */}
         <div className="absolute inset-0" style={{
           background: `
-            radial-gradient(ellipse 80% 50% at 15% 50%, ${homeColor}15 0%, transparent 70%),
-            radial-gradient(ellipse 80% 50% at 85% 50%, ${awayColor}15 0%, transparent 70%),
-            radial-gradient(ellipse 100% 80% at 50% 0%, rgba(255,215,0,0.04) 0%, transparent 60%)
+            radial-gradient(ellipse 120% 100% at 5% 50%, ${homeColor}22 0%, transparent 55%),
+            radial-gradient(ellipse 120% 100% at 95% 50%, ${awayColor}22 0%, transparent 55%),
+            radial-gradient(ellipse 60% 120% at 50% 100%, rgba(255,215,0,0.04) 0%, transparent 50%)
           `,
         }} />
-        {/* Subtle noise texture via top gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent" />
 
-        <div className="relative flex items-center justify-center gap-5 md:gap-10 pt-4 pb-5 px-4">
+        <div className="relative flex items-center justify-center gap-4 md:gap-8 pt-5 pb-6 px-4">
           {/* Home Club */}
-          <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
-            <div className="relative" style={{ filter: `drop-shadow(0 0 16px ${homeColor}30)` }}>
-              <ClubLogo club={homeClub} size={64} short={fixture.home_club_short} />
-              {/* Ambient ring */}
-              <div className="absolute inset-0 rounded-full" style={{
-                boxShadow: `0 0 24px 4px ${homeColor}15`,
-              }} />
+          <div className="flex flex-col items-center gap-2.5 flex-1 min-w-0">
+            <div className="relative" style={{ filter: `drop-shadow(0 0 24px ${homeColor}40)` }}>
+              <ClubLogo club={homeClub} size={80} short={fixture.home_club_short}  />
             </div>
-            <span className="font-black text-sm md:text-base text-center leading-tight">{fixture.home_club_name}</span>
+            <span className="font-black text-sm md:text-base text-center leading-tight text-balance line-clamp-2 tracking-tight">{fixture.home_club_name}</span>
           </div>
 
           {/* Score Center */}
           <div className="text-center shrink-0">
             {isSimulated ? (
               <>
-                <div className="flex items-center gap-2.5 md:gap-4">
-                  <span
-                    className="font-mono font-black text-5xl md:text-6xl tabular-nums leading-none"
-                    style={{
-                      background: 'linear-gradient(180deg, #FFE44D, #E6B800)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                    }}
-                  >
+                <div className="flex items-center gap-3 md:gap-5">
+                  <span className="font-mono font-black text-[4rem] md:text-[5rem] tabular-nums leading-none" style={goldTextStyle}>
                     {fixture.home_score}
                   </span>
                   <div className="flex flex-col items-center gap-1">
-                    <div className="w-[3px] h-3 rounded-full bg-gold/40" aria-hidden="true" />
-                    <div className="w-[3px] h-3 rounded-full bg-gold/20" aria-hidden="true" />
+                    <div className="w-[3px] h-3 rounded-full bg-gold/30" />
+                    <div className="w-[3px] h-3 rounded-full bg-gold/15" />
                   </div>
-                  <span
-                    className="font-mono font-black text-5xl md:text-6xl tabular-nums leading-none"
-                    style={{
-                      background: 'linear-gradient(180deg, #FFE44D, #E6B800)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                    }}
-                  >
+                  <span className="font-mono font-black text-[4rem] md:text-[5rem] tabular-nums leading-none" style={goldTextStyle}>
                     {fixture.away_score}
                   </span>
                 </div>
-                <div className="flex items-center justify-center gap-2 mt-2.5">
-                  <span className="px-2 py-0.5 rounded-md bg-gold/10 border border-gold/20 text-[10px] font-black text-gold uppercase tracking-wider">FT</span>
-                  <span className="text-[10px] text-white/25 font-medium">Spieltag {fixture.gameweek}</span>
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <span className="px-2.5 py-1 rounded-md bg-white/[0.08] text-[10px] font-black text-white/60 uppercase tracking-widest border border-white/[0.06]">{ts('fullTime')}</span>
+                  <span className="text-[10px] text-white/30 font-medium tracking-wide">{ts('label')} {fixture.gameweek}</span>
                 </div>
               </>
             ) : (
               <>
-                <div className="font-mono font-black text-4xl md:text-5xl text-white/20">vs</div>
-                <div className="flex items-center justify-center gap-2 mt-2">
-                  <span className="text-[10px] text-white/25 font-medium">Spieltag {fixture.gameweek}</span>
+                <div className="font-mono font-black text-4xl md:text-5xl text-white/20 tracking-wider">vs</div>
+                <div className="flex items-center justify-center gap-2 mt-2.5">
+                  <span className="text-[10px] text-white/30 font-medium tracking-wide">{ts('label')} {fixture.gameweek}</span>
                 </div>
               </>
             )}
           </div>
 
           {/* Away Club */}
-          <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
-            <div className="relative" style={{ filter: `drop-shadow(0 0 16px ${awayColor}30)` }}>
-              <ClubLogo club={awayClub} size={64} short={fixture.away_club_short} />
-              <div className="absolute inset-0 rounded-full" style={{
-                boxShadow: `0 0 24px 4px ${awayColor}15`,
-              }} />
+          <div className="flex flex-col items-center gap-2.5 flex-1 min-w-0">
+            <div className="relative" style={{ filter: `drop-shadow(0 0 24px ${awayColor}40)` }}>
+              <ClubLogo club={awayClub} size={80} short={fixture.away_club_short}  />
             </div>
-            <span className="font-black text-sm md:text-base text-center leading-tight">{fixture.away_club_name}</span>
+            <span className="font-black text-sm md:text-base text-center leading-tight text-balance line-clamp-2 tracking-tight">{fixture.away_club_name}</span>
           </div>
         </div>
-
-        {/* Bottom edge glow */}
-        <div className="h-[2px]" style={{
-          background: `linear-gradient(90deg, transparent, ${homeColor}30, #FFD70025, ${awayColor}30, transparent)`,
-        }} />
+        {/* Gold accent line — premium separator */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/3 h-[1px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.2), transparent)' }} />
       </div>
 
       {/* Goal Ticker */}
       {stats.length > 0 && (
-        <GoalTicker stats={stats} homeClubId={fixture.home_club_id} />
+        <GoalTicker
+          stats={stats}
+          homeClubId={fixture.home_club_id}
+          homeClubLogo={homeClub}
+          awayClubLogo={awayClub}
+          homeShort={fixture.home_club_short}
+          awayShort={fixture.away_club_short}
+        />
       )}
 
-      {/* Tabs — Pill style */}
+      {/* Tabs — Premium segmented control */}
       {stats.length > 0 && (
-        <div className="flex items-center justify-center gap-2 px-4 py-3">
-          {(['ranking', 'formation'] as const).map(tab => (
+        <div role="tablist" className="flex items-center justify-center gap-1 px-4 py-3 border-b border-white/[0.04]">
+          {(['overview', 'ranking', 'formation'] as const).map(tab => (
             <button
               key={tab}
+              role="tab"
+              id={`tab-${tab}`}
               onClick={() => setDetailTab(tab)}
-              aria-pressed={detailTab === tab}
+              aria-selected={detailTab === tab}
+              aria-controls="fixture-tabpanel"
+              aria-label={tab === 'overview' ? ts('overviewTab') : tab === 'ranking' ? ts('ranking') : ts('formationTab')}
               className={cn(
-                'px-4 py-1.5 rounded-lg text-sm font-bold transition-colors min-h-[44px]',
+                'px-4 py-2 rounded-lg text-[13px] font-bold transition-colors min-h-[44px] relative',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]',
                 detailTab === tab
-                  ? 'bg-gold/15 text-gold border border-gold/20'
-                  : 'text-white/35 hover:text-white/55 hover:bg-white/[0.04] border border-transparent',
+                  ? 'bg-gold/15 text-gold shadow-[0_0_12px_rgba(255,215,0,0.08)] border border-gold/20'
+                  : 'text-white/30 hover:text-white/50 hover:bg-white/[0.03] border border-transparent',
               )}
             >
-              {tab === 'ranking' ? ts('ranking') : ts('formationTab')}
+              {tab === 'overview' ? ts('overviewTab') : tab === 'ranking' ? ts('ranking') : ts('formationTab')}
             </button>
           ))}
         </div>
       )}
 
-      <div className="max-h-[60vh] overflow-y-auto">
-        <div className="p-4 md:p-6">
+      <div id="fixture-tabpanel" className="max-h-[60vh] overflow-y-auto" tabIndex={0} role="tabpanel" aria-labelledby={`tab-${detailTab}`}>
+        <div key={detailTab} className="px-4 py-5 md:px-6 md:py-6 anim-fade">
           {loading ? (
-            <div className="flex items-center justify-center py-12">
+            <div className="flex items-center justify-center py-12" role="status">
               <Loader2 aria-hidden="true" className="size-6 animate-spin motion-reduce:animate-none text-gold" />
+              <span className="sr-only">{ts('loading')}</span>
             </div>
           ) : stats.length === 0 ? (
-            <div className="text-center text-white/30 py-12">
+            <div className="text-center text-white/25 py-12">
               {isSimulated ? ts('noPlayerData') : ts('notSimulated')}
             </div>
+          ) : detailTab === 'overview' ? (
+            <OverviewTab
+              stats={stats}
+              homeStats={homeStats}
+              awayStats={awayStats}
+              substitutions={substitutions}
+              fixture={fixture}
+              mvpId={mvpId}
+              floorPrices={floorPrices}
+              homeClub={homeClub}
+              awayClub={awayClub}
+              homeColor={homeColor}
+              awayColor={awayColor}
+            />
           ) : detailTab === 'ranking' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <RankingList
@@ -828,6 +1105,8 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                 label={fixture.home_club_name}
                 mvpId={mvpId}
                 floorPrices={floorPrices}
+                clubLogo={homeClub}
+                clubShort={fixture.home_club_short}
               />
               <RankingList
                 stats={awayStats}
@@ -835,6 +1114,8 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                 label={fixture.away_club_name}
                 mvpId={mvpId}
                 floorPrices={floorPrices}
+                clubLogo={awayClub}
+                clubShort={fixture.away_club_short}
               />
             </div>
           ) : (
@@ -843,13 +1124,13 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
               {(() => {
                 const sponsor = sponsorName ? { sponsorName, sponsorLogo } : null;
                 return (
-                  <div className="bg-gradient-to-r from-[#0a0a12] via-[#111827] to-[#0a0a12] px-4 py-2 flex items-center justify-center gap-3 border-b border-white/[0.06]">
+                  <div className="bg-white/[0.02] px-4 py-2 flex items-center justify-center gap-3 border-b border-white/[0.06]">
                     {sponsor?.sponsorLogo ? (
                       <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain opacity-60" />
                     ) : (
                       <div className="size-1 rounded-full bg-gold/40" aria-hidden="true" />
                     )}
-                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.15em]">{sponsor?.sponsorName || tsp('sponsorPlaceholder')}</span>
+                    <span className="text-[10px] font-bold text-white/25 uppercase tracking-wide">{sponsor?.sponsorName || tsp('sponsorPlaceholder')}</span>
                     {sponsor?.sponsorLogo ? (
                       <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain opacity-60" />
                     ) : (
@@ -859,17 +1140,9 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                 );
               })()}
 
-              {/* Green Pitch — enhanced atmosphere */}
+              {/* Green Pitch */}
               <div className="relative px-3 md:px-6 py-4" style={{
-                background: `
-                  linear-gradient(180deg,
-                    rgba(22,80,22,0.45) 0%,
-                    rgba(26,90,26,0.35) 25%,
-                    rgba(30,100,30,0.30) 50%,
-                    rgba(26,90,26,0.35) 75%,
-                    rgba(22,80,22,0.45) 100%
-                  )
-                `,
+                background: 'linear-gradient(180deg, rgba(15,65,15,0.50) 0%, rgba(25,90,25,0.35) 50%, rgba(15,65,15,0.50) 100%)',
               }}>
                 {/* Pitch markings SVG — sharper lines */}
                 <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none" viewBox="0 0 400 600">
@@ -882,15 +1155,15 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                   <circle cx="200" cy="300" r="3" fill="white" fillOpacity="0.12" />
                   {/* Penalty areas */}
                   <rect x="105" y="8" width="190" height="75" fill="none" stroke="white" strokeOpacity="0.10" strokeWidth="1" />
-                  <rect x="140" y="8" width="120" height="32" fill="none" stroke="white" strokeOpacity="0.07" strokeWidth="1" />
+                  <rect x="140" y="8" width="120" height="32" fill="none" stroke="white" strokeOpacity="0.06" strokeWidth="1" />
                   <rect x="105" y="517" width="190" height="75" fill="none" stroke="white" strokeOpacity="0.10" strokeWidth="1" />
-                  <rect x="140" y="560" width="120" height="32" fill="none" stroke="white" strokeOpacity="0.07" strokeWidth="1" />
+                  <rect x="140" y="560" width="120" height="32" fill="none" stroke="white" strokeOpacity="0.06" strokeWidth="1" />
                   {/* Penalty arcs */}
                   <path d="M 160 83 Q 200 110 240 83" fill="none" stroke="white" strokeOpacity="0.06" strokeWidth="1" />
                   <path d="M 160 517 Q 200 490 240 517" fill="none" stroke="white" strokeOpacity="0.06" strokeWidth="1" />
                   {/* Grass stripes — alternating bands */}
                   {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => (
-                    i % 2 === 0 ? <rect key={i} x="16" y={8 + i * 48.67} width="368" height="48.67" fill="white" fillOpacity="0.018" /> : null
+                    i % 2 === 0 ? <rect key={i} x="16" y={8 + i * 48.67} width="368" height="48.67" fill="white" fillOpacity="0.03" /> : null
                   ))}
                 </svg>
 
@@ -903,7 +1176,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                         {sponsor?.sponsorLogo ? (
                           <img src={sponsor.sponsorLogo} alt="" className="size-12 object-contain opacity-20" />
                         ) : (
-                          <span className="text-[10px] text-white/10 font-black tracking-widest uppercase">BeScout</span>
+                          <span className="text-[10px] text-white/10 font-black tracking-wide uppercase">BeScout</span>
                         )}
                       </div>
                     </div>
@@ -922,8 +1195,8 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                   if (!hasEnoughData) {
                     return (
                       <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 px-2 py-4">
-                        <RankingList stats={homeStats} color={homeColor} label={`${fixture.home_club_name} ${homeFormation ? `(${homeFormation})` : ''}`} mvpId={mvpId} floorPrices={floorPrices} />
-                        <RankingList stats={awayStats} color={awayColor} label={`${fixture.away_club_name} ${awayFormation ? `(${awayFormation})` : ''}`} mvpId={mvpId} floorPrices={floorPrices} />
+                        <RankingList stats={homeStats} color={homeColor} label={`${fixture.home_club_name} ${homeFormation ? `(${homeFormation})` : ''}`} mvpId={mvpId} floorPrices={floorPrices} clubLogo={homeClub} clubShort={fixture.home_club_short} />
+                        <RankingList stats={awayStats} color={awayColor} label={`${fixture.away_club_name} ${awayFormation ? `(${awayFormation})` : ''}`} mvpId={mvpId} floorPrices={floorPrices} clubLogo={awayClub} clubShort={fixture.away_club_short} />
                       </div>
                     );
                   }
@@ -939,8 +1212,6 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                       <MatchTimeline
                         substitutions={substitutions}
                         homeClubId={fixture.home_club_id}
-                        homeColor={homeColor}
-                        awayColor={awayColor}
                       />
                       {/* Bench fallback when no substitution data */}
                       {substitutions.length === 0 && (() => {
@@ -948,7 +1219,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                         if (allBench.length === 0) return null;
                         return (
                           <div className="relative z-10 mt-4 pt-3 border-t border-white/[0.08]">
-                            <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-center mb-2.5">{ts('substitutesGroup')}</div>
+                            <div className="text-[10px] font-black text-white/25 uppercase tracking-wide text-center mb-2.5">{ts('substitutesGroup')}</div>
                             <div className="flex gap-1.5 flex-wrap justify-center">
                               {allBench.map(s => (
                                 <div key={s.id} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-black/30 rounded-xl text-xs border border-white/[0.05]">
@@ -956,9 +1227,9 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                                     {s.player_position}
                                   </span>
                                   <span className="text-white/50 font-medium">{s.player_last_name || '?'}</span>
-                                  <span className="text-white/20 font-mono tabular-nums">{s.minutes_played}&apos;</span>
-                                  <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold font-mono tabular-nums', scoreBadgeColor(s.rating ?? s.fantasy_points / 10))}>
-                                    {(s.rating ?? s.fantasy_points / 10).toFixed(1)}
+                                  <span className="text-white/25 font-mono tabular-nums">{s.minutes_played}&apos;</span>
+                                  <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold font-mono tabular-nums', scoreBadgeColor(getRating(s)))}>
+                                    {getRating(s).toFixed(1)}
                                   </span>
                                 </div>
                               ))}
@@ -975,14 +1246,14 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
               {(() => {
                 const sponsor = sponsorName ? { sponsorName, sponsorLogo } : null;
                 return (
-                  <div className="bg-gradient-to-r from-[#0a0a12] via-[#0f1a2e] to-[#0a0a12] px-4 py-2.5 flex items-center justify-center gap-3 border-t border-white/[0.06]">
+                  <div className="bg-white/[0.03] px-4 py-2.5 flex items-center justify-center gap-3 border-t border-white/[0.06]">
                     {sponsor?.sponsorLogo ? (
                       <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain opacity-40" />
                     ) : (
                       <div className="size-1 rounded-full bg-gold/30" aria-hidden="true" />
                     )}
-                    <span className="text-[10px] text-white/20 font-bold uppercase tracking-[0.15em]">
-                      {sponsor?.sponsorName ? `${sponsor.sponsorName} × BeScout` : 'Powered by BeScout'}
+                    <span className="text-[10px] text-white/25 font-bold uppercase tracking-wide">
+                      {sponsor?.sponsorName ? ts('sponsoredBy', { sponsor: sponsor.sponsorName }) : ts('poweredBy')}
                     </span>
                     {sponsor?.sponsorLogo ? (
                       <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain opacity-40" />

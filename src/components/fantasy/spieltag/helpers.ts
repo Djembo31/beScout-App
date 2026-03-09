@@ -11,13 +11,14 @@ export const posColor = (pos: string) => {
   }
 };
 
-/** Score badge color based on API-Football rating (0.0-10.0) */
+/** Score badge color based on API-Football rating (0.0-10.0) — SofaScore-inspired 6-tier */
 export const scoreBadgeColor = (rating: number): string => {
-  if (rating >= 8.0) return 'bg-gold text-black';
-  if (rating >= 7.0) return 'bg-green-500 text-white';
-  if (rating >= 6.5) return 'bg-sky-500 text-white';
-  if (rating >= 6.0) return 'bg-orange-500 text-white';
-  return 'bg-red-500 text-white';
+  if (rating >= 9.0) return 'bg-[#374DF5] text-white';       // Royal Blue — Excellent
+  if (rating >= 8.0) return 'bg-[#00ADC4] text-white';       // Cyan — Very Good
+  if (rating >= 7.0) return 'bg-[#00C424] text-white';       // Green — Good
+  if (rating >= 6.5) return 'bg-[#D9AF00] text-white';       // Gold — Average
+  if (rating >= 6.0) return 'bg-[#ED7E07] text-white';       // Orange — Below Average
+  return 'bg-[#DC0C00] text-white';                           // Red — Poor
 };
 
 export const posOrder = (pos: string): number => {
@@ -68,15 +69,16 @@ export const getRingFrameClass = (pos: string): string => {
   }
 };
 
-/** Heat-map rating style — continuous gradient instead of 5-tier flat */
+/** Derive match rating from stat — single source of truth */
+export const getRating = (stat: { rating?: number | null; fantasy_points: number }): number =>
+  stat.rating ?? stat.fantasy_points / 10;
+
+/** Heat-map rating style — SofaScore-inspired 6-tier with solid opaque backgrounds */
 export const ratingHeatStyle = (rating: number): React.CSSProperties => {
-  const t = Math.max(0, Math.min(1, (rating - 5) / 4));
-  const r = Math.round(239 - t * 80);
-  const g = Math.round(68 + t * 147);
-  const b = Math.round(68 - t * 68);
-  return {
-    background: `rgba(${r},${g},${b},0.20)`,
-    color: `rgb(${r},${g},${b})`,
-    textShadow: rating >= 8 ? '0 0 8px rgba(255,215,0,0.3)' : 'none',
-  };
+  if (rating >= 9.0) return { background: '#374DF5', color: '#fff', textShadow: '0 0 10px rgba(55,77,245,0.5)' };
+  if (rating >= 8.0) return { background: '#00ADC4', color: '#fff' };
+  if (rating >= 7.0) return { background: '#00C424', color: '#fff' };
+  if (rating >= 6.5) return { background: '#D9AF00', color: '#fff' };
+  if (rating >= 6.0) return { background: '#ED7E07', color: '#fff' };
+  return { background: '#DC0C00', color: '#fff' };
 };

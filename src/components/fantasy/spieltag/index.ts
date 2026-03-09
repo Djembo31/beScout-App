@@ -8,4 +8,5 @@ export { SpieltagBrowser } from './SpieltagBrowser';
 export { GoalTicker } from './GoalTicker';
 export { TopScorerShowcase } from './TopScorerShowcase';
 export { BestElevenShowcase } from './BestElevenShowcase';
-export { posColor, scoreBadgeColor, posOrder, getPosAccent, getPosDotColor } from './helpers';
+export { posColor, scoreBadgeColor, posOrder, getPosAccent, getPosDotColor, getRating } from './helpers';
+export { GoalIcon, AssistIcon, YellowCardIcon, RedCardIcon, SubInIcon, SubOutIcon, CleanSheetIcon, MvpCrownIcon } from './MatchIcons';

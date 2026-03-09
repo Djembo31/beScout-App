@@ -428,6 +428,7 @@ body {
 /* prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   .status-live { animation: none; }
+  .anim-fade { animation: none; }
   .score-glow { text-shadow: none; }
   .mvp-crown-glow { box-shadow: 0 0 0 1.5px rgba(255,215,0,0.30); }
   .ring-frame-gk,.ring-frame-def,.ring-frame-mid,.ring-frame-att { box-shadow: 0 0 0 2px currentColor; }
