@@ -373,6 +373,7 @@
     },
     "eventCategories": {
       "all": "Alle",
+      "eligible": "Offen für alle",
       "bescout": "BeScout",
       "sponsor": "Sponsoren",
       "club": "Verein",
@@ -387,6 +388,8 @@
     "eventsActiveGroup": "Jetzt aktiv",
     "eventsOpenGroup": "Anmeldung offen",
     "eventsEndedGroup": "Beendet",
+    "viewCards": "Kartenansicht",
+    "viewRows": "Listenansicht",
     "ergebnisse": {
       "upcoming": "Spieltag hat noch nicht begonnen",
       "upcomingDesc": "Ergebnisse werden nach dem Spieltag angezeigt",

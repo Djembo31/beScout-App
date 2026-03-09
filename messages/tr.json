@@ -371,6 +371,7 @@
     },
     "eventCategories": {
       "all": "Tümü",
+      "eligible": "Herkese Açık",
       "bescout": "BeScout",
       "sponsor": "Sponsorlar",
       "club": "Kulüp",
@@ -385,6 +386,8 @@
     "eventsActiveGroup": "Şu an aktif",
     "eventsOpenGroup": "Kayıt açık",
     "eventsEndedGroup": "Sona erdi",
+    "viewCards": "Kart Görünümü",
+    "viewRows": "Liste Görünümü",
     "ergebnisse": {
       "upcoming": "Maç haftası henüz başlamadı",
       "upcomingDesc": "Sonuçlar maç haftası bittikten sonra gösterilecek",
