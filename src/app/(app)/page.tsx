@@ -30,7 +30,6 @@ import {
 import { queryClient } from '@/lib/queryClient';
 
 // ── Home Components ──
-import { HomeSkeleton } from '@/components/home';
 import HomeStoryHeader from '@/components/home/HomeStoryHeader';
 import HomeSpotlight from '@/components/home/HomeSpotlight';
 import LiveTicker from '@/components/home/LiveTicker';
@@ -169,8 +168,6 @@ export default function HomePage() {
   }, [trendingPlayers, players]);
 
   // ── Guards ──
-  if (playersLoading) return <HomeSkeleton />;
-
   if (playersError && players.length === 0) {
     return (
       <div className="max-w-[1200px] mx-auto py-12">
@@ -197,13 +194,17 @@ export default function HomePage() {
       />
 
       {/* 2. Spotlight — One Focus Card */}
-      <HomeSpotlight
-        activeIPOs={activeIPOs}
-        nextEvent={nextEvent}
-        holdings={holdings}
-        trendingPlayers={trendingPlayers}
-        players={players}
-      />
+      {playersLoading ? (
+        <div className="h-40 bg-surface-base border border-white/10 rounded-2xl animate-pulse" />
+      ) : (
+        <HomeSpotlight
+          activeIPOs={activeIPOs}
+          nextEvent={nextEvent}
+          holdings={holdings}
+          trendingPlayers={trendingPlayers}
+          players={players}
+        />
+      )}
 
       {/* 3. Onboarding — Only for new users */}
       {uid && <OnboardingChecklist userId={uid} name={firstName} />}
@@ -252,88 +253,96 @@ export default function HomePage() {
       )}
 
       {/* 7. Event + IPO (only if NOT already shown in Spotlight) */}
-      {nextEvent && spotlightType !== 'event' && (
-        <div>
-          <SectionHeader
-            title={t('nextEvent')}
-            href="/fantasy"
-            badge={
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-400/25">
-                <Clock className="size-3 text-purple-400" />
-                <span className="text-[10px] font-bold text-purple-300">
-                  {nextEvent.status === 'running' ? getTimeUntil(nextEvent.ends_at) : getTimeUntil(nextEvent.starts_at)}
-                </span>
-              </span>
-            }
-          />
-          <Link href="/fantasy" className="block mt-3">
-            <div className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-purple-500/10 shadow-lg">
-              <div className="p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Trophy className="size-4 text-purple-400" />
-                      <span className="text-[10px] font-black uppercase text-purple-400">{nextEvent.format}</span>
-                    </div>
-                    <h3 className="text-base md:text-lg font-black text-balance">{nextEvent.name}</h3>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-white/50">
-                      <span className="flex items-center gap-1">
-                        <Users className="size-3.5" />
-                        {nextEvent.current_entries}/{nextEvent.max_entries ?? '\u221E'}
-                      </span>
-                      <span>{t('entryLabel')}{nextEvent.entry_fee === 0 ? t('entryFree') : `${fmtScout(centsToBsd(nextEvent.entry_fee))} $SCOUT`}</span>
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="text-[10px] text-white/40 mb-0.5">{t('prizeMoney')}</div>
-                    <div className="text-xl md:text-2xl font-black font-mono tabular-nums text-gold">
-                      {formatPrize(centsToBsd(nextEvent.prize_pool))}
-                    </div>
-                    <div className="text-[10px] text-white/40">$SCOUT</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div>
-      )}
-
-      {/* IPO Banner only if Spotlight doesn't already show it */}
-      {activeIPOs.length > 0 && spotlightType !== 'ipo' && (
-        <Link href={`/player/${activeIPOs[0].id}`} className="block">
-          <div className="relative overflow-hidden rounded-2xl border border-green-500/30 bg-green-500/10">
-            <div className="relative flex items-center justify-between p-4 gap-4">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="flex items-center justify-center size-10 rounded-2xl bg-green-500/15 border border-green-500/25 shrink-0">
-                  <Rocket className="size-5 text-green-500" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[10px] font-black uppercase text-green-500">{t('liveIPO')}</span>
-                    <span className="relative flex size-2.5">
-                      <span className="animate-ping motion-reduce:animate-none absolute inline-flex size-full rounded-full bg-green-500 opacity-75" />
-                      <span className="relative inline-flex rounded-full size-2.5 bg-green-500" />
+      {playersLoading ? (
+        <div className="h-24 bg-surface-base border border-white/10 rounded-2xl animate-pulse" />
+      ) : (
+        <>
+          {nextEvent && spotlightType !== 'event' && (
+            <div>
+              <SectionHeader
+                title={t('nextEvent')}
+                href="/fantasy"
+                badge={
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-400/25">
+                    <Clock className="size-3 text-purple-400" />
+                    <span className="text-[10px] font-bold text-purple-300">
+                      {nextEvent.status === 'running' ? getTimeUntil(nextEvent.ends_at) : getTimeUntil(nextEvent.starts_at)}
                     </span>
+                  </span>
+                }
+              />
+              <Link href="/fantasy" className="block mt-3">
+                <div className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-purple-500/10 shadow-lg">
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Trophy className="size-4 text-purple-400" />
+                          <span className="text-[10px] font-black uppercase text-purple-400">{nextEvent.format}</span>
+                        </div>
+                        <h3 className="text-base md:text-lg font-black text-balance">{nextEvent.name}</h3>
+                        <div className="flex items-center gap-3 mt-1 text-xs text-white/50">
+                          <span className="flex items-center gap-1">
+                            <Users className="size-3.5" />
+                            {nextEvent.current_entries}/{nextEvent.max_entries ?? '\u221E'}
+                          </span>
+                          <span>{t('entryLabel')}{nextEvent.entry_fee === 0 ? t('entryFree') : `${fmtScout(centsToBsd(nextEvent.entry_fee))} $SCOUT`}</span>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-[10px] text-white/40 mb-0.5">{t('prizeMoney')}</div>
+                        <div className="text-xl md:text-2xl font-black font-mono tabular-nums text-gold">
+                          {formatPrize(centsToBsd(nextEvent.prize_pool))}
+                        </div>
+                        <div className="text-[10px] text-white/40">$SCOUT</div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="font-black text-sm truncate">
-                    {activeIPOs.map((p) => `${p.first} ${p.last}`).join(', ')}
+                </div>
+              </Link>
+            </div>
+          )}
+
+          {/* IPO Banner only if Spotlight doesn't already show it */}
+          {activeIPOs.length > 0 && spotlightType !== 'ipo' && (
+            <Link href={`/player/${activeIPOs[0].id}`} className="block">
+              <div className="relative overflow-hidden rounded-2xl border border-green-500/30 bg-green-500/10">
+                <div className="relative flex items-center justify-between p-4 gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-center justify-center size-10 rounded-2xl bg-green-500/15 border border-green-500/25 shrink-0">
+                      <Rocket className="size-5 text-green-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-[10px] font-black uppercase text-green-500">{t('liveIPO')}</span>
+                        <span className="relative flex size-2.5">
+                          <span className="animate-ping motion-reduce:animate-none absolute inline-flex size-full rounded-full bg-green-500 opacity-75" />
+                          <span className="relative inline-flex rounded-full size-2.5 bg-green-500" />
+                        </span>
+                      </div>
+                      <div className="font-black text-sm truncate">
+                        {activeIPOs.map((p) => `${p.first} ${p.last}`).join(', ')}
+                      </div>
+                      <div className="text-xs text-white/50 truncate">
+                        {activeIPOs[0].club} · {activeIPOs[0].ipo.progress}% {t('sold')}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-xs text-white/50 truncate">
-                    {activeIPOs[0].club} · {activeIPOs[0].ipo.progress}% {t('sold')}
+                  <div className="shrink-0 text-right">
+                    <div className="font-mono font-black text-gold text-lg">{activeIPOs[0].ipo.price}</div>
+                    <div className="text-[10px] text-white/40">$SCOUT/DPC</div>
                   </div>
                 </div>
               </div>
-              <div className="shrink-0 text-right">
-                <div className="font-mono font-black text-gold text-lg">{activeIPOs[0].ipo.price}</div>
-                <div className="text-[10px] text-white/40">$SCOUT/DPC</div>
-              </div>
-            </div>
-          </div>
-        </Link>
+            </Link>
+          )}
+        </>
       )}
 
       {/* 8. Markt-Puls — Trending Players */}
-      {trendingWithPlayers.length > 0 && (
+      {playersLoading ? (
+        <div className="h-32 bg-surface-base border border-white/10 rounded-2xl animate-pulse" />
+      ) : trendingWithPlayers.length > 0 && (
         <>
           <div className="floodlight-divider" />
           <div>
