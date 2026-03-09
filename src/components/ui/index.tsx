@@ -123,6 +123,8 @@ export interface ModalProps {
   preventClose?: boolean;
   /** Modal size: sm=384px, md=576px (default), lg=768px, full=100% */
   size?: 'sm' | 'md' | 'lg' | 'full';
+  /** Full-screen on mobile instead of bottom sheet — for data-rich content like match results */
+  mobileFullScreen?: boolean;
 }
 
 const modalMaxW = {
@@ -132,7 +134,7 @@ const modalMaxW = {
   full: 'md:max-w-[calc(100vw-2rem)]',
 };
 
-export function Modal({ open, title, subtitle, children, footer, onClose, preventClose, size = 'md' }: ModalProps) {
+export function Modal({ open, title, subtitle, children, footer, onClose, preventClose, size = 'md', mobileFullScreen }: ModalProps) {
   const tcModal = useTranslations('common');
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -190,12 +192,20 @@ export function Modal({ open, title, subtitle, children, footer, onClose, preven
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className={cn('w-full bg-[#0d0d0f] border border-white/[0.12] shadow-card-lg rounded-t-3xl max-h-[90vh] overflow-hidden flex flex-col anim-bottom-sheet md:rounded-3xl md:mx-4 md:max-h-[85vh] md:anim-modal', modalMaxW[size])}
+        className={cn(
+          'w-full bg-[#0d0d0f] border border-white/[0.12] shadow-card-lg overflow-hidden flex flex-col',
+          mobileFullScreen
+            ? 'h-[100dvh] max-h-[100dvh] md:h-auto md:rounded-3xl md:mx-4 md:max-h-[85vh] md:anim-modal'
+            : 'rounded-t-3xl max-h-[90vh] anim-bottom-sheet md:rounded-3xl md:mx-4 md:max-h-[85vh] md:anim-modal',
+          modalMaxW[size],
+        )}
       >
-        {/* Swipe handle — mobile only */}
-        <div className="flex justify-center pt-2 pb-1 md:hidden flex-shrink-0">
-          <div className="w-10 h-1 bg-white/20 rounded-full" />
-        </div>
+        {/* Swipe handle — mobile only, hidden in full-screen mode */}
+        {!mobileFullScreen && (
+          <div className="flex justify-center pt-2 pb-1 md:hidden flex-shrink-0">
+            <div className="w-10 h-1 bg-white/20 rounded-full" />
+          </div>
+        )}
         {/* Header — fixed, never scrolls */}
         <div className="px-4 py-3 md:p-5 border-b border-white/10 flex items-center justify-between flex-shrink-0">
           <div className="min-w-0 flex-1">

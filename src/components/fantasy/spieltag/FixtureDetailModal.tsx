@@ -486,7 +486,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
   const awayColor = awayClub?.colors.primary ?? '#3B82F6';
 
   return (
-    <Modal open={isOpen} title="" onClose={onClose} size="lg">
+    <Modal open={isOpen} title="" onClose={onClose} size="lg" mobileFullScreen>
       {/* Score Header — premium glassmorphism */}
       <div
         className="relative overflow-hidden"
@@ -501,40 +501,43 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
           `,
         }} />
 
-        <div className="relative flex items-center justify-center gap-4 md:gap-8 pt-5 pb-6 px-4">
+        <div className="relative flex items-center justify-center gap-3 md:gap-8 pt-3 pb-4 md:pt-5 md:pb-6 px-4">
           {/* Home Club */}
-          <div className="flex flex-col items-center gap-2.5 flex-1 min-w-0">
-            <div className="relative" style={{ filter: `drop-shadow(0 0 24px ${homeColor}40)` }}>
-              <ClubLogo club={homeClub} size={80} short={fixture.home_club_short}  />
+          <div className="flex flex-col items-center gap-1.5 md:gap-2.5 flex-1 min-w-0">
+            <div className="relative md:hidden" style={{ filter: `drop-shadow(0 0 24px ${homeColor}40)` }}>
+              <ClubLogo club={homeClub} size={56} short={fixture.home_club_short} />
             </div>
-            <span className="font-black text-sm md:text-base text-center leading-tight text-balance line-clamp-2 tracking-tight">{fixture.home_club_name}</span>
+            <div className="relative hidden md:block" style={{ filter: `drop-shadow(0 0 24px ${homeColor}40)` }}>
+              <ClubLogo club={homeClub} size={80} short={fixture.home_club_short} />
+            </div>
+            <span className="font-black text-xs md:text-base text-center leading-tight text-balance line-clamp-2 tracking-tight">{fixture.home_club_name}</span>
           </div>
 
           {/* Score Center */}
           <div className="text-center shrink-0">
             {isSimulated ? (
               <>
-                <div className="flex items-center gap-3 md:gap-5">
-                  <span className="font-mono font-black text-[4rem] md:text-[5rem] tabular-nums leading-none" style={goldTextStyle}>
+                <div className="flex items-center gap-2.5 md:gap-5">
+                  <span className="font-mono font-black text-[2.75rem] md:text-[5rem] tabular-nums leading-none" style={goldTextStyle}>
                     {fixture.home_score}
                   </span>
                   <div className="flex flex-col items-center gap-1">
-                    <div className="w-[3px] h-3 rounded-full bg-gold/30" />
-                    <div className="w-[3px] h-3 rounded-full bg-gold/15" />
+                    <div className="w-[3px] h-2.5 md:h-3 rounded-full bg-gold/30" />
+                    <div className="w-[3px] h-2.5 md:h-3 rounded-full bg-gold/15" />
                   </div>
-                  <span className="font-mono font-black text-[4rem] md:text-[5rem] tabular-nums leading-none" style={goldTextStyle}>
+                  <span className="font-mono font-black text-[2.75rem] md:text-[5rem] tabular-nums leading-none" style={goldTextStyle}>
                     {fixture.away_score}
                   </span>
                 </div>
-                <div className="flex items-center justify-center gap-2 mt-2">
-                  <span className="px-2.5 py-1 rounded-md bg-white/[0.08] text-[10px] font-black text-white/60 uppercase tracking-widest border border-white/[0.06]">{ts('fullTime')}</span>
+                <div className="flex items-center justify-center gap-2 mt-1.5 md:mt-2">
+                  <span className="px-2 py-0.5 md:px-2.5 md:py-1 rounded-md bg-white/[0.08] text-[10px] font-black text-white/60 uppercase tracking-widest border border-white/[0.06]">{ts('fullTime')}</span>
                   <span className="text-[10px] text-white/30 font-medium tracking-wide">{ts('label')} {fixture.gameweek}</span>
                 </div>
               </>
             ) : (
               <>
-                <div className="font-mono font-black text-4xl md:text-5xl text-white/20 tracking-wider">vs</div>
-                <div className="flex items-center justify-center gap-2 mt-2.5">
+                <div className="font-mono font-black text-3xl md:text-5xl text-white/20 tracking-wider">vs</div>
+                <div className="flex items-center justify-center gap-2 mt-2 md:mt-2.5">
                   <span className="text-[10px] text-white/30 font-medium tracking-wide">{ts('label')} {fixture.gameweek}</span>
                 </div>
               </>
@@ -542,11 +545,14 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
           </div>
 
           {/* Away Club */}
-          <div className="flex flex-col items-center gap-2.5 flex-1 min-w-0">
-            <div className="relative" style={{ filter: `drop-shadow(0 0 24px ${awayColor}40)` }}>
-              <ClubLogo club={awayClub} size={80} short={fixture.away_club_short}  />
+          <div className="flex flex-col items-center gap-1.5 md:gap-2.5 flex-1 min-w-0">
+            <div className="relative md:hidden" style={{ filter: `drop-shadow(0 0 24px ${awayColor}40)` }}>
+              <ClubLogo club={awayClub} size={56} short={fixture.away_club_short} />
             </div>
-            <span className="font-black text-sm md:text-base text-center leading-tight text-balance line-clamp-2 tracking-tight">{fixture.away_club_name}</span>
+            <div className="relative hidden md:block" style={{ filter: `drop-shadow(0 0 24px ${awayColor}40)` }}>
+              <ClubLogo club={awayClub} size={80} short={fixture.away_club_short} />
+            </div>
+            <span className="font-black text-xs md:text-base text-center leading-tight text-balance line-clamp-2 tracking-tight">{fixture.away_club_name}</span>
           </div>
         </div>
         {/* Gold accent line — premium separator */}
@@ -567,7 +573,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
 
       {/* Tabs — Premium segmented control */}
       {stats.length > 0 && (
-        <div role="tablist" className="flex items-center justify-center gap-1 px-4 py-3 border-b border-white/[0.04]">
+        <div role="tablist" className="flex items-center justify-center gap-1 px-4 py-3 border-b border-white/[0.04] sticky top-0 z-10 bg-[#0d0d0f]">
           {(['overview', 'ranking', 'formation'] as const).map(tab => (
             <button
               key={tab}
@@ -591,7 +597,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
         </div>
       )}
 
-      <div id="fixture-tabpanel" className="max-h-[60vh] overflow-y-auto" tabIndex={0} role="tabpanel" aria-labelledby={`tab-${detailTab}`}>
+      <div id="fixture-tabpanel" tabIndex={0} role="tabpanel" aria-labelledby={`tab-${detailTab}`}>
         <div key={detailTab} className="px-4 py-5 md:px-6 md:py-6 anim-fade">
           {loading ? (
             <div className="flex items-center justify-center py-12" role="status">
