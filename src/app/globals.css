@@ -423,11 +423,11 @@ body {
   height: 2px;
 }
 
-/* prefers-reduced-motion */
+/* prefers-reduced-motion — comprehensive */
 @media (prefers-reduced-motion: reduce) {
-  .status-live { animation: none; }
-  .anim-fade { animation: none; }
-  .score-glow { text-shadow: none; }
-  .mvp-crown-glow { box-shadow: 0 0 0 1.5px rgba(255,215,0,0.30); }
-  .ring-frame-gk,.ring-frame-def,.ring-frame-mid,.ring-frame-att { box-shadow: 0 0 0 2px currentColor; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
