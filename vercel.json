@@ -7,7 +7,7 @@
     }
   },
   "crons": [
-    { "path": "/api/cron/gameweek-sync", "schedule": "*/30 * * * *" }
+    { "path": "/api/cron/gameweek-sync", "schedule": "0 6 * * *" }
   ],
   "headers": [
     {
