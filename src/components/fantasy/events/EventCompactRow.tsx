@@ -5,7 +5,10 @@ import { CheckCircle2, ChevronRight, Lock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { FantasyEvent } from '../types';
-import { getTypeStyle, formatCountdown } from '../helpers';
+import { getTypeStyle } from '../helpers';
+import { FillBar } from './FillBar';
+import { UrgencyTimer } from './UrgencyTimer';
+import { RequirementChips } from './RequirementChips';
 
 type Props = {
   event: FantasyEvent;
@@ -53,24 +56,20 @@ export function EventCompactRow({ event, onClick }: Props) {
         </div>
       </div>
 
+      {/* Requirement icons (compact) */}
+      <RequirementChips event={event} variant="icons" max={3} />
+
+      {/* Mini fill bar */}
+      <FillBar current={event.participants} max={event.maxParticipants} variant="mini" />
+
       {/* Status + arrow */}
       <div className="flex-shrink-0 flex items-center gap-1.5">
         {event.isJoined ? (
           <CheckCircle2 className="size-4 text-green-500" aria-hidden="true" />
-        ) : event.status === 'running' ? (
-          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-green-500/15">
-            <div className="size-1.5 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none" />
-            <span className="text-xs font-bold text-green-500">LIVE</span>
-          </div>
-        ) : event.status === 'late-reg' ? (
-          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-orange-500/15">
-            <div className="size-1.5 rounded-full bg-orange-500 animate-pulse motion-reduce:animate-none" />
-            <span className="text-xs font-bold text-orange-400">Late</span>
-          </div>
         ) : event.status === 'ended' ? (
           <Lock className="size-3.5 text-white/25" aria-hidden="true" />
         ) : (
-          <span className="text-xs font-medium text-white/30 tabular-nums">{formatCountdown(event.lockTime)}</span>
+          <UrgencyTimer lockTime={event.lockTime} status={event.status} />
         )}
         <ChevronRight className="size-3.5 text-white/15" aria-hidden="true" />
       </div>
