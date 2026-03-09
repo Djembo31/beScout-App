@@ -34,8 +34,8 @@ const config: Config = {
         "card-lg": "0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
       },
       fontFamily: {
-        sans: ["Outfit", "sans-serif"],
-        mono: ["Space Mono", "monospace"],
+        sans: ["var(--font-outfit)", "Outfit", "sans-serif"],
+        mono: ["var(--font-space-mono)", "Space Mono", "monospace"],
       },
     },
   },

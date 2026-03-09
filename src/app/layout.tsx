@@ -2,10 +2,25 @@ import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
+import { Outfit, Space_Mono } from 'next/font/google';
 import { Providers } from '@/components/providers/Providers';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import { CookieConsent } from '@/components/legal/CookieConsent';
 import './globals.css';
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  weight: ['400', '700', '900'],
+  display: 'swap',
+  variable: '--font-outfit',
+});
+
+const spaceMono = Space_Mono({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  display: 'swap',
+  variable: '--font-space-mono',
+});
 
 export const metadata: Metadata = {
   title: { default: 'BeScout - Fan-Engagement Plattform', template: '%s | BeScout' },
@@ -39,7 +54,7 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className={`${outfit.variable} ${spaceMono.variable}`}>
       <body className="min-h-screen bg-bg-main text-white font-sans antialiased">
         <NextIntlClientProvider messages={messages}>
           <Providers>
