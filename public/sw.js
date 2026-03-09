@@ -1,5 +1,6 @@
 // BeScout Service Worker — App Shell caching + push notifications
 const CACHE_NAME = 'bescout-v2';
+const API_CACHE_NAME = 'bescout-api-v1';
 const APP_SHELL = [
   '/',
   '/fantasy',
@@ -26,15 +27,45 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    Promise.all([
+      // Clean old cache versions
+      caches.keys().then((keys) =>
+        Promise.all(keys.filter((k) => k !== CACHE_NAME && k !== API_CACHE_NAME).map((k) => caches.delete(k)))
+      ),
+      // Keep API cache size manageable — max 100 entries
+      caches.open(API_CACHE_NAME).then((cache) =>
+        cache.keys().then((keys) => {
+          if (keys.length > 100) {
+            return Promise.all(keys.slice(0, keys.length - 100).map((key) => cache.delete(key)));
+          }
+        })
+      ),
+    ])
   );
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+  const url = new URL(request.url);
+
+  // Stale-while-revalidate for Supabase REST API (GET only)
+  if (request.method === 'GET' && url.hostname.endsWith('supabase.co') && url.pathname.startsWith('/rest/v1/')) {
+    event.respondWith(
+      caches.open(API_CACHE_NAME).then(async (cache) => {
+        const cached = await cache.match(request);
+        const fetchPromise = fetch(request).then((networkResponse) => {
+          if (networkResponse.ok) {
+            cache.put(request, networkResponse.clone());
+          }
+          return networkResponse;
+        }).catch(() => cached);
+
+        return cached || fetchPromise;
+      })
+    );
+    return;
+  }
 
   // Navigation requests: network-first, fallback to cache then offline page
   if (request.mode === 'navigate') {
