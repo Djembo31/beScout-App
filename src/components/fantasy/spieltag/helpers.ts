@@ -35,16 +35,6 @@ export const getPosAccent = (pos: string): string => {
   }
 };
 
-/** Position dot color for GoalTicker pills */
-export const getPosDotColor = (pos: string): string => {
-  switch (pos) {
-    case 'GK': return 'bg-emerald-400';
-    case 'DEF': return 'bg-amber-400';
-    case 'MID': return 'bg-sky-400';
-    case 'ATT': return 'bg-rose-400';
-    default: return 'bg-white/50';
-  }
-};
 
 /** Status accent classes for fixture/event status */
 export const getStatusAccent = (status: string) => {

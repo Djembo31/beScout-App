@@ -13,6 +13,13 @@ type Props = {
   onSelect: (fixture: Fixture) => void;
 };
 
+const goldScoreStyle = {
+  background: 'linear-gradient(180deg, #FFE44D, #E6B800)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.2))',
+} as const;
+
 export function TopspielCard({ fixture, onSelect }: Props) {
   const t = useTranslations('fantasy');
   const homeClub = getClub(fixture.home_club_short) || getClub(fixture.home_club_name);
@@ -52,9 +59,9 @@ export function TopspielCard({ fixture, onSelect }: Props) {
         <div className="shrink-0 text-center px-2">
           {isSimulated ? (
             <div className="flex items-center gap-3">
-              <span className="font-mono font-black text-4xl md:text-5xl tabular-nums score-glow">{fixture.home_score}</span>
+              <span className="font-mono font-black text-4xl md:text-5xl tabular-nums" style={goldScoreStyle}>{fixture.home_score}</span>
               <div className="w-[2px] h-6 bg-gold/30 rounded-full" />
-              <span className="font-mono font-black text-4xl md:text-5xl tabular-nums score-glow">{fixture.away_score}</span>
+              <span className="font-mono font-black text-4xl md:text-5xl tabular-nums" style={goldScoreStyle}>{fixture.away_score}</span>
             </div>
           ) : isPendingResult ? (
             <div className="flex flex-col items-center gap-1">

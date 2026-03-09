@@ -2839,7 +2839,11 @@
     "poweredBy": "Powered by BeScout",
     "sponsoredBy": "{sponsor} × BeScout",
     "assistCount": "{count, plural, one {# asist} other {# asist}}",
-    "goalCount": "{count, plural, one {# gol} other {# gol}}"
+    "goalCount": "{count, plural, one {# gol} other {# gol}}",
+    "finalizeBtn": "Değerlendir",
+    "importBtn": "İçe aktar ({count}/{total})",
+    "fixtureCount": "{count, plural, one {# Maç} other {# Maç}}",
+    "cardGoals": "{count, plural, one {# gol} other {# gol}}"
   },
   "sponsorStats": {
     "title": "Sponsor KPI'ları",

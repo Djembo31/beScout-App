@@ -185,7 +185,7 @@ export function SpieltagTab({
               className="flex items-center gap-1.5 px-3 py-2 min-h-[40px] bg-sky-500/10 border border-sky-500/30 rounded-xl text-xs font-bold text-sky-400 hover:bg-sky-500/20 disabled:opacity-50 transition-colors"
             >
               {importing ? <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" /> : <ArrowRight aria-hidden="true" className="size-3.5" />}
-              Import ({finishedCount}/{fixtures.length})
+              {ts('importBtn', { count: finishedCount, total: fixtures.length })}
             </button>
           )}
           {isAdmin && isCurrentGw && allFixturesFinished && !allEnded && gwEvents.length > 0 && (
@@ -195,7 +195,7 @@ export function SpieltagTab({
               className="flex items-center gap-1.5 px-3 py-2 min-h-[40px] bg-gold/10 border border-gold/30 rounded-xl text-xs font-bold text-gold hover:bg-gold/20 disabled:opacity-50 transition-colors"
             >
               {simulating ? <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" /> : <Trophy aria-hidden="true" className="size-3.5" />}
-              Auswerten
+              {ts('finalizeBtn')}
             </button>
           )}
           {isAdmin && isCurrentGw && !apiAvailable && gwStatus === 'open' && gwEvents.length > 0 && (
@@ -302,7 +302,7 @@ export function SpieltagTab({
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
               <span className="text-sky-400 mt-0.5">1.</span>
-              <span>{fixtures.length} Fixtures</span>
+              <span>{ts('fixtureCount', { count: fixtures.length })}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-gold mt-0.5">2.</span>

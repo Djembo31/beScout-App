@@ -2847,7 +2847,11 @@
     "poweredBy": "Powered by BeScout",
     "sponsoredBy": "{sponsor} × BeScout",
     "assistCount": "{count, plural, one {# Vorlage} other {# Vorlagen}}",
-    "goalCount": "{count, plural, one {# Tor} other {# Tore}}"
+    "goalCount": "{count, plural, one {# Tor} other {# Tore}}",
+    "finalizeBtn": "Auswerten",
+    "importBtn": "Import ({count}/{total})",
+    "fixtureCount": "{count, plural, one {# Fixture} other {# Fixtures}}",
+    "cardGoals": "{count, plural, one {# Tor} other {# Tore}}"
   },
   "sponsorStats": {
     "title": "Sponsor-KPIs",

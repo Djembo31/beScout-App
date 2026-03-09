@@ -68,42 +68,42 @@ export function FixtureCard({ fixture, onSelect }: Props) {
       <div className="flex items-center gap-2">
         {/* Home */}
         <div className="flex-1 flex items-center gap-2 justify-end min-w-0">
-          <span className="font-semibold text-xs truncate max-w-[60px]">{fixture.home_club_short || fixture.home_club_name}</span>
+          <span className="font-semibold text-xs truncate max-w-[48px] sm:max-w-[72px]">{fixture.home_club_short || fixture.home_club_name}</span>
           <ClubLogo club={homeClub} size={36} short={fixture.home_club_short} />
         </div>
 
         {/* Score pill or kickoff */}
-        <div className="shrink-0 w-[72px] flex justify-center">
+        <div className="shrink-0 w-[68px] sm:w-[72px] flex justify-center">
           {isFinished ? (
-            <div className="px-3 py-1.5 bg-gold/[0.06] border border-gold/10 rounded-lg">
-              <span className="font-mono font-black text-xl tabular-nums score-glow">
+            <div className="px-2.5 py-1.5 bg-gold/[0.06] border border-gold/10 rounded-lg" aria-hidden="true">
+              <span className="font-mono font-black text-lg sm:text-xl tabular-nums score-glow">
                 {fixture.home_score} <span className="text-white/25">-</span> {fixture.away_score}
               </span>
             </div>
           ) : isPendingResult ? (
-            <div className="px-3 py-1.5 bg-amber-500/[0.06] border border-amber-500/10 rounded-lg" aria-label={t('resultPending')}>
+            <div className="px-2.5 py-1.5 bg-amber-500/[0.06] border border-amber-500/10 rounded-lg" aria-hidden="true">
               <span className="font-mono font-bold text-sm tabular-nums text-amber-400/70">? - ?</span>
             </div>
           ) : kickoff ? (
-            <div className="px-3 py-1.5 bg-white/[0.03] border border-white/[0.06] rounded-lg">
+            <div className="px-2.5 py-1.5 bg-white/[0.03] border border-white/[0.06] rounded-lg" aria-hidden="true">
               <span className="font-mono font-bold text-sm tabular-nums text-white/40">{kickoff.time}</span>
             </div>
           ) : (
-            <span className="text-white/20 text-sm font-bold">vs</span>
+            <span className="text-white/20 text-sm font-bold" aria-hidden="true">vs</span>
           )}
         </div>
 
         {/* Away */}
         <div className="flex-1 flex items-center gap-2 min-w-0">
           <ClubLogo club={awayClub} size={36} short={fixture.away_club_short} />
-          <span className="font-semibold text-xs truncate max-w-[60px]">{fixture.away_club_short || fixture.away_club_name}</span>
+          <span className="font-semibold text-xs truncate max-w-[48px] sm:max-w-[72px]">{fixture.away_club_short || fixture.away_club_name}</span>
         </div>
       </div>
 
       {/* Bottom row: goal count + chevron */}
       <div className="flex items-center justify-between mt-2">
         <span className="text-xs text-white/20">
-          {isFinished && totalGoals > 0 ? `${totalGoals} Tore` : ''}
+          {isFinished && totalGoals > 0 ? t('cardGoals', { count: totalGoals }) : ''}
         </span>
         <ChevronRight className="size-3.5 text-white/0 group-hover:text-white/30 transition-colors" aria-hidden="true" />
       </div>

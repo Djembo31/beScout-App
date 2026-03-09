@@ -74,7 +74,7 @@ function GoalTicker({ stats, homeClubId, homeClubLogo, awayClubLogo, homeShort, 
   if (scorers.length === 0) return null;
 
   return (
-    <div className="overflow-x-auto scrollbar-hide snap-x px-4 py-2 border-b border-white/[0.06]" tabIndex={0} role="region" aria-label={ts('goalScorers')}>
+    <div className="overflow-x-auto scrollbar-hide snap-x motion-reduce:snap-none px-4 py-2 border-b border-white/[0.06]" tabIndex={0} role="region" aria-label={ts('goalScorers')}>
       <div className="flex items-center gap-2">
         {scorers.map(s => {
           const href = s.player_id ? `/player/${s.player_id}` : '#';
@@ -142,10 +142,10 @@ function MatchTimeline({ substitutions, homeClubId }: {
               {/* Home side — right-aligned */}
               {isHome ? (
                 <div className="flex items-center justify-end gap-1 pr-3 py-1.5 min-w-0">
-                  <span className="text-white/25 text-xs truncate min-w-0 line-through">{outName}</span>
-                  <SubOutIcon size={10} />
-                  <SubInIcon size={10} />
                   <span className="text-white/90 text-xs font-semibold truncate min-w-0">{inName}</span>
+                  <SubInIcon size={10} />
+                  <SubOutIcon size={10} />
+                  <span className="text-white/25 text-xs truncate min-w-0 line-through">{outName}</span>
                 </div>
               ) : (
                 <div />
@@ -162,10 +162,10 @@ function MatchTimeline({ substitutions, homeClubId }: {
               {/* Away side — left-aligned */}
               {!isHome ? (
                 <div className="flex items-center gap-1 pl-3 py-1.5 min-w-0">
-                  <span className="text-white/25 text-xs truncate min-w-0 line-through">{outName}</span>
-                  <SubOutIcon size={10} />
                   <SubInIcon size={10} />
                   <span className="text-white/90 text-xs font-semibold truncate min-w-0">{inName}</span>
+                  <SubOutIcon size={10} />
+                  <span className="text-white/25 text-xs truncate min-w-0 line-through">{outName}</span>
                 </div>
               ) : (
                 <div />
