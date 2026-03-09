@@ -48,8 +48,9 @@ Domaenen-spezifische Regeln laden automatisch per Glob-Pattern.
 1. Anil beschreibt Feature (1-3 Saetze)
 2. **ICH schreibe Spec** → `memory/features/[name].md` (Codebase recherchieren, DB pruefen)
 3. **Anil reviewed** → "passt" oder Korrekturen
-4. **ERST DANN Code schreiben** — Spec ist Single Source of Truth
-5. Template + Lifecycle-Details → siehe `core.md`
+4. **ICH schreibe Tests** aus Spec (Unit + E2E) → Anil reviewed Verhalten
+5. **ERST DANN Code schreiben** bis Tests gruen — Spec ist Single Source of Truth
+6. Template + Lifecycle-Details → siehe `core.md`
 
 ## VOR jeder Aenderung (PFLICHT)
 1. Bestehenden Code pruefen BEVOR neuer Code geschrieben wird:
@@ -77,11 +78,25 @@ Kurzfassung: `'use client'` alle Pages | Types in `types/index.ts` | UI in `ui/i
 `cn()` classNames | `fmtScout()` Zahlen | Component→Service→Supabase | DE Labels, EN Code
 
 ## Quality Pipeline (nach UI-Aenderungen)
-1. `npx next build` → gruener Build
-2. /baseline-ui [datei]
-3. /fixing-accessibility [datei]
-4. /fixing-motion-performance [datei]
-5. /simplify [datei] (bei groesseren Changes)
+1. `npx vitest run [betroffene tests]` → alle Tests gruen
+2. `npx next build` → gruener Build
+3. /baseline-ui [datei]
+4. /fixing-accessibility [datei]
+5. /fixing-motion-performance [datei]
+6. /simplify [datei] (bei groesseren Changes)
+
+## Compaction (KRITISCH)
+When compacting context, ALWAYS preserve:
+- All modified file paths from this session
+- Current feature spec status + open requirements
+- All build/test commands run and their results
+- Unresolved errors or blockers
+- Active decisions not yet implemented
+
+## Automation (Hooks)
+- **PostToolUse:** Auto ESLint --fix nach jedem Edit/Write auf .ts/.tsx
+- **PreToolUse:** Safety Guard blockt destructive Bash Commands (rm -rf, DROP, force push)
+- **Stop:** Prompt-Check NUR wenn UI-Components geaendert wurden
 
 ## Referenzen
 - docs/VISION.md — Produktvision

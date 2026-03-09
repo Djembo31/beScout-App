@@ -10,10 +10,11 @@ description: Kern-Workflow, Knowledge Lifecycle und Session-Protokoll
 5. Anil sagt was ansteht → los
 
 ## Workflow
-- Features (>10 Zeilen): **Spec schreiben → Anil Review → Code → Build → Verify**
+- Features (>10 Zeilen): **Spec schreiben → Anil Review → Tests schreiben → Code → Build → Verify**
 - Bugfixes (<10 Zeilen): Direkt fixen, kurz erklaeren
 - Rollback-Regel: Nicht flicken. Git zuruecksetzen, Plan anpassen, sauber neu
 - DB-first: Migration → Service → Query Hook → UI → Build
+- Test-first: Tests aus Spec ableiten → Implementation bis Tests gruen → Anil reviewed Tests (=Verhalten), nicht Code
 
 ## Skills (gezielt einsetzen)
 ### Feature-Arbeit
@@ -44,18 +45,24 @@ description: Kern-Workflow, Knowledge Lifecycle und Session-Protokoll
 5. **STOP — Anil muss "passt" sagen bevor Code geschrieben wird**
 6. Status: **Spec Review**
 
-### 2. Implementation
-7. Code nach Spec, Spec als Single Source of Truth
-8. Feature-File laufend updaten: Requirements abhaken, Entscheidungen, Files
-9. Bei Unterbrechung: Feature-File + `current-sprint.md` updaten
-10. Status: **In Progress**
+### 2. Tests (ICH schreibe, Anil reviewed Tests = Verhalten)
+7. Tests aus Spec ableiten (Unit fuer Services, E2E fuer Critical Paths)
+8. Anil reviewed Tests — "das Verhalten stimmt" ist das Gate, nicht der Code
+9. Status: **Tests Written**
 
-### 3. Abschluss
-11. Build gruen, Feature komplett
-12. Feature-File → `features/archive/` verschieben
-13. `current-sprint.md` → Feature aus Aktive-Tabelle entfernen
-14. Erkenntnisse → relevante Rules/Topic-Files updaten
-15. Status: **Done**
+### 3. Implementation
+10. Code nach Spec, Spec als Single Source of Truth
+11. Implementation bis alle Tests gruen
+12. Feature-File laufend updaten: Requirements abhaken, Entscheidungen, Files
+13. Bei Unterbrechung: Feature-File + `current-sprint.md` updaten
+14. Status: **In Progress**
+
+### 4. Abschluss
+15. Build gruen, alle Tests gruen, Feature komplett
+16. Feature-File → `features/archive/` verschieben
+17. `current-sprint.md` → Feature aus Aktive-Tabelle entfernen
+18. Erkenntnisse → relevante Rules/Topic-Files updaten
+19. Status: **Done**
 
 ## Spec Template (`memory/features/`)
 ```markdown
@@ -93,8 +100,17 @@ Loading | Empty | Error | Success | Disabled
 ## Nicht im Scope
 - ...
 
-## Abnahme (woran erkennt man "fertig"?)
-- [ ] ...
+## Abnahme (AUSFUEHRBAR — keine Prosa, nur Commands)
+- [ ] `npx next build` → 0 errors
+- [ ] `npx vitest run [betroffene test files]` → all pass
+- [ ] `npx playwright test [betroffene e2e spec]` → all pass (wenn UI)
+- [ ] Screenshot: [was visuell geprueft werden muss] (wenn UI)
+- [ ] [Weitere feature-spezifische Checks]
+
+## Tests (VOR Implementation schreiben lassen)
+- Unit Tests: [welche Service-Funktionen testen]
+- E2E Tests: [welche User-Flows abdecken]
+- Edge Cases: [was explizit getestet werden muss]
 
 ## Aktueller Stand (bei Unterbrechung updaten!)
 ...
@@ -152,6 +168,22 @@ Feedback: "pattern notiert: X" oder "error dokumentiert: Y"
 ## Session-Hygiene
 - /compact bei Themenwechsel
 - Bestehende Components/Services IMMER pruefen bevor neu gebaut wird
+
+## Compaction (was ueberleben MUSS)
+Wenn Kontext komprimiert wird, IMMER bewahren:
+- Liste aller geaenderten Files in dieser Session
+- Aktueller Feature-Spec Status + offene Requirements
+- Alle ausgefuehrten Build/Test Commands + deren Ergebnisse
+- Ungeloeste Fehler oder Blocker
+- Aktive Entscheidungen die noch nicht umgesetzt sind
+
+## Parallele Sessions (Worktrees)
+Fuer unabhaengige Tasks: Anil kann 2-3 Claude Code Instanzen parallel starten.
+- Jede Instanz arbeitet in eigenem Git Worktree (isolierter Branch)
+- Worktree erstellen: `git worktree add ../bescout-[feature] -b feature/[name]`
+- Nach Abschluss: Branch mergen + Worktree entfernen: `git worktree remove ../bescout-[feature]`
+- Ideal fuer: Feature A + Bug B + Tests C gleichzeitig
+- NICHT ideal fuer: Tasks die gleiche Files aendern (Merge Conflicts)
 
 ## Code-Konventionen
 - `'use client'` auf allen Pages (Client Components)

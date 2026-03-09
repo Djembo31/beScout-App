@@ -7,12 +7,34 @@
     "Edit(*)": true
   },
   "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/auto-lint.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/safety-guard.sh"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "Check the conversation. Did the assistant handle ALL of these for EVERY changed UI component: 1) hover/active/focus/disabled states 2) aria-labels on interactive elements 3) loading/empty/error states 4) mobile touch targets min 44px 5) tabular-nums on numbers 6) German labels, English code variables? Also: were existing components/services reused instead of rebuilt? Were the active feature-file requirements fully addressed? If ANY item is missing, respond with {\"ok\": false, \"reason\": \"Missing: [list specific items per file]\"}. If all good, respond with {\"ok\": true}."
+            "prompt": "Check ONLY if the assistant modified .tsx/.ts component files in this conversation turn. If NO component files were changed (e.g. only config, docs, planning, or non-code discussion), respond {\"ok\": true}. If component files WERE changed, check: 1) hover/active/focus/disabled states 2) aria-labels on interactive elements 3) loading/empty/error states 4) mobile touch targets min 44px 5) tabular-nums on numbers 6) German labels, English code variables 7) existing components/services reused not rebuilt. If ANY item missing, respond {\"ok\": false, \"reason\": \"Missing: [list]\"}. If all good, respond {\"ok\": true}."
           }
         ]
       }
