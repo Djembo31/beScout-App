@@ -147,16 +147,21 @@ export default function MarketPage() {
   }, [searchParams, setTab]);
 
   // ── React Query Hooks (data) ──
+  // Shared queries (needed by both tabs)
   const { data: enrichedPlayers = [], isLoading: playersLoading, isError: playersError } = useEnrichedPlayers(user?.id);
   const { data: ipoList = [] } = useActiveIpos();
-  const { data: announcedIpos = [] } = useAnnouncedIpos();
-  const { data: endedIpos = [] } = useRecentlyEndedIpos();
-  const { data: trending = [] } = useTrendingPlayers(8);
-  const { data: watchlistEntries = [] } = useWatchlist(user?.id);
-  const { data: incomingOffers = [] } = useIncomingOffers(user?.id);
-  const { data: priceHistMap } = useAllPriceHistories(10);
   const { data: holdings = [] } = useHoldings(user?.id);
+  const { data: watchlistEntries = [] } = useWatchlist(user?.id);
   const { data: recentOrders = [] } = useAllOpenOrders();
+  const { data: priceHistMap } = useAllPriceHistories(10);
+
+  // Kaufen-only queries (gated by tab)
+  const { data: announcedIpos = [] } = useAnnouncedIpos({ enabled: tab === 'kaufen' });
+  const { data: endedIpos = [] } = useRecentlyEndedIpos({ enabled: tab === 'kaufen' });
+  const { data: trending = [] } = useTrendingPlayers(8, { enabled: tab === 'kaufen' });
+
+  // Portfolio-only queries (gated by tab)
+  const { data: incomingOffers = [] } = useIncomingOffers(user?.id, { enabled: tab === 'portfolio' });
 
   // ── Merge price histories into enriched players ──
   const players = useMemo(() => {

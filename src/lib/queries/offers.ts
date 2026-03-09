@@ -6,11 +6,11 @@ import { getIncomingOffers } from '@/lib/services/offers';
 
 const ONE_MIN = 60 * 1000;
 
-export function useIncomingOffers(userId: string | undefined) {
+export function useIncomingOffers(userId: string | undefined, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: qk.offers.incoming(userId!),
     queryFn: () => getIncomingOffers(userId!),
-    enabled: !!userId,
+    enabled: !!userId && (options?.enabled ?? true),
     staleTime: ONE_MIN,
     select: (data) => data.filter(o => o.status === 'pending'),
   });
