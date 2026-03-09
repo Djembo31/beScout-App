@@ -62,3 +62,13 @@ Desktop.ini
 nul
 
 .vercel
+
+# Research pipeline — agent outputs (temporary, feature-specific)
+.claude/research/*-raw.md
+.claude/research/*-verified.md
+.claude/research/*-plan.md
+.claude/research/*-intel.md
+.claude/research/archive/
+# Keep templates and .gitkeep
+!.claude/research/.gitkeep
+!.claude/research/agent-prompts.md

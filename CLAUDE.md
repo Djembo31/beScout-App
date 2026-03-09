@@ -34,9 +34,9 @@ next-intl (Cookie bescout-locale) | lucide-react
 | SideNav/TopBar | `layout/` | Navigation + Search + Notifications |
 | Loader2 | `lucide-react` | EINZIGER Loading Spinner (nie custom border-divs) |
 
-## Regeln → .claude/rules/ (11 Files)
+## Regeln → .claude/rules/ (12 Files)
 Domaenen-spezifische Regeln laden automatisch per Glob-Pattern.
-**Immer geladen:** core.md, business.md, common-errors.md
+**Immer geladen:** core.md, business.md, common-errors.md, orchestrator.md
 **Path-spezifisch:** ui-components.md, database.md, trading.md, fantasy.md, gamification.md, community.md, club-admin.md, profile.md
 
 ## Memory → memory/
@@ -44,13 +44,14 @@ Domaenen-spezifische Regeln laden automatisch per Glob-Pattern.
 - current-sprint.md: Aktueller Stand + naechste Prioritaet
 - Deep-Dive Files (on-demand): architecture.md, patterns.md, backend-systems.md, decisions.md, errors.md, sessions.md
 
-## Spec-Driven Workflow (PFLICHT fuer Features >10 Zeilen)
+## Orchestrator Workflow (PFLICHT fuer Features >10 Zeilen)
 1. Anil beschreibt Feature (1-3 Saetze)
-2. **ICH schreibe Spec** → `memory/features/[name].md` (Codebase recherchieren, DB pruefen)
-3. **Anil reviewed** → "passt" oder Korrekturen
-4. **ICH schreibe Tests** aus Spec (Unit + E2E) → Anil reviewed Verhalten
-5. **ERST DANN Code schreiben** bis Tests gruen — Spec ist Single Source of Truth
-6. Template + Lifecycle-Details → siehe `core.md`
+2. **Research Pipeline** → Agents recherchieren, Output in `.claude/research/`
+3. **ICH schreibe Spec** mit TypeScript Contracts → `memory/features/[name].md`
+4. **Anil reviewed** → "passt" oder Korrekturen
+5. **Agents implementieren** in Worktrees → ICH orchestriere, merge, reviewe
+6. **Verification Agents** → Build + Tests + Code Review (parallel)
+7. Modes + Details → siehe `orchestrator.md`
 
 ## VOR jeder Aenderung (PFLICHT)
 1. Bestehenden Code pruefen BEVOR neuer Code geschrieben wird:

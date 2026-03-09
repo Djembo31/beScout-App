@@ -10,40 +10,45 @@ description: Kern-Workflow, Knowledge Lifecycle und Session-Protokoll
 5. Anil sagt was ansteht → los
 
 ## Workflow
-- Features (>10 Zeilen): **Spec schreiben → Anil Review → Tests schreiben → Code → Build → Verify**
-- Bugfixes (<10 Zeilen): Direkt fixen, kurz erklaeren
+- **Mode 0-1** (Bugfix/Klein): Direkt fixen oder 1 Research-Agent → selbst implementieren
+- **Mode 2-3** (Feature/Architektur): Orchestrator-Modus → siehe `orchestrator.md`
+- Mode-Auswahl: ICH entscheide automatisch. Anil kann ueberschreiben.
 - Rollback-Regel: Nicht flicken. Git zuruecksetzen, Plan anpassen, sauber neu
 - DB-first: Migration → Service → Query Hook → UI → Build
-- Test-first: Tests aus Spec ableiten → Implementation bis Tests gruen → Anil reviewed Tests (=Verhalten), nicht Code
+- Test-first: Tests aus Spec → Implementation bis Tests gruen
 
 ## Skills (gezielt einsetzen)
-### Feature-Arbeit
-1. Spec schreiben → `memory/features/[name].md` (ICH schreibe, Anil reviewed)
-2. Anil sagt "passt" → Code implementieren
-3. `npx next build` → gruener Build
-4. `/baseline-ui` → UI-Qualitaet pruefen
-5. `/fixing-accessibility` → a11y pruefen
-6. `/fixing-motion-performance` → Animationen pruefen
-7. `/simplify` → Reuse + Code-Qualitaet pruefen
+### Feature-Arbeit (Mode 2-3: Agents machen das)
+1. Research Pipeline → `.claude/research/` (Agents explorieren, ICH bleibe sauber)
+2. Spec schreiben → `memory/features/[name].md` mit Contracts (ICH schreibe)
+3. Anil sagt "passt" → Implementation-Agents dispatchen (Worktrees)
+4. Verification-Agents: Build + Review + QA (parallel)
+5. Quality Pipeline: `/baseline-ui` → `/fixing-accessibility` → `/simplify`
+
+### Feature-Arbeit (Mode 0-1: ICH mache das)
+1. Spec schreiben (kurz) → Code → Build → Verify
+2. Quality Pipeline wenn UI geaendert
 
 ### Bug-Fixing
 1. `/systematic-debugging` → Root Cause finden, nicht raten
 2. Fix → Build → Verify
 
 ### MCP Server nutzen
-- **context7:** Library-Docs nachschlagen wenn unsicher (React Query, next-intl, Supabase)
+- **context7:** Library-Docs nachschlagen
 - **supabase:** SQL, Migrations, Schema-Abfragen
-- **playwright:** Screenshots nach UI-Aenderungen zur visuellen Kontrolle
+- **playwright:** Screenshots nach UI-Aenderungen
+- **greptile:** Semantische Code-Suche wenn Text-Grep nicht reicht
 
 ## Feature-Lifecycle (VERBINDLICH — Spec-Driven)
 
 ### 1. Spec (ICH schreibe, Anil reviewed)
 1. Anil beschreibt Feature (1-3 Saetze reichen)
-2. Ich schreibe vollstaendige Spec → `memory/features/[name].md`
-3. Ich recherchiere Codebase: bestehende Services, Tables, Components
-4. `current-sprint.md` → Aktive Features updaten
-5. **STOP — Anil muss "passt" sagen bevor Code geschrieben wird**
-6. Status: **Spec Review**
+2. **Research Pipeline** starten (1-3 Passes je nach Komplexitaet) → `.claude/research/`
+3. Ich schreibe Spec basierend auf VERIFIZIERTEM Research → `memory/features/[name].md`
+4. Spec enthaelt TypeScript Contracts (Interfaces, Signatures) → Agent-Koordination
+5. `current-sprint.md` → Aktive Features updaten
+6. **STOP — Anil muss "passt" sagen bevor Code geschrieben wird**
+7. Status: **Spec Review**
 
 ### 2. Tests (ICH schreibe, Anil reviewed Tests = Verhalten)
 7. Tests aus Spec ableiten (Unit fuer Services, E2E fuer Critical Paths)
@@ -51,8 +56,8 @@ description: Kern-Workflow, Knowledge Lifecycle und Session-Protokoll
 9. Status: **Tests Written**
 
 ### 3. Implementation
-10. Code nach Spec, Spec als Single Source of Truth
-11. Implementation bis alle Tests gruen
+10. **Mode 2-3:** Agents implementieren in Worktrees. ICH orchestriere + merge.
+11. **Mode 0-1:** ICH implementiere direkt. Spec bleibt Single Source of Truth.
 12. Feature-File laufend updaten: Requirements abhaken, Entscheidungen, Files
 13. Bei Unterbrechung: Feature-File + `current-sprint.md` updaten
 14. Status: **In Progress**
@@ -86,6 +91,13 @@ description: Kern-Workflow, Knowledge Lifecycle und Session-Protokoll
 ## Betroffene Services/Components
 - Bestehend: [was wiederverwendet wird]
 - Neu: [was gebaut werden muss]
+
+## Contracts (PFLICHT fuer Mode 2-3 — Agents implementieren gegen diese)
+- DB: Migration SQL
+- Types: TypeScript Interfaces
+- Services: Function Signatures mit Input/Output Types
+- Hooks: Hook Signatures mit Return Types
+- Components: Component Props Interface
 
 ## Context Manifest (was muss waehrend Implementation geladen werden)
 - Rules: [welche .claude/rules/ Files]
