@@ -66,26 +66,33 @@ export function MembershipSection({ userId, clubId, clubColor, onSubscribed }: P
             <Card
               key={tier}
               className={cn(
-                'flex flex-col gap-3 p-4',
+                'flex flex-col gap-3 p-0 overflow-hidden',
                 isActive
-                  ? 'border-2 bg-white/[0.04]'
+                  ? 'border-2 bg-white/[0.04] ring-2 animate-[pulse_3s_ease-in-out_infinite]'
                   : 'bg-white/[0.02] border border-white/10',
               )}
-              style={isActive ? { borderColor: config.color } : undefined}
+              style={isActive ? { borderColor: config.color, '--tw-ring-color': `${config.color}40` } as React.CSSProperties : undefined}
             >
+              {/* Gradient header strip */}
+              <div className="h-1 rounded-t-2xl" style={{
+                background: `linear-gradient(to right, ${config.color}, ${config.color}80)`
+              }} />
+              <div className="flex flex-col gap-3 p-4">
               <div className="space-y-1">
                 <p className="text-xs font-black uppercase tracking-wider" style={{ color: config.color }}>
                   {ts(config.labelKey)}
                 </p>
-                <p className="font-mono text-sm text-white/70">
-                  {fmtScout(config.priceBsd)} $SCOUT {t('perMonth')}
+                <p className="text-white/70">
+                  <span className="text-xl font-black font-mono tabular-nums">{fmtScout(config.priceBsd)}</span>
+                  {' '}
+                  <span className="text-xs text-white/40">$SCOUT / Monat</span>
                 </p>
               </div>
 
               <ul className="flex-1 space-y-1.5">
                 {config.benefitKeys.map((key) => (
                   <li key={key} className="flex items-start gap-1.5 text-sm text-white/60">
-                    <Check className="size-4 shrink-0 text-green-500 mt-0.5" />
+                    <Check className="size-4 shrink-0 mt-0.5" style={{ color: config.color }} />
                     <span>{ts(key)}</span>
                   </li>
                 ))}
@@ -98,16 +105,18 @@ export function MembershipSection({ userId, clubId, clubColor, onSubscribed }: P
                   </p>
                 ) : (
                   <Button
-                    variant={tier === 'gold' || (!isUpgrade && !isDowngrade) ? 'gold' : 'outline'}
+                    variant={tier === 'gold' ? 'gold' : 'outline'}
                     size="sm"
                     fullWidth
                     loading={subscribing === tier}
                     disabled={subscribing !== null || !userId || isDowngrade}
                     onClick={() => handleSubscribe(tier)}
+                    style={tier !== 'gold' ? { borderColor: clubColor, color: clubColor } : undefined}
                   >
-                    {isUpgrade ? t('upgrade') : t('subscribe')}
+                    {isUpgrade ? t('upgrade') : t('subscribe', { tier: ts(config.labelKey) })}
                   </Button>
                 )}
+              </div>
               </div>
             </Card>
           );

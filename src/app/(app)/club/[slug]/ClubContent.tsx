@@ -5,14 +5,12 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  Users, Trophy, BadgeCheck, ChevronRight, TrendingUp,
-  Shield, BarChart3, Calendar,
+  Users, ChevronRight,
+  Shield, Calendar,
   Building2, MessageCircle,
-  Bell, CheckCircle2, Briefcase,
-  Users2, LayoutGrid, List,
+  LayoutGrid, List,
   Loader2, Settings, ChevronDown,
   Swords, Home, Plane, ShoppingBag,
-  Star, Award,
 } from 'lucide-react';
 import { Card, Button, ErrorState, Skeleton, SkeletonCard, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
 import dynamic from 'next/dynamic';
@@ -22,7 +20,7 @@ import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { useUser } from '@/components/providers/AuthProvider';
 import { dbToPlayers, centsToBsd } from '@/lib/services/players';
 import { toggleFollowClub } from '@/lib/services/club';
-import { fmtScout, cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { resolveExpiredResearch } from '@/lib/services/research';
 import { useClubBySlug } from '@/lib/queries/misc';
 import { usePlayersByClub } from '@/lib/queries/players';
@@ -36,10 +34,11 @@ import { useToast } from '@/components/providers/ToastProvider';
 import { getPosts } from '@/lib/services/posts';
 import { formatTimeAgo } from '@/components/community/PostCard';
 import { useClubPrestige } from '@/lib/queries/scouting';
-import type { Player, Pos, DbPlayer, ClubWithAdmin, Fixture, PostWithAuthor } from '@/types';
-import type { PrestigeTier } from '@/lib/services/club';
+import type { Player, Pos, Fixture, PostWithAuthor, ClubWithAdmin } from '@/types';
 import { useActiveIpos } from '@/lib/queries/ipos';
 import { useEvents } from '@/lib/queries/events';
+import { ClubHero } from '@/components/club/ClubHero';
+import { ClubStatsBar } from '@/components/club/ClubStatsBar';
 import { ActiveOffersSection } from '@/components/club/sections/ActiveOffersSection';
 import { SquadPreviewSection } from '@/components/club/sections/SquadPreviewSection';
 import { MitmachenSection } from '@/components/club/sections/MitmachenSection';
@@ -47,7 +46,29 @@ import { ClubEventsSection } from '@/components/club/sections/ClubEventsSection'
 import { MembershipSection } from '@/components/club/sections/MembershipSection';
 import { CollectionProgress } from '@/components/club/sections/CollectionProgress';
 import { RecentActivitySection } from '@/components/club/sections/RecentActivitySection';
+import { FeatureShowcase } from '@/components/club/sections/FeatureShowcase';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useClubRecentTrades } from '@/lib/queries/trades';
+
+// ============================================
+// REVEAL WRAPPER
+// ============================================
+
+function RevealSection({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const { ref, revealed } = useScrollReveal({ delay });
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        'transition-all duration-500 ease-out',
+        revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5',
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+}
 
 // ============================================
 // TYPES
@@ -65,260 +86,9 @@ const TABS: { id: ClubTab; label: string }[] = [
   { id: 'spielplan', label: 'fixtures' },
 ];
 
-// ============================================
-// HERO SECTION
-// ============================================
-
-function HeroSection({
-  club,
-  followerCount,
-  isFollowing,
-  followLoading,
-  onFollow,
-  userClubDpc,
-  totalVolume24h,
-  playerCount,
-  buyablePlayers = 0,
-  isPublic = false,
-  loginUrl = '/login',
-}: {
-  club: ClubWithAdmin;
-  followerCount: number;
-  isFollowing: boolean;
-  followLoading: boolean;
-  onFollow: () => void;
-  userClubDpc: number;
-  totalVolume24h: number;
-  playerCount: number;
-  buyablePlayers?: number;
-  isPublic?: boolean;
-  loginUrl?: string;
-}) {
-  const t = useTranslations('club');
-  const clubColor = club.primary_color || '#006633';
-  const [stadiumSrc, setStadiumSrc] = useState(`/stadiums/${club.slug}.jpg`);
-
-  return (
-    <div className="relative h-[120px] md:h-[160px] lg:h-[350px] -mx-4 md:-mx-6 -mt-4 md:-mt-6 mb-6 overflow-hidden">
-      {/* Stadium Background */}
-      <div className="absolute inset-0">
-        <Image
-          src={stadiumSrc}
-          alt={club.stadium || club.name}
-          fill
-          className="object-cover blur-sm scale-105"
-          priority
-          onError={() => setStadiumSrc('/stadiums/default.jpg')}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-bg-main" />
-        <div className="absolute inset-0" style={{ background: `linear-gradient(to right, ${clubColor}33, transparent)` }} />
-      </div>
-
-      {/* Content — compact on mobile */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="text-center space-y-2 md:space-y-4">
-          {/* Club Logo + Name row on mobile, stacked on desktop */}
-          <div className="flex items-center justify-center gap-3 md:flex-col md:gap-3">
-            <div className="relative size-12 md:size-24 bg-white/10 rounded-full p-1 md:p-2 border-2 md:border-4 border-white/20 shadow-2xl flex-shrink-0">
-              <div className="relative w-full h-full">
-                {club.logo_url ? (
-                  <Image src={club.logo_url} alt={club.name} fill className="object-contain p-1 md:p-2" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-lg md:text-3xl font-black text-white/50">{club.short}</div>
-                )}
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base md:text-lg lg:text-4xl font-black text-balance text-white drop-shadow-lg truncate">
-                  {club.name.toUpperCase()}
-                </h1>
-                {club.is_verified && <BadgeCheck className="size-5 md:size-8 text-gold" />}
-              </div>
-              <div className="flex items-center gap-2 text-[10px] md:text-sm text-white/70 md:justify-center">
-                <Trophy className="size-3 md:size-4" />
-                <span>{club.league}</span>
-                {club.city && (
-                  <>
-                    <span className="text-white/30">•</span>
-                    <span>{club.city}</span>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Stats + Follow */}
-          <div className="flex items-center justify-center gap-3 md:gap-6">
-            <div className="text-center">
-              <div className="text-sm md:text-2xl font-black tabular-nums text-white">{followerCount.toLocaleString()}</div>
-              <div className="text-[10px] md:text-xs text-white/50">{t('scouts')}</div>
-            </div>
-            <div className="w-px h-5 md:h-10 bg-white/20" />
-            <div className="text-center">
-              <div className="text-sm md:text-2xl font-black tabular-nums text-gold">{fmtScout(totalVolume24h)}</div>
-              <div className="text-[10px] md:text-xs text-white/50">{t('volume24h')}</div>
-            </div>
-            <div className="w-px h-5 md:h-10 bg-white/20" />
-            <div className="text-center">
-              <div className="text-sm md:text-2xl font-black tabular-nums text-green-500">{playerCount}</div>
-              <div className="text-[10px] md:text-xs text-white/50">{t('players')}</div>
-            </div>
-            {buyablePlayers > 0 && (
-              <>
-                <div className="w-px h-5 md:h-10 bg-white/20" />
-                <div className="text-center">
-                  <div className="text-sm md:text-2xl font-black tabular-nums text-gold">{buyablePlayers}</div>
-                  <div className="text-[10px] md:text-xs text-white/50">{t('buyable')}</div>
-                </div>
-              </>
-            )}
-            <div className="w-px h-5 md:h-10 bg-white/20 hidden md:block" />
-            {isPublic ? (
-              <Link href={loginUrl} className="hidden md:block">
-                <Button variant="gold" size="sm">{t('publicRegister')}</Button>
-              </Link>
-            ) : (
-              <Button
-                variant={isFollowing ? 'outline' : 'gold'}
-                size="sm"
-                onClick={onFollow}
-                disabled={followLoading}
-                className="hidden md:flex"
-              >
-                {followLoading ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" /> : isFollowing ? <><CheckCircle2 className="size-4" /> {t('subscribed')}</> : <><Bell className="size-4" /> {t('follow')}</>}
-              </Button>
-            )}
-          </div>
-
-          {/* Mobile-only follow/register button */}
-          <div className="md:hidden flex items-center justify-center gap-2">
-            {isPublic ? (
-              <Link href={loginUrl}>
-                <Button variant="gold" size="sm">{t('publicRegister')}</Button>
-              </Link>
-            ) : (
-              <Button
-                variant={isFollowing ? 'outline' : 'gold'}
-                size="sm"
-                onClick={onFollow}
-                disabled={followLoading}
-              >
-                {followLoading ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" /> : isFollowing ? t('subscribed') : t('follow')}
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ============================================
-// STATS BAR (2 big + 3 small + Form)
-// ============================================
-
-function StatsBar({
-  totalVolume24h,
-  totalDpcFloat,
-  avgPerf,
-  followerCount,
-  playerCount,
-  clubColor,
-  formResults,
-  prestigeTier,
-}: {
-  totalVolume24h: number;
-  totalDpcFloat: number;
-  avgPerf: number;
-  followerCount: number;
-  playerCount: number;
-  clubColor: string;
-  formResults: ('W' | 'D' | 'L')[];
-  prestigeTier?: PrestigeTier;
-}) {
-  const t = useTranslations('club');
-  const secondary = [
-    { label: t('dpcFloat'), value: totalDpcFloat.toLocaleString(), icon: Briefcase },
-    { label: t('avgPerfL5'), value: avgPerf.toFixed(1), icon: TrendingUp },
-    { label: t('players'), value: playerCount.toString(), icon: Users },
-  ];
-
-  return (
-    <div className="space-y-3">
-      {/* Primary stats — big */}
-      <div className="grid grid-cols-2 gap-3">
-        <Card className="p-4 hover:border-white/20 transition-colors" style={{ borderColor: `${clubColor}25` }}>
-          <div className="flex items-center gap-2 mb-1">
-            <Users2 className="size-5" style={{ color: clubColor }} />
-            <span className="text-xs text-white/50">{t('scouts')}</span>
-          </div>
-          <div className="text-2xl md:text-3xl font-mono font-black tabular-nums" style={{ color: clubColor }}>
-            {followerCount.toLocaleString()}
-          </div>
-        </Card>
-        <Card className="p-4 hover:border-white/20 transition-colors border-gold/15">
-          <div className="flex items-center gap-2 mb-1">
-            <BarChart3 className="size-5 text-gold" />
-            <span className="text-xs text-white/50">{t('volume24h')}</span>
-          </div>
-          <div className="text-2xl md:text-3xl font-mono font-black tabular-nums text-gold">
-            {fmtScout(totalVolume24h)}
-            <span className="text-sm text-white/40 ml-1">$SCOUT</span>
-          </div>
-        </Card>
-      </div>
-
-      {/* Secondary stats + Form — compact row */}
-      <div className="flex items-center gap-3">
-        {secondary.map((stat, i) => (
-          <div key={i} className="flex-1 flex items-center gap-2 p-2.5 bg-surface-base border border-white/[0.06] rounded-xl">
-            <stat.icon className="size-4 text-white/30 flex-shrink-0" />
-            <div className="min-w-0">
-              <div className="font-mono font-bold tabular-nums text-sm text-white/80">{stat.value}</div>
-              <div className="text-[10px] text-white/30">{stat.label}</div>
-            </div>
-          </div>
-        ))}
-        {/* Form streak */}
-        {formResults.length > 0 && (
-          <div className="flex-shrink-0 flex items-center gap-2 p-2.5 bg-surface-base border border-white/[0.06] rounded-xl">
-            <div className="flex items-center gap-1">
-              {formResults.map((r, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    'size-5 rounded-full flex items-center justify-center text-[9px] font-black',
-                    r === 'W' && 'bg-green-500 text-black',
-                    r === 'D' && 'bg-yellow-500 text-black',
-                    r === 'L' && 'bg-red-500 text-white',
-                  )}
-                >
-                  {r === 'W' ? 'S' : r === 'D' ? 'U' : 'N'}
-                </div>
-              ))}
-            </div>
-            <div className="text-[10px] text-white/30 hidden md:block">Form</div>
-          </div>
-        )}
-        {/* Prestige Badge */}
-        {prestigeTier && (() => {
-          const cfg = PRESTIGE_CONFIG[prestigeTier];
-          const Icon = cfg.icon;
-          return (
-            <div className="flex-shrink-0 flex items-center gap-2 p-2.5 bg-surface-base border border-white/[0.06] rounded-xl">
-              <Icon className={cn('size-4', cfg.color)} />
-              <div className="min-w-0">
-                <div className={cn('text-sm font-bold', cfg.color)}>{t(cfg.labelKey)}</div>
-                <div className="text-[10px] text-white/30">{t('prestige')}</div>
-              </div>
-            </div>
-          );
-        })()}
-      </div>
-    </div>
-  );
-}
+// HeroSection + StatsBar extracted to:
+// - @/components/club/ClubHero
+// - @/components/club/ClubStatsBar
 
 // ============================================
 // SQUAD OVERVIEW WIDGET
@@ -368,12 +138,7 @@ function SquadOverviewWidget({ players }: { players: Player[] }) {
 // TOP SCOUTS WIDGET
 // ============================================
 
-const PRESTIGE_CONFIG: Record<PrestigeTier, { icon: typeof Star; color: string; labelKey: string }> = {
-  starter: { icon: Shield, color: 'text-white/30', labelKey: 'prestigeStarter' },
-  aktiv: { icon: Shield, color: 'text-white/60', labelKey: 'prestigeAktiv' },
-  engagiert: { icon: Award, color: 'text-green-500', labelKey: 'prestigeEngagiert' },
-  vorbildlich: { icon: Star, color: 'text-gold', labelKey: 'prestigeVorbildlich' },
-};
+// PRESTIGE_CONFIG moved to @/components/club/ClubStatsBar
 
 // ============================================
 // FIXTURE HELPERS
@@ -500,7 +265,7 @@ function SeasonSummary({ fixtures, clubId }: { fixtures: Fixture[]; clubId: stri
 // NEXT MATCH WIDGET (Übersicht)
 // ============================================
 
-function NextMatchCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: string }) {
+function NextMatchCard({ fixtures, clubId, club }: { fixtures: Fixture[]; clubId: string; club?: ClubWithAdmin }) {
   const t = useTranslations('club');
   const next = fixtures.find(f => f.status === 'scheduled');
   if (!next) return null;
@@ -511,35 +276,61 @@ function NextMatchCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: stri
   const oppColor = isHome ? next.away_club_primary_color : next.home_club_primary_color;
   const oppClub = getClub(oppShort) || getClub(oppName);
 
+  // Countdown: show "In X Tagen" if played_at < 7 days away
+  const kickoff = next.played_at ? new Date(next.played_at) : null;
+  const daysAway = kickoff ? Math.ceil((kickoff.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
+  const showCountdown = daysAway !== null && daysAway > 0 && daysAway <= 7;
+
   return (
-    <Card className="p-4 border-green-500/20 bg-green-500/[0.04]">
-      <div className="flex items-center gap-3">
-        <div className="size-10 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0">
-          <Swords className="size-5 text-green-500" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-xs text-white/40 mb-0.5">{t('nextMatch', { gw: next.gameweek })}</div>
-          <div className="flex items-center gap-2">
-            <span className={cn(
-              'px-1.5 py-0.5 rounded text-[10px] font-black',
-              isHome ? 'bg-green-500/15 text-green-500' : 'bg-sky-500/15 text-sky-400',
-            )}>
-              {isHome ? t('home') : t('away')}
-            </span>
-            <div className="flex items-center gap-2">
-              <div
-                className="size-6 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0"
-                style={{ backgroundColor: (oppColor ?? '#666') + '20', color: oppColor ?? '#aaa' }}
-              >
-                {oppClub?.logo ? (
-                  <img src={oppClub.logo} alt="" className="size-4 object-contain" />
-                ) : (
-                  oppShort.slice(0, 2)
-                )}
-              </div>
-              <span className="font-bold text-sm truncate">{oppName}</span>
-            </div>
+    <Card className="p-5 md:p-6 overflow-hidden" style={{
+      background: `linear-gradient(135deg, var(--club-primary, #006633)10 0%, transparent 50%, ${oppColor ?? '#666'}10 100%)`,
+      borderColor: 'var(--club-primary, #006633)25'
+    }}>
+      <div className="text-xs text-white/40 mb-3 text-center">
+        {t('nextMatch', { gw: next.gameweek })}
+        {showCountdown && (
+          <span className="ml-2 text-green-500 font-bold">
+            {daysAway === 1 ? t('inOneDay') : t('inDays', { days: daysAway })}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center justify-center gap-4 md:gap-8">
+        {/* Own club */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="size-12 md:size-16 rounded-full bg-white/10 p-1.5 border border-white/20">
+            {club?.logo_url ? (
+              <Image src={club.logo_url} alt={club.name} width={64} height={64} className="object-contain w-full h-full" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-sm font-black text-white/50">{club?.short ?? ''}</div>
+            )}
           </div>
+          <span className="text-xs font-bold truncate max-w-[80px]">{club?.short ?? ''}</span>
+        </div>
+
+        {/* VS */}
+        <div className="flex flex-col items-center gap-1">
+          <span className={cn(
+            'px-2 py-0.5 rounded text-[10px] font-black',
+            isHome ? 'bg-green-500/15 text-green-500' : 'bg-sky-500/15 text-sky-400'
+          )}>
+            {isHome ? t('home') : t('away')}
+          </span>
+          <span className="text-lg md:text-xl font-black text-white/20">VS</span>
+        </div>
+
+        {/* Opponent */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="size-12 md:size-16 rounded-full p-1.5 border border-white/20"
+            style={{ backgroundColor: (oppColor ?? '#666') + '15' }}>
+            {oppClub?.logo ? (
+              <img src={oppClub.logo} alt="" className="object-contain w-full h-full" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-sm font-black" style={{ color: oppColor ?? '#aaa' }}>
+                {oppShort.slice(0, 3)}
+              </div>
+            )}
+          </div>
+          <span className="text-xs font-bold truncate max-w-[80px]">{oppName}</span>
         </div>
       </div>
     </Card>
@@ -586,10 +377,16 @@ function LastResultsCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: st
                   oppName.slice(0, 2)
                 )}
               </div>
+              <span className={cn(
+                'text-[9px] font-black px-1 py-0.5 rounded flex-shrink-0',
+                isHome ? 'bg-green-500/15 text-green-500' : 'bg-sky-500/15 text-sky-400'
+              )}>
+                {isHome ? 'H' : 'A'}
+              </span>
               <span className="flex-1 truncate text-white/70">{isHome ? f.away_club_name : f.home_club_name}</span>
-              <span className="font-mono font-bold tabular-nums text-xs">{f.home_score} - {f.away_score}</span>
+              <span className="font-mono font-bold tabular-nums text-sm">{f.home_score} - {f.away_score}</span>
               {result && (
-                <span className={cn('px-1.5 py-0.5 rounded text-[9px] font-black w-5 text-center', resultBadge[result].color)}>
+                <span className={cn('px-2 py-0.5 rounded text-[10px] font-black text-center', resultBadge[result].color)}>
                   {resultBadge[result].label}
                 </span>
               )}
@@ -825,6 +622,17 @@ export default function ClubContent({ slug }: { slug: string }) {
     return allEvents.filter(e => e.club_id === clubId);
   }, [allEvents, clubId]);
 
+  // Smart-hide: show feature showcase when >2 sections would be empty
+  const emptySections = useMemo(() => {
+    return [
+      clubIpos.length === 0,
+      clubEvents.length === 0,
+      recentTrades.length === 0,
+    ].filter(Boolean).length;
+  }, [clubIpos, clubEvents, recentTrades]);
+
+  const showFeatureShowcase = emptySections >= 2;
+
   // ---- Follow Toggle ----
   const handleFollow = useCallback(async () => {
     if (!user || !club || followLoading) return;
@@ -883,19 +691,29 @@ export default function ClubContent({ slug }: { slug: string }) {
     const clubColor = club.primary_color || '#006633';
     const loginUrl = club.referral_code ? `/login?club=${club.referral_code}` : '/login';
     return (
-      <div className="max-w-[1200px] mx-auto">
-        <HeroSection
+      <div
+        className="max-w-[1200px] mx-auto"
+        style={{
+          '--club-primary': clubColor,
+          '--club-secondary': club.secondary_color || '#333',
+          '--club-glow': `${clubColor}4D`,
+        } as React.CSSProperties}
+      >
+        <ClubHero
           club={club}
           followerCount={followerCount}
           isFollowing={false}
           followLoading={false}
           onFollow={() => {}}
-          userClubDpc={0}
           totalVolume24h={totalVolume24h}
           playerCount={players.length}
           buyablePlayers={clubIpos.length}
           isPublic
           loginUrl={loginUrl}
+          totalDpcFloat={totalDpcFloat}
+          avgPerf={avgPerf}
+          formResults={formResults}
+          prestigeTier={clubPrestige?.tier}
         />
 
         {/* CTA Banner */}
@@ -913,9 +731,9 @@ export default function ClubContent({ slug }: { slug: string }) {
           </Card>
         </div>
 
-        {/* Stats */}
+        {/* Stats (mobile only — desktop stats in hero) */}
         <div className="mb-6">
-          <StatsBar
+          <ClubStatsBar
             totalVolume24h={totalVolume24h}
             totalDpcFloat={totalDpcFloat}
             avgPerf={avgPerf}
@@ -930,7 +748,7 @@ export default function ClubContent({ slug }: { slug: string }) {
         {/* Next Match */}
         {clubId && (
           <div className="mb-6">
-            <NextMatchCard fixtures={clubFixtures} clubId={clubId} />
+            <NextMatchCard fixtures={clubFixtures} clubId={clubId} club={club} />
           </div>
         )}
 
@@ -1014,24 +832,34 @@ export default function ClubContent({ slug }: { slug: string }) {
   const clubColor = club.primary_color || '#006633';
 
   return (
-    <div className="max-w-[1200px] mx-auto">
+    <div
+      className="max-w-[1200px] mx-auto"
+      style={{
+        '--club-primary': clubColor,
+        '--club-secondary': club.secondary_color || '#333',
+        '--club-glow': `${clubColor}4D`,
+      } as React.CSSProperties}
+    >
 
       {/* HERO SECTION */}
-      <HeroSection
+      <ClubHero
         club={club}
         followerCount={followerCount}
         isFollowing={isFollowing}
         followLoading={followLoading}
         onFollow={handleFollow}
-        userClubDpc={userClubDpc}
         totalVolume24h={totalVolume24h}
         playerCount={players.length}
         buyablePlayers={clubIpos.length}
+        totalDpcFloat={totalDpcFloat}
+        avgPerf={avgPerf}
+        formResults={formResults}
+        prestigeTier={clubPrestige?.tier}
       />
 
-      {/* STATS BAR */}
+      {/* STATS BAR (mobile only — desktop stats in hero) */}
       <div className="mb-6">
-        <StatsBar
+        <ClubStatsBar
           totalVolume24h={totalVolume24h}
           totalDpcFloat={totalDpcFloat}
           avgPerf={avgPerf}
@@ -1066,112 +894,146 @@ export default function ClubContent({ slug }: { slug: string }) {
       {tab === 'uebersicht' && (
         <div className="space-y-6">
           {/* Nächste Begegnung */}
-          {clubId && <NextMatchCard fixtures={clubFixtures} clubId={clubId} />}
+          <RevealSection>
+            {clubId && <NextMatchCard fixtures={clubFixtures} clubId={clubId} club={club} />}
+          </RevealSection>
 
           {/* Dein Spieler-Bestand */}
           {userClubDpc > 0 && (
-            <Card className="p-4 bg-gold/[0.06] border-gold/20">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <ShoppingBag className="size-6 text-gold" />
-                  <div>
-                    <div className="font-black">{userClubDpc} {t('players')}</div>
-                    <div className="text-xs text-white/50">{t('yourHoldingsDesc')}</div>
+            <RevealSection delay={50}>
+              <Card className="p-4 bg-gold/[0.06] border-gold/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <ShoppingBag className="size-6 text-gold" />
+                    <div>
+                      <div className="font-black">{userClubDpc} {t('players')}</div>
+                      <div className="text-xs text-white/50">{t('yourHoldingsDesc')}</div>
+                    </div>
                   </div>
+                  <Button variant="outline" size="sm" onClick={() => setTab('spieler')}>
+                    {t('squad')}
+                  </Button>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => setTab('spieler')}>
-                  {t('squad')}
-                </Button>
-              </div>
-            </Card>
+              </Card>
+            </RevealSection>
           )}
 
           {/* Aktive Angebote (IPOs) */}
-          <ActiveOffersSection ipos={clubIpos} players={players} clubColor={clubColor} />
+          <RevealSection delay={100}>
+            <ActiveOffersSection ipos={clubIpos} players={players} clubColor={clubColor} />
+          </RevealSection>
 
           {/* Trending Spieler + Collection Progress */}
-          <SquadPreviewSection players={players} ownedPlayerIds={ownedPlayerIds} clubColor={clubColor} onViewAll={() => setTab('spieler')} />
+          <RevealSection delay={150}>
+            <SquadPreviewSection players={players} ownedPlayerIds={ownedPlayerIds} clubColor={clubColor} onViewAll={() => setTab('spieler')} />
+          </RevealSection>
 
-          {/* Mitmachen (Scout + Bounties + Votes + Leaderboard) */}
-          {clubId && <MitmachenSection clubId={clubId} userId={userId} clubColor={clubColor} />}
+          {showFeatureShowcase ? (
+            <RevealSection delay={200}>
+              <FeatureShowcase clubColor={clubColor} />
+            </RevealSection>
+          ) : (
+            <>
+              {/* Mitmachen (Scout + Bounties + Votes + Leaderboard) */}
+              {clubId && (
+                <RevealSection delay={200}>
+                  <MitmachenSection clubId={clubId} userId={userId} clubColor={clubColor} />
+                </RevealSection>
+              )}
 
-          {/* Club Events */}
-          {clubId && <ClubEventsSection events={clubEvents} clubColor={clubColor} />}
+              {/* Club Events */}
+              {clubId && (
+                <RevealSection delay={250}>
+                  <ClubEventsSection events={clubEvents} clubColor={clubColor} />
+                </RevealSection>
+              )}
 
-          {/* Letzte Trades */}
-          <RecentActivitySection trades={recentTrades} clubColor={clubColor} />
+              {/* Letzte Trades */}
+              <RevealSection delay={300}>
+                <RecentActivitySection trades={recentTrades} clubColor={clubColor} />
+              </RevealSection>
+            </>
+          )}
 
           {/* Club-Mitgliedschaft */}
-          {clubId && (
-            <MembershipSection
-              userId={userId}
-              clubId={clubId}
-              clubColor={clubColor}
-              onSubscribed={() => {
-                queryClient.invalidateQueries({ queryKey: qk.clubs.subscription(userId!, clubId) });
-              }}
-            />
-          )}
+          <RevealSection delay={350}>
+            {clubId && (
+              <MembershipSection
+                userId={userId}
+                clubId={clubId}
+                clubColor={clubColor}
+                onSubscribed={() => {
+                  queryClient.invalidateQueries({ queryKey: qk.clubs.subscription(userId!, clubId) });
+                }}
+              />
+            )}
+          </RevealSection>
 
           {/* Club-Neuigkeiten */}
           {clubNews.length > 0 && (
-            <Card className="p-4 md:p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <MessageCircle className="size-5" style={{ color: clubColor }} />
-                <h2 className="font-black text-balance">{t('news')}</h2>
-              </div>
-              <div className="space-y-3">
-                {clubNews.map(news => (
-                  <div key={news.id} className="p-3 bg-gold/[0.03] rounded-xl border border-gold/15">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gold/10 text-gold border border-gold/20">
-                        {tcom('clubNewsLabel')}
-                      </span>
-                      <span className="text-[10px] text-white/30">{formatTimeAgo(news.created_at)}</span>
+            <RevealSection delay={400}>
+              <Card className="p-4 md:p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <MessageCircle className="size-5" style={{ color: clubColor }} />
+                  <h2 className="font-black text-balance">{t('news')}</h2>
+                </div>
+                <div className="space-y-3">
+                  {clubNews.map(news => (
+                    <div key={news.id} className="p-3 bg-gold/[0.03] rounded-xl border border-gold/15">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gold/10 text-gold border border-gold/20">
+                          {tcom('clubNewsLabel')}
+                        </span>
+                        <span className="text-[10px] text-white/30">{formatTimeAgo(news.created_at)}</span>
+                      </div>
+                      <p className="text-sm text-white/80 leading-relaxed">{news.content}</p>
+                      <div className="flex items-center gap-3 mt-2 text-[10px] text-white/30">
+                        <span>{news.author_display_name || news.author_handle}</span>
+                        <span>{tcom('votesCount', { count: news.upvotes - news.downvotes })}</span>
+                      </div>
                     </div>
-                    <p className="text-sm text-white/80 leading-relaxed">{news.content}</p>
-                    <div className="flex items-center gap-3 mt-2 text-[10px] text-white/30">
-                      <span>{news.author_display_name || news.author_handle}</span>
-                      <span>{tcom('votesCount', { count: news.upvotes - news.downvotes })}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
+                  ))}
+                </div>
+              </Card>
+            </RevealSection>
           )}
 
           {/* Letzte Ergebnisse */}
-          {clubId && <LastResultsCard fixtures={clubFixtures} clubId={clubId} />}
+          <RevealSection delay={450}>
+            {clubId && <LastResultsCard fixtures={clubFixtures} clubId={clubId} />}
+          </RevealSection>
 
           {/* Club Info */}
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Building2 className="size-5 text-white/50" />
-              <h2 className="font-black text-balance">{t('clubInfo')}</h2>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-              {club.stadium && (
-                <div className="bg-surface-base rounded-xl p-3">
-                  <div className="text-xs text-white/50 mb-1">{t('stadium')}</div>
-                  <div className="font-bold text-sm">{club.stadium}</div>
-                </div>
-              )}
-              {club.city && (
-                <div className="bg-surface-base rounded-xl p-3">
-                  <div className="text-xs text-white/50 mb-1">{t('city')}</div>
-                  <div className="font-bold text-sm">{club.city}</div>
-                </div>
-              )}
-              <div className="bg-surface-base rounded-xl p-3">
-                <div className="text-xs text-white/50 mb-1">{t('league')}</div>
-                <div className="font-bold text-sm">{club.league}</div>
+          <RevealSection delay={500}>
+            <Card className="p-4 md:p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Building2 className="size-5 text-white/50" />
+                <h2 className="font-black text-balance">{t('clubInfo')}</h2>
               </div>
-              <div className="bg-surface-base rounded-xl p-3">
-                <div className="text-xs text-white/50 mb-1">{t('players')}</div>
-                <div className="font-bold tabular-nums text-sm text-green-500">{players.length}</div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                {club.stadium && (
+                  <div className="bg-surface-base rounded-xl p-3">
+                    <div className="text-xs text-white/50 mb-1">{t('stadium')}</div>
+                    <div className="font-bold text-sm">{club.stadium}</div>
+                  </div>
+                )}
+                {club.city && (
+                  <div className="bg-surface-base rounded-xl p-3">
+                    <div className="text-xs text-white/50 mb-1">{t('city')}</div>
+                    <div className="font-bold text-sm">{club.city}</div>
+                  </div>
+                )}
+                <div className="bg-surface-base rounded-xl p-3">
+                  <div className="text-xs text-white/50 mb-1">{t('league')}</div>
+                  <div className="font-bold text-sm">{club.league}</div>
+                </div>
+                <div className="bg-surface-base rounded-xl p-3">
+                  <div className="text-xs text-white/50 mb-1">{t('players')}</div>
+                  <div className="font-bold tabular-nums text-sm text-green-500">{players.length}</div>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          </RevealSection>
         </div>
       )}
 

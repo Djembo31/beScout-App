@@ -4,7 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import { TrendingUp, ArrowUpRight, ArrowDownRight, ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Card } from '@/components/ui';
 import { PlayerPhoto } from '@/components/player';
 import { CollectionProgress } from './CollectionProgress';
 import { fmtScout, cn } from '@/lib/utils';
@@ -27,13 +26,17 @@ export function SquadPreviewSection({ players, ownedPlayerIds, clubColor, onView
     .slice(0, 5);
 
   return (
-    <Card className="p-4 md:p-6">
+    <section>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <TrendingUp className="size-5" style={{ color: clubColor }} />
           <h2 className="font-black text-balance">{t('trendingPlayers')}</h2>
         </div>
-        <button onClick={onViewAll} className="flex items-center gap-1 text-xs text-gold font-semibold hover:text-gold/80 transition-colors">
+        <button
+          onClick={onViewAll}
+          className="flex items-center gap-1 text-xs font-semibold hover:opacity-80 transition-colors"
+          style={{ color: 'var(--club-primary, #FFD700)' }}
+        >
           {t('viewAll')} <ChevronRight className="size-3" />
         </button>
       </div>
@@ -43,9 +46,9 @@ export function SquadPreviewSection({ players, ownedPlayerIds, clubColor, onView
         <CollectionProgress owned={ownedCount} total={totalPlayers} clubColor={clubColor} />
       </div>
 
-      {/* Trending list */}
-      <div className="space-y-1">
-        {trending.map((player, i) => {
+      {/* Trending carousel */}
+      <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {trending.map((player) => {
           const change = player.prices.change24h ?? 0;
           const isOwned = ownedPlayerIds.has(player.id);
           return (
@@ -53,27 +56,38 @@ export function SquadPreviewSection({ players, ownedPlayerIds, clubColor, onView
               key={player.id}
               href={`/player/${player.id}`}
               className={cn(
-                'flex items-center gap-3 p-2 rounded-xl transition-colors hover:bg-white/[0.04]',
-                isOwned && 'bg-gold/[0.03]'
+                'flex-shrink-0 w-[140px] rounded-2xl p-3 border transition-all',
+                'bg-white/[0.02] border-white/10 hover:border-[var(--club-primary,#FFD700)]/40',
+                'hover:-translate-y-0.5 active:scale-[0.97]',
+                'shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
+                isOwned && 'ring-1 ring-gold/30'
               )}
             >
-              <span className="text-xs font-mono text-white/30 w-4 text-center tabular-nums">{i + 1}</span>
-              <PlayerPhoto first={player.first} last={player.last} pos={player.pos} size={24} />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold truncate">
-                  {player.last}
-                  {isOwned && <span className="ml-1.5 text-[9px] px-1 py-0.5 rounded bg-gold/15 text-gold font-bold">{t('owned')}</span>}
+              <div className="flex flex-col items-center text-center gap-2">
+                <PlayerPhoto first={player.first} last={player.last} pos={player.pos} size={48} />
+                <div className="w-full min-w-0">
+                  <div className="text-sm font-bold truncate">{player.last}</div>
+                  <div className="text-[10px] text-white/40">
+                    {player.pos} · {fmtScout(player.prices.floor ?? 0)}
+                  </div>
                 </div>
-                <div className="text-xs text-white/40">{player.pos} · {fmtScout(player.prices.floor ?? 0)}</div>
-              </div>
-              <div className={cn('text-xs font-mono font-bold tabular-nums flex items-center gap-0.5', change >= 0 ? 'text-green-500' : 'text-red-400')}>
-                {change >= 0 ? <ArrowUpRight className="size-3" /> : <ArrowDownRight className="size-3" />}
-                {Math.abs(change).toFixed(1)}%
+                <div className={cn(
+                  'text-xs font-mono font-bold tabular-nums flex items-center gap-0.5',
+                  change >= 0 ? 'text-green-500' : 'text-red-400'
+                )}>
+                  {change >= 0 ? <ArrowUpRight className="size-3" /> : <ArrowDownRight className="size-3" />}
+                  {Math.abs(change).toFixed(1)}%
+                </div>
+                {isOwned && (
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-gold/15 text-gold font-bold">
+                    {t('owned')}
+                  </span>
+                )}
               </div>
             </Link>
           );
         })}
       </div>
-    </Card>
+    </section>
   );
 }
