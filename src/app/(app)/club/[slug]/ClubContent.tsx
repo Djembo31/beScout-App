@@ -1,29 +1,28 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  Users, Trophy, BadgeCheck, ChevronRight, Clock, Vote, TrendingUp,
-  Shield, BarChart3, Calendar, MapPin,
-  Building2, Zap, Crown, MessageCircle, Share2,
-  Bell, Flame, CheckCircle2, Briefcase,
-  ArrowUpRight, ArrowDownRight, ExternalLink, Users2,
+  Users, Trophy, BadgeCheck, ChevronRight, Clock, TrendingUp,
+  Shield, BarChart3, Calendar,
+  Building2, Crown, MessageCircle,
+  Bell, CheckCircle2, Briefcase,
+  ArrowUpRight, ArrowDownRight, Users2,
   Loader2, Settings, ChevronDown,
   Swords, Home, Plane, ShoppingBag,
-  Star, Award, FileText,
+  Star, Award,
 } from 'lucide-react';
 import { Card, Button, Chip, Modal, ErrorState, Skeleton, SkeletonCard, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
 import dynamic from 'next/dynamic';
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
-import { PlayerIdentity, PlayerKPIs } from '@/components/player';
+import { PlayerIdentity } from '@/components/player';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { useUser } from '@/components/providers/AuthProvider';
 import { dbToPlayers, centsToBsd } from '@/lib/services/players';
 import { toggleFollowClub } from '@/lib/services/club';
 import { fmtScout, cn } from '@/lib/utils';
-import { formatScout } from '@/lib/services/wallet';
 import { resolveExpiredResearch } from '@/lib/services/research';
 import { subscribeTo, cancelSubscription, TIER_CONFIG } from '@/lib/services/clubSubscriptions';
 import type { ClubSubscription, SubscriptionTier } from '@/lib/services/clubSubscriptions';
@@ -31,7 +30,6 @@ import { useClubBySlug, useClubSubscription } from '@/lib/queries/misc';
 import { usePlayersByClub } from '@/lib/queries/players';
 import { useClubFollowerCount, useIsFollowingClub } from '@/lib/queries/social';
 import { useHoldings } from '@/lib/queries/holdings';
-import { useClubVotes } from '@/lib/queries/votes';
 import { useClubFixtures } from '@/lib/queries/fixtures';
 import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
@@ -39,8 +37,8 @@ import { getClub } from '@/lib/clubs';
 import { useToast } from '@/components/providers/ToastProvider';
 import { getPosts } from '@/lib/services/posts';
 import { formatTimeAgo } from '@/components/community/PostCard';
-import { useTopScouts, useClubPrestige } from '@/lib/queries/scouting';
-import type { Player, Pos, DbPlayer, DbTrade, DbClubVote, ClubWithAdmin, Fixture, PostWithAuthor, TopScout } from '@/types';
+import { useClubPrestige } from '@/lib/queries/scouting';
+import type { Player, Pos, DbPlayer, ClubWithAdmin, Fixture, PostWithAuthor } from '@/types';
 import type { PrestigeTier } from '@/lib/services/club';
 import { useActiveIpos } from '@/lib/queries/ipos';
 import { useEvents } from '@/lib/queries/events';
@@ -57,10 +55,6 @@ import { LayoutGrid, List } from 'lucide-react';
 // ============================================
 
 type ClubTab = 'uebersicht' | 'spieler' | 'spielplan';
-
-type TradeWithPlayer = DbTrade & {
-  player: { first_name: string; last_name: string; position: string };
-};
 
 // ============================================
 // TABS CONFIG
@@ -328,132 +322,6 @@ function StatsBar({
 }
 
 // ============================================
-// VOTE CARD
-// ============================================
-
-function ClubVoteCard({ vote, hasVoted, onVote, voting }: {
-  vote: DbClubVote;
-  hasVoted: boolean;
-  onVote: (voteId: string, optionIndex: number) => void;
-  voting: string | null;
-}) {
-  const t = useTranslations('club');
-  const totalVotes = vote.total_votes;
-  const isActive = vote.status === 'active' && new Date(vote.ends_at) > new Date();
-  const endsAt = new Date(vote.ends_at);
-  const diffMs = endsAt.getTime() - Date.now();
-  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const timeLeft = diffMs > 0 ? `${days}d ${hours}h` : 'Beendet';
-
-  return (
-    <div className="p-4 bg-surface-base rounded-xl border border-white/10 hover:border-purple-400/40 transition-colors">
-      <div className="font-bold mb-3 line-clamp-2">{vote.question}</div>
-      <div className="space-y-2 mb-3">
-        {(vote.options as { label: string; votes: number }[]).map((opt, idx) => {
-          const pct = totalVotes > 0 ? Math.round((opt.votes / totalVotes) * 100) : 0;
-          return (
-            <button
-              key={idx}
-              onClick={() => !hasVoted && isActive && onVote(vote.id, idx)}
-              disabled={hasVoted || !isActive || voting === vote.id}
-              className={cn(
-                'w-full text-left',
-                !hasVoted && isActive && 'hover:bg-white/[0.03] cursor-pointer',
-                (hasVoted || !isActive) && 'cursor-default'
-              )}
-            >
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span className="text-white/70">{opt.label}</span>
-                <span className="font-mono font-bold tabular-nums">{pct}%</span>
-              </div>
-              <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                <div className="h-full bg-purple-500/50 rounded-full transition-all" style={{ width: `${pct}%` }} />
-              </div>
-            </button>
-          );
-        })}
-      </div>
-      <div className="flex items-center justify-between text-xs text-white/50">
-        <span><Users className="size-3 inline mr-1" />{totalVotes.toLocaleString()}</span>
-        <span><Clock className="size-3 inline mr-1" />{timeLeft}</span>
-      </div>
-      {hasVoted && (
-        <Chip className="mt-2 bg-purple-500/15 text-purple-300 border-purple-500/25">{t('voted')}</Chip>
-      )}
-      {!hasVoted && isActive && vote.cost_bsd > 0 && (
-        <div className="text-[10px] text-white/30 mt-2">{t('voteCost')} {formatScout(vote.cost_bsd)} $SCOUT</div>
-      )}
-    </div>
-  );
-}
-
-// ============================================
-// TOP PLAYERS WIDGET
-// ============================================
-
-function TopPlayersWidget({
-  players,
-  onViewAll,
-  clubColor,
-}: {
-  players: Player[];
-  onViewAll: () => void;
-  clubColor: string;
-}) {
-  const t = useTranslations('club');
-  const tc = useTranslations('common');
-  const topPlayers = useMemo(
-    () => [...players].sort((a, b) => b.prices.change24h - a.prices.change24h).slice(0, 3),
-    [players]
-  );
-
-  return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Flame className="size-5 text-orange-400" />
-          <span className="font-black text-balance text-lg">{t('trendingPlayers')}</span>
-        </div>
-        <button onClick={onViewAll} className="text-xs text-gold hover:underline flex items-center gap-1">
-          {tc('viewAll')} <ChevronRight className="size-4" />
-        </button>
-      </div>
-      <div className="space-y-3">
-        {topPlayers.map((player, i) => (
-          <Link key={player.id} href={`/player/${player.id}`}>
-            <div
-              className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10 transition-colors"
-              style={{ ['--hover-border' as string]: `${clubColor}50` }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = `${clubColor}50`)}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = '')}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="size-8 rounded-lg flex items-center justify-center font-black text-sm"
-                  style={i === 0 ? { backgroundColor: `${clubColor}30`, color: clubColor } : undefined}
-                >
-                  {i + 1}
-                </div>
-                <PlayerIdentity player={player} size="sm" showMeta={false} showStatus={false} />
-                <div className="text-[10px] text-white/40 shrink-0">{fmtScout(player.prices.lastTrade)} $SCOUT</div>
-              </div>
-              <div className={cn('flex items-center gap-1 font-mono font-bold tabular-nums', player.prices.change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red')}>
-                {player.prices.change24h >= 0 ? <ArrowUpRight className="size-4" /> : <ArrowDownRight className="size-4" />}
-                {Math.abs(player.prices.change24h).toFixed(1)}%
-              </div>
-            </div>
-          </Link>
-        ))}
-        {topPlayers.length === 0 && (
-          <div className="text-center text-white/40 py-6">{t('noPlayersLoaded')}</div>
-        )}
-      </div>
-    </Card>
-  );
-}
-
-// ============================================
 // SQUAD OVERVIEW WIDGET
 // ============================================
 
@@ -507,49 +375,6 @@ const PRESTIGE_CONFIG: Record<PrestigeTier, { icon: typeof Star; color: string; 
   engagiert: { icon: Award, color: 'text-green-500', labelKey: 'prestigeEngagiert' },
   vorbildlich: { icon: Star, color: 'text-gold', labelKey: 'prestigeVorbildlich' },
 };
-
-function TopScoutsWidget({ scouts, clubColor }: { scouts: TopScout[]; clubColor: string }) {
-  const t = useTranslations('club');
-  if (scouts.length === 0) return null;
-
-  const podiumColors = ['text-gold bg-gold/15', 'text-white/70 bg-white/10', 'text-amber-600 bg-amber-600/15'];
-
-  return (
-    <Card className="p-4 md:p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Trophy className="size-5" style={{ color: clubColor }} />
-        <span className="font-black text-balance">{t('topScoutsTitle')}</span>
-      </div>
-      <div className="space-y-2">
-        {scouts.slice(0, 3).map((scout, i) => (
-          <Link key={scout.userId} href={`/profile/${scout.handle}`}>
-            <div className="flex items-center gap-3 p-2.5 bg-surface-base rounded-xl border border-white/[0.06] hover:border-white/15 transition-colors">
-              <span className={cn('size-7 rounded-lg flex items-center justify-center text-xs font-black', podiumColors[i] ?? 'bg-white/5 text-white/40')}>
-                {i + 1}
-              </span>
-              {scout.avatarUrl ? (
-                <Image src={scout.avatarUrl} alt="" width={28} height={28} className="size-7 rounded-full object-cover" />
-              ) : (
-                <div className="size-7 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/50">
-                  {(scout.displayName ?? scout.handle).charAt(0).toUpperCase()}
-                </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold truncate">{scout.displayName || scout.handle}</div>
-                <div className="text-[10px] text-white/40">
-                  {scout.reportCount} {t('research')} · {scout.avgRating > 0 ? `★ ${scout.avgRating.toFixed(1)}` : ''}
-                </div>
-              </div>
-              {scout.approvedBounties > 0 && (
-                <span className="text-[10px] text-green-500 font-bold">{scout.approvedBounties} ✓</span>
-              )}
-            </div>
-          </Link>
-        ))}
-      </div>
-    </Card>
-  );
-}
 
 // ============================================
 // FIXTURE HELPERS
@@ -779,59 +604,6 @@ function LastResultsCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: st
 }
 
 // ============================================
-// ACTIVITY FEED
-// ============================================
-
-function ActivityFeed({
-  trades,
-  title,
-  emptyText,
-}: {
-  trades: TradeWithPlayer[];
-  title: string;
-  emptyText?: string;
-}) {
-  return (
-    <Card className="p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Zap className="size-5 text-gold" />
-        <span className="font-black text-balance text-lg">{title}</span>
-      </div>
-      <div className="space-y-3">
-        {trades.length === 0 ? (
-          <div className="text-center text-white/40 py-6">{emptyText}</div>
-        ) : (
-          trades.map((trade) => {
-            const priceBsd = centsToBsd(trade.price);
-            return (
-              <div key={trade.id} className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10">
-                <div className="flex items-center gap-3">
-                  <div className="size-8 rounded-lg bg-gold/10 flex items-center justify-center">
-                    <ArrowUpRight className="size-4 text-gold" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-sm">
-                      {trade.player?.first_name} {trade.player?.last_name}
-                    </div>
-                    <div className="text-[10px] text-white/40">
-                      {trade.quantity} DPC • {new Date(trade.executed_at).toLocaleDateString('de-DE')}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-mono font-bold tabular-nums text-gold">{fmtScout(priceBsd)} $SCOUT</div>
-                  <div className="text-[10px] text-white/40">pro DPC</div>
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
-    </Card>
-  );
-}
-
-// ============================================
 // MEMBERSHIP TIER CARD
 // ============================================
 
@@ -904,10 +676,8 @@ export default function ClubContent({ slug }: { slug: string }) {
   const { data: followerCountData = 0 } = useClubFollowerCount(clubId);
   const { data: isFollowingData = false } = useIsFollowingClub(userId, clubId);
   const { data: dbHoldings = [] } = useHoldings(userId);
-  const { data: clubVotesData = [] } = useClubVotes(clubId ?? null);
   const { data: subscriptionData = null } = useClubSubscription(userId, clubId);
   const { data: clubFixtures = [] } = useClubFixtures(clubId);
-  const { data: topScouts = [] } = useTopScouts(clubId, 3);
   const { data: clubPrestige } = useClubPrestige(clubId);
   const { data: activeIpos = [] } = useActiveIpos();
   const { data: allEvents = [] } = useEvents();
@@ -921,11 +691,9 @@ export default function ClubContent({ slug }: { slug: string }) {
   const tc = useTranslations('common');
   const tcom = useTranslations('community');
   const tsub = useTranslations('subscription');
-  const locale = useLocale();
 
   // ---- Derived data from hooks ----
   const players = useMemo(() => dbToPlayers(dbPlayersRaw), [dbPlayersRaw]);
-  const clubVotes = clubVotesData;
 
   const userHoldingsQty = useMemo(() => {
     if (!clubId || dbHoldings.length === 0) return {};
@@ -1049,13 +817,6 @@ export default function ClubContent({ slug }: { slug: string }) {
       .map(f => getFixtureResult(f, clubId))
       .filter((r): r is 'W' | 'D' | 'L' => r !== null);
   }, [clubFixtures, clubId]);
-
-  // Active votes for overview (max 2)
-  const activeVotesPreview = useMemo(() => {
-    return clubVotes
-      .filter(v => v.status === 'active' && new Date(v.ends_at) > new Date())
-      .slice(0, 2);
-  }, [clubVotes]);
 
   // Club-specific IPOs (for ActiveOffersSection)
   const clubIpos = useMemo(() => {
@@ -1319,6 +1080,7 @@ export default function ClubContent({ slug }: { slug: string }) {
           playerCount={players.length}
           clubColor={clubColor}
           formResults={formResults}
+          prestigeTier={clubPrestige?.tier}
         />
       </div>
 

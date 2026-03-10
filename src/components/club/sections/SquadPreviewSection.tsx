@@ -6,6 +6,7 @@ import { TrendingUp, ArrowUpRight, ArrowDownRight, ChevronRight } from 'lucide-r
 import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui';
 import { PlayerPhoto } from '@/components/player';
+import { CollectionProgress } from './CollectionProgress';
 import { fmtScout, cn } from '@/lib/utils';
 import type { Player } from '@/types';
 
@@ -30,7 +31,7 @@ export function SquadPreviewSection({ players, ownedPlayerIds, clubColor, onView
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <TrendingUp className="size-5" style={{ color: clubColor }} />
-          <span className="font-black text-balance">{t('trendingPlayers')}</span>
+          <h2 className="font-black text-balance">{t('trendingPlayers')}</h2>
         </div>
         <button onClick={onViewAll} className="flex items-center gap-1 text-xs text-gold font-semibold hover:text-gold/80 transition-colors">
           {t('viewAll')} <ChevronRight className="size-3" />
@@ -38,22 +39,9 @@ export function SquadPreviewSection({ players, ownedPlayerIds, clubColor, onView
       </div>
 
       {/* Collection progress */}
-      {totalPlayers > 0 && (
-        <div className="mb-4 p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs text-white/50">{t('collectionProgress')}</span>
-            <span className="text-xs font-mono font-bold tabular-nums" style={{ color: clubColor }}>
-              {ownedCount} / {totalPlayers}
-            </span>
-          </div>
-          <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all"
-              style={{ width: `${totalPlayers > 0 ? (ownedCount / totalPlayers) * 100 : 0}%`, background: clubColor }}
-            />
-          </div>
-        </div>
-      )}
+      <div className="mb-4">
+        <CollectionProgress owned={ownedCount} total={totalPlayers} clubColor={clubColor} />
+      </div>
 
       {/* Trending list */}
       <div className="space-y-1">

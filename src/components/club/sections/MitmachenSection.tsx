@@ -64,7 +64,7 @@ export function MitmachenSection({ clubId, userId, clubColor }: Props) {
           <div className="grid grid-cols-3 gap-3 text-center">
             <div>
               <div className="font-mono font-bold text-lg tabular-nums" style={{ color: clubColor }}>
-                {scoutingStats.avgRating.toFixed(1)}
+                {(scoutingStats.avgRating ?? 0).toFixed(1)}
               </div>
               <div className="text-[10px] text-white/40 mt-0.5">{t('analystScore')}</div>
             </div>

@@ -53,7 +53,7 @@ export function ClubEventsSection({ events, clubColor }: Props) {
                     ? 'bg-green-500/15 text-green-500'
                     : 'bg-white/[0.06] text-white/50'
                 )}>
-                  {event.status === 'running' ? 'LIVE' : event.status}
+                  {event.status === 'running' ? 'LIVE' : event.status === 'registering' ? 'OFFEN' : event.status === 'upcoming' ? 'BALD' : event.status === 'late-reg' ? 'LATE REG' : event.status.toUpperCase()}
                 </span>
                 {event.gameweek && (
                   <span className="text-[10px] text-white/40 font-mono">GW {event.gameweek}</span>

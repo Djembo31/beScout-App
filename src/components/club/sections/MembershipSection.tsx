@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Crown, Check, Loader2 } from 'lucide-react';
+import { Crown, Check } from 'lucide-react';
 import { cn, fmtScout } from '@/lib/utils';
-import { Card } from '@/components/ui';
+import { Card, Button } from '@/components/ui';
 import { TIER_CONFIG, subscribeTo } from '@/lib/services/clubSubscriptions';
 import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import { useClubSubscription } from '@/lib/queries/misc';
@@ -21,6 +21,7 @@ type Props = {
 
 export function MembershipSection({ userId, clubId, clubColor, onSubscribed }: Props) {
   const t = useTranslations('club');
+  const ts = useTranslations('subscription');
   const { addToast } = useToast();
   const { data: subscription } = useClubSubscription(userId, clubId);
   const [subscribing, setSubscribing] = useState<SubscriptionTier | null>(null);
@@ -74,7 +75,7 @@ export function MembershipSection({ userId, clubId, clubColor, onSubscribed }: P
             >
               <div className="space-y-1">
                 <p className="text-xs font-black uppercase tracking-wider" style={{ color: config.color }}>
-                  {t(config.labelKey)}
+                  {ts(config.labelKey)}
                 </p>
                 <p className="font-mono text-sm text-white/70">
                   {fmtScout(config.priceBsd)} $SCOUT {t('perMonth')}
@@ -85,7 +86,7 @@ export function MembershipSection({ userId, clubId, clubColor, onSubscribed }: P
                 {config.benefitKeys.map((key) => (
                   <li key={key} className="flex items-start gap-1.5 text-sm text-white/60">
                     <Check className="size-4 shrink-0 text-green-500 mt-0.5" />
-                    <span>{t(key)}</span>
+                    <span>{ts(key)}</span>
                   </li>
                 ))}
               </ul>
@@ -96,25 +97,16 @@ export function MembershipSection({ userId, clubId, clubColor, onSubscribed }: P
                     {t('activeTier')}
                   </p>
                 ) : (
-                  <button
-                    onClick={() => handleSubscribe(tier)}
+                  <Button
+                    variant={tier === 'gold' || (!isUpgrade && !isDowngrade) ? 'gold' : 'outline'}
+                    size="sm"
+                    fullWidth
+                    loading={subscribing === tier}
                     disabled={subscribing !== null || !userId || isDowngrade}
-                    className={cn(
-                      'w-full rounded-xl px-4 py-2 text-sm font-bold transition-all active:scale-[0.97]',
-                      'disabled:opacity-40 disabled:pointer-events-none',
-                      tier === 'gold' || (!isUpgrade && !isDowngrade)
-                        ? 'bg-gradient-to-r from-[#FFE44D] to-[#E6B800] text-black'
-                        : 'border border-white/10 text-white/70 hover:bg-white/[0.04]',
-                    )}
+                    onClick={() => handleSubscribe(tier)}
                   >
-                    {subscribing === tier ? (
-                      <Loader2 className="mx-auto size-4 animate-spin" />
-                    ) : isUpgrade ? (
-                      t('upgrade')
-                    ) : (
-                      t('subscribe')
-                    )}
-                  </button>
+                    {isUpgrade ? t('upgrade') : t('subscribe')}
+                  </Button>
                 )}
               </div>
             </Card>
