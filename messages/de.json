@@ -1756,7 +1756,9 @@
     "submissions": "Einsendungen",
     "topScouts": "Top Scouts",
     "upgrade": "Upgrade",
-    "viewAll": "Alle anzeigen"
+    "viewAll": "Alle anzeigen",
+    "viewCards": "Kartenansicht",
+    "viewRows": "Listenansicht"
   },
   "airdrop": {
     "title": "$SCOUT Airdrop",

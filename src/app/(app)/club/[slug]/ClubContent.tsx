@@ -49,6 +49,8 @@ import { SquadPreviewSection } from '@/components/club/sections/SquadPreviewSect
 import { MitmachenSection } from '@/components/club/sections/MitmachenSection';
 import { ClubEventsSection } from '@/components/club/sections/ClubEventsSection';
 import { MembershipSection } from '@/components/club/sections/MembershipSection';
+import { CollectionProgress } from '@/components/club/sections/CollectionProgress';
+import { LayoutGrid, List } from 'lucide-react';
 
 // ============================================
 // TYPES
@@ -955,6 +957,16 @@ export default function ClubContent({ slug }: { slug: string }) {
   const [posFilter, setPosFilter] = useState<Pos | 'ALL'>('ALL');
   const [sortBy, setSortBy] = useState<'perf' | 'price' | 'change'>('perf');
   const [spielerQuery, setSpielerQuery] = useState('');
+  const [squadView, setSquadView] = useState<'cards' | 'compact'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('bescout-squad-view') as 'cards' | 'compact') || 'cards';
+    }
+    return 'cards';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('bescout-squad-view', squadView);
+  }, [squadView]);
 
   // Spielplan Tab state
   const [fixtureFilter, setFixtureFilter] = useState<FixtureFilter>('all');
@@ -1493,31 +1505,62 @@ export default function ClubContent({ slug }: { slug: string }) {
 
       {/* ========== TAB: SPIELER ========== */}
       {tab === 'spieler' && (
-        <div className="space-y-6">
+        <div className="space-y-4">
+          {/* Collection Progress */}
+          <CollectionProgress owned={ownedPlayerIds.size} total={players.length} clubColor={clubColor} />
+
+          {/* Filters + View Toggle */}
           <div className="flex flex-col gap-3">
             <SearchInput value={spielerQuery} onChange={setSpielerQuery} placeholder={t('searchPlayers')} />
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center justify-between gap-3">
               <PosFilter selected={posFilter} onChange={setPosFilter} showAll allCount={posCounts['ALL']} counts={posCounts} />
-              <SortPills
-                options={[
-                  { id: 'perf', label: t('sortPerf') },
-                  { id: 'price', label: t('sortPrice') },
-                  { id: 'change', label: t('sortChange') },
-                ]}
-                active={sortBy}
-                onChange={(id) => setSortBy(id as 'perf' | 'price' | 'change')}
-              />
+              <div className="flex items-center gap-3">
+                <SortPills
+                  options={[
+                    { id: 'perf', label: t('sortPerf') },
+                    { id: 'price', label: t('sortPrice') },
+                    { id: 'change', label: t('sortChange') },
+                  ]}
+                  active={sortBy}
+                  onChange={(id) => setSortBy(id as 'perf' | 'price' | 'change')}
+                />
+                <div className="flex-shrink-0 flex items-center gap-0.5 bg-white/[0.04] rounded-lg p-0.5 border border-white/[0.06]">
+                  <button
+                    onClick={() => setSquadView('cards')}
+                    className={cn('p-1.5 rounded-md transition-colors', squadView === 'cards' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50')}
+                    title={t('viewCards')}
+                  >
+                    <LayoutGrid className="size-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setSquadView('compact')}
+                    className={cn('p-1.5 rounded-md transition-colors', squadView === 'compact' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50')}
+                    title={t('viewRows')}
+                  >
+                    <List className="size-3.5" />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
           <SponsorBanner placement="club_players" clubId={club.id} className="mb-3" />
           <div className="text-xs text-white/40 px-1">{t('playerCount', { count: filteredPlayers.length })}</div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-            {filteredPlayers.map((player) => (
-              <PlayerDisplay key={player.id} variant="card" player={player} showActions={false} />
-            ))}
-          </div>
+          {/* Player display based on view mode */}
+          {squadView === 'cards' ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+              {filteredPlayers.map((player) => (
+                <PlayerDisplay key={player.id} variant="card" player={player} showActions={false} />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {filteredPlayers.map((player) => (
+                <PlayerDisplay key={player.id} variant="compact" player={player} showActions={false} />
+              ))}
+            </div>
+          )}
 
           {filteredPlayers.length === 0 && (
             <div className="text-center text-white/40 py-12">

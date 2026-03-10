@@ -1748,7 +1748,9 @@
     "submissions": "Katılımlar",
     "topScouts": "En İyi Scoutlar",
     "upgrade": "Yükselt",
-    "viewAll": "Tümünü gör"
+    "viewAll": "Tümünü gör",
+    "viewCards": "Kart görünümü",
+    "viewRows": "Liste görünümü"
   },
   "airdrop": {
     "title": "$SCOUT Airdrop",
