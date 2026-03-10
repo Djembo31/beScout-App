@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
 type FillBarProps = {
@@ -11,11 +12,13 @@ type FillBarProps = {
 };
 
 export function FillBar({ current, max, variant = 'card' }: FillBarProps) {
-  if (max === null) {
+  const t = useTranslations('fantasy');
+
+  if (max === null || max === 0) {
     if (variant === 'mini') return null;
     return (
       <div className="text-xs text-white/40 font-mono tabular-nums">
-        {current} Teilnehmer
+        {current} {t('participants')}
       </div>
     );
   }
@@ -44,7 +47,7 @@ export function FillBar({ current, max, variant = 'card' }: FillBarProps) {
       <div className="flex items-center justify-between text-xs">
         <span className="text-white/40 font-mono tabular-nums">{current} / {max}</span>
         {isFull ? (
-          <span className="text-red-400 font-bold">VOLL</span>
+          <span className="text-red-400 font-bold">{t('eventFull')}</span>
         ) : (
           <span className="text-white/30 font-mono tabular-nums">{Math.round(pct)}%</span>
         )}
