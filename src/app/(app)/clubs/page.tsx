@@ -115,6 +115,49 @@ export default function ClubsDiscoveryPage() {
         />
       )}
 
+      {/* Deine Vereine (followed clubs, horizontal scroll) */}
+      {!loading && !dataError && (() => {
+        const followedClubs = clubs.filter(c => isFollowing(c.id));
+        if (followedClubs.length === 0) return null;
+        return (
+          <section>
+            <h2 className="text-sm font-bold text-white/60 uppercase text-balance mb-3">{t('yourClubs')}</h2>
+            <div className="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide -mx-1 px-1">
+              {followedClubs.map(club => {
+                const color = club.primary_color ?? '#FFD700';
+                return (
+                  <Link
+                    key={club.id}
+                    href={`/club/${club.slug}`}
+                    className={cn(
+                      'flex-shrink-0 w-[160px] snap-start rounded-2xl p-3 border transition-colors',
+                      'bg-white/[0.02] border-white/10 hover:border-white/20 active:scale-[0.98]',
+                      'shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
+                      activeClub?.id === club.id && 'ring-1 ring-gold/30'
+                    )}
+                  >
+                    <div className="flex flex-col items-center text-center gap-2">
+                      <div
+                        className="size-10 rounded-xl flex items-center justify-center text-xs font-black"
+                        style={{ backgroundColor: `${color}15`, color }}
+                      >
+                        {club.logo_url ? (
+                          <img src={club.logo_url} alt="" className="size-7 object-contain" />
+                        ) : (
+                          club.short?.slice(0, 3)
+                        )}
+                      </div>
+                      <div className="text-xs font-bold truncate w-full">{club.name}</div>
+                      <div className="text-[10px] text-white/40">{club.follower_count} {t('fans')}</div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })()}
+
       {/* Club Grid by League */}
       {!loading && Array.from(grouped.entries()).map(([league, leagueClubs]) => (
         <div key={league}>
