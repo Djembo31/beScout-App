@@ -7,14 +7,14 @@ import Image from 'next/image';
 import {
   Users, Trophy, BadgeCheck, ChevronRight, TrendingUp,
   Shield, BarChart3, Calendar,
-  Building2, Crown, MessageCircle,
+  Building2, MessageCircle,
   Bell, CheckCircle2, Briefcase,
   Users2, LayoutGrid, List,
   Loader2, Settings, ChevronDown,
   Swords, Home, Plane, ShoppingBag,
   Star, Award,
 } from 'lucide-react';
-import { Card, Button, Modal, ErrorState, Skeleton, SkeletonCard, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
+import { Card, Button, ErrorState, Skeleton, SkeletonCard, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
 import dynamic from 'next/dynamic';
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 import { PlayerIdentity } from '@/components/player';
@@ -24,9 +24,7 @@ import { dbToPlayers, centsToBsd } from '@/lib/services/players';
 import { toggleFollowClub } from '@/lib/services/club';
 import { fmtScout, cn } from '@/lib/utils';
 import { resolveExpiredResearch } from '@/lib/services/research';
-import { subscribeTo, cancelSubscription, TIER_CONFIG } from '@/lib/services/clubSubscriptions';
-import type { ClubSubscription, SubscriptionTier } from '@/lib/services/clubSubscriptions';
-import { useClubBySlug, useClubSubscription } from '@/lib/queries/misc';
+import { useClubBySlug } from '@/lib/queries/misc';
 import { usePlayersByClub } from '@/lib/queries/players';
 import { useClubFollowerCount, useIsFollowingClub } from '@/lib/queries/social';
 import { useHoldings } from '@/lib/queries/holdings';
@@ -48,6 +46,8 @@ import { MitmachenSection } from '@/components/club/sections/MitmachenSection';
 import { ClubEventsSection } from '@/components/club/sections/ClubEventsSection';
 import { MembershipSection } from '@/components/club/sections/MembershipSection';
 import { CollectionProgress } from '@/components/club/sections/CollectionProgress';
+import { RecentActivitySection } from '@/components/club/sections/RecentActivitySection';
+import { useClubRecentTrades } from '@/lib/queries/trades';
 
 // ============================================
 // TYPES
@@ -670,11 +670,11 @@ export default function ClubContent({ slug }: { slug: string }) {
   const { data: followerCountData = 0 } = useClubFollowerCount(clubId);
   const { data: isFollowingData = false } = useIsFollowingClub(userId, clubId);
   const { data: dbHoldings = [] } = useHoldings(userId);
-  const { data: subscriptionData = null } = useClubSubscription(userId, clubId);
   const { data: clubFixtures = [] } = useClubFixtures(clubId);
   const { data: clubPrestige } = useClubPrestige(clubId);
   const { data: activeIpos = [] } = useActiveIpos();
   const { data: allEvents = [] } = useEvents();
+  const { data: clubTradesRaw = [] } = useClubRecentTrades(clubId, 5);
 
   // Resolve expired research (fire-and-forget)
   useEffect(() => {
@@ -684,7 +684,6 @@ export default function ClubContent({ slug }: { slug: string }) {
   const t = useTranslations('club');
   const tc = useTranslations('common');
   const tcom = useTranslations('community');
-  const tsub = useTranslations('subscription');
 
   // ---- Derived data from hooks ----
   const players = useMemo(() => dbToPlayers(dbPlayersRaw), [dbPlayersRaw]);
@@ -735,19 +734,8 @@ export default function ClubContent({ slug }: { slug: string }) {
   const [expandedGw, setExpandedGw] = useState<Set<number>>(new Set());
   const [autoExpandedGw, setAutoExpandedGw] = useState(true);
 
-  // Club-Abo state
-  const [subscription, setSubscription] = useState<ClubSubscription | null>(null);
-  const [subModalOpen, setSubModalOpen] = useState(false);
-  const [subLoading, setSubLoading] = useState(false);
-  const [subError, setSubError] = useState<string | null>(null);
-
   // Club News
   const [clubNews, setClubNews] = useState<PostWithAuthor[]>([]);
-
-  // Sync subscription from query
-  useEffect(() => {
-    if (subscriptionData !== undefined) setSubscription(subscriptionData);
-  }, [subscriptionData]);
 
   // Fetch club news posts
   useEffect(() => {
@@ -780,6 +768,16 @@ export default function ClubContent({ slug }: { slug: string }) {
   const userClubDpc = useMemo(
     () => Object.values(userHoldingsQty).reduce((sum, q) => sum + q, 0),
     [userHoldingsQty]
+  );
+
+  const recentTrades = useMemo(() =>
+    clubTradesRaw.map(tr => ({
+      id: tr.id,
+      player_name: `${(tr.player as unknown as { first_name: string; last_name: string }).first_name} ${(tr.player as unknown as { first_name: string; last_name: string }).last_name}`,
+      price_cents: tr.price,
+      executed_at: tr.executed_at,
+    })),
+    [clubTradesRaw]
   );
 
   const filteredPlayers = useMemo(() => {
@@ -852,39 +850,6 @@ export default function ClubContent({ slug }: { slug: string }) {
       setFollowLoading(false);
     }
   }, [user, club, isFollowing, followLoading, refreshProfile, addToast, t]);
-
-  // ---- Subscription Handler ----
-  const handleSubscribe = useCallback(async (tier: SubscriptionTier) => {
-    if (!user || !club) return;
-    setSubLoading(true);
-    setSubError(null);
-    try {
-      const result = await subscribeTo(user.id, club.id, tier);
-      if (!result.success) {
-        setSubError(result.error || t('subscribeError'));
-      } else {
-        queryClient.invalidateQueries({ queryKey: qk.clubs.subscription(user.id, club.id) });
-        setSubModalOpen(false);
-      }
-    } catch (err) {
-      setSubError(err instanceof Error ? err.message : t('unknownError'));
-    } finally {
-      setSubLoading(false);
-    }
-  }, [user, club, t]);
-
-  const handleCancelSub = useCallback(async () => {
-    if (!user || !club) return;
-    setSubLoading(true);
-    try {
-      await cancelSubscription(user.id, club.id);
-      setSubscription(prev => prev ? { ...prev, auto_renew: false } : null);
-    } catch (err) {
-      console.error('[Club] Cancel subscription failed:', err);
-      addToast(t('cancelSubError'), 'error');
-    }
-    finally { setSubLoading(false); }
-  }, [user, club, addToast, t]);
 
   // ---- Loading / Error ----
   if (loading) return <ClubSkeleton />;
@@ -1078,58 +1043,6 @@ export default function ClubContent({ slug }: { slug: string }) {
         />
       </div>
 
-      {/* CLUB-ABO BANNER */}
-      {user && (
-        <div className="mb-4">
-          {subscription ? (
-            <Card className={cn('p-3 border flex items-center justify-between',
-              subscription.tier === 'gold' ? 'border-gold/30 bg-gold/5' :
-              subscription.tier === 'silber' ? 'border-[#C0C0C0]/30 bg-[#C0C0C0]/5' :
-              'border-[#CD7F32]/30 bg-[#CD7F32]/5'
-            )}>
-              <div className="flex items-center gap-3">
-                <div className={cn('size-8 rounded-full flex items-center justify-center font-black text-sm',
-                  subscription.tier === 'gold' ? 'bg-gold/20 text-gold' :
-                  subscription.tier === 'silber' ? 'bg-[#C0C0C0]/20 text-[#C0C0C0]' :
-                  'bg-[#CD7F32]/20 text-[#CD7F32]'
-                )}>
-                  <Crown className="size-4" />
-                </div>
-                <div>
-                  <div className="text-sm font-bold">{t('member', { tier: tsub(TIER_CONFIG[subscription.tier as SubscriptionTier]?.labelKey) })}</div>
-                  <div className="text-[10px] text-white/40">
-                    {subscription.auto_renew ? t('renewsAt') : t('expiresAt')} {new Date(subscription.expires_at).toLocaleDateString('de-DE')}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => setSubModalOpen(true)}>
-                  {subscription.auto_renew ? tc('manage') : t('renew')}
-                </Button>
-              </div>
-            </Card>
-          ) : (
-            <Card
-              className="p-3 border border-gold/20 bg-gold/[0.04] cursor-pointer hover:border-gold/30 transition-colors"
-              onClick={() => setSubModalOpen(true)}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="size-8 rounded-full bg-gold/10 flex items-center justify-center">
-                    <Crown className="size-4 text-gold" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold">{t('joinClub')}</div>
-                    <div className="text-[10px] text-white/40">{t('joinClubDesc')}</div>
-                  </div>
-                </div>
-                <ChevronRight className="size-4 text-white/30" />
-              </div>
-            </Card>
-          )}
-        </div>
-      )}
-
       {/* ━━━ SPONSOR: CLUB HERO ━━━ */}
       <SponsorBanner placement="club_hero" clubId={club.id} />
 
@@ -1184,6 +1097,9 @@ export default function ClubContent({ slug }: { slug: string }) {
 
           {/* Club Events */}
           {clubId && <ClubEventsSection events={clubEvents} clubColor={clubColor} />}
+
+          {/* Letzte Trades */}
+          <RecentActivitySection trades={recentTrades} clubColor={clubColor} />
 
           {/* Club-Mitgliedschaft */}
           {clubId && (
@@ -1427,85 +1343,6 @@ export default function ClubContent({ slug }: { slug: string }) {
         );
       })()}
 
-      {/* Club-Abo Modal */}
-      <Modal title={t('subscription')} open={subModalOpen} onClose={() => { setSubModalOpen(false); setSubError(null); }}>
-        <div className="p-6 max-w-lg">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="size-10 rounded-xl bg-gold/10 flex items-center justify-center">
-              <Crown className="size-5 text-gold" />
-            </div>
-            <div>
-              <h3 className="text-lg font-black text-balance">{t('subscription')}</h3>
-              <p className="text-xs text-white/40 text-pretty">{club.name} — {t('chooseTier')}</p>
-            </div>
-          </div>
-
-          {subError && (
-            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-300 text-sm">{subError}</div>
-          )}
-
-          <div className="space-y-3">
-            {(Object.entries(TIER_CONFIG) as [SubscriptionTier, typeof TIER_CONFIG[SubscriptionTier]][]).map(([tier, cfg]) => {
-              const isActive = subscription?.tier === tier && subscription?.status === 'active';
-              return (
-                <div
-                  key={tier}
-                  className={cn('rounded-xl border p-4 transition-colors',
-                    isActive
-                      ? 'border-2'
-                      : 'border-white/10 bg-surface-base hover:border-white/20'
-                  )}
-                  style={isActive ? { borderColor: `${cfg.color}66`, backgroundColor: `${cfg.color}1A` } : undefined}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className="size-6 rounded-full flex items-center justify-center" style={{ backgroundColor: `${cfg.color}20`, color: cfg.color }}>
-                        <Crown className="size-3" />
-                      </div>
-                      <span className="font-black" style={{ color: cfg.color }}>{tsub(cfg.labelKey)}</span>
-                      {isActive && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-500/20 text-green-500">{tsub('activeLabel')}</span>}
-                    </div>
-                    <span className="font-mono font-bold tabular-nums text-sm">{fmtScout(cfg.priceBsd)} $SCOUT<span className="text-white/30 text-[10px]">{tsub('perMonth')}</span></span>
-                  </div>
-                  <ul className="space-y-1 mb-3">
-                    {cfg.benefitKeys.map(bk => (
-                      <li key={bk} className="text-xs text-white/50 flex items-center gap-1.5">
-                        <CheckCircle2 className="size-3 text-green-500 flex-shrink-0" />
-                        {tsub(bk)}
-                      </li>
-                    ))}
-                  </ul>
-                  {isActive ? (
-                    <div className="flex gap-2">
-                      {subscription?.auto_renew ? (
-                        <Button variant="outline" size="sm" onClick={handleCancelSub} disabled={subLoading}>
-                          {t('disableAutoRenew')}
-                        </Button>
-                      ) : (
-                        <span className="text-xs text-white/30">{tsub('renewalDisabled')}</span>
-                      )}
-                    </div>
-                  ) : (
-                    <Button
-                      variant={tier === 'gold' ? 'gold' : 'outline'}
-                      size="sm"
-                      className="w-full"
-                      onClick={() => handleSubscribe(tier)}
-                      disabled={subLoading}
-                    >
-                      {subLoading ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" /> : t('subscribe', { tier: tsub(cfg.labelKey) })}
-                    </Button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <p className="text-[10px] text-white/25 mt-4 text-center">
-            {t('subscriptionDisclaimer')}
-          </p>
-        </div>
-      </Modal>
     </div>
   );
 }

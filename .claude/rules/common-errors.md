@@ -33,10 +33,11 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - `floor_price ?? 0` — IMMER Null-Guard auf optionale Zahlen
 - `entry.rank ?? 999` — Airdrop rank ist nullable
 
-## CSS
+## CSS / Tailwind
 - `::after`/`::before` mit `position: absolute` → Eltern MUSS `relative` haben
 - `overflow: hidden` allein reicht NICHT als Containing Block
 - `flex-1` auf Tabs → overflow auf iPhone → `flex-shrink-0` nutzen
+- Dynamic Tailwind Classes NIEMALS: `border-[${var}]/40` → Tailwind JIT scannt nur statische Strings. Nutze `style={{ borderColor: hex }}` + statische Class (`border-2`)
 
 ## Turkish Unicode
 - `I`.toLowerCase() = `i̇` (NICHT `i`) → NFD + strip diacritics + `ı→i`
