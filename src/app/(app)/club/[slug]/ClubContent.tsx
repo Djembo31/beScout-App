@@ -42,6 +42,13 @@ import { formatTimeAgo } from '@/components/community/PostCard';
 import { useTopScouts, useClubPrestige } from '@/lib/queries/scouting';
 import type { Player, Pos, DbPlayer, DbTrade, DbClubVote, ClubWithAdmin, Fixture, PostWithAuthor, TopScout } from '@/types';
 import type { PrestigeTier } from '@/lib/services/club';
+import { useActiveIpos } from '@/lib/queries/ipos';
+import { useEvents } from '@/lib/queries/events';
+import { ActiveOffersSection } from '@/components/club/sections/ActiveOffersSection';
+import { SquadPreviewSection } from '@/components/club/sections/SquadPreviewSection';
+import { MitmachenSection } from '@/components/club/sections/MitmachenSection';
+import { ClubEventsSection } from '@/components/club/sections/ClubEventsSection';
+import { MembershipSection } from '@/components/club/sections/MembershipSection';
 
 // ============================================
 // TYPES
@@ -76,6 +83,7 @@ function HeroSection({
   userClubDpc,
   totalVolume24h,
   playerCount,
+  buyablePlayers = 0,
   isPublic = false,
   loginUrl = '/login',
 }: {
@@ -87,6 +95,7 @@ function HeroSection({
   userClubDpc: number;
   totalVolume24h: number;
   playerCount: number;
+  buyablePlayers?: number;
   isPublic?: boolean;
   loginUrl?: string;
 }) {
@@ -160,6 +169,15 @@ function HeroSection({
               <div className="text-sm md:text-2xl font-black tabular-nums text-green-500">{playerCount}</div>
               <div className="text-[10px] md:text-xs text-white/50">{t('players')}</div>
             </div>
+            {buyablePlayers > 0 && (
+              <>
+                <div className="w-px h-5 md:h-10 bg-white/20" />
+                <div className="text-center">
+                  <div className="text-sm md:text-2xl font-black tabular-nums text-gold">{buyablePlayers}</div>
+                  <div className="text-[10px] md:text-xs text-white/50">{t('buyable')}</div>
+                </div>
+              </>
+            )}
             <div className="w-px h-5 md:h-10 bg-white/20 hidden md:block" />
             {isPublic ? (
               <Link href={loginUrl} className="hidden md:block">
@@ -889,6 +907,8 @@ export default function ClubContent({ slug }: { slug: string }) {
   const { data: clubFixtures = [] } = useClubFixtures(clubId);
   const { data: topScouts = [] } = useTopScouts(clubId, 3);
   const { data: clubPrestige } = useClubPrestige(clubId);
+  const { data: activeIpos = [] } = useActiveIpos();
+  const { data: allEvents = [] } = useEvents();
 
   // Resolve expired research (fire-and-forget)
   useEffect(() => {
@@ -1025,6 +1045,21 @@ export default function ClubContent({ slug }: { slug: string }) {
       .slice(0, 2);
   }, [clubVotes]);
 
+  // Club-specific IPOs (for ActiveOffersSection)
+  const clubIpos = useMemo(() => {
+    const playerIds = new Set(dbPlayersRaw.map(p => p.id));
+    return activeIpos.filter(ipo => playerIds.has(ipo.player_id));
+  }, [activeIpos, dbPlayersRaw]);
+
+  // Owned player IDs set (for SquadPreviewSection)
+  const ownedPlayerIds = useMemo(() => new Set(Object.keys(userHoldingsQty)), [userHoldingsQty]);
+
+  // Club events (for ClubEventsSection)
+  const clubEvents = useMemo(() => {
+    if (!clubId) return [];
+    return allEvents.filter(e => e.club_id === clubId);
+  }, [allEvents, clubId]);
+
   // ---- Follow Toggle ----
   const handleFollow = useCallback(async () => {
     if (!user || !club || followLoading) return;
@@ -1126,6 +1161,7 @@ export default function ClubContent({ slug }: { slug: string }) {
           userClubDpc={0}
           totalVolume24h={totalVolume24h}
           playerCount={players.length}
+          buyablePlayers={clubIpos.length}
           isPublic
           loginUrl={loginUrl}
         />
@@ -1258,6 +1294,7 @@ export default function ClubContent({ slug }: { slug: string }) {
         userClubDpc={userClubDpc}
         totalVolume24h={totalVolume24h}
         playerCount={players.length}
+        buyablePlayers={clubIpos.length}
       />
 
       {/* STATS BAR */}
@@ -1350,14 +1387,14 @@ export default function ClubContent({ slug }: { slug: string }) {
           {/* Nächste Begegnung */}
           {clubId && <NextMatchCard fixtures={clubFixtures} clubId={clubId} />}
 
-          {/* Dein DPC-Bestand */}
+          {/* Dein Spieler-Bestand */}
           {userClubDpc > 0 && (
             <Card className="p-4 bg-gold/[0.06] border-gold/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <ShoppingBag className="size-6 text-gold" />
                   <div>
-                    <div className="font-black">{userClubDpc} DPC</div>
+                    <div className="font-black">{userClubDpc} Spieler</div>
                     <div className="text-xs text-white/50">{t('yourHoldingsDesc')}</div>
                   </div>
                 </div>
@@ -1368,11 +1405,28 @@ export default function ClubContent({ slug }: { slug: string }) {
             </Card>
           )}
 
-          <TopPlayersWidget players={players} onViewAll={() => setTab('spieler')} clubColor={clubColor} />
+          {/* Aktive Angebote (IPOs) */}
+          <ActiveOffersSection ipos={clubIpos} players={players} clubColor={clubColor} />
 
-          {/* Top Scouts */}
-          {topScouts.length > 0 && (
-            <TopScoutsWidget scouts={topScouts} clubColor={clubColor} />
+          {/* Trending Spieler + Collection Progress */}
+          <SquadPreviewSection players={players} ownedPlayerIds={ownedPlayerIds} clubColor={clubColor} onViewAll={() => setTab('spieler')} />
+
+          {/* Mitmachen (Scout + Bounties + Votes + Leaderboard) */}
+          {clubId && <MitmachenSection clubId={clubId} userId={userId} clubColor={clubColor} />}
+
+          {/* Club Events */}
+          {clubId && <ClubEventsSection events={clubEvents} clubColor={clubColor} />}
+
+          {/* Club-Mitgliedschaft */}
+          {clubId && (
+            <MembershipSection
+              userId={userId}
+              clubId={clubId}
+              clubColor={clubColor}
+              onSubscribed={() => {
+                queryClient.invalidateQueries({ queryKey: qk.clubs.subscription(userId!, clubId) });
+              }}
+            />
           )}
 
           {/* Club-Neuigkeiten */}
@@ -1398,35 +1452,6 @@ export default function ClubContent({ slug }: { slug: string }) {
                     </div>
                   </div>
                 ))}
-              </div>
-            </Card>
-          )}
-
-          {/* Aktive Votes Preview */}
-          {activeVotesPreview.length > 0 && (
-            <Card className="p-4 md:p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Vote className="size-5" style={{ color: clubColor }} />
-                  <span className="font-black text-balance">{t('activeVotes')}</span>
-                </div>
-              </div>
-              <div className="space-y-2">
-                {activeVotesPreview.map(vote => {
-                  const totalVotes = (vote.options as { label: string; votes: number }[]).reduce((s, o) => s + o.votes, 0);
-                  return (
-                    <div
-                      key={vote.id}
-                      className="p-3 bg-surface-base rounded-xl border border-white/10"
-                    >
-                      <div className="font-bold text-sm mb-1 truncate">{vote.question}</div>
-                      <div className="flex items-center gap-3 text-xs text-white/40">
-                        <span>{totalVotes === 1 ? tcom('voteCountSingular', { count: totalVotes }) : tcom('votesCount', { count: totalVotes })}</span>
-                        <span>{tcom('endsAt', { date: new Date(vote.ends_at).toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { day: 'numeric', month: 'short' }) })}</span>
-                      </div>
-                    </div>
-                  );
-                })}
               </div>
             </Card>
           )}

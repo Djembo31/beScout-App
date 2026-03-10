@@ -7,8 +7,7 @@ import { useTranslations } from 'next-intl';
 import { cn, fmtScout } from '@/lib/utils';
 import { PlayerPhoto } from '@/components/player';
 import { FillBar } from '@/components/fantasy/events/FillBar';
-import type { Player } from '@/types';
-import type { DbIpo } from '@/lib/services/ipo';
+import type { Player, DbIpo } from '@/types';
 
 type Props = {
   ipos: DbIpo[];
@@ -38,7 +37,7 @@ export function ActiveOffersSection({ ipos, players, clubColor }: Props) {
           const player = playerMap.get(ipo.player_id);
           if (!player) return null;
 
-          const sold = ipo.total_supply - ipo.remaining_supply;
+          const sold = ipo.sold;
           const endDate = new Date(ipo.ends_at);
           const diff = endDate.getTime() - Date.now();
           const daysLeft = Math.max(0, Math.ceil(diff / 86400000));
@@ -54,15 +53,15 @@ export function ActiveOffersSection({ ipos, players, clubColor }: Props) {
               )}
             >
               <div className="flex items-center gap-2.5 mb-2.5">
-                <PlayerPhoto first={player.first_name} last={player.last_name} pos={player.position} size="sm" />
+                <PlayerPhoto first={player.first} last={player.last} pos={player.pos} size={32} />
                 <div className="min-w-0">
-                  <div className="font-bold text-xs truncate">{player.first_name} {player.last_name}</div>
-                  <div className="text-[10px] text-white/40">{player.position}</div>
+                  <div className="font-bold text-xs truncate">{player.first} {player.last}</div>
+                  <div className="text-[10px] text-white/40">{player.pos}</div>
                 </div>
               </div>
 
               <div className="flex items-center justify-between mb-2">
-                <span className="font-mono font-bold text-gold text-sm tabular-nums">{fmtScout(ipo.price_cents)}</span>
+                <span className="font-mono font-bold text-gold text-sm tabular-nums">{fmtScout(ipo.price)}</span>
                 <span className={cn(
                   'text-xs font-mono tabular-nums',
                   daysLeft <= 1 ? 'text-red-400 font-bold' : daysLeft <= 3 ? 'text-amber-400' : 'text-white/40'
@@ -71,7 +70,7 @@ export function ActiveOffersSection({ ipos, players, clubColor }: Props) {
                 </span>
               </div>
 
-              <FillBar current={sold} max={ipo.total_supply} variant="card" />
+              <FillBar current={sold} max={ipo.total_offered} variant="card" />
             </Link>
           );
         })}

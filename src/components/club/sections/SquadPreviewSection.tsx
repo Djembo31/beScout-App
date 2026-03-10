@@ -22,7 +22,7 @@ export function SquadPreviewSection({ players, ownedPlayerIds, clubColor, onView
   const totalPlayers = players.length;
   const ownedCount = players.filter(p => ownedPlayerIds.has(p.id)).length;
   const trending = [...players]
-    .sort((a, b) => (b.change_24h ?? 0) - (a.change_24h ?? 0))
+    .sort((a, b) => (b.prices.change24h ?? 0) - (a.prices.change24h ?? 0))
     .slice(0, 5);
 
   return (
@@ -58,7 +58,7 @@ export function SquadPreviewSection({ players, ownedPlayerIds, clubColor, onView
       {/* Trending list */}
       <div className="space-y-1">
         {trending.map((player, i) => {
-          const change = player.change_24h ?? 0;
+          const change = player.prices.change24h ?? 0;
           const isOwned = ownedPlayerIds.has(player.id);
           return (
             <Link
@@ -70,13 +70,13 @@ export function SquadPreviewSection({ players, ownedPlayerIds, clubColor, onView
               )}
             >
               <span className="text-xs font-mono text-white/30 w-4 text-center tabular-nums">{i + 1}</span>
-              <PlayerPhoto first={player.first_name} last={player.last_name} pos={player.position} size="xs" />
+              <PlayerPhoto first={player.first} last={player.last} pos={player.pos} size={24} />
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold truncate">
-                  {player.last_name}
+                  {player.last}
                   {isOwned && <span className="ml-1.5 text-[9px] px-1 py-0.5 rounded bg-gold/15 text-gold font-bold">{t('owned')}</span>}
                 </div>
-                <div className="text-xs text-white/40">{player.position} · {fmtScout(player.floor_price ?? 0)}</div>
+                <div className="text-xs text-white/40">{player.pos} · {fmtScout(player.prices.floor ?? 0)}</div>
               </div>
               <div className={cn('text-xs font-mono font-bold tabular-nums flex items-center gap-0.5', change >= 0 ? 'text-green-500' : 'text-red-400')}>
                 {change >= 0 ? <ArrowUpRight className="size-3" /> : <ArrowDownRight className="size-3" />}
