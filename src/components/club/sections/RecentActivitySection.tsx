@@ -29,7 +29,7 @@ export function RecentActivitySection({ trades, clubColor }: Props) {
     <Card className="p-4 md:p-6">
       <div className="flex items-center gap-2 mb-4">
         <Zap className="size-5" style={{ color: clubColor }} />
-        <span className="font-black text-balance">{t('recentActivity')}</span>
+        <h2 className="font-black text-balance">{t('recentActivity')}</h2>
       </div>
       <div className="space-y-2">
         {trades.slice(0, 5).map(trade => (

@@ -154,8 +154,8 @@ export function MitmachenSection({ clubId, userId, clubColor }: Props) {
               >
                 <div className="text-sm font-bold mb-2">{v.question}</div>
                 <div className="space-y-1.5">
-                  {v.options.map((opt, i) => {
-                    const pct = v.total_votes > 0 ? Math.round((opt.votes / v.total_votes) * 100) : 0;
+                  {(v.options ?? []).map((opt, i) => {
+                    const pct = v.total_votes > 0 ? Math.round(((opt.votes ?? 0) / v.total_votes) * 100) : 0;
                     return (
                       <div key={i}>
                         <div className="flex items-center justify-between text-[11px] mb-0.5">

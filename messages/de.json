@@ -390,6 +390,10 @@
     "eventsEndedGroup": "Beendet",
     "viewCards": "Kartenansicht",
     "viewRows": "Listenansicht",
+    "statusLive": "LIVE",
+    "statusOpen": "OFFEN",
+    "statusUpcoming": "BALD",
+    "statusLateReg": "LATE REG",
     "ergebnisse": {
       "upcoming": "Spieltag hat noch nicht begonnen",
       "upcomingDesc": "Ergebnisse werden nach dem Spieltag angezeigt",

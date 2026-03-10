@@ -5,16 +5,16 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  Users, Trophy, BadgeCheck, ChevronRight, Clock, TrendingUp,
+  Users, Trophy, BadgeCheck, ChevronRight, TrendingUp,
   Shield, BarChart3, Calendar,
   Building2, Crown, MessageCircle,
   Bell, CheckCircle2, Briefcase,
-  ArrowUpRight, ArrowDownRight, Users2,
+  Users2, LayoutGrid, List,
   Loader2, Settings, ChevronDown,
   Swords, Home, Plane, ShoppingBag,
   Star, Award,
 } from 'lucide-react';
-import { Card, Button, Chip, Modal, ErrorState, Skeleton, SkeletonCard, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
+import { Card, Button, Modal, ErrorState, Skeleton, SkeletonCard, TabBar, SearchInput, PosFilter, SortPills } from '@/components/ui';
 import dynamic from 'next/dynamic';
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 import { PlayerIdentity } from '@/components/player';
@@ -48,7 +48,6 @@ import { MitmachenSection } from '@/components/club/sections/MitmachenSection';
 import { ClubEventsSection } from '@/components/club/sections/ClubEventsSection';
 import { MembershipSection } from '@/components/club/sections/MembershipSection';
 import { CollectionProgress } from '@/components/club/sections/CollectionProgress';
-import { LayoutGrid, List } from 'lucide-react';
 
 // ============================================
 // TYPES
@@ -341,7 +340,7 @@ function SquadOverviewWidget({ players }: { players: Player[] }) {
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-4">
         <Shield className="size-5 text-white/50" />
-        <span className="font-black text-balance text-lg">{t('squadOverview')}</span>
+        <h2 className="font-black text-balance text-lg">{t('squadOverview')}</h2>
       </div>
       <div className="h-4 bg-white/5 rounded-full overflow-hidden flex mb-4">
         {(['GK', 'DEF', 'MID', 'ATT'] as Pos[]).map((pos) => (
@@ -403,7 +402,6 @@ function FixtureRow({ fixture, clubId, accent }: { fixture: Fixture; clubId: str
   const isHome = fixture.home_club_id === clubId;
   const isPlayed = fixture.status === 'simulated' || fixture.status === 'finished';
   const result = getFixtureResult(fixture, clubId);
-  const oppClubId = isHome ? fixture.away_club_id : fixture.home_club_id;
   const oppClub = getClub(isHome ? fixture.away_club_short : fixture.home_club_short) ||
                   getClub(isHome ? fixture.away_club_name : fixture.home_club_name);
   const oppColor = isHome ? fixture.away_club_primary_color : fixture.home_club_primary_color;
@@ -565,7 +563,7 @@ function LastResultsCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: st
     <Card className="p-4 md:p-6">
       <div className="flex items-center gap-2 mb-4">
         <Calendar className="size-5 text-white/50" />
-        <span className="font-black text-balance">{t('lastResults')}</span>
+        <h2 className="font-black text-balance">{t('lastResults')}</h2>
       </div>
       <div className="space-y-2">
         {played.map(f => {
@@ -602,10 +600,6 @@ function LastResultsCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: st
     </Card>
   );
 }
-
-// ============================================
-// MEMBERSHIP TIER CARD
-// ============================================
 
 // ============================================
 // SKELETON
@@ -665,7 +659,7 @@ function ClubSkeleton() {
 // ============================================
 
 export default function ClubContent({ slug }: { slug: string }) {
-  const { user, profile, refreshProfile, loading: authLoading } = useUser();
+  const { user, refreshProfile, loading: authLoading } = useUser();
   const { addToast } = useToast();
   const userId = user?.id;
 
@@ -739,7 +733,7 @@ export default function ClubContent({ slug }: { slug: string }) {
   // Spielplan Tab state
   const [fixtureFilter, setFixtureFilter] = useState<FixtureFilter>('all');
   const [expandedGw, setExpandedGw] = useState<Set<number>>(new Set());
-
+  const [autoExpandedGw, setAutoExpandedGw] = useState(true);
 
   // Club-Abo state
   const [subscription, setSubscription] = useState<ClubSubscription | null>(null);
@@ -857,7 +851,7 @@ export default function ClubContent({ slug }: { slug: string }) {
     } finally {
       setFollowLoading(false);
     }
-  }, [user, club, isFollowing, followLoading, refreshProfile]);
+  }, [user, club, isFollowing, followLoading, refreshProfile, addToast, t]);
 
   // ---- Subscription Handler ----
   const handleSubscribe = useCallback(async (tier: SubscriptionTier) => {
@@ -877,7 +871,7 @@ export default function ClubContent({ slug }: { slug: string }) {
     } finally {
       setSubLoading(false);
     }
-  }, [user, club]);
+  }, [user, club, t]);
 
   const handleCancelSub = useCallback(async () => {
     if (!user || !club) return;
@@ -890,7 +884,7 @@ export default function ClubContent({ slug }: { slug: string }) {
       addToast(t('cancelSubError'), 'error');
     }
     finally { setSubLoading(false); }
-  }, [user, club]);
+  }, [user, club, addToast, t]);
 
   // ---- Loading / Error ----
   if (loading) return <ClubSkeleton />;
@@ -980,7 +974,7 @@ export default function ClubContent({ slug }: { slug: string }) {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Users className="size-5" style={{ color: clubColor }} />
-              <span className="font-black text-balance text-lg">{t('squadPreview')}</span>
+              <h2 className="font-black text-balance text-lg">{t('squadPreview')}</h2>
             </div>
             <Link href={loginUrl} className="text-xs text-gold hover:underline flex items-center gap-1">
               {t('publicAllPlayers', { count: players.length })} <ChevronRight className="size-4" />
@@ -1015,7 +1009,7 @@ export default function ClubContent({ slug }: { slug: string }) {
         <Card className="p-4 md:p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Building2 className="size-5 text-white/50" />
-            <span className="font-black text-balance">{t('clubInfo')}</span>
+            <h2 className="font-black text-balance">{t('clubInfo')}</h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
             {club.stadium && (
@@ -1168,7 +1162,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                 <div className="flex items-center gap-3">
                   <ShoppingBag className="size-6 text-gold" />
                   <div>
-                    <div className="font-black">{userClubDpc} Spieler</div>
+                    <div className="font-black">{userClubDpc} {t('players')}</div>
                     <div className="text-xs text-white/50">{t('yourHoldingsDesc')}</div>
                   </div>
                 </div>
@@ -1208,7 +1202,7 @@ export default function ClubContent({ slug }: { slug: string }) {
             <Card className="p-4 md:p-6">
               <div className="flex items-center gap-2 mb-4">
                 <MessageCircle className="size-5" style={{ color: clubColor }} />
-                <span className="font-black text-balance">{t('news')}</span>
+                <h2 className="font-black text-balance">{t('news')}</h2>
               </div>
               <div className="space-y-3">
                 {clubNews.map(news => (
@@ -1237,7 +1231,7 @@ export default function ClubContent({ slug }: { slug: string }) {
           <Card className="p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4">
               <Building2 className="size-5 text-white/50" />
-              <span className="font-black text-balance">{t('clubInfo')}</span>
+              <h2 className="font-black text-balance">{t('clubInfo')}</h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
               {club.stadium && (
@@ -1393,17 +1387,20 @@ export default function ClubContent({ slug }: { slug: string }) {
               <div className="space-y-2">
                 {gameweeks.map(gw => {
                   const gwFixtures = gwMap.get(gw)!;
-                  const isExpanded = expandedGw.has(gw) || gw === firstUpcomingGw;
+                  const isExpanded = expandedGw.has(gw) || (autoExpandedGw && gw === firstUpcomingGw);
                   const gwPlayed = gwFixtures.some(f => f.status === 'simulated' || f.status === 'finished');
 
                   return (
                     <div key={gw} className="rounded-xl border border-white/10 overflow-hidden">
                       <button
-                        onClick={() => setExpandedGw(prev => {
-                          const next = new Set(prev);
-                          if (next.has(gw)) next.delete(gw); else next.add(gw);
-                          return next;
-                        })}
+                        onClick={() => {
+                          if (autoExpandedGw && gw === firstUpcomingGw) setAutoExpandedGw(false);
+                          setExpandedGw(prev => {
+                            const next = new Set(prev);
+                            if (next.has(gw)) next.delete(gw); else next.add(gw);
+                            return next;
+                          });
+                        }}
                         className="w-full flex items-center justify-between px-4 py-3 bg-surface-base hover:bg-white/[0.04] transition-colors"
                       >
                         <div className="flex items-center gap-2">
@@ -1455,9 +1452,10 @@ export default function ClubContent({ slug }: { slug: string }) {
                   key={tier}
                   className={cn('rounded-xl border p-4 transition-colors',
                     isActive
-                      ? `border-[${cfg.color}]/40 bg-[${cfg.color}]/10`
+                      ? 'border-2'
                       : 'border-white/10 bg-surface-base hover:border-white/20'
                   )}
+                  style={isActive ? { borderColor: `${cfg.color}66`, backgroundColor: `${cfg.color}1A` } : undefined}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">

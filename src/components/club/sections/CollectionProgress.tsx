@@ -13,7 +13,7 @@ export function CollectionProgress({ owned, total, clubColor }: Props) {
   const t = useTranslations('club');
   if (total === 0) return null;
 
-  const pct = (owned / total) * 100;
+  const pct = Math.min(100, (owned / total) * 100);
 
   return (
     <div className="p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">

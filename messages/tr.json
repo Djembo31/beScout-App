@@ -388,6 +388,10 @@
     "eventsEndedGroup": "Sona erdi",
     "viewCards": "Kart Görünümü",
     "viewRows": "Liste Görünümü",
+    "statusLive": "CANLI",
+    "statusOpen": "AÇIK",
+    "statusUpcoming": "YAKINDA",
+    "statusLateReg": "GEÇ KAYIT",
     "ergebnisse": {
       "upcoming": "Maç haftası henüz başlamadı",
       "upcomingDesc": "Sonuçlar maç haftası bittikten sonra gösterilecek",
