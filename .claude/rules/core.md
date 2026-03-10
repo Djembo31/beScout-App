@@ -34,10 +34,10 @@ description: Kern-Workflow, Knowledge Lifecycle und Session-Protokoll
 2. Fix → Build → Verify
 
 ### MCP Server nutzen
+- **gemini-knowledge:** Projekt-Kontext abfragen + Agent-Briefings generieren (PFLICHT vor Agent-Dispatch)
 - **context7:** Library-Docs nachschlagen
 - **supabase:** SQL, Migrations, Schema-Abfragen
 - **playwright:** Screenshots nach UI-Aenderungen
-- **greptile:** Semantische Code-Suche wenn Text-Grep nicht reicht
 
 ## Feature-Lifecycle (VERBINDLICH — Spec-Driven)
 
@@ -131,19 +131,32 @@ Loading | Empty | Error | Success | Disabled
 - ...
 ```
 
-## Knowledge Capture (waehrend Arbeit)
+## Knowledge Capture (PFLICHT — waehrend Arbeit, nicht erst am Ende)
 
-| Ereignis | Ziel | Promotion |
-|----------|------|-----------|
-| Neuer Fehler | `errors.md` | 2x gleicher Fehler → `common-errors.md` |
-| Neues Pattern | `patterns.md` | In 3+ Files benutzt → Domain-Rule |
-| Architektur-Entscheidung | `decisions.md` | Betrifft alle Domains → MEMORY.md |
-| Feature-Wissen | Feature-File | Feature fertig → relevante Rules updaten |
-| Cross-Domain Abhaengigkeit | Betroffene Rule → Cross-Domain Sektion | Sofort wenn bemerkt |
-| Neue Domain/Rule erstellt | Cross-Domain in ALLEN verwandten Rules ergaenzen | Sofort |
-| Zukunfts-Idee | `current-sprint.md` Backlog | — |
+### Trigger → Aktion (SOFORT ausfuehren, nicht aufschieben)
 
-Feedback: "pattern notiert: X" oder "error dokumentiert: Y"
+| Trigger | Aktion | Ziel-File | Gemini Refresh? |
+|---------|--------|-----------|-----------------|
+| Anil trifft Entscheidung | Sofort festhalten | Feature-File + decisions.md | Ja, nach Batch |
+| Neuer Fehler entdeckt | Dokumentieren mit Ursache + Fix | `errors.md` | Ja |
+| 2x gleicher Fehler | In Rule promoten | `common-errors.md` | Ja |
+| Neues Pattern erkannt | Mit Beispiel notieren | `patterns.md` | Ja |
+| Pattern in 3+ Files | In Domain-Rule promoten | `.claude/rules/{domain}.md` | Ja |
+| Architektur-Entscheidung | ADR schreiben | `decisions.md` | Ja |
+| Globale Entscheidung | Zusaetzlich in MEMORY.md | `MEMORY.md` | Ja |
+| Feature-Wissen | Ins Feature-File | `memory/features/{name}.md` | Nein |
+| Feature fertig | Erkenntnisse in Rules | Relevante Rule-Files | Ja |
+| Zukunfts-Idee | Backlog-Eintrag | `current-sprint.md` | Nein |
+
+### Self-Check (nach JEDER abgeschlossenen Aktion)
+Bevor ich zur naechsten Aufgabe gehe, frage ich mich:
+- "Hat Anil etwas entschieden das ich festhalten muss?" → Decision Capture
+- "Habe ich einen Fehler gefunden den ich dokumentieren muss?" → errors.md
+- "Habe ich ein Pattern gesehen das wiederverwendbar ist?" → patterns.md
+- Wenn JA auf irgendwas: ERST schreiben, DANN weiterarbeiten
+
+### Feedback an Anil (damit er weiss dass Wissen waechst)
+"Pattern notiert: X" / "Error dokumentiert: Y" / "Entscheidung festgehalten: Z"
 
 ## Context-Budget (VERBINDLICH)
 
@@ -176,6 +189,8 @@ Feedback: "pattern notiert: X" oder "error dokumentiert: Y"
 2. Feature-File — **Aktueller Stand** Sektion updaten (wo stehen wir, was kommt als naechstes)
 3. `sessions.md` — Session #, Datum, Thema, Ergebnis
 4. Betroffene Topic-Files — errors.md, patterns.md, decisions.md wenn relevant
+5. **Gemini `refresh_cache()`** — wenn irgendein memory/ oder rules/ File geaendert wurde
+6. **Knowledge-Check:** "Gibt es Entscheidungen/Fehler/Patterns die ich noch nicht festgehalten habe?"
 
 ## Session-Hygiene
 - /compact bei Themenwechsel

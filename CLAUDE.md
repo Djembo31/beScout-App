@@ -46,12 +46,14 @@ Domaenen-spezifische Regeln laden automatisch per Glob-Pattern.
 
 ## Orchestrator Workflow (PFLICHT fuer Features >10 Zeilen)
 1. Anil beschreibt Feature (1-3 Saetze)
-2. **Research Pipeline** → Agents recherchieren, Output in `.claude/research/`
-3. **ICH schreibe Spec** mit TypeScript Contracts → `memory/features/[name].md`
-4. **Anil reviewed** → "passt" oder Korrekturen
-5. **Agents implementieren** in Worktrees → ICH orchestriere, merge, reviewe
-6. **Verification Agents** → Build + Tests + Code Review (parallel)
-7. Modes + Details → siehe `orchestrator.md`
+2. **Gemini get_agent_context()** → kuratiertes Briefing fuer Agents
+3. **Research Pipeline** → Agents recherchieren, Output in `.claude/research/`
+4. **ICH schreibe Spec** mit TypeScript Contracts → `memory/features/[name].md`
+5. **Anil reviewed** → "passt" oder Korrekturen → Decision Capture SOFORT
+6. **Agents implementieren** in Worktrees → ICH orchestriere, merge, reviewe
+7. **Verification Agents** → Build + Code Review + QA (parallel)
+8. **Knowledge Capture** → Fehler/Patterns/Entscheidungen festhalten → Gemini refresh
+9. Modes (0-3) + Details → siehe `orchestrator.md`
 
 ## VOR jeder Aenderung (PFLICHT)
 1. Bestehenden Code pruefen BEVOR neuer Code geschrieben wird:

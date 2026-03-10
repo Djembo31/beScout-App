@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "node",
+      "args": ["./node_modules/@playwright/mcp/cli.js"]
+    },
+    "gemini-knowledge": {
+      "command": "node",
+      "args": ["C:/Users/Anil/.claude/mcp-servers/gemini-knowledge/dist/index.js"],
+      "env": {
+        "GEMINI_API_KEY": "AIzaSyCUIP9jm2LiFoWKhaTs5y3bBFkfCBMoYxo"
+      }
+    }
+  }
+}
