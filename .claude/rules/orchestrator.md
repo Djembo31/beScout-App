@@ -175,12 +175,17 @@ Agents bekommen Kontext von MIR im Prompt — NICHT per File-Read.
 | `query_knowledge` | Schnelle Fakten-Frage (Column-Name, Business-Rule, Pattern) | ICH |
 | `get_agent_context` | Vor Agent-Dispatch: komplettes Kontext-Paket generieren | ICH |
 | `refresh_cache` | Nach Updates an memory/*.md oder .claude/rules/*.md | ICH |
+| `check_staleness` | Monatliche Hygiene: veraltete Knowledge-Files finden (>N Tage) | ICH |
 
 ### Workflow mit Gemini
 1. Anil beschreibt Task
 2. ICH: `get_agent_context(task)` → kuratiertes Briefing
-3. ICH: verifiziere Briefing (kenne das Projekt)
-4. ICH: dispatche Agent MIT Briefing im Prompt
+3. ICH: **Spot-Check** — verifiziere 1 konkreten Fakt aus dem Briefing:
+   - Wenn DB Column genannt → `query_knowledge("exact column name?", exact: true)`
+   - Wenn Component genannt → Glob/Grep ob sie existiert
+   - Wenn Pattern genannt → stimmt die Beschreibung?
+   - Dauer: 30 Sekunden, 1 Tool-Call. Wenn falsch → Briefing verwerfen, manuell kuratieren
+4. ICH: dispatche Agent MIT verifiziertem Briefing im Prompt
 5. Agent liest NUR Source Code, Wissen hat er von mir
 6. Ergebnis: ~40-50% weniger Token-Verbrauch auf Knowledge-Reads
 
@@ -209,16 +214,19 @@ Wenn Anil eine Entscheidung trifft, SOFORT festhalten:
 
 ## Knowledge Growth Loop (nach JEDER Welle)
 
-Nach jeder abgeschlossenen Welle (Research/Implementation/Verification):
-
-1. **Frage mich:** "Habe ich etwas gelernt das fuer kuenftige Tasks relevant ist?"
-2. **Wenn ja:** Sofort in richtige Datei schreiben:
+### Post-Wave Learning (PFLICHT nach jeder Welle)
+1. Lies LEARNINGS-Sektion jedes Agent-Ergebnisses
+2. Fuer JEDEN gemeldeten Bug/Pattern/Fehler:
+   - Bug → `errors.md` (mit Agent-Name als Quelle)
+   - Pattern → `patterns.md`
+   - Falsche Doku → sofort korrigieren
+3. Zusaetzlich eigene Erkenntnisse:
    - Neuer Fehler → `errors.md` (2x gleicher → Rule Promotion)
    - Neues Pattern → `patterns.md` (3+ Files → Rule Promotion)
    - Neue Entscheidung → `decisions.md`
    - Feature-Erkenntnis → Feature-File
-3. **Gemini refreshen:** `refresh_cache()` aufrufen WENN ich Topic-Files geaendert habe
-4. **Anil informieren:** "Erkenntnis festgehalten: [was]"
+4. **Gemini `refresh_cache()`** aufrufen WENN irgendein Topic-File geschrieben wurde
+5. **Anil informieren:** "Agent [X] hat entdeckt: [Y]. Dokumentiert in [Z]."
 
 ### Promotion-Regeln → siehe core.md Knowledge Capture (Trigger-Tabelle)
 

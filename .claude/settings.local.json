@@ -1,4 +1,8 @@
 {
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "true",
+    "FIRECRAWL_API_KEY": "fc-7e381592638d40e0a0859e0f16d80497"
+  },
   "permissions": {
     "allow": [
       "Bash(*)",
@@ -8,9 +12,14 @@
       "mcp__context7__*",
       "mcp__playwright__*",
       "mcp__figma-remote-mcp__*",
-      "mcp__sequential-thinking__*"
+      "mcp__sequential-thinking__*",
+      "mcp__gemini-knowledge__*"
     ]
   },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "playwright"
+  ],
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true
   }

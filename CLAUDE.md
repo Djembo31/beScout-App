@@ -98,7 +98,9 @@ When compacting context, ALWAYS preserve:
 
 ## Automation (Hooks)
 - **PostToolUse:** Auto ESLint --fix nach jedem Edit/Write auf .ts/.tsx
+- **PostToolUse:** Gemini Sync Reminder nach Writes auf memory/ oder rules/ Files
 - **PreToolUse:** Safety Guard blockt destructive Bash Commands (rm -rf, DROP, force push)
+- **PreToolUse:** Agent Dispatch Guard blockt Agent-Starts ohne PROJEKT-WISSEN Sektion
 - **Stop:** Prompt-Check NUR wenn UI-Components geaendert wurden
 
 ## Referenzen

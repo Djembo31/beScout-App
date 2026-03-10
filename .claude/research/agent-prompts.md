@@ -35,6 +35,14 @@
 === ACCEPTANCE CRITERIA ===
 {Exakte Checkliste — wann ist der Agent "fertig"}
 {Erwartetes Output-Format}
+
+=== LEARNINGS (PFLICHT — auch wenn leer) ===
+Nenne 0-3 Dinge die du waehrend der Arbeit entdeckt hast:
+- Bug/Fehler: [was + wo] (fuer errors.md)
+- Pattern: [was + warum nuetzlich] (fuer patterns.md)
+- Fehlende/Falsche Doku: [was stimmt nicht] (fuer Korrektur)
+- Ueberraschung: [was unerwartet war]
+Wenn nichts: "Keine neuen Erkenntnisse."
 ```
 
 ---
@@ -241,6 +249,9 @@ Return als Text (KEIN File schreiben):
 2. Erstellte Tables/Columns mit Types
 3. RPC Signatures: function_name(params) → return_type
 4. RLS Policies: Kurzbeschreibung pro Table
+
+=== LEARNINGS ===
+0-3 Erkenntnisse (Bug/Pattern/Doku-Fehler/Ueberraschung). Wenn nichts: "Keine neuen Erkenntnisse."
 ```
 
 ### Service Agent
@@ -287,6 +298,9 @@ Return als Text:
 1. Erstellte/geaenderte Files (Pfad + was geaendert)
 2. Exportierte Function Signatures
 3. Neue Types/Interfaces
+
+=== LEARNINGS ===
+0-3 Erkenntnisse (Bug/Pattern/Doku-Fehler/Ueberraschung). Wenn nichts: "Keine neuen Erkenntnisse."
 ```
 
 ### UI Agent
@@ -348,6 +362,9 @@ Return als Text:
 2. Component Props (Interface)
 3. Welche bestehenden Components wiederverwendet
 4. Screenshot-Empfehlung (was visuell geprueft werden sollte)
+
+=== LEARNINGS ===
+0-3 Erkenntnisse (Bug/Pattern/Doku-Fehler/Ueberraschung). Wenn nichts: "Keine neuen Erkenntnisse."
 ```
 
 ### Test Agent
@@ -389,6 +406,9 @@ Return als Text:
 1. Erstellte Test-Files (Pfad)
 2. Was jeder Test abdeckt (1 Zeile pro Test)
 3. Wie ausfuehren (exakter Command)
+
+=== LEARNINGS ===
+0-3 Erkenntnisse (Bug/Pattern/Doku-Fehler/Ueberraschung). Wenn nichts: "Keine neuen Erkenntnisse."
 ```
 
 ---
@@ -448,6 +468,9 @@ Review Code fuer: {FEATURE_NAME}
 🔴 Critical: [Pfad:Zeile] [was falsch ist] [was richtig waere]
 🟡 Warning: [Pfad:Zeile] [was verbessert werden sollte]
 🟢 Suggestion: [Pfad:Zeile] [optionale Verbesserung]"
+
+=== LEARNINGS ===
+0-3 Erkenntnisse (Bug/Pattern/Doku-Fehler/Ueberraschung). Wenn nichts: "Keine neuen Erkenntnisse."
 ```
 
 ### QA Agent (Visual)

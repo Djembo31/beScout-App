@@ -3,10 +3,10 @@ description: Kern-Workflow, Knowledge Lifecycle und Session-Protokoll
 ---
 
 ## Session-Start (ERSTE AKTION jeder Session)
-1. MEMORY.md ist auto-loaded → Projekt-Kontext da
-2. `current-sprint.md` lesen → Stand, Aktive Features, Blocker
-3. Wenn aktives Feature: Feature-File lesen → Kontext, Requirements, offene Fragen
-4. Wenn unterbrochene Session: letzten Stand aus Feature-File + current-sprint.md rekonstruieren
+1. `session-handoff.md` lesen → WAS ZULETZT PASSIERT IST (50 Zeilen, schnell)
+2. MEMORY.md ist auto-loaded → Projekt-Kontext da
+3. `current-sprint.md` lesen → Stand, Aktive Features, Blocker
+4. Wenn aktives Feature: Feature-File lesen → Kontext, Requirements, offene Fragen
 5. Anil sagt was ansteht → los
 
 ## Workflow
@@ -184,13 +184,40 @@ Bevor ich zur naechsten Aufgabe gehe, frage ich mich:
 
 **Duplikat-Regel:** Jede Info an EINER Stelle. Rules duerfen auf Topic-Files verweisen, nicht duplizieren.
 
+### Knowledge Hygiene (monatlich, Session-Start)
+Wenn >30 Tage seit letzter Hygiene:
+1. `check_staleness(30)` → Liste veralteter Files
+2. Fuer jedes stale File entscheiden:
+   - Noch relevant → Inhalt pruefen, ggf. updaten → Timestamp aktualisiert
+   - Teilweise obsolet → Stale Eintraege entfernen/archivieren
+   - Komplett obsolet → Archivieren oder loeschen
+3. errors.md: Eintraege die seit 3+ Monaten nicht mehr aufgetreten → archivieren
+4. patterns.md: Patterns die im Code nicht mehr vorkommen → entfernen
+5. Gemini `refresh_cache()` nach Cleanup
+6. Notiz in sessions.md: "Knowledge Hygiene durchgefuehrt: [was geaendert]"
+
 ## Session-Ende (PFLICHT — auch wenn Anil nicht fragt)
-1. `current-sprint.md` — Letzter Stand + Aktive Features updaten
-2. Feature-File — **Aktueller Stand** Sektion updaten (wo stehen wir, was kommt als naechstes)
-3. `sessions.md` — Session #, Datum, Thema, Ergebnis
-4. Betroffene Topic-Files — errors.md, patterns.md, decisions.md wenn relevant
-5. **Gemini `refresh_cache()`** — wenn irgendein memory/ oder rules/ File geaendert wurde
-6. **Knowledge-Check:** "Gibt es Entscheidungen/Fehler/Patterns die ich noch nicht festgehalten habe?"
+1. `session-handoff.md` schreiben/updaten (MAX 50 Zeilen):
+   ```
+   # Session Handoff
+   ## Letzte Session: #N (Datum)
+   ## Was wurde gemacht
+   - [1 Zeile pro Ergebnis]
+   ## Offene Arbeit
+   - [was angefangen aber nicht fertig ist, mit File-Pfaden]
+   ## Naechste Aktion
+   - [exakt was als erstes getan werden muss]
+   ## Aktive Entscheidungen
+   - [Entscheidungen die noch nicht umgesetzt sind]
+   ## Blocker
+   - [was blockiert ist und warum]
+   ```
+2. `current-sprint.md` — Letzter Stand + Aktive Features updaten
+3. Feature-File — **Aktueller Stand** Sektion updaten (wo stehen wir, was kommt als naechstes)
+4. `sessions.md` — Session #, Datum, Thema, Ergebnis
+5. Betroffene Topic-Files — errors.md, patterns.md, decisions.md wenn relevant
+6. **Gemini `refresh_cache()`** — wenn irgendein memory/ oder rules/ File geaendert wurde
+7. **Knowledge-Check:** "Gibt es Entscheidungen/Fehler/Patterns die ich noch nicht festgehalten habe?"
 
 ## Session-Hygiene
 - /compact bei Themenwechsel
