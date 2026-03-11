@@ -40,7 +40,7 @@ description: Business-Regeln, Compliance und Geofencing
 | Research | 20% | — | — | 80% |
 | Bounty | 5% | — | — | 95% |
 | Polls | 30% | — | — | 70% |
-| P2P Offers | 0% | 0% | 0% | — |
+| P2P Offers | 2% | 0.5% | 0.5% | — |
 | Club Abos | 0% | 0% | 100% | — |
 
 ## Platform Treasury (ADR-026)

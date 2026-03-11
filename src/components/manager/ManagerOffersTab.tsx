@@ -110,6 +110,20 @@ function OfferCard({
             <span className="text-white/60 tabular-nums">{offer.quantity}x</span>
           </div>
 
+          {/* Fee info (3% on P2P offers — shown on pending incoming offers) */}
+          {isIncoming && offer.status === 'pending' && !isExpired && (() => {
+            const total = offer.price * offer.quantity;
+            const fee = Math.floor(total * 300 / 10000); // 3% = 300 bps
+            const proceeds = total - fee;
+            return (
+              <div className="flex items-center gap-2 text-[11px] text-white/35 mb-1">
+                <span>3% Gebuehr: <span className="font-mono tabular-nums text-red-400/70">{fmtScout(centsToBsd(fee))}</span></span>
+                <span>&bull;</span>
+                <span>{offer.side === 'buy' ? 'Erloes' : 'Verkaeufer erhaelt'}: <span className="font-mono tabular-nums text-green-400/70">{fmtScout(centsToBsd(proceeds))}</span></span>
+              </div>
+            );
+          })()}
+
           {/* Sender/Receiver */}
           <div className="flex items-center gap-2 text-xs text-white/40">
             {isSender ? (

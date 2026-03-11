@@ -27,7 +27,7 @@ paths:
 - **Research Unlock:** 80% Author, 20% Platform
 - **Bounty Approval:** 95% Creator, 5% Platform
 - **Polls:** 70% Creator, 30% Platform
-- **P2P Offers:** 0% (bewusst, ADR-025, post-Pilot nachruestbar)
+- **P2P Offers (3% total):** Platform 2% + PBT 0.5% + Club 0.5% (ADR-025 updated, `offer_*_bps` in fee_config)
 - **Club Abos:** 100% Club (ADR-027)
 - Fee-Discount: Platform absorbs Rabatt, PBT+Club immer voller Anteil
 - Abo-Discount: `buy_player_dpc` prueft `club_subscriptions` (active + expires_at > now)
