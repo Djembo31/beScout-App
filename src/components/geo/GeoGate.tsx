@@ -41,8 +41,8 @@ function GeoRestricted({ feature }: { feature: GeoFeature }) {
   const featureLabel = t(`feature.${feature}` as `feature.${GeoFeature}`);
 
   return (
-    <div className="flex flex-col items-center justify-center py-20 px-6 text-center" role="status">
-      <ShieldOff className="size-12 text-white/20 mb-4" aria-label={t('featureRestricted')} />
+    <div className="flex flex-col items-center justify-center py-20 px-6 text-center focus-within:ring-1 focus-within:ring-white/10 rounded-2xl" role="status">
+      <ShieldOff className="size-12 text-white/20 mb-4" role="img" aria-label={t('featureRestricted')} />
       <h2 className="text-lg font-bold text-white/70 mb-2">
         {t('featureRestricted')}
       </h2>

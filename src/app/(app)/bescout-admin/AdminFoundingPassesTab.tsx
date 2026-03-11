@@ -58,6 +58,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
   const [userResults, setUserResults] = useState<UserSearchResult[]>([]);
   const [userSearching, setUserSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [activeIdx, setActiveIdx] = useState(-1);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const searchUsers = useCallback(async (q: string) => {
@@ -83,6 +84,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
     setUserQuery(val);
     setGrantUserId('');
     setGrantUsername('');
+    setActiveIdx(-1);
     if (searchTimer.current) clearTimeout(searchTimer.current);
     searchTimer.current = setTimeout(() => searchUsers(val), 300);
   }, [searchUsers]);
@@ -93,7 +95,25 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
     setUserQuery(u.username);
     setShowDropdown(false);
     setUserResults([]);
+    setActiveIdx(-1);
   }, []);
+
+  const handleSearchKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!showDropdown || userResults.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIdx(i => Math.min(i + 1, userResults.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIdx(i => Math.max(i - 1, 0));
+    } else if (e.key === 'Enter' && activeIdx >= 0) {
+      e.preventDefault();
+      selectUser(userResults[activeIdx]);
+    } else if (e.key === 'Escape') {
+      setShowDropdown(false);
+      setActiveIdx(-1);
+    }
+  }, [showDropdown, userResults, activeIdx, selectUser]);
 
   const loadData = useCallback(async () => {
     try {
@@ -201,7 +221,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
                 {isActive && <span className="text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">AKTIV</span>}
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-3 rounded-full overflow-hidden bg-white/5">
+                <div className="flex-1 h-3 rounded-full overflow-hidden bg-white/5" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100} aria-label={`Kill-Switch: ${pct.toFixed(1)}% des EUR ${KILL_SWITCH_LIMIT_EUR.toLocaleString('de-DE')} Limits erreicht`}>
                   <div
                     className={cn('h-full rounded-full transition-all', isActive ? 'bg-red-500' : pct > 80 ? 'bg-amber-500' : 'bg-emerald-500')}
                     style={{ width: `${pct}%` }}
@@ -263,8 +283,14 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
                 onChange={e => handleUserQueryChange(e.target.value)}
                 onFocus={() => { if (userResults.length > 0) setShowDropdown(true); }}
                 onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Username eingeben..."
                 aria-label="User suchen"
+                role="combobox"
+                autoComplete="off"
+                aria-expanded={showDropdown && userResults.length > 0}
+                aria-controls="user-search-listbox"
+                aria-activedescendant={activeIdx >= 0 ? `user-option-${activeIdx}` : undefined}
                 className="w-full pl-8 pr-3 py-2 text-sm bg-white/[0.04] border border-white/10 rounded-lg text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-gold/50"
               />
               {userSearching && <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3.5 animate-spin motion-reduce:animate-none text-white/30" />}
@@ -273,12 +299,16 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
               <div className="text-[10px] text-green-400/70 mt-1 font-mono truncate">{grantUsername} ({grantUserId.slice(0, 8)}...)</div>
             )}
             {showDropdown && userResults.length > 0 && (
-              <div className="absolute z-20 left-0 right-0 top-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl max-h-48 overflow-y-auto">
-                {userResults.map(u => (
+              <div id="user-search-listbox" role="listbox" aria-label="Suchergebnisse" className="absolute z-20 left-0 right-0 top-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl max-h-48 overflow-y-auto">
+                {userResults.map((u, i) => (
                   <button
                     key={u.id}
+                    id={`user-option-${i}`}
+                    role="option"
+                    aria-selected={i === activeIdx}
+                    aria-label={`${u.username} (${u.id.slice(0, 8)})`}
                     onMouseDown={() => selectUser(u)}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/[0.06] transition-colors text-left"
+                    className={cn('w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/[0.06] transition-colors text-left', i === activeIdx && 'bg-white/[0.08]')}
                   >
                     <span className="truncate">{u.username}</span>
                     <span className="text-[10px] text-white/30 font-mono ml-auto flex-shrink-0">{u.id.slice(0, 8)}</span>
