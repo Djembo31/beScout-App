@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Flame, Shield, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { fmtScout, cn } from '@/lib/utils';
@@ -29,6 +30,10 @@ export default function HomeStoryHeader({
   const t = useTranslations('home');
   const tg = useTranslations('gamification');
 
+  // Greeting depends on local time — compute client-only to avoid SSR timezone mismatch
+  const [greetingKey, setGreetingKey] = useState('greeting');
+  useEffect(() => { setGreetingKey(getGreetingKey()); }, []);
+
   const pnlPositive = pnl >= 0;
   const PnlIcon = pnlPositive ? ArrowUpRight : ArrowDownRight;
 
@@ -38,8 +43,8 @@ export default function HomeStoryHeader({
       <div className="flex items-center justify-between">
         <div className="relative">
           <div className="absolute -inset-6 bg-gold/[0.10] rounded-full blur-2xl -z-10" />
-          <div className="text-xs text-white/40">{t(getGreetingKey())},</div>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight" suppressHydrationWarning>
+          <div className="text-xs text-white/40" suppressHydrationWarning>{t(greetingKey)},</div>
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight">
             {loading ? '...' : firstName}
             <span className="text-gold">.</span>
           </h1>

@@ -34,22 +34,22 @@ export function useWallet() {
 export function WalletProvider({ children }: { children: React.ReactNode }) {
     const { user } = useUser();
 
-    // Hydrate from sessionStorage to avoid "0 bCredits" flash — but only if userId matches
-    const [balanceCents, setBalanceCentsRaw] = useState<number | null>(() => {
-        if (typeof window === 'undefined') return null;
+    // Never read sessionStorage in useState — causes hydration mismatch (server=null, client=cached).
+    const [balanceCents, setBalanceCentsRaw] = useState<number | null>(null);
+    const [lockedBalanceCents, setLockedBalanceCents] = useState<number | null>(null);
+
+    // Hydrate from sessionStorage after mount (client-only)
+    useEffect(() => {
         try {
             const stored = sessionStorage.getItem(WALLET_SESSION_KEY);
             if (stored) {
                 const parsed = JSON.parse(stored);
-                if (parsed && typeof parsed.balance === 'number' && typeof parsed.userId === 'string') {
-                    return parsed.balance;
+                if (parsed && typeof parsed.balance === 'number') {
+                    setBalanceCentsRaw(parsed.balance);
                 }
             }
         } catch { /* ignore */ }
-        return null;
-    });
-
-    const [lockedBalanceCents, setLockedBalanceCents] = useState<number | null>(null);
+    }, []);
 
     const retryCount = useRef(0);
     const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);

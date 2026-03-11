@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { X, Sparkles } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
@@ -26,10 +26,14 @@ const STORAGE_PREFIX = 'bescout-tip-';
 export default function NewUserTip({ tipKey, icon, title, description, action, show }: NewUserTipProps) {
   const t = useTranslations('tips');
 
-  const [dismissed, setDismissed] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return !!localStorage.getItem(`${STORAGE_PREFIX}${tipKey}-dismissed`);
-  });
+  // Never read localStorage in useState — causes hydration mismatch.
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem(`${STORAGE_PREFIX}${tipKey}-dismissed`)) {
+      setDismissed(true);
+    }
+  }, [tipKey]);
 
   if (!show || dismissed) return null;
 
