@@ -23,7 +23,7 @@ export async function getEvents(): Promise<DbEvent[]> {
 export async function getEventsByClubId(clubId: string): Promise<DbEvent[]> {
   const { data, error } = await supabase
     .from('events')
-    .select('id, name, type, status, format, gameweek, entry_fee, prize_pool, max_entries, current_entries, starts_at, locks_at, ends_at, scored_at, created_by, club_id, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, created_at')
+    .select('id, name, type, status, format, gameweek, entry_fee, prize_pool, max_entries, current_entries, starts_at, locks_at, ends_at, scored_at, created_by, club_id, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, reward_structure, scope, lineup_size, created_at')
     .eq('club_id', clubId)
     .order('created_at', { ascending: false });
 
@@ -36,7 +36,7 @@ export async function getEventsByClubIds(clubIds: string[]): Promise<DbEvent[]> 
   if (clubIds.length === 0) return [];
   const { data, error } = await supabase
     .from('events')
-    .select('id, name, type, status, format, gameweek, entry_fee, prize_pool, max_entries, current_entries, starts_at, locks_at, ends_at, scored_at, created_by, club_id, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, created_at')
+    .select('id, name, type, status, format, gameweek, entry_fee, prize_pool, max_entries, current_entries, starts_at, locks_at, ends_at, scored_at, created_by, club_id, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, reward_structure, scope, lineup_size, created_at')
     .in('club_id', clubIds)
     .order('created_at', { ascending: false });
 
@@ -327,7 +327,7 @@ export async function getAllEventsAdmin(filters?: {
 }): Promise<DbEvent[]> {
   let query = supabase
     .from('events')
-    .select('id, name, type, status, format, gameweek, entry_fee, prize_pool, max_entries, current_entries, starts_at, locks_at, ends_at, scored_at, created_by, club_id, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, reward_structure, created_at, clubs(name, slug)')
+    .select('id, name, type, status, format, gameweek, entry_fee, prize_pool, max_entries, current_entries, starts_at, locks_at, ends_at, scored_at, created_by, club_id, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, reward_structure, scope, lineup_size, created_at, clubs(name, slug)')
     .order('created_at', { ascending: false });
 
   if (filters?.status && filters.status.length > 0) {
