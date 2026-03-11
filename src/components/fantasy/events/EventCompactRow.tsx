@@ -43,7 +43,7 @@ export function EventCompactRow({ event, onClick }: Props) {
           <span>{event.participants}/{event.maxParticipants ?? '∞'}</span>
           <span className="text-white/15">·</span>
           <span className={event.buyIn === 0 ? 'text-green-500' : 'text-gold'}>
-            {event.buyIn === 0 ? t('freeEntry') : `${event.buyIn} $SCOUT`}
+            {event.buyIn === 0 ? t('freeEntry') : `${event.buyIn} bCredits`}
           </span>
           {event.prizePool > 0 && (
             <>

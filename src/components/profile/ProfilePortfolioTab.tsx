@@ -98,14 +98,14 @@ export default function ProfilePortfolioTab({ holdings }: ProfilePortfolioTabPro
           <div>
             <div className="text-xs text-white/40 mb-1">{tp('portfolioValue')}</div>
             <div className="text-2xl md:text-3xl font-mono font-black text-gold">
-              {formatScout(portfolioValueCents)} $SCOUT
+              {formatScout(portfolioValueCents)} bCredits
             </div>
           </div>
           <div className="text-right">
             <div className="text-xs text-white/40 mb-1">{tp('portfolioDev')}</div>
             <div className={cn('text-lg font-mono font-bold flex items-center gap-1 justify-end', pnlCents >= 0 ? 'text-vivid-green' : 'text-vivid-red')}>
               {pnlCents >= 0 ? <TrendingUp className="size-4" aria-hidden="true" /> : <TrendingDown className="size-4" aria-hidden="true" />}
-              {pnlCents >= 0 ? '+' : ''}{formatScout(pnlCents)} $SCOUT
+              {pnlCents >= 0 ? '+' : ''}{formatScout(pnlCents)} bCredits
             </div>
           </div>
         </div>

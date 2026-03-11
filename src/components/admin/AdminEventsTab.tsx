@@ -294,7 +294,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                         <div className="min-w-0 flex-1">
                           <div className="font-bold truncate">{ev.name}</div>
                           <div className="text-xs text-white/40">
-                            GW {ev.gameweek} • {ev.format} • {centsToBsd(ev.entry_fee) > 0 ? `${fmtScout(centsToBsd(ev.entry_fee))} $SCOUT` : t('free')}
+                            GW {ev.gameweek} • {ev.format} • {centsToBsd(ev.entry_fee) > 0 ? `${fmtScout(centsToBsd(ev.entry_fee))} bCredits` : t('free')}
                             {ev.max_entries && ` • ${ev.current_entries}/${ev.max_entries}`}
                           </div>
                         </div>
@@ -302,7 +302,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                       </div>
                       <div className="flex items-center gap-3 text-xs text-white/40">
                         <span>{t('startColonLabel')} {new Date(ev.starts_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
-                        <span>{t('priceColonLabel')} <span className="tabular-nums">{fmtScout(centsToBsd(ev.prize_pool))}</span> $SCOUT</span>
+                        <span>{t('priceColonLabel')} <span className="tabular-nums">{fmtScout(centsToBsd(ev.prize_pool))}</span> bCredits</span>
                       </div>
                       <div className="flex items-center gap-2">
                         {ev.status === 'registering' && (
@@ -345,7 +345,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                       <div className="min-w-0 flex-1">
                         <div className="font-bold truncate">{ev.name}</div>
                         <div className="text-xs text-white/40">
-                          GW {ev.gameweek} • <span className="tabular-nums">{ev.current_entries}</span> {t('participantsLabel')} • <span className="tabular-nums">{fmtScout(centsToBsd(ev.prize_pool))}</span> $SCOUT
+                          GW {ev.gameweek} • <span className="tabular-nums">{ev.current_entries}</span> {t('participantsLabel')} • <span className="tabular-nums">{fmtScout(centsToBsd(ev.prize_pool))}</span> bCredits
                         </div>
                       </div>
                       <Chip className={cn(sc.bg, sc.text, sc.border, 'border flex-shrink-0')}>{sc.label}</Chip>
@@ -556,11 +556,11 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
             <div className="bg-gold/5 border border-gold/20 rounded-xl p-3 text-sm">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-white/50">{t('entryFeePreview')}</span>
-                <span className="font-mono font-bold tabular-nums">{parseFloat(entryFee) > 0 ? `${fmtScout(parseFloat(entryFee))} $SCOUT` : t('free')}</span>
+                <span className="font-mono font-bold tabular-nums">{parseFloat(entryFee) > 0 ? `${fmtScout(parseFloat(entryFee))} bCredits` : t('free')}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/50">{t('prizePreview')}</span>
-                <span className="font-mono font-bold text-gold tabular-nums">{fmtScout(parseFloat(prizePool) || 0)} $SCOUT</span>
+                <span className="font-mono font-bold text-gold tabular-nums">{fmtScout(parseFloat(prizePool) || 0)} bCredits</span>
               </div>
             </div>
           )}

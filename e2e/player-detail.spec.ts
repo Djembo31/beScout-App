@@ -63,8 +63,8 @@ test.describe('Player Detail Page', () => {
   test('Markt tab shows price info', async ({ page }) => {
     if (!(await goToFirstPlayer(page))) return;
 
-    // Look for price display ($SCOUT)
-    const scoutText = page.getByText('$SCOUT');
+    // Look for price display (bCredits)
+    const scoutText = page.getByText('bCredits');
     await expect(scoutText.first()).toBeVisible({ timeout: 8_000 });
   });
 

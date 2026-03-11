@@ -463,7 +463,7 @@ export async function checkAndUnlockAchievements(userId: string): Promise<string
     }
   }
 
-  // Fire-and-forget: Create notifications for each new achievement unlock
+  // Fire-and-forget: Create notifications + credit tickets for each new achievement unlock
   if (newUnlocks.length > 0) {
     import('@/lib/services/notifications').then(m => {
       for (const key of newUnlocks) {
@@ -480,6 +480,15 @@ export async function checkAndUnlockAchievements(userId: string): Promise<string
         }
       }
     }).catch(err => console.error('[Social] Achievement notification import failed:', err));
+
+    // Fire-and-forget: Credit tickets for each achievement unlock (featured=50, hidden=25)
+    import('@/lib/services/tickets').then(({ creditTickets }) => {
+      for (const key of newUnlocks) {
+        const def = ACHIEVEMENTS.find(a => a.key === key);
+        const ticketAmount = def?.featured ? 50 : 25;
+        creditTickets(userId, ticketAmount, 'achievement', key).catch(console.error);
+      }
+    }).catch(err => console.error('[Social] Achievement ticket credit failed:', err));
   }
 
   return newUnlocks;

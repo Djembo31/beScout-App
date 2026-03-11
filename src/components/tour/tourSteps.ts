@@ -12,7 +12,7 @@ export type TourStep = {
 };
 
 export const TOUR_STEPS: TourStep[] = [
-  // 1. $SCOUT Balance — different target per device
+  // 1. bCredits Balance — different target per device
   {
     targetSelector: '[data-tour-id="sidebar-wallet"]',
     titleKey: 'balanceTitle',

@@ -62,7 +62,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
         </Card>
         <Card className="p-4">
           <div className="text-[10px] text-white/40 mb-1">{t('yourEntry')}</div>
-          <div className="font-mono font-black tabular-nums text-lg">{ipoPrice > 0 ? <>{fmtScout(ipoPrice)} <span className="text-sm text-white/40">$SCOUT</span></> : '–'}</div>
+          <div className="font-mono font-black tabular-nums text-lg">{ipoPrice > 0 ? <>{fmtScout(ipoPrice)} <span className="text-sm text-white/40">bCredits</span></> : '–'}</div>
           {holdingQty > 0 && (
             <div className="text-[10px] text-sky-300 mt-0.5">{t('dpcOwnership', { count: holdingQty })}</div>
           )}
@@ -131,7 +131,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                   <div className={`font-mono font-bold tabular-nums text-sm ${
                     isActive ? 'text-gold' : isFuture ? 'text-green-500' : 'text-white/30'
                   }`}>
-                    {fmtScout(reward)} $SCOUT
+                    {fmtScout(reward)} bCredits
                   </div>
                   {isActive && (
                     <div className="text-[10px] font-mono text-gold/50">/DPC</div>
@@ -161,7 +161,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                     {t('atValue', { value: tier.maxValue === Infinity ? `${t('fromPrefix')} ${formatMarketValue(tier.minValue)}` : formatMarketValue(tier.maxValue) })}
                   </div>
                   <div className="text-right">
-                    <span className="font-mono font-bold tabular-nums text-sm">{fmtScout(totalReward)} $SCOUT</span>
+                    <span className="font-mono font-bold tabular-nums text-sm">{fmtScout(totalReward)} bCredits</span>
                     <div className="text-[10px] text-white/30 tabular-nums">{holdingQty} DPC</div>
                   </div>
                 </div>

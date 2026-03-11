@@ -325,7 +325,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                     <div className="space-y-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <PlayerIdentity player={player} size="sm" showStatus={false} className="min-w-0 flex-1" />
-                        <span className="text-xs text-white/40 shrink-0">{fmtScout(priceBsd)} $SCOUT</span>
+                        <span className="text-xs text-white/40 shrink-0">{fmtScout(priceBsd)} bCredits</span>
                         <Chip className={cn(sc.bg, sc.text, sc.border, 'border flex-shrink-0')}>{sc.label}</Chip>
                       </div>
                       <div className="flex items-center gap-3">
@@ -385,7 +385,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                   <Card key={ipo.id} className="p-3 md:p-4 opacity-60">
                     <div className="flex items-center gap-3 min-w-0">
                       <PlayerIdentity player={player} size="sm" showStatus={false} className="min-w-0 flex-1" />
-                      <span className="text-xs text-white/40 shrink-0">{fmtScout(centsToBsd(ipo.price))} $SCOUT · {progress.toFixed(0)}%</span>
+                      <span className="text-xs text-white/40 shrink-0">{fmtScout(centsToBsd(ipo.price))} bCredits · {progress.toFixed(0)}%</span>
                       <Chip className={cn(sc.bg, sc.text, sc.border, 'border flex-shrink-0')}>{sc.label}</Chip>
                     </div>
                   </Card>
@@ -416,7 +416,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                   <PlayerIdentity player={p} size="sm" showStatus={false} className="min-w-0 flex-1" />
                   {p.successFeeCap != null && (
                     <Chip className="bg-gold/10 text-gold border border-gold/20 text-[10px] px-1.5 py-0 shrink-0">
-                      Cap: {fmtScout(p.successFeeCap)} $SCOUT
+                      Cap: {fmtScout(p.successFeeCap)} bCredits
                     </Chip>
                   )}
                   {(canSetFee || canLiquidate) && (
@@ -485,7 +485,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             </div>
             {capModalPlayer.successFeeCap != null && (
               <div className="text-xs text-white/40">
-                {t('currentCap')} <span className="text-gold font-mono font-bold">{fmtScout(capModalPlayer.successFeeCap)} $SCOUT</span>
+                {t('currentCap')} <span className="text-gold font-mono font-bold">{fmtScout(capModalPlayer.successFeeCap)} bCredits</span>
               </div>
             )}
             <Button variant="gold" fullWidth onClick={handleSetCap} disabled={capLoading || !capValue}>
@@ -537,7 +537,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 <div className="flex items-center justify-between">
                   <span className="text-white/50">{t('feePerDpc')}</span>
                   <span className="font-mono font-bold text-gold">
-                    {fmtScout(effectiveFeeBsd)} $SCOUT
+                    {fmtScout(effectiveFeeBsd)} bCredits
                     {capCents != null && capCents > 0 && capCents < feeCents && <span className="text-white/40 text-xs ml-1">{t('capTag')}</span>}
                   </span>
                 </div>
@@ -548,15 +548,15 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 <div className="border-t border-white/10 pt-2 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-white/50">{t('pbtDistribution')}</span>
-                    <span className="font-mono font-bold text-green-500">{fmtScout(liqPbtBalance)} $SCOUT</span>
+                    <span className="font-mono font-bold text-green-500">{fmtScout(liqPbtBalance)} bCredits</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-white/50">{t('communityBonus')}</span>
-                    <span className="font-mono font-bold text-gold">{fmtScout(totalSfBsd)} $SCOUT</span>
+                    <span className="font-mono font-bold text-gold">{fmtScout(totalSfBsd)} bCredits</span>
                   </div>
                   <div className="flex items-center justify-between border-t border-white/10 pt-1">
                     <span className="text-white font-bold">{t('total')}</span>
-                    <span className="font-mono font-bold text-green-500">{fmtScout(liqPbtBalance + totalSfBsd)} $SCOUT</span>
+                    <span className="font-mono font-bold text-green-500">{fmtScout(liqPbtBalance + totalSfBsd)} bCredits</span>
                   </div>
                 </div>
               </div>
@@ -594,20 +594,20 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/50">{t('feePerDpc')}</span>
-                <span className="font-mono font-bold text-gold">{fmtScout(centsToBsd(liqResult.fee_per_dpc_cents))} $SCOUT</span>
+                <span className="font-mono font-bold text-gold">{fmtScout(centsToBsd(liqResult.fee_per_dpc_cents))} bCredits</span>
               </div>
               <div className="border-t border-white/10 pt-2 space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-white/50">{t('pbtDistribution')}</span>
-                  <span className="font-mono font-bold text-green-500">{fmtScout(centsToBsd(liqResult.pbt_distributed_cents))} $SCOUT</span>
+                  <span className="font-mono font-bold text-green-500">{fmtScout(centsToBsd(liqResult.pbt_distributed_cents))} bCredits</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-white/50">{t('communityBonus')}</span>
-                  <span className="font-mono font-bold text-gold">{fmtScout(centsToBsd(liqResult.success_fee_cents))} $SCOUT</span>
+                  <span className="font-mono font-bold text-gold">{fmtScout(centsToBsd(liqResult.success_fee_cents))} bCredits</span>
                 </div>
                 <div className="flex items-center justify-between border-t border-white/10 pt-1">
                   <span className="text-white font-bold">{t('total')}</span>
-                  <span className="font-mono font-bold text-green-500">{fmtScout(centsToBsd(liqResult.distributed_cents))} $SCOUT</span>
+                  <span className="font-mono font-bold text-green-500">{fmtScout(centsToBsd(liqResult.distributed_cents))} bCredits</span>
                 </div>
               </div>
             </div>
@@ -681,7 +681,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             <div className="bg-gold/5 border border-gold/20 rounded-xl p-3 text-sm">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-white/50">{t('totalVolumeIpo')}</span>
-                <span className="font-mono font-bold text-gold">{fmtScout(parseFloat(ipoPrice) * parseInt(ipoQty || '0'))} $SCOUT</span>
+                <span className="font-mono font-bold text-gold">{fmtScout(parseFloat(ipoPrice) * parseInt(ipoQty || '0'))} bCredits</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/50">{t('statusAfterCreation')}</span>

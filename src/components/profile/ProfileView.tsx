@@ -31,13 +31,19 @@ import type { ExpertBadge } from '@/lib/expertBadges';
 const AirdropScoreCard = dynamic(() => import('@/components/airdrop/AirdropScoreCard'), { ssr: false });
 const ReferralCard = dynamic(() => import('@/components/airdrop/ReferralCard'), { ssr: false });
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
+const CosmeticInventory = dynamic(() => import('@/components/gamification/CosmeticInventory'), { ssr: false });
 import type { HoldingRow } from '@/components/profile/ProfileOverviewTab';
 import type { ProfileTab, Profile, DbTransaction, DbUserStats, DbUserAchievement, ResearchPostWithAuthor, AuthorTrackRecord, UserTradeWithPlayer, UserFantasyResult, PostWithAuthor } from '@/types';
 import { RangBadge, DimensionRangStack } from '@/components/ui/RangBadge';
 import FoundingScoutBadge from '@/components/ui/FoundingScoutBadge';
-import { useScoutScores, useScoutingStats } from '@/lib/queries';
+import FoundingPassBadge from '@/components/ui/FoundingPassBadge';
+import { useScoutScores, useScoutingStats, qk } from '@/lib/queries';
+import { queryClient } from '@/lib/queryClient';
 import { FileText, Target as TargetIcon, CheckCircle, Star } from 'lucide-react';
 import { useTranslations as useProfileTranslations, useLocale } from 'next-intl';
+import { useHighestPass } from '@/lib/queries/foundingPasses';
+import { useUserCosmetics } from '@/lib/queries/cosmetics';
+import { equipCosmetic } from '@/lib/services/cosmetics';
 
 const TAB_IDS: { id: ProfileTab; selfOnly?: boolean }[] = [
   { id: 'overview' },
@@ -57,7 +63,7 @@ interface ProfileViewProps {
   targetUserId: string;
   targetProfile: Profile;
   isSelf: boolean;
-  /** Render the settings tab â€” only provided for own profile */
+  /** Render the settings tab â€" only provided for own profile */
   renderSettings?: () => React.ReactNode;
 }
 
@@ -81,6 +87,14 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
   // Scout Scores (3 Dimensions)
   const { data: scoutScores } = useScoutScores(targetUserId);
   const { data: scoutingStats } = useScoutingStats(targetUserId);
+
+  // Founding Pass
+  const { data: highestPassData } = useHighestPass(targetUserId);
+  const highestPass = highestPassData?.tier ?? null;
+
+  // Cosmetics (Gamification v5)
+  const { data: userCosmetics = [] } = useUserCosmetics(isSelf ? targetUserId : undefined);
+  const [isEquipping, setIsEquipping] = useState(false);
 
   // Reputation & Social
   const [userStats, setUserStats] = useState<DbUserStats | null>(null);
@@ -213,7 +227,20 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
     finally { setStatsRefreshing(false); }
   }, [targetUserId, statsRefreshing]);
 
-  // Level-Up Detection (localStorage comparison â†’ celebration toast)
+  const handleEquipCosmetic = useCallback(async (cosmeticId: string) => {
+    setIsEquipping(true);
+    try {
+      await equipCosmetic(cosmeticId);
+      queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(targetUserId) });
+      queryClient.invalidateQueries({ queryKey: qk.cosmetics.equipped(targetUserId) });
+    } catch (err) {
+      console.error('[ProfileView] equipCosmetic:', err);
+    } finally {
+      setIsEquipping(false);
+    }
+  }, [targetUserId]);
+
+  // Level-Up Detection (localStorage comparison â†' celebration toast)
   const userLevel = targetProfile.level ?? 1;
   useEffect(() => {
     if (!isSelf) return;
@@ -240,9 +267,9 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-6">
-      {/* Header â€” Sorare-Style */}
+      {/* Header â€" Sorare-Style */}
       <div className="flex items-start gap-4 md:gap-5">
-        {/* Avatar â€” 96px */}
+        {/* Avatar â€" 96px */}
         <div className="size-20 md:size-24 rounded-2xl bg-gold/[0.12] border-2 border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
           {targetProfile.avatar_url ? (
             <img src={targetProfile.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -255,14 +282,15 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             <h1 className="text-xl md:text-3xl font-black truncate">{name}</h1>
             {targetProfile.verified && <BadgeCheck className="size-5 md:size-6 text-gold flex-shrink-0" aria-hidden="true" />}
             <Chip className="bg-gold/15 text-gold border-gold/25">{userPlan}</Chip>
+            <FoundingPassBadge tier={highestPass} size="sm" />
           </div>
           <div className="text-sm md:text-base text-white/50">{userHandle}</div>
 
-          {/* Portfolio Value â€” Hero */}
+          {/* Portfolio Value â€" Hero */}
           {(isSelf || portfolioValueCents > 0) && (
             <div className="mt-1">
               <span className="text-2xl md:text-3xl font-mono font-black text-gold">
-                {fmtScout(centsToBsd(portfolioValueCents))} $SCOUT
+                {fmtScout(centsToBsd(portfolioValueCents))} bCredits
               </span>
               <span className="text-xs text-white/30 ml-2">{tp('portfolioValue')}</span>
             </div>
@@ -430,7 +458,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Sidebar */}
         <div className="space-y-6">
-          {/* Wallet â€” self only */}
+          {/* Wallet â€" self only */}
           {isSelf && (
             <Card className="p-4 md:p-6">
               <h3 className="font-black mb-4">{tp('walletTitle')}</h3>
@@ -438,7 +466,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
                 {balanceCents === null ? (
                   <span className="inline-block w-24 h-8 rounded bg-gold/10 animate-pulse motion-reduce:animate-none" />
                 ) : (
-                  <>{formatScout(balanceCents)} $SCOUT</>
+                  <>{formatScout(balanceCents)} bCredits</>
                 )}
               </div>
               <div className="text-sm text-white/50 mb-4">{tp('walletAvailable')}</div>
@@ -487,8 +515,17 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
           {/* Airdrop Score */}
           <AirdropScoreCard userId={targetUserId} compact={!isSelf} />
 
-          {/* Referral â€” self only */}
+          {/* Referral â€" self only */}
           {isSelf && <ReferralCard userId={targetUserId} />}
+
+          {/* Cosmetic Inventory — self only */}
+          {isSelf && userCosmetics.length > 0 && (
+            <CosmeticInventory
+              cosmetics={userCosmetics}
+              onEquip={handleEquipCosmetic}
+              isEquipping={isEquipping}
+            />
+          )}
 
           {/* Expert Badges */}
           {userStats && (() => {

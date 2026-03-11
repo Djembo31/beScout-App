@@ -235,4 +235,40 @@ export const qk = {
     countGw: (uid: string, gw: number) => ['predictions', 'count', uid, gw] as const,
     fixtures: (gw: number) => ['predictions', 'fixtures', gw] as const,
   },
+
+  // ── Founding Passes ──
+  foundingPasses: {
+    list: (uid: string) => ['founding-passes', uid] as const,
+    highest: (uid: string) => ['founding-passes', 'highest', uid] as const,
+  },
+
+  // ── Tickets ──
+  tickets: {
+    balance: (uid: string) => ['tickets', uid] as const,
+    transactions: (uid: string, limit?: number) => ['tickets', 'transactions', uid, limit] as const,
+  },
+
+  // ── Daily Challenges ──
+  dailyChallenge: {
+    today: () => ['daily-challenge', 'today'] as const,
+    history: (userId: string, limit?: number) => ['daily-challenge', 'history', userId, limit] as const,
+  },
+
+  // ── Fan Rankings ──
+  fanRanking: {
+    user: (userId: string, clubId: string) => ['fan-ranking', userId, clubId] as const,
+    leaderboard: (clubId: string, limit?: number) => ['fan-ranking', 'leaderboard', clubId, limit] as const,
+  },
+
+  // ── Cosmetics ──
+  cosmetics: {
+    user: (userId: string) => ['cosmetics', userId] as const,
+    equipped: (userId: string) => ['cosmetics', 'equipped', userId] as const,
+    all: () => ['cosmetics', 'all'] as const,
+  },
+
+  // ── Mystery Box ──
+  mysteryBox: {
+    history: (userId: string, limit?: number) => ['mystery-box', userId, limit] as const,
+  },
 } as const;

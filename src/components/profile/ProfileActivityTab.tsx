@@ -99,7 +99,7 @@ export default function ProfileActivityTab({ transactions: initial, userId, isSe
                         'text-xs font-mono font-bold',
                         positive ? 'text-green-500' : 'text-white/40'
                       )}>
-                        {positive ? '+' : ''}{formatScout(tx.amount)} $SCOUT
+                        {positive ? '+' : ''}{formatScout(tx.amount)} bCredits
                       </span>
                       <span className="text-[10px] text-white/25">· {getRelativeTime(tx.created_at, ta('justNow'))}</span>
                     </div>

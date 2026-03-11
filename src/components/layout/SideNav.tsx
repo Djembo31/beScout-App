@@ -11,6 +11,7 @@ import {
   DollarSign,
   LogOut,
   Settings,
+  Ticket,
   X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -22,6 +23,7 @@ import { formatScout } from '@/lib/services/wallet';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { ClubSwitcher } from './ClubSwitcher';
+import { useUserTickets } from '@/lib/queries/tickets';
 
 interface SideNavProps {
   mobileOpen?: boolean;
@@ -36,6 +38,8 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
   const { activeClub } = useClub();
   const [collapsed, setCollapsed] = useState(false);
   const { balanceCents } = useWallet();
+  const { data: ticketData } = useUserTickets(user?.id);
+  const ticketBalance = ticketData?.balance ?? null;
   const t = useTranslations('nav');
   const tc = useTranslations('common');
 
@@ -90,13 +94,27 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
                   {balanceCents === null ? (
                     <span className="inline-block w-16 h-4 rounded bg-gold/20 animate-pulse motion-reduce:animate-none" />
                   ) : (
-                    <>{formatScout(balanceCents)} $SCOUT</>
+                    <>{formatScout(balanceCents)} bCredits</>
                   )}
                 </div>
               </div>
             )}
           </div>
         </div>
+
+        {/* Ticket Balance */}
+        {ticketBalance !== null && !collapsed && (
+          <div className="mt-2 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/[0.06] border border-amber-500/[0.15]" title={tc('ticketTooltip')}>
+            <Ticket className="size-3.5 text-amber-400 flex-shrink-0" />
+            <span className="font-mono font-bold text-amber-400 text-xs tabular-nums">{ticketBalance}</span>
+            <span className="text-[10px] text-white/40">Tickets</span>
+          </div>
+        )}
+        {ticketBalance !== null && collapsed && (
+          <div className="mt-2 flex items-center justify-center" title={tc('ticketTooltip')}>
+            <Ticket className="size-3.5 text-amber-400" />
+          </div>
+        )}
       </div>
 
       {/* Club Switcher */}

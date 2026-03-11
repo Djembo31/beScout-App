@@ -49,6 +49,9 @@ import { RecentActivitySection } from '@/components/club/sections/RecentActivity
 import { FeatureShowcase } from '@/components/club/sections/FeatureShowcase';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useClubRecentTrades } from '@/lib/queries/trades';
+import { useFanRanking } from '@/lib/queries/fanRanking';
+import FanRankBadge from '@/components/ui/FanRankBadge';
+import FanRankOverview from '@/components/gamification/FanRankOverview';
 
 // ============================================
 // REVEAL WRAPPER
@@ -472,6 +475,7 @@ export default function ClubContent({ slug }: { slug: string }) {
   const { data: activeIpos = [] } = useActiveIpos();
   const { data: allEvents = [] } = useEvents();
   const { data: clubTradesRaw = [] } = useClubRecentTrades(clubId, 5);
+  const { data: fanRanking, isLoading: fanRankingLoading } = useFanRanking(userId, clubId);
 
   // Resolve expired research (fire-and-forget)
   useEffect(() => {
@@ -871,6 +875,19 @@ export default function ClubContent({ slug }: { slug: string }) {
         />
       </div>
 
+      {/* Fan Rank Badge — authenticated users only */}
+      {userId && fanRanking && (
+        <div className="mb-4 flex items-center gap-2">
+          <FanRankBadge
+            tier={fanRanking.rank_tier}
+            csfMultiplier={fanRanking.csf_multiplier}
+            clubName={club.name}
+            size="md"
+            showMultiplier
+          />
+        </div>
+      )}
+
       {/* ━━━ SPONSOR: CLUB HERO ━━━ */}
       <SponsorBanner placement="club_hero" clubId={club.id} />
 
@@ -968,6 +985,17 @@ export default function ClubContent({ slug }: { slug: string }) {
               />
             )}
           </RevealSection>
+
+          {/* Fan-Rang Overview — Gamification v5 */}
+          {userId && (
+            <RevealSection delay={375}>
+              <FanRankOverview
+                ranking={fanRanking ?? null}
+                clubName={club.name}
+                isLoading={fanRankingLoading}
+              />
+            </RevealSection>
+          )}
 
           {/* Club-Neuigkeiten */}
           {clubNews.length > 0 && (

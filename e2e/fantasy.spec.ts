@@ -97,7 +97,7 @@ test.describe('Fantasy Page', () => {
       if (await modal.isVisible()) {
         // Modal content should exist
         await expect(modal).not.toBeEmpty();
-        // Should mention $SCOUT (entry fee or prize)
+        // Should mention bCredits (entry fee or prize)
         const modalText = await modal.textContent();
         expect(modalText).toBeTruthy();
       }

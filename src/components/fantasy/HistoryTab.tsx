@@ -131,7 +131,7 @@ export const HistoryTab = ({
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/50">{t('totalRewards')}</span>
-              <span className="font-mono font-bold text-purple-400 tabular-nums">{fmtScout(totalRewardBsd)} $SCOUT</span>
+              <span className="font-mono font-bold text-purple-400 tabular-nums">{fmtScout(totalRewardBsd)} bCredits</span>
             </div>
           </div>
         </Card>
@@ -193,7 +193,7 @@ export const HistoryTab = ({
                       <td className="py-3 px-4 text-center text-sm font-mono font-bold tabular-nums">{entry.totalPoints.toLocaleString()}</td>
                       <td className="py-3 px-4 text-right">
                         {entry.totalRewardCents > 0 ? (
-                          <span className="font-mono font-bold text-sm text-gold tabular-nums">+{fmtScout(centsToBsd(entry.totalRewardCents))} $SCOUT</span>
+                          <span className="font-mono font-bold text-sm text-gold tabular-nums">+{fmtScout(centsToBsd(entry.totalRewardCents))} bCredits</span>
                         ) : (
                           <span className="text-white/30">{'\u2014'}</span>
                         )}
@@ -287,7 +287,7 @@ export const HistoryTab = ({
                       <td className="py-3 px-4 text-center font-mono tabular-nums">{p.points}</td>
                       <td className="py-3 px-4 text-right text-sm">
                         {p.rewardCents > 0 ? (
-                          <span className="font-mono font-bold text-gold tabular-nums">+{fmtScout(centsToBsd(p.rewardCents))} $SCOUT</span>
+                          <span className="font-mono font-bold text-gold tabular-nums">+{fmtScout(centsToBsd(p.rewardCents))} bCredits</span>
                         ) : (
                           <span className="text-white/30">{'\u2014'}</span>
                         )}

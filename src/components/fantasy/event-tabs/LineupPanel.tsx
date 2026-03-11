@@ -509,7 +509,7 @@ export default function LineupPanel({
                   return (
                     <div className="text-right">
                       <div className="text-xs text-white/50 uppercase font-bold">{t('rewardLabel')}</div>
-                      <div className="text-xl font-mono font-black text-green-500">+{fmtScout(myEntry.rewardAmount / 100)} $SCOUT</div>
+                      <div className="text-xl font-mono font-black text-green-500">+{fmtScout(myEntry.rewardAmount / 100)} bCredits</div>
                     </div>
                   );
                 }
@@ -572,7 +572,7 @@ export default function LineupPanel({
                       {player.club}
                       {tierCfg && (
                         <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${tierCfg.bg} ${tierCfg.color}`}>
-                          {tierCfg.labelDe} +{tierCfg.bonusCents / 100} $SCOUT
+                          {tierCfg.labelDe} +{tierCfg.bonusCents / 100} bCredits
                         </span>
                       )}
                     </div>

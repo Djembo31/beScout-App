@@ -42,13 +42,13 @@ export default function BuyConfirmation({
         <div className="bg-black/20 rounded-lg px-3 py-2 space-y-1.5">
           <div className="flex items-center justify-between text-xs">
             <span className="text-white/40">{t('estCost', { qty: pendingBuyQty, price: fmtScout(floorBsd) })}</span>
-            <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(floorBsd * pendingBuyQty)} $SCOUT</span>
+            <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(floorBsd * pendingBuyQty)} bCredits</span>
           </div>
           {balanceCents !== null && (
             <div className="flex items-center justify-between text-xs">
               <span className="text-white/40">{t('balanceAfter')}</span>
               <span className={`font-mono font-bold tabular-nums ${balanceCents >= estTotalCents ? 'text-green-500' : 'text-red-400'}`}>
-                {formatScout(balanceCents - estTotalCents)} $SCOUT
+                {formatScout(balanceCents - estTotalCents)} bCredits
               </span>
             </div>
           )}

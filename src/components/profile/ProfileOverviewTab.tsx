@@ -135,10 +135,10 @@ export default function ProfileOverviewTab({
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label={tp('portfolioValue')} value={`${formatScout(portfolioValueCents)} $SCOUT`} icon={<BarChart3 className="size-4 text-white/40" aria-hidden="true" />} />
+        <StatCard label={tp('portfolioValue')} value={`${formatScout(portfolioValueCents)} bCredits`} icon={<BarChart3 className="size-4 text-white/40" aria-hidden="true" />} />
         <StatCard
           label={tp('valueChange')}
-          value={`${pnlCents >= 0 ? '+' : ''}${formatScout(pnlCents)} $SCOUT`}
+          value={`${pnlCents >= 0 ? '+' : ''}${formatScout(pnlCents)} bCredits`}
           trend={pnlCents >= 0 ? 'up' : 'down'}
           icon={pnlCents >= 0 ? <TrendingUp className="size-4 text-vivid-green" aria-hidden="true" /> : <TrendingDown className="size-4 text-vivid-red" aria-hidden="true" />}
         />
@@ -154,7 +154,7 @@ export default function ProfileOverviewTab({
               <Coins className="size-4 text-gold" aria-hidden="true" />
               {tp('earnings')}
             </h3>
-            <span className="text-sm font-mono font-bold text-green-500">+{fmtScout(centsToBsd(earnings.total))} $SCOUT</span>
+            <span className="text-sm font-mono font-bold text-green-500">+{fmtScout(centsToBsd(earnings.total))} bCredits</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             {EARNING_TYPES.map(et => {
@@ -167,7 +167,7 @@ export default function ProfileOverviewTab({
                     <Icon className={cn('size-3.5', et.color)} aria-hidden="true" />
                     <span className="text-xs text-white/50">{tp(et.labelKey)}</span>
                   </div>
-                  <div className="text-sm font-mono font-bold text-white">+{fmtScout(centsToBsd(amount))} $SCOUT</div>
+                  <div className="text-sm font-mono font-bold text-white">+{fmtScout(centsToBsd(amount))} bCredits</div>
                 </div>
               );
             })}
@@ -438,7 +438,7 @@ export default function ProfileOverviewTab({
                     </div>
                     <div className="text-right flex-shrink-0">
                       <div className={cn('text-sm font-mono font-bold', isBuy ? 'text-white' : 'text-green-500')}>
-                        {isBuy ? '-' : '+'}{fmtScout(centsToBsd(totalCents))} $SCOUT
+                        {isBuy ? '-' : '+'}{fmtScout(centsToBsd(totalCents))} bCredits
                       </div>
                       <div className="text-[10px] text-white/30 font-mono">à {fmtScout(unitBsd)}</div>
                     </div>
@@ -517,7 +517,7 @@ export default function ProfileOverviewTab({
                     {result.rewardAmount > 0 && (
                       <div className="text-right">
                         <div className="text-sm font-mono font-bold text-green-500">+{fmtScout(centsToBsd(result.rewardAmount))}</div>
-                        <div className="text-[10px] text-white/30">$SCOUT</div>
+                        <div className="text-[10px] text-white/30">bCredits</div>
                       </div>
                     )}
                   </div>
@@ -556,7 +556,7 @@ export default function ProfileOverviewTab({
                     <div className="text-right">
                       <div className="font-mono font-bold">{h.quantity} DPC</div>
                       <div className={cn('text-xs font-mono', holdingPnl >= 0 ? 'text-green-500' : 'text-red-300')}>
-                        {holdingPnl >= 0 ? '+' : ''}{fmtScout(Math.round(holdingPnl))} $SCOUT
+                        {holdingPnl >= 0 ? '+' : ''}{fmtScout(Math.round(holdingPnl))} bCredits
                       </div>
                     </div>
                   </div>

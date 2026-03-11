@@ -84,7 +84,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
           </div>
           {loading ? <Skeleton className="h-7 w-16" /> : (
             <div className="text-xl font-mono font-black text-gold">
-              {formatScout(data?.topFans.reduce((s, f) => s + f.volume_cents, 0) ?? 0)} $SCOUT
+              {formatScout(data?.topFans.reduce((s, f) => s + f.volume_cents, 0) ?? 0)} bCredits
             </div>
           )}
         </Card>

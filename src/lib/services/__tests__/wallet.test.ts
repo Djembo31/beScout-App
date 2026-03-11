@@ -8,13 +8,13 @@ import { formatScout } from '../wallet';
 
 describe('formatScout', () => {
   it('formats large cent value (1000000 -> "10.000")', () => {
-    // 1,000,000 cents = 10,000 $SCOUT. German locale: 10.000
+    // 1,000,000 cents = 10,000 bCredits. German locale: 10.000
     const result = formatScout(1_000_000);
     expect(result).toBe('10.000');
   });
 
   it('formats small cent value (50 -> "0" or "1")', () => {
-    // 50 cents = 0.5 $SCOUT. maximumFractionDigits: 0, so rounds to "1" or "0"
+    // 50 cents = 0.5 bCredits. maximumFractionDigits: 0, so rounds to "1" or "0"
     const result = formatScout(50);
     // 0.5 rounds to 1 in de-DE with maxFractionDigits:0 (round-half-to-even)
     expect(['0', '1']).toContain(result);
@@ -24,8 +24,8 @@ describe('formatScout', () => {
     expect(formatScout(0)).toBe('0');
   });
 
-  it('formats exact $SCOUT value (10000 -> "100")', () => {
-    // 10,000 cents = 100 $SCOUT
+  it('formats exact bCredits value (10000 -> "100")', () => {
+    // 10,000 cents = 100 bCredits
     expect(formatScout(10_000)).toBe('100');
   });
 

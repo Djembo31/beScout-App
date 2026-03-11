@@ -34,7 +34,7 @@ export function useWallet() {
 export function WalletProvider({ children }: { children: React.ReactNode }) {
     const { user } = useUser();
 
-    // Hydrate from sessionStorage to avoid "0 $SCOUT" flash — but only if userId matches
+    // Hydrate from sessionStorage to avoid "0 bCredits" flash — but only if userId matches
     const [balanceCents, setBalanceCentsRaw] = useState<number | null>(() => {
         if (typeof window === 'undefined') return null;
         try {

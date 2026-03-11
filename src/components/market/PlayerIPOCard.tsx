@@ -230,7 +230,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
             <span className="font-mono font-black text-lg text-gold tabular-nums leading-tight">
               {fmtScout(priceBsd)}
             </span>
-            <span className="text-[9px] text-white/25 ml-1">$SCOUT</span>
+            <span className="text-[9px] text-white/25 ml-1">bCredits</span>
           </div>
           {onBuy ? (
             <button

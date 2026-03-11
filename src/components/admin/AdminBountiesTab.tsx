@@ -232,7 +232,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                 )}
 
                 <div className="flex items-center justify-between text-xs text-white/50 mb-3">
-                  <span className="text-gold font-bold">{formatScout(bounty.reward_cents)} $SCOUT</span>
+                  <span className="text-gold font-bold">{formatScout(bounty.reward_cents)} bCredits</span>
                   <span><Users className="w-3 h-3 inline mr-1" />{bounty.submission_count}/{bounty.max_submissions}</span>
                   <span><Clock className="w-3 h-3 inline mr-1" />{diffMs > 0 ? `${d}d ${h}h` : t('expired')}</span>
                 </div>

@@ -30,7 +30,7 @@ export default function ComparePlayerCard({ player, isHighest }: ComparePlayerCa
         <StatRow label={t('compareMatches')} value={String(player.stats.matches)} gold={isHighest.matches} />
         <StatRow label={t('compareGoals')} value={String(player.stats.goals)} gold={isHighest.goals} />
         <StatRow label={t('compareAssists')} value={String(player.stats.assists)} gold={isHighest.assists} />
-        <StatRow label="Floor" value={`${fmtScout(player.prices.floor ?? 0)} $SCOUT`} gold={isHighest.floor} />
+        <StatRow label="Floor" value={`${fmtScout(player.prices.floor ?? 0)} bCredits`} gold={isHighest.floor} />
         <StatRow label="24h" value={`${player.prices.change24h >= 0 ? '+' : ''}${player.prices.change24h.toFixed(1)}%`}
           color={player.prices.change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red'} gold={isHighest.change} />
       </div>

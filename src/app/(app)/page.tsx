@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ErrorState } from '@/components/ui';
+import { ErrorState, Button } from '@/components/ui';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
@@ -13,7 +13,7 @@ import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import {
   Clock, Trophy, Users, Rocket,
-  Shield, Compass,
+  Shield, Compass, Gift,
 } from 'lucide-react';
 
 // ── React Query Hooks ──
@@ -28,6 +28,12 @@ import {
   qk,
 } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
+
+// ── Gamification v5 ──
+import { useTodaysChallenge, useChallengeHistory } from '@/lib/queries/dailyChallenge';
+import { useUserTickets } from '@/lib/queries/tickets';
+import { submitDailyChallenge } from '@/lib/services/dailyChallenge';
+import { openMysteryBox } from '@/lib/services/mysteryBox';
 
 // ── Home Components ──
 import HomeStoryHeader from '@/components/home/HomeStoryHeader';
@@ -48,6 +54,13 @@ const OnboardingChecklist = dynamic(() => import('@/components/onboarding/Onboar
 const MissionBanner = dynamic(() => import('@/components/missions/MissionBanner'), {
   ssr: false,
   loading: () => <div className="h-16 rounded-2xl bg-white/[0.02] animate-pulse" />,
+});
+const DailyChallengeCard = dynamic(() => import('@/components/gamification/DailyChallengeCard'), {
+  ssr: false,
+  loading: () => <div className="h-40 rounded-2xl bg-white/[0.02] animate-pulse" />,
+});
+const MysteryBoxModal = dynamic(() => import('@/components/gamification/MysteryBoxModal'), {
+  ssr: false,
 });
 
 import type { DpcHolding, DbEvent, Pos } from '@/types';
@@ -76,6 +89,47 @@ export default function HomePage() {
   const { data: scoutScores = null } = useScoutScores(uid);
   const { data: globalTrades = [] } = useRecentGlobalTrades(5);
   const { data: trendingPlayers = [] } = useTrendingPlayers(5);
+
+  // ── Gamification v5 Hooks ──
+  const { data: todaysChallenge = null, isLoading: challengeLoading } = useTodaysChallenge();
+  const { data: challengeHistory = [] } = useChallengeHistory(uid);
+  const { data: ticketData } = useUserTickets(uid);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showMysteryBox, setShowMysteryBox] = useState(false);
+
+  const todaysAnswer = useMemo(() => {
+    if (!todaysChallenge || !challengeHistory.length) return null;
+    return challengeHistory.find(h => h.challenge_id === todaysChallenge.id) ?? null;
+  }, [todaysChallenge, challengeHistory]);
+
+  const handleChallengeSubmit = useCallback(async (challengeId: string, option: number) => {
+    setIsSubmitting(true);
+    try {
+      await submitDailyChallenge(challengeId, option);
+      queryClient.invalidateQueries({ queryKey: qk.dailyChallenge.history(uid!) });
+      queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid!) });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [uid]);
+
+  const handleOpenMysteryBox = useCallback(async (free?: boolean) => {
+    const result = await openMysteryBox(free);
+    if (result.ok) {
+      queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid!) });
+      queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(uid!) });
+      return {
+        id: crypto.randomUUID(),
+        rarity: result.rarity!,
+        reward_type: result.rewardType!,
+        tickets_amount: result.ticketsAmount ?? null,
+        cosmetic_id: result.cosmeticKey ?? null,
+        ticket_cost: free ? 0 : 15,
+        opened_at: new Date().toISOString(),
+      };
+    }
+    return null;
+  }, [uid]);
 
   // ── i18n ──
   const t = useTranslations('home');
@@ -209,6 +263,44 @@ export default function HomePage() {
       {/* 3. Onboarding — Only for new users */}
       {uid && <OnboardingChecklist userId={uid} name={firstName} />}
 
+      {/* 3b. Daily Challenge + Mystery Box — Gamification v5 */}
+      {uid && (
+        <div className="space-y-3">
+          <DailyChallengeCard
+            challenge={todaysChallenge}
+            userAnswer={todaysAnswer ? {
+              selectedOption: todaysAnswer.selected_option,
+              isCorrect: todaysAnswer.is_correct,
+              ticketsAwarded: todaysAnswer.tickets_awarded,
+            } : null}
+            onSubmit={handleChallengeSubmit}
+            isSubmitting={isSubmitting}
+            streakDays={streak}
+            isLoading={challengeLoading}
+          />
+
+          {/* Mystery Box Trigger */}
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowMysteryBox(true)}
+              className="gap-1.5"
+            >
+              <Gift className="size-3.5 text-gold" />
+              Mystery Box
+            </Button>
+          </div>
+
+          <MysteryBoxModal
+            open={showMysteryBox}
+            onClose={() => setShowMysteryBox(false)}
+            onOpen={handleOpenMysteryBox}
+            ticketBalance={ticketData?.balance ?? 0}
+          />
+        </div>
+      )}
+
       {/* 4. Live Ticker — Social Proof */}
       <LiveTicker trades={globalTrades} />
 
@@ -286,7 +378,7 @@ export default function HomePage() {
                             <Users className="size-3.5" />
                             {nextEvent.current_entries}/{nextEvent.max_entries ?? '\u221E'}
                           </span>
-                          <span>{t('entryLabel')}{nextEvent.entry_fee === 0 ? t('entryFree') : `${fmtScout(centsToBsd(nextEvent.entry_fee))} $SCOUT`}</span>
+                          <span>{t('entryLabel')}{nextEvent.entry_fee === 0 ? t('entryFree') : `${fmtScout(centsToBsd(nextEvent.entry_fee))} bCredits`}</span>
                         </div>
                       </div>
                       <div className="text-right shrink-0">
@@ -294,7 +386,7 @@ export default function HomePage() {
                         <div className="text-xl md:text-2xl font-black font-mono tabular-nums text-gold">
                           {formatPrize(centsToBsd(nextEvent.prize_pool))}
                         </div>
-                        <div className="text-[10px] text-white/40">$SCOUT</div>
+                        <div className="text-[10px] text-white/40">bCredits</div>
                       </div>
                     </div>
                   </div>
@@ -330,7 +422,7 @@ export default function HomePage() {
                   </div>
                   <div className="shrink-0 text-right">
                     <div className="font-mono font-black text-gold text-lg">{activeIPOs[0].ipo.price}</div>
-                    <div className="text-[10px] text-white/40">$SCOUT/DPC</div>
+                    <div className="text-[10px] text-white/40">bCredits/DPC</div>
                   </div>
                 </div>
               </div>

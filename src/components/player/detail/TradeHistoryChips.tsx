@@ -41,7 +41,7 @@ export default function TradeHistoryChips({ trades, maxDisplay = 10, className =
               <span className="font-mono font-bold text-gold text-sm">
                 {fmtScout(price)}
               </span>
-              <span className="text-[9px] text-white/40">$SCOUT</span>
+              <span className="text-[9px] text-white/40">bCredits</span>
               <span className="text-[9px] text-white/30">
                 {getRelativeTime(trade.executed_at, ta('justNow'))}
               </span>

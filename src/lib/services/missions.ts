@@ -70,6 +70,12 @@ export async function claimMissionReward(userId: string, missionId: string): Pro
     import('@/lib/services/activityLog').then(({ logActivity }) => {
       logActivity(userId, 'mission_claim', 'engagement', { missionId, rewardCents: result.reward_cents });
     }).catch(err => console.error('[Missions] Activity log failed:', err));
+
+    // Fire-and-forget: Credit mission tickets (10-50 based on reward)
+    const ticketAmount = Math.min(Math.max(Math.floor((result.reward_cents ?? 0) / 1000), 10), 50);
+    import('@/lib/services/tickets').then(({ creditTickets }) => {
+      creditTickets(userId, ticketAmount, 'mission', missionId).catch(console.error);
+    }).catch(err => console.error('[Missions] Ticket credit failed:', err));
   }
 
   return result;

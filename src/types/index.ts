@@ -51,7 +51,7 @@ export type Player = {
   topOwners: Owner[];
   sponsored?: boolean;
   imageUrl?: string | null;
-  successFeeCap?: number;  // in $SCOUT (cents → $SCOUT conversion)
+  successFeeCap?: number;  // in bCredits (cents → bCredits conversion)
   isLiquidated?: boolean;
 };
 
@@ -1552,4 +1552,166 @@ export type Prediction = {
   // Joined
   fixture?: { home_club_id: string; away_club_id: string; gameweek: number; played_at: string | null };
   player?: { first_name: string; last_name: string; position: string; club_id: string };
+};
+
+// ============================================
+// FOUNDING PASS TYPES
+// ============================================
+
+export type FoundingPassTier = 'fan' | 'scout' | 'pro' | 'founder';
+
+export type DbUserFoundingPass = {
+  id: string;
+  user_id: string;
+  tier: FoundingPassTier;
+  price_eur_cents: number;
+  bcredits_granted: number;
+  migration_bonus_pct: number;
+  payment_reference: string | null;
+  granted_by: string | null;
+  created_at: string;
+};
+
+// ============================================
+// TICKET TYPES
+// ============================================
+
+export type TicketSource =
+  | 'daily_login'
+  | 'mission'
+  | 'daily_challenge'
+  | 'achievement'
+  | 'streak_bonus'
+  | 'mystery_box'
+  | 'event_entry'
+  | 'chip_use'
+  | 'live_prediction'
+  | 'admin_grant';
+
+export type DbUserTickets = {
+  user_id: string;
+  balance: number;
+  earned_total: number;
+  spent_total: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type DbTicketTransaction = {
+  id: string;
+  user_id: string;
+  amount: number;
+  balance_after: number;
+  source: TicketSource;
+  reference_id: string | null;
+  description: string | null;
+  created_at: string;
+};
+
+// ============================================
+// WELCOME BONUS TYPES
+// ============================================
+
+export type DbWelcomeBonusClaim = {
+  user_id: string;
+  amount_cents: number;
+  claimed_at: string;
+};
+
+// ============================================
+// COSMETIC TYPES
+// ============================================
+
+export type CosmeticType = 'frame' | 'title' | 'flame' | 'badge' | 'effect';
+export type CosmeticRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+export type CosmeticSource = 'score_road' | 'mystery_box' | 'fan_rang' | 'achievement' | 'founding_pass' | 'admin_grant';
+
+export type DbCosmeticDefinition = {
+  id: string;
+  key: string;
+  type: CosmeticType;
+  name: string;
+  description: string | null;
+  rarity: CosmeticRarity;
+  css_class: string | null;
+  metadata: Record<string, unknown> | null;
+  active: boolean;
+  created_at: string;
+};
+
+export type DbUserCosmetic = {
+  id: string;
+  user_id: string;
+  cosmetic_id: string;
+  source: CosmeticSource;
+  equipped: boolean;
+  acquired_at: string;
+};
+
+export type UserCosmeticWithDef = DbUserCosmetic & {
+  cosmetic: DbCosmeticDefinition;
+};
+
+// ============================================
+// FAN RANKING TYPES
+// ============================================
+
+export type FanRankTier = 'zuschauer' | 'stammgast' | 'ultra' | 'legende' | 'ehrenmitglied' | 'vereinsikone';
+
+export type DbFanRanking = {
+  user_id: string;
+  club_id: string;
+  rank_tier: FanRankTier;
+  csf_multiplier: number;
+  event_score: number;
+  dpc_score: number;
+  abo_score: number;
+  community_score: number;
+  streak_score: number;
+  total_score: number;
+  calculated_at: string;
+  created_at: string;
+};
+
+// ============================================
+// DAILY CHALLENGE TYPES
+// ============================================
+
+export type ChallengeType = 'trivia' | 'prediction' | 'market';
+
+export type DbDailyChallenge = {
+  id: string;
+  challenge_date: string;
+  question_type: ChallengeType;
+  question_de: string;
+  question_tr: string | null;
+  options: string[];
+  reward_correct: number;
+  reward_wrong: number;
+  active: boolean;
+  created_at: string;
+};
+
+export type DbUserDailyChallenge = {
+  id: string;
+  user_id: string;
+  challenge_id: string;
+  selected_option: number;
+  is_correct: boolean | null;
+  tickets_awarded: number;
+  completed_at: string;
+};
+
+// ============================================
+// MYSTERY BOX TYPES
+// ============================================
+
+export type MysteryBoxResult = {
+  id: string;
+  rarity: CosmeticRarity;
+  reward_type: 'tickets' | 'cosmetic';
+  tickets_amount: number | null;
+  cosmetic_id: string | null;
+  ticket_cost: number;
+  opened_at: string;
 };

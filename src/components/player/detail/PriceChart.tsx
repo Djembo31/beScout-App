@@ -64,7 +64,7 @@ export default function PriceChart({ trades, ipoPrice, className = '' }: PriceCh
           {t('priceHistory')}
         </h3>
         <div className="flex items-center gap-2">
-          <span className="text-sm font-mono font-bold">{fmtScout(prices[prices.length - 1])} $SCOUT</span>
+          <span className="text-sm font-mono font-bold">{fmtScout(prices[prices.length - 1])} bCredits</span>
           <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-lg ${up ? 'bg-vivid-green/10 text-vivid-green' : 'bg-vivid-red/10 text-vivid-red'}`}>
             {change >= 0 ? '+' : ''}{fmtScout(change)} ({changePct >= 0 ? '+' : ''}{changePct.toFixed(1)}%)
           </span>

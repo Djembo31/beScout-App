@@ -57,12 +57,12 @@ export async function getPlayersByClubId(clubId: string): Promise<DbPlayer[]> {
 // Mapper: DbPlayer → Frontend Player Type
 // ============================================
 
-/** Cents → $SCOUT (z.B. 15600 → 156). Uses Math.round to avoid floating-point artifacts. */
+/** Cents → bCredits (z.B. 15600 → 156). Uses Math.round to avoid floating-point artifacts. */
 export function centsToBsd(cents: number): number {
   return Math.round(cents) / 100;
 }
 
-/** $SCOUT → Cents (z.B. 156 → 15600) */
+/** bCredits → Cents (z.B. 156 → 15600) */
 export function bsdToCents(bsd: number): number {
   return Math.round(bsd * 100);
 }

@@ -9,6 +9,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { TourProvider } from '@/components/tour/TourProvider';
 import { TourOverlay } from '@/components/tour/TourOverlay';
 import { DemoBanner } from '@/components/demo/DemoBanner';
+import { claimWelcomeBonus } from '@/lib/services/welcomeBonus';
 
 export default function AppLayout({
   children,
@@ -33,6 +34,14 @@ export default function AppLayout({
       if (logTimer.current) clearTimeout(logTimer.current);
     };
   }, [pathname, user]);
+
+  // Welcome bonus — idempotent (PK constraint), safe to call on every auth
+  const bonusClaimed = useRef(false);
+  useEffect(() => {
+    if (!user || bonusClaimed.current) return;
+    bonusClaimed.current = true;
+    claimWelcomeBonus().catch(err => console.error('[AppLayout] Welcome bonus claim failed:', err));
+  }, [user]);
 
   const handleMobileToggle = useCallback(() => {
     setMobileOpen((prev) => !prev);

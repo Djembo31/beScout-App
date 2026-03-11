@@ -102,7 +102,7 @@ export default function HomeHeader({
           ) : (
             <div className="font-mono font-black text-base md:text-xl text-gold truncate" style={{ textShadow: '0 0 12px rgba(255,215,0,0.4)' }}>{fmtScout(centsToBsd(balanceCents))}</div>
           )}
-          <div className="text-[10px] text-white/40">$SCOUT</div>
+          <div className="text-[10px] text-white/40">bCredits</div>
         </div>
         <div className="bg-gradient-to-br from-purple-500/[0.10] to-transparent border border-purple-400/[0.15] shadow-card-sm rounded-xl p-3 md:p-4 border-l-3 border-l-purple-400">
           <div className="flex items-center gap-1 mb-1">

@@ -260,7 +260,7 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
           <div className="bg-black/20 rounded-xl p-4">
             <div className="flex items-center justify-between">
               <span className="text-white/50 text-sm">{player.isLiquidated ? t('reservedSuccessFee') : t('treasuryBalance')}</span>
-              <span className={`font-mono font-black tabular-nums text-2xl ${player.isLiquidated ? 'text-white/30' : 'text-gold'}`}>{fmtScout(pbt.balance)} $SCOUT</span>
+              <span className={`font-mono font-black tabular-nums text-2xl ${player.isLiquidated ? 'text-white/30' : 'text-gold'}`}>{fmtScout(pbt.balance)} bCredits</span>
             </div>
           </div>
           {pbt.sources && (

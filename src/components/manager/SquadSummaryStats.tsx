@@ -26,7 +26,7 @@ export default function SquadSummaryStats({ players, ownedPlayers, assignedCount
     <div className="flex flex-wrap items-center gap-2 md:gap-3 text-xs">
       <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gold/10 border border-gold/20 rounded-lg">
         <span className="text-white/50">{t('summarySquadValue')}</span>
-        <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(totalValue)} $SCOUT</span>
+        <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(totalValue)} bCredits</span>
       </div>
       <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg">
         <span className="text-white/50">{t('summaryLineup')}</span>

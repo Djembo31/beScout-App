@@ -100,7 +100,7 @@ export default function MarktTab({
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(centsToBsd(bid.price))} $SCOUT</span>
+                      <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(centsToBsd(bid.price))} bCredits</span>
                       {holdingQty > 0 && bid.sender_id !== userId && onAcceptBid && (
                         <button
                           onClick={() => onAcceptBid(bid.id)}
@@ -255,7 +255,7 @@ export default function MarktTab({
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold tabular-nums text-gold">{formatScout(trade.price)} $SCOUT</span>
+                        <span className="font-mono font-bold tabular-nums text-gold">{formatScout(trade.price)} bCredits</span>
                         <span className="text-white/40 font-mono tabular-nums text-xs">&times;{trade.quantity}</span>
                       </div>
                     </div>
@@ -298,17 +298,17 @@ export default function MarktTab({
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3">
               <div className="text-xs text-purple-300">{t('clubPrice')}</div>
-              <div className="font-mono font-bold tabular-nums text-purple-200">{fmtScout(player.prices.ipoPrice ?? 0)} $SCOUT</div>
+              <div className="font-mono font-bold tabular-nums text-purple-200">{fmtScout(player.prices.ipoPrice ?? 0)} bCredits</div>
               <div className="text-[10px] text-white/30 mt-0.5">{t('fixedByClub')}</div>
             </div>
             <div className="bg-sky-500/10 border border-sky-500/20 rounded-lg p-3">
               <div className="text-xs text-sky-300">{t('marketFloor')}</div>
-              <div className="font-mono font-bold tabular-nums text-gold">{fmtScout(player.prices.floor ?? 0)} $SCOUT</div>
+              <div className="font-mono font-bold tabular-nums text-gold">{fmtScout(player.prices.floor ?? 0)} bCredits</div>
               <div className="text-[10px] text-white/30 mt-0.5">{t('cheapestUserOffer')}</div>
             </div>
             <div className="bg-surface-base rounded-lg p-3">
               <div className="text-xs text-white/40">{t('lastTrade')}</div>
-              <div className="font-mono font-bold tabular-nums">{fmtScout(player.prices.lastTrade ?? 0)} $SCOUT</div>
+              <div className="font-mono font-bold tabular-nums">{fmtScout(player.prices.lastTrade ?? 0)} bCredits</div>
             </div>
             <div className="bg-surface-base rounded-lg p-3">
               <div className="text-xs text-white/40">{t('change24h')}</div>

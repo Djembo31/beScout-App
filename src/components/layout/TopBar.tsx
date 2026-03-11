@@ -4,7 +4,7 @@ import React, { memo, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Bell, BellOff, BellRing, Search, User, Menu, DollarSign, MessageSquarePlus } from 'lucide-react';
+import { Bell, BellOff, BellRing, Search, User, Menu, DollarSign, MessageSquarePlus, Ticket } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
@@ -16,6 +16,7 @@ import AchievementListener from '@/components/providers/AchievementListener';
 import { useNotificationRealtime } from '@/lib/hooks/useNotificationRealtime';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useTranslations } from 'next-intl';
+import { useUserTickets } from '@/lib/queries/tickets';
 
 interface TopBarProps {
   onMobileMenuToggle?: () => void;
@@ -24,6 +25,8 @@ interface TopBarProps {
 export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) {
   const { user, profile, loading } = useUser();
   const { balanceCents } = useWallet();
+  const { data: ticketData } = useUserTickets(user?.id);
+  const ticketBalance = ticketData?.balance ?? null;
   const { addToast } = useToast();
   const pathname = usePathname();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
@@ -144,7 +147,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
 
         {/* Right side */}
         <div className="flex items-center gap-2 md:gap-3">
-          {/* $SCOUT Balance pill — compact on mobile */}
+          {/* bCredits Balance pill — compact on mobile */}
           <div data-tour-id="topbar-balance" className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 bg-gold/10 border border-gold/20 rounded-xl">
             <DollarSign className="size-3 sm:size-3.5 text-gold" />
             {balanceCents === null ? (
@@ -153,6 +156,14 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
               <span className="font-mono font-bold text-gold text-[10px] sm:text-xs tabular-nums">{formatScout(balanceCents)}</span>
             )}
           </div>
+
+          {/* Ticket Balance pill */}
+          {ticketBalance !== null && (
+            <div className="flex items-center gap-1 px-2 py-1 sm:py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-xl" title={t('ticketTooltip')}>
+              <Ticket className="size-3 sm:size-3.5 text-amber-400" />
+              <span className="font-mono font-bold text-amber-400 text-[10px] sm:text-xs tabular-nums">{ticketBalance}</span>
+            </div>
+          )}
 
           {/* Search icon — mobile only */}
           <button

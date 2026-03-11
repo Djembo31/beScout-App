@@ -54,7 +54,7 @@ export async function applyReferralCode(userId: string, referrerCode: string): P
   return { success: true };
 }
 
-/** Fire-and-forget: reward referrer (500 $SCOUT) + referee (250 $SCOUT) on first trade */
+/** Fire-and-forget: reward referrer (500 bCredits) + referee (250 bCredits) on first trade */
 export async function triggerReferralReward(refereeId: string): Promise<void> {
   try {
     const { data, error } = await supabase.rpc('reward_referral', { p_referee_id: refereeId });

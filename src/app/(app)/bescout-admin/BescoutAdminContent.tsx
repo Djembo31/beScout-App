@@ -94,7 +94,7 @@ function IposTab() {
                 )}>
                   {ipo.status as string}
                 </span>
-                <span className="font-mono tabular-nums text-gold">{fmtScout(centsToBsd(ipo.price as number))} $SCOUT</span>
+                <span className="font-mono tabular-nums text-gold">{fmtScout(centsToBsd(ipo.price as number))} bCredits</span>
                 <span className="tabular-nums text-white/40">{ipo.sold as number}/{ipo.total_offered as number}</span>
               </div>
             </div>

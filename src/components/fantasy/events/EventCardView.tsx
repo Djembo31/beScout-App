@@ -126,7 +126,7 @@ export function EventCardView({ event, onClick }: Props) {
           ) : event.status === 'running' ? (
             <><Play className="size-4" aria-hidden="true" /> {t('runningBtn')}</>
           ) : (
-            <><Plus className="size-4" aria-hidden="true" /> {event.buyIn === 0 ? t('joinBtn') : `${event.buyIn} $SCOUT`}</>
+            <><Plus className="size-4" aria-hidden="true" /> {event.buyIn === 0 ? t('joinBtn') : `${event.buyIn} bCredits`}</>
           )}
         </Button>
       </div>

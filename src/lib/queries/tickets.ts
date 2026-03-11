@@ -1,0 +1,27 @@
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
+import { qk } from './keys';
+import { getUserTickets, getTicketTransactions } from '@/lib/services/tickets';
+
+const THIRTY_SEC = 30 * 1000;
+
+/** Fetch the user's ticket balance */
+export function useUserTickets(userId: string | undefined) {
+  return useQuery({
+    queryKey: qk.tickets.balance(userId!),
+    queryFn: () => getUserTickets(userId!),
+    enabled: !!userId,
+    staleTime: THIRTY_SEC,
+  });
+}
+
+/** Fetch ticket transaction history */
+export function useTicketTransactions(userId: string | undefined, limit = 20) {
+  return useQuery({
+    queryKey: qk.tickets.transactions(userId!, limit),
+    queryFn: () => getTicketTransactions(userId!, limit),
+    enabled: !!userId,
+    staleTime: THIRTY_SEC,
+  });
+}

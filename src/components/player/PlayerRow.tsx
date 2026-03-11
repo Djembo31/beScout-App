@@ -282,7 +282,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
             <span className="font-mono font-black text-gold text-lg gold-glow tabular-nums">
               {ipoData ? fmtScout(ipoData.price) : fmtScout(floor)}
             </span>
-            <span className="text-white/30 text-[10px]">$SCOUT</span>
+            <span className="text-white/30 text-[10px]">bCredits</span>
             {!ipoData && (
               <span className={cn('text-[11px] font-mono font-bold ml-1 tabular-nums', up ? 'text-green-500' : 'text-red-400')}>
                 {up ? '+' : ''}{player.prices.change24h.toFixed(1)}%
