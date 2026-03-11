@@ -2650,6 +2650,8 @@
     "playerLockedRemove": "Spieler kann nicht entfernt werden — Spiel bereits gestartet.",
     "playerLockedAdd": "Spieler kann nicht aufgestellt werden — sein Spiel hat bereits begonnen.",
     "duplicatePlayer": "Jeder Spieler darf nur einmal aufgestellt werden.",
+    "lineupSizeMismatch": "Die Anzahl der Spieler stimmt nicht mit der Event-Vorgabe überein.",
+    "playerNotInClub": "Nur Spieler dieses Vereins dürfen aufgestellt werden.",
     "lineupDeleteFailed": "Lineup konnte nicht gelöscht werden. Bitte Admin kontaktieren.",
     "walletError": "Wallet-Fehler. Bitte versuche es erneut.",
     "bountyCreateFailed": "Bounty-Erstellung fehlgeschlagen.",

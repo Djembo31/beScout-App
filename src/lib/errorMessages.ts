@@ -15,7 +15,8 @@ const KNOWN_KEYS = new Set([
   'invalidQuantity', 'maxQuantityExceeded', 'playerNotFound', 'clubAdminRestricted',
   'noMatchingOrders', 'invalidPrice', 'maxPriceExceeded', 'eventNotFound', 'eventEnded',
   'eventGameweekNotFound', 'playerLockedRemove', 'playerLockedAdd', 'duplicatePlayer',
-  'lineupDeleteFailed', 'walletError', 'bountyCreateFailed', 'bountyCancelFailed',
+  'lineupDeleteFailed', 'lineupSizeMismatch', 'playerNotInClub',
+  'walletError', 'bountyCreateFailed', 'bountyCancelFailed',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [
@@ -45,6 +46,8 @@ const ERROR_MAP: [RegExp, string][] = [
   [/player.*locked.*remove|cannot.*remove.*locked/i, 'playerLockedRemove'],
   [/player.*locked.*add|cannot.*add.*locked/i, 'playerLockedAdd'],
   [/duplicate.player/i, 'duplicatePlayer'],
+  [/lineup.*size.*mismatch/i, 'lineupSizeMismatch'],
+  [/player.*not.*in.*club/i, 'playerNotInClub'],
 
   // Offers
   [/offer.*expired/i, 'offerExpired'],

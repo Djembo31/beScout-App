@@ -65,10 +65,10 @@ export async function submitLineup(params: {
   slots: Record<string, string | null>;
   captainSlot?: string | null;
 }): Promise<DbLineup> {
-  // Check event status + capacity before submitting
+  // Check event status + capacity + scope before submitting
   const { data: ev, error: evError } = await supabase
     .from('events')
-    .select('status, max_entries, current_entries, locks_at')
+    .select('status, max_entries, current_entries, locks_at, lineup_size, scope, club_id')
     .eq('id', params.eventId)
     .single();
 
@@ -170,6 +170,26 @@ export async function submitLineup(params: {
   const uniqueIds = new Set(slotPlayerIds);
   if (uniqueIds.size < slotPlayerIds.length) {
     throw new Error('duplicatePlayer');
+  }
+
+  // Guard: lineup size must match event.lineup_size (7 or 11)
+  if (ev.lineup_size && slotPlayerIds.length !== ev.lineup_size) {
+    throw new Error('lineupSizeMismatch');
+  }
+
+  // Guard: club-scoped events only accept players from that club
+  if (ev.scope === 'club' && ev.club_id) {
+    const { data: slotPlayers } = await supabase
+      .from('players')
+      .select('id, club_id')
+      .in('id', slotPlayerIds);
+
+    if (slotPlayers) {
+      const invalidPlayer = slotPlayers.find(p => p.club_id !== ev.club_id);
+      if (invalidPlayer) {
+        throw new Error('playerNotInClub');
+      }
+    }
   }
 
   // Build DB row with all slot columns
