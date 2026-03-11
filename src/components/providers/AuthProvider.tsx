@@ -106,17 +106,14 @@ export function useRequireProfile() {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // Hydrate from sessionStorage — if we have cached data, skip the loading spinner
-  const cachedUser = ssGet<User>(SS_USER);
-  const cachedProfile = ssGet<Profile>(SS_PROFILE);
-  const cachedPlatformRole = ssGet<PlatformAdminRole>(SS_PLATFORM_ROLE);
-  const cachedClubAdmin = ssGet<ClubAdminInfo>(SS_CLUB_ADMIN);
-
-  const [user, setUser] = useState<User | null>(cachedUser);
-  const [profile, setProfile] = useState<Profile | null>(cachedProfile);
-  const [loading, setLoading] = useState(!cachedUser);
-  const [platformRole, setPlatformRole] = useState<PlatformAdminRole | null>(cachedPlatformRole);
-  const [clubAdmin, setClubAdmin] = useState<ClubAdminInfo | null>(cachedClubAdmin);
+  // IMPORTANT: Never read sessionStorage in useState initializers — it doesn't
+  // exist during SSR, causing a hydration mismatch (server=loading, client=cached).
+  // Instead, always start as loading and hydrate from cache in useEffect.
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [platformRole, setPlatformRole] = useState<PlatformAdminRole | null>(null);
+  const [clubAdmin, setClubAdmin] = useState<ClubAdminInfo | null>(null);
 
   const loadProfile = useCallback(async (userId: string) => {
     try {
@@ -176,7 +173,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, loadProfile]);
 
   useEffect(() => {
-    // Verify session in background — even if we hydrated from sessionStorage
+    // Hydrate from sessionStorage (client-only) for instant UI.
+    // This runs after hydration so no server/client mismatch.
+    const cachedUser = ssGet<User>(SS_USER);
+    const cachedProfile = ssGet<Profile>(SS_PROFILE);
+    const cachedPlatformRole = ssGet<PlatformAdminRole>(SS_PLATFORM_ROLE);
+    const cachedClubAdmin = ssGet<ClubAdminInfo>(SS_CLUB_ADMIN);
+    if (cachedUser && cachedProfile) {
+      setUser(cachedUser);
+      setProfile(cachedProfile);
+      setPlatformRole(cachedPlatformRole);
+      setClubAdmin(cachedClubAdmin);
+      setLoading(false);
+    }
+
+    // Then verify session with Supabase (may update or invalidate cache)
     supabase.auth.getSession()
       .then(async ({ data: { session } }) => {
         const u = session?.user ?? null;
