@@ -2,7 +2,7 @@
 
 import { useToast } from '@/components/providers/ToastProvider';
 import { useTranslations } from 'next-intl';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   isFeatureAllowedForTier,
   GEOFENCING_ENABLED,
@@ -26,7 +26,14 @@ export function useRegionGuard(feature: GeoFeature) {
   const { addToast } = useToast();
   const t = useTranslations('geo');
 
-  const tier = useMemo(() => getGeoTierFromCookie(), []);
+  const [tier, setTier] = useState<GeoTier | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setTier(getGeoTierFromCookie());
+    setIsHydrated(true);
+  }, []);
+
   const allowed = isFeatureAllowedForTier(feature, tier);
 
   /** Wraps an async action — shows toast instead of executing if region-blocked */
@@ -43,5 +50,5 @@ export function useRegionGuard(feature: GeoFeature) {
     [allowed, addToast, t]
   );
 
-  return { allowed, guard, tier, geofencingEnabled: GEOFENCING_ENABLED };
+  return { allowed, guard, tier, isHydrated, geofencingEnabled: GEOFENCING_ENABLED };
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { ShieldOff } from 'lucide-react';
+import { Loader2, ShieldOff } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRegionGuard } from '@/lib/useRegionGuard';
 import type { GeoFeature } from '@/lib/geofencing';
@@ -17,10 +17,19 @@ export function GeoGate({
   feature: GeoFeature;
   children: React.ReactNode;
 }) {
-  const { allowed, geofencingEnabled } = useRegionGuard(feature);
+  const { allowed, geofencingEnabled, isHydrated } = useRegionGuard(feature);
 
   if (!geofencingEnabled || allowed) {
     return <>{children}</>;
+  }
+
+  // Show skeleton while cookie is being read during hydration
+  if (geofencingEnabled && !isHydrated) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="size-6 animate-spin motion-reduce:animate-none text-white/20" aria-hidden="true" />
+      </div>
+    );
   }
 
   return <GeoRestricted feature={feature} />;
@@ -29,23 +38,16 @@ export function GeoGate({
 function GeoRestricted({ feature }: { feature: GeoFeature }) {
   const t = useTranslations('geo');
 
-  const FEATURE_LABELS: Record<GeoFeature, string> = {
-    dpc_trading: t('feature.dpcTrading'),
-    free_fantasy: t('feature.freeFantasy'),
-    paid_fantasy: t('feature.paidFantasy'),
-    scout_reports: t('feature.scoutReports'),
-    paid_research: t('feature.paidResearch'),
-    content: t('feature.content'),
-  };
+  const featureLabel = t(`feature.${feature}` as `feature.${GeoFeature}`);
 
   return (
     <div className="flex flex-col items-center justify-center py-20 px-6 text-center" role="status">
-      <ShieldOff className="size-12 text-white/20 mb-4" aria-hidden="true" />
+      <ShieldOff className="size-12 text-white/20 mb-4" aria-label={t('featureRestricted')} />
       <h2 className="text-lg font-bold text-white/70 mb-2">
         {t('featureRestricted')}
       </h2>
       <p className="text-sm text-white/40 max-w-sm">
-        {t('featureRestrictedDesc', { feature: FEATURE_LABELS[feature] ?? feature })}
+        {t('featureRestrictedDesc', { feature: featureLabel })}
       </p>
     </div>
   );

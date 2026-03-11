@@ -145,7 +145,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
           const pct = Math.min((eurTotal / KILL_SWITCH_LIMIT_EUR) * 100, 100);
           const isActive = eurTotal >= KILL_SWITCH_LIMIT_EUR;
           return (
-            <Card className={cn('p-4 focus-within:ring-1 focus-within:ring-white/20', isActive && 'border-red-500/30')}>
+            <Card className={cn('p-4 focus-within:ring-1 focus-within:ring-white/20 transition-colors hover:border-white/20', isActive && 'border-red-500/30 hover:border-red-500/50')}>
               <div className="flex items-center gap-2 mb-2">
                 <ShieldAlert className={cn('size-4 flex-shrink-0', isActive ? 'text-red-400' : 'text-amber-400')} aria-hidden="true" />
                 <span className="text-xs font-bold text-white/50 uppercase">
