@@ -34,6 +34,7 @@ import dynamic from 'next/dynamic';
 import type { Player, DbIpo } from '@/types';
 
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
+import { GeoGate } from '@/components/geo/GeoGate';
 import NewUserTip from '@/components/onboarding/NewUserTip';
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
   ssr: false,
@@ -317,6 +318,7 @@ export default function MarketPage() {
   }
 
   return (
+    <GeoGate feature="dpc_trading">
     <div className="max-w-[1400px] mx-auto space-y-5">
       {/* Buy Success Toast — subtle gold glow instead of confetti */}
       {buySuccess && (
@@ -494,5 +496,6 @@ export default function MarketPage() {
 
 
     </div>
+    </GeoGate>
   );
 }

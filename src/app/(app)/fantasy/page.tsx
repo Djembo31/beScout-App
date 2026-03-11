@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { GeoGate } from '@/components/geo/GeoGate';
 
 const FantasyContent = dynamic(() => import('./FantasyContent'), {
   loading: () => (
@@ -50,5 +51,9 @@ const FantasyContent = dynamic(() => import('./FantasyContent'), {
 });
 
 export default function FantasyPage() {
-  return <FantasyContent />;
+  return (
+    <GeoGate feature="free_fantasy">
+      <FantasyContent />
+    </GeoGate>
+  );
 }

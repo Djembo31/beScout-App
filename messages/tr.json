@@ -2751,6 +2751,8 @@
   },
   "geo": {
     "restricted": "Bu özellik bölgenizde kullanılamaz",
+    "featureRestricted": "Kullanılamaz",
+    "featureRestrictedDesc": "{feature} bölgenizde kullanılamaz.",
     "regionLabel": "Bölge",
     "regionUnset": "Belirlenmemiş",
     "region": {
@@ -2762,9 +2764,11 @@
     "feature": {
       "dpc_trading": "DPC Ticareti",
       "free_fantasy": "Fantasy (ücretsiz)",
+      "paid_fantasy": "Fantasy (Premium)",
       "prize_league": "Ödül Ligi",
       "scout_reports": "Scout Raporları",
-      "paid_research": "Ücretli Analizler"
+      "paid_research": "Ücretli Analizler",
+      "content": "İçerik"
     }
   },
   "pitch": {

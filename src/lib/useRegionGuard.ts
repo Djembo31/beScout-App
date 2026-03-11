@@ -1,22 +1,33 @@
 'use client';
 
-import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useTranslations } from 'next-intl';
-import { useCallback } from 'react';
-import { isFeatureAllowed, GEOFENCING_ENABLED, type GeoFeature } from '@/lib/geofencing';
+import { useCallback, useMemo } from 'react';
+import {
+  isFeatureAllowedForTier,
+  GEOFENCING_ENABLED,
+  type GeoFeature,
+  type GeoTier,
+} from '@/lib/geofencing';
+
+/** Read geo tier from middleware cookie */
+function getGeoTierFromCookie(): GeoTier | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/bescout-geo-tier=(\w+)/);
+  return (match?.[1] as GeoTier) ?? null;
+}
 
 /**
- * Region-based feature guard — identical pattern to useDemoGuard.
- * Wraps async actions: if feature is blocked for user's region, shows toast instead.
+ * Tier-based feature guard.
+ * Reads geo tier from middleware cookie (set via x-vercel-ip-country).
+ * If geofencing is OFF or tier is unknown → allowed.
  */
 export function useRegionGuard(feature: GeoFeature) {
-  const { profile } = useUser();
   const { addToast } = useToast();
   const t = useTranslations('geo');
 
-  const region = profile?.region ?? null;
-  const allowed = isFeatureAllowed(feature, region);
+  const tier = useMemo(() => getGeoTierFromCookie(), []);
+  const allowed = isFeatureAllowedForTier(feature, tier);
 
   /** Wraps an async action — shows toast instead of executing if region-blocked */
   const guard = useCallback(
@@ -32,5 +43,5 @@ export function useRegionGuard(feature: GeoFeature) {
     [allowed, addToast, t]
   );
 
-  return { allowed, guard, region, geofencingEnabled: GEOFENCING_ENABLED };
+  return { allowed, guard, tier, geofencingEnabled: GEOFENCING_ENABLED };
 }

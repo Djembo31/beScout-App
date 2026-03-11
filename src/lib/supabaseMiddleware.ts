@@ -1,10 +1,33 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
+import { countryToTier, GEOFENCING_ENABLED } from "@/lib/geofencing";
 
 export async function updateSession(request: NextRequest) {
+    const pathname = request.nextUrl.pathname;
+
+    // ── Geofencing: detect tier + block TIER_BLOCKED countries ──
+    const country = request.headers.get("x-vercel-ip-country");
+    const geoTier = GEOFENCING_ENABLED ? countryToTier(country) : null;
+
+    if (GEOFENCING_ENABLED && geoTier === "blocked" && pathname !== "/blocked") {
+        const url = request.nextUrl.clone();
+        url.pathname = "/blocked";
+        return NextResponse.redirect(url);
+    }
+
     let supabaseResponse = NextResponse.next({
         request,
     });
+
+    // Set geo tier cookie for client-side feature gates
+    if (geoTier) {
+        supabaseResponse.cookies.set("bescout-geo-tier", geoTier, {
+            path: "/",
+            httpOnly: false,
+            sameSite: "lax",
+            maxAge: 60 * 60, // 1 hour
+        });
+    }
 
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -38,9 +61,8 @@ export async function updateSession(request: NextRequest) {
         console.error('[Middleware] Session refresh failed:', err);
     }
 
-    // Define public routes (login, auth callback, onboarding)
-    const publicRoutes = ["/login", "/auth/callback", "/onboarding", "/welcome", "/club", "/pitch"];
-    const pathname = request.nextUrl.pathname;
+    // Define public routes (login, auth callback, onboarding, blocked)
+    const publicRoutes = ["/login", "/auth/callback", "/onboarding", "/welcome", "/club", "/pitch", "/blocked"];
     const isPublicRoute = publicRoutes.some(route =>
         pathname === route || pathname.startsWith(`${route}/`)
     );

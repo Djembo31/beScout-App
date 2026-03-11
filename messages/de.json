@@ -2759,6 +2759,8 @@
   },
   "geo": {
     "restricted": "Dieses Feature ist in deiner Region nicht verfügbar",
+    "featureRestricted": "Nicht verfügbar",
+    "featureRestrictedDesc": "{feature} ist in deiner Region nicht verfügbar.",
     "regionLabel": "Region",
     "regionUnset": "Nicht gesetzt",
     "region": {
@@ -2770,9 +2772,11 @@
     "feature": {
       "dpc_trading": "DPC-Handel",
       "free_fantasy": "Fantasy (kostenlos)",
+      "paid_fantasy": "Fantasy (Premium)",
       "prize_league": "Prämien-Liga",
       "scout_reports": "Scout-Berichte",
-      "paid_research": "Bezahlte Analysen"
+      "paid_research": "Bezahlte Analysen",
+      "content": "Inhalte"
     }
   },
   "pitch": {

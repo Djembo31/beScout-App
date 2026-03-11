@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Gift, Loader2, RefreshCw, Search, Crown, AlertCircle } from 'lucide-react';
+import { Gift, Loader2, RefreshCw, Search, Crown, AlertCircle, ShieldAlert } from 'lucide-react';
 import { Card, Button, StatCard } from '@/components/ui';
 import FoundingPassBadge from '@/components/ui/FoundingPassBadge';
 import { useToast } from '@/components/providers/ToastProvider';
 import { cn, fmtScout } from '@/lib/utils';
 import { FOUNDING_PASS_TIERS } from '@/lib/foundingPasses';
 import type { FoundingPassTier, DbUserFoundingPass } from '@/types';
+
+const KILL_SWITCH_LIMIT_EUR = 900_000;
 
 const TIER_HEX: Record<FoundingPassTier, string> = {
   fan: '#38bdf8',      // sky-400
@@ -28,6 +30,7 @@ type PassStats = {
   total: number;
   byTier: Record<FoundingPassTier, number>;
   totalBcreditsGranted: number;
+  totalEurCents: number;
 };
 
 // ============================================
@@ -64,14 +67,17 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
       // Compute stats
       const byTier: Record<string, number> = { fan: 0, scout: 0, pro: 0, founder: 0 };
       let totalBc = 0;
+      let totalEur = 0;
       for (const p of rows) {
         byTier[p.tier] = (byTier[p.tier] ?? 0) + 1;
         totalBc += p.bcredits_granted;
+        totalEur += p.price_eur_cents;
       }
       setStats({
         total: rows.length,
         byTier: byTier as Record<FoundingPassTier, number>,
         totalBcreditsGranted: totalBc,
+        totalEurCents: totalEur,
       });
     } catch (err) {
       console.error('[Admin] Founding Passes load failed:', err);
@@ -99,7 +105,10 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
         grantRef.trim() || `admin-grant:${adminId}`,
       );
       if (!result.ok) {
-        setGrantError(result.error ?? 'Fehler beim Vergeben');
+        const msg = result.error === 'KILL_SWITCH_ACTIVE'
+          ? `Kill-Switch aktiv: EUR ${KILL_SWITCH_LIMIT_EUR.toLocaleString('de-DE')} Limit erreicht — keine weiteren Passes moeglich`
+          : (result.error ?? 'Fehler beim Vergeben');
+        setGrantError(msg);
         return;
       }
       addToast(`${grantTier.toUpperCase()} Pass vergeben — ${fmtScout(result.bcreditsGranted ?? 0)} bCredits`, 'success');
@@ -127,6 +136,40 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
           <StatCard icon={<Gift aria-hidden="true" className="size-5 text-amber-400" />} label="Pro" value={String(stats.byTier.pro)} />
           <StatCard icon={<Gift aria-hidden="true" className="size-5 text-sky-400" />} label="bCredits vergeben" value={fmtScout(stats.totalBcreditsGranted)} />
         </div>
+      )}
+
+      {/* Kill-Switch Revenue Limit */}
+      {stats && (
+        (() => {
+          const eurTotal = stats.totalEurCents / 100;
+          const pct = Math.min((eurTotal / KILL_SWITCH_LIMIT_EUR) * 100, 100);
+          const isActive = eurTotal >= KILL_SWITCH_LIMIT_EUR;
+          return (
+            <Card className={cn('p-4 focus-within:ring-1 focus-within:ring-white/20', isActive && 'border-red-500/30')}>
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldAlert className={cn('size-4 flex-shrink-0', isActive ? 'text-red-400' : 'text-amber-400')} aria-hidden="true" />
+                <span className="text-xs font-bold text-white/50 uppercase">
+                  Kill-Switch — <span className="font-mono tabular-nums">EUR {KILL_SWITCH_LIMIT_EUR.toLocaleString('de-DE')}</span> Limit
+                </span>
+                {isActive && <span className="text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">AKTIV</span>}
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-3 rounded-full overflow-hidden bg-white/5">
+                  <div
+                    className={cn('h-full rounded-full transition-all', isActive ? 'bg-red-500' : pct > 80 ? 'bg-amber-500' : 'bg-emerald-500')}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                <span className="text-xs font-mono tabular-nums text-white/70 min-w-[100px] text-right">
+                  {eurTotal.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                </span>
+              </div>
+              <div className="text-[10px] text-white/30 mt-1">
+                {pct.toFixed(1)}% des Limits erreicht
+              </div>
+            </Card>
+          );
+        })()
       )}
 
       {/* Tier Distribution */}
@@ -208,8 +251,8 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
           </Button>
         </div>
         {grantError && (
-          <div className="flex items-center gap-1.5 text-xs text-red-400">
-            <AlertCircle className="size-3.5 flex-shrink-0" aria-hidden="true" />
+          <div role="alert" className="flex items-center gap-1.5 text-xs text-red-400">
+            <AlertCircle className="size-3.5 flex-shrink-0 min-w-[14px] min-h-[14px]" aria-hidden="true" />
             {grantError}
           </div>
         )}
