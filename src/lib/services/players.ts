@@ -11,7 +11,8 @@ import { toPos } from '@/types';
 export async function getPlayers(): Promise<DbPlayer[]> {
   const res = await fetch('/api/players');
   if (!res.ok) throw new Error('Failed to fetch players');
-  return (await res.json()) as DbPlayer[];
+  const json = await res.json();
+  return Array.isArray(json) ? json : [];
 }
 
 /** Lightweight player names — only id, name, position. For dropdowns/autocomplete. */
@@ -136,6 +137,7 @@ export function dbToPlayer(db: DbPlayer): Player {
 
 /** Batch-Mapper */
 export function dbToPlayers(rows: DbPlayer[]): Player[] {
+  if (!Array.isArray(rows)) return [];
   return rows.map(dbToPlayer);
 }
 

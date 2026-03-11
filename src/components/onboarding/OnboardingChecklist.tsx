@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Rocket, CheckCircle2, Circle, ChevronRight, X, Zap, Trophy, UserPlus, MessageCircle, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -23,11 +23,12 @@ export default function OnboardingChecklist({ userId, name }: { userId: string; 
   const t = useTranslations('onboarding');
   const tc = useTranslations('common');
 
-  // ── Dismiss state (localStorage) ──
-  const [dismissed, setDismissed] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return !!localStorage.getItem(DISMISSED_KEY);
-  });
+  // Never read localStorage in useState — causes hydration mismatch.
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem(DISMISSED_KEY)) setDismissed(true);
+  }, []);
 
   // ── Confetti ──
   const [showConfetti, setShowConfetti] = useState(false);

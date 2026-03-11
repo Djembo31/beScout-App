@@ -137,7 +137,7 @@ export default function HomePage() {
 
   // ── Holdings transform ──
   const holdings = useMemo<DpcHolding[]>(() =>
-    rawHoldings.map((h) => ({
+    rawHoldings.filter((h) => h.player != null).map((h) => ({
       id: h.id,
       playerId: h.player_id,
       player: `${h.player.first_name} ${h.player.last_name}`,

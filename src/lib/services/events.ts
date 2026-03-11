@@ -16,7 +16,8 @@ export function isClubEvent(event: { scope: string }): boolean {
 export async function getEvents(): Promise<DbEvent[]> {
   const res = await fetch('/api/events');
   if (!res.ok) throw new Error('Failed to fetch events');
-  return (await res.json()) as DbEvent[];
+  const json = await res.json();
+  return Array.isArray(json) ? json : [];
 }
 
 /** Events eines Clubs laden (direkt aus DB) */

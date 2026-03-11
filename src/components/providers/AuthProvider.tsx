@@ -203,17 +203,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setPlatformRole(null);
           setClubAdmin(null);
           ssClear();
-          queryClient.clear();
+          // Defer cache clear: let React commit state updates and unmount
+          // auth-gated components before observers fire with undefined data
+          queueMicrotask(() => queryClient.clear());
         }
         setLoading(false);
       })
       .catch(() => {
-        // Network error / Supabase down — treat as logged out
-        setUser(null);
-        setProfile(null);
-        setPlatformRole(null);
-        setClubAdmin(null);
-        ssClear();
+        // Network error / Supabase down — keep cached data if available
+        // so the app works in degraded mode instead of crashing
         setLoading(false);
       });
 
@@ -244,7 +242,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setPlatformRole(null);
         setClubAdmin(null);
         ssClear();
-        queryClient.clear();
+        // Defer cache clear: let React commit state updates and unmount
+        // auth-gated components before observers fire with undefined data
+        queueMicrotask(() => queryClient.clear());
       }
       setLoading(false);
     });
