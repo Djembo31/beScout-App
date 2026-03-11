@@ -271,4 +271,10 @@ export const qk = {
   mysteryBox: {
     history: (userId: string, limit?: number) => ['mystery-box', userId, limit] as const,
   },
+
+  // ── Chips (Gamification v5 Phase C) ──
+  chips: {
+    event: (eventId: string) => ['chips', 'event', eventId] as const,
+    season: (season: string) => ['chips', 'season', season] as const,
+  },
 } as const;

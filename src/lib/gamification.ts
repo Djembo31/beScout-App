@@ -284,8 +284,8 @@ export const MANAGER_POINTS: ManagerPointEntry[] = [
   { maxPercentile: 100, points: -25, label: 'Bottom 10%' },
 ];
 
-/** Absent Manager Penalty: -15 per missed event */
-export const ABSENT_MANAGER_PENALTY = -15;
+/** Absent Manager Penalty: -8 per missed event (rebalanced in v5 Phase C) */
+export const ABSENT_MANAGER_PENALTY = -8;
 
 /** Captain's Call Bonus: captain is top scorer → +15 */
 export const CAPTAINS_CALL_BONUS = 15;

@@ -21,6 +21,13 @@ import { getFormationsForFormat, getDefaultFormation, buildSlotDbKeys, PRESET_KE
 import { getStatusStyle, getTypeStyle, formatCountdown } from './helpers';
 import dynamic from 'next/dynamic';
 import type { FixtureDeadline } from '@/lib/services/fixtures';
+import { EventScopeBadge } from '@/components/ui';
+
+// Lazy-loaded ChipSelector (only needed when editing lineup)
+const ChipSelector = dynamic(() => import('@/components/gamification/ChipSelector'), {
+  ssr: false,
+  loading: () => <div className="h-24 animate-pulse bg-white/[0.02] rounded-2xl" />,
+});
 
 // Lazy-loaded tab panels
 const OverviewPanel = dynamic(() => import('./event-tabs/OverviewPanel'), {
@@ -420,6 +427,7 @@ export const EventDetailModal = ({
               }</span>
             </div>
           )}
+          {event.scope && <EventScopeBadge scope={event.scope} size="sm" />}
           <Chip className={`${typeStyle.bg} ${typeStyle.color}`}>{event.mode === 'league' ? t('modeLiga') : t('modeTurnier')} • {event.format}</Chip>
           {event.status === 'running' && !isScored && <Chip className="bg-green-500 text-white">LIVE</Chip>}
           {isScored && (
@@ -467,39 +475,47 @@ export const EventDetailModal = ({
 
           {/* LINEUP TAB */}
           {tab === 'lineup' && (
-            <LineupPanel
-              event={event}
-              userId={user?.id}
-              isScored={isScored}
-              scoringJustFinished={scoringJustFinished}
-              selectedFormation={selectedFormation}
-              availableFormations={availableFormations}
-              formationSlots={formationSlots}
-              slotDbKeys={slotDbKeys}
-              selectedPlayers={selectedPlayers}
-              effectiveHoldings={effectiveHoldings}
-              slotScores={slotScores}
-              myTotalScore={myTotalScore}
-              myRank={myRank}
-              progressiveScores={progressiveScores}
-              captainSlot={captainSlot}
-              setCaptainSlot={setCaptainSlot}
-              synergyPreview={synergyPreview}
-              isLineupComplete={isLineupComplete}
-              reqCheck={reqCheck}
-              isPartiallyLocked={isPartiallyLocked}
-              nextKickoff={nextKickoff}
-              isPlayerLocked={isPlayerLocked}
-              onFormationChange={handleFormationChange}
-              onApplyPreset={handleApplyPreset}
-              onSelectPlayer={handleSelectPlayer}
-              onRemovePlayer={handleRemovePlayer}
-              getSelectedPlayer={getSelectedPlayer}
-              getAvailablePlayersForPosition={getAvailablePlayersForPosition}
-              leaderboard={leaderboard}
-              onSwitchToLeaderboard={() => setTab('leaderboard')}
-              onClose={onClose}
-            />
+            <>
+              <LineupPanel
+                event={event}
+                userId={user?.id}
+                isScored={isScored}
+                scoringJustFinished={scoringJustFinished}
+                selectedFormation={selectedFormation}
+                availableFormations={availableFormations}
+                formationSlots={formationSlots}
+                slotDbKeys={slotDbKeys}
+                selectedPlayers={selectedPlayers}
+                effectiveHoldings={effectiveHoldings}
+                slotScores={slotScores}
+                myTotalScore={myTotalScore}
+                myRank={myRank}
+                progressiveScores={progressiveScores}
+                captainSlot={captainSlot}
+                setCaptainSlot={setCaptainSlot}
+                synergyPreview={synergyPreview}
+                isLineupComplete={isLineupComplete}
+                reqCheck={reqCheck}
+                isPartiallyLocked={isPartiallyLocked}
+                nextKickoff={nextKickoff}
+                isPlayerLocked={isPlayerLocked}
+                onFormationChange={handleFormationChange}
+                onApplyPreset={handleApplyPreset}
+                onSelectPlayer={handleSelectPlayer}
+                onRemovePlayer={handleRemovePlayer}
+                getSelectedPlayer={getSelectedPlayer}
+                getAvailablePlayersForPosition={getAvailablePlayersForPosition}
+                leaderboard={leaderboard}
+                onSwitchToLeaderboard={() => setTab('leaderboard')}
+                onClose={onClose}
+              />
+              {/* Chip Selector — only show when lineup is editable (not scored/ended) */}
+              {!isScored && event.status !== 'ended' && (
+                <div className="mt-4 pt-4 border-t border-white/[0.06]">
+                  <ChipSelector eventId={event.id} />
+                </div>
+              )}
+            </>
           )}
 
           {/* LEADERBOARD TAB */}

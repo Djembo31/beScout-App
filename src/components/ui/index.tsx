@@ -346,6 +346,7 @@ export { SortPills } from './SortPills';
 export { EmptyState } from './EmptyState';
 export { RangBadge, RangScorePill, RangProgress, DimensionRangRow, DimensionRangStack } from './RangBadge';
 export { ErrorBoundary } from './ErrorBoundary';
+export { EventScopeBadge } from './EventScopeBadge';
 
 export function ErrorState({
   message = 'Daten konnten nicht geladen werden.',

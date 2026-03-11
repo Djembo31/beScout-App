@@ -548,6 +548,8 @@ export type UserTradeWithPlayer = {
   player_position: string;
 };
 
+export type EventScope = 'global' | 'club';
+
 export type DbEvent = {
   id: string;
   name: string;
@@ -573,6 +575,8 @@ export type DbEvent = {
   min_subscription_tier?: string | null;
   salary_cap?: number | null;
   reward_structure?: RewardTier[] | null;
+  scope: EventScope;
+  lineup_size: 7 | 11;
   created_at: string;
 };
 
@@ -1585,6 +1589,7 @@ export type TicketSource =
   | 'mystery_box'
   | 'event_entry'
   | 'chip_use'
+  | 'chip_refund'
   | 'live_prediction'
   | 'admin_grant';
 
@@ -1714,4 +1719,32 @@ export type MysteryBoxResult = {
   cosmetic_id: string | null;
   ticket_cost: number;
   opened_at: string;
+};
+
+// ============================================
+// CHIP TYPES (Gamification v5 Phase C)
+// ============================================
+
+export type ChipType = 'triple_captain' | 'synergy_surge' | 'second_chance' | 'wildcard';
+
+export type DbChipUsage = {
+  id: string;
+  user_id: string;
+  event_id: string;
+  chip_type: ChipType;
+  activated_at: string;
+  deactivated_at: string | null;
+  is_active: boolean;
+  season: string;
+};
+
+export type ChipDefinition = {
+  type: ChipType;
+  name_de: string;
+  name_tr: string;
+  cost_tickets: number;
+  season_limit: number;
+  description_de: string;
+  description_tr: string;
+  icon: string;
 };

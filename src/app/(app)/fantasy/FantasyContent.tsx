@@ -110,6 +110,8 @@ function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userLineup?:
       { rank: 'Top 10', reward: 'Gold Frame' },
     ],
     rewardStructure: db.reward_structure ?? null,
+    scope: db.scope ?? 'global',
+    lineupSize: db.lineup_size ?? (db.format === '11er' || db.format === '11er-reserve' ? 11 : 7),
   };
 }
 
