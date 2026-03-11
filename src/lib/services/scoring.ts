@@ -69,7 +69,15 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
             'event'
           );
         }
-      } catch (err) { console.error('[Scoring] Post-score notification failed:', err); }
+        // Recalculate fan-ranks for club-scoped events
+        const { data: evtDetail } = await supabase.from('events').select('scope, club_id').eq('id', eventId).single();
+        if (evtDetail?.scope === 'club' && evtDetail.club_id) {
+          const { recalculateFanRank } = await import('@/lib/services/fanRanking');
+          for (const entry of lb) {
+            recalculateFanRank(entry.userId, evtDetail.club_id).catch(() => {});
+          }
+        }
+      } catch (err) { console.error('[Scoring] Post-score notification/fan-rank failed:', err); }
     })();
   }
 

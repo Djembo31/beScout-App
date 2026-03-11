@@ -95,7 +95,7 @@ export const EventDetailModal = ({
       setScoringJustFinished(false);
       setShowJoinConfirm(false);
       // Reset formation to match event format (6er vs 11er)
-      setSelectedFormation(getDefaultFormation(event.format));
+      setSelectedFormation(getDefaultFormation(event.format, event.lineupSize));
       setSelectedPlayers([]);
     }
   }, [isOpen, event?.id]);
@@ -193,12 +193,12 @@ export const EventDetailModal = ({
             setSelectedPlayers(finalLineup);
           } else {
             setSelectedPlayers([]);
-            setSelectedFormation(getDefaultFormation(event.format));
+            setSelectedFormation(getDefaultFormation(event.format, event.lineupSize));
             setSlotScores(null);
           }
         }).catch(() => {
           setSelectedPlayers([]);
-          setSelectedFormation(getDefaultFormation(event.format));
+          setSelectedFormation(getDefaultFormation(event.format, event.lineupSize));
           setSlotScores(null);
         });
       } else {
@@ -242,8 +242,8 @@ export const EventDetailModal = ({
 
   // Formation data — only recalculates when format or selection changes
   const availableFormations = useMemo(
-    () => getFormationsForFormat(event?.format ?? '6er'),
-    [event?.format]
+    () => getFormationsForFormat(event?.format ?? '6er', event?.lineupSize),
+    [event?.format, event?.lineupSize]
   );
 
   const currentFormation = useMemo(
@@ -322,11 +322,13 @@ export const EventDetailModal = ({
     };
     const validPos = posMap[position] || [position];
     const usedIds = new Set(selectedPlayers.map(p => p.playerId));
+    const isClubScoped = event?.scope === 'club' && event?.clubId;
     const players = effectiveHoldings.filter(h =>
       validPos.some(vp => h.pos.toUpperCase().includes(vp)) && !usedIds.has(h.id) && !h.isLocked && !isPlayerLocked(h.id)
+      && (!isClubScoped || h.clubId === event.clubId)
     );
     return [...players].sort((a, b) => b.perfL5 - a.perfL5);
-  }, [selectedPlayers, effectiveHoldings, isPlayerLocked]);
+  }, [selectedPlayers, effectiveHoldings, isPlayerLocked, event?.scope, event?.clubId]);
 
   // Stable handler refs — prevent child re-renders
   const handleSelectPlayer = useCallback((playerId: string, position: string, slot: number) => {
