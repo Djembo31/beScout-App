@@ -977,6 +977,45 @@ export async function GET(request: Request) {
       transitioned: eventsTransitioned,
     });
 
+    // ---- 9a. Recalculate fan rankings for scored event participants ----
+    if (eventsScored > 0) {
+      await runStep('fan_rank_update', async () => {
+        let ranksUpdated = 0;
+        for (const club of clubsToProcess) {
+          // Get all scored events for this GW
+          const { data: scoredEvents } = await supabaseAdmin
+            .from('events')
+            .select('id')
+            .eq('club_id', club.id)
+            .eq('gameweek', activeGw)
+            .not('scored_at', 'is', null);
+
+          if (!scoredEvents || scoredEvents.length === 0) continue;
+
+          // Get unique participants across all scored events
+          const eventIds = scoredEvents.map(e => e.id);
+          const { data: lineups } = await supabaseAdmin
+            .from('lineups')
+            .select('user_id')
+            .in('event_id', eventIds);
+
+          const uniqueUsers = Array.from(new Set((lineups ?? []).map(l => l.user_id)));
+
+          // Recalculate fan rank for each participant
+          for (const uid of uniqueUsers) {
+            const { error } = await supabaseAdmin.rpc('calculate_fan_rank', {
+              p_user_id: uid,
+              p_club_id: club.id,
+            });
+            if (!error) ranksUpdated++;
+          }
+        }
+        return { ranksUpdated };
+      });
+
+      await logStep(activeGw, 'fan_rank_update', 'success');
+    }
+
     // ---- 9b. Resolve predictions ----
     await runStep('resolve_predictions', async () => {
       // Use admin client — predictions.resolvePredictions uses user-auth client and checks status='finished'

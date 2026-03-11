@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Gift, Loader2, RefreshCw, Search, Crown, AlertCircle, ShieldAlert } from 'lucide-react';
 import { Card, Button, StatCard } from '@/components/ui';
 import FoundingPassBadge from '@/components/ui/FoundingPassBadge';
@@ -8,6 +8,8 @@ import { useToast } from '@/components/providers/ToastProvider';
 import { cn, fmtScout } from '@/lib/utils';
 import { FOUNDING_PASS_TIERS } from '@/lib/foundingPasses';
 import type { FoundingPassTier, DbUserFoundingPass } from '@/types';
+
+type UserSearchResult = { id: string; username: string; avatar_url: string | null };
 
 const KILL_SWITCH_LIMIT_EUR = 900_000;
 
@@ -45,10 +47,53 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
 
   // Grant form state
   const [grantUserId, setGrantUserId] = useState('');
+  const [grantUsername, setGrantUsername] = useState('');
   const [grantTier, setGrantTier] = useState<FoundingPassTier>('fan');
   const [grantRef, setGrantRef] = useState('');
   const [granting, setGranting] = useState(false);
   const [grantError, setGrantError] = useState('');
+
+  // User search
+  const [userQuery, setUserQuery] = useState('');
+  const [userResults, setUserResults] = useState<UserSearchResult[]>([]);
+  const [userSearching, setUserSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const searchUsers = useCallback(async (q: string) => {
+    if (q.length < 2) { setUserResults([]); return; }
+    setUserSearching(true);
+    try {
+      const { supabase } = await import('@/lib/supabaseClient');
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, username, avatar_url')
+        .ilike('username', `%${q}%`)
+        .limit(8);
+      setUserResults((data ?? []) as UserSearchResult[]);
+      setShowDropdown(true);
+    } catch (err) {
+      console.error('[Admin] User search failed:', err);
+    } finally {
+      setUserSearching(false);
+    }
+  }, []);
+
+  const handleUserQueryChange = useCallback((val: string) => {
+    setUserQuery(val);
+    setGrantUserId('');
+    setGrantUsername('');
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => searchUsers(val), 300);
+  }, [searchUsers]);
+
+  const selectUser = useCallback((u: UserSearchResult) => {
+    setGrantUserId(u.id);
+    setGrantUsername(u.username);
+    setUserQuery(u.username);
+    setShowDropdown(false);
+    setUserResults([]);
+  }, []);
 
   const loadData = useCallback(async () => {
     try {
@@ -111,8 +156,10 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
         setGrantError(msg);
         return;
       }
-      addToast(`${grantTier.toUpperCase()} Pass vergeben — ${fmtScout(result.bcreditsGranted ?? 0)} bCredits`, 'success');
+      addToast(`${grantTier.toUpperCase()} Pass vergeben an ${grantUsername || grantUserId.slice(0, 8)} — ${fmtScout(result.bcreditsGranted ?? 0)} bCredits`, 'success');
       setGrantUserId('');
+      setGrantUsername('');
+      setUserQuery('');
       setGrantRef('');
       await loadData();
     } catch (err) {
@@ -206,19 +253,39 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
       <Card className="p-4 space-y-3">
         <div className="text-xs font-bold text-white/50 uppercase">Founding Pass vergeben</div>
         <div className="flex flex-wrap gap-3 items-end">
-          <div className="flex-1 min-w-[200px]">
-            <label className="text-[11px] text-white/40 mb-1 block">User-ID (UUID)</label>
+          <div className="flex-1 min-w-[200px] relative">
+            <label className="text-[11px] text-white/40 mb-1 block">User suchen</label>
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-white/30" aria-hidden="true" />
               <input
                 type="text"
-                value={grantUserId}
-                onChange={e => setGrantUserId(e.target.value)}
-                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                aria-label="User-ID eingeben"
+                value={userQuery}
+                onChange={e => handleUserQueryChange(e.target.value)}
+                onFocus={() => { if (userResults.length > 0) setShowDropdown(true); }}
+                onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                placeholder="Username eingeben..."
+                aria-label="User suchen"
                 className="w-full pl-8 pr-3 py-2 text-sm bg-white/[0.04] border border-white/10 rounded-lg text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-gold/50"
               />
+              {userSearching && <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 size-3.5 animate-spin motion-reduce:animate-none text-white/30" />}
             </div>
+            {grantUserId && (
+              <div className="text-[10px] text-green-400/70 mt-1 font-mono truncate">{grantUsername} ({grantUserId.slice(0, 8)}...)</div>
+            )}
+            {showDropdown && userResults.length > 0 && (
+              <div className="absolute z-20 left-0 right-0 top-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl max-h-48 overflow-y-auto">
+                {userResults.map(u => (
+                  <button
+                    key={u.id}
+                    onMouseDown={() => selectUser(u)}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/[0.06] transition-colors text-left"
+                  >
+                    <span className="truncate">{u.username}</span>
+                    <span className="text-[10px] text-white/30 font-mono ml-auto flex-shrink-0">{u.id.slice(0, 8)}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <div className="w-32">
             <label className="text-[11px] text-white/40 mb-1 block">Tier</label>
