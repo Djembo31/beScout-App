@@ -2,10 +2,9 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ErrorState, Button } from '@/components/ui';
+import { ErrorState } from '@/components/ui';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
-import { useWallet } from '@/components/providers/WalletProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { centsToBsd } from '@/lib/services/players';
 import { fmtScout } from '@/lib/utils';
@@ -13,7 +12,7 @@ import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import {
   Clock, Trophy, Users, Rocket,
-  Shield, Compass, Gift,
+  Shield, Compass,
 } from 'lucide-react';
 
 // ── React Query Hooks ──
@@ -22,8 +21,6 @@ import {
   useHoldings,
   useEvents,
   useUserStats,
-  useScoutScores,
-  useRecentGlobalTrades,
   useTrendingPlayers,
   qk,
 } from '@/lib/queries';
@@ -38,20 +35,11 @@ import { openMysteryBox } from '@/lib/services/mysteryBox';
 // ── Home Components ──
 import HomeStoryHeader from '@/components/home/HomeStoryHeader';
 import HomeSpotlight from '@/components/home/HomeSpotlight';
-import LiveTicker from '@/components/home/LiveTicker';
 import PortfolioStrip from '@/components/home/PortfolioStrip';
 import DiscoveryCard from '@/components/market/DiscoveryCard';
 import { updateLoginStreak, STREAK_KEY, SectionHeader, formatPrize, getTimeUntil, getStoryMessage } from '@/components/home/helpers';
 
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
-  ssr: false,
-  loading: () => <div className="h-16 rounded-2xl bg-white/[0.02] animate-pulse" />,
-});
-const OnboardingChecklist = dynamic(() => import('@/components/onboarding/OnboardingChecklist'), {
-  ssr: false,
-  loading: () => <div className="h-24 rounded-2xl bg-white/[0.02] animate-pulse" />,
-});
-const MissionBanner = dynamic(() => import('@/components/missions/MissionBanner'), {
   ssr: false,
   loading: () => <div className="h-16 rounded-2xl bg-white/[0.02] animate-pulse" />,
 });
@@ -86,8 +74,6 @@ export default function HomePage() {
   const { data: rawHoldings = [] } = useHoldings(uid);
   const { data: events = [] } = useEvents();
   const { data: userStats = null } = useUserStats(uid);
-  const { data: scoutScores = null } = useScoutScores(uid);
-  const { data: globalTrades = [] } = useRecentGlobalTrades(5);
   const { data: trendingPlayers = [] } = useTrendingPlayers(5);
 
   // ── Gamification v5 Hooks ──
@@ -235,7 +221,7 @@ export default function HomePage() {
   return (
     <div className="max-w-[1200px] mx-auto space-y-4 md:space-y-6">
 
-      {/* 1. Story Header — Greeting + Narrative + Compact Stats */}
+      {/* ── 1. HERO HEADER — Greeting + Stats ── */}
       <HomeStoryHeader
         loading={loading}
         firstName={firstName}
@@ -249,7 +235,7 @@ export default function HomePage() {
         storyMessage={storyMessage}
       />
 
-      {/* 2. Spotlight — One Focus Card */}
+      {/* ── 1b. SPOTLIGHT — Context-aware hero card ── */}
       {playersLoading ? (
         <div className="h-40 bg-surface-base border border-white/10 rounded-2xl animate-pulse" />
       ) : (
@@ -262,12 +248,12 @@ export default function HomePage() {
         />
       )}
 
-      {/* 3. Onboarding — Only for new users */}
-      {uid && <OnboardingChecklist userId={uid} name={firstName} />}
+      {/* ── 2. PORTFOLIO STRIP — Top holdings ── */}
+      <PortfolioStrip holdings={holdings} />
 
-      {/* 3b. Daily Challenge + Mystery Box — Gamification v5 */}
+      {/* ── 3. ENGAGEMENT ZONE — Daily Challenge + Mystery Box ── */}
       {uid && (
-        <div className="space-y-3">
+        <>
           <DailyChallengeCard
             challenge={todaysChallenge}
             userAnswer={todaysAnswer ? {
@@ -279,20 +265,9 @@ export default function HomePage() {
             isSubmitting={isSubmitting}
             streakDays={streak}
             isLoading={challengeLoading}
+            ticketBalance={ticketData?.balance ?? 0}
+            onOpenMysteryBox={() => setShowMysteryBox(true)}
           />
-
-          {/* Mystery Box Trigger */}
-          <div className="flex justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowMysteryBox(true)}
-              className="gap-1.5"
-            >
-              <Gift className="size-3.5 text-gold" />
-              Mystery Box
-            </Button>
-          </div>
 
           <MysteryBoxModal
             open={showMysteryBox}
@@ -300,18 +275,113 @@ export default function HomePage() {
             onOpen={handleOpenMysteryBox}
             ticketBalance={ticketData?.balance ?? 0}
           />
-        </div>
+        </>
       )}
 
-      {/* 4. Live Ticker — Social Proof */}
-      <LiveTicker trades={globalTrades} />
+      {/* ── 4. DYNAMIC FEED — Event/IPO + Trending ── */}
+      {playersLoading ? (
+        <div className="h-24 bg-surface-base border border-white/10 rounded-2xl animate-pulse" />
+      ) : (
+        <>
+          {nextEvent && spotlightType !== 'event' && (
+            <div>
+              <SectionHeader
+                title={t('nextEvent')}
+                href="/fantasy"
+                badge={
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-400/25">
+                    <Clock className="size-3 text-purple-400" />
+                    <span className="text-[11px] font-bold text-purple-300">
+                      {nextEvent.status === 'running' ? getTimeUntil(nextEvent.ends_at) : getTimeUntil(nextEvent.starts_at)}
+                    </span>
+                  </span>
+                }
+              />
+              <Link href="/fantasy" className="block mt-3">
+                <div className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-purple-500/10 shadow-lg">
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Trophy className="size-4 text-purple-400" />
+                          <span className="text-[11px] font-black uppercase text-purple-400">{nextEvent.format}</span>
+                        </div>
+                        <h3 className="text-base md:text-lg font-black text-balance">{nextEvent.name}</h3>
+                        <div className="flex items-center gap-3 mt-1 text-xs text-white/50">
+                          <span className="flex items-center gap-1">
+                            <Users className="size-3.5" />
+                            {nextEvent.current_entries}/{nextEvent.max_entries ?? '\u221E'}
+                          </span>
+                          <span>{t('entryLabel')}{nextEvent.entry_fee === 0 ? t('entryFree') : `${fmtScout(centsToBsd(nextEvent.entry_fee))} bCredits`}</span>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-[11px] text-white/40 mb-0.5">{t('prizeMoney')}</div>
+                        <div className="text-xl md:text-2xl font-black font-mono tabular-nums text-gold">
+                          {formatPrize(centsToBsd(nextEvent.prize_pool))}
+                        </div>
+                        <div className="text-[11px] text-white/40">bCredits</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          )}
 
-      {/* 5. Portfolio Strip — Top 3 Holdings as Cards */}
-      <PortfolioStrip holdings={holdings} />
+          {activeIPOs.length > 0 && spotlightType !== 'ipo' && (
+            <Link href={`/player/${activeIPOs[0].id}`} className="block">
+              <div className="relative overflow-hidden rounded-2xl border border-green-500/30 bg-green-500/10">
+                <div className="relative flex items-center justify-between p-4 gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-center justify-center size-10 rounded-2xl bg-green-500/15 border border-green-500/25 shrink-0">
+                      <Rocket className="size-5 text-green-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-[11px] font-black uppercase text-green-500">{t('liveIPO')}</span>
+                        <span className="relative flex size-2.5">
+                          <span className="animate-ping motion-reduce:animate-none absolute inline-flex size-full rounded-full bg-green-500 opacity-75" />
+                          <span className="relative inline-flex rounded-full size-2.5 bg-green-500" />
+                        </span>
+                      </div>
+                      <div className="font-black text-sm truncate">
+                        {activeIPOs.map((p) => `${p.first} ${p.last}`).join(', ')}
+                      </div>
+                      <div className="text-xs text-white/50 truncate">
+                        {activeIPOs[0].club} · {activeIPOs[0].ipo.progress}% {t('sold')}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <div className="font-mono font-black text-gold text-lg">{activeIPOs[0].ipo.price}</div>
+                    <div className="text-[11px] text-white/40">bCredits/DPC</div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          )}
 
-      <SponsorBanner placement="home_hero" />
+          {trendingWithPlayers.length > 0 && (
+            <div>
+              <SectionHeader title={t('marketPulse')} href="/market" />
+              <div className="mt-3 flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+                {trendingWithPlayers.map(({ tp, player }) => (
+                  <DiscoveryCard
+                    key={player.id}
+                    player={player}
+                    variant="trending"
+                    tradeCount={tp.tradeCount}
+                    change24h={tp.change24h}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
-      {/* 6. Meine Vereine */}
+      {/* ── 5. MY CLUBS — Conditional ── */}
       {followedClubs.length > 0 && (
         <div>
           <SectionHeader title={t('myClubs')} href="/clubs" />
@@ -333,7 +403,7 @@ export default function HomePage() {
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs font-bold truncate max-w-[100px]">{club.name}</div>
-                    <div className="text-[10px] text-white/30">{club.league}</div>
+                    <div className="text-[11px] text-white/30">{club.league}</div>
                   </div>
                 </Link>
               );
@@ -346,119 +416,7 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* 7. Event + IPO (only if NOT already shown in Spotlight) */}
-      {playersLoading ? (
-        <div className="h-24 bg-surface-base border border-white/10 rounded-2xl animate-pulse" />
-      ) : (
-        <>
-          {nextEvent && spotlightType !== 'event' && (
-            <div>
-              <SectionHeader
-                title={t('nextEvent')}
-                href="/fantasy"
-                badge={
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-400/25">
-                    <Clock className="size-3 text-purple-400" />
-                    <span className="text-[10px] font-bold text-purple-300">
-                      {nextEvent.status === 'running' ? getTimeUntil(nextEvent.ends_at) : getTimeUntil(nextEvent.starts_at)}
-                    </span>
-                  </span>
-                }
-              />
-              <Link href="/fantasy" className="block mt-3">
-                <div className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-purple-500/10 shadow-lg">
-                  <div className="p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Trophy className="size-4 text-purple-400" />
-                          <span className="text-[10px] font-black uppercase text-purple-400">{nextEvent.format}</span>
-                        </div>
-                        <h3 className="text-base md:text-lg font-black text-balance">{nextEvent.name}</h3>
-                        <div className="flex items-center gap-3 mt-1 text-xs text-white/50">
-                          <span className="flex items-center gap-1">
-                            <Users className="size-3.5" />
-                            {nextEvent.current_entries}/{nextEvent.max_entries ?? '\u221E'}
-                          </span>
-                          <span>{t('entryLabel')}{nextEvent.entry_fee === 0 ? t('entryFree') : `${fmtScout(centsToBsd(nextEvent.entry_fee))} bCredits`}</span>
-                        </div>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <div className="text-[10px] text-white/40 mb-0.5">{t('prizeMoney')}</div>
-                        <div className="text-xl md:text-2xl font-black font-mono tabular-nums text-gold">
-                          {formatPrize(centsToBsd(nextEvent.prize_pool))}
-                        </div>
-                        <div className="text-[10px] text-white/40">bCredits</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          )}
-
-          {/* IPO Banner only if Spotlight doesn't already show it */}
-          {activeIPOs.length > 0 && spotlightType !== 'ipo' && (
-            <Link href={`/player/${activeIPOs[0].id}`} className="block">
-              <div className="relative overflow-hidden rounded-2xl border border-green-500/30 bg-green-500/10">
-                <div className="relative flex items-center justify-between p-4 gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex items-center justify-center size-10 rounded-2xl bg-green-500/15 border border-green-500/25 shrink-0">
-                      <Rocket className="size-5 text-green-500" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[10px] font-black uppercase text-green-500">{t('liveIPO')}</span>
-                        <span className="relative flex size-2.5">
-                          <span className="animate-ping motion-reduce:animate-none absolute inline-flex size-full rounded-full bg-green-500 opacity-75" />
-                          <span className="relative inline-flex rounded-full size-2.5 bg-green-500" />
-                        </span>
-                      </div>
-                      <div className="font-black text-sm truncate">
-                        {activeIPOs.map((p) => `${p.first} ${p.last}`).join(', ')}
-                      </div>
-                      <div className="text-xs text-white/50 truncate">
-                        {activeIPOs[0].club} · {activeIPOs[0].ipo.progress}% {t('sold')}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <div className="font-mono font-black text-gold text-lg">{activeIPOs[0].ipo.price}</div>
-                    <div className="text-[10px] text-white/40">bCredits/DPC</div>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          )}
-        </>
-      )}
-
-      {/* 8. Markt-Puls — Trending Players */}
-      {playersLoading ? (
-        <div className="h-32 bg-surface-base border border-white/10 rounded-2xl animate-pulse" />
-      ) : trendingWithPlayers.length > 0 && (
-        <>
-          <div className="floodlight-divider" />
-          <div>
-            <SectionHeader title={t('marketPulse')} href="/market" />
-            <div className="mt-3 flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-              {trendingWithPlayers.map(({ tp, player }) => (
-                <DiscoveryCard
-                  key={player.id}
-                  player={player}
-                  variant="trending"
-                  tradeCount={tp.tradeCount}
-                  change24h={tp.change24h}
-                />
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* 9. Missions — Default Collapsed */}
-      {uid && <MissionBanner />}
-
+      {/* ── 6. SPONSOR — Single footer placement ── */}
       <SponsorBanner placement="home_mid" />
     </div>
   );

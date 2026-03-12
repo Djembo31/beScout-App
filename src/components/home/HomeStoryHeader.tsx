@@ -43,7 +43,7 @@ export default function HomeStoryHeader({
       <div className="flex items-center justify-between">
         <div className="relative">
           <div className="absolute -inset-6 bg-gold/[0.10] rounded-full blur-2xl -z-10" />
-          <div className="text-xs text-white/40" suppressHydrationWarning>{t(greetingKey)},</div>
+          <div className="text-sm text-white/40" suppressHydrationWarning>{t(greetingKey)},</div>
           <h1 className="text-2xl md:text-3xl font-black tracking-tight">
             {loading ? '...' : firstName}
             <span className="text-gold">.</span>
@@ -60,7 +60,7 @@ export default function HomeStoryHeader({
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-400/20 anim-fade">
               <Flame className="size-4 text-orange-400" />
               <span className="text-sm font-black text-orange-300">{streak}</span>
-              <span className="text-[10px] text-orange-400/60 hidden sm:inline">{t('streakDays')}</span>
+              <span className="text-[11px] text-orange-400/60 hidden sm:inline">{t('streakDays')}</span>
             </div>
           )}
           {shieldsRemaining != null && shieldsRemaining > 0 && (
@@ -82,7 +82,7 @@ export default function HomeStoryHeader({
           className="flex flex-col items-center justify-center py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-colors"
         >
           <span className="font-mono font-black text-sm gold-glow">{fmtScout(portfolioValue)}</span>
-          <span className="text-[9px] text-white/40 uppercase font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('portfolioRoster')} <InfoTooltip text={t('portfolioRosterTooltip')} /></span>
+          <span className="text-[11px] text-white/40 uppercase font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('portfolioRoster')} <InfoTooltip text={t('portfolioRosterTooltip')} /></span>
         </Link>
 
         <div className={cn(
@@ -97,12 +97,12 @@ export default function HomeStoryHeader({
               {pnlPositive ? '+' : ''}{pnlPct.toFixed(1)}%
             </span>
           </div>
-          <span className="text-[9px] text-white/40 uppercase font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('pnl')} <InfoTooltip text={t('pnlTooltip')} /></span>
+          <span className="text-[11px] text-white/40 uppercase font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('pnl')} <InfoTooltip text={t('pnlTooltip')} /></span>
         </div>
 
         <div className="flex flex-col items-center justify-center py-2.5 bg-surface-base border border-white/[0.08] rounded-xl">
           <span className="font-mono font-bold text-sm text-white">{holdingsCount}</span>
-          <span className="text-[9px] text-white/40 uppercase font-semibold mt-0.5">{t('players')}</span>
+          <span className="text-[11px] text-white/40 uppercase font-semibold mt-0.5">{t('players')}</span>
         </div>
       </div>
     </div>

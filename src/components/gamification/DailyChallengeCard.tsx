@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Zap, Check, X as XIcon, Ticket, Flame, AlertCircle } from 'lucide-react';
+import { Zap, Check, X as XIcon, Ticket, Flame, AlertCircle, Gift } from 'lucide-react';
 import { Card, Button, Skeleton } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
@@ -22,6 +22,10 @@ interface DailyChallengeCardProps {
   isSubmitting?: boolean;
   streakDays?: number;
   isLoading?: boolean;
+  /** Ticket balance for footer row */
+  ticketBalance?: number;
+  /** Opens mystery box modal */
+  onOpenMysteryBox?: () => void;
 }
 
 export default function DailyChallengeCard({
@@ -31,6 +35,8 @@ export default function DailyChallengeCard({
   isSubmitting = false,
   streakDays = 0,
   isLoading = false,
+  ticketBalance = 0,
+  onOpenMysteryBox,
 }: DailyChallengeCardProps) {
   const t = useTranslations('gamification');
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
@@ -55,8 +61,8 @@ export default function DailyChallengeCard({
     );
   }
 
-  // No challenge today
-  if (!challenge) {
+  // No challenge today (or malformed data)
+  if (!challenge || !Array.isArray(challenge.options)) {
     return (
       <Card className="p-4 md:p-5 border-white/[0.08]">
         <div className="flex items-center gap-2 mb-2">
@@ -64,6 +70,23 @@ export default function DailyChallengeCard({
           <span className="font-black text-sm text-white/50">{t('dailyChallenge')}</span>
         </div>
         <p className="text-sm text-white/30">{t('noChallengeToday')}</p>
+        {onOpenMysteryBox && (
+          <div className="mt-3 pt-3 border-t border-white/[0.06] flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-[11px] text-white/50">
+              <Ticket className="size-3.5 text-gold/60" />
+              <span className="font-mono font-bold text-white/70">{ticketBalance}</span>
+              {' '}{t('tickets')}
+            </span>
+            <button
+              onClick={onOpenMysteryBox}
+              disabled={isSubmitting}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold/[0.08] border border-gold/15 text-[11px] font-bold text-gold hover:bg-gold/[0.12] active:scale-[0.97] transition-all disabled:opacity-50 disabled:pointer-events-none"
+            >
+              <Gift className="size-3.5" />
+              {t('mysteryBox')}
+            </button>
+          </div>
+        )}
       </Card>
     );
   }
@@ -116,7 +139,7 @@ export default function DailyChallengeCard({
           <span className="font-black text-sm">{t('dailyChallenge')}</span>
         </div>
         {!hasAnswered && (
-          <span className="text-[10px] font-mono tabular-nums text-gold/60 flex items-center gap-1">
+          <span className="text-[11px] font-mono tabular-nums text-gold/60 flex items-center gap-1">
             <Ticket className="size-3" />
             +{challenge.reward_correct}
           </span>
@@ -195,6 +218,25 @@ export default function DailyChallengeCard({
           {streakRemaining > 0 && streakRemaining < streakBonusThreshold && (
             <span>{t('streakBonus', { remaining: streakRemaining })}</span>
           )}
+        </div>
+      )}
+
+      {/* Footer — Ticket Balance + Mystery Box */}
+      {onOpenMysteryBox && (
+        <div className="mt-3 pt-3 border-t border-white/[0.06] flex items-center justify-between">
+          <span className="flex items-center gap-1.5 text-[11px] text-white/50">
+            <Ticket className="size-3.5 text-gold/60" />
+            <span className="font-mono font-bold text-white/70">{ticketBalance}</span>
+            {' '}{t('tickets')}
+          </span>
+          <button
+            onClick={onOpenMysteryBox}
+            disabled={isSubmitting}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold/[0.08] border border-gold/15 text-[11px] font-bold text-gold hover:bg-gold/[0.12] active:scale-[0.97] transition-all disabled:opacity-50 disabled:pointer-events-none"
+          >
+            <Gift className="size-3.5" />
+            {t('mysteryBox')}
+          </button>
         </div>
       )}
     </Card>

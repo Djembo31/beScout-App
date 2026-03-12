@@ -2390,6 +2390,7 @@
     "correct": "Doğru!",
     "wrong": "Maalesef yanlış",
     "ticketsEarned": "+{amount} Bilet",
+    "tickets": "Bilet",
     "streakDays": "{days} Gün Üst Üste",
     "streakBonus": "Ücretsiz Gizem Kutusuna {remaining} kaldı",
     "fanRank": "Fan Sıralaması",

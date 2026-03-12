@@ -76,13 +76,13 @@ export default function PortfolioStrip({ holdings }: PortfolioStripProps) {
                   {fmtScout(h.floor)}
                 </span>
                 <span className={cn(
-                  'text-[10px] font-mono font-bold',
+                  'text-[11px] font-mono font-bold',
                   h.change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red'
                 )} style={{ textShadow: h.change24h >= 5 ? '0 0 8px rgba(0,230,118,0.4)' : undefined }}>
                   {h.change24h >= 0 ? '+' : ''}{h.change24h.toFixed(1)}%
                 </span>
               </div>
-              <div className="text-[9px] text-white/30 mt-1 font-mono">{h.qty} DPC</div>
+              <div className="text-[11px] text-white/30 mt-1 font-mono">{h.qty} DPC</div>
             </Link>
           );
         })}
@@ -92,7 +92,7 @@ export default function PortfolioStrip({ holdings }: PortfolioStripProps) {
             className="flex-shrink-0 w-[100px] flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-surface-base hover:bg-surface-elevated transition-colors"
           >
             <ChevronRight className="size-5 text-gold mb-1" />
-            <span className="text-[10px] text-gold font-bold">+{holdings.length - 6}</span>
+            <span className="text-[11px] text-gold font-bold">+{holdings.length - 6}</span>
           </Link>
         )}
       </div>

@@ -2398,6 +2398,7 @@
     "correct": "Richtig!",
     "wrong": "Leider falsch",
     "ticketsEarned": "+{amount} Tickets",
+    "tickets": "Tickets",
     "streakDays": "{days} Tage in Folge",
     "streakBonus": "Noch {remaining} bis gratis Mystery Box",
     "fanRank": "Fan-Rang",
