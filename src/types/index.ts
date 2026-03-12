@@ -1613,7 +1613,14 @@ export type TicketSource =
   | 'chip_use'
   | 'chip_refund'
   | 'live_prediction'
-  | 'admin_grant';
+  | 'admin_grant'
+  | 'post_create'
+  | 'research_publish'
+  | 'upvote_milestone'
+  | 'research_rating'
+  | 'follow_milestone'
+  | 'poll_create'
+  | 'post_boost';
 
 export type DbUserTickets = {
   user_id: string;

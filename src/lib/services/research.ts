@@ -211,6 +211,10 @@ export async function createResearchPost(params: {
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(params.userId, 'research_create', 'community', { researchId: data.id, title: params.title, call: params.call });
   }).catch(err => console.error('[Research] Activity log failed:', err));
+  // Fire-and-forget: Credit tickets for research publication
+  import('@/lib/services/tickets').then(({ creditTickets }) => {
+    creditTickets(params.userId, 10, 'research_publish', data.id).catch(console.error);
+  }).catch(console.error);
   return data as DbResearchPost;
 }
 
@@ -314,7 +318,7 @@ export async function rateResearch(
     import('@/lib/services/activityLog').then(({ logActivity }) => {
       logActivity(userId, 'research_rate', 'community', { researchId, rating });
     }).catch(err => console.error('[Research] Rate activity log failed:', err));
-    // Notify author
+    // Notify author + credit tickets for high ratings
     (async () => {
       try {
         const { data: post } = await supabase
@@ -332,6 +336,12 @@ export async function rateResearch(
             researchId,
             'research'
           );
+          // Fire-and-forget: Credit author tickets for rating 4.0+
+          if (rating >= 4) {
+            import('@/lib/services/tickets').then(({ creditTickets }) => {
+              creditTickets(post.user_id, 5, 'research_rating', researchId, 'Rating 4.0+ received').catch(console.error);
+            }).catch(console.error);
+          }
         }
       } catch (err) { console.error('[Research] Rating notification failed:', err); }
     })();

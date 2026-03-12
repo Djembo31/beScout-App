@@ -161,6 +161,10 @@ export async function createPost(
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'post_create', 'community', { postId: data.id, category });
   }).catch(err => console.error('[Posts] Create activity log failed:', err));
+  // Fire-and-forget: Credit tickets for post creation
+  import('@/lib/services/tickets').then(({ creditTickets }) => {
+    creditTickets(userId, 3, 'post_create', data.id).catch(console.error);
+  }).catch(console.error);
   return data as DbPost;
 }
 
