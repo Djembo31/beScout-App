@@ -5,6 +5,33 @@ import { useTranslations } from 'next-intl';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
 
+const RECOVERY_KEY = 'bescout-error-recovery';
+
+/** Detect stale-code crashes and auto-recover by clearing SW cache + reload */
+async function attemptStaleCodeRecovery(): Promise<boolean> {
+  // Only attempt once per session to avoid infinite reload loops
+  try {
+    if (sessionStorage.getItem(RECOVERY_KEY)) return false;
+    sessionStorage.setItem(RECOVERY_KEY, '1');
+  } catch { return false; }
+
+  // Clear all service worker caches
+  if ('caches' in window) {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k => caches.delete(k)));
+  }
+
+  // Unregister service workers so stale HTML is never served again
+  if ('serviceWorker' in navigator) {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(registrations.map(r => r.unregister()));
+  }
+
+  // Hard reload to get fresh HTML + JS from server
+  window.location.reload();
+  return true;
+}
+
 export default function AppError({
   error,
   reset,
@@ -16,6 +43,11 @@ export default function AppError({
 
   useEffect(() => {
     console.error('App error:', error);
+
+    // Auto-recover from stale chunk errors (TypeError during render)
+    if (error instanceof TypeError) {
+      attemptStaleCodeRecovery();
+    }
   }, [error]);
 
   return (

@@ -18,7 +18,11 @@ export async function getTodaysChallenge(): Promise<DbDailyChallenge | null> {
 
   // Handle both single-row and array responses from Supabase
   const row = Array.isArray(data) ? data[0] : data;
-  return (row as DbDailyChallenge) ?? null;
+  if (!row) return null;
+  // Validate options array — malformed data must not reach the component
+  const challenge = row as DbDailyChallenge;
+  if (!Array.isArray(challenge.options)) return null;
+  return challenge;
 }
 
 /** Submit an answer for today's challenge */

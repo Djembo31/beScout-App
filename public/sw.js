@@ -1,5 +1,5 @@
 // BeScout Service Worker — App Shell caching + push notifications
-const CACHE_NAME = 'bescout-v2';
+const CACHE_NAME = 'bescout-v3';
 const API_CACHE_NAME = 'bescout-api-v1';
 // Only pre-cache the offline fallback page — NOT HTML routes.
 // HTML routes change on every deploy; caching them causes stale content.
@@ -24,20 +24,11 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    Promise.all([
-      // Clean old cache versions
-      caches.keys().then((keys) =>
-        Promise.all(keys.filter((k) => k !== CACHE_NAME && k !== API_CACHE_NAME).map((k) => caches.delete(k)))
-      ),
-      // Keep API cache size manageable — max 100 entries
-      caches.open(API_CACHE_NAME).then((cache) =>
-        cache.keys().then((keys) => {
-          if (keys.length > 100) {
-            return Promise.all(keys.slice(0, keys.length - 100).map((key) => cache.delete(key)));
-          }
-        })
-      ),
-    ])
+    // Delete ALL old caches — forces fresh content after deploy.
+    // This is aggressive but prevents stale HTML/JS chunk mismatches.
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE_NAME && k !== API_CACHE_NAME).map((k) => caches.delete(k)))
+    )
   );
   self.clients.claim();
 });
