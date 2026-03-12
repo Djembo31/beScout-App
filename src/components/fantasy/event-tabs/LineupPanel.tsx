@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import {
   Trophy, Crown,
@@ -47,6 +47,8 @@ export interface LineupPanelProps {
   setCaptainSlot: (slot: string | null) => void;
   // Synergy
   synergyPreview: { totalPct: number; details: SynergyDetail[] };
+  // DPC Ownership bonus — all player IDs the user owns DPCs for
+  ownedPlayerIds?: Set<string>;
   // Lineup state
   isLineupComplete: boolean;
   reqCheck: { ok: boolean; message: string };
@@ -87,6 +89,7 @@ export default function LineupPanel({
   captainSlot,
   setCaptainSlot,
   synergyPreview,
+  ownedPlayerIds,
   isLineupComplete,
   reqCheck,
   isPartiallyLocked,
@@ -105,6 +108,19 @@ export default function LineupPanel({
   const t = useTranslations('fantasy');
   const tsp = useTranslations('sponsor');
   const locale = useLocale();
+
+  // DPC Ownership bonus — capped at 3 players per lineup
+  const ownershipBonusIds = useMemo(() => {
+    if (!ownedPlayerIds || ownedPlayerIds.size === 0) return new Set<string>();
+    const active: string[] = [];
+    for (const sp of selectedPlayers) {
+      if (ownedPlayerIds.has(sp.playerId)) {
+        active.push(sp.playerId);
+        if (active.length >= 3) break;
+      }
+    }
+    return new Set(active);
+  }, [selectedPlayers, ownedPlayerIds]);
 
   // Local state for picker + presets
   const [showPlayerPicker, setShowPlayerPicker] = useState<{ position: string; slot: number } | null>(null);
@@ -363,10 +379,21 @@ export default function LineupPanel({
                     const hasScore = slotScore != null;
                     const isLiveScore = !isScored && liveScore != null;
                     const isCaptain = captainSlot === slotDbKeys[slot.slot];
+                    const isOwnedPlayer = player ? (ownedPlayerIds?.has(player.id) ?? false) : false;
+                    const hasActiveBonus = player ? ownershipBonusIds.has(player.id) : false;
                     const slotLocked = player ? isPlayerLocked(player.id) : false;
                     const slotReadOnly = isReadOnly || slotLocked;
                     return (
                       <div key={slot.slot} className="flex flex-col items-center relative">
+                        {/* DPC Ownership Bonus badge (bottom-left) */}
+                        {player && isOwnedPlayer && !hasScore && (
+                          <div className={cn(
+                            'absolute -bottom-1 -left-2 z-30 px-1 py-0.5 rounded text-[9px] font-black shadow-lg',
+                            hasActiveBonus
+                              ? 'bg-gold/90 text-black'
+                              : 'bg-white/10 text-white/30'
+                          )}>DPC +5%</div>
+                        )}
                         {/* LIVE badge for locked players (only if no score yet) */}
                         {player && slotLocked && !hasScore && (
                           <div className="absolute -top-2 -right-2 z-30 px-1.5 py-0.5 rounded bg-green-500 text-xs font-black text-white shadow-lg animate-pulse">LIVE</div>
@@ -573,6 +600,7 @@ export default function LineupPanel({
                     <div className="font-medium text-sm flex items-center gap-1.5">
                       {player.first} {player.last}
                       {isCpt && <span className="text-xs font-bold text-gold bg-gold/10 px-1 rounded">C &times;1.5</span>}
+                      {ownershipBonusIds.has(player.id) && <span className="text-[10px] font-bold text-gold bg-gold/[0.08] border border-gold/20 px-1 py-0.5 rounded">DPC +5%</span>}
                     </div>
                     <div className="text-xs text-white/40 flex items-center gap-1.5">
                       {player.club}
@@ -612,6 +640,19 @@ export default function LineupPanel({
             <div className="text-sm font-bold text-sky-300">{t('synergyBonus', { pct: synergyPreview.totalPct })}</div>
             <div className="text-xs text-white/40">
               {synergyPreview.details.map(d => `${d.source} (${d.bonus_pct}%)`).join(' + ')}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Ownership Bonus (scored view) */}
+      {isScored && ownershipBonusIds.size > 0 && (
+        <div className="flex items-center gap-3 p-3 bg-gold/5 border border-gold/20 rounded-lg">
+          <Briefcase aria-hidden="true" className="size-5 text-gold flex-shrink-0" />
+          <div>
+            <div className="text-sm font-bold text-gold">{t('ownershipBonus')}: +5%</div>
+            <div className="text-xs text-white/40">
+              {t('ownershipBonusActive', { count: ownershipBonusIds.size })}
             </div>
           </div>
         </div>
@@ -662,6 +703,27 @@ export default function LineupPanel({
         </div>
       )}
 
+      {/* DPC Ownership Bonus Banner (during lineup building) */}
+      {!isScored && ownedPlayerIds && ownedPlayerIds.size > 0 && (
+        <div className="flex items-center gap-2 p-3 bg-gold/[0.06] border border-gold/20 rounded-lg">
+          <Briefcase aria-hidden="true" className="size-4 text-gold flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <span className="text-xs text-gold font-bold">{t('ownershipBonus')}</span>
+            <span className="text-xs text-white/40 ml-2">{t('ownershipBonusDesc')}</span>
+          </div>
+          <span className={cn(
+            'text-xs font-mono font-bold px-2 py-0.5 rounded',
+            ownershipBonusIds.size > 0
+              ? 'bg-gold/15 text-gold'
+              : 'bg-white/5 text-white/30'
+          )}>
+            {ownershipBonusIds.size > 0
+              ? t('ownershipBonusActive', { count: ownershipBonusIds.size })
+              : t('ownershipBonusInactive')}
+          </span>
+        </div>
+      )}
+
       {/* Lineup Status (only when not scored -- no need to show "3/6 selected" after scoring) */}
       {!isScored && !isReadOnly && (
         isLineupComplete ? (
@@ -705,9 +767,17 @@ export default function LineupPanel({
                   size="sm"
                   showMeta={false}
                 />
-                <div className="text-xs text-white/40">
+                <div className="text-xs text-white/40 flex items-center flex-wrap gap-1">
                   <span className={fixtureLocked ? 'text-green-400' : player.isLocked ? 'text-orange-400' : player.dpcAvailable < player.dpcOwned ? 'text-yellow-400' : 'text-white/40'}>{player.dpcAvailable}/{player.dpcOwned} DPC</span>
-                  {player.eventsUsing > 0 && <span className="text-white/30"> ({player.eventsUsing} Event{player.eventsUsing > 1 ? 's' : ''})</span>}
+                  {player.eventsUsing > 0 && <span className="text-white/30">({player.eventsUsing} Event{player.eventsUsing > 1 ? 's' : ''})</span>}
+                  {isSelected && ownedPlayerIds?.has(player.id) && (
+                    <span className={cn(
+                      'px-1 py-0.5 rounded text-[10px] font-bold border',
+                      ownershipBonusIds.has(player.id)
+                        ? 'bg-gold/[0.08] border-gold/20 text-gold'
+                        : 'bg-white/[0.03] border-white/10 text-white/30'
+                    )}>+5%</span>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -839,6 +909,15 @@ export default function LineupPanel({
                             size="md"
                             className="flex-1 min-w-0"
                           />
+                          {/* DPC Ownership bonus indicator */}
+                          {ownedPlayerIds?.has(player.id) && (
+                            <span className={cn(
+                              'shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold border',
+                              ownershipBonusIds.size < 3
+                                ? 'bg-gold/[0.08] border-gold/20 text-gold'
+                                : 'bg-white/[0.03] border-white/10 text-white/30'
+                            )}>DPC +5%</span>
+                          )}
                           {/* Stats + Score */}
                           <div className="shrink-0 flex items-center gap-2.5">
                             {/* Compact stats */}

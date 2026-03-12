@@ -733,7 +733,11 @@
     "ticketCost": "{cost} Bilet Giriş",
     "ticketCostFree": "Ücretsiz",
     "notEnoughTickets": "Yeterli bilet yok ({have}/{need})",
-    "ticketEntryPaid": "Biletler ödendi"
+    "ticketEntryPaid": "Biletler ödendi",
+    "ownershipBonus": "Sahiplik Bonusu",
+    "ownershipBonusDesc": "Kendi DPC'lerin için +%5 puan",
+    "ownershipBonusActive": "Aktif ({count}/3)",
+    "ownershipBonusInactive": "Fantezi bonusu için DPC satın al"
   },
   "predictions": {
     "title": "Tahminler",

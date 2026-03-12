@@ -736,7 +736,11 @@
     "ticketCost": "{cost} Tickets Eintritt",
     "ticketCostFree": "Kostenlos",
     "notEnoughTickets": "Nicht genug Tickets ({have}/{need})",
-    "ticketEntryPaid": "Tickets bezahlt"
+    "ticketEntryPaid": "Tickets bezahlt",
+    "ownershipBonus": "Besitzer-Bonus",
+    "ownershipBonusDesc": "+5% Punkte für eigene DPCs",
+    "ownershipBonusActive": "Aktiv ({count}/3)",
+    "ownershipBonusInactive": "Kaufe DPCs für Fantasy-Bonus"
   },
   "predictions": {
     "title": "Vorhersagen",

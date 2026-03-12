@@ -313,6 +313,11 @@ export const EventDetailModal = ({
     return calculateSynergyPreview(clubs);
   }, [selectedPlayers, effectiveHoldings]);
 
+  // DPC Ownership Bonus — all player IDs the user holds DPCs for
+  const ownedPlayerIds = useMemo(() => {
+    return new Set(effectiveHoldings.filter(h => h.dpcOwned >= 1).map(h => h.id));
+  }, [effectiveHoldings]);
+
   // Player picker — expensive filter+sort, memoized per search/sort/selection change
   const getAvailablePlayersForPosition = useCallback((position: string) => {
     const posMap: Record<string, string[]> = {
@@ -502,6 +507,7 @@ export const EventDetailModal = ({
                 captainSlot={captainSlot}
                 setCaptainSlot={setCaptainSlot}
                 synergyPreview={synergyPreview}
+                ownedPlayerIds={ownedPlayerIds}
                 isLineupComplete={isLineupComplete}
                 reqCheck={reqCheck}
                 isPartiallyLocked={isPartiallyLocked}

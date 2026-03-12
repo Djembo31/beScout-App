@@ -44,6 +44,16 @@ export type LineupWithPlayers = {
 // Lineup Queries
 // ============================================
 
+/** Get player IDs that the user holds DPCs for (quantity > 0) */
+export async function getOwnedPlayerIds(userId: string): Promise<Set<string>> {
+  const { data } = await supabase
+    .from('holdings')
+    .select('player_id')
+    .eq('user_id', userId)
+    .gt('quantity', 0);
+  return new Set((data ?? []).map(h => h.player_id));
+}
+
 /** Lineup eines Users fuer ein Event laden */
 export async function getLineup(eventId: string, userId: string): Promise<DbLineup | null> {
   const { data, error } = await supabase
