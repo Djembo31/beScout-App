@@ -40,7 +40,7 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
   // NOTE: score_event RPC sets status='ended' + scored_at=NOW() internally (SECURITY DEFINER).
   // No client-side update needed — RLS would block it anyway.
 
-  // Fire-and-forget: notify all participants + top 3 rewards
+  // Fire-and-forget: batch notifications + fan ranks + achievements
   if (result.success) {
     (async () => {
       try {

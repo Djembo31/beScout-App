@@ -254,4 +254,21 @@ export async function createNotificationsBatch(items: BatchNotificationInput[]):
   if (error) {
     console.error(`[Notifications] Batch insert failed (${rows.length} items):`, error.message);
   }
+
+  // Fire-and-forget push notifications (server-side only)
+  if (typeof window === 'undefined') {
+    import('./pushSender').then(({ sendPushToUser }) => {
+      for (const item of filtered) {
+        const url = item.referenceType === 'event' ? '/fantasy'
+          : item.referenceType === 'player' ? `/player/${item.referenceId}`
+          : '/';
+        sendPushToUser(item.userId, {
+          title: item.title,
+          body: item.body ?? undefined,
+          url,
+          tag: item.type,
+        }).catch((err) => console.error('[Push] Batch push failed:', err));
+      }
+    }).catch((err) => console.error('[Push] Dynamic import failed:', err));
+  }
 }
