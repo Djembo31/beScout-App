@@ -13,7 +13,7 @@ import { useUserMasteryAll } from '@/lib/queries/mastery';
 import ScoreProgress from './ScoreProgress';
 import { useTranslations, useLocale } from 'next-intl';
 import type { Pos, DbUserStats, UserTradeWithPlayer } from '@/types';
-import type { HoldingRow } from './ProfileOverviewTab';
+import type { HoldingRow } from '@/types';
 import type { DbDpcMastery } from '@/lib/services/mastery';
 
 // ============================================

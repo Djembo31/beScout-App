@@ -416,6 +416,28 @@ export const FEED_ACTION_LABELS: Record<string, string> = {
 
 export type ProfileTab = 'manager' | 'trader' | 'analyst' | 'timeline';
 
+export type HoldingRow = {
+  id: string;
+  player_id: string;
+  quantity: number;
+  avg_buy_price: number; // cents
+  player: {
+    first_name: string;
+    last_name: string;
+    position: string;
+    club: string;
+    floor_price: number; // cents
+    price_change_24h: number;
+    shirt_number: number;
+    age: number;
+    perf_l5: number;
+    matches: number;
+    goals: number;
+    assists: number;
+    image_url: string | null;
+  };
+};
+
 export type Profile = {
   id: string;
   handle: string;

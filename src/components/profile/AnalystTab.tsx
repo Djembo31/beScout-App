@@ -234,7 +234,7 @@ export default function AnalystTab({
                       {post.player_name && (
                         <span className="text-[11px] font-bold text-white/70">{post.player_name}</span>
                       )}
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-white/5 text-white/40 border border-white/[0.06]">
+                      <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-white/5 text-white/40 border border-white/[0.06]">
                         {post.horizon}
                       </span>
                     </div>
