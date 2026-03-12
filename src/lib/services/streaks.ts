@@ -10,10 +10,11 @@ export async function recordLoginStreak(userId: string): Promise<StreakResult> {
 
   const result = data as StreakResult;
 
-  // Fire-and-forget: Credit login tickets based on streak length
-  // Day 1-3 = 5 tickets, Day 4-6 = 10 tickets, Day 7+ = 15 tickets
+  // Fire-and-forget: Credit login tickets based on compound streak benefits
   if (result.ok && !result.already_today) {
-    const ticketAmount = result.streak <= 3 ? 5 : result.streak <= 6 ? 10 : 15;
+    const { getStreakBenefits } = await import('@/lib/streakBenefits');
+    const benefits = getStreakBenefits(result.streak);
+    const ticketAmount = benefits.dailyTickets;
     import('@/lib/services/tickets').then(({ creditTickets }) => {
       creditTickets(userId, ticketAmount, 'daily_login').catch(console.error);
     }).catch(console.error);
