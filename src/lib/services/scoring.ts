@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { notifText } from '@/lib/notifText';
+import type { BatchNotificationInput } from '@/lib/services/notifications';
 
 // ============================================
 // Scoring Service
@@ -44,31 +45,33 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
     (async () => {
       try {
         const lb = await getEventLeaderboard(eventId);
-        const { createNotification } = await import('@/lib/services/notifications');
+        const { createNotificationsBatch } = await import('@/lib/services/notifications');
         const { data: evt } = await supabase.from('events').select('name').eq('id', eventId).single();
         const eventName = evt?.name ?? 'Event';
-        // All participants: event_scored
-        for (const entry of lb) {
-          createNotification(
-            entry.userId,
-            'event_scored',
-            notifText('eventScoredTitle', { name: eventName }),
-            notifText('eventScoredBody', { rank: entry.rank, score: entry.totalScore }),
-            eventId,
-            'event'
-          );
-        }
-        // Top 3: additional fantasy_reward with prize info
+
+        // Build batch: all participants + top 3 rewards
+        const notifBatch: BatchNotificationInput[] = lb.map((entry) => ({
+          userId: entry.userId,
+          type: 'event_scored' as const,
+          title: notifText('eventScoredTitle', { name: eventName }),
+          body: notifText('eventScoredBody', { rank: entry.rank, score: entry.totalScore }),
+          referenceId: eventId,
+          referenceType: 'event',
+        }));
+
         for (const entry of lb.slice(0, 3)) {
-          createNotification(
-            entry.userId,
-            'fantasy_reward',
-            notifText('fantasyRewardTitle', { rank: entry.rank, name: eventName }),
-            notifText('fantasyRewardBody', { score: entry.totalScore }),
-            eventId,
-            'event'
-          );
+          notifBatch.push({
+            userId: entry.userId,
+            type: 'fantasy_reward' as const,
+            title: notifText('fantasyRewardTitle', { rank: entry.rank, name: eventName }),
+            body: notifText('fantasyRewardBody', { score: entry.totalScore }),
+            referenceId: eventId,
+            referenceType: 'event',
+          });
         }
+
+        // Single batch insert for all notifications
+        await createNotificationsBatch(notifBatch);
         // Batch recalculate fan-ranks for club-scoped events (single DB round-trip)
         const { batchRecalculateFanRanks } = await import('@/lib/services/fanRanking');
         batchRecalculateFanRanks(eventId).catch((err) =>

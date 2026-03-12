@@ -199,3 +199,59 @@ export async function createNotification(
     }).catch((err) => console.error('[Push] Dynamic import failed:', err));
   }
 }
+
+// ============================================
+// BATCH NOTIFICATION INSERT
+// ============================================
+
+export type BatchNotificationInput = {
+  userId: string;
+  type: NotificationType;
+  title: string;
+  body?: string;
+  referenceId?: string;
+  referenceType?: string;
+};
+
+/** Create multiple notifications in a single INSERT, with batch preference filtering */
+export async function createNotificationsBatch(items: BatchNotificationInput[]): Promise<void> {
+  if (items.length === 0) return;
+
+  // Single-query preference check for ALL users in this batch
+  const userIds = Array.from(new Set(items.map((i) => i.userId)));
+  const { data: prefRows } = await supabase
+    .from('notification_preferences')
+    .select('user_id, trading, offers, fantasy, social, bounties, rewards')
+    .in('user_id', userIds);
+
+  const prefMap = new Map(
+    (prefRows ?? []).map((p) => [p.user_id as string, p as Record<string, unknown>])
+  );
+
+  // Filter items: remove users who have disabled the category
+  const filtered = items.filter((item) => {
+    const category = getCategoryForType(item.type);
+    if (category === 'system') return true;
+    const pref = prefMap.get(item.userId);
+    if (!pref) return true; // No preferences row = all defaults enabled
+    return pref[category] !== false;
+  });
+
+  if (filtered.length === 0) return;
+
+  // Single bulk INSERT
+  const rows = filtered.map((item) => ({
+    user_id: item.userId,
+    type: item.type,
+    title: item.title,
+    body: item.body ?? null,
+    reference_id: item.referenceId ?? null,
+    reference_type: item.referenceType ?? null,
+  }));
+
+  const { error } = await supabase.from('notifications').insert(rows);
+
+  if (error) {
+    console.error(`[Notifications] Batch insert failed (${rows.length} items):`, error.message);
+  }
+}
