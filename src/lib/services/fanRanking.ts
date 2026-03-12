@@ -92,3 +92,20 @@ export async function recalculateFanRank(
     totalScore: result.total_score,
   };
 }
+
+/** Batch recalculate fan ranks for all participants of an event (single DB round-trip) */
+export async function batchRecalculateFanRanks(
+  eventId: string,
+): Promise<{ ok: boolean; recalculated?: number; errors?: string[]; error?: string }> {
+  const { data, error } = await supabase.rpc('batch_recalculate_fan_ranks', {
+    p_event_id: eventId,
+  });
+
+  if (error) {
+    console.error('[FanRanking] batchRecalculateFanRanks error:', error);
+    return { ok: false, error: error.message };
+  }
+
+  const result = data as { ok: boolean; recalculated: number; errors: string[] };
+  return result;
+}
