@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useTranslations, useLocale } from 'next-intl';
-import { User, Settings, UserPlus, UserMinus, ChevronDown, ChevronUp } from 'lucide-react';
+import { Settings, UserPlus, UserMinus, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, CosmeticAvatar, CosmeticTitle } from '@/components/ui';
+import { useEquippedCosmetics } from '@/lib/queries/cosmetics';
 import { RadarChart } from '@/components/profile/RadarChart';
 import { getStrengthLabel, getAutoBadges } from '@/lib/scoutReport';
 import { getGesamtRang } from '@/lib/gamification';
@@ -71,6 +71,11 @@ export function ScoutCard({
   const numLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
   const [bioExpanded, setBioExpanded] = useState(false);
 
+  // ── Cosmetics ──
+  const { data: equippedCosmetics } = useEquippedCosmetics(profile.id);
+  const equippedFrame = equippedCosmetics?.find((c) => c.cosmetic.type === 'frame');
+  const equippedTitle = equippedCosmetics?.find((c) => c.cosmetic.type === 'title');
+
   // ── Scores ──
   const scores = {
     manager_score: userStats?.manager_score ?? 0,
@@ -112,20 +117,12 @@ export function ScoutCard({
       {/* ── Avatar + Identity ── */}
       <div className="flex items-center gap-3.5">
         {/* Avatar */}
-        <div className="relative size-12 shrink-0 rounded-2xl bg-gold/10 border border-white/10 overflow-hidden">
-          {profile.avatar_url ? (
-            <Image
-              src={profile.avatar_url}
-              alt={profile.display_name ?? profile.handle}
-              fill
-              className="object-cover"
-            />
-          ) : (
-            <div className="flex items-center justify-center size-full">
-              <User className="size-5 text-white/40" />
-            </div>
-          )}
-        </div>
+        <CosmeticAvatar
+          avatarUrl={profile.avatar_url}
+          displayName={profile.display_name ?? profile.handle}
+          size={48}
+          frameCssClass={equippedFrame?.cosmetic.css_class}
+        />
 
         {/* Name + Handle + Level */}
         <div className="min-w-0 flex-1">
@@ -138,6 +135,10 @@ export function ScoutCard({
             </span>
           </div>
           <p className="truncate text-[13px] text-white/40">@{profile.handle}</p>
+          <CosmeticTitle
+            title={equippedTitle?.cosmetic.name ?? null}
+            rarity={equippedTitle?.cosmetic.rarity}
+          />
         </div>
       </div>
 
