@@ -38,6 +38,11 @@ export async function openMysteryBox(free = false): Promise<{
     return { ok: false, error: result.error ?? 'Unknown error' };
   }
 
+  // Mission tracking (fire-and-forget, auth.uid() used internally by RPC)
+  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+    triggerMissionProgress('', ['open_mystery_box', 'daily_activity']);
+  }).catch(err => console.error('[MysteryBox] Mission tracking failed:', err));
+
   return {
     ok: true,
     rarity: result.rarity,

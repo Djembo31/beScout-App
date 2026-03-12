@@ -14,6 +14,10 @@ export async function followUser(followerId: string, followingId: string): Promi
   if (error) throw new Error(error.message);
 
   // Gamification (analyst score, missions, stats refresh, airdrop) handled by DB trigger trg_fn_follow_gamification
+  // Mission tracking
+  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+    triggerMissionProgress(followerId, ['follow_user', 'social_activity']);
+  }).catch(err => console.error('[Social] Mission tracking failed:', err));
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(followerId, 'follow', 'social', { followingId });

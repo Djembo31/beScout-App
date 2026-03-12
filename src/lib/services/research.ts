@@ -207,6 +207,10 @@ export async function createResearchPost(params: {
 
   if (error) throw new Error(error.message);
   // Gamification (analyst score, mastery XP, missions) handled by DB trigger trg_analyst_score_on_research
+  // Mission tracking
+  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+    triggerMissionProgress(params.userId, ['write_research', 'community_activity']);
+  }).catch(err => console.error('[Research] Mission tracking failed:', err));
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(params.userId, 'research_create', 'community', { researchId: data.id, title: params.title, call: params.call });
@@ -310,6 +314,10 @@ export async function rateResearch(
   const result = data as RateResult;
 
   if (result.success) {
+    // Mission tracking
+    import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+      triggerMissionProgress(userId, ['rate_research', 'community_activity']);
+    }).catch(err => console.error('[Research] Mission tracking failed:', err));
     // Activity log
     import('@/lib/services/activityLog').then(({ logActivity }) => {
       logActivity(userId, 'research_rate', 'community', { researchId, rating });

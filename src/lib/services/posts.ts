@@ -157,6 +157,10 @@ export async function createPost(
 
   if (error) throw new Error(error.message);
   // Gamification (analyst score, mastery XP, missions) handled by DB trigger trg_analyst_score_on_post
+  // Mission tracking
+  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+    triggerMissionProgress(userId, ['create_post', 'community_activity']);
+  }).catch(err => console.error('[Posts] Mission tracking failed:', err));
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'post_create', 'community', { postId: data.id, category });
@@ -284,6 +288,12 @@ export async function votePost(
     p_vote_type: voteType,
   });
   if (error) throw new Error(error.message);
+  // Mission tracking (only for upvotes)
+  if (voteType === 1) {
+    import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+      triggerMissionProgress(userId, ['upvote_post', 'community_activity']);
+    }).catch(err => console.error('[Posts] Mission tracking failed:', err));
+  }
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'post_vote', 'community', { postId, voteType });

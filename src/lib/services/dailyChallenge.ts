@@ -46,6 +46,11 @@ export async function submitDailyChallenge(
     return { ok: false, isCorrect: null, ticketsAwarded: 0, error: result.error ?? 'Unknown error' };
   }
 
+  // Mission tracking (fire-and-forget, auth.uid() used internally by RPC)
+  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+    triggerMissionProgress('', ['complete_challenge', 'daily_activity']);
+  }).catch(err => console.error('[DailyChallenge] Mission tracking failed:', err));
+
   return {
     ok: true,
     isCorrect: result.is_correct,
