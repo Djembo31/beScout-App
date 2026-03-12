@@ -2,12 +2,12 @@
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { Trophy } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Trophy, Shield } from 'lucide-react';
 import { formatScout } from '@/lib/services/wallet';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import ScoreProgress from '@/components/profile/ScoreProgress';
 import { Button } from '@/components/ui';
+import { useFanRanking } from '@/lib/queries/fanRanking';
 import type { DbUserStats, UserFantasyResult } from '@/types';
 
 // ============================================
@@ -19,12 +19,26 @@ interface ManagerTabProps {
   userStats: DbUserStats | null;
   fantasyResults: UserFantasyResult[];
   isSelf: boolean;
+  favoriteClubId?: string;
+  favoriteClubName?: string;
 }
 
 const MEDAL: Record<number, string> = { 1: '\u{1F947}', 2: '\u{1F948}', 3: '\u{1F949}' };
 
-export default function ManagerTab({ userId: _userId, userStats, fantasyResults, isSelf }: ManagerTabProps) {
+const FAN_RANK_LABELS: Record<string, string> = {
+  zuschauer: 'Zuschauer',
+  stammgast: 'Stammgast',
+  ultra: 'Ultra',
+  legende: 'Legende',
+  ehrenmitglied: 'Ehrenmitglied',
+  vereinsikone: 'Vereinsikone',
+};
+
+export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, favoriteClubId, favoriteClubName }: ManagerTabProps) {
   const t = useTranslations('profile');
+  const locale = useLocale();
+  const numLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
+  const { data: fanRanking } = useFanRanking(userId, favoriteClubId);
 
   const stats = useMemo(() => {
     if (fantasyResults.length === 0) return null;
@@ -121,11 +135,38 @@ export default function ManagerTab({ userId: _userId, userStats, fantasyResults,
         </div>
 
         {fantasyResults.length > 5 && (
-          <button className="w-full text-center text-[12px] text-white/40 hover:text-white/60 mt-3 transition-colors">
+          <Link href="/fantasy" className="block w-full text-center text-[12px] text-white/40 hover:text-white/60 mt-3 transition-colors">
             {t('allEvents')}
-          </button>
+          </Link>
         )}
       </div>
+
+      {/* 4. Club Fan Ranks */}
+      {fanRanking && (
+        <div className="p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+          <div className="flex items-center gap-2 mb-3">
+            <Shield className="size-4 text-gold" aria-hidden="true" />
+            <h3 className="text-[13px] font-bold text-white/60">{t('clubFanRanks')}</h3>
+          </div>
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-gold/[0.06] border border-gold/15">
+            <div className="text-center">
+              <div className="text-sm font-black text-gold">
+                {FAN_RANK_LABELS[fanRanking.rank_tier] ?? fanRanking.rank_tier}
+              </div>
+              {favoriteClubName && (
+                <div className="text-[11px] text-white/40 mt-0.5">{favoriteClubName}</div>
+              )}
+            </div>
+            <div className="flex-1" />
+            <div className="text-right">
+              <div className="text-sm font-mono font-bold tabular-nums text-white/70">
+                {fanRanking.total_score.toLocaleString(numLocale)}
+              </div>
+              <div className="text-[11px] text-white/30">Score</div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

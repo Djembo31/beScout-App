@@ -34,7 +34,7 @@ interface AnalystTabProps {
 const CONTENT_EARNING_TYPES: { type: string; labelKey: string; icon: React.ElementType }[] = [
   { type: 'research_earning', labelKey: 'earningReports', icon: FileText },
   { type: 'bounty_reward', labelKey: 'earningBounties', icon: Target },
-  { type: 'poll_revenue', labelKey: 'earningPolls', icon: Vote },
+  { type: 'poll_earning', labelKey: 'earningPolls', icon: Vote },
   { type: 'tip_receive', labelKey: 'earningTips', icon: Coins },
 ];
 
@@ -101,6 +101,20 @@ export default function AnalystTab({
     if (total === 0) return null;
     const maxAmount = Math.max(...Array.from(byType.values()));
     return { byType, total, maxAmount };
+  }, [isSelf, transactions]);
+
+  // Bounty stats from transactions
+  const bountyStats = useMemo(() => {
+    if (!isSelf || transactions.length === 0) return null;
+    let count = 0;
+    let total = 0;
+    for (const tx of transactions) {
+      if (tx.type === 'bounty_reward' && tx.amount > 0) {
+        count++;
+        total += tx.amount;
+      }
+    }
+    return count > 0 ? { count, total } : null;
   }, [isSelf, transactions]);
 
   const researchSlice = myResearch.slice(0, 5);
@@ -302,7 +316,28 @@ export default function AnalystTab({
         </Card>
       )}
 
-      {/* 6. Expert Badges */}
+      {/* 6. Bounty Summary (self only) */}
+      {isSelf && bountyStats && (
+        <Card className="p-4 md:p-6">
+          <h3 className="font-black mb-3">{tp('bountyBilanz')}</h3>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-2.5 rounded-xl bg-white/[0.03] text-center">
+              <div className="text-[15px] font-bold font-mono tabular-nums text-white/90">
+                {bountyStats.count}
+              </div>
+              <div className="text-[11px] text-white/40 mt-0.5">{tp('approvedLabel')}</div>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/[0.03] text-center">
+              <div className="text-[15px] font-bold font-mono tabular-nums text-green-500">
+                +{formatScout(bountyStats.total)}
+              </div>
+              <div className="text-[11px] text-white/40 mt-0.5">bCredits</div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* 7. Expert Badges */}
       {userStats && <ExpertBadgesCard userStats={userStats} tp={tp} tg={tg} />}
     </div>
   );

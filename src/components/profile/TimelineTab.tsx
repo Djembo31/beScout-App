@@ -35,14 +35,14 @@ function renderActivityIcon(type: string) {
 
 const PAGE_SIZE = 20;
 
-type TimelineFilter = 'all' | 'trades' | 'fantasy' | 'missions' | 'rewards';
+type TimelineFilter = 'all' | 'trades' | 'fantasy' | 'research' | 'rewards';
 
 const FILTER_TYPE_MAP: Record<Exclude<TimelineFilter, 'all'>, Set<string>> = {
   trades: new Set(['buy', 'sell', 'ipo_buy']),
   fantasy: new Set(['fantasy_join', 'fantasy_reward', 'entry_fee']),
-  missions: new Set(['mission_reward']),
+  research: new Set(['research_earning', 'mission_reward']),
   rewards: new Set([
-    'bounty_reward', 'research_earning', 'streak_reward', 'poll_revenue',
+    'bounty_reward', 'streak_bonus', 'poll_earning',
     'tip_receive', 'scout_subscription_earning', 'creator_fund_payout',
     'ad_revenue_payout', 'pbt_liquidation',
   ]),
@@ -52,7 +52,7 @@ const FILTERS: { id: TimelineFilter; labelKey: string }[] = [
   { id: 'all', labelKey: 'filterAll' },
   { id: 'trades', labelKey: 'filterTrades' },
   { id: 'fantasy', labelKey: 'filterFantasy' },
-  { id: 'missions', labelKey: 'filterMissions' },
+  { id: 'research', labelKey: 'filterResearch' },
   { id: 'rewards', labelKey: 'filterRewards' },
 ];
 
@@ -191,7 +191,7 @@ export default function TimelineTab({ transactions: initial, userId, isSelf }: T
                 {/* Day Header */}
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-[11px] text-white/30 font-bold uppercase tracking-wider whitespace-nowrap">
-                    {getDayLabel(dayKey, todayKey, yesterdayKey, t('todayLabel'), t('yesterayLabel'), dateLocale)}
+                    {getDayLabel(dayKey, todayKey, yesterdayKey, t('todayLabel'), t('yesterdayLabel'), dateLocale)}
                   </span>
                   <div className="flex-1 h-px bg-white/[0.06]" />
                 </div>
@@ -223,8 +223,8 @@ export default function TimelineTab({ transactions: initial, userId, isSelf }: T
                           </div>
                         </div>
 
-                        {/* Amount */}
-                        {isSelf && (
+                        {/* Amount — positive always visible, negative self only */}
+                        {(isSelf || positive) && (
                           <div className="text-right shrink-0">
                             <span className={cn(
                               'text-xs font-mono font-bold tabular-nums',

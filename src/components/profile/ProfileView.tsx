@@ -8,8 +8,7 @@ import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { getHoldings, getTransactions, formatScout } from '@/lib/services/wallet';
-import { getUserStats, refreshUserStats, getFollowerCount, getFollowingCount, getUserAchievements, checkAndUnlockAchievements, isFollowing as checkIsFollowing, followUser, unfollowUser } from '@/lib/services/social';
-import { centsToBsd } from '@/lib/services/players';
+import { getUserStats, refreshUserStats, getFollowerCount, getFollowingCount, checkAndUnlockAchievements, isFollowing as checkIsFollowing, followUser, unfollowUser } from '@/lib/services/social';
 import { getResearchPosts, getAuthorTrackRecord, resolveExpiredResearch } from '@/lib/services/research';
 import { getUserTrades } from '@/lib/services/trading';
 import { getUserFantasyHistory } from '@/lib/services/lineups';
@@ -37,7 +36,7 @@ const TimelineTab = dynamic(() => import('./TimelineTab'));
 const PUBLIC_TX_TYPES = new Set([
   'buy', 'sell', 'ipo_buy', 'fantasy_join', 'fantasy_reward',
   'bounty_reward', 'research_earning', 'mission_reward',
-  'streak_reward', 'poll_revenue',
+  'streak_bonus', 'poll_earning',
 ]);
 
 interface ProfileViewProps {
@@ -99,10 +98,9 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
       }
       try {
         const results = await Promise.allSettled([
-          isSelf ? getHoldings(targetUserId) : Promise.resolve([]),
+          getHoldings(targetUserId),
           getTransactions(targetUserId, 50),
           getUserStats(targetUserId),
-          getUserAchievements(targetUserId),
           getFollowerCount(targetUserId),
           getFollowingCount(targetUserId),
           getResearchPosts({ currentUserId: targetUserId }),
@@ -111,20 +109,21 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
           getUserFantasyHistory(targetUserId, 10),
         ]);
         if (!cancelled) {
-          if (results[0].status === 'rejected' && isSelf) {
-            setDataError(true);
+          if (results[0].status === 'rejected') {
+            // Holdings failed — non-critical, continue with empty
+            setHoldings([]);
           } else {
-            setHoldings(isSelf ? (results[0] as PromiseFulfilledResult<unknown>).value as HoldingRow[] : []);
+            setHoldings(val(results[0], []) as HoldingRow[]);
             setTransactions(val(results[1], []));
             const stats = val(results[2], null);
             setUserStats(stats);
-            setFollowerCount(val(results[4], 0));
-            setFollowingCount(val(results[5], 0));
-            const researchResult = val(results[6], [] as ResearchPostWithAuthor[]);
+            setFollowerCount(val(results[3], 0));
+            setFollowingCount(val(results[4], 0));
+            const researchResult = val(results[5], [] as ResearchPostWithAuthor[]);
             setMyResearch(isSelf ? researchResult.filter(p => p.is_own) : researchResult.filter(p => p.user_id === targetUserId));
-            setTrackRecord(val(results[7], null));
-            setRecentTrades(val(results[8], []));
-            setFantasyResults(val(results[9], []));
+            setTrackRecord(val(results[6], null));
+            setRecentTrades(val(results[7], []));
+            setFantasyResults(val(results[8], []));
             setDataError(false);
 
             // Set default tab to strongest dimension (only on first load)
@@ -231,6 +230,13 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
     ? Math.round(((portfolioValueCents - portfolioCostCents) / portfolioCostCents) * 100)
     : 0;
 
+  // ── Fantasy stats for ScoutCard badge ──
+  // TODO: totalFantasyParticipants needed for Top Manager badge (top 10% check).
+  // Requires extending getUserFantasyHistory to join events.total_participants.
+  const avgFantasyRank = fantasyResults.length > 0
+    ? fantasyResults.reduce((s, r) => s + r.rank, 0) / fantasyResults.length
+    : undefined;
+
   // ── Dynamic tab ordering ──
   const scores = useMemo(() => ({
     manager_score: userStats?.manager_score ?? 0,
@@ -273,6 +279,10 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
           clubSubscription={clubSub}
           foundingPassTier={highestPass}
           portfolioPnlPct={portfolioPnlPct}
+          avgFantasyRank={avgFantasyRank}
+          researchCount={myResearch.length}
+          onFollowersClick={() => setFollowListMode('followers')}
+          onFollowingClick={() => setFollowListMode('following')}
         />
       )}
 
@@ -345,6 +355,8 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
                   userStats={userStats}
                   fantasyResults={fantasyResults}
                   isSelf={isSelf}
+                  favoriteClubId={targetProfile.favorite_club_id ?? undefined}
+                  favoriteClubName={targetProfile.favorite_club ?? undefined}
                 />
               </TabPanel>
 
