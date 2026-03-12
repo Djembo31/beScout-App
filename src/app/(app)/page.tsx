@@ -50,6 +50,10 @@ const DailyChallengeCard = dynamic(() => import('@/components/gamification/Daily
 const MysteryBoxModal = dynamic(() => import('@/components/gamification/MysteryBoxModal'), {
   ssr: false,
 });
+const ScoreRoadStrip = dynamic(() => import('@/components/gamification/ScoreRoadStrip'), {
+  ssr: false,
+  loading: () => <div className="h-10 rounded-xl bg-white/[0.02] animate-pulse" />,
+});
 
 import type { DpcHolding, DbEvent, Pos } from '@/types';
 
@@ -250,6 +254,9 @@ export default function HomePage() {
 
       {/* ── 2. PORTFOLIO STRIP — Top holdings ── */}
       <PortfolioStrip holdings={holdings} />
+
+      {/* ── 2b. SCORE ROAD STRIP — Progress toward next milestone ── */}
+      {uid && <ScoreRoadStrip userId={uid} />}
 
       {/* ── 3. ENGAGEMENT ZONE — Daily Challenge + Mystery Box ── */}
       {uid && (

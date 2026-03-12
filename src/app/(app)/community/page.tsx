@@ -37,6 +37,7 @@ import FollowListModal from '@/components/profile/FollowListModal';
 import type { PostWithAuthor, PostType } from '@/types';
 import dynamic from 'next/dynamic';
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
+const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), { ssr: false });
 
 // ============================================
 // MAIN PAGE — Scouting Zone
@@ -486,6 +487,9 @@ export default function CommunityPage() {
         show={!!uid && !posts.some(p => p.user_id === uid)}
         action={{ label: tt('writePost'), onClick: () => { setDefaultPostType('general'); setCreatePostOpen(true); } }}
       />
+
+      {/* Contextual Mission Hints */}
+      <MissionHintList context="community" />
 
       {/* [B] Club Scope Toggle + Network Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">

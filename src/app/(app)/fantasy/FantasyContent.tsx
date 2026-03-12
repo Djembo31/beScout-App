@@ -41,6 +41,12 @@ import { useClub } from '@/components/providers/ClubProvider';
 import EventSummaryModal, { isEventSeen, markEventSeen } from '@/components/fantasy/EventSummaryModal';
 import NewUserTip from '@/components/onboarding/NewUserTip';
 
+// Lazy-load MissionHintList — only shown when relevant missions exist
+const MissionHintList = dynamic(
+  () => import('@/components/missions/MissionHintList'),
+  { ssr: false }
+);
+
 // Lazy-load EventDetailModal (1387 lines) — only loaded when user opens an event
 const EventDetailModal = dynamic(
   () => import('@/components/fantasy/EventDetailModal').then(m => ({ default: m.EventDetailModal })),
@@ -634,6 +640,9 @@ export default function FantasyContent() {
         description={tt('fantasyDesc')}
         show={joinedIdsArr.length === 0}
       />
+
+      {/* Contextual Mission Hints */}
+      <MissionHintList context="fantasy" />
 
       {/* STICKY NAV — GW Selector + Tabs stay visible on scroll */}
       <div className="sticky top-[57px] z-20 -mx-4 px-4 py-2 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/[0.04] space-y-2 lg:static lg:mx-0 lg:px-0 lg:py-0 lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:space-y-4">

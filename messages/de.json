@@ -2472,7 +2472,10 @@
       "allClaimed": "Alle Meilensteine eingelöst!",
       "celebration": "{reward} erhalten!",
       "showLess": "Weniger",
-      "showAllMilestones": "Alle {count} Meilensteine"
+      "showAllMilestones": "Alle {count} Meilensteine",
+      "stripTitle": "Nächster Meilenstein",
+      "stripProgress": "{current}/{target} Punkte",
+      "stripClaimable": "{count} einlösbar!"
     },
     "gesamtRang": "Gesamt-Rang",
     "median": "Median der 3 Dimensionen",
@@ -2977,7 +2980,10 @@
     "dailyMissions": "Tages-Missionen",
     "weeklyMissions": "Wochen-Missionen",
     "allDone": "Alle erledigt!",
-    "openCount": "{count} offen"
+    "openCount": "{count} offen",
+    "hintTitle": "Mission",
+    "hintReward": "+{reward} bCredits",
+    "hintProgress": "{current}/{target}"
   },
   "spieltag": {
     "label": "Spieltag",

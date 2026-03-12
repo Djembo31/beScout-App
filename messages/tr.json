@@ -2464,7 +2464,10 @@
       "allClaimed": "Tüm kilometretaşları talep edildi!",
       "celebration": "{reward} kazanıldı!",
       "showLess": "Daha az",
-      "showAllMilestones": "Tüm {count} aşama"
+      "showAllMilestones": "Tüm {count} aşama",
+      "stripTitle": "Sonraki kilometre taşı",
+      "stripProgress": "{current}/{target} puan",
+      "stripClaimable": "{count} talep edilebilir!"
     },
     "gesamtRang": "Genel Rütbe",
     "median": "3 boyutun ortancası",
@@ -2969,7 +2972,10 @@
     "dailyMissions": "Günlük Görevler",
     "weeklyMissions": "Haftalık Görevler",
     "allDone": "Hepsi tamamlandı!",
-    "openCount": "{count} açık"
+    "openCount": "{count} açık",
+    "hintTitle": "Görev",
+    "hintReward": "+{reward} bCredits",
+    "hintProgress": "{current}/{target}"
   },
   "spieltag": {
     "label": "Maç Haftası",
