@@ -12,6 +12,8 @@ import { useToast } from '@/components/providers/ToastProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { centsToBsd } from '@/lib/services/players';
 import { deductEntryFee, refundEntryFee } from '@/lib/services/wallet';
+import { spendTickets } from '@/lib/services/tickets';
+import { useUserTickets } from '@/lib/queries/tickets';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 import { submitLineup, getLineup } from '@/lib/services/lineups';
 import { getFixtureDeadlinesByGameweek, getGameweekStatuses } from '@/lib/services/fixtures';
@@ -112,6 +114,7 @@ function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userLineup?:
     rewardStructure: db.reward_structure ?? null,
     scope: db.scope ?? 'global',
     lineupSize: db.lineup_size ?? (db.format === '11er' || db.format === '11er-reserve' ? 11 : 7),
+    ticketCost: db.ticket_cost ?? 0,
   };
 }
 
@@ -161,6 +164,7 @@ export default function FantasyContent() {
   const { data: activeGw, isLoading: activeGwLoading } = useLeagueActiveGameweek();
   const { data: isAdmin = false } = useIsClubAdmin(userId, clubId || undefined);
   const { data: dbHoldings = [] } = useHoldings(userId);
+  const { data: ticketData } = useUserTickets(userId);
 
   const t = useTranslations('fantasy');
   const tc = useTranslations('common');
@@ -355,6 +359,14 @@ export default function FantasyContent() {
       return;
     }
 
+    // Ticket cost check
+    const ticketCost = event.ticketCost ?? 0;
+    const currentTickets = ticketData?.balance ?? 0;
+    if (ticketCost > 0 && currentTickets < ticketCost) {
+      addToast(t('notEnoughTickets', { have: currentTickets, need: ticketCost }), 'error');
+      return;
+    }
+
     const bal = balanceCents ?? 0;
     if (event.entryFeeCents > 0 && bal < event.entryFeeCents) {
       addToast(t('notEnoughScout', { needed: event.buyIn, balance: fmtScout(bal / 100) }), 'error');
@@ -368,6 +380,17 @@ export default function FantasyContent() {
     setSelectedEvent(null);
 
     try {
+      // 0. Deduct tickets FIRST (if required)
+      if (ticketCost > 0) {
+        const ticketResult = await spendTickets(user.id, ticketCost, 'event_entry', event.id, `Event: ${event.name}`);
+        if (!ticketResult.ok) {
+          addToast(t('notEnoughTickets', { have: currentTickets, need: ticketCost }), 'error');
+          throw new Error(ticketResult.error ?? 'Ticket deduction failed');
+        }
+        // Invalidate ticket balance cache
+        queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
+      }
+
       // 1. Deduct fee FIRST — money is the critical resource, prevents free entries
       if (event.entryFeeCents > 0) {
         const newBalance = await deductEntryFee(user.id, event.entryFeeCents, event.name, event.id, event.name ? tw('entryFeeDesc', { name: event.name }) : tw('entryFeeDescDefault'));
@@ -419,7 +442,7 @@ export default function FantasyContent() {
     }).catch(err => console.error('[Fantasy] Mission tracking failed:', err));
 
     addToast(t('joinedSuccess', { name: event.name }), 'success');
-  }, [user, balanceCents, setBalanceCents, addToast, events]);
+  }, [user, balanceCents, setBalanceCents, addToast, events, ticketData]);
 
   const handleLeaveEvent = useCallback(async (event: FantasyEvent) => {
     if (!user) return;
@@ -502,6 +525,7 @@ export default function FantasyContent() {
       requirements: { dpcPerSlot: 1 },
       rewards: [{ rank: '1st', reward: 'League Champion' }],
       rewardStructure: null,
+      ticketCost: 0,
     };
     setLocalEvents(prev => [newEvent, ...(prev ?? events)]);
     addToast(t('eventCreated', { name: newEvent.name }), 'success');

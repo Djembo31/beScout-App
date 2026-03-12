@@ -732,7 +732,11 @@
     "individualRatings": "Einzelbewertungen",
     "listViewAria": "Listenansicht",
     "cardViewAria": "Kartenansicht",
-    "rewardRankLabel": "Platz {rank}"
+    "rewardRankLabel": "Platz {rank}",
+    "ticketCost": "{cost} Tickets Eintritt",
+    "ticketCostFree": "Kostenlos",
+    "notEnoughTickets": "Nicht genug Tickets ({have}/{need})",
+    "ticketEntryPaid": "Tickets bezahlt"
   },
   "predictions": {
     "title": "Vorhersagen",

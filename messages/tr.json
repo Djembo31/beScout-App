@@ -729,7 +729,11 @@
     "individualRatings": "Bireysel Puanlar",
     "listViewAria": "Liste görünümü",
     "cardViewAria": "Kart görünümü",
-    "rewardRankLabel": "Siralama {rank}"
+    "rewardRankLabel": "Siralama {rank}",
+    "ticketCost": "{cost} Bilet Giriş",
+    "ticketCostFree": "Ücretsiz",
+    "notEnoughTickets": "Yeterli bilet yok ({have}/{need})",
+    "ticketEntryPaid": "Biletler ödendi"
   },
   "predictions": {
     "title": "Tahminler",
