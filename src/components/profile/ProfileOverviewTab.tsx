@@ -1,20 +1,20 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, BarChart3, Trophy, Coins, FileText, Vote, Target, Flame, Crosshair, Banknote, UserCheck, Sparkles, Megaphone, Shield, CheckCircle, XCircle, Clock, CircleDollarSign, Star } from 'lucide-react';
-import { Card, StatCard, Button } from '@/components/ui';
-import { PositionBadge, PlayerIdentity } from '@/components/player';
+import { TrendingUp, TrendingDown, Sparkles, Trophy, Target, ArrowRight } from 'lucide-react';
+import { Card, Button } from '@/components/ui';
+import { PlayerIdentity } from '@/components/player';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
-import { getAchievementDef, getFeaturedAchievements } from '@/lib/achievements';
+import { getAchievementDef } from '@/lib/achievements';
 import { getRelativeTime } from '@/lib/activityHelpers';
-import { useUserMasteryAll } from '@/lib/queries/mastery';
-import ScoreRoadCard from '@/components/gamification/ScoreRoadCard';
-import PredictionStatsCard from '@/components/profile/PredictionStatsCard';
+import dynamic from 'next/dynamic';
 import type { Pos, DbUserAchievement, DbTransaction, UserTradeWithPlayer, UserFantasyResult, ResearchPostWithAuthor, AuthorTrackRecord } from '@/types';
 import { useTranslations, useLocale } from 'next-intl';
+
+const MissionBanner = dynamic(() => import('@/components/missions/MissionBanner'), { ssr: false });
 
 // ============================================
 // TYPES
@@ -57,20 +57,6 @@ interface ProfileOverviewTabProps {
   isSelf?: boolean;
 }
 
-const EARNING_TYPES: { type: string; labelKey: string; icon: React.ElementType; color: string }[] = [
-  { type: 'research_earning', labelKey: 'earningReports', icon: FileText, color: 'text-purple-400' },
-  { type: 'bounty_reward', labelKey: 'earningBounties', icon: Target, color: 'text-amber-400' },
-  { type: 'fantasy_reward', labelKey: 'earningFantasy', icon: Trophy, color: 'text-gold' },
-  { type: 'poll_revenue', labelKey: 'earningPolls', icon: Vote, color: 'text-sky-400' },
-  { type: 'mission_reward', labelKey: 'earningMissions', icon: Crosshair, color: 'text-emerald-400' },
-  { type: 'streak_reward', labelKey: 'earningStreaks', icon: Flame, color: 'text-orange-400' },
-  { type: 'pbt_liquidation', labelKey: 'earningPbt', icon: Banknote, color: 'text-gold' },
-  { type: 'tip_receive', labelKey: 'earningTips', icon: Coins, color: 'text-pink-400' },
-  { type: 'scout_subscription_earning', labelKey: 'earningSubscription', icon: UserCheck, color: 'text-indigo-400' },
-  { type: 'creator_fund_payout', labelKey: 'earningCreatorFund', icon: Sparkles, color: 'text-cyan-400' },
-  { type: 'ad_revenue_payout', labelKey: 'earningAdRevenue', icon: Megaphone, color: 'text-lime-400' },
-];
-
 // ============================================
 // COMPONENT
 // ============================================
@@ -84,47 +70,39 @@ export default function ProfileOverviewTab({
   portfolioCostCents,
   totalDpcs,
   userId,
-  transactions,
-  myResearch = [],
-  trackRecord,
+  transactions = [],
   isSelf = false,
 }: ProfileOverviewTabProps) {
-  const tg = useTranslations('gamification');
   const tp = useTranslations('profile');
+  const tg = useTranslations('gamification');
   const ta = useTranslations('activity');
   const locale = useLocale();
-  const [showAllAchievements, setShowAllAchievements] = useState(false);
-  const [showAllTrades, setShowAllTrades] = useState(false);
   const pnlCents = portfolioValueCents - portfolioCostCents;
-  const { data: masteryAll = [] } = useUserMasteryAll(userId);
-  const topMastery = masteryAll.slice(0, 5);
 
-  // Aggregate earnings by type
-  const earnings = useMemo(() => {
-    if (!transactions || transactions.length === 0) return null;
-    const earningTypeSet = new Set(EARNING_TYPES.map(e => e.type));
-    const byType = new Map<string, number>();
-    let total = 0;
-    for (const tx of transactions) {
-      if (earningTypeSet.has(tx.type) && tx.amount > 0) {
-        byType.set(tx.type, (byType.get(tx.type) ?? 0) + tx.amount);
-        total += tx.amount;
-      }
-    }
-    if (total === 0) return null;
-    return { byType, total };
-  }, [transactions]);
+  // Compute "next action" state
+  const hasHoldings = holdings.length > 0;
+
+  // Recent 5 transactions for compact activity
+  const recentActivity = transactions.slice(0, 5);
+
+  // Last 3 unlocked achievements
+  const recentAchievements = achievements
+    .slice()
+    .sort((a, b) => new Date(b.unlocked_at).getTime() - new Date(a.unlocked_at).getTime())
+    .slice(0, 3)
+    .map(a => ({ ...a, def: getAchievementDef(a.achievement_key) }))
+    .filter(a => a.def);
 
   return (
-    <>
-      {/* Welcome Card for new users */}
-      {isSelf && holdings.length === 0 && !earnings && (
+    <div className="space-y-4">
+      {/* 1. Adaptive "Next Action" Card */}
+      {isSelf && !hasHoldings && (
         <Card className="p-5 border-gold/20 bg-gold/[0.03]">
           <div className="flex items-start gap-3">
             <Sparkles className="size-5 text-gold flex-shrink-0 mt-0.5" aria-hidden="true" />
             <div>
-              <div className="font-bold text-sm">{tp('overviewWelcomeTitle')}</div>
-              <div className="text-xs text-white/50 mt-1">{tp('overviewWelcomeDesc')}</div>
+              <div className="font-bold text-sm">{tp('nextActionBuy')}</div>
+              <div className="text-[13px] text-white/50 mt-1">{tp('overviewWelcomeDesc')}</div>
               <Link href="/market?tab=kaufen">
                 <Button variant="gold" size="sm" className="mt-3">{tp('overviewStartNow')}</Button>
               </Link>
@@ -133,393 +111,87 @@ export default function ProfileOverviewTab({
         </Card>
       )}
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label={tp('portfolioValue')} value={`${formatScout(portfolioValueCents)} bCredits`} icon={<BarChart3 className="size-4 text-white/40" aria-hidden="true" />} />
-        <StatCard
-          label={tp('valueChange')}
-          value={`${pnlCents >= 0 ? '+' : ''}${formatScout(pnlCents)} bCredits`}
-          trend={pnlCents >= 0 ? 'up' : 'down'}
-          icon={pnlCents >= 0 ? <TrendingUp className="size-4 text-vivid-green" aria-hidden="true" /> : <TrendingDown className="size-4 text-vivid-red" aria-hidden="true" />}
-        />
-        <StatCard label={tp('playersLabel')} value={holdings.length} />
-        <StatCard label="DPCs" value={totalDpcs} />
-      </div>
+      {/* 2. MissionBanner — finally visible! */}
+      {isSelf && <MissionBanner />}
 
-      {/* Earnings Breakdown */}
-      {earnings && (
-        <Card className="p-4 md:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-black flex items-center gap-2">
-              <Coins className="size-4 text-gold" aria-hidden="true" />
-              {tp('earnings')}
-            </h3>
-            <span className="text-sm font-mono font-bold text-green-500">+{fmtScout(centsToBsd(earnings.total))} bCredits</span>
+      {/* 3. Portfolio Pulse — compact value + change + top 3 */}
+      {(isSelf || portfolioValueCents > 0) && (
+        <Card className="p-4 md:p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-black text-sm">{tp('portfolioPulse')}</h3>
+            <Link href="#" onClick={(e) => { e.preventDefault(); }} className="text-[11px] text-gold hover:text-gold/80 transition-colors">
+              {tp('squad')} <ArrowRight className="inline size-3" />
+            </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-            {EARNING_TYPES.map(et => {
-              const amount = earnings.byType.get(et.type) ?? 0;
-              if (amount === 0) return null;
-              const Icon = et.icon;
-              return (
-                <div key={et.type} className="p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <Icon className={cn('size-3.5', et.color)} aria-hidden="true" />
-                    <span className="text-xs text-white/50">{tp(et.labelKey)}</span>
-                  </div>
-                  <div className="text-sm font-mono font-bold text-white">+{fmtScout(centsToBsd(amount))} bCredits</div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-      )}
-
-      {/* Track Record */}
-      {trackRecord && trackRecord.totalCalls > 0 && (
-        <Card className="p-4 md:p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="size-5 text-gold" aria-hidden="true" />
-            <h3 className="font-black">Track Record</h3>
-            <div className="flex-1" />
-            {trackRecord.totalCalls >= 5 && trackRecord.hitRate >= 60 ? (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-gold/15 text-gold border border-gold/25">
-                <Shield className="size-3" aria-hidden="true" />
-                {tp('verifiedScout')}
-              </span>
-            ) : trackRecord.totalCalls < 5 ? (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-white/5 text-white/40 border border-white/10">
-                <Shield className="size-3" aria-hidden="true" />
-                {tp('callsProgress', { n: trackRecord.totalCalls })}
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-white/5 text-white/40 border border-white/10">
-                <Shield className="size-3" aria-hidden="true" />
-                {trackRecord.hitRate}%/60% Hit-Rate
+          <div className="flex items-baseline gap-3 mb-3">
+            <span className="text-xl font-mono font-black text-gold">
+              {formatScout(portfolioValueCents)} bCredits
+            </span>
+            {isSelf && (
+              <span className={cn('text-sm font-mono font-bold flex items-center gap-0.5', pnlCents >= 0 ? 'text-green-500' : 'text-red-400')}>
+                {pnlCents >= 0 ? <TrendingUp className="size-3" aria-hidden="true" /> : <TrendingDown className="size-3" aria-hidden="true" />}
+                {pnlCents >= 0 ? '+' : ''}{formatScout(pnlCents)}
               </span>
             )}
           </div>
-          <div className="flex items-center gap-6 flex-wrap">
-            <div className="text-center">
-              <div className={cn(
-                'text-3xl font-mono font-black',
-                trackRecord.hitRate >= 60 ? 'text-gold' : trackRecord.hitRate >= 40 ? 'text-white' : 'text-red-400'
-              )}>
-                {trackRecord.hitRate}%
-              </div>
-              <div className="text-xs text-white/40 mt-0.5">Hit-Rate</div>
-            </div>
-            <div>
-              <div className="text-sm text-white/60 mb-1">
-                {trackRecord.correctCalls} / {trackRecord.totalCalls} Calls
-              </div>
-              <div className="w-40 h-2 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gold rounded-full transition-colors"
-                  style={{ width: `${trackRecord.hitRate}%` }}
-                />
-              </div>
-              <div className="flex items-center gap-3 mt-2 text-xs text-white/50">
-                <span className="flex items-center gap-1">
-                  <CheckCircle className="size-3 text-green-500" aria-hidden="true" />
-                  {trackRecord.correctCalls}
-                </span>
-                <span className="flex items-center gap-1">
-                  <XCircle className="size-3 text-red-400" aria-hidden="true" />
-                  {trackRecord.incorrectCalls}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="size-3 text-white/30" aria-hidden="true" />
-                  {trackRecord.pendingCalls}
-                </span>
-              </div>
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {/* Research Einnahmen */}
-      {myResearch.length > 0 && (() => {
-        const totalEarned = myResearch.reduce((s, p) => s + p.total_earned, 0);
-        const totalUnlocks = myResearch.reduce((s, p) => s + p.unlock_count, 0);
-        const rated = myResearch.filter(p => p.avg_rating > 0);
-        const avgRating = rated.length > 0 ? rated.reduce((s, p) => s + p.avg_rating, 0) / rated.length : 0;
-        if (totalEarned === 0 && totalUnlocks === 0) return null;
-        return (
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <CircleDollarSign className="size-5 text-green-500" aria-hidden="true" />
-              <h3 className="font-black">{tp('researchEarnings')}</h3>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-3 bg-green-500/5 border border-green-500/10 rounded-xl">
-                <div className="text-2xl font-mono font-black text-green-500">{fmtScout(centsToBsd(totalEarned))}</div>
-                <div className="text-[10px] text-white/40 mt-1">{tp('scoutEarned')}</div>
-              </div>
-              <div className="text-center p-3 bg-surface-base border border-white/[0.06] rounded-xl">
-                <div className="text-2xl font-mono font-black">{totalUnlocks}</div>
-                <div className="text-[10px] text-white/40 mt-1">{tp('salesLabel')}</div>
-              </div>
-              <div className="text-center p-3 bg-surface-base border border-white/[0.06] rounded-xl">
-                <div className="text-2xl font-mono font-black text-gold">{avgRating > 0 ? avgRating.toFixed(1) : '-'}</div>
-                <div className="text-[10px] text-white/40 mt-1 flex items-center justify-center gap-0.5">
-                  <Star className="w-3 h-3" aria-hidden="true" /> {tp('avgRating')}
-                </div>
-              </div>
-              <div className="text-center p-3 bg-surface-base border border-white/[0.06] rounded-xl">
-                <div className="text-2xl font-mono font-black">{myResearch.length}</div>
-                <div className="text-[10px] text-white/40 mt-1">{tp('reportsCount')}</div>
-              </div>
-            </div>
-          </Card>
-        );
-      })()}
-
-      {/* Top Holdings */}
-      {holdings.length > 0 && (
-        <Card className="p-4 md:p-6">
-          <h3 className="font-black mb-3">{tp('topPositions')}</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {holdings
-              .sort((a, b) => (b.quantity * b.player.floor_price) - (a.quantity * a.player.floor_price))
-              .slice(0, 3)
-              .map((h) => {
-                const valueCents = h.quantity * h.player.floor_price;
-                const pnl = h.quantity * (h.player.floor_price - h.avg_buy_price);
-                return (
-                  <Link key={h.id} href={`/player/${h.player_id}`}>
-                    <div className="p-3 bg-white/[0.03] rounded-xl border border-white/[0.06] hover:border-white/10 transition-colors">
-                      <div className="flex items-center gap-2 mb-2">
+          {/* Top 3 Holdings compact */}
+          {holdings.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              {holdings
+                .slice()
+                .sort((a, b) => (b.quantity * b.player.floor_price) - (a.quantity * a.player.floor_price))
+                .slice(0, 3)
+                .map((h) => (
+                  <Link key={h.id} href={`/player/${h.player_id}`} className="flex-shrink-0">
+                    <div className="px-3 py-2 bg-white/[0.03] rounded-lg border border-white/[0.06] hover:border-white/10 transition-colors">
+                      <div className="flex items-center gap-2">
                         <PlayerIdentity
                           player={{ first: h.player.first_name, last: h.player.last_name, pos: h.player.position as Pos, status: 'fit', club: h.player.club, ticket: 0, age: 0, imageUrl: h.player.image_url }}
                           size="sm" showMeta={false} showStatus={false}
                         />
                       </div>
-                      <div className="text-xs text-white/40 mb-1">{h.player.club} · {h.quantity}x</div>
-                      <div className="flex items-center justify-between">
-                        <span className="font-mono font-bold text-gold text-sm">{fmtScout(centsToBsd(valueCents))}</span>
-                        <span className={cn('text-xs font-mono', pnl >= 0 ? 'text-green-500' : 'text-red-400')}>
-                          {pnl >= 0 ? '+' : ''}{fmtScout(centsToBsd(pnl))}
-                        </span>
-                      </div>
+                      <div className="text-[11px] text-white/40 mt-1">{h.quantity}x · {fmtScout(centsToBsd(h.quantity * h.player.floor_price))}</div>
                     </div>
                   </Link>
-                );
-              })}
-          </div>
-        </Card>
-      )}
-
-      {/* DPC Mastery — Kader-Stärke */}
-      {topMastery.length > 0 && (
-        <Card className="p-6">
-          <h3 className="font-black mb-4">{tg('mastery.title')}</h3>
-          <div className="space-y-2">
-            {topMastery.map(m => {
-              const h = holdings.find(h => h.player_id === m.player_id);
-              const playerName = h?.player
-                ? `${h.player.first_name} ${h.player.last_name}`
-                : m.player_id.slice(0, 8);
-              return (
-                <div key={m.id} className="flex items-center justify-between p-2 bg-white/[0.03] rounded-lg border border-white/[0.06]">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold truncate max-w-[140px]">{playerName}</span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-lg bg-gold/15 text-gold text-[10px] font-black border border-gold/25">
-                    {tg('mastery.level', { level: m.level })} — {tg(`mastery.level${m.level}`)}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-      )}
-
-      {/* Achievements — Featured always visible, Hidden only when unlocked */}
-      {(() => {
-        const unlockedKeys = new Set(achievements.map(a => a.achievement_key));
-        const featured = getFeaturedAchievements();
-        const unlockedHidden = achievements
-          .filter(a => { const d = getAchievementDef(a.achievement_key); return d && !d.featured; })
-          .map(a => ({ key: a.achievement_key, def: getAchievementDef(a.achievement_key)! }));
-
-        const allItems = [
-          ...featured.map(def => ({ key: def.key, def, isUnlocked: unlockedKeys.has(def.key), isHidden: false })),
-          ...unlockedHidden.map(({ key, def }) => ({ key, def, isUnlocked: true, isHidden: true })),
-        ];
-        const INITIAL_SHOW = 6;
-        const visibleItems = showAllAchievements ? allItems : allItems.slice(0, INITIAL_SHOW);
-        const hasMore = allItems.length > INITIAL_SHOW;
-
-        return allItems.length > 0 ? (
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-black">{tg('achievement.title')}</h3>
-              <span className="text-xs text-white/40">{unlockedKeys.size}/{allItems.length}</span>
+                ))}
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {visibleItems.map(({ key, def, isUnlocked, isHidden }) => isHidden ? (
-                <div key={key} className="p-3 bg-gold/[0.04] rounded-xl border border-gold/15">
-                  <div className="text-xl mb-1">{def.icon}</div>
-                  <div className="text-sm font-bold text-gold">{tg(`achievement.${def.key}`)}</div>
-                  <div className="text-[10px] text-white/40 mt-0.5">{tg(`achievement.${def.key}Desc`)}</div>
-                  <div className="text-[9px] text-gold/50 mt-1 uppercase font-bold">{tg('achievement.hidden')}</div>
-                </div>
-              ) : (
-                <div key={key} className={cn(
-                  'p-3 rounded-xl border',
-                  isUnlocked
-                    ? 'bg-white/[0.03] border-white/[0.06]'
-                    : 'bg-white/[0.01] border-white/[0.03] opacity-40'
-                )}>
-                  <div className="text-xl mb-1">{isUnlocked ? def.icon : '🔒'}</div>
-                  <div className="text-sm font-bold">{tg(`achievement.${def.key}`)}</div>
-                  <div className="text-[10px] text-white/40 mt-0.5">{tg(`achievement.${def.key}Desc`)}</div>
-                </div>
-              ))}
-            </div>
-            {hasMore && (
-              <button
-                onClick={() => setShowAllAchievements(prev => !prev)}
-                className="w-full mt-3 py-2 text-xs text-white/40 hover:text-white/60 transition-colors"
-              >
-                {showAllAchievements ? tg('achievement.showLess') : tg('achievement.showAll', { count: allItems.length })}
-              </button>
-            )}
-          </Card>
-        ) : null;
-      })()}
-
-      {/* Score Road */}
-      {userId && <ScoreRoadCard userId={userId} />}
-
-      {/* Prediction Stats */}
-      {userId && <PredictionStatsCard userId={userId} />}
-
-      {/* Letzte Trades */}
-      {recentTrades.length > 0 && (() => {
-        const INITIAL_TRADES = 5;
-        const visibleTrades = showAllTrades ? recentTrades : recentTrades.slice(0, INITIAL_TRADES);
-        const hasMoreTrades = recentTrades.length > INITIAL_TRADES;
-        return (
-        <Card className="p-4 md:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-black">{tp('recentTrades')}</h3>
-            <span className="text-xs text-white/40">{tp('tradesCount', { count: recentTrades.length })}</span>
-          </div>
-          <div className="space-y-1">
-            {visibleTrades.map((trade) => {
-              const isBuy = trade.buyer_id === userId;
-              const totalCents = trade.price * trade.quantity;
-              const unitBsd = centsToBsd(trade.price);
-              return (
-                <Link key={trade.id} href={`/player/${trade.player_id}`}>
-                  <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors">
-                    <div className={cn(
-                      'flex items-center justify-center size-8 rounded-lg shrink-0',
-                      isBuy ? 'text-gold bg-gold/10' : 'text-green-500 bg-green-500/10'
-                    )}>
-                      {isBuy ? <ArrowDownRight className="size-4" aria-hidden="true" /> : <ArrowUpRight className="size-4" aria-hidden="true" />}
-                    </div>
-                    <PositionBadge pos={trade.player_position as Pos} size="sm" />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold truncate">
-                        {trade.player_first_name} {trade.player_last_name}
-                      </div>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className={cn(
-                          'px-1.5 py-0.5 rounded text-[10px] font-bold',
-                          isBuy ? 'bg-gold/15 text-gold' : 'bg-green-500/15 text-green-500'
-                        )}>
-                          {isBuy ? tp('tradeBuy') : tp('tradeSell')}
-                        </span>
-                        <span className="text-[10px] text-white/30">{trade.quantity}x · {getRelativeTime(trade.executed_at, ta('justNow'), locale)}</span>
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className={cn('text-sm font-mono font-bold', isBuy ? 'text-white' : 'text-green-500')}>
-                        {isBuy ? '-' : '+'}{fmtScout(centsToBsd(totalCents))} bCredits
-                      </div>
-                      <div className="text-[10px] text-white/30 font-mono">à {fmtScout(unitBsd)}</div>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-          {hasMoreTrades && (
-            <button
-              onClick={() => setShowAllTrades(prev => !prev)}
-              className="w-full mt-3 py-2 text-xs text-white/40 hover:text-white/60 transition-colors"
-            >
-              {showAllTrades ? tp('showLessTrades') : tp('showAllTrades', { count: recentTrades.length })}
-            </button>
           )}
         </Card>
-        );
-      })()}
+      )}
 
-      {/* Fantasy-Ergebnisse */}
-      {fantasyResults.length > 0 && (
-        <Card className="p-4 md:p-6">
-          <h3 className="font-black mb-4">{tp('fantasyResults')}</h3>
-          {/* Summary */}
-          <div className="grid grid-cols-4 gap-3 mb-4 p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
-            <div className="text-center">
-              <div className="text-lg font-mono font-black text-white">{fantasyResults.length}</div>
-              <div className="text-[10px] text-white/40">Events</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-mono font-black text-white">
-                {Math.round(fantasyResults.reduce((s, r) => s + r.totalScore, 0) / fantasyResults.length)}
-              </div>
-              <div className="text-[10px] text-white/40">Avg Score</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-mono font-black text-gold">
-                #{Math.min(...fantasyResults.filter(r => r.rank > 0).map(r => r.rank))}
-              </div>
-              <div className="text-[10px] text-white/40">{tp('bestRank')}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-mono font-black text-green-500">
-                {fmtScout(centsToBsd(fantasyResults.reduce((s, r) => s + r.rewardAmount, 0)))}
-              </div>
-              <div className="text-[10px] text-white/40">{tp('wonLabel')}</div>
-            </div>
+      {/* 4. Recent Activity — 5 items compact */}
+      {recentActivity.length > 0 && (
+        <Card className="p-4 md:p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-black text-sm">{tp('recentActivity')}</h3>
+            <button
+              onClick={() => {/* Switch to activity tab handled by parent */}}
+              className="text-[11px] text-gold hover:text-gold/80 transition-colors"
+            >
+              {tp('viewAllActivity')} <ArrowRight className="inline size-3" />
+            </button>
           </div>
-          {/* Event List */}
           <div className="space-y-1">
-            {fantasyResults.map((result) => {
-              const rankColor = result.rank === 1 ? 'text-gold' : result.rank === 2 ? 'text-zinc-300' : result.rank === 3 ? 'text-amber-600' : 'text-white/50';
-              const scoreColor = result.totalScore >= 100 ? 'text-gold' : result.totalScore >= 70 ? 'text-white' : 'text-red-400';
+            {recentActivity.map((tx) => {
+              const isBuy = tx.type === 'buy' || tx.type === 'ipo_buy';
+              const isSell = tx.type === 'sell';
+              const isReward = tx.type.includes('reward') || tx.type.includes('earning');
               return (
-                <div key={result.eventId} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors">
-                  <div className={cn('flex items-center justify-center size-8 rounded-lg shrink-0', rankColor, 'bg-white/5')}>
-                    <Trophy className="size-4" aria-hidden="true" />
+                <div key={tx.id} className="flex items-center gap-3 py-2 px-1">
+                  <div className={cn(
+                    'size-6 rounded flex items-center justify-center flex-shrink-0',
+                    isBuy ? 'bg-gold/10 text-gold' : isSell ? 'bg-green-500/10 text-green-500' : isReward ? 'bg-emerald-500/10 text-emerald-500' : 'bg-white/5 text-white/30'
+                  )}>
+                    {isReward ? <Trophy className="size-3" aria-hidden="true" /> : <Target className="size-3" aria-hidden="true" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold truncate">{result.eventName}</div>
-                    <div className="flex items-center gap-2 mt-0.5 text-[10px] text-white/30">
-                      {result.gameweek && <span>GW {result.gameweek}</span>}
-                      {result.eventDate && <span>{new Date(result.eventDate).toLocaleDateString(locale)}</span>}
-                    </div>
+                    <span className="text-[13px] truncate block">{ta(tx.type)}</span>
                   </div>
-                  <div className="flex items-center gap-4 flex-shrink-0">
-                    <div className="text-right">
-                      <div className={cn('text-sm font-mono font-bold', rankColor)}>#{result.rank}</div>
-                      <div className="text-[10px] text-white/30">{tp('rankLabel')}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className={cn('text-sm font-mono font-bold', scoreColor)}>{result.totalScore}</div>
-                      <div className="text-[10px] text-white/30">Score</div>
-                    </div>
-                    {result.rewardAmount > 0 && (
-                      <div className="text-right">
-                        <div className="text-sm font-mono font-bold text-green-500">+{fmtScout(centsToBsd(result.rewardAmount))}</div>
-                        <div className="text-[10px] text-white/30">bCredits</div>
-                      </div>
-                    )}
+                  <div className="text-right flex-shrink-0">
+                    <span className={cn('text-[13px] font-mono font-bold', tx.amount > 0 ? 'text-green-500' : 'text-white/60')}>
+                      {tx.amount > 0 ? '+' : ''}{fmtScout(centsToBsd(tx.amount))}
+                    </span>
+                    <div className="text-[11px] text-white/30">{getRelativeTime(tx.created_at, ta('justNow'), locale)}</div>
                   </div>
                 </div>
               );
@@ -528,44 +200,25 @@ export default function ProfileOverviewTab({
         </Card>
       )}
 
-      {/* Bestande */}
-      <Card className="p-6">
-        <h3 className="font-black mb-4">{tp('holdingsTitle')}</h3>
-        {holdings.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="text-white/30 mb-3">{tp('noHoldings')}</div>
-            <Link href="/market">
-              <Button variant="gold" size="sm">{tp('goToMarket')}</Button>
-            </Link>
+      {/* 5. Achievement Highlights — 3 most recent */}
+      {recentAchievements.length > 0 && (
+        <Card className="p-4 md:p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-black text-sm">{tp('achievementHighlights')}</h3>
+            <span className="text-[11px] text-white/40">
+              {tp('viewAllAchievements', { count: achievements.length })}
+            </span>
           </div>
-        ) : (
-          <div className="space-y-3">
-            {holdings.map((h) => {
-              const floorBsd = centsToBsd(h.player?.floor_price ?? 0);
-              const avgBsd = centsToBsd(h.avg_buy_price);
-              const holdingPnl = (floorBsd - avgBsd) * h.quantity;
-              return (
-                <Link key={h.id} href={`/player/${h.player_id}`}>
-                  <div className="flex items-center justify-between p-3 bg-surface-base rounded-xl hover:bg-white/[0.04] transition-colors">
-                    <div className="flex items-center gap-3">
-                      <PlayerIdentity
-                        player={{ first: h.player?.first_name ?? '', last: h.player?.last_name ?? '', pos: (h.player?.position ?? 'MID') as Pos, status: 'fit', club: h.player?.club ?? '', ticket: 0, age: 0, imageUrl: h.player?.image_url }}
-                        size="sm" showMeta={false} showStatus={false}
-                      />
-                    </div>
-                    <div className="text-right">
-                      <div className="font-mono font-bold">{h.quantity} DPC</div>
-                      <div className={cn('text-xs font-mono', holdingPnl >= 0 ? 'text-green-500' : 'text-red-300')}>
-                        {holdingPnl >= 0 ? '+' : ''}{fmtScout(Math.round(holdingPnl))} bCredits
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
+          <div className="flex gap-3">
+            {recentAchievements.map(({ achievement_key, def }) => def && (
+              <div key={achievement_key} className="flex-1 p-3 bg-white/[0.03] rounded-xl border border-white/[0.06] text-center">
+                <div className="text-xl mb-1">{def.icon}</div>
+                <div className="text-[11px] font-bold">{tg(`achievement.${def.key}`)}</div>
+              </div>
+            ))}
           </div>
-        )}
-      </Card>
-    </>
+        </Card>
+      )}
+    </div>
   );
 }

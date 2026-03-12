@@ -1,12 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { User, BadgeCheck, Settings, Loader2, RefreshCw, Users, Calendar, MessageCircle, ArrowUp, Share2, TrendingUp, Trophy, Search, Award, Zap, Lock } from 'lucide-react';
+import { BadgeCheck, Settings, Loader2, RefreshCw, Users, Share2, Flame } from 'lucide-react';
 import { Card, Button, Chip, ErrorState } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
-import { ScoreCircle } from '@/components/player';
 import { cn, fmtScout } from '@/lib/utils';
-import { useUser, displayName } from '@/components/providers/AuthProvider';
+import { useUser } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { getHoldings, getTransactions, formatScout } from '@/lib/services/wallet';
 import { getUserStats, refreshUserStats, getFollowerCount, getFollowingCount, getUserAchievements, checkAndUnlockAchievements, isFollowing, followUser, unfollowUser } from '@/lib/services/social';
@@ -18,38 +17,42 @@ import { getUserTrades } from '@/lib/services/trading';
 import { getUserFantasyHistory } from '@/lib/services/lineups';
 import { val } from '@/lib/settledHelpers';
 import ProfileOverviewTab from '@/components/profile/ProfileOverviewTab';
-import ProfilePortfolioTab from '@/components/profile/ProfilePortfolioTab';
 import ProfileActivityTab from '@/components/profile/ProfileActivityTab';
 import FollowListModal from '@/components/profile/FollowListModal';
-import { getExpertBadges } from '@/lib/expertBadges';
-import { getMySubscription, TIER_CONFIG } from '@/lib/services/clubSubscriptions';
+import { getMySubscription } from '@/lib/services/clubSubscriptions';
 import SubscriptionBadge from '@/components/ui/SubscriptionBadge';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import type { ClubSubscription, SubscriptionTier } from '@/lib/services/clubSubscriptions';
-import type { ExpertBadge } from '@/lib/expertBadges';
 
 const AirdropScoreCard = dynamic(() => import('@/components/airdrop/AirdropScoreCard'), { ssr: false });
 const ReferralCard = dynamic(() => import('@/components/airdrop/ReferralCard'), { ssr: false });
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
-const CosmeticInventory = dynamic(() => import('@/components/gamification/CosmeticInventory'), { ssr: false });
+const ProfileSquadTab = dynamic(() => import('@/components/profile/ProfileSquadTab'));
+const ProfileStatsTab = dynamic(() => import('@/components/profile/ProfileStatsTab'));
 import type { HoldingRow } from '@/components/profile/ProfileOverviewTab';
 import type { ProfileTab, Profile, DbTransaction, DbUserStats, DbUserAchievement, ResearchPostWithAuthor, AuthorTrackRecord, UserTradeWithPlayer, UserFantasyResult, PostWithAuthor } from '@/types';
-import { RangBadge, DimensionRangStack } from '@/components/ui/RangBadge';
+import { RangBadge } from '@/components/ui/RangBadge';
 import FoundingScoutBadge from '@/components/ui/FoundingScoutBadge';
 import FoundingPassBadge from '@/components/ui/FoundingPassBadge';
+import { getRang, getDimensionColor, type Dimension } from '@/lib/gamification';
 import { useScoutScores, useScoutingStats, qk } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
-import { FileText, Target as TargetIcon, CheckCircle, Star } from 'lucide-react';
 import { useTranslations as useProfileTranslations, useLocale } from 'next-intl';
 import { useHighestPass } from '@/lib/queries/foundingPasses';
-import { useUserCosmetics } from '@/lib/queries/cosmetics';
-import { equipCosmetic } from '@/lib/services/cosmetics';
+import { getLoginStreak } from '@/components/home/helpers';
 
-const TAB_IDS: { id: ProfileTab; selfOnly?: boolean }[] = [
+const TAB_IDS: { id: ProfileTab }[] = [
   { id: 'overview' },
-  { id: 'portfolio', selfOnly: true },
+  { id: 'squad' },
+  { id: 'stats' },
   { id: 'activity' },
-  { id: 'settings', selfOnly: true },
+];
+
+const DIMENSIONS: { key: Dimension; scoreKey: 'trader_score' | 'manager_score' | 'analyst_score' }[] = [
+  { key: 'trader', scoreKey: 'trader_score' },
+  { key: 'manager', scoreKey: 'manager_score' },
+  { key: 'analyst', scoreKey: 'analyst_score' },
 ];
 
 // Transaction types safe to show publicly (no wallet/deposit/withdrawal info)
@@ -63,11 +66,9 @@ interface ProfileViewProps {
   targetUserId: string;
   targetProfile: Profile;
   isSelf: boolean;
-  /** Render the settings tab â€" only provided for own profile */
-  renderSettings?: () => React.ReactNode;
 }
 
-export default function ProfileView({ targetUserId, targetProfile, isSelf, renderSettings }: ProfileViewProps) {
+export default function ProfileView({ targetUserId, targetProfile, isSelf }: ProfileViewProps) {
   const { user } = useUser();
   const { balanceCents } = useWallet();
   const { addToast } = useToast();
@@ -92,9 +93,11 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
   const { data: highestPassData } = useHighestPass(targetUserId);
   const highestPass = highestPassData?.tier ?? null;
 
-  // Cosmetics (Gamification v5)
-  const { data: userCosmetics = [] } = useUserCosmetics(isSelf ? targetUserId : undefined);
-  const [isEquipping, setIsEquipping] = useState(false);
+  // Bio expand
+  const [bioExpanded, setBioExpanded] = useState(false);
+
+  // Streak (from localStorage for self, 0 for public)
+  const streakDays = isSelf ? getLoginStreak().current : 0;
 
   // Reputation & Social
   const [userStats, setUserStats] = useState<DbUserStats | null>(null);
@@ -227,19 +230,6 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
     finally { setStatsRefreshing(false); }
   }, [targetUserId, statsRefreshing]);
 
-  const handleEquipCosmetic = useCallback(async (cosmeticId: string) => {
-    setIsEquipping(true);
-    try {
-      await equipCosmetic(cosmeticId);
-      queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(targetUserId) });
-      queryClient.invalidateQueries({ queryKey: qk.cosmetics.equipped(targetUserId) });
-    } catch (err) {
-      console.error('[ProfileView] equipCosmetic:', err);
-    } finally {
-      setIsEquipping(false);
-    }
-  }, [targetUserId]);
-
   // Level-Up Detection (localStorage comparison â†' celebration toast)
   const userLevel = targetProfile.level ?? 1;
   useEffect(() => {
@@ -263,171 +253,186 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
   const portfolioCostCents = holdings.reduce((s, h) => s + h.quantity * h.avg_buy_price, 0);
   const totalDpcs = holdings.reduce((s, h) => s + h.quantity, 0);
 
-  const visibleTabs = TAB_IDS.filter((t) => !t.selfOnly || isSelf);
+  const visibleTabs = TAB_IDS;
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-6">
-      {/* Header â€" Sorare-Style */}
-      <div className="flex items-start gap-4 md:gap-5">
-        {/* Avatar â€" 96px */}
-        <div className="size-20 md:size-24 rounded-2xl bg-gold/[0.12] border-2 border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
-          {targetProfile.avatar_url ? (
-            <img src={targetProfile.avatar_url} alt="" className="w-full h-full object-cover" />
-          ) : (
-            <span className="font-black text-2xl md:text-3xl text-white/70">{initial}</span>
+    <div className="max-w-[1400px] mx-auto space-y-4 md:space-y-6">
+      {/* ===== COMPRESSED HEADER — Fan Identity Card (~250px mobile) ===== */}
+      <div className="space-y-3">
+        {/* Row 1: Avatar + Name + Badges + Handle + Followers */}
+        <div className="flex items-start gap-3">
+          <div className="size-12 rounded-xl bg-gold/[0.12] border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+            {targetProfile.avatar_url ? (
+              <img src={targetProfile.avatar_url} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="font-black text-lg text-white/70">{initial}</span>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <h1 className="text-lg md:text-2xl font-black truncate">{name}</h1>
+              {targetProfile.verified && <BadgeCheck className="size-4 text-gold flex-shrink-0" aria-hidden="true" />}
+              <Chip className="bg-gold/15 text-gold border-gold/25 text-[11px]">{userPlan}</Chip>
+              <FoundingPassBadge tier={highestPass} size="sm" />
+            </div>
+            <div className="flex items-center gap-2 text-[13px] text-white/50 flex-wrap">
+              <span>{userHandle}</span>
+              <span className="text-white/20">·</span>
+              <button
+                onClick={() => setFollowListMode('followers')}
+                className="hover:text-white/80 transition-colors"
+              >
+                <strong className="text-white/70">{followerCount}</strong> Follower
+              </button>
+              <button
+                onClick={() => setFollowListMode('following')}
+                className="hover:text-white/80 transition-colors"
+              >
+                <strong className="text-white/70">{followingCount}</strong> Folge ich
+              </button>
+              {targetProfile.favorite_club && (
+                <>
+                  <span className="text-white/20">·</span>
+                  <span className="flex items-center gap-1">
+                    {getClubName(targetProfile.favorite_club)}
+                    {clubSub && <SubscriptionBadge tier={clubSub.tier as SubscriptionTier} size="sm" />}
+                  </span>
+                </>
+              )}
+            </div>
+            {/* Expandable Bio */}
+            {targetProfile.bio && (
+              <div className="mt-1">
+                <p className={cn('text-[13px] text-white/50 max-w-lg', !bioExpanded && 'line-clamp-1')}>
+                  {targetProfile.bio}
+                </p>
+                {targetProfile.bio.length > 80 && (
+                  <button
+                    onClick={() => setBioExpanded(!bioExpanded)}
+                    className="text-[11px] text-gold hover:text-gold/80 transition-colors"
+                  >
+                    {bioExpanded ? tp('lessBio') : tp('moreBio')}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Row 2: Compact 3-Dimension Elo Bars */}
+        {scoutScores && (
+          <div className="flex items-center gap-3 px-1">
+            {DIMENSIONS.map(({ key, scoreKey }) => {
+              const score = scoutScores[scoreKey];
+              const rang = getRang(score);
+              const progress = rang.maxScore
+                ? ((score - rang.minScore) / (rang.maxScore - rang.minScore)) * 100
+                : 100;
+              return (
+                <div key={key} className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className={cn('text-[11px] font-bold', getDimensionColor(key))}>
+                      {tg(`dimension.${key}`)}
+                    </span>
+                    <span className="text-[11px] text-white/40 font-mono">{rang.fullName}</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                    <div
+                      className={cn('h-full rounded-full transition-all', rang.bgColor)}
+                      style={{ width: `${Math.min(100, Math.max(5, progress))}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Row 3: Stats Ribbon — Rank / Portfolio / Streak */}
+        <div className="flex items-center gap-0 rounded-xl bg-white/[0.03] border border-white/[0.06] divide-x divide-white/[0.06] overflow-hidden">
+          <div className="flex-1 px-3 py-2.5 text-center">
+            <div className="text-lg font-mono font-black text-white/90">
+              {userStats && userStats.rank > 0 ? `#${userStats.rank}` : '\u2014'}
+            </div>
+            <div className="text-[11px] text-white/40">{tp('totalRank')}</div>
+          </div>
+          <div className="flex-1 px-3 py-2.5 text-center">
+            <div className="text-lg font-mono font-black text-gold">
+              {fmtScout(centsToBsd(portfolioValueCents))}
+            </div>
+            <div className="text-[11px] text-white/40">{tp('portfolioPulse')}</div>
+          </div>
+          <div className="flex-1 px-3 py-2.5 text-center">
+            <div className="flex items-center justify-center gap-1">
+              <Flame className={cn('size-4', streakDays > 0 ? 'text-orange-400' : 'text-white/20')} aria-hidden="true" />
+              <span className={cn('text-lg font-mono font-black', streakDays > 0 ? 'text-orange-400' : 'text-white/30')}>
+                {streakDays}
+              </span>
+            </div>
+            <div className="text-[11px] text-white/40">{tp('streakLabel')}</div>
+          </div>
+        </div>
+
+        {/* Row 4: Action Buttons */}
+        <div className="flex items-center gap-2">
+          {!isSelf && user && (
+            <Button
+              variant={following ? 'outline' : 'gold'}
+              size="sm"
+              onClick={handleToggleFollow}
+              disabled={followLoading}
+            >
+              {following ? tp('unfollow') : tp('follow')}
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              const url = `${window.location.origin}/profile/${targetProfile.handle}`;
+              const text = `${name} auf BeScout`;
+              if (navigator.share) {
+                try { await navigator.share({ title: text, url }); } catch (err) { console.error('[ProfileView] share:', err); }
+              } else {
+                await navigator.clipboard.writeText(url);
+                addToast('Link kopiert!', 'success');
+              }
+            }}
+          >
+            <Share2 className="size-3.5" aria-hidden="true" />
+            Teilen
+          </Button>
+          {isSelf && (
+            <Link
+              href="/profile/settings"
+              className="ml-auto p-2 rounded-lg hover:bg-white/5 transition-colors text-white/40 hover:text-white/70"
+              aria-label={tp('settingsLabel')}
+            >
+              <Settings className="size-4" aria-hidden="true" />
+            </Link>
+          )}
+          {isSelf && (
+            <button
+              onClick={handleRefreshStats}
+              disabled={statsRefreshing}
+              className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/40 hover:text-white/70"
+              aria-label={tc('refreshLabel')}
+            >
+              <RefreshCw className={cn('size-4', statsRefreshing && 'animate-spin motion-reduce:animate-none')} aria-hidden="true" />
+            </button>
           )}
         </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-xl md:text-3xl font-black truncate">{name}</h1>
-            {targetProfile.verified && <BadgeCheck className="size-5 md:size-6 text-gold flex-shrink-0" aria-hidden="true" />}
-            <Chip className="bg-gold/15 text-gold border-gold/25">{userPlan}</Chip>
-            <FoundingPassBadge tier={highestPass} size="sm" />
-          </div>
-          <div className="text-sm md:text-base text-white/50">{userHandle}</div>
 
-          {/* Portfolio Value â€" Hero */}
-          {(isSelf || portfolioValueCents > 0) && (
-            <div className="mt-1">
-              <span className="text-2xl md:text-3xl font-mono font-black text-gold">
-                {fmtScout(centsToBsd(portfolioValueCents))} bCredits
-              </span>
-              <span className="text-xs text-white/30 ml-2">{tp('portfolioValue')}</span>
-            </div>
+        {/* Badges row — compact */}
+        <div className="flex items-center gap-2 text-[13px]">
+          <RangBadge scores={scoutScores ?? undefined} score={scoutScores ? undefined : 0} size="sm" />
+          {achievements.some(a => a.achievement_key === 'founding_scout') && (
+            <FoundingScoutBadge size="sm" />
           )}
-
-          {/* Bio */}
-          {targetProfile.bio && (
-            <p className="text-sm text-white/60 mt-1.5 max-w-lg">{targetProfile.bio}</p>
-          )}
-
-          {/* Top Post â€" Pinned Take */}
-          {topPost && (
-            <div className="mt-2 max-w-lg">
-              <div className="px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <MessageCircle className="size-3 text-sky-400" aria-hidden="true" />
-                  <span className="text-[10px] font-bold uppercase text-sky-400">Top Beitrag</span>
-                  <span className="flex items-center gap-0.5 ml-auto text-[10px] font-mono font-bold text-green-500">
-                    <ArrowUp className="size-3" aria-hidden="true" />
-                    {topPost.upvotes - topPost.downvotes}
-                  </span>
-                </div>
-                <p className="text-xs text-white/60 line-clamp-2">{topPost.content}</p>
-              </div>
-            </div>
-          )}
-
-          <div className="flex items-center gap-3 md:gap-4 mt-2 text-xs md:text-sm flex-wrap">
-            <RangBadge scores={scoutScores ?? undefined} score={scoutScores ? undefined : 0} size="sm" />
-            {achievements.some(a => a.achievement_key === 'founding_scout') && (
-              <FoundingScoutBadge size="sm" />
-            )}
-
-            {/* Clickable Follower/Following */}
-            <button
-              onClick={() => setFollowListMode('followers')}
-              className="text-white/50 hover:text-white/80 transition-colors flex items-center gap-1"
-            >
-              <Users className="size-3" aria-hidden="true" />
-              <strong>{followerCount}</strong> Follower
-            </button>
-            <button
-              onClick={() => setFollowListMode('following')}
-              className="text-white/50 hover:text-white/80 transition-colors"
-            >
-              <strong>{followingCount}</strong> Folge ich
-            </button>
-
-            {targetProfile.favorite_club && (
-              <span className="text-white/50 flex items-center gap-1.5">
-                {getClubName(targetProfile.favorite_club)}
-                {clubSub && (
-                  <SubscriptionBadge tier={clubSub.tier as SubscriptionTier} size="sm" />
-                )}
-              </span>
-            )}
-
-            {/* Mitglied seit */}
-            <span className="text-white/30 flex items-center gap-1">
-              <Calendar className="size-3" aria-hidden="true" />
-              {tp('memberSince', { date: new Date(targetProfile.created_at).toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { month: 'short', year: 'numeric' }) })}
-            </span>
-          </div>
-          {/* 3-Dimension Scout Scores */}
-          {scoutScores && (
-            <div className="mt-2 bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 max-w-xs">
-              <DimensionRangStack scores={scoutScores} />
-            </div>
-          )}
-
-          {/* Scout Stats Row */}
-          {scoutingStats && scoutingStats.reportCount > 0 && (
-            <div className="mt-2 flex items-center gap-3 flex-wrap text-xs text-white/50">
-              <span className="inline-flex items-center gap-1">
-                <FileText className="size-3.5 text-white/40" aria-hidden="true" />
-                <span className="font-mono font-bold text-white/70">{scoutingStats.reportCount}</span> {tp('reports')}
-              </span>
-              {scoutingStats.totalCalls >= 5 && (
-                <span className={cn('inline-flex items-center gap-1', scoutingStats.hitRate >= 60 ? 'text-gold' : '')}>
-                  <TargetIcon className="size-3.5" aria-hidden="true" />
-                  <span className="font-mono font-bold">{scoutingStats.hitRate}%</span> Hit-Rate
-                </span>
-              )}
-              {scoutingStats.avgRating > 0 && (
-                <span className="inline-flex items-center gap-1 text-amber-400">
-                  <Star className="size-3.5" aria-hidden="true" />
-                  <span className="font-mono font-bold">{scoutingStats.avgRating.toFixed(1)}</span>
-                </span>
-              )}
-              {scoutingStats.approvedBounties > 0 && (
-                <span className="inline-flex items-center gap-1 text-green-500">
-                  <CheckCircle className="size-3.5" aria-hidden="true" />
-                  <span className="font-mono font-bold">{scoutingStats.approvedBounties}</span> genehmigt
-                </span>
-              )}
-            </div>
-          )}
-
-          <div className="flex items-center gap-2 mt-2 md:mt-3">
-            {isSelf && (
-              <Button variant="outline" size="sm" onClick={() => setTab('settings')}>
-                <Settings className="size-3.5" aria-hidden="true" />
-                <span className="hidden sm:inline">Profil</span> bearbeiten
-              </Button>
-            )}
-            {!isSelf && user && (
-              <Button
-                variant={following ? 'outline' : 'gold'}
-                size="sm"
-                onClick={handleToggleFollow}
-                disabled={followLoading}
-              >
-                {following ? tp('unfollow') : tp('follow')}
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={async () => {
-                const url = `${window.location.origin}/profile/${targetProfile.handle}`;
-                const text = `${name} auf BeScout`;
-                if (navigator.share) {
-                  try { await navigator.share({ title: text, url }); } catch (err) { console.error('[ProfileView] share:', err); }
-                } else {
-                  await navigator.clipboard.writeText(url);
-                  addToast('Link kopiert!', 'success');
-                }
-              }}
-            >
-              <Share2 className="size-3.5" aria-hidden="true" />
-              Teilen
-            </Button>
-          </div>
         </div>
       </div>
 
-      <SponsorBanner placement="profile_hero" className="mb-4" />
+      <SponsorBanner placement="profile_hero" className="mb-2" />
 
       {/* Follow List Modal */}
       {followListMode && (
@@ -438,14 +443,14 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
         />
       )}
 
-      {/* Tabs */}
+      {/* ===== TAB BAR ===== */}
       <div className="flex items-center border-b border-white/10 overflow-x-auto scrollbar-hide -mx-4 px-4 lg:mx-0 lg:px-0">
         {visibleTabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
             className={cn(
-              'px-2.5 md:px-5 py-2.5 md:py-3 text-xs md:text-base font-semibold transition-colors relative whitespace-nowrap flex-shrink-0',
+              'px-3 md:px-5 py-2.5 md:py-3 text-[13px] md:text-base font-semibold transition-colors relative whitespace-nowrap flex-shrink-0',
               tab === t.id ? 'text-gold' : 'text-white/60 hover:text-white'
             )}
           >
@@ -455,10 +460,11 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
         ))}
       </div>
 
+      {/* ===== CONTENT GRID ===== */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Sidebar */}
-        <div className="space-y-6">
-          {/* Wallet â€" self only */}
+        {/* Left Sidebar — HIDDEN on mobile */}
+        <div className="hidden lg:block space-y-6">
+          {/* Wallet — self only */}
           {isSelf && (
             <Card className="p-4 md:p-6">
               <h3 className="font-black mb-4">{tp('walletTitle')}</h3>
@@ -476,114 +482,11 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
             </Card>
           )}
 
-          {/* Scores */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-black">{tp('scoutScoreTitle')}</h3>
-              {isSelf && (
-                <button
-                  onClick={handleRefreshStats}
-                  disabled={statsRefreshing}
-                  className="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-white/40 hover:text-white/70"
-                  aria-label={tc('refreshLabel')}
-                >
-                  <RefreshCw className={cn('size-4', statsRefreshing && 'animate-spin motion-reduce:animate-none')} aria-hidden="true" />
-                </button>
-              )}
-            </div>
-            <div className="flex items-center gap-3 mb-3">
-              <ScoreCircle label="T" value={userStats?.trading_score ?? 0} size={48} />
-              <ScoreCircle label="M" value={userStats?.manager_score ?? 0} size={48} />
-              <ScoreCircle label="S" value={userStats?.scout_score ?? 0} size={48} />
-            </div>
-            <div className="text-sm text-white/50 mb-2">
-              Trading · Manager · Scout
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-2xl font-mono font-black text-gold">{userStats?.total_score ?? 0}</span>
-                <span className="text-white/30 text-sm ml-1">{tp('pointsLabel')}</span>
-              </div>
-              {userStats && userStats.rank > 0 && (
-                <Chip className="bg-gold/15 text-gold border-gold/25">
-                  {tp('rankLabel2', { rank: userStats.rank })}
-                </Chip>
-              )}
-            </div>
-          </Card>
-
           {/* Airdrop Score */}
           <AirdropScoreCard userId={targetUserId} compact={!isSelf} />
 
-          {/* Referral â€" self only */}
+          {/* Referral — self only */}
           {isSelf && <ReferralCard userId={targetUserId} />}
-
-          {/* Cosmetic Inventory — self only */}
-          {isSelf && userCosmetics.length > 0 && (
-            <CosmeticInventory
-              cosmetics={userCosmetics}
-              onEquip={handleEquipCosmetic}
-              isEquipping={isEquipping}
-            />
-          )}
-
-          {/* Expert Badges */}
-          {userStats && (() => {
-            const badges = getExpertBadges(userStats);
-            const earnedCount = badges.filter(b => b.earned).length;
-            const BADGE_ICONS: Record<string, React.ElementType> = {
-              TrendingUp, Trophy, Search, Award, Users, Zap,
-            };
-            return (
-              <Card className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-black">{tp('expertBadges')}</h3>
-                  <span className="text-xs text-white/40">{earnedCount}/{badges.length} {tp('earned')}</span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {badges.map(badge => {
-                    const IconComp = BADGE_ICONS[badge.icon] ?? Award;
-                    return (
-                      <div
-                        key={badge.key}
-                        className={cn(
-                          'flex items-center gap-3 p-3 rounded-xl border transition-colors',
-                          badge.earned
-                            ? `${badge.bgColor} border`
-                            : 'bg-white/[0.02] border-white/[0.06] opacity-50'
-                        )}
-                      >
-                        <div className={cn(
-                          'size-8 rounded-lg flex items-center justify-center flex-shrink-0',
-                          badge.earned ? badge.bgColor : 'bg-white/5'
-                        )}>
-                          {badge.earned
-                            ? <IconComp className={cn('size-4', badge.color)} aria-hidden="true" />
-                            : <Lock className="size-3.5 text-white/20" aria-hidden="true" />}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className={cn('text-xs font-bold', badge.earned ? badge.color : 'text-white/30')}>
-                            {tg(`badge.${badge.key}`)}
-                          </div>
-                          {!badge.earned && (
-                            <div className="mt-1">
-                              <div className="h-1 rounded-full bg-white/5 overflow-hidden">
-                                <div
-                                  className="h-full rounded-full bg-white/20 transition-colors"
-                                  style={{ width: `${badge.progress}%` }}
-                                />
-                              </div>
-                              <div className="text-[9px] text-white/20 mt-0.5">{badge.progress}%</div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </Card>
-            );
-          })()}
         </div>
 
         {/* Main Content */}
@@ -614,8 +517,23 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               isSelf={isSelf}
             />
           )}
-          {!holdingsLoading && !dataError && tab === 'portfolio' && isSelf && (
-            <ProfilePortfolioTab holdings={holdings} />
+          {!holdingsLoading && !dataError && tab === 'squad' && (
+            <ProfileSquadTab holdings={holdings} isSelf={isSelf} userId={targetUserId} />
+          )}
+          {!holdingsLoading && !dataError && tab === 'stats' && (
+            <ProfileStatsTab
+              userId={targetUserId}
+              userStats={userStats}
+              achievements={achievements}
+              myResearch={myResearch}
+              trackRecord={trackRecord}
+              recentTrades={recentTrades}
+              fantasyResults={fantasyResults}
+              topPost={topPost}
+              scoutingStats={scoutingStats ?? null}
+              isSelf={isSelf}
+              transactions={transactions}
+            />
           )}
           {!holdingsLoading && !dataError && tab === 'activity' && (
             <ProfileActivityTab
@@ -624,7 +542,6 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf, rende
               isSelf={isSelf}
             />
           )}
-          {!holdingsLoading && !dataError && tab === 'settings' && isSelf && renderSettings?.()}
         </div>
       </div>
       <SponsorBanner placement="profile_footer" className="mt-4" />
