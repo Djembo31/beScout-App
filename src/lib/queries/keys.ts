@@ -277,4 +277,9 @@ export const qk = {
     event: (eventId: string) => ['chips', 'event', eventId] as const,
     season: (season: string) => ['chips', 'season', season] as const,
   },
+
+  // ── Club Challenges (B10: Fan Rewards) ──
+  clubChallenges: {
+    byClub: (clubId: string) => ['club-challenges', clubId] as const,
+  },
 } as const;
