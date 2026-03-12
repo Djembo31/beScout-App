@@ -38,7 +38,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   // Show skeleton in content area (SideNav + TopBar already visible)
   if (loading) return <ContentSkeleton />;
 
-  if (!user || !profile) return null;
+  // Show skeleton while redirecting — prevents flash of blank content
+  if (!user || !profile) return <ContentSkeleton />;
 
   return <>{children}</>;
 }

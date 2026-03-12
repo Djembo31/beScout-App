@@ -34,12 +34,15 @@ export function EventBrowser({ events, onEventClick }: Props) {
   const t = useTranslations('fantasy');
   const [category, setCategory] = useState<EventCategory>('all');
   const [showEnded, setShowEnded] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('bescout-events-view') as ViewMode) ?? 'cards';
-    }
-    return 'cards';
-  });
+  const [viewMode, setViewMode] = useState<ViewMode>('cards');
+
+  // Hydrate from localStorage in useEffect to avoid SSR hydration mismatch
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('bescout-events-view') as ViewMode | null;
+      if (saved) setViewMode(saved);
+    } catch { /* ignore */ }
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('bescout-events-view', viewMode);

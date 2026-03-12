@@ -93,7 +93,7 @@ export default function HomePage() {
   // ── Gamification v5 Hooks ──
   const { data: todaysChallenge = null, isLoading: challengeLoading } = useTodaysChallenge();
   const { data: challengeHistory = [] } = useChallengeHistory(uid);
-  const { data: ticketData } = useUserTickets(uid);
+  const { data: ticketData = null } = useUserTickets(uid);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMysteryBox, setShowMysteryBox] = useState(false);
 
@@ -103,21 +103,23 @@ export default function HomePage() {
   }, [todaysChallenge, challengeHistory]);
 
   const handleChallengeSubmit = useCallback(async (challengeId: string, option: number) => {
+    if (!uid) return;
     setIsSubmitting(true);
     try {
       await submitDailyChallenge(challengeId, option);
-      queryClient.invalidateQueries({ queryKey: qk.dailyChallenge.history(uid!) });
-      queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid!) });
+      queryClient.invalidateQueries({ queryKey: qk.dailyChallenge.history(uid) });
+      queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid) });
     } finally {
       setIsSubmitting(false);
     }
   }, [uid]);
 
   const handleOpenMysteryBox = useCallback(async (free?: boolean) => {
+    if (!uid) return null;
     const result = await openMysteryBox(free);
     if (result.ok) {
-      queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid!) });
-      queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(uid!) });
+      queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid) });
+      queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(uid) });
       return {
         id: crypto.randomUUID(),
         rarity: result.rarity!,

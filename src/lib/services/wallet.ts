@@ -133,6 +133,7 @@ export async function deductEntryFee(userId: string, amountCents: number, eventN
     p_reference_id: eventId ?? null,
   });
   if (error) throw new Error(mapRpcError(error.message));
+  if (!data) throw new Error('deduct_wallet_balance returned null');
   const result = data as WalletRpcResult;
   if (!result.success) throw new Error(mapRpcError(result.error ?? 'walletError'));
   return result.new_balance!;
@@ -148,6 +149,7 @@ export async function refundEntryFee(userId: string, amountCents: number, eventN
     p_reference_id: eventId ?? null,
   });
   if (error) throw new Error(mapRpcError(error.message));
+  if (!data) throw new Error('refund_wallet_balance returned null');
   const result = data as WalletRpcResult;
   if (!result.success) throw new Error(mapRpcError(result.error ?? 'walletError'));
   return result.new_balance!;

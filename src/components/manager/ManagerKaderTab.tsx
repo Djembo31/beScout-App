@@ -226,10 +226,15 @@ interface ManagerKaderTabProps {
 export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderTabProps) {
   const t = useTranslations('market');
   const { user } = useUser();
-  const [squadSize, setSquadSize] = useState<SquadSize>(() => {
-    if (typeof window === 'undefined') return DEFAULT_SQUAD_SIZE;
-    try { return (localStorage.getItem(SQUAD_SIZE_KEY) as SquadSize) || DEFAULT_SQUAD_SIZE; } catch { return DEFAULT_SQUAD_SIZE; }
-  });
+  const [squadSize, setSquadSize] = useState<SquadSize>(DEFAULT_SQUAD_SIZE);
+
+  // Hydrate from localStorage in useEffect to avoid SSR hydration mismatch
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(SQUAD_SIZE_KEY) as SquadSize | null;
+      if (saved) setSquadSize(saved);
+    } catch { /* ignore */ }
+  }, []);
   const [formationId, setFormationId] = useState<FormationId>(DEFAULT_FORMATIONS[squadSize]);
   const [assignments, setAssignments] = useState<Map<number, string>>(new Map()); // slotIndex → playerId
   const [pickerOpen, setPickerOpen] = useState<{ slotIndex: number; pos: Pos } | null>(null);

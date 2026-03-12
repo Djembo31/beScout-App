@@ -90,6 +90,7 @@ export async function buyFromMarket(
   });
 
   if (error) throw new Error(mapRpcError(error.message));
+  if (!data) throw new Error('buy_player_dpc returned null');
   const result = data as TradeResult;
   // Gamification (stats, missions, airdrop, scores) handled by DB triggers on trades/orders tables
   // Fire-and-forget: referral reward (triggers on first trade by referred user)
@@ -160,6 +161,7 @@ export async function placeSellOrder(
   });
 
   if (error) throw new Error(mapRpcError(error.message));
+  if (!data) throw new Error('place_sell_order returned null');
   // Gamification (stats, missions, airdrop) handled by DB triggers on orders table
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
@@ -191,6 +193,7 @@ export async function buyFromOrder(
   });
 
   if (error) throw new Error(mapRpcError(error.message));
+  if (!data) throw new Error('buy_from_order returned null');
   const result = data as TradeResult;
   // Gamification (stats, missions, airdrop, scores) handled by DB triggers on trades table
   // Notify the seller
@@ -234,6 +237,7 @@ export async function cancelOrder(
   });
 
   if (error) throw new Error(mapRpcError(error.message));
+  if (!data) throw new Error('cancel_order returned null');
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'order_cancel', 'trading', { orderId });

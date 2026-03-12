@@ -1,12 +1,9 @@
 // BeScout Service Worker — App Shell caching + push notifications
 const CACHE_NAME = 'bescout-v2';
 const API_CACHE_NAME = 'bescout-api-v1';
+// Only pre-cache the offline fallback page — NOT HTML routes.
+// HTML routes change on every deploy; caching them causes stale content.
 const APP_SHELL = [
-  '/',
-  '/fantasy',
-  '/market',
-  '/community',
-  '/profile',
   '/offline.html',
 ];
 
@@ -67,21 +64,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Navigation requests: network-first, fallback to cache then offline page
+  // Navigation requests: network-first, fallback to offline page only.
+  // Do NOT cache HTML responses — they change on every deploy and
+  // stale cached HTML causes the app to load old JS bundles that crash.
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
-        .then((response) => {
-          // Cache successful navigation responses
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          return response;
-        })
         .catch(() =>
-          caches.match(request).then((cached) =>
-            cached || caches.match('/offline.html').then((offline) =>
-              offline || new Response('Offline', { status: 503 })
-            )
+          caches.match('/offline.html').then((offline) =>
+            offline || new Response('Offline', { status: 503 })
           )
         )
     );

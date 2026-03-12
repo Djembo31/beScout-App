@@ -15,6 +15,7 @@ export async function getAuthState(userId: string): Promise<AuthState> {
   });
 
   if (error) throw new Error(error.message);
+  if (!data) throw new Error('get_auth_state returned null');
 
   const result = data as {
     profile: Record<string, unknown> | null;

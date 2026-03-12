@@ -519,12 +519,15 @@ export default function ClubContent({ slug }: { slug: string }) {
   const [posFilter, setPosFilter] = useState<Pos | 'ALL'>('ALL');
   const [sortBy, setSortBy] = useState<'perf' | 'price' | 'change'>('perf');
   const [spielerQuery, setSpielerQuery] = useState('');
-  const [squadView, setSquadView] = useState<'cards' | 'compact'>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('bescout-squad-view') as 'cards' | 'compact') || 'cards';
-    }
-    return 'cards';
-  });
+  const [squadView, setSquadView] = useState<'cards' | 'compact'>('cards');
+
+  // Hydrate from localStorage in useEffect to avoid SSR hydration mismatch
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('bescout-squad-view') as 'cards' | 'compact' | null;
+      if (saved) setSquadView(saved);
+    } catch { /* ignore */ }
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('bescout-squad-view', squadView);

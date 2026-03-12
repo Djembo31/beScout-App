@@ -187,69 +187,72 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     }
 
-    // Then verify session with Supabase (may update or invalidate cache)
-    supabase.auth.getSession()
-      .then(async ({ data: { session } }) => {
-        const u = session?.user ?? null;
-        setUser(u);
-        if (u) {
-          ssSet(SS_USER, u);
-          // Wait for profile before marking as loaded — prevents blank screen
-          // when sessionStorage is empty (first visit / mobile)
-          await loadProfile(u.id);
-        } else {
-          // Session expired or invalid — clear everything
-          setProfile(null);
-          setPlatformRole(null);
-          setClubAdmin(null);
-          ssClear();
-          // Defer cache clear: let React commit state updates and unmount
-          // auth-gated components before observers fire with undefined data
-          queueMicrotask(() => queryClient.clear());
-        }
-        setLoading(false);
-      })
-      .catch(() => {
-        // Network error / Supabase down — keep cached data if available
-        // so the app works in degraded mode instead of crashing
-        setLoading(false);
-      });
+    // Use onAuthStateChange as the SINGLE source of truth for session state.
+    // DO NOT also call getSession() — that creates a race condition where
+    // INITIAL_SESSION fires with null (expired token) ~2s BEFORE getSession()
+    // resolves, causing double queryClient.clear() and .map()-on-undefined crashes.
+    let initialDone = false;
+    // Capture current user ref for logout activity log (closure would be stale)
+    let currentUserId: string | null = cachedUser?.id ?? null;
 
-    // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       const u = session?.user ?? null;
       setUser(u);
+
       if (u) {
         ssSet(SS_USER, u);
+        currentUserId = u.id;
         await loadProfile(u.id);
-        // Activity log — login
-        if (_event === 'SIGNED_IN') {
+        if (event === 'SIGNED_IN') {
           import('@/lib/services/activityLog').then(({ logActivity }) => {
             logActivity(u.id, 'login', 'auth', { provider: session?.user?.app_metadata?.provider });
           }).catch(err => console.error('[AuthProvider] logActivity login:', err));
         }
       } else {
-        // Activity log — logout (before clearing)
-        if (_event === 'SIGNED_OUT' && user) {
+        // Activity log — logout (before clearing state)
+        if (event === 'SIGNED_OUT' && currentUserId) {
+          const uid = currentUserId;
           import('@/lib/services/activityLog').then(({ logActivity, flushActivityLogs }) => {
-            logActivity(user.id, 'logout', 'auth');
+            logActivity(uid, 'logout', 'auth');
             flushActivityLogs();
           }).catch(err => console.error('[AuthProvider] logActivity logout:', err));
         }
+        currentUserId = null;
         setProfile(null);
         setPlatformRole(null);
         setClubAdmin(null);
         ssClear();
-        // Defer cache clear: let React commit state updates and unmount
-        // auth-gated components before observers fire with undefined data
-        queueMicrotask(() => queryClient.clear());
+
+        // Only clear React Query cache on explicit sign-out action.
+        // On INITIAL_SESSION with null (expired token at page load), let
+        // AuthGatedProviders unmount naturally when user becomes null —
+        // clearing the cache while components are still mounted causes
+        // data=undefined mid-render → .map() on undefined crashes.
+        if (event === 'SIGNED_OUT') {
+          // Use setTimeout(0) so React commits user=null first, AuthGatedProviders
+          // unmounts, THEN we wipe query data safely with no active observers.
+          setTimeout(() => queryClient.clear(), 0);
+        }
       }
+      initialDone = true;
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Safety net: if onAuthStateChange never fires (shouldn't happen, but
+    // protects against Supabase SDK edge cases), stop the loading spinner.
+    const safetyTimer = setTimeout(() => {
+      if (!initialDone) {
+        console.warn('[AuthProvider] onAuthStateChange did not fire within 5s — keeping cached data');
+        setLoading(false);
+      }
+    }, 5000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(safetyTimer);
+    };
   }, [loadProfile]);
 
   const value = useMemo<AuthContextValue>(

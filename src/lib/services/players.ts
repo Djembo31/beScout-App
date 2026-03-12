@@ -51,7 +51,7 @@ export async function getPlayersByClubId(clubId: string): Promise<DbPlayer[]> {
     .order('last_name');
 
   if (error) throw new Error(error.message);
-  return data as DbPlayer[];
+  return (data ?? []) as DbPlayer[];
 }
 
 // ============================================

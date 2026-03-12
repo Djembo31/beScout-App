@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Trophy, Crown,
@@ -112,9 +112,15 @@ export default function LineupPanel({
   const [pickerSort, setPickerSort] = useState<'l5' | 'dpc' | 'name'>('l5');
   const [presetName, setPresetName] = useState('');
   const [showPresets, setShowPresets] = useState(false);
-  const [presets, setPresets] = useState<LineupPreset[]>(() => {
-    try { return JSON.parse(localStorage.getItem(PRESET_KEY) || '[]'); } catch { return []; }
-  });
+  const [presets, setPresets] = useState<LineupPreset[]>([]);
+
+  // Hydrate presets from localStorage in useEffect to avoid SSR hydration mismatch
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(PRESET_KEY);
+      if (saved) setPresets(JSON.parse(saved));
+    } catch { /* ignore */ }
+  }, []);
 
   const isFullyLocked = event.status === 'ended';
   const isReadOnly = isFullyLocked;
