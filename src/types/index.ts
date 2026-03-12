@@ -599,6 +599,7 @@ export type DbEvent = {
   reward_structure?: RewardTier[] | null;
   scope: EventScope;
   lineup_size: 7 | 11;
+  ticket_cost: number;
   created_at: string;
 };
 

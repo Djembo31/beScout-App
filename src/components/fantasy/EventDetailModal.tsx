@@ -446,6 +446,12 @@ export const EventDetailModal = ({
         <div className="flex items-center gap-4 text-sm text-white/50 mb-4">
           <span className="flex items-center gap-1"><Users aria-hidden="true" className="size-4" />{event.participants}{event.maxParticipants ? `/${event.maxParticipants}` : ''}</span>
           <span className="flex items-center gap-1"><Clock aria-hidden="true" className="size-4" />{event.status === 'ended' ? t('ended') : formatCountdown(event.lockTime)}</span>
+          {(event.ticketCost ?? 0) > 0 && (
+            <span className="flex items-center gap-1.5 text-[12px] text-amber-400/70 font-medium">
+              <span aria-hidden="true">🎟</span>
+              <span>{t('ticketCost', { cost: event.ticketCost })}</span>
+            </span>
+          )}
         </div>
 
         {/* Tabs */}
@@ -560,6 +566,12 @@ export const EventDetailModal = ({
                   <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
                     <span className="text-white/60">{t('entryFeeLabel')}</span>
                     <span className="font-bold text-gold">{fmtScout(event.buyIn)} bCredits</span>
+                  </div>
+                )}
+                {(event.ticketCost ?? 0) > 0 && (
+                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
+                    <span className="text-white/60">🎟 Tickets</span>
+                    <span className="font-bold text-amber-400">{t('ticketCost', { cost: event.ticketCost })}</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">

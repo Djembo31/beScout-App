@@ -78,9 +78,14 @@ export function EventCardView({ event, onClick }: Props) {
         )}
       </div>
 
-      {/* Row 4: Requirement Chips */}
-      <div className="mb-3">
+      {/* Row 4: Requirement Chips + Ticket Cost */}
+      <div className="flex items-center gap-2 mb-3">
         <RequirementChips event={event} variant="chips" max={3} />
+        {(event.ticketCost ?? 0) > 0 && (
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 text-[11px] font-bold text-amber-400/80">
+            <span aria-hidden="true">🎟</span> {t('ticketCost', { cost: event.ticketCost })}
+          </span>
+        )}
       </div>
 
       {/* Row 5: Stats grid */}
