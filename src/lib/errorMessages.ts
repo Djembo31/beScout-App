@@ -17,6 +17,7 @@ const KNOWN_KEYS = new Set([
   'eventGameweekNotFound', 'playerLockedRemove', 'playerLockedAdd', 'duplicatePlayer',
   'lineupDeleteFailed', 'lineupSizeMismatch', 'playerNotInClub',
   'walletError', 'bountyCreateFailed', 'bountyCancelFailed',
+  'dailyTradeLimit', 'circularTradeBlocked', 'cancelCooldown',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [
@@ -28,6 +29,9 @@ const ERROR_MAP: [RegExp, string][] = [
   [/cannot.buy.own/i, 'cannotBuyOwn'],
   [/club.?admin.*restrict/i, 'clubAdminRestricted'],
   [/no.matching.orders|no.open.orders/i, 'noMatchingOrders'],
+  [/t.gliches.handelslimit|daily.*trade.*limit|max.*20.*trades/i, 'dailyTradeLimit'],
+  [/verd.chtiges.handelsmuster|circular.*trade|same.*partner/i, 'circularTradeBlocked'],
+  [/erst.nach.5.minuten|cancel.*cooldown/i, 'cancelCooldown'],
   [/invalid.quantity/i, 'invalidQuantity'],
   [/max.quantity.exceeded|exceeds.*limit/i, 'maxQuantityExceeded'],
   [/invalid.price/i, 'invalidPrice'],

@@ -2776,7 +2776,10 @@
     "lineupDeleteFailed": "Kadro silinemedi. Lütfen yöneticiyle iletişime geçin.",
     "walletError": "Cüzdan hatası. Lütfen tekrar deneyin.",
     "bountyCreateFailed": "Görev oluşturulamadı.",
-    "bountyCancelFailed": "İptal başarısız oldu."
+    "bountyCancelFailed": "İptal başarısız oldu.",
+    "dailyTradeLimit": "Günlük işlem limiti doldu. Oyuncu başına 24 saatte maksimum 20 işlem.",
+    "circularTradeBlocked": "Aynı partnerle aynı oyuncu için 7 gün içinde işlem yapılamaz.",
+    "cancelCooldown": "Emirler ancak 5 dakika sonra iptal edilebilir."
   },
   "legal": {
     "cookieText": "Bu site işlevsellik ve analiz için çerezler kullanmaktadır. Daha fazla bilgi için <privacyLink>Gizlilik Politikası</privacyLink>.",

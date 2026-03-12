@@ -2784,7 +2784,10 @@
     "lineupDeleteFailed": "Lineup konnte nicht gelöscht werden. Bitte Admin kontaktieren.",
     "walletError": "Wallet-Fehler. Bitte versuche es erneut.",
     "bountyCreateFailed": "Bounty-Erstellung fehlgeschlagen.",
-    "bountyCancelFailed": "Stornierung fehlgeschlagen."
+    "bountyCancelFailed": "Stornierung fehlgeschlagen.",
+    "dailyTradeLimit": "Tägliches Handelslimit erreicht. Max 20 Trades pro Spieler in 24 Stunden.",
+    "circularTradeBlocked": "Handel mit demselben Partner für denselben Spieler innerhalb von 7 Tagen nicht erlaubt.",
+    "cancelCooldown": "Orders können erst nach 5 Minuten storniert werden."
   },
   "legal": {
     "cookieText": "Diese Seite nutzt Cookies für Funktionalität und Analyse. Mehr in unserer <privacyLink>Datenschutzerklärung</privacyLink>.",
