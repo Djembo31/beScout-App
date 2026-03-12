@@ -77,7 +77,15 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
         batchRecalculateFanRanks(eventId).catch((err) =>
           console.error('[Scoring] Batch fan-rank recalculation failed:', err)
         );
-      } catch (err) { console.error('[Scoring] Post-score notification/fan-rank failed:', err); }
+
+        // Fire-and-forget: check achievements for all participants
+        const { checkAndUnlockAchievements } = await import('@/lib/services/social');
+        for (const entry of lb) {
+          checkAndUnlockAchievements(entry.userId).catch((err) =>
+            console.error('[Scoring] Achievement check failed for', entry.userId, err)
+          );
+        }
+      } catch (err) { console.error('[Scoring] Post-score tasks failed:', err); }
     })();
   }
 
