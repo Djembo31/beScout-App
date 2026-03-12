@@ -414,7 +414,7 @@ export const FEED_ACTION_LABELS: Record<string, string> = {
 // PROFILE TYPES
 // ============================================
 
-export type ProfileTab = 'overview' | 'squad' | 'stats' | 'activity';
+export type ProfileTab = 'manager' | 'trader' | 'analyst' | 'timeline';
 
 export type Profile = {
   id: string;
