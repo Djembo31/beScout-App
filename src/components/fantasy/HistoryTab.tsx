@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Heart, BarChart3, TrendingUp, History, Trophy, Crown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Card, Skeleton } from '@/components/ui';
+import { Card, Skeleton, CosmeticAvatar, CosmeticTitle } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getSeasonLeaderboard, type SeasonLeaderboardEntry } from '@/lib/services/scoring';
+import { useBatchEquippedCosmetics } from '@/lib/queries/cosmetics';
 import { getFormResult } from './helpers';
 import dynamic from 'next/dynamic';
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
@@ -51,6 +52,10 @@ export const HistoryTab = ({
       .finally(() => { if (!cancelled) setBoardLoading(false); });
     return () => { cancelled = true; };
   }, []);
+
+  // Batch-fetch cosmetics for season leaderboard users
+  const seasonUserIds = useMemo(() => seasonBoard.map(e => e.userId), [seasonBoard]);
+  const { data: cosmeticsMap } = useBatchEquippedCosmetics(seasonUserIds);
 
   return (
     <div className="space-y-6">
@@ -181,11 +186,25 @@ export const HistoryTab = ({
                         {entry.rank <= 3 ? <Trophy className={cn('size-4 inline', rankColor)} aria-hidden="true" /> : `#${entry.rank}`}
                       </td>
                       <td className="py-3 px-4">
-                        <Link href={`/profile/${entry.handle}`} className="hover:text-gold transition-colors">
-                          <span className={cn('font-semibold', isMe && 'text-gold')}>
-                            {entry.displayName ?? `@${entry.handle}`}
-                          </span>
-                          {isMe && <span className="ml-1.5 text-xs text-gold/60">{t('youLabel')}</span>}
+                        <Link href={`/profile/${entry.handle}`} className="hover:text-gold transition-colors flex items-center gap-2">
+                          <CosmeticAvatar
+                            avatarUrl={entry.avatarUrl}
+                            displayName={entry.displayName ?? entry.handle}
+                            size={28}
+                            frameCssClass={cosmeticsMap?.get(entry.userId)?.frameCssClass}
+                            className="rounded-full"
+                          />
+                          <div>
+                            <span className={cn('font-semibold', isMe && 'text-gold')}>
+                              {entry.displayName ?? `@${entry.handle}`}
+                            </span>
+                            {isMe && <span className="ml-1.5 text-xs text-gold/60">{t('youLabel')}</span>}
+                            <CosmeticTitle
+                              title={cosmeticsMap?.get(entry.userId)?.titleName ?? null}
+                              rarity={cosmeticsMap?.get(entry.userId)?.titleRarity}
+                              className="block"
+                            />
+                          </div>
                         </Link>
                       </td>
                       <td className="py-3 px-4 text-center text-sm font-mono tabular-nums">{entry.eventsPlayed}</td>
@@ -221,11 +240,22 @@ export const HistoryTab = ({
                         )}>
                           #{entry.rank}
                         </div>
+                        <CosmeticAvatar
+                          avatarUrl={entry.avatarUrl}
+                          displayName={entry.displayName ?? entry.handle}
+                          size={28}
+                          frameCssClass={cosmeticsMap?.get(entry.userId)?.frameCssClass}
+                          className="rounded-full shrink-0"
+                        />
                         <div className="min-w-0">
                           <div className={cn('font-medium text-sm truncate', isMe && 'text-gold')}>
                             {entry.displayName ?? `@${entry.handle}`}
                             {isMe && <span className="text-xs text-gold/60 ml-1">{t('youLabel')}</span>}
                           </div>
+                          <CosmeticTitle
+                            title={cosmeticsMap?.get(entry.userId)?.titleName ?? null}
+                            rarity={cosmeticsMap?.get(entry.userId)?.titleRarity}
+                          />
                           <div className="text-xs text-white/40">{t('eventsAndWins', { events: entry.eventsPlayed, wins: entry.wins })}</div>
                         </div>
                       </div>

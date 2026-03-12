@@ -10,6 +10,7 @@ import BountyCard from '@/components/community/BountyCard';
 import CommunityPollCard from '@/components/community/CommunityPollCard';
 import type { PostWithAuthor, ResearchPostWithAuthor, BountyWithCreator, DbClubVote, CommunityPollWithCreator } from '@/types';
 import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
+import { useBatchEquippedCosmetics } from '@/lib/queries/cosmetics';
 import { useTranslations } from 'next-intl';
 
 // ============================================
@@ -185,6 +186,10 @@ export default function CommunityFeedTab({
   const t = useTranslations('community');
   const [feedSort, setFeedSort] = useState<FeedSort>('new');
   const [query, setQuery] = useState('');
+
+  // Batch-fetch cosmetics for all post authors
+  const postAuthorIds = useMemo(() => Array.from(new Set(posts.map(p => p.user_id))), [posts]);
+  const { data: cosmeticsMap } = useBatchEquippedCosmetics(postAuthorIds);
 
   // ---- Build unified feed items ----
   const feedItems = useMemo((): FeedItem[] => {
@@ -372,6 +377,8 @@ export default function CommunityFeedTab({
                     tipCount={item.data.tip_count ?? 0}
                     tipTotalCents={item.data.tip_total_cents ?? 0}
                     authorSubscriptionTier={subscriptionMap?.get(item.data.user_id)}
+                    authorCosmeticTitle={cosmeticsMap?.get(item.data.user_id)?.titleName}
+                    authorCosmeticTitleRarity={cosmeticsMap?.get(item.data.user_id)?.titleRarity}
                   />
                 );
               case 'research':

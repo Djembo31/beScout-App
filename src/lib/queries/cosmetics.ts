@@ -2,7 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { qk } from './keys';
-import { getUserCosmetics, getEquippedCosmetics } from '@/lib/services/cosmetics';
+import { getUserCosmetics, getEquippedCosmetics, getBatchEquippedCosmetics } from '@/lib/services/cosmetics';
+import type { EquippedCosmeticsLookup } from '@/lib/services/cosmetics';
 
 const TWO_MIN = 2 * 60 * 1000;
 
@@ -25,3 +26,16 @@ export function useEquippedCosmetics(userId: string | undefined) {
     staleTime: TWO_MIN,
   });
 }
+
+/** Batch-fetch equipped cosmetics for multiple users (frame + title lookup map) */
+export function useBatchEquippedCosmetics(userIds: string[]) {
+  const key = userIds.length > 0 ? userIds.slice().sort().join(',') : '';
+  return useQuery<Map<string, EquippedCosmeticsLookup>>({
+    queryKey: ['cosmetics', 'batch-equipped', key],
+    queryFn: () => getBatchEquippedCosmetics(userIds),
+    enabled: userIds.length > 0,
+    staleTime: TWO_MIN,
+  });
+}
+
+export type { EquippedCosmeticsLookup };

@@ -8,14 +8,14 @@ import {
   Pin, Trash2, Lock,
 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Card } from '@/components/ui';
+import { Card, CosmeticTitle } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { cn } from '@/lib/utils';
 import PostReplies from '@/components/community/PostReplies';
 import TipButton from '@/components/community/TipButton';
 import SubscriptionBadge from '@/components/ui/SubscriptionBadge';
 import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
-import type { PostWithAuthor } from '@/types';
+import type { PostWithAuthor, CosmeticRarity } from '@/types';
 
 // ============================================
 // HELPERS
@@ -65,6 +65,8 @@ interface PostCardProps {
   tipTotalCents?: number;
   isLockedExclusive?: boolean;
   authorSubscriptionTier?: SubscriptionTier;
+  authorCosmeticTitle?: string | null;
+  authorCosmeticTitleRarity?: CosmeticRarity;
 }
 
 // ============================================
@@ -86,6 +88,8 @@ export default function PostCard({
   tipTotalCents = 0,
   isLockedExclusive = false,
   authorSubscriptionTier,
+  authorCosmeticTitle,
+  authorCosmeticTitleRarity,
 }: PostCardProps) {
   const tc = useTranslations('community');
   const locale = useLocale();
@@ -144,6 +148,9 @@ export default function PostCard({
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
               <Link href={`/profile/${post.author_handle}`} className="font-bold text-sm hover:text-gold transition-colors">{post.author_display_name || post.author_handle}</Link>
+              {authorCosmeticTitle && (
+                <CosmeticTitle title={authorCosmeticTitle} rarity={authorCosmeticTitleRarity} />
+              )}
               {post.author_top_role && (
                 <span className={cn(
                   'px-1.5 py-0.5 rounded text-[9px] font-bold border',

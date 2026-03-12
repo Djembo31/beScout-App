@@ -3,13 +3,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Trophy, BadgeCheck, TrendingUp, TrendingDown, BarChart3, Gamepad2, Search, Award, Users, Zap, Swords } from 'lucide-react';
-import { Card } from '@/components/ui';
+import { Card, CosmeticAvatar, CosmeticTitle } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import FollowBtn from '@/components/community/FollowBtn';
 import type { LeaderboardUser, DbUserStats } from '@/types';
 import { getRang, getDimensionColor, type Dimension } from '@/lib/gamification';
 import { RangBadge, RangScorePill } from '@/components/ui/RangBadge';
 import { useScoutLeaderboard } from '@/lib/queries';
+import { useBatchEquippedCosmetics } from '@/lib/queries/cosmetics';
 import { getExpertBadges } from '@/lib/expertBadges';
 import { getMedianScore } from '@/lib/services/scoutScores';
 import { useTranslations } from 'next-intl';
@@ -64,13 +65,16 @@ function saveRankSnapshot(leaderboard: LeaderboardUser[]): void {
 // LEADERBOARD ROW (Reputation)
 // ============================================
 
-function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, isSelf }: {
+function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, isSelf, cosmeticFrameCss, cosmeticTitle, cosmeticTitleRarity }: {
   user: LeaderboardUser;
   rank: number;
   rankChange: number | null;
   isFollowed: boolean;
   onFollow: () => void;
   isSelf?: boolean;
+  cosmeticFrameCss?: string | null;
+  cosmeticTitle?: string | null;
+  cosmeticTitleRarity?: import('@/types').CosmeticRarity;
 }) {
   const tg = useTranslations('gamification');
   const rankStyle = rank === 1
@@ -108,6 +112,14 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
           )}
         </div>
 
+        <CosmeticAvatar
+          avatarUrl={lUser.avatarUrl}
+          displayName={lUser.displayName || lUser.handle}
+          size={36}
+          frameCssClass={cosmeticFrameCss}
+          className="rounded-full"
+        />
+
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="font-bold">{lUser.displayName || lUser.handle}</span>
@@ -118,6 +130,9 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
                 {topRole.icon}
                 {topRole.label}
               </span>
+            )}
+            {cosmeticTitle && (
+              <CosmeticTitle title={cosmeticTitle} rarity={cosmeticTitleRarity} />
             )}
           </div>
           <div className="text-xs text-white/50 flex items-center gap-3 mt-0.5 flex-wrap">
@@ -200,6 +215,10 @@ export default function CommunityLeaderboardTab({
   const tg = useTranslations('gamification');
   const [scoreTab, setScoreTab] = useState<ScoreTab>('overall');
 
+  // Batch-fetch cosmetics for reputation leaderboard users
+  const reputationUserIds = useMemo(() => leaderboard.map(u => u.userId), [leaderboard]);
+  const { data: cosmeticsMap } = useBatchEquippedCosmetics(reputationUserIds);
+
   // Load previous snapshot and compute rank changes
   const rankChanges = useMemo(() => {
     const prevSnapshot = getRankSnapshot();
@@ -220,6 +239,10 @@ export default function CommunityLeaderboardTab({
 
   const dim: Dimension | 'overall' = scoreTab;
   const { data: scoutTop = [] } = useScoutLeaderboard(dim, 10);
+
+  // Batch-fetch cosmetics for scout score leaderboard users
+  const scoutUserIds = useMemo(() => scoutTop.map(e => e.user_id), [scoutTop]);
+  const { data: scoutCosmeticsMap } = useBatchEquippedCosmetics(scoutUserIds);
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -275,16 +298,21 @@ export default function CommunityLeaderboardTab({
                     )}>
                       {rank <= 3 ? <Trophy className="w-4 h-4" /> : rank}
                     </div>
-                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold overflow-hidden flex-shrink-0">
-                      {entry.avatar_url
-                        ? <img src={entry.avatar_url} alt="" className="w-full h-full object-cover" />
-                        : (entry.display_name ?? entry.handle).charAt(0).toUpperCase()
-                      }
-                    </div>
+                    <CosmeticAvatar
+                      avatarUrl={entry.avatar_url}
+                      displayName={entry.display_name ?? entry.handle}
+                      size={32}
+                      frameCssClass={scoutCosmeticsMap?.get(entry.user_id)?.frameCssClass}
+                      className="rounded-full flex-shrink-0"
+                    />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm truncate">{entry.display_name ?? entry.handle}</span>
                         {isSelf && <span className="px-1 py-0.5 rounded text-[9px] font-bold bg-gold/15 text-gold">Du</span>}
+                        <CosmeticTitle
+                          title={scoutCosmeticsMap?.get(entry.user_id)?.titleName ?? null}
+                          rarity={scoutCosmeticsMap?.get(entry.user_id)?.titleRarity}
+                        />
                       </div>
                       <RangScorePill score={displayScore} />
                     </div>
@@ -330,6 +358,9 @@ export default function CommunityLeaderboardTab({
                 isFollowed={followingIds.has(u.userId)}
                 onFollow={() => onFollowToggle(u.userId)}
                 isSelf={u.userId === userId}
+                cosmeticFrameCss={cosmeticsMap?.get(u.userId)?.frameCssClass}
+                cosmeticTitle={cosmeticsMap?.get(u.userId)?.titleName}
+                cosmeticTitleRarity={cosmeticsMap?.get(u.userId)?.titleRarity}
               />
             ))
           )}

@@ -1,16 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Trophy, ChevronRight, ChevronLeft, RefreshCw,
 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
+import { CosmeticAvatar, CosmeticTitle } from '@/components/ui';
 import { PositionBadge, PlayerIdentity, PlayerPhoto } from '@/components/player';
 import type { Pos } from '@/types';
 import { fmtScout } from '@/lib/utils';
 import { getLineupWithPlayers } from '@/lib/services/lineups';
 import type { LineupWithPlayers } from '@/lib/services/lineups';
 import type { LeaderboardEntry } from '@/lib/services/scoring';
+import { useBatchEquippedCosmetics } from '@/lib/queries/cosmetics';
 import { getScoreColor, getPosAccentColor } from '../helpers';
 import type { FantasyEvent } from '../types';
 import dynamic from 'next/dynamic';
@@ -37,6 +39,10 @@ export default function LeaderboardPanel({
   const [viewingUserLineup, setViewingUserLineup] = useState<{ entry: LeaderboardEntry; data: LineupWithPlayers } | null>(null);
   const [viewingUserLoading, setViewingUserLoading] = useState(false);
 
+  // Batch-fetch cosmetics for all leaderboard users
+  const leaderboardUserIds = useMemo(() => leaderboard.map(e => e.userId), [leaderboard]);
+  const { data: cosmeticsMap } = useBatchEquippedCosmetics(leaderboardUserIds);
+
   return (
     <div className="space-y-2">
       <SponsorBanner placement="fantasy_leaderboard" className="mb-2" />
@@ -62,9 +68,20 @@ export default function LeaderboardPanel({
                 }`}>
                 #{viewingUserLineup.entry.rank}
               </div>
+              <CosmeticAvatar
+                avatarUrl={viewingUserLineup.entry.avatarUrl}
+                displayName={viewingUserLineup.entry.displayName || viewingUserLineup.entry.handle}
+                size={36}
+                frameCssClass={cosmeticsMap?.get(viewingUserLineup.entry.userId)?.frameCssClass}
+                className="rounded-full"
+              />
               <div>
                 <div className="font-bold">{viewingUserLineup.entry.displayName || viewingUserLineup.entry.handle}</div>
                 <div className="text-xs text-white/40">@{viewingUserLineup.entry.handle}</div>
+                <CosmeticTitle
+                  title={cosmeticsMap?.get(viewingUserLineup.entry.userId)?.titleName ?? null}
+                  rarity={cosmeticsMap?.get(viewingUserLineup.entry.userId)?.titleRarity}
+                />
               </div>
             </div>
             <div className="text-right">
@@ -224,14 +241,22 @@ export default function LeaderboardPanel({
                         {entry.rank}
                       </div>
                       <div className="flex items-center gap-2">
-                        {entry.avatarUrl ? (
-                          <img src={entry.avatarUrl} alt="" className="size-6 rounded-full object-cover" />
-                        ) : (
-                          <div className="size-6 rounded-full bg-white/10 flex items-center justify-center text-xs">&#x1F464;</div>
-                        )}
-                        <span className={`text-left ${isCurrentUser ? 'font-bold text-gold' : ''}`}>
-                          {entry.displayName || entry.handle} {isCurrentUser && t('youLabel')}
-                        </span>
+                        <CosmeticAvatar
+                          avatarUrl={entry.avatarUrl}
+                          displayName={entry.displayName || entry.handle}
+                          size={24}
+                          frameCssClass={cosmeticsMap?.get(entry.userId)?.frameCssClass}
+                          className="rounded-full"
+                        />
+                        <div className="flex flex-col">
+                          <span className={`text-left ${isCurrentUser ? 'font-bold text-gold' : ''}`}>
+                            {entry.displayName || entry.handle} {isCurrentUser && t('youLabel')}
+                          </span>
+                          <CosmeticTitle
+                            title={cosmeticsMap?.get(entry.userId)?.titleName ?? null}
+                            rarity={cosmeticsMap?.get(entry.userId)?.titleRarity}
+                          />
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
