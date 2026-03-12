@@ -54,8 +54,12 @@ const ScoreRoadStrip = dynamic(() => import('@/components/gamification/ScoreRoad
   ssr: false,
   loading: () => <div className="h-10 rounded-xl bg-white/[0.02] animate-pulse" />,
 });
+const OnboardingChecklist = dynamic(() => import('@/components/home/OnboardingChecklist'), { ssr: false });
+const StreakMilestoneBanner = dynamic(() => import('@/components/home/StreakMilestoneBanner'), { ssr: false });
+const SuggestedActionBanner = dynamic(() => import('@/components/home/SuggestedActionBanner'), { ssr: false });
 
 import type { DpcHolding, DbEvent, Pos } from '@/types';
+import { getRetentionContext } from '@/lib/retentionEngine';
 
 // ============================================
 // MAIN COMPONENT
@@ -196,6 +200,21 @@ export default function HomePage() {
     [holdings, pnl, pnlPct, activeIPOs, nextEvent]
   );
 
+  // ── Retention context ──
+  const retention = useMemo(() => {
+    if (!profile?.created_at) return null;
+    return getRetentionContext({
+      createdAt: profile.created_at,
+      streakDays: streak,
+      userStats,
+      holdingsCount: holdings.length,
+      eventsJoined: userStats?.events_count ?? 0,
+      challengesCompleted: challengeHistory.length,
+      postsCount: userStats?.votes_cast ?? 0,
+      followedClubs: followedClubs.length,
+    });
+  }, [profile?.created_at, streak, userStats, holdings.length, challengeHistory.length, followedClubs.length]);
+
   // Determine what Spotlight shows so we don't duplicate below
   const spotlightType = useMemo(() => {
     if (activeIPOs.length > 0) return 'ipo' as const;
@@ -252,11 +271,26 @@ export default function HomePage() {
         />
       )}
 
+      {/* ── 1c. ONBOARDING CHECKLIST — New users (day 0-7) ── */}
+      {retention?.onboarding && (
+        <OnboardingChecklist items={retention.onboarding} />
+      )}
+
       {/* ── 2. PORTFOLIO STRIP — Top holdings ── */}
       <PortfolioStrip holdings={holdings} />
 
       {/* ── 2b. SCORE ROAD STRIP — Progress toward next milestone ── */}
       {uid && <ScoreRoadStrip userId={uid} />}
+
+      {/* ── 2c. STREAK MILESTONE — Celebration banner ── */}
+      {retention?.streakMilestone && (
+        <StreakMilestoneBanner milestone={retention.streakMilestone} />
+      )}
+
+      {/* ── 2d. SUGGESTED ACTION — Stage-specific CTA ── */}
+      {retention?.suggestedAction && (
+        <SuggestedActionBanner action={retention.suggestedAction} />
+      )}
 
       {/* ── 3. ENGAGEMENT ZONE — Daily Challenge + Mystery Box ── */}
       {uid && (
