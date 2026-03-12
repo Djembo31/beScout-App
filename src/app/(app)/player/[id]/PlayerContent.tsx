@@ -94,7 +94,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const { data: allSellOrdersData } = useSellOrders(playerId);
   const { data: openBidsData } = useOpenBids(playerId, tab === 'markt');
   const { data: tradesData, isLoading: tradesLoading } = usePlayerTrades(playerId);
-  const { data: playerResearchData } = usePlayerResearch(playerId, uid, tab === 'community');
+  const { data: playerResearchData } = usePlayerResearch(playerId, uid, tab === 'community' || tab === 'markt');
   const { data: playerPostsData } = usePosts({ playerId, limit: 30 });
   const { data: userIpoPurchasedData } = useUserIpoPurchases(uid, activeIpo?.id);
   const { data: masteryData } = useDpcMastery(uid, playerId);
@@ -289,6 +289,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             acceptingBidId={trading.acceptingBidId}
             onOpenOfferModal={trading.openOfferModal}
             isRestrictedAdmin={isRestrictedAdmin}
+            playerResearch={playerResearch}
           />
           </>
         )}

@@ -2290,7 +2290,22 @@
     "rewardAddRank": "Rang hinzufuegen",
     "rewardRemoveRank": "Rang entfernen",
     "rewardSum": "Summe",
-    "rewardMust100": "muss 100% ergeben"
+    "rewardMust100": "muss 100% ergeben",
+    "challenges": "Fan-Challenges",
+    "challengeCreate": "Challenge erstellen",
+    "challengeReward": "Fan-Rang Punkte: {points}",
+    "challengeTitle": "Titel",
+    "challengeDesc": "Beschreibung",
+    "challengeType": "Typ",
+    "challengeStatus": "Status",
+    "challengeActive": "Aktiv",
+    "challengeEnded": "Beendet",
+    "challengeEmpty": "Noch keine Fan-Challenges erstellt",
+    "challengeCreated": "Challenge erstellt",
+    "challengeCreateError": "Challenge konnte nicht erstellt werden",
+    "challengeStartsAt": "Start",
+    "challengeEndsAt": "Ende",
+    "challengeCosmeticKey": "Kosmetik-Schluessel (optional)"
   },
   "adminFans": {
     "totalFollowers": "Follower",
@@ -2711,7 +2726,13 @@
     "errorEval": "Alle 5 Dimensionen + Texte ausfüllen",
     "publishScouting": "Scouting-Report veröffentlichen",
     "publishResearch": "Bericht veröffentlichen",
-    "removePlayer": "Spieler entfernen"
+    "removePlayer": "Spieler entfernen",
+    "consensus": "Scout-Konsens",
+    "consensusReports": "{count} qualifizierte Berichte",
+    "consensusBullish": "{count} Analysten bullish",
+    "consensusBearish": "{count} Analysten bearish",
+    "consensusNeutral": "Ausgeglichen",
+    "consensusTopAnalyst": "Top-Analyst: @{handle} ({hitRate}% Trefferquote)"
   },
   "achievement": {
     "unlocked": "Erfolg freigeschaltet!",

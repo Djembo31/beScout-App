@@ -2282,7 +2282,22 @@
     "rewardAddRank": "Siralama ekle",
     "rewardRemoveRank": "Siralamayi kaldir",
     "rewardSum": "Toplam",
-    "rewardMust100": "%100 olmali"
+    "rewardMust100": "%100 olmali",
+    "challenges": "Fan Gorevleri",
+    "challengeCreate": "Gorev olustur",
+    "challengeReward": "Fan Rank Puani: {points}",
+    "challengeTitle": "Baslik",
+    "challengeDesc": "Aciklama",
+    "challengeType": "Tur",
+    "challengeStatus": "Durum",
+    "challengeActive": "Aktif",
+    "challengeEnded": "Bitmis",
+    "challengeEmpty": "Henuz fan gorevi olusturulmadi",
+    "challengeCreated": "Gorev olusturuldu",
+    "challengeCreateError": "Gorev olusturulamadi",
+    "challengeStartsAt": "Baslangic",
+    "challengeEndsAt": "Bitis",
+    "challengeCosmeticKey": "Kozmetik anahtari (istege bagli)"
   },
   "adminFans": {
     "totalFollowers": "Takipçi",
@@ -2703,7 +2718,13 @@
     "errorEval": "Tüm 5 boyut + metinleri doldurun",
     "publishScouting": "Keşif Raporunu yayınla",
     "publishResearch": "Raporu yayınla",
-    "removePlayer": "Oyuncuyu kaldır"
+    "removePlayer": "Oyuncuyu kaldır",
+    "consensus": "Scout Konsensüsü",
+    "consensusReports": "{count} nitelikli rapor",
+    "consensusBullish": "{count} analist yükseliş",
+    "consensusBearish": "{count} analist düşüş",
+    "consensusNeutral": "Dengeli",
+    "consensusTopAnalyst": "En iyi analist: @{handle} (%{hitRate} isabet)"
   },
   "achievement": {
     "unlocked": "Başarı açıldı!",

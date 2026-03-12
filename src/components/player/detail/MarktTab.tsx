@@ -11,9 +11,10 @@ import { Card } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
-import type { Player, DbOrder, DbTrade, OfferWithDetails } from '@/types';
+import type { Player, DbOrder, DbTrade, OfferWithDetails, ResearchPostWithAuthor } from '@/types';
 import PriceChart from './PriceChart';
 import OrderbookDepth from './OrderbookDepth';
+import ScoutConsensus from './ScoutConsensus';
 
 interface MarktTabProps {
   player: Player;
@@ -30,6 +31,7 @@ interface MarktTabProps {
   acceptingBidId?: string | null;
   onOpenOfferModal?: () => void;
   isRestrictedAdmin?: boolean;
+  playerResearch?: ResearchPostWithAuthor[];
 }
 
 export default function MarktTab({
@@ -37,7 +39,7 @@ export default function MarktTab({
   profileMap, userId, dpcAvailable,
   openBids = [], holdingQty = 0,
   onAcceptBid, acceptingBidId, onOpenOfferModal,
-  isRestrictedAdmin,
+  isRestrictedAdmin, playerResearch = [],
 }: MarktTabProps) {
   const t = useTranslations('playerDetail');
 
@@ -67,6 +69,11 @@ export default function MarktTab({
 
       {/* Orderbook Depth */}
       <OrderbookDepth orders={allSellOrders} />
+
+      {/* Scout Consensus (research-based signal) */}
+      {playerResearch.length > 0 && (
+        <ScoutConsensus research={playerResearch} />
+      )}
 
       {/* Offers Section */}
       {userId && (
