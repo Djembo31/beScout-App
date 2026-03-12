@@ -454,59 +454,28 @@ export type SeasonLeaderboardEntry = {
 
 /** Aggregate season leaderboard: top users by total points across all scored events */
 export async function getSeasonLeaderboard(limit = 50): Promise<SeasonLeaderboardEntry[]> {
-  // Aggregate lineups where scoring happened (total_score IS NOT NULL)
-  const { data, error } = await supabase
-    .from('lineups')
-    .select('user_id, total_score, rank, reward_amount')
-    .not('total_score', 'is', null);
+  const { data, error } = await supabase.rpc('get_season_leaderboard', { p_limit: limit });
 
   if (error || !data || data.length === 0) return [];
 
-  // Aggregate per user
-  const userMap = new Map<string, { totalPoints: number; eventsPlayed: number; totalRewardCents: number; wins: number }>();
-  for (const l of data) {
-    const existing = userMap.get(l.user_id);
-    const score = (l.total_score as number) ?? 0;
-    const reward = l.reward_amount ?? 0;
-    const isWin = l.rank === 1;
-    if (existing) {
-      existing.totalPoints += score;
-      existing.eventsPlayed += 1;
-      existing.totalRewardCents += reward;
-      if (isWin) existing.wins += 1;
-    } else {
-      userMap.set(l.user_id, { totalPoints: score, eventsPlayed: 1, totalRewardCents: reward, wins: isWin ? 1 : 0 });
-    }
-  }
-
-  // Sort by total points desc, take top N
-  const sorted = Array.from(userMap.entries())
-    .sort((a, b) => b[1].totalPoints - a[1].totalPoints)
-    .slice(0, limit);
-
-  // Fetch profiles
-  const userIds = sorted.map(([uid]) => uid);
-  const { data: profiles } = await supabase
-    .from('profiles')
-    .select('id, handle, display_name, avatar_url')
-    .in('id', userIds);
-
-  const profileMap = new Map(
-    (profiles ?? []).map(p => [p.id, p])
-  );
-
-  return sorted.map(([uid, stats], idx) => {
-    const profile = profileMap.get(uid);
-    return {
-      rank: idx + 1,
-      userId: uid,
-      handle: profile?.handle ?? notifText('unknownFallback'),
-      displayName: profile?.display_name ?? null,
-      avatarUrl: profile?.avatar_url ?? null,
-      totalPoints: stats.totalPoints,
-      eventsPlayed: stats.eventsPlayed,
-      totalRewardCents: stats.totalRewardCents,
-      wins: stats.wins,
-    };
-  });
+  return (data as Array<{
+    user_id: string;
+    handle: string;
+    display_name: string | null;
+    avatar_url: string | null;
+    total_points: number;
+    events_played: number;
+    total_reward_cents: number;
+    wins: number;
+  }>).map((row, idx) => ({
+    rank: idx + 1,
+    userId: row.user_id,
+    handle: row.handle ?? 'Unbekannt',
+    displayName: row.display_name,
+    avatarUrl: row.avatar_url,
+    totalPoints: row.total_points,
+    eventsPlayed: row.events_played,
+    totalRewardCents: row.total_reward_cents,
+    wins: row.wins,
+  }));
 }
