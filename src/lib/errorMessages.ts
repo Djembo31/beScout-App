@@ -18,6 +18,7 @@ const KNOWN_KEYS = new Set([
   'lineupDeleteFailed', 'lineupSizeMismatch', 'playerNotInClub',
   'walletError', 'bountyCreateFailed', 'bountyCancelFailed',
   'dailyTradeLimit', 'circularTradeBlocked', 'cancelCooldown',
+  'researchWeeklyCap', 'cosmeticAlreadyOwned', 'cosmeticOutOfStock',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [
@@ -71,6 +72,11 @@ const ERROR_MAP: [RegExp, string][] = [
   [/rate.limit/i, 'rateLimited'],
   [/network|fetch.failed|failed.to.fetch/i, 'networkError'],
   [/timeout/i, 'timeout'],
+
+  // Economy / Limits
+  [/research.weekly.cap|max.*3.*research.*post/i, 'researchWeeklyCap'],
+  [/already.owned/i, 'cosmeticAlreadyOwned'],
+  [/out.of.stock/i, 'cosmeticOutOfStock'],
 
   // Subscription
   [/subscription.*required/i, 'subscriptionRequired'],
