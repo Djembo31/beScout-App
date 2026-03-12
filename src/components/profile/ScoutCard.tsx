@@ -151,11 +151,11 @@ export function ScoutCard({
             >
               {bioExpanded ? (
                 <>
-                  {t('bioLess')} <ChevronUp className="size-3" />
+                  {t('lessBio')} <ChevronUp className="size-3" />
                 </>
               ) : (
                 <>
-                  {t('bioMore')} <ChevronDown className="size-3" />
+                  {t('moreBio')} <ChevronDown className="size-3" />
                 </>
               )}
             </button>

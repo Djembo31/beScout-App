@@ -38,18 +38,18 @@ export default function ScoreProgress({ dimension, score, className }: ScoreProg
 
   const rang = getRang(score);
   const rangLabel = tg(`rang.${rang.i18nKey}`);
-  const isMax = rang.maxScore === null;
 
   // Progress calculation
   let progress = 100;
   let pointsToNext = 0;
   let nextRangLabel = '';
 
-  if (!isMax) {
-    const range = rang.maxScore - rang.minScore + 1;
+  if (rang.maxScore !== null) {
+    const max = rang.maxScore;
+    const range = max - rang.minScore + 1;
     progress = Math.min(((score - rang.minScore) / range) * 100, 100);
-    pointsToNext = rang.maxScore - score + 1;
-    const nextRang = getRang(rang.maxScore + 1);
+    pointsToNext = max - score + 1;
+    const nextRang = getRang(max + 1);
     nextRangLabel = tg(`rang.${nextRang.i18nKey}`);
   }
 
@@ -88,7 +88,7 @@ export default function ScoreProgress({ dimension, score, className }: ScoreProg
         <span className={cn('text-[11px] font-bold', rang.color)}>
           {rangLabel}
         </span>
-        {!isMax ? (
+        {rang.maxScore !== null ? (
           <span className="text-[11px] text-white/40">
             {t('scoreProgress', { points: pointsToNext.toLocaleString(numLocale), rang: nextRangLabel })}
           </span>
