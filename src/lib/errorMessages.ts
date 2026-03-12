@@ -17,7 +17,7 @@ const KNOWN_KEYS = new Set([
   'eventGameweekNotFound', 'playerLockedRemove', 'playerLockedAdd', 'duplicatePlayer',
   'lineupDeleteFailed', 'lineupSizeMismatch', 'playerNotInClub',
   'walletError', 'bountyCreateFailed', 'bountyCancelFailed',
-  'dailyTradeLimit', 'circularTradeBlocked', 'cancelCooldown',
+  'dailyTradeLimit', 'circularTradeBlocked', 'cancelCooldown', 'orderRateLimit',
   'researchWeeklyCap', 'cosmeticAlreadyOwned', 'cosmeticOutOfStock',
 ]);
 
@@ -32,7 +32,8 @@ const ERROR_MAP: [RegExp, string][] = [
   [/no.matching.orders|no.open.orders/i, 'noMatchingOrders'],
   [/t.gliches.handelslimit|daily.*trade.*limit|max.*20.*trades/i, 'dailyTradeLimit'],
   [/verd.chtiges.handelsmuster|circular.*trade|same.*partner/i, 'circularTradeBlocked'],
-  [/erst.nach.5.minuten|cancel.*cooldown/i, 'cancelCooldown'],
+  [/erst.nach.*sekunden|erst.nach.*minuten|cancel.*cooldown/i, 'cancelCooldown'],
+  [/max.*10.*verkaufsorders|order.*rate.*limit/i, 'orderRateLimit'],
   [/invalid.quantity/i, 'invalidQuantity'],
   [/max.quantity.exceeded|exceeds.*limit/i, 'maxQuantityExceeded'],
   [/invalid.price/i, 'invalidPrice'],

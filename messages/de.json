@@ -2787,7 +2787,8 @@
     "bountyCancelFailed": "Stornierung fehlgeschlagen.",
     "dailyTradeLimit": "Tägliches Handelslimit erreicht. Max 20 Trades pro Spieler in 24 Stunden.",
     "circularTradeBlocked": "Handel mit demselben Partner für denselben Spieler innerhalb von 7 Tagen nicht erlaubt.",
-    "cancelCooldown": "Orders können erst nach 5 Minuten storniert werden.",
+    "cancelCooldown": "Orders können erst nach 60 Sekunden storniert werden.",
+    "orderRateLimit": "Max 10 Verkaufsorders pro Spieler pro Stunde. Bitte warte.",
     "researchWeeklyCap": "Max 3 Research-Posts pro Woche erlaubt. Bitte warte bis nächste Woche.",
     "cosmeticAlreadyOwned": "Dieses Cosmetic besitzt du bereits.",
     "cosmeticOutOfStock": "Dieses Cosmetic ist ausverkauft."

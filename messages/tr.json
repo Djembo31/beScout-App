@@ -2779,7 +2779,8 @@
     "bountyCancelFailed": "İptal başarısız oldu.",
     "dailyTradeLimit": "Günlük işlem limiti doldu. Oyuncu başına 24 saatte maksimum 20 işlem.",
     "circularTradeBlocked": "Aynı partnerle aynı oyuncu için 7 gün içinde işlem yapılamaz.",
-    "cancelCooldown": "Emirler ancak 5 dakika sonra iptal edilebilir.",
+    "cancelCooldown": "Emirler ancak 60 saniye sonra iptal edilebilir.",
+    "orderRateLimit": "Oyuncu başına saatte maksimum 10 satış emri. Lütfen bekleyin.",
     "researchWeeklyCap": "Haftada maksimum 3 araştırma yazısı yayınlanabilir. Lütfen gelecek haftayı bekleyin.",
     "cosmeticAlreadyOwned": "Bu kozmetik zaten sende var.",
     "cosmeticOutOfStock": "Bu kozmetik tükenmiş."
