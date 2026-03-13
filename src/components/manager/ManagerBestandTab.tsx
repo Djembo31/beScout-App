@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { Package, Tag, MessageSquare, ShoppingCart } from 'lucide-react';
+import { Package, Tag, MessageSquare, ShoppingCart, CheckSquare, X, Loader2 } from 'lucide-react';
 import { EmptyState } from '@/components/ui';
 import NewUserTip from '@/components/onboarding/NewUserTip';
 import { fmtScout, cn } from '@/lib/utils';
@@ -92,11 +92,22 @@ export default function ManagerBestandTab({
   const [clubFilter, setClubFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [sortByMap, setSortByMap] = useState<Partial<Record<BestandLens, string>>>({});
+  const [bulkMode, setBulkMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkSelling, setBulkSelling] = useState(false);
   const sortBy = sortByMap[lens] ?? DEFAULT_SORT[lens];
 
   const setSortBy = useCallback((sort: string) => {
     setSortByMap(prev => ({ ...prev, [lens]: sort }));
   }, [lens]);
+
+  const toggleSelect = useCallback((playerId: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(playerId) ? next.delete(playerId) : next.add(playerId);
+      return next;
+    });
+  }, []);
 
   const togglePos = useCallback((pos: Pos) => {
     setPosFilter(prev => {
@@ -156,6 +167,20 @@ export default function ManagerBestandTab({
     }
     return items;
   }, [players, holdings, ipoList, userId, incomingOffers]);
+
+  const handleBulkSell = useCallback(async () => {
+    if (selectedIds.size === 0 || bulkSelling) return;
+    setBulkSelling(true);
+    for (const playerId of Array.from(selectedIds)) {
+      const item = bestandItems.find(i => i.player.id === playerId);
+      if (!item || item.availableToSell <= 0 || item.floorBsd == null) continue;
+      const priceCents = Math.round(item.floorBsd * 100);
+      await onSell(playerId, item.availableToSell, priceCents);
+    }
+    setBulkSelling(false);
+    setSelectedIds(new Set());
+    setBulkMode(false);
+  }, [selectedIds, bulkSelling, bestandItems, onSell]);
 
   const availableClubs = useMemo(() =>
     Array.from(new Set(bestandItems.map(i => i.player.club))).sort(),
@@ -224,6 +249,8 @@ export default function ManagerBestandTab({
       nextFixture={nextFixturesMap?.get(item.player.clubId ?? '')}
       inLineup={eventUsageMap?.has(item.player.id) ?? false}
       onSellClick={setSellPlayerId}
+      isSelected={bulkMode ? selectedIds.has(item.player.id) : undefined}
+      onToggleSelect={bulkMode ? toggleSelect : undefined}
     />
   );
 
@@ -287,9 +314,23 @@ export default function ManagerBestandTab({
         onShowFiltersChange={setShowFilters}
       />
 
-      {/* Result Count */}
-      <div className="text-sm text-white/50">
-        {t('bestandPlayersInSquad', { count: filtered.length })}
+      {/* Result Count + Bulk Mode Toggle */}
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-white/50">
+          {t('bestandPlayersInSquad', { count: filtered.length })}
+        </span>
+        {filtered.length > 1 && (
+          <button
+            onClick={() => { setBulkMode(v => !v); setSelectedIds(new Set()); }}
+            className={cn(
+              'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors',
+              bulkMode ? 'bg-gold/10 text-gold border border-gold/20' : 'text-white/40 hover:text-white/60 hover:bg-white/5',
+            )}
+          >
+            <CheckSquare className="size-3.5" />
+            {bulkMode ? t('bestandBulkCancel') : t('bestandBulkSelect')}
+          </button>
+        )}
       </div>
 
       {/* Empty State */}
@@ -331,6 +372,32 @@ export default function ManagerBestandTab({
             {filtered.map(renderRow)}
           </div>
         )
+      )}
+
+      {/* Bulk Sell Bar */}
+      {bulkMode && selectedIds.size > 0 && (
+        <div className="sticky bottom-20 md:bottom-4 z-30 mx-auto max-w-md">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-[#1a1a1a] border border-gold/20 shadow-2xl">
+            <span className="text-sm font-bold flex-1">
+              {t('bestandBulkSelected', { count: selectedIds.size })}
+            </span>
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              className="p-1.5 rounded-lg text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors"
+              aria-label={t('bestandBulkClearSelection')}
+            >
+              <X className="size-4" />
+            </button>
+            <button
+              onClick={handleBulkSell}
+              disabled={bulkSelling}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gold text-black text-sm font-bold hover:bg-gold/90 transition-colors disabled:opacity-50"
+            >
+              {bulkSelling ? <Loader2 className="size-4 animate-spin" /> : <Tag className="size-4" />}
+              {t('bestandBulkSellAll')}
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Sell Modal */}

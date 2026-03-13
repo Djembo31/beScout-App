@@ -4,7 +4,7 @@ import React, { memo } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import {
-  TrendingUp, TrendingDown, Minus, DollarSign, Shield,
+  TrendingUp, TrendingDown, Minus, DollarSign, Shield, Check as CheckIcon,
 } from 'lucide-react';
 import { PlayerIdentity } from '@/components/player';
 import { posTintColors } from '@/components/player/PlayerRow';
@@ -45,6 +45,9 @@ interface BestandPlayerRowProps {
   nextFixture?: NextFixtureInfo;
   inLineup: boolean;
   onSellClick: (playerId: string) => void;
+  /** Bulk-select mode */
+  isSelected?: boolean;
+  onToggleSelect?: (playerId: string) => void;
 }
 
 // ============================================
@@ -181,7 +184,7 @@ function VertragCols({ item }: { item: BestandPlayer }) {
 // MAIN ROW
 // ============================================
 
-function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onSellClick }: BestandPlayerRowProps) {
+function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onSellClick, isSelected, onToggleSelect }: BestandPlayerRowProps) {
   const t = useTranslations('market');
   const p = item.player;
 
@@ -189,10 +192,24 @@ function BestandPlayerRowInner({ item, lens, minutes, nextFixture, inLineup, onS
     <div
       className={cn(
         'bg-surface-base border border-white/[0.06] rounded-xl transition-colors hover:bg-surface-elevated hover:border-white/[0.12] border-l-2',
+        isSelected && 'border-gold/30 bg-gold/[0.03]',
       )}
       style={{ borderLeftColor: posTintColors[p.pos] }}
     >
       <div className="flex items-center gap-2 sm:gap-3 px-3 py-2.5">
+        {/* Bulk-select checkbox */}
+        {onToggleSelect && (
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleSelect(p.id); }}
+            className={cn(
+              'size-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors',
+              isSelected ? 'bg-gold border-gold text-black' : 'border-white/20 hover:border-white/40',
+            )}
+            aria-label={isSelected ? t('bestandDeselect') : t('bestandSelect')}
+          >
+            {isSelected && <CheckIcon className="size-3" />}
+          </button>
+        )}
         {/* Identity + Lens-specific data */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">

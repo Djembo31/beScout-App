@@ -36,6 +36,7 @@ import type { Player, DbIpo } from '@/types';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { GeoGate } from '@/components/geo/GeoGate';
 import NewUserTip from '@/components/onboarding/NewUserTip';
+import DiscoveryCard from '@/components/market/DiscoveryCard';
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
   ssr: false,
   loading: () => <div className="h-16 rounded-2xl bg-white/[0.02] animate-pulse" />,
@@ -474,11 +475,29 @@ export default function MarketPage() {
           />
         )}
         {kaufenSubTab === 'trending' && (
-          <EmptyState
-            icon={<Zap className="size-5" />}
-            title={t('trendingComingSoon', { defaultMessage: 'Trending — Bald verfügbar' })}
-            description={t('trendingComingSoonDesc', { defaultMessage: 'Hier siehst du bald die meistgehandelten Spieler.' })}
-          />
+          trending.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {trending.map(tp => {
+                const player = playerMap.get(tp.playerId);
+                if (!player) return null;
+                return (
+                  <DiscoveryCard
+                    key={player.id}
+                    player={player}
+                    variant="trending"
+                    tradeCount={tp.tradeCount}
+                    change24h={tp.change24h}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <EmptyState
+              icon={<Zap className="size-5" />}
+              title={t('trendingEmpty', { defaultMessage: 'Noch keine Trends' })}
+              description={t('trendingEmptyDesc', { defaultMessage: 'Sobald gehandelt wird, siehst du hier die meistgehandelten Spieler.' })}
+            />
+          )
         )}
         {kaufenSubTab === 'transferliste' && (
           <TransferListSection

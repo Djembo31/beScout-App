@@ -8,12 +8,12 @@ import { useToast } from '@/components/providers/ToastProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { centsToBsd } from '@/lib/services/players';
-import { fmtScout } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import {
   Clock, Trophy, Users, Rocket,
-  Shield, Compass, Coins,
+  Shield, Compass, Coins, TrendingUp, TrendingDown,
 } from 'lucide-react';
 
 // ── React Query Hooks ──
@@ -235,6 +235,15 @@ export default function HomePage() {
       .slice(0, 5);
   }, [trendingPlayers, players]);
 
+  // ── Portfolio Top Movers (biggest daily % changes in holdings) ──
+  const topMovers = useMemo(() => {
+    if (holdings.length < 2) return [];
+    return [...holdings]
+      .filter(h => h.change24h !== 0)
+      .sort((a, b) => Math.abs(b.change24h) - Math.abs(a.change24h))
+      .slice(0, 3);
+  }, [holdings]);
+
   // ── Guards ──
   if (playersError && players.length === 0) {
     return (
@@ -294,6 +303,35 @@ export default function HomePage() {
 
       {/* ── 2. PORTFOLIO STRIP — Top holdings ── */}
       <PortfolioStrip holdings={holdings} />
+
+      {/* ── 2a. TOP MOVERS — Biggest daily changes in portfolio ── */}
+      {topMovers.length > 0 && (
+        <div>
+          <SectionHeader title={t('topMovers')} href="/market" />
+          <div className="flex gap-2.5 mt-2 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+            {topMovers.map(h => {
+              const up = h.change24h >= 0;
+              return (
+                <Link
+                  key={h.playerId}
+                  href={`/player/${h.playerId}`}
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl border bg-white/[0.02] hover:bg-white/[0.05] transition-colors shrink-0 min-w-[180px]"
+                  style={{ borderColor: up ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)' }}
+                >
+                  <div className="min-w-0">
+                    <div className="text-sm font-bold truncate">{h.player}</div>
+                    <div className="text-[11px] text-white/40">{h.club}</div>
+                  </div>
+                  <div className={cn('flex items-center gap-0.5 ml-auto font-mono font-bold text-sm tabular-nums shrink-0', up ? 'text-green-500' : 'text-red-400')}>
+                    {up ? <TrendingUp className="size-3.5" /> : <TrendingDown className="size-3.5" />}
+                    {up ? '+' : ''}{h.change24h.toFixed(1)}%
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* ── 2b. SCORE ROAD STRIP — Progress toward next milestone ── */}
       {uid && <ScoreRoadStrip userId={uid} />}
