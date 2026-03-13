@@ -9,7 +9,7 @@ import NewUserTip from '@/components/onboarding/NewUserTip';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useClub } from '@/components/providers/ClubProvider';
-import { createPost, votePost, getUserPostVotes, deletePost, adminDeletePost, adminTogglePin } from '@/lib/services/posts';
+import { createPost, uploadPostImage, votePost, getUserPostVotes, deletePost, adminDeletePost, adminTogglePin } from '@/lib/services/posts';
 import { getActiveSubscriptionsByUsers } from '@/lib/services/clubSubscriptions';
 import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import { createResearchPost, resolveExpiredResearch, unlockResearch, rateResearch } from '@/lib/services/research';
@@ -270,12 +270,16 @@ export default function CommunityPage() {
     }
   }, [uid, addToast, scopeClubId, t]);
 
-  const handleCreatePost = useCallback(async (playerId: string | null, content: string, tags: string[], category: string, postType: PostType = 'general') => {
+  const handleCreatePost = useCallback(async (playerId: string | null, content: string, tags: string[], category: string, postType: PostType = 'general', imageFile: File | null = null) => {
     if (!uid) return;
     if (!clubId) { addToast(t('noClubSelected'), 'error'); return; }
     setPostLoading(true);
     try {
-      await createPost(uid, playerId, clubName, content, tags, category, clubId, postType);
+      let imageUrl: string | null = null;
+      if (imageFile) {
+        imageUrl = await uploadPostImage(uid, imageFile);
+      }
+      await createPost(uid, playerId, clubName, content, tags, category, clubId, postType, null, null, null, imageUrl);
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       setCreatePostOpen(false);
     } catch {

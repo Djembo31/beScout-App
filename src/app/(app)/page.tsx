@@ -246,6 +246,11 @@ export default function HomePage() {
       .slice(0, 3);
   }, [holdings]);
 
+  // ── Global movers exist? (avoid orphan heading when TopMoversStrip returns null) ──
+  const hasGlobalMovers = useMemo(() => {
+    return players.some(p => p.prices.change24h !== 0 && !p.isLiquidated);
+  }, [players]);
+
   // ── Guards ──
   if (playersError && players.length === 0) {
     return (
@@ -341,7 +346,7 @@ export default function HomePage() {
       )}
 
       {/* ── 2a2. GLOBAL TOP MOVERS — Biggest daily changes across all players ── */}
-      {!playersLoading && players.length > 0 && (
+      {!playersLoading && hasGlobalMovers && (
         <div>
           <SectionHeader title={t('globalMovers')} href="/market" />
           <div className="mt-2">

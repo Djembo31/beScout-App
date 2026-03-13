@@ -951,6 +951,7 @@ export type DbPost = {
   event_id: string | null;
   rumor_source: string | null;
   rumor_club_target: string | null;
+  image_url: string | null;
   created_at: string;
 };
 

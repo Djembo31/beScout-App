@@ -302,6 +302,12 @@ export default function PostCard({
           ) : (
             <p className="text-sm text-white/80 leading-relaxed mb-2">{post.content}</p>
           )}
+          {/* Post image */}
+          {post.image_url && (
+            <div className="rounded-xl overflow-hidden border border-white/10 mb-2">
+              <img src={post.image_url} alt="" className="w-full max-h-80 object-cover" loading="lazy" />
+            </div>
+          )}
           {/* Exclusive badge */}
           {post.is_exclusive && !isLockedExclusive && (
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/20 mb-2">

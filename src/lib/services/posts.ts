@@ -7,6 +7,24 @@ import { toPos } from '@/types';
 // Posts (Community)
 // ============================================
 
+const BUCKET = 'BeScout';
+const COMMUNITY_PREFIX = 'community';
+
+/** Upload an image to Supabase Storage and return its public URL */
+export async function uploadPostImage(userId: string, file: File): Promise<string> {
+  const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  const path = `${COMMUNITY_PREFIX}/${userId}/${Date.now()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, file, { contentType: file.type, upsert: false });
+
+  if (error) throw new Error(`Image upload failed: ${error.message}`);
+
+  const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  return urlData.publicUrl;
+}
+
 export async function getPosts(options: {
   limit?: number;
   offset?: number;
@@ -21,7 +39,7 @@ export async function getPosts(options: {
 
   let query = supabase
     .from('posts')
-    .select('id, user_id, player_id, club_name, club_id, content, tags, category, post_type, upvotes, downvotes, replies_count, is_pinned, is_exclusive, parent_id, event_id, rumor_source, rumor_club_target, created_at')
+    .select('id, user_id, player_id, club_name, club_id, content, tags, category, post_type, upvotes, downvotes, replies_count, is_pinned, is_exclusive, parent_id, event_id, rumor_source, rumor_club_target, image_url, created_at')
     .order('is_pinned', { ascending: false })
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
@@ -96,7 +114,7 @@ export async function getPosts(options: {
 export async function getTopPostByUser(userId: string): Promise<PostWithAuthor | null> {
   const { data, error } = await supabase
     .from('posts')
-    .select('id, user_id, player_id, club_name, club_id, content, tags, category, post_type, upvotes, downvotes, replies_count, is_pinned, is_exclusive, parent_id, event_id, rumor_source, rumor_club_target, created_at')
+    .select('id, user_id, player_id, club_name, club_id, content, tags, category, post_type, upvotes, downvotes, replies_count, is_pinned, is_exclusive, parent_id, event_id, rumor_source, rumor_club_target, image_url, created_at')
     .eq('user_id', userId)
     .is('parent_id', null)
     .order('upvotes', { ascending: false })
@@ -135,7 +153,8 @@ export async function createPost(
   postType: PostType = 'general',
   rumorSource: string | null = null,
   rumorClubTarget: string | null = null,
-  eventId: string | null = null
+  eventId: string | null = null,
+  imageUrl: string | null = null
 ): Promise<DbPost> {
   const { data, error } = await supabase
     .from('posts')
@@ -151,6 +170,7 @@ export async function createPost(
       rumor_source: rumorSource,
       rumor_club_target: rumorClubTarget,
       event_id: eventId,
+      ...(imageUrl ? { image_url: imageUrl } : {}),
     })
     .select()
     .single();
@@ -186,7 +206,7 @@ export async function createClubNews(
 export async function getReplies(parentId: string): Promise<PostWithAuthor[]> {
   const { data, error } = await supabase
     .from('posts')
-    .select('id, user_id, player_id, club_name, club_id, content, tags, category, post_type, upvotes, downvotes, replies_count, is_pinned, is_exclusive, parent_id, event_id, rumor_source, rumor_club_target, created_at')
+    .select('id, user_id, player_id, club_name, club_id, content, tags, category, post_type, upvotes, downvotes, replies_count, is_pinned, is_exclusive, parent_id, event_id, rumor_source, rumor_club_target, image_url, created_at')
     .eq('parent_id', parentId)
     .order('created_at', { ascending: true });
 

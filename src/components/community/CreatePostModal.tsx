@@ -21,7 +21,7 @@ interface CreatePostModalProps {
   open: boolean;
   onClose: () => void;
   players: { id: string; name: string; pos: Pos }[];
-  onSubmit: (playerId: string | null, content: string, tags: string[], category: string, postType: PostType) => void;
+  onSubmit: (playerId: string | null, content: string, tags: string[], category: string, postType: PostType, imageFile: File | null) => void;
   loading: boolean;
   defaultPostType?: PostType;
 }
@@ -107,8 +107,7 @@ export default function CreatePostModal({
   const handleSubmit = () => {
     if (!canSubmit) return;
     const tags = tagInput.split(',').map(t => t.trim()).filter(Boolean);
-    // TODO: Upload imageFile to Supabase Storage, get URL, pass as 5th param
-    onSubmit(playerId || null, content.trim(), tags, category, postType);
+    onSubmit(playerId || null, content.trim(), tags, category, postType, imageFile);
     clearDraft();
     setContent('');
     setPlayerId('');
