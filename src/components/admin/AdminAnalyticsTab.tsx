@@ -57,7 +57,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
             <span className="text-xs text-white/50">{t('follower')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-16" /> : (
-            <div className="text-xl font-mono font-black text-sky-400">{data?.totalFollowers ?? 0}</div>
+            <div className="text-xl font-mono font-black tabular-nums text-sky-400">{data?.totalFollowers ?? 0}</div>
           )}
         </Card>
         <Card className="p-4 bg-green-500/[0.06] border-green-500/20">
@@ -66,7 +66,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
             <span className="text-xs text-white/50">{t('activeFans7d')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-16" /> : (
-            <div className="text-xl font-mono font-black text-green-500">{data?.activeFans7d ?? 0}</div>
+            <div className="text-xl font-mono font-black tabular-nums text-green-500">{data?.activeFans7d ?? 0}</div>
           )}
         </Card>
         <Card className="p-4">
@@ -75,7 +75,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
             <span className="text-xs text-white/50">{t('activeFans30d')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-16" /> : (
-            <div className="text-xl font-mono font-black">{data?.activeFans30d ?? 0}</div>
+            <div className="text-xl font-mono font-black tabular-nums">{data?.activeFans30d ?? 0}</div>
           )}
         </Card>
         <Card className="p-4">
@@ -84,7 +84,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
             <span className="text-xs text-white/50">{t('totalVolume')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-16" /> : (
-            <div className="text-xl font-mono font-black text-gold">
+            <div className="text-xl font-mono font-black tabular-nums text-gold">
               {formatScout(data?.topFans.reduce((s, f) => s + f.volume_cents, 0) ?? 0)} bCredits
             </div>
           )}
@@ -96,11 +96,11 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-bold text-white/70">{t('topFansTrading')}</h3>
           {data?.topFans && data.topFans.length > 0 && (
-            <Button variant="ghost" size="sm" onClick={() => downloadCsv(
+            <Button variant="ghost" size="sm" aria-label={t('exportCsv')} onClick={() => downloadCsv(
               data.topFans.map(f => ({ Handle: f.handle, Name: f.display_name ?? '', Trades: f.trade_count, 'Volume (bCredits)': formatScout(f.volume_cents) })),
               `top-fans-${new Date().toISOString().slice(0, 10)}.csv`,
             )}>
-              <Download className="size-3.5 mr-1" />
+              <Download className="size-3.5 mr-1" aria-hidden="true" />
               CSV
             </Button>
           )}
@@ -122,7 +122,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
             </div>
             {data.topFans.map((fan, idx) => (
               <div key={fan.user_id} className="grid grid-cols-12 gap-2 items-center px-3 py-2.5 bg-white/[0.02] rounded-xl border border-white/[0.04] hover:bg-white/[0.04] transition-colors">
-                <div className="col-span-1 text-sm font-mono text-white/40">{idx + 1}</div>
+                <div className="col-span-1 text-sm font-mono tabular-nums text-white/40">{idx + 1}</div>
                 <div className="col-span-5">
                   <div className="text-sm font-semibold truncate">
                     {fan.display_name ?? `@${fan.handle}`}
@@ -131,8 +131,8 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
                     <div className="text-[10px] text-white/30">@{fan.handle}</div>
                   )}
                 </div>
-                <div className="col-span-3 text-right text-sm font-mono">{fan.trade_count}</div>
-                <div className="col-span-3 text-right text-sm font-mono text-gold">{formatScout(fan.volume_cents)}</div>
+                <div className="col-span-3 text-right text-sm font-mono tabular-nums">{fan.trade_count}</div>
+                <div className="col-span-3 text-right text-sm font-mono tabular-nums text-gold">{formatScout(fan.volume_cents)}</div>
               </div>
             ))}
           </div>

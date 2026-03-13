@@ -345,8 +345,8 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                             {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <Square className="w-3 h-3" />}{t('finalize')}
                           </Button>
                         )}
-                        <Button variant="ghost" size="sm" onClick={() => handleClone(ev)}>
-                          <Copy className="w-3 h-3" />{t('cloneEvent')}
+                        <Button variant="ghost" size="sm" onClick={() => handleClone(ev)} aria-label={`${t('cloneEvent')}: ${ev.name}`}>
+                          <Copy className="w-3 h-3" aria-hidden="true" />{t('cloneEvent')}
                         </Button>
                       </div>
                     </div>
@@ -371,8 +371,8 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                           GW {ev.gameweek} • <span className="tabular-nums">{ev.current_entries}</span> {t('participantsLabel')} • <span className="tabular-nums">{fmtScout(centsToBsd(ev.prize_pool))}</span> bCredits
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm" onClick={() => handleClone(ev)} className="shrink-0">
-                        <Copy className="w-3 h-3" />{t('cloneEvent')}
+                      <Button variant="ghost" size="sm" onClick={() => handleClone(ev)} className="shrink-0" aria-label={`${t('cloneEvent')}: ${ev.name}`}>
+                        <Copy className="w-3 h-3" aria-hidden="true" />{t('cloneEvent')}
                       </Button>
                       <Chip className={cn(sc.bg, sc.text, sc.border, 'border flex-shrink-0')}>{sc.label}</Chip>
                     </div>

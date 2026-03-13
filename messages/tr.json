@@ -2087,6 +2087,7 @@
     "volume": "Hacim",
     "engagementBreakdown": "Etkileşim Dağılımı (30 gün)",
     "noEngagementData": "Henüz etkileşim verisi yok.",
+    "exportCsv": "CSV olarak indir",
     "actionBuy": "Alımlar",
     "actionSell": "Satımlar",
     "actionIpoBuy": "IPO Alımları",
@@ -2343,7 +2344,8 @@
     "subscribers": "Aboneler",
     "searchFans": "Fan ara...",
     "fans": "Fan",
-    "noFans": "Bu segmentte henüz fan yok"
+    "noFans": "Bu segmentte henüz fan yok",
+    "exportCsv": "CSV olarak indir"
   },
   "notifications": {
     "title": "Bildirimler",

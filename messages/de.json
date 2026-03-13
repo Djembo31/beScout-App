@@ -2095,6 +2095,7 @@
     "volume": "Volumen",
     "engagementBreakdown": "Engagement-Verteilung (30 Tage)",
     "noEngagementData": "Noch keine Engagement-Daten.",
+    "exportCsv": "Als CSV exportieren",
     "actionBuy": "Käufe",
     "actionSell": "Verkäufe",
     "actionIpoBuy": "IPO-Käufe",
@@ -2351,7 +2352,8 @@
     "subscribers": "Abonnenten",
     "searchFans": "Fan suchen...",
     "fans": "Fans",
-    "noFans": "Noch keine Fans in diesem Segment"
+    "noFans": "Noch keine Fans in diesem Segment",
+    "exportCsv": "Als CSV exportieren"
   },
   "notifications": {
     "title": "Benachrichtigungen",

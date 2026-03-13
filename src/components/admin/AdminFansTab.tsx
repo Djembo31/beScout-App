@@ -130,7 +130,7 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
             { label: 'MAU', value: metrics.mau },
           ].map(kpi => (
             <Card key={kpi.label} className="p-4 text-center">
-              <div className="text-2xl font-black font-mono">{kpi.value}</div>
+              <div className="text-2xl font-black font-mono tabular-nums">{kpi.value}</div>
               <div className="text-[10px] text-white/40 font-semibold uppercase mt-1">{kpi.label}</div>
             </Card>
           ))}
@@ -146,12 +146,14 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
             <button
               key={seg.id}
               onClick={() => handleSegmentClick(seg.id)}
+              aria-label={`${seg.label} (${seg.count})`}
+              aria-pressed={isActive}
               className={cn('p-4 rounded-2xl border text-left transition-colors', isActive ? 'border-gold/30 bg-gold/5 ring-1 ring-gold/20' : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]')}
             >
               <div className={cn('size-10 rounded-xl flex items-center justify-center mb-2 border', colors)}>
                 {SEGMENT_ICONS[seg.icon] ?? <Users className="w-5 h-5" />}
               </div>
-              <div className="text-xl font-black font-mono">{seg.count}</div>
+              <div className="text-xl font-black font-mono tabular-nums">{seg.count}</div>
               <div className="text-[10px] text-white/40 font-semibold">{seg.label}</div>
             </button>
           );
@@ -170,8 +172,8 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
           <div className="text-xs text-white/40 whitespace-nowrap">
             {filteredFans.length} {t('fans')}
           </div>
-          <Button variant="ghost" size="sm" onClick={handleExport} disabled={filteredFans.length === 0}>
-            <Download className="size-3.5 mr-1" />
+          <Button variant="ghost" size="sm" onClick={handleExport} disabled={filteredFans.length === 0} aria-label={t('exportCsv')}>
+            <Download className="size-3.5 mr-1" aria-hidden="true" />
             CSV
           </Button>
         </div>
