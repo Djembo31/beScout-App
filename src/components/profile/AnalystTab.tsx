@@ -10,7 +10,7 @@ import { formatScout } from '@/lib/services/wallet';
 import { getExpertBadges } from '@/lib/expertBadges';
 import ScoreProgress from '@/components/profile/ScoreProgress';
 import { useTranslations } from 'next-intl';
-import type { DbUserStats, DbTransaction, ResearchPostWithAuthor, AuthorTrackRecord } from '@/types';
+import type { DbUserStats, DbTransaction, ResearchPostWithAuthor, AuthorTrackRecord, DbCreatorFundPayout } from '@/types';
 
 const PredictionStatsCard = dynamic(() => import('./PredictionStatsCard'), { ssr: false });
 
@@ -25,6 +25,7 @@ interface AnalystTabProps {
   myResearch: ResearchPostWithAuthor[];
   isSelf: boolean;
   transactions?: DbTransaction[];
+  creatorPayouts?: DbCreatorFundPayout[];
 }
 
 // ============================================
@@ -82,6 +83,7 @@ export default function AnalystTab({
   myResearch,
   isSelf,
   transactions = [],
+  creatorPayouts = [],
 }: AnalystTabProps) {
   const tp = useTranslations('profile');
   const tg = useTranslations('gamification');
@@ -116,6 +118,28 @@ export default function AnalystTab({
     }
     return count > 0 ? { count, total } : null;
   }, [isSelf, transactions]);
+
+  // Creator stats (self only)
+  const creatorStats = useMemo(() => {
+    if (!isSelf || myResearch.length === 0) return null;
+    const ownPosts = myResearch.filter(p => p.is_own);
+    if (ownPosts.length === 0) return null;
+    const totalUnlocks = ownPosts.reduce((s, p) => s + p.unlock_count, 0);
+    const totalEarned = ownPosts.reduce((s, p) => s + p.total_earned, 0);
+    const ratedPosts = ownPosts.filter(p => p.ratings_count > 0);
+    const avgRating = ratedPosts.length > 0
+      ? ratedPosts.reduce((s, p) => s + p.avg_rating, 0) / ratedPosts.length
+      : 0;
+    return { postCount: ownPosts.length, totalUnlocks, totalEarned, avgRating, ratedCount: ratedPosts.length };
+  }, [isSelf, myResearch]);
+
+  // Creator fund payout totals (self only)
+  const payoutSummary = useMemo(() => {
+    if (!isSelf || creatorPayouts.length === 0) return null;
+    const paid = creatorPayouts.filter(p => p.status === 'paid');
+    const totalPaid = paid.reduce((s, p) => s + p.payout_cents, 0);
+    return { totalPaid, payoutCount: paid.length, recent: creatorPayouts.slice(0, 5) };
+  }, [isSelf, creatorPayouts]);
 
   const researchSlice = myResearch.slice(0, 5);
   const hasTrackRecord = trackRecord && trackRecord.totalCalls > 0;
@@ -337,7 +361,83 @@ export default function AnalystTab({
         </Card>
       )}
 
-      {/* 7. Expert Badges */}
+      {/* 7. Creator Stats (self only) */}
+      {creatorStats && (
+        <Card className="p-4 md:p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-black">{tp('creatorStats')}</h3>
+            <Link href="/community" className="text-[11px] text-gold hover:text-gold/80 transition-colors font-bold">
+              {tp('writeResearch')}
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="p-2.5 rounded-xl bg-white/[0.03] text-center">
+              <div className="text-[15px] font-bold font-mono tabular-nums text-white/90">{creatorStats.postCount}</div>
+              <div className="text-[11px] text-white/40 mt-0.5">{tp('creatorPosts')}</div>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/[0.03] text-center">
+              <div className="text-[15px] font-bold font-mono tabular-nums text-white/90">{creatorStats.totalUnlocks}</div>
+              <div className="text-[11px] text-white/40 mt-0.5">{tp('creatorUnlocks')}</div>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/[0.03] text-center">
+              <div className="text-[15px] font-bold font-mono tabular-nums text-white/90">
+                {creatorStats.ratedCount > 0 ? creatorStats.avgRating.toFixed(1) : '—'}
+              </div>
+              <div className="text-[11px] text-white/40 mt-0.5">{tp('creatorAvgRating')}</div>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/[0.03] text-center">
+              <div className="text-[15px] font-bold font-mono tabular-nums text-green-500">
+                +{formatScout(creatorStats.totalEarned)}
+              </div>
+              <div className="text-[11px] text-white/40 mt-0.5">{tp('creatorTotalEarned')}</div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* 8. Creator Fund Payouts (self only) */}
+      {payoutSummary && (
+        <Card className="p-4 md:p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-black">{tp('creatorFundTitle')}</h3>
+            <span className="text-sm font-mono font-bold text-green-500">
+              +{formatScout(payoutSummary.totalPaid)} bCredits
+            </span>
+          </div>
+          <div className="space-y-1.5">
+            {payoutSummary.recent.map(payout => (
+              <div key={payout.id} className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02]">
+                <div className="min-w-0">
+                  <div className="text-[11px] text-white/50">
+                    {new Date(payout.period_start).toLocaleDateString('de-DE', { day: '2-digit', month: 'short' })}
+                    {' – '}
+                    {new Date(payout.period_end).toLocaleDateString('de-DE', { day: '2-digit', month: 'short' })}
+                  </div>
+                  <div className="text-[10px] text-white/30 mt-0.5">
+                    {payout.impression_share_pct.toFixed(1)}% {tp('creatorFundShare')}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className={cn(
+                    'text-[11px] font-mono font-bold tabular-nums',
+                    payout.status === 'paid' ? 'text-green-500' : payout.status === 'pending' ? 'text-amber-400' : 'text-white/30',
+                  )}>
+                    {payout.status === 'paid' ? '+' : ''}{formatScout(payout.payout_cents)}
+                  </span>
+                  <span className={cn(
+                    'text-[9px] px-1.5 py-0.5 rounded-full font-bold',
+                    payout.status === 'paid' ? 'bg-green-500/10 text-green-500' : payout.status === 'pending' ? 'bg-amber-400/10 text-amber-400' : 'bg-white/5 text-white/30',
+                  )}>
+                    {tp(`payoutStatus_${payout.status}`)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* 9. Expert Badges */}
       {userStats && <ExpertBadgesCard userStats={userStats} tp={tp} tg={tg} />}
     </div>
   );

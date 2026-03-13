@@ -7,7 +7,7 @@ import Image from 'next/image';
 import {
   Users, ChevronRight,
   Shield, Calendar,
-  Building2, MessageCircle,
+  Building2, MessageCircle, FileText, Star,
   LayoutGrid, List,
   Loader2, Settings, ChevronDown,
   Swords, Home, Plane, ShoppingBag,
@@ -21,7 +21,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { dbToPlayers, centsToBsd } from '@/lib/services/players';
 import { toggleFollowClub } from '@/lib/services/club';
 import { cn } from '@/lib/utils';
-import { resolveExpiredResearch } from '@/lib/services/research';
+import { resolveExpiredResearch, getResearchPosts } from '@/lib/services/research';
 import { useClubBySlug } from '@/lib/queries/misc';
 import { usePlayersByClub } from '@/lib/queries/players';
 import { useClubFollowerCount, useIsFollowingClub } from '@/lib/queries/social';
@@ -34,7 +34,7 @@ import { useToast } from '@/components/providers/ToastProvider';
 import { getPosts } from '@/lib/services/posts';
 import { formatTimeAgo } from '@/components/community/PostCard';
 import { useClubPrestige } from '@/lib/queries/scouting';
-import type { Player, Pos, Fixture, PostWithAuthor, ClubWithAdmin } from '@/types';
+import type { Player, Pos, Fixture, PostWithAuthor, ClubWithAdmin, ResearchPostWithAuthor } from '@/types';
 import { useActiveIpos } from '@/lib/queries/ipos';
 import { useEvents } from '@/lib/queries/events';
 import { ClubHero } from '@/components/club/ClubHero';
@@ -540,6 +540,8 @@ export default function ClubContent({ slug }: { slug: string }) {
 
   // Club News
   const [clubNews, setClubNews] = useState<PostWithAuthor[]>([]);
+  // Club Research
+  const [clubResearch, setClubResearch] = useState<ResearchPostWithAuthor[]>([]);
 
   // Fetch club news posts
   useEffect(() => {
@@ -548,6 +550,16 @@ export default function ClubContent({ slug }: { slug: string }) {
     getPosts({ clubId, postType: 'club_news', limit: 3 }).then(news => {
       if (!cancelled) setClubNews(news);
     }).catch(err => console.error('[Club] News fetch:', err));
+    return () => { cancelled = true; };
+  }, [clubId]);
+
+  // Fetch club research posts
+  useEffect(() => {
+    if (!clubId) return;
+    let cancelled = false;
+    getResearchPosts({ clubId, limit: 5 }).then(posts => {
+      if (!cancelled) setClubResearch(posts);
+    }).catch(err => console.error('[Club] Research fetch:', err));
     return () => { cancelled = true; };
   }, [clubId]);
 
@@ -1023,6 +1035,52 @@ export default function ClubContent({ slug }: { slug: string }) {
                         <span>{tcom('votesCount', { count: news.upvotes - news.downvotes })}</span>
                       </div>
                     </div>
+                  ))}
+                </div>
+              </Card>
+            </RevealSection>
+          )}
+
+          {/* Club Research */}
+          {clubResearch.length > 0 && (
+            <RevealSection delay={425}>
+              <Card className="p-4 md:p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <FileText className="size-5" style={{ color: clubColor }} />
+                    <h2 className="font-black text-balance">{t('clubResearch')}</h2>
+                  </div>
+                  <Link href="/community?tab=research" className="text-[11px] text-white/40 hover:text-white/60 transition-colors">
+                    {t('allResearch')}
+                  </Link>
+                </div>
+                <div className="space-y-1.5">
+                  {clubResearch.map(post => (
+                    <Link key={post.id} href={`/community?post=${post.id}`}>
+                      <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors">
+                        <div className="flex-shrink-0 w-5 text-center">
+                          {post.call === 'Bullish' ? <span className="text-green-500 font-bold text-sm">&#9650;</span>
+                            : post.call === 'Bearish' ? <span className="text-red-400 font-bold text-sm">&#9660;</span>
+                            : <span className="text-white/40 text-sm">&#9679;</span>}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            {post.player_name && <span className="text-[11px] font-bold text-white/70">{post.player_name}</span>}
+                            <span className="text-[10px] text-white/30">{post.author_display_name || post.author_handle}</span>
+                          </div>
+                          <div className="text-sm text-white/60 truncate">{post.title}</div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {post.ratings_count > 0 && (
+                            <span className="inline-flex items-center gap-0.5 text-[11px]">
+                              <Star className="size-2.5 text-gold fill-gold" />
+                              <span className="text-white/40 font-mono tabular-nums">{post.avg_rating.toFixed(1)}</span>
+                            </span>
+                          )}
+                          <span className="text-[10px] text-white/30 font-mono tabular-nums">{post.unlock_count}x</span>
+                        </div>
+                      </div>
+                    </Link>
                   ))}
                 </div>
               </Card>

@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { getHoldings, getTransactions, formatScout } from '@/lib/services/wallet';
+import { getMyPayouts } from '@/lib/services/creatorFund';
 import { getUserStats, refreshUserStats, getFollowerCount, getFollowingCount, checkAndUnlockAchievements, isFollowing as checkIsFollowing, followUser, unfollowUser } from '@/lib/services/social';
 import { getResearchPosts, getAuthorTrackRecord, resolveExpiredResearch } from '@/lib/services/research';
 import { getUserTrades } from '@/lib/services/trading';
@@ -20,7 +21,7 @@ import { getMySubscription } from '@/lib/services/clubSubscriptions';
 import { TabBar, TabPanel } from '@/components/ui/TabBar';
 import { getDimensionTabOrder, getStrongestDimension } from '@/lib/scoutReport';
 import dynamic from 'next/dynamic';
-import type { HoldingRow, ProfileTab, Profile, DbTransaction, DbUserStats, ResearchPostWithAuthor, AuthorTrackRecord, UserTradeWithPlayer, UserFantasyResult } from '@/types';
+import type { HoldingRow, ProfileTab, Profile, DbTransaction, DbUserStats, ResearchPostWithAuthor, AuthorTrackRecord, UserTradeWithPlayer, UserFantasyResult, DbCreatorFundPayout } from '@/types';
 import { useHighestPass } from '@/lib/queries/foundingPasses';
 import { getLoginStreak } from '@/components/home/helpers';
 import { useTranslations } from 'next-intl';
@@ -67,6 +68,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
   const [recentTrades, setRecentTrades] = useState<UserTradeWithPlayer[]>([]);
   const [fantasyResults, setFantasyResults] = useState<UserFantasyResult[]>([]);
   const [unlockedAchievements, setUnlockedAchievements] = useState<Set<string>>(new Set());
+  const [creatorPayouts, setCreatorPayouts] = useState<DbCreatorFundPayout[]>([]);
 
   // ── Club subscription ──
   const [clubSub, setClubSub] = useState<{ tier: string; clubName: string } | null>(null);
@@ -111,6 +113,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
           getUserTrades(targetUserId, 10),
           getUserFantasyHistory(targetUserId, 10),
           supabase.from('user_achievements').select('achievement_key').eq('user_id', targetUserId).then(r => r.data ?? []),
+          isSelf ? getMyPayouts(targetUserId) : Promise.resolve([]),
         ]);
         if (!cancelled) {
           if (results[0].status === 'rejected') {
@@ -130,6 +133,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
             setFantasyResults(val(results[8], []));
             const achRows = val(results[9], [] as { achievement_key: string }[]);
             setUnlockedAchievements(new Set(achRows.map(r => r.achievement_key)));
+            setCreatorPayouts(val(results[10], []) as DbCreatorFundPayout[]);
             setDataError(false);
 
             // Set default tab to strongest dimension (only on first load)
@@ -385,6 +389,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
                   myResearch={myResearch}
                   isSelf={isSelf}
                   transactions={publicTransactions}
+                  creatorPayouts={creatorPayouts}
                 />
               </TabPanel>
 
