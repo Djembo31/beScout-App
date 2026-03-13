@@ -22,12 +22,12 @@ export type FanRankTierDef = {
 };
 
 export const FAN_RANK_TIERS: FanRankTierDef[] = [
-  { tier: 'zuschauer', name: 'Zuschauer', csfMultiplier: 1.00, minScore: 0, maxScore: 19, color: 'gray', icon: 'eye' },
-  { tier: 'stammgast', name: 'Stammgast', csfMultiplier: 1.05, minScore: 20, maxScore: 39, color: 'blue', icon: 'users' },
-  { tier: 'ultra', name: 'Ultra', csfMultiplier: 1.15, minScore: 40, maxScore: 59, color: 'purple', icon: 'flame' },
-  { tier: 'legende', name: 'Legende', csfMultiplier: 1.25, minScore: 60, maxScore: 74, color: 'amber', icon: 'star' },
-  { tier: 'ehrenmitglied', name: 'Ehrenmitglied', csfMultiplier: 1.35, minScore: 75, maxScore: 89, color: 'emerald', icon: 'award' },
-  { tier: 'vereinsikone', name: 'Vereinsikone', csfMultiplier: 1.50, minScore: 90, maxScore: null, color: 'gold', icon: 'crown' },
+  { tier: 'zuschauer', name: 'Zuschauer', csfMultiplier: 1.00, minScore: 0, maxScore: 9, color: 'gray', icon: 'eye' },
+  { tier: 'stammgast', name: 'Stammgast', csfMultiplier: 1.05, minScore: 10, maxScore: 24, color: 'blue', icon: 'users' },
+  { tier: 'ultra', name: 'Ultra', csfMultiplier: 1.15, minScore: 25, maxScore: 39, color: 'purple', icon: 'flame' },
+  { tier: 'legende', name: 'Legende', csfMultiplier: 1.25, minScore: 40, maxScore: 54, color: 'amber', icon: 'star' },
+  { tier: 'ehrenmitglied', name: 'Ehrenmitglied', csfMultiplier: 1.35, minScore: 55, maxScore: 69, color: 'emerald', icon: 'award' },
+  { tier: 'vereinsikone', name: 'Vereinsikone', csfMultiplier: 1.50, minScore: 70, maxScore: null, color: 'gold', icon: 'crown' },
 ];
 
 // ============================================

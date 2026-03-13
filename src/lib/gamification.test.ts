@@ -64,38 +64,38 @@ describe('getRang', () => {
     expect(getRang(1800).tier).toBe(6);
   });
 
-  it('returns Gold I for score 2200', () => {
-    const r = getRang(2200);
+  it('returns Gold I for score 1900', () => {
+    const r = getRang(1900);
     expect(r.id).toBe('gold');
     expect(r.subStufe).toBe('I');
     expect(r.tier).toBe(7);
   });
 
-  it('returns Gold II for score 2800', () => {
-    expect(getRang(2800).tier).toBe(8);
+  it('returns Gold II for score 2200', () => {
+    expect(getRang(2200).tier).toBe(8);
   });
 
-  it('returns Gold III for score 3400', () => {
-    expect(getRang(3400).tier).toBe(9);
+  it('returns Gold III for score 2600', () => {
+    expect(getRang(2600).tier).toBe(9);
   });
 
-  it('returns Diamant for score 4000', () => {
-    const r = getRang(4000);
+  it('returns Diamant for score 3000', () => {
+    const r = getRang(3000);
     expect(r.id).toBe('diamant');
     expect(r.subStufe).toBeNull();
     expect(r.tier).toBe(10);
     expect(r.fullName).toBe('Diamant');
   });
 
-  it('returns Mythisch for score 5000', () => {
-    const r = getRang(5000);
+  it('returns Mythisch for score 3500', () => {
+    const r = getRang(3500);
     expect(r.id).toBe('mythisch');
     expect(r.subStufe).toBeNull();
     expect(r.tier).toBe(11);
   });
 
-  it('returns Legendär for score 7000', () => {
-    const r = getRang(7000);
+  it('returns Legendär for score 5000', () => {
+    const r = getRang(5000);
     expect(r.id).toBe('legendaer');
     expect(r.subStufe).toBeNull();
     expect(r.tier).toBe(12);
@@ -104,6 +104,10 @@ describe('getRang', () => {
 
   it('returns Legendär for very high score', () => {
     expect(getRang(99999).tier).toBe(12);
+  });
+
+  it('returns Legendär for old threshold 7000', () => {
+    expect(getRang(7000).tier).toBe(12);
   });
 
   it('returns Bronze I for negative score', () => {
@@ -119,18 +123,18 @@ describe('getRang', () => {
     const bronzeII = getRang(350);
     expect(bronzeII.maxScore).toBe(699);
 
-    const goldIII = getRang(3400);
-    expect(goldIII.maxScore).toBe(3999);
+    const goldIII = getRang(2600);
+    expect(goldIII.maxScore).toBe(2999);
 
-    const diamant = getRang(4000);
-    expect(diamant.maxScore).toBe(4999);
+    const diamant = getRang(3000);
+    expect(diamant.maxScore).toBe(3499);
 
-    const mythisch = getRang(5000);
-    expect(mythisch.maxScore).toBe(6999);
+    const mythisch = getRang(3500);
+    expect(mythisch.maxScore).toBe(4999);
   });
 
   it('all tiers have correct colors (non-empty)', () => {
-    const scores = [0, 350, 700, 1000, 1400, 1800, 2200, 2800, 3400, 4000, 5000, 7000];
+    const scores = [0, 350, 700, 1000, 1300, 1600, 1900, 2200, 2600, 3000, 3500, 5000];
     for (const s of scores) {
       const r = getRang(s);
       expect(r.color).toBeTruthy();
@@ -158,14 +162,14 @@ describe('getGesamtRang', () => {
   });
 
   it('returns median rank with one outlier (low)', () => {
-    const scores: DimensionScores = { trader_score: 0, manager_score: 4000, analyst_score: 5000 };
-    // Sorted: [0, 4000, 5000] → median = 4000 → Diamant
+    const scores: DimensionScores = { trader_score: 0, manager_score: 3000, analyst_score: 5000 };
+    // Sorted: [0, 3000, 5000] → median = 3000 → Diamant
     expect(getGesamtRang(scores).id).toBe('diamant');
   });
 
   it('uses true median (middle value)', () => {
-    const scores: DimensionScores = { trader_score: 100, manager_score: 2200, analyst_score: 5500 };
-    // Sorted: [100, 2200, 5500] → median = 2200 → Gold I
+    const scores: DimensionScores = { trader_score: 100, manager_score: 1900, analyst_score: 5500 };
+    // Sorted: [100, 1900, 5500] → median = 1900 → Gold I
     const r = getGesamtRang(scores);
     expect(r.id).toBe('gold');
     expect(r.subStufe).toBe('I');
@@ -340,8 +344,8 @@ describe('SCORE_ROAD', () => {
     expect(SCORE_ROAD[0].score).toBe(350);
   });
 
-  it('last milestone is Legendär (7000)', () => {
-    expect(SCORE_ROAD[SCORE_ROAD.length - 1].score).toBe(7000);
+  it('last milestone is Legendär (5000)', () => {
+    expect(SCORE_ROAD[SCORE_ROAD.length - 1].score).toBe(5000);
   });
 
   it('all milestones have a rewardLabel', () => {

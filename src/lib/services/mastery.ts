@@ -18,7 +18,7 @@ export type DbDpcMastery = {
   first_acquired_at: string;
 };
 
-export const MASTERY_XP_THRESHOLDS = [0, 50, 150, 350, 700];
+export const MASTERY_XP_THRESHOLDS = [0, 25, 75, 175, 350];
 
 export const MASTERY_LEVEL_LABELS = ['', 'Neuling', 'Kenner', 'Experte', 'Meister', 'Legende'];
 

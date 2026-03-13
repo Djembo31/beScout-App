@@ -65,31 +65,31 @@ const RANG_DEFS: RangDef[] = [
   },
   {
     id: 'silber', name: 'Silber',
-    thresholds: [1000, 1400, 1800],     // I=1000-1399, II=1400-1799, III=1800-2199
+    thresholds: [1000, 1300, 1600],     // I=1000-1299, II=1300-1599, III=1600-1899
     color: 'text-slate-300', bgColor: 'bg-slate-300/15', borderColor: 'border-slate-300/25',
     gradientFrom: 'from-slate-300/20',
   },
   {
     id: 'gold', name: 'Gold',
-    thresholds: [2200, 2800, 3400],     // I=2200-2799, II=2800-3399, III=3400-3999
+    thresholds: [1900, 2200, 2600],     // I=1900-2199, II=2200-2599, III=2600-2999
     color: 'text-gold', bgColor: 'bg-gold/15', borderColor: 'border-gold/25',
     gradientFrom: 'from-gold/20',
   },
   {
     id: 'diamant', name: 'Diamant',
-    thresholds: null,                    // 4000-4999
+    thresholds: null,                    // 3000-3499
     color: 'text-cyan-300', bgColor: 'bg-cyan-300/15', borderColor: 'border-cyan-300/25',
     gradientFrom: 'from-cyan-300/20',
   },
   {
     id: 'mythisch', name: 'Mythisch',
-    thresholds: null,                    // 5000-6999
+    thresholds: null,                    // 3500-4999
     color: 'text-purple-400', bgColor: 'bg-purple-400/15', borderColor: 'border-purple-400/25',
     gradientFrom: 'from-purple-400/20',
   },
   {
     id: 'legendaer', name: 'Legendär',
-    thresholds: null,                    // 7000+
+    thresholds: null,                    // 5000+
     color: 'text-gold', bgColor: 'bg-gold/20', borderColor: 'border-gold/30',
     gradientFrom: 'from-gold/25',
   },
@@ -102,33 +102,33 @@ const SUB_STUFEN: SubStufe[] = ['I', 'II', 'III'];
 // ============================================
 
 export function getRang(score: number): Rang {
-  // Legendär: 7000+
-  if (score >= 7000) {
+  // Legendär: 5000+
+  if (score >= 5000) {
     return {
       id: 'legendaer', name: 'Legendär', subStufe: null, fullName: 'Legendär', i18nKey: 'legendaer',
       color: RANG_DEFS[5].color, bgColor: RANG_DEFS[5].bgColor,
       borderColor: RANG_DEFS[5].borderColor, gradientFrom: RANG_DEFS[5].gradientFrom,
-      minScore: 7000, maxScore: null, tier: 12,
+      minScore: 5000, maxScore: null, tier: 12,
     };
   }
 
-  // Mythisch: 5000-6999
-  if (score >= 5000) {
+  // Mythisch: 3500-4999
+  if (score >= 3500) {
     return {
       id: 'mythisch', name: 'Mythisch', subStufe: null, fullName: 'Mythisch', i18nKey: 'mythisch',
       color: RANG_DEFS[4].color, bgColor: RANG_DEFS[4].bgColor,
       borderColor: RANG_DEFS[4].borderColor, gradientFrom: RANG_DEFS[4].gradientFrom,
-      minScore: 5000, maxScore: 6999, tier: 11,
+      minScore: 3500, maxScore: 4999, tier: 11,
     };
   }
 
-  // Diamant: 4000-4999
-  if (score >= 4000) {
+  // Diamant: 3000-3499
+  if (score >= 3000) {
     return {
       id: 'diamant', name: 'Diamant', subStufe: null, fullName: 'Diamant', i18nKey: 'diamant',
       color: RANG_DEFS[3].color, bgColor: RANG_DEFS[3].bgColor,
       borderColor: RANG_DEFS[3].borderColor, gradientFrom: RANG_DEFS[3].gradientFrom,
-      minScore: 4000, maxScore: 4999, tier: 10,
+      minScore: 3000, maxScore: 3499, tier: 10,
     };
   }
 
@@ -141,7 +141,7 @@ export function getRang(score: number): Rang {
         const tierBase = i * 3 + 1; // bronze=1, silber=4, gold=7
         const nextThreshold = s < 2
           ? def.thresholds[s + 1]
-          : (i < 2 ? RANG_DEFS[i + 1].thresholds![0] : 4000);
+          : (i < 2 ? RANG_DEFS[i + 1].thresholds![0] : 3000);
         return {
           id: def.id,
           name: def.name,
@@ -253,14 +253,14 @@ export const SCORE_ROAD: ScoreRoadMilestone[] = [
   { score: 350, rangName: 'Bronze II', rangI18nKey: 'bronzeII', rewardBsd: 20000, rewardLabel: '200 bCredits', rewardType: 'bsd' },
   { score: 700, rangName: 'Bronze III', rangI18nKey: 'bronzeIII', rewardBsd: 0, rewardLabel: 'Bronze-Rahmen', rewardType: 'cosmetic' },
   { score: 1000, rangName: 'Silber I', rangI18nKey: 'silberI', rewardBsd: 50000, rewardLabel: '500 bCredits', rewardType: 'bsd' },
-  { score: 1400, rangName: 'Silber II', rangI18nKey: 'silberII', rewardBsd: 0, rewardLabel: '"Scout" Titel', rewardType: 'cosmetic' },
-  { score: 1800, rangName: 'Silber III', rangI18nKey: 'silberIII', rewardBsd: 100000, rewardLabel: '1.000 bCredits', rewardType: 'bsd' },
-  { score: 2200, rangName: 'Gold I', rangI18nKey: 'goldI', rewardBsd: 0, rewardLabel: 'Gold-Rahmen', rewardType: 'cosmetic' },
-  { score: 2800, rangName: 'Gold II', rangI18nKey: 'goldII', rewardBsd: 200000, rewardLabel: '2.000 bCredits', rewardType: 'bsd' },
-  { score: 3400, rangName: 'Gold III', rangI18nKey: 'goldIII', rewardBsd: 0, rewardLabel: '"Stratege" Titel', rewardType: 'cosmetic' },
-  { score: 4000, rangName: 'Diamant', rangI18nKey: 'diamant', rewardBsd: 500000, rewardLabel: 'Diamant-Rahmen + 5.000 bCredits', rewardType: 'both' },
-  { score: 5000, rangName: 'Mythisch', rangI18nKey: 'mythisch', rewardBsd: 750000, rewardLabel: 'Mythisch-Avatar + 7.500 bCredits', rewardType: 'both' },
-  { score: 7000, rangName: 'Legendär', rangI18nKey: 'legendaer', rewardBsd: 2000000, rewardLabel: 'Legendär-Set + 20.000 bCredits', rewardType: 'both' },
+  { score: 1300, rangName: 'Silber II', rangI18nKey: 'silberII', rewardBsd: 0, rewardLabel: '"Scout" Titel', rewardType: 'cosmetic' },
+  { score: 1600, rangName: 'Silber III', rangI18nKey: 'silberIII', rewardBsd: 100000, rewardLabel: '1.000 bCredits', rewardType: 'bsd' },
+  { score: 1900, rangName: 'Gold I', rangI18nKey: 'goldI', rewardBsd: 0, rewardLabel: 'Gold-Rahmen', rewardType: 'cosmetic' },
+  { score: 2200, rangName: 'Gold II', rangI18nKey: 'goldII', rewardBsd: 200000, rewardLabel: '2.000 bCredits', rewardType: 'bsd' },
+  { score: 2600, rangName: 'Gold III', rangI18nKey: 'goldIII', rewardBsd: 0, rewardLabel: '"Stratege" Titel', rewardType: 'cosmetic' },
+  { score: 3000, rangName: 'Diamant', rangI18nKey: 'diamant', rewardBsd: 500000, rewardLabel: 'Diamant-Rahmen + 5.000 bCredits', rewardType: 'both' },
+  { score: 3500, rangName: 'Mythisch', rangI18nKey: 'mythisch', rewardBsd: 750000, rewardLabel: 'Mythisch-Avatar + 7.500 bCredits', rewardType: 'both' },
+  { score: 5000, rangName: 'Legendär', rangI18nKey: 'legendaer', rewardBsd: 2000000, rewardLabel: 'Legendär-Set + 20.000 bCredits', rewardType: 'both' },
 ];
 
 // ============================================
@@ -290,10 +290,32 @@ export const ABSENT_MANAGER_PENALTY = -8;
 /** Captain's Call Bonus: captain is top scorer → +15 */
 export const CAPTAINS_CALL_BONUS = 15;
 
+/** Fixed rank-based rewards for small events (<20 participants) */
+export const SMALL_EVENT_POINTS: { maxRank: number; points: number }[] = [
+  { maxRank: 1, points: 50 },
+  { maxRank: 2, points: 40 },
+  { maxRank: 3, points: 30 },
+  { maxRank: 5, points: 20 },
+  { maxRank: 10, points: 10 },
+  { maxRank: 15, points: 0 },
+  { maxRank: 20, points: 0 },
+];
+
+/** Threshold below which we use fixed rank rewards instead of percentiles */
+export const SMALL_EVENT_THRESHOLD = 20;
+
 /** Get manager points for a given placement percentile */
 export function getManagerPoints(percentile: number): number {
   for (const entry of MANAGER_POINTS) {
     if (percentile <= entry.maxPercentile) return entry.points;
   }
   return MANAGER_POINTS[MANAGER_POINTS.length - 1].points;
+}
+
+/** Get manager points by rank for small events (<20 participants) */
+export function getSmallEventManagerPoints(rank: number): number {
+  for (const entry of SMALL_EVENT_POINTS) {
+    if (rank <= entry.maxRank) return entry.points;
+  }
+  return 0; // no penalty in small events during pilot
 }
