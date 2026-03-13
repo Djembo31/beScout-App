@@ -158,6 +158,13 @@ export async function GET(request: Request) {
       return { expired: data?.length ?? 0 };
     });
 
+    // ---- 2c. Daily price_change_24h + volume_24h reset ----
+    await runStep('daily_price_volume_reset', async () => {
+      const { data, error } = await supabaseAdmin.rpc('daily_price_volume_reset');
+      if (error) throw new Error(error.message);
+      return data;
+    });
+
     // ---- 3. Get active gameweek ----
     const { result: gwResult } = await runStep('get_active_gw', async () => {
       const { data: clubs } = await supabaseAdmin

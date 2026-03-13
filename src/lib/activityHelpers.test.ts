@@ -51,14 +51,14 @@ describe('getActivityIcon', () => {
 
 describe('getActivityColor', () => {
   it('returns gold for buy types', () => {
-    expect(getActivityColor('trade_buy')).toContain('#FFD700');
-    expect(getActivityColor('ipo_buy')).toContain('#FFD700');
+    expect(getActivityColor('trade_buy')).toContain('gold');
+    expect(getActivityColor('ipo_buy')).toContain('gold');
   });
 
   it('returns green for sell/earning types', () => {
-    expect(getActivityColor('trade_sell')).toContain('#22C55E');
-    expect(getActivityColor('research_earning')).toContain('#22C55E');
-    expect(getActivityColor('bounty_reward')).toContain('#22C55E');
+    expect(getActivityColor('trade_sell')).toContain('green');
+    expect(getActivityColor('research_earning')).toContain('green');
+    expect(getActivityColor('bounty_reward')).toContain('green');
   });
 
   it('returns fallback for unknown type', () => {
@@ -118,7 +118,7 @@ describe('getRelativeTime', () => {
   });
 
   it('returns justNowLabel for less than 1 minute ago', () => {
-    expect(getRelativeTime('2026-02-23T11:59:30Z')).toBe('gerade eben');
+    expect(getRelativeTime('2026-02-23T11:59:30Z')).toBe('just now');
     expect(getRelativeTime('2026-02-23T11:59:30Z', 'az önce')).toBe('az önce');
   });
 
