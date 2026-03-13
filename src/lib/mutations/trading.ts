@@ -9,7 +9,7 @@ import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 
 export function useBuyFromMarket() {
-  const { setBalanceCents } = useWallet();
+  const { setBalanceCents, refreshBalance } = useWallet();
   return useMutation({
     mutationFn: async ({ userId, playerId, quantity }: { userId: string; playerId: string; quantity: number }) => {
       const result = await buyFromMarket(userId, playerId, quantity);
@@ -18,6 +18,7 @@ export function useBuyFromMarket() {
     },
     onSuccess: (result, { playerId, userId }) => {
       if (result.new_balance != null) setBalanceCents(result.new_balance);
+      refreshBalance();
       invalidateTradeQueries(playerId, userId);
       queryClient.invalidateQueries({ queryKey: qk.offers.incoming(userId) });
     },
@@ -25,7 +26,7 @@ export function useBuyFromMarket() {
 }
 
 export function useBuyFromIpo() {
-  const { setBalanceCents } = useWallet();
+  const { setBalanceCents, refreshBalance } = useWallet();
   return useMutation({
     mutationFn: async ({ userId, ipoId, playerId, quantity }: { userId: string; ipoId: string; playerId: string; quantity: number }) => {
       const result = await buyFromIpo(userId, ipoId, quantity, playerId);
@@ -34,8 +35,11 @@ export function useBuyFromIpo() {
     },
     onSuccess: (result, { playerId, userId }) => {
       if (result.new_balance != null) setBalanceCents(result.new_balance);
+      refreshBalance();
       invalidateTradeQueries(playerId, userId);
       queryClient.invalidateQueries({ queryKey: qk.ipos.active });
+      queryClient.invalidateQueries({ queryKey: qk.ipos.announced });
+      queryClient.invalidateQueries({ queryKey: qk.ipos.recentlyEnded });
     },
   });
 }

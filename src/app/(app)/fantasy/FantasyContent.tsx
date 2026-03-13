@@ -12,7 +12,7 @@ import { useToast } from '@/components/providers/ToastProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { centsToBsd } from '@/lib/services/players';
 import { deductEntryFee, refundEntryFee } from '@/lib/services/wallet';
-import { spendTickets } from '@/lib/services/tickets';
+import { spendTickets, creditTickets } from '@/lib/services/tickets';
 import { useUserTickets } from '@/lib/queries/tickets';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 import { submitLineup, getLineup } from '@/lib/services/lineups';
@@ -122,6 +122,7 @@ function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userLineup?:
     scope: db.scope ?? 'global',
     lineupSize: db.lineup_size ?? (db.format === '11er' || db.format === '11er-reserve' ? 11 : 7),
     ticketCost: db.ticket_cost ?? 0,
+    clubId: db.club_id ?? undefined,
   };
 }
 
@@ -470,6 +471,12 @@ export default function FantasyContent() {
       if (event.entryFeeCents > 0) {
         const newBalance = await refundEntryFee(user.id, event.entryFeeCents, event.name, event.id, event.name ? tw('refundDesc', { name: event.name }) : tw('refundDescDefault'));
         setBalanceCents(newBalance);
+      }
+
+      // Refund tickets if the event required them
+      if (event.ticketCost && event.ticketCost > 0) {
+        await creditTickets(user.id, event.ticketCost, 'event_leave_refund', event.id);
+        queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
       }
     } catch (e: unknown) {
       // Revert optimistic update on failure

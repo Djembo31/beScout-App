@@ -8,6 +8,8 @@ import { qk } from './keys';
 
 /** Invalidate caches affected by a trade action (narrowed — only affected player + user) */
 export function invalidateTradeQueries(playerId: string, userId?: string): void {
+  // Always invalidate global order book so enriched players / floor prices update
+  queryClient.invalidateQueries({ queryKey: qk.orders.all });
   if (playerId) {
     queryClient.invalidateQueries({ queryKey: qk.players.byId(playerId) });
     queryClient.invalidateQueries({ queryKey: qk.orders.byPlayer(playerId) });

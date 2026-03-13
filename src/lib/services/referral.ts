@@ -76,11 +76,11 @@ export async function triggerReferralReward(refereeId: string): Promise<void> {
 export async function getClubByReferralCode(code: string): Promise<{ id: string; name: string; slug: string; logo_url: string | null } | null> {
   const { data, error } = await supabase
     .from('clubs')
-    .select('id, name, slug, logo')
+    .select('id, name, slug, logo_url')
     .eq('referral_code', code.toUpperCase())
     .maybeSingle();
   if (error || !data) return null;
-  return { id: data.id, name: data.name, slug: data.slug, logo_url: data.logo };
+  return { id: data.id, name: data.name, slug: data.slug, logo_url: data.logo_url };
 }
 
 /** Apply a club referral: ensure user follows the club as primary */

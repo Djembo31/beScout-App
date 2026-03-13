@@ -354,7 +354,7 @@ export default function PostCard({
                 const url = `${window.location.origin}/community?post=${post.id}`;
                 const text = `${post.author_display_name || post.author_handle}: "${post.content.slice(0, 80)}…"`;
                 if (navigator.share) {
-                  try { await navigator.share({ title: 'BeScout Post', text, url }); } catch {}
+                  try { await navigator.share({ title: 'BeScout Post', text, url }); } catch (err) { console.error('[PostCard] Share failed:', err); }
                 } else {
                   await navigator.clipboard.writeText(`${text} — ${url}`);
                   setCopied(true);

@@ -111,10 +111,10 @@ export default function LeaderboardPanel({
                 {['ATT', 'MID', 'DEF', 'GK'].map(posGroup => {
                   // Group by slot key (reliable — slot determines pitch row)
                   const slotPlayers = viewingUserLineup!.data.players.filter(p => {
-                    if (posGroup === 'GK') return p.slotKey === 'gk';
+                    if (posGroup === 'GK') return p.slotKey.startsWith('gk');
                     if (posGroup === 'DEF') return p.slotKey.startsWith('def');
                     if (posGroup === 'MID') return p.slotKey.startsWith('mid');
-                    return p.slotKey === 'att';
+                    return p.slotKey.startsWith('att');
                   });
                   if (slotPlayers.length === 0) return null;
                   return (

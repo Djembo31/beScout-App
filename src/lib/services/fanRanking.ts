@@ -25,10 +25,10 @@ export async function getFanRanking(userId: string, clubId: string): Promise<DbF
 export async function getClubFanLeaderboard(
   clubId: string,
   limit = 50,
-): Promise<(DbFanRanking & { profile: { username: string; avatar_url: string | null } })[]> {
+): Promise<(DbFanRanking & { profile: { handle: string; avatar_url: string | null } })[]> {
   const { data, error } = await supabase
     .from('fan_rankings')
-    .select('user_id, club_id, rank_tier, csf_multiplier, event_score, dpc_score, abo_score, community_score, streak_score, total_score, calculated_at, created_at, profiles!inner(username, avatar_url)')
+    .select('user_id, club_id, rank_tier, csf_multiplier, event_score, dpc_score, abo_score, community_score, streak_score, total_score, calculated_at, created_at, profiles!inner(handle, avatar_url)')
     .eq('club_id', clubId)
     .order('total_score', { ascending: false })
     .limit(limit);
@@ -53,7 +53,7 @@ export async function getClubFanLeaderboard(
     total_score: row.total_score as number,
     calculated_at: row.calculated_at as string,
     created_at: row.created_at as string,
-    profile: row.profiles as unknown as { username: string; avatar_url: string | null },
+    profile: row.profiles as unknown as { handle: string; avatar_url: string | null },
   }));
 }
 

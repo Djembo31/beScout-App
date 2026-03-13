@@ -478,8 +478,8 @@ export async function checkAndUnlockAchievements(userId: string): Promise<string
             'achievement',
             `${def.icon} ${def.label}`,
             def.description,
-            undefined,
-            'profile'
+            key,
+            'achievement'
           ).catch(err => console.error('[Social] Achievement notification failed:', err));
         }
       }

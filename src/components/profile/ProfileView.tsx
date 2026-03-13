@@ -116,37 +116,33 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
           isSelf ? getMyPayouts(targetUserId) : Promise.resolve([]),
         ]);
         if (!cancelled) {
-          if (results[0].status === 'rejected') {
-            // Holdings failed — non-critical, continue with empty
-            setHoldings([]);
-          } else {
-            setHoldings(val(results[0], []) as HoldingRow[]);
-            setTransactions(val(results[1], []));
-            const stats = val(results[2], null);
-            setUserStats(stats);
-            setFollowerCount(val(results[3], 0));
-            setFollowingCount(val(results[4], 0));
-            const researchResult = val(results[5], [] as ResearchPostWithAuthor[]);
-            setMyResearch(isSelf ? researchResult.filter(p => p.is_own) : researchResult.filter(p => p.user_id === targetUserId));
-            setTrackRecord(val(results[6], null));
-            setRecentTrades(val(results[7], []));
-            setFantasyResults(val(results[8], []));
-            const achRows = val(results[9], [] as { achievement_key: string }[]);
-            setUnlockedAchievements(new Set(achRows.map(r => r.achievement_key)));
-            setCreatorPayouts(val(results[10], []) as DbCreatorFundPayout[]);
-            setDataError(false);
+          // Handle each result independently so one failure doesn't block others
+          setHoldings(val(results[0], []) as HoldingRow[]);
+          setTransactions(val(results[1], []));
+          const stats = val(results[2], null);
+          setUserStats(stats);
+          setFollowerCount(val(results[3], 0));
+          setFollowingCount(val(results[4], 0));
+          const researchResult = val(results[5], [] as ResearchPostWithAuthor[]);
+          setMyResearch(isSelf ? researchResult.filter(p => p.is_own) : researchResult.filter(p => p.user_id === targetUserId));
+          setTrackRecord(val(results[6], null));
+          setRecentTrades(val(results[7], []));
+          setFantasyResults(val(results[8], []));
+          const achRows = val(results[9], [] as { achievement_key: string }[]);
+          setUnlockedAchievements(new Set(achRows.map(r => r.achievement_key)));
+          setCreatorPayouts(val(results[10], []) as DbCreatorFundPayout[]);
+          setDataError(false);
 
-            // Set default tab to strongest dimension (only on first load)
-            if (!tabInitialized && stats) {
-              const scores = {
-                manager_score: stats.manager_score ?? 0,
-                trading_score: stats.trading_score ?? 0,
-                scout_score: stats.scout_score ?? 0,
-              };
-              const strongest = getStrongestDimension(scores);
-              setTab(strongest);
-              setTabInitialized(true);
-            }
+          // Set default tab to strongest dimension (only on first load)
+          if (!tabInitialized && stats) {
+            const scores = {
+              manager_score: stats.manager_score ?? 0,
+              trading_score: stats.trading_score ?? 0,
+              scout_score: stats.scout_score ?? 0,
+            };
+            const strongest = getStrongestDimension(scores);
+            setTab(strongest);
+            setTabInitialized(true);
           }
         }
       } catch {

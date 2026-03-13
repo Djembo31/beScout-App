@@ -282,7 +282,8 @@ export default function CommunityPage() {
       await createPost(uid, playerId, clubName, content, tags, category, clubId, postType, null, null, null, imageUrl);
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       setCreatePostOpen(false);
-    } catch {
+    } catch (err) {
+      console.error('[Community] Post creation failed:', err);
       addToast(t('postCreateError'), 'error');
     } finally {
       setPostLoading(false);

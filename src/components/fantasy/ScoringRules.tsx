@@ -14,18 +14,16 @@ type ScoringRow = {
 };
 
 const SCORING_DATA: ScoringRow[] = [
-  { key: 'appearance60',  gk: '+2',  def: '+2',  mid: '+2',  att: '+2'  },
-  { key: 'appearanceSub', gk: '+1',  def: '+1',  mid: '+1',  att: '+1'  },
-  { key: 'goal',          gk: '+10', def: '+6',  mid: '+5',  att: '+4'  },
-  { key: 'assist',        gk: '+3',  def: '+3',  mid: '+3',  att: '+3'  },
-  { key: 'cleanSheet',    gk: '+5',  def: '+4',  mid: '+1',  att: '—'   },
-  { key: 'yellowCard',    gk: '-1',  def: '-1',  mid: '-1',  att: '-1'  },
-  { key: 'redCard',       gk: '-3',  def: '-3',  mid: '-3',  att: '-3'  },
-  { key: 'ownGoal',       gk: '-2',  def: '-2',  mid: '-2',  att: '-2'  },
-  { key: 'penaltyMissed', gk: '-2',  def: '-2',  mid: '-2',  att: '-2'  },
-  { key: 'penaltySaved',  gk: '+5',  def: '—',   mid: '—',   att: '—'   },
-  { key: 'highRating',    gk: '+2',  def: '+2',  mid: '+2',  att: '+2'  },
-  { key: 'captainBonus',  gk: '1.5x', def: '1.5x', mid: '1.5x', att: '1.5x' },
+  { key: 'appearance60',    gk: '+2',    def: '+2',    mid: '+2',    att: '+2'    },
+  { key: 'appearanceSub',   gk: '+1',    def: '+1',    mid: '+1',    att: '+1'    },
+  { key: 'goal',            gk: '+6',    def: '+6',    mid: '+5',    att: '+4'    },
+  { key: 'assist',          gk: '+3',    def: '+3',    mid: '+3',    att: '+3'    },
+  { key: 'cleanSheet',      gk: '+4',    def: '+4',    mid: '+1',    att: '—'     },
+  { key: 'goalsConceded2',  gk: '-1',    def: '-1',    mid: '—',     att: '—'     },
+  { key: 'gkSaves3',        gk: '+1',    def: '—',     mid: '—',     att: '—'     },
+  { key: 'yellowCard',      gk: '-1',    def: '-1',    mid: '-1',    att: '-1'    },
+  { key: 'redCard',         gk: '-3',    def: '-3',    mid: '-3',    att: '-3'    },
+  { key: 'captainBonus',    gk: '1.5x',  def: '1.5x',  mid: '1.5x',  att: '1.5x'  },
 ];
 
 function pointClass(val: string): string {

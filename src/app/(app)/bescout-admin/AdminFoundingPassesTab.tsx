@@ -9,7 +9,7 @@ import { cn, fmtScout } from '@/lib/utils';
 import { FOUNDING_PASS_TIERS } from '@/lib/foundingPasses';
 import type { FoundingPassTier, DbUserFoundingPass } from '@/types';
 
-type UserSearchResult = { id: string; username: string; avatar_url: string | null };
+type UserSearchResult = { id: string; handle: string; avatar_url: string | null };
 
 const KILL_SWITCH_LIMIT_EUR = 900_000;
 
@@ -25,7 +25,7 @@ const TIER_HEX: Record<FoundingPassTier, string> = {
 // ============================================
 
 type PassWithProfile = DbUserFoundingPass & {
-  profiles: { username: string; avatar_url: string | null } | null;
+  profiles: { handle: string; avatar_url: string | null } | null;
 };
 
 type PassStats = {
@@ -68,8 +68,8 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
       const { supabase } = await import('@/lib/supabaseClient');
       const { data } = await supabase
         .from('profiles')
-        .select('id, username, avatar_url')
-        .ilike('username', `%${q}%`)
+        .select('id, handle, avatar_url')
+        .ilike('handle', `%${q}%`)
         .limit(8);
       setUserResults((data ?? []) as UserSearchResult[]);
       setShowDropdown(true);
@@ -91,8 +91,8 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
 
   const selectUser = useCallback((u: UserSearchResult) => {
     setGrantUserId(u.id);
-    setGrantUsername(u.username);
-    setUserQuery(u.username);
+    setGrantUsername(u.handle);
+    setUserQuery(u.handle);
     setShowDropdown(false);
     setUserResults([]);
     setActiveIdx(-1);
@@ -120,7 +120,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
       const { supabase } = await import('@/lib/supabaseClient');
       const { data, error } = await supabase
         .from('user_founding_passes')
-        .select('id, user_id, tier, price_eur_cents, bcredits_granted, migration_bonus_pct, payment_reference, granted_by, created_at, profiles!inner(username, avatar_url)')
+        .select('id, user_id, tier, price_eur_cents, bcredits_granted, migration_bonus_pct, payment_reference, granted_by, created_at, profiles!inner(handle, avatar_url)')
         .order('created_at', { ascending: false })
         .limit(200);
 
@@ -306,11 +306,11 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
                     id={`user-option-${i}`}
                     role="option"
                     aria-selected={i === activeIdx}
-                    aria-label={`${u.username} (${u.id.slice(0, 8)})`}
+                    aria-label={`${u.handle} (${u.id.slice(0, 8)})`}
                     onMouseDown={() => selectUser(u)}
                     className={cn('w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 hover:bg-white/[0.06] transition-colors text-left', i === activeIdx && 'bg-white/[0.08]')}
                   >
-                    <span className="truncate">{u.username}</span>
+                    <span className="truncate">{u.handle}</span>
                     <span className="text-[10px] text-white/30 font-mono ml-auto flex-shrink-0">{u.id.slice(0, 8)}</span>
                   </button>
                 ))}
@@ -373,7 +373,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
             <tbody>
               {passes.map(p => (
                 <tr key={p.id} className="border-b border-white/[0.06] hover:bg-white/[0.02] transition-colors">
-                  <td className="py-2 px-3 text-white/80">{p.profiles?.username ?? p.user_id.slice(0, 8)}</td>
+                  <td className="py-2 px-3 text-white/80">{p.profiles?.handle ?? p.user_id.slice(0, 8)}</td>
                   <td className="py-2 px-3"><FoundingPassBadge tier={p.tier as FoundingPassTier} /></td>
                   <td className="py-2 px-3 text-right font-mono tabular-nums text-gold">{fmtScout(p.bcredits_granted)}</td>
                   <td className="py-2 px-3 text-right font-mono tabular-nums text-white/50">{(p.price_eur_cents / 100).toFixed(2)} €</td>

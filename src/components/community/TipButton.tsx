@@ -10,6 +10,7 @@ import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queries/keys';
+import { useWallet } from '@/components/providers/WalletProvider';
 
 const PRESET_AMOUNTS = [
   { label: '10', cents: 1000 },
@@ -43,6 +44,7 @@ export default function TipButton({
   const [customAmount, setCustomAmount] = useState('');
   const ref = useRef<HTMLDivElement>(null);
   const qc = useQueryClient();
+  const { refreshBalance } = useWallet();
 
   // Close on outside click
   useEffect(() => {
@@ -87,10 +89,11 @@ export default function TipButton({
     setCustomAmount('');
     setTimeout(() => setSuccess(false), 3000);
 
-    // Invalidate tips + wallet + transactions
+    // Invalidate tips + wallet + posts (tip counts) + transactions
     qc.invalidateQueries({ queryKey: qk.tips.byContent(contentType, contentId) });
-    qc.invalidateQueries({ queryKey: ['holdings'] });
+    qc.invalidateQueries({ queryKey: ['posts'] });
     qc.invalidateQueries({ queryKey: ['transactions'] });
+    refreshBalance();
 
     logActivity(userId, 'tip_send', 'community', {
       content_type: contentType,

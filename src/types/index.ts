@@ -1622,7 +1622,8 @@ export type TicketSource =
   | 'research_rating'
   | 'follow_milestone'
   | 'poll_create'
-  | 'post_boost';
+  | 'post_boost'
+  | 'event_leave_refund';
 
 export type DbUserTickets = {
   user_id: string;

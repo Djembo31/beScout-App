@@ -33,7 +33,7 @@ export default function DpcMasteryCard({ mastery }: DpcMasteryCardProps) {
         <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
           <div
             className="h-full rounded-full bg-gradient-to-r from-gold/40 to-gold/20 transition-all"
-            style={{ width: `${Math.min((mastery.xp / MASTERY_XP_THRESHOLDS[mastery.level]) * 100, 100)}%` }}
+            style={{ width: `${Math.min((mastery.xp / (MASTERY_XP_THRESHOLDS[mastery.level] || 1)) * 100, 100)}%` }}
           />
         </div>
       )}

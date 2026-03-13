@@ -45,7 +45,7 @@ export default function ProfileSettingsPage() {
       setHandle(profile.handle);
       setDisplayNameVal(profile.display_name ?? '');
       setBio(profile.bio ?? '');
-      setFavoriteClub(profile.favorite_club ?? '');
+      setFavoriteClub(profile.favorite_club_id ?? '');
       setLanguage(profile.language);
     }
   }, [profile]);
@@ -103,11 +103,13 @@ export default function ProfileSettingsPage() {
     setSavingProfile(true);
     setProfileMsg(null);
     try {
+      const selectedClub = favoriteClub ? getAllClubsCached().find(c => c.id === favoriteClub) : null;
       await updateProfile(user.id, {
         handle: handle !== profile?.handle ? handle : undefined,
         display_name: displayNameVal || null,
         bio: bio || null,
-        favorite_club: favoriteClub || null,
+        favorite_club: selectedClub?.name ?? null,
+        favorite_club_id: favoriteClub || null,
       });
       await refreshProfile();
       setProfileMsg({ type: 'success', text: t('saved') });

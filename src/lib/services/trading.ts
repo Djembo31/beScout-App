@@ -521,12 +521,12 @@ export async function getPlatformStats(): Promise<PlatformStats> {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const [usersRes, tradesRes, playersRes] = await Promise.allSettled([
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
-    supabase.from('trades').select('price').gte('executed_at', since),
+    supabase.from('trades').select('price, quantity').gte('executed_at', since),
     supabase.from('players').select('*', { count: 'exact', head: true }).eq('status', 'active'),
   ]);
   const totalUsers = usersRes.status === 'fulfilled' ? (usersRes.value.count ?? 0) : 0;
   const tradesData = tradesRes.status === 'fulfilled' ? (tradesRes.value.data ?? []) : [];
   const activePlayers = playersRes.status === 'fulfilled' ? (playersRes.value.count ?? 0) : 0;
-  const volume24h = tradesData.reduce((sum, t) => sum + (t.price as number), 0);
+  const volume24h = tradesData.reduce((sum, t) => sum + (t.price as number) * ((t.quantity as number) || 1), 0);
   return { totalUsers, trades24h: tradesData.length, volume24h, activePlayers };
 }
