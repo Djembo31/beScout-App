@@ -282,9 +282,10 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
       {/* Collapse Toggle — desktop only */}
       <button
         onClick={() => setCollapsed(!collapsed)}
+        aria-label={collapsed ? 'Sidebar ausklappen' : 'Sidebar einklappen'}
         className="absolute -right-3 top-20 size-6 bg-bg-main border border-white/10 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:border-white/20 hover:scale-110 active:scale-90 transition-colors hidden lg:flex"
       >
-        {collapsed ? <ChevronRight className="size-3" /> : <ChevronLeft className="size-3" />}
+        {collapsed ? <ChevronRight aria-hidden="true" className="size-3" /> : <ChevronLeft aria-hidden="true" className="size-3" />}
       </button>
     </>
   );
@@ -316,9 +317,10 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
             {/* Close button */}
             <button
               onClick={onMobileClose}
+              aria-label="Menü schließen"
               className="absolute top-3 right-3 p-2.5 rounded-xl hover:bg-white/10 transition-colors z-10 min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
-              <X className="size-5 text-white/50" />
+              <X aria-hidden="true" className="size-5 text-white/50" />
             </button>
             {sidebarContent}
           </aside>
