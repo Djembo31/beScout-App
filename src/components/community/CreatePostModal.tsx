@@ -290,7 +290,8 @@ export default function CreatePostModal({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold bg-white/5 border border-white/10 text-white/40 hover:bg-white/10 hover:text-white/60 transition-colors"
+              aria-label={t('addImage')}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold bg-white/5 border border-white/10 text-white/40 hover:bg-white/10 hover:text-white/60 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none transition-colors"
             >
               <Camera className="size-4" aria-hidden="true" />
               {t('addImage')}
