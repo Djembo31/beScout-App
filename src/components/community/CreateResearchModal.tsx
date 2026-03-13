@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Modal, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
+import { useDraft } from '@/lib/hooks/useDraft';
 import ScoutingEvaluationForm from '@/components/community/ScoutingEvaluationForm';
 import type { Pos, ResearchCall, ResearchHorizon, ResearchCategory, ScoutingEvaluation, DbFixture } from '@/types';
 import { useTranslations } from 'next-intl';
@@ -76,6 +77,19 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
   const [fixtureId, setFixtureId] = useState<string | null>(null);
   const playerRef = useRef<HTMLDivElement>(null);
 
+  // Draft system
+  type ResearchDraft = { title: string; preview: string; content: string; tagInput: string; category: ResearchCategory; call: ResearchCall; horizon: ResearchHorizon; priceBsd: number };
+  const getDraftData = useCallback((): ResearchDraft => ({ title, preview, content, tagInput, category, call, horizon, priceBsd }), [title, preview, content, tagInput, category, call, horizon, priceBsd]);
+  const setDraftData = useCallback((d: ResearchDraft) => {
+    setTitle(d.title ?? ''); setPreview(d.preview ?? ''); setContent(d.content ?? '');
+    setTagInput(d.tagInput ?? ''); setCategory(d.category ?? 'Spieler-Analyse');
+    setCall(d.call ?? 'Bullish'); setHorizon(d.horizon ?? '7d'); setPriceBsd(d.priceBsd ?? 10);
+  }, []);
+  const isDraftEmpty = useCallback((d: ResearchDraft) => !d.title || d.title.trim().length < 3, []);
+  const { hasDraft, restoreDraft, dismissDraft, clearDraft } = useDraft(
+    'bescout-draft-research', open, getDraftData, setDraftData, isDraftEmpty
+  );
+
   const isScouting = category === 'Scouting-Report';
 
   useEffect(() => {
@@ -103,6 +117,7 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
     setTried(true);
     if (!canSubmit) return;
     const tags = tagInput.split(',').map(t => t.trim()).filter(Boolean);
+    clearDraft();
     onSubmit({
       playerId: playerId || null,
       title: title.trim(),
@@ -161,6 +176,15 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
       }
     >
       <div className="space-y-4">
+        {hasDraft && (
+          <div className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-gold/10 border border-gold/20">
+            <span className="text-xs text-gold font-bold">{tr('draftFound')}</span>
+            <div className="flex gap-2">
+              <button onClick={restoreDraft} aria-label={tr('draftRestore')} className="text-xs font-bold text-gold hover:text-gold/80 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none rounded transition-colors">{tr('draftRestore')}</button>
+              <button onClick={dismissDraft} aria-label={tr('draftDiscard')} className="text-xs text-white/40 hover:text-white/60 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none rounded transition-colors">{tr('draftDiscard')}</button>
+            </div>
+          </div>
+        )}
         {/* Title */}
         <div>
           <label className="text-xs text-white/50 font-semibold mb-1.5 flex justify-between">
@@ -352,20 +376,42 @@ export default function CreateResearchModal({ open, onClose, players, onSubmit, 
           />
         </div>
 
-        {/* Content */}
+        {/* Content with Markdown Toolbar */}
         <div>
           <label className="text-xs text-white/50 font-semibold mb-1.5 flex justify-between">
             <span>{tr('contentBehindPaywall')}</span>
             <span className={cn('font-mono', content.length > 9500 ? 'text-amber-400' : 'text-white/30')}>{content.length}/10.000</span>
           </label>
+          <div className="flex gap-1 mb-1.5">
+            {[
+              { label: 'B', wrap: '**', title: 'Bold' },
+              { label: 'I', wrap: '*', title: 'Italic' },
+              { label: '##', insert: '## ', title: 'Heading' },
+              { label: '—', insert: '- ', title: 'List' },
+              { label: '<>', wrap: '`', title: 'Code' },
+            ].map(btn => (
+              <button
+                key={btn.label}
+                type="button"
+                title={btn.title}
+                onClick={() => {
+                  if (btn.insert) setContent(prev => prev + btn.insert);
+                  else if (btn.wrap) setContent(prev => prev + `${btn.wrap}text${btn.wrap}`);
+                }}
+                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white/5 border border-white/10 text-white/50 hover:bg-white/10 hover:text-white/70 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none transition-colors"
+              >
+                {btn.label}
+              </button>
+            ))}
+          </div>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value.slice(0, 10000))}
             rows={6}
             placeholder={isScouting ? tr('contentScoutingPlaceholder') : tr('contentResearchPlaceholder')}
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none font-mono"
           />
-          <div className="text-[10px] text-white/30 mt-1">{tr('minChars', { count: 50 })}</div>
+          <div className="text-[10px] text-white/30 mt-1">{tr('minChars', { count: 50 })} · Markdown ({tr('mdSupported')})</div>
         </div>
 
         {/* Tags */}

@@ -37,6 +37,7 @@ import { openMysteryBox } from '@/lib/services/mysteryBox';
 import HomeStoryHeader from '@/components/home/HomeStoryHeader';
 import HomeSpotlight from '@/components/home/HomeSpotlight';
 import PortfolioStrip from '@/components/home/PortfolioStrip';
+import TopMoversStrip from '@/components/home/TopMoversStrip';
 import DiscoveryCard from '@/components/market/DiscoveryCard';
 import { updateLoginStreak, STREAK_KEY, SectionHeader, formatPrize, getTimeUntil, getStoryMessage } from '@/components/home/helpers';
 
@@ -57,6 +58,7 @@ const ScoreRoadStrip = dynamic(() => import('@/components/gamification/ScoreRoad
   loading: () => <div className="h-10 rounded-xl bg-white/[0.02] animate-pulse" />,
 });
 const OnboardingChecklist = dynamic(() => import('@/components/home/OnboardingChecklist'), { ssr: false });
+const WelcomeBonusModal = dynamic(() => import('@/components/onboarding/WelcomeBonusModal'), { ssr: false });
 const StreakMilestoneBanner = dynamic(() => import('@/components/home/StreakMilestoneBanner'), { ssr: false });
 const SuggestedActionBanner = dynamic(() => import('@/components/home/SuggestedActionBanner'), { ssr: false });
 
@@ -256,6 +258,11 @@ export default function HomePage() {
   return (
     <div className="max-w-[1200px] mx-auto space-y-4 md:space-y-6">
 
+      {/* ── 0. WELCOME BONUS MODAL — First-time celebration ── */}
+      {holdings.length === 0 && balanceCents != null && balanceCents > 0 && (
+        <WelcomeBonusModal balanceCents={balanceCents} />
+      )}
+
       {/* ── 1. HERO HEADER — Greeting + Stats ── */}
       <HomeStoryHeader
         loading={loading}
@@ -329,6 +336,16 @@ export default function HomePage() {
                 </Link>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* ── 2a2. GLOBAL TOP MOVERS — Biggest daily changes across all players ── */}
+      {!playersLoading && players.length > 0 && (
+        <div>
+          <SectionHeader title={t('globalMovers')} href="/market" />
+          <div className="mt-2">
+            <TopMoversStrip players={players} />
           </div>
         </div>
       )}

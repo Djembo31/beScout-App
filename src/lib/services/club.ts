@@ -580,6 +580,24 @@ export async function updateClubFantasySettings(clubId: string, settings: Partia
 }
 
 // ============================================
+// Club Branding
+// ============================================
+
+/** Update club branding colors (owner only) */
+export async function updateClubBranding(
+  clubId: string,
+  branding: { primary_color?: string | null; secondary_color?: string | null }
+): Promise<{ success: boolean; error?: string }> {
+  const { error } = await supabase
+    .from('clubs')
+    .update({ ...branding, updated_at: new Date().toISOString() })
+    .eq('id', clubId);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+// ============================================
 // Club Withdrawals
 // ============================================
 

@@ -55,6 +55,22 @@ export async function getAllSponsors(): Promise<DbSponsor[]> {
   return (data ?? []) as DbSponsor[];
 }
 
+/** Get sponsors assigned to a specific club (club admin view) */
+export async function getClubSponsors(clubId: string): Promise<DbSponsor[]> {
+  const { data, error } = await supabase
+    .from('sponsors')
+    .select('id, name, logo_url, link_url, placement, club_id, is_active, priority, starts_at, ends_at, created_by, revenue_cents_per_impression, created_at, updated_at')
+    .eq('club_id', clubId)
+    .order('placement')
+    .order('priority', { ascending: false });
+
+  if (error) {
+    console.error('[Sponsors] getClubSponsors failed:', error);
+    return [];
+  }
+  return (data ?? []) as DbSponsor[];
+}
+
 // ============================================
 // Sponsor Mutations (Admin only)
 // ============================================

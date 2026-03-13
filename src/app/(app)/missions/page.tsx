@@ -2,9 +2,10 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { Target, Flame } from 'lucide-react';
+import { Target, Flame, Sparkles } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import NewUserTip from '@/components/onboarding/NewUserTip';
 
 import { useUser } from '@/components/providers/AuthProvider';
 import { useTodaysChallenge, useChallengeHistory } from '@/lib/queries/dailyChallenge';
@@ -102,6 +103,15 @@ export default function MissionsPage() {
         </div>
         <p className="text-sm text-white/50">{t('pageSubtitle')}</p>
       </div>
+
+      {/* New User Tip */}
+      <NewUserTip
+        tipKey="missions-intro"
+        icon={<Sparkles className="size-4" />}
+        title={t('tipTitle')}
+        description={t('tipDesc')}
+        show={streak <= 1}
+      />
 
       {/* Streak Banner */}
       {streak > 0 && (

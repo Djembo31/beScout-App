@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
-  Briefcase, Zap, Search,
+  Briefcase, Zap, Search, Heart,
   CheckCircle2, X,
 } from 'lucide-react';
 import { EmptyState, ErrorState, Skeleton, SkeletonCard, TabPanel } from '@/components/ui';
@@ -62,6 +62,10 @@ const TransferListSection = dynamic(() => import('@/components/market/TransferLi
   loading: () => <div className="space-y-2">{[...Array(5)].map((_, i) => <SkeletonCard key={i} className="h-16" />)}</div>,
 });
 const MarketSearch = dynamic(() => import('@/components/market/MarketSearch'), { ssr: false });
+const WatchlistView = dynamic(() => import('@/components/market/WatchlistView'), {
+  ssr: false,
+  loading: () => <div className="space-y-2">{[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-16" />)}</div>,
+});
 
 // ============================================
 // TABS CONFIG
@@ -77,6 +81,7 @@ const TAB_ALIAS: Record<string, MarketTab> = {
   transferlist: 'kaufen',
   scouting: 'kaufen',
   offers: 'portfolio',  // angebote now under portfolio
+  watchlist: 'portfolio',  // watchlist under portfolio
 };
 
 const VALID_TABS = new Set<string>(TAB_IDS);
@@ -378,20 +383,22 @@ export default function MarketPage() {
         {/* Sub-Tabs — Pill Style */}
         <div className="flex gap-2 mb-4 overflow-x-auto scrollbar-hide">
           {([
-            { id: 'team' as const, label: t('team') },
-            { id: 'bestand' as const, label: t('inventory') },
-            { id: 'angebote' as const, label: t('offers') },
+            { id: 'team' as const, label: t('team'), icon: null },
+            { id: 'bestand' as const, label: t('inventory'), icon: null },
+            { id: 'angebote' as const, label: t('offers'), icon: null },
+            { id: 'watchlist' as const, label: t('watchlist'), icon: <Heart className="size-3" /> },
           ]).map(st => (
             <button
               key={st.id}
               onClick={() => setPortfolioSubTab(st.id)}
               className={cn(
-                'rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap flex-shrink-0 min-h-[36px]',
+                'rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap flex-shrink-0 min-h-[36px] inline-flex items-center gap-1.5',
                 portfolioSubTab === st.id
                   ? 'bg-white/[0.12] text-white border border-white/[0.15]'
                   : 'text-white/40 hover:text-white/60 border border-transparent'
               )}
             >
+              {st.icon}
               {st.label}
             </button>
           ))}
@@ -404,6 +411,9 @@ export default function MarketPage() {
         )}
         {portfolioSubTab === 'angebote' && (
           <ManagerOffersTab players={players} />
+        )}
+        {portfolioSubTab === 'watchlist' && (
+          <WatchlistView players={players} watchlistEntries={watchlistEntries} />
         )}
         <SponsorBanner placement="market_top" />
         <TradingDisclaimer variant="card" />

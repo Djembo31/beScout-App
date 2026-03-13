@@ -204,6 +204,7 @@
     "clubAdmin": "Club Admin",
     "settings": "Einstellungen",
     "logout": "Abmelden",
+    "logoutConfirm": "Wirklich?",
     "more": "Mehr",
     "notifications": "Benachrichtigungen",
     "ticketTooltip": "Tickets — verdiene sie durch Login, Missionen und Challenges",
@@ -220,6 +221,7 @@
     "pushBlocked": "Benachrichtigungen sind im Browser blockiert. Bitte in den Browser-Einstellungen aktivieren.",
     "pushError": "Push-Einstellung konnte nicht geändert werden",
     "feedback": "Feedback senden",
+    "glossary": "Glossar",
     "closeSearch": "Suche schließen",
     "levelPlan": "Lv {level} · {plan}"
   },
@@ -312,6 +314,7 @@
     "storyLiveIpo": "{player} Erstverkauf ist live — {progress}% verkauft",
     "storyEventSoon": "Fantasy-Event startet in {time}",
     "topMovers": "Meine Top-Mover",
+    "globalMovers": "Groesste Beweger heute",
     "marketPulse": "Markt-Puls",
     "trendingNow": "Gerade beliebt",
     "liveTrades": "Live auf BeScout",
@@ -746,7 +749,26 @@
     "ownershipBonus": "Besitzer-Bonus",
     "ownershipBonusDesc": "+5% Punkte für eigene DPCs",
     "ownershipBonusActive": "Aktiv ({count}/3)",
-    "ownershipBonusInactive": "Kaufe DPCs für Fantasy-Bonus"
+    "ownershipBonusInactive": "Kaufe DPCs für Fantasy-Bonus",
+    "scoring": {
+      "title": "Wie werden Punkte berechnet?",
+      "appearance60": "Einsatz >60min",
+      "appearanceSub": "Einsatz <60min",
+      "goal": "Tor",
+      "assist": "Assist",
+      "cleanSheet": "Clean Sheet",
+      "yellowCard": "Gelbe Karte",
+      "redCard": "Rote Karte",
+      "ownGoal": "Eigentor",
+      "penaltyMissed": "Elfmeter verschossen",
+      "penaltySaved": "Elfmeter gehalten",
+      "highRating": "Bewertung >8.0",
+      "captainBonus": "Captain Bonus",
+      "gk": "TW",
+      "def": "AW",
+      "mid": "MF",
+      "att": "ST"
+    }
   },
   "predictions": {
     "title": "Vorhersagen",
@@ -838,7 +860,7 @@
     "holdings": "Bestand",
     "compare": "Vergleich",
     "players": "Spieler",
-    "transferList": "Transferliste",
+    "transferList": "Von Usern",
     "scouting": "Scouting",
     "offers": "Angebote",
     "allPlayers": "Alle Spieler",
@@ -1156,7 +1178,12 @@
     "searchPlayers": "Spieler suchen",
     "noSearchResults": "Keine Spieler gefunden",
     "noTransferListings": "Keine Angebote gefunden",
-    "noTransferListingsDesc": "Aktuell sind keine Spieler Lizenzen auf der Transferliste."
+    "noTransferListingsDesc": "Aktuell sind keine Spieler Lizenzen auf der Transferliste.",
+    "watchlist": "Watchlist",
+    "watchlistEmpty": "Keine Spieler auf der Watchlist",
+    "watchlistEmptyDesc": "Tippe auf das Herz-Symbol bei einem Spieler, um ihn hier zu sehen.",
+    "removeFromWatchlist": "Von Watchlist entfernen",
+    "watchlistCount": "{count} Spieler"
   },
   "community": {
     "title": "Community",
@@ -1239,6 +1266,7 @@
       "rewardLabel": "Belohnung",
       "rewardAmountAria": "Belohnungsbetrag",
       "deadlineLabel": "Laufzeit",
+      "deadlineDays": "{days} Tage",
       "maxSubLabel": "Max. Einreichungen",
       "submit": "Auftrag veröffentlichen",
       "success": "Auftrag erstellt! bCredits wurden reserviert.",
@@ -1276,12 +1304,22 @@
     "errorTitle": "Community nicht verfügbar",
     "errorDesc": "Im Community-Bereich ist ein Fehler aufgetreten. Deine Posts und Beiträge sind sicher gespeichert.",
     "newPost": "Neuer Post",
+    "draftFound": "Entwurf gefunden",
+    "draftRestore": "Wiederherstellen",
+    "draftDiscard": "Verwerfen",
     "postBtn": "Posten",
     "minCharsPost": "Mindestens 10 Zeichen ({count}/10)",
     "categoryLabel": "Kategorie",
     "typeLabel": "Art",
     "playerOptional": "Spieler (optional)",
     "messageLabel": "Nachricht",
+    "addImage": "Bild hinzufuegen",
+    "removeImage": "Bild entfernen",
+    "imageHint": "Max. 1 MB, JPG/PNG (optional)",
+    "imageTooLarge": "Bild zu gross (max. 1 MB)",
+    "imageError": "Fehler beim Laden des Bildes",
+    "imageLoading": "Bild wird geladen...",
+    "noContent": "Kein Inhalt vorhanden",
     "tagsLabel": "Tags (kommagetrennt)",
     "messagePlaceholder": "Was denkst du?",
     "tagsPlaceholder": "z.B. Form, Value, Tactics",
@@ -2072,6 +2110,19 @@
     "newsPublished": "News veröffentlicht!",
     "publishError": "Fehler beim Veröffentlichen",
     "publish": "Veröffentlichen",
+    "sponsors": "Sponsoren",
+    "noSponsors": "Keine Sponsoren zugewiesen",
+    "noSponsorsHint": "Kontaktiere BeScout um Sponsor-Platzierungen zu erhalten.",
+    "impressions": "Impressions",
+    "clicks": "Klicks",
+    "activePlacements": "Aktive Platzierungen",
+    "placementBreakdown": "Aufschlüsselung nach Platzierung",
+    "allTime": "Gesamt",
+    "daysRange": "{days}d",
+    "primaryColor": "Primärfarbe",
+    "secondaryColor": "Sekundärfarbe",
+    "saveBranding": "Branding speichern",
+    "saveError": "Fehler beim Speichern",
     "topFans": "Top Fans",
     "noFans": "Noch keine Fans",
     "mostTraded": "Meistgehandelt",
@@ -2608,7 +2659,11 @@
     "createPost": "Ersten Beitrag erstellen",
     "createPostDesc": "Teile deine Meinung in der Community",
     "makePrediction": "Erste Prognose abgeben",
-    "makePredictionDesc": "Sage das Ergebnis eines Spiels voraus"
+    "makePredictionDesc": "Sage das Ergebnis eines Spiels voraus",
+    "welcomeTitle": "Willkommen bei BeScout!",
+    "welcomeDesc": "Du hast {amount} bCredits erhalten! Kaufe jetzt deinen ersten Spieler und starte dein Portfolio.",
+    "welcomeCta": "Zum Marktplatz",
+    "welcomeLater": "Später"
   },
   "scouting": {
     "dimensions": "Bewertungsdimensionen",
@@ -2738,6 +2793,9 @@
   "research": {
     "newScoutingReport": "Neuer Scouting-Report",
     "newResearchReport": "Neuer Research-Bericht",
+    "draftFound": "Entwurf gefunden",
+    "draftRestore": "Wiederherstellen",
+    "draftDiscard": "Verwerfen",
     "title": "Titel",
     "titleScoutingPlaceholder": "z.B. Scouting: Mehmet Yilmaz — Starke Technik, Potenzial",
     "titleResearchPlaceholder": "z.B. Matchday Edge: Warum Yasin heute überperformen kann",
@@ -2763,6 +2821,7 @@
     "contentScoutingPlaceholder": "Detaillierte Begründung deiner Bewertung...",
     "contentResearchPlaceholder": "Deine vollständige Analyse...",
     "minChars": "Mindestens {count} Zeichen",
+    "mdSupported": "**fett**, *kursiv*, ## Ueberschrift, - Liste",
     "tags": "Tags (kommagetrennt)",
     "tagsPlaceholder": "z.B. Form, Value, Tactics, Matchup",
     "errorTitle": "Titel: mind. {min} Zeichen ({count}/{min})",
@@ -3066,7 +3125,9 @@
     "progressSection": "Rang-Fortschritt",
     "streakDays": "{days} Tage in Folge",
     "mysteryBoxSection": "Mystery Box",
-    "noMissions": "Keine aktiven Missionen"
+    "noMissions": "Keine aktiven Missionen",
+    "tipTitle": "Tägliche Belohnungen",
+    "tipDesc": "Erledige Missionen, halte deinen Login-Streak und öffne Mystery Boxes für Tickets und Cosmetics."
   },
   "spieltag": {
     "label": "Spieltag",
@@ -3673,7 +3734,18 @@
     "valuationSubmitted": "Bewertung abgegeben — du kannst sie jederzeit ändern",
     "saving": "Wird gespeichert...",
     "updateValuation": "Bewertung aktualisieren",
-    "submitValuation": "Bewertung abgeben"
+    "submitValuation": "Bewertung abgeben",
+    "limitOrderTitle": "Limit Order",
+    "limitOrderDesc": "Setze einen Wunschpreis fuer {player}. Die Order wird automatisch ausgefuehrt, sobald der Preis erreicht wird.",
+    "limitOrderBuy": "Kaufen",
+    "limitOrderSell": "Verkaufen",
+    "limitOrderPrice": "Dein Wunschpreis",
+    "limitOrderQty": "Anzahl DPCs",
+    "limitOrderCurrentFloor": "Aktueller Floor-Preis",
+    "limitOrderSubmit": "Limit Order setzen",
+    "limitOrderComingSoon": "Kommt bald!",
+    "limitOrderComingSoonDesc": "Limit Orders befinden sich in Entwicklung. Wir benachrichtigen dich, sobald sie verfuegbar sind.",
+    "limitOrderOk": "Verstanden"
   },
   "pwa": {
     "installTitle": "App installieren",
@@ -3836,5 +3908,91 @@
     "unknownFallback": "Unbekannt",
     "someoneFallback": "Jemand",
     "replyNotifTitle": "{name} hat auf deinen Post geantwortet"
+  },
+  "glossary": {
+    "title": "Glossar",
+    "searchPlaceholder": "Begriff suchen...",
+    "moreInGlossary": "Mehr im Glossar",
+    "noResults": "Kein Begriff gefunden",
+    "categories": {
+      "trading": "Handel",
+      "fantasy": "Fantasy",
+      "gamification": "Gamification"
+    },
+    "terms": {
+      "dpc": {
+        "title": "DPC",
+        "description": "Digitaler Spieler-Vertrag. Dein Anteil an einem Fussballspieler."
+      },
+      "bCredits": {
+        "title": "bCredits",
+        "description": "Plattform-Guthaben zum Kaufen, Handeln und Teilnehmen."
+      },
+      "ipo": {
+        "title": "IPO",
+        "description": "Erstverkauf — der Verein bietet neue DPCs zum Festpreis an."
+      },
+      "floorPrice": {
+        "title": "Floor Price",
+        "description": "Der niedrigste Preis, zu dem ein DPC gerade angeboten wird."
+      },
+      "pbt": {
+        "title": "PBT",
+        "description": "Player Bound Treasury — Gebuehren-Pool pro Spieler, wird bei Vertragsende ausgeschuettet."
+      },
+      "successFee": {
+        "title": "Success Fee",
+        "description": "Belohnung fuer DPC-Halter wenn ein Spieler transferiert wird."
+      },
+      "lineup": {
+        "title": "Lineup",
+        "description": "Deine Aufstellung fuer ein Fantasy-Event."
+      },
+      "prediction": {
+        "title": "Prediction",
+        "description": "Deine Vorhersage fuer ein Spielergebnis. Richtig = Tickets."
+      },
+      "chip": {
+        "title": "Chip",
+        "description": "Bonus-Karte die dir Vorteile in Fantasy-Events gibt (z.B. Triple Captain)."
+      },
+      "l5Score": {
+        "title": "L5 Score",
+        "description": "Performance der letzten 5 Spiele auf einer Skala von 0-10."
+      },
+      "eloScore": {
+        "title": "Elo Score",
+        "description": "Dein Skill-Rating in 3 Dimensionen: Trader, Manager, Analyst."
+      },
+      "streak": {
+        "title": "Streak",
+        "description": "Tage in Folge eingeloggt. Laengere Streaks = bessere Belohnungen."
+      },
+      "tickets": {
+        "title": "Tickets",
+        "description": "Zweitwaehrung, verdient durch Aktivitaet. Fuer Mystery Boxes und Chips."
+      },
+      "bounty": {
+        "title": "Bounty",
+        "description": "Auftrag von einem Club oder User — liefere Analyse, verdiene bCredits."
+      },
+      "research": {
+        "title": "Research",
+        "description": "Premium-Analyse hinter Paywall. Autor verdient bei jedem Unlock."
+      }
+    }
+  },
+  "shortcuts": {
+    "title": "Tastenkürzel",
+    "navigation": "Navigation",
+    "actions": "Aktionen",
+    "goHome": "Startseite",
+    "goMarket": "Marktplatz",
+    "goFantasy": "Fantasy",
+    "goCommunity": "Community",
+    "goProfile": "Profil",
+    "showShortcuts": "Tastenkürzel anzeigen",
+    "closeModal": "Modal schließen",
+    "hint": "Drücke ? um diese Übersicht zu öffnen"
   }
 }

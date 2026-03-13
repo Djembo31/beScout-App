@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { ShoppingCart, Send, TrendingUp, TrendingDown } from 'lucide-react';
+import { ShoppingCart, Send, TrendingUp, TrendingDown, Clock } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 
@@ -12,10 +12,11 @@ interface MobileTradingBarProps {
   isLiquidated?: boolean;
   onBuyClick: () => void;
   onSellClick: () => void;
+  onLimitClick?: () => void;
 }
 
 export default function MobileTradingBar({
-  floor, holdingQty, change24h = 0, isLiquidated, onBuyClick, onSellClick,
+  floor, holdingQty, change24h = 0, isLiquidated, onBuyClick, onSellClick, onLimitClick,
 }: MobileTradingBarProps) {
   const t = useTranslations('playerDetail');
   if (isLiquidated) return null;
@@ -60,6 +61,16 @@ export default function MobileTradingBar({
             <ShoppingCart className="size-4" aria-hidden="true" />
             {t('buy')}
           </Button>
+          {onLimitClick && (
+            <Button
+              variant="outline"
+              className="text-sm font-bold min-h-[44px] px-3"
+              onClick={onLimitClick}
+              aria-label={t('limitOrderTitle')}
+            >
+              <Clock className="size-4" aria-hidden="true" />
+            </Button>
+          )}
           {holdingQty > 0 && (
             <Button
               variant="outline"

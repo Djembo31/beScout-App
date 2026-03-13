@@ -8,6 +8,7 @@ import { PositionBadge } from '@/components/player';
 import { cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { fmtScout } from '@/lib/utils';
+import MarkdownRenderer from '@/components/ui/MarkdownRenderer';
 import { getRang } from '@/lib/gamification';
 import type { ResearchPostWithAuthor, ScoutingEvaluation } from '@/types';
 import { useTranslations, useLocale } from 'next-intl';
@@ -254,7 +255,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
       {canSeeContent ? (
         <div className="px-4 pb-4">
           <div className="border-t border-white/10 pt-3">
-            <p className="text-sm text-white/80 leading-relaxed whitespace-pre-wrap">{post.content}</p>
+            {post.content ? <MarkdownRenderer content={post.content} /> : <p className="text-sm text-white/30 italic">{tc('noContent')}</p>}
           </div>
         </div>
       ) : (

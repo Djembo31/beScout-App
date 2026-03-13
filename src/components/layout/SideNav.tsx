@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -43,10 +43,11 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
   const t = useTranslations('nav');
   const tc = useTranslations('common');
 
-  const handleLogout = async () => {
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const handleLogout = useCallback(async () => {
     await supabase.auth.signOut();
     router.push('/login');
-  };
+  }, [router]);
 
   const handleNavClick = () => {
     // Close mobile drawer on navigation
@@ -266,17 +267,34 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
           <Settings className="size-5" />
           {!collapsed && <span className="font-medium">{t('settings')}</span>}
         </Link>
-        <button
-          onClick={handleLogout}
-          className={cn(
-            'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl min-h-[44px]',
-            'text-white/40 hover:bg-red-500/10 hover:text-red-400 transition-colors',
-            collapsed && 'justify-center'
-          )}
-        >
-          <LogOut className="size-5" />
-          {!collapsed && <span className="font-medium">{t('logout')}</span>}
-        </button>
+        {logoutConfirm ? (
+          <div className={cn('flex gap-1.5 px-1', collapsed && 'flex-col items-center')}>
+            <button
+              onClick={handleLogout}
+              className="flex-1 px-3 py-2 rounded-xl min-h-[44px] text-xs font-bold bg-red-500/15 text-red-400 border border-red-500/25 hover:bg-red-500/25 focus-visible:ring-2 focus-visible:ring-red-400/50 focus-visible:outline-none transition-colors"
+            >
+              {collapsed ? <LogOut className="size-4" /> : t('logoutConfirm')}
+            </button>
+            <button
+              onClick={() => setLogoutConfirm(false)}
+              className="flex-1 px-3 py-2 rounded-xl min-h-[44px] text-xs font-bold bg-white/5 text-white/50 border border-white/10 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none transition-colors"
+            >
+              {collapsed ? <X className="size-4" /> : tc('cancel')}
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setLogoutConfirm(true)}
+            className={cn(
+              'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl min-h-[44px]',
+              'text-white/40 hover:bg-red-500/10 hover:text-red-400 transition-colors',
+              collapsed && 'justify-center'
+            )}
+          >
+            <LogOut className="size-5" />
+            {!collapsed && <span className="font-medium">{t('logout')}</span>}
+          </button>
+        )}
       </div>
 
       {/* Collapse Toggle — desktop only */}

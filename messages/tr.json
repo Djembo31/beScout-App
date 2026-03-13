@@ -204,6 +204,7 @@
     "clubAdmin": "Kulüp Yönetici",
     "settings": "Ayarlar",
     "logout": "Çıkış yap",
+    "logoutConfirm": "Emin misin?",
     "more": "Daha fazla",
     "notifications": "Bildirimler",
     "ticketTooltip": "Biletler — Giriş, görevler ve meydan okumalar ile kazan",
@@ -220,6 +221,7 @@
     "pushBlocked": "Bildirimler tarayıcıda engellendi. Lütfen tarayıcı ayarlarından etkinleştirin.",
     "pushError": "Push ayarı değiştirilemedi",
     "feedback": "Geri bildirim gönder",
+    "glossary": "Sözlük",
     "closeSearch": "Aramayı kapat",
     "levelPlan": "Sv {level} · {plan}"
   },
@@ -311,6 +313,7 @@
     "storyLiveIpo": "{player} IPO canlı — {progress}% satıldı",
     "storyEventSoon": "Fantezi etkinlik {time} sonra başlıyor",
     "topMovers": "Top Hareketlerim",
+    "globalMovers": "Bugünün en büyük hareketleri",
     "marketPulse": "Piyasa Nabzı",
     "trendingNow": "Şu an popüler",
     "liveTrades": "BeScout'ta canlı",
@@ -743,7 +746,26 @@
     "ownershipBonus": "Sahiplik Bonusu",
     "ownershipBonusDesc": "Kendi DPC'lerin için +%5 puan",
     "ownershipBonusActive": "Aktif ({count}/3)",
-    "ownershipBonusInactive": "Fantezi bonusu için DPC satın al"
+    "ownershipBonusInactive": "Fantezi bonusu için DPC satın al",
+    "scoring": {
+      "title": "Puanlar nasıl hesaplanır?",
+      "appearance60": "Süre >60dk",
+      "appearanceSub": "Süre <60dk",
+      "goal": "Gol",
+      "assist": "Asist",
+      "cleanSheet": "Gol yememe",
+      "yellowCard": "Sarı kart",
+      "redCard": "Kırmızı kart",
+      "ownGoal": "Kendi kalesine gol",
+      "penaltyMissed": "Kaçan penaltı",
+      "penaltySaved": "Kurtarılan penaltı",
+      "highRating": "Puan >8.0",
+      "captainBonus": "Kaptan Bonusu",
+      "gk": "KL",
+      "def": "DF",
+      "mid": "OF",
+      "att": "FW"
+    }
   },
   "predictions": {
     "title": "Tahminler",
@@ -835,7 +857,7 @@
     "holdings": "Varlıklar",
     "compare": "Karşılaştır",
     "players": "Oyuncular",
-    "transferList": "Transfer Listesi",
+    "transferList": "Kullanıcılardan",
     "scouting": "Keşif",
     "offers": "Teklifler",
     "allPlayers": "Tüm Oyuncular",
@@ -1148,7 +1170,12 @@
     "searchPlayers": "Oyuncu ara",
     "noSearchResults": "Oyuncu bulunamadı",
     "noTransferListings": "Teklif bulunamadı",
-    "noTransferListingsDesc": "Şu anda transfer listesinde oyuncu lisansı bulunmuyor."
+    "noTransferListingsDesc": "Şu anda transfer listesinde oyuncu lisansı bulunmuyor.",
+    "watchlist": "Takip Listesi",
+    "watchlistEmpty": "Takip listesinde oyuncu yok",
+    "watchlistEmptyDesc": "Bir oyuncunun yanındaki kalp simgesine dokunarak buraya ekleyin.",
+    "removeFromWatchlist": "Takip listesinden kaldır",
+    "watchlistCount": "{count} oyuncu"
   },
   "community": {
     "title": "Topluluk",
@@ -1231,6 +1258,7 @@
       "rewardLabel": "Ödül",
       "rewardAmountAria": "Ödül tutarı",
       "deadlineLabel": "Süre",
+      "deadlineDays": "{days} gün",
       "maxSubLabel": "Maks. başvuru",
       "submit": "Görev yayınla",
       "success": "Görev oluşturuldu! bCredits rezerve edildi.",
@@ -1268,12 +1296,22 @@
     "errorTitle": "Topluluk kullanılamıyor",
     "errorDesc": "Topluluk bölümünde bir hata oluştu. Gönderileriniz güvenle kaydedildi.",
     "newPost": "Yeni Gönderi",
+    "draftFound": "Taslak bulundu",
+    "draftRestore": "Geri yükle",
+    "draftDiscard": "Sil",
     "postBtn": "Paylaş",
     "minCharsPost": "En az 10 karakter ({count}/10)",
     "categoryLabel": "Kategori",
     "typeLabel": "Tür",
     "playerOptional": "Oyuncu (isteğe bağlı)",
     "messageLabel": "Mesaj",
+    "addImage": "Resim ekle",
+    "removeImage": "Resmi kaldır",
+    "imageHint": "Maks. 1 MB, JPG/PNG (isteğe bağlı)",
+    "imageTooLarge": "Resim çok büyük (maks. 1 MB)",
+    "imageError": "Resim yüklenirken hata oluştu",
+    "imageLoading": "Resim yükleniyor...",
+    "noContent": "İçerik mevcut değil",
     "tagsLabel": "Etiketler (virgülle ayrılmış)",
     "messagePlaceholder": "Ne düşünüyorsun?",
     "tagsPlaceholder": "Örn. Form, Değer, Taktik",
@@ -2064,6 +2102,19 @@
     "newsPublished": "Haber yayınlandı!",
     "publishError": "Yayınlama hatası",
     "publish": "Yayınla",
+    "sponsors": "Sponsorlar",
+    "noSponsors": "Sponsor atanmadı",
+    "noSponsorsHint": "Sponsor yerleşimleri almak için BeScout ile iletişime geçin.",
+    "impressions": "Gösterimler",
+    "clicks": "Tıklamalar",
+    "activePlacements": "Aktif Yerleşimler",
+    "placementBreakdown": "Yerleşim Detayı",
+    "allTime": "Tümü",
+    "daysRange": "{days}g",
+    "primaryColor": "Ana Renk",
+    "secondaryColor": "İkincil Renk",
+    "saveBranding": "Markayı kaydet",
+    "saveError": "Kaydetme hatası",
     "topFans": "En İyi Fanlar",
     "noFans": "Henüz fan yok",
     "mostTraded": "En Çok İşlem Gören",
@@ -2600,7 +2651,11 @@
     "createPost": "İlk gönderiyi oluştur",
     "createPostDesc": "Toplulukta fikrini paylaş",
     "makePrediction": "İlk tahminini yap",
-    "makePredictionDesc": "Bir maçın sonucunu tahmin et"
+    "makePredictionDesc": "Bir maçın sonucunu tahmin et",
+    "welcomeTitle": "BeScout'a Hoş Geldin!",
+    "welcomeDesc": "{amount} bCredits kazandın! İlk oyuncunu satın al ve portföyünü başlat.",
+    "welcomeCta": "Markete Git",
+    "welcomeLater": "Daha Sonra"
   },
   "scouting": {
     "dimensions": "Değerlendirme Boyutları",
@@ -2730,6 +2785,9 @@
   "research": {
     "newScoutingReport": "Yeni Keşif Raporu",
     "newResearchReport": "Yeni Araştırma Raporu",
+    "draftFound": "Taslak bulundu",
+    "draftRestore": "Geri yükle",
+    "draftDiscard": "Sil",
     "title": "Başlık",
     "titleScoutingPlaceholder": "ör. Keşif: Mehmet Yılmaz — Güçlü Teknik, Potansiyel",
     "titleResearchPlaceholder": "ör. Maç Günü Avantajı: Yasin neden bugün üstün performans gösterecek",
@@ -2755,6 +2813,7 @@
     "contentScoutingPlaceholder": "Değerlendirmenin ayrıntılı gerekçesi...",
     "contentResearchPlaceholder": "Tam analizin...",
     "minChars": "En az {count} karakter",
+    "mdSupported": "**kalın**, *italik*, ## başlık, - liste",
     "tags": "Etiketler (virgülle ayrılmış)",
     "tagsPlaceholder": "ör. Form, Değer, Taktik, Eşleşme",
     "errorTitle": "Başlık: min. {min} karakter ({count}/{min})",
@@ -3058,7 +3117,9 @@
     "progressSection": "Rütbe İlerlemesi",
     "streakDays": "{days} gün üst üste",
     "mysteryBoxSection": "Gizem Kutusu",
-    "noMissions": "Aktif görev yok"
+    "noMissions": "Aktif görev yok",
+    "tipTitle": "Günlük Ödüller",
+    "tipDesc": "Görevleri tamamla, giriş serisini sürdür ve Gizem Kutuları aç."
   },
   "spieltag": {
     "label": "Maç Haftası",
@@ -3665,7 +3726,18 @@
     "valuationSubmitted": "Değerlendirme gönderildi — istediğin zaman güncelleyebilirsin",
     "saving": "Kaydediliyor...",
     "updateValuation": "Değerlendirmeyi güncelle",
-    "submitValuation": "Değerlendirme gönder"
+    "submitValuation": "Değerlendirme gönder",
+    "limitOrderTitle": "Limit Emir",
+    "limitOrderDesc": "{player} için istediğin fiyatı belirle. Fiyata ulaşıldığında emir otomatik gerçekleşir.",
+    "limitOrderBuy": "Al",
+    "limitOrderSell": "Sat",
+    "limitOrderPrice": "İstediğin fiyat",
+    "limitOrderQty": "DPC adedi",
+    "limitOrderCurrentFloor": "Mevcut taban fiyat",
+    "limitOrderSubmit": "Limit emir ver",
+    "limitOrderComingSoon": "Yakında geliyor!",
+    "limitOrderComingSoonDesc": "Limit emirler geliştirme aşamasında. Hazır olduğunda seni bilgilendireceğiz.",
+    "limitOrderOk": "Anladım"
   },
   "pwa": {
     "installTitle": "Uygulamayı Yükle",
@@ -3828,5 +3900,91 @@
     "unknownFallback": "Bilinmiyor",
     "someoneFallback": "Birisi",
     "replyNotifTitle": "{name} gönderine yanıt verdi"
+  },
+  "glossary": {
+    "title": "Sözlük",
+    "searchPlaceholder": "Terim ara...",
+    "moreInGlossary": "Sözlükte daha fazla",
+    "noResults": "Terim bulunamadı",
+    "categories": {
+      "trading": "Ticaret",
+      "fantasy": "Fantasy",
+      "gamification": "Oyunlaştırma"
+    },
+    "terms": {
+      "dpc": {
+        "title": "DPC",
+        "description": "Dijital Oyuncu Sözleşmesi. Bir futbolcudaki payın."
+      },
+      "bCredits": {
+        "title": "bCredits",
+        "description": "Satın alma, ticaret ve katılım için platform bakiyesi."
+      },
+      "ipo": {
+        "title": "IPO",
+        "description": "İlk satış — kulüp yeni DPC'leri sabit fiyatla sunar."
+      },
+      "floorPrice": {
+        "title": "Floor Price",
+        "description": "Bir DPC'nin şu anda sunulduğu en düşük fiyat."
+      },
+      "pbt": {
+        "title": "PBT",
+        "description": "Oyuncu Bağlı Hazine — oyuncu başına ücret havuzu."
+      },
+      "successFee": {
+        "title": "Success Fee",
+        "description": "Bir oyuncu transfer olduğunda DPC sahiplerine ödül."
+      },
+      "lineup": {
+        "title": "Lineup",
+        "description": "Bir Fantasy etkinliği için kadron."
+      },
+      "prediction": {
+        "title": "Prediction",
+        "description": "Maç sonucu tahminin. Doğru = Bilet."
+      },
+      "chip": {
+        "title": "Chip",
+        "description": "Fantasy etkinliklerinde avantaj sağlayan bonus kart."
+      },
+      "l5Score": {
+        "title": "L5 Score",
+        "description": "Son 5 maçın performansı (0-10)."
+      },
+      "eloScore": {
+        "title": "Elo Score",
+        "description": "3 boyutlu yetenek puanın: Trader, Manager, Analyst."
+      },
+      "streak": {
+        "title": "Streak",
+        "description": "Arka arkaya giriş yapılan günler. Uzun seriler = daha iyi ödüller."
+      },
+      "tickets": {
+        "title": "Tickets",
+        "description": "Aktiviteyle kazanılan ikinci para birimi. Mystery Box ve Chipler için."
+      },
+      "bounty": {
+        "title": "Bounty",
+        "description": "Kulüp veya kullanıcıdan görev — analiz yap, bCredits kazan."
+      },
+      "research": {
+        "title": "Research",
+        "description": "Ücretli premium analiz. Yazar her açılışta kazanır."
+      }
+    }
+  },
+  "shortcuts": {
+    "title": "Klavye Kısayolları",
+    "navigation": "Gezinme",
+    "actions": "İşlemler",
+    "goHome": "Ana Sayfa",
+    "goMarket": "Pazar",
+    "goFantasy": "Maç Günü",
+    "goCommunity": "Topluluk",
+    "goProfile": "Profil",
+    "showShortcuts": "Kısayolları göster",
+    "closeModal": "Modalı kapat",
+    "hint": "Bu pencereyi açmak için ? tuşuna basın"
   }
 }

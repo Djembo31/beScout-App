@@ -54,6 +54,8 @@ import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import BuyModal from '@/components/player/detail/BuyModal';
 import SellModal from '@/components/player/detail/SellModal';
 import OfferModal from '@/components/player/detail/OfferModal';
+import dynamic from 'next/dynamic';
+const LimitOrderModal = dynamic(() => import('@/components/player/detail/LimitOrderModal'), { ssr: false });
 
 // ============================================
 // TYPES
@@ -127,6 +129,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
 
   // ─── UI State (continued) ────────────────
   const [isWatchlisted, setIsWatchlisted] = useState(false);
+  const [showLimitOrder, setShowLimitOrder] = useState(false);
   const [profileMap, setProfileMap] = useState<Record<string, { handle: string; display_name: string | null }>>({});
 
   // ─── Side Effects ─────────────────────────
@@ -168,11 +171,12 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
 
   // ─── Club Admin Trading Restriction ──────
   const isRestrictedAdmin = !!(clubAdmin && dbPlayer?.club_id === clubAdmin.clubId);
+  const te = useTranslations('errors');
   const guardedBuy = isRestrictedAdmin
-    ? () => addToast('Als Club-Admin darfst du keine DPCs deines eigenen Clubs handeln.', 'error')
+    ? () => addToast(te('clubAdminRestricted'), 'error')
     : trading.openBuyModal;
   const guardedSell = isRestrictedAdmin
-    ? () => addToast('Als Club-Admin darfst du keine DPCs deines eigenen Clubs handeln.', 'error')
+    ? () => addToast(te('clubAdminRestricted'), 'error')
     : trading.openSellModal;
 
   // ─── Share handler ────────────────────────
@@ -378,6 +382,15 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         />
       </ErrorBoundary>
 
+      {player && (
+        <LimitOrderModal
+          open={showLimitOrder}
+          onClose={() => setShowLimitOrder(false)}
+          playerName={`${player.first} ${player.last}`}
+          floorPrice={player.prices.floor ?? player.prices.lastTrade}
+        />
+      )}
+
       {/* Sponsor: Player Footer */}
       <SponsorBanner placement="player_footer" />
 
@@ -389,6 +402,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         isLiquidated={player.isLiquidated || isRestrictedAdmin}
         onBuyClick={guardedBuy}
         onSellClick={guardedSell}
+        onLimitClick={() => setShowLimitOrder(true)}
       />
     </div>
   );

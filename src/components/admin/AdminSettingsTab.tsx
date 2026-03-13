@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Settings, Shield, Calendar, Loader2, Check, Database, RefreshCw, Users, Shirt, Trophy, AlertCircle, Gamepad2, Globe, UserPlus, Trash2, Crown } from 'lucide-react';
+import { Settings, Shield, Calendar, Loader2, Check, Database, RefreshCw, Users, Shirt, Trophy, AlertCircle, Gamepad2, Globe, UserPlus, Trash2, Crown, Palette } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Card, Button } from '@/components/ui';
-import { getActiveGameweek, setActiveGameweek, getClubFantasySettings, updateClubFantasySettings, getClubAdmins, removeClubAdmin, addClubAdmin } from '@/lib/services/club';
+import { getActiveGameweek, setActiveGameweek, getClubFantasySettings, updateClubFantasySettings, getClubAdmins, removeClubAdmin, addClubAdmin, updateClubBranding } from '@/lib/services/club';
 import type { ClubFantasySettings } from '@/lib/services/club';
 import {
   isApiConfigured,
@@ -248,6 +248,120 @@ function StatusPill({ label, mapped, total, icon }: { label: string; mapped: num
       <div className={cn('text-lg font-black', color)}>{mapped}/{total}</div>
       <div className="text-[10px] text-white/25">{pct}%</div>
     </div>
+  );
+}
+
+// ============================================
+// Branding Section
+// ============================================
+
+function BrandingSection({ club }: { club: ClubWithAdmin }) {
+  const t = useTranslations('admin');
+  const { addToast } = useToast();
+  const [primaryColor, setPrimaryColor] = useState(club.primary_color ?? '#FFD700');
+  const [secondaryColor, setSecondaryColor] = useState(club.secondary_color ?? '#FFFFFF');
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaved(false);
+    try {
+      const result = await updateClubBranding(club.id, {
+        primary_color: primaryColor,
+        secondary_color: secondaryColor,
+      });
+      if (result.success) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      } else {
+        addToast(result.error ?? t('saveError'), 'error');
+      }
+    } catch (err) {
+      console.error('[AdminSettings] updateClubBranding:', err);
+      addToast(t('saveError'), 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Card className="p-6">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+          <Palette className="w-5 h-5 text-purple-400" />
+        </div>
+        <div>
+          <div className="font-bold">{t('branding')}</div>
+          <div className="text-xs text-white/50">{t('brandingDesc')}</div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {/* Color Pickers */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="primary-color" className="block text-sm font-medium mb-2">{t('primaryColor')}</label>
+            <div className="flex items-center gap-2">
+              <input
+                id="primary-color"
+                type="color"
+                value={primaryColor}
+                onChange={(e) => setPrimaryColor(e.target.value)}
+                className="w-10 h-10 rounded-lg border border-white/10 cursor-pointer bg-transparent focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none"
+              />
+              <input
+                type="text"
+                value={primaryColor}
+                onChange={(e) => setPrimaryColor(e.target.value)}
+                maxLength={7}
+                className="flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-mono min-h-[44px] focus:outline-none focus:border-gold/40 focus-visible:ring-2 focus-visible:ring-gold/50"
+              />
+            </div>
+          </div>
+          <div>
+            <label htmlFor="secondary-color" className="block text-sm font-medium mb-2">{t('secondaryColor')}</label>
+            <div className="flex items-center gap-2">
+              <input
+                id="secondary-color"
+                type="color"
+                value={secondaryColor}
+                onChange={(e) => setSecondaryColor(e.target.value)}
+                className="w-10 h-10 rounded-lg border border-white/10 cursor-pointer bg-transparent focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none"
+              />
+              <input
+                type="text"
+                value={secondaryColor}
+                onChange={(e) => setSecondaryColor(e.target.value)}
+                maxLength={7}
+                className="flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm font-mono min-h-[44px] focus:outline-none focus:border-gold/40 focus-visible:ring-2 focus-visible:ring-gold/50"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Preview */}
+        <div className="p-4 rounded-xl border border-white/10" style={{ background: `linear-gradient(135deg, ${primaryColor}15, ${secondaryColor}10)` }}>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full border-2" style={{ borderColor: primaryColor, backgroundColor: `${primaryColor}20` }} />
+            <div>
+              <div className="font-bold text-sm" style={{ color: primaryColor }}>{club.name}</div>
+              <div className="text-xs" style={{ color: secondaryColor }}>{club.league}</div>
+            </div>
+          </div>
+        </div>
+
+        <Button onClick={handleSave} disabled={saving} aria-busy={saving} className="w-full">
+          {saving ? (
+            <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+          ) : saved ? (
+            <><Check className="w-4 h-4 text-green-500" aria-hidden="true" /> {t('saved')}</>
+          ) : (
+            t('saveBranding')
+          )}
+        </Button>
+      </div>
+    </Card>
   );
 }
 
@@ -515,6 +629,9 @@ export default function AdminSettingsTab({ club }: { club: ClubWithAdmin }) {
         )}
       </Card>
       )}
+
+      {/* Branding — Owner only */}
+      {isOwner && <BrandingSection club={club} />}
 
       {/* Club Info */}
       <Card className="p-6">

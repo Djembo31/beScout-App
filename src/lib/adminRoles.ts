@@ -1,6 +1,6 @@
 import type { ClubAdminRole } from '@/types';
 
-export type AdminTab = 'overview' | 'players' | 'events' | 'votes' | 'bounties' | 'scouting' | 'moderation' | 'analytics' | 'fans' | 'challenges' | 'revenue' | 'withdrawal' | 'settings';
+export type AdminTab = 'overview' | 'players' | 'events' | 'votes' | 'bounties' | 'scouting' | 'moderation' | 'analytics' | 'fans' | 'challenges' | 'revenue' | 'withdrawal' | 'sponsors' | 'settings';
 
 const TAB_ACCESS: Record<AdminTab, ClubAdminRole[]> = {
   overview:   ['owner', 'admin', 'editor'],
@@ -15,6 +15,7 @@ const TAB_ACCESS: Record<AdminTab, ClubAdminRole[]> = {
   challenges: ['owner', 'admin'],
   revenue:    ['owner', 'admin'],
   withdrawal: ['owner'],
+  sponsors:   ['owner', 'admin'],
   settings:   ['owner', 'admin'],
 };
 

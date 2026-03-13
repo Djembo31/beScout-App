@@ -21,12 +21,7 @@ interface CreateBountyModalProps {
   loading: boolean;
 }
 
-const DEADLINE_OPTIONS = [
-  { days: 3, label: '3 Tage' },
-  { days: 7, label: '7 Tage' },
-  { days: 14, label: '14 Tage' },
-  { days: 30, label: '30 Tage' },
-];
+const DEADLINE_DAYS = [3, 7, 14, 30] as const;
 
 const MIN_REWARD = 5000; // 50 bCredits in cents
 
@@ -141,13 +136,13 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
         <div>
           <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('createBounty.deadlineLabel')}</label>
           <div className="flex gap-2">
-            {DEADLINE_OPTIONS.map(opt => (
+            {DEADLINE_DAYS.map(days => (
               <button
-                key={opt.days}
-                onClick={() => setDeadlineDays(opt.days)}
-                className={cn('flex-1 py-2 rounded-xl text-xs font-semibold border transition-colors min-h-[44px]', deadlineDays === opt.days ? 'bg-gold/15 text-gold border-gold/30' : 'bg-white/[0.02] text-white/40 border-white/10 hover:text-white/60')}
+                key={days}
+                onClick={() => setDeadlineDays(days)}
+                className={cn('flex-1 py-2 rounded-xl text-xs font-semibold border transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none', deadlineDays === days ? 'bg-gold/15 text-gold border-gold/30' : 'bg-white/[0.02] text-white/40 border-white/10 hover:text-white/60')}
               >
-                {opt.label}
+                {t('createBounty.deadlineDays', { days })}
               </button>
             ))}
           </div>

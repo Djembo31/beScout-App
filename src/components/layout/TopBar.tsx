@@ -4,12 +4,13 @@ import React, { memo, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Bell, BellOff, BellRing, Search, User, Menu, DollarSign, MessageSquarePlus, Ticket } from 'lucide-react';
+import { Bell, BellOff, BellRing, Search, User, Menu, DollarSign, MessageSquarePlus, Ticket, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { formatScout } from '@/lib/services/wallet';
 import { FeedbackModal } from '@/components/layout/FeedbackModal';
+import { Glossary } from '@/components/help/Glossary';
 import NotificationDropdown from '@/components/layout/NotificationDropdown';
 import SearchOverlay from '@/components/layout/SearchOverlay';
 import AchievementListener from '@/components/providers/AchievementListener';
@@ -30,6 +31,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
   const { addToast } = useToast();
   const pathname = usePathname();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
@@ -230,6 +232,15 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             <MessageSquarePlus className="size-4 md:size-5 text-white/70" />
           </button>
 
+          {/* Glossary — desktop only */}
+          <button
+            onClick={() => setGlossaryOpen(true)}
+            className="hidden sm:flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
+            aria-label={t('glossary')}
+          >
+            <HelpCircle className="size-4 md:size-5 text-white/70" />
+          </button>
+
           {/* User avatar */}
           <div className="flex items-center gap-3 pl-2 md:pl-3 border-l border-white/10">
             <div className="text-right hidden lg:block">
@@ -253,6 +264,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
 
       <SearchOverlay open={spotlightOpen} onClose={() => setSpotlightOpen(false)} />
       <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} pageUrl={pathname} />
+      <Glossary open={glossaryOpen} onClose={() => setGlossaryOpen(false)} />
       <AchievementListener notifications={realtimeNotifs} />
     </header>
   );

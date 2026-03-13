@@ -1,11 +1,15 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { Camera, X as XIcon, Loader2 } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
+import { useDraft } from '@/lib/hooks/useDraft';
 import { POST_CATEGORIES } from '@/components/community/PostCard';
 import type { Pos, PostType } from '@/types';
+
+const MAX_IMAGE_KB = 1024; // 1MB
 
 // ============================================
 // TYPES
@@ -37,7 +41,26 @@ export default function CreatePostModal({
   const [postType, setPostType] = useState<PostType>('general');
   const [playerSearch, setPlayerSearch] = useState('');
   const [playerDropdownOpen, setPlayerDropdownOpen] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageError, setImageError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
+
+  // Draft system
+  type PostDraft = { content: string; tagInput: string; category: string; postType: PostType };
+  const getDraftData = useCallback((): PostDraft => ({ content, tagInput, category, postType }), [content, tagInput, category, postType]);
+  const setDraftData = useCallback((d: PostDraft) => {
+    setContent(d.content ?? '');
+    setTagInput(d.tagInput ?? '');
+    setCategory(d.category ?? 'Meinung');
+    setPostType(d.postType ?? 'general');
+  }, []);
+  const isDraftEmpty = useCallback((d: PostDraft) => !d.content || d.content.trim().length < 5, []);
+  const { hasDraft, restoreDraft, dismissDraft, clearDraft } = useDraft(
+    'bescout-draft-post', open, getDraftData, setDraftData, isDraftEmpty
+  );
 
   // Set postType when modal opens with a defaultPostType
   useEffect(() => {
@@ -56,18 +79,44 @@ export default function CreatePostModal({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageError('');
+    if (file.size > MAX_IMAGE_KB * 1024) {
+      setImageError(t('imageTooLarge'));
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+    setImageLoading(true);
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => { setImagePreview(ev.target?.result as string); setImageLoading(false); };
+    reader.onerror = () => { setImageError(t('imageError')); setImageLoading(false); };
+    reader.readAsDataURL(file);
+  }, [t]);
+
+  const removeImage = useCallback(() => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }, []);
+
   const canSubmit = content.trim().length >= 10;
 
   const handleSubmit = () => {
     if (!canSubmit) return;
     const tags = tagInput.split(',').map(t => t.trim()).filter(Boolean);
+    // TODO: Upload imageFile to Supabase Storage, get URL, pass as 5th param
     onSubmit(playerId || null, content.trim(), tags, category, postType);
+    clearDraft();
     setContent('');
     setPlayerId('');
     setTagInput('');
     setCategory('Meinung');
     setPostType('general');
     setPlayerSearch('');
+    removeImage();
   };
 
   return (
@@ -89,6 +138,15 @@ export default function CreatePostModal({
       }
     >
       <div className="space-y-4">
+        {hasDraft && (
+          <div className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-gold/10 border border-gold/20">
+            <span className="text-xs text-gold font-bold">{t('draftFound')}</span>
+            <div className="flex gap-2">
+              <button onClick={restoreDraft} aria-label={t('draftRestore')} className="text-xs font-bold text-gold hover:text-gold/80 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none rounded transition-colors">{t('draftRestore')}</button>
+              <button onClick={dismissDraft} aria-label={t('draftDiscard')} className="text-xs text-white/40 hover:text-white/60 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none rounded transition-colors">{t('draftDiscard')}</button>
+            </div>
+          </div>
+        )}
         <div>
           <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('categoryLabel')}</label>
           <div className="flex gap-1.5 flex-wrap">
@@ -201,6 +259,46 @@ export default function CreatePostModal({
             placeholder={t('messagePlaceholder')}
             className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
           />
+        </div>
+
+        {/* Image Upload */}
+        <div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleImageSelect}
+          />
+          {imageLoading ? (
+            <div className="flex items-center gap-2 px-3 py-4 rounded-xl bg-white/5 border border-white/10">
+              <Loader2 className="size-4 animate-spin text-white/40" />
+              <span className="text-xs text-white/40">{t('imageLoading')}</span>
+            </div>
+          ) : imagePreview ? (
+            <div className="relative rounded-xl overflow-hidden border border-white/10">
+              <img src={imagePreview} alt="" className="w-full max-h-48 object-cover" />
+              <button
+                type="button"
+                onClick={removeImage}
+                aria-label={t('removeImage')}
+                className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 text-white/70 hover:text-white transition-colors"
+              >
+                <XIcon className="size-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold bg-white/5 border border-white/10 text-white/40 hover:bg-white/10 hover:text-white/60 transition-colors"
+            >
+              <Camera className="size-4" aria-hidden="true" />
+              {t('addImage')}
+            </button>
+          )}
+          {imageError && <div className="text-xs text-red-400/80 mt-1">{imageError}</div>}
+          <div className="text-[10px] text-white/30 mt-1">{t('imageHint')}</div>
         </div>
 
         <div>

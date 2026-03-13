@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 import { SideNav, TopBar, BottomNav } from '@/components/layout';
 import { BackgroundEffects } from '@/components/layout/BackgroundEffects';
@@ -10,6 +10,9 @@ import { TourProvider } from '@/components/tour/TourProvider';
 import { TourOverlay } from '@/components/tour/TourOverlay';
 import { DemoBanner } from '@/components/demo/DemoBanner';
 import { claimWelcomeBonus } from '@/lib/services/welcomeBonus';
+import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts';
+
+const ShortcutsModal = lazy(() => import('@/components/help/ShortcutsModal'));
 
 export default function AppLayout({
   children,
@@ -51,6 +54,10 @@ export default function AppLayout({
     setMobileOpen(false);
   }, []);
 
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const handleShowShortcuts = useCallback(() => setShortcutsOpen(true), []);
+  useKeyboardShortcuts(handleShowShortcuts);
+
   return (
     <TourProvider>
       <DemoBanner />
@@ -74,6 +81,13 @@ export default function AppLayout({
 
       {/* Tour Overlay */}
       <TourOverlay />
+
+      {/* Keyboard Shortcuts Modal */}
+      {shortcutsOpen && (
+        <Suspense fallback={null}>
+          <ShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+        </Suspense>
+      )}
     </TourProvider>
   );
 }

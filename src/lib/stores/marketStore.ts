@@ -5,7 +5,7 @@ import type { BestandLens } from '@/components/manager/bestand/bestandHelpers';
 export type SortOption = 'floor_asc' | 'floor_desc' | 'l5' | 'l15' | 'change' | 'name'
   | 'goals' | 'assists' | 'matches' | 'age_asc' | 'age_desc' | 'contract';
 export type MarketTab = 'portfolio' | 'kaufen';
-export type PortfolioSubTab = 'team' | 'bestand' | 'angebote';
+export type PortfolioSubTab = 'team' | 'bestand' | 'angebote' | 'watchlist';
 export type KaufenSubTab = 'clubverkauf' | 'transferliste' | 'trending';
 export type KaufenMode = 'discovery' | 'search';
 export type IpoViewState = 'laufend' | 'geplant' | 'beendet';
