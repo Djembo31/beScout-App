@@ -1623,6 +1623,7 @@ export type TicketSource =
   | 'follow_milestone'
   | 'poll_create'
   | 'post_boost'
+  | 'event_entry_refund'
   | 'event_leave_refund';
 
 export type DbUserTickets = {

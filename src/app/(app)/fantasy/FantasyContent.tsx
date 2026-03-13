@@ -433,6 +433,13 @@ export default function FantasyContent() {
         throw lineupErr;
       }
     } catch (e: unknown) {
+      // Refund tickets if they were deducted but join failed
+      if (ticketCost > 0) {
+        try {
+          await creditTickets(user.id, ticketCost, 'event_entry_refund', event.id);
+          queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
+        } catch (refundErr) { console.error('[Fantasy] Ticket refund failed:', refundErr); }
+      }
       setLocalEvents(prev => (prev ?? events).map(ev =>
         ev.id === event.id ? { ...ev, isJoined: wasJoined, participants: wasJoined ? ev.participants : Math.max(0, (ev.participants || 1) - 1) } : ev
       ));
