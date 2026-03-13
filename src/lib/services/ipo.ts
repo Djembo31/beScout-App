@@ -101,7 +101,10 @@ export async function buyFromIpo(
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'ipo_buy', 'trading', { ipoId, quantity, playerId });
   }).catch(err => console.error('[IPO] Activity log failed:', err));
-  // Gamification (missions, stats) handled by DB trigger on trades table
+  // Gamification: achievements fire-and-forget
+  import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
+    checkAndUnlockAchievements(userId);
+  }).catch(err => console.error('[IPO] Achievement check failed:', err));
   return data as IpoBuyResult;
 }
 

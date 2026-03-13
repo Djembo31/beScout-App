@@ -26,6 +26,7 @@ function LoginContent() {
   const router = useRouter();
   const { user, profile, loading, platformRole, clubAdmin } = useUser();
   const t = useTranslations('auth');
+  const tc = useTranslations('common');
   const td = useTranslations('demo');
   const callbackError = searchParams.get('error');
 
@@ -240,7 +241,7 @@ function LoginContent() {
               <div role="alert" className="flex items-center gap-2 p-3 mb-5 rounded-xl bg-red-500/10 border border-red-400/20">
                 <AlertCircle className="size-4 text-red-400 shrink-0" aria-hidden="true" />
                 <span className="text-sm text-red-200 flex-1">{error}</span>
-                <button onClick={() => setError(null)} className="text-red-400/60 hover:text-red-400 shrink-0" aria-label={t('close', { ns: 'common' })}>
+                <button onClick={() => setError(null)} className="text-red-400/60 hover:text-red-400 shrink-0" aria-label={tc('close')}>
                   <X className="size-3.5" aria-hidden="true" />
                 </button>
               </div>
@@ -264,7 +265,7 @@ function LoginContent() {
                       <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                       <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                     </svg>
-                    {`Mit Google ${mode === 'register' ? 'registrieren' : 'anmelden'}`}
+                    {t('withGoogle', { mode })}
                   </Button>
 
                   <Button
@@ -278,7 +279,7 @@ function LoginContent() {
                     <svg className="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                       <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.52-3.23 0-1.44.62-2.2.44-3.06-.4C3.79 16.17 4.36 9.51 8.82 9.26c1.27.06 2.15.72 2.9.75.93-.19 1.82-.9 3.16-.77 1.59.16 2.63.86 3.23 2.1-2.95 1.74-2.25 5.58.53 6.66-.65 1.55-1.49 3.08-2.59 4.28zM12.1 9.21C11.95 7.06 13.7 5.3 15.75 5.14c.29 2.46-2.24 4.28-3.65 4.07z" />
                     </svg>
-                    {`Mit Apple ${mode === 'register' ? 'registrieren' : 'anmelden'}`}
+                    {t('withApple', { mode })}
                   </Button>
                 </div>
 

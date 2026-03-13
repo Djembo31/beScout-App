@@ -55,6 +55,7 @@ type TradeResult = {
   price_per_dpc?: number;
   price?: number;
   order_id?: string;
+  seller_id?: string;
   buyer_new_balance?: number;
   seller_new_balance?: number;
   source?: 'order' | 'ipo';
@@ -92,7 +93,10 @@ export async function buyFromMarket(
   if (error) throw new Error(mapRpcError(error.message));
   if (!data) throw new Error('buy_player_dpc returned null');
   const result = data as TradeResult;
-  // Gamification (stats, missions, airdrop, scores) handled by DB triggers on trades/orders tables
+  // Gamification: stats/airdrop handled by DB triggers. Achievements fire-and-forget.
+  import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
+    checkAndUnlockAchievements(userId);
+  }).catch(err => console.error('[Trade] Achievement check failed:', err));
   // Fire-and-forget: referral reward (triggers on first trade by referred user)
   import('@/lib/services/referral').then(({ triggerReferralReward }) => {
     triggerReferralReward(userId);
@@ -102,31 +106,25 @@ export async function buyFromMarket(
     logActivity(userId, 'trade_buy', 'trading', { playerId, quantity, source: result.source, price: result.price_per_dpc });
   }).catch(err => console.error('[Trade] Activity log failed:', err));
   // Notify seller if bought from a user order
-  if (result.source === 'order' && result.order_id) {
+  if (result.source === 'order' && result.seller_id && result.seller_id !== userId) {
+    const sellerId = result.seller_id;
     (async () => {
       try {
-        const { data: order } = await supabase
-          .from('orders')
-          .select('user_id')
-          .eq('id', result.order_id!)
+        const { data: pl } = await supabase
+          .from('players')
+          .select('first_name, last_name')
+          .eq('id', playerId)
           .single();
-        if (order && order.user_id !== userId) {
-          const { data: pl } = await supabase
-            .from('players')
-            .select('first_name, last_name')
-            .eq('id', playerId)
-            .single();
-          const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer');
-          const { createNotification } = await import('@/lib/services/notifications');
-          createNotification(
-            order.user_id,
-            'trade',
-            notifText('tradeSoldTitle'),
-            notifText('tradeSoldBody', { name }),
-            playerId,
-            'player'
-          );
-        }
+        const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer');
+        const { createNotification } = await import('@/lib/services/notifications');
+        createNotification(
+          sellerId,
+          'trade',
+          notifText('tradeSoldTitle'),
+          notifText('tradeSoldBody', { name }),
+          playerId,
+          'player'
+        );
       } catch (err) { console.error('[Trade] Seller notification failed:', err); }
     })();
   }
@@ -195,7 +193,10 @@ export async function buyFromOrder(
   if (error) throw new Error(mapRpcError(error.message));
   if (!data) throw new Error('buy_from_order returned null');
   const result = data as TradeResult;
-  // Gamification (stats, missions, airdrop, scores) handled by DB triggers on trades table
+  // Gamification: achievements fire-and-forget
+  import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
+    checkAndUnlockAchievements(buyerId);
+  }).catch(err => console.error('[Trade] Achievement check failed:', err));
   // Notify the seller
   (async () => {
     try {
@@ -210,13 +211,13 @@ export async function buyFromOrder(
           .select('first_name, last_name')
           .eq('id', order.player_id)
           .single();
-        const name = pl ? `${pl.first_name} ${pl.last_name}` : 'Spieler';
+        const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer');
         const { createNotification } = await import('@/lib/services/notifications');
         createNotification(
           order.user_id,
           'trade',
-          'DPC verkauft',
-          `Dein Angebot für ${name} wurde angenommen`,
+          notifText('tradeSoldTitle'),
+          notifText('tradeSoldBody', { name }),
           order.player_id,
           'player'
         );
