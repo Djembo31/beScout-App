@@ -32,6 +32,7 @@ const MIN_REWARD = 5000; // 50 bCredits in cents
 
 export default function CreateBountyModal({ open, onClose, onSubmit, loading }: CreateBountyModalProps) {
   const t = useTranslations('community');
+  const tc = useTranslations('common');
   const { balanceCents } = useWallet();
 
   const [title, setTitle] = useState('');
@@ -71,7 +72,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-1.5 text-xs text-white/40">
             <Coins className="w-3.5 h-3.5 text-gold" />
-            <span>{t('common.balance', { defaultMessage: 'Guthaben' })}: <span className="text-gold font-bold">{formatScout(availableCents)} bCredits</span></span>
+            <span>{tc('balance')}: <span className="text-gold font-bold">{formatScout(availableCents)} bCredits</span></span>
           </div>
           <Button
             variant="gold"

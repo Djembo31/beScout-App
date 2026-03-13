@@ -1134,6 +1134,8 @@
     "noPlannedIposDesc": "\u015eu anda duyurulan sat\u0131\u015f bulunmuyor.",
     "noEndedIpos": "Sona eren sat\u0131\u015f yok",
     "noEndedIposDesc": "Yak\u0131n zamanda sona eren sat\u0131\u015f bulunmuyor.",
+    "noClubSales": "Aktif kul\u00fcp sat\u0131\u015f\u0131 yok",
+    "noClubSalesDesc": "\u015eu anda devam eden bir ilk sat\u0131\u015f bulunmuyor.",
     "ipoShowActive": "Aktif IPO'lar\u0131 g\u00f6ster",
     "ipoShowPlanned": "Planlanan IPO'lar\u0131 g\u00f6ster",
     "ipoShowEnded": "Sona eren IPO'lar\u0131 g\u00f6ster",

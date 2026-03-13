@@ -1142,6 +1142,8 @@
     "noPlannedIposDesc": "Aktuell sind keine Verkäufe angekündigt.",
     "noEndedIpos": "Keine beendeten Verkäufe",
     "noEndedIposDesc": "Es gibt keine kürzlich beendeten Verkäufe.",
+    "noClubSales": "Keine aktiven Club-Verkäufe",
+    "noClubSalesDesc": "Aktuell gibt es keine laufenden Erstverkäufe vom Verein.",
     "ipoShowActive": "Aktive IPOs anzeigen",
     "ipoShowPlanned": "Geplante IPOs anzeigen",
     "ipoShowEnded": "Beendete IPOs anzeigen",
