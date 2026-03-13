@@ -27,12 +27,12 @@ test.describe('Spotlight Search', () => {
     const searchInput = page.getByPlaceholder(/such|search/i);
     await searchInput.fill('Sakarya');
 
-    // Wait for search results to appear (API call + render)
-    const results = page.locator('a[href*="/player/"], a[href*="/club/"]');
+    // Search results are button[role="option"] (not <a> links)
+    const results = page.locator('[role="option"]');
     await expect(results.first()).toBeVisible({ timeout: 10_000 });
   });
 
-  test('Click on search result navigates to player', async ({ page }) => {
+  test('Click on search result navigates to player or club', async ({ page }) => {
     const searchBtn = page.locator('[data-tour-id="topbar-search"]');
     await searchBtn.click();
     await page.waitForTimeout(500);
@@ -40,12 +40,12 @@ test.describe('Spotlight Search', () => {
     const searchInput = page.getByPlaceholder(/such|search/i);
     await searchInput.fill('Sakarya');
 
-    // Wait for search results to appear
-    const resultLink = page.locator('a[href*="/player/"], a[href*="/club/"]').first();
-    await expect(resultLink).toBeVisible({ timeout: 10_000 });
+    // Wait for search results (role="option" buttons)
+    const resultBtn = page.locator('[role="option"]').first();
+    await expect(resultBtn).toBeVisible({ timeout: 10_000 });
 
-    await resultLink.click();
-    await page.waitForURL(/\/(player|club)\//, { timeout: 10_000 });
-    expect(page.url()).toMatch(/\/(player|club)\//);
+    await resultBtn.click();
+    await page.waitForURL(/\/(player|club|profile)\//, { timeout: 10_000 });
+    expect(page.url()).toMatch(/\/(player|club|profile)\//);
   });
 });

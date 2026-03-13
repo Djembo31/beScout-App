@@ -9,7 +9,7 @@ test.describe('Fantasy Page', () => {
 
   test('Fantasy loads with tabs', async ({ page }) => {
     // Fantasy uses custom tab buttons (not role="tab") — wait for content to render
-    await expect(page.getByRole('button', { name: /Paarungen/i })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('button', { name: /Spiele/i })).toBeVisible({ timeout: 10_000 });
     await expect(page.getByRole('button', { name: /Events/i })).toBeVisible({ timeout: 10_000 });
   });
 

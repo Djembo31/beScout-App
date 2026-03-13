@@ -22,6 +22,13 @@ export async function waitForApp(page: Page) {
   await page.waitForLoadState('networkidle', { timeout: LONG_TIMEOUT });
   // Give React hydration a moment
   await page.waitForTimeout(500);
+
+  // Dismiss WelcomeBonusModal if it appears (safety net)
+  const dismissBtn = page.getByText(/Später|Later/i);
+  if (await dismissBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await dismissBtn.click();
+    await page.waitForTimeout(300);
+  }
 }
 
 /**

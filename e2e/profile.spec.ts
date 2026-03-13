@@ -12,12 +12,13 @@ test.describe('Profile Page', () => {
     await expect(main).not.toBeEmpty();
   });
 
-  test('4 tabs visible (Übersicht, Portfolio, Aktivität, Einstellungen)', async ({ page }) => {
-    // Profile uses custom tab buttons (not role="tab")
-    await expect(page.getByRole('button', { name: 'Übersicht' })).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByRole('button', { name: 'Portfolio' })).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByRole('button', { name: 'Aktivität' })).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByRole('button', { name: 'Einstellungen' })).toBeVisible({ timeout: 10_000 });
+  test('5 tabs visible (Trader, Manager, Analyst, Erfolge, Timeline)', async ({ page }) => {
+    // Profile uses TabBar with role="tab"
+    await expect(page.getByRole('tab', { name: /Trader/i })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('tab', { name: /Manager/i })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('tab', { name: /Analyst/i })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('tab', { name: /Erfolge/i })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('tab', { name: /Timeline/i })).toBeVisible({ timeout: 10_000 });
   });
 
   test('Overview shows handle and avatar', async ({ page }) => {

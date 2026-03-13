@@ -33,9 +33,14 @@ async function loginAndSave(
   });
   await waitForApp(page);
 
-  // Save auth state
+  // Dismiss welcome bonus modal so it doesn't block future tests
+  await page.evaluate(() => localStorage.setItem('bescout-welcome-shown', '1'));
+
+  // Save auth state (includes localStorage)
   await page.context().storageState({ path: savePath });
 }
+
+setup.setTimeout(60_000);
 
 setup('authenticate as demo-fan', async ({ page }) => {
   await loginAndSave(

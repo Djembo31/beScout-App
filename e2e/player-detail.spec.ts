@@ -3,9 +3,15 @@ import { waitForApp } from './helpers';
 
 /** Navigate to the first player on the Kaufen tab via href (avoids nested button click issues). */
 async function goToFirstPlayer(page: Page): Promise<boolean> {
-  await page.goto('/market');
+  await page.goto('/market?tab=kaufen');
   await waitForApp(page);
-  await page.getByRole('tab', { name: /Kaufen/i }).click();
+
+  // Switch to "Von Usern" (Transferliste) sub-tab which has player links
+  const transferTab = page.getByRole('button', { name: /Von Usern/i });
+  if (await transferTab.isVisible({ timeout: 5_000 }).catch(() => false)) {
+    await transferTab.click();
+    await page.waitForTimeout(1000);
+  }
 
   // Wait for player links to render (API data)
   const playerLink = page.locator('a[href*="/player/"]').first();
@@ -15,17 +21,21 @@ async function goToFirstPlayer(page: Page): Promise<boolean> {
     return false;
   }
 
-  const href = await playerLink.getAttribute('href');
-  if (!href) return false;
-
-  // Let tab-switch effects settle before navigating away
-  await page.waitForTimeout(500);
-  await page.goto(href);
+  // Click the player link to navigate
+  await playerLink.click();
+  try {
+    await page.waitForURL(/\/player\//, { timeout: 15_000 });
+  } catch {
+    return false;
+  }
   await waitForApp(page);
   return page.url().includes('/player/');
 }
 
 test.describe('Player Detail Page', () => {
+  // Player detail tests do 2 full page loads (market → player), need more time
+  test.setTimeout(60_000);
+
   test('Navigate to a player from market', async ({ page }) => {
     const ok = await goToFirstPlayer(page);
     expect(ok).toBe(true);

@@ -8,7 +8,7 @@ export default function AuthLayout({
   return (
     <>
       {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: -1 }}>
         <Image
           src="/stadiums/default.jpg"
           alt=""
@@ -29,7 +29,7 @@ export default function AuthLayout({
       </div>
 
       {/* Centered Content */}
-      <div className="relative flex items-center justify-center min-h-dvh px-4">
+      <div className="relative z-10 flex items-center justify-center min-h-dvh px-4">
         {children}
       </div>
     </>
