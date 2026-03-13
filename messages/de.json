@@ -2216,6 +2216,7 @@
     "finalize": "Abschließen",
     "pastEventsCount": "Beendete Events ({count})",
     "participantsLabel": "Teilnehmer",
+    "cloneEvent": "Klonen",
     "createEventTitle": "Neues Event erstellen",
     "nameLabel": "Name",
     "typeLabel": "Typ",

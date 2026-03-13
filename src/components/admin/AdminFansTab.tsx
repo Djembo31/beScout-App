@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Users, User, Shield, Crown, TrendingUp, Search, Loader2, Activity } from 'lucide-react';
-import { Card, SearchInput } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { Users, User, Shield, Crown, TrendingUp, Search, Loader2, Activity, Download } from 'lucide-react';
+import { Card, SearchInput, Button } from '@/components/ui';
+import { cn, downloadCsv } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import {
   getClubFanSegments, getClubFanList, getClubRetentionMetrics,
@@ -90,6 +90,20 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
       )
     : fans;
 
+  const handleExport = useCallback(() => {
+    if (filteredFans.length === 0) return;
+    downloadCsv(
+      filteredFans.map(f => ({
+        Handle: f.handle,
+        Name: f.displayName ?? '',
+        Tier: f.tier ?? 'free',
+        Holdings: f.holdingsCount,
+        'Last Active': f.lastActivity ?? '',
+      })),
+      `fans-${selectedSegment}-${new Date().toISOString().slice(0, 10)}.csv`,
+    );
+  }, [filteredFans, selectedSegment]);
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -156,6 +170,10 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
           <div className="text-xs text-white/40 whitespace-nowrap">
             {filteredFans.length} {t('fans')}
           </div>
+          <Button variant="ghost" size="sm" onClick={handleExport} disabled={filteredFans.length === 0}>
+            <Download className="size-3.5 mr-1" />
+            CSV
+          </Button>
         </div>
 
         {fansLoading ? (

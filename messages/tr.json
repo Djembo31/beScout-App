@@ -2208,6 +2208,7 @@
     "finalize": "Sonlandır",
     "pastEventsCount": "Biten etkinlikler ({count})",
     "participantsLabel": "Katılımcı",
+    "cloneEvent": "Kopyala",
     "createEventTitle": "Yeni etkinlik oluştur",
     "nameLabel": "Ad",
     "typeLabel": "Tür",

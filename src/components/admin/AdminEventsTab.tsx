@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Calendar, Play, Square, XCircle, Loader2, Zap, CheckCircle2 } from 'lucide-react';
+import { Plus, Calendar, Play, Square, XCircle, Loader2, Zap, CheckCircle2, Copy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card, Button, Chip, Modal } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -121,6 +121,26 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     setMinSubTier('');
     setSalaryCap('');
     setRewardStructure(null);
+  }, []);
+
+  const handleClone = useCallback((ev: DbEvent) => {
+    setName(`${ev.name} (Kopie)`);
+    setType(ev.type);
+    setFormat(ev.format);
+    setGameweek(String(ev.gameweek));
+    setEntryFee(String(centsToBsd(ev.entry_fee)));
+    setPrizePool(String(centsToBsd(ev.prize_pool)));
+    setMaxEntries(String(ev.max_entries || 20));
+    setEventTier(ev.event_tier as 'arena' | 'club' | 'user');
+    setMinSubTier(ev.min_subscription_tier || '');
+    setSalaryCap(ev.salary_cap ? String(ev.salary_cap) : '');
+    setRewardStructure(ev.reward_structure ?? null);
+    setStartsAt('');
+    setLocksAt('');
+    setEndsAt('');
+    setSponsorName('');
+    setSponsorLogo('');
+    setModalOpen(true);
   }, []);
 
   const handleCreate = useCallback(async () => {
@@ -325,6 +345,9 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                             {changingId === ev.id ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : <Square className="w-3 h-3" />}{t('finalize')}
                           </Button>
                         )}
+                        <Button variant="ghost" size="sm" onClick={() => handleClone(ev)}>
+                          <Copy className="w-3 h-3" />{t('cloneEvent')}
+                        </Button>
                       </div>
                     </div>
                   </Card>
@@ -348,6 +371,9 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                           GW {ev.gameweek} • <span className="tabular-nums">{ev.current_entries}</span> {t('participantsLabel')} • <span className="tabular-nums">{fmtScout(centsToBsd(ev.prize_pool))}</span> bCredits
                         </div>
                       </div>
+                      <Button variant="ghost" size="sm" onClick={() => handleClone(ev)} className="shrink-0">
+                        <Copy className="w-3 h-3" />{t('cloneEvent')}
+                      </Button>
                       <Chip className={cn(sc.bg, sc.text, sc.border, 'border flex-shrink-0')}>{sc.label}</Chip>
                     </div>
                   </Card>

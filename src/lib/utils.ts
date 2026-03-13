@@ -63,6 +63,27 @@ export function countryToFlag(code: string): string {
   );
 }
 
+/** Download data as a CSV file. Headers = keys of first row. */
+export function downloadCsv(rows: Record<string, string | number | boolean | null | undefined>[], filename: string) {
+  if (rows.length === 0) return;
+  const headers = Object.keys(rows[0]);
+  const escape = (v: string | number | boolean | null | undefined) => {
+    const s = String(v ?? '');
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = [
+    headers.join(','),
+    ...rows.map(row => headers.map(h => escape(row[h])).join(',')),
+  ];
+  const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 /** Race a promise against a timeout. Rejects with Error('Timeout') on expiry. */
 export function withTimeout<T>(promise: Promise<T>, ms = 8000): Promise<T> {
   return new Promise((resolve, reject) => {

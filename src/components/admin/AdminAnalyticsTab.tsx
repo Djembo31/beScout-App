@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Users, Activity, TrendingUp, UserCheck } from 'lucide-react';
+import { Users, Activity, TrendingUp, UserCheck, Download } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Card, Skeleton } from '@/components/ui';
+import { Card, Skeleton, Button } from '@/components/ui';
 import { getClubFanAnalytics, getClubFollowerCount } from '@/lib/services/club';
 import { formatScout } from '@/lib/services/wallet';
+import { downloadCsv } from '@/lib/utils';
 import type { ClubWithAdmin } from '@/types';
 
 export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
@@ -92,7 +93,18 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
 
       {/* Top Fans */}
       <Card className="p-6">
-        <h3 className="text-sm font-bold text-white/70 mb-4">{t('topFansTrading')}</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-bold text-white/70">{t('topFansTrading')}</h3>
+          {data?.topFans && data.topFans.length > 0 && (
+            <Button variant="ghost" size="sm" onClick={() => downloadCsv(
+              data.topFans.map(f => ({ Handle: f.handle, Name: f.display_name ?? '', Trades: f.trade_count, 'Volume (bCredits)': formatScout(f.volume_cents) })),
+              `top-fans-${new Date().toISOString().slice(0, 10)}.csv`,
+            )}>
+              <Download className="size-3.5 mr-1" />
+              CSV
+            </Button>
+          )}
+        </div>
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map(i => <Skeleton key={i} className="h-10 w-full rounded-xl" />)}
