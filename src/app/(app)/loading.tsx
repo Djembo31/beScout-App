@@ -1,6 +1,6 @@
 export default function AppLoading() {
   return (
-    <div className="space-y-6 animate-pulse">
+    <div className="space-y-6 animate-pulse motion-reduce:animate-none">
       {/* Header skeleton */}
       <div className="flex items-center justify-between">
         <div className="h-8 w-48 bg-white/[0.04] rounded-lg" />

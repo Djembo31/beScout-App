@@ -141,7 +141,7 @@ export default function AnalystTab({
     return { totalPaid, payoutCount: paid.length, recent: creatorPayouts.slice(0, 5) };
   }, [isSelf, creatorPayouts]);
 
-  const researchSlice = myResearch.slice(0, 5);
+  const researchSlice = useMemo(() => myResearch.slice(0, 5), [myResearch]);
   const hasTrackRecord = trackRecord && trackRecord.totalCalls > 0;
   const isEmpty = myResearch.length === 0 && !hasTrackRecord;
 

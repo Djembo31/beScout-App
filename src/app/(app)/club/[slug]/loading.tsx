@@ -1,6 +1,6 @@
 export default function ClubLoading() {
   return (
-    <div className="space-y-6 animate-pulse">
+    <div className="space-y-6 animate-pulse motion-reduce:animate-none">
       {/* Club hero */}
       <div className="bg-surface-base border border-white/10 rounded-2xl p-5 space-y-4">
         <div className="flex items-center gap-4">

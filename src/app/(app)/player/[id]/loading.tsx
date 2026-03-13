@@ -1,6 +1,6 @@
 export default function PlayerLoading() {
   return (
-    <div className="space-y-6 animate-pulse">
+    <div className="space-y-6 animate-pulse motion-reduce:animate-none">
       {/* Back button + player header */}
       <div className="flex items-center gap-3">
         <div className="size-8 bg-white/[0.04] rounded-lg" />

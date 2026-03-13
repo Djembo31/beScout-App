@@ -64,7 +64,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
     if (typeof window === 'undefined') return;
     import('@/lib/services/pushSubscription').then(({ isPushEnabled }) => {
       setPushEnabled(isPushEnabled());
-    }).catch(() => {});
+    }).catch(err => console.error('[TopBar] Push service import:', err));
   }, []);
 
   const togglePush = useCallback(async () => {

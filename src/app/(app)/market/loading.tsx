@@ -1,6 +1,6 @@
 export default function MarketLoading() {
   return (
-    <div className="max-w-[1400px] mx-auto space-y-5 animate-pulse">
+    <div className="max-w-[1400px] mx-auto space-y-5 animate-pulse motion-reduce:animate-none">
       <div className="flex items-center justify-between">
         <div className="h-8 w-40 bg-white/[0.04] rounded-lg" />
         <div className="h-9 w-44 bg-white/[0.04] rounded-xl" />
