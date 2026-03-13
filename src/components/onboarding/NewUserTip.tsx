@@ -43,7 +43,7 @@ export default function NewUserTip({ tipKey, icon, title, description, action, s
   };
 
   return (
-    <Card className="relative p-4 border-gold/20 bg-gold/[0.03]">
+    <Card className="relative p-4 border-gold/20 bg-gold/[0.03] hover:bg-gold/[0.05] transition-colors">
       <button
         onClick={handleDismiss}
         className="absolute top-2 right-2 p-1.5 rounded-lg text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors"

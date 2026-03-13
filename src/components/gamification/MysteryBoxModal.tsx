@@ -61,6 +61,14 @@ const RARITY_CONFIG: Record<CosmeticRarity, {
   },
 };
 
+const REWARD_PREVIEW: { rarity: CosmeticRarity; ticketRange: [number, number]; cosmeticChance: boolean; dropPct: number }[] = [
+  { rarity: 'common', ticketRange: [5, 15], cosmeticChance: false, dropPct: 45 },
+  { rarity: 'uncommon', ticketRange: [15, 40], cosmeticChance: true, dropPct: 30 },
+  { rarity: 'rare', ticketRange: [40, 100], cosmeticChance: true, dropPct: 15 },
+  { rarity: 'epic', ticketRange: [100, 250], cosmeticChance: true, dropPct: 8 },
+  { rarity: 'legendary', ticketRange: [250, 500], cosmeticChance: true, dropPct: 2 },
+];
+
 type BoxState = 'idle' | 'opening' | 'revealed';
 
 export default function MysteryBoxModal({
@@ -198,6 +206,35 @@ export default function MysteryBoxModal({
             <div className="flex items-center gap-1 mt-3 text-[11px] text-white/30">
               <Ticket className="size-3" />
               <span className="font-mono tabular-nums">{ticketBalance}</span>
+            </div>
+
+            {/* Reward Preview */}
+            <div className="w-full mt-5 pt-4 border-t border-white/[0.06]">
+              <p className="text-[11px] text-white/30 font-bold uppercase tracking-wider mb-2.5">
+                {t('possibleRewardsTitle')}
+              </p>
+              <div className="space-y-1.5">
+                {REWARD_PREVIEW.map(rp => (
+                  <div
+                    key={rp.rarity}
+                    className={cn(
+                      'flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px]',
+                      RARITY_CONFIG[rp.rarity].bgClass,
+                    )}
+                  >
+                    <span className={cn('font-black w-[72px] flex-shrink-0', RARITY_CONFIG[rp.rarity].textClass)}>
+                      {RARITY_CONFIG[rp.rarity].label}
+                    </span>
+                    <span className="text-white/40 flex-1 font-mono tabular-nums">
+                      {rp.ticketRange[0]}–{rp.ticketRange[1]} {t('tickets')}
+                      {rp.cosmeticChance && ' + Cosmetic'}
+                    </span>
+                    <span className="text-white/25 font-mono tabular-nums flex-shrink-0">
+                      {rp.dropPct}%
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </>
         )}

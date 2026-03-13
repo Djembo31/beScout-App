@@ -300,7 +300,6 @@ export default function CommunityPage() {
   }) => {
     if (!uid) return;
     if (!clubId) { addToast(t('feed.noClub'), 'error'); return; }
-    if (userRangTier < 2) { addToast(t('research.rangRequired'), 'error'); return; }
     setResearchLoading(true);
     try {
       await createResearchPost({
@@ -469,11 +468,8 @@ export default function CommunityPage() {
         <CommunityHero
           onCreatePost={() => { setDefaultPostType('general'); setCreatePostOpen(true); }}
           onCreateRumor={() => { setDefaultPostType('transfer_rumor'); setCreatePostOpen(true); }}
-          onCreateResearch={() => {
-            if (userRangTier < 2) { addToast(t('research.rangRequired'), 'error'); return; }
-            setCreateResearchOpen(true);
-          }}
-          researchLocked={userRangTier < 2}
+          onCreateResearch={() => setCreateResearchOpen(true)}
+          researchLocked={false}
           onCreateBounty={() => setCreateBountyOpen(true)}
         />
       </div>

@@ -255,7 +255,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
       {/* Bottom */}
       <div className="p-3 border-t border-white/10 space-y-1">
         <Link
-          href="/profile"
+          href="/profile/settings"
           onClick={handleNavClick}
           className={cn(
             'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl min-h-[44px]',

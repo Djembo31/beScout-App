@@ -6,13 +6,14 @@ import { ErrorState } from '@/components/ui';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useClub } from '@/components/providers/ClubProvider';
+import { useWallet } from '@/components/providers/WalletProvider';
 import { centsToBsd } from '@/lib/services/players';
 import { fmtScout } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import {
   Clock, Trophy, Users, Rocket,
-  Shield, Compass,
+  Shield, Compass, Coins,
 } from 'lucide-react';
 
 // ── React Query Hooks ──
@@ -39,6 +40,7 @@ import PortfolioStrip from '@/components/home/PortfolioStrip';
 import DiscoveryCard from '@/components/market/DiscoveryCard';
 import { updateLoginStreak, STREAK_KEY, SectionHeader, formatPrize, getTimeUntil, getStoryMessage } from '@/components/home/helpers';
 
+const NewUserTip = dynamic(() => import('@/components/onboarding/NewUserTip'), { ssr: false });
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
   ssr: false,
   loading: () => <div className="h-16 rounded-2xl bg-white/[0.02] animate-pulse" />,
@@ -69,6 +71,7 @@ export default function HomePage() {
   const { user, profile, loading } = useUser();
   const { addToast } = useToast();
   const { followedClubs } = useClub();
+  const { balanceCents } = useWallet();
   const name = profile?.display_name || displayName(user);
   const firstName = name.split(' ')[0];
   const uid = user?.id;
@@ -274,6 +277,19 @@ export default function HomePage() {
       {/* ── 1c. ONBOARDING CHECKLIST — New users (day 0-7) ── */}
       {retention?.onboarding && (
         <OnboardingChecklist items={retention.onboarding} />
+      )}
+
+      {/* ── 1d. WELCOME BONUS — First-time users with 0 holdings ── */}
+      {/* Graceful: if wallet fetch fails (balanceCents=null), banner simply doesn't show */}
+      {holdings.length === 0 && balanceCents != null && balanceCents > 0 && (
+        <NewUserTip
+          tipKey="welcome-bonus"
+          icon={<Coins className="size-5" />}
+          title={t('welcomeBonusTitle')}
+          description={t('welcomeBonusDesc', { balance: fmtScout(centsToBsd(balanceCents)) })}
+          action={{ label: t('welcomeBonusAction'), href: '/market' }}
+          show={true}
+        />
       )}
 
       {/* ── 2. PORTFOLIO STRIP — Top holdings ── */}

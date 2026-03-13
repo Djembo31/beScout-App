@@ -14,7 +14,8 @@ import { useRawPlayers } from '@/lib/queries/players';
 import { fmtScout, cn } from '@/lib/utils';
 import type { DbPlayer, Pos } from '@/types';
 
-const COLORS = ['#38bdf8', '#fb7185', '#fbbf24'];
+const COLORS = ['#38bdf8', '#fb7185', '#fbbf24', '#a78bfa', '#34d399'];
+const MAX_PLAYERS = 5;
 
 export default function ComparePage() {
   const searchParams = useSearchParams();
@@ -33,12 +34,10 @@ export default function ComparePage() {
   // Parse URL params
   useEffect(() => {
     const ids: string[] = [];
-    const p1 = searchParams.get('p1');
-    const p2 = searchParams.get('p2');
-    const p3 = searchParams.get('p3');
-    if (p1) ids.push(p1);
-    if (p2) ids.push(p2);
-    if (p3) ids.push(p3);
+    for (let i = 1; i <= MAX_PLAYERS; i++) {
+      const val = searchParams.get(`p${i}`);
+      if (val) ids.push(val);
+    }
     if (ids.length > 0) setSelectedIds(ids);
   }, [searchParams]);
 
@@ -64,7 +63,7 @@ export default function ComparePage() {
         return next;
       });
     } else {
-      setSelectedIds(prev => [...prev.slice(0, 2), id]);
+      setSelectedIds(prev => prev.length < MAX_PLAYERS ? [...prev, id] : prev);
     }
     setActiveSlot(null);
     setSearch('');
@@ -155,8 +154,8 @@ export default function ComparePage() {
       </div>
 
       {/* Player Slots */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {[0, 1, 2].map(idx => {
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        {Array.from({ length: Math.max(selectedPlayers.length + 1, 3) }, (_, i) => i).filter(i => i < MAX_PLAYERS).map(idx => {
           const p = selectedPlayers[idx];
           return (
             <div key={idx}>
@@ -191,7 +190,7 @@ export default function ComparePage() {
       </div>
 
       {/* Search */}
-      {(activeSlot !== null || selectedPlayers.length < 3) && (
+      {(activeSlot !== null || selectedPlayers.length < MAX_PLAYERS) && (
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30" />
           <input

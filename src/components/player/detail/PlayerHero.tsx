@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import {
   ArrowLeft, Star, Share2, Bell, TrendingUp, TrendingDown,
-  Users, MoreVertical, ShoppingCart, Send, XCircle,
+  Users, MoreVertical, ShoppingCart, Send, XCircle, ArrowLeftRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { StatusBadge } from '@/components/player';
@@ -120,6 +120,15 @@ export default function PlayerHero({
                   >
                     <Bell className="size-4" /> {t('hero.priceAlert')}
                   </button>
+                  <Link
+                    href={`/compare?p1=${player.id}`}
+                    onClick={() => setShowOverflow(false)}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors min-h-[44px]"
+                    role="menuitem"
+                    aria-label={`${t('hero.compare')} ${player.first} ${player.last}`}
+                  >
+                    <ArrowLeftRight className="size-4" /> {t('hero.compare')}
+                  </Link>
                 </div>
               </>
             )}
