@@ -125,6 +125,38 @@ export function TourOverlay() {
   const isLast = stepIndex === totalSteps - 1;
   const isFirst = stepIndex === 0;
 
+  // Centered intro slides (no spotlight)
+  if (currentStep.centered) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70">
+        <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 max-w-sm mx-4 text-center shadow-2xl">
+          {currentStep.icon && (
+            <div className="text-4xl mb-3">{currentStep.icon}</div>
+          )}
+          <h3 className="text-lg font-black mb-2">{tt(currentStep.titleKey)}</h3>
+          <p className="text-sm text-white/60 leading-relaxed mb-6">{tt(currentStep.descKey)}</p>
+          <div className="flex gap-3">
+            <button
+              onClick={skipTour}
+              className="flex-1 px-4 py-2.5 rounded-xl text-sm text-white/40 hover:bg-white/5 transition-colors"
+            >
+              {tc('skipLabel')}
+            </button>
+            <button
+              onClick={nextStep}
+              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold bg-gold text-black hover:bg-gold/90 transition-colors"
+            >
+              {isLast ? tc('doneLabel') : tc('nextLabel')}
+            </button>
+          </div>
+          <div className="text-[10px] text-white/20 mt-3 font-mono">
+            {stepIndex + 1}/{totalSteps}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Backdrop with spotlight cutout via box-shadow */}

@@ -1,0 +1,149 @@
+'use client';
+
+import { useState, useCallback, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
+import { Target, Flame } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+import { useUser } from '@/components/providers/AuthProvider';
+import { useTodaysChallenge, useChallengeHistory } from '@/lib/queries/dailyChallenge';
+import { useUserTickets } from '@/lib/queries/tickets';
+import { submitDailyChallenge } from '@/lib/services/dailyChallenge';
+import { openMysteryBox } from '@/lib/services/mysteryBox';
+import { qk } from '@/lib/queries';
+import { queryClient } from '@/lib/queryClient';
+import { getLoginStreak } from '@/components/home/helpers';
+
+const DailyChallengeCard = dynamic(() => import('@/components/gamification/DailyChallengeCard'), {
+  ssr: false,
+  loading: () => <div className="h-40 rounded-2xl bg-white/[0.02] animate-pulse" />,
+});
+const MissionBanner = dynamic(() => import('@/components/missions/MissionBanner'), {
+  ssr: false,
+  loading: () => <div className="h-32 rounded-2xl bg-white/[0.02] animate-pulse" />,
+});
+const ScoreRoadCard = dynamic(() => import('@/components/gamification/ScoreRoadCard'), {
+  ssr: false,
+  loading: () => <div className="h-48 rounded-2xl bg-white/[0.02] animate-pulse" />,
+});
+const MysteryBoxModal = dynamic(() => import('@/components/gamification/MysteryBoxModal'), {
+  ssr: false,
+});
+
+export default function MissionsPage() {
+  const { user, loading } = useUser();
+  const uid = user?.id;
+  const t = useTranslations('missions');
+
+  // ── Queries ──
+  const { data: todaysChallenge = null, isLoading: challengeLoading } = useTodaysChallenge();
+  const { data: challengeHistory = [] } = useChallengeHistory(uid);
+  const { data: ticketData = null } = useUserTickets(uid);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showMysteryBox, setShowMysteryBox] = useState(false);
+
+  // ── Streak (read-only) ──
+  const streak = useMemo(() => getLoginStreak().current, []);
+
+  // ── Today's answer ──
+  const todaysAnswer = useMemo(() => {
+    if (!todaysChallenge || !challengeHistory.length) return null;
+    return challengeHistory.find(h => h.challenge_id === todaysChallenge.id) ?? null;
+  }, [todaysChallenge, challengeHistory]);
+
+  // ── Handlers ──
+  const handleChallengeSubmit = useCallback(async (challengeId: string, option: number) => {
+    if (!uid) return;
+    setIsSubmitting(true);
+    try {
+      await submitDailyChallenge(challengeId, option);
+      queryClient.invalidateQueries({ queryKey: qk.dailyChallenge.history(uid) });
+      queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid) });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [uid]);
+
+  const handleOpenMysteryBox = useCallback(async (free?: boolean) => {
+    if (!uid) return null;
+    const result = await openMysteryBox(free);
+    if (result.ok) {
+      queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid) });
+      queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(uid) });
+      return {
+        id: crypto.randomUUID(),
+        rarity: result.rarity!,
+        reward_type: result.rewardType!,
+        tickets_amount: result.ticketsAmount ?? null,
+        cosmetic_id: result.cosmeticKey ?? null,
+        ticket_cost: free ? 0 : 15,
+        opened_at: new Date().toISOString(),
+      };
+    }
+    return null;
+  }, [uid]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-24">
+        <Loader2 className="size-8 animate-spin motion-reduce:animate-none text-gold" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-[800px] mx-auto px-4 py-6 space-y-6">
+      {/* Header */}
+      <div>
+        <div className="flex items-center gap-2 mb-1">
+          <Target className="size-5 text-gold" />
+          <h1 className="text-xl font-black">{t('pageTitle')}</h1>
+        </div>
+        <p className="text-sm text-white/50">{t('pageSubtitle')}</p>
+      </div>
+
+      {/* Streak Banner */}
+      {streak > 0 && (
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
+          <Flame className="size-5 text-orange-400 flex-shrink-0" />
+          <span className="text-sm font-bold text-orange-300">
+            {t('streakDays', { days: streak })}
+          </span>
+        </div>
+      )}
+
+      {/* Daily Challenge */}
+      {uid && (
+        <DailyChallengeCard
+          challenge={todaysChallenge}
+          userAnswer={todaysAnswer ? {
+            selectedOption: todaysAnswer.selected_option,
+            isCorrect: todaysAnswer.is_correct,
+            ticketsAwarded: todaysAnswer.tickets_awarded,
+          } : null}
+          onSubmit={handleChallengeSubmit}
+          isSubmitting={isSubmitting}
+          streakDays={streak}
+          isLoading={challengeLoading}
+          ticketBalance={ticketData?.balance ?? 0}
+          onOpenMysteryBox={() => setShowMysteryBox(true)}
+        />
+      )}
+
+      {/* Active Missions */}
+      <MissionBanner />
+
+      {/* Score Road / Rang Progress */}
+      {uid && <ScoreRoadCard userId={uid} />}
+
+      {/* Mystery Box Modal */}
+      <MysteryBoxModal
+        open={showMysteryBox}
+        onClose={() => setShowMysteryBox(false)}
+        onOpen={handleOpenMysteryBox}
+        ticketBalance={ticketData?.balance ?? 0}
+      />
+    </div>
+  );
+}

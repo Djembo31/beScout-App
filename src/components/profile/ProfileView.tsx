@@ -13,6 +13,7 @@ import { getResearchPosts, getAuthorTrackRecord, resolveExpiredResearch } from '
 import { getUserTrades } from '@/lib/services/trading';
 import { getUserFantasyHistory } from '@/lib/services/lineups';
 import { val } from '@/lib/settledHelpers';
+import { supabase } from '@/lib/supabaseClient';
 import { ScoutCard } from '@/components/profile/ScoutCard';
 import FollowListModal from '@/components/profile/FollowListModal';
 import { getMySubscription } from '@/lib/services/clubSubscriptions';
@@ -30,6 +31,7 @@ const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBa
 const ManagerTab = dynamic(() => import('./ManagerTab'));
 const TraderTab = dynamic(() => import('./TraderTab'));
 const AnalystTab = dynamic(() => import('./AnalystTab'));
+const AchievementsSection = dynamic(() => import('./AchievementsSection'));
 const TimelineTab = dynamic(() => import('./TimelineTab'));
 
 // Transaction types safe to show publicly (no wallet/deposit/withdrawal info)
@@ -64,6 +66,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
   const [trackRecord, setTrackRecord] = useState<AuthorTrackRecord | null>(null);
   const [recentTrades, setRecentTrades] = useState<UserTradeWithPlayer[]>([]);
   const [fantasyResults, setFantasyResults] = useState<UserFantasyResult[]>([]);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<Set<string>>(new Set());
 
   // ── Club subscription ──
   const [clubSub, setClubSub] = useState<{ tier: string; clubName: string } | null>(null);
@@ -107,6 +110,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
           getAuthorTrackRecord(targetUserId),
           getUserTrades(targetUserId, 10),
           getUserFantasyHistory(targetUserId, 10),
+          supabase.from('user_achievements').select('achievement_key').eq('user_id', targetUserId).then(r => r.data ?? []),
         ]);
         if (!cancelled) {
           if (results[0].status === 'rejected') {
@@ -124,6 +128,8 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
             setTrackRecord(val(results[6], null));
             setRecentTrades(val(results[7], []));
             setFantasyResults(val(results[8], []));
+            const achRows = val(results[9], [] as { achievement_key: string }[]);
+            setUnlockedAchievements(new Set(achRows.map(r => r.achievement_key)));
             setDataError(false);
 
             // Set default tab to strongest dimension (only on first load)
@@ -251,6 +257,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
       id: dim,
       label: t(`tab${dim.charAt(0).toUpperCase() + dim.slice(1)}`),
     })),
+    { id: 'achievements' as const, label: t('tabAchievements') },
     { id: 'timeline' as const, label: t('tabTimeline') },
   ], [dimOrder, t]);
 
@@ -378,6 +385,13 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
                   myResearch={myResearch}
                   isSelf={isSelf}
                   transactions={publicTransactions}
+                />
+              </TabPanel>
+
+              <TabPanel id="achievements" activeTab={tab}>
+                <AchievementsSection
+                  userStats={userStats}
+                  unlockedKeys={unlockedAchievements}
                 />
               </TabPanel>
 

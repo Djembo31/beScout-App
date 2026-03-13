@@ -9,9 +9,40 @@ export type TourStep = {
   mobileOnly?: boolean;
   /** Only show on screens >= 1024px */
   desktopOnly?: boolean;
+  /** Show as centered card without spotlight */
+  centered?: boolean;
+  /** Emoji icon for centered slides */
+  icon?: string;
 };
 
 export const TOUR_STEPS: TourStep[] = [
+  // Intro Slide 1: Welcome
+  {
+    targetSelector: '',
+    titleKey: 'introWelcomeTitle',
+    descKey: 'introWelcomeDesc',
+    position: 'bottom',
+    centered: true,
+    icon: '\uD83D\uDC4B',
+  },
+  // Intro Slide 2: Your Portfolio
+  {
+    targetSelector: '',
+    titleKey: 'introPortfolioTitle',
+    descKey: 'introPortfolioDesc',
+    position: 'bottom',
+    centered: true,
+    icon: '\uD83D\uDCBC',
+  },
+  // Intro Slide 3: Three Dimensions
+  {
+    targetSelector: '',
+    titleKey: 'introDimensionsTitle',
+    descKey: 'introDimensionsDesc',
+    position: 'bottom',
+    centered: true,
+    icon: '\uD83C\uDFAF',
+  },
   // 1. bCredits Balance — different target per device
   {
     targetSelector: '[data-tour-id="sidebar-wallet"]',
