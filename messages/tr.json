@@ -1143,7 +1143,10 @@
     "purchasesDisabled": "Sat\u0131n alma m\u00fcmk\u00fcn de\u011fil",
     "sortByClub": "{club} s\u0131rala",
     "ipoProgress": "Sat\u0131\u015f ilerlemesi",
-    "searchPlayers": "Oyuncu ara"
+    "searchPlayers": "Oyuncu ara",
+    "noSearchResults": "Oyuncu bulunamadı",
+    "noTransferListings": "Teklif bulunamadı",
+    "noTransferListingsDesc": "Şu anda transfer listesinde oyuncu lisansı bulunmuyor."
   },
   "community": {
     "title": "Topluluk",
@@ -3337,7 +3340,13 @@
     "eventsStatsParticipants": "Katilimci",
     "eventsStatsPool": "Toplam Havuz",
     "eventsClubOptional": "Kulup (istege bagli)",
-    "eventsGlobal": "Global (kulupsuz)"
+    "eventsGlobal": "Global (kulupsuz)",
+    "eventsCreated": "Etkinlik olusturuldu",
+    "eventsUpdated": "Etkinlik guncellendi",
+    "eventsSaveError": "Kaydetme hatasi",
+    "eventsCreateError": "Olusturma hatasi",
+    "eventsBulkOk": "{ok} basarili, {fail} basarisiz",
+    "eventsBulkSuccess": "{ok} etkinlik guncellendi"
   },
   "offers": {
     "statusPending": "Beklemede",

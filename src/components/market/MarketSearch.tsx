@@ -155,7 +155,7 @@ export default function MarketSearch({ players, activeIpos, sellOrders, onClose 
           {/* No results */}
           {!hasResults && (
             <div className="text-center py-8">
-              <div className="text-sm text-white/30">{t('noSearchResults', { defaultMessage: 'Keine Spieler gefunden' })}</div>
+              <div className="text-sm text-white/30">{t('noSearchResults')}</div>
             </div>
           )}
         </div>

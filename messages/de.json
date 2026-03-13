@@ -1151,7 +1151,10 @@
     "purchasesDisabled": "Kauf nicht verfügbar",
     "sortByClub": "{club} sortieren",
     "ipoProgress": "Verkaufsfortschritt",
-    "searchPlayers": "Spieler suchen"
+    "searchPlayers": "Spieler suchen",
+    "noSearchResults": "Keine Spieler gefunden",
+    "noTransferListings": "Keine Angebote gefunden",
+    "noTransferListingsDesc": "Aktuell sind keine Spieler Lizenzen auf der Transferliste."
   },
   "community": {
     "title": "Community",
@@ -3345,7 +3348,13 @@
     "eventsStatsParticipants": "Teilnehmer",
     "eventsStatsPool": "Pool gesamt",
     "eventsClubOptional": "Verein (optional)",
-    "eventsGlobal": "Global (kein Verein)"
+    "eventsGlobal": "Global (kein Verein)",
+    "eventsCreated": "Event erstellt",
+    "eventsUpdated": "Event aktualisiert",
+    "eventsSaveError": "Fehler beim Speichern",
+    "eventsCreateError": "Fehler beim Erstellen",
+    "eventsBulkOk": "{ok} erfolgreich, {fail} fehlgeschlagen",
+    "eventsBulkSuccess": "{ok} Events aktualisiert"
   },
   "offers": {
     "statusPending": "Ausstehend",

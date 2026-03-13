@@ -117,8 +117,8 @@ export default function TransferListSection({
       {listingPlayers.length === 0 ? (
         <EmptyState
           icon="search"
-          title={t('noTransferListings', { defaultMessage: 'Keine Angebote gefunden' })}
-          description={t('noTransferListingsDesc', { defaultMessage: 'Aktuell sind keine Spieler Lizenzen auf der Transferliste.' })}
+          title={t('noTransferListings')}
+          description={t('noTransferListingsDesc')}
         />
       ) : (
         <div className="space-y-2">

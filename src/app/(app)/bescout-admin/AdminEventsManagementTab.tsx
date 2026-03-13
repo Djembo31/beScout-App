@@ -260,10 +260,10 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
 
         const result = await updateEvent(editingEvent.id, payload);
         if (!result.success) {
-          addToast(result.error ?? 'Fehler beim Speichern', 'error');
+          addToast(result.error ?? t('eventsSaveError'), 'error');
           return;
         }
-        addToast('Event aktualisiert', 'success');
+        addToast(t('eventsUpdated'), 'success');
       } else {
         const result = await createEvent({
           name: formName,
@@ -286,10 +286,10 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
           rewardStructure: formRewardStructure,
         });
         if (!result.success) {
-          addToast(result.error ?? 'Fehler beim Erstellen', 'error');
+          addToast(result.error ?? t('eventsCreateError'), 'error');
           return;
         }
-        addToast('Event erstellt', 'success');
+        addToast(t('eventsCreated'), 'success');
       }
       // Refresh
       const [refreshed, newStats] = await Promise.all([
@@ -301,7 +301,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
       resetForm();
       setModalOpen(false);
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Unbekannter Fehler', 'error');
+      addToast(err instanceof Error ? err.message : t('error'), 'error');
     } finally {
       setSaving(false);
     }
@@ -322,9 +322,9 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
       const ok = result.results.filter(r => r.ok).length;
       const fail = result.results.filter(r => !r.ok).length;
       if (fail > 0) {
-        addToast(`${ok} erfolgreich, ${fail} fehlgeschlagen`, 'error');
+        addToast(t('eventsBulkOk', { ok, fail }), 'error');
       } else {
-        addToast(`${ok} Events aktualisiert`, 'success');
+        addToast(t('eventsBulkSuccess', { ok }), 'success');
       }
       setSelected(new Set());
       setBulkStatus('');
@@ -335,7 +335,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
       setEvents(refreshed as AdminEvent[]);
       setStats(newStats);
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Fehler', 'error');
+      addToast(err instanceof Error ? err.message : t('error'), 'error');
     } finally {
       setBulkLoading(false);
     }
@@ -390,13 +390,13 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
   if (error && events.length === 0) {
     return (
       <Card className="p-12 text-center">
-        <div className="text-white/40 mb-3">Fehler beim Laden</div>
+        <div className="text-white/40 mb-3">{t('eventsError')}</div>
         <Button
           variant="outline"
           onClick={() => { setError(false); setLoading(true); fetchEvents().finally(() => setLoading(false)); }}
-          aria-label="Erneut versuchen"
+          aria-label={t('eventsRetry')}
         >
-          Erneut versuchen
+          {t('eventsRetry')}
         </Button>
       </Card>
     );
@@ -411,15 +411,15 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
       {stats && (
         <div className="grid grid-cols-3 gap-3">
           <Card className="p-4 text-center">
-            <div className="text-xs text-white/40 mb-1">Aktive Events</div>
+            <div className="text-xs text-white/40 mb-1">{t('eventsStatsActive')}</div>
             <div className="text-xl font-black font-mono tabular-nums">{stats.activeCount}</div>
           </Card>
           <Card className="p-4 text-center">
-            <div className="text-xs text-white/40 mb-1">Teilnehmer gesamt</div>
+            <div className="text-xs text-white/40 mb-1">{t('eventsStatsParticipants')}</div>
             <div className="text-xl font-black font-mono tabular-nums">{stats.totalParticipants}</div>
           </Card>
           <Card className="p-4 text-center">
-            <div className="text-xs text-white/40 mb-1">Pool gesamt</div>
+            <div className="text-xs text-white/40 mb-1">{t('eventsStatsPool')}</div>
             <div className="text-xl font-black font-mono tabular-nums text-gold">
               {fmtScout(centsToBsd(stats.totalPool))} <span className="text-xs font-normal text-white/30">bCredits</span>
             </div>
@@ -432,11 +432,11 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
         <Button
           variant="gold"
           onClick={openCreateModal}
-          aria-label="Neues Event erstellen"
+          aria-label={t('eventsCreate')}
           className="min-h-[44px]"
         >
           <Plus className="size-4" aria-hidden="true" />
-          Neues Event
+          {t('eventsCreate')}
         </Button>
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/30" aria-hidden="true" />
@@ -444,8 +444,8 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
             type="text"
             value={filters.search}
             onChange={(e) => setFilters(f => ({ ...f, search: e.target.value }))}
-            placeholder="Suche..."
-            aria-label="Events durchsuchen"
+            placeholder={t('eventsSearch')}
+            aria-label={t('eventsSearch')}
             className={cn(INPUT_CLS, 'pl-9 min-h-[44px]')}
           />
         </div>
@@ -455,7 +455,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
       <div className="flex flex-wrap gap-2">
         {/* Status */}
         <select
-          aria-label="Filter: Status"
+          aria-label={t('eventsFilterStatus')}
           value={filters.status.length === 1 ? filters.status[0] : ''}
           onChange={(e) => setFilters(f => ({ ...f, status: e.target.value ? [e.target.value] : [] }))}
           className={cn(SELECT_CLS, INTERACTIVE, 'w-auto')}
@@ -467,7 +467,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
         </select>
         {/* Type */}
         <select
-          aria-label="Filter: Typ"
+          aria-label={t('eventsFilterType')}
           value={filters.type.length === 1 ? filters.type[0] : ''}
           onChange={(e) => setFilters(f => ({ ...f, type: e.target.value ? [e.target.value] : [] }))}
           className={cn(SELECT_CLS, INTERACTIVE, 'w-auto')}
@@ -479,7 +479,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
         </select>
         {/* Club */}
         <select
-          aria-label="Filter: Club"
+          aria-label={t('eventsFilterClub')}
           value={filters.clubId}
           onChange={(e) => setFilters(f => ({ ...f, clubId: e.target.value }))}
           className={cn(SELECT_CLS, INTERACTIVE, 'w-auto')}
@@ -491,7 +491,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
         </select>
         {/* Gameweek */}
         <select
-          aria-label="Filter: Spieltag"
+          aria-label={t('eventsFilterGw')}
           value={filters.gameweek ?? ''}
           onChange={(e) => setFilters(f => ({ ...f, gameweek: e.target.value ? parseInt(e.target.value) : null }))}
           className={cn(SELECT_CLS, INTERACTIVE, 'w-auto')}
@@ -533,7 +533,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
             <span className="text-sm font-bold text-gold">{selected.size} ausgewaehlt</span>
           </div>
           <select
-            aria-label="Bulk-Aktion: Status aendern"
+            aria-label={t('eventsBulkAction')}
             value={bulkStatus}
             onChange={(e) => setBulkStatus(e.target.value)}
             className={cn(SELECT_CLS, INTERACTIVE, 'w-auto')}
@@ -549,9 +549,9 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
             disabled={!bulkStatus || bulkLoading}
             loading={bulkLoading}
             onClick={handleBulk}
-            aria-label="Aktion ausfuehren"
+            aria-label={t('eventsBulkExecute')}
           >
-            Ausfuehren
+            {t('eventsBulkExecute')}
           </Button>
           <button
             onClick={() => { setSelected(new Set()); setBulkStatus(''); }}
@@ -567,14 +567,14 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
       {sortedEvents.length === 0 ? (
         <Card className="p-12 text-center">
           <Calendar className="size-12 mx-auto mb-4 text-white/20" aria-hidden="true" />
-          <div className="text-white/30 mb-3">Keine Events gefunden</div>
+          <div className="text-white/30 mb-3">{t('eventsEmpty')}</div>
           <Button
             variant="gold"
             onClick={openCreateModal}
-            aria-label="Jetzt Event erstellen"
+            aria-label={t('eventsEmptyCta')}
           >
             <Plus className="size-4" aria-hidden="true" />
-            Jetzt Event erstellen
+            {t('eventsEmptyCta')}
           </Button>
         </Card>
       ) : (
@@ -595,7 +595,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => toggleSelect(ev.id)}
-                      aria-label={`Event auswaehlen: ${ev.name}`}
+                      aria-label={`${t('eventsSelectEvent')}: ${ev.name}`}
                       className="size-4 accent-gold cursor-pointer"
                     />
                   </label>
@@ -627,7 +627,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
                   {/* Edit button */}
                   <button
                     onClick={() => openEditModal(ev)}
-                    aria-label={`Event bearbeiten: ${ev.name}`}
+                    aria-label={`${t('eventsEditEvent')}: ${ev.name}`}
                     className={cn(
                       'flex items-center justify-center min-h-[44px] min-w-[44px] rounded-xl',
                       INTERACTIVE,
@@ -645,7 +645,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
       {/* ===== 7. CREATE / EDIT MODAL ===== */}
       <Modal
         open={modalOpen}
-        title={editingEvent ? 'Event bearbeiten' : 'Neues Event erstellen'}
+        title={editingEvent ? t('eventsEditEvent') : t('eventsCreate')}
         onClose={() => { setModalOpen(false); resetForm(); }}
         size="lg"
       >
@@ -674,7 +674,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
               aria-label="Club auswaehlen"
               className={cn(SELECT_CLS, 'disabled:opacity-40 disabled:cursor-not-allowed')}
             >
-              <option value="">Global (kein Verein)</option>
+              <option value="">{t('eventsGlobal')}</option>
               {clubs.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
@@ -925,9 +925,9 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
             onClick={handleSubmit}
             disabled={saving || !formName || !formStartsAt || !formLocksAt || !formEndsAt}
             loading={saving}
-            aria-label={editingEvent ? 'Event speichern' : 'Event erstellen'}
+            aria-label={editingEvent ? t('save') : t('eventsCreate')}
           >
-            {editingEvent ? 'Speichern' : 'Event erstellen'}
+            {editingEvent ? t('save') : t('eventsCreate')}
           </Button>
         </div>
       </Modal>
