@@ -1,5 +1,12 @@
 // Streak Compound Benefits — tiered rewards that grow with streak length
-// Used by streaks.ts for daily ticket calculation + future UI display
+//
+// Consumption points:
+//   dailyTickets           → streaks.ts recordLoginStreak (credits tickets on login)
+//   fantasyBonusPct        → TODO: score_event RPC should multiply lineup score by (1 + pct)
+//   eloBoostPct            → TODO: calculate_fan_rank RPC should apply boost to score components
+//   freeMysteryBoxesPerWeek → MysteryBoxModal hasFreeBox prop (Home + Missions pages)
+//   mysteryBoxTicketDiscount→ MysteryBoxModal ticketDiscount prop (Home + Missions pages)
+//   getStreakBenefitLabels  → DailyChallengeCard + Missions page streak banner
 
 export interface StreakBenefits {
   dailyTickets: number;

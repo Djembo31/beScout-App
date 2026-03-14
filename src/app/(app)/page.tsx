@@ -64,6 +64,7 @@ const SuggestedActionBanner = dynamic(() => import('@/components/home/SuggestedA
 
 import type { DpcHolding, DbEvent, Pos } from '@/types';
 import { getRetentionContext } from '@/lib/retentionEngine';
+import { getStreakBenefits } from '@/lib/streakBenefits';
 
 // ============================================
 // MAIN COMPONENT
@@ -81,6 +82,9 @@ export default function HomePage() {
   // ── UI-only state ──
   const [streak, setStreak] = useState(0);
   const [shieldsRemaining, setShieldsRemaining] = useState<number | null>(null);
+
+  // ── Streak benefits (compound rewards based on streak length) ──
+  const streakBenefits = useMemo(() => getStreakBenefits(streak), [streak]);
 
   // ── React Query ──
   const { data: players = [], isLoading: playersLoading, isError: playersError } = usePlayers();
@@ -391,6 +395,8 @@ export default function HomePage() {
             onClose={() => setShowMysteryBox(false)}
             onOpen={handleOpenMysteryBox}
             ticketBalance={ticketData?.balance ?? 0}
+            hasFreeBox={streakBenefits.freeMysteryBoxesPerWeek > 0}
+            ticketDiscount={streakBenefits.mysteryBoxTicketDiscount}
           />
         </>
       )}

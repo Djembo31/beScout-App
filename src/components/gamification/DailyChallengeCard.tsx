@@ -6,6 +6,7 @@ import { Card, Button, Skeleton } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import type { DbDailyChallenge } from '@/types';
+import { getStreakBenefitLabels } from '@/lib/streakBenefits';
 
 // ============================================
 // DAILY CHALLENGE CARD
@@ -127,6 +128,7 @@ export default function DailyChallengeCard({
 
   const streakBonusThreshold = 7;
   const streakRemaining = streakBonusThreshold - (streakDays % streakBonusThreshold);
+  const benefitLabels = streakDays >= 4 ? getStreakBenefitLabels(streakDays) : [];
 
   return (
     <Card className="p-4 md:p-5 border-amber-500/20 overflow-hidden relative">
@@ -208,15 +210,26 @@ export default function DailyChallengeCard({
         </div>
       )}
 
-      {/* Streak Counter */}
+      {/* Streak Counter + Active Benefits */}
       {streakDays > 0 && (
-        <div className="mt-3 flex items-center justify-between text-[11px] text-white/40">
-          <span className="flex items-center gap-1">
-            <Flame className="size-3 text-orange-400" />
-            {t('streakDays', { days: streakDays })}
-          </span>
-          {streakRemaining > 0 && streakRemaining < streakBonusThreshold && (
-            <span>{t('streakBonus', { remaining: streakRemaining })}</span>
+        <div className="mt-3">
+          <div className="flex items-center justify-between text-[11px] text-white/40">
+            <span className="flex items-center gap-1">
+              <Flame className="size-3 text-orange-400" />
+              {t('streakDays', { days: streakDays })}
+            </span>
+            {streakRemaining > 0 && streakRemaining < streakBonusThreshold && (
+              <span>{t('streakBonus', { remaining: streakRemaining })}</span>
+            )}
+          </div>
+          {benefitLabels.length > 1 && (
+            <div className="mt-1.5 flex flex-wrap gap-1">
+              {benefitLabels.slice(1).map((label) => (
+                <span key={label} className="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-400/10 text-orange-300/70">
+                  {label}
+                </span>
+              ))}
+            </div>
           )}
         </div>
       )}

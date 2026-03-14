@@ -17,9 +17,11 @@ interface MysteryBoxModalProps {
   onOpen: (free?: boolean) => Promise<MysteryBoxResult | null>;
   ticketBalance: number;
   hasFreeBox?: boolean;
+  /** Streak-based ticket discount applied to base cost (default 0) */
+  ticketDiscount?: number;
 }
 
-const MYSTERY_BOX_COST = 15;
+const MYSTERY_BOX_BASE_COST = 15;
 
 const RARITY_CONFIG: Record<CosmeticRarity, {
   label: string;
@@ -77,13 +79,15 @@ export default function MysteryBoxModal({
   onOpen,
   ticketBalance,
   hasFreeBox = false,
+  ticketDiscount = 0,
 }: MysteryBoxModalProps) {
   const t = useTranslations('gamification');
   const [boxState, setBoxState] = useState<BoxState>('idle');
   const [result, setResult] = useState<MysteryBoxResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const canAfford = hasFreeBox || ticketBalance >= MYSTERY_BOX_COST;
+  const effectiveCost = Math.max(1, MYSTERY_BOX_BASE_COST - ticketDiscount);
+  const canAfford = hasFreeBox || ticketBalance >= effectiveCost;
 
   const handleOpen = useCallback(async () => {
     if (!canAfford) return;
@@ -122,7 +126,7 @@ export default function MysteryBoxModal({
     setResult(null);
   }, []);
 
-  const canOpenAnother = ticketBalance >= MYSTERY_BOX_COST;
+  const canOpenAnother = ticketBalance >= effectiveCost;
 
   return (
     <Modal
@@ -173,7 +177,7 @@ export default function MysteryBoxModal({
             </p>
             {!hasFreeBox && (
               <p className="text-xs text-white/30 mb-6 font-mono tabular-nums">
-                {t('ticketCost', { cost: MYSTERY_BOX_COST })}
+                {t('ticketCost', { cost: effectiveCost })}
               </p>
             )}
             {hasFreeBox && <div className="mb-6" />}
