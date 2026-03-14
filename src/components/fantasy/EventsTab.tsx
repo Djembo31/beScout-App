@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
+import { Trophy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Card } from '@/components/ui';
 import type { FantasyEvent } from './types';
 import { EventPulse } from './events/EventPulse';
 import { EventSpotlight } from './events/EventSpotlight';
@@ -21,11 +23,11 @@ export function EventsTab({
 
   if (events.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="text-4xl mb-3" aria-hidden="true">🏆</div>
+      <Card className="p-12 text-center">
+        <Trophy className="size-12 mx-auto mb-4 text-white/20" aria-hidden="true" />
         <div className="text-sm font-semibold text-white/40">{t('noEventsForGameweek', { gw: '' })}</div>
-        <div className="text-xs text-white/25 mt-1 max-w-[240px]">{t('noEventsHint')}</div>
-      </div>
+        <div className="text-xs text-white/25 mt-1 max-w-[240px] mx-auto">{t('noEventsHint')}</div>
+      </Card>
     );
   }
 

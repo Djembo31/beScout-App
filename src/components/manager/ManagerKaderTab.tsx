@@ -766,8 +766,13 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
           ))}
           {ownedPlayers.length === 0 && (
             <Card className="p-8 text-center">
+              <ShoppingCart className="size-10 mx-auto mb-3 text-white/20" aria-hidden="true" />
               <div className="text-white/30 mb-2">{t('kaderNoPlayersYet')}</div>
-              <div className="text-sm text-white/50 text-pretty">{t('kaderEmptyDesc')}</div>
+              <div className="text-sm text-white/50 text-pretty mb-4">{t('kaderEmptyDesc')}</div>
+              <Link href="/market?tab=kaufen" className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold bg-gold/15 border border-gold/30 text-gold rounded-xl hover:bg-gold/25 transition-colors">
+                <ShoppingCart className="size-3.5" aria-hidden="true" />
+                {t('kaderBuyPlayers')}
+              </Link>
             </Card>
           )}
         </div>

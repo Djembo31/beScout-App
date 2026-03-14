@@ -73,7 +73,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
           const nextUnsim = statuses.find(s => !s.is_complete);
           if (nextUnsim) setSimGw(nextUnsim.gameweek);
         }
-      } catch {}
+      } catch (err) { console.error('[AdminEventsTab] Failed to load events:', err); }
       finally { if (!cancelled) setLoading(false); }
     }
     load();

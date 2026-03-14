@@ -666,6 +666,7 @@
     "statusSuspended": "Cezalı",
     "statusDoubtful": "Şüpheli",
     "dpcPerSlotLabel": "Slot başına DPC",
+    "dpcPerSlotTooltip": "Bir oyuncuyu fantezi kadronuza koymak için en az bu kadar DPC'ye sahip olmanız gerekir.",
     "startLabel": "Başlangıç",
     "unlimited": "sınırsız",
     "requirementsTitle": "Katılım koşulları",
@@ -2489,6 +2490,7 @@
       "analyst": "Analist",
       "overall": "Genel"
     },
+    "dimensionTooltip": "Sıralamanız 3 alanda ölçülür: Tüccar (ticaret), Menajer (fantezi) ve Analist (topluluk katkıları). Medyan genel sıranızı belirler.",
     "mastery": {
       "title": "DPC Ustalık",
       "level": "Seviye {level}",
@@ -3683,6 +3685,7 @@
     "yourEntry": "Giriş Fiyatın",
     "dpcOwnership": "{count} DPC sahipliği",
     "rewardLadder": "Ödül Merdiveni",
+    "rewardLadderTooltip": "Oyuncunun piyasa değeri yükseldikçe, DPC başına olası bonus artar. Kulüp dağıtıma karar verir.",
     "rewardLadderDesc": "Artan piyasa değerine göre DPC başına başarı primi",
     "currentTier": "Mevcut Kademe",
     "marketValueSuffix": "Piyasa Değeri",

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
-import { FileText, ChevronRight, Plus, MessageSquare, ArrowUp, ArrowDown, Trash2, BadgeCheck, Send, CheckCircle2 } from 'lucide-react';
+import { FileText, ChevronRight, Plus, MessageSquare, ArrowUp, ArrowDown, Trash2, BadgeCheck, Send, CheckCircle2, Radio } from 'lucide-react';
 import { Card, Button, Modal } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { cn } from '@/lib/utils';
@@ -235,7 +235,7 @@ export default function CommunityTab({
 
         {rumors.length === 0 ? (
           <Card className="p-6 text-center border-red-500/10">
-            <div className="text-2xl mb-2">📡</div>
+            <Radio className="size-8 mx-auto mb-2 text-white/20" aria-hidden="true" />
             <div className="text-white/50 text-sm mb-2">{t('noTransferRumors')}</div>
             {userId && (
               <Button variant="outline" onClick={() => setShowCreateRumor(true)} className="text-xs">

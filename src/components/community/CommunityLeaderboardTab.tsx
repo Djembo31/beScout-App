@@ -345,6 +345,7 @@ export default function CommunityLeaderboardTab({
         <div className="space-y-3">
           {leaderboard.length === 0 ? (
             <Card className="p-12 text-center">
+              <Award className="size-12 mx-auto mb-4 text-white/20" aria-hidden="true" />
               <div className="text-white/30 mb-2">{tg('leaderboard.noRankings')}</div>
               <div className="text-xs text-white/20">{tg('leaderboard.rankingsHint')}</div>
             </Card>

@@ -182,6 +182,9 @@ export default function TimelineTab({ transactions: initial, userId, isSelf }: T
           <div className="text-white/40 font-semibold text-sm">
             {t('timelineEmpty')}
           </div>
+          <div className="text-xs text-white/25 mt-1">
+            {t('timelineEmptyHint')}
+          </div>
         </div>
       ) : (
         <>
