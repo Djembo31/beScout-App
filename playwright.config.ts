@@ -6,10 +6,9 @@ const authDir = path.join(__dirname, '.auth');
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
-  workers: 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 1,
   reporter: 'html',
   timeout: 120_000,
   use: {

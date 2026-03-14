@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Tag, Loader2, Trash2, AlertCircle, MessageSquare } from 'lucide-react';
+import { Tag, Loader2, Trash2, AlertCircle, MessageSquare, Clock } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
-import { fmtScout } from '@/lib/utils';
+import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { BestandPlayer } from './BestandPlayerRow';
 
@@ -92,20 +92,31 @@ export default function BestandSellModal({ item, open, onClose, onSell, onCancel
               <Tag className="size-3" aria-hidden="true" /> {t('sellMyListings')}
             </div>
             <div className="space-y-1.5">
-              {item.myListings.map(listing => (
-                <div key={listing.id} className="flex items-center justify-between px-3 py-2 bg-gold/[0.03] border border-gold/10 rounded-xl">
-                  <div className="text-sm">
-                    <span className="font-mono font-bold tabular-nums">{listing.qty}×</span>
-                    <span className="text-gold font-mono font-bold tabular-nums ml-2">{fmtScout(listing.priceBsd)} bCredits</span>
-                    <span className="text-white/25 text-xs ml-2">({t('sellNetShort')} {fmtScout(listing.priceBsd * listing.qty * (1 - FEE_RATE))})</span>
+              {item.myListings.map(listing => {
+                const daysLeft = Math.max(0, Math.floor((listing.expiresAt - Date.now()) / 86_400_000));
+                const hoursLeft = Math.max(0, Math.floor((listing.expiresAt - Date.now()) / 3_600_000));
+                const isExpiringSoon = daysLeft < 3;
+                return (
+                  <div key={listing.id} className="flex items-center justify-between px-3 py-2 bg-gold/[0.03] border border-gold/10 rounded-xl">
+                    <div className="text-sm">
+                      <span className="font-mono font-bold tabular-nums">{listing.qty}×</span>
+                      <span className="text-gold font-mono font-bold tabular-nums ml-2">{fmtScout(listing.priceBsd)} bCredits</span>
+                      <span className="text-white/25 text-xs ml-2">({t('sellNetShort')} {fmtScout(listing.priceBsd * listing.qty * (1 - FEE_RATE))})</span>
+                      {listing.expiresAt > 0 && (
+                        <span className={cn('inline-flex items-center gap-0.5 text-[10px] ml-2 font-mono tabular-nums', isExpiringSoon ? 'text-amber-400/70' : 'text-white/25')}>
+                          <Clock className="size-2.5" aria-hidden="true" />
+                          {daysLeft > 0 ? `${daysLeft}d` : `${hoursLeft}h`}
+                        </span>
+                      )}
+                    </div>
+                    <button onClick={() => handleCancel(listing.id)} disabled={cancellingId === listing.id}
+                      className="flex items-center gap-1 px-2 py-1 text-[10px] font-bold text-red-400/70 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors">
+                      {cancellingId === listing.id ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Trash2 className="size-3" aria-hidden="true" />}
+                      {t('sellCancel')}
+                    </button>
                   </div>
-                  <button onClick={() => handleCancel(listing.id)} disabled={cancellingId === listing.id}
-                    className="flex items-center gap-1 px-2 py-1 text-[10px] font-bold text-red-400/70 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors">
-                    {cancellingId === listing.id ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Trash2 className="size-3" aria-hidden="true" />}
-                    {t('sellCancel')}
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

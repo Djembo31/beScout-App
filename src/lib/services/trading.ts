@@ -93,45 +93,47 @@ export async function buyFromMarket(
   if (error) throw new Error(mapRpcError(error.message));
   if (!data) throw new Error('buy_player_dpc returned null');
   const result = data as TradeResult;
-  // Gamification: stats/airdrop handled by DB triggers. Achievements fire-and-forget.
-  import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
-    checkAndUnlockAchievements(userId);
-  }).catch(err => console.error('[Trade] Achievement check failed:', err));
-  // Fire-and-forget: referral reward (triggers on first trade by referred user)
-  import('@/lib/services/referral').then(({ triggerReferralReward }) => {
-    triggerReferralReward(userId);
-  }).catch(err => console.error('[Trade] Referral reward failed:', err));
-  // Activity log
+  // Activity log (always fires for audit trail, regardless of success)
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'trade_buy', 'trading', { playerId, quantity, source: result.source, price: result.price_per_dpc });
   }).catch(err => console.error('[Trade] Activity log failed:', err));
-  // Notify seller if bought from a user order
-  if (result.source === 'order' && result.seller_id && result.seller_id !== userId) {
-    const sellerId = result.seller_id;
-    (async () => {
-      try {
-        const { data: pl } = await supabase
-          .from('players')
-          .select('first_name, last_name')
-          .eq('id', playerId)
-          .single();
-        const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer');
-        const { createNotification } = await import('@/lib/services/notifications');
-        createNotification(
-          sellerId,
-          'trade',
-          notifText('tradeSoldTitle'),
-          notifText('tradeSoldBody', { name }),
-          playerId,
-          'player'
-        );
-      } catch (err) { console.error('[Trade] Seller notification failed:', err); }
-    })();
+  if (result.success) {
+    // Gamification: stats/airdrop handled by DB triggers. Achievements fire-and-forget.
+    import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
+      checkAndUnlockAchievements(userId);
+    }).catch(err => console.error('[Trade] Achievement check failed:', err));
+    // Fire-and-forget: referral reward (triggers on first trade by referred user)
+    import('@/lib/services/referral').then(({ triggerReferralReward }) => {
+      triggerReferralReward(userId);
+    }).catch(err => console.error('[Trade] Referral reward failed:', err));
+    // Notify seller if bought from a user order
+    if (result.source === 'order' && result.seller_id && result.seller_id !== userId) {
+      const sellerId = result.seller_id;
+      (async () => {
+        try {
+          const { data: pl } = await supabase
+            .from('players')
+            .select('first_name, last_name')
+            .eq('id', playerId)
+            .single();
+          const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer');
+          const { createNotification } = await import('@/lib/services/notifications');
+          createNotification(
+            sellerId,
+            'trade',
+            notifText('tradeSoldTitle'),
+            notifText('tradeSoldBody', { name }),
+            playerId,
+            'player'
+          );
+        } catch (err) { console.error('[Trade] Seller notification failed:', err); }
+      })();
+    }
+    // Mission progress: daily trade + weekly trades
+    import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+      triggerMissionProgress(userId, ['daily_trade', 'weekly_5_trades']);
+    }).catch(err => console.error('[Trading] Mission tracking failed:', err));
   }
-  // Mission progress: daily trade + weekly trades
-  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-    triggerMissionProgress(userId, ['daily_trade', 'weekly_5_trades']);
-  }).catch(err => console.error('[Trading] Mission tracking failed:', err));
   return result;
 }
 
@@ -164,16 +166,18 @@ export async function placeSellOrder(
 
   if (error) throw new Error(mapRpcError(error.message));
   if (!data) throw new Error('place_sell_order returned null');
-  // Gamification (stats, missions, airdrop) handled by DB triggers on orders table
+  const result = data as TradeResult;
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'trade_sell', 'trading', { playerId, quantity, priceCents });
   }).catch(err => console.error('[Trade] Activity log failed:', err));
-  // Mission progress: daily trade + weekly trades
-  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-    triggerMissionProgress(userId, ['daily_trade', 'weekly_5_trades']);
-  }).catch(err => console.error('[Trading] Mission tracking failed:', err));
-  return data as TradeResult;
+  // Mission progress: daily trade + weekly trades (listing counts as trading activity)
+  if (result.success) {
+    import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+      triggerMissionProgress(userId, ['daily_trade', 'weekly_5_trades']);
+    }).catch(err => console.error('[Trading] Mission tracking failed:', err));
+  }
+  return result;
 }
 
 /** DPCs von einem Sell-Order kaufen */
@@ -201,41 +205,47 @@ export async function buyFromOrder(
   if (error) throw new Error(mapRpcError(error.message));
   if (!data) throw new Error('buy_from_order returned null');
   const result = data as TradeResult;
-  // Gamification: achievements fire-and-forget
-  import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
-    checkAndUnlockAchievements(buyerId);
-  }).catch(err => console.error('[Trade] Achievement check failed:', err));
-  // Notify the seller
-  (async () => {
-    try {
-      const { data: order } = await supabase
-        .from('orders')
-        .select('user_id, player_id')
-        .eq('id', orderId)
-        .single();
-      if (order && order.user_id !== buyerId) {
-        const { data: pl } = await supabase
-          .from('players')
-          .select('first_name, last_name')
-          .eq('id', order.player_id)
+  // Activity log (always fires for audit trail, regardless of success)
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(buyerId, 'trade_buy_order', 'trading', { orderId, quantity });
+  }).catch(err => console.error('[Trade] Activity log failed:', err));
+  if (result.success) {
+    // Gamification: achievements fire-and-forget
+    import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
+      checkAndUnlockAchievements(buyerId);
+    }).catch(err => console.error('[Trade] Achievement check failed:', err));
+    // Notify the seller
+    (async () => {
+      try {
+        const { data: order } = await supabase
+          .from('orders')
+          .select('user_id, player_id')
+          .eq('id', orderId)
           .single();
-        const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer');
-        const { createNotification } = await import('@/lib/services/notifications');
-        createNotification(
-          order.user_id,
-          'trade',
-          notifText('tradeSoldTitle'),
-          notifText('tradeSoldBody', { name }),
-          order.player_id,
-          'player'
-        );
-      }
-    } catch (err) { console.error('[Trade] Seller notification failed:', err); }
-  })();
-  // Mission progress: daily trade + weekly trades
-  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-    triggerMissionProgress(buyerId, ['daily_trade', 'weekly_5_trades']);
-  }).catch(err => console.error('[Trading] Mission tracking failed:', err));
+        if (order && order.user_id !== buyerId) {
+          const { data: pl } = await supabase
+            .from('players')
+            .select('first_name, last_name')
+            .eq('id', order.player_id)
+            .single();
+          const name = pl ? `${pl.first_name} ${pl.last_name}` : notifText('tradeFallbackPlayer');
+          const { createNotification } = await import('@/lib/services/notifications');
+          createNotification(
+            order.user_id,
+            'trade',
+            notifText('tradeSoldTitle'),
+            notifText('tradeSoldBody', { name }),
+            order.player_id,
+            'player'
+          );
+        }
+      } catch (err) { console.error('[Trade] Seller notification failed:', err); }
+    })();
+    // Mission progress: daily trade + weekly trades
+    import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+      triggerMissionProgress(buyerId, ['daily_trade', 'weekly_5_trades']);
+    }).catch(err => console.error('[Trading] Mission tracking failed:', err));
+  }
   return result;
 }
 

@@ -149,7 +149,7 @@ export default function ManagerBestandTab({
 
       const myListings = userId
         ? player.listings.filter(l => l.sellerId === userId).map(l => ({
-            id: l.id, qty: l.qty ?? 1, priceBsd: l.price,
+            id: l.id, qty: l.qty ?? 1, priceBsd: l.price, expiresAt: l.expiresAt,
           }))
         : [];
       const listedQty = myListings.reduce((sum, l) => sum + l.qty, 0);

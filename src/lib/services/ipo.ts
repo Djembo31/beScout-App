@@ -97,19 +97,22 @@ export async function buyFromIpo(
   });
 
   if (error) throw new Error(mapRpcError(error.message));
+  const result = data as IpoBuyResult;
   // Activity log
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'ipo_buy', 'trading', { ipoId, quantity, playerId });
   }).catch(err => console.error('[IPO] Activity log failed:', err));
-  // Gamification: achievements fire-and-forget
-  import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
-    checkAndUnlockAchievements(userId);
-  }).catch(err => console.error('[IPO] Achievement check failed:', err));
-  // Mission progress: first IPO buy + daily trade
-  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-    triggerMissionProgress(userId, ['first_ipo_buy', 'daily_trade']);
-  }).catch(err => console.error('[IPO] Mission tracking failed:', err));
-  return data as IpoBuyResult;
+  if (result.success) {
+    // Gamification: achievements fire-and-forget
+    import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
+      checkAndUnlockAchievements(userId);
+    }).catch(err => console.error('[IPO] Achievement check failed:', err));
+    // Mission progress: first IPO buy + daily trade + weekly trades
+    import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+      triggerMissionProgress(userId, ['first_ipo_buy', 'daily_trade', 'weekly_5_trades']);
+    }).catch(err => console.error('[IPO] Mission tracking failed:', err));
+  }
+  return result;
 }
 
 // ============================================

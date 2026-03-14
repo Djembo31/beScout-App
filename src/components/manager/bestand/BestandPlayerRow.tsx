@@ -31,7 +31,7 @@ export type BestandPlayer = {
   pnlBsd: number;
   pnlPct: number;
   purchasedAt: string;
-  myListings: { id: string; qty: number; priceBsd: number }[];
+  myListings: { id: string; qty: number; priceBsd: number; expiresAt: number }[];
   listedQty: number;
   availableToSell: number;
   offers: { id: string; sender_handle: string; quantity: number; price: number }[];
