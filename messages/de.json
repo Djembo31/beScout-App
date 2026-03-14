@@ -1091,6 +1091,7 @@
     "pendingOffers": "{count} offene Angebote",
     "viewOffers": "Anzeigen →",
     "communityLabel": "Community",
+    "balanceLabel": "Guthaben",
     "showOrderBook": "Orderbuch anzeigen",
     "noOrdersForPlayer": "Keine aktiven Angebote",
     "depthPrice": "Preis",

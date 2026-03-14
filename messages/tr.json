@@ -1092,6 +1092,7 @@
     "pendingOffers": "{count} açık teklif",
     "viewOffers": "Göster →",
     "communityLabel": "Topluluk",
+    "balanceLabel": "Bakiye",
     "showOrderBook": "Emir defterini göster",
     "noOrdersForPlayer": "Aktif teklif yok",
     "depthPrice": "Fiyat",

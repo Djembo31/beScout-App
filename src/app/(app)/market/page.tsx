@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
   Briefcase, Zap, Search, Heart,
-  CheckCircle2, X, Send,
+  X, Send,
 } from 'lucide-react';
 import { EmptyState, ErrorState, Skeleton, SkeletonCard, TabPanel } from '@/components/ui';
 import { fmtScout, cn } from '@/lib/utils';
@@ -63,6 +63,7 @@ const TransferListSection = dynamic(() => import('@/components/market/TransferLi
 });
 const MarketSearch = dynamic(() => import('@/components/market/MarketSearch'), { ssr: false });
 const BuyConfirmModal = dynamic(() => import('@/components/market/BuyConfirmModal'), { ssr: false });
+const TradeSuccessCard = dynamic(() => import('@/components/market/TradeSuccessCard'), { ssr: false });
 const BuyOrderModal = dynamic(() => import('@/components/market/BuyOrderModal'), { ssr: false });
 const BuyOrdersSection = dynamic(() => import('@/components/market/BuyOrdersSection'), { ssr: false });
 const WatchlistView = dynamic(() => import('@/components/market/WatchlistView'), {
@@ -134,6 +135,7 @@ export default function MarketPage() {
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [pendingBuy, setPendingBuy] = useState<{ playerId: string; source: 'market' | 'ipo' } | null>(null);
+  const balanceBeforeBuyRef = useRef(0);
   const [buyOrderPlayer, setBuyOrderPlayer] = useState<Player | null>(null);
 
   const t = useTranslations('market');
@@ -207,14 +209,7 @@ export default function MarketPage() {
   const lastBoughtId = buyIsSuccess ? (buyVars?.playerId ?? null) : ipoBuyIsSuccess ? (ipoBuyVars?.playerId ?? null) : null;
   const buyError = buyIsError ? (buyMutError?.message ?? tc('unknownError')) : ipoBuyIsError ? (ipoBuyMutError?.message ?? tc('unknownError')) : null;
 
-  // Auto-dismiss success after 3s
-  useEffect(() => {
-    if (!buyIsSuccess && !ipoBuyIsSuccess) return;
-    const reset = buyIsSuccess ? resetBuy : resetIpoBuy;
-    const timer = setTimeout(reset, 3000);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [buyIsSuccess, ipoBuyIsSuccess]);
+  // Success auto-dismiss handled by TradeSuccessCard (3.6s lifecycle)
 
   // Auto-dismiss error after 5s
   useEffect(() => {
@@ -264,6 +259,7 @@ export default function MarketPage() {
   // Actual buy execution (called from BuyConfirmModal)
   const executeBuy = useCallback((qty: number) => {
     if (!user || !pendingBuy) return;
+    balanceBeforeBuyRef.current = balanceCents;
     if (pendingBuy.source === 'market') {
       doBuy({ userId: user.id, playerId: pendingBuy.playerId, quantity: qty });
     } else {
@@ -272,7 +268,7 @@ export default function MarketPage() {
       doIpoBuy({ userId: user.id, ipoId, playerId: pendingBuy.playerId, quantity: qty });
     }
     setPendingBuy(null);
-  }, [user, pendingBuy, doBuy, doIpoBuy, ipoIdMap]);
+  }, [user, pendingBuy, doBuy, doIpoBuy, ipoIdMap, balanceCents]);
 
   const handleSell = useCallback(async (playerId: string, quantity: number, priceCents: number): Promise<{ success: boolean; error?: string }> => {
     if (!user) return { success: false, error: t('notLoggedIn') };
@@ -345,19 +341,25 @@ export default function MarketPage() {
   return (
     <GeoGate feature="dpc_trading">
     <div className="max-w-[1400px] mx-auto space-y-5">
-      {/* Buy Success Toast — subtle gold glow instead of confetti */}
-      {buySuccess && (
-        <div className="fixed top-[max(1rem,env(safe-area-inset-top))] right-4 z-50 bg-green-500/15 border border-green-500/30 text-green-400 px-4 py-3 rounded-xl font-bold text-sm anim-scale-pop flex items-center gap-3 shadow-lg shadow-green-500/10 anim-pulse-green motion-reduce:animate-none">
-          <CheckCircle2 className="size-5 flex-shrink-0" />
-          <span>{buySuccess}</span>
-          {lastBoughtId && (
-            <Link href={`/player/${lastBoughtId}`}
-              className="px-3 py-1.5 bg-white/10 rounded-lg text-[11px] font-bold text-white/70 hover:bg-white/15 transition-colors whitespace-nowrap">
-              {t('goToPlayer')}
-            </Link>
-          )}
-        </div>
-      )}
+      {/* Trade Success — Card Acquisition Animation */}
+      {(buyIsSuccess || ipoBuyIsSuccess) && lastBoughtId && (() => {
+        const player = playerMap.get(lastBoughtId);
+        if (!player) return null;
+        const qty = buyIsSuccess ? (buyVars?.quantity ?? 1) : (ipoBuyVars?.quantity ?? 1);
+        const source = ipoBuyIsSuccess ? 'ipo' as const : 'market' as const;
+        const reset = buyIsSuccess ? resetBuy : resetIpoBuy;
+        return (
+          <TradeSuccessCard
+            player={player}
+            quantity={qty}
+            totalCostCents={0}
+            oldBalanceCents={balanceBeforeBuyRef.current}
+            newBalanceCents={balanceCents}
+            source={source}
+            onDismiss={reset}
+          />
+        );
+      })()}
       {buyError && (
         <div role="alert" aria-live="assertive" className="fixed top-[max(1rem,env(safe-area-inset-top))] right-4 z-50 bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm flex items-center gap-3 anim-scale-pop">
           <span>{buyError}</span>
