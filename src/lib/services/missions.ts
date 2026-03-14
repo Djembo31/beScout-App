@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { notifText } from '@/lib/notifText';
 import type { DbMissionDefinition, DbUserMission, UserMissionWithDef } from '@/types';
 
 // ============================================
@@ -76,6 +77,19 @@ export async function claimMissionReward(userId: string, missionId: string): Pro
     import('@/lib/services/tickets').then(({ creditTickets }) => {
       creditTickets(userId, ticketAmount, 'mission', missionId).catch(console.error);
     }).catch(err => console.error('[Missions] Ticket credit failed:', err));
+
+    // Notify user about mission reward
+    const bsd = ((result.reward_cents ?? 0) / 100).toFixed(0);
+    import('@/lib/services/notifications').then(({ createNotification }) => {
+      createNotification(
+        userId,
+        'mission_reward',
+        notifText('missionRewardTitle'),
+        notifText('missionRewardBody', { amount: bsd }),
+        missionId,
+        'mission',
+      );
+    }).catch(err => console.error('[Missions] Notification failed:', err));
   }
 
   return result;

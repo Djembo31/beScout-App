@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { notifText } from '@/lib/notifText';
 import type { DbTip, TipResult } from '@/types';
 
 // ============================================
@@ -83,5 +84,21 @@ export async function sendTip(
   }
 
   const result = data as TipResult;
+
+  // Notify receiver about the tip
+  if (result.success) {
+    const bsd = (amountCents / 100).toFixed(0);
+    import('@/lib/services/notifications').then(({ createNotification }) => {
+      createNotification(
+        receiverId,
+        'tip_received',
+        notifText('tipReceivedTitle'),
+        notifText('tipReceivedBody', { amount: bsd }),
+        contentId,
+        contentType === 'research' ? 'research' : 'post',
+      );
+    }).catch(err => console.error('[Tips] Notification failed:', err));
+  }
+
   return result;
 }

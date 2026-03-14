@@ -155,6 +155,49 @@ export async function markAllAsRead(userId: string): Promise<void> {
     .eq('read', false);
 }
 
+// ============================================
+// PUSH NOTIFICATION DELIVERY
+// ============================================
+
+/** Resolve a deep-link URL from reference metadata */
+function resolveDeepLink(referenceType?: string, referenceId?: string): string {
+  if (!referenceType) return '/';
+  switch (referenceType) {
+    case 'event': return '/fantasy';
+    case 'player': return `/player/${referenceId}`;
+    case 'offer': return '/market?tab=angebote';
+    case 'research': return '/community?tab=research';
+    case 'bounty': case 'poll': return '/community?tab=aktionen';
+    case 'prediction': return '/fantasy';
+    case 'mission': return '/missions';
+    case 'achievement': return '/profile';
+    case 'profile': return referenceId ? `/profile/${referenceId}` : '/profile';
+    case 'post': return '/community';
+    default: return '/';
+  }
+}
+
+/**
+ * Send a web push notification — works from BOTH client and server.
+ * Server-side: calls sendPushToUser directly (web-push needs Node).
+ * Client-side: hits POST /api/push which calls sendPushToUser server-side.
+ */
+function firePush(userId: string, title: string, body?: string, url?: string, tag?: string): void {
+  if (typeof window === 'undefined') {
+    // Server-side: direct import
+    import('./pushSender').then(({ sendPushToUser }) => {
+      sendPushToUser(userId, { title, body, url, tag });
+    }).catch((err) => console.error('[Push] Server-side import failed:', err));
+  } else {
+    // Client-side: proxy via API route
+    fetch('/api/push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, title, body, url, tag }),
+    }).catch((err) => console.error('[Push] Client-side API call failed:', err));
+  }
+}
+
 /** Create a notification — respects user preferences (skips if category disabled) */
 export async function createNotification(
   userId: string,
@@ -185,19 +228,9 @@ export async function createNotification(
     return;
   }
 
-  // Fire-and-forget push notification (server-side only)
-  if (typeof window === 'undefined') {
-    import('./pushSender').then(({ sendPushToUser }) => {
-      const url = referenceType === 'event' ? '/fantasy'
-        : referenceType === 'player' ? `/player/${referenceId}`
-        : referenceType === 'offer' ? '/market?tab=angebote'
-        : referenceType === 'research' ? '/community?tab=research'
-        : referenceType === 'bounty' ? '/community?tab=aktionen'
-        : referenceType === 'poll' ? '/community?tab=aktionen'
-        : '/';
-      sendPushToUser(userId, { title, body: body ?? undefined, url, tag: type });
-    }).catch((err) => console.error('[Push] Dynamic import failed:', err));
-  }
+  // Fire-and-forget push notification (works from client AND server)
+  const url = resolveDeepLink(referenceType, referenceId);
+  firePush(userId, title, body ?? undefined, url, type);
 }
 
 // ============================================
@@ -255,20 +288,9 @@ export async function createNotificationsBatch(items: BatchNotificationInput[]):
     console.error(`[Notifications] Batch insert failed (${rows.length} items):`, error.message);
   }
 
-  // Fire-and-forget push notifications (server-side only)
-  if (typeof window === 'undefined') {
-    import('./pushSender').then(({ sendPushToUser }) => {
-      for (const item of filtered) {
-        const url = item.referenceType === 'event' ? '/fantasy'
-          : item.referenceType === 'player' ? `/player/${item.referenceId}`
-          : '/';
-        sendPushToUser(item.userId, {
-          title: item.title,
-          body: item.body ?? undefined,
-          url,
-          tag: item.type,
-        }).catch((err) => console.error('[Push] Batch push failed:', err));
-      }
-    }).catch((err) => console.error('[Push] Dynamic import failed:', err));
+  // Fire-and-forget push notifications (works from client AND server)
+  for (const item of filtered) {
+    const url = resolveDeepLink(item.referenceType, item.referenceId);
+    firePush(item.userId, item.title, item.body ?? undefined, url, item.type);
   }
 }
