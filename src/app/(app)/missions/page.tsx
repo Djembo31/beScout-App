@@ -15,6 +15,7 @@ import { openMysteryBox } from '@/lib/services/mysteryBox';
 import { qk } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
 import { getLoginStreak } from '@/components/home/helpers';
+import { getStreakBenefits, getStreakBenefitLabels } from '@/lib/streakBenefits';
 
 const DailyChallengeCard = dynamic(() => import('@/components/gamification/DailyChallengeCard'), {
   ssr: false,
@@ -46,6 +47,8 @@ export default function MissionsPage() {
 
   // ── Streak (read-only) ──
   const streak = useMemo(() => getLoginStreak().current, []);
+  const streakBenefits = useMemo(() => getStreakBenefits(streak), [streak]);
+  const benefitLabels = useMemo(() => getStreakBenefitLabels(streak), [streak]);
 
   // ── Today's answer ──
   const todaysAnswer = useMemo(() => {
@@ -113,13 +116,24 @@ export default function MissionsPage() {
         show={streak <= 1}
       />
 
-      {/* Streak Banner */}
+      {/* Streak Banner + Active Benefits */}
       {streak > 0 && (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
-          <Flame className="size-5 text-orange-400 flex-shrink-0" />
-          <span className="text-sm font-bold text-orange-300">
-            {t('streakDays', { days: streak })}
-          </span>
+        <div className="px-4 py-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
+          <div className="flex items-center gap-3">
+            <Flame className="size-5 text-orange-400 flex-shrink-0" />
+            <span className="text-sm font-bold text-orange-300">
+              {t('streakDays', { days: streak })}
+            </span>
+          </div>
+          {benefitLabels.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {benefitLabels.map((label) => (
+                <span key={label} className="text-[11px] px-2 py-0.5 rounded-full bg-orange-400/10 text-orange-300/80 border border-orange-400/15">
+                  {label}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -153,6 +167,8 @@ export default function MissionsPage() {
         onClose={() => setShowMysteryBox(false)}
         onOpen={handleOpenMysteryBox}
         ticketBalance={ticketData?.balance ?? 0}
+        hasFreeBox={streakBenefits.freeMysteryBoxesPerWeek > 0}
+        ticketDiscount={streakBenefits.mysteryBoxTicketDiscount}
       />
     </div>
   );
