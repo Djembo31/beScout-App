@@ -52,7 +52,7 @@ export const BottomNav = memo(function BottomNav() {
               href={href}
               data-tour-id={tab.tourId}
               className={cn(
-                'relative flex flex-col items-center justify-center gap-0.5 w-16 py-1.5 rounded-xl transition-colors',
+                'relative flex flex-col items-center justify-center gap-0.5 w-16 py-1.5 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
                 isActive
                   ? 'text-gold bg-gold/[0.12]'
                   : 'text-white/50 active:text-white/70 active:bg-white/[0.08] active:scale-95'

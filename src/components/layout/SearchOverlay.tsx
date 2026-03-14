@@ -187,7 +187,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
   const showRecent = query.length < 2 && recentSearches.length > 0;
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-start justify-center" onKeyDown={handleKeyDown}>
+    <div className="fixed inset-0 z-[90] flex items-start justify-center" role="dialog" aria-modal="true" aria-label={t('placeholder')} onKeyDown={handleKeyDown}>
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm anim-fade" onClick={onClose} />
 
@@ -244,7 +244,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
               key={f.key}
               onClick={() => setFilter(f.key)}
               className={cn(
-                'px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all min-h-[44px]',
+                'px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all min-h-[44px] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
                 filter === f.key
                   ? 'bg-gold/15 text-gold border border-gold/30'
                   : 'bg-white/5 text-white/50 border border-white/[0.06] hover:bg-white/10',

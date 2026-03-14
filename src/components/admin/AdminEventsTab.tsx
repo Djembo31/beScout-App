@@ -217,7 +217,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
         <div className="bg-green-500/20 border border-green-500/30 text-green-500 px-4 py-3 rounded-xl font-bold text-sm">{success}</div>
       )}
       {error && (
-        <div className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm cursor-pointer" onClick={() => setError(null)}>{error}</div>
+        <div role="alert" className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm cursor-pointer" onClick={() => setError(null)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setError(null); } }} tabIndex={0}>{error}</div>
       )}
 
       {/* ===== GAMEWEEK SIMULATION ===== */}

@@ -41,7 +41,7 @@ export function TabBar({ tabs, activeTab, onChange, className, accentColor }: Ta
             aria-controls={`tabpanel-${tab.id}`}
             onClick={() => onChange(tab.id)}
             className={cn(
-              'flex items-center gap-1 md:gap-1.5 px-2.5 py-2 md:px-3 md:py-2 rounded-xl text-xs md:text-sm font-bold transition-colors whitespace-nowrap active:scale-[0.97] flex-shrink-0 min-h-[44px]',
+              'flex items-center gap-1 md:gap-1.5 px-2.5 py-2 md:px-3 md:py-2 rounded-xl text-xs md:text-sm font-bold transition-colors whitespace-nowrap active:scale-[0.97] flex-shrink-0 min-h-[44px] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
               isActive && !accentColor && 'bg-gold/[0.15] text-gold border border-gold/30 shadow-[0_0_12px_rgba(255,215,0,0.10)]',
               !isActive && 'text-white/50 hover:text-white/70 hover:bg-white/[0.06] border border-transparent'
             )}

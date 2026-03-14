@@ -127,7 +127,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           {/* Hamburger — mobile only, opens SideNav drawer */}
           <button
             onClick={onMobileMenuToggle}
-            className="lg:hidden p-2 rounded-xl hover:bg-white/10 active:scale-90 transition-colors"
+            className="lg:hidden p-2 rounded-xl hover:bg-white/10 active:scale-90 transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none"
             aria-label="Menu"
           >
             <Menu className="size-5 text-white/70" />
@@ -137,7 +137,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           <button
             data-tour-id="topbar-search"
             onClick={() => setSpotlightOpen(true)}
-            className="hidden lg:flex items-center gap-2 w-full max-w-[280px] px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white/40 hover:bg-white/[0.08] hover:border-white/15 transition-colors"
+            className="hidden lg:flex items-center gap-2 w-full max-w-[280px] px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white/40 hover:bg-white/[0.08] hover:border-white/15 transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none"
           >
             <Search className="size-4 shrink-0" />
             <span className="flex-1 text-left truncate">{t('searchPlaceholder')}</span>
@@ -170,7 +170,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           {/* Search icon — mobile only */}
           <button
             onClick={() => setSpotlightOpen(true)}
-            className="lg:hidden p-2.5 bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 rounded-xl transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="lg:hidden p-2.5 bg-white/5 hover:bg-white/10 active:scale-90 border border-white/10 rounded-xl transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none"
             aria-label={t('searchPlaceholder')}
           >
             <Search className="size-4 text-white/70" />
@@ -181,7 +181,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             onClick={togglePush}
             disabled={pushLoading}
             className={cn(
-              'hidden sm:flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] border rounded-xl transition-colors',
+              'hidden sm:flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] border rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
               pushEnabled
                 ? 'bg-green-500/10 border-green-500/20 hover:bg-green-500/20'
                 : 'bg-white/5 border-white/10 hover:bg-white/10'
@@ -200,7 +200,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             <button
               data-tour-id="topbar-notifications"
               onClick={() => { setNotifOpen(o => { if (!o) refetchNotifs(); return !o; }); }}
-              className="relative p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
+              className="relative p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none"
               aria-label={t('notifications')}
             >
               <Bell className="size-4 md:size-5 text-white/70" />
@@ -226,7 +226,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           {/* Feedback */}
           <button
             onClick={() => setFeedbackOpen(true)}
-            className="hidden sm:flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
+            className="hidden sm:flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none"
             aria-label={t('feedback')}
           >
             <MessageSquarePlus className="size-4 md:size-5 text-white/70" />
@@ -235,7 +235,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           {/* Glossary — desktop only */}
           <button
             onClick={() => setGlossaryOpen(true)}
-            className="hidden sm:flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
+            className="hidden sm:flex items-center justify-center p-2.5 min-w-[44px] min-h-[44px] bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none"
             aria-label={t('glossary')}
           >
             <HelpCircle className="size-4 md:size-5 text-white/70" />

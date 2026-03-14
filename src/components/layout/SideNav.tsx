@@ -141,7 +141,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
                 onClick={handleNavClick}
                 data-tour-id={tourId}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors active:scale-[0.97] min-h-[44px]',
+                  'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors active:scale-[0.97] min-h-[44px] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
                   isActive
                     ? 'bg-gold/[0.15] text-gold border border-gold/30 shadow-[0_0_16px_rgba(255,215,0,0.15)]'
                     : 'text-white/60 hover:bg-white/[0.08] hover:text-white border border-transparent',

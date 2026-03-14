@@ -217,7 +217,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
         <span className="font-bold text-sm">{tn('title')}</span>
-        <button onClick={handleMarkAllRead} className="text-xs text-gold hover:underline flex items-center gap-1 min-h-[44px] md:min-h-0">
+        <button onClick={handleMarkAllRead} className="text-xs text-gold hover:underline flex items-center gap-1 min-h-[44px] md:min-h-0 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none rounded-lg">
           <Check className="size-3" />
           {tn('markAllRead')}
         </button>

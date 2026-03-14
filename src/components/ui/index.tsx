@@ -366,7 +366,7 @@ export function ErrorState({
       {onRetry && (
         <button
           onClick={onRetry}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none"
         >
           <RefreshCw className="size-3.5" aria-hidden="true" />
           {retryLabel}

@@ -974,19 +974,19 @@ export default function KaufenDiscovery({
                 {leagueFilter && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60">
                     {leagueFilter}
-                    <button onClick={() => setLeagueFilter('')} className="ml-0.5 hover:text-white"><X className="w-3 h-3" /></button>
+                    <button onClick={() => setLeagueFilter('')} className="ml-0.5 hover:text-white" aria-label={t('removeFilter', { filter: leagueFilter })}><X className="w-3 h-3" aria-hidden="true" /></button>
                   </span>
                 )}
                 {posFilter.size > 0 && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60">
                     Pos: {Array.from(posFilter).join(', ')}
-                    <button onClick={clearPosFilter} className="ml-0.5 hover:text-white"><X className="w-3 h-3" /></button>
+                    <button onClick={clearPosFilter} className="ml-0.5 hover:text-white" aria-label={t('removeFilter', { filter: 'Position' })}><X className="w-3 h-3" aria-hidden="true" /></button>
                   </span>
                 )}
                 {Array.from(clubFilter).map(club => (
                   <span key={club} className="inline-flex items-center gap-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white/60">
                     {club}
-                    <button onClick={() => toggleClub(club)} className="ml-0.5 hover:text-white"><X className="w-3 h-3" /></button>
+                    <button onClick={() => toggleClub(club)} className="ml-0.5 hover:text-white" aria-label={t('removeFilter', { filter: club })}><X className="w-3 h-3" aria-hidden="true" /></button>
                   </span>
                 ))}
                 <button onClick={resetFilters} className="text-[11px] text-white/30 hover:text-white/60 transition-colors ml-1">{t('resetAll')}</button>

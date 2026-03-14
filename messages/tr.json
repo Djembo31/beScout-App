@@ -888,6 +888,7 @@
     "available": "Mevcut",
     "watched": "Takip edilen",
     "resetAll": "Tümünü sıfırla",
+    "removeFilter": "Filtreyi kaldır: {filter}",
     "playerCount": "Transfer piyasasında {count} oyuncu",
     "noPlayersFound": "Oyuncu bulunamadı",
     "noPlayersHint": "Farklı arama terimleri veya filtreler deneyin",
@@ -3957,7 +3958,11 @@
     "liquidationBodyPbt": "{total} bCredits PBT dağıtımından aldın.",
     "unknownFallback": "Bilinmiyor",
     "someoneFallback": "Birisi",
-    "replyNotifTitle": "{name} gönderine yanıt verdi"
+    "replyNotifTitle": "{name} gönderine yanıt verdi",
+    "tipReceivedTitle": "Bahşiş aldın!",
+    "tipReceivedBody": "{amount} bCredits bahşiş aldın",
+    "missionRewardTitle": "Görev tamamlandı!",
+    "missionRewardBody": "Ödül olarak {amount} bCredits kazandın"
   },
   "glossary": {
     "title": "Sözlük",

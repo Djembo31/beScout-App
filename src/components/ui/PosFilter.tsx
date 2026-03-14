@@ -49,7 +49,7 @@ export function PosFilter(props: PosFilterProps) {
         <button
           onClick={() => (props as PosFilterSingleProps).onChange('ALL')}
           className={cn(
-            'px-3 py-1.5 rounded-lg text-xs font-black border transition-colors',
+            'px-3 py-1.5 rounded-lg text-xs font-black border transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
             props.selected === 'ALL'
               ? 'bg-white/10 border-white/20 text-white'
               : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70 hover:bg-white/10'
@@ -71,7 +71,7 @@ export function PosFilter(props: PosFilterProps) {
             key={pos}
             onClick={() => props.onChange(pos)}
             className={cn(
-              'px-3 py-1.5 rounded-lg text-xs font-black border transition-colors',
+              'px-3 py-1.5 rounded-lg text-xs font-black border transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
               active
                 ? cn(c.bg, c.border, c.text)
                 : 'bg-white/5 border-white/10 text-white/40 hover:text-white/70 hover:bg-white/10'

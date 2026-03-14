@@ -65,12 +65,20 @@ export default function AppLayout({
       {/* Background Effects — Stadium Atmosphere (memo'd, renders once) */}
       <BackgroundEffects />
 
+      {/* Skip to content — keyboard users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-gold focus:text-black focus:font-bold focus:rounded-xl focus:text-sm"
+      >
+        Skip to content
+      </a>
+
       {/* App Shell */}
       <div className="relative flex min-h-screen">
         <SideNav mobileOpen={mobileOpen} onMobileClose={handleMobileClose} />
         <div className="flex-1 ml-0 lg:ml-[260px] min-w-0">
           <TopBar onMobileMenuToggle={handleMobileToggle} />
-          <main className="p-4 lg:p-6 pb-safe-nav lg:pb-6 overflow-x-hidden">
+          <main id="main-content" className="p-4 lg:p-6 pb-safe-nav lg:pb-6 overflow-x-hidden">
             {pathname.startsWith('/club/') && !pathname.includes('/admin') ? children : <AuthGuard>{children}</AuthGuard>}
           </main>
         </div>

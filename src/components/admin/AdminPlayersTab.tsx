@@ -283,7 +283,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
         <div className="bg-green-500/20 border border-green-500/30 text-green-500 px-4 py-3 rounded-xl font-bold text-sm">{ipoSuccess}</div>
       )}
       {ipoError && (
-        <div role="alert" className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm cursor-pointer" onClick={() => setIpoError(null)}>{ipoError}</div>
+        <div role="alert" className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm cursor-pointer" onClick={() => setIpoError(null)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIpoError(null); } }} tabIndex={0}>{ipoError}</div>
       )}
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">

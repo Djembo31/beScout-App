@@ -887,6 +887,7 @@
     "available": "Verfügbar",
     "watched": "Beobachtet",
     "resetAll": "Alle zurücksetzen",
+    "removeFilter": "Filter entfernen: {filter}",
     "playerCount": "{count} Spieler am Transfermarkt",
     "noPlayersFound": "Keine Spieler gefunden",
     "noPlayersHint": "Versuche andere Suchbegriffe oder Filter",
@@ -3952,7 +3953,11 @@
     "liquidationBodyPbt": "Du hast {total} bCredits aus der PBT-Ausschüttung erhalten.",
     "unknownFallback": "Unbekannt",
     "someoneFallback": "Jemand",
-    "replyNotifTitle": "{name} hat auf deinen Post geantwortet"
+    "replyNotifTitle": "{name} hat auf deinen Post geantwortet",
+    "tipReceivedTitle": "Trinkgeld erhalten!",
+    "tipReceivedBody": "Du hast {amount} bCredits als Trinkgeld erhalten",
+    "missionRewardTitle": "Mission abgeschlossen!",
+    "missionRewardBody": "Du hast {amount} bCredits als Belohnung erhalten"
   },
   "glossary": {
     "title": "Glossar",
