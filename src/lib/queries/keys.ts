@@ -20,6 +20,7 @@ export const qk = {
   // ── Orders ──
   orders: {
     all: ['orders'] as const,
+    buy: ['orders', 'buy'] as const,
     byPlayer: (pid: string) => ['orders', pid] as const,
   },
 

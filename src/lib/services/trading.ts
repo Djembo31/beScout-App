@@ -473,6 +473,129 @@ export async function getRecentGlobalTrades(limit = 10): Promise<GlobalTrade[]> 
   });
 }
 
+// ============================================
+// Buy Orders (Kaufgesuche)
+// ============================================
+
+type BuyOrderResult = {
+  success: boolean;
+  error?: string;
+  order_id?: string;
+  total_locked?: number;
+  new_available?: number;
+  unlocked?: number;
+};
+
+/** Place a buy order (Kaufgesuch) — locks funds in escrow */
+export async function placeBuyOrder(
+  userId: string,
+  playerId: string,
+  quantity: number,
+  maxPriceCents: number
+): Promise<BuyOrderResult> {
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10000) {
+    return { success: false, error: 'Invalid quantity' };
+  }
+  if (!Number.isInteger(maxPriceCents) || maxPriceCents < 1) {
+    return { success: false, error: 'Invalid price' };
+  }
+
+  // Guard: check if player is liquidated
+  const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).maybeSingle();
+  if (!pl) return { success: false, error: 'playerNotFound' };
+  if (pl.is_liquidated) return { success: false, error: 'playerLiquidated' };
+
+  // Club Admin Trading Restriction (defense-in-depth — DB RPC also checks)
+  const restricted = await isRestrictedFromTrading(userId, playerId);
+  if (restricted) return { success: false, error: 'clubAdminRestricted' };
+
+  const { data, error } = await supabase.rpc('place_buy_order', {
+    p_user_id: userId,
+    p_player_id: playerId,
+    p_quantity: quantity,
+    p_max_price: maxPriceCents,
+  });
+
+  if (error) return { success: false, error: mapRpcError(error.message) };
+  if (!data) return { success: false, error: 'No response' };
+
+  const result = data as BuyOrderResult;
+
+  if (result.success) {
+    // Activity log (fire-and-forget)
+    import('@/lib/services/activityLog').then(({ logActivity }) => {
+      logActivity(userId, 'buy_order_placed', 'trading', {
+        player_id: playerId,
+        quantity,
+        max_price: maxPriceCents,
+        order_id: result.order_id,
+      });
+    }).catch(err => console.error('[Trade] Activity log failed:', err));
+
+    // Mission progress
+    import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+      triggerMissionProgress(userId, ['daily_trade', 'weekly_5_trades']);
+    }).catch(err => console.error('[Trading] Mission tracking failed:', err));
+  }
+
+  return result;
+}
+
+/** Cancel a buy order (Kaufgesuch stornieren) — unlocks escrowed funds */
+export async function cancelBuyOrder(
+  userId: string,
+  orderId: string
+): Promise<BuyOrderResult> {
+  const { data, error } = await supabase.rpc('cancel_buy_order', {
+    p_user_id: userId,
+    p_order_id: orderId,
+  });
+
+  if (error) return { success: false, error: mapRpcError(error.message) };
+  if (!data) return { success: false, error: 'No response' };
+
+  const result = data as BuyOrderResult;
+
+  // Activity log (fire-and-forget)
+  import('@/lib/services/activityLog').then(({ logActivity }) => {
+    logActivity(userId, 'buy_order_cancelled', 'trading', { orderId });
+  }).catch(err => console.error('[Trade] Activity log failed:', err));
+
+  return result;
+}
+
+/** All active buy orders (for market overview) — highest bid first */
+export async function getAllOpenBuyOrders(playerId?: string): Promise<DbOrder[]> {
+  let query = supabase
+    .from('orders')
+    .select('id, player_id, user_id, side, price, quantity, filled_qty, status, created_at, expires_at')
+    .eq('side', 'buy')
+    .in('status', ['open', 'partial'])
+    .gt('expires_at', new Date().toISOString())
+    .order('price', { ascending: false }) // highest bid first
+    .limit(500);
+
+  if (playerId) query = query.eq('player_id', playerId);
+
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DbOrder[];
+}
+
+/** Active buy orders for a specific user */
+export async function getUserBuyOrders(userId: string): Promise<DbOrder[]> {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('id, player_id, user_id, side, price, quantity, filled_qty, status, created_at, expires_at')
+    .eq('user_id', userId)
+    .eq('side', 'buy')
+    .in('status', ['open', 'partial'])
+    .order('created_at', { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DbOrder[];
+}
+
 /** Get recent trade prices for a player (for sparkline) */
 // ============================================
 // Top Traders (by 7d volume)

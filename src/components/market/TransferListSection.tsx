@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Loader2, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Loader2, TrendingUp, TrendingDown, Minus, ShoppingCart } from 'lucide-react';
 import { PlayerIdentity, getL5Color } from '@/components/player';
 import { InfoTooltip, EmptyState } from '@/components/ui';
 import MarketFilters, { applyFilters, applySorting } from './MarketFilters';
@@ -19,6 +19,7 @@ interface TransferListSectionProps {
   getFloor: (p: Player) => number;
   onBuy: (playerId: string) => void;
   buyingId: string | null;
+  onCreateBuyOrder?: (playerId: string) => void;
 }
 
 type ListingAgg = {
@@ -29,7 +30,7 @@ type ListingAgg = {
 };
 
 export default function TransferListSection({
-  players, sellOrders, playerMap, getFloor, onBuy, buyingId,
+  players, sellOrders, playerMap, getFloor, onBuy, buyingId, onCreateBuyOrder,
 }: TransferListSectionProps) {
   const t = useTranslations('market');
   const store = useMarketStore();
@@ -185,14 +186,26 @@ export default function TransferListSection({
                   </div>
                 </div>
 
-                {/* Buy button */}
-                <button
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); onBuy(p.id); }}
-                  disabled={isBuying}
-                  className="px-3 py-2 min-h-[44px] bg-gold/10 border border-gold/20 text-gold rounded-lg text-xs font-black hover:bg-gold/20 transition-colors active:scale-[0.95] disabled:opacity-50 flex-shrink-0 flex items-center gap-1"
-                >
-                  {isBuying ? <Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : t('buy')}
-                </button>
+                {/* Action buttons */}
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onBuy(p.id); }}
+                    disabled={isBuying}
+                    className="px-3 py-2 min-h-[44px] bg-gold/10 border border-gold/20 text-gold rounded-lg text-xs font-black hover:bg-gold/20 transition-colors active:scale-[0.95] disabled:opacity-50 flex items-center gap-1"
+                  >
+                    {isBuying ? <Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : t('buy')}
+                  </button>
+                  {onCreateBuyOrder && (
+                    <button
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); onCreateBuyOrder(p.id); }}
+                      className="px-2 py-2 min-h-[44px] bg-sky-500/10 border border-sky-400/20 text-sky-400 rounded-lg text-[10px] font-bold hover:bg-sky-500/20 transition-colors active:scale-[0.95] flex items-center gap-1"
+                      title={t('buyOrderButton')}
+                    >
+                      <ShoppingCart className="size-3" aria-hidden="true" />
+                      <span className="hidden sm:inline">{t('buyOrderButton')}</span>
+                    </button>
+                  )}
+                </div>
               </Link>
             );
           })}

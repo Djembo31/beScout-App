@@ -19,7 +19,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
-import { useEnrichedPlayers, useHoldings, useAllOpenOrders, invalidateTradeQueries } from '@/lib/queries';
+import { useEnrichedPlayers, useHoldings, useAllOpenOrders, useAllOpenBuyOrders, invalidateTradeQueries } from '@/lib/queries';
 import { useActiveIpos, useAnnouncedIpos, useRecentlyEndedIpos } from '@/lib/queries/ipos';
 import { useTrendingPlayers } from '@/lib/queries/trending';
 import { useAllPriceHistories } from '@/lib/queries/priceHist';
@@ -62,6 +62,8 @@ const TransferListSection = dynamic(() => import('@/components/market/TransferLi
   loading: () => <div className="space-y-2">{[...Array(5)].map((_, i) => <SkeletonCard key={i} className="h-16" />)}</div>,
 });
 const MarketSearch = dynamic(() => import('@/components/market/MarketSearch'), { ssr: false });
+const BuyOrderModal = dynamic(() => import('@/components/market/BuyOrderModal'), { ssr: false });
+const BuyOrdersSection = dynamic(() => import('@/components/market/BuyOrdersSection'), { ssr: false });
 const WatchlistView = dynamic(() => import('@/components/market/WatchlistView'), {
   ssr: false,
   loading: () => <div className="space-y-2">{[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-16" />)}</div>,
@@ -130,6 +132,7 @@ export default function MarketPage() {
   } = useMarketStore();
 
   const [searchOpen, setSearchOpen] = useState(false);
+  const [buyOrderPlayer, setBuyOrderPlayer] = useState<Player | null>(null);
 
   const t = useTranslations('market');
   const tc = useTranslations('common');
@@ -166,6 +169,9 @@ export default function MarketPage() {
   const { data: announcedIpos = [] } = useAnnouncedIpos({ enabled: tab === 'kaufen' });
   const { data: endedIpos = [] } = useRecentlyEndedIpos({ enabled: tab === 'kaufen' });
   const { data: trending = [] } = useTrendingPlayers(8, { enabled: tab === 'kaufen' });
+
+  // Kaufen: buy orders (gated by tab)
+  const { data: buyOrders = [] } = useAllOpenBuyOrders({ enabled: tab === 'kaufen' });
 
   // Portfolio-only queries (gated by tab)
   const { data: incomingOffers = [] } = useIncomingOffers(user?.id, { enabled: tab === 'portfolio' });
@@ -510,18 +516,32 @@ export default function MarketPage() {
           )
         )}
         {kaufenSubTab === 'transferliste' && (
-          <TransferListSection
-            players={players}
-            sellOrders={recentOrders}
-            playerMap={playerMap}
-            getFloor={getFloor}
-            onBuy={handleBuy}
-            buyingId={buyingId}
-          />
+          <>
+            <TransferListSection
+              players={players}
+              sellOrders={recentOrders}
+              playerMap={playerMap}
+              getFloor={getFloor}
+              onBuy={handleBuy}
+              buyingId={buyingId}
+              onCreateBuyOrder={(playerId: string) => {
+                const p = playerMap.get(playerId);
+                if (p) setBuyOrderPlayer(p);
+              }}
+            />
+            <BuyOrdersSection buyOrders={buyOrders} playerMap={playerMap} />
+          </>
         )}
         <SponsorBanner placement="market_top" />
         <TradingDisclaimer variant="card" />
       </TabPanel>
+
+      {/* Buy Order Modal */}
+      <BuyOrderModal
+        player={buyOrderPlayer}
+        open={buyOrderPlayer !== null}
+        onClose={() => setBuyOrderPlayer(null)}
+      />
 
 
     </div>
