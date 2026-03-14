@@ -8,7 +8,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
-    exclude: ['backup/**', 'node_modules/**', '.next/**', 'e2e/**'],
+    exclude: ['backup/**', 'node_modules/**', '.next/**', 'e2e/**', '.claude/**'],
     css: false,
   },
   resolve: {
