@@ -323,15 +323,22 @@ export async function checkAndUnlockAchievements(userId: string): Promise<string
     }
   }
 
-  // Lazy-query research posts + research sold
+  // Lazy-query research posts + research sold + scout_specialist (high-rated reports)
   let researchCount = 0;
   let researchSoldCount = 0;
-  if (!unlockedKeys.has('first_research') || !unlockedKeys.has('research_sold')) {
+  let highRatedResearchCount = 0;
+  if (!unlockedKeys.has('first_research') || !unlockedKeys.has('research_sold') || !unlockedKeys.has('scout_specialist')) {
     const { data: myResearch } = await supabase
       .from('research_posts')
-      .select('id')
+      .select('id, avg_rating, ratings_count')
       .eq('user_id', userId);
     researchCount = (myResearch ?? []).length;
+
+    if (!unlockedKeys.has('scout_specialist')) {
+      highRatedResearchCount = (myResearch ?? []).filter(
+        r => (r.ratings_count as number) > 0 && (r.avg_rating as number) >= 4.0
+      ).length;
+    }
 
     if (!unlockedKeys.has('research_sold') && researchCount > 0) {
       const researchIds = (myResearch ?? []).map(r => r.id as string);
@@ -452,6 +459,7 @@ export async function checkAndUnlockAchievements(userId: string): Promise<string
     ['first_vote', stats.votes_cast >= 1],
     ['10_votes', stats.votes_cast >= 10],
     ['first_bounty', approvedBounties >= 1],
+    ['scout_specialist', highRatedResearchCount >= 10],
     ['complete_scout', allSilverPlus],
     ['founding_scout', profileCount !== Infinity],
   ];
