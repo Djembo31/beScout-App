@@ -64,7 +64,7 @@ close → simulate → score → clone → advance
 - **Club-Admin:** Event-Erstellung, Spieltag-Management, Jurisdiction → `club-admin.md`
 
 ## API-Football Integration
-- TFF 1. Lig, League ID 203
+- TFF 1. Lig, League ID 204 (203 = Süper Lig!)
 - `time.elapsed` fuer Substitutions (NICHT `time.minute`!)
 - `player`=OUT, `assist`=IN bei Substitutions
 - `grid_position` kann kaputt sein: fehlende GK-Row, Duplikate, >11 Starters

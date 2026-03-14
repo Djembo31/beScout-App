@@ -914,9 +914,7 @@ export async function GET(request: Request) {
         );
 
       if (reconcileErr) {
-        console.log(`[AUTO-RECONCILE] Error: ${reconcileErr.message}`);
-      } else {
-        console.log(`[AUTO-RECONCILE] Persisted ${uniqueIds.length} new fixture API IDs`);
+        console.error(`[AUTO-RECONCILE] Error: ${reconcileErr.message}`);
       }
 
       await logStep(activeGw, 'auto_reconcile', reconcileErr ? 'error' : 'success', {
@@ -992,7 +990,7 @@ export async function GET(request: Request) {
       return { scored: eventsScored, closed: eventsClosed, transitioned: eventsTransitioned };
     });
 
-    await logStep(activeGw, 'score_events', 'success', {
+    await logStep(activeGw, 'score_events', eventsScored + eventsClosed > 0 ? 'success' : 'skipped', {
       scored: eventsScored,
       closed: eventsClosed,
       transitioned: eventsTransitioned,
@@ -1034,13 +1032,15 @@ export async function GET(request: Request) {
         return { ranksUpdated };
       });
 
-      await logStep(activeGw, 'fan_rank_update', 'success');
+      // logStep is handled by runStep — omit duplicate unconditional log
     }
 
     // ---- 9b. Resolve predictions ----
-    await runStep('resolve_predictions', async () => {
-      // Use admin client — predictions.resolvePredictions uses user-auth client and checks status='finished'
-      // The cron_process_gameweek RPC sets fixtures to 'finished', so we can call the RPC directly
+    // NOTE: resolve_gameweek_predictions RPC requires auth.uid() != NULL (admin guard).
+    // supabaseAdmin uses service_role key where auth.uid() = NULL.
+    // The RPC returns {ok: false, error: "Not authenticated"} — this is a known limitation.
+    // TODO: Fix RPC to allow NULL auth.uid() (service role) or remove admin guard for cron usage.
+    const { result: predResult } = await runStep('resolve_predictions', async () => {
       const { data, error } = await supabaseAdmin.rpc('resolve_gameweek_predictions', {
         p_gameweek: activeGw,
       });
@@ -1050,10 +1050,13 @@ export async function GET(request: Request) {
       return { resolved: result.resolved, correct: result.correct, wrong: result.wrong };
     });
 
-    await logStep(activeGw, 'resolve_predictions', 'success');
+    await logStep(activeGw, 'resolve_predictions', predResult ? 'success' : 'error', predResult ?? { error: 'auth.uid() is NULL from service role — RPC requires admin auth' });
 
     // ---- 9c. DPC of the Week ----
-    await runStep('dpc_of_week', async () => {
+    // NOTE: calculate_dpc_of_week RPC requires auth.uid() != NULL (RAISE EXCEPTION).
+    // supabaseAdmin uses service_role key where auth.uid() = NULL — this always throws.
+    // TODO: Fix RPC to allow NULL auth.uid() (service role) for cron usage.
+    const { result: dpcResult } = await runStep('dpc_of_week', async () => {
       const { data, error } = await supabaseAdmin.rpc('calculate_dpc_of_week', {
         p_gameweek: activeGw,
       });
@@ -1063,7 +1066,7 @@ export async function GET(request: Request) {
       return { playerId: result.player_id };
     });
 
-    await logStep(activeGw, 'dpc_of_week', 'success');
+    await logStep(activeGw, 'dpc_of_week', dpcResult ? 'success' : 'error', dpcResult ?? { error: 'auth.uid() is NULL from service role — RPC raises exception' });
 
     // ---- 10. Clone events for next GW ----
     if (nextGw <= 38) {
@@ -1155,7 +1158,7 @@ export async function GET(request: Request) {
         return { created: nextGwEventsCreated };
       });
 
-      await logStep(activeGw, 'clone_events', 'success', {
+      await logStep(activeGw, 'clone_events', nextGwEventsCreated > 0 ? 'success' : 'skipped', {
         nextGw,
         created: nextGwEventsCreated,
       });
@@ -1179,20 +1182,18 @@ export async function GET(request: Request) {
       steps.push({ step: 'advance_gameweek', status: 'skipped', duration_ms: 0 });
     }
 
-    await logStep(activeGw, 'advance_gameweek', 'success', {
-      from: activeGw,
-      to: nextGw,
-    });
+    // logStep for advance_gameweek is tracked via runStep's steps array
 
     // ---- 12. Recalc perf ----
     const { result: perfResult } = await runStep('recalc_perf', async () => {
       const { data, error } = await supabaseAdmin.rpc('cron_recalc_perf');
       if (error) throw new Error(error.message);
-      return data as { success: boolean; updated_count: number };
+      return data as { success: boolean; perf_updated: number; agg_updated: number };
     });
 
-    await logStep(activeGw, 'recalc_perf', 'success', {
-      updated: perfResult?.updated_count ?? 0,
+    await logStep(activeGw, 'recalc_perf', perfResult ? 'success' : 'error', {
+      perf_updated: perfResult?.perf_updated ?? 0,
+      agg_updated: perfResult?.agg_updated ?? 0,
     });
 
     } // END Phase B (allFixturesDone)
