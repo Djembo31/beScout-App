@@ -3,7 +3,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { TrendingUp, Trophy, Zap, Star, Info } from 'lucide-react';
-import { Card } from '@/components/ui';
+import { Card, InfoTooltip } from '@/components/ui';
 import { SUCCESS_FEE_TIERS, getSuccessFeeTier } from '@/components/player/PlayerRow';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { centsToBsd } from '@/lib/services/players';
@@ -74,6 +74,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
         <h3 className="font-black text-lg mb-1 flex items-center gap-2 text-balance">
           <TrendingUp aria-hidden="true" className="size-5 text-gold" />
           {t('rewardLadder')}
+          <InfoTooltip text={t('rewardLadderTooltip')} />
         </h3>
         <p className="text-xs text-white/40 mb-4 text-pretty">{t('rewardLadderDesc')}</p>
 

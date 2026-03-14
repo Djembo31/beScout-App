@@ -7,7 +7,7 @@ import {
   PiggyBank, BarChart3, Users, Unlock, ShoppingBag,
   Activity, TrendingUp,
 } from 'lucide-react';
-import { Card } from '@/components/ui';
+import { Card, InfoTooltip } from '@/components/ui';
 import { PositionBadge, ScoreCircle, MiniSparkline } from '@/components/player';
 import { getContractInfo } from '@/components/player/PlayerRow';
 import { fmtScout } from '@/lib/utils';
@@ -68,7 +68,7 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
         </Card>
         <Card className="p-3 text-center">
           <div className="text-[10px] text-white/40 mb-1 flex items-center justify-center gap-1">
-            <BarChart3 className="size-3" aria-hidden="true" /> {t('dpcSupply')}
+            <BarChart3 className="size-3" aria-hidden="true" /> {t('dpcSupply')} <InfoTooltip text={t('dpcTooltip')} />
           </div>
           <div className="font-mono font-bold tabular-nums text-sm">{fmtScout(player.dpc.supply)}</div>
         </Card>
@@ -249,6 +249,7 @@ export default function ProfilTab({ player, dpcAvailable, holdingQty, holderCoun
             <div className="flex items-center gap-2">
               <PiggyBank className={`size-5 ${player.isLiquidated ? 'text-white/30' : 'text-gold'}`} aria-hidden="true" />
               <span className="font-black">{t('pbt')}</span>
+              <InfoTooltip text={t('pbtTooltip')} />
             </div>
             <div className="flex items-center gap-1 text-xs text-white/50">
               <Info className="size-3" aria-hidden="true" />

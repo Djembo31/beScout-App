@@ -1852,6 +1852,7 @@
     "recruitBtn": "Transfer et",
     "recruitingBtn": "Alınıyor...",
     "orderbookTitle": "Orderbook Derinliği",
+    "orderbookTooltip": "Fiyata göre sıralanmış tüm mevcut satış tekliflerini gösterir. Fiyat ne kadar düşükse, o kadar ucuza satın alabilirsiniz.",
     "orderbookPrice": "Fiyat (bCredits)",
     "orderbookCumulative": "Σ Kümülatif",
     "tradeSourceClub": "Kulüp",

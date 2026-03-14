@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Zap, Check, X as XIcon, Ticket, Flame, AlertCircle, Gift } from 'lucide-react';
-import { Card, Button, Skeleton } from '@/components/ui';
+import { Card, Button, Skeleton, InfoTooltip } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import type { DbDailyChallenge } from '@/types';
@@ -77,6 +77,7 @@ export default function DailyChallengeCard({
               <Ticket className="size-3.5 text-gold/60" />
               <span className="font-mono font-bold text-white/70">{ticketBalance}</span>
               {' '}{t('tickets')}
+              <InfoTooltip text={t('ticketsTooltip')} />
             </span>
             <button
               onClick={onOpenMysteryBox}
@@ -217,6 +218,7 @@ export default function DailyChallengeCard({
             <span className="flex items-center gap-1">
               <Flame className="size-3 text-orange-400" />
               {t('streakDays', { days: streakDays })}
+              <InfoTooltip text={t('streakTooltip')} />
             </span>
             {streakRemaining > 0 && streakRemaining < streakBonusThreshold && (
               <span>{t('streakBonus', { remaining: streakRemaining })}</span>
@@ -241,6 +243,7 @@ export default function DailyChallengeCard({
             <Ticket className="size-3.5 text-gold/60" />
             <span className="font-mono font-bold text-white/70">{ticketBalance}</span>
             {' '}{t('tickets')}
+            <InfoTooltip text={t('ticketsTooltip')} />
           </span>
           <button
             onClick={onOpenMysteryBox}

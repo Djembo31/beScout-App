@@ -8,6 +8,7 @@ import {
   Building2,
 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
+import { InfoTooltip } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import type { FantasyEvent } from '../types';
 
@@ -76,7 +77,7 @@ export default function OverviewPanel({ event, userId, participants, participant
             <div className="font-bold">{event.format} • {event.mode === 'league' ? t('modeLeague') : t('modeTournament')}</div>
           </div>
           <div className="p-3 bg-white/[0.03] rounded-lg">
-            <div className="text-xs text-white/40">{t('dpcPerSlotLabel')}</div>
+            <div className="text-xs text-white/40 inline-flex items-center gap-0.5">{t('dpcPerSlotLabel')} <InfoTooltip text={t('dpcPerSlotTooltip')} /></div>
             <div className="font-bold">{event.requirements.dpcPerSlot ?? 1} DPC</div>
           </div>
           <div className="p-3 bg-white/[0.03] rounded-lg">

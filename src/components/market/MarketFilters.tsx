@@ -158,7 +158,7 @@ export default function MarketFilters({ showTransferFilters }: MarketFiltersProp
         <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-3 space-y-3 anim-fade">
           {/* L5 */}
           <div>
-            <div className="text-[10px] text-white/40 font-semibold mb-1.5">{t('l5Performance', { defaultMessage: 'L5 Performance' })}</div>
+            <div className="text-[10px] text-white/40 font-semibold mb-1.5 inline-flex items-center gap-0.5">{t('l5Performance', { defaultMessage: 'L5 Performance' })} <InfoTooltip text={t('l5Tooltip')} /></div>
             <div className="flex gap-1.5">
               {L5_VALUES.map((v, i) => (
                 <button

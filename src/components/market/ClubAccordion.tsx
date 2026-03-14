@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { SlidersHorizontal, Heart, X } from 'lucide-react';
+import { InfoTooltip } from '@/components/ui';
 import { useMarketStore } from '@/lib/stores/marketStore';
 import { useRecentScores } from '@/lib/queries/managerData';
 import { applySorting, getActiveFilterCount } from './MarketFilters';
@@ -144,7 +145,7 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
 
           {/* L5 + Fit */}
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="text-[10px] text-white/40 font-semibold mr-1">{t('minPerformance', { defaultMessage: 'Min. L5' })}</div>
+            <div className="text-[10px] text-white/40 font-semibold mr-1 inline-flex items-center gap-0.5">{t('minPerformance', { defaultMessage: 'Min. L5' })} <InfoTooltip text={t('l5Tooltip')} /></div>
             {L5_PRESETS.map(threshold => (
               <button
                 key={threshold}

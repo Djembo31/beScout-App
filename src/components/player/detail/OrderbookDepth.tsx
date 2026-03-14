@@ -2,7 +2,7 @@
 
 import { Layers } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Card } from '@/components/ui';
+import { Card, InfoTooltip } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { DbOrder } from '@/types';
@@ -38,6 +38,7 @@ export default function OrderbookDepth({ orders, className = '' }: OrderbookDept
       <h3 className="font-black text-lg mb-4 flex items-center gap-2">
         <Layers className="w-5 h-5 text-sky-400" />
         {tp('orderbookTitle')}
+        <InfoTooltip text={tp('orderbookTooltip')} />
       </h3>
       <div className="space-y-1.5">
         {withCum.map(({ price, qty, cumQty }) => {

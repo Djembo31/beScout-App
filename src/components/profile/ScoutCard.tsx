@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { Settings, UserPlus, UserMinus, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Card, Button, CosmeticAvatar, CosmeticTitle } from '@/components/ui';
+import { Card, Button, CosmeticAvatar, CosmeticTitle, InfoTooltip } from '@/components/ui';
 import { useEquippedCosmetics } from '@/lib/queries/cosmetics';
 import { RadarChart } from '@/components/profile/RadarChart';
 import { getStrengthLabel, getAutoBadges } from '@/lib/scoutReport';
@@ -190,7 +190,7 @@ export function ScoutCard({
       </div>
 
       {/* ── Gesamt-Rang ── */}
-      <div className="mt-3 text-center">
+      <div className="mt-3 flex items-center justify-center gap-1">
         <span className={cn('text-sm font-black', rang.color)}>
           {tg(`rang.${rang.i18nKey}`)}
         </span>
@@ -199,6 +199,7 @@ export function ScoutCard({
             {' '}— #{(userStats.rank).toLocaleString(numLocale)}
           </span>
         )}
+        <InfoTooltip text={tg('dimensionTooltip')} />
       </div>
 
       {/* ── Auto Badges ── */}
