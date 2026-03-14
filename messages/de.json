@@ -1181,7 +1181,13 @@
     "watchlistEmpty": "Keine Spieler auf der Watchlist",
     "watchlistEmptyDesc": "Tippe auf das Herz-Symbol bei einem Spieler, um ihn hier zu sehen.",
     "removeFromWatchlist": "Von Watchlist entfernen",
-    "watchlistCount": "{count} Spieler"
+    "watchlistCount": "{count} Spieler",
+    "alertThreshold": "Schwellenwert",
+    "alertAnyChange": "Jede Änderung",
+    "alertPctChange": "Ab {pct}% Änderung",
+    "priceAlertTitle": "Preisalarm",
+    "alertSettings": "Alarm-Einstellungen",
+    "alertSaved": "Alarm gespeichert"
   },
   "community": {
     "title": "Community",
