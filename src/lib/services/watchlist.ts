@@ -74,6 +74,21 @@ export async function removeFromWatchlist(userId: string, playerId: string): Pro
   if (error) throw new Error(error.message);
 }
 
+/** Update alert threshold for a watchlist entry */
+export async function updateAlertThreshold(
+  userId: string,
+  playerId: string,
+  thresholdPct: number
+): Promise<void> {
+  const { error } = await supabase
+    .from('watchlist')
+    .update({ alert_threshold_pct: thresholdPct })
+    .eq('user_id', userId)
+    .eq('player_id', playerId);
+
+  if (error) throw new Error(error.message);
+}
+
 /** Migrate localStorage watchlist to DB (one-time). Returns number of items migrated. */
 export async function migrateLocalWatchlist(userId: string): Promise<number> {
   const LEGACY_KEY = 'bescout-watchlist';

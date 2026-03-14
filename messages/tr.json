@@ -1198,7 +1198,13 @@
     "watchlistEmpty": "Takip listesinde oyuncu yok",
     "watchlistEmptyDesc": "Bir oyuncunun yanındaki kalp simgesine dokunarak buraya ekleyin.",
     "removeFromWatchlist": "Takip listesinden kaldır",
-    "watchlistCount": "{count} oyuncu"
+    "watchlistCount": "{count} oyuncu",
+    "alertThreshold": "Eşik değeri",
+    "alertAnyChange": "Her değişiklik",
+    "alertPctChange": "{pct}% değişiklikten itibaren",
+    "priceAlertTitle": "Fiyat alarmı",
+    "alertSettings": "Alarm ayarları",
+    "alertSaved": "Alarm kaydedildi"
   },
   "community": {
     "title": "Topluluk",

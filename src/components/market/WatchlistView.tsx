@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Heart, HeartOff, Loader2, ArrowUpDown } from 'lucide-react';
+import { Heart, HeartOff, Loader2, ArrowUpDown, Bell } from 'lucide-react';
 import type { Player } from '@/types';
 import { cn, fmtScout } from '@/lib/utils';
 import { getClubName } from '@/lib/clubs';
-import { removeFromWatchlist } from '@/lib/services/watchlist';
+import { removeFromWatchlist, updateAlertThreshold } from '@/lib/services/watchlist';
 import type { WatchlistEntry } from '@/lib/services/watchlist';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -28,11 +28,107 @@ interface WatchlistViewProps {
 }
 
 // ============================================
+// CONSTANTS
+// ============================================
+
+const THRESHOLD_OPTIONS = [0, 5, 10, 20] as const;
+
+// ============================================
 // HELPERS
 // ============================================
 
 const getFloor = (p: Player) =>
   p.listings.length > 0 ? Math.min(...p.listings.map(l => l.price)) : p.prices.floor ?? 0;
+
+// ============================================
+// THRESHOLD POPOVER
+// ============================================
+
+function ThresholdPopover({
+  playerId,
+  currentThreshold,
+  onSelect,
+}: {
+  playerId: string;
+  currentThreshold: number;
+  onSelect: (playerId: string, pct: number) => void;
+}) {
+  const t = useTranslations('market');
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setOpen(prev => !prev);
+        }}
+        className={cn(
+          'p-2 rounded-lg transition-colors shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center',
+          currentThreshold === 0
+            ? 'text-gold/70 hover:text-gold hover:bg-gold/10'
+            : 'text-white/30 hover:text-white/60 hover:bg-white/[0.06]'
+        )}
+        aria-label={t('alertSettings')}
+        title={t('alertSettings')}
+      >
+        <Bell className="size-4" />
+        {currentThreshold > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 text-[9px] font-mono font-bold text-gold bg-gold/20 rounded-full size-4 flex items-center justify-center">
+            {currentThreshold}
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div
+          className="absolute right-0 top-full mt-1 z-50 w-44 bg-[#141414] border border-white/10 rounded-xl shadow-xl overflow-hidden"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+        >
+          <div className="px-3 py-2 border-b border-white/[0.06]">
+            <span className="text-xs font-semibold text-white/50">{t('alertThreshold')}</span>
+          </div>
+          {THRESHOLD_OPTIONS.map(pct => (
+            <button
+              key={pct}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onSelect(playerId, pct);
+                setOpen(false);
+              }}
+              className={cn(
+                'w-full px-3 py-2.5 text-left text-sm transition-colors flex items-center justify-between',
+                pct === currentThreshold
+                  ? 'bg-gold/10 text-gold'
+                  : 'text-white/70 hover:bg-white/[0.06] hover:text-white'
+              )}
+            >
+              <span>{pct === 0 ? t('alertAnyChange') : t('alertPctChange', { pct })}</span>
+              {pct === currentThreshold && (
+                <span className="size-1.5 rounded-full bg-gold" />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ============================================
 // WATCHLIST VIEW
@@ -45,6 +141,15 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
 
   const [sortBy, setSortBy] = useState<SortKey>('name');
   const [removingId, setRemovingId] = useState<string | null>(null);
+
+  // Map playerId -> threshold for quick lookup
+  const thresholdMap = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const entry of watchlistEntries) {
+      map.set(entry.playerId, entry.alertThresholdPct ?? 0);
+    }
+    return map;
+  }, [watchlistEntries]);
 
   // Build watchlist player list with sort
   const watchlistPlayers = useMemo(() => {
@@ -85,6 +190,27 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
       addToast(t('watchlistError'), 'error');
     } finally {
       setRemovingId(null);
+    }
+  }, [user, addToast, t]);
+
+  // Update alert threshold with optimistic update
+  const handleThresholdChange = useCallback(async (playerId: string, pct: number) => {
+    if (!user) return;
+    const uid = user.id;
+
+    // Optimistic update
+    queryClient.setQueryData<WatchlistEntry[]>(qk.watchlist.byUser(uid), (old) => {
+      if (!old) return old;
+      return old.map(e => e.playerId === playerId ? { ...e, alertThresholdPct: pct } : e);
+    });
+
+    try {
+      await updateAlertThreshold(uid, playerId, pct);
+      addToast(t('alertSaved'), 'success');
+    } catch (err) {
+      console.error('[WatchlistView] Threshold update failed:', err);
+      queryClient.invalidateQueries({ queryKey: qk.watchlist.byUser(uid) });
+      addToast(t('watchlistError'), 'error');
     }
   }, [user, addToast, t]);
 
@@ -139,6 +265,7 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
           const floor = getFloor(player);
           const change = player.prices.change24h;
           const isRemoving = removingId === player.id;
+          const threshold = thresholdMap.get(player.id) ?? 0;
 
           return (
             <Link
@@ -189,6 +316,13 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
                   {change > 0 ? '+' : ''}{change.toFixed(1)}%
                 </div>
               </div>
+
+              {/* Alert Settings */}
+              <ThresholdPopover
+                playerId={player.id}
+                currentThreshold={threshold}
+                onSelect={handleThresholdChange}
+              />
 
               {/* Remove Button */}
               <button
