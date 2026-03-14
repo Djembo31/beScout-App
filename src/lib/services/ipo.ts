@@ -90,6 +90,16 @@ export async function buyFromIpo(
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('invalidQuantity');
   if (quantity > 10000) throw new Error('maxQuantityExceeded');
 
+  // Defense-in-depth: liquidation + club admin check (DB RPC also checks)
+  if (playerId) {
+    const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).maybeSingle();
+    if (pl?.is_liquidated) throw new Error('playerLiquidated');
+
+    const { isRestrictedFromTrading } = await import('@/lib/services/trading');
+    const restricted = await isRestrictedFromTrading(userId, playerId);
+    if (restricted) throw new Error('clubAdminRestricted');
+  }
+
   const { data, error } = await supabase.rpc('buy_from_ipo', {
     p_user_id: userId,
     p_ipo_id: ipoId,
@@ -98,7 +108,7 @@ export async function buyFromIpo(
 
   if (error) throw new Error(mapRpcError(error.message));
   const result = data as IpoBuyResult;
-  // Activity log
+  // Activity log (always fires for audit trail, regardless of success)
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'ipo_buy', 'trading', { ipoId, quantity, playerId });
   }).catch(err => console.error('[IPO] Activity log failed:', err));
@@ -107,6 +117,10 @@ export async function buyFromIpo(
     import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
       checkAndUnlockAchievements(userId);
     }).catch(err => console.error('[IPO] Achievement check failed:', err));
+    // Fire-and-forget: referral reward (triggers on first trade by referred user)
+    import('@/lib/services/referral').then(({ triggerReferralReward }) => {
+      triggerReferralReward(userId);
+    }).catch(err => console.error('[IPO] Referral reward failed:', err));
     // Mission progress: first IPO buy + daily trade + weekly trades
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
       triggerMissionProgress(userId, ['first_ipo_buy', 'daily_trade', 'weekly_5_trades']);

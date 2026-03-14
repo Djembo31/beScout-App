@@ -49,14 +49,14 @@ BEGIN
   PERFORM pg_advisory_xact_lock(hashtext(p_user_id::text || p_player_id::text));
 
   -- Check balance (available = balance - locked)
-  SELECT balance_cents, locked_balance INTO v_wallet
+  SELECT balance, locked_balance INTO v_wallet
   FROM wallets WHERE user_id = p_user_id FOR UPDATE;
 
   IF v_wallet IS NULL THEN
     RETURN jsonb_build_object('success', false, 'error', 'Wallet not found');
   END IF;
 
-  v_available := v_wallet.balance_cents - COALESCE(v_wallet.locked_balance, 0);
+  v_available := v_wallet.balance - COALESCE(v_wallet.locked_balance, 0);
   IF v_available < v_total_cost THEN
     RETURN jsonb_build_object('success', false, 'error', 'Insufficient balance');
   END IF;

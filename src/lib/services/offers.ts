@@ -194,15 +194,18 @@ export async function acceptOffer(userId: string, offerId: string): Promise<Offe
     logActivity(userId, 'offer_accept', 'trading', { offerId });
   }).catch(err => console.error('[Offers] Side-effect failed:', err));
 
-  // Gamification: achievements fire-and-forget (matches buyFromOrder pattern)
   if (result.success) {
+    // Gamification: achievements fire-and-forget (matches buyFromOrder pattern)
     import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
       checkAndUnlockAchievements(userId);
     }).catch(err => console.error('[Offers] Achievement check failed:', err));
-  }
 
-  // Mission progress: daily trade + weekly trades (matches buyFromOrder pattern)
-  if (result.success) {
+    // Fire-and-forget: referral reward (triggers on first trade by referred user)
+    import('@/lib/services/referral').then(({ triggerReferralReward }) => {
+      triggerReferralReward(userId);
+    }).catch(err => console.error('[Offers] Referral reward failed:', err));
+
+    // Mission progress: daily trade + weekly trades (matches buyFromOrder pattern)
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
       triggerMissionProgress(userId, ['daily_trade', 'weekly_5_trades']);
     }).catch(err => console.error('[Offers] Mission tracking failed:', err));

@@ -214,6 +214,10 @@ export async function buyFromOrder(
     import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
       checkAndUnlockAchievements(buyerId);
     }).catch(err => console.error('[Trade] Achievement check failed:', err));
+    // Fire-and-forget: referral reward (triggers on first trade by referred user)
+    import('@/lib/services/referral').then(({ triggerReferralReward }) => {
+      triggerReferralReward(buyerId);
+    }).catch(err => console.error('[Trade] Referral reward failed:', err));
     // Notify the seller
     (async () => {
       try {
