@@ -151,7 +151,8 @@
     "loginExpired": "Der Link ist ungültig oder abgelaufen.",
     "backToLogin": "Zurück zum Login",
     "loginProcessing": "Anmeldung wird verarbeitet...",
-    "loginSlow": "Dauert länger als erwartet..."
+    "loginSlow": "Dauert länger als erwartet...",
+    "recommended": "Empfohlen"
   },
   "welcome": {
     "heroTitle": "Dein Fußball-Wissen hat endlich einen",
@@ -2704,7 +2705,8 @@
     "welcomeTitle": "Willkommen bei BeScout!",
     "welcomeDesc": "Du hast {amount} bCredits erhalten! Kaufe jetzt deinen ersten Spieler und starte dein Portfolio.",
     "welcomeCta": "Zum Marktplatz",
-    "welcomeLater": "Später"
+    "welcomeLater": "Später",
+    "welcomeBonusExplainer": "bCredits sind deine Währung auf BeScout. Kaufe damit DPCs — digitale Spielerverträge — und baue dein Portfolio auf."
   },
   "scouting": {
     "dimensions": "Bewertungsdimensionen",
@@ -3862,7 +3864,10 @@
     "introPortfolioTitle": "Dein Portfolio aufbauen",
     "introPortfolioDesc": "Kaufe DPCs (Digital Player Cards) am Marktplatz. Wenn der Marktwert steigt, profitierst du. Handle clever und baue dein Portfolio aus.",
     "introDimensionsTitle": "Drei Wege zum Erfolg",
-    "introDimensionsDesc": "Trader: Handle am Markt. Manager: Gewinne Fantasy-Events. Analyst: Schreibe Research. Jede Dimension hat eigene Ränge — vom Bronze bis Legendär."
+    "introDimensionsDesc": "Trader: Handle am Markt. Manager: Gewinne Fantasy-Events. Analyst: Schreibe Research. Jede Dimension hat eigene Ränge — vom Bronze bis Legendär.",
+    "offerTitle": "Möchtest du eine kurze Tour?",
+    "offerYes": "Ja, zeig mir alles",
+    "offerNo": "Nein, ich erkunde selbst"
   },
   "subscription": {
     "bronze": "Bronze",

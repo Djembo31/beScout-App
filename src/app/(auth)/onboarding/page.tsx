@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { Check, X, Loader2, ChevronRight, Globe, Camera, User, Lock, Eye, EyeOff, Search, Shield, Gift } from 'lucide-react';
+import { Check, X, Loader2, ChevronRight, Globe, Camera, User, Lock, Eye, EyeOff, Search, Shield, Gift, Star } from 'lucide-react';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { createProfile, checkHandleAvailable, isValidHandle } from '@/lib/services/profiles';
 import { updateProfile } from '@/lib/services/profiles';
@@ -50,9 +50,8 @@ function OnboardingContent() {
   const [selectedClubIds, setSelectedClubIds] = useState<Set<string>>(new Set());
   const [clubsLoading, setClubsLoading] = useState(false);
 
-  // Detect if user signed up with email+password (already has a password)
-  const hasPassword = user?.app_metadata?.provider === 'email'
-    && user?.app_metadata?.providers?.includes('email');
+  // Detect if user signed up via OAuth (Google/Apple) — no password needed
+  const isOAuthUser = user?.app_metadata?.provider !== 'email';
 
   // Redirect if already has profile
   useEffect(() => {
@@ -98,12 +97,22 @@ function OnboardingContent() {
     }
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Load clubs when reaching step 3
+  // Load clubs when reaching step 3, pre-select Sakaryaspor (pilot club)
   useEffect(() => {
     if (step === 3 && allClubs.length === 0) {
       setClubsLoading(true);
       getAllClubs()
-        .then(setAllClubs)
+        .then(clubs => {
+          setAllClubs(clubs);
+          // Pre-select Sakaryaspor as default pilot club (user can deselect)
+          const sakaryaspor = clubs.find(c => c.slug === 'sakaryaspor');
+          if (sakaryaspor) {
+            setSelectedClubIds(prev => {
+              if (prev.size === 0) return new Set([sakaryaspor.id]);
+              return new Set(prev).add(sakaryaspor.id);
+            });
+          }
+        })
         .catch(err => console.error('[Onboarding] Failed to load clubs:', err))
         .finally(() => setClubsLoading(false));
     }
@@ -135,8 +144,8 @@ function OnboardingContent() {
   const validateStep1 = (): boolean => {
     if (handleStatus !== 'available' || handle.length < 3) return false;
 
-    // Password validation only if user doesn't already have one
-    if (!hasPassword) {
+    // Password validation only for email users (OAuth users skip password)
+    if (!isOAuthUser) {
       if (password.length < 6) return false;
       if (password !== passwordConfirm) return false;
     }
@@ -147,7 +156,7 @@ function OnboardingContent() {
   const handleStep1Next = () => {
     setPasswordError(null);
 
-    if (!hasPassword) {
+    if (!isOAuthUser) {
       if (password.length < 6) {
         setPasswordError(t('pwMinLength'));
         return;
@@ -186,19 +195,26 @@ function OnboardingContent() {
     });
   };
 
-  const filteredClubs = allClubs.filter(c =>
-    c.name.toLowerCase().includes(clubSearch.toLowerCase()) ||
-    c.city?.toLowerCase().includes(clubSearch.toLowerCase()) ||
-    c.short.toLowerCase().includes(clubSearch.toLowerCase())
-  );
+  const filteredClubs = allClubs
+    .filter(c =>
+      c.name.toLowerCase().includes(clubSearch.toLowerCase()) ||
+      c.city?.toLowerCase().includes(clubSearch.toLowerCase()) ||
+      c.short.toLowerCase().includes(clubSearch.toLowerCase())
+    )
+    .sort((a, b) => {
+      // Sakaryaspor (pilot club) always first
+      if (a.slug === 'sakaryaspor') return -1;
+      if (b.slug === 'sakaryaspor') return 1;
+      return 0;
+    });
 
   const handleSubmit = useCallback(async () => {
     if (!user) return;
     setSubmitting(true);
     setError(null);
     try {
-      // Set password if user doesn't have one yet (OAuth / Magic Link)
-      if (!hasPassword && password) {
+      // Set password if email user (OAuth users skip password)
+      if (!isOAuthUser && password) {
         const { error: pwError } = await updateUserPassword(password);
         if (pwError) throw new Error(t('pwSetError', { error: pwError.message }));
       }
@@ -253,7 +269,7 @@ function OnboardingContent() {
       setError(msg);
       setSubmitting(false);
     }
-  }, [user, hasPassword, password, handle, displayNameValue, avatarFile, language, selectedClubIds, allClubs, referrer, referralClub, refreshProfile, router]);
+  }, [user, isOAuthUser, password, handle, displayNameValue, avatarFile, language, selectedClubIds, allClubs, referrer, referralClub, refreshProfile, router]);
 
   if (loading || profile) {
     return (
@@ -312,7 +328,7 @@ function OnboardingContent() {
           <>
             <h2 className="text-xl font-black text-balance mb-1">{t('yourProfile')}</h2>
             <p className="text-sm text-white/50 text-pretty mb-6">
-              {hasPassword ? t('chooseHandle') : t('chooseHandleAndPw')}
+              {isOAuthUser ? t('chooseHandle') : t('chooseHandleAndPw')}
             </p>
 
             {/* Handle Input */}
@@ -370,8 +386,8 @@ function OnboardingContent() {
               />
             </div>
 
-            {/* Password fields — only if user doesn't have a password yet */}
-            {!hasPassword && (
+            {/* Password fields — only for email users (OAuth users skip) */}
+            {!isOAuthUser && (
               <>
                 <div className="my-5 border-t border-white/10" />
                 <p className="text-xs text-white/40 text-pretty mb-3">
@@ -448,8 +464,8 @@ function OnboardingContent() {
                 {handleStatus === 'checking' ? t('handleChecking') :
                  handleStatus === 'taken' ? t('handleTakenShort') :
                  handleStatus === 'invalid' ? t('handleInvalid') :
-                 !hasPassword && password.length > 0 && password.length < 6 ? t('pwMinShort') :
-                 !hasPassword && password.length >= 6 && password !== passwordConfirm ? t('pwMismatch') :
+                 !isOAuthUser && password.length > 0 && password.length < 6 ? t('pwMinShort') :
+                 !isOAuthUser && password.length >= 6 && password !== passwordConfirm ? t('pwMismatch') :
                  null}
               </div>
             )}
@@ -596,8 +612,16 @@ function OnboardingContent() {
                         )}
                       </div>
                       <div className="flex-1 text-left min-w-0">
-                        <div className={cn('text-sm font-semibold truncate', selected ? 'text-gold' : 'text-white')}>
-                          {club.name}
+                        <div className="flex items-center gap-1.5">
+                          <span className={cn('text-sm font-semibold truncate', selected ? 'text-gold' : 'text-white')}>
+                            {club.name}
+                          </span>
+                          {club.slug === 'sakaryaspor' && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-gold/15 border border-gold/25 text-[9px] font-bold text-gold uppercase shrink-0">
+                              <Star className="size-2.5" aria-hidden="true" />
+                              {t('recommended')}
+                            </span>
+                          )}
                         </div>
                         <div className="text-[10px] text-white/40">{club.league}</div>
                       </div>

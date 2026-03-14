@@ -151,7 +151,8 @@
     "loginExpired": "Link geçersiz veya süresi dolmuş.",
     "backToLogin": "Girişe dön",
     "loginProcessing": "Giriş işleniyor...",
-    "loginSlow": "Beklenenden uzun sürüyor..."
+    "loginSlow": "Beklenenden uzun sürüyor...",
+    "recommended": "Önerilen"
   },
   "welcome": {
     "heroTitle": "Futbol bilgin artık bir",
@@ -2706,7 +2707,8 @@
     "welcomeTitle": "BeScout'a Hoş Geldin!",
     "welcomeDesc": "{amount} bCredits kazandın! İlk oyuncunu satın al ve portföyünü başlat.",
     "welcomeCta": "Markete Git",
-    "welcomeLater": "Daha Sonra"
+    "welcomeLater": "Daha Sonra",
+    "welcomeBonusExplainer": "bCredits, BeScout'taki para birimindir. DPC'ler — dijital oyuncu sözleşmeleri — satın al ve portföyünü oluştur."
   },
   "scouting": {
     "dimensions": "Değerlendirme Boyutları",
@@ -3867,7 +3869,10 @@
     "introPortfolioTitle": "Portföyünü oluştur",
     "introPortfolioDesc": "Pazaryerinden DPC'ler (Dijital Oyuncu Kartları) satın al. Piyasa değeri yükselirse kazanırsın. Akıllıca işlem yap ve portföyünü büyüt.",
     "introDimensionsTitle": "Başarıya üç yol",
-    "introDimensionsDesc": "Trader: Piyasada işlem yap. Manager: Fantasy etkinliklerini kazan. Analist: Araştırma yaz. Her boyutun kendi rütbeleri var — Bronz'dan Efsanevi'ye."
+    "introDimensionsDesc": "Trader: Piyasada işlem yap. Manager: Fantasy etkinliklerini kazan. Analist: Araştırma yaz. Her boyutun kendi rütbeleri var — Bronz'dan Efsanevi'ye.",
+    "offerTitle": "Kısa bir tur ister misin?",
+    "offerYes": "Evet, hepsini göster",
+    "offerNo": "Hayır, kendim keşfederim"
   },
   "subscription": {
     "bronze": "Bronz",

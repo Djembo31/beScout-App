@@ -51,8 +51,11 @@ export default function WelcomeBonusModal({ balanceCents }: WelcomeBonusModalPro
         </div>
 
         <h2 className="text-xl font-black mb-2">{t('welcomeTitle')}</h2>
-        <p className="text-sm text-white/60 mb-4 leading-relaxed">
+        <p className="text-sm text-white/60 mb-2 leading-relaxed">
           {t('welcomeDesc', { amount: fmtScout(centsToBsd(balanceCents)) })}
+        </p>
+        <p className="text-xs text-white/40 mb-4 leading-relaxed">
+          {t('welcomeBonusExplainer')}
         </p>
 
         {/* Balance highlight */}
