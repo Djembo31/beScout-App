@@ -8,7 +8,7 @@ export default function AuthLayout({
   return (
     <>
       {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: -1 }}>
+      <div className="fixed inset-0 overflow-hidden" style={{ zIndex: -1, pointerEvents: 'none' }}>
         <Image
           src="/stadiums/default.jpg"
           alt=""
@@ -16,13 +16,14 @@ export default function AuthLayout({
           quality={40}
           priority={false}
           className="object-cover blur-[25px] scale-110 opacity-[0.3]"
-          style={{ maskImage: 'linear-gradient(to bottom, black 20%, transparent 65%)', WebkitMaskImage: 'linear-gradient(to bottom, black 20%, transparent 65%)' }}
+          style={{ pointerEvents: 'none', maskImage: 'linear-gradient(to bottom, black 20%, transparent 65%)', WebkitMaskImage: 'linear-gradient(to bottom, black 20%, transparent 65%)' }}
         />
-        <div className="absolute top-0 right-1/4 w-[640px] h-[640px] bg-gold/[0.03] rounded-full blur-[140px]" />
-        <div className="absolute bottom-0 left-1/4 w-[820px] h-[820px] bg-green-500/[0.035] rounded-full blur-[160px]" />
+        <div className="absolute top-0 right-1/4 w-[640px] h-[640px] bg-gold/[0.03] rounded-full blur-[140px]" style={{ pointerEvents: 'none' }} />
+        <div className="absolute bottom-0 left-1/4 w-[820px] h-[820px] bg-green-500/[0.035] rounded-full blur-[160px]" style={{ pointerEvents: 'none' }} />
         <div
           className="absolute inset-0 opacity-[0.015]"
           style={{
+            pointerEvents: 'none',
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
           }}
         />

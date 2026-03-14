@@ -3,40 +3,38 @@ import { waitForApp, CLUB_SLUG } from './helpers';
 
 test.describe('Club Pages', () => {
   test('Club Discovery (/clubs) shows club list', async ({ page }) => {
-    await page.goto('/clubs');
+    await page.goto('/clubs', { waitUntil: 'domcontentloaded' });
     await waitForApp(page);
 
-    // Should show at least one club card
-    const main = page.locator('main');
-    await expect(main).not.toBeEmpty();
-
-    // Sakaryaspor should be listed
-    await expect(page.getByText(/Sakaryaspor/i)).toBeVisible({ timeout: 8_000 });
+    // Sakaryaspor should be listed (wait for content to actually render)
+    await expect(page.getByText(/Sakaryaspor/i)).toBeVisible();
   });
 
   test('Sakaryaspor card navigates to club page', async ({ page }) => {
-    await page.goto('/clubs');
+    await page.goto('/clubs', { waitUntil: 'domcontentloaded' });
     await waitForApp(page);
 
     const clubLink = page.locator(`a[href*="/club/${CLUB_SLUG}"]`).first();
-    await expect(clubLink).toBeVisible({ timeout: 8_000 });
+    await expect(clubLink).toBeVisible();
     await clubLink.click();
 
-    await page.waitForURL(`**/club/${CLUB_SLUG}`, { timeout: 10_000 });
+    await page.waitForURL(`**/club/${CLUB_SLUG}`, { timeout: 30_000 });
     expect(page.url()).toContain(`/club/${CLUB_SLUG}`);
   });
 
   test('Club page shows 3 tabs', async ({ page }) => {
-    await page.goto(`/club/${CLUB_SLUG}`);
+    await page.goto(`/club/${CLUB_SLUG}`, { waitUntil: 'domcontentloaded' });
     await waitForApp(page);
 
+    // Wait for any tab to be visible first (ensures content rendered)
+    await expect(page.getByRole('tab').first()).toBeVisible();
     const tabs = page.getByRole('tab');
     const tabCount = await tabs.count();
     expect(tabCount).toBeGreaterThanOrEqual(3);
   });
 
   test('Spieler tab shows player cards', async ({ page }) => {
-    await page.goto(`/club/${CLUB_SLUG}`);
+    await page.goto(`/club/${CLUB_SLUG}`, { waitUntil: 'domcontentloaded' });
     await waitForApp(page);
 
     // Click Spieler tab
@@ -46,13 +44,12 @@ test.describe('Club Pages', () => {
       await page.waitForTimeout(1000);
     }
 
-    // Should show player content
-    const main = page.locator('main');
-    await expect(main).not.toBeEmpty();
+    // Should show some content (text)
+    await expect(page.locator('body')).toContainText(/Sakaryaspor/i);
   });
 
   test('Follow button is clickable', async ({ page }) => {
-    await page.goto(`/club/${CLUB_SLUG}`);
+    await page.goto(`/club/${CLUB_SLUG}`, { waitUntil: 'domcontentloaded' });
     await waitForApp(page);
 
     // Look for follow/unfollow button

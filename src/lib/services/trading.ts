@@ -128,6 +128,10 @@ export async function buyFromMarket(
       } catch (err) { console.error('[Trade] Seller notification failed:', err); }
     })();
   }
+  // Mission progress: daily trade + weekly trades
+  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+    triggerMissionProgress(userId, ['daily_trade', 'weekly_5_trades']);
+  }).catch(err => console.error('[Trading] Mission tracking failed:', err));
   return result;
 }
 
@@ -165,6 +169,10 @@ export async function placeSellOrder(
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'trade_sell', 'trading', { playerId, quantity, priceCents });
   }).catch(err => console.error('[Trade] Activity log failed:', err));
+  // Mission progress: daily trade + weekly trades
+  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+    triggerMissionProgress(userId, ['daily_trade', 'weekly_5_trades']);
+  }).catch(err => console.error('[Trading] Mission tracking failed:', err));
   return data as TradeResult;
 }
 
@@ -224,6 +232,10 @@ export async function buyFromOrder(
       }
     } catch (err) { console.error('[Trade] Seller notification failed:', err); }
   })();
+  // Mission progress: daily trade + weekly trades
+  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+    triggerMissionProgress(buyerId, ['daily_trade', 'weekly_5_trades']);
+  }).catch(err => console.error('[Trading] Mission tracking failed:', err));
   return result;
 }
 
@@ -257,6 +269,7 @@ export async function getAllOpenSellOrders(): Promise<DbOrder[]> {
     .select('id, player_id, user_id, side, price, quantity, filled_qty, status, created_at, expires_at')
     .eq('side', 'sell')
     .in('status', ['open', 'partial'])
+    .gt('expires_at', new Date().toISOString())
     .order('price', { ascending: true })
     .limit(500);
 
@@ -272,6 +285,7 @@ export async function getSellOrders(playerId: string): Promise<DbOrder[]> {
     .eq('player_id', playerId)
     .eq('side', 'sell')
     .in('status', ['open', 'partial'])
+    .gt('expires_at', new Date().toISOString())
     .order('price', { ascending: true });
 
   if (error) throw new Error(error.message);

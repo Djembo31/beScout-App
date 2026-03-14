@@ -105,6 +105,10 @@ export async function buyFromIpo(
   import('@/lib/services/social').then(({ checkAndUnlockAchievements }) => {
     checkAndUnlockAchievements(userId);
   }).catch(err => console.error('[IPO] Achievement check failed:', err));
+  // Mission progress: first IPO buy + daily trade
+  import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+    triggerMissionProgress(userId, ['first_ipo_buy', 'daily_trade']);
+  }).catch(err => console.error('[IPO] Mission tracking failed:', err));
   return data as IpoBuyResult;
 }
 

@@ -10,8 +10,8 @@ async function loginAndSave(
   password: string,
   savePath: string,
 ) {
-  await page.goto('/login');
-  await page.waitForLoadState('networkidle');
+  await page.goto('/login', { waitUntil: 'domcontentloaded' });
+  await waitForApp(page);
 
   // Dismiss cookie consent if visible
   const acceptBtn = page.getByRole('button', { name: 'Akzeptieren' });
@@ -19,6 +19,15 @@ async function loginAndSave(
     await acceptBtn.click();
     await page.waitForTimeout(300);
   }
+
+  // Wait for React hydration — ensure the form's JS handlers are attached.
+  // Without this, clicking Anmelden can trigger a native form submit (adding ?)
+  // instead of React's onSubmit with e.preventDefault().
+  await page.waitForFunction(() => {
+    const btn = document.querySelector('button[type="submit"]');
+    // Check that React has attached its internal fiber/props to the element
+    return btn && Object.keys(btn).some(k => k.startsWith('__reactFiber') || k.startsWith('__reactProps'));
+  }, { timeout: 15_000 });
 
   // Fill credentials
   await page.getByPlaceholder('E-Mail Adresse').fill(email);
@@ -40,7 +49,7 @@ async function loginAndSave(
   await page.context().storageState({ path: savePath });
 }
 
-setup.setTimeout(60_000);
+setup.setTimeout(120_000);
 
 setup('authenticate as demo-fan', async ({ page }) => {
   await loginAndSave(

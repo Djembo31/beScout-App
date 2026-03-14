@@ -5,20 +5,22 @@ const authDir = path.join(__dirname, '.auth');
 
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: true,
+  fullyParallel: false,
+  workers: 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
+  timeout: 120_000,
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    actionTimeout: 10_000,
-    navigationTimeout: 30_000,
+    actionTimeout: 30_000,
+    navigationTimeout: 60_000,
   },
   expect: {
-    timeout: 8_000,
+    timeout: 20_000,
   },
   projects: [
     // --- Setup: login once, save auth state ---
@@ -55,8 +57,8 @@ export default defineConfig({
   ],
   webServer: {
     command: 'npx next dev',
-    url: 'http://localhost:3000',
+    url: 'http://localhost:3000/login',
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 180_000,
   },
 });

@@ -3,7 +3,7 @@ import { FAN_EMAIL, DEMO_PASSWORD, waitForApp } from './helpers';
 
 test.describe('Authentication', () => {
   test('Login page shows email and password form', async ({ page }) => {
-    await page.goto('/login');
+    await page.goto('/login', { waitUntil: 'domcontentloaded' });
     await waitForApp(page);
 
     await expect(page.getByPlaceholder('E-Mail Adresse')).toBeVisible();
@@ -12,8 +12,14 @@ test.describe('Authentication', () => {
   });
 
   test('Login with demo-fan redirects to home', async ({ page }) => {
-    await page.goto('/login');
+    await page.goto('/login', { waitUntil: 'domcontentloaded' });
     await waitForApp(page);
+
+    // Wait for React hydration so form onSubmit handler is attached
+    await page.waitForFunction(() => {
+      const btn = document.querySelector('button[type="submit"]');
+      return btn && Object.keys(btn).some(k => k.startsWith('__reactFiber') || k.startsWith('__reactProps'));
+    }, { timeout: 15_000 });
 
     await page.getByPlaceholder('E-Mail Adresse').fill(FAN_EMAIL);
     await page.getByPlaceholder('Passwort').fill(DEMO_PASSWORD);
@@ -24,8 +30,14 @@ test.describe('Authentication', () => {
   });
 
   test('Login with wrong password shows error', async ({ page }) => {
-    await page.goto('/login');
+    await page.goto('/login', { waitUntil: 'domcontentloaded' });
     await waitForApp(page);
+
+    // Wait for React hydration so form onSubmit handler is attached
+    await page.waitForFunction(() => {
+      const btn = document.querySelector('button[type="submit"]');
+      return btn && Object.keys(btn).some(k => k.startsWith('__reactFiber') || k.startsWith('__reactProps'));
+    }, { timeout: 15_000 });
 
     await page.getByPlaceholder('E-Mail Adresse').fill(FAN_EMAIL);
     await page.getByPlaceholder('Passwort').fill('WrongPassword123!');
@@ -36,8 +48,8 @@ test.describe('Authentication', () => {
   });
 
   test('Unauthenticated user on /profile sees login prompt or empty state', async ({ page }) => {
-    await page.goto('/profile');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/profile', { waitUntil: 'domcontentloaded' });
+    await waitForApp(page);
 
     // Profile page uses client-side auth — may stay on /profile with login prompt
     // or redirect to /login or /welcome depending on auth state loading
@@ -52,8 +64,8 @@ test.describe('Authentication', () => {
   });
 
   test('Unauthenticated user on /market sees content or is redirected', async ({ page }) => {
-    await page.goto('/market');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/market', { waitUntil: 'domcontentloaded' });
+    await waitForApp(page);
 
     // Market may be publicly accessible or redirect to /login or /welcome
     const url = page.url();

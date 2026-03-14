@@ -47,7 +47,7 @@ describe('createNotificationsBatch', () => {
 
   it('filters out users who disabled the notification category', async () => {
     // Override the from mock for this test to return a preference row where u2 has fantasy=false
-    const insertMock = vi.fn(() => ({ error: null }));
+    const insertMock = vi.fn((_rows: Record<string, unknown>[]) => ({ error: null }));
     vi.mocked(supabase.from).mockImplementation((table: string) => {
       if (table === 'notification_preferences') {
         return {
@@ -69,7 +69,7 @@ describe('createNotificationsBatch', () => {
 
     // Insert should only contain u1 (u2 filtered out because fantasy=false and event_scored maps to fantasy category)
     expect(insertMock).toHaveBeenCalledTimes(1);
-    const rows = insertMock.mock.calls[0][0] as Array<Record<string, unknown>>;
+    const rows = insertMock.mock.calls[0]?.[0] as unknown as Array<Record<string, unknown>>;
     expect(rows).toHaveLength(1);
     expect(rows[0].user_id).toBe('u1');
   });

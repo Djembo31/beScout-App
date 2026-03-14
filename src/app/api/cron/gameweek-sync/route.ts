@@ -165,6 +165,13 @@ export async function GET(request: Request) {
       return data;
     });
 
+    // ---- 2c2. Expire stale orders ----
+    await runStep('expire_pending_orders', async () => {
+      const { data, error } = await supabaseAdmin.rpc('expire_pending_orders');
+      if (error) throw new Error(error.message);
+      return data;
+    });
+
     // ---- 2d. Daily price_change_24h + volume_24h reset ----
     await runStep('daily_price_volume_reset', async () => {
       const { data, error } = await supabaseAdmin.rpc('daily_price_volume_reset');

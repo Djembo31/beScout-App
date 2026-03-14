@@ -80,6 +80,8 @@ function createMockDbPlayer(overrides?: Partial<DbPlayer>): DbPlayer {
     goals: 7,
     assists: 3,
     clean_sheets: 0,
+    total_minutes: 1440,
+    total_saves: 0,
     perf_l5: 72,
     perf_l15: 65,
     perf_season: 68,

@@ -25,9 +25,9 @@ const appRoutes = [
 
 // Screenshot helper
 async function takeScreenshot(page: any, name: string, route: string) {
-  await page.goto(route, { waitUntil: 'networkidle', timeout: 30000 });
-  // Wait for content to render
-  await page.waitForTimeout(2000);
+  await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  // Wait for content to render (extra time for dev server cold compilation)
+  await page.waitForTimeout(3000);
   await page.screenshot({
     path: `e2e/screenshots/${name}.png`,
     fullPage: true,
