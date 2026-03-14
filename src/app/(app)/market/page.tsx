@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
   Briefcase, Zap, Search, Heart,
-  CheckCircle2, X,
+  CheckCircle2, X, Send,
 } from 'lucide-react';
 import { EmptyState, ErrorState, Skeleton, SkeletonCard, TabPanel } from '@/components/ui';
 import { fmtScout, cn } from '@/lib/utils';
@@ -62,6 +62,7 @@ const TransferListSection = dynamic(() => import('@/components/market/TransferLi
   loading: () => <div className="space-y-2">{[...Array(5)].map((_, i) => <SkeletonCard key={i} className="h-16" />)}</div>,
 });
 const MarketSearch = dynamic(() => import('@/components/market/MarketSearch'), { ssr: false });
+const BuyConfirmModal = dynamic(() => import('@/components/market/BuyConfirmModal'), { ssr: false });
 const WatchlistView = dynamic(() => import('@/components/market/WatchlistView'), {
   ssr: false,
   loading: () => <div className="space-y-2">{[...Array(4)].map((_, i) => <SkeletonCard key={i} className="h-16" />)}</div>,
@@ -130,6 +131,7 @@ export default function MarketPage() {
   } = useMarketStore();
 
   const [searchOpen, setSearchOpen] = useState(false);
+  const [pendingBuy, setPendingBuy] = useState<{ playerId: string; source: 'market' | 'ipo' } | null>(null);
 
   const t = useTranslations('market');
   const tc = useTranslations('common');
@@ -168,7 +170,7 @@ export default function MarketPage() {
   const { data: trending = [] } = useTrendingPlayers(8, { enabled: tab === 'kaufen' });
 
   // Portfolio-only queries (gated by tab)
-  const { data: incomingOffers = [] } = useIncomingOffers(user?.id, { enabled: tab === 'portfolio' });
+  const { data: incomingOffers = [] } = useIncomingOffers(user?.id);
 
   // ── Merge price histories into enriched players ──
   const players = useMemo(() => {
@@ -236,10 +238,10 @@ export default function MarketPage() {
   }, [user, watchlist, addToast]);
 
   // ── Handlers ──
-  const handleBuy = useCallback((playerId: string, quantity: number = 1) => {
+  const handleBuy = useCallback((playerId: string) => {
     if (!user) return;
-    doBuy({ userId: user.id, playerId, quantity });
-  }, [user, doBuy]);
+    setPendingBuy({ playerId, source: 'market' });
+  }, [user]);
 
   // Build a map of playerId → ipoId for quick lookup
   const ipoIdMap = useMemo(() => {
@@ -248,12 +250,23 @@ export default function MarketPage() {
     return m;
   }, [ipoList]);
 
-  const handleIpoBuy = useCallback((playerId: string, quantity: number = 1) => {
+  const handleIpoBuy = useCallback((playerId: string) => {
     if (!user) return;
-    const ipoId = ipoIdMap.get(playerId);
-    if (!ipoId) return;
-    doIpoBuy({ userId: user.id, ipoId, playerId, quantity });
-  }, [user, doIpoBuy, ipoIdMap]);
+    setPendingBuy({ playerId, source: 'ipo' });
+  }, [user]);
+
+  // Actual buy execution (called from BuyConfirmModal)
+  const executeBuy = useCallback((qty: number) => {
+    if (!user || !pendingBuy) return;
+    if (pendingBuy.source === 'market') {
+      doBuy({ userId: user.id, playerId: pendingBuy.playerId, quantity: qty });
+    } else {
+      const ipoId = ipoIdMap.get(pendingBuy.playerId);
+      if (!ipoId) return;
+      doIpoBuy({ userId: user.id, ipoId, playerId: pendingBuy.playerId, quantity: qty });
+    }
+    setPendingBuy(null);
+  }, [user, pendingBuy, doBuy, doIpoBuy, ipoIdMap]);
 
   const handleSell = useCallback(async (playerId: string, quantity: number, priceCents: number): Promise<{ success: boolean; error?: string }> => {
     if (!user) return { success: false, error: t('notLoggedIn') };
@@ -472,6 +485,17 @@ export default function MarketPage() {
           description={tt('marketDesc')}
           show={holdings.length === 0}
         />
+        {/* P2P Offers hint — discoverable from Kaufen tab */}
+        {incomingOffers.length > 0 && (
+          <button
+            onClick={() => { setTab('portfolio'); setPortfolioSubTab('angebote'); }}
+            className="w-full flex items-center gap-2 px-3 py-2.5 bg-gold/[0.06] border border-gold/15 rounded-xl text-xs font-bold text-gold hover:bg-gold/10 transition-colors group"
+          >
+            <Send className="size-3.5 flex-shrink-0" aria-hidden="true" />
+            <span>{t('pendingOffers', { defaultMessage: '{count} offene Angebote', count: incomingOffers.length })}</span>
+            <span className="ml-auto text-[10px] text-gold/60 group-hover:text-gold transition-colors">{t('viewOffers', { defaultMessage: 'Anzeigen \u2192' })}</span>
+          </button>
+        )}
         {kaufenSubTab === 'clubverkauf' && (
           <ClubVerkaufSection
             players={players}
@@ -517,12 +541,42 @@ export default function MarketPage() {
             getFloor={getFloor}
             onBuy={handleBuy}
             buyingId={buyingId}
+            balanceCents={balanceCents}
           />
         )}
         <SponsorBanner placement="market_top" />
         <TradingDisclaimer variant="card" />
       </TabPanel>
 
+      {/* Buy Confirmation Modal */}
+      {pendingBuy && (() => {
+        const player = playerMap.get(pendingBuy.playerId);
+        if (!player) return null;
+        const isIpo = pendingBuy.source === 'ipo';
+        const ipo = isIpo ? ipoList.find(i => i.player_id === pendingBuy.playerId) : null;
+        const floorCents = isIpo && ipo
+          ? ipo.price
+          : (player.listings.length > 0 ? Math.min(...player.listings.map(l => l.price)) : Math.round((player.prices.floor ?? 0) * 100));
+        const ipoRemaining = ipo ? ipo.total_offered - ipo.sold : 0;
+        const ipoProgress = ipo ? (ipo.sold / ipo.total_offered) * 100 : 0;
+        const maxQty = isIpo && ipo ? Math.min(ipo.max_per_user, ipoRemaining) : 1;
+
+        return (
+          <BuyConfirmModal
+            open
+            onClose={() => setPendingBuy(null)}
+            player={player}
+            source={pendingBuy.source}
+            priceCents={floorCents}
+            maxQty={maxQty}
+            balanceCents={balanceCents}
+            isPending={buyPending || ipoBuyPending}
+            onConfirm={executeBuy}
+            ipoProgress={isIpo ? ipoProgress : undefined}
+            ipoRemaining={isIpo ? ipoRemaining : undefined}
+          />
+        );
+      })()}
 
     </div>
     </GeoGate>

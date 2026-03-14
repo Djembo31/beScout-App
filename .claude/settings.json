@@ -42,9 +42,23 @@
         ]
       }
     ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/pre-compact-backup.sh"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/session-handoff-auto.sh"
+          },
           {
             "type": "prompt",
             "prompt": "Check ONLY if the assistant modified .tsx/.ts component files in this conversation turn. If NO component files were changed (e.g. only config, docs, planning, or non-code discussion), respond {\"ok\": true}. If component files WERE changed, check: 1) hover/active/focus/disabled states 2) aria-labels on interactive elements 3) loading/empty/error states 4) mobile touch targets min 44px 5) tabular-nums on numbers 6) German labels, English code variables 7) existing components/services reused not rebuilt. If ANY item missing, respond {\"ok\": false, \"reason\": \"Missing: [list]\"}. If all good, respond {\"ok\": true}."

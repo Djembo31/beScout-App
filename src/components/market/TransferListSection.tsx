@@ -19,6 +19,7 @@ interface TransferListSectionProps {
   getFloor: (p: Player) => number;
   onBuy: (playerId: string) => void;
   buyingId: string | null;
+  balanceCents?: number;
 }
 
 type ListingAgg = {
@@ -29,8 +30,9 @@ type ListingAgg = {
 };
 
 export default function TransferListSection({
-  players, sellOrders, playerMap, getFloor, onBuy, buyingId,
+  players, sellOrders, playerMap, getFloor, onBuy, buyingId, balanceCents,
 }: TransferListSectionProps) {
+  const [showAffordable, setShowAffordable] = React.useState(false);
   const t = useTranslations('market');
   const store = useMarketStore();
 
@@ -94,6 +96,13 @@ export default function TransferListSection({
         return p.perf.l5 > 0 && priceBsd > 0 && (p.perf.l5 / priceBsd) > 0.1;
       });
     }
+    // "Leistbar" filter — show only what user can afford
+    if (showAffordable && balanceCents !== undefined && balanceCents > 0) {
+      result = result.filter(p => {
+        const agg = listings.get(p.id);
+        return agg && agg.floor <= balanceCents;
+      });
+    }
 
     // Sort
     result = applySorting(result, store.marketSortBy, (p) => {
@@ -112,7 +121,22 @@ export default function TransferListSection({
         <InfoTooltip text={t('transferListTooltip')} />
       </div>
 
-      <MarketFilters showTransferFilters />
+      <div className="flex items-center gap-2">
+        <div className="flex-1"><MarketFilters showTransferFilters /></div>
+        {balanceCents !== undefined && balanceCents > 0 && (
+          <button
+            onClick={() => setShowAffordable(!showAffordable)}
+            className={cn(
+              'px-3 py-1.5 rounded-full text-[10px] font-bold transition-colors whitespace-nowrap flex-shrink-0 min-h-[36px] border',
+              showAffordable
+                ? 'bg-gold/15 border-gold/30 text-gold'
+                : 'bg-white/[0.04] border-white/[0.08] text-white/40 hover:text-white/60'
+            )}
+          >
+            {t('affordable', { defaultMessage: 'Leistbar' })}
+          </button>
+        )}
+      </div>
 
       {listingPlayers.length === 0 ? (
         <EmptyState
@@ -183,6 +207,12 @@ export default function TransferListSection({
                       </span>
                     )}
                   </div>
+                  {/* Last trade price context */}
+                  {p.prices.lastTrade > 0 && p.prices.lastTrade !== floorBsd && (
+                    <div className="text-[9px] text-white/25 tabular-nums font-mono mt-0.5">
+                      {t('lastTrade', { defaultMessage: 'Letzter Trade' })}: {fmtScout(p.prices.lastTrade)}
+                    </div>
+                  )}
                 </div>
 
                 {/* Buy button */}

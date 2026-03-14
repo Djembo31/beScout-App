@@ -8,6 +8,16 @@ Next.js 14 (App Router) | TypeScript strict | Tailwind (Dark Mode only) |
 Supabase (PostgreSQL + Auth + Realtime) | TanStack React Query v5 | Zustand v5 |
 next-intl (Cookie bescout-locale) | lucide-react
 
+## Jarvis v3 — CTO Mode (1M Context)
+- **Level A** (default): Jarvis liefert FERTIGE Features, Anil macht nur visuelles QA
+- **Level B**: Inkl. Screenshots, Anil sagt "ship it" oder "Richtung falsch"
+- **Level C**: Sprint autonom, taegliche Summaries + Eskalationen
+- **Self-Healing Loop:** `/deliver` iteriert bis ALLE Gates gruen (max 5x)
+- **Impact Analysis:** `/impact` VOR jeder Aenderung an RPCs/DB/Services
+- **CTO Review:** `/cto-review` ersetzt manuelle Quality Gate
+- **Agents:** 6 definierte Agents in `.claude/agents/` (impact-analyst, implementer, reviewer, test-writer, qa-visual, healer)
+- Details → `orchestrator.md` + `core.md`
+
 ## Design System
 - **Background:** `#0a0a0a` (fast schwarz)
 - **Primary/Gold:** `text-gold` / `bg-gold` (CSS Var `--gold: #FFD700`). Buttons: `from-[#FFE44D] to-[#E6B800]`
@@ -39,34 +49,26 @@ Domaenen-spezifische Regeln laden automatisch per Glob-Pattern.
 **Immer geladen:** core.md, business.md, common-errors.md, orchestrator.md
 **Path-spezifisch:** ui-components.md, database.md, trading.md, fantasy.md, gamification.md, community.md, club-admin.md, profile.md
 
+## Agents → .claude/agents/ (6 Agents)
+| Agent | Rolle | Key Constraint |
+|-------|-------|----------------|
+| impact-analyst | Cross-cutting Impact Analysis | Read-only |
+| implementer | Code schreiben nach Spec | Worktree-isoliert |
+| reviewer | Code Review | Read-only, KANN NICHT schreiben |
+| test-writer | Tests aus Spec only | Sieht NIE Implementation |
+| qa-visual | Playwright Screenshots | Read-only + Playwright |
+| healer | Fix Loop (Build/Test/Lint) | Max 5 Runden |
+
 ## Memory → memory/
 - MEMORY.md: Auto-loaded (erste 200 Zeilen) — Architecture + Backend + Patterns
 - current-sprint.md: Aktueller Stand + naechste Prioritaet
 - Deep-Dive Files (on-demand): architecture.md, patterns.md, backend-systems.md, decisions.md, errors.md, sessions.md
 
-## Orchestrator Workflow (PFLICHT fuer Features >10 Zeilen)
-1. Anil beschreibt Feature (1-3 Saetze)
-2. **Gemini get_agent_context()** → kuratiertes Briefing fuer Agents
-3. **Research Pipeline** → Agents recherchieren, Output in `.claude/research/`
-4. **ICH schreibe Spec** mit TypeScript Contracts → `memory/features/[name].md`
-5. **Anil reviewed** → "passt" oder Korrekturen → Decision Capture SOFORT
-6. **Agents implementieren** in Worktrees → ICH orchestriere, merge, reviewe
-7. **Verification Agents** → Build + Code Review + QA (parallel)
-8. **Knowledge Capture** → Fehler/Patterns/Entscheidungen festhalten → Gemini refresh
-9. Modes (0-3) + Details → siehe `orchestrator.md`
-
 ## VOR jeder Aenderung (PFLICHT)
-1. Bestehenden Code pruefen BEVOR neuer Code geschrieben wird:
-   - Services/Hooks/Utils: Gibt es schon eine Funktion die das macht?
-   - Types: Gibt es schon ein passendes Interface/Type?
-   - Components: PlayerDisplay, EmptyState, Modal etc. — NIEMALS duplizieren
-   - Patterns: Wie wird das Problem an anderer Stelle im Projekt geloest?
-2. Relevante .claude/rules/ Dateien LESEN (ui-components.md, trading.md, etc.)
-3. Bei UI: Alle States (Hover/Active/Focus/Disabled/Loading/Empty/Error), Mobile-First 360px
-4. Nicht raten — nachschauen. Code lesen, nicht annehmen.
-
-## Session + Workflow → `core.md`
-Session-Start, Session-Ende, Feature-Lifecycle, Spec-Driven Workflow, Context-Budget — alles in `core.md`.
+1. Bestehenden Code pruefen BEVOR neuer Code geschrieben wird
+2. Relevante .claude/rules/ Dateien LESEN
+3. Bei UI: Alle States, Mobile-First 360px
+4. Nicht raten — nachschauen
 
 ## Kern-Business
 - DPC = Digital Player Contract. Marktwert steigt → Community Success Fee
@@ -77,31 +79,29 @@ Session-Start, Session-Ende, Feature-Lifecycle, Spec-Driven Workflow, Context-Bu
 - IPO Fee: 85% Club, 10% Platform, 5% PBT
 
 ## Code-Konventionen → `core.md`
-Kurzfassung: `'use client'` alle Pages | Types in `types/index.ts` | UI in `ui/index.tsx` |
+`'use client'` alle Pages | Types in `types/index.ts` | UI in `ui/index.tsx` |
 `cn()` classNames | `fmtScout()` Zahlen | Component→Service→Supabase | DE Labels, EN Code
 
-## Quality Pipeline (nach UI-Aenderungen)
-1. `npx vitest run [betroffene tests]` → alle Tests gruen
-2. `npx next build` → gruener Build
-3. /baseline-ui [datei]
-4. /fixing-accessibility [datei]
-5. /fixing-motion-performance [datei]
-6. /simplify [datei] (bei groesseren Changes)
-
-## Compaction (KRITISCH)
-When compacting context, ALWAYS preserve:
-- All modified file paths from this session
-- Current feature spec status + open requirements
-- All build/test commands run and their results
-- Unresolved errors or blockers
-- Active decisions not yet implemented
+## Quality Pipeline (via /deliver automatisiert)
+1. `tsc --noEmit` → Type Check
+2. `npx next build` → Build Check
+3. `vitest run` → Test Check
+4. reviewer Agent → Pattern Check
+5. Bei UI: `/baseline-ui` → `/fixing-accessibility`
 
 ## Automation (Hooks)
-- **PostToolUse:** Auto ESLint --fix nach jedem Edit/Write auf .ts/.tsx
-- **PostToolUse:** Gemini Sync Reminder nach Writes auf memory/ oder rules/ Files
-- **PreToolUse:** Safety Guard blockt destructive Bash Commands (rm -rf, DROP, force push)
-- **PreToolUse:** Agent Dispatch Guard blockt Agent-Starts ohne PROJEKT-WISSEN Sektion
-- **Stop:** Prompt-Check NUR wenn UI-Components geaendert wurden
+- **PostToolUse:** Auto ESLint + Gemini Sync Reminder
+- **PreToolUse:** Safety Guard + Agent Dispatch Guard
+- **PreCompact:** Git Diff Backup (automatisch)
+- **Stop:** Uncommitted Changes Warnung + UI Component Check
+
+## Compaction (KRITISCH)
+When compacting, ALWAYS preserve:
+- All modified file paths from this session
+- Current feature spec status + open requirements
+- All build/test results
+- Unresolved errors or blockers
+- Active decisions not yet implemented
 
 ## Referenzen
 - docs/VISION.md — Produktvision

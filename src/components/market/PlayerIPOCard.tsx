@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import {
   Loader2, Target, TrendingUp, TrendingDown, Minus,
-  FileText, Activity,
+  FileText, Activity, Lock,
 } from 'lucide-react';
 import {
   PlayerPhoto, PositionBadge,
@@ -216,6 +216,14 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
           )}
         </div>
       </div>
+
+      {/* Early Access badge */}
+      {ipo.status === 'early_access' && (
+        <div className="mx-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold">
+          <Lock className="size-3" aria-hidden="true" />
+          {t('ipoEarlyAccess', { defaultMessage: 'Vorkaufsrecht (Silber+)' })}
+        </div>
+      )}
 
       {/* ── Gold Divider ── */}
       <div className="mx-3 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
