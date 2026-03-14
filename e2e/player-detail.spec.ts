@@ -1,23 +1,49 @@
 import { test, expect, type Page } from '@playwright/test';
-import { waitForApp } from './helpers';
+import { waitForApp, CLUB_SLUG } from './helpers';
 
-/** Navigate to the first player on the Kaufen tab via href (avoids nested button click issues). */
+/**
+ * Navigate to a player detail page using multiple fallback strategies.
+ * 1. Market Kaufen tab (IPO cards / Transferliste)
+ * 2. Club page (Sakaryaspor squad always has player links)
+ * 3. Clubs discovery page
+ */
 async function goToFirstPlayer(page: Page): Promise<boolean> {
+  // --- Strategy 1: Market Kaufen tab ---
   await page.goto('/market?tab=kaufen', { waitUntil: 'domcontentloaded' });
   await waitForApp(page);
 
-  // Default sub-tab is "Club Verkauf" which shows IPO cards with player links
   let playerLink = page.locator('a[href*="/player/"]').first();
-  let found = await playerLink.isVisible({ timeout: 20_000 }).catch(() => false);
+  let found = await playerLink.isVisible({ timeout: 15_000 }).catch(() => false);
 
-  // If no player links on Club Verkauf, try Transferliste sub-tab
+  // Try Transferliste sub-tab if Club Verkauf is empty
   if (!found) {
     const transferTab = page.getByRole('button', { name: /Transferliste/i });
-    if (await transferTab.isVisible({ timeout: 5_000 }).catch(() => false)) {
+    if (await transferTab.isVisible({ timeout: 3_000 }).catch(() => false)) {
       await transferTab.click();
       await page.waitForTimeout(2000);
       playerLink = page.locator('a[href*="/player/"]').first();
-      found = await playerLink.isVisible({ timeout: 15_000 }).catch(() => false);
+      found = await playerLink.isVisible({ timeout: 10_000 }).catch(() => false);
+    }
+  }
+
+  // --- Strategy 2: Club page (always has players in squad preview) ---
+  if (!found) {
+    await page.goto(`/club/${CLUB_SLUG}`, { waitUntil: 'domcontentloaded' });
+    await waitForApp(page);
+
+    // Squad preview on the overview tab has player links
+    playerLink = page.locator('a[href*="/player/"]').first();
+    found = await playerLink.isVisible({ timeout: 20_000 }).catch(() => false);
+
+    // If not on overview, try switching to Spieler tab
+    if (!found) {
+      const spielerTab = page.getByRole('tab', { name: /Spieler|Kader/i });
+      if (await spielerTab.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await spielerTab.click();
+        await page.waitForTimeout(2000);
+        playerLink = page.locator('a[href*="/player/"]').first();
+        found = await playerLink.isVisible({ timeout: 15_000 }).catch(() => false);
+      }
     }
   }
 

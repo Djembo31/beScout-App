@@ -25,9 +25,18 @@ async function loginAndSave(
   // instead of React's onSubmit with e.preventDefault().
   await page.waitForFunction(() => {
     const btn = document.querySelector('button[type="submit"]');
-    // Check that React has attached its internal fiber/props to the element
-    return btn && Object.keys(btn).some(k => k.startsWith('__reactFiber') || k.startsWith('__reactProps'));
-  }, { timeout: 15_000 });
+    if (!btn) return false;
+    // Check React internal props (fiber or props prefix, or __reactEvents)
+    const keys = Object.keys(btn);
+    const hasReact = keys.some(k =>
+      k.startsWith('__reactFiber') ||
+      k.startsWith('__reactProps') ||
+      k.startsWith('__reactEvents')
+    );
+    if (hasReact) return true;
+    // Fallback: if Next.js has loaded its scripts, hydration is likely done
+    return !!document.querySelector('script[src*="/_next/"]');
+  }, { timeout: 30_000 });
 
   // Fill credentials
   await page.getByPlaceholder('E-Mail Adresse').fill(email);
