@@ -155,10 +155,12 @@ export default function MarktTab({
                 </div>
                 <div className="text-right">
                   <div className="font-mono font-bold tabular-nums text-gold">{fmtScout(listing.price)}</div>
-                  <div className="text-[10px] text-white/40 flex items-center gap-1">
-                    <Clock className="size-2.5" aria-hidden="true" />
-                    {Math.floor((listing.expiresAt - Date.now()) / 3600000)}h
-                  </div>
+                  {listing.expiresAt > 0 && (
+                    <div className="text-[10px] text-white/40 flex items-center gap-1">
+                      <Clock className="size-2.5" aria-hidden="true" />
+                      {Math.max(0, Math.floor((listing.expiresAt - Date.now()) / 3_600_000))}h
+                    </div>
+                  )}
                 </div>
                 <div className="ml-3 px-2.5 py-1 rounded-lg bg-gold/10 border border-gold/20 text-[10px] font-bold text-gold">{t('offer')}</div>
               </div>
