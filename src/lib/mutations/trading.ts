@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
-import { buyFromMarket } from '@/lib/services/trading';
+import { buyFromMarket, placeBuyOrder, cancelBuyOrder } from '@/lib/services/trading';
 import { buyFromIpo } from '@/lib/services/ipo';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { invalidateTradeQueries } from '@/lib/queries/invalidation';
@@ -40,6 +40,41 @@ export function useBuyFromIpo() {
       queryClient.invalidateQueries({ queryKey: qk.ipos.active });
       queryClient.invalidateQueries({ queryKey: qk.ipos.announced });
       queryClient.invalidateQueries({ queryKey: qk.ipos.recentlyEnded });
+    },
+  });
+}
+
+export function usePlaceBuyOrder() {
+  const { refreshBalance } = useWallet();
+  return useMutation({
+    mutationFn: async ({ userId, playerId, quantity, maxPriceCents }: {
+      userId: string; playerId: string; quantity: number; maxPriceCents: number;
+    }) => {
+      const result = await placeBuyOrder(userId, playerId, quantity, maxPriceCents);
+      if (!result.success) throw new Error(result.error || 'Kaufgesuch fehlgeschlagen');
+      return result;
+    },
+    onSuccess: (_result, { playerId, userId }) => {
+      // locked_balance changed, not balance — refreshBalance fetches both
+      refreshBalance();
+      invalidateTradeQueries(playerId, userId);
+      queryClient.invalidateQueries({ queryKey: qk.orders.all });
+    },
+  });
+}
+
+export function useCancelBuyOrder() {
+  const { refreshBalance } = useWallet();
+  return useMutation({
+    mutationFn: async ({ userId, orderId }: { userId: string; orderId: string }) => {
+      const result = await cancelBuyOrder(userId, orderId);
+      if (!result.success) throw new Error(result.error || 'Stornierung fehlgeschlagen');
+      return result;
+    },
+    onSuccess: (_result, { userId }) => {
+      refreshBalance();
+      invalidateTradeQueries('', userId);
+      queryClient.invalidateQueries({ queryKey: qk.orders.all });
     },
   });
 }
