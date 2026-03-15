@@ -121,7 +121,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
           <div className="flex items-center justify-between text-sm mb-4">
             <div className="flex items-center gap-1.5">
               <Coins className="w-4 h-4 text-gold" />
-              <span className="text-gold font-bold">{formatScout(bounty.reward_cents)} bCredits</span>
+              <span className="text-gold font-bold">{formatScout(bounty.reward_cents)} $SCOUT</span>
             </div>
             <div className="flex items-center gap-1.5 text-white/50">
               <Users className="w-4 h-4" />
@@ -171,7 +171,7 @@ export default function BountyCard({ bounty, userId, onSubmit, submitting, userT
           <div className="text-sm text-white/50 mb-2">
             <span className="font-bold text-white">{bounty.title}</span>
             <span className="mx-2">&bull;</span>
-            <span className="text-gold font-bold">{formatScout(bounty.reward_cents)} bCredits</span>
+            <span className="text-gold font-bold">{formatScout(bounty.reward_cents)} $SCOUT</span>
           </div>
           <div>
             <label className="text-xs text-white/50 font-semibold mb-1.5 block">{tb('title')}</label>

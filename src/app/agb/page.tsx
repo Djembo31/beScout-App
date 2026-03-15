@@ -20,7 +20,7 @@ export default function AGBPage() {
         <p>{t('registrationContent')}</p>
       </section>
 
-      {/* bCredits */}
+      {/* $SCOUT */}
       <section>
         <h2 className="text-lg font-bold text-white mb-3">{t('creditsTitle')}</h2>
         <p>{t('creditsContent')}</p>

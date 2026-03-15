@@ -25,8 +25,8 @@ export const ACHIEVEMENT_PERKS: Record<string, AchievementPerk> = {
   '10_trades': {
     type: 'bsd_bonus',
     amountCents: 10000,
-    labelDe: '+100 bCredits Bonus',
-    labelTr: '+100 bCredits bonus',
+    labelDe: '+100 $SCOUT Bonus',
+    labelTr: '+100 $SCOUT bonus',
   },
   '100_trades': {
     type: 'cosmetic_unlock',
@@ -55,8 +55,8 @@ export const ACHIEVEMENT_PERKS: Record<string, AchievementPerk> = {
   complete_scout: {
     type: 'bsd_bonus',
     amountCents: 50000,
-    labelDe: '+500 bCredits + Legendärer Badge',
-    labelTr: '+500 bCredits + efsanevi rozet',
+    labelDe: '+500 $SCOUT + Legendärer Badge',
+    labelTr: '+500 $SCOUT + efsanevi rozet',
   },
   founding_scout: {
     type: 'multiplier',

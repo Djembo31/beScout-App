@@ -65,7 +65,7 @@ export function ClubEventsSection({ events, clubColor }: Props) {
                   {isFree ? t('freeEntry') : fmtScout(event.entry_fee)}
                 </span>
                 <span className="text-white/30">|</span>
-                <span className="font-mono tabular-nums">{fmtScout(event.prize_pool)} bCredits</span>
+                <span className="font-mono tabular-nums">{fmtScout(event.prize_pool)} $SCOUT</span>
               </div>
               <div className="flex items-center gap-2 text-[10px] text-white/40">
                 <Users className="size-3" />

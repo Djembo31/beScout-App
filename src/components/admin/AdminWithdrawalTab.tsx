@@ -96,25 +96,25 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
         <Card className="p-4 bg-gold/[0.06] border-gold/20">
           <div className="text-[10px] text-white/40 uppercase mb-1">{t('wdAvailable')}</div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black text-gold tabular-nums">{formatScout(balance?.available ?? 0)} bCredits</div>
+            <div className="text-xl font-mono font-black text-gold tabular-nums">{formatScout(balance?.available ?? 0)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
           <div className="text-[10px] text-white/40 uppercase mb-1">{t('wdTotalEarned')}</div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black tabular-nums">{formatScout(balance?.total_earned ?? 0)} bCredits</div>
+            <div className="text-xl font-mono font-black tabular-nums">{formatScout(balance?.total_earned ?? 0)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
           <div className="text-[10px] text-white/40 uppercase mb-1">{t('wdTradingFees')}</div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-sm font-mono font-bold text-emerald-400 tabular-nums">{formatScout(balance?.trade_fees ?? 0)} bCredits</div>
+            <div className="text-sm font-mono font-bold text-emerald-400 tabular-nums">{formatScout(balance?.trade_fees ?? 0)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
           <div className="text-[10px] text-white/40 uppercase mb-1">{t('wdAlreadyPaid')}</div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-sm font-mono font-bold text-white/60 tabular-nums">{formatScout(balance?.total_withdrawn ?? 0)} bCredits</div>
+            <div className="text-sm font-mono font-bold text-white/60 tabular-nums">{formatScout(balance?.total_withdrawn ?? 0)} $SCOUT</div>
           )}
         </Card>
       </div>
@@ -188,7 +188,7 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
                   <div className="flex items-center gap-3">
                     <StatusIcon className={cn('size-4', status.color)} aria-hidden="true" />
                     <div>
-                      <div className="text-sm font-mono font-bold tabular-nums">{formatScout(w.amount_cents)} bCredits</div>
+                      <div className="text-sm font-mono font-bold tabular-nums">{formatScout(w.amount_cents)} $SCOUT</div>
                       {w.note && <div className="text-xs text-white/40">{w.note}</div>}
                     </div>
                   </div>

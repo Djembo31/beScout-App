@@ -453,7 +453,7 @@ export default function HomePage() {
                             </span>
                             <span className="text-white/30">/{nextEvent.max_entries ?? '\u221E'}</span>
                           </span>
-                          <span>{t('entryLabel')}{nextEvent.entry_fee === 0 ? t('entryFree') : `${fmtScout(centsToBsd(nextEvent.entry_fee))} bCredits`}</span>
+                          <span>{t('entryLabel')}{nextEvent.entry_fee === 0 ? t('entryFree') : `${fmtScout(centsToBsd(nextEvent.entry_fee))} $SCOUT`}</span>
                         </div>
                       </div>
                       <div className="text-right shrink-0">
@@ -464,7 +464,7 @@ export default function HomePage() {
                         )}>
                           {formatPrize(centsToBsd(nextEvent.prize_pool))}
                         </div>
-                        <div className="text-[11px] text-white/40">bCredits</div>
+                        <div className="text-[11px] text-white/40">$SCOUT</div>
                       </div>
                     </div>
                   </div>
@@ -499,7 +499,7 @@ export default function HomePage() {
                   </div>
                   <div className="shrink-0 text-right">
                     <div className="font-mono font-black text-gold text-lg">{activeIPOs[0].ipo.price}</div>
-                    <div className="text-[11px] text-white/40">bCredits/DPC</div>
+                    <div className="text-[11px] text-white/40">$SCOUT/DPC</div>
                   </div>
                 </div>
               </div>

@@ -215,7 +215,7 @@ export default function PlayerHero({
                 <span className="text-xl md:text-3xl font-mono font-black tabular-nums text-gold">
                   {isIPO && activeIpo ? fmtScout(centsToBsd(activeIpo.price)) : fmtScout(floor)}
                 </span>
-                <span className="text-white/40 mb-0.5">bCredits</span>
+                <span className="text-white/40 mb-0.5">$SCOUT</span>
                 {!isIPO && change24h !== 0 && (
                   <span className={cn('flex items-center gap-0.5 mb-0.5 font-mono font-bold tabular-nums text-sm px-1.5 py-0.5 rounded-md',
                     up ? 'text-green-500 bg-green-500/10' : 'text-red-300 bg-red-500/10'
@@ -253,7 +253,7 @@ export default function PlayerHero({
               <div className="flex items-center gap-2 px-3 py-2 bg-gold/5 border border-gold/20 rounded-xl">
                 <Bell className="size-3.5 text-gold" />
                 <span className="text-xs text-gold/70">
-                  Alert: {priceAlert.dir === 'below' ? '\u2264' : '\u2265'} {fmtScout(priceAlert.target)} bCredits
+                  Alert: {priceAlert.dir === 'below' ? '\u2264' : '\u2265'} {fmtScout(priceAlert.target)} $SCOUT
                 </span>
                 <button onClick={() => { onRemovePriceAlert(); setShowAlertInput(false); }} className="ml-auto text-white/30 hover:text-white/60" aria-label={t('hero.removeAlert')}>
                   <XCircle className="size-3.5" />

@@ -23,7 +23,7 @@ interface CreateBountyModalProps {
 
 const DEADLINE_DAYS = [3, 7, 14, 30] as const;
 
-const MIN_REWARD = 5000; // 50 bCredits in cents
+const MIN_REWARD = 5000; // 50 $SCOUT in cents
 
 export default function CreateBountyModal({ open, onClose, onSubmit, loading }: CreateBountyModalProps) {
   const t = useTranslations('community');
@@ -67,7 +67,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-1.5 text-xs text-white/40">
             <Coins className="w-3.5 h-3.5 text-gold" />
-            <span>{tc('balance')}: <span className="text-gold font-bold">{formatScout(availableCents)} bCredits</span></span>
+            <span>{tc('balance')}: <span className="text-gold font-bold">{formatScout(availableCents)} $SCOUT</span></span>
           </div>
           <Button
             variant="gold"
@@ -122,7 +122,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
               placeholder="50"
               className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 pr-20 text-base"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gold font-bold">bCredits</span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gold font-bold">$SCOUT</span>
           </div>
           {rewardCents > 0 && rewardCents < MIN_REWARD && (
             <div className="text-[10px] text-red-400 mt-1">{t('createBounty.minReward')}</div>

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Clubs entdecken | BeScout',
+  title: 'Clubs entdecken',
   description: 'Entdecke Clubs und folge deinen Favoriten.',
 };
 

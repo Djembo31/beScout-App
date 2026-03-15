@@ -125,7 +125,7 @@ export function getOnboardingProgress(stats: {
       completed: stats.holdingsCount > 0,
       labelDe: 'Kaufe deinen ersten DPC',
       labelTr: 'İlk DPC\'ni satın al',
-      rewardLabel: '+1.000 bCredits',
+      rewardLabel: '+1.000 $SCOUT',
       href: '/market?tab=kaufen',
     },
     {
@@ -214,8 +214,8 @@ export function getSuggestedAction(
     case 'evangelist':
       return {
         key: 'invite_friends',
-        labelDe: 'Lade Freunde ein und verdiene 500 bCredits',
-        labelTr: 'Arkadaşlarını davet et ve 500 bCredits kazan',
+        labelDe: 'Lade Freunde ein und verdiene 500 $SCOUT',
+        labelTr: 'Arkadaşlarını davet et ve 500 $SCOUT kazan',
         href: '/profile/settings',
       };
     case 'sustained':

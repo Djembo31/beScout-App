@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       const name = data.display_name || `@${data.handle}`;
       const desc = `${name} auf BeScout${data.top_role ? ` — ${data.top_role}` : ''}`;
       return {
-        title: `${name} | BeScout`,
+        title: name,
         description: desc,
         openGraph: {
           title: `${name} | BeScout`,
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       };
     }
   } catch (err) { console.error('[Profile] generateMetadata failed:', err); }
-  return { title: 'Profil | BeScout' };
+  return { title: 'Profil' };
 }
 
 export default function ProfileHandleLayout({ children }: Props) {

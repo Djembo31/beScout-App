@@ -87,7 +87,7 @@ export default function LeaderboardPanel({
             <div className="text-right">
               <div className="text-2xl font-mono font-black text-gold">{viewingUserLineup.entry.totalScore} Pkt</div>
               {viewingUserLineup.entry.rewardAmount > 0 && (
-                <div className="text-xs font-mono text-green-500">+{fmtScout(viewingUserLineup.entry.rewardAmount / 100)} bCredits</div>
+                <div className="text-xs font-mono text-green-500">+{fmtScout(viewingUserLineup.entry.rewardAmount / 100)} $SCOUT</div>
               )}
             </div>
           </div>
@@ -261,7 +261,7 @@ export default function LeaderboardPanel({
                     </div>
                     <div className="flex items-center gap-3">
                       {entry.rewardAmount > 0 && (
-                        <span className="text-xs font-mono text-green-500">+{fmtScout(entry.rewardAmount / 100)} bCredits</span>
+                        <span className="text-xs font-mono text-green-500">+{fmtScout(entry.rewardAmount / 100)} $SCOUT</span>
                       )}
                       <span className="font-mono font-bold">{entry.totalScore}</span>
                       <ChevronRight aria-hidden="true" className="size-4 text-white/30" />

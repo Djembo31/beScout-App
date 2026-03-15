@@ -85,7 +85,7 @@ function BuyForm({ priceBsd, priceCents, maxQty, balanceCents, isBuying, canAffo
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between text-xs">
             <span className="text-white/30">{t('total')}</span>
-            <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(totalBsd)} bCredits</span>
+            <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(totalBsd)} $SCOUT</span>
           </div>
           {balanceCents !== null && (
             <div className="flex items-center justify-between text-[10px]">

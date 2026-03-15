@@ -331,7 +331,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
             <Unlock className="w-3 h-3" />
             {post.unlock_count}
           </span>
-          <span className="font-mono text-gold font-bold">{fmtScout(priceBsd)} bCredits</span>
+          <span className="font-mono text-gold font-bold">{fmtScout(priceBsd)} $SCOUT</span>
         </div>
       </div>
     </Card>

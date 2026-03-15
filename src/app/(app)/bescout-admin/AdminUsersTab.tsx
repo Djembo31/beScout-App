@@ -128,7 +128,7 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
         <Modal open={true} onClose={() => setAdjustModal(null)} title={t('walletCorrection', { handle: adjustModal.handle })}>
           <div className="space-y-4">
             <div className="text-sm text-white/60">
-              {t('currentBalance')} <span className="font-mono tabular-nums text-gold">{fmtScout(centsToBsd(adjustModal.balance))} bCredits</span>
+              {t('currentBalance')} <span className="font-mono tabular-nums text-gold">{fmtScout(centsToBsd(adjustModal.balance))} $SCOUT</span>
             </div>
             <div>
               <label htmlFor="adjust-amount" className="text-xs text-white/60 mb-1 block">{t('amountLabel')}</label>

@@ -58,7 +58,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             <span className="text-xs text-white/50">{t('total')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black text-gold">{formatScout(totalRevenue)} bCredits</div>
+            <div className="text-xl font-mono font-black text-gold">{formatScout(totalRevenue)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
@@ -67,7 +67,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             <span className="text-xs text-white/50">{t('dpcIpoRevenue')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black">{formatScout(stats?.ipo_revenue_cents ?? 0)} bCredits</div>
+            <div className="text-xl font-mono font-black">{formatScout(stats?.ipo_revenue_cents ?? 0)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
@@ -76,7 +76,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             <span className="text-xs text-white/50">{t('tradingFees')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black text-emerald-400">{formatScout(clubFeeRevenue)} bCredits</div>
+            <div className="text-xl font-mono font-black text-emerald-400">{formatScout(clubFeeRevenue)} $SCOUT</div>
           )}
         </Card>
         <Card className="p-4">
@@ -85,7 +85,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             <span className="text-xs text-white/50">{t('voteRevenue')}</span>
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black text-purple-400">{formatScout(voteRevenue)} bCredits</div>
+            <div className="text-xl font-mono font-black text-purple-400">{formatScout(voteRevenue)} $SCOUT</div>
           )}
         </Card>
       </div>
@@ -101,7 +101,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             <div>
               <div className="text-[10px] text-white/40 uppercase">{t('clubFee')}</div>
               {loading ? <Skeleton className="h-5 w-16" /> : (
-                <div className="text-sm font-mono font-bold">{formatScout(tradingFees?.totalClubFee ?? 0)} bCredits</div>
+                <div className="text-sm font-mono font-bold">{formatScout(tradingFees?.totalClubFee ?? 0)} $SCOUT</div>
               )}
             </div>
           </div>
@@ -112,7 +112,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             <div>
               <div className="text-[10px] text-white/40 uppercase">{t('pbtFee')}</div>
               {loading ? <Skeleton className="h-5 w-16" /> : (
-                <div className="text-sm font-mono font-bold">{formatScout(tradingFees?.totalPbtFee ?? 0)} bCredits</div>
+                <div className="text-sm font-mono font-bold">{formatScout(tradingFees?.totalPbtFee ?? 0)} $SCOUT</div>
               )}
             </div>
           </div>
@@ -123,7 +123,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             <div>
               <div className="text-[10px] text-white/40 uppercase">{t('platformFee')}</div>
               {loading ? <Skeleton className="h-5 w-16" /> : (
-                <div className="text-sm font-mono font-bold">{formatScout(tradingFees?.totalPlatformFee ?? 0)} bCredits</div>
+                <div className="text-sm font-mono font-bold">{formatScout(tradingFees?.totalPlatformFee ?? 0)} $SCOUT</div>
               )}
             </div>
           </div>
@@ -133,7 +133,7 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
             </div>
             <div>
               <div className="text-[10px] text-white/40 uppercase">{t('tradingVol24h')}</div>
-              <div className="text-sm font-mono font-bold">{fmtScout(totalVolume)} bCredits</div>
+              <div className="text-sm font-mono font-bold">{fmtScout(totalVolume)} $SCOUT</div>
             </div>
           </div>
         </div>

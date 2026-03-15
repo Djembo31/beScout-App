@@ -220,7 +220,7 @@ export async function createBounty(params: {
 }
 
 /**
- * User-created bounty: locks bCredits from wallet as escrow, creates bounty with is_user_bounty=true.
+ * User-created bounty: locks $SCOUT from wallet as escrow, creates bounty with is_user_bounty=true.
  */
 export async function createUserBounty(params: {
   userId: string;

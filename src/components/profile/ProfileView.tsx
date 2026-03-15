@@ -325,7 +325,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
                 {balanceCents === null ? (
                   <span className="inline-block w-24 h-8 rounded bg-gold/10 animate-pulse motion-reduce:animate-none" />
                 ) : (
-                  <>{formatScout(balanceCents)} bCredits</>
+                  <>{formatScout(balanceCents)} $SCOUT</>
                 )}
               </div>
               <div className="text-sm text-white/50 mb-4">{t('walletAvailable')}</div>

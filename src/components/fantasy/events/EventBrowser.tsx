@@ -140,14 +140,14 @@ export function EventBrowser({ events, onEventClick }: Props) {
           <button
             onClick={() => setViewMode('cards')}
             className={cn('p-1.5 rounded-md transition-colors', isCard ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50')}
-            aria-label="Kartenansicht"
+            aria-label={t('viewCards')}
           >
             <LayoutGrid className="size-3.5" aria-hidden="true" />
           </button>
           <button
             onClick={() => setViewMode('table')}
             className={cn('p-1.5 rounded-md transition-colors', !isCard ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50')}
-            aria-label="Listenansicht"
+            aria-label={t('viewRows')}
           >
             <List className="size-3.5" aria-hidden="true" />
           </button>

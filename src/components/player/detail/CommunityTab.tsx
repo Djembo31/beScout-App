@@ -107,12 +107,12 @@ export default function CommunityTab({
         <div className="flex gap-2.5">
           {/* Votes */}
           <div className="flex flex-col items-center gap-0.5">
-            <button onClick={() => onVotePost(post.id, myVote === 1 ? 0 : 1)} aria-label="Upvote"
+            <button onClick={() => onVotePost(post.id, myVote === 1 ? 0 : 1)} aria-label={tc('upvoteLabel')}
               className={cn('p-1 rounded transition-colors', myVote === 1 ? 'bg-green-500/20 text-green-500' : 'text-white/30 hover:text-green-500')}>
               <ArrowUp className="size-3.5" aria-hidden="true" />
             </button>
             <span className={cn('font-mono tabular-nums text-xs font-bold', netScore > 10 ? 'text-green-500' : netScore < 0 ? 'text-red-300' : 'text-white/50')}>{netScore}</span>
-            <button onClick={() => onVotePost(post.id, myVote === -1 ? 0 : -1)} aria-label="Downvote"
+            <button onClick={() => onVotePost(post.id, myVote === -1 ? 0 : -1)} aria-label={tc('downvoteLabel')}
               className={cn('p-1 rounded transition-colors', myVote === -1 ? 'bg-red-500/20 text-red-300' : 'text-white/30 hover:text-red-300')}>
               <ArrowDown className="size-3.5" aria-hidden="true" />
             </button>

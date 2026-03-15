@@ -128,7 +128,7 @@ export default function CommunityValuation({ playerId, userId, floorPriceCents, 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs text-white/50">{t('yourEstimate', { gw: currentGameweek })}</span>
-            <span className="font-mono font-bold tabular-nums text-sm">{fmtScout(centsToBsd(myEstimate))} bCredits</span>
+            <span className="font-mono font-bold tabular-nums text-sm">{fmtScout(centsToBsd(myEstimate))} $SCOUT</span>
           </div>
           <input
             type="range"

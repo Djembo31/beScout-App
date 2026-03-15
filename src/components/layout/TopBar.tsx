@@ -130,7 +130,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
           <button
             onClick={onMobileMenuToggle}
             className="lg:hidden p-2 rounded-xl hover:bg-white/10 active:scale-90 transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none"
-            aria-label="Menu"
+            aria-label={t('openMenu')}
           >
             <Menu className="size-5 text-white/70" />
           </button>
@@ -151,7 +151,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
 
         {/* Right side */}
         <div className="flex items-center gap-2 md:gap-3">
-          {/* bCredits Balance pill — compact on mobile */}
+          {/* $SCOUT Balance pill — compact on mobile */}
           <div data-tour-id="topbar-balance" className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 bg-gold/10 border border-gold/20 rounded-xl">
             <DollarSign className="size-3 sm:size-3.5 text-gold" />
             {balanceCents === null ? (

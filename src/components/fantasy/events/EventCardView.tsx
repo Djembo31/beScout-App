@@ -69,7 +69,7 @@ export function EventCardView({ event, onClick }: Props) {
         {event.scope && <EventScopeBadge scope={event.scope} size="sm" />}
         <span>{event.format}</span>
         <span className="text-white/15">·</span>
-        <span>{event.mode === 'league' ? 'Liga' : 'Turnier'}</span>
+        <span>{event.mode === 'league' ? t('modeLeague') : t('modeTournament')}</span>
         {event.clubName && (
           <>
             <span className="text-white/15">·</span>
@@ -132,7 +132,7 @@ export function EventCardView({ event, onClick }: Props) {
           ) : event.status === 'running' ? (
             <><Play className="size-4" aria-hidden="true" /> {t('runningBtn')}</>
           ) : (
-            <><Plus className="size-4" aria-hidden="true" /> {event.buyIn === 0 ? t('joinBtn') : `${event.buyIn} bCredits`}</>
+            <><Plus className="size-4" aria-hidden="true" /> {event.buyIn === 0 ? t('joinBtn') : `${event.buyIn} $SCOUT`}</>
           )}
         </Button>
       </div>

@@ -16,9 +16,9 @@ async function getClubMeta(slug: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const club = await getClubMeta(slug);
-  if (!club) return { title: 'Club | BeScout' };
+  if (!club) return { title: 'Club' };
 
-  const title = `${club.name} — BeScout`;
+  const title = club.name;
   const description = `${club.name} auf BeScout: Spieler, Fantasy, Trading. Werde Fan!`;
 
   return {

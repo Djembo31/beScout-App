@@ -11,6 +11,7 @@ import { TourOverlay } from '@/components/tour/TourOverlay';
 import { DemoBanner } from '@/components/demo/DemoBanner';
 import { claimWelcomeBonus } from '@/lib/services/welcomeBonus';
 import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts';
+import { useTranslations } from 'next-intl';
 
 const ShortcutsModal = lazy(() => import('@/components/help/ShortcutsModal'));
 
@@ -57,6 +58,7 @@ export default function AppLayout({
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const handleShowShortcuts = useCallback(() => setShortcutsOpen(true), []);
   useKeyboardShortcuts(handleShowShortcuts);
+  const tc = useTranslations('common');
 
   return (
     <TourProvider>
@@ -70,7 +72,7 @@ export default function AppLayout({
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-gold focus:text-black focus:font-bold focus:rounded-xl focus:text-sm"
       >
-        Skip to content
+        {tc('skipToContent')}
       </a>
 
       {/* App Shell */}

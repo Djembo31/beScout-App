@@ -592,7 +592,7 @@ export default function KaufenDiscovery({
                     )}
                     <span className="font-bold text-sm">{clubName}</span>
                     {!isFollowed && (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 text-white/30 font-bold">Nicht gefolgt</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 text-white/30 font-bold">{t('notFollowed')}</span>
                     )}
                     <span className="text-xs text-white/40 ml-auto mr-2">
                       {t('playersAvailable', { count: clubPlayers.length })}
@@ -824,7 +824,7 @@ export default function KaufenDiscovery({
                   <span className="text-white/20">–</span>
                   <input type="number" inputMode="numeric" placeholder={t('max')} value={priceMax} onChange={(e) => setPriceMax(e.target.value)}
                     className="w-20 px-2 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white/70 focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
-                  <span className="text-[10px] text-white/30">bCredits</span>
+                  <span className="text-[10px] text-white/30">$SCOUT</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setOnlyAvailable(!onlyAvailable)}
@@ -954,7 +954,7 @@ export default function KaufenDiscovery({
                       <span className="text-white/20 font-bold">–</span>
                       <input type="number" inputMode="numeric" placeholder={t('max')} value={priceMax} onChange={(e) => setPriceMax(e.target.value)}
                         className="flex-1 px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white/70 focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
-                      <span className="text-xs text-white/30 font-bold shrink-0">bCredits</span>
+                      <span className="text-xs text-white/30 font-bold shrink-0">$SCOUT</span>
                     </div>
                   </div>
                   <div className="flex gap-2">

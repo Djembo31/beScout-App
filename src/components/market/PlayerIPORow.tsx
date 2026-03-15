@@ -27,7 +27,7 @@ export default function PlayerIPORow({ player, ipo, onBuy, buying }: PlayerIPORo
   return (
     <Link
       href={`/player/${player.id}`}
-      aria-label={`${player.first} ${player.last} — ${fmtScout(priceBsd)} bCredits`}
+      aria-label={`${player.first} ${player.last} — ${fmtScout(priceBsd)} $SCOUT`}
       className={cn(
         'block px-3 py-2.5 rounded-xl transition-colors group min-h-[44px]',
         'hover:bg-white/[0.04] active:bg-white/[0.06]',

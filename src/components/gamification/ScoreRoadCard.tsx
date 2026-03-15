@@ -62,7 +62,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
     if (result.ok) {
       const rewardBsd = result.reward_bsd ? centsToBsd(result.reward_bsd) : 0;
       if (rewardBsd > 0) {
-        addToast(tsr('celebration', { reward: `${fmtScout(rewardBsd)} bCredits` }), 'celebration');
+        addToast(tsr('celebration', { reward: `${fmtScout(rewardBsd)} $SCOUT` }), 'celebration');
       } else {
         addToast(tsr('claimed'), 'success');
       }
@@ -133,7 +133,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
                     {/* Reward badge */}
                     {ms.rewardBsd > 0 ? (
                       <span className="text-xs font-mono font-bold text-gold">
-                        {fmtScout(centsToBsd(ms.rewardBsd))} bCredits
+                        {fmtScout(centsToBsd(ms.rewardBsd))} $SCOUT
                       </span>
                     ) : (
                       <span className="text-[10px] text-white/30">{tsr('cosmetic')}</span>

@@ -42,8 +42,8 @@ export const DashboardTab = ({
   const currentLineup = scoredLineups[selectedIdx] ?? null;
   const { data: pitchSponsor } = useSponsor('fantasy_pitch');
   const sponsorName = pitchSponsor?.name ?? 'Sponsor';
-  const leftBoard = ['beScout', sponsorName, 'TFF 1.Lig', sponsorName];
-  const rightBoard = [sponsorName, 'beScout', sponsorName, 'Premium'];
+  const leftBoard = ['beScout', sponsorName, t('dashboard.boardLeague'), sponsorName];
+  const rightBoard = [sponsorName, 'beScout', sponsorName, t('dashboard.boardPremium')];
   const totalScore = currentLineup ? currentLineup.players.reduce((sum, p) => sum + (p.score ?? 0), 0) : 0;
 
   // Form der letzten 5
@@ -127,7 +127,7 @@ export const DashboardTab = ({
             {lastEvent.rewardCents > 0 && (
               <div className="p-3 bg-gold/10 rounded-lg border border-gold/20 flex items-center gap-2">
                 <Gift className="size-4 text-gold" aria-hidden="true" />
-                <span className="text-sm">Reward: <strong>{fmtScout(centsToBsd(lastEvent.rewardCents))} bCredits</strong></span>
+                <span className="text-sm">{t('rewardLabel')}: <strong>{fmtScout(centsToBsd(lastEvent.rewardCents))} $SCOUT</strong></span>
               </div>
             )}
           </Card>
@@ -233,10 +233,10 @@ export const DashboardTab = ({
                               }}
                             >
                               <span className="font-bold text-sm" style={{ color: sp.score != null ? '#fff' : getPosAccentColor(sp.player.position) }}>
-                                {sp.player.firstName[0]}{sp.player.lastName[0]}
+                                {(sp.player.firstName || '?')[0]}{(sp.player.lastName || '?')[0]}
                               </span>
                             </div>
-                            <div className="text-xs mt-1" style={{ color: sp.score != null ? '#ffffffcc' : getPosAccentColor(sp.player.position) + 'aa' }}>
+                            <div className="text-xs mt-1" style={{ color: sp.score != null ? 'rgba(255,255,255,0.8)' : `${getPosAccentColor(sp.player.position)}aa` }}>
                               {sp.player.lastName.slice(0, 8)}
                             </div>
                           </div>
@@ -267,7 +267,7 @@ export const DashboardTab = ({
                 <span className="text-white/50">{t('dashboard.place')} <span className="font-mono font-bold text-green-500">#{currentLineup.rank}</span> / {currentLineup.totalParticipants}</span>
                 {currentLineup.rewardCents > 0 && (
                   <span className="text-gold font-mono font-bold flex items-center gap-1">
-                    <Gift className="size-3" aria-hidden="true" /> {fmtScout(centsToBsd(currentLineup.rewardCents))} bCredits
+                    <Gift className="size-3" aria-hidden="true" /> {fmtScout(centsToBsd(currentLineup.rewardCents))} $SCOUT
                   </span>
                 )}
               </div>
@@ -333,7 +333,7 @@ export const DashboardTab = ({
                     <span className="font-medium text-sm truncate">{event.name}</span>
                     <span className="text-xs text-white/40">{event.status === 'ended' ? tc('ended') : formatCountdown(event.lockTime, t('countdownStarted'))}</span>
                   </div>
-                  <div className="text-xs text-white/40 mt-1">{event.format} • {event.buyIn === 0 ? tc('free') : `${event.buyIn} bCredits`}</div>
+                  <div className="text-xs text-white/40 mt-1">{event.format} • {event.buyIn === 0 ? tc('free') : `${event.buyIn} $SCOUT`}</div>
                 </button>
               ))}
             </div>
@@ -363,7 +363,7 @@ export const DashboardTab = ({
                     <span className="font-medium text-sm truncate">{event.name}</span>
                     <span className="text-xs text-white/40">{formatCountdown(event.startTime, t('countdownStarted'))}</span>
                   </div>
-                  <div className="text-xs text-white/40 mt-1">{event.buyIn === 0 ? tc('free') : `${event.buyIn} bCredits`}</div>
+                  <div className="text-xs text-white/40 mt-1">{event.buyIn === 0 ? tc('free') : `${event.buyIn} $SCOUT`}</div>
                 </button>
               ))}
             </div>

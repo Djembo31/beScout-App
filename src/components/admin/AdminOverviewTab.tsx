@@ -74,7 +74,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
             <div className="text-xl font-mono font-black text-gold">
-              {formatScout(stats?.ipo_revenue_cents ?? 0)} <span className="text-sm text-white/50">bCredits</span>
+              {formatScout(stats?.ipo_revenue_cents ?? 0)} <span className="text-sm text-white/50">$SCOUT</span>
             </div>
           )}
         </Card>
@@ -93,7 +93,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
             <span className="text-xs text-white/50">{t('tradingVol24h')}</span>
           </div>
           <div className="text-xl font-mono font-black text-white">
-            {fmtScout(totalVolume)} <span className="text-sm text-white/50">bCredits</span>
+            {fmtScout(totalVolume)} <span className="text-sm text-white/50">$SCOUT</span>
           </div>
         </Card>
         <Card className="p-4">
@@ -120,7 +120,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
               <DollarSign className="w-5 h-5 text-gold" />
               <span className="text-xs text-white/50">{t('subRevenue')}</span>
             </div>
-            <div className="text-xl font-mono font-black text-gold">{formatScout(subData.revenueCents)} bCredits</div>
+            <div className="text-xl font-mono font-black text-gold">{formatScout(subData.revenueCents)} $SCOUT</div>
           </Card>
         </div>
       )}
@@ -282,7 +282,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
                       <PositionBadge pos={p.position as Pos} size="sm" />
                       <div className="font-bold text-sm">{p.first_name} {p.last_name}</div>
                     </div>
-                    <div className="font-mono text-sm text-gold">{fmtScout(centsToBsd(p.volume_24h))} bCredits</div>
+                    <div className="font-mono text-sm text-gold">{fmtScout(centsToBsd(p.volume_24h))} $SCOUT</div>
                   </div>
                 </Link>
               ))}

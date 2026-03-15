@@ -90,7 +90,7 @@ export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCan
           {poll.cost_bsd > 0 && (
             <div className="flex items-center gap-2">
               <Coins className="w-4 h-4 text-gold" />
-              <span className="text-gold font-bold">{formatScout(poll.cost_bsd)} bCredits</span>
+              <span className="text-gold font-bold">{formatScout(poll.cost_bsd)} $SCOUT</span>
             </div>
           )}
         </div>

@@ -51,7 +51,7 @@ export type Player = {
   topOwners: Owner[];
   sponsored?: boolean;
   imageUrl?: string | null;
-  successFeeCap?: number;  // in bCredits (cents → bCredits conversion)
+  successFeeCap?: number;  // in $SCOUT (cents → $SCOUT conversion)
   isLiquidated?: boolean;
 };
 

@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       const change = data.price_change_24h ? ` | ${data.price_change_24h >= 0 ? '+' : ''}${data.price_change_24h.toFixed(1)}%` : '';
       const desc = `${data.position} · ${data.club}${floor ? ` | ${floor}` : ''}${change}`;
       return {
-        title: `${name} — ${data.position} | BeScout`,
+        title: `${name} — ${data.position}`,
         description: desc,
         openGraph: {
           title: `${name} | BeScout`,
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       };
     }
   } catch (err) { console.error('[Player] generateMetadata failed:', err); }
-  return { title: 'Spieler | BeScout' };
+  return { title: 'Spieler' };
 }
 
 export default function PlayerDetailPage({ params }: { params: { id: string } }) {

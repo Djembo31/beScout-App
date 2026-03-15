@@ -16,7 +16,7 @@ type GlossaryCategory = 'trading' | 'fantasy' | 'gamification';
 const GLOSSARY_TERMS: { key: string; category: GlossaryCategory }[] = [
   // Trading
   { key: 'dpc', category: 'trading' },
-  { key: 'bCredits', category: 'trading' },
+  { key: '$SCOUT', category: 'trading' },
   { key: 'ipo', category: 'trading' },
   { key: 'floorPrice', category: 'trading' },
   { key: 'pbt', category: 'trading' },

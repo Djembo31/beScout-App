@@ -410,7 +410,7 @@ function SponsorStatsSection({
         <StatCard label={t('thImpressions')} value={fmtScout(totalImpressions)} icon={<Eye className="size-4" aria-hidden="true" />} />
         <StatCard label={t('thClicks')} value={fmtScout(totalClicks)} icon={<MousePointerClick className="size-4" aria-hidden="true" />} />
         <StatCard label={t('thCtr')} value={`${avgCtr.toFixed(2)}%`} icon={<TrendingUp className="size-4" aria-hidden="true" />} />
-        <StatCard label={t('estRevenue')} value={`${fmtScout(Math.round(estRevenueCents / 100))} bCredits`} icon={<DollarSign className="size-4" aria-hidden="true" />} />
+        <StatCard label={t('estRevenue')} value={`${fmtScout(Math.round(estRevenueCents / 100))} $SCOUT`} icon={<DollarSign className="size-4" aria-hidden="true" />} />
       </div>
 
       {stats.length > 0 && (

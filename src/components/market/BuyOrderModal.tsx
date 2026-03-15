@@ -163,7 +163,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
                 aria-label={t('maxPrice')}
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base font-mono focus:outline-none focus:border-gold/40 placeholder:text-white/25 pr-16"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-white/30 font-bold">bCredits</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-white/30 font-bold">$SCOUT</span>
             </div>
           </div>
 
@@ -205,17 +205,17 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
             <div className="flex justify-between text-[11px] font-mono tabular-nums">
               <span className="text-white/40">{t('total')}</span>
               <span className={cn('font-bold', totalCents > availableCents ? 'text-red-400' : 'text-gold')}>
-                {fmtScout(totalBsd)} bCredits
+                {fmtScout(totalBsd)} $SCOUT
               </span>
             </div>
             <div className="flex justify-between text-[11px] font-mono tabular-nums">
               <span className="text-white/40">{t('buyOrderBalanceAvailable')}</span>
-              <span className="text-white/60">{fmtScout(availableBsd)} bCredits</span>
+              <span className="text-white/60">{fmtScout(availableBsd)} $SCOUT</span>
             </div>
             <div className="flex justify-between text-[11px] font-mono tabular-nums border-t border-white/[0.06] pt-1.5">
               <span className="text-white/40">{t('buyOrderBalanceAfter')}</span>
               <span className={cn('font-bold', balanceAfter < 0 ? 'text-red-400' : 'text-white/70')}>
-                {fmtScout(Math.max(0, balanceAfter))} bCredits
+                {fmtScout(Math.max(0, balanceAfter))} $SCOUT
               </span>
             </div>
           </div>

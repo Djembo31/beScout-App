@@ -65,7 +65,7 @@ export default function IPOBuySection({
         <div className="bg-black/20 rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-white/50 text-sm">{t('clubPrice')}</span>
-            <span className="font-mono font-black tabular-nums text-2xl text-gold">{fmtScout(priceBsd)} bCredits</span>
+            <span className="font-mono font-black tabular-nums text-2xl text-gold">{fmtScout(priceBsd)} $SCOUT</span>
           </div>
         </div>
         {/* Limits */}
@@ -98,7 +98,7 @@ export default function IPOBuySection({
             <div className="bg-black/20 rounded-xl p-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-white/40">{t('pricePerDpc')}</span>
-                <span className="font-mono tabular-nums text-white/60">{fmtScout(priceBsd)} bCredits</span>
+                <span className="font-mono tabular-nums text-white/60">{fmtScout(priceBsd)} $SCOUT</span>
               </div>
               {buyQty > 1 && (
                 <div className="flex items-center justify-between text-xs">
@@ -108,17 +108,17 @@ export default function IPOBuySection({
               )}
               <div className="border-t border-white/10 pt-2 flex items-center justify-between">
                 <span className="text-white/50 text-sm">{t('totalCost')}</span>
-                <span className="font-mono font-black tabular-nums text-xl text-gold">{fmtScout(totalBsd)} bCredits</span>
+                <span className="font-mono font-black tabular-nums text-xl text-gold">{fmtScout(totalBsd)} $SCOUT</span>
               </div>
               <div className="border-t border-white/10 pt-2 flex items-center justify-between text-xs">
                 <span className="text-white/40">{t('yourBalance')}</span>
-                <span className="font-mono tabular-nums text-white/50">{balanceCents !== null ? formatScout(balanceCents) : '...'} bCredits</span>
+                <span className="font-mono tabular-nums text-white/50">{balanceCents !== null ? formatScout(balanceCents) : '...'} $SCOUT</span>
               </div>
               {balanceCents !== null && (
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-white/40">{t('balanceAfter')}</span>
                   <span className={`font-mono font-bold tabular-nums ${canAfford ? 'text-green-500' : 'text-red-400'}`}>
-                    {formatScout(Math.max(0, balanceCents - totalCents))} bCredits
+                    {formatScout(Math.max(0, balanceCents - totalCents))} $SCOUT
                   </span>
                 </div>
               )}

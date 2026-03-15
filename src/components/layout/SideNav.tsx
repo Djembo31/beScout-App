@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -38,6 +38,13 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
   const { activeClub } = useClub();
   const [collapsed, setCollapsed] = useState(false);
   const { balanceCents } = useWallet();
+
+  // Hydration fix: useEffect-deferred pathname check. During SSR and first client
+  // render, mounted=false → all nav items render as inactive → className matches.
+  // After mount, useEffect sets mounted=true → correct active highlighting appears.
+  const [mounted, setMounted] = useState(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setMounted(true); }, []);
   const { data: ticketData } = useUserTickets(user?.id);
   const ticketBalance = ticketData?.balance ?? null;
   const t = useTranslations('nav');
@@ -95,7 +102,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
                   {balanceCents === null ? (
                     <span className="inline-block w-16 h-4 rounded bg-gold/20 animate-pulse motion-reduce:animate-none" />
                   ) : (
-                    <>{formatScout(balanceCents)} bCredits</>
+                    <>{formatScout(balanceCents)} $SCOUT</>
                   )}
                 </div>
               </div>
@@ -130,9 +137,9 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
             const href = item.href === '/club'
               ? (activeClub ? `/club/${activeClub.slug}` : '/clubs')
               : item.href;
-            const isActive = item.href === '/'
+            const isActive = mounted && (item.href === '/'
               ? pathname === '/'
-              : pathname.startsWith(item.href);
+              : pathname.startsWith(item.href));
             const tourId = item.href === '/market' ? 'nav-market' : item.href === '/fantasy' ? 'nav-fantasy' : undefined;
             return (
               <Link
@@ -141,7 +148,8 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
                 onClick={handleNavClick}
                 data-tour-id={tourId}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors active:scale-[0.97] min-h-[44px] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
+                  'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors active:scale-[0.97] min-h-[44px]',
+                  'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
                   isActive
                     ? 'bg-gold/[0.15] text-gold border border-gold/30 shadow-[0_0_16px_rgba(255,215,0,0.15)]'
                     : 'text-white/60 hover:bg-white/[0.08] hover:text-white border border-transparent',
@@ -181,7 +189,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
             const href = item.href === '/club'
               ? (activeClub ? `/club/${activeClub.slug}` : '/clubs')
               : item.href;
-            const isActive = pathname.startsWith(item.href);
+            const isActive = mounted && pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
@@ -209,7 +217,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
               onClick={handleNavClick}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors',
-                pathname.startsWith(`/club/${clubAdmin.slug}/admin`)
+                mounted && pathname.startsWith(`/club/${clubAdmin.slug}/admin`)
                   ? 'bg-white/5 text-white'
                   : 'text-white/40 hover:bg-white/5 hover:text-white/60',
                 collapsed && 'justify-center'
@@ -224,7 +232,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
           {/* Platform Admin Link */}
           {isPlatformAdmin && (() => {
             const AdminIcon = NAV_ADMIN.icon;
-            const isAdminActive = pathname.startsWith(NAV_ADMIN.href);
+            const isAdminActive = mounted && pathname.startsWith(NAV_ADMIN.href);
             return (
               <Link
                 href={NAV_ADMIN.href}
@@ -300,7 +308,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
       {/* Collapse Toggle — desktop only */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        aria-label={collapsed ? 'Sidebar ausklappen' : 'Sidebar einklappen'}
+        aria-label={collapsed ? t('expandSidebar') : t('collapseSidebar')}
         className="absolute -right-3 top-20 size-6 bg-bg-main border border-white/10 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:border-white/20 hover:scale-110 active:scale-90 transition-colors hidden lg:flex"
       >
         {collapsed ? <ChevronRight aria-hidden="true" className="size-3" /> : <ChevronLeft aria-hidden="true" className="size-3" />}
@@ -335,7 +343,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
             {/* Close button */}
             <button
               onClick={onMobileClose}
-              aria-label="Menü schließen"
+              aria-label={t('closeMenu')}
               className="absolute top-3 right-3 p-2.5 rounded-xl hover:bg-white/10 transition-colors z-10 min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
               <X aria-hidden="true" className="size-5 text-white/50" />

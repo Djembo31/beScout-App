@@ -52,7 +52,7 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
               <div className="font-mono font-black text-lg gold-glow">
                 {ipo.ipo.price}
               </div>
-              <div className="text-[11px] text-white/40">bCredits/DPC</div>
+              <div className="text-[11px] text-white/40">$SCOUT/DPC</div>
             </div>
           </div>
           {ipo.ipo.progress !== undefined && (
@@ -104,7 +104,7 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
                 <div className="text-xl font-black font-mono text-gold gold-glow">
                   {formatPrize(centsToBsd(nextEvent.prize_pool))}
                 </div>
-                <div className="text-[11px] text-white/40">bCredits</div>
+                <div className="text-[11px] text-white/40">$SCOUT</div>
               </div>
             </div>
           </div>

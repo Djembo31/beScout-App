@@ -421,7 +421,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
           <Card className="p-4 text-center">
             <div className="text-xs text-white/40 mb-1">{t('eventsStatsPool')}</div>
             <div className="text-xl font-black font-mono tabular-nums text-gold">
-              {fmtScout(centsToBsd(stats.totalPool))} <span className="text-xs font-normal text-white/30">bCredits</span>
+              {fmtScout(centsToBsd(stats.totalPool))} <span className="text-xs font-normal text-white/30">$SCOUT</span>
             </div>
           </Card>
         </div>
@@ -614,7 +614,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
                         {ev.current_entries}/{ev.max_entries ?? '\u221E'}
                       </span>
                       <span className="font-mono tabular-nums text-gold/70">
-                        {fmtScout(centsToBsd(ev.prize_pool))} bCredits
+                        {fmtScout(centsToBsd(ev.prize_pool))} $SCOUT
                       </span>
                     </div>
                   </div>
@@ -797,7 +797,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
           {/* Entry Fee + Prize Pool */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Startgebuehr (bCredits)</label>
+              <label className="block text-sm font-bold text-white/70 mb-1">Startgebuehr ($SCOUT)</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -811,7 +811,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-white/70 mb-1">Preisgeld (bCredits)</label>
+              <label className="block text-sm font-bold text-white/70 mb-1">Preisgeld ($SCOUT)</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -906,13 +906,13 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
               <div className="flex items-center justify-between mb-1">
                 <span className="text-white/50">Startgebuehr</span>
                 <span className="font-mono font-bold tabular-nums">
-                  {parseFloat(formEntryFee) > 0 ? `${fmtScout(parseFloat(formEntryFee))} bCredits` : 'Kostenlos'}
+                  {parseFloat(formEntryFee) > 0 ? `${fmtScout(parseFloat(formEntryFee))} $SCOUT` : 'Kostenlos'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/50">Preisgeld</span>
                 <span className="font-mono font-bold text-gold tabular-nums">
-                  {fmtScout(parseFloat(formPrizePool) || 0)} bCredits
+                  {fmtScout(parseFloat(formPrizePool) || 0)} $SCOUT
                 </span>
               </div>
             </div>

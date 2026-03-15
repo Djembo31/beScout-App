@@ -46,6 +46,7 @@ interface EventCommunityTabProps {
 
 export default function EventCommunityTab({ eventId, eventStatus, eventName, gameweek }: EventCommunityTabProps) {
   const t = useTranslations('fantasy');
+  const tc = useTranslations('community');
   const locale = useLocale();
   const { user } = useUser();
   const [posts, setPosts] = useState<PostWithAuthor[]>([]);
@@ -256,7 +257,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                   <div className="flex flex-col items-center gap-0.5 pt-0.5">
                     <button
                       onClick={() => handleVote(post.id, myVote === 1 ? 0 : 1)}
-                      aria-label="Upvote"
+                      aria-label={tc('upvoteLabel')}
                       className={cn(
                         'p-1 rounded transition-colors',
                         myVote === 1 ? 'text-green-500 bg-green-500/10' : 'text-white/20 hover:text-green-500'
@@ -272,7 +273,7 @@ export default function EventCommunityTab({ eventId, eventStatus, eventName, gam
                     </span>
                     <button
                       onClick={() => handleVote(post.id, myVote === -1 ? 0 : -1)}
-                      aria-label="Downvote"
+                      aria-label={tc('downvoteLabel')}
                       className={cn(
                         'p-1 rounded transition-colors',
                         myVote === -1 ? 'text-red-400 bg-red-400/10' : 'text-white/20 hover:text-red-400'

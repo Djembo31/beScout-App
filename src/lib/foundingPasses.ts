@@ -2,7 +2,7 @@
  * Founding Passes — Tier Definitions & Constants
  *
  * 4 Tiers: Fan → Scout → Pro → Founder
- * Each tier grants bCredits + migration bonus % for future bCredits conversion.
+ * Each tier grants $SCOUT + migration bonus % for future $SCOUT conversion.
  */
 
 import type { FoundingPassTier } from '@/types';
@@ -79,7 +79,7 @@ export const FOUNDING_PASS_TIERS: FoundingPassTierDef[] = [
 // CONSTANTS
 // ============================================
 
-/** Welcome bonus in cents (1.000 bCredits) */
+/** Welcome bonus in cents (1.000 $SCOUT) */
 export const WELCOME_BONUS_CENTS = 100_000;
 
 /** Label for users without a founding pass */

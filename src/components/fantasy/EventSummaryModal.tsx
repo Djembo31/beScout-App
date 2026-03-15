@@ -59,7 +59,7 @@ export default function EventSummaryModal({
           {myReward > 0 && (
             <div className="flex-1 bg-gold/[0.08] rounded-xl p-3 text-center mvp-crown-glow">
               <div className="text-xs text-gold/60 uppercase mb-0.5">{t('summary.reward')}</div>
-              <div className="text-xl font-mono font-black text-gold">{fmtScout(myReward)} bCredits</div>
+              <div className="text-xl font-mono font-black text-gold">{fmtScout(myReward)} $SCOUT</div>
             </div>
           )}
         </div>

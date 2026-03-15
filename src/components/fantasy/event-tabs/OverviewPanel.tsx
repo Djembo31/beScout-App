@@ -66,11 +66,11 @@ export default function OverviewPanel({ event, userId, participants, participant
         <div className="grid grid-cols-2 gap-2">
           <div className="p-3 bg-surface-subtle rounded-lg">
             <div className="text-xs text-white/40">{t('entryLabel')}</div>
-            <div className="font-mono font-bold text-gold">{event.buyIn === 0 ? t('entryFree') : `${event.buyIn} bCredits`}</div>
+            <div className="font-mono font-bold text-gold">{event.buyIn === 0 ? t('entryFree') : `${event.buyIn} $SCOUT`}</div>
           </div>
           <div className="p-3 bg-surface-subtle rounded-lg">
             <div className="text-xs text-white/40">{t('prizePoolLabel')}</div>
-            <div className="font-mono font-bold text-gold">{event.prizePool} bCredits</div>
+            <div className="font-mono font-bold text-gold">{event.prizePool} $SCOUT</div>
           </div>
           <div className="p-3 bg-surface-subtle rounded-lg">
             <div className="text-xs text-white/40">{t('formatLabel')}</div>

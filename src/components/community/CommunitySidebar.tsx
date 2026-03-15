@@ -69,7 +69,7 @@ export default function CommunitySidebar({
                 </div>
                 <div className="text-sm font-semibold line-clamp-1">{post.title}</div>
                 <div className="text-[10px] text-white/40 mt-0.5">
-                  {post.price > 0 ? `${fmtScout(centsToBsd(post.price))} bCredits` : t('sidebar.free')}
+                  {post.price > 0 ? `${fmtScout(centsToBsd(post.price))} $SCOUT` : t('sidebar.free')}
                 </div>
               </div>
             ))}

@@ -62,7 +62,7 @@ export default function WelcomeBonusModal({ balanceCents }: WelcomeBonusModalPro
           <div className="mx-auto inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gold/10 border border-gold/20">
             <Coins className="size-4 text-gold" aria-hidden="true" />
             <span className="font-mono font-black text-gold text-lg tabular-nums">
-              {fmtScout(centsToBsd(balanceCents))} bCredits
+              {fmtScout(centsToBsd(balanceCents))} $SCOUT
             </span>
           </div>
 

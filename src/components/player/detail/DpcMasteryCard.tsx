@@ -20,9 +20,9 @@ export default function DpcMasteryCard({ mastery }: DpcMasteryCardProps) {
     <div className="bg-surface-subtle border border-white/[0.06] rounded-2xl p-4">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-white/50 uppercase tracking-wider">DPC Mastery</span>
+          <span className="text-xs font-bold text-white/50 uppercase tracking-wider">{t('mastery.title')}</span>
           <span className="px-2 py-0.5 rounded-lg bg-gold/15 text-gold text-[10px] font-black border border-gold/25">
-            Lv {mastery.level} — {t(`masteryLevel${mastery.level}`)}
+            {t('mastery.levelPrefix')} {mastery.level} — {t(`masteryLevel${mastery.level}`)}
           </span>
         </div>
         <span className="text-[10px] font-mono text-white/30">
@@ -39,8 +39,8 @@ export default function DpcMasteryCard({ mastery }: DpcMasteryCardProps) {
       )}
       <div className="flex gap-4 mt-2 text-[10px] text-white/40">
         <span>{mastery.hold_days}d {t('mastery.held')}</span>
-        <span>{mastery.fantasy_uses}x Fantasy</span>
-        <span>{mastery.content_count}x Content</span>
+        <span>{mastery.fantasy_uses}x {t('mastery.fantasy')}</span>
+        <span>{mastery.content_count}x {t('mastery.content')}</span>
       </div>
     </div>
   );

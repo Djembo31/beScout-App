@@ -176,7 +176,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
         setGrantError(msg);
         return;
       }
-      addToast(`${grantTier.toUpperCase()} Pass vergeben an ${grantUsername || grantUserId.slice(0, 8)} — ${fmtScout(result.bcreditsGranted ?? 0)} bCredits`, 'success');
+      addToast(`${grantTier.toUpperCase()} Pass vergeben an ${grantUsername || grantUserId.slice(0, 8)} — ${fmtScout(result.bcreditsGranted ?? 0)} $SCOUT`, 'success');
       setGrantUserId('');
       setGrantUsername('');
       setUserQuery('');
@@ -201,7 +201,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
           <StatCard icon={<Gift aria-hidden="true" className="size-5 text-gold" />} label="Passes gesamt" value={String(stats.total)} />
           <StatCard icon={<Crown aria-hidden="true" className="size-5 text-purple-400" />} label="Founder" value={String(stats.byTier.founder)} />
           <StatCard icon={<Gift aria-hidden="true" className="size-5 text-amber-400" />} label="Pro" value={String(stats.byTier.pro)} />
-          <StatCard icon={<Gift aria-hidden="true" className="size-5 text-sky-400" />} label="bCredits vergeben" value={fmtScout(stats.totalBcreditsGranted)} />
+          <StatCard icon={<Gift aria-hidden="true" className="size-5 text-sky-400" />} label="$SCOUT vergeben" value={fmtScout(stats.totalBcreditsGranted)} />
         </div>
       )}
 
@@ -363,7 +363,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
               <tr className="text-white/40 border-b border-white/10">
                 <th className="text-left py-2.5 px-3 font-bold">User</th>
                 <th className="text-left py-2.5 px-3 font-bold">Tier</th>
-                <th className="text-right py-2.5 px-3 font-bold">bCredits</th>
+                <th className="text-right py-2.5 px-3 font-bold">$SCOUT</th>
                 <th className="text-right py-2.5 px-3 font-bold">EUR</th>
                 <th className="text-right py-2.5 px-3 font-bold">Migration %</th>
                 <th className="text-left py-2.5 px-3 font-bold">Referenz</th>

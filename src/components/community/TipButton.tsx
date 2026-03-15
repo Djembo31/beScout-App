@@ -117,7 +117,7 @@ export default function TipButton({
       >
         <Coins className="w-3 h-3" />
         {tipCount > 0 ? (
-          <span>{tipCount} · {fmtScout(centsToBsd(tipTotalCents))} bCredits</span>
+          <span>{tipCount} · {fmtScout(centsToBsd(tipTotalCents))} $SCOUT</span>
         ) : (
           <span>{tt('tipLabel')}</span>
         )}
@@ -134,7 +134,7 @@ export default function TipButton({
                 onClick={() => handleSend(p.cents)}
                 className="px-3 py-2 rounded-lg text-sm font-mono font-bold bg-white/5 hover:bg-pink-500/15 hover:text-pink-300 text-white/70 transition-colors border border-white/[0.06] hover:border-pink-500/20 disabled:opacity-50 active:scale-[0.97]"
               >
-                {sending ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none mx-auto" /> : `${p.label} bCredits`}
+                {sending ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none mx-auto" /> : `${p.label} $SCOUT`}
               </button>
             ))}
           </div>

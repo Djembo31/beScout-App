@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Trophy, Briefcase, Building2, Compass } from 'lucide-react';
@@ -20,6 +20,9 @@ export const BottomNav = memo(function BottomNav() {
   const pathname = usePathname();
   const { activeClub } = useClub();
   const tc = useTranslations('common');
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   return (
     <nav
@@ -43,16 +46,16 @@ export const BottomNav = memo(function BottomNav() {
           const href = tab.href === '/club'
             ? activeClub?.slug ? `/club/${activeClub.slug}` : '/clubs'
             : tab.href;
-          const isActive = tab.href === '/'
+          const isActive = mounted && (tab.href === '/'
             ? pathname === '/'
-            : pathname.startsWith(tab.href);
+            : pathname.startsWith(tab.href));
           return (
             <Link
               key={tab.href}
               href={href}
               data-tour-id={tab.tourId}
               className={cn(
-                'relative flex flex-col items-center justify-center gap-0.5 w-16 py-1.5 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
+                'relative flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 py-1.5 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
                 isActive
                   ? 'text-gold bg-gold/[0.12]'
                   : 'text-white/50 active:text-white/70 active:bg-white/[0.08] active:scale-95'
@@ -62,7 +65,7 @@ export const BottomNav = memo(function BottomNav() {
                 <div className="absolute -top-[1px] w-10 h-[3px] bg-gold rounded-full shadow-glow-gold" />
               )}
               <Icon className={cn('size-5', isActive && 'drop-shadow-[0_0_10px_rgba(255,215,0,0.6)]')} />
-              <span className={cn('text-[10px] leading-none', isActive ? 'font-black' : 'font-medium')}>{tc(tab.labelKey)}</span>
+              <span className={cn('text-[10px] leading-none truncate max-w-full px-0.5', isActive ? 'font-black' : 'font-medium')}>{tc(tab.labelKey)}</span>
             </Link>
           );
         })}

@@ -192,7 +192,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const handleShare = async () => {
     if (!player) return;
     const url = window.location.href;
-    const text = `${player.first} ${player.last} auf BeScout — ${fmtScout(centsToBsd(player.prices.floor ?? 0))} bCredits`;
+    const text = `${player.first} ${player.last} auf BeScout — ${fmtScout(centsToBsd(player.prices.floor ?? 0))} $SCOUT`;
     if (navigator.share) {
       try { await navigator.share({ title: text, url }); } catch (err) { console.error('[Player] Share failed:', err); }
     } else {

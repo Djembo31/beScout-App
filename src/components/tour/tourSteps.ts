@@ -43,7 +43,7 @@ export const TOUR_STEPS: TourStep[] = [
     centered: true,
     icon: '\uD83C\uDFAF',
   },
-  // 1. bCredits Balance — different target per device
+  // 1. $SCOUT Balance — different target per device
   {
     targetSelector: '[data-tour-id="sidebar-wallet"]',
     titleKey: 'balanceTitle',

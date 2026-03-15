@@ -24,12 +24,12 @@ export default function LiquidationAlert({ liquidationEvent }: LiquidationAlertP
           <div className="flex flex-wrap items-center gap-4 mt-3 text-xs">
             {liquidationEvent.fee_per_dpc_cents > 0 ? (
               <>
-                <div><span className="text-white/40">{t('pbtColon')}</span> <span className="font-mono font-bold tabular-nums text-green-500">{fmtScout((liquidationEvent.distributed_cents - liquidationEvent.success_fee_cents) / 100)} bCredits</span></div>
-                <div><span className="text-white/40">{t('communityBonus')}</span> <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(liquidationEvent.success_fee_cents / 100)} bCredits</span></div>
-                <div><span className="text-white/40">{t('totalColon')}</span> <span className="font-mono font-bold tabular-nums text-green-500">{fmtScout(liquidationEvent.distributed_cents / 100)} bCredits</span></div>
+                <div><span className="text-white/40">{t('pbtColon')}</span> <span className="font-mono font-bold tabular-nums text-green-500">{fmtScout((liquidationEvent.distributed_cents - liquidationEvent.success_fee_cents) / 100)} $SCOUT</span></div>
+                <div><span className="text-white/40">{t('communityBonus')}</span> <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(liquidationEvent.success_fee_cents / 100)} $SCOUT</span></div>
+                <div><span className="text-white/40">{t('totalColon')}</span> <span className="font-mono font-bold tabular-nums text-green-500">{fmtScout(liquidationEvent.distributed_cents / 100)} $SCOUT</span></div>
               </>
             ) : (
-              <div><span className="text-white/40">{t('distributedColon')}</span> <span className="font-mono font-bold tabular-nums text-green-500">{fmtScout(liquidationEvent.distributed_cents / 100)} bCredits</span></div>
+              <div><span className="text-white/40">{t('distributedColon')}</span> <span className="font-mono font-bold tabular-nums text-green-500">{fmtScout(liquidationEvent.distributed_cents / 100)} $SCOUT</span></div>
             )}
             <div><span className="text-white/40">{t('holderColon')}</span> <span className="font-mono font-bold tabular-nums">{liquidationEvent.holder_count}</span></div>
             <div><span className="text-white/40">{t('dateColon')}</span> <span className="font-mono tabular-nums">{new Date(liquidationEvent.created_at).toLocaleDateString('de-DE')}</span></div>

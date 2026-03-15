@@ -137,7 +137,7 @@ export default function BuyConfirmModal({
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-white/50">{tp('pricePerDpc', { defaultMessage: 'Preis pro DPC' })}</span>
-            <span className="font-mono font-black text-gold tabular-nums">{fmtScout(priceBsd)} bCredits</span>
+            <span className="font-mono font-black text-gold tabular-nums">{fmtScout(priceBsd)} $SCOUT</span>
           </div>
 
           {/* Quantity selector — only for IPO (market RPC is hardcoded to qty=1) */}
@@ -201,12 +201,12 @@ export default function BuyConfirmModal({
         <div className="bg-surface-subtle border border-white/[0.08] rounded-xl p-3 space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm font-bold text-white/70">{tp('total', { defaultMessage: 'Gesamt' })}</span>
-            <span className="font-mono font-black text-lg text-gold tabular-nums">{fmtScout(totalBsd)} bCredits</span>
+            <span className="font-mono font-black text-lg text-gold tabular-nums">{fmtScout(totalBsd)} $SCOUT</span>
           </div>
           <div className="flex items-center justify-between text-xs">
             <span className="text-white/40">{tp('after', { defaultMessage: 'Guthaben danach' })}</span>
             <span className={cn('font-mono font-bold tabular-nums', canAfford ? 'text-green-500' : 'text-red-400')}>
-              {fmtScout(centsToBsd(balanceAfter))} bCredits
+              {fmtScout(centsToBsd(balanceAfter))} $SCOUT
             </span>
           </div>
         </div>
@@ -214,7 +214,7 @@ export default function BuyConfirmModal({
         {/* Not enough balance warning */}
         {!canAfford && (
           <div className="text-center text-xs text-red-400 font-bold">
-            {tp('notEnoughScout', { defaultMessage: 'Nicht genug bCredits' })}
+            {tp('notEnoughScout', { defaultMessage: 'Nicht genug $SCOUT' })}
           </div>
         )}
 
