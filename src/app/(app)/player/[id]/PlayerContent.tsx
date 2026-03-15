@@ -16,7 +16,7 @@ import { MASTERY_LEVEL_LABELS, MASTERY_XP_THRESHOLDS } from '@/lib/services/mast
 import type { Player } from '@/types';
 
 // React Query hooks
-import { useDbPlayerById } from '@/lib/queries/players';
+import { useDbPlayerById, usePlayers } from '@/lib/queries/players';
 import {
   usePlayerGwScores,
   usePbtForPlayer,
@@ -97,6 +97,8 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const { data: masteryData } = useDpcMastery(uid, playerId);
 
   // ─── Derived from queries ─────────────────
+  const { data: allPlayersData } = usePlayers();
+  const allPlayersForPercentile = allPlayersData ?? [];
   const player = useMemo(() => dbPlayer ? dbToPlayer(dbPlayer) : null, [dbPlayer]);
   const dpcAvailable = dbPlayer?.dpc_available ?? 0;
   const gwScores = gwScoresData ?? [];
@@ -279,6 +281,8 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             dpcAvailable={dpcAvailable}
             openBids={openBids}
             holdingQty={holdingQty}
+            holderCount={holderCount}
+            mastery={masteryData && holdingQty > 0 ? { level: masteryData.level, xp: masteryData.xp } : null}
             onAcceptBid={trading.handleAcceptBid}
             acceptingBidId={trading.acceptingBidId}
             onOpenOfferModal={trading.openOfferModal}
@@ -294,6 +298,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             holdingQty={holdingQty}
             holderCount={holderCount}
             gwScores={gwScores}
+            allPlayers={allPlayersForPercentile}
           />
         )}
 

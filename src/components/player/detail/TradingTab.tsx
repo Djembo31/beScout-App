@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import MarktTab from './MarktTab';
 import RewardsTab from './RewardsTab';
+import TradingQuickStats from './TradingQuickStats';
+import YourPosition from './YourPosition';
 import type { Player, DbOrder, DbTrade, OfferWithDetails, ResearchPostWithAuthor } from '@/types';
 
 interface TradingTabProps {
@@ -19,6 +21,8 @@ interface TradingTabProps {
   dpcAvailable: number;
   openBids: OfferWithDetails[];
   holdingQty: number;
+  holderCount: number;
+  mastery?: { level: number; xp: number } | null;
   onAcceptBid?: (offerId: string) => void;
   acceptingBidId?: string | null;
   onOpenOfferModal?: () => void;
@@ -29,7 +33,7 @@ interface TradingTabProps {
 export default function TradingTab({
   player, trades, allSellOrders, tradesLoading,
   profileMap, userId, dpcAvailable,
-  openBids, holdingQty,
+  openBids, holdingQty, holderCount, mastery,
   onAcceptBid, acceptingBidId, onOpenOfferModal,
   isRestrictedAdmin, playerResearch,
 }: TradingTabProps) {
@@ -39,6 +43,25 @@ export default function TradingTab({
   return (
     <div className="space-y-4 md:space-y-6">
       <TradingDisclaimer variant="card" className="mb-4" />
+
+      {/* Quick Stats: Floor, Spread, 7d Volume, Holders */}
+      <TradingQuickStats
+        floorPrice={player.prices.floor ?? 0}
+        bestBid={openBids.length > 0 ? Math.max(...openBids.map(b => b.price)) : null}
+        trades={trades}
+        holderCount={holderCount}
+      />
+
+      {/* Your Position + P&L (only when holding) */}
+      {userId && (
+        <YourPosition
+          holdingQty={holdingQty}
+          floorPrice={player.prices.floor ?? 0}
+          trades={trades}
+          userId={userId}
+          mastery={mastery}
+        />
+      )}
 
       <MarktTab
         player={player}

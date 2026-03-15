@@ -26,3 +26,7 @@ export { default as ScoreMasteryStrip } from './ScoreMasteryStrip';
 export { default as TradeHistoryChips } from './TradeHistoryChips';
 export { default as OfferModal } from './OfferModal';
 export { default as TradeSuccessEffect } from './TradeSuccessEffect';
+export { default as TradingQuickStats } from './TradingQuickStats';
+export { default as YourPosition } from './YourPosition';
+export { default as UpcomingFixtures } from './UpcomingFixtures';
+export { default as FantasyCTA } from './FantasyCTA';

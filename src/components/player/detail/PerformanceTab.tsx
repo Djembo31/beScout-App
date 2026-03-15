@@ -15,7 +15,11 @@ import type { Player } from '@/types';
 import type { PlayerGameweekScore } from '@/lib/services/scoring';
 import DPCSupplyRing from './DPCSupplyRing';
 import GameweekScoreBar from './GameweekScoreBar';
+import UpcomingFixtures from './UpcomingFixtures';
+import FantasyCTA from './FantasyCTA';
 import { RadarChart, buildPlayerRadarAxes } from '@/components/player/RadarChart';
+import { usePositionPercentile } from '@/lib/hooks/usePositionPercentile';
+import { posTintColors } from '@/components/player/PlayerRow';
 
 interface PerformanceTabProps {
   player: Player;
@@ -23,6 +27,7 @@ interface PerformanceTabProps {
   holdingQty: number;
   holderCount: number;
   gwScores: PlayerGameweekScore[];
+  allPlayers?: Player[];
 }
 
 const formatMarketValue = (value: number) => {
@@ -32,7 +37,7 @@ const formatMarketValue = (value: number) => {
 };
 
 export default function PerformanceTab({
-  player, dpcAvailable, holdingQty, holderCount, gwScores,
+  player, dpcAvailable, holdingQty, holderCount, gwScores, allPlayers = [],
 }: PerformanceTabProps) {
   const t = useTranslations('playerDetail');
   const tp = useTranslations('player');
@@ -45,6 +50,8 @@ export default function PerformanceTab({
   };
 
   const pbt = player.pbt || { balance: 0, sources: { trading: 0, votes: 0, content: 0, ipo: 0 } };
+  const percentile = usePositionPercentile(player.pos, player.perf.l5, allPlayers);
+  const posTint = posTintColors[player.pos];
 
   const avgScore = gwScores.length > 0
     ? Math.round(gwScores.reduce((s, g) => s + g.score, 0) / gwScores.length)
@@ -68,6 +75,11 @@ export default function PerformanceTab({
             <span className="text-[9px] font-mono tabular-nums text-white/40">
               {player.perf.l5 > 0 ? `${Math.round((player.perf.l5 / 100) * 100)}%` : '--'}
             </span>
+            {percentile && (
+              <span className="text-[9px] font-bold" style={{ color: posTint }}>
+                Top {100 - percentile.percentile}% {player.pos}
+              </span>
+            )}
           </div>
           <div className="flex flex-col items-center gap-1">
             <ScoreCircle label="L15" value={player.perf.l15} size={52} />
@@ -134,6 +146,14 @@ export default function PerformanceTab({
           <div className="text-xs text-white/25 mt-1 text-pretty">{t('noGwScoresHint')}</div>
         </Card>
       )}
+
+      {/* ── Upcoming Fixtures ── */}
+      {player.clubId && (
+        <UpcomingFixtures clubId={player.clubId} />
+      )}
+
+      {/* ── Fantasy CTA ── */}
+      <FantasyCTA holdingQty={holdingQty} />
 
       {/* ── Attribute Radar ── */}
       <Card className="p-4 md:p-6">
