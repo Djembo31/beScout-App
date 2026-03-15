@@ -59,9 +59,9 @@ export default function HomeStoryHeader({
         <div className="flex items-center gap-2">
           {userStats?.tier && <TierBadge tier={userStats.tier} size="md" />}
           {streak >= 2 && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-400/20 anim-fade">
-              <Flame className="size-4 text-orange-400" />
-              <span className="text-sm font-black text-orange-300">{streak}</span>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-400/20 anim-fade shadow-[0_0_12px_rgba(249,115,22,0.15)]">
+              <Flame className="size-5 text-orange-400 motion-safe:animate-pulse" />
+              <span className="text-base font-black text-orange-300 font-mono tabular-nums">{streak}</span>
               <span className="text-[11px] text-orange-400/60 hidden sm:inline">{t('streakDays')}</span>
             </div>
           )}
@@ -78,17 +78,17 @@ export default function HomeStoryHeader({
       </div>
 
       {/* ━━━ COMPACT STAT STRIP — grid fills portrait width ━━━ */}
-      <div data-tour-id="home-stats" className="mt-3 grid grid-cols-3 gap-2">
+      <div data-tour-id="home-stats" className="mt-4 grid grid-cols-3 gap-2.5">
         <Link
           href="/market?tab=portfolio"
-          className="flex flex-col items-center justify-center py-2.5 bg-surface-subtle border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-colors"
+          className="flex flex-col items-center justify-center py-3 bg-surface-subtle border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-colors shadow-card-sm"
         >
-          <span className={cn('font-mono font-black text-sm gold-glow', portfolioTick)}>{fmtScout(portfolioValue)}</span>
+          <span className={cn('font-mono font-black text-base gold-glow', portfolioTick)}>{fmtScout(portfolioValue)}</span>
           <span className="text-[11px] text-white/40 uppercase font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('portfolioRoster')} <InfoTooltip text={t('portfolioRosterTooltip')} /></span>
         </Link>
 
         <div className={cn(
-          'flex flex-col items-center justify-center py-2.5 rounded-xl border',
+          'flex flex-col items-center justify-center py-3 rounded-xl border shadow-card-sm',
           pnlPositive
             ? 'bg-vivid-green/[0.06] border-vivid-green/15'
             : 'bg-vivid-red/[0.06] border-vivid-red/15'
@@ -102,7 +102,7 @@ export default function HomeStoryHeader({
           <span className="text-[11px] text-white/40 uppercase font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('pnl')} <InfoTooltip text={t('pnlTooltip')} /></span>
         </div>
 
-        <div className="flex flex-col items-center justify-center py-2.5 bg-surface-base border border-white/[0.08] rounded-xl">
+        <div className="flex flex-col items-center justify-center py-3 bg-surface-base border border-white/[0.08] rounded-xl shadow-card-sm">
           <span className="font-mono font-bold text-sm text-white">{holdingsCount}</span>
           <span className="text-[11px] text-white/40 uppercase font-semibold mt-0.5">{t('players')}</span>
         </div>
