@@ -65,10 +65,22 @@ EINE Frage vor jedem Commit:
 Wenn ja: nochmal lesen, nochmal nachdenken.
 Wenn nein: committen.
 
-Bei Agent-Ergebnissen zusaetzlich:
-- Diff LESEN, nicht ueberfliegen
+Bei Agent-Ergebnissen ZWEI harte Regeln:
+
+**Regel 1: Ich lese JEDEN Diff bevor ich weitermache.**
+Nicht ueberfliegen. DENKEN. "Stimmt die Logik? Nicht nur die Syntax?"
+Session 233 Beweis: OrderDepthView Bug (bidPoints[0] statt [last]) uebersehen
+weil ich den Diff nicht gelesen habe. 7/8 Components waren sauber — das eine
+wo ich nicht gelesen habe, hatte den Bug.
+
+**Regel 2: Jedes Briefing sagt explizit "alle user-sichtbaren Strings muessen t() nutzen."**
+Nicht annehmen dass der Agent es weiss. SAGEN.
+Session 233 Beweis: 6 hardcoded Strings ("Depth", "Bid", "Ask", "Spread",
+"Kaufgesuche", aria-label) weil das Briefing es nicht erwaehnte.
+
+Zusaetzlich:
 - Ein User-Szenario mental durchspielen
-- Bei Unsicherheit: Review-Agent mit dem Szenario dispatchen
+- Bei Unsicherheit: Review-Agent dispatchen
 
 ---
 
