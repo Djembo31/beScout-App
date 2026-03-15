@@ -103,6 +103,7 @@ function DepthChart({
   askLevels: PriceLevel[];
   bidLevels: PriceLevel[];
 }) {
+  const t = useTranslations('market');
   const chartData = useMemo(() => {
     const askPoints: DepthPoint[] = askLevels.map((l) => ({
       price: l.price,
