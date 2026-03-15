@@ -2710,7 +2710,16 @@
     "openBoxError": "Konnte Mystery Box nicht öffnen",
     "equipError": "Fehler beim Ausrüsten",
     "lineup_players_label": "Spieler",
-    "lineup_players_aria": "{current} von {max} Spieler ausgewählt"
+    "lineup_players_aria": "{current} von {max} Spieler ausgewählt",
+    "rankUp": {
+      "title": "Rang-Aufstieg",
+      "headline": "Neuer Rang erreicht!",
+      "from": "Von {rang}",
+      "to": "{rang}",
+      "tier": "Stufe",
+      "continue": "Weiter",
+      "announcement": "Du bist von {oldRang} auf {newRang} aufgestiegen!"
+    }
   },
   "onboarding": {
     "title": "Erste Schritte",

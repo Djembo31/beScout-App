@@ -2712,7 +2712,16 @@
     "equipError": "Donatma hatası",
     "dimensionTooltip": "Rütben 3 boyutta ölçülür: Tüccar (Ticaret), Menajer (Fantasy) ve Analist (Topluluk katkıları). Medyan genel rütbeni belirler.",
     "lineup_players_label": "Oyuncu",
-    "lineup_players_aria": "{current}/{max} Oyuncu seçildi"
+    "lineup_players_aria": "{current}/{max} Oyuncu seçildi",
+    "rankUp": {
+      "title": "Rütbe Yükselişi",
+      "headline": "Yeni rütbeye ulaştın!",
+      "from": "{rang} rütbesinden",
+      "to": "{rang}",
+      "tier": "Seviye",
+      "continue": "Devam",
+      "announcement": "{oldRang} rütbesinden {newRang} rütbesine yükseldin!"
+    }
   },
   "onboarding": {
     "title": "İlk Adımlar",
