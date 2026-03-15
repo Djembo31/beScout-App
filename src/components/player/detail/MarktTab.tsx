@@ -123,7 +123,10 @@ export default function MarktTab({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-4 text-white/30 text-sm">{t('noOpenBids')}</div>
+              <div className="text-center py-6 text-white/25 text-sm">
+                <ShoppingCart className="size-5 mx-auto mb-1.5 text-white/15" aria-hidden="true" />
+                {t('noOpenBids')}
+              </div>
             )}
           </div>
         </Card>
@@ -187,7 +190,10 @@ export default function MarktTab({
         </div>
         <div className="p-4">
           {allSellOrders.length === 0 ? (
-            <div className="text-center py-6 text-white/40 text-sm">{t('noUserOffers')}</div>
+            <div className="text-center py-6 text-white/25 text-sm">
+              <Layers className="size-5 mx-auto mb-1.5 text-white/15" aria-hidden="true" />
+              {t('noUserOffers')}
+            </div>
           ) : (
             <div className="space-y-2">
               <div className="grid grid-cols-4 gap-2 text-[10px] text-white/40 px-3 pb-1 border-b border-white/5">
@@ -243,7 +249,10 @@ export default function MarktTab({
               <span className="text-xs text-white/20">{t('tradesLoading')}</span>
             </div>
           ) : trades.length === 0 ? (
-            <div className="text-center py-6 text-white/40 text-sm">{t('noTrades')}</div>
+            <div className="text-center py-6 text-white/25 text-sm">
+              <History className="size-5 mx-auto mb-1.5 text-white/15" aria-hidden="true" />
+              {t('noTrades')}
+            </div>
           ) : (
             <div className="space-y-1">
               {trades.map((trade) => {
