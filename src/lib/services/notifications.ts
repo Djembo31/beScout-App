@@ -242,6 +242,10 @@ export async function createNotification(
  * If a matching unread notification exists for the same user+type+reference,
  * it is UPDATED (count incremented, bumped to top) instead of creating a new row.
  * This prevents notification spam from rapid repeated actions (poll votes, ratings).
+ *
+ * Race condition note: Uses upsert-style approach — always try to find existing first,
+ * accept minor race as acceptable (worst case: 2 notifications instead of 1 batched,
+ * which is still better than 50). Simpler than DB-level advisory locks for notifications.
  */
 export async function createBatchedNotification(
   userId: string,
@@ -297,10 +301,16 @@ export async function createBatchedNotification(
     }
     // No push for batched updates — the original push already drew attention
   } else {
-    // First notification in this batch window — create normally + fire push
-    const title = titleTemplate(1);
-    const body = bodyTemplate(1);
-    await createNotification(userId, type, title, body, referenceId, referenceType);
+    // First notification in this batch window — create normally + fire push.
+    // If a concurrent call also reaches here (race), we get 2 separate notifications
+    // instead of 1 batched — acceptable trade-off vs DB advisory locks.
+    try {
+      const title = titleTemplate(1);
+      const body = bodyTemplate(1);
+      await createNotification(userId, type, title, body, referenceId, referenceType);
+    } catch (err) {
+      console.error(`[Notifications] Batched insert race (type=${type}, user=${userId}):`, err);
+    }
   }
 }
 

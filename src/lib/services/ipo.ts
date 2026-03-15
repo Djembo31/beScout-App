@@ -107,6 +107,7 @@ export async function buyFromIpo(
   });
 
   if (error) throw new Error(mapRpcError(error.message));
+  if (!data) return { success: false, error: 'No response from server' };
   const result = data as IpoBuyResult;
   // Activity log (always fires for audit trail, regardless of success)
   import('@/lib/services/activityLog').then(({ logActivity }) => {
@@ -171,7 +172,7 @@ export async function updateIpoStatus(
 
   if (error) throw new Error(error.message);
 
-  // Notify club followers when IPO goes live
+  // Notify club followers when IPO goes live (batched insert, capped at 500)
   if (newStatus === 'open') {
     (async () => {
       try {
@@ -179,13 +180,20 @@ export async function updateIpoStatus(
         if (!ipo) return;
         const { data: player } = await supabase.from('players').select('first_name, last_name, club_id').eq('id', ipo.player_id).maybeSingle();
         if (!player?.club_id) return;
-        const { data: followers } = await supabase.from('club_followers').select('user_id').eq('club_id', player.club_id);
+        const { data: followers } = await supabase.from('club_followers').select('user_id').eq('club_id', player.club_id).limit(500);
         if (followers && followers.length > 0) {
-          const { createNotification } = await import('@/lib/services/notifications');
+          const { createNotificationsBatch } = await import('@/lib/services/notifications');
           const name = `${player.first_name} ${player.last_name}`;
-          for (const f of followers) {
-            await createNotification(f.user_id, 'new_ipo_available', notifText('newIpoTitle'), notifText('newIpoBody', { name }), ipo.player_id, 'player');
-          }
+          await createNotificationsBatch(
+            followers.map((f) => ({
+              userId: f.user_id,
+              type: 'new_ipo_available' as const,
+              title: notifText('newIpoTitle'),
+              body: notifText('newIpoBody', { name }),
+              referenceId: ipo.player_id,
+              referenceType: 'player',
+            }))
+          );
         }
       } catch (err) { console.error('[IPO] new_ipo_available notification failed:', err); }
     })();
