@@ -306,31 +306,31 @@ export default function MarktTab({
         </div>
         <div className="p-4">
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3">
-              <div className="text-xs text-purple-300">{t('clubPrice')}</div>
-              <div className="font-mono font-bold tabular-nums text-purple-200">{fmtScout(player.prices.ipoPrice ?? 0)} $SCOUT</div>
+            <div className="bg-gold/[0.08] border border-gold/20 rounded-xl p-3">
+              <div className="text-xs text-gold/70">{t('clubPrice')}</div>
+              <div className="font-mono font-bold tabular-nums text-gold">{fmtScout(player.prices.ipoPrice ?? 0)} $SCOUT</div>
               <div className="text-[10px] text-white/30 mt-0.5">{t('fixedByClub')}</div>
             </div>
-            <div className="bg-sky-500/10 border border-sky-500/20 rounded-lg p-3">
-              <div className="text-xs text-sky-300">{t('marketFloor')}</div>
-              <div className="font-mono font-bold tabular-nums text-gold">{fmtScout(player.prices.floor ?? 0)} $SCOUT</div>
+            <div className="bg-green-500/[0.08] border border-green-500/20 rounded-xl p-3">
+              <div className="text-xs text-green-400/80">{t('marketFloor')}</div>
+              <div className="font-mono font-bold tabular-nums text-green-400">{fmtScout(player.prices.floor ?? 0)} $SCOUT</div>
               <div className="text-[10px] text-white/30 mt-0.5">{t('cheapestUserOffer')}</div>
             </div>
-            <div className="bg-surface-base rounded-lg p-3">
+            <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
               <div className="text-xs text-white/40">{t('lastTrade')}</div>
               <div className="font-mono font-bold tabular-nums">{fmtScout(player.prices.lastTrade ?? 0)} $SCOUT</div>
             </div>
-            <div className="bg-surface-base rounded-lg p-3">
+            <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
               <div className="text-xs text-white/40">{t('change24h')}</div>
-              <div className={`font-mono font-bold tabular-nums ${player.prices.change24h >= 0 ? 'text-vivid-green' : 'text-vivid-red'}`}>
+              <div className={`font-mono font-bold tabular-nums ${player.prices.change24h >= 0 ? 'text-green-500' : 'text-red-400'}`}>
                 {player.prices.change24h >= 0 ? '+' : ''}{player.prices.change24h.toFixed(1)}%
               </div>
             </div>
-            <div className="bg-surface-base rounded-lg p-3">
+            <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
               <div className="text-xs text-white/40">{t('clubPoolDpc')}</div>
               <div className="font-mono font-bold tabular-nums">{dpcAvailable}</div>
             </div>
-            <div className="bg-surface-base rounded-lg p-3">
+            <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
               <div className="text-xs text-white/40">{t('inCirculation')}</div>
               <div className="font-mono font-bold tabular-nums">{player.dpc.circulation}</div>
             </div>
