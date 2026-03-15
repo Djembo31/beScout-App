@@ -72,7 +72,7 @@ export default function HoldingsSection({
                 <ShoppingCart className="size-4" aria-hidden="true" /> {t('sell')}
               </Button>
             ) : (
-              <div className="bg-white/[0.02] border border-white/10 rounded-xl p-3 space-y-3">
+              <div className="bg-surface-minimal border border-white/10 rounded-xl p-3 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-sm">{t('sellDpc')}</span>
                   <button onClick={() => setShowSellForm(false)} className="text-white/40 hover:text-white text-xs">{t('cancelAction')}</button>
@@ -161,7 +161,7 @@ export default function HoldingsSection({
               {userOrders.map((order) => {
                 const remaining = order.quantity - order.filled_qty;
                 return (
-                  <div key={order.id} className="flex items-center justify-between p-2 bg-white/[0.02] rounded-lg border border-white/10">
+                  <div key={order.id} className="flex items-center justify-between p-2 bg-surface-minimal rounded-lg border border-white/10">
                     <div>
                       <div className="font-mono font-bold tabular-nums text-sm text-gold">{formatScout(order.price)} bCredits</div>
                       <div className="text-[10px] text-white/40">

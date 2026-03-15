@@ -48,8 +48,8 @@ export function ActiveOffersSection({ ipos, players, clubColor }: Props) {
               href={`/player/${player.id}`}
               className={cn(
                 'flex-shrink-0 w-[200px] snap-start rounded-2xl p-3 border transition-colors',
-                'bg-white/[0.02] border-white/10 hover:border-white/20 active:scale-[0.98]',
-                'shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
+                'bg-surface-minimal border-white/10 hover:border-white/20 active:scale-[0.98]',
+                'shadow-card-sm hover:shadow-card-md'
               )}
             >
               <div className="flex items-center gap-2.5 mb-2.5">

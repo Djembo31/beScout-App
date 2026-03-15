@@ -193,7 +193,7 @@ export function Modal({ open, title, subtitle, children, footer, onClose, preven
         aria-modal="true"
         aria-labelledby="modal-title"
         className={cn(
-          'w-full bg-[#0d0d0f] border border-white/[0.12] shadow-card-lg overflow-hidden flex flex-col',
+          'w-full bg-surface-modal border border-white/[0.12] shadow-card-lg overflow-hidden flex flex-col',
           mobileFullScreen
             ? 'h-[100dvh] max-h-[100dvh] md:h-auto md:rounded-3xl md:mx-4 md:max-h-[85vh] md:anim-modal'
             : 'rounded-t-3xl max-h-[90vh] anim-bottom-sheet md:rounded-3xl md:mx-4 md:max-h-[85vh] md:anim-modal',
@@ -327,9 +327,9 @@ export function InfoTooltip({ text }: { text: string }) {
         <span className="text-[9px] font-bold leading-none">?</span>
       </button>
       {open && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[min(13rem,calc(100vw-2rem))] p-2.5 rounded-xl bg-[#1a1a1a] border border-white/15 shadow-xl z-50 anim-dropdown">
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[min(13rem,calc(100vw-2rem))] p-2.5 rounded-xl bg-surface-popover/90 backdrop-blur-sm border border-white/[0.12] shadow-card-md z-50 anim-dropdown">
           <div className="text-[11px] text-white/70 leading-relaxed">{text}</div>
-          <div className="absolute top-full left-1/2 -translate-x-1/2 size-2 rotate-45 bg-[#1a1a1a] border-r border-b border-white/15 -mt-1" />
+          <div className="absolute top-full left-1/2 -translate-x-1/2 size-2 rotate-45 bg-surface-popover/90 border-r border-b border-white/[0.12] -mt-1" />
         </div>
       )}
     </div>

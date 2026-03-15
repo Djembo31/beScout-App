@@ -95,7 +95,7 @@ export function EventBrowser({ events, onEventClick }: Props) {
       );
     }
     return (
-      <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] divide-y divide-white/[0.04] overflow-hidden">
+      <div className="rounded-xl border border-white/[0.06] bg-surface-minimal divide-y divide-white/[0.04] overflow-hidden">
         {items.map(event => (
           <EventCompactRow key={event.id} event={event} onClick={() => onEventClick(event)} />
         ))}

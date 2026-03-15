@@ -436,7 +436,7 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
             </div>
             <div>
               <div className="text-xs text-white/50 font-semibold mb-1">{t('contentLabel')}</div>
-              <div className="text-sm text-white/80 bg-white/[0.02] border border-white/10 rounded-xl p-3 max-h-[200px] overflow-y-auto whitespace-pre-wrap">{reviewSub.content}</div>
+              <div className="text-sm text-white/80 bg-surface-minimal border border-white/10 rounded-xl p-3 max-h-[200px] overflow-y-auto whitespace-pre-wrap">{reviewSub.content}</div>
             </div>
             <div>
               <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('feedbackLabel')}</label>

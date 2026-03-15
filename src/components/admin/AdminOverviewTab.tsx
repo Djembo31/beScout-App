@@ -244,7 +244,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
               {(stats?.top_fans ?? []).map((fan, i) => (
                 <div key={fan.user_id} className={cn(
                   'flex items-center gap-3 p-3 rounded-xl border',
-                  i === 0 ? 'bg-gold/[0.06] border-gold/20' : 'bg-white/[0.02] border-white/10'
+                  i === 0 ? 'bg-gold/[0.06] border-gold/20' : 'bg-surface-minimal border-white/10'
                 )}>
                   <div className={cn('size-7 rounded-full flex items-center justify-center font-black text-xs', i === 0 ? 'bg-gold/20 text-gold' : 'bg-white/5 text-white/40')}>{i + 1}</div>
                   {fan.avatar_url ? (
@@ -276,7 +276,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
             <div className="space-y-2">
               {topTraded.map((p, i) => (
                 <Link key={p.id} href={`/player/${p.id}`}>
-                  <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10 hover:border-gold/30 transition-all">
+                  <div className="flex items-center justify-between p-3 bg-surface-minimal rounded-xl border border-white/10 hover:border-gold/30 transition-all shadow-card-sm">
                     <div className="flex items-center gap-3">
                       <div className={cn('size-7 rounded-lg flex items-center justify-center font-black text-xs', i === 0 ? 'bg-gold/20 text-gold' : 'bg-white/5 text-white/40')}>{i + 1}</div>
                       <PositionBadge pos={p.position as Pos} size="sm" />

@@ -47,7 +47,7 @@ export function MobileTableCard<T>({
           </thead>
           <tbody>
             {data.map(item => (
-              <tr key={keyFn(item)} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
+              <tr key={keyFn(item)} className="border-b border-white/[0.04] hover:bg-surface-minimal">
                 {columns.map(col => (
                   <td key={col.key} className="px-3 py-2.5">
                     {col.render(item)}
@@ -62,7 +62,7 @@ export function MobileTableCard<T>({
       {/* Mobile: Card View */}
       <div className="md:hidden space-y-2">
         {data.map(item => (
-          <div key={keyFn(item)} className="bg-white/[0.02] rounded-xl p-3 border border-white/10">
+          <div key={keyFn(item)} className="bg-surface-minimal rounded-xl p-3 border border-white/10">
             {renderCard ? renderCard(item) : (
               <div className="space-y-1.5">
                 {columns.map(col => (

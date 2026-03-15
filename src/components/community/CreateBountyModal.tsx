@@ -140,7 +140,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
               <button
                 key={days}
                 onClick={() => setDeadlineDays(days)}
-                className={cn('flex-1 py-2 rounded-xl text-xs font-semibold border transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none', deadlineDays === days ? 'bg-gold/15 text-gold border-gold/30' : 'bg-white/[0.02] text-white/40 border-white/10 hover:text-white/60')}
+                className={cn('flex-1 py-2 rounded-xl text-xs font-semibold border transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none', deadlineDays === days ? 'bg-gold/15 text-gold border-gold/30' : 'bg-surface-minimal text-white/40 border-white/10 hover:text-white/60')}
               >
                 {t('createBounty.deadlineDays', { days })}
               </button>
@@ -156,7 +156,7 @@ export default function CreateBountyModal({ open, onClose, onSubmit, loading }: 
               <button
                 key={n}
                 onClick={() => setMaxSubmissions(n)}
-                className={cn('flex-1 py-2 rounded-xl text-xs font-semibold border transition-colors min-h-[44px]', maxSubmissions === n ? 'bg-gold/15 text-gold border-gold/30' : 'bg-white/[0.02] text-white/40 border-white/10 hover:text-white/60')}
+                className={cn('flex-1 py-2 rounded-xl text-xs font-semibold border transition-colors min-h-[44px]', maxSubmissions === n ? 'bg-gold/15 text-gold border-gold/30' : 'bg-surface-minimal text-white/40 border-white/10 hover:text-white/60')}
               >
                 {n}
               </button>

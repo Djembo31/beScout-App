@@ -151,7 +151,7 @@ export function AdminAirdropTab() {
             </thead>
             <tbody>
               {leaderboard.map((e, i) => (
-                <tr key={e.user_id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
+                <tr key={e.user_id} className="border-b border-white/[0.04] hover:bg-surface-minimal">
                   <td className="py-2 px-3 font-mono tabular-nums text-white/50">{e.rank ?? i + 1}</td>
                   <td className="py-2 px-3">
                     <div className="font-semibold text-white">{e.display_name || e.handle}</div>

@@ -514,7 +514,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
             className={cn(
               'flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium min-h-[44px]',
               INTERACTIVE,
-              sortField === field ? 'bg-gold/10 text-gold border border-gold/20' : 'text-white/40 bg-white/[0.02] border border-white/[0.06]',
+              sortField === field ? 'bg-gold/10 text-gold border border-gold/20' : 'text-white/40 bg-surface-minimal border border-white/[0.06]',
             )}
           >
             {label}

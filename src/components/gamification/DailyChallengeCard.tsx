@@ -124,7 +124,7 @@ export default function DailyChallengeCard({
       return 'bg-red-500/15 border-red-500/30 text-red-400';
     }
     // Non-selected options are dimmed
-    return 'bg-white/[0.02] border-white/[0.05] text-white/25';
+    return 'bg-surface-minimal border-white/[0.05] text-white/25';
   };
 
   const streakBonusThreshold = 7;

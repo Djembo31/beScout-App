@@ -211,7 +211,7 @@ export function TopScorerShowcase({ scorers, gameweek }: Props) {
 
           {/* #4-10 compact */}
           {compact.length > 0 && (
-            <div className="mt-2 rounded-xl border border-white/[0.06] bg-white/[0.02] divide-y divide-white/[0.04]">
+            <div className="mt-2 rounded-xl border border-white/[0.06] bg-surface-minimal divide-y divide-white/[0.04]">
               {compact.map((s, i) => (
                 <CompactRow key={s.id} stat={s} rank={i + 4} />
               ))}

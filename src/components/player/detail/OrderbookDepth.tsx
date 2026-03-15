@@ -48,7 +48,7 @@ export default function OrderbookDepth({ orders, className = '' }: OrderbookDept
               <div className="w-16 text-right shrink-0">
                 <span className="text-xs font-mono font-bold text-gold">{fmtScout(price)}</span>
               </div>
-              <div className="flex-1 h-5 bg-white/[0.02] rounded relative overflow-hidden">
+              <div className="flex-1 h-5 bg-surface-minimal rounded relative overflow-hidden">
                 <div
                   className="absolute inset-y-0 left-0 bg-red-500/15 border-r border-red-500/30 rounded transition-all"
                   style={{ width: `${barWidth}%` }}

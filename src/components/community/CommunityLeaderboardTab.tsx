@@ -95,7 +95,7 @@ function LeaderboardRow({ user: lUser, rank, rankChange, isFollowed, onFollow, i
     <Link href={`/profile/${lUser.handle}`} className="block">
       <div className={cn(
         'flex items-center gap-4 p-4 border rounded-xl hover:bg-white/[0.04] hover:border-white/20 transition-all',
-        isSelf ? 'bg-gold/[0.04] border-gold/20' : isFollowed ? 'bg-green-500/[0.02] border-green-500/20' : 'bg-white/[0.02] border-white/10'
+        isSelf ? 'bg-gold/[0.04] border-gold/20' : isFollowed ? 'bg-green-500/[0.02] border-green-500/20' : 'bg-surface-minimal border-white/10'
       )}>
         <div className="relative">
           <div className={cn('w-10 h-10 rounded-xl border flex items-center justify-center font-black', rankStyle)}>
@@ -254,7 +254,7 @@ export default function CommunityLeaderboardTab({
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex gap-1 mb-3 bg-white/[0.03] rounded-xl p-1 border border-white/[0.06]">
+        <div className="flex gap-1 mb-3 bg-surface-subtle rounded-xl p-1 border border-white/[0.06]">
           {SCORE_TABS.map(tab => (
             <button
               key={tab.id}
@@ -286,7 +286,7 @@ export default function CommunityLeaderboardTab({
               return (
                 <Link key={entry.user_id} href={`/profile/${entry.handle}`} className="block">
                   <div className={cn(
-                    'flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors',
+                    'flex items-center gap-3 px-4 py-3 hover:bg-surface-subtle transition-colors',
                     isSelf && 'bg-gold/[0.04]'
                   )}>
                     <div className={cn(

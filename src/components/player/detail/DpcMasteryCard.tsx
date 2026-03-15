@@ -17,7 +17,7 @@ export default function DpcMasteryCard({ mastery }: DpcMasteryCardProps) {
   const t = useTranslations('player');
 
   return (
-    <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4">
+    <div className="bg-surface-subtle border border-white/[0.06] rounded-2xl p-4">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-white/50 uppercase tracking-wider">DPC Mastery</span>

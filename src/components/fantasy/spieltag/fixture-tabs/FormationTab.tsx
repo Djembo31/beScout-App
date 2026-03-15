@@ -431,7 +431,7 @@ function FallbackRankingRow({ stat, isMvp, floorPrice }: {
         'flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs transition-colors min-h-[44px] active:scale-[0.97] motion-reduce:active:scale-100 border-l-2',
         isMvp
           ? 'bg-gold/[0.06] border border-gold/15 hover:bg-gold/[0.10]'
-          : 'bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.04]',
+          : 'bg-surface-minimal hover:bg-white/[0.04] border border-white/[0.04]',
       )}
       style={{
         ...(isMvp ? mvpRowShadow : normalRowShadow),
@@ -597,7 +597,7 @@ export default function FormationTab({
   return (
     <div className="rounded-2xl overflow-hidden border border-white/[0.08] shadow-[0_0_40px_rgba(0,0,0,0.4)]">
       {/* Sponsor Banner Top */}
-      <div className="bg-white/[0.02] px-4 py-2 flex items-center justify-center gap-3 border-b border-white/[0.06]">
+      <div className="bg-surface-minimal px-4 py-2 flex items-center justify-center gap-3 border-b border-white/[0.06]">
         {sponsor?.sponsorLogo ? (
           <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain opacity-60" />
         ) : (
@@ -695,7 +695,7 @@ export default function FormationTab({
       </div>
 
       {/* Sponsor Banner Bottom */}
-      <div className="bg-white/[0.03] px-4 py-2.5 flex items-center justify-center gap-3 border-t border-white/[0.06]">
+      <div className="bg-surface-subtle px-4 py-2.5 flex items-center justify-center gap-3 border-t border-white/[0.06]">
         {sponsor?.sponsorLogo ? (
           <img src={sponsor.sponsorLogo} alt="" className="h-4 w-auto object-contain opacity-40" />
         ) : (

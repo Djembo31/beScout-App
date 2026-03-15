@@ -240,7 +240,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
               onClick={() => handleClick(notif)}
               className={cn(
                 'w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors border-b border-white/[0.04] min-h-[44px]',
-                !notif.read && 'bg-white/[0.02]'
+                !notif.read && 'bg-surface-minimal'
               )}
             >
               <div className={cn('flex items-center justify-center size-8 rounded-lg shrink-0 mt-0.5', getNotifColor(notif.type))}>
@@ -271,7 +271,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
       <div
         ref={desktopRef}
         className={cn(
-          'hidden md:block fixed top-[60px] right-4 lg:right-6 w-96 bg-[#111] border border-white/10 rounded-2xl shadow-2xl z-[100] overflow-hidden transition-all',
+          'hidden md:block fixed top-[60px] right-4 lg:right-6 w-96 bg-surface-modal/95 backdrop-blur-md border border-white/[0.12] rounded-2xl shadow-card-lg z-[100] overflow-hidden transition-all',
           closing ? 'notif-exit-desktop' : 'notif-enter-desktop',
         )}
       >

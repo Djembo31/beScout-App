@@ -74,7 +74,7 @@ export function TermTooltip({ term, children, onOpenGlossary }: TermTooltipProps
         <div
           ref={popoverRef}
           className={cn(
-            'absolute left-1/2 -translate-x-1/2 z-50 w-[min(18rem,calc(100vw-2rem))] p-3 rounded-xl bg-[#1a1a1a] border border-white/15 shadow-xl',
+            'absolute left-1/2 -translate-x-1/2 z-50 w-[min(18rem,calc(100vw-2rem))] p-3 rounded-xl bg-surface-popover/90 backdrop-blur-sm border border-white/[0.12] shadow-card-md',
             above ? 'bottom-full mb-2' : 'top-full mt-2'
           )}
           onMouseEnter={() => setOpen(true)}
@@ -95,7 +95,7 @@ export function TermTooltip({ term, children, onOpenGlossary }: TermTooltipProps
           {/* Arrow */}
           <div
             className={cn(
-              'absolute left-1/2 -translate-x-1/2 size-2 rotate-45 bg-[#1a1a1a] border-white/15',
+              'absolute left-1/2 -translate-x-1/2 size-2 rotate-45 bg-surface-popover/90 border-white/[0.12]',
               above ? 'top-full -mt-1 border-r border-b' : 'bottom-full -mb-1 border-l border-t'
             )}
           />

@@ -221,7 +221,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
     return (
       <Link
         href={`/player/${player.id}`}
-        className={cn('block p-3 rounded-xl bg-white/[0.02] border-2 card-lift group', className)}
+        className={cn('block p-3 rounded-xl bg-surface-minimal border-2 card-lift group', className)}
         style={{
           borderColor: posTintColors[player.pos],
           backgroundImage: `linear-gradient(to right, transparent 50%, ${posTintColors[player.pos]}15)`,

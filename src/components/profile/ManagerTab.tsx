@@ -91,7 +91,7 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
       <ScoreProgress dimension="manager" score={userStats?.manager_score ?? 0} />
 
       {/* 2. Season Summary Card */}
-      <div className="p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+      <div className="p-4 rounded-2xl border border-white/[0.06] bg-surface-minimal">
         <h3 className="text-[13px] font-bold text-white/60 mb-3">{t('seasonBilanz')}</h3>
 
         {/* 4-stat grid */}
@@ -116,11 +116,11 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
       </div>
 
       {/* 3. Recent Events */}
-      <div className="p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+      <div className="p-4 rounded-2xl border border-white/[0.06] bg-surface-minimal">
         <h3 className="text-[13px] font-bold text-white/60 mb-3">{t('recentEvents')}</h3>
         <div className="space-y-2">
           {recent.map((r) => (
-            <div key={r.eventId} className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+            <div key={r.eventId} className="p-3 rounded-xl bg-surface-minimal border border-white/[0.04]">
               <div className="flex items-center gap-1.5 text-[13px] font-medium text-white/80">
                 {MEDAL[r.rank] && <span>{MEDAL[r.rank]}</span>}
                 <span>
@@ -143,7 +143,7 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
 
       {/* 4. Club Fan Ranks */}
       {fanRanking && (
-        <div className="p-4 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+        <div className="p-4 rounded-2xl border border-white/[0.06] bg-surface-minimal">
           <div className="flex items-center gap-2 mb-3">
             <Shield className="size-4 text-gold" aria-hidden="true" />
             <h3 className="text-[13px] font-bold text-white/60">{t('clubFanRanks')}</h3>
@@ -177,7 +177,7 @@ export default function ManagerTab({ userId, userStats, fantasyResults, isSelf, 
 
 function StatCell({ label, value }: { label: string; value: string }) {
   return (
-    <div className="p-2.5 rounded-xl bg-white/[0.03] text-center">
+    <div className="p-2.5 rounded-xl bg-surface-subtle text-center">
       <div className="text-[15px] font-bold font-mono tabular-nums text-white/90">{value}</div>
       <div className="text-[11px] text-white/40 mt-0.5">{label}</div>
     </div>

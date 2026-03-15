@@ -116,7 +116,7 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
 
       {/* Expandable filters */}
       {showAdvancedFilters && (
-        <fieldset className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-3 space-y-3 anim-fade">
+        <fieldset className="bg-surface-subtle border border-white/[0.08] rounded-xl p-3 space-y-3 anim-fade">
           <legend className="sr-only">{t('advancedFilters', { defaultMessage: 'Erweiterte Filter' })}</legend>
 
           {/* Position pills */}
@@ -134,7 +134,7 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
                     'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
                     filterPos.has(pos)
                       ? 'bg-white/15 text-white border-white/20'
-                      : 'bg-white/[0.03] border-white/[0.06] text-white/40'
+                      : 'bg-surface-subtle border-white/[0.06] text-white/40'
                   )}
                 >
                   {POS_LABELS[pos]}
@@ -157,7 +157,7 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
                   'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
                   filterMinL5 === threshold
                     ? 'bg-gold/10 border-gold/20 text-gold'
-                    : 'bg-white/[0.03] border-white/[0.06] text-white/40'
+                    : 'bg-surface-subtle border-white/[0.06] text-white/40'
                 )}
               >
                 {threshold}+
@@ -172,7 +172,7 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
                 'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
                 filterOnlyFit
                   ? 'bg-green-500/15 border-green-500/30 text-green-500'
-                  : 'bg-white/[0.03] border-white/[0.06] text-white/40'
+                  : 'bg-surface-subtle border-white/[0.06] text-white/40'
               )}
             >
               <Heart className="size-3" aria-hidden="true" />

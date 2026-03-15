@@ -70,11 +70,11 @@ export default function IPOBuySection({
         </div>
         {/* Limits */}
         <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="bg-white/[0.02] rounded-lg p-3">
+          <div className="bg-surface-minimal rounded-lg p-3">
             <div className="text-xs text-white/40">{t('yourLimit')}</div>
             <div className="font-mono font-bold tabular-nums">{ipo.max_per_user} {t('licensesUnit', { defaultMessage: 'Lizenzen' })}</div>
           </div>
-          <div className="bg-white/[0.02] rounded-lg p-3">
+          <div className="bg-surface-minimal rounded-lg p-3">
             <div className="text-xs text-white/40">{t('alreadyBought')}</div>
             <div className="font-mono font-bold tabular-nums">{userPurchased} {t('licensesUnit', { defaultMessage: 'Lizenzen' })}</div>
           </div>
@@ -131,7 +131,7 @@ export default function IPOBuySection({
             <TradingDisclaimer />
           </>
         ) : (
-          <div className="bg-white/[0.03] rounded-xl p-4 text-center">
+          <div className="bg-surface-subtle rounded-xl p-4 text-center">
             <Lock className="size-8 mx-auto mb-2 text-white/30" aria-hidden="true" />
             <div className="text-white/50">{t('limitReached')}</div>
             <div className="text-xs text-white/30 text-pretty">{t('limitReachedMax')}</div>

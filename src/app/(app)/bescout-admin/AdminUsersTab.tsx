@@ -90,7 +90,7 @@ export function AdminUsersTab({ adminId, role }: { adminId: string; role: Platfo
             </thead>
             <tbody>
               {users.map(u => (
-                <tr key={u.id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
+                <tr key={u.id} className="border-b border-white/[0.04] hover:bg-surface-minimal">
                   <td className="py-2.5 px-3">
                     <Link href={`/profile/${u.handle}`} className="text-white hover:text-gold font-medium">
                       @{u.handle}

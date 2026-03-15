@@ -16,7 +16,7 @@ export function CollectionProgress({ owned, total, clubColor }: Props) {
   const pct = Math.min(100, (owned / total) * 100);
 
   return (
-    <div className="p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
+    <div className="p-3 bg-surface-subtle rounded-xl border border-white/[0.06]">
       <div className="flex items-center justify-between mb-1.5">
         <span className="text-xs text-white/50">{t('collectionProgress')}</span>
         <span className="text-xs font-mono font-bold tabular-nums" style={{ color: clubColor }}>

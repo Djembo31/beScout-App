@@ -132,7 +132,7 @@ export default function CosmeticInventory({
                       'relative rounded-xl border p-3 transition-all',
                       item.equipped
                         ? 'border-gold/40 bg-gold/[0.06] shadow-[0_0_8px_rgba(255,215,0,0.15)]'
-                        : cn('border-white/[0.08] bg-white/[0.02]', 'hover:border-white/15 hover:bg-white/[0.04]'),
+                        : cn('border-white/[0.08] bg-surface-minimal', 'hover:border-white/15 hover:bg-white/[0.04]'),
                       isLegendary && !item.equipped && 'border-gold/15',
                     )}
                   >

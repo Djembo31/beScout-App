@@ -172,7 +172,7 @@ export default function ClubVerkaufSection({
       />
 
       {/* 2. IPO View State Tabs */}
-      <div className="flex gap-1 bg-white/[0.03] rounded-xl p-1" role="tablist" aria-label={t('ipoViewLabel', { defaultMessage: 'IPO-Ansicht' })}>
+      <div className="flex gap-1 bg-surface-subtle rounded-xl p-1" role="tablist" aria-label={t('ipoViewLabel', { defaultMessage: 'IPO-Ansicht' })}>
         {VIEW_TABS.map(tab => (
           <button
             key={tab.value}

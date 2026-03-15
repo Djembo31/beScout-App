@@ -31,7 +31,7 @@ function RankingRow({ stat, isMvp, floorPrice }: {
         'flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs transition-colors min-h-[44px] active:scale-[0.97] motion-reduce:active:scale-100 border-l-2',
         isMvp
           ? 'bg-gold/[0.06] border border-gold/15 hover:bg-gold/[0.10]'
-          : 'bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.04]',
+          : 'bg-surface-minimal hover:bg-white/[0.04] border border-white/[0.04]',
       )}
       style={{
         ...(isMvp ? mvpRowShadow : normalRowShadow),

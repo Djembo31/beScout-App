@@ -127,7 +127,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
         'block relative rounded-2xl border overflow-hidden transition-all group',
         'bg-gradient-to-br', tint.bg,
         tint.border,
-        'hover:border-white/20 active:scale-[0.98]',
+        'hover:border-white/20 active:scale-[0.98] shadow-card-sm hover:shadow-card-md',
         'focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg-main outline-none',
       )}
       style={{ boxShadow: tint.glow }}

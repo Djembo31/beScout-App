@@ -32,7 +32,7 @@ export default function ClubAdminLoading() {
         <div className="bg-surface-base border border-white/10 rounded-2xl p-4 space-y-3">
           <div className="h-5 w-36 bg-white/[0.06] rounded-lg" />
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-12 bg-white/[0.03] rounded-xl" />
+            <div key={i} className="h-12 bg-surface-subtle rounded-xl" />
           ))}
         </div>
       </div>

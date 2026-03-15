@@ -197,7 +197,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                   <button
                     key={f.id}
                     onClick={() => handleFixtureSelect(f)}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.05] transition-colors text-left"
+                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-surface-minimal border border-white/[0.06] hover:bg-white/[0.05] transition-colors text-left"
                   >
                     <FixtureClubLogo club={home} />
                     <span className="font-semibold text-sm flex-1 text-center">
@@ -299,7 +299,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
                               'px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors border',
                               isSelected
                                 ? 'bg-gold/15 text-gold border-gold/30'
-                                : 'bg-white/[0.03] text-white/60 border-white/[0.06] hover:bg-white/[0.06]'
+                                : 'bg-surface-subtle text-white/60 border-white/[0.06] hover:bg-white/[0.06]'
                             )}
                           >
                             {getValueLabel(c.key, opt, t)}
@@ -319,7 +319,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
         {step === 'confirm' && (
           <div className="space-y-4">
             {/* Summary */}
-            <Card className="p-3 bg-white/[0.03]">
+            <Card className="p-3 bg-surface-subtle">
               <div className="text-sm">
                 <span className="text-white/50">{selectedFixture?.homeClubShort} vs {selectedFixture?.awayClubShort}</span>
                 {predType === 'player' && (

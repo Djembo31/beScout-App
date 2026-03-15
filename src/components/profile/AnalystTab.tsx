@@ -260,7 +260,7 @@ export default function AnalystTab({
           <div className="space-y-1">
             {researchSlice.map(post => (
               <Link key={post.id} href={`/community?post=${post.id}`}>
-                <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors">
+                <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-surface-subtle transition-colors">
                   {/* Call direction */}
                   <div className="flex-shrink-0 w-5 text-center">
                     <CallIcon call={post.call} />
@@ -318,7 +318,7 @@ export default function AnalystTab({
               return (
                 <div key={et.type} className="flex items-center gap-3">
                   <span className="text-[11px] text-white/50 w-20 flex-shrink-0">{tp(et.labelKey)}</span>
-                  <div className="flex-1 h-4 rounded bg-white/[0.03] overflow-hidden">
+                  <div className="flex-1 h-4 rounded bg-surface-subtle overflow-hidden">
                     <div
                       className="h-full rounded bg-gold/30 transition-[width] duration-500"
                       style={{ width: `${ratio}%` }}
@@ -345,13 +345,13 @@ export default function AnalystTab({
         <Card className="p-4 md:p-6">
           <h3 className="font-black mb-3">{tp('bountyBilanz')}</h3>
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-2.5 rounded-xl bg-white/[0.03] text-center">
+            <div className="p-2.5 rounded-xl bg-surface-subtle text-center">
               <div className="text-[15px] font-bold font-mono tabular-nums text-white/90">
                 {bountyStats.count}
               </div>
               <div className="text-[11px] text-white/40 mt-0.5">{tp('approvedLabel')}</div>
             </div>
-            <div className="p-2.5 rounded-xl bg-white/[0.03] text-center">
+            <div className="p-2.5 rounded-xl bg-surface-subtle text-center">
               <div className="text-[15px] font-bold font-mono tabular-nums text-green-500">
                 +{formatScout(bountyStats.total)}
               </div>
@@ -371,21 +371,21 @@ export default function AnalystTab({
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-2.5 rounded-xl bg-white/[0.03] text-center">
+            <div className="p-2.5 rounded-xl bg-surface-subtle text-center">
               <div className="text-[15px] font-bold font-mono tabular-nums text-white/90">{creatorStats.postCount}</div>
               <div className="text-[11px] text-white/40 mt-0.5">{tp('creatorPosts')}</div>
             </div>
-            <div className="p-2.5 rounded-xl bg-white/[0.03] text-center">
+            <div className="p-2.5 rounded-xl bg-surface-subtle text-center">
               <div className="text-[15px] font-bold font-mono tabular-nums text-white/90">{creatorStats.totalUnlocks}</div>
               <div className="text-[11px] text-white/40 mt-0.5">{tp('creatorUnlocks')}</div>
             </div>
-            <div className="p-2.5 rounded-xl bg-white/[0.03] text-center">
+            <div className="p-2.5 rounded-xl bg-surface-subtle text-center">
               <div className="text-[15px] font-bold font-mono tabular-nums text-white/90">
                 {creatorStats.ratedCount > 0 ? creatorStats.avgRating.toFixed(1) : '—'}
               </div>
               <div className="text-[11px] text-white/40 mt-0.5">{tp('creatorAvgRating')}</div>
             </div>
-            <div className="p-2.5 rounded-xl bg-white/[0.03] text-center">
+            <div className="p-2.5 rounded-xl bg-surface-subtle text-center">
               <div className="text-[15px] font-bold font-mono tabular-nums text-green-500">
                 +{formatScout(creatorStats.totalEarned)}
               </div>
@@ -406,7 +406,7 @@ export default function AnalystTab({
           </div>
           <div className="space-y-1.5">
             {payoutSummary.recent.map(payout => (
-              <div key={payout.id} className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02]">
+              <div key={payout.id} className="flex items-center justify-between p-2.5 rounded-xl bg-surface-minimal">
                 <div className="min-w-0">
                   <div className="text-[11px] text-white/50">
                     {new Date(payout.period_start).toLocaleDateString('de-DE', { day: '2-digit', month: 'short' })}
@@ -477,7 +477,7 @@ function ExpertBadgesCard({
                 'relative flex items-center gap-3 p-3 rounded-xl border transition-colors',
                 badge.earned
                   ? `${badge.bgColor} border`
-                  : 'bg-white/[0.02] border-white/[0.06] opacity-50'
+                  : 'bg-surface-minimal border-white/[0.06] opacity-50'
               )}
             >
               <div className={cn(

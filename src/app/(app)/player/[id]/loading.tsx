@@ -21,7 +21,7 @@ export default function PlayerLoading() {
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-3">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-16 bg-white/[0.03] rounded-xl" />
+            <div key={i} className="h-16 bg-surface-subtle rounded-xl" />
           ))}
         </div>
       </div>

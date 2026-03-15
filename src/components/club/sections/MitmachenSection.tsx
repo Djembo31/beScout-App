@@ -56,7 +56,7 @@ export function MitmachenSection({ clubId, userId, clubColor }: Props) {
         <div
           className={cn(
             'rounded-xl p-4 border',
-            'bg-white/[0.03] border-white/10',
+            'bg-surface-subtle border-white/10',
             'shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
           )}
         >
@@ -102,7 +102,7 @@ export function MitmachenSection({ clubId, userId, clubColor }: Props) {
                   key={b.id}
                   className={cn(
                     'rounded-xl p-3 border',
-                    'bg-white/[0.02] border-white/10',
+                    'bg-surface-minimal border-white/10',
                     'shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
                   )}
                 >
@@ -148,7 +148,7 @@ export function MitmachenSection({ clubId, userId, clubColor }: Props) {
                 key={v.id}
                 className={cn(
                   'rounded-xl p-3 border',
-                  'bg-white/[0.02] border-white/10',
+                  'bg-surface-minimal border-white/10',
                   'shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
                 )}
               >
@@ -194,7 +194,7 @@ export function MitmachenSection({ clubId, userId, clubColor }: Props) {
                 key={s.userId}
                 className={cn(
                   'flex items-center gap-3 rounded-xl px-3 py-2.5 border',
-                  'bg-white/[0.02] border-white/10',
+                  'bg-surface-minimal border-white/10',
                   'shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
                 )}
               >

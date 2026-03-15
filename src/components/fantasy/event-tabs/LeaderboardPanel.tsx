@@ -59,7 +59,7 @@ export default function LeaderboardPanel({
           </button>
 
           {/* User header */}
-          <div className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/10 rounded-xl">
+          <div className="flex items-center justify-between p-4 bg-surface-subtle border border-white/10 rounded-xl">
             <div className="flex items-center gap-3">
               <div className={`size-10 rounded-lg flex items-center justify-center font-bold ${viewingUserLineup.entry.rank === 1 ? 'bg-gold/20 text-gold' :
                 viewingUserLineup.entry.rank === 2 ? 'bg-white/10 text-white/70' :

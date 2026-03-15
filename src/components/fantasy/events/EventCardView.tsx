@@ -28,7 +28,7 @@ export function EventCardView({ event, onClick }: Props) {
       onClick={onClick}
       className={cn(
         'w-full text-left rounded-2xl p-4 border transition-colors active:scale-[0.98]',
-        'bg-white/[0.02] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
+        'bg-surface-minimal shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
         event.isJoined
           ? 'border-green-500/20 bg-green-500/[0.02]'
           : isArena
@@ -90,19 +90,19 @@ export function EventCardView({ event, onClick }: Props) {
 
       {/* Row 5: Stats grid */}
       <div className="grid grid-cols-3 gap-2 mb-3">
-        <div className="text-center p-2 bg-white/[0.03] rounded-lg">
+        <div className="text-center p-2 bg-surface-subtle rounded-lg">
           <div className={cn('font-mono font-bold text-sm tabular-nums', event.buyIn === 0 ? 'text-green-500' : 'text-gold')}>
             {event.buyIn === 0 ? t('freeEntry') : event.buyIn}
           </div>
           <div className="text-xs text-white/40">{t('entryLabel')}</div>
         </div>
-        <div className="text-center p-2 bg-white/[0.03] rounded-lg">
+        <div className="text-center p-2 bg-surface-subtle rounded-lg">
           <div className="font-mono font-bold text-sm text-purple-400 tabular-nums">
             {event.prizePool >= 1000 ? `${(event.prizePool / 1000).toFixed(0)}K` : event.prizePool}
           </div>
           <div className="text-xs text-white/40">{t('prizeLabel')}</div>
         </div>
-        <div className="text-center p-2 bg-white/[0.03] rounded-lg">
+        <div className="text-center p-2 bg-surface-subtle rounded-lg">
           <div className="font-mono font-bold text-sm tabular-nums">{event.participants}</div>
           <div className="text-xs text-white/40">{t('playersCountLabel')}</div>
         </div>

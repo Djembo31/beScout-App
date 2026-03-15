@@ -559,7 +559,7 @@ export default function CommunityPage() {
             <Skeleton className="h-10 w-24 rounded-lg" />
           </div>
           {[1, 2, 3].map(i => (
-            <div key={i} className="bg-white/[0.02] border border-white/10 rounded-2xl p-4 space-y-3">
+            <div key={i} className="bg-surface-minimal border border-white/10 rounded-2xl p-4 space-y-3">
               <div className="flex items-center gap-3">
                 <Skeleton className="size-8 rounded-full" />
                 <Skeleton className="h-4 w-24" />

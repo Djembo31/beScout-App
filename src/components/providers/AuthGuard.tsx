@@ -13,11 +13,11 @@ function ContentSkeleton() {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-24 bg-white/[0.02] border border-white/10 rounded-2xl" />
+          <div key={i} className="h-24 bg-surface-minimal border border-white/10 rounded-2xl" />
         ))}
       </div>
-      <div className="h-64 bg-white/[0.02] border border-white/10 rounded-2xl" />
-      <div className="h-48 bg-white/[0.02] border border-white/10 rounded-2xl" />
+      <div className="h-64 bg-surface-minimal border border-white/10 rounded-2xl" />
+      <div className="h-48 bg-surface-minimal border border-white/10 rounded-2xl" />
     </div>
   );
 }

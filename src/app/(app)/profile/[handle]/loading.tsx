@@ -15,7 +15,7 @@ export default function ProfileLoading() {
         {/* Stats row */}
         <div className="grid grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-14 bg-white/[0.03] rounded-xl" />
+            <div key={i} className="h-14 bg-surface-subtle rounded-xl" />
           ))}
         </div>
       </div>

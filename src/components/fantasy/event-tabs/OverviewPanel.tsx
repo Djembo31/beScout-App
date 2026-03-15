@@ -64,27 +64,27 @@ export default function OverviewPanel({ event, userId, participants, participant
       <div>
         <h3 className="font-bold mb-2">{t('eventDetails')}</h3>
         <div className="grid grid-cols-2 gap-2">
-          <div className="p-3 bg-white/[0.03] rounded-lg">
+          <div className="p-3 bg-surface-subtle rounded-lg">
             <div className="text-xs text-white/40">{t('entryLabel')}</div>
             <div className="font-mono font-bold text-gold">{event.buyIn === 0 ? t('entryFree') : `${event.buyIn} bCredits`}</div>
           </div>
-          <div className="p-3 bg-white/[0.03] rounded-lg">
+          <div className="p-3 bg-surface-subtle rounded-lg">
             <div className="text-xs text-white/40">{t('prizePoolLabel')}</div>
             <div className="font-mono font-bold text-gold">{event.prizePool} bCredits</div>
           </div>
-          <div className="p-3 bg-white/[0.03] rounded-lg">
+          <div className="p-3 bg-surface-subtle rounded-lg">
             <div className="text-xs text-white/40">{t('formatLabel')}</div>
             <div className="font-bold">{event.format} • {event.mode === 'league' ? t('modeLeague') : t('modeTournament')}</div>
           </div>
-          <div className="p-3 bg-white/[0.03] rounded-lg">
+          <div className="p-3 bg-surface-subtle rounded-lg">
             <div className="text-xs text-white/40 inline-flex items-center gap-0.5">{t('dpcPerSlotLabel')} <InfoTooltip text={t('dpcPerSlotTooltip')} /></div>
             <div className="font-bold">{event.requirements.dpcPerSlot ?? 1} DPC</div>
           </div>
-          <div className="p-3 bg-white/[0.03] rounded-lg">
+          <div className="p-3 bg-surface-subtle rounded-lg">
             <div className="text-xs text-white/40">{t('startLabel')}</div>
             <div className="text-sm">{new Date(event.startTime).toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
           </div>
-          <div className="p-3 bg-white/[0.03] rounded-lg">
+          <div className="p-3 bg-surface-subtle rounded-lg">
             <div className="text-xs text-white/40">{t('participantsLabel')}</div>
             <div className="font-bold">{event.participants}{event.maxParticipants ? ` / ${event.maxParticipants}` : ` (${t('unlimited')})`}</div>
           </div>
@@ -96,7 +96,7 @@ export default function OverviewPanel({ event, userId, participants, participant
         <h3 className="font-bold mb-2">{t('requirementsTitle')}</h3>
         <div className="space-y-2">
           {/* Always show DPC per slot requirement */}
-          <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+          <div className="flex items-center justify-between p-3 bg-surface-subtle rounded-lg">
             <div className="flex items-center gap-2">
               <Layers aria-hidden="true" className="size-4 text-gold" />
               <span>{t('dpcPerSlotReq', { n: event.requirements.dpcPerSlot ?? 1 })}</span>
@@ -104,7 +104,7 @@ export default function OverviewPanel({ event, userId, participants, participant
             <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
           </div>
           {event.requirements.minDpc && (
-            <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-surface-subtle rounded-lg">
               <div className="flex items-center gap-2">
                 <Briefcase aria-hidden="true" className="size-4 text-gold" />
                 <span>{t('minDpcReq', { n: event.requirements.minDpc })}</span>
@@ -113,7 +113,7 @@ export default function OverviewPanel({ event, userId, participants, participant
             </div>
           )}
           {event.requirements.minClubPlayers && (
-            <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-surface-subtle rounded-lg">
               <div className="flex items-center gap-2">
                 <Building2 aria-hidden="true" className="size-4 text-green-500" />
                 <span>{t('minClubPlayersReq', { n: event.requirements.minClubPlayers, club: event.clubName || 'Club' })}</span>
@@ -122,7 +122,7 @@ export default function OverviewPanel({ event, userId, participants, participant
             </div>
           )}
           {event.requirements.minScoutLevel && (
-            <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-surface-subtle rounded-lg">
               <div className="flex items-center gap-2">
                 <Star aria-hidden="true" className="size-4 text-purple-400" />
                 <span>{t('minScoutLevelReq', { n: event.requirements.minScoutLevel })}</span>
@@ -131,7 +131,7 @@ export default function OverviewPanel({ event, userId, participants, participant
             </div>
           )}
           {event.requirements.specificClub && (
-            <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-surface-subtle rounded-lg">
               <div className="flex items-center gap-2">
                 <Shield aria-hidden="true" className="size-4 text-sky-400" />
                 <span>{t('specificClubReq', { club: event.requirements.specificClub })}</span>
@@ -141,7 +141,7 @@ export default function OverviewPanel({ event, userId, participants, participant
           )}
           {/* Entry fee condition */}
           {event.buyIn > 0 && (
-            <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-surface-subtle rounded-lg">
               <div className="flex items-center gap-2">
                 <Coins aria-hidden="true" className="size-4 text-gold" />
                 <span>{t('entryFeeReq', { n: event.buyIn })}</span>
@@ -163,7 +163,7 @@ export default function OverviewPanel({ event, userId, participants, participant
               ? Math.floor(event.prizePool * tier.pct / 100)
               : 0;
             return (
-              <div key={tier.rank} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+              <div key={tier.rank} className="flex items-center justify-between p-3 bg-surface-subtle rounded-lg">
                 <div className="flex items-center gap-2">
                   <Medal aria-hidden="true" className={`size-4 ${i === 0 ? 'text-gold' : i === 1 ? 'text-white/70' : i === 2 ? 'text-orange-400' : 'text-white/20'}`} />
                   <span className="font-bold">Platz {tier.rank}</span>

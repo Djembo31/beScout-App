@@ -52,7 +52,7 @@ export default function EventSummaryModal({
 
         {/* Score + Reward */}
         <div className="flex gap-3">
-          <div className="flex-1 bg-white/[0.03] border border-white/[0.08] rounded-xl p-3 text-center">
+          <div className="flex-1 bg-surface-subtle border border-white/[0.08] rounded-xl p-3 text-center">
             <div className="text-xs text-white/40 uppercase mb-0.5">{t('summary.score')}</div>
             <div className="text-xl font-mono font-black text-white">{myScore}</div>
           </div>
@@ -70,7 +70,7 @@ export default function EventSummaryModal({
             <div className="text-xs font-bold text-white/40 uppercase mb-2">{t('summary.top3')}</div>
             <div className="space-y-1.5">
               {top3.map((entry, i) => (
-                <div key={entry.userId} className={`flex items-center gap-3 bg-white/[0.02] rounded-xl p-2.5 ${i === 0 ? 'mvp-crown-glow' : ''}`}>
+                <div key={entry.userId} className={`flex items-center gap-3 bg-surface-minimal rounded-xl p-2.5 ${i === 0 ? 'mvp-crown-glow' : ''}`}>
                   <span className="text-lg w-8 text-center">{RANK_MEDALS[i + 1] ?? `#${i + 1}`}</span>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-bold truncate">{entry.displayName ?? entry.handle ?? 'Anonym'}</div>

@@ -15,7 +15,7 @@ interface ComparePlayerCardProps {
 export default function ComparePlayerCard({ player, isHighest }: ComparePlayerCardProps) {
   const t = useTranslations('market');
   return (
-    <Link href={`/player/${player.id}`} className="block text-center p-3 hover:bg-white/[0.02] rounded-xl transition-colors">
+    <Link href={`/player/${player.id}`} className="block text-center p-3 hover:bg-surface-minimal rounded-xl transition-colors">
       <div className="flex flex-col items-center gap-2 mb-3">
         <PlayerIdentity
           player={{ first: player.first, last: player.last, pos: player.pos, status: player.status ?? 'fit', club: player.club, ticket: player.ticket ?? 0, age: player.age ?? 0, imageUrl: player.imageUrl }}

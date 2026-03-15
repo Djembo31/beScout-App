@@ -85,7 +85,7 @@ export default function BuyConfirmModal({
     <Modal open={open} onClose={onClose} title={t('confirmBuyTitle')} subtitle={`${player.first} ${player.last}`} size="sm">
       <div className="space-y-4">
         {/* Player identity */}
-        <div className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.08] rounded-xl p-3">
+        <div className="flex items-center gap-3 bg-surface-subtle border border-white/[0.08] rounded-xl p-3">
           <PlayerIdentity player={player} size="sm" showStatus className="flex-1 min-w-0" />
         </div>
 
@@ -198,7 +198,7 @@ export default function BuyConfirmModal({
         </div>
 
         {/* Total + Balance */}
-        <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-3 space-y-2">
+        <div className="bg-surface-subtle border border-white/[0.08] rounded-xl p-3 space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm font-bold text-white/70">{tp('total', { defaultMessage: 'Gesamt' })}</span>
             <span className="font-mono font-black text-lg text-gold tabular-nums">{fmtScout(totalBsd)} bCredits</span>

@@ -95,7 +95,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
               </thead>
               <tbody>
                 {sortedSummaries.map(s => (
-                  <tr key={s.playerId} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
+                  <tr key={s.playerId} className="border-b border-white/[0.04] hover:bg-surface-minimal">
                     <td className="px-3 py-2">
                       <Link href={`/player/${s.playerId}`} className="flex items-center gap-2 hover:text-gold transition-colors">
                         <span className="font-bold text-sm">{s.firstName} {s.lastName}</span>

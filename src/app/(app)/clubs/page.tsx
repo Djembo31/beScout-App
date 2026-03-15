@@ -131,8 +131,8 @@ export default function ClubsDiscoveryPage() {
                     href={`/club/${club.slug}`}
                     className={cn(
                       'flex-shrink-0 w-[160px] snap-start rounded-2xl p-3 border transition-colors',
-                      'bg-white/[0.02] border-white/10 hover:border-white/20 active:scale-[0.98]',
-                      'shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
+                      'bg-surface-minimal border-white/10 hover:border-white/20 active:scale-[0.98]',
+                      'shadow-card-sm hover:shadow-card-md',
                       activeClub?.id === club.id && 'ring-1 ring-gold/30'
                     )}
                   >
@@ -221,7 +221,7 @@ export default function ClubsDiscoveryPage() {
                   {nextFixtures.get(club.id) && (() => {
                     const nf = nextFixtures.get(club.id)!;
                     return (
-                      <div className="flex items-center gap-2 mt-2 px-2 py-1.5 bg-white/[0.02] rounded-lg text-xs text-white/50">
+                      <div className="flex items-center gap-2 mt-2 px-2 py-1.5 bg-surface-minimal rounded-lg text-xs text-white/50">
                         <Calendar className="size-3 text-green-500 flex-shrink-0" />
                         <span className="font-mono tabular-nums text-white/30">GW {nf.gameweek}</span>
                         <span className={cn('px-1 py-0.5 rounded text-[9px] font-bold', nf.isHome ? 'bg-green-500/10 text-green-500' : 'bg-sky-500/10 text-sky-400')}>

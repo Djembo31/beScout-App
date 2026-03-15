@@ -35,7 +35,7 @@ function FixtureCard({ fixture, onSelect }: { fixture: Fixture; onSelect: () => 
   return (
     <button
       onClick={onSelect}
-      className="w-full p-3 md:p-4 bg-white/[0.02] border border-white/10 rounded-2xl hover:bg-white/[0.05] hover:border-white/15 transition-colors text-left group"
+      className="w-full p-3 md:p-4 bg-surface-minimal border border-white/10 rounded-2xl hover:bg-white/[0.05] hover:border-white/15 transition-colors text-left group shadow-card-sm hover:shadow-card-md"
     >
       <div className="flex items-center gap-3">
         {/* Home team */}
@@ -180,7 +180,7 @@ function TeamStats({ label, stats, color }: { label: string; stats: FixturePlaye
       <div className="text-xs font-black uppercase mb-2" style={{ color }}>{label}</div>
       <div className="space-y-1">
         {sorted.map(s => (
-          <div key={s.id} className="flex items-center gap-2 px-2 py-1.5 bg-white/[0.02] rounded-lg text-xs">
+          <div key={s.id} className="flex items-center gap-2 px-2 py-1.5 bg-surface-minimal rounded-lg text-xs">
             <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${posColor(s.player_position)}`}>
               {s.player_position}
             </span>
@@ -280,7 +280,7 @@ export function GameweekTab() {
             className={`shrink-0 size-9 rounded-lg text-xs font-bold transition-colors tabular-nums ${
               gw === gameweek
                 ? 'bg-gold/15 text-gold border border-gold/30'
-                : 'bg-white/[0.03] text-white/40 border border-white/[0.06] hover:border-white/15'
+                : 'bg-surface-subtle text-white/40 border border-white/[0.06] hover:border-white/15'
             }`}
           >
             {gw}

@@ -71,7 +71,7 @@ function CommunityVoteCard({ vote, hasVoted, onVote, voting }: {
                 disabled={hasVoted || !isActive || voting === vote.id}
                 className={cn(
                   'w-full p-3 rounded-xl border transition-all text-left relative overflow-hidden',
-                  hasVoted ? 'bg-white/[0.02] border-white/10' : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.04] hover:border-white/20'
+                  hasVoted ? 'bg-surface-minimal border-white/10' : 'bg-surface-minimal border-white/10 hover:bg-white/[0.04] hover:border-white/20'
                 )}
               >
                 {hasVoted && (

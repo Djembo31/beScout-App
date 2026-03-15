@@ -72,7 +72,7 @@ export function PredictionResults({ predictions }: Props) {
       </div>
 
       {/* Individual prediction rows */}
-      <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] divide-y divide-white/[0.04]">
+      <div className="rounded-xl border border-white/[0.06] bg-surface-minimal divide-y divide-white/[0.04]">
         {resolved.map(p => {
           const isCorrect = p.status === 'correct';
           const isVoid = p.status === 'void';

@@ -184,7 +184,7 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
               const status = STATUS_MAP[w.status] ?? STATUS_MAP.pending;
               const StatusIcon = status.icon;
               return (
-                <div key={w.id} className="flex items-center justify-between bg-white/[0.02] rounded-xl px-4 py-3 border border-white/[0.06]">
+                <div key={w.id} className="flex items-center justify-between bg-surface-minimal rounded-xl px-4 py-3 border border-white/[0.06]">
                   <div className="flex items-center gap-3">
                     <StatusIcon className={cn('size-4', status.color)} aria-hidden="true" />
                     <div>

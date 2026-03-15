@@ -98,7 +98,7 @@ export function MitmachenTab({
                 <button
                   key={event.id}
                   onClick={() => onEventClick(event)}
-                  className="w-full flex items-center gap-3 p-3 bg-white/[0.03] border border-white/10 rounded-2xl hover:bg-white/[0.06] transition-colors text-left active:scale-[0.98]"
+                  className="w-full flex items-center gap-3 p-3 bg-surface-subtle border border-white/10 rounded-2xl hover:bg-white/[0.06] transition-colors text-left active:scale-[0.98] shadow-card-sm hover:shadow-card-md"
                 >
                   <div className="flex-shrink-0">
                     {isScored && rank != null ? (

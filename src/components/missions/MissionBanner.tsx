@@ -210,7 +210,7 @@ function MissionSection({ type, missions, completedCount, claiming, onClaim, tm 
               key={m.id}
               className={cn(
                 'flex items-center gap-3 p-2.5 rounded-xl transition-colors',
-                isClaimed ? 'bg-white/[0.02] opacity-60' : 'bg-white/[0.03]'
+                isClaimed ? 'bg-surface-minimal opacity-60' : 'bg-surface-subtle'
               )}
             >
               {/* Progress bar */}

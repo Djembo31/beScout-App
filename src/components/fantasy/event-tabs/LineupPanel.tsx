@@ -186,7 +186,7 @@ export default function LineupPanel({
     <div className="space-y-4">
       {/* Status banner -- fully locked */}
       {isFullyLocked && !isScored && (
-        <div className="flex items-center gap-2 p-3 bg-white/[0.03] border border-white/10 rounded-lg">
+        <div className="flex items-center gap-2 p-3 bg-surface-subtle border border-white/10 rounded-lg">
           <Lock aria-hidden="true" className="size-4 text-white/40" />
           <span className="text-sm text-white/50">{t('eventEndedBanner')}</span>
         </div>
@@ -273,7 +273,7 @@ export default function LineupPanel({
 
       {/* Presets Dropdown */}
       {showPresets && (
-        <div className="p-3 bg-white/[0.03] rounded-lg border border-white/10 space-y-2">
+        <div className="p-3 bg-surface-subtle rounded-lg border border-white/10 space-y-2">
           <div className="text-xs font-bold text-white/60 mb-2">{t('presetsTitle')}</div>
           {presets.map((preset, i) => (
             <div key={i} className="flex items-center justify-between p-2 bg-surface-base rounded-lg">
@@ -732,7 +732,7 @@ export default function LineupPanel({
             <span className="text-sm font-bold text-green-500">{t('lineupComplete')}</span>
           </div>
         ) : (
-          <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
+          <div className="flex items-center justify-between p-3 bg-surface-subtle rounded-lg">
             <span className="text-sm text-white/60">{t('playersSelected', { n: selectedPlayers.length, m: formationSlots.length })}</span>
             {!reqCheck.ok && (
               <span className="text-xs text-orange-400 flex items-center gap-1">
@@ -775,7 +775,7 @@ export default function LineupPanel({
                       'px-1 py-0.5 rounded text-[10px] font-bold border',
                       ownershipBonusIds.has(player.id)
                         ? 'bg-gold/[0.08] border-gold/20 text-gold'
-                        : 'bg-white/[0.03] border-white/10 text-white/30'
+                        : 'bg-surface-subtle border-white/10 text-white/30'
                     )}>+5%</span>
                   )}
                 </div>
@@ -915,7 +915,7 @@ export default function LineupPanel({
                               'shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold border',
                               ownershipBonusIds.size < 3
                                 ? 'bg-gold/[0.08] border-gold/20 text-gold'
-                                : 'bg-white/[0.03] border-white/10 text-white/30'
+                                : 'bg-surface-subtle border-white/10 text-white/30'
                             )}>DPC +5%</span>
                           )}
                           {/* Stats + Score */}

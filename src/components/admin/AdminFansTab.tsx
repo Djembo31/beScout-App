@@ -148,7 +148,7 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
               onClick={() => handleSegmentClick(seg.id)}
               aria-label={`${seg.label} (${seg.count})`}
               aria-pressed={isActive}
-              className={cn('p-4 rounded-2xl border text-left transition-colors', isActive ? 'border-gold/30 bg-gold/5 ring-1 ring-gold/20' : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]')}
+              className={cn('p-4 rounded-2xl border text-left transition-colors', isActive ? 'border-gold/30 bg-gold/5 ring-1 ring-gold/20' : 'border-white/[0.06] bg-surface-minimal hover:bg-surface-elevated')}
             >
               <div className={cn('size-10 rounded-xl flex items-center justify-center mb-2 border', colors)}>
                 {SEGMENT_ICONS[seg.icon] ?? <Users className="w-5 h-5" />}
@@ -187,7 +187,7 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
         ) : (
           <div className="divide-y divide-white/[0.04]">
             {filteredFans.map(fan => (
-              <div key={fan.userId} className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.02] transition-colors">
+              <div key={fan.userId} className="flex items-center gap-3 px-4 py-3 hover:bg-surface-minimal transition-colors">
                 {/* Avatar */}
                 <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/50 shrink-0 overflow-hidden">
                   {fan.avatarUrl ? (

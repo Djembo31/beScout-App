@@ -137,7 +137,7 @@ export default function AddAdminModal({ open, onClose, clubId, onAdded }: AddAdm
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setSelectedRole('admin')}
-                  className={cn('p-3 rounded-xl border text-left transition-colors', selectedRole === 'admin' ? `${adminBadge.bg} ${adminBadge.border}` : 'bg-white/[0.02] border-white/10 hover:border-white/20')}
+                  className={cn('p-3 rounded-xl border text-left transition-colors', selectedRole === 'admin' ? `${adminBadge.bg} ${adminBadge.border}` : 'bg-surface-minimal border-white/10 hover:border-white/20')}
                 >
                   <div className={cn('text-sm font-bold', selectedRole === 'admin' ? adminBadge.color : 'text-white/70')}>
                     {t('roleAdmin')}
@@ -148,7 +148,7 @@ export default function AddAdminModal({ open, onClose, clubId, onAdded }: AddAdm
                 </button>
                 <button
                   onClick={() => setSelectedRole('editor')}
-                  className={cn('p-3 rounded-xl border text-left transition-colors', selectedRole === 'editor' ? `${editorBadge.bg} ${editorBadge.border}` : 'bg-white/[0.02] border-white/10 hover:border-white/20')}
+                  className={cn('p-3 rounded-xl border text-left transition-colors', selectedRole === 'editor' ? `${editorBadge.bg} ${editorBadge.border}` : 'bg-surface-minimal border-white/10 hover:border-white/20')}
                 >
                   <div className={cn('text-sm font-bold', selectedRole === 'editor' ? editorBadge.color : 'text-white/70')}>
                     {t('roleEditor')}

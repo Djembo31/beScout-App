@@ -716,7 +716,7 @@ export const EventDetailModal = ({
         {/* Running event — not joined */}
         {!event.isJoined && event.status === 'running' && (
           <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
-            <div className="flex items-center justify-center gap-2 py-3 px-4 bg-white/[0.03] border border-white/10 rounded-xl">
+            <div className="flex items-center justify-center gap-2 py-3 px-4 bg-surface-subtle border border-white/10 rounded-xl">
               <Play aria-hidden="true" className="size-4 text-white/50" />
               <span className="text-sm text-white/50">{t('eventRunningClosed')}</span>
             </div>
@@ -741,7 +741,7 @@ export const EventDetailModal = ({
         {/* Ended event — joined but not yet scored */}
         {event.isJoined && event.status === 'ended' && !event.scoredAt && (
           <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
-            <div className="flex items-center justify-center gap-2 py-3 px-4 bg-white/[0.03] border border-white/10 rounded-xl">
+            <div className="flex items-center justify-center gap-2 py-3 px-4 bg-surface-subtle border border-white/10 rounded-xl">
               <Clock aria-hidden="true" className="size-4 text-white/40" />
               <span className="text-sm text-white/40">{t('eventEndedPending')}</span>
             </div>

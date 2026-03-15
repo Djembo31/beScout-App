@@ -584,7 +584,7 @@ export default function FantasyContent() {
           <Skeleton className="h-9 w-24" />
         </div>
         <Skeleton className="h-16 rounded-2xl" />
-        <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+        <div className="flex items-center gap-1 p-1 bg-surface-subtle border border-white/[0.06] rounded-xl">
           {[1, 2, 3].map(i => <Skeleton key={i} className="flex-1 h-10 rounded-lg" />)}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -674,7 +674,7 @@ export default function FantasyContent() {
         />
 
         {/* SEGMENT TABS — 4 Tabs, always fit */}
-        <div className="flex items-center gap-1 p-1 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+        <div className="flex items-center gap-1 p-1 bg-surface-subtle border border-white/[0.06] rounded-xl">
           {tabs.map(tab => (
             <button
               key={tab.id}

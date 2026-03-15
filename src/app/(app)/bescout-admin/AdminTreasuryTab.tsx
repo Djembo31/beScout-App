@@ -297,7 +297,7 @@ function FlowRow({ label, value, count, unit, isOutflow }: {
   label: string; value: number; count?: number; unit?: string; isOutflow?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between py-1.5 px-3 bg-white/[0.02] rounded-lg">
+    <div className="flex items-center justify-between py-1.5 px-3 bg-surface-minimal rounded-lg">
       <div className="text-xs text-white/60">
         {label}
         {count !== undefined && unit && (
@@ -318,7 +318,7 @@ function MiniStat({ label, value, color, icon }: {
   label: string; value: string; color?: string; icon: React.ReactNode;
 }) {
   return (
-    <div className="bg-white/[0.02] rounded-xl p-3 border border-white/[0.06]">
+    <div className="bg-surface-minimal rounded-xl p-3 border border-white/[0.06]">
       <div className={cn('mb-1', color ?? 'text-white/40')}>{icon}</div>
       <div className={cn('font-mono tabular-nums font-bold text-sm', color ?? 'text-white/80')}>{value}</div>
       <div className="text-[10px] text-white/40 mt-0.5">{label}</div>

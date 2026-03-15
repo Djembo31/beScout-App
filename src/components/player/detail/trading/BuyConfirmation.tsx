@@ -36,7 +36,7 @@ export default function BuyConfirmation({
         <div className="text-sm text-white/80">
           {t('ownOrdersListed', { count: userOrders.reduce((sum, o) => sum + (o.quantity - o.filled_qty), 0) })}
         </div>
-        <div className="text-xs text-white/50 bg-white/[0.02] rounded-lg p-3">
+        <div className="text-xs text-white/50 bg-surface-minimal rounded-lg p-3">
           {t('ownOrdersSkipped')}
         </div>
         <div className="bg-black/20 rounded-lg px-3 py-2 space-y-1.5">

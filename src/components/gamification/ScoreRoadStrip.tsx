@@ -67,8 +67,8 @@ export default function ScoreRoadStrip({ userId, compact }: ScoreRoadStripProps)
       href="/profile"
       className={cn(
         'group flex items-center gap-3 px-3 py-2 rounded-xl',
-        'bg-white/[0.02] border border-white/[0.06]',
-        'hover:bg-white/[0.04] hover:border-white/10 transition-colors',
+        'bg-surface-minimal border border-white/[0.06]',
+        'hover:bg-surface-elevated hover:border-white/10 transition-colors',
         compact && 'gap-2 px-2.5 py-1.5',
       )}
       aria-label={tsr('title')}

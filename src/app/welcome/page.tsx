@@ -140,7 +140,7 @@ export default function WelcomePage() {
           {features.map((f) => (
             <div
               key={f.title}
-              className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 md:p-8 hover:border-white/20 transition-colors"
+              className="bg-surface-minimal border border-white/10 rounded-2xl p-6 md:p-8 hover:border-white/20 transition-colors shadow-card-sm"
             >
               <div className={cn('size-12 rounded-xl flex items-center justify-center mb-4', f.bg)}>
                 <f.icon className={cn('size-6', f.color)} aria-hidden="true" />

@@ -409,7 +409,7 @@ function ClubSkeleton() {
   return (
     <div className="max-w-[1200px] mx-auto">
       <div className="relative h-[300px] md:h-[550px] -mx-4 md:-mx-6 -mt-4 md:-mt-6 mb-6 overflow-hidden">
-        <div className="absolute inset-0 bg-white/[0.02]" />
+        <div className="absolute inset-0 bg-surface-minimal" />
         <div className="absolute inset-0 flex items-center justify-center pt-8">
           <div className="text-center space-y-5">
             <Skeleton className="size-20 md:size-32 rounded-full mx-auto" />
@@ -1057,7 +1057,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                 <div className="space-y-1.5">
                   {clubResearch.map(post => (
                     <Link key={post.id} href={`/community?post=${post.id}`}>
-                      <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors">
+                      <div className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-surface-subtle transition-colors">
                         <div className="flex-shrink-0 w-5 text-center">
                           {post.call === 'Bullish' ? <span className="text-green-500 font-bold text-sm">&#9650;</span>
                             : post.call === 'Bearish' ? <span className="text-red-400 font-bold text-sm">&#9660;</span>

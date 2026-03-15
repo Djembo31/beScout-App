@@ -124,7 +124,7 @@ export default function TipButton({
       </button>
 
       {open && (
-        <div className="absolute left-0 bottom-8 bg-surface-popover border border-white/10 rounded-xl shadow-xl z-20 p-3 min-w-[180px]">
+        <div className="absolute left-0 bottom-8 bg-surface-popover/90 backdrop-blur-sm border border-white/[0.12] rounded-xl shadow-card-md z-20 p-3 min-w-[180px]">
           <div className="text-[10px] text-white/40 mb-2 font-semibold">{tt('sendTipTitle')}</div>
           <div className="grid grid-cols-2 gap-1.5">
             {PRESET_AMOUNTS.map(p => (

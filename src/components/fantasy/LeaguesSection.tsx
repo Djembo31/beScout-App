@@ -211,14 +211,14 @@ function LeagueCard({ league, userId }: { league: DbFantasyLeague; userId: strin
           <div className="text-xs text-white/30 uppercase tracking-wider font-bold mt-3 mb-2">{t('leaderboard')}</div>
           {isLoading ? (
             <div className="space-y-2">
-              {[1, 2, 3].map(i => <div key={i} className="h-10 rounded-lg bg-white/[0.03] animate-pulse motion-reduce:animate-none" />)}
+              {[1, 2, 3].map(i => <div key={i} className="h-10 rounded-lg bg-surface-subtle animate-pulse motion-reduce:animate-none" />)}
             </div>
           ) : leaderboard.length === 0 ? (
             <div className="text-sm text-white/30 py-3 text-center">{t('noData')}</div>
           ) : (
             <div className="space-y-1">
               {leaderboard.map((entry, i) => (
-                <div key={entry.user_id} className={`flex items-center gap-3 p-2 rounded-lg ${entry.user_id === userId ? 'bg-gold/[0.05] border border-gold/10' : 'bg-white/[0.02]'}`}>
+                <div key={entry.user_id} className={`flex items-center gap-3 p-2 rounded-lg ${entry.user_id === userId ? 'bg-gold/[0.05] border border-gold/10' : 'bg-surface-minimal'}`}>
                   <span className="w-6 text-center text-sm">{RANK_MEDALS[i + 1] ?? `#${i + 1}`}</span>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-bold truncate">{entry.display_name ?? entry.handle ?? 'Anonym'}</div>
@@ -278,16 +278,16 @@ export default function LeaguesSection({ mode = 'full' }: { mode?: 'compact' | '
 
         {isLoading ? (
           <div className="space-y-2">
-            {[1, 2].map(i => <div key={i} className="h-12 rounded-xl bg-white/[0.02] animate-pulse motion-reduce:animate-none border border-white/[0.06]" />)}
+            {[1, 2].map(i => <div key={i} className="h-12 rounded-xl bg-surface-minimal animate-pulse motion-reduce:animate-none border border-white/[0.06]" />)}
           </div>
         ) : leagues.length === 0 ? (
-          <div className="p-4 text-center bg-white/[0.02] border border-white/[0.06] rounded-xl">
+          <div className="p-4 text-center bg-surface-minimal border border-white/[0.06] rounded-xl">
             <div className="text-xs text-white/30">{t('emptyDesc')}</div>
           </div>
         ) : (
           <div className="space-y-1.5">
             {leagues.map(l => (
-              <div key={l.id} className="flex items-center gap-3 p-2.5 bg-white/[0.03] border border-white/[0.06] rounded-xl">
+              <div key={l.id} className="flex items-center gap-3 p-2.5 bg-surface-subtle border border-white/[0.06] rounded-xl">
                 <div className="size-8 rounded-lg bg-purple-500/15 border border-purple-500/25 flex items-center justify-center shrink-0">
                   <Trophy className="size-4 text-purple-400" aria-hidden="true" />
                 </div>
@@ -329,7 +329,7 @@ export default function LeaguesSection({ mode = 'full' }: { mode?: 'compact' | '
       {/* Leagues List */}
       {isLoading ? (
         <div className="space-y-3">
-          {[1, 2].map(i => <div key={i} className="h-20 rounded-2xl bg-white/[0.02] animate-pulse motion-reduce:animate-none border border-white/[0.06]" />)}
+          {[1, 2].map(i => <div key={i} className="h-20 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none border border-white/[0.06]" />)}
         </div>
       ) : leagues.length === 0 ? (
         <Card className="p-8 text-center">

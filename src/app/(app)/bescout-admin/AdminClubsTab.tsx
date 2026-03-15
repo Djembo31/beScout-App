@@ -93,7 +93,7 @@ export function AdminClubsTab({ adminId, role }: AdminClubsTabProps) {
           {clubs.map(club => {
             const planBadge = PLAN_BADGE[club.plan] ?? PLAN_BADGE.baslangic;
             return (
-              <Card key={club.id} className="p-4 hover:bg-white/[0.02] transition-colors">
+              <Card key={club.id} className="p-4 hover:bg-surface-minimal transition-colors">
                 <div className="flex items-center justify-between gap-3">
                   {/* Left: Club info */}
                   <div className="min-w-0 flex-1">

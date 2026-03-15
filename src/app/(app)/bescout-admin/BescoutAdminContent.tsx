@@ -231,7 +231,7 @@ export default function BescoutAdminContent() {
           sponsors: t('tabSponsors'), creator_fund: 'Creator Fund', debug: 'Debug',
         };
         return (
-          <div className="flex gap-1 bg-white/[0.02] rounded-xl p-1 border border-white/[0.06] overflow-x-auto scrollbar-hide">
+          <div className="flex gap-1 bg-surface-minimal rounded-xl p-1 border border-white/[0.06] overflow-x-auto scrollbar-hide">
             {TAB_ORDER.map(tabId => {
               const Icon = TAB_ICONS[tabId];
               const label = TAB_LABELS[tabId];

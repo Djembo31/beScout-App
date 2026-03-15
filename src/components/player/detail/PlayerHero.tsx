@@ -100,7 +100,7 @@ export default function PlayerHero({
             {showOverflow && (
               <>
                 <div className="fixed inset-0 z-30" onClick={() => setShowOverflow(false)} />
-                <div className="absolute right-0 top-full mt-1 z-40 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl overflow-hidden min-w-[180px]">
+                <div className="absolute right-0 top-full mt-1 z-40 bg-surface-popover/90 backdrop-blur-sm border border-white/[0.12] rounded-xl shadow-card-md overflow-hidden min-w-[180px]">
                   <button
                     onClick={() => { onToggleWatchlist(); setShowOverflow(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors min-h-[44px]"

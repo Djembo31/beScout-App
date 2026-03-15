@@ -56,7 +56,7 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
           </div>
         ) : (
           <div>
-            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] divide-y divide-white/[0.04]">
+            <div className="rounded-xl border border-white/[0.06] bg-surface-minimal divide-y divide-white/[0.04]">
               {heldPlayerStats.map(stat => {
                 const rating = stat.rating ?? stat.fantasy_points / 10;
                 const holding = stat.player_id ? holdingsMap.get(stat.player_id) : undefined;
@@ -132,7 +132,7 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
             {tf('ergebnisse.noEvents')}
           </div>
         ) : (
-          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] divide-y divide-white/[0.04]">
+          <div className="rounded-xl border border-white/[0.06] bg-surface-minimal divide-y divide-white/[0.04]">
             {joinedScoredEvents.map(event => {
               const rank = event.userRank;
               const score = event.userPoints;

@@ -121,7 +121,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
               <div className="col-span-3 text-right">{t('volume')}</div>
             </div>
             {data.topFans.map((fan, idx) => (
-              <div key={fan.user_id} className="grid grid-cols-12 gap-2 items-center px-3 py-2.5 bg-white/[0.02] rounded-xl border border-white/[0.04] hover:bg-white/[0.04] transition-colors">
+              <div key={fan.user_id} className="grid grid-cols-12 gap-2 items-center px-3 py-2.5 bg-surface-minimal rounded-xl border border-white/[0.04] hover:bg-white/[0.04] transition-colors">
                 <div className="col-span-1 text-sm font-mono tabular-nums text-white/40">{idx + 1}</div>
                 <div className="col-span-5">
                   <div className="text-sm font-semibold truncate">

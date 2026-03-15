@@ -299,7 +299,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
               <div className="text-[10px] text-green-400/70 mt-1 font-mono truncate">{grantUsername} ({grantUserId.slice(0, 8)}...)</div>
             )}
             {showDropdown && userResults.length > 0 && (
-              <div id="user-search-listbox" role="listbox" aria-label="Suchergebnisse" className="absolute z-20 left-0 right-0 top-full mt-1 bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl max-h-48 overflow-y-auto">
+              <div id="user-search-listbox" role="listbox" aria-label="Suchergebnisse" className="absolute z-20 left-0 right-0 top-full mt-1 bg-surface-popover/90 backdrop-blur-sm border border-white/[0.12] rounded-lg shadow-card-md max-h-48 overflow-y-auto">
                 {userResults.map((u, i) => (
                   <button
                     key={u.id}
@@ -372,7 +372,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
             </thead>
             <tbody>
               {passes.map(p => (
-                <tr key={p.id} className="border-b border-white/[0.06] hover:bg-white/[0.02] transition-colors">
+                <tr key={p.id} className="border-b border-white/[0.06] hover:bg-surface-minimal transition-colors">
                   <td className="py-2 px-3 text-white/80">{p.profiles?.handle ?? p.user_id.slice(0, 8)}</td>
                   <td className="py-2 px-3"><FoundingPassBadge tier={p.tier as FoundingPassTier} /></td>
                   <td className="py-2 px-3 text-right font-mono tabular-nums text-gold">{fmtScout(p.bcredits_granted)}</td>

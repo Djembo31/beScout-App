@@ -57,7 +57,7 @@ export function SpieltagSelector({
     : 'border-white/[0.08]';
 
   return (
-    <div className={cn('flex items-center gap-2 p-2.5 rounded-2xl border bg-white/[0.02]', borderColor)}>
+    <div className={cn('flex items-center gap-2 p-2.5 rounded-2xl border bg-surface-minimal', borderColor)}>
       {/* Prev */}
       <button
         onClick={() => onGameweekChange(Math.max(1, gameweek - 1))}

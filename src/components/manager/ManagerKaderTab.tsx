@@ -146,7 +146,7 @@ function CompactPickerRow({ player, scores, minutes, onClick }: {
           )}>{lastScore}</span>
         </div>
       ) : (
-        <div className="size-7 rounded-full bg-white/[0.03] border border-white/[0.06] flex items-center justify-center shrink-0">
+        <div className="size-7 rounded-full bg-surface-subtle border border-white/[0.06] flex items-center justify-center shrink-0">
           <span className="text-[9px] font-mono text-white/15">&mdash;</span>
         </div>
       )}
@@ -177,7 +177,7 @@ function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAss
     <div
       className={cn(
         'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border-l-2 transition-colors text-left',
-        'bg-white/[0.02] border border-white/[0.06]',
+        'bg-surface-minimal border border-white/[0.06]',
         isAssigned && 'bg-green-500/[0.06] border-green-500/20',
       )}
       style={{ borderLeftColor: borderColor }}
@@ -622,7 +622,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
         </div>
 
         {/* Side Panel — only visible on lg+ */}
-        <div className="hidden lg:flex flex-col flex-1 min-w-0 bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden"
+        <div className="hidden lg:flex flex-col flex-1 min-w-0 bg-surface-minimal border border-white/[0.06] rounded-2xl overflow-hidden"
           style={{ maxHeight: 'min(55vh, 500px)' }}>
           {sidePanel}
         </div>

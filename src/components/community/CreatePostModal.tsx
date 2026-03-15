@@ -214,7 +214,7 @@ export default function CreatePostModal({
             </button>
           )}
           {playerDropdownOpen && (
-            <div className="absolute z-20 mt-1 w-full max-h-48 overflow-y-auto rounded-xl bg-surface-popover border border-white/10 shadow-xl">
+            <div className="absolute z-20 mt-1 w-full max-h-48 overflow-y-auto rounded-xl bg-surface-popover/90 backdrop-blur-sm border border-white/[0.12] shadow-card-md">
               <button
                 type="button"
                 onClick={() => { setPlayerId(''); setPlayerSearch(''); setPlayerDropdownOpen(false); }}

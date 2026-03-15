@@ -69,7 +69,7 @@ export function MembershipSection({ userId, clubId, clubColor, onSubscribed }: P
                 'flex flex-col gap-3 p-0 overflow-hidden',
                 isActive
                   ? 'border-2 bg-white/[0.04] ring-2 animate-[pulse_3s_ease-in-out_infinite]'
-                  : 'bg-white/[0.02] border border-white/10',
+                  : 'bg-surface-minimal border border-white/10',
               )}
               style={isActive ? { borderColor: config.color, '--tw-ring-color': `${config.color}40` } as React.CSSProperties : undefined}
             >

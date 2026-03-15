@@ -227,7 +227,7 @@ export default function TraderTab({
                 <Link
                   key={h.id}
                   href={`/player/${h.player_id}`}
-                  className="flex items-center gap-3 py-2 px-1 rounded-lg hover:bg-white/[0.03] transition-colors"
+                  className="flex items-center gap-3 py-2 px-1 rounded-lg hover:bg-surface-subtle transition-colors"
                 >
                   <div className="flex-1 min-w-0">
                     <PlayerIdentity
@@ -357,7 +357,7 @@ function StatCell({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="p-2 rounded-lg bg-white/[0.03]">
+    <div className="p-2 rounded-lg bg-surface-subtle">
       <div className="text-[11px] text-white/40 mb-0.5">{label}</div>
       <div className={cn('text-[13px] font-mono font-bold tabular-nums flex items-center gap-0.5', valueClassName ?? 'text-white/80')}>
         {icon}

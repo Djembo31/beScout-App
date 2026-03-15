@@ -64,7 +64,7 @@ function FeaturesSection() {
         <h2 className="text-2xl md:text-3xl font-black text-center text-balance mb-10">{t('featuresTitle')}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {features.map(({ icon: Icon, key }) => (
-            <div key={key} className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-gold/20 transition-colors">
+            <div key={key} className="p-5 rounded-2xl bg-surface-minimal border border-white/10 hover:border-gold/20 transition-colors shadow-card-sm">
               <div className="size-10 rounded-xl bg-gold/10 flex items-center justify-center mb-3">
                 <Icon className="size-5 text-gold" />
               </div>
@@ -173,7 +173,7 @@ function CalculatorSection() {
         <h2 className="text-2xl md:text-3xl font-black text-center text-balance mb-2">{t('calcTitle')}</h2>
         <p className="text-center text-white/50 text-sm text-pretty mb-8">{t('calcSubtitle')}</p>
 
-        <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 space-y-6">
+        <div className="p-6 rounded-2xl bg-surface-minimal border border-white/10 space-y-6">
           {/* Slider: Ad Spaces */}
           <div>
             <div className="flex justify-between text-sm mb-2">

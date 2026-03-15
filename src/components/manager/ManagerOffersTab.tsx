@@ -537,7 +537,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
       </div>
 
       {/* Sub Tabs */}
-      <div className="flex gap-1 bg-white/[0.02] rounded-xl p-1 border border-white/[0.06]">
+      <div className="flex gap-1 bg-surface-minimal rounded-xl p-1 border border-white/[0.06]">
         {SUB_TABS.map(tab => {
           const Icon = tab.icon;
           return (

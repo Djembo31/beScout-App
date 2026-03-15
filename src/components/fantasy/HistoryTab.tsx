@@ -78,11 +78,11 @@ export const HistoryTab = ({
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="text-center p-3 bg-white/[0.03] rounded-lg">
+            <div className="text-center p-3 bg-surface-subtle rounded-lg">
               <div className="text-lg md:text-2xl font-mono font-black text-gold tabular-nums">{fmtScout(totalRewardBsd)}</div>
               <div className="text-xs text-white/40">{t('wonScout')}</div>
             </div>
-            <div className="text-center p-3 bg-white/[0.03] rounded-lg">
+            <div className="text-center p-3 bg-surface-subtle rounded-lg">
               <div className="text-lg md:text-2xl font-mono font-black tabular-nums">{seasonPoints.toLocaleString()}</div>
               <div className="text-xs text-white/40">{t('seasonPoints')}</div>
             </div>
@@ -181,7 +181,7 @@ export const HistoryTab = ({
                   const isMe = entry.userId === userId;
                   const rankColor = entry.rank === 1 ? 'text-gold' : entry.rank === 2 ? 'text-zinc-300' : entry.rank === 3 ? 'text-amber-600' : 'text-white/50';
                   return (
-                    <tr key={entry.userId} className={cn('border-b border-white/5 hover:bg-white/[0.02]', isMe && 'bg-gold/[0.04]')}>
+                    <tr key={entry.userId} className={cn('border-b border-white/5 hover:bg-surface-minimal', isMe && 'bg-gold/[0.04]')}>
                       <td className={cn('py-3 px-4 font-mono font-bold text-sm tabular-nums', rankColor)}>
                         {entry.rank <= 3 ? <Trophy className={cn('size-4 inline', rankColor)} aria-hidden="true" /> : `#${entry.rank}`}
                       </td>
@@ -232,7 +232,7 @@ export const HistoryTab = ({
                   <Link key={entry.userId} href={`/profile/${entry.handle}`}>
                     <div className={cn(
                       'flex items-center justify-between gap-3 p-3 rounded-xl border border-white/[0.06]',
-                      isMe ? 'bg-gold/[0.06]' : 'bg-white/[0.02]'
+                      isMe ? 'bg-gold/[0.06]' : 'bg-surface-minimal'
                     )}>
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={cn('size-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0',
@@ -303,7 +303,7 @@ export const HistoryTab = ({
                 {participations.map((p, i) => {
                   const formResult = getFormResult(p.rank, p.totalParticipants);
                   return (
-                    <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02]">
+                    <tr key={i} className="border-b border-white/5 hover:bg-surface-minimal">
                       <td className="py-3 px-4">
                         <div className="font-medium">{p.eventName}</div>
                         <div className="text-xs text-white/40">{p.totalParticipants} {t('participantsLabel')}</div>
@@ -333,7 +333,7 @@ export const HistoryTab = ({
               {participations.map((p, i) => {
                 const formResult = getFormResult(p.rank, p.totalParticipants);
                 return (
-                  <div key={i} className="flex items-center justify-between gap-3 p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+                  <div key={i} className="flex items-center justify-between gap-3 p-3 bg-surface-minimal border border-white/[0.06] rounded-xl">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className={cn('size-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0 tabular-nums', formResult.color)}>
                         #{p.rank}

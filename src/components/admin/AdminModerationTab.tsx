@@ -192,7 +192,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
                 'flex items-start gap-3 p-3 rounded-xl border transition-colors',
                 post.is_pinned
                   ? 'bg-gold/[0.03] border-gold/10'
-                  : 'bg-white/[0.02] border-white/[0.06] hover:border-white/10'
+                  : 'bg-surface-minimal border-white/[0.06] hover:border-white/10'
               )}>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">

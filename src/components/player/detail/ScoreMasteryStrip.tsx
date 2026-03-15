@@ -30,7 +30,7 @@ export default function ScoreMasteryStrip({
   const l15Pct = l15 > 0 ? Math.round((l15 / 100) * 100) : 0;
 
   return (
-    <div className={`flex items-stretch gap-0 bg-white/[0.03] border border-white/[0.08] rounded-2xl overflow-hidden ${className}`}>
+    <div className={`flex items-stretch gap-0 bg-surface-subtle border border-white/[0.08] rounded-2xl overflow-hidden ${className}`}>
       {/* Scores Section */}
       <div className="flex items-center gap-3 md:gap-4 px-4 py-3 flex-1 min-w-0">
         {/* L5 Score Circle (primary) */}

@@ -111,7 +111,7 @@ function InlineFeedVoteCard({ vote, hasVoted, onVote, voting }: {
                 disabled={hasVoted || !isActive || voting === vote.id}
                 className={cn(
                   'w-full p-2.5 rounded-xl border transition-all text-left text-sm relative overflow-hidden min-h-[44px]',
-                  hasVoted ? 'bg-white/[0.02] border-white/10' : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.04]'
+                  hasVoted ? 'bg-surface-minimal border-white/10' : 'bg-surface-minimal border-white/10 hover:bg-white/[0.04]'
                 )}
               >
                 {hasVoted && <div className="absolute inset-0 bg-purple-500/10" style={{ width: `${pct}%` }} />}
@@ -310,7 +310,7 @@ export default function CommunityFeedTab({
               'px-3 py-1.5 rounded-full text-xs font-semibold transition-all border min-h-[44px] whitespace-nowrap',
               contentFilter === opt.id
                 ? opt.colorActive
-                : 'bg-white/[0.02] text-white/40 border-white/10 hover:text-white/60'
+                : 'bg-surface-minimal text-white/40 border-white/10 hover:text-white/60'
             )}
           >
             {t(`filters.${opt.id}`)}

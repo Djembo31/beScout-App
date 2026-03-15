@@ -111,15 +111,15 @@ export const DashboardTab = ({
               <Chip className="bg-white/10">{lastEvent.points} {tc('points')}</Chip>
             </div>
             <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4">
-              <div className="text-center p-3 bg-white/[0.03] rounded-lg">
+              <div className="text-center p-3 bg-surface-subtle rounded-lg">
                 <div className="text-lg md:text-2xl font-mono font-black text-green-500">#{lastEvent.rank}</div>
                 <div className="text-xs text-white/40">{t('dashboard.placement')}</div>
               </div>
-              <div className="text-center p-3 bg-white/[0.03] rounded-lg">
+              <div className="text-center p-3 bg-surface-subtle rounded-lg">
                 <div className="text-lg md:text-2xl font-mono font-black">{lastEvent.points}</div>
                 <div className="text-xs text-white/40">{tc('points')}</div>
               </div>
-              <div className="text-center p-3 bg-white/[0.03] rounded-lg">
+              <div className="text-center p-3 bg-surface-subtle rounded-lg">
                 <div className="text-lg md:text-2xl font-mono font-black text-purple-400">{lastEvent.totalParticipants}</div>
                 <div className="text-xs text-white/40">{t('participants')}</div>
               </div>
@@ -154,7 +154,7 @@ export const DashboardTab = ({
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
                   idx === selectedIdx
                     ? 'bg-gold/15 text-gold border-gold/30'
-                    : 'bg-white/[0.03] text-white/50 border-white/[0.06] hover:bg-white/[0.06]'
+                    : 'bg-surface-subtle text-white/50 border-white/[0.06] hover:bg-white/[0.06]'
                 }`}
               >
                 {sl.eventName} <span className="font-mono ml-1">#{sl.rank}</span>
@@ -297,7 +297,7 @@ export const DashboardTab = ({
                 <button
                   key={event.id}
                   onClick={() => onViewEvent(event)}
-                  className="w-full p-3 bg-white/[0.02] rounded-lg text-left hover:bg-white/[0.05] transition-colors border border-white/5 hover:border-green-500/30"
+                  className="w-full p-3 bg-surface-minimal rounded-lg text-left hover:bg-white/[0.05] transition-colors border border-white/5 hover:border-green-500/30"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm truncate">{event.name}</span>
@@ -327,7 +327,7 @@ export const DashboardTab = ({
                 <button
                   key={event.id}
                   onClick={() => onViewEvent(event)}
-                  className="w-full p-3 bg-white/[0.02] rounded-lg text-left hover:bg-white/[0.05] transition-colors border border-white/5 hover:border-sky-500/30"
+                  className="w-full p-3 bg-surface-minimal rounded-lg text-left hover:bg-white/[0.05] transition-colors border border-white/5 hover:border-sky-500/30"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm truncate">{event.name}</span>
@@ -357,7 +357,7 @@ export const DashboardTab = ({
                 <button
                   key={event.id}
                   onClick={() => onViewEvent(event)}
-                  className="w-full p-3 bg-white/[0.02] rounded-lg text-left hover:bg-white/[0.05] transition-colors border border-white/5 hover:border-pink-500/30"
+                  className="w-full p-3 bg-surface-minimal rounded-lg text-left hover:bg-white/[0.05] transition-colors border border-white/5 hover:border-pink-500/30"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm truncate">{event.name}</span>

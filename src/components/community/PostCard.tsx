@@ -183,7 +183,7 @@ export default function PostCard({
                   <MoreHorizontal className="w-4 h-4" aria-hidden="true" />
                 </button>
                 {showMenu && (
-                  <div className="absolute right-0 top-8 bg-surface-popover border border-white/10 rounded-xl shadow-xl z-10 py-1 min-w-[160px]">
+                  <div className="absolute right-0 top-8 bg-surface-popover/90 backdrop-blur-sm border border-white/[0.12] rounded-xl shadow-card-md z-10 py-1 min-w-[160px]">
                     {isClubAdmin && onTogglePin && (
                       <button
                         onClick={() => { onTogglePin(post.id, !post.is_pinned); setShowMenu(false); }}

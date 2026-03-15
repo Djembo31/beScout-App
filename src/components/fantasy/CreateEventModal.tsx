@@ -163,7 +163,7 @@ export const CreateEventModal = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-4 bg-white/[0.02] rounded-xl">
+        <div className="flex items-center justify-between p-4 bg-surface-minimal rounded-xl">
           <div>
             <div className="font-medium">{t('privateEvent')}</div>
             <div className="text-xs text-white/50">{t('privateEventHint')}</div>

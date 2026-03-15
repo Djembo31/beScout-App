@@ -135,7 +135,7 @@ export default function CommunityResearchTab({
                 'px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all border',
                 researchCallFilter === c.id
                   ? c.color
-                  : 'text-white/40 bg-white/[0.02] border-white/[0.06] hover:bg-white/5 hover:text-white/60'
+                  : 'text-white/40 bg-surface-minimal border-white/[0.06] hover:bg-white/5 hover:text-white/60'
               )}
             >
               {c.label}
@@ -154,7 +154,7 @@ export default function CommunityResearchTab({
               'px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all border',
               researchCategoryFilter === cat.id
                 ? cat.color
-                : 'text-white/40 bg-white/[0.02] border-white/[0.06] hover:bg-white/5 hover:text-white/60'
+                : 'text-white/40 bg-surface-minimal border-white/[0.06] hover:bg-white/5 hover:text-white/60'
             )}
           >
             {tc(cat.labelKey)}

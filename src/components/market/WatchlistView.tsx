@@ -271,7 +271,7 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
             <Link
               key={player.id}
               href={`/player/${player.id}`}
-              className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.04] transition-colors group"
+              className="flex items-center gap-3 p-3 rounded-xl bg-surface-minimal border border-white/[0.08] hover:bg-white/[0.04] transition-colors group shadow-card-sm"
             >
               {/* Photo */}
               <PlayerPhoto

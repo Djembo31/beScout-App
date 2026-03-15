@@ -211,7 +211,7 @@ export default function SellModal({
                 {userOrders.map((order) => {
                   const remaining = order.quantity - order.filled_qty;
                   return (
-                    <div key={order.id} className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10">
+                    <div key={order.id} className="flex items-center justify-between p-3 bg-surface-minimal rounded-xl border border-white/10">
                       <div>
                         <div className="font-mono font-bold tabular-nums text-sm text-gold">{formatScout(order.price)} bCredits</div>
                         <div className="text-[10px] text-white/50">

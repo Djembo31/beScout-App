@@ -406,7 +406,7 @@ export default function KaufenDiscovery({
                 className={cn('px-2.5 py-1.5 rounded-lg text-[10px] font-bold border transition-colors shrink-0 whitespace-nowrap',
                   discoveryMinL5 === threshold
                     ? 'bg-gold/10 border-gold/20 text-gold'
-                    : 'bg-white/[0.03] border-white/[0.06] text-white/40'
+                    : 'bg-surface-subtle border-white/[0.06] text-white/40'
                 )}
               >L5 {threshold}+</button>
             ))}
@@ -416,7 +416,7 @@ export default function KaufenDiscovery({
               className={cn('px-2.5 py-1.5 rounded-lg text-[10px] font-bold border transition-colors shrink-0 flex items-center gap-1',
                 discoveryOnlyFit
                   ? 'bg-green-500/15 border-green-500/30 text-green-500'
-                  : 'bg-white/[0.03] border-white/[0.06] text-white/40'
+                  : 'bg-surface-subtle border-white/[0.06] text-white/40'
               )}
             >
               <Heart className="w-3 h-3" />{t('discoveryOnlyFit')}
@@ -429,7 +429,7 @@ export default function KaufenDiscovery({
                 className={cn('px-2.5 py-1.5 rounded-lg text-[10px] font-bold border transition-colors shrink-0',
                   discoveryPos === pos
                     ? 'bg-gold/10 border-gold/20 text-gold'
-                    : 'bg-white/[0.03] border-white/[0.06] text-white/40'
+                    : 'bg-surface-subtle border-white/[0.06] text-white/40'
                 )}
               >{POS_LABELS[pos]}</button>
             ))}
@@ -567,7 +567,7 @@ export default function KaufenDiscovery({
                 <div key={clubName} className="border border-white/[0.06] rounded-2xl overflow-hidden mb-1.5">
                   <button
                     onClick={() => toggleDiscoveryClub(clubName)}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface-subtle transition-colors"
                     style={{ borderLeft: `3px solid ${primaryColor}` }}
                   >
                     {clubData?.logo ? (
@@ -619,7 +619,7 @@ export default function KaufenDiscovery({
             {clubGroups.length > 5 && (
               <button
                 onClick={() => setShowMoreClubs(!showMoreClubs)}
-                className="w-full py-2.5 text-center text-xs font-bold text-white/40 hover:text-white/70 border border-white/[0.06] rounded-xl hover:bg-white/[0.03] transition-colors mt-1"
+                className="w-full py-2.5 text-center text-xs font-bold text-white/40 hover:text-white/70 border border-white/[0.06] rounded-xl hover:bg-surface-subtle transition-colors mt-1"
               >
                 {showMoreClubs ? t('showLessClubs') : t('moreClubs')}
               </button>
@@ -672,7 +672,7 @@ export default function KaufenDiscovery({
             {discoveryPos && byPosition.length > 0 && (
               <button
                 onClick={() => goSearch({ pos: discoveryPos })}
-                className="w-full py-2 mt-2 text-center text-[10px] font-bold text-white/30 hover:text-gold border border-white/[0.06] rounded-xl hover:bg-white/[0.03] transition-colors"
+                className="w-full py-2 mt-2 text-center text-[10px] font-bold text-white/30 hover:text-gold border border-white/[0.06] rounded-xl hover:bg-surface-subtle transition-colors"
               >
                 {t('showAllPos', { pos: POS_LABELS[discoveryPos] })} →
               </button>
@@ -848,12 +848,12 @@ export default function KaufenDiscovery({
                       <div className="flex gap-2 flex-wrap">
                         <button onClick={() => setLeagueFilter('')}
                           className={cn('px-3.5 py-2 rounded-xl text-xs font-bold border transition-colors active:scale-95',
-                            !leagueFilter ? 'bg-gold/10 border-gold/20 text-gold' : 'bg-white/[0.03] border-white/[0.06] text-white/50'
+                            !leagueFilter ? 'bg-gold/10 border-gold/20 text-gold' : 'bg-surface-subtle border-white/[0.06] text-white/50'
                           )}>{t('allLeagues')}</button>
                         {availableLeagues.map(l => (
                           <button key={l} onClick={() => setLeagueFilter(leagueFilter === l ? '' : l)}
                             className={cn('px-3.5 py-2 rounded-xl text-xs font-bold border transition-colors active:scale-95 flex items-center gap-1.5',
-                              leagueFilter === l ? 'bg-gold/10 border-gold/20 text-gold' : 'bg-white/[0.03] border-white/[0.06] text-white/50'
+                              leagueFilter === l ? 'bg-gold/10 border-gold/20 text-gold' : 'bg-surface-subtle border-white/[0.06] text-white/50'
                             )}
                           >
                             <Trophy className="w-3.5 h-3.5" />

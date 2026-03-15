@@ -65,8 +65,8 @@ export default function CommunityPollCard({ poll, hasVoted, isOwn, onVote, onCan
                 className={cn(
                   'w-full p-3 rounded-xl border transition-all text-left relative overflow-hidden',
                   hasVoted || isOwn || !isActive
-                    ? 'bg-white/[0.02] border-white/10'
-                    : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.04] hover:border-white/20'
+                    ? 'bg-surface-minimal border-white/10'
+                    : 'bg-surface-minimal border-white/10 hover:bg-white/[0.04] hover:border-white/20'
                 )}
               >
                 {(hasVoted || isOwn) && (

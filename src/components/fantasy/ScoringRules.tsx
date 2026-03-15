@@ -45,11 +45,11 @@ export function ScoringRules() {
   ];
 
   return (
-    <div className="bg-white/[0.02] border border-white/10 rounded-2xl overflow-hidden">
+    <div className="bg-surface-minimal border border-white/10 rounded-2xl overflow-hidden">
       {/* Toggle Header */}
       <button
         onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left transition-colors hover:bg-white/[0.03] min-h-[44px]"
+        className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left transition-colors hover:bg-surface-subtle min-h-[44px]"
         aria-expanded={open}
       >
         <span className="flex items-center gap-2 text-sm font-semibold text-white/70">

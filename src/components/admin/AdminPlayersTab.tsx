@@ -665,7 +665,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               <option value="28">{t('daysOption28')}</option>
             </select>
           </div>
-          <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl border border-white/10">
+          <div className="flex items-center justify-between p-3 bg-surface-minimal rounded-xl border border-white/10">
             <div>
               <div className="text-sm font-bold">{t('startNow')}</div>
               <div className="text-xs text-white/40">{t('startNowDesc')}</div>
@@ -787,7 +787,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
             />
           </div>
-          <div className="bg-white/[0.02] rounded-xl p-3 text-xs text-white/40">
+          <div className="bg-surface-minimal rounded-xl p-3 text-xs text-white/40">
             Club: <span className="text-white/70 font-bold">{club.name}</span>
           </div>
           <Button

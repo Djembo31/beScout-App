@@ -61,7 +61,7 @@ export default function LimitOrderModal({ open, onClose, playerName, floorPrice 
                 className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none ${
                   side === 'buy'
                     ? 'bg-green-500/15 border border-green-500/30 text-green-400'
-                    : 'bg-white/[0.03] border border-white/10 text-white/40 hover:bg-white/[0.06] hover:text-white/60'
+                    : 'bg-surface-subtle border border-white/10 text-white/40 hover:bg-white/[0.06] hover:text-white/60'
                 }`}
               >
                 {t('limitOrderBuy')}
@@ -73,7 +73,7 @@ export default function LimitOrderModal({ open, onClose, playerName, floorPrice 
                 className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none ${
                   side === 'sell'
                     ? 'bg-red-500/15 border border-red-500/30 text-red-400'
-                    : 'bg-white/[0.03] border border-white/10 text-white/40 hover:bg-white/[0.06] hover:text-white/60'
+                    : 'bg-surface-subtle border border-white/10 text-white/40 hover:bg-white/[0.06] hover:text-white/60'
                 }`}
               >
                 {t('limitOrderSell')}
@@ -112,7 +112,7 @@ export default function LimitOrderModal({ open, onClose, playerName, floorPrice 
             </div>
 
             {/* Current Price Info */}
-            <div className="flex items-center justify-between text-xs text-white/40 bg-white/[0.02] rounded-lg px-3 py-2">
+            <div className="flex items-center justify-between text-xs text-white/40 bg-surface-minimal rounded-lg px-3 py-2">
               <span>{t('limitOrderCurrentFloor')}</span>
               <span className="font-mono font-bold text-white/60">{fmtScout(floorPrice)} bCredits</span>
             </div>

@@ -85,7 +85,7 @@ export function FixtureCard({ fixture, onSelect }: Props) {
               <span className="font-mono font-bold text-sm tabular-nums text-amber-400/70">? - ?</span>
             </div>
           ) : kickoff ? (
-            <div className="px-2.5 py-1.5 bg-white/[0.03] border border-white/[0.06] rounded-lg" aria-hidden="true">
+            <div className="px-2.5 py-1.5 bg-surface-subtle border border-white/[0.06] rounded-lg" aria-hidden="true">
               <span className="font-mono font-bold text-sm tabular-nums text-white/40">{kickoff.time}</span>
             </div>
           ) : (

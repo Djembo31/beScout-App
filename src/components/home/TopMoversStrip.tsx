@@ -30,7 +30,7 @@ export default function TopMoversStrip({ players }: TopMoversStripProps) {
             key={p.id}
             href={`/player/${p.id}`}
             aria-label={`${p.first} ${p.last}, ${p.club}, ${changeText}`}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border bg-white/[0.02] hover:bg-white/[0.05] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none transition-colors shrink-0 min-w-[200px]"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border bg-surface-minimal hover:bg-white/[0.05] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none transition-colors shrink-0 min-w-[200px] shadow-card-sm"
             style={{ borderColor: up ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)' }}
           >
             <PlayerPhoto imageUrl={p.imageUrl} first={p.first} last={p.last} pos={p.pos} size={36} />

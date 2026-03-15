@@ -52,7 +52,7 @@ export default function CommunitySidebar({
           </div>
           <div className="space-y-2">
             {topResearch.map(post => (
-              <div key={post.id} className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+              <div key={post.id} className="p-2.5 rounded-xl bg-surface-minimal border border-white/[0.06]">
                 <div className="flex items-center gap-2 mb-1">
                   {post.call && (
                     <span className={cn('px-1.5 py-0.5 rounded text-[9px] font-bold', callColor[post.call] ?? 'bg-white/10 text-white/50')}>
@@ -105,7 +105,7 @@ export default function CommunitySidebar({
           } as TopScout))).map((scout, i) => {
             const rang = getRang(scout.analystScore);
             return (
-              <Link key={scout.userId} href={`/profile/${scout.handle}`} className="flex items-center gap-3 py-1.5 hover:bg-white/[0.03] rounded-lg px-1 -mx-1 transition-colors">
+              <Link key={scout.userId} href={`/profile/${scout.handle}`} className="flex items-center gap-3 py-1.5 hover:bg-surface-subtle rounded-lg px-1 -mx-1 transition-colors">
                 <span className={cn(
                   'w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black',
                   i === 0 ? 'bg-gold/20 text-gold' : 'bg-white/5 text-white/50'

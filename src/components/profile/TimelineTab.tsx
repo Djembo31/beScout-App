@@ -206,7 +206,7 @@ export default function TimelineTab({ transactions: initial, userId, isSelf }: T
                     return (
                       <div
                         key={tx.id}
-                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] transition-colors"
+                        className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-surface-subtle transition-colors"
                       >
                         {/* Icon */}
                         <div className={cn(

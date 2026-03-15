@@ -337,7 +337,7 @@ export default function HomePage() {
                 <Link
                   key={h.playerId}
                   href={`/player/${h.playerId}`}
-                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl border bg-white/[0.02] hover:bg-white/[0.05] transition-colors shrink-0 min-w-[180px]"
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl border bg-surface-minimal hover:bg-white/[0.05] transition-colors shrink-0 min-w-[180px] shadow-card-sm"
                   style={{ borderColor: up ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)' }}
                 >
                   <div className="min-w-0">
@@ -526,7 +526,7 @@ export default function HomePage() {
                 <Link
                   key={club.id}
                   href={`/club/${club.slug}`}
-                  className="flex items-center gap-2 px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-xl hover:bg-white/[0.06] hover:border-white/15 transition-colors shrink-0"
+                  className="flex items-center gap-2 px-3 py-2 bg-surface-subtle border border-white/[0.08] rounded-xl hover:bg-white/[0.06] hover:border-white/15 transition-colors shrink-0"
                 >
                   <div className="size-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${color}20` }}>
                     {club.logo_url ? (

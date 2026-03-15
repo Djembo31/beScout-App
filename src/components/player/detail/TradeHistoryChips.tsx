@@ -36,7 +36,7 @@ export default function TradeHistoryChips({ trades, maxDisplay = 10, className =
           return (
             <div
               key={trade.id}
-              className="shrink-0 bg-white/[0.03] border border-white/[0.08] rounded-xl px-3 py-2 min-w-[90px] flex flex-col items-center gap-0.5"
+              className="shrink-0 bg-surface-subtle border border-white/[0.08] rounded-xl px-3 py-2 min-w-[90px] flex flex-col items-center gap-0.5"
             >
               <span className="font-mono font-bold text-gold text-sm">
                 {fmtScout(price)}

@@ -120,7 +120,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
     >
       <div className="space-y-4">
         {/* Player info */}
-        <div className="flex items-center gap-3 px-3 py-2.5 bg-white/[0.02] border border-white/[0.08] rounded-xl">
+        <div className="flex items-center gap-3 px-3 py-2.5 bg-surface-minimal border border-white/[0.08] rounded-xl">
           <PlayerIdentity player={player} size="sm" className="flex-1 min-w-0" />
         </div>
 
@@ -201,7 +201,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
 
         {/* Cost summary */}
         {priceNum > 0 && (
-          <div className="space-y-1.5 bg-white/[0.02] border border-white/[0.06] rounded-lg px-3 py-2.5">
+          <div className="space-y-1.5 bg-surface-minimal border border-white/[0.06] rounded-lg px-3 py-2.5">
             <div className="flex justify-between text-[11px] font-mono tabular-nums">
               <span className="text-white/40">{t('total')}</span>
               <span className={cn('font-bold', totalCents > availableCents ? 'text-red-400' : 'text-gold')}>

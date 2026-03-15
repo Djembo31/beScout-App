@@ -279,7 +279,7 @@ function OverviewTab({ stats, homeStats, awayStats, substitutions, fixture, mvpI
       )}
 
       {/* Quick Stats — Home vs Away comparison bars */}
-      <div className="space-y-3 rounded-xl bg-white/[0.03] border border-white/[0.06] px-4 py-3" style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)' }} role="group" aria-label={ts('matchDetails')}>
+      <div className="space-y-3 rounded-xl bg-surface-subtle border border-white/[0.06] px-4 py-3" style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)' }} role="group" aria-label={ts('matchDetails')}>
         {[
           { label: ts('quickGoals'), home: homeGoals, away: awayGoals, hColor: homeColor, aColor: awayColor },
           { label: ts('quickCards'), home: homeCards, away: awayCards, hColor: '#EAB308', aColor: '#EAB308' },
@@ -362,7 +362,7 @@ function TopPerformerRow({ stat, rank, isMvp, floorPrice }: {
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50',
         isMvp
           ? 'bg-gold/[0.06] border border-gold/15'
-          : 'bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04]',
+          : 'bg-surface-minimal border border-white/[0.04] hover:bg-surface-elevated',
       )}
       style={{
         ...(isMvp ? mvpRowShadow : normalRowShadow),
@@ -573,7 +573,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
 
       {/* Tabs — Premium segmented control */}
       {stats.length > 0 && (
-        <div role="tablist" className="flex items-center justify-center gap-1 px-4 py-3 border-b border-white/[0.04] sticky top-0 z-10 bg-[#0d0d0f]">
+        <div role="tablist" className="flex items-center justify-center gap-1 px-4 py-3 border-b border-white/[0.04] sticky top-0 z-10 bg-surface-modal">
           {(['overview', 'ranking', 'formation'] as const).map(tab => (
             <button
               key={tab}
@@ -588,7 +588,7 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]',
                 detailTab === tab
                   ? 'bg-gold/15 text-gold shadow-[0_0_12px_rgba(255,215,0,0.08)] border border-gold/20'
-                  : 'text-white/30 hover:text-white/50 hover:bg-white/[0.03] border border-transparent',
+                  : 'text-white/30 hover:text-white/50 hover:bg-surface-subtle border border-transparent',
               )}
             >
               {tab === 'overview' ? ts('overviewTab') : tab === 'ranking' ? ts('ranking') : ts('formationTab')}

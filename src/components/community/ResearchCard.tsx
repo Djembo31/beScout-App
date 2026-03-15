@@ -201,7 +201,7 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
                   ? 'text-gold bg-gold/10 border-gold/20'
                   : hasEnough
                   ? 'text-white/50 bg-white/5 border-white/10'
-                  : 'text-white/30 bg-white/[0.02] border-white/[0.06]'
+                  : 'text-white/30 bg-surface-minimal border-white/[0.06]'
               )}>
                 <Shield className="w-3 h-3" />
                 {hasEnough

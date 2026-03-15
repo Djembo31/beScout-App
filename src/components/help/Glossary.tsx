@@ -92,7 +92,7 @@ export function Glossary({ open, onClose }: GlossaryProps) {
                 {terms.map((term) => (
                   <div
                     key={term.key}
-                    className="p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl"
+                    className="p-3 bg-surface-minimal border border-white/[0.06] rounded-xl"
                   >
                     <div className="font-bold text-sm text-white/90">
                       {t(`terms.${term.key}.title`)}

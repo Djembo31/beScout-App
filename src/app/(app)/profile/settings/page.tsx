@@ -313,7 +313,7 @@ export default function ProfileSettingsPage() {
             type="email"
             value={user?.email ?? ''}
             readOnly
-            className="w-full px-4 py-2.5 rounded-xl text-sm bg-white/[0.02] border border-white/5 text-white/40 cursor-not-allowed"
+            className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-minimal border border-white/5 text-white/40 cursor-not-allowed"
           />
           <div className="mt-1 text-[11px] text-white/25">{t('emailReadOnly')}</div>
         </div>

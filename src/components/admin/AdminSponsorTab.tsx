@@ -117,7 +117,7 @@ export default function AdminSponsorTab({ club }: { club: ClubWithAdmin }) {
             const placementCtr = imp > 0 ? ((clk / imp) * 100).toFixed(2) : '0.00';
 
             return (
-              <div key={sponsor.id} className="flex items-center gap-3 p-4 min-h-[56px] hover:bg-white/[0.02] transition-colors">
+              <div key={sponsor.id} className="flex items-center gap-3 p-4 min-h-[56px] hover:bg-surface-minimal transition-colors">
                 {/* Logo */}
                 <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
                   {sponsor.logo_url ? (

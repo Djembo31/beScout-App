@@ -80,7 +80,7 @@ export default function RewardStructureEditor({ value, onChange, disabled, prize
             className={cn(
               BTN_BASE,
               'min-h-[44px] min-w-[44px] px-4 py-2 rounded-xl',
-              'border border-white/10 bg-white/[0.02] text-sm text-white/70',
+              'border border-white/10 bg-surface-minimal text-sm text-white/70',
             )}
           >
             {t(TEMPLATE_I18N[tmpl.key])}
@@ -94,7 +94,7 @@ export default function RewardStructureEditor({ value, onChange, disabled, prize
           {tiers.map((tier, i) => (
             <div
               key={tier.rank}
-              className="flex items-center gap-3 bg-white/[0.02] border border-white/10 rounded-xl px-4 py-2"
+              className="flex items-center gap-3 bg-surface-minimal border border-white/10 rounded-xl px-4 py-2"
             >
               {/* Rank label */}
               <span className="text-sm text-white/50 min-w-[56px]">
