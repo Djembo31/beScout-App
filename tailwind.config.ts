@@ -15,12 +15,16 @@ const config: Config = {
         "vivid-red": "#FF3B69",
         "bg-main": "#0a0a0a",
         surface: {
+          minimal: "rgba(255,255,255,0.02)",
+          subtle: "rgba(255,255,255,0.03)",
           base: "rgba(255,255,255,0.05)",
           elevated: "rgba(255,255,255,0.08)",
           featured: "rgba(255,255,255,0.14)",
           hero: "rgba(255,255,255,0.20)",
           popover: "#1a1a1a",
+          modal: "#0d0d0f",
         },
+        divider: "rgba(255,255,255,0.06)",
       },
       boxShadow: {
         "glow-gk": "0 0 24px rgba(16,185,129,0.25), 0 0 48px rgba(16,185,129,0.12)",
