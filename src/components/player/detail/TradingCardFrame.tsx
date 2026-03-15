@@ -123,7 +123,7 @@ export default function TradingCardFrame({
         >
           {/* ===== FRONT FACE ===== */}
           <div
-            className="absolute inset-0 rounded-2xl overflow-hidden card-metallic"
+            className="absolute inset-0 rounded-2xl overflow-hidden card-metallic card-holographic"
             style={{ backfaceVisibility: 'hidden' }}
           >
             {/* Background: carbon fiber + position color wash */}

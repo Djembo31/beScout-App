@@ -210,6 +210,56 @@ body {
   }
 }
 
+/* Holographic refractor overlay — rainbow shimmer that follows tilt */
+.card-holographic::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    125deg,
+    rgba(255,0,0,0.04) 0%,
+    rgba(255,165,0,0.06) 15%,
+    rgba(255,255,0,0.04) 30%,
+    rgba(0,255,0,0.06) 45%,
+    rgba(0,128,255,0.04) 60%,
+    rgba(128,0,255,0.06) 75%,
+    rgba(255,0,128,0.04) 90%,
+    rgba(255,0,0,0.04) 100%
+  );
+  background-size: 200% 200%;
+  background-position:
+    calc(var(--tilt-x, 0.5) * 100%)
+    calc(var(--tilt-y, 0.5) * 100%);
+  mix-blend-mode: color-dodge;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Show holographic on hover (desktop) */
+@media (hover: hover) {
+  [data-tilt] .card-holographic::before,
+  [data-tilt].card-holographic::before {
+    opacity: 1;
+  }
+}
+
+/* Show holographic on mobile via gyroscope (touch devices) */
+@media (hover: none) {
+  .card-holographic::before {
+    opacity: 0.7;
+  }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .card-holographic::before {
+    display: none;
+  }
+}
+
 /* Slow drift for position background patterns */
 @keyframes pattern-drift {
   0% { background-position: 0 0; }
