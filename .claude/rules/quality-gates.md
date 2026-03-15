@@ -1,110 +1,121 @@
 ---
-description: Quality Gates — Ultra Instinct. Verhindert Bugs VOR der Entstehung.
+description: Ultra Instinct — Jarvis implementiert selbst, Agents nur fuer Research + Review
 globs: "**/*"
 ---
 
-## Ultra Instinct — Quality Gates (PFLICHT ab jetzt)
+## Ultra Instinct v2 — Qualitaetssicherung
 
-### Prinzip
-Bugs verhindern, nicht finden. Jede Aenderung durchlaeuft 4 Gates BEVOR sie committed wird.
-Kein Gate darf uebersprungen werden. Kein "ich fix das spaeter."
+### Kern-Erkenntnis (Session 233)
 
----
+Sub-Agents die Code schreiben erzeugen Bugs weil sie den Kontext nicht haben.
+23 Bugs in 35 Agent-implementierten Changes = 66% Fehlerquote.
+Jarvis (Orchestrator) hat den vollen Kontext und macht weniger Fehler.
 
-## Gate 1: IMPACT CHECK (vor dem ersten Buchstaben Code)
+### Neue Arbeitsteilung
 
-BEVOR Code geschrieben wird:
-1. **Welche Funktionen rufen diese Funktion auf?** (grep nach Callsites)
-2. **Welche Funktionen ruft diese Funktion auf?** (grep nach Dependencies)
-3. **Wer bekommt Seiteneffekte?** (Notifications, Missions, Cache, Wallet)
-4. **Gibt es parallele Code-Pfade?** (4 Trade-Pfade, 2 Order-Typen, etc.)
+| Wer | Was | Warum |
+|-----|-----|-------|
+| **ICH (Jarvis)** | ALLEN Code schreiben der bestehenden Code aendert | Ich kenne den Kontext, die Patterns, die Fallstricke |
+| **Agents** | Greenfield Components (komplett neue Files, 0 Dependencies) | Kein bestehender Kontext noetig |
+| **Agents** | Research (Codebase scannen, Docs lesen, Web suchen) | Read-only, kein Risiko |
+| **Agents** | Review (1 tiefer Reviewer mit Szenarien) | Prueft MEINE Arbeit, nicht ihre eigene |
 
-Output: Impact Manifest mit ALLEN betroffenen Stellen.
-Wenn Impact > 3 Files: `/impact` Skill PFLICHT.
-
-### Warum
-Problem "Fixes erzeugen neue Bugs" passiert weil der Fixer nur das Problem sieht,
-nicht die 5 anderen Stellen die von seiner Aenderung betroffen sind.
-Push Auth Fix (M1) haette nie passiert wenn der Agent gewusst haette
-dass `firePush` fuer CROSS-USER Notifications genutzt wird.
-
----
-
-## Gate 2: FLOW TEST (nach Implementation, vor Commit)
-
-NACH dem Code-Schreiben, BEVOR committed wird:
-1. **Schreibe den User-Flow als Kommentar** (3-5 Schritte, wer macht was)
-2. **Trace den Flow durch den Code** (mentaler Walkthrough, File fuer File)
-3. **Frage: Was passiert wenn...?**
-   - ...zwei User gleichzeitig handeln? (Race Condition)
-   - ...die DB null zurueckgibt? (Null Guard)
-   - ...der User die Seite mittendrin refreshed? (State Recovery)
-   - ...das Feature auf Tuerkisch angezeigt wird? (i18n)
-   - ...ein Screen Reader das vorliest? (A11y)
-   - ...1000 User das gleichzeitig machen? (Performance)
-
-### Warum
-Problem "Review zu breit, zu flach" passiert weil Reviewer einzelne Files lesen
-statt den FLOW zu verfolgen. Der Expire-Race wurde erst gefunden als jemand
-den SZENARIO "User cancelt waehrend Cron laeuft" durchdachte.
+### VERBOTEN fuer Agents
+- Bestehende Service-Funktionen aendern
+- RPC-Parameter aendern oder Guards hinzufuegen
+- Props an bestehende Components aendern
+- Mutations oder Query-Hooks modifizieren
+- Alles was Geld/Wallet/Trading beruehrt
 
 ---
 
-## Gate 3: VERHALTENSTEST (nach Commit, vor Merge)
+## 4 Quality Gates (PFLICHT, keine Ausnahme)
 
-NACH dem Commit:
-1. **Unit Test fuer neue Logik** (nicht optional, PFLICHT)
-   - Service-Funktion geaendert → Test fuer die Aenderung
-   - Neues Component → Test fuer kritische States
-2. **E2E Test fuer neue User-Flows** (wenn UI betroffen)
-   - Neuer Button → E2E Test der den Button klickt
-3. **Playwright Screenshot** (wenn UI betroffen)
-   - Mobile 360px + Desktop 1280px
+### Gate 1: IMPACT (vor Code)
 
-### Warum
-Problem "Kein Verhaltenstest" — `tsc` prueft Syntax, `next build` prueft Imports.
-Aber ob der BuyOrderModal den richtigen Preis anzeigt (C2 Bug: 100x falsch)
-faellt erst auf wenn jemand den Modal OEFFNET und den Preis LIEST.
-
----
-
-## Gate 4: SCOPE LIMIT (vor Session-Start)
-
-PRO SESSION maximal:
-- **5 Features** ODER **10 Fixes** ODER **1 Architektur-Change**
-- Nicht: 35 Tasks in einer Marathon-Session
-- JEDE Aenderung wird SOFORT committed + reviewed (nicht am Ende)
-- Wenn ein Fix einen neuen Bug erzeugt: STOP, Impact Check, dann weiter
-
-### Warum
-Problem "Zu viel auf einmal" — 35 Tasks in einer Session bedeutet dass
-niemand den Ueberblick hat. Reviewer finden Bugs in Batch 1 die durch
-Batch 3 Fixes schon irrelevant sind. Fixes in Batch 2 brechen Batch 4.
-
----
-
-## Checkliste (JEDE Aenderung, JEDES Mal)
+Fuer JEDE Aenderung, bevor ich einen Buchstaben schreibe:
 
 ```
-[ ] Gate 1: Impact Check — alle Callsites + Seiteneffekte identifiziert
-[ ] Gate 2: Flow Test — User-Szenario mental durchgespielt
-[ ] Gate 3: Verhaltenstest — mindestens 1 Test fuer die Aenderung
-[ ] Gate 4: Scope — nicht mehr als 5 Features pro Session
+1. WER ruft diese Funktion auf?
+   → grep -rn "functionName" src/ --include="*.ts" --include="*.tsx"
+
+2. WAS ruft diese Funktion auf?
+   → Lese die Funktion, notiere alle Calls
+
+3. WELCHE Seiteneffekte hat das?
+   → Notifications? Wallet? Cache? Missions? Achievements?
+
+4. GIBT ES parallele Pfade?
+   → 4 Trade-Pfade? 2 Order-Typen? Client + Server?
+
+5. KANN DAS gleichzeitig passieren?
+   → 2 User? Cron + User? Tab-Wechsel?
 ```
 
-## Anti-Patterns (VERBOTEN)
+**STOP:** Wenn ich nicht alle Callsites kenne → KEIN Code.
 
-1. **"Das fix ich spaeter"** — NEIN. Jetzt oder gar nicht.
-2. **"Build ist gruen, also passt's"** — Build prueft SYNTAX, nicht LOGIK.
-3. **"4 Agents parallel reviewen"** — Breite ≠ Tiefe. 1 tiefer Review > 4 flache.
-4. **"Der Agent wird schon wissen was er tut"** — Agent kennt NUR seinen Prompt.
-5. **"Wir fixen das im naechsten Review-Durchgang"** — Review-Ping-Pong ist Zeitverschwendung.
+### Gate 2: FLOW TEST (nach Code)
 
-## Wann welchen Review-Typ
+6 Fragen — JEDE muss beantwortet werden:
 
-| Aenderung | Review-Typ |
-|-----------|-----------|
-| < 3 Files, kein DB, kein Geld | Gate 1-3 selbst, kein Agent |
-| 3-10 Files, Service-Layer | 1 Reviewer-Agent (tief, nicht breit) |
-| DB Migration, RPC, Geld-Flow | 1 Reviewer + 1 Szenario-Walkthrough |
-| > 10 Files, Architektur | STOP. Aufteilen in kleinere Changes. |
+| Frage | Prueft |
+|-------|--------|
+| Was wenn 2 User gleichzeitig? | Race Conditions |
+| Was wenn DB null liefert? | Null Guards |
+| Was wenn User Seite refreshed? | State Recovery |
+| Was sieht ein tuerkischer User? | i18n |
+| Was hoert ein Screen Reader? | A11y |
+| Was bei 1000 gleichzeitigen Usern? | Performance |
+
+### Gate 3: VERHALTENSTEST (vor Commit)
+
+KEIN Commit ohne:
+- Mindestens 1 Test der die Aenderung prueft (Unit oder E2E)
+- `npx tsc --noEmit` PASS
+- `npx next build` PASS
+- Bei UI: Screenshot (360px)
+
+### Gate 4: SCOPE
+
+- Max 3 Aenderungen pro Batch
+- Nach jeder Aenderung: Gates 1-3 durchlaufen
+- DANN naechste Aenderung
+- NICHT: 10 Aenderungen sammeln und am Ende pruefen
+
+---
+
+## TDD-First (neu)
+
+Ab jetzt gilt:
+1. **Test schreiben** der das gewuenschte Verhalten beschreibt
+2. **Test laufen lassen** — muss FEHLSCHLAGEN
+3. **Implementation schreiben** bis Test GRUEN
+4. **Gates 1-3** durchlaufen
+5. **Commit**
+
+Warum: Wenn der Test VOR dem Code existiert, ist der Code testbar.
+Wenn der Code VOR dem Test existiert, wird der Test oft vergessen.
+
+---
+
+## Review: 1 tiefer statt 4 flache
+
+NACH dem Commit: 1 Review-Agent der:
+- Den GANZEN diff liest (nicht einzelne Files)
+- 3 User-Szenarien durchspielt
+- NUR "PASS" oder "REWORK" sagt
+- Bei REWORK: exakte File:Line + Was + Warum
+
+Kein "CONCERNS" — das fuehrt zu "wir schauen spaeter."
+
+---
+
+## Selbst-Check vor jeder Antwort an Anil
+
+Bevor ich sage "fertig" oder "geliefert":
+1. Habe ich JEDEN geaenderten File nochmal gelesen?
+2. Habe ich die 6 Flow-Test Fragen beantwortet?
+3. Gibt es mindestens 1 Test?
+4. Wuerde ich meinen eigenen Code in Production deployen?
+
+Wenn NEIN auf irgendwas: NICHT als fertig melden.
