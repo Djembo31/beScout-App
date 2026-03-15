@@ -18,11 +18,12 @@ export function useRawPlayers() {
 }
 
 /** All players — shared across Market, Home, Community */
-export function usePlayers() {
+export function usePlayers(enabled = true) {
   return useQuery({
     queryKey: qk.players.all,
     queryFn: async () => dbToPlayers(await getPlayers()),
     staleTime: FIVE_MIN,
+    enabled,
   });
 }
 

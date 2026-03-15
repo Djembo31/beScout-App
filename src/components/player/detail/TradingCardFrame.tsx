@@ -258,11 +258,11 @@ export default function TradingCardFrame({
               <div className="grid grid-cols-3 gap-y-2 gap-x-1 px-4 mt-2 md:mt-3">
                 <FifaStat label="L5" value={l5} />
                 <FifaStat label="L15" value={backStats?.l15 ?? '—'} />
-                <FifaStat label="GOL" value={backStats?.goals ?? '—'} />
-                <FifaStat label="AST" value={backStats?.assists ?? '—'} />
-                <FifaStat label="MAT" value={backStats?.matches ?? '—'} />
+                <FifaStat label={tp('statGoalsShort')} value={backStats?.goals ?? '—'} />
+                <FifaStat label={tp('statAssistsShort')} value={backStats?.assists ?? '—'} />
+                <FifaStat label={tp('statMatchesShort')} value={backStats?.matches ?? '—'} />
                 <FifaStat
-                  label="FLOOR"
+                  label={tp('statFloorShort')}
                   value={backStats?.floorPrice != null ? fmtScout(backStats.floorPrice) : '—'}
                 />
               </div>

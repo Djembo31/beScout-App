@@ -84,6 +84,7 @@ export default function TradingTab({
       <div className="border border-white/[0.06] rounded-xl overflow-hidden">
         <button
           onClick={() => setRewardsOpen(v => !v)}
+          aria-expanded={rewardsOpen}
           className="w-full flex justify-between items-center p-4 hover:bg-white/[0.02] transition-colors"
         >
           <div className="flex items-center gap-2">

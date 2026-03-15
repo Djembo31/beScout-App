@@ -97,7 +97,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const { data: masteryData } = useDpcMastery(uid, playerId);
 
   // ─── Derived from queries ─────────────────
-  const { data: allPlayersData } = usePlayers();
+  const { data: allPlayersData } = usePlayers(tab === 'performance');
   const allPlayersForPercentile = allPlayersData ?? [];
   const player = useMemo(() => dbPlayer ? dbToPlayer(dbPlayer) : null, [dbPlayer]);
   const dpcAvailable = dbPlayer?.dpc_available ?? 0;
@@ -227,20 +227,21 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   // ─── Render ───────────────────────────────
 
   return (
-    <div className="max-w-[900px] mx-auto space-y-6 pb-20 lg:pb-0">
-      {/* Sticky Dashboard Strip */}
-      <StickyDashboardStrip
-        playerName={player.last}
-        position={player.pos}
-        floorPrice={player.prices.floor ?? 0}
-        l5Score={player.perf.l5}
-        trend={player.perf.trend}
-        change24h={player.prices.change24h ?? 0}
-        holdingQty={holdingQty}
-        holderCount={holderCount}
-        visible={showStrip}
-      />
+    <>
+    {/* Sticky Dashboard Strip — outside main container to avoid space-y-6 gap */}
+    <StickyDashboardStrip
+      playerName={player.last}
+      position={player.pos}
+      floorPrice={player.prices.floor ?? 0}
+      l5Score={player.perf.l5}
+      trend={player.perf.trend}
+      change24h={player.prices.change24h ?? 0}
+      holdingQty={holdingQty}
+      holderCount={holderCount}
+      visible={showStrip}
+    />
 
+    <div className="max-w-[900px] mx-auto space-y-6 pb-20 lg:pb-0">
       {/* Liquidation Alert (above Hero) */}
       {player.isLiquidated && (
         <LiquidationAlert liquidationEvent={liquidationEvent ?? null} />
@@ -398,5 +399,6 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         onLimitClick={() => setShowLimitOrder(true)}
       />
     </div>
+    </>
   );
 }

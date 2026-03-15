@@ -98,7 +98,7 @@ export default function PerformanceTab({
           <div className="flex flex-col items-center gap-0.5 ml-2">
             <div className={`font-bold flex items-center gap-1 ${player.perf.trend === 'UP' ? 'text-green-500' : player.perf.trend === 'DOWN' ? 'text-red-300' : 'text-white/60'}`}>
               {player.perf.trend === 'UP' ? <TrendingUp className="size-4" aria-hidden="true" /> : player.perf.trend === 'DOWN' ? <TrendingDown className="size-4" aria-hidden="true" /> : null}
-              {player.perf.trend === 'UP' ? 'Hot' : player.perf.trend === 'DOWN' ? 'Cold' : 'Stable'}
+              {player.perf.trend === 'UP' ? t('trendHot') : player.perf.trend === 'DOWN' ? t('trendCold') : t('trendStable')}
             </div>
             <div className="text-white/50 text-[9px]">{t('form')}</div>
           </div>
