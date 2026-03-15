@@ -20,7 +20,9 @@ export async function getPlayerSentimentCounts(playerId: string) {
   const { data } = await supabase
     .from('research_posts')
     .select('call')
-    .eq('player_id', playerId);
+    .eq('player_id', playerId)
+    .order('created_at', { ascending: false })
+    .limit(100);
   if (!data) return { bullish: 0, bearish: 0, neutral: 0, total: 0 };
   const bullish = data.filter(r => r.call === 'Bullish').length;
   const bearish = data.filter(r => r.call === 'Bearish').length;

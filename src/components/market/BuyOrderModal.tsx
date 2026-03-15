@@ -21,6 +21,7 @@ interface BuyOrderModalProps {
 export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalProps) {
   const t = useTranslations('market');
   const tc = useTranslations('common');
+  const tp = useTranslations('playerDetail');
   const { user } = useUser();
   const { balanceCents, lockedBalanceCents } = useWallet();
 
@@ -132,7 +133,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
               <button
                 onClick={() => setQty(Math.max(1, qty - 1))}
                 className="px-2 py-2.5 min-w-[44px] min-h-[44px] text-white/40 hover:text-white text-sm font-bold"
-                aria-label="Anzahl verringern"
+                aria-label={tp('decreaseQty', { defaultMessage: 'Anzahl verringern' })}
               >
                 &minus;
               </button>
@@ -140,7 +141,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
               <button
                 onClick={() => setQty(Math.min(10000, qty + 1))}
                 className="px-2 py-2.5 min-w-[44px] min-h-[44px] text-white/40 hover:text-white text-sm font-bold"
-                aria-label="Anzahl erhoehen"
+                aria-label={tp('increaseQty', { defaultMessage: 'Anzahl erhoehen' })}
               >
                 +
               </button>
