@@ -163,14 +163,14 @@ export type PlayerRadarData = {
 };
 
 const DEFAULT_AXES_CONFIG = [
-  { key: 'goals', label: 'Tore', max: 20 },
+  { key: 'goals', label: 'Goals', max: 20 },
   { key: 'assists', label: 'Assists', max: 15 },
   { key: 'cleanSheets', label: 'CS', max: 15 },
-  { key: 'matches', label: 'Spiele', max: 38 },
+  { key: 'matches', label: 'Matches', max: 38 },
   { key: 'perfL5', label: 'L5', max: 100 },
   { key: 'perfL15', label: 'L15', max: 100 },
-  { key: 'saves', label: 'Paraden', max: 60 },
-  { key: 'minutes', label: 'Minuten', max: 3420 },
+  { key: 'saves', label: 'Saves', max: 60 },
+  { key: 'minutes', label: 'Minutes', max: 3420 },
 ];
 
 export function buildPlayerRadarAxes(data: PlayerRadarData, labels?: Record<string, string>): RadarAxis[] {

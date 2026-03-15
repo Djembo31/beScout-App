@@ -5,12 +5,12 @@ import {
 
 export const getStatusStyle = (status: EventStatus) => {
   switch (status) {
-    case 'running': return { bg: 'bg-green-500', text: 'text-white', label: 'LIVE', pulse: true };
-    case 'late-reg': return { bg: 'bg-orange-500', text: 'text-white', label: 'Late Reg', pulse: true };
-    case 'registering': return { bg: 'bg-sky-500', text: 'text-white', label: 'Anmelden', pulse: false };
-    case 'upcoming': return { bg: 'bg-purple-500/50', text: 'text-purple-200', label: 'Bald', pulse: false };
-    case 'ended': return { bg: 'bg-white/20', text: 'text-white/60', label: 'Beendet', pulse: false };
-    default: return { bg: 'bg-white/10', text: 'text-white/50', label: status, pulse: false };
+    case 'running': return { bg: 'bg-green-500', text: 'text-white', labelKey: 'statusLive', pulse: true };
+    case 'late-reg': return { bg: 'bg-orange-500', text: 'text-white', labelKey: 'statusLateReg', pulse: true };
+    case 'registering': return { bg: 'bg-sky-500', text: 'text-white', labelKey: 'statusRegistering', pulse: false };
+    case 'upcoming': return { bg: 'bg-purple-500/50', text: 'text-purple-200', labelKey: 'statusUpcoming', pulse: false };
+    case 'ended': return { bg: 'bg-white/20', text: 'text-white/60', labelKey: 'statusEnded', pulse: false };
+    default: return { bg: 'bg-white/10', text: 'text-white/50', labelKey: status, pulse: false };
   }
 };
 
@@ -27,10 +27,10 @@ export const getTypeStyle = (type: EventType) => {
 
 export const getTierStyle = (tier: 'arena' | 'club' | 'user') => {
   switch (tier) {
-    case 'arena': return { color: 'text-amber-400', bg: 'bg-amber-500/15', border: 'border-amber-500/30', icon: Swords, label: 'Arena', pointsLabel: '+50 / −15' };
-    case 'club': return { color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20', icon: Building2, label: 'Club', pointsLabel: '+1 bis +15' };
-    case 'user': return { color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', icon: UserPlus, label: 'User', pointsLabel: '' };
-    default: return { color: 'text-white/50', bg: 'bg-white/5', border: 'border-white/10', icon: Trophy, label: '', pointsLabel: '' };
+    case 'arena': return { color: 'text-amber-400', bg: 'bg-amber-500/15', border: 'border-amber-500/30', icon: Swords, labelKey: 'tier_arena', pointsLabelKey: 'tier_arena_points' };
+    case 'club': return { color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20', icon: Building2, labelKey: 'tier_club', pointsLabelKey: 'tier_club_points' };
+    case 'user': return { color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', icon: UserPlus, labelKey: 'tier_user', pointsLabelKey: '' };
+    default: return { color: 'text-white/50', bg: 'bg-white/5', border: 'border-white/10', icon: Trophy, labelKey: '', pointsLabelKey: '' };
   }
 };
 
@@ -64,9 +64,9 @@ export const getPosAccentColor = (pos: string): string => {
   return '#ffffff20';
 };
 
-export const formatCountdown = (timestamp: number) => {
+export const formatCountdown = (timestamp: number, startedLabel = 'Gestartet') => {
   const diff = timestamp - Date.now();
-  if (diff <= 0) return 'Gestartet';
+  if (diff <= 0) return startedLabel;
   const days = Math.floor(diff / 86400000);
   const hours = Math.floor((diff % 86400000) / 3600000);
   const mins = Math.floor((diff % 3600000) / 60000);

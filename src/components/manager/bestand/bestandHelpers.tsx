@@ -62,18 +62,11 @@ export const DEFAULT_SORT: Record<BestandLens, string> = {
 // STATUS HELPERS (shared with KaderTab)
 // ============================================
 
-export const STATUS_CONFIG: Record<PlayerStatus, { label: string; short: string; bg: string; border: string; text: string; icon: typeof Heart }> = {
-  fit: { label: 'Fit', short: 'Fit', bg: 'bg-green-500/10', border: 'border-green-500/20', text: 'text-green-500', icon: Heart },
-  injured: { label: 'Verletzt', short: 'Verl.', bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', icon: AlertTriangle },
-  suspended: { label: 'Gesperrt', short: 'Gesp.', bg: 'bg-orange-500/10', border: 'border-orange-500/20', text: 'text-orange-400', icon: AlertTriangle },
-  doubtful: { label: 'Fraglich', short: 'Fragl.', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', text: 'text-yellow-400', icon: HelpCircle },
-};
-
-const STATUS_SHORT_KEY: Record<PlayerStatus, string> = {
-  fit: 'statusFitShort',
-  injured: 'statusInjuredShort',
-  suspended: 'statusSuspendedShort',
-  doubtful: 'statusDoubtfulShort',
+export const STATUS_CONFIG: Record<PlayerStatus, { labelKey: string; shortKey: string; bg: string; border: string; text: string; icon: typeof Heart }> = {
+  fit: { labelKey: 'status_fit', shortKey: 'statusFitShort', bg: 'bg-green-500/10', border: 'border-green-500/20', text: 'text-green-500', icon: Heart },
+  injured: { labelKey: 'status_injured', shortKey: 'statusInjuredShort', bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', icon: AlertTriangle },
+  suspended: { labelKey: 'status_suspended', shortKey: 'statusSuspendedShort', bg: 'bg-orange-500/10', border: 'border-orange-500/20', text: 'text-orange-400', icon: AlertTriangle },
+  doubtful: { labelKey: 'status_doubtful', shortKey: 'statusDoubtfulShort', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', text: 'text-yellow-400', icon: HelpCircle },
 };
 
 export function StatusPill({ status }: { status: PlayerStatus }) {
@@ -83,7 +76,7 @@ export function StatusPill({ status }: { status: PlayerStatus }) {
   return (
     <span className={cn('inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border', cfg.bg, cfg.border, cfg.text)}>
       <Icon className="size-2.5" aria-hidden="true" />
-      <span className="hidden sm:inline">{t(STATUS_SHORT_KEY[status])}</span>
+      <span className="hidden sm:inline">{t(cfg.shortKey)}</span>
     </span>
   );
 }

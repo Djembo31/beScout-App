@@ -331,7 +331,7 @@ export const DashboardTab = ({
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm truncate">{event.name}</span>
-                    <span className="text-xs text-white/40">{event.status === 'ended' ? tc('ended') : formatCountdown(event.lockTime)}</span>
+                    <span className="text-xs text-white/40">{event.status === 'ended' ? tc('ended') : formatCountdown(event.lockTime, t('countdownStarted'))}</span>
                   </div>
                   <div className="text-xs text-white/40 mt-1">{event.format} • {event.buyIn === 0 ? tc('free') : `${event.buyIn} bCredits`}</div>
                 </button>
@@ -361,7 +361,7 @@ export const DashboardTab = ({
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm truncate">{event.name}</span>
-                    <span className="text-xs text-white/40">{formatCountdown(event.startTime)}</span>
+                    <span className="text-xs text-white/40">{formatCountdown(event.startTime, t('countdownStarted'))}</span>
                   </div>
                   <div className="text-xs text-white/40 mt-1">{event.buyIn === 0 ? tc('free') : `${event.buyIn} bCredits`}</div>
                 </button>

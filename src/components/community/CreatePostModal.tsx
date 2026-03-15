@@ -161,7 +161,7 @@ export default function CreatePostModal({
                     : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
                 )}
               >
-                {cat.label}
+                {t(cat.labelKey)}
               </button>
             ))}
           </div>

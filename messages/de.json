@@ -432,7 +432,10 @@
       "seasonBtn": "Saison-Stats",
       "playersActive": "Spieler aktiv",
       "noEvents": "Keine Event-Teilnahmen",
-      "noPredictions": "Keine Tipps für diesen Spieltag"
+      "noPredictions": "Keine Tipps für diesen Spieltag",
+      "tab_my_dpcs": "Meine DPCs",
+      "tab_events": "Events",
+      "tab_tipps": "Tipps"
     },
     "summary": {
       "title": "Event-Ergebnis",
@@ -525,6 +528,11 @@
     "joinBtn": "Beitreten",
     "statusRegistering": "Anmelden",
     "countdownStarted": "Gestartet",
+    "tier_arena": "Arena",
+    "tier_club": "Club",
+    "tier_user": "User",
+    "tier_arena_points": "+50 / −15",
+    "tier_club_points": "+1 bis +15",
     "timeNow": "Jetzt",
     "phasePreview": "Vorschau",
     "phasePreviewHint": "Teile deine Predictions und Lineup-Tipps!",
@@ -1222,7 +1230,16 @@
     "buyOrderYours": "Dein Gebot",
     "buyOrderButton": "Kaufgesuch",
     "followedClubs": "Deine Vereine",
-    "sortBy": "Sortieren"
+    "sortBy": "Sortieren",
+    "sort_l5": "L5",
+    "sort_price_asc": "Preis \u2191",
+    "sort_price_desc": "Preis \u2193",
+    "sort_goals": "Tore",
+    "sort_assists": "Assists",
+    "status_fit": "Fit",
+    "status_injured": "Verletzt",
+    "status_suspended": "Gesperrt",
+    "status_doubtful": "Fraglich"
   },
   "community": {
     "title": "Community",
@@ -1474,7 +1491,11 @@
     "clubVote": "Club-Abstimmung",
     "diff_easy": "Einfach",
     "diff_medium": "Mittel",
-    "diff_hard": "Schwer"
+    "diff_hard": "Schwer",
+    "cat_analyse": "Analyse",
+    "cat_prediction": "Prediction",
+    "cat_meinung": "Meinung",
+    "cat_news": "News"
   },
   "profile": {
     "title": "Profil",
@@ -2687,7 +2708,9 @@
     "submitError": "Fehler beim Senden",
     "openBoxAriaLabel": "Mystery Box öffnen",
     "openBoxError": "Konnte Mystery Box nicht öffnen",
-    "equipError": "Fehler beim Ausrüsten"
+    "equipError": "Fehler beim Ausrüsten",
+    "lineup_players_label": "Spieler",
+    "lineup_players_aria": "{current} von {max} Spieler ausgewählt"
   },
   "onboarding": {
     "title": "Erste Schritte",
@@ -3949,6 +3972,8 @@
     "researchUnlockBody": "Jemand hat deinen Bericht \"{title}\" freigeschaltet",
     "researchRatingTitle": "Bewertung: {rating}/5 Sterne",
     "researchRatingBody": "Jemand hat deinen Bericht \"{title}\" bewertet",
+    "researchRatingBatchedTitle": "{count} neue Bewertungen",
+    "researchRatingBatchedBody": "{count} Personen haben deinen Bericht \"{title}\" bewertet",
     "researchFallbackPlayer": "Unbekannter Spieler",
     "eventScoredTitle": "Ergebnisse für {name} sind da!",
     "eventScoredBody": "Dein Platz: #{rank} mit {score} Punkten",

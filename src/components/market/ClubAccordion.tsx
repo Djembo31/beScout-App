@@ -24,12 +24,12 @@ const POS_ORDER: { pos: Pos; label: string }[] = [
   { pos: 'ATT', label: 'STU' },
 ];
 
-const SORT_OPTIONS: { value: SortOption; label: string }[] = [
-  { value: 'l5', label: 'L5' },
-  { value: 'floor_asc', label: 'Preis \u2191' },
-  { value: 'floor_desc', label: 'Preis \u2193' },
-  { value: 'goals', label: 'Tore' },
-  { value: 'assists', label: 'Assists' },
+const SORT_OPTIONS: { value: SortOption; labelKey: string }[] = [
+  { value: 'l5', labelKey: 'sort_l5' },
+  { value: 'floor_asc', labelKey: 'sort_price_asc' },
+  { value: 'floor_desc', labelKey: 'sort_price_desc' },
+  { value: 'goals', labelKey: 'sort_goals' },
+  { value: 'assists', labelKey: 'sort_assists' },
 ];
 
 interface ClubAccordionProps {
@@ -108,7 +108,7 @@ export default function ClubAccordion({ clubName, players, ipoMap, onBuy, buying
             aria-label={t('sortByClub', { club: clubName, defaultMessage: '{club} sortieren' })}
           >
             {SORT_OPTIONS.map(o => (
-              <option key={o.value} value={o.value} className="bg-[#1a1a1a]">{o.label}</option>
+              <option key={o.value} value={o.value} className="bg-[#1a1a1a]">{t(o.labelKey)}</option>
             ))}
           </select>
         </div>

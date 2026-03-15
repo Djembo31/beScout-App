@@ -432,7 +432,10 @@
       "seasonBtn": "Sezon istatistikleri",
       "playersActive": "oyuncu aktif",
       "noEvents": "Etkinlik katılımı yok",
-      "noPredictions": "Bu hafta için tahmin yok"
+      "noPredictions": "Bu hafta için tahmin yok",
+      "tab_my_dpcs": "DPC'lerim",
+      "tab_events": "Etkinlikler",
+      "tab_tipps": "Tahminler"
     },
     "summary": {
       "title": "Etkinlik Sonucu",
@@ -525,6 +528,11 @@
     "joinBtn": "Katıl",
     "statusRegistering": "Kayıt",
     "countdownStarted": "Başladı",
+    "tier_arena": "Arena",
+    "tier_club": "Kulüp",
+    "tier_user": "Kullanıcı",
+    "tier_arena_points": "+50 / −15",
+    "tier_club_points": "+1 ile +15",
     "timeNow": "Şimdi",
     "phasePreview": "Önizleme",
     "phasePreviewHint": "Tahminlerini ve kadro ipuçlarını paylaş!",
@@ -1223,7 +1231,16 @@
     "buyOrderYours": "Senin Teklifin",
     "buyOrderButton": "Alım Talebi",
     "followedClubs": "Kulüplerin",
-    "sortBy": "Sırala"
+    "sortBy": "Sırala",
+    "sort_l5": "L5",
+    "sort_price_asc": "Fiyat \u2191",
+    "sort_price_desc": "Fiyat \u2193",
+    "sort_goals": "Gol",
+    "sort_assists": "Asist",
+    "status_fit": "Fit",
+    "status_injured": "Sakatlanmış",
+    "status_suspended": "Cezalı",
+    "status_doubtful": "Şüpheli"
   },
   "community": {
     "title": "Topluluk",
@@ -1475,7 +1492,11 @@
     "clubVote": "Kulüp Oylaması",
     "diff_easy": "Kolay",
     "diff_medium": "Orta",
-    "diff_hard": "Zor"
+    "diff_hard": "Zor",
+    "cat_analyse": "Analiz",
+    "cat_prediction": "Tahmin",
+    "cat_meinung": "Görüş",
+    "cat_news": "Haberler"
   },
   "profile": {
     "title": "Profil",
@@ -2689,7 +2710,9 @@
     "openBoxAriaLabel": "Mystery Box aç",
     "openBoxError": "Mystery Box açılamadı",
     "equipError": "Donatma hatası",
-    "dimensionTooltip": "Rütben 3 boyutta ölçülür: Tüccar (Ticaret), Menajer (Fantasy) ve Analist (Topluluk katkıları). Medyan genel rütbeni belirler."
+    "dimensionTooltip": "Rütben 3 boyutta ölçülür: Tüccar (Ticaret), Menajer (Fantasy) ve Analist (Topluluk katkıları). Medyan genel rütbeni belirler.",
+    "lineup_players_label": "Oyuncu",
+    "lineup_players_aria": "{current}/{max} Oyuncu seçildi"
   },
   "onboarding": {
     "title": "İlk Adımlar",
@@ -3954,6 +3977,8 @@
     "researchUnlockBody": "Birisi \"{title}\" raporunu açtı",
     "researchRatingTitle": "Değerlendirme: {rating}/5 Yıldız",
     "researchRatingBody": "Birisi \"{title}\" raporunu değerlendirdi",
+    "researchRatingBatchedTitle": "{count} yeni değerlendirme",
+    "researchRatingBatchedBody": "{count} kişi \"{title}\" raporunu değerlendirdi",
     "researchFallbackPlayer": "Bilinmeyen oyuncu",
     "eventScoredTitle": "{name} sonuçları geldi!",
     "eventScoredBody": "Sıran: #{rank}, {score} puanla",

@@ -424,14 +424,7 @@ export const EventDetailModal = ({
           ) : (
             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded ${statusStyle.bg} ${statusStyle.text}`}>
               {statusStyle.pulse && <div className="size-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" />}
-              <span className="text-xs font-bold">{
-                event.status === 'running' ? t('statusLive')
-                : event.status === 'late-reg' ? t('statusLateReg')
-                : event.status === 'registering' ? t('statusRegistering')
-                : event.status === 'upcoming' ? t('statusUpcoming')
-                : event.status === 'ended' ? t('statusEnded')
-                : statusStyle.label
-              }</span>
+              <span className="text-xs font-bold">{t(statusStyle.labelKey)}</span>
             </div>
           )}
           {event.scope && <EventScopeBadge scope={event.scope} size="sm" />}
@@ -450,7 +443,7 @@ export const EventDetailModal = ({
         </div>
         <div className="flex items-center gap-4 text-sm text-white/50 mb-4">
           <span className="flex items-center gap-1"><Users aria-hidden="true" className="size-4" />{event.participants}{event.maxParticipants ? `/${event.maxParticipants}` : ''}</span>
-          <span className="flex items-center gap-1"><Clock aria-hidden="true" className="size-4" />{event.status === 'ended' ? t('ended') : formatCountdown(event.lockTime)}</span>
+          <span className="flex items-center gap-1"><Clock aria-hidden="true" className="size-4" />{event.status === 'ended' ? t('ended') : formatCountdown(event.lockTime, t('countdownStarted'))}</span>
           {(event.ticketCost ?? 0) > 0 && (
             <span className="flex items-center gap-1.5 text-[12px] text-amber-400/70 font-medium">
               <span aria-hidden="true">🎟</span>

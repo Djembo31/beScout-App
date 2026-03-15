@@ -290,7 +290,7 @@ export default function CommunityTab({
                     'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border',
                     postCategory === cat.id ? cat.color : 'text-white/50 bg-white/5 border-white/10 hover:bg-white/10'
                   )}>
-                  {cat.label}
+                  {tc(cat.labelKey)}
                 </button>
               ))}
             </div>

@@ -20,14 +20,14 @@ type Props = {
   predictions: Prediction[];
 };
 
-const TABS = [
-  { id: 'dpcs', label: 'Meine DPCs', shortLabel: 'DPCs', icon: <Briefcase className="size-3.5" aria-hidden="true" /> },
-  { id: 'events', label: 'Events', icon: <Trophy className="size-3.5" aria-hidden="true" /> },
-  { id: 'tipps', label: 'Tipps', icon: <Target className="size-3.5" aria-hidden="true" /> },
-];
-
 export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents, predictions }: Props) {
   const tf = useTranslations('fantasy');
+
+  const TABS = [
+    { id: 'dpcs', label: tf('ergebnisse.tab_my_dpcs'), shortLabel: 'DPCs', icon: <Briefcase className="size-3.5" aria-hidden="true" /> },
+    { id: 'events', label: tf('ergebnisse.tab_events'), icon: <Trophy className="size-3.5" aria-hidden="true" /> },
+    { id: 'tipps', label: tf('ergebnisse.tab_tipps'), icon: <Target className="size-3.5" aria-hidden="true" /> },
+  ];
   const [activeTab, setActiveTab] = useState('dpcs');
 
   // Build holdings map for quantity lookup

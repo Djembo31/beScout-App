@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useLocale } from 'next-intl';
 import { Users, Star, Flame, Crown, Award, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { FanRankTier } from '@/types';
@@ -94,13 +95,15 @@ export default function FanRankBadge({
   showMultiplier,
   className,
 }: FanRankBadgeProps) {
+  const locale = useLocale();
   const cfg = TIER_CONFIG[tier];
   const s = sizeClasses[size];
   const Icon = cfg.icon;
+  const displayLabel = locale === 'tr' ? cfg.labelTr : cfg.label;
 
   const title = clubName
-    ? `${cfg.label} — ${clubName}`
-    : cfg.label;
+    ? `${displayLabel} — ${clubName}`
+    : displayLabel;
 
   return (
     <span
@@ -116,7 +119,7 @@ export default function FanRankBadge({
       title={title}
     >
       <Icon className={s.icon} aria-hidden="true" />
-      {size !== 'sm' && <span className={s.text}>{cfg.label}</span>}
+      {size !== 'sm' && <span className={s.text}>{displayLabel}</span>}
       {showMultiplier && csfMultiplier != null && csfMultiplier > 1 && (
         <span className={cn(s.mult, 'font-mono tabular-nums opacity-70')}>
           {csfMultiplier.toFixed(2)}x

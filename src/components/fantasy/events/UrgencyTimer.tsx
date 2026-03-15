@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { formatCountdown } from '../helpers';
 
@@ -11,17 +12,19 @@ type UrgencyTimerProps = {
 };
 
 export function UrgencyTimer({ lockTime, status, className }: UrgencyTimerProps) {
+  const tf = useTranslations('fantasy');
+
   if (status === 'ended') {
-    return <span className={cn('text-xs text-white/25', className)}>Beendet</span>;
+    return <span className={cn('text-xs text-white/25', className)}>{tf('statusEnded')}</span>;
   }
 
   if (status === 'running') {
-    return <span className={cn('text-xs text-green-500 font-bold', className)}>LIVE</span>;
+    return <span className={cn('text-xs text-green-500 font-bold', className)}>{tf('statusLive')}</span>;
   }
 
   const diff = lockTime - Date.now();
   if (diff <= 0) {
-    return <span className={cn('text-xs text-white/30', className)}>Gestartet</span>;
+    return <span className={cn('text-xs text-white/30', className)}>{tf('countdownStarted')}</span>;
   }
 
   const hours = diff / 3600000;
@@ -34,7 +37,7 @@ export function UrgencyTimer({ lockTime, status, className }: UrgencyTimerProps)
 
   return (
     <span className={cn('text-xs font-mono tabular-nums', urgencyClass, className)}>
-      {formatCountdown(lockTime)}
+      {formatCountdown(lockTime, tf('countdownStarted'))}
     </span>
   );
 }

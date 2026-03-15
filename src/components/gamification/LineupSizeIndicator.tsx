@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -14,6 +15,7 @@ interface LineupSizeIndicatorProps {
 }
 
 export default function LineupSizeIndicator({ currentCount, maxSize }: LineupSizeIndicatorProps) {
+  const t = useTranslations('gamification');
   const isFull = currentCount >= maxSize;
   const pct = Math.min(100, (currentCount / maxSize) * 100);
 
@@ -29,7 +31,7 @@ export default function LineupSizeIndicator({ currentCount, maxSize }: LineupSiz
             'text-xs font-bold',
             isFull ? 'text-gold' : 'text-white/50',
           )}>
-            <span className="font-mono tabular-nums">{currentCount}/{maxSize}</span> Spieler
+            <span className="font-mono tabular-nums">{currentCount}/{maxSize}</span> {t('lineup_players_label')}
           </span>
         </div>
         <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
@@ -43,7 +45,7 @@ export default function LineupSizeIndicator({ currentCount, maxSize }: LineupSiz
             aria-valuenow={currentCount}
             aria-valuemin={0}
             aria-valuemax={maxSize}
-            aria-label={`${currentCount} von ${maxSize} Spieler ausgewählt`}
+            aria-label={t('lineup_players_aria', { current: currentCount, max: maxSize })}
           />
         </div>
       </div>
