@@ -7,7 +7,6 @@ import { Loader2 } from 'lucide-react';
 import { getSellOrders, getAllOpenBuyOrders } from '@/lib/services/trading';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import type { DbOrder } from '@/types';
 
 interface OrderDepthViewProps {
   playerId: string;
@@ -81,7 +80,6 @@ function buildStepPath(
     }
   }
 
-  const lastX = toX(sorted[sorted.length - 1].price);
   const line = lineSegments.join('');
 
   // Area = line path closed to baseline
@@ -130,9 +128,10 @@ function DepthChart({
     const chartMin = Math.max(0, minPrice - padded);
     const chartMax = maxPrice + padded;
 
+    // Bid points sorted descending by price — last index has highest cumulative
     const maxVolume = Math.max(
       askPoints.length > 0 ? askPoints[askPoints.length - 1].cumulative : 0,
-      bidPoints.length > 0 ? bidPoints[0].cumulative : 0,
+      bidPoints.length > 0 ? bidPoints[bidPoints.length - 1].cumulative : 0,
       1
     );
 
@@ -195,7 +194,7 @@ function DepthChart({
         preserveAspectRatio="xMidYMid meet"
         className="block"
         role="img"
-        aria-label="Depth Chart"
+        aria-label={t('depthChartLabel', { defaultMessage: 'Tiefe' })}
       >
         {/* Grid lines */}
         {[0.25, 0.5, 0.75].map((frac) => {
@@ -287,8 +286,8 @@ function DepthChart({
 
       {/* Spread badge */}
       {spread !== null && spread > 0 && (
-        <div className="absolute top-1 left-1/2 -translate-x-1/2 text-[8px] font-mono text-white/30 bg-white/[0.03] rounded px-1.5 py-0.5">
-          Spread: {fmtScout(centsToBsd(spread))}
+        <div className="absolute top-1 left-1/2 -translate-x-1/2 text-[8px] font-mono text-white/30 bg-surface-subtle rounded px-1.5 py-0.5">
+          {t('depthSpread', { defaultMessage: 'Spread' })}: {fmtScout(centsToBsd(spread))}
         </div>
       )}
     </div>
@@ -403,21 +402,21 @@ export default function OrderDepthView({ playerId }: OrderDepthViewProps) {
     <div className="space-y-1 py-2">
       {/* SVG Depth Chart */}
       {(askLevels.length > 0 || bidLevels.length > 0) && (
-        <div className="mb-2 rounded-xl bg-white/[0.02] border border-white/[0.06] overflow-hidden">
+        <div className="mb-2 rounded-xl bg-surface-minimal border border-divider overflow-hidden">
           <div className="flex items-center justify-between px-2 pt-1.5 pb-0.5">
             <span className="text-[9px] text-white/30 font-bold uppercase tracking-wider">
-              Depth
+              {t('depthChartLabel', { defaultMessage: 'Tiefe' })}
             </span>
             <div className="flex items-center gap-2 text-[8px]">
               {bidLevels.length > 0 && (
                 <span className="flex items-center gap-1 text-emerald-400/60">
                   <span className="inline-block w-2 h-1.5 rounded-sm bg-emerald-500/40" />
-                  Bid
+                  {t('depthBid', { defaultMessage: 'Kaufgesuche' })}
                 </span>
               )}
               <span className="flex items-center gap-1 text-sky-400/60">
                 <span className="inline-block w-2 h-1.5 rounded-sm bg-sky-500/40" />
-                Ask
+                {t('depthAsk', { defaultMessage: 'Angebote' })}
               </span>
             </div>
           </div>
@@ -464,7 +463,7 @@ export default function OrderDepthView({ playerId }: OrderDepthViewProps) {
       {bidLevels.length > 0 && (
         <>
           <div className="flex items-center justify-between text-[9px] text-emerald-400/40 font-bold uppercase tracking-wider px-1 mt-2 mb-1">
-            <span>Kaufgesuche</span>
+            <span>{t('depthBid', { defaultMessage: 'Kaufgesuche' })}</span>
             <span>{t('depthQty', { defaultMessage: 'Menge' })}</span>
             <span>{t('depthCumulative', { defaultMessage: 'Kumuliert' })}</span>
           </div>
