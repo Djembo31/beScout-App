@@ -11,21 +11,31 @@ Sub-Agents die Code schreiben erzeugen Bugs weil sie den Kontext nicht haben.
 23 Bugs in 35 Agent-implementierten Changes = 66% Fehlerquote.
 Jarvis (Orchestrator) hat den vollen Kontext und macht weniger Fehler.
 
-### Neue Arbeitsteilung
+### Hybride Arbeitsteilung (Context-Optimiert)
 
-| Wer | Was | Warum |
-|-----|-----|-------|
-| **ICH (Jarvis)** | ALLEN Code schreiben der bestehenden Code aendert | Ich kenne den Kontext, die Patterns, die Fallstricke |
-| **Agents** | Greenfield Components (komplett neue Files, 0 Dependencies) | Kein bestehender Kontext noetig |
-| **Agents** | Research (Codebase scannen, Docs lesen, Web suchen) | Read-only, kein Risiko |
-| **Agents** | Review (1 tiefer Reviewer mit Szenarien) | Prueft MEINE Arbeit, nicht ihre eigene |
+| Aufgabe | Wer | Warum |
+|---------|-----|-------|
+| **Bestehenden Code editieren** | ICH (Jarvis) | Kontext-Entscheidungen, keine Agent-Bugs |
+| **Neue Files erstellen** (0 Dependencies) | Agent (Worktree) | Kein Kontext noetig, spart Orchestrator-Noise |
+| **Files lesen + recherchieren** | Agent (Explore/Research) | 1 Summary statt 50 File-Reads in meinem Context |
+| **Impact Check ausfuehren** | Agent (Explore) | Callsite-Liste liefern, ICH entscheide |
+| **Edits schreiben** | ICH (praezise, 3-10 Zeilen) | Kontextbewusst, keine Seiteneffekt-Blindheit |
+| **Review** | Agent (1 tiefer, Szenarien) | Prueft MEINE Arbeit in eigenem Context |
+| **Tests schreiben** | Agent (context:fork) fuer neue Tests, ICH fuer Erweiterungen | Trennung: Test-Noise aus meinem Context |
 
-### VERBOTEN fuer Agents
+### VERBOTEN fuer Agents (Code-Edits)
 - Bestehende Service-Funktionen aendern
 - RPC-Parameter aendern oder Guards hinzufuegen
 - Props an bestehende Components aendern
 - Mutations oder Query-Hooks modifizieren
 - Alles was Geld/Wallet/Trading beruehrt
+- Alles wo der Fix davon abhaengt WIE die Funktion genutzt wird
+
+### Context-Management
+- `/compact` nach jedem 3er-Batch (nicht erst wenn Context voll)
+- Agents fuer NOISE (lesen, suchen, pruefen)
+- ICH fuer SIGNAL (entscheiden, editieren, committen)
+- Research-Ergebnisse als Summary zurueck, nicht als Raw-Files
 
 ---
 
