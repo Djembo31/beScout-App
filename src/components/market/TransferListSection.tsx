@@ -116,7 +116,7 @@ export default function TransferListSection({
     });
 
     return result;
-  }, [players, listings, store, getFloor]);
+  }, [players, listings, store, getFloor, showAffordable, balanceCents]);
 
   return (
     <div className="space-y-4">

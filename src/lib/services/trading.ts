@@ -595,6 +595,7 @@ export async function getUserBuyOrders(userId: string): Promise<DbOrder[]> {
     .eq('user_id', userId)
     .eq('side', 'buy')
     .in('status', ['open', 'partial'])
+    .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false });
 
   if (error) throw new Error(error.message);

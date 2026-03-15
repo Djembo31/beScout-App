@@ -8,24 +8,14 @@ import { Modal, Button } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
 import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import { supabase } from '@/lib/supabaseClient';
+import { getPlayerSentimentCounts } from '@/lib/services/research';
 import type { Player } from '@/types';
 
 /** Lightweight sentiment counts for a single player (only fetched when modal opens) */
 function usePlayerSentiment(playerId: string, enabled: boolean) {
   return useQuery({
     queryKey: ['sentiment', playerId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('research_posts')
-        .select('call')
-        .eq('player_id', playerId);
-      if (error || !data) return { bullish: 0, bearish: 0, neutral: 0, total: 0 };
-      const bullish = data.filter(r => r.call === 'Bullish').length;
-      const bearish = data.filter(r => r.call === 'Bearish').length;
-      const neutral = data.filter(r => r.call === 'Neutral').length;
-      return { bullish, bearish, neutral, total: bullish + bearish + neutral };
-    },
+    queryFn: () => getPlayerSentimentCounts(playerId),
     enabled,
     staleTime: 60_000,
   });

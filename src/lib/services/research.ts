@@ -15,6 +15,19 @@ export type RateResult = {
 // Research Posts (Premium Content / Paywall)
 // ============================================
 
+/** Lightweight sentiment counts for a single player (used in buy confirmation) */
+export async function getPlayerSentimentCounts(playerId: string) {
+  const { data } = await supabase
+    .from('research_posts')
+    .select('call')
+    .eq('player_id', playerId);
+  if (!data) return { bullish: 0, bearish: 0, neutral: 0, total: 0 };
+  const bullish = data.filter(r => r.call === 'Bullish').length;
+  const bearish = data.filter(r => r.call === 'Bearish').length;
+  const neutral = data.filter(r => r.call === 'Neutral').length;
+  return { bullish, bearish, neutral, total: bullish + bearish + neutral };
+}
+
 export async function getResearchPosts(options: {
   limit?: number;
   offset?: number;

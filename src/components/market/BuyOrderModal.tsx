@@ -75,8 +75,8 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
     );
   };
 
-  // Quick price from floor
-  const floorBsd = player.prices.floor ? centsToBsd(player.prices.floor) : 0;
+  // Quick price from floor — player.prices.floor is already in BSD (converted in dbToPlayer)
+  const floorBsd = player.prices.floor ?? 0;
 
   const setQuickPrice = (value: number) => {
     setPriceBsd(value.toFixed(2));
