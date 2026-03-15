@@ -25,3 +25,4 @@ export { default as TradingCardFrame } from './TradingCardFrame';
 export { default as ScoreMasteryStrip } from './ScoreMasteryStrip';
 export { default as TradeHistoryChips } from './TradeHistoryChips';
 export { default as OfferModal } from './OfferModal';
+export { default as TradeSuccessEffect } from './TradeSuccessEffect';

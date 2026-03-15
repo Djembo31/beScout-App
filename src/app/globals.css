@@ -503,6 +503,107 @@ body {
   animation: wappen-glow 3s ease-in-out infinite;
 }
 
+/* ── Card Mastery Tiers ── */
+@keyframes card-shimmer {
+  0% { transform: translateX(-100%) rotate(15deg); }
+  100% { transform: translateX(200%) rotate(15deg); }
+}
+@keyframes holo-shift {
+  0% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+  50% { background-position: 100% 50%; filter: hue-rotate(60deg); }
+  100% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+}
+@keyframes particle-border {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+@keyframes legend-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* Tier 1: Rookie — subtle shimmer */
+.card-tier-1 { position: relative; }
+.card-tier-1::after {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 40%; height: 200%;
+  pointer-events: none; z-index: 4; border-radius: inherit;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 40%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 60%, transparent 100%);
+  animation: card-shimmer 4s ease-in-out infinite;
+}
+
+/* Tier 2: Regular — silver foil */
+.card-tier-2 { position: relative; box-shadow: 0 0 16px rgba(192,192,192,0.08), inset 0 1px 0 rgba(192,192,192,0.10) !important; }
+.card-tier-2::before { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; z-index: 3; border: 1px solid rgba(192,192,192,0.15); }
+.card-tier-2::after {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 40%; height: 200%;
+  pointer-events: none; z-index: 4;
+  background: linear-gradient(90deg, transparent 0%, rgba(192,192,192,0.08) 40%, rgba(220,220,240,0.18) 50%, rgba(192,192,192,0.08) 60%, transparent 100%);
+  animation: card-shimmer 3.5s ease-in-out infinite;
+}
+
+/* Tier 3: Expert — gold foil + glow */
+.card-tier-3 { position: relative; box-shadow: 0 0 20px rgba(255,215,0,0.12), 0 0 40px rgba(255,215,0,0.05), inset 0 1px 0 rgba(255,215,0,0.12) !important; }
+.card-tier-3::before { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; z-index: 3; border: 1px solid rgba(255,215,0,0.20); }
+.card-tier-3::after {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 40%; height: 200%;
+  pointer-events: none; z-index: 4;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,215,0,0.06) 35%, rgba(255,228,77,0.18) 50%, rgba(255,215,0,0.06) 65%, transparent 100%);
+  animation: card-shimmer 3s ease-in-out infinite;
+}
+
+/* Tier 4: Master — holographic prismatic */
+.card-tier-4 { position: relative; border-color: rgba(255,215,0,0.30) !important; box-shadow: 0 0 24px rgba(255,215,0,0.15), 0 0 48px rgba(255,215,0,0.06), inset 0 1px 0 rgba(255,255,255,0.10) !important; }
+.card-tier-4::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; z-index: 3;
+  background: linear-gradient(135deg, rgba(255,0,128,0.06) 0%, rgba(0,128,255,0.06) 25%, rgba(0,255,128,0.06) 50%, rgba(255,215,0,0.06) 75%, rgba(255,0,128,0.06) 100%);
+  background-size: 300% 300%; animation: holo-shift 6s ease-in-out infinite; mix-blend-mode: screen;
+}
+.card-tier-4::after {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 40%; height: 200%;
+  pointer-events: none; z-index: 4;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,215,0,0.08) 30%, rgba(255,255,255,0.20) 50%, rgba(255,215,0,0.08) 70%, transparent 100%);
+  animation: card-shimmer 2.5s ease-in-out infinite;
+}
+
+/* Tier 5: Legend — animated gold particle border + holo */
+.card-tier-5 { position: relative; border-color: rgba(255,215,0,0.40) !important; box-shadow: 0 0 32px rgba(255,215,0,0.20), 0 0 64px rgba(255,215,0,0.08), inset 0 1px 0 rgba(255,215,0,0.15) !important; animation: legend-pulse 3s ease-in-out infinite; }
+.card-tier-5::before {
+  content: ''; position: absolute; inset: -2px; pointer-events: none; border-radius: inherit; z-index: 3;
+  background: linear-gradient(90deg, rgba(255,215,0,0) 0%, rgba(255,215,0,0.5) 10%, rgba(255,228,77,0.8) 20%, rgba(255,215,0,0.3) 30%, rgba(255,215,0,0) 40%, rgba(255,215,0,0.5) 60%, rgba(255,228,77,0.8) 70%, rgba(255,215,0,0.3) 80%, rgba(255,215,0,0) 100%);
+  background-size: 300% 100%; animation: particle-border 4s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; padding: 2px;
+}
+.card-tier-5::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; z-index: 4;
+  background: linear-gradient(135deg, rgba(255,0,128,0.04) 0%, rgba(0,128,255,0.04) 25%, rgba(0,255,128,0.04) 50%, rgba(255,215,0,0.08) 75%, rgba(255,0,128,0.04) 100%);
+  background-size: 300% 300%; animation: holo-shift 5s ease-in-out infinite; mix-blend-mode: screen;
+}
+
+/* ── Trade Success Particle Burst ── */
+@keyframes particle-burst {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  80% { opacity: 0.6; }
+  100% { opacity: 0; transform: translate(var(--px, 0px), var(--py, 0px)) scale(0.3); }
+}
+.trade-particle {
+  position: absolute; width: 6px; height: 6px; border-radius: 50%;
+  background: #FFD700; pointer-events: none; opacity: 0;
+  will-change: transform, opacity;
+  animation: particle-burst 1.2s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
+}
+.trade-particle:nth-child(1)  { --px: 60px;  --py: -70px; animation-delay: 0ms;   background: #FFD700; }
+.trade-particle:nth-child(2)  { --px: -50px; --py: -65px; animation-delay: 40ms;  background: #FFE44D; }
+.trade-particle:nth-child(3)  { --px: 75px;  --py: -20px; animation-delay: 80ms;  background: #E6B800; }
+.trade-particle:nth-child(4)  { --px: -70px; --py: -30px; animation-delay: 20ms;  background: #FFD700; }
+.trade-particle:nth-child(5)  { --px: 40px;  --py: 60px;  animation-delay: 60ms;  background: #FFE44D; }
+.trade-particle:nth-child(6)  { --px: -55px; --py: 50px;  animation-delay: 100ms; background: #FFD700; }
+.trade-particle:nth-child(7)  { --px: 20px;  --py: -80px; animation-delay: 30ms;  background: #E6B800; }
+.trade-particle:nth-child(8)  { --px: -30px; --py: 70px;  animation-delay: 70ms;  background: #FFE44D; }
+.trade-particle:nth-child(9)  { --px: 65px;  --py: 35px;  animation-delay: 50ms;  background: #FFD700; }
+.trade-particle:nth-child(10) { --px: -65px; --py: 10px;  animation-delay: 90ms;  background: #E6B800; }
+.trade-particle:nth-child(11) { --px: 10px;  --py: 75px;  animation-delay: 110ms; background: #FFE44D; }
+.trade-particle:nth-child(12) { --px: -15px; --py: -75px; animation-delay: 10ms;  background: #FFD700; }
+
 /* prefers-reduced-motion — comprehensive */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

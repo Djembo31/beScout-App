@@ -260,6 +260,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           onSellClick={guardedSell}
           onSetPriceAlert={alerts.handleSetPriceAlert}
           onRemovePriceAlert={alerts.handleRemovePriceAlert}
+          masteryLevel={masteryData?.level ?? 0}
         />
       </div>
 

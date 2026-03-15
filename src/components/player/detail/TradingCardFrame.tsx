@@ -50,6 +50,7 @@ interface TradingCardFrameProps {
   backStats?: CardBackStats;
   age?: number;
   country?: string;
+  masteryLevel?: number;
 }
 
 /* FIFA-style stat cell: big number on top, tiny label below */
@@ -68,7 +69,7 @@ function FifaStat({ label, value }: { label: string; value: string | number }) {
 
 export default function TradingCardFrame({
   first, last, pos, club, shirtNumber, imageUrl, l5, edition, className = '', backStats,
-  age, country,
+  age, country, masteryLevel,
 }: TradingCardFrameProps) {
   const tp = useTranslations('player');
   const [flipped, setFlipped] = useState(false);
@@ -91,9 +92,10 @@ export default function TradingCardFrame({
   const initials = `${first?.[0] ?? ''}${last?.[0] ?? ''}`;
 
   const handleClick = canFlip ? () => setFlipped(f => !f) : undefined;
+  const tierClass = masteryLevel && masteryLevel > 0 ? `card-tier-${Math.min(masteryLevel, 5)}` : '';
 
   return (
-    <div className={cn('relative card-entrance', className)}>
+    <div className={cn('relative card-entrance', tierClass, className)}>
       {/* Ambient gold + position glow behind card */}
       <div
         className="absolute inset-0 rounded-3xl blur-2xl opacity-40 pointer-events-none"

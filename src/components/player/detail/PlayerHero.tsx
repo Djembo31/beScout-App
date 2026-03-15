@@ -30,13 +30,14 @@ interface PlayerHeroProps {
   onSetPriceAlert: (target: number) => void;
   onRemovePriceAlert: () => void;
   holdingQty: number;
+  masteryLevel?: number;
 }
 
 export default function PlayerHero({
   player, isIPO, activeIpo, holderCount,
   isWatchlisted, priceAlert,
   onToggleWatchlist, onShare, onBuyClick, onSellClick,
-  onSetPriceAlert, onRemovePriceAlert, holdingQty,
+  onSetPriceAlert, onRemovePriceAlert, holdingQty, masteryLevel,
 }: PlayerHeroProps) {
   const t = useTranslations('player');
   const [showOverflow, setShowOverflow] = useState(false);
@@ -163,6 +164,7 @@ export default function PlayerHero({
                 trend: player.perf.trend,
                 floorPrice: player.prices.floor,
               }}
+              masteryLevel={masteryLevel}
             />
           </div>
 
