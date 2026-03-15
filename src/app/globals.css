@@ -486,6 +486,23 @@ body {
   height: 2px;
 }
 
+/* Club wappen glow pulse — slow ambient glow using club color via --club-glow CSS var */
+@keyframes wappen-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 30px var(--club-glow, rgba(255,215,0,0.3)),
+      0 0 60px var(--club-glow, rgba(255,215,0,0.15));
+  }
+  50% {
+    box-shadow:
+      0 0 45px var(--club-glow, rgba(255,215,0,0.3)),
+      0 0 90px var(--club-glow, rgba(255,215,0,0.15));
+  }
+}
+.wappen-glow {
+  animation: wappen-glow 3s ease-in-out infinite;
+}
+
 /* prefers-reduced-motion — comprehensive */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

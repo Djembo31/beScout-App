@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui';
 import { fmtScout, cn } from '@/lib/utils';
 import { useCountUp } from '@/hooks/useCountUp';
+import { useParallax } from '@/hooks/useParallax';
 import { PRESTIGE_CONFIG } from '@/components/club/ClubStatsBar';
 import type { ClubWithAdmin } from '@/types';
 import type { PrestigeTier } from '@/lib/services/club';
@@ -57,9 +58,11 @@ export function ClubHero({
   const scoutsCount = useCountUp(followerCount, 600);
   const volumeCount = useCountUp(totalVolume24h, 800, 0);
   const playerCountUp = useCountUp(playerCount, 500);
+  const { containerRef: parallaxRef, offset: parallaxOffset } = useParallax(0.35);
 
   return (
     <div
+      ref={parallaxRef}
       className="relative min-h-[50vh] md:min-h-[45vh] -mx-4 md:-mx-6 -mt-4 md:-mt-6 mb-6 overflow-hidden"
       style={{
         '--club-primary': clubColor,
@@ -67,8 +70,18 @@ export function ClubHero({
         '--club-glow': `${clubColor}4D`,
       } as React.CSSProperties}
     >
-      {/* Stadium Background — sharp cinematic */}
-      <div className="absolute inset-0">
+      {/* Stadium Background — parallax image layer (moves slower on scroll) */}
+      <div
+        className="absolute will-change-transform"
+        style={{
+          transform: parallaxOffset ? `translateY(${parallaxOffset}px)` : undefined,
+          // Extend image beyond container so parallax doesn't reveal gap
+          top: '-15%',
+          bottom: '-15%',
+          left: 0,
+          right: 0,
+        }}
+      >
         <Image
           src={stadiumSrc}
           alt={club.stadium || club.name}
@@ -77,23 +90,25 @@ export function ClubHero({
           priority
           onError={() => setStadiumSrc('/stadiums/default.jpg')}
         />
-        {/* Layer 1: Club gradient (primary -> transparent -> secondary) */}
+        {/* Layer 1: Club gradient tint (moves with image) */}
         <div
           className="absolute inset-0"
           style={{
             background: `linear-gradient(135deg, ${clubColor}59 0%, transparent 50%, ${secondaryColor}40 100%)`,
           }}
         />
-        {/* Layer 2: Bottom fade for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
-        {/* Layer 3: Subtle vignette */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%)',
-          }}
-        />
       </div>
+
+      {/* Overlay layers — fixed to hero container, NOT parallaxed */}
+      {/* Layer 2: Bottom fade for text readability — strengthened gradient */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/70 via-40% to-transparent" />
+      {/* Layer 3: Subtle vignette */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%)',
+        }}
+      />
 
       {/* Content */}
       <div className="absolute inset-0 flex items-center justify-center pb-16 lg:pb-20">
@@ -101,8 +116,10 @@ export function ClubHero({
           {/* Club Logo + Name row on mobile, stacked on desktop */}
           <div className="flex items-center justify-center gap-4 md:flex-col md:gap-4">
             <div
-              className="relative size-24 md:size-36 bg-white/10 backdrop-blur-sm rounded-full p-2 md:p-3 border-2 border-white/20 flex-shrink-0 motion-safe:animate-[scaleIn_0.3s_ease-out]"
-              style={{ boxShadow: `0 0 30px ${clubColor}4D` }}
+              className="relative size-24 md:size-36 bg-white/10 backdrop-blur-sm rounded-full p-2 md:p-3 border-2 border-white/20 flex-shrink-0 motion-safe:animate-[scaleIn_0.3s_ease-out] wappen-glow"
+              style={{
+                '--club-glow': `${clubColor}4D`,
+              } as React.CSSProperties}
             >
               <div className="relative w-full h-full">
                 {club.logo_url ? (
