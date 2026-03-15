@@ -73,7 +73,7 @@ export default function WelcomeBonusModal({ balanceCents }: WelcomeBonusModalPro
             </Button>
             <button
               onClick={dismiss}
-              className="w-full py-2.5 text-sm text-white/40 hover:text-white/60 transition-colors"
+              className="w-full py-2.5 text-sm text-white/40 hover:text-white/60 transition-colors active:scale-[0.97]"
             >
               {t('welcomeLater')}
             </button>

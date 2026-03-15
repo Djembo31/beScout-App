@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
@@ -38,6 +38,8 @@ export default function TransferListSection({
 }: TransferListSectionProps) {
   const [showAffordable, setShowAffordable] = useState(false);
   const [expandedPlayer, setExpandedPlayer] = useState<string | null>(null);
+  const hasRendered = useRef(false);
+  useEffect(() => { hasRendered.current = true; }, []);
   const t = useTranslations('market');
   const store = useMarketStore();
 
@@ -132,7 +134,7 @@ export default function TransferListSection({
           <button
             onClick={() => setShowAffordable(!showAffordable)}
             className={cn(
-              'px-3 py-1.5 rounded-full text-[10px] font-bold transition-colors whitespace-nowrap flex-shrink-0 min-h-[36px] border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50',
+              'px-3 py-1.5 rounded-full text-[10px] font-bold transition-colors whitespace-nowrap flex-shrink-0 min-h-[36px] border active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50',
               showAffordable
                 ? 'bg-gold/15 border-gold/30 text-gold'
                 : 'bg-white/[0.04] border-white/[0.08] text-white/40 hover:text-white/60'
@@ -151,7 +153,7 @@ export default function TransferListSection({
         />
       ) : (
         <div className="space-y-2">
-          {listingPlayers.map(p => {
+          {listingPlayers.map((p, i) => {
             const agg = listings.get(p.id);
             if (!agg) return null;
             const floorBsd = centsToBsd(agg.floor);
@@ -160,9 +162,17 @@ export default function TransferListSection({
             const history = p.prices.history7d;
 
             const isExpanded = expandedPlayer === p.id;
+            const shouldStagger = !hasRendered.current && i < 10;
 
             return (
-              <div key={p.id} className="bg-surface-base border border-white/[0.08] rounded-xl overflow-hidden hover:border-white/15 transition-colors">
+              <div
+                key={p.id}
+                className={cn(
+                  'bg-surface-base border border-white/[0.08] rounded-xl overflow-hidden hover:border-white/15 transition-colors',
+                  shouldStagger && 'card-entrance motion-reduce:animate-none'
+                )}
+                style={shouldStagger ? { animationDelay: `${i * 50}ms` } : undefined}
+              >
                 <Link
                   href={`/player/${p.id}`}
                   className="flex items-center gap-3 px-3 py-3 group"
@@ -241,14 +251,14 @@ export default function TransferListSection({
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); onBuy(p.id); }}
                     disabled={isBuying}
-                    className="px-3 py-2 min-h-[44px] bg-gold/10 border border-gold/20 text-gold rounded-lg text-xs font-black hover:bg-gold/20 transition-colors active:scale-[0.95] disabled:opacity-50 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
+                    className="px-3 py-2 min-h-[44px] bg-gold/10 border border-gold/20 text-gold rounded-lg text-xs font-black hover:bg-gold/20 transition-colors active:scale-[0.97] disabled:opacity-50 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
                   >
                     {isBuying ? <Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : t('buy')}
                   </button>
                   {onCreateBuyOrder && (
                     <button
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); onCreateBuyOrder(p.id); }}
-                      className="px-2 py-2 min-h-[44px] bg-sky-500/10 border border-sky-400/20 text-sky-400 rounded-lg text-[10px] font-bold hover:bg-sky-500/20 transition-colors active:scale-[0.95] flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
+                      className="px-2 py-2 min-h-[44px] bg-sky-500/10 border border-sky-400/20 text-sky-400 rounded-lg text-[10px] font-bold hover:bg-sky-500/20 transition-colors active:scale-[0.97] flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
                       title={t('buyOrderButton')}
                     >
                       <ShoppingCart className="size-3" aria-hidden="true" />

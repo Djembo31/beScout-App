@@ -115,7 +115,7 @@ export default function PostCard({
             onClick={() => onVote(post.id, myVote === 1 ? 0 : 1)}
             aria-label={myVote === 1 ? tc('removeUpvote') : tc('upvoteLabel')}
             className={cn(
-              'p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors',
+              'p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors active:scale-[0.97]',
               myVote === 1 ? 'bg-green-500/20 text-green-500' : 'text-white/30 hover:text-green-500 hover:bg-white/5'
             )}
           >
@@ -134,7 +134,7 @@ export default function PostCard({
             onClick={() => onVote(post.id, myVote === -1 ? 0 : -1)}
             aria-label={myVote === -1 ? tc('removeDownvote') : tc('downvoteLabel')}
             className={cn(
-              'p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors',
+              'p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors active:scale-[0.97]',
               myVote === -1 ? 'bg-red-500/20 text-red-300' : 'text-white/30 hover:text-red-300 hover:bg-white/5'
             )}
           >
@@ -332,7 +332,7 @@ export default function PostCard({
             <button
               onClick={() => setShowReplies(!showReplies)}
               className={cn(
-                'flex items-center gap-1 transition-colors',
+                'flex items-center gap-1 transition-colors active:scale-[0.97]',
                 showReplies ? 'text-gold' : 'hover:text-white'
               )}
             >
@@ -349,7 +349,7 @@ export default function PostCard({
                 tipTotalCents={tipTotalCents}
               />
             )}
-            <button className={cn('flex items-center gap-1 transition-colors', copied ? 'text-green-500' : 'hover:text-white')}
+            <button className={cn('flex items-center gap-1 transition-colors active:scale-[0.97]', copied ? 'text-green-500' : 'hover:text-white')}
               onClick={async () => {
                 const url = `${window.location.origin}/community?post=${post.id}`;
                 const text = `${post.author_display_name || post.author_handle}: "${post.content.slice(0, 80)}…"`;

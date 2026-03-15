@@ -110,7 +110,7 @@ export default function TipButton({
       <button
         onClick={() => { setOpen(!open); setError(null); }}
         className={cn(
-          'flex items-center gap-1 transition-colors text-xs',
+          'flex items-center gap-1 transition-colors text-xs active:scale-[0.97]',
           success ? 'text-gold animate-pulse' : 'text-white/50 hover:text-pink-400'
         )}
         aria-label={tt('sendTipAria')}
@@ -132,7 +132,7 @@ export default function TipButton({
                 key={p.cents}
                 disabled={sending}
                 onClick={() => handleSend(p.cents)}
-                className="px-3 py-2 rounded-lg text-sm font-mono font-bold bg-white/5 hover:bg-pink-500/15 hover:text-pink-300 text-white/70 transition-colors border border-white/[0.06] hover:border-pink-500/20 disabled:opacity-50"
+                className="px-3 py-2 rounded-lg text-sm font-mono font-bold bg-white/5 hover:bg-pink-500/15 hover:text-pink-300 text-white/70 transition-colors border border-white/[0.06] hover:border-pink-500/20 disabled:opacity-50 active:scale-[0.97]"
               >
                 {sending ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none mx-auto" /> : `${p.label} bCredits`}
               </button>
@@ -153,7 +153,7 @@ export default function TipButton({
             <button
               disabled={sending || !customAmount || Number(customAmount) < 10 || Number(customAmount) > 10000}
               onClick={() => { const c = Math.floor(Number(customAmount) * 100); if (c >= 1000) handleSend(c); }}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-pink-500/15 text-pink-300 hover:bg-pink-500/25 transition-colors border border-pink-500/20 disabled:opacity-40 whitespace-nowrap"
+              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-pink-500/15 text-pink-300 hover:bg-pink-500/25 transition-colors border border-pink-500/20 disabled:opacity-40 whitespace-nowrap active:scale-[0.97]"
             >
               {sending ? <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" /> : tt('sendBtn')}
             </button>

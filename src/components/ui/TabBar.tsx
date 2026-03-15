@@ -70,7 +70,7 @@ interface TabPanelProps {
 export function TabPanel({ id, activeTab, children }: TabPanelProps) {
   if (activeTab !== id) return null;
   return (
-    <div role="tabpanel" id={`tabpanel-${id}`} aria-labelledby={`tab-${id}`} className="anim-fade">
+    <div role="tabpanel" id={`tabpanel-${id}`} aria-labelledby={`tab-${id}`} className="anim-tab-fade">
       {children}
     </div>
   );

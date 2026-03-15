@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { ShoppingCart, HelpCircle, Calendar, CheckCircle2 } from 'lucide-react';
 import { EmptyState, Modal } from '@/components/ui';
@@ -62,6 +62,8 @@ export default function ClubVerkaufSection({
     ipoViewState, setIpoViewState,
   } = store;
 
+  const hasRendered = useRef(false);
+  useEffect(() => { hasRendered.current = true; }, []);
   const followedClubIds = useMemo(() => new Set(followedClubs.map(c => c.id)), [followedClubs]);
   // Select IPOs based on view state
   const viewIpos = useMemo(() => {
@@ -239,21 +241,29 @@ export default function ClubVerkaufSection({
         const followed = clubAggregates.filter(a => followedClubIds.has(a.club.id));
         const rest = clubAggregates.filter(a => !followedClubIds.has(a.club.id));
 
-        const renderCard = (agg: ClubAggregate) => (
-          <ClubCard
-            key={agg.clubName}
-            club={agg.club}
-            players={agg.players}
-            ipoMap={agg.ipoMap}
-            totalSold={agg.totalSold}
-            totalOffered={agg.totalOffered}
-            earliestEnd={agg.earliestEnd}
-            isHot={agg.isHot && isBuyable}
-            isExpanded={clubVerkaufExpandedClub === agg.clubName}
-            isFollowed={followedClubIds.has(agg.club.id)}
-            onToggle={() => setClubVerkaufExpandedClub(agg.clubName)}
-          />
-        );
+        const renderCard = (agg: ClubAggregate, i: number) => {
+          const shouldStagger = !hasRendered.current && i < 10;
+          return (
+            <div
+              key={agg.clubName}
+              className={shouldStagger ? 'card-entrance motion-reduce:animate-none' : undefined}
+              style={shouldStagger ? { animationDelay: `${i * 50}ms` } : undefined}
+            >
+              <ClubCard
+                club={agg.club}
+                players={agg.players}
+                ipoMap={agg.ipoMap}
+                totalSold={agg.totalSold}
+                totalOffered={agg.totalOffered}
+                earliestEnd={agg.earliestEnd}
+                isHot={agg.isHot && isBuyable}
+                isExpanded={clubVerkaufExpandedClub === agg.clubName}
+                isFollowed={followedClubIds.has(agg.club.id)}
+                onToggle={() => setClubVerkaufExpandedClub(agg.clubName)}
+              />
+            </div>
+          );
+        };
 
         return (
           <div className="space-y-4">

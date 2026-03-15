@@ -30,7 +30,7 @@ export default function StreakMilestoneBanner({ milestone, className = '' }: Str
         </div>
         <button
           onClick={() => setDismissed(true)}
-          className="p-1.5 rounded-lg hover:bg-white/5 transition-colors shrink-0"
+          className="p-1.5 rounded-lg hover:bg-white/5 transition-colors active:scale-[0.97] shrink-0"
           aria-label="Schliessen"
         >
           <X className="size-4 text-white/30" />

@@ -4,6 +4,7 @@ import React from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ScoreCircle, getL5Hex } from '@/components/player';
+import { useNumTick } from '@/lib/hooks/useNumTick';
 import { MASTERY_XP_THRESHOLDS } from '@/lib/services/mastery';
 import type { Trend } from '@/types';
 
@@ -24,6 +25,7 @@ interface ScoreMasteryStripProps {
 export default function ScoreMasteryStrip({
   l5, l15, trend, mastery, className = '',
 }: ScoreMasteryStripProps) {
+  const l5Tick = useNumTick(l5);
   const t = useTranslations('player');
   const l5Hex = getL5Hex(l5);
   const l5Pct = l5 > 0 ? Math.round((l5 / 100) * 100) : 0;
@@ -34,7 +36,7 @@ export default function ScoreMasteryStrip({
       {/* Scores Section */}
       <div className="flex items-center gap-3 md:gap-4 px-4 py-3 flex-1 min-w-0">
         {/* L5 Score Circle (primary) */}
-        <div className="flex flex-col items-center gap-1">
+        <div className={`flex flex-col items-center gap-1 ${l5Tick}`}>
           <div style={{ filter: `drop-shadow(0 0 8px ${l5Hex}40)` }}>
             <ScoreCircle label="L5" value={l5} size={64} />
           </div>

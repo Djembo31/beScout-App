@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Bell, BellOff, BellRing, Search, User, Menu, DollarSign, MessageSquarePlus, Ticket, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useNumTick } from '@/lib/hooks/useNumTick';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { formatScout } from '@/lib/services/wallet';
@@ -37,6 +38,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
 
+  const balanceTick = useNumTick(balanceCents);
   const t = useTranslations('nav');
   const name = profile?.display_name || displayName(user);
   const initial = name.charAt(0).toUpperCase();
@@ -155,7 +157,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             {balanceCents === null ? (
               <span className="inline-block w-10 sm:w-12 h-3.5 rounded bg-gold/20 animate-pulse motion-reduce:animate-none" />
             ) : (
-              <span className="font-mono font-bold text-gold text-[10px] sm:text-xs tabular-nums">{formatScout(balanceCents)}</span>
+              <span className={cn('font-mono font-bold text-gold text-[10px] sm:text-xs tabular-nums', balanceTick)}>{formatScout(balanceCents)}</span>
             )}
           </div>
 

@@ -114,6 +114,7 @@ body {
 .anim-modal { animation: modal-in 0.2s ease-out; }
 .anim-bottom-sheet { animation: slide-up 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
 .anim-fade { animation: fade-in 0.2s ease-out; }
+.anim-tab-fade { animation: fade-in 150ms ease-out; }
 .anim-slide-left { animation: slide-in-left 0.25s ease-out; }
 .anim-dropdown { animation: dropdown-in 0.15s ease-out; }
 

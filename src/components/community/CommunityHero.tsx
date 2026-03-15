@@ -64,7 +64,7 @@ export default function CommunityHero({
           <button
             key={a.key}
             onClick={handlerMap[a.key]}
-            className={cn('group relative p-4 rounded-2xl border transition-colors min-h-[44px] text-left', a.color, isLocked && 'opacity-60')}
+            className={cn('group relative p-4 rounded-2xl border transition-colors active:scale-[0.97] min-h-[44px] text-left', a.color, isLocked && 'opacity-60')}
           >
             <div className="flex items-center gap-1.5">
               <Icon className={cn('size-6 mb-2', a.iconColor)} />

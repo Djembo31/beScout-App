@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import {
@@ -102,6 +102,9 @@ function DiscoverySection({ icon, title, accent, onShowAll, showAllLabel, childr
   showAllLabel?: string;
   children: React.ReactNode;
 }) {
+  const hasRendered = useRef(false);
+  useEffect(() => { hasRendered.current = true; }, []);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-2.5">
@@ -116,7 +119,19 @@ function DiscoverySection({ icon, title, accent, onShowAll, showAllLabel, childr
         )}
       </div>
       <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-2 snap-x snap-mandatory" style={{ WebkitOverflowScrolling: 'touch' }}>
-        {children}
+        {React.Children.map(children, (child, i) => {
+          if (!React.isValidElement(child)) return child;
+          const shouldStagger = !hasRendered.current && i < 10;
+          if (!shouldStagger) return child;
+          return (
+            <div
+              className="card-entrance motion-reduce:animate-none"
+              style={{ animationDelay: `${i * 50}ms` }}
+            >
+              {child}
+            </div>
+          );
+        })}
       </div>
       <div className="floodlight-divider mt-3" />
     </div>

@@ -75,7 +75,7 @@ export default function PlayerHero({
         <div className="flex items-center gap-2">
           <button
             onClick={onToggleWatchlist}
-            className={cn('p-2 rounded-xl transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center',
+            className={cn('p-2 rounded-xl transition-colors active:scale-[0.97] min-h-[44px] min-w-[44px] flex items-center justify-center',
               isWatchlisted ? 'text-gold bg-gold/10' : 'text-white/30 hover:text-white/60 hover:bg-white/5'
             )}
             aria-label={t('hero.watchlist')}
@@ -84,7 +84,7 @@ export default function PlayerHero({
           </button>
           <button
             onClick={onShare}
-            className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors active:scale-[0.97] min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-label={t('hero.share')}
           >
             <Share2 className="size-4" />
@@ -92,7 +92,7 @@ export default function PlayerHero({
           <div className="relative">
             <button
               onClick={() => setShowOverflow(v => !v)}
-              className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors active:scale-[0.97] min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label={t('hero.moreOptions')}
             >
               <MoreVertical className="size-4" />

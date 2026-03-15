@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useNumTick } from '@/lib/hooks/useNumTick';
 import Link from 'next/link';
 import { Flame, Shield, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { fmtScout, cn } from '@/lib/utils';
@@ -27,6 +28,7 @@ export default function HomeStoryHeader({
   loading, firstName, streak, shieldsRemaining, userStats,
   portfolioValue, holdingsCount, pnl, pnlPct, storyMessage,
 }: HomeStoryHeaderProps) {
+  const portfolioTick = useNumTick(portfolioValue);
   const t = useTranslations('home');
   const tg = useTranslations('gamification');
 
@@ -81,7 +83,7 @@ export default function HomeStoryHeader({
           href="/market?tab=portfolio"
           className="flex flex-col items-center justify-center py-2.5 bg-surface-subtle border border-white/[0.08] rounded-xl hover:bg-white/[0.06] transition-colors"
         >
-          <span className="font-mono font-black text-sm gold-glow">{fmtScout(portfolioValue)}</span>
+          <span className={cn('font-mono font-black text-sm gold-glow', portfolioTick)}>{fmtScout(portfolioValue)}</span>
           <span className="text-[11px] text-white/40 uppercase font-semibold mt-0.5 inline-flex items-center gap-0.5">{t('portfolioRoster')} <InfoTooltip text={t('portfolioRosterTooltip')} /></span>
         </Link>
 
