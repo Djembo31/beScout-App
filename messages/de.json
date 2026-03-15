@@ -1764,6 +1764,8 @@
     "profile": "Profil",
     "community": "Community",
     "rewards": "Rewards",
+    "tabTrading": "Handel",
+    "tabPerformance": "Leistung",
     "position": {
       "GK": "Torwart",
       "DEF": "Abwehr",
@@ -3727,6 +3729,7 @@
     "currentMarketValue": "Aktueller Marktwert",
     "yourEntry": "Dein Einstieg",
     "dpcOwnership": "{count} DPC im Besitz",
+    "rewardTiers": "Reward-Stufen",
     "rewardLadder": "Reward-Treppe",
     "rewardLadderTooltip": "Je höher der Marktwert des Spielers steigt, desto höher der mögliche Bonus pro DPC. Der Verein entscheidet über die Ausschüttung.",
     "rewardLadderDesc": "Erfolgsbonus pro DPC bei steigendem Marktwert",

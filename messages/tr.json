@@ -1765,6 +1765,8 @@
     "profile": "Profil",
     "community": "Topluluk",
     "rewards": "Ödüller",
+    "tabTrading": "Ticaret",
+    "tabPerformance": "Performans",
     "position": {
       "GK": "Kaleci",
       "DEF": "Defans",
@@ -3729,6 +3731,7 @@
     "currentMarketValue": "Mevcut Piyasa Değeri",
     "yourEntry": "Giriş Fiyatın",
     "dpcOwnership": "{count} DPC sahipliği",
+    "rewardTiers": "Ödül Seviyeleri",
     "rewardLadder": "Ödül Merdiveni",
     "rewardLadderTooltip": "Oyuncunun piyasa değeri yükseldikçe, DPC başına olası bonus artar. Kulüp dağıtıma karar verir.",
     "rewardLadderDesc": "Artan piyasa değerine göre DPC başına başarı primi",

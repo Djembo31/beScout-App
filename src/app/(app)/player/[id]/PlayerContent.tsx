@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { XCircle } from 'lucide-react';
@@ -39,18 +39,13 @@ import { usePlayerTrading, usePlayerCommunity, usePriceAlerts } from '@/componen
 import {
   PlayerDetailSkeleton,
   PlayerHero,
-  ProfilTab,
-  MarktTab,
-  StatistikTab,
   CommunityTab,
-  RewardsTab,
   MobileTradingBar,
   LiquidationAlert,
-  SponsorBanner,
-  ScoreMasteryStrip,
-  TradeHistoryChips,
 } from '@/components/player/detail';
-import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
+import TradingTab from '@/components/player/detail/TradingTab';
+import PerformanceTab from '@/components/player/detail/PerformanceTab';
+import StickyDashboardStrip from '@/components/player/detail/StickyDashboardStrip';
 import BuyModal from '@/components/player/detail/BuyModal';
 import SellModal from '@/components/player/detail/SellModal';
 import OfferModal from '@/components/player/detail/OfferModal';
@@ -61,13 +56,11 @@ const LimitOrderModal = dynamic(() => import('@/components/player/detail/LimitOr
 // TYPES
 // ============================================
 
-type Tab = 'profil' | 'markt' | 'rewards' | 'statistik' | 'community';
+type Tab = 'trading' | 'performance' | 'community';
 
 const TABS: { id: string; label: string }[] = [
-  { id: 'profil', label: 'profile' },
-  { id: 'markt', label: 'market' },
-  { id: 'rewards', label: 'rewards' },
-  { id: 'statistik', label: 'stats' },
+  { id: 'trading', label: 'tabTrading' },
+  { id: 'performance', label: 'tabPerformance' },
   { id: 'community', label: 'community' },
 ];
 
@@ -83,7 +76,9 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const uid = user?.id;
 
   // ─── UI State (before queries so tab can gate enabled) ─
-  const [tab, setTab] = useState<Tab>('profil');
+  const [tab, setTab] = useState<Tab>('trading');
+  const heroRef = useRef<HTMLDivElement>(null);
+  const [showStrip, setShowStrip] = useState(false);
 
   // ─── React Query Hooks (ALL before early returns) ────
   const { data: dbPlayer, isLoading: playerLoading, isError: playerError, refetch } = useDbPlayerById(playerId);
@@ -94,9 +89,9 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const { data: holdingQtyData } = useHoldingQty(uid, playerId);
   const { data: holderCountData } = usePlayerHolderCount(playerId);
   const { data: allSellOrdersData } = useSellOrders(playerId);
-  const { data: openBidsData } = useOpenBids(playerId, tab === 'markt');
+  const { data: openBidsData } = useOpenBids(playerId, tab === 'trading');
   const { data: tradesData, isLoading: tradesLoading } = usePlayerTrades(playerId);
-  const { data: playerResearchData } = usePlayerResearch(playerId, uid, tab === 'community' || tab === 'markt');
+  const { data: playerResearchData } = usePlayerResearch(playerId, uid, tab === 'community' || tab === 'trading');
   const { data: playerPostsData } = usePosts({ playerId, limit: 30 });
   const { data: userIpoPurchasedData } = useUserIpoPurchases(uid, activeIpo?.id);
   const { data: masteryData } = useDpcMastery(uid, playerId);
@@ -131,6 +126,17 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const [isWatchlisted, setIsWatchlisted] = useState(false);
   const [showLimitOrder, setShowLimitOrder] = useState(false);
   const [profileMap, setProfileMap] = useState<Record<string, { handle: string; display_name: string | null }>>({});
+
+  // ─── Sticky Dashboard Strip (IntersectionObserver) ─
+  useEffect(() => {
+    if (!heroRef.current) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setShowStrip(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    obs.observe(heroRef.current);
+    return () => obs.disconnect();
+  }, []);
 
   // ─── Side Effects ─────────────────────────
 
@@ -220,66 +226,49 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
 
   return (
     <div className="max-w-[900px] mx-auto space-y-6 pb-20 lg:pb-0">
+      {/* Sticky Dashboard Strip */}
+      <StickyDashboardStrip
+        playerName={player.last}
+        position={player.pos}
+        floorPrice={player.prices.floor ?? 0}
+        l5Score={player.perf.l5}
+        trend={player.perf.trend}
+        change24h={player.prices.change24h ?? 0}
+        holdingQty={holdingQty}
+        holderCount={holderCount}
+        visible={showStrip}
+      />
+
       {/* Liquidation Alert (above Hero) */}
       {player.isLiquidated && (
         <LiquidationAlert liquidationEvent={liquidationEvent ?? null} />
       )}
 
       {/* Hero */}
-      <PlayerHero
-        player={player}
-        isIPO={trading.isIPO}
-        activeIpo={activeIpo ?? null}
-        holderCount={holderCount}
-        holdingQty={holdingQty}
-        isWatchlisted={isWatchlisted}
-        priceAlert={alerts.priceAlert}
-        onToggleWatchlist={() => setIsWatchlisted(!isWatchlisted)}
-        onShare={handleShare}
-        onBuyClick={guardedBuy}
-        onSellClick={guardedSell}
-        onSetPriceAlert={alerts.handleSetPriceAlert}
-        onRemovePriceAlert={alerts.handleRemovePriceAlert}
-      />
-
-      {/* Score + Mastery Strip */}
-      {player && (
-        <ScoreMasteryStrip
-          l5={player.perf.l5}
-          l15={player.perf.l15}
-          trend={player.perf.trend}
-          mastery={masteryData && holdingQty > 0 ? masteryData : null}
+      <div ref={heroRef}>
+        <PlayerHero
+          player={player}
+          isIPO={trading.isIPO}
+          activeIpo={activeIpo ?? null}
+          holderCount={holderCount}
+          holdingQty={holdingQty}
+          isWatchlisted={isWatchlisted}
+          priceAlert={alerts.priceAlert}
+          onToggleWatchlist={() => setIsWatchlisted(!isWatchlisted)}
+          onShare={handleShare}
+          onBuyClick={guardedBuy}
+          onSellClick={guardedSell}
+          onSetPriceAlert={alerts.handleSetPriceAlert}
+          onRemovePriceAlert={alerts.handleRemovePriceAlert}
         />
-      )}
+      </div>
 
-      {/* Trade History Chips */}
-      {trades.length > 0 && (
-        <TradeHistoryChips trades={trades} />
-      )}
-
-      {/* Sponsor: Player Mid */}
-      <SponsorBanner placement="player_mid" />
-
-      {/* Single Column: Tabs + Content */}
+      {/* Tabs + Content */}
       <div className="space-y-4 md:space-y-6">
         <TabBar tabs={TABS.map(tab => ({ ...tab, label: t(tab.label) }))} activeTab={tab} onChange={(id) => setTab(id as Tab)} />
 
-        {tab === 'profil' && (
-          <ProfilTab
-            player={playerWithOwnership}
-            dpcAvailable={dpcAvailable}
-            holdingQty={holdingQty}
-            holderCount={holderCount}
-            gwScores={gwScores}
-            userId={uid}
-            currentGameweek={gwScores[0]?.gameweek ?? 0}
-          />
-        )}
-
-        {tab === 'markt' && (
-          <>
-          <TradingDisclaimer variant="card" className="mb-4" />
-          <MarktTab
+        {tab === 'trading' && (
+          <TradingTab
             player={player}
             trades={trades}
             allSellOrders={allSellOrders}
@@ -295,15 +284,16 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             isRestrictedAdmin={isRestrictedAdmin}
             playerResearch={playerResearch}
           />
-          </>
         )}
 
-        {tab === 'rewards' && (
-          <RewardsTab player={playerWithOwnership} holdingQty={holdingQty} />
-        )}
-
-        {tab === 'statistik' && (
-          <StatistikTab player={player} gwScores={gwScores} />
+        {tab === 'performance' && (
+          <PerformanceTab
+            player={playerWithOwnership}
+            dpcAvailable={dpcAvailable}
+            holdingQty={holdingQty}
+            holderCount={holderCount}
+            gwScores={gwScores}
+          />
         )}
 
         {tab === 'community' && (
@@ -390,9 +380,6 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           floorPrice={player.prices.floor ?? player.prices.lastTrade}
         />
       )}
-
-      {/* Sponsor: Player Footer */}
-      <SponsorBanner placement="player_footer" />
 
       {/* Mobile Trading Bar */}
       <MobileTradingBar
