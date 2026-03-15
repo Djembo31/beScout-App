@@ -12,7 +12,6 @@ import type { Player } from '@/types';
 interface TradeSuccessCardProps {
   player: Player;
   quantity: number;
-  totalCostCents: number;
   oldBalanceCents: number;
   newBalanceCents: number;
   source: 'market' | 'ipo';
@@ -50,27 +49,60 @@ function AnimatedBalance({ from, to }: { from: number; to: number }) {
 }
 
 export default function TradeSuccessCard({
-  player, quantity, totalCostCents, oldBalanceCents, newBalanceCents, source, onDismiss,
+  player, quantity, oldBalanceCents, newBalanceCents, source, onDismiss,
 }: TradeSuccessCardProps) {
   const t = useTranslations('market');
   const [phase, setPhase] = useState<'enter' | 'visible' | 'exit'>('enter');
+  const [paused, setPaused] = useState(false);
+  const elapsedRef = useRef(0);
+  const lastTickRef = useRef(Date.now());
 
-  // Animation lifecycle: enter (0ms) → visible (200ms) → auto-exit (3000ms)
+  // Animation lifecycle: enter (0ms) → visible (50ms) → auto-exit (5000ms) → dismiss (5400ms)
+  // Pauses on hover/focus (WCAG 2.2.1 Timing Adjustable)
   useEffect(() => {
     const enterTimer = setTimeout(() => setPhase('visible'), 50);
-    const exitTimer = setTimeout(() => setPhase('exit'), 3200);
-    const dismissTimer = setTimeout(onDismiss, 3600);
+    return () => clearTimeout(enterTimer);
+  }, []);
+
+  useEffect(() => {
+    if (phase !== 'visible') return;
+    if (paused) {
+      lastTickRef.current = Date.now();
+      return;
+    }
+
+    const remaining = 5000 - elapsedRef.current;
+    if (remaining <= 0) {
+      setPhase('exit');
+      return;
+    }
+
+    lastTickRef.current = Date.now();
+    const exitTimer = setTimeout(() => {
+      elapsedRef.current += Date.now() - lastTickRef.current;
+      setPhase('exit');
+    }, remaining);
+
     return () => {
-      clearTimeout(enterTimer);
+      elapsedRef.current += Date.now() - lastTickRef.current;
       clearTimeout(exitTimer);
-      clearTimeout(dismissTimer);
     };
-  }, [onDismiss]);
+  }, [phase, paused]);
+
+  useEffect(() => {
+    if (phase !== 'exit') return;
+    const dismissTimer = setTimeout(onDismiss, 400);
+    return () => clearTimeout(dismissTimer);
+  }, [phase, onDismiss]);
 
   return (
     <div
       role="status"
       aria-live="polite"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
       className={cn(
         'fixed top-[max(1rem,env(safe-area-inset-top))] right-4 z-50 w-[min(320px,calc(100vw-2rem))]',
         'transition-all duration-300 ease-out motion-reduce:transition-none',

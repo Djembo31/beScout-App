@@ -123,18 +123,24 @@ export default function HomePage() {
     if (result.ok) {
       queryClient.invalidateQueries({ queryKey: qk.tickets.balance(uid) });
       queryClient.invalidateQueries({ queryKey: qk.cosmetics.user(uid) });
+      const effectiveCost = free ? 0 : Math.max(1, 15 - (streakBenefits.mysteryBoxTicketDiscount ?? 0));
+      // Track free box claim per week (client-side)
+      if (free) {
+        const currentWeek = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+        localStorage.setItem('bescout-free-box-week', String(currentWeek));
+      }
       return {
         id: crypto.randomUUID(),
         rarity: result.rarity!,
         reward_type: result.rewardType!,
         tickets_amount: result.ticketsAmount ?? null,
         cosmetic_id: result.cosmeticKey ?? null,
-        ticket_cost: free ? 0 : 15,
+        ticket_cost: effectiveCost,
         opened_at: new Date().toISOString(),
       };
     }
     return null;
-  }, [uid]);
+  }, [uid, streakBenefits.mysteryBoxTicketDiscount]);
 
   // ── i18n ──
   const t = useTranslations('home');
@@ -395,7 +401,12 @@ export default function HomePage() {
             onClose={() => setShowMysteryBox(false)}
             onOpen={handleOpenMysteryBox}
             ticketBalance={ticketData?.balance ?? 0}
-            hasFreeBox={streakBenefits.freeMysteryBoxesPerWeek > 0}
+            hasFreeBox={(() => {
+              if (streakBenefits.freeMysteryBoxesPerWeek <= 0) return false;
+              const currentWeek = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+              const lastFreeBoxWeek = parseInt(localStorage.getItem('bescout-free-box-week') || '0');
+              return lastFreeBoxWeek < currentWeek;
+            })()}
             ticketDiscount={streakBenefits.mysteryBoxTicketDiscount}
           />
         </>

@@ -296,7 +296,7 @@ export async function getAllOpenSellOrders(limit = 2000): Promise<{ orders: DbOr
 export async function getSellOrders(playerId: string): Promise<DbOrder[]> {
   const { data, error } = await supabase
     .from('orders')
-    .select('id, player_id, user_id, price, quantity, filled_qty, status, created_at, expires_at')
+    .select('id, player_id, user_id, side, price, quantity, filled_qty, status, created_at, expires_at')
     .eq('player_id', playerId)
     .eq('side', 'sell')
     .in('status', ['open', 'partial'])

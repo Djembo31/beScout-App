@@ -352,7 +352,6 @@ export default function MarketPage() {
           <TradeSuccessCard
             player={player}
             quantity={qty}
-            totalCostCents={0}
             oldBalanceCents={balanceBeforeBuyRef.current}
             newBalanceCents={balanceCents}
             source={source}

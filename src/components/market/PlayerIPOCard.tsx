@@ -187,7 +187,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
         {/* Contract + Status chips */}
         <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
           <span className={cn(
-            'inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[9px] font-bold',
+            'inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-bold',
             contract.urgent
               ? 'bg-red-500/10 border-red-500/20 text-red-400'
               : contract.monthsLeft <= 12
@@ -199,7 +199,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
           </span>
           {player.status !== 'fit' && (
             <span className={cn(
-              'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border text-[9px] font-bold',
+              'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border text-[10px] font-bold',
               player.status === 'injured' && 'bg-red-500/10 border-red-500/20 text-red-300',
               player.status === 'suspended' && 'bg-purple-500/10 border-purple-500/20 text-purple-300',
               player.status === 'doubtful' && 'bg-yellow-500/10 border-yellow-500/20 text-yellow-300',
@@ -210,7 +210,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
             </span>
           )}
           {player.status === 'fit' && (
-            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border text-[9px] font-bold bg-green-500/10 border-green-500/20 text-green-400">
+            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border text-[10px] font-bold bg-green-500/10 border-green-500/20 text-green-400">
               {tp('fit', { defaultMessage: 'Fit' })}
             </span>
           )}
@@ -232,13 +232,13 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
       <div className="p-3 pt-2.5">
         <div className="flex items-end justify-between mb-2">
           <div>
-            <span className="text-[9px] font-bold text-white/30 uppercase tracking-wider block">
+            <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider block">
               {t('ipoPrice', { defaultMessage: 'IPO-Preis' })}
             </span>
             <span className="font-mono font-black text-lg text-gold tabular-nums leading-tight">
               {fmtScout(priceBsd)}
             </span>
-            <span className="text-[9px] text-white/25 ml-1">bCredits</span>
+            <span className="text-[10px] text-white/25 ml-1">bCredits</span>
           </div>
           {onBuy ? (
             <button
@@ -261,7 +261,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
               {buying ? tp('recruitingBtn') : tp('recruitBtn')}
             </button>
           ) : (
-            <span className="text-[9px] text-white/30 font-bold shrink-0">
+            <span className="text-[10px] text-white/30 font-bold shrink-0">
               {t('readOnly', { defaultMessage: 'Nur Ansicht' })}
             </span>
           )}
@@ -298,7 +298,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
         {/* Owned + Countdown */}
         <div className="flex items-center justify-between mt-1.5">
           {player.dpc.owned > 0 ? (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[9px] font-bold bg-gold/10 border-gold/20 text-gold tabular-nums font-mono">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-bold bg-gold/10 border-gold/20 text-gold tabular-nums font-mono">
               {player.dpc.owned} DPC
             </span>
           ) : (

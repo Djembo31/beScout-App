@@ -161,7 +161,7 @@ export default function BuyOrdersSection({ buyOrders, playerMap }: BuyOrdersSect
                         <button
                           onClick={() => handleCancel(uo.id)}
                           disabled={cancellingId === uo.id}
-                          className="flex items-center gap-1 px-2 py-1 text-[10px] font-bold text-red-400/70 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors min-h-[32px]"
+                          className="flex items-center gap-1 px-2 py-1 text-[10px] font-bold text-red-400/70 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
                         >
                           {cancellingId === uo.id ? (
                             <Loader2 className="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" />

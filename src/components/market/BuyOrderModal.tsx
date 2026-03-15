@@ -132,7 +132,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
               <button
                 onClick={() => setQty(Math.max(1, qty - 1))}
                 className="px-2 py-2.5 min-w-[44px] min-h-[44px] text-white/40 hover:text-white text-sm font-bold"
-                aria-label="-1"
+                aria-label="Anzahl verringern"
               >
                 &minus;
               </button>
@@ -140,7 +140,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
               <button
                 onClick={() => setQty(Math.min(10000, qty + 1))}
                 className="px-2 py-2.5 min-w-[44px] min-h-[44px] text-white/40 hover:text-white text-sm font-bold"
-                aria-label="+1"
+                aria-label="Anzahl erhoehen"
               >
                 +
               </button>

@@ -17,16 +17,10 @@ export function useAllOpenOrders() {
   });
 }
 
-/** Whether the order list was truncated (for UI hint) */
+/** Whether the order list was truncated (for UI hint) — derived from useAllOpenOrders to avoid double fetch */
 export function useOrdersCapped() {
-  return useQuery({
-    queryKey: [...qk.orders.all, 'capped'],
-    queryFn: async () => {
-      const { capped } = await getAllOpenSellOrders();
-      return capped;
-    },
-    staleTime: 5 * 60_000,
-  });
+  const { data } = useAllOpenOrders();
+  return data ? data.length >= 2000 : false;
 }
 
 /** All open buy orders — for Kaufgesuche section */

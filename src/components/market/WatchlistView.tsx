@@ -247,7 +247,7 @@ export default function WatchlistView({ players, watchlistEntries }: WatchlistVi
               key={opt.key}
               onClick={() => setSortBy(opt.key)}
               className={cn(
-                'px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors min-h-[32px]',
+                'px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors min-h-[44px]',
                 sortBy === opt.key
                   ? 'bg-white/[0.10] text-white'
                   : 'text-white/40 hover:text-white/60'

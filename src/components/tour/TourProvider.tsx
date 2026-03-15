@@ -132,7 +132,7 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
           <div className="relative bg-[#111114] border border-gold/25 rounded-2xl p-4 shadow-2xl shadow-gold/10">
             <button
               onClick={dismissOffer}
-              className="absolute top-2.5 right-2.5 p-1 text-white/30 hover:text-white/60 transition-colors"
+              className="absolute top-2.5 right-2.5 p-1 text-white/30 hover:text-white/60 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label={t('offerNo')}
             >
               <X className="size-4" aria-hidden="true" />
@@ -146,13 +146,13 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
                 <div className="flex gap-2 mt-2">
                   <button
                     onClick={startTour}
-                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-b from-[#FFE44D] to-[#E6B800] text-black active:scale-[0.97] transition-transform"
+                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-b from-[#FFE44D] to-[#E6B800] text-black active:scale-[0.97] transition-transform min-h-[44px] min-w-[44px]"
                   >
                     {t('offerYes')}
                   </button>
                   <button
                     onClick={dismissOffer}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium text-white/50 hover:text-white/70 transition-colors"
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium text-white/50 hover:text-white/70 transition-colors min-h-[44px] min-w-[44px]"
                   >
                     {t('offerNo')}
                   </button>
