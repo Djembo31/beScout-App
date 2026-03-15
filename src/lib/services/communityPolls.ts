@@ -81,7 +81,7 @@ export async function castCommunityPollVote(
       logActivity(userId, 'poll_vote', 'community', { pollId, optionIndex });
     }).catch(err => console.error('[Polls] Activity log failed:', err));
     // Poll creator airdrop refresh handled by periodic pg_cron job
-    // Notify poll creator
+    // Notify poll creator (batched to prevent spam from rapid votes)
     (async () => {
       try {
         const { data: poll } = await supabase
@@ -90,14 +90,17 @@ export async function castCommunityPollVote(
           .eq('id', pollId)
           .maybeSingle();
         if (poll && poll.created_by !== userId) {
-          const { createNotification } = await import('@/lib/services/notifications');
-          createNotification(
+          const { createBatchedNotification } = await import('@/lib/services/notifications');
+          const questionSnippet = poll.question.slice(0, 60);
+          createBatchedNotification(
             poll.created_by,
             'poll_vote',
-            'Neue Stimme',
-            `Jemand hat bei "${poll.question.slice(0, 60)}" abgestimmt`,
             pollId,
-            'poll'
+            'poll',
+            (count) => count === 1 ? 'Neue Stimme' : `${count} neue Stimmen`,
+            (count) => count === 1
+              ? `Jemand hat bei "${questionSnippet}" abgestimmt`
+              : `${count} Personen haben bei "${questionSnippet}" abgestimmt`,
           );
         }
       } catch (err) { console.error('[Polls] Vote notification failed:', err); }

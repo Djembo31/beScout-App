@@ -234,6 +234,77 @@ export async function createNotification(
 }
 
 // ============================================
+// BATCHED / DEDUPLICATED NOTIFICATIONS
+// ============================================
+
+/**
+ * Create a batched notification that deduplicates within a time window.
+ * If a matching unread notification exists for the same user+type+reference,
+ * it is UPDATED (count incremented, bumped to top) instead of creating a new row.
+ * This prevents notification spam from rapid repeated actions (poll votes, ratings).
+ */
+export async function createBatchedNotification(
+  userId: string,
+  type: NotificationType,
+  referenceId: string,
+  referenceType: string,
+  titleTemplate: (count: number) => string,
+  bodyTemplate: (count: number) => string,
+  batchWindowMinutes: number = 30,
+): Promise<void> {
+  // Check if user has disabled this category
+  const category = getCategoryForType(type);
+  if (category !== 'system') {
+    const prefs = await getNotificationPreferences(userId);
+    if (!prefs[category]) return;
+  }
+
+  // Look for an existing unread notification within the batch window
+  const windowStart = new Date(Date.now() - batchWindowMinutes * 60 * 1000).toISOString();
+  const { data: existing } = await supabase
+    .from('notifications')
+    .select('id, title')
+    .eq('user_id', userId)
+    .eq('type', type)
+    .eq('reference_type', referenceType)
+    .eq('reference_id', referenceId)
+    .eq('read', false)
+    .gte('created_at', windowStart)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existing) {
+    // Extract count from existing title (pattern: "N neue ...")
+    const countMatch = existing.title.match(/^(\d+)\s/);
+    const newCount = countMatch ? parseInt(countMatch[1], 10) + 1 : 2;
+
+    const newTitle = titleTemplate(newCount);
+    const newBody = bodyTemplate(newCount);
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({
+        title: newTitle,
+        body: newBody,
+        read: false,
+        created_at: new Date().toISOString(), // bump to top of list
+      })
+      .eq('id', existing.id);
+
+    if (error) {
+      console.error(`[Notifications] Batched update failed (type=${type}, user=${userId}):`, error.message);
+    }
+    // No push for batched updates — the original push already drew attention
+  } else {
+    // First notification in this batch window — create normally + fire push
+    const title = titleTemplate(1);
+    const body = bodyTemplate(1);
+    await createNotification(userId, type, title, body, referenceId, referenceType);
+  }
+}
+
+// ============================================
 // BATCH NOTIFICATION INSERT
 // ============================================
 

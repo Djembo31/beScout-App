@@ -326,7 +326,7 @@ export async function rateResearch(
     import('@/lib/services/activityLog').then(({ logActivity }) => {
       logActivity(userId, 'research_rate', 'community', { researchId, rating });
     }).catch(err => console.error('[Research] Rate activity log failed:', err));
-    // Notify author + credit tickets for high ratings
+    // Notify author (batched to prevent spam) + credit tickets for high ratings
     (async () => {
       try {
         const { data: post } = await supabase
@@ -335,14 +335,19 @@ export async function rateResearch(
           .eq('id', researchId)
           .maybeSingle();
         if (post && post.user_id !== userId) {
-          const { createNotification } = await import('@/lib/services/notifications');
-          createNotification(
+          const { createBatchedNotification } = await import('@/lib/services/notifications');
+          const titleSnippet = post.title.slice(0, 60);
+          createBatchedNotification(
             post.user_id,
             'research_rating',
-            notifText('researchRatingTitle', { rating }),
-            notifText('researchRatingBody', { title: post.title }),
             researchId,
-            'research'
+            'research',
+            (count) => count === 1
+              ? notifText('researchRatingTitle', { rating })
+              : notifText('researchRatingBatchedTitle', { count }),
+            (count) => count === 1
+              ? notifText('researchRatingBody', { title: titleSnippet })
+              : notifText('researchRatingBatchedBody', { count, title: titleSnippet }),
           );
           // Fire-and-forget: Credit author tickets for rating 4.0+
           if (rating >= 4) {
