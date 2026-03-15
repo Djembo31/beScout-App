@@ -1,172 +1,185 @@
 ---
-description: Ultra Instinct v3 — Briefing Files + Filesystem als Shared Brain
+description: Ultra Instinct v4 — Jarvis = Wissens-Kurator, Agents = Spezialisten mit 1M Context
 globs: "**/*"
 ---
 
-## Ultra Instinct v3
+## Ultra Instinct v4
 
-### Kern-Erkenntnis
+### Philosophie
 
-Das Problem war nie "Agents vs. Jarvis." Das Problem war:
-**Agents bekommen einen Prompt, aber keinen KONTEXT.**
+Jarvis ist NICHT der Coder. Jarvis ist der **Wissens-Kurator und Koordinator.**
+Agents sind keine Juniors — sie sind **Spezialisten mit 1M Context** die
+zusaetzlich zum Briefing eigenes Wissen aufbauen.
 
-Loesung: Das Filesystem als shared Brain zwischen Orchestrator und Agents.
+Meine Aufgabe: Dem Agent EXAKT das Wissen geben das er fuer SEINE Aufgabe braucht.
+Agent's Aufgabe: Mit meinem Wissen + eigenem Deep-Dive die Aufgabe PERFEKT loesen.
+Danach: Learnings zurueckschreiben → System wird schlauer.
+
+---
+
+## Context-Architektur
 
 ```
-.claude/briefings/{task-id}.md   ← Kontext VOR Agent-Start (ephemeral)
-.claude/agent-memory/{name}/     ← Learnings NACH Agent-Ende (persistent)
-.claude/rules/                   ← Immer-geladenes Wissen (permanent)
-memory/                          ← Projekt-Level Wissen (semi-permanent)
+┌─ JARVIS (Orchestrator) ─────────────────────────────┐
+│ Auto-loaded: ~15K (CLAUDE.md + Rules + MEMORY.md)    │
+│ Chat-History: ~500K (Anils Entscheidungen, Kontext)  │
+│ Frei: ~485K                                          │
+│                                                      │
+│ AUFGABE: Kuratiere 20-30K fuer DIESEN Task           │
+│ → Schreibe Briefing-File auf Disk                    │
+└──────────────────────────────────────────────────────┘
+            ↓ (Filesystem)
+┌─ .claude/briefings/{task}.md ────────────────────────┐
+│ Kuratiertes Wissen: 20-30K Tokens                    │
+│ - Relevante Source Files (vollstaendig)               │
+│ - Callsites + Side-Effects                           │
+│ - Bekannte Fehler fuer diesen Bereich                │
+│ - Anils Entscheidungen die diesen Task betreffen     │
+│ - Parallele Code-Pfade                               │
+│ - Acceptance Criteria (ausfuehrbar)                  │
+└──────────────────────────────────────────────────────┘
+            ↓ (Agent liest File)
+┌─ AGENT (Spezialist, 1M Context) ────────────────────┐
+│ Briefing gelesen: 20-30K                             │
+│ Eigener Deep-Dive: +100-200K (liest weitere Files)   │
+│ Agent Memory: +5-10K (Learnings aus vorherigen Tasks) │
+│ FREI: ~760K fuer Denken + Implementieren + Testen    │
+│                                                      │
+│ AUFGABE: Aufgabe PERFEKT loesen                      │
+│ → Code schreiben                                     │
+│ → Selbst testen (tsc, build, vitest)                 │
+│ → Learnings in LEARNINGS Sektion schreiben           │
+└──────────────────────────────────────────────────────┘
+            ↓ (Filesystem)
+┌─ Learnings zurueck ─────────────────────────────────┐
+│ → .claude/agent-memory/{name}/MEMORY.md (persistent) │
+│ → errors.md (wenn neuer Fehler)                      │
+│ → patterns.md (wenn neues Pattern)                   │
+│ → decisions.md (wenn Entscheidung getroffen)         │
+│                                                      │
+│ ERGEBNIS: System ist nach jedem Task SCHLAUER        │
+└──────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Der Briefing-File Workflow
+## Das Briefing-File (Kern des Systems)
 
-### BEVOR ein Agent dispatched wird:
-
-1. **Explore-Agent sammelt Kontext** (read-only, in eigenem Context):
-   - Liest alle Files die der Implementer braucht
-   - Grepped alle Callsites
-   - Sammelt relevante Eintraege aus common-errors.md
-   - Output: Summary (NICHT raw Files)
-
-2. **ICH (Jarvis) schreibe die Briefing-Datei** `.claude/briefings/{task}.md`:
+### Was reingehoert (PFLICHT)
 
 ```markdown
 # Briefing: [Task-Name]
+## Generiert: [Datum] von Jarvis fuer [Agent-Type]
 
-## Auftrag
-[Was genau gebaut/gefixt werden soll]
+## 1. AUFTRAG
+[Praezise Beschreibung: Was soll gebaut/gefixt werden]
+[Kontext: Warum machen wir das, was hat Anil gesagt]
 
-## Betroffene Files
-[Vollstaendiger Source jeder Datei die geaendert wird]
+## 2. BETROFFENE FILES (vollstaendiger Source)
+[Jede Datei die der Agent anfassen wird — KOMPLETT, nicht Auszuege]
+[Agent soll NICHT selbst suchen muessen]
 
-## Callsites (WER ruft das auf?)
-[Grep-Ergebnisse: jede Stelle die die geaenderte Funktion aufruft]
+## 3. CALLSITES (wer ruft das auf?)
+[Grep-Ergebnisse fuer jede Funktion die geaendert wird]
+[Agent muss wissen WER seine Aenderung konsumiert]
 
-## Side-Effects (WAS wird ausgeloest?)
-[Notifications, Missions, Wallet, Cache — was muss konsistent bleiben]
+## 4. SIDE-EFFECTS
+[Was wird durch die Aenderung ausgeloest?]
+[Notifications? Wallet? Cache? Missions? Achievements?]
+[Welche muessen konsistent bleiben?]
 
-## Bekannte Fehler in diesem Bereich
-[Relevante Eintraege aus common-errors.md und errors.md]
+## 5. PARALLELE PFADE
+[Andere Funktionen die dasselbe tun]
+[z.B. 4 Trade-Pfade die Fee-Parity haben muessen]
 
-## Parallele Code-Pfade
-[Andere Funktionen die dasselbe tun und konsistent bleiben muessen]
+## 6. BEKANNTE FEHLER
+[Relevante Eintraege aus common-errors.md]
+[Spezifische Bugs die in diesem Bereich schon passiert sind]
+[z.B. "centsToBsd NICHT auf player.prices.floor — ist schon BSD"]
 
-## Acceptance Criteria
-[Exakte Befehle die PASS ergeben muessen bevor der Agent fertig ist]
-- npx tsc --noEmit
-- npx vitest run [betroffene tests]
-- [Spezifische Pruefung]
+## 7. ANILS ENTSCHEIDUNGEN
+[Relevante Entscheidungen aus dem Chat die diesen Task betreffen]
+[z.B. "kein Konfetti, Trading-Grade Aesthetik"]
 
-## Anti-Patterns (NICHT machen)
-[Konkrete Fehler die in diesem Bereich schon gemacht wurden]
+## 8. ACCEPTANCE CRITERIA
+[Exakte Befehle die PASS ergeben muessen]
+npx tsc --noEmit
+npx next build
+npx vitest run [betroffene tests]
+[Feature-spezifische Pruefung]
+
+## 9. ANTI-PATTERNS
+[Was der Agent NICHT tun darf]
+[Konkrete Beispiele aus der Projekt-Historie]
 ```
 
-3. **Agent bekommt im Prompt:** "Lies ZUERST .claude/briefings/{task}.md"
-
-4. **Agent schreibt am Ende:** LEARNINGS Sektion → wird in `.claude/agent-memory/` persistiert
-
-5. **Briefing-Datei wird nach Merge geloescht** (ephemeral)
+### Was NICHT reingehoert
+- Komplette errors.md (zu gross, nur relevante Eintraege)
+- Komplette patterns.md (zu gross, nur relevante)
+- Files die nicht geaendert werden
+- Allgemeines Projekt-Wissen (das steht in den Rules)
 
 ---
 
-## Wann WER was macht
+## Wissens-Flow (dynamisch, wird immer besser)
 
-| Aufgabe | Wer | Context-Impact |
-|---------|-----|----------------|
-| Briefing-Kontext sammeln | Explore-Agent | 0 (eigener Context) |
-| Briefing-Datei schreiben | ICH | Minimal (1 Write) |
-| Implementation | Agent ODER ICH | Agent: 0 auf mich. ICH: proportional |
-| Edits an bestehendem Code | ICH (bevorzugt) | Proportional, aber korrekt |
-| Neue Files (0 Dependencies) | Agent mit Briefing | 0 auf mich |
-| Review | Review-Agent | 0 (eigener Context) |
-
-### Entscheidungslogik: Agent oder ICH?
-
+### Bei jedem Task:
 ```
-Aendert bestehende Funktion die Geld/Wallet/Trading beruehrt?
-  → ICH (zu riskant fuer Agent)
-
-Aendert bestehende Funktion mit >3 Callsites?
-  → ICH (Kontext-Entscheidungen noetig)
-
-Neues Component/File ohne Dependencies auf bestehenden Code?
-  → Agent MIT Briefing-File
-
-Neue Funktion die in bestehenden Code integriert werden muss?
-  → Agent schreibt die Funktion, ICH schreibe die Integration
+1. VORHER: Explore-Agent sammelt Kontext → Jarvis kuratiert Briefing
+2. WAEHREND: Agent arbeitet mit Briefing + eigenem Deep-Dive
+3. NACHHER: Agent schreibt Learnings → Persistent Memory
+4. INTEGRATION: Jarvis prueft Learnings:
+   - Neuer Fehler? → errors.md + common-errors.md (wenn 2x)
+   - Neues Pattern? → patterns.md + Rule (wenn 3x)
+   - Entscheidung? → decisions.md
+   - Agent-spezifisch? → agent-memory/{name}/MEMORY.md
 ```
+
+### Ueber Zeit:
+- Agent Memory waechst → Agents werden kompetenter
+- errors.md waechst → Briefings werden praeziser
+- patterns.md waechst → Weniger Erklaerung noetig
+- Briefing-Qualitaet steigt → Bug-Rate sinkt
 
 ---
 
-## 4 Quality Gates (unveraendert, PFLICHT)
+## Quality Gates (4 Stufen)
 
-### Gate 1: IMPACT (vor Code)
-Explore-Agent sammelt Callsites + Side-Effects → geht in Briefing-File.
+### Gate 1: BRIEFING (vor Agent-Dispatch)
+- Explore-Agent sammelt Kontext
+- Jarvis kuratiert Briefing-File
+- STOP wenn Briefing nicht alle 9 Sektionen hat
 
-### Gate 2: FLOW TEST (nach Code)
-6 Fragen:
-1. Was wenn 2 User gleichzeitig? (Race)
-2. Was wenn DB null liefert? (Null Guard)
-3. Was wenn User refreshed? (State Recovery)
-4. Was sieht ein tuerkischer User? (i18n)
-5. Was hoert ein Screen Reader? (A11y)
-6. Was bei 1000 gleichzeitigen Usern? (Performance)
+### Gate 2: FLOW TEST (Agent macht das selbst)
+Agent beantwortet im Briefing-Kontext:
+1. Race Condition moeglich?
+2. Null Guards vorhanden?
+3. i18n korrekt (DE + TR)?
+4. A11y (aria-labels, focus, touch 44px)?
+5. Performance (Limits, Lazy Loading)?
+6. State Recovery bei Refresh?
 
-### Gate 3: VERHALTENSTEST (vor Commit)
-- Mindestens 1 Test pro Aenderung
-- `tsc` + `build` + `vitest`
+### Gate 3: VERHALTENSTEST (Agent macht das selbst)
+- tsc + build + vitest MUESSEN PASS sein
+- Agent committed NICHT wenn Tests fehlen
+- Acceptance Criteria aus Briefing ausfuehren
 
 ### Gate 4: SCOPE
-- Max 3 Aenderungen pro Batch
-- `/compact` nach jedem Batch
+- Max 3 Tasks pro Dispatch-Batch
+- /compact nach jedem Batch
+- Briefing-Files nach Merge loeschen
 
 ---
 
-## TDD-First (PFLICHT bei Service/RPC Aenderungen)
+## Review: 1 tiefer Szenario-Review
 
-1. Test schreiben (beschreibt gewuenschtes Verhalten)
-2. Test laufen lassen → FAIL
-3. Code schreiben → Test PASS
-4. Gates durchlaufen
-5. Commit
+NACH Agent-Delivery:
+- 1 Review-Agent liest diff + Briefing
+- Spielt 3 User-Szenarien durch
+- Sagt PASS oder REWORK
+- Bei REWORK: Agent bekommt Feedback + Briefing → fixt in seinem Context
 
----
+KEIN zweiter Review-Durchgang. Wenn REWORK:
+- Agent fixt → Reviewer prueft NUR den Fix → PASS oder Eskalation
 
-## Review: 1 tiefer, Szenario-basiert
-
-1 Review-Agent der:
-- Den diff + das Briefing-File liest
-- 3 User-Szenarien durchspielt
-- NUR "PASS" oder "REWORK" sagt
-
----
-
-## Persistent Agent Memory
-
-Jeder Agent-Typ hat eigenes Memory in `.claude/agent-memory/{name}/`:
-
-```
-.claude/agent-memory/
-  implementer/MEMORY.md    ← "wallets PK ist user_id nicht id"
-  reviewer/MEMORY.md       ← "4 Trade-Pfade muessen parity haben"
-  test-writer/MEMORY.md    ← "Supabase Mocks in setup.ts"
-```
-
-Wird automatisch geladen bei Agent-Start (`memory: project` in Frontmatter).
-Agent schreibt LEARNINGS am Ende jeder Aufgabe rein.
-
----
-
-## Selbst-Check vor "fertig"
-
-Bevor ich Anil sage "geliefert":
-1. Habe ich das Briefing-File geschrieben? (bei Agent-Dispatch)
-2. Habe ich die 6 Flow-Fragen beantwortet?
-3. Gibt es mindestens 1 Verhaltenstest?
-4. Hat der Review-Agent PASS gesagt?
-5. Wuerde ich diesen Code selber deployen?
-
-Wenn NEIN: nicht als fertig melden.
+Max 2 Runden. Danach: Eskalation an Anil.
