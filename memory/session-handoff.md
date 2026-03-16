@@ -1,32 +1,35 @@
 # Session Handoff
-## Letzte Session: 2026-03-15 (Player Detail Redesign)
+## Letzte Session: 2026-03-16 (Quality Sprint — Bugs + Konsistenz)
 ## Was wurde gemacht
-- Player Detail Page komplett redesigned: 5 Tabs → 3 Tabs (Handel/Leistung/Community)
-- StickyDashboardStrip (48px, IntersectionObserver) — Floor Price, L5, Trend, 24h Change
-- TradingQuickStats (Floor, Spread farbcodiert, 7d Volume, Holders)
-- YourPosition mit P&L (Avg Cost aus Trade History, % + absolute bCredits)
-- L5 Percentile-Kontext ("Top X% der MIDs") via usePositionPercentile Hook
-- UpcomingFixtures (naechste 5 Spiele mit H/A Indikator)
-- FantasyCTA (kontextueller Gold-Button wenn aktives Event)
-- Card Mastery Tiers CSS (Lv0-5: Shimmer → Silver → Gold → Holo → Legend)
-- TradeSuccessEffect (12-Partikel Gold Burst)
-- Rewards als Accordion in Trading Tab integriert
-- 12 Benchmark-Analysen (Sorare, SofaScore, FIFA, Opta, LiveScore, Symbiosis)
-- Symbiosis Blueprint: docs/plans/2026-03-15-symbiosis-design.md
-- 2 Review-Runden, alle Findings gefixt (i18n, perf, a11y, layout)
+- **Hydration Fix:** SideNav/BottomNav mounted-state pattern verhindert className-Mismatch → 0 Hydration Errors
+- **Market/Profile/Compare laden** — waren vorher komplett leer/crashed (Cascade vom Hydration Error)
+- **$SCOUT Branding (ADR-021):** 370+ "bCredits" → "$SCOUT" (108× de.json, 108× tr.json, 134× TSX, 20× TS)
+- **i18n:** 30+ hardcoded Strings → t(), 16 neue Keys (de+tr), ErrorState/InfoTooltip/TopBar/SideNav/BottomNav
+- **BottomNav Overflow:** flex-1 min-w-0 + truncate — "Commun..." → "Community" sichtbar
+- **Page Titles:** 5 Dateien — "BeScout | BeScout" Duplikat entfernt
+- **Preis-Info:** Purple/Magenta → Gold+Gruen (Design System konform)
+- **Empty State Icons:** Player MarktTab Sections
+- **Fantasy 6er → 7er:** LineupFormat, Formations (5 neue 7er), Admin-UIs, i18n, DB (50 Events migriert)
+- **DPC Supply 300:** Trading/IPO Limits 10000→300, DB (63 Spieler korrigiert)
+- **silver → silber:** AirdropTier, BadgeLevel, alle Referenzen
+- **Salary Cap:** Admin-Input fehlte centsToBsd/bsdToCents Konvertierung
+- **Projektbewertung:** Analyse aus 6 Perspektiven (CTO, VC, Fan, Club, Markt, Wert)
+## 7 Commits
+- 453f0b7: Hydration + i18n + $SCOUT (106 files)
+- 0fa3379: Preis-Info Design System
+- f5afea9: Empty State Icons
+- ed8e9be: Fantasy 6er→7er (14 files + DB)
+- 8a083fc: silver→silber + DPC 300 (9 files + DB)
+- 297e5b6: Salary Cap Cents Fix
 ## Offene Arbeit
-- TradeSuccessEffect ist gebaut aber noch nicht in den Trade-Flow integriert
-- UpcomingFixtures Difficulty-Farben immer default (opponent position nicht im Fixture-Type)
-- Visuelles QA auf Dev-Server steht aus (360px + Desktop)
-## Naechste Aktion
-- Dev-Server starten, Player Detail visuell pruefen
-- TradeSuccessEffect in usePlayerTrading Hook integrieren
-- PlayerHero horizontal Layout fuer Mobile implementieren (Design Spec Section 1)
-## Aktive Entscheidungen
-- Percentile: Client-side aus vollem Spieler-Pool (Entscheidung Anil)
-- Fixture Difficulty: Kombi aus Liga-Position + L5-Form (Entscheidung Anil)
-- P&L nur fuer eingeloggten User sichtbar (Entscheidung Anil)
-- Card Mastery Tiers inkl. animierte Lv4-5 jetzt, nicht nach Pilot (Entscheidung Anil)
-- Trade Success: Gold-Partikel-Burst statt Konfetti (Entscheidung Anil)
+- Wording-Compliance-Scan (TradingDisclaimer auf allen $SCOUT/DPC Seiten)
+- Onboarding Tutorial (neue User verstehen DPCs nicht)
+- Visual Polish: Trading Card Image-Fallback, Home Dashboard fuer neue User
+- Remaining hardcoded strings in Admin-only pages (LOW priority)
+## Learnings (→ memory/)
+- feedback_quality_review_workflow.md: Never build during dev, HMR traps, max 2-3 agents
+- feedback_i18n_namespace_trap.md: Verify JSON namespace with node require()
+- mounted state pattern fuer Hydration (nicht suppressHydrationWarning auf Link)
+- Frischer Browser-Context fuer Tests (alter Context cached alte Chunks)
 ## Blocker
 - Keine
