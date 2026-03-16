@@ -3194,7 +3194,12 @@
     "ctaSubtitle": "BeScout'u canlı görün veya kulüp sayfanızı keşfedin",
     "ctaDemo": "Canlı Demo Başlat",
     "ctaClubPage": "Kulüp Sayfasını Gör",
-    "ctaContact": "İletişim"
+    "ctaContact": "İletişim",
+    "foundingPassTitle": "Founding Pass'lar",
+    "foundingPassSubtitle": "Founding Member ol ve kalıcı kurucu statüsünü kazan. 10.000 Pass ile sınırlı — pilot sonrasında mevcut değil.",
+    "foundingPassPopular": "Popüler",
+    "foundingPassCta": "Pass al",
+    "foundingPassDisclaimer": "Founding Pass'lar sınırlıdır. Credits platform erişimi içindir. Garantili dış değer yoktur."
   },
   "tips": {
     "marketTitle": "İlk Scout Card'n",

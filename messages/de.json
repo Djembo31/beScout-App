@@ -3194,7 +3194,12 @@
     "ctaSubtitle": "Sehen Sie BeScout live oder entdecken Sie die Club-Seite",
     "ctaDemo": "Live Demo starten",
     "ctaClubPage": "Club-Seite ansehen",
-    "ctaContact": "Kontakt"
+    "ctaContact": "Kontakt",
+    "foundingPassTitle": "Founding Passes",
+    "foundingPassSubtitle": "Werde Founding Member und sichere dir permanenten Gründer-Status. Limitiert auf 10.000 Passes — nach der Pilotphase nicht mehr verfügbar.",
+    "foundingPassPopular": "Beliebt",
+    "foundingPassCta": "Pass sichern",
+    "foundingPassDisclaimer": "Founding Passes sind limitiert. Credits dienen dem Plattformzugang. Kein garantierter externer Wert."
   },
   "tips": {
     "marketTitle": "Dein erstes Scout Card",

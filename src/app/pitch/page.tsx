@@ -18,6 +18,10 @@ import {
   Mail,
   Monitor,
   Globe,
+  Crown,
+  Ticket,
+  Search,
+  Zap,
 } from 'lucide-react';
 
 // ─── Types ──────────────────────────────────────────
@@ -372,6 +376,54 @@ function CTASection() {
   );
 }
 
+// ─── Founding Pass Section (User) ────────────────────
+function FoundingPassSection() {
+  const t = useTranslations('pitch');
+  const tiers = [
+    { name: 'Fan Pass', price: '9,99 €', credits: '1.000', icon: Ticket, color: 'text-sky-400', border: 'border-sky-500/20' },
+    { name: 'Scout Pass', price: '29,99 €', credits: '5.000', icon: Search, color: 'text-emerald-400', border: 'border-emerald-500/20' },
+    { name: 'Pro Pass', price: '74,99 €', credits: '20.000', icon: Zap, color: 'text-purple-400', border: 'border-purple-500/20', popular: true },
+    { name: 'Founder Pass', price: '199,99 €', credits: '50.000', icon: Crown, color: 'text-gold', border: 'border-gold/20' },
+  ];
+
+  return (
+    <section className="py-16 px-4">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl font-black text-balance mb-3">{t('foundingPassTitle')}</h2>
+          <p className="text-sm text-white/60 max-w-xl mx-auto text-pretty">{t('foundingPassSubtitle')}</p>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {tiers.map((tier) => (
+            <div key={tier.name} className={cn(
+              'relative p-4 rounded-2xl bg-white/[0.02] border',
+              tier.border,
+              'flex flex-col items-center text-center',
+            )}>
+              {tier.popular && (
+                <div className="absolute -top-2.5 text-[10px] font-bold text-purple-300 bg-purple-500/20 border border-purple-500/30 px-2 py-0.5 rounded-full">{t('foundingPassPopular')}</div>
+              )}
+              <tier.icon className={cn('size-6 mb-2', tier.color)} />
+              <div className="font-black text-sm mb-1">{tier.name}</div>
+              <div className="text-lg font-black text-white mb-2">{tier.price}</div>
+              <div className="text-xs text-white/50 mb-3">{tier.credits} Credits</div>
+              <Link
+                href="/founding"
+                className="w-full py-2 rounded-xl text-xs font-bold text-center bg-gradient-to-r from-[#FFE44D] to-[#E6B800] text-black hover:brightness-110 transition-all"
+              >
+                {t('foundingPassCta')}
+              </Link>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-center text-xs text-white/30 mt-6">{t('foundingPassDisclaimer')}</p>
+      </div>
+    </section>
+  );
+}
+
 // ─── Main Page ──────────────────────────────────────
 export default function PitchPage() {
   return (
@@ -393,6 +445,7 @@ export default function PitchPage() {
       <CalculatorSection />
       <RegionSection />
       <FoundingPartnerSection />
+      <FoundingPassSection />
       <CTASection />
 
       {/* Footer */}
