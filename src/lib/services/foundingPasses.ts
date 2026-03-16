@@ -10,7 +10,7 @@ import { compareTiers } from '@/lib/foundingPasses';
 export async function getUserFoundingPasses(userId: string): Promise<DbUserFoundingPass[]> {
   const { data, error } = await supabase
     .from('user_founding_passes')
-    .select('id, user_id, tier, price_eur_cents, bcredits_granted, migration_bonus_pct, payment_reference, granted_by, created_at')
+    .select('id, user_id, tier, pass_number, price_eur_cents, bcredits_granted, migration_bonus_pct, payment_reference, granted_by, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 

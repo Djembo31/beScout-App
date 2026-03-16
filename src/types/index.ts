@@ -1592,6 +1592,7 @@ export type DbUserFoundingPass = {
   id: string;
   user_id: string;
   tier: FoundingPassTier;
+  pass_number: number;
   price_eur_cents: number;
   bcredits_granted: number;
   migration_bonus_pct: number;
