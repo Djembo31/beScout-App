@@ -4129,5 +4129,33 @@
     "showShortcuts": "Kısayolları göster",
     "closeModal": "Modalı kapat",
     "hint": "Bu pencereyi açmak için ? tuşuna basın"
+  },
+  "founding": {
+    "title": "Founding Pass",
+    "subtitle": "Kurucu topluluğun bir parçası ol. Founding statüsü kalıcıdır.",
+    "totalCounter": "{total} üzerinden {count} dağıtıldı",
+    "tierCounter": "{count} / {limit} dağıtıldı",
+    "credits": "{amount} Kredi",
+    "feeDiscount": "-{bps} bps İşlem Ücreti",
+    "buyButton": "Şimdi al",
+    "popular": "Popüler",
+    "confirmTitle": "Founding Pass satın al",
+    "confirmDesc": "{tier} için {price} ödeyeceksin. Cüzdanına {credits} Kredi yüklenecek.",
+    "confirmButton": "Satın al",
+    "cancelButton": "İptal",
+    "successToast": "Founding Pass aktif!",
+    "alreadyMember": "Kurucu üyesin!",
+    "alreadyMemberDesc": "{tier} sahibisin. Kurucu statün kalıcıdır.",
+    "disclaimer": "Founding Pass sayısı sınırlıdır ve pilot aşamasından sonra satışa sunulmayacaktır. Krediler platform erişimi içindir. Harici değer garantisi yoktur.",
+    "extraAccess": "Anında platform erişimi",
+    "extraBadge": "Founding Member rozeti",
+    "extraIpoEarly": "IPO erken erişim",
+    "extraBetaFeatures": "Beta özelliklere erken erişim",
+    "extraPrivateChannel": "Özel topluluk kanalı",
+    "extraGenesisBadge": "Genesis Founder rozeti",
+    "extraDirectLine": "Ekiple doğrudan iletişim",
+    "extraFoundersWall": "Founders Wall'da ismin",
+    "migrationBonus": "+{pct}% Geçiş Bonusu",
+    "loginRequired": "Founding Pass satın almak için giriş yap."
   }
 }

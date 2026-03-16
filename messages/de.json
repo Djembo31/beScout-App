@@ -4129,5 +4129,33 @@
     "showShortcuts": "Tastenkürzel anzeigen",
     "closeModal": "Modal schließen",
     "hint": "Drücke ? um diese Übersicht zu öffnen"
+  },
+  "founding": {
+    "title": "Founding Passes",
+    "subtitle": "Werde Teil der Gründungs-Community. Founding Status ist permanent.",
+    "totalCounter": "{count} von {total} vergeben",
+    "tierCounter": "{count} / {limit} vergeben",
+    "credits": "{amount} Credits",
+    "feeDiscount": "-{bps} bps Trading Fee",
+    "buyButton": "Jetzt sichern",
+    "popular": "Beliebt",
+    "confirmTitle": "Founding Pass kaufen",
+    "confirmDesc": "Du kaufst den {tier} für {price}. Du erhältst {credits} Credits auf dein Wallet.",
+    "confirmButton": "Kaufen",
+    "cancelButton": "Abbrechen",
+    "successToast": "Founding Pass aktiviert!",
+    "alreadyMember": "Du bist Founding Member!",
+    "alreadyMemberDesc": "Du hast den {tier}. Dein Founding Status ist permanent.",
+    "disclaimer": "Founding Passes sind limitiert und nach der Pilotphase nicht mehr verfügbar. Credits dienen dem Plattformzugang. Kein garantierter externer Wert.",
+    "extraAccess": "Sofortiger Plattformzugang",
+    "extraBadge": "Founding Member Badge",
+    "extraIpoEarly": "IPO Early Access",
+    "extraBetaFeatures": "Beta Features Early Access",
+    "extraPrivateChannel": "Private Community-Channel",
+    "extraGenesisBadge": "Genesis Founder Badge",
+    "extraDirectLine": "Direkter Draht zum Team",
+    "extraFoundersWall": "Name auf der Founders Wall",
+    "migrationBonus": "+{pct}% Migration Bonus",
+    "loginRequired": "Bitte melde dich an, um einen Founding Pass zu kaufen."
   }
 }

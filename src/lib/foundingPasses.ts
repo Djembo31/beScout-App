@@ -30,10 +30,10 @@ export const FOUNDING_PASS_TIERS: FoundingPassTierDef[] = [
     name: 'Fan Pass',
     priceEurCents: 999,
     priceLabel: '9,99 €',
-    bcreditsCents: 250_000,
-    bcreditsLabel: '2.500',
+    bcreditsCents: 100_000,
+    bcreditsLabel: '1.000',
     migrationBonusPct: 15,
-    extras: ['Early Access', 'Fan-Badge'],
+    extras: ['founding.extraAccess', 'founding.extraBadge'],
     color: 'sky',
     icon: 'ticket',
   },
@@ -42,10 +42,10 @@ export const FOUNDING_PASS_TIERS: FoundingPassTierDef[] = [
     name: 'Scout Pass',
     priceEurCents: 2999,
     priceLabel: '29,99 €',
-    bcreditsCents: 1_000_000,
-    bcreditsLabel: '10.000',
+    bcreditsCents: 500_000,
+    bcreditsLabel: '5.000',
     migrationBonusPct: 25,
-    extras: ['Early Access', 'Priority Queue', 'Rare Cosmetic'],
+    extras: ['founding.extraAccess', 'founding.extraBadge', 'founding.extraIpoEarly'],
     color: 'emerald',
     icon: 'search',
   },
@@ -54,10 +54,10 @@ export const FOUNDING_PASS_TIERS: FoundingPassTierDef[] = [
     name: 'Pro Pass',
     priceEurCents: 7499,
     priceLabel: '74,99 €',
-    bcreditsCents: 3_500_000,
-    bcreditsLabel: '35.000',
+    bcreditsCents: 2_000_000,
+    bcreditsLabel: '20.000',
     migrationBonusPct: 35,
-    extras: ['Early Access', 'Priority Queue', 'Epic Cosmetic'],
+    extras: ['founding.extraAccess', 'founding.extraBadge', 'founding.extraIpoEarly', 'founding.extraBetaFeatures', 'founding.extraPrivateChannel'],
     color: 'purple',
     icon: 'zap',
   },
@@ -66,14 +66,25 @@ export const FOUNDING_PASS_TIERS: FoundingPassTierDef[] = [
     name: 'Founder Pass',
     priceEurCents: 19999,
     priceLabel: '199,99 €',
-    bcreditsCents: 10_000_000,
-    bcreditsLabel: '100.000',
+    bcreditsCents: 5_000_000,
+    bcreditsLabel: '50.000',
     migrationBonusPct: 50,
-    extras: ['Early Access', 'Priority Queue', 'VIP-Zugang', 'Legendary Cosmetic', '"Gründer" Titel'],
+    extras: ['founding.extraAccess', 'founding.extraBadge', 'founding.extraIpoEarly', 'founding.extraBetaFeatures', 'founding.extraPrivateChannel', 'founding.extraGenesisBadge', 'founding.extraDirectLine', 'founding.extraFoundersWall'],
     color: 'gold',
     icon: 'crown',
   },
 ];
+
+/** Tier limits (total passes per tier) */
+export const FOUNDING_PASS_LIMITS: Record<FoundingPassTier, number> = {
+  fan: 5_000,
+  scout: 3_000,
+  pro: 1_500,
+  founder: 500,
+};
+
+/** Total founding passes limit */
+export const FOUNDING_PASS_TOTAL_LIMIT = 10_000;
 
 // ============================================
 // CONSTANTS
