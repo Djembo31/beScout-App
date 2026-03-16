@@ -313,6 +313,9 @@
     "welcomeBonusTitle": "BeScout'a hoş geldin!",
     "welcomeBonusDesc": "Başlamak için {balance} Credits'in var. İlk oyuncunu satın al ve topluluğun parçası ol.",
     "welcomeBonusAction": "Pazar yerine git",
+    "foundingUpsellTitle": "Founding Pass al",
+    "foundingUpsellDesc": "Kalıcı kurucu statüsü, düşük ücretler, özel etkinlikler",
+    "foundingUpsellCta": "Detaylar",
     "hero": {
       "startTitle": "Scout Rütben",
       "startCta": "Top Scout olma yolculuğuna başla",

@@ -12,7 +12,7 @@ import { fmtScout, cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import {
-  Clock, Trophy, Users, Rocket,
+  Clock, Trophy, Users, Rocket, Crown,
   Shield, Compass, Coins, TrendingUp, TrendingDown,
   ShoppingCart, Swords, Target, MessageSquare,
 } from 'lucide-react';
@@ -64,6 +64,7 @@ const StreakMilestoneBanner = dynamic(() => import('@/components/home/StreakMile
 const SuggestedActionBanner = dynamic(() => import('@/components/home/SuggestedActionBanner'), { ssr: false });
 
 import type { DpcHolding, DbEvent, Pos } from '@/types';
+import { useHighestPass } from '@/lib/queries/foundingPasses';
 import { getRetentionContext } from '@/lib/retentionEngine';
 import { getStreakBenefits } from '@/lib/streakBenefits';
 
@@ -98,6 +99,7 @@ export default function HomePage() {
   const { data: todaysChallenge = null, isLoading: challengeLoading } = useTodaysChallenge();
   const { data: challengeHistory = [] } = useChallengeHistory(uid);
   const { data: ticketData = null } = useUserTickets(uid);
+  const { data: highestPass } = useHighestPass(uid);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMysteryBox, setShowMysteryBox] = useState(false);
 
@@ -283,6 +285,23 @@ export default function HomePage() {
       {/* ── 0. WELCOME BONUS MODAL — First-time celebration ── */}
       {holdings.length === 0 && balanceCents != null && balanceCents > 0 && (
         <WelcomeBonusModal balanceCents={balanceCents} />
+      )}
+
+      {/* ── 0b. FOUNDING PASS UPSELL — Only for users without a pass ── */}
+      {uid && !highestPass && (
+        <Link
+          href="/founding"
+          className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-gradient-to-r from-gold/[0.06] to-gold/[0.02] border border-gold/20 hover:border-gold/30 transition-colors group"
+        >
+          <div className="size-8 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center shrink-0">
+            <Crown className="size-4 text-gold" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-bold text-gold">{t('foundingUpsellTitle')}</div>
+            <div className="text-xs text-white/50 truncate">{t('foundingUpsellDesc')}</div>
+          </div>
+          <div className="text-xs font-bold text-gold/70 group-hover:text-gold transition-colors shrink-0">{t('foundingUpsellCta')}</div>
+        </Link>
       )}
 
       {/* ── 1. HERO HEADER — Greeting + Stats ── */}

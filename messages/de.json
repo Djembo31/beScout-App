@@ -313,6 +313,9 @@
     "welcomeBonusTitle": "Willkommen bei BeScout!",
     "welcomeBonusDesc": "Du hast {balance} Credits zum Starten. Kaufe deinen ersten Spieler und werde Teil der Community.",
     "welcomeBonusAction": "Zum Marktplatz",
+    "foundingUpsellTitle": "Founding Pass sichern",
+    "foundingUpsellDesc": "Permanenter Gründer-Status, niedrigere Fees, exklusive Events",
+    "foundingUpsellCta": "Mehr erfahren",
     "hero": {
       "startTitle": "Dein Scout-Rang",
       "startCta": "Starte deinen Weg zum Top-Scout",
