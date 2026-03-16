@@ -79,7 +79,7 @@ export const FOUNDING_PASS_TIERS: FoundingPassTierDef[] = [
 // CONSTANTS
 // ============================================
 
-/** Welcome bonus in cents (1.000 $SCOUT) */
+/** Welcome bonus in cents (1.000 Credits) */
 export const WELCOME_BONUS_CENTS = 100_000;
 
 /** Label for users without a founding pass */
