@@ -31,7 +31,8 @@ export default function InviteClubAdminModal({ open, onClose, clubId, clubName, 
 
   const handleSubmit = async () => {
     const trimmed = email.trim().toLowerCase();
-    if (!trimmed || !trimmed.includes('@')) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!trimmed || !emailRegex.test(trimmed)) {
       addToast(t('invalidEmail'), 'error');
       return;
     }

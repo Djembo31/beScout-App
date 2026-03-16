@@ -102,28 +102,43 @@ export const EventDetailModal = ({
 
   // Load leaderboard when switching to tab or when event is scored
   useEffect(() => {
-    if (isOpen && event && (tab === 'leaderboard' || event.scoredAt)) {
-      setLeaderboardLoading(true);
-      getEventLeaderboard(event.id)
-        .then(setLeaderboard)
-        .finally(() => setLeaderboardLoading(false));
+    if (!isOpen || !event || (tab !== 'leaderboard' && !event.scoredAt)) return;
+    let cancelled = false;
+    setLeaderboardLoading(true);
+    getEventLeaderboard(event.id)
+      .then(data => { if (!cancelled) setLeaderboard(data); })
+      .catch(err => console.error('[EventDetail] Leaderboard fetch failed:', err))
+      .finally(() => { if (!cancelled) setLeaderboardLoading(false); });
+
+    // Poll leaderboard every 30s while event is running
+    let interval: ReturnType<typeof setInterval> | undefined;
+    if (event.status === 'running') {
+      interval = setInterval(() => {
+        getEventLeaderboard(event.id)
+          .then(data => { if (!cancelled) setLeaderboard(data); })
+          .catch(err => console.error('[EventDetail] Leaderboard poll failed:', err));
+      }, 30_000);
     }
-  }, [isOpen, event?.id, tab, event?.scoredAt]);
+    return () => { cancelled = true; if (interval) clearInterval(interval); };
+  }, [isOpen, event?.id, tab, event?.scoredAt, event?.status]);
 
   // Poll progressive scores when event is running and user has a lineup
   useEffect(() => {
     if (!isOpen || !event || event.status !== 'running' || !event.isJoined || !event.gameweek) return;
     if (selectedPlayers.length === 0) return;
+    let cancelled = false;
 
     const loadScores = () => {
       const playerIds = selectedPlayers.map(p => p.playerId).filter(Boolean);
       if (playerIds.length === 0) return;
-      getProgressiveScores(event.gameweek!, playerIds).then(setProgressiveScores).catch(console.error);
+      getProgressiveScores(event.gameweek!, playerIds)
+        .then(data => { if (!cancelled) setProgressiveScores(data); })
+        .catch(err => console.error('[EventDetail] Progressive scores failed:', err));
     };
 
     loadScores();
     const interval = setInterval(loadScores, 60_000);
-    return () => clearInterval(interval);
+    return () => { cancelled = true; clearInterval(interval); };
   }, [isOpen, event?.id, event?.status, event?.gameweek, selectedPlayers.length]);
 
   // Handle reset event (testing tool)
@@ -533,6 +548,7 @@ export const EventDetailModal = ({
               leaderboard={leaderboard}
               leaderboardLoading={leaderboardLoading}
               isScored={isScored}
+              isPolling={event.status === 'running' && !leaderboardLoading}
             />
           )}
 

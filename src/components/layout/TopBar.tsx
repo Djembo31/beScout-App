@@ -95,7 +95,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
       addToast(t('pushError'), 'error');
     }
     finally { setPushLoading(false); }
-  }, [user, pushEnabled, addToast]);
+  }, [user, pushEnabled, addToast, t]);
 
   // Close spotlight on route change
   useEffect(() => {

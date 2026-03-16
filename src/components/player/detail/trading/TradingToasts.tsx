@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { CheckCircle2, XCircle } from 'lucide-react';
 
 interface TradingToastsProps {
@@ -10,6 +11,7 @@ interface TradingToastsProps {
 }
 
 export default function TradingToasts({ buySuccess, buyError, shared, onShareTrade }: TradingToastsProps) {
+  const t = useTranslations('playerDetail');
   return (
     <>
       {buySuccess && (
@@ -23,7 +25,7 @@ export default function TradingToasts({ buySuccess, buyError, shared, onShareTra
               onClick={onShareTrade}
               className="mt-2 flex items-center gap-1.5 px-3 py-1.5 bg-green-500/20 hover:bg-green-500/30 rounded-lg text-xs font-bold text-green-500 transition-all"
             >
-              In Community teilen
+              {t('shareInCommunity', { defaultMessage: 'In Community teilen' })}
             </button>
           )}
         </div>

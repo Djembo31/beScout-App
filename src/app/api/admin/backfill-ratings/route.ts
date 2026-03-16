@@ -38,6 +38,9 @@ export async function POST(req: Request) {
   const gameweeks: number[] = [];
   if (typeof gwInput === 'string' && gwInput.includes('-')) {
     const [start, end] = gwInput.split('-').map(Number);
+    if (isNaN(start) || isNaN(end) || end - start > 38) {
+      return NextResponse.json({ error: 'Invalid range (max 38 gameweeks)' }, { status: 400 });
+    }
     for (let i = start; i <= end; i++) gameweeks.push(i);
   } else {
     gameweeks.push(Number(gwInput));

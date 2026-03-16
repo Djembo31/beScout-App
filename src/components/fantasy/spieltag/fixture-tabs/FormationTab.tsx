@@ -94,9 +94,11 @@ function splitStartersBench(stats: FixturePlayerStat[], dbFormation?: string | n
       // Remove GK from bench, demote lowest-minutes starter
       bench = bench.filter(s => s !== benchGk);
       starters.sort((a, b) => b.minutes_played - a.minutes_played);
-      const demoted = starters.pop()!;
-      starters.push(benchGk);
-      bench.push(demoted);
+      const demoted = starters.pop();
+      if (demoted) {
+        starters.push(benchGk);
+        bench.push(demoted);
+      }
     }
   }
 

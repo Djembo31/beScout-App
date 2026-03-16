@@ -56,9 +56,10 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
           .in('user_id', userIds);
         const sm = new Map<string, number>();
         for (const row of scoreRows ?? []) {
-          const vals = [row.trader_score as number, row.manager_score as number, row.analyst_score as number];
+          const vals = [row.trader_score as number, row.manager_score as number, row.analyst_score as number].filter(v => typeof v === 'number' && !isNaN(v));
+          if (vals.length === 0) continue;
           const sorted = [...vals].sort((a: number, b: number) => a - b);
-          sm.set(row.user_id as string, sorted[1]); // median
+          sm.set(row.user_id as string, sorted[Math.floor(sorted.length / 2)]); // median
         }
         setScoresMap(sm);
       }

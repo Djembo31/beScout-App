@@ -3880,7 +3880,8 @@
     "limitOrderComingSoonDesc": "Limit Orders befinden sich in Entwicklung. Wir benachrichtigen dich, sobald sie verfuegbar sind.",
     "limitOrderOk": "Verstanden",
     "clubSaleLabel": "Club Verkauf",
-    "transferListLabel": "Transferliste"
+    "transferListLabel": "Transferliste",
+    "shareInCommunity": "In Community teilen"
   },
   "pwa": {
     "installTitle": "App installieren",

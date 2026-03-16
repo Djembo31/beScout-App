@@ -76,8 +76,8 @@ export default function AdminContent({ slug }: { slug: string }) {
           router.replace(`/club/${slug}`);
           return;
         }
-        // Platform admin override: synthetic owner access
-        if (platformRole && !data.is_admin) {
+        // Platform admin override: only superadmin gets synthetic owner access
+        if (platformRole === 'superadmin' && !data.is_admin) {
           data.is_admin = true;
           data.admin_role = 'owner';
         }
@@ -94,7 +94,7 @@ export default function AdminContent({ slug }: { slug: string }) {
     }
     load();
     return () => { cancelled = true; };
-  }, [slug, user, router]);
+  }, [slug, user, router, platformRole]);
 
   if (loading) {
     return (

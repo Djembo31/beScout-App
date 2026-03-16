@@ -48,7 +48,7 @@ export function usePriceAlerts({ playerId, player }: UsePriceAlertsParams) {
         setPriceAlert(existing);
       }
     }
-  }, [player, playerId, addToast]);
+  }, [player, playerId, addToast, tp]);
 
   const handleSetPriceAlert = useCallback((target: number) => {
     if (!player) return;
@@ -59,7 +59,7 @@ export function usePriceAlerts({ playerId, player }: UsePriceAlertsParams) {
     savePriceAlerts(alerts);
     setPriceAlert({ target, dir });
     addToast(tp('priceAlertSet', { symbol: dir === 'below' ? '\u2264' : '\u2265', target: fmtScout(target) }), 'success');
-  }, [player, playerId, addToast]);
+  }, [player, playerId, addToast, tp]);
 
   const handleRemovePriceAlert = useCallback(() => {
     const alerts = loadPriceAlerts();

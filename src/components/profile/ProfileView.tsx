@@ -9,12 +9,12 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { getHoldings, getTransactions, formatScout } from '@/lib/services/wallet';
 import { getMyPayouts } from '@/lib/services/creatorFund';
-import { getUserStats, refreshUserStats, getFollowerCount, getFollowingCount, checkAndUnlockAchievements, isFollowing as checkIsFollowing, followUser, unfollowUser } from '@/lib/services/social';
+import { getUserStats, refreshUserStats, getFollowerCount, getFollowingCount, checkAndUnlockAchievements, isFollowing as checkIsFollowing, followUser, unfollowUser, getUserAchievements } from '@/lib/services/social';
 import { getResearchPosts, getAuthorTrackRecord, resolveExpiredResearch } from '@/lib/services/research';
 import { getUserTrades } from '@/lib/services/trading';
 import { getUserFantasyHistory } from '@/lib/services/lineups';
 import { val } from '@/lib/settledHelpers';
-import { supabase } from '@/lib/supabaseClient';
+
 import { ScoutCard } from '@/components/profile/ScoutCard';
 import FollowListModal from '@/components/profile/FollowListModal';
 import { getMySubscription } from '@/lib/services/clubSubscriptions';
@@ -112,7 +112,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
           getAuthorTrackRecord(targetUserId),
           getUserTrades(targetUserId, 10),
           getUserFantasyHistory(targetUserId, 10),
-          supabase.from('user_achievements').select('achievement_key').eq('user_id', targetUserId).then(r => r.data ?? []),
+          getUserAchievements(targetUserId).then(rows => rows.map(r => ({ achievement_key: r.achievement_key }))),
           isSelf ? getMyPayouts(targetUserId) : Promise.resolve([]),
         ]);
         if (!cancelled) {

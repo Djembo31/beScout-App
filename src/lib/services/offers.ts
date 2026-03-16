@@ -140,6 +140,10 @@ export async function createOffer(params: {
   message?: string;
   expiresHours?: number;
 }): Promise<OfferResult> {
+  // Validate message length to prevent abuse
+  if (params.message && params.message.length > 500) {
+    return { success: false, error: 'Message too long (max 500 chars)' };
+  }
   const { data, error } = await supabase.rpc('create_offer', {
     p_sender_id: params.senderId,
     p_player_id: params.playerId,

@@ -583,11 +583,36 @@ export async function updateClubFantasySettings(clubId: string, settings: Partia
 // Club Branding
 // ============================================
 
-/** Update club branding colors (owner only) */
+/** Update club branding colors (owner only — verifies caller is club admin) */
 export async function updateClubBranding(
   clubId: string,
   branding: { primary_color?: string | null; secondary_color?: string | null }
 ): Promise<{ success: boolean; error?: string }> {
+  // Verify caller is authenticated
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'Not authenticated' };
+
+  // Verify caller is owner/admin of this club
+  const { data: adminRow } = await supabase
+    .from('club_admins')
+    .select('role')
+    .eq('user_id', user.id)
+    .eq('club_id', clubId)
+    .maybeSingle();
+
+  if (!adminRow || !['owner', 'admin'].includes(adminRow.role)) {
+    return { success: false, error: 'Not authorized' };
+  }
+
+  // Validate color format (hex only)
+  const hexPattern = /^#[0-9a-fA-F]{6}$/;
+  if (branding.primary_color && !hexPattern.test(branding.primary_color)) {
+    return { success: false, error: 'Invalid primary color format' };
+  }
+  if (branding.secondary_color && !hexPattern.test(branding.secondary_color)) {
+    return { success: false, error: 'Invalid secondary color format' };
+  }
+
   const { error } = await supabase
     .from('clubs')
     .update({ ...branding, updated_at: new Date().toISOString() })

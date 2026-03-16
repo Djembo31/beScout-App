@@ -148,7 +148,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
             </div>
           </div>
 
-          {/* Max price per DPC */}
+          {/* Max price per Scout Card */}
           <div>
             <label className="text-[11px] text-white/40 font-bold uppercase mb-1.5 block">{t('maxPrice')}</label>
             <div className="relative">

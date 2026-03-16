@@ -12,7 +12,7 @@ interface CountdownBadgeProps {
 }
 
 function formatRemaining(ms: number): string {
-  if (ms <= 0) return 'Beendet';
+  if (ms <= 0) return '\u2014';
   const days = Math.floor(ms / 86400000);
   const hours = Math.floor((ms % 86400000) / 3600000);
   const mins = Math.floor((ms % 3600000) / 60000);

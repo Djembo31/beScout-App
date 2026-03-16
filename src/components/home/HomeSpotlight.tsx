@@ -100,8 +100,8 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
                 </div>
               </div>
               <div className="text-right shrink-0">
-                <div className="text-[11px] text-white/40 mb-0.5">Preisgeld</div>
-                <div className="text-xl font-black font-mono text-gold gold-glow">
+                <div className="text-[11px] text-white/40 mb-0.5">{t('prizeMoney')}</div>
+                <div className="text-xl font-black font-mono tabular-nums text-gold gold-glow">
                   {formatPrize(centsToBsd(nextEvent.prize_pool))}
                 </div>
                 <div className="text-[11px] text-white/40">Credits</div>

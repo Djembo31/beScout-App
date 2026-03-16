@@ -84,6 +84,7 @@ export const qk = {
   // ── Research ──
   research: {
     list: (p?: Record<string, unknown>) => ['research', p] as const,
+    sentiment: (pid: string) => ['research', 'sentiment', pid] as const,
   },
 
   // ── Bounties ──

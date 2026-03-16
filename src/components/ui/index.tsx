@@ -146,7 +146,7 @@ export function Modal({ open, title, subtitle, children, footer, onClose, preven
     }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  }, [open, onClose]);
+  }, [open, onClose, preventClose]);
 
   // Lock body scroll when modal is open
   useEffect(() => {

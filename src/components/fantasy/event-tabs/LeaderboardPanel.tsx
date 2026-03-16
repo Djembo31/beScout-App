@@ -24,6 +24,7 @@ export interface LeaderboardPanelProps {
   leaderboard: LeaderboardEntry[];
   leaderboardLoading: boolean;
   isScored: boolean;
+  isPolling?: boolean;
 }
 
 export default function LeaderboardPanel({
@@ -32,6 +33,7 @@ export default function LeaderboardPanel({
   leaderboard,
   leaderboardLoading,
   isScored,
+  isPolling,
 }: LeaderboardPanelProps) {
   const t = useTranslations('fantasy');
   const locale = useLocale();
@@ -210,6 +212,12 @@ export default function LeaderboardPanel({
             </div>
           ) : (
             <>
+              {isPolling && (
+                <div className="flex items-center justify-center gap-1.5 mb-2 text-[10px] text-green-400/60 font-bold uppercase tracking-wider" role="status" aria-label={t('liveUpdating', { defaultMessage: 'Rangliste wird live aktualisiert' })}>
+                  <span className="size-1.5 rounded-full bg-green-500 animate-pulse motion-reduce:animate-none" aria-hidden="true" />
+                  Live
+                </div>
+              )}
               {isScored && (
                 <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl mb-3 text-center">
                   <div className="text-xs text-purple-300">{t('scoredAt', { date: new Date(event.scoredAt!).toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) })}</div>
@@ -230,10 +238,10 @@ export default function LeaderboardPanel({
                         setViewingUserLoading(false);
                       }
                     }}
-                    className={`w-full flex items-center justify-between p-4 rounded-lg border transition-all hover:brightness-110 cursor-pointer ${isCurrentUser ? 'bg-gold/10 border-gold/30' : 'bg-surface-base border-white/10 hover:border-white/20'}`}
+                    className={`w-full flex items-center justify-between p-4 min-h-[44px] rounded-lg border transition-all hover:brightness-110 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 ${isCurrentUser ? 'bg-gold/10 border-gold/30' : 'bg-surface-base border-white/10 hover:border-white/20'}`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`size-8 rounded-lg flex items-center justify-center font-bold text-sm ${entry.rank === 1 ? 'bg-gold/20 text-gold' :
+                      <div className={`size-8 rounded-lg flex items-center justify-center font-mono font-bold tabular-nums text-sm ${entry.rank === 1 ? 'bg-gold/20 text-gold' :
                         entry.rank === 2 ? 'bg-white/10 text-white/70' :
                           entry.rank === 3 ? 'bg-orange-500/20 text-orange-400' :
                             'bg-white/5 text-white/50'
@@ -261,9 +269,9 @@ export default function LeaderboardPanel({
                     </div>
                     <div className="flex items-center gap-3">
                       {entry.rewardAmount > 0 && (
-                        <span className="text-xs font-mono text-green-500">+{fmtScout(entry.rewardAmount / 100)} CR</span>
+                        <span className="text-xs font-mono tabular-nums text-green-500">+{fmtScout(entry.rewardAmount / 100)} CR</span>
                       )}
-                      <span className="font-mono font-bold">{entry.totalScore}</span>
+                      <span className="font-mono font-bold tabular-nums">{entry.totalScore}</span>
                       <ChevronRight aria-hidden="true" className="size-4 text-white/30" />
                     </div>
                   </button>

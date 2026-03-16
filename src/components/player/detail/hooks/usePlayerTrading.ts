@@ -97,7 +97,7 @@ export function usePlayerTrading({
       }
     } catch (err) { setBuyError(te(mapErrorToKey(normalizeError(err)))); }
     finally { buyingRef.current = false; setBuying(false); }
-  }, [userId, player, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, queryClient, refreshBalance, t, tc]);
+  }, [userId, player, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, queryClient, refreshBalance, t, te]);
 
   const handleBuy = useCallback((quantity: number) => {
     if (!userId || !player || player.isLiquidated) return;
@@ -126,7 +126,7 @@ export function usePlayerTrading({
       }
     } catch (err) { setBuyError(te(mapErrorToKey(normalizeError(err)))); }
     finally { ipoBuyingRef.current = false; setIpoBuying(false); }
-  }, [userId, activeIpo, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, queryClient, refreshBalance, t, tc]);
+  }, [userId, activeIpo, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, queryClient, refreshBalance, t, te]);
 
   const handleSell = useCallback(async (quantity: number, priceCents: number) => {
     if (!userId || player?.isLiquidated || sellingRef.current) return;
@@ -143,7 +143,7 @@ export function usePlayerTrading({
       }
     } catch (err) { setSellError(te(mapErrorToKey(normalizeError(err)))); }
     finally { sellingRef.current = false; setSelling(false); }
-  }, [userId, player, playerId, invalidateAfterTrade, t, tc]);
+  }, [userId, player, playerId, invalidateAfterTrade, t, te]);
 
   const handleCancelOrder = useCallback(async (orderId: string) => {
     if (!userId) return;
@@ -161,7 +161,7 @@ export function usePlayerTrading({
       }
     } catch (err) { setBuyError(te(mapErrorToKey(normalizeError(err)))); }
     finally { setCancellingId(null); }
-  }, [userId, playerId, invalidateAfterTrade, queryClient, t, tc]);
+  }, [userId, playerId, invalidateAfterTrade, queryClient, t, te]);
 
   const handleCreateOffer = useCallback(async () => {
     if (!userId || !offerPrice) return;
@@ -180,7 +180,7 @@ export function usePlayerTrading({
       } else { addToast(result.error ?? tc('unknownError'), 'error'); }
     } catch (e) { addToast(te(mapErrorToKey(normalizeError(e))), 'error'); }
     finally { setOfferLoading(false); }
-  }, [userId, offerPrice, offerMessage, playerId, addToast, queryClient, t, tc]);
+  }, [userId, offerPrice, offerMessage, playerId, addToast, queryClient, t, tc, te]);
 
   const handleAcceptBid = useCallback(async (offerId: string) => {
     if (!userId || acceptingBidId) return;
@@ -193,7 +193,7 @@ export function usePlayerTrading({
       } else { addToast(result.error ?? tc('unknownError'), 'error'); }
     } catch (e) { addToast(te(mapErrorToKey(normalizeError(e))), 'error'); }
     finally { setAcceptingBidId(null); }
-  }, [userId, acceptingBidId, playerId, addToast, invalidateAfterTrade, t, tc]);
+  }, [userId, acceptingBidId, playerId, addToast, invalidateAfterTrade, t, tc, te]);
 
   const handleShareTrade = useCallback(async () => {
     if (!userId || !player || shared) return;

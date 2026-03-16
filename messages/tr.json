@@ -3880,7 +3880,8 @@
     "limitOrderComingSoonDesc": "Limit emirler geliştirme aşamasında. Hazır olduğunda seni bilgilendireceğiz.",
     "limitOrderOk": "Anladım",
     "clubSaleLabel": "Kulüp Satışı",
-    "transferListLabel": "Transfer Listesi"
+    "transferListLabel": "Transfer Listesi",
+    "shareInCommunity": "Toplulukta paylaş"
   },
   "pwa": {
     "installTitle": "Uygulamayı Yükle",

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { Zap, ShoppingCart, Info, AlertCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
@@ -9,12 +9,13 @@ import { PlayerIdentity } from '@/components/player';
 import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getPlayerSentimentCounts } from '@/lib/services/research';
+import { qk } from '@/lib/queries/keys';
 import type { Player } from '@/types';
 
 /** Lightweight sentiment counts for a single player (only fetched when modal opens) */
 function usePlayerSentiment(playerId: string, enabled: boolean) {
   return useQuery({
-    queryKey: ['sentiment', playerId],
+    queryKey: qk.research.sentiment(playerId),
     queryFn: () => getPlayerSentimentCounts(playerId),
     enabled,
     staleTime: 60_000,
@@ -48,6 +49,11 @@ export default function BuyConfirmModal({
   const tp = useTranslations('playerDetail');
   const [qty, setQty] = useState(1);
   const { data: sentiment } = usePlayerSentiment(player.id, open);
+
+  // Reset qty when modal opens with a different player
+  useEffect(() => {
+    if (open) setQty(1);
+  }, [open, player.id]);
 
   const priceBsd = centsToBsd(priceCents);
   const isMarket = source === 'market';

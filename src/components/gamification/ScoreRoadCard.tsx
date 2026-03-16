@@ -71,7 +71,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
     } else {
       addToast(result.error ?? tg('unknownError'), 'error');
     }
-  }, [userId, addToast, tsr, queryClient]);
+  }, [userId, addToast, tsr, tg, queryClient]);
 
   if (!scores) return null;
 

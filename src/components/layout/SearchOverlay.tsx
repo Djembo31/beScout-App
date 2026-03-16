@@ -124,6 +124,20 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
     return () => clearTimeout(timer);
   }, [query, filter]);
 
+  function scrollToIndex(idx: number) {
+    const el = listRef.current?.querySelector(`[data-idx="${idx}"]`);
+    el?.scrollIntoView({ block: 'nearest' });
+  }
+
+  const navigateTo = useCallback(
+    (r: RichSearchResult) => {
+      if (query.length >= 2) saveRecent(query);
+      router.push(r.href);
+      onClose();
+    },
+    [router, query, onClose],
+  );
+
   // Keyboard navigation
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -153,21 +167,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
         }
       }
     },
-    [results, selectedIndex, query, onClose],
-  );
-
-  function scrollToIndex(idx: number) {
-    const el = listRef.current?.querySelector(`[data-idx="${idx}"]`);
-    el?.scrollIntoView({ block: 'nearest' });
-  }
-
-  const navigateTo = useCallback(
-    (r: RichSearchResult) => {
-      if (query.length >= 2) saveRecent(query);
-      router.push(r.href);
-      onClose();
-    },
-    [router, query, onClose],
+    [results, selectedIndex, query, onClose, navigateTo],
   );
 
   const handleRecentClick = useCallback(
