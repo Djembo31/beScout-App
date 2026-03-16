@@ -82,6 +82,7 @@
     "emailPlaceholder": "E-Mail Adresse",
     "passwordPlaceholder": "Passwort",
     "confirmPasswordPlaceholder": "Passwort bestätigen",
+    "ageConfirmation": "Ich bestätige, dass ich mindestens 18 Jahre alt bin und die AGB sowie die Datenschutzerklärung gelesen und akzeptiert habe.",
     "passwordMinLength": "Passwort muss mindestens 6 Zeichen lang sein.",
     "passwordMismatch": "Passwörter stimmen nicht überein.",
     "invalidCredentials": "E-Mail oder Passwort falsch.",

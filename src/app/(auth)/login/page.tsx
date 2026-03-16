@@ -58,6 +58,7 @@ function LoginContent() {
   );
   const [emailSent, setEmailSent] = useState(false);
   const [registered, setRegistered] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
 
   const handlePasswordAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -342,25 +343,39 @@ function LoginContent() {
                 </div>
 
                 {mode === 'register' && (
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" aria-hidden="true" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder={t('confirmPasswordPlaceholder')}
-                      aria-label={t('confirmPasswordPlaceholder')}
-                      value={passwordConfirm}
-                      onChange={(e) => setPasswordConfirm(e.target.value)}
-                      required
-                      minLength={6}
-                      className={cn(
-                        'w-full pl-11 pr-4 py-3 rounded-xl text-sm',
-                        'bg-white/5 border border-white/10',
-                        'placeholder:text-white/30 text-white',
-                        'focus:outline-none focus:border-gold/40 focus:bg-white/[0.07]',
-                        'transition-colors'
-                      )}
-                    />
-                  </div>
+                  <>
+                    <div className="relative">
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-white/30" aria-hidden="true" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder={t('confirmPasswordPlaceholder')}
+                        aria-label={t('confirmPasswordPlaceholder')}
+                        value={passwordConfirm}
+                        onChange={(e) => setPasswordConfirm(e.target.value)}
+                        required
+                        minLength={6}
+                        className={cn(
+                          'w-full pl-11 pr-4 py-3 rounded-xl text-sm',
+                          'bg-white/5 border border-white/10',
+                          'placeholder:text-white/30 text-white',
+                          'focus:outline-none focus:border-gold/40 focus:bg-white/[0.07]',
+                          'transition-colors'
+                        )}
+                      />
+                    </div>
+                    <label className="flex items-start gap-2.5 cursor-pointer py-1">
+                      <input
+                        type="checkbox"
+                        checked={ageConfirmed}
+                        onChange={(e) => setAgeConfirmed(e.target.checked)}
+                        required
+                        className="mt-0.5 size-4 rounded border-white/20 bg-white/5 text-gold focus:ring-gold/30 accent-gold shrink-0"
+                      />
+                      <span className="text-xs text-white/60 leading-relaxed">
+                        {t('ageConfirmation')}
+                      </span>
+                    </label>
+                  </>
                 )}
 
                 <Button

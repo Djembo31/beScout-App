@@ -82,6 +82,7 @@
     "emailPlaceholder": "E-posta adresi",
     "passwordPlaceholder": "Şifre",
     "confirmPasswordPlaceholder": "Şifreyi onayla",
+    "ageConfirmation": "18 yaşından büyük olduğumu ve Kullanım Koşullarını ve Gizlilik Politikasını okuduğumu ve kabul ettiğimi onaylıyorum.",
     "passwordMinLength": "Şifre en az 6 karakter olmalıdır.",
     "passwordMismatch": "Şifreler eşleşmiyor.",
     "invalidCredentials": "E-posta veya şifre hatalı.",
