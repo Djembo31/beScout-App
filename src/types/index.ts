@@ -1601,6 +1601,23 @@ export type DbUserFoundingPass = {
 };
 
 // ============================================
+// FOUNDER CLUB TYPES
+// ============================================
+
+export type FounderClubTier = 'bronze' | 'silber' | 'gold';
+
+export type DbFounderClub = {
+  id: string;
+  club_id: string;
+  tier: FounderClubTier;
+  shares: number;
+  price_eur_cents: number;
+  payment_reference: string | null;
+  pool_balance_cents: number;
+  created_at: string;
+};
+
+// ============================================
 // TICKET TYPES
 // ============================================
 
