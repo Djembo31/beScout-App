@@ -97,8 +97,8 @@ async function notifyHolders(playerId: string, gameweek: number, score: number):
     createNotification(
       h.user_id,
       'dpc_of_week',
-      `DPC der Woche: ${playerName}`,
-      `${playerName} ist der DPC der Woche (GW ${gameweek}, Score: ${score})! Du besitzt seine DPC.`,
+      `Scout Card der Woche: ${playerName}`,
+      `${playerName} ist die Scout Card der Woche (GW ${gameweek}, Score: ${score})! Du besitzt seine Scout Card.`,
       playerId,
       'player'
     );

@@ -392,7 +392,7 @@ export default function LineupPanel({
                             hasActiveBonus
                               ? 'bg-gold/90 text-black'
                               : 'bg-white/10 text-white/30'
-                          )}>DPC +5%</div>
+                          )}>SC +5%</div>
                         )}
                         {/* LIVE badge for locked players (only if no score yet) */}
                         {player && slotLocked && !hasScore && (
@@ -600,7 +600,7 @@ export default function LineupPanel({
                     <div className="font-medium text-sm flex items-center gap-1.5">
                       {player.first} {player.last}
                       {isCpt && <span className="text-xs font-bold text-gold bg-gold/10 px-1 rounded">C &times;1.5</span>}
-                      {ownershipBonusIds.has(player.id) && <span className="text-[10px] font-bold text-gold bg-gold/[0.08] border border-gold/20 px-1 py-0.5 rounded">DPC +5%</span>}
+                      {ownershipBonusIds.has(player.id) && <span className="text-[10px] font-bold text-gold bg-gold/[0.08] border border-gold/20 px-1 py-0.5 rounded">SC +5%</span>}
                     </div>
                     <div className="text-xs text-white/40 flex items-center gap-1.5">
                       {player.club}
@@ -768,7 +768,7 @@ export default function LineupPanel({
                   showMeta={false}
                 />
                 <div className="text-xs text-white/40 flex items-center flex-wrap gap-1">
-                  <span className={fixtureLocked ? 'text-green-400' : player.isLocked ? 'text-orange-400' : player.dpcAvailable < player.dpcOwned ? 'text-yellow-400' : 'text-white/40'}>{player.dpcAvailable}/{player.dpcOwned} DPC</span>
+                  <span className={fixtureLocked ? 'text-green-400' : player.isLocked ? 'text-orange-400' : player.dpcAvailable < player.dpcOwned ? 'text-yellow-400' : 'text-white/40'}>{player.dpcAvailable}/{player.dpcOwned} SC</span>
                   {player.eventsUsing > 0 && <span className="text-white/30">({player.eventsUsing} Event{player.eventsUsing > 1 ? 's' : ''})</span>}
                   {isSelected && ownedPlayerIds?.has(player.id) && (
                     <span className={cn(
@@ -916,7 +916,7 @@ export default function LineupPanel({
                               ownershipBonusIds.size < 3
                                 ? 'bg-gold/[0.08] border-gold/20 text-gold'
                                 : 'bg-surface-subtle border-white/10 text-white/30'
-                            )}>DPC +5%</span>
+                            )}>SC +5%</span>
                           )}
                           {/* Stats + Score */}
                           <div className="shrink-0 flex items-center gap-2.5">
@@ -926,7 +926,7 @@ export default function LineupPanel({
                                 {player.goals > 0 && <span className="text-xs font-mono bg-white/5 px-1 py-0.5 rounded text-white/50">{player.goals}T</span>}
                                 {player.assists > 0 && <span className="text-xs font-mono bg-white/5 px-1 py-0.5 rounded text-white/50">{player.assists}A</span>}
                               </div>
-                              <span className="text-xs text-white/25 font-mono">{player.dpcAvailable}/{player.dpcOwned} DPC</span>
+                              <span className="text-xs text-white/25 font-mono">{player.dpcAvailable}/{player.dpcOwned} SC</span>
                             </div>
                             {/* L5 Score -- prominent */}
                             <div className="w-10 text-right">

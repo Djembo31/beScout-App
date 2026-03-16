@@ -104,7 +104,7 @@ export default function MarktTab({
                       <div className="text-sm">
                         <span className="text-white/60">@{bid.sender_handle}</span>
                         <span className="text-white/30 mx-2">&middot;</span>
-                        <span className="font-mono tabular-nums text-xs text-white/40">{bid.quantity} DPC</span>
+                        <span className="font-mono tabular-nums text-xs text-white/40">{bid.quantity} SC</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -154,7 +154,7 @@ export default function MarktTab({
                       {listing.sellerName}
                       {listing.verified && <BadgeCheck className="size-3 text-gold" aria-hidden="true" />}
                     </div>
-                    <div className="text-[10px] text-white/40 font-mono tabular-nums">{listing.qty || 1} DPC</div>
+                    <div className="text-[10px] text-white/40 font-mono tabular-nums">{listing.qty || 1} SC</div>
                   </div>
                 </div>
                 <div className="text-right">
@@ -209,7 +209,7 @@ export default function MarktTab({
                 return (
                   <div key={order.id} className={`grid grid-cols-4 gap-2 items-center px-3 py-2 rounded-lg text-sm transition-colors ${isOwn ? 'bg-gold/5 border border-gold/20' : 'bg-surface-base hover:bg-white/[0.04]'}`}>
                     <span className="font-mono font-bold tabular-nums text-gold">{formatScout(order.price)}</span>
-                    <span className="font-mono tabular-nums">{remaining} DPC</span>
+                    <span className="font-mono tabular-nums">{remaining} SC</span>
                     <span className="font-mono tabular-nums text-white/60">{formatScout(order.price * remaining)}</span>
                     <span className="text-xs">
                       {isOwn

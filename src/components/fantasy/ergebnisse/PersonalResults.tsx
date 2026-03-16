@@ -96,7 +96,7 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
                       </div>
                       <div className="text-xs text-white/40">
                         {stat.club_short} · {stat.minutes_played}{tf('ergebnisse.minutesShort')}
-                        {holding && <span className="ml-1 text-gold font-bold">{holding.quantity}x DPC</span>}
+                        {holding && <span className="ml-1 text-gold font-bold">{holding.quantity}x SC</span>}
                       </div>
                     </div>
 

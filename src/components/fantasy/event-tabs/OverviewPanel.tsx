@@ -78,7 +78,7 @@ export default function OverviewPanel({ event, userId, participants, participant
           </div>
           <div className="p-3 bg-surface-subtle rounded-lg">
             <div className="text-xs text-white/40 inline-flex items-center gap-0.5">{t('dpcPerSlotLabel')} <InfoTooltip text={t('dpcPerSlotTooltip')} /></div>
-            <div className="font-bold">{event.requirements.dpcPerSlot ?? 1} DPC</div>
+            <div className="font-bold">{event.requirements.dpcPerSlot ?? 1} SC</div>
           </div>
           <div className="p-3 bg-surface-subtle rounded-lg">
             <div className="text-xs text-white/40">{t('startLabel')}</div>

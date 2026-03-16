@@ -18,7 +18,7 @@ export type AchievementDef = {
 
 const FEATURED: AchievementDef[] = [
   // Trading (5)
-  { key: 'first_trade', label: 'Erster Deal', description: 'Ersten DPC-Trade abgeschlossen', icon: '🤝', category: 'trading', featured: true },
+  { key: 'first_trade', label: 'Erster Deal', description: 'Ersten Scout Card Trade abgeschlossen', icon: '🤝', category: 'trading', featured: true },
   { key: '10_trades', label: 'Aktiver Händler', description: '10 Trades abgeschlossen', icon: '📊', category: 'trading', featured: true },
   { key: '100_trades', label: 'Trading-Legende', description: '100 Trades abgeschlossen', icon: '👑', category: 'trading', featured: true },
   { key: 'portfolio_10000', label: 'Profi-Sammler', description: 'Kader über 10.000 $SCOUT', icon: '🏦', category: 'trading', featured: true },
@@ -46,7 +46,7 @@ const HIDDEN: AchievementDef[] = [
   { key: 'diverse_5', label: 'Diversifiziert', description: '5 verschiedene Spieler im Portfolio', icon: '🎯', category: 'trading', featured: false },
   { key: 'diverse_15', label: 'Kader-Sammler', description: '15 verschiedene Spieler im Portfolio', icon: '🏟️', category: 'trading', featured: false },
   { key: 'sell_order', label: 'Erstverkauf', description: 'Ersten Sell-Order erstellt', icon: '🏷️', category: 'trading', featured: false },
-  { key: 'diamond_hands', label: 'Diamond Hands', description: 'DPC 30 Tage gehalten ohne zu verkaufen', icon: '💎', category: 'trading', featured: false },
+  { key: 'diamond_hands', label: 'Diamond Hands', description: 'Scout Card 30 Tage gehalten ohne zu verkaufen', icon: '💎', category: 'trading', featured: false },
   // Manager
   { key: '3_events', label: 'Spieltag-Fan', description: '3 Fantasy-Events gespielt', icon: '📅', category: 'manager', featured: false },
   { key: '5_events', label: 'Stammgast', description: '5 Fantasy-Events gespielt', icon: '🎮', category: 'manager', featured: false },

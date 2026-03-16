@@ -82,7 +82,7 @@ export default function PortfolioStrip({ holdings }: PortfolioStripProps) {
                   {h.change24h >= 0 ? '+' : ''}{h.change24h.toFixed(1)}%
                 </span>
               </div>
-              <div className="text-[11px] text-white/30 mt-1 font-mono">{h.qty} DPC</div>
+              <div className="text-[11px] text-white/30 mt-1 font-mono">{h.qty} SC</div>
             </Link>
           );
         })}

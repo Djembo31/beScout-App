@@ -117,7 +117,7 @@ export default function SellModal({
             <div className="p-4 space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-white/50">{t('dpcOwned')}</span>
-                <span className="font-mono font-bold tabular-nums text-lg">{holdingQty} DPC</span>
+                <span className="font-mono font-bold tabular-nums text-lg">{holdingQty} SC</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-white/50">{t('floatShare')}</span>
@@ -125,12 +125,12 @@ export default function SellModal({
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-white/50">{t('available')}</span>
-                <span className="font-mono font-bold tabular-nums text-green-500">{availableToSell} DPC</span>
+                <span className="font-mono font-bold tabular-nums text-green-500">{availableToSell} SC</span>
               </div>
               {listedQty > 0 && (
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-white/50">{t('listed')}</span>
-                  <span className="font-mono font-bold tabular-nums text-orange-300">{listedQty} DPC</span>
+                  <span className="font-mono font-bold tabular-nums text-orange-300">{listedQty} SC</span>
                 </div>
               )}
             </div>
@@ -215,7 +215,7 @@ export default function SellModal({
                       <div>
                         <div className="font-mono font-bold tabular-nums text-sm text-gold">{formatScout(order.price)} $SCOUT</div>
                         <div className="text-[10px] text-white/50">
-                          {remaining}/{order.quantity} DPC
+                          {remaining}/{order.quantity} SC
                           {order.filled_qty > 0 && <span className="text-green-500"> &middot; {t('soldCount', { count: order.filled_qty })}</span>}
                         </div>
                       </div>

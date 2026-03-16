@@ -3,7 +3,7 @@ description: Business-Regeln, Compliance und Geofencing
 ---
 
 ## Licensing-Phasen (ADR-028)
-- Phase 1 (jetzt): DPC Trading (BSD-Credits), Free Fantasy, Votes, Events, Scout Reports
+- Phase 1 (jetzt): Scout Card Trading ($SCOUT-Credits), Free Fantasy, Votes, Events, Scout Reports
 - Phase 3 (nach CASP): $SCOUT Token, Cash-Out, Exchange — NICHT BAUEN
 - Phase 4 (nach MGA): Paid Fantasy Entry, Turniere mit Preisen — NICHT BAUEN
 - Kill-Switch: BSD-Sales bei EUR 900K stoppen (noch nicht implementiert)
@@ -12,7 +12,8 @@ description: Business-Regeln, Compliance und Geofencing
 - NIEMALS: Investment, ROI, Profit, Rendite, Dividende, Gewinn, Ownership, "guaranteed returns"
 - IMMER: Utility Token, Platform Credits, Scout Assessment, "at BeScout's discretion"
 - $SCOUT = "Platform Credits" (nicht Kryptowaehrung)
-- DPC = "Digital Player Contract" (nicht Spieleranteil)
+- Scout Card = "Digitale Spielerkarte" (nicht Spieleranteil, kein Eigentum)
+- Code-intern bleiben Variable/DB-Column-Namen mit "dpc" (nur UI umbenannt)
 - Disclaimers auf JEDER Seite mit $SCOUT/DPC (TradingDisclaimer Component)
 
 ## Geofencing-Tiers

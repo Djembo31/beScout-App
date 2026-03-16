@@ -33,11 +33,11 @@ function getRequirements(event: FantasyEvent): ReqItem[] {
   }
 
   if (event.requirements.dpcPerSlot) {
-    items.push({ icon: Layers, label: `Min ${event.requirements.dpcPerSlot} DPC/Slot`, color: 'text-sky-400' });
+    items.push({ icon: Layers, label: `Min ${event.requirements.dpcPerSlot} SC/Slot`, color: 'text-sky-400' });
   }
 
   if (event.requirements.minDpc) {
-    items.push({ icon: Wallet, label: `Min ${event.requirements.minDpc} DPC`, color: 'text-sky-400' });
+    items.push({ icon: Wallet, label: `Min ${event.requirements.minDpc} SC`, color: 'text-sky-400' });
   }
 
   if (event.requirements.specificClub) {

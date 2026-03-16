@@ -135,7 +135,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                     {fmtScout(reward)} $SCOUT
                   </div>
                   {isActive && (
-                    <div className="text-[10px] font-mono text-gold/50">/DPC</div>
+                    <div className="text-[10px] font-mono text-gold/50">/SC</div>
                   )}
                 </div>
               </div>
@@ -163,7 +163,7 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                   </div>
                   <div className="text-right">
                     <span className="font-mono font-bold tabular-nums text-sm">{fmtScout(totalReward)} $SCOUT</span>
-                    <div className="text-[10px] text-white/30 tabular-nums">{holdingQty} DPC</div>
+                    <div className="text-[10px] text-white/30 tabular-nums">{holdingQty} SC</div>
                   </div>
                 </div>
               );

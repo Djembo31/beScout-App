@@ -330,7 +330,7 @@ export default function TraderTab({
                   </span>
                 </div>
                 <span className="text-[13px] font-mono font-bold tabular-nums text-white/80">
-                  {count} DPCs
+                  {count} SCs
                 </span>
               </div>
             ))}

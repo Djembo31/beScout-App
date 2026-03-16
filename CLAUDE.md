@@ -1,6 +1,6 @@
 # BeScout — Projekt-Kontext
 
-B2B2C Fan-Engagement-Plattform fuer Fussballvereine. Clubs verkaufen DPCs,
+B2B2C Fan-Engagement-Plattform fuer Fussballvereine. Clubs verkaufen Scout Cards,
 starten Events/Votes, verteilen $SCOUT-Credits. Pilot: Sakaryaspor (TFF 1. Lig).
 
 ## Stack
@@ -71,7 +71,8 @@ Domaenen-spezifische Regeln laden automatisch per Glob-Pattern.
 4. Nicht raten — nachschauen
 
 ## Kern-Business
-- DPC = Digital Player Contract. Marktwert steigt → Community Success Fee
+- Scout Card = Digitale Spielerkarte. Marktwert steigt → Community Success Fee
+- (Code-intern: "dpc" in Variablen/DB-Columns bleibt — nur UI-sichtbar umbenannt)
 - $SCOUT = Platform Credits (NIEMALS: Investment, ROI, Profit, Ownership)
 - Geld IMMER als BIGINT cents (1,000,000 = 10,000 $SCOUT)
 - Closed Economy Phase 1: KEIN Cash-Out, KEIN P2P, KEIN Exchange

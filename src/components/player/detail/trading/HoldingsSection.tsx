@@ -46,7 +46,7 @@ export default function HoldingsSection({
           <>
             <div className="flex items-center justify-between">
               <span className="text-white/50">{t('dpcOwned')}</span>
-              <span className="font-mono font-bold tabular-nums text-lg">{holdingQty} DPC</span>
+              <span className="font-mono font-bold tabular-nums text-lg">{holdingQty} SC</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-white/50">{t('floatShare')}</span>
@@ -55,7 +55,7 @@ export default function HoldingsSection({
             {listedQty > 0 && (
               <div className="flex items-center justify-between">
                 <span className="text-white/50">{t('listedOf')}</span>
-                <span className="font-mono font-bold tabular-nums text-orange-300">{listedQty} DPC</span>
+                <span className="font-mono font-bold tabular-nums text-orange-300">{listedQty} SC</span>
               </div>
             )}
           </>
@@ -165,7 +165,7 @@ export default function HoldingsSection({
                     <div>
                       <div className="font-mono font-bold tabular-nums text-sm text-gold">{formatScout(order.price)} $SCOUT</div>
                       <div className="text-[10px] text-white/40">
-                        {remaining}/{order.quantity} DPC
+                        {remaining}/{order.quantity} SC
                         {order.filled_qty > 0 && <span className="text-green-500"> &middot; {t('soldCount', { count: order.filled_qty })}</span>}
                       </div>
                     </div>

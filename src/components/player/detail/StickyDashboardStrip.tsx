@@ -85,7 +85,7 @@ export default function StickyDashboardStrip({
           {/* Holdings or Holders */}
           <span className="hidden md:inline text-xs font-mono tabular-nums text-white/50">
             {holdingQty > 0
-              ? <span className="text-green-500 font-bold">{holdingQty} DPC</span>
+              ? <span className="text-green-500 font-bold">{holdingQty} SC</span>
               : <>{holderCount} {t('holder')}</>
             }
           </span>

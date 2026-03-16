@@ -215,7 +215,7 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
                 {/* Holdings */}
                 {fan.holdingsCount > 0 && (
                   <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                    {fan.holdingsCount} DPC
+                    {fan.holdingsCount} SC
                   </span>
                 )}
 

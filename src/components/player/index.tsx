@@ -490,7 +490,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
         </span>
       );
       if (holding) {
-        kpis.push(<span key="qty" className={cn(kpiCls, 'text-white/60')}>{holding.quantity} DPC</span>);
+        kpis.push(<span key="qty" className={cn(kpiCls, 'text-white/60')}>{holding.quantity} SC</span>);
         kpis.push(<span key="ek" className={cn(kpiCls, 'text-white/40')}><span className={labelCls}>EK</span>{fmtScout(holding.avgBuyPriceBsd)}</span>);
       }
       break;

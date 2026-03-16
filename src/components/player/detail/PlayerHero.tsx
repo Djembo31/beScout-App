@@ -61,7 +61,7 @@ export default function PlayerHero({
   // Edition badge text
   const owned = player.dpc.circulation;
   const supply = player.dpc.supply;
-  const edition = supply > 0 ? `${owned}/${supply} DPC` : undefined;
+  const edition = supply > 0 ? `${owned}/${supply} SC` : undefined;
 
   return (
     <div

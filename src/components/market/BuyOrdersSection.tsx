@@ -134,7 +134,7 @@ export default function BuyOrdersSection({ buyOrders, playerMap }: BuyOrdersSect
                   <div className="text-[9px] text-white/30">{t('highestBid')}</div>
                   <div className="font-mono font-black text-sm text-sky-400 tabular-nums">{fmtScout(highBidBsd)}</div>
                   <div className="text-[10px] text-white/30 tabular-nums">
-                    {agg.totalQty} DPC · {agg.orderCount === 1 ? t('offerSingular', { count: agg.orderCount }) : t('offerPlural', { count: agg.orderCount })}
+                    {agg.totalQty} SC · {agg.orderCount === 1 ? t('offerSingular', { count: agg.orderCount }) : t('offerPlural', { count: agg.orderCount })}
                   </div>
                 </div>
               </Link>

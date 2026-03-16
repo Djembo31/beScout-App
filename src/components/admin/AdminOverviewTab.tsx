@@ -256,7 +256,7 @@ export default function AdminOverviewTab({ club }: { club: ClubWithAdmin }) {
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-sm truncate">{fan.handle}</div>
-                    <div className="text-[10px] text-white/40">{fan.holdings_count} DPC</div>
+                    <div className="text-[10px] text-white/40">{fan.holdings_count} SC</div>
                   </div>
                 </div>
               ))}

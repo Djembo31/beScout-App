@@ -52,7 +52,7 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
               <div className="font-mono font-black text-lg gold-glow">
                 {ipo.ipo.price}
               </div>
-              <div className="text-[11px] text-white/40">$SCOUT/DPC</div>
+              <div className="text-[11px] text-white/40">$SCOUT/SC</div>
             </div>
           </div>
           {ipo.ipo.progress !== undefined && (
@@ -134,7 +134,7 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
                 <div className="font-black text-sm truncate">{best.player}</div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <PositionBadge pos={best.pos} size="sm" />
-                  <span className="text-[11px] text-white/40">{best.qty} DPC</span>
+                  <span className="text-[11px] text-white/40">{best.qty} SC</span>
                 </div>
               </div>
               <div className="text-right shrink-0">

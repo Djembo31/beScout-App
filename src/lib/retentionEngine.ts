@@ -123,8 +123,8 @@ export function getOnboardingProgress(stats: {
     {
       action: 'buy_first_dpc',
       completed: stats.holdingsCount > 0,
-      labelDe: 'Kaufe deinen ersten DPC',
-      labelTr: 'İlk DPC\'ni satın al',
+      labelDe: 'Kaufe deine erste Scout Card',
+      labelTr: 'İlk Scout Card\'ını satın al',
       rewardLabel: '+1.000 $SCOUT',
       href: '/market?tab=kaufen',
     },
@@ -183,8 +183,8 @@ export function getSuggestedAction(
     case 'new':
       return {
         key: 'explore_market',
-        labelDe: 'Entdecke den DPC-Marktplatz',
-        labelTr: 'DPC pazarını keşfet',
+        labelDe: 'Entdecke den Scout Card Marktplatz',
+        labelTr: 'Scout Card pazarını keşfet',
         href: '/market',
       };
     case 'building':

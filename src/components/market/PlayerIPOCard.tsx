@@ -299,7 +299,7 @@ export default function PlayerIPOCard({ player, ipo, onBuy, buying, recentScores
         <div className="flex items-center justify-between mt-1.5">
           {player.dpc.owned > 0 ? (
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-bold bg-gold/10 border-gold/20 text-gold tabular-nums font-mono">
-              {player.dpc.owned} DPC
+              {player.dpc.owned} SC
             </span>
           ) : (
             <span />

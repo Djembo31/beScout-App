@@ -136,7 +136,7 @@ export default function BuyConfirmModal({
         {/* Price + Quantity */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-white/50">{tp('pricePerDpc', { defaultMessage: 'Preis pro DPC' })}</span>
+            <span className="text-white/50">{tp('pricePerDpc', { defaultMessage: 'Preis pro SC' })}</span>
             <span className="font-mono font-black text-gold tabular-nums">{fmtScout(priceBsd)} $SCOUT</span>
           </div>
 
@@ -173,7 +173,7 @@ export default function BuyConfirmModal({
           ) : isMarket ? (
             <div className="flex items-center justify-between text-sm">
               <span className="text-white/50">{tp('qtyLabel', { defaultMessage: 'Anzahl' })}</span>
-              <span className="font-mono font-bold tabular-nums">1 DPC</span>
+              <span className="font-mono font-bold tabular-nums">1 SC</span>
             </div>
           ) : null}
 

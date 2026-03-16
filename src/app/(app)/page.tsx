@@ -499,7 +499,7 @@ export default function HomePage() {
                   </div>
                   <div className="shrink-0 text-right">
                     <div className="font-mono font-black text-gold text-lg">{activeIPOs[0].ipo.price}</div>
-                    <div className="text-[11px] text-white/40">$SCOUT/DPC</div>
+                    <div className="text-[11px] text-white/40">$SCOUT/SC</div>
                   </div>
                 </div>
               </div>

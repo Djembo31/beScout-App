@@ -54,7 +54,7 @@ export default function OrderbookDepth({ orders, className = '' }: OrderbookDept
                   style={{ width: `${barWidth}%` }}
                 />
                 <div className="absolute inset-y-0 flex items-center px-2 text-[10px] font-mono text-white/50">
-                  {qty} DPC
+                  {qty} SC
                 </div>
               </div>
               <div className="w-10 text-right shrink-0">

@@ -198,7 +198,7 @@ export function usePlayerTrading({
   const handleShareTrade = useCallback(async () => {
     if (!userId || !player || shared) return;
     try {
-      await createPost(userId, playerId, player.club, `Ich habe gerade ${player.first} ${player.last} DPCs gekauft! ${player.pos === 'ATT' ? '\u26BD' : player.pos === 'GK' ? '\uD83E\uDDE4' : '\uD83C\uDFC3'} #Trading`, [player.last.toLowerCase(), player.club.toLowerCase()], 'Trading');
+      await createPost(userId, playerId, player.club, `Ich habe gerade ${player.first} ${player.last} Scout Cards gekauft! ${player.pos === 'ATT' ? '\u26BD' : player.pos === 'GK' ? '\uD83E\uDDE4' : '\uD83C\uDFC3'} #Trading`, [player.last.toLowerCase(), player.club.toLowerCase()], 'Trading');
       setShared(true);
       addToast(t('sharedToCommunity'), 'success');
     } catch { addToast(t('shareFailed'), 'error'); }

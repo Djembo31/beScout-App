@@ -78,7 +78,7 @@ export async function getClubFanSegments(clubId: string): Promise<FanSegment[]> 
     { id: 'bronze', label: 'Bronze', count: bronze, icon: 'shield' },
     { id: 'silber', label: 'Silber', count: silber, icon: 'shield' },
     { id: 'gold', label: 'Gold', count: gold, icon: 'crown' },
-    { id: 'trader', label: 'DPC-Trader', count: traderCount, icon: 'trending-up' },
+    { id: 'trader', label: 'SC-Trader', count: traderCount, icon: 'trending-up' },
   ];
 }
 
