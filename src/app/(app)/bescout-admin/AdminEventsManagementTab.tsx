@@ -205,7 +205,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
     setFormFormat(ev.format);
     setFormEventTier(ev.event_tier ?? 'club');
     setFormMinSubTier(ev.min_subscription_tier ?? '');
-    setFormSalaryCap(ev.salary_cap != null ? String(ev.salary_cap) : '');
+    setFormSalaryCap(ev.salary_cap != null ? String(centsToBsd(ev.salary_cap)) : '');
     setFormGameweek(ev.gameweek != null ? String(ev.gameweek) : '');
     setFormMaxEntries(ev.max_entries != null ? String(ev.max_entries) : '0');
     setFormEntryFee(String(centsToBsd(ev.entry_fee)));
@@ -255,7 +255,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
         maybePut('sponsor_logo', formType === 'sponsor' ? formSponsorLogo : null);
         maybePut('event_tier', formEventTier);
         maybePut('min_subscription_tier', formMinSubTier || null);
-        maybePut('salary_cap', formSalaryCap ? parseInt(formSalaryCap) : null);
+        maybePut('salary_cap', formSalaryCap ? bsdToCents(parseFloat(formSalaryCap) || 0) : null);
         maybePut('reward_structure', formRewardStructure);
 
         const result = await updateEvent(editingEvent.id, payload);
@@ -282,7 +282,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
           sponsorLogo: formType === 'sponsor' ? formSponsorLogo : undefined,
           eventTier: formEventTier,
           minSubscriptionTier: formMinSubTier || null,
-          salaryCap: formSalaryCap ? parseInt(formSalaryCap) : null,
+          salaryCap: formSalaryCap ? bsdToCents(parseFloat(formSalaryCap) || 0) : null,
           rewardStructure: formRewardStructure,
         });
         if (!result.success) {
@@ -757,7 +757,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
               onChange={(e) => setFormSalaryCap(e.target.value)}
               placeholder="Optional"
               disabled={isFieldDisabled('salary_cap')}
-              aria-label="Salary Cap"
+              aria-label="Salary Cap ($SCOUT)"
               className={cn(INPUT_CLS, 'min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed')}
             />
           </div>
