@@ -89,7 +89,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
   const [formName, setFormName] = useState('');
   const [formClubId, setFormClubId] = useState('');
   const [formType, setFormType] = useState<string>('bescout');
-  const [formFormat, setFormFormat] = useState<string>('6er');
+  const [formFormat, setFormFormat] = useState<string>('7er');
   const [formEventTier, setFormEventTier] = useState<'arena' | 'club' | 'user'>('arena');
   const [formMinSubTier, setFormMinSubTier] = useState('');
   const [formSalaryCap, setFormSalaryCap] = useState('');
@@ -175,7 +175,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
     setFormName('');
     setFormClubId('');
     setFormType('bescout');
-    setFormFormat('6er');
+    setFormFormat('7er');
     setFormEventTier('arena');
     setFormMinSubTier('');
     setFormSalaryCap('');
@@ -707,7 +707,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
                 aria-label="Event-Format"
                 className={cn(SELECT_CLS, 'disabled:opacity-40 disabled:cursor-not-allowed')}
               >
-                <option value="6er">6er</option>
+                <option value="7er">7er</option>
                 <option value="11er">11er</option>
               </select>
             </div>

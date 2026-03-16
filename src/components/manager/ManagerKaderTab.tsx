@@ -528,9 +528,9 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
 
       {/* Squad Size + Formation Selector */}
       <div className="flex items-center gap-2 flex-wrap">
-        {/* 11er / 6er Toggle */}
+        {/* 11er / 7er Toggle */}
         <div className="flex items-center bg-white/5 border border-white/10 rounded-full p-0.5">
-          {(['11', '6'] as const).map(size => (
+          {(['11', '7'] as const).map(size => (
             <button
               key={size}
               onClick={() => handleSquadSizeChange(size)}

@@ -42,7 +42,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
   // Form state
   const [name, setName] = useState('');
   const [type, setType] = useState<string>('club');
-  const [format, setFormat] = useState<string>('6er');
+  const [format, setFormat] = useState<string>('7er');
   const [gameweek, setGameweek] = useState('');
   const [entryFee, setEntryFee] = useState('0');
   const [prizePool, setPrizePool] = useState('0');
@@ -107,7 +107,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
   const resetForm = useCallback(() => {
     setName('');
     setType('club');
-    setFormat('6er');
+    setFormat('7er');
     setGameweek('');
     setEntryFee('0');
     setPrizePool('0');
@@ -420,7 +420,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                 aria-label={t('formatLabel')}
                 className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
               >
-                <option value="6er">{t('format6')}</option>
+                <option value="7er">{t('format7')}</option>
                 <option value="11er">{t('format11')}</option>
               </select>
             </div>

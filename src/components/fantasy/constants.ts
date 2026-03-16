@@ -4,41 +4,6 @@ export type FormationDef = {
   slots: { pos: string; count: number }[];
 };
 
-export const FORMATIONS_6ER: FormationDef[] = [
-  {
-    id: '1-2-2-1', name: 'Balanced (1-2-2-1)', slots: [
-      { pos: 'GK', count: 1 },
-      { pos: 'DEF', count: 2 },
-      { pos: 'MID', count: 2 },
-      { pos: 'ATT', count: 1 },
-    ]
-  },
-  {
-    id: '1-3-1-1', name: 'Defensiv (1-3-1-1)', slots: [
-      { pos: 'GK', count: 1 },
-      { pos: 'DEF', count: 3 },
-      { pos: 'MID', count: 1 },
-      { pos: 'ATT', count: 1 },
-    ]
-  },
-  {
-    id: '1-1-3-1', name: 'Offensiv (1-1-3-1)', slots: [
-      { pos: 'GK', count: 1 },
-      { pos: 'DEF', count: 1 },
-      { pos: 'MID', count: 3 },
-      { pos: 'ATT', count: 1 },
-    ]
-  },
-  {
-    id: '1-2-1-2', name: 'Twin Striker (1-2-1-2)', slots: [
-      { pos: 'GK', count: 1 },
-      { pos: 'DEF', count: 2 },
-      { pos: 'MID', count: 1 },
-      { pos: 'ATT', count: 2 },
-    ]
-  },
-];
-
 export const FORMATIONS_11ER: FormationDef[] = [
   {
     id: '1-4-3-3', name: '4-3-3', slots: [
@@ -68,7 +33,7 @@ export const FORMATIONS_11ER: FormationDef[] = [
 
 export const FORMATIONS_7ER: FormationDef[] = [
   {
-    id: '1-2-2-2', name: 'Balanced (1-2-2-2)', slots: [
+    id: '1-2-2-2', name: 'Balanced (2-2-2)', slots: [
       { pos: 'GK', count: 1 },
       { pos: 'DEF', count: 2 },
       { pos: 'MID', count: 2 },
@@ -76,7 +41,7 @@ export const FORMATIONS_7ER: FormationDef[] = [
     ]
   },
   {
-    id: '1-3-2-1', name: 'Defensiv (1-3-2-1)', slots: [
+    id: '1-3-2-1', name: 'Defensiv (3-2-1)', slots: [
       { pos: 'GK', count: 1 },
       { pos: 'DEF', count: 3 },
       { pos: 'MID', count: 2 },
@@ -84,11 +49,27 @@ export const FORMATIONS_7ER: FormationDef[] = [
     ]
   },
   {
-    id: '1-2-3-1', name: 'Mittelfeld (1-2-3-1)', slots: [
+    id: '1-2-3-1', name: 'Kreativ (2-3-1)', slots: [
       { pos: 'GK', count: 1 },
       { pos: 'DEF', count: 2 },
       { pos: 'MID', count: 3 },
       { pos: 'ATT', count: 1 },
+    ]
+  },
+  {
+    id: '1-3-1-2', name: 'Counter (3-1-2)', slots: [
+      { pos: 'GK', count: 1 },
+      { pos: 'DEF', count: 3 },
+      { pos: 'MID', count: 1 },
+      { pos: 'ATT', count: 2 },
+    ]
+  },
+  {
+    id: '1-1-3-2', name: 'Offensiv (1-3-2)', slots: [
+      { pos: 'GK', count: 1 },
+      { pos: 'DEF', count: 1 },
+      { pos: 'MID', count: 3 },
+      { pos: 'ATT', count: 2 },
     ]
   },
 ];
@@ -97,14 +78,14 @@ export const FORMATIONS_7ER: FormationDef[] = [
 export function getFormationsForFormat(format: string, lineupSize?: 7 | 11): FormationDef[] {
   if (lineupSize === 7) return FORMATIONS_7ER;
   if (lineupSize === 11) return FORMATIONS_11ER;
-  return format === '11er' ? FORMATIONS_11ER : FORMATIONS_6ER;
+  return format === '11er' ? FORMATIONS_11ER : FORMATIONS_7ER;
 }
 
 /** Get default formation ID for a format or lineup size */
 export function getDefaultFormation(format: string, lineupSize?: 7 | 11): string {
   if (lineupSize === 7) return '1-2-2-2';
   if (lineupSize === 11) return '1-4-3-3';
-  return format === '11er' ? '1-4-3-3' : '1-2-2-1';
+  return format === '11er' ? '1-4-3-3' : '1-2-2-2';
 }
 
 /**

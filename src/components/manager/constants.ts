@@ -28,23 +28,23 @@ export const FORMATIONS_11: SquadFormation[] = [
   makeFormation('5-3-2', '5-3-2', 5, 3, 2),
 ];
 
-// 6er formations (1 GK + 5 outfield)
-export const FORMATIONS_6: SquadFormation[] = [
-  makeFormation('2-2-1', '2-2-1', 2, 2, 1),
-  makeFormation('3-1-1', '3-1-1', 3, 1, 1),
-  makeFormation('1-3-1', '1-3-1', 1, 3, 1),
-  makeFormation('2-1-2', '2-1-2', 2, 1, 2),
-  makeFormation('1-2-2', '1-2-2', 1, 2, 2),
+// 7er formations (1 GK + 6 outfield)
+export const FORMATIONS_7: SquadFormation[] = [
+  makeFormation('2-2-2', '2-2-2', 2, 2, 2),
+  makeFormation('3-2-1', '3-2-1', 3, 2, 1),
+  makeFormation('2-3-1', '2-3-1', 2, 3, 1),
+  makeFormation('3-1-2', '3-1-2', 3, 1, 2),
+  makeFormation('1-3-2', '1-3-2', 1, 3, 2),
 ];
 
 export const FORMATIONS: Record<SquadSize, SquadFormation[]> = {
   '11': FORMATIONS_11,
-  '6': FORMATIONS_6,
+  '7': FORMATIONS_7,
 };
 
 export const DEFAULT_FORMATIONS: Record<SquadSize, FormationId> = {
   '11': '4-3-3',
-  '6': '2-2-1',
+  '7': '2-2-2',
 };
 
 export const DEFAULT_SQUAD_SIZE: SquadSize = '11';

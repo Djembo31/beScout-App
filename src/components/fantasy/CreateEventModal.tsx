@@ -20,7 +20,7 @@ export const CreateEventModal = ({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [mode, setMode] = useState<EventMode>('tournament');
-  const [format, setFormat] = useState<LineupFormat>('6er');
+  const [format, setFormat] = useState<LineupFormat>('7er');
   const [buyIn, setBuyIn] = useState(0);
   const [maxParticipants, setMaxParticipants] = useState(50);
   const [isPrivate, setIsPrivate] = useState(false);
@@ -126,7 +126,7 @@ export const CreateEventModal = ({
               onChange={(e) => setFormat(e.target.value as LineupFormat)}
               className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
             >
-              <option value="6er">{t('formatSix')}</option>
+              <option value="7er">{t('formatSeven')}</option>
               <option value="11er">{t('formatEleven')}</option>
             </select>
           </div>

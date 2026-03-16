@@ -14,7 +14,7 @@ type Props = {
   gameweek: number;
 };
 
-type Mode = '6er' | '11er';
+type Mode = '7er' | '11er';
 
 type FormationDef = {
   name: string;
@@ -44,11 +44,12 @@ const FORMATIONS_11: FormationDef[] = [
   { name: '4-2-4', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 4 }, { pos: 'MID', count: 2 }, { pos: 'ATT', count: 4 }] },
 ];
 
-const FORMATIONS_6: FormationDef[] = [
-  { name: '1-2-2-1', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 2 }, { pos: 'MID', count: 2 }, { pos: 'ATT', count: 1 }] },
-  { name: '1-3-1-1', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 3 }, { pos: 'MID', count: 1 }, { pos: 'ATT', count: 1 }] },
-  { name: '1-1-3-1', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 1 }, { pos: 'MID', count: 3 }, { pos: 'ATT', count: 1 }] },
-  { name: '1-2-1-2', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 2 }, { pos: 'MID', count: 1 }, { pos: 'ATT', count: 2 }] },
+const FORMATIONS_7: FormationDef[] = [
+  { name: '2-2-2', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 2 }, { pos: 'MID', count: 2 }, { pos: 'ATT', count: 2 }] },
+  { name: '3-2-1', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 3 }, { pos: 'MID', count: 2 }, { pos: 'ATT', count: 1 }] },
+  { name: '2-3-1', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 2 }, { pos: 'MID', count: 3 }, { pos: 'ATT', count: 1 }] },
+  { name: '3-1-2', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 3 }, { pos: 'MID', count: 1 }, { pos: 'ATT', count: 2 }] },
+  { name: '1-3-2', slots: [{ pos: 'GK', count: 1 }, { pos: 'DEF', count: 1 }, { pos: 'MID', count: 3 }, { pos: 'ATT', count: 2 }] },
 ];
 
 // ============================================
@@ -203,11 +204,11 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
 
 export function BestElevenShowcase({ scorers, gameweek }: Props) {
   const t = useTranslations('fantasy');
-  const [mode, setMode] = useState<Mode>('6er');
+  const [mode, setMode] = useState<Mode>('7er');
 
   const { players, formation } = useMemo(() => {
-    const formations = mode === '11er' ? FORMATIONS_11 : FORMATIONS_6;
-    const teamSize = mode === '11er' ? 11 : 6;
+    const formations = mode === '11er' ? FORMATIONS_11 : FORMATIONS_7;
+    const teamSize = mode === '11er' ? 11 : 7;
     return optimizeBestTeam(scorers, formations, teamSize);
   }, [scorers, mode]);
 
@@ -276,10 +277,10 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
         </div>
       </div>
 
-      {/* 6er / 11er Toggle — BELOW the pitch */}
+      {/* 7er / 11er Toggle — BELOW the pitch */}
       <div className="flex items-center justify-center gap-1 mt-2">
         <div className="flex items-center gap-0.5 p-0.5 bg-white/[0.04] border border-white/[0.08] rounded-lg">
-          {(['6er', '11er'] as Mode[]).map(m => (
+          {(['7er', '11er'] as Mode[]).map(m => (
             <button
               key={m}
               onClick={() => setMode(m)}

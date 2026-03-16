@@ -71,7 +71,7 @@ export const EventDetailModal = ({
   const locale = useLocale();
   const [tab, setTab] = useState<EventDetailTab>('overview');
   const [selectedPlayers, setSelectedPlayers] = useState<LineupPlayer[]>([]);
-  const [selectedFormation, setSelectedFormation] = useState(() => getDefaultFormation(event?.format ?? '6er'));
+  const [selectedFormation, setSelectedFormation] = useState(() => getDefaultFormation(event?.format ?? '7er'));
   const [participants, setParticipants] = useState<{ id: string; handle: string; display_name?: string; avatar_url?: string }[]>([]);
   const [participantCount, setParticipantCount] = useState(0);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -94,7 +94,7 @@ export const EventDetailModal = ({
       setTab(event.scoredAt ? (event.isJoined ? 'lineup' : 'leaderboard') : event.isJoined ? 'lineup' : 'overview');
       setScoringJustFinished(false);
       setShowJoinConfirm(false);
-      // Reset formation to match event format (6er vs 11er)
+      // Reset formation to match event format (7er vs 11er)
       setSelectedFormation(getDefaultFormation(event.format, event.lineupSize));
       setSelectedPlayers([]);
     }
@@ -242,7 +242,7 @@ export const EventDetailModal = ({
 
   // Formation data — only recalculates when format or selection changes
   const availableFormations = useMemo(
-    () => getFormationsForFormat(event?.format ?? '6er', event?.lineupSize),
+    () => getFormationsForFormat(event?.format ?? '7er', event?.lineupSize),
     [event?.format, event?.lineupSize]
   );
 
