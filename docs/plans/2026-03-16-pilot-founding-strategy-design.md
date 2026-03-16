@@ -595,30 +595,30 @@ Nur 5 Clubs, 1.500 Passes, kein Founder Premium:
 
 ### Sofort (Monat 1)
 
-1. ~~DPC → Scout Card Rename~~ ✅ DONE (diese Session)
-2. $SCOUT → Credits Rename (i18n + TSX, ~150 Stellen)
-3. AGB + Datenschutzerklärung (Template + Anwalts-Review)
-4. Impressum-Seite
-5. Altersverifikation (18+ Self-Declaration bei Registrierung)
-6. Stripe Integration (Checkout für Founding Pass)
-7. Landing Page (Founding Pass Verkauf + Knappheits-Counter)
+1. ~~DPC → Scout Card Rename~~ ✅ DONE
+2. ~~$SCOUT → Credits Rename~~ ✅ DONE (425 Stellen, 85 files)
+3. ~~AGB + Datenschutzerklärung~~ ✅ EXISTIERT (Pages + i18n, braucht Anwalts-Review)
+4. ~~Impressum-Seite~~ ✅ EXISTIERT
+5. ~~Altersverifikation (18+)~~ ✅ DONE (Registration Checkbox)
+6. Stripe Integration (Checkout für Founding Pass) — WARTET auf Anil
+7. ~~Landing Page~~ ✅ DONE (Founding Pass Section auf /pitch + /founding Page)
 
 ### Monat 2-3
 
-8. Welcome Bonus: 10.000 → 1.000 (DB + Code)
-9. SC pro Spieler: 300 → 500 (DB + Code)
-10. Founder Pool Vorbereitung (DB Schema, kein Fee-Split im Pilot)
-12. Founding Pass Self-Service (Frontend Checkout Flow)
-13. Club-branded Landing Pages (bescout.com/[club])
-14. Referral-System (User-wirbt-User, Club-Tracking)
+8. ~~Welcome Bonus: 10.000 → 1.000~~ ✅ DONE (i18n fix, DB war korrekt)
+9. ~~SC pro Spieler: 300 → 500~~ ✅ DONE (DB Migration 633 Spieler)
+10. ~~Founder Pool Vorbereitung~~ ✅ DONE (DB Schema + Service + Types)
+12. ~~Founding Pass Self-Service~~ ✅ DONE (Mock Checkout auf /founding)
+13. ~~Club-branded Landing Pages~~ ✅ EXISTIERT (Club-Seite + Referral-Code CTA)
+14. ~~Referral-System~~ ✅ EXISTIERT (Service + UI + Club-Links)
 
 ### Monat 4-6
 
-15. Waitlist / Prioritäts-System
-16. Scout Points Season 1 (UI Integration mit Elo-System)
-17. Club Onboarding Flow (Streamlined für neue Clubs)
-18. Founding Pass Nummer-System (#1-#10.000)
-19. Community Rewards Policy (Legal Doc)
+15. ~~Waitlist / Prioritäts-System~~ ✅ DONE (Soft-Gate: Founding Pass Upsell Banner)
+16. ~~Scout Points Season 1~~ ✅ DONE (Gold "Season 1" Badge auf ScoreRoad + FanRank)
+17. Club Onboarding Flow — OFFEN (braucht echte Club-Gespräche)
+18. ~~Founding Pass Nummer-System~~ ✅ DONE (Sequence #1-#10.000, auto-assign)
+19. Community Rewards Policy — OFFEN (Legal Doc, braucht Anwalt)
 
 ### Monat 7+
 

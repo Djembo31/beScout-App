@@ -1,28 +1,34 @@
 # Session Handoff
-## Letzte Session: 2026-03-16 (Session 235 — Scout Card Rename + Master Strategy)
+## Letzte Session: 2026-03-16 (Session 235)
 ## Was wurde gemacht
-- **DPC → Scout Card Rename:** 251 i18n (de+tr) + ~40 TSX = ~290 Stellen. Unit-Label: "SC". Code-Internals (Variablen, DB, Types) unverändert.
-- **Pilot-to-Token Master Strategy:** Holy Grail Dokument erstellt (`docs/plans/2026-03-16-pilot-founding-strategy-design.md`). 13 Sektionen, 15-Step Sequential Thinking Review, 7 Fehler aus früheren Analysen korrigiert.
-- **Token-Allokation finalisiert:** 9 Buckets (Migration 13%, Pre-ICO 8%, Main ICO 15%, Team 12%, Referral 12%, Liquidity 5%, Engagement 18%, Legal 5%, Reserve 12%)
-- **Founder Pool korrigiert:** Von 5% IPO Fee + 10% Token-Bucket → 1% IPO Fee post-Token, operativ, KEIN Token-Bucket
-- **Gründer-Vergütung eingebaut:** €50K IP-Transfer + €5K/Mo Gehalt ab Malta Ltd.
-- **Business Layer Erkenntnisse dokumentiert:** 10 Sektionen mit Deep Insights zu Credit-Wirtschaft, Token-Pricing, Legal, Club-Ökonomie
-## 1 Commit
-- 0a7fb61: DPC→Scout Card rename + Master Strategy (32 files)
-## Offene Arbeit (Nächste Prioritäten)
-1. **$SCOUT → Credits Rename** in UI (~150 Stellen, i18n + TSX) — höchste Priorität
-2. **Stripe Integration** — Founding Pass Checkout
-3. **Landing Page** — Founding Pass Verkauf + Knappheits-Counter
-4. **AGB + Datenschutzerklärung** — Legal Basics vor Launch
-5. **Welcome Bonus: 10.000 → 1.000** — DB + Code
-6. **SC pro Spieler: 300 → 500** — DB Migration
-7. **Founding Pass Self-Service** — Frontend Checkout Flow
-## Key Decisions (diese Session)
-- Credits (nicht $SCOUT) während Pilot — MiCA konform
-- CASP erst Year 2 — Credits ≠ Crypto, spart €147K
-- Migration-Bonus NIE kommunizieren — Legal Schutz
-- Pre-ICO €0,01 (€10M FDV), Main ICO €0,03 (€30M FDV)
-- Founder Pool: 1% IPO Fee, nur post-Token, operativ
-- IPO Split Pilot: 85/10/5 (unverändert), Post-Token: 84/10/5/1
+### Strategie (Brainstorming → Design → Holy Grail)
+- Pilot-to-Token Master Strategy mit 4 Expert-Perspektiven + Sequential Thinking Review
+- Token-Allokation: 9 Buckets finalisiert
+- Business Layer Insights: 10 Sektionen dokumentiert
+- Alle Zahlen dreifach geprüft (15-Step Review, 7 Fehler korrigiert)
+### Implementation (13 Commits)
+- 0a7fb61: DPC→Scout Card + Strategy Doc (32 files)
+- 12c0728: $SCOUT→Credits (85 files, legal compliance)
+- cda58c7: Welcome Bonus text 10K→1K
+- 3130f09: SC/Spieler 300→500 (DB + code)
+- 3292c72: 18+ Age Verification checkbox
+- ce9a4e4: Founding Pass page /founding (4 tiers, mock checkout)
+- dcc5424: Nav link to /founding
+- e40c8eb: Season 1 badge on gamification UI
+- 195f6f3: Founding Pass section on pitch page
+- c044b92: Founder Club DB schema + service
+- 4aaa95a: Founding Pass upsell banner on Home
+- 1c25438: Pass numbers #1-#10.000
+- [final]: Docs + session close
+### Holy Grail Status: 21/24 Tasks erledigt
+Monat 1: 7/7 (Stripe wartet auf Anil)
+Monat 2-3: 6/6
+Monat 4-6: 4/5 (Club Onboarding + Rewards Policy offen)
+Monat 7+: 0/5 (geplant für später)
+## Offene Arbeit
+1. **Stripe** — Anil richtet Account ein, dann Payment-Integration
+2. **Club Onboarding Flow** — erst wenn echte Club-Gespräche laufen
+3. **Community Rewards Policy** — Legal Doc, braucht Anwalt
+4. **Monat 7+** — Malta Ltd, CASP, KYC, Smart Contract, Pre-ICO (alles Year 2)
 ## Blocker
-- Keine
+- Stripe Account (Anil-Aktion)
