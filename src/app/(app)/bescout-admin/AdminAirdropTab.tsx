@@ -7,10 +7,10 @@ import { Card, Button, StatCard } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
 import { cn } from '@/lib/utils';
 
-type AirdropTierKey = 'bronze' | 'silver' | 'gold' | 'diamond';
+type AirdropTierKey = 'bronze' | 'silber' | 'gold' | 'diamond';
 const TIER_COLORS: Record<AirdropTierKey, string> = {
   bronze: '#CD7F32',
-  silver: '#C0C0C0',
+  silber: '#C0C0C0',
   gold: '#FFD700',
   diamond: '#B9F2FF',
 };
@@ -95,7 +95,7 @@ export function AdminAirdropTab() {
         <Card className="p-4">
           <div className="text-xs font-bold text-white/50 uppercase mb-3">{t('tierDistribution')}</div>
           <div className="flex h-4 rounded-full overflow-hidden bg-white/5">
-            {(['bronze', 'silver', 'gold', 'diamond'] as const).map(tier => {
+            {(['bronze', 'silber', 'gold', 'diamond'] as const).map(tier => {
               const pct = (stats.tier_distribution[tier] / stats.total_users) * 100;
               if (pct === 0) return null;
               return (
@@ -109,7 +109,7 @@ export function AdminAirdropTab() {
             })}
           </div>
           <div className="flex gap-4 mt-2 text-[10px] text-white/40">
-            {(['bronze', 'silver', 'gold', 'diamond'] as const).map(tier => (
+            {(['bronze', 'silber', 'gold', 'diamond'] as const).map(tier => (
               <span key={tier} className="flex items-center gap-1">
                 <span className="size-2 rounded-full" style={{ backgroundColor: TIER_COLORS[tier] }} />
                 {tier}: {stats.tier_distribution[tier]}

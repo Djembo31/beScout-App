@@ -1383,7 +1383,7 @@ export interface BeforeInstallPromptEvent extends Event {
 // AIRDROP SCORE
 // ============================================
 
-export type AirdropTier = 'bronze' | 'silver' | 'gold' | 'diamond';
+export type AirdropTier = 'bronze' | 'silber' | 'gold' | 'diamond';
 
 export type DbAirdropScore = {
   user_id: string;

@@ -10,7 +10,7 @@ import type { DbAirdropScore, AirdropTier } from '@/types';
 
 const TIER_CONFIG: Record<AirdropTier, { color: string; bg: string; border: string }> = {
   bronze:  { color: '#CD7F32', bg: 'rgba(205,127,50,0.12)',  border: 'rgba(205,127,50,0.25)' },
-  silver:  { color: '#C0C0C0', bg: 'rgba(192,192,192,0.12)', border: 'rgba(192,192,192,0.25)' },
+  silber:  { color: '#C0C0C0', bg: 'rgba(192,192,192,0.12)', border: 'rgba(192,192,192,0.25)' },
   gold:    { color: '#FFD700', bg: 'rgba(255,215,0,0.12)',   border: 'rgba(255,215,0,0.25)' },
   diamond: { color: '#B9F2FF', bg: 'rgba(185,242,255,0.12)', border: 'rgba(185,242,255,0.25)' },
 };
@@ -34,7 +34,7 @@ type Props = {
 
 export default function AirdropScoreCard({ userId, compact = false, totalUsers }: Props) {
   const ta = useTranslations('airdrop');
-  const tierLabel: Record<AirdropTier, string> = { bronze: ta('tierBronze'), silver: ta('tierSilber'), gold: ta('tierGold'), diamond: ta('tierDiamond') };
+  const tierLabel: Record<AirdropTier, string> = { bronze: ta('tierBronze'), silber: ta('tierSilber'), gold: ta('tierGold'), diamond: ta('tierDiamond') };
   const barLabel: Record<string, string> = { scout_rang: ta('barScoutRang'), mastery: ta('barMastery'), activity: ta('barActivity'), trades: ta('barTrading'), research: ta('barResearch'), referral: ta('barReferral') };
   const [score, setScore] = useState<DbAirdropScore | null>(null);
   const [loading, setLoading] = useState(true);

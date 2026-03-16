@@ -44,7 +44,7 @@ export async function getAirdropLeaderboard(limit = 50): Promise<AirdropLeaderbo
 export type AirdropStats = {
   total_users: number;
   avg_score: number;
-  tier_distribution: { bronze: number; silver: number; gold: number; diamond: number };
+  tier_distribution: { bronze: number; silber: number; gold: number; diamond: number };
 };
 
 export async function getAirdropStats(): Promise<AirdropStats> {
@@ -52,9 +52,9 @@ export async function getAirdropStats(): Promise<AirdropStats> {
     .from('airdrop_scores')
     .select('total_score, tier');
 
-  if (error || !data) return { total_users: 0, avg_score: 0, tier_distribution: { bronze: 0, silver: 0, gold: 0, diamond: 0 } };
+  if (error || !data) return { total_users: 0, avg_score: 0, tier_distribution: { bronze: 0, silber: 0, gold: 0, diamond: 0 } };
 
-  const dist = { bronze: 0, silver: 0, gold: 0, diamond: 0 };
+  const dist = { bronze: 0, silber: 0, gold: 0, diamond: 0 };
   let sum = 0;
   for (const row of data) {
     sum += row.total_score;

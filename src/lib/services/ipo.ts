@@ -88,7 +88,7 @@ export async function buyFromIpo(
   playerId?: string
 ): Promise<IpoBuyResult> {
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('invalidQuantity');
-  if (quantity > 10000) throw new Error('maxQuantityExceeded');
+  if (quantity > 300) throw new Error('maxQuantityExceeded');
 
   // Defense-in-depth: liquidation + club admin check (DB RPC also checks)
   if (playerId) {

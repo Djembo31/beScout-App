@@ -13,7 +13,7 @@ import type { DbAirdropScore, AirdropTier } from '@/types';
 // ── Tier Config (labels are static — Bronze/Gold/Diamond are brand names) ──
 const TIER_STYLES: Record<AirdropTier, { color: string; bg: string; border: string }> = {
   bronze:  { color: '#CD7F32', bg: 'rgba(205,127,50,0.12)',  border: 'rgba(205,127,50,0.25)' },
-  silver:  { color: '#C0C0C0', bg: 'rgba(192,192,192,0.12)', border: 'rgba(192,192,192,0.25)' },
+  silber:  { color: '#C0C0C0', bg: 'rgba(192,192,192,0.12)', border: 'rgba(192,192,192,0.25)' },
   gold:    { color: '#FFD700', bg: 'rgba(255,215,0,0.12)',   border: 'rgba(255,215,0,0.25)' },
   diamond: { color: '#B9F2FF', bg: 'rgba(185,242,255,0.12)', border: 'rgba(185,242,255,0.25)' },
 };
@@ -27,7 +27,7 @@ export default function AirdropPage() {
   const t = useTranslations('airdrop');
 
   const TIER_LABELS: Record<AirdropTier, string> = {
-    bronze: 'Bronze', silver: t('tierSilver'), gold: 'Gold', diamond: 'Diamond',
+    bronze: 'Bronze', silber: t('tierSilver'), gold: 'Gold', diamond: 'Diamond',
   };
 
   const SCORE_TIPS = [

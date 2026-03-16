@@ -74,7 +74,7 @@ export async function buyFromMarket(
   quantity: number
 ): Promise<TradeResult> {
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('invalidQuantity');
-  if (quantity > 10000) throw new Error('maxQuantityExceeded');
+  if (quantity > 300) throw new Error('maxQuantityExceeded');
   // Guard: check if player is liquidated
   const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).maybeSingle();
   if (!pl) throw new Error('playerNotFound');
@@ -145,7 +145,7 @@ export async function placeSellOrder(
   priceCents: number
 ): Promise<TradeResult> {
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('invalidQuantity');
-  if (quantity > 10000) throw new Error('maxQuantityExceeded');
+  if (quantity > 300) throw new Error('maxQuantityExceeded');
   if (!Number.isInteger(priceCents) || priceCents < 1) throw new Error('invalidPrice');
   if (priceCents > 100_000_000) throw new Error('maxPriceExceeded');
   // Guard: check if player is liquidated
@@ -187,7 +187,7 @@ export async function buyFromOrder(
   quantity: number
 ): Promise<TradeResult> {
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('invalidQuantity');
-  if (quantity > 10000) throw new Error('maxQuantityExceeded');
+  if (quantity > 300) throw new Error('maxQuantityExceeded');
 
   // Club Admin Trading Restriction (defense-in-depth — DB RPC also checks)
   const { data: orderLookup } = await supabase.from('orders').select('player_id').eq('id', orderId).maybeSingle();
@@ -498,7 +498,7 @@ export async function placeBuyOrder(
   quantity: number,
   maxPriceCents: number
 ): Promise<BuyOrderResult> {
-  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10000) {
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 300) {
     return { success: false, error: 'Invalid quantity' };
   }
   if (!Number.isInteger(maxPriceCents) || maxPriceCents < 1) {

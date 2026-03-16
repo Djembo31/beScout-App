@@ -139,7 +139,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
               </button>
               <span className="w-8 text-center text-sm font-mono font-bold tabular-nums">{qty}</span>
               <button
-                onClick={() => setQty(Math.min(10000, qty + 1))}
+                onClick={() => setQty(Math.min(300, qty + 1))}
                 className="px-2 py-2.5 min-w-[44px] min-h-[44px] text-white/40 hover:text-white text-sm font-bold"
                 aria-label={tp('increaseQty', { defaultMessage: 'Anzahl erhoehen' })}
               >
