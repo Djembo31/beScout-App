@@ -16,7 +16,7 @@ next-intl (Cookie bescout-locale) | lucide-react
 - **Impact Analysis:** `/impact` VOR jeder Aenderung an RPCs/DB/Services
 - **CTO Review:** `/cto-review` ersetzt manuelle Quality Gate
 - **Agents:** 6 definierte Agents in `.claude/agents/` (impact-analyst, implementer, reviewer, test-writer, qa-visual, healer)
-- Details → `orchestrator.md` + `core.md`
+- Details → `orchestrator.md` (unified CTO workflow) + `core.md`
 
 ## Design System
 - **Background:** `#0a0a0a` (fast schwarz)
@@ -46,7 +46,7 @@ next-intl (Cookie bescout-locale) | lucide-react
 
 ## Regeln → .claude/rules/ (12 Files)
 Domaenen-spezifische Regeln laden automatisch per Glob-Pattern.
-**Immer geladen:** core.md, business.md, common-errors.md, orchestrator.md
+**Immer geladen:** core.md, business.md, common-errors.md, orchestrator.md (unified CTO workflow)
 **Path-spezifisch:** ui-components.md, database.md, trading.md, fantasy.md, gamification.md, community.md, club-admin.md, profile.md
 
 ## Agents → .claude/agents/ (6 Agents)

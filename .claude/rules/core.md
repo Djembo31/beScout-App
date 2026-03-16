@@ -10,17 +10,11 @@ description: Kern-Workflow, Knowledge Lifecycle und Session-Protokoll
 5. Anil sagt was ansteht → los
 
 ## Workflow
-- **Mode 0-1** (Bugfix/Klein): `/deliver` nutzen → Self-Healing Loop
-- **Mode 2-3** (Feature/Architektur): Orchestrator-Modus → siehe `orchestrator.md`
-- Mode-Auswahl: ICH entscheide automatisch. Anil kann ueberschreiben.
+- **Klein (80%):** Selbst machen. Lesen → Verstehen → Aendern → Testen → Committen.
+- **Mittel/Gross:** Agent(s) briefen → siehe `orchestrator.md`
 - Rollback-Regel: Nicht flicken. Git zuruecksetzen, Plan anpassen, sauber neu
 - DB-first: Migration → Service → Query Hook → UI → Build
-
-## Level System (Anils Involvement)
-- **Level A** (default): Jarvis liefert fertige Features, Anil macht visuelles QA
-- **Level B**: Jarvis liefert inkl. Screenshots, Anil sagt "ship it" oder "Richtung falsch"
-- **Level C**: Jarvis managed Sprint autonom, taegliche Summaries + Eskalationen
-- Anil gibt Level an. Ohne Angabe = **A**
+- Level System + Agent-Workflow → `orchestrator.md`
 
 ## Skills (gezielt einsetzen)
 | Skill | Wann |

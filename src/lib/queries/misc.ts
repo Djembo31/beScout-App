@@ -9,7 +9,7 @@ import { getDpcOfTheWeek } from '@/lib/services/dpcOfTheWeek';
 import { getScoutMissions, getUserMissionProgress } from '@/lib/services/scoutMissions';
 import { getClubBySlug } from '@/lib/services/club';
 import { getMySubscription } from '@/lib/services/clubSubscriptions';
-import { getPlayerGameweekScores } from '@/lib/services/scoring';
+import { getPlayerGameweekScores, getPlayerMatchTimeline } from '@/lib/services/scoring';
 import { getPbtForPlayer } from '@/lib/services/pbt';
 import { getLiquidationEvent } from '@/lib/services/liquidation';
 import { getSellOrders } from '@/lib/services/trading';
@@ -105,6 +105,15 @@ export function usePlayerGwScores(playerId: string | undefined) {
   return useQuery({
     queryKey: qk.scoring.gwScores(playerId!),
     queryFn: () => getPlayerGameweekScores(playerId!),
+    enabled: !!playerId,
+    staleTime: FIVE_MIN,
+  });
+}
+
+export function usePlayerMatchTimeline(playerId: string | undefined, limit = 15) {
+  return useQuery({
+    queryKey: qk.scoring.matchTimeline(playerId!),
+    queryFn: () => getPlayerMatchTimeline(playerId!, limit),
     enabled: !!playerId,
     staleTime: FIVE_MIN,
   });

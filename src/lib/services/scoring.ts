@@ -120,6 +120,104 @@ export async function getPlayerGameweekScores(playerId: string): Promise<PlayerG
 }
 
 // ============================================
+// Match Timeline (per-match details for player)
+// ============================================
+
+export type MatchTimelineEntry = {
+  gameweek: number;
+  fixtureId: string;
+  opponent: string;       // 3-letter abbreviation
+  isHome: boolean;
+  matchScore: string;     // "2-1"
+  minutesPlayed: number;
+  isStarter: boolean;
+  score: number;          // GW score (40-150 range)
+  goals: number;
+  assists: number;
+  cleanSheet: boolean;
+  yellowCard: boolean;
+  redCard: boolean;
+  saves: number;
+  rating: number | null;
+  date: string;
+};
+
+/** Load detailed per-match timeline for a player (last N matches) */
+export async function getPlayerMatchTimeline(
+  playerId: string,
+  limit = 15
+): Promise<MatchTimelineEntry[]> {
+  // 1. Get fixture stats with fixture + club data
+  const { data: statsData, error: statsError } = await supabase
+    .from('fixture_player_stats')
+    .select(`
+      fixture_id, minutes_played, goals, assists, clean_sheet,
+      yellow_card, red_card, saves, rating, is_starter, club_id,
+      fixtures!inner(
+        gameweek, home_club_id, away_club_id, home_score, away_score, created_at,
+        home_club:clubs!fixtures_home_club_id_fkey(short),
+        away_club:clubs!fixtures_away_club_id_fkey(short)
+      )
+    `)
+    .eq('player_id', playerId)
+    .order('fixtures(gameweek)', { ascending: false })
+    .limit(limit);
+
+  if (statsError || !statsData || statsData.length === 0) return [];
+
+  // 2. Get GW scores for this player
+  const gameweeks = statsData.map((r: Record<string, unknown>) => {
+    const fix = r.fixtures as Record<string, unknown>;
+    return fix.gameweek as number;
+  });
+  const { data: scoresData } = await supabase
+    .from('player_gameweek_scores')
+    .select('gameweek, score')
+    .eq('player_id', playerId)
+    .in('gameweek', gameweeks);
+
+  const scoreMap = new Map<number, number>();
+  for (const row of scoresData ?? []) {
+    scoreMap.set(row.gameweek as number, row.score as number);
+  }
+
+  // 3. Merge
+  return statsData.map((row: Record<string, unknown>) => {
+    const fix = row.fixtures as Record<string, unknown>;
+    const homeClub = fix.home_club as { short: string } | null;
+    const awayClub = fix.away_club as { short: string } | null;
+    const gw = fix.gameweek as number;
+    const playerClubId = row.club_id as string;
+    const isHome = playerClubId === (fix.home_club_id as string);
+    const opponent = isHome ? (awayClub?.short ?? '???') : (homeClub?.short ?? '???');
+    const homeScore = fix.home_score as number | null;
+    const awayScore = fix.away_score as number | null;
+    const matchScore = homeScore != null && awayScore != null
+      ? (isHome ? `${homeScore}-${awayScore}` : `${awayScore}-${homeScore}`)
+      : '';
+
+    return {
+      gameweek: gw,
+      fixtureId: row.fixture_id as string,
+      opponent,
+      isHome,
+      matchScore,
+      minutesPlayed: row.minutes_played as number,
+      isStarter: row.is_starter as boolean,
+      score: scoreMap.get(gw) ?? 0,
+      goals: row.goals as number,
+      assists: row.assists as number,
+      cleanSheet: row.clean_sheet as boolean,
+      yellowCard: row.yellow_card as boolean,
+      redCard: row.red_card as boolean,
+      saves: row.saves as number,
+      rating: row.rating as number | null,
+      date: fix.created_at as string,
+    };
+  });
+}
+
+// ============================================
 // Event Reset (Testing)
 // ============================================
 

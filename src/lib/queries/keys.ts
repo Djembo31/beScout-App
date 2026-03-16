@@ -162,6 +162,7 @@ export const qk = {
   // ── Scoring ──
   scoring: {
     gwScores: (pid: string) => ['scoring', 'gwScores', pid] as const,
+    matchTimeline: (pid: string) => ['scoring', 'matchTimeline', pid] as const,
   },
 
   // ── Fixtures (Manager Data) ──

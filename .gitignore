@@ -63,6 +63,34 @@ nul
 
 .vercel
 
+# Screenshots & temp images (root level only — public/ is tracked)
+/*.png
+/*.jpg
+/*.jpeg
+
+# Temp scripts & artifacts (root level)
+/_write_doc.js
+/_stdin_writer.js
+
+# Claude worktrees (auto-generated, never commit)
+.claude/worktrees/
+
+# Playwright MCP temp files
+.playwright-mcp/
+
+# Supabase local temp
+supabase/.temp/
+
+# QA screenshot directories
+/qa-screenshots/
+/e2e/screenshots/
+
+# Lighthouse
+lighthouse-report.json
+
+# Misc root artifacts
+/=
+
 # Research pipeline — agent outputs (temporary, feature-specific)
 .claude/research/*-raw.md
 .claude/research/*-verified.md

@@ -1,34 +1,37 @@
 # Session Handoff
-## Letzte Session: 2026-03-16 (Session 235)
+## Letzte Session: 2026-03-16 (Session 236)
 ## Was wurde gemacht
-### Strategie (Brainstorming → Design → Holy Grail)
-- Pilot-to-Token Master Strategy mit 4 Expert-Perspektiven + Sequential Thinking Review
-- Token-Allokation: 9 Buckets finalisiert
-- Business Layer Insights: 10 Sektionen dokumentiert
-- Alle Zahlen dreifach geprüft (15-Step Review, 7 Fehler korrigiert)
-### Implementation (13 Commits)
-- 0a7fb61: DPC→Scout Card + Strategy Doc (32 files)
-- 12c0728: $SCOUT→Credits (85 files, legal compliance)
-- cda58c7: Welcome Bonus text 10K→1K
-- 3130f09: SC/Spieler 300→500 (DB + code)
-- 3292c72: 18+ Age Verification checkbox
-- ce9a4e4: Founding Pass page /founding (4 tiers, mock checkout)
-- dcc5424: Nav link to /founding
-- e40c8eb: Season 1 badge on gamification UI
-- 195f6f3: Founding Pass section on pitch page
-- c044b92: Founder Club DB schema + service
-- 4aaa95a: Founding Pass upsell banner on Home
-- 1c25438: Pass numbers #1-#10.000
-- [final]: Docs + session close
-### Holy Grail Status: 21/24 Tasks erledigt
-Monat 1: 7/7 (Stripe wartet auf Anil)
-Monat 2-3: 6/6
-Monat 4-6: 4/5 (Club Onboarding + Rewards Policy offen)
-Monat 7+: 0/5 (geplant für später)
+### Comprehensive Bug-Fix Audit (1 Commit: a10414b, 25 Files)
+**Security (6 Fixes):**
+- Auth-Check + Hex-Validierung auf `updateClubBranding()` (club.ts)
+- Platform-Admin IDOR eingeschränkt auf superadmin (AdminContent.tsx)
+- Offer Message Length-Cap 500 Zeichen (offers.ts)
+- Email-Validierung Regex statt includes('@') (InviteClubAdminModal)
+- Cron Gameweek Range-Cap max 38 (backfill-ratings)
+- ProfileView: direkter Supabase-Zugriff → Service Layer
+
+**Runtime (4 Fixes):**
+- FormationTab: Force-Unwrap pop()! entfernt
+- EventDetailModal: Cancellation Tokens + Leaderboard-Polling (30s live)
+- FollowListModal: NaN-Filter + bounds-safe Median
+- BuyConfirmModal: Qty Reset + centralized query key
+
+**i18n (5) + Hook Deps (9) + UX/A11y (4):**
+- Hardcoded Strings → t() (TradingToasts, HomeSpotlight, Countdowns)
+- Translation keys in de.json + tr.json (shareInCommunity)
+- Hook-Dependencies bereinigt (6 Files, usePlayerTrading, TopBar, etc.)
+- Live-Indikator mit role=status, tabular-nums, focus-visible, active:scale
+
+### Wiring-Audit: Alles clean
+- 26 Routes, 68 Services, 150+ RPCs, 42 Query-Hooks, 8 API-Routes, 56 i18n-Namespaces
+- 0 broken imports, 0 circular deps, 0 TypeScript errors
+
+### Rules konsolidiert (orchestrator.md + quality-gates.md → unified)
 ## Offene Arbeit
-1. **Stripe** — Anil richtet Account ein, dann Payment-Integration
-2. **Club Onboarding Flow** — erst wenn echte Club-Gespräche laufen
-3. **Community Rewards Policy** — Legal Doc, braucht Anwalt
-4. **Monat 7+** — Malta Ltd, CASP, KYC, Smart Contract, Pre-ICO (alles Year 2)
+1. **42 hardcoded Strings in Admin-Panels** — intern, kein User-Facing
+2. **95 `<img>` → `<Image>`** — Performance, kein Bug
+3. **ProfileView Mega-useEffect** — React Query Refactor (größer)
+4. **Optimistic Updates Trading** — UX Enhancement
+5. **Stripe** — Anil richtet Account ein
 ## Blocker
 - Stripe Account (Anil-Aktion)

@@ -13,7 +13,14 @@
       "mcp__playwright__*",
       "mcp__figma-remote-mcp__*",
       "mcp__sequential-thinking__*",
-      "mcp__gemini-knowledge__*"
+      "mcp__gemini-knowledge__*",
+      "mcp__paper__get_basic_info",
+      "mcp__paper__get_font_family_info",
+      "mcp__paper__create_artboard",
+      "mcp__paper__write_html",
+      "mcp__paper__get_screenshot",
+      "mcp__paper__update_styles",
+      "mcp__paper__finish_working_on_nodes"
     ]
   },
   "enableAllProjectMcpServers": true,
@@ -21,6 +28,6 @@
     "playwright"
   ],
   "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true
+    "frontend-design@claude-plugins-official": false
   }
 }

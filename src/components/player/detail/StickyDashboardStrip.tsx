@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn, fmtScout } from '@/lib/utils';
 import { getL5Hex } from '@/components/player';
+import { useNumTick } from '@/lib/hooks/useNumTick';
 
 interface StickyDashboardStripProps {
   playerName: string;
@@ -26,6 +27,8 @@ export default function StickyDashboardStrip({
   const t = useTranslations('playerDetail');
   const l5Hex = getL5Hex(l5Score);
   const up = change24h >= 0;
+  const priceTick = useNumTick(floorPrice);
+  const l5Tick = useNumTick(l5Score);
 
   return (
     <div
@@ -51,7 +54,7 @@ export default function StickyDashboardStrip({
         {/* Metrics */}
         <div className="flex items-center gap-3 md:gap-4 shrink-0">
           {/* Floor Price */}
-          <span className="font-mono font-bold text-sm text-gold tabular-nums">
+          <span className={cn('font-mono font-bold text-sm text-gold tabular-nums', priceTick)}>
             {fmtScout(floorPrice)}
           </span>
 
@@ -60,7 +63,7 @@ export default function StickyDashboardStrip({
             className="flex items-center justify-center size-7 rounded-full border-2"
             style={{ borderColor: l5Hex }}
           >
-            <span className="font-mono text-[10px] font-bold" style={{ color: l5Hex }}>
+            <span className={cn('font-mono text-[10px] font-bold', l5Tick)} style={{ color: l5Hex }}>
               {l5Score}
             </span>
           </div>

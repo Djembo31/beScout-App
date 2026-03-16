@@ -19,6 +19,7 @@ import type { Player } from '@/types';
 import { useDbPlayerById, usePlayers } from '@/lib/queries/players';
 import {
   usePlayerGwScores,
+  usePlayerMatchTimeline,
   usePbtForPlayer,
   useLiquidationEvent,
   useIpoForPlayer,
@@ -83,6 +84,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   // ─── React Query Hooks (ALL before early returns) ────
   const { data: dbPlayer, isLoading: playerLoading, isError: playerError, refetch } = useDbPlayerById(playerId);
   const { data: gwScoresData } = usePlayerGwScores(playerId);
+  const { data: matchTimelineData, isLoading: matchTimelineLoading } = usePlayerMatchTimeline(playerId);
   const { data: pbtTreasury } = usePbtForPlayer(playerId);
   const { data: liquidationEvent } = useLiquidationEvent(playerId);
   const { data: activeIpo } = useIpoForPlayer(playerId);
@@ -298,7 +300,8 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             dpcAvailable={dpcAvailable}
             holdingQty={holdingQty}
             holderCount={holderCount}
-            gwScores={gwScores}
+            matchTimeline={matchTimelineData ?? []}
+            matchTimelineLoading={matchTimelineLoading}
             allPlayers={allPlayersForPercentile}
           />
         )}

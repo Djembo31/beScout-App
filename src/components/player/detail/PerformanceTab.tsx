@@ -5,28 +5,27 @@ import { useTranslations } from 'next-intl';
 import {
   Info, Calendar, AlertTriangle, Flame, CheckCircle2,
   PiggyBank, BarChart3, Users, Unlock, ShoppingBag,
-  Activity, TrendingUp, TrendingDown,
+  Activity,
 } from 'lucide-react';
 import { Card, InfoTooltip } from '@/components/ui';
-import { PositionBadge, ScoreCircle, MiniSparkline, getL5Hex } from '@/components/player';
+import { PositionBadge } from '@/components/player';
 import { getContractInfo } from '@/components/player/PlayerRow';
 import { fmtScout } from '@/lib/utils';
 import type { Player } from '@/types';
-import type { PlayerGameweekScore } from '@/lib/services/scoring';
+import type { MatchTimelineEntry } from '@/lib/services/scoring';
 import DPCSupplyRing from './DPCSupplyRing';
-import GameweekScoreBar from './GameweekScoreBar';
 import UpcomingFixtures from './UpcomingFixtures';
 import FantasyCTA from './FantasyCTA';
-import { RadarChart, buildPlayerRadarAxes } from '@/components/player/RadarChart';
-import { usePositionPercentile } from '@/lib/hooks/usePositionPercentile';
-import { posTintColors } from '@/components/player/PlayerRow';
+import StatsBreakdown from './StatsBreakdown';
+import MatchTimeline from './MatchTimeline';
 
 interface PerformanceTabProps {
   player: Player;
   dpcAvailable: number;
   holdingQty: number;
   holderCount: number;
-  gwScores: PlayerGameweekScore[];
+  matchTimeline: MatchTimelineEntry[];
+  matchTimelineLoading?: boolean;
   allPlayers?: Player[];
 }
 
@@ -37,151 +36,60 @@ const formatMarketValue = (value: number) => {
 };
 
 export default function PerformanceTab({
-  player, dpcAvailable, holdingQty, holderCount, gwScores, allPlayers = [],
+  player, dpcAvailable, holdingQty, holderCount,
+  matchTimeline, matchTimelineLoading, allPlayers = [],
 }: PerformanceTabProps) {
   const t = useTranslations('playerDetail');
-  const tp = useTranslations('player');
   const contract = getContractInfo(player.contractMonthsLeft);
-
-  const radarLabels = {
-    goals: tp('statGoals'), assists: tp('statAssists'), cleanSheets: tp('statCS'),
-    matches: tp('statMatches'), perfL5: tp('statL5'), perfL15: tp('statL15'),
-    saves: tp('statSaves'), minutes: tp('statMinutes'),
-  };
-
   const pbt = player.pbt || { balance: 0, sources: { trading: 0, votes: 0, content: 0, ipo: 0 } };
-  const percentile = usePositionPercentile(player.pos, player.perf.l5, allPlayers);
-  const posTint = posTintColors[player.pos];
-
-  const avgScore = gwScores.length > 0
-    ? Math.round(gwScores.reduce((s, g) => s + g.score, 0) / gwScores.length)
-    : 0;
-  const scoreColor = avgScore >= 100 ? 'text-gold' : avgScore >= 70 ? 'text-white' : avgScore > 0 ? 'text-red-400' : 'text-white/30';
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* ── Score Dashboard (from StatistikTab) ── */}
+
+      {/* ── 1. Match Timeline (L5/L15 Hero + per-match rows) ── */}
+      <MatchTimeline
+        player={player}
+        entries={matchTimeline}
+        allPlayers={allPlayers}
+        loading={matchTimelineLoading}
+      />
+
+      {/* ── 2. Season Stats (compact 3-col grid) ── */}
       <Card className="p-4 md:p-6">
-        <h3 className="font-black text-lg mb-4 flex items-center gap-2 text-balance">
+        <h3 className="font-black text-lg mb-3 flex items-center gap-2 text-balance">
           <Activity className="size-5 text-gold" aria-hidden="true" />
-          {t('perfOverview')}
+          {t('seasonStats')}
         </h3>
-
-        <div className="flex items-end gap-4 md:gap-6 mb-6">
-          <div className="flex flex-col items-center gap-1">
-            <div style={{ filter: `drop-shadow(0 0 8px ${getL5Hex(player.perf.l5)}40)` }}>
-              <ScoreCircle label="L5" value={player.perf.l5} size={64} />
-            </div>
-            <span className="text-[9px] font-mono tabular-nums text-white/40">
-              {player.perf.l5 > 0 ? `${Math.round((player.perf.l5 / 100) * 100)}%` : '--'}
-            </span>
-            {percentile && (
-              <span className="text-[9px] font-bold" style={{ color: posTint }}>
-                Top {100 - percentile.percentile}% {player.pos}
-              </span>
-            )}
+        <div className="grid grid-cols-3 gap-2 md:gap-4">
+          <div className="text-center bg-black/20 rounded-xl py-3">
+            <div className="text-2xl font-mono font-black tabular-nums">{player.stats.matches}</div>
+            <div className="text-[10px] text-white/50">{t('matches')}</div>
           </div>
-          <div className="flex flex-col items-center gap-1">
-            <ScoreCircle label="L15" value={player.perf.l15} size={52} />
-            <span className="text-[9px] font-mono tabular-nums text-white/40">
-              {player.perf.l15 > 0 ? `${Math.round((player.perf.l15 / 100) * 100)}%` : '--'}
-            </span>
+          <div className="text-center bg-black/20 rounded-xl py-3">
+            <div className="text-2xl font-mono font-black tabular-nums text-green-500">{player.stats.goals}</div>
+            <div className="text-[10px] text-white/50">{t('goals')}</div>
           </div>
-          {avgScore > 0 && (
-            <div className="flex flex-col items-center gap-1">
-              <ScoreCircle label={t('season')} value={avgScore} size={48} />
-              <span className="text-[9px] font-mono tabular-nums text-white/40">
-                {Math.round((avgScore / 100) * 100)}%
-              </span>
-            </div>
-          )}
-          <div className="flex flex-col items-center gap-0.5 ml-2">
-            <div className={`font-bold flex items-center gap-1 ${player.perf.trend === 'UP' ? 'text-green-500' : player.perf.trend === 'DOWN' ? 'text-red-300' : 'text-white/60'}`}>
-              {player.perf.trend === 'UP' ? <TrendingUp className="size-4" aria-hidden="true" /> : player.perf.trend === 'DOWN' ? <TrendingDown className="size-4" aria-hidden="true" /> : null}
-              {player.perf.trend === 'UP' ? t('trendHot') : player.perf.trend === 'DOWN' ? t('trendCold') : t('trendStable')}
-            </div>
-            <div className="text-white/50 text-[9px]">{t('form')}</div>
+          <div className="text-center bg-black/20 rounded-xl py-3">
+            <div className="text-2xl font-mono font-black tabular-nums text-sky-300">{player.stats.assists}</div>
+            <div className="text-[10px] text-white/50">{t('assists')}</div>
           </div>
         </div>
-
-        <div>
-          <div className="text-xs text-white/50 mb-3">{t('seasonStats')}</div>
-          <div className="grid grid-cols-3 gap-2 md:gap-4">
-            <div className="text-center bg-black/20 rounded-xl py-3">
-              <div className="text-2xl font-mono font-black tabular-nums">{player.stats.matches}</div>
-              <div className="text-[10px] text-white/50">{t('matches')}</div>
-            </div>
-            <div className="text-center bg-black/20 rounded-xl py-3">
-              <div className="text-2xl font-mono font-black tabular-nums text-green-500">{player.stats.goals}</div>
-              <div className="text-[10px] text-white/50">{t('goals')}</div>
-            </div>
-            <div className="text-center bg-black/20 rounded-xl py-3">
-              <div className="text-2xl font-mono font-black tabular-nums text-sky-300">{player.stats.assists}</div>
-              <div className="text-[10px] text-white/50">{t('assists')}</div>
-            </div>
-          </div>
-        </div>
-
-        {gwScores.length >= 3 && (
-          <div className="mt-6 pt-4 border-t border-white/10">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-xs text-white/50">{t('seasonTrend')}</div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-white/40">&empty;</span>
-                <span className={`font-mono font-bold tabular-nums text-sm ${scoreColor}`}>{avgScore}</span>
-              </div>
-            </div>
-            <MiniSparkline values={gwScores.map(g => g.score)} width={400} height={48} />
-          </div>
-        )}
       </Card>
 
-      {/* ── Gameweek Score Bars ── */}
-      {gwScores.length > 0 ? (
-        <GameweekScoreBar scores={gwScores} maxDisplay={15} />
-      ) : (
-        <Card className="p-6 text-center">
-          <Activity className="size-8 text-white/15 mx-auto mb-2" aria-hidden="true" />
-          <div className="text-sm text-white/40">{t('noGwScores')}</div>
-          <div className="text-xs text-white/25 mt-1 text-pretty">{t('noGwScoresHint')}</div>
-        </Card>
+      {/* ── 3. Stats Breakdown (Opta-style percentile bars) ── */}
+      {allPlayers.length >= 5 && (
+        <StatsBreakdown player={player} allPlayers={allPlayers} />
       )}
 
-      {/* ── Upcoming Fixtures ── */}
+      {/* ── 4. Upcoming Fixtures ── */}
       {player.clubId && (
         <UpcomingFixtures clubId={player.clubId} />
       )}
 
-      {/* ── Fantasy CTA ── */}
+      {/* ── 5. Fantasy CTA ── */}
       <FantasyCTA holdingQty={holdingQty} />
 
-      {/* ── Attribute Radar ── */}
-      <Card className="p-4 md:p-6">
-        <h3 className="font-black text-lg mb-4 flex items-center gap-2 text-balance">
-          <Activity className="size-5 text-sky-400" aria-hidden="true" />
-          {t('attributeRadar')}
-        </h3>
-        <div className="flex justify-center">
-          <RadarChart
-            datasets={[{
-              axes: buildPlayerRadarAxes({
-                goals: player.stats.goals,
-                assists: player.stats.assists,
-                cleanSheets: player.stats.cleanSheets,
-                matches: player.stats.matches,
-                perfL5: player.perf.l5,
-                perfL15: player.perf.l15,
-                saves: player.stats.saves,
-                minutes: player.stats.minutes,
-              }, radarLabels),
-              color: player.pos === 'GK' ? '#34d399' : player.pos === 'DEF' ? '#fbbf24' : player.pos === 'MID' ? '#38bdf8' : '#fb7185',
-            }]}
-            size={260}
-          />
-        </div>
-      </Card>
-
-      {/* ── Player Info Grid ── */}
+      {/* ── 6. Player Info Grid ── */}
       <Card className="p-4 md:p-6">
         <h3 className="font-black text-lg mb-4 flex items-center gap-2 text-balance">
           <Info className="size-5 text-white/50" aria-hidden="true" />
@@ -210,7 +118,7 @@ export default function PerformanceTab({
         </div>
       </Card>
 
-      {/* ── DPC Supply Ring ── */}
+      {/* ── 7. DPC Supply Ring ── */}
       <Card className="p-4 md:p-6">
         <h3 className="font-black text-lg mb-4 flex items-center gap-2 text-balance">
           <BarChart3 className="size-5 text-gold" aria-hidden="true" />
@@ -250,7 +158,7 @@ export default function PerformanceTab({
         </div>
       </Card>
 
-      {/* ── Contract Status ── */}
+      {/* ── 8. Contract Status ── */}
       {player.contractMonthsLeft > 0 && (() => {
         const progressPercent = Math.max(0, Math.min(100, ((36 - player.contractMonthsLeft) / 36) * 100));
         return (
@@ -314,7 +222,7 @@ export default function PerformanceTab({
         );
       })()}
 
-      {/* ── PBT Widget ── */}
+      {/* ── 9. PBT Widget ── */}
       <Card className="overflow-hidden">
         <div className={`${player.isLiquidated ? 'bg-gradient-to-r from-white/5 to-white/[0.02]' : 'bg-gradient-to-r from-gold/20 to-orange-500/10'} border-b border-gold/20 p-4`}>
           <div className="flex items-center justify-between">
