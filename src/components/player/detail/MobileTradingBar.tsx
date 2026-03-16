@@ -32,7 +32,7 @@ export default function MobileTradingBar({
             <span className="font-mono font-black text-lg text-gold gold-glow">
               {fmtScout(floor)}
             </span>
-            <span className="text-[10px] text-white/40">$SCOUT</span>
+            <span className="text-[10px] text-white/40">Credits</span>
           </div>
           <div className="flex items-center gap-1.5 mt-0.5">
             {change24h !== 0 && (

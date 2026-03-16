@@ -169,7 +169,7 @@ export function AdminTreasuryTab() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
           icon={<Wallet aria-hidden="true" className="size-5 text-gold" />}
-          label="Umlauf ($SCOUT)"
+          label="Umlauf (Credits)"
           value={fmt(netSupply)}
         />
         <StatCard
@@ -191,7 +191,7 @@ export function AdminTreasuryTab() {
 
       {/* $SCOUT Flow */}
       <Card className="p-5 space-y-4">
-        <h3 className="text-sm font-black text-white/80 uppercase tracking-wide">$SCOUT Geldfluss</h3>
+        <h3 className="text-sm font-black text-white/80 uppercase tracking-wide">Credits Geldfluss</h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Inflows */}
@@ -269,7 +269,7 @@ export function AdminTreasuryTab() {
         <h3 className="text-sm font-black text-white/80 uppercase tracking-wide">Founding Passes</h3>
         <div className="grid grid-cols-3 gap-3">
           <MiniStat label="Verkauft" value={String(stats.passesSold)} icon={<Gift className="size-4" />} />
-          <MiniStat label="$SCOUT vergeben" value={fmt(stats.passBcredits)} color="text-gold" icon={<Wallet className="size-4" />} />
+          <MiniStat label="Credits vergeben" value={fmt(stats.passBcredits)} color="text-gold" icon={<Wallet className="size-4" />} />
           <MiniStat label="Welcome Bonus" value={String(stats.welcomeBonusesClaimed)} icon={<Users className="size-4" />} />
         </div>
       </Card>

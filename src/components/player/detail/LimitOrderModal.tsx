@@ -93,7 +93,7 @@ export default function LimitOrderModal({ open, onClose, playerName, floorPrice 
                   placeholder={fmtScout(floorPrice)}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 font-mono text-base placeholder:text-white/20 hover:border-white/20 focus:border-gold/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 transition-colors"
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-white/30 pointer-events-none">$SCOUT</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-white/30 pointer-events-none">Credits</span>
               </div>
             </div>
 
@@ -114,7 +114,7 @@ export default function LimitOrderModal({ open, onClose, playerName, floorPrice 
             {/* Current Price Info */}
             <div className="flex items-center justify-between text-xs text-white/40 bg-surface-minimal rounded-lg px-3 py-2">
               <span>{t('limitOrderCurrentFloor')}</span>
-              <span className="font-mono font-bold text-white/60">{fmtScout(floorPrice)} $SCOUT</span>
+              <span className="font-mono font-bold text-white/60">{fmtScout(floorPrice)} CR</span>
             </div>
 
             {/* Submit */}

@@ -1,35 +1,28 @@
 # Session Handoff
-## Letzte Session: 2026-03-16 (Quality Sprint — Bugs + Konsistenz)
+## Letzte Session: 2026-03-16 (Session 235 — Scout Card Rename + Master Strategy)
 ## Was wurde gemacht
-- **Hydration Fix:** SideNav/BottomNav mounted-state pattern verhindert className-Mismatch → 0 Hydration Errors
-- **Market/Profile/Compare laden** — waren vorher komplett leer/crashed (Cascade vom Hydration Error)
-- **$SCOUT Branding (ADR-021):** 370+ "bCredits" → "$SCOUT" (108× de.json, 108× tr.json, 134× TSX, 20× TS)
-- **i18n:** 30+ hardcoded Strings → t(), 16 neue Keys (de+tr), ErrorState/InfoTooltip/TopBar/SideNav/BottomNav
-- **BottomNav Overflow:** flex-1 min-w-0 + truncate — "Commun..." → "Community" sichtbar
-- **Page Titles:** 5 Dateien — "BeScout | BeScout" Duplikat entfernt
-- **Preis-Info:** Purple/Magenta → Gold+Gruen (Design System konform)
-- **Empty State Icons:** Player MarktTab Sections
-- **Fantasy 6er → 7er:** LineupFormat, Formations (5 neue 7er), Admin-UIs, i18n, DB (50 Events migriert)
-- **DPC Supply 300:** Trading/IPO Limits 10000→300, DB (63 Spieler korrigiert)
-- **silver → silber:** AirdropTier, BadgeLevel, alle Referenzen
-- **Salary Cap:** Admin-Input fehlte centsToBsd/bsdToCents Konvertierung
-- **Projektbewertung:** Analyse aus 6 Perspektiven (CTO, VC, Fan, Club, Markt, Wert)
-## 7 Commits
-- 453f0b7: Hydration + i18n + $SCOUT (106 files)
-- 0fa3379: Preis-Info Design System
-- f5afea9: Empty State Icons
-- ed8e9be: Fantasy 6er→7er (14 files + DB)
-- 8a083fc: silver→silber + DPC 300 (9 files + DB)
-- 297e5b6: Salary Cap Cents Fix
-## Offene Arbeit
-- Wording-Compliance-Scan (TradingDisclaimer auf allen $SCOUT/DPC Seiten)
-- Onboarding Tutorial (neue User verstehen DPCs nicht)
-- Visual Polish: Trading Card Image-Fallback, Home Dashboard fuer neue User
-- Remaining hardcoded strings in Admin-only pages (LOW priority)
-## Learnings (→ memory/)
-- feedback_quality_review_workflow.md: Never build during dev, HMR traps, max 2-3 agents
-- feedback_i18n_namespace_trap.md: Verify JSON namespace with node require()
-- mounted state pattern fuer Hydration (nicht suppressHydrationWarning auf Link)
-- Frischer Browser-Context fuer Tests (alter Context cached alte Chunks)
+- **DPC → Scout Card Rename:** 251 i18n (de+tr) + ~40 TSX = ~290 Stellen. Unit-Label: "SC". Code-Internals (Variablen, DB, Types) unverändert.
+- **Pilot-to-Token Master Strategy:** Holy Grail Dokument erstellt (`docs/plans/2026-03-16-pilot-founding-strategy-design.md`). 13 Sektionen, 15-Step Sequential Thinking Review, 7 Fehler aus früheren Analysen korrigiert.
+- **Token-Allokation finalisiert:** 9 Buckets (Migration 13%, Pre-ICO 8%, Main ICO 15%, Team 12%, Referral 12%, Liquidity 5%, Engagement 18%, Legal 5%, Reserve 12%)
+- **Founder Pool korrigiert:** Von 5% IPO Fee + 10% Token-Bucket → 1% IPO Fee post-Token, operativ, KEIN Token-Bucket
+- **Gründer-Vergütung eingebaut:** €50K IP-Transfer + €5K/Mo Gehalt ab Malta Ltd.
+- **Business Layer Erkenntnisse dokumentiert:** 10 Sektionen mit Deep Insights zu Credit-Wirtschaft, Token-Pricing, Legal, Club-Ökonomie
+## 1 Commit
+- 0a7fb61: DPC→Scout Card rename + Master Strategy (32 files)
+## Offene Arbeit (Nächste Prioritäten)
+1. **$SCOUT → Credits Rename** in UI (~150 Stellen, i18n + TSX) — höchste Priorität
+2. **Stripe Integration** — Founding Pass Checkout
+3. **Landing Page** — Founding Pass Verkauf + Knappheits-Counter
+4. **AGB + Datenschutzerklärung** — Legal Basics vor Launch
+5. **Welcome Bonus: 10.000 → 1.000** — DB + Code
+6. **SC pro Spieler: 300 → 500** — DB Migration
+7. **Founding Pass Self-Service** — Frontend Checkout Flow
+## Key Decisions (diese Session)
+- Credits (nicht $SCOUT) während Pilot — MiCA konform
+- CASP erst Year 2 — Credits ≠ Crypto, spart €147K
+- Migration-Bonus NIE kommunizieren — Legal Schutz
+- Pre-ICO €0,01 (€10M FDV), Main ICO €0,03 (€30M FDV)
+- Founder Pool: 1% IPO Fee, nur post-Token, operativ
+- IPO Split Pilot: 85/10/5 (unverändert), Post-Token: 84/10/5/1
 ## Blocker
 - Keine

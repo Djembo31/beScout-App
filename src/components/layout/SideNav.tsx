@@ -102,7 +102,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
                   {balanceCents === null ? (
                     <span className="inline-block w-16 h-4 rounded bg-gold/20 animate-pulse motion-reduce:animate-none" />
                   ) : (
-                    <>{formatScout(balanceCents)} $SCOUT</>
+                    <>{formatScout(balanceCents)} CR</>
                   )}
                 </div>
               </div>

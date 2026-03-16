@@ -72,7 +72,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card className="p-4">
           <div className="text-xs text-white/40 mb-1">{t('cfPaidLabel')}</div>
-          <div className="text-lg font-mono font-black text-cyan-400 tabular-nums">{fmtScout(centsToBsd(stats?.totalPaid ?? 0))} $SCOUT</div>
+          <div className="text-lg font-mono font-black text-cyan-400 tabular-nums">{fmtScout(centsToBsd(stats?.totalPaid ?? 0))} CR</div>
         </Card>
         <Card className="p-4">
           <div className="text-xs text-white/40 mb-1">{t('cfPayoutsLabel')}</div>
@@ -80,7 +80,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
         </Card>
         <Card className="p-4">
           <div className="text-xs text-white/40 mb-1">{t('adPaidLabel')}</div>
-          <div className="text-lg font-mono font-black text-lime-400 tabular-nums">{fmtScout(centsToBsd(adStats?.totalPaid ?? 0))} $SCOUT</div>
+          <div className="text-lg font-mono font-black text-lime-400 tabular-nums">{fmtScout(centsToBsd(adStats?.totalPaid ?? 0))} CR</div>
         </Card>
         <Card className="p-4">
           <div className="text-xs text-white/40 mb-1">{t('adPayoutsLabel')}</div>
@@ -150,7 +150,7 @@ export function AdminCreatorFundTab({ adminId }: Props) {
                     <td className="py-1.5 px-2 text-white/60">{p.period_start} – {p.period_end}</td>
                     <td className="py-1.5 px-2 text-right font-mono text-white/60 tabular-nums">{p.impression_count}</td>
                     <td className="py-1.5 px-2 text-right font-mono text-white/60 tabular-nums">{p.impression_share_pct.toFixed(1)}%</td>
-                    <td className="py-1.5 px-2 text-right font-mono text-green-500 font-bold tabular-nums">{fmtScout(centsToBsd(p.payout_cents))} $SCOUT</td>
+                    <td className="py-1.5 px-2 text-right font-mono text-green-500 font-bold tabular-nums">{fmtScout(centsToBsd(p.payout_cents))} CR</td>
                     <td className="py-1.5 px-2">
                       <span className={cn(
                         'px-1.5 py-0.5 rounded text-[10px] font-semibold',

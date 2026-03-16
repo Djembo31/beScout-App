@@ -127,7 +127,7 @@ export const DashboardTab = ({
             {lastEvent.rewardCents > 0 && (
               <div className="p-3 bg-gold/10 rounded-lg border border-gold/20 flex items-center gap-2">
                 <Gift className="size-4 text-gold" aria-hidden="true" />
-                <span className="text-sm">{t('rewardLabel')}: <strong>{fmtScout(centsToBsd(lastEvent.rewardCents))} $SCOUT</strong></span>
+                <span className="text-sm">{t('rewardLabel')}: <strong>{fmtScout(centsToBsd(lastEvent.rewardCents))} CR</strong></span>
               </div>
             )}
           </Card>
@@ -267,7 +267,7 @@ export const DashboardTab = ({
                 <span className="text-white/50">{t('dashboard.place')} <span className="font-mono font-bold text-green-500">#{currentLineup.rank}</span> / {currentLineup.totalParticipants}</span>
                 {currentLineup.rewardCents > 0 && (
                   <span className="text-gold font-mono font-bold flex items-center gap-1">
-                    <Gift className="size-3" aria-hidden="true" /> {fmtScout(centsToBsd(currentLineup.rewardCents))} $SCOUT
+                    <Gift className="size-3" aria-hidden="true" /> {fmtScout(centsToBsd(currentLineup.rewardCents))} CR
                   </span>
                 )}
               </div>
@@ -333,7 +333,7 @@ export const DashboardTab = ({
                     <span className="font-medium text-sm truncate">{event.name}</span>
                     <span className="text-xs text-white/40">{event.status === 'ended' ? tc('ended') : formatCountdown(event.lockTime, t('countdownStarted'))}</span>
                   </div>
-                  <div className="text-xs text-white/40 mt-1">{event.format} • {event.buyIn === 0 ? tc('free') : `${event.buyIn} $SCOUT`}</div>
+                  <div className="text-xs text-white/40 mt-1">{event.format} • {event.buyIn === 0 ? tc('free') : `${event.buyIn} CR`}</div>
                 </button>
               ))}
             </div>
@@ -363,7 +363,7 @@ export const DashboardTab = ({
                     <span className="font-medium text-sm truncate">{event.name}</span>
                     <span className="text-xs text-white/40">{formatCountdown(event.startTime, t('countdownStarted'))}</span>
                   </div>
-                  <div className="text-xs text-white/40 mt-1">{event.buyIn === 0 ? tc('free') : `${event.buyIn} $SCOUT`}</div>
+                  <div className="text-xs text-white/40 mt-1">{event.buyIn === 0 ? tc('free') : `${event.buyIn} CR`}</div>
                 </button>
               ))}
             </div>

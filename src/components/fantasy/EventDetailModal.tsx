@@ -564,7 +564,7 @@ export const EventDetailModal = ({
                 {event.buyIn > 0 && (
                   <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
                     <span className="text-white/60">{t('entryFeeLabel')}</span>
-                    <span className="font-bold text-gold">{fmtScout(event.buyIn)} $SCOUT</span>
+                    <span className="font-bold text-gold">{fmtScout(event.buyIn)} CR</span>
                   </div>
                 )}
                 {(event.ticketCost ?? 0) > 0 && (

@@ -100,7 +100,7 @@ export default function BestandSellModal({ item, open, onClose, onSell, onCancel
                   <div key={listing.id} className="flex items-center justify-between px-3 py-2 bg-gold/[0.03] border border-gold/10 rounded-xl">
                     <div className="text-sm">
                       <span className="font-mono font-bold tabular-nums">{listing.qty}×</span>
-                      <span className="text-gold font-mono font-bold tabular-nums ml-2">{fmtScout(listing.priceBsd)} $SCOUT</span>
+                      <span className="text-gold font-mono font-bold tabular-nums ml-2">{fmtScout(listing.priceBsd)} CR</span>
                       <span className="text-white/25 text-xs ml-2">({t('sellNetShort')} {fmtScout(listing.priceBsd * listing.qty * (1 - FEE_RATE))})</span>
                       {listing.expiresAt > 0 && (
                         <span className={cn('inline-flex items-center gap-0.5 text-[10px] ml-2 font-mono tabular-nums', isExpiringSoon ? 'text-amber-400/70' : 'text-white/25')}>
@@ -135,7 +135,7 @@ export default function BestandSellModal({ item, open, onClose, onSell, onCancel
                     <span className="text-sky-300 font-bold">@{offer.sender_handle}</span>
                     <span className="text-white/40 mx-2">{t('sellOfferText')}</span>
                     <span className="font-mono font-bold tabular-nums">{offer.quantity}×</span>
-                    <span className="text-gold font-mono font-bold tabular-nums ml-1">{fmtScout(centsToBsd(offer.price))} $SCOUT</span>
+                    <span className="text-gold font-mono font-bold tabular-nums ml-1">{fmtScout(centsToBsd(offer.price))} CR</span>
                   </div>
                   <span className="text-[10px] text-sky-400/50 font-bold">{t('sellViewOffer')} &rarr;</span>
                 </Link>
@@ -158,7 +158,7 @@ export default function BestandSellModal({ item, open, onClose, onSell, onCancel
                   placeholder={t('sellPricePlaceholder')}
                   aria-label={t('sellPricePlaceholder')}
                   className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base font-mono focus:outline-none focus:border-gold/40 placeholder:text-white/25 pr-12" />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-white/30 font-bold">$SCOUT</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-white/30 font-bold">Credits</span>
               </div>
             </div>
             <div className="flex items-center gap-1.5">

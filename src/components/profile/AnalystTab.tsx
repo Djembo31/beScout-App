@@ -307,7 +307,7 @@ export default function AnalystTab({
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-black">{tp('contentEarnings')}</h3>
             <span className="text-sm font-mono font-bold text-green-500">
-              +{formatScout(contentEarnings.total)} $SCOUT
+              +{formatScout(contentEarnings.total)} CR
             </span>
           </div>
           <div className="space-y-2">
@@ -334,7 +334,7 @@ export default function AnalystTab({
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/[0.06]">
             <span className="text-[11px] text-white/40 font-bold">Total</span>
             <span className="text-sm font-mono font-bold text-green-500">
-              +{formatScout(contentEarnings.total)} $SCOUT
+              +{formatScout(contentEarnings.total)} CR
             </span>
           </div>
         </Card>
@@ -355,7 +355,7 @@ export default function AnalystTab({
               <div className="text-[15px] font-bold font-mono tabular-nums text-green-500">
                 +{formatScout(bountyStats.total)}
               </div>
-              <div className="text-[11px] text-white/40 mt-0.5">$SCOUT</div>
+              <div className="text-[11px] text-white/40 mt-0.5">Credits</div>
             </div>
           </div>
         </Card>
@@ -401,7 +401,7 @@ export default function AnalystTab({
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-black">{tp('creatorFundTitle')}</h3>
             <span className="text-sm font-mono font-bold text-green-500">
-              +{formatScout(payoutSummary.totalPaid)} $SCOUT
+              +{formatScout(payoutSummary.totalPaid)} CR
             </span>
           </div>
           <div className="space-y-1.5">

@@ -104,7 +104,7 @@ function OfferCard({
             </span>
             <span className="text-white/30">&bull;</span>
             <span className="font-mono font-bold tabular-nums text-gold">
-              {fmtScout(centsToBsd(offer.price))} $SCOUT
+              {fmtScout(centsToBsd(offer.price))} CR
             </span>
             <span className="text-white/30">&bull;</span>
             <span className="text-white/60 tabular-nums">{offer.quantity}x</span>
@@ -609,7 +609,7 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
         <Modal open={true} onClose={() => { setCounterModal(null); setCounterPrice(''); }} title={t('counterOffer')}>
           <div className="space-y-4">
             <div className="text-sm text-white/60">
-              {t('originalPrice')} <span className="font-mono tabular-nums text-gold">{fmtScout(centsToBsd(counterModal.price))} $SCOUT</span> — {counterModal.player_first_name} {counterModal.player_last_name}
+              {t('originalPrice')} <span className="font-mono tabular-nums text-gold">{fmtScout(centsToBsd(counterModal.price))} CR</span> — {counterModal.player_first_name} {counterModal.player_last_name}
             </div>
             <div>
               <label htmlFor="counter-price" className="text-sm text-white/60 mb-1 block">{t('yourPrice')}</label>

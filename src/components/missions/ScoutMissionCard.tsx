@@ -58,7 +58,7 @@ export default function ScoutMissionCard({ mission, progress, userTier, onSubmit
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Gift className="size-4 text-gold" />
-          <span className="font-mono font-bold text-sm text-gold">{fmtScout(mission.rewardCents / 100)} $SCOUT</span>
+          <span className="font-mono font-bold text-sm text-gold">{fmtScout(mission.rewardCents / 100)} CR</span>
           {mission.minTier && (
             <TierBadge tier={mission.minTier as FanTier} size="sm" />
           )}
@@ -114,6 +114,6 @@ function buildCriteriaLabels(criteria: ScoutMission['criteria'], t: (key: string
   if (criteria.min_goals) labels.push(t('criteriaGoals', { value: criteria.min_goals }));
   if (criteria.min_assists) labels.push(t('criteriaAssists', { value: criteria.min_assists }));
   if (criteria.min_clean_sheets) labels.push(t('criteriaCS', { value: criteria.min_clean_sheets }));
-  if (criteria.max_floor_price_cents) labels.push(t('criteriaFloor', { value: `${fmtScout(criteria.max_floor_price_cents / 100)} $SCOUT` }));
+  if (criteria.max_floor_price_cents) labels.push(t('criteriaFloor', { value: `${fmtScout(criteria.max_floor_price_cents / 100)} CR` }));
   return labels;
 }

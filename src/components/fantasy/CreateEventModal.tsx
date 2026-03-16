@@ -183,15 +183,15 @@ export const CreateEventModal = ({
           <div className="text-sm text-white/60 mb-2">{t('previewSection')}</div>
           <div className="grid grid-cols-3 gap-3 text-center">
             <div>
-              <div className="font-mono font-bold text-lg text-gold tabular-nums">{buyIn} $SCOUT</div>
+              <div className="font-mono font-bold text-lg text-gold tabular-nums">{buyIn} CR</div>
               <div className="text-xs text-white/40">{t('entryLabel')}</div>
             </div>
             <div>
-              <div className="font-mono font-bold text-lg text-purple-400 tabular-nums">{prizePool} $SCOUT</div>
+              <div className="font-mono font-bold text-lg text-purple-400 tabular-nums">{prizePool} CR</div>
               <div className="text-xs text-white/40">{t('prizeMoney')}</div>
             </div>
             <div>
-              <div className="font-mono font-bold text-lg text-white/60 tabular-nums">{creatorFee} $SCOUT</div>
+              <div className="font-mono font-bold text-lg text-white/60 tabular-nums">{creatorFee} CR</div>
               <div className="text-xs text-white/40">{t('creatorFee')}</div>
             </div>
           </div>

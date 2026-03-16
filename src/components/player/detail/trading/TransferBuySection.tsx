@@ -53,7 +53,7 @@ export default function TransferBuySection({
                   <ShoppingCart className="size-4 text-sky-300" aria-hidden="true" />
                   <span className="text-sm text-sky-300 font-bold">{t('userOffers')}</span>
                 </div>
-                <span className="font-mono font-black tabular-nums text-lg text-gold">{fmtScout(floorBsd)} $SCOUT</span>
+                <span className="font-mono font-black tabular-nums text-lg text-gold">{fmtScout(floorBsd)} CR</span>
               </div>
               <div className="text-[10px] text-white/40 mt-1">
                 {sellOrderCount !== 1
@@ -77,7 +77,7 @@ export default function TransferBuySection({
             <div className="bg-black/20 rounded-xl p-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-white/40">{t('pricePerDpc')}</span>
-                <span className="font-mono tabular-nums text-white/60">{fmtScout(floorBsd)} $SCOUT</span>
+                <span className="font-mono tabular-nums text-white/60">{fmtScout(floorBsd)} CR</span>
               </div>
               {buyQty > 1 && (
                 <div className="flex items-center justify-between text-xs">
@@ -87,17 +87,17 @@ export default function TransferBuySection({
               )}
               <div className="border-t border-white/10 pt-2 flex items-center justify-between">
                 <span className="text-white/50 text-sm">{t('totalCost')}</span>
-                <span className="font-mono font-black tabular-nums text-xl text-gold">{fmtScout(totalBsd)} $SCOUT</span>
+                <span className="font-mono font-black tabular-nums text-xl text-gold">{fmtScout(totalBsd)} CR</span>
               </div>
               <div className="border-t border-white/10 pt-2 flex items-center justify-between text-xs">
                 <span className="text-white/40">{t('yourBalance')}</span>
-                <span className="font-mono tabular-nums text-white/50">{balanceCents !== null ? formatScout(balanceCents) : '...'} $SCOUT</span>
+                <span className="font-mono tabular-nums text-white/50">{balanceCents !== null ? formatScout(balanceCents) : '...'} CR</span>
               </div>
               {balanceCents !== null && (
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-white/40">{t('balanceAfter')}</span>
                   <span className={`font-mono font-bold tabular-nums ${canAfford ? 'text-green-500' : 'text-red-400'}`}>
-                    {formatScout(balanceCents - floorCents * buyQty)} $SCOUT
+                    {formatScout(balanceCents - floorCents * buyQty)} CR
                   </span>
                 </div>
               )}

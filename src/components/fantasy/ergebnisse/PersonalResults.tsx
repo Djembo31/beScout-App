@@ -153,7 +153,7 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
                     </div>
                   </div>
                   {event.userReward && event.userReward > 0 && (
-                    <span className="text-xs font-bold text-gold flex-shrink-0">+{(event.userReward / 100).toFixed(0)} $SCOUT</span>
+                    <span className="text-xs font-bold text-gold flex-shrink-0">+{(event.userReward / 100).toFixed(0)} CR</span>
                   )}
                 </div>
               );

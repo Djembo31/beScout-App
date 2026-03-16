@@ -110,7 +110,7 @@ export default function MissionBanner() {
               <span className="font-black text-sm">{tm('title')}</span>
               {unclaimedReward > 0 && (
                 <span className="text-[10px] font-bold text-gold bg-gold/10 px-1.5 py-0.5 rounded-full">
-                  +{fmtScout(centsToBsd(unclaimedReward))} $SCOUT
+                  +{fmtScout(centsToBsd(unclaimedReward))} CR
                 </span>
               )}
             </div>

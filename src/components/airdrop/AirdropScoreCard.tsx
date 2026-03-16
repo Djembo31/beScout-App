@@ -80,7 +80,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-white/50 uppercase">$SCOUT Airdrop</span>
+              <span className="text-xs font-bold text-white/50 uppercase">Credits Airdrop</span>
               <span
                 className="px-1.5 py-0.5 rounded text-[9px] font-black"
                 style={{ backgroundColor: tier.bg, color: tier.color, border: `1px solid ${tier.border}` }}
@@ -107,7 +107,7 @@ export default function AirdropScoreCard({ userId, compact = false, totalUsers }
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Rocket className="size-4 text-purple-400" />
-          <span className="text-xs font-bold text-white/50 uppercase">$SCOUT Airdrop Score</span>
+          <span className="text-xs font-bold text-white/50 uppercase">Credits Airdrop Score</span>
         </div>
         <span
           className="px-2 py-0.5 rounded-lg text-[10px] font-black"

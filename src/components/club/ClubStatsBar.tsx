@@ -70,7 +70,7 @@ export function ClubStatsBar({
           </div>
           <div className="text-2xl md:text-3xl font-mono font-black tabular-nums text-gold">
             <span ref={volumeCount.ref}>{fmtScout(volumeCount.value)}</span>
-            <span className="text-sm text-white/40 ml-1">$SCOUT</span>
+            <span className="text-sm text-white/40 ml-1">Credits</span>
           </div>
         </Card>
       </div>

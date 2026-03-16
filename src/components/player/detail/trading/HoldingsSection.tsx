@@ -123,15 +123,15 @@ export default function HoldingsSection({
                     <div className="bg-black/20 rounded-lg px-3 py-2 space-y-1.5">
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-white/40">{t('gross')}</span>
-                        <span className="font-mono tabular-nums text-white/40">{fmtScout(gross)} $SCOUT</span>
+                        <span className="font-mono tabular-nums text-white/40">{fmtScout(gross)} CR</span>
                       </div>
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-white/40">{t('feePercent', { pct: feePct })}</span>
-                        <span className="font-mono tabular-nums text-red-400/70">-{fmtScout(fee)} $SCOUT</span>
+                        <span className="font-mono tabular-nums text-red-400/70">-{fmtScout(fee)} CR</span>
                       </div>
                       <div className="border-t border-white/10 pt-1.5 flex items-center justify-between text-sm">
                         <span className="text-white/50">{t('netProceeds')}</span>
-                        <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(net)} $SCOUT</span>
+                        <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(net)} CR</span>
                       </div>
                     </div>
                   );
@@ -163,7 +163,7 @@ export default function HoldingsSection({
                 return (
                   <div key={order.id} className="flex items-center justify-between p-2 bg-surface-minimal rounded-lg border border-white/10">
                     <div>
-                      <div className="font-mono font-bold tabular-nums text-sm text-gold">{formatScout(order.price)} $SCOUT</div>
+                      <div className="font-mono font-bold tabular-nums text-sm text-gold">{formatScout(order.price)} CR</div>
                       <div className="text-[10px] text-white/40">
                         {remaining}/{order.quantity} SC
                         {order.filled_qty > 0 && <span className="text-green-500"> &middot; {t('soldCount', { count: order.filled_qty })}</span>}

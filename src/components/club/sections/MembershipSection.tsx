@@ -85,7 +85,7 @@ export function MembershipSection({ userId, clubId, clubColor, onSubscribed }: P
                 <p className="text-white/70">
                   <span className="text-xl font-black font-mono tabular-nums">{fmtScout(config.priceBsd)}</span>
                   {' '}
-                  <span className="text-xs text-white/40">$SCOUT / Monat</span>
+                  <span className="text-xs text-white/40">CR / Monat</span>
                 </p>
               </div>
 

@@ -85,7 +85,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
           </div>
           {loading ? <Skeleton className="h-7 w-16" /> : (
             <div className="text-xl font-mono font-black tabular-nums text-gold">
-              {formatScout(data?.topFans.reduce((s, f) => s + f.volume_cents, 0) ?? 0)} $SCOUT
+              {formatScout(data?.topFans.reduce((s, f) => s + f.volume_cents, 0) ?? 0)} CR
             </div>
           )}
         </Card>
@@ -97,7 +97,7 @@ export default function AdminAnalyticsTab({ club }: { club: ClubWithAdmin }) {
           <h3 className="text-sm font-bold text-white/70">{t('topFansTrading')}</h3>
           {data?.topFans && data.topFans.length > 0 && (
             <Button variant="ghost" size="sm" aria-label={t('exportCsv')} onClick={() => downloadCsv(
-              data.topFans.map(f => ({ Handle: f.handle, Name: f.display_name ?? '', Trades: f.trade_count, 'Volume ($SCOUT)': formatScout(f.volume_cents) })),
+              data.topFans.map(f => ({ Handle: f.handle, Name: f.display_name ?? '', Trades: f.trade_count, 'Volume (Credits)': formatScout(f.volume_cents) })),
               `top-fans-${new Date().toISOString().slice(0, 10)}.csv`,
             )}>
               <Download className="size-3.5 mr-1" aria-hidden="true" />

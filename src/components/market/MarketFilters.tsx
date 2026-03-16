@@ -265,7 +265,7 @@ export default function MarketFilters({ showTransferFilters }: MarketFiltersProp
               <div className="text-[10px] text-white/40 font-semibold">{t('transferFiltersLabel', { defaultMessage: 'Transferliste Filter' })}</div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <div className="text-[10px] text-white/40 mb-1">{t('priceMin', { defaultMessage: 'Preis min. ($SCOUT)' })}</div>
+                  <div className="text-[10px] text-white/40 mb-1">{t('priceMin', { defaultMessage: 'Preis min. (Credits)' })}</div>
                   <input
                     type="number"
                     inputMode="numeric"
@@ -277,7 +277,7 @@ export default function MarketFilters({ showTransferFilters }: MarketFiltersProp
                   />
                 </div>
                 <div>
-                  <div className="text-[10px] text-white/40 mb-1">{t('priceMax', { defaultMessage: 'Preis max. ($SCOUT)' })}</div>
+                  <div className="text-[10px] text-white/40 mb-1">{t('priceMax', { defaultMessage: 'Preis max. (Credits)' })}</div>
                   <input
                     type="number"
                     inputMode="numeric"

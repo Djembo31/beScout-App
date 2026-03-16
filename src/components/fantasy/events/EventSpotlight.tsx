@@ -94,7 +94,7 @@ export function EventSpotlight({ events, onEventClick }: Props) {
               ) : event.status === 'late-reg' ? (
                 <div className="flex items-center gap-1.5 text-xs text-gold font-bold">
                   <Plus className="size-3" aria-hidden="true" />
-                  {event.buyIn === 0 ? t('joinBtn') : `${event.buyIn} $SCOUT`}
+                  {event.buyIn === 0 ? t('joinBtn') : `${event.buyIn} CR`}
                 </div>
               ) : (
                 <div className="flex items-center gap-1.5 text-xs text-white/40 font-bold">

@@ -125,7 +125,7 @@ export function getOnboardingProgress(stats: {
       completed: stats.holdingsCount > 0,
       labelDe: 'Kaufe deine erste Scout Card',
       labelTr: 'İlk Scout Card\'ını satın al',
-      rewardLabel: '+1.000 $SCOUT',
+      rewardLabel: '+1.000 CR',
       href: '/market?tab=kaufen',
     },
     {
@@ -214,8 +214,8 @@ export function getSuggestedAction(
     case 'evangelist':
       return {
         key: 'invite_friends',
-        labelDe: 'Lade Freunde ein und verdiene 500 $SCOUT',
-        labelTr: 'Arkadaşlarını davet et ve 500 $SCOUT kazan',
+        labelDe: 'Lade Freunde ein und verdiene 500 CR',
+        labelTr: 'Arkadaşlarını davet et ve 500 CR kazan',
         href: '/profile/settings',
       };
     case 'sustained':

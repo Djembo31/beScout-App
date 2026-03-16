@@ -150,7 +150,7 @@ export default function BuyOrdersSection({ buyOrders, playerMap }: BuyOrdersSect
                       <div key={uo.id} className="flex items-center justify-between">
                         <div className="text-[11px] text-white/50">
                           <span className="text-sky-400/60 font-bold mr-1">{t('buyOrderYours')}</span>
-                          <span className="font-mono tabular-nums">{uo.qty}× {fmtScout(centsToBsd(uo.price))} $SCOUT</span>
+                          <span className="font-mono tabular-nums">{uo.qty}× {fmtScout(centsToBsd(uo.price))} CR</span>
                           {uo.expiresAt > 0 && (
                             <span className={cn('inline-flex items-center gap-0.5 text-[10px] ml-2 font-mono tabular-nums', isExpiringSoon ? 'text-amber-400/70' : 'text-white/25')}>
                               <Clock className="size-2.5" aria-hidden="true" />
