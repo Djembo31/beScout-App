@@ -82,6 +82,7 @@ export default function FanRankOverview({
       <div className="flex items-center gap-2 mb-4">
         <Trophy className="size-4 text-gold" />
         <span className="font-black text-sm">{t('fanRank')}</span>
+        <span className="text-[10px] font-bold text-gold bg-gold/[0.08] border border-gold/20 px-1.5 py-0.5 rounded-full uppercase tracking-wider">Season 1</span>
       </div>
 
       {/* Badge + CSF Multiplier */}

@@ -80,6 +80,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
       <div className="flex items-center gap-2 mb-5">
         <Trophy className="size-4 text-gold" />
         <h3 className="font-black">{tsr('title')}</h3>
+        <span className="text-[10px] font-bold text-gold bg-gold/[0.08] border border-gold/20 px-1.5 py-0.5 rounded-full uppercase tracking-wider">Season 1</span>
       </div>
 
       {/* Timeline */}
