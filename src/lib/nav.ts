@@ -7,6 +7,7 @@ import {
   Shield,
   Rocket,
   Target,
+  Crown,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -27,6 +28,7 @@ export const NAV_MAIN: NavItem[] = [
 ];
 
 export const NAV_MORE: NavItem[] = [
+  { label: 'founding', href: '/founding', icon: Crown },
   { label: 'airdrop', href: '/airdrop', icon: Rocket },
 ];
 
