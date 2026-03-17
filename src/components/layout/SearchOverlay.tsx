@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Search, Loader2, X, Clock, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { fmtScout } from '@/lib/utils';
@@ -381,7 +382,7 @@ function PlayerResultRow({ r }: { r: RichSearchResult }) {
           {club && (
             <>
               {club.logo && (
-                <img src={club.logo} alt="" className="size-3.5 rounded-sm object-contain" />
+                <Image src={club.logo} alt="" width={14} height={14} className="size-3.5 rounded-sm object-contain" />
               )}
               <span>{club.short}</span>
               <span>·</span>
@@ -411,7 +412,7 @@ function ClubResultRow({ r }: { r: RichSearchResult }) {
         style={!r.clubLogo && r.clubColors ? { backgroundColor: r.clubColors.primary + '30' } : undefined}
       >
         {r.clubLogo ? (
-          <img src={r.clubLogo} alt="" className="size-7 object-contain" />
+          <Image src={r.clubLogo} alt="" width={28} height={28} className="size-7 object-contain" />
         ) : (
           <div
             className="size-4 rounded-full"
@@ -438,7 +439,7 @@ function ProfileResultRow({ r }: { r: RichSearchResult }) {
     <>
       <div className="size-9 rounded-xl bg-gold/10 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
         {r.avatarUrl ? (
-          <img src={r.avatarUrl} alt="" className="size-9 object-cover" />
+          <Image src={r.avatarUrl} alt="" width={36} height={36} className="size-9 object-cover" />
         ) : (
           <span className="font-black text-sm text-white/50">
             {(r.displayName || r.handle || '?').charAt(0).toUpperCase()}

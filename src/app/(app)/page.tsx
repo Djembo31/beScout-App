@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ErrorState } from '@/components/ui';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -626,7 +627,7 @@ export default function HomePage() {
                 >
                   <div className="size-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${color}20` }}>
                     {club.logo_url ? (
-                      <img src={club.logo_url} alt="" className="size-5 object-contain" />
+                      <Image src={club.logo_url} alt="" width={20} height={20} className="size-5 object-contain" />
                     ) : (
                       <Shield className="size-3.5" style={{ color }} />
                     )}

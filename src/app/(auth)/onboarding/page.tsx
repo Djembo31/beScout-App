@@ -312,7 +312,7 @@ function OnboardingContent() {
       {referralClub && !referrer && (
         <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-green-500/[0.06] border border-green-500/15">
           {referralClub.logo_url ? (
-            <img src={referralClub.logo_url} alt="" className="size-6 object-contain shrink-0" />
+            <Image src={referralClub.logo_url} alt="" width={24} height={24} className="size-6 object-contain shrink-0" />
           ) : (
             <Shield className="size-5 text-green-500 shrink-0" aria-hidden="true" />
           )}
@@ -606,7 +606,7 @@ function OnboardingContent() {
                         style={{ backgroundColor: `${color}20`, color }}
                       >
                         {club.logo_url ? (
-                          <img src={club.logo_url} alt="" className="size-5 object-contain" />
+                          <Image src={club.logo_url} alt="" width={20} height={20} className="size-5 object-contain" />
                         ) : (
                           club.short?.slice(0, 3)
                         )}

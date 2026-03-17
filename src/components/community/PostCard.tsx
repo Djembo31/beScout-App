@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowUp, ArrowDown, MessageSquare, Send,
   MoreHorizontal, Target, Briefcase, BadgeCheck, CheckCircle2,
@@ -305,7 +306,7 @@ export default function PostCard({
           {/* Post image */}
           {post.image_url && (
             <div className="rounded-xl overflow-hidden border border-white/10 mb-2">
-              <img src={post.image_url} alt="" className="w-full max-h-80 object-cover" loading="lazy" />
+              <Image src={post.image_url} alt="" width={800} height={400} className="w-full max-h-80 object-cover" />
             </div>
           )}
           {/* Exclusive badge */}

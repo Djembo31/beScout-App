@@ -196,7 +196,7 @@ function FixtureRow({ fixture, clubId, accent }: { fixture: Fixture; clubId: str
           style={{ backgroundColor: (oppColor ?? '#666') + '20', color: oppColor ?? '#aaa' }}
         >
           {oppClub?.logo ? (
-            <img src={oppClub.logo} alt="" className="size-5 object-contain" />
+            <Image src={oppClub.logo} alt="" width={20} height={20} className="size-5 object-contain" />
           ) : (
             oppShort.slice(0, 2)
           )}
@@ -323,10 +323,10 @@ function NextMatchCard({ fixtures, clubId, club }: { fixtures: Fixture[]; clubId
 
         {/* Opponent */}
         <div className="flex flex-col items-center gap-2">
-          <div className="size-12 md:size-16 rounded-full p-1.5 border border-white/20"
+          <div className="relative size-12 md:size-16 rounded-full p-1.5 border border-white/20"
             style={{ backgroundColor: (oppColor ?? '#666') + '15' }}>
             {oppClub?.logo ? (
-              <img src={oppClub.logo} alt="" className="object-contain w-full h-full" />
+              <Image src={oppClub.logo} alt="" fill className="object-contain" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-sm font-black" style={{ color: oppColor ?? '#aaa' }}>
                 {oppShort.slice(0, 3)}
@@ -375,7 +375,7 @@ function LastResultsCard({ fixtures, clubId }: { fixtures: Fixture[]; clubId: st
                 style={{ backgroundColor: (oppColor ?? '#666') + '20', color: oppColor ?? '#aaa' }}
               >
                 {oppClub?.logo ? (
-                  <img src={oppClub.logo} alt="" className="size-3.5 object-contain" />
+                  <Image src={oppClub.logo} alt="" width={14} height={14} className="size-3.5 object-contain" />
                 ) : (
                   oppName.slice(0, 2)
                 )}

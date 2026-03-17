@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import Image from 'next/image';
 import { Target, ChevronRight, ChevronLeft, User, Loader2 } from 'lucide-react';
 import { Modal, Button, Card } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
@@ -382,7 +383,7 @@ export function CreatePredictionModal({ open, onClose, gameweek, userId, current
 
 function FixtureClubLogo({ club }: { club: { logo?: string | null; colors?: { primary: string } } | null }) {
   if (club?.logo) {
-    return <img src={club.logo} alt="" className="size-6 rounded-full object-cover" />;
+    return <Image src={club.logo} alt="" width={24} height={24} className="size-6 rounded-full object-cover" />;
   }
   return <div className="size-5 rounded-full" style={{ backgroundColor: club?.colors?.primary ?? '#666' }} />;
 }

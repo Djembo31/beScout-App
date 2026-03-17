@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { Users, User, Shield, Crown, TrendingUp, Search, Loader2, Activity, Download } from 'lucide-react';
 import { Card, SearchInput, Button } from '@/components/ui';
 import { cn, downloadCsv } from '@/lib/utils';
@@ -189,9 +190,9 @@ export default function AdminFansTab({ club }: { club: ClubWithAdmin }) {
             {filteredFans.map(fan => (
               <div key={fan.userId} className="flex items-center gap-3 px-4 py-3 hover:bg-surface-minimal transition-colors">
                 {/* Avatar */}
-                <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/50 shrink-0 overflow-hidden">
+                <div className="relative w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/50 shrink-0 overflow-hidden">
                   {fan.avatarUrl ? (
-                    <img src={fan.avatarUrl} alt="" className="w-full h-full object-cover" />
+                    <Image src={fan.avatarUrl} alt="" fill className="object-cover" />
                   ) : (
                     fan.handle.substring(0, 2).toUpperCase()
                   )}

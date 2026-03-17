@@ -2,6 +2,7 @@
 
 import React, { memo, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { ChevronDown, Search, Compass } from 'lucide-react';
 import { useClub } from '@/components/providers/ClubProvider';
@@ -51,7 +52,7 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
           style={{ backgroundColor: `${clubColor}20`, color: clubColor }}
         >
           {activeClub.logo_url ? (
-            <img src={activeClub.logo_url} alt="" className="size-5 object-contain" />
+            <Image src={activeClub.logo_url} alt="" width={20} height={20} className="size-5 object-contain" />
           ) : (
             activeClub.short?.slice(0, 3)
           )}
@@ -92,7 +93,7 @@ export const ClubSwitcher = memo(function ClubSwitcher({ collapsed }: { collapse
                     style={{ backgroundColor: `${color}20`, color }}
                   >
                     {club.logo_url ? (
-                      <img src={club.logo_url} alt="" className="size-4 object-contain" />
+                      <Image src={club.logo_url} alt="" width={16} height={16} className="size-4 object-contain" />
                     ) : (
                       club.short?.slice(0, 3)
                     )}

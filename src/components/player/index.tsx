@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { AlertTriangle, PiggyBank, Tag, ShoppingCart } from 'lucide-react';
 import type { Pos, PlayerStatus, Player } from '@/types';
@@ -190,10 +191,10 @@ export function PlayerPhoto({ imageUrl, first, last, pos, size = 32, className =
   if (imageUrl) {
     return (
       <div
-        className={cn('rounded-full overflow-hidden shrink-0 border', borderColor, className)}
+        className={cn('relative rounded-full overflow-hidden shrink-0 border', borderColor, className)}
         style={{ width: s, height: s }}
       >
-        <img src={imageUrl} alt={`${first} ${last}`} className="w-full h-full object-cover" />
+        <Image src={imageUrl} alt={`${first} ${last}`} fill className="object-cover" />
       </div>
     );
   }
@@ -341,7 +342,7 @@ export function PlayerIdentity({ player, size = 'md', showMeta = true, showStatu
             style={{ width: clubLogoSize, height: clubLogoSize }}
           >
             {clubData.logo ? (
-              <img src={clubData.logo} alt={player.club} className="w-full h-full object-cover rounded-full" />
+              <Image src={clubData.logo} alt={player.club} fill className="object-cover rounded-full" />
             ) : (
               <div className="w-full h-full rounded-full border border-white/10" style={{ backgroundColor: clubData.colors.primary }} />
             )}

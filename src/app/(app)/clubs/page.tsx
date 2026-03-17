@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Search, Users, UserPlus, UserMinus, Shield, Compass, Calendar } from 'lucide-react';
 import { Card, Button, ErrorState, SearchInput, EmptyState, Skeleton, SkeletonCard } from '@/components/ui';
@@ -142,7 +143,7 @@ export default function ClubsDiscoveryPage() {
                         style={{ backgroundColor: `${color}15`, color }}
                       >
                         {club.logo_url ? (
-                          <img src={club.logo_url} alt="" className="size-7 object-contain" />
+                          <Image src={club.logo_url} alt="" width={28} height={28} className="size-7 object-contain" />
                         ) : (
                           club.short?.slice(0, 3)
                         )}
@@ -184,7 +185,7 @@ export default function ClubsDiscoveryPage() {
                       style={{ backgroundColor: `${color}15`, color }}
                     >
                       {club.logo_url ? (
-                        <img src={club.logo_url} alt="" className="size-8 object-contain" />
+                        <Image src={club.logo_url} alt="" width={32} height={32} className="size-8 object-contain" />
                       ) : (
                         club.short?.slice(0, 3)
                       )}

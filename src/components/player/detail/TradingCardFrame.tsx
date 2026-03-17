@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
 import { posTintColors } from '@/components/player/PlayerRow';
@@ -146,7 +147,7 @@ export default function TradingCardFrame({
               {/* Club Logo */}
               {clubData?.logo ? (
                 <div className="size-8 md:size-9 rounded-full bg-black/60 border border-white/10 flex items-center justify-center backdrop-blur-sm">
-                  <img src={clubData.logo} alt={clubData.name} className="size-6 md:size-7 rounded-full object-cover" />
+                  <Image src={clubData.logo} alt={clubData.name} width={28} height={28} className="size-6 md:size-7 rounded-full object-cover" />
                 </div>
               ) : (
                 <div className="size-8" />

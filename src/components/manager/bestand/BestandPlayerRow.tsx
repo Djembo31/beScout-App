@@ -2,6 +2,7 @@
 
 import React, { memo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import {
   TrendingUp, TrendingDown, Minus, DollarSign, Shield, Check as CheckIcon,
@@ -163,7 +164,7 @@ function VertragCols({ item }: { item: BestandPlayer }) {
         <StatusPill status={p.status} />
         <span className="text-white/40 flex items-center gap-1">
           {clubData?.logo ? (
-            <img src={clubData.logo} alt="" className="size-3.5 rounded-full object-cover" />
+            <Image src={clubData.logo} alt="" width={14} height={14} className="size-3.5 rounded-full object-cover" />
           ) : clubData?.colors?.primary ? (
             <div className="size-3.5 rounded-full" style={{ backgroundColor: clubData.colors.primary }} />
           ) : null}

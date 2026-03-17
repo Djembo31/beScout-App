@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Flame } from 'lucide-react';
 import { PlayerPhoto, getL5Color } from '@/components/player';
@@ -106,7 +107,7 @@ export default function ClubCard({
       {/* Club identity */}
       <div className="flex items-center gap-2 mb-2">
         {club.logo ? (
-          <img src={club.logo} alt="" className="size-7 rounded-full object-cover flex-shrink-0 ring-1 ring-white/10" />
+          <Image src={club.logo} alt="" width={28} height={28} className="size-7 rounded-full object-cover flex-shrink-0 ring-1 ring-white/10" />
         ) : (
           <div className="size-7 rounded-full flex-shrink-0 border border-white/10" style={{ backgroundColor: pc }} />
         )}

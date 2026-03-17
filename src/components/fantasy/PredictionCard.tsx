@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { CheckCircle, XCircle, Clock, MinusCircle } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { getClub } from '@/lib/clubs';
@@ -97,7 +98,7 @@ export function PredictionCard({ prediction }: PredictionCardProps) {
 
 function ClubDot({ club }: { club: { colors?: { primary: string }; logo?: string | null } | null }) {
   if (club?.logo) {
-    return <img src={club.logo} alt="" className="size-4 rounded-full object-cover" />;
+    return <Image src={club.logo} alt="" width={16} height={16} className="size-4 rounded-full object-cover" />;
   }
   return (
     <div

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import {
   ArrowLeft, Star, Share2, Bell, TrendingUp, TrendingDown,
@@ -100,7 +101,7 @@ export default function PlayerHero({
             </button>
             {showOverflow && (
               <>
-                <div className="fixed inset-0 z-30" onClick={() => setShowOverflow(false)} />
+                <div className="fixed inset-0 z-30" role="button" tabIndex={-1} aria-label="Close menu" onClick={() => setShowOverflow(false)} onKeyDown={(e) => { if (e.key === 'Escape') setShowOverflow(false); }} />
                 <div className="absolute right-0 top-full mt-1 z-40 bg-surface-popover/90 backdrop-blur-sm border border-white/[0.12] rounded-xl shadow-card-md overflow-hidden min-w-[180px]">
                   <button
                     onClick={() => { onToggleWatchlist(); setShowOverflow(false); }}
@@ -178,7 +179,7 @@ export default function PlayerHero({
             {/* Club · Position · Age */}
             <div className="flex items-center gap-2 text-xs md:text-sm text-white/60 mt-1 flex-wrap justify-center md:justify-start">
               {clubData?.logo && (
-                <img src={clubData.logo} alt={clubData.name} className="size-4 rounded-full object-cover" />
+                <Image src={clubData.logo} alt={clubData.name} width={16} height={16} className="size-4 rounded-full object-cover" />
               )}
               <span>{player.club}</span>
               <span className="text-white/20">&middot;</span>

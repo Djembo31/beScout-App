@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { TrikotBadge } from '@/components/player/PlayerRow';
 import { PositionBadge } from '@/components/player';
 import type { Pos } from '@/types';
@@ -27,8 +28,8 @@ export default function PlayerImagePlaceholder({
 
   if (imageUrl) {
     return (
-      <div className={`${sizeClass} rounded-2xl overflow-hidden shrink-0`}>
-        <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+      <div className={`${sizeClass} relative rounded-2xl overflow-hidden shrink-0`}>
+        <Image src={imageUrl} alt="" fill className="object-cover" />
       </div>
     );
   }

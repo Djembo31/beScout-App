@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Loader2, UserPlus, UserMinus } from 'lucide-react';
 import { Modal } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -103,9 +104,9 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
             return (
               <div key={p.userId} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors">
                 {/* Avatar */}
-                <div className="size-9 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold text-white/60 overflow-hidden flex-shrink-0">
+                <div className="relative size-9 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold text-white/60 overflow-hidden flex-shrink-0">
                   {p.avatarUrl ? (
-                    <img src={p.avatarUrl} alt="" className="w-full h-full object-cover" />
+                    <Image src={p.avatarUrl} alt="" fill className="object-cover" />
                   ) : (
                     p.handle[0]?.toUpperCase() ?? '?'
                   )}

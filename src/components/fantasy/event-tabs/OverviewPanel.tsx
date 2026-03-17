@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import {
   Trophy, Users, Clock, Star, Shield,
   CheckCircle2, Medal,
@@ -189,8 +190,8 @@ export default function OverviewPanel({ event, userId, participants, participant
           ) : (
             participants.slice(0, 5).map(p => (
               <div key={p.id} className={`flex items-center gap-3 p-2 rounded-lg ${p.id === userId ? 'bg-gold/10 border border-gold/30' : 'bg-white/5'}`}>
-                <div className="size-6 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
-                  {p.avatar_url ? <img src={p.avatar_url} alt={p.handle} className="w-full h-full object-cover" /> : <div className="text-xs flex items-center justify-center w-full h-full">&#x1F464;</div>}
+                <div className="relative size-6 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
+                  {p.avatar_url ? <Image src={p.avatar_url} alt={p.handle} fill className="object-cover" /> : <div className="text-xs flex items-center justify-center w-full h-full">&#x1F464;</div>}
                 </div>
                 <div className="flex-1 text-xs">
                   <div className={`font-medium ${p.id === userId ? 'text-gold' : 'text-white'}`}>

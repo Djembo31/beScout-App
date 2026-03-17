@@ -625,7 +625,7 @@ export async function GET(request: Request) {
                       lineupInfo = byShirt;
                       bridgeMethod = 'shirt_bridge';
                       shirtBridgeCount++;
-                      console.log(`[SHIRT_BRIDGE] ${pd.player.name}(${apiPlayerId}) → ${byShirt.name}(${byShirt.apiId}) via #${dbPlayer.shirt_number}`);
+                      console.warn(`[SHIRT_BRIDGE] ${pd.player.name}(${apiPlayerId}) → ${byShirt.name}(${byShirt.apiId}) via #${dbPlayer.shirt_number}`);
                     }
                   }
                 }
@@ -1247,11 +1247,11 @@ export async function GET(request: Request) {
 
     // ---- Integrity Validation ----
     if (statsResult) {
-      console.log(`[INTEGRITY] GW${activeGw} Match Distribution: direct=${statsResult.matchedCount - statsResult.nameMatchCount - statsResult.shirtBridgeCount}, shirt_bridge=${statsResult.shirtBridgeCount}, name=${statsResult.nameMatchCount}, unmatched=${statsResult.unmatchedCount}, ghosts_removed=${ghostsRemoved}`);
+      console.warn(`[INTEGRITY] GW${activeGw} Match Distribution: direct=${statsResult.matchedCount - statsResult.nameMatchCount - statsResult.shirtBridgeCount}, shirt_bridge=${statsResult.shirtBridgeCount}, name=${statsResult.nameMatchCount}, unmatched=${statsResult.unmatchedCount}, ghosts_removed=${ghostsRemoved}`);
 
       if (statsResult.unmatchedCount > 0) {
         const nullPlayerStats = dedupedStats.filter(s => s.player_id === null);
-        console.log(`[INTEGRITY] ${nullPlayerStats.length} stats with null player_id (unmatched players)`);
+        console.warn(`[INTEGRITY] ${nullPlayerStats.length} stats with null player_id (unmatched players)`);
       }
     }
 

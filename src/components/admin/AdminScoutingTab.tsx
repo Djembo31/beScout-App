@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Telescope, Users, FileText, Star, ArrowUpDown } from 'lucide-react';
 import { Card, Chip } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -145,7 +146,7 @@ export default function AdminScoutingTab({ club }: { club: ClubWithAdmin }) {
                   {idx + 1}
                 </div>
                 {scout.avatarUrl ? (
-                  <img src={scout.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
+                  <Image src={scout.avatarUrl} alt="" width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/40">
                     {(scout.handle ?? '?')[0].toUpperCase()}

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Image from 'next/image';
 import { User, Check, X, Loader2, Globe, AlertTriangle, Camera, Bell, ArrowLeftRight, Send, Trophy, UserPlus, Target, Gift, ArrowLeft } from 'lucide-react';
 import { Card, Button, Modal } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -187,9 +188,9 @@ export default function ProfileSettingsPage() {
         {/* Avatar Upload */}
         <div className="flex items-center gap-4 mb-6">
           <div className="relative group">
-            <div className="size-16 rounded-2xl bg-gold/10 border border-white/10 flex items-center justify-center overflow-hidden">
+            <div className="relative size-16 rounded-2xl bg-gold/10 border border-white/10 flex items-center justify-center overflow-hidden">
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                <Image src={profile.avatar_url} alt="" fill className="object-cover" />
               ) : (
                 <User className="size-8 text-white/70" aria-hidden="true" />
               )}

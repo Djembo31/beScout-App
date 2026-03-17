@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Star,
   Loader2,
@@ -306,7 +307,7 @@ export const PlayerDisplay = React.memo(function PlayerDisplay({
 
       {/* Footer: BeScout micro-logo */}
       <div className="flex justify-center pb-2">
-        <img src="/logo_schrift.svg" alt="BeScout" className="h-2.5 logo-veredelt" />
+        <Image src="/logo_schrift.svg" alt="BeScout" width={60} height={10} className="h-2.5 w-auto logo-veredelt" />
       </div>
     </Link>
   );
