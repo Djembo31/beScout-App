@@ -331,7 +331,7 @@
     "storyLiveIpo": "{player} Erstverkauf ist live — {progress}% verkauft",
     "storyEventSoon": "Fantasy-Event startet in {time}",
     "topMovers": "Meine Top-Mover",
-    "globalMovers": "Groesste Beweger heute",
+    "globalMovers": "Größte Beweger heute",
     "marketPulse": "Markt-Puls",
     "trendingNow": "Gerade beliebt",
     "liveTrades": "Live auf BeScout",
@@ -2065,7 +2065,7 @@
     "featureScoutTitle": "Scout Community",
     "featureScoutDesc": "Analysiere Spieler, verdiene Credits",
     "featureMemberTitle": "Club-Mitgliedschaft",
-    "featureMemberDesc": "Exklusive Vorteile fuer Fans",
+    "featureMemberDesc": "Exklusive Vorteile für Fans",
     "featureExplore": "Entdecken"
   },
   "airdrop": {
@@ -2482,7 +2482,7 @@
     "rewardTemplate_winner": "Winner",
     "rewardTemplate_top10": "Top 10",
     "rewardRank": "Rang",
-    "rewardPctFor": "Prozent fuer Rang",
+    "rewardPctFor": "Prozent für Rang",
     "rewardAddRank": "Rang hinzufuegen",
     "rewardRemoveRank": "Rang entfernen",
     "rewardSum": "Summe",
@@ -3524,7 +3524,7 @@
     "eventsEmptyCta": "Jetzt Event erstellen",
     "eventsError": "Fehler beim Laden",
     "eventsRetry": "Erneut versuchen",
-    "eventsBulkAction": "Aktion fuer ausgewaehlte Events",
+    "eventsBulkAction": "Aktion für ausgewählte Events",
     "eventsBulkExecute": "Ausfuehren",
     "eventsSelectEvent": "Event auswaehlen",
     "eventsEditEvent": "Event bearbeiten",
@@ -3774,7 +3774,7 @@
     "positionAvgCost": "Avg. Kosten",
     "positionPnL": "G/V",
     "positionMastery": "Mastery",
-    "upcomingFixtures": "Naechste Spiele",
+    "upcomingFixtures": "Nächste Spiele",
     "fantasyCTASubtitle": "Nutze diesen Spieler in deinem Lineup",
     "addToLineup": "Zum Lineup",
     "trendHot": "Hot",
@@ -3876,7 +3876,7 @@
     "updateValuation": "Bewertung aktualisieren",
     "submitValuation": "Bewertung abgeben",
     "limitOrderTitle": "Limit Order",
-    "limitOrderDesc": "Setze einen Wunschpreis fuer {player}. Die Order wird automatisch ausgefuehrt, sobald der Preis erreicht wird.",
+    "limitOrderDesc": "Setze einen Wunschpreis für {player}. Die Order wird automatisch ausgeführt, sobald der Preis erreicht wird.",
     "limitOrderBuy": "Kaufen",
     "limitOrderSell": "Verkaufen",
     "limitOrderPrice": "Dein Wunschpreis",
@@ -4130,15 +4130,15 @@
       },
       "successFee": {
         "title": "Success Fee",
-        "description": "Belohnung fuer Scout Card-Halter wenn ein Spieler transferiert wird."
+        "description": "Belohnung für Scout Card-Halter wenn ein Spieler transferiert wird."
       },
       "lineup": {
         "title": "Lineup",
-        "description": "Deine Aufstellung fuer ein Fantasy-Event."
+        "description": "Deine Aufstellung für ein Fantasy-Event."
       },
       "prediction": {
         "title": "Prediction",
-        "description": "Deine Vorhersage fuer ein Spielergebnis. Richtig = Tickets."
+        "description": "Deine Vorhersage für ein Spielergebnis. Richtig = Tickets."
       },
       "chip": {
         "title": "Chip",
