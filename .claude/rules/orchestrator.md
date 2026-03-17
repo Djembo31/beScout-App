@@ -23,20 +23,70 @@ Anil gibt Level an. Ohne Angabe = **Level A**.
 
 ---
 
-## Der ehrliche Workflow
+## Context-First Workflow (KERN-PRINZIP)
 
-### Kleine Aufgaben (80% der Arbeit)
-Ich mache es selbst. Kein Agent. Schneller, besser, weniger Overhead.
-Lesen → Verstehen → Aendern → Testen → Committen.
+**Context ist die wertvollste Ressource.** Ueber 50% Context-Verbrauch = Qualitaetsverlust.
+Der Hauptkontext bleibt LEAN — fuer Steuerung und Review.
+Schwere Arbeit wird in Sub-Agents ausgelagert.
 
-### Mittlere Aufgaben
-Ich briefe EINEN Agent mit dem was ICH gerade ueber den Code weiss.
-Dann LESE ich das Ergebnis WIRKLICH — nicht abnicken, sondern VERSTEHEN.
-Max 2 Agents parallel, und nur wenn die Aufgaben WIRKLICH unabhaengig sind.
+### Die Pipeline (JEDE Aufgabe, egal welche Groesse)
 
-### Grosse Aufgaben
-Aufteilen in kleine Stuecke. Jedes Stueck einzeln durch Klein oder Mittel.
-NICHT 5 Agents gleichzeitig — das erzeugt Chaos und Merge-Konflikte.
+```
+1. BRAINSTORMING (Superpowers Skill)
+   → Intent + Requirements klaeren
+   → Output auf Disk speichern (memory/features/[name].md)
+   → Raus aus dem Context
+
+2. PLAN SCHREIBEN (Superpowers Skill)
+   → Strukturierter Plan mit Tasks
+   → Auf Disk speichern (im Feature-File)
+   → Raus aus dem Context
+
+3. VORBEREITUNG (Main — VOR Agent-Dispatch)
+   → Context7: Relevante Library-Docs holen
+   → Docs in Spec-File einbetten (Agent hat KEIN Context7)
+   → Briefing-Template ausfuellen (siehe unten)
+   → Known Risks aus errors.md/patterns.md identifizieren
+
+4. AUSFUEHRUNG (Sub-Agents ODER Solo)
+   → Klein: Selbst machen (max 2-3 Files)
+   → Mittel/Gross: Sub-Agent liest Plan von Disk
+   → Agent arbeitet in EIGENEM Context Window
+   → Agent schreibt Journal nach memory/journals/
+   → Agent updatet Spec-Progress laufend
+   → Main Context: unberuehrt
+
+5. REVIEW + KNOWLEDGE CAPTURE (Main — NACH Agent)
+   → Journal lesen (memory/journals/[name]-journal.md)
+   → Reviewer-Agent dispatchen mit Journal als Input
+   → Neue Fehler aus Journal → errors.md
+   → Neue Patterns aus Journal → patterns.md
+   → Entscheidungen aus Journal → decisions.md
+   → Ergebnis committen
+
+6. CLEANUP
+   → Journal → memory/journals/archive/
+   → Spec → memory/features/archive/ (wenn Feature komplett)
+   → Worktree → automatisch bereinigt
+```
+
+### Context7 — IMMER aktuelle Docs (PFLICHT)
+
+Bei JEDER Library-spezifischen Arbeit Context7 nutzen, NICHT aus Training raten:
+```
+resolve-library-id → Library finden
+query-docs → Aktuelle API-Referenz holen
+```
+Gilt fuer: Supabase, Next.js, TanStack Query, Tailwind, next-intl, Zustand, alle anderen.
+
+### Wann Pipeline abkuerzen
+
+| Aufgabe | Pipeline |
+|---------|----------|
+| Quick Fix (1-2 Files, <5 min) | Direkt machen, kein Brainstorming noetig |
+| Neues Feature | VOLLE Pipeline: Brainstorming → Plan → Agent |
+| Bug Fix (komplex) | Brainstorming → Plan → Solo oder Agent |
+| Refactoring | Plan → Agent (Brainstorming optional) |
 
 **Kernregel:** Dispatche nur wenn der Agent mir wirklich Arbeit ABNIMMT.
 Wenn briefen + warten + reviewen laenger dauert als selbst machen → selbst machen.
@@ -75,14 +125,37 @@ Wenn briefen + warten + reviewen laenger dauert als selbst machen → selbst mac
 
 ---
 
-## Wie ich briefe
+## Wie ich briefe (Standardisiertes Briefing-Template)
 
-Kontext teilen wie mit einem Kollegen:
+JEDER Agent-Dispatch nutzt dieses Template. Keine Ausnahmen.
 
-"Das ist die Situation. Das habe ich gesehen. Das ist das Ziel.
-Schau dir [diese Files] an. Pass auf [diesen Fallstrick] auf.
-**Alle user-sichtbaren Strings muessen t() nutzen.**
-Teste es. Sag mir was du gelernt hast."
+```markdown
+## Agent Briefing: [Agent-Name]
+
+### Spec
+[Pfad zur Spec-Datei: memory/features/[name].md]
+
+### Relevante Rules
+[Welche .claude/rules/ Files der Agent lesen muss]
+
+### Context7 Docs
+[Bereits in Spec eingebettet — oder hier referenziert]
+Agents haben KEINEN Zugang zu Context7 MCP.
+Aktuelle API-Docs VOR Dispatch holen und in Spec schreiben.
+
+### Known Risks
+[Aus errors.md/patterns.md/common-errors.md — konkrete Fallstricke]
+
+### Scope
+[Was NICHT gemacht werden soll — klare Grenzen]
+
+### i18n
+Alle user-sichtbaren Strings MUESSEN t() nutzen.
+Namespace: [welcher namespace in messages/*.json]
+
+### Journal
+Schreibe dein Journal nach: memory/journals/[feature-name]-journal.md
+```
 
 Session-233-Lektion: IMMER explizit i18n erwaehnen. Nie annehmen dass der Agent es weiss.
 

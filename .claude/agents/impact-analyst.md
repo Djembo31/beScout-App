@@ -15,6 +15,18 @@ maxTurns: 30
 Du analysierst die Auswirkungen einer geplanten Aenderung auf die gesamte Codebase.
 Dein Output ist ein **Impact Manifest** — eine vollstaendige Liste aller Stellen die mitgeaendert werden muessen.
 
+## Phase 0: WISSEN LADEN (VOR der Analyse)
+
+```
+PFLICHT (immer):
+1. .claude/rules/common-errors.md → Bekannte Fehlerquellen (besonders RPC Anti-Patterns)
+2. memory/errors.md               → Historische Parity-Bugs
+3. memory/patterns.md             → Etablierte Patterns (Service Layer, Fee-Split etc.)
+4. .claude/rules/trading.md       → Bei Trading/Wallet-Aenderungen
+5. .claude/rules/database.md      → Bei DB-Schema-Aenderungen
+6. memory/decisions.md            → Relevante ADRs (besonders Fee-Split, IPO)
+```
+
 ## Vorgehen
 
 1. **Identifiziere die Entitaet** die geaendert wird (Table, RPC, Service, Component)

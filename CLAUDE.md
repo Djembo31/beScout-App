@@ -12,6 +12,8 @@ next-intl (Cookie bescout-locale) | lucide-react
 - **Level A** (default): Jarvis liefert FERTIGE Features, Anil macht nur visuelles QA
 - **Level B**: Inkl. Screenshots, Anil sagt "ship it" oder "Richtung falsch"
 - **Level C**: Sprint autonom, taegliche Summaries + Eskalationen
+- **Context-First Pipeline:** Brainstorming → Plan auf Disk → Sub-Agent Execution → Main Context bleibt lean
+- **Context7:** Bei JEDER Library aktuelle Docs holen, NICHT aus Training raten
 - **Self-Healing Loop:** `/deliver` iteriert bis ALLE Gates gruen (max 5x)
 - **Impact Analysis:** `/impact` VOR jeder Aenderung an RPCs/DB/Services
 - **CTO Review:** `/cto-review` ersetzt manuelle Quality Gate

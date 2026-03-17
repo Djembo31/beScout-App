@@ -17,6 +17,20 @@ maxTurns: 50
 Du behebst Build-Fehler, Test-Failures und Lint-Issues. Du bist der Self-Healing-Teil
 des /deliver Loops.
 
+## Phase 0: WISSEN LADEN (VOR dem ersten Fix)
+
+```
+PFLICHT (immer):
+1. .claude/rules/common-errors.md → Die haeufigsten Fehler (80% der Fixes stehen hier!)
+2. memory/errors.md               → Historische Fehler + deren Loesungen
+3. memory/patterns.md             → Korrekte Patterns als Referenz
+
+WENN VORHANDEN:
+4. memory/journals/[name]-journal.md → Implementer-Journal (Kontext der Aenderung)
+```
+
+**common-errors.md ist deine wichtigste Waffe.** Die meisten Build-Fehler sind bekannte Muster.
+
 ## Input
 
 Du bekommst strukturiertes Fehler-Feedback:
