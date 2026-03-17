@@ -127,6 +127,7 @@ export type MatchTimelineEntry = {
   gameweek: number;
   fixtureId: string;
   opponent: string;       // 3-letter abbreviation
+  opponentLogoUrl: string | null;
   isHome: boolean;
   matchScore: string;     // "2-1"
   minutesPlayed: number;
@@ -155,8 +156,8 @@ export async function getPlayerMatchTimeline(
       yellow_card, red_card, saves, rating, is_starter, club_id,
       fixtures!inner(
         gameweek, home_club_id, away_club_id, home_score, away_score, created_at,
-        home_club:clubs!fixtures_home_club_id_fkey(short),
-        away_club:clubs!fixtures_away_club_id_fkey(short)
+        home_club:clubs!fixtures_home_club_id_fkey(short, logo_url),
+        away_club:clubs!fixtures_away_club_id_fkey(short, logo_url)
       )
     `)
     .eq('player_id', playerId)
@@ -184,12 +185,13 @@ export async function getPlayerMatchTimeline(
   // 3. Merge
   return statsData.map((row: Record<string, unknown>) => {
     const fix = row.fixtures as Record<string, unknown>;
-    const homeClub = fix.home_club as { short: string } | null;
-    const awayClub = fix.away_club as { short: string } | null;
+    const homeClub = fix.home_club as { short: string; logo_url: string | null } | null;
+    const awayClub = fix.away_club as { short: string; logo_url: string | null } | null;
     const gw = fix.gameweek as number;
     const playerClubId = row.club_id as string;
     const isHome = playerClubId === (fix.home_club_id as string);
     const opponent = isHome ? (awayClub?.short ?? '???') : (homeClub?.short ?? '???');
+    const opponentLogoUrl = isHome ? (awayClub?.logo_url ?? null) : (homeClub?.logo_url ?? null);
     const homeScore = fix.home_score as number | null;
     const awayScore = fix.away_score as number | null;
     const matchScore = homeScore != null && awayScore != null
@@ -200,6 +202,7 @@ export async function getPlayerMatchTimeline(
       gameweek: gw,
       fixtureId: row.fixture_id as string,
       opponent,
+      opponentLogoUrl,
       isHome,
       matchScore,
       minutesPlayed: row.minutes_played as number,

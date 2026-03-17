@@ -67,6 +67,18 @@ export default function MatchTimeline({
     };
   }, [displayed]);
 
+  // Form dots: W/D/L from matchScore (format: "teamScore-opponentScore")
+  const formDots = useMemo(() => {
+    const played = displayed.filter(e => e.minutesPlayed > 0 && e.matchScore);
+    return played.map(e => {
+      const parts = e.matchScore.split('-').map(Number);
+      if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) return 'gray';
+      if (parts[0] > parts[1]) return 'W';
+      if (parts[0] === parts[1]) return 'D';
+      return 'L';
+    });
+  }, [displayed]);
+
   const perfValue = mode === 'L5' ? player.perf.l5 : player.perf.l15;
   const l5Hex = getL5Hex(perfValue);
   const posTint = posTintColors[player.pos];
@@ -130,6 +142,30 @@ export default function MatchTimeline({
         </div>
       </div>
 
+      {/* ── Form Dots ── */}
+      {formDots.length > 0 && (
+        <div className="px-4 md:px-6 py-2 border-b border-white/[0.04] flex items-center gap-2">
+          <span className="text-[10px] text-white/30 shrink-0">{t('formLabel')}</span>
+          <div className="flex items-center gap-1">
+            {formDots.map((result, i) => (
+              <span
+                key={i}
+                className={cn(
+                  'size-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0',
+                  result === 'W' && 'bg-emerald-500/20 text-emerald-400',
+                  result === 'D' && 'bg-amber-500/20 text-amber-400',
+                  result === 'L' && 'bg-red-500/20 text-red-400',
+                  result === 'gray' && 'bg-white/[0.06] text-white/30',
+                )}
+                title={result === 'W' ? t('formWin') : result === 'D' ? t('formDraw') : result === 'L' ? t('formLoss') : '?'}
+              >
+                {result === 'gray' ? '?' : result}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── Data Freshness Info ── */}
       {player.lastAppearanceGw > 0 && (
         <div className="px-4 md:px-6 py-1.5 border-b border-white/[0.04]">
@@ -181,14 +217,33 @@ export default function MatchTimeline({
                 </span>
 
                 {/* Opponent */}
-                <span className="text-xs font-bold w-12 shrink-0 truncate">
-                  <span className="text-white/30 text-[9px] mr-0.5">{entry.isHome ? 'H' : 'A'}</span>
-                  {entry.opponent}
+                <span className="flex items-center gap-1 text-xs font-bold w-[72px] shrink-0">
+                  <span className="text-white/30 text-[9px]">{entry.isHome ? 'H' : 'A'}</span>
+                  {entry.opponentLogoUrl ? (
+                    <img
+                      src={entry.opponentLogoUrl}
+                      alt=""
+                      className="size-4 shrink-0 object-contain"
+                    />
+                  ) : null}
+                  <span className="truncate">{entry.opponent}</span>
                 </span>
 
-                {/* Minutes */}
-                <span className="font-mono tabular-nums text-xs w-8 shrink-0 text-right text-white/50">
-                  {isDnp ? '\u2013' : `${entry.minutesPlayed}'`}
+                {/* Minutes + Starter/Sub */}
+                <span className="font-mono tabular-nums text-xs w-12 shrink-0 text-right text-white/50 flex items-center justify-end gap-0.5">
+                  {isDnp ? '\u2013' : (
+                    <>
+                      <span className={cn(
+                        'text-[8px] font-bold px-1 rounded',
+                        entry.isStarter
+                          ? 'bg-emerald-500/15 text-emerald-400'
+                          : 'bg-amber-500/15 text-amber-400'
+                      )}>
+                        {entry.isStarter ? t('starterLabel') : t('subLabel')}
+                      </span>
+                      {entry.minutesPlayed}&apos;
+                    </>
+                  )}
                 </span>
 
                 {/* Events */}
