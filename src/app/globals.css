@@ -211,6 +211,7 @@ body {
 }
 
 /* Holographic refractor overlay — rainbow shimmer that follows tilt */
+/* Default: hidden. Only shown on Tier 3+ cards (see card-tier-* section below) */
 .card-holographic::before {
   content: '';
   position: absolute;
@@ -234,21 +235,30 @@ body {
   mix-blend-mode: color-dodge;
   pointer-events: none;
   z-index: 1;
+  display: none;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-/* Show holographic on hover (desktop) */
+/* Holographic enabled for Tier 3+ — show on hover (desktop) */
 @media (hover: hover) {
-  [data-tilt] .card-holographic::before,
-  [data-tilt].card-holographic::before {
+  .card-tier-3 [data-tilt] .card-holographic::before,
+  .card-tier-3 [data-tilt].card-holographic::before,
+  .card-tier-4 [data-tilt] .card-holographic::before,
+  .card-tier-4 [data-tilt].card-holographic::before,
+  .card-tier-5 [data-tilt] .card-holographic::before,
+  .card-tier-5 [data-tilt].card-holographic::before {
+    display: block;
     opacity: 1;
   }
 }
 
-/* Show holographic on mobile via gyroscope (touch devices) */
+/* Holographic enabled for Tier 3+ — show on mobile (touch devices) */
 @media (hover: none) {
-  .card-holographic::before {
+  .card-tier-3 .card-holographic::before,
+  .card-tier-4 .card-holographic::before,
+  .card-tier-5 .card-holographic::before {
+    display: block;
     opacity: 0.7;
   }
 }
@@ -410,23 +420,10 @@ body {
     #0d0d0d;
 }
 
-/* Gold topographic contour overlay on player photo */
+/* Gold topographic contour overlay on player photo — DISABLED (visual noise) */
 .topo-overlay { position: relative; }
 .topo-overlay::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  background:
-    repeating-radial-gradient(
-      circle at 50% 50%,
-      transparent 0px,
-      transparent 14px,
-      rgba(255,215,0,0.05) 15px,
-      transparent 16px
-    );
-  mix-blend-mode: screen;
+  display: none;
 }
 
 /* Gold filter for BeScout logo */

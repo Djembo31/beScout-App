@@ -88,8 +88,13 @@ export default function MatchTimeline({
   return (
     <Card className={`overflow-hidden ${className}`}>
       {/* ── Hero Strip: L5/L15 + Trend + Percentile ── */}
-      <div className="p-4 md:px-6 border-b border-white/[0.06]">
-        <div className="flex items-center justify-between">
+      <div
+        className="relative p-4 md:px-6 border-b border-white/[0.06] overflow-hidden"
+        style={{
+          background: `linear-gradient(135deg, ${posTint}12 0%, transparent 60%)`,
+        }}
+      >
+        <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Activity className="size-5 text-gold" aria-hidden="true" />
             {/* Toggle L5 / L15 */}
@@ -109,9 +114,9 @@ export default function MatchTimeline({
                 </button>
               ))}
             </div>
-            {/* Score number */}
+            {/* Score number — hero size */}
             <span
-              className={cn('font-mono font-black text-2xl tabular-nums', scoreTick)}
+              className={cn('font-mono font-black text-3xl tabular-nums', scoreTick)}
               style={{ color: scoreColor(perfValue) }}
             >
               {perfValue || '\u2013'}
@@ -146,15 +151,15 @@ export default function MatchTimeline({
       {formDots.length > 0 && (
         <div className="px-4 md:px-6 py-2 border-b border-white/[0.04] flex items-center gap-2">
           <span className="text-[10px] text-white/30 shrink-0">{t('formLabel')}</span>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             {formDots.map((result, i) => (
               <span
                 key={i}
                 className={cn(
-                  'size-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0',
-                  result === 'W' && 'bg-emerald-500/20 text-emerald-400',
-                  result === 'D' && 'bg-amber-500/20 text-amber-400',
-                  result === 'L' && 'bg-red-500/20 text-red-400',
+                  'size-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0',
+                  result === 'W' && 'bg-emerald-500/25 text-emerald-400',
+                  result === 'D' && 'bg-amber-500/25 text-amber-400',
+                  result === 'L' && 'bg-red-500/25 text-red-400',
                   result === 'gray' && 'bg-white/[0.06] text-white/30',
                 )}
                 title={result === 'W' ? t('formWin') : result === 'D' ? t('formDraw') : result === 'L' ? t('formLoss') : '?'}

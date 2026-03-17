@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
 import { posTintColors } from '@/components/player/PlayerRow';
-import { RadarChart, buildPlayerRadarAxes } from '@/components/player/RadarChart';
 import { useTilt } from '@/lib/hooks/useTilt';
 import { fmtScout, countryToFlag, cn } from '@/lib/utils';
 import type { Pos, Trend } from '@/types';
@@ -15,14 +14,6 @@ const posRingGlow: Record<Pos, string> = {
   DEF: '0 0 24px rgba(245,158,11,0.25), 0 0 48px rgba(245,158,11,0.12)',
   MID: '0 0 24px rgba(14,165,233,0.25), 0 0 48px rgba(14,165,233,0.12)',
   ATT: '0 0 24px rgba(244,63,94,0.25), 0 0 48px rgba(244,63,94,0.12)',
-};
-
-// Radar chart tint for position
-const posRadarColor: Record<Pos, string> = {
-  GK: '#10B981',
-  DEF: '#F59E0B',
-  MID: '#0EA5E9',
-  ATT: '#F43F5E',
 };
 
 export interface CardBackStats {
@@ -67,6 +58,27 @@ function FifaStat({ label, value }: { label: string; value: string | number }) {
   );
 }
 
+/* Compact horizontal stat bar for card back */
+function StatBar({ label, value, max, tint }: { label: string; value: number; max: number; tint: string }) {
+  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="text-[8px] font-bold uppercase tracking-wider text-white/40 w-7 shrink-0 text-right">
+        {label}
+      </span>
+      <div className="flex-1 h-[5px] bg-white/[0.06] rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-300"
+          style={{ width: `${pct}%`, backgroundColor: tint }}
+        />
+      </div>
+      <span className="text-[9px] font-mono font-bold tabular-nums text-white/60 w-8 text-right shrink-0">
+        {value}
+      </span>
+    </div>
+  );
+}
+
 export default function TradingCardFrame({
   first, last, pos, club, shirtNumber, imageUrl, l5, edition, className = '', backStats,
   age, country, masteryLevel,
@@ -95,16 +107,7 @@ export default function TradingCardFrame({
   const tierClass = masteryLevel && masteryLevel > 0 ? `card-tier-${Math.min(masteryLevel, 5)}` : '';
 
   return (
-    <div className={cn('relative card-entrance', tierClass, className)}>
-      {/* Ambient gold + position glow behind card */}
-      <div
-        className="absolute inset-0 rounded-3xl blur-2xl opacity-40 pointer-events-none"
-        style={{
-          background: `radial-gradient(ellipse at 50% 30%, ${tint}25 0%, ${tint}15 40%, transparent 70%)`,
-          transform: 'scale(1.4)',
-        }}
-      />
-
+    <div className={cn('relative card-entrance overflow-hidden rounded-2xl', tierClass, className)}>
       {/* Perspective Provider */}
       <div style={{ perspective: '600px' }}>
         {/* Tilt + Flip Container */}
@@ -120,7 +123,7 @@ export default function TradingCardFrame({
             ...tiltProps.style,
             transformStyle: 'preserve-3d',
             border: `1.5px solid ${tint}40`,
-            boxShadow: `inset 0 0 12px ${tint}10, 0 0 20px ${tint}15`,
+            boxShadow: `inset 0 0 12px ${tint}10, 0 0 40px ${tint}20, 0 0 80px ${tint}10`,
           }}
         >
           {/* ===== FRONT FACE ===== */}
@@ -128,27 +131,14 @@ export default function TradingCardFrame({
             className="absolute inset-0 rounded-2xl overflow-hidden card-metallic card-holographic"
             style={{ backfaceVisibility: 'hidden' }}
           >
-            {/* Background: carbon fiber + position color wash */}
+            {/* Background: carbon fiber */}
             <div className="absolute inset-0 card-carbon" />
-            {/* Full-card position tint */}
+            {/* Combined position tint + gradient (single layer) */}
             <div
-              className="absolute inset-0 opacity-[0.08]"
-              style={{ background: tint }}
-            />
-            {/* Strong position gradient top → center */}
-            <div
-              className="absolute inset-x-0 top-0 h-2/3 opacity-20"
-              style={{ background: `linear-gradient(180deg, ${tint}55 0%, ${tint}20 40%, transparent 100%)` }}
-            />
-            {/* Position edge glow — left side accent */}
-            <div
-              className="absolute inset-y-0 left-0 w-12 opacity-25"
-              style={{ background: `linear-gradient(90deg, ${tint}30 0%, transparent 100%)` }}
-            />
-            {/* Subtle bottom gradient */}
-            <div
-              className="absolute inset-x-0 bottom-0 h-1/4 opacity-10"
-              style={{ background: `linear-gradient(0deg, ${tint}30 0%, transparent 100%)` }}
+              className="absolute inset-0"
+              style={{
+                background: `linear-gradient(180deg, ${tint}30 0%, ${tint}15 30%, ${tint}08 60%, transparent 100%)`,
+              }}
             />
 
             {/* Top Bar: Club Logo | Flag + Age | Position Pill */}
@@ -179,10 +169,10 @@ export default function TradingCardFrame({
               </div>
             </div>
 
-            {/* Photo with topo overlay + position glow ring */}
+            {/* Photo with position glow ring (topo-overlay removed) */}
             <div className="relative z-10 flex justify-center mt-2 md:mt-3">
               <div
-                className="size-[100px] md:size-[120px] rounded-full border-[3px] overflow-hidden topo-overlay"
+                className="size-[100px] md:size-[120px] rounded-full border-[3px] overflow-hidden"
                 style={{ borderColor: `${tint}99`, boxShadow: ringGlow }}
               >
                 {imageUrl ? (
@@ -257,13 +247,13 @@ export default function TradingCardFrame({
               {/* FIFA 2x3 Stats Grid */}
               <div className="grid grid-cols-3 gap-y-2 gap-x-1 px-4 mt-2 md:mt-3">
                 <FifaStat label="L5" value={l5} />
-                <FifaStat label="L15" value={backStats?.l15 ?? '—'} />
-                <FifaStat label={tp('statGoalsShort')} value={backStats?.goals ?? '—'} />
-                <FifaStat label={tp('statAssistsShort')} value={backStats?.assists ?? '—'} />
-                <FifaStat label={tp('statMatchesShort')} value={backStats?.matches ?? '—'} />
+                <FifaStat label="L15" value={backStats?.l15 ?? '\u2014'} />
+                <FifaStat label={tp('statGoalsShort')} value={backStats?.goals ?? '\u2014'} />
+                <FifaStat label={tp('statAssistsShort')} value={backStats?.assists ?? '\u2014'} />
+                <FifaStat label={tp('statMatchesShort')} value={backStats?.matches ?? '\u2014'} />
                 <FifaStat
                   label={tp('statFloorShort')}
-                  value={backStats?.floorPrice != null ? fmtScout(backStats.floorPrice) : '—'}
+                  value={backStats?.floorPrice != null ? fmtScout(backStats.floorPrice) : '\u2014'}
                 />
               </div>
             </div>
@@ -278,46 +268,27 @@ export default function TradingCardFrame({
                 transform: 'rotateY(180deg)',
               }}
             >
-              {/* Background: carbon fiber + position color wash */}
+              {/* Background: carbon fiber + combined position tint */}
               <div className="absolute inset-0 card-carbon" />
               <div
-                className="absolute inset-0 opacity-[0.08]"
-                style={{ background: tint }}
-              />
-              <div
-                className="absolute inset-x-0 top-0 h-2/3 opacity-20"
-                style={{ background: `linear-gradient(180deg, ${tint}55 0%, ${tint}20 40%, transparent 100%)` }}
-              />
-              <div
-                className="absolute inset-y-0 left-0 w-12 opacity-25"
-                style={{ background: `linear-gradient(90deg, ${tint}30 0%, transparent 100%)` }}
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(180deg, ${tint}30 0%, ${tint}15 30%, ${tint}08 60%, transparent 100%)`,
+                }}
               />
 
-              {/* Radar Chart */}
-              <div className="relative z-10 flex justify-center pt-4 md:pt-5">
-                <RadarChart
-                  datasets={[{
-                    axes: buildPlayerRadarAxes({
-                      goals: backStats.goals,
-                      assists: backStats.assists,
-                      cleanSheets: backStats.cleanSheets,
-                      matches: backStats.matches,
-                      perfL5: l5,
-                      perfL15: backStats.l15,
-                      saves: backStats.saves,
-                      minutes: backStats.minutes,
-                    }),
-                    color: posRadarColor[pos],
-                    fillOpacity: 0.2,
-                  }]}
-                  size={130}
-                  rings={3}
-                  showLabels={false}
-                />
+              {/* Compact Stat Bars (replaces RadarChart) */}
+              <div className="relative z-10 px-4 pt-4 md:pt-5 space-y-1.5">
+                <StatBar label="L5" value={l5} max={150} tint={tint} />
+                <StatBar label="L15" value={backStats.l15} max={150} tint={tint} />
+                <StatBar label={tp('statGoalsShort')} value={backStats.goals} max={Math.max(backStats.goals, 20)} tint={tint} />
+                <StatBar label={tp('statAssistsShort')} value={backStats.assists} max={Math.max(backStats.assists, 15)} tint={tint} />
+                <StatBar label={tp('statMatchesShort')} value={backStats.matches} max={Math.max(backStats.matches, 34)} tint={tint} />
+                <StatBar label="MIN" value={backStats.minutes} max={Math.max(backStats.minutes, 3060)} tint={tint} />
               </div>
 
               {/* Position separator */}
-              <div className="relative z-10 mx-4 mt-2">
+              <div className="relative z-10 mx-4 mt-3">
                 <div className="h-px" style={{ background: `linear-gradient(90deg, transparent 0%, ${tint}50 20%, ${tint}80 50%, ${tint}50 80%, transparent 100%)` }} />
               </div>
 
@@ -330,7 +301,7 @@ export default function TradingCardFrame({
                 <FifaStat label="L5" value={l5} />
                 <FifaStat
                   label={tp('statFloor')}
-                  value={backStats.floorPrice != null ? fmtScout(backStats.floorPrice) : '—'}
+                  value={backStats.floorPrice != null ? fmtScout(backStats.floorPrice) : '\u2014'}
                 />
               </div>
 
