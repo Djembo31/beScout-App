@@ -1919,11 +1919,11 @@
     "fit": "Fit",
     "inactiveSinceGw": "Inaktiv seit GW {gw}",
     "dataUntilGw": "Daten bis GW {gw} · {matches} Einsätze",
-    "statusInjured": "Spieler ist derzeit verletzt. Letzter Einsatz: GW {gw}.",
-    "statusSuspended": "Spieler ist derzeit gesperrt.",
-    "statusInactive": "Kein Einsatz seit GW {gw}. Spieler ist möglicherweise verletzt, transferiert oder nicht im Kader.",
-    "statusNoAppearances": "Bisher kein Pflichtspieleinsatz in dieser Saison.",
-    "statusNoData": "Keine Leistungsdaten vorhanden."
+    "explainInjured": "Spieler ist derzeit verletzt. Letzter Einsatz: GW {gw}.",
+    "explainSuspended": "Spieler ist derzeit gesperrt.",
+    "explainInactive": "Kein Einsatz seit GW {gw}. Spieler ist möglicherweise verletzt, transferiert oder nicht im Kader.",
+    "explainNoAppearances": "Bisher kein Pflichtspieleinsatz in dieser Saison.",
+    "explainNoData": "Keine Leistungsdaten vorhanden."
   },
   "club": {
     "overview": "Übersicht",

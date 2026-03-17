@@ -53,10 +53,10 @@ export default function PerformanceTab({
           <AlertTriangle className="size-4 text-amber-400 shrink-0" />
           <span className="text-sm text-amber-200">
             {player.status === 'injured'
-              ? tp('statusInjured', { gw: player.lastAppearanceGw })
+              ? tp('explainInjured', { gw: player.lastAppearanceGw })
               : player.status === 'suspended'
-                ? tp('statusSuspended')
-                : tp('statusInactive', { gw: player.lastAppearanceGw })}
+                ? tp('explainSuspended')
+                : tp('explainInactive', { gw: player.lastAppearanceGw })}
           </span>
         </div>
       )}

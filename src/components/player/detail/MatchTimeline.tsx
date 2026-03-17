@@ -150,16 +150,16 @@ export default function MatchTimeline({
             {player.status === 'injured' ? (
               <>
                 <AlertTriangle className="size-4 text-red-400 shrink-0" aria-hidden="true" />
-                <span>{tp('statusInjured', { gw: player.lastAppearanceGw })}</span>
+                <span>{tp('explainInjured', { gw: player.lastAppearanceGw })}</span>
               </>
             ) : player.status === 'suspended' ? (
-              <span>{tp('statusSuspended')}</span>
+              <span>{tp('explainSuspended')}</span>
             ) : player.status === 'doubtful' && player.lastAppearanceGw > 0 ? (
-              <span>{tp('statusInactive', { gw: player.lastAppearanceGw })}</span>
+              <span>{tp('explainInactive', { gw: player.lastAppearanceGw })}</span>
             ) : player.stats.matches === 0 ? (
-              <span>{tp('statusNoAppearances')}</span>
+              <span>{tp('explainNoAppearances')}</span>
             ) : (
-              <span>{tp('statusNoData')}</span>
+              <span>{tp('explainNoData')}</span>
             )}
           </div>
         ) : (

@@ -1919,11 +1919,11 @@
     "fit": "Sağlam",
     "inactiveSinceGw": "GW {gw}'den beri inaktif",
     "dataUntilGw": "GW {gw} verilerine kadar · {matches} maç",
-    "statusInjured": "Oyuncu şu anda sakatlık nedeniyle oynayamıyor. Son maç: GW {gw}.",
-    "statusSuspended": "Oyuncu şu anda cezalı.",
-    "statusInactive": "GW {gw}'den beri maça çıkmadı. Oyuncu sakatlanmış, transfer olmuş veya kadroda olmayabilir.",
-    "statusNoAppearances": "Bu sezon henüz resmi maça çıkmadı.",
-    "statusNoData": "Performans verisi bulunamadı."
+    "explainInjured": "Oyuncu şu anda sakatlık nedeniyle oynayamıyor. Son maç: GW {gw}.",
+    "explainSuspended": "Oyuncu şu anda cezalı.",
+    "explainInactive": "GW {gw}'den beri maça çıkmadı. Oyuncu sakatlanmış, transfer olmuş veya kadroda olmayabilir.",
+    "explainNoAppearances": "Bu sezon henüz resmi maça çıkmadı.",
+    "explainNoData": "Performans verisi bulunamadı."
   },
   "club": {
     "overview": "Genel Bakış",
