@@ -112,23 +112,21 @@ function L5ScoreBars({ scores, minutes }: { scores: (number | null)[] | undefine
 // COMPACT PICKER ROW (for picker modals — single row, ~40px height)
 // ============================================
 
-function CompactPickerRow({ player, scores, minutes, onClick }: {
+function CompactPickerRow({ player, scores, minutes, onClick, href }: {
   player: Player;
   scores: (number | null)[] | undefined;
   minutes: number[] | undefined;
-  onClick: () => void;
+  onClick?: () => void;
+  href?: string;
 }) {
   const p = player;
   // [0] is newest GW — find first non-null score
   const lastScore = scores ? scores.find(s => s != null) ?? null : null;
   const borderColor = p.pos === 'GK' ? '#34d399' : p.pos === 'DEF' ? '#fbbf24' : p.pos === 'MID' ? '#38bdf8' : '#fb7185';
+  const sharedClass = "w-full flex items-center gap-2 px-2.5 py-2 rounded-lg border-l-2 hover:bg-white/[0.05] transition-colors text-left min-h-[44px]";
 
-  return (
-    <button
-      onClick={onClick}
-      className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg border-l-2 hover:bg-white/[0.05] transition-colors text-left min-h-[44px]"
-      style={{ borderLeftColor: borderColor }}
-    >
+  const content = (
+    <>
       {/* Identity (28px photo via sm) */}
       <PlayerIdentity player={p} size="sm" showStatus={false} className="flex-1 min-w-0" />
 
@@ -150,8 +148,13 @@ function CompactPickerRow({ player, scores, minutes, onClick }: {
           <span className="text-[9px] font-mono text-white/15">&mdash;</span>
         </div>
       )}
-    </button>
+    </>
   );
+
+  if (href) {
+    return <Link href={href} className={sharedClass} style={{ borderLeftColor: borderColor }}>{content}</Link>;
+  }
+  return <button onClick={onClick} className={sharedClass} style={{ borderLeftColor: borderColor }}>{content}</button>;
 }
 
 // ============================================
@@ -174,10 +177,11 @@ function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAss
   const lastScore = scores ? scores.find(s => s != null) ?? null : null;
 
   return (
-    <div
+    <Link
+      href={`/player/${p.id}`}
       className={cn(
         'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border-l-2 transition-colors text-left',
-        'bg-surface-minimal border border-white/[0.06]',
+        'bg-surface-minimal border border-white/[0.06] hover:bg-white/[0.04]',
         isAssigned && 'bg-green-500/[0.06] border-green-500/20',
       )}
       style={{ borderLeftColor: borderColor }}
@@ -210,7 +214,7 @@ function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAss
         <L5ScoreBars scores={scores} minutes={minutes} />
         <ScoreCircle score={lastScore} />
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -507,7 +511,7 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                 player={p}
                 scores={scoresMap?.get(p.id)}
                 minutes={minutesMap?.get(p.id)}
-                onClick={() => handlePickPlayer(p.id)}
+                href={`/player/${p.id}`}
               />
             ))
           )

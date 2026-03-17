@@ -269,9 +269,13 @@ export default function AnalystTab({
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      {post.player_name && (
+                      {post.player_name && post.player_id ? (
+                        <Link href={`/player/${post.player_id}`} className="text-[11px] font-bold text-white/70 hover:text-gold transition-colors">
+                          {post.player_name}
+                        </Link>
+                      ) : post.player_name ? (
                         <span className="text-[11px] font-bold text-white/70">{post.player_name}</span>
-                      )}
+                      ) : null}
                       <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-white/5 text-white/40 border border-white/[0.06]">
                         {post.horizon}
                       </span>

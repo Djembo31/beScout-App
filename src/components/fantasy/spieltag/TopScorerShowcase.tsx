@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
 import { Trophy, Target, HandHelping, ShieldCheck, Star } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { FixturePlayerStat } from '@/types';
@@ -17,10 +18,15 @@ type Props = {
 
 const MEDALS = ['\u{1F947}', '\u{1F948}', '\u{1F949}'];
 
+function PlayerLink({ playerId, className, children, style }: { playerId: string | null; className: string; children: React.ReactNode; style?: React.CSSProperties }) {
+  if (playerId) return <Link href={`/player/${playerId}`} className={className} style={style}>{children}</Link>;
+  return <div className={className} style={style}>{children}</div>;
+}
+
 function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
   const rating = stat.rating ?? stat.fantasy_points / 10;
   return (
-    <div className="rounded-2xl border-2 border-gold/30 bg-gradient-to-br from-gold/[0.08] via-transparent to-transparent p-4 relative overflow-hidden"
+    <PlayerLink playerId={stat.player_id} className="block rounded-2xl border-2 border-gold/30 bg-gradient-to-br from-gold/[0.08] via-transparent to-transparent p-4 relative overflow-hidden hover:bg-gold/[0.12] transition-colors"
       style={{ boxShadow: '0 0 32px rgba(255,215,0,0.12), 0 0 8px rgba(255,215,0,0.06)' }}
     >
       {/* Medal */}
@@ -84,14 +90,14 @@ function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
           </div>
         </div>
       </div>
-    </div>
+    </PlayerLink>
   );
 }
 
 function PodiumCard({ stat, rank, medal }: { stat: FixturePlayerStat; rank: number; medal: string }) {
   const rating = stat.rating ?? stat.fantasy_points / 10;
   return (
-    <div className="rounded-xl card-carbon-mini border border-white/[0.06] p-3">
+    <PlayerLink playerId={stat.player_id} className="block rounded-xl card-carbon-mini border border-white/[0.06] p-3 hover:bg-white/[0.04] transition-colors">
       <div className="flex items-center gap-1.5 mb-2">
         <span className="text-sm">{medal}</span>
         <span className="text-xs text-white/30 font-bold tabular-nums">#{rank}</span>
@@ -113,14 +119,14 @@ function PodiumCard({ stat, rank, medal }: { stat: FixturePlayerStat; rank: numb
           </div>
         </div>
       </div>
-    </div>
+    </PlayerLink>
   );
 }
 
 function CompactRow({ stat, rank }: { stat: FixturePlayerStat; rank: number }) {
   const rating = stat.rating ?? stat.fantasy_points / 10;
   return (
-    <div className="flex items-center gap-2 px-2 py-1.5 text-xs">
+    <PlayerLink playerId={stat.player_id} className="flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-white/[0.04] rounded-lg transition-colors">
       <span className="w-5 text-center font-bold text-white/25 tabular-nums">{rank}</span>
       <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${posColor(stat.player_position)}`}>
         {stat.player_position}
@@ -137,7 +143,7 @@ function CompactRow({ stat, rank }: { stat: FixturePlayerStat; rank: number }) {
       >
         {rating.toFixed(1)}
       </span>
-    </div>
+    </PlayerLink>
   );
 }
 

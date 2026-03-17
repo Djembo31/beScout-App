@@ -277,9 +277,10 @@ export default function TraderTab({
             {recentTradesSlice.map(trade => {
               const isBuy = trade.buyer_id === userId;
               return (
-                <div
+                <Link
                   key={trade.id}
-                  className="flex items-center gap-3 py-2 px-1"
+                  href={`/player/${trade.player_id}`}
+                  className="flex items-center gap-3 py-2 px-1 hover:bg-white/[0.04] rounded-lg transition-colors"
                 >
                   {/* BUY/SELL pill */}
                   <span
@@ -309,7 +310,7 @@ export default function TraderTab({
                       {getRelativeTime(trade.executed_at, ta('justNow'), locale)}
                     </div>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
