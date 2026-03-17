@@ -260,7 +260,7 @@ function OverviewTab({ stats, homeStats, awayStats, substitutions, fixture, mvpI
                 </span>
                 {mvp.goals > 0 && <span className="flex items-center gap-0.5 text-[11px] text-white/60"><GoalIcon size={12} /> {mvp.goals}</span>}
                 {mvp.assists > 0 && <span className="flex items-center gap-0.5 text-[11px] text-white/60"><AssistIcon size={12} /> {mvp.assists}</span>}
-                {mvp.clean_sheet && <CleanSheetIcon size={14} />}
+                {mvp.clean_sheet && mvp.player_position === 'GK' && <CleanSheetIcon size={14} />}
               </div>
             </div>
 

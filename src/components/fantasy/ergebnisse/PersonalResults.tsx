@@ -105,7 +105,7 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
                       {stat.assists > 0 && (
                         <span className="text-xs font-bold text-sky-400 tabular-nums">{stat.assists}A</span>
                       )}
-                      {stat.clean_sheet && (
+                      {stat.clean_sheet && stat.player_position === 'GK' && (
                         <ShieldCheck className="size-3.5 text-emerald-400" aria-hidden="true" />
                       )}
                     </div>

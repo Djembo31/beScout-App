@@ -61,7 +61,7 @@ export default function MatchTimeline({
       avgMin: Math.round(played.reduce((s, e) => s + e.minutesPlayed, 0) / played.length),
       totalGoals: played.reduce((s, e) => s + e.goals, 0),
       totalAssists: played.reduce((s, e) => s + e.assists, 0),
-      totalCS: played.filter(e => e.cleanSheet).length,
+      totalCS: player.pos === 'GK' ? played.filter(e => e.cleanSheet).length : 0,
       gamesPlayed: played.length,
     };
   }, [displayed]);
@@ -176,7 +176,7 @@ export default function MatchTimeline({
                   {entry.assists > 0 && Array.from({ length: entry.assists }).map((_, i) => (
                     <span key={`a${i}`} className="text-[11px] text-sky-400" title={t('assists')}>&#127380;</span>
                   ))}
-                  {entry.cleanSheet && (player.pos === 'GK' || player.pos === 'DEF') && (
+                  {entry.cleanSheet && player.pos === 'GK' && (
                     <span className="text-[9px] font-bold text-emerald-400 bg-emerald-400/10 px-1 rounded" title={t('statCS')}>CS</span>
                   )}
                   {entry.yellowCard && (
@@ -231,7 +231,7 @@ export default function MatchTimeline({
           {agg.totalAssists > 0 && (
             <span className="font-mono tabular-nums">{agg.totalAssists} {t('assistsShort')}</span>
           )}
-          {agg.totalCS > 0 && (player.pos === 'GK' || player.pos === 'DEF') && (
+          {agg.totalCS > 0 && player.pos === 'GK' && (
             <span className="font-mono tabular-nums">{agg.totalCS} CS</span>
           )}
           <span className="text-white/25">{agg.gamesPlayed}/{displayed.length} {t('played')}</span>

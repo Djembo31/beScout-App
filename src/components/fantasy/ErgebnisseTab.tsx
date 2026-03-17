@@ -119,7 +119,7 @@ export function ErgebnisseTab({
     if (topScorers.length === 0) return null;
     const totalGoals = topScorers.reduce((s, p) => s + p.goals, 0);
     const totalAssists = topScorers.reduce((s, p) => s + p.assists, 0);
-    const cleanSheets = topScorers.filter(p => p.clean_sheet).length;
+    const cleanSheets = topScorers.filter(p => p.clean_sheet && p.player_position === 'GK').length;
     const yellowCards = topScorers.filter(p => p.yellow_card).length;
     const ratings = topScorers.filter(p => p.rating != null).map(p => p.rating!);
     const avgRating = ratings.length > 0 ? ratings.reduce((s, r) => s + r, 0) / ratings.length : 0;

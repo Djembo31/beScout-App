@@ -294,7 +294,7 @@ function PlayerNode({ stat, isMvp }: { stat: FixturePlayerStat; isMvp?: boolean 
         {stat.assists > 0 && <span className="flex items-center gap-0.5"><AssistIcon size={10} />{stat.assists > 1 && <span className="text-[9px] text-white/50 font-mono">{stat.assists}</span>}</span>}
         {stat.yellow_card && <YellowCardIcon size={8} />}
         {stat.red_card && <RedCardIcon size={8} />}
-        {stat.clean_sheet && <CleanSheetIcon size={10} />}
+        {stat.clean_sheet && stat.player_position === 'GK' && <CleanSheetIcon size={10} />}
         {stat.bonus > 0 && <span className="text-gold font-bold">{stat.bonus}</span>}
       </div>
     </div>

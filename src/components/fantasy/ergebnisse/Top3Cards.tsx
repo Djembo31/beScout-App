@@ -63,7 +63,7 @@ export function Top3Cards({ scorers }: Props) {
               {/* Stats row */}
               <div className="flex items-center gap-1.5 text-xs font-mono tabular-nums">
                 {stat.assists > 0 && <span className="text-sky-400 font-bold">{stat.assists}A</span>}
-                {stat.clean_sheet && <span className="text-emerald-400 font-bold">CS</span>}
+                {stat.clean_sheet && stat.player_position === 'GK' && <span className="text-emerald-400 font-bold">CS</span>}
               </div>
             </div>
           </Link>

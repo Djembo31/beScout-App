@@ -75,7 +75,7 @@ function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
                 <span className="font-bold text-sky-400 tabular-nums">{stat.assists}</span>
               </div>
             )}
-            {stat.clean_sheet && (
+            {stat.clean_sheet && stat.player_position === 'GK' && (
               <div className="flex items-center gap-1 text-xs">
                 <ShieldCheck className="size-3.5 text-emerald-400" aria-hidden="true" />
                 <span className="font-bold text-emerald-400">CS</span>

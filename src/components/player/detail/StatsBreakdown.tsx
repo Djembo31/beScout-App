@@ -52,14 +52,12 @@ export default function StatsBreakdown({ player, allPlayers, className = '' }: S
         ];
       case 'DEF':
         return [
-          getRow(t('statCS'), player.stats.cleanSheets, p => p.stats.cleanSheets),
           ...common,
           getRow(t('statMinutes'), player.stats.minutes, p => p.stats.minutes),
         ];
       case 'MID':
         return [
           ...common,
-          getRow(t('statCS'), player.stats.cleanSheets, p => p.stats.cleanSheets),
           getRow(t('statMinutes'), player.stats.minutes, p => p.stats.minutes),
         ];
       case 'ATT':

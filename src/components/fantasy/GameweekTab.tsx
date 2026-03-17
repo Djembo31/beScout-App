@@ -190,7 +190,7 @@ function TeamStats({ label, stats, color }: { label: string; stats: FixturePlaye
             <span className="text-white/30 font-mono text-xs tabular-nums">{s.minutes_played}&apos;</span>
             {s.goals > 0 && <span className="text-gold font-bold tabular-nums">{s.goals}G</span>}
             {s.assists > 0 && <span className="text-sky-400 font-bold tabular-nums">{s.assists}A</span>}
-            {s.clean_sheet && <span className="text-emerald-400 text-xs">CS</span>}
+            {s.clean_sheet && s.player_position === 'GK' && <span className="text-emerald-400 text-xs">CS</span>}
             {s.yellow_card && <span className="w-2.5 h-3 bg-yellow-400 rounded-[1px] inline-block" />}
             {s.red_card && <span className="w-2.5 h-3 bg-red-500 rounded-[1px] inline-block" />}
             {s.bonus > 0 && (
