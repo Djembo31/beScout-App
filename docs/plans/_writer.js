@@ -1,0 +1,1 @@
+const fs=require("fs"); const c=fs.readFileSync("C:/bescout-app/docs/plans/_content.txt","utf8"); fs.writeFileSync("C:/bescout-app/docs/plans/2026-03-15-fantasy-manager-persona.md",c,"utf8"); console.log("Done: "+c.length); fs.unlinkSync("C:/bescout-app/docs/plans/_writer.js"); fs.unlinkSync("C:/bescout-app/docs/plans/_content.txt");

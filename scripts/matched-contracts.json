@@ -1,0 +1,2641 @@
+[
+  {
+    "id": "417e14f0-b6ec-4af8-9dfe-6b72708cca18",
+    "name": "Gökdeniz Tunç",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "e87b5196-7f4f-4493-aa45-306ecfc9ee39",
+    "name": "Ulaş İmergi",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "422d2ec8-fabb-44b2-9a22-bf141d04fc82",
+    "name": "Kürşat Türkeş Küçük",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "775cba82-894b-4bf8-9073-e4bcb8413c5c",
+    "name": "Murat Eser",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "158c9866-3dda-4bd0-af0e-2e2c51a8b1b8",
+    "name": "Osman Kaynak",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "de13e76f-1dd9-46fa-ab2c-9f48177f560f",
+    "name": "Aykut Sarıkaya",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "d7f204d9-735a-40e4-8fd6-1a293b57bb26",
+    "name": "Kayra Saygan",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "a0b51092-6018-4f3c-844b-cdd23eb1a234",
+    "name": "Eren Fidan",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "badee4a3-d81d-46f9-8c4d-866ec1f2178b",
+    "name": "Yusuf Demirkıran",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "66b0f3c1-da5b-4244-9229-193d6c82c3ed",
+    "name": "Mert Menemencioğlu",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "10e4ff24-37be-4d73-a488-5ec7667e2727",
+    "name": "Yücel Gürol",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "a133fbfa-0a8b-4935-a080-e0152dcdca02",
+    "name": "Enes Demirtaş",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "afa2a9bd-d1d0-49ae-ada8-bbe448fdba5b",
+    "name": "Ahmet Yılmaz",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "fd4c3772-c5cc-4de1-b060-9a269ea2e826",
+    "name": "Ali Fidan",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "bd95fc90-6064-4d88-90f8-b78c564ee1f0",
+    "name": "Halil Eray Aktaş",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "b3556207-e616-43b2-803a-78647f396364",
+    "name": "Adama Traoré",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "7c8fe87c-4943-4fa7-99c4-dde3df00185c",
+    "name": "Oleksandr Syrota",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "4262bbc5-edeb-4fb8-8a53-b0079d32c88e",
+    "name": "Sinan Kurt",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "76c166f8-7491-4052-8a63-5247b7448d34",
+    "name": "Erce Kardeşler",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "dc251015-f9ea-4467-adaf-60b2f2cd89a7",
+    "name": "Daniel Moreno",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "f0777512-8ba8-451d-869a-f2578fc1d87e",
+    "name": "Emrah Başsan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "45ed43c3-1fd8-465d-99dd-10b55af90008",
+    "name": "Celal Hanalp",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "a766785d-755c-4a55-928b-f22b08d58cc9",
+    "name": "Murat Uçar",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "b226c02f-2e9f-4599-a7c3-49580efc3b98",
+    "name": "Abdulsamed Damlu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "149e3554-a2ee-4d50-9f29-ee4360b30e8f",
+    "name": "Dilhan Demir",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "84a41fd1-fa74-48f4-8568-d1b47f1efbcd",
+    "name": "Hasan Ali Kaldırım",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "1ce203df-4cac-451e-bad9-34332b392729",
+    "name": "Atakan Müjde",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "796c6113-2927-43e7-a89a-cd3c50eaf7db",
+    "name": "Mbaye Diagne",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "0ff5fe3b-1ccd-42e8-8483-618967bc73bd",
+    "name": "Florent Hasani",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "b185889f-f4eb-4ed2-8267-f23fa727d8e2",
+    "name": "Zdravko Dimitrov",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "03f43751-7ecf-4433-bc61-c75d9f14284d",
+    "name": "Tarkan Serbest",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "0d6dad70-a2e5-4e23-b520-96c0e93fb435",
+    "name": "Çekdar Orhan",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "fe03242e-0775-4ffc-aa43-49a069c8ff4d",
+    "name": "Oğuzhan Matur",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "54b0d76d-2e97-4f4e-8714-608e370feffc",
+    "name": "Kahraman Demirtaş",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "17d6665d-18f2-4b63-840d-21f389a46dbe",
+    "name": "Mehmet Yeşil",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "52029591-c031-415d-ba17-40c75f65d195",
+    "name": "Cem Üstündağ",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "625437b0-f50f-4cb7-95c3-a03f93faece5",
+    "name": "Berat Perçin",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "3667d6a1-06e0-45c5-a4d0-7a77c456c9cb",
+    "name": "Hakan Çiftçi",
+    "ce": "2026-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "9d3a5ec4-4a66-438c-84e2-c70276ceb64d",
+    "name": "Moussa Fall",
+    "ce": "2026-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "aa4701ef-b81f-44cd-9b11-ec9d51c5e468",
+    "name": "Ali Özçimen",
+    "ce": "2026-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "38eaa74d-e28b-477b-a92e-8751c2e93fec",
+    "name": "Ahmet Nukan",
+    "ce": "2026-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "63e3a628-dc58-4d41-9eec-ac49b19adfe9",
+    "name": "Kerem Alıcı",
+    "ce": "2026-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "fcf5e086-86fa-4743-9d34-27379fcedc9d",
+    "name": "Dieumerci Ndongala",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "a054feaa-54a2-4fb1-81c4-615f79263d17",
+    "name": "Murat Albayrak",
+    "ce": "2026-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "756bfc1e-a0a5-4c6a-ba7b-b7914c09dd75",
+    "name": "Kerem Akyazı",
+    "ce": "2026-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "b70f49b9-0286-4c9c-97e7-14090099f44d",
+    "name": "Oğuzhan Ceylan",
+    "ce": "2026-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "5a315c8d-cc76-45a0-bb1a-be392c7ef6eb",
+    "name": "Cedric Hountondji",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "1cc3f504-af2c-4157-9d5c-03fef4312eb8",
+    "name": "Douglas Tanque",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "8fd45955-d473-415a-9281-a9b3ecb03a28",
+    "name": "Tosin Kehinde",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "4a0a5536-a440-4e7f-82ed-16b2478ffcec",
+    "name": "Mehmet Gümüşkaya",
+    "ce": "2027-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "33593e09-db11-4842-aa24-94297286de59",
+    "name": "Caner Türkmen",
+    "ce": "2027-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "5b269455-af87-4964-b00a-0bcc22ca1816",
+    "name": "Tarık Kalender",
+    "ce": "2027-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "254b4ed7-99f8-4041-9740-ea986a2f095d",
+    "name": "Abdulkadir Parmak",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "ef4694ab-fecf-4f38-9cd9-359d298b6574",
+    "name": "João Amaral",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "a32e74a9-070a-489f-bd6d-c123be054d65",
+    "name": "Gani Burgaz",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "74ece3b8-57c9-4e46-be0c-12b36152b545",
+    "name": "Ahmet Alkan",
+    "ce": "2027-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "d75ab5b7-35dc-445d-8c8a-567a259405ae",
+    "name": "Efe Çinemre",
+    "ce": "2027-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "0e6b35dc-eb93-4083-9121-3b3e51c1ebf8",
+    "name": "Emre Acar",
+    "ce": "2028-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "5df04272-0b97-435b-b620-0297f7bfd749",
+    "name": "Enes Aydın",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "622330a9-c4c1-4eb7-adca-8410f08ab3e2",
+    "name": "Robert Mulumba",
+    "ce": "2028-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "f46fa949-5a15-429c-b512-b0d1eab9e09d",
+    "name": "Yusuf Can Esendemir",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "ce91a6c2-a4e5-4278-ad7c-4b45ad65b9d8",
+    "name": "Yasin Midilic",
+    "ce": "2028-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "5e201574-f92a-4ce0-9965-f4d2b126cd6d",
+    "name": "Yakup Zorluer",
+    "ce": "2028-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "1a40c93b-7c58-45b4-8038-d16a4cff6502",
+    "name": "Abdoul Badji",
+    "ce": "2029-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "1c9aa8c0-4076-46e6-aa80-136d39079802",
+    "name": "Dino Hotic",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "62517daa-6e01-49de-ba00-4f64d6a380fa",
+    "name": "Omar Imeri",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "09c74317-f723-4c8d-9d11-36b6746bad9a",
+    "name": "Mert Yılmaz",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "bb282ca3-8497-4cf1-b079-c7f19b453d03",
+    "name": "Celal Dumanlı",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "7294a2a7-05a0-4191-b70b-b38074709f3c",
+    "name": "Taulant Seferi",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "ac4ee26c-4625-4e6f-9537-2b4819dc3c16",
+    "name": "Gökdeniz Bayrakdar",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "d2258560-2d9b-4ef5-8db2-d3b43e144ba2",
+    "name": "Diogo Sousa",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "492b8384-618a-4d5e-a77f-b59fbfee3fa7",
+    "name": "Arlind Ajeti",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "58f74a88-d1b3-4267-86b3-0351af6c2bc0",
+    "name": "Ali Aytemur",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "0879c8e2-b4e2-404c-8e2a-e38ed92bd3ed",
+    "name": "Furkan Apaydın",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "dfddf55b-59a6-48af-bc90-518d0d743a0d",
+    "name": "Berşan Yavuzay",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "4b4a1911-34c0-4659-b778-94955a52064b",
+    "name": "Enes Öğrüce",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "5e293830-af67-453e-8d92-bdd31a87effd",
+    "name": "İsmail Tarım",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "d8939ec9-3abf-41f4-ad5a-e2dce47fb781",
+    "name": "Rüzgar Adıyaman",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "ce949f48-6117-4f29-b27c-895a9bae127c",
+    "name": "Pedro Brazão",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "b2454a17-9752-4649-b2d1-ce45676bab8f",
+    "name": "Ege Bilsel",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "df2c49a4-fe3b-4945-96d6-584c5601c99c",
+    "name": "Ahmet Aslan",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "7be9bdf8-49ad-44f7-be5c-e4c79f768009",
+    "name": "Emirhan Arkutcu",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "4e0335f1-9dba-42ee-9c1f-a388fc46c70f",
+    "name": "Mustafa Erdilman",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "7889e9d8-e1c3-4f47-80da-ebd3c94b432e",
+    "name": "Gabriel Obekpa",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "40d3a4f3-8c62-4091-b4b2-adef2a750f92",
+    "name": "Adem Metin Türk",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "96b92be1-92af-4a13-8f35-ecf39e5262fa",
+    "name": "Sirozhiddin Astanakulov",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "a4c2f80b-7a46-41cc-8a36-4dd272e68516",
+    "name": "Baran Demir",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "60cddae2-e7b4-42dd-9e8a-c393868dfbc4",
+    "name": "Cenk Şen",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "274d61f3-5ee2-4f98-af27-feeb6f0b0579",
+    "name": "Yusuf Sertkaya",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "897eee33-4c5f-4576-817e-1d3ab8036414",
+    "name": "Haqi Osman",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "57e44f82-0a1f-4869-af98-c4d08f55c56e",
+    "name": "Bahri Can Tosun",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "aec4a8e7-9f75-4a82-bdb4-27982a961126",
+    "name": "Ali Habeşoğlu",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "f7a61115-528e-4ca2-b303-f2e64b4a2701",
+    "name": "Doğan Can Davas",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "da97710c-34cc-4bfb-a3ff-76a9b5f691a7",
+    "name": "Barış Alıcı",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "62a43c2c-2d5a-4f8d-9921-6a71f4063c75",
+    "name": "Mário Balbúrdia",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "31789a80-dd7d-4273-8df8-3acf3a55c328",
+    "name": "Alexandru Băluță",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "f7d5f950-502f-44c0-b009-17a241be77ee",
+    "name": "Arda Usluoğlu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "c718fb27-3e2d-4bdf-85cf-a0d7f1320734",
+    "name": "Kaan Arslan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "8fe325b6-6c27-4c2d-a9ce-85d44c5340e7",
+    "name": "Mert Çetin",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "b5bece19-fe53-423a-ae39-c15d3b39ab3b",
+    "name": "Onur Öztonga",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "d4d169ab-cfd8-4085-8a3a-7ec78f60eda5",
+    "name": "Ömürcan Artan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "983e0a56-4353-467a-ba59-abd174e6b67c",
+    "name": "Almir Aganspahic",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "7dddb0be-b78e-459d-9434-d8e0fec7ebb1",
+    "name": "Harun Alpsoy",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "3829cdfa-c4fc-47ea-b498-a6ccc7b8cc4c",
+    "name": "Abdurrahman Üresin",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "df015c6f-4b84-44b2-9e80-aa3aafa57a7e",
+    "name": "Türker Dırdıroğlu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "b21e2c30-ff80-430d-92b6-5985d8f7cdb5",
+    "name": "Abdulsamet Kırım",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "e9488981-c532-41bc-8b06-390ff9d4f0c1",
+    "name": "Bartu Kulbilge",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "370193fb-eba8-4877-81b3-1b5b25b857fa",
+    "name": "Dean Liço",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "71a65435-4196-47b9-9ba7-cd73b236fded",
+    "name": "Rasheed Akanbi",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "91251530-845c-4ea8-b94b-3b39161ed4bf",
+    "name": "Devran Şenyurt",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "8a403cd0-ecfa-435b-acc1-4bbc48615582",
+    "name": "Loïc Kouagba",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "4377040c-be2b-4e01-aedd-0c1bbf00b230",
+    "name": "Lucas Lima",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "aa4395c7-538b-4616-839b-6fef2f6fa380",
+    "name": "Alptekin Çaylı",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "cf0df8e7-93de-4d9c-a569-6216dcf19939",
+    "name": "Gökhan Akkan",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "f22e6add-7b19-4330-bb91-a654cda51882",
+    "name": "Erdem Dikbasan",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "99e39e8b-3724-45ca-8a71-6a80df303058",
+    "name": "Temel Çakmak",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "01c803d4-eeea-43c7-beaf-94cbedbae396",
+    "name": "İsmail Kalburcu",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "38721744-8a7f-4636-8281-8f21a4b56397",
+    "name": "Burak Topçu",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "098c65be-52d6-4be6-85b3-e4df1d6b8932",
+    "name": "Can Arda Yılmaz",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "d6686d85-3778-4b68-b2c0-e29241f6ab6f",
+    "name": "Kaan Alp Dizbay",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "7675cd1d-499c-444a-a4f4-ebcb2cbfa5dc",
+    "name": "Ibrahim Zubairu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "bc017a51-80ba-498b-8d0d-c2c5469573f5",
+    "name": "Kerem Kalafat",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "184ff953-5e00-465b-a09a-92f0a273e4a9",
+    "name": "Ibrahim Sehic",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "6b50c109-5a34-4201-b5ac-9e32ea16dd4a",
+    "name": "Efe Sarıkaya",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "1f836b68-f6b9-4de8-88cc-7f3bf71755c7",
+    "name": "Hasan Hüseyin Akınay",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "fd29b125-f15e-476d-a055-e2828caf0322",
+    "name": " Geraldo",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "89a70d3d-8f5c-404d-9b15-65a2a157d29a",
+    "name": "Erkan Kaş",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "7022a142-d417-4dab-bd8f-f52f87ae0e0a",
+    "name": "Atakan Cangöz",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "2982eeae-7d1c-427c-99d7-0bc21b2245d2",
+    "name": "Mame Thiam",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "1841facb-9c02-4a13-b377-9a41f595295e",
+    "name": "Braian Samudio",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "21336f9c-d194-4d33-8087-729027cd4c82",
+    "name": " Pedrinho",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "d35aec3b-9d4c-48bf-bbb9-ba361599cdd5",
+    "name": "Joseph Attamah",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "19f020ab-d084-4978-837c-f681ce340ba9",
+    "name": "Danijel Aleksic",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "69b99025-0e60-4799-9ca7-32593d33e5d3",
+    "name": "Yusuf Erdoğan",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "9f6e5dd0-56f6-4edf-af42-c1a8ee260b74",
+    "name": "Ahmed Ildız",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "31431845-8fbf-4d5f-88d9-92187d72594a",
+    "name": "Burak Çoban",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "fbed4c33-c089-4fb4-83be-d04dc47538ac",
+    "name": " Fredy",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "1bfac670-52e1-4184-827b-a69d9a37b781",
+    "name": "Ferhat Yazgan",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "0e7fb026-7208-4303-a889-7e000673b748",
+    "name": "Oğuz Gürbulak",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "8dcd30a8-331a-4ee7-96f1-b942c8bb2ad7",
+    "name": "Ahmet Kıvanç",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "5c280fc3-43df-452d-bd17-935edc4bf5d4",
+    "name": "Üzeyir Ergün",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "7a8a2d37-0e6c-4cdf-90b9-ce984c33525e",
+    "name": "Sinan Osmanoğlu",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "8275d35e-a2e3-4982-9261-2b4969547b6a",
+    "name": "Cemali Sertel",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "ac7d2ef0-add9-4a69-a518-2fd436c17220",
+    "name": "Atakan Akkaynak",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "2d2788c1-3fc4-4edf-9b48-800c3da33cb4",
+    "name": "Arda Şengül",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "70da0172-a255-4e18-ae82-0e8595a39f3d",
+    "name": "Serdar Gürler",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "0d14d9c8-7d96-48dc-9b99-c853cee7d21f",
+    "name": "Eren Karadağ",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "3189a136-96d7-4bd2-931a-0ed1cad7d6e4",
+    "name": "Benhur Keser",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "157a1a78-45f3-46e1-87e2-307c6b439bfb",
+    "name": "Giovanni Crociata",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "2ea87de2-8f53-4e40-9b06-3717426f01be",
+    "name": "Sefa Akgün",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "f18b64da-83b8-4bb6-bc1d-01769796a640",
+    "name": "Martín Rodríguez",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "a22b554b-c70f-4f55-8aa2-5cf363462a6a",
+    "name": "Murat Cem Akpınar",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "bb485a75-8be5-4a16-be86-e36774198a1b",
+    "name": "Amar Gerxhaliu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "67df631c-557d-416c-b182-a4603072e643",
+    "name": "Adem Eren Kabak",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "8c9bb654-bf76-4529-bad0-4736df984fe3",
+    "name": "Cheikne Sylla",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "0435e574-d99a-44fc-8790-ffc9df247b36",
+    "name": "Eren Tozlu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "6ea6455c-bfea-4cba-9ad8-b5cb419a7fdc",
+    "name": "Salih Sarıkaya",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "af48b900-9337-4c9b-bd3a-cf3e7ea9470b",
+    "name": "Cengizhan Bayrak",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "c8d47de9-517a-4fbe-9b82-3788a701a3be",
+    "name": "Hüsamettin Yener",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "297bde70-1c80-4014-9c09-1ac79802071f",
+    "name": "Kağan Moradaoğlu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "d3d0597f-1c23-4183-ad28-2b0fded32173",
+    "name": "Mustafa Yumlu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "1044c278-7ed6-4aff-b62a-12614e5bdb65",
+    "name": "Orhan Ovacıklı",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "87ee2ade-9304-4ebd-b823-7752a27e6efd",
+    "name": "Furkan Özhan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "e9958d12-8985-46f1-876d-06344bad8ebc",
+    "name": "Brandon Baiye",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "945ec814-2fbd-4895-b02a-6d3467b03485",
+    "name": "Yakup Kırtay",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "527e0f39-0899-496c-8e81-5590826e996c",
+    "name": "Mustafa Fettahoğlu",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "264fc91c-a087-4d51-8e90-88fb64793dcc",
+    "name": "Matija Orbanic",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "656edba7-4c02-4ad2-b46d-7721af50adaf",
+    "name": "Guram Giorbelidze",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "ce3326ad-0815-468f-b45d-17c1f0a493ca",
+    "name": "Ali Ülgen",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "696d50c4-8944-46f5-a8ae-c242bcd56bb2",
+    "name": "Fernando Andrade",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "6af42cd9-eb29-4e4a-a638-6acfabbc70cc",
+    "name": "Erkan Anapa",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "80902d68-5767-4518-8770-70b4bf8eeb75",
+    "name": "Ömer Arda Kara",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "a4a03920-ae51-404a-a716-f42da5c68643",
+    "name": "İlkan Sever",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "ca384342-9170-47b8-9b0d-27825b4752a2",
+    "name": "Mert Önal",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "351eeaca-9665-46a0-8111-ffae60f797c1",
+    "name": "Francis Nzaba",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "46a78450-7217-4fdf-ac84-d9d773943a1a",
+    "name": "Berat Luş",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "f4fca12b-bd7b-4d7c-9443-d8b676ad20ac",
+    "name": "Mame Mor Faye",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "6e6542fd-7acf-418c-a73a-e182a1590345",
+    "name": "Hamza Čatakovic",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "ca5997f0-0edb-4b0f-a20b-06fe1671633a",
+    "name": "Ömer Beyaz",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "747f0ea3-5cbf-4a3f-b1aa-facc72abe4a6",
+    "name": "Eray Korkmaz",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "723d82ce-258e-4ea0-b048-a41df3f7eb99",
+    "name": "Olarenwaju Kayode",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "4a1c6132-667d-4012-b2bc-b344152b5f49",
+    "name": "Alper Karaman",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "e538c6c0-9f62-41ae-806b-73d284c63748",
+    "name": "Ryan Jack",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "7412e1b7-f5f8-4cab-abde-a2ea8f6f1555",
+    "name": "Dimitri Cavaré",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "5a9d30a0-ba47-48a0-8c8f-9d67d1e21547",
+    "name": "Altar Hidayetoğlu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "50542999-b92e-41d0-a030-787ed6dee86f",
+    "name": " Amilton",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "7e74a5d7-f568-449f-979d-cca674efb8e7",
+    "name": "Mikail Okyar",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "593e6dd5-7ffd-4e5c-ad2f-9a020cac320c",
+    "name": "Onur Ulaş",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "1ca02992-4068-47b3-8aff-5946b92579f9",
+    "name": "Enes Aliç",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "1a869a8e-f374-4bc9-aeb3-956deb8f386e",
+    "name": "Recep Niyaz",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "72d3361d-88f4-4af3-b877-00be55949a0d",
+    "name": "Guélor Kanga",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "edd26565-a80c-4c7d-820d-fe161431310e",
+    "name": "Emre Gedik",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "d7f1becf-ffb1-44b6-96bf-8255838071ef",
+    "name": "Hayrullah Bilazer",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "ba1ddbb2-28d2-4593-af18-9d6c83dfd4c6",
+    "name": "Tugay Kaçar",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "042bdf6f-0dd9-4ef3-814c-1b4354aa24ae",
+    "name": "Birkan Tetik",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "6f69bfea-3f5f-4a93-9d95-dfd00e3b5e68",
+    "name": "Ertuğrul Çetin",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "66116b2b-164c-4e40-8748-1d260fa13fbd",
+    "name": "Arda Kahveci",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "94328268-338b-4203-8da3-042f723e1972",
+    "name": "Funsho Bamgboye",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "67d3cb6c-c5e1-4e63-be02-895ee275a555",
+    "name": "Burak Yılmaz",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "8f715d63-e5d9-4f15-83ac-e0559348d67a",
+    "name": "Muhammed Gönülaçar",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "f9cde77b-0e87-4b76-82ec-08636c2d11dc",
+    "name": "Sharif Osman",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "789e0448-f39d-4d08-ace9-21e8ec0a1c3c",
+    "name": "Yılmaz Cin",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "e4784b96-0c39-4023-b7f0-14d30ccff67f",
+    "name": "Rakhim Chaadaev",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "339d6362-2944-49c0-a4fc-006e61cbaf67",
+    "name": "Yunus Azrak",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "3eff16c8-6ca4-4ce6-83f9-0f2ff25ff8f1",
+    "name": "Prince Ating",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "ccc0d52e-c7f4-4226-954b-5842cdd8b7ab",
+    "name": "Chandrel Massanga",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "d0d4c099-a8b3-491e-996b-4a375f7d8f55",
+    "name": "Baran Sarka",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "124b2338-0af5-4cc3-814e-b98361c21fb3",
+    "name": "Engin Can Aksoy",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "886d0013-aab7-42e3-ae32-26694eb5e0b2",
+    "name": "Demir Sarıcalı",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "3436e987-71fe-4654-9b69-051848c8692b",
+    "name": "Cenk Doğan",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "5ba4f8fd-5715-47f1-b64a-02efc656c162",
+    "name": "Seyit Gazanfer",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "abf70c94-1826-46df-9422-fc631a0912c0",
+    "name": "Birhan Vatansever",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "8f5735b8-17f3-4c3d-836a-0b62afb0be2a",
+    "name": "Sinan Özen",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "f67ac904-ae25-451b-859c-02b2bb5b55ff",
+    "name": "Hakan Çinemre",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "aec28d89-909c-4839-9f7e-81a5dc81c1c7",
+    "name": "Taylan Özgün",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "0287f482-d183-487f-ac60-e5921aca6376",
+    "name": "Ensar Arslan",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "5b0c7c92-782e-49a5-a9d5-872ee5c80e13",
+    "name": "Halil Can Cemali",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "fb1f3450-90da-4bcb-8f51-13839f49e879",
+    "name": "Emir Dadük",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "2d7ca88c-5a08-4f8b-ad5d-e040425fe251",
+    "name": "Ünal Durmuşhan",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "01a323df-c854-4256-ae48-926251ef0657",
+    "name": "Ali Yıldız",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "c5feec6b-f701-467d-beb2-e47c497404c0",
+    "name": "Mustafa Said Aydın",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "6472208c-88e3-4a29-8ba2-16c12cb22898",
+    "name": "Ersin Aydemir",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "cab37674-bc02-4878-80b3-787ff159fa9d",
+    "name": "Melih Şen",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "d56fcbcb-fe24-4df0-acea-65b15a71eb3a",
+    "name": "Abdulkadir Adıyaman",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "b51dd4be-a81f-43e3-898f-0b0c72d0e345",
+    "name": "Yiğit Ali Buz",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "83882da8-8693-4873-abfa-5b285a5d219a",
+    "name": "Marius Tresor Doh",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "4c55841f-996b-43a6-8a32-fa20eb11b1c5",
+    "name": "Ahmet Engin",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "b5db9870-2d27-4fd1-a1fa-79fd495a79ac",
+    "name": "Gökcan Kaya",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "9ddb867c-21c7-4f96-9d4c-ed6562f222c0",
+    "name": "Alim Öztürk",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "354282ef-4c92-47cd-9823-5d53d2c8fb38",
+    "name": "Gianni Bruno",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "5fec9694-364b-4d79-a913-1c0c72c32560",
+    "name": "Ryan Mendes",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "1b59b864-077a-4d63-9217-ee5448b9ec4a",
+    "name": "Moryke Fofana",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "c67dc1ea-faf7-4d49-923d-32fb8d841a1e",
+    "name": "Ali Yaşar",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "65870991-941d-4351-814e-eb8ef9ca7ee5",
+    "name": "Sinan Bolat",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "9d6f6956-5ab6-4baa-b3aa-2abefc6ba4a3",
+    "name": "Fodé Koita",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "1c84b6b0-ced8-4d1e-8a56-44b9160672cc",
+    "name": "Ali Kaan Güneren",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "941fcbe6-6111-4ae5-a025-3403828d4dc6",
+    "name": "Florian Loshaj",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "3d1ddfc3-7726-4f1b-8c01-f6c160c274fe",
+    "name": "Robin Yalçın",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "3a3c806d-d701-49a9-b2fc-f8757db5b135",
+    "name": "Oğuz Kağan Güçtekin",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "e8e00726-553d-47dc-847d-425da638464d",
+    "name": "Doğan Erdoğan",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "844772b3-1cbc-42ce-8d71-6bb183fba84c",
+    "name": "Leandro Bacuna",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "fb41a0bd-3b19-4a0d-b287-6e8aa785c80f",
+    "name": "Taha Tepe",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "1e387718-cc57-4e26-8e54-b8df61fedf9c",
+    "name": "Serkan Asan",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "bbfbf860-1e76-499a-8d65-774ce491034b",
+    "name": "Tunahan Ergül",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "7ab9fde0-d52f-428a-aaf8-0bc1b4de6a27",
+    "name": "Alperen Selvi",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "0469b31c-576a-4f70-8e17-2f6b9ba6861f",
+    "name": "Güray Vural",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "a3918dee-6900-42c4-8dfd-1a397e4eac70",
+    "name": " Tsunami",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "0718d1f5-b767-4619-bb81-07b0779d05b1",
+    "name": "Atakan Çankaya",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "43bd3c7f-bd04-46d3-9acc-0f3265dae764",
+    "name": "Aaron Suárez",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "b8991aff-9991-4b8f-9f2d-a6a78f09a483",
+    "name": "Özder Özcan",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "e613dfaf-f9c3-42eb-a098-6655f1dff5e9",
+    "name": "Melih Akyüz",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "290c7271-1994-4aca-829d-657ee914c5a8",
+    "name": "Mendy Mamadou",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "94fe88ee-0a1d-4e87-974a-96fa9dd000df",
+    "name": "Modestas Vorobjovas",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "374f2b06-d5a7-4c56-9ac8-bf3ad7226455",
+    "name": "Yunus Bahadır",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "8583126d-fd50-4cd7-8670-6a39c8bc20c4",
+    "name": "David Sambissa",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "d530f5e4-4948-444d-8086-a52225dd1907",
+    "name": "Emrecan Uzunhan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "ca538c2a-9edb-4735-a710-8d2b8335c6a1",
+    "name": "Duhan Aksu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "e9b0c2b5-018c-4c79-9b07-25e6f741f6aa",
+    "name": "Ali Şahin Yılmaz",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "897e977a-a380-4b6e-a155-5894a83a0a43",
+    "name": "Fahri Ay",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "3ba55271-f9e5-4e80-8fae-940483f5a7b8",
+    "name": "Muhammed Mert",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "206656d9-63f1-4cab-a25f-f2aa30248cbb",
+    "name": "Cenk Şahin",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "5f44f9a9-2a1e-4671-9308-d66492a99f89",
+    "name": "İsa Doğan",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "6712e45a-7629-4572-b7ae-be453f5cfaec",
+    "name": "Yusuf Özer",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "a1d68387-a933-45ba-9dcc-af7f39b25803",
+    "name": "Michael Ologo",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "7165016e-4f1d-4f15-82a6-9816c03a9869",
+    "name": "Mario Krstovski",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "7eff802f-8354-4c1f-9057-fd224f1d3f75",
+    "name": "Demeaco Duhaney",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "a59c6957-df70-4b94-858f-2bd0a709cfa8",
+    "name": "Vefa Temel",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "5ee376b6-c480-4eb0-b5f2-ad9319cbaa7f",
+    "name": "Alp Tutar",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "e42cdb10-7b4a-40af-b698-4cb5f7a04d44",
+    "name": "Demir Mermerci",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "c6d21ece-c3c3-4318-b614-1b09a0c16bce",
+    "name": "Özcan Şahan",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "dda54418-2eed-4ee4-ae47-44d1523ce997",
+    "name": "Mücahit Serbest",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "b6e7412e-792c-48d0-9aa4-546958497f4a",
+    "name": "Fatih Tultak",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "8aaf3f45-20d6-4a97-87fe-e2626fd240a8",
+    "name": "Dijlan Aydın",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "3d02b977-6c0b-4ba4-805d-4ee278a1cf04",
+    "name": "Isa Dayakli",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "51472820-6318-4ac9-b520-055f3c23a654",
+    "name": " Phellipe",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "2d93c332-7b42-40ae-82bf-9912730b22b7",
+    "name": "Alieu Cham",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "884fe48b-c338-4c9f-a120-ad2ecf9943a5",
+    "name": "Mustafa Sol",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "46a161ae-cdf6-4dec-b5b2-105ef5e2eb9d",
+    "name": "Muhlis Dağaşan",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "06cb83a5-2935-4dfb-852b-e20e8b5f8236",
+    "name": "Duran Şahin",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "b184cc36-dfc3-4547-b73d-410d4d3072df",
+    "name": "Ömer Faruk Duymaz",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "ed239592-0211-4802-906a-9012aa7600cc",
+    "name": "Alp Arda",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "5229b023-8f59-43e1-a56d-71172f2635f4",
+    "name": "İzzet Erdal",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "369e85d1-3b3a-4377-8522-02f74563b8a8",
+    "name": "Ertuğrul Sandıkcı",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "3b4d6a8b-92e0-4634-9533-c20a547b2048",
+    "name": "Ömer Faruk Karahan",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "1cd9d39c-9a73-4809-938f-31fe5d3a0417",
+    "name": "Soner Salih Yavuz",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "bca02310-1a16-453a-a514-a2410f2995f5",
+    "name": "Deniz Tuncer",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "60cbacf1-ffae-4049-9e1c-83a4ebb7e4e0",
+    "name": "Elvin Mendy",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "b4b40996-8f51-4a5c-bccd-695259eb7d5b",
+    "name": "Francis Ezeh",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "f520de53-331d-42b9-9583-5db8d37be5ea",
+    "name": "Eduart Rroca",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "74c3fa67-ed51-4bcb-b450-bcc803a83a12",
+    "name": "Aykut Özer",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "bae5c4e7-ce1c-47db-9577-3ca938b1e560",
+    "name": "Odise Roshi",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "945d7151-9114-4120-9895-c932143396b1",
+    "name": " Mexer",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "b30e91d5-d750-491d-91c3-978699120f67",
+    "name": "Ali Dere",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "83f94478-b940-46de-ade6-72ee6ba4dfb8",
+    "name": "İbrahim Akdağ",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "7492d766-c214-4a19-a106-03c2a7465285",
+    "name": "Wellington Nascimento",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "0225e873-1a04-47b4-bcef-742b440ca14a",
+    "name": "Mame Diouf",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "eca74aec-3181-43b3-905f-f65530a800cf",
+    "name": "Junior Fernandes",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "bf0a8e4d-a9f6-4332-bf62-3a805af7b1f5",
+    "name": "Hakan Bilgiç",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "0e22271b-def9-4a78-8b1a-6dd5d16f38be",
+    "name": "Oğuzcan Çalışkan",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "c7046134-6982-462e-a62b-41c4051b246c",
+    "name": "Süleyman Luş",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "3034beba-8ba7-434a-ae6b-f5f64034a4da",
+    "name": "Emre Satılmış",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "85d24142-e97b-426e-a2ef-dc90d7f87b55",
+    "name": "Mehmet Erdoğan",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "bbd7509e-6dda-4409-97bc-9aad676474e5",
+    "name": "Erkam Develi",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "bfbb4a7d-c6ed-4294-876e-d7b0bcfe6390",
+    "name": "Ali Akman",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "8889d00b-2cf1-4030-9f11-4f99453fe8b3",
+    "name": "Hüseyin Bulut",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "8d5061ad-f176-4ad6-9621-d0e679bfbbc2",
+    "name": "Halil Can Ayan",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "3bc356c4-001b-48eb-8c2f-2310ba02619b",
+    "name": "Abdullah Celik",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "7adf81c4-fa15-4e11-ab7a-e9cab2ed7090",
+    "name": "Alper Duman",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "a54b4349-9870-4691-858d-287fffd873d0",
+    "name": "Berkan Keskin",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "aa6db38d-262e-44b3-a2ab-c58a7571d0cf",
+    "name": "İshak Karaoğul",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "30bde9e5-290f-45fc-9bc6-53b1e951e1f3",
+    "name": "Enes Yılmaz",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "295ed548-eec7-4252-8cb9-bd7859658b82",
+    "name": "Loïs Diony",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "aadf3b58-aaa2-4502-b148-2f6eb7bfd255",
+    "name": "Bobby Adekanye",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "9362eeb0-5fe4-4e37-9697-f2bdf31a0029",
+    "name": "Birama Touré",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "52f57a45-045e-4422-8f6d-8188a78d8faa",
+    "name": "Muhammed Kiprit",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "43ed3a41-1959-4526-80f4-7abf0abc4472",
+    "name": "Alenis Vargas",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "47d61dda-82bb-4982-84d9-8b18af5fa982",
+    "name": "Kubilay Sönmez",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "a842d962-00b3-450f-8ddc-06194b6e62ea",
+    "name": "Yasin Güreler",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "bd23fb98-f5ea-492c-ad8c-0729f8df2dad",
+    "name": "Jonathan Lindseth",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "8559aa93-d3f3-4747-9692-36713b29844e",
+    "name": "Ayberk Karapo",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "9a08419b-f9b2-4654-ac5d-47764a56d169",
+    "name": "Yassine Benrahou",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "e06c0b0d-fc3c-43d3-91fe-2893bfb1da3b",
+    "name": "Christophe Hérelle",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "93e1fc5e-eeba-4d42-80a5-d23ff0f7789a",
+    "name": "Vedat Karakuş",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "a91d5acd-568c-4c31-9e24-aef765e59558",
+    "name": "Ada İbik",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "fd255c51-96d9-4f0c-a2d1-22c8c04b5a7e",
+    "name": "Yusuf Talum",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "35c6b09a-f566-4afd-a5b3-78ef2d6e1ad6",
+    "name": "Mamadou Cissokho",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "88687700-435e-49c7-a571-316796c30ade",
+    "name": "Umut Erdem",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "f4d876b8-ad04-4588-9d94-27bebe4491da",
+    "name": "Yunus Emre Yüce",
+    "ce": "2028-06-30",
+    "fuzzy": true
+  },
+  {
+    "id": "aec87cb7-e73e-4ba5-88c5-ac018abc1f8d",
+    "name": "Osman Kahraman",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "1bf1bfbe-ddd4-4ae4-9330-01c882da6c7e",
+    "name": "Yunus Emre Dursun",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "3fe59862-7e41-40c2-b5ff-5506b4013ea6",
+    "name": "Ahmet Şen",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "1ff9be4c-66ab-413c-9364-f3be725436a0",
+    "name": "Saim Sarp Bodur",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "95950cc1-b85e-4e2d-9f7e-6f6832da62d9",
+    "name": "Deniz Dilmen",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "894027be-1a4c-405a-a8d0-ea95d502c34e",
+    "name": "Yiğit Fidan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "aa239ab7-4df4-4acc-8fc4-1def832d78ed",
+    "name": "Hüseyin Maldar",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "e7347074-5492-4449-9a4b-b52591017f4d",
+    "name": "Djordje Denic",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "c015bcbb-8c42-40e8-a100-31fcc4cf5c9f",
+    "name": "Hamza Akman",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "1e0a1605-860d-4576-bfb8-75734c472807",
+    "name": "Erdem Gökçe",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "1210d4b8-1033-483f-bac5-4490ed4fb1f2",
+    "name": "Stelios Kitsiou",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "10db5269-88ec-40ef-a29f-1b35b97f0865",
+    "name": "Berkay Sülüngöz",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "c46ba037-7f68-4283-9c6d-ce07ea621db9",
+    "name": " Sequeira",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "8c4de3d0-6654-4c02-b868-50a7785b5657",
+    "name": " Thuram",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "d9cf749b-7a0d-4929-96f0-1c57f313aed8",
+    "name": "Mallik Wilks",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "78c3f133-f5c8-4cf2-be53-c24e952d4e7a",
+    "name": "Jonson Clarke-Harris",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "fda36e8f-063a-43c2-8aca-55927d7ce48b",
+    "name": "Vinko Soldo",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "ad287c4e-6c57-4f98-95b3-d965998f86c5",
+    "name": "Hakan Yeşil",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "d3a0edce-420b-4bcc-82aa-e981d21a2d07",
+    "name": "Adnan Uğur",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "04934cf4-b605-426c-be49-228a6c8a9eda",
+    "name": "Mesut Özdemir",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "4fdf5ce7-2887-4c1f-baac-d61ead2a9c40",
+    "name": "Utku Yuvakuran",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "e5be9ce7-30c9-4143-9105-963561167f92",
+    "name": "Emre Koyuncu",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "2a2fee38-20ad-4cf8-a01a-b843aea0cd92",
+    "name": "Bekir Karadeniz",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "3a2c9006-de54-4da8-a37c-8f1d8c5a63e1",
+    "name": "Furkan Doğan",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "ceb33dca-983c-4ada-943e-6d66c6920a69",
+    "name": "Enis Safin",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "2d948bbf-eaa4-4489-921f-e4ed313e3121",
+    "name": "Ahmet Karademir",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "da21e75f-5489-4bbc-8b59-51a2d3952da3",
+    "name": "Görkem Bitin",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "964e1590-6215-48e7-9ab6-2b9d47bd0f94",
+    "name": "Tarık Tekdal",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "38cc839a-6d50-40a1-8ee6-db4a751a2229",
+    "name": "Poyraz Yıldırım",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "66619f06-9677-4307-ad4b-cae100181ff0",
+    "name": "Sergio Peña",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "3630b3ca-75b3-4150-b731-8ba07af34933",
+    "name": "Arif Kocaman",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "46ca0d1b-7585-4440-9699-1e39a0ea1f4e",
+    "name": "Melih Bostan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "f91b5180-c173-4041-badf-5e1262815c9c",
+    "name": "Ismaila Soro",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "8a63fe44-804e-4c44-a405-b397a994b7b2",
+    "name": " Ruan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "2f3442ea-a9f3-4cf3-aa90-267b78e326ca",
+    "name": "Emre Demir",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "f0fe8af9-4ecb-4f56-97d0-1b16b22e2f60",
+    "name": "Emrecan Terzi",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "46c054dc-293f-41a9-a43c-8b4f31f1a890",
+    "name": "Owusu Kwabena",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "600785db-8ecc-4e66-aa07-9167e5001ddd",
+    "name": "Kerem Şen",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "a6574e8a-ce41-4dac-94f2-2e5c4cb21588",
+    "name": "Ataberk Dadakdeniz",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "ced6a53e-dd24-4c61-990c-f5e73feafb3f",
+    "name": "Mete Demir",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "03f7c30c-4cd3-4d4e-97a3-f9285fa4dd04",
+    "name": "Mirza Cihan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "c9c1da40-2609-4ad3-a0a5-8bdb62550c8e",
+    "name": "Batuhan Çakır",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "a1749c5e-1f81-44d2-b836-5de7744b87bf",
+    "name": "Serkan Yavuz",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "acf80eb8-52af-4315-b8aa-af559d8104c4",
+    "name": "Doğukan Tuzcu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "4a52161c-8655-496c-90d5-d9b0109755d8",
+    "name": "Salih Dursun",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "d4c1af89-fc1b-4e1d-8d47-3b9449499f50",
+    "name": "Alparslan Demir",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "dc33c0f9-65fb-4b05-9541-bbe0b5a599d0",
+    "name": "Göktuğ Baytekin",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "5f3dc96d-4f6d-4968-b1e1-0005cee373fd",
+    "name": "Mohamed Hassan Fofana",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "10b4326d-b9e3-46d0-b0cb-fff58a9846ab",
+    "name": "Haydar Karataş",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "980b59d2-7162-4e6c-9338-badf14996b26",
+    "name": "Burak Bekaroğlu",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "ed168e0c-b422-49c5-9016-21c26255a9a2",
+    "name": "Eren Erdoğan",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "7898703b-bd3a-4a69-a19f-095608a607e1",
+    "name": "Lukasz Zwolinski",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "440e796b-bf19-4517-bb31-3d8befc11d96",
+    "name": "Josip Vukovic",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "4aa28827-c7a0-4da0-8a8e-8ccbdad09f2f",
+    "name": "Alaaddin Okumuş",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "a881f299-72db-4893-a4c8-56170d8cedfc",
+    "name": "Jakub Szumski",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "35eedc40-ce9e-4e46-b72f-92a2ae146d73",
+    "name": "Abdurrahman Bayram",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "e612193c-d73b-4d90-b1f1-a579492fbbfa",
+    "name": "Enver Kulasin",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "fd7c9aaa-2c81-4ff8-804f-1b289256fcfb",
+    "name": "Moustapha Camara",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "ff78611b-0518-4fc8-a51a-fe54c98fa935",
+    "name": "Aytaç Kara",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "159b4cdf-1f3a-42be-8945-06665a745fc0",
+    "name": "Hamidou Traoré",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "163d248c-c08a-4ccb-a936-2965b338d21c",
+    "name": "Emeka Eze",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "0a949059-84ed-457a-ad0f-e5b375f1f502",
+    "name": "Malaly Dembélé",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "52e55716-1eef-47ec-b4d6-3d83bcf45e85",
+    "name": "Oğuzhan Yılmaz",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "4de3c412-c10d-4bf3-a075-02de6a91ec9e",
+    "name": "Metehan Mert",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "d382c582-2516-45a9-94cf-2f6e12d3cf74",
+    "name": "Marcos Silva",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "6a03c815-f46d-400b-bb53-95b268bd6ad7",
+    "name": "Hasan Emre Yeşilyurt",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "12caaa1c-910a-4e3d-b5b1-fe2dd881e551",
+    "name": "André Poko",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "124fee85-fff4-45e7-9b62-d79fd46288dc",
+    "name": "Fethi Özer",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "104e54d6-3c45-43ce-afa4-5b57d32432c9",
+    "name": "Berkay Aydoğmuş",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "56611907-16b5-4415-b2c1-3978d5cece1a",
+    "name": "Khouma Babacar",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "9e4eaf22-51f9-4000-bc2e-ec5b07bc7528",
+    "name": "Eşref Korkmazoğlu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "6094cf9d-e162-4a08-8862-73f39f00e685",
+    "name": "Adrien Regattin",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "28204946-64c0-42bf-877f-9e5389b27668",
+    "name": "Mert Bayram",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "7c3836aa-bfe4-47e9-b2ad-4036d21155f3",
+    "name": "Papy Djilobodji",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "727b65f9-0ce9-4015-b077-8a47d51fd2fc",
+    "name": "Cebrail Karayel",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "2f108c0b-faa4-4c78-a28a-3b7f95246816",
+    "name": "Ömer Bayram",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "d6bee3ee-be7c-4fab-9849-985e97e5b53b",
+    "name": "Caner Osmanpaşa",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "6b9f180f-bfc5-486c-a784-ceba30d6228c",
+    "name": "Oğuzhan Berber",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "ea801023-7522-4a4e-9f2b-ae83388e1ca7",
+    "name": "Ozan Sol",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "82caed9b-238d-474c-8113-5ac1351c3528",
+    "name": "Batuhan Kör",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "fd68e484-f637-4932-b7c7-5bb12fa4dbd2",
+    "name": "Furkan Akyüz",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "7bf5c3fb-0bc4-463f-aeeb-3e549234ebc7",
+    "name": "Ahmet Ekmekci",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "6e167796-4793-4d26-857d-8fbed36ee93f",
+    "name": "Emre Oğuz",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "52c2ed07-67c7-4f91-8841-c2e2c26b4fe8",
+    "name": "Alán Montes",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "826d6970-bffc-49c8-ad87-39fe35a7c8ba",
+    "name": "Christian Nwachukwu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "6b029446-2039-4b06-b055-9d79430063ab",
+    "name": "Jetmir Topalli",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "3b3041d1-d077-43fd-8840-38dc66e7415a",
+    "name": "Bilal Ceylan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "cabb61ad-9ad9-4930-ad3f-64ce2d5b749e",
+    "name": "Gökhan Altıparmak",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "b8a0cd0a-4486-4807-8992-e8671e720aa4",
+    "name": "Sartan Tashkyn",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "34112110-2fa1-46a0-b75e-10e0fcc4c984",
+    "name": "Cengiz Demir",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "765a05c7-b0a1-45da-888f-a380e5fb4be4",
+    "name": "Mesut Can Tunalı",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "62700e52-964e-4a83-a7c4-49039df7b67d",
+    "name": "İbrahim Demir",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "3cb9f09c-114d-4762-841f-4e3a6b2fbc6a",
+    "name": "Lev Skvortsov",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "75ad6432-51be-4834-a14c-1839e6db58b8",
+    "name": "Mücahit Ibrahimoglu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "7e52a55c-117f-48e6-8f18-978922a644c8",
+    "name": "Selim Dilli",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "9f774a77-daf2-43eb-a145-c9ab5d40c1af",
+    "name": "Erten Ersu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "207ca3bf-ac27-4672-8108-85a3f6ce13b3",
+    "name": "Veysel Sapan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "e0e248de-b6e0-4d63-9869-b11fc8e1d1bf",
+    "name": "Burak Asan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "bb086a0f-adf9-4ebe-8ed8-7f9487676c1c",
+    "name": "Caner Cavlan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "e0a3e341-5b0e-4fee-9a9b-21d56527aefb",
+    "name": "Anıl Koç",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "007b791d-dc40-4a63-a1c1-6566a5df1d32",
+    "name": "Şeref Özcan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "c5ad705d-5884-4ef5-a74d-5ebb0fb7e939",
+    "name": "Emre Nefiz",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "4c87d887-a49b-477e-8341-6ae82961ef21",
+    "name": "Gjoko Spasov",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "8fceef91-2828-486a-9e90-895763cd2b69",
+    "name": "Aleksandr Martynov",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "ed64701d-538a-46be-a31c-604438407d55",
+    "name": "Raymond Adeola",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "352fd25a-1f17-4ad9-ac49-d81f0ebe3f7c",
+    "name": "Michal Nalepa",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "48495e24-a72a-49f4-a888-a70d6dca8c35",
+    "name": "Ilya Sadygov",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "2b7891af-eb4a-46a1-afd0-9bc4806b9c1d",
+    "name": "Joseph Okoro",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "53c57ddb-4c70-409b-a389-a11f064bf13c",
+    "name": "Rayan-Elie Guibero",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "9d5d0635-db38-4b1b-b9d1-dc52d97e9fc9",
+    "name": "Ahmet Daniel Akyıldız",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "060803b3-5f05-4f9d-a4d7-e438f67f9536",
+    "name": "Baha Karakaya",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "9b536c38-eb33-40c6-88d8-66d7337b4abf",
+    "name": "Mehmet Demirözü",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "86951c2c-ac6a-4d5f-927a-39d97964edb0",
+    "name": "Alperen Köşker",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "9518585c-e9bd-4bed-92a9-3797ba03b04f",
+    "name": "Enis Ulusoy",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "7e3f042a-f6c9-4267-8ec4-c503d89b5f15",
+    "name": "Muhammed İlham Mallayev",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "2ab92a8b-f928-44c5-bf2d-7321d1b9ddcf",
+    "name": "Ender Güneş",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "116b55f9-4435-438d-b6e9-72c4c49b37c3",
+    "name": "Valon Ethemi",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "208812fe-09ca-4fc0-9a0f-ca43d87e9b44",
+    "name": "Murat Paluli",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "1ee968d2-b174-483d-a614-694fb9a63217",
+    "name": "Gökhan Akkan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "3a95c424-6a7f-410a-aca0-c6f4b25a3be4",
+    "name": "Daniel Avramovski",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "a9bc1c77-4ba3-4180-8a47-70b5a84e42a2",
+    "name": "Aly Malle",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "ccf12e33-22f5-460a-a8f3-41f1d168ee05",
+    "name": "Özkan Yiğiter",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "fbca0c63-dd4d-4dfe-918c-035393b0ff02",
+    "name": "Aaron Appindangoyé",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "fc80b3cd-6d48-4a99-a0d9-410d160ec84c",
+    "name": "Feyzi Yıldırım",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "4e80fda8-c483-4cfc-87c7-6049a063bd48",
+    "name": "Talha Şeker",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "bc1c8a41-85de-475e-a83f-8a58c6b2e589",
+    "name": "Kaan Sarman",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "d248fa8c-cd9f-44a7-a19c-c325a516b797",
+    "name": "Bekir Turaç Böke",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "2ea5f42e-9334-4df8-8c3f-6e156dcc0ec3",
+    "name": "Jonathan Okoronkwo",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "bda70e2d-cb2a-49ea-aee4-587784deea43",
+    "name": "Aliou Badji",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "12b5b1a1-df16-45bf-8c64-09397872448e",
+    "name": "Emre Gökay",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "496b2606-33ed-4a6a-9e2e-0a96e64fc2bd",
+    "name": "Cihat Çelik",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "aa7b41bd-adf1-496c-96af-1e2aadf998cd",
+    "name": "Uğur Çiftçi",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "02cee1b2-4317-4346-9eb2-8b123dcea8b5",
+    "name": "Kerem Atakan Kesgin",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "a7523d65-a210-4a61-bd79-45232df7775b",
+    "name": "Göktuğ Bakırbaş",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "c32ff4e3-8890-49e6-bf51-faeb0fd69774",
+    "name": "Mert Celik",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "ca756a57-dfb7-4ca6-a34d-92cacb916e0c",
+    "name": "Mehmet Albayrak",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "2c3de96e-fe78-4e8d-b1ce-3fcff5ab3cbd",
+    "name": "Arda Erdursun",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "c8c85063-e401-4516-a923-a3508f3c535f",
+    "name": "Okan Erdoğan",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "18e47238-b99d-4c06-bba0-3df3b274b781",
+    "name": "Emirhan Başyiğit",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "2a3b73cf-3c7a-43d4-a6ad-c9bc5aabddec",
+    "name": "Charilaos Charisis",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "97d71698-13f6-4704-aab2-b148707d4413",
+    "name": "Rey Manaj",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "88bcb3a1-8153-4abe-88e1-3d09c6a72dea",
+    "name": "Kamil Fidan",
+    "ce": "2029-06-30"
+  },
+  {
+    "id": "f8a76cfb-66b2-4d59-97cf-c68f2aa8edfe",
+    "name": " Benny",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "4d4a7dee-599e-4c23-8c2b-4c38fc809f93",
+    "name": "Ali Turap Bülbül",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "544aab5d-555f-4e6d-8943-059d4d3f9ebb",
+    "name": "Jurgen Bardhi",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "53573db3-0a2a-4007-a871-8fdf381daa95",
+    "name": "Batuhan Çelik",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "a80f820d-31d0-45ed-a28a-8db326915a7b",
+    "name": "Burak Öksüz",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "ce6527c3-610f-4e28-aa8f-8dc6bd5137df",
+    "name": "Engjell Hoti",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "2f2c1345-d59e-45dc-89af-5870f98c9330",
+    "name": "Barış Ekincier",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "d852ac32-3d9c-47df-9b0c-d133d716d343",
+    "name": "Emre Kaplan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "746683bd-fb84-457d-905e-2fbaf3b3d96b",
+    "name": "Mustafa Eser",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "7ff1e9b6-5c9b-40b7-bed8-7f9660f9e8bd",
+    "name": "Atalay Babacan",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "d96e9a77-4d37-45dc-9a41-0165ea7b97bc",
+    "name": "Yusuf Kocatürk",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "a943c8d2-b035-42dd-9b5f-12416c474d66",
+    "name": "Toheeb Adeola Kosoko",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "52809385-de1d-4ea7-a48c-4306ca7d8cf0",
+    "name": "Cebio Soukou",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "2052ac1c-dc7a-4f6a-b651-16a5d42a6b7c",
+    "name": "Cihan Topaloğlu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "5aa39edf-8ccf-4d60-abb9-842f55a5078c",
+    "name": "Übeyd Adıyaman",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "90f90141-f851-4047-a3df-94118ecd0c61",
+    "name": "Kubilay Aktaş",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "1b703193-fb5c-46f8-8d2a-63210d53f1ae",
+    "name": "Yunus Emre Yılmaz",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "705dc95b-4ec4-42b4-af4a-dd69e6d68174",
+    "name": "Efe Anaç",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "ad6d2ca5-af4c-4573-b064-162f586cc05e",
+    "name": "Andrej Djokanovic",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "b574146d-fe1c-44f6-ada4-9821fa0baf8c",
+    "name": "Oğuz Yıldırım",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "821d068e-99da-4136-a27f-d12764c0d011",
+    "name": "Serkan Göksu",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "b17bb13b-3925-4b61-92f6-f10bf93480fd",
+    "name": "Yusuf Deniz Şaş",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "5956ac1a-76d5-4f2a-aa2d-fb90a6325565",
+    "name": "Tomislav Glumac",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "42a2188d-eaed-4bfa-afb3-08dc8b1ec696",
+    "name": "Yusuf Saitoğlu",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "29d2f8d6-7aca-4491-b36c-106fabd75b67",
+    "name": "Onur Yıldırım",
+    "ce": "2028-06-30"
+  },
+  {
+    "id": "f193222b-85ee-42e2-b8d7-5e5849783254",
+    "name": "Talha Bartu Özdemir",
+    "ce": "2030-06-30"
+  },
+  {
+    "id": "a13c3462-fdf8-472e-ae3d-9bcd76944f8d",
+    "name": "Žan Jevšenak",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "841bee05-454c-4b0d-bb7d-07a2575c1df9",
+    "name": "Ivan Cedric",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "097d6dcc-60d0-44aa-943a-c9461b79b760",
+    "name": "Emir Bars",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "856bdc72-2ce8-4e22-9834-2f7b10c638f3",
+    "name": "Ensar Çavuşoğlu",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "f06016dd-687d-4db4-bab5-9f49aa450de8",
+    "name": " Jefferson",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "0c6e9ee8-c37f-4331-9171-66eb04fec98a",
+    "name": "Erdem Seçgin",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "7f2d15c4-f699-4aec-a0b9-f39214a2649d",
+    "name": "Çağlar Akbaba",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "88c9b783-75bf-410b-be4c-14dc5b625424",
+    "name": "Sabahattin Destici",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "31addae0-2b96-46de-8789-0fcae819cf19",
+    "name": "Erdi Dikmen",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "6ccaa890-4dd4-46e4-aabf-723d78a18256",
+    "name": "Bekir Can Kara",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "6b2866cf-fbfc-4809-ad12-666a481b9a88",
+    "name": "Alper Demirol",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "6061adb8-8a91-4167-92d4-ff34d97aff59",
+    "name": "Hasan Bilal",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "3fda9bb3-eb8d-4aa3-a7d1-9675ae87b724",
+    "name": "Medeni Bingöl",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "02cbf2ba-d5e9-4fb3-b3e9-6826eebf61aa",
+    "name": "Servet Ölmez",
+    "ce": "2026-06-30"
+  },
+  {
+    "id": "7328cd80-d405-4a95-9c0f-e637e0bac6df",
+    "name": "Naby Oularé",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "30f0130c-c943-4c9f-b057-eae7ee17cd55",
+    "name": "Kenneth Mamah",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "1913b68a-c514-470c-a229-cb6efca0e5b1",
+    "name": "Oğulcan Çağlayan",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "ebb48b52-1d2f-45be-b663-571d04d93d80",
+    "name": "Mehmet Özcan",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "002ad21f-56b0-4142-82b9-3a17a1582462",
+    "name": "Aliou Traoré",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "1a5f9522-b2dd-463c-8b6e-52d1c51ee7a2",
+    "name": "Santeri Hostikka",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "c684bcdd-1279-41bd-aa1c-6b024e7623f9",
+    "name": "Faruk Can Genç",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "d97b6b2a-ab09-46b6-abe5-3f9177be367d",
+    "name": "Alperen Uysal",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "54517e4e-fc80-42a8-9b56-006e4d857722",
+    "name": "Batuhan İşçiler",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "058a7ae5-f9fc-4044-9039-c1e65fc1f041",
+    "name": "Güvenç Usta",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "ebb3171b-3570-4a1e-9fca-5210fe168b45",
+    "name": "Anıl Yıldırım",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "39df501f-8907-4099-ad9c-68fc593e766e",
+    "name": "Muhammed Çoksu",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "dcfcb931-62c9-496a-9980-1b636e4e0576",
+    "name": "Batıhan Gebecelioğlu",
+    "ce": "2027-06-30"
+  },
+  {
+    "id": "7b62a569-c1fa-4e26-8a40-66f700d79b83",
+    "name": "Çınar Tuna Benzer",
+    "ce": "2028-06-30"
+  }
+]

@@ -17,7 +17,7 @@ export const PLAYER_SELECT_COLS = [
   'dpc_total', 'dpc_available',
   'floor_price', 'last_price', 'ipo_price', 'price_change_24h', 'volume_24h',
   'status', 'market_value_eur', 'success_fee_cap_cents', 'max_supply',
-  'is_liquidated', 'contract_end', 'created_at', 'updated_at',
+  'is_liquidated', 'contract_end', 'last_appearance_gw', 'created_at', 'updated_at',
 ].join(', ');
 
 // ============================================
@@ -148,6 +148,8 @@ export function dbToPlayer(db: DbPlayer): Player {
     marketValue: db.market_value_eur || undefined,
     imageUrl: db.image_url ?? null,
     successFeeCap: db.success_fee_cap_cents != null ? centsToBsd(db.success_fee_cap_cents) : undefined,
+    lastAppearanceGw: db.last_appearance_gw ?? 0,
+    gwGap: 0, // Computed by component with currentGw context
     isLiquidated: db.is_liquidated || false,
   };
 }
