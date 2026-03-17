@@ -204,8 +204,12 @@ export default function PlayerHero({
               <span>{player.club}</span>
               <span className="text-white/20">&middot;</span>
               <span>{player.pos}</span>
-              <span className="text-white/20">&middot;</span>
-              <span>{player.age} {t('hero.years')}</span>
+              {player.age != null && player.age > 0 && (
+                <>
+                  <span className="text-white/20">&middot;</span>
+                  <span>{player.age} {t('hero.years')}</span>
+                </>
+              )}
             </div>
 
             {/* Status Badges Row */}
