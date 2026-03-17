@@ -17,21 +17,26 @@ Jedes Feature, jede UI-Aenderung, jeder nicht-triviale Change durchlaeuft diese 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  1. brainstorming          (Superpowers Skill)          │
+│     → Sequential Thinking nutzen fuer Design-Logik      │
 │     → Intent + Requirements klaeren                     │
 │     → Anils Antworten WOERTLICH in Design Doc           │
 │     → Design Doc speichern + committen                  │
 │     → TERMINAL STATE: writing-plans aufrufen            │
 │                                                         │
 │  2. writing-plans          (Superpowers Skill)          │
+│     → Sequential Thinking: Plan GEGEN Design pruefen    │
+│     → "Zeige ich etwas doppelt? Widerspricht sich was?" │
+│     → Context7: Library-Docs holen fuer betroffene Libs │
+│     → Docs in Plan einbetten (Agents haben KEIN C7)     │
 │     → Bite-sized Tasks (2-5 min pro Step)               │
 │     → Exakte File-Pfade + Code im Plan                  │
-│     → Plan GEGEN Design Doc pruefen (Widersprueche?)    │
 │     → Plan speichern + committen                        │
 │     → Ausfuehrung anbieten: Subagent oder Parallel      │
 │                                                         │
 │  3. executing-plans        (Superpowers Skill)          │
 │     → Plan laden + KRITISCH reviewen VOR Start          │
 │     → Tasks in Batches (3 Tasks pro Batch)              │
+│     → Agents arbeiten in EIGENEM Context (nicht meinem) │
 │     → Nach jedem Batch: "Ready for feedback"            │
 │     → Anil gibt OK oder korrigiert                      │
 │                                                         │
@@ -48,6 +53,41 @@ Jedes Feature, jede UI-Aenderung, jeder nicht-triviale Change durchlaeuft diese 
 │     → Feature-File → archive                            │
 └─────────────────────────────────────────────────────────┘
 ```
+
+## Werkzeuge in der Pipeline
+
+### Sequential Thinking (MCP Tool — PFLICHT bei Entscheidungen)
+Nutze `sequentialthinking` IMMER wenn:
+- Design-Entscheidungen getroffen werden (Brainstorming Phase)
+- Plan gegen Design Doc geprueft wird (Writing-Plans Phase)
+- Datenfluss nachverfolgt werden muss ("welche Daten zeigt Front vs. Back?")
+- Unklarheit bei Anils Antworten ("meint er X oder Y?")
+
+**Warum:** Verhindert dass ich Antworten falsch interpretiere oder
+Widersprueche in meiner eigenen Spec uebersehe.
+
+### Context7 (MCP Tool — PFLICHT bei Library-Arbeit)
+Nutze `resolve-library-id` + `query-docs` IMMER wenn:
+- Code mit einer Library geschrieben wird (next/image, next-intl, etc.)
+- Agent-Briefing vorbereitet wird (Docs VOR Dispatch einbetten)
+- Unsicherheit ueber API-Verhalten besteht
+
+**Warum:** Agents haben KEINEN Zugang zu Context7.
+Docs muessen im Plan/Briefing eingebettet sein.
+
+### Agents (Sub-Agents — eigener Context)
+Agents laufen in **eigenem Context Window**:
+- Verbrauchen NICHT meinen Hauptkontext
+- Starten frisch, bekommen NUR den Prompt
+- Koennen NICHT auf Context7/Sequential-Thinking zugreifen
+- Alles was sie brauchen muss im Briefing stehen
+- Ideal fuer: Implementation, Review, Tests (parallel, isoliert)
+
+**Agent-Briefing MUSS enthalten:**
+- Spec/Plan-Text (nicht Pfad — Agent soll nicht suchen)
+- Context7-Docs eingebettet (nicht referenziert)
+- Known Risks aus errors.md/patterns.md
+- i18n Namespace explizit
 
 ### Quick Fix Ausnahme (EINZIGE Abkuerzung)
 NUR fuer Bug Fixes die 1-2 Files betreffen und < 10 Zeilen aendern:

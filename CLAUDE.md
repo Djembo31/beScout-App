@@ -13,7 +13,9 @@ next-intl (Cookie bescout-locale) | lucide-react
 - **Level B**: Inkl. Screenshots, Anil sagt "ship it" oder "Richtung falsch"
 - **Level C**: Sprint autonom, taegliche Summaries + Eskalationen
 - **Superpowers Skill-Chain (PFLICHT):** `brainstorming` → `writing-plans` → `executing-plans` → `finishing-branch` — KEIN Schritt darf uebersprungen werden
-- **Context7:** Bei JEDER Library aktuelle Docs holen, NICHT aus Training raten
+- **Sequential Thinking:** Bei Design-Entscheidungen, Spec-Pruefung, unklaren Antworten — NICHT raten, durchdenken
+- **Context7:** Bei JEDER Library aktuelle Docs holen, NICHT aus Training raten. Docs in Agent-Briefings einbetten (Agents haben KEIN Context7)
+- **Agents:** Eigener Context Window, verbrauchen NICHT den Hauptkontext. Bekommen NUR den Prompt.
 - **Verification:** tsc + vitest + reviewer Agent (PFLICHT) + /baseline-ui + /fixing-accessibility
 - **Impact Analysis:** `/impact` VOR jeder Aenderung an RPCs/DB/Services
 - **Agents:** 6 definierte Agents in `.claude/agents/` (impact-analyst, implementer, reviewer, test-writer, qa-visual, healer)

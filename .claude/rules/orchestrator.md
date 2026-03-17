@@ -62,6 +62,20 @@ query-docs → Aktuelle API-Referenz holen
 ```
 Gilt fuer: Supabase, Next.js, TanStack Query, Tailwind, next-intl, Zustand, alle anderen.
 
+**Wann in der Pipeline:** Schritt 2 (writing-plans), VOR dem Coden.
+**Fuer Agents:** Docs im Briefing einbetten — Agents haben KEINEN Context7-Zugang.
+
+### Sequential Thinking — Entscheidungen absichern (PFLICHT)
+
+`sequentialthinking` MCP Tool nutzen bei:
+- Brainstorming: Design-Entscheidungen systematisch durchdenken
+- Writing-Plans: Plan gegen Design auf Widersprueche pruefen
+- Unklare Antworten: "Meint Anil X oder Y?" → durchdenken, NICHT raten
+- Datenfluss: "Was zeigt die Vorderseite? Was soll die Rueckseite zeigen? Gibt es Duplikate?"
+
+**Warum:** Session 239 — ich habe "spieltagsbewertung" als "Season Stats" interpretiert
+statt als "Gameweek Ratings". Sequential Thinking haette den Unterschied aufgedeckt.
+
 ---
 
 ## Wann ein Agent Sinn macht
