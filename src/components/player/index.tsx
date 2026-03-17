@@ -71,12 +71,19 @@ const statusClasses: Record<PlayerStatus, string> = {
   doubtful: 'bg-yellow-500/15 text-yellow-300 border-yellow-500/25',
 };
 
-export function StatusBadge({ status }: { status: PlayerStatus }) {
+export function StatusBadge({ status, lastGw }: { status: PlayerStatus; lastGw?: number }) {
+  const tp = useTranslations('player');
   if (status === 'fit') return null;
+
+  // When doubtful with a known last appearance GW, show contextual label
+  const label = status === 'doubtful' && lastGw && lastGw > 0
+    ? tp('inactiveSinceGw', { gw: lastGw })
+    : status.toUpperCase();
+
   return (
     <span className={cn('inline-flex items-center gap-1 px-2 py-1 rounded-xl border text-[11px] font-black', statusClasses[status])}>
       <AlertTriangle className="size-3.5" />
-      {status.toUpperCase()}
+      {label}
     </span>
   );
 }
@@ -310,7 +317,7 @@ export interface IpoDisplayData {
 /** The sacred identity row — always the same everywhere.
  *  Photo (with club-logo overlay) + Name + PosBadge + StatusBadge + Meta line */
 export function PlayerIdentity({ player, size = 'md', showMeta = true, showStatus = true, className = '' }: {
-  player: Pick<Player, 'first' | 'last' | 'pos' | 'status' | 'club' | 'clubId' | 'ticket' | 'age' | 'imageUrl' | 'league'>;
+  player: Pick<Player, 'first' | 'last' | 'pos' | 'status' | 'club' | 'clubId' | 'ticket' | 'age' | 'imageUrl' | 'league'> & { lastAppearanceGw?: number };
   size?: 'sm' | 'md' | 'lg';
   showMeta?: boolean;
   showStatus?: boolean;
@@ -349,7 +356,7 @@ export function PlayerIdentity({ player, size = 'md', showMeta = true, showStatu
             {player.first} {player.last}
           </span>
           <PositionBadge pos={player.pos} size={posBadgeSize} />
-          {showStatus && <StatusBadge status={player.status} />}
+          {showStatus && <StatusBadge status={player.status} lastGw={player.lastAppearanceGw} />}
         </div>
         {showMeta && (
           <div className="flex items-center gap-1 text-[10px] md:text-[11px] text-white/40">
