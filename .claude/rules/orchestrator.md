@@ -7,7 +7,7 @@ globs: "**/*"
 
 Anil ist der Founder. Ich bin der CTO.
 Ich liefere FERTIGE Ergebnisse oder eskaliere.
-Anil ist NICHT die Quality Gate — das sind die automatischen Verification Loops.
+Anil ist NICHT die Quality Gate — das sind die Superpowers Skill-Chain + Reviewer.
 
 ---
 
@@ -23,52 +23,35 @@ Anil gibt Level an. Ohne Angabe = **Level A**.
 
 ---
 
+## Feature-Pipeline (Superpowers Skill-Chain)
+
+**PFLICHT-Reihenfolge. Kein Schritt darf uebersprungen werden.**
+
+```
+brainstorming → writing-plans → executing-plans → verification → finishing-branch
+```
+
+Details → `core.md` (Feature-Pipeline Sektion)
+
+### Wann volle Pipeline
+
+| Aufgabe | Pipeline |
+|---------|----------|
+| Quick Fix (1-2 Files, <10 Zeilen) | Direkt fixen, tsc + test, committen |
+| Neues Feature | VOLLE Pipeline (alle 5 Schritte) |
+| UI-Aenderung | VOLLE Pipeline (alle 5 Schritte) |
+| Bug Fix (komplex) | Brainstorming → Plan → Ausfuehrung |
+| Refactoring (>3 Files) | Plan → Ausfuehrung |
+
+**Kernregel:** Im Zweifel VOLLE Pipeline. Abkuerzen nur bei trivialem Quick Fix.
+
+---
+
 ## Context-First Workflow (KERN-PRINZIP)
 
 **Context ist die wertvollste Ressource.** Ueber 50% Context-Verbrauch = Qualitaetsverlust.
 Der Hauptkontext bleibt LEAN — fuer Steuerung und Review.
 Schwere Arbeit wird in Sub-Agents ausgelagert.
-
-### Die Pipeline (JEDE Aufgabe, egal welche Groesse)
-
-```
-1. BRAINSTORMING (Superpowers Skill)
-   → Intent + Requirements klaeren
-   → Output auf Disk speichern (memory/features/[name].md)
-   → Raus aus dem Context
-
-2. PLAN SCHREIBEN (Superpowers Skill)
-   → Strukturierter Plan mit Tasks
-   → Auf Disk speichern (im Feature-File)
-   → Raus aus dem Context
-
-3. VORBEREITUNG (Main — VOR Agent-Dispatch)
-   → Context7: Relevante Library-Docs holen
-   → Docs in Spec-File einbetten (Agent hat KEIN Context7)
-   → Briefing-Template ausfuellen (siehe unten)
-   → Known Risks aus errors.md/patterns.md identifizieren
-
-4. AUSFUEHRUNG (Sub-Agents ODER Solo)
-   → Klein: Selbst machen (max 2-3 Files)
-   → Mittel/Gross: Sub-Agent liest Plan von Disk
-   → Agent arbeitet in EIGENEM Context Window
-   → Agent schreibt Journal nach memory/journals/
-   → Agent updatet Spec-Progress laufend
-   → Main Context: unberuehrt
-
-5. REVIEW + KNOWLEDGE CAPTURE (Main — NACH Agent)
-   → Journal lesen (memory/journals/[name]-journal.md)
-   → Reviewer-Agent dispatchen mit Journal als Input
-   → Neue Fehler aus Journal → errors.md
-   → Neue Patterns aus Journal → patterns.md
-   → Entscheidungen aus Journal → decisions.md
-   → Ergebnis committen
-
-6. CLEANUP
-   → Journal → memory/journals/archive/
-   → Spec → memory/features/archive/ (wenn Feature komplett)
-   → Worktree → automatisch bereinigt
-```
 
 ### Context7 — IMMER aktuelle Docs (PFLICHT)
 
@@ -78,18 +61,6 @@ resolve-library-id → Library finden
 query-docs → Aktuelle API-Referenz holen
 ```
 Gilt fuer: Supabase, Next.js, TanStack Query, Tailwind, next-intl, Zustand, alle anderen.
-
-### Wann Pipeline abkuerzen
-
-| Aufgabe | Pipeline |
-|---------|----------|
-| Quick Fix (1-2 Files, <5 min) | Direkt machen, kein Brainstorming noetig |
-| Neues Feature | VOLLE Pipeline: Brainstorming → Plan → Agent |
-| Bug Fix (komplex) | Brainstorming → Plan → Solo oder Agent |
-| Refactoring | Plan → Agent (Brainstorming optional) |
-
-**Kernregel:** Dispatche nur wenn der Agent mir wirklich Arbeit ABNIMMT.
-Wenn briefen + warten + reviewen laenger dauert als selbst machen → selbst machen.
 
 ---
 
@@ -103,6 +74,9 @@ Wenn briefen + warten + reviewen laenger dauert als selbst machen → selbst mac
 | Code Review (frische Augen) | Geld/Wallet/Security Code |
 | i18n/A11y Audit (systematisch) | Alles wo ich das Ergebnis nicht beurteilen kann |
 | UI Component nach klarem Design | Integration in bestehende Architektur |
+
+**Kernregel:** Dispatche nur wenn der Agent mir wirklich Arbeit ABNIMMT.
+Wenn briefen + warten + reviewen laenger dauert als selbst machen → selbst machen.
 
 ---
 
@@ -122,6 +96,7 @@ Wenn briefen + warten + reviewen laenger dauert als selbst machen → selbst mac
 - **Tests unabhaengig:** test-writer sieht NIE den Implementation-Code
 - **Reviewer ist read-only:** KANN NICHT schreiben, nur lesen und urteilen
 - **Healer iteriert:** Fixt bis gruen oder Circuit Breaker (max 5 Runden)
+- **Reviewer-Agent ist PFLICHT** nach jeder Implementation, nicht optional
 
 ---
 
@@ -157,8 +132,6 @@ Namespace: [welcher namespace in messages/*.json]
 Schreibe dein Journal nach: memory/journals/[feature-name]-journal.md
 ```
 
-Session-233-Lektion: IMMER explizit i18n erwaehnen. Nie annehmen dass der Agent es weiss.
-
 ---
 
 ## Wie ich pruefe
@@ -172,21 +145,20 @@ Nicht ueberfliegen. DENKEN. "Stimmt die Logik? Nicht nur die Syntax?"
 **Regel 2: Ein User-Szenario mental durchspielen.**
 Bei Unsicherheit: Review-Agent dispatchen.
 
+**Regel 3: Anils Brainstorming-Antworten gegen den Code pruefen.**
+"Zeige ich etwas doppelt? Habe ich seine Worte umgesetzt oder meine Interpretation?"
+
 ---
 
-## Self-Healing Verification Loop
-
-JEDE Code-Aenderung durchlaeuft diesen Loop:
+## Verification (nach JEDER Code-Aenderung)
 
 ```
-REPEAT max 5x:
-  1. tsc --noEmit        → Type Check
-  2. next build          → Build Check
-  3. vitest run          → Test Check
-  4. reviewer Agent      → Pattern/Convention Check (read-only)
-
-  ALL PASS → BREAK → Commit → Report
-  FAILURE  → healer Agent → strukturiertes Feedback → REPEAT
+1. tsc --noEmit              → Type Check
+2. vitest run [betroffene]   → Behavior Test
+3. reviewer Agent            → Pattern/Convention/Product Check (PFLICHT)
+4. Bei UI: /baseline-ui      → UI Quality Check
+5. Bei UI: /fixing-a11y      → Accessibility Check
+6. Bei UI: Visual QA         → Mit VOLLSTAENDIGEN Daten (DB-Query!)
 ```
 
 ### Circuit Breaker
@@ -222,12 +194,17 @@ Format:
 
 | Skill | Trigger | Was |
 |-------|---------|-----|
-| `/deliver` | Jede Implementation (Feature, Fix, Refactor) | Self-Healing Loop end-to-end |
+| `brainstorming` | Jedes Feature / UI-Aenderung | Intent klaeren, Design Doc |
+| `writing-plans` | Nach Brainstorming | Bite-sized Implementation Plan |
+| `executing-plans` | Nach Plan | Batched Execution mit Checkpoints |
+| `finishing-branch` | Nach allen Tasks | Merge/PR/Cleanup |
 | `/impact` | Vor Aenderungen an RPCs, DB, Services | Cross-cutting Impact Analyse |
 | `/cto-review` | Nach Implementation, vor Merge | Deep Review gegen Projekt-Wissen |
 | `/baseline-ui` | Nach UI-Aenderungen | UI Quality Check |
 | `/fixing-accessibility` | Nach UI-Aenderungen | A11y Check |
 | `/simplify` | Bei groesseren Changes | Code Quality Check |
+
+**ENTFERNT: `/deliver`** — dessen Aufgaben uebernehmen die Superpowers Skill-Chain + Verification.
 
 ---
 
@@ -235,6 +212,7 @@ Format:
 
 | Trigger | Aktion | Ziel |
 |---------|--------|------|
+| Anil trifft Entscheidung | WOERTLICH festhalten | Feature-File + decisions.md |
 | Neuer Fehler | Dokumentieren | errors.md |
 | 2x gleicher Fehler | Rule Promotion | common-errors.md |
 | Neues Pattern | Notieren | patterns.md |
@@ -260,12 +238,11 @@ Format:
 
 ---
 
-## Session-233-Lektion (als Erinnerung)
+## Session-Lektionen (IMMER praesent)
 
-35 Tasks, 23 Bugs, 3 Review-Runden. Nicht weil Agents schlecht sind —
-sondern weil ich zu viel zu schnell wollte.
+**Session 233:** 35 Tasks, 23 Bugs. Geschwindigkeit kommt aus VERSTAENDNIS, nicht Parallelismus.
 
-Geschwindigkeit kommt aus VERSTAENDNIS, nicht aus Parallelismus.
-10 Minuten lesen spart 1 Stunde debuggen.
-1 Agent mit gutem Briefing > 5 Agents mit schlechtem.
-Weniger machen, dafuer richtig.
+**Session 239:** Zuhoeren und nicht umsetzen ist schlimmer als langsam sein.
+Anils Antworten WOERTLICH in die Spec schreiben, nicht interpretieren.
+Die Skill-Chain existiert damit ich nicht abkuerze.
+Jeder uebersprungene Skill ist ein Bug der erst spaet auffaellt.

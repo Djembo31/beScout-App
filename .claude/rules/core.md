@@ -9,41 +9,80 @@ description: Kern-Workflow, Knowledge Lifecycle und Session-Protokoll
 4. Wenn aktives Feature: Feature-File lesen
 5. Anil sagt was ansteht → los
 
-## Workflow
-- **Klein (80%):** Selbst machen. Lesen → Verstehen → Aendern → Testen → Committen.
-- **Mittel/Gross:** Agent(s) briefen → siehe `orchestrator.md`
-- Rollback-Regel: Nicht flicken. Git zuruecksetzen, Plan anpassen, sauber neu
-- DB-first: Migration → Service → Query Hook → UI → Build
-- Level System + Agent-Workflow → `orchestrator.md`
+## Feature-Pipeline (PFLICHT — KEINE Abkuerzung)
+
+Jedes Feature, jede UI-Aenderung, jeder nicht-triviale Change durchlaeuft diese Kette.
+**Kein Schritt darf uebersprungen werden.** Jeder Schritt ruft den naechsten Skill auf.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  1. brainstorming          (Superpowers Skill)          │
+│     → Intent + Requirements klaeren                     │
+│     → Anils Antworten WOERTLICH in Design Doc           │
+│     → Design Doc speichern + committen                  │
+│     → TERMINAL STATE: writing-plans aufrufen            │
+│                                                         │
+│  2. writing-plans          (Superpowers Skill)          │
+│     → Bite-sized Tasks (2-5 min pro Step)               │
+│     → Exakte File-Pfade + Code im Plan                  │
+│     → Plan GEGEN Design Doc pruefen (Widersprueche?)    │
+│     → Plan speichern + committen                        │
+│     → Ausfuehrung anbieten: Subagent oder Parallel      │
+│                                                         │
+│  3. executing-plans        (Superpowers Skill)          │
+│     → Plan laden + KRITISCH reviewen VOR Start          │
+│     → Tasks in Batches (3 Tasks pro Batch)              │
+│     → Nach jedem Batch: "Ready for feedback"            │
+│     → Anil gibt OK oder korrigiert                      │
+│                                                         │
+│  4. Verification           (Nach JEDER Code-Aenderung)  │
+│     → tsc --noEmit                                      │
+│     → vitest run [betroffene Tests]                     │
+│     → reviewer Agent (PFLICHT, nicht optional)           │
+│     → Bei UI: /baseline-ui + /fixing-accessibility      │
+│     → Bei UI: Visual QA mit VOLLSTAENDIGEN Daten        │
+│                                                         │
+│  5. finishing-branch       (Superpowers Skill)           │
+│     → Tests gruen, Review PASS                          │
+│     → Commit + Knowledge Capture                        │
+│     → Feature-File → archive                            │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Quick Fix Ausnahme (EINZIGE Abkuerzung)
+NUR fuer Bug Fixes die 1-2 Files betreffen und < 10 Zeilen aendern:
+- Direkt fixen, tsc + test, committen
+- Kein Brainstorming/Plan noetig
+- ABER: trotzdem Reviewer-Agent bei Unsicherheit
+
+### VERBOTEN
+- `/deliver` als Allzweck-Skill benutzen (ENTFERNT)
+- Skills in der Kette ueberspringen
+- Anils Antworten "interpretieren" statt woertlich umsetzen
+- "Sieht gut aus" sagen ohne JEDEN sichtbaren Wert geprueft zu haben
+- Visual QA mit Spielern ohne vollstaendige Daten
 
 ## Skills (gezielt einsetzen)
-| Skill | Wann |
-|-------|------|
-| `/deliver` | JEDE Implementation (das Kern-Skill) |
-| `/impact` | VOR Aenderungen an RPCs, DB, Services, Trading |
-| `/cto-review` | NACH Implementation, VOR Merge |
-| `/baseline-ui` | Nach UI-Aenderungen |
-| `/fixing-accessibility` | Nach UI-Aenderungen |
-| `/simplify` | Bei groesseren Changes |
-| `/systematic-debugging` | Bei Bugs — Root Cause finden |
 
-## Feature-Lifecycle (Spec-Driven)
+| Skill | Wann | PFLICHT? |
+|-------|------|----------|
+| `brainstorming` | Jedes Feature, jede UI-Aenderung | JA |
+| `writing-plans` | Nach Brainstorming, VOR Code | JA |
+| `executing-plans` | Plan ausfuehren mit Checkpoints | JA |
+| `finishing-branch` | Nach allen Tasks | JA |
+| `/impact` | VOR Aenderungen an RPCs, DB, Services, Trading | JA |
+| `/cto-review` | NACH Implementation, VOR Merge | Bei Bedarf |
+| `/baseline-ui` | Nach UI-Aenderungen | JA |
+| `/fixing-accessibility` | Nach UI-Aenderungen | JA |
+| `/simplify` | Bei groesseren Changes | Bei Bedarf |
+| `/systematic-debugging` | Bei Bugs — Root Cause finden | Bei Bedarf |
 
-### 1. Spec (ICH schreibe, Anil approved bei Mode 2-3)
-1. Anil beschreibt Feature (1-3 Saetze reichen)
-2. `/impact` fuer Cross-Cutting Analysis
-3. Spec schreiben → `memory/features/[name].md` mit Contracts
-4. `current-sprint.md` updaten
-5. **Level A:** Weiter ohne Stop. **Level B/C:** Summary zeigen.
+## Visual QA Regel (PFLICHT bei UI)
 
-### 2. Implementation
-6. `/deliver` ausfuehren → Self-Healing Loop bis ALLES gruen
-7. Feature-File laufend updaten
-
-### 3. Abschluss
-8. Build gruen, Tests gruen, Review PASS → Feature komplett
-9. Feature-File → `features/archive/`
-10. Knowledge Capture (Fehler, Patterns, Entscheidungen)
+VOR jedem "sieht gut aus" oder Screenshot-Freigabe:
+1. DB-Query: Spieler mit ALLEN Feldern (age, image_url, shirt_number, nationality)
+2. JEDEN sichtbaren Wert einzeln pruefen (nicht ueberfliegen)
+3. Fehlende Daten EXPLIZIT benennen ("Dieser Spieler hat kein X in der DB")
 
 ## Context Management (1M Optimiert)
 
@@ -54,13 +93,6 @@ description: Kern-Workflow, Knowledge Lifecycle und Session-Protokoll
 - Alle betroffenen Source-Files: ~50K
 - Feature-Spec + Conversation: ~50K
 - **FREI fuer Iteration: ~845K**
-
-### Was Agents bekommen
-- VOLLE errors.md (keine Kompression)
-- VOLLE patterns.md (keine Kompression)
-- Alle relevanten Source-Files
-- Impact Manifest (wenn vorhanden)
-- Kein Agent hat eine Ausrede fuer bekannte Fehler
 
 ### Compaction (was ueberleben MUSS)
 - Alle geaenderten File-Pfade
@@ -73,7 +105,7 @@ description: Kern-Workflow, Knowledge Lifecycle und Session-Protokoll
 
 | Trigger | Aktion | Ziel-File |
 |---------|--------|-----------|
-| Anil trifft Entscheidung | Sofort festhalten | Feature-File + decisions.md |
+| Anil trifft Entscheidung | WOERTLICH festhalten | Feature-File + decisions.md |
 | Neuer Fehler | Dokumentieren | errors.md |
 | 2x gleicher Fehler | Rule Promotion | common-errors.md |
 | Neues Pattern | Notieren | patterns.md |
@@ -81,7 +113,7 @@ description: Kern-Workflow, Knowledge Lifecycle und Session-Protokoll
 | Feature fertig | Erkenntnisse | Rule-Files |
 
 ### Self-Check (nach JEDER Aktion)
-- "Hat Anil etwas entschieden?" → Decision Capture
+- "Hat Anil etwas entschieden?" → WOERTLICH in Feature-File
 - "Neuer Fehler?" → errors.md
 - "Wiederverwendbares Pattern?" → patterns.md
 
@@ -118,3 +150,10 @@ description: Kern-Workflow, Knowledge Lifecycle und Session-Protokoll
 - Native `isolation: worktree` in Agent Definitions
 - Kein manuelles `git worktree add` mehr noetig
 - Ideal fuer unabhaengige Tasks
+
+## Session-Lektion (IMMER praesent)
+
+Geschwindigkeit kommt aus VERSTAENDNIS, nicht aus Parallelismus.
+Zuhoeren und nicht umsetzen ist schlimmer als langsam sein.
+Die Skill-Chain existiert damit ich nicht abkuerze.
+10 Minuten Plan lesen spart 1 Stunde debuggen.

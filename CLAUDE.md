@@ -12,11 +12,10 @@ next-intl (Cookie bescout-locale) | lucide-react
 - **Level A** (default): Jarvis liefert FERTIGE Features, Anil macht nur visuelles QA
 - **Level B**: Inkl. Screenshots, Anil sagt "ship it" oder "Richtung falsch"
 - **Level C**: Sprint autonom, taegliche Summaries + Eskalationen
-- **Context-First Pipeline:** Brainstorming → Plan auf Disk → Sub-Agent Execution → Main Context bleibt lean
+- **Superpowers Skill-Chain (PFLICHT):** `brainstorming` → `writing-plans` → `executing-plans` → `finishing-branch` — KEIN Schritt darf uebersprungen werden
 - **Context7:** Bei JEDER Library aktuelle Docs holen, NICHT aus Training raten
-- **Self-Healing Loop:** `/deliver` iteriert bis ALLE Gates gruen (max 5x)
+- **Verification:** tsc + vitest + reviewer Agent (PFLICHT) + /baseline-ui + /fixing-accessibility
 - **Impact Analysis:** `/impact` VOR jeder Aenderung an RPCs/DB/Services
-- **CTO Review:** `/cto-review` ersetzt manuelle Quality Gate
 - **Agents:** 6 definierte Agents in `.claude/agents/` (impact-analyst, implementer, reviewer, test-writer, qa-visual, healer)
 - Details → `orchestrator.md` (unified CTO workflow) + `core.md`
 
@@ -85,12 +84,12 @@ Domaenen-spezifische Regeln laden automatisch per Glob-Pattern.
 `'use client'` alle Pages | Types in `types/index.ts` | UI in `ui/index.tsx` |
 `cn()` classNames | `fmtScout()` Zahlen | Component→Service→Supabase | DE Labels, EN Code
 
-## Quality Pipeline (via /deliver automatisiert)
-1. `tsc --noEmit` → Type Check
-2. `npx next build` → Build Check
-3. `vitest run` → Test Check
-4. reviewer Agent → Pattern Check
-5. Bei UI: `/baseline-ui` → `/fixing-accessibility`
+## Quality Pipeline (Superpowers Skill-Chain + Verification)
+1. `brainstorming` → Design Doc (Anils Antworten WOERTLICH)
+2. `writing-plans` → Bite-sized Implementation Plan
+3. `executing-plans` → Batched Execution mit Checkpoints
+4. Verification: `tsc` → `vitest` → reviewer Agent (PFLICHT) → `/baseline-ui` → `/fixing-accessibility`
+5. `finishing-branch` → Merge/Commit + Knowledge Capture
 
 ## Automation (Hooks)
 - **PostToolUse:** Auto ESLint + Gemini Sync Reminder
