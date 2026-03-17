@@ -55,3 +55,13 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - FK-Reihenfolge falsch (Child INSERT vor Parent)
 - NOT NULL Spalte fehlt im INSERT
 - Guards fehlen (Liquidation-Check in allen Trading-RPCs)
+
+## Vercel / Deployment
+- `NEXT_PUBLIC_*` Env-Vars NIEMALS als "Sensitive" auf Vercel → werden beim Build NICHT injected
+- KEIN `createClient()` auf Module-Level → Lazy-Init (Proxy/Getter), sonst crasht Vercel Build
+- CSP `img-src` Domains aus DB ableiten, nicht raten: `SELECT DISTINCT substring(image_url from '^https?://[^/]+')`
+- Spielerbilder = `img.a.transfermarkt.technology` (NICHT api-sports.io)
+
+## UX Konsistenz
+- Spieler-Anzeigen MUESSEN Link zu `/player/[id]` haben (Ausnahme: Picker-UIs)
+- `<button>` NICHT in `<Link>` wrappen (invalid HTML) → stattdessen `href` Prop oder Wrapper-Komponente
