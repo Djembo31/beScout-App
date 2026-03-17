@@ -4,6 +4,23 @@ import type { DbPlayer, Player, PlayerStatus, Pos } from '@/types';
 import { toPos } from '@/types';
 
 // ============================================
+// Canonical Column Set — Single Source of Truth
+// ============================================
+
+/** ALL player queries MUST use this column list. Prevents data divergence between views. */
+export const PLAYER_SELECT_COLS = [
+  'id', 'first_name', 'last_name', 'position', 'club', 'club_id',
+  'age', 'shirt_number', 'nationality', 'image_url',
+  'matches', 'goals', 'assists', 'clean_sheets',
+  'total_minutes', 'total_saves',
+  'perf_l5', 'perf_l15', 'perf_season',
+  'dpc_total', 'dpc_available',
+  'floor_price', 'last_price', 'ipo_price', 'price_change_24h', 'volume_24h',
+  'status', 'market_value_eur', 'success_fee_cap_cents', 'max_supply',
+  'is_liquidated', 'contract_end', 'created_at', 'updated_at',
+].join(', ');
+
+// ============================================
 // Queries
 // ============================================
 
@@ -34,24 +51,24 @@ export async function getPlayerNames(): Promise<PlayerName[]> {
 export async function getPlayerById(id: string): Promise<DbPlayer | null> {
   const { data, error } = await supabase
     .from('players')
-    .select('id, first_name, last_name, position, club, club_id, age, shirt_number, nationality, image_url, matches, goals, assists, clean_sheets, perf_l5, perf_l15, perf_season, dpc_total, dpc_available, floor_price, last_price, ipo_price, price_change_24h, volume_24h, status, market_value_eur, success_fee_cap_cents, max_supply, is_liquidated, created_at, updated_at')
+    .select(PLAYER_SELECT_COLS)
     .eq('id', id)
     .single();
 
   if (error) return null;
-  return data as DbPlayer;
+  return data as unknown as DbPlayer;
 }
 
 /** Alle Spieler eines Clubs laden (by club_id) */
 export async function getPlayersByClubId(clubId: string): Promise<DbPlayer[]> {
   const { data, error } = await supabase
     .from('players')
-    .select('id, first_name, last_name, position, club, club_id, age, shirt_number, nationality, image_url, matches, goals, assists, clean_sheets, perf_l5, perf_l15, perf_season, dpc_total, dpc_available, floor_price, last_price, ipo_price, price_change_24h, volume_24h, status, market_value_eur, success_fee_cap_cents, max_supply, is_liquidated, created_at, updated_at')
+    .select(PLAYER_SELECT_COLS)
     .eq('club_id', clubId)
     .order('last_name');
 
   if (error) throw new Error(error.message);
-  return (data ?? []) as DbPlayer[];
+  return (data ?? []) as unknown as DbPlayer[];
 }
 
 // ============================================

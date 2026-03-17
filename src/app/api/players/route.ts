@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServer';
+import { PLAYER_SELECT_COLS } from '@/lib/services/players';
 
 // Server-side in-memory cache
 let playersCache: { data: unknown[]; expiresAt: number } | null = null;
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await supabaseServer
       .from('players')
-      .select('id,first_name,last_name,position,club,club_id,age,shirt_number,nationality,image_url,matches,goals,assists,perf_l5,perf_l15,dpc_total,dpc_available,floor_price,last_price,ipo_price,price_change_24h,status,success_fee_cap_cents,is_liquidated')
+      .select(PLAYER_SELECT_COLS)
       .order('price_change_24h', { ascending: false })
       .limit(limit);
 
@@ -41,19 +42,9 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const PLAYER_COLS = [
-    'id', 'first_name', 'last_name', 'position', 'club', 'club_id',
-    'age', 'shirt_number', 'nationality', 'image_url',
-    'matches', 'goals', 'assists',
-    'perf_l5', 'perf_l15',
-    'dpc_total', 'dpc_available',
-    'floor_price', 'last_price', 'ipo_price', 'price_change_24h',
-    'status', 'success_fee_cap_cents', 'is_liquidated',
-  ].join(',');
-
   const { data, error } = await supabaseServer
     .from('players')
-    .select(PLAYER_COLS)
+    .select(PLAYER_SELECT_COLS)
     .order('last_name');
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
