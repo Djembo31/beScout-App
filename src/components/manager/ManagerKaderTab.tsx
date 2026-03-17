@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Save, RotateCcw, Search, ChevronDown, X, ShoppingCart, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/components/ui';
-import { PositionBadge, PlayerIdentity } from '@/components/player';
+import { PositionBadge, PlayerIdentity, getL5Color, getL5Bg } from '@/components/player';
 import { cn } from '@/lib/utils';
 import { getClub } from '@/lib/clubs';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -55,55 +55,25 @@ function ScoreCircle({ score }: { score: number | null }) {
 }
 
 // ============================================
-// LAST 5 SCORE BARS (vertical bars for GW scores + minutes overlay)
+// L5 PILL (consistent with PlayerRow + rest of app)
 // ============================================
 
-function L5ScoreBars({ scores, minutes }: { scores: (number | null)[] | undefined; minutes: number[] | undefined }) {
-  // Build 5 slots (most recent first, pad with null)
-  const slots: { score: number | null; min: number | null }[] = [];
-  for (let i = 0; i < 5; i++) {
-    slots.push({
-      score: scores && i < scores.length ? (scores[i] ?? null) : null,
-      min: minutes && i < minutes.length ? minutes[i] : null,
-    });
-  }
-  // Reverse so oldest is left, newest is right
-  slots.reverse();
-
-  const hasAnyData = slots.some(s => s.score != null);
-  if (!hasAnyData) {
+function L5Pill({ value }: { value: number }) {
+  if (value <= 0) {
     return (
-      <div className="flex items-end gap-[3px] h-6">
-        {slots.map((_, i) => (
-          <div key={i} className="w-[7px] h-1 rounded-sm bg-white/[0.06]" />
-        ))}
+      <div className="px-1.5 py-0.5 rounded-md bg-white/5 border border-white/[0.06]">
+        <span className="text-[10px] font-mono text-white/20">&mdash;</span>
       </div>
     );
   }
-
   return (
-    <div className="flex items-end gap-[3px] h-6">
-      {slots.map((s, i) => {
-        if (s.score == null) {
-          return <div key={i} className="w-[7px] h-1 rounded-sm bg-white/[0.06]" />;
-        }
-        // Normalize: score 40-150 → height 15%-100%
-        const pct = Math.min(100, Math.max(15, ((s.score - 40) / 110) * 100));
-        const color = s.score >= 100 ? 'bg-gold' : s.score >= 70 ? 'bg-green-500' : 'bg-red-400';
-        // Minutes overlay: opacity based on minutes (0'=dim, 90'=full)
-        const opacity = s.min != null ? Math.max(0.4, s.min / 90) : 0.6;
-        return (
-          <div key={i} className="relative group">
-            <div
-              className={cn('w-[7px] rounded-sm', color)}
-              style={{ height: `${(pct / 100) * 24}px`, opacity }}
-            />
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-1.5 py-0.5 bg-black/90 border border-white/10 rounded text-[9px] font-mono text-white whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10">
-              {s.score}pts{s.min != null ? ` · ${s.min}'` : ''}
-            </div>
-          </div>
-        );
-      })}
+    <div className={cn('px-1.5 py-0.5 rounded-md border', getL5Bg(value),
+      value >= 65 ? 'border-emerald-400/20' : value >= 45 ? 'border-amber-400/20' : 'border-red-400/20'
+    )}>
+      <div className="flex items-baseline gap-1">
+        <span className="text-[9px] font-bold text-white/40">L5</span>
+        <span className={cn('text-xs font-black font-mono tabular-nums', getL5Color(value))}>{Math.round(value)}</span>
+      </div>
     </div>
   );
 }
@@ -112,16 +82,12 @@ function L5ScoreBars({ scores, minutes }: { scores: (number | null)[] | undefine
 // COMPACT PICKER ROW (for picker modals — single row, ~40px height)
 // ============================================
 
-function CompactPickerRow({ player, scores, minutes, onClick, href }: {
+function CompactPickerRow({ player, onClick, href }: {
   player: Player;
-  scores: (number | null)[] | undefined;
-  minutes: number[] | undefined;
   onClick?: () => void;
   href?: string;
 }) {
   const p = player;
-  // [0] is newest GW — find first non-null score
-  const lastScore = scores ? scores.find(s => s != null) ?? null : null;
   const borderColor = p.pos === 'GK' ? '#34d399' : p.pos === 'DEF' ? '#fbbf24' : p.pos === 'MID' ? '#38bdf8' : '#fb7185';
   const sharedClass = "w-full flex items-center gap-2 px-2.5 py-2 rounded-lg border-l-2 hover:bg-white/[0.05] transition-colors text-left min-h-[44px]";
 
@@ -130,24 +96,8 @@ function CompactPickerRow({ player, scores, minutes, onClick, href }: {
       {/* Identity (28px photo via sm) */}
       <PlayerIdentity player={p} size="sm" showStatus={false} className="flex-1 min-w-0" />
 
-      {/* L5 Bars */}
-      <L5ScoreBars scores={scores} minutes={minutes} />
-
-      {/* Score mini circle 28px */}
-      {lastScore != null ? (
-        <div className={cn(
-          'size-7 rounded-full border flex items-center justify-center shrink-0',
-          lastScore >= 100 ? 'bg-gold/15 border-gold/30' : lastScore >= 70 ? 'bg-white/[0.06] border-white/15' : 'bg-red-500/10 border-red-400/20',
-        )}>
-          <span className={cn('text-[10px] font-black font-mono tabular-nums',
-            lastScore >= 100 ? 'text-gold' : lastScore >= 70 ? 'text-white' : 'text-red-300',
-          )}>{lastScore}</span>
-        </div>
-      ) : (
-        <div className="size-7 rounded-full bg-surface-subtle border border-white/[0.06] flex items-center justify-center shrink-0">
-          <span className="text-[9px] font-mono text-white/15">&mdash;</span>
-        </div>
-      )}
+      {/* L5 Pill */}
+      <L5Pill value={player.perf.l5} />
     </>
   );
 
@@ -209,9 +159,9 @@ function FullPlayerRow({ player, minutes, scores, nextFixture, eventCount, isAss
         </div>
       </div>
 
-      {/* Right: L5 Score Bars + Last Score Circle */}
+      {/* Right: L5 Pill + Last Score Circle */}
       <div className="shrink-0 flex items-center gap-2">
-        <L5ScoreBars scores={scores} minutes={minutes} />
+        <L5Pill value={player.perf.l5} />
         <ScoreCircle score={lastScore} />
       </div>
     </Link>
@@ -488,8 +438,6 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
               <CompactPickerRow
                 key={p.id}
                 player={p}
-                scores={scoresMap?.get(p.id)}
-                minutes={minutesMap?.get(p.id)}
                 onClick={() => handlePickPlayer(p.id)}
               />
             ))
@@ -509,8 +457,6 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
               <CompactPickerRow
                 key={p.id}
                 player={p}
-                scores={scoresMap?.get(p.id)}
-                minutes={minutesMap?.get(p.id)}
                 href={`/player/${p.id}`}
               />
             ))
@@ -716,9 +662,9 @@ export default function ManagerKaderTab({ players, ownedPlayers }: ManagerKaderT
                     >
                       {/* Identity */}
                       <PlayerIdentity player={p} size="md" className="flex-1 min-w-0" />
-                      {/* Score + Bars */}
+                      {/* L5 + Score */}
                       <div className="shrink-0 flex items-center gap-2.5">
-                        <L5ScoreBars scores={scoresMap?.get(p.id)} minutes={minutesMap?.get(p.id)} />
+                        <L5Pill value={p.perf.l5} />
                         <div className="w-10 text-right">
                           <div className={cn('text-lg font-black font-mono tabular-nums leading-none', scoreColor)}>
                             {lastScore ?? '–'}
