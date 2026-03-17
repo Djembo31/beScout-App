@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { Activity, TrendingUp, TrendingDown, Loader2 } from 'lucide-react';
+import { Activity, TrendingUp, TrendingDown, Loader2, AlertTriangle } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { getL5Hex } from '@/components/player';
@@ -45,6 +45,7 @@ export default function MatchTimeline({
   player, entries, allPlayers = [], loading, className = '',
 }: MatchTimelineProps) {
   const t = useTranslations('playerDetail');
+  const tp = useTranslations('player');
   const [mode, setMode] = useState<ViewMode>('L5');
 
   const displayed = useMemo(() => {
@@ -129,6 +130,15 @@ export default function MatchTimeline({
         </div>
       </div>
 
+      {/* ── Data Freshness Info ── */}
+      {player.lastAppearanceGw > 0 && (
+        <div className="px-4 md:px-6 py-1.5 border-b border-white/[0.04]">
+          <span className="text-[11px] text-white/40">
+            {tp('dataUntilGw', { gw: player.lastAppearanceGw, matches: player.stats.matches })}
+          </span>
+        </div>
+      )}
+
       {/* ── Match Rows ── */}
       <div className="divide-y divide-white/[0.04]">
         {loading ? (
@@ -136,8 +146,21 @@ export default function MatchTimeline({
             <Loader2 className="size-5 animate-spin text-white/30" aria-hidden="true" />
           </div>
         ) : displayed.length === 0 ? (
-          <div className="text-center py-8 text-white/30 text-sm">
-            {t('noMatchData')}
+          <div className="flex items-center justify-center gap-2 py-8 px-4 text-center text-white/30 text-sm">
+            {player.status === 'injured' ? (
+              <>
+                <AlertTriangle className="size-4 text-red-400 shrink-0" aria-hidden="true" />
+                <span>{tp('statusInjured', { gw: player.lastAppearanceGw })}</span>
+              </>
+            ) : player.status === 'suspended' ? (
+              <span>{tp('statusSuspended')}</span>
+            ) : player.status === 'doubtful' && player.lastAppearanceGw > 0 ? (
+              <span>{tp('statusInactive', { gw: player.lastAppearanceGw })}</span>
+            ) : player.stats.matches === 0 ? (
+              <span>{tp('statusNoAppearances')}</span>
+            ) : (
+              <span>{tp('statusNoData')}</span>
+            )}
           </div>
         ) : (
           displayed.map((entry) => {

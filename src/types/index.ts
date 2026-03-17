@@ -53,6 +53,8 @@ export type Player = {
   imageUrl?: string | null;
   successFeeCap?: number;  // in $SCOUT (cents → $SCOUT conversion)
   isLiquidated?: boolean;
+  lastAppearanceGw: number;
+  gwGap: number;
 };
 
 export type Listing = {
@@ -500,6 +502,7 @@ export type DbPlayer = {
   max_supply?: number;
   contract_end?: string | null; // ISO date string e.g. "2026-06-30"
   is_liquidated: boolean;
+  last_appearance_gw: number;
   created_at: string;
   updated_at: string;
 };

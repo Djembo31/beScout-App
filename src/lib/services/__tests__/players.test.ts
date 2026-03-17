@@ -96,6 +96,7 @@ function createMockDbPlayer(overrides?: Partial<DbPlayer>): DbPlayer {
     market_value_eur: 1000000,
     success_fee_cap_cents: 100000, // 1000 bCredits
     is_liquidated: false,
+    last_appearance_gw: 0,
     created_at: '2025-01-01T00:00:00Z',
     updated_at: '2025-02-01T00:00:00Z',
     ...overrides,

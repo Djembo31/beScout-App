@@ -40,11 +40,26 @@ export default function PerformanceTab({
   matchTimeline, matchTimelineLoading, allPlayers = [],
 }: PerformanceTabProps) {
   const t = useTranslations('playerDetail');
+  const tp = useTranslations('player');
   const contract = getContractInfo(player.contractMonthsLeft);
   const pbt = player.pbt || { balance: 0, sources: { trading: 0, votes: 0, content: 0, ipo: 0 } };
 
   return (
     <div className="space-y-4 md:space-y-6">
+
+      {/* ── Status Banner ── */}
+      {player.status !== 'fit' && (
+        <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 mb-3">
+          <AlertTriangle className="size-4 text-amber-400 shrink-0" />
+          <span className="text-sm text-amber-200">
+            {player.status === 'injured'
+              ? tp('statusInjured', { gw: player.lastAppearanceGw })
+              : player.status === 'suspended'
+                ? tp('statusSuspended')
+                : tp('statusInactive', { gw: player.lastAppearanceGw })}
+          </span>
+        </div>
+      )}
 
       {/* ── 1. Match Timeline (L5/L15 Hero + per-match rows) ── */}
       <MatchTimeline
