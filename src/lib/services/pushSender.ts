@@ -1,18 +1,28 @@
 import webpush from 'web-push';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-// Server-side Supabase client (service role for push_subscriptions access)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
+// Lazy-initialized to avoid build-time crashes when env vars aren't available
+let _supabaseAdmin: SupabaseClient | null = null;
+let _vapidInitialized = false;
 
-// Initialize web-push with VAPID keys
-const VAPID_PUBLIC = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
-const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY || '';
+function getSupabaseAdmin() {
+  if (!_supabaseAdmin) {
+    _supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    );
+  }
+  return _supabaseAdmin;
+}
 
-if (VAPID_PUBLIC && VAPID_PRIVATE) {
-  webpush.setVapidDetails('mailto:info@bescout.com', VAPID_PUBLIC, VAPID_PRIVATE);
+function ensureVapid() {
+  if (_vapidInitialized) return true;
+  const pub = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
+  const priv = process.env.VAPID_PRIVATE_KEY || '';
+  if (!pub || !priv) return false;
+  webpush.setVapidDetails('mailto:info@bescout.com', pub, priv);
+  _vapidInitialized = true;
+  return true;
 }
 
 export type PushPayload = {
@@ -28,11 +38,12 @@ export type PushPayload = {
  * Stale subscriptions (410 Gone) are auto-deleted.
  */
 export async function sendPushToUser(userId: string, payload: PushPayload): Promise<void> {
-  if (!VAPID_PUBLIC || !VAPID_PRIVATE) {
+  if (!ensureVapid()) {
     console.warn('[Push] VAPID keys not configured, skipping push');
     return;
   }
 
+  const supabaseAdmin = getSupabaseAdmin();
   const { data: subscriptions, error } = await supabaseAdmin
     .from('push_subscriptions')
     .select('id, endpoint, p256dh, auth')
