@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
     'perf_l5', 'perf_l15',
     'dpc_total', 'dpc_available',
     'floor_price', 'last_price', 'ipo_price', 'price_change_24h',
-    'status', 'success_fee_cap_cents', 'is_liquidated',
+    'status', 'success_fee_cap_cents', 'last_appearance_gw', 'is_liquidated',
   ].join(',');
 
   const { data, error } = await supabaseServer

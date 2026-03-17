@@ -1198,6 +1198,53 @@ export async function GET(request: Request) {
 
     } // END Phase B (allFixturesDone)
 
+    // ---- 13. Sync player activity status ----
+    const { result: statusResult } = await runStep('sync_activity_status', async () => {
+      // Get current max finished GW
+      const { data: maxGwData } = await supabaseAdmin
+        .from('fixtures')
+        .select('gameweek')
+        .in('status', ['FT', 'finished', 'simulated'])
+        .order('gameweek', { ascending: false })
+        .limit(1)
+        .single();
+
+      const currentGw = maxGwData?.gameweek ?? 0;
+      if (currentGw === 0) return { marked_doubtful: 0, reactivated: 0, current_gw: 0 };
+
+      // Players who haven't appeared in 5+ GWs but are still 'fit' -> mark as 'doubtful'
+      const { data: updated, error } = await supabaseAdmin
+        .from('players')
+        .update({ status: 'doubtful' })
+        .eq('status', 'fit')
+        .lt('last_appearance_gw', currentGw - 5)
+        .gt('matches', 0)  // only players who DID play at some point
+        .select('id');
+
+      if (error) throw new Error(error.message);
+
+      // Players who DID appear in the latest GW but aren't 'fit' -> set back to 'fit'
+      const { data: reactivated, error: err2 } = await supabaseAdmin
+        .from('players')
+        .update({ status: 'fit' })
+        .neq('status', 'fit')
+        .gte('last_appearance_gw', currentGw - 2)  // appeared in last 2 GWs
+        .select('id');
+
+      if (err2) throw new Error(err2.message);
+
+      return {
+        marked_doubtful: updated?.length ?? 0,
+        reactivated: reactivated?.length ?? 0,
+        current_gw: currentGw,
+      };
+    });
+
+    await logStep(activeGw, 'sync_activity_status', statusResult ? 'success' : 'error', {
+      marked_doubtful: statusResult?.marked_doubtful ?? 0,
+      reactivated: statusResult?.reactivated ?? 0,
+    });
+
     // ---- Integrity Validation ----
     if (statsResult) {
       console.log(`[INTEGRITY] GW${activeGw} Match Distribution: direct=${statsResult.matchedCount - statsResult.nameMatchCount - statsResult.shirtBridgeCount}, shirt_bridge=${statsResult.shirtBridgeCount}, name=${statsResult.nameMatchCount}, unmatched=${statsResult.unmatchedCount}, ghosts_removed=${ghostsRemoved}`);
