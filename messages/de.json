@@ -1923,7 +1923,20 @@
     "explainSuspended": "Spieler ist derzeit gesperrt.",
     "explainInactive": "Kein Einsatz seit GW {gw}. Spieler ist möglicherweise verletzt, transferiert oder nicht im Kader.",
     "explainNoAppearances": "Bisher kein Pflichtspieleinsatz in dieser Saison.",
-    "explainNoData": "Keine Leistungsdaten vorhanden."
+    "explainNoData": "Keine Leistungsdaten vorhanden.",
+    "cardBack.scoutCardData": "Scout Card Data",
+    "cardBack.marketValue": "Marktwert",
+    "cardBack.floorPrice": "Floor",
+    "cardBack.change24h": "24h",
+    "cardBack.feeCap": "Fee Cap",
+    "cardBack.holdings": "{count} SC · {pct}% Supply",
+    "cardBack.leistung": "Leistung",
+    "cardBack.statSVS": "SVS",
+    "cardBack.statCS": "CS",
+    "cardBack.statSPI": "SPI",
+    "cardBack.statTOR": "TOR",
+    "cardBack.statASS": "ASS",
+    "cardBack.statMIN": "MIN"
   },
   "club": {
     "overview": "Übersicht",

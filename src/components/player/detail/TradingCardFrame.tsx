@@ -17,16 +17,30 @@ const posRingGlow: Record<Pos, string> = {
   ATT: '0 0 24px rgba(244,63,94,0.25), 0 0 48px rgba(244,63,94,0.12)',
 };
 
-export interface CardBackStats {
-  goals: number;
-  assists: number;
-  matches: number;
-  cleanSheets: number;
-  minutes: number;
-  saves: number;
-  l15: number;
-  trend: Trend;
+export interface CardBackData {
+  marketValueEur?: number;
   floorPrice?: number;
+  priceChange24h?: number;
+  successFeeCap?: number;
+  holdingQty?: number;
+  supplyTotal: number;
+  l15: number;
+  stats: {
+    goals: number;
+    assists: number;
+    matches: number;
+    cleanSheets: number;
+    minutes: number;
+    saves: number;
+  };
+  percentiles: {
+    goals: number;
+    assists: number;
+    matches: number;
+    cleanSheets: number;
+    minutes: number;
+    saves: number;
+  };
 }
 
 interface TradingCardFrameProps {
@@ -39,7 +53,7 @@ interface TradingCardFrameProps {
   l5: number;
   edition?: string;
   className?: string;
-  backStats?: CardBackStats;
+  backData?: CardBackData;
   age?: number;
   country?: string;
   masteryLevel?: number;
@@ -59,34 +73,62 @@ function FifaStat({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-/* Compact horizontal stat bar for card back */
-function StatBar({ label, value, max, tint }: { label: string; value: number; max: number; tint: string }) {
-  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
+/* Percentile bar for card back — single tint color */
+function PercentileBar({ label, value, percentile, tint }: { label: string; value: number; percentile: number; tint: string }) {
   return (
     <div className="flex items-center gap-1.5">
-      <span className="text-[8px] font-bold uppercase tracking-wider text-white/40 w-7 shrink-0 text-right">
+      <span className="text-[7px] font-bold uppercase tracking-wider text-white/35 w-[32px] shrink-0 text-right">
         {label}
       </span>
-      <div className="flex-1 h-[5px] bg-white/[0.06] rounded-full overflow-hidden">
+      <div className="flex-1 h-[4px] bg-white/[0.06] rounded-full overflow-hidden">
         <div
-          className="h-full rounded-full transition-all duration-300"
-          style={{ width: `${pct}%`, backgroundColor: tint }}
+          className="h-full rounded-full"
+          style={{ width: `${Math.max(3, percentile)}%`, backgroundColor: tint }}
         />
       </div>
-      <span className="text-[9px] font-mono font-bold tabular-nums text-white/60 w-8 text-right shrink-0">
+      <span className="font-mono text-[9px] font-bold tabular-nums text-white/70 w-[26px] text-right shrink-0">
         {value}
+      </span>
+      <span className="font-mono text-[7px] tabular-nums text-white/25 w-[24px] text-right shrink-0">
+        {percentile}%
       </span>
     </div>
   );
 }
 
+/* Trading metric cell — glassmorphism */
+function MetricCell({ label, value, tint }: { label: string; value: string; tint: string }) {
+  return (
+    <div
+      className="rounded-lg px-2 py-1.5 md:py-2"
+      style={{
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        border: `1px solid ${tint}15`,
+      }}
+    >
+      <div className="text-[7px] font-bold uppercase tracking-wider text-white/35 leading-none">
+        {label}
+      </div>
+      <div className="text-[14px] md:text-[16px] font-mono font-black tabular-nums text-white/90 leading-tight mt-0.5">
+        {value}
+      </div>
+    </div>
+  );
+}
+
+const formatMV = (v: number) => {
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M\u20AC`;
+  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}K\u20AC`;
+  return `${v}\u20AC`;
+};
+
 export default function TradingCardFrame({
-  first, last, pos, club, shirtNumber, imageUrl, l5, edition, className = '', backStats,
+  first, last, pos, club, shirtNumber, imageUrl, l5, edition, className = '', backData,
   age, country, masteryLevel,
 }: TradingCardFrameProps) {
   const tp = useTranslations('player');
   const [flipped, setFlipped] = useState(false);
-  const canFlip = !!backStats;
+  const canFlip = !!backData;
 
   const { ref, tiltProps } = useTilt<HTMLDivElement>({
     maxTilt: 7,
@@ -248,99 +290,160 @@ export default function TradingCardFrame({
               {/* FIFA 2x3 Stats Grid */}
               <div className="grid grid-cols-3 gap-y-2 gap-x-1 px-4 mt-2 md:mt-3">
                 <FifaStat label="L5" value={l5} />
-                <FifaStat label="L15" value={backStats?.l15 ?? '\u2014'} />
-                <FifaStat label={tp('statGoalsShort')} value={backStats?.goals ?? '\u2014'} />
-                <FifaStat label={tp('statAssistsShort')} value={backStats?.assists ?? '\u2014'} />
-                <FifaStat label={tp('statMatchesShort')} value={backStats?.matches ?? '\u2014'} />
+                <FifaStat label="L15" value={backData?.l15 ?? '\u2014'} />
+                <FifaStat label={tp('statGoalsShort')} value={backData?.stats.goals ?? '\u2014'} />
+                <FifaStat label={tp('statAssistsShort')} value={backData?.stats.assists ?? '\u2014'} />
+                <FifaStat label={tp('statMatchesShort')} value={backData?.stats.matches ?? '\u2014'} />
                 <FifaStat
                   label={tp('statFloorShort')}
-                  value={backStats?.floorPrice != null ? fmtScout(backStats.floorPrice) : '\u2014'}
+                  value={backData?.floorPrice != null ? fmtScout(backData.floorPrice) : '\u2014'}
                 />
               </div>
             </div>
           </div>
 
           {/* ===== BACK FACE ===== */}
-          {backStats && (
-            <div
-              className="absolute inset-0 rounded-2xl overflow-hidden card-metallic"
-              style={{
-                backfaceVisibility: 'hidden',
-                transform: 'rotateY(180deg)',
-              }}
-            >
-              {/* Background: carbon fiber + combined position tint */}
-              <div className="absolute inset-0 card-carbon" />
+          {backData && (() => {
+            const { stats: bs, percentiles: pct } = backData;
+            const change = backData.priceChange24h ?? 0;
+            const changeStr = change === 0 ? '\u2014' : `${change >= 0 ? '\u2191' : '\u2193'}${Math.abs(change).toFixed(1)}%`;
+            const holdPct = backData.holdingQty && backData.supplyTotal > 0
+              ? ((backData.holdingQty / backData.supplyTotal) * 100).toFixed(1)
+              : null;
+
+            // Position-dependent stat selection (4 bars)
+            const perfBars: { label: string; value: number; pct: number }[] =
+              pos === 'GK' ? [
+                { label: tp('cardBack.statSVS'), value: bs.saves, pct: pct.saves },
+                { label: tp('cardBack.statCS'), value: bs.cleanSheets, pct: pct.cleanSheets },
+                { label: tp('cardBack.statSPI'), value: bs.matches, pct: pct.matches },
+                { label: tp('cardBack.statMIN'), value: bs.minutes, pct: pct.minutes },
+              ] : pos === 'ATT' ? [
+                { label: tp('cardBack.statTOR'), value: bs.goals, pct: pct.goals },
+                { label: tp('cardBack.statASS'), value: bs.assists, pct: pct.assists },
+                { label: tp('cardBack.statSPI'), value: bs.matches, pct: pct.matches },
+                { label: tp('cardBack.statMIN'), value: bs.minutes, pct: pct.minutes },
+              ] : pos === 'MID' ? [
+                { label: tp('cardBack.statASS'), value: bs.assists, pct: pct.assists },
+                { label: tp('cardBack.statTOR'), value: bs.goals, pct: pct.goals },
+                { label: tp('cardBack.statSPI'), value: bs.matches, pct: pct.matches },
+                { label: tp('cardBack.statMIN'), value: bs.minutes, pct: pct.minutes },
+              ] : [
+                { label: tp('cardBack.statSPI'), value: bs.matches, pct: pct.matches },
+                { label: tp('cardBack.statTOR'), value: bs.goals, pct: pct.goals },
+                { label: tp('cardBack.statASS'), value: bs.assists, pct: pct.assists },
+                { label: tp('cardBack.statMIN'), value: bs.minutes, pct: pct.minutes },
+              ];
+
+            return (
               <div
-                className="absolute inset-0"
+                className="absolute inset-0 rounded-2xl overflow-hidden card-metallic"
                 style={{
-                  background: `linear-gradient(180deg, ${tint}30 0%, ${tint}15 30%, ${tint}08 60%, transparent 100%)`,
-                }}
-              />
-
-              {/* Compact Stat Bars (replaces RadarChart) */}
-              <div className="relative z-10 px-4 pt-4 md:pt-5 space-y-1.5">
-                <StatBar label="L5" value={l5} max={150} tint={tint} />
-                <StatBar label="L15" value={backStats.l15} max={150} tint={tint} />
-                <StatBar label={tp('statGoalsShort')} value={backStats.goals} max={Math.max(backStats.goals, 20)} tint={tint} />
-                <StatBar label={tp('statAssistsShort')} value={backStats.assists} max={Math.max(backStats.assists, 15)} tint={tint} />
-                <StatBar label={tp('statMatchesShort')} value={backStats.matches} max={Math.max(backStats.matches, 34)} tint={tint} />
-                <StatBar label="MIN" value={backStats.minutes} max={Math.max(backStats.minutes, 3060)} tint={tint} />
-              </div>
-
-              {/* Position separator */}
-              <div className="relative z-10 mx-4 mt-3">
-                <div className="h-px" style={{ background: `linear-gradient(90deg, transparent 0%, ${tint}50 20%, ${tint}80 50%, ${tint}50 80%, transparent 100%)` }} />
-              </div>
-
-              {/* Stats Grid — same FIFA style */}
-              <div className="relative z-10 grid grid-cols-3 gap-y-3 gap-x-2 px-4 mt-3">
-                <FifaStat label={tp('statGoals')} value={backStats.goals} />
-                <FifaStat label={tp('statAssists')} value={backStats.assists} />
-                <FifaStat label={tp('statMatches')} value={backStats.matches} />
-                <FifaStat label={tp('statL15')} value={backStats.l15} />
-                <FifaStat label="L5" value={l5} />
-                <FifaStat
-                  label={tp('statFloor')}
-                  value={backStats.floorPrice != null ? fmtScout(backStats.floorPrice) : '\u2014'}
-                />
-              </div>
-
-              {/* Name + Flip hint */}
-              <div
-                className="relative z-10 mt-3 backdrop-blur-md px-3 py-2"
-                style={{
-                  backgroundColor: 'rgba(255,255,255,0.05)',
-                  borderTop: `1px solid ${tint}25`,
-                  borderBottom: `1px solid ${tint}25`,
+                  backfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)',
                 }}
               >
-                <div className="text-xs font-bold text-white/90 text-center truncate">
-                  {first} {last}
-                </div>
-                <div className="text-[9px] text-white/30 text-center mt-0.5">
-                  {tp('tapToFlip')}
-                </div>
-              </div>
-
-              {/* BeScout Branding */}
-              <div className="absolute bottom-1.5 inset-x-0 z-10 flex items-center justify-center gap-1.5 pointer-events-none">
-                <img
-                  src="/logo.svg"
-                  alt=""
-                  className="size-3"
-                  aria-hidden="true"
-                  style={{ filter: 'brightness(0) invert(1)', opacity: 0.2 }}
+                {/* Background: carbon fiber + position tint (same as front) */}
+                <div className="absolute inset-0 card-carbon" />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: `linear-gradient(180deg, ${tint}30 0%, ${tint}15 30%, ${tint}08 60%, transparent 100%)`,
+                  }}
                 />
-                <span
-                  className="text-[7px] font-bold tracking-[0.3em] uppercase"
-                  style={{ color: `${tint}40` }}
-                >
-                  BESCOUT
-                </span>
+
+                {/* ── Trading Data ── */}
+                <div className="relative z-10 px-3 pt-3 md:pt-4">
+                  <div className="text-[7px] font-bold uppercase tracking-[0.2em] text-white/25 mb-2">
+                    {tp('cardBack.scoutCardData')}
+                  </div>
+
+                  {/* 2x2 Metric Grid */}
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <MetricCell
+                      label={tp('cardBack.marketValue')}
+                      value={backData.marketValueEur ? formatMV(backData.marketValueEur) : '\u2014'}
+                      tint={tint}
+                    />
+                    <MetricCell
+                      label={tp('cardBack.floorPrice')}
+                      value={backData.floorPrice != null ? `${fmtScout(backData.floorPrice)} CR` : '\u2014'}
+                      tint={tint}
+                    />
+                    <MetricCell
+                      label={tp('cardBack.change24h')}
+                      value={changeStr}
+                      tint={tint}
+                    />
+                    <MetricCell
+                      label={tp('cardBack.feeCap')}
+                      value={backData.successFeeCap != null ? `${fmtScout(backData.successFeeCap)} CR` : '\u2014'}
+                      tint={tint}
+                    />
+                  </div>
+
+                  {/* Holdings Row (only if user owns SCs) */}
+                  {backData.holdingQty != null && backData.holdingQty > 0 && holdPct && (
+                    <div
+                      className="mt-2 flex items-center justify-center gap-1 rounded-lg px-3 py-1.5"
+                      style={{ backgroundColor: `${tint}08`, border: `1px solid ${tint}15` }}
+                    >
+                      <span className="text-[9px] font-medium text-white/40">
+                        {tp('cardBack.holdings', {
+                          count: backData.holdingQty,
+                          pct: holdPct,
+                        })}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* ── Label Divider: LEISTUNG ── */}
+                <div className="relative z-10 flex items-center gap-2 mx-3 mt-2.5 md:mt-3">
+                  <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, transparent, ${tint}40)` }} />
+                  <span
+                    className="text-[7px] font-bold uppercase tracking-[0.3em]"
+                    style={{ color: `${tint}60` }}
+                  >
+                    {tp('cardBack.leistung')}
+                  </span>
+                  <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${tint}40, transparent)` }} />
+                </div>
+
+                {/* ── Percentile Performance Bars ── */}
+                <div className="relative z-10 px-3 mt-2 md:mt-2.5 space-y-2">
+                  {perfBars.map((bar) => (
+                    <PercentileBar
+                      key={bar.label}
+                      label={bar.label}
+                      value={bar.value}
+                      percentile={bar.pct}
+                      tint={tint}
+                    />
+                  ))}
+                </div>
+
+                {/* ── Footer: Flip hint + Branding ── */}
+                <div className="absolute bottom-1.5 inset-x-0 z-10 flex items-center justify-center gap-1.5 pointer-events-none">
+                  <span className="text-[7px] text-white/20">{tp('tapToFlip')}</span>
+                  <span className="text-white/10">&middot;</span>
+                  <img
+                    src="/logo.svg"
+                    alt=""
+                    className="size-3"
+                    aria-hidden="true"
+                    style={{ filter: 'brightness(0) invert(1)', opacity: 0.2 }}
+                  />
+                  <span
+                    className="text-[7px] font-bold tracking-[0.3em] uppercase"
+                    style={{ color: `${tint}40` }}
+                  >
+                    BESCOUT
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       </div>
     </div>

@@ -18,7 +18,7 @@ interface StatRow {
   percentile: number;
 }
 
-function calcPercentile(value: number, values: number[]): number {
+export function calcPercentile(value: number, values: number[]): number {
   if (values.length === 0) return 0;
   const below = values.filter(v => v < value).length;
   return Math.round((below / values.length) * 100);

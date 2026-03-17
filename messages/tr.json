@@ -1923,7 +1923,20 @@
     "explainSuspended": "Oyuncu şu anda cezalı.",
     "explainInactive": "GW {gw}'den beri maça çıkmadı. Oyuncu sakatlanmış, transfer olmuş veya kadroda olmayabilir.",
     "explainNoAppearances": "Bu sezon henüz resmi maça çıkmadı.",
-    "explainNoData": "Performans verisi bulunamadı."
+    "explainNoData": "Performans verisi bulunamadı.",
+    "cardBack.scoutCardData": "Scout Card Verileri",
+    "cardBack.marketValue": "Piyasa Değeri",
+    "cardBack.floorPrice": "Taban",
+    "cardBack.change24h": "24s",
+    "cardBack.feeCap": "Fee Cap",
+    "cardBack.holdings": "{count} SC · {pct}% Arz",
+    "cardBack.leistung": "Performans",
+    "cardBack.statSVS": "KRT",
+    "cardBack.statCS": "CS",
+    "cardBack.statSPI": "MAÇ",
+    "cardBack.statTOR": "GOL",
+    "cardBack.statASS": "AST",
+    "cardBack.statMIN": "DK"
   },
   "club": {
     "overview": "Genel Bakış",

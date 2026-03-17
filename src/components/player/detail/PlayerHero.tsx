@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
@@ -16,6 +16,8 @@ import { centsToBsd } from '@/lib/services/players';
 import { getClub } from '@/lib/clubs';
 import type { Player, DbIpo } from '@/types';
 import TradingCardFrame from './TradingCardFrame';
+import type { CardBackData } from './TradingCardFrame';
+import { calcPercentile } from './StatsBreakdown';
 
 interface PlayerHeroProps {
   player: Player;
@@ -32,6 +34,7 @@ interface PlayerHeroProps {
   onRemovePriceAlert: () => void;
   holdingQty: number;
   masteryLevel?: number;
+  allPlayers?: Player[];
 }
 
 export default function PlayerHero({
@@ -39,6 +42,7 @@ export default function PlayerHero({
   isWatchlisted, priceAlert,
   onToggleWatchlist, onShare, onBuyClick, onSellClick,
   onSetPriceAlert, onRemovePriceAlert, holdingQty, masteryLevel,
+  allPlayers = [],
 }: PlayerHeroProps) {
   const t = useTranslations('player');
   const [showOverflow, setShowOverflow] = useState(false);
@@ -63,6 +67,32 @@ export default function PlayerHero({
   const owned = player.dpc.circulation;
   const supply = player.dpc.supply;
   const edition = supply > 0 ? `${owned}/${supply} SC` : undefined;
+
+  // Compute percentiles for card back
+  const backData = useMemo((): CardBackData | undefined => {
+    const samePos = allPlayers.filter(p => p.pos === player.pos);
+    if (samePos.length < 2) return undefined;
+    const pct = (val: number, extractor: (p: Player) => number) =>
+      calcPercentile(val, samePos.map(extractor));
+    return {
+      marketValueEur: player.marketValue,
+      floorPrice: player.prices.floor,
+      priceChange24h: player.prices.change24h,
+      successFeeCap: player.successFeeCap,
+      holdingQty,
+      supplyTotal: supply,
+      l15: player.perf.l15,
+      stats: player.stats,
+      percentiles: {
+        goals: pct(player.stats.goals, p => p.stats.goals),
+        assists: pct(player.stats.assists, p => p.stats.assists),
+        matches: pct(player.stats.matches, p => p.stats.matches),
+        cleanSheets: pct(player.stats.cleanSheets, p => p.stats.cleanSheets),
+        minutes: pct(player.stats.minutes, p => p.stats.minutes),
+        saves: pct(player.stats.saves, p => p.stats.saves),
+      },
+    };
+  }, [player, allPlayers, holdingQty, supply]);
 
   return (
     <div
@@ -154,17 +184,7 @@ export default function PlayerHero({
               edition={edition}
               age={player.age}
               country={player.country}
-              backStats={{
-                goals: player.stats.goals,
-                assists: player.stats.assists,
-                matches: player.stats.matches,
-                cleanSheets: player.stats.cleanSheets,
-                minutes: player.stats.minutes,
-                saves: player.stats.saves,
-                l15: player.perf.l15,
-                trend: player.perf.trend,
-                floorPrice: player.prices.floor,
-              }}
+              backData={backData}
               masteryLevel={masteryLevel}
             />
           </div>

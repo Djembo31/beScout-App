@@ -99,7 +99,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const { data: masteryData } = useDpcMastery(uid, playerId);
 
   // ─── Derived from queries ─────────────────
-  const { data: allPlayersData } = usePlayers(tab === 'performance');
+  const { data: allPlayersData } = usePlayers(true);
   const allPlayersForPercentile = allPlayersData ?? [];
   const player = useMemo(() => dbPlayer ? dbToPlayer(dbPlayer) : null, [dbPlayer]);
   const dpcAvailable = dbPlayer?.dpc_available ?? 0;
@@ -266,6 +266,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           onSetPriceAlert={alerts.handleSetPriceAlert}
           onRemovePriceAlert={alerts.handleRemovePriceAlert}
           masteryLevel={masteryData?.level ?? 0}
+          allPlayers={allPlayersForPercentile}
         />
       </div>
 
