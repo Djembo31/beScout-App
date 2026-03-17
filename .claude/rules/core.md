@@ -19,39 +19,78 @@ Jedes Feature, jede UI-Aenderung, jeder nicht-triviale Change durchlaeuft diese 
 │  1. brainstorming          (Superpowers Skill)          │
 │     → Sequential Thinking nutzen fuer Design-Logik      │
 │     → Intent + Requirements klaeren                     │
-│     → Anils Antworten WOERTLICH in Design Doc           │
-│     → Design Doc speichern + committen                  │
+│     → Anils Antworten WOERTLICH festhalten              │
+│     → Design Doc speichern (docs/plans/) + committen    │
+│     → TERMINAL STATE: Spec schreiben                    │
+│                                                         │
+│  2. Spec schreiben         (memory/features/[name].md)  │
+│     → Sequential Thinking: Brainstorming-Ergebnis       │
+│       in konkrete Contracts uebersetzen                 │
+│     → Exakte Datenquellen (DB-Columns, Queries, RPCs)   │
+│     → Was zeigt die UI GENAU? (keine Duplikate!)        │
+│     → Anils Entscheidungen WOERTLICH als Anforderungen  │
+│     → Scope: was NICHT gebaut wird                      │
+│     → Context7: Library-Docs holen fuer betroffene Libs │
+│     → Spec committen                                    │
 │     → TERMINAL STATE: writing-plans aufrufen            │
 │                                                         │
-│  2. writing-plans          (Superpowers Skill)          │
-│     → Sequential Thinking: Plan GEGEN Design pruefen    │
-│     → "Zeige ich etwas doppelt? Widerspricht sich was?" │
-│     → Context7: Library-Docs holen fuer betroffene Libs │
-│     → Docs in Plan einbetten (Agents haben KEIN C7)     │
+│  3. writing-plans          (Superpowers Skill)          │
+│     → Sequential Thinking: Plan GEGEN Spec pruefen      │
+│     → "Widerspricht sich was? Fehlt was aus der Spec?"  │
+│     → Context7-Docs in Plan einbetten (Agents kein C7)  │
 │     → Bite-sized Tasks (2-5 min pro Step)               │
 │     → Exakte File-Pfade + Code im Plan                  │
 │     → Plan speichern + committen                        │
 │     → Ausfuehrung anbieten: Subagent oder Parallel      │
 │                                                         │
-│  3. executing-plans        (Superpowers Skill)          │
+│  4. executing-plans        (Superpowers Skill)          │
 │     → Plan laden + KRITISCH reviewen VOR Start          │
 │     → Tasks in Batches (3 Tasks pro Batch)              │
 │     → Agents arbeiten in EIGENEM Context (nicht meinem) │
 │     → Nach jedem Batch: "Ready for feedback"            │
 │     → Anil gibt OK oder korrigiert                      │
 │                                                         │
-│  4. Verification           (Nach JEDER Code-Aenderung)  │
+│  5. Verification           (Nach JEDER Code-Aenderung)  │
 │     → tsc --noEmit                                      │
 │     → vitest run [betroffene Tests]                     │
 │     → reviewer Agent (PFLICHT, nicht optional)           │
 │     → Bei UI: /baseline-ui + /fixing-accessibility      │
 │     → Bei UI: Visual QA mit VOLLSTAENDIGEN Daten        │
 │                                                         │
-│  5. finishing-branch       (Superpowers Skill)           │
+│  6. finishing-branch       (Superpowers Skill)           │
 │     → Tests gruen, Review PASS                          │
 │     → Commit + Knowledge Capture                        │
 │     → Feature-File → archive                            │
 └─────────────────────────────────────────────────────────┘
+```
+
+### Spec-Template (memory/features/[name].md)
+
+```markdown
+# Feature: [Name]
+
+## Anils Anforderungen (WOERTLICH)
+- "[exakte Worte aus dem Brainstorming]"
+- "[exakte Worte]"
+
+## Datenquellen
+| Feld | Quelle | DB Column / RPC | Anmerkung |
+|------|--------|-----------------|-----------|
+
+## UI-Elemente
+| Element | Daten | Bereits woanders sichtbar? |
+|---------|-------|---------------------------|
+
+## Contracts (Input → Output)
+```typescript
+interface Props { ... }
+```
+
+## Scope
+- IN: ...
+- OUT: ...
+
+## Offene Fragen (VOR Plan klaeren)
 ```
 
 ## Werkzeuge in der Pipeline

@@ -28,7 +28,7 @@ Anil gibt Level an. Ohne Angabe = **Level A**.
 **PFLICHT-Reihenfolge. Kein Schritt darf uebersprungen werden.**
 
 ```
-brainstorming → writing-plans → executing-plans → verification → finishing-branch
+brainstorming → spec → writing-plans → executing-plans → verification → finishing-branch
 ```
 
 Details → `core.md` (Feature-Pipeline Sektion)

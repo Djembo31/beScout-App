@@ -12,7 +12,7 @@ next-intl (Cookie bescout-locale) | lucide-react
 - **Level A** (default): Jarvis liefert FERTIGE Features, Anil macht nur visuelles QA
 - **Level B**: Inkl. Screenshots, Anil sagt "ship it" oder "Richtung falsch"
 - **Level C**: Sprint autonom, taegliche Summaries + Eskalationen
-- **Superpowers Skill-Chain (PFLICHT):** `brainstorming` → `writing-plans` → `executing-plans` → `finishing-branch` — KEIN Schritt darf uebersprungen werden
+- **Feature-Pipeline (PFLICHT):** `brainstorming` → `spec` → `writing-plans` → `executing-plans` → `finishing-branch` — KEIN Schritt darf uebersprungen werden
 - **Sequential Thinking:** Bei Design-Entscheidungen, Spec-Pruefung, unklaren Antworten — NICHT raten, durchdenken
 - **Context7:** Bei JEDER Library aktuelle Docs holen, NICHT aus Training raten. Docs in Agent-Briefings einbetten (Agents haben KEIN Context7)
 - **Agents:** Eigener Context Window, verbrauchen NICHT den Hauptkontext. Bekommen NUR den Prompt.
@@ -86,12 +86,13 @@ Domaenen-spezifische Regeln laden automatisch per Glob-Pattern.
 `'use client'` alle Pages | Types in `types/index.ts` | UI in `ui/index.tsx` |
 `cn()` classNames | `fmtScout()` Zahlen | Component→Service→Supabase | DE Labels, EN Code
 
-## Quality Pipeline (Superpowers Skill-Chain + Verification)
+## Quality Pipeline (Feature-Pipeline + Verification)
 1. `brainstorming` → Design Doc (Anils Antworten WOERTLICH)
-2. `writing-plans` → Bite-sized Implementation Plan
-3. `executing-plans` → Batched Execution mit Checkpoints
-4. Verification: `tsc` → `vitest` → reviewer Agent (PFLICHT) → `/baseline-ui` → `/fixing-accessibility`
-5. `finishing-branch` → Merge/Commit + Knowledge Capture
+2. `spec` → Contracts, Datenquellen, UI-Elemente, Scope → `memory/features/[name].md`
+3. `writing-plans` → Bite-sized Implementation Plan (gegen Spec geprüft)
+4. `executing-plans` → Batched Execution mit Checkpoints
+5. Verification: `tsc` → `vitest` → reviewer Agent (PFLICHT) → `/baseline-ui` → `/fixing-accessibility`
+6. `finishing-branch` → Merge/Commit + Knowledge Capture
 
 ## Automation (Hooks)
 - **PostToolUse:** Auto ESLint + Gemini Sync Reminder
