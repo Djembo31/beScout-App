@@ -30,12 +30,12 @@ import CommunityHero from '@/components/community/CommunityHero';
 import CommunityFeedTab from '@/components/community/CommunityFeedTab';
 import type { ContentFilter } from '@/components/community/CommunityFeedTab';
 import CommunitySidebar from '@/components/community/CommunitySidebar';
-import CreatePostModal from '@/components/community/CreatePostModal';
-import CreateResearchModal from '@/components/community/CreateResearchModal';
-import CreateBountyModal from '@/components/community/CreateBountyModal';
-import FollowListModal from '@/components/profile/FollowListModal';
 import type { PostWithAuthor, PostType } from '@/types';
 import dynamic from 'next/dynamic';
+const CreatePostModal = dynamic(() => import('@/components/community/CreatePostModal'), { ssr: false });
+const CreateResearchModal = dynamic(() => import('@/components/community/CreateResearchModal'), { ssr: false });
+const CreateBountyModal = dynamic(() => import('@/components/community/CreateBountyModal'), { ssr: false });
+const FollowListModal = dynamic(() => import('@/components/profile/FollowListModal'), { ssr: false });
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
 const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), { ssr: false });
 
