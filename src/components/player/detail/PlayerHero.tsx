@@ -16,6 +16,7 @@ import { centsToBsd } from '@/lib/services/players';
 import { getClub } from '@/lib/clubs';
 import type { Player, DbIpo } from '@/types';
 import TradingCardFrame from './TradingCardFrame';
+import CountryFlag from '@/components/ui/CountryFlag';
 import type { CardBackData } from './TradingCardFrame';
 import { calcPercentile } from './StatsBreakdown';
 
@@ -81,15 +82,18 @@ export default function PlayerHero({
       successFeeCap: player.successFeeCap,
       holdingQty,
       supplyTotal: supply,
+      contractMonths: player.contractMonthsLeft,
       l15: player.perf.l15,
-      stats: player.stats,
+      stats: {
+        goals: player.stats.goals,
+        assists: player.stats.assists,
+        matches: player.stats.matches,
+      },
       percentiles: {
-        goals: pct(player.stats.goals, p => p.stats.goals),
-        assists: pct(player.stats.assists, p => p.stats.assists),
-        matches: pct(player.stats.matches, p => p.stats.matches),
-        cleanSheets: pct(player.stats.cleanSheets, p => p.stats.cleanSheets),
+        l5: pct(player.perf.l5, p => p.perf.l5),
+        l15: pct(player.perf.l15, p => p.perf.l15),
+        season: pct(player.perf.season, p => p.perf.season),
         minutes: pct(player.stats.minutes, p => p.stats.minutes),
-        saves: pct(player.stats.saves, p => p.stats.saves),
       },
     };
   }, [player, allPlayers, holdingQty, supply]);
@@ -181,6 +185,8 @@ export default function PlayerHero({
               shirtNumber={player.ticket}
               imageUrl={player.imageUrl}
               l5={player.perf.l5}
+              l5Apps={player.perf.l5Apps}
+              l15Apps={player.perf.l15Apps}
               edition={edition}
               age={player.age}
               country={player.country}
@@ -196,12 +202,13 @@ export default function PlayerHero({
               {player.first} {player.last}
             </h1>
 
-            {/* Club · Position · Age */}
+            {/* Club · Flag · Position · Age */}
             <div className="flex items-center gap-2 text-xs md:text-sm text-white/60 mt-1 flex-wrap justify-center md:justify-start">
               {clubData?.logo && (
                 <Image src={clubData.logo} alt={clubData.name} width={16} height={16} className="size-4 rounded-full object-cover" />
               )}
               <span>{player.club}</span>
+              {player.country && <CountryFlag code={player.country} size={12} />}
               <span className="text-white/20">&middot;</span>
               <span>{player.pos}</span>
               {player.age != null && player.age > 0 && (
