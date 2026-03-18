@@ -15,6 +15,8 @@ export const qk = {
   // ── Holdings / Wallet ──
   holdings: {
     byUser: (uid: string) => ['holdings', uid] as const,
+    qty: (uid: string, pid: string) => ['holdings', 'qty', uid, pid] as const,
+    holderCount: (pid: string) => ['holdings', 'holderCount', pid] as const,
   },
 
   // ── Orders ──
@@ -44,6 +46,8 @@ export const qk = {
     active: ['ipos', 'active'] as const,
     announced: ['ipos', 'announced'] as const,
     recentlyEnded: ['ipos', 'recently-ended'] as const,
+    byPlayer: (pid: string) => ['ipos', 'player', pid] as const,
+    purchases: (uid: string, ipoId: string) => ['ipos', 'purchases', uid, ipoId] as const,
   },
 
   // ── Watchlist ──
@@ -108,6 +112,7 @@ export const qk = {
   offers: {
     incoming: (uid: string) => ['offers', 'incoming', uid] as const,
     outgoing: (uid: string) => ['offers', 'outgoing', uid] as const,
+    bids: (pid: string) => ['offers', 'bids', pid] as const,
   },
 
   // ── Transactions ──

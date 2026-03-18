@@ -6,7 +6,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   try {
     const { data } = await supabaseAdmin
       .from('players')
-      .select('first_name, last_name, position, club, photo_url, floor_price, price_change_24h')
+      .select('first_name, last_name, position, club, image_url, floor_price, price_change_24h')
       .eq('id', params.id)
       .single();
     if (data) {
@@ -20,10 +20,10 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
         openGraph: {
           title: `${name} | BeScout`,
           description: desc,
-          ...(data.photo_url ? { images: [data.photo_url] } : {}),
+          ...(data.image_url ? { images: [data.image_url] } : {}),
         },
         twitter: {
-          card: data.photo_url ? 'summary_large_image' : 'summary',
+          card: data.image_url ? 'summary_large_image' : 'summary',
           title: `${name} | BeScout`,
           description: desc,
         },

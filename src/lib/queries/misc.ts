@@ -142,7 +142,7 @@ export function useLiquidationEvent(playerId: string | undefined, active = true)
 
 export function useIpoForPlayer(playerId: string | undefined) {
   return useQuery({
-    queryKey: ['ipos', 'player', playerId],
+    queryKey: qk.ipos.byPlayer(playerId!),
     queryFn: () => getIpoForPlayer(playerId!),
     enabled: !!playerId,
     staleTime: FIVE_MIN,
@@ -151,7 +151,7 @@ export function useIpoForPlayer(playerId: string | undefined) {
 
 export function useHoldingQty(userId: string | undefined, playerId: string | undefined) {
   return useQuery({
-    queryKey: ['holdings', 'qty', userId, playerId],
+    queryKey: qk.holdings.qty(userId!, playerId!),
     queryFn: () => getHoldingQty(userId!, playerId!),
     enabled: !!userId && !!playerId,
     staleTime: 30_000,
@@ -160,7 +160,7 @@ export function useHoldingQty(userId: string | undefined, playerId: string | und
 
 export function usePlayerHolderCount(playerId: string | undefined) {
   return useQuery({
-    queryKey: ['holdings', 'holderCount', playerId],
+    queryKey: qk.holdings.holderCount(playerId!),
     queryFn: () => getPlayerHolderCount(playerId!),
     enabled: !!playerId,
     staleTime: TWO_MIN,
@@ -178,7 +178,7 @@ export function useSellOrders(playerId: string | undefined) {
 
 export function useOpenBids(playerId: string | undefined, active = true) {
   return useQuery({
-    queryKey: ['offers', 'bids', playerId],
+    queryKey: qk.offers.bids(playerId!),
     queryFn: () => getOpenBids(playerId!),
     enabled: !!playerId && active,
     staleTime: ONE_MIN,
@@ -187,7 +187,7 @@ export function useOpenBids(playerId: string | undefined, active = true) {
 
 export function useUserIpoPurchases(userId: string | undefined, ipoId: string | undefined) {
   return useQuery({
-    queryKey: ['ipos', 'purchases', userId, ipoId],
+    queryKey: qk.ipos.purchases(userId!, ipoId!),
     queryFn: () => getUserIpoPurchases(userId!, ipoId!),
     enabled: !!userId && !!ipoId,
     staleTime: TWO_MIN,

@@ -15,10 +15,15 @@ export function invalidateTradeQueries(playerId: string, userId?: string): void 
     queryClient.invalidateQueries({ queryKey: qk.players.byId(playerId) });
     queryClient.invalidateQueries({ queryKey: qk.orders.byPlayer(playerId) });
     queryClient.invalidateQueries({ queryKey: qk.trades.byPlayer(playerId) });
+    queryClient.invalidateQueries({ queryKey: qk.holdings.holderCount(playerId) });
+    queryClient.invalidateQueries({ queryKey: qk.offers.bids(playerId) });
   }
   if (userId) {
     queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(userId) });
     queryClient.invalidateQueries({ queryKey: qk.transactions.byUser(userId, 10) });
+    if (playerId) {
+      queryClient.invalidateQueries({ queryKey: qk.holdings.qty(userId, playerId) });
+    }
   }
 }
 
@@ -90,8 +95,12 @@ export function invalidatePlayerDetailQueries(playerId: string, userId?: string)
   queryClient.invalidateQueries({ queryKey: qk.pbt.byPlayer(playerId) });
   queryClient.invalidateQueries({ queryKey: qk.scoring.gwScores(playerId) });
   queryClient.invalidateQueries({ queryKey: qk.players.byId(playerId) });
+  queryClient.invalidateQueries({ queryKey: qk.holdings.holderCount(playerId) });
+  queryClient.invalidateQueries({ queryKey: qk.offers.bids(playerId) });
+  queryClient.invalidateQueries({ queryKey: qk.ipos.byPlayer(playerId) });
   if (userId) {
     queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(userId) });
+    queryClient.invalidateQueries({ queryKey: qk.holdings.qty(userId, playerId) });
     queryClient.invalidateQueries({ queryKey: qk.transactions.byUser(userId, 10) });
   }
 }
