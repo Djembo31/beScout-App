@@ -267,6 +267,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           onRemovePriceAlert={alerts.handleRemovePriceAlert}
           masteryLevel={masteryData?.level ?? 0}
           allPlayers={allPlayersForPercentile}
+          matchTimeline={matchTimelineData ?? []}
         />
       </div>
 

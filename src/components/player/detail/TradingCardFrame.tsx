@@ -9,6 +9,7 @@ import { useTilt } from '@/lib/hooks/useTilt';
 import { fmtScout, cn } from '@/lib/utils';
 import CountryFlag from '@/components/ui/CountryFlag';
 import type { Pos } from '@/types';
+import type { MatchTimelineEntry } from '@/lib/services/scoring';
 
 // Position glow ring — matches Tailwind shadow-glow-* tokens from tailwind.config
 const posRingGlow: Record<Pos, string> = {
@@ -32,12 +33,7 @@ export interface CardBackData {
     assists: number;
     matches: number;
   };
-  percentiles: {
-    l5: number;
-    l15: number;
-    season: number;
-    minutes: number;
-  };
+  matchTimeline?: MatchTimelineEntry[];
 }
 
 interface TradingCardFrameProps {
@@ -72,21 +68,53 @@ function FifaStat({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-/* Slim percentile bar for card back — single tint color, h-1 */
-function PercentileBar({ label, percentile, tint }: { label: string; percentile: number; tint: string }) {
+/* Score → color mapping for match performance bars */
+const scoreColor = (score: number): string => {
+  if (score >= 80) return '#10b981'; // emerald-500
+  if (score >= 60) return '#84cc16'; // lime-500
+  if (score >= 40) return '#f59e0b'; // amber-500
+  return '#f43f5e';                  // rose-500
+};
+
+/* Single match performance bar for card back L5 timeline */
+function MatchBar({ entry }: { entry: MatchTimelineEntry }) {
+  const pct = Math.max(5, Math.min(100, entry.score));
+  const color = scoreColor(entry.score);
+  const starterLabel = entry.isStarter ? 'XI' : `${entry.minutesPlayed}'`;
+
   return (
-    <div className="flex items-center gap-1.5">
-      <span className="text-[7px] font-bold uppercase tracking-wider text-white/35 w-[24px] shrink-0 text-right">
-        {label}
+    <div className="flex items-center gap-1">
+      <span className="text-[6px] font-mono text-white/25 w-[18px] shrink-0 text-right tabular-nums">
+        {entry.gameweek}
       </span>
-      <div className="flex-1 h-1 bg-white/[0.06] rounded-full overflow-hidden">
+      {entry.opponentLogoUrl ? (
+        <img src={entry.opponentLogoUrl} alt="" className="size-3 shrink-0 rounded-full object-cover" />
+      ) : (
+        <span className="text-[5px] font-bold text-white/20 size-3 shrink-0 flex items-center justify-center">
+          {entry.opponent.slice(0, 2)}
+        </span>
+      )}
+      <span className="text-[6px] font-bold text-white/40 w-[10px] shrink-0 text-center">
+        {starterLabel}
+      </span>
+      <div className="flex-1 h-[6px] bg-white/[0.06] rounded-sm overflow-hidden relative">
         <div
-          className="h-full rounded-full"
-          style={{ width: `${Math.max(3, percentile)}%`, backgroundColor: tint }}
+          className="h-full rounded-sm"
+          style={{ width: `${pct}%`, backgroundColor: color }}
         />
+        {/* Icons embedded in bar */}
+        <div className="absolute inset-0 flex items-center justify-end pr-1 gap-0.5">
+          {entry.goals > 0 && <span className="text-[5px]">⚽</span>}
+          {entry.assists > 0 && <span className="text-[5px]">🅰️</span>}
+          {entry.redCard && <span className="text-[5px]">🟥</span>}
+          {entry.yellowCard && !entry.redCard && <span className="text-[5px]">🟨</span>}
+        </div>
       </div>
-      <span className="font-mono text-[8px] tabular-nums text-white/30 w-[28px] text-right shrink-0">
-        {percentile}%
+      <span
+        className="text-[7px] font-mono font-bold tabular-nums w-[14px] shrink-0 text-right"
+        style={{ color }}
+      >
+        {entry.score}
       </span>
     </div>
   );
@@ -355,20 +383,11 @@ export default function TradingCardFrame({
 
           {/* ===== BACK FACE ===== */}
           {backData && (() => {
-            const { percentiles: pct } = backData;
             const change = backData.priceChange24h ?? 0;
             const changeStr = change === 0 ? '\u2014' : `${change >= 0 ? '\u2191' : '\u2193'}${Math.abs(change).toFixed(1)}%`;
             const holdPct = backData.holdingQty && backData.supplyTotal > 0
               ? ((backData.holdingQty / backData.supplyTotal) * 100).toFixed(1)
               : null;
-
-            // Performance percentile bars (same for ALL positions)
-            const perfBars = [
-              { label: 'L5', percentile: pct.l5 },
-              { label: 'L15', percentile: pct.l15 },
-              { label: 'AVG', percentile: pct.season },
-              { label: 'MIN', percentile: pct.minutes },
-            ];
 
             return (
               <div
@@ -456,16 +475,32 @@ export default function TradingCardFrame({
                   <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${tint}40, transparent)` }} />
                 </div>
 
-                {/* ── Percentile Performance Bars ── */}
-                <div className="relative z-10 px-3 mt-2 md:mt-2.5 space-y-2">
-                  {perfBars.map((bar) => (
-                    <PercentileBar
-                      key={bar.label}
-                      label={bar.label}
-                      percentile={bar.percentile}
-                      tint={tint}
-                    />
-                  ))}
+                {/* ── L5 Match Performance Bars ── */}
+                <div className="relative z-10 px-3 mt-2 md:mt-2.5 space-y-1">
+                  {backData.matchTimeline && backData.matchTimeline.length > 0 ? (
+                    <>
+                      {backData.matchTimeline.slice(0, 5).map((entry) => (
+                        <MatchBar key={entry.gameweek} entry={entry} />
+                      ))}
+                      <div className="flex items-center justify-center gap-2 pt-0.5">
+                        <span className="text-[7px] font-mono text-white/30 tabular-nums">
+                          Ø {Math.round(backData.matchTimeline.slice(0, 5).reduce((s, e) => s + e.score, 0) / backData.matchTimeline.slice(0, 5).length)}
+                        </span>
+                        <span className="text-white/10">&middot;</span>
+                        <span className="text-[7px] font-mono text-white/30 tabular-nums">
+                          {Math.round(backData.matchTimeline.slice(0, 5).reduce((s, e) => s + e.minutesPlayed, 0) / backData.matchTimeline.slice(0, 5).length)}&prime; avg
+                        </span>
+                        <span className="text-white/10">&middot;</span>
+                        <span className="text-[7px] font-mono text-white/30 tabular-nums">
+                          {backData.matchTimeline.slice(0, 5).length}/5
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-[7px] text-white/20 text-center py-2">
+                      Keine Spieldaten
+                    </div>
+                  )}
                 </div>
 
                 {/* ── Footer: Flip hint + Branding ── */}

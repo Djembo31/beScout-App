@@ -15,10 +15,11 @@ import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getClub } from '@/lib/clubs';
 import type { Player, DbIpo } from '@/types';
+import type { MatchTimelineEntry } from '@/lib/services/scoring';
 import TradingCardFrame from './TradingCardFrame';
 import CountryFlag from '@/components/ui/CountryFlag';
 import type { CardBackData } from './TradingCardFrame';
-import { calcPercentile } from './StatsBreakdown';
+
 
 interface PlayerHeroProps {
   player: Player;
@@ -36,6 +37,7 @@ interface PlayerHeroProps {
   holdingQty: number;
   masteryLevel?: number;
   allPlayers?: Player[];
+  matchTimeline?: MatchTimelineEntry[];
 }
 
 export default function PlayerHero({
@@ -43,7 +45,7 @@ export default function PlayerHero({
   isWatchlisted, priceAlert,
   onToggleWatchlist, onShare, onBuyClick, onSellClick,
   onSetPriceAlert, onRemovePriceAlert, holdingQty, masteryLevel,
-  allPlayers = [],
+  allPlayers = [], matchTimeline,
 }: PlayerHeroProps) {
   const t = useTranslations('player');
   const [showOverflow, setShowOverflow] = useState(false);
@@ -69,12 +71,8 @@ export default function PlayerHero({
   const supply = player.dpc.supply;
   const edition = supply > 0 ? `${owned}/${supply} SC` : undefined;
 
-  // Compute percentiles for card back
+  // Assemble card back data
   const backData = useMemo((): CardBackData | undefined => {
-    const samePos = allPlayers.filter(p => p.pos === player.pos);
-    if (samePos.length < 2) return undefined;
-    const pct = (val: number, extractor: (p: Player) => number) =>
-      calcPercentile(val, samePos.map(extractor));
     return {
       marketValueEur: player.marketValue,
       floorPrice: player.prices.floor,
@@ -89,14 +87,9 @@ export default function PlayerHero({
         assists: player.stats.assists,
         matches: player.stats.matches,
       },
-      percentiles: {
-        l5: pct(player.perf.l5, p => p.perf.l5),
-        l15: pct(player.perf.l15, p => p.perf.l15),
-        season: pct(player.perf.season, p => p.perf.season),
-        minutes: pct(player.stats.minutes, p => p.stats.minutes),
-      },
+      matchTimeline,
     };
-  }, [player, allPlayers, holdingQty, supply]);
+  }, [player, holdingQty, supply, matchTimeline]);
 
   return (
     <div
