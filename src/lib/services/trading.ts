@@ -148,6 +148,11 @@ export async function placeSellOrder(
   if (quantity > 300) throw new Error('maxQuantityExceeded');
   if (!Number.isInteger(priceCents) || priceCents < 1) throw new Error('invalidPrice');
   if (priceCents > 100_000_000) throw new Error('maxPriceExceeded');
+  // Price cap validation (frontend guard — DB RPC also enforces)
+  const cap = await getPriceCap(playerId);
+  if (cap !== null && priceCents > cap) {
+    throw new Error(`Price exceeds maximum (${Math.floor(cap / 100)} $SCOUT)`);
+  }
   // Guard: check if player is liquidated
   const { data: pl } = await supabase.from('players').select('is_liquidated').eq('id', playerId).maybeSingle();
   if (!pl) throw new Error('playerNotFound');
@@ -661,4 +666,51 @@ export async function getPlatformStats(): Promise<PlatformStats> {
   const activePlayers = playersRes.status === 'fulfilled' ? (playersRes.value.count ?? 0) : 0;
   const volume24h = tradesData.reduce((sum, t) => sum + (t.price as number) * ((t.quantity as number) || 1), 0);
   return { totalUsers, trades24h: tradesData.length, volume24h, activePlayers };
+}
+
+// ============================================
+// Offer Counts & Price Cap (Pricing Architecture)
+// ============================================
+
+/** Get aggregated sell offer counts per player (for badges) */
+export async function getOfferCounts(): Promise<Map<string, number>> {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('player_id')
+    .eq('side', 'sell')
+    .in('status', ['open', 'partial'])
+    .or('expires_at.is.null,expires_at.gt.now()');
+
+  if (error) { console.error('[Trading] getOfferCounts failed:', error); return new Map(); }
+
+  const counts = new Map<string, number>();
+  for (const row of data ?? []) {
+    counts.set(row.player_id, (counts.get(row.player_id) ?? 0) + 1);
+  }
+  return counts;
+}
+
+/** Get price cap for a player (for sell form orientation) */
+export async function getPriceCap(playerId: string): Promise<number | null> {
+  const { data, error } = await supabase.rpc('get_price_cap', { p_player_id: playerId });
+  if (error) { console.error('[Trading] getPriceCap failed:', error); return null; }
+  return data as number;
+}
+
+/** Get buy order counts per player (for Kaufgesuche count) */
+export async function getBuyOrderCounts(): Promise<Map<string, number>> {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('player_id')
+    .eq('side', 'buy')
+    .in('status', ['open', 'partial'])
+    .or('expires_at.is.null,expires_at.gt.now()');
+
+  if (error) { console.error('[Trading] getBuyOrderCounts failed:', error); return new Map(); }
+
+  const counts = new Map<string, number>();
+  for (const row of data ?? []) {
+    counts.set(row.player_id, (counts.get(row.player_id) ?? 0) + 1);
+  }
+  return counts;
 }

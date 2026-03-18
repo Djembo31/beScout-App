@@ -94,6 +94,8 @@ function createMockDbPlayer(overrides?: Partial<DbPlayer>): DbPlayer {
     ipo_price: 50000,   // 500 bCredits
     price_change_24h: 5.2,
     volume_24h: 150000,
+    reference_price: null,
+    initial_listing_price: null,
     status: 'fit',
     market_value_eur: 1000000,
     success_fee_cap_cents: 100000, // 1000 bCredits

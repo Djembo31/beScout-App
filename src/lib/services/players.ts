@@ -16,6 +16,7 @@ export const PLAYER_SELECT_COLS = [
   'perf_l5', 'perf_l15', 'perf_season', 'l5_appearances', 'l15_appearances',
   'dpc_total', 'dpc_available',
   'floor_price', 'last_price', 'ipo_price', 'price_change_24h', 'volume_24h',
+  'reference_price', 'initial_listing_price',
   'status', 'market_value_eur', 'success_fee_cap_cents', 'max_supply',
   'is_liquidated', 'contract_end', 'last_appearance_gw', 'created_at', 'updated_at',
 ].join(', ');
@@ -137,6 +138,8 @@ export function dbToPlayer(db: DbPlayer): Player {
       change24h: Number(db.price_change_24h),
       floor: floorBsd,
       ipoPrice: centsToBsd(db.ipo_price ?? db.floor_price),
+      referencePrice: db.reference_price ? centsToBsd(db.reference_price) : undefined,
+      initialListingPrice: db.initial_listing_price ? centsToBsd(db.initial_listing_price) : undefined,
     },
     dpc: {
       supply: db.max_supply ?? db.dpc_total,

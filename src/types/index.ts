@@ -37,9 +37,18 @@ export type Player = {
   country: string;
   contractMonthsLeft: number;
   marketValue?: number; // Marktwert in € (für Success Fee Tier)
+  offerCount?: number;  // aggregated count of sell orders + active IPO
   perf: { l5: number; l15: number; l5Apps: number; l15Apps: number; season: number; trend: Trend };
   stats: { matches: number; goals: number; assists: number; cleanSheets: number; minutes: number; saves: number };
-  prices: { lastTrade: number; change24h: number; floor?: number; ipoPrice?: number; history7d?: number[] };
+  prices: {
+    lastTrade: number;
+    change24h: number;
+    floor?: number;
+    ipoPrice?: number;
+    referencePrice?: number;
+    initialListingPrice?: number;
+    history7d?: number[];
+  };
   dpc: { supply: number; float: number; circulation: number; onMarket: number; owned: number };
   pbt?: { // Player Bound Treasury
     balance: number;
@@ -498,6 +507,8 @@ export type DbPlayer = {
   ipo_price: number;      // BIGINT in Cents — fester Club/IPO-Preis
   price_change_24h: number;
   volume_24h: number;
+  reference_price: number | null;         // BIGINT in Cents — Referenzpreis (IPO oder gewichteter Durchschnitt)
+  initial_listing_price: number | null;   // BIGINT in Cents — erster IPO-Preis (unveraenderlich)
   status: 'fit' | 'injured' | 'suspended' | 'doubtful' | null;
   market_value_eur: number;
   success_fee_cap_cents: number | null;
