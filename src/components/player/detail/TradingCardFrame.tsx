@@ -145,7 +145,7 @@ export default function TradingCardFrame({
   const tierClass = masteryLevel && masteryLevel > 0 ? `card-tier-${Math.min(masteryLevel, 5)}` : '';
 
   return (
-    <div className={cn('relative card-entrance overflow-hidden rounded-2xl', tierClass, className)}>
+    <div className={cn('relative card-entrance rounded-2xl', tierClass, className)}>
       {/* Perspective Provider */}
       <div style={{ perspective: '600px' }}>
         {/* Tilt + Flip Container */}
