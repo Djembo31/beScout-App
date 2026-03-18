@@ -47,11 +47,14 @@ export function usePosts(params: {
   clubId?: string;
   postType?: PostType;
   eventId?: string;
+  active?: boolean;
 } = {}) {
+  const { active, ...queryParams } = params;
   return useQuery({
-    queryKey: qk.posts.list(params as Record<string, unknown>),
-    queryFn: () => getPosts(params),
+    queryKey: qk.posts.list(queryParams as Record<string, unknown>),
+    queryFn: () => getPosts(queryParams),
     staleTime: TWO_MIN,
+    ...(active === false && { enabled: false }),
   });
 }
 
@@ -101,38 +104,38 @@ export function useClubSubscription(userId: string | undefined, clubId: string |
 
 // ── Player Detail ──
 
-export function usePlayerGwScores(playerId: string | undefined) {
+export function usePlayerGwScores(playerId: string | undefined, active = true) {
   return useQuery({
     queryKey: qk.scoring.gwScores(playerId!),
     queryFn: () => getPlayerGameweekScores(playerId!),
-    enabled: !!playerId,
+    enabled: !!playerId && active,
     staleTime: FIVE_MIN,
   });
 }
 
-export function usePlayerMatchTimeline(playerId: string | undefined, limit = 15) {
+export function usePlayerMatchTimeline(playerId: string | undefined, limit = 15, active = true) {
   return useQuery({
     queryKey: qk.scoring.matchTimeline(playerId!),
     queryFn: () => getPlayerMatchTimeline(playerId!, limit),
-    enabled: !!playerId,
+    enabled: !!playerId && active,
     staleTime: FIVE_MIN,
   });
 }
 
-export function usePbtForPlayer(playerId: string | undefined) {
+export function usePbtForPlayer(playerId: string | undefined, active = true) {
   return useQuery({
     queryKey: qk.pbt.byPlayer(playerId!),
     queryFn: () => getPbtForPlayer(playerId!),
-    enabled: !!playerId,
+    enabled: !!playerId && active,
     staleTime: FIVE_MIN,
   });
 }
 
-export function useLiquidationEvent(playerId: string | undefined) {
+export function useLiquidationEvent(playerId: string | undefined, active = true) {
   return useQuery({
     queryKey: qk.liquidation.byPlayer(playerId!),
     queryFn: () => getLiquidationEvent(playerId!),
-    enabled: !!playerId,
+    enabled: !!playerId && active,
     staleTime: FIVE_MIN,
   });
 }

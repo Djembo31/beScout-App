@@ -82,21 +82,28 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const [showStrip, setShowStrip] = useState(false);
 
   // ─── React Query Hooks (ALL before early returns) ────
+  // ALWAYS loaded (needed for Hero + Trading default tab):
   const { data: dbPlayer, isLoading: playerLoading, isError: playerError, refetch } = useDbPlayerById(playerId);
-  const { data: gwScoresData } = usePlayerGwScores(playerId);
-  const { data: matchTimelineData, isLoading: matchTimelineLoading } = usePlayerMatchTimeline(playerId);
-  const { data: pbtTreasury } = usePbtForPlayer(playerId);
-  const { data: liquidationEvent } = useLiquidationEvent(playerId);
-  const { data: activeIpo } = useIpoForPlayer(playerId);
   const { data: holdingQtyData } = useHoldingQty(uid, playerId);
   const { data: holderCountData } = usePlayerHolderCount(playerId);
   const { data: allSellOrdersData } = useSellOrders(playerId);
-  const { data: openBidsData } = useOpenBids(playerId, tab === 'trading');
+  const { data: activeIpo } = useIpoForPlayer(playerId);
+
+  // TRADING TAB (default — loaded immediately):
   const { data: tradesData, isLoading: tradesLoading } = usePlayerTrades(playerId);
-  const { data: playerResearchData } = usePlayerResearch(playerId, uid, tab === 'community' || tab === 'trading');
-  const { data: playerPostsData } = usePosts({ playerId, limit: 30 });
+  const { data: openBidsData } = useOpenBids(playerId, tab === 'trading');
+  const { data: pbtTreasury } = usePbtForPlayer(playerId, tab === 'trading');
   const { data: userIpoPurchasedData } = useUserIpoPurchases(uid, activeIpo?.id);
   const { data: masteryData } = useDpcMastery(uid, playerId);
+
+  // PERFORMANCE TAB (deferred):
+  const { data: gwScoresData } = usePlayerGwScores(playerId, tab === 'performance');
+  const { data: matchTimelineData, isLoading: matchTimelineLoading } = usePlayerMatchTimeline(playerId, 15, tab === 'performance');
+  const { data: liquidationEvent } = useLiquidationEvent(playerId, tab === 'performance');
+
+  // COMMUNITY TAB (deferred):
+  const { data: playerResearchData } = usePlayerResearch(playerId, uid, tab === 'community' || tab === 'trading');
+  const { data: playerPostsData } = usePosts({ playerId, limit: 30, active: tab === 'community' });
 
   // ─── Derived from queries ─────────────────
   const { data: allPlayersData } = usePlayers(true);
