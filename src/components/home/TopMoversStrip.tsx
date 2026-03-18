@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Link from 'next/link';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { PlayerPhoto } from '@/components/player';
@@ -10,7 +11,7 @@ interface TopMoversStripProps {
   players: Player[];
 }
 
-export default function TopMoversStrip({ players }: TopMoversStripProps) {
+function TopMoversStripInner({ players }: TopMoversStripProps) {
   // Global top 5 by absolute 24h change
   const movers = players
     .filter(p => p.prices.change24h !== 0 && !p.isLiquidated)
@@ -51,3 +52,5 @@ export default function TopMoversStrip({ players }: TopMoversStripProps) {
     </div>
   );
 }
+
+export default memo(TopMoversStripInner);

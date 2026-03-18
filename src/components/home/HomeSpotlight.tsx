@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Link from 'next/link';
 import { Rocket, Trophy, TrendingUp, Zap, Clock, Users } from 'lucide-react';
 import { Card } from '@/components/ui';
@@ -20,7 +21,7 @@ interface HomeSpotlightProps {
   players: Player[];
 }
 
-export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendingPlayers, players }: HomeSpotlightProps) {
+function HomeSpotlightInner({ activeIPOs, nextEvent, holdings, trendingPlayers, players }: HomeSpotlightProps) {
   const t = useTranslations('home');
 
   // Priority 1: Live IPO
@@ -206,3 +207,5 @@ export default function HomeSpotlight({ activeIPOs, nextEvent, holdings, trendin
     </Link>
   );
 }
+
+export default memo(HomeSpotlightInner);

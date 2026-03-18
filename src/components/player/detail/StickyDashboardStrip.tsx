@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import { useTranslations } from 'next-intl';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn, fmtScout } from '@/lib/utils';
@@ -20,7 +20,7 @@ interface StickyDashboardStripProps {
   className?: string;
 }
 
-export default function StickyDashboardStrip({
+function StickyDashboardStripInner({
   playerName, position, floorPrice, l5Score, trend,
   change24h, holdingQty, holderCount, visible, className,
 }: StickyDashboardStripProps) {
@@ -97,3 +97,5 @@ export default function StickyDashboardStrip({
     </div>
   );
 }
+
+export default memo(StickyDashboardStripInner);
