@@ -54,13 +54,13 @@ Jedes Feature, jede UI-Aenderung, jeder nicht-triviale Change durchlaeuft diese 
 │     → tsc --noEmit                                      │
 │     → vitest run [betroffene Tests]                     │
 │     → reviewer Agent AUFRUFEN (nicht ueberspringen!)    │
-│     → Bei UI: /baseline-ui AUFRUFEN (Skill invoken!)    │
+│     → Bei UI: /fixing-accessibility AUFRUFEN (Skill!)   │
 │     → Bei UI: /fixing-accessibility AUFRUFEN (Skill!)   │
 │     → Bei UI: Visual QA mit VOLLSTAENDIGEN Daten        │
 │                                                         │
 │  STOP-GATE: Schritt 6 darf NICHT beginnen bevor         │
-│  Reviewer + baseline-ui + a11y TATSAECHLICH gelaufen    │
-│  sind. "Ich habe es im Kopf geprueft" zaehlt NICHT.    │
+│  Reviewer + a11y TATSAECHLICH gelaufen sind.            │
+│  "Ich habe es im Kopf geprueft" zaehlt NICHT.          │
 │                                                         │
 │  6. finishing-branch       (Superpowers Skill)           │
 │     → Tests gruen, Review PASS                          │

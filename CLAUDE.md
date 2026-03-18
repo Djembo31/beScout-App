@@ -16,7 +16,7 @@ next-intl (Cookie bescout-locale) | lucide-react
 - **Sequential Thinking:** Bei Design-Entscheidungen, Spec-Pruefung, unklaren Antworten — NICHT raten, durchdenken
 - **Context7:** Bei JEDER Library aktuelle Docs holen, NICHT aus Training raten. Docs in Agent-Briefings einbetten (Agents haben KEIN Context7)
 - **Agents:** Eigener Context Window, verbrauchen NICHT den Hauptkontext. Bekommen NUR den Prompt.
-- **Verification:** tsc + vitest + reviewer Agent (PFLICHT) + /baseline-ui + /fixing-accessibility
+- **Verification:** tsc + vitest + reviewer Agent (PFLICHT) + /fixing-accessibility
 - **Impact Analysis:** `/impact` VOR jeder Aenderung an RPCs/DB/Services
 - **Agents:** 6 definierte Agents in `.claude/agents/` (impact-analyst, implementer, reviewer, test-writer, qa-visual, healer)
 - Details → `orchestrator.md` (unified CTO workflow) + `core.md`
@@ -91,7 +91,7 @@ Domaenen-spezifische Regeln laden automatisch per Glob-Pattern.
 2. `spec` → Contracts, Datenquellen, UI-Elemente, Scope → `memory/features/[name].md`
 3. `writing-plans` → Bite-sized Implementation Plan (gegen Spec geprüft)
 4. `executing-plans` → Batched Execution mit Checkpoints
-5. Verification: `tsc` → `vitest` → reviewer Agent (PFLICHT) → `/baseline-ui` → `/fixing-accessibility`
+5. Verification: `tsc` → `vitest` → reviewer Agent (PFLICHT) → `/fixing-accessibility`
 6. `finishing-branch` → Merge/Commit + Knowledge Capture
 
 ## Automation (Hooks)

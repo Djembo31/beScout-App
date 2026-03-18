@@ -170,13 +170,12 @@ Bei Unsicherheit: Review-Agent dispatchen.
 1. tsc --noEmit              → Type Check
 2. vitest run [betroffene]   → Behavior Test
 3. reviewer Agent            → AUFRUFEN (Agent dispatchen, nicht ueberspringen!)
-4. Bei UI: /baseline-ui      → SKILL INVOKEN (nicht im Kopf pruefen!)
-5. Bei UI: /fixing-a11y      → SKILL INVOKEN (nicht im Kopf pruefen!)
-6. Bei UI: Visual QA         → Mit VOLLSTAENDIGEN Daten (DB-Query!)
+4. Bei UI: /fixing-a11y      → SKILL INVOKEN (nicht im Kopf pruefen!)
+5. Bei UI: Visual QA         → Mit VOLLSTAENDIGEN Daten (DB-Query!)
 ```
 
 ### STOP-GATE (Session 239 Lektion)
-finishing-branch darf NICHT beginnen bevor Schritte 3-6 TATSAECHLICH
+finishing-branch darf NICHT beginnen bevor Schritte 3-5 TATSAECHLICH
 ausgefuehrt wurden. "Im Kopf geprueft" oder "sah gut aus" zaehlt NICHT.
 Jeder Schritt muss einen Tool-Call erzeugt haben (Agent dispatch, Skill invoke).
 Wenn unter Zeitdruck: lieber Session beenden und naechstes Mal sauber
@@ -267,6 +266,7 @@ Format:
 Anils Antworten WOERTLICH in die Spec schreiben, nicht interpretieren.
 Die Skill-Chain existiert damit ich nicht abkuerze.
 Jeder uebersprungene Skill ist ein Bug der erst spaet auffaellt.
-Reviewer-Agent + /baseline-ui + /fixing-accessibility sind KEINE optionalen
-Extras — sie sind PFLICHT-Steps die einen Tool-Call erzeugen muessen.
+Reviewer-Agent + /fixing-accessibility sind KEINE optionalen Extras —
+sie sind PFLICHT-Steps die einen Tool-Call erzeugen muessen.
 "Im Kopf geprueft" ist KEIN Ersatz fuer einen Skill-Aufruf.
+/baseline-ui ENTFERNT — widerspricht unserem Design System (Gradients, Glow).
