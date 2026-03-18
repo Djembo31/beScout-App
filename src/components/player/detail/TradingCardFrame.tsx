@@ -171,7 +171,7 @@ export default function TradingCardFrame({
               backfaceVisibility: 'hidden',
               WebkitBackfaceVisibility: 'hidden',
               visibility: flipped ? 'hidden' : 'visible',
-              transition: 'visibility 0s linear 0.3s',
+              transition: 'visibility 0s linear 50ms',
             } as React.CSSProperties}
           >
             {/* Background: carbon fiber */}
@@ -378,7 +378,7 @@ export default function TradingCardFrame({
                   WebkitBackfaceVisibility: 'hidden',
                   transform: 'rotateY(180deg)',
                   visibility: flipped ? 'visible' : 'hidden',
-                  transition: 'visibility 0s linear 0.3s',
+                  transition: 'visibility 0s linear 50ms',
                 } as React.CSSProperties}
               >
                 {/* Background: carbon fiber + position tint (same as front) */}
