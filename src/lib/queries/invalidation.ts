@@ -28,7 +28,6 @@ export function invalidateSocialQueries(userId: string): void {
   queryClient.invalidateQueries({ queryKey: qk.social.followerCount(userId) });
   queryClient.invalidateQueries({ queryKey: qk.social.followingCount(userId) });
   queryClient.invalidateQueries({ queryKey: qk.social.feed(userId) });
-  queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
 }
 
 /** Invalidate caches affected by research actions */
