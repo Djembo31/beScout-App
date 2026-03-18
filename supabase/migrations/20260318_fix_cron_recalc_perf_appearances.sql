@@ -42,15 +42,22 @@ BEGIN
     assists = COALESCE(agg.total_assists, 0),
     clean_sheets = COALESCE(agg.total_cs, 0),
     yellow_cards = COALESCE(agg.total_yellows, 0),
-    red_cards = COALESCE(agg.total_reds, 0)
+    red_cards = COALESCE(agg.total_reds, 0),
+    total_minutes = COALESCE(agg.total_minutes, 0),
+    total_saves = COALESCE(agg.total_saves, 0),
+    matches = COALESCE(agg.total_matches, 0)
   FROM (
     SELECT player_id,
       SUM(goals) as total_goals,
       SUM(assists) as total_assists,
       COUNT(CASE WHEN clean_sheet THEN 1 END) as total_cs,
       COUNT(CASE WHEN yellow_card THEN 1 END) as total_yellows,
-      COUNT(CASE WHEN red_card THEN 1 END) as total_reds
+      COUNT(CASE WHEN red_card THEN 1 END) as total_reds,
+      SUM(minutes_played) as total_minutes,
+      SUM(saves) as total_saves,
+      COUNT(*) as total_matches
     FROM fixture_player_stats
+    WHERE player_id IS NOT NULL
     GROUP BY player_id
   ) agg
   WHERE p.id = agg.player_id;

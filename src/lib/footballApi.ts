@@ -212,6 +212,17 @@ export function calcFantasyPoints(
   return Math.max(0, pts);
 }
 
+/**
+ * Scale formula-based fantasy points (0-30 range) to match API rating scale (55-100 range).
+ * Used as fallback when API-Football rating is unavailable.
+ * Maps: 0 formula pts → 55 (minimum playable rating), 25+ → 95 (excellent).
+ */
+export function scaleFormulaToRating(formulaPts: number): number {
+  // Linear mapping: formulaPts 0→55, 25→95
+  const scaled = 55 + (formulaPts / 25) * 40;
+  return Math.round(Math.min(100, Math.max(55, scaled)));
+}
+
 // ============================================
 // Utils: Ghost Starter Deduplication
 // ============================================

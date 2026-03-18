@@ -5,6 +5,7 @@ import {
   getLeagueId,
   getCurrentSeason,
   calcFantasyPoints,
+  scaleFormulaToRating,
   mapPosition,
   normalizeForMatch,
   deduplicateGhostStarters,
@@ -687,20 +688,14 @@ export async function GET(request: Request) {
             const saves = stat.goals.saves ?? 0;
 
             const rating = stat.games.rating ? parseFloat(stat.games.rating) : null;
+            // Always use API rating × 10 (range ~55-100). Fallback: scale formula to same range.
             const fantasyPoints = rating
               ? Math.round(rating * 10)
-              : calcFantasyPoints(
-                  position,
-                  minutes,
-                  goals,
-                  assists,
-                  isCleanSheet && minutes >= 60,
-                  goalsConceded,
-                  yellowCard,
-                  redCard,
-                  saves,
-                  0,
-                );
+              : scaleFormulaToRating(calcFantasyPoints(
+                  position, minutes, goals, assists,
+                  isCleanSheet && minutes >= 60, goalsConceded,
+                  yellowCard, redCard, saves, 0,
+                ));
 
             playerStats.push({
               fixture_id: fixture.id,

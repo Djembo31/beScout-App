@@ -6,6 +6,7 @@ import {
   isApiConfigured,
   mapPosition,
   calcFantasyPoints,
+  scaleFormulaToRating,
   normalizeForMatch,
   type ApiTeamResponse,
   type ApiSquadResponse,
@@ -501,15 +502,15 @@ export async function importGameweek(adminId: string, gameweek: number): Promise
             const redCard = (stat.cards.red ?? 0) > 0;
             const saves = stat.goals.saves ?? 0;
 
-            // API-Football rating as primary source
+            // Always use API rating × 10 (range ~55-100). Fallback: scale formula to same range.
             const rating = stat.games.rating ? parseFloat(stat.games.rating) : null;
             const fantasyPoints = rating
               ? Math.round(rating * 10)
-              : calcFantasyPoints(
+              : scaleFormulaToRating(calcFantasyPoints(
                   ourPlayer.position, minutes, goals, assists,
                   isCleanSheet && minutes >= 60, goalsConceded,
                   yellowCard, redCard, saves, 0
-                );
+                ));
 
             playerStats.push({
               fixture_id: fixture.id,
