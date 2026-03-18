@@ -78,12 +78,13 @@ const scoreColor = (score: number): string => {
 
 /* Single match performance bar for card back L5 timeline */
 function MatchBar({ entry }: { entry: MatchTimelineEntry }) {
-  const pct = Math.max(5, Math.min(100, entry.score));
-  const color = scoreColor(entry.score);
-  const starterLabel = entry.isStarter ? 'XI' : `${entry.minutesPlayed}'`;
+  const isPlayed = entry.status === 'played';
+  const isBench = entry.status === 'bench';
+  const pct = isPlayed ? Math.max(5, Math.min(100, entry.score)) : 0;
+  const color = isPlayed ? scoreColor(entry.score) : 'transparent';
 
   return (
-    <div className="flex items-center gap-1">
+    <div className={cn('flex items-center gap-1', !isPlayed && 'opacity-35')}>
       <span className="text-[6px] font-mono text-white/25 w-[18px] shrink-0 text-right tabular-nums">
         {entry.gameweek}
       </span>
@@ -94,28 +95,35 @@ function MatchBar({ entry }: { entry: MatchTimelineEntry }) {
           {entry.opponent.slice(0, 2)}
         </span>
       )}
-      <span className="text-[6px] font-bold text-white/40 w-[10px] shrink-0 text-center">
-        {starterLabel}
-      </span>
-      <div className="flex-1 h-[6px] bg-white/[0.06] rounded-sm overflow-hidden relative">
-        <div
-          className="h-full rounded-sm"
-          style={{ width: `${pct}%`, backgroundColor: color }}
-        />
-        {/* Icons embedded in bar */}
-        <div className="absolute inset-0 flex items-center justify-end pr-1 gap-0.5">
-          {entry.goals > 0 && <span className="text-[5px]">⚽</span>}
-          {entry.assists > 0 && <span className="text-[5px]">🅰️</span>}
-          {entry.redCard && <span className="text-[5px]">🟥</span>}
-          {entry.yellowCard && !entry.redCard && <span className="text-[5px]">🟨</span>}
-        </div>
-      </div>
-      <span
-        className="text-[7px] font-mono font-bold tabular-nums w-[14px] shrink-0 text-right"
-        style={{ color }}
-      >
-        {entry.score}
-      </span>
+      {isPlayed ? (
+        <>
+          <span className="text-[6px] font-bold text-white/40 w-[10px] shrink-0 text-center">
+            {entry.isStarter ? 'XI' : `${entry.minutesPlayed}'`}
+          </span>
+          <div className="flex-1 h-[6px] bg-white/[0.06] rounded-sm overflow-hidden relative">
+            <div
+              className="h-full rounded-sm"
+              style={{ width: `${pct}%`, backgroundColor: color }}
+            />
+            <div className="absolute inset-0 flex items-center justify-end pr-1 gap-0.5">
+              {entry.goals > 0 && <span className="text-[5px]">⚽</span>}
+              {entry.assists > 0 && <span className="text-[5px]">🅰️</span>}
+              {entry.redCard && <span className="text-[5px]">🟥</span>}
+              {entry.yellowCard && !entry.redCard && <span className="text-[5px]">🟨</span>}
+            </div>
+          </div>
+          <span
+            className="text-[7px] font-mono font-bold tabular-nums w-[14px] shrink-0 text-right"
+            style={{ color: scoreColor(entry.score) }}
+          >
+            {entry.score}
+          </span>
+        </>
+      ) : (
+        <span className="flex-1 text-[6px] text-white/20 italic truncate">
+          {isBench ? 'Bank' : 'N/K'}
+        </span>
+      )}
     </div>
   );
 }
@@ -156,8 +164,8 @@ export default function TradingCardFrame({
 
   // Derive appearance counts from matchTimeline when DB columns are empty
   const timeline = backData?.matchTimeline ?? [];
-  const derivedL5Apps = l5Apps > 0 ? l5Apps : timeline.slice(0, 5).filter(e => e.minutesPlayed > 0).length;
-  const derivedL15Apps = l15Apps > 0 ? l15Apps : timeline.filter(e => e.minutesPlayed > 0).length;
+  const derivedL5Apps = l5Apps > 0 ? l5Apps : timeline.slice(0, 5).filter(e => e.status === 'played').length;
+  const derivedL15Apps = l15Apps > 0 ? l15Apps : timeline.filter(e => e.status === 'played').length;
 
   const { ref, tiltProps } = useTilt<HTMLDivElement>({
     maxTilt: 7,
@@ -469,19 +477,26 @@ export default function TradingCardFrame({
                       {backData.matchTimeline.slice(0, 5).map((entry) => (
                         <MatchBar key={entry.gameweek} entry={entry} />
                       ))}
-                      <div className="flex items-center justify-center gap-2 pt-0.5">
-                        <span className="text-[7px] font-mono text-white/30 tabular-nums">
-                          Ø {Math.round(backData.matchTimeline.slice(0, 5).reduce((s, e) => s + e.score, 0) / backData.matchTimeline.slice(0, 5).length)}
-                        </span>
-                        <span className="text-white/10">&middot;</span>
-                        <span className="text-[7px] font-mono text-white/30 tabular-nums">
-                          {Math.round(backData.matchTimeline.slice(0, 5).reduce((s, e) => s + e.minutesPlayed, 0) / backData.matchTimeline.slice(0, 5).length)}&prime; avg
-                        </span>
-                        <span className="text-white/10">&middot;</span>
-                        <span className="text-[7px] font-mono text-white/30 tabular-nums">
-                          {backData.matchTimeline.slice(0, 5).length}/5
-                        </span>
-                      </div>
+                      {(() => {
+                        const shown = backData.matchTimeline!.slice(0, 5);
+                        const played = shown.filter(e => e.status === 'played');
+                        if (played.length === 0) return null;
+                        return (
+                          <div className="flex items-center justify-center gap-2 pt-0.5">
+                            <span className="text-[7px] font-mono text-white/30 tabular-nums">
+                              Ø {Math.round(played.reduce((s, e) => s + e.score, 0) / played.length)}
+                            </span>
+                            <span className="text-white/10">&middot;</span>
+                            <span className="text-[7px] font-mono text-white/30 tabular-nums">
+                              {Math.round(played.reduce((s, e) => s + e.minutesPlayed, 0) / played.length)}&prime; avg
+                            </span>
+                            <span className="text-white/10">&middot;</span>
+                            <span className="text-[7px] font-mono text-white/30 tabular-nums">
+                              {played.length}/{shown.length}
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </>
                   ) : (
                     <div className="text-[7px] text-white/20 text-center py-2">
