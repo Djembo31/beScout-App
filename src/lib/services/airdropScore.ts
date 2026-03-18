@@ -50,7 +50,8 @@ export type AirdropStats = {
 export async function getAirdropStats(): Promise<AirdropStats> {
   const { data, error } = await supabase
     .from('airdrop_scores')
-    .select('total_score, tier');
+    .select('total_score, tier')
+    .limit(1000);
 
   if (error || !data) return { total_users: 0, avg_score: 0, tier_distribution: { bronze: 0, silber: 0, gold: 0, diamond: 0 } };
 
