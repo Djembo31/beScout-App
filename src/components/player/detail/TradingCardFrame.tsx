@@ -154,6 +154,11 @@ export default function TradingCardFrame({
   const [flipped, setFlipped] = useState(false);
   const canFlip = !!backData;
 
+  // Derive appearance counts from matchTimeline when DB columns are empty
+  const timeline = backData?.matchTimeline ?? [];
+  const derivedL5Apps = l5Apps > 0 ? l5Apps : timeline.slice(0, 5).filter(e => e.minutesPlayed > 0).length;
+  const derivedL15Apps = l15Apps > 0 ? l15Apps : timeline.filter(e => e.minutesPlayed > 0).length;
+
   const { ref, tiltProps } = useTilt<HTMLDivElement>({
     maxTilt: 7,
     scale: 1.0,
@@ -182,7 +187,7 @@ export default function TradingCardFrame({
           {...tiltProps}
           onClick={handleClick}
           className={cn(
-            'relative aspect-[3/4.5] w-[240px] md:w-[280px] rounded-2xl',
+            'relative aspect-[3/4] w-[240px] md:w-[280px] rounded-2xl',
             canFlip && 'cursor-pointer'
           )}
           style={{
@@ -319,9 +324,9 @@ export default function TradingCardFrame({
                   </div>
                   <div className="mt-1 flex items-center gap-1">
                     <div className="flex-1 h-1 bg-white/[0.06] rounded-full overflow-hidden">
-                      <div className="h-full rounded-full" style={{ width: `${(l5Apps / 5) * 100}%`, backgroundColor: tint }} />
+                      <div className="h-full rounded-full" style={{ width: `${(derivedL5Apps / 5) * 100}%`, backgroundColor: tint }} />
                     </div>
-                    <span className="text-[7px] font-mono text-white/30 tabular-nums w-[22px] text-right">{Math.round((l5Apps / 5) * 100)}%</span>
+                    <span className="text-[7px] font-mono text-white/30 tabular-nums w-[22px] text-right">{Math.round((derivedL5Apps / 5) * 100)}%</span>
                   </div>
                 </div>
                 {/* L15 */}
@@ -332,9 +337,9 @@ export default function TradingCardFrame({
                   </div>
                   <div className="mt-1 flex items-center gap-1">
                     <div className="flex-1 h-1 bg-white/[0.06] rounded-full overflow-hidden">
-                      <div className="h-full rounded-full" style={{ width: `${(l15Apps / 15) * 100}%`, backgroundColor: tint }} />
+                      <div className="h-full rounded-full" style={{ width: `${(derivedL15Apps / 15) * 100}%`, backgroundColor: tint }} />
                     </div>
-                    <span className="text-[7px] font-mono text-white/30 tabular-nums w-[22px] text-right">{Math.round((l15Apps / 15) * 100)}%</span>
+                    <span className="text-[7px] font-mono text-white/30 tabular-nums w-[22px] text-right">{Math.round((derivedL15Apps / 15) * 100)}%</span>
                   </div>
                 </div>
               </div>
@@ -486,7 +491,7 @@ export default function TradingCardFrame({
                 </div>
 
                 {/* ── Footer: Flip hint + Premium Branding ── */}
-                <div className="absolute bottom-1.5 inset-x-0 z-10 flex flex-col items-center gap-0.5 pointer-events-none">
+                <div className="absolute bottom-1.5 inset-x-0 z-10 flex items-center justify-center pointer-events-none">
                   <img
                     src="/icons/bescout_logo_premium.svg"
                     alt=""
@@ -494,7 +499,6 @@ export default function TradingCardFrame({
                     aria-hidden="true"
                     style={{ opacity: 0.25 }}
                   />
-                  <span className="text-[6px] text-white/15">{tp('tapToFlip')}</span>
                 </div>
               </div>
             );
