@@ -25,22 +25,18 @@ export interface CardBackData {
   successFeeCap?: number;
   holdingQty?: number;
   supplyTotal: number;
+  contractMonths: number;
   l15: number;
   stats: {
     goals: number;
     assists: number;
     matches: number;
-    cleanSheets: number;
-    minutes: number;
-    saves: number;
   };
   percentiles: {
-    goals: number;
-    assists: number;
-    matches: number;
-    cleanSheets: number;
+    l5: number;
+    l15: number;
+    season: number;
     minutes: number;
-    saves: number;
   };
 }
 
@@ -76,23 +72,20 @@ function FifaStat({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-/* Percentile bar for card back — single tint color */
-function PercentileBar({ label, value, percentile, tint }: { label: string; value: number; percentile: number; tint: string }) {
+/* Slim percentile bar for card back — single tint color, h-1 */
+function PercentileBar({ label, percentile, tint }: { label: string; percentile: number; tint: string }) {
   return (
     <div className="flex items-center gap-1.5">
-      <span className="text-[7px] font-bold uppercase tracking-wider text-white/35 w-[32px] shrink-0 text-right">
+      <span className="text-[7px] font-bold uppercase tracking-wider text-white/35 w-[24px] shrink-0 text-right">
         {label}
       </span>
-      <div className="flex-1 h-[4px] bg-white/[0.06] rounded-full overflow-hidden">
+      <div className="flex-1 h-1 bg-white/[0.06] rounded-full overflow-hidden">
         <div
           className="h-full rounded-full"
           style={{ width: `${Math.max(3, percentile)}%`, backgroundColor: tint }}
         />
       </div>
-      <span className="font-mono text-[9px] font-bold tabular-nums text-white/70 w-[26px] text-right shrink-0">
-        {value}
-      </span>
-      <span className="font-mono text-[7px] tabular-nums text-white/25 w-[24px] text-right shrink-0">
+      <span className="font-mono text-[8px] tabular-nums text-white/30 w-[28px] text-right shrink-0">
         {percentile}%
       </span>
     </div>
@@ -357,36 +350,20 @@ export default function TradingCardFrame({
 
           {/* ===== BACK FACE ===== */}
           {backData && (() => {
-            const { stats: bs, percentiles: pct } = backData;
+            const { percentiles: pct } = backData;
             const change = backData.priceChange24h ?? 0;
             const changeStr = change === 0 ? '\u2014' : `${change >= 0 ? '\u2191' : '\u2193'}${Math.abs(change).toFixed(1)}%`;
             const holdPct = backData.holdingQty && backData.supplyTotal > 0
               ? ((backData.holdingQty / backData.supplyTotal) * 100).toFixed(1)
               : null;
 
-            // Position-dependent stat selection (4 bars)
-            const perfBars: { label: string; value: number; pct: number }[] =
-              pos === 'GK' ? [
-                { label: tp('cardBack.statSVS'), value: bs.saves, pct: pct.saves },
-                { label: tp('cardBack.statCS'), value: bs.cleanSheets, pct: pct.cleanSheets },
-                { label: tp('cardBack.statSPI'), value: bs.matches, pct: pct.matches },
-                { label: tp('cardBack.statMIN'), value: bs.minutes, pct: pct.minutes },
-              ] : pos === 'ATT' ? [
-                { label: tp('cardBack.statTOR'), value: bs.goals, pct: pct.goals },
-                { label: tp('cardBack.statASS'), value: bs.assists, pct: pct.assists },
-                { label: tp('cardBack.statSPI'), value: bs.matches, pct: pct.matches },
-                { label: tp('cardBack.statMIN'), value: bs.minutes, pct: pct.minutes },
-              ] : pos === 'MID' ? [
-                { label: tp('cardBack.statASS'), value: bs.assists, pct: pct.assists },
-                { label: tp('cardBack.statTOR'), value: bs.goals, pct: pct.goals },
-                { label: tp('cardBack.statSPI'), value: bs.matches, pct: pct.matches },
-                { label: tp('cardBack.statMIN'), value: bs.minutes, pct: pct.minutes },
-              ] : [
-                { label: tp('cardBack.statSPI'), value: bs.matches, pct: pct.matches },
-                { label: tp('cardBack.statTOR'), value: bs.goals, pct: pct.goals },
-                { label: tp('cardBack.statASS'), value: bs.assists, pct: pct.assists },
-                { label: tp('cardBack.statMIN'), value: bs.minutes, pct: pct.minutes },
-              ];
+            // Performance percentile bars (same for ALL positions)
+            const perfBars = [
+              { label: 'L5', percentile: pct.l5 },
+              { label: 'L15', percentile: pct.l15 },
+              { label: 'AVG', percentile: pct.season },
+              { label: 'MIN', percentile: pct.minutes },
+            ];
 
             return (
               <div
@@ -435,10 +412,18 @@ export default function TradingCardFrame({
                     />
                   </div>
 
+                  {/* Contract Duration (only if known) */}
+                  {backData.contractMonths > 0 && (
+                    <div className="mt-1.5 flex items-center justify-center gap-1.5">
+                      <span className="text-[9px] text-white/35">{tp('cardBack.contract')}</span>
+                      <span className="text-[9px] font-mono font-bold text-white/60 tabular-nums">{backData.contractMonths}M</span>
+                    </div>
+                  )}
+
                   {/* Holdings Row (only if user owns SCs) */}
                   {backData.holdingQty != null && backData.holdingQty > 0 && holdPct && (
                     <div
-                      className="mt-2 flex items-center justify-center gap-1 rounded-lg px-3 py-1.5"
+                      className="mt-1.5 flex items-center justify-center gap-1 rounded-lg px-3 py-1.5"
                       style={{ backgroundColor: `${tint}08`, border: `1px solid ${tint}15` }}
                     >
                       <span className="text-[9px] font-medium text-white/40">
@@ -469,8 +454,7 @@ export default function TradingCardFrame({
                     <PercentileBar
                       key={bar.label}
                       label={bar.label}
-                      value={bar.value}
-                      percentile={bar.pct}
+                      percentile={bar.percentile}
                       tint={tint}
                     />
                   ))}

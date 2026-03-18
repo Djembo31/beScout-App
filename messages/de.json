@@ -1937,7 +1937,8 @@
       "statSPI": "SPI",
       "statTOR": "TOR",
       "statASS": "ASS",
-      "statMIN": "MIN"
+      "statMIN": "MIN",
+      "contract": "Vertrag"
     }
   },
   "club": {
