@@ -6,6 +6,9 @@ tools:
   - Grep
   - Glob
   - Bash
+disallowedTools:
+  - Write
+  - Edit
 model: inherit
 maxTurns: 20
 ---

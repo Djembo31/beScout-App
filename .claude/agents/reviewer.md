@@ -5,6 +5,10 @@ tools:
   - Read
   - Grep
   - Glob
+disallowedTools:
+  - Write
+  - Edit
+  - Bash
 model: inherit
 maxTurns: 25
 memory: project
