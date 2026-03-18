@@ -1,44 +1,39 @@
 # Session Handoff
-## Letzte Session: 2026-03-18 (Session 240)
+## Letzte Session: 2026-03-18 (Session 241)
 ## Was wurde gemacht
 
-### Card Flip Bug Fix (Mobile Safari)
-- `overflow-hidden` auf Outer Wrapper brach 3D-Kontext → entfernt
-- `visibility`-Toggle als Safari-Fallback (50ms delay)
-- `-webkit-backface-visibility: hidden` auf beiden Faces
-- 3 Iterationen bis es auf echtem iPhone funktionierte
+### Performance Overhaul v2 (5 Phasen, KOMPLETT)
+- **P1 Query Fundamentals:** staleTime fix (activeGW 0→5min), tab-gating PlayerContent (16→7 queries), invalidation fix (leaderboard entfernt), Home queries deferred (800ms)
+- **P2 Service Layer:** .limit() auf bounties/airdrop, clubCrm parallelisiert (6 seq→2 batches)
+- **P3 Neue RPCs:** rpc_get_trending_players (DB-Aggregation statt 1000-row JS), rpc_get_author_track_records (GROUP BY statt N+1)
+- **P4 React Rendering:** React.memo auf 8 Components, Community 18 useState→useReducer
+- **P5 Bundle:** optimizePackageImports 3→6, Community Modals dynamic import
+- Design Doc: `docs/plans/2026-03-18-performance-overhaul-v2-design.md`
+- Plan Doc: `docs/plans/2026-03-18-performance-overhaul-v2-plan.md`
 
-### Card Back L5 Match Timeline
-- Percentile-Bars (L5/L15/AVG/MIN) ERSETZT durch horizontale Match-Bars
-- Pro GW: Nummer, Gegner-Logo, XI/Sub, farbiger Score-Balken, Icons
-- Summary-Zeile: Ø Rating, Ø Minuten, X/5 gespielt
-- Datenquelle: `getPlayerMatchTimeline()` via `matchTimeline` in CardBackData
+### Query Key Integrity Fix
+- 5 orphaned raw query keys in misc.ts → migriert zu qk Factory
+- invalidateTradeQueries + invalidatePlayerDetailQueries erweitert (holdings.qty, holderCount, offers.bids, ipos.byPlayer)
+- Metadata photo_url → image_url fix (Share Previews)
 
-### Card Front Cleanup
-- Credits/Preis-Sektion entfernt (doppelt mit PlayerHero + Bottom Bar)
-- Tap-to-flip Hinweis entfernt
-- `bescout_logo_premium.svg` auf beiden Seiten als Markenzeichen
-- Aspect auf 3/4.2 optimiert
+### API-Football Data Integrity (Audit + Fix)
+- **Scoring:** Dual-Scale Bug gefixt (Rating×10 vs Formel 0-30 → einheitlich 55-100 mit scaleFormulaToRating())
+- **cron_recalc_perf:** total_minutes, total_saves, matches jetzt aggregiert
+- **5 defensive Guards:** Ghost Starter Cap, Grid Validation, Position Logging, Name-Disambiguierung, Ambiguity Guard
+- **DB Reparatur:** 15 excess Starters demoted, 252 Formel-Scores skaliert, L5/L15 neu berechnet (607 Spieler)
 
-### RPC cron_recalc_perf (ERLEDIGT)
-- `l5_appearances`, `l15_appearances`, `perf_season` zur RPC hinzugefuegt
-- 607 Spieler updated, Migration in Git
-- Frontend-Workaround (derivedL5Apps) bleibt als Fallback
-
-### ClubContent Refactoring (ERLEDIGT)
-- 1299 → 935 Zeilen (-28%)
-- 3 neue Files: ClubSkeleton.tsx, SquadOverviewWidget.tsx, FixtureCards.tsx
-- Reines Refactoring, kein Verhaltenswechsel
-
-### Admin i18n (TEILWEISE ERLEDIGT)
-- 82 neue Keys (DE+TR) unter bescoutAdmin Namespace (201 → 282)
-- 4 Files migriert: BescoutAdminContent, AdminFoundingPasses, AdminFees, AdminTreasury
-- ~80 Strings in kleineren Tabs noch offen (Events, Airdrop, Debug, Players, etc.)
+### Daten-Audit Ergebnis (Live-DB)
+- 0 Fixtures mit >11 Starters (war 15)
+- 0 Formula-Scale Scores (war 259)
+- 0 fehlende GW Scores
+- 0 falsche total_minutes
+- 704 historisch ungematchte Stats (5.6%) — nicht reparierbar ohne manuellen Abgleich
 
 ## Offene Arbeit
 1. **Admin i18n Rest** — ~80 Strings in kleineren Admin-Tabs
 2. **Stripe** — wartet auf Anils Account
-3. **Card Back:** Stop-Hook Feedback offen (aria-labels, loading state)
+3. **704 orphaned fixture_player_stats** — historisch ungematchte Spieler, braucht manuellen Abgleich
+4. **Card Back:** Stop-Hook Feedback offen (aria-labels, loading state)
 
 ## Blocker
 - Keine
