@@ -85,6 +85,8 @@ function createMockDbPlayer(overrides?: Partial<DbPlayer>): DbPlayer {
     perf_l5: 72,
     perf_l15: 65,
     perf_season: 68,
+    l5_appearances: 4,
+    l15_appearances: 12,
     dpc_total: 500,
     dpc_available: 200,
     floor_price: 50000, // 500 bCredits
@@ -217,6 +219,19 @@ describe('dbToPlayer', () => {
     const db = createMockDbPlayer({ ipo_price: 75000, floor_price: 50000 });
     const p = dbToPlayer(db);
     expect(p.prices.ipoPrice).toBe(750); // 75000 cents
+  });
+
+  it('maps l5Apps and l15Apps from DB columns', () => {
+    const db = createMockDbPlayer({ l5_appearances: 3, l15_appearances: 10 });
+    const player = dbToPlayer(db);
+    expect(player.perf.l5Apps).toBe(3);
+    expect(player.perf.l15Apps).toBe(10);
+  });
+
+  it('maps perf.season from perf_season', () => {
+    const db = createMockDbPlayer({ perf_season: 72 });
+    const player = dbToPlayer(db);
+    expect(player.perf.season).toBe(72);
   });
 });
 

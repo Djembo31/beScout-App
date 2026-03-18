@@ -13,7 +13,7 @@ export const PLAYER_SELECT_COLS = [
   'age', 'shirt_number', 'nationality', 'image_url',
   'matches', 'goals', 'assists', 'clean_sheets',
   'total_minutes', 'total_saves',
-  'perf_l5', 'perf_l15', 'perf_season',
+  'perf_l5', 'perf_l15', 'perf_season', 'l5_appearances', 'l15_appearances',
   'dpc_total', 'dpc_available',
   'floor_price', 'last_price', 'ipo_price', 'price_change_24h', 'volume_24h',
   'status', 'market_value_eur', 'success_fee_cap_cents', 'max_supply',
@@ -119,6 +119,9 @@ export function dbToPlayer(db: DbPlayer): Player {
     perf: {
       l5: Number(db.perf_l5),
       l15: Number(db.perf_l15),
+      l5Apps: db.l5_appearances ?? 0,
+      l15Apps: db.l15_appearances ?? 0,
+      season: Number(db.perf_season ?? 0),
       trend: Number(db.perf_l5) > Number(db.perf_l15) ? 'UP' : Number(db.perf_l5) < Number(db.perf_l15) ? 'DOWN' : 'FLAT',
     },
     stats: {
@@ -199,6 +202,8 @@ export async function createPlayer(params: {
       perf_l5: 0,
       perf_l15: 0,
       perf_season: 0,
+      l5_appearances: 0,
+      l15_appearances: 0,
       price_change_24h: 0,
       volume_24h: 0,
       status: 'fit',
