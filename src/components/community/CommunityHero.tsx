@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { MessageSquare, Radio, FileText, Lock, Target } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
@@ -29,7 +30,7 @@ const BOUNTY_ACTION: HeroAction = {
   key: 'bounty', icon: Target, color: 'bg-amber-500/[0.08] border-amber-500/20 hover:border-amber-500/40', iconColor: 'text-amber-400',
 };
 
-export default function CommunityHero({
+function CommunityHeroInner({
   onCreatePost,
   onCreateRumor,
   onCreateResearch,
@@ -80,3 +81,5 @@ export default function CommunityHero({
     </div>
   );
 }
+
+export default memo(CommunityHeroInner);

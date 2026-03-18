@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { useNumTick } from '@/lib/hooks/useNumTick';
 import Link from 'next/link';
 import { Flame, Shield, ArrowUpRight, ArrowDownRight } from 'lucide-react';
@@ -24,7 +24,7 @@ interface HomeStoryHeaderProps {
   storyMessage: { key: string; params: Record<string, string> } | null;
 }
 
-export default function HomeStoryHeader({
+function HomeStoryHeaderInner({
   loading, firstName, streak, shieldsRemaining, userStats,
   portfolioValue, holdingsCount, pnl, pnlPct, storyMessage,
 }: HomeStoryHeaderProps) {
@@ -110,3 +110,5 @@ export default function HomeStoryHeader({
     </div>
   );
 }
+
+export default memo(HomeStoryHeaderInner);

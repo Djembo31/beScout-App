@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import Link from 'next/link';
 import { Trophy, FileText, Plus, Star } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
@@ -25,7 +25,7 @@ const callColor: Record<string, string> = {
   Neutral: 'bg-zinc-500/20 text-zinc-300',
 };
 
-export default function CommunitySidebar({
+function CommunitySidebarInner({
   leaderboard,
   researchPosts,
   userId,
@@ -135,3 +135,5 @@ export default function CommunitySidebar({
     </div>
   );
 }
+
+export default memo(CommunitySidebarInner);

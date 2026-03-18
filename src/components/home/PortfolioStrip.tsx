@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Link from 'next/link';
 import { Briefcase, Zap, ChevronRight } from 'lucide-react';
 import { Card, Button } from '@/components/ui';
@@ -14,7 +15,7 @@ interface PortfolioStripProps {
   holdings: DpcHolding[];
 }
 
-export default function PortfolioStrip({ holdings }: PortfolioStripProps) {
+function PortfolioStripInner({ holdings }: PortfolioStripProps) {
   const t = useTranslations('home');
 
   // Empty state
@@ -99,3 +100,5 @@ export default function PortfolioStrip({ holdings }: PortfolioStripProps) {
     </div>
   );
 }
+
+export default memo(PortfolioStripInner);

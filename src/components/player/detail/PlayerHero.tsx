@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, memo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
@@ -40,7 +40,7 @@ interface PlayerHeroProps {
   matchTimeline?: MatchTimelineEntry[];
 }
 
-export default function PlayerHero({
+function PlayerHeroInner({
   player, isIPO, activeIpo, holderCount,
   isWatchlisted, priceAlert,
   onToggleWatchlist, onShare, onBuyClick, onSellClick,
@@ -319,3 +319,5 @@ export default function PlayerHero({
     </div>
   );
 }
+
+export default memo(PlayerHeroInner);
