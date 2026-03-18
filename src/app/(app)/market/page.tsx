@@ -75,17 +75,18 @@ const WatchlistView = dynamic(() => import('@/components/market/WatchlistView'),
 // TABS CONFIG
 // ============================================
 
-const TAB_IDS: MarketTab[] = ['portfolio', 'kaufen'];
+const TAB_IDS: MarketTab[] = ['portfolio', 'marktplatz'];
 
 const TAB_ALIAS: Record<string, MarketTab> = {
   kader: 'portfolio',
   bestand: 'portfolio',
-  compare: 'kaufen',
-  spieler: 'kaufen',
-  transferlist: 'kaufen',
-  scouting: 'kaufen',
-  offers: 'portfolio',  // angebote now under portfolio
-  watchlist: 'portfolio',  // watchlist under portfolio
+  compare: 'marktplatz',
+  spieler: 'marktplatz',
+  transferlist: 'marktplatz',
+  scouting: 'marktplatz',
+  kaufen: 'marktplatz',  // backwards compat
+  offers: 'portfolio',
+  watchlist: 'portfolio',
 };
 
 const VALID_TABS = new Set<string>(TAB_IDS);
@@ -144,7 +145,7 @@ export default function MarketPage() {
 
   const TAB_LABELS: Record<MarketTab, string> = {
     portfolio: t('myRoster'),
-    kaufen: t('buy'),
+    marktplatz: t('marktplatzTab'),
   };
   const tabs = TAB_IDS.map(id => ({ id, label: TAB_LABELS[id] }));
 
@@ -170,12 +171,12 @@ export default function MarketPage() {
   const { data: priceHistMap } = useAllPriceHistories(10);
 
   // Kaufen-only queries (gated by tab)
-  const { data: announcedIpos = [] } = useAnnouncedIpos({ enabled: tab === 'kaufen' });
-  const { data: endedIpos = [] } = useRecentlyEndedIpos({ enabled: tab === 'kaufen' });
-  const { data: trending = [] } = useTrendingPlayers(8, { enabled: tab === 'kaufen' });
+  const { data: announcedIpos = [] } = useAnnouncedIpos({ enabled: tab === 'marktplatz' });
+  const { data: endedIpos = [] } = useRecentlyEndedIpos({ enabled: tab === 'marktplatz' });
+  const { data: trending = [] } = useTrendingPlayers(8, { enabled: tab === 'marktplatz' });
 
   // Kaufen: buy orders (gated by tab)
-  const { data: buyOrders = [] } = useAllOpenBuyOrders({ enabled: tab === 'kaufen' });
+  const { data: buyOrders = [] } = useAllOpenBuyOrders({ enabled: tab === 'marktplatz' });
 
   // Portfolio-only queries (gated by tab)
   const { data: incomingOffers = [] } = useIncomingOffers(user?.id);
@@ -439,8 +440,8 @@ export default function MarketPage() {
         <TradingDisclaimer variant="card" />
       </TabPanel>
 
-      {/* ━━━ TAB: KAUFEN ━━━ */}
-      <TabPanel id="kaufen" activeTab={tab}>
+      {/* ━━━ TAB: MARKTPLATZ ━━━ */}
+      <TabPanel id="marktplatz" activeTab={tab}>
         {/* Sub-Tabs + Search toggle */}
         <div className="flex items-center gap-2 mb-4">
           <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-1">

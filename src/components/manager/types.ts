@@ -1,6 +1,6 @@
 import type { Pos } from '@/types';
 
-export type ManagerTab = 'portfolio' | 'kaufen' | 'angebote' | 'spieler' | 'kader' | 'bestand' | 'compare' | 'transferlist' | 'scouting' | 'offers';
+export type ManagerTab = 'portfolio' | 'marktplatz' | 'angebote' | 'spieler' | 'kader' | 'bestand' | 'compare' | 'transferlist' | 'scouting' | 'offers';
 
 export type SquadSize = '11' | '7';
 
