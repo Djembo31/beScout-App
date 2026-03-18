@@ -263,21 +263,15 @@ export default function TradingCardFrame({
               </div>
             </div>
 
-            {/* BeScout Branding */}
-            <div className="absolute bottom-1.5 inset-x-0 z-10 flex items-center justify-center gap-1.5 pointer-events-none">
+            {/* BeScout Premium Branding */}
+            <div className="absolute bottom-2 inset-x-0 z-10 flex items-center justify-center pointer-events-none">
               <img
-                src="/logo.svg"
+                src="/icons/bescout_logo_premium.svg"
                 alt=""
-                className="size-3"
+                className="h-4 w-auto"
                 aria-hidden="true"
-                style={{ filter: 'brightness(0) invert(1)', opacity: 0.2 }}
+                style={{ opacity: 0.25 }}
               />
-              <span
-                className="text-[7px] font-bold tracking-[0.3em] uppercase"
-                style={{ color: `${tint}40` }}
-              >
-                BESCOUT
-              </span>
             </div>
 
             {/* Info Section — delayed entrance */}
@@ -503,23 +497,16 @@ export default function TradingCardFrame({
                   )}
                 </div>
 
-                {/* ── Footer: Flip hint + Branding ── */}
-                <div className="absolute bottom-1.5 inset-x-0 z-10 flex items-center justify-center gap-1.5 pointer-events-none">
-                  <span className="text-[7px] text-white/20">{tp('tapToFlip')}</span>
-                  <span className="text-white/10">&middot;</span>
+                {/* ── Footer: Flip hint + Premium Branding ── */}
+                <div className="absolute bottom-1.5 inset-x-0 z-10 flex flex-col items-center gap-0.5 pointer-events-none">
                   <img
-                    src="/logo.svg"
+                    src="/icons/bescout_logo_premium.svg"
                     alt=""
-                    className="size-3"
+                    className="h-4 w-auto"
                     aria-hidden="true"
-                    style={{ filter: 'brightness(0) invert(1)', opacity: 0.2 }}
+                    style={{ opacity: 0.25 }}
                   />
-                  <span
-                    className="text-[7px] font-bold tracking-[0.3em] uppercase"
-                    style={{ color: `${tint}40` }}
-                  >
-                    BESCOUT
-                  </span>
+                  <span className="text-[6px] text-white/15">{tp('tapToFlip')}</span>
                 </div>
               </div>
             );
