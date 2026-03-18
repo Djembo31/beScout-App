@@ -117,13 +117,19 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
                 {/* Tier range */}
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm font-bold ${isActive ? 'text-gold' : ''}`}>
-                    {tier.maxValue === Infinity ? `${t('fromPrefix')} ${formatMarketValue(tier.minValue)}` : formatMarketValue(tier.maxValue)}
+                    {isActive
+                      ? formatMarketValue(marketValue)
+                      : tier.maxValue === Infinity
+                        ? `${t('fromPrefix')} ${formatMarketValue(tier.minValue)}`
+                        : formatMarketValue(tier.maxValue)}
                   </div>
+                  {isActive && (
+                    <div className="text-[10px] text-gold/50">
+                      {t('currentTier')} ({tier.label})
+                    </div>
+                  )}
                   {growthLabel && isFuture && (
                     <div className="text-[10px] text-white/40 font-mono">{t('fromPrefix')} {growthLabel}</div>
-                  )}
-                  {isActive && (
-                    <div className="text-[10px] text-gold/50">{t('currentTier')}</div>
                   )}
                 </div>
 
