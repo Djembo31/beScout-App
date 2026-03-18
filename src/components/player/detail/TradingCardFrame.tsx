@@ -145,9 +145,9 @@ export default function TradingCardFrame({
   const tierClass = masteryLevel && masteryLevel > 0 ? `card-tier-${Math.min(masteryLevel, 5)}` : '';
 
   return (
-    <div className={cn('relative rounded-2xl', tierClass, className)}>
-      {/* Perspective Provider — preserve-3d propagates 3D context through ancestor chain */}
-      <div className="card-entrance" style={{ perspective: '600px', transformStyle: 'preserve-3d' as const }}>
+    <div className={cn('relative card-entrance rounded-2xl', tierClass, className)}>
+      {/* Perspective Provider */}
+      <div style={{ perspective: '600px' }}>
         {/* Tilt + Flip Container */}
         <div
           ref={ref}
@@ -167,7 +167,12 @@ export default function TradingCardFrame({
           {/* ===== FRONT FACE ===== */}
           <div
             className="absolute inset-0 rounded-2xl overflow-hidden card-metallic card-holographic"
-            style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' } as React.CSSProperties}
+            style={{
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              visibility: flipped ? 'hidden' : 'visible',
+              transition: 'visibility 0s linear 0.3s',
+            } as React.CSSProperties}
           >
             {/* Background: carbon fiber */}
             <div className="absolute inset-0 card-carbon" />
@@ -372,6 +377,8 @@ export default function TradingCardFrame({
                   backfaceVisibility: 'hidden',
                   WebkitBackfaceVisibility: 'hidden',
                   transform: 'rotateY(180deg)',
+                  visibility: flipped ? 'visible' : 'hidden',
+                  transition: 'visibility 0s linear 0.3s',
                 } as React.CSSProperties}
               >
                 {/* Background: carbon fiber + position tint (same as front) */}
