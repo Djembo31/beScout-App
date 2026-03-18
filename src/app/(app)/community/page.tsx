@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useReducer } from 'react';
 import { useTranslations } from 'next-intl';
 import { Users, MessageCircle } from 'lucide-react';
 import { Skeleton, ErrorState } from '@/components/ui';
@@ -40,6 +40,76 @@ const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBa
 const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), { ssr: false });
 
 // ============================================
+// State Reducer
+// ============================================
+
+type CommunityState = {
+  clubId: string | null;
+  clubName: string | null;
+  isClubAdmin: boolean;
+  clubScope: 'all' | 'myclub';
+  feedMode: 'all' | 'following';
+  contentFilter: ContentFilter;
+  createPostOpen: boolean;
+  createResearchOpen: boolean;
+  followListMode: 'followers' | 'following' | null;
+  defaultPostType: PostType;
+  createBountyOpen: boolean;
+  postLoading: boolean;
+  researchLoading: boolean;
+  bountySubmitting: string | null;
+  bountyCreating: boolean;
+  unlockingResearchId: string | null;
+  ratingResearchId: string | null;
+  votingId: string | null;
+  pollVotingId: string | null;
+};
+
+type CommunityAction =
+  | { type: 'SET_CLUB'; clubId: string | null; clubName: string | null }
+  | { type: 'SET_CLUB_ADMIN'; value: boolean }
+  | { type: 'SET_CLUB_SCOPE'; value: 'all' | 'myclub' }
+  | { type: 'SET_FEED_MODE'; value: 'all' | 'following' }
+  | { type: 'SET_CONTENT_FILTER'; value: ContentFilter }
+  | { type: 'SET_CREATE_POST_OPEN'; value: boolean }
+  | { type: 'SET_CREATE_RESEARCH_OPEN'; value: boolean }
+  | { type: 'SET_FOLLOW_LIST_MODE'; value: 'followers' | 'following' | null }
+  | { type: 'SET_DEFAULT_POST_TYPE'; value: PostType }
+  | { type: 'SET_CREATE_BOUNTY_OPEN'; value: boolean }
+  | { type: 'SET_POST_LOADING'; value: boolean }
+  | { type: 'SET_RESEARCH_LOADING'; value: boolean }
+  | { type: 'SET_BOUNTY_SUBMITTING'; value: string | null }
+  | { type: 'SET_BOUNTY_CREATING'; value: boolean }
+  | { type: 'SET_UNLOCKING_RESEARCH'; value: string | null }
+  | { type: 'SET_RATING_RESEARCH'; value: string | null }
+  | { type: 'SET_VOTING_ID'; value: string | null }
+  | { type: 'SET_POLL_VOTING_ID'; value: string | null };
+
+function communityReducer(state: CommunityState, action: CommunityAction): CommunityState {
+  switch (action.type) {
+    case 'SET_CLUB': return { ...state, clubId: action.clubId, clubName: action.clubName };
+    case 'SET_CLUB_ADMIN': return { ...state, isClubAdmin: action.value };
+    case 'SET_CLUB_SCOPE': return { ...state, clubScope: action.value };
+    case 'SET_FEED_MODE': return { ...state, feedMode: action.value };
+    case 'SET_CONTENT_FILTER': return { ...state, contentFilter: action.value };
+    case 'SET_CREATE_POST_OPEN': return { ...state, createPostOpen: action.value };
+    case 'SET_CREATE_RESEARCH_OPEN': return { ...state, createResearchOpen: action.value };
+    case 'SET_FOLLOW_LIST_MODE': return { ...state, followListMode: action.value };
+    case 'SET_DEFAULT_POST_TYPE': return { ...state, defaultPostType: action.value };
+    case 'SET_CREATE_BOUNTY_OPEN': return { ...state, createBountyOpen: action.value };
+    case 'SET_POST_LOADING': return { ...state, postLoading: action.value };
+    case 'SET_RESEARCH_LOADING': return { ...state, researchLoading: action.value };
+    case 'SET_BOUNTY_SUBMITTING': return { ...state, bountySubmitting: action.value };
+    case 'SET_BOUNTY_CREATING': return { ...state, bountyCreating: action.value };
+    case 'SET_UNLOCKING_RESEARCH': return { ...state, unlockingResearchId: action.value };
+    case 'SET_RATING_RESEARCH': return { ...state, ratingResearchId: action.value };
+    case 'SET_VOTING_ID': return { ...state, votingId: action.value };
+    case 'SET_POLL_VOTING_ID': return { ...state, pollVotingId: action.value };
+    default: return state;
+  }
+}
+
+// ============================================
 // MAIN PAGE — Scouting Zone
 // ============================================
 
@@ -51,45 +121,41 @@ export default function CommunityPage() {
   const tt = useTranslations('tips');
   const uid = user?.id;
 
-  // Club context
-  const [clubId, setClubId] = useState<string | null>(profile?.favorite_club_id ?? null);
-  const [clubName, setClubName] = useState<string | null>(profile?.favorite_club ?? null);
-  const [isClubAdmin, setIsClubAdmin] = useState(false);
-  const [clubScope, setClubScope] = useState<'all' | 'myclub'>('all');
+  // Consolidated state (18 primitives in one reducer)
+  const [state, dispatch] = useReducer(communityReducer, {
+    clubId: profile?.favorite_club_id ?? null,
+    clubName: profile?.favorite_club ?? null,
+    isClubAdmin: false,
+    clubScope: 'all' as const,
+    feedMode: 'all' as const,
+    contentFilter: 'all' as ContentFilter,
+    createPostOpen: false,
+    createResearchOpen: false,
+    followListMode: null,
+    defaultPostType: 'general' as PostType,
+    createBountyOpen: false,
+    postLoading: false,
+    researchLoading: false,
+    bountySubmitting: null,
+    bountyCreating: false,
+    unlockingResearchId: null,
+    ratingResearchId: null,
+    votingId: null,
+    pollVotingId: null,
+  });
 
-  // UI State
-  const [feedMode, setFeedMode] = useState<'all' | 'following'>('all');
-  const [contentFilter, setContentFilter] = useState<ContentFilter>('all');
-  const [createPostOpen, setCreatePostOpen] = useState(false);
-  const [createResearchOpen, setCreateResearchOpen] = useState(false);
-  const [followListMode, setFollowListMode] = useState<'followers' | 'following' | null>(null);
-  const [defaultPostType, setDefaultPostType] = useState<PostType>('general');
-  const [createBountyOpen, setCreateBountyOpen] = useState(false);
-
-  // Action loading state
-  const [postLoading, setPostLoading] = useState(false);
-  const [researchLoading, setResearchLoading] = useState(false);
-  const [bountySubmitting, setBountySubmitting] = useState<string | null>(null);
-  const [bountyCreating, setBountyCreating] = useState(false);
-  const [unlockingResearchId, setUnlockingResearchId] = useState<string | null>(null);
-  const [ratingResearchId, setRatingResearchId] = useState<string | null>(null);
-
-  // User-specific vote tracking
+  // Map/Set state stays separate (doesn't serialize well in reducers)
   const [myPostVotes, setMyPostVotes] = useState<Map<string, number>>(new Map());
   const [userVotedIds, setUserVotedIds] = useState<Set<string>>(new Set());
   const [userPollVotedIds, setUserPollVotedIds] = useState<Set<string>>(new Set());
-  const [votingId, setVotingId] = useState<string | null>(null);
-  const [pollVotingId, setPollVotingId] = useState<string | null>(null);
-
-  // Subscription tiers for post authors
   const [subscriptionMap, setSubscriptionMap] = useState<Map<string, SubscriptionTier>>(new Map());
 
   // ---- Scope-dependent club ID for queries ----
-  const scopeClubId = clubScope === 'myclub' ? (activeClub?.id ?? clubId ?? undefined) : undefined;
+  const scopeClubId = state.clubScope === 'myclub' ? (activeClub?.id ?? state.clubId ?? undefined) : undefined;
 
   // ---- React Query: shared data ----
   const { data: posts = [], isLoading: postsLoading, isError: postsError } = usePosts({ limit: 50, clubId: scopeClubId });
-  const { data: clubVotes = [] } = useClubVotes(clubId);
+  const { data: clubVotes = [] } = useClubVotes(state.clubId);
   const { data: leaderboard = [] } = useLeaderboard(50);
   const { data: followingIdsList = [] } = useFollowingIds(uid);
   const { data: rawHoldings = [] } = useHoldings(uid);
@@ -98,7 +164,7 @@ export default function CommunityPage() {
   const { data: followerCount = 0 } = useFollowerCount(uid);
   const { data: followingCountNum = 0 } = useFollowingCount(uid);
   const { data: bounties = [] } = useActiveBounties(uid, scopeClubId);
-  const { data: subscription } = useClubSubscription(uid, clubId ?? undefined);
+  const { data: subscription } = useClubSubscription(uid, state.clubId ?? undefined);
   const { data: userStats } = useUserStats(uid);
   const { data: communityPolls = [] } = useCommunityPolls(scopeClubId);
 
@@ -125,8 +191,8 @@ export default function CommunityPage() {
     async function resolveClub() {
       resolveExpiredResearch().catch(err => console.error('[Community] Resolve expired research:', err));
 
-      let cId = profile?.favorite_club_id ?? clubId;
-      let cName = profile?.favorite_club ?? clubName;
+      let cId = profile?.favorite_club_id ?? state.clubId;
+      let cName = profile?.favorite_club ?? state.clubName;
       if (!cId) {
         const primaryClub = await getUserPrimaryClub(uid!);
         if (primaryClub) { cId = primaryClub.id; cName = primaryClub.name; }
@@ -135,8 +201,8 @@ export default function CommunityPage() {
         ? await getClubBySlug(cName ?? '', uid!).catch(() => null)
         : await getClubBySlug('sakaryaspor', uid!).catch(() => null);
       if (!cId && clubData) { cId = clubData.id; cName = clubData.name; }
-      if (!cancelled && cId) { setClubId(cId); setClubName(cName); }
-      if (!cancelled && clubData) { setIsClubAdmin(clubData.is_admin); }
+      if (!cancelled && cId) { dispatch({ type: 'SET_CLUB', clubId: cId, clubName: cName }); }
+      if (!cancelled && clubData) { dispatch({ type: 'SET_CLUB_ADMIN', value: clubData.is_admin }); }
     }
     resolveClub();
     return () => { cancelled = true; };
@@ -272,23 +338,23 @@ export default function CommunityPage() {
 
   const handleCreatePost = useCallback(async (playerId: string | null, content: string, tags: string[], category: string, postType: PostType = 'general', imageFile: File | null = null) => {
     if (!uid) return;
-    if (!clubId) { addToast(t('noClubSelected'), 'error'); return; }
-    setPostLoading(true);
+    if (!state.clubId) { addToast(t('noClubSelected'), 'error'); return; }
+    dispatch({ type: 'SET_POST_LOADING', value: true });
     try {
       let imageUrl: string | null = null;
       if (imageFile) {
         imageUrl = await uploadPostImage(uid, imageFile);
       }
-      await createPost(uid, playerId, clubName, content, tags, category, clubId, postType, null, null, null, imageUrl);
+      await createPost(uid, playerId, state.clubName, content, tags, category, state.clubId, postType, null, null, null, imageUrl);
       queryClient.invalidateQueries({ queryKey: ['posts'] });
-      setCreatePostOpen(false);
+      dispatch({ type: 'SET_CREATE_POST_OPEN', value: false });
     } catch (err) {
       console.error('[Community] Post creation failed:', err);
       addToast(t('postCreateError'), 'error');
     } finally {
-      setPostLoading(false);
+      dispatch({ type: 'SET_POST_LOADING', value: false });
     }
-  }, [uid, clubName, clubId, addToast, t]);
+  }, [uid, state.clubName, state.clubId, addToast, t]);
 
   const handleCreateResearch = useCallback(async (params: {
     playerId: string | null;
@@ -304,14 +370,14 @@ export default function CommunityPage() {
     fixtureId?: string | null;
   }) => {
     if (!uid) return;
-    if (!clubId) { addToast(t('feed.noClub'), 'error'); return; }
-    setResearchLoading(true);
+    if (!state.clubId) { addToast(t('feed.noClub'), 'error'); return; }
+    dispatch({ type: 'SET_RESEARCH_LOADING', value: true });
     try {
       await createResearchPost({
         userId: uid,
         playerId: params.playerId,
-        clubName: clubName,
-        clubId: clubId,
+        clubName: state.clubName,
+        clubId: state.clubId,
         title: params.title,
         preview: params.preview,
         content: params.content,
@@ -324,18 +390,18 @@ export default function CommunityPage() {
         fixtureId: params.fixtureId,
       });
       invalidateResearchQueries(uid);
-      setCreateResearchOpen(false);
+      dispatch({ type: 'SET_CREATE_RESEARCH_OPEN', value: false });
       addToast(t('researchPublished'), 'success');
     } catch (err) {
       addToast(err instanceof Error ? err.message : t('researchPublishError'), 'error');
     } finally {
-      setResearchLoading(false);
+      dispatch({ type: 'SET_RESEARCH_LOADING', value: false });
     }
-  }, [uid, clubName, clubId, userRangTier, addToast, t]);
+  }, [uid, state.clubName, state.clubId, userRangTier, addToast, t]);
 
   const handleBountySubmit = useCallback(async (bountyId: string, title: string, content: string, evaluation?: Record<string, unknown> | null) => {
     if (!uid) return;
-    setBountySubmitting(bountyId);
+    dispatch({ type: 'SET_BOUNTY_SUBMITTING', value: bountyId });
     try {
       const result = await submitBountyResponse(uid, bountyId, title, content, evaluation);
       if (result.success) {
@@ -348,13 +414,13 @@ export default function CommunityPage() {
       console.error('[Community] Bounty submit failed:', err);
       addToast(t('submitError'), 'error');
     } finally {
-      setBountySubmitting(null);
+      dispatch({ type: 'SET_BOUNTY_SUBMITTING', value: null });
     }
   }, [uid, addToast, t]);
 
   const handleUnlockResearch = useCallback(async (postId: string) => {
     if (!uid) return;
-    setUnlockingResearchId(postId);
+    dispatch({ type: 'SET_UNLOCKING_RESEARCH', value: postId });
     try {
       const result = await unlockResearch(uid, postId);
       if (result.success) {
@@ -366,13 +432,13 @@ export default function CommunityPage() {
     } catch (err) {
       addToast(err instanceof Error ? err.message : t('genericError'), 'error');
     } finally {
-      setUnlockingResearchId(null);
+      dispatch({ type: 'SET_UNLOCKING_RESEARCH', value: null });
     }
   }, [uid, addToast, t]);
 
   const handleRateResearch = useCallback(async (postId: string, rating: number) => {
     if (!uid) return;
-    setRatingResearchId(postId);
+    dispatch({ type: 'SET_RATING_RESEARCH', value: postId });
     try {
       const result = await rateResearch(uid, postId, rating);
       if (result.success) {
@@ -384,13 +450,13 @@ export default function CommunityPage() {
     } catch (err) {
       addToast(err instanceof Error ? err.message : t('genericError'), 'error');
     } finally {
-      setRatingResearchId(null);
+      dispatch({ type: 'SET_RATING_RESEARCH', value: null });
     }
   }, [uid, addToast, t]);
 
   const handleCastVote = useCallback(async (voteId: string, optionIndex: number) => {
     if (!uid) return;
-    setVotingId(voteId);
+    dispatch({ type: 'SET_VOTING_ID', value: voteId });
     try {
       await castVote(uid, voteId, optionIndex);
       setUserVotedIds(prev => new Set([...Array.from(prev), voteId]));
@@ -399,13 +465,13 @@ export default function CommunityPage() {
     } catch (err) {
       addToast(err instanceof Error ? err.message : t('genericError'), 'error');
     } finally {
-      setVotingId(null);
+      dispatch({ type: 'SET_VOTING_ID', value: null });
     }
   }, [uid, addToast, t]);
 
   const handleCastPollVote = useCallback(async (pollId: string, optionIndex: number) => {
     if (!uid) return;
-    setPollVotingId(pollId);
+    dispatch({ type: 'SET_POLL_VOTING_ID', value: pollId });
     try {
       await castCommunityPollVote(uid, pollId, optionIndex);
       setUserPollVotedIds(prev => new Set([...Array.from(prev), pollId]));
@@ -414,7 +480,7 @@ export default function CommunityPage() {
     } catch (err) {
       addToast(err instanceof Error ? err.message : t('genericError'), 'error');
     } finally {
-      setPollVotingId(null);
+      dispatch({ type: 'SET_POLL_VOTING_ID', value: null });
     }
   }, [uid, addToast, t]);
 
@@ -436,16 +502,16 @@ export default function CommunityPage() {
     deadlineDays: number;
     maxSubmissions: number;
   }) => {
-    if (!uid || !clubId || !clubName) {
+    if (!uid || !state.clubId || !state.clubName) {
       addToast(t('feed.noClub'), 'error');
       return;
     }
-    setBountyCreating(true);
+    dispatch({ type: 'SET_BOUNTY_CREATING', value: true });
     try {
       await createUserBounty({
         userId: uid,
-        clubId,
-        clubName,
+        clubId: state.clubId,
+        clubName: state.clubName,
         title: params.title,
         description: params.description,
         rewardCents: params.rewardCents,
@@ -453,14 +519,14 @@ export default function CommunityPage() {
         maxSubmissions: params.maxSubmissions,
       });
       queryClient.invalidateQueries({ queryKey: ['bounties'] });
-      setCreateBountyOpen(false);
+      dispatch({ type: 'SET_CREATE_BOUNTY_OPEN', value: false });
       addToast(t('createBounty.success'), 'success');
     } catch (err) {
       addToast(err instanceof Error ? err.message : t('genericError'), 'error');
     } finally {
-      setBountyCreating(false);
+      dispatch({ type: 'SET_BOUNTY_CREATING', value: false });
     }
-  }, [uid, clubId, clubName, addToast, t]);
+  }, [uid, state.clubId, state.clubName, addToast, t]);
 
   if (!user) return null;
 
@@ -471,11 +537,11 @@ export default function CommunityPage() {
         <h1 className="text-2xl md:text-3xl font-black mb-1 text-balance">{t('scoutingZone.title')}</h1>
         <p className="text-sm text-white/50 mb-4 text-pretty">{t('scoutingZone.subtitle')}</p>
         <CommunityHero
-          onCreatePost={() => { setDefaultPostType('general'); setCreatePostOpen(true); }}
-          onCreateRumor={() => { setDefaultPostType('transfer_rumor'); setCreatePostOpen(true); }}
-          onCreateResearch={() => setCreateResearchOpen(true)}
+          onCreatePost={() => { dispatch({ type: 'SET_DEFAULT_POST_TYPE', value: 'general' }); dispatch({ type: 'SET_CREATE_POST_OPEN', value: true }); }}
+          onCreateRumor={() => { dispatch({ type: 'SET_DEFAULT_POST_TYPE', value: 'transfer_rumor' }); dispatch({ type: 'SET_CREATE_POST_OPEN', value: true }); }}
+          onCreateResearch={() => dispatch({ type: 'SET_CREATE_RESEARCH_OPEN', value: true })}
           researchLocked={false}
-          onCreateBounty={() => setCreateBountyOpen(true)}
+          onCreateBounty={() => dispatch({ type: 'SET_CREATE_BOUNTY_OPEN', value: true })}
         />
       </div>
 
@@ -486,7 +552,7 @@ export default function CommunityPage() {
         title={tt('communityTitle')}
         description={tt('communityDesc')}
         show={!!uid && !posts.some(p => p.user_id === uid)}
-        action={{ label: tt('writePost'), onClick: () => { setDefaultPostType('general'); setCreatePostOpen(true); } }}
+        action={{ label: tt('writePost'), onClick: () => { dispatch({ type: 'SET_DEFAULT_POST_TYPE', value: 'general' }); dispatch({ type: 'SET_CREATE_POST_OPEN', value: true }); } }}
       />
 
       {/* Contextual Mission Hints */}
@@ -498,17 +564,17 @@ export default function CommunityPage() {
           {activeClub && (
             <div className="flex items-center gap-1 p-1 bg-white/5 rounded-xl">
               <button
-                onClick={() => setClubScope('all')}
+                onClick={() => dispatch({ type: 'SET_CLUB_SCOPE', value: 'all' })}
                 className={cn('px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px]',
-                  clubScope === 'all' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
+                  state.clubScope === 'all' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
                 )}
               >
                 {t('allClubs')}
               </button>
               <button
-                onClick={() => setClubScope('myclub')}
+                onClick={() => dispatch({ type: 'SET_CLUB_SCOPE', value: 'myclub' })}
                 className={cn('px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px]',
-                  clubScope === 'myclub' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
+                  state.clubScope === 'myclub' ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
                 )}
               >
                 {activeClub.short ?? t('myClub')}
@@ -521,9 +587,9 @@ export default function CommunityPage() {
             {(['all', 'following'] as const).map(mode => (
               <button
                 key={mode}
-                onClick={() => setFeedMode(mode)}
+                onClick={() => dispatch({ type: 'SET_FEED_MODE', value: mode })}
                 className={cn('px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px]',
-                  feedMode === mode ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
+                  state.feedMode === mode ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
                 )}
               >
                 {mode === 'all' ? t('filterAll') : t('filterFollowing')}
@@ -536,14 +602,14 @@ export default function CommunityPage() {
         <div className="flex items-center gap-3">
           <Users className="size-4 text-sky-400/60" />
           <button
-            onClick={() => setFollowListMode('followers')}
+            onClick={() => dispatch({ type: 'SET_FOLLOW_LIST_MODE', value: 'followers' })}
             className="text-xs text-white/40 hover:text-white/70 transition-colors min-h-[44px] flex items-center"
           >
             <span className="font-bold tabular-nums text-white/60">{followerCount}</span>&nbsp;Follower
           </button>
           <span className="text-white/10">·</span>
           <button
-            onClick={() => setFollowListMode('following')}
+            onClick={() => dispatch({ type: 'SET_FOLLOW_LIST_MODE', value: 'following' })}
             className="text-xs text-white/40 hover:text-white/70 transition-colors min-h-[44px] flex items-center"
           >
             <span className="font-bold tabular-nums text-white/60">{followingCountNum}</span>&nbsp;{t('filterFollowing')}
@@ -593,35 +659,35 @@ export default function CommunityPage() {
                 ownedPlayerIds={ownedPlayerIds}
                 followingIds={followingIds}
                 userId={user.id}
-                isFollowingTab={feedMode === 'following'}
+                isFollowingTab={state.feedMode === 'following'}
                 onVote={handleVotePost}
                 onDelete={handleDeletePost}
-                onCreatePost={() => setCreatePostOpen(true)}
+                onCreatePost={() => dispatch({ type: 'SET_CREATE_POST_OPEN', value: true })}
                 onSwitchToLeaderboard={() => {}}
-                isClubAdmin={isClubAdmin}
+                isClubAdmin={state.isClubAdmin}
                 onAdminDelete={handleAdminDeletePost}
                 onTogglePin={handleTogglePin}
                 subscriptionMap={subscriptionMap}
-                contentFilter={contentFilter}
-                onContentFilterChange={setContentFilter}
+                contentFilter={state.contentFilter}
+                onContentFilterChange={(v: ContentFilter) => dispatch({ type: 'SET_CONTENT_FILTER', value: v })}
                 researchPosts={researchPosts}
                 bounties={bounties}
                 clubVotes={clubVotes}
                 communityPolls={communityPolls}
                 onUnlockResearch={handleUnlockResearch}
-                unlockingResearchId={unlockingResearchId}
+                unlockingResearchId={state.unlockingResearchId}
                 onRateResearch={handleRateResearch}
-                ratingResearchId={ratingResearchId}
+                ratingResearchId={state.ratingResearchId}
                 onBountySubmit={handleBountySubmit}
-                bountySubmitting={bountySubmitting}
+                bountySubmitting={state.bountySubmitting}
                 userTier={subscription?.tier}
                 userVotedIds={userVotedIds}
                 onCastVote={handleCastVote}
-                votingId={votingId}
+                votingId={state.votingId}
                 userPollVotedIds={userPollVotedIds}
                 onCastPollVote={handleCastPollVote}
                 onCancelPoll={handleCancelPoll}
-                pollVotingId={pollVotingId}
+                pollVotingId={state.pollVotingId}
               />
             </div>
 
@@ -631,7 +697,7 @@ export default function CommunityPage() {
                 leaderboard={leaderboard}
                 researchPosts={researchPosts}
                 userId={user.id}
-                onCreateResearch={() => setCreateResearchOpen(true)}
+                onCreateResearch={() => dispatch({ type: 'SET_CREATE_RESEARCH_OPEN', value: true })}
               />
             </div>
           </div>
@@ -642,7 +708,7 @@ export default function CommunityPage() {
               leaderboard={leaderboard}
               researchPosts={researchPosts}
               userId={user.id}
-              onCreateResearch={() => setCreateResearchOpen(true)}
+              onCreateResearch={() => dispatch({ type: 'SET_CREATE_RESEARCH_OPEN', value: true })}
             />
           </div>
         </>
@@ -650,34 +716,34 @@ export default function CommunityPage() {
 
       {/* Modals */}
       <CreatePostModal
-        open={createPostOpen}
-        onClose={() => setCreatePostOpen(false)}
+        open={state.createPostOpen}
+        onClose={() => dispatch({ type: 'SET_CREATE_POST_OPEN', value: false })}
         players={allPlayers}
         onSubmit={handleCreatePost}
-        loading={postLoading}
-        defaultPostType={defaultPostType}
+        loading={state.postLoading}
+        defaultPostType={state.defaultPostType}
       />
 
       <CreateResearchModal
-        open={createResearchOpen}
-        onClose={() => setCreateResearchOpen(false)}
+        open={state.createResearchOpen}
+        onClose={() => dispatch({ type: 'SET_CREATE_RESEARCH_OPEN', value: false })}
         players={allPlayers}
         onSubmit={handleCreateResearch}
-        loading={researchLoading}
+        loading={state.researchLoading}
       />
 
       <CreateBountyModal
-        open={createBountyOpen}
-        onClose={() => setCreateBountyOpen(false)}
+        open={state.createBountyOpen}
+        onClose={() => dispatch({ type: 'SET_CREATE_BOUNTY_OPEN', value: false })}
         onSubmit={handleCreateBounty}
-        loading={bountyCreating}
+        loading={state.bountyCreating}
       />
 
-      {followListMode && user && (
+      {state.followListMode && user && (
         <FollowListModal
           userId={user.id}
-          mode={followListMode}
-          onClose={() => setFollowListMode(null)}
+          mode={state.followListMode}
+          onClose={() => dispatch({ type: 'SET_FOLLOW_LIST_MODE', value: null })}
         />
       )}
     </div>
