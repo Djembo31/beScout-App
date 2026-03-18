@@ -1932,12 +1932,6 @@
       "feeCap": "Fee Cap",
       "holdings": "{count} SC · {pct}% Supply",
       "leistung": "Leistung",
-      "statSVS": "SVS",
-      "statCS": "CS",
-      "statSPI": "SPI",
-      "statTOR": "TOR",
-      "statASS": "ASS",
-      "statMIN": "MIN",
       "contract": "Vertrag"
     }
   },

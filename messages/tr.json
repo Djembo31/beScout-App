@@ -1932,12 +1932,6 @@
       "feeCap": "Fee Cap",
       "holdings": "{count} SC · {pct}% Arz",
       "leistung": "Performans",
-      "statSVS": "KRT",
-      "statCS": "CS",
-      "statSPI": "MAÇ",
-      "statTOR": "GOL",
-      "statASS": "AST",
-      "statMIN": "DK",
       "contract": "Sözleşme"
     }
   },
