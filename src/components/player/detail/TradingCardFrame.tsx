@@ -360,18 +360,6 @@ export default function TradingCardFrame({
                 </div>
               </div>
 
-              {/* Separator */}
-              <div className="mx-4 mt-1.5">
-                <div className="h-px" style={{ background: `linear-gradient(90deg, transparent 0%, ${tint}20 30%, ${tint}20 70%, transparent 100%)` }} />
-              </div>
-
-              {/* ── Price Zone (Gold, prominent) ── */}
-              <div className="flex items-baseline justify-center gap-1.5 mt-1.5 pb-1">
-                <span className="text-[18px] md:text-[20px] font-mono font-black tabular-nums text-gold">
-                  {backData?.floorPrice != null ? fmtScout(backData.floorPrice) : '\u2014'}
-                </span>
-                <span className="text-[8px] font-bold text-gold/50 uppercase">Credits</span>
-              </div>
             </div>
           </div>
 
