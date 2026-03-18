@@ -17,11 +17,11 @@ export function useUserFoundingPasses(userId: string | undefined) {
 }
 
 /** Fetch the highest-tier founding pass for a user */
-export function useHighestPass(userId: string | undefined) {
+export function useHighestPass(userId: string | undefined, active = true) {
   return useQuery({
     queryKey: qk.foundingPasses.highest(userId!),
     queryFn: () => getHighestPass(userId!),
-    enabled: !!userId,
+    enabled: !!userId && active,
     staleTime: FIVE_MIN,
   });
 }

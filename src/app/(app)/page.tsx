@@ -86,6 +86,13 @@ export default function HomePage() {
   const [streak, setStreak] = useState(0);
   const [shieldsRemaining, setShieldsRemaining] = useState<number | null>(null);
 
+  // ── Deferred loading for below-fold content ──
+  const [belowFoldReady, setBelowFoldReady] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setBelowFoldReady(true), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
   // ── Streak benefits (compound rewards based on streak length) ──
   const streakBenefits = useMemo(() => getStreakBenefits(streak), [streak]);
 
@@ -97,10 +104,10 @@ export default function HomePage() {
   const { data: trendingPlayers = [] } = useTrendingPlayers(5);
 
   // ── Gamification v5 Hooks ──
-  const { data: todaysChallenge = null, isLoading: challengeLoading } = useTodaysChallenge();
-  const { data: challengeHistory = [] } = useChallengeHistory(uid);
-  const { data: ticketData = null } = useUserTickets(uid);
-  const { data: highestPass } = useHighestPass(uid);
+  const { data: todaysChallenge = null, isLoading: challengeLoading } = useTodaysChallenge(belowFoldReady);
+  const { data: challengeHistory = [] } = useChallengeHistory(uid, belowFoldReady);
+  const { data: ticketData = null } = useUserTickets(uid, belowFoldReady);
+  const { data: highestPass } = useHighestPass(uid, belowFoldReady);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMysteryBox, setShowMysteryBox] = useState(false);
 

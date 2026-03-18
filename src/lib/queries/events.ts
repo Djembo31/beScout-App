@@ -40,10 +40,8 @@ export function useActiveGameweek(clubId: string | undefined) {
     queryKey: qk.events.activeGw(clubId!),
     queryFn: () => getActiveGameweek(clubId!),
     enabled: !!clubId,
-    staleTime: 0,                  // Always refetch on mount — critical navigation data
-    gcTime: 60_000,                // Keep 1min for back-nav, but not long enough to go stale
-    placeholderData: undefined,    // Never show stale cached GW — wait for fresh data
-    refetchOnMount: 'always',      // Even if query exists in cache, refetch
+    staleTime: FIVE_MIN,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -52,10 +50,8 @@ export function useLeagueActiveGameweek() {
   return useQuery({
     queryKey: qk.events.leagueGw,
     queryFn: getLeagueActiveGameweek,
-    staleTime: 0,
-    gcTime: 60_000,
-    placeholderData: undefined,
-    refetchOnMount: 'always',
+    staleTime: FIVE_MIN,
+    gcTime: 10 * 60 * 1000,
   });
 }
 

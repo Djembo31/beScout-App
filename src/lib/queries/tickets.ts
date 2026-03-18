@@ -7,11 +7,11 @@ import { getUserTickets, getTicketTransactions } from '@/lib/services/tickets';
 const THIRTY_SEC = 30 * 1000;
 
 /** Fetch the user's ticket balance */
-export function useUserTickets(userId: string | undefined) {
+export function useUserTickets(userId: string | undefined, active = true) {
   return useQuery({
     queryKey: qk.tickets.balance(userId!),
     queryFn: () => getUserTickets(userId!),
-    enabled: !!userId,
+    enabled: !!userId && active,
     staleTime: THIRTY_SEC,
   });
 }
