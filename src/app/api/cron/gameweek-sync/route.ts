@@ -54,6 +54,11 @@ function nameMatchPlayer(
     if (shirtNumber != null && p.shirt_number != null && p.shirt_number === shirtNumber) score += 25;
 
     if (score > bestScore && score >= 40) {
+      // Check for ambiguity: if another player already matched at similar score, require higher threshold
+      if (bestMatch && bestScore > 0 && score - bestScore < 15) {
+        // Close match — both candidates similarly named. Require shirt number or first name to decide.
+        continue;
+      }
       bestScore = score;
       bestMatch = { id: p.id, position: p.position };
     }
@@ -633,7 +638,7 @@ export async function GET(request: Request) {
               }
             }
 
-            // 3) Name fallback: exact name → fuzzy last-name
+            // 3) Name fallback: exact name → fuzzy last-name → shirt-number fallback
             if (!lineupInfo && pd.player.name) {
               const normalizedName = normalizeForMatch(pd.player.name);
               lineupInfo = lineupByName.get(normalizedName) ?? undefined;
@@ -641,7 +646,22 @@ export async function GET(request: Request) {
                 const parts = normalizedName.split(/\s+/);
                 const last = parts[parts.length - 1];
                 if (last && last.length >= 3) {
-                  lineupInfo = lineupByLastName.get(last) ?? undefined;
+                  const lastNameMatch = lineupByLastName.get(last);
+                  if (lastNameMatch === null) {
+                    // Ambiguous (multiple players share last name) — try shirt number as tiebreaker
+                    const dbMatch = mappings.clubPlayersMap.get(clubId)
+                      ? nameMatchPlayer(pd.player.name ?? '', mappings.clubPlayersMap.get(clubId)!, undefined)
+                      : null;
+                    const sn = dbMatch ? mappings.clubPlayersMap.get(clubId)?.find(cp => cp.id === dbMatch.id)?.shirt_number : undefined;
+                    if (sn != null && lineupByShirtNumber.has(sn)) {
+                      lineupInfo = lineupByShirtNumber.get(sn) ?? undefined;
+                      if (lineupInfo) console.log(`[NAME_DISAMBIG] "${pd.player.name}" ambiguous last-name "${last}" → resolved via shirt #${sn}`);
+                    } else {
+                      console.warn(`[NAME_AMBIG] "${pd.player.name}" matches multiple lineup entries for last-name "${last}" — cannot resolve, defaulting to bench`);
+                    }
+                  } else if (lastNameMatch) {
+                    lineupInfo = lastNameMatch;
+                  }
                 }
               }
               if (lineupInfo) bridgeMethod = 'name';

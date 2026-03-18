@@ -153,6 +153,7 @@ export function mapPosition(apiPos: string): 'GK' | 'DEF' | 'MID' | 'ATT' {
   if (p === 'D' || p.includes('DEF')) return 'DEF';
   if (p === 'M' || p.includes('MID')) return 'MID';
   if (p === 'F' || p.includes('ATT') || p.includes('FOR')) return 'ATT';
+  console.warn(`[POSITION] Unknown API position "${apiPos}" — defaulting to MID`);
   return 'MID';
 }
 
@@ -253,7 +254,14 @@ export type PlayerStatEntry = {
  * Row 1 = GK, Row 2 = DEF, Row 3 = MID/DEF, Row 4 = MID/ATT, Row 5 = ATT
  */
 function gridRowToPosition(grid: string): string | null {
-  const row = parseInt(grid.split(':')[0], 10);
+  const parts = grid.split(':');
+  if (parts.length !== 2) return null;
+  const row = parseInt(parts[0], 10);
+  const col = parseInt(parts[1], 10);
+  if (isNaN(row) || isNaN(col) || row < 1 || row > 5 || col < 1 || col > 11) {
+    console.warn(`[GRID] Invalid grid_position: "${grid}"`);
+    return null;
+  }
   if (row === 1) return 'GK';
   if (row === 2) return 'DEF';
   if (row === 3) return 'MID';
@@ -296,8 +304,22 @@ export function deduplicateGhostStarters<T extends PlayerStatEntry>(stats: T[]):
     const ghostApiIds = new Set(ghosts.map(g => g.api_football_player_id));
 
     if (ghosts.length === 0) {
-      // >11 starters but no ghosts — unusual, pass through
-      result.push(...clubStats);
+      // >11 starters but no ghosts — corrupt API data. Cap at 11 by minutes played.
+      console.error(`[DEDUP] >11 starters (${starters.length}) with 0 ghosts for fixture ${clubStats[0]?.fixture_id}, club ${clubStats[0]?.club_id}. Capping at 11 by minutes.`);
+      const sorted = [...clubStats].sort((a, b) => {
+        if (a.is_starter && !b.is_starter) return -1;
+        if (!a.is_starter && b.is_starter) return 1;
+        return b.minutes_played - a.minutes_played;
+      });
+      let starterCount = 0;
+      for (const s of sorted) {
+        if (s.is_starter && starterCount < 11) {
+          starterCount++;
+        } else if (s.is_starter) {
+          s.is_starter = false; // Demote excess starters
+        }
+      }
+      result.push(...sorted);
       continue;
     }
 
