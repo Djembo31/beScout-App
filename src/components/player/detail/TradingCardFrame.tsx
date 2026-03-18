@@ -6,8 +6,9 @@ import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
 import { posTintColors } from '@/components/player/PlayerRow';
 import { useTilt } from '@/lib/hooks/useTilt';
-import { fmtScout, countryToFlag, cn } from '@/lib/utils';
-import type { Pos, Trend } from '@/types';
+import { fmtScout, cn } from '@/lib/utils';
+import CountryFlag from '@/components/ui/CountryFlag';
+import type { Pos } from '@/types';
 
 // Position glow ring — matches Tailwind shadow-glow-* tokens from tailwind.config
 const posRingGlow: Record<Pos, string> = {
@@ -51,6 +52,8 @@ interface TradingCardFrameProps {
   shirtNumber: number;
   imageUrl?: string | null;
   l5: number;
+  l5Apps?: number;    // Appearances in last 5 GWs (0-5)
+  l15Apps?: number;   // Appearances in last 15 GWs (0-15)
   edition?: string;
   className?: string;
   backData?: CardBackData;
@@ -123,7 +126,7 @@ const formatMV = (v: number) => {
 };
 
 export default function TradingCardFrame({
-  first, last, pos, club, shirtNumber, imageUrl, l5, edition, className = '', backData,
+  first, last, pos, club, shirtNumber, imageUrl, l5, l5Apps = 0, l15Apps = 0, edition, className = '', backData,
   age, country, masteryLevel,
 }: TradingCardFrameProps) {
   const tp = useTranslations('player');
@@ -141,7 +144,6 @@ export default function TradingCardFrame({
   const tint = posTintColors[pos];
   const clubData = club ? getClub(club) : null;
   const ringGlow = posRingGlow[pos];
-  const flag = country ? countryToFlag(country) : '';
 
   // Initials fallback
   const initials = `${first?.[0] ?? ''}${last?.[0] ?? ''}`;
@@ -197,7 +199,7 @@ export default function TradingCardFrame({
 
               {/* Flag + Age */}
               <div className="flex items-center gap-1.5">
-                {flag && <span className="text-base leading-none" aria-label={country}>{flag}</span>}
+                {country && <CountryFlag code={country} size={14} />}
                 {age != null && age > 0 && (
                   <span className="text-[10px] font-bold text-white/50 tabular-nums">{age}Y</span>
                 )}
@@ -208,7 +210,7 @@ export default function TradingCardFrame({
                 className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black backdrop-blur-sm"
                 style={{ backgroundColor: `${tint}40`, color: '#fff', border: `1px solid ${tint}60`, textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
               >
-                {pos} {shirtNumber > 0 && <span className="font-mono tabular-nums">{shirtNumber}</span>}
+                {pos} {shirtNumber > 0 && <span className="font-mono tabular-nums">#{shirtNumber}</span>}
               </div>
             </div>
 
@@ -287,17 +289,68 @@ export default function TradingCardFrame({
                 </div>
               </div>
 
-              {/* FIFA 2x3 Stats Grid */}
-              <div className="grid grid-cols-3 gap-y-2 gap-x-1 px-4 mt-2 md:mt-3">
-                <FifaStat label="L5" value={l5} />
-                <FifaStat label="L15" value={backData?.l15 ?? '\u2014'} />
-                <FifaStat label={tp('statGoalsShort')} value={backData?.stats.goals ?? '\u2014'} />
-                <FifaStat label={tp('statAssistsShort')} value={backData?.stats.assists ?? '\u2014'} />
-                <FifaStat label={tp('statMatchesShort')} value={backData?.stats.matches ?? '\u2014'} />
-                <FifaStat
-                  label={tp('statFloorShort')}
-                  value={backData?.floorPrice != null ? fmtScout(backData.floorPrice) : '\u2014'}
-                />
+              {/* ── Performance Zone (L5 + L15 with appearance bars) ── */}
+              <div className="flex justify-center gap-6 px-4 mt-2 md:mt-3">
+                {/* L5 */}
+                <div className="flex-1">
+                  <div className="flex items-baseline gap-1 justify-center">
+                    <span className="text-[8px] font-bold uppercase tracking-wider" style={{ color: `${tint}90` }}>L5</span>
+                    <span className="text-[22px] md:text-[26px] font-black text-white/90 leading-none tabular-nums font-mono">{l5}</span>
+                  </div>
+                  <div className="mt-1 flex items-center gap-1">
+                    <div className="flex-1 h-1 bg-white/[0.06] rounded-full overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${(l5Apps / 5) * 100}%`, backgroundColor: tint }} />
+                    </div>
+                    <span className="text-[7px] font-mono text-white/30 tabular-nums w-[22px] text-right">{Math.round((l5Apps / 5) * 100)}%</span>
+                  </div>
+                </div>
+                {/* L15 */}
+                <div className="flex-1">
+                  <div className="flex items-baseline gap-1 justify-center">
+                    <span className="text-[8px] font-bold uppercase tracking-wider" style={{ color: `${tint}90` }}>L15</span>
+                    <span className="text-[22px] md:text-[26px] font-black text-white/90 leading-none tabular-nums font-mono">{backData?.l15 ?? '\u2014'}</span>
+                  </div>
+                  <div className="mt-1 flex items-center gap-1">
+                    <div className="flex-1 h-1 bg-white/[0.06] rounded-full overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${(l15Apps / 15) * 100}%`, backgroundColor: tint }} />
+                    </div>
+                    <span className="text-[7px] font-mono text-white/30 tabular-nums w-[22px] text-right">{Math.round((l15Apps / 15) * 100)}%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Separator */}
+              <div className="mx-4 mt-2">
+                <div className="h-px" style={{ background: `linear-gradient(90deg, transparent 0%, ${tint}30 20%, ${tint}50 50%, ${tint}30 80%, transparent 100%)` }} />
+              </div>
+
+              {/* ── Stats Zone (Goals | Assists | Matches — grouped) ── */}
+              <div className="flex justify-center gap-4 px-4 mt-1.5">
+                <div className="flex flex-col items-center">
+                  <span className="text-[16px] md:text-[18px] font-black text-white/70 tabular-nums font-mono">{backData?.stats?.goals ?? '\u2014'}</span>
+                  <span className="text-[7px] font-bold uppercase tracking-wider text-white/30">{tp('statGoalsShort')}</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-[16px] md:text-[18px] font-black text-white/70 tabular-nums font-mono">{backData?.stats?.assists ?? '\u2014'}</span>
+                  <span className="text-[7px] font-bold uppercase tracking-wider text-white/30">{tp('statAssistsShort')}</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-[16px] md:text-[18px] font-black text-white/70 tabular-nums font-mono">{backData?.stats?.matches ?? '\u2014'}</span>
+                  <span className="text-[7px] font-bold uppercase tracking-wider text-white/30">{tp('statMatchesShort')}</span>
+                </div>
+              </div>
+
+              {/* Separator */}
+              <div className="mx-4 mt-1.5">
+                <div className="h-px" style={{ background: `linear-gradient(90deg, transparent 0%, ${tint}20 30%, ${tint}20 70%, transparent 100%)` }} />
+              </div>
+
+              {/* ── Price Zone (Gold, prominent) ── */}
+              <div className="flex items-baseline justify-center gap-1.5 mt-1.5 pb-1">
+                <span className="text-[18px] md:text-[20px] font-mono font-black tabular-nums text-gold">
+                  {backData?.floorPrice != null ? fmtScout(backData.floorPrice) : '\u2014'}
+                </span>
+                <span className="text-[8px] font-bold text-gold/50 uppercase">Credits</span>
               </div>
             </div>
           </div>
