@@ -365,55 +365,33 @@ export type TrendingPlayer = {
   change24h: number;
 };
 
-/** Top traded players in the last 24h — capped at 1000 rows for perf */
+/** Top traded players in the last 24h — DB-aggregated via RPC */
 export async function getTrendingPlayers(limit = 5): Promise<TrendingPlayer[]> {
-  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-  const { data, error } = await supabase
-    .from('trades')
-    .select('player_id, price, quantity')
-    .gte('executed_at', since)
-    .limit(1000);
+  const { data, error } = await supabase.rpc('rpc_get_trending_players', { p_limit: limit });
 
-  if (error || !data || data.length === 0) return [];
+  if (error || !data || (data as unknown[]).length === 0) return [];
 
-  // Aggregate by player
-  const agg = new Map<string, { count: number; volume: number }>();
-  for (const t of data) {
-    const prev = agg.get(t.player_id) || { count: 0, volume: 0 };
-    prev.count += 1;
-    prev.volume += (t.price as number) * (t.quantity as number);
-    agg.set(t.player_id, prev);
-  }
-
-  // Sort by trade count and take top N
-  const sorted = Array.from(agg.entries())
-    .sort((a, b) => b[1].count - a[1].count)
-    .slice(0, limit);
-
-  if (sorted.length === 0) return [];
-
-  const playerIds = sorted.map(([id]) => id);
-  const { data: players } = await supabase
-    .from('players')
-    .select('id, first_name, last_name, position, club, floor_price, price_change_24h')
-    .in('id', playerIds);
-
-  const playerMap = new Map((players ?? []).map(p => [p.id, p]));
-
-  return sorted.map(([id, stats]) => {
-    const p = playerMap.get(id);
-    return {
-      playerId: id,
-      firstName: p?.first_name ?? '',
-      lastName: p?.last_name ?? '',
-      position: toPos(p?.position),
-      club: p?.club ?? '',
-      tradeCount: stats.count,
-      totalVolume: stats.volume,
-      floorPrice: p?.floor_price ?? 0,
-      change24h: Number(p?.price_change_24h ?? 0),
-    };
-  });
+  return (data as Array<{
+    player_id: string;
+    trade_count: number;
+    volume_24h: number;
+    first_name: string;
+    last_name: string;
+    player_position: string;
+    club: string;
+    floor_price: number;
+    price_change_24h: number;
+  }>).map(row => ({
+    playerId: row.player_id,
+    firstName: row.first_name ?? '',
+    lastName: row.last_name ?? '',
+    position: toPos(row.player_position),
+    club: row.club ?? '',
+    tradeCount: Number(row.trade_count),
+    totalVolume: Number(row.volume_24h),
+    floorPrice: row.floor_price ?? 0,
+    change24h: Number(row.price_change_24h ?? 0),
+  }));
 }
 
 /** Bulk load recent trade prices for all players (for sparklines on market page) */

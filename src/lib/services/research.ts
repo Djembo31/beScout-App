@@ -83,29 +83,18 @@ export async function getResearchPosts(options: {
     };
 
     const fetchTrackRecords = async () => {
-      // Batch: count resolved outcomes per author
-      const { data, error } = await supabase
-        .from('research_posts')
-        .select('user_id, outcome')
-        .in('user_id', authorIds)
-        .gt('price_at_creation', 0)
-        .not('outcome', 'is', null);
-      if (error || !data) return new Map<string, { hitRate: number; totalCalls: number }>();
-      const map = new Map<string, { correct: number; total: number }>();
-      for (const row of data) {
-        const uid = row.user_id as string;
-        const entry = map.get(uid) ?? { correct: 0, total: 0 };
-        entry.total++;
-        if (row.outcome === 'correct') entry.correct++;
-        map.set(uid, entry);
-      }
-      const result = new Map<string, { hitRate: number; totalCalls: number }>();
-      Array.from(map.entries()).forEach(([uid, stats]) => {
-        result.set(uid, {
-          hitRate: stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0,
-          totalCalls: stats.total,
-        });
+      // DB-aggregated via RPC — replaces O(n) client-side aggregation
+      const { data, error } = await supabase.rpc('rpc_get_author_track_records', {
+        p_user_ids: authorIds,
       });
+      if (error || !data) return new Map<string, { hitRate: number; totalCalls: number }>();
+      const result = new Map<string, { hitRate: number; totalCalls: number }>();
+      for (const row of data as Array<{ user_id: string; total_calls: number; correct_calls: number; hit_rate: number }>) {
+        result.set(row.user_id, {
+          hitRate: Math.round((row.hit_rate ?? 0) * 100),
+          totalCalls: Number(row.total_calls),
+        });
+      }
       return result;
     };
 
