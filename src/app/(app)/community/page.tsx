@@ -397,7 +397,7 @@ export default function CommunityPage() {
     } finally {
       dispatch({ type: 'SET_RESEARCH_LOADING', value: false });
     }
-  }, [uid, state.clubName, state.clubId, userRangTier, addToast, t]);
+  }, [uid, state.clubName, state.clubId, addToast, t]);
 
   const handleBountySubmit = useCallback(async (bountyId: string, title: string, content: string, evaluation?: Record<string, unknown> | null) => {
     if (!uid) return;
