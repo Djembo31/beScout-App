@@ -1,37 +1,32 @@
 # Session Handoff
-## Letzte Session: 2026-03-16 (Session 236)
+## Letzte Session: 2026-03-18 (Session 239)
 ## Was wurde gemacht
-### Comprehensive Bug-Fix Audit (1 Commit: a10414b, 25 Files)
-**Security (6 Fixes):**
-- Auth-Check + Hex-Validierung auf `updateClubBranding()` (club.ts)
-- Platform-Admin IDOR eingeschränkt auf superadmin (AdminContent.tsx)
-- Offer Message Length-Cap 500 Zeichen (offers.ts)
-- Email-Validierung Regex statt includes('@') (InviteClubAdminModal)
-- Cron Gameweek Range-Cap max 38 (backfill-ratings)
-- ProfileView: direkter Supabase-Zugriff → Service Layer
+### Projekt-Audit + Cleanup
+- Tiefgruendiger Audit aller 26 Routes, 238 Components, 72 Services
+- 30x `<img>` → `<Image>` konvertiert (Performance)
+- loading.tsx fuer /airdrop + /founding
+- PlayerHero age null-Guard fix ("0 Jahre" Bug)
+- A11y + console.log Fixes
 
-**Runtime (4 Fixes):**
-- FormationTab: Force-Unwrap pop()! entfernt
-- EventDetailModal: Cancellation Tokens + Leaderboard-Polling (30s live)
-- FollowListModal: NaN-Filter + bounds-safe Median
-- BuyConfirmModal: Qty Reset + centralized query key
+### Workflow-Refactoring
+- `/deliver` ENTFERNT — ersetzt durch Superpowers Skill-Chain
+- Neue PFLICHT-Pipeline: brainstorming → spec → writing-plans → executing-plans → verification → finishing-branch
+- Sequential Thinking + Context7 in Pipeline verankert
+- Agent Context Model dokumentiert
+- Spec-Template mit Duplikat-Check Spalte
 
-**i18n (5) + Hook Deps (9) + UX/A11y (4):**
-- Hardcoded Strings → t() (TradingToasts, HomeSpotlight, Countdowns)
-- Translation keys in de.json + tr.json (shareInCommunity)
-- Hook-Dependencies bereinigt (6 Files, usePlayerTrading, TopBar, etc.)
-- Live-Indikator mit role=status, tabular-nums, focus-visible, active:scale
+### Card Overhaul (Vorderseite + Rueckseite)
+- **Vorderseite:** 3 visuelle Zonen (Performance/Stats/Price), SVG-Flaggen (country-flag-icons), #Trikotnummer, Appearance-Bars unter L5/L15
+- **Rueckseite:** Trading Grid (Marktwert/Floor/24h/Fee Cap), Vertragsdauer, 4 slim Percentile-Bars (L5/L15/AVG/MIN — NICHT Goals/Assists)
+- DB-Migration: l5_appearances + l15_appearances Columns
+- Player Type erweitert: perf.l5Apps, perf.l15Apps, perf.season
 
-### Wiring-Audit: Alles clean
-- 26 Routes, 68 Services, 150+ RPCs, 42 Query-Hooks, 8 API-Routes, 56 i18n-Namespaces
-- 0 broken imports, 0 circular deps, 0 TypeScript errors
-
-### Rules konsolidiert (orchestrator.md + quality-gates.md → unified)
 ## Offene Arbeit
-1. **42 hardcoded Strings in Admin-Panels** — intern, kein User-Facing
-2. **95 `<img>` → `<Image>`** — Performance, kein Bug
-3. **ProfileView Mega-useEffect** — React Query Refactor (größer)
-4. **Optimistic Updates Trading** — UX Enhancement
-5. **Stripe** — Anil richtet Account ein
+1. **RPC cron_recalc_perf erweitern** — l5_appearances/l15_appearances befuellen
+2. **ClubContent.tsx Refactoring** (1299 Zeilen) — offen seit Audit
+3. **Admin i18n** (42 hardcoded Strings) — offen seit Audit
+4. **Stripe** — wartet auf Anils Account
+
 ## Blocker
+- Appearance-Bars zeigen 0% bis cron_recalc_perf laeuft
 - Stripe Account (Anil-Aktion)

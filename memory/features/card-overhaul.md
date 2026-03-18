@@ -125,14 +125,14 @@ auch COUNT(fixture_player_stats) für die jeweiligen GW-Fenster speichern.
 - Keine — alle Fragen im Brainstorming geklärt
 
 ## Progress
-- [ ] DB-Migration (l5_appearances, l15_appearances)
-- [ ] RPC cron_recalc_perf erweitern
-- [ ] Player Type erweitern (perf.l5Apps, perf.l15Apps, perf.season)
-- [ ] dbToPlayer Mapping erweitern
-- [ ] flag-icons installieren + integrieren
-- [ ] TradingCardFrame Vorderseite (3 Zonen)
-- [ ] TradingCardFrame Rückseite (Trading + Contract + Percentile-Bars)
-- [ ] PlayerHero Props anpassen
-- [ ] PlayerContent Props durchreichen
-- [ ] i18n Keys
-- [ ] Visual QA mit vollständigem Spieler
+- [x] DB-Migration (l5_appearances, l15_appearances)
+- [ ] RPC cron_recalc_perf erweitern (Appearance-Counts befuellen)
+- [x] Player Type erweitern (perf.l5Apps, perf.l15Apps, perf.season)
+- [x] dbToPlayer Mapping erweitern
+- [x] flag-icons installieren + integrieren (country-flag-icons)
+- [x] TradingCardFrame Vorderseite (3 Zonen)
+- [x] TradingCardFrame Rückseite (Trading + Contract + Percentile-Bars)
+- [x] PlayerHero Props anpassen
+- [x] PlayerContent Props durchreichen
+- [x] i18n Keys
+- [x] Visual QA mit vollständigem Spieler (Florent Hasani)
