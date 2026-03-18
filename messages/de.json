@@ -4002,6 +4002,8 @@
     "noMatchData": "Noch keine Spieldaten verfuegbar",
     "starterLabel": "XI",
     "subLabel": "SUB",
+    "statusBench": "Nicht eingesetzt",
+    "statusNotInSquad": "Nicht im Kader",
     "formLabel": "Form",
     "formWin": "Sieg",
     "formDraw": "Unentschieden",

@@ -55,7 +55,7 @@ export default function MatchTimeline({
 
   // Aggregates
   const agg = useMemo(() => {
-    const played = displayed.filter(e => e.minutesPlayed > 0);
+    const played = displayed.filter(e => e.status === 'played');
     if (played.length === 0) return null;
     return {
       avgScore: Math.round(played.reduce((s, e) => s + e.score, 0) / played.length),
@@ -69,7 +69,7 @@ export default function MatchTimeline({
 
   // Form dots: W/D/L from matchScore (format: "teamScore-opponentScore")
   const formDots = useMemo(() => {
-    const played = displayed.filter(e => e.minutesPlayed > 0 && e.matchScore);
+    const played = displayed.filter(e => e.status === 'played' && e.matchScore);
     return played.map(e => {
       const parts = e.matchScore.split('-').map(Number);
       if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) return 'gray';
@@ -186,7 +186,7 @@ export default function MatchTimeline({
           <div className="flex items-center justify-center py-8">
             <Loader2 className="size-5 animate-spin text-white/30" aria-hidden="true" />
           </div>
-        ) : displayed.length === 0 ? (
+        ) : displayed.length === 0 || displayed.every(e => e.status === 'not_in_squad') ? (
           <div className="flex items-center justify-center gap-2 py-8 px-4 text-center text-white/30 text-sm">
             {player.status === 'injured' ? (
               <>
@@ -205,7 +205,9 @@ export default function MatchTimeline({
           </div>
         ) : (
           displayed.map((entry) => {
-            const isDnp = entry.minutesPlayed === 0;
+            const isPlayed = entry.status === 'played';
+            const isBench = entry.status === 'bench';
+            const isAbsent = entry.status === 'not_in_squad';
             const barPct = entry.score > 0 ? Math.min(100, Math.max(5, ((entry.score - 40) / 110) * 100)) : 0;
 
             return (
@@ -213,7 +215,7 @@ export default function MatchTimeline({
                 key={`${entry.gameweek}-${entry.fixtureId}`}
                 className={cn(
                   'flex items-center gap-2 px-4 md:px-6 py-2.5 text-sm',
-                  isDnp && 'opacity-40'
+                  !isPlayed && 'opacity-40'
                 )}
               >
                 {/* GW */}
@@ -234,10 +236,15 @@ export default function MatchTimeline({
                   <span className="truncate">{entry.opponent}</span>
                 </span>
 
-                {/* Minutes + Starter/Sub */}
-                <span className="font-mono tabular-nums text-xs w-12 shrink-0 text-right text-white/50 flex items-center justify-end gap-0.5">
-                  {isDnp ? '\u2013' : (
-                    <>
+                {/* Bench / Not in Squad — short-circuit render */}
+                {!isPlayed ? (
+                  <span className="flex-1 text-xs text-white/25 italic">
+                    {isBench ? t('statusBench') : t('statusNotInSquad')}
+                  </span>
+                ) : (
+                  <>
+                    {/* Minutes + Starter/Sub */}
+                    <span className="font-mono tabular-nums text-xs w-12 shrink-0 text-right text-white/50 flex items-center justify-end gap-0.5">
                       <span className={cn(
                         'text-[8px] font-bold px-1 rounded',
                         entry.isStarter
@@ -247,46 +254,44 @@ export default function MatchTimeline({
                         {entry.isStarter ? t('starterLabel') : t('subLabel')}
                       </span>
                       {entry.minutesPlayed}&apos;
-                    </>
-                  )}
-                </span>
+                    </span>
 
-                {/* Events */}
-                <div className="flex items-center gap-0.5 w-16 shrink-0">
-                  {entry.goals > 0 && Array.from({ length: entry.goals }).map((_, i) => (
-                    <span key={`g${i}`} className="text-[11px]" title={t('goals')}>&#9917;</span>
-                  ))}
-                  {entry.assists > 0 && Array.from({ length: entry.assists }).map((_, i) => (
-                    <span key={`a${i}`} className="text-[11px] text-sky-400" title={t('assists')}>&#127380;</span>
-                  ))}
-                  {entry.cleanSheet && player.pos === 'GK' && (
-                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-400/10 px-1 rounded" title={t('statCS')}>CS</span>
-                  )}
-                  {entry.yellowCard && (
-                    <span className="w-2 h-3 bg-yellow-400 rounded-sm inline-block" title={t('yellowCard')} />
-                  )}
-                  {entry.redCard && (
-                    <span className="w-2 h-3 bg-red-500 rounded-sm inline-block" title={t('redCard')} />
-                  )}
-                </div>
+                    {/* Events */}
+                    <div className="flex items-center gap-0.5 w-16 shrink-0">
+                      {entry.goals > 0 && Array.from({ length: entry.goals }).map((_, i) => (
+                        <span key={`g${i}`} className="text-[11px]" title={t('goals')}>&#9917;</span>
+                      ))}
+                      {entry.assists > 0 && Array.from({ length: entry.assists }).map((_, i) => (
+                        <span key={`a${i}`} className="text-[11px] text-sky-400" title={t('assists')}>&#127380;</span>
+                      ))}
+                      {entry.cleanSheet && player.pos === 'GK' && (
+                        <span className="text-[9px] font-bold text-emerald-400 bg-emerald-400/10 px-1 rounded" title={t('statCS')}>CS</span>
+                      )}
+                      {entry.yellowCard && (
+                        <span className="w-2 h-3 bg-yellow-400 rounded-sm inline-block" title={t('yellowCard')} />
+                      )}
+                      {entry.redCard && (
+                        <span className="w-2 h-3 bg-red-500 rounded-sm inline-block" title={t('redCard')} />
+                      )}
+                    </div>
 
-                {/* Score + Bar */}
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <span className={cn(
-                    'font-mono font-black text-sm w-8 text-right tabular-nums shrink-0',
-                    isDnp ? 'text-white/20' : scoreTextClass(entry.score)
-                  )}>
-                    {isDnp ? 'DNP' : entry.score}
-                  </span>
-                  <div className="flex-1 h-2 bg-white/[0.04] rounded-full overflow-hidden">
-                    {!isDnp && (
-                      <div
-                        className="h-full rounded-full transition-all duration-300"
-                        style={{ width: `${barPct}%`, backgroundColor: scoreColor(entry.score) }}
-                      />
-                    )}
-                  </div>
-                </div>
+                    {/* Score + Bar */}
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <span className={cn(
+                        'font-mono font-black text-sm w-8 text-right tabular-nums shrink-0',
+                        scoreTextClass(entry.score)
+                      )}>
+                        {entry.score}
+                      </span>
+                      <div className="flex-1 h-2 bg-white/[0.04] rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{ width: `${barPct}%`, backgroundColor: scoreColor(entry.score) }}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 {/* Match Result (desktop) */}
                 {entry.matchScore && (

@@ -4002,6 +4002,8 @@
     "noMatchData": "Henuz mac verisi yok",
     "starterLabel": "XI",
     "subLabel": "SUB",
+    "statusBench": "Oyuna girmedi",
+    "statusNotInSquad": "Kadroda degil",
     "formLabel": "Form",
     "formWin": "Galibiyet",
     "formDraw": "Berabere",

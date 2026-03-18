@@ -123,6 +123,8 @@ export async function getPlayerGameweekScores(playerId: string): Promise<PlayerG
 // Match Timeline (per-match details for player)
 // ============================================
 
+export type MatchTimelineStatus = 'played' | 'bench' | 'not_in_squad';
+
 export type MatchTimelineEntry = {
   gameweek: number;
   fixtureId: string;
@@ -132,7 +134,7 @@ export type MatchTimelineEntry = {
   matchScore: string;     // "2-1"
   minutesPlayed: number;
   isStarter: boolean;
-  score: number;          // GW score (40-150 range)
+  score: number;          // GW score (55-100 range, rating×10)
   goals: number;
   assists: number;
   cleanSheet: boolean;
@@ -141,36 +143,55 @@ export type MatchTimelineEntry = {
   saves: number;
   rating: number | null;
   date: string;
+  status: MatchTimelineStatus;
 };
 
-/** Load detailed per-match timeline for a player (last N matches) */
+/** Load detailed per-match timeline for a player — ALL club gameweeks, including non-appearances */
 export async function getPlayerMatchTimeline(
   playerId: string,
   limit = 15
 ): Promise<MatchTimelineEntry[]> {
-  // 1. Get fixture stats with fixture + club data
-  const { data: statsData, error: statsError } = await supabase
-    .from('fixture_player_stats')
+  // 1. Get the player's club_id
+  const { data: playerData } = await supabase
+    .from('players')
+    .select('club_id')
+    .eq('id', playerId)
+    .single();
+
+  if (!playerData?.club_id) return [];
+  const clubId = playerData.club_id as string;
+
+  // 2. Get ALL finished fixtures for this club (desc by GW, limited)
+  const { data: clubFixtures, error: fixError } = await supabase
+    .from('fixtures')
     .select(`
-      fixture_id, minutes_played, goals, assists, clean_sheet,
-      yellow_card, red_card, saves, rating, is_starter, club_id,
-      fixtures!inner(
-        gameweek, home_club_id, away_club_id, home_score, away_score, created_at,
-        home_club:clubs!fixtures_home_club_id_fkey(short, logo_url),
-        away_club:clubs!fixtures_away_club_id_fkey(short, logo_url)
-      )
+      id, gameweek, home_club_id, away_club_id, home_score, away_score, created_at,
+      home_club:clubs!fixtures_home_club_id_fkey(short, logo_url),
+      away_club:clubs!fixtures_away_club_id_fkey(short, logo_url)
     `)
-    .eq('player_id', playerId)
-    .order('fixtures(gameweek)', { ascending: false })
+    .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
+    .not('home_score', 'is', null)
+    .order('gameweek', { ascending: false })
     .limit(limit);
 
-  if (statsError || !statsData || statsData.length === 0) return [];
+  if (fixError || !clubFixtures || clubFixtures.length === 0) return [];
 
-  // 2. Get GW scores for this player
-  const gameweeks = statsData.map((r: Record<string, unknown>) => {
-    const fix = r.fixtures as Record<string, unknown>;
-    return fix.gameweek as number;
-  });
+  const fixtureIds = clubFixtures.map(f => f.id as string);
+
+  // 3. Get player stats for these fixtures (includes minutes=0 bench entries)
+  const { data: statsData } = await supabase
+    .from('fixture_player_stats')
+    .select('fixture_id, minutes_played, goals, assists, clean_sheet, yellow_card, red_card, saves, rating, is_starter')
+    .eq('player_id', playerId)
+    .in('fixture_id', fixtureIds);
+
+  const statsMap = new Map<string, Record<string, unknown>>();
+  for (const row of statsData ?? []) {
+    statsMap.set(row.fixture_id as string, row);
+  }
+
+  // 4. Get GW scores
+  const gameweeks = clubFixtures.map(f => f.gameweek as number);
   const { data: scoresData } = await supabase
     .from('player_gameweek_scores')
     .select('gameweek, score')
@@ -182,14 +203,12 @@ export async function getPlayerMatchTimeline(
     scoreMap.set(row.gameweek as number, row.score as number);
   }
 
-  // 3. Merge
-  return statsData.map((row: Record<string, unknown>) => {
-    const fix = row.fixtures as Record<string, unknown>;
-    const homeClub = fix.home_club as { short: string; logo_url: string | null } | null;
-    const awayClub = fix.away_club as { short: string; logo_url: string | null } | null;
+  // 5. Merge: every club fixture becomes a timeline entry
+  return clubFixtures.map((fix) => {
+    const homeClub = fix.home_club as unknown as { short: string; logo_url: string | null } | null;
+    const awayClub = fix.away_club as unknown as { short: string; logo_url: string | null } | null;
     const gw = fix.gameweek as number;
-    const playerClubId = row.club_id as string;
-    const isHome = playerClubId === (fix.home_club_id as string);
+    const isHome = clubId === (fix.home_club_id as string);
     const opponent = isHome ? (awayClub?.short ?? '???') : (homeClub?.short ?? '???');
     const opponentLogoUrl = isHome ? (awayClub?.logo_url ?? null) : (homeClub?.logo_url ?? null);
     const homeScore = fix.home_score as number | null;
@@ -198,24 +217,34 @@ export async function getPlayerMatchTimeline(
       ? (isHome ? `${homeScore}-${awayScore}` : `${awayScore}-${homeScore}`)
       : '';
 
+    const stat = statsMap.get(fix.id as string);
+    const minutesPlayed = (stat?.minutes_played as number) ?? 0;
+    const hasEntry = !!stat;
+
+    let status: MatchTimelineStatus;
+    if (hasEntry && minutesPlayed > 0) status = 'played';
+    else if (hasEntry && minutesPlayed === 0) status = 'bench';
+    else status = 'not_in_squad';
+
     return {
       gameweek: gw,
-      fixtureId: row.fixture_id as string,
+      fixtureId: fix.id as string,
       opponent,
       opponentLogoUrl,
       isHome,
       matchScore,
-      minutesPlayed: row.minutes_played as number,
-      isStarter: row.is_starter as boolean,
+      minutesPlayed,
+      isStarter: (stat?.is_starter as boolean) ?? false,
       score: scoreMap.get(gw) ?? 0,
-      goals: row.goals as number,
-      assists: row.assists as number,
-      cleanSheet: row.clean_sheet as boolean,
-      yellowCard: row.yellow_card as boolean,
-      redCard: row.red_card as boolean,
-      saves: row.saves as number,
-      rating: row.rating as number | null,
+      goals: (stat?.goals as number) ?? 0,
+      assists: (stat?.assists as number) ?? 0,
+      cleanSheet: (stat?.clean_sheet as boolean) ?? false,
+      yellowCard: (stat?.yellow_card as boolean) ?? false,
+      redCard: (stat?.red_card as boolean) ?? false,
+      saves: (stat?.saves as number) ?? 0,
+      rating: (stat?.rating as number | null) ?? null,
       date: fix.created_at as string,
+      status,
     };
   });
 }
