@@ -37,7 +37,7 @@ export type Player = {
   country: string;
   contractMonthsLeft: number;
   marketValue?: number; // Marktwert in € (für Success Fee Tier)
-  perf: { l5: number; l15: number; trend: Trend };
+  perf: { l5: number; l15: number; l5Apps: number; l15Apps: number; season: number; trend: Trend };
   stats: { matches: number; goals: number; assists: number; cleanSheets: number; minutes: number; saves: number };
   prices: { lastTrade: number; change24h: number; floor?: number; ipoPrice?: number; history7d?: number[] };
   dpc: { supply: number; float: number; circulation: number; onMarket: number; owned: number };
@@ -489,6 +489,8 @@ export type DbPlayer = {
   perf_l5: number;
   perf_l15: number;
   perf_season: number;
+  l5_appearances: number;
+  l15_appearances: number;
   dpc_total: number;
   dpc_available: number;
   floor_price: number;    // BIGINT in Cents — guenstigste User-Order oder ipo_price
