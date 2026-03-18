@@ -187,7 +187,7 @@ export default function TradingCardFrame({
           {...tiltProps}
           onClick={handleClick}
           className={cn(
-            'relative aspect-[3/4] w-[240px] md:w-[280px] rounded-2xl',
+            'relative aspect-[3/4.2] w-[240px] md:w-[280px] rounded-2xl',
             canFlip && 'cursor-pointer'
           )}
           style={{
