@@ -133,7 +133,7 @@ function DebugTab() {
           rel="noopener noreferrer"
           className="text-xs text-gold hover:underline flex items-center gap-1"
         >
-          Supabase Dashboard <ExternalLink className="size-3" aria-hidden="true" />
+          {t('supabaseDashboard')} <ExternalLink className="size-3" aria-hidden="true" />
         </a>
       </div>
 
@@ -226,9 +226,9 @@ export default function BescoutAdminContent() {
       {/* Tabs */}
       {(() => {
         const TAB_LABELS: Record<AdminTab, string> = {
-          overview: t('tabOverview'), users: t('tabUsers'), clubs: 'Clubs', founding_passes: 'Founding Passes', treasury: 'Treasury', fees: t('tabFees'),
-          ipos: 'IPOs', gameweeks: t('tabGameweeks'), events: 'Events', airdrop: 'Airdrop',
-          sponsors: t('tabSponsors'), creator_fund: 'Creator Fund', debug: 'Debug',
+          overview: t('tabOverview'), users: t('tabUsers'), clubs: t('tabClubs'), founding_passes: t('tabFoundingPasses'), treasury: t('tabTreasury'), fees: t('tabFees'),
+          ipos: t('tabIpos'), gameweeks: t('tabGameweeks'), events: t('tabEvents'), airdrop: t('tabAirdrop'),
+          sponsors: t('tabSponsors'), creator_fund: t('tabCreatorFund'), debug: t('tabDebug'),
         };
         return (
           <div className="flex gap-1 bg-surface-minimal rounded-xl p-1 border border-white/[0.06] overflow-x-auto scrollbar-hide">

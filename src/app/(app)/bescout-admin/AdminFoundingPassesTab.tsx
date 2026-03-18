@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { Gift, Loader2, RefreshCw, Search, Crown, AlertCircle, ShieldAlert } from 'lucide-react';
 import { Card, Button, StatCard } from '@/components/ui';
 import FoundingPassBadge from '@/components/ui/FoundingPassBadge';
@@ -40,6 +41,7 @@ type PassStats = {
 // ============================================
 
 export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
+  const t = useTranslations('bescoutAdmin');
   const { addToast } = useToast();
   const [passes, setPasses] = useState<PassWithProfile[]>([]);
   const [stats, setStats] = useState<PassStats | null>(null);
@@ -155,7 +157,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
 
   const handleGrant = async () => {
     if (!grantUserId.trim()) {
-      setGrantError('User-ID eingeben');
+      setGrantError(t('fpErrorUserRequired'));
       return;
     }
     setGranting(true);
@@ -171,19 +173,19 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
       );
       if (!result.ok) {
         const msg = result.error === 'KILL_SWITCH_ACTIVE'
-          ? `Kill-Switch aktiv: EUR ${KILL_SWITCH_LIMIT_EUR.toLocaleString('de-DE')} Limit erreicht — keine weiteren Passes moeglich`
-          : (result.error ?? 'Fehler beim Vergeben');
+          ? t('fpKillSwitchError', { limit: KILL_SWITCH_LIMIT_EUR.toLocaleString('de-DE') })
+          : (result.error ?? t('fpErrorGrant'));
         setGrantError(msg);
         return;
       }
-      addToast(`${grantTier.toUpperCase()} Pass vergeben an ${grantUsername || grantUserId.slice(0, 8)} — ${fmtScout(result.bcreditsGranted ?? 0)} CR`, 'success');
+      addToast(t('fpGrantSuccess', { tier: grantTier.toUpperCase(), user: grantUsername || grantUserId.slice(0, 8), amount: fmtScout(result.bcreditsGranted ?? 0) }), 'success');
       setGrantUserId('');
       setGrantUsername('');
       setUserQuery('');
       setGrantRef('');
       await loadData();
     } catch (err) {
-      setGrantError(err instanceof Error ? err.message : 'Unbekannter Fehler');
+      setGrantError(err instanceof Error ? err.message : t('fpErrorUnknown'));
     } finally {
       setGranting(false);
     }
@@ -198,10 +200,10 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
       {/* Stats */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard icon={<Gift aria-hidden="true" className="size-5 text-gold" />} label="Passes gesamt" value={String(stats.total)} />
-          <StatCard icon={<Crown aria-hidden="true" className="size-5 text-purple-400" />} label="Founder" value={String(stats.byTier.founder)} />
-          <StatCard icon={<Gift aria-hidden="true" className="size-5 text-amber-400" />} label="Pro" value={String(stats.byTier.pro)} />
-          <StatCard icon={<Gift aria-hidden="true" className="size-5 text-sky-400" />} label="Credits vergeben" value={fmtScout(stats.totalBcreditsGranted)} />
+          <StatCard icon={<Gift aria-hidden="true" className="size-5 text-gold" />} label={t('fpPassesTotal')} value={String(stats.total)} />
+          <StatCard icon={<Crown aria-hidden="true" className="size-5 text-purple-400" />} label={t('fpFounder')} value={String(stats.byTier.founder)} />
+          <StatCard icon={<Gift aria-hidden="true" className="size-5 text-amber-400" />} label={t('fpPro')} value={String(stats.byTier.pro)} />
+          <StatCard icon={<Gift aria-hidden="true" className="size-5 text-sky-400" />} label={t('fpCreditsGranted')} value={fmtScout(stats.totalBcreditsGranted)} />
         </div>
       )}
 
@@ -216,12 +218,12 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
               <div className="flex items-center gap-2 mb-2">
                 <ShieldAlert className={cn('size-4 flex-shrink-0', isActive ? 'text-red-400' : 'text-amber-400')} aria-hidden="true" />
                 <span className="text-xs font-bold text-white/50 uppercase">
-                  Kill-Switch — <span className="font-mono tabular-nums">EUR {KILL_SWITCH_LIMIT_EUR.toLocaleString('de-DE')}</span> Limit
+                  {t('fpKillSwitchLabel')} — <span className="font-mono tabular-nums">EUR {KILL_SWITCH_LIMIT_EUR.toLocaleString('de-DE')}</span> {t('fpKillSwitchLimit')}
                 </span>
-                {isActive && <span className="text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">AKTIV</span>}
+                {isActive && <span className="text-[10px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">{t('fpKillSwitchActive')}</span>}
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-3 rounded-full overflow-hidden bg-white/5" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100} aria-label={`Kill-Switch: ${pct.toFixed(1)}% des EUR ${KILL_SWITCH_LIMIT_EUR.toLocaleString('de-DE')} Limits erreicht`}>
+                <div className="flex-1 h-3 rounded-full overflow-hidden bg-white/5" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100} aria-label={`${t('fpKillSwitchLabel')}: ${t('fpKillSwitchPercent', { pct: pct.toFixed(1) })}`}>
                   <div
                     className={cn('h-full rounded-full transition-all', isActive ? 'bg-red-500' : pct > 80 ? 'bg-amber-500' : 'bg-emerald-500')}
                     style={{ width: `${pct}%` }}
@@ -232,7 +234,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
                 </span>
               </div>
               <div className="text-[10px] text-white/30 mt-1">
-                {pct.toFixed(1)}% des Limits erreicht
+                {t('fpKillSwitchPercent', { pct: pct.toFixed(1) })}
               </div>
             </Card>
           );
@@ -242,7 +244,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
       {/* Tier Distribution */}
       {stats && stats.total > 0 && (
         <Card className="p-4">
-          <div className="text-xs font-bold text-white/50 uppercase mb-3">Verteilung nach Tier</div>
+          <div className="text-xs font-bold text-white/50 uppercase mb-3">{t('fpTierDistribution')}</div>
           <div className="flex h-4 rounded-full overflow-hidden bg-white/5">
             {FOUNDING_PASS_TIERS.map(t => {
               const count = stats.byTier[t.tier] ?? 0;
@@ -271,10 +273,10 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
 
       {/* Grant Form */}
       <Card className="p-4 space-y-3">
-        <div className="text-xs font-bold text-white/50 uppercase">Founding Pass vergeben</div>
+        <div className="text-xs font-bold text-white/50 uppercase">{t('fpGrantTitle')}</div>
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex-1 min-w-[200px] relative">
-            <label className="text-[11px] text-white/40 mb-1 block">User suchen</label>
+            <label className="text-[11px] text-white/40 mb-1 block">{t('fpSearchUser')}</label>
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-white/30" aria-hidden="true" />
               <input
@@ -284,8 +286,8 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
                 onFocus={() => { if (userResults.length > 0) setShowDropdown(true); }}
                 onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
                 onKeyDown={handleSearchKeyDown}
-                placeholder="Username eingeben..."
-                aria-label="User suchen"
+                placeholder={t('fpSearchPlaceholder')}
+                aria-label={t('fpSearchUser')}
                 role="combobox"
                 autoComplete="off"
                 aria-expanded={showDropdown && userResults.length > 0}
@@ -299,7 +301,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
               <div className="text-[10px] text-green-400/70 mt-1 font-mono truncate">{grantUsername} ({grantUserId.slice(0, 8)}...)</div>
             )}
             {showDropdown && userResults.length > 0 && (
-              <div id="user-search-listbox" role="listbox" aria-label="Suchergebnisse" className="absolute z-20 left-0 right-0 top-full mt-1 bg-surface-popover/90 backdrop-blur-sm border border-white/[0.12] rounded-lg shadow-card-md max-h-48 overflow-y-auto">
+              <div id="user-search-listbox" role="listbox" aria-label={t('fpSearchResults')} className="absolute z-20 left-0 right-0 top-full mt-1 bg-surface-popover/90 backdrop-blur-sm border border-white/[0.12] rounded-lg shadow-card-md max-h-48 overflow-y-auto">
                 {userResults.map((u, i) => (
                   <button
                     key={u.id}
@@ -318,12 +320,12 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
             )}
           </div>
           <div className="w-32">
-            <label className="text-[11px] text-white/40 mb-1 block">Tier</label>
+            <label className="text-[11px] text-white/40 mb-1 block">{t('fpTierLabel')}</label>
             <select
               value={grantTier}
               onChange={e => setGrantTier(e.target.value as FoundingPassTier)}
               className="w-full px-3 py-2 text-sm bg-white/[0.04] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-gold/50"
-              aria-label="Pass-Tier auswählen"
+              aria-label={t('fpTierSelectLabel')}
             >
               {FOUNDING_PASS_TIERS.map(t => (
                 <option key={t.tier} value={t.tier} className="bg-[#1a1a1a]">
@@ -333,18 +335,18 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
             </select>
           </div>
           <div className="flex-1 min-w-[150px]">
-            <label className="text-[11px] text-white/40 mb-1 block">Referenz (optional)</label>
+            <label className="text-[11px] text-white/40 mb-1 block">{t('fpReferenceLabel')}</label>
             <input
               type="text"
               value={grantRef}
               onChange={e => setGrantRef(e.target.value)}
-              placeholder="z.B. Stripe pi_xxx"
+              placeholder={t('fpReferencePlaceholder')}
               className="w-full px-3 py-2 text-sm bg-white/[0.04] border border-white/10 rounded-lg text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-gold/50"
             />
           </div>
-          <Button variant="gold" size="sm" onClick={handleGrant} disabled={granting} aria-label="Founding Pass vergeben" className={cn('gap-1.5 min-h-[44px] min-w-[44px]', granting && 'opacity-50 cursor-not-allowed')}>
+          <Button variant="gold" size="sm" onClick={handleGrant} disabled={granting} aria-label={t('fpGrantTitle')} className={cn('gap-1.5 min-h-[44px] min-w-[44px]', granting && 'opacity-50 cursor-not-allowed')}>
             {granting ? <Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" /> : <Gift className="size-3.5" />}
-            Vergeben
+            {t('fpGrant')}
           </Button>
         </div>
         {grantError && (
@@ -361,13 +363,13 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
           <table className="w-full text-xs">
             <thead>
               <tr className="text-white/40 border-b border-white/10">
-                <th className="text-left py-2.5 px-3 font-bold">User</th>
-                <th className="text-left py-2.5 px-3 font-bold">Tier</th>
-                <th className="text-right py-2.5 px-3 font-bold">Credits</th>
-                <th className="text-right py-2.5 px-3 font-bold">EUR</th>
-                <th className="text-right py-2.5 px-3 font-bold">Migration %</th>
-                <th className="text-left py-2.5 px-3 font-bold">Referenz</th>
-                <th className="text-left py-2.5 px-3 font-bold">Datum</th>
+                <th className="text-left py-2.5 px-3 font-bold">{t('fpThUser')}</th>
+                <th className="text-left py-2.5 px-3 font-bold">{t('fpThTier')}</th>
+                <th className="text-right py-2.5 px-3 font-bold">{t('fpThCredits')}</th>
+                <th className="text-right py-2.5 px-3 font-bold">{t('fpThEur')}</th>
+                <th className="text-right py-2.5 px-3 font-bold">{t('fpThMigration')}</th>
+                <th className="text-left py-2.5 px-3 font-bold">{t('fpThReference')}</th>
+                <th className="text-left py-2.5 px-3 font-bold">{t('fpThDate')}</th>
               </tr>
             </thead>
             <tbody>
@@ -383,7 +385,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
                 </tr>
               ))}
               {passes.length === 0 && (
-                <tr><td colSpan={7} className="py-8 text-center text-white/30">Noch keine Founding Passes vergeben</td></tr>
+                <tr><td colSpan={7} className="py-8 text-center text-white/30">{t('fpNoPassesYet')}</td></tr>
               )}
             </tbody>
           </table>
@@ -394,7 +396,7 @@ export function AdminFoundingPassesTab({ adminId }: { adminId: string }) {
       <div className="flex justify-end">
         <Button variant="outline" size="sm" onClick={() => { setLoading(true); loadData(); }} className="gap-1.5">
           <RefreshCw aria-hidden="true" className="size-3.5" />
-          Aktualisieren
+          {t('fpRefresh')}
         </Button>
       </div>
     </div>

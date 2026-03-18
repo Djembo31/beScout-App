@@ -71,13 +71,13 @@ export function AdminFeesTab({ adminId }: { adminId: string }) {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
               {([
-                { key: 'trade_fee_bps' as FeeKey, label: 'Trade Fee' },
-                { key: 'trade_platform_bps' as FeeKey, label: 'Platform' },
-                { key: 'trade_pbt_bps' as FeeKey, label: 'PBT' },
-                { key: 'trade_club_bps' as FeeKey, label: 'Club' },
-                { key: 'ipo_platform_bps' as FeeKey, label: 'IPO Platform' },
-                { key: 'ipo_pbt_bps' as FeeKey, label: 'IPO PBT' },
-                { key: 'ipo_club_bps' as FeeKey, label: 'IPO Club' },
+                { key: 'trade_fee_bps' as FeeKey, label: t('feeTradeFee') },
+                { key: 'trade_platform_bps' as FeeKey, label: t('feePlatform') },
+                { key: 'trade_pbt_bps' as FeeKey, label: t('feePbt') },
+                { key: 'trade_club_bps' as FeeKey, label: t('feeClub') },
+                { key: 'ipo_platform_bps' as FeeKey, label: t('feeIpoPlatform') },
+                { key: 'ipo_pbt_bps' as FeeKey, label: t('feeIpoPbt') },
+                { key: 'ipo_club_bps' as FeeKey, label: t('feeIpoClub') },
               ]).map(({ key, label }) => (
                 <div key={key}>
                   <div className="text-white/40 mb-1">{label}</div>
@@ -92,7 +92,7 @@ export function AdminFeesTab({ adminId }: { adminId: string }) {
                       className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white font-mono text-xs tabular-nums"
                     />
                   ) : (
-                    <div className="font-mono tabular-nums text-white">{config[key]} bps</div>
+                    <div className="font-mono tabular-nums text-white">{config[key]} {t('feeBps')}</div>
                   )}
                 </div>
               ))}
