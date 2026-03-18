@@ -33,32 +33,34 @@ export type RetentionMetrics = {
 
 /** Get fan segments for a club */
 export async function getClubFanSegments(clubId: string): Promise<FanSegment[]> {
-  // 1) Total followers
-  const { count: followerCount } = await supabase
-    .from('club_followers')
-    .select('*', { count: 'exact', head: true })
-    .eq('club_id', clubId);
+  // Batch 1: All independent queries in parallel
+  const [followResult, subsResult, playersResult] = await Promise.all([
+    supabase
+      .from('club_followers')
+      .select('*', { count: 'exact', head: true })
+      .eq('club_id', clubId),
+    supabase
+      .from('club_subscriptions')
+      .select('tier, user_id')
+      .eq('club_id', clubId)
+      .eq('status', 'active')
+      .gt('expires_at', new Date().toISOString()),
+    supabase
+      .from('players')
+      .select('id')
+      .eq('club_id', clubId),
+  ]);
 
-  // 2) Active subscribers by tier
-  const { data: subs } = await supabase
-    .from('club_subscriptions')
-    .select('tier, user_id')
-    .eq('club_id', clubId)
-    .eq('status', 'active')
-    .gt('expires_at', new Date().toISOString());
+  const followerCount = followResult.count ?? 0;
+  const subs = subsResult.data ?? [];
+  const playerIds = (playersResult.data ?? []).map(p => p.id);
 
-  const bronze = subs?.filter(s => s.tier === 'bronze').length ?? 0;
-  const silber = subs?.filter(s => s.tier === 'silber').length ?? 0;
-  const gold = subs?.filter(s => s.tier === 'gold').length ?? 0;
+  const bronze = subs.filter(s => s.tier === 'bronze').length;
+  const silber = subs.filter(s => s.tier === 'silber').length;
+  const gold = subs.filter(s => s.tier === 'gold').length;
   const totalSubs = bronze + silber + gold;
 
-  // 3) Fans with holdings (traders) — get club player IDs first
-  const { data: clubPlayers } = await supabase
-    .from('players')
-    .select('id')
-    .eq('club_id', clubId);
-  const playerIds = clubPlayers?.map(p => p.id) ?? [];
-
+  // Batch 2: Holdings count (depends on playerIds from batch 1)
   let traderCount = 0;
   if (playerIds.length > 0) {
     const { count } = await supabase
@@ -69,11 +71,10 @@ export async function getClubFanSegments(clubId: string): Promise<FanSegment[]> 
     traderCount = count ?? 0;
   }
 
-  // Free = followers minus subscribers
-  const freeCount = Math.max(0, (followerCount ?? 0) - totalSubs);
+  const freeCount = Math.max(0, followerCount - totalSubs);
 
   return [
-    { id: 'all', label: 'Alle Fans', count: followerCount ?? 0, icon: 'users' },
+    { id: 'all', label: 'Alle Fans', count: followerCount, icon: 'users' },
     { id: 'free', label: 'Free Follower', count: freeCount, icon: 'user' },
     { id: 'bronze', label: 'Bronze', count: bronze, icon: 'shield' },
     { id: 'silber', label: 'Silber', count: silber, icon: 'shield' },
@@ -88,72 +89,71 @@ export async function getClubFanList(
   segment: string = 'all',
   limit: number = 50,
 ): Promise<ClubFanProfile[]> {
-  // Start with followers
-  const { data: followers } = await supabase
-    .from('club_followers')
-    .select('user_id, created_at')
-    .eq('club_id', clubId)
-    .order('created_at', { ascending: false })
-    .limit(limit);
+  // Batch 1: Followers + club players (independent)
+  const [followersResult, clubPlayersResult] = await Promise.all([
+    supabase
+      .from('club_followers')
+      .select('user_id, created_at')
+      .eq('club_id', clubId)
+      .order('created_at', { ascending: false })
+      .limit(limit),
+    supabase
+      .from('players')
+      .select('id')
+      .eq('club_id', clubId),
+  ]);
 
+  const followers = followersResult.data;
   if (!followers || followers.length === 0) return [];
 
   const userIds = followers.map(f => f.user_id);
+  const playerIds = (clubPlayersResult.data ?? []).map(p => p.id);
 
-  // Get profiles
-  const { data: profiles } = await supabase
-    .from('profiles')
-    .select('id, handle, display_name, avatar_url')
-    .in('id', userIds);
-
-  // Get active subscriptions
-  const { data: subs } = await supabase
-    .from('club_subscriptions')
-    .select('user_id, tier')
-    .eq('club_id', clubId)
-    .eq('status', 'active')
-    .gt('expires_at', new Date().toISOString())
-    .in('user_id', userIds);
-
-  // Get holdings counts for club players
-  const { data: clubPlayers } = await supabase
-    .from('players')
-    .select('id')
-    .eq('club_id', clubId);
-  const playerIds = clubPlayers?.map(p => p.id) ?? [];
-
-  let holdingsMap = new Map<string, number>();
-  if (playerIds.length > 0) {
-    const { data: holdings } = await supabase
-      .from('holdings')
-      .select('user_id, quantity')
-      .in('player_id', playerIds)
+  // Batch 2: All user-dependent queries in parallel
+  const [profilesResult, subsResult, holdingsResult, activitiesResult] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, handle, display_name, avatar_url')
+      .in('id', userIds),
+    supabase
+      .from('club_subscriptions')
+      .select('user_id, tier')
+      .eq('club_id', clubId)
+      .eq('status', 'active')
+      .gt('expires_at', new Date().toISOString())
+      .in('user_id', userIds),
+    playerIds.length > 0
+      ? supabase
+          .from('holdings')
+          .select('user_id, quantity')
+          .in('player_id', playerIds)
+          .in('user_id', userIds)
+          .gt('quantity', 0)
+      : Promise.resolve({ data: null } as { data: null }),
+    supabase
+      .from('activity_log')
+      .select('user_id, created_at')
       .in('user_id', userIds)
-      .gt('quantity', 0);
-    if (holdings) {
-      for (const h of holdings) {
-        holdingsMap.set(h.user_id, (holdingsMap.get(h.user_id) ?? 0) + h.quantity);
-      }
+      .order('created_at', { ascending: false })
+      .limit(1000),
+  ]);
+
+  const holdingsMap = new Map<string, number>();
+  if (holdingsResult.data) {
+    for (const h of holdingsResult.data) {
+      holdingsMap.set(h.user_id, (holdingsMap.get(h.user_id) ?? 0) + h.quantity);
     }
   }
 
-  // Get last activity
-  const { data: activities } = await supabase
-    .from('activity_log')
-    .select('user_id, created_at')
-    .in('user_id', userIds)
-    .order('created_at', { ascending: false })
-    .limit(userIds.length);
-
   const activityMap = new Map<string, string>();
-  if (activities) {
-    for (const a of activities) {
+  if (activitiesResult.data) {
+    for (const a of activitiesResult.data) {
       if (!activityMap.has(a.user_id)) activityMap.set(a.user_id, a.created_at);
     }
   }
 
-  const profileMap = new Map(profiles?.map(p => [p.id, p]) ?? []);
-  const subMap = new Map(subs?.map(s => [s.user_id, s.tier]) ?? []);
+  const profileMap = new Map((profilesResult.data ?? []).map(p => [p.id, p]));
+  const subMap = new Map((subsResult.data ?? []).map(s => [s.user_id, s.tier]));
   const followMap = new Map(followers.map(f => [f.user_id, f.created_at]));
 
   const fans: ClubFanProfile[] = userIds.map(uid => {
@@ -173,7 +173,6 @@ export async function getClubFanList(
     };
   });
 
-  // Filter by segment
   if (segment !== 'all') {
     return fans.filter(f => {
       if (segment === 'free') return !f.tier && f.holdingsCount === 0;
