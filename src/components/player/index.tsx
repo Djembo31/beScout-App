@@ -380,12 +380,13 @@ export function PlayerIdentity({ player, size = 'md', showMeta = true, showStatu
 
 /** Priority-ordered badge strip. Shows max N badges. */
 export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }: {
-  player: Pick<Player, 'status' | 'isLiquidated' | 'contractMonthsLeft' | 'ipo' | 'dpc' | 'pbt'>;
+  player: Pick<Player, 'status' | 'isLiquidated' | 'contractMonthsLeft' | 'ipo' | 'dpc' | 'pbt' | 'offerCount'>;
   holding?: HoldingData;
   maxBadges?: number;
   size?: 'sm' | 'md';
 }) {
   const tp = useTranslations('player');
+  const tm = useTranslations('market');
   const badges: React.ReactNode[] = [];
   const chipCls = size === 'md'
     ? 'px-2 py-0.5 text-[10px] font-bold rounded border'
@@ -424,7 +425,25 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
     );
   }
 
-  // 5. Listed
+  // 5. Offer count (Marktplatz badge)
+  const ipoActive = player.ipo.status === 'open' || player.ipo.status === 'early_access';
+  const totalOffers = (player.offerCount ?? 0) + (ipoActive ? 1 : 0);
+  if (totalOffers > 0 && !ipoActive) {
+    // Only show offer count badge if IPO badge is NOT already shown (avoid redundancy)
+    badges.push(
+      <span key="offers" className={cn('inline-flex items-center gap-0.5 bg-green-500/10 border-green-500/20 text-green-500/80', chipCls)}>
+        {totalOffers === 1 ? tm('angebotCount', { count: totalOffers }) : tm('angeboteCount', { count: totalOffers })}
+      </span>
+    );
+  } else if (totalOffers === 0 && !ipoActive && !player.isLiquidated) {
+    badges.push(
+      <span key="offers" className={cn('inline-flex items-center gap-0.5 bg-white/5 border-white/10 text-white/30', chipCls)}>
+        {tm('nichtGelistet')}
+      </span>
+    );
+  }
+
+  // 6. Listed
   if (holding?.isOnTransferList) {
     badges.push(
       <span key="list" className={cn('inline-flex items-center gap-0.5 bg-sky-500/10 border-sky-400/20 text-sky-300', chipCls)}>
@@ -433,7 +452,7 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
     );
   }
 
-  // 6. PBT
+  // 7. PBT
   if (player.pbt && player.pbt.balance > 0) {
     badges.push(
       <span key="pbt" className={cn('inline-flex items-center gap-0.5 bg-gold/10 border-gold/20 text-gold/80', chipCls)}>
@@ -442,7 +461,7 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
     );
   }
 
-  // 7. Owned (only when NOT in holding context)
+  // 8. Owned (only when NOT in holding context)
   if (!holding && player.dpc.owned > 0) {
     badges.push(
       <span key="own" className={cn('inline-flex items-center gap-0.5 bg-green-500/10 border-green-500/20 text-green-500/80', chipCls)}>

@@ -40,7 +40,7 @@ function TopMoversStripInner({ players }: TopMoversStripProps) {
               <div className="text-[11px] text-white/40 truncate">{p.club}</div>
             </div>
             <div className="text-right shrink-0">
-              <div className="text-[11px] text-white/40 font-mono tabular-nums">{fmtScout(p.prices.floor ?? p.prices.lastTrade)}</div>
+              <div className="text-[11px] text-white/40 font-mono tabular-nums">{fmtScout(p.prices.floor ?? p.prices.lastTrade ?? p.prices.referencePrice ?? 0)}</div>
               <div className={cn('flex items-center gap-0.5 font-mono font-bold text-sm tabular-nums', up ? 'text-green-500' : 'text-red-400')}>
                 <Icon className="size-3" aria-hidden="true" />
                 {changeText}

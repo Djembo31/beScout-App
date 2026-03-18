@@ -61,8 +61,8 @@ export default function DiscoveryCard({
   };
 
   const price = variant === 'ipo' ? (ipoPrice ?? 0)
-    : variant === 'new' || variant === 'listing' ? (listingPrice ?? p.prices.floor ?? 0)
-    : p.prices.floor ?? 0;
+    : variant === 'new' || variant === 'listing' ? (listingPrice ?? p.prices.floor ?? p.prices.referencePrice ?? 0)
+    : p.prices.floor ?? p.prices.referencePrice ?? 0;
 
   return (
     <Link
