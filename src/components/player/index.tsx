@@ -490,7 +490,7 @@ export function PlayerKPIs({ player, context = 'default', holding, ipoData, scor
   const tp = useTranslations('player');
   const floor = player.listings.length > 0
     ? Math.min(...player.listings.map(l => l.price))
-    : player.prices.floor ?? 0;
+    : player.prices.floor ?? player.prices.referencePrice ?? 0;
   const l5 = player.perf.l5;
   const l5Color = getL5Color(l5);
   const up = player.prices.change24h >= 0;

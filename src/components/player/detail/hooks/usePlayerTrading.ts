@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { useToast } from '@/components/providers/ToastProvider';
-import { buyFromMarket, placeSellOrder, cancelOrder } from '@/lib/services/trading';
+import { buyFromMarket, buyFromOrder, placeSellOrder, cancelOrder } from '@/lib/services/trading';
 import { buyFromIpo } from '@/lib/services/ipo';
 import { createOffer as createOfferAction, acceptOffer } from '@/lib/services/offers';
 import { createPost } from '@/lib/services/posts';
@@ -53,6 +53,7 @@ export function usePlayerTrading({
   const [buySuccess, setBuySuccess] = useState<string | null>(null);
   const [shared, setShared] = useState(false);
   const [pendingBuyQty, setPendingBuyQty] = useState<number | null>(null);
+  const [pendingBuyOrderId, setPendingBuyOrderId] = useState<string | null>(null);
   const [buyModalOpen, setBuyModalOpen] = useState(false);
   const [sellModalOpen, setSellModalOpen] = useState(false);
   const [showOfferModal, setShowOfferModal] = useState(false);
@@ -78,13 +79,17 @@ export function usePlayerTrading({
 
   // ─── Handlers ──────────────────────────────
 
-  const executeBuy = useCallback(async (quantity: number) => {
+  const executeBuy = useCallback(async (quantity: number, orderId?: string | null) => {
     if (!userId || !player || buyingRef.current) return;
     buyingRef.current = true;
     setPendingBuyQty(null);
+    setPendingBuyOrderId(null);
     setBuying(true); setBuyError(null); setBuySuccess(null); setShared(false);
     try {
-      const result = await buyFromMarket(userId, playerId, quantity);
+      // If a specific order was selected, buy from that order; otherwise buy from cheapest (market)
+      const result = orderId
+        ? await buyFromOrder(userId, orderId, quantity)
+        : await buyFromMarket(userId, playerId, quantity);
       if (!result.success) { setBuyError(result.error || t('buyFailed')); }
       else {
         const priceBsd = result.price_per_dpc ? formatScout(result.price_per_dpc) : '?';
@@ -99,10 +104,14 @@ export function usePlayerTrading({
     finally { buyingRef.current = false; setBuying(false); }
   }, [userId, player, playerId, balanceCents, setBalanceCents, invalidateAfterTrade, queryClient, refreshBalance, t, te]);
 
-  const handleBuy = useCallback((quantity: number) => {
+  const handleBuy = useCallback((quantity: number, orderId?: string) => {
     if (!userId || !player || player.isLiquidated) return;
-    if (userOrders.length > 0) { setPendingBuyQty(quantity); return; }
-    executeBuy(quantity);
+    if (userOrders.length > 0) {
+      setPendingBuyQty(quantity);
+      setPendingBuyOrderId(orderId ?? null);
+      return;
+    }
+    executeBuy(quantity, orderId);
   }, [userId, player, userOrders, executeBuy]);
 
   const handleIpoBuy = useCallback(async (quantity: number) => {
@@ -210,13 +219,13 @@ export function usePlayerTrading({
   const closeSellModal = useCallback(() => setSellModalOpen(false), []);
   const openOfferModal = useCallback(() => { setBuyModalOpen(false); setShowOfferModal(true); }, []);
   const closeOfferModal = useCallback(() => setShowOfferModal(false), []);
-  const cancelPendingBuy = useCallback(() => setPendingBuyQty(null), []);
+  const cancelPendingBuy = useCallback(() => { setPendingBuyQty(null); setPendingBuyOrderId(null); }, []);
 
   return {
     // State
     buying, ipoBuying, selling, cancellingId,
     buyError, sellError, buySuccess, shared,
-    pendingBuyQty, buyModalOpen, sellModalOpen,
+    pendingBuyQty, pendingBuyOrderId, buyModalOpen, sellModalOpen,
     showOfferModal, offerPrice, offerMessage, offerLoading,
     acceptingBidId,
     // Setters

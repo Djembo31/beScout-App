@@ -354,6 +354,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           buySuccess={trading.buySuccess}
           shared={trading.shared}
           pendingBuyQty={trading.pendingBuyQty}
+          pendingBuyOrderId={trading.pendingBuyOrderId}
           onBuy={trading.handleBuy}
           onIpoBuy={trading.handleIpoBuy}
           onConfirmBuy={trading.executeBuy}

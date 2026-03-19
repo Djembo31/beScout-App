@@ -13,13 +13,14 @@ interface BuyConfirmationProps {
   floorBsd: number;
   balanceCents: number | null;
   buying: boolean;
-  onConfirmBuy: (qty: number) => void;
+  onConfirmBuy: (qty: number, orderId?: string) => void;
+  pendingOrderId?: string | null;
   onCancel: () => void;
 }
 
 export default function BuyConfirmation({
   pendingBuyQty, userOrders, floorBsd, balanceCents,
-  buying, onConfirmBuy, onCancel,
+  buying, onConfirmBuy, onCancel, pendingOrderId,
 }: BuyConfirmationProps) {
   const t = useTranslations('playerDetail');
   const estTotalCents = Math.round(floorBsd * 100) * pendingBuyQty;
@@ -54,7 +55,7 @@ export default function BuyConfirmation({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="gold" size="sm" className="flex-1" onClick={() => onConfirmBuy(pendingBuyQty)} disabled={buying}>
+          <Button variant="gold" size="sm" className="flex-1" onClick={() => onConfirmBuy(pendingBuyQty, pendingOrderId ?? undefined)} disabled={buying}>
             {buying ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <CheckCircle2 className="size-4" aria-hidden="true" />}
             {t('confirmBuy', { qty: pendingBuyQty })}
           </Button>

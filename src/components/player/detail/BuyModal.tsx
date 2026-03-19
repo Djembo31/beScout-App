@@ -30,9 +30,10 @@ interface BuyModalProps {
   buySuccess: string | null;
   shared: boolean;
   pendingBuyQty: number | null;
-  onBuy: (qty: number) => void;
+  pendingBuyOrderId?: string | null;
+  onBuy: (qty: number, orderId?: string) => void;
   onIpoBuy: (qty: number) => void;
-  onConfirmBuy: (qty: number) => void;
+  onConfirmBuy: (qty: number, orderId?: string) => void;
   onCancelPendingBuy: () => void;
   onShareTrade: () => void;
   onOpenOfferModal: () => void;
@@ -111,7 +112,7 @@ export default function BuyModal({
   open, onClose, player, activeIpo, userIpoPurchased,
   balanceCents, allSellOrders, userOrders, userId,
   buying, ipoBuying, buyError, buySuccess, shared,
-  pendingBuyQty,
+  pendingBuyQty, pendingBuyOrderId,
   onBuy, onIpoBuy, onConfirmBuy, onCancelPendingBuy,
   onShareTrade, onOpenOfferModal, profileMap,
 }: BuyModalProps) {
@@ -175,6 +176,7 @@ export default function BuyModal({
           {pendingBuyQty !== null && (
             <BuyConfirmation
               pendingBuyQty={pendingBuyQty}
+              pendingOrderId={pendingBuyOrderId}
               userOrders={userOrders}
               floorBsd={player.prices.floor ?? 0}
               balanceCents={balanceCents}
@@ -289,7 +291,7 @@ export default function BuyModal({
                       canAfford={balanceCents !== null && balanceCents >= (selectedOrder ? selectedOrder.price : floorCents)}
                       label={t('buy')}
                       icon={<Target className="size-4" aria-hidden="true" />}
-                      onBuy={onBuy}
+                      onBuy={(qty) => onBuy(qty, selectedOrder?.id)}
                     />
                   </div>
                 </div>
