@@ -36,12 +36,18 @@ export default defineConfig({
     // --- Authenticated tests (fan) ---
     {
       name: 'authenticated',
-      testIgnore: [/auth\.(setup|spec)\.ts/, /admin\.spec\.ts/, /create-demo-accounts\.spec\.ts/],
+      testIgnore: [/auth\.(setup|spec)\.ts/, /admin\.spec\.ts/, /create-demo-accounts\.spec\.ts/, /bots\//],
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],
         storageState: path.join(authDir, 'fan.json'),
       },
+    },
+    // --- Bot Simulation (own login, no pre-loaded auth state) ---
+    {
+      name: 'bots',
+      testMatch: /bots\/.*\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] }, // No storageState — bots log in themselves
     },
     // --- Admin tests ---
     {
