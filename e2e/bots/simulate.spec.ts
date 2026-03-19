@@ -18,13 +18,13 @@ const allReports: BotReport[] = [];
 // ── Helpers ──
 
 async function waitForApp(page: Page) {
-  await page.waitForLoadState('domcontentloaded', { timeout: 30_000 });
-  // Skip networkidle — HMR websocket keeps it open on dev server
-  await page.waitForFunction(() => {
-    const root = document.getElementById('__next');
-    return root && root.innerHTML.length > 100;
-  }, { timeout: 30_000 }).catch(() => {});
-  await page.waitForTimeout(500);
+  await page.waitForLoadState('domcontentloaded', { timeout: 15_000 });
+  // Wait for actual React content — nav links, main content, or form elements
+  await Promise.race([
+    page.locator('nav, [role="navigation"], main, form, [id="main-content"]').first().waitFor({ state: 'visible', timeout: 15_000 }),
+    page.locator('a[href="/market"], a[href="/fantasy"], button[type="submit"]').first().waitFor({ state: 'visible', timeout: 15_000 }),
+  ]).catch(() => {});
+  await page.waitForTimeout(300);
 
   const dismissBtn = page.getByText(/Spaeter|Later|Verstanden/i);
   if (await dismissBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
@@ -122,14 +122,19 @@ async function browseMarket(page: Page, bot: BotConfig, journal: BotJournal): Pr
     return [];
   }
 
-  // Find tab
-  const tab = page.getByRole('button', { name: /Marktplatz|Kaufen|Pazar/i });
-  if (await tab.isVisible({ timeout: 5_000 }).catch(() => false)) {
-    await tab.click();
-    await page.waitForTimeout(1000);
-    journal.action('market', 'Marktplatz Tab geklickt');
+  // Tab is already set via URL param ?tab=marktplatz
+  // Wait for content to load (player cards or IPO section)
+  const marketContent = page.locator('a[href*="/player/"], [class*="card"], [class*="Card"]').first();
+  if (await marketContent.isVisible({ timeout: 8_000 }).catch(() => false)) {
+    journal.action('market', 'Marktplatz Inhalte geladen');
   } else {
-    journal.uxIssue('market', 'Marktplatz-Tab nicht gefunden — User koennte verwirrt sein');
+    // Try clicking tab explicitly as fallback
+    const tab = page.getByRole('tab', { name: /Marktplatz/i });
+    if (await tab.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await tab.click();
+      await page.waitForTimeout(1000);
+      journal.action('market', 'Marktplatz Tab geklickt');
+    }
   }
 
   // Collect player links
@@ -370,7 +375,9 @@ async function browseClubPage(page: Page, bot: BotConfig, journal: BotJournal) {
   journal.action('club', 'Besuche Sakaryaspor Vereinsseite');
   await timedNavigation(page, `${BASE_URL}/club/sakaryaspor`, journal, 'club');
 
+  // Wait for player list to load (async data)
   const playerLinks = page.locator('a[href*="/player/"]');
+  await playerLinks.first().waitFor({ state: 'visible', timeout: 10_000 }).catch(() => {});
   const count = await playerLinks.count();
   journal.observe('club', `${count} Spieler-Links auf der Vereinsseite`);
 
