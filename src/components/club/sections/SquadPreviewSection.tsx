@@ -68,7 +68,7 @@ export function SquadPreviewSection({ players, ownedPlayerIds, clubColor, onView
                 <div className="w-full min-w-0">
                   <div className="text-sm font-bold truncate">{player.last}</div>
                   <div className="text-[10px] text-white/40">
-                    {player.pos} · {fmtScout(player.prices.floor ?? 0)}
+                    {player.pos} · {fmtScout(player.prices.floor ?? player.prices.referencePrice ?? 0)}
                   </div>
                 </div>
                 <div className={cn(

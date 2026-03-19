@@ -38,7 +38,7 @@ const THRESHOLD_OPTIONS = [0, 5, 10, 20] as const;
 // ============================================
 
 const getFloor = (p: Player) =>
-  p.listings.length > 0 ? Math.min(...p.listings.map(l => l.price)) : p.prices.floor ?? 0;
+  p.listings.length > 0 ? Math.min(...p.listings.map(l => l.price)) : p.prices.floor ?? p.prices.referencePrice ?? 0;
 
 // ============================================
 // THRESHOLD POPOVER

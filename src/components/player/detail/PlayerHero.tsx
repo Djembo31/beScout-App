@@ -60,7 +60,7 @@ function PlayerHeroInner({
     return () => document.removeEventListener('keydown', handleKey);
   }, [showOverflow]);
 
-  const floor = player.prices.floor ?? 0;
+  const floor = player.prices.floor ?? player.prices.referencePrice ?? 0;
   const change24h = player.prices.change24h ?? 0;
   const up = change24h >= 0;
   const clubData = player.club ? getClub(player.club) : null;
