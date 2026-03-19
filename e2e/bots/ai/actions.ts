@@ -222,3 +222,125 @@ export async function votePost(sb: SupabaseClient, userId: string, postId: strin
   if (error) return { success: false, error: error.message };
   return { success: true, ...(data as Record<string, unknown>) };
 }
+
+// ── Fantasy Types ──
+
+export interface FantasyEvent {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  format: string;
+  gameweek: number | null;
+  entry_fee: number;
+  lineup_size: number;
+  current_entries: number;
+  max_entries: number | null;
+  locks_at: string;
+  scope: string;
+  club_id: string | null;
+}
+
+export interface Lineup {
+  id: string;
+  event_id: string;
+  user_id: string;
+  total_score: number | null;
+  rank: number | null;
+}
+
+export interface UserTickets {
+  balance: number;
+  earned_total: number;
+  spent_total: number;
+}
+
+export interface UserMission {
+  id: string;
+  mission_id: string;
+  progress: number;
+  target_value: number;
+  status: string;
+  definition: { key: string; title: string; type: string; reward_cents: number } | null;
+}
+
+// ── Fantasy READ ──
+
+export async function getActiveEvents(sb: SupabaseClient): Promise<FantasyEvent[]> {
+  const { data } = await sb.from('events')
+    .select('id, name, type, status, format, gameweek, entry_fee, lineup_size, current_entries, max_entries, locks_at, scope, club_id')
+    .in('status', ['upcoming', 'registering', 'late-reg', 'running'])
+    .order('starts_at', { ascending: true });
+  return (data ?? []) as FantasyEvent[];
+}
+
+export async function getUserLineups(sb: SupabaseClient, userId: string): Promise<Lineup[]> {
+  const { data } = await sb.from('lineups')
+    .select('id, event_id, user_id, total_score, rank')
+    .eq('user_id', userId);
+  return (data ?? []) as Lineup[];
+}
+
+// ── Ticket READ ──
+
+export async function getUserTickets(sb: SupabaseClient): Promise<UserTickets | null> {
+  const { data, error } = await sb.rpc('get_user_tickets');
+  if (error) { console.error('[getUserTickets]', error.message); return null; }
+  return data as UserTickets | null;
+}
+
+// ── Mission READ ──
+
+export async function getUserMissions(sb: SupabaseClient, userId: string): Promise<UserMission[]> {
+  const { data, error } = await sb.rpc('assign_user_missions', { p_user_id: userId });
+  if (error) { console.error('[getUserMissions]', error.message); return []; }
+  if (!data || !Array.isArray(data)) return [];
+  return data as UserMission[];
+}
+
+// ── Fantasy WRITE ──
+
+export async function submitLineup(
+  sb: SupabaseClient, userId: string, eventId: string,
+  slots: Record<string, string | null>, captainSlot: string, formation: string
+) {
+  const { data, error } = await sb.from('lineups')
+    .upsert({
+      event_id: eventId,
+      user_id: userId,
+      formation,
+      captain_slot: captainSlot,
+      ...slots,
+    }, { onConflict: 'event_id,user_id' })
+    .select('id')
+    .single();
+  if (error) return { success: false, error: error.message };
+  return { success: true, lineupId: data.id };
+}
+
+// ── Mystery Box WRITE ──
+
+export async function openMysteryBox(sb: SupabaseClient, free = false) {
+  const { data, error } = await sb.rpc('open_mystery_box', { p_free: free });
+  if (error) return { success: false, error: error.message };
+  const result = data as Record<string, unknown>;
+  return {
+    success: (result.ok as boolean) ?? false,
+    rarity: result.rarity as string | undefined,
+    rewardType: result.reward_type as string | undefined,
+    ticketsAmount: result.tickets_amount as number | undefined,
+    cosmeticName: result.cosmetic_name as string | undefined,
+    error: result.error as string | undefined,
+  };
+}
+
+// ── Mission WRITE ──
+
+export async function claimMissionReward(sb: SupabaseClient, missionId: string) {
+  const { data, error } = await sb.rpc('claim_mission_reward', {
+    p_mission_id: missionId,
+  });
+  if (error) return { success: false, error: error.message };
+  const result = data as Record<string, unknown>;
+  return { success: (result.success as boolean) ?? false, reward: result.reward_cents as number | undefined };
+}

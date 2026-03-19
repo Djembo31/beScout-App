@@ -2,9 +2,9 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { AiBotConfig } from './bot-generator';
 import { BotSessionJournal } from './journal';
 import * as actions from './actions';
-import type { MarketPlayer, Holding, ActiveIpo } from './actions';
+import type { MarketPlayer, Holding, ActiveIpo, FantasyEvent } from './actions';
 
-const MAX_ACTIONS = 15;
+const MAX_ACTIONS = 20; // Increased for fantasy + gamification
 
 export async function runBotSession(bot: AiBotConfig, client: SupabaseClient, userId: string) {
   const journal = new BotSessionJournal(bot);
@@ -179,6 +179,87 @@ export async function runBotSession(bot: AiBotConfig, client: SupabaseClient, us
     }
   }
 
+  // ── FANTASY PHASE ──
+  if (actionCount < MAX_ACTIONS) {
+    const events = await actions.getActiveEvents(client);
+    const joinableEvents = events.filter(e =>
+      new Date(e.locks_at) > new Date() && // not locked yet
+      (e.max_entries == null || e.current_entries < e.max_entries)
+    );
+    journal.observe('fantasy', `${events.length} Events aktiv, ${joinableEvents.length} beitretbar`);
+
+    if (joinableEvents.length > 0) {
+      const existingLineups = await actions.getUserLineups(client, userId);
+      const joinedEventIds = new Set(existingLineups.map(l => l.event_id));
+
+      // Join up to 3 events per session
+      const eventsToJoin = joinableEvents
+        .filter(e => !joinedEventIds.has(e.id))
+        .slice(0, 3);
+
+      for (const event of eventsToJoin) {
+        if (actionCount >= MAX_ACTIONS) break;
+        const lineup = buildLineup(event, allPlayers, bot);
+        if (!lineup) {
+          journal.observe('fantasy', `Nicht genug Spieler fuer ${event.name}`);
+          continue;
+        }
+        const result = await actions.submitLineup(client, userId, event.id, lineup.slots, lineup.captainSlot, lineup.formation);
+        actionCount++;
+        if (result.success) {
+          journal.trade('fantasy', `Lineup eingereicht fuer "${event.name}" (${event.format}, GW${event.gameweek})`);
+        } else {
+          journal.error('fantasy', `Lineup fehlgeschlagen fuer "${event.name}": ${result.error}`);
+        }
+      }
+
+      if (eventsToJoin.length === 0 && joinableEvents.length > 0) {
+        journal.observe('fantasy', 'Bereits in allen verfuegbaren Events angemeldet');
+      }
+    }
+  }
+
+  // ── TICKETS + MYSTERY BOX PHASE ──
+  if (actionCount < MAX_ACTIONS) {
+    const tickets = await actions.getUserTickets(client);
+    if (tickets) {
+      journal.observe('tickets', `${tickets.balance} Tickets (${tickets.earned_total} verdient, ${tickets.spent_total} ausgegeben)`);
+
+      // Open mystery box if enough tickets (costs 15)
+      if (tickets.balance >= 15) {
+        const boxResult = await actions.openMysteryBox(client);
+        actionCount++;
+        if (boxResult.success) {
+          const reward = boxResult.rewardType === 'tickets'
+            ? `${boxResult.ticketsAmount} Tickets`
+            : `Cosmetic: ${boxResult.cosmeticName ?? boxResult.rarity}`;
+          journal.success('mystery-box', `Mystery Box geoeffnet (${boxResult.rarity}) — Reward: ${reward}`);
+        } else {
+          journal.error('mystery-box', `Mystery Box fehlgeschlagen: ${boxResult.error}`);
+        }
+      }
+    }
+  }
+
+  // ── MISSIONS PHASE ──
+  if (actionCount < MAX_ACTIONS) {
+    const missions = await actions.getUserMissions(client, userId);
+    const claimable = missions.filter(m => m.status === 'completed');
+    const active = missions.filter(m => m.status === 'active');
+    journal.observe('missions', `${missions.length} Missionen (${active.length} aktiv, ${claimable.length} abholbar)`);
+
+    for (const mission of claimable) {
+      if (actionCount >= MAX_ACTIONS) break;
+      const result = await actions.claimMissionReward(client, mission.id);
+      actionCount++;
+      if (result.success) {
+        journal.success('missions', `Mission "${mission.definition?.title ?? mission.mission_id}" abgeholt — ${((result.reward ?? 0) / 100).toFixed(0)} CR`);
+      } else {
+        journal.error('missions', `Mission-Claim fehlgeschlagen: ${result.error}`);
+      }
+    }
+  }
+
   // ── FINAL ──
   const finalWallet = await actions.getBalance(client, userId);
   journal.balanceAfter = finalWallet.balance;
@@ -259,6 +340,69 @@ function selectTargets(bot: AiBotConfig, players: MarketPlayer[], holdings: Hold
   }
 
   return candidates.slice(0, bot.targetCount);
+}
+
+// ── Fantasy Lineup Builder ──
+
+function buildLineup(
+  event: FantasyEvent,
+  players: MarketPlayer[],
+  bot: AiBotConfig
+): { slots: Record<string, string | null>; captainSlot: string; formation: string } | null {
+  // All events use lineup_size 11: GK + DEF1-4 + MID1-4 + ATT + ATT2 (+ ATT3 optional)
+  const available = players.filter(p => !p.is_liquidated && p.perf_l5 != null);
+
+  // Sort by L5 per position
+  const byPos: Record<string, MarketPlayer[]> = { GK: [], DEF: [], MID: [], ATT: [] };
+  for (const p of available) {
+    if (byPos[p.position]) byPos[p.position].push(p);
+  }
+  for (const pos of Object.keys(byPos)) {
+    byPos[pos].sort((a, b) => (b.perf_l5 ?? 0) - (a.perf_l5 ?? 0));
+  }
+
+  // Add personality flavor: randomize top picks slightly
+  for (const pos of Object.keys(byPos)) {
+    const top = byPos[pos].slice(0, 15);
+    // Shuffle top 5-10 to add variety between bots
+    for (let i = Math.min(4, top.length - 1); i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [top[i], top[j]] = [top[j], top[i]];
+    }
+    byPos[pos] = top;
+  }
+
+  // Need: 1 GK, 4 DEF, 4 MID, 2 ATT (= 11)
+  if (byPos.GK.length < 1 || byPos.DEF.length < 4 || byPos.MID.length < 4 || byPos.ATT.length < 2) {
+    return null;
+  }
+
+  const slots: Record<string, string | null> = {
+    slot_gk: byPos.GK[0].id,
+    slot_def1: byPos.DEF[0].id,
+    slot_def2: byPos.DEF[1].id,
+    slot_def3: byPos.DEF[2].id,
+    slot_def4: byPos.DEF[3].id,
+    slot_mid1: byPos.MID[0].id,
+    slot_mid2: byPos.MID[1].id,
+    slot_mid3: byPos.MID[2].id,
+    slot_mid4: byPos.MID[3].id,
+    slot_att: byPos.ATT[0].id,
+    slot_att2: byPos.ATT[1].id,
+    slot_att3: null,
+  };
+
+  // Captain: best L5 among allowed slots (DB CHECK: gk, def1, def2, mid1, mid2, att)
+  const captainCandidates: [string, MarketPlayer][] = [
+    ['gk', byPos.GK[0]],
+    ['def1', byPos.DEF[0]], ['def2', byPos.DEF[1]],
+    ['mid1', byPos.MID[0]], ['mid2', byPos.MID[1]],
+    ['att', byPos.ATT[0]],
+  ];
+  captainCandidates.sort((a, b) => (b[1].perf_l5 ?? 0) - (a[1].perf_l5 ?? 0));
+  const captainSlot = captainCandidates[0][0];
+
+  return { slots, captainSlot, formation: '4-4-2' };
 }
 
 // ── Content Generation ──
