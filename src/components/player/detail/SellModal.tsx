@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Send, Briefcase, Loader2, CheckCircle2, XCircle, Lock } from 'lucide-react';
+import { Send, Briefcase, Loader2, CheckCircle2, XCircle, Lock, Zap } from 'lucide-react';
 import { Modal, Card, Button } from '@/components/ui';
-import { fmtScout } from '@/lib/utils';
+import { cn, fmtScout } from '@/lib/utils';
+import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
-import type { Player, DbOrder } from '@/types';
+import type { Player, DbOrder, OfferWithDetails } from '@/types';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { TRADE_FEE_PCT } from '@/lib/constants';
 
@@ -16,8 +17,11 @@ interface SellModalProps {
   player: Player;
   holdingQty: number;
   userOrders: DbOrder[];
+  openBids?: OfferWithDetails[];
   onSell: (qty: number, priceCents: number) => void;
   onCancelOrder: (orderId: string) => void;
+  onAcceptBid?: (offerId: string) => void;
+  acceptingBidId?: string | null;
   selling: boolean;
   cancellingId: string | null;
   sellError?: string | null;
@@ -25,10 +29,13 @@ interface SellModalProps {
 
 export default function SellModal({
   open, onClose, player, holdingQty, userOrders,
-  onSell, onCancelOrder, selling, cancellingId,
+  openBids = [], onSell, onCancelOrder,
+  onAcceptBid, acceptingBidId,
+  selling, cancellingId,
   sellError: parentSellError,
 }: SellModalProps) {
   const t = useTranslations('playerDetail');
+  const tm = useTranslations('market');
   const [sellQty, setSellQty] = useState(1);
   const [sellPriceBsd, setSellPriceBsd] = useState('');
   const [sellSuccess, setSellSuccess] = useState<string | null>(null);
@@ -135,6 +142,60 @@ export default function SellModal({
               )}
             </div>
           </Card>
+
+          {/* Orientation: Referenzwert + Hoechstes Gesuch */}
+          {availableToSell > 0 && !player.isLiquidated && (
+            <div className="flex items-center gap-3 text-xs">
+              {player.prices.referencePrice != null && player.prices.referencePrice > 0 && (
+                <div className="flex-1 bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-2 text-center">
+                  <div className="text-[10px] text-white/30">{tm('referenzwert')}</div>
+                  <div className="font-mono font-bold text-white/60 tabular-nums">{fmtScout(player.prices.referencePrice)}</div>
+                </div>
+              )}
+              {openBids.length > 0 && (
+                <div className="flex-1 bg-green-500/[0.06] border border-green-500/20 rounded-xl px-3 py-2 text-center">
+                  <div className="text-[10px] text-white/30">{tm('hoechstesGesuch')}</div>
+                  <div className="font-mono font-bold text-green-500 tabular-nums">{fmtScout(centsToBsd(Math.max(...openBids.map(b => b.price))))}</div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Sofort verkaufen — accept open buy orders */}
+          {availableToSell > 0 && !player.isLiquidated && openBids.length > 0 && onAcceptBid && (
+            <Card className="overflow-hidden">
+              <div className="px-4 py-2.5 bg-green-500/[0.04] border-b border-green-500/20">
+                <div className="flex items-center gap-2">
+                  <Zap className="size-4 text-green-500" aria-hidden="true" />
+                  <span className="font-black text-sm text-green-500">{tm('sofortVerkaufen')}</span>
+                  <span className="text-[10px] text-white/30">{tm('kaufgesuche')} ({openBids.length})</span>
+                </div>
+              </div>
+              <div className="p-3 space-y-1.5">
+                {openBids
+                  .sort((a, b) => b.price - a.price)
+                  .slice(0, 5)
+                  .map(bid => (
+                    <button
+                      key={bid.id}
+                      onClick={() => onAcceptBid(bid.id)}
+                      disabled={acceptingBidId === bid.id}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-green-500/30 transition-colors text-left disabled:opacity-50"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-mono font-bold text-gold tabular-nums">{fmtScout(centsToBsd(bid.price))}</span>
+                        <span className="text-xs text-white/40">{bid.quantity}x</span>
+                      </div>
+                      <span className="text-xs text-green-500 font-bold">
+                        {acceptingBidId === bid.id
+                          ? <Loader2 className="size-3 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                          : tm('sofortVerkaufen')}
+                      </span>
+                    </button>
+                  ))}
+              </div>
+            </Card>
+          )}
 
           {/* Sell Form */}
           {availableToSell > 0 && !player.isLiquidated && (

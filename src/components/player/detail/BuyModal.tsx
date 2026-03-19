@@ -115,17 +115,32 @@ export default function BuyModal({
   onShareTrade, onOpenOfferModal,
 }: BuyModalProps) {
   const t = useTranslations('playerDetail');
+  const tm = useTranslations('market');
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [showAllOrders, setShowAllOrders] = useState(false);
+  // Reset selection when modal opens/closes
+  useEffect(() => {
+    if (!open) { setSelectedOrderId(null); setShowAllOrders(false); }
+  }, [open]);
+
   const isLiquidated = player.isLiquidated;
   const isIPO = activeIpo !== null && (activeIpo.status === 'open' || activeIpo.status === 'early_access');
 
-  const transferAvailable = useMemo(
+  // Filter out user's own orders, sort by price ascending
+  const userFilteredOrders = useMemo(
     () => allSellOrders
-      .filter(o => userId && o.user_id !== userId)
-      .reduce((sum, o) => sum + (o.quantity - o.filled_qty), 0),
+      .filter(o => userId && o.user_id !== userId && (o.quantity - o.filled_qty) > 0)
+      .sort((a, b) => a.price - b.price),
     [allSellOrders, userId]
   );
 
+  const transferAvailable = useMemo(
+    () => userFilteredOrders.reduce((sum, o) => sum + (o.quantity - o.filled_qty), 0),
+    [userFilteredOrders]
+  );
+
   const hasMarket = transferAvailable > 0;
+  const selectedOrder = selectedOrderId ? userFilteredOrders.find(o => o.id === selectedOrderId) ?? null : null;
 
   // IPO derived values
   const ipoPriceBsd = activeIpo ? centsToBsd(activeIpo.price) : 0;
@@ -218,26 +233,59 @@ export default function BuyModal({
                 </div>
               )}
 
-              {/* ── 2. Market Section (below IPO) ── */}
+              {/* ── 2. Market Section (below IPO) — Alle Angebote ── */}
               {hasMarket && (
                 <div className="border border-sky-500/15 rounded-2xl overflow-hidden">
                   {/* Market Header */}
                   <div className="flex items-center justify-between px-4 py-2.5 bg-sky-500/[0.04]">
                     <div className="flex items-center gap-2">
                       <ShoppingCart className="size-4 text-sky-300" aria-hidden="true" />
-                      <span className="font-black text-sm text-sky-300">{t('transferListLabel', { defaultMessage: 'Transferliste' })}</span>
+                      <span className="font-black text-sm text-sky-300">{tm('verkaufsangebote')}</span>
                       <span className="text-[10px] text-white/30">{transferAvailable !== 1 ? t('offersCountPlural', { count: transferAvailable }) : t('offersCount', { count: transferAvailable })}</span>
                     </div>
                     <span className="text-[10px] text-white/30">{t('cheapestFirst')}</span>
                   </div>
+
+                  {/* Individual sell orders — user chooses */}
+                  <div className="px-3 pt-2 space-y-1">
+                    {userFilteredOrders.slice(0, showAllOrders ? undefined : 3).map((order) => {
+                      const orderBsd = centsToBsd(order.price);
+                      const remaining = order.quantity - order.filled_qty;
+                      const isSelected = selectedOrderId === order.id;
+                      return (
+                        <button
+                          key={order.id}
+                          onClick={() => setSelectedOrderId(isSelected ? null : order.id)}
+                          className={cn(
+                            'w-full flex items-center justify-between px-3 py-2 rounded-xl transition-colors text-left',
+                            isSelected
+                              ? 'bg-sky-500/10 border border-sky-500/30'
+                              : 'bg-white/[0.03] border border-white/[0.06] hover:border-white/20'
+                          )}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-mono font-bold text-gold tabular-nums">{fmtScout(orderBsd)}</span>
+                            <span className="text-xs text-white/40">{remaining}x</span>
+                          </div>
+                          <span className="text-xs text-white/50">@{order.user_id.slice(0, 8)}</span>
+                        </button>
+                      );
+                    })}
+                    {userFilteredOrders.length > 3 && !showAllOrders && (
+                      <button onClick={() => setShowAllOrders(true)} className="w-full text-center text-[10px] text-white/30 py-1 hover:text-white/50 transition-colors">
+                        +{userFilteredOrders.length - 3} {t('moreOrders', { defaultMessage: 'weitere' })}
+                      </button>
+                    )}
+                  </div>
+
                   <div className="p-3">
                     <BuyForm
-                      priceBsd={floorBsd}
-                      priceCents={floorCents}
-                      maxQty={marketMaxQty}
+                      priceBsd={selectedOrder ? centsToBsd(selectedOrder.price) : floorBsd}
+                      priceCents={selectedOrder ? selectedOrder.price : floorCents}
+                      maxQty={selectedOrder ? (selectedOrder.quantity - selectedOrder.filled_qty) : marketMaxQty}
                       balanceCents={balanceCents}
                       isBuying={buying}
-                      canAfford={balanceCents !== null && balanceCents >= floorCents}
+                      canAfford={balanceCents !== null && balanceCents >= (selectedOrder ? selectedOrder.price : floorCents)}
                       label={t('buy')}
                       icon={<Target className="size-4" aria-hidden="true" />}
                       onBuy={onBuy}
