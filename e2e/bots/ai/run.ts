@@ -2,6 +2,7 @@ import { generateBots, type AiBotConfig } from './bot-generator';
 import { createBotClient } from './supabase';
 import { runBotSession } from './agent';
 import { analyzeMarket, selectBots, aggregateInsights } from './director';
+import { runSurvey, saveSurveyResults, type SurveyResult } from './survey';
 import type { SessionReport } from './journal';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -54,6 +55,14 @@ async function main() {
     return;
   }
 
+  if (command === '--survey') {
+    const count = parseInt(args[1] ?? String(allBots.length));
+    const bots = allBots.slice(0, count);
+    console.log(`Running SURVEY with ${bots.length} bots...\n`);
+    await runSurveyBatch(bots);
+    return;
+  }
+
   if (command === '--all') {
     console.log(`Running ALL ${allBots.length} bots in batches of ${BATCH_SIZE}\n`);
     await runBatch(allBots);
@@ -69,6 +78,7 @@ Usage:
   npx tsx e2e/bots/ai/run.ts --bot 5            Run single bot by ID
   npx tsx e2e/bots/ai/run.ts --batch 1-10       Run bots 1-10
   npx tsx e2e/bots/ai/run.ts --smart 15         Director picks 15 best bots for current market
+  npx tsx e2e/bots/ai/run.ts --survey 20        Platform survey with 20 bot personas
   npx tsx e2e/bots/ai/run.ts --all              Run all ${allBots.length} bots
 
 Bot Archetypes (${allBots.length} total):
@@ -136,6 +146,52 @@ async function runBatch(bots: AiBotConfig[]) {
     console.log(`TOTAL: ${allReports.length} bots, ${allReports.reduce((s, r) => s + r.summary.trades, 0)} trades`);
     console.log(`Bugs: ${allReports.reduce((s, r) => s + r.summary.bugs, 0)} | Errors: ${allReports.reduce((s, r) => s + r.summary.errors, 0)}`);
     console.log(`Reports: e2e/bots/insights/${date}-insights.md`);
+  }
+}
+
+async function runSurveyBatch(bots: AiBotConfig[]) {
+  const allResults: SurveyResult[] = [];
+
+  for (let i = 0; i < bots.length; i += BATCH_SIZE) {
+    const batch = bots.slice(i, i + BATCH_SIZE);
+    console.log(`── Survey Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${batch.map(b => `#${b.id}`).join(', ')} ──`);
+
+    const results = await Promise.allSettled(
+      batch.map(async bot => {
+        try {
+          const { client, userId } = await createBotClient(bot.email, bot.password);
+          return await runSurvey(bot, client, userId);
+        } catch (err) {
+          console.error(`  Bot #${bot.id} survey failed: ${err instanceof Error ? err.message : err}`);
+          return null;
+        }
+      })
+    );
+
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value) {
+        allResults.push(result.value);
+        const r = result.value;
+        const rec = r.wouldRecommend ? 'JA' : 'NEIN';
+        console.log(`  ${r.bot.name} (${r.bot.archetype}): ${r.overallScore}/10 — Empfehlung: ${rec}`);
+      }
+    }
+
+    if (i + BATCH_SIZE < bots.length) {
+      await new Promise(r => setTimeout(r, 500));
+    }
+  }
+
+  if (allResults.length > 0) {
+    saveSurveyResults(allResults);
+
+    const avgScore = (allResults.reduce((s, r) => s + r.overallScore, 0) / allResults.length).toFixed(1);
+    const recommend = allResults.filter(r => r.wouldRecommend).length;
+    console.log(`\n${'='.repeat(60)}`);
+    console.log(`SURVEY COMPLETE: ${allResults.length} Teilnehmer`);
+    console.log(`Durchschnittsnote: ${avgScore}/10`);
+    console.log(`Weiterempfehlung: ${recommend}/${allResults.length} (${Math.round(recommend / allResults.length * 100)}%)`);
+    console.log(`Report: e2e/bots/insights/${new Date().toISOString().slice(0, 10)}-survey.md`);
   }
 }
 
