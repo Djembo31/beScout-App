@@ -115,26 +115,33 @@ async function browseMarket(page: Page, bot: BotConfig, journal: BotJournal): Pr
   journal.action('market', 'Oeffne Marktplatz');
   await timedNavigation(page, `${BASE_URL}/market?tab=marktplatz`, journal, 'market');
 
+  // Wait for market tab content to fully hydrate (auth-gated, React Query data)
+  // Look for tab bar which confirms the page has rendered
+  const tabBar = page.getByRole('tablist');
+  await tabBar.waitFor({ state: 'visible', timeout: 15_000 }).catch(() => {});
+
   // Check if page loaded or shows error
   const errorState = page.getByText(/Daten konnten nicht geladen|Error|Fehler/i);
-  if (await errorState.isVisible({ timeout: 5_000 }).catch(() => false)) {
+  if (await errorState.isVisible({ timeout: 2_000 }).catch(() => false)) {
     journal.bug('market', 'Marktplatz zeigt Fehlermeldung beim Laden', 'critical');
     return [];
   }
 
-  // Tab is already set via URL param ?tab=marktplatz
-  // Wait for content to load (player cards or IPO section)
-  const marketContent = page.locator('a[href*="/player/"], [class*="card"], [class*="Card"]').first();
-  if (await marketContent.isVisible({ timeout: 8_000 }).catch(() => false)) {
-    journal.action('market', 'Marktplatz Inhalte geladen');
+  // Click Marktplatz tab if not already active
+  const marktplatzTab = page.getByRole('tab', { name: /Marktplatz/i });
+  if (await marktplatzTab.isVisible({ timeout: 5_000 }).catch(() => false)) {
+    await marktplatzTab.click();
+    await page.waitForTimeout(1000);
+  }
+
+  // Switch to Transferliste sub-tab where player links exist
+  const transferBtn = page.locator('button').filter({ hasText: /Transferliste|Transfer/i }).first();
+  if (await transferBtn.isVisible({ timeout: 8_000 }).catch(() => false)) {
+    await transferBtn.click();
+    await page.waitForTimeout(2000);
+    journal.action('market', 'Transferliste Sub-Tab geklickt');
   } else {
-    // Try clicking tab explicitly as fallback
-    const tab = page.getByRole('tab', { name: /Marktplatz/i });
-    if (await tab.isVisible({ timeout: 3_000 }).catch(() => false)) {
-      await tab.click();
-      await page.waitForTimeout(1000);
-      journal.action('market', 'Marktplatz Tab geklickt');
-    }
+    journal.observe('market', 'Transferliste-Button noch nicht sichtbar');
   }
 
   // Collect player links
