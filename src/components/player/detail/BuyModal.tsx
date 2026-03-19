@@ -36,6 +36,7 @@ interface BuyModalProps {
   onCancelPendingBuy: () => void;
   onShareTrade: () => void;
   onOpenOfferModal: () => void;
+  profileMap?: Record<string, { handle: string; display_name: string | null }>;
 }
 
 // formatCountdown replaced by Countdown component
@@ -112,7 +113,7 @@ export default function BuyModal({
   buying, ipoBuying, buyError, buySuccess, shared,
   pendingBuyQty,
   onBuy, onIpoBuy, onConfirmBuy, onCancelPendingBuy,
-  onShareTrade, onOpenOfferModal,
+  onShareTrade, onOpenOfferModal, profileMap,
 }: BuyModalProps) {
   const t = useTranslations('playerDetail');
   const tm = useTranslations('market');
@@ -267,7 +268,7 @@ export default function BuyModal({
                             <span className="text-sm font-mono font-bold text-gold tabular-nums">{fmtScout(orderBsd)}</span>
                             <span className="text-xs text-white/40">{remaining}x</span>
                           </div>
-                          <span className="text-xs text-white/50">@{order.user_id.slice(0, 8)}</span>
+                          <span className="text-xs text-white/50">@{profileMap?.[order.user_id]?.handle ?? order.user_id.slice(0, 8)}</span>
                         </button>
                       );
                     })}

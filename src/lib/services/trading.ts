@@ -669,26 +669,8 @@ export async function getPlatformStats(): Promise<PlatformStats> {
 }
 
 // ============================================
-// Offer Counts & Price Cap (Pricing Architecture)
+// Price Cap (Pricing Architecture)
 // ============================================
-
-/** Get aggregated sell offer counts per player (for badges) */
-export async function getOfferCounts(): Promise<Map<string, number>> {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('player_id')
-    .eq('side', 'sell')
-    .in('status', ['open', 'partial'])
-    .or('expires_at.is.null,expires_at.gt.now()');
-
-  if (error) { console.error('[Trading] getOfferCounts failed:', error); return new Map(); }
-
-  const counts = new Map<string, number>();
-  for (const row of data ?? []) {
-    counts.set(row.player_id, (counts.get(row.player_id) ?? 0) + 1);
-  }
-  return counts;
-}
 
 /** Get price cap for a player (for sell form orientation) */
 export async function getPriceCap(playerId: string): Promise<number | null> {
@@ -697,20 +679,3 @@ export async function getPriceCap(playerId: string): Promise<number | null> {
   return data as number;
 }
 
-/** Get buy order counts per player (for Kaufgesuche count) */
-export async function getBuyOrderCounts(): Promise<Map<string, number>> {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('player_id')
-    .eq('side', 'buy')
-    .in('status', ['open', 'partial'])
-    .or('expires_at.is.null,expires_at.gt.now()');
-
-  if (error) { console.error('[Trading] getBuyOrderCounts failed:', error); return new Map(); }
-
-  const counts = new Map<string, number>();
-  for (const row of data ?? []) {
-    counts.set(row.player_id, (counts.get(row.player_id) ?? 0) + 1);
-  }
-  return counts;
-}

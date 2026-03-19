@@ -360,6 +360,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           onCancelPendingBuy={trading.cancelPendingBuy}
           onShareTrade={trading.handleShareTrade}
           onOpenOfferModal={trading.openOfferModal}
+          profileMap={profileMap}
         />
       </ErrorBoundary>
 
@@ -370,8 +371,11 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           player={playerWithOwnership}
           holdingQty={holdingQty}
           userOrders={trading.userOrders}
+          openBids={openBids}
           onSell={trading.handleSell}
           onCancelOrder={trading.handleCancelOrder}
+          onAcceptBid={trading.handleAcceptBid}
+          acceptingBidId={trading.acceptingBidId}
           selling={trading.selling}
           cancellingId={trading.cancellingId}
           sellError={trading.sellError}
