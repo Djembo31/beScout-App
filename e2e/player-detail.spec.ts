@@ -8,8 +8,8 @@ import { waitForApp, CLUB_SLUG } from './helpers';
  * 3. Clubs discovery page
  */
 async function goToFirstPlayer(page: Page): Promise<boolean> {
-  // --- Strategy 1: Market Kaufen tab ---
-  await page.goto('/market?tab=kaufen', { waitUntil: 'domcontentloaded' });
+  // --- Strategy 1: Market Marktplatz tab ---
+  await page.goto('/market?tab=marktplatz', { waitUntil: 'domcontentloaded' });
   await waitForApp(page);
 
   let playerLink = page.locator('a[href*="/player/"]').first();

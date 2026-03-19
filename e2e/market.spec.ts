@@ -10,11 +10,11 @@ test.describe('Market Page', () => {
   test('Market loads with 2 tabs', async ({ page }) => {
     // 2 tabs: Mein Kader, Kaufen (custom buttons, not role="tab")
     await expect(page.getByRole('button', { name: /Kader/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Kaufen/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Marktplatz|Kaufen/i })).toBeVisible();
   });
 
   test('Kaufen tab shows discovery sections', async ({ page }) => {
-    const kaufenBtn = page.getByRole('button', { name: /Kaufen/i });
+    const kaufenBtn = page.getByRole('button', { name: /Marktplatz|Kaufen/i });
     await expect(kaufenBtn).toBeVisible({ timeout: 30_000 });
     await kaufenBtn.click();
     await page.waitForTimeout(1000);
@@ -23,7 +23,7 @@ test.describe('Market Page', () => {
   });
 
   test('Kaufen tab search works', async ({ page }) => {
-    const kaufenBtn = page.getByRole('button', { name: /Kaufen/i });
+    const kaufenBtn = page.getByRole('button', { name: /Marktplatz|Kaufen/i });
     await expect(kaufenBtn).toBeVisible({ timeout: 30_000 });
     await kaufenBtn.click();
     await page.waitForTimeout(500);
@@ -38,7 +38,7 @@ test.describe('Market Page', () => {
   });
 
   test('Kaufen tab position filter is clickable', async ({ page }) => {
-    const kaufenBtn = page.getByRole('button', { name: /Kaufen/i });
+    const kaufenBtn = page.getByRole('button', { name: /Marktplatz|Kaufen/i });
     await expect(kaufenBtn).toBeVisible({ timeout: 30_000 });
     await kaufenBtn.click();
     await page.waitForTimeout(2000);
@@ -90,7 +90,7 @@ test.describe('Market Page', () => {
   });
 
   test('IPO card is clickable', async ({ page }) => {
-    const kaufenBtn = page.getByRole('button', { name: /Kaufen/i });
+    const kaufenBtn = page.getByRole('button', { name: /Marktplatz|Kaufen/i });
     await expect(kaufenBtn).toBeVisible({ timeout: 30_000 });
     await kaufenBtn.click();
     await page.waitForTimeout(1000);
