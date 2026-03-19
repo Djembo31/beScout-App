@@ -139,7 +139,11 @@ export const TURKISH_FIRST_NAMES = [
   'Eren', 'Berk', 'Arda', 'Mert', 'Can', 'Onur', 'Tuna', 'Alp', 'Doruk', 'Efe',
 ];
 
+// Club names as they appear in the DB (players.club column)
 export const CLUBS = [
-  'sakaryaspor', 'goztepe', 'eyupspor', 'bodrumspor', 'bandirmaspor',
-  'keciorengucu', 'istanbulspor', 'umraniyespor', 'pendikspor', 'boluspor',
+  'Sakaryaspor', 'Bodrum FK', 'Bandırmaspor', 'Keçiörengücü',
+  'İstanbulspor', 'Ümraniyespor', 'Pendikspor', 'Boluspor',
+  'Sivasspor', 'Erzurumspor FK', 'Manisa FK', 'Çorum FK',
+  'Esenler Erokspor', 'Amedspor', 'Hatayspor', 'Adana Demirspor',
+  'Sarıyer', 'Van Spor FK', 'Iğdır FK', 'Serik Belediyespor',
 ];

@@ -230,7 +230,7 @@ function selectTargets(bot: AiBotConfig, players: MarketPlayer[], holdings: Hold
 
     case 'club_fan':
       candidates = candidates.filter(p =>
-        bot.favoriteClub && p.club.toLowerCase().includes(bot.favoriteClub.toLowerCase())
+        bot.favoriteClub && p.club === bot.favoriteClub
       );
       break;
 
@@ -279,7 +279,7 @@ function generatePostContent(
     }
 
     case 'fan': {
-      const clubPlayers = holdings.filter(h => h.player.club.toLowerCase().includes(bot.favoriteClub?.toLowerCase() ?? ''));
+      const clubPlayers = holdings.filter(h => h.player.club === bot.favoriteClub);
       if (clubPlayers.length === 0) return null;
       const p = clubPlayers[0].player;
       return {
