@@ -155,7 +155,10 @@ export class BotJournal {
 
   // ── Personality-based Wishes ──
 
+  private wishesGenerated = false;
   generateWishes() {
+    if (this.wishesGenerated) return;
+    this.wishesGenerated = true;
     switch (this.bot.personality) {
       case 'trader':
         this.wish('market', 'Als Trader waere ein Preis-Alert hilfreich wenn ein Spieler unter meinen Wunschpreis faellt');
@@ -190,14 +193,11 @@ export function saveReports(reports: BotReport[]) {
   const dir = path.join(process.cwd(), 'e2e', 'bots', 'reports');
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
-  const timestamp = new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-');
-
-  // JSON (for programmatic analysis)
-  const jsonPath = path.join(dir, `${timestamp}-bot-reports.json`);
+  // Overwrite latest report (single file, not per-run)
+  const jsonPath = path.join(dir, 'latest-bot-reports.json');
   fs.writeFileSync(jsonPath, JSON.stringify(reports, null, 2));
 
-  // Markdown (human-readable)
-  const mdPath = path.join(dir, `${timestamp}-bot-reports.md`);
+  const mdPath = path.join(dir, 'latest-bot-reports.md');
   const md = generateMarkdown(reports);
   fs.writeFileSync(mdPath, md);
 

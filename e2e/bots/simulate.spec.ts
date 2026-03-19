@@ -472,13 +472,14 @@ test.describe('Bot Simulation', () => {
         // 9. FINAL BALANCE
         journal.balanceAfter = await getBalance(page, journal, 'portfolio');
 
-        // 10. GENERATE PERSONALITY-BASED WISHES
-        journal.generateWishes();
-
       } finally {
+        journal.generateWishes(); // ensure wishes even on early exit
         const report = journal.getReport();
         allReports.push(report);
         await context.close();
+
+        // Save per-bot report IMMEDIATELY (don't rely on afterAll)
+        saveReports(allReports);
 
         // Log summary
         console.log(`\n${'='.repeat(50)}`);
