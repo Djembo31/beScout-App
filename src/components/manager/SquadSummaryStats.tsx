@@ -14,10 +14,16 @@ interface SquadSummaryStatsProps {
 
 export default function SquadSummaryStats({ players, ownedPlayers, assignedCount, totalSlots }: SquadSummaryStatsProps) {
   const t = useTranslations('market');
-  const totalValue = ownedPlayers.reduce((sum, p) => sum + (p.prices.floor ?? 0), 0);
+  const totalValue = ownedPlayers.reduce((sum, p) => sum + (p.prices.floor ?? p.prices.referencePrice ?? 0), 0);
   const avgPerf = ownedPlayers.length > 0
     ? Math.round(ownedPlayers.reduce((sum, p) => sum + p.perf.l5, 0) / ownedPlayers.length)
     : 0;
+
+  // Portfolio Wertentwicklung (aggregate)
+  const playersWithInitial = ownedPlayers.filter(p => p.prices.initialListingPrice != null && p.prices.initialListingPrice > 0);
+  const totalInitial = playersWithInitial.reduce((sum, p) => sum + (p.prices.initialListingPrice ?? 0), 0);
+  const totalCurrent = playersWithInitial.reduce((sum, p) => sum + (p.prices.floor ?? p.prices.referencePrice ?? 0), 0);
+  const portfolioPctChange = totalInitial > 0 ? ((totalCurrent - totalInitial) / totalInitial * 100) : null;
 
   const posCounts = { GK: 0, DEF: 0, MID: 0, ATT: 0 };
   ownedPlayers.forEach(p => { if (posCounts[p.pos] !== undefined) posCounts[p.pos]++; });
@@ -46,6 +52,14 @@ export default function SquadSummaryStats({ players, ownedPlayers, assignedCount
           <span className="text-white/50">{t('summaryPerf')}</span>
           <span className={`font-mono font-bold tabular-nums ${avgPerf >= 70 ? 'text-gold' : avgPerf >= 50 ? 'text-white' : 'text-red-400'}`}>
             {avgPerf}
+          </span>
+        </div>
+      )}
+      {portfolioPctChange !== null && (
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-lg">
+          <span className="text-white/50">{t('wertentwicklung')}</span>
+          <span className={`font-mono font-bold tabular-nums ${portfolioPctChange >= 0 ? 'text-green-500' : 'text-red-400'}`}>
+            {portfolioPctChange >= 0 ? '+' : ''}{portfolioPctChange.toFixed(1)}%
           </span>
         </div>
       )}

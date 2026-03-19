@@ -48,6 +48,7 @@ export default function TradingTab({
   isRestrictedAdmin, playerResearch,
 }: TradingTabProps) {
   const t = useTranslations('playerDetail');
+  const tm = useTranslations('market');
   const locale = useLocale();
   const [rewardsOpen, setRewardsOpen] = useState(false);
   const [historyExpanded, setHistoryExpanded] = useState(false);
@@ -102,6 +103,30 @@ export default function TradingTab({
 
       {/* ── 4. Orderbook Summary (condensed + expandable depth) ── */}
       <OrderbookSummary sellOrders={allSellOrders} bids={openBids} />
+
+      {/* ── 4b. Letzter Preis + Wertentwicklung ── */}
+      {(player.prices.lastTrade > 0 || player.prices.initialListingPrice) && (
+        <div className="flex items-center justify-between px-1">
+          {player.prices.lastTrade > 0 && (
+            <div className="text-xs text-white/40">
+              {tm('letzterPreis')}: <span className="font-mono text-white/60">{fmtScout(player.prices.lastTrade)}</span>
+            </div>
+          )}
+          {player.prices.initialListingPrice != null && player.prices.initialListingPrice > 0 && (() => {
+            const current = player.prices.floor ?? player.prices.lastTrade ?? player.prices.referencePrice ?? 0;
+            const initial = player.prices.initialListingPrice;
+            const pctChange = initial > 0 ? ((current - initial) / initial * 100) : 0;
+            return (
+              <div className="text-xs text-white/40">
+                {tm('markteintritt')}: {fmtScout(initial)}
+                <span className={cn('ml-1 font-mono', pctChange >= 0 ? 'text-green-500' : 'text-red-400')}>
+                  {pctChange >= 0 ? '+' : ''}{pctChange.toFixed(0)}%
+                </span>
+              </div>
+            );
+          })()}
+        </div>
+      )}
 
       {/* ── 5. Offers (P2P bids) ── */}
       {userId && (
