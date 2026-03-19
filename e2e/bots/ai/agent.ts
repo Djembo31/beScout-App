@@ -130,7 +130,11 @@ export async function runBotSession(bot: AiBotConfig, client: SupabaseClient, us
     if (actionCount >= MAX_ACTIONS) break;
     if (Math.random() > bot.sellProbability) continue;
 
-    const sellPrice = Math.round((h.player.floor_price ?? h.avg_buy_price) * bot.sellMarkup);
+    const basePrice = h.player.floor_price ?? h.avg_buy_price;
+    const sellPrice = Math.min(
+      Math.round(basePrice * bot.sellMarkup),
+      Math.round(h.avg_buy_price * 2) // Cap: max 2x Kaufpreis (keine absurden Listings)
+    );
     if (sellPrice < h.avg_buy_price) continue;
 
     const result = await actions.placeSellOrder(client, userId, h.player_id, 1, sellPrice);
@@ -258,6 +262,49 @@ function selectTargets(bot: AiBotConfig, players: MarketPlayer[], holdings: Hold
 }
 
 // ── Content Generation ──
+// DB CHECK: category IN ('Analyse', 'Prediction', 'Meinung', 'News')
+
+const ANALYST_TEMPLATES = [
+  (top: MarketPlayer[]) => {
+    const lines = top.map(p => `${p.first_name} ${p.last_name} (${p.position}) — L5: ${p.perf_l5}, Floor: ${((p.floor_price ?? 0) / 100).toFixed(0)} CR`);
+    return `Top 3 Spieler nach L5 Score diese Woche:\n${lines.join('\n')}\nDatenbasierte Analyse — wer performt konstant?`;
+  },
+  (top: MarketPlayer[]) => {
+    const p = top[0];
+    return `Spieler-Spotlight: ${p.first_name} ${p.last_name} (${p.position}, ${p.club})\nL5: ${p.perf_l5} | L15: ${p.perf_l15 ?? '?'}\nFloor: ${((p.floor_price ?? 0) / 100).toFixed(0)} CR\nKonstant stark — einer der besten in der Liga auf seiner Position.`;
+  },
+  (top: MarketPlayer[]) => {
+    const byPos: Record<string, MarketPlayer> = {};
+    for (const p of top) { if (!byPos[p.position]) byPos[p.position] = p; }
+    const lines = Object.values(byPos).map(p => `${p.position}: ${p.first_name} ${p.last_name} (L5: ${p.perf_l5})`);
+    return `Beste Spieler pro Position:\n${lines.join('\n')}\nWer baut das staerkste Team?`;
+  },
+  (top: MarketPlayer[]) => {
+    const cheap = top.filter(p => (p.floor_price ?? 0) < 50000).slice(0, 3);
+    if (cheap.length === 0) return null;
+    const lines = cheap.map(p => `${p.first_name} ${p.last_name} — L5: ${p.perf_l5}, nur ${((p.floor_price ?? 0) / 100).toFixed(0)} CR`);
+    return `Unterschaetzte Spieler mit starkem L5:\n${lines.join('\n')}\nGute Performance, niedriger Preis — lohnt sich ein Blick?`;
+  },
+  (top: MarketPlayer[]) => {
+    const p = top[Math.floor(Math.random() * Math.min(3, top.length))];
+    const trend = (p.price_change_24h ?? 0) > 0 ? 'steigend' : (p.price_change_24h ?? 0) < 0 ? 'fallend' : 'stabil';
+    return `${p.first_name} ${p.last_name} Analyse:\nPosition: ${p.position} | Club: ${p.club}\nL5 Score: ${p.perf_l5} | Trend: ${trend}\n${(p.perf_l5 ?? 0) > 70 ? 'Starker Performer, Preis gerechtfertigt.' : 'Durchschnittlich — Preis koennte fallen.'}`;
+  },
+];
+
+const TRADER_TEMPLATES = [
+  (p: MarketPlayer) => `Gerade ${p.first_name} ${p.last_name} ins Portfolio geholt. ${p.position}, L5: ${p.perf_l5 ?? '?'}. Mal sehen wie sich der Kurs entwickelt.`,
+  (p: MarketPlayer) => `Neuer Pick: ${p.first_name} ${p.last_name} (${p.club}). ${p.position} mit L5 ${p.perf_l5 ?? '?'} — gutes Preis-Leistungs-Verhaeltnis.`,
+  (p: MarketPlayer) => `${p.first_name} ${p.last_name} gekauft. Bei dem L5 Score von ${p.perf_l5 ?? '?'} sehe ich Potenzial.`,
+];
+
+const LURKER_TEMPLATES = [
+  'Der Markt ist heute ruhig. Warte auf bessere Gelegenheiten.',
+  'Interessante Bewegungen auf dem Markt. Beobachte erstmal weiter.',
+  'Schaue mir die Spieler-Statistiken an. Vielleicht kaufe ich bald meinen ersten SC.',
+  'Hat jemand Tipps fuer Einsteiger? Bin noch neu hier.',
+  'Die Community waechst. Bin gespannt wie sich die Preise entwickeln.',
+];
 
 function generatePostContent(
   bot: AiBotConfig,
@@ -268,20 +315,18 @@ function generatePostContent(
 
   switch (bot.archetype) {
     case 'analyst': {
-      const top = market.filter(p => p.perf_l5 != null).sort((a, b) => (b.perf_l5 ?? 0) - (a.perf_l5 ?? 0)).slice(0, 3);
+      const top = market.filter(p => p.perf_l5 != null).sort((a, b) => (b.perf_l5 ?? 0) - (a.perf_l5 ?? 0)).slice(0, 10);
       if (top.length === 0) return null;
-      const lines = top.map(p => `${p.first_name} ${p.last_name} (${p.position}) — L5: ${p.perf_l5}, Floor: ${((p.floor_price ?? 0) / 100).toFixed(0)} CR`);
-      return {
-        text: `Top 3 Spieler nach L5 Score diese Woche:\n${lines.join('\n')}\nDatenbasierte Analyse — wer performt konstant?`,
-        tags: ['analyse', 'l5', 'stats'],
-        category: 'Analyse',
-      };
+      const template = ANALYST_TEMPLATES[Math.floor(Math.random() * ANALYST_TEMPLATES.length)];
+      const text = template(top);
+      if (!text) return null;
+      return { text, tags: ['analyse', 'stats'], category: 'Analyse' };
     }
 
     case 'fan': {
       const clubPlayers = holdings.filter(h => h.player.club === bot.favoriteClub);
       if (clubPlayers.length === 0) return null;
-      const p = clubPlayers[0].player;
+      const p = clubPlayers[Math.floor(Math.random() * clubPlayers.length)].player;
       return {
         text: `${p.first_name} ${p.last_name} ist einer der besten Spieler bei ${p.club}! L5 Score: ${p.perf_l5 ?? '?'}. Unterschaetzt vom Markt.`,
         tags: [p.club.toLowerCase(), p.last_name.toLowerCase()],
@@ -293,18 +338,19 @@ function generatePostContent(
     case 'trader_conservative':
     case 'sniper': {
       if (holdings.length === 0) return null;
-      const recent = holdings[holdings.length - 1];
+      const recent = holdings[Math.floor(Math.random() * holdings.length)];
+      const template = TRADER_TEMPLATES[Math.floor(Math.random() * TRADER_TEMPLATES.length)];
       return {
-        text: `Gerade ${recent.player.first_name} ${recent.player.last_name} ins Portfolio geholt. ${recent.player.position}, L5: ${recent.player.perf_l5 ?? '?'}. Mal sehen wie sich der Kurs entwickelt.`,
+        text: template(recent.player),
         tags: ['trading', recent.player.last_name.toLowerCase()],
-        category: 'Trading',
+        category: 'Meinung', // 'Trading' is NOT in DB CHECK constraint
       };
     }
 
     case 'lurker': {
       if (market.length === 0) return null;
       return {
-        text: 'Der Markt ist heute ruhig. Warte auf bessere Gelegenheiten.',
+        text: LURKER_TEMPLATES[Math.floor(Math.random() * LURKER_TEMPLATES.length)],
         tags: ['markt'],
         category: 'Meinung',
       };
