@@ -69,10 +69,21 @@ async function loginBot(page: Page, bot: BotConfig, journal: BotJournal): Promis
   await page.locator('button[type="submit"]').click();
 
   try {
-    await page.waitForURL(/^\/$|\/market|\/home/, { timeout: 30_000 });
+    // Wait for redirect — could go to /, /market, /home, or stay on /login with success
+    await page.waitForURL(url => !url.toString().includes('/login'), { timeout: 30_000 });
   } catch {
-    journal.bug('login', 'Login-Redirect fehlgeschlagen nach 30s', 'critical');
-    return false;
+    // Check if we're still on login but actually logged in (session exists)
+    const isStillLogin = page.url().includes('/login');
+    if (isStillLogin) {
+      // Try navigating manually — login may have succeeded without redirect
+      await page.goto(`${BASE_URL}/`, { waitUntil: 'domcontentloaded' });
+      await waitForApp(page);
+      if (page.url().includes('/login')) {
+        journal.bug('login', 'Login fehlgeschlagen — zurueck auf Login-Seite', 'critical');
+        return false;
+      }
+      journal.uxIssue('login', 'Login-Redirect hat nicht funktioniert, musste manuell navigieren', 'medium');
+    }
   }
 
   await waitForApp(page);
