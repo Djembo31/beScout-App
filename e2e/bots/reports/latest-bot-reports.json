@@ -1,0 +1,393 @@
+[
+  {
+    "bot": {
+      "name": "Emre Sniper",
+      "email": "bot-sniper@bescout.app",
+      "personality": "sniper",
+      "strategy": "Wartet auf guenstige Angebote unter Referenzwert. Kauft und verkauft schnell."
+    },
+    "sessionStart": "2026-03-19T15:39:26.867Z",
+    "sessionEnd": "2026-03-19T15:44:58.939Z",
+    "durationMs": 332072,
+    "balanceBefore": "43.198 CR",
+    "summary": {
+      "actions": 14,
+      "observations": 20,
+      "bugs": 0,
+      "wishes": 2,
+      "uxIssues": 7,
+      "successes": 7,
+      "errors": 0,
+      "playersBought": 2,
+      "sellOrdersPlaced": 0,
+      "pagesVisited": [
+        "login",
+        "club",
+        "market",
+        "player-detail",
+        "buy-modal",
+        "sell",
+        "sell-modal",
+        "community"
+      ]
+    },
+    "entries": [
+      {
+        "timestamp": "2026-03-19T15:39:27.017Z",
+        "type": "action",
+        "page": "login",
+        "message": "Navigiere zur Login-Seite"
+      },
+      {
+        "timestamp": "2026-03-19T15:40:00.835Z",
+        "type": "timing",
+        "page": "login",
+        "message": "Navigation login: 33818ms",
+        "durationMs": 33818
+      },
+      {
+        "timestamp": "2026-03-19T15:40:00.835Z",
+        "type": "ux_issue",
+        "page": "login",
+        "message": "Seite braucht zu lange: Navigation login (33.8s)",
+        "severity": "medium"
+      },
+      {
+        "timestamp": "2026-03-19T15:40:00.867Z",
+        "type": "action",
+        "page": "login",
+        "message": "Login als bot-sniper@bescout.app"
+      },
+      {
+        "timestamp": "2026-03-19T15:40:36.205Z",
+        "type": "success",
+        "page": "login",
+        "message": "Login erfolgreich (33.8s)"
+      },
+      {
+        "timestamp": "2026-03-19T15:40:36.269Z",
+        "type": "action",
+        "page": "club",
+        "message": "Besuche Sakaryaspor Vereinsseite"
+      },
+      {
+        "timestamp": "2026-03-19T15:41:12.498Z",
+        "type": "timing",
+        "page": "club",
+        "message": "Navigation club: 36229ms",
+        "durationMs": 36229
+      },
+      {
+        "timestamp": "2026-03-19T15:41:12.498Z",
+        "type": "ux_issue",
+        "page": "club",
+        "message": "Seite braucht zu lange: Navigation club (36.2s)",
+        "severity": "medium"
+      },
+      {
+        "timestamp": "2026-03-19T15:41:12.540Z",
+        "type": "observation",
+        "page": "club",
+        "message": "37 Spieler-Links auf der Vereinsseite"
+      },
+      {
+        "timestamp": "2026-03-19T15:41:12.540Z",
+        "type": "action",
+        "page": "market",
+        "message": "Oeffne Marktplatz"
+      },
+      {
+        "timestamp": "2026-03-19T15:41:50.166Z",
+        "type": "timing",
+        "page": "market",
+        "message": "Navigation market: 37626ms",
+        "durationMs": 37626
+      },
+      {
+        "timestamp": "2026-03-19T15:41:50.166Z",
+        "type": "ux_issue",
+        "page": "market",
+        "message": "Seite braucht zu lange: Navigation market (37.6s)",
+        "severity": "medium"
+      },
+      {
+        "timestamp": "2026-03-19T15:41:52.479Z",
+        "type": "action",
+        "page": "market",
+        "message": "Marktplatz Tab geklickt"
+      },
+      {
+        "timestamp": "2026-03-19T15:41:52.512Z",
+        "type": "observation",
+        "page": "market",
+        "message": "5 Spieler auf dem Marktplatz gefunden"
+      },
+      {
+        "timestamp": "2026-03-19T15:41:52.589Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 0021a840"
+      },
+      {
+        "timestamp": "2026-03-19T15:42:29.027Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 36438ms",
+        "durationMs": 36438
+      },
+      {
+        "timestamp": "2026-03-19T15:42:29.027Z",
+        "type": "ux_issue",
+        "page": "player-detail",
+        "message": "Seite braucht zu lange: Navigation player-detail (36.4s)",
+        "severity": "medium"
+      },
+      {
+        "timestamp": "2026-03-19T15:42:29.087Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Cemil Berk Aksu"
+      },
+      {
+        "timestamp": "2026-03-19T15:42:29.320Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 43.198 CR"
+      },
+      {
+        "timestamp": "2026-03-19T15:42:29.428Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask939,020 Gebote5 AngeboteTiefe anzeigen"
+      },
+      {
+        "timestamp": "2026-03-19T15:42:29.460Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-19T15:42:29.807Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Cemil Berk Aksu"
+      },
+      {
+        "timestamp": "2026-03-19T15:42:31.725Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-19T15:42:31.760Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "2 individuelle Verkaufsangebote sichtbar — User kann waehlen"
+      },
+      {
+        "timestamp": "2026-03-19T15:42:31.760Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
+      },
+      {
+        "timestamp": "2026-03-19T15:42:31.783Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-19T15:42:35.220Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Cemil Berk Aksu gekauft!"
+      },
+      {
+        "timestamp": "2026-03-19T15:42:36.063Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 9b536c38"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:10.593Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 34530ms",
+        "durationMs": 34530
+      },
+      {
+        "timestamp": "2026-03-19T15:43:10.594Z",
+        "type": "ux_issue",
+        "page": "player-detail",
+        "message": "Seite braucht zu lange: Navigation player-detail (34.5s)",
+        "severity": "medium"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:10.620Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Mehmet Demirözü"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:10.733Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 42.259 CR"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:10.789Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask1.661,540 Gebote2 AngeboteTiefe anzeigen"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:10.814Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:10.920Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Mehmet Demirözü"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:12.721Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:12.753Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "1 individuelle Verkaufsangebote sichtbar — User kann waehlen"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:12.753Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:12.787Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:16.167Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Mehmet Demirözü gekauft!"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:16.998Z",
+        "type": "action",
+        "page": "sell",
+        "message": "Erstelle Verkaufsorder fuer 0021a840"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:51.948Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 34950ms",
+        "durationMs": 34950
+      },
+      {
+        "timestamp": "2026-03-19T15:43:51.948Z",
+        "type": "ux_issue",
+        "page": "player-detail",
+        "message": "Seite braucht zu lange: Navigation player-detail (35.0s)",
+        "severity": "medium"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:53.691Z",
+        "type": "observation",
+        "page": "sell-modal",
+        "message": "Verkaufs-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:53.724Z",
+        "type": "success",
+        "page": "sell-modal",
+        "message": "Referenzwert wird als Orientierung angezeigt"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:54.115Z",
+        "type": "action",
+        "page": "sell-modal",
+        "message": "Floor-Preis gesetzt"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:56.458Z",
+        "type": "observation",
+        "page": "sell-modal",
+        "message": "Kein Feedback nach Listing-Versuch"
+      },
+      {
+        "timestamp": "2026-03-19T15:43:57.015Z",
+        "type": "action",
+        "page": "sell",
+        "message": "Erstelle Verkaufsorder fuer 9b536c38"
+      },
+      {
+        "timestamp": "2026-03-19T15:44:31.633Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 34618ms",
+        "durationMs": 34618
+      },
+      {
+        "timestamp": "2026-03-19T15:44:31.633Z",
+        "type": "ux_issue",
+        "page": "player-detail",
+        "message": "Seite braucht zu lange: Navigation player-detail (34.6s)",
+        "severity": "medium"
+      },
+      {
+        "timestamp": "2026-03-19T15:44:33.648Z",
+        "type": "observation",
+        "page": "sell-modal",
+        "message": "Verkaufs-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-19T15:44:33.762Z",
+        "type": "success",
+        "page": "sell-modal",
+        "message": "Referenzwert wird als Orientierung angezeigt"
+      },
+      {
+        "timestamp": "2026-03-19T15:44:34.281Z",
+        "type": "action",
+        "page": "sell-modal",
+        "message": "Floor-Preis gesetzt"
+      },
+      {
+        "timestamp": "2026-03-19T15:44:36.845Z",
+        "type": "observation",
+        "page": "sell-modal",
+        "message": "Kein Feedback nach Listing-Versuch"
+      },
+      {
+        "timestamp": "2026-03-19T15:44:37.524Z",
+        "type": "action",
+        "page": "community",
+        "message": "Besuche Community"
+      },
+      {
+        "timestamp": "2026-03-19T15:44:58.939Z",
+        "type": "wish",
+        "page": "market",
+        "message": "Echtzeit-Benachrichtigungen bei neuen Sell Orders unter Referenzwert"
+      },
+      {
+        "timestamp": "2026-03-19T15:44:58.939Z",
+        "type": "wish",
+        "page": "market",
+        "message": "Ein Filter fuer Spieler die unter ihrem Referenzwert gelistet sind"
+      }
+    ]
+  }
+]
