@@ -150,18 +150,19 @@ STABLE
 AS $$
 DECLARE
   v_ref_price BIGINT;
+  v_ipo_price BIGINT;
   v_median_price BIGINT;
   v_trade_count INT;
   v_cap_from_ref BIGINT;
   v_cap_from_median BIGINT;
 BEGIN
-  SELECT reference_price INTO v_ref_price
+  SELECT reference_price, ipo_price INTO v_ref_price, v_ipo_price
   FROM public.players
   WHERE id = p_player_id;
 
-  -- No reference price → no cap (shouldn't happen, but safe fallback)
+  -- No reference price → fallback to 3x IPO price, or 100K $SCOUT (10M cents) hard max
   IF v_ref_price IS NULL OR v_ref_price = 0 THEN
-    RETURN 2147483647;
+    RETURN COALESCE(v_ipo_price * 3, 10000000);
   END IF;
 
   v_cap_from_ref := v_ref_price * 3;

@@ -380,7 +380,7 @@ export function PlayerIdentity({ player, size = 'md', showMeta = true, showStatu
 
 /** Priority-ordered badge strip. Shows max N badges. */
 export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }: {
-  player: Pick<Player, 'status' | 'isLiquidated' | 'contractMonthsLeft' | 'ipo' | 'dpc' | 'pbt' | 'offerCount'>;
+  player: Pick<Player, 'status' | 'isLiquidated' | 'contractMonthsLeft' | 'ipo' | 'dpc' | 'pbt' | 'offerCount' | 'listings'>;
   holding?: HoldingData;
   maxBadges?: number;
   size?: 'sm' | 'md';
@@ -425,9 +425,9 @@ export function PlayerBadgeStrip({ player, holding, maxBadges = 4, size = 'sm' }
     );
   }
 
-  // 5. Offer count (Marktplatz badge)
+  // 5. Offer count (Marktplatz badge) — derive from listings (already enriched) + IPO
   const ipoActive = player.ipo.status === 'open' || player.ipo.status === 'early_access';
-  const totalOffers = (player.offerCount ?? 0) + (ipoActive ? 1 : 0);
+  const totalOffers = (player.listings?.length ?? player.offerCount ?? 0) + (ipoActive ? 1 : 0);
   if (totalOffers > 0 && !ipoActive) {
     // Only show offer count badge if IPO badge is NOT already shown (avoid redundancy)
     badges.push(
