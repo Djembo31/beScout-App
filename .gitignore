@@ -91,6 +91,10 @@ lighthouse-report.json
 # Misc root artifacts
 /=
 
+# AI Bot session logs (generated per run)
+/e2e/bots/journals/
+/e2e/bots/insights/
+
 # Research pipeline — agent outputs (temporary, feature-specific)
 .claude/research/*-raw.md
 .claude/research/*-verified.md

@@ -18,16 +18,16 @@ const allReports: BotReport[] = [];
 // ── Helpers ──
 
 async function waitForApp(page: Page) {
-  await page.waitForLoadState('domcontentloaded', { timeout: 60_000 });
-  await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+  await page.waitForLoadState('domcontentloaded', { timeout: 30_000 });
+  // Skip networkidle — HMR websocket keeps it open on dev server
   await page.waitForFunction(() => {
     const root = document.getElementById('__next');
     return root && root.innerHTML.length > 100;
-  }, { timeout: 60_000 }).catch(() => {});
-  await page.waitForTimeout(1500);
+  }, { timeout: 30_000 }).catch(() => {});
+  await page.waitForTimeout(500);
 
   const dismissBtn = page.getByText(/Spaeter|Later|Verstanden/i);
-  if (await dismissBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+  if (await dismissBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
     await dismissBtn.click();
     await page.waitForTimeout(300);
   }
@@ -124,9 +124,9 @@ async function browseMarket(page: Page, bot: BotConfig, journal: BotJournal): Pr
 
   // Find tab
   const tab = page.getByRole('button', { name: /Marktplatz|Kaufen|Pazar/i });
-  if (await tab.isVisible({ timeout: 10_000 }).catch(() => false)) {
+  if (await tab.isVisible({ timeout: 5_000 }).catch(() => false)) {
     await tab.click();
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
     journal.action('market', 'Marktplatz Tab geklickt');
   } else {
     journal.uxIssue('market', 'Marktplatz-Tab nicht gefunden — User koennte verwirrt sein');
@@ -209,7 +209,7 @@ async function viewAndBuyPlayer(page: Page, bot: BotConfig, journal: BotJournal,
 
   journal.action('player-detail', `Klicke Kaufen fuer ${playerName.trim()}`);
   await buyBtn.click();
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(800);
 
   // Check modal
   const modal = page.locator('[role="dialog"]');
@@ -240,21 +240,26 @@ async function viewAndBuyPlayer(page: Page, bot: BotConfig, journal: BotJournal,
   const confirmBtn = modal.locator('button').filter({ hasText: /Kaufen|Commit|Verpflichten|Buy/i }).first();
   if (await confirmBtn.isVisible({ timeout: 3_000 }).catch(() => false) && await confirmBtn.isEnabled()) {
     await confirmBtn.click();
-    await page.waitForTimeout(3000);
 
-    const success = page.getByText(/gekauft|Success|Erfolg/i);
-    if (await success.isVisible({ timeout: 5_000 }).catch(() => false)) {
+    // Buy success: modal may close, or success text appears on page
+    const successText = page.getByText(/gekauft|Success|Erfolg/i);
+    try {
+      await Promise.race([
+        modal.waitFor({ state: 'hidden', timeout: 8_000 }),
+        successText.waitFor({ state: 'visible', timeout: 8_000 }),
+      ]);
       journal.success('buy-modal', `${playerName.trim()} gekauft!`);
+      await page.waitForTimeout(500);
       return true;
-    }
-
-    const errorMsg = page.getByText(/Fehler|Error|nicht genug|insufficient/i);
-    if (await errorMsg.isVisible({ timeout: 2_000 }).catch(() => false)) {
-      const errText = await errorMsg.textContent();
-      journal.error('buy-modal', `Kauf fehlgeschlagen: ${errText?.trim()}`);
-    } else {
-      journal.observe('buy-modal', 'Kein Feedback nach Kauf-Klick — weder Erfolg noch Fehler');
-      journal.uxIssue('buy-modal', 'Nach Klick auf Kaufen gibt es kein sichtbares Feedback', 'medium');
+    } catch {
+      // Neither modal closed nor success appeared
+      const errorMsg = page.getByText(/Fehler|Error|nicht genug|insufficient/i);
+      if (await errorMsg.isVisible({ timeout: 1_000 }).catch(() => false)) {
+        const errText = await errorMsg.textContent();
+        journal.error('buy-modal', `Kauf fehlgeschlagen: ${errText?.trim()}`);
+      } else {
+        journal.observe('buy-modal', 'Kein Feedback nach Kauf-Klick');
+      }
     }
   } else {
     journal.observe('buy-modal', 'Kaufen-Button im Modal nicht klickbar oder nicht sichtbar');
@@ -265,7 +270,7 @@ async function viewAndBuyPlayer(page: Page, bot: BotConfig, journal: BotJournal,
   }
 
   await page.keyboard.press('Escape');
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(300);
   return false;
 }
 
@@ -282,10 +287,10 @@ async function placeSellOrder(page: Page, bot: BotConfig, journal: BotJournal, p
   }
 
   await sellBtn.click();
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(800);
 
   const modal = page.locator('[role="dialog"]');
-  if (!(await modal.isVisible({ timeout: 3_000 }).catch(() => false))) {
+  if (!(await modal.isVisible({ timeout: 5_000 }).catch(() => false))) {
     journal.bug('sell', 'Sell-Modal oeffnet sich nicht', 'high');
     return false;
   }
@@ -315,35 +320,49 @@ async function placeSellOrder(page: Page, bot: BotConfig, journal: BotJournal, p
   const priceInputs = modal.locator('input[type="number"]');
   const priceInputCount = await priceInputs.count();
   if (priceInputCount >= 2) {
-    const priceInput = priceInputs.nth(1);
     // Use floor button if available
     const floorBtn = modal.getByRole('button', { name: /Floor/i }).first();
     if (await floorBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
       await floorBtn.click();
       journal.action('sell-modal', 'Floor-Preis gesetzt');
     } else {
-      await priceInput.fill('15');
+      await priceInputs.nth(1).fill('15');
       journal.action('sell-modal', 'Preis manuell auf 15 gesetzt');
     }
 
-    const listBtn = modal.locator('button').filter({ hasText: /Listen|Erstellen|Sell|Verkauf/i }).last();
+    // The footer button uses t('listForPrice') pattern
+    const listBtn = modal.locator('button').filter({ hasText: /Listen|Erstellen|Sell|Verkauf|zum Preis/i }).last();
     if (await listBtn.isVisible({ timeout: 2_000 }).catch(() => false) && await listBtn.isEnabled()) {
       await listBtn.click();
-      await page.waitForTimeout(2000);
 
-      const success = page.getByText(/gelistet|Listed|Erfolg/i);
-      if (await success.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      // Modal closes on success (setSellModalOpen(false) in usePlayerTrading)
+      // So detect: modal gone = success, error text in modal = failure
+      try {
+        await modal.waitFor({ state: 'hidden', timeout: 8_000 });
+        // Modal closed = sell succeeded
         journal.success('sell-modal', 'Sell Order erfolgreich erstellt!');
+        await page.waitForTimeout(500);
         return true;
-      } else {
-        journal.observe('sell-modal', 'Kein Feedback nach Listing-Versuch');
+      } catch {
+        // Modal still open — check for error
+        const errorMsg = modal.getByText(/Fehler|Error|nicht genug|insufficient|Mindestpreis/i);
+        if (await errorMsg.isVisible({ timeout: 1_000 }).catch(() => false)) {
+          const errText = await errorMsg.textContent();
+          journal.error('sell-modal', `Sell fehlgeschlagen: ${errText?.trim()}`);
+        } else {
+          journal.observe('sell-modal', 'Modal noch offen aber kein Fehler sichtbar');
+        }
       }
     }
+  } else if (priceInputCount === 1) {
+    // Only qty input visible — might be a different sell modal variant
+    journal.observe('sell-modal', 'Nur 1 Input-Feld im Modal (nur Menge, kein Preis?)');
   } else {
-    journal.uxIssue('sell-modal', 'Preis-Eingabefeld nicht gefunden im Sell-Modal', 'medium');
+    journal.uxIssue('sell-modal', 'Kein Input-Feld im Sell-Modal gefunden', 'medium');
   }
 
   await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
   return false;
 }
 
@@ -395,9 +414,9 @@ async function visitPortfolio(page: Page, bot: BotConfig, journal: BotJournal) {
   await timedNavigation(page, `${BASE_URL}/market?tab=portfolio`, journal, 'portfolio');
 
   const kaderBtn = page.getByRole('button', { name: /Kader/i });
-  if (await kaderBtn.isVisible({ timeout: 10_000 }).catch(() => false)) {
+  if (await kaderBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
     await kaderBtn.click();
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
   }
 
   // Check for Wertentwicklung badge
