@@ -57,8 +57,8 @@ export default function TradingTab({
     const d = new Date(executedAt);
     const diff = Date.now() - d.getTime();
     if (diff < 60000) return t('justNow');
-    if (diff < 3600000) return t('minutesAgo', { count: Math.floor(diff / 60000) });
-    if (diff < 86400000) return t('hoursAgo', { count: Math.floor(diff / 3600000) });
+    if (diff < 3600000) return t('minutesAgo', { min: Math.floor(diff / 60000) });
+    if (diff < 86400000) return t('hoursAgo', { hours: Math.floor(diff / 3600000) });
     return d.toLocaleDateString(locale === 'tr' ? 'tr-TR' : 'de-DE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
   };
 
