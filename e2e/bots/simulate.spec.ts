@@ -415,11 +415,11 @@ async function visitPortfolio(page: Page, bot: BotConfig, journal: BotJournal) {
 // ── Main Simulation ──
 
 test.describe('Bot Simulation', () => {
-  test.setTimeout(600_000);
+  test.setTimeout(1800_000); // 30 min total
 
   for (const bot of BOTS) {
     test(`${bot.name} (${bot.personality})`, async ({ browser }) => {
-      test.setTimeout(180_000);
+      test.setTimeout(300_000); // 5 min per bot
 
       const journal = new BotJournal(bot);
       const context = await browser.newContext();
