@@ -33,10 +33,16 @@ export async function runBotSession(bot: AiBotConfig, client: SupabaseClient, us
   const holdings = await actions.getHoldings(client, userId);
   journal.observe('portfolio', `${holdings.length} Spieler im Portfolio`);
 
-  // 4. Get active IPOs
+  // 4. Get active IPOs (pick cheapest per player)
   const activeIpos = await actions.getActiveIpos(client);
-  const ipoByPlayer = new Map(activeIpos.map(ipo => [ipo.player_id, ipo]));
-  journal.observe('market', `${activeIpos.length} aktive IPOs`);
+  const ipoByPlayer = new Map<string, actions.ActiveIpo>();
+  for (const ipo of activeIpos) {
+    const existing = ipoByPlayer.get(ipo.player_id);
+    if (!existing || ipo.price < existing.price) {
+      ipoByPlayer.set(ipo.player_id, ipo);
+    }
+  }
+  journal.observe('market', `${activeIpos.length} aktive IPOs (${ipoByPlayer.size} Spieler)`);
 
   // 5. Get community posts
   const posts = await actions.getRecentPosts(client, 10);
@@ -46,7 +52,7 @@ export async function runBotSession(bot: AiBotConfig, client: SupabaseClient, us
   let actionCount = 0;
 
   // ── BUY PHASE ──
-  const targets = selectTargets(bot, allPlayers, holdings);
+  const targets = selectTargets(bot, allPlayers, holdings, ipoByPlayer);
   journal.action('strategy', `${targets.length} Spieler als Kauf-Ziele identifiziert (${bot.buyLogic})`);
 
   for (const player of targets) {
@@ -83,14 +89,14 @@ export async function runBotSession(bot: AiBotConfig, client: SupabaseClient, us
     } else if (ipoByPlayer.has(player.id)) {
       // Buy from active IPO
       const ipo = ipoByPlayer.get(player.id)!;
-      const remaining = ipo.total_offered - ipo.total_sold;
-      if (remaining > 0 && ipo.price_per_unit <= bot.maxTradeSize) {
+      const remaining = ipo.total_offered - ipo.sold;
+      if (remaining > 0 && ipo.price <= bot.maxTradeSize) {
         const result = await actions.buyFromIpo(client, userId, ipo.id, 1);
         actionCount++;
         if (result.success) {
-          wallet.balance -= ipo.price_per_unit;
-          journal.trade('buy', `${player.first_name} ${player.last_name} x1 @ ${(ipo.price_per_unit / 100).toFixed(0)} CR (IPO)`, {
-            playerId: player.id, price: ipo.price_per_unit, source: 'ipo', ipoId: ipo.id,
+          wallet.balance -= ipo.price;
+          journal.trade('buy', `${player.first_name} ${player.last_name} x1 @ ${(ipo.price / 100).toFixed(0)} CR (IPO)`, {
+            playerId: player.id, price: ipo.price, source: 'ipo', ipoId: ipo.id,
           });
         } else {
           journal.error('buy', `IPO-Kauf fehlgeschlagen: ${result.error}`);
@@ -181,15 +187,25 @@ export async function runBotSession(bot: AiBotConfig, client: SupabaseClient, us
 
 // ── Target Selection ──
 
-function selectTargets(bot: AiBotConfig, players: MarketPlayer[], holdings: Holding[]): MarketPlayer[] {
+function selectTargets(bot: AiBotConfig, players: MarketPlayer[], holdings: Holding[], ipoByPlayer: Map<string, actions.ActiveIpo>): MarketPlayer[] {
   const heldIds = new Set(holdings.map(h => h.player_id));
-  let candidates = players.filter(p => !p.is_liquidated);
+  // Only target players that are guaranteed buyable: active IPO or verified sell orders
+  // (floor_price alone is unreliable — often stale without actual sell orders)
+  let candidates = players.filter(p => !p.is_liquidated && ipoByPlayer.has(p.id));
+
+  // Helper: effective buy price (floor price or IPO price)
+  const getPrice = (p: MarketPlayer) => {
+    if (p.floor_price != null && p.floor_price > 0) return p.floor_price;
+    const ipo = ipoByPlayer.get(p.id);
+    if (ipo) return ipo.price;
+    return p.ipo_price ?? Infinity;
+  };
 
   switch (bot.buyLogic) {
     case 'cheapest':
       candidates = candidates
-        .filter(p => (p.floor_price ?? p.ipo_price ?? Infinity) <= bot.maxTradeSize)
-        .sort((a, b) => (a.floor_price ?? a.ipo_price ?? Infinity) - (b.floor_price ?? b.ipo_price ?? Infinity));
+        .filter(p => getPrice(p) <= bot.maxTradeSize)
+        .sort((a, b) => getPrice(a) - getPrice(b));
       break;
 
     case 'best_l5':

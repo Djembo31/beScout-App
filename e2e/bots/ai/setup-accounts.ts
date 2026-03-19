@@ -31,18 +31,27 @@ export async function setupAccounts() {
 
       const userId = authData.user.id;
 
+      // Profile (handle is NOT NULL, no username column)
+      const handle = bot.email.replace('@bescout.app', '').replace('bot-', 'bot');
       await admin.from('profiles').upsert({
         id: userId,
-        username: bot.email.replace('@bescout.app', '').replace('bot-', 'user_'),
+        handle,
         display_name: bot.name,
         bio: bot.strategy,
         top_role: 'User',
       }, { onConflict: 'id' });
 
+      // Wallet
       await admin.from('wallets').upsert({
         user_id: userId,
         balance: bot.budget,
         locked_balance: 0,
+      }, { onConflict: 'user_id' });
+
+      // User stats (needed for dpc_mastery FK)
+      await admin.from('user_stats').upsert({
+        user_id: userId,
+        tier: 'Rookie',
       }, { onConflict: 'user_id' });
 
       created++;

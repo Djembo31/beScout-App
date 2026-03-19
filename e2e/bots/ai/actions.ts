@@ -130,17 +130,18 @@ export interface ActiveIpo {
   player_id: string;
   status: string;
   total_offered: number;
-  total_sold: number;
-  price_per_unit: number;
+  sold: number;
+  price: number;
   ends_at: string;
 }
 
 export async function getActiveIpos(sb: SupabaseClient): Promise<ActiveIpo[]> {
-  const { data } = await sb.from('ipos')
-    .select('id, player_id, status, total_offered, total_sold, price_per_unit, ends_at')
+  const { data, error } = await sb.from('ipos')
+    .select('id, player_id, status, total_offered, sold, price, ends_at')
     .in('status', ['open', 'early_access'])
     .gt('ends_at', new Date().toISOString())
     .order('created_at', { ascending: false });
+  if (error) console.error('[getActiveIpos]', error.message);
   return (data ?? []) as ActiveIpo[];
 }
 
