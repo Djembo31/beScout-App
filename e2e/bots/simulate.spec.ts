@@ -65,7 +65,7 @@ async function loginBot(page: Page, bot: BotConfig, journal: BotJournal): Promis
 
   journal.action('login', `Login als ${bot.email}`);
   await emailInput.fill(bot.email);
-  await page.getByLabel(/Passwort|Password/i).fill(BOT_PASSWORD);
+  await page.getByPlaceholder(/Passwort|Password/i).fill(BOT_PASSWORD);
   await page.getByRole('button', { name: /Anmelden|Login|Sign/i }).click();
 
   try {
