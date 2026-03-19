@@ -4039,7 +4039,8 @@
     "thisWeek": "diese Woche",
     "filterAll": "Alle",
     "filterTakes": "Meinungen",
-    "filterRumors": "Geruechte"
+    "filterRumors": "Geruechte",
+    "moreOrders": "weitere"
   },
   "pwa": {
     "installTitle": "App installieren",

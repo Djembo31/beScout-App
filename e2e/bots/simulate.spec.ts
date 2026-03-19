@@ -135,7 +135,7 @@ async function browseMarket(page: Page, bot: BotConfig, journal: BotJournal): Pr
   }
 
   // Switch to Transferliste sub-tab where player links exist
-  const transferBtn = page.locator('button').filter({ hasText: /Transferliste|Transfer/i }).first();
+  const transferBtn = page.locator('button').filter({ hasText: /Transferliste|Transfer|Von Usern/i }).first();
   if (await transferBtn.isVisible({ timeout: 8_000 }).catch(() => false)) {
     await transferBtn.click();
     await page.waitForTimeout(2000);

@@ -4039,7 +4039,8 @@
     "thisWeek": "bu hafta",
     "filterAll": "Tumu",
     "filterTakes": "Gorusler",
-    "filterRumors": "Soylentiler"
+    "filterRumors": "Soylentiler",
+    "moreOrders": "daha fazla"
   },
   "pwa": {
     "installTitle": "Uygulamayı Yükle",
