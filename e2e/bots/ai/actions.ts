@@ -344,3 +344,202 @@ export async function claimMissionReward(sb: SupabaseClient, missionId: string) 
   const result = data as Record<string, unknown>;
   return { success: (result.success as boolean) ?? false, reward: result.reward_cents as number | undefined };
 }
+
+// ══════════════════════════════════════════════
+// COMPREHENSIVE QA — All remaining endpoints
+// ══════════════════════════════════════════════
+
+// ── Buy Orders (Kaufgebote) ──
+
+export async function placeBuyOrder(sb: SupabaseClient, userId: string, playerId: string, quantity: number, maxPriceCents: number) {
+  // BUG FOUND: place_buy_order RPC referenced in trading.ts:500 but migration never created
+  // Service code calls it, DB doesn't have it — Buy Orders are broken platform-wide
+  const { data, error } = await sb.rpc('place_buy_order', {
+    p_user_id: userId, p_player_id: playerId, p_quantity: quantity, p_max_price: maxPriceCents,
+  });
+  if (error) return { success: false, error: error.message };
+  return { success: true, ...(data as Record<string, unknown>) };
+}
+
+export async function cancelBuyOrder(sb: SupabaseClient, userId: string, orderId: string) {
+  const { data, error } = await sb.rpc('cancel_buy_order', { p_user_id: userId, p_order_id: orderId });
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+// ── Social (Follow, Unfollow, Stats) ──
+
+export async function followUser(sb: SupabaseClient, followerId: string, followingId: string) {
+  const { error } = await sb.rpc('follow_user', { p_follower_id: followerId, p_following_id: followingId });
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function unfollowUser(sb: SupabaseClient, followerId: string, followingId: string) {
+  const { error } = await sb.rpc('unfollow_user', { p_follower_id: followerId, p_following_id: followingId });
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function getUserStats(sb: SupabaseClient, userId: string) {
+  const { data, error } = await sb.from('user_stats').select('*').eq('user_id', userId).single();
+  if (error) return null;
+  return data;
+}
+
+export async function getLeaderboard(sb: SupabaseClient, limit = 20) {
+  const { data, error } = await sb.from('user_stats')
+    .select('user_id, total_score, rank, tier, trades_count, trading_volume_cents')
+    .order('total_score', { ascending: false }).limit(limit);
+  if (error) return { success: false, error: error.message, data: [] };
+  return { success: true, data: data ?? [] };
+}
+
+// ── Notifications ──
+
+export async function getNotifications(sb: SupabaseClient, userId: string) {
+  const { data, error } = await sb.from('notifications')
+    .select('id, type, title, body, read, created_at')
+    .eq('user_id', userId).order('created_at', { ascending: false }).limit(20);
+  if (error) return { success: false, error: error.message, data: [] };
+  return { success: true, data: data ?? [] };
+}
+
+export async function markNotificationsRead(sb: SupabaseClient, userId: string) {
+  const { error } = await sb.from('notifications').update({ read: true }).eq('user_id', userId).eq('read', false);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+// ── Watchlist ──
+
+export async function getWatchlist(sb: SupabaseClient, userId: string) {
+  const { data, error } = await sb.from('watchlist')
+    .select('player_id, alert_threshold_pct, alert_direction, created_at')
+    .eq('user_id', userId);
+  if (error) return { success: false, error: error.message, data: [] };
+  return { success: true, data: data ?? [] };
+}
+
+export async function addToWatchlist(sb: SupabaseClient, userId: string, playerId: string) {
+  const { error } = await sb.from('watchlist').upsert(
+    { user_id: userId, player_id: playerId }, { onConflict: 'user_id,player_id' }
+  );
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function removeFromWatchlist(sb: SupabaseClient, userId: string, playerId: string) {
+  const { error } = await sb.from('watchlist').delete().eq('user_id', userId).eq('player_id', playerId);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+// ── P2P Offers ──
+
+export async function createOffer(sb: SupabaseClient, userId: string, playerId: string, side: 'buy' | 'sell', priceCents: number, quantity: number, message?: string) {
+  const { data, error } = await sb.from('offers').insert({
+    sender_id: userId, player_id: playerId, side, price: priceCents, quantity, message: message ?? null, status: 'pending',
+  }).select('id').single();
+  if (error) return { success: false, error: error.message };
+  return { success: true, offerId: data.id };
+}
+
+export async function getIncomingOffers(sb: SupabaseClient, userId: string) {
+  const { data, error } = await sb.from('offers')
+    .select('id, sender_id, player_id, side, price, quantity, status, message, created_at')
+    .eq('status', 'pending')
+    .limit(10);
+  if (error) return { success: false, error: error.message, data: [] };
+  return { success: true, data: data ?? [] };
+}
+
+// ── Achievements ──
+
+export async function getUserAchievements(sb: SupabaseClient, userId: string) {
+  const { data, error } = await sb.from('user_achievements')
+    .select('achievement_key, unlocked_at')
+    .eq('user_id', userId);
+  if (error) return { success: false, error: error.message, data: [] };
+  return { success: true, data: data ?? [] };
+}
+
+// ── Profile ──
+
+export async function getProfile(sb: SupabaseClient, userId: string) {
+  const { data, error } = await sb.from('profiles')
+    .select('id, handle, display_name, bio, top_role, language, created_at')
+    .eq('id', userId).single();
+  if (error) return { success: false, error: error.message };
+  return { success: true, data };
+}
+
+// ── Player Detail (full) ──
+
+export async function getPlayerDetail(sb: SupabaseClient, playerId: string) {
+  const { data, error } = await sb.from('players')
+    .select('*')
+    .eq('id', playerId).single();
+  if (error) return { success: false, error: error.message };
+  return { success: true, data };
+}
+
+export async function getPlayerTrades(sb: SupabaseClient, playerId: string) {
+  const { data, error } = await sb.from('trades')
+    .select('id, buyer_id, seller_id, price, quantity, executed_at')
+    .eq('player_id', playerId)
+    .order('executed_at', { ascending: false }).limit(20);
+  if (error) return { success: false, error: error.message, data: [] };
+  return { success: true, data: data ?? [] };
+}
+
+// ── Transactions ──
+
+export async function getTransactions(sb: SupabaseClient, userId: string) {
+  const { data, error } = await sb.from('transactions')
+    .select('id, amount, type, description, created_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false }).limit(20);
+  if (error) return { success: false, error: error.message, data: [] };
+  return { success: true, data: data ?? [] };
+}
+
+// ── Club Page ──
+
+export async function getClubPlayers(sb: SupabaseClient, clubId: string) {
+  const { data, error } = await sb.from('players')
+    .select('id, first_name, last_name, position, perf_l5, floor_price, dpc_total')
+    .eq('club_id', clubId).eq('is_liquidated', false)
+    .order('position');
+  if (error) return { success: false, error: error.message, data: [] };
+  return { success: true, data: data ?? [] };
+}
+
+// ── Daily Challenge ──
+
+export async function getDailyChallenge(sb: SupabaseClient) {
+  const today = new Date().toISOString().slice(0, 10);
+  const { data, error } = await sb.from('daily_challenges')
+    .select('id, question_de, options, reward_correct, reward_wrong, active')
+    .eq('challenge_date', today).eq('active', true).single();
+  if (error) return null;
+  return data;
+}
+
+export async function submitDailyChallenge(sb: SupabaseClient, challengeId: string, option: number) {
+  const { data, error } = await sb.rpc('submit_daily_challenge', {
+    p_challenge_id: challengeId, p_selected_option: option,
+  });
+  if (error) return { success: false, error: error.message };
+  return { success: true, ...(data as Record<string, unknown>) };
+}
+
+// ── Airdrop ──
+
+export async function getAirdropScore(sb: SupabaseClient, userId: string) {
+  const { data, error } = await sb.from('airdrop_scores')
+    .select('user_id, total_score, rank, tier')
+    .eq('user_id', userId).single();
+  if (error) return null;
+  return data;
+}

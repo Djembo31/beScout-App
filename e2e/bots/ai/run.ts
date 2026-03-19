@@ -3,6 +3,7 @@ import { createBotClient } from './supabase';
 import { runBotSession } from './agent';
 import { analyzeMarket, selectBots, aggregateInsights } from './director';
 import { runSurvey, saveSurveyResults, type SurveyResult } from './survey';
+import { runQA, saveQAResults, type QAReport } from './qa-runner';
 import type { SessionReport } from './journal';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -55,6 +56,14 @@ async function main() {
     return;
   }
 
+  if (command === '--qa') {
+    const count = parseInt(args[1] ?? '10');
+    const bots = allBots.slice(0, count);
+    console.log(`Running QA with ${bots.length} bots — testing ALL endpoints...\n`);
+    await runQABatch(bots);
+    return;
+  }
+
   if (command === '--survey') {
     const count = parseInt(args[1] ?? String(allBots.length));
     const bots = allBots.slice(0, count);
@@ -78,6 +87,7 @@ Usage:
   npx tsx e2e/bots/ai/run.ts --bot 5            Run single bot by ID
   npx tsx e2e/bots/ai/run.ts --batch 1-10       Run bots 1-10
   npx tsx e2e/bots/ai/run.ts --smart 15         Director picks 15 best bots for current market
+  npx tsx e2e/bots/ai/run.ts --qa 10             QA: test ALL endpoints with 10 bots
   npx tsx e2e/bots/ai/run.ts --survey 20        Platform survey with 20 bot personas
   npx tsx e2e/bots/ai/run.ts --all              Run all ${allBots.length} bots
 
@@ -146,6 +156,42 @@ async function runBatch(bots: AiBotConfig[]) {
     console.log(`TOTAL: ${allReports.length} bots, ${allReports.reduce((s, r) => s + r.summary.trades, 0)} trades`);
     console.log(`Bugs: ${allReports.reduce((s, r) => s + r.summary.bugs, 0)} | Errors: ${allReports.reduce((s, r) => s + r.summary.errors, 0)}`);
     console.log(`Reports: e2e/bots/insights/${date}-insights.md`);
+  }
+}
+
+async function runQABatch(bots: AiBotConfig[]) {
+  const allResults: QAReport[] = [];
+  for (let i = 0; i < bots.length; i += BATCH_SIZE) {
+    const batch = bots.slice(i, i + BATCH_SIZE);
+    console.log(`── QA Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${batch.map(b => `#${b.id}`).join(', ')} ──`);
+    const results = await Promise.allSettled(
+      batch.map(async bot => {
+        try {
+          const { client, userId } = await createBotClient(bot.email, bot.password);
+          return await runQA(bot, client, userId);
+        } catch (err) {
+          console.error(`  Bot #${bot.id} QA failed: ${err instanceof Error ? err.message : err}`);
+          return null;
+        }
+      })
+    );
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value) {
+        allResults.push(result.value);
+        const r = result.value;
+        const failStr = r.summary.fail > 0 ? ` FAIL:${r.summary.fail}` : '';
+        console.log(`  ${r.bot.name}: ${r.summary.pass} PASS${failStr} — ${(r.totalDurationMs / 1000).toFixed(1)}s`);
+      }
+    }
+    if (i + BATCH_SIZE < bots.length) await new Promise(r => setTimeout(r, 1000));
+  }
+  if (allResults.length > 0) {
+    saveQAResults(allResults);
+    const totalPass = allResults.reduce((s, r) => s + r.summary.pass, 0);
+    const totalFail = allResults.reduce((s, r) => s + r.summary.fail, 0);
+    console.log(`\n${'='.repeat(60)}`);
+    console.log(`QA COMPLETE: ${allResults.length} bots, ${totalPass} PASS, ${totalFail} FAIL`);
+    console.log(`Pass Rate: ${Math.round(totalPass / (totalPass + totalFail) * 100)}%`);
   }
 }
 
