@@ -1,0 +1,55 @@
+[
+  {
+    "bot": {
+      "name": "Emre Sniper",
+      "email": "bot-sniper@bescout.app",
+      "personality": "sniper",
+      "strategy": "Wartet auf guenstige Angebote unter Referenzwert. Kauft und verkauft schnell."
+    },
+    "sessionStart": "2026-03-19T11:47:48.985Z",
+    "sessionEnd": "2026-03-19T11:48:24.002Z",
+    "durationMs": 35017,
+    "summary": {
+      "actions": 2,
+      "observations": 0,
+      "bugs": 0,
+      "wishes": 0,
+      "uxIssues": 1,
+      "successes": 0,
+      "errors": 0,
+      "playersBought": 0,
+      "sellOrdersPlaced": 0,
+      "pagesVisited": [
+        "login"
+      ]
+    },
+    "entries": [
+      {
+        "timestamp": "2026-03-19T11:47:49.197Z",
+        "type": "action",
+        "page": "login",
+        "message": "Navigiere zur Login-Seite"
+      },
+      {
+        "timestamp": "2026-03-19T11:48:23.858Z",
+        "type": "timing",
+        "page": "login",
+        "message": "Navigation login: 34659ms",
+        "durationMs": 34659
+      },
+      {
+        "timestamp": "2026-03-19T11:48:23.858Z",
+        "type": "ux_issue",
+        "page": "login",
+        "message": "Seite braucht zu lange: Navigation login (34.7s)",
+        "severity": "medium"
+      },
+      {
+        "timestamp": "2026-03-19T11:48:23.874Z",
+        "type": "action",
+        "page": "login",
+        "message": "Login als bot-sniper@bescout.app"
+      }
+    ]
+  }
+]

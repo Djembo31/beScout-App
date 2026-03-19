@@ -1,0 +1,55 @@
+[
+  {
+    "bot": {
+      "name": "Zeynep Collector",
+      "email": "bot-collector@bescout.app",
+      "personality": "collector",
+      "strategy": "Sammelt viele verschiedene Spieler. Kauft jeweils 1 SC pro Spieler."
+    },
+    "sessionStart": "2026-03-19T11:47:08.704Z",
+    "sessionEnd": "2026-03-19T11:47:44.575Z",
+    "durationMs": 35871,
+    "summary": {
+      "actions": 2,
+      "observations": 0,
+      "bugs": 0,
+      "wishes": 0,
+      "uxIssues": 1,
+      "successes": 0,
+      "errors": 0,
+      "playersBought": 0,
+      "sellOrdersPlaced": 0,
+      "pagesVisited": [
+        "login"
+      ]
+    },
+    "entries": [
+      {
+        "timestamp": "2026-03-19T11:47:08.888Z",
+        "type": "action",
+        "page": "login",
+        "message": "Navigiere zur Login-Seite"
+      },
+      {
+        "timestamp": "2026-03-19T11:47:44.310Z",
+        "type": "timing",
+        "page": "login",
+        "message": "Navigation login: 35422ms",
+        "durationMs": 35422
+      },
+      {
+        "timestamp": "2026-03-19T11:47:44.310Z",
+        "type": "ux_issue",
+        "page": "login",
+        "message": "Seite braucht zu lange: Navigation login (35.4s)",
+        "severity": "medium"
+      },
+      {
+        "timestamp": "2026-03-19T11:47:44.360Z",
+        "type": "action",
+        "page": "login",
+        "message": "Login als bot-collector@bescout.app"
+      }
+    ]
+  }
+]

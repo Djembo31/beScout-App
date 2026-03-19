@@ -1,0 +1,55 @@
+[
+  {
+    "bot": {
+      "name": "Elif Manager",
+      "email": "bot-manager@bescout.app",
+      "personality": "manager",
+      "strategy": "Baut ein ausgewogenes Team. Kauft verschiedene Positionen fuer Fantasy."
+    },
+    "sessionStart": "2026-03-19T11:36:46.971Z",
+    "sessionEnd": "2026-03-19T11:37:22.215Z",
+    "durationMs": 35244,
+    "summary": {
+      "actions": 2,
+      "observations": 0,
+      "bugs": 0,
+      "wishes": 0,
+      "uxIssues": 1,
+      "successes": 0,
+      "errors": 0,
+      "playersBought": 0,
+      "sellOrdersPlaced": 0,
+      "pagesVisited": [
+        "login"
+      ]
+    },
+    "entries": [
+      {
+        "timestamp": "2026-03-19T11:36:47.161Z",
+        "type": "action",
+        "page": "login",
+        "message": "Navigiere zur Login-Seite"
+      },
+      {
+        "timestamp": "2026-03-19T11:37:22.096Z",
+        "type": "timing",
+        "page": "login",
+        "message": "Navigation login: 34935ms",
+        "durationMs": 34935
+      },
+      {
+        "timestamp": "2026-03-19T11:37:22.096Z",
+        "type": "ux_issue",
+        "page": "login",
+        "message": "Seite braucht zu lange: Navigation login (34.9s)",
+        "severity": "medium"
+      },
+      {
+        "timestamp": "2026-03-19T11:37:22.127Z",
+        "type": "action",
+        "page": "login",
+        "message": "Login als bot-manager@bescout.app"
+      }
+    ]
+  }
+]
