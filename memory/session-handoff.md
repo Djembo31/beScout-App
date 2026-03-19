@@ -1,57 +1,61 @@
 # Session Handoff
-## Letzte Session: 2026-03-18 (Session 241)
+## Letzte Session: 2026-03-19 (Session 242)
 ## Was wurde gemacht
 
-### Performance Overhaul v2 (5 Phasen, KOMPLETT)
-- P1-P5 komplett: Query Fundamentals, Service Layer, RPCs, React Rendering, Bundle
-- Design + Plan Docs in `docs/plans/2026-03-18-performance-overhaul-v2-*`
+### Pricing & Market Architecture (KOMPLETT)
+Volle Pipeline: Brainstorming → Design Doc → Plan → Execution → Verification
 
-### Query Key Integrity Fix
-- 5 orphaned raw query keys → qk Factory, Invalidation erweitert
-- Metadata photo_url → image_url fix
+#### DB Migration (20260319_pricing_architecture.sql)
+- `reference_price` (cached MV*10, auto-Trigger bei MV-Update)
+- `initial_listing_price` (immutable, gesetzt beim ersten IPO)
+- `recalc_floor_price()`: Neue Hierarchie MIN(Orders,IPO) > last_price > reference_price
+- `get_price_cap()`: Manipulationsschutz MAX(3x Ref, 3x Median letzte 10 Trades)
+- `place_sell_order` gepatcht mit Price Cap Check
+- Backfill: reference_price + initial_listing_price fuer alle bestehenden Spieler
 
-### API-Football Data Integrity (Audit + Fix)
-- Scoring unified (Rating×10 + scaleFormulaToRating Fallback)
-- cron_recalc_perf: total_minutes, total_saves, matches aggregiert
-- 5 defensive Guards (Ghost Starter, Grid, Position, Name-Disambig, Ambiguity)
-- DB Reparatur: 15 excess Starters, 252 Formula-Scores skaliert
+#### Types + Service Layer
+- Player.prices: +referencePrice, +initialListingPrice
+- Player: +offerCount
+- PLAYER_SELECT_COLS + dbToPlayer: neue Felder gemappt
+- trading.ts: getOfferCounts(), getBuyOrderCounts(), getPriceCap()
+- placeSellOrder: Frontend Price Cap Validation (defense-in-depth)
 
-### Spieler-Daten Recovery
-- 56 fehlende Spieler aus orphaned API-Stats erstellt + External-IDs registriert
-- 700 Stats zugeordnet (704 → 4 Orphans)
-- last_appearance_gw auf allen Spielern korrigiert (131 → 0 Gaps)
-- L5/L15 + Season Stats komplett neu berechnet (663 Spieler)
+#### Component Updates
+- Preis-Hierarchie: floor > lastTrade > referencePrice (TopMovers, DiscoveryCard, PlayerRow)
+- PlayerBadgeStrip: "X Angebote" / "Nicht gelistet" Badge
+- Market Tab: "Kaufen" → "Marktplatz" (+ backwards-compat alias)
+- TradingTab: Letzter Preis + Wertentwicklung (initial → aktuell → %)
+- SquadSummaryStats: Portfolio Wertentwicklung Badge
+- BuyModal: Individuelle Sell-Order Liste (User waehlt selbst)
+- SellModal: Orientierungshilfe (Referenzwert + hoechstes Gesuch) + "Sofort verkaufen"
+- i18n: 18 neue Keys (DE + TR)
 
-### Match Timeline: Alle GWs anzeigen
-- getPlayerMatchTimeline zeigt ALLE Club-Fixtures (played/bench/not_in_squad)
-- MatchTimeline + TradingCardFrame Card Back konsistent aktualisiert
-- Nur Fakten, kein Raten bei Abwesenheitsgrund
+#### Verification
+- tsc --noEmit: PASS
+- vitest: 267/267 PASS
+- Reviewer-Agent: dispatched
 
-### Reward-Treppe Fix
-- Aktiver Tier zeigte Tier-MAX (300K) statt echten Marktwert (100K) → gefixt
+### Design Docs
+- `docs/plans/2026-03-19-pricing-architecture-design.md` (Anils Anforderungen WOERTLICH)
+- `docs/plans/2026-03-19-pricing-architecture-plan.md` (18 Tasks, 4 Phasen)
 
-## NAECHSTE SESSION: Pricing & Market Architecture (KRITISCH)
+## Anils Entscheidungen (WOERTLICH)
+- "den bescout referenz wert zu seinem marktwert, das ist der index"
+- "fuer die vereine soll das so sein, als ob sie zu dem preis anteile ausgeben"
+- "der preis soll sich durch angebot und nachfrage bilden, aber fair"
+- "wie im echten trading aus mehreren sourcen, wie ein orderbook verteilt"
+- "der user soll selbst entscheiden, woher er kauft"
+- "das muss legalkonform sein" → Marktplatz-Sprache statt Boersen-Terminologie
+- "den letzten verkaufspreis immer mit anzeigen"
+- "den ersten IPO verkauf als referenz fuer die wertentwicklung"
 
-### Problem (Session 241 Analyse)
-- 0 aktive Orders, 0 aktive IPOs, nur 47 je gehandelte Spieler
-- Floor Price ist synthetisch (MV/10), nicht marktbasiert
-- 351 Spieler haben Floor der nicht zum aktuellen MV passt
-- User kann nicht erkennen ob Angebote/Gesuche existieren
-- Kein klares "verfuegbar ab X" vs "letzter Preis" vs "noch nie gehandelt"
-
-### Was gebaut werden muss (Anils Vision)
-- **Preis-Anzeige Hierarchie:** MIN(Sell-Orders, IPO) → Last Trade → "Noch kein Handel"
-- **Markt-Indikatoren:** IPO aktiv, X Angebote, X Gesuche, Kein Angebot
-- **Betrifft:** ALLE Componenten (PlayerRow, PlayerHero, Card, Market, Home, Fantasy)
-- **Betrifft:** Order Flow, Buy/Sell Flow, Geld-Transfer, Reward-Berechnung
-- **MUSS volle Pipeline:** Brainstorming → Impact → Spec → Plan → Execution
-- **KEIN Quick Fix** — ultrathink, alles aufeinander abgestimmt
-
-## Offene Arbeit
-1. **Pricing & Market Architecture** ← NAECHSTE PRIORITAET
-2. Admin i18n Rest (~80 Strings)
-3. Stripe (wartet auf Anils Account)
-4. 4 verbleibende orphaned fixture_player_stats
+## Noch offen (Follow-Up)
+1. DB Migration anwenden (supabase db push)
+2. buy_from_order + expire_pending_orders: floor_price Fallback auf reference_price patchen
+3. Admin i18n Rest (~80 Strings)
+4. Stripe (wartet auf Anils Account)
+5. 4 verbleibende orphaned fixture_player_stats
+6. SellModal: openBids + onAcceptBid Props muessen in PlayerContent verdrahtet werden
 
 ## Blocker
 - Keine
