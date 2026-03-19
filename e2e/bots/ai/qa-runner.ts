@@ -192,12 +192,21 @@ export async function runQA(bot: AiBotConfig, client: SupabaseClient, userId: st
     }
   }
 
-  // Buy order (Kaufgebot) — KNOWN BUG: place_buy_order RPC missing from DB
+  // Buy order (Kaufgebot)
   if (testPlayer) {
-    r(await runTest('trading', 'placeBuyOrder [KNOWN BUG: RPC missing]', async () => {
+    r(await runTest('trading', 'placeBuyOrder', async () => {
       const res = await actions.placeBuyOrder(client, userId, testPlayer.id, 1, 500);
       return { ok: res.success, detail: `Buy order @ 5 CR for ${testPlayer.last_name}`, error: res.error };
     }));
+
+    // Cancel buy order to clean up
+    const { data: buyOrders } = await client.from('orders').select('id').eq('user_id', userId).eq('side', 'buy').in('status', ['open']).limit(1);
+    if (buyOrders && buyOrders.length > 0) {
+      r(await runTest('trading', 'cancelBuyOrder', async () => {
+        const res = await actions.cancelBuyOrder(client, userId, buyOrders[0].id);
+        return { ok: res.success, error: res.error };
+      }));
+    }
   }
 
   // ══════════════════════════════════════
