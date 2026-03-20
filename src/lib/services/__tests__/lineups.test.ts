@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { mockSupabase } from '@/test/mocks/supabase';
+import { mockTable, resetMocks } from '@/test/mocks/supabase';
 import { submitLineup } from '../lineups';
 
 // Mock getFixtureDeadlinesByGameweek (imported by lineups.ts)
@@ -20,7 +20,7 @@ const USER_ID = 'user-001';
 const CLUB_ID = 'club-001';
 
 /** 11-player slot map */
-function makeSlots(count: number, clubId = CLUB_ID): { slots: Record<string, string>; playerIds: string[] } {
+function makeSlots(count: number): { slots: Record<string, string>; playerIds: string[] } {
   const slots: Record<string, string> = {};
   const keys = ['gk', 'def1', 'def2', 'def3', 'def4', 'mid1', 'mid2', 'mid3', 'mid4', 'att', 'att2', 'att3'];
   const playerIds: string[] = [];
@@ -32,28 +32,12 @@ function makeSlots(count: number, clubId = CLUB_ID): { slots: Record<string, str
   return { slots, playerIds };
 }
 
-/** Creates a per-table mock for supabase.from() */
+/** Setup table mocks from a config object (convenience wrapper) */
 function mockFromTable(tableResponses: Record<string, { data: unknown; error: unknown }>) {
-  mockSupabase.from.mockImplementation((table: string) => {
-    const resp = tableResponses[table] ?? { data: null, error: null };
-
-    const builder: Record<string, unknown> = {};
-    const chainMethods = [
-      'select', 'insert', 'update', 'upsert', 'delete',
-      'eq', 'neq', 'gt', 'gte', 'lt', 'lte',
-      'like', 'ilike', 'is', 'in', 'contains',
-      'order', 'limit', 'offset', 'match', 'not', 'filter', 'or',
-    ];
-    for (const m of chainMethods) {
-      builder[m] = vi.fn().mockReturnValue(builder);
-    }
-    builder['single'] = vi.fn().mockReturnValue(resp);
-    builder['maybeSingle'] = vi.fn().mockReturnValue(resp);
-    builder['then'] = vi.fn().mockImplementation(
-      (resolve: (val: unknown) => void) => resolve(resp),
-    );
-    return builder;
-  });
+  resetMocks();
+  for (const [table, resp] of Object.entries(tableResponses)) {
+    mockTable(table, resp.data, resp.error as { message: string } | null);
+  }
 }
 
 const baseEvent = {

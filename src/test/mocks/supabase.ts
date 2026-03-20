@@ -1,99 +1,155 @@
 /**
- * Supabase Client Mock for unit tests.
+ * Supabase Client Mock v2 — Table-Aware + Call-Sequence + RPC-Aware
  *
- * Usage in tests:
+ * ## New API (v2):
+ *   import { mockTable, mockRpc, resetMocks } from '@/test/mocks/supabase';
+ *
+ *   beforeEach(() => resetMocks());
+ *
+ *   // Table-specific responses:
+ *   mockTable('events', { status: 'registering', max_entries: 30 });
+ *   mockTable('lineups', null);  // no existing lineup
+ *
+ *   // RPC-specific responses:
+ *   mockRpc('buy_player_dpc', { success: true, price_per_dpc: 500 });
+ *
+ *   // Call-sequence (FIFO queue per table):
+ *   mockTable('players', { is_liquidated: false });  // 1st call
+ *   mockTable('players', { club_id: 'club-1' });     // 2nd call
+ *
+ * ## Legacy API (v1 — backward compatible):
  *   import { mockSupabaseResponse, mockSupabaseRpc } from '@/test/mocks/supabase';
- *
- *   // Before each test, set the mock return value:
- *   mockSupabaseResponse({ id: '1', name: 'Test' }, null);
- *
- *   // Then call the service under test — it will receive the mocked data.
+ *   mockSupabaseResponse({ id: '1' });  // sets fallback for all tables
  */
 import { vi } from 'vitest';
 
 // ============================================
-// Chainable query builder mock
+// State
 // ============================================
 
-let _mockData: unknown = null;
-let _mockError: { message: string; code?: string } | null = null;
-let _mockCount: number | null = null;
+type MockResponse = {
+  data: unknown;
+  error: { message: string; code?: string } | null;
+  count?: number | null;
+};
 
-/** Set the data/error that the next supabase query chain will return */
+/** Per-table response queues (FIFO) */
+const _tableQueues = new Map<string, MockResponse[]>();
+/** Per-RPC response queues (FIFO) */
+const _rpcQueues = new Map<string, MockResponse[]>();
+/** Fallback for unregistered tables/RPCs (legacy API) */
+let _fallback: MockResponse = { data: null, error: null };
+
+// ============================================
+// v2 API
+// ============================================
+
+/** Reset all mock state. Call in beforeEach(). */
+export function resetMocks(): void {
+  _tableQueues.clear();
+  _rpcQueues.clear();
+  _fallback = { data: null, error: null };
+  mockSupabase.from.mockClear();
+  mockSupabase.rpc.mockClear();
+}
+
+/**
+ * Set response for a specific table. Multiple calls queue responses (FIFO).
+ * If only one response is queued, it's reused for all calls (sticky).
+ */
+export function mockTable(
+  table: string,
+  data: unknown,
+  error: { message: string; code?: string } | null = null,
+  count?: number | null,
+): void {
+  const queue = _tableQueues.get(table) ?? [];
+  queue.push({ data, error, count: count ?? null });
+  _tableQueues.set(table, queue);
+}
+
+/**
+ * Set response for a specific RPC function. Multiple calls queue responses (FIFO).
+ */
+export function mockRpc(
+  fnName: string,
+  data: unknown,
+  error: { message: string; code?: string } | null = null,
+): void {
+  const queue = _rpcQueues.get(fnName) ?? [];
+  queue.push({ data, error });
+  _rpcQueues.set(fnName, queue);
+}
+
+/** Set fallback response for unregistered tables/RPCs */
+export function mockFallback(
+  data: unknown,
+  error: { message: string; code?: string } | null = null,
+): void {
+  _fallback = { data, error };
+}
+
+// ============================================
+// Legacy v1 API (backward compatible)
+// ============================================
+
+/** @deprecated Use mockTable() or mockFallback() instead */
 export function mockSupabaseResponse(
   data: unknown,
   error: { message: string; code?: string } | null = null,
 ): void {
-  _mockData = data;
-  _mockError = error;
+  _fallback = { data, error };
 }
 
-/** Set count for head:true queries */
+/** @deprecated Use mockTable() with count param instead */
 export function mockSupabaseCount(count: number): void {
-  _mockCount = count;
+  _fallback = { ..._fallback, count };
 }
 
-/** Set an RPC response */
+/** @deprecated Use mockRpc() instead */
 export function mockSupabaseRpc(
   data: unknown,
   error: { message: string; code?: string } | null = null,
 ): void {
-  _mockData = data;
-  _mockError = error;
+  _fallback = { data, error };
 }
 
-function createResult() {
-  return {
-    data: _mockData,
-    error: _mockError,
-    count: _mockCount,
-  };
+// ============================================
+// Response resolution
+// ============================================
+
+function getResponse(queue: Map<string, MockResponse[]>, key: string): MockResponse {
+  const q = queue.get(key);
+  if (q && q.length > 0) {
+    // Sticky: if only 1 item, reuse it. If multiple, dequeue (FIFO).
+    return q.length === 1 ? q[0] : q.shift()!;
+  }
+  return _fallback;
 }
 
-/** Builds a chainable mock that mimics the Supabase PostgREST builder */
-function createQueryBuilder(): Record<string, unknown> {
+// ============================================
+// Chainable query builder
+// ============================================
+
+function createQueryBuilder(table: string): Record<string, unknown> {
   const builder: Record<string, unknown> = {};
 
   const chainMethods = [
-    'select',
-    'insert',
-    'update',
-    'upsert',
-    'delete',
-    'eq',
-    'neq',
-    'gt',
-    'gte',
-    'lt',
-    'lte',
-    'like',
-    'ilike',
-    'is',
-    'in',
-    'contains',
-    'containedBy',
-    'range',
-    'order',
-    'limit',
-    'offset',
-    'match',
-    'not',
-    'filter',
-    'or',
-    'textSearch',
+    'select', 'insert', 'update', 'upsert', 'delete',
+    'eq', 'neq', 'gt', 'gte', 'lt', 'lte',
+    'like', 'ilike', 'is', 'in', 'contains', 'containedBy',
+    'range', 'order', 'limit', 'offset', 'match', 'not', 'filter', 'or', 'textSearch',
   ];
 
   for (const method of chainMethods) {
     builder[method] = vi.fn().mockReturnValue(builder);
   }
 
-  // Terminal methods that return the final result
-  builder['single'] = vi.fn().mockImplementation(() => createResult());
-  builder['maybeSingle'] = vi.fn().mockImplementation(() => createResult());
-
-  // Make the builder itself thenable so `await supabase.from(...).select(...)` works
+  const getResult = () => getResponse(_tableQueues, table);
+  builder['single'] = vi.fn().mockImplementation(getResult);
+  builder['maybeSingle'] = vi.fn().mockImplementation(getResult);
   builder['then'] = vi.fn().mockImplementation(
-    (resolve: (val: unknown) => void) => resolve(createResult()),
+    (resolve: (val: unknown) => void) => resolve(getResult()),
   );
 
   return builder;
@@ -104,8 +160,8 @@ function createQueryBuilder(): Record<string, unknown> {
 // ============================================
 
 export const mockSupabase = {
-  from: vi.fn().mockImplementation(() => createQueryBuilder()),
-  rpc: vi.fn().mockImplementation(() => createResult()),
+  from: vi.fn().mockImplementation((table: string) => createQueryBuilder(table)),
+  rpc: vi.fn().mockImplementation((fnName: string) => getResponse(_rpcQueues, fnName)),
   auth: {
     getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
     getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
