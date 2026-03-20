@@ -12,7 +12,7 @@ import { BotJournal, saveReports, type BotReport } from './bot-journal';
  * Run: npx playwright test e2e/bots/simulate.spec.ts --workers=1
  */
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = process.env.BOT_BASE_URL || 'http://localhost:3000';
 const allReports: BotReport[] = [];
 
 // ── Helpers ──
@@ -47,8 +47,9 @@ async function loginBot(page: Page, bot: BotConfig, journal: BotJournal): Promis
   const elapsed = await timedNavigation(page, `${BASE_URL}/login`, journal, 'login');
 
   const emailInput = page.getByLabel(/E-Mail|Email/i);
-  const visible = await emailInput.isVisible({ timeout: 30_000 }).catch(() => false);
-  if (!visible) {
+  try {
+    await emailInput.waitFor({ state: 'visible', timeout: 30_000 });
+  } catch {
     journal.bug('login', 'Email-Feld nicht sichtbar nach 30s', 'high');
     return false;
   }
@@ -88,21 +89,42 @@ async function loginBot(page: Page, bot: BotConfig, journal: BotJournal): Promis
 
   await waitForApp(page);
   await page.evaluate(() => localStorage.setItem('bescout-welcome-shown', '1'));
+
+  // Wait for AuthGuard to finish loading — auth-gated content renders only when user+profile loaded
+  // AuthGuard shows ContentSkeleton while loading. Wait for actual page content (e.g., h1 heading)
+  try {
+    await page.locator('h1, h2, [data-tour-id]').first().waitFor({ state: 'visible', timeout: 15_000 });
+  } catch {
+    journal.uxIssue('login', 'AuthGuard braucht sehr lange zum Laden', 'medium');
+  }
+
   journal.success('login', `Login erfolgreich (${(elapsed / 1000).toFixed(1)}s)`);
   return true;
 }
 
 async function getBalance(page: Page, journal: BotJournal, pageName: string): Promise<string> {
-  // Look for balance display in various formats
+  // Balance loads async via WalletProvider — give it time
+  // TopBar uses data-tour-id="topbar-balance", SideNav uses data-tour-id="sidebar-wallet"
   const selectors = [
-    page.locator('text=/\\d[\\d.,]*\\s*CR/').first(),
-    page.locator('[class*="font-mono"]').filter({ hasText: /\d/ }).first(),
+    page.locator('[data-tour-id="topbar-balance"]').first(),
+    page.locator('[data-tour-id="sidebar-wallet"]').first(),
+    // Fallback: any font-mono text-gold element with digits
+    page.locator('.font-mono.text-gold').filter({ hasText: /\d/ }).first(),
   ];
 
   for (const sel of selectors) {
-    if (await sel.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    try {
+      await sel.waitFor({ state: 'visible', timeout: 5_000 });
+      // Wait for actual number to appear (not loading skeleton)
+      await page.waitForFunction(
+        (el) => el && /\d/.test(el.textContent ?? ''),
+        await sel.elementHandle(),
+        { timeout: 5_000 }
+      ).catch(() => {});
       const text = await sel.textContent();
       if (text && /\d/.test(text)) return text.trim();
+    } catch {
+      // try next selector
     }
   }
   journal.observe(pageName, 'Konnte Balance nicht ablesen');
@@ -115,10 +137,30 @@ async function browseMarket(page: Page, bot: BotConfig, journal: BotJournal): Pr
   journal.action('market', 'Oeffne Marktplatz');
   await timedNavigation(page, `${BASE_URL}/market?tab=marktplatz`, journal, 'market');
 
-  // Wait for market tab content to fully hydrate (auth-gated, React Query data)
-  // Look for tab bar which confirms the page has rendered
-  const tabBar = page.getByRole('tablist');
-  await tabBar.waitFor({ state: 'visible', timeout: 15_000 }).catch(() => {});
+  // Wait for AuthGuard to pass — market page is auth-gated, shows skeleton until user+profile loaded
+  // Look for the page h1 (contains t('title') = "Manager") which only renders after AuthGuard passes
+  const pageH1 = page.locator('h1').first();
+  try {
+    await pageH1.waitFor({ state: 'visible', timeout: 30_000 });
+  } catch {
+    journal.bug('market', 'Market page failed to load after AuthGuard (30s)', 'high');
+    return [];
+  }
+
+  // Now find the Marktplatz tab button
+  const marktplatzBtn = page.locator('button').filter({ hasText: /Marktplatz/i }).first();
+  try {
+    await marktplatzBtn.waitFor({ state: 'visible', timeout: 10_000 });
+  } catch {
+    // Fallback: content may have loaded with Marktplatz already active (from URL param)
+    const playerLinks = page.locator('a[href*="/player/"]');
+    if (await playerLinks.count() > 0) {
+      journal.observe('market', 'Marktplatz-Tab nicht gefunden, aber Spieler-Links sichtbar');
+    } else {
+      journal.bug('market', 'Marktplatz-Tab nicht sichtbar nach 10s', 'high');
+      return [];
+    }
+  }
 
   // Check if page loaded or shows error
   const errorState = page.getByText(/Daten konnten nicht geladen|Error|Fehler/i);
@@ -127,21 +169,27 @@ async function browseMarket(page: Page, bot: BotConfig, journal: BotJournal): Pr
     return [];
   }
 
-  // Click Marktplatz tab if not already active
-  const marktplatzTab = page.getByRole('tab', { name: /Marktplatz/i });
-  if (await marktplatzTab.isVisible({ timeout: 5_000 }).catch(() => false)) {
-    await marktplatzTab.click();
-    await page.waitForTimeout(1000);
-  }
+  // Click Marktplatz tab (plain button, not role="tab")
+  await marktplatzBtn.click();
+  await page.waitForTimeout(1500);
 
-  // Switch to Transferliste sub-tab where player links exist
-  const transferBtn = page.locator('button').filter({ hasText: /Transferliste|Transfer|Von Usern/i }).first();
-  if (await transferBtn.isVisible({ timeout: 8_000 }).catch(() => false)) {
+  // Switch to Transferliste sub-tab (pill button)
+  const transferBtn = page.locator('button').filter({ hasText: /Transferliste/i }).first();
+  try {
+    await transferBtn.waitFor({ state: 'visible', timeout: 8_000 });
     await transferBtn.click();
     await page.waitForTimeout(2000);
     journal.action('market', 'Transferliste Sub-Tab geklickt');
-  } else {
-    journal.observe('market', 'Transferliste-Button noch nicht sichtbar');
+  } catch {
+    // Try Club Verkauf sub-tab as fallback (IPOs have player links too)
+    const clubVerkaufBtn = page.locator('button').filter({ hasText: /Club.*Verkauf/i }).first();
+    if (await clubVerkaufBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await clubVerkaufBtn.click();
+      await page.waitForTimeout(2000);
+      journal.action('market', 'Club Verkauf Sub-Tab geklickt (Fallback)');
+    } else {
+      journal.observe('market', 'Weder Transferliste noch Club Verkauf Sub-Tab sichtbar');
+    }
   }
 
   // Collect player links
@@ -382,9 +430,33 @@ async function browseClubPage(page: Page, bot: BotConfig, journal: BotJournal) {
   journal.action('club', 'Besuche Sakaryaspor Vereinsseite');
   await timedNavigation(page, `${BASE_URL}/club/sakaryaspor`, journal, 'club');
 
-  // Wait for player list to load (async data)
+  // ClubContent shows ClubSkeleton until authLoading+clubLoading+playersLoading finish
+  // Wait for TabBar (role="tablist") to appear — confirms data loaded
+  const tabList = page.getByRole('tablist');
+  try {
+    await tabList.waitFor({ state: 'visible', timeout: 30_000 });
+  } catch {
+    journal.observe('club', 'TabBar nicht sichtbar nach 30s — Daten laden zu langsam');
+  }
+
+  // Click "Spieler" tab (role="tab" from TabBar component)
+  const spielerTab = page.locator('#tab-spieler');
+  try {
+    await spielerTab.waitFor({ state: 'visible', timeout: 5_000 });
+    await spielerTab.click();
+    await page.waitForTimeout(1500);
+    journal.action('club', 'Spieler-Tab geklickt');
+  } catch {
+    journal.observe('club', 'Spieler-Tab nicht gefunden');
+  }
+
+  // Wait for player links to load (async data)
   const playerLinks = page.locator('a[href*="/player/"]');
-  await playerLinks.first().waitFor({ state: 'visible', timeout: 10_000 }).catch(() => {});
+  try {
+    await playerLinks.first().waitFor({ state: 'visible', timeout: 10_000 });
+  } catch {
+    // no links appeared
+  }
   const count = await playerLinks.count();
   journal.observe('club', `${count} Spieler-Links auf der Vereinsseite`);
 
@@ -397,7 +469,10 @@ async function visitCommunity(page: Page, bot: BotConfig, journal: BotJournal) {
   journal.action('community', 'Besuche Community');
   await timedNavigation(page, `${BASE_URL}/community`, journal, 'community');
 
-  const posts = page.locator('[class*="card"], article, [class*="Card"]');
+  // Community posts use Card component with shadow-card-sm / bg-surface-base classes
+  const posts = page.locator('[class*="shadow-card"], [class*="bg-surface-base"]');
+  // Wait for at least one post to render
+  await posts.first().waitFor({ state: 'visible', timeout: 8_000 }).catch(() => {});
   const postCount = await posts.count();
   journal.observe('community', `${postCount} Posts/Cards in der Community sichtbar`);
 
@@ -413,7 +488,9 @@ async function visitFantasy(page: Page, bot: BotConfig, journal: BotJournal) {
   journal.action('fantasy', 'Besuche Fantasy/Spieltag');
   await timedNavigation(page, `${BASE_URL}/fantasy`, journal, 'fantasy');
 
-  const events = page.locator('[class*="card"], [class*="Card"]').filter({ hasText: /Event|Spieltag|Gameweek/i });
+  // Fantasy events use Card/shadow-card classes
+  const events = page.locator('[class*="shadow-card"], [class*="bg-surface"]').filter({ hasText: /Event|Spieltag|Gameweek|Matchday/i });
+  await events.first().waitFor({ state: 'visible', timeout: 8_000 }).catch(() => {});
   const eventCount = await events.count();
   journal.observe('fantasy', `${eventCount} Events/Spieltage sichtbar`);
 
@@ -462,10 +539,7 @@ test.describe('Bot Simulation', () => {
         // 1. LOGIN
         const loggedIn = await loginBot(page, bot, journal);
         if (!loggedIn) {
-          journal.generateWishes();
-          allReports.push(journal.getReport());
           test.skip();
-          await context.close();
           return;
         }
 

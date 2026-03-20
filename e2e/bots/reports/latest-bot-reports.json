@@ -1,25 +1,26 @@
 [
   {
     "bot": {
-      "name": "Emre Sniper",
-      "email": "bot-sniper@bescout.app",
-      "personality": "sniper",
-      "strategy": "Wartet auf guenstige Angebote unter Referenzwert. Kauft und verkauft schnell."
+      "name": "Mustafa Trader",
+      "email": "bot-trader@bescout.app",
+      "personality": "trader",
+      "strategy": "Kauft guenstige Spieler und listet sie mit Aufschlag. Klassischer Haendler."
     },
-    "sessionStart": "2026-03-19T15:39:26.867Z",
-    "sessionEnd": "2026-03-19T15:44:58.939Z",
-    "durationMs": 332072,
-    "balanceBefore": "43.198 CR",
+    "sessionStart": "2026-03-20T00:39:28.973Z",
+    "sessionEnd": "2026-03-20T00:40:34.400Z",
+    "durationMs": 65427,
+    "balanceBefore": "29.112",
+    "balanceAfter": "28.112",
     "summary": {
-      "actions": 14,
-      "observations": 20,
+      "actions": 18,
+      "observations": 27,
       "bugs": 0,
       "wishes": 2,
-      "uxIssues": 7,
-      "successes": 7,
+      "uxIssues": 0,
+      "successes": 11,
       "errors": 0,
-      "playersBought": 2,
-      "sellOrdersPlaced": 0,
+      "playersBought": 3,
+      "sellOrdersPlaced": 2,
       "pagesVisited": [
         "login",
         "club",
@@ -28,362 +29,2288 @@
         "buy-modal",
         "sell",
         "sell-modal",
-        "community"
+        "community",
+        "portfolio"
       ]
     },
     "entries": [
       {
-        "timestamp": "2026-03-19T15:39:27.017Z",
+        "timestamp": "2026-03-20T00:39:29.208Z",
         "type": "action",
         "page": "login",
         "message": "Navigiere zur Login-Seite"
       },
       {
-        "timestamp": "2026-03-19T15:40:00.835Z",
+        "timestamp": "2026-03-20T00:39:32.606Z",
         "type": "timing",
         "page": "login",
-        "message": "Navigation login: 33818ms",
-        "durationMs": 33818
+        "message": "Navigation login: 3396ms",
+        "durationMs": 3396
       },
       {
-        "timestamp": "2026-03-19T15:40:00.835Z",
-        "type": "ux_issue",
-        "page": "login",
-        "message": "Seite braucht zu lange: Navigation login (33.8s)",
-        "severity": "medium"
-      },
-      {
-        "timestamp": "2026-03-19T15:40:00.867Z",
+        "timestamp": "2026-03-20T00:39:32.783Z",
         "type": "action",
         "page": "login",
-        "message": "Login als bot-sniper@bescout.app"
+        "message": "Login als bot-trader@bescout.app"
       },
       {
-        "timestamp": "2026-03-19T15:40:36.205Z",
+        "timestamp": "2026-03-20T00:39:37.708Z",
         "type": "success",
         "page": "login",
-        "message": "Login erfolgreich (33.8s)"
+        "message": "Login erfolgreich (3.4s)"
       },
       {
-        "timestamp": "2026-03-19T15:40:36.269Z",
+        "timestamp": "2026-03-20T00:39:37.747Z",
         "type": "action",
         "page": "club",
         "message": "Besuche Sakaryaspor Vereinsseite"
       },
       {
-        "timestamp": "2026-03-19T15:41:12.498Z",
+        "timestamp": "2026-03-20T00:39:39.136Z",
         "type": "timing",
         "page": "club",
-        "message": "Navigation club: 36229ms",
-        "durationMs": 36229
+        "message": "Navigation club: 1389ms",
+        "durationMs": 1389
       },
       {
-        "timestamp": "2026-03-19T15:41:12.498Z",
-        "type": "ux_issue",
+        "timestamp": "2026-03-20T00:39:43.285Z",
+        "type": "action",
         "page": "club",
-        "message": "Seite braucht zu lange: Navigation club (36.2s)",
-        "severity": "medium"
+        "message": "Spieler-Tab geklickt"
       },
       {
-        "timestamp": "2026-03-19T15:41:12.540Z",
+        "timestamp": "2026-03-20T00:39:43.556Z",
         "type": "observation",
         "page": "club",
-        "message": "37 Spieler-Links auf der Vereinsseite"
+        "message": "41 Spieler-Links auf der Vereinsseite"
       },
       {
-        "timestamp": "2026-03-19T15:41:12.540Z",
+        "timestamp": "2026-03-20T00:39:43.557Z",
         "type": "action",
         "page": "market",
         "message": "Oeffne Marktplatz"
       },
       {
-        "timestamp": "2026-03-19T15:41:50.166Z",
+        "timestamp": "2026-03-20T00:39:44.740Z",
         "type": "timing",
         "page": "market",
-        "message": "Navigation market: 37626ms",
-        "durationMs": 37626
+        "message": "Navigation market: 1183ms",
+        "durationMs": 1183
       },
       {
-        "timestamp": "2026-03-19T15:41:50.166Z",
-        "type": "ux_issue",
-        "page": "market",
-        "message": "Seite braucht zu lange: Navigation market (37.6s)",
-        "severity": "medium"
-      },
-      {
-        "timestamp": "2026-03-19T15:41:52.479Z",
+        "timestamp": "2026-03-20T00:39:56.775Z",
         "type": "action",
         "page": "market",
-        "message": "Marktplatz Tab geklickt"
+        "message": "Club Verkauf Sub-Tab geklickt (Fallback)"
       },
       {
-        "timestamp": "2026-03-19T15:41:52.512Z",
+        "timestamp": "2026-03-20T00:39:56.821Z",
         "type": "observation",
         "page": "market",
         "message": "5 Spieler auf dem Marktplatz gefunden"
       },
       {
-        "timestamp": "2026-03-19T15:41:52.589Z",
+        "timestamp": "2026-03-20T00:39:56.913Z",
         "type": "action",
         "page": "player-detail",
-        "message": "Oeffne Spieler 0021a840"
+        "message": "Oeffne Spieler 4714a4f5"
       },
       {
-        "timestamp": "2026-03-19T15:42:29.027Z",
+        "timestamp": "2026-03-20T00:39:58.173Z",
         "type": "timing",
         "page": "player-detail",
-        "message": "Navigation player-detail: 36438ms",
-        "durationMs": 36438
+        "message": "Navigation player-detail: 1260ms",
+        "durationMs": 1260
       },
       {
-        "timestamp": "2026-03-19T15:42:29.027Z",
-        "type": "ux_issue",
-        "page": "player-detail",
-        "message": "Seite braucht zu lange: Navigation player-detail (36.4s)",
-        "severity": "medium"
-      },
-      {
-        "timestamp": "2026-03-19T15:42:29.087Z",
+        "timestamp": "2026-03-20T00:39:59.368Z",
         "type": "observation",
         "page": "player-detail",
-        "message": "Spieler: Cemil Berk Aksu"
+        "message": "Spieler: Ali Arda Yıldız"
       },
       {
-        "timestamp": "2026-03-19T15:42:29.320Z",
+        "timestamp": "2026-03-20T00:39:59.633Z",
         "type": "observation",
         "page": "player-detail",
-        "message": "Preis angezeigt: 43.198 CR"
+        "message": "Preis angezeigt: 29.112 CR"
       },
       {
-        "timestamp": "2026-03-19T15:42:29.428Z",
+        "timestamp": "2026-03-20T00:39:59.764Z",
         "type": "observation",
         "page": "player-detail",
-        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask939,020 Gebote5 AngeboteTiefe anzeigen"
+        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask500 Gebote4 AngeboteTiefe anzeigen"
       },
       {
-        "timestamp": "2026-03-19T15:42:29.460Z",
+        "timestamp": "2026-03-20T00:39:59.772Z",
         "type": "observation",
         "page": "player-detail",
         "message": "Wertentwicklung wird angezeigt"
       },
       {
-        "timestamp": "2026-03-19T15:42:29.807Z",
+        "timestamp": "2026-03-20T00:39:59.934Z",
         "type": "action",
         "page": "player-detail",
-        "message": "Klicke Kaufen fuer Cemil Berk Aksu"
+        "message": "Klicke Kaufen fuer Ali Arda Yıldız"
       },
       {
-        "timestamp": "2026-03-19T15:42:31.725Z",
+        "timestamp": "2026-03-20T00:40:01.378Z",
         "type": "observation",
         "page": "buy-modal",
         "message": "Kauf-Modal geoeffnet"
       },
       {
-        "timestamp": "2026-03-19T15:42:31.760Z",
+        "timestamp": "2026-03-20T00:40:01.472Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "3 individuelle Verkaufsangebote sichtbar — User kann waehlen"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:01.472Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:01.564Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:03.387Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Ali Arda Yıldız gekauft!"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:04.733Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 157a1a78"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:05.921Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 1188ms",
+        "durationMs": 1188
+      },
+      {
+        "timestamp": "2026-03-20T00:40:06.341Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Giovanni Crociata"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:06.479Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 29.062 CR"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:06.519Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask4500 Gebote3 AngeboteTiefe anzeigen"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:06.533Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:06.562Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Giovanni Crociata"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:07.754Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:07.854Z",
         "type": "observation",
         "page": "buy-modal",
         "message": "2 individuelle Verkaufsangebote sichtbar — User kann waehlen"
       },
       {
-        "timestamp": "2026-03-19T15:42:31.760Z",
+        "timestamp": "2026-03-20T00:40:07.854Z",
         "type": "success",
         "page": "buy-modal",
         "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
       },
       {
-        "timestamp": "2026-03-19T15:42:31.783Z",
+        "timestamp": "2026-03-20T00:40:07.943Z",
         "type": "observation",
         "page": "buy-modal",
         "message": "Clubverkauf (IPO) Sektion vorhanden"
       },
       {
-        "timestamp": "2026-03-19T15:42:35.220Z",
+        "timestamp": "2026-03-20T00:40:09.263Z",
         "type": "success",
         "page": "buy-modal",
-        "message": "Cemil Berk Aksu gekauft!"
+        "message": "Giovanni Crociata gekauft!"
       },
       {
-        "timestamp": "2026-03-19T15:42:36.063Z",
+        "timestamp": "2026-03-20T00:40:10.646Z",
         "type": "action",
         "page": "player-detail",
-        "message": "Oeffne Spieler 9b536c38"
+        "message": "Oeffne Spieler 290c7271"
       },
       {
-        "timestamp": "2026-03-19T15:43:10.593Z",
+        "timestamp": "2026-03-20T00:40:11.613Z",
         "type": "timing",
         "page": "player-detail",
-        "message": "Navigation player-detail: 34530ms",
-        "durationMs": 34530
+        "message": "Navigation player-detail: 967ms",
+        "durationMs": 967
       },
       {
-        "timestamp": "2026-03-19T15:43:10.594Z",
-        "type": "ux_issue",
-        "page": "player-detail",
-        "message": "Seite braucht zu lange: Navigation player-detail (34.5s)",
-        "severity": "medium"
-      },
-      {
-        "timestamp": "2026-03-19T15:43:10.620Z",
+        "timestamp": "2026-03-20T00:40:11.630Z",
         "type": "observation",
         "page": "player-detail",
-        "message": "Spieler: Mehmet Demirözü"
+        "message": "Spieler: Mendy Mamadou"
       },
       {
-        "timestamp": "2026-03-19T15:43:10.733Z",
+        "timestamp": "2026-03-20T00:40:11.658Z",
         "type": "observation",
         "page": "player-detail",
-        "message": "Preis angezeigt: 42.259 CR"
+        "message": "Preis angezeigt: 28.612 CR"
       },
       {
-        "timestamp": "2026-03-19T15:43:10.789Z",
+        "timestamp": "2026-03-20T00:40:11.675Z",
         "type": "observation",
         "page": "player-detail",
-        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask1.661,540 Gebote2 AngeboteTiefe anzeigen"
+        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask5000 Gebote1 AngeboteTiefe anzeigen"
       },
       {
-        "timestamp": "2026-03-19T15:43:10.814Z",
+        "timestamp": "2026-03-20T00:40:11.683Z",
         "type": "observation",
         "page": "player-detail",
         "message": "Wertentwicklung wird angezeigt"
       },
       {
-        "timestamp": "2026-03-19T15:43:10.920Z",
+        "timestamp": "2026-03-20T00:40:11.707Z",
         "type": "action",
         "page": "player-detail",
-        "message": "Klicke Kaufen fuer Mehmet Demirözü"
+        "message": "Klicke Kaufen fuer Mendy Mamadou"
       },
       {
-        "timestamp": "2026-03-19T15:43:12.721Z",
+        "timestamp": "2026-03-20T00:40:12.738Z",
         "type": "observation",
         "page": "buy-modal",
         "message": "Kauf-Modal geoeffnet"
       },
       {
-        "timestamp": "2026-03-19T15:43:12.753Z",
+        "timestamp": "2026-03-20T00:40:12.784Z",
         "type": "observation",
         "page": "buy-modal",
-        "message": "1 individuelle Verkaufsangebote sichtbar — User kann waehlen"
+        "message": "Keine individuellen Sell Orders sichtbar"
       },
       {
-        "timestamp": "2026-03-19T15:43:12.753Z",
-        "type": "success",
-        "page": "buy-modal",
-        "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
-      },
-      {
-        "timestamp": "2026-03-19T15:43:12.787Z",
+        "timestamp": "2026-03-20T00:40:12.813Z",
         "type": "observation",
         "page": "buy-modal",
         "message": "Clubverkauf (IPO) Sektion vorhanden"
       },
       {
-        "timestamp": "2026-03-19T15:43:16.167Z",
+        "timestamp": "2026-03-20T00:40:13.626Z",
         "type": "success",
         "page": "buy-modal",
-        "message": "Mehmet Demirözü gekauft!"
+        "message": "Mendy Mamadou gekauft!"
       },
       {
-        "timestamp": "2026-03-19T15:43:16.998Z",
+        "timestamp": "2026-03-20T00:40:14.963Z",
         "type": "action",
         "page": "sell",
-        "message": "Erstelle Verkaufsorder fuer 0021a840"
+        "message": "Erstelle Verkaufsorder fuer 4714a4f5"
       },
       {
-        "timestamp": "2026-03-19T15:43:51.948Z",
+        "timestamp": "2026-03-20T00:40:16.205Z",
         "type": "timing",
         "page": "player-detail",
-        "message": "Navigation player-detail: 34950ms",
-        "durationMs": 34950
+        "message": "Navigation player-detail: 1242ms",
+        "durationMs": 1242
       },
       {
-        "timestamp": "2026-03-19T15:43:51.948Z",
-        "type": "ux_issue",
-        "page": "player-detail",
-        "message": "Seite braucht zu lange: Navigation player-detail (35.0s)",
-        "severity": "medium"
-      },
-      {
-        "timestamp": "2026-03-19T15:43:53.691Z",
+        "timestamp": "2026-03-20T00:40:17.806Z",
         "type": "observation",
         "page": "sell-modal",
         "message": "Verkaufs-Modal geoeffnet"
       },
       {
-        "timestamp": "2026-03-19T15:43:53.724Z",
+        "timestamp": "2026-03-20T00:40:17.824Z",
         "type": "success",
         "page": "sell-modal",
         "message": "Referenzwert wird als Orientierung angezeigt"
       },
       {
-        "timestamp": "2026-03-19T15:43:54.115Z",
+        "timestamp": "2026-03-20T00:40:18.716Z",
         "type": "action",
         "page": "sell-modal",
         "message": "Floor-Preis gesetzt"
       },
       {
-        "timestamp": "2026-03-19T15:43:56.458Z",
-        "type": "observation",
+        "timestamp": "2026-03-20T00:40:21.641Z",
+        "type": "success",
         "page": "sell-modal",
-        "message": "Kein Feedback nach Listing-Versuch"
+        "message": "Sell Order erfolgreich erstellt!"
       },
       {
-        "timestamp": "2026-03-19T15:43:57.015Z",
+        "timestamp": "2026-03-20T00:40:23.169Z",
         "type": "action",
         "page": "sell",
-        "message": "Erstelle Verkaufsorder fuer 9b536c38"
+        "message": "Erstelle Verkaufsorder fuer 290c7271"
       },
       {
-        "timestamp": "2026-03-19T15:44:31.633Z",
+        "timestamp": "2026-03-20T00:40:23.988Z",
         "type": "timing",
         "page": "player-detail",
-        "message": "Navigation player-detail: 34618ms",
-        "durationMs": 34618
+        "message": "Navigation player-detail: 819ms",
+        "durationMs": 819
       },
       {
-        "timestamp": "2026-03-19T15:44:31.633Z",
-        "type": "ux_issue",
-        "page": "player-detail",
-        "message": "Seite braucht zu lange: Navigation player-detail (34.6s)",
-        "severity": "medium"
-      },
-      {
-        "timestamp": "2026-03-19T15:44:33.648Z",
+        "timestamp": "2026-03-20T00:40:25.515Z",
         "type": "observation",
         "page": "sell-modal",
         "message": "Verkaufs-Modal geoeffnet"
       },
       {
-        "timestamp": "2026-03-19T15:44:33.762Z",
+        "timestamp": "2026-03-20T00:40:25.588Z",
         "type": "success",
         "page": "sell-modal",
         "message": "Referenzwert wird als Orientierung angezeigt"
       },
       {
-        "timestamp": "2026-03-19T15:44:34.281Z",
+        "timestamp": "2026-03-20T00:40:26.127Z",
         "type": "action",
         "page": "sell-modal",
         "message": "Floor-Preis gesetzt"
       },
       {
-        "timestamp": "2026-03-19T15:44:36.845Z",
-        "type": "observation",
+        "timestamp": "2026-03-20T00:40:29.070Z",
+        "type": "success",
         "page": "sell-modal",
-        "message": "Kein Feedback nach Listing-Versuch"
+        "message": "Sell Order erfolgreich erstellt!"
       },
       {
-        "timestamp": "2026-03-19T15:44:37.524Z",
+        "timestamp": "2026-03-20T00:40:30.131Z",
         "type": "action",
         "page": "community",
         "message": "Besuche Community"
       },
       {
-        "timestamp": "2026-03-19T15:44:58.939Z",
+        "timestamp": "2026-03-20T00:40:31.095Z",
+        "type": "timing",
+        "page": "community",
+        "message": "Navigation community: 964ms",
+        "durationMs": 964
+      },
+      {
+        "timestamp": "2026-03-20T00:40:31.145Z",
+        "type": "observation",
+        "page": "community",
+        "message": "2 Posts/Cards in der Community sichtbar"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:31.145Z",
+        "type": "action",
+        "page": "portfolio",
+        "message": "Besuche Mein Kader"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:31.793Z",
+        "type": "timing",
+        "page": "portfolio",
+        "message": "Navigation portfolio: 648ms",
+        "durationMs": 648
+      },
+      {
+        "timestamp": "2026-03-20T00:40:33.201Z",
+        "type": "success",
+        "page": "portfolio",
+        "message": "Wertentwicklung Badge sichtbar im Portfolio"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:33.471Z",
+        "type": "observation",
+        "page": "portfolio",
+        "message": "14 Spieler im Portfolio"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:34.400Z",
+        "type": "wish",
+        "page": "market",
+        "message": "Als Trader waere ein Preis-Alert hilfreich wenn ein Spieler unter meinen Wunschpreis faellt"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:34.400Z",
+        "type": "wish",
+        "page": "market",
+        "message": "Ich wuensche mir eine Sortierung nach 24h-Preisaenderung um schnell Deals zu finden"
+      }
+    ]
+  },
+  {
+    "bot": {
+      "name": "Elif Manager",
+      "email": "bot-manager@bescout.app",
+      "personality": "manager",
+      "strategy": "Baut ein ausgewogenes Team. Kauft verschiedene Positionen fuer Fantasy."
+    },
+    "sessionStart": "2026-03-20T00:40:35.305Z",
+    "sessionEnd": "2026-03-20T00:41:59.785Z",
+    "durationMs": 84480,
+    "balanceBefore": "22.998",
+    "balanceAfter": "21.373",
+    "summary": {
+      "actions": 21,
+      "observations": 41,
+      "bugs": 0,
+      "wishes": 2,
+      "uxIssues": 0,
+      "successes": 12,
+      "errors": 0,
+      "playersBought": 5,
+      "sellOrdersPlaced": 1,
+      "pagesVisited": [
+        "login",
+        "club",
+        "market",
+        "player-detail",
+        "buy-modal",
+        "sell",
+        "sell-modal",
+        "community",
+        "fantasy",
+        "portfolio"
+      ]
+    },
+    "entries": [
+      {
+        "timestamp": "2026-03-20T00:40:36.091Z",
+        "type": "action",
+        "page": "login",
+        "message": "Navigiere zur Login-Seite"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:40.117Z",
+        "type": "timing",
+        "page": "login",
+        "message": "Navigation login: 4026ms",
+        "durationMs": 4026
+      },
+      {
+        "timestamp": "2026-03-20T00:40:40.270Z",
+        "type": "action",
+        "page": "login",
+        "message": "Login als bot-manager@bescout.app"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:45.439Z",
+        "type": "success",
+        "page": "login",
+        "message": "Login erfolgreich (4.0s)"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:45.648Z",
+        "type": "action",
+        "page": "club",
+        "message": "Besuche Sakaryaspor Vereinsseite"
+      },
+      {
+        "timestamp": "2026-03-20T00:40:47.143Z",
+        "type": "timing",
+        "page": "club",
+        "message": "Navigation club: 1495ms",
+        "durationMs": 1495
+      },
+      {
+        "timestamp": "2026-03-20T00:41:00.240Z",
+        "type": "action",
+        "page": "club",
+        "message": "Spieler-Tab geklickt"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:00.467Z",
+        "type": "observation",
+        "page": "club",
+        "message": "41 Spieler-Links auf der Vereinsseite"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:00.467Z",
+        "type": "action",
+        "page": "market",
+        "message": "Oeffne Marktplatz"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:01.543Z",
+        "type": "timing",
+        "page": "market",
+        "message": "Navigation market: 1076ms",
+        "durationMs": 1076
+      },
+      {
+        "timestamp": "2026-03-20T00:41:14.478Z",
+        "type": "action",
+        "page": "market",
+        "message": "Club Verkauf Sub-Tab geklickt (Fallback)"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:14.554Z",
+        "type": "observation",
+        "page": "market",
+        "message": "5 Spieler auf dem Marktplatz gefunden"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:14.789Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 4714a4f5"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:15.878Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 1089ms",
+        "durationMs": 1089
+      },
+      {
+        "timestamp": "2026-03-20T00:41:16.435Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Ali Arda Yıldız"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:16.465Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 22.998 CR"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:16.485Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask500 Gebote5 AngeboteTiefe anzeigen"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:16.495Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:16.518Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Ali Arda Yıldız"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:17.808Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:17.843Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "3 individuelle Verkaufsangebote sichtbar — User kann waehlen"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:17.843Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:17.873Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:18.984Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Ali Arda Yıldız gekauft!"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:20.346Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 157a1a78"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:21.378Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 1032ms",
+        "durationMs": 1032
+      },
+      {
+        "timestamp": "2026-03-20T00:41:21.567Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Giovanni Crociata"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:21.728Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 22.948 CR"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:21.833Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask4500 Gebote3 AngeboteTiefe anzeigen"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:21.877Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:22.118Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Giovanni Crociata"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:24.478Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:24.572Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "3 individuelle Verkaufsangebote sichtbar — User kann waehlen"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:24.572Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:24.649Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:26.128Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Giovanni Crociata gekauft!"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:27.457Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 290c7271"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:28.562Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 1105ms",
+        "durationMs": 1105
+      },
+      {
+        "timestamp": "2026-03-20T00:41:29.381Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Mendy Mamadou"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:29.547Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 22.498 CR"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:29.655Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask5000 Gebote2 AngeboteTiefe anzeigen"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:29.700Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:29.804Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Mendy Mamadou"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:31.181Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:31.188Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "2 individuelle Verkaufsangebote sichtbar — User kann waehlen"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:31.188Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:31.194Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:32.416Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Mendy Mamadou gekauft!"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:33.736Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 0d6dad70"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:34.994Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 1258ms",
+        "durationMs": 1258
+      },
+      {
+        "timestamp": "2026-03-20T00:41:35.067Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Çekdar Orhan"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:35.339Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 21.998 CR"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:35.407Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: AngeboteKaufangebot machenKeine offenen Gebote für diesen Spieler."
+      },
+      {
+        "timestamp": "2026-03-20T00:41:35.425Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:35.465Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Çekdar Orhan"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:36.900Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:36.984Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Keine individuellen Sell Orders sichtbar"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:37.068Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:38.151Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Çekdar Orhan gekauft!"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:39.467Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 4c55841f"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:40.694Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 1227ms",
+        "durationMs": 1227
+      },
+      {
+        "timestamp": "2026-03-20T00:41:41.361Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Ahmet Engin"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:41.381Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 21.773 CR"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:41.396Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: AngeboteKaufangebot machenKeine offenen Gebote für diesen Spieler."
+      },
+      {
+        "timestamp": "2026-03-20T00:41:41.402Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:41.419Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Ahmet Engin"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:42.427Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:42.514Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Keine individuellen Sell Orders sichtbar"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:42.610Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:44.228Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Ahmet Engin gekauft!"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:47.713Z",
+        "type": "action",
+        "page": "sell",
+        "message": "Erstelle Verkaufsorder fuer 4c55841f"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:48.420Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 707ms",
+        "durationMs": 707
+      },
+      {
+        "timestamp": "2026-03-20T00:41:49.423Z",
+        "type": "observation",
+        "page": "sell-modal",
+        "message": "Verkaufs-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:49.484Z",
+        "type": "success",
+        "page": "sell-modal",
+        "message": "Referenzwert wird als Orientierung angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:50.013Z",
+        "type": "action",
+        "page": "sell-modal",
+        "message": "Floor-Preis gesetzt"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:52.203Z",
+        "type": "success",
+        "page": "sell-modal",
+        "message": "Sell Order erfolgreich erstellt!"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:53.272Z",
+        "type": "action",
+        "page": "community",
+        "message": "Besuche Community"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:54.113Z",
+        "type": "timing",
+        "page": "community",
+        "message": "Navigation community: 841ms",
+        "durationMs": 841
+      },
+      {
+        "timestamp": "2026-03-20T00:41:54.304Z",
+        "type": "observation",
+        "page": "community",
+        "message": "2 Posts/Cards in der Community sichtbar"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:54.304Z",
+        "type": "action",
+        "page": "fantasy",
+        "message": "Besuche Fantasy/Spieltag"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:55.066Z",
+        "type": "timing",
+        "page": "fantasy",
+        "message": "Navigation fantasy: 762ms",
+        "durationMs": 762
+      },
+      {
+        "timestamp": "2026-03-20T00:41:56.798Z",
+        "type": "observation",
+        "page": "fantasy",
+        "message": "3 Events/Spieltage sichtbar"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:56.798Z",
+        "type": "action",
+        "page": "portfolio",
+        "message": "Besuche Mein Kader"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:57.563Z",
+        "type": "timing",
+        "page": "portfolio",
+        "message": "Navigation portfolio: 765ms",
+        "durationMs": 765
+      },
+      {
+        "timestamp": "2026-03-20T00:41:59.314Z",
+        "type": "success",
+        "page": "portfolio",
+        "message": "Wertentwicklung Badge sichtbar im Portfolio"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:59.401Z",
+        "type": "observation",
+        "page": "portfolio",
+        "message": "16 Spieler im Portfolio"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:59.784Z",
+        "type": "wish",
+        "page": "fantasy",
+        "message": "Ein Auto-Fill fuer die Fantasy-Aufstellung basierend auf L5 Score waere praktisch"
+      },
+      {
+        "timestamp": "2026-03-20T00:41:59.784Z",
+        "type": "wish",
+        "page": "market",
+        "message": "Ich moechte Spieler nach Position filtern koennen um mein Team gezielt aufzubauen"
+      }
+    ]
+  },
+  {
+    "bot": {
+      "name": "Kaan Analyst",
+      "email": "bot-analyst@bescout.app",
+      "personality": "analyst",
+      "strategy": "Kauft Spieler mit hohem L5 Score. Schreibt Community Posts ueber Picks."
+    },
+    "sessionStart": "2026-03-20T00:42:00.368Z",
+    "sessionEnd": "2026-03-20T00:42:55.871Z",
+    "durationMs": 55503,
+    "balanceBefore": "39.598",
+    "balanceAfter": "39.098",
+    "summary": {
+      "actions": 15,
+      "observations": 20,
+      "bugs": 0,
+      "wishes": 2,
+      "uxIssues": 0,
+      "successes": 8,
+      "errors": 0,
+      "playersBought": 2,
+      "sellOrdersPlaced": 1,
+      "pagesVisited": [
+        "login",
+        "club",
+        "market",
+        "player-detail",
+        "buy-modal",
+        "sell",
+        "sell-modal",
+        "community",
+        "fantasy",
+        "portfolio"
+      ]
+    },
+    "entries": [
+      {
+        "timestamp": "2026-03-20T00:42:01.516Z",
+        "type": "action",
+        "page": "login",
+        "message": "Navigiere zur Login-Seite"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:05.834Z",
+        "type": "timing",
+        "page": "login",
+        "message": "Navigation login: 4318ms",
+        "durationMs": 4318
+      },
+      {
+        "timestamp": "2026-03-20T00:42:06.045Z",
+        "type": "action",
+        "page": "login",
+        "message": "Login als bot-analyst@bescout.app"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:10.963Z",
+        "type": "success",
+        "page": "login",
+        "message": "Login erfolgreich (4.3s)"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:11.105Z",
+        "type": "action",
+        "page": "club",
+        "message": "Besuche Sakaryaspor Vereinsseite"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:12.510Z",
+        "type": "timing",
+        "page": "club",
+        "message": "Navigation club: 1405ms",
+        "durationMs": 1405
+      },
+      {
+        "timestamp": "2026-03-20T00:42:16.102Z",
+        "type": "action",
+        "page": "club",
+        "message": "Spieler-Tab geklickt"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:16.373Z",
+        "type": "observation",
+        "page": "club",
+        "message": "41 Spieler-Links auf der Vereinsseite"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:16.373Z",
+        "type": "action",
+        "page": "market",
+        "message": "Oeffne Marktplatz"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:17.350Z",
+        "type": "timing",
+        "page": "market",
+        "message": "Navigation market: 977ms",
+        "durationMs": 977
+      },
+      {
+        "timestamp": "2026-03-20T00:42:30.360Z",
+        "type": "action",
+        "page": "market",
+        "message": "Club Verkauf Sub-Tab geklickt (Fallback)"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:30.444Z",
+        "type": "observation",
+        "page": "market",
+        "message": "5 Spieler auf dem Marktplatz gefunden"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:30.529Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 4714a4f5"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:31.522Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 993ms",
+        "durationMs": 993
+      },
+      {
+        "timestamp": "2026-03-20T00:42:32.702Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Ali Arda Yıldız"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:32.725Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 39.598 CR"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:32.743Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask500 Gebote5 AngeboteTiefe anzeigen"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:32.751Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:32.790Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Ali Arda Yıldız"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:33.898Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:33.978Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "3 individuelle Verkaufsangebote sichtbar — User kann waehlen"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:33.978Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:34.075Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:35.255Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Ali Arda Yıldız gekauft!"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:36.636Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 157a1a78"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:37.827Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 1191ms",
+        "durationMs": 1191
+      },
+      {
+        "timestamp": "2026-03-20T00:42:38.265Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Giovanni Crociata"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:38.335Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 39.548 CR"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:38.448Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask4500 Gebote3 AngeboteTiefe anzeigen"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:38.472Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:38.538Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Giovanni Crociata"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:39.884Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:39.974Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "2 individuelle Verkaufsangebote sichtbar — User kann waehlen"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:39.974Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:40.060Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:41.478Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Giovanni Crociata gekauft!"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:43.402Z",
+        "type": "action",
+        "page": "sell",
+        "message": "Erstelle Verkaufsorder fuer 157a1a78"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:44.202Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 800ms",
+        "durationMs": 800
+      },
+      {
+        "timestamp": "2026-03-20T00:42:45.256Z",
+        "type": "observation",
+        "page": "sell-modal",
+        "message": "Verkaufs-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:45.332Z",
+        "type": "success",
+        "page": "sell-modal",
+        "message": "Referenzwert wird als Orientierung angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:46.089Z",
+        "type": "action",
+        "page": "sell-modal",
+        "message": "Floor-Preis gesetzt"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:49.464Z",
+        "type": "success",
+        "page": "sell-modal",
+        "message": "Sell Order erfolgreich erstellt!"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:50.520Z",
+        "type": "action",
+        "page": "community",
+        "message": "Besuche Community"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:51.649Z",
+        "type": "timing",
+        "page": "community",
+        "message": "Navigation community: 1129ms",
+        "durationMs": 1129
+      },
+      {
+        "timestamp": "2026-03-20T00:42:51.730Z",
+        "type": "observation",
+        "page": "community",
+        "message": "2 Posts/Cards in der Community sichtbar"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:51.730Z",
+        "type": "action",
+        "page": "fantasy",
+        "message": "Besuche Fantasy/Spieltag"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:52.548Z",
+        "type": "timing",
+        "page": "fantasy",
+        "message": "Navigation fantasy: 818ms",
+        "durationMs": 818
+      },
+      {
+        "timestamp": "2026-03-20T00:42:52.768Z",
+        "type": "observation",
+        "page": "fantasy",
+        "message": "3 Events/Spieltage sichtbar"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:52.768Z",
+        "type": "action",
+        "page": "portfolio",
+        "message": "Besuche Mein Kader"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:53.483Z",
+        "type": "timing",
+        "page": "portfolio",
+        "message": "Navigation portfolio: 715ms",
+        "durationMs": 715
+      },
+      {
+        "timestamp": "2026-03-20T00:42:55.410Z",
+        "type": "success",
+        "page": "portfolio",
+        "message": "Wertentwicklung Badge sichtbar im Portfolio"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:55.454Z",
+        "type": "observation",
+        "page": "portfolio",
+        "message": "8 Spieler im Portfolio"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:55.871Z",
+        "type": "wish",
+        "page": "community",
+        "message": "Ein Research-Template fuer Spieler-Analysen wuerde die Qualitaet der Posts verbessern"
+      },
+      {
+        "timestamp": "2026-03-20T00:42:55.871Z",
+        "type": "wish",
+        "page": "player-detail",
+        "message": "Detailliertere Statistiken (Passquote, Zweikampfquote) waeren fuer Analysen wichtig"
+      }
+    ]
+  },
+  {
+    "bot": {
+      "name": "Zeynep Collector",
+      "email": "bot-collector@bescout.app",
+      "personality": "collector",
+      "strategy": "Sammelt viele verschiedene Spieler. Kauft jeweils 1 SC pro Spieler."
+    },
+    "sessionStart": "2026-03-20T00:42:56.733Z",
+    "sessionEnd": "2026-03-20T00:44:13.744Z",
+    "durationMs": 77011,
+    "balanceBefore": "22.973",
+    "balanceAfter": "21.348",
+    "summary": {
+      "actions": 18,
+      "observations": 39,
+      "bugs": 0,
+      "wishes": 2,
+      "uxIssues": 0,
+      "successes": 11,
+      "errors": 0,
+      "playersBought": 5,
+      "sellOrdersPlaced": 0,
+      "pagesVisited": [
+        "login",
+        "club",
+        "market",
+        "player-detail",
+        "buy-modal",
+        "community",
+        "portfolio",
+        "profile"
+      ]
+    },
+    "entries": [
+      {
+        "timestamp": "2026-03-20T00:42:57.619Z",
+        "type": "action",
+        "page": "login",
+        "message": "Navigiere zur Login-Seite"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:03.763Z",
+        "type": "timing",
+        "page": "login",
+        "message": "Navigation login: 6144ms",
+        "durationMs": 6144
+      },
+      {
+        "timestamp": "2026-03-20T00:43:03.837Z",
+        "type": "action",
+        "page": "login",
+        "message": "Login als bot-collector@bescout.app"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:08.495Z",
+        "type": "success",
+        "page": "login",
+        "message": "Login erfolgreich (6.1s)"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:08.749Z",
+        "type": "action",
+        "page": "club",
+        "message": "Besuche Sakaryaspor Vereinsseite"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:10.098Z",
+        "type": "timing",
+        "page": "club",
+        "message": "Navigation club: 1349ms",
+        "durationMs": 1349
+      },
+      {
+        "timestamp": "2026-03-20T00:43:14.668Z",
+        "type": "action",
+        "page": "club",
+        "message": "Spieler-Tab geklickt"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:14.831Z",
+        "type": "observation",
+        "page": "club",
+        "message": "41 Spieler-Links auf der Vereinsseite"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:14.831Z",
+        "type": "action",
+        "page": "market",
+        "message": "Oeffne Marktplatz"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:15.764Z",
+        "type": "timing",
+        "page": "market",
+        "message": "Navigation market: 933ms",
+        "durationMs": 933
+      },
+      {
+        "timestamp": "2026-03-20T00:43:28.989Z",
+        "type": "action",
+        "page": "market",
+        "message": "Club Verkauf Sub-Tab geklickt (Fallback)"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:29.015Z",
+        "type": "observation",
+        "page": "market",
+        "message": "5 Spieler auf dem Marktplatz gefunden"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:29.068Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 4714a4f5"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:30.502Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 1434ms",
+        "durationMs": 1434
+      },
+      {
+        "timestamp": "2026-03-20T00:43:31.148Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Ali Arda Yıldız"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:31.174Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 22.973 CR"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:31.191Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: TR18YDEF #61Ali Arda YıldızAdana Demirspor·18/500 SCL552100%L155793%0GOL0AST14MATScout Card DataMarktwert50K€Floor50 CR24h—Fee Cap—2 SC · 0.4% SupplyLeistungKeine SpieldatenAli Arda YıldızAdana DemirsporTR·DEF·18 JahreDu: 2 Scout Card50CreditsFloor · günstigstes Angebot Kaufen Verkaufen"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:31.202Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:31.225Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Ali Arda Yıldız"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:32.425Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:32.451Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "3 individuelle Verkaufsangebote sichtbar — User kann waehlen"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:32.451Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:32.456Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:34.517Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Ali Arda Yıldız gekauft!"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:35.835Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 157a1a78"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:36.635Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 800ms",
+        "durationMs": 800
+      },
+      {
+        "timestamp": "2026-03-20T00:43:40.945Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Giovanni Crociata"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:41.031Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 22.923 CR"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:41.117Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask4500 Gebote4 AngeboteTiefe anzeigen"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:41.173Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:41.238Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Giovanni Crociata"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:42.572Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:42.669Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "3 individuelle Verkaufsangebote sichtbar — User kann waehlen"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:42.669Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:42.760Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:45.430Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Giovanni Crociata gekauft!"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:46.736Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 290c7271"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:47.939Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 1203ms",
+        "durationMs": 1203
+      },
+      {
+        "timestamp": "2026-03-20T00:43:49.062Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Mendy Mamadou"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:49.176Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 22.473 CR"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:49.195Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask5000 Gebote2 AngeboteTiefe anzeigen"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:49.245Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:49.358Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Mendy Mamadou"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:50.786Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:50.845Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "2 individuelle Verkaufsangebote sichtbar — User kann waehlen"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:50.845Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:50.940Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:52.186Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Mendy Mamadou gekauft!"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:53.549Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 0d6dad70"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:54.629Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 1080ms",
+        "durationMs": 1080
+      },
+      {
+        "timestamp": "2026-03-20T00:43:55.573Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Çekdar Orhan"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:55.599Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 21.973 CR"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:55.614Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: AngeboteKaufangebot machenKeine offenen Gebote für diesen Spieler."
+      },
+      {
+        "timestamp": "2026-03-20T00:43:55.623Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:55.640Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Çekdar Orhan"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:56.977Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:57.054Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Keine individuellen Sell Orders sichtbar"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:57.119Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-20T00:43:58.732Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Çekdar Orhan gekauft!"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:00.102Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 4c55841f"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:01.221Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 1119ms",
+        "durationMs": 1119
+      },
+      {
+        "timestamp": "2026-03-20T00:44:01.942Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Ahmet Engin"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:02.030Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 21.748 CR"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:02.054Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask4000 Gebote1 AngeboteTiefe anzeigen"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:02.067Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:02.100Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Ahmet Engin"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:03.408Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:03.413Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "1 individuelle Verkaufsangebote sichtbar — User kann waehlen"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:03.413Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:03.418Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:04.996Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Ahmet Engin gekauft!"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:08.917Z",
+        "type": "action",
+        "page": "community",
+        "message": "Besuche Community"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:09.989Z",
+        "type": "timing",
+        "page": "community",
+        "message": "Navigation community: 1072ms",
+        "durationMs": 1072
+      },
+      {
+        "timestamp": "2026-03-20T00:44:10.061Z",
+        "type": "observation",
+        "page": "community",
+        "message": "2 Posts/Cards in der Community sichtbar"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:10.061Z",
+        "type": "action",
+        "page": "portfolio",
+        "message": "Besuche Mein Kader"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:11.218Z",
+        "type": "timing",
+        "page": "portfolio",
+        "message": "Navigation portfolio: 1157ms",
+        "durationMs": 1157
+      },
+      {
+        "timestamp": "2026-03-20T00:44:12.929Z",
+        "type": "success",
+        "page": "portfolio",
+        "message": "Wertentwicklung Badge sichtbar im Portfolio"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:13.059Z",
+        "type": "observation",
+        "page": "portfolio",
+        "message": "18 Spieler im Portfolio"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:13.744Z",
+        "type": "wish",
+        "page": "market",
+        "message": "Eine Album-Ansicht aller gesammelten Spieler waere motivierend"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:13.744Z",
+        "type": "wish",
+        "page": "profile",
+        "message": "Achievements fuer Sammel-Meilensteine (10 Spieler, alle Positionen, etc.) waeren toll"
+      }
+    ]
+  },
+  {
+    "bot": {
+      "name": "Emre Sniper",
+      "email": "bot-sniper@bescout.app",
+      "personality": "sniper",
+      "strategy": "Wartet auf guenstige Angebote unter Referenzwert. Kauft und verkauft schnell."
+    },
+    "sessionStart": "2026-03-20T00:44:14.271Z",
+    "sessionEnd": "2026-03-20T00:45:15.830Z",
+    "durationMs": 61559,
+    "balanceBefore": "40.598",
+    "balanceAfter": "40.098",
+    "summary": {
+      "actions": 16,
+      "observations": 20,
+      "bugs": 0,
+      "wishes": 2,
+      "uxIssues": 0,
+      "successes": 10,
+      "errors": 0,
+      "playersBought": 2,
+      "sellOrdersPlaced": 2,
+      "pagesVisited": [
+        "login",
+        "club",
+        "market",
+        "player-detail",
+        "buy-modal",
+        "sell",
+        "sell-modal",
+        "community",
+        "portfolio"
+      ]
+    },
+    "entries": [
+      {
+        "timestamp": "2026-03-20T00:44:15.298Z",
+        "type": "action",
+        "page": "login",
+        "message": "Navigiere zur Login-Seite"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:21.069Z",
+        "type": "timing",
+        "page": "login",
+        "message": "Navigation login: 5771ms",
+        "durationMs": 5771
+      },
+      {
+        "timestamp": "2026-03-20T00:44:21.277Z",
+        "type": "action",
+        "page": "login",
+        "message": "Login als bot-sniper@bescout.app"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:25.680Z",
+        "type": "success",
+        "page": "login",
+        "message": "Login erfolgreich (5.8s)"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:25.709Z",
+        "type": "action",
+        "page": "club",
+        "message": "Besuche Sakaryaspor Vereinsseite"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:26.597Z",
+        "type": "timing",
+        "page": "club",
+        "message": "Navigation club: 888ms",
+        "durationMs": 888
+      },
+      {
+        "timestamp": "2026-03-20T00:44:30.486Z",
+        "type": "action",
+        "page": "club",
+        "message": "Spieler-Tab geklickt"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:30.576Z",
+        "type": "observation",
+        "page": "club",
+        "message": "41 Spieler-Links auf der Vereinsseite"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:30.576Z",
+        "type": "action",
+        "page": "market",
+        "message": "Oeffne Marktplatz"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:31.520Z",
+        "type": "timing",
+        "page": "market",
+        "message": "Navigation market: 944ms",
+        "durationMs": 944
+      },
+      {
+        "timestamp": "2026-03-20T00:44:44.604Z",
+        "type": "action",
+        "page": "market",
+        "message": "Club Verkauf Sub-Tab geklickt (Fallback)"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:44.690Z",
+        "type": "observation",
+        "page": "market",
+        "message": "5 Spieler auf dem Marktplatz gefunden"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:44.844Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 4714a4f5"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:46.160Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 1316ms",
+        "durationMs": 1316
+      },
+      {
+        "timestamp": "2026-03-20T00:44:47.136Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Ali Arda Yıldız"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:47.487Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 40.598 CR"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:47.601Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask500 Gebote5 AngeboteTiefe anzeigen"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:47.649Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:47.709Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Ali Arda Yıldız"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:49.135Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:49.151Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "3 individuelle Verkaufsangebote sichtbar — User kann waehlen"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:49.151Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:49.165Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:50.139Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Ali Arda Yıldız gekauft!"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:51.494Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Oeffne Spieler 157a1a78"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:52.283Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 789ms",
+        "durationMs": 789
+      },
+      {
+        "timestamp": "2026-03-20T00:44:53.415Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Spieler: Giovanni Crociata"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:53.504Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Preis angezeigt: 40.548 CR"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:53.529Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Badge: Orderbuch?Bestes Gebot–Spread–Bester Ask4500 Gebote4 AngeboteTiefe anzeigen"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:53.539Z",
+        "type": "observation",
+        "page": "player-detail",
+        "message": "Wertentwicklung wird angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:53.590Z",
+        "type": "action",
+        "page": "player-detail",
+        "message": "Klicke Kaufen fuer Giovanni Crociata"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:54.739Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Kauf-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:54.830Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "3 individuelle Verkaufsangebote sichtbar — User kann waehlen"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:54.830Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Orderbook funktioniert: Einzelne Angebote werden angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:54.933Z",
+        "type": "observation",
+        "page": "buy-modal",
+        "message": "Clubverkauf (IPO) Sektion vorhanden"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:56.343Z",
+        "type": "success",
+        "page": "buy-modal",
+        "message": "Giovanni Crociata gekauft!"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:57.690Z",
+        "type": "action",
+        "page": "sell",
+        "message": "Erstelle Verkaufsorder fuer 4714a4f5"
+      },
+      {
+        "timestamp": "2026-03-20T00:44:58.851Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 1161ms",
+        "durationMs": 1161
+      },
+      {
+        "timestamp": "2026-03-20T00:45:00.434Z",
+        "type": "observation",
+        "page": "sell-modal",
+        "message": "Verkaufs-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:45:00.556Z",
+        "type": "success",
+        "page": "sell-modal",
+        "message": "Referenzwert wird als Orientierung angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:45:01.133Z",
+        "type": "action",
+        "page": "sell-modal",
+        "message": "Floor-Preis gesetzt"
+      },
+      {
+        "timestamp": "2026-03-20T00:45:03.916Z",
+        "type": "success",
+        "page": "sell-modal",
+        "message": "Sell Order erfolgreich erstellt!"
+      },
+      {
+        "timestamp": "2026-03-20T00:45:05.003Z",
+        "type": "action",
+        "page": "sell",
+        "message": "Erstelle Verkaufsorder fuer 157a1a78"
+      },
+      {
+        "timestamp": "2026-03-20T00:45:06.023Z",
+        "type": "timing",
+        "page": "player-detail",
+        "message": "Navigation player-detail: 1020ms",
+        "durationMs": 1020
+      },
+      {
+        "timestamp": "2026-03-20T00:45:07.769Z",
+        "type": "observation",
+        "page": "sell-modal",
+        "message": "Verkaufs-Modal geoeffnet"
+      },
+      {
+        "timestamp": "2026-03-20T00:45:07.808Z",
+        "type": "success",
+        "page": "sell-modal",
+        "message": "Referenzwert wird als Orientierung angezeigt"
+      },
+      {
+        "timestamp": "2026-03-20T00:45:08.576Z",
+        "type": "action",
+        "page": "sell-modal",
+        "message": "Floor-Preis gesetzt"
+      },
+      {
+        "timestamp": "2026-03-20T00:45:10.815Z",
+        "type": "success",
+        "page": "sell-modal",
+        "message": "Sell Order erfolgreich erstellt!"
+      },
+      {
+        "timestamp": "2026-03-20T00:45:11.827Z",
+        "type": "action",
+        "page": "community",
+        "message": "Besuche Community"
+      },
+      {
+        "timestamp": "2026-03-20T00:45:12.855Z",
+        "type": "timing",
+        "page": "community",
+        "message": "Navigation community: 1028ms",
+        "durationMs": 1028
+      },
+      {
+        "timestamp": "2026-03-20T00:45:13.040Z",
+        "type": "observation",
+        "page": "community",
+        "message": "2 Posts/Cards in der Community sichtbar"
+      },
+      {
+        "timestamp": "2026-03-20T00:45:13.040Z",
+        "type": "action",
+        "page": "portfolio",
+        "message": "Besuche Mein Kader"
+      },
+      {
+        "timestamp": "2026-03-20T00:45:14.128Z",
+        "type": "timing",
+        "page": "portfolio",
+        "message": "Navigation portfolio: 1088ms",
+        "durationMs": 1088
+      },
+      {
+        "timestamp": "2026-03-20T00:45:15.327Z",
+        "type": "success",
+        "page": "portfolio",
+        "message": "Wertentwicklung Badge sichtbar im Portfolio"
+      },
+      {
+        "timestamp": "2026-03-20T00:45:15.417Z",
+        "type": "observation",
+        "page": "portfolio",
+        "message": "8 Spieler im Portfolio"
+      },
+      {
+        "timestamp": "2026-03-20T00:45:15.830Z",
         "type": "wish",
         "page": "market",
         "message": "Echtzeit-Benachrichtigungen bei neuen Sell Orders unter Referenzwert"
       },
       {
-        "timestamp": "2026-03-19T15:44:58.939Z",
+        "timestamp": "2026-03-20T00:45:15.830Z",
         "type": "wish",
         "page": "market",
         "message": "Ein Filter fuer Spieler die unter ihrem Referenzwert gelistet sind"
