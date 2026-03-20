@@ -171,7 +171,18 @@ export async function submitLineup(params: {
     }
   }
 
-  if (ev && ev.max_entries && ev.current_entries >= ev.max_entries) {
+  // Check if this is a new entry or an update (needed for capacity logic)
+  const { data: existingEntry } = await supabase
+    .from('lineups')
+    .select('id')
+    .eq('event_id', params.eventId)
+    .eq('user_id', params.userId)
+    .maybeSingle();
+
+  const isNewEntry = !existingEntry;
+
+  // Capacity pre-check (fast UX feedback — DB CHECK constraint is the real guard)
+  if (isNewEntry && ev.max_entries && ev.current_entries >= ev.max_entries) {
     throw new Error('eventFull');
   }
 
@@ -224,6 +235,25 @@ export async function submitLineup(params: {
     .single();
 
   if (error) throw new Error(error.message);
+
+  // Post-upsert capacity safety net (catches race conditions the pre-check missed)
+  // The DB trigger already incremented current_entries. If we exceeded max, rollback.
+  if (isNewEntry && ev.max_entries) {
+    const { data: evAfter } = await supabase
+      .from('events')
+      .select('current_entries')
+      .eq('id', params.eventId)
+      .single();
+
+    if (evAfter && evAfter.current_entries > ev.max_entries) {
+      // Over capacity — delete lineup (trigger will decrement current_entries)
+      await supabase.from('lineups').delete()
+        .eq('event_id', params.eventId)
+        .eq('user_id', params.userId);
+      throw new Error('eventFull');
+    }
+  }
+
   // Activity log (fire-and-forget — lineup confirmed at this point)
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(params.userId, 'lineup_submit', 'fantasy', { eventId: params.eventId, formation: params.formation });

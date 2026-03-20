@@ -246,7 +246,7 @@ describe('Concurrency — Race Condition Guards', () => {
     }
 
     const violations: string[] = [];
-    for (const [key, total] of userTotals) {
+    for (const [key, total] of Array.from(userTotals.entries())) {
       const [ipoId, userId] = key.split(':');
       const max = ipoMaxMap.get(ipoId);
       if (max !== undefined && total > max) {
