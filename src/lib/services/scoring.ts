@@ -35,6 +35,9 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
 
   try { await fetch('/api/events?bust=1'); } catch { /* bust cache best-effort */ }
 
+  if (!data) {
+    return { success: false, error: 'score_event returned null' };
+  }
   const result = data as ScoreResult;
 
   // NOTE: score_event RPC sets status='ended' + scored_at=NOW() internally (SECURITY DEFINER).

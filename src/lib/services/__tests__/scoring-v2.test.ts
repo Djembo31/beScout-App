@@ -175,11 +175,12 @@ describe('Scoring Service v2', () => {
       expect(result.error).toBe('DB connection failed');
     });
 
-    it('throws when RPC returns null data (no error)', async () => {
+    it('returns error when RPC returns null data (no error)', async () => {
       setRpcResponse('score_event', null);
 
-      // null data is cast as ScoreResult, then result.success throws TypeError
-      await expect(scoreEvent('event-4')).rejects.toThrow();
+      const result = await scoreEvent('event-4');
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('score_event returned null');
     });
 
     it('calls fetch to bust events API cache', async () => {
