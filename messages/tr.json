@@ -769,7 +769,7 @@
     "ticketCostFree": "Ücretsiz",
     "notEnoughTickets": "Yeterli bilet yok ({have}/{need})",
     "ticketEntryPaid": "Biletler ödendi",
-    "ownershipBonus": "Sahiplik Bonusu",
+    "ownershipBonus": "Koleksiyon Bonusu",
     "ownershipBonusDesc": "Kendi Scout Card'ların için +%5 puan",
     "ownershipBonusActive": "Aktif ({count}/3)",
     "ownershipBonusInactive": "Fantezi bonusu için Scout Card satın al",
@@ -3241,7 +3241,7 @@
   },
   "tips": {
     "marketTitle": "İlk Scout Card'n",
-    "marketDesc": "Bir oyuncu seç ve 1.000 Credits başlangıç bakiyenle yatırım yap.",
+    "marketDesc": "Bir oyuncu seç ve 1.000 Credits başlangıç bakiyenle ilk Scout Card'ını al.",
     "fantasyTitle": "İlk Fantasy Etkinliğin",
     "fantasyDesc": "Bir etkinliğe katıl, takımını kur ve puan topla.",
     "communityTitle": "Scouting Zone'a Hoş Geldin",
