@@ -963,7 +963,7 @@ export async function GET(request: Request) {
       for (const club of clubsToProcess) {
         const { data: events } = await supabaseAdmin
           .from('events')
-          .select('id, status, scored_at, current_entries')
+          .select('id, status, scored_at, current_entries, locks_at')
           .eq('club_id', club.id)
           .eq('gameweek', activeGw);
 
@@ -971,7 +971,12 @@ export async function GET(request: Request) {
           if (evt.scored_at) continue; // already scored
 
           // Transition registering/late-reg → running before scoring
+          // Guard: only transition if locks_at has actually passed
           if (evt.status === 'registering' || evt.status === 'late-reg') {
+            if (evt.locks_at && new Date(evt.locks_at) > new Date()) {
+              // locks_at not passed yet — keep event open for registration
+              continue;
+            }
             await supabaseAdmin
               .from('events')
               .update({ status: 'running' })
@@ -1101,7 +1106,7 @@ export async function GET(request: Request) {
           const { data: templates } = await supabaseAdmin
             .from('events')
             .select(
-              'name, type, format, entry_fee, prize_pool, max_entries, club_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap',
+              'name, type, format, lineup_size, entry_fee, prize_pool, max_entries, club_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap',
             )
             .eq('club_id', club.id)
             .eq('gameweek', activeGw);
@@ -1147,6 +1152,7 @@ export async function GET(request: Request) {
               .replace(/GW\s*\d+/i, `GW ${nextGw}`),
             type: t.type,
             format: t.format,
+            lineup_size: t.lineup_size ?? ((t.format as string) === '11er' ? 11 : 7),
             gameweek: nextGw,
             entry_fee: t.entry_fee,
             prize_pool: t.prize_pool,
