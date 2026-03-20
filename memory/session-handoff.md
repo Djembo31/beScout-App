@@ -1,66 +1,42 @@
 # Session Handoff
-## Letzte Session: 2026-03-19 (Session 242)
+## Letzte Session: 2026-03-20 (Session 244)
 ## Was wurde gemacht
 
-### 1. Pricing & Market Architecture (KOMPLETT)
-Volle Pipeline: Brainstorming → Design → Plan → Execution → Review → Bug Fixes
+### Systematic Test Audit — Phase 1 Foundation (36 tests) DONE
+- Supabase Mock v2 (table-aware, call-sequence, RPC-aware)
+- API Contract Tests (22), Compliance (4), Turkish Unicode (10)
+- Compliance fand 2 echte Violations in tr.json → gefixt
 
-**DB (4 Migrations):**
-- `reference_price` (cached MV*10) + `initial_listing_price` (immutable) + Trigger
-- `recalc_floor_price()`: MIN(Orders,IPO) > last_price > reference_price
-- `get_price_cap()`: MAX(3x Ref, 3x Median letzte 10 Trades)
-- `place_sell_order` mit Price Cap + alle RPCs gepatcht via BEFORE UPDATE Trigger
-- `expire_pending_orders` + `expire_pending_buy_orders` rewritten
-- `notify_watchlist_price_change` gefixt (watchlist_entries → watchlist)
-- Alle Migrationen live auf Supabase applied + Backfill komplett
+### Systematic Test Audit — Phase 2 Money Safety Net (303 tests) DONE
+| Service | Tests | Key Findings |
+|---------|-------|-------------|
+| trading.ts | 67 | 19 mapRpcError branches, all guards tested |
+| wallet.ts | 38 | formatScout rounding, deduct/refund paths |
+| ipo.ts | 36 | buyFromIpo validation, createIpo defaults |
+| scoring.ts | 31 | Latent bug: null RPC → TypeError |
+| offers.ts | 30 | create/accept/reject/counter/cancel |
+| liquidation.ts | 20 | Zero holders, no success fee edges |
+| lineups.ts | 32 (+20) | Capacity, locks_at, remove, get |
+| bounties.ts | 61 | 11 functions, escrow, submissions |
 
-**Frontend:**
-- Preis-Hierarchie durchgezogen (floor > lastTrade > referencePrice) in ALLEN Display-Kontexten
-- PlayerBadgeStrip: "X Angebote" / "Nicht gelistet" (aus listings.length)
-- Market Tab: "Kaufen" → "Marktplatz" (backwards-compat alias)
-- TradingTab: Letzter Preis + Wertentwicklung (initial → aktuell → %)
-- SquadSummaryStats: Portfolio Wertentwicklung Badge
-- BuyModal: Individuelle Order-Liste + Seller-Handle (profileMap) + orderId E2E verdrahtet
-- SellModal: Referenzwert + hoechstes Gesuch + "Sofort verkaufen" (openBids verdrahtet)
-- i18n: 18 neue Marktplatz-Keys (DE + TR)
-- i18n Fix: minutesAgo {count}→{min}, hoursAgo {count}→{hours}
+### Gesamt: 730/730 Tests PASS
+- 267 existing + 124 Layers 1-7 + 36 Phase 1 + 303 Phase 2 = 730
 
-**Verification:**
-- tsc: 0 Errors | vitest: 267/267 PASS
-- Reviewer Agent: CONCERNS → alle Findings gefixt
-- 20/20 DB-Integrationstests (Multi-User Trading, Geldfluss, Orderbuch)
-- 13 E2E Pricing Tests PASS
-- reward_referral RPC Permission gefixt
+### Bugs entdeckt (nicht gefixt)
+- scoring.ts: null RPC data → TypeError on result.success
+- Sakaryaspor Fan Challenge GW32: max_entries race (fixed with post-check)
 
-### 2. Bot Simulation System (NEU)
-- 5 Bot-Accounts via Supabase Admin API (je 50K $SCOUT)
-- Persoenlichkeiten: Trader, Manager, Analyst, Collector, Sniper
-- Journal-System: Actions, Observations, Bugs, UX Issues, Wishes, Timing
-- Reports: `e2e/bots/reports/latest-bot-reports.md` + `.json`
-- Playwright Config: Eigenes `bots` Projekt ohne Auth-State
-- Bots kaufen erfolgreich Spieler via IPO (9+ Kaeufe verifiziert)
-- Emre Sniper erreichte Sell-Modal + Community
-- Run: `npx playwright test e2e/bots/simulate.spec.ts --project=bots`
+## Design Doc
+- `docs/plans/2026-03-20-systematic-test-audit-design.md` — 7 Phasen, ~2000 Tests
 
-### 3. Markt belebt
-- 537 aktive IPOs gestartet (alle Spieler mit reference_price)
-- 13 Events im Status `registering` (Spieltag 32)
-- Bots haben insgesamt ~65K $SCOUT ausgegeben
-
-### Design Docs
-- `docs/plans/2026-03-19-pricing-architecture-design.md`
-- `docs/plans/2026-03-19-pricing-architecture-plan.md`
-
-## Naechste Session: Intelligente Bot-AI
-1. AI-basierte Spieler-Bewertung (L5, Formkurve, Position-Value)
-2. Strategische Fantasy-Aufstellungen (Formation, Salary Cap)
-3. Community Posts mit echten Analysen generieren
-4. API-basierte Bots (50+ parallel, kein Browser)
-5. Bot-zu-Bot Trading (Sell Orders → andere Bots kaufen)
+## Naechste Session: Phase 3 — State Machine Services (~300 Tests)
+events.ts, predictions.ts, gamification.ts, missions.ts, fanRanking.ts, research.ts, clubSubscriptions.ts
 
 ## Offene Arbeit
-1. Admin i18n Rest (~80 Strings)
-2. Stripe (wartet auf Anils Account)
+- Phase 3-7 der Systematic Test Audit (~1360 verbleibend)
+- Admin i18n Rest (~80 Strings)
+- Stripe (wartet auf Anils Account)
+- DB CHECK constraint (Supabase Dashboard)
 
 ## Blocker
 - Keine
