@@ -11,14 +11,23 @@
  * All tests are READ-ONLY — they only SELECT, never mutate.
  */
 
-import 'dotenv/config';
-import { createClient } from '@supabase/supabase-js';
-import { describe, it, expect } from 'vitest';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { describe, it, expect, beforeAll } from 'vitest';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+let supabase: SupabaseClient;
+
+beforeAll(() => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error('Missing Supabase env vars in .env.local');
+  supabase = createClient(url, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+});
 
 describe('Bug Regression: Gameweek Sync Cron', () => {
   /**
