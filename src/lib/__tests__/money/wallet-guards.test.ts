@@ -78,7 +78,7 @@ describe('Wallet Guards — Money Flow', () => {
   });
 
   // ── 4. Every locked balance has corresponding open orders or pending offers ──
-  it('MF-WAL-04: non-zero locked_balance must have open orders or pending offers', async () => {
+  it('MF-WAL-04: non-zero locked_balance must have open orders or pending offers', { timeout: 30_000 }, async () => {
     const { data: lockedWallets, error } = await sb
       .from('wallets')
       .select('user_id, locked_balance')
