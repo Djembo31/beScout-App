@@ -123,7 +123,12 @@ export async function getTransactions(userId: string, limit = 20, offset = 0): P
 
 type WalletRpcResult = { success: boolean; error?: string; new_balance?: number };
 
-/** Entry Fee vom Wallet abziehen (atomar, mit TX-Log) */
+/**
+ * Entry Fee vom Wallet abziehen (atomar, mit TX-Log)
+ * @deprecated Use lockEventEntry() from event-entries service instead.
+ * This function is part of the old 2-step payment flow (deduct then submit lineup).
+ * The new atomic RPC handles payment + entry in a single transaction.
+ */
 export async function deductEntryFee(userId: string, amountCents: number, eventName?: string, eventId?: string, description?: string): Promise<number> {
   const { data, error } = await supabase.rpc('deduct_wallet_balance', {
     p_user_id: userId,
@@ -139,7 +144,12 @@ export async function deductEntryFee(userId: string, amountCents: number, eventN
   return result.new_balance!;
 }
 
-/** Entry Fee zurück auf Wallet gutschreiben (atomar, mit TX-Log) */
+/**
+ * Entry Fee zurueck auf Wallet gutschreiben (atomar, mit TX-Log)
+ * @deprecated Use unlockEventEntry() from event-entries service instead.
+ * This function is part of the old 2-step payment flow (refund then remove lineup).
+ * The new atomic RPC handles refund + entry removal in a single transaction.
+ */
 export async function refundEntryFee(userId: string, amountCents: number, eventName?: string, eventId?: string, description?: string): Promise<number> {
   const { data, error } = await supabase.rpc('refund_wallet_balance', {
     p_user_id: userId,
