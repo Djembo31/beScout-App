@@ -421,6 +421,96 @@ export async function bulkUpdateStatus(
   return { success: allOk, results };
 }
 
+// ============================================
+// Unified Payment Gateway — Atomic Entry Lock/Unlock
+// ============================================
+
+export type LockEventEntryResult = {
+  ok: boolean;
+  currency?: 'tickets' | 'scout';
+  balanceAfter?: number;
+  alreadyEntered?: boolean;
+  error?: 'insufficient_tickets' | 'insufficient_balance' | 'event_full' | 'event_not_open' | 'scout_events_disabled' | string;
+  have?: number;
+  need?: number;
+};
+
+export type UnlockEventEntryResult = {
+  ok: boolean;
+  currency?: 'tickets' | 'scout';
+  balanceAfter?: number;
+  error?: 'event_locked' | string;
+};
+
+/**
+ * Atomic event entry: deducts cost (tickets or $SCOUT) and registers user in one RPC call.
+ * No lineup required — entry and lineup are decoupled.
+ */
+export async function lockEventEntry(eventId: string): Promise<LockEventEntryResult> {
+  const { data, error } = await supabase.rpc('lock_event_entry', { p_event_id: eventId });
+
+  if (error) {
+    // Parse known error codes from RPC
+    const msg = error.message?.toLowerCase() ?? '';
+    if (msg.includes('insufficient_tickets') || msg.includes('not enough tickets')) {
+      return { ok: false, error: 'insufficient_tickets' };
+    }
+    if (msg.includes('insufficient_balance') || msg.includes('not enough')) {
+      return { ok: false, error: 'insufficient_balance' };
+    }
+    if (msg.includes('event_full') || msg.includes('full')) {
+      return { ok: false, error: 'event_full' };
+    }
+    if (msg.includes('event_not_open') || msg.includes('not open') || msg.includes('not registering')) {
+      return { ok: false, error: 'event_not_open' };
+    }
+    if (msg.includes('scout_events_disabled')) {
+      return { ok: false, error: 'scout_events_disabled' };
+    }
+    return { ok: false, error: error.message };
+  }
+
+  // RPC returns JSON object
+  const result = data as Record<string, unknown> | null;
+  if (!result) return { ok: false, error: 'No response from server' };
+
+  return {
+    ok: (result.ok as boolean) ?? false,
+    currency: result.currency as LockEventEntryResult['currency'],
+    balanceAfter: result.balance_after as number | undefined,
+    alreadyEntered: result.already_entered as boolean | undefined,
+    error: result.error as string | undefined,
+    have: result.have as number | undefined,
+    need: result.need as number | undefined,
+  };
+}
+
+/**
+ * Atomic event exit: refunds cost and removes entry in one RPC call.
+ * Only works before locks_at deadline.
+ */
+export async function unlockEventEntry(eventId: string): Promise<UnlockEventEntryResult> {
+  const { data, error } = await supabase.rpc('unlock_event_entry', { p_event_id: eventId });
+
+  if (error) {
+    const msg = error.message?.toLowerCase() ?? '';
+    if (msg.includes('event_locked') || msg.includes('locked') || msg.includes('already started')) {
+      return { ok: false, error: 'event_locked' };
+    }
+    return { ok: false, error: error.message };
+  }
+
+  const result = data as Record<string, unknown> | null;
+  if (!result) return { ok: false, error: 'No response from server' };
+
+  return {
+    ok: (result.ok as boolean) ?? false,
+    currency: result.currency as UnlockEventEntryResult['currency'],
+    balanceAfter: result.balance_after as number | undefined,
+    error: result.error as string | undefined,
+  };
+}
+
 /** Aggregate stats for admin dashboard */
 export async function getEventAdminStats(): Promise<{
   activeCount: number;
@@ -444,42 +534,6 @@ export async function getEventAdminStats(): Promise<{
     totalParticipants: active.reduce((sum, e) => sum + (e.current_entries ?? 0), 0),
     totalPool: active.reduce((sum, e) => sum + (e.prize_pool ?? 0), 0),
   };
-}
-
-// ============================================
-// Event Entry (Unified Payment Gateway)
-// ============================================
-
-/** Atomically lock event entry — deducts tickets or locks $SCOUT via RPC */
-export async function lockEventEntry(
-  eventId: string,
-): Promise<{ ok: boolean; currency?: string; balanceAfter?: number; alreadyEntered?: boolean; error?: string; have?: number; need?: number }> {
-  const { data, error } = await supabase.rpc('lock_event_entry', {
-    p_event_id: eventId,
-  });
-
-  if (error) {
-    console.error('[Events] lockEventEntry RPC error:', error);
-    return { ok: false, error: error.message };
-  }
-
-  return data as { ok: boolean; currency?: string; balanceAfter?: number; alreadyEntered?: boolean; error?: string; have?: number; need?: number };
-}
-
-/** Atomically unlock event entry — refunds tickets or unlocks $SCOUT */
-export async function unlockEventEntry(
-  eventId: string,
-): Promise<{ ok: boolean; currency?: string; balanceAfter?: number; error?: string }> {
-  const { data, error } = await supabase.rpc('unlock_event_entry', {
-    p_event_id: eventId,
-  });
-
-  if (error) {
-    console.error('[Events] unlockEventEntry RPC error:', error);
-    return { ok: false, error: error.message };
-  }
-
-  return data as { ok: boolean; currency?: string; balanceAfter?: number; error?: string };
 }
 
 /** Admin: cancel all entries and refund everyone */

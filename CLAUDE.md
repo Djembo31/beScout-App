@@ -8,97 +8,92 @@ Next.js 14 (App Router) | TypeScript strict | Tailwind (Dark Mode only) |
 Supabase (PostgreSQL + Auth + Realtime) | TanStack React Query v5 | Zustand v5 |
 next-intl (Cookie bescout-locale) | lucide-react
 
-## Jarvis v3 — CTO Mode (1M Context)
-- **Level A** (default): Jarvis liefert FERTIGE Features, Anil macht nur visuelles QA
-- **Level B**: Inkl. Screenshots, Anil sagt "ship it" oder "Richtung falsch"
-- **Level C**: Sprint autonom, taegliche Summaries + Eskalationen
-- **Feature-Pipeline (PFLICHT):** `brainstorming` → `spec` → `writing-plans` → `executing-plans` → `finishing-branch` — KEIN Schritt darf uebersprungen werden
-- **Sequential Thinking:** Bei Design-Entscheidungen, Spec-Pruefung, unklaren Antworten — NICHT raten, durchdenken
-- **Context7:** Bei JEDER Library aktuelle Docs holen, NICHT aus Training raten. Docs in Agent-Briefings einbetten (Agents haben KEIN Context7)
-- **Agents:** Eigener Context Window, verbrauchen NICHT den Hauptkontext. Bekommen NUR den Prompt.
-- **Verification:** tsc + vitest + reviewer Agent (PFLICHT) + /fixing-accessibility
-- **Impact Analysis:** `/impact` VOR jeder Aenderung an RPCs/DB/Services
-- **Agents:** 6 definierte Agents in `.claude/agents/` (impact-analyst, implementer, reviewer, test-writer, qa-visual, healer)
-- Details → `orchestrator.md` (unified CTO workflow) + `core.md`
+## Workflow → `.claude/rules/workflow.md`
+- **4-Tier Tasks:** Hotfix / Targeted / Scoped / Full Feature
+- **Verification parallel:** tsc + vitest + Reviewer Agent + a11y gleichzeitig
+- **6 Agents** in `.claude/agents/` — laden sich SELBST ein (Phase 0)
+- **Context7:** Bei Library-Arbeit aktuelle Docs holen, in Agent-Prompts einbetten
+- **Sequential Thinking:** Bei Design-Entscheidungen — NICHT raten
 
-## Design System
-- **Background:** `#0a0a0a` (fast schwarz)
-- **Primary/Gold:** `text-gold` / `bg-gold` (CSS Var `--gold: #FFD700`). Buttons: `from-[#FFE44D] to-[#E6B800]`
-- **Success/Live:** `text-green-500`. Positions: GK=emerald, DEF=amber, MID=sky, ATT=rose
-- **Cards:** `bg-white/[0.02]` + `border border-white/10 rounded-2xl`
-- **Borders:** `border-white/[0.06]` bis `border-white/10`
-- **Inset Light:** `inset 0 1px 0 rgba(255,255,255,0.06)` auf Cards
-- **Fonts:** Headlines `font-black` (900), Zahlen `font-mono tabular-nums`
-- **Min Opacity:** 5% Surfaces, white/50+ lesbarer Text (WCAG AA auf #0a0a0a)
-- **Referenz:** PokerStars (Event-Lobby) + Sorare (Gameweeks/Cards)
+## Design Tokens (exakte Werte)
+| Token | Wert | Usage |
+|-------|------|-------|
+| Background | `#0a0a0a` | Body, alle Screens |
+| Gold | `var(--gold, #FFD700)` | `text-gold`, `bg-gold` |
+| Button Gradient | `from-[#FFE44D] to-[#E6B800]` | Primary Buttons |
+| Card Surface | `bg-white/[0.02]` | Card-Hintergrund |
+| Card Border | `border border-white/10 rounded-2xl` | Card-Rahmen |
+| Subtle Border | `border-white/[0.06]` | Divider, Sections |
+| Inset Light | `inset 0 1px 0 rgba(255,255,255,0.06)` | Card box-shadow |
+| Text Readable | `white/50+` | WCAG AA auf #0a0a0a |
+| Headlines | `font-black` (900) | Alle Ueberschriften |
+| Numbers | `font-mono tabular-nums` | Preise, Stats, Counts |
+| Positions | GK=emerald, DEF=amber, MID=sky, ATT=rose | Spieler-Positionen |
 
-## Key Components (IMMER pruefen bevor neu gebaut)
-| Component | Pfad | Zweck |
-|-----------|------|-------|
-| PlayerDisplay | `player/PlayerRow.tsx` | **DIE** Spieler-Darstellung (compact/card) |
-| PlayerPhoto | `player/index.tsx` | Avatar (pos-border, fallback). Props: `first/last/pos` |
-| L5 Tokens | `player/index.tsx` | `getL5Color/Hex/Bg()` — Single Source of Truth |
+## Component Registry (IMMER pruefen bevor neu gebaut)
+| Component | Import | Props/Zweck |
+|-----------|--------|-------------|
+| PlayerDisplay | `player/PlayerRow.tsx` | compact/card Modes |
+| PlayerPhoto | `player/index.tsx` | `first`, `last`, `pos` (NICHT firstName) |
+| L5 Tokens | `player/index.tsx` | `getL5Color()`, `getL5Hex()`, `getL5Bg()` |
 | PlayerKPIs | `player/index.tsx` | 8 Kontexte: portfolio/market/lineup/result/picker/ipo/search/default |
-| Modal | `ui/index.tsx` | BottomSheet mobile. IMMER `open={true/false}` prop |
-| Card, Button | `ui/index.tsx` | Shared UI. Button hat `active:scale-[0.97]` |
+| Modal | `ui/index.tsx` | IMMER `open={true/false}` prop. BottomSheet mobile |
+| Card, Button | `ui/index.tsx` | Button hat `active:scale-[0.97]` |
 | TabBar | `ui/TabBar.tsx` | Tabs + TabPanel |
+| Loader2 | `lucide-react` | EINZIGER Spinner (nie custom divs) |
 | EventDetailModal | `fantasy/EventDetailModal.tsx` | Fantasy Lineup Builder |
 | ProfileView | `profile/ProfileView.tsx` | Shared Profil (4 Tabs) |
 | SideNav/TopBar | `layout/` | Navigation + Search + Notifications |
-| Loader2 | `lucide-react` | EINZIGER Loading Spinner (nie custom border-divs) |
 
-## Regeln → .claude/rules/ (12 Files)
-Domaenen-spezifische Regeln laden automatisch per Glob-Pattern.
-**Immer geladen:** core.md, business.md, common-errors.md, orchestrator.md (unified CTO workflow)
-**Path-spezifisch:** ui-components.md, database.md, trading.md, fantasy.md, gamification.md, community.md, club-admin.md, profile.md
+## Import Map
+| Was | Import |
+|-----|--------|
+| Types | `@/types` |
+| Services | `@/lib/services/[name]` |
+| UI Components | `@/components/ui/index` (cn, Card, Button, Modal) |
+| Player Components | `@/components/player/index` (PlayerPhoto, getL5Color) |
+| Query Keys | `@/lib/queryKeys` (qk.*) |
+| Supabase Client | `@/lib/supabaseClient` |
+| i18n | `next-intl` (useTranslations) |
+| Icons | `lucide-react` |
 
-## Agents → .claude/agents/ (6 Agents)
-| Agent | Rolle | Key Constraint |
-|-------|-------|----------------|
-| impact-analyst | Cross-cutting Impact Analysis | Read-only |
-| implementer | Code schreiben nach Spec | Worktree-isoliert |
-| reviewer | Code Review | Read-only, KANN NICHT schreiben |
-| test-writer | Tests aus Spec only | Sieht NIE Implementation |
-| qa-visual | Playwright Screenshots | Read-only + Playwright |
-| healer | Fix Loop (Build/Test/Lint) | Max 5 Runden |
+## Code-Konventionen
+- `'use client'` alle Pages
+- Types in `types/index.ts`, UI in `ui/index.tsx`
+- `cn()` classNames, `fmtScout()` Zahlen
+- Component → Service → Supabase (NIE direkt)
+- DE Labels, EN Code. i18n: `t()` mit `messages/{locale}.json`
+- Hooks VOR early returns. Loading Guard VOR Empty Guard.
+- `Array.from(new Set())` statt `[...new Set()]`
+- Geld IMMER als BIGINT cents (1,000,000 = 10,000 $SCOUT)
 
-## Memory → memory/
-- MEMORY.md: Auto-loaded (erste 200 Zeilen) — Architecture + Backend + Patterns
-- current-sprint.md: Aktueller Stand + naechste Prioritaet
-- Deep-Dive Files (on-demand): architecture.md, patterns.md, backend-systems.md, decisions.md, errors.md, sessions.md
-
-## VOR jeder Aenderung (PFLICHT)
-1. Bestehenden Code pruefen BEVOR neuer Code geschrieben wird
-2. Relevante .claude/rules/ Dateien LESEN
-3. Bei UI: Alle States, Mobile-First 360px
-4. Nicht raten — nachschauen
+## Top 10 DONT
+1. `flex-1` auf Tabs → iPhone overflow → `flex-shrink-0` nutzen
+2. `[...new Set()]` → strict TS Fehler → `Array.from(new Set())`
+3. Supabase direkt in Components → Service Layer nutzen
+4. Hooks nach early return → React Rules Verletzung
+5. Leere `.catch(() => {})` → mindestens `console.error`
+6. Dynamic Tailwind `border-[${var}]/40` → `style={{ borderColor: hex }}`
+7. Modal ohne `open` prop → IMMER `open={true/false}`
+8. `::TEXT` auf UUID beim INSERT → Column-Type respektieren
+9. `staleTime: 0` → `invalidateQueries` nach Writes nutzen
+10. Raw query keys `['foo']` → IMMER `qk.*` Factory nutzen
 
 ## Kern-Business
 - Scout Card = Digitale Spielerkarte. Marktwert steigt → Community Success Fee
-- (Code-intern: "dpc" in Variablen/DB-Columns bleibt — nur UI-sichtbar umbenannt)
+- Code-intern: "dpc" in Variablen/DB-Columns bleibt (nur UI umbenannt)
 - $SCOUT = Platform Credits (NIEMALS: Investment, ROI, Profit, Ownership)
-- Geld IMMER als BIGINT cents (1,000,000 = 10,000 $SCOUT)
-- Closed Economy Phase 1: KEIN Cash-Out, KEIN P2P, KEIN Exchange
-- Fee-Split Trading: 6% total (Platform 3.5% + PBT 1.5% + Club 1%)
+- Fee-Split Trading: 6% (Platform 3.5% + PBT 1.5% + Club 1%)
 - IPO Fee: 85% Club, 10% Platform, 5% PBT
 
-## Code-Konventionen → `core.md`
-`'use client'` alle Pages | Types in `types/index.ts` | UI in `ui/index.tsx` |
-`cn()` classNames | `fmtScout()` Zahlen | Component→Service→Supabase | DE Labels, EN Code
+## Regeln → .claude/rules/
+**Immer geladen:** workflow.md, business.md, common-errors.md
+**Path-spezifisch:** ui-components.md, database.md, trading.md, fantasy.md, gamification.md, community.md, club-admin.md, profile.md
 
-## Quality Pipeline (Feature-Pipeline + Verification)
-1. `brainstorming` → Design Doc (Anils Antworten WOERTLICH)
-2. `spec` → Contracts, Datenquellen, UI-Elemente, Scope → `memory/features/[name].md`
-3. `writing-plans` → Bite-sized Implementation Plan (gegen Spec geprüft)
-4. `executing-plans` → Batched Execution mit Checkpoints
-5. Verification: `tsc` → `vitest` → reviewer Agent (PFLICHT) → `/fixing-accessibility`
-6. `finishing-branch` → Merge/Commit + Knowledge Capture
-
-## Automation (Hooks)
-- **PostToolUse:** Auto ESLint + Gemini Sync Reminder
-- **PreToolUse:** Safety Guard + Agent Dispatch Guard
-- **PreCompact:** Git Diff Backup (automatisch)
-- **Stop:** Uncommitted Changes Warnung + UI Component Check
+## Memory → memory/
+- MEMORY.md: Auto-loaded — Architecture + Backend + Patterns
+- current-sprint.md: Stand + naechste Prioritaet
+- Deep-Dive (on-demand): architecture.md, patterns.md, backend-systems.md, decisions.md, errors.md
 
 ## Compaction (KRITISCH)
 When compacting, ALWAYS preserve:
@@ -112,4 +107,3 @@ When compacting, ALWAYS preserve:
 - docs/VISION.md — Produktvision
 - docs/STATUS.md — Detaillierter Fortschritt
 - docs/BeScout_Context_Pack_v8.md — Business Master-Dokument
-- docs/SCALE.md — Skalierungsarchitektur und DB-Schema

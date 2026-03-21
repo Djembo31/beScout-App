@@ -11,8 +11,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { centsToBsd } from '@/lib/services/players';
-import { deductEntryFee, refundEntryFee } from '@/lib/services/wallet';
-import { spendTickets, creditTickets } from '@/lib/services/tickets';
+import { lockEventEntry, unlockEventEntry } from '@/lib/services/events';
 import { useUserTickets } from '@/lib/queries/tickets';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 import { submitLineup, getLineup } from '@/lib/services/lineups';
@@ -174,13 +173,13 @@ export default function FantasyContent() {
   const { data: activeGw, isLoading: activeGwLoading } = useLeagueActiveGameweek();
   const { data: isAdmin = false } = useIsClubAdmin(userId, clubId || undefined);
   const { data: dbHoldings = [] } = useHoldings(userId);
-  const { data: ticketData } = useUserTickets(userId);
+  // Keep ticket balance cache warm (displayed in EventDetailModal overview)
+  useUserTickets(userId);
 
   const t = useTranslations('fantasy');
   const tc = useTranslations('common');
   const tt = useTranslations('tips');
   const te = useTranslations('errors');
-  const tw = useTranslations('wallet');
 
   // State — 4 tabs
   const [mainTab, setMainTab] = useState<FantasyTab>('paarungen');
@@ -356,7 +355,8 @@ export default function FantasyContent() {
     ));
   }, [events]);
 
-  const handleJoinEvent = useCallback(async (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null = null) => {
+  // ── Join Event (entry/payment only — no lineup required) ──
+  const handleJoinEvent = useCallback(async (event: FantasyEvent) => {
     if (!user) return;
 
     if (event.status === 'ended') {
@@ -369,79 +369,53 @@ export default function FantasyContent() {
       return;
     }
 
-    // Ticket cost check
-    const ticketCost = event.ticketCost ?? 0;
-    const currentTickets = ticketData?.balance ?? 0;
-    if (ticketCost > 0 && currentTickets < ticketCost) {
-      addToast(t('notEnoughTickets', { have: currentTickets, need: ticketCost }), 'error');
-      return;
-    }
-
-    const bal = balanceCents ?? 0;
-    if (event.entryFeeCents > 0 && bal < event.entryFeeCents) {
-      addToast(t('notEnoughScout', { needed: event.buyIn, balance: fmtScout(bal / 100) }), 'error');
-      return;
-    }
-
     const wasJoined = event.isJoined;
     setLocalEvents(prev => (prev ?? events).map(e =>
       e.id === event.id ? { ...e, isJoined: true, isInterested: false, participants: wasJoined ? e.participants : (e.participants || 0) + 1 } : e
     ));
-    setSelectedEvent(null);
 
     try {
-      // 0. Deduct tickets FIRST (if required)
-      if (ticketCost > 0) {
-        const ticketResult = await spendTickets(user.id, ticketCost, 'event_entry', event.id, `Event: ${event.name}`);
-        if (!ticketResult.ok) {
-          addToast(t('notEnoughTickets', { have: currentTickets, need: ticketCost }), 'error');
-          throw new Error(ticketResult.error ?? 'Ticket deduction failed');
+      const result = await lockEventEntry(event.id);
+
+      if (!result.ok) {
+        // Revert optimistic update
+        setLocalEvents(prev => (prev ?? events).map(ev =>
+          ev.id === event.id ? { ...ev, isJoined: wasJoined, participants: wasJoined ? ev.participants : Math.max(0, (ev.participants || 1) - 1) } : ev
+        ));
+
+        // Show specific error messages
+        switch (result.error) {
+          case 'insufficient_tickets':
+            addToast(t('notEnoughTickets', { have: result.have ?? 0, need: result.need ?? event.ticketCost }), 'error');
+            break;
+          case 'insufficient_balance':
+            addToast(t('notEnoughScout', { needed: event.buyIn, balance: fmtScout((result.have ?? 0) / 100) }), 'error');
+            break;
+          case 'event_full':
+            addToast(t('eventFullError'), 'error');
+            break;
+          case 'event_not_open':
+            addToast(t('eventEndedError'), 'error');
+            break;
+          case 'scout_events_disabled':
+            addToast(t('scoutEventsDisabled'), 'error');
+            break;
+          default:
+            addToast(t('errorGeneric', { error: result.error ?? 'Unknown error' }), 'error');
         }
-        // Invalidate ticket balance cache
-        queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
+
+        if (result.alreadyEntered) {
+          // Already entered — just refresh state
+          setLocalEvents(null);
+        }
+        return;
       }
 
-      // 1. Deduct fee FIRST — money is the critical resource, prevents free entries
-      if (event.entryFeeCents > 0) {
-        const newBalance = await deductEntryFee(user.id, event.entryFeeCents, event.name, event.id, event.name ? tw('entryFeeDesc', { name: event.name }) : tw('entryFeeDescDefault'));
-        setBalanceCents(newBalance);
-      }
-
-      // 2. Then submit lineup — if this fails, refund the fee
-      // Build dynamic slot mapping based on event format + formation
-      const formations = getFormationsForFormat(event.format);
-      const currentFormation = formations.find(f => f.id === formation) || formations[0];
-      const dbKeys = buildSlotDbKeys(currentFormation);
-      const slotMap = new Map(lineup.map(p => [p.slot, p.playerId]));
-      const slots: Record<string, string | null> = {};
-      dbKeys.forEach((key, idx) => { slots[key] = slotMap.get(idx) || null; });
-
-      try {
-        await submitLineup({
-          eventId: event.id,
-          userId: user.id,
-          formation,
-          slots,
-          captainSlot,
-        });
-      } catch (lineupErr: unknown) {
-        // Lineup failed — refund the fee to keep state consistent
-        if (event.entryFeeCents > 0) {
-          try {
-            const refundedBalance = await refundEntryFee(user.id, event.entryFeeCents, event.name, event.id, event.name ? tw('refundDesc', { name: event.name }) : tw('refundDescDefault'));
-            setBalanceCents(refundedBalance);
-          } catch (refundErr) { console.error('[Fantasy] Fee refund failed:', refundErr); }
-        }
-        throw lineupErr;
+      // Update wallet balance if returned
+      if (result.balanceAfter != null) {
+        setBalanceCents(result.balanceAfter);
       }
     } catch (e: unknown) {
-      // Refund tickets if they were deducted but join failed
-      if (ticketCost > 0) {
-        try {
-          await creditTickets(user.id, ticketCost, 'event_entry_refund', event.id);
-          queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
-        } catch (refundErr) { console.error('[Fantasy] Ticket refund failed:', refundErr); }
-      }
       setLocalEvents(prev => (prev ?? events).map(ev =>
         ev.id === event.id ? { ...ev, isJoined: wasJoined, participants: wasJoined ? ev.participants : Math.max(0, (ev.participants || 1) - 1) } : ev
       ));
@@ -449,18 +423,53 @@ export default function FantasyContent() {
       return;
     }
 
+    // Invalidate all relevant caches
     invalidateFantasyQueries(user.id, clubId);
+    queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
+    queryClient.invalidateQueries({ queryKey: qk.events.enteredIds(user.id) });
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
-    setLocalEvents(null); // Clear local overrides so React Query refetches authoritative data
+    setLocalEvents(null);
 
-    // Mission tracking — only after full join succeeds (lineup + fee)
+    // Mission tracking
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
       triggerMissionProgress(user.id, ['weekly_fantasy']);
     }).catch(err => console.error('[Fantasy] Mission tracking failed:', err));
 
     addToast(t('joinedSuccess', { name: event.name }), 'success');
-  }, [user, balanceCents, setBalanceCents, addToast, events, ticketData]);
+  }, [user, addToast, events, setBalanceCents, clubId]);
 
+  // ── Submit Lineup (no payment — user must already be entered) ──
+  const handleSubmitLineup = useCallback(async (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null = null) => {
+    if (!user) return;
+
+    // Build dynamic slot mapping based on event format + formation
+    const formations = getFormationsForFormat(event.format);
+    const currentFormation = formations.find(f => f.id === formation) || formations[0];
+    const dbKeys = buildSlotDbKeys(currentFormation);
+    const slotMap = new Map(lineup.map(p => [p.slot, p.playerId]));
+    const slots: Record<string, string | null> = {};
+    dbKeys.forEach((key, idx) => { slots[key] = slotMap.get(idx) || null; });
+
+    try {
+      await submitLineup({
+        eventId: event.id,
+        userId: user.id,
+        formation,
+        slots,
+        captainSlot,
+      });
+    } catch (e: unknown) {
+      addToast(t('errorGeneric', { error: te(mapErrorToKey(normalizeError(e))) }), 'error');
+      return;
+    }
+
+    // Invalidate usage (player event locks may have changed)
+    invalidateFantasyQueries(user.id, clubId);
+    setSelectedEvent(null);
+    addToast(t('lineupSaved'), 'success');
+  }, [user, addToast, clubId]);
+
+  // ── Leave Event (atomic refund via unlockEventEntry) ──
   const handleLeaveEvent = useCallback(async (event: FantasyEvent) => {
     if (!user) return;
 
@@ -472,20 +481,25 @@ export default function FantasyContent() {
     setSelectedEvent(null);
 
     try {
-      // Remove lineup from DB first
-      const { removeLineup } = await import('@/lib/services/lineups');
-      await removeLineup(event.id, user.id);
+      const result = await unlockEventEntry(event.id);
 
-      // Then refund entry fee
-      if (event.entryFeeCents > 0) {
-        const newBalance = await refundEntryFee(user.id, event.entryFeeCents, event.name, event.id, event.name ? tw('refundDesc', { name: event.name }) : tw('refundDescDefault'));
-        setBalanceCents(newBalance);
+      if (!result.ok) {
+        // Revert optimistic update
+        setLocalEvents(prev => (prev ?? events).map(ev =>
+          ev.id === event.id ? { ...ev, isJoined: wasJoined, participants: prevParticipants } : ev
+        ));
+
+        if (result.error === 'event_locked') {
+          addToast(t('eventLockedError'), 'error');
+        } else {
+          addToast(t('unregisterFailed', { error: result.error ?? 'Unknown error' }), 'error');
+        }
+        return;
       }
 
-      // Refund tickets if the event required them
-      if (event.ticketCost && event.ticketCost > 0) {
-        await creditTickets(user.id, event.ticketCost, 'event_leave_refund', event.id);
-        queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
+      // Update wallet balance if returned
+      if (result.balanceAfter != null) {
+        setBalanceCents(result.balanceAfter);
       }
     } catch (e: unknown) {
       // Revert optimistic update on failure
@@ -496,12 +510,15 @@ export default function FantasyContent() {
       return;
     }
 
+    // Invalidate all relevant caches
     invalidateFantasyQueries(user.id, clubId);
+    queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
+    queryClient.invalidateQueries({ queryKey: qk.events.enteredIds(user.id) });
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
-    setLocalEvents(null); // Clear local overrides so React Query refetches authoritative data
+    setLocalEvents(null);
 
     addToast(`${t('leftEvent', { name: event.name })}${event.buyIn > 0 ? ` ${t('refundNote', { amount: event.buyIn })}` : ''}`, 'success');
-  }, [user, setBalanceCents, addToast, events]);
+  }, [user, setBalanceCents, addToast, events, clubId]);
 
   // Refetch all events from DB (used after score, reset, simulation)
   const reloadEvents = useCallback(async () => {
@@ -757,6 +774,7 @@ export default function FantasyContent() {
           isOpen={!!selectedEvent}
           onClose={() => setSelectedEvent(null)}
           onJoin={handleJoinEvent}
+          onSubmitLineup={handleSubmitLineup}
           onLeave={handleLeaveEvent}
           onReset={handleResetEvent}
           userHoldings={holdings}

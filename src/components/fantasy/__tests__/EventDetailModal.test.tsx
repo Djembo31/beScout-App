@@ -200,6 +200,7 @@ const defaultProps = {
   isOpen: true,
   onClose: vi.fn(),
   onJoin: vi.fn(),
+  onSubmitLineup: vi.fn(),
   onLeave: vi.fn(),
   onReset: vi.fn(),
   userHoldings: [] as UserDpcHolding[],

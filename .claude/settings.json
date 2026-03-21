@@ -17,14 +17,6 @@
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/gemini-sync-reminder.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/service-layer-guard.sh"
-          },
-          {
-            "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/file-size-warning.sh"
           }
         ]
@@ -37,15 +29,6 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/safety-guard.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Agent",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/agent-dispatch-guard.sh"
           }
         ]
       }
