@@ -40,7 +40,7 @@ async function main() {
   }
 
   const fullyScheduledGWs: number[] = [];
-  for (const [gw, statuses] of gwMap.entries()) {
+  for (const [gw, statuses] of Array.from(gwMap.entries())) {
     if (statuses.every(s => s === 'scheduled')) {
       fullyScheduledGWs.push(gw);
     }

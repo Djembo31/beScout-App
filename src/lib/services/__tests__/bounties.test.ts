@@ -22,7 +22,7 @@ vi.mock('@/lib/services/posts', () => ({ createPost: vi.fn() }));
 // We expose the mock via a global variable that the factory can reference.
 // ============================================
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line
 const _registry = (globalThis as any).__bountyTestRegistry ??= {
   tableResponses: {} as Record<string, { data: unknown; error: { message: string } | null }>,
   rpcResponses: {} as Record<string, { data: unknown; error: { message: string } | null }>,
@@ -37,7 +37,7 @@ function setRpcResponse(rpcName: string, data: unknown, error: { message: string
 }
 
 vi.mock('@/lib/supabaseClient', () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line
   const reg = (globalThis as any).__bountyTestRegistry ??= {
     tableResponses: {} as Record<string, { data: unknown; error: { message: string } | null }>,
     rpcResponses: {} as Record<string, { data: unknown; error: { message: string } | null }>,
