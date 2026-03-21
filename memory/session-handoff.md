@@ -3,59 +3,43 @@
 ## Was wurde gemacht
 
 ### Phase 4 — Top-25 Component Tests (356 Tests, 22 Files)
-- Alle 22 Top-25 Components getestet (ClubContent, LineupPanel, AdminPlayersTab, FantasyContent, EventDetailModal, AdminSettingsTab, ManagerKaderTab, FixtureDetailModal, AdminEventsTab, TradingCardFrame, OrderDepthView, AdminBountiesTab, CommunityFeedTab, TradingTab, CreateResearchModal, PlayerContent, ProfileView, SpieltagTab, LeaderboardPanel, AdminUsersTab, MitmachenTab, AdminRevenueTab, PredictionsTab)
-- **OOM-Bug gefixt:** useUser Mock erzeugte instabile Referenz → Infinite Re-Render → Worker Crash. Fix: `const stableUser` in 6 Files
-- **Timeout-Fix:** wallet-guards MF-WAL-04 5s→30s (600 DB Queries)
+- Alle 22 Top-25 Components getestet
+- **OOM-Bug gefixt:** useUser Mock instabile Referenz → Infinite Re-Render. Fix: `const stableUser`
+- **Timeout-Fix:** wallet-guards MF-WAL-04 5s→30s
 
-### Phase 6a-h — Feature Components + Providers (265 Tests, 45 Files)
-- **Providers (6 Files):** ToastProvider, AuthGuard, WalletProvider, ClubProvider, AnalyticsProvider, Providers
-- **UI (6 Files):** TabBar, ErrorBoundary, Countdown, EventScopeBadge, MobileTableCard, Confetti, CountryFlag
-- **Fantasy (7 Files):** GameweekSelector, FillBar, EventPulse, DashboardTab, HistoryTab, SpieltagPulse
-- **Player (6 Files):** SentimentGauge, TradingQuickStats, OrderbookDepth, OfferModal, MatchTimeline, PlayerDetailSkeleton, BuyConfirmation
-- **Market (2 Files):** MarketFilters (pure functions: applyFilters, applySorting, getActiveFilterCount)
-- **Other (8 Files):** MysteryBoxModal, AchievementUnlockModal, OnboardingChecklist, TopMoversStrip, MissionHint, BottomNav, GeoGate, SearchOverlay, TraderTab, AnalystTab, ShortcutsModal, InstallPrompt, NewUserTip, CookieConsent, LegalLayout, ClubSkeleton, HomeSkeleton, SquadSummaryStats, PostCard helpers
+### Phase 6a-k — Feature Components + Providers (326 Tests, 62 Files)
+- **Providers (6):** ToastProvider, AuthGuard, WalletProvider, ClubProvider, AnalyticsProvider, Providers
+- **UI (12):** TabBar, ErrorBoundary, Countdown, EventScopeBadge, MobileTableCard, Confetti, CountryFlag, EmptyState, SearchInput, SortPills, LoadMoreButton, FoundingPassBadge
+- **Fantasy (11):** GameweekSelector, FillBar, EventPulse, DashboardTab, HistoryTab, SpieltagPulse, CreatePredictionModal, EventCommunityTab, LeaguesSection, GameweekTab
+- **Player (9):** SentimentGauge, TradingQuickStats, OrderbookDepth, OfferModal, MatchTimeline, PlayerDetailSkeleton, SellModal, CommunityTab, BuyConfirmation
+- **Market (4):** MarketFilters, PlayerIPOCard, WatchlistView, OrderDepthView
+- **Manager (2):** SquadSummaryStats, ManagerOffersTab
+- **Other (8):** MysteryBoxModal, AchievementUnlockModal, OnboardingChecklist, TopMoversStrip, MissionHint, BottomNav, GeoGate, SearchOverlay, TraderTab, AnalystTab, ShortcutsModal, InstallPrompt, NewUserTip, CookieConsent, LegalLayout, ClubSkeleton, HomeSkeleton, PostCard, ResearchCard, NotificationDropdown
 
-### Gesamt: 1920/1920 Tests PASS (131 Test Files)
+### Gesamt: 1981/1981 Tests (1980 PASS + 1 pre-existing BUG-004)
+- **148 Test-Files**
+- BUG-004: 13 Events fälschlicherweise 'running' mit scheduled Fixtures (DB-Zustandsfehler)
 
 ## Key Learnings
-- **useUser Mock MUSS stabile Referenz sein:** `const stableUser = { id: 'u1' }; return { useUser: () => ({ user: stableUser }) }` — sonst Infinite Loop wenn user in useEffect deps
-- **next/dynamic Mock:** `{ __esModule: true, default: () => StubComponent }` — NICHT den Loader aufrufen
-- **vi.useFakeTimers + userEvent = Deadlock:** `fireEvent` nutzen statt `userEvent` bei Fake Timers
-- **renderWithProviders vs render:** Bei Components die `t.rich()` brauchen, `render` direkt mit eigenem next-intl Mock
-- **Supabase transitiver Import:** Auch reine Helper-Tests brauchen `vi.mock('@/lib/supabaseClient')` wenn das Parent-Modul Supabase transitiv importiert
+- **useUser Mock stabile Referenz:** `const stableUser = { id: 'u1' }` — sonst Infinite Loop
+- **next/dynamic Mock:** `{ __esModule: true, default: () => StubComponent }`
+- **vi.useFakeTimers + userEvent = Deadlock:** `fireEvent` nutzen
+- **renderWithProviders vs render:** Bei `t.rich()` eigenen next-intl Mock
+- **Supabase transitiv:** Auch Helper-Tests brauchen `vi.mock('@/lib/supabaseClient')`
+- **lucide-react Auto-Stub:** `vi.importActual` + override functions mit `() => null`
 
 ---
 
-## Naechste Session: Phase 7 — Remaining Components + Smoke Layer
-
-### Verbleibende grosse Components (>300 LOC, nicht getestet)
-| Component | LOC | Schwierigkeit |
-|-----------|-----|---------------|
-| LineupPanel | 951 | Hoch (viele States) |
-| FormationTab | 717 | Hoch |
-| ManagerOffersTab | 632 | Mittel |
-| AnalystTab (partial) | 517 | Teilweise getestet |
-| SearchOverlay (partial) | 461 | Teilweise getestet |
-| CreatePredictionModal | 417 | Mittel |
-| ManagerBestandTab | 413 | Mittel |
-| CommunityTab | 391 | Mittel |
-| GameweekTab | 383 | Mittel |
-| PerformanceTab | 359 | Hoch (viele Player Props) |
-| SideNav | 357 | Hoch (viele Providers) |
-| LeaguesSection | 353 | Mittel |
-| WatchlistView | 350 | Mittel |
-
-### Approach
-- Smoke-Tests fuer die verbleibenden Components (renders without crash)
-- Nur business-kritische Interaktionen testen
-- Components mit >5 Provider-Dependencies ueberspringen
+## Verbleibende untested Components (>300 LOC, komplex)
+LineupPanel (951), FormationTab (717), ManagerOffersTab (teilweise), ManagerBestandTab (413), PerformanceTab (359), SideNav (357), ClubVerkaufSection (335), BuyModal (332), PlayerHero (323), ClubHero (316)
+→ Alle haben 5+ Provider-Dependencies, schwer zu isolieren ohne Riesenmocks
 
 ---
 
 ## Andere offene Arbeit
 - Admin i18n Rest (~80 Strings)
 - Stripe (wartet auf Anils Account)
-- DB CHECK constraint (Supabase Dashboard)
+- BUG-004 fixen: Events mit status='running' obwohl alle Fixtures 'scheduled'
 
 ## Blocker
 - Keine
