@@ -31,9 +31,16 @@ export const qk = {
     all: ['events'] as const,
     byClub: (cid: string) => ['events', 'club', cid] as const,
     joinedIds: (uid: string) => ['events', 'joinedIds', uid] as const,
+    enteredIds: (uid: string) => ['events', 'enteredIds', uid] as const,
+    entry: (eventId: string, uid: string) => ['events', 'entry', eventId, uid] as const,
     usage: (uid: string) => ['events', 'usage', uid] as const,
     activeGw: (cid: string) => ['events', 'activeGw', cid] as const,
     leagueGw: ['events', 'leagueGw'] as const,
+  },
+
+  // ── Platform Settings ──
+  platformSettings: {
+    scoutEvents: ['platform_settings', 'scout_events_enabled'] as const,
   },
 
   // ── User Stats ──

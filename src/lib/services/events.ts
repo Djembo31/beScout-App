@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { getFixturesByGameweek } from '@/lib/services/fixtures';
 import { notifText } from '@/lib/notifText';
-import type { DbEvent } from '@/types';
+import type { DbEvent, DbEventEntry, EventCurrency } from '@/types';
 
 /** Check if an event is club-scoped (vs global) */
 export function isClubEvent(event: { scope: string }): boolean {
@@ -79,6 +79,7 @@ export async function createEvent(params: {
   minSubscriptionTier?: string | null;
   salaryCap?: number | null;
   rewardStructure?: Array<{ rank: number; pct: number }> | null;
+  currency?: EventCurrency;
 }): Promise<{ success: boolean; eventId?: string; error?: string }> {
   const { data, error } = await supabase
     .from('events')
@@ -88,6 +89,8 @@ export async function createEvent(params: {
       format: params.format,
       gameweek: params.gameweek,
       entry_fee: params.entryFeeCents,
+      ticket_cost: params.entryFeeCents,
+      currency: params.currency ?? 'tickets',
       prize_pool: params.prizePoolCents,
       max_entries: params.maxEntries || null,
       starts_at: params.startsAt,
@@ -254,13 +257,13 @@ export async function updateEventStatus(
 /** Which fields can be edited per event status */
 export const EDITABLE_FIELDS: Record<string, string[]> = {
   upcoming: [
-    'name', 'type', 'format', 'gameweek', 'entry_fee', 'prize_pool',
+    'name', 'type', 'format', 'gameweek', 'entry_fee', 'ticket_cost', 'currency', 'prize_pool',
     'max_entries', 'starts_at', 'locks_at', 'ends_at', 'sponsor_name',
     'sponsor_logo', 'event_tier', 'min_subscription_tier', 'salary_cap',
     'reward_structure',
   ],
   registering: [
-    'name', 'type', 'format', 'gameweek', 'entry_fee', 'prize_pool',
+    'name', 'type', 'format', 'gameweek', 'entry_fee', 'ticket_cost', 'prize_pool',
     'max_entries', 'starts_at', 'locks_at', 'ends_at', 'sponsor_name',
     'sponsor_logo', 'event_tier', 'min_subscription_tier', 'salary_cap',
     'reward_structure',
@@ -441,4 +444,93 @@ export async function getEventAdminStats(): Promise<{
     totalParticipants: active.reduce((sum, e) => sum + (e.current_entries ?? 0), 0),
     totalPool: active.reduce((sum, e) => sum + (e.prize_pool ?? 0), 0),
   };
+}
+
+// ============================================
+// Event Entry (Unified Payment Gateway)
+// ============================================
+
+/** Atomically lock event entry — deducts tickets or locks $SCOUT via RPC */
+export async function lockEventEntry(
+  eventId: string,
+): Promise<{ ok: boolean; currency?: string; balanceAfter?: number; alreadyEntered?: boolean; error?: string; have?: number; need?: number }> {
+  const { data, error } = await supabase.rpc('lock_event_entry', {
+    p_event_id: eventId,
+  });
+
+  if (error) {
+    console.error('[Events] lockEventEntry RPC error:', error);
+    return { ok: false, error: error.message };
+  }
+
+  return data as { ok: boolean; currency?: string; balanceAfter?: number; alreadyEntered?: boolean; error?: string; have?: number; need?: number };
+}
+
+/** Atomically unlock event entry — refunds tickets or unlocks $SCOUT */
+export async function unlockEventEntry(
+  eventId: string,
+): Promise<{ ok: boolean; currency?: string; balanceAfter?: number; error?: string }> {
+  const { data, error } = await supabase.rpc('unlock_event_entry', {
+    p_event_id: eventId,
+  });
+
+  if (error) {
+    console.error('[Events] unlockEventEntry RPC error:', error);
+    return { ok: false, error: error.message };
+  }
+
+  return data as { ok: boolean; currency?: string; balanceAfter?: number; error?: string };
+}
+
+/** Admin: cancel all entries and refund everyone */
+export async function cancelEventEntries(
+  eventId: string,
+): Promise<{ ok: boolean; refundedCount?: number; error?: string }> {
+  const { data, error } = await supabase.rpc('cancel_event_entries', {
+    p_event_id: eventId,
+  });
+
+  if (error) {
+    console.error('[Events] cancelEventEntries RPC error:', error);
+    return { ok: false, error: error.message };
+  }
+
+  return data as { ok: boolean; refundedCount?: number; error?: string };
+}
+
+/** Check if user has entered an event */
+export async function getEventEntry(
+  eventId: string,
+  userId: string,
+): Promise<DbEventEntry | null> {
+  const { data } = await supabase
+    .from('event_entries')
+    .select('*')
+    .eq('event_id', eventId)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  return data as DbEventEntry | null;
+}
+
+/** Get all entered event IDs for a user */
+export async function getUserEnteredEventIds(userId: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('event_entries')
+    .select('event_id')
+    .eq('user_id', userId);
+
+  if (error) return [];
+  return (data ?? []).map(row => row.event_id);
+}
+
+/** Check if scout events feature flag is enabled */
+export async function getScoutEventsEnabled(): Promise<boolean> {
+  const { data } = await supabase
+    .from('platform_settings')
+    .select('value')
+    .eq('key', 'scout_events_enabled')
+    .maybeSingle();
+
+  return data?.value === true;
 }

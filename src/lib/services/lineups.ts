@@ -90,6 +90,18 @@ export async function submitLineup(params: {
     throw new Error('eventEnded');
   }
 
+  // Guard: user must have entered (paid) before submitting lineup
+  const { data: entryData } = await supabase
+    .from('event_entries')
+    .select('event_id')
+    .eq('event_id', params.eventId)
+    .eq('user_id', params.userId)
+    .maybeSingle();
+
+  if (!entryData) {
+    throw new Error('must_enter_first');
+  }
+
   // locks_at enforcement: block submissions if locks_at has passed (regardless of status)
   if (ev.locks_at && new Date(ev.locks_at) <= new Date()) {
     throw new Error('eventLocked');

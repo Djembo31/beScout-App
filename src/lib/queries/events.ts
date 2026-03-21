@@ -2,9 +2,10 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { qk } from './keys';
-import { getEvents, getUserJoinedEventIds } from '@/lib/services/events';
+import { getEvents, getUserJoinedEventIds, getUserEnteredEventIds, getEventEntry, getScoutEventsEnabled } from '@/lib/services/events';
 import { getPlayerEventUsage } from '@/lib/services/lineups';
 import { getActiveGameweek, getLeagueActiveGameweek, isClubAdmin } from '@/lib/services/club';
+import type { DbEventEntry } from '@/types';
 
 const ONE_MIN = 60 * 1000;
 const FIVE_MIN = 5 * 60 * 1000;
@@ -60,6 +61,37 @@ export function useIsClubAdmin(userId: string | undefined, clubId: string | unde
     queryKey: qk.clubAdmin.check(userId!, clubId!),
     queryFn: () => isClubAdmin(userId!, clubId!),
     enabled: !!userId && !!clubId,
+    staleTime: FIVE_MIN,
+  });
+}
+
+const THIRTY_SEC = 30 * 1000;
+
+/** Check if user has entered (paid for) an event */
+export function useEventEntry(eventId: string | undefined, userId: string | undefined) {
+  return useQuery<DbEventEntry | null>({
+    queryKey: qk.events.entry(eventId!, userId!),
+    queryFn: () => getEventEntry(eventId!, userId!),
+    enabled: !!eventId && !!userId,
+    staleTime: THIRTY_SEC,
+  });
+}
+
+/** Get all entered event IDs for a user */
+export function useEnteredEventIds(userId: string | undefined) {
+  return useQuery({
+    queryKey: qk.events.enteredIds(userId!),
+    queryFn: () => getUserEnteredEventIds(userId!),
+    enabled: !!userId,
+    staleTime: ONE_MIN,
+  });
+}
+
+/** Check if $SCOUT events are enabled (platform setting) */
+export function useScoutEventsEnabled() {
+  return useQuery({
+    queryKey: qk.platformSettings.scoutEvents,
+    queryFn: getScoutEventsEnabled,
     staleTime: FIVE_MIN,
   });
 }
