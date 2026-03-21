@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
 import { posTintColors } from '@/components/player/PlayerRow';
+import { scoreColor } from '@/components/player/scoreColor';
 import { useTilt } from '@/lib/hooks/useTilt';
 import { fmtScout, cn } from '@/lib/utils';
 import CountryFlag from '@/components/ui/CountryFlag';
@@ -67,14 +68,6 @@ function FifaStat({ label, value }: { label: string; value: string | number }) {
     </div>
   );
 }
-
-/* Score → color mapping for match performance bars */
-const scoreColor = (score: number): string => {
-  if (score >= 80) return '#10b981'; // emerald-500
-  if (score >= 60) return '#84cc16'; // lime-500
-  if (score >= 40) return '#f59e0b'; // amber-500
-  return '#f43f5e';                  // rose-500
-};
 
 /* Single match performance bar for card back L5 timeline */
 function MatchBar({ entry }: { entry: MatchTimelineEntry }) {

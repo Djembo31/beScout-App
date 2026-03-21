@@ -9,6 +9,8 @@ import type { Pos, PlayerStatus, Player } from '@/types';
 import { getClub } from '@/lib/clubs';
 import { cn, fmtScout } from '@/lib/utils';
 
+export { scoreColor } from './scoreColor';
+
 // ============================================
 // L5 COLOR TOKENS (Single Source of Truth)
 // ============================================
