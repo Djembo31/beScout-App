@@ -2564,7 +2564,9 @@
     "challengeCreateError": "Gorev olusturulamadi",
     "challengeStartsAt": "Baslangic",
     "challengeEndsAt": "Bitis",
-    "challengeCosmeticKey": "Kozmetik anahtari (istege bagli)"
+    "challengeCosmeticKey": "Kozmetik anahtari (istege bagli)",
+    "eventCurrency": "Para birimi",
+    "ticketsLabel": "Bilet"
   },
   "adminFans": {
     "totalFollowers": "Takipçi",
@@ -3686,7 +3688,14 @@
     "treasuryRefreshLabel": "Hazine verilerini yenile",
     "treasuryUnitPasses": "Pass",
     "treasuryUnitClaims": "Talep",
-    "treasuryUnitTrades": "Islem"
+    "treasuryUnitTrades": "Islem",
+    "eventCurrency": "Para birimi",
+    "ticketsLabel": "Bilet",
+    "scoutEventsTitle": "$SCOUT Etkinlikler",
+    "scoutEventsDescription": "Fantasy etkinlikler icin $SCOUT para birimini etkinlestir",
+    "scoutEventsEnabled": "$SCOUT etkinlikler etkinlestirildi",
+    "scoutEventsDisabled": "$SCOUT etkinlikler devre disi birakildi",
+    "settingsFailed": "Ayar kaydedilemedi"
   },
   "offers": {
     "statusPending": "Beklemede",

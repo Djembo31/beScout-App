@@ -9,6 +9,7 @@ import type { DbEventEntry } from '@/types';
 
 const ONE_MIN = 60 * 1000;
 const FIVE_MIN = 5 * 60 * 1000;
+const THIRTY_SEC = 30 * 1000;
 
 export function useEvents() {
   return useQuery({
@@ -65,8 +66,6 @@ export function useIsClubAdmin(userId: string | undefined, clubId: string | unde
   });
 }
 
-const THIRTY_SEC = 30 * 1000;
-
 /** Check if user has entered (paid for) an event */
 export function useEventEntry(eventId: string | undefined, userId: string | undefined) {
   return useQuery<DbEventEntry | null>({
@@ -87,11 +86,12 @@ export function useEnteredEventIds(userId: string | undefined) {
   });
 }
 
-/** Check if $SCOUT events are enabled (platform setting) */
-export function useScoutEventsEnabled() {
-  return useQuery({
+/** Check if $SCOUT events are enabled (platform setting) — returns boolean directly */
+export function useScoutEventsEnabled(): boolean {
+  const { data } = useQuery({
     queryKey: qk.platformSettings.scoutEvents,
     queryFn: getScoutEventsEnabled,
     staleTime: FIVE_MIN,
   });
+  return data ?? false;
 }

@@ -15,7 +15,8 @@ import {
 } from '@/lib/services/events';
 import { getAllClubs } from '@/lib/services/club';
 import RewardStructureEditor from '@/components/admin/RewardStructureEditor';
-import type { DbEvent, DbClub, RewardTier } from '@/types';
+import type { DbEvent, DbClub, EventCurrency, RewardTier } from '@/types';
+import { useScoutEventsEnabled } from '@/lib/queries/events';
 
 // -- Extended type for events with club join -----------------------------------
 type AdminEvent = DbEvent & { clubs?: { name: string; slug: string } | null };
@@ -54,6 +55,7 @@ const INTERACTIVE = 'hover:bg-white/[0.05] active:scale-[0.97] focus-visible:out
 export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
   const t = useTranslations('bescoutAdmin');
   const { addToast } = useToast();
+  const scoutEventsEnabled = useScoutEventsEnabled();
 
   // -- Data state --------------------------------------------------------------
   const [events, setEvents] = useState<AdminEvent[]>([]);
@@ -103,6 +105,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
   const [formEndsAt, setFormEndsAt] = useState('');
   const [formSponsorName, setFormSponsorName] = useState('');
   const [formSponsorLogo, setFormSponsorLogo] = useState('');
+  const [formCurrency, setFormCurrency] = useState<EventCurrency>('tickets');
 
   // -- Data loading ------------------------------------------------------------
   const fetchEvents = useCallback(async () => {
@@ -189,6 +192,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
     setFormEndsAt('');
     setFormSponsorName('');
     setFormSponsorLogo('');
+    setFormCurrency('tickets');
     setEditingEvent(null);
   }, []);
 
@@ -216,6 +220,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
     setFormEndsAt(ev.ends_at ? toDatetimeLocal(ev.ends_at) : '');
     setFormSponsorName(ev.sponsor_name ?? '');
     setFormSponsorLogo(ev.sponsor_logo ?? '');
+    setFormCurrency(ev.currency ?? 'tickets');
     setModalOpen(true);
   }, []);
 
@@ -257,6 +262,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
         maybePut('min_subscription_tier', formMinSubTier || null);
         maybePut('salary_cap', formSalaryCap ? bsdToCents(parseFloat(formSalaryCap) || 0) : null);
         maybePut('reward_structure', formRewardStructure);
+        maybePut('currency', formCurrency);
 
         const result = await updateEvent(editingEvent.id, payload);
         if (!result.success) {
@@ -284,6 +290,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
           minSubscriptionTier: formMinSubTier || null,
           salaryCap: formSalaryCap ? bsdToCents(parseFloat(formSalaryCap) || 0) : null,
           rewardStructure: formRewardStructure,
+          currency: formCurrency,
         });
         if (!result.success) {
           addToast(result.error ?? t('eventsCreateError'), 'error');
@@ -309,7 +316,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
     formName, formType, formFormat, formGameweek, formEntryFee, formPrizePool,
     formMaxEntries, formStartsAt, formLocksAt, formEndsAt, formClubId,
     formSponsorName, formSponsorLogo, formEventTier, formMinSubTier,
-    formSalaryCap, formRewardStructure, editingEvent, adminId,
+    formSalaryCap, formRewardStructure, formCurrency, editingEvent, adminId,
     resetForm, addToast, isFieldDisabled,
   ]);
 
@@ -824,6 +831,21 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
                 className={cn(INPUT_CLS, 'min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed')}
               />
             </div>
+          </div>
+
+          {/* Currency */}
+          <div>
+            <label className="block text-sm font-bold text-white/70 mb-1">{t('eventCurrency')}</label>
+            <select
+              value={formCurrency}
+              onChange={(e) => setFormCurrency(e.target.value as EventCurrency)}
+              disabled={isFieldDisabled('currency')}
+              aria-label={t('eventCurrency')}
+              className={cn(SELECT_CLS, 'disabled:opacity-40 disabled:cursor-not-allowed')}
+            >
+              <option value="tickets">{t('ticketsLabel')}</option>
+              {scoutEventsEnabled && <option value="scout">$SCOUT</option>}
+            </select>
           </div>
 
           {/* Reward Structure */}

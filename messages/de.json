@@ -2564,7 +2564,9 @@
     "challengeCreateError": "Challenge konnte nicht erstellt werden",
     "challengeStartsAt": "Start",
     "challengeEndsAt": "Ende",
-    "challengeCosmeticKey": "Kosmetik-Schluessel (optional)"
+    "challengeCosmeticKey": "Kosmetik-Schluessel (optional)",
+    "eventCurrency": "Waehrung",
+    "ticketsLabel": "Tickets"
   },
   "adminFans": {
     "totalFollowers": "Follower",
@@ -3686,7 +3688,14 @@
     "treasuryRefreshLabel": "Treasury-Daten aktualisieren",
     "treasuryUnitPasses": "Passes",
     "treasuryUnitClaims": "Claims",
-    "treasuryUnitTrades": "Trades"
+    "treasuryUnitTrades": "Trades",
+    "eventCurrency": "Waehrung",
+    "ticketsLabel": "Tickets",
+    "scoutEventsTitle": "$SCOUT Events",
+    "scoutEventsDescription": "$SCOUT als Waehrung fuer Fantasy Events aktivieren",
+    "scoutEventsEnabled": "$SCOUT Events aktiviert",
+    "scoutEventsDisabled": "$SCOUT Events deaktiviert",
+    "settingsFailed": "Einstellung konnte nicht gespeichert werden"
   },
   "offers": {
     "statusPending": "Ausstehend",
