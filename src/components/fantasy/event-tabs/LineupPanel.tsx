@@ -23,6 +23,14 @@ import { PRESET_KEY } from '../constants';
 import {
   getPosBorderColor, getScoreColor, getPosAccentColor,
 } from '../helpers';
+import FantasyPlayerRow from '@/components/fantasy/FantasyPlayerRow';
+import { PickerSortFilter } from '@/components/fantasy/PickerSortFilter';
+import type { PickerSortKey } from '@/components/fantasy/PickerSortFilter';
+import { getClubAvgL5 } from '@/components/fantasy/FDRBadge';
+import { useBatchFormScores, useNextFixtures } from '@/lib/queries/fantasyPicker';
+import { getClub } from '@/lib/clubs';
+import { usePlayers } from '@/lib/queries/players';
+import { centsToBsd } from '@/lib/services/players';
 
 export interface LineupPanelProps {
   event: FantasyEvent;
@@ -125,7 +133,10 @@ export default function LineupPanel({
   // Local state for picker + presets
   const [showPlayerPicker, setShowPlayerPicker] = useState<{ position: string; slot: number } | null>(null);
   const [pickerSearch, setPickerSearch] = useState('');
-  const [pickerSort, setPickerSort] = useState<'l5' | 'dpc' | 'name'>('l5');
+  const [pickerSort, setPickerSort] = useState<PickerSortKey>('l5');
+  const [clubFilter, setClubFilter] = useState<string[]>([]);
+  const [onlyAvailable, setOnlyAvailable] = useState(true);
+  const [synergyOnly, setSynergyOnly] = useState(false);
   const [presetName, setPresetName] = useState('');
   const [showPresets, setShowPresets] = useState(false);
   const [presets, setPresets] = useState<LineupPreset[]>([]);
@@ -140,6 +151,76 @@ export default function LineupPanel({
 
   const isFullyLocked = event.status === 'ended';
   const isReadOnly = isFullyLocked;
+
+  // Data for Intelligence Strip rows
+  const playerIds = useMemo(() => effectiveHoldings.map(h => h.id), [effectiveHoldings]);
+  const { data: formScoresMap } = useBatchFormScores(playerIds, !!showPlayerPicker || !isReadOnly);
+  const { data: nextFixturesMap } = useNextFixtures(!isReadOnly);
+  const { data: allPlayers = [] } = usePlayers(!isReadOnly);
+
+  // Derive synergy clubs from currently selected lineup
+  const synergyClubs = useMemo(() => {
+    const clubs = selectedPlayers.map(sp => {
+      const h = effectiveHoldings.find(eh => eh.id === sp.playerId);
+      return h?.club;
+    }).filter(Boolean) as string[];
+    return Array.from(new Set(clubs));
+  }, [selectedPlayers, effectiveHoldings]);
+
+  // Available clubs for filter (from holdings)
+  const availableClubsList = useMemo(() => {
+    const clubShorts = Array.from(new Set(effectiveHoldings.map(h => h.club)));
+    return clubShorts.map(short => {
+      const c = getClub(short);
+      return { short, logo: c?.logo ?? null };
+    });
+  }, [effectiveHoldings]);
+
+  // Helper: map a UserDpcHolding to FantasyPlayerRow props
+  function getRowProps(player: UserDpcHolding) {
+    const isSelected = selectedPlayers.some(sp => sp.playerId === player.id);
+    const fixtureLocked = isPlayerLocked(player.id);
+    const formEntries = formScoresMap?.get(player.id) ?? [];
+    const clubId = player.clubId ?? allPlayers.find(p => p.id === player.id)?.clubId;
+    const nextFix = clubId ? nextFixturesMap?.get(clubId) : undefined;
+    const oppAvgL5 = nextFix ? getClubAvgL5(nextFix.opponentShort, allPlayers) : 0;
+    const hasSynergy = synergyClubs.includes(player.club) && !isSelected;
+    const synergyPct = hasSynergy ? synergyClubs.filter(c => c === player.club).length * 4 : null;
+
+    let rowState: 'default' | 'selected' | 'locked' | 'deployed' | 'injured' | 'suspended' = 'default';
+    if (fixtureLocked) rowState = 'locked';
+    else if (isSelected) rowState = 'selected';
+    else if (player.isLocked) rowState = 'deployed';
+    else if (player.status === 'injured') rowState = 'injured';
+    else if (player.status === 'suspended') rowState = 'suspended';
+
+    return {
+      player: {
+        id: player.id,
+        first: player.first,
+        last: player.last,
+        pos: player.pos as Pos,
+        club: player.club,
+        imageUrl: player.imageUrl,
+        ticket: 0,
+        status: player.status,
+        perfL5: player.perfL5,
+        perfL15: player.perfL15 ?? 0,
+        matches: player.matches,
+        goals: player.goals,
+        assists: player.assists,
+        floorPrice: 0,
+        dpcOwned: player.dpcOwned,
+        dpcAvailable: player.dpcAvailable,
+        eventsUsing: player.eventsUsing,
+      },
+      formEntries,
+      nextFixture: nextFix ? { opponentShort: nextFix.opponentShort, opponentName: nextFix.opponentName, isHome: nextFix.isHome } : null,
+      opponentAvgL5: oppAvgL5,
+      synergyPct,
+      rowState,
+    };
+  }
 
   const getPlayerStatusStyle = (s: UserDpcHolding['status']) => {
     switch (s) {
@@ -744,65 +825,22 @@ export default function LineupPanel({
         )
       )}
 
-      {/* Player List with Stats & Status -- hidden when fully locked or scored */}
-      {!isReadOnly && !isScored && <div className="space-y-2">
-        <div className="text-sm font-bold text-white/70">{t('yourPlayers')}</div>
+      {/* Player List with Intelligence Strip -- hidden when fully locked or scored */}
+      {!isReadOnly && !isScored && <div className="space-y-0.5">
+        <div className="text-sm font-bold text-white/70 px-3 mb-2">{t('yourPlayers')}</div>
         {effectiveHoldings.map(player => {
-          const isSelected = selectedPlayers.some(sp => sp.playerId === player.id);
-          const fixtureLocked = isPlayerLocked(player.id);
+          const props = getRowProps(player);
           return (
-            <div
+            <FantasyPlayerRow
               key={player.id}
-              className={`flex items-center justify-between p-3 rounded-xl border transition-colors ${isSelected ? 'bg-green-500/10 border-green-500/30' :
-                fixtureLocked ? 'bg-green-500/5 border-green-500/10 opacity-60' :
-                player.isLocked ? 'bg-surface-base border-white/5 opacity-50' :
-                  player.status === 'injured' ? 'bg-red-500/5 border-red-500/20' :
-                    player.status === 'suspended' ? 'bg-orange-500/5 border-orange-500/20' :
-                      `bg-surface-base ${getPosBorderColor(player.pos)} hover:border-opacity-60`
-                }`}
-            >
-              <div className="flex items-center gap-3">
-                <PlayerIdentity
-                  player={{ first: player.first, last: player.last, pos: player.pos as Pos, status: player.status, club: player.club, ticket: 0, age: 0, imageUrl: player.imageUrl }}
-                  size="sm"
-                  showMeta={false}
-                />
-                <div className="text-xs text-white/40 flex items-center flex-wrap gap-1">
-                  <span className={fixtureLocked ? 'text-green-400' : player.isLocked ? 'text-orange-400' : player.dpcAvailable < player.dpcOwned ? 'text-yellow-400' : 'text-white/40'}>{player.dpcAvailable}/{player.dpcOwned} SC</span>
-                  {player.eventsUsing > 0 && <span className="text-white/30">({player.eventsUsing} Event{player.eventsUsing > 1 ? 's' : ''})</span>}
-                  {isSelected && ownedPlayerIds?.has(player.id) && (
-                    <span className={cn(
-                      'px-1 py-0.5 rounded text-[10px] font-bold border',
-                      ownershipBonusIds.has(player.id)
-                        ? 'bg-gold/[0.08] border-gold/20 text-gold'
-                        : 'bg-surface-subtle border-white/10 text-white/30'
-                    )}>+5%</span>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <div className="text-xs text-white/50">L5: <span className={`font-mono font-bold ${getL5Color(player.perfL5)}`}>{player.perfL5}</span></div>
-                  <div className="text-xs text-white/30">{player.goals}T {player.assists}A {player.matches}S</div>
-                </div>
-                {fixtureLocked ? (
-                  <span className="text-xs text-green-400 flex items-center gap-1">
-                    <Play aria-hidden="true" className="size-3" /> LIVE
-                  </span>
-                ) : player.isLocked ? (
-                  <span className="text-xs text-orange-400 flex items-center gap-1" title={`In ${player.eventsUsing} Events`}>
-                    <Lock aria-hidden="true" className="size-3" /> {t('allDeployed')}
-                  </span>
-                ) : isSelected ? (
-                  <CheckCircle2 aria-hidden="true" className="size-4 text-green-500" />
-                ) : null}
-              </div>
-            </div>
+              {...props}
+              onClick={() => {/* no-op in list view */}}
+            />
           );
         })}
       </div>}
 
-      {/* Player Picker Modal -- Enhanced with Search, Sort, Stats, Status */}
+      {/* Player Picker Modal -- Enhanced with Search, Sort, Filter, Intelligence Strip */}
       {showPlayerPicker && (() => {
         const POS_LABEL: Record<string, string> = { GK: t('posGK'), DEF: t('posDEF'), MID: t('posMID'), ATT: t('posATT') };
         let availablePlayers = getAvailablePlayersForPosition(showPlayerPicker.position);
@@ -811,16 +849,29 @@ export default function LineupPanel({
           const q = pickerSearch.toLowerCase();
           availablePlayers = availablePlayers.filter(h => `${h.first} ${h.last} ${h.club}`.toLowerCase().includes(q));
         }
+        // Club filter
+        if (clubFilter.length > 0) {
+          availablePlayers = availablePlayers.filter(h => clubFilter.includes(h.club));
+        }
+        // Available filter
+        if (onlyAvailable) {
+          availablePlayers = availablePlayers.filter(h => h.dpcAvailable > 0 && !h.isLocked);
+        }
+        // Synergy filter
+        if (synergyOnly && synergyClubs.length > 0) {
+          availablePlayers = availablePlayers.filter(h => synergyClubs.includes(h.club));
+        }
         // Apply local sort
         availablePlayers = [...availablePlayers].sort((a, b) => {
           if (pickerSort === 'l5') return b.perfL5 - a.perfL5;
-          if (pickerSort === 'dpc') return b.dpcAvailable - a.dpcAvailable;
+          if (pickerSort === 'form') return (b.perfL5 - (b.perfL15 ?? 0)) - (a.perfL5 - (a.perfL15 ?? 0));
+          if (pickerSort === 'price') return 0; // UserDpcHolding has no floorPrice — fallback to insertion order
           return a.last.localeCompare(b.last);
         });
         return (
           <>
             {/* Backdrop */}
-            <div className="fixed inset-0 bg-black/60 z-[60] animate-in fade-in duration-200" onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }} />
+            <div className="fixed inset-0 bg-black/60 z-[60] animate-in fade-in duration-200" onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); setClubFilter([]); }} />
             {/* Mobile: bottom sheet | Desktop: centered modal */}
             <div className="fixed inset-x-0 bottom-0 z-[60] bg-bg-main flex flex-col max-h-[85dvh] rounded-t-3xl border-t border-white/10 shadow-2xl animate-in slide-in-from-bottom duration-300 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[calc(100%-2rem)] md:max-w-md md:max-h-[70vh] md:rounded-xl md:border md:border-white/10 md:bottom-auto">
               {/* Swipe handle (mobile) */}
@@ -829,10 +880,10 @@ export default function LineupPanel({
               </div>
               {/* Sticky Header */}
               <div className="shrink-0 bg-bg-main border-b border-white/10">
-                {/* Top bar: Back + Title + Count + Sort */}
+                {/* Top bar: Back + Title + Count */}
                 <div className="flex items-center gap-3 px-4 pt-3 pb-2">
                   <button
-                    onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }}
+                    onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); setClubFilter([]); }}
                     aria-label={t('closePickerLabel')}
                     className="p-1.5 -ml-1.5 rounded-lg hover:bg-white/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                   >
@@ -843,18 +894,6 @@ export default function LineupPanel({
                       {t('selectPos', { pos: POS_LABEL[showPlayerPicker.position] || showPlayerPicker.position })}
                     </h3>
                     <div className="text-xs text-white/40">{t('availableCount', { count: availablePlayers.length })}</div>
-                  </div>
-                  {/* Sort pills */}
-                  <div className="flex items-center gap-0.5">
-                    {(['l5', 'name'] as const).map(s => (
-                      <button
-                        key={s}
-                        onClick={() => setPickerSort(s === 'l5' ? 'l5' : 'name')}
-                        className={cn('px-2 py-1 rounded text-xs font-bold min-h-[44px]',
-                          pickerSort === s ? 'bg-gold/15 text-gold' : 'text-white/30'
-                        )}
-                      >{s === 'l5' ? 'L5' : 'A-Z'}</button>
-                    ))}
                   </div>
                 </div>
                 {/* Search */}
@@ -870,6 +909,21 @@ export default function LineupPanel({
                     />
                   </div>
                 </div>
+                {/* Sort + Filter */}
+                <div className="px-4 pb-2.5">
+                  <PickerSortFilter
+                    sort={pickerSort}
+                    onSortChange={setPickerSort}
+                    clubFilter={clubFilter}
+                    onClubFilterChange={setClubFilter}
+                    onlyAvailable={onlyAvailable}
+                    onOnlyAvailableChange={setOnlyAvailable}
+                    synergyOnly={synergyOnly}
+                    onSynergyOnlyChange={setSynergyOnly}
+                    availableClubs={availableClubsList}
+                    synergyClubs={synergyClubs}
+                  />
+                </div>
               </div>
 
               {/* Scrollable Player List */}
@@ -882,7 +936,7 @@ export default function LineupPanel({
                     </div>
                     <Link
                       href="/market?tab=kaufen"
-                      onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); }}
+                      onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); setClubFilter([]); }}
                       className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-gold/15 text-gold text-xs font-bold rounded-xl hover:bg-gold/25 transition-colors"
                     >
                       <ShoppingCart aria-hidden="true" className="size-3.5" />
@@ -892,51 +946,18 @@ export default function LineupPanel({
                 ) : (
                   <div className="divide-y divide-white/[0.04]">
                     {availablePlayers.map(player => {
-                      const scoreColor = player.perfL5 >= 70 ? 'text-green-500' : player.perfL5 >= 50 ? 'text-white' : 'text-red-300';
+                      const props = getRowProps(player);
                       return (
-                        <button
+                        <FantasyPlayerRow
                           key={player.id}
+                          {...props}
                           onClick={() => {
                             onSelectPlayer(player.id, showPlayerPicker.position, showPlayerPicker.slot);
                             setShowPlayerPicker(null);
                             setPickerSearch('');
+                            setClubFilter([]);
                           }}
-                          className="w-full flex items-center gap-3 px-4 py-2.5 active:bg-white/[0.06] transition-colors text-left"
-                        >
-                          {/* Identity */}
-                          <PlayerIdentity
-                            player={{ first: player.first, last: player.last, pos: player.pos as Pos, status: player.status, club: player.club, ticket: 0, age: 0, imageUrl: player.imageUrl }}
-                            size="md"
-                            className="flex-1 min-w-0"
-                          />
-                          {/* DPC Ownership bonus indicator */}
-                          {ownedPlayerIds?.has(player.id) && (
-                            <span className={cn(
-                              'shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold border',
-                              ownershipBonusIds.size < 3
-                                ? 'bg-gold/[0.08] border-gold/20 text-gold'
-                                : 'bg-surface-subtle border-white/10 text-white/30'
-                            )}>SC +5%</span>
-                          )}
-                          {/* Stats + Score */}
-                          <div className="shrink-0 flex items-center gap-2.5">
-                            {/* Compact stats */}
-                            <div className="flex flex-col items-end gap-0.5">
-                              <div className="flex gap-1">
-                                {player.goals > 0 && <span className="text-xs font-mono bg-white/5 px-1 py-0.5 rounded text-white/50">{player.goals}T</span>}
-                                {player.assists > 0 && <span className="text-xs font-mono bg-white/5 px-1 py-0.5 rounded text-white/50">{player.assists}A</span>}
-                              </div>
-                              <span className="text-xs text-white/25 font-mono">{player.dpcAvailable}/{player.dpcOwned} SC</span>
-                            </div>
-                            {/* L5 Score -- prominent */}
-                            <div className="w-10 text-right">
-                              <div className={cn('text-lg font-black font-mono leading-none', scoreColor)}>
-                                {player.perfL5}
-                              </div>
-                              <div className="text-xs text-white/25 font-mono">L5</div>
-                            </div>
-                          </div>
-                        </button>
+                        />
                       );
                     })}
                   </div>
