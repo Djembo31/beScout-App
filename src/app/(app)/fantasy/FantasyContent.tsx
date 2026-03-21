@@ -517,8 +517,8 @@ export default function FantasyContent() {
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
     setLocalEvents(null);
 
-    addToast(`${t('leftEvent', { name: event.name })}${event.buyIn > 0 ? ` ${t('refundNote', { amount: event.buyIn })}` : ''}`, 'success');
-  }, [user, setBalanceCents, addToast, events, clubId]);
+    addToast(`${t('leftEvent')}${event.buyIn > 0 ? ` ${t('refundNote', { amount: event.buyIn })}` : ''}`, 'success');
+  }, [user, setBalanceCents, addToast, events]);
 
   // Refetch all events from DB (used after score, reset, simulation)
   const reloadEvents = useCallback(async () => {
