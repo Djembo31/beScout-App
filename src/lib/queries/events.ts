@@ -5,6 +5,7 @@ import { qk } from './keys';
 import { getEvents, getUserJoinedEventIds } from '@/lib/services/events';
 import { getPlayerEventUsage } from '@/lib/services/lineups';
 import { getActiveGameweek, getLeagueActiveGameweek, isClubAdmin } from '@/lib/services/club';
+import { supabase } from '@/lib/supabaseClient';
 
 const ONE_MIN = 60 * 1000;
 const FIVE_MIN = 5 * 60 * 1000;
@@ -62,4 +63,25 @@ export function useIsClubAdmin(userId: string | undefined, clubId: string | unde
     enabled: !!userId && !!clubId,
     staleTime: FIVE_MIN,
   });
+}
+
+/** Check if $SCOUT events are enabled via platform_settings */
+export function useScoutEventsEnabled(): boolean {
+  const { data } = useQuery({
+    queryKey: qk.platformSettings.scoutEvents,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('platform_settings')
+        .select('value')
+        .eq('key', 'scout_events_enabled')
+        .maybeSingle();
+      if (error) {
+        console.error('[useScoutEventsEnabled] Failed to fetch setting:', error);
+        return false;
+      }
+      return data?.value === true || data?.value === 'true';
+    },
+    staleTime: FIVE_MIN,
+  });
+  return data ?? false;
 }

@@ -292,4 +292,9 @@ export const qk = {
   clubChallenges: {
     byClub: (clubId: string) => ['club-challenges', clubId] as const,
   },
+
+  // ── Platform Settings ──
+  platformSettings: {
+    scoutEvents: ['platformSettings', 'scoutEvents'] as const,
+  },
 } as const;

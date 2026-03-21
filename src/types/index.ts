@@ -587,6 +587,7 @@ export type UserTradeWithPlayer = {
 };
 
 export type EventScope = 'global' | 'club';
+export type EventCurrency = 'tickets' | 'scout';
 
 export type DbEvent = {
   id: string;
@@ -616,6 +617,7 @@ export type DbEvent = {
   scope: EventScope;
   lineup_size: 7 | 11;
   ticket_cost: number;
+  currency?: EventCurrency;
   created_at: string;
 };
 

@@ -10,12 +10,14 @@ import { getEventsByClubId, createEvent, updateEventStatus } from '@/lib/service
 import { simulateGameweek, getGameweekStatuses } from '@/lib/services/fixtures';
 import { centsToBsd, bsdToCents } from '@/lib/services/players';
 import { fmtScout } from '@/lib/utils';
-import type { ClubWithAdmin, DbEvent, GameweekStatus, RewardTier } from '@/types';
+import type { ClubWithAdmin, DbEvent, EventCurrency, GameweekStatus, RewardTier } from '@/types';
+import { useScoutEventsEnabled } from '@/lib/queries/events';
 import RewardStructureEditor from './RewardStructureEditor';
 
 export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
   const t = useTranslations('admin');
   const { user } = useUser();
+  const scoutEventsEnabled = useScoutEventsEnabled();
 
   const EVENT_STATUS_CONFIG: Record<string, { bg: string; border: string; text: string; label: string }> = {
     upcoming: { bg: 'bg-white/5', border: 'border-white/10', text: 'text-white/50', label: t('evStatusPlanned') },
@@ -56,6 +58,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
   const [minSubTier, setMinSubTier] = useState('');
   const [salaryCap, setSalaryCap] = useState('');
   const [rewardStructure, setRewardStructure] = useState<RewardTier[] | null>(null);
+  const [currency, setCurrency] = useState<EventCurrency>('tickets');
 
   useEffect(() => {
     let cancelled = false;
@@ -121,6 +124,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     setMinSubTier('');
     setSalaryCap('');
     setRewardStructure(null);
+    setCurrency('tickets');
   }, []);
 
   const handleClone = useCallback((ev: DbEvent) => {
@@ -135,6 +139,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     setMinSubTier(ev.min_subscription_tier || '');
     setSalaryCap(ev.salary_cap ? String(ev.salary_cap) : '');
     setRewardStructure(ev.reward_structure ?? null);
+    setCurrency(ev.currency ?? 'tickets');
     setStartsAt('');
     setLocksAt('');
     setEndsAt('');
@@ -167,6 +172,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
         minSubscriptionTier: minSubTier || null,
         salaryCap: salaryCap ? parseInt(salaryCap) : null,
         rewardStructure: rewardStructure,
+        currency,
       });
       if (!result.success) {
         setError(result.error || t('eventCreateError'));
@@ -183,7 +189,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     } finally {
       setSaving(false);
     }
-  }, [user, name, type, format, gameweek, entryFee, prizePool, maxEntries, startsAt, locksAt, endsAt, club.id, resetForm, sponsorName, sponsorLogo, rewardStructure, t]);
+  }, [user, name, type, format, gameweek, entryFee, prizePool, maxEntries, startsAt, locksAt, endsAt, club.id, resetForm, sponsorName, sponsorLogo, rewardStructure, currency, t]);
 
   const [changingId, setChangingId] = useState<string | null>(null);
 
@@ -520,6 +526,19 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40"
               />
             </div>
+          </div>
+          {/* Currency */}
+          <div>
+            <label className="block text-sm font-bold text-white/70 mb-1">{t('eventCurrency')}</label>
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value as EventCurrency)}
+              aria-label={t('eventCurrency')}
+              className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
+            >
+              <option value="tickets">{t('ticketsLabel')}</option>
+              {scoutEventsEnabled && <option value="scout">$SCOUT</option>}
+            </select>
           </div>
           <RewardStructureEditor
             value={rewardStructure}

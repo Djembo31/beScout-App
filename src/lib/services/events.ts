@@ -79,6 +79,7 @@ export async function createEvent(params: {
   minSubscriptionTier?: string | null;
   salaryCap?: number | null;
   rewardStructure?: Array<{ rank: number; pct: number }> | null;
+  currency?: 'tickets' | 'scout';
 }): Promise<{ success: boolean; eventId?: string; error?: string }> {
   const { data, error } = await supabase
     .from('events')
@@ -101,6 +102,7 @@ export async function createEvent(params: {
       min_subscription_tier: params.minSubscriptionTier || null,
       salary_cap: params.salaryCap || null,
       reward_structure: params.rewardStructure ?? null,
+      currency: params.currency || 'tickets',
       status: 'registering',
       current_entries: 0,
     })

@@ -1,16 +1,21 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Shield, BarChart3, Users, Percent, Zap, Calendar, Bug, Rocket, Gift,
   DollarSign, ExternalLink, Loader2, Megaphone, Sparkles, Building2, Trophy, Banknote,
 } from 'lucide-react';
 import { Card, StatCard } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
+import { useToast } from '@/components/providers/ToastProvider';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
+import { supabase } from '@/lib/supabaseClient';
+import { qk } from '@/lib/queries/keys';
+import { useScoutEventsEnabled } from '@/lib/queries/events';
 import {
   getPlatformAdminRole, getSystemStats, getAllIposAcrossClubs,
   type PlatformAdminRole, type SystemStats,
@@ -54,6 +59,74 @@ function OverviewTab({ stats, error }: { stats: SystemStats | null; error?: bool
       <StatCard label={t('labelVolume24h')} value={`${fmtScout(centsToBsd(stats.volume24h))}`} icon={<BarChart3 className="size-4 text-white/40" aria-hidden="true" />} />
       <StatCard label={t('labelActiveEvents')} value={stats.activeEvents.toString()} icon={<Calendar className="size-4 text-white/40" aria-hidden="true" />} />
       <StatCard label={t('labelPendingOffers')} value={stats.pendingOffers.toString()} icon={<Zap className="size-4 text-white/40" aria-hidden="true" />} />
+    </div>
+  );
+}
+
+// ============================================
+// Scout Events Feature Toggle
+// ============================================
+
+function ScoutEventsToggle() {
+  const t = useTranslations('bescoutAdmin');
+  const { addToast } = useToast();
+  const queryClient = useQueryClient();
+  const scoutEventsEnabled = useScoutEventsEnabled();
+  const [toggling, setToggling] = useState(false);
+
+  const handleToggle = useCallback(async () => {
+    const newValue = !scoutEventsEnabled;
+    setToggling(true);
+    try {
+      const { error } = await supabase
+        .from('platform_settings')
+        .upsert(
+          { key: 'scout_events_enabled', value: newValue, updated_at: new Date().toISOString() },
+          { onConflict: 'key' }
+        );
+
+      if (error) {
+        addToast(t('settingsFailed'), 'error');
+        console.error('[ScoutEventsToggle] Failed to update setting:', error);
+        return;
+      }
+
+      queryClient.invalidateQueries({ queryKey: qk.platformSettings.scoutEvents });
+      addToast(newValue ? t('scoutEventsEnabled') : t('scoutEventsDisabled'), 'success');
+    } catch (err) {
+      console.error('[ScoutEventsToggle] Error:', err);
+      addToast(t('settingsFailed'), 'error');
+    } finally {
+      setToggling(false);
+    }
+  }, [scoutEventsEnabled, addToast, queryClient, t]);
+
+  return (
+    <div className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/10 rounded-2xl">
+      <div>
+        <p className="font-black text-white">{t('scoutEventsTitle')}</p>
+        <p className="text-sm text-white/50">{t('scoutEventsDescription')}</p>
+      </div>
+      <button
+        onClick={handleToggle}
+        disabled={toggling}
+        aria-label={scoutEventsEnabled ? t('scoutEventsDisabled') : t('scoutEventsEnabled')}
+        className={cn(
+          'relative inline-flex h-7 w-12 items-center rounded-full transition-colors active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed',
+          scoutEventsEnabled ? 'bg-green-500' : 'bg-white/20'
+        )}
+      >
+        {toggling ? (
+          <Loader2 className="size-4 animate-spin motion-reduce:animate-none mx-auto text-white" aria-hidden="true" />
+        ) : (
+          <span
+            className={cn(
+              'inline-block size-5 rounded-full bg-white shadow-sm transition-transform',
+              scoutEventsEnabled ? 'translate-x-6' : 'translate-x-1'
+            )}
+          />
+        )}
+      </button>
     </div>
   );
 }
@@ -256,7 +329,12 @@ export default function BescoutAdminContent() {
       })()}
 
       {/* Tab Content */}
-      {tab === 'overview' && <OverviewTab stats={stats} error={statsError} />}
+      {tab === 'overview' && (
+        <>
+          <OverviewTab stats={stats} error={statsError} />
+          <ScoutEventsToggle />
+        </>
+      )}
       {tab === 'users' && user && <AdminUsersTab adminId={user.id} role={adminRole} />}
       {tab === 'clubs' && user && <AdminClubsTab adminId={user.id} role={adminRole} />}
       {tab === 'founding_passes' && user && <AdminFoundingPassesTab adminId={user.id} />}
