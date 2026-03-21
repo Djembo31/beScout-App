@@ -379,7 +379,7 @@ export default function FantasyContent() {
 
     const bal = balanceCents ?? 0;
     if (event.entryFeeCents > 0 && bal < event.entryFeeCents) {
-      addToast(t('notEnoughScout', { needed: event.buyIn, balance: fmtScout(bal / 100) }), 'error');
+      addToast(t('notEnoughScout', { have: fmtScout(bal / 100), need: event.buyIn }), 'error');
       return;
     }
 
@@ -500,7 +500,7 @@ export default function FantasyContent() {
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
     setLocalEvents(null); // Clear local overrides so React Query refetches authoritative data
 
-    addToast(`${t('leftEvent', { name: event.name })}${event.buyIn > 0 ? ` ${t('refundNote', { amount: event.buyIn })}` : ''}`, 'success');
+    addToast(`${t('leftEvent')}${event.buyIn > 0 ? ` ${t('refundNote', { amount: event.buyIn })}` : ''}`, 'success');
   }, [user, setBalanceCents, addToast, events]);
 
   // Refetch all events from DB (used after score, reset, simulation)
