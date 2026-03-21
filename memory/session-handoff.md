@@ -2,31 +2,52 @@
 ## Letzte Session: 2026-03-21 (Session 246)
 ## Was wurde gemacht
 
-### Systematic Test Audit — Phase 4 + Phase 6 (715 neue Tests)
-- **Phase 4 — Top-25 Component Tests (356 Tests, 22 Files):** Alle Top-25 Components getestet. OOM-Bug gefixt (useUser instabile Mock-Referenz). Timeout-Fix wallet-guards 5s→30s.
-- **Phase 6a-m — Feature Components + Providers (359 Tests, 75 Files):** Providers (6), UI (16), Fantasy (14), Player (10), Market (4), Manager (2), Admin (4), Profile (3), Gamification (3), Other (13 — missions, layout, geo, legal, onboarding, pwa, community, home, help, club)
+### Test-Audit Phase 4-6 komplett (715 neue Tests)
+- **1299 → 2014 Tests**, 62 → 159 Test-Files
+- Phase 4: Top-25 Component Tests (356 Tests, 22 Files)
+- Phase 6a-m: Feature Components + Providers (359 Tests, 75 Files)
+- OOM-Bug gefixt (useUser instabile Mock-Referenz)
+- Wallet-Guards Timeout 5s→30s
 
-### Gesamt: 2014 Tests, 159 Test-Files (2013 PASS + 1 pre-existing BUG-004)
+### BUG-004 gefixt
+- **Problem:** 13 Events in GW 32-38 hatten status='running' obwohl alle Fixtures 'scheduled'
+- **Code-Fix:** Guard in Cron score_events: prüft jetzt ob mindestens ein Fixture gestartet ist
+- **DB-Fix:** Script `scripts/fix-bug-004.ts` — MUSS NOCH AUSGEFÜHRT WERDEN
+  ```
+  npx tsx scripts/fix-bug-004.ts
+  ```
 
-## Key Learnings
-- **useUser Mock stabile Referenz:** `const stableUser = { id: 'u1' }` — sonst Infinite Loop
+---
+
+## Naechste Session: UI-Polish fuer erste 100 User
+
+### Anil will:
+- Features sind da, werden aber "noch nicht wie gewünscht angezeigt"
+- Real-test-bereit machen fuer 100 echte User
+- Feinheiten fixen
+
+### Vorgehensweise
+1. Anil zeigt welche Screens/Features Prioritaet haben
+2. Brainstorming → Spec → Plan (Feature-Pipeline)
+3. Systematisch Screen fuer Screen durchgehen
+
+### Test-Audit: Was noch offen
+- ~100 Components ungetestet (meist <300 LOC oder 5+ Provider-Dependencies)
+- E2E-Tests fuer kritische User-Flows fehlen
+- Phase 7 (Smoke Layer + Pages) optional
+
+---
+
+## Key Learnings (fuer kuenftige Sessions)
+- **useUser Mock stabile Referenz:** `const stableUser = { id: 'u1' }` — sonst OOM
 - **next/dynamic Mock:** `{ __esModule: true, default: () => StubComponent }`
 - **vi.useFakeTimers + userEvent = Deadlock:** `fireEvent` nutzen
-- **lucide-react Auto-Stub:** `vi.importActual` + override functions mit `() => null`
+- **lucide-react Auto-Stub:** `vi.importActual` + override functions
 - **Supabase transitiv:** Auch Helper-Tests brauchen `vi.mock('@/lib/supabaseClient')`
-
----
-
-## Verbleibende untested Components
-~100 Components, davon ~10 große (>300 LOC) mit 5+ Provider-Dependencies:
-LineupPanel, FormationTab, ManagerBestandTab, PerformanceTab, SideNav, ClubVerkaufSection, BuyModal, PlayerHero, ClubHero, ScoutCard
-
----
 
 ## Andere offene Arbeit
 - Admin i18n Rest (~80 Strings)
 - Stripe (wartet auf Anils Account)
-- BUG-004: 13 Events mit status='running' obwohl alle Fixtures 'scheduled'
 
 ## Blocker
 - Keine
