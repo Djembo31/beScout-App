@@ -587,6 +587,7 @@ export type UserTradeWithPlayer = {
 };
 
 export type EventScope = 'global' | 'club';
+export type EventCurrency = 'tickets' | 'scout';
 
 export type DbEvent = {
   id: string;
@@ -595,6 +596,7 @@ export type DbEvent = {
   status: 'upcoming' | 'registering' | 'late-reg' | 'running' | 'scoring' | 'ended';
   format: string;
   gameweek: number | null;
+  /** @deprecated Use ticket_cost + currency */
   entry_fee: number;
   prize_pool: number;
   max_entries: number | null;
@@ -615,6 +617,7 @@ export type DbEvent = {
   reward_structure?: RewardTier[] | null;
   scope: EventScope;
   lineup_size: 7 | 11;
+  currency: EventCurrency;
   ticket_cost: number;
   created_at: string;
 };
@@ -647,6 +650,21 @@ export type DbLineup = {
   locked: boolean;
   synergy_bonus_pct: number;
   synergy_details: SynergyDetail[] | null;
+};
+
+export type DbEventEntry = {
+  event_id: string;
+  user_id: string;
+  currency: EventCurrency;
+  amount_locked: number;
+  fee_split: { platform: number; pbt: number; club: number } | null;
+  locked_at: string;
+};
+
+export type DbPlatformSetting = {
+  key: string;
+  value: unknown;
+  updated_at: string;
 };
 
 // ============================================
