@@ -52,6 +52,7 @@ export const EventDetailModal = ({
   isOpen,
   onClose,
   onJoin,
+  onSubmitLineup,
   onLeave,
   onReset,
   userHoldings,
@@ -60,7 +61,8 @@ export const EventDetailModal = ({
   event: FantasyEvent | null;
   isOpen: boolean;
   onClose: () => void;
-  onJoin: (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null) => void | Promise<void>;
+  onJoin: (event: FantasyEvent) => void | Promise<void>;
+  onSubmitLineup: (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null) => void | Promise<void>;
   onLeave: (event: FantasyEvent) => void | Promise<void>;
   onReset: (event: FantasyEvent) => void;
   userHoldings: UserDpcHolding[];
@@ -403,9 +405,8 @@ export const EventDetailModal = ({
   const salaryCap = event.salaryCap ?? null;
   const overBudget = salaryCap != null && totalSalary > salaryCap;
 
+  // Join (entry only — no lineup required)
   const handleConfirmJoin = () => {
-    if (!isLineupComplete) { alert(t('incompleteLineupAlert')); return; }
-    if (!reqCheck.ok) { alert(reqCheck.message); return; }
     setShowJoinConfirm(true);
   };
 
@@ -414,7 +415,19 @@ export const EventDetailModal = ({
     setJoining(true);
     try {
       setShowJoinConfirm(false);
-      await onJoin(event, selectedPlayers, selectedFormation, captainSlot);
+      await onJoin(event);
+    } finally {
+      setJoining(false);
+    }
+  };
+
+  // Save/update lineup (no payment — user is already entered)
+  const handleSaveLineup = async () => {
+    if (!isLineupComplete) { alert(t('incompleteLineupAlert')); return; }
+    if (!reqCheck.ok) { alert(reqCheck.message); return; }
+    setJoining(true);
+    try {
+      await onSubmitLineup(event, selectedPlayers, selectedFormation, captainSlot);
     } finally {
       setJoining(false);
     }
@@ -564,129 +577,97 @@ export const EventDetailModal = ({
         </div>
 
         {/* Join Confirmation Dialog */}
-        {showJoinConfirm && (
-          <div className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-            <div className="bg-[#141414] border border-white/10 rounded-2xl p-6 max-w-sm w-full">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="size-10 rounded-xl bg-gold/10 flex items-center justify-center">
-                  <Trophy aria-hidden="true" className="size-5 text-gold" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-white">{t('confirmJoinTitle')}</h3>
-                  <p className="text-xs text-white/50">{event.name}</p>
-                </div>
-              </div>
-              <div className="space-y-2 mb-5 text-sm">
-                {event.buyIn > 0 && (
-                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                    <span className="text-white/60">{t('entryFeeLabel')}</span>
-                    <span className="font-bold text-gold">{fmtScout(event.buyIn)} CR</span>
+        {showJoinConfirm && (() => {
+          const ticketCost = event.ticketCost ?? 0;
+          const hasCost = event.buyIn > 0 || ticketCost > 0;
+          return (
+            <div className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+              <div className="bg-[#141414] border border-white/10 rounded-2xl p-6 max-w-sm w-full">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="size-10 rounded-xl bg-gold/10 flex items-center justify-center">
+                    <Trophy aria-hidden="true" className="size-5 text-gold" />
                   </div>
-                )}
-                {(event.ticketCost ?? 0) > 0 && (
-                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                    <span className="text-white/60">🎟 Tickets</span>
-                    <span className="font-bold text-amber-400">{t('ticketCost', { cost: event.ticketCost })}</span>
+                  <div>
+                    <h3 className="font-bold text-white">{t('confirmJoinTitle')}</h3>
+                    <p className="text-xs text-white/50">{event.name}</p>
                   </div>
-                )}
-                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                  <span className="text-white/60">{t('formationLabel')}</span>
-                  <span className="font-mono text-white">{selectedFormation}</span>
                 </div>
-                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                  <span className="text-white/60">{t('playersLabel')}</span>
-                  <span className="text-white">{t('playersDeployed', { count: selectedPlayers.length })}</span>
-                </div>
-                {captainSlot && (
+                <div className="space-y-2 mb-5 text-sm">
+                  {/* Cost display — currency-aware */}
+                  {event.buyIn > 0 && (
+                    <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
+                      <span className="text-white/60">{t('entryFeeLabel')}</span>
+                      <span className="font-bold font-mono tabular-nums text-gold">{fmtScout(event.buyIn)} $SCOUT</span>
+                    </div>
+                  )}
+                  {ticketCost > 0 && (
+                    <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
+                      <span className="text-white/60">{t('ticketsLabel')}</span>
+                      <span className="font-bold font-mono tabular-nums text-amber-400">{t('ticketCost', { cost: ticketCost })}</span>
+                    </div>
+                  )}
+                  {!hasCost && (
+                    <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
+                      <span className="text-white/60">{t('entryFeeLabel')}</span>
+                      <span className="font-bold text-green-500">{t('free')}</span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                    <span className="text-white/60">{t('captainLabel')}</span>
-                    <span className="text-gold">
-                      <Crown aria-hidden="true" className="size-3.5 inline mr-1" />
-                      {t('captainChosen')}
-                    </span>
+                    <span className="text-white/60">{t('formatLabel')}</span>
+                    <span className="font-mono text-white">{event.format}</span>
                   </div>
+                </div>
+                {hasCost && (
+                  <p className="text-xs text-white/40 mb-4">
+                    {t('entryFeeNote')}
+                  </p>
                 )}
-              </div>
-              {event.buyIn > 0 && (
-                <p className="text-xs text-white/40 mb-4">
-                  {t('entryFeeNote')}
-                </p>
-              )}
-              <div className="flex gap-3">
-                <Button variant="outline" size="lg" fullWidth onClick={() => setShowJoinConfirm(false)}>
-                  {t('cancelBtn')}
-                </Button>
-                <Button variant="gold" size="lg" fullWidth onClick={handleFinalJoin} disabled={joining}>
-                  {joining ? <Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> : <CheckCircle2 aria-hidden="true" className="size-4" />}
-                  {joining ? t('confirming') : t('confirmBtn')}
-                </Button>
+                <div className="flex gap-3">
+                  <Button variant="outline" size="lg" fullWidth onClick={() => setShowJoinConfirm(false)}>
+                    {t('cancelBtn')}
+                  </Button>
+                  <Button variant="gold" size="lg" fullWidth onClick={handleFinalJoin} disabled={joining}>
+                    {joining ? <Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> : <CheckCircle2 aria-hidden="true" className="size-4" />}
+                    {joining ? t('confirming') : t('confirmBtn')}
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Footer Actions */}
         {/* Join — only when not joined AND event not running/ended */}
         {!event.isJoined && event.status !== 'ended' && event.status !== 'running' && (() => {
           const isFull = !!(event.maxParticipants && event.participants >= event.maxParticipants);
-          const filledSlots = selectedPlayers.length;
-          const totalSlots = formationSlots.length;
-          const canJoin = isLineupComplete && reqCheck.ok && !isFull && !overBudget;
+          const ticketCost = event.ticketCost ?? 0;
+          const hasCost = event.buyIn > 0 || ticketCost > 0;
+          const costLabel = ticketCost > 0
+            ? t('ticketCost', { cost: ticketCost })
+            : event.buyIn > 0
+            ? `${fmtScout(event.buyIn)} $SCOUT`
+            : t('free');
           return (
             <div className="flex-shrink-0 border-t border-white/10 bg-bg-main">
-              {/* Lineup progress indicator */}
-              {!isLineupComplete && (
-                <div className="px-3 pt-3 md:px-5 md:pt-4">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-white/50">{t('lineupLabel')}</span>
-                    <span className="text-xs font-mono font-bold text-gold">{t('playersProgress', { filled: filledSlots, total: totalSlots })}</span>
-                  </div>
-                  <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gold rounded-full transition-colors"
-                      style={{ width: `${(filledSlots / totalSlots) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-              {/* Salary Cap budget bar */}
-              {salaryCap != null && selectedPlayers.length > 0 && (
-                <div className="px-3 pt-2 md:px-5 md:pt-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-white/50">Budget</span>
-                    <span className={`text-xs font-mono font-bold ${overBudget ? 'text-red-400' : 'text-green-500'}`}>
-                      {totalSalary} / {salaryCap}
-                    </span>
-                  </div>
-                  <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all ${
-                        overBudget ? 'bg-red-500' : totalSalary / salaryCap > 0.85 ? 'bg-amber-500' : 'bg-green-500'
-                      }`}
-                      style={{ width: `${Math.min(100, (totalSalary / salaryCap) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-              )}
               <div className="p-3 md:p-5">
                 <Button
                   variant="gold"
                   fullWidth
                   size="lg"
                   onClick={handleConfirmJoin}
-                  disabled={!canJoin}
-                  className={!canJoin ? 'opacity-60' : 'animate-pulse motion-reduce:animate-none-subtle'}
+                  disabled={isFull || joining}
+                  className={cn(isFull ? 'opacity-60' : '')}
                 >
-                  <CheckCircle2 aria-hidden="true" className="size-5" />
+                  {joining
+                    ? <Loader2 aria-hidden="true" className="size-5 animate-spin motion-reduce:animate-none" />
+                    : <CheckCircle2 aria-hidden="true" className="size-5" />
+                  }
                   {isFull
                     ? t('eventFull')
-                    : !isLineupComplete
-                    ? t('morePlayers', { n: totalSlots - filledSlots })
-                    : !reqCheck.ok
-                    ? reqCheck.message
-                    : event.buyIn === 0
-                    ? t('confirmRegistration')
-                    : t('joinAndPay', { amount: fmtScout(event.buyIn) })}
+                    : hasCost
+                    ? t('joinAndPay', { amount: costLabel })
+                    : t('confirmRegistration')
+                  }
                 </Button>
               </div>
             </div>
@@ -695,27 +676,67 @@ export const EventDetailModal = ({
 
         {/* Update / Leave — only before event starts */}
         {event.isJoined && event.status !== 'ended' && event.status !== 'running' && (
-          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10 flex gap-3">
-            <Button
-              variant="outline"
-              fullWidth
-              size="lg"
-              className="border-red-500/30 text-red-400 hover:bg-red-500/10"
-              onClick={handleLeave}
-              disabled={leaving}
-            >
-              {leaving ? <><Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> {t('leavingBtn')}</> : t('leaveBtn')}
-            </Button>
-            <Button
-              variant="gold"
-              fullWidth
-              size="lg"
-              onClick={handleConfirmJoin}
-              className={!isLineupComplete || !reqCheck.ok ? 'opacity-50' : ''}
-            >
-              <Save aria-hidden="true" className="size-5" />
-              {t('editLineup')}
-            </Button>
+          <div className="flex-shrink-0 border-t border-white/10 bg-bg-main">
+            {/* Lineup progress indicator */}
+            {!isLineupComplete && (
+              <div className="px-3 pt-3 md:px-5 md:pt-4">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs text-white/50">{t('lineupLabel')}</span>
+                  <span className="text-xs font-mono font-bold text-gold">{t('playersProgress', { filled: selectedPlayers.length, total: formationSlots.length })}</span>
+                </div>
+                <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gold rounded-full transition-colors"
+                    style={{ width: `${(selectedPlayers.length / formationSlots.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
+            {/* Salary Cap budget bar */}
+            {salaryCap != null && selectedPlayers.length > 0 && (
+              <div className="px-3 pt-2 md:px-5 md:pt-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-white/50">Budget</span>
+                  <span className={cn('text-xs font-mono font-bold', overBudget ? 'text-red-400' : 'text-green-500')}>
+                    {totalSalary} / {salaryCap}
+                  </span>
+                </div>
+                <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                  <div
+                    className={cn('h-full rounded-full transition-all',
+                      overBudget ? 'bg-red-500' : totalSalary / salaryCap > 0.85 ? 'bg-amber-500' : 'bg-green-500'
+                    )}
+                    style={{ width: `${Math.min(100, (totalSalary / salaryCap) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            )}
+            <div className="p-3 md:p-5 flex gap-3">
+              <Button
+                variant="outline"
+                fullWidth
+                size="lg"
+                className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                onClick={handleLeave}
+                disabled={leaving}
+              >
+                {leaving ? <><Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> {t('leavingBtn')}</> : t('leaveBtn')}
+              </Button>
+              <Button
+                variant="gold"
+                fullWidth
+                size="lg"
+                onClick={handleSaveLineup}
+                disabled={!isLineupComplete || !reqCheck.ok || overBudget || joining}
+                className={cn(!isLineupComplete || !reqCheck.ok || overBudget ? 'opacity-50' : '')}
+              >
+                {joining
+                  ? <Loader2 aria-hidden="true" className="size-5 animate-spin motion-reduce:animate-none" />
+                  : <Save aria-hidden="true" className="size-5" />
+                }
+                {t('editLineup')}
+              </Button>
+            </div>
           </div>
         )}
 

@@ -87,14 +87,9 @@ vi.mock('@/lib/services/players', () => ({
   centsToBsd: (c: number) => c / 100,
 }));
 
-vi.mock('@/lib/services/wallet', () => ({
-  deductEntryFee: vi.fn(),
-  refundEntryFee: vi.fn(),
-}));
-
-vi.mock('@/lib/services/tickets', () => ({
-  spendTickets: vi.fn(),
-  creditTickets: vi.fn(),
+vi.mock('@/lib/services/events', () => ({
+  lockEventEntry: vi.fn().mockResolvedValue({ ok: true }),
+  unlockEventEntry: vi.fn().mockResolvedValue({ ok: true }),
 }));
 
 vi.mock('@/lib/services/lineups', () => ({
