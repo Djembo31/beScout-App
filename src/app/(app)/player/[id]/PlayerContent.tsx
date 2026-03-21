@@ -96,17 +96,19 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const { data: userIpoPurchasedData } = useUserIpoPurchases(uid, activeIpo?.id);
   const { data: masteryData } = useDpcMastery(uid, playerId);
 
+  // HERO + PERFORMANCE shared (needed for Scout Card front+back):
+  const { data: matchTimelineData, isLoading: matchTimelineLoading } = usePlayerMatchTimeline(playerId, 15);
+  const { data: liquidationEvent } = useLiquidationEvent(playerId);
+
   // PERFORMANCE TAB (deferred):
   const { data: gwScoresData } = usePlayerGwScores(playerId, tab === 'performance');
-  const { data: matchTimelineData, isLoading: matchTimelineLoading } = usePlayerMatchTimeline(playerId, 15, tab === 'performance');
-  const { data: liquidationEvent } = useLiquidationEvent(playerId, tab === 'performance');
 
   // COMMUNITY TAB (deferred):
   const { data: playerResearchData } = usePlayerResearch(playerId, uid, tab === 'community' || tab === 'trading');
   const { data: playerPostsData } = usePosts({ playerId, limit: 30, active: tab === 'community' });
 
   // ─── Derived from queries ─────────────────
-  const { data: allPlayersData } = usePlayers(true);
+  const { data: allPlayersData } = usePlayers(tab === 'performance');
   const allPlayersForPercentile = allPlayersData ?? [];
   const player = useMemo(() => dbPlayer ? dbToPlayer(dbPlayer) : null, [dbPlayer]);
   const dpcAvailable = dbPlayer?.dpc_available ?? 0;
@@ -273,7 +275,6 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           onSetPriceAlert={alerts.handleSetPriceAlert}
           onRemovePriceAlert={alerts.handleRemovePriceAlert}
           masteryLevel={masteryData?.level ?? 0}
-          allPlayers={allPlayersForPercentile}
           matchTimeline={matchTimelineData ?? []}
         />
       </div>

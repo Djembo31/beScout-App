@@ -168,7 +168,7 @@ export default function MarketPage() {
   const { data: holdings = [] } = useHoldings(user?.id);
   const { data: watchlistEntries = [] } = useWatchlist(user?.id);
   const { data: recentOrders = [] } = useAllOpenOrders();
-  const { data: priceHistMap } = useAllPriceHistories(10);
+  const { data: priceHistMap } = useAllPriceHistories(10, { enabled: tab === 'marktplatz' });
 
   // Kaufen-only queries (gated by tab)
   const { data: announcedIpos = [] } = useAnnouncedIpos({ enabled: tab === 'marktplatz' });

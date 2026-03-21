@@ -69,12 +69,12 @@ export function AdminTreasuryTab() {
       if (error) {
         // Fallback: RPC doesn't exist yet, use direct queries
         const [wallets, trades, pbt, passes, bonuses, tickets] = await Promise.all([
-          supabase.from('wallets').select('balance, locked_balance'),
-          supabase.from('trades').select('platform_fee, pbt_fee, club_fee'),
-          supabase.from('pbt_treasury').select('balance, trading_inflow'),
-          supabase.from('user_founding_passes').select('bcredits_granted'),
+          supabase.from('wallets').select('balance, locked_balance').limit(5000),
+          supabase.from('trades').select('platform_fee, pbt_fee, club_fee').limit(5000),
+          supabase.from('pbt_treasury').select('balance, trading_inflow').limit(1000),
+          supabase.from('user_founding_passes').select('bcredits_granted').limit(1000),
           supabase.from('welcome_bonus_claims').select('id', { count: 'exact', head: true }),
-          supabase.from('user_tickets').select('balance, earned_total, spent_total'),
+          supabase.from('user_tickets').select('balance, earned_total, spent_total').limit(5000),
         ]);
 
         const wRows = wallets.data ?? [];

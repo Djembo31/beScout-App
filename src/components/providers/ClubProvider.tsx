@@ -3,7 +3,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useUser } from './AuthProvider';
 import { initClubCache } from '@/lib/clubs';
-import { getUserFollowedClubs, getUserPrimaryClub, toggleFollowClub } from '@/lib/services/club';
+import { getUserFollowedClubs, toggleFollowClub } from '@/lib/services/club';
 import type { DbClub } from '@/types';
 
 // ============================================
@@ -86,10 +86,10 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
       }
 
       try {
-        const [followed, primary] = await Promise.all([
-          getUserFollowedClubs(user.id),
-          getUserPrimaryClub(user.id),
-        ]);
+        // Single query — getUserFollowedClubs returns sorted by is_primary desc,
+        // so the first element IS the primary club. Saves 1 DB round-trip.
+        const followed = await getUserFollowedClubs(user.id);
+        const primary = followed[0] ?? null;
 
         if (cancelled) return;
 
@@ -130,11 +130,9 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     if (!user) return;
     const currently = followedClubs.some(c => c.id === clubId);
     await toggleFollowClub(user.id, clubId, clubName, !currently);
-    // Refresh
-    const [followed, primary] = await Promise.all([
-      getUserFollowedClubs(user.id),
-      getUserPrimaryClub(user.id),
-    ]);
+    // Refresh (single query — primary is first element)
+    const followed = await getUserFollowedClubs(user.id);
+    const primary = followed[0] ?? null;
     setFollowedClubs(followed);
     setPrimaryClub(primary);
     // If unfollowed the active club, switch
@@ -147,12 +145,9 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
 
   const refreshClubs = useCallback(async () => {
     if (!user) return;
-    const [followed, primary] = await Promise.all([
-      getUserFollowedClubs(user.id),
-      getUserPrimaryClub(user.id),
-    ]);
+    const followed = await getUserFollowedClubs(user.id);
+    setPrimaryClub(followed[0] ?? null);
     setFollowedClubs(followed);
-    setPrimaryClub(primary);
   }, [user]);
 
   const value = useMemo<ClubContextValue>(() => ({

@@ -38,8 +38,8 @@ export async function getSystemStats(): Promise<SystemStats> {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const [usersRes, walletsRes, tradesRes, eventsRes, offersRes] = await Promise.allSettled([
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
-    supabase.from('wallets').select('balance').limit(10000),
-    supabase.from('trades').select('price, quantity').gte('executed_at', since),
+    supabase.from('wallets').select('balance').limit(5000),
+    supabase.from('trades').select('price, quantity').gte('executed_at', since).limit(5000),
     supabase.from('events').select('*', { count: 'exact', head: true }).in('status', ['upcoming', 'registering', 'late-reg', 'running']),
     supabase.from('offers').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
   ]);

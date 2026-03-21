@@ -20,7 +20,7 @@ export function useAllOpenOrders() {
 /** Whether the order list was truncated (for UI hint) — derived from useAllOpenOrders to avoid double fetch */
 export function useOrdersCapped() {
   const { data } = useAllOpenOrders();
-  return data ? data.length >= 2000 : false;
+  return data ? data.length >= 1000 : false;
 }
 
 /** All open buy orders — for Kaufgesuche section */

@@ -282,7 +282,7 @@ export async function cancelOrder(
 // ============================================
 
 /** Alle aktiven Sell-Orders (fuer Markt-Uebersicht) — capped, price-sorted so cheapest per player included */
-export async function getAllOpenSellOrders(limit = 2000): Promise<{ orders: DbOrder[]; capped: boolean }> {
+export async function getAllOpenSellOrders(limit = 1000): Promise<{ orders: DbOrder[]; capped: boolean }> {
   const { data, error, count } = await supabase
     .from('orders')
     .select('id, player_id, user_id, side, price, quantity, filled_qty, status, created_at, expires_at', { count: 'exact' })

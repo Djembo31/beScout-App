@@ -9,7 +9,8 @@ export async function getCommunityPolls(clubId?: string): Promise<CommunityPollW
   let query = supabase
       .from('community_polls')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(50);
     if (clubId) query = query.eq('club_id', clubId);
     const { data, error } = await query;
 

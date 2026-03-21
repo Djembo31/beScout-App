@@ -208,7 +208,8 @@ export async function getReplies(parentId: string): Promise<PostWithAuthor[]> {
     .from('posts')
     .select('id, user_id, player_id, club_name, club_id, content, tags, category, post_type, upvotes, downvotes, replies_count, is_pinned, is_exclusive, parent_id, event_id, rumor_source, rumor_club_target, image_url, created_at')
     .eq('parent_id', parentId)
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: true })
+    .limit(200);
 
   if (error) throw new Error(error.message);
   if (!data || data.length === 0) return [];

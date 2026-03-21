@@ -36,7 +36,6 @@ interface PlayerHeroProps {
   onRemovePriceAlert: () => void;
   holdingQty: number;
   masteryLevel?: number;
-  allPlayers?: Player[];
   matchTimeline?: MatchTimelineEntry[];
 }
 
@@ -45,7 +44,7 @@ function PlayerHeroInner({
   isWatchlisted, priceAlert,
   onToggleWatchlist, onShare, onBuyClick, onSellClick,
   onSetPriceAlert, onRemovePriceAlert, holdingQty, masteryLevel,
-  allPlayers = [], matchTimeline,
+  matchTimeline,
 }: PlayerHeroProps) {
   const t = useTranslations('player');
   const [showOverflow, setShowOverflow] = useState(false);

@@ -43,7 +43,8 @@ export async function getClubChallenges(clubId: string): Promise<ClubChallenge[]
     .from('club_challenges')
     .select('*')
     .eq('club_id', clubId)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(100);
 
   if (error) {
     console.error('[ClubChallenges] getClubChallenges error:', error);
