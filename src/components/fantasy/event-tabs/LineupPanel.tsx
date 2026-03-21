@@ -202,14 +202,14 @@ export default function LineupPanel({
         pos: player.pos as Pos,
         club: player.club,
         imageUrl: player.imageUrl,
-        ticket: 0,
+        ticket: player.ticket ?? 0,
         status: player.status,
         perfL5: player.perfL5,
         perfL15: player.perfL15 ?? 0,
         matches: player.matches,
         goals: player.goals,
         assists: player.assists,
-        floorPrice: 0,
+        floorPrice: centsToBsd(player.floorPrice ?? 0),
         dpcOwned: player.dpcOwned,
         dpcAvailable: player.dpcAvailable,
         eventsUsing: player.eventsUsing,
@@ -865,7 +865,7 @@ export default function LineupPanel({
         availablePlayers = [...availablePlayers].sort((a, b) => {
           if (pickerSort === 'l5') return b.perfL5 - a.perfL5;
           if (pickerSort === 'form') return (b.perfL5 - (b.perfL15 ?? 0)) - (a.perfL5 - (a.perfL15 ?? 0));
-          if (pickerSort === 'price') return 0; // UserDpcHolding has no floorPrice — fallback to insertion order
+          if (pickerSort === 'price') return (b.floorPrice ?? 0) - (a.floorPrice ?? 0);
           return a.last.localeCompare(b.last);
         });
         return (

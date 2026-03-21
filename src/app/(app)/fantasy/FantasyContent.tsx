@@ -149,6 +149,8 @@ function dbHoldingToUserDpcHolding(h: HoldingWithPlayer): UserDpcHolding {
     assists: h.player?.assists ?? 0,
     status: (h.player?.status as UserDpcHolding['status']) ?? 'fit',
     imageUrl: h.player?.image_url ?? null,
+    ticket: h.player?.shirt_number ?? 0,
+    floorPrice: h.player?.floor_price ?? 0,
   };
 }
 

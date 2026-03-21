@@ -112,6 +112,8 @@ export type UserDpcHolding = {
   assists: number;
   status: 'fit' | 'injured' | 'suspended' | 'doubtful';
   imageUrl?: string | null;
+  ticket: number;
+  floorPrice: number;
 };
 
 export type LineupPreset = {
