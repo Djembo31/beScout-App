@@ -960,6 +960,13 @@ export async function GET(request: Request) {
     // ---- 8 & 9. Score events ----
 
     await runStep('score_events', async () => {
+      // BUG-004 Guard: check if ANY fixture in this GW has actually started
+      const { data: gwFixtures } = await supabaseAdmin
+        .from('fixtures')
+        .select('status')
+        .eq('gameweek', activeGw);
+      const hasStartedFixtures = gwFixtures?.some(f => f.status !== 'scheduled') ?? false;
+
       for (const club of clubsToProcess) {
         const { data: events } = await supabaseAdmin
           .from('events')
@@ -971,10 +978,15 @@ export async function GET(request: Request) {
           if (evt.scored_at) continue; // already scored
 
           // Transition registering/late-reg → running before scoring
-          // Guard: only transition if locks_at has actually passed
+          // Guard 1: only transition if locks_at has actually passed
+          // Guard 2 (BUG-004): only transition if at least one fixture has started
           if (evt.status === 'registering' || evt.status === 'late-reg') {
             if (evt.locks_at && new Date(evt.locks_at) > new Date()) {
               // locks_at not passed yet — keep event open for registration
+              continue;
+            }
+            if (!hasStartedFixtures) {
+              // No fixtures have kicked off yet — don't transition to running
               continue;
             }
             await supabaseAdmin
