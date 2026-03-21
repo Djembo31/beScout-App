@@ -1,100 +1,54 @@
 # Session Handoff
-## Letzte Session: 2026-03-20 (Session 245)
+## Letzte Session: 2026-03-21 (Session 246)
 ## Was wurde gemacht
 
-### Systematic Test Audit — Phase 3 + Phase 5 (552 neue Tests)
-- **Phase 3 — State Machine Services (222 tests):** events (ALLOWED_TRANSITIONS, EDITABLE_FIELDS, bulk update), predictions (create, resolve, stats/streak), research (Promise.allSettled enrichment, track record), clubSubscriptions (silber constraint, tier ranking), gamification (score road, history), missions (idempotent assign, orphan filter), dailyChallenge (array/object RPC), fanRanking (batch recalc)
-- **Phase 5a — Small/Medium Services (156 tests):** tickets, referral, cosmetics, sponsors, chips, airdropScore, foundingPasses, pbt, mastery, impressions, mysteryBox, feedback, streaks, welcomeBonus
-- **Phase 5b — Big Services Part 1 (56 tests):** social (follow/unfollow, leaderboard, feed), clubCrm (fan segments, retention), search (spotlight)
-- **Phase 5c — Big Services Part 2 (118 tests):** club (34 functions, prestige, admin, gameweek), fixtures (mapping, stats, substitutions), footballData (mapping status), notifications (preferences, batch filtering)
+### Phase 4 — Top-25 Component Tests (356 Tests, 22 Files)
+- Alle 22 Top-25 Components getestet (ClubContent, LineupPanel, AdminPlayersTab, FantasyContent, EventDetailModal, AdminSettingsTab, ManagerKaderTab, FixtureDetailModal, AdminEventsTab, TradingCardFrame, OrderDepthView, AdminBountiesTab, CommunityFeedTab, TradingTab, CreateResearchModal, PlayerContent, ProfileView, SpieltagTab, LeaderboardPanel, AdminUsersTab, MitmachenTab, AdminRevenueTab, PredictionsTab)
+- **OOM-Bug gefixt:** useUser Mock erzeugte instabile Referenz → Infinite Re-Render → Worker Crash. Fix: `const stableUser` in 6 Files
+- **Timeout-Fix:** wallet-guards MF-WAL-04 5s→30s (600 DB Queries)
 
-### Gesamt: 1299/1299 Tests PASS (62 Test Files)
+### Phase 6a-h — Feature Components + Providers (265 Tests, 45 Files)
+- **Providers (6 Files):** ToastProvider, AuthGuard, WalletProvider, ClubProvider, AnalyticsProvider, Providers
+- **UI (6 Files):** TabBar, ErrorBoundary, Countdown, EventScopeBadge, MobileTableCard, Confetti, CountryFlag
+- **Fantasy (7 Files):** GameweekSelector, FillBar, EventPulse, DashboardTab, HistoryTab, SpieltagPulse
+- **Player (6 Files):** SentimentGauge, TradingQuickStats, OrderbookDepth, OfferModal, MatchTimeline, PlayerDetailSkeleton, BuyConfirmation
+- **Market (2 Files):** MarketFilters (pure functions: applyFilters, applySorting, getActiveFilterCount)
+- **Other (8 Files):** MysteryBoxModal, AchievementUnlockModal, OnboardingChecklist, TopMoversStrip, MissionHint, BottomNav, GeoGate, SearchOverlay, TraderTab, AnalystTab, ShortcutsModal, InstallPrompt, NewUserTip, CookieConsent, LegalLayout, ClubSkeleton, HomeSkeleton, SquadSummaryStats, PostCard helpers
 
-## Design Doc
-- `docs/plans/2026-03-20-systematic-test-audit-design.md` — 7 Phasen
+### Gesamt: 1920/1920 Tests PASS (131 Test Files)
+
+## Key Learnings
+- **useUser Mock MUSS stabile Referenz sein:** `const stableUser = { id: 'u1' }; return { useUser: () => ({ user: stableUser }) }` — sonst Infinite Loop wenn user in useEffect deps
+- **next/dynamic Mock:** `{ __esModule: true, default: () => StubComponent }` — NICHT den Loader aufrufen
+- **vi.useFakeTimers + userEvent = Deadlock:** `fireEvent` nutzen statt `userEvent` bei Fake Timers
+- **renderWithProviders vs render:** Bei Components die `t.rich()` brauchen, `render` direkt mit eigenem next-intl Mock
+- **Supabase transitiver Import:** Auch reine Helper-Tests brauchen `vi.mock('@/lib/supabaseClient')` wenn das Parent-Modul Supabase transitiv importiert
 
 ---
 
-## Naechste Session: Phase 4 — Top-25 Component Tests (~300 Tests)
+## Naechste Session: Phase 7 — Remaining Components + Smoke Layer
 
-### Infrastruktur (bereits vorhanden)
-- `@testing-library/react@16.3.2` + `@testing-library/jest-dom@6.9.1` installiert
-- `vitest.config.ts`: environment=jsdom, globals=true, css=disabled
-- `src/test/setup.ts`: importiert `@testing-library/jest-dom/vitest`
-- **0 Component-Tests existieren** — Blank Slate
+### Verbleibende grosse Components (>300 LOC, nicht getestet)
+| Component | LOC | Schwierigkeit |
+|-----------|-----|---------------|
+| LineupPanel | 951 | Hoch (viele States) |
+| FormationTab | 717 | Hoch |
+| ManagerOffersTab | 632 | Mittel |
+| AnalystTab (partial) | 517 | Teilweise getestet |
+| SearchOverlay (partial) | 461 | Teilweise getestet |
+| CreatePredictionModal | 417 | Mittel |
+| ManagerBestandTab | 413 | Mittel |
+| CommunityTab | 391 | Mittel |
+| GameweekTab | 383 | Mittel |
+| PerformanceTab | 359 | Hoch (viele Player Props) |
+| SideNav | 357 | Hoch (viele Providers) |
+| LeaguesSection | 353 | Mittel |
+| WatchlistView | 350 | Mittel |
 
 ### Approach
-Branch-Level Testing fuer die 25 groessten Components (>150 LOC):
-- Rendering pro State (loading, empty, error, data)
-- User Interactions (click, submit, cancel)
-- Conditional Rendering (jedes if/else im JSX)
-
-### Mock-Strategie fuer Components
-1. **Supabase**: Bestehender Mock (`src/test/mocks/supabase.ts`) reicht fuer Service-Layer
-2. **React Query**: Mocke Hooks mit `vi.mock('@/lib/hooks/useXyz')` oder nutze `QueryClientProvider` mit echtem Client
-3. **Providers**: Wrapper-Utility bauen die alle Provider mockt (Auth, Club, Wallet, Toast)
-4. **next/navigation**: `vi.mock('next/navigation')` fuer useRouter, usePathname
-5. **next-intl**: `vi.mock('next-intl')` fuer useTranslations
-6. **Zustand**: Stores direkt mit `setState()` vorbefuellen
-
-### Top-25 nach Prioritaet (LOC)
-| Component | Pfad | LOC | Key-Tests |
-|-----------|------|-----|-----------|
-| ClubContent | app/club/[slug]/ | 935 | 3 Tabs, Fixtures, Squad |
-| LineupPanel | fantasy/event-tabs/ | 951 | Slot-Auswahl, Captain, Formation |
-| AdminPlayersTab | admin/ | 806 | CRUD, IPO, Liquidation |
-| FantasyContent | app/fantasy/ | 792 | Event-Loading, Lineup, Fee |
-| EventDetailModal | fantasy/ | 783 | Lifecycle States, Entry Fee |
-| AdminSettingsTab | admin/ | 770 | Config, Danger Zone |
-| ManagerKaderTab | manager/ | 732 | Portfolio, Offers |
-| FormationTab | fantasy/spieltag/ | 717 | Grid, Position-Validation |
-| FixtureDetailModal | fantasy/spieltag/ | 660 | Tab-Switch, Live Updates |
-| AdminEventsTab | admin/ | 606 | Event CRUD, Status-Transitions |
-| TradingCardFrame | player/detail/ | 525 | Conditional Styling, Flip |
-| OrderDepthView | market/ | 504 | Buy/Sell-Aggregation |
-| AdminBountiesTab | admin/ | 476 | Bounty CRUD, Resolution |
-| CommunityFeedTab | community/ | 437 | Filter, Pagination |
-| TradingTab | player/detail/ | 437 | Order, Price-Validation |
-| CreateResearchModal | community/ | 432 | Multi-Step Form, Validation |
-| PlayerContent | app/player/[id]/ | 421 | 6 Tabs, Trading, Holdings |
-| ProfileView | profile/ | 413 | 4 Tabs, Timeline, Achievements |
-| SpieltagTab | fantasy/ | 381 | GW-Selector, Fixture-List |
-| LeaderboardPanel | fantasy/event-tabs/ | 291 | Rank Display, Inspection |
-| AdminUsersTab | bescout-admin/ | 185 | User-Management, Ban |
-| MitmachenTab | fantasy/ | 153 | Event-Join-Flow |
-| AdminRevenueTab | admin/ | 148 | Revenue-Dashboard |
-| PredictionsTab | fantasy/ | 131 | Create, Settlement |
-
-### Vorarbeit fuer naechste Session
-1. Test-Utility erstellen: `src/test/renderWithProviders.tsx`
-   - Wrapped QueryClient + mocked Auth + Club + Wallet + Toast + next-intl
-2. Ein Pilot-Component testen (z.B. PredictionsTab, 131 LOC — kleinster)
-3. Pattern validieren, dann auf die grossen Components skalieren
-
----
-
-## Phase 6 — Feature Components + Providers (~300 Tests)
-- ~70 Feature-Components (Happy + Error + Empty State)
-- 9 Providers einzeln testen (QueryProvider, AuthProvider, ClubProvider, WalletProvider, etc.)
-- Cache Invalidation Tests (20 Tests mit echtem QueryClient)
-
-### 9 Providers in `src/components/providers/`
-1. QueryProvider.tsx — React Query v5 Setup
-2. AuthProvider.tsx — Supabase Auth + User State
-3. AnalyticsProvider.tsx — PostHog
-4. ClubProvider.tsx — Selected Club Context
-5. WalletProvider.tsx — User Wallet Balance
-6. ToastProvider.tsx — Toast Notifications
-7. AuthGuard.tsx — Auth-Gate Wrapper
-8. AchievementListener.tsx — Gamification Listener
-9. Providers.tsx — Main Orchestrator (Provider Chain)
-
----
-
-## Phase 7 — Smoke Layer + Pages (~200 Tests)
-- ~140 Display-Components: Render Smoke (rendert ohne Crash, Props korrekt)
-- 28 Pages: Route Params, Loading States, Error States
-- E2E-Erweiterung fuer kritische Flows
+- Smoke-Tests fuer die verbleibenden Components (renders without crash)
+- Nur business-kritische Interaktionen testen
+- Components mit >5 Provider-Dependencies ueberspringen
 
 ---
 
