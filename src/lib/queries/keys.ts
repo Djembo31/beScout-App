@@ -168,6 +168,7 @@ export const qk = {
   scoring: {
     gwScores: (pid: string) => ['scoring', 'gwScores', pid] as const,
     matchTimeline: (pid: string) => ['scoring', 'matchTimeline', pid] as const,
+    batchForm: ['scoring', 'batchForm'] as const,
   },
 
   // ── Fixtures (Manager Data) ──
@@ -175,6 +176,7 @@ export const qk = {
     recentMinutes: ['fixtures', 'recentMinutes'] as const,
     recentScores: ['fixtures', 'recentScores'] as const,
     nextByClub: ['fixtures', 'nextByClub'] as const,
+    next: ['fixtures', 'next'] as const,
     byClub: (cid: string) => ['fixtures', 'club', cid] as const,
   },
 

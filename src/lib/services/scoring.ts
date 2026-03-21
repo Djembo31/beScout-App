@@ -623,3 +623,40 @@ export async function getSeasonLeaderboard(limit = 50): Promise<SeasonLeaderboar
     wins: row.wins,
   }));
 }
+
+// ============================================
+// Batch Form Scores (Fantasy Picker)
+// ============================================
+
+/** Batch-fetch last 5 GW scores for multiple players (for Fantasy Picker FormBars) */
+export async function getBatchFormScores(
+  playerIds: string[],
+  limit = 5
+): Promise<Map<string, { score: number; status: 'played' | 'bench' | 'not_in_squad' }[]>> {
+  if (playerIds.length === 0) return new Map();
+
+  const { data, error } = await supabase
+    .from('player_gameweek_scores')
+    .select('player_id, gameweek, score')
+    .in('player_id', playerIds)
+    .order('gameweek', { ascending: false })
+    .limit(playerIds.length * limit);
+
+  if (error || !data) return new Map();
+
+  const result = new Map<string, { score: number; status: 'played' | 'bench' | 'not_in_squad' }[]>();
+  for (const row of data) {
+    const pid = row.player_id as string;
+    const arr = result.get(pid) ?? [];
+    if (arr.length < limit) {
+      arr.push({ score: row.score as number, status: 'played' });
+    }
+    result.set(pid, arr);
+  }
+
+  for (const [pid, arr] of Array.from(result.entries())) {
+    result.set(pid, arr.reverse());
+  }
+
+  return result;
+}

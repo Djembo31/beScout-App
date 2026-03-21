@@ -789,7 +789,23 @@
       "def": "DF",
       "mid": "OF",
       "att": "FW"
-    }
+    },
+    "sortL5": "L5",
+    "sortForm": "Form \u2191",
+    "sortPrice": "Fiyat",
+    "sortAZ": "A-Z",
+    "filterAvailable": "Mevcut",
+    "filterSynergy": "Sinerji",
+    "vsLabel": "vs",
+    "matchesShort": "M",
+    "goalsShort": "G",
+    "assistsShort": "A",
+    "scLabel": "SC",
+    "crLabel": "CR",
+    "synergyLabel": "Sin",
+    "deployed": "Kullanildi",
+    "liveLabel": "CANLI",
+    "pickerAvailable": "Mevcut: {count}"
   },
   "predictions": {
     "title": "Tahminler",

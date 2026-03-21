@@ -789,7 +789,23 @@
       "def": "AW",
       "mid": "MF",
       "att": "ST"
-    }
+    },
+    "sortL5": "L5",
+    "sortForm": "Form \u2191",
+    "sortPrice": "Preis",
+    "sortAZ": "A-Z",
+    "filterAvailable": "Verfuegbar",
+    "filterSynergy": "Synergy",
+    "vsLabel": "vs",
+    "matchesShort": "S",
+    "goalsShort": "T",
+    "assistsShort": "A",
+    "scLabel": "SC",
+    "crLabel": "CR",
+    "synergyLabel": "Syn",
+    "deployed": "Vergeben",
+    "liveLabel": "LIVE",
+    "pickerAvailable": "Verfuegbar: {count}"
   },
   "predictions": {
     "title": "Vorhersagen",
