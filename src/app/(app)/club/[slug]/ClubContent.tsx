@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Users, ChevronRight, ChevronLeft,
   Building2, MessageCircle, FileText, Star,
@@ -16,6 +17,7 @@ const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBa
 import { PlayerIdentity } from '@/components/player';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { useUser } from '@/components/providers/AuthProvider';
+import { useClub } from '@/components/providers/ClubProvider';
 import { dbToPlayers, centsToBsd } from '@/lib/services/players';
 import { toggleFollowClub } from '@/lib/services/club';
 import { cn } from '@/lib/utils';
@@ -121,6 +123,7 @@ export default function ClubContent({ slug }: { slug: string }) {
   const t = useTranslations('club');
   const tc = useTranslations('common');
   const tcom = useTranslations('community');
+  const { followedClubs } = useClub();
 
   // ---- Derived data from hooks ----
   const players = useMemo(() => dbToPlayers(dbPlayersRaw), [dbPlayersRaw]);
@@ -496,14 +499,32 @@ export default function ClubContent({ slug }: { slug: string }) {
       } as React.CSSProperties}
     >
 
-      {/* BACK TO CLUBS DISCOVERY */}
-      <Link
-        href="/clubs"
-        className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white transition-colors mb-4 group"
-      >
-        <ChevronLeft aria-hidden="true" className="size-4 group-hover:-translate-x-0.5 transition-transform" />
-        {t('allClubs')}
-      </Link>
+      {/* CLUB SWITCHER BAR — shows followed clubs as pills + discover link */}
+      <div className="flex items-center gap-2 mb-4 overflow-x-auto scrollbar-hide -mx-1 px-1">
+        <Link
+          href="/clubs"
+          className="flex-shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium text-white/50 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-colors"
+        >
+          <ChevronLeft aria-hidden="true" className="size-3" />
+          {t('allClubs')}
+        </Link>
+        {followedClubs.filter(c => c.slug !== slug).map((c) => (
+          <Link
+            key={c.id}
+            href={`/club/${c.slug}`}
+            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-colors"
+          >
+            {c.logo_url ? (
+              <Image src={c.logo_url} alt="" width={14} height={14} className="size-3.5 object-contain rounded-sm" />
+            ) : (
+              <span className="size-3.5 rounded-sm flex items-center justify-center text-[8px] font-black" style={{ backgroundColor: `${c.primary_color ?? '#FFD700'}20`, color: c.primary_color ?? '#FFD700' }}>
+                {c.short?.slice(0, 2)}
+              </span>
+            )}
+            {c.short ?? c.name.slice(0, 6)}
+          </Link>
+        ))}
+      </div>
 
       {/* HERO SECTION */}
       <ClubHero
