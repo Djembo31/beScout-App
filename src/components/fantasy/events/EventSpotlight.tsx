@@ -5,7 +5,7 @@ import { Radio, Lock, Edit3, Plus, Play } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { FantasyEvent } from '../types';
-import { getTypeStyle } from '../helpers';
+import { getTypeStyle, formatEventCost } from '../helpers';
 import { FillBar } from './FillBar';
 import { UrgencyTimer } from './UrgencyTimer';
 import { RequirementChips } from './RequirementChips';
@@ -68,7 +68,7 @@ export function EventSpotlight({ events, onEventClick }: Props) {
                 <span>{event.participants}{event.maxParticipants ? `/${event.maxParticipants}` : ''} {t('playersCountLabel')}</span>
                 <span className="text-white/15">·</span>
                 <span className={event.buyIn === 0 ? 'text-green-500' : 'text-gold'}>
-                  {event.buyIn === 0 ? t('freeEntry') : `${event.buyIn}`}
+                  {formatEventCost(event, t('freeEntry'))}
                 </span>
               </div>
 
@@ -94,7 +94,7 @@ export function EventSpotlight({ events, onEventClick }: Props) {
               ) : event.status === 'late-reg' ? (
                 <div className="flex items-center gap-1.5 text-xs text-gold font-bold">
                   <Plus className="size-3" aria-hidden="true" />
-                  {event.buyIn === 0 ? t('joinBtn') : `${event.buyIn} CR`}
+                  {formatEventCost(event, t('joinBtn'))}
                 </div>
               ) : (
                 <div className="flex items-center gap-1.5 text-xs text-white/40 font-bold">

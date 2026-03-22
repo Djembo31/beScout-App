@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { formatEventCost } from '../helpers';
 import Image from 'next/image';
 import {
   Trophy, Users, Clock, Star, Shield,
@@ -67,7 +68,7 @@ export default function OverviewPanel({ event, userId, participants, participant
         <div className="grid grid-cols-2 gap-2">
           <div className="p-3 bg-surface-subtle rounded-lg">
             <div className="text-xs text-white/40">{t('entryLabel')}</div>
-            <div className="font-mono font-bold text-gold">{event.buyIn === 0 ? t('entryFree') : `${event.buyIn} CR`}</div>
+            <div className="font-mono font-bold text-gold">{formatEventCost(event, t('entryFree'))}</div>
           </div>
           <div className="p-3 bg-surface-subtle rounded-lg">
             <div className="text-xs text-white/40">{t('prizePoolLabel')}</div>
@@ -141,11 +142,11 @@ export default function OverviewPanel({ event, userId, participants, participant
             </div>
           )}
           {/* Entry fee condition */}
-          {event.buyIn > 0 && (
+          {(event.ticketCost ?? 0) > 0 && (
             <div className="flex items-center justify-between p-3 bg-surface-subtle rounded-lg">
               <div className="flex items-center gap-2">
                 <Coins aria-hidden="true" className="size-4 text-gold" />
-                <span>{t('entryFeeReq', { n: event.buyIn })}</span>
+                <span>{t('entryFeeReq', { n: formatEventCost(event, '') })}</span>
               </div>
               <CheckCircle2 aria-hidden="true" className="size-5 text-green-500" />
             </div>

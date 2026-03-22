@@ -480,7 +480,7 @@ export default function HomePage() {
                             </span>
                             <span className="text-white/30">/{nextEvent.max_entries ?? '\u221E'}</span>
                           </span>
-                          <span>{t('entryLabel')}{nextEvent.entry_fee === 0 ? t('entryFree') : `${fmtScout(centsToBsd(nextEvent.entry_fee))} CR`}</span>
+                          <span>{t('entryLabel')}{(nextEvent.ticket_cost ?? nextEvent.entry_fee) === 0 ? t('entryFree') : nextEvent.currency === 'scout' ? `${fmtScout(centsToBsd(nextEvent.ticket_cost ?? nextEvent.entry_fee))} CR` : `${nextEvent.ticket_cost ?? nextEvent.entry_fee} Tickets`}</span>
                         </div>
                       </div>
                       <div className="text-right shrink-0">

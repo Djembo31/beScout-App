@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Button, EventScopeBadge } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import type { FantasyEvent } from '../types';
-import { getTypeStyle, getTierStyle } from '../helpers';
+import { getTypeStyle, getTierStyle, formatEventCost } from '../helpers';
 import { FillBar } from './FillBar';
 import { UrgencyTimer } from './UrgencyTimer';
 import { RequirementChips } from './RequirementChips';
@@ -91,8 +91,8 @@ export function EventCardView({ event, onClick }: Props) {
       {/* Row 5: Stats grid */}
       <div className="grid grid-cols-3 gap-2 mb-3">
         <div className="text-center p-2 bg-surface-subtle rounded-lg">
-          <div className={cn('font-mono font-bold text-sm tabular-nums', event.buyIn === 0 ? 'text-green-500' : 'text-gold')}>
-            {event.buyIn === 0 ? t('freeEntry') : event.buyIn}
+          <div className={cn('font-mono font-bold text-sm tabular-nums', (event.ticketCost ?? 0) === 0 ? 'text-green-500' : 'text-gold')}>
+            {formatEventCost(event, t('freeEntry'))}
           </div>
           <div className="text-xs text-white/40">{t('entryLabel')}</div>
         </div>
@@ -132,7 +132,7 @@ export function EventCardView({ event, onClick }: Props) {
           ) : event.status === 'running' ? (
             <><Play className="size-4" aria-hidden="true" /> {t('runningBtn')}</>
           ) : (
-            <><Plus className="size-4" aria-hidden="true" /> {event.buyIn === 0 ? t('joinBtn') : `${event.buyIn} CR`}</>
+            <><Plus className="size-4" aria-hidden="true" /> {formatEventCost(event, t('joinBtn'))}</>
           )}
         </Button>
       </div>

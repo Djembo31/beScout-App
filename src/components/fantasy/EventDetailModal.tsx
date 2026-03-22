@@ -579,7 +579,7 @@ export const EventDetailModal = ({
         {/* Join Confirmation Dialog */}
         {showJoinConfirm && (() => {
           const ticketCost = event.ticketCost ?? 0;
-          const hasCost = event.buyIn > 0 || ticketCost > 0;
+          const hasCost = ticketCost > 0;
           return (
             <div className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
               <div className="bg-[#141414] border border-white/10 rounded-2xl p-6 max-w-sm w-full">

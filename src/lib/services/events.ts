@@ -24,7 +24,7 @@ export async function getEvents(): Promise<DbEvent[]> {
 export async function getEventsByClubId(clubId: string): Promise<DbEvent[]> {
   const { data, error } = await supabase
     .from('events')
-    .select('id, name, type, status, format, gameweek, entry_fee, prize_pool, max_entries, current_entries, starts_at, locks_at, ends_at, scored_at, created_by, club_id, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, reward_structure, scope, lineup_size, created_at')
+    .select('id, name, type, status, format, gameweek, entry_fee, ticket_cost, currency, prize_pool, max_entries, current_entries, starts_at, locks_at, ends_at, scored_at, created_by, club_id, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, reward_structure, scope, lineup_size, created_at')
     .eq('club_id', clubId)
     .order('created_at', { ascending: false });
 
@@ -37,7 +37,7 @@ export async function getEventsByClubIds(clubIds: string[]): Promise<DbEvent[]> 
   if (clubIds.length === 0) return [];
   const { data, error } = await supabase
     .from('events')
-    .select('id, name, type, status, format, gameweek, entry_fee, prize_pool, max_entries, current_entries, starts_at, locks_at, ends_at, scored_at, created_by, club_id, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, reward_structure, scope, lineup_size, created_at')
+    .select('id, name, type, status, format, gameweek, entry_fee, ticket_cost, currency, prize_pool, max_entries, current_entries, starts_at, locks_at, ends_at, scored_at, created_by, club_id, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, reward_structure, scope, lineup_size, created_at')
     .in('club_id', clubIds)
     .order('created_at', { ascending: false });
 
@@ -156,7 +156,7 @@ export async function createNextGameweekEvents(
   // Load current GW events as templates
   const { data: templates, error: tplErr } = await supabase
     .from('events')
-    .select('name, type, format, entry_fee, prize_pool, max_entries, club_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap')
+    .select('name, type, format, entry_fee, ticket_cost, currency, prize_pool, max_entries, club_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap')
     .eq('club_id', clubId)
     .eq('gameweek', currentGw);
 
@@ -193,6 +193,8 @@ export async function createNextGameweekEvents(
     format: t.format,
     gameweek: nextGw,
     entry_fee: t.entry_fee,
+    ticket_cost: t.ticket_cost,
+    currency: t.currency,
     prize_pool: t.prize_pool,
     max_entries: t.max_entries,
     club_id: t.club_id,
@@ -331,7 +333,7 @@ export async function getAllEventsAdmin(filters?: {
 }): Promise<DbEvent[]> {
   let query = supabase
     .from('events')
-    .select('id, name, type, status, format, gameweek, entry_fee, prize_pool, max_entries, current_entries, starts_at, locks_at, ends_at, scored_at, created_by, club_id, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, reward_structure, scope, lineup_size, created_at, clubs(name, slug)')
+    .select('id, name, type, status, format, gameweek, entry_fee, ticket_cost, currency, prize_pool, max_entries, current_entries, starts_at, locks_at, ends_at, scored_at, created_by, club_id, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, reward_structure, scope, lineup_size, created_at, clubs(name, slug)')
     .order('created_at', { ascending: false });
 
   if (filters?.status && filters.status.length > 0) {

@@ -9,7 +9,7 @@ import { Card, Chip } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import type { FantasyEvent, ScoredLineupData } from './types';
-import { formatCountdown, getFormResult, getScoreColor, getPosAccentColor } from './helpers';
+import { formatCountdown, getFormResult, getScoreColor, getPosAccentColor, formatEventCost } from './helpers';
 import { useSponsor } from '@/lib/queries';
 
 export const DashboardTab = ({
@@ -333,7 +333,7 @@ export const DashboardTab = ({
                     <span className="font-medium text-sm truncate">{event.name}</span>
                     <span className="text-xs text-white/40">{event.status === 'ended' ? tc('ended') : formatCountdown(event.lockTime, t('countdownStarted'))}</span>
                   </div>
-                  <div className="text-xs text-white/40 mt-1">{event.format} • {event.buyIn === 0 ? tc('free') : `${event.buyIn} CR`}</div>
+                  <div className="text-xs text-white/40 mt-1">{event.format} • {formatEventCost(event, tc('free'))}</div>
                 </button>
               ))}
             </div>
@@ -363,7 +363,7 @@ export const DashboardTab = ({
                     <span className="font-medium text-sm truncate">{event.name}</span>
                     <span className="text-xs text-white/40">{formatCountdown(event.startTime, t('countdownStarted'))}</span>
                   </div>
-                  <div className="text-xs text-white/40 mt-1">{event.buyIn === 0 ? tc('free') : `${event.buyIn} CR`}</div>
+                  <div className="text-xs text-white/40 mt-1">{formatEventCost(event, tc('free'))}</div>
                 </button>
               ))}
             </div>

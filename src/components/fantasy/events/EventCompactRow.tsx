@@ -5,7 +5,7 @@ import { CheckCircle2, ChevronRight, Lock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { FantasyEvent } from '../types';
-import { getTypeStyle } from '../helpers';
+import { getTypeStyle, formatEventCost } from '../helpers';
 import { FillBar } from './FillBar';
 import { UrgencyTimer } from './UrgencyTimer';
 import { RequirementChips } from './RequirementChips';
@@ -43,7 +43,7 @@ export function EventCompactRow({ event, onClick }: Props) {
           <span>{event.participants}/{event.maxParticipants ?? '∞'}</span>
           <span className="text-white/15">·</span>
           <span className={event.buyIn === 0 ? 'text-green-500' : 'text-gold'}>
-            {event.buyIn === 0 ? t('freeEntry') : `${event.buyIn} CR`}
+            {formatEventCost(event, t('freeEntry'))}
           </span>
           {event.prizePool > 0 && (
             <>

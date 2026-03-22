@@ -1,4 +1,5 @@
-import type { EventStatus, EventType } from './types';
+import type { EventStatus, EventType, FantasyEvent } from './types';
+import { fmtScout } from '@/lib/utils';
 import {
   Sparkles, Building2, Gift, UserPlus, Star, Trophy, Swords,
 } from 'lucide-react';
@@ -83,3 +84,11 @@ export const getFormResult = (rank: number, total: number): { color: string; lab
   if (percentile <= 50) return { color: 'bg-yellow-500', label: '' };
   return { color: 'bg-red-500', label: '' };
 };
+
+/** Currency-aware cost label for event display */
+export function formatEventCost(event: Pick<FantasyEvent, 'ticketCost' | 'currency'>, freeLabel: string): string {
+  const cost = event.ticketCost ?? 0;
+  if (cost === 0) return freeLabel;
+  if (event.currency === 'scout') return `${fmtScout(cost / 100)} CR`;
+  return `${cost} Tickets`;
+}
