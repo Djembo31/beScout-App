@@ -66,6 +66,7 @@ export async function createEvent(params: {
   format: string;
   gameweek: number;
   entryFeeCents: number;
+  ticketCost?: number;
   prizePoolCents: number;
   maxEntries: number;
   startsAt: string;
@@ -81,6 +82,7 @@ export async function createEvent(params: {
   rewardStructure?: Array<{ rank: number; pct: number }> | null;
   currency?: EventCurrency;
 }): Promise<{ success: boolean; eventId?: string; error?: string }> {
+  const ticketCost = params.ticketCost ?? params.entryFeeCents;
   const { data, error } = await supabase
     .from('events')
     .insert({
@@ -89,7 +91,7 @@ export async function createEvent(params: {
       format: params.format,
       gameweek: params.gameweek,
       entry_fee: params.entryFeeCents,
-      ticket_cost: params.entryFeeCents,
+      ticket_cost: ticketCost,
       currency: params.currency ?? 'tickets',
       prize_pool: params.prizePoolCents,
       max_entries: params.maxEntries || null,

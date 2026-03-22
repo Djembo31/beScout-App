@@ -1661,22 +1661,15 @@ export type TicketSource =
   | 'mission'
   | 'daily_challenge'
   | 'achievement'
-  | 'streak_bonus'
   | 'mystery_box'
   | 'event_entry'
+  | 'event_entry_refund'
   | 'chip_use'
   | 'chip_refund'
-  | 'live_prediction'
   | 'admin_grant'
   | 'post_create'
   | 'research_publish'
-  | 'upvote_milestone'
-  | 'research_rating'
-  | 'follow_milestone'
-  | 'poll_create'
-  | 'post_boost'
-  | 'event_entry_refund'
-  | 'event_leave_refund';
+  | 'research_rating';
 
 export type DbUserTickets = {
   user_id: string;

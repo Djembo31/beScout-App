@@ -46,14 +46,27 @@ export function getStreakBenefits(streakDays: number): StreakBenefits {
   };
 }
 
-/** Human-readable list of active benefits for display (German labels) */
-export function getStreakBenefitLabels(streakDays: number): string[] {
+/** Human-readable list of active benefits for display.
+ *  Accepts a translator function t(key, params) for i18n support. */
+export function getStreakBenefitLabels(
+  streakDays: number,
+  t?: (key: string, params?: Record<string, unknown>) => string,
+): string[] {
   const b = getStreakBenefits(streakDays);
   const labels: string[] = [];
-  labels.push(`+${b.dailyTickets} Tickets/Tag`);
-  if (b.fantasyBonusPct > 0) labels.push(`+${Math.round(b.fantasyBonusPct * 100)}% Fantasy-Bonus`);
-  if (b.eloBoostPct > 0) labels.push(`+${b.eloBoostPct}% Elo-Gewinn`);
-  if (b.freeMysteryBoxesPerWeek > 0) labels.push(`${b.freeMysteryBoxesPerWeek} gratis Mystery Box/Woche`);
-  if (b.mysteryBoxTicketDiscount > 0) labels.push(`-${b.mysteryBoxTicketDiscount} Ticket Rabatt auf Mystery Boxes`);
+  const fmt = t ?? ((key: string, p?: Record<string, unknown>) => {
+    // Fallback: German hardcoded (backward compat)
+    if (key === 'streakTickets') return `+${p?.n} Tickets/Tag`;
+    if (key === 'streakFantasy') return `+${p?.n}% Fantasy-Bonus`;
+    if (key === 'streakElo') return `+${p?.n}% Elo-Gewinn`;
+    if (key === 'streakMysteryBox') return `${p?.n} gratis Mystery Box/Woche`;
+    if (key === 'streakMysteryDiscount') return `-${p?.n} Ticket Rabatt auf Mystery Boxes`;
+    return key;
+  });
+  labels.push(fmt('streakTickets', { n: b.dailyTickets }));
+  if (b.fantasyBonusPct > 0) labels.push(fmt('streakFantasy', { n: Math.round(b.fantasyBonusPct * 100) }));
+  if (b.eloBoostPct > 0) labels.push(fmt('streakElo', { n: b.eloBoostPct }));
+  if (b.freeMysteryBoxesPerWeek > 0) labels.push(fmt('streakMysteryBox', { n: b.freeMysteryBoxesPerWeek }));
+  if (b.mysteryBoxTicketDiscount > 0) labels.push(fmt('streakMysteryDiscount', { n: b.mysteryBoxTicketDiscount }));
   return labels;
 }
