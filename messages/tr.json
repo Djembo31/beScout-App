@@ -2037,6 +2037,7 @@
     "renewsAt": "Yenileme tarihi",
     "expiresAt": "Bitiş tarihi",
     "renew": "Yenile",
+    "allClubs": "Tüm Kulüpler",
     "notFoundTitle": "Kulüp bulunamadı",
     "notFoundDesc": "\"{slug}\" kulübü mevcut değil.",
     "backHome": "Ana sayfaya dön",

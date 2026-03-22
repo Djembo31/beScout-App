@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import {
-  Users, ChevronRight,
+  Users, ChevronRight, ChevronLeft,
   Building2, MessageCircle, FileText, Star,
   LayoutGrid, List,
   Settings, ChevronDown,
@@ -495,6 +495,15 @@ export default function ClubContent({ slug }: { slug: string }) {
         '--club-glow': `${clubColor}4D`,
       } as React.CSSProperties}
     >
+
+      {/* BACK TO CLUBS DISCOVERY */}
+      <Link
+        href="/clubs"
+        className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white transition-colors mb-4 group"
+      >
+        <ChevronLeft aria-hidden="true" className="size-4 group-hover:-translate-x-0.5 transition-transform" />
+        {t('allClubs')}
+      </Link>
 
       {/* HERO SECTION */}
       <ClubHero

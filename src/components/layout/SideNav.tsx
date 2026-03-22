@@ -133,9 +133,9 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
         <div className="space-y-1">
           {NAV_MAIN.map((item) => {
             const Icon = item.icon;
-            // Dynamic href: /club → /club/{activeClub.slug} or /clubs
+            // Dynamic href: /club → if on club detail, go to /clubs (escape trap)
             const href = item.href === '/club'
-              ? (activeClub ? `/club/${activeClub.slug}` : '/clubs')
+              ? (pathname.startsWith('/club/') ? '/clubs' : (activeClub ? `/club/${activeClub.slug}` : '/clubs'))
               : item.href;
             const isActive = mounted && (item.href === '/'
               ? pathname === '/'
@@ -185,9 +185,9 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
         <div className="space-y-1">
           {NAV_MORE.map((item) => {
             const Icon = item.icon;
-            // Dynamic href: /club → /club/{activeClub.slug} or /clubs
+            // Dynamic href: /club → if on club detail, go to /clubs (escape trap)
             const href = item.href === '/club'
-              ? (activeClub ? `/club/${activeClub.slug}` : '/clubs')
+              ? (pathname.startsWith('/club/') ? '/clubs' : (activeClub ? `/club/${activeClub.slug}` : '/clubs'))
               : item.href;
             const isActive = mounted && pathname.startsWith(item.href);
             return (

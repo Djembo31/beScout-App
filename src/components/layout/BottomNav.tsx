@@ -42,9 +42,10 @@ export const BottomNav = memo(function BottomNav() {
       <div className="flex items-center justify-around h-16 px-1">
         {BOTTOM_TABS.map((tab) => {
           const Icon = tab.icon;
-          // Club tab: resolve to active club slug or /clubs
+          // Club tab: if already on a club page, go to /clubs (escape the trap)
+          // Otherwise, go to active club or /clubs discovery
           const href = tab.href === '/club'
-            ? activeClub?.slug ? `/club/${activeClub.slug}` : '/clubs'
+            ? (pathname.startsWith('/club/') ? '/clubs' : (activeClub?.slug ? `/club/${activeClub.slug}` : '/clubs'))
             : tab.href;
           const isActive = mounted && (tab.href === '/'
             ? pathname === '/'

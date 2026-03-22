@@ -2037,6 +2037,7 @@
     "renewsAt": "Verlängert am",
     "expiresAt": "Läuft ab am",
     "renew": "Verlängern",
+    "allClubs": "Alle Vereine",
     "notFoundTitle": "Club nicht gefunden",
     "notFoundDesc": "Der Club \"{slug}\" existiert nicht.",
     "backHome": "Zurück zur Startseite",
