@@ -3,32 +3,40 @@
 ## Was wurde gemacht
 
 ### Unified Event Payment Gateway (Tickets x Events)
-- **Design:** Brainstorming (6 Entscheidungen) → Design Doc → 12-Task Plan → Subagent Execution
-- **Merged auf main**, deployed auf Vercel, visuell getestet
-- **Migration 298:** `20260321_unified_event_payment.sql` — auf Supabase applied + verifiziert
-  - `events.currency` Spalte (tickets/scout, Default tickets)
-  - `event_entries` Tabelle (Payment-Tracking, entkoppelt von Lineups)
-  - `platform_settings` Tabelle (scout_events_enabled=false)
-  - 4 RPCs: lock/unlock_event_entry, cancel_event_entries + scout_events_enabled()
-  - REVOKE + Auth-Wrappers, Backfill 102 Entries
-- **Full Stack:** Types → Services → Hooks → UI → Admin → i18n → Tests (32 neue)
-- **Visuell getestet auf Vercel Production:**
-  - Event-Cards zeigen Ticket-Kosten korrekt
-  - Join-Flow: Bestaetigungsdialog → atomarer RPC → Tickets abgezogen (40→35)
-  - Running Events: "Anmeldung geschlossen" korrekt
-  - DB verifiziert: event_entries + ticket_transactions stimmen
+- **Full Feature:** Brainstorming → Design → Plan → 12 Tasks → Deploy → Visuell verifiziert
+- **Migration 298:** currency, event_entries, platform_settings, 4 RPCs (lock/unlock/cancel + Helper)
+- **Migration 299:** user_tickets auto-init Trigger + Backfill
+- **2 Audits:** 15 Findings gefunden, 14 gefixt (1 separates Ticket: MysteryBox Discount)
+- **Fixes:** SELECT-Queries, currency-aware UI (6 Komponenten), formatEventCost Helper, TicketSource Cleanup, GW-Clone, Home Page
+
+### Club Navigation
+- **Bug gefixt:** Navigation-Trap (Club-Tab Endlosschleife)
+- **Feature:** Mobile Club Switcher (horizontale Pill-Leiste auf Club-Detail)
+- **Nav-Toggle:** Club-Tab wechselt zwischen Detail und Discovery
+
+### Self-Improving Workflow (4-Layer)
+- **Stop Hook Agent:** Quality Gate (inline prompt, timeout 120s) — UNGETESTET, feuert erst in naechster Session
+- **SessionEnd Hook:** Automatische Retro (timeout 5s)
+- **SessionStart Hook:** Learnings Injection
+- **Rule Promotion:** Autonomous Execution + Iterative Quality + Post-Merge Checkliste → workflow.md
+- **Playwright:** Isoliertes User-Data-Dir in .mcp.json
 
 ---
 
 ## Naechste Session
 
+### Sofort testen
+1. **Stop Hook Agent verifizieren** — kleines Code-Edit, Hook muss feuern
+2. **SessionStart Hook verifizieren** — Learnings Injection beim Start
+
 ### Vorgehensweise
 1. Fantasy Picker visuell testen (noch von Session 248 offen)
-2. UI-Polish wo noetig (Responsive, Truncation, Spacing)
+2. UI-Polish wo noetig
 3. Weitere Screens durchgehen
 
 ### Offene Arbeit
-- BUG-004 DB-Fix Script
+- MysteryBox Streak-Discount server-enforced (RPC-Aenderung)
+- Ticket-Transaktionshistorie UI (Feature)
 - Admin i18n Rest (~80 Strings)
 - Stripe (wartet auf Anils Account)
 
