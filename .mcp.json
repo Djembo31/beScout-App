@@ -2,7 +2,7 @@
   "mcpServers": {
     "playwright": {
       "command": "node",
-      "args": ["./node_modules/@playwright/mcp/cli.js"]
+      "args": ["./node_modules/@playwright/mcp/cli.js", "--user-data-dir", "C:/Users/Anil/AppData/Local/ms-playwright/mcp-isolated"]
     }
   }
 }

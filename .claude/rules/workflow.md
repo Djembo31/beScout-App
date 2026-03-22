@@ -88,8 +88,32 @@ ausgefuehrt wurden. "Im Kopf geprueft" zaehlt NICHT.
 ### Pre-Dispatch Checkliste (VOR jedem Implementer-Agent)
 1. **Types lesen** die der Agent konsumiert/produziert — fehlende Felder VOR Dispatch fixen
 2. **Imports pruefen** — existieren die Module die der Agent importieren soll?
-3. **Integration-Tasks** (>3 Files): IMMER Spec-Review nach Completion
-4. **>5 geaenderte Files**: Feature Branch, nicht direkt main
+3. **RPC-Namen pruefen** — Agent muss Wrapper-RPCs nutzen (z.B. `lock_event_entry`), NICHT die internen REVOKEd RPCs (`rpc_lock_event_entry`)
+4. **Integration-Tasks** (>3 Files): IMMER Spec-Review nach Completion
+5. **>5 geaenderte Files**: Feature Branch, nicht direkt main
+
+### Post-Merge Checkliste (NACH jedem Agent-Merge, PFLICHT)
+1. **ALLE geaenderten Files lesen** — nicht nur Diff, sondern: machen die Files ZUSAMMEN Sinn?
+2. **Duplikat-Check:** Gibt es dieselbe Funktion/Type/Key/Service-File zweimal? Agent-Output KRITISCH lesen
+3. **API-Kompatibilitaet:** Return-Types stimmen? (ok vs success, snake_case vs camelCase)
+4. **Column-Names:** Stimmen die DB-Column-Namen mit common-errors.md ueberein?
+5. **UI-Texte:** Wenn UI geaendert — stimmt JEDER sichtbare Text fuer den Kontext?
+6. Erst wenn alle 5 Punkte geprueft: Commit
+
+### Autonomous Execution (NACH Brainstorming)
+- Nach Brainstorming den gesamten Loop AUTONOM durchlaufen
+- Design → Plan → Implement → Merge-Review → Test → Deploy → Verify → Report
+- Status-Updates nur an natuerlichen Meilensteinen, KEINE Zwischenfragen
+- Bei Blockern: Sofort Alternative waehlen, nicht fragen
+- Default-Entscheidungen treffen wenn offensichtlich
+- Erst am Ende zurueckkommen mit Fertig-Report + Screenshots + DB-Verification
+
+### Iterative Quality (Ein Pass reicht NICHT)
+- Nach jeder Implementation: Holistic Review ueber ALLE geaenderten Files
+- Jeden sichtbaren Text einzeln pruefen
+- Unerwartete Seiteneffekte UNTERSUCHEN (nicht ignorieren)
+- Fix → Review → Fix → Review → bis ZUFRIEDEN
+- "tsc clean" ≠ fertig. "Tests gruen" ≠ fertig. "Agent sagt fertig" ≠ fertig.
 
 ### Prinzipien
 - **Builder ≠ Validator:** Wer Code schreibt, reviewed ihn NICHT
