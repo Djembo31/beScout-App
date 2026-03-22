@@ -80,6 +80,7 @@ export type FantasyEvent = {
   scope?: 'global' | 'club';
   lineupSize?: 7 | 11;
   ticketCost: number;
+  currency: 'tickets' | 'scout';
 };
 
 export type LineupPlayer = {

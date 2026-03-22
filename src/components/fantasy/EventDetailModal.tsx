@@ -593,25 +593,17 @@ export const EventDetailModal = ({
                   </div>
                 </div>
                 <div className="space-y-2 mb-5 text-sm">
-                  {/* Cost display — currency-aware */}
-                  {event.buyIn > 0 && (
-                    <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                      <span className="text-white/60">{t('entryFeeLabel')}</span>
-                      <span className="font-bold font-mono tabular-nums text-gold">{fmtScout(event.buyIn)} $SCOUT</span>
-                    </div>
-                  )}
-                  {ticketCost > 0 && (
-                    <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                      <span className="text-white/60">{t('ticketsLabel')}</span>
+                  {/* Cost display — unified, currency-aware */}
+                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
+                    <span className="text-white/60">{t('entryFeeLabel')}</span>
+                    {event.currency === 'tickets' && ticketCost > 0 ? (
                       <span className="font-bold font-mono tabular-nums text-amber-400">{t('ticketCost', { cost: ticketCost })}</span>
-                    </div>
-                  )}
-                  {!hasCost && (
-                    <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                      <span className="text-white/60">{t('entryFeeLabel')}</span>
+                    ) : event.currency === 'scout' && ticketCost > 0 ? (
+                      <span className="font-bold font-mono tabular-nums text-gold">{fmtScout(ticketCost / 100)} $SCOUT</span>
+                    ) : (
                       <span className="font-bold text-green-500">{t('free')}</span>
-                    </div>
-                  )}
+                    )}
+                  </div>
                   <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
                     <span className="text-white/60">{t('formatLabel')}</span>
                     <span className="font-mono text-white">{event.format}</span>
@@ -641,11 +633,11 @@ export const EventDetailModal = ({
         {!event.isJoined && event.status !== 'ended' && event.status !== 'running' && (() => {
           const isFull = !!(event.maxParticipants && event.participants >= event.maxParticipants);
           const ticketCost = event.ticketCost ?? 0;
-          const hasCost = event.buyIn > 0 || ticketCost > 0;
-          const costLabel = ticketCost > 0
+          const hasCost = ticketCost > 0;
+          const costLabel = event.currency === 'tickets' && ticketCost > 0
             ? t('ticketCost', { cost: ticketCost })
-            : event.buyIn > 0
-            ? `${fmtScout(event.buyIn)} $SCOUT`
+            : event.currency === 'scout' && ticketCost > 0
+            ? `${fmtScout(ticketCost / 100)} $SCOUT`
             : t('free');
           return (
             <div className="flex-shrink-0 border-t border-white/10 bg-bg-main">

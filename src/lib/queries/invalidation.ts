@@ -83,6 +83,7 @@ export function invalidateFantasyQueries(userId?: string, clubId?: string): void
   }
   if (userId) {
     queryClient.invalidateQueries({ queryKey: qk.events.joinedIds(userId) });
+    queryClient.invalidateQueries({ queryKey: qk.events.enteredIds(userId) });
     queryClient.invalidateQueries({ queryKey: qk.events.usage(userId) });
     queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(userId) });
   }

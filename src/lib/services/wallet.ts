@@ -125,7 +125,7 @@ type WalletRpcResult = { success: boolean; error?: string; new_balance?: number 
 
 /**
  * Entry Fee vom Wallet abziehen (atomar, mit TX-Log)
- * @deprecated Use lockEventEntry() from event-entries service instead.
+ * @deprecated Use lockEventEntry() from events service instead.
  * This function is part of the old 2-step payment flow (deduct then submit lineup).
  * The new atomic RPC handles payment + entry in a single transaction.
  */
@@ -146,7 +146,7 @@ export async function deductEntryFee(userId: string, amountCents: number, eventN
 
 /**
  * Entry Fee zurueck auf Wallet gutschreiben (atomar, mit TX-Log)
- * @deprecated Use unlockEventEntry() from event-entries service instead.
+ * @deprecated Use unlockEventEntry() from events service instead.
  * This function is part of the old 2-step payment flow (refund then remove lineup).
  * The new atomic RPC handles refund + entry removal in a single transaction.
  */

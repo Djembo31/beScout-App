@@ -121,6 +121,7 @@ function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userLineup?:
     scope: db.scope ?? 'global',
     lineupSize: db.lineup_size ?? (db.format === '11er' || db.format === '11er-reserve' ? 11 : 7),
     ticketCost: db.ticket_cost ?? 0,
+    currency: db.currency ?? 'tickets',
     clubId: db.club_id ?? undefined,
   };
 }
@@ -566,6 +567,7 @@ export default function FantasyContent() {
       rewards: [{ rank: '1st', reward: 'League Champion' }],
       rewardStructure: null,
       ticketCost: 0,
+      currency: 'tickets',
     };
     setLocalEvents(prev => [newEvent, ...(prev ?? events)]);
     addToast(t('eventCreated', { name: newEvent.name }), 'success');

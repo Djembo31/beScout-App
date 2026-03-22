@@ -45,10 +45,10 @@ export async function getEventsByClubIds(clubIds: string[]): Promise<DbEvent[]> 
   return (data ?? []) as DbEvent[];
 }
 
-/** Event-IDs wo der User ein Lineup hat */
+/** Event-IDs wo der User eingetragen ist (via event_entries, nicht lineups) */
 export async function getUserJoinedEventIds(userId: string): Promise<string[]> {
   const { data, error } = await supabase
-    .from('lineups')
+    .from('event_entries')
     .select('event_id')
     .eq('user_id', userId);
 
@@ -549,7 +549,14 @@ export async function cancelEventEntries(
     return { ok: false, error: error.message };
   }
 
-  return data as { ok: boolean; refundedCount?: number; error?: string };
+  const result = data as Record<string, unknown> | null;
+  if (!result) return { ok: false, error: 'No response from server' };
+
+  return {
+    ok: (result.ok as boolean) ?? false,
+    refundedCount: result.refunded_count as number | undefined,
+    error: result.error as string | undefined,
+  };
 }
 
 /** Check if user has entered an event */
