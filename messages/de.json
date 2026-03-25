@@ -828,6 +828,7 @@
     "scoutEventsDescription": "Wenn aktiviert, können Admins Events mit $SCOUT-Eintritt erstellen.",
     "scoutEventsEnabled": "$SCOUT Events aktiviert",
     "scoutEventsDisabled": "$SCOUT Events deaktiviert",
+    "subscriptionRequired": "Mindestens {tier}-Abo benötigt",
     "settingsFailed": "Einstellung konnte nicht gespeichert werden.",
     "entryCost": "Eintrittskosten",
     "scoutEventsNotAvailable": "$SCOUT Events sind derzeit nicht verfügbar."

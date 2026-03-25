@@ -3,9 +3,9 @@ import { getFixturesByGameweek } from '@/lib/services/fixtures';
 import { notifText } from '@/lib/notifText';
 import type { DbEvent, DbEventEntry, EventCurrency } from '@/types';
 
-/** Check if an event is club-scoped (vs global) */
-export function isClubEvent(event: { scope: string }): boolean {
-  return event.scope === 'club';
+/** Check if an event is club-scoped (restricted to club members' players) */
+export function isClubEvent(event: { type?: string; scope?: string; club_id?: string | null }): boolean {
+  return event.type === 'club' || event.scope === 'club';
 }
 
 // ============================================

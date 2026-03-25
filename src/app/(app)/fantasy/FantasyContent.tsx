@@ -403,6 +403,9 @@ export default function FantasyContent() {
           case 'scout_events_disabled':
             addToast(t('scoutEventsDisabled'), 'error');
             break;
+          case 'subscription_required':
+            addToast(t('subscriptionRequired', { tier: result.need ?? '' }), 'error');
+            break;
           default:
             addToast(t('errorGeneric', { error: result.error ?? 'Unknown error' }), 'error');
         }

@@ -30,6 +30,15 @@ describe('isClubEvent', () => {
   it('returns true for scope=club', () => {
     expect(isClubEvent({ scope: 'club' })).toBe(true);
   });
+  it('returns true for type=club', () => {
+    expect(isClubEvent({ type: 'club' })).toBe(true);
+  });
+  it('returns true for type=club + scope=global', () => {
+    expect(isClubEvent({ type: 'club', scope: 'global' })).toBe(true);
+  });
+  it('returns false for type=bescout scope=global', () => {
+    expect(isClubEvent({ type: 'bescout', scope: 'global' })).toBe(false);
+  });
   it('returns false for scope=global', () => {
     expect(isClubEvent({ scope: 'global' })).toBe(false);
   });

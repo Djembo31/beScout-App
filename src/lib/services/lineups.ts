@@ -78,7 +78,7 @@ export async function submitLineup(params: {
   // Check event status + capacity + scope before submitting
   const { data: ev, error: evError } = await supabase
     .from('events')
-    .select('status, max_entries, current_entries, locks_at, lineup_size, scope, club_id')
+    .select('status, max_entries, current_entries, locks_at, lineup_size, scope, type, club_id')
     .eq('id', params.eventId)
     .single();
 
@@ -211,7 +211,7 @@ export async function submitLineup(params: {
   }
 
   // Guard: club-scoped events only accept players from that club
-  if (ev.scope === 'club' && ev.club_id) {
+  if ((ev.scope === 'club' || ev.type === 'club') && ev.club_id) {
     const { data: slotPlayers } = await supabase
       .from('players')
       .select('id, club_id')

@@ -15,6 +15,7 @@ import {
 } from '@/lib/services/events';
 import { getAllClubs } from '@/lib/services/club';
 import RewardStructureEditor from '@/components/admin/RewardStructureEditor';
+import { AdminEventFeesSection } from './AdminEventFeesSection';
 import type { DbEvent, DbClub, EventCurrency, RewardTier } from '@/types';
 import { useScoutEventsEnabled } from '@/lib/queries/events';
 
@@ -414,6 +415,9 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
 
   return (
     <div className="space-y-5">
+      {/* ===== 0. EVENT FEE CONFIG ===== */}
+      <AdminEventFeesSection adminId={adminId} />
+
       {/* ===== 1. STATS BAR ===== */}
       {stats && (
         <div className="grid grid-cols-3 gap-3">

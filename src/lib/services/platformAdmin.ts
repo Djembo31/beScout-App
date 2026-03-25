@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { DbFeeConfig } from '@/types';
+import type { DbFeeConfig, DbEventFeeConfig } from '@/types';
 
 // ============================================
 // Admin Role Check
@@ -189,6 +189,31 @@ export async function updateFeeConfig(
   });
   if (error) throw new Error(error.message);
   return data as { success: boolean; error?: string };
+}
+
+// ============================================
+// Event Fee Config
+// ============================================
+
+export async function getEventFeeConfigs(): Promise<DbEventFeeConfig[]> {
+  const { data, error } = await supabase
+    .from('event_fee_config')
+    .select('*')
+    .order('event_type');
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DbEventFeeConfig[];
+}
+
+export async function updateEventFeeConfig(
+  adminId: string,
+  eventType: string,
+  updates: { platform_pct?: number; beneficiary_pct?: number },
+): Promise<void> {
+  const { error } = await supabase
+    .from('event_fee_config')
+    .update({ ...updates, updated_by: adminId, updated_at: new Date().toISOString() })
+    .eq('event_type', eventType);
+  if (error) throw new Error(error.message);
 }
 
 // ============================================

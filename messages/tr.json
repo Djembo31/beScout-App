@@ -828,6 +828,7 @@
     "scoutEventsDescription": "Etkinleştirildiğinde adminler $SCOUT girişli etkinlik oluşturabilir.",
     "scoutEventsEnabled": "$SCOUT etkinlikler aktif",
     "scoutEventsDisabled": "$SCOUT etkinlikler devre dışı",
+    "subscriptionRequired": "En az {tier} abonelik gerekli",
     "settingsFailed": "Ayar kaydedilemedi.",
     "entryCost": "Giriş ücreti",
     "scoutEventsNotAvailable": "$SCOUT etkinlikler şu anda kullanılamıyor."
