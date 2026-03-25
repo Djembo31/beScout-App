@@ -358,6 +358,13 @@ export async function submitLineup(params: {
 
 /** Lineup löschen (Abmelden vom Event) */
 export async function removeLineup(eventId: string, userId: string): Promise<void> {
+  // Release holding locks before lineup deletion
+  await supabase
+    .from('holding_locks')
+    .delete()
+    .eq('event_id', eventId)
+    .eq('user_id', userId);
+
   const { error, count } = await supabase
     .from('lineups')
     .delete({ count: 'exact' })
