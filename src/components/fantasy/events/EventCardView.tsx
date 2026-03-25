@@ -39,7 +39,7 @@ export function EventCardView({ event, onClick }: Props) {
       {/* Row 1: Type + Tier + Timer */}
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
-          {event.clubLogo ? (
+          {event.type === 'club' && event.clubLogo ? (
             <img src={event.clubLogo} alt="" className="size-7 rounded-lg object-contain" />
           ) : event.type === 'bescout' ? (
             <img src="/icons/bescout_icon_premium.svg" alt="" className="size-7 rounded-lg object-contain" />
