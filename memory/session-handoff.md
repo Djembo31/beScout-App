@@ -1,44 +1,41 @@
 # Session Handoff
-## Letzte Session: 2026-03-22 (Session 249)
+## Letzte Session: 2026-03-25 (Session 251)
 ## Was wurde gemacht
 
-### Unified Event Payment Gateway (Tickets x Events)
-- **Full Feature:** Brainstorming → Design → Plan → 12 Tasks → Deploy → Visuell verifiziert
-- **Migration 298:** currency, event_entries, platform_settings, 4 RPCs (lock/unlock/cancel + Helper)
-- **Migration 299:** user_tickets auto-init Trigger + Backfill
-- **2 Audits:** 15 Findings gefunden, 14 gefixt (1 separates Ticket: MysteryBox Discount)
-- **Fixes:** SELECT-Queries, currency-aware UI (6 Komponenten), formatEventCost Helper, TicketSource Cleanup, GW-Clone, Home Page
+### Pilot Checklist — 4-Schichten-Audit
+- **Ergebnis: GO** — 28/28 Checks passed
+- **63 Test-Fixes:** 60 tsc Typ-Fehler + 3 Test-Failures (mock + DB ranks)
+- **Visuell geprueft:** 8 Routes auf 360px, kein Overflow, kein Crash
+- **Schicht 4 komplett:** i18n TR (0 missing keys), Doppelklick-Schutz (Buy+Sell), Mobile Overflow (8/8)
 
-### Club Navigation
-- **Bug gefixt:** Navigation-Trap (Club-Tab Endlosschleife)
-- **Feature:** Mobile Club Switcher (horizontale Pill-Leiste auf Club-Detail)
-- **Nav-Toggle:** Club-Tab wechselt zwischen Detail und Discovery
+### Migration 300: MysteryBox Streak-Discount
+- Server-enforced: 1 Ticket Rabatt ab 4-Tage-Streak (vorher nur client-side)
+- RPC liest user_streaks.current_streak, Response enthaelt streak_discount
 
-### Self-Improving Workflow (4-Layer)
-- **Stop Hook Agent:** Quality Gate (inline prompt, timeout 120s) — UNGETESTET, feuert erst in naechster Session
-- **SessionEnd Hook:** Automatische Retro (timeout 5s)
-- **SessionStart Hook:** Learnings Injection
-- **Rule Promotion:** Autonomous Execution + Iterative Quality + Post-Merge Checkliste → workflow.md
-- **Playwright:** Isoliertes User-Data-Dir in .mcp.json
+### Admin i18n
+- 3 hardcoded German Strings gefixt (Kopie, Posts, vor-Prefix)
+- i18n-Scanner: nur 16 total gefunden, 13 davon sprachuebergreifend (DAU/Bronze/etc.)
+
+### Commits (6)
+- docs: pilot checklist design
+- docs: pilot checklist plan (14 tasks)
+- docs: pilot checklist results — GO
+- fix: align 26 test files with current types — tsc 0 errors
+- fix: repair 3 test failures — mock + DB rank dedup
+- fix: translate 3 hardcoded German strings in admin
 
 ---
 
 ## Naechste Session
 
-### Sofort testen
-1. **Stop Hook Agent verifizieren** — kleines Code-Edit, Hook muss feuern
-2. **SessionStart Hook verifizieren** — Learnings Injection beim Start
+### Offene Arbeit (Prioritaet)
+1. **Ticket-Transaktionshistorie UI** (Tier 3 Feature — braucht Brainstorming)
+2. **Stripe** (wartet auf Anils Account)
 
-### Vorgehensweise
-1. Fantasy Picker visuell testen (noch von Session 248 offen)
-2. UI-Polish wo noetig
-3. Weitere Screens durchgehen
-
-### Offene Arbeit
-- MysteryBox Streak-Discount server-enforced (RPC-Aenderung)
-- Ticket-Transaktionshistorie UI (Feature)
-- Admin i18n Rest (~80 Strings)
-- Stripe (wartet auf Anils Account)
+### Nice-to-have
+- 9 Reserve-Spieler ohne Bild
+- PostHog CSP erweitern
+- Remaining Admin i18n: Tier-Labels (Bronze+/Silber+/Gold) in Dropdowns
 
 ## Blocker
 - Keine
