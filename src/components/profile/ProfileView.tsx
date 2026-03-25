@@ -14,6 +14,7 @@ import { getResearchPosts, getAuthorTrackRecord, resolveExpiredResearch } from '
 import { getUserTrades } from '@/lib/services/trading';
 import { getUserFantasyHistory } from '@/lib/services/lineups';
 import { val } from '@/lib/settledHelpers';
+import { getTicketTransactions } from '@/lib/services/tickets';
 
 import { ScoutCard } from '@/components/profile/ScoutCard';
 import FollowListModal from '@/components/profile/FollowListModal';
@@ -57,6 +58,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
   // ── Data state ──
   const [holdings, setHoldings] = useState<HoldingRow[]>([]);
   const [transactions, setTransactions] = useState<DbTransaction[]>([]);
+  const [ticketTransactions, setTicketTransactions] = useState<import('@/types').DbTicketTransaction[]>([]);
   const [holdingsLoading, setHoldingsLoading] = useState(true);
   const [dataError, setDataError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -114,6 +116,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
           getUserFantasyHistory(targetUserId, 10),
           getUserAchievements(targetUserId).then(rows => rows.map(r => ({ achievement_key: r.achievement_key }))),
           isSelf ? getMyPayouts(targetUserId) : Promise.resolve([]),
+          isSelf ? getTicketTransactions(targetUserId, 50) : Promise.resolve([]),
         ]);
         if (!cancelled) {
           // Handle each result independently so one failure doesn't block others
@@ -131,6 +134,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
           const achRows = val(results[9], [] as { achievement_key: string }[]);
           setUnlockedAchievements(new Set(achRows.map(r => r.achievement_key)));
           setCreatorPayouts(val(results[10], []) as DbCreatorFundPayout[]);
+          setTicketTransactions(val(results[11], []));
           setDataError(false);
 
           // Set default tab to strongest dimension (only on first load)
@@ -399,6 +403,7 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
               <TabPanel id="timeline" activeTab={tab}>
                 <TimelineTab
                   transactions={publicTransactions}
+                  ticketTransactions={ticketTransactions}
                   userId={targetUserId}
                   isSelf={isSelf}
                 />

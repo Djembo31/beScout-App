@@ -8,19 +8,22 @@ import {
 import { Card, LoadMoreButton } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { formatScout, getTransactions } from '@/lib/services/wallet';
+import { getTicketTransactions } from '@/lib/services/tickets';
 import {
   getActivityIcon, getActivityColor, getActivityLabelKey, getRelativeTime,
 } from '@/lib/activityHelpers';
 import { useTranslations, useLocale } from 'next-intl';
-import type { DbTransaction } from '@/types';
+import type { DbTransaction, DbTicketTransaction } from '@/types';
 
 // ============================================
 // ICON MAP
 // ============================================
 
+import { Gift, Calendar, Ticket } from 'lucide-react';
+
 const ICON_MAP: Record<string, React.ElementType> = {
   CircleDollarSign, Trophy, Award, Users, Zap, FileText,
-  Vote, Activity, Target, Flame, Banknote,
+  Vote, Activity, Target, Flame, Banknote, Gift, Calendar, Ticket,
 };
 
 function renderActivityIcon(type: string) {
@@ -35,9 +38,9 @@ function renderActivityIcon(type: string) {
 
 const PAGE_SIZE = 20;
 
-type TimelineFilter = 'all' | 'trades' | 'fantasy' | 'research' | 'rewards';
+type TimelineFilter = 'all' | 'credits' | 'tickets' | 'trades' | 'fantasy' | 'rewards';
 
-const FILTER_TYPE_MAP: Record<Exclude<TimelineFilter, 'all'>, Set<string>> = {
+const FILTER_TYPE_MAP: Record<'trades' | 'fantasy' | 'research' | 'rewards', Set<string>> = {
   trades: new Set(['buy', 'sell', 'ipo_buy']),
   fantasy: new Set(['fantasy_join', 'fantasy_reward', 'entry_fee']),
   research: new Set(['research_earning', 'mission_reward']),
@@ -50,14 +53,43 @@ const FILTER_TYPE_MAP: Record<Exclude<TimelineFilter, 'all'>, Set<string>> = {
 
 const FILTERS: { id: TimelineFilter; labelKey: string }[] = [
   { id: 'all', labelKey: 'filterAll' },
+  { id: 'credits', labelKey: 'filterCredits' },
+  { id: 'tickets', labelKey: 'filterTickets' },
   { id: 'trades', labelKey: 'filterTrades' },
   { id: 'fantasy', labelKey: 'filterFantasy' },
-  { id: 'research', labelKey: 'filterResearch' },
   { id: 'rewards', labelKey: 'filterRewards' },
 ];
 
+// Ticket source → icon name mapping
+const TICKET_ICON_MAP: Record<string, string> = {
+  daily_login: 'Flame',
+  mission: 'Target',
+  daily_challenge: 'Target',
+  achievement: 'Award',
+  mystery_box: 'Gift',
+  event_entry: 'Calendar',
+  event_entry_refund: 'Calendar',
+  chip_use: 'Zap',
+  chip_refund: 'Zap',
+  admin_grant: 'CircleDollarSign',
+  post_create: 'FileText',
+  research_publish: 'FileText',
+  research_rating: 'FileText',
+};
+
+// Unified row type for mixed timeline
+type TimelineRow = {
+  id: string;
+  amount: number;
+  created_at: string;
+  description: string | null;
+  currency: 'credits' | 'tickets';
+  type: string; // transaction type or ticket source
+};
+
 interface TimelineTabProps {
   transactions: DbTransaction[];
+  ticketTransactions: DbTicketTransaction[];
   userId: string;
   isSelf: boolean;
 }
@@ -86,8 +118,8 @@ function getDayLabel(
   return d.toLocaleDateString(locale, { day: '2-digit', month: 'long' });
 }
 
-function groupByDay(txs: DbTransaction[]): { dayKey: string; items: DbTransaction[] }[] {
-  const map = new Map<string, DbTransaction[]>();
+function groupByDay(txs: TimelineRow[]): { dayKey: string; items: TimelineRow[] }[] {
+  const map = new Map<string, TimelineRow[]>();
   for (const tx of txs) {
     const key = getDayKey(tx.created_at);
     const arr = map.get(key);
@@ -104,19 +136,54 @@ function groupByDay(txs: DbTransaction[]): { dayKey: string; items: DbTransactio
 // COMPONENT
 // ============================================
 
-export default function TimelineTab({ transactions: initial, userId, isSelf }: TimelineTabProps) {
+export default function TimelineTab({ transactions: initial, ticketTransactions: initialTickets, userId, isSelf }: TimelineTabProps) {
   const t = useTranslations('profile');
   const ta = useTranslations('activity');
   const locale = useLocale();
 
   const [transactions, setTransactions] = useState(initial);
+  const [ticketTxs, setTicketTxs] = useState(initialTickets);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(initial.length >= PAGE_SIZE);
   const [filter, setFilter] = useState<TimelineFilter>('all');
 
-  const filteredTransactions = filter === 'all'
-    ? transactions
-    : transactions.filter(tx => FILTER_TYPE_MAP[filter].has(tx.type));
+  // Convert to unified rows
+  const creditRows: TimelineRow[] = useMemo(() =>
+    transactions.map(tx => ({
+      id: tx.id,
+      amount: tx.amount,
+      created_at: tx.created_at,
+      description: tx.description,
+      currency: 'credits' as const,
+      type: tx.type,
+    })),
+    [transactions],
+  );
+
+  const ticketRows: TimelineRow[] = useMemo(() =>
+    ticketTxs.map(tx => ({
+      id: `t-${tx.id}`,
+      amount: tx.amount,
+      created_at: tx.created_at,
+      description: tx.description,
+      currency: 'tickets' as const,
+      type: tx.source,
+    })),
+    [ticketTxs],
+  );
+
+  const filteredRows = useMemo(() => {
+    if (filter === 'all') {
+      return [...creditRows, ...ticketRows].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
+    }
+    if (filter === 'credits') return creditRows;
+    if (filter === 'tickets') return ticketRows;
+    // Sub-filters apply to credits only
+    const filterSet = FILTER_TYPE_MAP[filter as keyof typeof FILTER_TYPE_MAP];
+    return filterSet ? creditRows.filter(tx => filterSet.has(tx.type)) : creditRows;
+  }, [filter, creditRows, ticketRows]);
 
   // Date keys for today / yesterday
   const { todayKey, yesterdayKey } = useMemo(() => {
@@ -129,22 +196,26 @@ export default function TimelineTab({ transactions: initial, userId, isSelf }: T
   }, []);
 
   const dayGroups = useMemo(
-    () => groupByDay(filteredTransactions),
-    [filteredTransactions],
+    () => groupByDay(filteredRows),
+    [filteredRows],
   );
 
   const handleLoadMore = useCallback(async () => {
     setLoadingMore(true);
     try {
-      const more = await getTransactions(userId, PAGE_SIZE, transactions.length);
-      setTransactions(prev => [...prev, ...more]);
-      setHasMore(more.length >= PAGE_SIZE);
+      const [moreTx, moreTickets] = await Promise.all([
+        getTransactions(userId, PAGE_SIZE, transactions.length),
+        getTicketTransactions(userId, PAGE_SIZE + ticketTxs.length).then(all => all.slice(ticketTxs.length)),
+      ]);
+      setTransactions(prev => [...prev, ...moreTx]);
+      setTicketTxs(prev => [...prev, ...moreTickets]);
+      setHasMore(moreTx.length >= PAGE_SIZE || moreTickets.length > 0);
     } catch (err) {
       console.error('TimelineTab: failed to load more', err);
     } finally {
       setLoadingMore(false);
     }
-  }, [userId, transactions.length]);
+  }, [userId, transactions.length, ticketTxs.length]);
 
   const dateLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
 
@@ -176,7 +247,7 @@ export default function TimelineTab({ transactions: initial, userId, isSelf }: T
       </div>
 
       {/* Content */}
-      {filteredTransactions.length === 0 ? (
+      {filteredRows.length === 0 ? (
         <div className="text-center py-10">
           <Activity className="size-10 mx-auto mb-3 text-white/20" aria-hidden="true" />
           <div className="text-white/40 font-semibold text-sm">
@@ -203,6 +274,7 @@ export default function TimelineTab({ transactions: initial, userId, isSelf }: T
                 <div className="space-y-0.5">
                   {items.map(tx => {
                     const positive = tx.amount > 0;
+                    const isTicket = tx.currency === 'tickets';
                     return (
                       <div
                         key={tx.id}
@@ -211,15 +283,18 @@ export default function TimelineTab({ transactions: initial, userId, isSelf }: T
                         {/* Icon */}
                         <div className={cn(
                           'flex items-center justify-center size-8 rounded-lg shrink-0 mt-0.5',
-                          getActivityColor(tx.type),
+                          isTicket ? 'bg-amber-500/10 text-amber-400' : getActivityColor(tx.type),
                         )}>
-                          {renderActivityIcon(tx.type)}
+                          {isTicket
+                            ? (() => { const I = ICON_MAP[TICKET_ICON_MAP[tx.type] ?? 'Ticket'] ?? Ticket; return <I className="size-4" aria-hidden="true" />; })()
+                            : renderActivityIcon(tx.type)
+                          }
                         </div>
 
                         {/* Description */}
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-medium leading-snug">
-                            {tx.description || ta(getActivityLabelKey(tx.type))}
+                            {tx.description || (isTicket ? t(`ticketSource_${tx.type}`) : ta(getActivityLabelKey(tx.type)))}
                           </div>
                           <div className="text-[11px] text-white/25 mt-0.5">
                             {getRelativeTime(tx.created_at, ta('justNow'), dateLocale)}
@@ -233,8 +308,11 @@ export default function TimelineTab({ transactions: initial, userId, isSelf }: T
                               'text-xs font-mono font-bold tabular-nums',
                               positive ? 'text-green-500' : 'text-white/40',
                             )}>
-                              {positive ? '+' : ''}{formatScout(tx.amount)}
+                              {positive ? '+' : ''}{isTicket ? tx.amount : formatScout(tx.amount)}
                             </span>
+                            <div className="text-[10px] text-white/20 mt-0.5">
+                              {isTicket ? 'Tickets' : 'CR'}
+                            </div>
                           </div>
                         )}
                       </div>

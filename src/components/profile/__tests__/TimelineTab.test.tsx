@@ -23,12 +23,12 @@ import TimelineTab from '../TimelineTab';
 
 describe('TimelineTab', () => {
   it('renders without crashing', () => {
-    const { container } = renderWithProviders(<TimelineTab userId="u1" transactions={[]} isSelf={true} />);
+    const { container } = renderWithProviders(<TimelineTab userId="u1" transactions={[]} ticketTransactions={[]} isSelf={true} />);
     expect(container.innerHTML).not.toBe('');
   });
 
   it('shows filter tabs', () => {
-    const { container } = renderWithProviders(<TimelineTab userId="u1" transactions={[]} isSelf={true} />);
+    const { container } = renderWithProviders(<TimelineTab userId="u1" transactions={[]} ticketTransactions={[]} isSelf={true} />);
     expect(container.innerHTML.length).toBeGreaterThan(50);
   });
 });
