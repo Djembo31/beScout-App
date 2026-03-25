@@ -13,12 +13,12 @@ function timeAgo(dateStr: string): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
   const mins = Math.floor((now - then) / 60000);
-  if (mins < 60) return `vor ${mins}m`;
+  if (mins < 60) return `${mins}m`;
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `vor ${hours}h`;
+  if (hours < 24) return `${hours}h`;
   const days = Math.floor(hours / 24);
-  if (days < 7) return `vor ${days}d`;
-  return new Date(dateStr).toLocaleDateString('de-DE');
+  if (days < 7) return `${days}d`;
+  return new Date(dateStr).toLocaleDateString();
 }
 
 export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {

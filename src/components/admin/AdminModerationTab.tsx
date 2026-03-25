@@ -177,7 +177,7 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
         <div className="flex items-center gap-2 mb-4">
           <FileText className="w-5 h-5 text-purple-400" />
           <span className="font-black text-lg">{t('clubPosts')}</span>
-          <span className="text-xs text-white/40">{posts.length} Posts</span>
+          <span className="text-xs text-white/40">{posts.length} {t('posts')}</span>
         </div>
         {loading ? (
           <div className="flex justify-center py-8">

@@ -128,7 +128,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
   }, []);
 
   const handleClone = useCallback((ev: DbEvent) => {
-    setName(`${ev.name} (Kopie)`);
+    setName(`${ev.name} (${t('clone')})`);
     setType(ev.type);
     setFormat(ev.format);
     setGameweek(String(ev.gameweek));
