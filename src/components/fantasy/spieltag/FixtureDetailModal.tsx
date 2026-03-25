@@ -11,7 +11,8 @@ import { getFixturePlayerStats, getFixtureSubstitutions, getFloorPricesForPlayer
 import type { Fixture, FixturePlayerStat, FixtureSubstitution, Pos } from '@/types';
 import { PlayerPhoto } from '@/components/player';
 import { ClubLogo } from './ClubLogo';
-import { posColor, getPosAccent, ratingHeatStyle, getRating } from './helpers';
+import { posColor, getPosAccent, getMatchScore } from './helpers';
+import { getScoreBadgeStyle } from '@/components/player/scoreColor';
 import { GoalIcon, AssistIcon, CleanSheetIcon, MvpCrownIcon, SubInIcon, SubOutIcon } from './MatchIcons';
 import { cn } from '@/lib/utils';
 
@@ -204,7 +205,7 @@ function OverviewTab({ stats, homeStats, awayStats, substitutions, fixture, mvpI
 }) {
   const ts = useTranslations('spieltag');
   const mvp = mvpId ? stats.find(s => s.player_id === mvpId) : null;
-  const mvpRating = mvp ? getRating(mvp) : 0;
+  const mvpScore = mvp ? getMatchScore(mvp) : null;
 
   // Quick stats — home vs away
   const homeGoals = homeStats.reduce((sum, s) => sum + s.goals, 0);
@@ -215,8 +216,8 @@ function OverviewTab({ stats, homeStats, awayStats, substitutions, fixture, mvpI
   const awaySubs = substitutions.length - homeSubs;
 
   // Top 3 performers from each team (filter for minutes_played > 0)
-  const homeTop3 = useMemo(() => [...homeStats].filter(s => s.minutes_played > 0).sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)).slice(0, 3), [homeStats]);
-  const awayTop3 = useMemo(() => [...awayStats].filter(s => s.minutes_played > 0).sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)).slice(0, 3), [awayStats]);
+  const homeTop3 = useMemo(() => [...homeStats].filter(s => s.minutes_played > 0).sort((a, b) => (getMatchScore(b) ?? 0) - (getMatchScore(a) ?? 0)).slice(0, 3), [homeStats]);
+  const awayTop3 = useMemo(() => [...awayStats].filter(s => s.minutes_played > 0).sort((a, b) => (getMatchScore(b) ?? 0) - (getMatchScore(a) ?? 0)).slice(0, 3), [awayStats]);
 
   return (
     <div className="space-y-6">
@@ -224,7 +225,7 @@ function OverviewTab({ stats, homeStats, awayStats, substitutions, fixture, mvpI
       {mvp && (
         <Link
           href={mvp.player_id ? `/player/${mvp.player_id}` : '#'}
-          aria-label={`${mvp.player_first_name || ''} ${mvp.player_last_name || ''} ${ts('mvpLabel')} — Rating ${mvpRating.toFixed(1)}`}
+          aria-label={`${mvp.player_first_name || ''} ${mvp.player_last_name || ''} ${ts('mvpLabel')} — Score ${mvpScore ?? '–'}`}
           className="block relative overflow-hidden rounded-2xl border border-gold/20 active:scale-[0.98] motion-reduce:active:scale-100 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
           style={{
             background: `linear-gradient(135deg, rgba(255,215,0,0.08) 0%, rgba(255,215,0,0.03) 50%, transparent 100%)`,
@@ -268,11 +269,11 @@ function OverviewTab({ stats, homeStats, awayStats, substitutions, fixture, mvpI
             <div
               className="flex-shrink-0 size-14 rounded-xl flex items-center justify-center font-mono font-black text-xl tabular-nums shadow-lg"
               style={{
-                ...ratingHeatStyle(mvpRating),
-                boxShadow: mvpRating >= 9.0 ? '0 0 20px rgba(55,77,245,0.3)' : undefined,
+                ...getScoreBadgeStyle(mvpScore),
+                boxShadow: (mvpScore ?? 0) >= 90 ? '0 0 20px rgba(55,77,245,0.3)' : undefined,
               }}
             >
-              {mvpRating.toFixed(1)}
+              {mvpScore ?? '\u2013'}
             </div>
           </div>
         </Link>
@@ -348,7 +349,7 @@ function TopPerformerRow({ stat, rank, isMvp, floorPrice }: {
   isMvp: boolean;
   floorPrice?: number;
 }) {
-  const rating = getRating(stat);
+  const score = getMatchScore(stat);
   const href = stat.player_id ? `/player/${stat.player_id}` : '#';
 
   const playerName = `${(stat.player_first_name || '?').charAt(0)}. ${stat.player_last_name || '?'}`;
@@ -356,7 +357,7 @@ function TopPerformerRow({ stat, rank, isMvp, floorPrice }: {
   return (
     <Link
       href={href}
-      aria-label={`${rank} ${playerName} ${stat.player_position} — Rating ${rating.toFixed(1)}`}
+      aria-label={`${rank} ${playerName} ${stat.player_position} — Score ${score ?? '–'}`}
       className={cn(
         'flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs transition-colors min-h-[44px] active:scale-[0.97] motion-reduce:active:scale-100 border-l-2',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50',
@@ -398,9 +399,9 @@ function TopPerformerRow({ stat, rank, isMvp, floorPrice }: {
       {/* Rating */}
       <span
         className="min-w-[2rem] px-1.5 py-0.5 rounded-md text-[11px] font-black font-mono tabular-nums text-center flex-shrink-0 shadow-sm"
-        style={ratingHeatStyle(rating)}
+        style={getScoreBadgeStyle(score)}
       >
-        {rating.toFixed(1)}
+        {score ?? '\u2013'}
       </span>
 
       <ChevronRight aria-hidden="true" className="size-3 text-white/15 flex-shrink-0" />
@@ -464,8 +465,8 @@ export function FixtureDetailModal({ fixture, isOpen, onClose, sponsorName, spon
     let best: FixturePlayerStat | null = null;
     for (const s of stats) {
       if (s.minutes_played === 0) continue;
-      const rating = getRating(s);
-      if (!best || rating > getRating(best)) {
+      const sc = getMatchScore(s) ?? 0;
+      if (!best || sc > (getMatchScore(best) ?? 0)) {
         best = s;
       }
     }

@@ -6,7 +6,8 @@ import { ChevronRight, ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { PlayerPhoto, GoalBadge } from '@/components/player';
 import { ClubLogo } from '../ClubLogo';
-import { posColor, scoreBadgeColor, getPosAccent, getRingFrameClass, ratingHeatStyle, getRating } from '../helpers';
+import { posColor, getPosAccent, getRingFrameClass, getMatchScore } from '../helpers';
+import { getScoreBadgeStyle } from '@/components/player/scoreColor';
 import { GoalIcon, AssistIcon, YellowCardIcon, RedCardIcon, CleanSheetIcon, MvpCrownIcon, SubInIcon, SubOutIcon } from '../MatchIcons';
 import { cn, fmtScout } from '@/lib/utils';
 import type { FixtureTabSharedProps, FormationTabExtraProps, FixturePlayerStat, FixtureSubstitution, Pos, ClubLookup } from './shared';
@@ -234,17 +235,17 @@ function buildFormationRows(starters: FixturePlayerStat[], formation: string, is
 // ============================================
 
 function PlayerNode({ stat, isMvp }: { stat: FixturePlayerStat; isMvp?: boolean }) {
-  const rating = getRating(stat);
+  const score = getMatchScore(stat);
   const hasAssists = stat.assists > 0;
 
   return (
-    <div className="flex flex-col items-center relative w-[52px] md:w-[60px] lg:w-[72px]" aria-label={`${stat.player_last_name || '?'}, ${stat.player_position}, Rating ${rating.toFixed(1)}`} role="group">
+    <div className="flex flex-col items-center relative w-[52px] md:w-[60px] lg:w-[72px]" aria-label={`${stat.player_last_name || '?'}, ${stat.player_position}, Score ${score ?? '\u2013'}`} role="group">
       <div
         className="absolute -top-1.5 -right-1 md:-top-2 md:-right-2 z-20 min-w-[1.5rem] md:min-w-[1.7rem] px-1 py-0.5 rounded-md text-[10px] md:text-xs font-mono font-black text-center tabular-nums shadow-[0_2px_8px_rgba(0,0,0,0.4)] border border-white/[0.08]"
-        style={ratingHeatStyle(rating)}
+        style={getScoreBadgeStyle(score)}
         aria-hidden="true"
       >
-        {rating.toFixed(1)}
+        {score ?? '\u2013'}
       </div>
       {/* Card badges — top-left */}
       {(stat.yellow_card || stat.red_card) && (
@@ -422,13 +423,13 @@ function FallbackRankingRow({ stat, isMvp, floorPrice }: {
   isMvp: boolean;
   floorPrice?: number;
 }) {
-  const rating = getRating(stat);
+  const score = getMatchScore(stat);
   const href = stat.player_id ? `/player/${stat.player_id}` : '#';
 
   return (
     <Link
       href={href}
-      aria-label={`${(stat.player_first_name || '?').charAt(0)}. ${stat.player_last_name || '?'} — Rating ${rating.toFixed(1)}`}
+      aria-label={`${(stat.player_first_name || '?').charAt(0)}. ${stat.player_last_name || '?'} — Score ${score ?? '\u2013'}`}
       className={cn(
         'flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs transition-colors min-h-[44px] active:scale-[0.97] motion-reduce:active:scale-100 border-l-2',
         isMvp
@@ -474,9 +475,9 @@ function FallbackRankingRow({ stat, isMvp, floorPrice }: {
       {stat.red_card && <RedCardIcon size={12} />}
       <span
         className="min-w-[2rem] px-1.5 py-0.5 rounded-md text-[10px] font-black font-mono tabular-nums text-center flex-shrink-0 shadow-sm"
-        style={ratingHeatStyle(rating)}
+        style={getScoreBadgeStyle(score)}
       >
-        {rating.toFixed(1)}
+        {score ?? '\u2013'}
       </span>
       {floorPrice != null && floorPrice > 0 && (
         <span className="hidden md:inline text-[11px] font-mono text-white/50 tabular-nums flex-shrink-0">
@@ -683,8 +684,8 @@ export default function FormationTab({
                         </span>
                         <span className="text-white/50 font-medium">{s.player_last_name || '?'}</span>
                         <span className="text-white/25 font-mono tabular-nums">{s.minutes_played}&apos;</span>
-                        <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-bold font-mono tabular-nums', scoreBadgeColor(getRating(s)))}>
-                          {getRating(s).toFixed(1)}
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold font-mono tabular-nums" style={getScoreBadgeStyle(getMatchScore(s))}>
+                          {getMatchScore(s) ?? '\u2013'}
                         </span>
                       </div>
                     ))}

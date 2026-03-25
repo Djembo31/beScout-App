@@ -9,38 +9,25 @@ import type { Pos, PlayerStatus, Player } from '@/types';
 import { getClub } from '@/lib/clubs';
 import { cn, fmtScout } from '@/lib/utils';
 
-export { scoreColor } from './scoreColor';
+export { getScoreStyle, getScoreHex, getScoreBg, getScoreTextClass, getScoreBadgeStyle } from './scoreColor';
+import { getScoreStyle } from './scoreColor';
 
 // ============================================
-// L5 COLOR TOKENS (Single Source of Truth)
+// L5 COLOR TOKENS — delegates to unified getScoreStyle
 // ============================================
 
-/** Canonical L5 color thresholds — use EVERYWHERE for consistency.
- *  ≥65 = good (emerald), ≥45 = mid (amber), >0 = bad (red), 0 = neutral */
-export const L5_THRESHOLDS = { good: 65, mid: 45 } as const;
+export const L5_THRESHOLDS = { good: 70, mid: 60 } as const;
 
-/** Returns a Tailwind text-color class for an L5 score */
-export function getL5Color(l5: number): string {
-  if (l5 >= L5_THRESHOLDS.good) return 'text-emerald-300';
-  if (l5 >= L5_THRESHOLDS.mid) return 'text-amber-300';
-  if (l5 > 0) return 'text-red-300';
-  return 'text-white/50';
-}
+/** Tailwind text class for L5/L15 score */
+export function getL5Color(l5: number): string { return getScoreStyle(l5).text; }
 
-/** Returns a hex color string for L5 (used in inline styles, e.g. SVG fill) */
-export function getL5Hex(l5: number): string {
-  if (l5 >= L5_THRESHOLDS.good) return '#6ee7b7'; // emerald-300
-  if (l5 >= L5_THRESHOLDS.mid) return '#fcd34d';  // amber-300
-  if (l5 > 0) return '#fca5a5';                    // red-300
-  return '#555';
-}
+/** Hex color for L5/L15 (inline styles, SVG) */
+export function getL5Hex(l5: number): string { return getScoreStyle(l5).hex; }
 
-/** Returns a Tailwind bg class for L5 pill backgrounds */
+/** Tailwind bg class for L5/L15 pill backgrounds */
 export function getL5Bg(l5: number): string {
-  if (l5 >= L5_THRESHOLDS.good) return 'bg-emerald-500/15';
-  if (l5 >= L5_THRESHOLDS.mid) return 'bg-amber-500/15';
-  if (l5 > 0) return 'bg-red-500/15';
-  return 'bg-white/5';
+  const s = getScoreStyle(l5);
+  return l5 > 0 ? `${s.bg}/15` : 'bg-white/5';
 }
 
 // ============================================

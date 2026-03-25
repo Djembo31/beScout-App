@@ -59,11 +59,15 @@ export const getRingFrameClass = (pos: string): string => {
   }
 };
 
-/** Derive match rating from stat — single source of truth */
+/** Convert fixture stat to 0-100 BeScout score. Returns null if no API rating available. */
+export const getMatchScore = (stat: { rating?: number | null }): number | null =>
+  stat.rating != null ? Math.round(stat.rating * 10) : null;
+
+/** @deprecated Use getMatchScore + getScoreBadgeStyle from scoreColor.ts */
 export const getRating = (stat: { rating?: number | null; fantasy_points: number }): number =>
   stat.rating ?? stat.fantasy_points / 10;
 
-/** Heat-map rating style — SofaScore-inspired 6-tier with solid opaque backgrounds */
+/** @deprecated Use getScoreBadgeStyle from scoreColor.ts */
 export const ratingHeatStyle = (rating: number): React.CSSProperties => {
   if (rating >= 9.0) return { background: '#374DF5', color: '#fff', textShadow: '0 0 10px rgba(55,77,245,0.5)' };
   if (rating >= 8.0) return { background: '#00ADC4', color: '#fff' };

@@ -7,7 +7,8 @@ import { useTranslations } from 'next-intl';
 import type { FixturePlayerStat } from '@/types';
 import type { Pos } from '@/types';
 import { PlayerPhoto } from '@/components/player';
-import { posColor, scoreBadgeColor, getRingFrameClass, ratingHeatStyle } from './helpers';
+import { posColor, getRingFrameClass, getMatchScore } from './helpers';
+import { getScoreBadgeStyle } from '@/components/player/scoreColor';
 
 type PosFilter = 'all' | 'GK' | 'DEF' | 'MID' | 'ATT';
 
@@ -24,7 +25,7 @@ function PlayerLink({ playerId, className, children, style }: { playerId: string
 }
 
 function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
-  const rating = stat.rating ?? stat.fantasy_points / 10;
+  const score = getMatchScore(stat);
   return (
     <PlayerLink playerId={stat.player_id} className="block rounded-2xl border-2 border-gold/30 bg-gradient-to-br from-gold/[0.08] via-transparent to-transparent p-4 relative overflow-hidden hover:bg-gold/[0.12] transition-colors"
       style={{ boxShadow: '0 0 32px rgba(255,215,0,0.12), 0 0 8px rgba(255,215,0,0.06)' }}
@@ -46,9 +47,9 @@ function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
           </div>
           <div
             className="size-16 rounded-2xl flex items-center justify-center text-xl font-black tabular-nums"
-            style={ratingHeatStyle(rating)}
+            style={getScoreBadgeStyle(score)}
           >
-            {rating.toFixed(1)}
+            {score ?? '\u2013'}
           </div>
         </div>
 
@@ -95,7 +96,7 @@ function HeroCard({ stat, medal }: { stat: FixturePlayerStat; medal: string }) {
 }
 
 function PodiumCard({ stat, rank, medal }: { stat: FixturePlayerStat; rank: number; medal: string }) {
-  const rating = stat.rating ?? stat.fantasy_points / 10;
+  const score = getMatchScore(stat);
   return (
     <PlayerLink playerId={stat.player_id} className="block rounded-xl card-carbon-mini border border-white/[0.06] p-3 hover:bg-white/[0.04] transition-colors">
       <div className="flex items-center gap-1.5 mb-2">
@@ -105,9 +106,9 @@ function PodiumCard({ stat, rank, medal }: { stat: FixturePlayerStat; rank: numb
       <div className="flex items-center gap-2">
         <div
           className="size-10 rounded-xl flex items-center justify-center text-sm font-black tabular-nums"
-          style={ratingHeatStyle(rating)}
+          style={getScoreBadgeStyle(score)}
         >
-          {rating.toFixed(1)}
+          {score ?? '\u2013'}
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-xs font-bold truncate">{stat.player_first_name.charAt(0)}. {stat.player_last_name}</div>
@@ -124,7 +125,7 @@ function PodiumCard({ stat, rank, medal }: { stat: FixturePlayerStat; rank: numb
 }
 
 function CompactRow({ stat, rank }: { stat: FixturePlayerStat; rank: number }) {
-  const rating = stat.rating ?? stat.fantasy_points / 10;
+  const score = getMatchScore(stat);
   return (
     <PlayerLink playerId={stat.player_id} className="flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-white/[0.04] rounded-lg transition-colors">
       <span className="w-5 text-center font-bold text-white/25 tabular-nums">{rank}</span>
@@ -139,9 +140,9 @@ function CompactRow({ stat, rank }: { stat: FixturePlayerStat; rank: number }) {
       {stat.assists > 0 && <span className="text-sky-400 font-bold tabular-nums">{stat.assists}A</span>}
       <span
         className="px-1.5 py-0.5 rounded text-xs font-black tabular-nums"
-        style={ratingHeatStyle(rating)}
+        style={getScoreBadgeStyle(score)}
       >
-        {rating.toFixed(1)}
+        {score ?? '\u2013'}
       </span>
     </PlayerLink>
   );

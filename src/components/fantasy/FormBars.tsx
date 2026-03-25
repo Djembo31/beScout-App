@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { scoreColor } from '@/components/player/scoreColor';
+import { getScoreHex } from '@/components/player/scoreColor';
 
 type FormEntry = {
   score: number;
@@ -48,7 +48,7 @@ export default function FormBars({ entries, className }: FormBarsProps) {
             style={{
               width: BAR_W,
               height: h,
-              backgroundColor: scoreColor(entry.score),
+              backgroundColor: getScoreHex(entry.score),
             }}
           />
         );

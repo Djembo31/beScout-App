@@ -7,7 +7,8 @@ import { useTranslations } from 'next-intl';
 import { PlayerPhoto, GoalBadge } from '@/components/player';
 import type { FixturePlayerStat } from '@/types';
 import type { Pos } from '@/types';
-import { getPosAccent, scoreBadgeColor, getRingFrameClass, ratingHeatStyle } from './helpers';
+import { getPosAccent, getRingFrameClass, getMatchScore } from './helpers';
+import { getScoreBadgeStyle } from '@/components/player/scoreColor';
 
 type Props = {
   scorers: FixturePlayerStat[];
@@ -69,7 +70,7 @@ function optimizeBestTeam(
     arr.push(s);
     byPos.set(pos, arr);
   }
-  Array.from(byPos.values()).forEach(arr => arr.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)));
+  Array.from(byPos.values()).forEach(arr => arr.sort((a, b) => (getMatchScore(b) ?? 0) - (getMatchScore(a) ?? 0)));
 
   let bestPlayers: FixturePlayerStat[] = [];
   let bestFormation: FormationDef = formations[0];
@@ -94,7 +95,7 @@ function optimizeBestTeam(
 
     if (!canFill) continue;
 
-    const totalRating = picked.reduce((s, p) => s + (p.rating ?? 0), 0);
+    const totalRating = picked.reduce((s, p) => s + (getMatchScore(p) ?? 0), 0);
     if (totalRating > bestTotalRating) {
       bestTotalRating = totalRating;
       bestPlayers = picked;
@@ -104,7 +105,7 @@ function optimizeBestTeam(
 
   // Fallback: if NO formation fills completely, take top N by rating (greedy)
   if (bestPlayers.length === 0) {
-    const sorted = [...scorers].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+    const sorted = [...scorers].sort((a, b) => (getMatchScore(b) ?? 0) - (getMatchScore(a) ?? 0));
     bestPlayers = sorted.slice(0, teamSize);
   }
 
@@ -127,7 +128,7 @@ function getFormationRows(players: FixturePlayerStat[]): FixturePlayerStat[][] {
   }
 
   return posOrder
-    .map(pos => (grouped.get(pos) || []).sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)))
+    .map(pos => (grouped.get(pos) || []).sort((a, b) => (getMatchScore(b) ?? 0) - (getMatchScore(a) ?? 0)))
     .filter(row => row.length > 0);
 }
 
@@ -138,7 +139,7 @@ function getFormationRows(players: FixturePlayerStat[]): FixturePlayerStat[][] {
 function PitchNode({ stat }: { stat: FixturePlayerStat }) {
   const effectivePos = getEffectivePosition(stat);
   const accent = getPosAccent(effectivePos);
-  const rating = stat.rating ?? stat.fantasy_points / 10;
+  const score = getMatchScore(stat);
   const hasImage = !!stat.player_image_url;
 
   return (
@@ -146,9 +147,9 @@ function PitchNode({ stat }: { stat: FixturePlayerStat }) {
       {/* Score badge — heat-map */}
       <div
         className="mb-0.5 min-w-[1.5rem] px-1 py-px rounded-full text-xs font-mono font-black text-center shadow-lg tabular-nums"
-        style={ratingHeatStyle(rating)}
+        style={getScoreBadgeStyle(score)}
       >
-        {rating.toFixed(1)}
+        {score ?? '\u2013'}
       </div>
       {/* Circle with PlayerPhoto or initials + ring frame + badges */}
       <div className={`relative rounded-full ${getRingFrameClass(effectivePos)}`}>
@@ -216,8 +217,8 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
 
   if (players.length === 0) return null;
 
-  const avgRating = players.length > 0
-    ? players.reduce((s, p) => s + (p.rating ?? p.fantasy_points / 10), 0) / players.length
+  const avgScore = players.length > 0
+    ? Math.round(players.reduce((s, p) => s + (getMatchScore(p) ?? 0), 0) / players.length)
     : 0;
 
   const label = mode === '11er' ? 'XI' : 'VI';
@@ -233,7 +234,7 @@ export function BestElevenShowcase({ scorers, gameweek }: Props) {
             {t('bestLabel', { label })}
           </span>
           <span className="text-xs font-mono text-white/30">({formation.name})</span>
-          <span className="text-xs font-mono font-bold text-gold tabular-nums gold-glow">Ø {avgRating.toFixed(1)}</span>
+          <span className="text-xs font-mono font-bold text-gold tabular-nums gold-glow">Ø {avgScore}</span>
         </div>
 
         {/* Green pitch — compact aspect ratio on mobile */}

@@ -6,7 +6,8 @@ import { Briefcase, Trophy, Target, ShieldCheck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { TabBar, TabPanel } from '@/components/ui/TabBar';
 import { PlayerPhoto, PositionBadge, GoalBadge } from '@/components/player';
-import { scoreBadgeColor, getPosAccent, getRingFrameClass, ratingHeatStyle } from '../spieltag/helpers';
+import { getPosAccent, getRingFrameClass, getMatchScore } from '../spieltag/helpers';
+import { getScoreBadgeStyle } from '@/components/player/scoreColor';
 import { PredictionResults } from './PredictionResults';
 import type { FixturePlayerStat, Prediction } from '@/types';
 import type { Pos } from '@/types';
@@ -37,11 +38,11 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
     return map;
   }, [holdings]);
 
-  // DPC avg rating
-  const dpcAvgRating = useMemo(() => {
+  // DPC avg score (0-100)
+  const dpcAvgScore = useMemo(() => {
     if (heldPlayerStats.length === 0) return 0;
-    const sum = heldPlayerStats.reduce((s, p) => s + (p.rating ?? p.fantasy_points / 10), 0);
-    return sum / heldPlayerStats.length;
+    const sum = heldPlayerStats.reduce((s, p) => s + (getMatchScore(p) ?? 0), 0);
+    return Math.round(sum / heldPlayerStats.length);
   }, [heldPlayerStats]);
 
   return (
@@ -58,7 +59,7 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
           <div>
             <div className="rounded-xl border border-white/[0.06] bg-surface-minimal divide-y divide-white/[0.04]">
               {heldPlayerStats.map(stat => {
-                const rating = stat.rating ?? stat.fantasy_points / 10;
+                const score = getMatchScore(stat);
                 const holding = stat.player_id ? holdingsMap.get(stat.player_id) : undefined;
                 const accent = getPosAccent(stat.player_position);
 
@@ -84,9 +85,9 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
                     {/* Rating badge — heat-map */}
                     <span
                       className="min-w-[2rem] px-1.5 py-0.5 rounded-md text-xs font-mono font-black text-center tabular-nums"
-                      style={ratingHeatStyle(rating)}
+                      style={getScoreBadgeStyle(score)}
                     >
-                      {rating.toFixed(1)}
+                      {score ?? '\u2013'}
                     </span>
 
                     {/* Name + meta */}
@@ -117,7 +118,7 @@ export function PersonalResults({ heldPlayerStats, holdings, joinedScoredEvents,
             {/* Summary row */}
             <div className="floodlight-divider mt-2" />
             <div className="flex items-center justify-center gap-3 mt-2 text-xs text-white/30">
-              <span>Ø {dpcAvgRating.toFixed(1)}</span>
+              <span>Ø {dpcAvgScore}</span>
               <span>·</span>
               <span>{heldPlayerStats.length} {tf('ergebnisse.playersActive')}</span>
             </div>

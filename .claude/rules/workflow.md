@@ -25,12 +25,15 @@ Quality Gates sind: tsc + vitest + Reviewer Agent + a11y Skill.
 
 | Tier | Scope | Workflow | Dauer |
 |------|-------|----------|-------|
-| **1: Hotfix** | 1-2 Files, <10 Zeilen, offensichtlich | Fix → tsc → commit | ~5 Min |
-| **2: Targeted** | 3-10 Files, <80 Zeilen, klarer Scope | Assess → Implement → Verify parallel → commit | ~20 Min |
-| **3: Scoped** | Bekannte Patterns, <200 Zeilen | Kurz-Plan → Implement (ggf. Agent) → Verify → commit | ~45 Min |
-| **4: Full Feature** | Neues Konzept, DB/Architektur | brainstorming → spec → writing-plans → executing-plans → verify → finishing-branch | 2h+ |
+| Tier | Scope | Effort | Workflow | Dauer |
+|------|-------|--------|----------|-------|
+| **1: Hotfix** | 1-2 Files, <10 Zeilen, offensichtlich | `/effort low` | Fix → tsc → commit | ~5 Min |
+| **2: Targeted** | 3-10 Files, <80 Zeilen, klarer Scope | `/effort low` | Assess → Implement → Verify parallel → commit | ~20 Min |
+| **3: Scoped** | Bekannte Patterns, <200 Zeilen | `/effort max` | Kurz-Plan → Implement (ggf. Agent) → Verify → commit | ~45 Min |
+| **4: Full Feature** | Neues Konzept, DB/Architektur | `/effort max` | brainstorming → spec → writing-plans → executing-plans → verify → finishing-branch | 2h+ |
 
 **Tier bestimmen:** Anils Anweisung + Scope-Check. Im Zweifel eine Tier hoeher.
+**Effort:** `/effort low` fuer Tier 1-2 (spart Credits), `/effort max` fuer Tier 3-4 (volle Qualitaet).
 
 ### Tier 4 Detail (Feature-Pipeline)
 

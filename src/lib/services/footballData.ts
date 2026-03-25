@@ -5,8 +5,6 @@ import {
   getCurrentSeason,
   isApiConfigured,
   mapPosition,
-  calcFantasyPoints,
-  scaleFormulaToRating,
   normalizeForMatch,
   type ApiTeamResponse,
   type ApiSquadResponse,
@@ -502,15 +500,9 @@ export async function importGameweek(adminId: string, gameweek: number): Promise
             const redCard = (stat.cards.red ?? 0) > 0;
             const saves = stat.goals.saves ?? 0;
 
-            // Always use API rating × 10 (range ~55-100). Fallback: scale formula to same range.
-            const rating = stat.games.rating ? parseFloat(stat.games.rating) : null;
-            const fantasyPoints = rating
-              ? Math.round(rating * 10)
-              : scaleFormulaToRating(calcFantasyPoints(
-                  ourPlayer.position, minutes, goals, assists,
-                  isCleanSheet && minutes >= 60, goalsConceded,
-                  yellowCard, redCard, saves, 0
-                ));
+            // API rating × 10 = BeScout score (0-100). Null if API provides no rating.
+            const apiRating = stat.games.rating ? parseFloat(stat.games.rating) : null;
+            const fantasyPoints = apiRating != null ? Math.round(apiRating * 10) : null;
 
             playerStats.push({
               fixture_id: fixture.id,
@@ -525,8 +517,8 @@ export async function importGameweek(adminId: string, gameweek: number): Promise
               red_card: redCard,
               saves,
               bonus: 0,
-              fantasy_points: fantasyPoints,
-              rating,
+              fantasy_points: fantasyPoints ?? 0,
+              rating: apiRating,
               match_position: matchPosition,
             });
           }

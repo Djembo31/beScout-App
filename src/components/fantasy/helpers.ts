@@ -50,11 +50,8 @@ export const SLOT_SCORE_KEYS_ALL = ['gk', 'def1', 'def2', 'def3', 'def4', 'mid1'
 /** @deprecated Use format-specific keys or buildSlotDbKeys */
 export const SLOT_SCORE_KEYS = SLOT_SCORE_KEYS_7ER;
 
-export const getScoreColor = (score: number): string => {
-  if (score >= 100) return '#FFD700';
-  if (score >= 70) return '#ffffff';
-  return '#ff6b6b';
-};
+import { getScoreHex } from '@/components/player/scoreColor';
+export const getScoreColor = (score: number): string => getScoreHex(score);
 
 export const getPosAccentColor = (pos: string): string => {
   const p = pos.toUpperCase();

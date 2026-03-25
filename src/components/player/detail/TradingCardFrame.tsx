@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { getClub } from '@/lib/clubs';
 import { posTintColors } from '@/components/player/PlayerRow';
-import { scoreColor } from '@/components/player/scoreColor';
+import { getScoreHex } from '@/components/player/scoreColor';
 import { useTilt } from '@/lib/hooks/useTilt';
 import { fmtScout, cn } from '@/lib/utils';
 import CountryFlag from '@/components/ui/CountryFlag';
@@ -74,7 +74,7 @@ function MatchBar({ entry }: { entry: MatchTimelineEntry }) {
   const isPlayed = entry.status === 'played';
   const isBench = entry.status === 'bench';
   const pct = isPlayed ? Math.max(5, Math.min(100, entry.score)) : 0;
-  const color = isPlayed ? scoreColor(entry.score) : 'transparent';
+  const color = isPlayed ? getScoreHex(entry.score) : 'transparent';
 
   return (
     <div className={cn('flex items-center gap-1', !isPlayed && 'opacity-35')}>
@@ -107,7 +107,7 @@ function MatchBar({ entry }: { entry: MatchTimelineEntry }) {
           </div>
           <span
             className="text-[7px] font-mono font-bold tabular-nums w-[14px] shrink-0 text-right"
-            style={{ color: scoreColor(entry.score) }}
+            style={{ color: getScoreHex(entry.score) }}
           >
             {entry.score}
           </span>

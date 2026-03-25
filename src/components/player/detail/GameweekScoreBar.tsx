@@ -13,24 +13,7 @@ interface GameweekScoreBarProps {
   className?: string;
 }
 
-/** 6-tier color scale matching benchmark designs */
-function getBarColor(score: number): string {
-  if (score >= 100) return 'var(--gold)';         // Gold — elite
-  if (score >= 85) return '#22d3ee';               // Cyan — excellent
-  if (score >= 65) return '#34d399';               // Emerald — good
-  if (score >= 51) return '#fbbf24';               // Amber — average
-  if (score >= 31) return '#f97316';               // Orange — below avg
-  return '#f43f5e';                                 // Rose — poor
-}
-
-function getScoreTextClass(score: number): string {
-  if (score >= 100) return 'text-gold';
-  if (score >= 85) return 'text-cyan-400';
-  if (score >= 65) return 'text-emerald-400';
-  if (score >= 51) return 'text-amber-400';
-  if (score >= 31) return 'text-orange-400';
-  return 'text-rose-400';
-}
+import { getScoreHex, getScoreTextClass } from '@/components/player/scoreColor';
 
 export default function GameweekScoreBar({ scores, maxDisplay = 15, className = '' }: GameweekScoreBarProps) {
   const tp = useTranslations('player');
@@ -118,7 +101,7 @@ export default function GameweekScoreBar({ scores, maxDisplay = 15, className = 
                   )}
                   style={{
                     height: bar.score !== null ? `${getBarHeight(bar.score)}px` : '8px',
-                    backgroundColor: bar.score !== null ? getBarColor(bar.score) : 'rgba(255,255,255,0.06)',
+                    backgroundColor: bar.score !== null ? getScoreHex(bar.score) : 'rgba(255,255,255,0.06)',
                   }}
                 />
 
@@ -135,11 +118,12 @@ export default function GameweekScoreBar({ scores, maxDisplay = 15, className = 
         <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 pt-3 border-t border-white/[0.06]">
           {[
             { min: 100, label: '100+', color: 'bg-gold' },
-            { min: 85, label: '85\u201399', color: 'bg-cyan-400' },
-            { min: 65, label: '65\u201384', color: 'bg-emerald-400' },
-            { min: 51, label: '51\u201364', color: 'bg-amber-400' },
-            { min: 31, label: '31\u201350', color: 'bg-orange-400' },
-            { min: 0, label: '1\u201330', color: 'bg-rose-400' },
+            { min: 90, label: '90\u201399', color: 'bg-[#374DF5]' },
+            { min: 80, label: '80\u201389', color: 'bg-[#00ADC4]' },
+            { min: 70, label: '70\u201379', color: 'bg-[#00C424]' },
+            { min: 60, label: '60\u201369', color: 'bg-[#D9AF00]' },
+            { min: 45, label: '45\u201359', color: 'bg-[#ED7E07]' },
+            { min: 0, label: '<45', color: 'bg-[#DC0C00]' },
           ].map(tier => (
             <div key={tier.min} className="flex items-center gap-1">
               <div className={cn('w-2 h-2 rounded-sm', tier.color)} />
@@ -160,11 +144,11 @@ export default function GameweekScoreBar({ scores, maxDisplay = 15, className = 
             <div className="flex items-center justify-center">
               <div
                 className="w-20 h-20 rounded-2xl flex items-center justify-center"
-                style={{ backgroundColor: getBarColor(selectedGw.score) + '20' }}
+                style={{ backgroundColor: getScoreHex(selectedGw.score) + '20' }}
               >
                 <span
                   className="font-mono font-black text-3xl tabular-nums"
-                  style={{ color: getBarColor(selectedGw.score) }}
+                  style={{ color: getScoreHex(selectedGw.score) }}
                 >
                   {selectedGw.score}
                 </span>

@@ -6,7 +6,8 @@ import { ChevronRight, ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { PlayerPhoto, GoalBadge } from '@/components/player';
 import { ClubLogo } from '../ClubLogo';
-import { posColor, getPosAccent, ratingHeatStyle, getRating } from '../helpers';
+import { posColor, getPosAccent, getMatchScore } from '../helpers';
+import { getScoreBadgeStyle } from '@/components/player/scoreColor';
 import { GoalIcon, AssistIcon, YellowCardIcon, RedCardIcon, MvpCrownIcon } from '../MatchIcons';
 import { cn, fmtScout } from '@/lib/utils';
 import type { FixtureTabSharedProps, FixturePlayerStat, ClubLookup, Pos } from './shared';
@@ -20,13 +21,13 @@ function RankingRow({ stat, isMvp, floorPrice }: {
   isMvp: boolean;
   floorPrice?: number;
 }) {
-  const rating = getRating(stat);
+  const score = getMatchScore(stat);
   const href = stat.player_id ? `/player/${stat.player_id}` : '#';
 
   return (
     <Link
       href={href}
-      aria-label={`${(stat.player_first_name || '?').charAt(0)}. ${stat.player_last_name || '?'} — Rating ${rating.toFixed(1)}`}
+      aria-label={`${(stat.player_first_name || '?').charAt(0)}. ${stat.player_last_name || '?'} — Score ${score ?? '–'}`}
       className={cn(
         'flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs transition-colors min-h-[44px] active:scale-[0.97] motion-reduce:active:scale-100 border-l-2',
         isMvp
@@ -89,9 +90,9 @@ function RankingRow({ stat, isMvp, floorPrice }: {
       {/* Rating badge */}
       <span
         className="min-w-[2rem] px-1.5 py-0.5 rounded-md text-[10px] font-black font-mono tabular-nums text-center flex-shrink-0 shadow-sm"
-        style={ratingHeatStyle(rating)}
+        style={getScoreBadgeStyle(score)}
       >
-        {rating.toFixed(1)}
+        {score ?? '\u2013'}
       </span>
 
       {/* Floor price — hidden on mobile */}

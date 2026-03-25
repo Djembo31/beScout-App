@@ -59,9 +59,14 @@ vi.mock('../ClubLogo', () => ({
 vi.mock('../helpers', () => ({
   posColor: () => 'text-emerald-400 bg-emerald-500/15',
   getPosAccent: () => '#34d399',
-  ratingHeatStyle: () => ({ background: '#00C424', color: '#fff' }),
-  getRating: (stat: { rating?: number | null; fantasy_points: number }) =>
-    stat.rating ?? stat.fantasy_points / 10,
+  getMatchScore: (stat: { rating?: number | null }) =>
+    stat.rating != null ? Math.round(stat.rating * 10) : null,
+}));
+
+vi.mock('@/components/player/scoreColor', () => ({
+  getScoreBadgeStyle: () => ({ background: '#00C424', color: '#fff' }),
+  getScoreHex: () => '#00C424',
+  getScoreTextClass: () => 'text-[#00C424]',
 }));
 
 // ============================================

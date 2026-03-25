@@ -22,24 +22,7 @@ interface MatchTimelineProps {
 
 type ViewMode = 'L5' | 'L15';
 
-/** 6-tier score color */
-function scoreColor(score: number): string {
-  if (score >= 100) return 'var(--gold)';
-  if (score >= 85) return '#22d3ee';
-  if (score >= 65) return '#34d399';
-  if (score >= 51) return '#fbbf24';
-  if (score >= 31) return '#f97316';
-  return '#f43f5e';
-}
-
-function scoreTextClass(score: number): string {
-  if (score >= 100) return 'text-gold';
-  if (score >= 85) return 'text-cyan-400';
-  if (score >= 65) return 'text-emerald-400';
-  if (score >= 51) return 'text-amber-400';
-  if (score >= 31) return 'text-orange-400';
-  return 'text-rose-400';
-}
+import { getScoreHex, getScoreTextClass } from '@/components/player/scoreColor';
 
 export default function MatchTimeline({
   player, entries, allPlayers = [], loading, className = '',
@@ -117,7 +100,7 @@ export default function MatchTimeline({
             {/* Score number — hero size */}
             <span
               className={cn('font-mono font-black text-3xl tabular-nums', scoreTick)}
-              style={{ color: scoreColor(perfValue) }}
+              style={{ color: getScoreHex(perfValue) }}
             >
               {perfValue || '\u2013'}
             </span>
@@ -279,14 +262,14 @@ export default function MatchTimeline({
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <span className={cn(
                         'font-mono font-black text-sm w-8 text-right tabular-nums shrink-0',
-                        scoreTextClass(entry.score)
+                        getScoreTextClass(entry.score)
                       )}>
                         {entry.score}
                       </span>
                       <div className="flex-1 h-2 bg-white/[0.04] rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-300"
-                          style={{ width: `${barPct}%`, backgroundColor: scoreColor(entry.score) }}
+                          style={{ width: `${barPct}%`, backgroundColor: getScoreHex(entry.score) }}
                         />
                       </div>
                     </div>
@@ -310,7 +293,7 @@ export default function MatchTimeline({
         <div className="border-t border-white/[0.06] px-4 md:px-6 py-3 flex items-center gap-4 text-xs text-white/50">
           <span className="flex items-center gap-1">
             <span className="text-white/30">&empty;</span>
-            <span className={cn('font-mono font-bold tabular-nums', scoreTextClass(agg.avgScore))}>{agg.avgScore}</span>
+            <span className={cn('font-mono font-bold tabular-nums', getScoreTextClass(agg.avgScore))}>{agg.avgScore}</span>
           </span>
           <span className="font-mono tabular-nums">{agg.avgMin}&apos; avg</span>
           {agg.totalGoals > 0 && (

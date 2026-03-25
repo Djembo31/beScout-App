@@ -4,8 +4,6 @@ import {
   apiFetch,
   getLeagueId,
   getCurrentSeason,
-  calcFantasyPoints,
-  scaleFormulaToRating,
   mapPosition,
   normalizeForMatch,
   deduplicateGhostStarters,
@@ -707,15 +705,9 @@ export async function GET(request: Request) {
             const redCard = (stat.cards.red ?? 0) > 0;
             const saves = stat.goals.saves ?? 0;
 
-            const rating = stat.games.rating ? parseFloat(stat.games.rating) : null;
-            // Always use API rating × 10 (range ~55-100). Fallback: scale formula to same range.
-            const fantasyPoints = rating
-              ? Math.round(rating * 10)
-              : scaleFormulaToRating(calcFantasyPoints(
-                  position, minutes, goals, assists,
-                  isCleanSheet && minutes >= 60, goalsConceded,
-                  yellowCard, redCard, saves, 0,
-                ));
+            // API rating × 10 = BeScout score (0-100). Null if API provides no rating.
+            const apiRating = stat.games.rating ? parseFloat(stat.games.rating) : null;
+            const fantasyPoints = apiRating != null ? Math.round(apiRating * 10) : null;
 
             playerStats.push({
               fixture_id: fixture.id,
@@ -730,8 +722,8 @@ export async function GET(request: Request) {
               red_card: redCard,
               saves,
               bonus: 0,
-              fantasy_points: fantasyPoints,
-              rating,
+              fantasy_points: fantasyPoints ?? 0,
+              rating: apiRating,
               match_position: matchPosition,
               is_starter: isStarter,
               grid_position: gridPosition,
