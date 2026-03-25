@@ -112,7 +112,8 @@ function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userLineup?:
     eventTier: db.event_tier ?? 'club',
     minSubscriptionTier: db.min_subscription_tier ?? null,
     salaryCap: db.salary_cap ? centsToBsd(db.salary_cap) : null,
-    requirements: { dpcPerSlot: 1 },
+    minScPerSlot: db.min_sc_per_slot ?? 1,
+    requirements: { dpcPerSlot: db.min_sc_per_slot ?? 1 },
     rewards: [
       { rank: '1st', reward: 'Champion Badge' },
       { rank: 'Top 10', reward: 'Gold Frame' },
@@ -465,7 +466,12 @@ export default function FantasyContent() {
         captainSlot,
       });
     } catch (e: unknown) {
-      addToast(t('errorGeneric', { error: te(mapErrorToKey(normalizeError(e))) }), 'error');
+      const msg = e instanceof Error ? e.message : '';
+      if (msg === 'insufficient_sc') {
+        addToast(t('insufficientSc', { min: event.minScPerSlot ?? 1 }), 'error');
+      } else {
+        addToast(t('errorGeneric', { error: te(mapErrorToKey(normalizeError(e))) }), 'error');
+      }
       return;
     }
 

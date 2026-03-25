@@ -68,6 +68,7 @@ export type FantasyEvent = {
   eventTier: 'arena' | 'club' | 'user';
   minSubscriptionTier?: string | null;
   salaryCap?: number | null;
+  minScPerSlot?: number;
   requirements: {
     dpcPerSlot?: number;
     minDpc?: number;

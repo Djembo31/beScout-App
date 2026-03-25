@@ -79,6 +79,7 @@ export async function createEvent(params: {
   eventTier?: 'arena' | 'club' | 'user';
   minSubscriptionTier?: string | null;
   salaryCap?: number | null;
+  minScPerSlot?: number;
   rewardStructure?: Array<{ rank: number; pct: number }> | null;
   currency?: EventCurrency;
 }): Promise<{ success: boolean; eventId?: string; error?: string }> {
@@ -105,6 +106,7 @@ export async function createEvent(params: {
       event_tier: params.eventTier || 'club',
       min_subscription_tier: params.minSubscriptionTier || null,
       salary_cap: params.salaryCap || null,
+      min_sc_per_slot: params.minScPerSlot ?? 1,
       reward_structure: params.rewardStructure ?? null,
       status: 'registering',
       current_entries: 0,

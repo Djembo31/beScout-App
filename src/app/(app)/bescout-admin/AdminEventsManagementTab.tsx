@@ -96,6 +96,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
   const [formEventTier, setFormEventTier] = useState<'arena' | 'club' | 'user'>('arena');
   const [formMinSubTier, setFormMinSubTier] = useState('');
   const [formSalaryCap, setFormSalaryCap] = useState('');
+  const [formMinScPerSlot, setFormMinScPerSlot] = useState('1');
   const [formGameweek, setFormGameweek] = useState('');
   const [formMaxEntries, setFormMaxEntries] = useState('20');
   const [formEntryFee, setFormEntryFee] = useState('0');
@@ -183,6 +184,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
     setFormEventTier('arena');
     setFormMinSubTier('');
     setFormSalaryCap('');
+    setFormMinScPerSlot('1');
     setFormGameweek('');
     setFormMaxEntries('20');
     setFormEntryFee('0');
@@ -211,6 +213,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
     setFormEventTier(ev.event_tier ?? 'club');
     setFormMinSubTier(ev.min_subscription_tier ?? '');
     setFormSalaryCap(ev.salary_cap != null ? String(centsToBsd(ev.salary_cap)) : '');
+    setFormMinScPerSlot(String(ev.min_sc_per_slot ?? 1));
     setFormGameweek(ev.gameweek != null ? String(ev.gameweek) : '');
     setFormMaxEntries(ev.max_entries != null ? String(ev.max_entries) : '0');
     setFormEntryFee(String(centsToBsd(ev.entry_fee)));
@@ -262,6 +265,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
         maybePut('event_tier', formEventTier);
         maybePut('min_subscription_tier', formMinSubTier || null);
         maybePut('salary_cap', formSalaryCap ? bsdToCents(parseFloat(formSalaryCap) || 0) : null);
+        maybePut('min_sc_per_slot', parseInt(formMinScPerSlot) || 1);
         maybePut('reward_structure', formRewardStructure);
         maybePut('currency', formCurrency);
 
@@ -290,6 +294,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
           eventTier: formEventTier,
           minSubscriptionTier: formMinSubTier || null,
           salaryCap: formSalaryCap ? bsdToCents(parseFloat(formSalaryCap) || 0) : null,
+          minScPerSlot: parseInt(formMinScPerSlot) || 1,
           rewardStructure: formRewardStructure,
           currency: formCurrency,
         });
@@ -769,6 +774,23 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
               placeholder="Optional"
               disabled={isFieldDisabled('salary_cap')}
               aria-label="Salary Cap (Credits)"
+              className={cn(INPUT_CLS, 'min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed')}
+            />
+          </div>
+
+          {/* Min SC per Slot */}
+          <div>
+            <label className="block text-sm font-bold text-white/70 mb-1">Min SC pro Slot</label>
+            <input
+              type="number"
+              inputMode="numeric"
+              min="0"
+              max="10"
+              value={formMinScPerSlot}
+              onChange={(e) => setFormMinScPerSlot(e.target.value)}
+              placeholder="1"
+              disabled={isFieldDisabled('min_sc_per_slot')}
+              aria-label="Minimum Scout Cards pro Slot"
               className={cn(INPUT_CLS, 'min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed')}
             />
           </div>

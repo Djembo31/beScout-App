@@ -829,6 +829,8 @@
     "scoutEventsEnabled": "$SCOUT Events aktiviert",
     "scoutEventsDisabled": "$SCOUT Events deaktiviert",
     "subscriptionRequired": "Mindestens {tier}-Abo benötigt",
+    "insufficientSc": "Nicht genug Scout Cards. Du brauchst {min} SC pro Slot.",
+    "scLockedInEvents": "{locked} SC in Events gesperrt",
     "settingsFailed": "Einstellung konnte nicht gespeichert werden.",
     "entryCost": "Eintrittskosten",
     "scoutEventsNotAvailable": "$SCOUT Events sind derzeit nicht verfügbar."
