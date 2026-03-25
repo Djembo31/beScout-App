@@ -541,6 +541,14 @@ export type DbHolding = {
   updated_at: string;
 };
 
+export type DbHoldingLock = {
+  user_id: string;
+  player_id: string;
+  event_id: string;
+  quantity_locked: number;
+  locked_at: string;
+};
+
 export type DbOrder = {
   id: string;
   user_id: string;
@@ -619,6 +627,9 @@ export type DbEvent = {
   lineup_size: 7 | 11;
   currency: EventCurrency;
   ticket_cost: number;
+  min_sc_per_slot: number;
+  wildcards_allowed: boolean;
+  max_wildcards_per_lineup: number;
   created_at: string;
 };
 

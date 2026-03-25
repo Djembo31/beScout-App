@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import type { DbWallet, DbHolding, DbTransaction } from '@/types';
+import type { DbWallet, DbHolding, DbHoldingLock, DbTransaction } from '@/types';
 import { mapRpcError } from '@/lib/services/trading';
 
 export type HoldingWithPlayer = DbHolding & {
@@ -84,6 +84,26 @@ export async function getHoldingQty(userId: string, playerId: string): Promise<n
     return 0;
   }
   return data?.quantity ?? 0;
+}
+
+/** Get available (unlocked) SC quantity for a user+player */
+export async function getAvailableSc(userId: string, playerId: string): Promise<number> {
+  const { data, error } = await supabase.rpc('get_available_sc', {
+    p_user_id: userId,
+    p_player_id: playerId,
+  });
+  if (error) { console.error('[Wallet] getAvailableSc error:', error); return 0; }
+  return (data as number) ?? 0;
+}
+
+/** Get all holding locks for a user (across all active events) */
+export async function getUserHoldingLocks(userId: string): Promise<DbHoldingLock[]> {
+  const { data, error } = await supabase
+    .from('holding_locks')
+    .select('*')
+    .eq('user_id', userId);
+  if (error) { console.error('[Wallet] getUserHoldingLocks error:', error); return []; }
+  return (data ?? []) as DbHoldingLock[];
 }
 
 /** Distinct holder count for a player */
