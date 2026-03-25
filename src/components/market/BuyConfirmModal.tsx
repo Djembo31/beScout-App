@@ -198,9 +198,18 @@ export default function BuyConfirmModal({
         <div className="border-t border-white/[0.06]" />
 
         {/* Fee info */}
-        <div className="flex items-center gap-2 text-xs text-white/40">
-          <Info className="size-3.5 flex-shrink-0" aria-hidden="true" />
-          {isMarket ? t('feeInfoMarket') : t('feeInfoIpo')}
+        <div className="space-y-1.5 text-xs text-white/40">
+          <div className="flex items-center gap-2">
+            <Info className="size-3.5 flex-shrink-0" aria-hidden="true" />
+            {isMarket ? t('feeInfoMarket') : t('feeInfoIpo')}
+          </div>
+          {isMarket && (
+            <div className="ml-5.5 pl-[22px] text-[10px] text-white/25 space-y-0.5">
+              <div>{t('feeBreakdownPlatform')}</div>
+              <div>{t('feeBreakdownPbt')}</div>
+              <div>{t('feeBreakdownClub')}</div>
+            </div>
+          )}
         </div>
 
         {/* Total + Balance */}
