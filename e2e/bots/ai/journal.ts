@@ -13,6 +13,23 @@ export interface JournalEntry {
   severity?: 'low' | 'medium' | 'high' | 'critical';
 }
 
+export type RatingCategory = 'onboarding' | 'trading' | 'fantasy' | 'community' | 'design' | 'performance' | 'overall';
+
+export interface SurveyRating {
+  category: RatingCategory;
+  score: number; // 1-5
+  comment: string;
+}
+
+export interface BotSurvey {
+  ratings: SurveyRating[];
+  topStrengths: string[];    // max 3
+  topWeaknesses: string[];   // max 3
+  ideas: string[];           // improvement suggestions
+  wouldRecommend: boolean;
+  oneLineSummary: string;    // "Als [archetype] finde ich die App..."
+}
+
 export interface SessionReport {
   bot: { id: number; name: string; email: string; archetype: string; strategy: string };
   sessionStart: string;
@@ -29,6 +46,7 @@ export interface SessionReport {
     uxFriction: number;
     errors: number;
   };
+  survey?: BotSurvey;
   entries: JournalEntry[];
 }
 
@@ -54,6 +72,86 @@ export class BotSessionJournal {
   featureWish(area: string, msg: string) { this.add('feature_wish', area, msg); }
   uxFriction(area: string, msg: string, severity: JournalEntry['severity'] = 'low') { this.add('ux_friction', area, msg, { severity }); }
 
+  /** Generate post-session survey based on what the bot experienced */
+  generateSurvey(): BotSurvey {
+    const bugs = this.entries.filter(e => e.type === 'bug');
+    const friction = this.entries.filter(e => e.type === 'ux_friction');
+    const errors = this.entries.filter(e => e.type === 'error');
+    const trades = this.entries.filter(e => e.type === 'trade');
+    const successes = this.entries.filter(e => e.type === 'success');
+    const wishes = this.entries.filter(e => e.type === 'feature_wish');
+
+    const problemCount = bugs.length + friction.length + errors.length;
+    const successCount = trades.length + successes.length;
+
+    // Rate each category based on what the bot encountered
+    const rate = (category: RatingCategory, areaKeys: string[]): SurveyRating => {
+      const relevant = this.entries.filter(e => areaKeys.some(k => e.area.includes(k)));
+      const problems = relevant.filter(e => ['bug', 'ux_friction', 'error'].includes(e.type));
+      const wins = relevant.filter(e => ['success', 'trade', 'post'].includes(e.type));
+
+      let score: number;
+      if (relevant.length === 0) score = 3; // no data = neutral
+      else if (problems.length === 0 && wins.length > 0) score = 5;
+      else if (problems.length === 0) score = 4;
+      else if (problems.length <= 1) score = 3;
+      else if (problems.length <= 3) score = 2;
+      else score = 1;
+
+      const comment = problems.length > 0
+        ? problems.map(p => p.message).join('; ')
+        : wins.length > 0
+          ? `${wins.length} erfolgreiche Aktionen, keine Probleme.`
+          : 'Nicht getestet.';
+
+      return { category, score, comment };
+    };
+
+    const ratings: SurveyRating[] = [
+      rate('onboarding', ['start', 'wallet', 'balance']),
+      rate('trading', ['buy', 'sell', 'order', 'market', 'ipo']),
+      rate('fantasy', ['fantasy', 'lineup', 'event']),
+      rate('community', ['post', 'vote', 'community', 'research']),
+      rate('design', ['ui', 'layout', 'scroll', 'overflow']),
+      rate('performance', ['load', 'timeout', 'slow', 'error']),
+    ];
+
+    const avgScore = ratings.reduce((s, r) => s + r.score, 0) / ratings.length;
+    ratings.push({
+      category: 'overall',
+      score: Math.round(avgScore),
+      comment: `Durchschnitt aus ${ratings.length - 1} Kategorien.`,
+    });
+
+    // Top strengths: areas with score 4-5
+    const topStrengths = ratings
+      .filter(r => r.score >= 4 && r.category !== 'overall')
+      .map(r => `${r.category}: ${r.comment}`)
+      .slice(0, 3);
+
+    // Top weaknesses: areas with score 1-2, or bugs/friction
+    const topWeaknesses: string[] = [];
+    for (const r of ratings.filter(r => r.score <= 2 && r.category !== 'overall')) {
+      topWeaknesses.push(`${r.category}: ${r.comment}`);
+    }
+    for (const b of bugs.filter(b => b.severity === 'critical' || b.severity === 'high')) {
+      topWeaknesses.push(`Bug: ${b.message}`);
+    }
+
+    // Ideas from feature wishes + archetype-specific suggestions
+    const ideas = wishes.map(w => w.message);
+    if (friction.length > 0 && ideas.length === 0) {
+      ideas.push(`UX verbessern: ${friction[0].message}`);
+    }
+
+    const wouldRecommend = avgScore >= 3.5 && bugs.filter(b => b.severity === 'critical').length === 0;
+
+    const sentiment = avgScore >= 4 ? 'sehr gut' : avgScore >= 3 ? 'okay' : 'verbesserungswuerdig';
+    const oneLineSummary = `Als ${this.bot.archetype} finde ich die App ${sentiment}. ${successCount} Aktionen, ${problemCount} Probleme.`;
+
+    return { ratings, topStrengths, topWeaknesses: topWeaknesses.slice(0, 3), ideas, wouldRecommend, oneLineSummary };
+  }
+
   getReport(): SessionReport {
     const count = (t: LogType) => this.entries.filter(e => e.type === t).length;
     return {
@@ -72,6 +170,7 @@ export class BotSessionJournal {
         uxFriction: count('ux_friction'),
         errors: count('error'),
       },
+      survey: this.generateSurvey(),
       entries: this.entries,
     };
   }
@@ -128,6 +227,43 @@ export class BotSessionJournal {
       lines.push('## UX Friction');
       for (const u of ux) lines.push(`- [${u.area}] ${u.message}`);
       lines.push('');
+    }
+
+    // Survey section
+    if (r.survey) {
+      const s = r.survey;
+      lines.push('## Umfrage');
+      lines.push('');
+      lines.push(`> ${s.oneLineSummary}`);
+      lines.push('');
+      lines.push(`**Weiterempfehlung:** ${s.wouldRecommend ? 'Ja' : 'Nein'}`);
+      lines.push('');
+      lines.push('### Bewertungen');
+      lines.push('| Bereich | Score | Kommentar |');
+      lines.push('|---------|-------|-----------|');
+      for (const r of s.ratings) {
+        const stars = '★'.repeat(r.score) + '☆'.repeat(5 - r.score);
+        lines.push(`| ${r.category} | ${stars} | ${r.comment.slice(0, 80)} |`);
+      }
+      lines.push('');
+
+      if (s.topStrengths.length > 0) {
+        lines.push('### Staerken');
+        for (const str of s.topStrengths) lines.push(`- ${str}`);
+        lines.push('');
+      }
+
+      if (s.topWeaknesses.length > 0) {
+        lines.push('### Schwaechen');
+        for (const w of s.topWeaknesses) lines.push(`- ${w}`);
+        lines.push('');
+      }
+
+      if (s.ideas.length > 0) {
+        lines.push('### Ideen & Verbesserungen');
+        for (const idea of s.ideas) lines.push(`- ${idea}`);
+        lines.push('');
+      }
     }
 
     lines.push('## Timeline');
