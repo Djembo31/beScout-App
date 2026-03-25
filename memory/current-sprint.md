@@ -1,23 +1,28 @@
-# Current Sprint — Pilot Launch Ready
+# Current Sprint — Pilot Launch
 
 ## Stand (2026-03-25)
-- **Tests:** 2050+ (161 Files)
-- **Migrations:** 299
+- **Tests:** 2050+ (161 Files), tsc 0 Errors
+- **Migrations:** 300
 - **Routes:** 25
-- **tsc:** 0 Errors
-- **Pilot Readiness:** GO (27/28 Checks)
+- **Pilot Readiness:** GO
+- **Domain:** bescout.net (DNS propagating)
+- **Bots:** 50 gelaufen, Markt lebt (361 Trades)
 
 ## Abgeschlossen (Session 251)
-- Scoring Unification (0-100 Scale, 6 Tiers)
-- Pilot Checklist 4-Schichten-Audit
-- 60 Test-Typ-Fehler gefixt (26 Files)
-- Visuell verifiziert: alle Routes auf 360px Mobile
+- Pilot Checkliste 4-Schichten-Audit
+- 63 Test-Fixes (tsc + vitest)
+- MysteryBox Streak-Discount (Migration 300)
+- Ticket-Transaktionshistorie UI
+- Fee-Transparenz (Kauf-Modal + Disclaimer)
+- Bot Survey System
+- Admin i18n
+- Custom Domain Setup (bescout.net)
+- Supabase Auth URL Config
 
 ## Naechste Prioritaet
-1. 3 Test-Failures fixen (ClubContent, EventDetailModal, FLOW-07)
-2. MysteryBox Streak-Discount server-enforced
-3. Ticket-Transaktionshistorie UI
-4. Admin i18n Rest (~80 Strings)
+1. DNS verifizieren + echten Signup testen
+2. Email-Templates + OAuth Redirects
+3. 50 Einladungen raus
 
 ## Blocker
-- Stripe wartet auf Anils Account
+- DNS-Propagation (max 30 Min)

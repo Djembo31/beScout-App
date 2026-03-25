@@ -2,40 +2,50 @@
 ## Letzte Session: 2026-03-25 (Session 251)
 ## Was wurde gemacht
 
-### Pilot Checklist — 4-Schichten-Audit
-- **Ergebnis: GO** — 28/28 Checks passed
-- **63 Test-Fixes:** 60 tsc Typ-Fehler + 3 Test-Failures (mock + DB ranks)
-- **Visuell geprueft:** 8 Routes auf 360px, kein Overflow, kein Crash
-- **Schicht 4 komplett:** i18n TR (0 missing keys), Doppelklick-Schutz (Buy+Sell), Mobile Overflow (8/8)
+### Pilot Checklist — 4-Schichten-Audit → GO
+- 28/28 Checks passed, 63 Test-Fixes, 8 Routes visuell auf 360px
 
-### Migration 300: MysteryBox Streak-Discount
-- Server-enforced: 1 Ticket Rabatt ab 4-Tage-Streak (vorher nur client-side)
-- RPC liest user_streaks.current_streak, Response enthaelt streak_discount
+### Features
+- **Migration 300:** MysteryBox Streak-Discount server-enforced
+- **Ticket-Transaktionshistorie:** Credits + Tickets Filter in Timeline
+- **Fee-Transparenz:** Breakdown im Kauf-Modal + Disclaimer (3.5%/1.5%/1%)
+- **Bot Survey System:** Strukturiertes Feedback nach jeder Bot-Session
+- **Player Detail UX Polish:** (gemergt von Desktop-Claude Branch)
 
 ### Admin i18n
-- 3 hardcoded German Strings gefixt (Kopie, Posts, vor-Prefix)
-- i18n-Scanner: nur 16 total gefunden, 13 davon sprachuebergreifend (DAU/Bronze/etc.)
+- 3 hardcoded Strings gefixt
 
-### Commits (6)
-- docs: pilot checklist design
-- docs: pilot checklist plan (14 tasks)
-- docs: pilot checklist results — GO
-- fix: align 26 test files with current types — tsc 0 errors
-- fix: repair 3 test failures — mock + DB rank dedup
-- fix: translate 3 hardcoded German strings in admin
+### Bots
+- 50 Bots gelaufen: 361 Trades, 7 Posts, 0 Bugs, 44 Feature Wishes
+- Survey: 4.0/5 Overall, 96% Weiterempfehlung
+
+### Infra
+- **Custom Domain:** bescout.net → Vercel (DNS umgestellt, wartet auf Propagation)
+- **Supabase Auth:** Site URL + Redirect URLs auf bescout.net gesetzt
+
+### Commits (12)
+- Pilot Checklist (Design + Plan + Results)
+- 26 Test-Files tsc alignment
+- 3 Test-Failures (mock + DB rank dedup)
+- Admin i18n
+- Fee-Transparenz
+- Ticket-Transaktionshistorie
+- Bot Survey System
+- Session End + Merge
 
 ---
 
 ## Naechste Session
 
-### Offene Arbeit (Prioritaet)
-1. **Ticket-Transaktionshistorie UI** (Tier 3 Feature — braucht Brainstorming)
-2. **Stripe** (wartet auf Anils Account)
+### Sofort
+1. **DNS verifizieren** — bescout.net muss die App zeigen
+2. **Echten Signup testen** — ganzer Flow mit echter E-Mail
+3. **Supabase Email-Templates** anpassen (BeScout Branding)
+4. **Google/Apple OAuth** Redirect URLs auf bescout.net pruefen
 
-### Nice-to-have
-- 9 Reserve-Spieler ohne Bild
-- PostHog CSP erweitern
-- Remaining Admin i18n: Tier-Labels (Bronze+/Silber+/Gold) in Dropdowns
+### Danach
+- 50 Einladungen raus an Sakaryaspor-Fans
+- Bot Feature Wishes priorisieren (Auto-Fill Lineup, Tutorial, Album-Ansicht)
 
 ## Blocker
-- Keine
+- DNS-Propagation (max 30 Min)
