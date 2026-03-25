@@ -31,7 +31,7 @@ describe('RangBadge', () => {
   });
 
   it('renders with dimension scores', () => {
-    const { container } = renderWithProviders(<RangBadge scores={{ trader: 600, manager: 500, analyst: 400 }} />);
+    const { container } = renderWithProviders(<RangBadge scores={{ trader_score: 600, manager_score: 500, analyst_score: 400 }} />);
     expect(container.innerHTML.length).toBeGreaterThan(20);
   });
 

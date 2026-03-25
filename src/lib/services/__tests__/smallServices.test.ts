@@ -49,26 +49,26 @@ describe('getPbtTransactions', () => {
 
 describe('getFeeConfig', () => {
   it('returns club-specific config', async () => {
-    mockTable('fee_config', { club_name: 'FC Test', trading_fee_bps: 600 });
+    mockTable('fee_config', { club_name: 'FC Test', trade_fee_bps: 600 });
     const result = await getFeeConfig('FC Test');
-    expect(result?.trading_fee_bps).toBe(600);
+    expect(result?.trade_fee_bps).toBe(600);
   });
 
   it('falls back to global when club-specific not found', async () => {
     mockTable('fee_config', null); // club-specific not found
-    mockTable('fee_config', { club_name: null, trading_fee_bps: 500 }); // global
+    mockTable('fee_config', { club_name: null, trade_fee_bps: 500 }); // global
     const result = await getFeeConfig('Unknown Club');
     expect(result?.club_name).toBeNull();
   });
 
   it('returns global config when no club specified', async () => {
-    mockTable('fee_config', { club_name: null, trading_fee_bps: 500 });
+    mockTable('fee_config', { club_name: null, trade_fee_bps: 500 });
     const result = await getFeeConfig();
-    expect(result?.trading_fee_bps).toBe(500);
+    expect(result?.trade_fee_bps).toBe(500);
   });
 
   it('uses club_id when byId option set', async () => {
-    mockTable('fee_config', { club_id: 'c1', trading_fee_bps: 550 });
+    mockTable('fee_config', { club_id: 'c1', trade_fee_bps: 550 });
     const result = await getFeeConfig('c1', { byId: true });
     expect(result).toBeTruthy();
   });

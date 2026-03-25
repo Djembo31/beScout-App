@@ -105,7 +105,7 @@ const club = {
   primary_color: '#FFD700',
   secondary_color: '#FFFFFF',
   admin_role: 'owner',
-} as ClubWithAdmin;
+} as unknown as ClubWithAdmin;
 
 const mappingStatusFixture = {
   clubsMapped: 10,

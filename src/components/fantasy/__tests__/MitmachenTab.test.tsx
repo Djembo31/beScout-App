@@ -72,8 +72,7 @@ function makeEvent(overrides: Partial<FantasyEvent> = {}): FantasyEvent {
     requirements: {},
     rewards: [],
     ticketCost: 0,
-    sponsorName: null,
-    sponsorLogo: null,
+    currency: 'tickets' as const,
     ...overrides,
   };
 }

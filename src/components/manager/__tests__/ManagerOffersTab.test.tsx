@@ -69,18 +69,18 @@ describe('ManagerOffersTab', () => {
   });
 
   it('renders without crashing', () => {
-    const { container } = renderWithProviders(<ManagerOffersTab />);
+    const { container } = renderWithProviders(<ManagerOffersTab players={[]} />);
     expect(container.innerHTML).not.toBe('');
   });
 
   it('shows sub-tab navigation', () => {
-    renderWithProviders(<ManagerOffersTab />);
+    renderWithProviders(<ManagerOffersTab players={[]} />);
     expect(screen.getByText('tabIncoming')).toBeInTheDocument();
     expect(screen.getByText('tabOutgoing')).toBeInTheDocument();
   });
 
   it('loads incoming offers on mount', async () => {
-    renderWithProviders(<ManagerOffersTab />);
+    renderWithProviders(<ManagerOffersTab players={[]} />);
     await waitFor(() => {
       expect(mockGetIncoming).toHaveBeenCalled();
     });

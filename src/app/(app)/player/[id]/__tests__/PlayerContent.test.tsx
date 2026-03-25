@@ -356,7 +356,7 @@ describe('PlayerContent', () => {
       isLoading: false,
       isError: false,
       refetch: mockRefetch,
-    } as ReturnType<typeof useDbPlayerById>);
+    } as unknown as ReturnType<typeof useDbPlayerById>);
 
     vi.mocked(dbToPlayer).mockReturnValue(playerFixture as unknown as ReturnType<typeof dbToPlayer>);
   });
@@ -368,7 +368,7 @@ describe('PlayerContent', () => {
       isLoading: true,
       isError: false,
       refetch: mockRefetch,
-    } as ReturnType<typeof useDbPlayerById>);
+    } as unknown as ReturnType<typeof useDbPlayerById>);
 
     renderWithProviders(<PlayerContent playerId="p1" />);
 
@@ -383,7 +383,7 @@ describe('PlayerContent', () => {
       isLoading: false,
       isError: true,
       refetch: mockRefetch,
-    } as ReturnType<typeof useDbPlayerById>);
+    } as unknown as ReturnType<typeof useDbPlayerById>);
 
     renderWithProviders(<PlayerContent playerId="p1" />);
 
@@ -398,7 +398,7 @@ describe('PlayerContent', () => {
       isLoading: false,
       isError: true,
       refetch: mockRefetch,
-    } as ReturnType<typeof useDbPlayerById>);
+    } as unknown as ReturnType<typeof useDbPlayerById>);
 
     renderWithProviders(<PlayerContent playerId="p1" />);
 

@@ -32,7 +32,7 @@ vi.mock('@/components/providers/AuthProvider', () => {
 
 const mockFormatScout = vi.fn((n: number) => String(n));
 vi.mock('@/lib/services/wallet', () => ({
-  formatScout: (...args: unknown[]) => mockFormatScout(...args),
+  formatScout: (...args: unknown[]) => mockFormatScout(...(args as [number])),
 }));
 
 vi.mock('@/lib/errorMessages', () => ({

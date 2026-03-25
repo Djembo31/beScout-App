@@ -20,7 +20,7 @@ describe('activateChip', () => {
   it('returns error on RPC failure', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockRpc('activate_chip', null, { message: 'Season limit reached' });
-    const result = await activateChip('evt-1', 'bench_boost');
+    const result = await activateChip('evt-1', 'triple_captain');
     expect(result).toEqual({ success: false, error: 'Season limit reached' });
     consoleSpy.mockRestore();
   });

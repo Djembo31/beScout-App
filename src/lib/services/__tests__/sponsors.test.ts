@@ -10,38 +10,38 @@ beforeEach(() => { resetMocks(); vi.clearAllMocks(); });
 
 describe('getSponsorForPlacement', () => {
   it('returns active sponsor for placement', async () => {
-    const sponsor = { id: 's1', name: 'Nike', placement: 'header', is_active: true, ends_at: null };
+    const sponsor = { id: 's1', name: 'Nike', placement: 'home_hero', is_active: true, ends_at: null };
     mockTable('sponsors', [sponsor]);
-    const result = await getSponsorForPlacement('header');
+    const result = await getSponsorForPlacement('home_hero');
     expect(result).toEqual(sponsor);
   });
 
   it('filters out expired sponsors', async () => {
     mockTable('sponsors', [{ id: 's1', name: 'Expired', ends_at: '2020-01-01T00:00:00Z' }]);
-    const result = await getSponsorForPlacement('header');
+    const result = await getSponsorForPlacement('home_hero');
     expect(result).toBeNull();
   });
 
   it('returns null on error', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockTable('sponsors', null, { message: 'err' });
-    expect(await getSponsorForPlacement('header')).toBeNull();
+    expect(await getSponsorForPlacement('home_hero')).toBeNull();
     consoleSpy.mockRestore();
   });
 
   it('returns null when no sponsors', async () => {
     mockTable('sponsors', []);
-    expect(await getSponsorForPlacement('header')).toBeNull();
+    expect(await getSponsorForPlacement('home_hero')).toBeNull();
   });
 
   it('returns null when data is null', async () => {
     mockTable('sponsors', null);
-    expect(await getSponsorForPlacement('header')).toBeNull();
+    expect(await getSponsorForPlacement('home_hero')).toBeNull();
   });
 
   it('queries with clubId when provided', async () => {
     mockTable('sponsors', [{ id: 's1', name: 'Club Sponsor', ends_at: null }]);
-    const result = await getSponsorForPlacement('sidebar', 'club-1');
+    const result = await getSponsorForPlacement('club_hero', 'club-1');
     expect(result).toBeTruthy();
   });
 });
@@ -81,7 +81,7 @@ describe('createSponsor', () => {
   it('creates sponsor and returns id', async () => {
     mockTable('sponsors', { id: 's-new' });
     const result = await createSponsor({
-      name: 'Nike', logo_url: '/nike.png', placement: 'header', created_by: 'admin-1',
+      name: 'Nike', logo_url: '/nike.png', placement: 'home_hero', created_by: 'admin-1',
     });
     expect(result).toEqual({ success: true, id: 's-new' });
   });
@@ -89,7 +89,7 @@ describe('createSponsor', () => {
   it('returns error on insert failure', async () => {
     mockTable('sponsors', null, { message: 'Insert failed' });
     const result = await createSponsor({
-      name: 'Nike', logo_url: '/nike.png', placement: 'header', created_by: 'admin-1',
+      name: 'Nike', logo_url: '/nike.png', placement: 'home_hero', created_by: 'admin-1',
     });
     expect(result).toEqual({ success: false, error: 'Insert failed' });
   });
@@ -98,7 +98,7 @@ describe('createSponsor', () => {
     mockTable('sponsors', { id: 's-2' });
     const result = await createSponsor({
       name: 'Adidas', logo_url: '/adidas.png', link_url: 'https://adidas.com',
-      placement: 'sidebar', club_id: 'c1', priority: 10,
+      placement: 'market_top', club_id: 'c1', priority: 10,
       starts_at: '2025-01-01', ends_at: '2025-12-31', created_by: 'admin-1',
     });
     expect(result.success).toBe(true);

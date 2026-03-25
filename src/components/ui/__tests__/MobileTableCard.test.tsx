@@ -4,13 +4,15 @@ import { render, screen } from '@testing-library/react';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import { MobileTableCard } from '../MobileTableCard';
 
+type TestItem = { name: string; value: number };
+
 describe('MobileTableCard', () => {
   const columns = [
-    { key: 'name', header: 'Name', render: (item: { name: string }) => item.name },
-    { key: 'value', header: 'Value', render: (item: { value: number }) => String(item.value) },
+    { key: 'name', header: 'Name', render: (item: TestItem) => item.name },
+    { key: 'value', header: 'Value', render: (item: TestItem) => String(item.value) },
   ];
 
-  const data = [
+  const data: TestItem[] = [
     { name: 'Alice', value: 100 },
     { name: 'Bob', value: 200 },
   ];

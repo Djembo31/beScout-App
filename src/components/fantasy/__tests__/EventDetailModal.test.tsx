@@ -178,8 +178,6 @@ function makeEvent(overrides: Partial<FantasyEvent> = {}): FantasyEvent {
     participants: 5,
     isJoined: false,
     scoredAt: null,
-    sponsorName: null,
-    sponsorLogo: null,
     eventTier: 'club',
     startTime: Date.now() + 86400000,
     endTime: Date.now() + 172800000,
@@ -192,6 +190,7 @@ function makeEvent(overrides: Partial<FantasyEvent> = {}): FantasyEvent {
     requirements: {},
     rewards: [],
     ticketCost: 0,
+    currency: 'tickets' as const,
     ...overrides,
   };
 }

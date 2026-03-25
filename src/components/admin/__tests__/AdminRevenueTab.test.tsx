@@ -21,8 +21,8 @@ vi.mock('@/lib/services/club', () => ({
 }));
 
 vi.mock('@/lib/services/players', () => ({
-  getPlayersByClubId: (...args: unknown[]) => mockGetPlayersByClubId(...args),
-  centsToBsd: (...args: unknown[]) => mockCentsToBsd(...args),
+  getPlayersByClubId: (...args: unknown[]) => mockGetPlayersByClubId(...(args as [string])),
+  centsToBsd: (...args: unknown[]) => mockCentsToBsd(...(args as [number])),
 }));
 
 vi.mock('@/lib/services/votes', () => ({
@@ -30,11 +30,11 @@ vi.mock('@/lib/services/votes', () => ({
 }));
 
 vi.mock('@/lib/services/wallet', () => ({
-  formatScout: (...args: unknown[]) => mockFormatScout(...args),
+  formatScout: (...args: unknown[]) => mockFormatScout(...(args as [number])),
 }));
 
 vi.mock('@/lib/utils', () => ({
-  fmtScout: (...args: unknown[]) => mockFmtScout(...args),
+  fmtScout: (...args: unknown[]) => mockFmtScout(...(args as [number])),
   cn: (...args: unknown[]) => args.filter(Boolean).join(' '),
 }));
 

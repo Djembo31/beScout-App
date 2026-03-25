@@ -237,9 +237,9 @@ describe('getClubRecentTrades', () => {
 // ============================================
 describe('getClubDashboardStats', () => {
   it('returns stats via RPC', async () => {
-    mockRpc('get_club_dashboard_stats_v2', { totalPlayers: 30, revenue: 500000 });
+    mockRpc('get_club_dashboard_stats_v2', { total_fans: 30, ipo_revenue_cents: 500000, top_fans: [] });
     const result = await getClubDashboardStats('c1');
-    expect(result.totalPlayers).toBe(30);
+    expect(result.total_fans).toBe(30);
   });
   it('throws on error', async () => {
     mockRpc('get_club_dashboard_stats_v2', null, { message: 'err' });

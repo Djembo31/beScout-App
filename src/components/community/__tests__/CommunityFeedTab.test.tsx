@@ -138,7 +138,7 @@ function makeResearchPost(overrides: Partial<ResearchPostWithAuthor> = {}): Rese
     tags: [],
     category: 'Analyse',
     call: 'Bullish',
-    horizon: 'short',
+    horizon: '7d',
     price: 100000,
     unlock_count: 5,
     total_earned: 500000,

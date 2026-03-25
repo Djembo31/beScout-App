@@ -2,6 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import OnboardingChecklist from '../OnboardingChecklist';
+import type { OnboardingProgress } from '@/lib/retentionEngine';
 
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
@@ -19,10 +20,11 @@ vi.mock('@/components/ui', () => ({
 
 const makeItems = (completed: boolean[]) =>
   completed.map((c, i) => ({
-    action: `action_${i}`,
+    action: `action_${i}` as OnboardingProgress['action'],
     completed: c,
     href: `/step/${i}`,
     labelDe: `Schritt ${i + 1}`,
+    labelTr: `Adim ${i + 1}`,
     rewardLabel: `${(i + 1) * 10} XP`,
   }));
 

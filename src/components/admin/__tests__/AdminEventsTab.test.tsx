@@ -39,8 +39,8 @@ const mockCentsToBsd = vi.fn((n: number) => n / 100);
 const mockBsdToCents = vi.fn((n: number) => n * 100);
 
 vi.mock('@/lib/services/players', () => ({
-  centsToBsd: (...args: unknown[]) => mockCentsToBsd(...args),
-  bsdToCents: (...args: unknown[]) => mockBsdToCents(...args),
+  centsToBsd: (...args: unknown[]) => mockCentsToBsd(...(args as [number])),
+  bsdToCents: (...args: unknown[]) => mockBsdToCents(...(args as [number])),
 }));
 
 vi.mock('@/lib/utils', () => ({
@@ -174,7 +174,7 @@ describe('AdminEventsTab', () => {
     const events = [
       makeEvent({ id: 'e1', name: 'Active Event', status: 'registering' }),
       makeEvent({ id: 'e2', name: 'Ended Event', status: 'ended' }),
-      makeEvent({ id: 'e3', name: 'Cancelled Event', status: 'cancelled' }),
+      makeEvent({ id: 'e3', name: 'Cancelled Event', status: 'ended' }),
     ];
     setupResolvedWithEvents(events);
     renderWithProviders(<AdminEventsTab club={club} />);

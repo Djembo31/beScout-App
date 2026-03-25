@@ -97,11 +97,11 @@ function makePlayer(overrides: Partial<Player> & { id: string; pos: Pos }): Play
     club: 'Test FC',
     clubId: 'club-1',
     league: 'Test League',
-    status: 'active',
+    status: 'fit',
     age: 25,
     country: 'DE',
     contractMonthsLeft: 12,
-    perf: { l5: 60, l15: 55, l5Apps: 5, l15Apps: 15, season: 58, trend: 'up' },
+    perf: { l5: 60, l15: 55, l5Apps: 5, l15Apps: 15, season: 58, trend: 'UP' },
     stats: { matches: 20, goals: 5, assists: 3, cleanSheets: 2, minutes: 1800, saves: 0 },
     prices: { lastTrade: 1000, change24h: 5, floor: 900 },
     dpc: { supply: 300, float: 200, circulation: 250, onMarket: 50, owned: 3 },
@@ -114,12 +114,12 @@ function makePlayer(overrides: Partial<Player> & { id: string; pos: Pos }): Play
   };
 }
 
-const gkPlayer = makePlayer({ id: 'p-gk', pos: 'GK', first: 'Manuel', last: 'Neuer', perf: { l5: 75, l15: 70, l5Apps: 5, l15Apps: 15, season: 72, trend: 'up' } });
-const def1Player = makePlayer({ id: 'p-def1', pos: 'DEF', first: 'Antonio', last: 'Ruediger', perf: { l5: 80, l15: 72, l5Apps: 5, l15Apps: 15, season: 74, trend: 'up' } });
-const def2Player = makePlayer({ id: 'p-def2', pos: 'DEF', first: 'Dayot', last: 'Upamecano', perf: { l5: 55, l15: 50, l5Apps: 5, l15Apps: 15, season: 52, trend: 'down' } });
-const mid1Player = makePlayer({ id: 'p-mid1', pos: 'MID', first: 'Joshua', last: 'Kimmich', perf: { l5: 90, l15: 85, l5Apps: 5, l15Apps: 15, season: 87, trend: 'up' } });
-const att1Player = makePlayer({ id: 'p-att1', pos: 'ATT', first: 'Harry', last: 'Kane', perf: { l5: 95, l15: 88, l5Apps: 5, l15Apps: 15, season: 90, trend: 'up' } });
-const att2Player = makePlayer({ id: 'p-att2', pos: 'ATT', first: 'Leroy', last: 'Sane', perf: { l5: 40, l15: 45, l5Apps: 5, l15Apps: 15, season: 42, trend: 'down' }, prices: { lastTrade: 2000, change24h: -3, floor: 1800 } });
+const gkPlayer = makePlayer({ id: 'p-gk', pos: 'GK', first: 'Manuel', last: 'Neuer', perf: { l5: 75, l15: 70, l5Apps: 5, l15Apps: 15, season: 72, trend: 'UP' } });
+const def1Player = makePlayer({ id: 'p-def1', pos: 'DEF', first: 'Antonio', last: 'Ruediger', perf: { l5: 80, l15: 72, l5Apps: 5, l15Apps: 15, season: 74, trend: 'UP' } });
+const def2Player = makePlayer({ id: 'p-def2', pos: 'DEF', first: 'Dayot', last: 'Upamecano', perf: { l5: 55, l15: 50, l5Apps: 5, l15Apps: 15, season: 52, trend: 'DOWN' } });
+const mid1Player = makePlayer({ id: 'p-mid1', pos: 'MID', first: 'Joshua', last: 'Kimmich', perf: { l5: 90, l15: 85, l5Apps: 5, l15Apps: 15, season: 87, trend: 'UP' } });
+const att1Player = makePlayer({ id: 'p-att1', pos: 'ATT', first: 'Harry', last: 'Kane', perf: { l5: 95, l15: 88, l5Apps: 5, l15Apps: 15, season: 90, trend: 'UP' } });
+const att2Player = makePlayer({ id: 'p-att2', pos: 'ATT', first: 'Leroy', last: 'Sane', perf: { l5: 40, l15: 45, l5Apps: 5, l15Apps: 15, season: 42, trend: 'DOWN' }, prices: { lastTrade: 2000, change24h: -3, floor: 1800 } });
 
 const allPlayers = [gkPlayer, def1Player, def2Player, mid1Player, att1Player, att2Player];
 const ownedPlayers = [gkPlayer, def1Player, mid1Player, att1Player];

@@ -38,12 +38,12 @@ const LeaguesSection = LeaguesSectionModule;
 
 describe('LeaguesSection', () => {
   it('renders without crashing', () => {
-    const { container } = renderWithProviders(<LeaguesSection compact={false} />);
+    const { container } = renderWithProviders(<LeaguesSection mode="full" />);
     expect(container.innerHTML).not.toBe('');
   });
 
   it('shows create and join buttons', () => {
-    renderWithProviders(<LeaguesSection compact={false} />);
+    renderWithProviders(<LeaguesSection mode="full" />);
     expect(screen.getByText('create')).toBeInTheDocument();
     expect(screen.getByText('join')).toBeInTheDocument();
   });

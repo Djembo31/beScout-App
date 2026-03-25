@@ -21,10 +21,11 @@ vi.mock('@/components/ui/Confetti', () => ({
 
 const mockAchievement = {
   key: 'first_trade',
+  label: 'Erster Deal',
+  description: 'Ersten Scout Card Trade abgeschlossen',
   category: 'trading' as const,
   icon: '🏆',
-  threshold: 1,
-  xp: 50,
+  featured: true,
 };
 
 describe('AchievementUnlockModal', () => {

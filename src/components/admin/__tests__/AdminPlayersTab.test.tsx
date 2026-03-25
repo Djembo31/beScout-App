@@ -23,11 +23,11 @@ const mockCentsToBsd = vi.fn((n: number) => n / 100);
 const mockBsdToCents = vi.fn((n: number) => n * 100);
 
 vi.mock('@/lib/services/players', () => ({
-  getPlayersByClubId: (...args: unknown[]) => mockGetPlayersByClubId(...args),
-  dbToPlayers: (...args: unknown[]) => mockDbToPlayers(...args),
-  createPlayer: (...args: unknown[]) => mockCreatePlayer(...args),
-  centsToBsd: (...args: unknown[]) => mockCentsToBsd(...args),
-  bsdToCents: (...args: unknown[]) => mockBsdToCents(...args),
+  getPlayersByClubId: (...args: unknown[]) => mockGetPlayersByClubId(...(args as [string])),
+  dbToPlayers: (...args: unknown[]) => mockDbToPlayers(...(args as [unknown[]])),
+  createPlayer: (...args: unknown[]) => mockCreatePlayer(...(args as [unknown])),
+  centsToBsd: (...args: unknown[]) => mockCentsToBsd(...(args as [number])),
+  bsdToCents: (...args: unknown[]) => mockBsdToCents(...(args as [number])),
 }));
 
 // ============================================
@@ -66,10 +66,10 @@ vi.mock('@/lib/services/liquidation', () => ({
 // ============================================
 // Mocks — adminRoles
 // ============================================
-const mockCanPerformAction = vi.fn(() => true);
+const mockCanPerformAction = vi.fn((_action?: string, _role?: string) => true);
 
 vi.mock('@/lib/adminRoles', () => ({
-  canPerformAction: (...args: unknown[]) => mockCanPerformAction(...args),
+  canPerformAction: (...args: unknown[]) => mockCanPerformAction(...(args as [string, string])),
 }));
 
 // ============================================
@@ -152,7 +152,7 @@ function makePlayer(overrides: Partial<Player> = {}): Player {
     age: 25,
     country: 'DE',
     contractMonthsLeft: 12,
-    perf: { l5: 7, l15: 6.5, l5Apps: 5, l15Apps: 15, season: 7, trend: 'up' },
+    perf: { l5: 7, l15: 6.5, l5Apps: 5, l15Apps: 15, season: 7, trend: 'UP' },
     stats: { matches: 20, goals: 5, assists: 3, cleanSheets: 0, minutes: 1800, saves: 0 },
     prices: { lastTrade: 500, change24h: 0, floor: 5 },
     dpc: { supply: 300, float: 200, circulation: 100, onMarket: 10, owned: 0 },
@@ -160,7 +160,6 @@ function makePlayer(overrides: Partial<Player> = {}): Player {
     listings: [],
     topOwners: [],
     isLiquidated: false,
-    successFeeCap: null,
     lastAppearanceGw: 28,
     gwGap: 0,
     ...overrides,

@@ -26,9 +26,9 @@ beforeEach(() => {
 describe('createPrediction', () => {
   const params = {
     fixtureId: 'fix-1',
-    type: 'player_goals' as const,
+    type: 'player' as const,
     playerId: 'p-1',
-    condition: 'over' as const,
+    condition: 'player_goals' as const,
     value: '1.5',
     confidence: 80,
   };
@@ -39,9 +39,9 @@ describe('createPrediction', () => {
     expect(result).toEqual({ ok: true, id: 'pred-1', difficulty: 3, gameweek: 10 });
     expect(mockSupabase.rpc).toHaveBeenCalledWith('create_prediction', {
       p_fixture_id: 'fix-1',
-      p_type: 'player_goals',
+      p_type: 'player',
       p_player_id: 'p-1',
-      p_condition: 'over',
+      p_condition: 'player_goals',
       p_value: '1.5',
       p_confidence: 80,
     });
@@ -84,7 +84,7 @@ describe('getPredictions', () => {
       user_id: 'u1',
       fixture_id: 'fix-1',
       gameweek: 10,
-      prediction_type: 'player_goals',
+      prediction_type: 'player',
       player_id: 'p-1',
       condition: 'over',
       predicted_value: '1.5',

@@ -18,10 +18,10 @@ function makeEvent(overrides: Partial<FantasyEvent> = {}): FantasyEvent {
     id: 'e1', name: 'Test', description: '', status: 'registering', format: '7er',
     type: 'club', mode: 'tournament', gameweek: 1, entryFeeCents: 0, buyIn: 0,
     prizePool: 0, maxParticipants: 20, participants: 5, isJoined: false,
-    scoredAt: null, sponsorName: null, sponsorLogo: null, eventTier: 'club',
+    scoredAt: null, eventTier: 'club',
     startTime: 0, endTime: 0, lockTime: 0, entryType: 'single', speed: 'normal',
     isPromoted: false, isFeatured: false, isInterested: false, requirements: {},
-    rewards: [], ticketCost: 0, ...overrides,
+    rewards: [], ticketCost: 0, currency: 'tickets' as const, ...overrides,
   };
 }
 
