@@ -3,7 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { PlayerPhoto, PositionBadge, GoalBadge } from '@/components/player';
-import { scoreBadgeColor, getPosAccent, getRingFrameClass } from '../spieltag/helpers';
+import { getPosAccent, getRingFrameClass, getMatchScore } from '../spieltag/helpers';
+import { getScoreBadgeStyle } from '@/components/player/scoreColor';
 import type { FixturePlayerStat } from '@/types';
 import type { Pos } from '@/types';
 
@@ -20,7 +21,7 @@ export function Top3Cards({ scorers }: Props) {
   return (
     <div className="flex gap-2.5 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide -mx-1 px-1">
       {top3.map((stat, i) => {
-        const rating = stat.rating ?? stat.fantasy_points / 10;
+        const score = getMatchScore(stat);
         const accent = getPosAccent(stat.player_position);
         const isFirst = i === 0;
 
@@ -48,8 +49,8 @@ export function Top3Cards({ scorers }: Props) {
               </div>
 
               {/* Rating */}
-              <span className={`px-1.5 py-0.5 rounded-md text-xs font-mono font-black tabular-nums ${scoreBadgeColor(rating)}`}>
-                {rating.toFixed(1)}
+              <span className="px-1.5 py-0.5 rounded-md text-xs font-mono font-black tabular-nums" style={getScoreBadgeStyle(score)}>
+                {score ?? '\u2013'}
               </span>
 
               {/* Name */}

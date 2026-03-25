@@ -1,5 +1,4 @@
 /** Spieltag helper functions — extracted from SpieltagTab */
-import type React from 'react';
 
 export const posColor = (pos: string) => {
   switch (pos) {
@@ -9,16 +8,6 @@ export const posColor = (pos: string) => {
     case 'ATT': return 'text-rose-400 bg-rose-500/15';
     default: return 'text-white/50 bg-white/10';
   }
-};
-
-/** Score badge color based on API-Football rating (0.0-10.0) — SofaScore-inspired 6-tier */
-export const scoreBadgeColor = (rating: number): string => {
-  if (rating >= 9.0) return 'bg-[#374DF5] text-white';       // Royal Blue — Excellent
-  if (rating >= 8.0) return 'bg-[#00ADC4] text-white';       // Cyan — Very Good
-  if (rating >= 7.0) return 'bg-[#00C424] text-white';       // Green — Good
-  if (rating >= 6.5) return 'bg-[#D9AF00] text-white';       // Gold — Average
-  if (rating >= 6.0) return 'bg-[#ED7E07] text-white';       // Orange — Below Average
-  return 'bg-[#DC0C00] text-white';                           // Red — Poor
 };
 
 export const posOrder = (pos: string): number => {
@@ -63,16 +52,3 @@ export const getRingFrameClass = (pos: string): string => {
 export const getMatchScore = (stat: { rating?: number | null }): number | null =>
   stat.rating != null ? Math.round(stat.rating * 10) : null;
 
-/** @deprecated Use getMatchScore + getScoreBadgeStyle from scoreColor.ts */
-export const getRating = (stat: { rating?: number | null; fantasy_points: number }): number =>
-  stat.rating ?? stat.fantasy_points / 10;
-
-/** @deprecated Use getScoreBadgeStyle from scoreColor.ts */
-export const ratingHeatStyle = (rating: number): React.CSSProperties => {
-  if (rating >= 9.0) return { background: '#374DF5', color: '#fff', textShadow: '0 0 10px rgba(55,77,245,0.5)' };
-  if (rating >= 8.0) return { background: '#00ADC4', color: '#fff' };
-  if (rating >= 7.0) return { background: '#00C424', color: '#fff' };
-  if (rating >= 6.5) return { background: '#D9AF00', color: '#fff' };
-  if (rating >= 6.0) return { background: '#ED7E07', color: '#fff' };
-  return { background: '#DC0C00', color: '#fff' };
-};

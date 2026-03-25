@@ -6,7 +6,8 @@ import { Goal, HandHelping, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui';
 import { PlayerPhoto, PositionBadge, GoalBadge } from '@/components/player';
-import { scoreBadgeColor, getRingFrameClass, ratingHeatStyle } from '../spieltag/helpers';
+import { getRingFrameClass, getMatchScore } from '../spieltag/helpers';
+import { getScoreBadgeStyle } from '@/components/player/scoreColor';
 import type { FixturePlayerStat } from '@/types';
 import type { Pos } from '@/types';
 
@@ -26,7 +27,7 @@ type Props = {
 export function GwHeroSummary({ summary }: Props) {
   const tf = useTranslations('fantasy');
   const { best, avgRating, totalGoals, totalAssists, cleanSheets, yellowCards } = summary;
-  const mvpRating = best.rating ?? best.fantasy_points / 10;
+  const mvpScore = getMatchScore(best);
 
   return (
     <Card surface="elevated" className="rounded-2xl overflow-hidden">
@@ -59,8 +60,8 @@ export function GwHeroSummary({ summary }: Props) {
             {best.player_first_name.charAt(0)}. {best.player_last_name}
           </div>
           <div className="flex items-center gap-1.5 mt-0.5">
-            <span className={`px-1.5 py-0.5 rounded-md text-xs font-mono font-black tabular-nums ${scoreBadgeColor(mvpRating)}`}>
-              {mvpRating.toFixed(1)}
+            <span className="px-1.5 py-0.5 rounded-md text-xs font-mono font-black tabular-nums" style={getScoreBadgeStyle(mvpScore)}>
+              {mvpScore ?? '\u2013'}
             </span>
             <PositionBadge pos={best.player_position as Pos} size="sm" />
           </div>
@@ -68,7 +69,7 @@ export function GwHeroSummary({ summary }: Props) {
 
         {/* Avg Rating — right side */}
         <div className="text-center flex-shrink-0 mt-3">
-          <div className="text-2xl font-mono font-black tabular-nums gold-glow">{avgRating.toFixed(1)}</div>
+          <div className="text-2xl font-mono font-black tabular-nums gold-glow">{Math.round(avgRating)}</div>
           <div className="text-xs text-white/40">{tf('ergebnisse.avgRating')}</div>
         </div>
       </Link>

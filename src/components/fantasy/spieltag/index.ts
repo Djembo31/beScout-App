@@ -7,5 +7,5 @@ export { SpieltagPulse } from './SpieltagPulse';
 export { SpieltagBrowser } from './SpieltagBrowser';
 export { TopScorerShowcase } from './TopScorerShowcase';
 export { BestElevenShowcase } from './BestElevenShowcase';
-export { posColor, scoreBadgeColor, posOrder, getPosAccent, getRating, getMatchScore } from './helpers';
+export { posColor, posOrder, getPosAccent, getMatchScore } from './helpers';
 export { GoalIcon, AssistIcon, YellowCardIcon, RedCardIcon, SubInIcon, SubOutIcon, CleanSheetIcon, MvpCrownIcon } from './MatchIcons';
