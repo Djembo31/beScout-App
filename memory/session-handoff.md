@@ -1,51 +1,64 @@
 # Session Handoff
-## Letzte Session: 2026-03-25 (Session 251)
+## Letzte Session: 2026-03-25 (Session 252)
 ## Was wurde gemacht
 
-### Pilot Checklist — 4-Schichten-Audit → GO
-- 28/28 Checks passed, 63 Test-Fixes, 8 Routes visuell auf 360px
+### Event Category Cards (Sorare-Style)
+- Neue `EventCategoryCards.tsx` Komponente — 5 visuelle Gradient Cards
+- BeScout Card: Stadion-Background + BeScout Logo oben-mittig
+- Club Card: Taktikboard-Background + TFF 1. Lig Logo oben-mittig
+- Andere Cards: CSS-only mit Dual-Glow, Noise Texture, Shimmer on Hover
+- Click filtert EventBrowser, nochmal Click = deselect
+- EventBrowser Pills werden bei aktiver Card-Filterung ausgeblendet
+- Assets: `public/stadiums/bescout_event_card.png`, `club_event_card.png`, `tff1.png`
 
-### Features
-- **Migration 300:** MysteryBox Streak-Discount server-enforced
-- **Ticket-Transaktionshistorie:** Credits + Tickets Filter in Timeline
-- **Fee-Transparenz:** Breakdown im Kauf-Modal + Disclaimer (3.5%/1.5%/1%)
-- **Bot Survey System:** Strukturiertes Feedback nach jeder Bot-Session
-- **Player Detail UX Polish:** (gemergt von Desktop-Claude Branch)
+### Event Type Badge (Phase 1 von 4)
+- `EventScopeBadge` → `EventTypeBadge` (zeigt Type statt Scope)
+- 5 Badge-Varianten: BeScout (gold), Club (emerald+name+logo), Sponsor (sky+name), Special (purple), Creator (orange)
+- 3 Consumer updated: EventCardView, EventDetailModal, barrel export
+- 8/8 Tests gruen, tsc clean
+- Backward-compat Export bleibt (`EventScopeBadge` alias)
 
-### Admin i18n
-- 3 hardcoded Strings gefixt
+### Event Card Icons
+- Club Events zeigen Club-Logo (FK Join via API Route)
+- BeScout Events zeigen BeScout Premium Icon
+- Fallback: generisches Type-Icon
 
-### Bots
-- 50 Bots gelaufen: 361 Trades, 7 Posts, 0 Bugs, 44 Feature Wishes
-- Survey: 4.0/5 Overall, 96% Weiterempfehlung
-
-### Infra
-- **Custom Domain:** bescout.net → Vercel (DNS umgestellt, wartet auf Propagation)
-- **Supabase Auth:** Site URL + Redirect URLs auf bescout.net gesetzt
-
-### Commits (12)
-- Pilot Checklist (Design + Plan + Results)
-- 26 Test-Files tsc alignment
-- 3 Test-Failures (mock + DB rank dedup)
-- Admin i18n
-- Fee-Transparenz
-- Ticket-Transaktionshistorie
-- Bot Survey System
-- Session End + Merge
+### Event Ownership System — Design + Plan (NICHT IMPLEMENTIERT, nur Phase 1)
+- Design Doc: `docs/plans/2026-03-25-event-ownership-system-design.md`
+- Impl Plan: `docs/plans/2026-03-25-event-ownership-plan.md`
+- Fee Split: Platform 5%, Club/Creator 5%, konfigurierbar
+- Kein PBT bei Events (zu komplex, wenig Wert)
+- Competitor Research: Dream11 15-25%, PrizePicks 15-20%, BeScout 5-10% (kompetitiv)
+- 7 fehlende Revenue Streams in `memory/project_missing_revenue_streams.md`
 
 ---
 
-## Naechste Session
+## Naechste Session — SOFORT WEITERMACHEN
 
-### Sofort
-1. **DNS verifizieren** — bescout.net muss die App zeigen
-2. **Echten Signup testen** — ganzer Flow mit echter E-Mail
-3. **Supabase Email-Templates** anpassen (BeScout Branding)
-4. **Google/Apple OAuth** Redirect URLs auf bescout.net pruefen
+### Event Ownership Phase 2-4 (Plan steht, direkt loslegen)
+Lies: `docs/plans/2026-03-25-event-ownership-plan.md`
+
+1. **Phase 2: Fee Config Table + Admin UI** (~1h)
+   - Migration `20260325_event_fee_config.sql` erstellen
+   - `DbEventFeeConfig` Type in `src/types/index.ts`
+   - Service Functions in `src/lib/services/platformAdmin.ts`
+   - Admin UI Section in `src/app/(app)/bescout-admin/AdminEventFeesSection.tsx`
+
+2. **Phase 3: RPC Fee Split + Subscription Gate** (~1.5h)
+   - `rpc_lock_event_entry` liest Fee Config aus DB statt hardcoded
+   - `min_subscription_tier` wird im RPC enforced (aktuell nur UI)
+   - `tier_rank()` SQL Helper
+   - `isClubEvent()` auf type-basiert umstellen
+   - i18n Key `subscriptionRequired` in DE + TR
+
+3. **Phase 4: Data Cleanup + Verification** (~30min)
+   - 100 Events reviewen: Type-Zuweisungen pruefen
+   - Visual QA: Badge pro Type korrekt?
+   - Subscription Gate testen
 
 ### Danach
-- 50 Einladungen raus an Sakaryaspor-Fans
-- Bot Feature Wishes priorisieren (Auto-Fill Lineup, Tutorial, Album-Ansicht)
+- DNS verifizieren + echten Signup testen
+- 50 Einladungen raus
 
 ## Blocker
-- DNS-Propagation (max 30 Min)
+- Keine

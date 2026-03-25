@@ -3,7 +3,7 @@
 import React from 'react';
 import { Plus, Edit3, Lock, Eye, Play, CheckCircle2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Button, EventScopeBadge } from '@/components/ui';
+import { Button, EventTypeBadge } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import type { FantasyEvent } from '../types';
 import { getTypeStyle, getTierStyle, formatEventCost } from '../helpers';
@@ -39,9 +39,15 @@ export function EventCardView({ event, onClick }: Props) {
       {/* Row 1: Type + Tier + Timer */}
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
-          <div className={cn('size-7 rounded-lg flex items-center justify-center', typeStyle.bg)}>
-            <TypeIcon className={cn('size-3.5', typeStyle.color)} aria-hidden="true" />
-          </div>
+          {event.clubLogo ? (
+            <img src={event.clubLogo} alt="" className="size-7 rounded-lg object-contain" />
+          ) : event.type === 'bescout' ? (
+            <img src="/icons/bescout_icon_premium.svg" alt="" className="size-7 rounded-lg object-contain" />
+          ) : (
+            <div className={cn('size-7 rounded-lg flex items-center justify-center', typeStyle.bg)}>
+              <TypeIcon className={cn('size-3.5', typeStyle.color)} aria-hidden="true" />
+            </div>
+          )}
           {isArena && (
             <span className={cn(
               'inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold border',
@@ -66,16 +72,10 @@ export function EventCardView({ event, onClick }: Props) {
 
       {/* Row 3: Meta */}
       <div className="flex items-center gap-1.5 text-xs text-white/40 mb-2">
-        {event.scope && <EventScopeBadge scope={event.scope} size="sm" />}
+        <EventTypeBadge type={event.type} clubName={event.clubName} clubLogo={event.clubLogo} sponsorName={event.sponsorName} size="sm" />
         <span>{event.format}</span>
         <span className="text-white/15">·</span>
         <span>{event.mode === 'league' ? t('modeLeague') : t('modeTournament')}</span>
-        {event.clubName && (
-          <>
-            <span className="text-white/15">·</span>
-            <span className="truncate max-w-[100px]">{event.clubName}</span>
-          </>
-        )}
       </div>
 
       {/* Row 4: Requirement Chips + Ticket Cost */}

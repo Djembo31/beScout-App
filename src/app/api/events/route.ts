@@ -21,7 +21,7 @@ export async function GET(request: Request) {
 
   const { data, error } = await supabaseServer
     .from('events')
-    .select('*')
+    .select('*, clubs:club_id(name, logo_url)')
     .order('starts_at', { ascending: true });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

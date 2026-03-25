@@ -1,12 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Trophy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui';
 import type { FantasyEvent } from './types';
+import type { EventType } from './types';
 import { EventPulse } from './events/EventPulse';
 import { EventSpotlight } from './events/EventSpotlight';
+import { EventCategoryCards } from './events/EventCategoryCards';
 import { EventBrowser } from './events/EventBrowser';
 
 type EventsTabProps = {
@@ -20,6 +22,7 @@ export function EventsTab({
   onEventClick,
 }: EventsTabProps) {
   const t = useTranslations('fantasy');
+  const [selectedCategory, setSelectedCategory] = useState<EventType | null>(null);
 
   if (events.length === 0) {
     return (
@@ -39,8 +42,15 @@ export function EventsTab({
       {/* Zone 2: Spotlight — LIVE + Late-Reg horizontal cards */}
       <EventSpotlight events={events} onEventClick={onEventClick} />
 
-      {/* Zone 3: Browser — Category filter + status-grouped list */}
-      <EventBrowser events={events} onEventClick={onEventClick} />
+      {/* Zone 3: Category Cards — visual type filter */}
+      <EventCategoryCards
+        events={events}
+        selected={selectedCategory}
+        onSelect={setSelectedCategory}
+      />
+
+      {/* Zone 4: Browser — status-grouped event list */}
+      <EventBrowser events={events} onEventClick={onEventClick} categoryFilter={selectedCategory} />
     </div>
   );
 }

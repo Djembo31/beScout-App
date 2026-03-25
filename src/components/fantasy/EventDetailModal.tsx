@@ -21,7 +21,7 @@ import { getFormationsForFormat, getDefaultFormation, buildSlotDbKeys, PRESET_KE
 import { getStatusStyle, getTypeStyle, formatCountdown } from './helpers';
 import dynamic from 'next/dynamic';
 import type { FixtureDeadline } from '@/lib/services/fixtures';
-import { EventScopeBadge } from '@/components/ui';
+import { EventTypeBadge } from '@/components/ui';
 
 // Lazy-loaded ChipSelector (only needed when editing lineup)
 const ChipSelector = dynamic(() => import('@/components/gamification/ChipSelector'), {
@@ -455,7 +455,7 @@ export const EventDetailModal = ({
               <span className="text-xs font-bold">{t(statusStyle.labelKey)}</span>
             </div>
           )}
-          {event.scope && <EventScopeBadge scope={event.scope} size="sm" />}
+          <EventTypeBadge type={event.type} clubName={event.clubName} clubLogo={event.clubLogo} sponsorName={event.sponsorName} size="sm" />
           <Chip className={`${typeStyle.bg} ${typeStyle.color}`}>{event.mode === 'league' ? t('modeLiga') : t('modeTurnier')} • {event.format}</Chip>
           {event.status === 'running' && !isScored && <Chip className="bg-green-500 text-white">LIVE</Chip>}
           {isScored && (

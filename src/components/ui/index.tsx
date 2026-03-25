@@ -347,7 +347,7 @@ export { SortPills } from './SortPills';
 export { EmptyState } from './EmptyState';
 export { RangBadge, RangScorePill, RangProgress, DimensionRangRow, DimensionRangStack } from './RangBadge';
 export { ErrorBoundary } from './ErrorBoundary';
-export { EventScopeBadge } from './EventScopeBadge';
+export { EventTypeBadge, EventScopeBadge } from './EventScopeBadge';
 export { CosmeticAvatar } from './CosmeticAvatar';
 export { CosmeticTitle } from './CosmeticTitle';
 

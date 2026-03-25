@@ -410,10 +410,11 @@
       "eligible": "Offen für alle",
       "bescout": "BeScout",
       "sponsor": "Sponsoren",
-      "club": "Verein",
+      "club": "Club Events",
       "creator": "User",
       "special": "Spezial"
     },
+    "categoryCardCount": "{count} Events offen",
     "noEventsForCategory": "Keine Events in dieser Kategorie",
     "eventsTotal": "Gesamt",
     "eventsOpenCount": "Offen",

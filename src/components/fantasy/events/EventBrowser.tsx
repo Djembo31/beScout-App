@@ -28,9 +28,10 @@ const CATEGORIES: { id: EventCategory; labelKey: string; icon: typeof Trophy }[]
 type Props = {
   events: FantasyEvent[];
   onEventClick: (event: FantasyEvent) => void;
+  categoryFilter?: EventType | null;
 };
 
-export function EventBrowser({ events, onEventClick }: Props) {
+export function EventBrowser({ events, onEventClick, categoryFilter }: Props) {
   const t = useTranslations('fantasy');
   const [category, setCategory] = useState<EventCategory>('all');
   const [showEnded, setShowEnded] = useState(false);
@@ -47,6 +48,15 @@ export function EventBrowser({ events, onEventClick }: Props) {
   useEffect(() => {
     localStorage.setItem('bescout-events-view', viewMode);
   }, [viewMode]);
+
+  // Sync with external category filter from CategoryCards
+  useEffect(() => {
+    if (categoryFilter) {
+      setCategory(categoryFilter);
+    } else {
+      setCategory('all');
+    }
+  }, [categoryFilter]);
 
   const filtered = useMemo(() => {
     if (category === 'all') return events;
@@ -107,36 +117,38 @@ export function EventBrowser({ events, onEventClick }: Props) {
     <section className="space-y-3">
       {/* Category filter pills + View toggle */}
       <div className="flex items-center gap-2">
-        <div className="flex-1 flex items-center gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-0.5">
-          {CATEGORIES.map(cat => {
-            const count = counts[cat.id];
-            const isActive = category === cat.id;
-            const Icon = cat.icon;
-            if (cat.id !== 'all' && cat.id !== 'eligible' && count === 0) return null;
+        {!categoryFilter && (
+          <div className="flex-1 flex items-center gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-0.5">
+            {CATEGORIES.map(cat => {
+              const count = counts[cat.id];
+              const isActive = category === cat.id;
+              const Icon = cat.icon;
+              if (cat.id !== 'all' && cat.id !== 'eligible' && count === 0) return null;
 
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setCategory(cat.id)}
-                className={cn(
-                  'flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 min-h-[44px] rounded-lg text-xs font-semibold transition-colors whitespace-nowrap',
-                  isActive
-                    ? cat.id === 'eligible' ? 'bg-green-500/15 text-green-500 border border-green-500/20' : 'bg-gold/15 text-gold border border-gold/20'
-                    : 'bg-white/[0.04] text-white/50 border border-white/[0.06] hover:text-white/70'
-                )}
-              >
-                <Icon className="size-3" aria-hidden="true" />
-                <span>{t(`eventCategories.${cat.labelKey}`)}</span>
-                <span className={cn('text-xs font-mono', isActive ? (cat.id === 'eligible' ? 'text-green-500/60' : 'text-gold/60') : 'text-white/20')}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setCategory(cat.id)}
+                  className={cn(
+                    'flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 min-h-[44px] rounded-lg text-xs font-semibold transition-colors whitespace-nowrap',
+                    isActive
+                      ? cat.id === 'eligible' ? 'bg-green-500/15 text-green-500 border border-green-500/20' : 'bg-gold/15 text-gold border border-gold/20'
+                      : 'bg-white/[0.04] text-white/50 border border-white/[0.06] hover:text-white/70'
+                  )}
+                >
+                  <Icon className="size-3" aria-hidden="true" />
+                  <span>{t(`eventCategories.${cat.labelKey}`)}</span>
+                  <span className={cn('text-xs font-mono', isActive ? (cat.id === 'eligible' ? 'text-green-500/60' : 'text-gold/60') : 'text-white/20')}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* View toggle */}
-        <div className="flex-shrink-0 flex items-center gap-0.5 bg-white/[0.04] rounded-lg p-0.5 border border-white/[0.06]">
+        <div className={cn('flex-shrink-0 flex items-center gap-0.5 bg-white/[0.04] rounded-lg p-0.5 border border-white/[0.06]', categoryFilter && 'ml-auto')}>
           <button
             onClick={() => setViewMode('cards')}
             className={cn('p-1.5 rounded-md transition-colors', isCard ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/50')}

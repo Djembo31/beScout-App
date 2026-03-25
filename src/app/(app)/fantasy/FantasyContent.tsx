@@ -123,6 +123,8 @@ function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userLineup?:
     ticketCost: db.ticket_cost ?? 0,
     currency: db.currency ?? 'tickets',
     clubId: db.club_id ?? undefined,
+    clubName: (db as Record<string, unknown>).clubs ? ((db as Record<string, unknown>).clubs as { name: string; logo_url: string | null }).name : undefined,
+    clubLogo: (db as Record<string, unknown>).clubs ? ((db as Record<string, unknown>).clubs as { name: string; logo_url: string | null }).logo_url ?? undefined : undefined,
   };
 }
 

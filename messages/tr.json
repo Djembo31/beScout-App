@@ -410,10 +410,11 @@
       "eligible": "Herkese Açık",
       "bescout": "BeScout",
       "sponsor": "Sponsorlar",
-      "club": "Kulüp",
+      "club": "Kulüp Etkinlikleri",
       "creator": "Kullanıcı",
       "special": "Özel"
     },
+    "categoryCardCount": "{count} Etkinlik açık",
     "noEventsForCategory": "Bu kategoride etkinlik yok",
     "eventsTotal": "Toplam",
     "eventsOpenCount": "Açık",
