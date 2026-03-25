@@ -7,6 +7,13 @@ import ClubContent from '../ClubContent';
 // Stub all child components
 // ============================================
 
+vi.mock('@/lib/supabaseClient', () => ({
+  supabase: {
+    from: () => ({ select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null, error: null }) }) }) }),
+    rpc: () => Promise.resolve({ data: null, error: null }),
+  },
+}));
+
 vi.mock('@/components/club/ClubHero', () => ({
   ClubHero: (props: Record<string, unknown>) => <div data-testid="club-hero" data-club-name={(props.club as { name: string })?.name} />,
 }));

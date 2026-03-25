@@ -381,7 +381,7 @@ describe('EventDetailModal', () => {
     );
     await waitFor(() => {
       const buttons = screen.getAllByTestId('button');
-      const joinArea = buttons.find(b => b.textContent?.includes('morePlayers'));
+      const joinArea = buttons.find(b => b.textContent?.includes('confirmRegistration'));
       expect(joinArea).toBeInTheDocument();
     });
   });
