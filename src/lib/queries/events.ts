@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { qk } from './keys';
 import { getEvents, getUserJoinedEventIds, getUserEnteredEventIds, getEventEntry, getScoutEventsEnabled } from '@/lib/services/events';
 import { getPlayerEventUsage } from '@/lib/services/lineups';
+import { getUserHoldingLocks } from '@/lib/services/wallet';
 import { getActiveGameweek, getLeagueActiveGameweek, isClubAdmin } from '@/lib/services/club';
 import type { DbEventEntry } from '@/types';
 
@@ -32,6 +33,23 @@ export function usePlayerEventUsage(userId: string | undefined) {
   return useQuery({
     queryKey: qk.events.usage(userId!),
     queryFn: () => getPlayerEventUsage(userId!),
+    enabled: !!userId,
+    staleTime: ONE_MIN,
+  });
+}
+
+/** Holding locks for SC blocking — returns Map<playerId, totalLocked> */
+export function useHoldingLocks(userId: string | undefined) {
+  return useQuery({
+    queryKey: qk.events.holdingLocks(userId!),
+    queryFn: async () => {
+      const locks = await getUserHoldingLocks(userId!);
+      const map = new Map<string, number>();
+      for (const lock of locks) {
+        map.set(lock.player_id, (map.get(lock.player_id) ?? 0) + lock.quantity_locked);
+      }
+      return map;
+    },
     enabled: !!userId,
     staleTime: ONE_MIN,
   });

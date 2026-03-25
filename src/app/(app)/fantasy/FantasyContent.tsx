@@ -21,7 +21,7 @@ import { invalidateFantasyQueries } from '@/lib/queries/invalidation';
 import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
-import { useEvents, useJoinedEventIds, usePlayerEventUsage, useLeagueActiveGameweek, useIsClubAdmin } from '@/lib/queries/events';
+import { useEvents, useJoinedEventIds, usePlayerEventUsage, useHoldingLocks, useLeagueActiveGameweek, useIsClubAdmin } from '@/lib/queries/events';
 import { useHoldings } from '@/lib/queries/holdings';
 import { fmtScout, cn } from '@/lib/utils';
 import type { DbEvent } from '@/types';
@@ -174,6 +174,7 @@ export default function FantasyContent() {
   const { data: dbEvents = [], isLoading: eventsLoading, isError: eventsError, refetch: refetchEvents } = useEvents();
   const { data: joinedIdsArr = [] } = useJoinedEventIds(userId);
   const { data: usageMap } = usePlayerEventUsage(userId);
+  const { data: lockedScMap } = useHoldingLocks(userId);
   const { data: activeGw, isLoading: activeGwLoading } = useLeagueActiveGameweek();
   const { data: isAdmin = false } = useIsClubAdmin(userId, clubId || undefined);
   const { data: dbHoldings = [] } = useHoldings(userId);
@@ -280,11 +281,13 @@ export default function FantasyContent() {
       const eventIds = usageMap?.get(holding.id) || [];
       holding.activeEventIds = eventIds;
       holding.eventsUsing = eventIds.length;
-      holding.dpcAvailable = Math.max(0, holding.dpcOwned - holding.eventsUsing);
+      // Use actual locked SC quantity from holding_locks (not just event count)
+      const totalLocked = lockedScMap?.get(holding.id) ?? 0;
+      holding.dpcAvailable = Math.max(0, holding.dpcOwned - totalLocked);
       holding.isLocked = holding.dpcAvailable <= 0;
       return holding;
     });
-  }, [dbHoldings, usageMap]);
+  }, [dbHoldings, usageMap, lockedScMap]);
 
   // Derived data
   const activeEvents = useMemo(() => events.filter(e => e.isJoined && e.status === 'running'), [events]);
