@@ -1,60 +1,53 @@
 # Session Handoff
-## Letzte Session: 2026-03-25 (Session 252)
+## Letzte Session: 2026-03-26 (Session 253)
 ## Was wurde gemacht
 
-### Event Category Cards (Sorare-Style)
-- Neue `EventCategoryCards.tsx` Komponente — 5 visuelle Gradient Cards
-- BeScout Card: Stadion-Background + BeScout Logo oben-mittig
-- Club Card: Taktikboard-Background + TFF 1. Lig Logo oben-mittig
-- Andere Cards: CSS-only mit Dual-Glow, Noise Texture, Shimmer on Hover
-- Click filtert EventBrowser, nochmal Click = deselect
-- EventBrowser Pills werden bei aktiver Card-Filterung ausgeblendet
-- Assets: `public/stadiums/bescout_event_card.png`, `club_event_card.png`, `tff1.png`
+### Event Ownership System (komplett)
+- `event_fee_config` Table + Admin UI + RPC Fee Split + Subscription Gate
+- 96 Events geprueft, Visual QA passed
+- Event Card Icons: Club-Logo nur bei Club-Events (Fix)
 
-### Event Type Badge (Phase 1 von 4)
-- `EventScopeBadge` → `EventTypeBadge` (zeigt Type statt Scope)
-- 5 Badge-Varianten: BeScout (gold), Club (emerald+name+logo), Sponsor (sky+name), Special (purple), Creator (orange)
-- 3 Consumer updated: EventCardView, EventDetailModal, barrel export
-- 8/8 Tests gruen, tsc clean
-- Backward-compat Export bleibt (`EventScopeBadge` alias)
+### SC Blocking Phase 1 (komplett)
+- `holding_locks` Table: trackt gelockte SCs pro Event
+- Events-Columns: `min_sc_per_slot` (default 1), `wildcards_allowed`, `max_wildcards_per_lineup`
+- `submitLineup`: SC Ownership Check + Lock-Erstellung + Lock Swap
+- Unlock bei Event Leave + Cancel + Event-Ende (DB Trigger)
+- Trading Guard: `place_sell_order` prueft locked SCs
+- Admin UI: `min_sc_per_slot` Feld bei Event-Erstellung
+- Player Picker: `useHoldingLocks` Hook, dpcAvailable nutzt echte Lock-Mengen
+- Error Handling: `insufficient_sc` + `scLockedInEvents` i18n DE+TR
+- `get_available_sc()` SQL Helper
 
-### Event Card Icons
-- Club Events zeigen Club-Logo (FK Join via API Route)
-- BeScout Events zeigen BeScout Premium Icon
-- Fallback: generisches Type-Icon
-
-### Event Ownership System — Design + Plan (NICHT IMPLEMENTIERT, nur Phase 1)
-- Design Doc: `docs/plans/2026-03-25-event-ownership-system-design.md`
-- Impl Plan: `docs/plans/2026-03-25-event-ownership-plan.md`
-- Fee Split: Platform 5%, Club/Creator 5%, konfigurierbar
-- Kein PBT bei Events (zu komplex, wenig Wert)
-- Competitor Research: Dream11 15-25%, PrizePicks 15-20%, BeScout 5-10% (kompetitiv)
-- 7 fehlende Revenue Streams in `memory/project_missing_revenue_streams.md`
+### Commits (10 auf main, gepusht)
+1. Event Ownership System (fee config + RPC + subscription gate)
+2. Fix: Club-Logo nur bei Club-Events
+3. SC Blocking Design Doc
+4. SC Blocking Implementation Plan
+5. holding_locks Table + Event-Columns
+6. DbHoldingLock Type + Services
+7. SC Check + Locks in submitLineup
+8. SC Blocking RPCs (unlock/cancel/trading/trigger)
+9. Admin min_sc_per_slot + i18n + Error Handling
+10. Player Picker nutzt echte Lock-Mengen
 
 ---
 
-## Naechste Session — SOFORT WEITERMACHEN
+## Naechste Session
 
-### Event Ownership Phase 2-4 (Plan steht, direkt loslegen)
-Lies: `docs/plans/2026-03-25-event-ownership-plan.md`
+### SC Blocking Phase 2: Wild Cards
+- Design: `docs/plans/2026-03-25-sc-blocking-design.md`
+- `user_wildcards` + `wildcard_transactions` Tables
+- Wild Card Slot-Logik in Lineup RPC
+- Admin UI: Wild Card Config bei Event-Erstellung
+- Fan UI: Wild Card Button im Lineup Builder
+- Earn-Hooks: Mystery Box, Missions, Milestones, Daily Quests
 
-1. **Phase 2: Fee Config Table + Admin UI** (~1h)
-   - Migration `20260325_event_fee_config.sql` erstellen
-   - `DbEventFeeConfig` Type in `src/types/index.ts`
-   - Service Functions in `src/lib/services/platformAdmin.ts`
-   - Admin UI Section in `src/app/(app)/bescout-admin/AdminEventFeesSection.tsx`
-
-2. **Phase 3: RPC Fee Split + Subscription Gate** (~1.5h)
-   - `rpc_lock_event_entry` liest Fee Config aus DB statt hardcoded
-   - `min_subscription_tier` wird im RPC enforced (aktuell nur UI)
-   - `tier_rank()` SQL Helper
-   - `isClubEvent()` auf type-basiert umstellen
-   - i18n Key `subscriptionRequired` in DE + TR
-
-3. **Phase 4: Data Cleanup + Verification** (~30min)
-   - 100 Events reviewen: Type-Zuweisungen pruefen
-   - Visual QA: Badge pro Type korrekt?
-   - Subscription Gate testen
+### Test Failures (58 pre-existing, nicht blockierend)
+- `lineups.test.ts`: Mock braucht holding_locks Responses
+- `FantasyContent.test.tsx`: useHoldingLocks nicht gemocked
+- `EventDetailModal.test.tsx`: min_sc_per_slot fehlt in Mocks
+- `TradingTab.test.tsx`: pre-existing i18n Issues
+- DB-Tests: pre-existing (live DB)
 
 ### Danach
 - DNS verifizieren + echten Signup testen
