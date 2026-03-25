@@ -272,6 +272,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           onShare={handleShare}
           onBuyClick={guardedBuy}
           onSellClick={guardedSell}
+          onLimitClick={() => setShowLimitOrder(true)}
           onSetPriceAlert={alerts.handleSetPriceAlert}
           onRemovePriceAlert={alerts.handleRemovePriceAlert}
           masteryLevel={masteryData?.level ?? 0}
@@ -301,6 +302,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             onOpenOfferModal={trading.openOfferModal}
             isRestrictedAdmin={isRestrictedAdmin}
             playerResearch={playerResearch}
+            onBuyClick={guardedBuy}
           />
         )}
 

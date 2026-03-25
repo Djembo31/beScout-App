@@ -4110,7 +4110,16 @@
     "filterAll": "Tumu",
     "filterTakes": "Gorusler",
     "filterRumors": "Soylentiler",
-    "moreOrders": "daha fazla"
+    "moreOrders": "daha fazla",
+    "emptyTradingTitle": "İlk Scout sen ol",
+    "emptyTradingDesc": "İlk Scout Card'ı al ve bu oyuncunun piyasasını başlat.",
+    "emptyTradingBuy": "Şimdi al",
+    "emptyChartTitle": "İlk işlem fiyatı belirler",
+    "emptyChartIpo": "IPO Fiyatı: {price} CR",
+    "emptyResearchDesc": "Henüz analiz yok — ilk Scout Raporu'nla Credits kazan",
+    "emptyPostsDesc": "Topluluk senin değerlendirmeni bekliyor",
+    "showAllOrders": "Tüm {count} emri göster",
+    "sellLabel": "Sat"
   },
   "pwa": {
     "installTitle": "Uygulamayı Yükle",

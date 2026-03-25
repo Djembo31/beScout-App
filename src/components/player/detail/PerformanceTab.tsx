@@ -89,7 +89,7 @@ export default function PerformanceTab({
   );
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-5 md:space-y-8">
 
       {/* ── Status Banner ── */}
       {player.status !== 'fit' && (

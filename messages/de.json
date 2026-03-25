@@ -4110,7 +4110,16 @@
     "filterAll": "Alle",
     "filterTakes": "Meinungen",
     "filterRumors": "Geruechte",
-    "moreOrders": "weitere"
+    "moreOrders": "weitere",
+    "emptyTradingTitle": "Sei der erste Scout",
+    "emptyTradingDesc": "Kaufe die erste Scout Card und starte den Markt für diesen Spieler.",
+    "emptyTradingBuy": "Jetzt kaufen",
+    "emptyChartTitle": "Erster Trade setzt den Kurs",
+    "emptyChartIpo": "IPO-Preis: {price} CR",
+    "emptyResearchDesc": "Noch keine Analysen — verdiene Credits mit deinem ersten Scout Report",
+    "emptyPostsDesc": "Die Community wartet auf deine Einschätzung",
+    "showAllOrders": "Alle {count} Orders anzeigen",
+    "sellLabel": "Verkaufen"
   },
   "pwa": {
     "installTitle": "App installieren",

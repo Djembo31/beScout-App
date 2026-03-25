@@ -11,6 +11,7 @@ import type { DbTrade } from '@/types';
 interface PriceChartProps {
   trades: DbTrade[];
   ipoPrice?: number;
+  referencePrice?: number;
   className?: string;
 }
 
@@ -45,7 +46,7 @@ function catmullRomPath(pts: { x: number; y: number }[]): string {
   return d.join(' ');
 }
 
-export default function PriceChart({ trades, ipoPrice, className = '' }: PriceChartProps) {
+export default function PriceChart({ trades, ipoPrice, referencePrice, className = '' }: PriceChartProps) {
   const t = useTranslations('player');
   const tpd = useTranslations('playerDetail');
   const locale = useLocale();
@@ -113,7 +114,33 @@ export default function PriceChart({ trades, ipoPrice, className = '' }: PriceCh
     setCrosshair({ idx: closest, x: chartData.pts[closest].x, y: chartData.pts[closest].y });
   }, [chartData]);
 
-  if (!chartData) return null;
+  if (!chartData) {
+    const placeholderPrice = ipoPrice ? centsToBsd(ipoPrice) : referencePrice ? centsToBsd(referencePrice) : null;
+    return (
+      <Card className={`p-4 md:p-6 ${className}`}>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-black text-lg flex items-center gap-2 text-balance">
+            <BarChart3 className="size-5 text-gold" aria-hidden="true" />
+            {t('priceHistory')}
+          </h3>
+        </div>
+        <div className="relative h-[160px] flex items-center justify-center">
+          {placeholderPrice != null && (
+            <div className="absolute inset-x-0 top-1/2 border-t border-dashed border-gold/30" />
+          )}
+          <div className="relative z-10 text-center">
+            <BarChart3 className="size-8 mx-auto mb-2 text-white/15" aria-hidden="true" />
+            <p className="text-sm text-white/40 font-medium">{tpd('emptyChartTitle')}</p>
+            {placeholderPrice != null && (
+              <p className="text-xs text-gold/60 font-mono tabular-nums mt-1">
+                {tpd('emptyChartIpo', { price: fmtScout(placeholderPrice) })}
+              </p>
+            )}
+          </div>
+        </div>
+      </Card>
+    );
+  }
 
   const { prices, dates, min: minPrice, rangeVal, pts, linePath, areaPath, up, change, changePct, yLabels, ipoY } = chartData;
 

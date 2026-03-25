@@ -74,10 +74,11 @@ export default function MobileTradingBar({
           {holdingQty > 0 && (
             <Button
               variant="outline"
-              className="text-sm font-bold min-h-[44px]"
+              className="text-sm font-bold min-h-[44px] px-4"
               onClick={onSellClick}
             >
-              <Send className="w-4 h-4" />
+              <Send className="size-4" aria-hidden="true" />
+              {t('sellLabel')}
             </Button>
           )}
         </div>

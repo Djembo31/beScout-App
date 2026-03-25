@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import {
   ArrowLeft, Star, Share2, Bell, TrendingUp, TrendingDown,
-  Users, MoreVertical, ShoppingCart, Send, XCircle, ArrowLeftRight,
+  Users, MoreVertical, ShoppingCart, Send, XCircle, ArrowLeftRight, Clock,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { StatusBadge } from '@/components/player';
@@ -34,6 +34,7 @@ interface PlayerHeroProps {
   onSellClick: () => void;
   onSetPriceAlert: (target: number) => void;
   onRemovePriceAlert: () => void;
+  onLimitClick?: () => void;
   holdingQty: number;
   masteryLevel?: number;
   matchTimeline?: MatchTimelineEntry[];
@@ -43,7 +44,7 @@ function PlayerHeroInner({
   player, isIPO, activeIpo, holderCount,
   isWatchlisted, priceAlert,
   onToggleWatchlist, onShare, onBuyClick, onSellClick,
-  onSetPriceAlert, onRemovePriceAlert, holdingQty, masteryLevel,
+  onSetPriceAlert, onRemovePriceAlert, onLimitClick, holdingQty, masteryLevel,
   matchTimeline,
 }: PlayerHeroProps) {
   const t = useTranslations('player');
@@ -260,6 +261,11 @@ function PlayerHeroInner({
                 <Button variant="gold" className="text-sm font-bold px-6" onClick={onBuyClick}>
                   <ShoppingCart className="size-4" /> {t('hero.buy')}
                 </Button>
+                {onLimitClick && (
+                  <Button variant="outline" className="text-sm font-bold px-3" onClick={onLimitClick}>
+                    <Clock className="size-4" />
+                  </Button>
+                )}
                 {holdingQty > 0 && (
                   <Button variant="outline" className="text-sm font-bold px-6" onClick={onSellClick}>
                     <Send className="size-4" /> {t('hero.sell')}

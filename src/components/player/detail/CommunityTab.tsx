@@ -217,7 +217,7 @@ export default function CommunityTab({
         {playerResearch.length === 0 ? (
           <Card className="p-6 text-center">
             <FileText className="size-8 mx-auto mb-2 text-white/20" aria-hidden="true" />
-            <div className="text-white/50 text-sm">{t('noResearch')}</div>
+            <div className="text-white/50 text-sm">{t('emptyResearchDesc')}</div>
           </Card>
         ) : (
           playerResearch.map(post => (
@@ -286,7 +286,7 @@ export default function CommunityTab({
         {filteredPosts.length === 0 ? (
           <Card className="p-6 text-center">
             <MessageSquare className="size-8 mx-auto mb-2 text-white/20" aria-hidden="true" />
-            <div className="text-white/50 text-sm mb-2">{t('noStatements')}</div>
+            <div className="text-white/50 text-sm mb-2">{t('emptyPostsDesc')}</div>
             {userId && (
               <Button variant="gold" onClick={() => setShowCreatePost(true)} className="text-xs">
                 {t('shareFirstOpinion')}

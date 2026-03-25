@@ -38,6 +38,7 @@ interface TradingTabProps {
   onOpenOfferModal?: () => void;
   isRestrictedAdmin: boolean;
   playerResearch: ResearchPostWithAuthor[];
+  onBuyClick?: () => void;
 }
 
 export default function TradingTab({
@@ -45,13 +46,14 @@ export default function TradingTab({
   profileMap, userId, dpcAvailable,
   openBids, holdingQty, holderCount, mastery,
   onAcceptBid, acceptingBidId, onOpenOfferModal,
-  isRestrictedAdmin, playerResearch,
+  isRestrictedAdmin, playerResearch, onBuyClick,
 }: TradingTabProps) {
   const t = useTranslations('playerDetail');
   const tm = useTranslations('market');
   const locale = useLocale();
   const [rewardsOpen, setRewardsOpen] = useState(false);
   const [historyExpanded, setHistoryExpanded] = useState(false);
+  const [ordersExpanded, setOrdersExpanded] = useState(false);
 
   const formatTradeTime = (executedAt: string) => {
     const d = new Date(executedAt);
@@ -63,10 +65,10 @@ export default function TradingTab({
   };
 
   // Show max 5 trades initially, expand for all
-  const visibleTrades = historyExpanded ? trades : trades.slice(0, 5);
+  const visibleTrades = historyExpanded ? trades : trades.slice(0, 3);
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-5 md:space-y-8">
 
       {/* ── Admin Restriction ── */}
       {isRestrictedAdmin && (
@@ -76,10 +78,40 @@ export default function TradingTab({
         </div>
       )}
 
+      {/* ── Combined Empty State (no trades AND no orders) ── */}
+      {trades.length === 0 && allSellOrders.length === 0 && !isRestrictedAdmin && (
+        <>
+          <PriceChart
+            trades={trades}
+            ipoPrice={player.prices.ipoPrice ? Math.round(player.prices.ipoPrice * 100) : undefined}
+            referencePrice={player.prices.referencePrice ? Math.round(player.prices.referencePrice * 100) : undefined}
+          />
+          <Card className="p-8 text-center">
+            <ShoppingCart className="size-10 mx-auto mb-3 text-white/15" aria-hidden="true" />
+            <h3 className="font-black text-lg mb-1">{t('emptyTradingTitle')}</h3>
+            <p className="text-sm text-white/40 mb-4 max-w-xs mx-auto">{t('emptyTradingDesc')}</p>
+            {onBuyClick && (
+              <button
+                onClick={onBuyClick}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#FFE44D] to-[#E6B800] text-black font-bold text-sm active:scale-[0.97] transition-transform"
+              >
+                <ShoppingCart className="size-4" />
+                {t('emptyTradingBuy')}
+              </button>
+            )}
+          </Card>
+          <TradingDisclaimer variant="card" />
+        </>
+      )}
+
+      {/* ── Normal Trading Sections (when data exists) ── */}
+      {(trades.length > 0 || allSellOrders.length > 0) && (<>
+
       {/* ── 1. Price Chart (with time ranges + crosshair) ── */}
       <PriceChart
         trades={trades}
         ipoPrice={player.prices.ipoPrice ? Math.round(player.prices.ipoPrice * 100) : undefined}
+        referencePrice={player.prices.referencePrice ? Math.round(player.prices.referencePrice * 100) : undefined}
       />
 
       {/* ── 2. Quick Stats: Floor, Spread, 7d Volume, Holders ── */}
@@ -250,7 +282,7 @@ export default function TradingTab({
                 <span>{t('total')}</span>
                 <span>{t('seller')}</span>
               </div>
-              {allSellOrders.map((order) => {
+              {(ordersExpanded ? allSellOrders : allSellOrders.slice(0, 5)).map((order) => {
                 const remaining = order.quantity - order.filled_qty;
                 const isOwn = userId && order.user_id === userId;
                 const sellerHandle = profileMap[order.user_id]?.handle;
@@ -274,6 +306,17 @@ export default function TradingTab({
                 );
               })}
             </div>
+            {allSellOrders.length > 5 && (
+              <div className="border-t border-white/[0.06] mt-2">
+                <button
+                  onClick={() => setOrdersExpanded(v => !v)}
+                  className="w-full flex items-center justify-center gap-1.5 py-2.5 text-xs text-white/40 hover:text-white/60 transition-colors"
+                >
+                  {ordersExpanded ? t('showLess') : t('showAllOrders', { count: allSellOrders.length })}
+                  <ChevronDown className={cn('size-3.5 transition-transform', ordersExpanded && 'rotate-180')} />
+                </button>
+              </div>
+            )}
           </div>
         </Card>
       )}
@@ -360,7 +403,7 @@ export default function TradingTab({
           )}
         </div>
         {/* Show more/less */}
-        {trades.length > 5 && (
+        {trades.length > 3 && (
           <div className="border-t border-white/[0.06]">
             <button
               onClick={() => setHistoryExpanded(v => !v)}
@@ -432,6 +475,8 @@ export default function TradingTab({
 
       {/* ── Compliance (bottom, not intrusive) ── */}
       <TradingDisclaimer variant="card" />
+
+      </>)}
     </div>
   );
 }
