@@ -78,7 +78,7 @@ export async function submitLineup(params: {
   // Check event status + capacity + scope before submitting
   const { data: ev, error: evError } = await supabase
     .from('events')
-    .select('status, max_entries, current_entries, locks_at, lineup_size, scope, type, club_id')
+    .select('status, max_entries, current_entries, locks_at, lineup_size, scope, type, club_id, min_sc_per_slot')
     .eq('id', params.eventId)
     .single();
 
@@ -205,6 +205,60 @@ export async function submitLineup(params: {
     throw new Error('duplicatePlayer');
   }
 
+  // Guard: SC ownership — user must own min_sc_per_slot SCs per player
+  const minScPerSlot = ev.min_sc_per_slot ?? 1;
+  if (minScPerSlot > 0 && slotPlayerIds.length > 0) {
+    // Load existing locks for this user+event (idempotent re-submits)
+    const { data: existingLocks } = await supabase
+      .from('holding_locks')
+      .select('player_id, quantity_locked')
+      .eq('user_id', params.userId)
+      .eq('event_id', params.eventId);
+
+    const existingLockMap = new Map<string, number>();
+    for (const lock of existingLocks ?? []) {
+      existingLockMap.set(lock.player_id, lock.quantity_locked);
+    }
+
+    // Load ALL locks for this user (to calc available across events)
+    const { data: allLocks } = await supabase
+      .from('holding_locks')
+      .select('player_id, quantity_locked')
+      .eq('user_id', params.userId);
+
+    const totalLockedMap = new Map<string, number>();
+    for (const lock of allLocks ?? []) {
+      totalLockedMap.set(lock.player_id, (totalLockedMap.get(lock.player_id) ?? 0) + lock.quantity_locked);
+    }
+
+    // Load holdings for players in lineup
+    const { data: holdings } = await supabase
+      .from('holdings')
+      .select('player_id, quantity')
+      .eq('user_id', params.userId)
+      .in('player_id', slotPlayerIds);
+
+    const holdingMap = new Map<string, number>();
+    for (const h of holdings ?? []) {
+      holdingMap.set(h.player_id, h.quantity);
+    }
+
+    // Check each player has enough available SCs
+    for (const playerId of slotPlayerIds) {
+      const alreadyLockedThisEvent = existingLockMap.get(playerId) ?? 0;
+      if (alreadyLockedThisEvent >= minScPerSlot) continue; // already locked
+
+      const held = holdingMap.get(playerId) ?? 0;
+      const totalLocked = totalLockedMap.get(playerId) ?? 0;
+      const lockedElsewhere = totalLocked - alreadyLockedThisEvent;
+      const available = held - lockedElsewhere;
+
+      if (available < minScPerSlot) {
+        throw new Error('insufficient_sc');
+      }
+    }
+  }
+
   // Guard: lineup size must match event.lineup_size (7 or 11)
   if (ev.lineup_size && slotPlayerIds.length !== ev.lineup_size) {
     throw new Error('lineupSizeMismatch');
@@ -263,6 +317,33 @@ export async function submitLineup(params: {
         .eq('event_id', params.eventId)
         .eq('user_id', params.userId);
       throw new Error('eventFull');
+    }
+  }
+
+  // Manage holding locks: delete old locks for this event, create new ones
+  const lockMinSc = ev.min_sc_per_slot ?? 1;
+  if (lockMinSc > 0 && slotPlayerIds.length > 0) {
+    // Delete existing locks for this user+event (handles lineup updates)
+    await supabase
+      .from('holding_locks')
+      .delete()
+      .eq('user_id', params.userId)
+      .eq('event_id', params.eventId);
+
+    // Create locks for each player in the new lineup
+    const lockRows = slotPlayerIds.map(playerId => ({
+      user_id: params.userId,
+      player_id: playerId,
+      event_id: params.eventId,
+      quantity_locked: lockMinSc,
+    }));
+
+    const { error: lockError } = await supabase
+      .from('holding_locks')
+      .insert(lockRows);
+
+    if (lockError) {
+      console.error('[Lineup] Failed to create holding locks:', lockError);
     }
   }
 
