@@ -66,6 +66,9 @@ const baseEvent = {
   club_id: null,
 };
 
+/** Fake event_entries row — submitLineup requires an existing entry before lineup submission */
+const fakeEntry = { event_id: EVENT_ID, user_id: USER_ID };
+
 const baseParams = {
   eventId: EVENT_ID,
   userId: USER_ID,
@@ -86,6 +89,8 @@ describe('submitLineup — lineup size validation', () => {
 
     mockFromTable({
       events: { data: { ...baseEvent, lineup_size: 11 }, error: null },
+      event_entries: { data: fakeEntry, error: null },
+      lineups: { data: null, error: null },
     });
 
     await expect(
@@ -98,6 +103,8 @@ describe('submitLineup — lineup size validation', () => {
 
     mockFromTable({
       events: { data: { ...baseEvent, lineup_size: 7 }, error: null },
+      event_entries: { data: fakeEntry, error: null },
+      lineups: { data: null, error: null },
     });
 
     await expect(
@@ -111,6 +118,7 @@ describe('submitLineup — lineup size validation', () => {
 
     mockFromTable({
       events: { data: { ...baseEvent, lineup_size: 11 }, error: null },
+      event_entries: { data: fakeEntry, error: null },
       lineups: { data: fakeLineup, error: null },
       players: {
         data: playerIds.map(id => ({ id, club_id: CLUB_ID })),
@@ -128,6 +136,7 @@ describe('submitLineup — lineup size validation', () => {
 
     mockFromTable({
       events: { data: { ...baseEvent, lineup_size: 7 }, error: null },
+      event_entries: { data: fakeEntry, error: null },
       lineups: { data: fakeLineup, error: null },
       players: {
         data: playerIds.map(id => ({ id, club_id: CLUB_ID })),
@@ -145,6 +154,7 @@ describe('submitLineup — lineup size validation', () => {
 
     mockFromTable({
       events: { data: { ...baseEvent, lineup_size: null }, error: null },
+      event_entries: { data: fakeEntry, error: null },
       lineups: { data: fakeLineup, error: null },
       players: {
         data: playerIds.map(id => ({ id, club_id: CLUB_ID })),
@@ -174,6 +184,8 @@ describe('submitLineup — club scope enforcement', () => {
         data: { ...baseEvent, lineup_size: 11, scope: 'club', club_id: CLUB_ID },
         error: null,
       },
+      event_entries: { data: fakeEntry, error: null },
+      lineups: { data: null, error: null },
       players: {
         data: playerIds.map((id, i) => ({
           id,
@@ -198,6 +210,7 @@ describe('submitLineup — club scope enforcement', () => {
         data: { ...baseEvent, lineup_size: 11, scope: 'club', club_id: CLUB_ID },
         error: null,
       },
+      event_entries: { data: fakeEntry, error: null },
       lineups: { data: fakeLineup, error: null },
       players: {
         data: playerIds.map(id => ({ id, club_id: CLUB_ID })),
@@ -218,6 +231,7 @@ describe('submitLineup — club scope enforcement', () => {
         data: { ...baseEvent, lineup_size: 11, scope: 'global', club_id: null },
         error: null,
       },
+      event_entries: { data: fakeEntry, error: null },
       lineups: { data: fakeLineup, error: null },
       players: {
         data: playerIds.map(id => ({ id, club_id: 'any-club' })),
@@ -237,6 +251,8 @@ describe('submitLineup — club scope enforcement', () => {
         data: { ...baseEvent, lineup_size: 11, scope: 'club', club_id: CLUB_ID },
         error: null,
       },
+      event_entries: { data: fakeEntry, error: null },
+      lineups: { data: null, error: null },
       players: {
         data: playerIds.map(id => ({ id, club_id: 'wrong-club' })),
         error: null,
@@ -283,6 +299,8 @@ describe('submitLineup — existing guards', () => {
 
     mockFromTable({
       events: { data: { ...baseEvent, lineup_size: null }, error: null },
+      event_entries: { data: fakeEntry, error: null },
+      lineups: { data: null, error: null },
     });
 
     await expect(
@@ -308,6 +326,8 @@ describe('submitLineup — capacity checks', () => {
         data: { ...baseEvent, max_entries: 50, current_entries: 50 },
         error: null,
       },
+      event_entries: { data: fakeEntry, error: null },
+      lineups: { data: null, error: null },
     });
 
     await expect(
@@ -323,6 +343,8 @@ describe('submitLineup — capacity checks', () => {
         data: { ...baseEvent, max_entries: 50, current_entries: 55 },
         error: null,
       },
+      event_entries: { data: fakeEntry, error: null },
+      lineups: { data: null, error: null },
     });
 
     await expect(
@@ -339,6 +361,7 @@ describe('submitLineup — capacity checks', () => {
         data: { ...baseEvent, max_entries: 100, current_entries: 50 },
         error: null,
       },
+      event_entries: { data: fakeEntry, error: null },
       lineups: { data: fakeLineup, error: null },
       players: {
         data: playerIds.map(id => ({ id, club_id: CLUB_ID })),
@@ -359,6 +382,7 @@ describe('submitLineup — capacity checks', () => {
         data: { ...baseEvent, max_entries: null, current_entries: 9999 },
         error: null,
       },
+      event_entries: { data: fakeEntry, error: null },
       lineups: { data: fakeLineup, error: null },
       players: {
         data: playerIds.map(id => ({ id, club_id: CLUB_ID })),
@@ -389,6 +413,7 @@ describe('submitLineup — locks_at enforcement', () => {
         data: { ...baseEvent, locks_at: pastDate },
         error: null,
       },
+      event_entries: { data: fakeEntry, error: null },
     });
 
     await expect(
@@ -406,6 +431,7 @@ describe('submitLineup — locks_at enforcement', () => {
         data: { ...baseEvent, locks_at: futureDate },
         error: null,
       },
+      event_entries: { data: fakeEntry, error: null },
       lineups: { data: fakeLineup, error: null },
       players: {
         data: playerIds.map(id => ({ id, club_id: CLUB_ID })),
@@ -426,6 +452,7 @@ describe('submitLineup — locks_at enforcement', () => {
         data: { ...baseEvent, locks_at: null },
         error: null,
       },
+      event_entries: { data: fakeEntry, error: null },
       lineups: { data: fakeLineup, error: null },
       players: {
         data: playerIds.map(id => ({ id, club_id: CLUB_ID })),

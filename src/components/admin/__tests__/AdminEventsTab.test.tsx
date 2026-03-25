@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '@/test/renderWithProviders';
+import '@/test/mocks/supabase'; // activate supabase mock before AdminEventsTab loads
 import AdminEventsTab from '../AdminEventsTab';
 import type { ClubWithAdmin, DbEvent, GameweekStatus } from '@/types';
 
@@ -66,6 +67,10 @@ vi.mock('@/components/ui', () => ({
 
 vi.mock('./RewardStructureEditor', () => ({
   default: () => <div data-testid="reward-structure-editor">RewardStructureEditor</div>,
+}));
+
+vi.mock('@/lib/queries/events', () => ({
+  useScoutEventsEnabled: () => false,
 }));
 
 // ============================================

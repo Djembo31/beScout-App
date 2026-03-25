@@ -107,7 +107,7 @@ describe('getEventsByClubIds', () => {
 // ============================================
 describe('getUserJoinedEventIds', () => {
   it('returns event IDs from lineups', async () => {
-    mockTable('lineups', [{ event_id: 'e1' }, { event_id: 'e2' }]);
+    mockTable('event_entries', [{ event_id: 'e1' }, { event_id: 'e2' }]);
     expect(await getUserJoinedEventIds('u1')).toEqual(['e1', 'e2']);
   });
   it('returns [] on error', async () => {
@@ -406,16 +406,22 @@ describe('ALLOWED_TRANSITIONS', () => {
 // EDITABLE_FIELDS
 // ============================================
 describe('EDITABLE_FIELDS', () => {
-  it('upcoming has all 16 fields', () => {
-    expect(EDITABLE_FIELDS.upcoming).toHaveLength(16);
+  it('upcoming has all 18 fields', () => {
+    expect(EDITABLE_FIELDS.upcoming).toHaveLength(18);
     expect(EDITABLE_FIELDS.upcoming).toContain('name');
     expect(EDITABLE_FIELDS.upcoming).toContain('entry_fee');
+    expect(EDITABLE_FIELDS.upcoming).toContain('ticket_cost');
+    expect(EDITABLE_FIELDS.upcoming).toContain('currency');
     expect(EDITABLE_FIELDS.upcoming).toContain('salary_cap');
     expect(EDITABLE_FIELDS.upcoming).toContain('reward_structure');
   });
 
-  it('registering has same fields as upcoming', () => {
-    expect(EDITABLE_FIELDS.registering).toEqual(EDITABLE_FIELDS.upcoming);
+  it('registering has 17 fields (no currency)', () => {
+    expect(EDITABLE_FIELDS.registering).toHaveLength(17);
+    expect(EDITABLE_FIELDS.registering).toContain('name');
+    expect(EDITABLE_FIELDS.registering).toContain('entry_fee');
+    expect(EDITABLE_FIELDS.registering).toContain('ticket_cost');
+    expect(EDITABLE_FIELDS.registering).not.toContain('currency');
   });
 
   it('late-reg has limited fields', () => {
