@@ -436,9 +436,14 @@ export default function FantasyContent() {
         setBalanceCents(result.balanceAfter);
       }
 
-      // Invalidate all relevant caches — React Query refetches the truth
+      // INSTANT cache update — UI reacts immediately, no waiting for refetch
+      queryClient.setQueryData<string[]>(qk.events.joinedIds(user.id), (old) => [
+        ...(old ?? []), event.id,
+      ]);
+
+      // Then invalidate for full consistency (background refetch)
       queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
-      await invalidateFantasyQueries(user.id, clubId);
+      invalidateFantasyQueries(user.id, clubId);
       fetch('/api/events?bust=1').catch(err => console.error('[Fantasy] Event cache bust failed:', err));
 
       // Mission tracking (fire-and-forget)
@@ -530,9 +535,15 @@ export default function FantasyContent() {
         setBalanceCents(result.balanceAfter);
       }
 
-      // Invalidate all relevant caches — React Query refetches the truth
+      // INSTANT cache update — UI reacts immediately
+      queryClient.setQueryData<string[]>(qk.events.joinedIds(user.id), (old) =>
+        (old ?? []).filter(id => id !== event.id)
+      );
+      setSelectedEventId(null); // close modal
+
+      // Then invalidate for full consistency (background refetch)
       queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
-      await invalidateFantasyQueries(user.id, clubId);
+      invalidateFantasyQueries(user.id, clubId);
       fetch('/api/events?bust=1').catch(err => console.error('[Fantasy] Event cache bust failed:', err));
 
       addToast(`${t('leftEvent')}${event.buyIn > 0 ? ` ${t('refundNote', { amount: event.buyIn })}` : ''}`, 'success');
