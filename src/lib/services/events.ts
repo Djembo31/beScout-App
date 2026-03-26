@@ -80,6 +80,8 @@ export async function createEvent(params: {
   minSubscriptionTier?: string | null;
   salaryCap?: number | null;
   minScPerSlot?: number;
+  wildcardsAllowed?: boolean;
+  maxWildcardsPerLineup?: number;
   rewardStructure?: Array<{ rank: number; pct: number }> | null;
   currency?: EventCurrency;
 }): Promise<{ success: boolean; eventId?: string; error?: string }> {
@@ -107,6 +109,8 @@ export async function createEvent(params: {
       min_subscription_tier: params.minSubscriptionTier || null,
       salary_cap: params.salaryCap || null,
       min_sc_per_slot: params.minScPerSlot ?? 1,
+      wildcards_allowed: params.wildcardsAllowed ?? false,
+      max_wildcards_per_lineup: params.maxWildcardsPerLineup ?? 0,
       reward_structure: params.rewardStructure ?? null,
       status: 'registering',
       current_entries: 0,
@@ -266,12 +270,14 @@ export const EDITABLE_FIELDS: Record<string, string[]> = {
     'name', 'type', 'format', 'gameweek', 'entry_fee', 'ticket_cost', 'currency', 'prize_pool',
     'max_entries', 'starts_at', 'locks_at', 'ends_at', 'sponsor_name',
     'sponsor_logo', 'event_tier', 'min_subscription_tier', 'salary_cap',
+    'min_sc_per_slot', 'wildcards_allowed', 'max_wildcards_per_lineup',
     'reward_structure',
   ],
   registering: [
     'name', 'type', 'format', 'gameweek', 'entry_fee', 'ticket_cost', 'prize_pool',
     'max_entries', 'starts_at', 'locks_at', 'ends_at', 'sponsor_name',
     'sponsor_logo', 'event_tier', 'min_subscription_tier', 'salary_cap',
+    'min_sc_per_slot', 'wildcards_allowed', 'max_wildcards_per_lineup',
     'reward_structure',
   ],
   'late-reg': ['name', 'prize_pool', 'ends_at', 'max_entries', 'sponsor_name', 'sponsor_logo'],

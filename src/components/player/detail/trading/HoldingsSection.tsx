@@ -12,6 +12,7 @@ import { TRADE_FEE_PCT } from '@/lib/constants';
 interface HoldingsSectionProps {
   player: Player;
   holdingQty: number;
+  lockedQty?: number;
   floorPriceCents: number;
   userOrders: DbOrder[];
   onSell: (qty: number, priceCents: number) => void;
@@ -21,7 +22,7 @@ interface HoldingsSectionProps {
 }
 
 export default function HoldingsSection({
-  player, holdingQty, floorPriceCents, userOrders, onSell, onCancelOrder, selling, cancellingId,
+  player, holdingQty, lockedQty = 0, floorPriceCents, userOrders, onSell, onCancelOrder, selling, cancellingId,
 }: HoldingsSectionProps) {
   const t = useTranslations('playerDetail');
   const circulation = player.dpc.circulation || 1;
@@ -30,7 +31,7 @@ export default function HoldingsSection({
   const [sellQty, setSellQty] = useState(1);
   const [sellPriceBsd, setSellPriceBsd] = useState('');
   const listedQty = userOrders.reduce((sum, o) => sum + (o.quantity - o.filled_qty), 0);
-  const availableToSell = holdingQty - listedQty;
+  const availableToSell = Math.max(0, holdingQty - listedQty - lockedQty);
   const floorBsd = floorPriceCents / 100;
 
   return (
@@ -56,6 +57,18 @@ export default function HoldingsSection({
               <div className="flex items-center justify-between">
                 <span className="text-white/50">{t('listedOf')}</span>
                 <span className="font-mono font-bold tabular-nums text-orange-300">{listedQty} SC</span>
+              </div>
+            )}
+            {lockedQty > 0 && (
+              <div className="flex items-center justify-between">
+                <span className="text-white/50">{t('lockedInEvents')}</span>
+                <span className="font-mono font-bold tabular-nums text-purple-300">{lockedQty} SC</span>
+              </div>
+            )}
+            {(listedQty > 0 || lockedQty > 0) && (
+              <div className="flex items-center justify-between pt-1 border-t border-white/[0.06]">
+                <span className="text-white/50">{t('availableToSell')}</span>
+                <span className="font-mono font-bold tabular-nums">{availableToSell} SC</span>
               </div>
             )}
           </>

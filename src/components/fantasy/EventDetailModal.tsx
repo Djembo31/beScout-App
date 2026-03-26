@@ -62,7 +62,7 @@ export const EventDetailModal = ({
   isOpen: boolean;
   onClose: () => void;
   onJoin: (event: FantasyEvent) => void | Promise<void>;
-  onSubmitLineup: (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null) => void | Promise<void>;
+  onSubmitLineup: (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null, wildcardSlots?: string[]) => void | Promise<void>;
   onLeave: (event: FantasyEvent) => void | Promise<void>;
   onReset: (event: FantasyEvent) => void;
   userHoldings: UserDpcHolding[];
@@ -88,6 +88,7 @@ export const EventDetailModal = ({
   const [showJoinConfirm, setShowJoinConfirm] = useState(false);
   const [joining, setJoining] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [wildcardSlots, setWildcardSlots] = useState<Set<string>>(new Set());
 
   // Set default tab based on join status when modal opens — reset transient state
   useEffect(() => {
@@ -99,6 +100,7 @@ export const EventDetailModal = ({
       // Reset formation to match event format (7er vs 11er)
       setSelectedFormation(getDefaultFormation(event.format, event.lineupSize));
       setSelectedPlayers([]);
+      setWildcardSlots(new Set());
     }
   }, [isOpen, event?.id]);
 
@@ -336,7 +338,8 @@ export const EventDetailModal = ({
   }, [effectiveHoldings]);
 
   // Player picker — expensive filter+sort, memoized per search/sort/selection change
-  const getAvailablePlayersForPosition = useCallback((position: string) => {
+  // When picking for a wild card slot, also show locked players (WC bypasses SC check)
+  const getAvailablePlayersForPosition = useCallback((position: string, isWildcardSlot = false) => {
     const posMap: Record<string, string[]> = {
       'GK': ['GK'], 'DEF': ['DEF', 'CB', 'LB', 'RB'],
       'MID': ['MID', 'CM', 'CDM', 'CAM', 'LM', 'RM'],
@@ -346,7 +349,8 @@ export const EventDetailModal = ({
     const usedIds = new Set(selectedPlayers.map(p => p.playerId));
     const isClubScoped = event?.scope === 'club' && event?.clubId;
     const players = effectiveHoldings.filter(h =>
-      validPos.some(vp => h.pos.toUpperCase().includes(vp)) && !usedIds.has(h.id) && !h.isLocked && !isPlayerLocked(h.id)
+      validPos.some(vp => h.pos.toUpperCase().includes(vp)) && !usedIds.has(h.id)
+      && (isWildcardSlot || (!h.isLocked && !isPlayerLocked(h.id)))
       && (!isClubScoped || h.clubId === event.clubId)
     );
     return [...players].sort((a, b) => b.perfL5 - a.perfL5);
@@ -427,7 +431,7 @@ export const EventDetailModal = ({
     if (!reqCheck.ok) { alert(reqCheck.message); return; }
     setJoining(true);
     try {
-      await onSubmitLineup(event, selectedPlayers, selectedFormation, captainSlot);
+      await onSubmitLineup(event, selectedPlayers, selectedFormation, captainSlot, Array.from(wildcardSlots));
     } finally {
       setJoining(false);
     }
@@ -543,6 +547,15 @@ export const EventDetailModal = ({
                 leaderboard={leaderboard}
                 onSwitchToLeaderboard={() => setTab('leaderboard')}
                 onClose={onClose}
+                wildcardSlots={wildcardSlots}
+                onToggleWildcard={(slotKey) => {
+                  setWildcardSlots(prev => {
+                    const next = new Set(prev);
+                    if (next.has(slotKey)) next.delete(slotKey);
+                    else next.add(slotKey);
+                    return next;
+                  });
+                }}
               />
               {/* Chip Selector — only show when lineup is editable (not scored/ended) */}
               {!isScored && event.status !== 'ended' && (

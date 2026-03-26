@@ -70,13 +70,16 @@ export interface LineupPanelProps {
   onSelectPlayer: (playerId: string, position: string, slot: number) => void;
   onRemovePlayer: (slot: number) => void;
   getSelectedPlayer: (slot: number) => UserDpcHolding | null;
-  getAvailablePlayersForPosition: (position: string) => UserDpcHolding[];
+  getAvailablePlayersForPosition: (position: string, isWildcardSlot?: boolean) => UserDpcHolding[];
   // Leaderboard
   leaderboard: { userId: string; rewardAmount: number }[];
   // Tab switch
   onSwitchToLeaderboard: () => void;
   // Close modal
   onClose: () => void;
+  // Wild Cards
+  wildcardSlots?: Set<string>;
+  onToggleWildcard?: (slotKey: string) => void;
 }
 
 export default function LineupPanel({
@@ -112,6 +115,8 @@ export default function LineupPanel({
   leaderboard,
   onSwitchToLeaderboard,
   onClose,
+  wildcardSlots,
+  onToggleWildcard,
 }: LineupPanelProps) {
   const t = useTranslations('fantasy');
   const tsp = useTranslations('sponsor');
@@ -282,6 +287,15 @@ export default function LineupPanel({
               {t('nextKickoffLabel', { time: new Date(nextKickoff).toLocaleTimeString(locale === 'tr' ? 'tr-TR' : 'de-DE', { hour: '2-digit', minute: '2-digit' }) })}
             </span>
           )}
+        </div>
+      )}
+      {/* Wild Card counter — shown when event allows wild cards */}
+      {event?.wildcardsAllowed && !isScored && !isReadOnly && (
+        <div className="flex items-center gap-2 p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+          <Sparkles aria-hidden="true" className="size-4 text-purple-400" />
+          <span className="text-sm text-purple-300">
+            {t('wildcardCounter', { used: wildcardSlots?.size ?? 0, max: event.maxWildcardsPerLineup ?? 0 })}
+          </span>
         </div>
       )}
       {/* Status banner -- all fixtures running */}
@@ -464,10 +478,16 @@ export default function LineupPanel({
                     const hasActiveBonus = player ? ownershipBonusIds.has(player.id) : false;
                     const slotLocked = player ? isPlayerLocked(player.id) : false;
                     const slotReadOnly = isReadOnly || slotLocked;
+                    const slotDbKey = slotDbKeys[slot.slot];
+                    const isWildcard = wildcardSlots?.has(slotDbKey) ?? false;
                     return (
                       <div key={slot.slot} className="flex flex-col items-center relative">
+                        {/* Wild Card badge (bottom-right) */}
+                        {isWildcard && !hasScore && (
+                          <div className="absolute -bottom-1 -right-2 z-30 px-1 py-0.5 rounded bg-purple-500/90 text-[9px] font-black text-white shadow-lg">WC</div>
+                        )}
                         {/* DPC Ownership Bonus badge (bottom-left) */}
-                        {player && isOwnedPlayer && !hasScore && (
+                        {player && isOwnedPlayer && !hasScore && !isWildcard && (
                           <div className={cn(
                             'absolute -bottom-1 -left-2 z-30 px-1 py-0.5 rounded text-[9px] font-black shadow-lg',
                             hasActiveBonus
@@ -554,10 +574,27 @@ export default function LineupPanel({
                         <div className="text-xs mt-1" style={{ color: player ? (hasScore ? '#ffffffcc' : isCaptain ? '#FFD700' : getPosAccentColor(player.pos) + 'aa') : getPosAccentColor(slot.pos) + '80' }}>
                           {player ? player.last.slice(0, 8) : slot.pos}
                         </div>
-                        {player && !hasScore && (
+                        {player && !hasScore && !isWildcard && (
                           <div className="text-xs text-white/30">L5: {player.perfL5} &bull; {player.dpcAvailable}/{player.dpcOwned}</div>
                         )}
+                        {player && !hasScore && isWildcard && (
+                          <div className="text-xs text-purple-300/60">L5: {player.perfL5}</div>
+                        )}
                         </button>
+                        {/* Wild Card toggle — only when event allows and slot is editable */}
+                        {event?.wildcardsAllowed && !isReadOnly && !slotLocked && !hasScore && onToggleWildcard && (
+                          <button
+                            onClick={() => onToggleWildcard(slotDbKey)}
+                            className={cn(
+                              'mt-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold transition-colors',
+                              isWildcard
+                                ? 'bg-purple-500/80 text-white'
+                                : 'bg-white/5 text-white/30 hover:bg-white/10 hover:text-white/50'
+                            )}
+                          >
+                            {isWildcard ? 'WC ✓' : 'WC'}
+                          </button>
+                        )}
                       </div>
                     );
                   })}
@@ -843,7 +880,9 @@ export default function LineupPanel({
       {/* Player Picker Modal -- Enhanced with Search, Sort, Filter, Intelligence Strip */}
       {showPlayerPicker && (() => {
         const POS_LABEL: Record<string, string> = { GK: t('posGK'), DEF: t('posDEF'), MID: t('posMID'), ATT: t('posATT') };
-        let availablePlayers = getAvailablePlayersForPosition(showPlayerPicker.position);
+        const pickerSlotDbKey = slotDbKeys[showPlayerPicker.slot];
+        const isPickerWildcard = wildcardSlots?.has(pickerSlotDbKey) ?? false;
+        let availablePlayers = getAvailablePlayersForPosition(showPlayerPicker.position, isPickerWildcard);
         // Apply local search filter
         if (pickerSearch) {
           const q = pickerSearch.toLowerCase();

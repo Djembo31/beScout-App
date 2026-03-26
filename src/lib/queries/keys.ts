@@ -35,6 +35,7 @@ export const qk = {
     entry: (eventId: string, uid: string) => ['events', 'entry', eventId, uid] as const,
     usage: (uid: string) => ['events', 'usage', uid] as const,
     holdingLocks: (uid: string) => ['events', 'holdingLocks', uid] as const,
+    wildcardBalance: (uid: string) => ['events', 'wildcardBalance', uid] as const,
     activeGw: (cid: string) => ['events', 'activeGw', cid] as const,
     leagueGw: ['events', 'leagueGw'] as const,
   },

@@ -74,11 +74,12 @@ export async function submitLineup(params: {
   formation: string;
   slots: Record<string, string | null>;
   captainSlot?: string | null;
+  wildcardSlots?: string[];  // slot keys that use a wild card (e.g. ['def2', 'att'])
 }): Promise<DbLineup> {
   // Check event status + capacity + scope before submitting
   const { data: ev, error: evError } = await supabase
     .from('events')
-    .select('status, max_entries, current_entries, locks_at, lineup_size, scope, type, club_id, min_sc_per_slot')
+    .select('status, max_entries, current_entries, locks_at, lineup_size, scope, type, club_id, min_sc_per_slot, wildcards_allowed, max_wildcards_per_lineup')
     .eq('id', params.eventId)
     .single();
 
@@ -206,8 +207,31 @@ export async function submitLineup(params: {
   }
 
   // Guard: SC ownership — user must own min_sc_per_slot SCs per player
+  // Wild card slots skip SC check but consume a wild card instead
   const minScPerSlot = ev.min_sc_per_slot ?? 1;
-  if (minScPerSlot > 0 && slotPlayerIds.length > 0) {
+  const wildcardSlotsSet = new Set(params.wildcardSlots ?? []);
+  const wildcardsAllowed = ev.wildcards_allowed ?? false;
+  const maxWildcards = ev.max_wildcards_per_lineup ?? 0;
+
+  // Validate wild card constraints
+  if (wildcardSlotsSet.size > 0) {
+    if (!wildcardsAllowed) {
+      throw new Error('wildcards_not_allowed');
+    }
+    if (wildcardSlotsSet.size > maxWildcards) {
+      throw new Error('too_many_wildcards');
+    }
+  }
+
+  // Determine which players need SC check (non-wildcard slots)
+  const normalSlotPlayerIds: string[] = [];
+  for (const [slotKey, playerId] of Object.entries(params.slots)) {
+    if (playerId && !wildcardSlotsSet.has(slotKey)) {
+      normalSlotPlayerIds.push(playerId);
+    }
+  }
+
+  if (minScPerSlot > 0 && normalSlotPlayerIds.length > 0) {
     // Load existing locks for this user+event (idempotent re-submits)
     const { data: existingLocks } = await supabase
       .from('holding_locks')
@@ -236,15 +260,15 @@ export async function submitLineup(params: {
       .from('holdings')
       .select('player_id, quantity')
       .eq('user_id', params.userId)
-      .in('player_id', slotPlayerIds);
+      .in('player_id', normalSlotPlayerIds);
 
     const holdingMap = new Map<string, number>();
     for (const h of holdings ?? []) {
       holdingMap.set(h.player_id, h.quantity);
     }
 
-    // Check each player has enough available SCs
-    for (const playerId of slotPlayerIds) {
+    // Check each non-wildcard player has enough available SCs
+    for (const playerId of normalSlotPlayerIds) {
       const alreadyLockedThisEvent = existingLockMap.get(playerId) ?? 0;
       if (alreadyLockedThisEvent >= minScPerSlot) continue; // already locked
 
@@ -256,6 +280,35 @@ export async function submitLineup(params: {
       if (available < minScPerSlot) {
         throw new Error('insufficient_sc');
       }
+    }
+  }
+
+  // Wild card spend: debit wild cards for new WC slots
+  if (wildcardSlotsSet.size > 0) {
+    // Load existing lineup to check which WC slots are already spent
+    const { data: existingLineup } = await supabase
+      .from('lineups')
+      .select('wildcard_slots')
+      .eq('event_id', params.eventId)
+      .eq('user_id', params.userId)
+      .maybeSingle();
+
+    const oldWcSlots = new Set<string>((existingLineup?.wildcard_slots as string[]) ?? []);
+    const newWcSlots = wildcardSlotsSet;
+
+    // Net new WC slots that need spending (not already spent)
+    const slotsToSpend = Array.from(newWcSlots).filter(s => !oldWcSlots.has(s));
+    // Slots to refund (were WC, now normal or removed)
+    const slotsToRefund = Array.from(oldWcSlots).filter(s => !newWcSlots.has(s));
+
+    if (slotsToRefund.length > 0) {
+      const { earnWildcards } = await import('@/lib/services/wildcards');
+      await earnWildcards(params.userId, slotsToRefund.length, 'event_refund', params.eventId, 'Lineup update refund');
+    }
+
+    if (slotsToSpend.length > 0) {
+      const { spendWildcards } = await import('@/lib/services/wildcards');
+      await spendWildcards(params.userId, slotsToSpend.length, 'lineup_spend', params.eventId, `Wild Cards for ${slotsToSpend.join(', ')}`);
     }
   }
 
@@ -287,6 +340,7 @@ export async function submitLineup(params: {
     captain_slot: params.captainSlot ?? null,
     submitted_at: new Date().toISOString(),
     locked: false,
+    wildcard_slots: Array.from(wildcardSlotsSet),
   };
 
   // Map all slot keys to DB columns (unused slots = null)
@@ -321,8 +375,9 @@ export async function submitLineup(params: {
   }
 
   // Manage holding locks: delete old locks for this event, create new ones
+  // Only lock non-wildcard slots — WC slots don't need SC ownership
   const lockMinSc = ev.min_sc_per_slot ?? 1;
-  if (lockMinSc > 0 && slotPlayerIds.length > 0) {
+  if (lockMinSc > 0 && normalSlotPlayerIds.length > 0) {
     // Delete existing locks for this user+event (handles lineup updates)
     await supabase
       .from('holding_locks')
@@ -330,8 +385,8 @@ export async function submitLineup(params: {
       .eq('user_id', params.userId)
       .eq('event_id', params.eventId);
 
-    // Create locks for each player in the new lineup
-    const lockRows = slotPlayerIds.map(playerId => ({
+    // Create locks only for non-wildcard players
+    const lockRows = normalSlotPlayerIds.map(playerId => ({
       user_id: params.userId,
       player_id: playerId,
       event_id: params.eventId,
@@ -345,6 +400,13 @@ export async function submitLineup(params: {
     if (lockError) {
       console.error('[Lineup] Failed to create holding locks:', lockError);
     }
+  } else if (lockMinSc > 0 && normalSlotPlayerIds.length === 0) {
+    // All slots are wild cards — clean up any existing locks
+    await supabase
+      .from('holding_locks')
+      .delete()
+      .eq('user_id', params.userId)
+      .eq('event_id', params.eventId);
   }
 
   // Activity log (fire-and-forget — lineup confirmed at this point)
@@ -358,6 +420,20 @@ export async function submitLineup(params: {
 
 /** Lineup löschen (Abmelden vom Event) */
 export async function removeLineup(eventId: string, userId: string): Promise<void> {
+  // Refund wild cards before lineup deletion
+  const { data: lineup } = await supabase
+    .from('lineups')
+    .select('wildcard_slots')
+    .eq('event_id', eventId)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  const wcSlots = (lineup?.wildcard_slots as string[]) ?? [];
+  if (wcSlots.length > 0) {
+    const { earnWildcards } = await import('@/lib/services/wildcards');
+    await earnWildcards(userId, wcSlots.length, 'event_refund', eventId, 'Refund on event leave');
+  }
+
   // Release holding locks before lineup deletion
   await supabase
     .from('holding_locks')

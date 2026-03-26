@@ -113,6 +113,8 @@ function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userLineup?:
     minSubscriptionTier: db.min_subscription_tier ?? null,
     salaryCap: db.salary_cap ? centsToBsd(db.salary_cap) : null,
     minScPerSlot: db.min_sc_per_slot ?? 1,
+    wildcardsAllowed: db.wildcards_allowed ?? false,
+    maxWildcardsPerLineup: db.max_wildcards_per_lineup ?? 0,
     requirements: { dpcPerSlot: db.min_sc_per_slot ?? 1 },
     rewards: [
       { rank: '1st', reward: 'Champion Badge' },
@@ -449,7 +451,7 @@ export default function FantasyContent() {
   }, [user, addToast, events, setBalanceCents, clubId]);
 
   // ── Submit Lineup (no payment — user must already be entered) ──
-  const handleSubmitLineup = useCallback(async (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null = null) => {
+  const handleSubmitLineup = useCallback(async (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null = null, wildcardSlots: string[] = []) => {
     if (!user) return;
 
     // Build dynamic slot mapping based on event format + formation
@@ -467,19 +469,27 @@ export default function FantasyContent() {
         formation,
         slots,
         captainSlot,
+        wildcardSlots,
       });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : '';
       if (msg === 'insufficient_sc') {
         addToast(t('insufficientSc', { min: event.minScPerSlot ?? 1 }), 'error');
+      } else if (msg === 'insufficient_wildcards') {
+        addToast(t('insufficientWildcards'), 'error');
+      } else if (msg === 'wildcards_not_allowed') {
+        addToast(t('wildcardsNotAllowed'), 'error');
+      } else if (msg === 'too_many_wildcards') {
+        addToast(t('tooManyWildcards', { max: event.maxWildcardsPerLineup ?? 0 }), 'error');
       } else {
         addToast(t('errorGeneric', { error: te(mapErrorToKey(normalizeError(e))) }), 'error');
       }
       return;
     }
 
-    // Invalidate usage (player event locks may have changed)
+    // Invalidate usage + wildcard balance (may have changed)
     invalidateFantasyQueries(user.id, clubId);
+    queryClient.invalidateQueries({ queryKey: qk.events.wildcardBalance(user.id) });
     setSelectedEvent(null);
     addToast(t('lineupSaved'), 'success');
   }, [user, addToast, clubId]);

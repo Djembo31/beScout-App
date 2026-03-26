@@ -34,6 +34,7 @@ export type BestandPlayer = {
   purchasedAt: string;
   myListings: { id: string; qty: number; priceBsd: number; expiresAt: number }[];
   listedQty: number;
+  lockedQty: number;
   availableToSell: number;
   offers: { id: string; sender_handle: string; quantity: number; price: number }[];
   hasActiveIpo: boolean;
@@ -130,6 +131,9 @@ function HandelCols({ item }: { item: BestandPlayer }) {
         ) : (
           <span className="text-white/30">{t('bestandNotListed')}</span>
         )}
+        {item.lockedQty > 0 && (
+          <span className="text-purple-300 tabular-nums">{t('bestandLockedCount', { count: item.lockedQty })}</span>
+        )}
         {item.offers.length > 0 ? (
           <span className="text-sky-300 tabular-nums">{t('bestandOfferCount', { count: item.offers.length })}</span>
         ) : (
@@ -141,6 +145,9 @@ function HandelCols({ item }: { item: BestandPlayer }) {
       {/* Mobile */}
       <div className="md:hidden flex items-center gap-2 flex-wrap mt-0.5 text-[10px] font-mono">
         <MarketBadges hasIpo={item.hasActiveIpo} listedQty={item.listedQty} offerCount={item.offers.length} />
+        {item.lockedQty > 0 && (
+          <span className="text-purple-300 tabular-nums">{t('bestandLockedShort', { count: item.lockedQty })}</span>
+        )}
         <span className="text-white/40 tabular-nums">{t('bestandAvailableShort', { count: item.availableToSell })}</span>
         <span className="text-white/50 tabular-nums">{t('bestandFloor')} {item.floorBsd != null ? fmtScout(item.floorBsd) : '—'}</span>
       </div>

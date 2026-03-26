@@ -10,6 +10,8 @@ import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
 import { getRelativeTime } from '@/lib/activityHelpers';
 import { useUserMasteryAll } from '@/lib/queries/mastery';
+import { useWildcardBalance } from '@/lib/queries/events';
+import { Sparkles } from 'lucide-react';
 import ScoreProgress from './ScoreProgress';
 import { useTranslations, useLocale } from 'next-intl';
 import type { Pos, DbUserStats, UserTradeWithPlayer } from '@/types';
@@ -317,7 +319,10 @@ export default function TraderTab({
         </Card>
       )}
 
-      {/* 5. DPC Mastery Summary */}
+      {/* 5. Wild Cards (own profile only) */}
+      {isSelf && <WildCardsSection userId={userId} />}
+
+      {/* 6. DPC Mastery Summary */}
       {masterySummary.length > 0 && (
         <Card className="p-4 md:p-5">
           <h3 className="font-black text-sm mb-3">{tp('dpcMasteryLabel')}</h3>
@@ -339,6 +344,30 @@ export default function TraderTab({
         </Card>
       )}
     </div>
+  );
+}
+
+// ============================================
+// WILD CARDS SECTION
+// ============================================
+
+function WildCardsSection({ userId }: { userId: string }) {
+  const t = useTranslations('profile');
+  const { data: wcBalance } = useWildcardBalance(userId);
+
+  if (wcBalance == null || wcBalance === 0) return null;
+
+  return (
+    <Card className="p-4 md:p-5">
+      <div className="flex items-center gap-2 mb-3">
+        <Sparkles className="size-4 text-purple-400" aria-hidden="true" />
+        <h3 className="font-black text-sm">{t('wildCards')}</h3>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-white/50">{t('wildCardBalance')}</span>
+        <span className="font-mono font-bold tabular-nums text-lg text-purple-300">{wcBalance}</span>
+      </div>
+    </Card>
   );
 }
 

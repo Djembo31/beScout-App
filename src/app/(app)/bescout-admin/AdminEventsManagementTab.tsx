@@ -97,6 +97,8 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
   const [formMinSubTier, setFormMinSubTier] = useState('');
   const [formSalaryCap, setFormSalaryCap] = useState('');
   const [formMinScPerSlot, setFormMinScPerSlot] = useState('1');
+  const [formWildcardsAllowed, setFormWildcardsAllowed] = useState(false);
+  const [formMaxWildcards, setFormMaxWildcards] = useState('0');
   const [formGameweek, setFormGameweek] = useState('');
   const [formMaxEntries, setFormMaxEntries] = useState('20');
   const [formEntryFee, setFormEntryFee] = useState('0');
@@ -185,6 +187,8 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
     setFormMinSubTier('');
     setFormSalaryCap('');
     setFormMinScPerSlot('1');
+    setFormWildcardsAllowed(false);
+    setFormMaxWildcards('0');
     setFormGameweek('');
     setFormMaxEntries('20');
     setFormEntryFee('0');
@@ -214,6 +218,8 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
     setFormMinSubTier(ev.min_subscription_tier ?? '');
     setFormSalaryCap(ev.salary_cap != null ? String(centsToBsd(ev.salary_cap)) : '');
     setFormMinScPerSlot(String(ev.min_sc_per_slot ?? 1));
+    setFormWildcardsAllowed(ev.wildcards_allowed ?? false);
+    setFormMaxWildcards(String(ev.max_wildcards_per_lineup ?? 0));
     setFormGameweek(ev.gameweek != null ? String(ev.gameweek) : '');
     setFormMaxEntries(ev.max_entries != null ? String(ev.max_entries) : '0');
     setFormEntryFee(String(centsToBsd(ev.entry_fee)));
@@ -266,6 +272,8 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
         maybePut('min_subscription_tier', formMinSubTier || null);
         maybePut('salary_cap', formSalaryCap ? bsdToCents(parseFloat(formSalaryCap) || 0) : null);
         maybePut('min_sc_per_slot', parseInt(formMinScPerSlot) || 1);
+        maybePut('wildcards_allowed', formWildcardsAllowed);
+        maybePut('max_wildcards_per_lineup', formWildcardsAllowed ? (parseInt(formMaxWildcards) || 0) : 0);
         maybePut('reward_structure', formRewardStructure);
         maybePut('currency', formCurrency);
 
@@ -295,6 +303,8 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
           minSubscriptionTier: formMinSubTier || null,
           salaryCap: formSalaryCap ? bsdToCents(parseFloat(formSalaryCap) || 0) : null,
           minScPerSlot: parseInt(formMinScPerSlot) || 1,
+          wildcardsAllowed: formWildcardsAllowed,
+          maxWildcardsPerLineup: formWildcardsAllowed ? (parseInt(formMaxWildcards) || 0) : 0,
           rewardStructure: formRewardStructure,
           currency: formCurrency,
         });
@@ -322,7 +332,8 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
     formName, formType, formFormat, formGameweek, formEntryFee, formPrizePool,
     formMaxEntries, formStartsAt, formLocksAt, formEndsAt, formClubId,
     formSponsorName, formSponsorLogo, formEventTier, formMinSubTier,
-    formSalaryCap, formRewardStructure, formCurrency, editingEvent, adminId,
+    formSalaryCap, formWildcardsAllowed, formMaxWildcards,
+    formRewardStructure, formCurrency, editingEvent, adminId,
     resetForm, addToast, isFieldDisabled,
   ]);
 
@@ -793,6 +804,40 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
               aria-label="Minimum Scout Cards pro Slot"
               className={cn(INPUT_CLS, 'min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed')}
             />
+          </div>
+
+          {/* Wild Cards */}
+          <div className="grid grid-cols-2 gap-3 items-end">
+            <div className="flex items-center gap-2 min-h-[44px]">
+              <input
+                type="checkbox"
+                id="formWildcardsAllowed"
+                checked={formWildcardsAllowed}
+                onChange={(e) => setFormWildcardsAllowed(e.target.checked)}
+                disabled={isFieldDisabled('wildcards_allowed')}
+                className="w-4 h-4 accent-gold rounded"
+              />
+              <label htmlFor="formWildcardsAllowed" className="text-sm font-bold text-white/70">
+                Wild Cards erlaubt
+              </label>
+            </div>
+            {formWildcardsAllowed && (
+              <div>
+                <label className="block text-sm font-bold text-white/70 mb-1">Max Wild Cards</label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min="1"
+                  max="11"
+                  value={formMaxWildcards}
+                  onChange={(e) => setFormMaxWildcards(e.target.value)}
+                  placeholder="3"
+                  disabled={isFieldDisabled('max_wildcards_per_lineup')}
+                  aria-label="Max Wild Cards pro Lineup"
+                  className={cn(INPUT_CLS, 'min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed')}
+                />
+              </div>
+            )}
           </div>
 
           {/* Gameweek + Max Entries */}

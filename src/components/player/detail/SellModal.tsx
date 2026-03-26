@@ -16,6 +16,7 @@ interface SellModalProps {
   onClose: () => void;
   player: Player;
   holdingQty: number;
+  lockedQty?: number;
   userOrders: DbOrder[];
   openBids?: OfferWithDetails[];
   onSell: (qty: number, priceCents: number) => void;
@@ -28,7 +29,7 @@ interface SellModalProps {
 }
 
 export default function SellModal({
-  open, onClose, player, holdingQty, userOrders,
+  open, onClose, player, holdingQty, lockedQty = 0, userOrders,
   openBids = [], onSell, onCancelOrder,
   onAcceptBid, acceptingBidId,
   selling, cancellingId,
@@ -46,7 +47,7 @@ export default function SellModal({
   const circulation = player.dpc.circulation || 1;
   const share = holdingQty / circulation;
   const listedQty = userOrders.reduce((sum, o) => sum + (o.quantity - o.filled_qty), 0);
-  const availableToSell = holdingQty - listedQty;
+  const availableToSell = Math.max(0, holdingQty - listedQty - lockedQty);
   const floorPriceCents = Math.round((player.prices.floor ?? 0) * 100);
   const floorBsd = floorPriceCents / 100;
 
@@ -138,6 +139,12 @@ export default function SellModal({
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-white/50">{t('listed')}</span>
                   <span className="font-mono font-bold tabular-nums text-orange-300">{listedQty} SC</span>
+                </div>
+              )}
+              {lockedQty > 0 && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-white/50">{t('lockedInEvents')}</span>
+                  <span className="font-mono font-bold tabular-nums text-purple-300">{lockedQty} SC</span>
                 </div>
               )}
             </div>

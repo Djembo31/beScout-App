@@ -9,6 +9,7 @@ import { centsToBsd } from '@/lib/services/players';
 import type { Player, Pos, DbIpo, OfferWithDetails } from '@/types';
 import type { HoldingWithPlayer } from '@/lib/services/wallet';
 import { useRecentMinutes, useNextFixtures, usePlayerEventUsage } from '@/lib/queries/managerData';
+import { useHoldingLocks } from '@/lib/queries/events';
 import { useMarketStore } from '@/lib/stores/marketStore';
 import dynamic from 'next/dynamic';
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
@@ -121,6 +122,7 @@ export default function ManagerBestandTab({
   const { data: minutesMap } = useRecentMinutes();
   const { data: nextFixturesMap } = useNextFixtures();
   const { data: eventUsageMap } = usePlayerEventUsage(userId);
+  const { data: lockedScMap } = useHoldingLocks(userId);
 
   // Build bestand data
   const bestandItems = useMemo(() => {
@@ -156,17 +158,20 @@ export default function ManagerBestandTab({
 
       const playerOffers = offersByPlayer.get(player.id) ?? [];
 
+      const lockedQty = lockedScMap?.get(player.id) ?? 0;
+
       items.push({
         player, quantity: h.quantity, avgBuyPriceBsd: avgBuyBsd,
         floorBsd, ipoPriceBsd, valueBsd,
         pnlBsd, pnlPct, purchasedAt: h.created_at,
-        myListings, listedQty, availableToSell: h.quantity - listedQty,
+        myListings, listedQty, lockedQty,
+        availableToSell: Math.max(0, h.quantity - listedQty - lockedQty),
         offers: playerOffers.map(o => ({ id: o.id, sender_handle: o.sender_handle, quantity: o.quantity, price: o.price })),
         hasActiveIpo,
       });
     }
     return items;
-  }, [players, holdings, ipoList, userId, incomingOffers]);
+  }, [players, holdings, ipoList, userId, incomingOffers, lockedScMap]);
 
   const handleBulkSell = useCallback(async () => {
     if (selectedIds.size === 0 || bulkSelling) return;

@@ -144,6 +144,13 @@ export default function BestandSellModal({ item, open, onClose, onSell, onCancel
           </div>
         )}
 
+        {/* Locked SC info */}
+        {item.lockedQty > 0 && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-purple-500/10 border border-purple-500/20 rounded-xl text-xs">
+            <span className="text-purple-300 font-bold">{t('sellLockedInfo', { total: item.quantity, locked: item.lockedQty, listed: item.listedQty, available: item.availableToSell })}</span>
+          </div>
+        )}
+
         {/* Sell Form */}
         {item.availableToSell > 0 ? (
           <div className="space-y-3">

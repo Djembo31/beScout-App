@@ -5,6 +5,7 @@ import { qk } from './keys';
 import { getEvents, getUserJoinedEventIds, getUserEnteredEventIds, getEventEntry, getScoutEventsEnabled } from '@/lib/services/events';
 import { getPlayerEventUsage } from '@/lib/services/lineups';
 import { getUserHoldingLocks } from '@/lib/services/wallet';
+import { getWildcardBalance } from '@/lib/services/wildcards';
 import { getActiveGameweek, getLeagueActiveGameweek, isClubAdmin } from '@/lib/services/club';
 import type { DbEventEntry } from '@/types';
 
@@ -50,6 +51,16 @@ export function useHoldingLocks(userId: string | undefined) {
       }
       return map;
     },
+    enabled: !!userId,
+    staleTime: ONE_MIN,
+  });
+}
+
+/** Wild card balance for lineup builder */
+export function useWildcardBalance(userId: string | undefined) {
+  return useQuery({
+    queryKey: qk.events.wildcardBalance(userId!),
+    queryFn: () => getWildcardBalance(userId!),
     enabled: !!userId,
     staleTime: ONE_MIN,
   });

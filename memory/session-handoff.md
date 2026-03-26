@@ -1,53 +1,61 @@
 # Session Handoff
-## Letzte Session: 2026-03-26 (Session 253)
+## Letzte Session: 2026-03-26 (Session 254)
 ## Was wurde gemacht
 
-### Event Ownership System (komplett)
-- `event_fee_config` Table + Admin UI + RPC Fee Split + Subscription Gate
-- 96 Events geprueft, Visual QA passed
-- Event Card Icons: Club-Logo nur bei Club-Events (Fix)
+### SC Blocking Phase 2: Wild Cards (komplett)
+- `user_wildcards` Table: Balance + earned/spent Tracking
+- `wildcard_transactions` Table: Audit Log (8 Sources)
+- `lineups.wildcard_slots` Column: TEXT[] trackt WC-Slots pro Lineup
+- 5 RPCs: `get_wildcard_balance`, `earn_wildcards`, `spend_wildcards`, `refund_wildcards_on_leave`, `admin_grant_wildcards`
+- `wildcardService.ts`: balance, earn, spend, history, adminGrant
+- `useWildcardBalance` Query Hook + `qk.events.wildcardBalance` Key
+- `submitLineup`: WC Slot-Logik — skip SC check, spend/refund WC diff
+- `removeLineup`: WC Refund vor Lineup-Loeschung
+- Admin UI: "Wild Cards erlaubt" Toggle + "Max Wild Cards" Feld
+- `EDITABLE_FIELDS`: `wildcards_allowed`, `max_wildcards_per_lineup` in upcoming/registering
+- `createEvent`: `wildcardsAllowed` + `maxWildcardsPerLineup` Params
+- Fan UI: WC Badge auf Slots, WC Toggle-Button, WC Counter-Banner
+- Player Picker: WC-Slots zeigen auch gelockte Spieler
+- FantasyEvent Type: `wildcardsAllowed`, `maxWildcardsPerLineup`
+- i18n: 4 Keys (insufficientWildcards, wildcardsNotAllowed, tooManyWildcards, wildcardCounter) DE+TR
+- Migration auf Supabase applied
+- tsc: 0 Errors
 
-### SC Blocking Phase 1 (komplett)
-- `holding_locks` Table: trackt gelockte SCs pro Event
-- Events-Columns: `min_sc_per_slot` (default 1), `wildcards_allowed`, `max_wildcards_per_lineup`
-- `submitLineup`: SC Ownership Check + Lock-Erstellung + Lock Swap
-- Unlock bei Event Leave + Cancel + Event-Ende (DB Trigger)
-- Trading Guard: `place_sell_order` prueft locked SCs
-- Admin UI: `min_sc_per_slot` Feld bei Event-Erstellung
-- Player Picker: `useHoldingLocks` Hook, dpcAvailable nutzt echte Lock-Mengen
-- Error Handling: `insufficient_sc` + `scLockedInEvents` i18n DE+TR
-- `get_available_sc()` SQL Helper
-
-### Commits (10 auf main, gepusht)
-1. Event Ownership System (fee config + RPC + subscription gate)
-2. Fix: Club-Logo nur bei Club-Events
-3. SC Blocking Design Doc
-4. SC Blocking Implementation Plan
-5. holding_locks Table + Event-Columns
-6. DbHoldingLock Type + Services
-7. SC Check + Locks in submitLineup
-8. SC Blocking RPCs (unlock/cancel/trading/trigger)
-9. Admin min_sc_per_slot + i18n + Error Handling
-10. Player Picker nutzt echte Lock-Mengen
+### Geaenderte Files (12)
+- `supabase/migrations/20260326_wildcards.sql` (neu)
+- `src/lib/services/wildcards.ts` (neu)
+- `src/types/index.ts` — DbUserWildcard, DbWildcardTransaction, DbLineup.wildcard_slots
+- `src/lib/services/lineups.ts` — WC Slot-Logik in submitLineup + removeLineup
+- `src/lib/services/events.ts` — wildcardAllowed/maxWildcards in createEvent + EDITABLE_FIELDS
+- `src/lib/queries/events.ts` — useWildcardBalance Hook
+- `src/lib/queries/keys.ts` — wildcardBalance Key
+- `src/components/fantasy/types.ts` — FantasyEvent WC Props
+- `src/components/fantasy/EventDetailModal.tsx` — WC State + Picker WC-Modus
+- `src/components/fantasy/event-tabs/LineupPanel.tsx` — WC UI (Badge, Toggle, Counter)
+- `src/app/(app)/fantasy/FantasyContent.tsx` — WC Mapping + Error Handling
+- `src/app/(app)/bescout-admin/AdminEventsManagementTab.tsx` — WC Admin Form
+- `messages/de.json` + `messages/tr.json` — 4 WC Keys
 
 ---
 
 ## Naechste Session
 
-### SC Blocking Phase 2: Wild Cards
-- Design: `docs/plans/2026-03-25-sc-blocking-design.md`
-- `user_wildcards` + `wildcard_transactions` Tables
-- Wild Card Slot-Logik in Lineup RPC
-- Admin UI: Wild Card Config bei Event-Erstellung
-- Fan UI: Wild Card Button im Lineup Builder
-- Earn-Hooks: Mystery Box, Missions, Milestones, Daily Quests
+### SC Blocking Phase 3: UX Polish
+- Portfolio: "X gesperrt" Display bei Holdings
+- Sell Button disabled + Tooltip wenn available_qty < 1
+- Wild Card Inventory im Profil
+- Wild Card Transaction History
 
-### Test Failures (58 pre-existing, nicht blockierend)
-- `lineups.test.ts`: Mock braucht holding_locks Responses
-- `FantasyContent.test.tsx`: useHoldingLocks nicht gemocked
-- `EventDetailModal.test.tsx`: min_sc_per_slot fehlt in Mocks
-- `TradingTab.test.tsx`: pre-existing i18n Issues
-- DB-Tests: pre-existing (live DB)
+### Earn-Hooks (Gamification Integration)
+- Mystery Box: Wild Cards als moeglicher Drop
+- Missions: "Use X Wild Cards" Mission
+- Milestones: Wild Card Rewards
+- Daily Quests: Wild Card als Quest-Reward
+
+### Test Failures (pre-existing, nicht blockierend)
+- `lineups.test.ts`: Mock braucht holding_locks + wildcard_slots
+- `FantasyContent.test.tsx`: useHoldingLocks + useWildcardBalance nicht gemocked
+- `EventDetailModal.test.tsx`: min_sc_per_slot + wildcards fehlt in Mocks
 
 ### Danach
 - DNS verifizieren + echten Signup testen

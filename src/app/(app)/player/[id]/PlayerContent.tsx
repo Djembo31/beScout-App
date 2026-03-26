@@ -32,6 +32,7 @@ import {
 } from '@/lib/queries/misc';
 import { usePlayerResearch } from '@/lib/queries/research';
 import { usePlayerTrades } from '@/lib/queries/trades';
+import { useHoldingLocks } from '@/lib/queries/events';
 import { useDpcMastery } from '@/lib/queries/mastery';
 
 // Custom hooks
@@ -85,6 +86,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   // ALWAYS loaded (needed for Hero + Trading default tab):
   const { data: dbPlayer, isLoading: playerLoading, isError: playerError, refetch } = useDbPlayerById(playerId);
   const { data: holdingQtyData } = useHoldingQty(uid, playerId);
+  const { data: lockedScMap } = useHoldingLocks(uid);
   const { data: holderCountData } = usePlayerHolderCount(playerId);
   const { data: allSellOrdersData } = useSellOrders(playerId);
   const { data: activeIpo } = useIpoForPlayer(playerId);
@@ -374,6 +376,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           onClose={trading.closeSellModal}
           player={playerWithOwnership}
           holdingQty={holdingQty}
+          lockedQty={lockedScMap?.get(playerId) ?? 0}
           userOrders={trading.userOrders}
           openBids={openBids}
           onSell={trading.handleSell}

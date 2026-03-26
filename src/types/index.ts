@@ -549,6 +549,25 @@ export type DbHoldingLock = {
   locked_at: string;
 };
 
+export type DbUserWildcard = {
+  user_id: string;
+  balance: number;
+  earned_total: number;
+  spent_total: number;
+  updated_at: string;
+};
+
+export type DbWildcardTransaction = {
+  id: string;
+  user_id: string;
+  amount: number;
+  balance_after: number;
+  source: 'mystery_box' | 'mission' | 'event_reward' | 'daily_quest' | 'milestone' | 'event_refund' | 'admin_grant' | 'lineup_spend';
+  reference_id: string | null;
+  description: string | null;
+  created_at: string;
+};
+
 export type DbOrder = {
   id: string;
   user_id: string;
@@ -661,6 +680,7 @@ export type DbLineup = {
   locked: boolean;
   synergy_bonus_pct: number;
   synergy_details: SynergyDetail[] | null;
+  wildcard_slots: string[];
 };
 
 export type DbEventEntry = {

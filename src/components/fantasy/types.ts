@@ -69,6 +69,8 @@ export type FantasyEvent = {
   minSubscriptionTier?: string | null;
   salaryCap?: number | null;
   minScPerSlot?: number;
+  wildcardsAllowed?: boolean;
+  maxWildcardsPerLineup?: number;
   requirements: {
     dpcPerSlot?: number;
     minDpc?: number;
