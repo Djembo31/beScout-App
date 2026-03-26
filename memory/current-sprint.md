@@ -1,38 +1,42 @@
-# Current Sprint — Fantasy Event Stability
+# Current Sprint — Fantasy Event Complete Refactoring
 
-## Stand (2026-03-26, Session 255)
+## Stand (2026-03-26, Session 257)
 - **Tests:** 2050+ (161 Files), tsc 0 Errors
-- **Migrations:** 305 (4 neue heute)
+- **Migrations:** 305
 - **Routes:** 25
-- **Pilot Readiness:** BLOCKED — Fantasy Event Flow instabil
+- **Pilot Readiness:** BLOCKED — Fantasy braucht komplettes Refactoring
 
-## PRIORITAET 1: Fantasy Event Refactoring (Session 256)
-Der gesamte Join → Lineup → Leave Flow muss sauber neu gebaut werden.
-Details → `session-handoff.md` Refactoring-Plan
+## Status: Fantasy Save Flow GEFIXT aber NICHT FERTIG
 
-### Kern-Anforderungen
-1. Join: Beitreten → Entry Fee → "Nimmt teil" sofort → Counter +1
-2. Lineup: Spieler setzen → Save → RPC → DB Write → beim Reopenen sichtbar
-3. Leave: Abmelden → Refund → "Nimmt teil" weg → Counter -1 → Lineup + Locks geloescht
-4. Counter: IMMER = Anzahl event_entries (kein Legacy-Drift)
-5. SC Blocking: Spieler in Lineups nicht verkaufbar
+### Was in Session 257 gefixt wurde (Commit 74ef0a6)
+- Join + Lineup Save funktioniert (Auto-Save nach Join)
+- Save-Button sticky (immer sichtbar)
+- Error Handling komplett (catch + console.log an jedem Schritt)
+- Formation-Bug '1-2-2-1' gefixt
+- IntlError `t('free')` → `t('freeLabel')` gefixt
+- Auth/Wallet Timeout 5s → 15s
+- `get_season_chip_usage` 404 unterdrueckt
 
-### Was schon steht (DB-seitig)
-- `save_lineup` RPC (SECURITY DEFINER) — Insert/Update + Holding Locks atomar
-- `lock_event_entry` / `unlock_event_entry` RPCs — Entry + Refund atomar
-- Legacy Triggers entfernt — kein Doppel-Zaehlen mehr
+### Was NICHT fertig / NICHT geprueft wurde (EHRLICH)
+1. **DPC Blocking** — SC Cards in Lineups muessen Trading blockieren. Status UNKLAR.
+2. **Event Requirements** — min_sc_per_slot, salary_cap, club-scoped Events. Vermutlich NICHT end-to-end getestet.
+3. **Leave Flow** — Abmelden + Refund + Lineup/Lock Cleanup. Nur RPC-seitig, Client NICHT verifiziert.
+4. **Counter-Drift** — current_entries zeigt 0 obwohl User drin ist (staler Cache, kein Force-Refresh nach Join+Save).
+5. **Per-Fixture Locking** — Save-Button zeigt fuer running Events, aber NICHT getestet ob locked Slots wirklich readonly sind.
+6. **Wildcard Flow** — Wildcard-Slots im Lineup. Code existiert, NICHT getestet.
+7. **Captain Selection** — Captain-Slot Auswahl. Code existiert, NICHT getestet.
+8. **Multi-Event SC Locking** — Gleicher Spieler in 2 Events: holding_locks Logik. NICHT verifiziert.
+9. **E2E Tests** — KEINE Playwright Tests fuer Fantasy Flow.
+10. **FantasyContent.tsx** — 850+ Zeilen, zu viel State, zu viele Concerns. Braucht Refactoring.
+11. **EventDetailModal.tsx** — 830+ Zeilen, Footer-Logik komplex, Join/Save/Leave vermischt.
 
-### Was fehlt (Client-seitig)
-- Stabiler Client-Flow ohne RLS-Abhaengigkeit
-- Sauberes State-Management nach Join/Leave
-- Legacy-Daten Cleanup (Bot-Lineups ohne Entries)
-- E2E Playwright Tests
-
-## Offen (nach Refactoring)
-1. Earn-Hooks: Wild Cards in Gamification einhaengen
-2. DNS verifizieren + echten Signup testen
-3. 50 Einladungen raus
-4. Email-Templates + OAuth Redirects
+## NAECHSTER SCHRITT: Komplettes Fantasy Refactoring
+Anil hat recht: Wir flicken Symptome statt das System sauber zu bauen.
+Naechste Session MUSS mit einem vollstaendigen Spec starten:
+1. Alle Flows end-to-end definieren (Join, Lineup, Leave, Lock, Score)
+2. Alle Business Rules auflisten (SC Blocking, Requirements, Wildcards, Captain)
+3. Alle Dependencies identifizieren (Trading, Gamification, Wallet)
+4. Dann systematisch implementieren + verifizieren
 
 ## Blocker
-- Fantasy Event Flow instabil — MUSS zuerst gefixt werden
+- Fantasy Feature-Completeness: ~60% — Grundflow geht, aber Edge Cases + Cross-Domain NICHT geprüft
