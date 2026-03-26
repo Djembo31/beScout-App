@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { mockSupabase, mockSupabaseResponse, mockSupabaseCount } from '@/test/mocks/supabase';
-import { submitLineup, removeLineup, getLineup, getEventParticipants, getEventParticipantCount } from '../lineups';
+import { mockSupabase } from '@/test/mocks/supabase';
+import { submitLineup, getLineup, getEventParticipants, getEventParticipantCount } from '../lineups';
 
 // Mock getFixtureDeadlinesByGameweek (imported by lineups.ts)
 vi.mock('@/lib/services/fixtures', () => ({
@@ -32,43 +32,6 @@ function makeSlots(count: number, clubId = CLUB_ID): { slots: Record<string, str
   return { slots, playerIds };
 }
 
-/** Creates a per-table mock for supabase.from() */
-function mockFromTable(tableResponses: Record<string, { data: unknown; error: unknown }>) {
-  mockSupabase.from.mockImplementation((table: string) => {
-    const resp = tableResponses[table] ?? { data: null, error: null };
-
-    const builder: Record<string, unknown> = {};
-    const chainMethods = [
-      'select', 'insert', 'update', 'upsert', 'delete',
-      'eq', 'neq', 'gt', 'gte', 'lt', 'lte',
-      'like', 'ilike', 'is', 'in', 'contains',
-      'order', 'limit', 'offset', 'match', 'not', 'filter', 'or',
-    ];
-    for (const m of chainMethods) {
-      builder[m] = vi.fn().mockReturnValue(builder);
-    }
-    builder['single'] = vi.fn().mockReturnValue(resp);
-    builder['maybeSingle'] = vi.fn().mockReturnValue(resp);
-    builder['then'] = vi.fn().mockImplementation(
-      (resolve: (val: unknown) => void) => resolve(resp),
-    );
-    return builder;
-  });
-}
-
-const baseEvent = {
-  status: 'upcoming',
-  max_entries: 100,
-  current_entries: 0,
-  locks_at: null,
-  lineup_size: 11,
-  scope: 'global',
-  club_id: null,
-};
-
-/** Fake event_entries row — submitLineup requires an existing entry before lineup submission */
-const fakeEntry = { event_id: EVENT_ID, user_id: USER_ID };
-
 const baseParams = {
   eventId: EVENT_ID,
   userId: USER_ID,
@@ -76,493 +39,149 @@ const baseParams = {
 };
 
 // ============================================
-// submitLineup — lineup size validation
+// submitLineup — RPC-based validation (all guards now in save_lineup RPC)
 // ============================================
 
-describe('submitLineup — lineup size validation', () => {
+describe('submitLineup — RPC error propagation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('throws lineupSizeMismatch when submitting 7 players for an 11-player event', async () => {
+  it('succeeds when RPC returns ok: true', async () => {
     const { slots } = makeSlots(7);
-
-    mockFromTable({
-      events: { data: { ...baseEvent, lineup_size: 11 }, error: null },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: null, error: null },
-    });
-
-    await expect(
-      submitLineup({ ...baseParams, slots }),
-    ).rejects.toThrow('lineupSizeMismatch');
-  });
-
-  it('throws lineupSizeMismatch when submitting 11 players for a 7-player event', async () => {
-    const { slots } = makeSlots(11);
-
-    mockFromTable({
-      events: { data: { ...baseEvent, lineup_size: 7 }, error: null },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: null, error: null },
-    });
-
-    await expect(
-      submitLineup({ ...baseParams, slots }),
-    ).rejects.toThrow('lineupSizeMismatch');
-  });
-
-  it('passes lineup size check when slot count matches lineup_size=11', async () => {
-    const { slots, playerIds } = makeSlots(11);
-    const fakeLineup = { id: 'lineup-1', event_id: EVENT_ID, user_id: USER_ID };
-
-    mockFromTable({
-      events: { data: { ...baseEvent, lineup_size: 11 }, error: null },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: fakeLineup, error: null },
-      players: {
-        data: playerIds.map(id => ({ id, club_id: CLUB_ID })),
-        error: null,
-      },
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: true, lineup_id: 'lineup-1', is_new: true },
+      error: null,
     });
 
     const result = await submitLineup({ ...baseParams, slots });
     expect(result).toBeDefined();
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('save_lineup', expect.objectContaining({
+      p_event_id: EVENT_ID,
+      p_formation: '4-4-2',
+    }));
   });
 
-  it('passes lineup size check when slot count matches lineup_size=7', async () => {
-    const { slots, playerIds } = makeSlots(7);
-    const fakeLineup = { id: 'lineup-2', event_id: EVENT_ID, user_id: USER_ID };
-
-    mockFromTable({
-      events: { data: { ...baseEvent, lineup_size: 7 }, error: null },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: fakeLineup, error: null },
-      players: {
-        data: playerIds.map(id => ({ id, club_id: CLUB_ID })),
-        error: null,
-      },
-    });
-
-    const result = await submitLineup({ ...baseParams, slots });
-    expect(result).toBeDefined();
-  });
-
-  it('skips lineup size check when event has no lineup_size set', async () => {
-    const { slots, playerIds } = makeSlots(5);
-    const fakeLineup = { id: 'lineup-3', event_id: EVENT_ID, user_id: USER_ID };
-
-    mockFromTable({
-      events: { data: { ...baseEvent, lineup_size: null }, error: null },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: fakeLineup, error: null },
-      players: {
-        data: playerIds.map(id => ({ id, club_id: CLUB_ID })),
-        error: null,
-      },
-    });
-
-    const result = await submitLineup({ ...baseParams, slots });
-    expect(result).toBeDefined();
-  });
-});
-
-// ============================================
-// submitLineup — club scope enforcement
-// ============================================
-
-describe('submitLineup — club scope enforcement', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('throws playerNotInClub when a player belongs to a different club', async () => {
-    const { slots, playerIds } = makeSlots(11);
-
-    mockFromTable({
-      events: {
-        data: { ...baseEvent, lineup_size: 11, scope: 'club', club_id: CLUB_ID },
-        error: null,
-      },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: null, error: null },
-      players: {
-        data: playerIds.map((id, i) => ({
-          id,
-          // Last player belongs to wrong club
-          club_id: i === playerIds.length - 1 ? 'other-club' : CLUB_ID,
-        })),
-        error: null,
-      },
-    });
-
-    await expect(
-      submitLineup({ ...baseParams, slots }),
-    ).rejects.toThrow('playerNotInClub');
-  });
-
-  it('passes when all players belong to the event club', async () => {
-    const { slots, playerIds } = makeSlots(11);
-    const fakeLineup = { id: 'lineup-4', event_id: EVENT_ID, user_id: USER_ID };
-
-    mockFromTable({
-      events: {
-        data: { ...baseEvent, lineup_size: 11, scope: 'club', club_id: CLUB_ID },
-        error: null,
-      },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: fakeLineup, error: null },
-      players: {
-        data: playerIds.map(id => ({ id, club_id: CLUB_ID })),
-        error: null,
-      },
-    });
-
-    const result = await submitLineup({ ...baseParams, slots });
-    expect(result).toBeDefined();
-  });
-
-  it('skips club check for global-scoped events', async () => {
-    const { slots, playerIds } = makeSlots(11);
-    const fakeLineup = { id: 'lineup-5', event_id: EVENT_ID, user_id: USER_ID };
-
-    mockFromTable({
-      events: {
-        data: { ...baseEvent, lineup_size: 11, scope: 'global', club_id: null },
-        error: null,
-      },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: fakeLineup, error: null },
-      players: {
-        data: playerIds.map(id => ({ id, club_id: 'any-club' })),
-        error: null,
-      },
-    });
-
-    const result = await submitLineup({ ...baseParams, slots });
-    expect(result).toBeDefined();
-  });
-
-  it('throws playerNotInClub when all players are from wrong club', async () => {
-    const { slots, playerIds } = makeSlots(11);
-
-    mockFromTable({
-      events: {
-        data: { ...baseEvent, lineup_size: 11, scope: 'club', club_id: CLUB_ID },
-        error: null,
-      },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: null, error: null },
-      players: {
-        data: playerIds.map(id => ({ id, club_id: 'wrong-club' })),
-        error: null,
-      },
-    });
-
-    await expect(
-      submitLineup({ ...baseParams, slots }),
-    ).rejects.toThrow('playerNotInClub');
-  });
-});
-
-// ============================================
-// submitLineup — existing guards still work
-// ============================================
-
-describe('submitLineup — existing guards', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('throws eventNotFound when event query fails', async () => {
-    mockFromTable({
-      events: { data: null, error: { message: 'not found' } },
+  it('throws RPC error message on RPC failure', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: null,
+      error: { message: 'event_not_found' },
     });
 
     await expect(
       submitLineup({ ...baseParams, slots: {} }),
-    ).rejects.toThrow('eventNotFound');
+    ).rejects.toThrow('event_not_found');
   });
 
-  it('throws eventEnded when event status is ended', async () => {
-    mockFromTable({
-      events: { data: { ...baseEvent, status: 'ended' }, error: null },
+  it('throws event_ended from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'event_ended' },
+      error: null,
     });
 
     await expect(
       submitLineup({ ...baseParams, slots: {} }),
-    ).rejects.toThrow('eventEnded');
+    ).rejects.toThrow('event_ended');
   });
 
-  it('throws duplicatePlayer when same player in multiple slots', async () => {
-    const slots = { gk: 'player-1', def1: 'player-1' };
-
-    mockFromTable({
-      events: { data: { ...baseEvent, lineup_size: null }, error: null },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: null, error: null },
-    });
-
-    await expect(
-      submitLineup({ ...baseParams, slots }),
-    ).rejects.toThrow('duplicatePlayer');
-  });
-});
-
-// ============================================
-// submitLineup — capacity checks (max_entries)
-// ============================================
-
-describe('submitLineup — capacity checks', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('throws eventFull when event at max_entries with no existing lineup', async () => {
-    const { slots } = makeSlots(11);
-
-    mockFromTable({
-      events: {
-        data: { ...baseEvent, max_entries: 50, current_entries: 50 },
-        error: null,
-      },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: null, error: null },
-    });
-
-    await expect(
-      submitLineup({ ...baseParams, slots }),
-    ).rejects.toThrow('eventFull');
-  });
-
-  it('throws eventFull when current_entries exceeds max_entries', async () => {
-    const { slots } = makeSlots(11);
-
-    mockFromTable({
-      events: {
-        data: { ...baseEvent, max_entries: 50, current_entries: 55 },
-        error: null,
-      },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: null, error: null },
-    });
-
-    await expect(
-      submitLineup({ ...baseParams, slots }),
-    ).rejects.toThrow('eventFull');
-  });
-
-  it('succeeds when event is below max_entries', async () => {
-    const { slots, playerIds } = makeSlots(11);
-    const fakeLineup = { id: 'lineup-cap-1', event_id: EVENT_ID, user_id: USER_ID };
-
-    mockFromTable({
-      events: {
-        data: { ...baseEvent, max_entries: 100, current_entries: 50 },
-        error: null,
-      },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: fakeLineup, error: null },
-      players: {
-        data: playerIds.map(id => ({ id, club_id: CLUB_ID })),
-        error: null,
-      },
-    });
-
-    const result = await submitLineup({ ...baseParams, slots });
-    expect(result).toBeDefined();
-  });
-
-  it('succeeds when max_entries is null (unlimited)', async () => {
-    const { slots, playerIds } = makeSlots(11);
-    const fakeLineup = { id: 'lineup-cap-2', event_id: EVENT_ID, user_id: USER_ID };
-
-    mockFromTable({
-      events: {
-        data: { ...baseEvent, max_entries: null, current_entries: 9999 },
-        error: null,
-      },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: fakeLineup, error: null },
-      players: {
-        data: playerIds.map(id => ({ id, club_id: CLUB_ID })),
-        error: null,
-      },
-    });
-
-    const result = await submitLineup({ ...baseParams, slots });
-    expect(result).toBeDefined();
-  });
-});
-
-// ============================================
-// submitLineup — locks_at enforcement
-// ============================================
-
-describe('submitLineup — locks_at enforcement', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('throws eventLocked when locks_at is in the past', async () => {
-    const pastDate = new Date(Date.now() - 60_000).toISOString(); // 1 min ago
-    const { slots } = makeSlots(11);
-
-    mockFromTable({
-      events: {
-        data: { ...baseEvent, locks_at: pastDate },
-        error: null,
-      },
-      event_entries: { data: fakeEntry, error: null },
-    });
-
-    await expect(
-      submitLineup({ ...baseParams, slots }),
-    ).rejects.toThrow('eventLocked');
-  });
-
-  it('proceeds when locks_at is in the future', async () => {
-    const futureDate = new Date(Date.now() + 3_600_000).toISOString(); // 1 hour ahead
-    const { slots, playerIds } = makeSlots(11);
-    const fakeLineup = { id: 'lineup-lock-1', event_id: EVENT_ID, user_id: USER_ID };
-
-    mockFromTable({
-      events: {
-        data: { ...baseEvent, locks_at: futureDate },
-        error: null,
-      },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: fakeLineup, error: null },
-      players: {
-        data: playerIds.map(id => ({ id, club_id: CLUB_ID })),
-        error: null,
-      },
-    });
-
-    const result = await submitLineup({ ...baseParams, slots });
-    expect(result).toBeDefined();
-  });
-
-  it('proceeds when locks_at is null', async () => {
-    const { slots, playerIds } = makeSlots(11);
-    const fakeLineup = { id: 'lineup-lock-2', event_id: EVENT_ID, user_id: USER_ID };
-
-    mockFromTable({
-      events: {
-        data: { ...baseEvent, locks_at: null },
-        error: null,
-      },
-      event_entries: { data: fakeEntry, error: null },
-      lineups: { data: fakeLineup, error: null },
-      players: {
-        data: playerIds.map(id => ({ id, club_id: CLUB_ID })),
-        error: null,
-      },
-    });
-
-    const result = await submitLineup({ ...baseParams, slots });
-    expect(result).toBeDefined();
-  });
-});
-
-// ============================================
-// submitLineup — scoring status
-// ============================================
-
-describe('submitLineup — scoring status', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('throws eventEnded when event status is scoring', async () => {
-    mockFromTable({
-      events: { data: { ...baseEvent, status: 'scoring' }, error: null },
+  it('throws event_locked from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'event_locked' },
+      error: null,
     });
 
     await expect(
       submitLineup({ ...baseParams, slots: {} }),
-    ).rejects.toThrow('eventEnded');
+    ).rejects.toThrow('event_locked');
+  });
+
+  it('throws must_enter_first from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'must_enter_first' },
+      error: null,
+    });
+
+    await expect(
+      submitLineup({ ...baseParams, slots: {} }),
+    ).rejects.toThrow('must_enter_first');
+  });
+
+  it('throws duplicate_player from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'duplicate_player' },
+      error: null,
+    });
+
+    await expect(
+      submitLineup({ ...baseParams, slots: { gk: 'p1', def1: 'p1' } }),
+    ).rejects.toThrow('duplicate_player');
+  });
+
+  it('throws insufficient_sc from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'insufficient_sc' },
+      error: null,
+    });
+
+    await expect(
+      submitLineup({ ...baseParams, slots: { gk: 'p1' } }),
+    ).rejects.toThrow('insufficient_sc');
+  });
+
+  it('throws wildcards_not_allowed from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'wildcards_not_allowed' },
+      error: null,
+    });
+
+    await expect(
+      submitLineup({ ...baseParams, slots: {}, wildcardSlots: ['gk'] }),
+    ).rejects.toThrow('wildcards_not_allowed');
+  });
+
+  it('throws too_many_wildcards from RPC', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false, error: 'too_many_wildcards' },
+      error: null,
+    });
+
+    await expect(
+      submitLineup({ ...baseParams, slots: {}, wildcardSlots: ['gk', 'def1', 'def2'] }),
+    ).rejects.toThrow('too_many_wildcards');
+  });
+
+  it('throws lineup_save_failed when RPC returns ok: false without error', async () => {
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: false },
+      error: null,
+    });
+
+    await expect(
+      submitLineup({ ...baseParams, slots: {} }),
+    ).rejects.toThrow('lineup_save_failed');
+  });
+
+  it('passes slot mapping correctly to RPC', async () => {
+    const slots = { gk: 'p1', def1: 'p2', mid1: 'p3', att: 'p4' };
+    mockSupabase.rpc.mockResolvedValue({
+      data: { ok: true, lineup_id: 'lineup-map', is_new: true },
+      error: null,
+    });
+
+    await submitLineup({ ...baseParams, slots, captainSlot: 'gk', wildcardSlots: ['att'] });
+
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('save_lineup', expect.objectContaining({
+      p_slot_gk: 'p1',
+      p_slot_def1: 'p2',
+      p_slot_mid1: 'p3',
+      p_slot_att: 'p4',
+      p_captain_slot: 'gk',
+      p_wildcard_slots: ['att'],
+    }));
   });
 });
 
-// ============================================
-// removeLineup
-// ============================================
-
-describe('removeLineup', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('succeeds when delete returns count=1', async () => {
-    mockSupabase.from.mockImplementation(() => {
-      const builder: Record<string, unknown> = {};
-      const chainMethods = [
-        'select', 'insert', 'update', 'upsert', 'delete',
-        'eq', 'neq', 'gt', 'gte', 'lt', 'lte',
-        'like', 'ilike', 'is', 'in', 'contains',
-        'order', 'limit', 'offset', 'match', 'not', 'filter', 'or',
-      ];
-      for (const m of chainMethods) {
-        builder[m] = vi.fn().mockReturnValue(builder);
-      }
-      builder['single'] = vi.fn().mockReturnValue({ data: null, error: null, count: 1 });
-      builder['maybeSingle'] = vi.fn().mockReturnValue({ data: null, error: null, count: 1 });
-      builder['then'] = vi.fn().mockImplementation(
-        (resolve: (val: unknown) => void) => resolve({ data: null, error: null, count: 1 }),
-      );
-      return builder;
-    });
-
-    await expect(removeLineup(EVENT_ID, USER_ID)).resolves.toBeUndefined();
-  });
-
-  it('throws when delete returns an error', async () => {
-    mockSupabase.from.mockImplementation(() => {
-      const builder: Record<string, unknown> = {};
-      const chainMethods = [
-        'select', 'insert', 'update', 'upsert', 'delete',
-        'eq', 'neq', 'gt', 'gte', 'lt', 'lte',
-        'like', 'ilike', 'is', 'in', 'contains',
-        'order', 'limit', 'offset', 'match', 'not', 'filter', 'or',
-      ];
-      for (const m of chainMethods) {
-        builder[m] = vi.fn().mockReturnValue(builder);
-      }
-      builder['single'] = vi.fn().mockReturnValue({ data: null, error: { message: 'delete error' }, count: null });
-      builder['maybeSingle'] = vi.fn().mockReturnValue({ data: null, error: { message: 'delete error' }, count: null });
-      builder['then'] = vi.fn().mockImplementation(
-        (resolve: (val: unknown) => void) => resolve({ data: null, error: { message: 'delete error' }, count: null }),
-      );
-      return builder;
-    });
-
-    await expect(removeLineup(EVENT_ID, USER_ID)).rejects.toThrow('removeLineup failed: delete error');
-  });
-
-  it('throws lineupDeleteFailed when delete returns count=0', async () => {
-    mockSupabase.from.mockImplementation(() => {
-      const builder: Record<string, unknown> = {};
-      const chainMethods = [
-        'select', 'insert', 'update', 'upsert', 'delete',
-        'eq', 'neq', 'gt', 'gte', 'lt', 'lte',
-        'like', 'ilike', 'is', 'in', 'contains',
-        'order', 'limit', 'offset', 'match', 'not', 'filter', 'or',
-      ];
-      for (const m of chainMethods) {
-        builder[m] = vi.fn().mockReturnValue(builder);
-      }
-      builder['single'] = vi.fn().mockReturnValue({ data: null, error: null, count: 0 });
-      builder['maybeSingle'] = vi.fn().mockReturnValue({ data: null, error: null, count: 0 });
-      builder['then'] = vi.fn().mockImplementation(
-        (resolve: (val: unknown) => void) => resolve({ data: null, error: null, count: 0 }),
-      );
-      return builder;
-    });
-
-    await expect(removeLineup(EVENT_ID, USER_ID)).rejects.toThrow('lineupDeleteFailed');
-  });
-});
+// removeLineup: REMOVED — unlock_event_entry RPC handles cleanup atomically
 
 // ============================================
 // getLineup

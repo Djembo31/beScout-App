@@ -115,45 +115,7 @@ export async function submitLineup(params: {
   return result as unknown as DbLineup;
 }
 
-// Dead code removed — all validation now in save_lineup RPC
-
-/** Lineup löschen (Abmelden vom Event) */
-
-/** Lineup löschen (Abmelden vom Event) */
-export async function removeLineup(eventId: string, userId: string): Promise<void> {
-  // Refund wild cards before lineup deletion
-  const { data: lineup } = await supabase
-    .from('lineups')
-    .select('wildcard_slots')
-    .eq('event_id', eventId)
-    .eq('user_id', userId)
-    .maybeSingle();
-
-  const wcSlots = (lineup?.wildcard_slots as string[]) ?? [];
-  if (wcSlots.length > 0) {
-    const { earnWildcards } = await import('@/lib/services/wildcards');
-    await earnWildcards(userId, wcSlots.length, 'event_refund', eventId, 'Refund on event leave');
-  }
-
-  // Release holding locks before lineup deletion
-  await supabase
-    .from('holding_locks')
-    .delete()
-    .eq('event_id', eventId)
-    .eq('user_id', userId);
-
-  const { error, count } = await supabase
-    .from('lineups')
-    .delete({ count: 'exact' })
-    .eq('event_id', eventId)
-    .eq('user_id', userId);
-
-  if (error) throw new Error(`removeLineup failed: ${error.message}`);
-
-  if (count === 0) {
-    throw new Error('lineupDeleteFailed');
-  }
-}
+// removeLineup: REMOVED — unlock_event_entry RPC handles lineup/lock/wildcard cleanup atomically
 
 /** Teilnehmer eines Events laden (für Overview) */
 export async function getEventParticipants(eventId: string, limit = 10): Promise<{ id: string; handle: string; display_name?: string; avatar_url?: string }[]> {

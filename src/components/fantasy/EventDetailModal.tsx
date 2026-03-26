@@ -233,7 +233,7 @@ export const EventDetailModal = ({
     if (confirm(t('confirmLeaveMsg', { name: event.name }))) {
       setLeaving(true);
       try {
-        // Parent (handleLeaveEvent) handles: removeLineup + refund + cache invalidation
+        // Parent calls unlockEventEntry RPC (atomic: refund + delete entry/lineup/locks)
         await onLeave(event);
         onClose();
       } catch (e: unknown) {

@@ -830,6 +830,7 @@
     "scoutEventsDisabled": "$SCOUT Events deaktiviert",
     "subscriptionRequired": "Mindestens {tier}-Abo benötigt",
     "insufficientSc": "Nicht genug Scout Cards. Du brauchst {min} SC pro Slot.",
+    "duplicatePlayer": "Derselbe Spieler kann nicht in mehreren Slots stehen.",
     "scLockedInEvents": "{locked} SC in Events gesperrt",
     "insufficientWildcards": "Nicht genug Wild Cards.",
     "wildcardsNotAllowed": "Wild Cards sind in diesem Event nicht erlaubt.",

@@ -830,6 +830,7 @@
     "scoutEventsDisabled": "$SCOUT etkinlikler devre dışı",
     "subscriptionRequired": "En az {tier} abonelik gerekli",
     "insufficientSc": "{min} SC gerekli. Yeterli Scout Card yok.",
+    "duplicatePlayer": "Aynı oyuncu birden fazla slotta olamaz.",
     "scLockedInEvents": "{locked} SC etkinliklerde kilitli",
     "insufficientWildcards": "Yeterli Wild Card yok.",
     "wildcardsNotAllowed": "Bu etkinlikte Wild Card kullanılamaz.",

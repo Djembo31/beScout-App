@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import {
@@ -192,8 +192,10 @@ export default function FantasyContent() {
   const [mainTab, setMainTab] = useState<FantasyTab>('paarungen');
   const [selectedGameweek, setSelectedGameweek] = useState<number | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<FantasyEvent | null>(null);
-  const [localEvents, setLocalEvents] = useState<FantasyEvent[] | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [joiningEventId, setJoiningEventId] = useState<string | null>(null);
+  const [leavingEventId, setLeavingEventId] = useState<string | null>(null);
+  const [interestedIds, setInterestedIds] = useState<Set<string>>(new Set());
   const [lineupMap, setLineupMap] = useState<Map<string, { total_score: number | null; rank: number | null; reward_amount: number }>>(new Map());
   const [summaryEvent, setSummaryEvent] = useState<FantasyEvent | null>(null);
   const [summaryLeaderboard, setSummaryLeaderboard] = useState<import('@/lib/services/scoring').LeaderboardEntry[]>([]);
@@ -270,11 +272,14 @@ export default function FantasyContent() {
     });
   }, [lineupMap, dbEvents, joinedSet, userId]);
 
-  // Derive events from React Query data
+  // Derive events from React Query data — single source of truth, no local overrides
   const events = useMemo(() => {
-    if (localEvents) return localEvents;
-    return dbEvents.map(e => dbEventToFantasyEvent(e, joinedSet, lineupMap.get(e.id)));
-  }, [dbEvents, joinedSet, lineupMap, localEvents]);
+    return dbEvents.map(e => {
+      const fe = dbEventToFantasyEvent(e, joinedSet, lineupMap.get(e.id));
+      if (interestedIds.has(e.id)) fe.isInterested = true;
+      return fe;
+    });
+  }, [dbEvents, joinedSet, lineupMap, interestedIds]);
 
   // Derive holdings with usage info
   const holdings = useMemo(() => {
@@ -359,10 +364,12 @@ export default function FantasyContent() {
 
   // Handlers
   const handleToggleInterest = useCallback((eventId: string) => {
-    setLocalEvents(prev => (prev ?? events).map(e =>
-      e.id === eventId ? { ...e, isInterested: !e.isInterested } : e
-    ));
-  }, [events]);
+    setInterestedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(eventId)) next.delete(eventId); else next.add(eventId);
+      return next;
+    });
+  }, []);
 
   // ── Join Event (entry/payment only — no lineup required) ──
   const handleJoinEvent = useCallback(async (event: FantasyEvent) => {
@@ -378,21 +385,12 @@ export default function FantasyContent() {
       return;
     }
 
-    const wasJoined = event.isJoined;
-    setLocalEvents(prev => (prev ?? events).map(e =>
-      e.id === event.id ? { ...e, isJoined: true, isInterested: false, participants: wasJoined ? e.participants : (e.participants || 0) + 1 } : e
-    ));
+    setJoiningEventId(event.id);
 
     try {
       const result = await lockEventEntry(event.id);
 
       if (!result.ok) {
-        // Revert optimistic update
-        setLocalEvents(prev => (prev ?? events).map(ev =>
-          ev.id === event.id ? { ...ev, isJoined: wasJoined, participants: wasJoined ? ev.participants : Math.max(0, (ev.participants || 1) - 1) } : ev
-        ));
-
-        // Show specific error messages
         switch (result.error) {
           case 'insufficient_tickets':
             addToast(t('notEnoughTickets', { have: result.have ?? 0, need: result.need ?? event.ticketCost }), 'error');
@@ -413,41 +411,37 @@ export default function FantasyContent() {
             addToast(t('subscriptionRequired', { tier: result.need ?? '' }), 'error');
             break;
           default:
-            addToast(t('errorGeneric', { error: result.error ?? 'Unknown error' }), 'error');
+            if (!result.alreadyEntered) {
+              addToast(t('errorGeneric', { error: result.error ?? 'Unknown error' }), 'error');
+            }
         }
 
-        if (result.alreadyEntered) {
-          // Already entered — just refresh state
-          setLocalEvents(null);
-        }
-        return;
+        // Already entered is not an error — just refresh
+        if (!result.alreadyEntered) return;
       }
 
       // Update wallet balance if returned
       if (result.balanceAfter != null) {
         setBalanceCents(result.balanceAfter);
       }
+
+      // Invalidate all relevant caches — React Query refetches the truth
+      queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
+      await invalidateFantasyQueries(user.id, clubId);
+      fetch('/api/events?bust=1').catch(err => console.error('[Fantasy] Event cache bust failed:', err));
+
+      // Mission tracking (fire-and-forget)
+      import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+        triggerMissionProgress(user.id, ['weekly_fantasy']);
+      }).catch(err => console.error('[Fantasy] Mission tracking failed:', err));
+
+      addToast(t('joinedSuccess', { name: event.name }), 'success');
     } catch (e: unknown) {
-      setLocalEvents(prev => (prev ?? events).map(ev =>
-        ev.id === event.id ? { ...ev, isJoined: wasJoined, participants: wasJoined ? ev.participants : Math.max(0, (ev.participants || 1) - 1) } : ev
-      ));
       addToast(t('errorGeneric', { error: te(mapErrorToKey(normalizeError(e))) }), 'error');
-      return;
+    } finally {
+      setJoiningEventId(null);
     }
-
-    // Invalidate all relevant caches — awaits critical queries before clearing optimistic state
-    queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
-    await invalidateFantasyQueries(user.id, clubId);
-    try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
-    setLocalEvents(null);
-
-    // Mission tracking
-    import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-      triggerMissionProgress(user.id, ['weekly_fantasy']);
-    }).catch(err => console.error('[Fantasy] Mission tracking failed:', err));
-
-    addToast(t('joinedSuccess', { name: event.name }), 'success');
-  }, [user, addToast, events, setBalanceCents, clubId]);
+  }, [user, addToast, setBalanceCents, clubId]);
 
   // ── Submit Lineup (no payment — user must already be entered) ──
   const handleSubmitLineup = useCallback(async (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null = null, wildcardSlots: string[] = []) => {
@@ -477,6 +471,8 @@ export default function FantasyContent() {
       const msg = e instanceof Error ? e.message : '';
       if (msg === 'insufficient_sc') {
         addToast(t('insufficientSc', { min: event.minScPerSlot ?? 1 }), 'error');
+      } else if (msg === 'duplicate_player') {
+        addToast(t('duplicatePlayer'), 'error');
       } else if (msg === 'insufficient_wildcards') {
         addToast(t('insufficientWildcards'), 'error');
       } else if (msg === 'wildcards_not_allowed') {
@@ -500,26 +496,16 @@ export default function FantasyContent() {
     addToast(t('lineupSaved'), 'success');
   }, [user, addToast, clubId]);
 
-  // ── Leave Event (atomic refund via unlockEventEntry) ──
+  // ── Leave Event (atomic refund via unlockEventEntry RPC) ──
   const handleLeaveEvent = useCallback(async (event: FantasyEvent) => {
     if (!user) return;
 
-    const wasJoined = event.isJoined;
-    const prevParticipants = event.participants;
-    setLocalEvents(prev => (prev ?? events).map(e =>
-      e.id === event.id ? { ...e, isJoined: false, participants: Math.max(0, (e.participants || 1) - 1) } : e
-    ));
-    setSelectedEvent(null);
+    setLeavingEventId(event.id);
 
     try {
       const result = await unlockEventEntry(event.id);
 
       if (!result.ok) {
-        // Revert optimistic update
-        setLocalEvents(prev => (prev ?? events).map(ev =>
-          ev.id === event.id ? { ...ev, isJoined: wasJoined, participants: prevParticipants } : ev
-        ));
-
         if (result.error === 'event_locked') {
           addToast(t('eventLockedError'), 'error');
         } else {
@@ -532,38 +518,28 @@ export default function FantasyContent() {
       if (result.balanceAfter != null) {
         setBalanceCents(result.balanceAfter);
       }
+
+      // Invalidate all relevant caches — React Query refetches the truth
+      queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
+      await invalidateFantasyQueries(user.id, clubId);
+      fetch('/api/events?bust=1').catch(err => console.error('[Fantasy] Event cache bust failed:', err));
+
+      addToast(`${t('leftEvent')}${event.buyIn > 0 ? ` ${t('refundNote', { amount: event.buyIn })}` : ''}`, 'success');
     } catch (e: unknown) {
-      // Revert optimistic update on failure
-      setLocalEvents(prev => (prev ?? events).map(ev =>
-        ev.id === event.id ? { ...ev, isJoined: wasJoined, participants: prevParticipants } : ev
-      ));
       addToast(t('unregisterFailed', { error: te(mapErrorToKey(normalizeError(e))) }), 'error');
-      return;
+    } finally {
+      setLeavingEventId(null);
     }
-
-    // Invalidate all relevant caches — awaits critical queries before clearing optimistic state
-    queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
-    await invalidateFantasyQueries(user.id, clubId);
-    try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
-    setLocalEvents(null);
-
-    addToast(`${t('leftEvent')}${event.buyIn > 0 ? ` ${t('refundNote', { amount: event.buyIn })}` : ''}`, 'success');
-  }, [user, setBalanceCents, addToast, events]);
+  }, [user, setBalanceCents, addToast, clubId]);
 
   // Refetch all events from DB (used after score, reset, simulation)
   const reloadEvents = useCallback(async () => {
-    setLocalEvents(null); // Clear local overrides, let React Query refetch
-    invalidateFantasyQueries(userId, clubId);
+    await invalidateFantasyQueries(userId, clubId);
   }, [userId, clubId]);
 
-  const handleResetEvent = useCallback(async (event: FantasyEvent) => {
-    // Optimistic local update, then full refetch
-    setLocalEvents(prev => (prev ?? events).map(e =>
-      e.id === event.id ? { ...e, status: 'registering' as EventStatus, scoredAt: undefined } : e
-    ));
-    setSelectedEvent(prev => prev && prev.id === event.id ? { ...prev, status: 'registering' as EventStatus, scoredAt: undefined } : prev);
+  const handleResetEvent = useCallback(async (_event: FantasyEvent) => {
     await reloadEvents();
-  }, [reloadEvents, events]);
+  }, [reloadEvents]);
 
   const handleCreateEvent = useCallback((eventData: Partial<FantasyEvent>) => {
     const newEvent: FantasyEvent = {
@@ -598,9 +574,10 @@ export default function FantasyContent() {
       ticketCost: 0,
       currency: 'tickets',
     };
-    setLocalEvents(prev => [newEvent, ...(prev ?? events)]);
+    // Note: This is local-only placeholder. Real event creation is in AdminEventsTab.
+    // After admin creates event in DB, a full refetch will pick it up.
     addToast(t('eventCreated', { name: newEvent.name }), 'success');
-  }, [addToast, currentGw, events]);
+  }, [addToast, currentGw]);
 
   // Reload handler for error state — use React Query refetch instead of page reload
   const handleRetry = useCallback(() => {
