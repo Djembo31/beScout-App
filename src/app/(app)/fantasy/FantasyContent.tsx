@@ -259,22 +259,22 @@ export default function FantasyContent() {
     return () => { cancelled = true; };
   }, [dbEvents, joinedSet, userId]);
 
-  // Check for unseen scored events → show summary modal (once per page load)
+  // Check for unseen scored events → show summary modal (once per page load, current GW only)
   useEffect(() => {
-    if (summaryShownRef.current || lineupMap.size === 0 || !userId) return;
-    const scoredJoined = dbEvents.filter(e => e.scored_at && joinedSet.has(e.id));
+    if (summaryShownRef.current || lineupMap.size === 0 || !userId || !currentGw) return;
+    const scoredJoined = dbEvents.filter(e => e.scored_at && e.gameweek === currentGw && joinedSet.has(e.id));
     const unseen = scoredJoined.find(e => !isEventSeen(e.id));
     if (!unseen) return;
     summaryShownRef.current = true;
     const lineup = lineupMap.get(unseen.id);
     const ev = dbEventToFantasyEvent(unseen, joinedSet, lineup);
     setSummaryEvent(ev);
-    // Mark all unseen as seen immediately — don't queue them one by one
+    // Mark all unseen for this GW as seen immediately
     scoredJoined.filter(e => !isEventSeen(e.id)).forEach(e => markEventSeen(e.id));
     import('@/lib/services/scoring').then(({ getEventLeaderboard }) => {
       getEventLeaderboard(unseen.id).then(setSummaryLeaderboard).catch(err => console.error('[Fantasy] Leaderboard load failed:', err));
     });
-  }, [lineupMap, dbEvents, joinedSet, userId]);
+  }, [lineupMap, dbEvents, joinedSet, userId, currentGw]);
 
   // Derive events from React Query data — single source of truth, no local overrides
   const events = useMemo(() => {
