@@ -5,6 +5,7 @@
 
 import { queryClient } from '@/lib/queryClient';
 import { qk } from './keys';
+import { invalidateAfterLineupSave } from '@/features/fantasy/queries/invalidation';
 
 /** Invalidate caches affected by a trade action (narrowed — only affected player + user) */
 export function invalidateTradeQueries(playerId: string, userId?: string): void {
@@ -74,28 +75,9 @@ export function invalidateCommunityQueries(): void {
   queryClient.invalidateQueries({ queryKey: ['polls'] });
 }
 
-/** Invalidate fantasy/event-related caches — awaits critical queries so UI doesn't show stale state */
+/** Invalidate fantasy/event-related caches — delegates to feature module */
 export async function invalidateFantasyQueries(userId?: string, clubId?: string): Promise<void> {
-  // Fire-and-forget for non-critical caches
-  queryClient.invalidateQueries({ queryKey: qk.events.leagueGw });
-  if (clubId) {
-    queryClient.invalidateQueries({ queryKey: qk.events.activeGw(clubId) });
-  }
-
-  // Await critical caches that directly affect UI state (isJoined, locks, holdings)
-  const critical: Promise<void>[] = [
-    queryClient.invalidateQueries({ queryKey: qk.events.all }),
-  ];
-  if (userId) {
-    critical.push(
-      queryClient.invalidateQueries({ queryKey: qk.events.joinedIds(userId) }),
-      queryClient.invalidateQueries({ queryKey: qk.events.enteredIds(userId) }),
-      queryClient.invalidateQueries({ queryKey: qk.events.usage(userId) }),
-      queryClient.invalidateQueries({ queryKey: qk.events.holdingLocks(userId) }),
-      queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(userId) }),
-    );
-  }
-  await Promise.all(critical);
+  await invalidateAfterLineupSave(userId ?? '', clubId);
 }
 
 /** Invalidate player detail-related caches (narrowed — only affected player + user) */
