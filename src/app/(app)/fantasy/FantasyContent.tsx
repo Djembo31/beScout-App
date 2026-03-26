@@ -199,6 +199,7 @@ export default function FantasyContent() {
   const [lineupMap, setLineupMap] = useState<Map<string, { total_score: number | null; rank: number | null; reward_amount: number }>>(new Map());
   const [summaryEvent, setSummaryEvent] = useState<FantasyEvent | null>(null);
   const [summaryLeaderboard, setSummaryLeaderboard] = useState<import('@/lib/services/scoring').LeaderboardEntry[]>([]);
+  const summaryShownRef = React.useRef(false); // Only show summary once per page load
 
   // Sync selectedGameweek with league activeGw on first load
   useEffect(() => {
@@ -258,15 +259,18 @@ export default function FantasyContent() {
     return () => { cancelled = true; };
   }, [dbEvents, joinedSet, userId]);
 
-  // Check for unseen scored events → show summary modal
+  // Check for unseen scored events → show summary modal (once per page load)
   useEffect(() => {
-    if (lineupMap.size === 0 || !userId) return;
+    if (summaryShownRef.current || lineupMap.size === 0 || !userId) return;
     const scoredJoined = dbEvents.filter(e => e.scored_at && joinedSet.has(e.id));
     const unseen = scoredJoined.find(e => !isEventSeen(e.id));
     if (!unseen) return;
+    summaryShownRef.current = true;
     const lineup = lineupMap.get(unseen.id);
     const ev = dbEventToFantasyEvent(unseen, joinedSet, lineup);
     setSummaryEvent(ev);
+    // Mark all unseen as seen immediately — don't queue them one by one
+    scoredJoined.filter(e => !isEventSeen(e.id)).forEach(e => markEventSeen(e.id));
     import('@/lib/services/scoring').then(({ getEventLeaderboard }) => {
       getEventLeaderboard(unseen.id).then(setSummaryLeaderboard).catch(err => console.error('[Fantasy] Leaderboard load failed:', err));
     });
