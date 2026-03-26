@@ -172,61 +172,62 @@ export const EventDetailModal = ({
     }
   };
 
-  // Load lineup & participants on open
+  // Load lineup & participants on open (NOT on isJoined change — that resets mid-session state)
   useEffect(() => {
-    if (isOpen && event) {
-      // Load participants (optimized: only top 10 + count)
-      getEventParticipants(event.id, 10).then(setParticipants);
-      getEventParticipantCount(event.id).then(count => setParticipantCount(Math.max(count, event.participants || 0)));
+    if (!isOpen || !event) return;
 
-      if (event.isJoined && user) {
-        getLineup(event.id, user.id).then(dbLineup => {
-          if (dbLineup) {
-            // Use persisted formation, fallback to default
-            const savedFormation = dbLineup.formation || getDefaultFormation(event.format);
-            setSelectedFormation(savedFormation);
+    // Load participants (optimized: only top 10 + count)
+    getEventParticipants(event.id, 10).then(setParticipants);
+    getEventParticipantCount(event.id).then(count => setParticipantCount(Math.max(count, event.participants || 0)));
 
-            // Store scoring data for pitch display
-            setSlotScores(dbLineup.slot_scores ?? null);
-            setMyTotalScore(dbLineup.total_score);
-            setMyRank(dbLineup.rank);
-            setCaptainSlot(dbLineup.captain_slot ?? null);
+    if (event.isJoined && user) {
+      getLineup(event.id, user.id).then(dbLineup => {
+        if (dbLineup) {
+          // Use persisted formation, fallback to default
+          const savedFormation = dbLineup.formation || getDefaultFormation(event.format);
+          setSelectedFormation(savedFormation);
 
-            const fmtFormations = getFormationsForFormat(event.format);
-            const formation = fmtFormations.find(f => f.id === savedFormation) || fmtFormations[0];
-            const fSlots: { pos: string; slot: number }[] = [];
-            let si = 0;
-            for (const s of formation.slots) { for (let i = 0; i < s.count; i++) fSlots.push({ pos: s.pos, slot: si++ }); }
+          // Store scoring data for pitch display
+          setSlotScores(dbLineup.slot_scores ?? null);
+          setMyTotalScore(dbLineup.total_score);
+          setMyRank(dbLineup.rank);
+          setCaptainSlot(dbLineup.captain_slot ?? null);
 
-            // Map DB slot columns to formation slots using buildSlotDbKeys
-            const dbKeys = buildSlotDbKeys(formation);
-            const finalLineup: LineupPlayer[] = [];
-            fSlots.forEach((slot, i) => {
-              const colKey = `slot_${dbKeys[i]}` as keyof typeof dbLineup;
-              const playerId = dbLineup[colKey] as string | null;
-              if (playerId) {
-                finalLineup.push({ playerId, position: slot.pos, slot: slot.slot, isLocked: isPlayerLocked(playerId) });
-              }
-            });
+          const fmtFormations = getFormationsForFormat(event.format);
+          const formation = fmtFormations.find(f => f.id === savedFormation) || fmtFormations[0];
+          const fSlots: { pos: string; slot: number }[] = [];
+          let si = 0;
+          for (const s of formation.slots) { for (let i = 0; i < s.count; i++) fSlots.push({ pos: s.pos, slot: si++ }); }
 
-            setSelectedPlayers(finalLineup);
-          } else {
-            setSelectedPlayers([]);
-            setSelectedFormation(getDefaultFormation(event.format, event.lineupSize));
-            setSlotScores(null);
-          }
-        }).catch(() => {
+          // Map DB slot columns to formation slots using buildSlotDbKeys
+          const dbKeys = buildSlotDbKeys(formation);
+          const finalLineup: LineupPlayer[] = [];
+          fSlots.forEach((slot, i) => {
+            const colKey = `slot_${dbKeys[i]}` as keyof typeof dbLineup;
+            const playerId = dbLineup[colKey] as string | null;
+            if (playerId) {
+              finalLineup.push({ playerId, position: slot.pos, slot: slot.slot, isLocked: isPlayerLocked(playerId) });
+            }
+          });
+
+          setSelectedPlayers(finalLineup);
+        } else {
           setSelectedPlayers([]);
           setSelectedFormation(getDefaultFormation(event.format, event.lineupSize));
           setSlotScores(null);
-        });
-      } else {
-        // Reset if not joined
+        }
+      }).catch(() => {
         setSelectedPlayers([]);
-        setSelectedFormation('1-2-2-1');
-      }
+        setSelectedFormation(getDefaultFormation(event.format, event.lineupSize));
+        setSlotScores(null);
+      });
+    } else {
+      // Reset if not joined
+      setSelectedPlayers([]);
+      setSelectedFormation('1-2-2-1');
     }
-  }, [isOpen, event?.id, event?.isJoined, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- isJoined intentionally excluded: mid-session change must NOT reset lineup state
+  }, [isOpen, event?.id, user]);
 
   const handleLeave = async () => {
     if (!user || !event || leaving) return;
@@ -420,8 +421,9 @@ export const EventDetailModal = ({
     try {
       setShowJoinConfirm(false);
       await onJoin(event);
-      // Optimistic: increment participant count after successful join
+      // After successful join: show lineup tab + update count
       setParticipantCount(prev => prev + 1);
+      setTab('lineup');
     } finally {
       setJoining(false);
     }
