@@ -1,28 +1,38 @@
-# Current Sprint — Pilot Launch + UX Polish
+# Current Sprint — Fantasy Event Stability
 
-## Stand (2026-03-26, Session 254)
+## Stand (2026-03-26, Session 255)
 - **Tests:** 2050+ (161 Files), tsc 0 Errors
-- **Migrations:** 301
+- **Migrations:** 305 (4 neue heute)
 - **Routes:** 25
-- **Pilot Readiness:** GO
-- **Domain:** bescout.net
+- **Pilot Readiness:** BLOCKED — Fantasy Event Flow instabil
 
-## Abgeschlossen (Session 253-254)
-- **Event Ownership System** — fee_config, RPC Fee Split, Subscription Gate
-- **SC Blocking Phase 1** — holding_locks, SC Ownership Check, Trading Guard, Unlock Triggers
-- **SC Blocking Phase 2: Wild Cards** — user_wildcards, wildcard_transactions, WC Slot-Logik, Admin + Fan UI
-- **SC Blocking Phase 3: UX Polish** — Portfolio locked display, Sell Guards, Profile WC Section
+## PRIORITAET 1: Fantasy Event Refactoring (Session 256)
+Der gesamte Join → Lineup → Leave Flow muss sauber neu gebaut werden.
+Details → `session-handoff.md` Refactoring-Plan
 
-## Offen
-1. **Earn-Hooks:** Wild Cards in Gamification einhängen (Mystery Box, Missions, Milestones, Daily Quests)
+### Kern-Anforderungen
+1. Join: Beitreten → Entry Fee → "Nimmt teil" sofort → Counter +1
+2. Lineup: Spieler setzen → Save → RPC → DB Write → beim Reopenen sichtbar
+3. Leave: Abmelden → Refund → "Nimmt teil" weg → Counter -1 → Lineup + Locks geloescht
+4. Counter: IMMER = Anzahl event_entries (kein Legacy-Drift)
+5. SC Blocking: Spieler in Lineups nicht verkaufbar
+
+### Was schon steht (DB-seitig)
+- `save_lineup` RPC (SECURITY DEFINER) — Insert/Update + Holding Locks atomar
+- `lock_event_entry` / `unlock_event_entry` RPCs — Entry + Refund atomar
+- Legacy Triggers entfernt — kein Doppel-Zaehlen mehr
+
+### Was fehlt (Client-seitig)
+- Stabiler Client-Flow ohne RLS-Abhaengigkeit
+- Sauberes State-Management nach Join/Leave
+- Legacy-Daten Cleanup (Bot-Lineups ohne Entries)
+- E2E Playwright Tests
+
+## Offen (nach Refactoring)
+1. Earn-Hooks: Wild Cards in Gamification einhaengen
 2. DNS verifizieren + echten Signup testen
 3. 50 Einladungen raus
 4. Email-Templates + OAuth Redirects
 
-## Design Docs
-- `docs/plans/2026-03-25-sc-blocking-design.md` — SC Blocking + Wild Cards (3 Phasen)
-- `docs/plans/2026-03-25-event-ownership-system-design.md`
-- `docs/plans/2026-03-25-event-ownership-plan.md`
-
 ## Blocker
-- Keine
+- Fantasy Event Flow instabil — MUSS zuerst gefixt werden
