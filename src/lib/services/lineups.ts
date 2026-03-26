@@ -348,39 +348,45 @@ export async function submitLineup(params: {
     row[ALL_SLOT_COLUMNS[i]] = params.slots[ALL_SLOT_KEYS[i]] ?? null;
   }
 
-  const { data, error } = await supabase
-    .from('lineups')
-    .upsert(row, { onConflict: 'event_id,user_id' })
-    .select()
-    .single();
+  // CRITICAL FIX: PostgREST .upsert() generates INSERT ... ON CONFLICT DO UPDATE.
+  // Even for new rows, PostgreSQL evaluates the UPDATE RLS policy ("NOT locked").
+  // This causes silent failures: {data: null, error: null} with no DB write.
+  // Split into separate .insert() / .update() paths to avoid this entirely.
+  let data: Record<string, unknown> | null = null;
+  let error: { message: string } | null = null;
+
+  if (isNewEntry) {
+    // Pure INSERT — only needs INSERT policy (auth.uid() = user_id)
+    const result = await supabase
+      .from('lineups')
+      .insert(row)
+      .select()
+      .single();
+    data = result.data;
+    error = result.error;
+  } else {
+    // UPDATE existing row — needs UPDATE policy (auth.uid() = user_id AND NOT locked)
+    // Remove event_id and user_id from the update payload (they are the match keys)
+    const { event_id: _eid, user_id: _uid, ...updateFields } = row;
+    const result = await supabase
+      .from('lineups')
+      .update(updateFields)
+      .eq('event_id', params.eventId)
+      .eq('user_id', params.userId)
+      .select()
+      .single();
+    data = result.data;
+    error = result.error;
+  }
 
   if (error) throw new Error(error.message);
 
-  // CRITICAL: PostgREST upserts with RLS can return { data: null, error: null }
-  // when the write is silently blocked (e.g., UPDATE policy "NOT locked" fails).
-  // We MUST verify data came back — otherwise the caller shows a success toast
-  // while the DB has no write.
   if (!data || !data.id) {
-    console.error('[Lineup] Upsert returned null data — likely RLS silent failure', {
+    console.error('[Lineup] Write returned null data', {
       eventId: params.eventId,
       userId: params.userId,
+      isNewEntry,
       error,
-    });
-    throw new Error('lineup_save_failed');
-  }
-
-  // Belt-and-suspenders: verify the row actually exists with our submitted_at
-  const { data: verify } = await supabase
-    .from('lineups')
-    .select('id, submitted_at')
-    .eq('event_id', params.eventId)
-    .eq('user_id', params.userId)
-    .maybeSingle();
-
-  if (!verify) {
-    console.error('[Lineup] Post-upsert verification FAILED — row not found in DB', {
-      eventId: params.eventId,
-      userId: params.userId,
     });
     throw new Error('lineup_save_failed');
   }
