@@ -1,6 +1,14 @@
 import { supabase } from '@/lib/supabaseClient';
-import { getCurrentSeason } from '@/lib/chips';
 import type { ChipType, DbChipUsage } from '@/types';
+
+/** Season usage per chip type from get_season_chip_usage RPC */
+export type SeasonChipUsage = {
+  ok: boolean;
+  triple_captain: { used: number; max: number };
+  synergy_surge: { used: number; max: number };
+  second_chance: { used: number; max: number };
+  wildcard: { used: number; max: number };
+};
 
 // ============================================
 // Chip Service (Gamification v5 Phase C)
@@ -28,8 +36,8 @@ export async function activateChip(
       return { success: false, error: error.message };
     }
 
-    const result = data as { success: boolean; chip_usage_id?: string; error?: string };
-    return result;
+    const result = data as { ok: boolean; chip_id?: string; ticket_cost?: number; remaining_season_uses?: number; error?: string };
+    return { success: result.ok, chip_usage_id: result.chip_id, error: result.error };
   } catch (err) {
     console.error('[Chips] activateChip unexpected error:', err);
     return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
@@ -37,19 +45,17 @@ export async function activateChip(
 }
 
 /**
- * Deactivate a chip for an event.
+ * Deactivate a chip by its usage ID.
  * Calls the deactivate_chip RPC which handles:
  * - Ticket refund (full cost via credit_tickets with source='chip_refund')
- * - Setting is_active=false + deactivated_at timestamp
+ * - DELETE chip_usages row
  */
 export async function deactivateChip(
-  eventId: string,
-  chipType: ChipType,
+  chipUsageId: string,
 ): Promise<{ success: boolean; refunded_tickets?: number; error?: string }> {
   try {
     const { data, error } = await supabase.rpc('deactivate_chip', {
-      p_event_id: eventId,
-      p_chip_type: chipType,
+      p_chip_usage_id: chipUsageId,
     });
 
     if (error) {
@@ -57,8 +63,8 @@ export async function deactivateChip(
       return { success: false, error: error.message };
     }
 
-    const result = data as { success: boolean; refunded_tickets?: number; error?: string };
-    return result;
+    const result = data as { ok: boolean; tickets_refunded?: number; error?: string };
+    return { success: result.ok, refunded_tickets: result.tickets_refunded, error: result.error };
   } catch (err) {
     console.error('[Chips] deactivateChip unexpected error:', err);
     return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
@@ -88,10 +94,22 @@ export async function getEventChips(eventId: string): Promise<DbChipUsage[]> {
 }
 
 /**
- * Get user's chip usage for a season (default: current season).
- * Returns SETOF chip_usages for tracking season limits.
+ * Get user's chip usage counts for the current season.
+ * Returns per-chip-type usage with max limits.
  */
-export async function getSeasonChipUsage(_season?: string): Promise<DbChipUsage[]> {
-  // chip_usage table + RPC not yet created — return empty until feature is built
-  return [];
+export async function getSeasonChipUsage(): Promise<SeasonChipUsage | null> {
+  try {
+    const { data, error } = await supabase.rpc('get_season_chip_usage');
+
+    if (error) {
+      console.error('[Chips] getSeasonChipUsage error:', error);
+      return null;
+    }
+
+    const result = data as SeasonChipUsage;
+    return result.ok ? result : null;
+  } catch (err) {
+    console.error('[Chips] getSeasonChipUsage unexpected error:', err);
+    return null;
+  }
 }

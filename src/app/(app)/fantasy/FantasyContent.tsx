@@ -421,6 +421,9 @@ export default function FantasyContent() {
           case 'subscription_required':
             addToast(t('subscriptionRequired', { tier: result.need ?? '' }), 'error');
             break;
+          case 'tier_required':
+            addToast(t('tierRequired', { need: result.need ?? '', have: result.have ?? 'Rookie' }), 'error');
+            break;
           default:
             if (!result.alreadyEntered) {
               addToast(t('errorGeneric', { error: result.error ?? 'Unknown error' }), 'error');
@@ -503,6 +506,8 @@ export default function FantasyContent() {
         addToast(t('wildcardsNotAllowed'), 'error');
       } else if (msg === 'too_many_wildcards') {
         addToast(t('tooManyWildcards', { max: event.maxWildcardsPerLineup ?? 0 }), 'error');
+      } else if (msg === 'salary_cap_exceeded') {
+        addToast(t('salaryCapExceeded'), 'error');
       } else if (msg === 'holding_lock_failed') {
         addToast(t('holdingLockFailed'), 'error');
       } else if (msg === 'lineup_save_failed') {

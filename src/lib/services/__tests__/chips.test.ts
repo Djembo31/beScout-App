@@ -9,7 +9,7 @@ beforeEach(() => { resetMocks(); vi.clearAllMocks(); });
 
 describe('activateChip', () => {
   it('activates chip via RPC', async () => {
-    mockRpc('activate_chip', { success: true, chip_usage_id: 'cu-1' });
+    mockRpc('activate_chip', { ok: true, chip_id: 'cu-1', ticket_cost: 15, remaining_season_uses: 0 });
     const result = await activateChip('evt-1', 'triple_captain');
     expect(result).toEqual({ success: true, chip_usage_id: 'cu-1' });
     expect(mockSupabase.rpc).toHaveBeenCalledWith('activate_chip', {
@@ -35,16 +35,19 @@ describe('activateChip', () => {
 });
 
 describe('deactivateChip', () => {
-  it('deactivates chip and returns refund', async () => {
-    mockRpc('deactivate_chip', { success: true, refunded_tickets: 15 });
-    const result = await deactivateChip('evt-1', 'triple_captain');
+  it('deactivates chip by usage ID and returns refund', async () => {
+    mockRpc('deactivate_chip', { ok: true, tickets_refunded: 15 });
+    const result = await deactivateChip('cu-123');
     expect(result).toEqual({ success: true, refunded_tickets: 15 });
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('deactivate_chip', {
+      p_chip_usage_id: 'cu-123',
+    });
   });
 
   it('returns error on failure', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockRpc('deactivate_chip', null, { message: 'Not active' });
-    expect(await deactivateChip('evt-1', 'x' as 'triple_captain')).toEqual({ success: false, error: 'Not active' });
+    expect(await deactivateChip('cu-bad')).toEqual({ success: false, error: 'Not active' });
     consoleSpy.mockRestore();
   });
 });
@@ -71,23 +74,23 @@ describe('getEventChips', () => {
 
 describe('getSeasonChipUsage', () => {
   it('returns chip usage for current season', async () => {
-    const usage = [{ id: 'cu-1', chip_type: 'triple_captain', season: '2024-25' }];
+    const usage = {
+      ok: true,
+      triple_captain: { used: 1, max: 1 },
+      synergy_surge: { used: 0, max: 2 },
+      second_chance: { used: 0, max: 2 },
+      wildcard: { used: 0, max: 1 },
+    };
     mockRpc('get_season_chip_usage', usage);
     const result = await getSeasonChipUsage();
     expect(result).toEqual(usage);
-    expect(mockSupabase.rpc).toHaveBeenCalledWith('get_season_chip_usage', { p_season: '2024-25' });
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('get_season_chip_usage');
   });
 
-  it('accepts custom season', async () => {
-    mockRpc('get_season_chip_usage', []);
-    await getSeasonChipUsage('2023-24');
-    expect(mockSupabase.rpc).toHaveBeenCalledWith('get_season_chip_usage', { p_season: '2023-24' });
-  });
-
-  it('returns [] on error', async () => {
+  it('returns null on error', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockRpc('get_season_chip_usage', null, { message: 'err' });
-    expect(await getSeasonChipUsage()).toEqual([]);
+    expect(await getSeasonChipUsage()).toBeNull();
     consoleSpy.mockRestore();
   });
 });

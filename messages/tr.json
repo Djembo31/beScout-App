@@ -836,6 +836,8 @@
     "wildcardsNotAllowed": "Bu etkinlikte Wild Card kullanılamaz.",
     "tooManyWildcards": "Kadro başına en fazla {max} Wild Card.",
     "holdingLockFailed": "SC kilidi oluşturulamadı. Lütfen tekrar deneyin.",
+    "salaryCapExceeded": "Maaş tavanı aşıldı. Daha ucuz oyuncular seç.",
+    "tierRequired": "Minimum {need} seviyesi gerekli. Senin seviyen: {have}.",
     "wildcardCounter": "Wild Cards: {used}/{max} kullanıldı",
     "settingsFailed": "Ayar kaydedilemedi.",
     "entryCost": "Giriş ücreti",

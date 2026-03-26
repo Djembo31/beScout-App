@@ -63,12 +63,13 @@ export default function ChipSelector({ eventId, onChipChange }: ChipSelectorProp
   const activeCount = activeEventChips.length;
   const MAX_ACTIVE_PER_EVENT = 2;
 
-  // Get season usage count per chip type
+  // Get season usage count per chip type (from JSONB RPC response)
   const seasonUsageMap = useMemo(() => {
     const map: Record<string, number> = {};
     if (seasonUsage) {
-      for (const usage of seasonUsage) {
-        map[usage.chip_type] = (map[usage.chip_type] ?? 0) + 1;
+      for (const chipType of ['triple_captain', 'synergy_surge', 'second_chance', 'wildcard'] as const) {
+        const entry = seasonUsage[chipType];
+        if (entry) map[chipType] = entry.used;
       }
     }
     return map;
