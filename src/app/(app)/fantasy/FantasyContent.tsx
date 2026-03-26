@@ -451,7 +451,10 @@ export default function FantasyContent() {
 
   // ── Submit Lineup (no payment — user must already be entered) ──
   const handleSubmitLineup = useCallback(async (event: FantasyEvent, lineup: LineupPlayer[], formation: string, captainSlot: string | null = null, wildcardSlots: string[] = []) => {
-    if (!user) return;
+    if (!user?.id) {
+      addToast(t('errorGeneric', { error: 'Not authenticated' }), 'error');
+      return;
+    }
 
     // Build dynamic slot mapping based on event format + formation
     const formations = getFormationsForFormat(event.format);
@@ -482,6 +485,8 @@ export default function FantasyContent() {
         addToast(t('tooManyWildcards', { max: event.maxWildcardsPerLineup ?? 0 }), 'error');
       } else if (msg === 'holding_lock_failed') {
         addToast(t('holdingLockFailed'), 'error');
+      } else if (msg === 'lineup_save_failed') {
+        addToast(t('errorGeneric', { error: 'Lineup konnte nicht gespeichert werden. Bitte erneut versuchen.' }), 'error');
       } else {
         addToast(t('errorGeneric', { error: te(mapErrorToKey(normalizeError(e))) }), 'error');
       }

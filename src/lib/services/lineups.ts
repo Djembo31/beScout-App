@@ -356,6 +356,35 @@ export async function submitLineup(params: {
 
   if (error) throw new Error(error.message);
 
+  // CRITICAL: PostgREST upserts with RLS can return { data: null, error: null }
+  // when the write is silently blocked (e.g., UPDATE policy "NOT locked" fails).
+  // We MUST verify data came back — otherwise the caller shows a success toast
+  // while the DB has no write.
+  if (!data || !data.id) {
+    console.error('[Lineup] Upsert returned null data — likely RLS silent failure', {
+      eventId: params.eventId,
+      userId: params.userId,
+      error,
+    });
+    throw new Error('lineup_save_failed');
+  }
+
+  // Belt-and-suspenders: verify the row actually exists with our submitted_at
+  const { data: verify } = await supabase
+    .from('lineups')
+    .select('id, submitted_at')
+    .eq('event_id', params.eventId)
+    .eq('user_id', params.userId)
+    .maybeSingle();
+
+  if (!verify) {
+    console.error('[Lineup] Post-upsert verification FAILED — row not found in DB', {
+      eventId: params.eventId,
+      userId: params.userId,
+    });
+    throw new Error('lineup_save_failed');
+  }
+
   // Post-upsert capacity safety net (catches race conditions the pre-check missed)
   // The DB trigger already incremented current_entries. If we exceeded max, rollback.
   if (isNewEntry && ev.max_entries) {
