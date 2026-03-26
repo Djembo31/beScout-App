@@ -431,19 +431,22 @@ export default function FantasyContent() {
         if (!result.alreadyEntered) return;
       }
 
-      // Update wallet balance if returned
-      if (result.balanceAfter != null) {
+      // Update wallet balance if returned (skip 0 — free events return 0 instead of actual balance)
+      if (result.balanceAfter != null && result.balanceAfter > 0) {
         setBalanceCents(result.balanceAfter);
       }
 
-      // INSTANT cache update — UI reacts immediately, no waiting for refetch
+      // INSTANT cache update — UI reacts immediately
       queryClient.setQueryData<string[]>(qk.events.joinedIds(user.id), (old) => [
         ...(old ?? []), event.id,
       ]);
 
-      // Then invalidate for full consistency (background refetch)
+      // Invalidate related caches — but NOT joinedIds (we just set it, refetch would overwrite)
       queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
-      invalidateFantasyQueries(user.id, clubId);
+      queryClient.invalidateQueries({ queryKey: qk.events.all });
+      queryClient.invalidateQueries({ queryKey: qk.events.usage(user.id) });
+      queryClient.invalidateQueries({ queryKey: qk.events.holdingLocks(user.id) });
+      queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(user.id) });
       fetch('/api/events?bust=1').catch(err => console.error('[Fantasy] Event cache bust failed:', err));
 
       // Mission tracking (fire-and-forget)
@@ -541,9 +544,12 @@ export default function FantasyContent() {
       );
       setSelectedEventId(null); // close modal
 
-      // Then invalidate for full consistency (background refetch)
+      // Invalidate related caches — but NOT joinedIds (we just set it)
       queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
-      invalidateFantasyQueries(user.id, clubId);
+      queryClient.invalidateQueries({ queryKey: qk.events.all });
+      queryClient.invalidateQueries({ queryKey: qk.events.usage(user.id) });
+      queryClient.invalidateQueries({ queryKey: qk.events.holdingLocks(user.id) });
+      queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(user.id) });
       fetch('/api/events?bust=1').catch(err => console.error('[Fantasy] Event cache bust failed:', err));
 
       addToast(`${t('leftEvent')}${event.buyIn > 0 ? ` ${t('refundNote', { amount: event.buyIn })}` : ''}`, 'success');
