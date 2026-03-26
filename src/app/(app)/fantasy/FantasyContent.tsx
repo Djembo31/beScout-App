@@ -191,7 +191,7 @@ export default function FantasyContent() {
   // State — 4 tabs
   const [mainTab, setMainTab] = useState<FantasyTab>('paarungen');
   const [selectedGameweek, setSelectedGameweek] = useState<number | null>(null);
-  const [selectedEvent, setSelectedEvent] = useState<FantasyEvent | null>(null);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [joiningEventId, setJoiningEventId] = useState<string | null>(null);
   const [leavingEventId, setLeavingEventId] = useState<string | null>(null);
@@ -281,6 +281,12 @@ export default function FantasyContent() {
     });
   }, [dbEvents, joinedSet, lineupMap, interestedIds]);
 
+  // selectedEvent derived LIVE from events — always reflects latest React Query data
+  const selectedEvent = useMemo(() => {
+    if (!selectedEventId) return null;
+    return events.find(e => e.id === selectedEventId) ?? null;
+  }, [selectedEventId, events]);
+
   // Derive holdings with usage info
   const holdings = useMemo(() => {
     return dbHoldings.map(h => {
@@ -361,6 +367,11 @@ export default function FantasyContent() {
 
     return { eventsPlayed, seasonPoints, bestRank, totalRewardBsd, pastParticipations, wins, top10, avgPoints, avgRank };
   }, [events]);
+
+  // Open event detail — stores ID only, event is derived live from React Query
+  const handleEventClick = useCallback((event: FantasyEvent) => {
+    setSelectedEventId(event.id);
+  }, []);
 
   // Handlers
   const handleToggleInterest = useCallback((eventId: string) => {
@@ -492,7 +503,7 @@ export default function FantasyContent() {
     // Invalidate usage + wildcard balance — await so locks are visible immediately
     queryClient.invalidateQueries({ queryKey: qk.events.wildcardBalance(user.id) });
     await invalidateFantasyQueries(user.id, clubId);
-    setSelectedEvent(null);
+    setSelectedEventId(null);
     addToast(t('lineupSaved'), 'success');
   }, [user, addToast, clubId]);
 
@@ -737,7 +748,7 @@ export default function FantasyContent() {
       {mainTab === 'events' && user && (
         <EventsTab
           events={gwEvents}
-          onEventClick={setSelectedEvent}
+          onEventClick={handleEventClick}
         />
       )}
 
@@ -748,7 +759,7 @@ export default function FantasyContent() {
           activeGameweek={activeGw ?? 1}
           events={gwEvents}
           userId={user.id}
-          onEventClick={setSelectedEvent}
+          onEventClick={handleEventClick}
           onTabChange={setMainTab}
         />
       )}
@@ -780,7 +791,7 @@ export default function FantasyContent() {
         <EventDetailModal
           event={selectedEvent}
           isOpen={!!selectedEvent}
-          onClose={() => setSelectedEvent(null)}
+          onClose={() => setSelectedEventId(null)}
           onJoin={handleJoinEvent}
           onSubmitLineup={handleSubmitLineup}
           onLeave={handleLeaveEvent}
