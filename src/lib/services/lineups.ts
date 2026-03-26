@@ -332,118 +332,57 @@ export async function submitLineup(params: {
     }
   }
 
-  // Build DB row with all slot columns
-  const row: Record<string, unknown> = {
-    event_id: params.eventId,
-    user_id: params.userId,
-    formation: params.formation,
-    captain_slot: params.captainSlot ?? null,
-    submitted_at: new Date().toISOString(),
-    locked: false,
-    wildcard_slots: Array.from(wildcardSlotsSet),
-  };
+  // Build slot map for RPC call
+  const slotGk = params.slots['gk'] ?? null;
+  const slotDef1 = params.slots['def1'] ?? null;
+  const slotDef2 = params.slots['def2'] ?? null;
+  const slotDef3 = params.slots['def3'] ?? null;
+  const slotDef4 = params.slots['def4'] ?? null;
+  const slotMid1 = params.slots['mid1'] ?? null;
+  const slotMid2 = params.slots['mid2'] ?? null;
+  const slotMid3 = params.slots['mid3'] ?? null;
+  const slotMid4 = params.slots['mid4'] ?? null;
+  const slotAtt = params.slots['att'] ?? null;
+  const slotAtt2 = params.slots['att2'] ?? null;
+  const slotAtt3 = params.slots['att3'] ?? null;
 
-  // Map all slot keys to DB columns (unused slots = null)
-  for (let i = 0; i < ALL_SLOT_KEYS.length; i++) {
-    row[ALL_SLOT_COLUMNS[i]] = params.slots[ALL_SLOT_KEYS[i]] ?? null;
+  // Use SECURITY DEFINER RPC — bypasses RLS entirely (same pattern as lock_event_entry)
+  const { data: rpcResult, error: rpcError } = await supabase.rpc('save_lineup', {
+    p_event_id: params.eventId,
+    p_formation: params.formation,
+    p_captain_slot: params.captainSlot ?? null,
+    p_wildcard_slots: Array.from(wildcardSlotsSet),
+    p_slot_gk: slotGk,
+    p_slot_def1: slotDef1,
+    p_slot_def2: slotDef2,
+    p_slot_def3: slotDef3,
+    p_slot_def4: slotDef4,
+    p_slot_mid1: slotMid1,
+    p_slot_mid2: slotMid2,
+    p_slot_mid3: slotMid3,
+    p_slot_mid4: slotMid4,
+    p_slot_att: slotAtt,
+    p_slot_att2: slotAtt2,
+    p_slot_att3: slotAtt3,
+  });
+
+  if (rpcError) {
+    console.error('[Lineup] save_lineup RPC failed:', rpcError);
+    throw new Error(rpcError.message);
   }
 
-  // CRITICAL FIX: PostgREST .upsert() generates INSERT ... ON CONFLICT DO UPDATE.
-  // Even for new rows, PostgreSQL evaluates the UPDATE RLS policy ("NOT locked").
-  // This causes silent failures: {data: null, error: null} with no DB write.
-  // Split into separate .insert() / .update() paths to avoid this entirely.
-  let data: Record<string, unknown> | null = null;
-  let error: { message: string } | null = null;
-
-  if (isNewEntry) {
-    // Pure INSERT — only needs INSERT policy (auth.uid() = user_id)
-    const result = await supabase
-      .from('lineups')
-      .insert(row)
-      .select()
-      .single();
-    data = result.data;
-    error = result.error;
-  } else {
-    // UPDATE existing row — needs UPDATE policy (auth.uid() = user_id AND NOT locked)
-    // Remove event_id and user_id from the update payload (they are the match keys)
-    const { event_id: _eid, user_id: _uid, ...updateFields } = row;
-    const result = await supabase
-      .from('lineups')
-      .update(updateFields)
-      .eq('event_id', params.eventId)
-      .eq('user_id', params.userId)
-      .select()
-      .single();
-    data = result.data;
-    error = result.error;
+  const result = rpcResult as { ok: boolean; error?: string; lineup_id?: string };
+  if (!result.ok) {
+    throw new Error(result.error ?? 'lineup_save_failed');
   }
 
-  if (error) throw new Error(error.message);
-
-  if (!data || !data.id) {
-    console.error('[Lineup] Write returned null data', {
-      eventId: params.eventId,
-      userId: params.userId,
-      isNewEntry,
-      error,
-    });
-    throw new Error('lineup_save_failed');
-  }
-
-  // Post-upsert capacity safety net (catches race conditions the pre-check missed)
-  // The DB trigger already incremented current_entries. If we exceeded max, rollback.
-  if (isNewEntry && ev.max_entries) {
-    const { data: evAfter } = await supabase
-      .from('events')
-      .select('current_entries')
-      .eq('id', params.eventId)
-      .single();
-
-    if (evAfter && evAfter.current_entries > ev.max_entries) {
-      // Over capacity — delete lineup (trigger will decrement current_entries)
-      await supabase.from('lineups').delete()
-        .eq('event_id', params.eventId)
-        .eq('user_id', params.userId);
-      throw new Error('eventFull');
-    }
-  }
-
-  // Manage holding locks: delete old locks for this event, create new ones
-  // Only lock non-wildcard slots — WC slots don't need SC ownership
-  const lockMinSc = ev.min_sc_per_slot ?? 1;
-  if (lockMinSc > 0 && normalSlotPlayerIds.length > 0) {
-    // Delete existing locks for this user+event (handles lineup updates)
-    await supabase
-      .from('holding_locks')
-      .delete()
-      .eq('user_id', params.userId)
-      .eq('event_id', params.eventId);
-
-    // Create locks only for non-wildcard players
-    const lockRows = normalSlotPlayerIds.map(playerId => ({
-      user_id: params.userId,
-      player_id: playerId,
-      event_id: params.eventId,
-      quantity_locked: lockMinSc,
-    }));
-
-    const { error: lockError } = await supabase
-      .from('holding_locks')
-      .insert(lockRows);
-
-    if (lockError) {
-      console.error('[Lineup] Failed to create holding locks:', lockError);
-      throw new Error('holding_lock_failed');
-    }
-  } else if (lockMinSc > 0 && normalSlotPlayerIds.length === 0) {
-    // All slots are wild cards — clean up any existing locks
-    await supabase
-      .from('holding_locks')
-      .delete()
-      .eq('user_id', params.userId)
-      .eq('event_id', params.eventId);
-  }
+  // Load the saved lineup to return to caller
+  const { data: savedLineup } = await supabase
+    .from('lineups')
+    .select('*')
+    .eq('event_id', params.eventId)
+    .eq('user_id', params.userId)
+    .single();
 
   // Activity log (fire-and-forget — lineup confirmed at this point)
   import('@/lib/services/activityLog').then(({ logActivity }) => {
@@ -451,7 +390,7 @@ export async function submitLineup(params: {
   }).catch(err => console.error('[Lineup] Activity log failed:', err));
   // Mastery XP handled by DB trigger trg_fn_lineup_mastery
   // NOTE: Mission tracking moved to caller (after entry fee deduction succeeds)
-  return data as DbLineup;
+  return (savedLineup ?? result) as DbLineup;
 }
 
 /** Lineup löschen (Abmelden vom Event) */
