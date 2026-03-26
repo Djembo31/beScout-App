@@ -226,8 +226,8 @@ export const EventDetailModal = ({
       setSelectedPlayers([]);
       setSelectedFormation('1-2-2-1');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- isJoined intentionally excluded: mid-session change must NOT reset lineup state
-  }, [isOpen, event?.id, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- isJoined excluded (mid-session reset), user→user?.id (stable string, no auth-refresh re-trigger)
+  }, [isOpen, event?.id, user?.id]);
 
   const handleLeave = async () => {
     if (!user || !event || leaving) return;
