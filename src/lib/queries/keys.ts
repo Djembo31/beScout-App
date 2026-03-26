@@ -28,7 +28,7 @@ export const qk = {
 
   // ── Events ──
   events: {
-    all: ['events'] as const,
+    all: ['events', 'list'] as const,
     byClub: (cid: string) => ['events', 'club', cid] as const,
     joinedIds: (uid: string) => ['events', 'joinedIds', uid] as const,
     enteredIds: (uid: string) => ['events', 'enteredIds', uid] as const,
