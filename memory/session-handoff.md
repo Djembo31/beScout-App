@@ -1,50 +1,55 @@
 # Session Handoff
-## Letzte Session: 2026-03-26 (Session 257)
+## Letzte Session: 2026-03-27 (Session 259)
 ## Was wurde gemacht
 
-### Fantasy Lineup Save — GEFIXT (Commit 74ef0a6)
-Der Grundflow Join → Lineup → Save funktioniert jetzt:
-- `handleSaveLineup` hat catch-Block (vorher: Silent Failure)
-- `handleSubmitLineup` wrapped alles in try/catch (vorher: Slot-Building ausserhalb)
-- Auto-Save nach Join wenn Lineup komplett (vorher: 2 getrennte Klicks noetig)
-- Formation '1-2-2-1' → `getDefaultFormation()` (vorher: nicht-existierende ID)
-- RPC bekommt `resolvedFormation.id` statt raw State (vorher: stale Wert)
-- Footer sticky bottom-0 (vorher: Save-Button unter langem Scroll vergraben)
-- `t('free')` → `t('freeLabel')` (IntlError gefixt)
-- Auth/Wallet Timeout 5s → 15s (zu aggressiv fuer Dev)
-- `getSeasonChipUsage` returned [] (RPC existiert nicht, Chips Feature nicht gebaut)
-- Detailliertes Logging: [Fantasy], [Lineup] an jedem Schritt
+### Fantasy Module Refactoring — GEMERGED auf main
+Radikale Restrukturierung des Fantasy-Moduls (~11.840 LOC) in eigenstaendiges Feature-Modul.
 
-### Root Cause Analyse
-Das Problem war NICHT eine einzelne Bug-Zeile, sondern FEHLENDE ERROR HANDLING:
-- `handleSaveLineup` hatte keinen catch → Fehler unsichtbar
-- Slot-Building-Code lag ausserhalb try/catch → Exception = Silent Failure
-- Kein Logging → unmoeglich zu debuggen ohne Playwright
+**Ergebnis:**
+- FantasyContent: 866→250 LOC (2 Zustand Stores, 7 Hooks ersetzen 15+ useState)
+- EventDetailModal: 835→380 LOC (Header/Footer/JoinConfirm extrahiert)
+- LineupPanel: 6 neue Components (PitchView, PlayerPicker, FormationSelector, etc.)
+- 8 Services gesplittet → 12 fokussierte Files (queries/mutations/admin)
+- Zentralisierte Cache-Invalidation (4 semantische Funktionen)
+- Re-Export Bridges fuer Backward-Compat
+- tsc 0 Errors, FantasyContent Tests 6/6, Vercel Preview Smoke-Test bestanden
 
-### DB Verifiziert
-- `save_lineup` RPC funktioniert (tested via direct SQL + Client)
-- `rpc_save_lineup` auth_mismatch Guard korrekt
-- Lineup ID `d59f0443-6542-4483-9ced-ad5b11701c39` gespeichert
+**Design Docs:**
+- `docs/plans/2026-03-26-fantasy-refactoring-design.md`
+- `docs/plans/2026-03-26-fantasy-refactoring-plan.md`
 
-## Was NICHT gemacht wurde (KRITISCH)
-1. DPC Blocking (SC in Lineups → Trading blockiert) — Status UNKLAR
-2. Event Requirements end-to-end — NICHT getestet
-3. Leave Flow Client-seitig — NICHT verifiziert
-4. Counter-Drift nach Join+Save — staler Cache
-5. Per-Fixture Locking — NICHT getestet
-6. Wildcard + Captain — NICHT getestet
-7. Multi-Event SC Locking — NICHT verifiziert
-8. E2E Playwright Tests — KEINE
-9. `get_season_chip_usage` RPC — muss noch erstellt werden (Chips Feature)
+## Naechste Prioritaet: Market Page Refactoring
 
-## Anils Feedback (WICHTIG)
-"Wir uebersehen zu viel, denken nicht an Zusammenhaenge, verfolgen den
-BeScout-spezifischen Ansatz nicht konsequent. Wir fangen etwas an, implementieren
-nur den Ansatz, aber der Rest wird nicht verfolgt."
-→ Naechste Session MUSS mit vollstaendigem Spec + Impact Analysis starten.
-→ KEIN Flickwerk mehr. Systematisch alle Flows end-to-end.
+### Analyse (Session 259 durchgefuehrt)
+Codebase-Audit hat priorisiert: Market > Player Detail > Community
 
-## Commits auf main
-```
-74ef0a6 fix(fantasy): complete lineup save flow — Join+Save atomic, sticky footer, error handling
-```
+### Market Page — Warum zuerst
+- 606 LOC God-Component (page.tsx) — 12 Dynamic Imports, 4 Modals inline
+- Trading = Core-Business (Fee Revenue), Pilot-kritisch
+- KEINE Tests (606 LOC ohne Unit Tests = hoechstes Risiko)
+- Gleicher Feature-Module-Ansatz wie Fantasy
+
+### Market Refactoring Scope
+1. Feature-Module `src/features/market/` erstellen
+2. Stores: marketStore (tabs, filters), tradeStore (order state)
+3. Hooks: useMarketEvents, usePortfolio, useTradeActions
+4. Components: PortfolioTab, MarktplatzTab, WatchlistTab extrahieren
+5. Tests schreiben (Portfolio, Orders, Trade Flow)
+
+### Weitere Refactoring-Kandidaten (nach Market)
+| Prioritaet | Komponente | LOC | Problem |
+|-----------|-----------|-----|---------|
+| 2 | Player Detail | ~1880 | God-Page, meistbesuchte Seite |
+| 3 | Community | 751 | 7 Content-Types, 0 Tests, 4 Modals inline |
+| 4 | AdminEventsManagement | 1040 | 18+ useState, Modals inline |
+| 5 | ClubContent | 965 | 9 Sections, kein Component-Boundary |
+
+### Quick-Wins (vor oder waehrend Market)
+- Dead Code: DashboardTab (377), GameweekTab (383) — unused, loeschbar
+- Raw Query Keys: `['research']`, `['bounties']` in invalidation.ts → qk Factory
+
+## Workflow-Learnings (Session 259)
+- Worktree-Agents NUR fuer isolierte Tasks (Service-Splits, neue Files)
+- Gekoppelte Tasks (Component-Rewrite mit Hooks) → selbst machen oder Agent OHNE Worktree
+- Tests als eigene Tasks planen, nicht als Afterthought
+- Mindestens 1 Review pro Wave, nicht pro Task
