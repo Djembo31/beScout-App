@@ -1,6 +1,6 @@
 # Fantasy Feature Spec
-> Last Verified: 2026-03-26 (Session 258)
-> Status: 12/12 Flows verifiziert, 10/10 Bugs geschlossen (Session 258 — komplett)
+> Last Verified: 2026-03-26 (Session 258 — Smoke-Tested auf Vercel mit echtem User)
+> Status: 12/12 Flows verifiziert, 10/10 Bugs geschlossen + 3 Live-Bugs gefixt
 > Owner: Jarvis (CTO)
 > Rule: KEIN Fantasy-Code ohne diesen Spec gelesen zu haben.
 
@@ -9,7 +9,7 @@
 ## 1. FLOWS (End-to-End)
 
 ### Flow 1: JOIN (Entry + Payment)
-**Status: FUNKTIONIERT (Session 257 verifiziert)**
+**Status: FUNKTIONIERT (Session 258 Smoke-Tested auf Vercel — Join + DB verifiziert)**
 
 ```
 User klickt "Beitreten" → Confirm Dialog → lock_event_entry RPC
@@ -77,7 +77,7 @@ User waehlt 7 Spieler → Formation → Captain (optional) → Wildcards (option
 ---
 
 ### Flow 3: LEAVE (Refund + Cleanup)
-**Status: IMPLEMENTIERT (Session 258 verifiziert — Code-Review)**
+**Status: FUNKTIONIERT (Session 258 Smoke-Tested auf Vercel — Leave + DB verifiziert)**
 
 ```
 User klickt "Abmelden" → Confirm → unlock_event_entry RPC
@@ -291,6 +291,11 @@ upcoming → registering → late-reg → running → scoring → ended
 ### MITTEL
 9. ~~**Prediction Limit UI**~~ — WAR FALSCH: PredictionsTab.tsx zeigt "{count}/5" Badge + disabled Button bei Limit
 10. ~~**Formation Validation Client-side**~~ — WAR FALSCH: isLineupComplete check + disabled Save + Progress Bar existieren
+
+### LIVE-BUGS (Session 258 Smoke-Test gefunden + gefixt)
+11. ~~**joinedIds Cache Race**~~ — GEFIXT: qk.events.all war ['events'] (Prefix-Key), invalidierte joinedIds mit → ['events', 'list']
+12. ~~**Summary Modal Endlos-Kette**~~ — GEFIXT: summaryShownRef + markAllSeen — nur 1 Modal pro Page-Load
+13. **Alte GW-Ergebnisse poppen auf** — BEKANNT: Scored Events aus frueheren Gameweeks zeigen Modal bei Navigation (localStorage nur pro Event, nicht pro GW-Session)
 
 ---
 
