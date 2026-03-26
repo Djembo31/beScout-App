@@ -67,303 +67,34 @@ export async function getLineup(eventId: string, userId: string): Promise<DbLine
   return data as DbLineup;
 }
 
-/** Lineup erstellen oder aktualisieren (Upsert) */
+/** Lineup erstellen oder aktualisieren — uses SECURITY DEFINER RPC to bypass RLS */
 export async function submitLineup(params: {
   eventId: string;
   userId: string;
   formation: string;
   slots: Record<string, string | null>;
   captainSlot?: string | null;
-  wildcardSlots?: string[];  // slot keys that use a wild card (e.g. ['def2', 'att'])
+  wildcardSlots?: string[];
 }): Promise<DbLineup> {
-  // Check event status + capacity + scope before submitting
-  const { data: ev, error: evError } = await supabase
-    .from('events')
-    .select('status, max_entries, current_entries, locks_at, lineup_size, scope, type, club_id, min_sc_per_slot, wildcards_allowed, max_wildcards_per_lineup')
-    .eq('id', params.eventId)
-    .single();
-
-  if (evError || !ev) {
-    throw new Error('eventNotFound');
-  }
-
-  if (ev.status === 'ended' || ev.status === 'scoring') {
-    throw new Error('eventEnded');
-  }
-
-  // Guard: user must have entered (paid) before submitting lineup
-  const { data: entryData } = await supabase
-    .from('event_entries')
-    .select('event_id')
-    .eq('event_id', params.eventId)
-    .eq('user_id', params.userId)
-    .maybeSingle();
-
-  if (!entryData) {
-    throw new Error('must_enter_first');
-  }
-
-  // locks_at enforcement: block submissions if locks_at has passed (regardless of status)
-  if (ev.locks_at && new Date(ev.locks_at) <= new Date()) {
-    throw new Error('eventLocked');
-  }
-
-  // Per-fixture locking: when event is running, only block slots with active fixtures
-  if (ev.status === 'running') {
-    // Load event gameweek
-    const { data: evFull } = await supabase
-      .from('events')
-      .select('gameweek')
-      .eq('id', params.eventId)
-      .single();
-
-    if (!evFull?.gameweek) {
-      throw new Error('eventGameweekNotFound');
-    }
-
-    // Load fixture deadlines for this gameweek
-    const deadlines = await getFixtureDeadlinesByGameweek(evFull.gameweek);
-
-    // Load existing lineup to check which slots are changing
-    const { data: existingLineup } = await supabase
-      .from('lineups')
-      .select('*')
-      .eq('event_id', params.eventId)
-      .eq('user_id', params.userId)
-      .maybeSingle();
-
-    // Collect all player IDs (old + new) to look up their club_ids
-    const allPlayerIds = new Set<string>();
-    if (existingLineup) {
-      for (const col of ALL_SLOT_COLUMNS) {
-        const pid = (existingLineup as Record<string, unknown>)[col] as string | null;
-        if (pid) allPlayerIds.add(pid);
-      }
-    }
-    Object.values(params.slots).forEach(pid => { if (pid) allPlayerIds.add(pid); });
-
-    // Fetch club_ids for all involved players
-    const playerClubMap = new Map<string, string | null>();
-    if (allPlayerIds.size > 0) {
-      const { data: players } = await supabase
-        .from('players')
-        .select('id, club_id')
-        .in('id', Array.from(allPlayerIds));
-      if (players) {
-        for (const p of players) {
-          playerClubMap.set(p.id as string, (p.club_id as string) ?? null);
-        }
-      }
-    }
-
-    // Check each slot: if old or new player is locked → error (unless slot unchanged)
-    for (let i = 0; i < ALL_SLOT_KEYS.length; i++) {
-      const slotKey = ALL_SLOT_KEYS[i];
-      const slotCol = ALL_SLOT_COLUMNS[i];
-      const newPlayerId = params.slots[slotKey] ?? null;
-      const oldPlayerId = existingLineup ? ((existingLineup as Record<string, unknown>)[slotCol] as string | null) : null;
-
-      // Slot unchanged → skip
-      if (newPlayerId === oldPlayerId) continue;
-
-      // Check if old player in this slot is locked (can't remove locked player)
-      if (oldPlayerId) {
-        const oldClubId = playerClubMap.get(oldPlayerId);
-        if (oldClubId && deadlines.get(oldClubId)?.isLocked) {
-          throw new Error('playerLockedRemove');
-        }
-      }
-
-      // Check if new player being added is locked (can't add locked player)
-      if (newPlayerId) {
-        const newClubId = playerClubMap.get(newPlayerId);
-        if (newClubId && deadlines.get(newClubId)?.isLocked) {
-          throw new Error('playerLockedAdd');
-        }
-      }
-    }
-  }
-
-  // Check if this is a new entry or an update (needed for capacity logic)
-  const { data: existingEntry } = await supabase
-    .from('lineups')
-    .select('id')
-    .eq('event_id', params.eventId)
-    .eq('user_id', params.userId)
-    .maybeSingle();
-
-  const isNewEntry = !existingEntry;
-
-  // Capacity pre-check (fast UX feedback — DB CHECK constraint is the real guard)
-  if (isNewEntry && ev.max_entries && ev.current_entries >= ev.max_entries) {
-    throw new Error('eventFull');
-  }
-
-  // Guard: prevent duplicate players across slots
-  const slotPlayerIds = Object.values(params.slots).filter((id): id is string => id != null);
-  const uniqueIds = new Set(slotPlayerIds);
-  if (uniqueIds.size < slotPlayerIds.length) {
-    throw new Error('duplicatePlayer');
-  }
-
-  // Guard: SC ownership — user must own min_sc_per_slot SCs per player
-  // Wild card slots skip SC check but consume a wild card instead
-  const minScPerSlot = ev.min_sc_per_slot ?? 1;
-  const wildcardSlotsSet = new Set(params.wildcardSlots ?? []);
-  const wildcardsAllowed = ev.wildcards_allowed ?? false;
-  const maxWildcards = ev.max_wildcards_per_lineup ?? 0;
-
-  // Validate wild card constraints
-  if (wildcardSlotsSet.size > 0) {
-    if (!wildcardsAllowed) {
-      throw new Error('wildcards_not_allowed');
-    }
-    if (wildcardSlotsSet.size > maxWildcards) {
-      throw new Error('too_many_wildcards');
-    }
-  }
-
-  // Determine which players need SC check (non-wildcard slots)
-  const normalSlotPlayerIds: string[] = [];
-  for (const [slotKey, playerId] of Object.entries(params.slots)) {
-    if (playerId && !wildcardSlotsSet.has(slotKey)) {
-      normalSlotPlayerIds.push(playerId);
-    }
-  }
-
-  if (minScPerSlot > 0 && normalSlotPlayerIds.length > 0) {
-    // Load existing locks for this user+event (idempotent re-submits)
-    const { data: existingLocks } = await supabase
-      .from('holding_locks')
-      .select('player_id, quantity_locked')
-      .eq('user_id', params.userId)
-      .eq('event_id', params.eventId);
-
-    const existingLockMap = new Map<string, number>();
-    for (const lock of existingLocks ?? []) {
-      existingLockMap.set(lock.player_id, lock.quantity_locked);
-    }
-
-    // Load ALL locks for this user (to calc available across events)
-    const { data: allLocks } = await supabase
-      .from('holding_locks')
-      .select('player_id, quantity_locked')
-      .eq('user_id', params.userId);
-
-    const totalLockedMap = new Map<string, number>();
-    for (const lock of allLocks ?? []) {
-      totalLockedMap.set(lock.player_id, (totalLockedMap.get(lock.player_id) ?? 0) + lock.quantity_locked);
-    }
-
-    // Load holdings for players in lineup
-    const { data: holdings } = await supabase
-      .from('holdings')
-      .select('player_id, quantity')
-      .eq('user_id', params.userId)
-      .in('player_id', normalSlotPlayerIds);
-
-    const holdingMap = new Map<string, number>();
-    for (const h of holdings ?? []) {
-      holdingMap.set(h.player_id, h.quantity);
-    }
-
-    // Check each non-wildcard player has enough available SCs
-    for (const playerId of normalSlotPlayerIds) {
-      const alreadyLockedThisEvent = existingLockMap.get(playerId) ?? 0;
-      if (alreadyLockedThisEvent >= minScPerSlot) continue; // already locked
-
-      const held = holdingMap.get(playerId) ?? 0;
-      const totalLocked = totalLockedMap.get(playerId) ?? 0;
-      const lockedElsewhere = totalLocked - alreadyLockedThisEvent;
-      const available = held - lockedElsewhere;
-
-      if (available < minScPerSlot) {
-        throw new Error('insufficient_sc');
-      }
-    }
-  }
-
-  // Wild card spend: debit wild cards for new WC slots
-  if (wildcardSlotsSet.size > 0) {
-    // Load existing lineup to check which WC slots are already spent
-    const { data: existingLineup } = await supabase
-      .from('lineups')
-      .select('wildcard_slots')
-      .eq('event_id', params.eventId)
-      .eq('user_id', params.userId)
-      .maybeSingle();
-
-    const oldWcSlots = new Set<string>((existingLineup?.wildcard_slots as string[]) ?? []);
-    const newWcSlots = wildcardSlotsSet;
-
-    // Net new WC slots that need spending (not already spent)
-    const slotsToSpend = Array.from(newWcSlots).filter(s => !oldWcSlots.has(s));
-    // Slots to refund (were WC, now normal or removed)
-    const slotsToRefund = Array.from(oldWcSlots).filter(s => !newWcSlots.has(s));
-
-    if (slotsToRefund.length > 0) {
-      const { earnWildcards } = await import('@/lib/services/wildcards');
-      await earnWildcards(params.userId, slotsToRefund.length, 'event_refund', params.eventId, 'Lineup update refund');
-    }
-
-    if (slotsToSpend.length > 0) {
-      const { spendWildcards } = await import('@/lib/services/wildcards');
-      await spendWildcards(params.userId, slotsToSpend.length, 'lineup_spend', params.eventId, `Wild Cards for ${slotsToSpend.join(', ')}`);
-    }
-  }
-
-  // Guard: lineup size must match event.lineup_size (7 or 11)
-  if (ev.lineup_size && slotPlayerIds.length !== ev.lineup_size) {
-    throw new Error('lineupSizeMismatch');
-  }
-
-  // Guard: club-scoped events only accept players from that club
-  if ((ev.scope === 'club' || ev.type === 'club') && ev.club_id) {
-    const { data: slotPlayers } = await supabase
-      .from('players')
-      .select('id, club_id')
-      .in('id', slotPlayerIds);
-
-    if (slotPlayers) {
-      const invalidPlayer = slotPlayers.find(p => p.club_id !== ev.club_id);
-      if (invalidPlayer) {
-        throw new Error('playerNotInClub');
-      }
-    }
-  }
-
-  // Build slot map for RPC call
-  const slotGk = params.slots['gk'] ?? null;
-  const slotDef1 = params.slots['def1'] ?? null;
-  const slotDef2 = params.slots['def2'] ?? null;
-  const slotDef3 = params.slots['def3'] ?? null;
-  const slotDef4 = params.slots['def4'] ?? null;
-  const slotMid1 = params.slots['mid1'] ?? null;
-  const slotMid2 = params.slots['mid2'] ?? null;
-  const slotMid3 = params.slots['mid3'] ?? null;
-  const slotMid4 = params.slots['mid4'] ?? null;
-  const slotAtt = params.slots['att'] ?? null;
-  const slotAtt2 = params.slots['att2'] ?? null;
-  const slotAtt3 = params.slots['att3'] ?? null;
-
-  // Use SECURITY DEFINER RPC — bypasses RLS entirely (same pattern as lock_event_entry)
+  // ALL validation + write happens in the RPC (SECURITY DEFINER, bypasses RLS)
+  // No client-side guards — they use direct Supabase queries that fail with RLS
   const { data: rpcResult, error: rpcError } = await supabase.rpc('save_lineup', {
     p_event_id: params.eventId,
     p_formation: params.formation,
     p_captain_slot: params.captainSlot ?? null,
-    p_wildcard_slots: Array.from(wildcardSlotsSet),
-    p_slot_gk: slotGk,
-    p_slot_def1: slotDef1,
-    p_slot_def2: slotDef2,
-    p_slot_def3: slotDef3,
-    p_slot_def4: slotDef4,
-    p_slot_mid1: slotMid1,
-    p_slot_mid2: slotMid2,
-    p_slot_mid3: slotMid3,
-    p_slot_mid4: slotMid4,
-    p_slot_att: slotAtt,
-    p_slot_att2: slotAtt2,
-    p_slot_att3: slotAtt3,
+    p_wildcard_slots: params.wildcardSlots ?? [],
+    p_slot_gk: params.slots['gk'] ?? null,
+    p_slot_def1: params.slots['def1'] ?? null,
+    p_slot_def2: params.slots['def2'] ?? null,
+    p_slot_def3: params.slots['def3'] ?? null,
+    p_slot_def4: params.slots['def4'] ?? null,
+    p_slot_mid1: params.slots['mid1'] ?? null,
+    p_slot_mid2: params.slots['mid2'] ?? null,
+    p_slot_mid3: params.slots['mid3'] ?? null,
+    p_slot_mid4: params.slots['mid4'] ?? null,
+    p_slot_att: params.slots['att'] ?? null,
+    p_slot_att2: params.slots['att2'] ?? null,
+    p_slot_att3: params.slots['att3'] ?? null,
   });
 
   if (rpcError) {
@@ -376,22 +107,17 @@ export async function submitLineup(params: {
     throw new Error(result.error ?? 'lineup_save_failed');
   }
 
-  // Load the saved lineup to return to caller
-  const { data: savedLineup } = await supabase
-    .from('lineups')
-    .select('*')
-    .eq('event_id', params.eventId)
-    .eq('user_id', params.userId)
-    .single();
-
-  // Activity log (fire-and-forget — lineup confirmed at this point)
+  // Activity log (fire-and-forget)
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(params.userId, 'lineup_submit', 'fantasy', { eventId: params.eventId, formation: params.formation });
   }).catch(err => console.error('[Lineup] Activity log failed:', err));
-  // Mastery XP handled by DB trigger trg_fn_lineup_mastery
-  // NOTE: Mission tracking moved to caller (after entry fee deduction succeeds)
-  return (savedLineup ?? result) as DbLineup;
+
+  return result as unknown as DbLineup;
 }
+
+// Dead code removed — all validation now in save_lineup RPC
+
+/** Lineup löschen (Abmelden vom Event) */
 
 /** Lineup löschen (Abmelden vom Event) */
 export async function removeLineup(eventId: string, userId: string): Promise<void> {
