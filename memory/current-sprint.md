@@ -1,42 +1,34 @@
-# Current Sprint — Fantasy Event Complete Refactoring
+# Current Sprint — Fantasy Spec Abarbeitung
 
-## Stand (2026-03-26, Session 257)
-- **Tests:** 2050+ (161 Files), tsc 0 Errors
-- **Migrations:** 305
-- **Routes:** 25
-- **Pilot Readiness:** BLOCKED — Fantasy braucht komplettes Refactoring
+## Stand (2026-03-26, Session 258)
+- **Tests:** 2007 (161 Files, 10 pre-existing failures), tsc 0 Errors
+- **Migrations:** 309 (4 neue: scoring, save_lineup, lock_event_entry, tier_rank)
+- **Commits:** 4 (b31339a, 990613e, 7cbc727, 411ad05)
+- **Smoke-Tested:** Join + Leave auf Vercel mit echtem User (test1)
 
-## Status: Fantasy Save Flow GEFIXT aber NICHT FERTIG
+## Erledigt (Session 258)
+- 12/12 Fantasy Flows verifiziert (Code-Review + DB Queries)
+- 10/10 Original-Bugs geschlossen (5 waren keine, 5 gefixt)
+- 3 Live-Bugs durch Smoke Tests gefunden + 2 gefixt
+- Chip Service aligned mit DB RPCs (getSeasonChipUsage, deactivateChip)
+- Triple Captain 3.0x Scoring live
+- Wildcard Spend + Salary Cap + Min Tier server-side enforced
 
-### Was in Session 257 gefixt wurde (Commit 74ef0a6)
-- Join + Lineup Save funktioniert (Auto-Save nach Join)
-- Save-Button sticky (immer sichtbar)
-- Error Handling komplett (catch + console.log an jedem Schritt)
-- Formation-Bug '1-2-2-1' gefixt
-- IntlError `t('free')` → `t('freeLabel')` gefixt
-- Auth/Wallet Timeout 5s → 15s
-- `get_season_chip_usage` 404 unterdrueckt
+## Offen — Naechste Prioritaet
 
-### Was NICHT fertig / NICHT geprueft wurde (EHRLICH)
-1. **DPC Blocking** — SC Cards in Lineups muessen Trading blockieren. Status UNKLAR.
-2. **Event Requirements** — min_sc_per_slot, salary_cap, club-scoped Events. Vermutlich NICHT end-to-end getestet.
-3. **Leave Flow** — Abmelden + Refund + Lineup/Lock Cleanup. Nur RPC-seitig, Client NICHT verifiziert.
-4. **Counter-Drift** — current_entries zeigt 0 obwohl User drin ist (staler Cache, kein Force-Refresh nach Join+Save).
-5. **Per-Fixture Locking** — Save-Button zeigt fuer running Events, aber NICHT getestet ob locked Slots wirklich readonly sind.
-6. **Wildcard Flow** — Wildcard-Slots im Lineup. Code existiert, NICHT getestet.
-7. **Captain Selection** — Captain-Slot Auswahl. Code existiert, NICHT getestet.
-8. **Multi-Event SC Locking** — Gleicher Spieler in 2 Events: holding_locks Logik. NICHT verifiziert.
-9. **E2E Tests** — KEINE Playwright Tests fuer Fantasy Flow.
-10. **FantasyContent.tsx** — 850+ Zeilen, zu viel State, zu viele Concerns. Braucht Refactoring.
-11. **EventDetailModal.tsx** — 830+ Zeilen, Footer-Logik komplex, Join/Save/Leave vermischt.
+### Muss (Server-Integrität)
+1. ~~**Synergy Surge Chip**~~ — ERLEDIGT: score_event verdoppelt synergy_pct bei Chip (cap 30%)
+2. **Second Chance Chip** — score_event: worst→best swap (braucht Bench-Konzept, komplexer)
+3. ~~**Wildcard Refund bei Leave**~~ — WAR BEREITS IMPLEMENTIERT: Step 5.5 in rpc_unlock_event_entry
 
-## NAECHSTER SCHRITT: Komplettes Fantasy Refactoring
-Anil hat recht: Wir flicken Symptome statt das System sauber zu bauen.
-Naechste Session MUSS mit einem vollstaendigen Spec starten:
-1. Alle Flows end-to-end definieren (Join, Lineup, Leave, Lock, Score)
-2. Alle Business Rules auflisten (SC Blocking, Requirements, Wildcards, Captain)
-3. Alle Dependencies identifizieren (Trading, Gamification, Wallet)
-4. Dann systematisch implementieren + verifizieren
+### Soll (UX)
+4. **Alte GW-Ergebnis Modals** — scored Events aus frueheren Gameweeks poppen bei Navigation auf
+5. **Fixture Deadline Polling** — kein 60s Interval, nur bei GW-Wechsel refresh
+
+### Kann (Feature-Completeness)
+6. **Save nach Partial Lock** — RPC akzeptiert alle Slots, muesste locked ignorieren
+7. **Season-Filter fuer Leagues** — Leaderboard aggregiert aktuell ALLE Events
+8. **Club-Scoped Event Server-Check** — Player Picker filtert client-side, RPC prueft nicht
 
 ## Blocker
-- Fantasy Feature-Completeness: ~60% — Grundflow geht, aber Edge Cases + Cross-Domain NICHT geprüft
+- Keine — Fantasy ist funktional fuer Pilot

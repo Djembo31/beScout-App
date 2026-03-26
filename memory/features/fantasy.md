@@ -142,8 +142,8 @@ Admin klickt "Spieltag auswerten" → finalizeGameweek()
 - [x] Rewards: reward_structure JSONB (z.B. [{rank:1, pct:50}, {rank:2, pct:30}])
 - [x] Captain Bonus 1.5x (cap 150) — war BEREITS in score_event RPC, Spec war falsch
 - [x] Synergy Bonus — war BEREITS eingerechnet (v_total += v_synergy_bonus), Spec war falsch
-- [x] Triple Captain Chip: 3.0x (cap 300) statt 1.5x — Migration 20260326_score_event_triple_captain
-- [ ] Synergy Surge Chip: 2x synergy bonus — NICHT implementiert (spaeter)
+- [x] Triple Captain Chip: 3.0x (cap 300) statt 1.5x — Migration score_event_triple_captain
+- [x] Synergy Surge Chip: 2x synergy bonus (cap 30%) — Migration score_event_synergy_surge_chip
 - [ ] Second Chance Chip: worst→best swap — NICHT implementiert (braucht Bench-Konzept)
 - [ ] Progressive Leaderboard waehrend Running: Existiert (30s Poll), NICHT live-verifiziert
 
@@ -204,8 +204,8 @@ User verdient Wildcards (Missions, Mystery Box, etc.) → user_wildcards.balance
 - [x] Transaction History: wildcard_transactions geloggt
 - [x] Lineup-Integration: save_lineup ruft spend_wildcards auf (delta-basiert, idempotent bei Re-Saves) — Session 258
 - [x] Refund bei Re-Save: earn_wildcards wenn Wildcard-Slots reduziert werden — Session 258
+- [x] Refund bei Leave: rpc_unlock_event_entry Step 5.5 credited Wildcards zurueck + loggt Transaction
 - [ ] UI: Wildcard Toggle auf Slots existiert, NICHT end-to-end getestet
-- [ ] Refund bei Leave: unlock_event_entry sollte Wildcards refunden — NICHT verifiziert
 
 ---
 
@@ -285,7 +285,7 @@ upcoming → registering → late-reg → running → scoring → ended
 ### HOCH
 5. ~~**Counter-Drift**~~ — KEIN BUG: Increment/Decrement atomar in RPCs mit Advisory Lock, Cache-Invalidation korrekt
 6. ~~**SC Blocking nicht verifiziert**~~ — VERIFIZIERT Session 258: place_sell_order prueft, 14 Locks aktiv in Prod
-7. ~~**Chip-Effekte fehlen**~~ — TEILWEISE GEFIXT: triple_captain 3.0x live, synergy_surge + second_chance offen
+7. ~~**Chip-Effekte fehlen**~~ — GEFIXT: triple_captain 3.0x + synergy_surge 2x live, nur second_chance offen (braucht Bench)
 8. ~~**Min Tier Check fehlt**~~ — GEFIXT Session 258: lock_event_entry prueft gamification_tier_rank
 
 ### MITTEL
