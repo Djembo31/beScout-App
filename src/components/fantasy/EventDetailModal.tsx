@@ -420,6 +420,8 @@ export const EventDetailModal = ({
     try {
       setShowJoinConfirm(false);
       await onJoin(event);
+      // Optimistic: increment participant count after successful join
+      setParticipantCount(prev => prev + 1);
     } finally {
       setJoining(false);
     }

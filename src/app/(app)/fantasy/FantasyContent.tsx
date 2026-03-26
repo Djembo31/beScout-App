@@ -435,10 +435,11 @@ export default function FantasyContent() {
       return;
     }
 
-    // Invalidate all relevant caches
+    // Invalidate all relevant caches — await joinedIds so optimistic state isn't killed early
     invalidateFantasyQueries(user.id, clubId);
     queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
-    queryClient.invalidateQueries({ queryKey: qk.events.enteredIds(user.id) });
+    await queryClient.invalidateQueries({ queryKey: qk.events.joinedIds(user.id) });
+    await queryClient.invalidateQueries({ queryKey: qk.events.enteredIds(user.id) });
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
     setLocalEvents(null);
 
@@ -537,10 +538,11 @@ export default function FantasyContent() {
       return;
     }
 
-    // Invalidate all relevant caches
+    // Invalidate all relevant caches — await joinedIds so optimistic state isn't killed early
     invalidateFantasyQueries(user.id, clubId);
     queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
-    queryClient.invalidateQueries({ queryKey: qk.events.enteredIds(user.id) });
+    await queryClient.invalidateQueries({ queryKey: qk.events.joinedIds(user.id) });
+    await queryClient.invalidateQueries({ queryKey: qk.events.enteredIds(user.id) });
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
     setLocalEvents(null);
 
