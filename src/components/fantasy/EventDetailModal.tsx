@@ -224,7 +224,7 @@ export const EventDetailModal = ({
     } else {
       // Reset if not joined
       setSelectedPlayers([]);
-      setSelectedFormation('1-2-2-1');
+      setSelectedFormation(getDefaultFormation(event.format, event.lineupSize));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- isJoined excluded (mid-session reset), user→user?.id (stable string, no auth-refresh re-trigger)
   }, [isOpen, event?.id, user?.id]);
@@ -296,6 +296,12 @@ export const EventDetailModal = ({
     const deadlineValues = Array.from(fixtureDeadlines.values());
     const lockedCount = deadlineValues.filter(d => d.isLocked).length;
     return lockedCount > 0 && lockedCount < deadlineValues.length;
+  }, [event?.status, fixtureDeadlines]);
+
+  // Are there still unlocked fixtures where lineup changes are possible?
+  const hasUnlockedFixtures = useMemo(() => {
+    if (event?.status !== 'running' || !fixtureDeadlines?.size) return false;
+    return Array.from(fixtureDeadlines.values()).some(d => !d.isLocked);
   }, [event?.status, fixtureDeadlines]);
 
   // Next fixture kickoff (for countdown display)
@@ -421,8 +427,19 @@ export const EventDetailModal = ({
     try {
       setShowJoinConfirm(false);
       await onJoin(event);
-      // After successful join: show lineup tab + update count
       setParticipantCount(prev => prev + 1);
+
+      // Auto-save lineup if user built it before joining
+      if (selectedPlayers.length === formationSlots.length && reqCheck.ok) {
+        try {
+          await onSubmitLineup(event, selectedPlayers, selectedFormation, captainSlot, Array.from(wildcardSlots));
+          return; // onSubmitLineup closes modal + shows success toast
+        } catch (err) {
+          console.error('[EventDetail] Auto-save after join failed:', err);
+          // Fall through to lineup tab — user can save manually
+        }
+      }
+
       setTab('lineup');
     } finally {
       setJoining(false);
@@ -436,6 +453,9 @@ export const EventDetailModal = ({
     setJoining(true);
     try {
       await onSubmitLineup(event, selectedPlayers, selectedFormation, captainSlot, Array.from(wildcardSlots));
+    } catch (err) {
+      console.error('[EventDetail] handleSaveLineup failed:', err);
+      alert(t('errorShort', { msg: err instanceof Error ? err.message : 'Lineup save failed' }));
     } finally {
       setJoining(false);
     }
@@ -618,7 +638,7 @@ export const EventDetailModal = ({
                     ) : event.currency === 'scout' && ticketCost > 0 ? (
                       <span className="font-bold font-mono tabular-nums text-gold">{fmtScout(ticketCost / 100)} $SCOUT</span>
                     ) : (
-                      <span className="font-bold text-green-500">{t('free')}</span>
+                      <span className="font-bold text-green-500">{t('freeLabel')}</span>
                     )}
                   </div>
                   <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
@@ -645,7 +665,8 @@ export const EventDetailModal = ({
           );
         })()}
 
-        {/* Footer Actions */}
+        {/* Footer Actions — sticky so they're always visible */}
+        <div className="sticky bottom-0 z-10">
         {/* Join — only when not joined AND event not running/ended */}
         {!event.isJoined && event.status !== 'ended' && event.status !== 'running' && (() => {
           const isFull = !!(event.maxParticipants && event.participants >= event.maxParticipants);
@@ -655,7 +676,7 @@ export const EventDetailModal = ({
             ? t('ticketCost', { cost: ticketCost })
             : event.currency === 'scout' && ticketCost > 0
             ? `${fmtScout(ticketCost / 100)} $SCOUT`
-            : t('free');
+            : t('freeLabel');
           return (
             <div className="flex-shrink-0 border-t border-white/10 bg-bg-main">
               <div className="p-3 md:p-5">
@@ -683,8 +704,8 @@ export const EventDetailModal = ({
           );
         })()}
 
-        {/* Update / Leave — only before event starts */}
-        {event.isJoined && event.status !== 'ended' && event.status !== 'running' && (
+        {/* Update / Leave — registering/late-reg OR running with unlocked fixtures */}
+        {event.isJoined && event.status !== 'ended' && (event.status !== 'running' || hasUnlockedFixtures) && (
           <div className="flex-shrink-0 border-t border-white/10 bg-bg-main">
             {/* Lineup progress indicator */}
             {!isLineupComplete && (
@@ -749,9 +770,9 @@ export const EventDetailModal = ({
           </div>
         )}
 
-        {/* Running event — joined user sees locked status */}
-        {event.isJoined && event.status === 'running' && (
-          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
+        {/* Running event — fully locked (all fixtures started) */}
+        {event.isJoined && event.status === 'running' && !hasUnlockedFixtures && (
+          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10 bg-bg-main">
             <div className="flex items-center justify-center gap-2 py-3 px-4 bg-green-500/10 border border-green-500/30 rounded-xl">
               <Lock aria-hidden="true" className="size-4 text-green-500" />
               <span className="text-sm font-bold text-green-500">{t('joinedLocked')}</span>
@@ -761,7 +782,7 @@ export const EventDetailModal = ({
 
         {/* Running event — not joined */}
         {!event.isJoined && event.status === 'running' && (
-          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
+          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10 bg-bg-main">
             <div className="flex items-center justify-center gap-2 py-3 px-4 bg-surface-subtle border border-white/10 rounded-xl">
               <Play aria-hidden="true" className="size-4 text-white/50" />
               <span className="text-sm text-white/50">{t('eventRunningClosed')}</span>
@@ -771,7 +792,7 @@ export const EventDetailModal = ({
 
         {/* Ended event — joined + scored */}
         {event.isJoined && event.status === 'ended' && event.scoredAt && (
-          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
+          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10 bg-bg-main">
             <button
               onClick={() => setTab('leaderboard')}
               className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-purple-500/10 border border-purple-500/30 rounded-xl hover:bg-purple-500/20 transition-colors"
@@ -786,7 +807,7 @@ export const EventDetailModal = ({
 
         {/* Ended event — joined but not yet scored */}
         {event.isJoined && event.status === 'ended' && !event.scoredAt && (
-          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
+          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10 bg-bg-main">
             <div className="flex items-center justify-center gap-2 py-3 px-4 bg-surface-subtle border border-white/10 rounded-xl">
               <Clock aria-hidden="true" className="size-4 text-white/40" />
               <span className="text-sm text-white/40">{t('eventEndedPending')}</span>
@@ -796,7 +817,7 @@ export const EventDetailModal = ({
 
         {/* Ended event — not joined */}
         {!event.isJoined && event.status === 'ended' && (
-          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10">
+          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10 bg-bg-main">
             <Button
               variant="outline"
               fullWidth
@@ -808,6 +829,7 @@ export const EventDetailModal = ({
             </Button>
           </div>
         )}
+        </div>
     </Modal>
   );
 };

@@ -118,7 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadProfile = useCallback(async (userId: string) => {
     try {
       // Single RPC call for profile + platformRole + clubAdmin
-      const authState = await withTimeout(getAuthState(userId), 5000);
+      const authState = await withTimeout(getAuthState(userId), 15000);
 
       setProfile(authState.profile);
       if (authState.profile) {
@@ -138,9 +138,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Fallback: 3 separate queries for resilience
       try {
         const [p, pRole, cAdmin] = await Promise.allSettled([
-          withTimeout(getProfile(userId), 5000),
-          withTimeout(getPlatformAdminRole(userId), 5000),
-          withTimeout(getClubAdminFor(userId), 5000),
+          withTimeout(getProfile(userId), 15000),
+          withTimeout(getPlatformAdminRole(userId), 15000),
+          withTimeout(getClubAdminFor(userId), 15000),
         ]);
 
         if (p.status === 'fulfilled') {

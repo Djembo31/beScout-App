@@ -469,24 +469,29 @@ export default function FantasyContent() {
       return;
     }
 
-    // Build dynamic slot mapping based on event format + formation
-    const formations = getFormationsForFormat(event.format);
-    const currentFormation = formations.find(f => f.id === formation) || formations[0];
-    const dbKeys = buildSlotDbKeys(currentFormation);
-    const slotMap = new Map(lineup.map(p => [p.slot, p.playerId]));
-    const slots: Record<string, string | null> = {};
-    dbKeys.forEach((key, idx) => { slots[key] = slotMap.get(idx) || null; });
-
     try {
+      // Build dynamic slot mapping based on event format + formation
+      const formations = getFormationsForFormat(event.format);
+      const resolvedFormation = formations.find(f => f.id === formation) || formations[0];
+      const dbKeys = buildSlotDbKeys(resolvedFormation);
+      const slotMap = new Map(lineup.map(p => [p.slot, p.playerId]));
+      const slots: Record<string, string | null> = {};
+      dbKeys.forEach((key, idx) => { slots[key] = slotMap.get(idx) || null; });
+
+      console.log('[Fantasy] submitLineup calling:', { eventId: event.id, userId: user.id, formation: resolvedFormation.id, slotCount: dbKeys.length, playerCount: lineup.length, slots });
+
       await submitLineup({
         eventId: event.id,
         userId: user.id,
-        formation,
+        formation: resolvedFormation.id,
         slots,
         captainSlot,
         wildcardSlots,
       });
+
+      console.log('[Fantasy] submitLineup SUCCEEDED — closing modal');
     } catch (e: unknown) {
+      console.error('[Fantasy] submitLineup FAILED:', e);
       const msg = e instanceof Error ? e.message : '';
       if (msg === 'insufficient_sc') {
         addToast(t('insufficientSc', { min: event.minScPerSlot ?? 1 }), 'error');
@@ -508,9 +513,13 @@ export default function FantasyContent() {
       return;
     }
 
-    // Invalidate usage + wildcard balance — await so locks are visible immediately
-    queryClient.invalidateQueries({ queryKey: qk.events.wildcardBalance(user.id) });
-    await invalidateFantasyQueries(user.id, clubId);
+    // Post-save: invalidate caches (non-critical — lineup is already saved)
+    try {
+      queryClient.invalidateQueries({ queryKey: qk.events.wildcardBalance(user.id) });
+      await invalidateFantasyQueries(user.id, clubId);
+    } catch (err) {
+      console.error('[Fantasy] Post-save cache invalidation failed:', err);
+    }
     setSelectedEventId(null);
     addToast(t('lineupSaved'), 'success');
   }, [user, addToast, clubId]);

@@ -91,21 +91,7 @@ export async function getEventChips(eventId: string): Promise<DbChipUsage[]> {
  * Get user's chip usage for a season (default: current season).
  * Returns SETOF chip_usages for tracking season limits.
  */
-export async function getSeasonChipUsage(season?: string): Promise<DbChipUsage[]> {
-  try {
-    const targetSeason = season ?? getCurrentSeason();
-    const { data, error } = await supabase.rpc('get_season_chip_usage', {
-      p_season: targetSeason,
-    });
-
-    if (error) {
-      console.error('[Chips] getSeasonChipUsage error:', error);
-      return [];
-    }
-
-    return (data ?? []) as DbChipUsage[];
-  } catch (err) {
-    console.error('[Chips] getSeasonChipUsage unexpected error:', err);
-    return [];
-  }
+export async function getSeasonChipUsage(_season?: string): Promise<DbChipUsage[]> {
+  // chip_usage table + RPC not yet created — return empty until feature is built
+  return [];
 }

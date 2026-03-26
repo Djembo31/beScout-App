@@ -66,7 +66,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const fetchBalance = useCallback(async () => {
         if (!user) return;
         try {
-            const wallet = await withTimeout(getWallet(user.id), 5000);
+            const wallet = await withTimeout(getWallet(user.id), 15000);
             const newBalance = wallet?.balance ?? 0;
             setBalanceCents(newBalance);
             setLockedBalanceCents(wallet?.locked_balance ?? 0);
