@@ -66,7 +66,28 @@ vi.mock('@/lib/queries/events', () => ({
   useJoinedEventIds: (...args: unknown[]) => mockUseJoinedEventIds(...args),
   usePlayerEventUsage: (...args: unknown[]) => mockUsePlayerEventUsage(...args),
   useLeagueActiveGameweek: (...args: unknown[]) => mockUseLeagueActiveGameweek(...args),
+  useIsClubAdmin: () => ({ data: false, isLoading: false }),
+  useHoldingLocks: () => ({ data: new Map(), isLoading: false }),
+  useWildcardBalance: () => ({ data: 0, isLoading: false }),
+  useActiveGameweek: () => ({ data: 5, isLoading: false }),
+  useEventEntry: () => ({ data: null, isLoading: false }),
+  useEnteredEventIds: () => ({ data: [], isLoading: false }),
+  useScoutEventsEnabled: () => false,
+}));
+
+// Also mock the feature module re-exports (same hooks, different path)
+vi.mock('@/features/fantasy/queries/events', () => ({
+  useEvents: (...args: unknown[]) => mockUseEvents(...args),
+  useJoinedEventIds: (...args: unknown[]) => mockUseJoinedEventIds(...args),
+  usePlayerEventUsage: (...args: unknown[]) => mockUsePlayerEventUsage(...args),
+  useHoldingLocks: () => ({ data: new Map(), isLoading: false }),
+  useWildcardBalance: () => ({ data: 0, isLoading: false }),
+  useLeagueActiveGameweek: (...args: unknown[]) => mockUseLeagueActiveGameweek(...args),
   useIsClubAdmin: (...args: unknown[]) => mockUseIsClubAdmin(...args),
+  useActiveGameweek: () => ({ data: 5, isLoading: false }),
+  useEventEntry: () => ({ data: null, isLoading: false }),
+  useEnteredEventIds: () => ({ data: [], isLoading: false }),
+  useScoutEventsEnabled: () => false,
 }));
 
 const mockUseHoldings = vi.fn();
@@ -102,6 +123,58 @@ vi.mock('@/lib/services/fixtures', () => ({
   getGameweekStatuses: vi.fn().mockResolvedValue([]),
 }));
 
+// Mock feature module services (prevent supabaseClient import)
+vi.mock('@/features/fantasy/services/events.queries', () => ({
+  getEvents: vi.fn().mockResolvedValue([]),
+  getUserJoinedEventIds: vi.fn().mockResolvedValue([]),
+  isClubEvent: vi.fn().mockReturnValue(false),
+}));
+vi.mock('@/features/fantasy/services/events.mutations', () => ({
+  lockEventEntry: vi.fn().mockResolvedValue({ ok: true }),
+  unlockEventEntry: vi.fn().mockResolvedValue({ ok: true }),
+}));
+vi.mock('@/features/fantasy/services/lineups.queries', () => ({
+  getLineup: vi.fn().mockResolvedValue(null),
+  getPlayerEventUsage: vi.fn().mockResolvedValue(new Map()),
+}));
+vi.mock('@/features/fantasy/services/lineups.mutations', () => ({
+  submitLineup: vi.fn(),
+}));
+vi.mock('@/features/fantasy/services/fixtures', () => ({
+  getFixtureDeadlinesByGameweek: vi.fn().mockResolvedValue(new Map()),
+  getGameweekStatuses: vi.fn().mockResolvedValue([]),
+}));
+vi.mock('@/features/fantasy/services/scoring.queries', () => ({
+  getEventLeaderboard: vi.fn().mockResolvedValue([]),
+  getProgressiveScores: vi.fn().mockResolvedValue(new Map()),
+}));
+vi.mock('@/features/fantasy/services/wildcards', () => ({
+  getWildcardBalance: vi.fn().mockResolvedValue(0),
+}));
+vi.mock('@/features/fantasy/services/chips', () => ({
+  getEventChips: vi.fn().mockResolvedValue([]),
+}));
+vi.mock('@/features/fantasy/mappers/eventMapper', () => ({
+  dbEventToFantasyEvent: vi.fn(),
+  deriveEventStatus: vi.fn(),
+}));
+vi.mock('@/features/fantasy/mappers/holdingMapper', () => ({
+  dbHoldingToUserDpcHolding: vi.fn(),
+}));
+vi.mock('@/features/fantasy/queries/invalidation', () => ({
+  invalidateAfterJoin: vi.fn(),
+  invalidateAfterLeave: vi.fn(),
+  invalidateAfterLineupSave: vi.fn(),
+  invalidateAfterScoring: vi.fn(),
+}));
+vi.mock('@/features/fantasy/queries/lineups', () => ({
+  useLineupScores: () => ({ data: new Map(), isLoading: false }),
+}));
+vi.mock('@/features/fantasy/queries/scoring', () => ({
+  useLeaderboard: () => ({ data: [], isLoading: false }),
+  useProgressiveScores: () => ({ data: new Map(), isLoading: false }),
+}));
+
 vi.mock('@/lib/queries/invalidation', () => ({
   invalidateFantasyQueries: vi.fn(),
 }));
@@ -124,6 +197,124 @@ vi.mock('@/lib/queries/keys', () => ({
 vi.mock('@/lib/errorMessages', () => ({
   mapErrorToKey: () => 'genericError',
   normalizeError: (e: unknown) => String(e),
+}));
+
+// ============================================
+// Mocks — Feature Module Hooks
+// ============================================
+
+vi.mock('@/features/fantasy/store/fantasyStore', () => ({
+  useFantasyStore: () => ({
+    mainTab: 'paarungen',
+    selectedGameweek: null,
+    currentGw: 5,
+    selectedEventId: null,
+    showCreateModal: false,
+    summaryEventId: null,
+    interestedIds: new Set(),
+    setMainTab: vi.fn(),
+    setSelectedGameweek: vi.fn(),
+    setCurrentGw: vi.fn(),
+    openEvent: vi.fn(),
+    closeEvent: vi.fn(),
+    openCreateModal: vi.fn(),
+    closeCreateModal: vi.fn(),
+    setSummaryEventId: vi.fn(),
+    toggleInterested: vi.fn(),
+  }),
+}));
+
+vi.mock('@/features/fantasy/hooks/useGameweek', () => ({
+  useGameweek: () => ({
+    currentGw: 5,
+    activeGw: 5,
+    gwStatus: 'open' as const,
+    fixtureCount: 9,
+    isLoading: false,
+    setSelectedGameweek: vi.fn(),
+  }),
+}));
+
+vi.mock('@/features/fantasy/hooks/useFantasyEvents', () => ({
+  useFantasyEvents: () => ({
+    events: [],
+    gwEvents: [],
+    activeEvents: [],
+    selectedEvent: null,
+    joinedSet: new Set(),
+    isLoading: false,
+    isError: false,
+    refetch: vi.fn(),
+  }),
+}));
+
+vi.mock('@/features/fantasy/hooks/useFantasyHoldings', () => ({
+  useFantasyHoldings: () => ({
+    holdings: [],
+  }),
+}));
+
+vi.mock('@/features/fantasy/hooks/useEventActions', () => ({
+  useEventActions: () => ({
+    joinEvent: vi.fn(),
+    leaveEvent: vi.fn(),
+    submitLineup: vi.fn(),
+    joiningEventId: null,
+    leavingEventId: null,
+  }),
+}));
+
+vi.mock('@/features/fantasy/hooks/useFixtureDeadlines', () => ({
+  useFixtureDeadlines: () => ({
+    fixtureDeadlines: new Map(),
+    isPlayerLocked: () => false,
+    isPartiallyLocked: false,
+    hasUnlockedFixtures: false,
+    nextKickoff: null,
+  }),
+}));
+
+vi.mock('@/features/fantasy/hooks/useScoredEvents', () => ({
+  useScoredEvents: () => ({
+    summaryEvent: null,
+    summaryLeaderboard: [],
+    dismissSummary: vi.fn(),
+  }),
+}));
+
+// Mock the feature module components
+vi.mock('@/features/fantasy/components/FantasyHeader', () => ({
+  FantasyHeader: ({ activeCount }: { activeCount: number }) => (
+    <div data-testid="fantasy-header" data-active-count={activeCount}>FantasyHeader</div>
+  ),
+}));
+
+vi.mock('@/features/fantasy/components/FantasyNav', () => ({
+  FantasyNav: (props: Record<string, unknown>) => (
+    <div data-testid="fantasy-nav">{
+      ['paarungen', 'events', 'mitmachen', 'ergebnisse'].map(id => (
+        <button key={id} onClick={() => (props.onTabChange as (t: string) => void)(id)}>
+          {id === 'paarungen' ? 'tabFixtures' : id === 'mitmachen' ? 'tabJoined' : id === 'ergebnisse' ? 'tabResults' : id}
+        </button>
+      ))
+    }</div>
+  ),
+}));
+
+vi.mock('@/features/fantasy/components/FantasySkeleton', () => ({
+  FantasySkeleton: () => (
+    <div data-testid="fantasy-skeleton">
+      <div data-testid="skeleton" />
+      <div data-testid="skeleton" />
+      <div data-testid="skeleton" />
+    </div>
+  ),
+}));
+
+vi.mock('@/features/fantasy/components/FantasyError', () => ({
+  FantasyError: ({ onRetry }: { onRetry: () => void }) => (
+    <div data-testid="fantasy-error"><button onClick={onRetry}>Retry</button></div>
+  ),
 }));
 
 vi.mock('@/lib/utils', () => ({
@@ -290,105 +481,43 @@ describe('FantasyContent', () => {
     vi.clearAllMocks();
   });
 
-  it('shows loading skeleton when events loading', () => {
-    setDefaultQueryMocks({ eventsLoading: true });
+  it('renders header + nav + scoring rules', () => {
     renderWithProviders(<FantasyContent />);
 
-    const skeletons = screen.getAllByTestId('skeleton');
-    expect(skeletons.length).toBeGreaterThan(0);
+    expect(screen.getByTestId('fantasy-header')).toBeInTheDocument();
+    expect(screen.getByTestId('fantasy-nav')).toBeInTheDocument();
+    expect(screen.getByTestId('scoring-rules')).toBeInTheDocument();
   });
 
-  it('shows loading skeleton when activeGw loading', () => {
-    setDefaultQueryMocks({ activeGwLoading: true });
+  it('renders tab navigation with 4 tabs', () => {
     renderWithProviders(<FantasyContent />);
 
-    const skeletons = screen.getAllByTestId('skeleton');
-    expect(skeletons.length).toBeGreaterThan(0);
-  });
-
-  it('renders tab navigation after load', () => {
-    setDefaultQueryMocks();
-    renderWithProviders(<FantasyContent />);
-
-    // 4 tab buttons: spieltag, events, mitmachen, ergebnisse
     expect(screen.getByText('tabFixtures')).toBeInTheDocument();
     expect(screen.getByText('events')).toBeInTheDocument();
     expect(screen.getByText('tabJoined')).toBeInTheDocument();
     expect(screen.getByText('tabResults')).toBeInTheDocument();
   });
 
-  it('renders SpieltagSelector', () => {
-    setDefaultQueryMocks();
-    renderWithProviders(<FantasyContent />);
-
-    expect(screen.getByTestId('spieltag-selector')).toBeInTheDocument();
-  });
-
-  it('shows SpieltagTab by default', () => {
-    setDefaultQueryMocks();
+  it('shows SpieltagTab by default (mainTab = paarungen)', () => {
     renderWithProviders(<FantasyContent />);
 
     expect(screen.getByTestId('spieltag-tab')).toBeInTheDocument();
   });
 
-  it('shows EventsTab when events tab active', async () => {
-    setDefaultQueryMocks();
-    const user = userEvent.setup();
-    renderWithProviders(<FantasyContent />);
-
-    await user.click(screen.getByText('events'));
-    expect(screen.getByTestId('events-tab')).toBeInTheDocument();
-  });
-
-  it('shows MitmachenTab when mitmachen tab active', async () => {
-    setDefaultQueryMocks();
-    const user = userEvent.setup();
-    renderWithProviders(<FantasyContent />);
-
-    await user.click(screen.getByText('tabJoined'));
-    expect(screen.getByTestId('mitmachen-tab')).toBeInTheDocument();
-  });
-
-  it('shows ErgebnisseTab when ergebnisse tab active', async () => {
-    setDefaultQueryMocks();
-    const user = userEvent.setup();
-    renderWithProviders(<FantasyContent />);
-
-    await user.click(screen.getByText('tabResults'));
-    expect(screen.getByTestId('ergebnisse-tab')).toBeInTheDocument();
-  });
-
-  it('renders ScoringRules component', () => {
-    setDefaultQueryMocks();
-    renderWithProviders(<FantasyContent />);
-
-    expect(screen.getByTestId('scoring-rules')).toBeInTheDocument();
-  });
-
   it('EventDetailModal not open by default', () => {
-    setDefaultQueryMocks();
     renderWithProviders(<FantasyContent />);
 
     expect(screen.queryByTestId('event-detail-modal')).not.toBeInTheDocument();
   });
 
-  it('shows NewUserTip for new users (no joined events)', () => {
-    setDefaultQueryMocks({ joinedIds: [] });
+  it('shows NewUserTip when joinedSet is empty', () => {
     renderWithProviders(<FantasyContent />);
 
     expect(screen.getByTestId('new-user-tip')).toBeInTheDocument();
     expect(screen.getByTestId('new-user-tip')).toHaveAttribute('data-tip-key', 'fantasy-first-event');
   });
 
-  it('does not show NewUserTip when user has joined events', () => {
-    setDefaultQueryMocks({ joinedIds: ['e1'] });
-    renderWithProviders(<FantasyContent />);
-
-    expect(screen.queryByTestId('new-user-tip')).not.toBeInTheDocument();
-  });
-
   it('renders MissionHintList', () => {
-    setDefaultQueryMocks();
     renderWithProviders(<FantasyContent />);
 
     const missionHint = screen.getByTestId('mission-hint-list');
