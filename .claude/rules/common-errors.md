@@ -49,6 +49,12 @@ description: Haeufigste Fehler die bei JEDER Arbeit relevant sind
 - `grid_position` kann kaputt sein: fehlende GK-Row, Duplikate, >11 Starters
 - API-Football hat KEINE Market Values → nur Transfermarkt
 
+## RLS Policy Trap (Session 255 — SC Blocking war komplett kaputt)
+- Neue Tabelle mit RLS MUSS Policies fuer ALLE Client-Ops haben (SELECT + INSERT + DELETE)
+- SELECT-only = Client kann lesen aber NICHT schreiben → silent failure
+- IMMER nach Migration pruefen: `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`
+- NIEMALS `console.error` ohne `throw` bei kritischen DB-Writes → silent failure ist der schlimmste Bug
+
 ## RPC Anti-Patterns (Top 5 Bugs)
 - `::TEXT` auf UUID beim INSERT (5x in Session 93)
 - Record nicht initialisiert vor Zugriff in falscher Branch

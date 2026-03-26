@@ -834,6 +834,7 @@
     "insufficientWildcards": "Yeterli Wild Card yok.",
     "wildcardsNotAllowed": "Bu etkinlikte Wild Card kullanılamaz.",
     "tooManyWildcards": "Kadro başına en fazla {max} Wild Card.",
+    "holdingLockFailed": "SC kilidi oluşturulamadı. Lütfen tekrar deneyin.",
     "wildcardCounter": "Wild Cards: {used}/{max} kullanıldı",
     "settingsFailed": "Ayar kaydedilemedi.",
     "entryCost": "Giriş ücreti",

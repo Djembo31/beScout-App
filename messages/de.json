@@ -834,6 +834,7 @@
     "insufficientWildcards": "Nicht genug Wild Cards.",
     "wildcardsNotAllowed": "Wild Cards sind in diesem Event nicht erlaubt.",
     "tooManyWildcards": "Maximal {max} Wild Cards pro Lineup erlaubt.",
+    "holdingLockFailed": "SC-Sperre konnte nicht erstellt werden. Bitte erneut versuchen.",
     "wildcardCounter": "Wild Cards: {used}/{max} verwendet",
     "settingsFailed": "Einstellung konnte nicht gespeichert werden.",
     "entryCost": "Eintrittskosten",

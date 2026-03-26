@@ -19,6 +19,14 @@ paths:
 - Count: `.select('*', { count: 'exact', head: true })` fuer Effizienz
 - Batch: `.in('id', ids)` statt Individual-Queries
 
+## RLS Pflicht-Checkliste (Session 255 — holding_locks war komplett kaputt)
+- Neue Tabelle mit RLS: ALLE Client-Ops brauchen Policy (SELECT + INSERT + DELETE + UPDATE)
+- SELECT-only = INSERT/DELETE STILL blockiert → schlimmster Bug-Typ
+- NACH Migration pruefen: `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'`
+- NACH erstem Deploy: `SELECT COUNT(*) FROM table` → muessen Rows existieren
+- NIEMALS `console.error` ohne `throw` bei DB-Writes → silent failure = unsichtbarer Bug
+- Wenn Service `.from('table').insert/delete()` macht UND Tabelle RLS hat → Policy MUSS existieren
+
 ## RPC Regeln
 - Parameter IMMER aus DB verifizieren (`pg_get_functiondef`)
 - `::TEXT` auf UUID: NIEMALS beim INSERT (5x gleicher Bug in Session 93)

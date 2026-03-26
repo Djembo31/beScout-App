@@ -481,6 +481,8 @@ export default function FantasyContent() {
         addToast(t('wildcardsNotAllowed'), 'error');
       } else if (msg === 'too_many_wildcards') {
         addToast(t('tooManyWildcards', { max: event.maxWildcardsPerLineup ?? 0 }), 'error');
+      } else if (msg === 'holding_lock_failed') {
+        addToast(t('holdingLockFailed'), 'error');
       } else {
         addToast(t('errorGeneric', { error: te(mapErrorToKey(normalizeError(e))) }), 'error');
       }

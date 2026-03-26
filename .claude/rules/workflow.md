@@ -70,6 +70,17 @@ VOR jedem "sieht gut aus":
 2. JEDEN sichtbaren Wert einzeln pruefen
 3. Fehlende Daten EXPLIZIT benennen
 
+### DB Feature Smoke Test (PFLICHT bei neuen Tabellen/RPCs)
+
+Nach Migration + Code-Deploy:
+1. Feature EINMAL ausfuehren (echte Aktion, nicht nur Code lesen)
+2. `SELECT COUNT(*) FROM neue_tabelle` → MUSS Rows haben
+3. `SELECT policyname, cmd FROM pg_policies WHERE tablename = 'X'` → ALLE Client-Ops abgedeckt?
+4. Bei Flow-Aenderungen: "Was passiert mit bestehenden Daten?" IMMER fragen
+
+"tsc clean" ≠ "Feature funktioniert". "Tests gruen" ≠ "Feature funktioniert".
+NUR eine Live-DB-Query NACH echtem User-Flow beweist dass es funktioniert.
+
 ### STOP-GATE
 
 finishing-branch darf NICHT beginnen bevor Reviewer + a11y TATSAECHLICH

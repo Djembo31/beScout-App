@@ -399,6 +399,7 @@ export async function submitLineup(params: {
 
     if (lockError) {
       console.error('[Lineup] Failed to create holding locks:', lockError);
+      throw new Error('holding_lock_failed');
     }
   } else if (lockMinSc > 0 && normalSlotPlayerIds.length === 0) {
     // All slots are wild cards — clean up any existing locks
