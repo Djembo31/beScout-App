@@ -1,27 +1,23 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import {
-  Trophy, Users, Clock, Crown,
-  CheckCircle2, Play, Lock,
-  Save, Eye,
-  RefreshCw, History, Loader2,
-} from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { calculateSynergyPreview } from '@/types';
-import { Modal, Button, Chip } from '@/components/ui';
-import type { Pos } from '@/types';
+import { Modal } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getLineup, getEventParticipants, getEventParticipantCount } from '@/lib/services/lineups';
 import { resetEvent, getEventLeaderboard, getProgressiveScores } from '@/lib/services/scoring';
 import type { LeaderboardEntry } from '@/lib/services/scoring';
-import { useTranslations, useLocale } from 'next-intl';
-import { cn, fmtScout } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 import type { FantasyEvent, EventDetailTab, LineupPlayer, UserDpcHolding } from './types';
-import { getFormationsForFormat, getDefaultFormation, buildSlotDbKeys, PRESET_KEY } from './constants';
-import { getStatusStyle, getTypeStyle, formatCountdown } from './helpers';
+import { getFormationsForFormat, getDefaultFormation, buildSlotDbKeys } from './constants';
 import dynamic from 'next/dynamic';
 import type { FixtureDeadline } from '@/lib/services/fixtures';
-import { EventTypeBadge } from '@/components/ui';
+
+// Extracted components
+import { EventDetailHeader } from '@/features/fantasy/components/event-detail/EventDetailHeader';
+import { EventDetailFooter } from '@/features/fantasy/components/event-detail/EventDetailFooter';
+import { JoinConfirmDialog } from '@/features/fantasy/components/event-detail/JoinConfirmDialog';
 
 // Lazy-loaded ChipSelector (only needed when editing lineup)
 const ChipSelector = dynamic(() => import('@/components/gamification/ChipSelector'), {
@@ -70,7 +66,6 @@ export const EventDetailModal = ({
 }) => {
   const { user } = useUser();
   const t = useTranslations('fantasy');
-  const locale = useLocale();
   const [tab, setTab] = useState<EventDetailTab>('overview');
   const [selectedPlayers, setSelectedPlayers] = useState<LineupPlayer[]>([]);
   const [selectedFormation, setSelectedFormation] = useState(() => getDefaultFormation(event?.format ?? '7er'));
@@ -90,14 +85,12 @@ export const EventDetailModal = ({
   const [leaving, setLeaving] = useState(false);
   const [wildcardSlots, setWildcardSlots] = useState<Set<string>>(new Set());
 
-  // Set default tab based on join status when modal opens — reset transient state
+  // Set default tab based on join status when modal opens -- reset transient state
   useEffect(() => {
     if (isOpen && event) {
-      // If event is scored + user joined → show their lineup with scores. Otherwise leaderboard for non-participants
       setTab(event.scoredAt ? (event.isJoined ? 'lineup' : 'leaderboard') : event.isJoined ? 'lineup' : 'overview');
       setScoringJustFinished(false);
       setShowJoinConfirm(false);
-      // Reset formation to match event format (7er vs 11er)
       setSelectedFormation(getDefaultFormation(event.format, event.lineupSize));
       setSelectedPlayers([]);
       setWildcardSlots(new Set());
@@ -114,7 +107,6 @@ export const EventDetailModal = ({
       .catch(err => console.error('[EventDetail] Leaderboard fetch failed:', err))
       .finally(() => { if (!cancelled) setLeaderboardLoading(false); });
 
-    // Poll leaderboard every 30s while event is running
     let interval: ReturnType<typeof setInterval> | undefined;
     if (event.status === 'running') {
       interval = setInterval(() => {
@@ -153,7 +145,6 @@ export const EventDetailModal = ({
     try {
       const result = await resetEvent(event.id);
       if (result.success) {
-        // Clear local scoring state
         setSlotScores(null);
         setMyTotalScore(null);
         setMyRank(null);
@@ -172,22 +163,18 @@ export const EventDetailModal = ({
     }
   };
 
-  // Load lineup & participants on open (NOT on isJoined change — that resets mid-session state)
+  // Load lineup & participants on open
   useEffect(() => {
     if (!isOpen || !event) return;
 
-    // Load participants (optimized: only top 10 + count)
     getEventParticipants(event.id, 10).then(setParticipants);
     getEventParticipantCount(event.id).then(count => setParticipantCount(Math.max(count, event.participants || 0)));
 
     if (event.isJoined && user) {
       getLineup(event.id, user.id).then(dbLineup => {
         if (dbLineup) {
-          // Use persisted formation, fallback to default
           const savedFormation = dbLineup.formation || getDefaultFormation(event.format);
           setSelectedFormation(savedFormation);
-
-          // Store scoring data for pitch display
           setSlotScores(dbLineup.slot_scores ?? null);
           setMyTotalScore(dbLineup.total_score);
           setMyRank(dbLineup.rank);
@@ -199,7 +186,6 @@ export const EventDetailModal = ({
           let si = 0;
           for (const s of formation.slots) { for (let i = 0; i < s.count; i++) fSlots.push({ pos: s.pos, slot: si++ }); }
 
-          // Map DB slot columns to formation slots using buildSlotDbKeys
           const dbKeys = buildSlotDbKeys(formation);
           const finalLineup: LineupPlayer[] = [];
           fSlots.forEach((slot, i) => {
@@ -222,11 +208,10 @@ export const EventDetailModal = ({
         setSlotScores(null);
       });
     } else {
-      // Reset if not joined
       setSelectedPlayers([]);
       setSelectedFormation(getDefaultFormation(event.format, event.lineupSize));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- isJoined excluded (mid-session reset), user→user?.id (stable string, no auth-refresh re-trigger)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- isJoined excluded (mid-session reset), user->user?.id (stable string)
   }, [isOpen, event?.id, user?.id]);
 
   const handleLeave = async () => {
@@ -234,7 +219,6 @@ export const EventDetailModal = ({
     if (confirm(t('confirmLeaveMsg', { name: event.name }))) {
       setLeaving(true);
       try {
-        // Parent calls unlockEventEntry RPC (atomic: refund + delete entry/lineup/locks)
         await onLeave(event);
         onClose();
       } catch (e: unknown) {
@@ -245,9 +229,8 @@ export const EventDetailModal = ({
     }
   };
 
-  // ── Memoized derived state (before early return — React hook rules) ──
+  // -- Memoized derived state (before early return -- React hook rules) --
 
-  // Free up 1 DPC for players already committed to THIS event (user is editing their own lineup)
   const effectiveHoldings = useMemo(() => {
     if (!event) return userHoldings;
     return userHoldings.map(h => {
@@ -260,7 +243,6 @@ export const EventDetailModal = ({
     });
   }, [userHoldings, event?.id]);
 
-  // Formation data — only recalculates when format or selection changes
   const availableFormations = useMemo(
     () => getFormationsForFormat(event?.format ?? '7er', event?.lineupSize),
     [event?.format, event?.lineupSize]
@@ -282,7 +264,6 @@ export const EventDetailModal = ({
 
   const slotDbKeys = useMemo(() => buildSlotDbKeys(currentFormation), [currentFormation]);
 
-  // Per-fixture lock check: is a specific player's fixture already started?
   const isPlayerLocked = useCallback((playerId: string): boolean => {
     if (!fixtureDeadlines?.size || event?.status !== 'running') return false;
     const holding = effectiveHoldings.find(h => h.id === playerId);
@@ -290,7 +271,6 @@ export const EventDetailModal = ({
     return fixtureDeadlines.get(holding.clubId)?.isLocked ?? false;
   }, [fixtureDeadlines, effectiveHoldings, event?.status]);
 
-  // Is the event partially locked (some fixtures started, some not)?
   const isPartiallyLocked = useMemo(() => {
     if (event?.status !== 'running' || !fixtureDeadlines?.size) return false;
     const deadlineValues = Array.from(fixtureDeadlines.values());
@@ -298,13 +278,11 @@ export const EventDetailModal = ({
     return lockedCount > 0 && lockedCount < deadlineValues.length;
   }, [event?.status, fixtureDeadlines]);
 
-  // Are there still unlocked fixtures where lineup changes are possible?
   const hasUnlockedFixtures = useMemo(() => {
     if (event?.status !== 'running' || !fixtureDeadlines?.size) return false;
     return Array.from(fixtureDeadlines.values()).some(d => !d.isLocked);
   }, [event?.status, fixtureDeadlines]);
 
-  // Next fixture kickoff (for countdown display)
   const nextKickoff = useMemo(() => {
     if (!fixtureDeadlines?.size) return null;
     const now = Date.now();
@@ -318,7 +296,6 @@ export const EventDetailModal = ({
     return earliest;
   }, [fixtureDeadlines]);
 
-  // O(1) slot→player lookup (replaces O(n) find() called 44 times per render)
   const selectedPlayerMap = useMemo(() => {
     const map = new Map<number, string>();
     selectedPlayers.forEach(p => map.set(p.slot, p.playerId));
@@ -331,7 +308,6 @@ export const EventDetailModal = ({
     return effectiveHoldings.find(h => h.id === playerId) ?? null;
   }, [selectedPlayerMap, effectiveHoldings]);
 
-  // Synergy preview — only recalculates when lineup changes
   const synergyPreview = useMemo(() => {
     const clubs = selectedPlayers
       .map(sp => effectiveHoldings.find(h => h.id === sp.playerId)?.club)
@@ -339,13 +315,10 @@ export const EventDetailModal = ({
     return calculateSynergyPreview(clubs);
   }, [selectedPlayers, effectiveHoldings]);
 
-  // DPC Ownership Bonus — all player IDs the user holds DPCs for
   const ownedPlayerIds = useMemo(() => {
     return new Set(effectiveHoldings.filter(h => h.dpcOwned >= 1).map(h => h.id));
   }, [effectiveHoldings]);
 
-  // Player picker — expensive filter+sort, memoized per search/sort/selection change
-  // When picking for a wild card slot, also show locked players (WC bypasses SC check)
   const getAvailablePlayersForPosition = useCallback((position: string, isWildcardSlot = false) => {
     const posMap: Record<string, string[]> = {
       'GK': ['GK'], 'DEF': ['DEF', 'CB', 'LB', 'RB'],
@@ -363,7 +336,6 @@ export const EventDetailModal = ({
     return [...players].sort((a, b) => b.perfL5 - a.perfL5);
   }, [selectedPlayers, effectiveHoldings, isPlayerLocked, event?.scope, event?.clubId]);
 
-  // Stable handler refs — prevent child re-renders
   const handleSelectPlayer = useCallback((playerId: string, position: string, slot: number) => {
     setSelectedPlayers(prev => [...prev.filter(p => p.slot !== slot), { playerId, position, slot, isLocked: false }]);
   }, []);
@@ -384,7 +356,6 @@ export const EventDetailModal = ({
 
   const isLineupComplete = selectedPlayers.length === formationSlots.length;
 
-  // Salary Cap check — perfL5 as proxy "salary" (0-100 per player)
   const totalSalary = useMemo(() =>
     selectedPlayers.reduce((sum, sp) => {
       const player = effectiveHoldings.find(h => h.id === sp.playerId);
@@ -409,14 +380,11 @@ export const EventDetailModal = ({
 
   if (!isOpen || !event) return null;
 
-  const statusStyle = getStatusStyle(event.status);
-  const typeStyle = getTypeStyle(event.type);
-  const TypeIcon = typeStyle.icon;
-
   const salaryCap = event.salaryCap ?? null;
   const overBudget = salaryCap != null && totalSalary > salaryCap;
+  const isScored = !!event.scoredAt;
 
-  // Join (entry only — no lineup required)
+  // Join (entry only -- no lineup required)
   const handleConfirmJoin = () => {
     setShowJoinConfirm(true);
   };
@@ -429,14 +397,12 @@ export const EventDetailModal = ({
       await onJoin(event);
       setParticipantCount(prev => prev + 1);
 
-      // Auto-save lineup if user built it before joining
       if (selectedPlayers.length === formationSlots.length && reqCheck.ok) {
         try {
           await onSubmitLineup(event, selectedPlayers, selectedFormation, captainSlot, Array.from(wildcardSlots));
-          return; // onSubmitLineup closes modal + shows success toast
+          return;
         } catch (err) {
           console.error('[EventDetail] Auto-save after join failed:', err);
-          // Fall through to lineup tab — user can save manually
         }
       }
 
@@ -446,7 +412,6 @@ export const EventDetailModal = ({
     }
   };
 
-  // Save/update lineup (no payment — user is already entered)
   const handleSaveLineup = async () => {
     if (!isLineupComplete) { alert(t('incompleteLineupAlert')); return; }
     if (!reqCheck.ok) { alert(reqCheck.message); return; }
@@ -461,52 +426,15 @@ export const EventDetailModal = ({
     }
   };
 
-  const isScored = !!event.scoredAt;
-
   return (
     <Modal open={isOpen} onClose={onClose} title={event.name} size="lg">
-        {/* Status Badges + Meta */}
-        <div className="flex items-center flex-wrap gap-2 mb-3">
-          {isScored ? (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-purple-500/20 text-purple-300">
-              <Trophy aria-hidden="true" className="size-3.5" />
-              <span className="text-xs font-bold">{t('statusScored')}</span>
-            </div>
-          ) : event.isJoined ? (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-green-500 text-white">
-              <CheckCircle2 aria-hidden="true" className="size-3.5" />
-              <span className="text-xs font-bold">{t('statusJoined')}</span>
-            </div>
-          ) : (
-            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded ${statusStyle.bg} ${statusStyle.text}`}>
-              {statusStyle.pulse && <div className="size-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" />}
-              <span className="text-xs font-bold">{t(statusStyle.labelKey)}</span>
-            </div>
-          )}
-          <EventTypeBadge type={event.type} clubName={event.clubName} clubLogo={event.clubLogo} sponsorName={event.sponsorName} size="sm" />
-          <Chip className={`${typeStyle.bg} ${typeStyle.color}`}>{event.mode === 'league' ? t('modeLiga') : t('modeTurnier')} • {event.format}</Chip>
-          {event.status === 'running' && !isScored && <Chip className="bg-green-500 text-white">LIVE</Chip>}
-          {isScored && (
-            <button
-              onClick={handleResetEvent}
-              disabled={resetting}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50 ml-auto"
-            >
-              {resetting ? <RefreshCw aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" /> : <History aria-hidden="true" className="size-3.5" />}
-              {resetting ? t('resettingBtn') : t('resetBtn')}
-            </button>
-          )}
-        </div>
-        <div className="flex items-center gap-4 text-sm text-white/50 mb-4">
-          <span className="flex items-center gap-1"><Users aria-hidden="true" className="size-4" />{event.participants}{event.maxParticipants ? `/${event.maxParticipants}` : ''}</span>
-          <span className="flex items-center gap-1"><Clock aria-hidden="true" className="size-4" />{event.status === 'ended' ? t('ended') : formatCountdown(event.lockTime, t('countdownStarted'))}</span>
-          {(event.ticketCost ?? 0) > 0 && (
-            <span className="flex items-center gap-1.5 text-[12px] text-amber-400/70 font-medium">
-              <span aria-hidden="true">🎟</span>
-              <span>{t('ticketCost', { cost: event.ticketCost })}</span>
-            </span>
-          )}
-        </div>
+        {/* Header: Status Badges + Meta */}
+        <EventDetailHeader
+          event={event}
+          isScored={isScored}
+          resetting={resetting}
+          onReset={handleResetEvent}
+        />
 
         {/* Tabs */}
         <div className="flex -mx-4 md:-mx-5 border-b border-white/10 mb-4">
@@ -525,7 +453,6 @@ export const EventDetailModal = ({
 
         {/* Content */}
         <div>
-          {/* OVERVIEW TAB */}
           {tab === 'overview' && (
             <OverviewPanel
               event={event}
@@ -535,7 +462,6 @@ export const EventDetailModal = ({
             />
           )}
 
-          {/* LINEUP TAB */}
           {tab === 'lineup' && (
             <>
               <LineupPanel
@@ -581,7 +507,6 @@ export const EventDetailModal = ({
                   });
                 }}
               />
-              {/* Chip Selector — only show when lineup is editable (not scored/ended) */}
               {!isScored && event.status !== 'ended' && (
                 <div className="mt-4 pt-4 border-t border-white/[0.06]">
                   <ChipSelector eventId={event.id} />
@@ -590,7 +515,6 @@ export const EventDetailModal = ({
             </>
           )}
 
-          {/* LEADERBOARD TAB */}
           {tab === 'leaderboard' && (
             <LeaderboardPanel
               event={event}
@@ -602,7 +526,6 @@ export const EventDetailModal = ({
             />
           )}
 
-          {/* COMMUNITY TAB */}
           {tab === 'community' && event && (
             <EventCommunityTab
               eventId={event.id}
@@ -614,222 +537,34 @@ export const EventDetailModal = ({
         </div>
 
         {/* Join Confirmation Dialog */}
-        {showJoinConfirm && (() => {
-          const ticketCost = event.ticketCost ?? 0;
-          const hasCost = ticketCost > 0;
-          return (
-            <div className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-              <div className="bg-[#141414] border border-white/10 rounded-2xl p-6 max-w-sm w-full">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="size-10 rounded-xl bg-gold/10 flex items-center justify-center">
-                    <Trophy aria-hidden="true" className="size-5 text-gold" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white">{t('confirmJoinTitle')}</h3>
-                    <p className="text-xs text-white/50">{event.name}</p>
-                  </div>
-                </div>
-                <div className="space-y-2 mb-5 text-sm">
-                  {/* Cost display — unified, currency-aware */}
-                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                    <span className="text-white/60">{t('entryFeeLabel')}</span>
-                    {event.currency === 'tickets' && ticketCost > 0 ? (
-                      <span className="font-bold font-mono tabular-nums text-amber-400">{t('ticketCost', { cost: ticketCost })}</span>
-                    ) : event.currency === 'scout' && ticketCost > 0 ? (
-                      <span className="font-bold font-mono tabular-nums text-gold">{fmtScout(ticketCost / 100)} $SCOUT</span>
-                    ) : (
-                      <span className="font-bold text-green-500">{t('freeLabel')}</span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5">
-                    <span className="text-white/60">{t('formatLabel')}</span>
-                    <span className="font-mono text-white">{event.format}</span>
-                  </div>
-                </div>
-                {hasCost && (
-                  <p className="text-xs text-white/40 mb-4">
-                    {t('entryFeeNote')}
-                  </p>
-                )}
-                <div className="flex gap-3">
-                  <Button variant="outline" size="lg" fullWidth onClick={() => setShowJoinConfirm(false)}>
-                    {t('cancelBtn')}
-                  </Button>
-                  <Button variant="gold" size="lg" fullWidth onClick={handleFinalJoin} disabled={joining}>
-                    {joining ? <Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> : <CheckCircle2 aria-hidden="true" className="size-4" />}
-                    {joining ? t('confirming') : t('confirmBtn')}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Footer Actions — sticky so they're always visible */}
-        <div className="sticky bottom-0 z-10">
-        {/* Join — only when not joined AND event not running/ended */}
-        {!event.isJoined && event.status !== 'ended' && event.status !== 'running' && (() => {
-          const isFull = !!(event.maxParticipants && event.participants >= event.maxParticipants);
-          const ticketCost = event.ticketCost ?? 0;
-          const hasCost = ticketCost > 0;
-          const costLabel = event.currency === 'tickets' && ticketCost > 0
-            ? t('ticketCost', { cost: ticketCost })
-            : event.currency === 'scout' && ticketCost > 0
-            ? `${fmtScout(ticketCost / 100)} $SCOUT`
-            : t('freeLabel');
-          return (
-            <div className="flex-shrink-0 border-t border-white/10 bg-bg-main">
-              <div className="p-3 md:p-5">
-                <Button
-                  variant="gold"
-                  fullWidth
-                  size="lg"
-                  onClick={handleConfirmJoin}
-                  disabled={isFull || joining}
-                  className={cn(isFull ? 'opacity-60' : '')}
-                >
-                  {joining
-                    ? <Loader2 aria-hidden="true" className="size-5 animate-spin motion-reduce:animate-none" />
-                    : <CheckCircle2 aria-hidden="true" className="size-5" />
-                  }
-                  {isFull
-                    ? t('eventFull')
-                    : hasCost
-                    ? t('joinAndPay', { amount: costLabel })
-                    : t('confirmRegistration')
-                  }
-                </Button>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Update / Leave — registering/late-reg OR running with unlocked fixtures */}
-        {event.isJoined && event.status !== 'ended' && (event.status !== 'running' || hasUnlockedFixtures) && (
-          <div className="flex-shrink-0 border-t border-white/10 bg-bg-main">
-            {/* Lineup progress indicator */}
-            {!isLineupComplete && (
-              <div className="px-3 pt-3 md:px-5 md:pt-4">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs text-white/50">{t('lineupLabel')}</span>
-                  <span className="text-xs font-mono font-bold text-gold">{t('playersProgress', { filled: selectedPlayers.length, total: formationSlots.length })}</span>
-                </div>
-                <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gold rounded-full transition-colors"
-                    style={{ width: `${(selectedPlayers.length / formationSlots.length) * 100}%` }}
-                  />
-                </div>
-              </div>
-            )}
-            {/* Salary Cap budget bar */}
-            {salaryCap != null && selectedPlayers.length > 0 && (
-              <div className="px-3 pt-2 md:px-5 md:pt-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-white/50">Budget</span>
-                  <span className={cn('text-xs font-mono font-bold', overBudget ? 'text-red-400' : 'text-green-500')}>
-                    {totalSalary} / {salaryCap}
-                  </span>
-                </div>
-                <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                  <div
-                    className={cn('h-full rounded-full transition-all',
-                      overBudget ? 'bg-red-500' : totalSalary / salaryCap > 0.85 ? 'bg-amber-500' : 'bg-green-500'
-                    )}
-                    style={{ width: `${Math.min(100, (totalSalary / salaryCap) * 100)}%` }}
-                  />
-                </div>
-              </div>
-            )}
-            <div className="p-3 md:p-5 flex gap-3">
-              <Button
-                variant="outline"
-                fullWidth
-                size="lg"
-                className="border-red-500/30 text-red-400 hover:bg-red-500/10"
-                onClick={handleLeave}
-                disabled={leaving}
-              >
-                {leaving ? <><Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> {t('leavingBtn')}</> : t('leaveBtn')}
-              </Button>
-              <Button
-                variant="gold"
-                fullWidth
-                size="lg"
-                onClick={handleSaveLineup}
-                disabled={!isLineupComplete || !reqCheck.ok || overBudget || joining}
-                className={cn(!isLineupComplete || !reqCheck.ok || overBudget ? 'opacity-50' : '')}
-              >
-                {joining
-                  ? <Loader2 aria-hidden="true" className="size-5 animate-spin motion-reduce:animate-none" />
-                  : <Save aria-hidden="true" className="size-5" />
-                }
-                {t('editLineup')}
-              </Button>
-            </div>
-          </div>
+        {showJoinConfirm && (
+          <JoinConfirmDialog
+            event={event}
+            joining={joining}
+            onConfirm={handleFinalJoin}
+            onCancel={() => setShowJoinConfirm(false)}
+          />
         )}
 
-        {/* Running event — fully locked (all fixtures started) */}
-        {event.isJoined && event.status === 'running' && !hasUnlockedFixtures && (
-          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10 bg-bg-main">
-            <div className="flex items-center justify-center gap-2 py-3 px-4 bg-green-500/10 border border-green-500/30 rounded-xl">
-              <Lock aria-hidden="true" className="size-4 text-green-500" />
-              <span className="text-sm font-bold text-green-500">{t('joinedLocked')}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Running event — not joined */}
-        {!event.isJoined && event.status === 'running' && (
-          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10 bg-bg-main">
-            <div className="flex items-center justify-center gap-2 py-3 px-4 bg-surface-subtle border border-white/10 rounded-xl">
-              <Play aria-hidden="true" className="size-4 text-white/50" />
-              <span className="text-sm text-white/50">{t('eventRunningClosed')}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Ended event — joined + scored */}
-        {event.isJoined && event.status === 'ended' && event.scoredAt && (
-          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10 bg-bg-main">
-            <button
-              onClick={() => setTab('leaderboard')}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-purple-500/10 border border-purple-500/30 rounded-xl hover:bg-purple-500/20 transition-colors"
-            >
-              <Trophy aria-hidden="true" className="size-4 text-purple-400" />
-              <span className="text-sm font-bold text-purple-400">
-                {event.userRank ? t('rankResult', { rank: event.userRank }) : t('scored')} — {t('viewResults')}
-              </span>
-            </button>
-          </div>
-        )}
-
-        {/* Ended event — joined but not yet scored */}
-        {event.isJoined && event.status === 'ended' && !event.scoredAt && (
-          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10 bg-bg-main">
-            <div className="flex items-center justify-center gap-2 py-3 px-4 bg-surface-subtle border border-white/10 rounded-xl">
-              <Clock aria-hidden="true" className="size-4 text-white/40" />
-              <span className="text-sm text-white/40">{t('eventEndedPending')}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Ended event — not joined */}
-        {!event.isJoined && event.status === 'ended' && (
-          <div className="flex-shrink-0 p-3 md:p-5 border-t border-white/10 bg-bg-main">
-            <Button
-              variant="outline"
-              fullWidth
-              size="lg"
-              onClick={() => setTab('leaderboard')}
-            >
-              <Eye aria-hidden="true" className="size-5" />
-              {t('viewResults')}
-            </Button>
-          </div>
-        )}
-        </div>
+        {/* Footer Actions */}
+        <EventDetailFooter
+          event={event}
+          isScored={isScored}
+          hasUnlockedFixtures={hasUnlockedFixtures}
+          isLineupComplete={isLineupComplete}
+          reqCheck={reqCheck}
+          overBudget={overBudget}
+          salaryCap={salaryCap}
+          totalSalary={totalSalary}
+          selectedPlayersCount={selectedPlayers.length}
+          formationSlotsCount={formationSlots.length}
+          joining={joining}
+          leaving={leaving}
+          onConfirmJoin={handleConfirmJoin}
+          onSaveLineup={handleSaveLineup}
+          onLeave={handleLeave}
+          onViewResults={() => setTab('leaderboard')}
+        />
     </Modal>
   );
 };

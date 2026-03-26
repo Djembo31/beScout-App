@@ -120,6 +120,44 @@ vi.mock('../EventCommunityTab', () => ({ default: () => null }));
 vi.mock('@/components/gamification/ChipSelector', () => ({ default: () => null }));
 
 // ============================================
+// Mocks — extracted sub-components
+// ============================================
+vi.mock('@/features/fantasy/components/event-detail/EventDetailHeader', () => ({
+  EventDetailHeader: ({ event, isScored }: { event: { name: string; status: string; participants: number; maxParticipants?: number | null }; isScored: boolean }) => (
+    <div data-testid="event-detail-header">
+      <span>{isScored ? 'statusScored' : `status_${event.status}`}</span>
+      <span>{event.participants}{event.maxParticipants ? `/${event.maxParticipants}` : ''}</span>
+    </div>
+  ),
+}));
+vi.mock('@/features/fantasy/components/event-detail/EventDetailFooter', () => ({
+  EventDetailFooter: ({ event, onConfirmJoin, onSaveLineup, onLeave, onViewResults }: { event: { isJoined: boolean; status: string }; onConfirmJoin: () => void; onSaveLineup: () => void; onLeave: () => void; onViewResults: () => void }) => {
+    // Render a join button when not joined and event not running/ended (matching original logic)
+    if (!event.isJoined && event.status !== 'ended' && event.status !== 'running') {
+      return (
+        <div data-testid="event-detail-footer">
+          <button data-testid="button" data-variant="gold" onClick={onConfirmJoin}>confirmRegistration</button>
+        </div>
+      );
+    }
+    return (
+      <div data-testid="event-detail-footer">
+        <button data-testid="button" onClick={onSaveLineup}>save</button>
+        <button data-testid="button" onClick={onLeave}>leave</button>
+      </div>
+    );
+  },
+}));
+vi.mock('@/features/fantasy/components/event-detail/JoinConfirmDialog', () => ({
+  JoinConfirmDialog: ({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) => (
+    <div data-testid="join-confirm-dialog">
+      <button data-testid="join-confirm" onClick={onConfirm}>confirm</button>
+      <button data-testid="join-cancel" onClick={onCancel}>cancel</button>
+    </div>
+  ),
+}));
+
+// ============================================
 // Mocks — constants & helpers
 // ============================================
 vi.mock('../constants', () => ({
