@@ -435,11 +435,9 @@ export default function FantasyContent() {
       return;
     }
 
-    // Invalidate all relevant caches — await joinedIds so optimistic state isn't killed early
-    invalidateFantasyQueries(user.id, clubId);
+    // Invalidate all relevant caches — awaits critical queries before clearing optimistic state
     queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
-    await queryClient.invalidateQueries({ queryKey: qk.events.joinedIds(user.id) });
-    await queryClient.invalidateQueries({ queryKey: qk.events.enteredIds(user.id) });
+    await invalidateFantasyQueries(user.id, clubId);
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
     setLocalEvents(null);
 
@@ -490,9 +488,9 @@ export default function FantasyContent() {
       return;
     }
 
-    // Invalidate usage + wildcard balance (may have changed)
-    invalidateFantasyQueries(user.id, clubId);
+    // Invalidate usage + wildcard balance — await so locks are visible immediately
     queryClient.invalidateQueries({ queryKey: qk.events.wildcardBalance(user.id) });
+    await invalidateFantasyQueries(user.id, clubId);
     setSelectedEvent(null);
     addToast(t('lineupSaved'), 'success');
   }, [user, addToast, clubId]);
@@ -538,11 +536,9 @@ export default function FantasyContent() {
       return;
     }
 
-    // Invalidate all relevant caches — await joinedIds so optimistic state isn't killed early
-    invalidateFantasyQueries(user.id, clubId);
+    // Invalidate all relevant caches — awaits critical queries before clearing optimistic state
     queryClient.invalidateQueries({ queryKey: qk.tickets.balance(user.id) });
-    await queryClient.invalidateQueries({ queryKey: qk.events.joinedIds(user.id) });
-    await queryClient.invalidateQueries({ queryKey: qk.events.enteredIds(user.id) });
+    await invalidateFantasyQueries(user.id, clubId);
     try { await fetch('/api/events?bust=1'); } catch (err) { console.error('[Fantasy] Event cache bust failed:', err); }
     setLocalEvents(null);
 

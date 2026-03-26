@@ -74,20 +74,28 @@ export function invalidateCommunityQueries(): void {
   queryClient.invalidateQueries({ queryKey: ['polls'] });
 }
 
-/** Invalidate fantasy/event-related caches */
-export function invalidateFantasyQueries(userId?: string, clubId?: string): void {
-  queryClient.invalidateQueries({ queryKey: qk.events.all });
+/** Invalidate fantasy/event-related caches — awaits critical queries so UI doesn't show stale state */
+export async function invalidateFantasyQueries(userId?: string, clubId?: string): Promise<void> {
+  // Fire-and-forget for non-critical caches
   queryClient.invalidateQueries({ queryKey: qk.events.leagueGw });
   if (clubId) {
     queryClient.invalidateQueries({ queryKey: qk.events.activeGw(clubId) });
   }
+
+  // Await critical caches that directly affect UI state (isJoined, locks, holdings)
+  const critical: Promise<void>[] = [
+    queryClient.invalidateQueries({ queryKey: qk.events.all }),
+  ];
   if (userId) {
-    queryClient.invalidateQueries({ queryKey: qk.events.joinedIds(userId) });
-    queryClient.invalidateQueries({ queryKey: qk.events.enteredIds(userId) });
-    queryClient.invalidateQueries({ queryKey: qk.events.usage(userId) });
-    queryClient.invalidateQueries({ queryKey: qk.events.holdingLocks(userId) });
-    queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(userId) });
+    critical.push(
+      queryClient.invalidateQueries({ queryKey: qk.events.joinedIds(userId) }),
+      queryClient.invalidateQueries({ queryKey: qk.events.enteredIds(userId) }),
+      queryClient.invalidateQueries({ queryKey: qk.events.usage(userId) }),
+      queryClient.invalidateQueries({ queryKey: qk.events.holdingLocks(userId) }),
+      queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(userId) }),
+    );
   }
+  await Promise.all(critical);
 }
 
 /** Invalidate player detail-related caches (narrowed — only affected player + user) */
