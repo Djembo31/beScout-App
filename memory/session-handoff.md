@@ -1,42 +1,34 @@
 # Session Handoff
-## Letzte Session: 2026-03-27 (Session 259)
+## Letzte Session: 2026-03-27 (Session 260)
 ## Was wurde gemacht
 
-### Fantasy Module Refactoring — GEMERGED auf main
-Radikale Restrukturierung des Fantasy-Moduls (~11.840 LOC) in eigenstaendiges Feature-Modul.
+### Market Module Refactoring — GEMERGED auf main
+Gleicher Ansatz wie Fantasy: Thin Orchestrator + Feature-Module.
 
 **Ergebnis:**
-- FantasyContent: 866→250 LOC (2 Zustand Stores, 7 Hooks ersetzen 15+ useState)
-- EventDetailModal: 835→380 LOC (Header/Footer/JoinConfirm extrahiert)
-- LineupPanel: 6 neue Components (PitchView, PlayerPicker, FormationSelector, etc.)
-- 8 Services gesplittet → 12 fokussierte Files (queries/mutations/admin)
-- Zentralisierte Cache-Invalidation (4 semantische Funktionen)
-- Re-Export Bridges fuer Backward-Compat
-- tsc 0 Errors, FantasyContent Tests 6/6, Vercel Preview Smoke-Test bestanden
+- page.tsx: 606→7 LOC (reiner Wrapper)
+- MarketContent: ~170 LOC Orchestrator (3 Hooks, 2 Tab-Router)
+- 3 Hooks: useMarketData, useTradeActions, useWatchlistActions
+- marketStore: 45→21 Felder (24 orphaned Fields entfernt)
+- 46 Files in `src/features/market/` (7,361 LOC)
+- 5 Queries + 1 Mutations-File verschoben mit Bridges
+- 13 Re-Export Bridges (components/manager/, components/market/, lib/)
+- tsc 0 Errors, 7/7 bestehende Test-Files (63 Tests) bestanden
+- Hook-Tests in Arbeit (useMarketData, useTradeActions)
 
 **Design Docs:**
-- `docs/plans/2026-03-26-fantasy-refactoring-design.md`
-- `docs/plans/2026-03-26-fantasy-refactoring-plan.md`
+- `docs/plans/2026-03-27-market-refactoring-design.md`
+- `docs/plans/2026-03-27-market-refactoring-plan.md`
 
-## Naechste Prioritaet: Market Page Refactoring
+## Naechste Prioritaet
 
-### Analyse (Session 259 durchgefuehrt)
-Codebase-Audit hat priorisiert: Market > Player Detail > Community
+### Offen — Market
+- Hook-Tests finalisieren (useMarketData, useTradeActions)
+- MarketContent Component-Tests schreiben
+- Vercel Preview Smoke-Test
+- Dead Code entfernen (alte Files die jetzt Bridges sind)
 
-### Market Page — Warum zuerst
-- 606 LOC God-Component (page.tsx) — 12 Dynamic Imports, 4 Modals inline
-- Trading = Core-Business (Fee Revenue), Pilot-kritisch
-- KEINE Tests (606 LOC ohne Unit Tests = hoechstes Risiko)
-- Gleicher Feature-Module-Ansatz wie Fantasy
-
-### Market Refactoring Scope
-1. Feature-Module `src/features/market/` erstellen
-2. Stores: marketStore (tabs, filters), tradeStore (order state)
-3. Hooks: useMarketEvents, usePortfolio, useTradeActions
-4. Components: PortfolioTab, MarktplatzTab, WatchlistTab extrahieren
-5. Tests schreiben (Portfolio, Orders, Trade Flow)
-
-### Weitere Refactoring-Kandidaten (nach Market)
+### Danach — Refactoring Pipeline
 | Prioritaet | Komponente | LOC | Problem |
 |-----------|-----------|-----|---------|
 | 2 | Player Detail | ~1880 | God-Page, meistbesuchte Seite |
@@ -44,12 +36,12 @@ Codebase-Audit hat priorisiert: Market > Player Detail > Community
 | 4 | AdminEventsManagement | 1040 | 18+ useState, Modals inline |
 | 5 | ClubContent | 965 | 9 Sections, kein Component-Boundary |
 
-### Quick-Wins (vor oder waehrend Market)
+### Quick-Wins
 - Dead Code: DashboardTab (377), GameweekTab (383) — unused, loeschbar
 - Raw Query Keys: `['research']`, `['bounties']` in invalidation.ts → qk Factory
 
-## Workflow-Learnings (Session 259)
-- Worktree-Agents NUR fuer isolierte Tasks (Service-Splits, neue Files)
-- Gekoppelte Tasks (Component-Rewrite mit Hooks) → selbst machen oder Agent OHNE Worktree
-- Tests als eigene Tasks planen, nicht als Afterthought
-- Mindestens 1 Review pro Wave, nicht pro Task
+## Workflow-Learnings (Session 260)
+- Store-Cleanup: IMMER grep JEDES Feld vor Delete (Agent-Research war unvollstaendig)
+- Bridge-Tests: vi.mock muss BEIDE Pfade mocken (alter + neuer Feature-Module-Pfad)
+- Prop-Types: Nicht vereinfachen — exakte Types aus Sub-Components uebernehmen
+- Wave 1-4 in 1 Session machbar, Tests parallelisierbar als Agents

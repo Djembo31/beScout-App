@@ -65,6 +65,7 @@ export function useTradeActions(userId: string | undefined, ipoList: DbIpo[]) {
   const executeBuy = useCallback((qty: number) => {
     if (!userId || !pendingBuy) return;
     balanceBeforeBuyRef.current = balanceCents ?? 0;
+    setPendingBuy(null);
     if (pendingBuy.source === 'market') {
       doBuy({ userId, playerId: pendingBuy.playerId, quantity: qty });
     } else {
@@ -72,7 +73,6 @@ export function useTradeActions(userId: string | undefined, ipoList: DbIpo[]) {
       if (!ipoId) return;
       doIpoBuy({ userId, ipoId, playerId: pendingBuy.playerId, quantity: qty });
     }
-    setPendingBuy(null);
   }, [userId, pendingBuy, doBuy, doIpoBuy, ipoIdMap, balanceCents]);
 
   const handleSell = useCallback(async (playerId: string, quantity: number, priceCents: number): Promise<ActionResult> => {
