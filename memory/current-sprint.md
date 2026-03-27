@@ -1,40 +1,29 @@
 # Current Sprint — Architecture Refactoring
 
-## Stand (2026-03-27, Session 260)
-- **Tests:** 2007 (161 Files, 9 pre-existing failures), tsc 0 Errors
-- **Branch:** main (Market refactoring gemerged)
-- **Neue Struktur:** `src/features/market/` — 46 Files, Feature-Module Pattern
-- **Vorherig:** `src/features/fantasy/` — 55 Files (Session 259)
+## Stand (2026-03-27, Session 264)
+- **Tests:** ~2261 (61 neue Hook-Tests), tsc 0 Errors (nur pre-existing)
+- **Branch:** main (3 neue Commits)
+- **Refactored Pages:** Fantasy, Market, PlayerDetail, Community, AdminEvents, ClubContent, ProfileView, Home
 
-## Erledigt (Session 260)
-- Market Module Refactoring: Design → Plan → 6 Wellen → Merge
-  - page.tsx: 606→7 LOC
-  - 3 Hooks, 2 Tab-Router, 1 Orchestrator
-  - marketStore: 45→21 Felder (24 orphaned entfernt)
-  - 13 Re-Export Bridges
-  - Bestehende Tests angepasst (63/63 pass)
+## Erledigt (Session 264) — 3 autonome Runden
+- ClubContent: 965→769 LOC, useClubData + useClubActions, 36 Tests
+- ProfileView: 418→215 LOC, useProfileData (inkl. Follow + Stats Refresh), 25 Tests
+- Home Dashboard: 661→441 LOC, useHomeData (9 Queries + Gamification + Retention)
+- Reviewer Agent: ClubContent reviewed, 3 Findings gefixt
 
-## Erledigt (Session 259)
-- Fantasy Module Refactoring: Design → Plan → 4 Wellen → Merge
-- Codebase-Audit: Top 12 Technical Debt Items identifiziert + priorisiert
-
-## Naechste Prioritaet: Market Tests + Player Detail
-
-### Market (Abschluss)
-- Hook-Tests: useMarketData, useTradeActions (Agents laufen)
-- MarketContent Component-Tests
-- Vercel Preview Smoke-Test
-
-### Player Detail Refactoring (~1880 LOC)
-- Gleicher Feature-Module-Ansatz
-- Meistbesuchte Seite, kein Test-Coverage
-- Brainstorming → Design → Plan → Execute
+## Naechste Prioritaet
+- Home Tests nachholen (useHomeData)
+- KaderTab (732 LOC) — Market Portfolio, keine Hooks
+- OffersTab (632 LOC) — Market Offers, keine Hooks
+- AdminPlayersTab (806 LOC) — Admin, partial Hooks
+- ClubContent Feinschliff: PublicView + SpielplanTab als Components
 
 ## Bekannte Issues
-- 9 pre-existing test failures (ProfileView, PlayerContent, db-invariants, AdminEventsTab, events-v2, TradingTab)
-- Fantasy Dead Code: DashboardTab (377 LOC), GameweekTab (383 LOC) — unused
-- Raw query keys in invalidation.ts: `['research']`, `['bounties']`
-- Fantasy LineupPanel nicht auf LineupBuilder umgestellt (parallel vorhanden)
+- 20 pre-existing test failures in CI
+- useMarketData.test.ts hat pre-existing tsc Errors
+- Fantasy LineupPanel (1011 LOC) — groesstes File, braucht Component-Split
+- demo-platform Account existiert nicht
+- Vercel Preview ist SSO-geschuetzt
 
 ## Blocker
 - Keine
