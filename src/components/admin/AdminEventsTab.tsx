@@ -16,6 +16,7 @@ import { useClubEventsActions } from './hooks/useClubEventsActions';
 import { STATUS_STYLES } from './hooks/types';
 import { EventStatusBadge } from './EventStatusBadge';
 import { EventFormModal } from './EventFormModal';
+import type { EventFormLabels } from './EventFormModal';
 
 // -- Status labels (Club admin uses i18n via t()) ------------------------------
 // Built inside the component since we need t()
@@ -35,6 +36,24 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     refreshEvents: data.refreshEvents,
     refreshGwStatuses: data.refreshGwStatuses,
   });
+
+  // -- Form labels (Club admin uses t() for i18n, NO Platform-only fields) -----
+  const FORM_LABELS: EventFormLabels = useMemo(() => ({
+    name: t('nameLabel'), namePlaceholder: t('eventNamePlaceholder'),
+    type: t('typeLabel'), format: t('formatLabel'), format7: t('format7'), format11: t('format11'),
+    eventTier: t('ratingLabel'), tierArena: t('arenaEventOption'), tierClub: t('clubEventOption'),
+    // NO tierUser — Club admin only has Arena + Club
+    minSub: t('minSubLabel'), minSubNone: t('allNoSub'), minSubBronze: t('tierBronzePlus'), minSubSilber: t('tierSilberPlus'), minSubGold: t('onlyGold'),
+    salaryCap: t('salaryCapLabel'), salaryCapPlaceholder: t('salaryCapPlaceholder'), salaryCapHint: t('salaryCapHint'),
+    // NO minScPerSlot — Club admin doesn't have this
+    // NO wildcardsAllowed — Club admin doesn't have this
+    gameweek: t('gameweekFormLabel'), gameweekPlaceholder: t('gameweekPlaceholder'), maxEntries: t('maxParticipants'),
+    entryFee: t('entryFeeLabel'), prizePool: t('prizeMoneyLabel'),
+    currency: t('eventCurrency'), currencyTickets: t('ticketsLabel'),
+    startTime: t('startTime'), lockTime: t('lockTime'), endTime: t('endTime'),
+    sponsorSection: t('sponsorData'), sponsorName: t('sponsorNameLabel'), sponsorNamePlaceholder: t('sponsorNamePlaceholder'), sponsorLogo: t('sponsorLogoLabel'),
+    feePreview: t('entryFeePreview'), prizePreview: t('prizePreview'), free: t('free'),
+  }), [t]);
 
   // -- Status config (memoized — t() is stable per locale) ---------------------
   const EVENT_STATUS_CONFIG = useMemo(() => {
@@ -256,6 +275,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
         isRewardEditorDisabled={false}
         title={t('createEventTitle')}
         submitLabel={t('eventCreate')}
+        labels={FORM_LABELS}
         scoutEventsEnabled={scoutEventsEnabled}
       />
     </div>

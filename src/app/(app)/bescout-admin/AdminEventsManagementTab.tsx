@@ -18,6 +18,25 @@ import { EventSortBar } from '@/components/admin/EventSortBar';
 import { EventBulkBar } from '@/components/admin/EventBulkBar';
 import { EventRow } from '@/components/admin/EventRow';
 import { EventFormModal } from '@/components/admin/EventFormModal';
+import type { EventFormLabels } from '@/components/admin/EventFormModal';
+
+// -- Form labels (Platform admin: hardcoded German, matching original) ---------
+const FORM_LABELS: EventFormLabels = {
+  name: 'Name', namePlaceholder: 'Event-Name',
+  club: 'Club', clubGlobal: 'Global (kein Club)',
+  type: 'Typ', format: 'Format', format7: '7er', format11: '11er',
+  eventTier: 'Event-Tier', tierArena: 'Arena', tierClub: 'Club', tierUser: 'User',
+  minSub: 'Min. Abo-Stufe', minSubNone: 'Keine (alle)', minSubBronze: 'Bronze+', minSubSilber: 'Silber+', minSubGold: 'Nur Gold',
+  salaryCap: 'Salary Cap', salaryCapPlaceholder: 'Optional',
+  minScPerSlot: 'Min SC pro Slot',
+  wildcardsAllowed: 'Wild Cards erlaubt', maxWildcards: 'Max Wild Cards',
+  gameweek: 'Spieltag', gameweekPlaceholder: '1-38', maxEntries: 'Max. Teilnehmer',
+  entryFee: 'Startgebuehr (Credits)', prizePool: 'Preisgeld (Credits)',
+  currency: 'Waehrung', currencyTickets: 'Tickets',
+  startTime: 'Startzeit', lockTime: 'Lock-Zeit', endTime: 'Endzeit',
+  sponsorSection: 'Sponsor-Daten', sponsorName: 'Sponsor-Name', sponsorNamePlaceholder: 'Sponsor-Name', sponsorLogo: 'Sponsor-Logo URL',
+  feePreview: 'Startgebuehr', prizePreview: 'Preisgeld', free: 'Kostenlos',
+};
 
 // -- Status labels (Platform admin uses HARDCODED German strings, NOT i18n) ----
 const ALL_STATUSES = Object.keys(STATUS_STYLES);
@@ -205,6 +224,7 @@ export function AdminEventsManagementTab({ adminId }: { adminId: string }) {
         isRewardEditorDisabled={form.isRewardEditorDisabled(actions.editingEvent)}
         title={actions.editingEvent ? t('eventsEditEvent') : t('eventsCreate')}
         submitLabel={actions.editingEvent ? t('save') : t('eventsCreate')}
+        labels={FORM_LABELS}
         clubs={data.clubs}
         scoutEventsEnabled={scoutEventsEnabled}
         size="lg"

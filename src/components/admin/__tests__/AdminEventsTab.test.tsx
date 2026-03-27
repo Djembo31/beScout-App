@@ -281,12 +281,12 @@ describe('AdminEventsTab', () => {
     await user.click(screen.getByText('newEvent').closest('button')!);
 
     const modal = screen.getByTestId('modal');
-    // Name label (EventFormModal uses hardcoded German labels)
-    expect(within(modal).getByText('Name')).toBeInTheDocument();
+    // Name label (EventFormModal uses labels from t() — mock returns key)
+    expect(within(modal).getByText('nameLabel')).toBeInTheDocument();
     // Type label
-    expect(within(modal).getByText('Typ')).toBeInTheDocument();
+    expect(within(modal).getByText('typeLabel')).toBeInTheDocument();
     // Format label
-    expect(within(modal).getByText('Format')).toBeInTheDocument();
+    expect(within(modal).getByText('formatLabel')).toBeInTheDocument();
   });
 
   // --- 11. Clone button copies event data into create form ---
@@ -309,7 +309,7 @@ describe('AdminEventsTab', () => {
     expect(modal).toBeInTheDocument();
 
     // The name field should have clone suffix appended (t('clone') returns 'clone' in mock)
-    const nameInput = within(modal).getByPlaceholderText('Event-Name') as HTMLInputElement;
+    const nameInput = within(modal).getByPlaceholderText('eventNamePlaceholder') as HTMLInputElement;
     expect(nameInput.value).toBe('Original Event (clone)');
   });
 
