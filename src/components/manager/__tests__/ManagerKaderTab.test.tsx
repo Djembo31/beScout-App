@@ -39,9 +39,20 @@ vi.mock('@/lib/clubs', () => ({
 // Mocks — child components (stubs)
 // ============================================
 vi.mock('../SquadPitch', () => ({
-  default: ({ formation, onSlotClick }: { formation: { id: string; slots: { pos: Pos }[] }; onSlotClick: (idx: number, pos: Pos) => void }) => (
+  default: ({ formation, onSlotClick }: { formation: { id: string; slots: { pos: string }[] }; onSlotClick: (idx: number, pos: string) => void }) => (
     <div data-testid="squad-pitch" data-formation={formation.id}>
-      {formation.slots.map((slot: { pos: Pos }, idx: number) => (
+      {formation.slots.map((slot: { pos: string }, idx: number) => (
+        <button key={idx} data-testid={`pitch-slot-${idx}`} onClick={() => onSlotClick(idx, slot.pos)}>
+          Slot {idx} ({slot.pos})
+        </button>
+      ))}
+    </div>
+  ),
+}));
+vi.mock('@/features/market/components/portfolio/SquadPitch', () => ({
+  default: ({ formation, onSlotClick }: { formation: { id: string; slots: { pos: string }[] }; onSlotClick: (idx: number, pos: string) => void }) => (
+    <div data-testid="squad-pitch" data-formation={formation.id}>
+      {formation.slots.map((slot: { pos: string }, idx: number) => (
         <button key={idx} data-testid={`pitch-slot-${idx}`} onClick={() => onSlotClick(idx, slot.pos)}>
           Slot {idx} ({slot.pos})
         </button>
@@ -51,7 +62,14 @@ vi.mock('../SquadPitch', () => ({
 }));
 
 vi.mock('../SquadSummaryStats', () => ({
-  default: ({ assignedCount, totalSlots, ownedPlayers }: { assignedCount: number; totalSlots: number; ownedPlayers: Player[] }) => (
+  default: ({ assignedCount, totalSlots, ownedPlayers }: { assignedCount: number; totalSlots: number; ownedPlayers: unknown[] }) => (
+    <div data-testid="squad-summary-stats">
+      {assignedCount}/{totalSlots} assigned, {ownedPlayers.length} owned
+    </div>
+  ),
+}));
+vi.mock('@/features/market/components/portfolio/SquadSummaryStats', () => ({
+  default: ({ assignedCount, totalSlots, ownedPlayers }: { assignedCount: number; totalSlots: number; ownedPlayers: unknown[] }) => (
     <div data-testid="squad-summary-stats">
       {assignedCount}/{totalSlots} assigned, {ownedPlayers.length} owned
     </div>
@@ -68,6 +86,12 @@ vi.mock('@/components/player', () => ({
 }));
 
 vi.mock('../bestand/bestandHelpers', () => ({
+  StatusPill: ({ status }: { status: string }) => <span data-testid="status-pill">{status}</span>,
+  MinutesPill: () => <span data-testid="minutes-pill" />,
+  NextMatchBadge: () => <span data-testid="next-match-badge" />,
+  STATUS_CONFIG: {},
+}));
+vi.mock('@/features/market/components/portfolio/bestand/bestandHelpers', () => ({
   StatusPill: ({ status }: { status: string }) => <span data-testid="status-pill">{status}</span>,
   MinutesPill: () => <span data-testid="minutes-pill" />,
   NextMatchBadge: () => <span data-testid="next-match-badge" />,

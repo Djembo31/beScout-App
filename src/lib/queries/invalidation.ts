@@ -38,7 +38,7 @@ export function invalidateSocialQueries(userId: string): void {
 
 /** Invalidate caches affected by research actions */
 export function invalidateResearchQueries(userId?: string): void {
-  queryClient.invalidateQueries({ queryKey: ['research'] });
+  queryClient.invalidateQueries({ queryKey: qk.research.all });
   if (userId) {
     queryClient.invalidateQueries({ queryKey: qk.transactions.byUser(userId, 10) });
   }
@@ -46,7 +46,7 @@ export function invalidateResearchQueries(userId?: string): void {
 
 /** Invalidate caches affected by community poll actions */
 export function invalidatePollQueries(userId?: string): void {
-  queryClient.invalidateQueries({ queryKey: ['polls'] });
+  queryClient.invalidateQueries({ queryKey: qk.polls.all });
   if (userId) {
     queryClient.invalidateQueries({ queryKey: qk.transactions.byUser(userId, 10) });
   }
@@ -69,10 +69,10 @@ export function invalidateClubQueries(clubId?: string): void {
 
 /** Invalidate community-related caches */
 export function invalidateCommunityQueries(): void {
-  queryClient.invalidateQueries({ queryKey: ['posts'] });
-  queryClient.invalidateQueries({ queryKey: ['bounties'] });
-  queryClient.invalidateQueries({ queryKey: ['votes'] });
-  queryClient.invalidateQueries({ queryKey: ['polls'] });
+  queryClient.invalidateQueries({ queryKey: qk.posts.all });
+  queryClient.invalidateQueries({ queryKey: qk.bounties.all });
+  queryClient.invalidateQueries({ queryKey: qk.votes.all });
+  queryClient.invalidateQueries({ queryKey: qk.polls.all });
 }
 
 /** Invalidate fantasy/event-related caches — delegates to feature module */

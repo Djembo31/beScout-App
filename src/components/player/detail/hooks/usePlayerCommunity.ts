@@ -50,7 +50,7 @@ export function usePlayerCommunity({
     setPostLoading(true);
     try {
       await createPost(userId, playerId, playerClub, content, tags, category, null, postType, rumorSource ?? null, rumorClubTarget ?? null);
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: qk.posts.all });
       addToast(t('postCreated'), 'success');
     } catch { addToast(t('postCreateError'), 'error'); }
     finally { setPostLoading(false); }
@@ -76,7 +76,7 @@ export function usePlayerCommunity({
     if (!userId) return;
     try {
       await deletePost(userId, postId);
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: qk.posts.all });
     } catch (err) { console.error('[Player] Delete post failed:', err); }
   }, [userId, queryClient]);
 
@@ -86,7 +86,7 @@ export function usePlayerCommunity({
     try {
       const result = await unlockResearch(userId, id);
       if (result.success) {
-        queryClient.invalidateQueries({ queryKey: ['research'] });
+        queryClient.invalidateQueries({ queryKey: qk.research.all });
       }
     } catch (err) { console.error('[Player] Research unlock failed:', err); }
     finally { setUnlockingId(null); }
@@ -98,7 +98,7 @@ export function usePlayerCommunity({
     try {
       const result = await rateResearch(userId, id, rating);
       if (result.success) {
-        queryClient.invalidateQueries({ queryKey: ['research'] });
+        queryClient.invalidateQueries({ queryKey: qk.research.all });
       }
     } catch (err) { console.error('[Player] Research rate failed:', err); }
     finally { setRatingId(null); }

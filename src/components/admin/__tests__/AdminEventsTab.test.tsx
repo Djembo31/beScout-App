@@ -65,7 +65,7 @@ vi.mock('@/components/ui', () => ({
     open ? <div data-testid="modal" data-title={title}><button data-testid="modal-close" onClick={onClose}>X</button>{children}</div> : null,
 }));
 
-vi.mock('./RewardStructureEditor', () => ({
+vi.mock('../RewardStructureEditor', () => ({
   default: () => <div data-testid="reward-structure-editor">RewardStructureEditor</div>,
 }));
 
@@ -281,7 +281,7 @@ describe('AdminEventsTab', () => {
     await user.click(screen.getByText('newEvent').closest('button')!);
 
     const modal = screen.getByTestId('modal');
-    // Name label
+    // Name label (EventFormModal uses labels from t() — mock returns key)
     expect(within(modal).getByText('nameLabel')).toBeInTheDocument();
     // Type label
     expect(within(modal).getByText('typeLabel')).toBeInTheDocument();
@@ -308,9 +308,9 @@ describe('AdminEventsTab', () => {
     const modal = screen.getByTestId('modal');
     expect(modal).toBeInTheDocument();
 
-    // The name field should have "(Kopie)" appended
+    // The name field should have clone suffix appended (t('clone') returns 'clone' in mock)
     const nameInput = within(modal).getByPlaceholderText('eventNamePlaceholder') as HTMLInputElement;
-    expect(nameInput.value).toBe('Original Event (Kopie)');
+    expect(nameInput.value).toBe('Original Event (clone)');
   });
 
   // --- 12. Gameweek simulation section renders ---

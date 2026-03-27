@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { XCircle } from 'lucide-react';
@@ -10,33 +10,13 @@ import { centsToBsd } from '@/lib/services/players';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { useToast } from '@/components/providers/ToastProvider';
-import { dbToPlayer } from '@/lib/services/players';
-import { getProfilesByIds } from '@/lib/services/profiles';
-import { MASTERY_LEVEL_LABELS, MASTERY_XP_THRESHOLDS } from '@/lib/services/mastery';
-import type { Player } from '@/types';
 
-// React Query hooks
-import { useDbPlayerById, usePlayers } from '@/lib/queries/players';
 import {
-  usePlayerGwScores,
-  usePlayerMatchTimeline,
-  usePbtForPlayer,
-  useLiquidationEvent,
-  useIpoForPlayer,
-  useHoldingQty,
-  usePlayerHolderCount,
-  useSellOrders,
-  useOpenBids,
-  usePosts,
-  useUserIpoPurchases,
-} from '@/lib/queries/misc';
-import { usePlayerResearch } from '@/lib/queries/research';
-import { usePlayerTrades } from '@/lib/queries/trades';
-import { useHoldingLocks } from '@/lib/queries/events';
-import { useDpcMastery } from '@/lib/queries/mastery';
-
-// Custom hooks
-import { usePlayerTrading, usePlayerCommunity, usePriceAlerts } from '@/components/player/detail/hooks';
+  usePlayerDetailData,
+  usePlayerTrading,
+  usePlayerCommunity,
+  usePriceAlerts,
+} from '@/components/player/detail/hooks';
 
 import {
   PlayerDetailSkeleton,
@@ -77,121 +57,42 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
   const t = useTranslations('player');
   const uid = user?.id;
 
-  // ─── UI State (before queries so tab can gate enabled) ─
+  // ─── UI State ───────────────────────────
   const [tab, setTab] = useState<Tab>('trading');
   const heroRef = useRef<HTMLDivElement>(null);
   const [showStrip, setShowStrip] = useState(false);
+  const [isWatchlisted, setIsWatchlisted] = useState(false);
+  const [showLimitOrder, setShowLimitOrder] = useState(false);
 
-  // ─── React Query Hooks (ALL before early returns) ────
-  // ALWAYS loaded (needed for Hero + Trading default tab):
-  const { data: dbPlayer, isLoading: playerLoading, isError: playerError, refetch } = useDbPlayerById(playerId);
-  const { data: holdingQtyData } = useHoldingQty(uid, playerId);
-  const { data: lockedScMap } = useHoldingLocks(uid);
-  const { data: holderCountData } = usePlayerHolderCount(playerId);
-  const { data: allSellOrdersData } = useSellOrders(playerId);
-  const { data: activeIpo } = useIpoForPlayer(playerId);
+  // ─── Data Hook ──────────────────────────
+  const data = usePlayerDetailData(playerId, uid, tab);
 
-  // TRADING TAB (default — loaded immediately):
-  const { data: tradesData, isLoading: tradesLoading } = usePlayerTrades(playerId);
-  const { data: openBidsData } = useOpenBids(playerId, tab === 'trading');
-  const { data: pbtTreasury } = usePbtForPlayer(playerId, tab === 'trading');
-  const { data: userIpoPurchasedData } = useUserIpoPurchases(uid, activeIpo?.id);
-  const { data: masteryData } = useDpcMastery(uid, playerId);
-
-  // HERO + PERFORMANCE shared (needed for Scout Card front+back):
-  const { data: matchTimelineData, isLoading: matchTimelineLoading } = usePlayerMatchTimeline(playerId, 15);
-  const { data: liquidationEvent } = useLiquidationEvent(playerId);
-
-  // PERFORMANCE TAB (deferred):
-  const { data: gwScoresData } = usePlayerGwScores(playerId, tab === 'performance');
-
-  // COMMUNITY TAB (deferred):
-  const { data: playerResearchData } = usePlayerResearch(playerId, uid, tab === 'community' || tab === 'trading');
-  const { data: playerPostsData } = usePosts({ playerId, limit: 30, active: tab === 'community' });
-
-  // ─── Derived from queries ─────────────────
-  const { data: allPlayersData } = usePlayers(tab === 'performance');
-  const allPlayersForPercentile = allPlayersData ?? [];
-  const player = useMemo(() => dbPlayer ? dbToPlayer(dbPlayer) : null, [dbPlayer]);
-  const dpcAvailable = dbPlayer?.dpc_available ?? 0;
-  const gwScores = gwScoresData ?? [];
-  const holdingQty = holdingQtyData ?? 0;
-  const holderCount = holderCountData ?? 0;
-  const allSellOrders = allSellOrdersData ?? [];
-  const openBids = openBidsData ?? [];
-  const trades = tradesData ?? [];
-  const playerResearch = playerResearchData ?? [];
-  const playerPosts = playerPostsData ?? [];
-  const userIpoPurchased = userIpoPurchasedData ?? 0;
-
-  // ─── Custom Hooks ─────────────────────────
+  // ─── Action Hooks ───────────────────────
   const trading = usePlayerTrading({
-    playerId, player, userId: uid,
-    activeIpo: activeIpo ?? null, allSellOrders,
-    holdingQty, balanceCents, userIpoPurchased,
+    playerId, player: data.player, userId: uid,
+    activeIpo: data.activeIpo ?? null, allSellOrders: data.allSellOrders,
+    holdingQty: data.holdingQty, balanceCents, userIpoPurchased: data.userIpoPurchased,
   });
 
   const community = usePlayerCommunity({
-    playerId, playerClub: player?.club, userId: uid, playerPosts,
+    playerId, playerClub: data.player?.club, userId: uid, playerPosts: data.playerPosts,
   });
 
-  const alerts = usePriceAlerts({ playerId, player });
+  const alerts = usePriceAlerts({ playerId, player: data.player });
 
-  // ─── UI State (continued) ────────────────
-  const [isWatchlisted, setIsWatchlisted] = useState(false);
-  const [showLimitOrder, setShowLimitOrder] = useState(false);
-  const [profileMap, setProfileMap] = useState<Record<string, { handle: string; display_name: string | null }>>({});
-
-  // ─── Sticky Dashboard Strip (IntersectionObserver) ─
+  // ─── Sticky Dashboard Strip ─────────────
   useEffect(() => {
     if (!heroRef.current) return;
     const obs = new IntersectionObserver(
       ([entry]) => setShowStrip(!entry.isIntersecting),
-      { threshold: 0 }
+      { threshold: 0 },
     );
     obs.observe(heroRef.current);
     return () => obs.disconnect();
   }, []);
 
-  // ─── Side Effects ─────────────────────────
-
-  // Load profile map when trades or orders change
-  useEffect(() => {
-    const userIds = new Set<string>();
-    trades.forEach(t => { if (t.buyer_id) userIds.add(t.buyer_id); if (t.seller_id) userIds.add(t.seller_id); });
-    allSellOrders.forEach(o => { if (o.user_id) userIds.add(o.user_id); });
-    const ids = Array.from(userIds);
-    if (ids.length > 0) {
-      getProfilesByIds(ids).then(setProfileMap).catch(err => {
-        console.error('[Player] Profile map failed:', err);
-        addToast(t('couldNotLoadProfiles'), 'error');
-      });
-    }
-  }, [trades, allSellOrders]);
-
-  // ─── Derived Data ─────────────────────────
-
-  const playerWithOwnership = useMemo(() => {
-    if (!player) return null;
-    const c2b = (c: number) => c / 100;
-    return {
-      ...player,
-      dpc: { ...player.dpc, owned: holdingQty },
-      pbt: pbtTreasury ? {
-        balance: c2b(pbtTreasury.balance),
-        lastInflow: pbtTreasury.last_inflow_at ? c2b(pbtTreasury.trading_inflow + pbtTreasury.ipo_inflow) : undefined,
-        sources: {
-          trading: c2b(pbtTreasury.trading_inflow),
-          ipo: c2b(pbtTreasury.ipo_inflow),
-          votes: c2b(pbtTreasury.votes_inflow),
-          content: c2b(pbtTreasury.content_inflow),
-        },
-      } : player.pbt,
-    };
-  }, [player, holdingQty, pbtTreasury]);
-
-  // ─── Club Admin Trading Restriction ──────
-  const isRestrictedAdmin = !!(clubAdmin && dbPlayer?.club_id === clubAdmin.clubId);
+  // ─── Club Admin Guard ───────────────────
+  const isRestrictedAdmin = !!(clubAdmin && data.dbPlayer?.club_id === clubAdmin.clubId);
   const te = useTranslations('errors');
   const guardedBuy = isRestrictedAdmin
     ? () => addToast(te('clubAdminRestricted'), 'error')
@@ -200,12 +101,11 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     ? () => addToast(te('clubAdminRestricted'), 'error')
     : trading.openSellModal;
 
-  // ─── Share handler ────────────────────────
-
+  // ─── Share Handler ──────────────────────
   const handleShare = async () => {
-    if (!player) return;
+    if (!data.player) return;
     const url = window.location.href;
-    const text = `${player.first} ${player.last} auf BeScout — ${fmtScout(centsToBsd(player.prices.floor ?? 0))} CR`;
+    const text = `${data.player.first} ${data.player.last} auf BeScout — ${fmtScout(centsToBsd(data.player.prices.floor ?? 0))} CR`;
     if (navigator.share) {
       try { await navigator.share({ title: text, url }); } catch (err) { console.error('[Player] Share failed:', err); }
     } else {
@@ -213,19 +113,19 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     }
   };
 
-  // ─── Loading / Error / Not Found ──────────
+  // ─── Loading / Error / Not Found ────────
 
-  if (playerLoading) return <PlayerDetailSkeleton />;
+  if (data.isLoading) return <PlayerDetailSkeleton />;
 
-  if (playerError) {
+  if (data.isError) {
     return (
       <div className="max-w-xl mx-auto mt-20">
-        <ErrorState onRetry={() => refetch()} />
+        <ErrorState onRetry={() => data.refetch()} />
       </div>
     );
   }
 
-  if (!player || !playerWithOwnership) {
+  if (!data.player || !data.playerWithOwnership) {
     return (
       <div className="flex flex-col items-center justify-center py-32">
         <XCircle className="size-12 text-white/20 mb-4" />
@@ -237,7 +137,10 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
     );
   }
 
-  // ─── Render ───────────────────────────────
+  // After guards — narrow types for render
+  const { player, playerWithOwnership } = data;
+
+  // ─── Render ─────────────────────────────
 
   return (
     <>
@@ -249,15 +152,15 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
       l5Score={player.perf.l5}
       trend={player.perf.trend}
       change24h={player.prices.change24h ?? 0}
-      holdingQty={holdingQty}
-      holderCount={holderCount}
+      holdingQty={data.holdingQty}
+      holderCount={data.holderCount}
       visible={showStrip}
     />
 
     <div className="max-w-[900px] mx-auto space-y-6 pb-20 lg:pb-0">
       {/* Liquidation Alert (above Hero) */}
       {player.isLiquidated && (
-        <LiquidationAlert liquidationEvent={liquidationEvent ?? null} />
+        <LiquidationAlert liquidationEvent={data.liquidationEvent ?? null} />
       )}
 
       {/* Hero */}
@@ -265,9 +168,9 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         <PlayerHero
           player={player}
           isIPO={trading.isIPO}
-          activeIpo={activeIpo ?? null}
-          holderCount={holderCount}
-          holdingQty={holdingQty}
+          activeIpo={data.activeIpo ?? null}
+          holderCount={data.holderCount}
+          holdingQty={data.holdingQty}
           isWatchlisted={isWatchlisted}
           priceAlert={alerts.priceAlert}
           onToggleWatchlist={() => setIsWatchlisted(!isWatchlisted)}
@@ -277,33 +180,33 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           onLimitClick={() => setShowLimitOrder(true)}
           onSetPriceAlert={alerts.handleSetPriceAlert}
           onRemovePriceAlert={alerts.handleRemovePriceAlert}
-          masteryLevel={masteryData?.level ?? 0}
-          matchTimeline={matchTimelineData ?? []}
+          masteryLevel={data.masteryData?.level ?? 0}
+          matchTimeline={data.matchTimelineData}
         />
       </div>
 
       {/* Tabs + Content */}
       <div className="space-y-4 md:space-y-6">
-        <TabBar tabs={TABS.map(tab => ({ ...tab, label: t(tab.label) }))} activeTab={tab} onChange={(id) => setTab(id as Tab)} />
+        <TabBar tabs={TABS.map(tb => ({ ...tb, label: t(tb.label) }))} activeTab={tab} onChange={(id) => setTab(id as Tab)} />
 
         {tab === 'trading' && (
           <TradingTab
             player={player}
-            trades={trades}
-            allSellOrders={allSellOrders}
-            tradesLoading={tradesLoading}
-            profileMap={profileMap}
+            trades={data.trades}
+            allSellOrders={data.allSellOrders}
+            tradesLoading={data.tradesLoading}
+            profileMap={data.profileMap}
             userId={uid}
-            dpcAvailable={dpcAvailable}
-            openBids={openBids}
-            holdingQty={holdingQty}
-            holderCount={holderCount}
-            mastery={masteryData && holdingQty > 0 ? { level: masteryData.level, xp: masteryData.xp } : null}
+            dpcAvailable={data.dpcAvailable}
+            openBids={data.openBids}
+            holdingQty={data.holdingQty}
+            holderCount={data.holderCount}
+            mastery={data.masteryData && data.holdingQty > 0 ? { level: data.masteryData.level, xp: data.masteryData.xp } : null}
             onAcceptBid={trading.handleAcceptBid}
             acceptingBidId={trading.acceptingBidId}
             onOpenOfferModal={trading.openOfferModal}
             isRestrictedAdmin={isRestrictedAdmin}
-            playerResearch={playerResearch}
+            playerResearch={data.playerResearch}
             onBuyClick={guardedBuy}
           />
         )}
@@ -311,24 +214,24 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
         {tab === 'performance' && (
           <PerformanceTab
             player={playerWithOwnership}
-            dpcAvailable={dpcAvailable}
-            holdingQty={holdingQty}
-            holderCount={holderCount}
-            matchTimeline={matchTimelineData ?? []}
-            matchTimelineLoading={matchTimelineLoading}
-            allPlayers={allPlayersForPercentile}
+            dpcAvailable={data.dpcAvailable}
+            holdingQty={data.holdingQty}
+            holderCount={data.holderCount}
+            matchTimeline={data.matchTimelineData}
+            matchTimelineLoading={data.matchTimelineLoading}
+            allPlayers={data.allPlayersForPercentile}
           />
         )}
 
         {tab === 'community' && (
           <CommunityTab
-            playerResearch={playerResearch}
-            playerPosts={playerPosts}
+            playerResearch={data.playerResearch}
+            playerPosts={data.playerPosts}
             myPostVotes={community.myPostVotes}
-            trades={trades}
+            trades={data.trades}
             userId={uid}
             playerId={playerId}
-            playerName={player ? `${player.first} ${player.last}` : ''}
+            playerName={`${player.first} ${player.last}`}
             unlockingId={community.unlockingId}
             ratingId={community.ratingId}
             postLoading={community.postLoading}
@@ -347,10 +250,10 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           open={trading.buyModalOpen}
           onClose={trading.closeBuyModal}
           player={playerWithOwnership}
-          activeIpo={activeIpo ?? null}
-          userIpoPurchased={userIpoPurchased}
+          activeIpo={data.activeIpo ?? null}
+          userIpoPurchased={data.userIpoPurchased}
           balanceCents={balanceCents}
-          allSellOrders={allSellOrders}
+          allSellOrders={data.allSellOrders}
           userOrders={trading.userOrders}
           userId={uid}
           buying={trading.buying}
@@ -366,7 +269,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           onCancelPendingBuy={trading.cancelPendingBuy}
           onShareTrade={trading.handleShareTrade}
           onOpenOfferModal={trading.openOfferModal}
-          profileMap={profileMap}
+          profileMap={data.profileMap}
         />
       </ErrorBoundary>
 
@@ -375,10 +278,10 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           open={trading.sellModalOpen}
           onClose={trading.closeSellModal}
           player={playerWithOwnership}
-          holdingQty={holdingQty}
-          lockedQty={lockedScMap?.get(playerId) ?? 0}
+          holdingQty={data.holdingQty}
+          lockedQty={data.lockedScMap?.get(playerId) ?? 0}
           userOrders={trading.userOrders}
-          openBids={openBids}
+          openBids={data.openBids}
           onSell={trading.handleSell}
           onCancelOrder={trading.handleCancelOrder}
           onAcceptBid={trading.handleAcceptBid}
@@ -414,7 +317,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
       {/* Mobile Trading Bar */}
       <MobileTradingBar
         floor={player.prices.floor ?? 0}
-        holdingQty={holdingQty}
+        holdingQty={data.holdingQty}
         change24h={player.prices.change24h ?? 0}
         isLiquidated={player.isLiquidated || isRestrictedAdmin}
         onBuyClick={guardedBuy}
