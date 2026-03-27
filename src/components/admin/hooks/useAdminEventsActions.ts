@@ -2,48 +2,13 @@ import { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/components/providers/ToastProvider';
 import { createEvent, updateEvent, bulkUpdateStatus } from '@/lib/services/events';
-import type { DbEvent, EventCurrency, RewardTier } from '@/types';
-
-// -- AdminEvent type (extended with club join) --------------------------------
-export type AdminEvent = DbEvent & { clubs?: { name: string; slug: string } | null };
-
-// -- Form shape contract (matches useEventForm output) ------------------------
-// This interface describes the shape that useEventForm will provide.
-// Defined here so this hook compiles independently of the form hook.
-interface EventFormShape {
-  form: {
-    name: string;
-    clubId: string;
-    type: string;
-    format: string;
-    eventTier: 'arena' | 'club' | 'user';
-    minSubTier: string;
-    salaryCap: string;
-    minScPerSlot: string;
-    wildcardsAllowed: boolean;
-    maxWildcards: string;
-    gameweek: string;
-    maxEntries: string;
-    entryFee: string;
-    prizePool: string;
-    rewardStructure: RewardTier[] | null;
-    startsAt: string;
-    locksAt: string;
-    endsAt: string;
-    sponsorName: string;
-    sponsorLogo: string;
-    currency: EventCurrency;
-  };
-  reset: (defaults?: Partial<EventFormShape['form']>) => void;
-  populate: (ev: AdminEvent) => void;
-  buildCreatePayload: (extra: { clubId?: string; createdBy: string }) => Parameters<typeof createEvent>[0];
-  buildUpdatePayload: (ev: AdminEvent) => Record<string, unknown>;
-}
+import type { AdminEvent } from './types';
+import type { useEventForm } from './useEventForm';
 
 // -- Params -------------------------------------------------------------------
 interface UseAdminEventsActionsParams {
   adminId: string;
-  form: EventFormShape;
+  form: ReturnType<typeof useEventForm>;
   selected: Set<string>;
   bulkStatus: string;
   clearSelection: () => void;

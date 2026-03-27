@@ -2,40 +2,14 @@ import { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { createEvent, updateEventStatus } from '@/lib/services/events';
 import { simulateGameweek } from '@/lib/services/fixtures';
-import type { DbEvent, EventCurrency, RewardTier } from '@/types';
-
-// -- Form shape contract (matches useEventForm output) ------------------------
-// Defined here so this hook compiles independently of the form hook.
-interface ClubEventFormShape {
-  form: {
-    name: string;
-    type: string;
-    format: string;
-    eventTier: 'arena' | 'club' | 'user';
-    minSubTier: string;
-    salaryCap: string;
-    gameweek: string;
-    maxEntries: string;
-    entryFee: string;
-    prizePool: string;
-    rewardStructure: RewardTier[] | null;
-    startsAt: string;
-    locksAt: string;
-    endsAt: string;
-    sponsorName: string;
-    sponsorLogo: string;
-    currency: EventCurrency;
-  };
-  reset: (defaults?: Partial<ClubEventFormShape['form']>) => void;
-  buildCreatePayload: (extra: { clubId: string; createdBy: string }) => Parameters<typeof createEvent>[0];
-  clone: (ev: DbEvent, cloneLabel: string) => void;
-}
+import type { DbEvent } from '@/types';
+import type { useEventForm } from './useEventForm';
 
 // -- Params -------------------------------------------------------------------
 interface UseClubEventsActionsParams {
   clubId: string;
   userId: string | undefined;
-  form: ClubEventFormShape;
+  form: ReturnType<typeof useEventForm>;
   refreshEvents: () => Promise<void>;
   refreshGwStatuses: () => Promise<void>;
 }
