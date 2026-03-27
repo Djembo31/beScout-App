@@ -91,23 +91,27 @@ export const qk = {
 
   // ── Posts ──
   posts: {
+    all: ['posts'] as const,
     list: (p?: Record<string, unknown>) => ['posts', p] as const,
   },
 
   // ── Research ──
   research: {
+    all: ['research'] as const,
     list: (p?: Record<string, unknown>) => ['research', p] as const,
     sentiment: (pid: string) => ['research', 'sentiment', pid] as const,
   },
 
   // ── Bounties ──
   bounties: {
+    all: ['bounties'] as const,
     active: ['bounties', 'active'] as const,
     forUser: (uid: string, clubId?: string) => ['bounties', uid, clubId] as const,
   },
 
   // ── Votes ──
   votes: {
+    all: ['votes'] as const,
     byClub: (cid: string) => ['votes', cid] as const,
   },
 
@@ -145,6 +149,7 @@ export const qk = {
 
   // ── Polls ──
   polls: {
+    all: ['polls'] as const,
     list: (clubId?: string) => ['polls', clubId] as const,
   },
 

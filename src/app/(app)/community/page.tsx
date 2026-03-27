@@ -9,6 +9,7 @@ import NewUserTip from '@/components/onboarding/NewUserTip';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { queryClient } from '@/lib/queryClient';
+import { qk } from '@/lib/queries/keys';
 import CommunityHero from '@/components/community/CommunityHero';
 import CommunityFeedTab from '@/components/community/CommunityFeedTab';
 import type { ContentFilter } from '@/components/community/CommunityFeedTab';
@@ -215,7 +216,7 @@ export default function CommunityPage() {
       )}
 
       {data.postsError && !data.postsLoading && (
-        <ErrorState onRetry={() => queryClient.invalidateQueries({ queryKey: ['posts'] })} />
+        <ErrorState onRetry={() => queryClient.invalidateQueries({ queryKey: qk.posts.all })} />
       )}
 
       {/* [C] Feed + Sidebar Grid */}

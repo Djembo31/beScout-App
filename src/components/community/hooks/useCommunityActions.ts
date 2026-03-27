@@ -66,7 +66,7 @@ export function useCommunityActions({
       console.error('[Community] Vote post failed:', err);
       addToast(t('voteError'), 'error');
       setMyPostVotes(prevVotes);
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: qk.posts.all });
     }
   }, [userId, myPostVotes, scopeClubId, addToast, t, setMyPostVotes]);
 
@@ -74,7 +74,7 @@ export function useCommunityActions({
     if (!userId) return;
     try {
       await deletePost(userId, postId);
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: qk.posts.all });
     } catch (err) {
       console.error('[Community] Delete post failed:', err);
       addToast(t('deleteError'), 'error');
@@ -86,7 +86,7 @@ export function useCommunityActions({
     try {
       const result = await adminDeletePost(userId, postId);
       if (result.success) {
-        queryClient.invalidateQueries({ queryKey: ['posts'] });
+        queryClient.invalidateQueries({ queryKey: qk.posts.all });
         addToast(t('postRemoved'), 'success');
       } else {
         addToast(result.error ?? t('genericError'), 'error');
@@ -129,7 +129,7 @@ export function useCommunityActions({
         imageUrl = await uploadPostImage(userId, imageFile);
       }
       await createPost(userId, playerId, state.clubName, content, tags, category, state.clubId, postType, null, null, null, imageUrl);
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: qk.posts.all });
       dispatch({ type: 'SET_CREATE_POST_OPEN', value: false });
     } catch (err) {
       console.error('[Community] Post creation failed:', err);
@@ -190,7 +190,7 @@ export function useCommunityActions({
     try {
       const result = await submitBountyResponse(userId, bountyId, title, content, evaluation);
       if (result.success) {
-        queryClient.invalidateQueries({ queryKey: ['bounties'] });
+        queryClient.invalidateQueries({ queryKey: qk.bounties.all });
         addToast(t('bountySection.submitted'), 'success');
       } else {
         addToast(result.error ?? t('genericError'), 'error');
@@ -245,7 +245,7 @@ export function useCommunityActions({
     try {
       await castVote(userId, voteId, optionIndex);
       setUserVotedIds(prev => new Set([...Array.from(prev), voteId]));
-      queryClient.invalidateQueries({ queryKey: ['clubVotes'] });
+      queryClient.invalidateQueries({ queryKey: qk.votes.all });
       addToast(t('voteCast'), 'success');
     } catch (err) {
       addToast(err instanceof Error ? err.message : t('genericError'), 'error');
@@ -260,7 +260,7 @@ export function useCommunityActions({
     try {
       await castCommunityPollVote(userId, pollId, optionIndex);
       setUserPollVotedIds(prev => new Set([...Array.from(prev), pollId]));
-      queryClient.invalidateQueries({ queryKey: ['polls'] });
+      queryClient.invalidateQueries({ queryKey: qk.polls.all });
       addToast(t('voteCast'), 'success');
     } catch (err) {
       addToast(err instanceof Error ? err.message : t('genericError'), 'error');
@@ -273,7 +273,7 @@ export function useCommunityActions({
     if (!userId) return;
     try {
       await cancelCommunityPoll(userId, pollId);
-      queryClient.invalidateQueries({ queryKey: ['polls'] });
+      queryClient.invalidateQueries({ queryKey: qk.polls.all });
       addToast(t('pollCancelled'), 'success');
     } catch (err) {
       addToast(err instanceof Error ? err.message : t('genericError'), 'error');
@@ -303,7 +303,7 @@ export function useCommunityActions({
         deadlineDays: params.deadlineDays,
         maxSubmissions: params.maxSubmissions,
       });
-      queryClient.invalidateQueries({ queryKey: ['bounties'] });
+      queryClient.invalidateQueries({ queryKey: qk.bounties.all });
       dispatch({ type: 'SET_CREATE_BOUNTY_OPEN', value: false });
       addToast(t('createBounty.success'), 'success');
     } catch (err) {
