@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getEventsByClubId } from '@/lib/services/events';
 import { getGameweekStatuses } from '@/lib/services/fixtures';
 import type { DbEvent, GameweekStatus } from '@/types';
@@ -64,14 +64,15 @@ export function useClubEventsData(clubId: string): UseClubEventsDataReturn {
     return () => { cancelled = true; };
   }, [clubId]);
 
-  // -- Derived: active/past events (simple filters, no useMemo needed) ---------
-  // Note: DB can return 'cancelled' even though DbEvent.status type omits it
+  // -- Derived: active/past events -----------------------------------------------
   const TERMINAL_STATUSES: string[] = ['ended', 'cancelled'];
-  const activeEvents = events.filter(
-    e => !TERMINAL_STATUSES.includes(e.status)
+  const activeEvents = useMemo(
+    () => events.filter(e => !TERMINAL_STATUSES.includes(e.status)),
+    [events],
   );
-  const pastEvents = events.filter(
-    e => TERMINAL_STATUSES.includes(e.status)
+  const pastEvents = useMemo(
+    () => events.filter(e => TERMINAL_STATUSES.includes(e.status)),
+    [events],
   );
 
   // -- Refresh helpers ---------------------------------------------------------

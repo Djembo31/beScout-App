@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Plus, Calendar, Play, Square, XCircle, Loader2, Zap, CheckCircle2, Copy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card, Button, Chip } from '@/components/ui';
@@ -36,22 +36,23 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     refreshGwStatuses: data.refreshGwStatuses,
   });
 
-  // -- i18n status labels (need t() so must be inside component) ---------------
-  const STATUS_LABELS: Record<string, string> = {
-    upcoming: t('evStatusPlanned'),
-    registering: t('evStatusRegistering'),
-    'late-reg': t('evStatusLateReg'),
-    running: t('evStatusLive'),
-    scoring: t('evStatusScoring'),
-    ended: t('evStatusEnded'),
-    cancelled: t('evStatusCancelled'),
-  };
-
-  // -- Original EVENT_STATUS_CONFIG (labels + colors, used for inline cards) ---
-  const EVENT_STATUS_CONFIG: Record<string, { bg: string; border: string; text: string; label: string }> = {};
-  for (const [status, styles] of Object.entries(STATUS_STYLES)) {
-    EVENT_STATUS_CONFIG[status] = { ...styles, label: STATUS_LABELS[status] ?? status };
-  }
+  // -- Status config (memoized — t() is stable per locale) ---------------------
+  const EVENT_STATUS_CONFIG = useMemo(() => {
+    const labels: Record<string, string> = {
+      upcoming: t('evStatusPlanned'),
+      registering: t('evStatusRegistering'),
+      'late-reg': t('evStatusLateReg'),
+      running: t('evStatusLive'),
+      scoring: t('evStatusScoring'),
+      ended: t('evStatusEnded'),
+      cancelled: t('evStatusCancelled'),
+    };
+    const config: Record<string, { bg: string; border: string; text: string; label: string }> = {};
+    for (const [status, styles] of Object.entries(STATUS_STYLES)) {
+      config[status] = { ...styles, label: labels[status] ?? status };
+    }
+    return config;
+  }, [t]);
 
   // ==========================================================================
   // Loading state
