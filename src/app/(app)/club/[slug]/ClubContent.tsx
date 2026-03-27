@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -18,24 +18,10 @@ import { PlayerIdentity } from '@/components/player';
 import { PlayerDisplay } from '@/components/player/PlayerRow';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useClub } from '@/components/providers/ClubProvider';
-import { dbToPlayers, centsToBsd } from '@/lib/services/players';
-import { toggleFollowClub } from '@/lib/services/club';
 import { cn } from '@/lib/utils';
-import { resolveExpiredResearch, getResearchPosts } from '@/lib/services/research';
-import { useClubBySlug } from '@/lib/queries/misc';
-import { usePlayersByClub } from '@/lib/queries/players';
-import { useClubFollowerCount, useIsFollowingClub } from '@/lib/queries/social';
-import { useHoldings } from '@/lib/queries/holdings';
-import { useClubFixtures } from '@/lib/queries/fixtures';
 import { queryClient } from '@/lib/queryClient';
 import { qk } from '@/lib/queries/keys';
-import { useToast } from '@/components/providers/ToastProvider';
-import { getPosts } from '@/lib/services/posts';
 import { formatTimeAgo } from '@/components/community/PostCard';
-import { useClubPrestige } from '@/lib/queries/scouting';
-import type { Player, Pos, Fixture, PostWithAuthor, ResearchPostWithAuthor } from '@/types';
-import { useActiveIpos } from '@/lib/queries/ipos';
-import { useEvents } from '@/lib/queries/events';
 import { ClubHero } from '@/components/club/ClubHero';
 import { ClubStatsBar } from '@/components/club/ClubStatsBar';
 import { ActiveOffersSection } from '@/components/club/sections/ActiveOffersSection';
@@ -47,14 +33,15 @@ import { CollectionProgress } from '@/components/club/sections/CollectionProgres
 import { RecentActivitySection } from '@/components/club/sections/RecentActivitySection';
 import { FeatureShowcase } from '@/components/club/sections/FeatureShowcase';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
-import { useClubRecentTrades } from '@/lib/queries/trades';
-import { useFanRanking } from '@/lib/queries/fanRanking';
 import FanRankBadge from '@/components/ui/FanRankBadge';
 import FanRankOverview from '@/components/gamification/FanRankOverview';
 import { ClubSkeleton } from '@/components/club/ClubSkeleton';
 import { SquadOverviewWidget } from '@/components/club/SquadOverviewWidget';
-import { FixtureRow, SeasonSummary, NextMatchCard, LastResultsCard, getFixtureResult, resultBadge } from '@/components/club/FixtureCards';
+import { FixtureRow, SeasonSummary, NextMatchCard, LastResultsCard } from '@/components/club/FixtureCards';
 import type { FixtureFilter } from '@/components/club/FixtureCards';
+import type { Pos, Fixture } from '@/types';
+import { useClubData, useClubActions } from '@/components/club/hooks';
+import type { ClubTab, SpielerSort, SquadView } from '@/components/club/hooks';
 
 // ============================================
 // REVEAL WRAPPER
@@ -77,12 +64,6 @@ function RevealSection({ children, delay = 0, className }: { children: React.Rea
 }
 
 // ============================================
-// TYPES
-// ============================================
-
-type ClubTab = 'uebersicht' | 'spieler' | 'spielplan';
-
-// ============================================
 // TABS CONFIG
 // ============================================
 
@@ -97,228 +78,51 @@ const TABS: { id: ClubTab; label: string }[] = [
 // ============================================
 
 export default function ClubContent({ slug }: { slug: string }) {
-  const { user, refreshProfile, loading: authLoading } = useUser();
-  const { addToast } = useToast();
+  const { user, loading: authLoading } = useUser();
   const userId = user?.id;
-
-  // ── React Query Hooks (ALL before early returns) ──
-  const { data: club, isLoading: clubLoading, isError: clubError } = useClubBySlug(slug, userId);
-  const clubId = club?.id;
-  const { data: dbPlayersRaw = [], isLoading: playersLoading, isError: playersError } = usePlayersByClub(clubId);
-  const { data: followerCountData = 0 } = useClubFollowerCount(clubId);
-  const { data: isFollowingData = false } = useIsFollowingClub(userId, clubId);
-  const { data: dbHoldings = [] } = useHoldings(userId);
-  const { data: clubFixtures = [] } = useClubFixtures(clubId);
-  const { data: clubPrestige } = useClubPrestige(clubId);
-  const { data: activeIpos = [] } = useActiveIpos();
-  const { data: allEvents = [] } = useEvents();
-  const { data: clubTradesRaw = [] } = useClubRecentTrades(clubId, 5);
-  const { data: fanRanking, isLoading: fanRankingLoading } = useFanRanking(userId, clubId);
-
-  // Resolve expired research (fire-and-forget)
-  useEffect(() => {
-    resolveExpiredResearch().catch(err => console.error('[Club] Resolve expired research failed:', err));
-  }, []);
-
   const t = useTranslations('club');
-  const tc = useTranslations('common');
   const tcom = useTranslations('community');
   const { followedClubs } = useClub();
 
-  // ---- Derived data from hooks ----
-  const players = useMemo(() => dbToPlayers(dbPlayersRaw), [dbPlayersRaw]);
-
-  const userHoldingsQty = useMemo(() => {
-    if (!clubId || dbHoldings.length === 0) return {};
-    const clubPlayerIds = new Set(dbPlayersRaw.map((p) => p.id));
-    const holdingsMap: Record<string, number> = {};
-    dbHoldings.forEach((h) => {
-      if (clubPlayerIds.has(h.player_id)) {
-        holdingsMap[h.player_id] = h.quantity;
-      }
-    });
-    return holdingsMap;
-  }, [dbHoldings, dbPlayersRaw, clubId]);
-
-  // Loading / error / notFound
-  const loading = authLoading || clubLoading || (!!clubId && playersLoading);
-  const dataError = clubError || playersError;
-  const notFound = !clubLoading && !club;
-
-  // ---- Local UI state ----
+  // ── Local UI State ──
   const [tab, setTab] = useState<ClubTab>('uebersicht');
-  const [followLoading, setFollowLoading] = useState(false);
-  const [localFollowing, setLocalFollowing] = useState<boolean | null>(null);
-  const [localFollowerDelta, setLocalFollowerDelta] = useState(0);
-
-  const isFollowing = localFollowing ?? isFollowingData;
-  const followerCount = followerCountData + localFollowerDelta;
-
-  // Spieler Tab filters
   const [posFilter, setPosFilter] = useState<Pos | 'ALL'>('ALL');
-  const [sortBy, setSortBy] = useState<'perf' | 'price' | 'change'>('perf');
+  const [sortBy, setSortBy] = useState<SpielerSort>('perf');
   const [spielerQuery, setSpielerQuery] = useState('');
-  const [squadView, setSquadView] = useState<'cards' | 'compact'>('cards');
-
-  // Hydrate from localStorage in useEffect to avoid SSR hydration mismatch
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('bescout-squad-view') as 'cards' | 'compact' | null;
-      if (saved) setSquadView(saved);
-    } catch { /* ignore */ }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('bescout-squad-view', squadView);
-  }, [squadView]);
-
-  // Spielplan Tab state
+  const [squadView, setSquadView] = useState<SquadView>('cards');
   const [fixtureFilter, setFixtureFilter] = useState<FixtureFilter>('all');
   const [expandedGw, setExpandedGw] = useState<Set<number>>(new Set());
   const [autoExpandedGw, setAutoExpandedGw] = useState(true);
 
-  // Club News
-  const [clubNews, setClubNews] = useState<PostWithAuthor[]>([]);
-  // Club Research
-  const [clubResearch, setClubResearch] = useState<ResearchPostWithAuthor[]>([]);
-
-  // Fetch club news posts
+  // Hydrate squadView from localStorage
   useEffect(() => {
-    if (!clubId) return;
-    let cancelled = false;
-    getPosts({ clubId, postType: 'club_news', limit: 3 }).then(news => {
-      if (!cancelled) setClubNews(news);
-    }).catch(err => console.error('[Club] News fetch:', err));
-    return () => { cancelled = true; };
-  }, [clubId]);
-
-  // Fetch club research posts
-  useEffect(() => {
-    if (!clubId) return;
-    let cancelled = false;
-    getResearchPosts({ clubId, limit: 5 }).then(posts => {
-      if (!cancelled) setClubResearch(posts);
-    }).catch(err => console.error('[Club] Research fetch:', err));
-    return () => { cancelled = true; };
-  }, [clubId]);
-
-  // Dashboard stats removed (admin has /club/[slug]/admin)
-
-  // ---- Computed Stats ----
-  const totalVolume24h = useMemo(
-    () => centsToBsd(dbPlayersRaw.reduce((sum, p) => sum + p.volume_24h, 0)),
-    [dbPlayersRaw]
-  );
-
-  const totalDpcFloat = useMemo(
-    () => dbPlayersRaw.reduce((sum, p) => sum + p.dpc_total, 0),
-    [dbPlayersRaw]
-  );
-
-  const avgPerf = useMemo(() => {
-    if (dbPlayersRaw.length === 0) return 0;
-    return dbPlayersRaw.reduce((sum, p) => sum + Number(p.perf_l5), 0) / dbPlayersRaw.length;
-  }, [dbPlayersRaw]);
-
-  const userClubDpc = useMemo(
-    () => Object.values(userHoldingsQty).reduce((sum, q) => sum + q, 0),
-    [userHoldingsQty]
-  );
-
-  const recentTrades = useMemo(() =>
-    clubTradesRaw.map(tr => ({
-      id: tr.id,
-      player_name: `${(tr.player as unknown as { first_name: string; last_name: string }).first_name} ${(tr.player as unknown as { first_name: string; last_name: string }).last_name}`,
-      price_cents: tr.price,
-      executed_at: tr.executed_at,
-    })),
-    [clubTradesRaw]
-  );
-
-  const filteredPlayers = useMemo(() => {
-    let filtered = posFilter === 'ALL' ? players : players.filter((p) => p.pos === posFilter);
-    if (spielerQuery) {
-      const q = spielerQuery.toLowerCase();
-      filtered = filtered.filter(p => `${p.first} ${p.last}`.toLowerCase().includes(q));
-    }
-    filtered = [...filtered].sort((a, b) => {
-      if (sortBy === 'perf') return b.perf.l5 - a.perf.l5;
-      if (sortBy === 'price') return b.prices.lastTrade - a.prices.lastTrade;
-      return b.prices.change24h - a.prices.change24h;
-    });
-    return filtered;
-  }, [players, posFilter, sortBy, spielerQuery]);
-
-  const posCounts = useMemo(() => {
-    const counts: Record<string, number> = { ALL: players.length, GK: 0, DEF: 0, MID: 0, ATT: 0 };
-    players.forEach((p) => { counts[p.pos]++; });
-    return counts;
-  }, [players]);
-
-  // Form streak (last 5 played fixtures)
-  const formResults = useMemo(() => {
-    if (!clubId) return [];
-    return clubFixtures
-      .filter(f => f.status === 'simulated' || f.status === 'finished')
-      .slice(-5)
-      .map(f => getFixtureResult(f, clubId))
-      .filter((r): r is 'W' | 'D' | 'L' => r !== null);
-  }, [clubFixtures, clubId]);
-
-  // Club-specific IPOs (for ActiveOffersSection)
-  const clubIpos = useMemo(() => {
-    const playerIds = new Set(dbPlayersRaw.map(p => p.id));
-    return activeIpos.filter(ipo => playerIds.has(ipo.player_id));
-  }, [activeIpos, dbPlayersRaw]);
-
-  // Owned player IDs set (for SquadPreviewSection)
-  const ownedPlayerIds = useMemo(() => new Set(Object.keys(userHoldingsQty)), [userHoldingsQty]);
-
-  // Club events (for ClubEventsSection)
-  const clubEvents = useMemo(() => {
-    if (!clubId) return [];
-    return allEvents.filter(e => e.club_id === clubId);
-  }, [allEvents, clubId]);
-
-  // Smart-hide: show feature showcase when >2 sections would be empty
-  const emptySections = useMemo(() => {
-    return [
-      clubIpos.length === 0,
-      clubEvents.length === 0,
-      recentTrades.length === 0,
-    ].filter(Boolean).length;
-  }, [clubIpos, clubEvents, recentTrades]);
-
-  const showFeatureShowcase = emptySections >= 2;
-
-  // ---- Follow Toggle ----
-  const handleFollow = useCallback(async () => {
-    if (!user || !club || followLoading) return;
-    setFollowLoading(true);
-    const newFollowing = !isFollowing;
-
-    setLocalFollowing(newFollowing);
-    setLocalFollowerDelta(prev => prev + (newFollowing ? 1 : -1));
-
     try {
-      await toggleFollowClub(user.id, club.id, club.name, newFollowing);
-      await refreshProfile();
-      // Reset optimistic delta BEFORE query refetch delivers new server count
-      setLocalFollowerDelta(0);
-      setLocalFollowing(null);
-      queryClient.invalidateQueries({ queryKey: qk.clubs.isFollowing(user.id, club.id) });
-      queryClient.invalidateQueries({ queryKey: qk.clubs.followers(club.id) });
-    } catch {
-      setLocalFollowing(!newFollowing);
-      setLocalFollowerDelta(prev => prev + (newFollowing ? -1 : 1));
-      addToast(t('followError'), 'error');
-    } finally {
-      setFollowLoading(false);
-    }
-  }, [user, club, isFollowing, followLoading, refreshProfile, addToast, t]);
+      const saved = localStorage.getItem('bescout-squad-view') as SquadView | null;
+      if (saved) setSquadView(saved);
+    } catch { /* ignore */ }
+  }, []);
+  useEffect(() => { localStorage.setItem('bescout-squad-view', squadView); }, [squadView]);
 
-  // ---- Loading / Error ----
-  if (loading) return <ClubSkeleton />;
+  // ── Data + Actions Hooks ──
+  const data = useClubData({ slug, userId, filters: { posFilter, sortBy, spielerQuery } });
+  const { isFollowing, followerCount, followLoading, handleFollow } = useClubActions({
+    club: data.club,
+    isFollowingData: data.isFollowingData,
+    followerCountData: data.followerCountData,
+  });
+
+  const {
+    club, clubId, players, loading, dataError, notFound,
+    totalVolume24h, totalDpcFloat, avgPerf, userClubDpc,
+    filteredPlayers, posCounts,
+    clubIpos, clubEvents, ownedPlayerIds, recentTrades, formResults,
+    clubFixtures, emptySections, showFeatureShowcase,
+    clubNews, clubResearch,
+    fanRanking, fanRankingLoading, clubPrestige,
+  } = data;
+
+  // ── Loading / Error Guards ──
+  if (authLoading || loading) return <ClubSkeleton />;
 
   if (notFound) {
     return (
@@ -569,7 +373,7 @@ export default function ClubContent({ slug }: { slug: string }) {
         </div>
       )}
 
-      {/* ━━━ SPONSOR: CLUB HERO ━━━ */}
+      {/* SPONSOR: CLUB HERO */}
       <SponsorBanner placement="club_hero" clubId={club.id} />
 
       {/* TABS + Admin Link */}
@@ -588,10 +392,10 @@ export default function ClubContent({ slug }: { slug: string }) {
         )}
       </div>
 
-      {/* ========== TAB: ÜBERSICHT ========== */}
+      {/* ========== TAB: UEBERSICHT ========== */}
       {tab === 'uebersicht' && (
         <div className="space-y-6">
-          {/* Nächste Begegnung */}
+          {/* Naechste Begegnung */}
           <RevealSection>
             {clubId && <NextMatchCard fixtures={clubFixtures} clubId={clubId} club={club} />}
           </RevealSection>
@@ -811,7 +615,7 @@ export default function ClubContent({ slug }: { slug: string }) {
                     { id: 'change', label: t('sortChange') },
                   ]}
                   active={sortBy}
-                  onChange={(id) => setSortBy(id as 'perf' | 'price' | 'change')}
+                  onChange={(id) => setSortBy(id as SpielerSort)}
                 />
                 <div className="flex-shrink-0 flex items-center gap-0.5 bg-white/[0.04] rounded-lg p-0.5 border border-white/[0.06]">
                   <button
