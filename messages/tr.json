@@ -797,7 +797,7 @@
       "att": "FW"
     },
     "sortL5": "L5",
-    "sortForm": "Form \u2191",
+    "sortForm": "Form ↑",
     "sortPrice": "Fiyat",
     "sortAZ": "A-Z",
     "filterAvailable": "Mevcut",
@@ -897,7 +897,17 @@
     "viewAll": "Tüm tahminler",
     "genericError": "Hata",
     "networkError": "Ağ hatası",
-    "matchLabel": "Maç"
+    "matchLabel": "Maç",
+    "homeWin": "Ev Sahibi Kazanır",
+    "awayWin": "Deplasman Kazanır",
+    "bothScoreYes": "İkisi de Atar",
+    "bothScoreNo": "İkisi de Atmaz",
+    "goalLabel": "Gol",
+    "assistLabel": "Asist",
+    "cardLabel": "Kart",
+    "cleanSheetLabel": "Gol Yemeden",
+    "minutesLabel": "≥60 Dk",
+    "goalsLabel": "Gol"
   },
   "leagues": {
     "title": "Liglerim",
@@ -3647,7 +3657,6 @@
     "eventsCreateError": "Olusturma hatasi",
     "eventsBulkOk": "{ok} basarili, {fail} basarisiz",
     "eventsBulkSuccess": "{ok} etkinlik guncellendi",
-
     "tabClubs": "Kulupler",
     "tabFoundingPasses": "Founding Pass",
     "tabTreasury": "Hazine",
@@ -3657,7 +3666,6 @@
     "tabCreatorFund": "Creator Fund",
     "tabDebug": "Debug",
     "supabaseDashboard": "Supabase Dashboard",
-
     "fpPassesTotal": "Toplam Pass",
     "fpFounder": "Founder",
     "fpPro": "Pro",
@@ -3690,7 +3698,6 @@
     "fpKillSwitchError": "Kill-Switch aktif: EUR {limit} limitine ulasildi - daha fazla Pass verilemez",
     "fpGrantSuccess": "{tier} Pass {user} kullanicisina verildi - {amount} CR",
     "fpSearchResults": "Arama sonuclari",
-
     "feeTradeFee": "Islem Ucreti",
     "feePlatform": "Platform",
     "feePbt": "PBT",
@@ -3699,7 +3706,6 @@
     "feeIpoPbt": "IPO PBT",
     "feeIpoClub": "IPO Kulup",
     "feeBps": "bps",
-
     "treasuryLoadError": "Hazine verileri yuklenemedi",
     "treasuryCirculating": "Dolasimdaki (Creditler)",
     "treasuryPlatformFeesBurned": "Platform Ucretleri (yakildi)",

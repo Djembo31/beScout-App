@@ -1,6 +1,7 @@
 'use client';
 
 import { useReducer } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Users, MessageCircle } from 'lucide-react';
 import { Skeleton, ErrorState } from '@/components/ui';
@@ -62,6 +63,7 @@ function communityReducer(state: CommunityState, action: CommunityAction): Commu
 export default function CommunityPage() {
   const { user, profile } = useUser();
   const { activeClub } = useClub();
+  const router = useRouter();
   const t = useTranslations('community');
   const tt = useTranslations('tips');
   const uid = user?.id;
@@ -237,7 +239,7 @@ export default function CommunityPage() {
                 onVote={actions.handleVotePost}
                 onDelete={actions.handleDeletePost}
                 onCreatePost={() => dispatch({ type: 'SET_CREATE_POST_OPEN', value: true })}
-                onSwitchToLeaderboard={() => {}}
+                onSwitchToLeaderboard={() => router.push('/')}
                 isClubAdmin={state.isClubAdmin}
                 onAdminDelete={actions.handleAdminDeletePost}
                 onTogglePin={actions.handleTogglePin}

@@ -1060,10 +1060,7 @@ export async function GET(request: Request) {
     }
 
     // ---- 9b. Resolve predictions ----
-    // NOTE: resolve_gameweek_predictions RPC requires auth.uid() != NULL (admin guard).
-    // supabaseAdmin uses service_role key where auth.uid() = NULL.
-    // The RPC returns {ok: false, error: "Not authenticated"} — this is a known limitation.
-    // TODO: Fix RPC to allow NULL auth.uid() (service role) or remove admin guard for cron usage.
+    // RPC supports service_role via v_is_service_role JWT check (migration 20260314).
     const { result: predResult } = await runStep('resolve_predictions', async () => {
       const { data, error } = await supabaseAdmin.rpc('resolve_gameweek_predictions', {
         p_gameweek: activeGw,
@@ -1074,12 +1071,10 @@ export async function GET(request: Request) {
       return { resolved: result.resolved, correct: result.correct, wrong: result.wrong };
     });
 
-    await logStep(activeGw, 'resolve_predictions', predResult ? 'success' : 'error', predResult ?? { error: 'auth.uid() is NULL from service role — RPC requires admin auth' });
+    await logStep(activeGw, 'resolve_predictions', predResult ? 'success' : 'error', predResult ?? { error: 'resolve_predictions failed' });
 
     // ---- 9c. DPC of the Week ----
-    // NOTE: calculate_dpc_of_week RPC requires auth.uid() != NULL (RAISE EXCEPTION).
-    // supabaseAdmin uses service_role key where auth.uid() = NULL — this always throws.
-    // TODO: Fix RPC to allow NULL auth.uid() (service role) for cron usage.
+    // RPC supports service_role via v_is_service_role JWT check (migration 20260314).
     const { result: dpcResult } = await runStep('dpc_of_week', async () => {
       const { data, error } = await supabaseAdmin.rpc('calculate_dpc_of_week', {
         p_gameweek: activeGw,
@@ -1090,7 +1085,7 @@ export async function GET(request: Request) {
       return { playerId: result.player_id };
     });
 
-    await logStep(activeGw, 'dpc_of_week', dpcResult ? 'success' : 'error', dpcResult ?? { error: 'auth.uid() is NULL from service role — RPC raises exception' });
+    await logStep(activeGw, 'dpc_of_week', dpcResult ? 'success' : 'error', dpcResult ?? { error: 'dpc_of_week failed' });
 
     // ---- 10. Clone events for next GW ----
     if (nextGw <= 38) {

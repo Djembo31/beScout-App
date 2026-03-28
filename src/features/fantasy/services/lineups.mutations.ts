@@ -14,8 +14,6 @@ export async function submitLineup(params: {
   captainSlot?: string | null;
   wildcardSlots?: string[];
 }): Promise<DbLineup> {
-  console.log('[Lineup] save_lineup calling RPC...', { eventId: params.eventId, userId: params.userId, formation: params.formation, filledSlots: Object.values(params.slots).filter(Boolean).length });
-
   const { data: rpcResult, error: rpcError } = await supabase.rpc('save_lineup', {
     p_event_id: params.eventId,
     p_formation: params.formation,
@@ -35,8 +33,6 @@ export async function submitLineup(params: {
     p_slot_att3: params.slots['att3'] ?? null,
   });
 
-  console.log('[Lineup] save_lineup RPC returned:', { rpcResult, rpcError });
-
   if (rpcError) {
     console.error('[Lineup] save_lineup RPC failed:', rpcError);
     throw new Error(rpcError.message);
@@ -47,8 +43,6 @@ export async function submitLineup(params: {
     console.error('[Lineup] save_lineup returned ok:false:', result);
     throw new Error(result.error ?? 'lineup_save_failed');
   }
-
-  console.log('[Lineup] save_lineup SUCCESS:', result);
 
   // Activity log (fire-and-forget)
   import('@/lib/services/activityLog').then(({ logActivity }) => {

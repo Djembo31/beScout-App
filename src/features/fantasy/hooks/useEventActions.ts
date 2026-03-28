@@ -138,8 +138,6 @@ export function useEventActions(clubId: string) {
       const slots: Record<string, string | null> = {};
       dbKeys.forEach((key, idx) => { slots[key] = slotMap.get(idx) || null; });
 
-      console.log('[Fantasy] submitLineup calling:', { eventId: event.id, userId: user.id, formation: resolvedFormation.id, slotCount: dbKeys.length, playerCount: lineup.length, slots });
-
       await submitLineupService({
         eventId: event.id,
         userId: user.id,
@@ -149,7 +147,6 @@ export function useEventActions(clubId: string) {
         wildcardSlots,
       });
 
-      console.log('[Fantasy] submitLineup SUCCEEDED -- closing modal');
     } catch (e: unknown) {
       console.error('[Fantasy] submitLineup FAILED:', e);
       const msg = e instanceof Error ? e.message : '';

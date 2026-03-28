@@ -12,8 +12,6 @@ import {
   getHoldingQty,
   getPlayerHolderCount,
   getTransactions,
-  deductEntryFee,
-  refundEntryFee,
   formatScout,
 } from '../wallet';
 
@@ -227,115 +225,6 @@ describe('getTransactions', () => {
   it('throws on supabase error', async () => {
     mockSupabaseResponse(null, { message: 'timeout' });
     await expect(getTransactions('u1')).rejects.toThrow('timeout');
-  });
-});
-
-// ============================================
-// deductEntryFee
-// ============================================
-
-describe('deductEntryFee', () => {
-  it('returns new_balance on success', async () => {
-    mockSupabaseRpc({ success: true, new_balance: 450000 });
-    const result = await deductEntryFee('u1', 50000, 'Gameweek 5', 'evt1');
-    expect(result).toBe(450000);
-  });
-
-  it('throws mapped error when RPC returns error', async () => {
-    mockSupabaseRpc(null, { message: 'insufficient balance' });
-    await expect(
-      deductEntryFee('u1', 50000, 'Gameweek 5', 'evt1'),
-    ).rejects.toThrow('insufficientBalance');
-  });
-
-  it('throws when RPC returns null data', async () => {
-    mockSupabaseRpc(null);
-    await expect(
-      deductEntryFee('u1', 50000, 'Gameweek 5', 'evt1'),
-    ).rejects.toThrow('deduct_wallet_balance returned null');
-  });
-
-  it('throws mapped error when result.success is false', async () => {
-    mockSupabaseRpc({ success: false, error: 'insufficient balance' });
-    await expect(
-      deductEntryFee('u1', 999999, 'Gameweek 5', 'evt1'),
-    ).rejects.toThrow('insufficientBalance');
-  });
-
-  it('throws walletError when result.success is false with no error message', async () => {
-    mockSupabaseRpc({ success: false });
-    await expect(
-      deductEntryFee('u1', 50000, 'Gameweek 5', 'evt1'),
-    ).rejects.toThrow(); // mapRpcError('walletError') — no matching pattern, returns 'walletError'
-  });
-
-  it('uses custom description when provided', async () => {
-    mockSupabaseRpc({ success: true, new_balance: 450000 });
-    const result = await deductEntryFee(
-      'u1',
-      50000,
-      'Gameweek 5',
-      'evt1',
-      'Custom deduct description',
-    );
-    expect(result).toBe(450000);
-  });
-
-  it('uses default description without eventName', async () => {
-    mockSupabaseRpc({ success: true, new_balance: 450000 });
-    const result = await deductEntryFee('u1', 50000);
-    expect(result).toBe(450000);
-  });
-});
-
-// ============================================
-// refundEntryFee
-// ============================================
-
-describe('refundEntryFee', () => {
-  it('returns new_balance on success', async () => {
-    mockSupabaseRpc({ success: true, new_balance: 550000 });
-    const result = await refundEntryFee('u1', 50000, 'Gameweek 5', 'evt1');
-    expect(result).toBe(550000);
-  });
-
-  it('throws mapped error when RPC returns error', async () => {
-    mockSupabaseRpc(null, { message: 'not found' });
-    await expect(
-      refundEntryFee('u1', 50000, 'Gameweek 5', 'evt1'),
-    ).rejects.toThrow('orderNotFound');
-  });
-
-  it('throws when RPC returns null data', async () => {
-    mockSupabaseRpc(null);
-    await expect(
-      refundEntryFee('u1', 50000, 'Gameweek 5', 'evt1'),
-    ).rejects.toThrow('refund_wallet_balance returned null');
-  });
-
-  it('throws mapped error when result.success is false', async () => {
-    mockSupabaseRpc({ success: false, error: 'some wallet error' });
-    await expect(
-      refundEntryFee('u1', 50000, 'Gameweek 5', 'evt1'),
-    ).rejects.toThrow();
-  });
-
-  it('uses custom description when provided', async () => {
-    mockSupabaseRpc({ success: true, new_balance: 550000 });
-    const result = await refundEntryFee(
-      'u1',
-      50000,
-      'Gameweek 5',
-      'evt1',
-      'Custom refund description',
-    );
-    expect(result).toBe(550000);
-  });
-
-  it('uses default description without eventName', async () => {
-    mockSupabaseRpc({ success: true, new_balance: 550000 });
-    const result = await refundEntryFee('u1', 50000);
-    expect(result).toBe(550000);
   });
 });
 

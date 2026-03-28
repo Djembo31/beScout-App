@@ -271,7 +271,7 @@ export default function TraderTab({
         <Card className="p-4 md:p-5">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-black text-sm">{tp('recentTradesLabel')}</h3>
-            <Link href="#" className="text-[11px] text-gold hover:text-gold/80 transition-colors">
+            <Link href={`/profile/${userId}?tab=activity`} className="text-[11px] text-gold hover:text-gold/80 transition-colors">
               {tp('allTrades')} <ArrowRight className="inline size-3" />
             </Link>
           </div>

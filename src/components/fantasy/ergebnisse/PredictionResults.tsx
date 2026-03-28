@@ -21,17 +21,18 @@ function ConfidenceStars({ confidence }: { confidence: number }) {
   );
 }
 
-/** Readable condition text */
-function getConditionText(p: Prediction): string {
+/** Readable condition text — uses i18n via passed-in t() */
+function getConditionText(p: Prediction, t: (key: string) => string): string {
+  const playerPrefix = `${p.player?.first_name?.charAt(0) ?? ''}. ${p.player?.last_name ?? '?'}`;
   switch (p.condition) {
-    case 'match_result': return p.predicted_value === 'home' ? 'Sieg Heim' : p.predicted_value === 'away' ? 'Sieg Auswärts' : 'Unentschieden';
-    case 'total_goals': return `${p.predicted_value === 'over' ? 'Über' : 'Unter'} 2.5 Tore`;
-    case 'both_score': return p.predicted_value === 'yes' ? 'Beide treffen' : 'Nicht beide treffen';
-    case 'player_goals': return `${p.player?.first_name?.charAt(0) ?? ''}. ${p.player?.last_name ?? '?'} Tor`;
-    case 'player_assists': return `${p.player?.first_name?.charAt(0) ?? ''}. ${p.player?.last_name ?? '?'} Assist`;
-    case 'player_card': return `${p.player?.first_name?.charAt(0) ?? ''}. ${p.player?.last_name ?? '?'} Karte`;
-    case 'clean_sheet': return `${p.player?.first_name?.charAt(0) ?? ''}. ${p.player?.last_name ?? '?'} Weiße Weste`;
-    case 'player_minutes': return `${p.player?.first_name?.charAt(0) ?? ''}. ${p.player?.last_name ?? '?'} ≥60 Min`;
+    case 'match_result': return p.predicted_value === 'home' ? t('homeWin') : p.predicted_value === 'away' ? t('awayWin') : t('draw');
+    case 'total_goals': return `${p.predicted_value === 'over' ? t('over25') : t('under25')} ${t('goalsLabel')}`;
+    case 'both_score': return p.predicted_value === 'yes' ? t('bothScoreYes') : t('bothScoreNo');
+    case 'player_goals': return `${playerPrefix} ${t('goalLabel')}`;
+    case 'player_assists': return `${playerPrefix} ${t('assistLabel')}`;
+    case 'player_card': return `${playerPrefix} ${t('cardLabel')}`;
+    case 'clean_sheet': return `${playerPrefix} ${t('cleanSheetLabel')}`;
+    case 'player_minutes': return `${playerPrefix} ${t('minutesLabel')}`;
     default: return p.condition;
   }
 }
@@ -90,7 +91,7 @@ export function PredictionResults({ predictions }: Props) {
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <div className="text-xs font-semibold truncate">{getConditionText(p)}</div>
+                <div className="text-xs font-semibold truncate">{getConditionText(p, tp)}</div>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="text-xs text-white/30 truncate">{getFixtureContext(p)}</span>
                   <ConfidenceStars confidence={p.confidence} />

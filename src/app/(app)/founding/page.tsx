@@ -109,7 +109,9 @@ export default function FoundingPassPage() {
 
     setPurchasing(true);
     try {
-      const result = await grantFoundingPass(uid, tier, priceEurCents, 'mock-pilot');
+      // Pilot mode: Founding Passes granted without payment gateway (Sakaryaspor pilot).
+      // Payment integration (Stripe/PayPal) deferred to post-pilot phase.
+      const result = await grantFoundingPass(uid, tier, priceEurCents, 'pilot-grant');
       if (result.ok) {
         addToast(t('successToast'), 'celebration');
         queryClient.invalidateQueries({ queryKey: ['founding-pass'] });

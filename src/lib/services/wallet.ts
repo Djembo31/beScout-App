@@ -143,48 +143,6 @@ export async function getTransactions(userId: string, limit = 20, offset = 0): P
 
 type WalletRpcResult = { success: boolean; error?: string; new_balance?: number };
 
-/**
- * Entry Fee vom Wallet abziehen (atomar, mit TX-Log)
- * @deprecated Use lockEventEntry() from events service instead.
- * This function is part of the old 2-step payment flow (deduct then submit lineup).
- * The new atomic RPC handles payment + entry in a single transaction.
- */
-export async function deductEntryFee(userId: string, amountCents: number, eventName?: string, eventId?: string, description?: string): Promise<number> {
-  const { data, error } = await supabase.rpc('deduct_wallet_balance', {
-    p_user_id: userId,
-    p_amount: amountCents,
-    p_type: 'entry_fee',
-    p_description: description ?? (eventName ? `Event-Eintritt: ${eventName}` : 'Event-Eintritt'),
-    p_reference_id: eventId ?? null,
-  });
-  if (error) throw new Error(mapRpcError(error.message));
-  if (!data) throw new Error('deduct_wallet_balance returned null');
-  const result = data as WalletRpcResult;
-  if (!result.success) throw new Error(mapRpcError(result.error ?? 'walletError'));
-  return result.new_balance!;
-}
-
-/**
- * Entry Fee zurueck auf Wallet gutschreiben (atomar, mit TX-Log)
- * @deprecated Use unlockEventEntry() from events service instead.
- * This function is part of the old 2-step payment flow (refund then remove lineup).
- * The new atomic RPC handles refund + entry removal in a single transaction.
- */
-export async function refundEntryFee(userId: string, amountCents: number, eventName?: string, eventId?: string, description?: string): Promise<number> {
-  const { data, error } = await supabase.rpc('refund_wallet_balance', {
-    p_user_id: userId,
-    p_amount: amountCents,
-    p_type: 'entry_refund',
-    p_description: description ?? (eventName ? `Event-Erstattung: ${eventName}` : 'Event-Erstattung'),
-    p_reference_id: eventId ?? null,
-  });
-  if (error) throw new Error(mapRpcError(error.message));
-  if (!data) throw new Error('refund_wallet_balance returned null');
-  const result = data as WalletRpcResult;
-  if (!result.success) throw new Error(mapRpcError(result.error ?? 'walletError'));
-  return result.new_balance!;
-}
-
 // ============================================
 // Helpers
 // ============================================

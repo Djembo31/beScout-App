@@ -797,7 +797,7 @@
       "att": "ST"
     },
     "sortL5": "L5",
-    "sortForm": "Form \u2191",
+    "sortForm": "Form ↑",
     "sortPrice": "Preis",
     "sortAZ": "A-Z",
     "filterAvailable": "Verfuegbar",
@@ -897,7 +897,17 @@
     "viewAll": "Alle Vorhersagen",
     "genericError": "Fehler",
     "networkError": "Netzwerkfehler",
-    "matchLabel": "Match"
+    "matchLabel": "Match",
+    "homeWin": "Sieg Heim",
+    "awayWin": "Sieg Auswärts",
+    "bothScoreYes": "Beide treffen",
+    "bothScoreNo": "Nicht beide treffen",
+    "goalLabel": "Tor",
+    "assistLabel": "Assist",
+    "cardLabel": "Karte",
+    "cleanSheetLabel": "Weiße Weste",
+    "minutesLabel": "≥60 Min",
+    "goalsLabel": "Tore"
   },
   "leagues": {
     "title": "Meine Ligen",
@@ -3647,7 +3657,6 @@
     "eventsCreateError": "Fehler beim Erstellen",
     "eventsBulkOk": "{ok} erfolgreich, {fail} fehlgeschlagen",
     "eventsBulkSuccess": "{ok} Events aktualisiert",
-
     "tabClubs": "Clubs",
     "tabFoundingPasses": "Founding Passes",
     "tabTreasury": "Treasury",
@@ -3657,7 +3666,6 @@
     "tabCreatorFund": "Creator Fund",
     "tabDebug": "Debug",
     "supabaseDashboard": "Supabase Dashboard",
-
     "fpPassesTotal": "Passes gesamt",
     "fpFounder": "Founder",
     "fpPro": "Pro",
@@ -3690,7 +3698,6 @@
     "fpKillSwitchError": "Kill-Switch aktiv: EUR {limit} Limit erreicht - keine weiteren Passes moeglich",
     "fpGrantSuccess": "{tier} Pass vergeben an {user} - {amount} CR",
     "fpSearchResults": "Suchergebnisse",
-
     "feeTradeFee": "Trade Fee",
     "feePlatform": "Platform",
     "feePbt": "PBT",
@@ -3699,7 +3706,6 @@
     "feeIpoPbt": "IPO PBT",
     "feeIpoClub": "IPO Club",
     "feeBps": "bps",
-
     "treasuryLoadError": "Treasury-Daten konnten nicht geladen werden",
     "treasuryCirculating": "Umlauf (Credits)",
     "treasuryPlatformFeesBurned": "Platform Fees (burned)",
