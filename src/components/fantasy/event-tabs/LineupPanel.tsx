@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import {
   Trophy, Crown,
@@ -17,20 +17,15 @@ import { PositionBadge, PlayerIdentity, PlayerPhoto, getL5Color } from '@/compon
 import type { Pos } from '@/types';
 import { cn, fmtScout } from '@/lib/utils';
 import { useTranslations, useLocale } from 'next-intl';
-import type { FantasyEvent, LineupPlayer, UserDpcHolding, LineupPreset } from '../types';
+import type { FantasyEvent, LineupPlayer, UserDpcHolding } from '../types';
 import type { FormationDef } from '../constants';
-import { PRESET_KEY } from '../constants';
 import {
   getPosBorderColor, getScoreColor, getPosAccentColor,
 } from '../helpers';
 import FantasyPlayerRow from '@/components/fantasy/FantasyPlayerRow';
 import { PickerSortFilter } from '@/components/fantasy/PickerSortFilter';
-import type { PickerSortKey } from '@/components/fantasy/PickerSortFilter';
-import { getClubAvgL5 } from '@/components/fantasy/FDRBadge';
-import { useBatchFormScores, useNextFixtures } from '@/lib/queries/fantasyPicker';
-import { getClub } from '@/lib/clubs';
-import { usePlayers } from '@/lib/queries/players';
 import { centsToBsd } from '@/lib/services/players';
+import { useLineupPanelState } from './useLineupPanelState';
 
 export interface LineupPanelProps {
   event: FantasyEvent;
@@ -122,110 +117,25 @@ export default function LineupPanel({
   const tsp = useTranslations('sponsor');
   const locale = useLocale();
 
-  // DPC Ownership bonus — capped at 3 players per lineup
-  const ownershipBonusIds = useMemo(() => {
-    if (!ownedPlayerIds || ownedPlayerIds.size === 0) return new Set<string>();
-    const active: string[] = [];
-    for (const sp of selectedPlayers) {
-      if (ownedPlayerIds.has(sp.playerId)) {
-        active.push(sp.playerId);
-        if (active.length >= 3) break;
-      }
-    }
-    return new Set(active);
-  }, [selectedPlayers, ownedPlayerIds]);
+  const st = useLineupPanelState({
+    event, selectedPlayers, effectiveHoldings, ownedPlayerIds,
+    isPlayerLocked, formationSlots, slotDbKeys, selectedFormation,
+    availableFormations, onApplyPreset, onSelectPlayer, wildcardSlots,
+  });
 
-  // Local state for picker + presets
-  const [showPlayerPicker, setShowPlayerPicker] = useState<{ position: string; slot: number } | null>(null);
-  const [pickerSearch, setPickerSearch] = useState('');
-  const [pickerSort, setPickerSort] = useState<PickerSortKey>('l5');
-  const [clubFilter, setClubFilter] = useState<string[]>([]);
-  const [onlyAvailable, setOnlyAvailable] = useState(true);
-  const [synergyOnly, setSynergyOnly] = useState(false);
-  const [presetName, setPresetName] = useState('');
-  const [showPresets, setShowPresets] = useState(false);
-  const [presets, setPresets] = useState<LineupPreset[]>([]);
+  // Destructure for backward compat in JSX
+  const {
+    isFullyLocked, isReadOnly,
+    showPlayerPicker, pickerSearch, setPickerSearch, pickerSort, setPickerSort,
+    clubFilter, setClubFilter, onlyAvailable, setOnlyAvailable,
+    synergyOnly, setSynergyOnly,
+    presetName, setPresetName, showPresets, setShowPresets, presets,
+    ownershipBonusIds, synergyClubs, availableClubsList,
+    formScoresMap, nextFixturesMap, allPlayers,
+    getRowProps, savePreset, applyPreset, deletePreset,
+    openPicker, closePicker, selectPlayerFromPicker,
+  } = st;
 
-  // Hydrate presets from localStorage in useEffect to avoid SSR hydration mismatch
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(PRESET_KEY);
-      if (saved) setPresets(JSON.parse(saved));
-    } catch { /* ignore */ }
-  }, []);
-
-  const isFullyLocked = event.status === 'ended';
-  const isReadOnly = isFullyLocked;
-
-  // Data for Intelligence Strip rows
-  const playerIds = useMemo(() => effectiveHoldings.map(h => h.id), [effectiveHoldings]);
-  const { data: formScoresMap } = useBatchFormScores(playerIds, !!showPlayerPicker || !isReadOnly);
-  const { data: nextFixturesMap } = useNextFixtures(!isReadOnly);
-  const { data: allPlayers = [] } = usePlayers(!isReadOnly);
-
-  // Derive synergy clubs from currently selected lineup
-  const synergyClubs = useMemo(() => {
-    const clubs = selectedPlayers.map(sp => {
-      const h = effectiveHoldings.find(eh => eh.id === sp.playerId);
-      return h?.club;
-    }).filter(Boolean) as string[];
-    return Array.from(new Set(clubs));
-  }, [selectedPlayers, effectiveHoldings]);
-
-  // Available clubs for filter (from holdings)
-  const availableClubsList = useMemo(() => {
-    const clubShorts = Array.from(new Set(effectiveHoldings.map(h => h.club)));
-    return clubShorts.map(short => {
-      const c = getClub(short);
-      return { short, logo: c?.logo ?? null };
-    });
-  }, [effectiveHoldings]);
-
-  // Helper: map a UserDpcHolding to FantasyPlayerRow props
-  function getRowProps(player: UserDpcHolding) {
-    const isSelected = selectedPlayers.some(sp => sp.playerId === player.id);
-    const fixtureLocked = isPlayerLocked(player.id);
-    const formEntries = formScoresMap?.get(player.id) ?? [];
-    const clubId = player.clubId ?? allPlayers.find(p => p.id === player.id)?.clubId;
-    const nextFix = clubId ? nextFixturesMap?.get(clubId) : undefined;
-    const oppAvgL5 = nextFix ? getClubAvgL5(nextFix.opponentShort, allPlayers) : 0;
-    const hasSynergy = synergyClubs.includes(player.club) && !isSelected;
-    const synergyPct = hasSynergy ? synergyClubs.filter(c => c === player.club).length * 4 : null;
-
-    let rowState: 'default' | 'selected' | 'locked' | 'deployed' | 'injured' | 'suspended' = 'default';
-    if (fixtureLocked) rowState = 'locked';
-    else if (isSelected) rowState = 'selected';
-    else if (player.isLocked) rowState = 'deployed';
-    else if (player.status === 'injured') rowState = 'injured';
-    else if (player.status === 'suspended') rowState = 'suspended';
-
-    return {
-      player: {
-        id: player.id,
-        first: player.first,
-        last: player.last,
-        pos: player.pos as Pos,
-        club: player.club,
-        imageUrl: player.imageUrl,
-        ticket: player.ticket ?? 0,
-        status: player.status,
-        perfL5: player.perfL5,
-        perfL15: player.perfL15 ?? 0,
-        matches: player.matches,
-        goals: player.goals,
-        assists: player.assists,
-        floorPrice: centsToBsd(player.floorPrice ?? 0),
-        dpcOwned: player.dpcOwned,
-        dpcAvailable: player.dpcAvailable,
-        eventsUsing: player.eventsUsing,
-      },
-      formEntries,
-      nextFixture: nextFix ? { opponentShort: nextFix.opponentShort, opponentName: nextFix.opponentName, isHome: nextFix.isHome } : null,
-      opponentAvgL5: oppAvgL5,
-      synergyPct,
-      rowState,
-    };
-  }
 
   const getPlayerStatusStyle = (s: UserDpcHolding['status']) => {
     switch (s) {
@@ -237,36 +147,6 @@ export default function LineupPanel({
     }
   };
 
-  // Presets
-  const savePreset = () => {
-    if (!presetName.trim()) return;
-    const ids = formationSlots.map(s => { const sp = selectedPlayers.find(p => p.slot === s.slot); return sp?.playerId || ''; });
-    const updated = [...presets, { name: presetName, formation: selectedFormation, playerIds: ids }];
-    if (updated.length > 5) updated.shift();
-    localStorage.setItem(PRESET_KEY, JSON.stringify(updated));
-    setPresets(updated);
-    setPresetName(''); setShowPresets(false);
-  };
-  const applyPreset = (preset: LineupPreset) => {
-    const fmts = availableFormations;
-    const formation = fmts.find(f => f.id === preset.formation) || fmts[0];
-    const slots: { pos: string; slot: number }[] = [];
-    let idx = 0;
-    for (const s of formation.slots) { for (let i = 0; i < s.count; i++) slots.push({ pos: s.pos, slot: idx++ }); }
-    const lineup: LineupPlayer[] = [];
-    slots.forEach((s, i) => {
-      if (preset.playerIds[i] && effectiveHoldings.some(h => h.id === preset.playerIds[i] && !h.isLocked))
-        lineup.push({ playerId: preset.playerIds[i], position: s.pos, slot: s.slot, isLocked: false });
-    });
-    onApplyPreset(preset.formation, lineup);
-    setShowPresets(false);
-  };
-  const deletePreset = (index: number) => {
-    const updated = [...presets]; updated.splice(index, 1);
-    localStorage.setItem(PRESET_KEY, JSON.stringify(updated));
-    setPresets(updated);
-    setShowPresets(false);
-  };
 
   return (
     <div className="space-y-4">
@@ -525,7 +405,7 @@ export default function LineupPanel({
                           </div>
                         )}
                         <button
-                          onClick={() => !slotReadOnly && (player ? onRemovePlayer(slot.slot) : setShowPlayerPicker({ position: slot.pos, slot: slot.slot }))}
+                          onClick={() => !slotReadOnly && (player ? onRemovePlayer(slot.slot) : openPicker(slot.pos, slot.slot))}
                           onContextMenu={(e) => {
                             e.preventDefault();
                             if (!isReadOnly && player) {
@@ -910,7 +790,7 @@ export default function LineupPanel({
         return (
           <>
             {/* Backdrop */}
-            <div className="fixed inset-0 bg-black/60 z-[60] animate-in fade-in duration-200" onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); setClubFilter([]); }} />
+            <div className="fixed inset-0 bg-black/60 z-[60] animate-in fade-in duration-200" onClick={() => closePicker()} />
             {/* Mobile: bottom sheet | Desktop: centered modal */}
             <div className="fixed inset-x-0 bottom-0 z-[60] bg-bg-main flex flex-col max-h-[85dvh] rounded-t-3xl border-t border-white/10 shadow-2xl animate-in slide-in-from-bottom duration-300 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[calc(100%-2rem)] md:max-w-md md:max-h-[70vh] md:rounded-xl md:border md:border-white/10 md:bottom-auto">
               {/* Swipe handle (mobile) */}
@@ -922,7 +802,7 @@ export default function LineupPanel({
                 {/* Top bar: Back + Title + Count */}
                 <div className="flex items-center gap-3 px-4 pt-3 pb-2">
                   <button
-                    onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); setClubFilter([]); }}
+                    onClick={() => closePicker()}
                     aria-label={t('closePickerLabel')}
                     className="p-1.5 -ml-1.5 rounded-lg hover:bg-white/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                   >
@@ -975,7 +855,7 @@ export default function LineupPanel({
                     </div>
                     <Link
                       href="/market?tab=kaufen"
-                      onClick={() => { setShowPlayerPicker(null); setPickerSearch(''); setClubFilter([]); }}
+                      onClick={() => closePicker()}
                       className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-gold/15 text-gold text-xs font-bold rounded-xl hover:bg-gold/25 transition-colors"
                     >
                       <ShoppingCart aria-hidden="true" className="size-3.5" />
@@ -990,12 +870,7 @@ export default function LineupPanel({
                         <FantasyPlayerRow
                           key={player.id}
                           {...props}
-                          onClick={() => {
-                            onSelectPlayer(player.id, showPlayerPicker.position, showPlayerPicker.slot);
-                            setShowPlayerPicker(null);
-                            setPickerSearch('');
-                            setClubFilter([]);
-                          }}
+                          onClick={() => selectPlayerFromPicker(player.id)}
                         />
                       );
                     })}

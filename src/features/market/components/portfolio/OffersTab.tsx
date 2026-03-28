@@ -1,33 +1,22 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Inbox, Send, Globe, Clock,
   Check, X, RotateCcw, MessageSquare,
-  ArrowRight, Search, Plus, Loader2,
+  Search, Plus, Loader2,
 } from 'lucide-react';
 import { Card, Button, Modal } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { cn, fmtScout } from '@/lib/utils';
 import { PlayerIdentity } from '@/components/player';
-import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
-import { useErrorToast } from '@/lib/hooks/useErrorToast';
-import {
-  getIncomingOffers, getOutgoingOffers, getOpenBids, getOfferHistory,
-  acceptOffer, rejectOffer, counterOffer, cancelOffer, createOffer,
-} from '@/lib/services/offers';
-import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import type { OfferWithDetails, Pos, Player } from '@/types';
+import { createOffer } from '@/lib/services/offers';
+import { useOffersState, type SubTab } from './useOffersState';
+import type { OfferWithDetails, Player } from '@/types';
 import dynamic from 'next/dynamic';
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), { ssr: false });
-
-// ============================================
-// Sub-Tab Config
-// ============================================
-
-type SubTab = 'incoming' | 'outgoing' | 'open' | 'history';
 
 // ============================================
 // Status Badge
@@ -87,7 +76,6 @@ function OfferCard({
     <Card className="p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          {/* Player */}
           <div className="mb-2">
             <PlayerIdentity
               player={{ first: offer.player_first_name, last: offer.player_last_name, pos: offer.player_position, status: 'fit', club: offer.player_club, ticket: 0, age: 0 }}
@@ -97,7 +85,6 @@ function OfferCard({
             />
           </div>
 
-          {/* Offer details */}
           <div className="flex items-center gap-3 text-sm mb-2">
             <span className={offer.side === 'buy' ? 'text-green-400' : 'text-red-400'}>
               {offer.side === 'buy' ? t('buyOffer') : t('sellOffer')}
@@ -110,10 +97,9 @@ function OfferCard({
             <span className="text-white/60 tabular-nums">{offer.quantity}x</span>
           </div>
 
-          {/* Fee info (3% on P2P offers — shown on pending incoming offers) */}
           {isIncoming && offer.status === 'pending' && !isExpired && (() => {
             const total = offer.price * offer.quantity;
-            const fee = Math.floor(total * 300 / 10000); // 3% = 300 bps
+            const fee = Math.floor(total * 300 / 10000);
             const proceeds = total - fee;
             return (
               <div className="flex items-center gap-2 text-[11px] text-white/35 mb-1">
@@ -124,7 +110,6 @@ function OfferCard({
             );
           })()}
 
-          {/* Sender/Receiver */}
           <div className="flex items-center gap-2 text-xs text-white/40">
             {isSender ? (
               <span>{t('offerTo', { receiver: offer.receiver_handle ?? t('openAllOwners') })}</span>
@@ -139,7 +124,6 @@ function OfferCard({
             )}
           </div>
 
-          {/* Message */}
           {offer.message && (
             <div className="mt-2 text-xs text-white/50 italic bg-white/5 rounded-lg p-2">
               &ldquo;{offer.message}&rdquo;
@@ -147,7 +131,6 @@ function OfferCard({
           )}
         </div>
 
-        {/* Status + Actions */}
         <div className="flex flex-col items-end gap-2">
           <StatusBadge status={isExpired && offer.status === 'pending' ? 'expired' : offer.status} />
 
@@ -274,7 +257,6 @@ function CreateOfferModal({
   return (
     <Modal open={open} onClose={onClose} title={t('newOffer')}>
       <div className="space-y-4">
-        {/* Player Search */}
         {!selectedPlayer ? (
           <div>
             <label htmlFor="offer-player-search" className="text-sm text-white/60 mb-1 block">{t('searchPlayer')}</label>
@@ -318,7 +300,6 @@ function CreateOfferModal({
           </div>
         )}
 
-        {/* Side */}
         <div>
           <label className="text-sm text-white/60 mb-1 block">{t('offerType')}</label>
           <div className="flex gap-2">
@@ -343,7 +324,6 @@ function CreateOfferModal({
           </div>
         </div>
 
-        {/* Price */}
         <div>
           <label htmlFor="offer-price" className="text-sm text-white/60 mb-1 block">{t('priceLabel')}</label>
           <input
@@ -358,7 +338,6 @@ function CreateOfferModal({
           />
         </div>
 
-        {/* Receiver (optional) */}
         <div>
           <label htmlFor="offer-receiver" className="text-sm text-white/60 mb-1 block">{t('receiverLabel')}</label>
           <input
@@ -371,7 +350,6 @@ function CreateOfferModal({
           />
         </div>
 
-        {/* Message */}
         <div>
           <label htmlFor="offer-message" className="text-sm text-white/60 mb-1 block">{t('messageLabel')}</label>
           <input
@@ -403,19 +381,7 @@ function CreateOfferModal({
 
 export default function ManagerOffersTab({ players }: { players: Player[] }) {
   const t = useTranslations('offers');
-  const { user } = useUser();
-  const { addToast } = useToast();
-  const { showError } = useErrorToast();
-  const [subTab, setSubTab] = useState<SubTab>('incoming');
-  const [offers, setOffers] = useState<OfferWithDetails[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showCreate, setShowCreate] = useState(false);
-  const [counterModal, setCounterModal] = useState<OfferWithDetails | null>(null);
-  const [counterPrice, setCounterPrice] = useState('');
-  const [actionId, setActionId] = useState<string | null>(null);
-  const [countering, setCountering] = useState(false);
-
-  const uid = user?.id;
+  const state = useOffersState();
 
   const SUB_TABS: { id: SubTab; label: string; icon: React.ElementType }[] = [
     { id: 'incoming', label: t('tabIncoming'), icon: Inbox },
@@ -431,122 +397,25 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
     history: { title: t('noHistory'), desc: t('noHistoryDesc') },
   };
 
-  const loadOffers = useCallback(async () => {
-    if (!uid) return;
-    setLoading(true);
-    try {
-      let data: OfferWithDetails[] = [];
-      if (subTab === 'incoming') data = await getIncomingOffers(uid);
-      else if (subTab === 'outgoing') data = await getOutgoingOffers(uid);
-      else if (subTab === 'open') data = await getOpenBids();
-      else data = await getOfferHistory(uid);
-      setOffers(data);
-    } catch {
-      setOffers([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [uid, subTab]);
-
-  useEffect(() => { loadOffers(); }, [loadOffers]);
-
-  const handleAccept = async (offerId: string) => {
-    if (!uid || actionId) return;
-    setActionId(offerId);
-    try {
-      const result = await acceptOffer(uid, offerId);
-      if (result.success) {
-        addToast(t('offerAccepted'), 'success');
-        loadOffers();
-      } else {
-        showError(result.error ?? 'generic');
-      }
-    } catch (e) {
-      showError(e);
-    } finally {
-      setActionId(null);
-    }
-  };
-
-  const handleReject = async (offerId: string) => {
-    if (!uid || actionId) return;
-    setActionId(offerId);
-    try {
-      const result = await rejectOffer(uid, offerId);
-      if (result.success) {
-        addToast(t('offerRejected'), 'success');
-        loadOffers();
-      } else {
-        showError(result.error ?? 'generic');
-      }
-    } catch (e) {
-      showError(e);
-    } finally {
-      setActionId(null);
-    }
-  };
-
-  const handleCounter = async () => {
-    if (!uid || !counterModal || !counterPrice || countering) return;
-    const priceCents = Math.round(parseFloat(counterPrice) * 100);
-    if (priceCents <= 0) { addToast(t('invalidPrice'), 'error'); return; }
-    setCountering(true);
-    try {
-      const result = await counterOffer(uid, counterModal.id, priceCents);
-      if (result.success) {
-        addToast(t('counterCreated'), 'success');
-        setCounterModal(null);
-        setCounterPrice('');
-        loadOffers();
-      } else {
-        showError(result.error ?? 'generic');
-      }
-    } catch (e) {
-      showError(e);
-    } finally {
-      setCountering(false);
-    }
-  };
-
-  const handleCancel = async (offerId: string) => {
-    if (!uid || actionId) return;
-    setActionId(offerId);
-    try {
-      const result = await cancelOffer(uid, offerId);
-      if (result.success) {
-        addToast(t('offerCancelled'), 'success');
-        loadOffers();
-      } else {
-        showError(result.error ?? 'generic');
-      }
-    } catch (e) {
-      showError(e);
-    } finally {
-      setActionId(null);
-    }
-  };
-
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold text-balance text-white">{t('offersTitle')}</h2>
-        <Button onClick={() => setShowCreate(true)} className="gap-2">
+        <Button onClick={() => state.setShowCreate(true)} className="gap-2">
           <Plus aria-hidden="true" className="size-4" /> {t('newOffer')}
         </Button>
       </div>
 
-      {/* Sub Tabs */}
       <div className="flex gap-1 bg-surface-minimal rounded-xl p-1 border border-white/[0.06]">
         {SUB_TABS.map(tab => {
           const Icon = tab.icon;
           return (
             <button
               key={tab.id}
-              onClick={() => setSubTab(tab.id)}
+              onClick={() => state.setSubTab(tab.id)}
               className={cn(
                 'flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
-                subTab === tab.id
+                state.subTab === tab.id
                   ? 'bg-gold/10 text-gold border border-gold/20'
                   : 'text-white/40 hover:text-white/60'
               )}
@@ -560,69 +429,66 @@ export default function ManagerOffersTab({ players }: { players: Player[] }) {
 
       <SponsorBanner placement="market_offers" className="mb-3" />
 
-      {/* Content */}
-      {loading ? (
+      {state.loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map(i => (
             <div key={i} className="h-24 rounded-2xl bg-white/[0.02] animate-pulse border border-white/[0.06]" />
           ))}
         </div>
-      ) : offers.length === 0 ? (
+      ) : state.offers.length === 0 ? (
         <Card className="p-12 text-center">
           <MessageSquare aria-hidden="true" className="size-12 mx-auto mb-4 text-white/20" />
           <div className="text-white/30 text-pretty mb-2">
-            {EMPTY_STATES[subTab].title}
+            {EMPTY_STATES[state.subTab].title}
           </div>
           <div className="text-sm text-pretty text-white/50">
-            {EMPTY_STATES[subTab].desc}
+            {EMPTY_STATES[state.subTab].desc}
           </div>
         </Card>
       ) : (
         <div className="space-y-3">
-          {offers.map(offer => (
+          {state.offers.map(offer => (
             <OfferCard
               key={offer.id}
               offer={offer}
-              userId={uid!}
-              actionId={actionId}
-              onAccept={subTab === 'incoming' || subTab === 'open' ? () => handleAccept(offer.id) : undefined}
-              onReject={subTab === 'incoming' ? () => handleReject(offer.id) : undefined}
-              onCounter={subTab === 'incoming' ? () => { setCounterModal(offer); setCounterPrice(String(centsToBsd(offer.price))); } : undefined}
-              onCancel={subTab === 'outgoing' ? () => handleCancel(offer.id) : undefined}
+              userId={state.uid!}
+              actionId={state.actionId}
+              onAccept={state.subTab === 'incoming' || state.subTab === 'open' ? () => state.handleAccept(offer.id) : undefined}
+              onReject={state.subTab === 'incoming' ? () => state.handleReject(offer.id) : undefined}
+              onCounter={state.subTab === 'incoming' ? () => state.openCounterModal(offer) : undefined}
+              onCancel={state.subTab === 'outgoing' ? () => state.handleCancel(offer.id) : undefined}
             />
           ))}
         </div>
       )}
 
-      {/* Create Modal */}
-      {uid && (
+      {state.uid && (
         <CreateOfferModal
-          open={showCreate}
-          onClose={() => setShowCreate(false)}
+          open={state.showCreate}
+          onClose={() => state.setShowCreate(false)}
           players={players}
-          userId={uid}
+          userId={state.uid}
         />
       )}
 
-      {/* Counter Modal */}
-      {counterModal && (
-        <Modal open={true} onClose={() => { setCounterModal(null); setCounterPrice(''); }} title={t('counterOffer')}>
+      {state.counterModal && (
+        <Modal open={true} onClose={state.closeCounterModal} title={t('counterOffer')}>
           <div className="space-y-4">
             <div className="text-sm text-white/60">
-              {t('originalPrice')} <span className="font-mono tabular-nums text-gold">{fmtScout(centsToBsd(counterModal.price))} CR</span> — {counterModal.player_first_name} {counterModal.player_last_name}
+              {t('originalPrice')} <span className="font-mono tabular-nums text-gold">{fmtScout(centsToBsd(state.counterModal.price))} CR</span> — {state.counterModal.player_first_name} {state.counterModal.player_last_name}
             </div>
             <div>
               <label htmlFor="counter-price" className="text-sm text-white/60 mb-1 block">{t('yourPrice')}</label>
               <input
                 id="counter-price"
                 type="number" inputMode="numeric"
-                value={counterPrice}
-                onChange={e => setCounterPrice(e.target.value)}
+                value={state.counterPrice}
+                onChange={e => state.setCounterPrice(e.target.value)}
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-base text-white font-mono tabular-nums focus:outline-none focus:border-gold/30"
               />
             </div>
-            <Button onClick={handleCounter} disabled={countering} className="w-full">
-              {countering ? <><Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> {t('sending')}</> : t('sendCounter')}
+            <Button onClick={state.handleCounter} disabled={state.countering} className="w-full">
+              {state.countering ? <><Loader2 aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" /> {t('sending')}</> : t('sendCounter')}
             </Button>
           </div>
         </Modal>

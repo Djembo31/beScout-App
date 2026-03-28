@@ -1,104 +1,22 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { Plus, Play, XCircle, Package, Loader2, Shield, Flame, AlertTriangle, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { Card, Button, Chip, Modal } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
-import { useUser } from '@/components/providers/AuthProvider';
-import { getPlayersByClubId, dbToPlayers, centsToBsd, bsdToCents, createPlayer } from '@/lib/services/players';
-import { getIposByClubId, createIpo, updateIpoStatus } from '@/lib/services/ipo';
-import { getPbtForPlayer } from '@/lib/services/pbt';
-import { setSuccessFeeCap, liquidatePlayer } from '@/lib/services/liquidation';
+import { centsToBsd } from '@/lib/services/players';
 import { fmtScout } from '@/lib/utils';
-import { canPerformAction } from '@/lib/adminRoles';
 import { getSuccessFeeTier } from '@/components/player/PlayerRow';
-import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
-import type { ClubWithAdmin, Player, DbIpo } from '@/types';
+import { useAdminPlayersState } from './useAdminPlayersState';
+import type { ClubWithAdmin } from '@/types';
 
 export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
   const t = useTranslations('admin');
   const te = useTranslations('errors');
-  const role = club.admin_role ?? 'editor';
-  const canCreateIpo = canPerformAction('create_ipo', role);
-  const canLiquidate = canPerformAction('liquidate', role);
-  const canSetFee = canPerformAction('set_success_fee', role);
-  const canCreatePlayerAction = canPerformAction('create_player', role);
-  const { user } = useUser();
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [clubIpos, setClubIpos] = useState<DbIpo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [ipoModalOpen, setIpoModalOpen] = useState(false);
-  const [ipoLoading, setIpoLoading] = useState(false);
-  const [ipoError, setIpoError] = useState<string | null>(null);
-  const [ipoSuccess, setIpoSuccess] = useState<string | null>(null);
-  const [ipoPlayerId, setIpoPlayerId] = useState('');
-  const [ipoPrice, setIpoPrice] = useState('');
-  const [ipoQty, setIpoQty] = useState('100');
-  const [ipoMaxPerUser, setIpoMaxPerUser] = useState('10');
-  const [ipoDuration, setIpoDuration] = useState('14');
-  const [ipoStartNow, setIpoStartNow] = useState(true);
-
-  // Create player state
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [createLoading, setCreateLoading] = useState(false);
-  const [cpFirstName, setCpFirstName] = useState('');
-  const [cpLastName, setCpLastName] = useState('');
-  const [cpPosition, setCpPosition] = useState<string>('MID');
-  const [cpShirtNumber, setCpShirtNumber] = useState('');
-  const [cpAge, setCpAge] = useState('');
-  const [cpNationality, setCpNationality] = useState('TR');
-  const [cpIpoPrice, setCpIpoPrice] = useState('5');
-
-  // Liquidation state
-  const [capModalPlayer, setCapModalPlayer] = useState<Player | null>(null);
-  const [capValue, setCapValue] = useState('');
-  const [capLoading, setCapLoading] = useState(false);
-  const [liqModalPlayer, setLiqModalPlayer] = useState<Player | null>(null);
-  const [liqPbtBalance, setLiqPbtBalance] = useState<number>(0);
-  const [liqHolderCount, setLiqHolderCount] = useState<number | null>(null);
-  const [liqLoading, setLiqLoading] = useState(false);
-  const [liqTransferValue, setLiqTransferValue] = useState('');
-  const [liqResult, setLiqResult] = useState<{
-    holder_count: number;
-    distributed_cents: number;
-    pbt_distributed_cents: number;
-    success_fee_cents: number;
-    fee_per_dpc_cents: number;
-    transfer_value_eur: number;
-  } | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      setLoading(true);
-      try {
-        const [dbPlayers, ipos] = await Promise.all([
-          getPlayersByClubId(club.id),
-          getIposByClubId(club.id),
-        ]);
-        if (!cancelled) {
-          setPlayers(dbToPlayers(dbPlayers));
-          setClubIpos(ipos);
-        }
-      } catch (err) { console.error('[AdminPlayers] Load failed:', err); }
-      finally { if (!cancelled) setLoading(false); }
-    }
-    load();
-    return () => { cancelled = true; };
-  }, [club.id]);
-
-  const eligiblePlayers = useMemo(() => {
-    const activeIpoPlayerIds = new Set(
-      clubIpos.filter(ipo => ['announced', 'early_access', 'open'].includes(ipo.status)).map(ipo => ipo.player_id)
-    );
-    return players.filter(p => !activeIpoPlayerIds.has(p.id) && !p.isLiquidated);
-  }, [players, clubIpos]);
-
-  const activeIpos = clubIpos.filter(ipo => ['announced', 'early_access', 'open'].includes(ipo.status));
-  const pastIpos = clubIpos.filter(ipo => ['ended', 'cancelled'].includes(ipo.status));
+  const s = useAdminPlayersState(club, t, te);
 
   const statusConfig: Record<string, { bg: string; border: string; text: string; label: string }> = {
     announced: { bg: 'bg-blue-500/15', border: 'border-blue-400/25', text: 'text-blue-300', label: t('ipoStatusAnnounced') },
@@ -108,198 +26,31 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
     cancelled: { bg: 'bg-red-500/10', border: 'border-red-500/20', text: 'text-red-400', label: t('ipoStatusCancelled') },
   };
 
-  const handleCreateIpo = useCallback(async () => {
-    if (!user || !ipoPlayerId || !ipoPrice) return;
-    setIpoLoading(true);
-    setIpoError(null);
-    setIpoSuccess(null);
-    try {
-      const result = await createIpo({
-        userId: user.id,
-        playerId: ipoPlayerId,
-        priceCents: bsdToCents(parseFloat(ipoPrice)),
-        totalOffered: parseInt(ipoQty),
-        maxPerUser: parseInt(ipoMaxPerUser),
-        durationDays: parseInt(ipoDuration),
-        startImmediately: ipoStartNow,
-      });
-      if (!result.success) {
-        setIpoError(result.error ? te(mapErrorToKey(result.error)) : t('ipoCreateError'));
-      } else {
-        setIpoSuccess(t('ipoCreateSuccess'));
-        const refreshed = await getIposByClubId(club.id);
-        setClubIpos(refreshed);
-        setIpoPlayerId('');
-        setIpoPrice('');
-        setIpoQty('100');
-        setIpoMaxPerUser('10');
-        setIpoDuration('14');
-        setIpoStartNow(true);
-        setIpoModalOpen(false);
-        setTimeout(() => setIpoSuccess(null), 3000);
-      }
-    } catch (err) {
-      setIpoError(te(mapErrorToKey(normalizeError(err))));
-    } finally {
-      setIpoLoading(false);
-    }
-  }, [user, ipoPlayerId, ipoPrice, ipoQty, ipoMaxPerUser, ipoDuration, ipoStartNow, club.id, t]);
-
-  const handleIpoStatusChange = useCallback(async (ipoId: string, newStatus: string) => {
-    if (!user) return;
-    setIpoLoading(true);
-    setIpoError(null);
-    try {
-      const result = await updateIpoStatus(user.id, ipoId, newStatus);
-      if (!result.success) {
-        setIpoError(result.error ? te(mapErrorToKey(result.error)) : t('statusChangeError'));
-      } else {
-        const refreshed = await getIposByClubId(club.id);
-        setClubIpos(refreshed);
-      }
-    } catch (err) {
-      setIpoError(te(mapErrorToKey(normalizeError(err))));
-    } finally {
-      setIpoLoading(false);
-    }
-  }, [user, club.id, t]);
-
-  // Success Fee Cap handler
-  const handleSetCap = useCallback(async () => {
-    if (!user || !capModalPlayer || !capValue) return;
-    setCapLoading(true);
-    setIpoError(null);
-    try {
-      const result = await setSuccessFeeCap(user.id, capModalPlayer.id, bsdToCents(parseFloat(capValue)));
-      if (!result.success) {
-        setIpoError(result.error ? te(mapErrorToKey(result.error)) : t('capSetError'));
-      } else {
-        setIpoSuccess(t('capSetSuccess', { value: capValue }));
-        // Refresh players
-        const dbPlayers = await getPlayersByClubId(club.id);
-        setPlayers(dbToPlayers(dbPlayers));
-        setCapModalPlayer(null);
-        setCapValue('');
-        setTimeout(() => setIpoSuccess(null), 3000);
-      }
-    } catch (err) {
-      setIpoError(te(mapErrorToKey(normalizeError(err))));
-    } finally {
-      setCapLoading(false);
-    }
-  }, [user, capModalPlayer, capValue, club.id, t]);
-
-  // Liquidation handler — open modal and fetch PBT balance
-  const openLiquidationModal = useCallback(async (player: Player) => {
-    setLiqModalPlayer(player);
-    setLiqResult(null);
-    setLiqPbtBalance(0);
-    setLiqHolderCount(null);
-    setLiqTransferValue(player.marketValue ? String(player.marketValue) : '');
-    try {
-      const pbt = await getPbtForPlayer(player.id);
-      setLiqPbtBalance(pbt ? centsToBsd(pbt.balance) : 0);
-    } catch (err) { console.error('[AdminPlayers] PBT fetch failed:', err); }
-  }, []);
-
-  const handleLiquidate = useCallback(async () => {
-    if (!user || !liqModalPlayer) return;
-    setLiqLoading(true);
-    setIpoError(null);
-    try {
-      const tvEur = parseInt(liqTransferValue) || 0;
-      const result = await liquidatePlayer(user.id, liqModalPlayer.id, tvEur);
-      if (!result.success) {
-        setIpoError(result.error ? te(mapErrorToKey(result.error)) : t('liquidationError'));
-        setLiqModalPlayer(null);
-      } else {
-        setLiqResult({
-          holder_count: result.holder_count ?? 0,
-          distributed_cents: result.distributed_cents ?? 0,
-          pbt_distributed_cents: result.pbt_distributed_cents ?? 0,
-          success_fee_cents: result.success_fee_cents ?? 0,
-          fee_per_dpc_cents: result.fee_per_dpc_cents ?? 0,
-          transfer_value_eur: result.transfer_value_eur ?? 0,
-        });
-        // Refresh players
-        const dbPlayers = await getPlayersByClubId(club.id);
-        setPlayers(dbToPlayers(dbPlayers));
-      }
-    } catch (err) {
-      setIpoError(te(mapErrorToKey(normalizeError(err))));
-      setLiqModalPlayer(null);
-    } finally {
-      setLiqLoading(false);
-    }
-  }, [user, liqModalPlayer, liqTransferValue, club.id, t]);
-
-  const handleCreatePlayer = useCallback(async () => {
-    if (!user || !cpFirstName || !cpLastName || !cpShirtNumber || !cpAge) return;
-    setCreateLoading(true);
-    setIpoError(null);
-    try {
-      const result = await createPlayer({
-        firstName: cpFirstName,
-        lastName: cpLastName,
-        position: cpPosition,
-        shirtNumber: parseInt(cpShirtNumber),
-        age: parseInt(cpAge),
-        clubId: club.id,
-        clubName: club.name,
-        nationality: cpNationality || 'TR',
-        ipoPrice: parseFloat(cpIpoPrice) || 5,
-      });
-      if (!result.success) {
-        setIpoError(result.error ? te(mapErrorToKey(result.error)) : t('playerCreateError'));
-      } else {
-        setIpoSuccess(t('playerCreateSuccess'));
-        const dbPlayers = await getPlayersByClubId(club.id);
-        setPlayers(dbToPlayers(dbPlayers));
-        setCpFirstName('');
-        setCpLastName('');
-        setCpPosition('MID');
-        setCpShirtNumber('');
-        setCpAge('');
-        setCpNationality('TR');
-        setCpIpoPrice('5');
-        setCreateModalOpen(false);
-        setTimeout(() => setIpoSuccess(null), 3000);
-      }
-    } catch (err) {
-      setIpoError(te(mapErrorToKey(normalizeError(err))));
-    } finally {
-      setCreateLoading(false);
-    }
-  }, [user, cpFirstName, cpLastName, cpPosition, cpShirtNumber, cpAge, cpNationality, cpIpoPrice, club.id, club.name, t]);
-
-  if (loading) return <div className="space-y-3">{[...Array(3)].map((_, i) => <Card key={i} className="h-20 animate-pulse" />)}</div>;
-
-  const activePlayers = players.filter(p => !p.isLiquidated);
-  const liquidatedPlayers = players.filter(p => p.isLiquidated);
+  if (s.loading) return <div className="space-y-3">{[...Array(3)].map((_, i) => <Card key={i} className="h-20 animate-pulse" />)}</div>;
 
   return (
     <div className="space-y-6">
-      {ipoSuccess && (
-        <div className="bg-green-500/20 border border-green-500/30 text-green-500 px-4 py-3 rounded-xl font-bold text-sm">{ipoSuccess}</div>
+      {s.ipoSuccess && (
+        <div className="bg-green-500/20 border border-green-500/30 text-green-500 px-4 py-3 rounded-xl font-bold text-sm">{s.ipoSuccess}</div>
       )}
-      {ipoError && (
-        <div role="alert" className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm cursor-pointer" onClick={() => setIpoError(null)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIpoError(null); } }} tabIndex={0}>{ipoError}</div>
+      {s.ipoError && (
+        <div role="alert" className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl font-bold text-sm cursor-pointer" onClick={() => s.setIpoError(null)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); s.setIpoError(null); } }} tabIndex={0}>{s.ipoError}</div>
       )}
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-black text-balance">{t('ipoManagement')}</h2>
-          <p className="text-xs text-white/50">{t('playerAndIpoCount', { players: players.length, ipos: activeIpos.length })}</p>
+          <p className="text-xs text-white/50">{t('playerAndIpoCount', { players: s.players.length, ipos: s.activeIpos.length })}</p>
         </div>
-        {canCreateIpo && (
-          <Button variant="gold" onClick={() => setIpoModalOpen(true)}>
+        {s.canCreateIpo && (
+          <Button variant="gold" onClick={() => s.setIpoModalOpen(true)}>
             <Plus className="w-4 h-4" />
             {t('newIpo')}
           </Button>
         )}
       </div>
 
-      {activeIpos.length === 0 && pastIpos.length === 0 ? (
+      {s.activeIpos.length === 0 && s.pastIpos.length === 0 ? (
         <Card className="p-12 text-center">
           <Package className="w-12 h-12 mx-auto mb-4 text-white/20" />
           <div className="text-white/30 mb-2">{t('noIpos')}</div>
@@ -307,11 +58,11 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
         </Card>
       ) : (
         <div className="space-y-6">
-          {activeIpos.length > 0 && (
+          {s.activeIpos.length > 0 && (
             <div className="space-y-3">
-              <div className="text-sm font-bold text-white/50">{t('activeIposCount', { count: activeIpos.length })}</div>
-              {activeIpos.map(ipo => {
-                const player = players.find(p => p.id === ipo.player_id);
+              <div className="text-sm font-bold text-white/50">{t('activeIposCount', { count: s.activeIpos.length })}</div>
+              {s.activeIpos.map(ipo => {
+                const player = s.players.find(p => p.id === ipo.player_id);
                 if (!player) return null;
                 const progress = ipo.total_offered > 0 ? (ipo.sold / ipo.total_offered) * 100 : 0;
                 const priceBsd = centsToBsd(ipo.price);
@@ -342,22 +93,22 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                           {ipo.status === 'open' || ipo.status === 'announced' ? `${daysLeft}d ${hoursLeft}h` : '-'}
                         </div>
                       </div>
-                      {canCreateIpo && (
+                      {s.canCreateIpo && (
                         <div className="flex items-center gap-2">
                           {ipo.status === 'announced' && (
                             <>
-                              <Button variant="gold" size="sm" onClick={() => handleIpoStatusChange(ipo.id, 'open')} disabled={ipoLoading}>
+                              <Button variant="gold" size="sm" onClick={() => s.handleIpoStatusChange(ipo.id, 'open')} disabled={s.ipoLoading}>
                                 <Play className="w-3 h-3" />{t('start')}
                               </Button>
-                              <Button variant="outline" size="sm" onClick={() => handleIpoStatusChange(ipo.id, 'cancelled')} disabled={ipoLoading}>
+                              <Button variant="outline" size="sm" onClick={() => s.handleIpoStatusChange(ipo.id, 'cancelled')} disabled={s.ipoLoading}>
                                 <XCircle className="w-3 h-3" />{t('cancel')}
                               </Button>
                             </>
                           )}
                           {ipo.status === 'open' && (
                             <>
-                              <Button variant="outline" size="sm" onClick={() => handleIpoStatusChange(ipo.id, 'ended')} disabled={ipoLoading}>{t('end')}</Button>
-                              <Button variant="outline" size="sm" onClick={() => handleIpoStatusChange(ipo.id, 'cancelled')} disabled={ipoLoading}>
+                              <Button variant="outline" size="sm" onClick={() => s.handleIpoStatusChange(ipo.id, 'ended')} disabled={s.ipoLoading}>{t('end')}</Button>
+                              <Button variant="outline" size="sm" onClick={() => s.handleIpoStatusChange(ipo.id, 'cancelled')} disabled={s.ipoLoading}>
                                 <XCircle className="w-3 h-3" />{t('cancel')}
                               </Button>
                             </>
@@ -371,11 +122,11 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             </div>
           )}
 
-          {pastIpos.length > 0 && (
+          {s.pastIpos.length > 0 && (
             <div className="space-y-3">
-              <div className="text-sm font-bold text-white/30">{t('pastIposCount', { count: pastIpos.length })}</div>
-              {pastIpos.map(ipo => {
-                const player = players.find(p => p.id === ipo.player_id);
+              <div className="text-sm font-bold text-white/30">{t('pastIposCount', { count: s.pastIpos.length })}</div>
+              {s.pastIpos.map(ipo => {
+                const player = s.players.find(p => p.id === ipo.player_id);
                 if (!player) return null;
                 const progress = ipo.total_offered > 0 ? (ipo.sold / ipo.total_offered) * 100 : 0;
                 const sc = ipo.status === 'cancelled'
@@ -400,17 +151,17 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
       <div className="border-t border-white/10 pt-6 space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <h2 className="text-xl font-black text-balance">{t('playerManagement')}</h2>
-          {canCreatePlayerAction && (
-            <Button variant="gold" onClick={() => setCreateModalOpen(true)}>
+          {s.canCreatePlayerAction && (
+            <Button variant="gold" onClick={() => s.setCreateModalOpen(true)}>
               <UserPlus className="w-4 h-4" />
               {t('createPlayer')}
             </Button>
           )}
         </div>
 
-        {activePlayers.length > 0 && (
+        {s.activePlayers.length > 0 && (
           <div className="space-y-2">
-            {activePlayers.map(p => (
+            {s.activePlayers.map(p => (
               <Card key={p.id} className="p-3 md:p-4">
                 <div className="flex items-center gap-3 min-w-0">
                   <PlayerIdentity player={p} size="sm" showStatus={false} className="min-w-0 flex-1" />
@@ -419,20 +170,20 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                       Cap: {fmtScout(p.successFeeCap)} CR
                     </Chip>
                   )}
-                  {(canSetFee || canLiquidate) && (
+                  {(s.canSetFee || s.canLiquidate) && (
                     <div className="flex items-center gap-1.5 flex-shrink-0">
-                      {canSetFee && (
+                      {s.canSetFee && (
                         <button
-                          onClick={() => { setCapModalPlayer(p); setCapValue(p.successFeeCap != null ? String(p.successFeeCap) : ''); }}
+                          onClick={() => s.openCapModal(p)}
                           className="p-2 rounded-lg bg-white/5 hover:bg-gold/10 text-white/50 hover:text-gold transition-colors"
                           aria-label={t('setCapLabel')}
                         >
                           <Shield className="w-4 h-4" aria-hidden="true" />
                         </button>
                       )}
-                      {canLiquidate && (
+                      {s.canLiquidate && (
                         <button
-                          onClick={() => openLiquidationModal(p)}
+                          onClick={() => s.openLiquidationModal(p)}
                           className="p-2 rounded-lg bg-white/5 hover:bg-red-500/10 text-white/50 hover:text-red-400 transition-colors"
                           aria-label={t('liquidateLabel')}
                         >
@@ -447,10 +198,10 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
           </div>
         )}
 
-        {liquidatedPlayers.length > 0 && (
+        {s.liquidatedPlayers.length > 0 && (
           <div className="space-y-2">
-            <div className="text-sm font-bold text-white/30">{t('liquidatedPlayersCount', { count: liquidatedPlayers.length })}</div>
-            {liquidatedPlayers.map(p => (
+            <div className="text-sm font-bold text-white/30">{t('liquidatedPlayersCount', { count: s.liquidatedPlayers.length })}</div>
+            {s.liquidatedPlayers.map(p => (
               <Card key={p.id} className="p-3 md:p-4 opacity-50">
                 <div className="flex items-center gap-3 min-w-0">
                   <PlayerIdentity player={p} size="sm" showStatus={false} className="min-w-0 flex-1" />
@@ -463,11 +214,11 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
       </div>
 
       {/* Success Fee Cap Modal */}
-      <Modal open={!!capModalPlayer} title={t('successFeeCap')} onClose={() => setCapModalPlayer(null)}>
-        {capModalPlayer && (
+      <Modal open={!!s.capModalPlayer} title={t('successFeeCap')} onClose={() => s.setCapModalPlayer(null)}>
+        {s.capModalPlayer && (
           <div className="space-y-4 p-4 md:p-6">
             <div className="text-sm text-white/60">
-              {t('capDesc', { player: `${capModalPlayer.first} ${capModalPlayer.last}` })}
+              {t('capDesc', { player: `${s.capModalPlayer.first} ${s.capModalPlayer.last}` })}
             </div>
             <div>
               <label htmlFor="cap-amount" className="block text-sm font-bold text-white/70 mb-1">{t('capAmount')}</label>
@@ -477,42 +228,42 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 inputMode="numeric"
                 step="0.01"
                 min="0"
-                value={capValue}
-                onChange={(e) => setCapValue(e.target.value)}
+                value={s.capValue}
+                onChange={(e) => s.setCapValue(e.target.value)}
                 placeholder={t('examplePrice', { example: '500.00' })}
                 className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
               />
             </div>
-            {capModalPlayer.successFeeCap != null && (
+            {s.capModalPlayer.successFeeCap != null && (
               <div className="text-xs text-white/40">
-                {t('currentCap')} <span className="text-gold font-mono font-bold">{fmtScout(capModalPlayer.successFeeCap)} CR</span>
+                {t('currentCap')} <span className="text-gold font-mono font-bold">{fmtScout(s.capModalPlayer.successFeeCap)} CR</span>
               </div>
             )}
-            <Button variant="gold" fullWidth onClick={handleSetCap} disabled={capLoading || !capValue}>
-              {capLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Shield className="w-4 h-4" aria-hidden="true" />}
-              {capLoading ? t('saving') : t('setCap')}
+            <Button variant="gold" fullWidth onClick={s.handleSetCap} disabled={s.capLoading || !s.capValue}>
+              {s.capLoading ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Shield className="w-4 h-4" aria-hidden="true" />}
+              {s.capLoading ? t('saving') : t('setCap')}
             </Button>
           </div>
         )}
       </Modal>
 
       {/* Liquidation Confirmation Modal */}
-      <Modal open={!!liqModalPlayer} title={t('liquidatePlayerTitle')} onClose={() => { setLiqModalPlayer(null); setLiqResult(null); }}>
-        {liqModalPlayer && !liqResult && (() => {
-          const tvEur = parseInt(liqTransferValue) || 0;
+      <Modal open={!!s.liqModalPlayer} title={t('liquidatePlayerTitle')} onClose={s.closeLiquidationModal}>
+        {s.liqModalPlayer && !s.liqResult && (() => {
+          const tvEur = parseInt(s.liqTransferValue) || 0;
           const tier = getSuccessFeeTier(tvEur);
           const feeCents = tier.fee;
-          const capCents = liqModalPlayer.successFeeCap != null ? Math.round(liqModalPlayer.successFeeCap * 100) : null;
+          const capCents = s.liqModalPlayer.successFeeCap != null ? Math.round(s.liqModalPlayer.successFeeCap * 100) : null;
           const effectiveFee = capCents != null && capCents > 0 ? Math.min(feeCents, capCents) : feeCents;
           const effectiveFeeBsd = effectiveFee / 100;
-          const totalDpcs = liqModalPlayer.dpc.circulation;
+          const totalDpcs = s.liqModalPlayer.dpc.circulation;
           const totalSfBsd = effectiveFeeBsd * totalDpcs;
           return (
             <div className="space-y-4 p-4 md:p-6">
               <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-start gap-2">
                 <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                 <div className="text-sm text-red-300">
-                  {t('liquidateWarning', { player: `${liqModalPlayer.first} ${liqModalPlayer.last}` })}
+                  {t('liquidateWarning', { player: `${s.liqModalPlayer.first} ${s.liqModalPlayer.last}` })}
                 </div>
               </div>
               <div>
@@ -521,8 +272,8 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                   type="number"
                   inputMode="numeric"
                   min="0"
-                  value={liqTransferValue}
-                  onChange={(e) => setLiqTransferValue(e.target.value)}
+                  value={s.liqTransferValue}
+                  onChange={(e) => s.setLiqTransferValue(e.target.value)}
                   placeholder={t('examplePrice', { example: '1000000' })}
                   className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
                 />
@@ -548,7 +299,7 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                 <div className="border-t border-white/10 pt-2 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-white/50">{t('pbtDistribution')}</span>
-                    <span className="font-mono font-bold text-green-500">{fmtScout(liqPbtBalance)} CR</span>
+                    <span className="font-mono font-bold text-green-500">{fmtScout(s.liqPbtBalance)} CR</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-white/50">{t('communityBonus')}</span>
@@ -556,62 +307,62 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
                   </div>
                   <div className="flex items-center justify-between border-t border-white/10 pt-1">
                     <span className="text-white font-bold">{t('total')}</span>
-                    <span className="font-mono font-bold text-green-500">{fmtScout(liqPbtBalance + totalSfBsd)} CR</span>
+                    <span className="font-mono font-bold text-green-500">{fmtScout(s.liqPbtBalance + totalSfBsd)} CR</span>
                   </div>
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" fullWidth onClick={() => setLiqModalPlayer(null)}>
+                <Button variant="outline" fullWidth onClick={() => s.closeLiquidationModal()}>
                   {t('cancel')}
                 </Button>
                 <Button
                   fullWidth
-                  onClick={handleLiquidate}
-                  disabled={liqLoading}
+                  onClick={s.handleLiquidate}
+                  disabled={s.liqLoading}
                   className="bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30"
                 >
-                  {liqLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Flame className="w-4 h-4" />}
-                  {liqLoading ? t('liquidating') : t('liquidateAction')}
+                  {s.liqLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Flame className="w-4 h-4" />}
+                  {s.liqLoading ? t('liquidating') : t('liquidateAction')}
                 </Button>
               </div>
             </div>
           );
         })()}
-        {liqModalPlayer && liqResult && (
+        {s.liqModalPlayer && s.liqResult && (
           <div className="space-y-4 p-4 md:p-6">
             <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center">
               <div className="text-green-500 font-black text-lg mb-1">{t('liquidationComplete')}</div>
-              <div className="text-sm text-white/60">{t('liquidationSuccess', { player: `${liqModalPlayer.first} ${liqModalPlayer.last}` })}</div>
+              <div className="text-sm text-white/60">{t('liquidationSuccess', { player: `${s.liqModalPlayer.first} ${s.liqModalPlayer.last}` })}</div>
             </div>
             <div className="space-y-2 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-white/50">{t('dpcHolder')}</span>
-                <span className="font-mono font-bold">{liqResult.holder_count}</span>
+                <span className="font-mono font-bold">{s.liqResult.holder_count}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/50">{t('transferValueResult')}</span>
-                <span className="font-mono font-bold">{liqResult.transfer_value_eur > 0 ? `${(liqResult.transfer_value_eur / 1000000).toFixed(1)}M EUR` : '-'}</span>
+                <span className="font-mono font-bold">{s.liqResult.transfer_value_eur > 0 ? `${(s.liqResult.transfer_value_eur / 1000000).toFixed(1)}M EUR` : '-'}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/50">{t('feePerDpc')}</span>
-                <span className="font-mono font-bold text-gold">{fmtScout(centsToBsd(liqResult.fee_per_dpc_cents))} CR</span>
+                <span className="font-mono font-bold text-gold">{fmtScout(centsToBsd(s.liqResult.fee_per_dpc_cents))} CR</span>
               </div>
               <div className="border-t border-white/10 pt-2 space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-white/50">{t('pbtDistribution')}</span>
-                  <span className="font-mono font-bold text-green-500">{fmtScout(centsToBsd(liqResult.pbt_distributed_cents))} CR</span>
+                  <span className="font-mono font-bold text-green-500">{fmtScout(centsToBsd(s.liqResult.pbt_distributed_cents))} CR</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-white/50">{t('communityBonus')}</span>
-                  <span className="font-mono font-bold text-gold">{fmtScout(centsToBsd(liqResult.success_fee_cents))} CR</span>
+                  <span className="font-mono font-bold text-gold">{fmtScout(centsToBsd(s.liqResult.success_fee_cents))} CR</span>
                 </div>
                 <div className="flex items-center justify-between border-t border-white/10 pt-1">
                   <span className="text-white font-bold">{t('total')}</span>
-                  <span className="font-mono font-bold text-green-500">{fmtScout(centsToBsd(liqResult.distributed_cents))} CR</span>
+                  <span className="font-mono font-bold text-green-500">{fmtScout(centsToBsd(s.liqResult.distributed_cents))} CR</span>
                 </div>
               </div>
             </div>
-            <Button variant="outline" fullWidth onClick={() => { setLiqModalPlayer(null); setLiqResult(null); }}>
+            <Button variant="outline" fullWidth onClick={s.closeLiquidationModal}>
               {t('close')}
             </Button>
           </div>
@@ -619,30 +370,30 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
       </Modal>
 
       {/* Create IPO Modal */}
-      <Modal open={ipoModalOpen} title={t('newIpo')} onClose={() => setIpoModalOpen(false)}>
+      <Modal open={s.ipoModalOpen} title={t('newIpo')} onClose={() => s.setIpoModalOpen(false)}>
         <div className="space-y-4 p-4 md:p-6">
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('playerLabel')}</label>
             <select
-              value={ipoPlayerId}
-              onChange={(e) => setIpoPlayerId(e.target.value)}
+              value={s.ipoPlayerId}
+              onChange={(e) => s.setIpoPlayerId(e.target.value)}
               className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
             >
               <option value="" className="bg-[#1a1a2e] text-white/50">{t('selectPlayer')}</option>
-              {eligiblePlayers.map(p => (
+              {s.eligiblePlayers.map(p => (
                 <option key={p.id} value={p.id} className="bg-[#1a1a2e] text-white">{p.first} {p.last} ({p.pos})</option>
               ))}
             </select>
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('pricePerDpc')}</label>
-            <input type="number" inputMode="numeric" step="0.01" min="0.01" value={ipoPrice} onChange={(e) => setIpoPrice(e.target.value)} placeholder={t('examplePrice', { example: '5.00' })} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
+            <input type="number" inputMode="numeric" step="0.01" min="0.01" value={s.ipoPrice} onChange={(e) => s.setIpoPrice(e.target.value)} placeholder={t('examplePrice', { example: '5.00' })} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('dpcCount')}</label>
-            <input type="number" inputMode="numeric" min="1" max={(() => { const sp = players.find(p => p.id === ipoPlayerId); return sp ? sp.dpc.supply - sp.dpc.circulation : 500; })()} value={ipoQty} onChange={(e) => setIpoQty(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40" />
-            {ipoPlayerId && (() => {
-              const sp = players.find(p => p.id === ipoPlayerId);
+            <input type="number" inputMode="numeric" min="1" max={(() => { const sp = s.players.find(p => p.id === s.ipoPlayerId); return sp ? sp.dpc.supply - sp.dpc.circulation : 500; })()} value={s.ipoQty} onChange={(e) => s.setIpoQty(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40" />
+            {s.ipoPlayerId && (() => {
+              const sp = s.players.find(p => p.id === s.ipoPlayerId);
               if (!sp) return null;
               const available = sp.dpc.supply - sp.dpc.circulation;
               return (
@@ -654,11 +405,11 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('maxPerUser')}</label>
-            <input type="number" inputMode="numeric" min="1" value={ipoMaxPerUser} onChange={(e) => setIpoMaxPerUser(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40" />
+            <input type="number" inputMode="numeric" min="1" value={s.ipoMaxPerUser} onChange={(e) => s.setIpoMaxPerUser(e.target.value)} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40" />
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('durationLabel')}</label>
-            <select value={ipoDuration} onChange={(e) => setIpoDuration(e.target.value)} className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40">
+            <select value={s.ipoDuration} onChange={(e) => s.setIpoDuration(e.target.value)} className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40">
               <option value="7">{t('daysOption7')}</option>
               <option value="14">{t('daysOption14')}</option>
               <option value="21">{t('daysOption21')}</option>
@@ -671,64 +422,48 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
               <div className="text-xs text-white/40">{t('startNowDesc')}</div>
             </div>
             <button
-              onClick={() => setIpoStartNow(!ipoStartNow)}
-              className={cn('w-12 h-6 rounded-full transition-colors relative', ipoStartNow ? 'bg-green-500' : 'bg-white/10')}
+              onClick={() => s.setIpoStartNow(!s.ipoStartNow)}
+              className={cn('w-12 h-6 rounded-full transition-colors relative', s.ipoStartNow ? 'bg-green-500' : 'bg-white/10')}
             >
-              <div className={cn('absolute top-0.5 size-5 rounded-full bg-white shadow transition-all', ipoStartNow ? 'left-6' : 'left-0.5')} />
+              <div className={cn('absolute top-0.5 size-5 rounded-full bg-white shadow transition-all', s.ipoStartNow ? 'left-6' : 'left-0.5')} />
             </button>
           </div>
-          {ipoPlayerId && ipoPrice && (
+          {s.ipoPlayerId && s.ipoPrice && (
             <div className="bg-gold/5 border border-gold/20 rounded-xl p-3 text-sm">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-white/50">{t('totalVolumeIpo')}</span>
-                <span className="font-mono font-bold text-gold">{fmtScout(parseFloat(ipoPrice) * parseInt(ipoQty || '0'))} CR</span>
+                <span className="font-mono font-bold text-gold">{fmtScout(parseFloat(s.ipoPrice) * parseInt(s.ipoQty || '0'))} CR</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/50">{t('statusAfterCreation')}</span>
-                <span className={ipoStartNow ? 'text-green-500 font-bold' : 'text-blue-300 font-bold'}>{ipoStartNow ? t('ipoStatusLive') : t('ipoStatusAnnounced')}</span>
+                <span className={s.ipoStartNow ? 'text-green-500 font-bold' : 'text-blue-300 font-bold'}>{s.ipoStartNow ? t('ipoStatusLive') : t('ipoStatusAnnounced')}</span>
               </div>
             </div>
           )}
-          <Button variant="gold" fullWidth onClick={handleCreateIpo} disabled={ipoLoading || !ipoPlayerId || !ipoPrice}>
-            {ipoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-            {ipoLoading ? t('creating') : t('newIpo')}
+          <Button variant="gold" fullWidth onClick={s.handleCreateIpo} disabled={s.ipoLoading || !s.ipoPlayerId || !s.ipoPrice}>
+            {s.ipoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+            {s.ipoLoading ? t('creating') : t('newIpo')}
           </Button>
         </div>
       </Modal>
 
       {/* Create Player Modal */}
-      <Modal open={createModalOpen} title={t('createPlayer')} onClose={() => setCreateModalOpen(false)}>
+      <Modal open={s.createModalOpen} title={t('createPlayer')} onClose={() => s.setCreateModalOpen(false)}>
         <div className="space-y-4 p-4 md:p-6">
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-bold text-white/70 mb-1">{t('firstName')}</label>
-              <input
-                type="text"
-                value={cpFirstName}
-                onChange={(e) => setCpFirstName(e.target.value.slice(0, 30))}
-                placeholder={t('firstName')}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
-              />
+              <input type="text" value={s.cpFirstName} onChange={(e) => s.setCpFirstName(e.target.value.slice(0, 30))} placeholder={t('firstName')} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
             </div>
             <div>
               <label className="block text-sm font-bold text-white/70 mb-1">{t('lastName')}</label>
-              <input
-                type="text"
-                value={cpLastName}
-                onChange={(e) => setCpLastName(e.target.value.slice(0, 30))}
-                placeholder={t('lastName')}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
-              />
+              <input type="text" value={s.cpLastName} onChange={(e) => s.setCpLastName(e.target.value.slice(0, 30))} placeholder={t('lastName')} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-bold text-white/70 mb-1">{t('positionLabel')}</label>
-              <select
-                value={cpPosition}
-                onChange={(e) => setCpPosition(e.target.value)}
-                className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40"
-              >
+              <select value={s.cpPosition} onChange={(e) => s.setCpPosition(e.target.value)} className="w-full px-3 py-2.5 bg-[#1a1a2e] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-gold/40">
                 <option value="GK">GK</option>
                 <option value="DEF">DEF</option>
                 <option value="MID">MID</option>
@@ -737,55 +472,22 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
             </div>
             <div>
               <label className="block text-sm font-bold text-white/70 mb-1">{t('shirtNumber')}</label>
-              <input
-                type="number"
-                inputMode="numeric"
-                min="1"
-                max="99"
-                value={cpShirtNumber}
-                onChange={(e) => setCpShirtNumber(e.target.value)}
-                placeholder={t('examplePrice', { example: '10' })}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
-              />
+              <input type="number" inputMode="numeric" min="1" max="99" value={s.cpShirtNumber} onChange={(e) => s.setCpShirtNumber(e.target.value)} placeholder={t('examplePrice', { example: '10' })} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-bold text-white/70 mb-1">{t('ageLabel')}</label>
-              <input
-                type="number"
-                inputMode="numeric"
-                min="15"
-                max="45"
-                value={cpAge}
-                onChange={(e) => setCpAge(e.target.value)}
-                placeholder={t('examplePrice', { example: '24' })}
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
-              />
+              <input type="number" inputMode="numeric" min="15" max="45" value={s.cpAge} onChange={(e) => s.setCpAge(e.target.value)} placeholder={t('examplePrice', { example: '24' })} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
             </div>
             <div>
               <label className="block text-sm font-bold text-white/70 mb-1">{t('nationalityLabel')}</label>
-              <input
-                type="text"
-                value={cpNationality}
-                onChange={(e) => setCpNationality(e.target.value.slice(0, 3).toUpperCase())}
-                placeholder="TR"
-                className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
-              />
+              <input type="text" value={s.cpNationality} onChange={(e) => s.setCpNationality(e.target.value.slice(0, 3).toUpperCase())} placeholder="TR" className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
             </div>
           </div>
           <div>
             <label className="block text-sm font-bold text-white/70 mb-1">{t('ipoPriceLabel')}</label>
-            <input
-              type="number"
-              inputMode="numeric"
-              step="0.01"
-              min="0.01"
-              value={cpIpoPrice}
-              onChange={(e) => setCpIpoPrice(e.target.value)}
-              placeholder={t('examplePrice', { example: '5.00' })}
-              className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25"
-            />
+            <input type="number" inputMode="numeric" step="0.01" min="0.01" value={s.cpIpoPrice} onChange={(e) => s.setCpIpoPrice(e.target.value)} placeholder={t('examplePrice', { example: '5.00' })} className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-gold/40 placeholder:text-white/25" />
           </div>
           <div className="bg-surface-minimal rounded-xl p-3 text-xs text-white/40">
             Club: <span className="text-white/70 font-bold">{club.name}</span>
@@ -793,11 +495,11 @@ export default function AdminPlayersTab({ club }: { club: ClubWithAdmin }) {
           <Button
             variant="gold"
             fullWidth
-            onClick={handleCreatePlayer}
-            disabled={createLoading || !cpFirstName || !cpLastName || !cpShirtNumber || !cpAge}
+            onClick={s.handleCreatePlayer}
+            disabled={s.createLoading || !s.cpFirstName || !s.cpLastName || !s.cpShirtNumber || !s.cpAge}
           >
-            {createLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
-            {createLoading ? t('creating') : t('createPlayer')}
+            {s.createLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
+            {s.createLoading ? t('creating') : t('createPlayer')}
           </Button>
         </div>
       </Modal>
