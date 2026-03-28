@@ -90,21 +90,37 @@ ausgefuehrt wurden. "Im Kopf geprueft" zaehlt NICHT.
 
 ## Agents
 
-| Agent | Rolle | Key Constraint |
-|-------|-------|----------------|
-| impact-analyst | Cross-cutting Impact Analysis | Read-only |
-| implementer | Code schreiben nach Spec | Worktree-isoliert |
-| reviewer | Code Review (READ-ONLY) | KANN NICHT schreiben |
-| test-writer | Tests aus Spec only | Sieht NIE Implementation |
-| qa-visual | Playwright Screenshots | Read-only + Playwright |
-| healer | Fix Loop: Build/Test Fehler | Max 5 Runden |
+| Agent | Rolle | Skill | Isolation |
+|-------|-------|-------|-----------|
+| frontend | UI Components, Pages, Hooks | beScout-frontend | worktree |
+| backend | DB, RPCs, Services, Hooks | beScout-backend | worktree |
+| business | Compliance & Wording Review | beScout-business | read-only |
+| reviewer | Code Review (READ-ONLY) | keiner (cross-domain) | — |
+| test-writer | Tests aus Spec only | keiner | worktree |
+| qa-visual | Playwright Screenshots | keiner | read-only |
+| healer | Build/Test Fix Loop | keiner | — |
+| impact-analyst | Cross-cutting Analysis | keiner | read-only |
+| implementer | DEPRECATED Fallback | keiner | worktree |
 
-### Pre-Dispatch Checkliste (VOR jedem Implementer-Agent)
-1. **Types lesen** die der Agent konsumiert/produziert — fehlende Felder VOR Dispatch fixen
-2. **Imports pruefen** — existieren die Module die der Agent importieren soll?
-3. **RPC-Namen pruefen** — Agent muss Wrapper-RPCs nutzen (z.B. `lock_event_entry`), NICHT die internen REVOKEd RPCs (`rpc_lock_event_entry`)
-4. **Integration-Tasks** (>3 Files): IMMER Spec-Review nach Completion
-5. **>5 geaenderte Files**: Feature Branch, nicht direkt main
+### Task-Package Assembly (CTO Pflicht — VOR jedem Agent-Dispatch)
+1. **Agent + Skill bestimmen** (frontend/backend/business)
+2. **Types LESEN** und relevante Interfaces in Prompt KOPIEREN
+3. **Service-Signaturen LESEN** und in Prompt KOPIEREN (Funktion + Return-Type + Pfad)
+4. **Pattern-Beispiel** aus aehnlichen Components KOPIEREN
+5. **DB Column-Names** fuer betroffene Tabellen aus Skill KOPIEREN
+6. **i18n Keys pruefen** — fehlende VORHER anlegen
+7. **Acceptance Criteria** formulieren (binaere ja/nein Checkliste)
+8. **Reviewer-Briefing** vorbereiten: "Implementiert von [Agent] mit [Skill]"
+9. **Fehlt was? → Erst ERSTELLEN, dann dispatchen**
+
+Agent bekommt ALLES — muss NICHTS selbst suchen.
+Wenn Agent "INCOMPLETE PACKAGE" meldet → CTO-Fehler, Package erweitern.
+
+### Pre-Dispatch Validation
+1. **Skill-File existiert** → laden
+2. **Alle Skill-Dependencies existieren** → validieren
+3. **Integration-Tasks** (>3 Files): IMMER Spec-Review nach Completion
+4. **>5 geaenderte Files**: Feature Branch, nicht direkt main
 
 ### Post-Merge Checkliste (NACH jedem Agent-Merge, PFLICHT)
 1. **ALLE geaenderten Files lesen** — nicht nur Diff, sondern: machen die Files ZUSAMMEN Sinn?

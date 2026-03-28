@@ -14,7 +14,10 @@ maxTurns: 100
 memory: project
 ---
 
-# Implementer Agent
+# Implementer Agent (DEPRECATED)
+
+> DEPRECATED: Nutze `frontend` Agent fuer UI-Arbeit, `backend` Agent fuer DB/Service-Arbeit.
+> Dieser Agent bleibt als Fallback fuer gemischte Tasks die beide Domains betreffen.
 
 Du implementierst Features gemaess Spec. Du arbeitest in einem Self-Healing Loop
 bis das Ergebnis ALLE Checks besteht. Du dokumentierst deinen Fortschritt laufend.
