@@ -17,9 +17,7 @@ interface MysteryBoxModalProps {
   onOpen: (free?: boolean) => Promise<MysteryBoxResult | null>;
   ticketBalance: number;
   hasFreeBox?: boolean;
-  /** Streak-based ticket discount — TODO: RPC open_mystery_box does not accept
-   *  p_ticket_cost yet, so discount is not enforced server-side. Prop kept for
-   *  future RPC update. Currently shows base cost (15) to avoid misleading UI. */
+  /** Streak-based ticket discount (server-enforced in open_mystery_box RPC). */
   ticketDiscount?: number;
 }
 
@@ -88,9 +86,9 @@ export default function MysteryBoxModal({
   const [result, setResult] = useState<MysteryBoxResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // TODO: Server charges MYSTERY_BOX_BASE_COST (15) regardless of discount.
-  // Show real cost until RPC supports p_ticket_cost parameter.
-  const effectiveCost = MYSTERY_BOX_BASE_COST;
+  // Server applies streak discount in open_mystery_box RPC (migration 20260314).
+  // Progressive pricing (15/20/25/30) also handled server-side.
+  const effectiveCost = Math.max(1, MYSTERY_BOX_BASE_COST - ticketDiscount);
   const canAfford = hasFreeBox || ticketBalance >= effectiveCost;
 
   const handleOpen = useCallback(async () => {

@@ -243,7 +243,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
                 !notif.read && 'bg-surface-minimal'
               )}
             >
-              <div className={cn('flex items-center justify-center size-8 rounded-lg shrink-0 mt-0.5', getNotifColor(notif.type))}>
+              <div className={cn('flex items-center justify-center size-8 rounded-lg shrink-0 mt-0.5', getNotifColor(notif.type))} aria-hidden="true">
                 {getNotifIcon(notif.type)}
               </div>
               <div className="flex-1 min-w-0">
