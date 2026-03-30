@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Zap, ShoppingCart, Info, AlertCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { cn, fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { getPlayerSentimentCounts } from '@/lib/services/research';
@@ -248,6 +249,7 @@ export default function BuyConfirmModal({
             {isPending ? t('buying') : t('confirmBuy')}
           </Button>
         </div>
+        <TradingDisclaimer />
       </div>
     </Modal>
   );

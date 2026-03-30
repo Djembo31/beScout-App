@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Loader2, AlertCircle, ShoppingCart } from 'lucide-react';
 import { Modal, Button } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -115,6 +116,7 @@ export default function BuyOrderModal({ player, open, onClose }: BuyOrderModalPr
           {success && (
             <div className="text-xs text-green-500 font-bold">{success}</div>
           )}
+          <TradingDisclaimer />
         </div>
       }
     >
