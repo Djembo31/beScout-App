@@ -680,6 +680,7 @@ export type DbLineup = {
   locked: boolean;
   synergy_bonus_pct: number;
   synergy_details: SynergyDetail[] | null;
+  streak_bonus_pct: number;
   wildcard_slots: string[];
 };
 

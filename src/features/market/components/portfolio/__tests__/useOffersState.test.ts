@@ -20,14 +20,14 @@ vi.mock('@/lib/hooks/useErrorToast', () => ({
   useErrorToast: () => ({ showError: mockShowError }),
 }));
 
-const mockGetIncoming = vi.fn(() => Promise.resolve([]));
-const mockGetOutgoing = vi.fn(() => Promise.resolve([]));
-const mockGetOpenBids = vi.fn(() => Promise.resolve([]));
-const mockGetHistory = vi.fn(() => Promise.resolve([]));
-const mockAcceptOffer = vi.fn(() => Promise.resolve({ success: true }));
-const mockRejectOffer = vi.fn(() => Promise.resolve({ success: true }));
-const mockCounterOffer = vi.fn(() => Promise.resolve({ success: true }));
-const mockCancelOffer = vi.fn(() => Promise.resolve({ success: true }));
+const mockGetIncoming = vi.fn().mockResolvedValue([]);
+const mockGetOutgoing = vi.fn().mockResolvedValue([]);
+const mockGetOpenBids = vi.fn().mockResolvedValue([]);
+const mockGetHistory = vi.fn().mockResolvedValue([]);
+const mockAcceptOffer = vi.fn().mockResolvedValue({ success: true });
+const mockRejectOffer = vi.fn().mockResolvedValue({ success: true });
+const mockCounterOffer = vi.fn().mockResolvedValue({ success: true });
+const mockCancelOffer = vi.fn().mockResolvedValue({ success: true });
 
 vi.mock('@/lib/services/offers', () => ({
   getIncomingOffers: (...a: unknown[]) => mockGetIncoming(...a),

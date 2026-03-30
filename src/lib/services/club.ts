@@ -23,7 +23,7 @@ export async function getClubById(clubId: string): Promise<DbClub | null> {
     .select('id, slug, name, short, league, league_id, country, city, stadium, logo_url, primary_color, secondary_color, community_guidelines, active_gameweek, plan, is_verified, created_at, updated_at')
     .eq('id', clubId)
     .single();
-  if (error) return null;
+  if (error) { console.error('[Club] getClubById failed:', error); return null; }
   return data as DbClub;
 }
 
@@ -106,7 +106,7 @@ export async function getClubFollowerCount(clubId: string): Promise<number> {
     .select('id', { count: 'exact', head: true })
     .eq('club_id', clubId);
 
-  if (error) return 0;
+  if (error) { console.error('[Club] getClubFollowerCount failed:', error); return 0; }
   return count ?? 0;
 }
 
@@ -118,7 +118,7 @@ export async function isUserFollowingClub(userId: string, clubId: string): Promi
     .eq('user_id', userId)
     .eq('club_id', clubId);
 
-  if (error) return false;
+  if (error) { console.error('[Club] isUserFollowingClub failed:', error); return false; }
   return (count ?? 0) > 0;
 }
 

@@ -7,17 +7,17 @@ import type { ClubFilters } from '../types';
 // ============================================
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test mocks need flexible return types
-const mockUseClubBySlug = vi.fn<any[], any>();
-const mockUsePlayersByClub = vi.fn<any[], any>();
-const mockUseClubFollowerCount = vi.fn<any[], any>();
-const mockUseIsFollowingClub = vi.fn<any[], any>();
-const mockUseHoldings = vi.fn<any[], any>();
-const mockUseClubFixtures = vi.fn<any[], any>();
-const mockUseClubPrestige = vi.fn<any[], any>();
-const mockUseActiveIpos = vi.fn<any[], any>();
-const mockUseEvents = vi.fn<any[], any>();
-const mockUseClubRecentTrades = vi.fn<any[], any>();
-const mockUseFanRanking = vi.fn<any[], any>();
+const mockUseClubBySlug = vi.fn();
+const mockUsePlayersByClub = vi.fn();
+const mockUseClubFollowerCount = vi.fn();
+const mockUseIsFollowingClub = vi.fn();
+const mockUseHoldings = vi.fn();
+const mockUseClubFixtures = vi.fn();
+const mockUseClubPrestige = vi.fn();
+const mockUseActiveIpos = vi.fn();
+const mockUseEvents = vi.fn();
+const mockUseClubRecentTrades = vi.fn();
+const mockUseFanRanking = vi.fn();
 
 vi.mock('@/lib/queries/misc', () => ({ useClubBySlug: (...a: any[]) => mockUseClubBySlug(...a) }));
 vi.mock('@/lib/queries/players', () => ({ usePlayersByClub: (...a: any[]) => mockUsePlayersByClub(...a) }));
@@ -46,7 +46,7 @@ vi.mock('@/lib/services/posts', () => ({
   getPosts: vi.fn(() => Promise.resolve([])),
 }));
 
-const mockDbToPlayers = vi.fn((raw: any[]) => raw.map((p: any) => ({
+const mockDbToPlayers = vi.fn().mockImplementation((raw: any[]) => raw.map((p: any) => ({
   id: p.id,
   first: p.first_name,
   last: p.last_name,
@@ -55,11 +55,11 @@ const mockDbToPlayers = vi.fn((raw: any[]) => raw.map((p: any) => ({
   prices: { lastTrade: Number(p.last_trade_price ?? 0), change24h: Number(p.change_24h ?? 0) },
 })));
 
-const mockCentsToBsd = vi.fn((v: number) => v / 100000);
+const mockCentsToBsd = vi.fn().mockImplementation((v: number) => v / 100000);
 
 vi.mock('@/lib/services/players', () => ({
-  dbToPlayers: (...args: unknown[]) => mockDbToPlayers(...args),
-  centsToBsd: (...args: unknown[]) => mockCentsToBsd(...args),
+  dbToPlayers: (...args: any[]) => mockDbToPlayers(...args),
+  centsToBsd: (...args: any[]) => mockCentsToBsd(...args),
 }));
 
 vi.mock('@/components/club/FixtureCards', () => ({

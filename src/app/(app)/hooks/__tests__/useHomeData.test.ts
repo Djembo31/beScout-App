@@ -5,16 +5,15 @@ import { renderHook, act } from '@testing-library/react';
 // Mocks — Query hooks
 // ============================================
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- test mocks need flexible return types
-const mockUsePlayers = vi.fn<any[], any>();
-const mockUseHoldings = vi.fn<any[], any>();
-const mockUseEvents = vi.fn<any[], any>();
-const mockUseUserStats = vi.fn<any[], any>();
-const mockUseTrendingPlayers = vi.fn<any[], any>();
-const mockUseTodaysChallenge = vi.fn<any[], any>();
-const mockUseChallengeHistory = vi.fn<any[], any>();
-const mockUseUserTickets = vi.fn<any[], any>();
-const mockUseHighestPass = vi.fn<any[], any>();
+const mockUsePlayers = vi.fn();
+const mockUseHoldings = vi.fn();
+const mockUseEvents = vi.fn();
+const mockUseUserStats = vi.fn();
+const mockUseTrendingPlayers = vi.fn();
+const mockUseTodaysChallenge = vi.fn();
+const mockUseChallengeHistory = vi.fn();
+const mockUseUserTickets = vi.fn();
+const mockUseHighestPass = vi.fn();
 
 vi.mock('@/lib/queries', () => ({
   usePlayers: (...a: any[]) => mockUsePlayers(...a),
@@ -69,20 +68,20 @@ vi.mock('@/components/providers/ClubProvider', () => ({
 // Mocks — Services
 // ============================================
 
-const mockCentsToBsd = vi.fn((v: number) => v / 100000);
+const mockCentsToBsd = vi.fn().mockImplementation((v: number) => v / 100000);
 
 vi.mock('@/lib/services/players', () => ({
-  centsToBsd: (...args: unknown[]) => mockCentsToBsd(...args),
+  centsToBsd: (...args: any[]) => mockCentsToBsd(...args),
 }));
 
-const mockSubmitDailyChallenge = vi.fn(() => Promise.resolve());
+const mockSubmitDailyChallenge = vi.fn().mockResolvedValue(undefined);
 vi.mock('@/lib/services/dailyChallenge', () => ({
-  submitDailyChallenge: (...args: unknown[]) => mockSubmitDailyChallenge(...args),
+  submitDailyChallenge: (...args: any[]) => mockSubmitDailyChallenge(...args),
 }));
 
-const mockOpenMysteryBox = vi.fn(() => Promise.resolve({ ok: false }));
+const mockOpenMysteryBox = vi.fn().mockResolvedValue({ ok: false });
 vi.mock('@/lib/services/mysteryBox', () => ({
-  openMysteryBox: (...args: unknown[]) => mockOpenMysteryBox(...args),
+  openMysteryBox: (...args: any[]) => mockOpenMysteryBox(...args),
 }));
 
 vi.mock('@/lib/queryClient', () => ({

@@ -374,6 +374,7 @@ export type TrendingPlayer = {
 export async function getTrendingPlayers(limit = 5): Promise<TrendingPlayer[]> {
   const { data, error } = await supabase.rpc('rpc_get_trending_players', { p_limit: limit });
 
+  if (error) console.error('[Trading] getTrendingPlayers failed:', error);
   if (error || !data || (data as unknown[]).length === 0) return [];
 
   return (data as Array<{
@@ -407,6 +408,7 @@ export async function getAllPriceHistories(limit = 10): Promise<Map<string, numb
     .order('executed_at', { ascending: false })
     .limit(200);
 
+  if (error) console.error('[Trading] getAllPriceHistories failed:', error);
   if (error || !data) return new Map();
 
   // Group by player, keep only last N per player (chronological)
@@ -444,6 +446,7 @@ export async function getRecentGlobalTrades(limit = 10): Promise<GlobalTrade[]> 
     .order('executed_at', { ascending: false })
     .limit(limit);
 
+  if (error) console.error('[Trading] getRecentGlobalTrades failed:', error);
   if (error || !data) return [];
 
   return data.map((t: Record<string, unknown>) => {
@@ -605,6 +608,7 @@ export async function getTopTraders(limit = 5): Promise<TopTrader[]> {
     .select('buyer_id, price, quantity')
     .gte('executed_at', since);
 
+  if (error) console.error('[Trading] getTopTraders failed:', error);
   if (error || !data || data.length === 0) return [];
 
   // Aggregate by buyer

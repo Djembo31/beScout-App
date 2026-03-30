@@ -5,9 +5,9 @@ import { renderHook, act } from '@testing-library/react';
 // Mocks
 // ============================================
 
-const mockRefreshProfile = vi.fn(() => Promise.resolve());
+const mockRefreshProfile = vi.fn().mockResolvedValue(undefined);
 const mockAddToast = vi.fn();
-const mockToggleFollowClub = vi.fn(() => Promise.resolve());
+const mockToggleFollowClub = vi.fn().mockResolvedValue(undefined);
 const mockInvalidateQueries = vi.fn();
 
 vi.mock('@/components/providers/AuthProvider', () => ({

@@ -952,6 +952,18 @@ export async function GET(request: Request) {
     // ---- 8 & 9. Score events ----
 
     await runStep('score_events', async () => {
+      // Score-coverage guard: skip auto-scoring if no real player data exists
+      // (prevents meaningless default-40 scores when API-Football is unavailable)
+      const { count: gwScoreCount } = await supabaseAdmin
+        .from('player_gameweek_scores')
+        .select('*', { count: 'exact', head: true })
+        .eq('gameweek', activeGw);
+
+      if ((gwScoreCount ?? 0) < 50) {
+        console.warn(`[GW-SYNC] Skipping auto-score: only ${gwScoreCount ?? 0} player scores for GW${activeGw} (need ≥50)`);
+        return { scored: 0, closed: 0, transitioned: 0, skipped_reason: 'insufficient_scores' };
+      }
+
       // BUG-004 Guard: check if ANY fixture in this GW has actually started
       const { data: gwFixtures } = await supabaseAdmin
         .from('fixtures')

@@ -2,8 +2,8 @@
 //
 // Consumption points:
 //   dailyTickets           → streaks.ts recordLoginStreak (credits tickets on login)
-//   fantasyBonusPct        → TODO: score_event RPC should multiply lineup score by (1 + pct)
-//   eloBoostPct            → TODO: calculate_fan_rank RPC should apply boost to score components
+//   fantasyBonusPct        → score_event RPC multiplies lineup score by (1 + pct) (Migration 20260330)
+//   eloBoostPct            → calculate_fan_rank RPC applies boost to total score (Migration 20260330)
 //   freeMysteryBoxesPerWeek → MysteryBoxModal hasFreeBox prop (Home + Missions pages)
 //   mysteryBoxTicketDiscount→ MysteryBoxModal ticketDiscount prop (Home + Missions pages)
 //   getStreakBenefitLabels  → DailyChallengeCard + Missions page streak banner

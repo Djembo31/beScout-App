@@ -5,25 +5,25 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 // Mocks — Services
 // ============================================
 
-const mockGetHoldings = vi.fn(() => Promise.resolve([]));
-const mockGetTransactions = vi.fn(() => Promise.resolve([]));
-const mockGetUserStats = vi.fn(() => Promise.resolve(null));
-const mockGetFollowerCount = vi.fn(() => Promise.resolve(0));
-const mockGetFollowingCount = vi.fn(() => Promise.resolve(0));
-const mockGetResearchPosts = vi.fn(() => Promise.resolve([]));
-const mockGetAuthorTrackRecord = vi.fn(() => Promise.resolve(null));
-const mockGetUserTrades = vi.fn(() => Promise.resolve([]));
-const mockGetUserFantasyHistory = vi.fn(() => Promise.resolve([]));
-const mockGetUserAchievements = vi.fn(() => Promise.resolve([]));
-const mockGetMyPayouts = vi.fn(() => Promise.resolve([]));
-const mockGetTicketTransactions = vi.fn(() => Promise.resolve([]));
-const mockResolveExpiredResearch = vi.fn(() => Promise.resolve(0));
-const mockFollowUser = vi.fn(() => Promise.resolve());
-const mockUnfollowUser = vi.fn(() => Promise.resolve());
-const mockCheckIsFollowing = vi.fn(() => Promise.resolve(false));
-const mockRefreshUserStats = vi.fn(() => Promise.resolve());
-const mockCheckAndUnlockAchievements = vi.fn(() => Promise.resolve());
-const mockGetMySubscription = vi.fn(() => Promise.resolve(null));
+const mockGetHoldings = vi.fn().mockResolvedValue([]);
+const mockGetTransactions = vi.fn().mockResolvedValue([]);
+const mockGetUserStats = vi.fn().mockResolvedValue(null);
+const mockGetFollowerCount = vi.fn().mockResolvedValue(0);
+const mockGetFollowingCount = vi.fn().mockResolvedValue(0);
+const mockGetResearchPosts = vi.fn().mockResolvedValue([]);
+const mockGetAuthorTrackRecord = vi.fn().mockResolvedValue(null);
+const mockGetUserTrades = vi.fn().mockResolvedValue([]);
+const mockGetUserFantasyHistory = vi.fn().mockResolvedValue([]);
+const mockGetUserAchievements = vi.fn().mockResolvedValue([]);
+const mockGetMyPayouts = vi.fn().mockResolvedValue([]);
+const mockGetTicketTransactions = vi.fn().mockResolvedValue([]);
+const mockResolveExpiredResearch = vi.fn().mockResolvedValue(0);
+const mockFollowUser = vi.fn().mockResolvedValue(undefined);
+const mockUnfollowUser = vi.fn().mockResolvedValue(undefined);
+const mockCheckIsFollowing = vi.fn().mockResolvedValue(false);
+const mockRefreshUserStats = vi.fn().mockResolvedValue(undefined);
+const mockCheckAndUnlockAchievements = vi.fn().mockResolvedValue(undefined);
+const mockGetMySubscription = vi.fn().mockResolvedValue(null);
 
 vi.mock('@/lib/services/wallet', () => ({
   getHoldings: (...a: any[]) => mockGetHoldings(...a),

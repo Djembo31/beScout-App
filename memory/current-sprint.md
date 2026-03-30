@@ -1,30 +1,32 @@
-# Current Sprint — Architecture Refactoring
+# Current Sprint — Completion + Team Architecture
 
-## Stand (2026-03-28, Session 265)
-- **Tests:** ~2319 (97 neue Hook-Tests in dieser Session), tsc 0 Errors
-- **Branch:** main (4 neue Commits total)
-- **Refactored Pages:** Fantasy, Market, PlayerDetail, Community, AdminEvents, ClubContent, ProfileView, Home, KaderTab, OffersTab, AdminPlayersTab, LineupPanel
+## Stand (2026-03-28, Session 266)
+- **Tests:** ~2319, tsc 226 pre-existing Errors (alle Test-Files)
+- **Branch:** main (3 neue Commits: afc2af9, 13e1804, 95b5226)
+- **Team:** 3 Domain-Skills + 3 Specialized Agents aufgebaut
 
-## Erledigt (Session 265) — Refactoring Round 4
-- useHomeData: 30 Tests nachgeholt
-- KaderTab: 732→480 LOC, useKaderState hook, 16 Tests
-- OffersTab: 632→490 LOC, useOffersState hook, 12 Tests
-- AdminPlayersTab: 806→550 LOC, useAdminPlayersState hook
-- ClubContent: 769→530 LOC, PublicClubView + SpielplanTab als Components
-- LineupPanel: 1011→886 LOC, useLineupPanelState hook
-- Net: -1233 Zeilen aus Components, 97 Tests gruen
+## Erledigt (Session 266)
+- Team Architecture: 3 Skills (frontend/backend/business) + 3 Agents + Design Doc
+- Skill-Creator installiert (18 Files, SKILL.md 155 Zeilen)
+- Completion Audit: 15 Issues gefunden (docs/plans/2026-03-28-completion-audit.md)
+- Sprint 1: 8/8 Items (Cron TODO, Founding Pass, 3 UI Fixes, Wallet Cleanup, i18n)
+- Sprint 2: 3/5 Items (MysteryBox Discount, Accessibility, Grid Position)
+- Workflow-Test: Frontend Agent dispatcht, 4 Verbesserungen identifiziert
+- Supabase MCP → CLI Migration
+
+## Erledigt (Session 267)
+- M1: Streak Benefits — RPCs erweitert (score_event + calculate_fan_rank), Migration deployed
+- streakBenefits.ts TODOs bereinigt, DbLineup.streak_bonus_pct hinzugefuegt
+- M7: Gameweek Scoring Fallback — Score-Coverage-Guard im Cron (<50 Scores = skip)
 
 ## Naechste Prioritaet
-- Refactoring abgeschlossen — alle grossen Files (<800 LOC) unter Kontrolle
-- Feature-Arbeit: naechstes Feature aus Roadmap
-- AdminPlayersTab Tests nachholen
-- LineupPanel Tests nachholen
+1. **Sprint 3 (Code Quality):** Silent Error Returns, Bridge Re-Exports
+2. **Neue Agents testen** — frontend/backend/business erstmals als subagent_type
 
 ## Bekannte Issues
+- 226 pre-existing tsc Errors (alle in Test-Files)
 - 20 pre-existing test failures in CI
-- useMarketData.test.ts hat pre-existing tsc Errors
-- demo-platform Account existiert nicht
-- Vercel Preview ist SSO-geschuetzt
+- Neue Agents erst nach Session-Restart verfuegbar
 
 ## Blocker
 - Keine

@@ -6,10 +6,10 @@ import { renderHook, act } from '@testing-library/react';
 // ============================================
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test mocks
-const mockUseRecentMinutes = vi.fn<any[], any>();
-const mockUseRecentScores = vi.fn<any[], any>();
-const mockUseNextFixtures = vi.fn<any[], any>();
-const mockUsePlayerEventUsage = vi.fn<any[], any>();
+const mockUseRecentMinutes = vi.fn();
+const mockUseRecentScores = vi.fn();
+const mockUseNextFixtures = vi.fn();
+const mockUsePlayerEventUsage = vi.fn();
 
 vi.mock('@/lib/queries/managerData', () => ({
   useRecentMinutes: (...a: any[]) => mockUseRecentMinutes(...a),
@@ -40,7 +40,7 @@ function makePlayer(overrides: Partial<Player> & { id: string }): Player {
     pos: 'MID',
     club: 'Sakaryaspor',
     clubId: 'club-1',
-    perf: { l5: 75, l15: 70 },
+    perf: { l5: 75, l15: 70, l5Apps: 5, l15Apps: 12, season: 72, trend: 'UP' as const },
     prices: { floor: 5, lastTrade: 5, change24h: 0 },
     stats: { matches: 10, goals: 2, assists: 3 },
     ipo: { status: 'none' },
@@ -51,11 +51,11 @@ function makePlayer(overrides: Partial<Player> & { id: string }): Player {
 }
 
 const PLAYERS = [
-  makePlayer({ id: 'p-gk', first: 'GK', last: 'Player', pos: 'GK', perf: { l5: 60, l15: 55 } }),
-  makePlayer({ id: 'p-def', first: 'DEF', last: 'Player', pos: 'DEF', perf: { l5: 50, l15: 45 } }),
-  makePlayer({ id: 'p-mid1', first: 'MID1', last: 'Arslan', pos: 'MID', perf: { l5: 80, l15: 70 } }),
-  makePlayer({ id: 'p-mid2', first: 'MID2', last: 'Yilmaz', pos: 'MID', perf: { l5: 70, l15: 65 } }),
-  makePlayer({ id: 'p-att', first: 'ATT', last: 'Striker', pos: 'ATT', perf: { l5: 90, l15: 80 } }),
+  makePlayer({ id: 'p-gk', first: 'GK', last: 'Player', pos: 'GK', perf: { l5: 60, l15: 55, l5Apps: 5, l15Apps: 12, season: 57, trend: 'FLAT' } }),
+  makePlayer({ id: 'p-def', first: 'DEF', last: 'Player', pos: 'DEF', perf: { l5: 50, l15: 45, l5Apps: 5, l15Apps: 12, season: 47, trend: 'DOWN' } }),
+  makePlayer({ id: 'p-mid1', first: 'MID1', last: 'Arslan', pos: 'MID', perf: { l5: 80, l15: 70, l5Apps: 5, l15Apps: 12, season: 75, trend: 'UP' } }),
+  makePlayer({ id: 'p-mid2', first: 'MID2', last: 'Yilmaz', pos: 'MID', perf: { l5: 70, l15: 65, l5Apps: 5, l15Apps: 12, season: 67, trend: 'UP' } }),
+  makePlayer({ id: 'p-att', first: 'ATT', last: 'Striker', pos: 'ATT', perf: { l5: 90, l15: 80, l5Apps: 5, l15Apps: 12, season: 85, trend: 'UP' } }),
 ];
 
 function setDefaults() {

@@ -13,10 +13,10 @@ vi.mock('@/features/market/store/marketStore', () => ({
   useMarketStore: (selector: (s: { tab: string }) => string) => selector({ tab: mockTab }),
 }));
 
-const mockEnrichedPlayers = vi.fn((_uid?: unknown) => ({ data: [] as Player[], isLoading: true, isError: false }));
-const mockHoldings = vi.fn((_uid?: unknown) => ({ data: [] }));
-const mockAllOpenOrders = vi.fn(() => ({ data: [] }));
-const mockAllOpenBuyOrders = vi.fn(() => ({ data: [] }));
+const mockEnrichedPlayers = vi.fn().mockReturnValue({ data: [] as Player[], isLoading: true, isError: false });
+const mockHoldings = vi.fn().mockReturnValue({ data: [] });
+const mockAllOpenOrders = vi.fn().mockReturnValue({ data: [] });
+const mockAllOpenBuyOrders = vi.fn().mockReturnValue({ data: [] });
 
 vi.mock('@/lib/queries', () => ({
   useEnrichedPlayers: (uid: unknown) => mockEnrichedPlayers(uid),
@@ -25,9 +25,9 @@ vi.mock('@/lib/queries', () => ({
   useAllOpenBuyOrders: () => mockAllOpenBuyOrders(),
 }));
 
-const mockActiveIpos = vi.fn(() => ({ data: [] }));
-const mockAnnouncedIpos = vi.fn(() => ({ data: [] }));
-const mockRecentlyEndedIpos = vi.fn(() => ({ data: [] }));
+const mockActiveIpos = vi.fn().mockReturnValue({ data: [] });
+const mockAnnouncedIpos = vi.fn().mockReturnValue({ data: [] });
+const mockRecentlyEndedIpos = vi.fn().mockReturnValue({ data: [] });
 
 vi.mock('@/features/market/queries/ipos', () => ({
   useActiveIpos: () => mockActiveIpos(),
@@ -35,22 +35,22 @@ vi.mock('@/features/market/queries/ipos', () => ({
   useRecentlyEndedIpos: () => mockRecentlyEndedIpos(),
 }));
 
-const mockTrendingPlayers = vi.fn(() => ({ data: [] }));
+const mockTrendingPlayers = vi.fn().mockReturnValue({ data: [] });
 vi.mock('@/features/market/queries/trending', () => ({
   useTrendingPlayers: () => mockTrendingPlayers(),
 }));
 
-const mockAllPriceHistories = vi.fn(() => ({ data: undefined }));
+const mockAllPriceHistories = vi.fn().mockReturnValue({ data: undefined });
 vi.mock('@/features/market/queries/priceHist', () => ({
   useAllPriceHistories: () => mockAllPriceHistories(),
 }));
 
-const mockWatchlist = vi.fn((_uid?: unknown) => ({ data: [] }));
+const mockWatchlist = vi.fn().mockReturnValue({ data: [] });
 vi.mock('@/features/market/queries/watchlist', () => ({
   useWatchlist: (uid: unknown) => mockWatchlist(uid),
 }));
 
-const mockIncomingOffers = vi.fn((_uid?: unknown) => ({ data: [] }));
+const mockIncomingOffers = vi.fn().mockReturnValue({ data: [] });
 vi.mock('@/features/market/queries/offers', () => ({
   useIncomingOffers: (uid: unknown) => mockIncomingOffers(uid),
 }));
@@ -81,7 +81,6 @@ function createWrapper() {
 /** Minimal Player factory — only the fields the hook's derived values inspect */
 function makePlayer(overrides: Partial<Player> & { id: string }): Player {
   return {
-    id: overrides.id,
     ticket: 1,
     first: 'Test',
     last: 'Player',
@@ -93,15 +92,12 @@ function makePlayer(overrides: Partial<Player> & { id: string }): Player {
     contractMonthsLeft: 12,
     perf: { l5: 70, l15: 68, l5Apps: 5, l15Apps: 12, season: 69, trend: 'UP' },
     stats: { matches: 20, goals: 5, assists: 3, cleanSheets: 0, minutes: 1500, saves: 0 },
-    prices: { lastTrade: 1000, change24h: 5, floor: undefined, referencePrice: undefined, ...overrides.prices },
-    dpc: { supply: 300, float: 200, circulation: 150, onMarket: 10, owned: 0, ...overrides.dpc },
     ipo: { status: 'none' },
     listings: [],
     topOwners: [],
     lastAppearanceGw: 28,
     gwGap: 0,
     ...overrides,
-    // Re-apply nested overrides to avoid being clobbered by spread
     prices: { lastTrade: 1000, change24h: 5, floor: undefined, referencePrice: undefined, ...overrides.prices },
     dpc: { supply: 300, float: 200, circulation: 150, onMarket: 10, owned: 0, ...overrides.dpc },
   };
