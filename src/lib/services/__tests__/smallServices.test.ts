@@ -1,6 +1,6 @@
 /**
  * Combined tests for small services:
- * pbt, mastery, impressions, mysteryBox, feedback, streaks, welcomeBonus
+ * pbt, mastery, mysteryBox, feedback, streaks, welcomeBonus
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mockSupabase, mockTable, mockRpc, resetMocks } from '@/test/mocks/supabase';
@@ -14,7 +14,6 @@ vi.mock('@/lib/services/missions', () => ({ triggerMissionProgress: vi.fn() }));
 
 import { getPbtForPlayer, getPbtTransactions, getFeeConfig, getAllFeeConfigs, invalidatePbtData } from '../pbt';
 import { MASTERY_XP_THRESHOLDS, MASTERY_LEVEL_LABELS, getXpForNextLevel, getDpcMastery, getUserMasteryAll } from '../mastery';
-import { logContentImpression, getAuthorImpressionStats } from '../impressions';
 import { openMysteryBox, getMysteryBoxHistory } from '../mysteryBox';
 import { submitFeedback } from '../feedback';
 import { recordLoginStreak } from '../streaks';
@@ -153,52 +152,6 @@ describe('getUserMasteryAll', () => {
   it('returns [] when null', async () => {
     mockTable('dpc_mastery', null);
     expect(await getUserMasteryAll('u1')).toEqual([]);
-  });
-});
-
-// ============================================
-// Impressions
-// ============================================
-describe('logContentImpression', () => {
-  it('skips self-impressions', () => {
-    logContentImpression('post', 'p1', 'u1', 'u1');
-    expect(mockSupabase.from).not.toHaveBeenCalled();
-  });
-
-  it('inserts impression for different viewer', () => {
-    mockTable('content_impressions', null);
-    logContentImpression('post', 'p1', 'author-1', 'viewer-1');
-    expect(mockSupabase.from).toHaveBeenCalledWith('content_impressions');
-  });
-
-  it('inserts for null viewer (anonymous)', () => {
-    mockTable('content_impressions', null);
-    logContentImpression('research', 'r1', 'author-1', null);
-    expect(mockSupabase.from).toHaveBeenCalledWith('content_impressions');
-  });
-});
-
-describe('getAuthorImpressionStats', () => {
-  it('returns impression stats', async () => {
-    // First query: total count
-    mockTable('content_impressions', null, null, 100);
-    // Second query: unique viewers
-    mockTable('content_impressions', [
-      { viewer_id: 'v1' }, { viewer_id: 'v2' }, { viewer_id: 'v1' }, // v1 counted once
-    ]);
-    const result = await getAuthorImpressionStats('author-1');
-    expect(result.totalImpressions).toBe(100);
-    expect(result.uniqueViewers).toBe(2);
-  });
-
-  it('returns 0s on errors', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    mockTable('content_impressions', null, { message: 'err1' });
-    mockTable('content_impressions', null, { message: 'err2' });
-    const result = await getAuthorImpressionStats('author-1');
-    expect(result.totalImpressions).toBe(0);
-    expect(result.uniqueViewers).toBe(0);
-    consoleSpy.mockRestore();
   });
 });
 

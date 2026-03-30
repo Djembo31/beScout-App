@@ -30,11 +30,14 @@ const TYPE_TO_CATEGORY: Record<NotificationType, NotificationCategory | 'system'
   poll_vote: 'social',
   research_unlock: 'social',
   research_rating: 'social',
+  post_upvoted: 'social',
   // Bounties
   bounty_submission: 'bounties',
   bounty_approved: 'bounties',
   bounty_rejected: 'bounties',
   bounty_expiring: 'bounties',
+  // Trading (buyer confirmations)
+  ipo_purchase: 'trading',
   // Rewards & Progress
   achievement: 'rewards',
   level_up: 'rewards',

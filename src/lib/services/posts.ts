@@ -323,6 +323,18 @@ export async function votePost(
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(userId, 'post_vote', 'community', { postId, voteType });
   }).catch(err => console.error('[Posts] Vote activity log failed:', err));
+  // Notification to post author on upvote (fire-and-forget)
+  if (voteType === 1) {
+    (async () => {
+      try {
+        const { data: post } = await supabase.from('posts').select('user_id').eq('id', postId).maybeSingle();
+        if (post && post.user_id !== userId) {
+          const { createNotification } = await import('@/lib/services/notifications');
+          await createNotification(post.user_id, 'post_upvoted', 'Dein Beitrag wurde geliked', undefined, postId, 'post');
+        }
+      } catch (err) { console.error('[Posts] Upvote notification failed:', err); }
+    })();
+  }
   // Gamification (analyst score, airdrop refresh) handled by DB trigger trg_fn_post_vote_gamification
   return data as { upvotes: number; downvotes: number };
 }

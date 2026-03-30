@@ -126,6 +126,10 @@ export async function buyFromIpo(
     import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
       triggerMissionProgress(userId, ['first_ipo_buy', 'daily_trade', 'weekly_5_trades']);
     }).catch(err => console.error('[IPO] Mission tracking failed:', err));
+    // Notification: IPO purchase confirmed (fire-and-forget)
+    import('@/lib/services/notifications').then(({ createNotification }) => {
+      createNotification(userId, 'ipo_purchase', `${quantity}x Scout Card gekauft`, undefined, ipoId, 'ipo');
+    }).catch(err => console.error('[IPO] Purchase notification failed:', err));
   }
   return result;
 }

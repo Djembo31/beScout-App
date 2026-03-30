@@ -105,8 +105,13 @@ export function useEventActions(clubId: string) {
 
       // Mission tracking (fire-and-forget)
       import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
-        triggerMissionProgress(user.id, ['weekly_fantasy']);
+        triggerMissionProgress(user.id, ['weekly_fantasy', 'daily_fantasy_entry']);
       }).catch(err => console.error('[Fantasy] Mission tracking failed:', err));
+
+      // Activity log (fire-and-forget)
+      import('@/lib/services/activityLog').then(({ logActivity }) => {
+        logActivity(user.id, 'fantasy_event_joined', 'fantasy', { eventId: event.id, eventName: event.name });
+      }).catch(err => console.error('[Fantasy] Activity log failed:', err));
 
       addToast(t('joinedSuccess', { name: event.name }), 'success');
     } catch (e: unknown) {
@@ -179,6 +184,14 @@ export function useEventActions(clubId: string) {
     } catch (err) {
       console.error('[Fantasy] Post-save cache invalidation failed:', err);
     }
+    // Activity log + mission tracking (fire-and-forget)
+    import('@/lib/services/activityLog').then(({ logActivity }) => {
+      logActivity(user.id, 'lineup_saved', 'fantasy', { eventId: event.id, formation });
+    }).catch(err => console.error('[Fantasy] Activity log failed:', err));
+    import('@/lib/services/missions').then(({ triggerMissionProgress }) => {
+      triggerMissionProgress(user.id, ['weekly_3_lineups']);
+    }).catch(err => console.error('[Fantasy] Mission tracking failed:', err));
+
     closeEvent();
     addToast(t('lineupSaved'), 'success');
   }, [user, addToast, clubId, closeEvent, t, te]);
@@ -219,6 +232,11 @@ export function useEventActions(clubId: string) {
       queryClient.invalidateQueries({ queryKey: qk.events.holdingLocks(user.id) });
       queryClient.invalidateQueries({ queryKey: qk.holdings.byUser(user.id) });
       fetch('/api/events?bust=1').catch(err => console.error('[Fantasy] Event cache bust failed:', err));
+
+      // Activity log (fire-and-forget)
+      import('@/lib/services/activityLog').then(({ logActivity }) => {
+        logActivity(user.id, 'fantasy_event_left', 'fantasy', { eventId: event.id, eventName: event.name });
+      }).catch(err => console.error('[Fantasy] Activity log failed:', err));
 
       addToast(`${t('leftEvent')}${event.buyIn > 0 ? ` ${t('refundNote', { amount: event.buyIn })}` : ''}`, 'success');
     } catch (e: unknown) {

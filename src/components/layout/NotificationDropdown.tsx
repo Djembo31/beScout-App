@@ -45,6 +45,8 @@ function getNotifIcon(type: NotificationType) {
     case 'rang_down': return <TrendingUp className="size-4 rotate-180" />;
     case 'mastery_level_up': return <Star className="size-4" />;
     case 'prediction_resolved': return <Target className="size-4" />;
+    case 'post_upvoted': return <TrendingUp className="size-4" />;
+    case 'ipo_purchase': return <Coins className="size-4" />;
     case 'system': return <Info className="size-4" />;
   }
 }
@@ -86,6 +88,8 @@ function getNotifColor(type: NotificationType): string {
     case 'rang_down': return 'text-red-400 bg-red-400/10';
     case 'mastery_level_up': return 'text-gold bg-gold/10';
     case 'prediction_resolved': return 'text-purple-400 bg-purple-400/10';
+    case 'post_upvoted': return 'text-green-500 bg-green-500/10';
+    case 'ipo_purchase': return 'text-gold bg-gold/10';
     case 'system': return 'text-sky-400 bg-sky-400/10';
   }
 }
