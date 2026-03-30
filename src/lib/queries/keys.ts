@@ -306,4 +306,14 @@ export const qk = {
   clubChallenges: {
     byClub: (clubId: string) => ['club-challenges', clubId] as const,
   },
+
+  // ── Economy Config ──
+  economy: {
+    elo: ['economy', 'elo'] as const,
+    rang: ['economy', 'rang'] as const,
+    scoreRoad: ['economy', 'scoreRoad'] as const,
+    managerPoints: ['economy', 'managerPoints'] as const,
+    streak: ['economy', 'streak'] as const,
+    missions: ['economy', 'missions'] as const,
+  },
 } as const;

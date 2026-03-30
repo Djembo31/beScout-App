@@ -1112,6 +1112,70 @@ export type NotificationPreferences = {
 };
 
 // ============================================
+// ECONOMY CONFIG
+// ============================================
+
+export type DbEloConfig = {
+  id: string;
+  dimension: 'trader' | 'manager' | 'analyst';
+  event_type: string;
+  delta: number;
+  condition: Record<string, unknown>;
+  description: string | null;
+  active: boolean;
+  updated_by: string | null;
+  updated_at: string;
+};
+
+export type DbRangThreshold = {
+  id: number;
+  rang_key: string;
+  rang_name: string;
+  rang_i18n_key: string;
+  tier_number: number;
+  min_score: number;
+  max_score: number | null;
+  updated_by: string | null;
+  updated_at: string;
+};
+
+export type DbScoreRoadConfig = {
+  id: number;
+  score_threshold: number;
+  rang_name: string;
+  rang_i18n_key: string;
+  reward_cents: number;
+  reward_label: string;
+  reward_type: 'bsd' | 'cosmetic' | 'both';
+  sort_order: number;
+  updated_by: string | null;
+  updated_at: string;
+};
+
+export type DbManagerPointsConfig = {
+  id: number;
+  max_percentile: number | null;
+  points: number;
+  label: string;
+  small_event: boolean;
+  max_rank: number | null;
+  updated_by: string | null;
+  updated_at: string;
+};
+
+export type DbStreakConfig = {
+  id: number;
+  min_days: number;
+  daily_tickets: number;
+  fantasy_bonus_pct: number;
+  elo_boost_pct: number;
+  free_mystery_boxes_per_week: number;
+  mystery_box_ticket_discount: number;
+  updated_by: string | null;
+  updated_at: string;
+};
+
+// ============================================
 // FANTASY LEAGUES
 // ============================================
 
