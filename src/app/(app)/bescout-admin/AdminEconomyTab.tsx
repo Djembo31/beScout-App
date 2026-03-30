@@ -13,6 +13,7 @@ import type {
   DbManagerPointsConfig,
   DbStreakConfig,
   DbMissionDefinition,
+  DbAchievementDefinition,
 } from '@/types';
 
 type EloDimension = DbEloConfig['dimension'];
@@ -23,6 +24,7 @@ import {
   getManagerPointsConfig,
   getStreakConfig,
   getMissionDefinitions,
+  getAchievementDefinitions,
   updateEloConfig,
   updateRangThreshold,
   updateScoreRoadConfig,
@@ -30,6 +32,8 @@ import {
   updateStreakConfig,
   createMission,
   updateMission,
+  createAchievementDefinition,
+  updateAchievementDefinition,
 } from '@/lib/services/economyConfig';
 
 // ============================================
@@ -1051,6 +1055,258 @@ function MissionsSection({
 // MAIN COMPONENT
 // ============================================
 
+// ============================================
+// SECTION 7: ACHIEVEMENTS
+// ============================================
+
+const CATEGORY_COLORS: Record<string, string> = {
+  trading: 'text-sky-400',
+  manager: 'text-purple-400',
+  scout: 'text-emerald-400',
+};
+
+function AchievementsSection({
+  data,
+  canEdit,
+  onRefresh,
+  adminId,
+}: {
+  data: DbAchievementDefinition[];
+  canEdit: boolean;
+  onRefresh: () => void;
+  adminId: string;
+}) {
+  const { addToast } = useToast();
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDesc, setEditDesc] = useState('');
+  const [editIcon, setEditIcon] = useState('');
+  const [editFeatured, setEditFeatured] = useState(false);
+  const [editActive, setEditActive] = useState(true);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newAch, setNewAch] = useState({
+    key: '',
+    category: 'trading' as string,
+    title: '',
+    description: '',
+    icon: '🏆',
+    featured: false,
+  });
+
+  const handleStartEdit = useCallback((item: DbAchievementDefinition) => {
+    setEditId(item.id);
+    setEditTitle(item.title);
+    setEditDesc(item.description);
+    setEditIcon(item.icon);
+    setEditFeatured(item.featured);
+    setEditActive(item.active);
+  }, []);
+
+  const handleSave = useCallback(async (id: string) => {
+    const result = await updateAchievementDefinition(adminId, id, {
+      title: editTitle,
+      description: editDesc,
+      icon: editIcon,
+      featured: editFeatured,
+      active: editActive,
+    });
+    if (result.ok) {
+      addToast('Gespeichert', 'success');
+      setEditId(null);
+      onRefresh();
+    } else {
+      addToast(result.error ?? 'Fehler', 'error');
+    }
+  }, [adminId, editTitle, editDesc, editIcon, editFeatured, editActive, addToast, onRefresh]);
+
+  const handleCreate = useCallback(async () => {
+    if (!newAch.key || !newAch.title) {
+      addToast('Key und Titel sind Pflichtfelder', 'error');
+      return;
+    }
+    const result = await createAchievementDefinition(adminId, newAch);
+    if (result.ok) {
+      addToast('Achievement erstellt', 'success');
+      setShowCreateForm(false);
+      setNewAch({ key: '', category: 'trading', title: '', description: '', icon: '🏆', featured: false });
+      onRefresh();
+    } else {
+      addToast(result.error ?? 'Fehler', 'error');
+    }
+  }, [adminId, newAch, addToast, onRefresh]);
+
+  const grouped = data.reduce<Record<string, DbAchievementDefinition[]>>(
+    (acc, item) => {
+      if (!acc[item.category]) acc[item.category] = [];
+      acc[item.category].push(item);
+      return acc;
+    },
+    {},
+  );
+
+  return (
+    <div className="space-y-4">
+      {canEdit && (
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowCreateForm(!showCreateForm)}
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-gold/20 text-gold hover:bg-gold/30 transition-colors min-h-[44px]"
+          >
+            <Plus className="size-3.5" aria-hidden="true" />
+            Neues Achievement
+          </button>
+        </div>
+      )}
+
+      {showCreateForm && (
+        <Card className="p-4 space-y-3">
+          <div className="text-xs font-bold text-white mb-2">Neues Achievement erstellen</div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div>
+              <label className="text-white/40 text-xs block mb-1">Key</label>
+              <input
+                type="text"
+                value={newAch.key}
+                onChange={(e) => setNewAch((p) => ({ ...p, key: e.target.value }))}
+                placeholder="z.B. first_trade"
+                className={cn(INPUT_WIDE_CLASS, 'w-full')}
+              />
+            </div>
+            <div>
+              <label className="text-white/40 text-xs block mb-1">Kategorie</label>
+              <select
+                value={newAch.category}
+                onChange={(e) => setNewAch((p) => ({ ...p, category: e.target.value }))}
+                className={cn(INPUT_WIDE_CLASS, 'w-full')}
+              >
+                <option value="trading">Trading</option>
+                <option value="manager">Manager</option>
+                <option value="scout">Scout</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-white/40 text-xs block mb-1">Titel</label>
+              <input
+                type="text"
+                value={newAch.title}
+                onChange={(e) => setNewAch((p) => ({ ...p, title: e.target.value }))}
+                className={cn(INPUT_WIDE_CLASS, 'w-full')}
+              />
+            </div>
+            <div>
+              <label className="text-white/40 text-xs block mb-1">Beschreibung</label>
+              <input
+                type="text"
+                value={newAch.description}
+                onChange={(e) => setNewAch((p) => ({ ...p, description: e.target.value }))}
+                className={cn(INPUT_WIDE_CLASS, 'w-full')}
+              />
+            </div>
+            <div>
+              <label className="text-white/40 text-xs block mb-1">Icon</label>
+              <input
+                type="text"
+                value={newAch.icon}
+                onChange={(e) => setNewAch((p) => ({ ...p, icon: e.target.value }))}
+                className={cn(INPUT_CLASS, 'w-full')}
+              />
+            </div>
+            <div className="flex items-end gap-2">
+              <label className="flex items-center gap-1.5 text-xs text-white/60">
+                <input
+                  type="checkbox"
+                  checked={newAch.featured}
+                  onChange={(e) => setNewAch((p) => ({ ...p, featured: e.target.checked }))}
+                  className="rounded"
+                />
+                Featured
+              </label>
+            </div>
+          </div>
+          <SaveCancelButtons onSave={handleCreate} onCancel={() => setShowCreateForm(false)} />
+        </Card>
+      )}
+
+      {(Object.entries(grouped) as [string, DbAchievementDefinition[]][]).map(([cat, items]) => (
+        <div key={cat}>
+          <div className={cn('text-xs font-bold uppercase tracking-wider mb-2', CATEGORY_COLORS[cat] ?? 'text-white/60')}>
+            {cat.charAt(0).toUpperCase() + cat.slice(1)} ({items.length})
+          </div>
+          <div className="space-y-1">
+            {items.map((item) => {
+              const isEditing = editId === item.id;
+              return (
+                <div
+                  key={item.id}
+                  className={cn(
+                    'flex items-center gap-3 p-2 rounded-lg',
+                    !item.active && 'opacity-40',
+                    isEditing ? 'bg-white/[0.04]' : 'hover:bg-white/[0.02]',
+                  )}
+                >
+                  {isEditing ? (
+                    <>
+                      <input
+                        type="text"
+                        value={editIcon}
+                        onChange={(e) => setEditIcon(e.target.value)}
+                        className={cn(INPUT_CLASS, 'w-12 text-center')}
+                      />
+                      <div className="flex-1 space-y-1">
+                        <input
+                          type="text"
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          className={cn(INPUT_WIDE_CLASS, 'w-full')}
+                        />
+                        <input
+                          type="text"
+                          value={editDesc}
+                          onChange={(e) => setEditDesc(e.target.value)}
+                          className={cn(INPUT_WIDE_CLASS, 'w-full')}
+                        />
+                        <div className="flex items-center gap-3">
+                          <label className="flex items-center gap-1.5 text-xs text-white/60">
+                            <input type="checkbox" checked={editFeatured} onChange={(e) => setEditFeatured(e.target.checked)} className="rounded" />
+                            Featured
+                          </label>
+                          <label className="flex items-center gap-1.5 text-xs text-white/60">
+                            <input type="checkbox" checked={editActive} onChange={(e) => setEditActive(e.target.checked)} className="rounded" />
+                            Aktiv
+                          </label>
+                        </div>
+                      </div>
+                      <SaveCancelButtons onSave={() => handleSave(item.id)} onCancel={() => setEditId(null)} />
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-lg flex-shrink-0">{item.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-white truncate">{item.title}</span>
+                          <span className="text-[10px] text-white/30 font-mono">{item.key}</span>
+                          {item.featured && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-gold/10 text-gold border border-gold/20">Featured</span>
+                          )}
+                          {!item.active && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-300 border border-red-500/20">Inaktiv</span>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-white/40 truncate">{item.description}</p>
+                      </div>
+                      {canEdit && <EditButton onClick={() => handleStartEdit(item)} />}
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function AdminEconomyTab({
   adminId,
   role,
@@ -1065,6 +1321,7 @@ export function AdminEconomyTab({
   const [managerData, setManagerData] = useState<DbManagerPointsConfig[]>([]);
   const [streakData, setStreakData] = useState<DbStreakConfig[]>([]);
   const [missionData, setMissionData] = useState<DbMissionDefinition[]>([]);
+  const [achievementData, setAchievementData] = useState<DbAchievementDefinition[]>([]);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     elo: true,
@@ -1073,6 +1330,7 @@ export function AdminEconomyTab({
     manager: false,
     streak: false,
     missions: false,
+    achievements: false,
   });
 
   const canEdit = role !== 'viewer';
@@ -1080,13 +1338,14 @@ export function AdminEconomyTab({
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [elo, rang, sr, mp, st, mi] = await Promise.all([
+      const [elo, rang, sr, mp, st, mi, ach] = await Promise.all([
         getEloConfig(),
         getRangThresholds(),
         getScoreRoadConfig(),
         getManagerPointsConfig(),
         getStreakConfig(),
         getMissionDefinitions(),
+        getAchievementDefinitions(),
       ]);
       setEloData(elo);
       setRangData(rang);
@@ -1094,6 +1353,7 @@ export function AdminEconomyTab({
       setManagerData(mp);
       setStreakData(st);
       setMissionData(mi);
+      setAchievementData(ach);
     } catch (err) {
       console.error('[AdminEconomyTab] Failed to load data:', err);
     } finally {
@@ -1194,6 +1454,19 @@ export function AdminEconomyTab({
       {openSections.missions && (
         <Card className="p-4">
           <MissionsSection data={missionData} canEdit={canEdit} onRefresh={loadAll} adminId={adminId} />
+        </Card>
+      )}
+
+      {/* Section 7: Achievements */}
+      <SectionHeader
+        title="Achievements"
+        count={achievementData.length}
+        open={openSections.achievements ?? false}
+        onToggle={() => toggleSection('achievements')}
+      />
+      {openSections.achievements && (
+        <Card className="p-4">
+          <AchievementsSection data={achievementData} canEdit={canEdit} onRefresh={loadAll} adminId={adminId} />
         </Card>
       )}
     </div>

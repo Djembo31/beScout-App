@@ -90,6 +90,7 @@ function getNotifColor(type: NotificationType): string {
     case 'prediction_resolved': return 'text-purple-400 bg-purple-400/10';
     case 'post_upvoted': return 'text-green-500 bg-green-500/10';
     case 'ipo_purchase': return 'text-gold bg-gold/10';
+    case 'report_resolved': return 'text-sky-400 bg-sky-400/10';
     case 'system': return 'text-sky-400 bg-sky-400/10';
   }
 }

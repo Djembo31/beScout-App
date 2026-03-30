@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Shield, Pin, Trash2, FileText, Loader2, Save, AlertTriangle } from 'lucide-react';
+import { Shield, Pin, Trash2, FileText, Loader2, Save, AlertTriangle, Flag, CheckCircle2, XCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card, Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -9,8 +9,9 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
 import { getPosts, adminDeletePost, adminTogglePin } from '@/lib/services/posts';
 import { updateCommunityGuidelines } from '@/lib/services/club';
+import { getPendingReports, resolveReport } from '@/lib/services/contentReports';
 import { canPerformAction } from '@/lib/adminRoles';
-import type { ClubWithAdmin, PostWithAuthor } from '@/types';
+import type { ClubWithAdmin, PostWithAuthor, ContentReportWithDetails } from '@/types';
 
 // ============================================
 // ADMIN MODERATION TAB
@@ -34,13 +35,17 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
   const [posts, setPosts] = useState<PostWithAuthor[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Reports
+  const [reports, setReports] = useState<ContentReportWithDetails[]>([]);
+  const [reportsLoading, setReportsLoading] = useState(true);
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
+
   useEffect(() => {
     let cancelled = false;
     async function load() {
       setLoading(true);
       try {
         const result = await getPosts({ limit: 50 });
-        // Filter to club posts only
         if (!cancelled) setPosts(result.filter(p => p.club_id === club.id));
       } catch {
         // silently fail
@@ -51,6 +56,22 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
     load();
     return () => { cancelled = true; };
   }, [club.id]);
+
+  const loadReports = useCallback(async () => {
+    setReportsLoading(true);
+    try {
+      const data = await getPendingReports(club.id);
+      setReports(data);
+    } catch {
+      // silently fail
+    } finally {
+      setReportsLoading(false);
+    }
+  }, [club.id]);
+
+  useEffect(() => {
+    loadReports();
+  }, [loadReports]);
 
   const pinnedPosts = posts.filter(p => p.is_pinned);
 
@@ -103,8 +124,106 @@ export default function AdminModerationTab({ club }: { club: ClubWithAdmin }) {
     }
   }, [user, addToast]);
 
+  const handleResolve = useCallback(async (reportId: string, action: 'resolved' | 'dismissed') => {
+    if (!user) return;
+    setResolvingId(reportId);
+    try {
+      const result = await resolveReport(reportId, user.id, action);
+      if (result.success) {
+        setReports(prev => prev.filter(r => r.id !== reportId));
+        addToast(action === 'resolved' ? t('reportResolved') : t('reportDismissed'), 'success');
+      } else {
+        addToast(result.error ?? t('unknownError'), 'error');
+      }
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : t('unknownError'), 'error');
+    } finally {
+      setResolvingId(null);
+    }
+  }, [user, addToast]);
+
   return (
     <div className="space-y-6">
+      {/* Content Reports */}
+      <Card className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Flag className="w-5 h-5 text-red-400" />
+          <span className="font-black text-lg">{t('contentReports')}</span>
+          {reports.length > 0 && (
+            <span className="text-xs font-mono tabular-nums px-2 py-0.5 rounded-full bg-red-500/15 text-red-300 border border-red-500/20">
+              {reports.length}
+            </span>
+          )}
+        </div>
+        {reportsLoading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin text-white/30" />
+          </div>
+        ) : reports.length === 0 ? (
+          <p className="text-sm text-white/40">{t('noReports')}</p>
+        ) : (
+          <div className="space-y-2 max-h-[500px] overflow-y-auto">
+            {reports.map(report => (
+              <div key={report.id} className="p-3 rounded-xl bg-surface-minimal border border-white/[0.06] space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className={cn(
+                        'text-[10px] font-semibold px-1.5 py-0.5 rounded border',
+                        report.target_type === 'post'
+                          ? 'bg-sky-500/15 text-sky-300 border-sky-500/20'
+                          : 'bg-purple-500/15 text-purple-300 border-purple-500/20'
+                      )}>
+                        {report.target_type === 'post' ? 'Post' : 'Research'}
+                      </span>
+                      <span className="text-xs text-white/50">
+                        {t('reportedBy')} <span className="text-white/70 font-semibold">{report.reporter_display_name || report.reporter_handle}</span>
+                      </span>
+                      <span className="text-[10px] text-white/30">
+                        {new Date(report.created_at).toLocaleDateString('de-DE')}
+                      </span>
+                    </div>
+                    {report.target_content && (
+                      <p className="text-sm text-white/60 line-clamp-2 mb-1">
+                        {report.target_author_handle && (
+                          <span className="text-white/40 mr-1">@{report.target_author_handle}:</span>
+                        )}
+                        {report.target_content}
+                      </p>
+                    )}
+                    <p className="text-xs text-red-300/70">
+                      <span className="text-white/40">{t('reason')}:</span> {report.reason}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      onClick={() => handleResolve(report.id, 'resolved')}
+                      disabled={resolvingId === report.id}
+                      className="p-1.5 rounded-lg text-white/30 hover:text-green-400 hover:bg-green-500/10 transition-colors"
+                      title={t('resolveReport')}
+                    >
+                      {resolvingId === report.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="w-4 h-4" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleResolve(report.id, 'dismissed')}
+                      disabled={resolvingId === report.id}
+                      className="p-1.5 rounded-lg text-white/30 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+                      title={t('dismissReport')}
+                    >
+                      <XCircle className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
       {/* Community-Richtlinien */}
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-4">

@@ -1606,7 +1606,19 @@
     "cat_analyse": "Analyse",
     "cat_prediction": "Prediction",
     "cat_meinung": "Meinung",
-    "cat_news": "News"
+    "cat_news": "News",
+    "reportAction": "Melden",
+    "reportTitle": "Inhalt melden",
+    "reportDescription": "Warum möchtest du diesen Inhalt melden?",
+    "reportReasonSpam": "Spam oder Werbung",
+    "reportReasonHarassment": "Belästigung oder Mobbing",
+    "reportReasonMisinfo": "Falschinformation",
+    "reportReasonInappropriate": "Unangemessener Inhalt",
+    "reportReasonOther": "Sonstiges",
+    "reportCustomPlaceholder": "Beschreibe das Problem (mind. 5 Zeichen)...",
+    "reportSubmitBtn": "Meldung senden",
+    "reportSubmitted": "Meldung eingereicht",
+    "reportError": "Meldung konnte nicht gesendet werden"
   },
   "profile": {
     "title": "Profil",
@@ -2623,7 +2635,15 @@
     "challengeEndsAt": "Ende",
     "challengeCosmeticKey": "Kosmetik-Schluessel (optional)",
     "eventCurrency": "Waehrung",
-    "ticketsLabel": "Tickets"
+    "ticketsLabel": "Tickets",
+    "contentReports": "Gemeldete Inhalte",
+    "noReports": "Keine offenen Meldungen",
+    "reportedBy": "Gemeldet von",
+    "reason": "Grund",
+    "resolveReport": "Bearbeiten",
+    "dismissReport": "Verwerfen",
+    "reportResolved": "Meldung bearbeitet",
+    "reportDismissed": "Meldung verworfen"
   },
   "adminFans": {
     "totalFollowers": "Follower",

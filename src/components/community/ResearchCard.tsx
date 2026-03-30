@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Lock, Unlock, Target, BadgeCheck, Clock, Star, CheckCircle, XCircle, Shield } from 'lucide-react';
+import { Lock, Unlock, Target, BadgeCheck, Clock, Star, CheckCircle, XCircle, Shield, Flag } from 'lucide-react';
 import { Card, Button, Chip } from '@/components/ui';
 import { PositionBadge } from '@/components/player';
 import { cn } from '@/lib/utils';
@@ -49,6 +49,7 @@ type Props = {
   ratingId: string | null;
   /** Author's median scout score for rang badge (default 500 = Bronze II) */
   authorScore?: number;
+  onReport?: (researchId: string) => void;
 };
 
 function StarRating({
@@ -110,7 +111,7 @@ function StarRating({
   );
 }
 
-export default function ResearchCard({ post, onUnlock, unlockingId, onRate, ratingId, authorScore }: Props) {
+export default function ResearchCard({ post, onUnlock, unlockingId, onRate, ratingId, authorScore, onReport }: Props) {
   const tg = useTranslations('gamification');
   const ts = useTranslations('scouting');
   const tc = useTranslations('community');
@@ -332,6 +333,15 @@ export default function ResearchCard({ post, onUnlock, unlockingId, onRate, rati
             {post.unlock_count}
           </span>
           <span className="font-mono text-gold font-bold">{fmtScout(priceBsd)} CR</span>
+          {!post.is_own && onReport && (
+            <button
+              onClick={() => onReport(post.id)}
+              className="p-1 rounded-lg text-white/30 hover:text-red-300 hover:bg-white/5 transition-colors"
+              aria-label={tc('reportAction')}
+            >
+              <Flag className="w-3 h-3" />
+            </button>
+          )}
         </div>
       </div>
     </Card>

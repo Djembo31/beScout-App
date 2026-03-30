@@ -6,7 +6,7 @@ import Image from 'next/image';
 import {
   ArrowUp, ArrowDown, MessageSquare, Send,
   MoreHorizontal, Target, Briefcase, BadgeCheck, CheckCircle2,
-  Pin, Trash2, Lock,
+  Pin, Trash2, Lock, Flag,
 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Card, CosmeticTitle } from '@/components/ui';
@@ -68,6 +68,7 @@ interface PostCardProps {
   authorSubscriptionTier?: SubscriptionTier;
   authorCosmeticTitle?: string | null;
   authorCosmeticTitleRarity?: CosmeticRarity;
+  onReport?: (postId: string) => void;
 }
 
 // ============================================
@@ -91,6 +92,7 @@ export default function PostCard({
   authorSubscriptionTier,
   authorCosmeticTitle,
   authorCosmeticTitleRarity,
+  onReport,
 }: PostCardProps) {
   const tc = useTranslations('community');
   const locale = useLocale();
@@ -178,7 +180,7 @@ export default function PostCard({
               )}
               <span className="text-xs text-white/40">{formatTimeAgo(post.created_at, tc('timeJust'), dateLocale)}</span>
             </div>
-            {(isOwn || isClubAdmin) && (
+            {(isOwn || isClubAdmin || onReport) && (
               <div className="relative">
                 <button onClick={() => setShowMenu(!showMenu)} aria-label={tc('postOptionsLabel')} aria-expanded={showMenu} className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-white/10 rounded-lg text-white/30 hover:text-white">
                   <MoreHorizontal className="w-4 h-4" aria-hidden="true" />
@@ -210,6 +212,15 @@ export default function PostCard({
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         {tc('adminDeleteAction')}
+                      </button>
+                    )}
+                    {!isOwn && onReport && (
+                      <button
+                        onClick={() => { onReport(post.id); setShowMenu(false); }}
+                        className="w-full px-3 py-2 text-left text-sm text-white/70 hover:bg-white/5 flex items-center gap-2"
+                      >
+                        <Flag className="w-3.5 h-3.5" />
+                        {tc('reportAction')}
                       </button>
                     )}
                   </div>

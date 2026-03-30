@@ -1084,7 +1084,7 @@ export type LeaderboardUser = {
 // NOTIFICATION TYPES
 // ============================================
 
-export type NotificationType = 'research_unlock' | 'research_rating' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward' | 'event_starting' | 'event_closing_soon' | 'event_scored' | 'bounty_expiring' | 'new_ipo_available' | 'referral_reward' | 'tip_received' | 'subscription_new' | 'creator_fund_payout' | 'ad_revenue_payout' | 'achievement' | 'level_up' | 'rang_up' | 'rang_down' | 'mastery_level_up' | 'prediction_resolved' | 'post_upvoted' | 'ipo_purchase';
+export type NotificationType = 'research_unlock' | 'research_rating' | 'follow' | 'fantasy_reward' | 'poll_vote' | 'reply' | 'system' | 'trade' | 'bounty_submission' | 'bounty_approved' | 'bounty_rejected' | 'pbt_liquidation' | 'offer_received' | 'offer_accepted' | 'offer_rejected' | 'offer_countered' | 'dpc_of_week' | 'tier_promotion' | 'price_alert' | 'mission_reward' | 'event_starting' | 'event_closing_soon' | 'event_scored' | 'bounty_expiring' | 'new_ipo_available' | 'referral_reward' | 'tip_received' | 'subscription_new' | 'creator_fund_payout' | 'ad_revenue_payout' | 'achievement' | 'level_up' | 'rang_up' | 'rang_down' | 'mastery_level_up' | 'prediction_resolved' | 'post_upvoted' | 'ipo_purchase' | 'report_resolved';
 
 export type DbNotification = {
   id: string;
@@ -1207,6 +1207,27 @@ export type LeagueLeaderboardEntry = {
 };
 
 // ============================================
+// ACHIEVEMENT DEFINITIONS
+// ============================================
+
+export type AchievementCategory = 'trading' | 'manager' | 'scout';
+
+export type DbAchievementDefinition = {
+  id: string;
+  key: string;
+  category: AchievementCategory;
+  title: string;
+  description: string;
+  icon: string;
+  featured: boolean;
+  active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string | null;
+  updated_by: string | null;
+};
+
+// ============================================
 // MISSIONS
 // ============================================
 
@@ -1246,6 +1267,33 @@ export type DbUserMission = {
 
 export type UserMissionWithDef = DbUserMission & {
   definition: DbMissionDefinition;
+};
+
+// ============================================
+// CONTENT REPORTS
+// ============================================
+
+export type ReportStatus = 'pending' | 'resolved' | 'dismissed';
+export type ReportTargetType = 'post' | 'research';
+
+export type DbContentReport = {
+  id: string;
+  reporter_id: string;
+  target_type: ReportTargetType;
+  target_id: string;
+  reason: string;
+  status: ReportStatus;
+  resolved_by: string | null;
+  resolved_at: string | null;
+  admin_note: string | null;
+  created_at: string;
+};
+
+export type ContentReportWithDetails = DbContentReport & {
+  reporter_handle?: string;
+  reporter_display_name?: string;
+  target_content?: string;
+  target_author_handle?: string;
 };
 
 // ============================================

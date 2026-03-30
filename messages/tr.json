@@ -1606,7 +1606,19 @@
     "cat_analyse": "Analiz",
     "cat_prediction": "Tahmin",
     "cat_meinung": "Görüş",
-    "cat_news": "Haberler"
+    "cat_news": "Haberler",
+    "reportAction": "Şikayet Et",
+    "reportTitle": "İçeriği Şikayet Et",
+    "reportDescription": "Bu içeriği neden şikayet etmek istiyorsunuz?",
+    "reportReasonSpam": "Spam veya reklam",
+    "reportReasonHarassment": "Taciz veya zorbalık",
+    "reportReasonMisinfo": "Yanlış bilgi",
+    "reportReasonInappropriate": "Uygunsuz içerik",
+    "reportReasonOther": "Diğer",
+    "reportCustomPlaceholder": "Sorunu açıklayın (en az 5 karakter)...",
+    "reportSubmitBtn": "Şikayeti Gönder",
+    "reportSubmitted": "Şikayet gönderildi",
+    "reportError": "Şikayet gönderilemedi"
   },
   "profile": {
     "title": "Profil",
@@ -2623,7 +2635,15 @@
     "challengeEndsAt": "Bitis",
     "challengeCosmeticKey": "Kozmetik anahtari (istege bagli)",
     "eventCurrency": "Para birimi",
-    "ticketsLabel": "Bilet"
+    "ticketsLabel": "Bilet",
+    "contentReports": "Şikayet Edilen İçerikler",
+    "noReports": "Açık şikayet yok",
+    "reportedBy": "Şikayet eden",
+    "reason": "Sebep",
+    "resolveReport": "İşle",
+    "dismissReport": "Reddet",
+    "reportResolved": "Şikayet işlendi",
+    "reportDismissed": "Şikayet reddedildi"
   },
   "adminFans": {
     "totalFollowers": "Takipçi",

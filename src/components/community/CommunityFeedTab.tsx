@@ -8,6 +8,7 @@ import PostCard from '@/components/community/PostCard';
 import ResearchCard from '@/components/community/ResearchCard';
 import BountyCard from '@/components/community/BountyCard';
 import CommunityPollCard from '@/components/community/CommunityPollCard';
+import ReportModal from '@/components/community/ReportModal';
 import type { PostWithAuthor, ResearchPostWithAuthor, BountyWithCreator, DbClubVote, CommunityPollWithCreator } from '@/types';
 import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import { useBatchEquippedCosmetics } from '@/lib/queries/cosmetics';
@@ -186,6 +187,7 @@ export default function CommunityFeedTab({
   const t = useTranslations('community');
   const [feedSort, setFeedSort] = useState<FeedSort>('new');
   const [query, setQuery] = useState('');
+  const [reportTarget, setReportTarget] = useState<{ type: 'post' | 'research'; id: string } | null>(null);
 
   // Batch-fetch cosmetics for all post authors
   const postAuthorIds = useMemo(() => Array.from(new Set(posts.map(p => p.user_id))), [posts]);
@@ -379,6 +381,7 @@ export default function CommunityFeedTab({
                     authorSubscriptionTier={subscriptionMap?.get(item.data.user_id)}
                     authorCosmeticTitle={cosmeticsMap?.get(item.data.user_id)?.titleName}
                     authorCosmeticTitleRarity={cosmeticsMap?.get(item.data.user_id)?.titleRarity}
+                    onReport={(postId) => setReportTarget({ type: 'post', id: postId })}
                   />
                 );
               case 'research':
@@ -391,6 +394,7 @@ export default function CommunityFeedTab({
                     onRate={onRateResearch ? (id: string, rating: number) => onRateResearch(id, rating) : () => {}}
                     ratingId={ratingResearchId ?? null}
                     authorScore={undefined}
+                    onReport={(researchId) => setReportTarget({ type: 'research', id: researchId })}
                   />
                 );
               case 'bounty':
@@ -431,6 +435,14 @@ export default function CommunityFeedTab({
             }
           })}
         </div>
+      )}
+      {reportTarget && (
+        <ReportModal
+          open={true}
+          onClose={() => setReportTarget(null)}
+          targetType={reportTarget.type}
+          targetId={reportTarget.id}
+        />
       )}
     </div>
   );

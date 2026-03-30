@@ -6,6 +6,7 @@ import type {
   DbManagerPointsConfig,
   DbStreakConfig,
   DbMissionDefinition,
+  DbAchievementDefinition,
 } from '@/types';
 
 // ============================================
@@ -202,4 +203,61 @@ export async function getMissionDefinitions(): Promise<DbMissionDefinition[]> {
     return [];
   }
   return data ?? [];
+}
+
+// ── Achievement Definitions CRUD ──
+
+export async function getAchievementDefinitions(): Promise<DbAchievementDefinition[]> {
+  const { data, error } = await supabase
+    .from('achievement_definitions')
+    .select('*')
+    .order('sort_order');
+  if (error) {
+    console.error('[EconomyConfig] getAchievementDefinitions:', error);
+    return [];
+  }
+  return (data ?? []) as DbAchievementDefinition[];
+}
+
+export async function createAchievementDefinition(
+  adminId: string,
+  achievement: {
+    key: string;
+    category: string;
+    title: string;
+    description: string;
+    icon: string;
+    featured: boolean;
+  },
+): Promise<{ ok: boolean; error?: string }> {
+  // Get next sort_order
+  const { data: maxRow } = await supabase
+    .from('achievement_definitions')
+    .select('sort_order')
+    .order('sort_order', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const nextSort = (maxRow?.sort_order ?? 0) + 1;
+
+  const { error } = await supabase.from('achievement_definitions').insert({
+    ...achievement,
+    sort_order: nextSort,
+    active: true,
+    updated_by: adminId,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+export async function updateAchievementDefinition(
+  adminId: string,
+  id: string,
+  fields: Partial<Pick<DbAchievementDefinition, 'title' | 'description' | 'icon' | 'featured' | 'active'>>,
+): Promise<{ ok: boolean; error?: string }> {
+  const { error } = await supabase
+    .from('achievement_definitions')
+    .update({ ...fields, updated_by: adminId, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
 }

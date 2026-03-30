@@ -38,6 +38,8 @@ const TYPE_TO_CATEGORY: Record<NotificationType, NotificationCategory | 'system'
   bounty_expiring: 'bounties',
   // Trading (buyer confirmations)
   ipo_purchase: 'trading',
+  // Moderation
+  report_resolved: 'system',
   // Rewards & Progress
   achievement: 'rewards',
   level_up: 'rewards',

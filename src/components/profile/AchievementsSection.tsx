@@ -1,11 +1,16 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Trophy, Star } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import { getFeaturedAchievements, getHiddenAchievements } from '@/lib/achievements';
+import {
+  getFeaturedAchievements,
+  getHiddenAchievements,
+  fetchAchievements,
+} from '@/lib/achievements';
+import type { AchievementDef } from '@/lib/achievements';
 import ScoreProgress from '@/components/profile/ScoreProgress';
 import type { DbUserStats } from '@/types';
 import type { Dimension } from '@/lib/gamification';
@@ -29,9 +34,19 @@ const DIMENSIONS: { key: Dimension; scoreKey: keyof DbUserStats }[] = [
 
 export default function AchievementsSection({ userStats, unlockedKeys }: AchievementsSectionProps) {
   const t = useTranslations('profile');
+  const [featured, setFeatured] = useState<AchievementDef[]>(() => getFeaturedAchievements());
+  const [hidden, setHidden] = useState<AchievementDef[]>(() => getHiddenAchievements());
 
-  const featured = useMemo(() => getFeaturedAchievements(), []);
-  const hidden = useMemo(() => getHiddenAchievements(), []);
+  useEffect(() => {
+    let cancelled = false;
+    fetchAchievements().then(() => {
+      if (cancelled) return;
+      setFeatured(getFeaturedAchievements());
+      setHidden(getHiddenAchievements());
+    }).catch(err => console.error('[AchievementsSection] fetch failed:', err));
+    return () => { cancelled = true; };
+  }, []);
+
   const totalUnlocked = useMemo(() => {
     const all = [...featured, ...hidden];
     return all.filter(a => unlockedKeys.has(a.key)).length;
