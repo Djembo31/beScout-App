@@ -1679,6 +1679,8 @@
     "approvedBounties": "genehmigt",
     "notificationPrefs": "Benachrichtigungen",
     "notificationPrefsDesc": "Wähle, welche Benachrichtigungen du erhalten möchtest.",
+    "pushNotifications": "Push-Benachrichtigungen",
+    "pushNotificationsDesc": "Erhalte Benachrichtigungen auch wenn die App geschlossen ist",
     "notifCat_trading": "Trading & Markt",
     "notifCat_trading_desc": "Trades, Preisalarme, Erstverkäufe, Scout Card der Woche",
     "notifCat_offers": "Angebote",

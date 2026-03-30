@@ -1679,6 +1679,8 @@
     "approvedBounties": "onaylandı",
     "notificationPrefs": "Bildirimler",
     "notificationPrefsDesc": "Hangi bildirimleri almak istediğini seç.",
+    "pushNotifications": "Push Bildirimleri",
+    "pushNotificationsDesc": "Uygulama kapalıyken bile bildirim al",
     "notifCat_trading": "Ticaret & Pazar",
     "notifCat_trading_desc": "İşlemler, fiyat uyarıları, IPO'lar, haftanın Scout Card'ı",
     "notifCat_offers": "Teklifler",

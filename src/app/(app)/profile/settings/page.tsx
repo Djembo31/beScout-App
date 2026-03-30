@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
-import { User, Check, X, Loader2, Globe, AlertTriangle, Camera, Bell, ArrowLeftRight, Send, Trophy, UserPlus, Target, Gift, ArrowLeft } from 'lucide-react';
+import { User, Check, X, Loader2, Globe, AlertTriangle, Camera, Bell, BellRing, ArrowLeftRight, Send, Trophy, UserPlus, Target, Gift, ArrowLeft } from 'lucide-react';
 import { Card, Button, Modal } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -39,6 +39,9 @@ export default function ProfileSettingsPage() {
     trading: true, offers: true, fantasy: true, social: true, bounties: true, rewards: true,
   });
   const [notifPrefsLoaded, setNotifPrefsLoaded] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushSupported, setPushSupported] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -65,6 +68,34 @@ export default function ProfileSettingsPage() {
       setNotifPrefsLoaded(true);
     }).catch((err) => console.error('[Settings] Notification prefs failed:', err));
   }, [user]);
+
+  // Push notification state
+  useEffect(() => {
+    import('@/lib/services/pushSubscription').then(({ isPushSupported, isPushEnabled }) => {
+      setPushSupported(isPushSupported());
+      setPushEnabled(isPushEnabled());
+    }).catch(() => { /* push not available */ });
+  }, []);
+
+  const togglePush = useCallback(async () => {
+    if (!user) return;
+    setPushLoading(true);
+    try {
+      if (pushEnabled) {
+        const { unsubscribeFromPush } = await import('@/lib/services/pushSubscription');
+        await unsubscribeFromPush(user.id);
+        setPushEnabled(false);
+      } else {
+        const { subscribeToPush } = await import('@/lib/services/pushSubscription');
+        const ok = await subscribeToPush(user.id);
+        setPushEnabled(ok);
+      }
+    } catch (err) {
+      console.error('[Settings] Push toggle failed:', err);
+    } finally {
+      setPushLoading(false);
+    }
+  }, [user, pushEnabled]);
 
   const toggleNotifPref = useCallback((key: NotificationCategory) => {
     if (!user) return;
@@ -358,6 +389,39 @@ export default function ProfileSettingsPage() {
           <h3 className="font-black text-lg text-balance">{t('notificationPrefs')}</h3>
         </div>
         <p className="text-[11px] text-white/40 text-pretty mb-5">{t('notificationPrefsDesc')}</p>
+
+        {/* Push Notification Toggle */}
+        {pushSupported && (
+          <button
+            onClick={togglePush}
+            disabled={pushLoading}
+            role="switch"
+            aria-checked={pushEnabled}
+            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/[0.04] transition-colors min-h-[44px] mb-3 border border-white/[0.06]"
+          >
+            <div className="size-8 rounded-lg bg-gold/10 flex items-center justify-center shrink-0" aria-hidden="true">
+              <BellRing className="size-4 text-gold" />
+            </div>
+            <div className="flex-1 text-left min-w-0">
+              <div className="text-sm font-medium">{t('pushNotifications')}</div>
+              <div className="text-[11px] text-white/40 line-clamp-1">{t('pushNotificationsDesc')}</div>
+            </div>
+            <div
+              aria-hidden="true"
+              className={cn(
+                'w-11 h-6 rounded-full relative transition-colors shrink-0',
+                pushEnabled ? 'bg-gold' : 'bg-white/10'
+              )}
+            >
+              <div
+                className={cn(
+                  'absolute top-0.5 size-5 rounded-full bg-white shadow-sm transition-transform',
+                  pushEnabled ? 'translate-x-[22px]' : 'translate-x-0.5'
+                )}
+              />
+            </div>
+          </button>
+        )}
 
         {!notifPrefsLoaded ? (
           <div className="flex justify-center py-4">
