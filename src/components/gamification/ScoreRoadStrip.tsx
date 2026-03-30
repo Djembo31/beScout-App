@@ -4,8 +4,9 @@ import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { Target, Gift } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { SCORE_ROAD, getMedianScore, getRang } from '@/lib/gamification';
+import { SCORE_ROAD, getMedianScore, getRang, type ScoreRoadMilestone } from '@/lib/gamification';
 import { useScoutScores, useScoreRoadClaims } from '@/lib/queries/gamification';
+import { useScoreRoadConfig } from '@/lib/queries/economyConfig';
 import { useTranslations } from 'next-intl';
 
 // ============================================
@@ -22,6 +23,17 @@ export default function ScoreRoadStrip({ userId, compact }: ScoreRoadStripProps)
   const tsr = useTranslations('gamification.scoreRoad');
   const { data: scores, isLoading: scoresLoading } = useScoutScores(userId);
   const { data: claims = [], isLoading: claimsLoading } = useScoreRoadClaims(userId);
+  const { data: dbScoreRoad } = useScoreRoadConfig();
+
+  // DB-driven Score Road with fallback
+  const scoreRoad: ScoreRoadMilestone[] = useMemo(() => {
+    if (!dbScoreRoad || dbScoreRoad.length === 0) return SCORE_ROAD;
+    return dbScoreRoad.map(r => ({
+      score: r.score_threshold, rangName: r.rang_name, rangI18nKey: r.rang_i18n_key,
+      rewardBsd: r.reward_cents, rewardLabel: r.reward_label,
+      rewardType: r.reward_type as 'bsd' | 'cosmetic' | 'both',
+    }));
+  }, [dbScoreRoad]);
 
   const medianScore = scores ? getMedianScore(scores) : 0;
   const rang = scores ? getRang(medianScore) : null;
@@ -30,20 +42,20 @@ export default function ScoreRoadStrip({ userId, compact }: ScoreRoadStripProps)
 
   // Find next unclaimed milestone
   const nextMilestone = useMemo(() => {
-    return SCORE_ROAD.find(ms => !claimedSet.has(ms.score) && medianScore < ms.score) ?? null;
-  }, [claimedSet, medianScore]);
+    return scoreRoad.find(ms => !claimedSet.has(ms.score) && medianScore < ms.score) ?? null;
+  }, [claimedSet, medianScore, scoreRoad]);
 
   // Count claimable (reached but not claimed)
   const claimableCount = useMemo(() => {
-    return SCORE_ROAD.filter(ms => medianScore >= ms.score && !claimedSet.has(ms.score)).length;
-  }, [claimedSet, medianScore]);
+    return scoreRoad.filter(ms => medianScore >= ms.score && !claimedSet.has(ms.score)).length;
+  }, [claimedSet, medianScore, scoreRoad]);
 
   // Progress toward next milestone
   const progress = useMemo(() => {
     if (!nextMilestone) return 100;
     // Find the previous milestone score as the base
-    const idx = SCORE_ROAD.indexOf(nextMilestone);
-    const prevScore = idx > 0 ? SCORE_ROAD[idx - 1].score : 0;
+    const idx = scoreRoad.indexOf(nextMilestone);
+    const prevScore = idx > 0 ? scoreRoad[idx - 1].score : 0;
     const range = nextMilestone.score - prevScore;
     if (range <= 0) return 100;
     const current = Math.max(0, medianScore - prevScore);

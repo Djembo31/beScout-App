@@ -34,7 +34,7 @@ const STREAK_TIERS: readonly {
   { minDays: 0,  dailyTickets: 5,  fantasyBonusPct: 0,    eloBoostPct: 0,  freeMysteryBoxesPerWeek: 0, mysteryBoxTicketDiscount: 0 },
 ];
 
-/** Get compound benefits for a given streak length */
+/** Get compound benefits for a given streak length (hardcoded fallback) */
 export function getStreakBenefits(streakDays: number): StreakBenefits {
   const tier = STREAK_TIERS.find(t => streakDays >= t.minDays) ?? STREAK_TIERS[STREAK_TIERS.length - 1];
   return {
@@ -43,6 +43,23 @@ export function getStreakBenefits(streakDays: number): StreakBenefits {
     eloBoostPct: tier.eloBoostPct,
     freeMysteryBoxesPerWeek: tier.freeMysteryBoxesPerWeek,
     mysteryBoxTicketDiscount: tier.mysteryBoxTicketDiscount,
+  };
+}
+
+/** DB-driven version: pass streak_config data from useStreakConfig() hook */
+export function getStreakBenefitsFromConfig(
+  streakDays: number,
+  config: readonly { min_days: number; daily_tickets: number; fantasy_bonus_pct: number; elo_boost_pct: number; free_mystery_boxes_per_week: number; mystery_box_ticket_discount: number }[],
+): StreakBenefits {
+  // Config comes sorted descending by min_days from the query
+  const tier = config.find(t => streakDays >= t.min_days) ?? config[config.length - 1];
+  if (!tier) return getStreakBenefits(streakDays); // fallback
+  return {
+    dailyTickets: tier.daily_tickets,
+    fantasyBonusPct: Number(tier.fantasy_bonus_pct),
+    eloBoostPct: Number(tier.elo_boost_pct),
+    freeMysteryBoxesPerWeek: tier.free_mystery_boxes_per_week,
+    mysteryBoxTicketDiscount: tier.mystery_box_ticket_discount,
   };
 }
 

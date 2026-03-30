@@ -6,6 +6,7 @@ import { Card, Button } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { SCORE_ROAD, getRang, getMedianScore, type ScoreRoadMilestone } from '@/lib/gamification';
 import { useScoreRoadClaims, useScoutScores } from '@/lib/queries/gamification';
+import { useScoreRoadConfig } from '@/lib/queries/economyConfig';
 import { claimScoreRoad } from '@/lib/services/gamification';
 import { centsToBsd } from '@/lib/services/players';
 import { useQueryClient } from '@tanstack/react-query';
@@ -24,10 +25,24 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
   const tsr = useTranslations('gamification.scoreRoad');
   const { data: claims = [] } = useScoreRoadClaims(userId);
   const { data: scores } = useScoutScores(userId);
+  const { data: dbScoreRoad } = useScoreRoadConfig();
   const queryClient = useQueryClient();
   const { addToast } = useToast();
   const [claimingMs, setClaimingMs] = useState<number | null>(null);
   const [expanded, setExpanded] = useState(false);
+
+  // DB-driven Score Road with fallback to hardcoded
+  const scoreRoad: ScoreRoadMilestone[] = useMemo(() => {
+    if (!dbScoreRoad || dbScoreRoad.length === 0) return SCORE_ROAD;
+    return dbScoreRoad.map(r => ({
+      score: r.score_threshold,
+      rangName: r.rang_name,
+      rangI18nKey: r.rang_i18n_key,
+      rewardBsd: r.reward_cents,
+      rewardLabel: r.reward_label,
+      rewardType: r.reward_type as 'bsd' | 'cosmetic' | 'both',
+    }));
+  }, [dbScoreRoad]);
 
   const medianScore = scores ? getMedianScore(scores) : 0;
   const claimedSet = useMemo(() => new Set(claims.map(c => c.milestone)), [claims]);
@@ -40,19 +55,19 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
   }, [claimedSet, medianScore]);
 
   // Find the index of the first unclaimed milestone that's reachable or next target
-  const firstUnclaimedIdx = SCORE_ROAD.findIndex(ms => !claimedSet.has(ms.score));
-  const activeIdx = firstUnclaimedIdx >= 0 ? firstUnclaimedIdx : SCORE_ROAD.length;
+  const firstUnclaimedIdx = scoreRoad.findIndex(ms => !claimedSet.has(ms.score));
+  const activeIdx = firstUnclaimedIdx >= 0 ? firstUnclaimedIdx : scoreRoad.length;
 
   // Determine which milestones to show (collapsed: up to 2 after active, expanded: all)
   const visibleMilestones = useMemo(() => {
-    if (expanded) return SCORE_ROAD;
+    if (expanded) return scoreRoad;
     // Show all claimed + claimable + active (next locked) + 1 more
-    const cutoff = Math.min(activeIdx + 2, SCORE_ROAD.length);
-    return SCORE_ROAD.slice(0, cutoff);
-  }, [expanded, activeIdx]);
+    const cutoff = Math.min(activeIdx + 2, scoreRoad.length);
+    return scoreRoad.slice(0, cutoff);
+  }, [expanded, activeIdx, scoreRoad]);
 
-  const hasMore = visibleMilestones.length < SCORE_ROAD.length;
-  const allClaimed = claimedSet.size >= SCORE_ROAD.length;
+  const hasMore = visibleMilestones.length < scoreRoad.length;
+  const allClaimed = claimedSet.size >= scoreRoad.length;
 
   const handleClaim = useCallback(async (milestone: number) => {
     setClaimingMs(milestone);
@@ -179,7 +194,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
                     </div>
                     <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                       {(() => {
-                        const prevMs = i > 0 ? SCORE_ROAD[i - 1].score : 0;
+                        const prevMs = i > 0 ? scoreRoad[i - 1].score : 0;
                         const pct = Math.min(100, Math.max(0, ((medianScore - prevMs) / (ms.score - prevMs)) * 100));
                         return (
                           <div
@@ -218,7 +233,7 @@ export default function ScoreRoadCard({ userId }: ScoreRoadCardProps) {
           ) : (
             <>
               <ChevronDown className="size-3" />
-              {tsr('showAllMilestones', { count: SCORE_ROAD.length })}
+              {tsr('showAllMilestones', { count: scoreRoad.length })}
             </>
           )}
         </button>
