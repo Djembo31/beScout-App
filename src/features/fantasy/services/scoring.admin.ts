@@ -95,6 +95,33 @@ export async function scoreEvent(eventId: string): Promise<ScoreResult> {
             console.error('[Scoring] Achievement check failed for', entry.userId, err)
           );
         }
+
+        // Fire-and-forget: fantasy missions (top 3)
+        const { triggerMissionProgress } = await import('@/lib/services/missions');
+        for (const entry of lb) {
+          if (entry.rank <= 3) {
+            triggerMissionProgress(entry.userId, ['fantasy_top_3']);
+          }
+        }
+
+        // fantasy_perfect_captain: captain was top scorer in own lineup
+        const { data: lineups } = await supabase
+          .from('lineups')
+          .select('user_id, captain_slot, slot_scores')
+          .eq('event_id', eventId)
+          .not('slot_scores', 'is', null);
+
+        if (lineups) {
+          for (const lu of lineups) {
+            const scores = lu.slot_scores as Record<string, number> | null;
+            if (!scores || !lu.captain_slot) continue;
+            const captainScore = scores[lu.captain_slot] ?? 0;
+            const maxScore = Math.max(...Object.values(scores));
+            if (captainScore > 0 && captainScore >= maxScore) {
+              triggerMissionProgress(lu.user_id, ['fantasy_perfect_captain']);
+            }
+          }
+        }
       } catch (err) { console.error('[Scoring] Post-score tasks failed:', err); }
     })();
   }
