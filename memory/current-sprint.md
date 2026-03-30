@@ -20,8 +20,9 @@
 - M7: Gameweek Scoring Fallback — Score-Coverage-Guard im Cron (<50 Scores = skip)
 
 ## Naechste Prioritaet
-1. **Sprint 3 (Code Quality):** Silent Error Returns, Bridge Re-Exports
-2. **Neue Agents testen** — frontend/backend/business erstmals als subagent_type
+1. **E2E Completion Wave 1:** recordLoginStreak + tote Services + Gamification Triggers
+2. **E2E Completion Wave 2:** Notifications + Fantasy Activity Log + Fantasy Missions
+3. **E2E Completion Wave 3:** Community Noops + Push Notification UI
 
 ## Bekannte Issues
 - 226 pre-existing tsc Errors (alle in Test-Files)
