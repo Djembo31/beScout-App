@@ -1,0 +1,610 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e143]:
+    - img [ref=e144]
+    - generic [ref=e147]: Demo-Modus — Keine Änderungen möglich
+    - button "Demo-Modus" [ref=e148] [cursor=pointer]:
+      - img [ref=e149]
+  - link "Zum Inhalt springen" [ref=e152] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e153]:
+    - complementary [ref=e154]:
+      - link "BeScout BeScout" [ref=e156] [cursor=pointer]:
+        - /url: /
+        - img "BeScout" [ref=e158]
+        - img "BeScout" [ref=e160]
+      - generic [ref=e161]:
+        - generic [ref=e163]:
+          - img [ref=e165]
+          - generic [ref=e167]:
+            - generic [ref=e168]: Guthaben
+            - generic [ref=e169]: 0 CR
+        - generic "Tickets — verdiene sie durch Login, Missionen und Challenges" [ref=e170]:
+          - img [ref=e171]
+          - generic [ref=e173]: "10"
+          - generic [ref=e174]: Tickets
+      - navigation [ref=e177]:
+        - generic [ref=e178]:
+          - link "Home" [ref=e179] [cursor=pointer]:
+            - /url: /
+            - img [ref=e180]
+            - generic [ref=e183]: Home
+          - link "Markt" [ref=e184] [cursor=pointer]:
+            - /url: /market
+            - img [ref=e185]
+            - generic [ref=e188]: Markt
+          - link "Spieltag" [ref=e189] [cursor=pointer]:
+            - /url: /fantasy
+            - img [ref=e190]
+            - generic [ref=e196]: Spieltag
+          - link "Missionen" [ref=e197] [cursor=pointer]:
+            - /url: /missions
+            - img [ref=e198]
+            - generic [ref=e202]: Missionen
+          - link "Club" [ref=e203] [cursor=pointer]:
+            - /url: /clubs
+            - img [ref=e204]
+            - generic [ref=e208]: Club
+          - link "Community" [ref=e209] [cursor=pointer]:
+            - /url: /community
+            - img [ref=e210]
+            - generic [ref=e213]: Community
+        - generic [ref=e215]: Mehr
+        - generic [ref=e216]:
+          - link "Founding Pass" [ref=e217] [cursor=pointer]:
+            - /url: /founding
+            - img [ref=e218]
+            - generic [ref=e220]: Founding Pass
+          - link "Airdrop" [ref=e221] [cursor=pointer]:
+            - /url: /airdrop
+            - img [ref=e222]
+            - generic [ref=e227]: Airdrop
+          - link "Club Admin" [ref=e228] [cursor=pointer]:
+            - /url: /club/sakaryaspor/admin
+            - img [ref=e229]
+            - generic [ref=e233]: Club Admin
+      - generic [ref=e234]:
+        - link "Einstellungen" [ref=e235] [cursor=pointer]:
+          - /url: /profile/settings
+          - img [ref=e236]
+          - generic [ref=e239]: Einstellungen
+        - button "Abmelden" [ref=e240] [cursor=pointer]:
+          - img [ref=e241]
+          - generic [ref=e244]: Abmelden
+      - button "Sidebar einklappen" [ref=e245] [cursor=pointer]:
+        - img [ref=e246]
+    - generic [ref=e248]:
+      - banner [ref=e249]:
+        - generic [ref=e250]:
+          - button "Suche... ⌘ K" [ref=e252] [cursor=pointer]:
+            - img [ref=e253]
+            - generic [ref=e256]: Suche...
+            - generic [ref=e257]:
+              - generic [ref=e258]: ⌘
+              - text: K
+          - generic [ref=e259]:
+            - generic [ref=e260]:
+              - img [ref=e261]
+              - generic [ref=e263]: "0"
+            - generic "Tickets — verdiene sie durch Login, Missionen und Challenges" [ref=e264]:
+              - img [ref=e265]
+              - generic [ref=e267]: "10"
+            - button "Push aktivieren" [ref=e268] [cursor=pointer]:
+              - img [ref=e269]
+            - button "Benachrichtigungen" [ref=e275] [cursor=pointer]:
+              - img [ref=e276]
+            - button "Feedback senden" [ref=e279] [cursor=pointer]:
+              - img [ref=e280]
+            - button "Glossar" [ref=e282] [cursor=pointer]:
+              - img [ref=e283]
+            - generic [ref=e286]:
+              - generic [ref=e287]:
+                - generic [ref=e288]: Demo Admin
+                - generic [ref=e289]: Lv 1 · Free
+              - link "D" [ref=e290] [cursor=pointer]:
+                - /url: /profile
+                - generic [ref=e292]: D
+      - main [ref=e293]:
+        - generic [ref=e294]:
+          - generic [ref=e295]:
+            - heading "Fantasy" [level=1] [ref=e296]:
+              - img [ref=e297]
+              - text: Fantasy
+            - generic [ref=e305]:
+              - generic [ref=e307]: "0"
+              - generic [ref=e308]: Aktiv
+          - generic [ref=e1473]:
+            - button "Verstanden" [ref=e1474] [cursor=pointer]:
+              - img [ref=e1475]
+            - generic [ref=e1478]:
+              - img [ref=e1480]
+              - generic [ref=e1486]:
+                - generic [ref=e1487]:
+                  - img [ref=e1488]
+                  - generic [ref=e1490]: Dein erstes Fantasy-Event
+                - generic [ref=e1491]: Tritt einem Event bei, stelle dein Team auf und sammle Punkte.
+          - button "Wie werden Punkte berechnet?" [ref=e329] [cursor=pointer]:
+            - generic [ref=e330]:
+              - img [ref=e331]
+              - text: Wie werden Punkte berechnet?
+            - img [ref=e333]
+          - generic [ref=e335]:
+            - generic [ref=e336]:
+              - button "Vorheriger Spieltag" [ref=e337] [cursor=pointer]:
+                - img [ref=e338]
+              - generic [ref=e340]:
+                - generic [ref=e341]:
+                  - img [ref=e342]
+                  - generic [ref=e344]: Spieltag 33
+                - generic [ref=e346]:
+                  - generic [ref=e347]: Offen
+                  - generic [ref=e348]: · 10 Spiele
+                  - generic [ref=e349]: · 13 Events
+              - button "Nächster Spieltag" [ref=e350] [cursor=pointer]:
+                - img [ref=e351]
+            - generic [ref=e353]:
+              - button "Spiele" [ref=e354] [cursor=pointer]:
+                - img [ref=e355]
+                - generic [ref=e357]: Spiele
+              - button "Events" [ref=e358] [cursor=pointer]:
+                - img [ref=e359]
+                - generic [ref=e362]: Events
+              - button "Mitmachen" [ref=e363] [cursor=pointer]:
+                - img [ref=e364]
+                - generic [ref=e369]: Mitmachen
+              - button "Ergebnisse" [ref=e370] [cursor=pointer]:
+                - img [ref=e371]
+                - generic [ref=e373]: Ergebnisse
+          - generic [ref=e705]:
+            - generic [ref=e707]:
+              - generic [ref=e708]:
+                - img [ref=e709]
+                - generic [ref=e711]: "13"
+                - generic [ref=e712]: Gesamt
+              - generic [ref=e713]:
+                - img [ref=e714]
+                - generic [ref=e717]: "13"
+                - generic [ref=e718]: Offen
+              - generic [ref=e719]:
+                - img [ref=e720]
+                - generic [ref=e726]: "0"
+                - generic [ref=e727]: LIVE
+              - generic [ref=e728]:
+                - img [ref=e729]
+                - generic [ref=e732]: "0"
+                - generic [ref=e733]: Dabei
+            - generic [ref=e736]:
+              - button "BeScout 3 Events offen" [ref=e737] [cursor=pointer]:
+                - img
+                - generic [ref=e739]: BeScout
+                - generic [ref=e741]: 3 Events offen
+              - button "Club Events 4 Events offen" [ref=e742] [cursor=pointer]:
+                - img
+                - generic [ref=e744]: Club Events
+                - generic [ref=e746]: 4 Events offen
+              - button "Sponsoren 3 Events offen" [ref=e747] [cursor=pointer]:
+                - img
+                - generic [ref=e749]: Sponsoren
+                - generic [ref=e751]: 3 Events offen
+              - button "User 0 Events offen" [ref=e752] [cursor=pointer]:
+                - img
+                - generic [ref=e754]: User
+                - generic [ref=e756]: 0 Events offen
+              - button "Spezial 3 Events offen" [ref=e757] [cursor=pointer]:
+                - img
+                - generic [ref=e759]: Spezial
+                - generic [ref=e761]: 3 Events offen
+            - generic [ref=e762]:
+              - generic [ref=e763]:
+                - generic [ref=e764]:
+                  - button "Alle 13" [ref=e765] [cursor=pointer]:
+                    - img [ref=e766]
+                    - generic [ref=e769]: Alle
+                    - generic [ref=e770]: "13"
+                  - button "Offen für alle 0" [ref=e771] [cursor=pointer]:
+                    - img [ref=e772]
+                    - generic [ref=e775]: Offen für alle
+                    - generic [ref=e776]: "0"
+                  - button "BeScout 3" [ref=e777] [cursor=pointer]:
+                    - img [ref=e778]
+                    - generic [ref=e780]: BeScout
+                    - generic [ref=e781]: "3"
+                  - button "Sponsoren 3" [ref=e782] [cursor=pointer]:
+                    - img [ref=e783]
+                    - generic [ref=e787]: Sponsoren
+                    - generic [ref=e788]: "3"
+                  - button "Club Events 4" [ref=e789] [cursor=pointer]:
+                    - img [ref=e790]
+                    - generic [ref=e794]: Club Events
+                    - generic [ref=e795]: "4"
+                  - button "Spezial 3" [ref=e796] [cursor=pointer]:
+                    - img [ref=e797]
+                    - generic [ref=e799]: Spezial
+                    - generic [ref=e800]: "3"
+                - generic [ref=e801]:
+                  - button "Kartenansicht" [ref=e802] [cursor=pointer]:
+                    - img [ref=e803]
+                  - button "Listenansicht" [ref=e808] [cursor=pointer]:
+                    - img [ref=e809]
+              - generic [ref=e811]:
+                - generic [ref=e813]: Anmeldung offen
+                - generic [ref=e814]:
+                  - button "10d 3h BeScout Classic BeScout 7er · Liga Min 1 SC/Slot Kostenlos Teilnahme 0 Prize 1 Spieler 1 / 100 1% Beitreten" [ref=e815] [cursor=pointer]:
+                    - generic [ref=e818]: 10d 3h
+                    - heading "BeScout Classic" [level=3] [ref=e819]
+                    - generic [ref=e820]:
+                      - generic "BeScout" [ref=e821]
+                      - generic [ref=e822]: 7er
+                      - generic [ref=e823]: ·
+                      - generic [ref=e824]: Liga
+                    - generic [ref=e827]:
+                      - img [ref=e828]
+                      - text: Min 1 SC/Slot
+                    - generic [ref=e832]:
+                      - generic [ref=e833]:
+                        - generic [ref=e834]: Kostenlos
+                        - generic [ref=e835]: Teilnahme
+                      - generic [ref=e836]:
+                        - generic [ref=e837]: "0"
+                        - generic [ref=e838]: Prize
+                      - generic [ref=e839]:
+                        - generic [ref=e840]: "1"
+                        - generic [ref=e841]: Spieler
+                    - generic [ref=e846]:
+                      - generic [ref=e847]: 1 / 100
+                      - generic [ref=e848]: 1%
+                    - button "Beitreten" [ref=e850]:
+                      - img [ref=e851]
+                      - text: Beitreten
+                  - button "10d 3h Nike Power Cup Nike 7er · Liga Min 1 SC/Slot Kostenlos Teilnahme 0 Prize 1 Spieler 1 / 80 1% Beitreten" [ref=e852] [cursor=pointer]:
+                    - generic [ref=e853]:
+                      - img [ref=e856]
+                      - generic [ref=e860]: 10d 3h
+                    - heading "Nike Power Cup" [level=3] [ref=e861]
+                    - generic [ref=e862]:
+                      - generic "Nike" [ref=e863]:
+                        - img [ref=e864]
+                        - text: Nike
+                      - generic [ref=e868]: 7er
+                      - generic [ref=e869]: ·
+                      - generic [ref=e870]: Liga
+                    - generic [ref=e873]:
+                      - img [ref=e874]
+                      - text: Min 1 SC/Slot
+                    - generic [ref=e878]:
+                      - generic [ref=e879]:
+                        - generic [ref=e880]: Kostenlos
+                        - generic [ref=e881]: Teilnahme
+                      - generic [ref=e882]:
+                        - generic [ref=e883]: "0"
+                        - generic [ref=e884]: Prize
+                      - generic [ref=e885]:
+                        - generic [ref=e886]: "1"
+                        - generic [ref=e887]: Spieler
+                    - generic [ref=e892]:
+                      - generic [ref=e893]: 1 / 80
+                      - generic [ref=e894]: 1%
+                    - button "Beitreten" [ref=e896]:
+                      - img [ref=e897]
+                      - text: Beitreten
+                  - button "10d 3h TFF 1. Lig Meisterschaft Special 11er · Turnier Min 1 SC/Slot Kostenlos Teilnahme 0 Prize 0 Spieler 0 / 100 0% Beitreten" [ref=e898] [cursor=pointer]:
+                    - generic [ref=e899]:
+                      - img [ref=e902]
+                      - generic [ref=e904]: 10d 3h
+                    - heading "TFF 1. Lig Meisterschaft" [level=3] [ref=e905]
+                    - generic [ref=e906]:
+                      - generic "Special" [ref=e907]:
+                        - img [ref=e908]
+                        - text: Special
+                      - generic [ref=e910]: 11er
+                      - generic [ref=e911]: ·
+                      - generic [ref=e912]: Turnier
+                    - generic [ref=e915]:
+                      - img [ref=e916]
+                      - text: Min 1 SC/Slot
+                    - generic [ref=e920]:
+                      - generic [ref=e921]:
+                        - generic [ref=e922]: Kostenlos
+                        - generic [ref=e923]: Teilnahme
+                      - generic [ref=e924]:
+                        - generic [ref=e925]: "0"
+                        - generic [ref=e926]: Prize
+                      - generic [ref=e927]:
+                        - generic [ref=e928]: "0"
+                        - generic [ref=e929]: Spieler
+                    - generic [ref=e933]:
+                      - generic [ref=e934]: 0 / 100
+                      - generic [ref=e935]: 0%
+                    - button "Beitreten" [ref=e937]:
+                      - img [ref=e938]
+                      - text: Beitreten
+                  - button "10d 3h Sakaryaspor Fan Cup Sakaryaspor 7er · Liga Min 1 SC/Slot Kostenlos Teilnahme 0 Prize 1 Spieler 1 / 50 2% Beitreten" [ref=e1492] [cursor=pointer]:
+                    - generic [ref=e942]: 10d 3h
+                    - heading "Sakaryaspor Fan Cup" [level=3] [ref=e943]
+                    - generic [ref=e944]:
+                      - generic "Sakaryaspor" [ref=e945]
+                      - generic [ref=e946]: 7er
+                      - generic [ref=e947]: ·
+                      - generic [ref=e948]: Liga
+                    - generic [ref=e951]:
+                      - img [ref=e952]
+                      - text: Min 1 SC/Slot
+                    - generic [ref=e956]:
+                      - generic [ref=e957]:
+                        - generic [ref=e958]: Kostenlos
+                        - generic [ref=e959]: Teilnahme
+                      - generic [ref=e960]:
+                        - generic [ref=e961]: "0"
+                        - generic [ref=e962]: Prize
+                      - generic [ref=e963]:
+                        - generic [ref=e964]: "1"
+                        - generic [ref=e965]: Spieler
+                    - generic [ref=e969]:
+                      - generic [ref=e970]: 1 / 50
+                      - generic [ref=e971]: 2%
+                    - button "Beitreten" [ref=e973]:
+                      - img [ref=e1494]
+                      - text: Beitreten
+                  - button "10d 3h Spieltag 33 Spezial Special 7er · Liga Min 1 SC/Slot Kostenlos Teilnahme 0 Prize 1 Spieler 1 / 150 1% Beitreten" [ref=e975] [cursor=pointer]:
+                    - generic [ref=e976]:
+                      - img [ref=e979]
+                      - generic [ref=e981]: 10d 3h
+                    - heading "Spieltag 33 Spezial" [level=3] [ref=e982]
+                    - generic [ref=e983]:
+                      - generic "Special" [ref=e984]:
+                        - img [ref=e985]
+                        - text: Special
+                      - generic [ref=e987]: 7er
+                      - generic [ref=e988]: ·
+                      - generic [ref=e989]: Liga
+                    - generic [ref=e992]:
+                      - img [ref=e993]
+                      - text: Min 1 SC/Slot
+                    - generic [ref=e997]:
+                      - generic [ref=e998]:
+                        - generic [ref=e999]: Kostenlos
+                        - generic [ref=e1000]: Teilnahme
+                      - generic [ref=e1001]:
+                        - generic [ref=e1002]: "0"
+                        - generic [ref=e1003]: Prize
+                      - generic [ref=e1004]:
+                        - generic [ref=e1005]: "1"
+                        - generic [ref=e1006]: Spieler
+                    - generic [ref=e1011]:
+                      - generic [ref=e1012]: 1 / 150
+                      - generic [ref=e1013]: 1%
+                    - button "Beitreten" [ref=e1015]:
+                      - img [ref=e1016]
+                      - text: Beitreten
+                  - button "10d 3h Goldenes Tor Challenge Special 7er · Liga Min 1 SC/Slot Kostenlos Teilnahme 0 Prize 0 Spieler 0 / 75 0% Beitreten" [ref=e1017] [cursor=pointer]:
+                    - generic [ref=e1018]:
+                      - img [ref=e1021]
+                      - generic [ref=e1023]: 10d 3h
+                    - heading "Goldenes Tor Challenge" [level=3] [ref=e1024]
+                    - generic [ref=e1025]:
+                      - generic "Special" [ref=e1026]:
+                        - img [ref=e1027]
+                        - text: Special
+                      - generic [ref=e1029]: 7er
+                      - generic [ref=e1030]: ·
+                      - generic [ref=e1031]: Liga
+                    - generic [ref=e1034]:
+                      - img [ref=e1035]
+                      - text: Min 1 SC/Slot
+                    - generic [ref=e1039]:
+                      - generic [ref=e1040]:
+                        - generic [ref=e1041]: Kostenlos
+                        - generic [ref=e1042]: Teilnahme
+                      - generic [ref=e1043]:
+                        - generic [ref=e1044]: "0"
+                        - generic [ref=e1045]: Prize
+                      - generic [ref=e1046]:
+                        - generic [ref=e1047]: "0"
+                        - generic [ref=e1048]: Spieler
+                    - generic [ref=e1052]:
+                      - generic [ref=e1053]: 0 / 75
+                      - generic [ref=e1054]: 0%
+                    - button "Beitreten" [ref=e1056]:
+                      - img [ref=e1057]
+                      - text: Beitreten
+                  - button "10d 3h BeScout Global Challenge BeScout 11er · Turnier Min 1 SC/Slot Kostenlos Teilnahme 0 Prize 0 Spieler 0 / 200 0% Beitreten" [ref=e1058] [cursor=pointer]:
+                    - generic [ref=e1061]: 10d 3h
+                    - heading "BeScout Global Challenge" [level=3] [ref=e1062]
+                    - generic [ref=e1063]:
+                      - generic "BeScout" [ref=e1064]
+                      - generic [ref=e1065]: 11er
+                      - generic [ref=e1066]: ·
+                      - generic [ref=e1067]: Turnier
+                    - generic [ref=e1070]:
+                      - img [ref=e1071]
+                      - text: Min 1 SC/Slot
+                    - generic [ref=e1075]:
+                      - generic [ref=e1076]:
+                        - generic [ref=e1077]: Kostenlos
+                        - generic [ref=e1078]: Teilnahme
+                      - generic [ref=e1079]:
+                        - generic [ref=e1080]: "0"
+                        - generic [ref=e1081]: Prize
+                      - generic [ref=e1082]:
+                        - generic [ref=e1083]: "0"
+                        - generic [ref=e1084]: Spieler
+                    - generic [ref=e1088]:
+                      - generic [ref=e1089]: 0 / 200
+                      - generic [ref=e1090]: 0%
+                    - button "Beitreten" [ref=e1092]:
+                      - img [ref=e1093]
+                      - text: Beitreten
+                  - button "10d 3h BeScout Rising Stars BeScout 7er · Liga Min 1 SC/Slot Kostenlos Teilnahme 0 Prize 1 Spieler 1 / 50 2% Beitreten" [ref=e1094] [cursor=pointer]:
+                    - generic [ref=e1097]: 10d 3h
+                    - heading "BeScout Rising Stars" [level=3] [ref=e1098]
+                    - generic [ref=e1099]:
+                      - generic "BeScout" [ref=e1100]
+                      - generic [ref=e1101]: 7er
+                      - generic [ref=e1102]: ·
+                      - generic [ref=e1103]: Liga
+                    - generic [ref=e1106]:
+                      - img [ref=e1107]
+                      - text: Min 1 SC/Slot
+                    - generic [ref=e1111]:
+                      - generic [ref=e1112]:
+                        - generic [ref=e1113]: Kostenlos
+                        - generic [ref=e1114]: Teilnahme
+                      - generic [ref=e1115]:
+                        - generic [ref=e1116]: "0"
+                        - generic [ref=e1117]: Prize
+                      - generic [ref=e1118]:
+                        - generic [ref=e1119]: "1"
+                        - generic [ref=e1120]: Spieler
+                    - generic [ref=e1125]:
+                      - generic [ref=e1126]: 1 / 50
+                      - generic [ref=e1127]: 2%
+                    - button "Beitreten" [ref=e1129]:
+                      - img [ref=e1130]
+                      - text: Beitreten
+                  - button "10d 3h Sakaryaspor Derby Special Sakaryaspor 7er · Liga Min 1 SC/Slot Kostenlos Teilnahme 0 Prize 0 Spieler 0 / 30 0% Beitreten" [ref=e1131] [cursor=pointer]:
+                    - generic [ref=e1134]: 10d 3h
+                    - heading "Sakaryaspor Derby Special" [level=3] [ref=e1135]
+                    - generic [ref=e1136]:
+                      - generic "Sakaryaspor" [ref=e1137]
+                      - generic [ref=e1138]: 7er
+                      - generic [ref=e1139]: ·
+                      - generic [ref=e1140]: Liga
+                    - generic [ref=e1143]:
+                      - img [ref=e1144]
+                      - text: Min 1 SC/Slot
+                    - generic [ref=e1148]:
+                      - generic [ref=e1149]:
+                        - generic [ref=e1150]: Kostenlos
+                        - generic [ref=e1151]: Teilnahme
+                      - generic [ref=e1152]:
+                        - generic [ref=e1153]: "0"
+                        - generic [ref=e1154]: Prize
+                      - generic [ref=e1155]:
+                        - generic [ref=e1156]: "0"
+                        - generic [ref=e1157]: Spieler
+                    - generic [ref=e1161]:
+                      - generic [ref=e1162]: 0 / 30
+                      - generic [ref=e1163]: 0%
+                    - button "Beitreten" [ref=e1165]:
+                      - img [ref=e1166]
+                      - text: Beitreten
+                  - button "10d 3h Adidas Elite Cup Adidas 11er · Turnier Min 1 SC/Slot Kostenlos Teilnahme 0 Prize 0 Spieler 0 / 100 0% Beitreten" [ref=e1167] [cursor=pointer]:
+                    - generic [ref=e1168]:
+                      - img [ref=e1171]
+                      - generic [ref=e1175]: 10d 3h
+                    - heading "Adidas Elite Cup" [level=3] [ref=e1176]
+                    - generic [ref=e1177]:
+                      - generic "Adidas" [ref=e1178]:
+                        - img [ref=e1179]
+                        - text: Adidas
+                      - generic [ref=e1183]: 11er
+                      - generic [ref=e1184]: ·
+                      - generic [ref=e1185]: Turnier
+                    - generic [ref=e1188]:
+                      - img [ref=e1189]
+                      - text: Min 1 SC/Slot
+                    - generic [ref=e1193]:
+                      - generic [ref=e1194]:
+                        - generic [ref=e1195]: Kostenlos
+                        - generic [ref=e1196]: Teilnahme
+                      - generic [ref=e1197]:
+                        - generic [ref=e1198]: "0"
+                        - generic [ref=e1199]: Prize
+                      - generic [ref=e1200]:
+                        - generic [ref=e1201]: "0"
+                        - generic [ref=e1202]: Spieler
+                    - generic [ref=e1206]:
+                      - generic [ref=e1207]: 0 / 100
+                      - generic [ref=e1208]: 0%
+                    - button "Beitreten" [ref=e1210]:
+                      - img [ref=e1211]
+                      - text: Beitreten
+                  - button "10d 3h Turkish Airlines Liga Turkish Airlines 7er · Liga Min 1 SC/Slot Kostenlos Teilnahme 0 Prize 0 Spieler 0 / 60 0% Beitreten" [ref=e1212] [cursor=pointer]:
+                    - generic [ref=e1213]:
+                      - img [ref=e1216]
+                      - generic [ref=e1220]: 10d 3h
+                    - heading "Turkish Airlines Liga" [level=3] [ref=e1221]
+                    - generic [ref=e1222]:
+                      - generic "Turkish Airlines" [ref=e1223]:
+                        - img [ref=e1224]
+                        - text: Turkish Airlines
+                      - generic [ref=e1228]: 7er
+                      - generic [ref=e1229]: ·
+                      - generic [ref=e1230]: Liga
+                    - generic [ref=e1233]:
+                      - img [ref=e1234]
+                      - text: Min 1 SC/Slot
+                    - generic [ref=e1238]:
+                      - generic [ref=e1239]:
+                        - generic [ref=e1240]: Kostenlos
+                        - generic [ref=e1241]: Teilnahme
+                      - generic [ref=e1242]:
+                        - generic [ref=e1243]: "0"
+                        - generic [ref=e1244]: Prize
+                      - generic [ref=e1245]:
+                        - generic [ref=e1246]: "0"
+                        - generic [ref=e1247]: Spieler
+                    - generic [ref=e1251]:
+                      - generic [ref=e1252]: 0 / 60
+                      - generic [ref=e1253]: 0%
+                    - button "Beitreten" [ref=e1255]:
+                      - img [ref=e1256]
+                      - text: Beitreten
+                  - button "10d 3h Sakaryaspor 11er Showdown Sakaryaspor 11er · Turnier Min 1 SC/Slot Kostenlos Teilnahme 0 Prize 0 Spieler 0 / 40 0% Beitreten" [ref=e1257] [cursor=pointer]:
+                    - generic [ref=e1260]: 10d 3h
+                    - heading "Sakaryaspor 11er Showdown" [level=3] [ref=e1261]
+                    - generic [ref=e1262]:
+                      - generic "Sakaryaspor" [ref=e1263]
+                      - generic [ref=e1264]: 11er
+                      - generic [ref=e1265]: ·
+                      - generic [ref=e1266]: Turnier
+                    - generic [ref=e1269]:
+                      - img [ref=e1270]
+                      - text: Min 1 SC/Slot
+                    - generic [ref=e1274]:
+                      - generic [ref=e1275]:
+                        - generic [ref=e1276]: Kostenlos
+                        - generic [ref=e1277]: Teilnahme
+                      - generic [ref=e1278]:
+                        - generic [ref=e1279]: "0"
+                        - generic [ref=e1280]: Prize
+                      - generic [ref=e1281]:
+                        - generic [ref=e1282]: "0"
+                        - generic [ref=e1283]: Spieler
+                    - generic [ref=e1287]:
+                      - generic [ref=e1288]: 0 / 40
+                      - generic [ref=e1289]: 0%
+                    - button "Beitreten" [ref=e1291]:
+                      - img [ref=e1292]
+                      - text: Beitreten
+                  - button "10d 3h Sakaryaspor Fan Challenge Sakaryaspor 7er · Liga Min 1 SC/Slot Kostenlos Teilnahme 0 Prize 0 Spieler 0 / 30 0% Beitreten" [ref=e1293] [cursor=pointer]:
+                    - generic [ref=e1296]: 10d 3h
+                    - heading "Sakaryaspor Fan Challenge" [level=3] [ref=e1297]
+                    - generic [ref=e1298]:
+                      - generic "Sakaryaspor" [ref=e1299]
+                      - generic [ref=e1300]: 7er
+                      - generic [ref=e1301]: ·
+                      - generic [ref=e1302]: Liga
+                    - generic [ref=e1305]:
+                      - img [ref=e1306]
+                      - text: Min 1 SC/Slot
+                    - generic [ref=e1310]:
+                      - generic [ref=e1311]:
+                        - generic [ref=e1312]: Kostenlos
+                        - generic [ref=e1313]: Teilnahme
+                      - generic [ref=e1314]:
+                        - generic [ref=e1315]: "0"
+                        - generic [ref=e1316]: Prize
+                      - generic [ref=e1317]:
+                        - generic [ref=e1318]: "0"
+                        - generic [ref=e1319]: Spieler
+                    - generic [ref=e1323]:
+                      - generic [ref=e1324]: 0 / 30
+                      - generic [ref=e1325]: 0%
+                    - button "Beitreten" [ref=e1327]:
+                      - img [ref=e1328]
+                      - text: Beitreten
+  - generic [ref=e605]:
+    - img [ref=e607]
+    - button "Open Tanstack query devtools" [ref=e655] [cursor=pointer]:
+      - img [ref=e656]
+  - alert [ref=e704]

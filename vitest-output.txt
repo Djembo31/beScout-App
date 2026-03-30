@@ -1,0 +1,1961 @@
+
+[1m[46m RUN [49m[22m [36mv4.1.0 [39m[90mC:/bescout-app[39m
+
+[90mstdout[2m | src/lib/__tests__/boundaries/edge-cases.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+
+ [31m❯[39m src/lib/__tests__/boundaries/edge-cases.test.ts [2m([22m[2m20 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 2733[2mms[22m[39m
+[31m     [31m×[31m EDGE-17: no holding has zero or negative quantity[39m[32m 85[2mms[22m[39m
+[90mstdout[2m | src/lib/__tests__/flows/business-flows.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🛡️ auth for agents: https://vestauth.com
+
+ [31m❯[39m src/lib/__tests__/flows/business-flows.test.ts [2m([22m[2m15 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 3954[2mms[22m[39m
+[31m     [31m×[31m FLOW-11: event current_entries equals actual lineup count[39m[33m 1281[2mms[22m[39m
+ [31m❯[39m src/lib/services/__tests__/events-v2.test.ts [2m([22m[2m73 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 234[2mms[22m[39m
+[31m     [31m×[31m upcoming has all 18 fields[39m[32m 29[2mms[22m[39m
+[31m     [31m×[31m registering has 17 fields (no currency)[39m[32m 3[2mms[22m[39m
+[90mstdout[2m | src/lib/__tests__/db-invariants.test.ts
+[22m[39m[dotenv@17.3.1] injecting env (12) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+
+ [31m❯[39m src/lib/__tests__/db-invariants.test.ts [2m([22m[2m15 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 8210[2mms[22m[39m
+[31m     [31m×[31m INV-08: no holding with quantity <= 0[39m[32m 84[2mms[22m[39m
+ [31m❯[39m src/components/player/detail/__tests__/TradingTab.test.tsx [2m([22m[2m24 tests[22m[2m | [22m[31m14 failed[39m[2m)[22m[33m 1449[2mms[22m[39m
+[31m     [31m×[31m renders TradingQuickStats[39m[32m 32[2mms[22m[39m
+[31m     [31m×[31m renders YourPosition when userId is set[39m[32m 13[2mms[22m[39m
+[31m     [31m×[31m renders OrderbookSummary[39m[32m 18[2mms[22m[39m
+[31m     [31m×[31m shows letzterPreis with formatted value when lastTrade > 0[39m[32m 11[2mms[22m[39m
+[31m     [31m×[31m shows initial listing price with percentage change[39m[32m 16[2mms[22m[39m
+[31m     [31m×[31m shows offers section when userId provided[39m[32m 8[2mms[22m[39m
+[31m     [31m×[31m shows noOpenBids when bids empty and userId provided[39m[32m 23[2mms[22m[39m
+[31m     [31m×[31m shows bid with accept button when holdingQty > 0 and bid is not from self[39m[32m 7[2mms[22m[39m
+[31m     [31m×[31m hides accept button when holdingQty = 0[39m[32m 7[2mms[22m[39m
+[31m     [31m×[31m shows trades loading state[39m[32m 10[2mms[22m[39m
+[31m     [31m×[31m shows no trades empty state[39m[32m 9[2mms[22m[39m
+[31m     [31m×[31m rewards accordion toggles on click[39m[32m 195[2mms[22m[39m
+[31m     [31m×[31m renders ScoutConsensus when playerResearch has items[39m[32m 5[2mms[22m[39m
+[31m     [31m×[31m renders sell listings section when player has listings[39m[32m 16[2mms[22m[39m
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+[90mstderr[2m | src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22m[2mPlayerContent[2m > [22m[2mshows skeleton while loading
+[22m[39mThe above error occurred in the <PlayerContent> component:
+
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:62:26)
+    at QueryClientProvider (file:///C:/bescout-app/node_modules/.pnpm/@tanstack+react-query@5.91.2_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at Wrapper (C:/bescout-app/src/test/renderWithProviders.tsx:78:28)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+[90mstderr[2m | src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22m[2mPlayerContent[2m > [22m[2mshows error state when query fails
+[22m[39mThe above error occurred in the <PlayerContent> component:
+
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:62:26)
+    at QueryClientProvider (file:///C:/bescout-app/node_modules/.pnpm/@tanstack+react-query@5.91.2_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at Wrapper (C:/bescout-app/src/test/renderWithProviders.tsx:78:28)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+Error: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:62:17)
+    at Object.get (file:///C:/bescout-app/node_modules/.pnpm/vitest@4.1.0_@opentelemetry_94f0b7ba546af1e8b88b08b7493bcd3d/node_modules/vitest/dist/chunks/startVitestModuleRunner.C3ZR-4J3.js:310:16)
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:68:16)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+[90mstderr[2m | src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22m[2mPlayerContent[2m > [22m[2mrefetch button works on error state
+[22m[39mThe above error occurred in the <PlayerContent> component:
+
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:62:26)
+    at QueryClientProvider (file:///C:/bescout-app/node_modules/.pnpm/@tanstack+react-query@5.91.2_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at Wrapper (C:/bescout-app/src/test/renderWithProviders.tsx:78:28)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+[90mstderr[2m | src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22m[2mPlayerContent[2m > [22m[2mrenders PlayerHero after load
+[22m[39mThe above error occurred in the <PlayerContent> component:
+
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:62:26)
+    at QueryClientProvider (file:///C:/bescout-app/node_modules/.pnpm/@tanstack+react-query@5.91.2_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at Wrapper (C:/bescout-app/src/test/renderWithProviders.tsx:78:28)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+[90mstderr[2m | src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22m[2mPlayerContent[2m > [22m[2mrenders TabBar with 3 tabs
+[22m[39mThe above error occurred in the <PlayerContent> component:
+
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:62:26)
+    at QueryClientProvider (file:///C:/bescout-app/node_modules/.pnpm/@tanstack+react-query@5.91.2_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at Wrapper (C:/bescout-app/src/test/renderWithProviders.tsx:78:28)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+[90mstderr[2m | src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22m[2mPlayerContent[2m > [22m[2mrenders TradingTab by default
+[22m[39mThe above error occurred in the <PlayerContent> component:
+
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:62:26)
+    at QueryClientProvider (file:///C:/bescout-app/node_modules/.pnpm/@tanstack+react-query@5.91.2_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at Wrapper (C:/bescout-app/src/test/renderWithProviders.tsx:78:28)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+[90mstderr[2m | src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22m[2mPlayerContent[2m > [22m[2mrenders MobileTradingBar
+[22m[39mThe above error occurred in the <PlayerContent> component:
+
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:62:26)
+    at QueryClientProvider (file:///C:/bescout-app/node_modules/.pnpm/@tanstack+react-query@5.91.2_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at Wrapper (C:/bescout-app/src/test/renderWithProviders.tsx:78:28)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+[90mstderr[2m | src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22m[2mPlayerContent[2m > [22m[2mrenders BuyModal stub closed by default
+[22m[39mThe above error occurred in the <PlayerContent> component:
+
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:62:26)
+    at QueryClientProvider (file:///C:/bescout-app/node_modules/.pnpm/@tanstack+react-query@5.91.2_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at Wrapper (C:/bescout-app/src/test/renderWithProviders.tsx:78:28)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+[90mstderr[2m | src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22m[2mPlayerContent[2m > [22m[2mrenders SellModal stub closed by default
+[22m[39mThe above error occurred in the <PlayerContent> component:
+
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:62:26)
+    at QueryClientProvider (file:///C:/bescout-app/node_modules/.pnpm/@tanstack+react-query@5.91.2_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at Wrapper (C:/bescout-app/src/test/renderWithProviders.tsx:78:28)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+[90mstderr[2m | src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22m[2mPlayerContent[2m > [22m[2mrenders LiquidationAlert for liquidated players
+[22m[39mThe above error occurred in the <PlayerContent> component:
+
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:62:26)
+    at QueryClientProvider (file:///C:/bescout-app/node_modules/.pnpm/@tanstack+react-query@5.91.2_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at Wrapper (C:/bescout-app/src/test/renderWithProviders.tsx:78:28)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+[90mstderr[2m | src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22m[2mPlayerContent[2m > [22m[2mswitches to PerformanceTab
+[22m[39mThe above error occurred in the <PlayerContent> component:
+
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:62:26)
+    at QueryClientProvider (file:///C:/bescout-app/node_modules/.pnpm/@tanstack+react-query@5.91.2_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at Wrapper (C:/bescout-app/src/test/renderWithProviders.tsx:78:28)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+[90mstderr[2m | src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22m[2mPlayerContent[2m > [22m[2mswitches to CommunityTab
+[22m[39mThe above error occurred in the <PlayerContent> component:
+
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:62:26)
+    at QueryClientProvider (file:///C:/bescout-app/node_modules/.pnpm/@tanstack+react-query@5.91.2_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at Wrapper (C:/bescout-app/src/test/renderWithProviders.tsx:78:28)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+[90mstderr[2m | src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22m[2mPlayerContent[2m > [22m[2mshows admin restriction for club admin own players
+[22m[39mThe above error occurred in the <PlayerContent> component:
+
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:62:26)
+    at QueryClientProvider (file:///C:/bescout-app/node_modules/.pnpm/@tanstack+react-query@5.91.2_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at Wrapper (C:/bescout-app/src/test/renderWithProviders.tsx:78:28)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+[90mstderr[2m | src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22m[2mPlayerContent[2m > [22m[2mrenders StickyDashboardStrip
+[22m[39mThe above error occurred in the <PlayerContent> component:
+
+    at PlayerContent (C:/bescout-app/src/app/(app)/player/[id]/PlayerContent.tsx:62:26)
+    at QueryClientProvider (file:///C:/bescout-app/node_modules/.pnpm/@tanstack+react-query@5.91.2_react@18.3.1/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
+    at Wrapper (C:/bescout-app/src/test/renderWithProviders.tsx:78:28)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+ [31m❯[39m src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx [2m([22m[2m14 tests[22m[2m | [22m[31m14 failed[39m[2m)[22m[32m 218[2mms[22m[39m
+[31m     [31m×[31m shows skeleton while loading[39m[32m 68[2mms[22m[39m
+[31m     [31m×[31m shows error state when query fails[39m[32m 14[2mms[22m[39m
+[31m     [31m×[31m refetch button works on error state[39m[32m 19[2mms[22m[39m
+[31m     [31m×[31m renders PlayerHero after load[39m[32m 10[2mms[22m[39m
+[31m     [31m×[31m renders TabBar with 3 tabs[39m[32m 13[2mms[22m[39m
+[31m     [31m×[31m renders TradingTab by default[39m[32m 6[2mms[22m[39m
+[31m     [31m×[31m renders MobileTradingBar[39m[32m 7[2mms[22m[39m
+[31m     [31m×[31m renders BuyModal stub closed by default[39m[32m 31[2mms[22m[39m
+[31m     [31m×[31m renders SellModal stub closed by default[39m[32m 14[2mms[22m[39m
+[31m     [31m×[31m renders LiquidationAlert for liquidated players[39m[32m 7[2mms[22m[39m
+[31m     [31m×[31m switches to PerformanceTab[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m switches to CommunityTab[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m shows admin restriction for club admin own players[39m[32m 8[2mms[22m[39m
+[31m     [31m×[31m renders StickyDashboardStrip[39m[32m 6[2mms[22m[39m
+ [31m❯[39m src/components/profile/__tests__/ProfileView.test.tsx [2m([22m[2m0 test[22m[2m)[22m
+Error: Boom!
+    at Bomb (C:/bescout-app/src/components/ui/__tests__/ErrorBoundary.test.tsx:13:26)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+Error: Boom!
+    at Bomb (C:/bescout-app/src/components/ui/__tests__/ErrorBoundary.test.tsx:13:26)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+Error: Boom!
+    at Bomb (C:/bescout-app/src/components/ui/__tests__/ErrorBoundary.test.tsx:13:26)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+Error: Boom!
+    at Bomb (C:/bescout-app/src/components/ui/__tests__/ErrorBoundary.test.tsx:13:26)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+Error: Boom!
+    at Bomb (C:/bescout-app/src/components/ui/__tests__/ErrorBoundary.test.tsx:13:26)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+Error: Boom!
+    at Bomb (C:/bescout-app/src/components/ui/__tests__/ErrorBoundary.test.tsx:13:26)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+Error: Boom!
+    at Bomb (C:/bescout-app/src/components/ui/__tests__/ErrorBoundary.test.tsx:13:26)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+Error: Boom!
+    at Bomb (C:/bescout-app/src/components/ui/__tests__/ErrorBoundary.test.tsx:13:26)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+Error: Boom!
+    at Bomb (C:/bescout-app/src/components/ui/__tests__/ErrorBoundary.test.tsx:13:26)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+Error: Boom!
+    at Bomb (C:/bescout-app/src/components/ui/__tests__/ErrorBoundary.test.tsx:13:26)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+Error: Boom!
+    at Bomb (C:/bescout-app/src/components/ui/__tests__/ErrorBoundary.test.tsx:13:26)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+Error: Boom!
+    at Bomb (C:/bescout-app/src/components/ui/__tests__/ErrorBoundary.test.tsx:13:26)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+Error: Boom!
+    at Bomb (C:/bescout-app/src/components/ui/__tests__/ErrorBoundary.test.tsx:13:26)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+Error: Boom!
+    at Bomb (C:/bescout-app/src/components/ui/__tests__/ErrorBoundary.test.tsx:13:26)
+    at renderWithHooks (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:20103:13)
+    at beginWork (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (C:\bescout-app\node_modules\.pnpm\react-dom@18.3.1_react@18.3.1\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLUnknownElementImpl._dispatch (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+    at HTMLUnknownElementImpl.dispatchEvent (C:\bescout-app\node_modules\.pnpm\jsdom@28.1.0\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:114:17)
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/components/profile/__tests__/ProfileView.test.tsx[2m [ src/components/profile/__tests__/ProfileView.test.tsx ][22m
+[31m[1mError[22m: @supabase/ssr: Your project's URL and API key are required to create a Supabase client!
+
+Check your Supabase project's API settings to find these values
+
+https://supabase.com/dashboard/project/_/settings/api[39m
+[90m [2m❯[22m createBrowserClient node_modules/.pnpm/@supabase+ssr@0.8.0_@supabase+supabase-js@2.95.3/node_modules/@supabase/ssr/src/createBrowserClient.ts:[2m111:10[22m[39m
+[36m [2m❯[22m src/lib/supabaseClient.ts:[2m6:25[22m[39m
+    [90m  4|[39m [35mconst[39m anon [33m=[39m process[33m.[39menv[33m.[39m[33mNEXT_PUBLIC_SUPABASE_ANON_KEY[39m[33m![39m[33m;[39m
+    [90m  5|[39m
+    [90m  6|[39m [35mexport[39m [35mconst[39m supabase [33m=[39m [34mcreateBrowserClient[39m(url[33m,[39m anon)[33m;[39m
+    [90m   |[39m                         [31m^[39m
+    [90m  7|[39m
+[90m [2m❯[22m src/lib/services/tickets.ts:[2m1:1[22m[39m
+[90m [2m❯[22m src/components/profile/ProfileView.tsx:[2m17:1[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/34]⎯[22m[39m
+
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 33 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/lib/__tests__/db-invariants.test.ts[2m > [22mDB Invariants[2m > [22mINV-08: no holding with quantity <= 0
+[31m[1mAssertionError[22m: expected [ { …(3) }, { …(3) }, { …(3) }, …(26) ] to have a length of +0 but got 29[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 29[39m
+
+[36m [2m❯[22m src/lib/__tests__/db-invariants.test.ts:[2m245:30[22m[39m
+    [90m243|[39m
+    [90m244|[39m     [34mexpect[39m(error)[33m.[39m[34mtoBeNull[39m()[33m;[39m
+    [90m245|[39m     [34mexpect[39m(violations [33m??[39m [])[33m.[39m[34mtoHaveLength[39m([34m0[39m)[33m;[39m
+    [90m   |[39m                              [31m^[39m
+    [90m246|[39m   })[33m;[39m
+    [90m247|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/lib/services/__tests__/events-v2.test.ts[2m > [22mEDITABLE_FIELDS[2m > [22mupcoming has all 18 fields
+[31m[1mAssertionError[22m: expected [ 'name', 'type', 'format', …(18) ] to have a length of 18 but got 21[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 18[39m
+[31m+ 21[39m
+
+[36m [2m❯[22m src/lib/services/__tests__/events-v2.test.ts:[2m419:38[22m[39m
+    [90m417|[39m [34mdescribe[39m([32m'EDITABLE_FIELDS'[39m[33m,[39m () [33m=>[39m {
+    [90m418|[39m   [34mit[39m([32m'upcoming has all 18 fields'[39m[33m,[39m () [33m=>[39m {
+    [90m419|[39m     [34mexpect[39m([33mEDITABLE_FIELDS[39m[33m.[39mupcoming)[33m.[39m[34mtoHaveLength[39m([34m18[39m)[33m;[39m
+    [90m   |[39m                                      [31m^[39m
+    [90m420|[39m     [34mexpect[39m([33mEDITABLE_FIELDS[39m[33m.[39mupcoming)[33m.[39m[34mtoContain[39m([32m'name'[39m)[33m;[39m
+    [90m421|[39m     [34mexpect[39m([33mEDITABLE_FIELDS[39m[33m.[39mupcoming)[33m.[39m[34mtoContain[39m([32m'entry_fee'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/lib/services/__tests__/events-v2.test.ts[2m > [22mEDITABLE_FIELDS[2m > [22mregistering has 17 fields (no currency)
+[31m[1mAssertionError[22m: expected [ 'name', 'type', 'format', …(17) ] to have a length of 17 but got 20[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 17[39m
+[31m+ 20[39m
+
+[36m [2m❯[22m src/lib/services/__tests__/events-v2.test.ts:[2m429:41[22m[39m
+    [90m427|[39m
+    [90m428|[39m   [34mit[39m([32m'registering has 17 fields (no currency)'[39m[33m,[39m () [33m=>[39m {
+    [90m429|[39m     [34mexpect[39m([33mEDITABLE_FIELDS[39m[33m.[39mregistering)[33m.[39m[34mtoHaveLength[39m([34m17[39m)[33m;[39m
+    [90m   |[39m                                         [31m^[39m
+    [90m430|[39m     [34mexpect[39m([33mEDITABLE_FIELDS[39m[33m.[39mregistering)[33m.[39m[34mtoContain[39m([32m'name'[39m)[33m;[39m
+    [90m431|[39m     [34mexpect[39m([33mEDITABLE_FIELDS[39m[33m.[39mregistering)[33m.[39m[34mtoContain[39m([32m'entry_fee'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/lib/__tests__/boundaries/edge-cases.test.ts[2m > [22mBoundary / Edge Cases[2m > [22mEDGE-17: no holding has zero or negative quantity
+[31m[1mAssertionError[22m: expected [ { …(3) }, { …(3) }, { …(3) }, …(2) ] to have a length of +0 but got 5[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 5[39m
+
+[36m [2m❯[22m src/lib/__tests__/boundaries/edge-cases.test.ts:[2m298:24[22m[39m
+    [90m296|[39m
+    [90m297|[39m     [34mexpect[39m(error)[33m.[39m[34mtoBeNull[39m()[33m;[39m
+    [90m298|[39m     [34mexpect[39m(data [33m??[39m [])[33m.[39m[34mtoHaveLength[39m([34m0[39m)[33m;[39m
+    [90m   |[39m                        [31m^[39m
+    [90m299|[39m   })[33m;[39m
+    [90m300|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/lib/__tests__/flows/business-flows.test.ts[2m > [22mBusiness Flows — Cross-Table Verification[2m > [22mFLOW-11: event current_entries equals actual lineup count
+[31m[1mAssertionError[22m: Event "BeScout Rising Stars": current_entries=2 but 1 lineups
+Event "Spieltag 33 Spezial": current_entries=1 but 0 lineups: expected [ …(2) ] to have a length of +0 but got 2[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 2[39m
+
+[36m [2m❯[22m src/lib/__tests__/flows/business-flows.test.ts:[2m303:47[22m[39m
+    [90m301|[39m       }
+    [90m302|[39m     }
+    [90m303|[39m     [34mexpect[39m(violations[33m,[39m violations[33m.[39m[34mjoin[39m([32m'\n'[39m))[33m.[39m[34mtoHaveLength[39m([34m0[39m)[33m;[39m
+    [90m   |[39m                                               [31m^[39m
+    [90m304|[39m   })[33m;[39m
+    [90m305|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/player/detail/__tests__/TradingTab.test.tsx[2m > [22mTradingTab[2m > [22mrenders TradingQuickStats
+[31m[1mTestingLibraryElementError[22m: Unable to find an element by: [data-testid="trading-quick-stats"]
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-5 md:space-y-8"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"price-chart"[31m
+        [33mdata-trades[31m=[32m"[]"[31m
+      [36m/>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"p-8 text-center"[31m
+        [33mdata-testid[31m=[32m"card"[31m
+      [36m>[31m
+        [36m<svg[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33mclass[31m=[32m"lucide lucide-shopping-cart size-10 mx-auto mb-3 text-white/15"[31m
+          [33mfill[31m=[32m"none"[31m
+          [33mheight[31m=[32m"24"[31m
+          [33mstroke[31m=[32m"currentColor"[31m
+          [33mstroke-linecap[31m=[32m"round"[31m
+          [33mstroke-linejoin[31m=[32m"round"[31m
+          [33mstroke-width[31m=[32m"2"[31m
+          [33mviewBox[31m=[32m"0 0 24 24"[31m
+          [33mwidth[31m=[32m"24"[31m
+          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+        [36m>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"8"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"19"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<path[31m
+            [33md[31m=[32m"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"[31m
+          [36m/>[31m
+        [36m</svg>[31m
+        [36m<h3[31m
+          [33mclass[31m=[32m"font-black text-lg mb-1"[31m
+        [36m>[31m
+          [0memptyTradingTitle[0m
+        [36m</h3>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-sm text-white/40 mb-4 max-w-xs mx-auto"[31m
+        [36m>[31m
+          [0memptyTradingDesc[0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"trading-disclaimer"[31m
+        [33mdata-variant[31m=[32m"card"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/player/detail/__tests__/TradingTab.test.tsx:[2m218:19[22m[39m
+    [90m216|[39m   [34mit[39m([32m'renders TradingQuickStats'[39m[33m,[39m () [33m=>[39m {
+    [90m217|[39m     [34mrenderWithProviders[39m([33m<[39m[33mTradingTab[39m [33m{[39m[33m...[39mdefaultProps[33m}[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m218|[39m     expect(screen.getByTestId('trading-quick-stats')).toBeInTheDocumen…
+    [90m   |[39m                   [31m^[39m
+    [90m219|[39m   })[33m;[39m
+    [90m220|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/player/detail/__tests__/TradingTab.test.tsx[2m > [22mTradingTab[2m > [22mrenders YourPosition when userId is set
+[31m[1mTestingLibraryElementError[22m: Unable to find an element by: [data-testid="your-position"]
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-5 md:space-y-8"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"price-chart"[31m
+        [33mdata-trades[31m=[32m"[]"[31m
+      [36m/>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"p-8 text-center"[31m
+        [33mdata-testid[31m=[32m"card"[31m
+      [36m>[31m
+        [36m<svg[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33mclass[31m=[32m"lucide lucide-shopping-cart size-10 mx-auto mb-3 text-white/15"[31m
+          [33mfill[31m=[32m"none"[31m
+          [33mheight[31m=[32m"24"[31m
+          [33mstroke[31m=[32m"currentColor"[31m
+          [33mstroke-linecap[31m=[32m"round"[31m
+          [33mstroke-linejoin[31m=[32m"round"[31m
+          [33mstroke-width[31m=[32m"2"[31m
+          [33mviewBox[31m=[32m"0 0 24 24"[31m
+          [33mwidth[31m=[32m"24"[31m
+          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+        [36m>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"8"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"19"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<path[31m
+            [33md[31m=[32m"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"[31m
+          [36m/>[31m
+        [36m</svg>[31m
+        [36m<h3[31m
+          [33mclass[31m=[32m"font-black text-lg mb-1"[31m
+        [36m>[31m
+          [0memptyTradingTitle[0m
+        [36m</h3>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-sm text-white/40 mb-4 max-w-xs mx-auto"[31m
+        [36m>[31m
+          [0memptyTradingDesc[0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"trading-disclaimer"[31m
+        [33mdata-variant[31m=[32m"card"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/player/detail/__tests__/TradingTab.test.tsx:[2m223:19[22m[39m
+    [90m221|[39m   [34mit[39m([32m'renders YourPosition when userId is set'[39m[33m,[39m () [33m=>[39m {
+    [90m222|[39m     [34mrenderWithProviders[39m([33m<[39m[33mTradingTab[39m [33m{[39m[33m...[39mdefaultProps[33m}[39m [33muserId[39m[33m=[39m[32m"u1"[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m223|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByTestId[39m([32m'your-position'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m224|[39m   })[33m;[39m
+    [90m225|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/player/detail/__tests__/TradingTab.test.tsx[2m > [22mTradingTab[2m > [22mrenders OrderbookSummary
+[31m[1mTestingLibraryElementError[22m: Unable to find an element by: [data-testid="orderbook-summary"]
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-5 md:space-y-8"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"price-chart"[31m
+        [33mdata-trades[31m=[32m"[]"[31m
+      [36m/>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"p-8 text-center"[31m
+        [33mdata-testid[31m=[32m"card"[31m
+      [36m>[31m
+        [36m<svg[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33mclass[31m=[32m"lucide lucide-shopping-cart size-10 mx-auto mb-3 text-white/15"[31m
+          [33mfill[31m=[32m"none"[31m
+          [33mheight[31m=[32m"24"[31m
+          [33mstroke[31m=[32m"currentColor"[31m
+          [33mstroke-linecap[31m=[32m"round"[31m
+          [33mstroke-linejoin[31m=[32m"round"[31m
+          [33mstroke-width[31m=[32m"2"[31m
+          [33mviewBox[31m=[32m"0 0 24 24"[31m
+          [33mwidth[31m=[32m"24"[31m
+          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+        [36m>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"8"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"19"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<path[31m
+            [33md[31m=[32m"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"[31m
+          [36m/>[31m
+        [36m</svg>[31m
+        [36m<h3[31m
+          [33mclass[31m=[32m"font-black text-lg mb-1"[31m
+        [36m>[31m
+          [0memptyTradingTitle[0m
+        [36m</h3>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-sm text-white/40 mb-4 max-w-xs mx-auto"[31m
+        [36m>[31m
+          [0memptyTradingDesc[0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"trading-disclaimer"[31m
+        [33mdata-variant[31m=[32m"card"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/player/detail/__tests__/TradingTab.test.tsx:[2m233:19[22m[39m
+    [90m231|[39m   [34mit[39m([32m'renders OrderbookSummary'[39m[33m,[39m () [33m=>[39m {
+    [90m232|[39m     [34mrenderWithProviders[39m([33m<[39m[33mTradingTab[39m [33m{[39m[33m...[39mdefaultProps[33m}[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m233|[39m     expect(screen.getByTestId('orderbook-summary')).toBeInTheDocument(…
+    [90m   |[39m                   [31m^[39m
+    [90m234|[39m   })[33m;[39m
+    [90m235|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/player/detail/__tests__/TradingTab.test.tsx[2m > [22mTradingTab[2m > [22mshows letzterPreis with formatted value when lastTrade > 0
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: /letzterPreis/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-5 md:space-y-8"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"price-chart"[31m
+        [33mdata-trades[31m=[32m"[]"[31m
+      [36m/>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"p-8 text-center"[31m
+        [33mdata-testid[31m=[32m"card"[31m
+      [36m>[31m
+        [36m<svg[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33mclass[31m=[32m"lucide lucide-shopping-cart size-10 mx-auto mb-3 text-white/15"[31m
+          [33mfill[31m=[32m"none"[31m
+          [33mheight[31m=[32m"24"[31m
+          [33mstroke[31m=[32m"currentColor"[31m
+          [33mstroke-linecap[31m=[32m"round"[31m
+          [33mstroke-linejoin[31m=[32m"round"[31m
+          [33mstroke-width[31m=[32m"2"[31m
+          [33mviewBox[31m=[32m"0 0 24 24"[31m
+          [33mwidth[31m=[32m"24"[31m
+          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+        [36m>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"8"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"19"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<path[31m
+            [33md[31m=[32m"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"[31m
+          [36m/>[31m
+        [36m</svg>[31m
+        [36m<h3[31m
+          [33mclass[31m=[32m"font-black text-lg mb-1"[31m
+        [36m>[31m
+          [0memptyTradingTitle[0m
+        [36m</h3>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-sm text-white/40 mb-4 max-w-xs mx-auto"[31m
+        [36m>[31m
+          [0memptyTradingDesc[0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"trading-disclaimer"[31m
+        [33mdata-variant[31m=[32m"card"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/player/detail/__tests__/TradingTab.test.tsx:[2m249:19[22m[39m
+    [90m247|[39m     [34mrenderWithProviders[39m([33m<[39m[33mTradingTab[39m [33m{[39m[33m...[39mdefaultProps[33m}[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m248|[39m     [90m// t('letzterPreis') returns key, fmtScout(500) returns "500"[39m
+    [90m249|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/letzterPreis/[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m250|[39m     [34mexpect[39m(mockFmtScout)[33m.[39m[34mtoHaveBeenCalledWith[39m([34m500[39m)[33m;[39m
+    [90m251|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/player/detail/__tests__/TradingTab.test.tsx[2m > [22mTradingTab[2m > [22mshows initial listing price with percentage change
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: /markteintritt/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-5 md:space-y-8"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"price-chart"[31m
+        [33mdata-trades[31m=[32m"[]"[31m
+      [36m/>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"p-8 text-center"[31m
+        [33mdata-testid[31m=[32m"card"[31m
+      [36m>[31m
+        [36m<svg[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33mclass[31m=[32m"lucide lucide-shopping-cart size-10 mx-auto mb-3 text-white/15"[31m
+          [33mfill[31m=[32m"none"[31m
+          [33mheight[31m=[32m"24"[31m
+          [33mstroke[31m=[32m"currentColor"[31m
+          [33mstroke-linecap[31m=[32m"round"[31m
+          [33mstroke-linejoin[31m=[32m"round"[31m
+          [33mstroke-width[31m=[32m"2"[31m
+          [33mviewBox[31m=[32m"0 0 24 24"[31m
+          [33mwidth[31m=[32m"24"[31m
+          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+        [36m>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"8"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"19"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<path[31m
+            [33md[31m=[32m"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"[31m
+          [36m/>[31m
+        [36m</svg>[31m
+        [36m<h3[31m
+          [33mclass[31m=[32m"font-black text-lg mb-1"[31m
+        [36m>[31m
+          [0memptyTradingTitle[0m
+        [36m</h3>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-sm text-white/40 mb-4 max-w-xs mx-auto"[31m
+        [36m>[31m
+          [0memptyTradingDesc[0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"trading-disclaimer"[31m
+        [33mdata-variant[31m=[32m"card"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/player/detail/__tests__/TradingTab.test.tsx:[2m257:19[22m[39m
+    [90m255|[39m     [34mrenderWithProviders[39m([33m<[39m[33mTradingTab[39m [33m{[39m[33m...[39mdefaultProps[33m}[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m256|[39m     // Text is split across nodes: "markteintritt: 400" + span with "+…
+    [90m257|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/markteintritt/[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m258|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/150%/[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m259|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/player/detail/__tests__/TradingTab.test.tsx[2m > [22mTradingTab[2m > [22mshows offers section when userId provided
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: offers. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-5 md:space-y-8"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"price-chart"[31m
+        [33mdata-trades[31m=[32m"[]"[31m
+      [36m/>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"p-8 text-center"[31m
+        [33mdata-testid[31m=[32m"card"[31m
+      [36m>[31m
+        [36m<svg[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33mclass[31m=[32m"lucide lucide-shopping-cart size-10 mx-auto mb-3 text-white/15"[31m
+          [33mfill[31m=[32m"none"[31m
+          [33mheight[31m=[32m"24"[31m
+          [33mstroke[31m=[32m"currentColor"[31m
+          [33mstroke-linecap[31m=[32m"round"[31m
+          [33mstroke-linejoin[31m=[32m"round"[31m
+          [33mstroke-width[31m=[32m"2"[31m
+          [33mviewBox[31m=[32m"0 0 24 24"[31m
+          [33mwidth[31m=[32m"24"[31m
+          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+        [36m>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"8"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"19"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<path[31m
+            [33md[31m=[32m"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"[31m
+          [36m/>[31m
+        [36m</svg>[31m
+        [36m<h3[31m
+          [33mclass[31m=[32m"font-black text-lg mb-1"[31m
+        [36m>[31m
+          [0memptyTradingTitle[0m
+        [36m</h3>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-sm text-white/40 mb-4 max-w-xs mx-auto"[31m
+        [36m>[31m
+          [0memptyTradingDesc[0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"trading-disclaimer"[31m
+        [33mdata-variant[31m=[32m"card"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/player/detail/__tests__/TradingTab.test.tsx:[2m263:19[22m[39m
+    [90m261|[39m   [34mit[39m([32m'shows offers section when userId provided'[39m[33m,[39m () [33m=>[39m {
+    [90m262|[39m     [34mrenderWithProviders[39m([33m<[39m[33mTradingTab[39m [33m{[39m[33m...[39mdefaultProps[33m}[39m [33muserId[39m[33m=[39m[32m"u1"[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m263|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'offers'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m264|[39m   })[33m;[39m
+    [90m265|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/player/detail/__tests__/TradingTab.test.tsx[2m > [22mTradingTab[2m > [22mshows noOpenBids when bids empty and userId provided
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: noOpenBids. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-5 md:space-y-8"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"price-chart"[31m
+        [33mdata-trades[31m=[32m"[]"[31m
+      [36m/>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"p-8 text-center"[31m
+        [33mdata-testid[31m=[32m"card"[31m
+      [36m>[31m
+        [36m<svg[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33mclass[31m=[32m"lucide lucide-shopping-cart size-10 mx-auto mb-3 text-white/15"[31m
+          [33mfill[31m=[32m"none"[31m
+          [33mheight[31m=[32m"24"[31m
+          [33mstroke[31m=[32m"currentColor"[31m
+          [33mstroke-linecap[31m=[32m"round"[31m
+          [33mstroke-linejoin[31m=[32m"round"[31m
+          [33mstroke-width[31m=[32m"2"[31m
+          [33mviewBox[31m=[32m"0 0 24 24"[31m
+          [33mwidth[31m=[32m"24"[31m
+          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+        [36m>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"8"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"19"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<path[31m
+            [33md[31m=[32m"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"[31m
+          [36m/>[31m
+        [36m</svg>[31m
+        [36m<h3[31m
+          [33mclass[31m=[32m"font-black text-lg mb-1"[31m
+        [36m>[31m
+          [0memptyTradingTitle[0m
+        [36m</h3>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-sm text-white/40 mb-4 max-w-xs mx-auto"[31m
+        [36m>[31m
+          [0memptyTradingDesc[0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"trading-disclaimer"[31m
+        [33mdata-variant[31m=[32m"card"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/player/detail/__tests__/TradingTab.test.tsx:[2m268:19[22m[39m
+    [90m266|[39m   [34mit[39m([32m'shows noOpenBids when bids empty and userId provided'[39m[33m,[39m () [33m=>[39m {
+    [90m267|[39m     renderWithProviders(<TradingTab {...defaultProps} userId="u1" open…
+    [90m268|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'noOpenBids'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m269|[39m   })[33m;[39m
+    [90m270|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/player/detail/__tests__/TradingTab.test.tsx[2m > [22mTradingTab[2m > [22mshows bid with accept button when holdingQty > 0 and bid is not from self
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: @otheruser. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-5 md:space-y-8"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"price-chart"[31m
+        [33mdata-trades[31m=[32m"[]"[31m
+      [36m/>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"p-8 text-center"[31m
+        [33mdata-testid[31m=[32m"card"[31m
+      [36m>[31m
+        [36m<svg[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33mclass[31m=[32m"lucide lucide-shopping-cart size-10 mx-auto mb-3 text-white/15"[31m
+          [33mfill[31m=[32m"none"[31m
+          [33mheight[31m=[32m"24"[31m
+          [33mstroke[31m=[32m"currentColor"[31m
+          [33mstroke-linecap[31m=[32m"round"[31m
+          [33mstroke-linejoin[31m=[32m"round"[31m
+          [33mstroke-width[31m=[32m"2"[31m
+          [33mviewBox[31m=[32m"0 0 24 24"[31m
+          [33mwidth[31m=[32m"24"[31m
+          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+        [36m>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"8"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"19"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<path[31m
+            [33md[31m=[32m"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"[31m
+          [36m/>[31m
+        [36m</svg>[31m
+        [36m<h3[31m
+          [33mclass[31m=[32m"font-black text-lg mb-1"[31m
+        [36m>[31m
+          [0memptyTradingTitle[0m
+        [36m</h3>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-sm text-white/40 mb-4 max-w-xs mx-auto"[31m
+        [36m>[31m
+          [0memptyTradingDesc[0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"trading-disclaimer"[31m
+        [33mdata-variant[31m=[32m"card"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/player/detail/__tests__/TradingTab.test.tsx:[2m283:19[22m[39m
+    [90m281|[39m       [33m/[39m[33m>[39m[33m,[39m
+    [90m282|[39m     )[33m;[39m
+    [90m283|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'@otheruser'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m284|[39m     [35mconst[39m acceptBtn [33m=[39m screen[33m.[39m[34mgetByText[39m([32m'accept'[39m)[33m;[39m
+    [90m285|[39m     [34mexpect[39m(acceptBtn)[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/player/detail/__tests__/TradingTab.test.tsx[2m > [22mTradingTab[2m > [22mhides accept button when holdingQty = 0
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: @otheruser. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-5 md:space-y-8"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"price-chart"[31m
+        [33mdata-trades[31m=[32m"[]"[31m
+      [36m/>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"p-8 text-center"[31m
+        [33mdata-testid[31m=[32m"card"[31m
+      [36m>[31m
+        [36m<svg[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33mclass[31m=[32m"lucide lucide-shopping-cart size-10 mx-auto mb-3 text-white/15"[31m
+          [33mfill[31m=[32m"none"[31m
+          [33mheight[31m=[32m"24"[31m
+          [33mstroke[31m=[32m"currentColor"[31m
+          [33mstroke-linecap[31m=[32m"round"[31m
+          [33mstroke-linejoin[31m=[32m"round"[31m
+          [33mstroke-width[31m=[32m"2"[31m
+          [33mviewBox[31m=[32m"0 0 24 24"[31m
+          [33mwidth[31m=[32m"24"[31m
+          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+        [36m>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"8"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"19"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<path[31m
+            [33md[31m=[32m"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"[31m
+          [36m/>[31m
+        [36m</svg>[31m
+        [36m<h3[31m
+          [33mclass[31m=[32m"font-black text-lg mb-1"[31m
+        [36m>[31m
+          [0memptyTradingTitle[0m
+        [36m</h3>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-sm text-white/40 mb-4 max-w-xs mx-auto"[31m
+        [36m>[31m
+          [0memptyTradingDesc[0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"trading-disclaimer"[31m
+        [33mdata-variant[31m=[32m"card"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/player/detail/__tests__/TradingTab.test.tsx:[2m300:19[22m[39m
+    [90m298|[39m       [33m/[39m[33m>[39m[33m,[39m
+    [90m299|[39m     )[33m;[39m
+    [90m300|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'@otheruser'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m301|[39m     [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([32m'accept'[39m))[33m.[39mnot[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m302|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/player/detail/__tests__/TradingTab.test.tsx[2m > [22mTradingTab[2m > [22mshows trades loading state
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: tradesLoading. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-5 md:space-y-8"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"price-chart"[31m
+        [33mdata-trades[31m=[32m"[]"[31m
+      [36m/>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"p-8 text-center"[31m
+        [33mdata-testid[31m=[32m"card"[31m
+      [36m>[31m
+        [36m<svg[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33mclass[31m=[32m"lucide lucide-shopping-cart size-10 mx-auto mb-3 text-white/15"[31m
+          [33mfill[31m=[32m"none"[31m
+          [33mheight[31m=[32m"24"[31m
+          [33mstroke[31m=[32m"currentColor"[31m
+          [33mstroke-linecap[31m=[32m"round"[31m
+          [33mstroke-linejoin[31m=[32m"round"[31m
+          [33mstroke-width[31m=[32m"2"[31m
+          [33mviewBox[31m=[32m"0 0 24 24"[31m
+          [33mwidth[31m=[32m"24"[31m
+          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+        [36m>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"8"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"19"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<path[31m
+            [33md[31m=[32m"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"[31m
+          [36m/>[31m
+        [36m</svg>[31m
+        [36m<h3[31m
+          [33mclass[31m=[32m"font-black text-lg mb-1"[31m
+        [36m>[31m
+          [0memptyTradingTitle[0m
+        [36m</h3>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-sm text-white/40 mb-4 max-w-xs mx-auto"[31m
+        [36m>[31m
+          [0memptyTradingDesc[0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"trading-disclaimer"[31m
+        [33mdata-variant[31m=[32m"card"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/player/detail/__tests__/TradingTab.test.tsx:[2m306:19[22m[39m
+    [90m304|[39m   [34mit[39m([32m'shows trades loading state'[39m[33m,[39m () [33m=>[39m {
+    [90m305|[39m     renderWithProviders(<TradingTab {...defaultProps} tradesLoading={t…
+    [90m306|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'tradesLoading'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m307|[39m   })[33m;[39m
+    [90m308|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/player/detail/__tests__/TradingTab.test.tsx[2m > [22mTradingTab[2m > [22mshows no trades empty state
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: noTrades. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-5 md:space-y-8"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"price-chart"[31m
+        [33mdata-trades[31m=[32m"[]"[31m
+      [36m/>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"p-8 text-center"[31m
+        [33mdata-testid[31m=[32m"card"[31m
+      [36m>[31m
+        [36m<svg[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33mclass[31m=[32m"lucide lucide-shopping-cart size-10 mx-auto mb-3 text-white/15"[31m
+          [33mfill[31m=[32m"none"[31m
+          [33mheight[31m=[32m"24"[31m
+          [33mstroke[31m=[32m"currentColor"[31m
+          [33mstroke-linecap[31m=[32m"round"[31m
+          [33mstroke-linejoin[31m=[32m"round"[31m
+          [33mstroke-width[31m=[32m"2"[31m
+          [33mviewBox[31m=[32m"0 0 24 24"[31m
+          [33mwidth[31m=[32m"24"[31m
+          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+        [36m>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"8"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"19"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<path[31m
+            [33md[31m=[32m"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"[31m
+          [36m/>[31m
+        [36m</svg>[31m
+        [36m<h3[31m
+          [33mclass[31m=[32m"font-black text-lg mb-1"[31m
+        [36m>[31m
+          [0memptyTradingTitle[0m
+        [36m</h3>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-sm text-white/40 mb-4 max-w-xs mx-auto"[31m
+        [36m>[31m
+          [0memptyTradingDesc[0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"trading-disclaimer"[31m
+        [33mdata-variant[31m=[32m"card"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/player/detail/__tests__/TradingTab.test.tsx:[2m311:19[22m[39m
+    [90m309|[39m   [34mit[39m([32m'shows no trades empty state'[39m[33m,[39m () [33m=>[39m {
+    [90m310|[39m     renderWithProviders(<TradingTab {...defaultProps} trades={[]} trad…
+    [90m311|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'noTrades'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m312|[39m   })[33m;[39m
+    [90m313|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/player/detail/__tests__/TradingTab.test.tsx[2m > [22mTradingTab[2m > [22mrewards accordion toggles on click
+[31m[1mTestingLibraryElementError[22m: Unable to find an accessible element with the role "button" and name `/rewardTiers/i`
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "emptyTradingTitle":
+  [36m<h3[31m
+    [33mclass[31m=[32m"font-black text-lg mb-1"[31m
+  [36m/>[31m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[31m
+    [33mclass[31m=[32m"text-sm text-white/40 mb-4 max-w-xs mx-auto"[31m
+  [36m/>[31m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-5 md:space-y-8"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"price-chart"[31m
+        [33mdata-trades[31m=[32m"[]"[31m
+      [36m/>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"p-8 text-center"[31m
+        [33mdata-testid[31m=[32m"card"[31m
+      [36m>[31m
+        [36m<svg[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33mclass[31m=[32m"lucide lucide-shopping-cart size-10 mx-auto mb-3 text-white/15"[31m
+          [33mfill[31m=[32m"none"[31m
+          [33mheight[31m=[32m"24"[31m
+          [33mstroke[31m=[32m"currentColor"[31m
+          [33mstroke-linecap[31m=[32m"round"[31m
+          [33mstroke-linejoin[31m=[32m"round"[31m
+          [33mstroke-width[31m=[32m"2"[31m
+          [33mviewBox[31m=[32m"0 0 24 24"[31m
+          [33mwidth[31m=[32m"24"[31m
+          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+        [36m>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"8"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"19"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<path[31m
+            [33md[31m=[32m"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"[31m
+          [36m/>[31m
+        [36m</svg>[31m
+        [36m<h3[31m
+          [33mclass[31m=[32m"font-black text-lg mb-1"[31m
+        [36m>[31m
+          [0memptyTradingTitle[0m
+        [36m</h3>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-sm text-white/40 mb-4 max-w-xs mx-auto"[31m
+        [36m>[31m
+          [0memptyTradingDesc[0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"trading-disclaimer"[31m
+        [33mdata-variant[31m=[32m"card"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/player/detail/__tests__/TradingTab.test.tsx:[2m366:31[22m[39m
+    [90m364|[39m
+    [90m365|[39m     [90m// Click the rewards accordion button[39m
+    [90m366|[39m     const rewardsBtn = screen.getByRole('button', { name: /rewardTiers…
+    [90m   |[39m                               [31m^[39m
+    [90m367|[39m     [34mexpect[39m(rewardsBtn)[33m.[39m[34mtoHaveAttribute[39m([32m'aria-expanded'[39m[33m,[39m [32m'false'[39m)[33m;[39m
+    [90m368|[39m     [35mawait[39m user[33m.[39m[34mclick[39m(rewardsBtn)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/player/detail/__tests__/TradingTab.test.tsx[2m > [22mTradingTab[2m > [22mrenders ScoutConsensus when playerResearch has items
+[31m[1mTestingLibraryElementError[22m: Unable to find an element by: [data-testid="scout-consensus"]
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-5 md:space-y-8"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"price-chart"[31m
+        [33mdata-trades[31m=[32m"[]"[31m
+      [36m/>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"p-8 text-center"[31m
+        [33mdata-testid[31m=[32m"card"[31m
+      [36m>[31m
+        [36m<svg[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33mclass[31m=[32m"lucide lucide-shopping-cart size-10 mx-auto mb-3 text-white/15"[31m
+          [33mfill[31m=[32m"none"[31m
+          [33mheight[31m=[32m"24"[31m
+          [33mstroke[31m=[32m"currentColor"[31m
+          [33mstroke-linecap[31m=[32m"round"[31m
+          [33mstroke-linejoin[31m=[32m"round"[31m
+          [33mstroke-width[31m=[32m"2"[31m
+          [33mviewBox[31m=[32m"0 0 24 24"[31m
+          [33mwidth[31m=[32m"24"[31m
+          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+        [36m>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"8"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"19"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<path[31m
+            [33md[31m=[32m"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"[31m
+          [36m/>[31m
+        [36m</svg>[31m
+        [36m<h3[31m
+          [33mclass[31m=[32m"font-black text-lg mb-1"[31m
+        [36m>[31m
+          [0memptyTradingTitle[0m
+        [36m</h3>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-sm text-white/40 mb-4 max-w-xs mx-auto"[31m
+        [36m>[31m
+          [0memptyTradingDesc[0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"trading-disclaimer"[31m
+        [33mdata-variant[31m=[32m"card"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/player/detail/__tests__/TradingTab.test.tsx:[2m390:19[22m[39m
+    [90m388|[39m     [35mconst[39m research [33m=[39m [[34mmakeResearch[39m([34m0[39m)[33m,[39m [34mmakeResearch[39m([34m1[39m)][33m;[39m
+    [90m389|[39m     renderWithProviders(<TradingTab {...defaultProps} playerResearch={…
+    [90m390|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByTestId[39m([32m'scout-consensus'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m391|[39m   })[33m;[39m
+    [90m392|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/components/player/detail/__tests__/TradingTab.test.tsx[2m > [22mTradingTab[2m > [22mrenders sell listings section when player has listings
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: activeOffers. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"space-y-5 md:space-y-8"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"price-chart"[31m
+        [33mdata-trades[31m=[32m"[]"[31m
+      [36m/>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"p-8 text-center"[31m
+        [33mdata-testid[31m=[32m"card"[31m
+      [36m>[31m
+        [36m<svg[31m
+          [33maria-hidden[31m=[32m"true"[31m
+          [33mclass[31m=[32m"lucide lucide-shopping-cart size-10 mx-auto mb-3 text-white/15"[31m
+          [33mfill[31m=[32m"none"[31m
+          [33mheight[31m=[32m"24"[31m
+          [33mstroke[31m=[32m"currentColor"[31m
+          [33mstroke-linecap[31m=[32m"round"[31m
+          [33mstroke-linejoin[31m=[32m"round"[31m
+          [33mstroke-width[31m=[32m"2"[31m
+          [33mviewBox[31m=[32m"0 0 24 24"[31m
+          [33mwidth[31m=[32m"24"[31m
+          [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+        [36m>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"8"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<circle[31m
+            [33mcx[31m=[32m"19"[31m
+            [33mcy[31m=[32m"21"[31m
+            [33mr[31m=[32m"1"[31m
+          [36m/>[31m
+          [36m<path[31m
+            [33md[31m=[32m"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"[31m
+          [36m/>[31m
+        [36m</svg>[31m
+        [36m<h3[31m
+          [33mclass[31m=[32m"font-black text-lg mb-1"[31m
+        [36m>[31m
+          [0memptyTradingTitle[0m
+        [36m</h3>[31m
+        [36m<p[31m
+          [33mclass[31m=[32m"text-sm text-white/40 mb-4 max-w-xs mx-auto"[31m
+        [36m>[31m
+          [0memptyTradingDesc[0m
+        [36m</p>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mdata-testid[31m=[32m"trading-disclaimer"[31m
+        [33mdata-variant[31m=[32m"card"[31m
+      [36m/>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/components/player/detail/__tests__/TradingTab.test.tsx:[2m436:19[22m[39m
+    [90m434|[39m
+    [90m435|[39m     renderWithProviders(<TradingTab {...defaultProps} player={playerWi…
+    [90m436|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'activeOffers'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                   [31m^[39m
+    [90m437|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'Seller A'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m438|[39m     [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([32m'Seller B'[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/34]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22mPlayerContent[2m > [22mshows skeleton while loading
+[41m[1m FAIL [22m[49m src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22mPlayerContent[2m > [22mshows error state when query fails
+[41m[1m FAIL [22m[49m src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22mPlayerContent[2m > [22mrefetch button works on error state
+[41m[1m FAIL [22m[49m src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22mPlayerContent[2m > [22mrenders PlayerHero after load
+[41m[1m FAIL [22m[49m src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22mPlayerContent[2m > [22mrenders TabBar with 3 tabs
+[41m[1m FAIL [22m[49m src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22mPlayerContent[2m > [22mrenders TradingTab by default
+[41m[1m FAIL [22m[49m src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22mPlayerContent[2m > [22mrenders MobileTradingBar
+[41m[1m FAIL [22m[49m src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22mPlayerContent[2m > [22mrenders BuyModal stub closed by default
+[41m[1m FAIL [22m[49m src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22mPlayerContent[2m > [22mrenders SellModal stub closed by default
+[41m[1m FAIL [22m[49m src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22mPlayerContent[2m > [22mrenders LiquidationAlert for liquidated players
+[41m[1m FAIL [22m[49m src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22mPlayerContent[2m > [22mswitches to PerformanceTab
+[41m[1m FAIL [22m[49m src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22mPlayerContent[2m > [22mswitches to CommunityTab
+[41m[1m FAIL [22m[49m src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22mPlayerContent[2m > [22mshows admin restriction for club admin own players
+[41m[1m FAIL [22m[49m src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx[2m > [22mPlayerContent[2m > [22mrenders StickyDashboardStrip
+[31m[1mError[22m: [vitest] No "usePlayerDetailData" export is defined on the "@/components/player/detail/hooks" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+[39m
+vi.mock(import("@/components/player/detail/hooks"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+[36m [2m❯[22m PlayerContent src/app/(app)/player/[id]/PlayerContent.tsx:[2m68:16[22m[39m
+    [90m 66|[39m
+    [90m 67|[39m   [90m// ─── Data Hook ──────────────────────────[39m
+    [90m 68|[39m   [35mconst[39m data [33m=[39m [34musePlayerDetailData[39m(playerId[33m,[39m uid[33m,[39m tab)[33m;[39m
+    [90m   |[39m                [31m^[39m
+    [90m 69|[39m
+    [90m 70|[39m   [90m// ─── Action Hooks ───────────────────────[39m
+[90m [2m❯[22m renderWithHooks node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:[2m15486:18[22m[39m
+[90m [2m❯[22m mountIndeterminateComponent node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:[2m20103:13[22m[39m
+[90m [2m❯[22m beginWork node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:[2m21626:16[22m[39m
+[90m [2m❯[22m beginWork$1 node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:[2m27465:14[22m[39m
+[90m [2m❯[22m performUnitOfWork node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:[2m26599:12[22m[39m
+[90m [2m❯[22m workLoopSync node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:[2m26505:5[22m[39m
+[90m [2m❯[22m renderRootSync node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node_modules/react-dom/cjs/react-dom.development.js:[2m26473:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/34]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m7 failed[39m[22m[2m | [22m[1m[32m160 passed[39m[22m[90m (167)[39m
+[2m      Tests [22m [1m[31m33 failed[39m[22m[2m | [22m[1m[32m2218 passed[39m[22m[90m (2251)[39m
+[2m   Start at [22m 18:46:33
+[2m   Duration [22m 311.02s[2m (transform 15.19s, setup 66.42s, import 111.33s, tests 117.01s, environment 501.65s)[22m
+
