@@ -453,9 +453,11 @@ function ProfileResultRow({ r }: { r: RichSearchResult }) {
         </div>
         <div className="text-xs text-white/40">@{r.handle}</div>
       </div>
-      <div className="text-xs text-white/40 shrink-0">
-        {t('level')} {r.level ?? 1}
-      </div>
+      {(r.totalScore ?? 0) > 0 && (
+        <div className="text-xs text-white/40 shrink-0">
+          <RangBadge score={r.totalScore} size="sm" />
+        </div>
+      )}
     </>
   );
 }

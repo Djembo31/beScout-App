@@ -9,42 +9,7 @@ import {
 import { Card, StatCard } from '@/components/ui';
 import { fmtScout, cn } from '@/lib/utils';
 
-// ============================================
-// Types
-// ============================================
-
-type TreasuryStats = {
-  // $SCOUT Economy
-  circulatingCents: number;
-  lockedCents: number;
-  walletsWithBalance: number;
-  // Fees (burned/collected)
-  platformFees: number;
-  pbtFees: number;
-  clubFees: number;
-  totalFeesBurned: number;
-  totalTrades: number;
-  // PBT Treasury
-  pbtBalance: number;
-  pbtTradingInflow: number;
-  // Minting (inflow)
-  passBcredits: number;
-  passesSold: number;
-  welcomeBonusesClaimed: number;
-  welcomeBonusMinted: number; // 1000 $SCOUT × claims
-  // Tickets
-  ticketsCirculating: number;
-  ticketsEarned: number;
-  ticketsSpent: number;
-};
-
-// ============================================
-// Helpers
-// ============================================
-
-function cents(v: string | number): number {
-  return typeof v === 'string' ? parseInt(v, 10) || 0 : v;
-}
+import { getTreasuryStats, type TreasuryStats } from '@/lib/services/platformAdmin';
 
 function fmt(centVal: number): string {
   return fmtScout(centVal / 100);
@@ -61,89 +26,8 @@ export function AdminTreasuryTab() {
 
   const loadData = useCallback(async () => {
     try {
-      const { supabase } = await import('@/lib/supabaseClient');
-
-      // Single query for all metrics
-      const { data, error } = await supabase.rpc('get_treasury_stats');
-
-      if (error) {
-        // Fallback: RPC doesn't exist yet, use direct queries
-        const [wallets, trades, pbt, passes, bonuses, tickets] = await Promise.all([
-          supabase.from('wallets').select('balance, locked_balance').limit(5000),
-          supabase.from('trades').select('platform_fee, pbt_fee, club_fee').limit(5000),
-          supabase.from('pbt_treasury').select('balance, trading_inflow').limit(1000),
-          supabase.from('user_founding_passes').select('bcredits_granted').limit(1000),
-          supabase.from('welcome_bonus_claims').select('id', { count: 'exact', head: true }),
-          supabase.from('user_tickets').select('balance, earned_total, spent_total').limit(5000),
-        ]);
-
-        const wRows = wallets.data ?? [];
-        const tRows = trades.data ?? [];
-        const pRows = pbt.data ?? [];
-        const fpRows = passes.data ?? [];
-        const tkRows = tickets.data ?? [];
-
-        const circulatingCents = wRows.reduce((s, w) => s + cents(w.balance), 0);
-        const lockedCents = wRows.reduce((s, w) => s + cents(w.locked_balance), 0);
-        const walletsWithBalance = wRows.filter(w => cents(w.balance) > 0).length;
-
-        const platformFees = tRows.reduce((s, t) => s + cents(t.platform_fee), 0);
-        const pbtFees = tRows.reduce((s, t) => s + cents(t.pbt_fee), 0);
-        const clubFees = tRows.reduce((s, t) => s + cents(t.club_fee), 0);
-
-        const pbtBalance = pRows.reduce((s, p) => s + cents(p.balance), 0);
-        const pbtTradingInflow = pRows.reduce((s, p) => s + cents(p.trading_inflow), 0);
-
-        const passBcredits = fpRows.reduce((s, p) => s + cents(p.bcredits_granted), 0);
-        const welcomeBonusesClaimed = bonuses.count ?? 0;
-
-        const ticketsCirculating = tkRows.reduce((s, t) => s + cents(t.balance), 0);
-        const ticketsEarned = tkRows.reduce((s, t) => s + cents(t.earned_total), 0);
-        const ticketsSpent = tkRows.reduce((s, t) => s + cents(t.spent_total), 0);
-
-        setStats({
-          circulatingCents,
-          lockedCents,
-          walletsWithBalance,
-          platformFees,
-          pbtFees,
-          clubFees,
-          totalFeesBurned: platformFees, // Platform fees = burned
-          totalTrades: tRows.length,
-          pbtBalance,
-          pbtTradingInflow,
-          passBcredits,
-          passesSold: fpRows.length,
-          welcomeBonusesClaimed,
-          welcomeBonusMinted: welcomeBonusesClaimed * 100_000, // 1000 bC = 100,000 cents
-          ticketsCirculating,
-          ticketsEarned,
-          ticketsSpent,
-        });
-      } else {
-        // RPC returned data directly
-        const d = data as Record<string, string | number>;
-        const wbc = cents(d.welcome_bonuses_claimed);
-        setStats({
-          circulatingCents: cents(d.total_circulating_cents),
-          lockedCents: cents(d.total_locked_cents),
-          walletsWithBalance: cents(d.wallets_with_balance),
-          platformFees: cents(d.total_platform_fees),
-          pbtFees: cents(d.total_pbt_fees),
-          clubFees: cents(d.total_club_fees),
-          totalFeesBurned: cents(d.total_platform_fees),
-          totalTrades: cents(d.total_trades),
-          pbtBalance: cents(d.pbt_total_balance),
-          pbtTradingInflow: cents(d.pbt_trading_inflow),
-          passBcredits: cents(d.total_pass_bcredits),
-          passesSold: cents(d.total_passes_sold),
-          welcomeBonusesClaimed: wbc,
-          welcomeBonusMinted: wbc * 100_000,
-          ticketsCirculating: cents(d.total_tickets_circulating),
-          ticketsEarned: cents(d.total_tickets_earned),
-          ticketsSpent: cents(d.total_tickets_spent),
-        });
-      }
+      const result = await getTreasuryStats();
+      setStats(result);
     } catch (err) {
       console.error('[Admin] Treasury data load failed:', err);
     } finally {

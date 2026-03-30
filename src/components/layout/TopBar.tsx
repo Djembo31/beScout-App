@@ -4,7 +4,7 @@ import React, { memo, useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Bell, BellOff, BellRing, Search, User, Menu, DollarSign, MessageSquarePlus, Ticket, HelpCircle } from 'lucide-react';
+import { Bell, BellOff, BellRing, Search, User, Menu, DollarSign, MessageSquarePlus, Ticket, HelpCircle, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNumTick } from '@/lib/hooks/useNumTick';
 import { useUser, displayName } from '@/components/providers/AuthProvider';
@@ -42,8 +42,19 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
   const t = useTranslations('nav');
   const name = profile?.display_name || displayName(user);
   const initial = name.charAt(0).toUpperCase();
-  const level = profile?.level ?? 1;
   const plan = profile?.plan ?? 'Free';
+
+  // Streak from localStorage (written by useHomeData)
+  const [streakDays, setStreakDays] = useState(0);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('bescout-login-streak');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setStreakDays(parsed.current ?? 0);
+      }
+    } catch { /* ignore */ }
+  }, []);
 
   // Realtime notification subscription (replaces 60s polling)
   const {
@@ -243,11 +254,19 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
             <HelpCircle className="size-4 md:size-5 text-white/70" />
           </button>
 
+          {/* Streak badge */}
+          {streakDays > 0 && (
+            <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-orange-500/10 border border-orange-400/20" title={t('streakDays', { count: streakDays })}>
+              <Flame className="size-3.5 text-orange-400" aria-hidden="true" />
+              <span className="text-xs font-bold text-orange-300 tabular-nums">{streakDays}</span>
+            </div>
+          )}
+
           {/* User avatar */}
           <div className="flex items-center gap-3 pl-2 md:pl-3 border-l border-white/10">
             <div className="text-right hidden lg:block">
               <div className="font-semibold text-sm">{loading ? '...' : name}</div>
-              <div className="text-[10px] text-white/50">{t('levelPlan', { level, plan })}</div>
+              <div className="text-[10px] text-white/50">{plan}</div>
             </div>
             <Link href="/profile" className="group">
               <div className={cn('relative size-8 md:size-10 rounded-xl bg-gold/10 border flex items-center justify-center overflow-hidden transition-colors group-hover:border-gold/40', pathname.startsWith('/profile') ? 'border-gold/60 ring-2 ring-gold/20' : 'border-white/10')}>

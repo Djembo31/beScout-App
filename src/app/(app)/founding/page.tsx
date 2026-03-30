@@ -337,7 +337,7 @@ function TierCard({
           : userHasPass
             ? (isUserTier ? t('alreadyMember') : t('alreadyMember'))
             : soldOut
-              ? 'Sold Out'
+              ? t('soldOut')
               : t('buyButton')}
       </Button>
 

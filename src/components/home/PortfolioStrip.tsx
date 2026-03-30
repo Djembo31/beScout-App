@@ -43,7 +43,7 @@ function PortfolioStripInner({ holdings }: PortfolioStripProps) {
   return (
     <div>
       <SectionHeader title={t('myRoster')} href="/market?tab=portfolio" />
-      <div className="mt-3 flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div aria-live="polite" className="mt-3 flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
         {top6.map((h) => {
           const posColor = posTintColors[h.pos];
           const nameParts = h.player.split(' ');

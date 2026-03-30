@@ -21,7 +21,7 @@ function TopMoversStripInner({ players }: TopMoversStripProps) {
   if (movers.length === 0) return null;
 
   return (
-    <div data-tour-id="global-movers" className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+    <div data-tour-id="global-movers" aria-live="polite" aria-label="Top Movers" className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
       {movers.map(p => {
         const up = p.prices.change24h >= 0;
         const Icon = up ? TrendingUp : TrendingDown;

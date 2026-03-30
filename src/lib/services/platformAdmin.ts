@@ -334,3 +334,103 @@ export async function getRecentActivityLogs(limit = 50) {
   if (error) return [];
   return data ?? [];
 }
+
+// ============================================
+// Treasury Stats
+// ============================================
+
+export type TreasuryStats = {
+  circulatingCents: number;
+  lockedCents: number;
+  walletsWithBalance: number;
+  platformFees: number;
+  pbtFees: number;
+  clubFees: number;
+  totalFeesBurned: number;
+  totalTrades: number;
+  pbtBalance: number;
+  pbtTradingInflow: number;
+  passBcredits: number;
+  passesSold: number;
+  welcomeBonusesClaimed: number;
+  welcomeBonusMinted: number;
+  ticketsCirculating: number;
+  ticketsEarned: number;
+  ticketsSpent: number;
+};
+
+function cents(v: string | number): number {
+  return typeof v === 'string' ? parseInt(v, 10) || 0 : v;
+}
+
+export async function getTreasuryStats(): Promise<TreasuryStats> {
+  // Try RPC first (faster, single call)
+  const { data, error } = await supabase.rpc('get_treasury_stats');
+
+  if (!error && data) {
+    const d = data as Record<string, string | number>;
+    const wbc = cents(d.welcome_bonuses_claimed);
+    return {
+      circulatingCents: cents(d.total_circulating_cents),
+      lockedCents: cents(d.total_locked_cents),
+      walletsWithBalance: cents(d.wallets_with_balance),
+      platformFees: cents(d.total_platform_fees),
+      pbtFees: cents(d.total_pbt_fees),
+      clubFees: cents(d.total_club_fees),
+      totalFeesBurned: cents(d.total_platform_fees),
+      totalTrades: cents(d.total_trades),
+      pbtBalance: cents(d.pbt_total_balance),
+      pbtTradingInflow: cents(d.pbt_trading_inflow),
+      passBcredits: cents(d.total_pass_bcredits),
+      passesSold: cents(d.total_passes_sold),
+      welcomeBonusesClaimed: wbc,
+      welcomeBonusMinted: wbc * 100_000,
+      ticketsCirculating: cents(d.total_tickets_circulating),
+      ticketsEarned: cents(d.total_tickets_earned),
+      ticketsSpent: cents(d.total_tickets_spent),
+    };
+  }
+
+  // Fallback: direct queries
+  const [wallets, trades, pbt, passes, bonuses, tickets] = await Promise.all([
+    supabase.from('wallets').select('balance, locked_balance').limit(5000),
+    supabase.from('trades').select('platform_fee, pbt_fee, club_fee').limit(5000),
+    supabase.from('pbt_treasury').select('balance, trading_inflow').limit(1000),
+    supabase.from('user_founding_passes').select('bcredits_granted').limit(1000),
+    supabase.from('welcome_bonus_claims').select('id', { count: 'exact', head: true }),
+    supabase.from('user_tickets').select('balance, earned_total, spent_total').limit(5000),
+  ]);
+
+  const wRows = wallets.data ?? [];
+  const tRows = trades.data ?? [];
+  const pRows = pbt.data ?? [];
+  const fpRows = passes.data ?? [];
+  const tkRows = tickets.data ?? [];
+
+  const circulatingCents = wRows.reduce((s, w) => s + cents(w.balance), 0);
+  const lockedCents = wRows.reduce((s, w) => s + cents(w.locked_balance), 0);
+  const platformFees = tRows.reduce((s, t) => s + cents(t.platform_fee), 0);
+  const pbtFees = tRows.reduce((s, t) => s + cents(t.pbt_fee), 0);
+  const clubFees = tRows.reduce((s, t) => s + cents(t.club_fee), 0);
+  const welcomeBonusesClaimed = bonuses.count ?? 0;
+
+  return {
+    circulatingCents,
+    lockedCents,
+    walletsWithBalance: wRows.filter(w => cents(w.balance) > 0).length,
+    platformFees,
+    pbtFees,
+    clubFees,
+    totalFeesBurned: platformFees,
+    totalTrades: tRows.length,
+    pbtBalance: pRows.reduce((s, p) => s + cents(p.balance), 0),
+    pbtTradingInflow: pRows.reduce((s, p) => s + cents(p.trading_inflow), 0),
+    passBcredits: fpRows.reduce((s, p) => s + cents(p.bcredits_granted), 0),
+    passesSold: fpRows.length,
+    welcomeBonusesClaimed,
+    welcomeBonusMinted: welcomeBonusesClaimed * 100_000,
+    ticketsCirculating: tkRows.reduce((s, t) => s + cents(t.balance), 0),
+    ticketsEarned: tkRows.reduce((s, t) => s + cents(t.earned_total), 0),
+    ticketsSpent: tkRows.reduce((s, t) => s + cents(t.spent_total), 0),
+  };
+}

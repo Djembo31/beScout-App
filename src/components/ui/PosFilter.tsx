@@ -70,6 +70,8 @@ export function PosFilter(props: PosFilterProps) {
           <button
             key={pos}
             onClick={() => props.onChange(pos)}
+            aria-label={t('filterByPos', { pos })}
+            aria-pressed={active}
             className={cn(
               'px-3 py-1.5 rounded-lg text-xs font-black border transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none',
               active

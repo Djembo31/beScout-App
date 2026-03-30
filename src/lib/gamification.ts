@@ -251,16 +251,16 @@ export type ScoreRoadMilestone = {
 
 export const SCORE_ROAD: ScoreRoadMilestone[] = [
   { score: 350, rangName: 'Bronze II', rangI18nKey: 'bronzeII', rewardBsd: 20000, rewardLabel: '200 CR', rewardType: 'bsd' },
-  { score: 700, rangName: 'Bronze III', rangI18nKey: 'bronzeIII', rewardBsd: 0, rewardLabel: 'Bronze-Rahmen', rewardType: 'cosmetic' },
+  { score: 700, rangName: 'Bronze III', rangI18nKey: 'bronzeIII', rewardBsd: 30000, rewardLabel: '300 CR', rewardType: 'bsd' },
   { score: 1000, rangName: 'Silber I', rangI18nKey: 'silberI', rewardBsd: 50000, rewardLabel: '500 CR', rewardType: 'bsd' },
-  { score: 1300, rangName: 'Silber II', rangI18nKey: 'silberII', rewardBsd: 0, rewardLabel: '"Scout" Titel', rewardType: 'cosmetic' },
+  { score: 1300, rangName: 'Silber II', rangI18nKey: 'silberII', rewardBsd: 75000, rewardLabel: '750 CR', rewardType: 'bsd' },
   { score: 1600, rangName: 'Silber III', rangI18nKey: 'silberIII', rewardBsd: 100000, rewardLabel: '1.000 CR', rewardType: 'bsd' },
-  { score: 1900, rangName: 'Gold I', rangI18nKey: 'goldI', rewardBsd: 0, rewardLabel: 'Gold-Rahmen', rewardType: 'cosmetic' },
+  { score: 1900, rangName: 'Gold I', rangI18nKey: 'goldI', rewardBsd: 150000, rewardLabel: '1.500 CR', rewardType: 'bsd' },
   { score: 2200, rangName: 'Gold II', rangI18nKey: 'goldII', rewardBsd: 200000, rewardLabel: '2.000 CR', rewardType: 'bsd' },
-  { score: 2600, rangName: 'Gold III', rangI18nKey: 'goldIII', rewardBsd: 0, rewardLabel: '"Stratege" Titel', rewardType: 'cosmetic' },
-  { score: 3000, rangName: 'Diamant', rangI18nKey: 'diamant', rewardBsd: 500000, rewardLabel: 'Diamant-Rahmen + 5.000 CR', rewardType: 'both' },
-  { score: 3500, rangName: 'Mythisch', rangI18nKey: 'mythisch', rewardBsd: 750000, rewardLabel: 'Mythisch-Avatar + 7.500 CR', rewardType: 'both' },
-  { score: 5000, rangName: 'Legendär', rangI18nKey: 'legendaer', rewardBsd: 2000000, rewardLabel: 'Legendär-Set + 20.000 CR', rewardType: 'both' },
+  { score: 2600, rangName: 'Gold III', rangI18nKey: 'goldIII', rewardBsd: 300000, rewardLabel: '3.000 CR', rewardType: 'bsd' },
+  { score: 3000, rangName: 'Diamant', rangI18nKey: 'diamant', rewardBsd: 500000, rewardLabel: '5.000 CR', rewardType: 'bsd' },
+  { score: 3500, rangName: 'Mythisch', rangI18nKey: 'mythisch', rewardBsd: 750000, rewardLabel: '7.500 CR', rewardType: 'bsd' },
+  { score: 5000, rangName: 'Legendär', rangI18nKey: 'legendaer', rewardBsd: 2000000, rewardLabel: '20.000 CR', rewardType: 'bsd' },
 ];
 
 // ============================================

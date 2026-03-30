@@ -5,8 +5,7 @@ import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { Settings, UserPlus, UserMinus, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Card, Button, CosmeticAvatar, CosmeticTitle, InfoTooltip } from '@/components/ui';
-import { useEquippedCosmetics } from '@/lib/queries/cosmetics';
+import { Card, Button, CosmeticAvatar, InfoTooltip } from '@/components/ui';
 import { RadarChart } from '@/components/profile/RadarChart';
 import { getStrengthLabel, getAutoBadges } from '@/lib/scoutReport';
 import { getGesamtRang } from '@/lib/gamification';
@@ -71,11 +70,6 @@ export function ScoutCard({
   const numLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
   const [bioExpanded, setBioExpanded] = useState(false);
 
-  // ── Cosmetics ──
-  const { data: equippedCosmetics } = useEquippedCosmetics(profile.id);
-  const equippedFrame = equippedCosmetics?.find((c) => c.cosmetic.type === 'frame');
-  const equippedTitle = equippedCosmetics?.find((c) => c.cosmetic.type === 'title');
-
   // ── Scores ──
   const scores = {
     manager_score: userStats?.manager_score ?? 0,
@@ -121,24 +115,16 @@ export function ScoutCard({
           avatarUrl={profile.avatar_url}
           displayName={profile.display_name ?? profile.handle}
           size={48}
-          frameCssClass={equippedFrame?.cosmetic.css_class}
         />
 
-        {/* Name + Handle + Level */}
+        {/* Name + Handle */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h2 className="truncate text-base font-black text-white">
               {profile.display_name ?? profile.handle}
             </h2>
-            <span className="shrink-0 rounded-md bg-white/[0.06] border border-white/10 px-1.5 py-0.5 text-[11px] font-bold text-white/50">
-              Lv.{profile.level}
-            </span>
           </div>
           <p className="truncate text-[13px] text-white/40">@{profile.handle}</p>
-          <CosmeticTitle
-            title={equippedTitle?.cosmetic.name ?? null}
-            rarity={equippedTitle?.cosmetic.rarity}
-          />
         </div>
       </div>
 

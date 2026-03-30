@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Card, Button, ErrorState } from '@/components/ui';
-import { useToast } from '@/components/providers/ToastProvider';
+
 import { useWallet } from '@/components/providers/WalletProvider';
 import { formatScout } from '@/lib/services/wallet';
 import { ScoutCard } from '@/components/profile/ScoutCard';
@@ -31,7 +31,6 @@ interface ProfileViewProps {
 
 export default function ProfileView({ targetUserId, targetProfile, isSelf }: ProfileViewProps) {
   const { balanceCents } = useWallet();
-  const { addToast } = useToast();
   const t = useTranslations('profile');
 
   // ── Data + Actions Hook ──
@@ -51,19 +50,6 @@ export default function ProfileView({ targetUserId, targetProfile, isSelf }: Pro
 
   // ── UI State ──
   const [followListMode, setFollowListMode] = useState<'followers' | 'following' | null>(null);
-
-  // ── Level-up Detection ──
-  const userLevel = targetProfile.level ?? 1;
-  useEffect(() => {
-    if (!isSelf) return;
-    const key = `bescout_last_level_${targetUserId}`;
-    const stored = localStorage.getItem(key);
-    const lastLevel = stored ? parseInt(stored, 10) : 0;
-    if (lastLevel > 0 && userLevel > lastLevel) {
-      addToast(`Level Up! Du bist jetzt Level ${userLevel}`, 'celebration');
-    }
-    localStorage.setItem(key, String(userLevel));
-  }, [isSelf, targetUserId, userLevel, addToast]);
 
   // ── Dynamic Tab Ordering ──
   const tabDefs = useMemo(() => [
