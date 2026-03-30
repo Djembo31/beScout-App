@@ -173,6 +173,12 @@ export const qk = {
     byPlayer: (pid: string) => ['pbt', pid] as const,
   },
 
+  // ── Fan Wishes ──
+  fanWishes: {
+    mine: () => ['fanWishes', 'mine'] as const,
+    all: () => ['fanWishes', 'all'] as const,
+  },
+
   // ── Liquidation ──
   liquidation: {
     byPlayer: (pid: string) => ['liquidation', pid] as const,

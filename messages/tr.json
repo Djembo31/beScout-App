@@ -4455,5 +4455,24 @@
     "extraFoundersWall": "Founders Wall'da ismin",
     "migrationBonus": "+{pct}% Geçiş Bonusu",
     "loginRequired": "Founding Pass satın almak için giriş yap."
+  },
+  "fanWishes": {
+    "title": "İstek Gönder",
+    "tabPlayer": "Oyuncu",
+    "tabClub": "Kulüp",
+    "playerName": "Oyuncu Adı",
+    "playerNamePlaceholder": "ör. Messi, Haaland...",
+    "clubName": "Kulüp Adı",
+    "clubNamePlaceholder": "ör. Galatasaray, Fenerbahçe...",
+    "leagueName": "Lig (opsiyonel)",
+    "leagueNamePlaceholder": "ör. Süper Lig, Premier League...",
+    "note": "Not (opsiyonel)",
+    "notePlaceholder": "Bu oyuncu/kulübü neden istiyorsun?",
+    "submit": "İstek Gönder",
+    "success": "İstek gönderildi!",
+    "maxReached": "Zaten 5 istek gönderdin",
+    "clubMissing": "Kulübün eksik mi?",
+    "playerMissing": "Oyuncu bulunamadı mı?",
+    "wishHere": "İste!"
   }
 }

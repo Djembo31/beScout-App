@@ -4455,5 +4455,24 @@
     "extraFoundersWall": "Name auf der Founders Wall",
     "migrationBonus": "+{pct}% Migration Bonus",
     "loginRequired": "Bitte melde dich an, um einen Founding Pass zu kaufen."
+  },
+  "fanWishes": {
+    "title": "Wunsch einreichen",
+    "tabPlayer": "Spieler",
+    "tabClub": "Club",
+    "playerName": "Spielername",
+    "playerNamePlaceholder": "z.B. Messi, Haaland...",
+    "clubName": "Clubname",
+    "clubNamePlaceholder": "z.B. Galatasaray, Fenerbahce...",
+    "leagueName": "Liga (optional)",
+    "leagueNamePlaceholder": "z.B. Süper Lig, Premier League...",
+    "note": "Bemerkung (optional)",
+    "notePlaceholder": "Warum wünschst du dir diesen Spieler/Club?",
+    "submit": "Wunsch senden",
+    "success": "Wunsch eingereicht!",
+    "maxReached": "Du hast bereits 5 Wünsche eingereicht",
+    "clubMissing": "Dein Club fehlt?",
+    "playerMissing": "Spieler nicht gefunden?",
+    "wishHere": "Wünsch ihn dir!"
   }
 }

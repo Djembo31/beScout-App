@@ -131,6 +131,15 @@ export function usePbtForPlayer(playerId: string | undefined, active = true) {
   });
 }
 
+export function useMyWishes(active = true) {
+  return useQuery({
+    queryKey: qk.fanWishes.mine(),
+    queryFn: () => import('@/lib/services/fanWishes').then(m => m.getMyWishes()),
+    enabled: active,
+    staleTime: FIVE_MIN,
+  });
+}
+
 export function useLiquidationEvent(playerId: string | undefined, active = true) {
   return useQuery({
     queryKey: qk.liquidation.byPlayer(playerId!),
