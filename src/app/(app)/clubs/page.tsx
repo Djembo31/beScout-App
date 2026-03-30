@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { Search, Users, UserPlus, UserMinus, Shield, Compass, Calendar } from 'lucide-react';
+import { Search, Users, UserPlus, UserMinus, Shield, Compass, Calendar, Sparkles } from 'lucide-react';
 import { Card, Button, ErrorState, SearchInput, EmptyState, Skeleton, SkeletonCard } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -13,6 +13,7 @@ import { getClubsWithStats } from '@/lib/services/club';
 import { getNextFixturesByClub } from '@/lib/services/fixtures';
 import type { NextFixtureInfo } from '@/lib/services/fixtures';
 import type { DbClub } from '@/types';
+import { FanWishModal } from '@/components/fan-wishes/FanWishModal';
 
 type ClubWithStats = DbClub & { follower_count: number; player_count: number };
 
@@ -27,6 +28,8 @@ export default function ClubsDiscoveryPage() {
   const [retryCount, setRetryCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [wishOpen, setWishOpen] = useState(false);
+  const tw = useTranslations('fanWishes');
 
   useEffect(() => {
     let cancelled = false;
@@ -85,6 +88,13 @@ export default function ClubsDiscoveryPage() {
         <div className="flex items-center gap-3 mb-1">
           <Compass className="size-6 text-gold" aria-hidden="true" />
           <h1 className="text-2xl font-black text-balance">{t('discoverTitle')}</h1>
+          <button
+            onClick={() => setWishOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-gold bg-gold/10 hover:bg-gold/20 rounded-lg transition-colors min-h-[44px] ml-auto"
+          >
+            <Sparkles className="size-3.5" aria-hidden="true" />
+            {tw('clubMissing')}
+          </button>
         </div>
         <p className="text-sm text-white/50 text-pretty">{t('discoverDesc')}</p>
       </div>
@@ -112,7 +122,10 @@ export default function ClubsDiscoveryPage() {
         <EmptyState
           icon={<Search />}
           title={searchQuery ? t('noClubsSearch', { query: searchQuery }) : t('noClubsAvailable')}
-          action={searchQuery ? { label: t('resetSearch'), onClick: () => setSearchQuery('') } : undefined}
+          action={searchQuery
+            ? { label: tw('wishHere'), onClick: () => setWishOpen(true) }
+            : undefined
+          }
         />
       )}
 
@@ -265,6 +278,8 @@ export default function ClubsDiscoveryPage() {
           </div>
         </div>
       ))}
+
+      <FanWishModal open={wishOpen} onClose={() => setWishOpen(false)} defaultClubName={searchQuery} />
     </div>
   );
 }

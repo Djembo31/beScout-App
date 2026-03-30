@@ -866,6 +866,22 @@ export type DbFeeConfig = {
   updated_at: string;
 };
 
+// ============================================
+// FAN WISHES
+// ============================================
+
+export type DbFanWish = {
+  id: string;
+  user_id: string;
+  wish_type: 'player' | 'club';
+  player_name: string | null;
+  club_name: string | null;
+  league_name: string | null;
+  note: string | null;
+  status: 'open' | 'noted' | 'onboarded' | 'declined';
+  created_at: string;
+};
+
 export type DbEventFeeConfig = {
   event_type: 'bescout' | 'club' | 'sponsor' | 'special' | 'creator';
   platform_pct: number;

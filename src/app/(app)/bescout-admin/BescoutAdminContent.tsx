@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   Shield, BarChart3, Users, Percent, Zap, Calendar, Bug, Rocket, Gift,
-  DollarSign, ExternalLink, Loader2, Megaphone, Sparkles, Building2, Trophy, Banknote, Coins,
+  DollarSign, ExternalLink, Loader2, Megaphone, Sparkles, Building2, Trophy, Banknote, Coins, Heart,
 } from 'lucide-react';
 import { Card, StatCard } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -31,19 +31,20 @@ import { AdminEventsManagementTab } from './AdminEventsManagementTab';
 import { AdminFoundingPassesTab } from './AdminFoundingPassesTab';
 import { AdminTreasuryTab } from './AdminTreasuryTab';
 import { AdminEconomyTab } from './AdminEconomyTab';
+import { AdminFanWishesTab } from './AdminFanWishesTab';
 
 // ============================================
 // Tab Config
 // ============================================
 
-type AdminTab = 'overview' | 'users' | 'clubs' | 'founding_passes' | 'treasury' | 'fees' | 'economy' | 'ipos' | 'gameweeks' | 'events' | 'airdrop' | 'sponsors' | 'creator_fund' | 'debug';
+type AdminTab = 'overview' | 'users' | 'clubs' | 'founding_passes' | 'treasury' | 'fees' | 'economy' | 'ipos' | 'gameweeks' | 'events' | 'airdrop' | 'sponsors' | 'creator_fund' | 'wishes' | 'debug';
 
 const TAB_ICONS: Record<AdminTab, React.ElementType> = {
   overview: BarChart3, users: Users, clubs: Building2, founding_passes: Gift, treasury: Banknote, fees: Percent,
   economy: Coins, ipos: Zap, gameweeks: Calendar, events: Trophy, airdrop: Rocket, sponsors: Megaphone,
-  creator_fund: Sparkles, debug: Bug,
+  creator_fund: Sparkles, wishes: Heart, debug: Bug,
 };
-const TAB_ORDER: AdminTab[] = ['overview', 'users', 'clubs', 'founding_passes', 'treasury', 'fees', 'economy', 'ipos', 'gameweeks', 'events', 'airdrop', 'sponsors', 'creator_fund', 'debug'];
+const TAB_ORDER: AdminTab[] = ['overview', 'users', 'clubs', 'founding_passes', 'treasury', 'fees', 'economy', 'ipos', 'gameweeks', 'events', 'airdrop', 'sponsors', 'creator_fund', 'wishes', 'debug'];
 
 // ============================================
 // Overview Tab (inline â€” 12 lines)
@@ -302,7 +303,7 @@ export default function BescoutAdminContent() {
         const TAB_LABELS: Record<AdminTab, string> = {
           overview: t('tabOverview'), users: t('tabUsers'), clubs: t('tabClubs'), founding_passes: t('tabFoundingPasses'), treasury: t('tabTreasury'), fees: t('tabFees'),
           economy: 'Economy', ipos: t('tabIpos'), gameweeks: t('tabGameweeks'), events: t('tabEvents'), airdrop: t('tabAirdrop'),
-          sponsors: t('tabSponsors'), creator_fund: t('tabCreatorFund'), debug: t('tabDebug'),
+          sponsors: t('tabSponsors'), creator_fund: t('tabCreatorFund'), wishes: 'Fan Wishes', debug: t('tabDebug'),
         };
         return (
           <div className="flex gap-1 bg-surface-minimal rounded-xl p-1 border border-white/[0.06] overflow-x-auto scrollbar-hide">
@@ -348,6 +349,7 @@ export default function BescoutAdminContent() {
       {tab === 'airdrop' && <AdminAirdropTab />}
       {tab === 'sponsors' && user && <AdminSponsorsTab adminId={user.id} />}
       {tab === 'creator_fund' && user && <AdminCreatorFundTab adminId={user.id} />}
+      {tab === 'wishes' && <AdminFanWishesTab />}
       {tab === 'debug' && <DebugTab />}
     </div>
   );

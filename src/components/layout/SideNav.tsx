@@ -11,6 +11,7 @@ import {
   DollarSign,
   LogOut,
   Settings,
+  Sparkles,
   Ticket,
   X,
 } from 'lucide-react';
@@ -24,6 +25,7 @@ import { useWallet } from '@/components/providers/WalletProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { ClubSwitcher } from './ClubSwitcher';
 import { useUserTickets } from '@/lib/queries/tickets';
+import { FanWishModal } from '@/components/fan-wishes/FanWishModal';
 
 interface SideNavProps {
   mobileOpen?: boolean;
@@ -51,6 +53,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
   const tc = useTranslations('common');
 
   const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const [wishOpen, setWishOpen] = useState(false);
   const handleLogout = useCallback(async () => {
     await supabase.auth.signOut();
     router.push('/login');
@@ -263,6 +266,17 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
 
       {/* Bottom */}
       <div className="p-3 border-t border-white/10 space-y-1">
+        <button
+          onClick={() => setWishOpen(true)}
+          className={cn(
+            'flex items-center gap-2 px-3 py-2 text-xs text-white/30 hover:text-gold transition-colors min-h-[44px] w-full',
+            collapsed && 'justify-center'
+          )}
+        >
+          <Sparkles className="size-3.5" aria-hidden="true" />
+          {!collapsed && <span>Wunsch einreichen</span>}
+        </button>
+        <FanWishModal open={wishOpen} onClose={() => setWishOpen(false)} />
         <Link
           href="/profile/settings"
           onClick={handleNavClick}
