@@ -5,6 +5,7 @@ import type {
   DbScoreRoadConfig,
   DbManagerPointsConfig,
   DbStreakConfig,
+  DbMissionDefinition,
 } from '@/types';
 
 // ============================================
@@ -190,7 +191,7 @@ export async function updateMission(
   return { ok: true };
 }
 
-export async function getMissionDefinitions(): Promise<unknown[]> {
+export async function getMissionDefinitions(): Promise<DbMissionDefinition[]> {
   const { data, error } = await supabase
     .from('mission_definitions')
     .select('*')
