@@ -17,7 +17,7 @@ interface LiqResult {
   transfer_value_eur: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- next-intl Translator type is complex
+// eslint-disable-next-line -- next-intl Translator type is complex
 type TranslatorFn = (key: any, params?: any) => string;
 
 export function useAdminPlayersState(club: ClubWithAdmin, t: TranslatorFn, te: TranslatorFn) {

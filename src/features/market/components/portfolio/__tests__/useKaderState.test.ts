@@ -5,7 +5,6 @@ import { renderHook, act } from '@testing-library/react';
 // Mocks
 // ============================================
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- test mocks
 const mockUseRecentMinutes = vi.fn();
 const mockUseRecentScores = vi.fn();
 const mockUseNextFixtures = vi.fn();

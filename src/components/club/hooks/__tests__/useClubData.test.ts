@@ -6,7 +6,6 @@ import type { ClubFilters } from '../types';
 // Mocks — Query hooks
 // ============================================
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- test mocks need flexible return types
 const mockUseClubBySlug = vi.fn();
 const mockUsePlayersByClub = vi.fn();
 const mockUseClubFollowerCount = vi.fn();
