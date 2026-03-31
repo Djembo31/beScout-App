@@ -44,7 +44,6 @@ export default function DatenschutzPage() {
         <ul className="list-disc list-inside space-y-1.5">
           <li>{t('thirdPartySupabase')}</li>
           <li>{t('thirdPartySentry')}</li>
-          <li>{t('thirdPartyPosthog')}</li>
           <li>{t('thirdPartyVercel')}</li>
         </ul>
       </section>

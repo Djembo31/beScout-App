@@ -5,7 +5,6 @@ import { AuthProvider, useUser } from './AuthProvider';
 import { ClubProvider } from './ClubProvider';
 import { WalletProvider } from './WalletProvider';
 import { ToastProvider } from './ToastProvider';
-import AnalyticsProvider from './AnalyticsProvider';
 
 /**
  * Gate Club + Wallet providers behind auth.
@@ -34,9 +33,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryProvider>
       <AuthProvider>
-        <AnalyticsProvider>
-          <AuthGatedProviders>{children}</AuthGatedProviders>
-        </AnalyticsProvider>
+        <AuthGatedProviders>{children}</AuthGatedProviders>
       </AuthProvider>
     </QueryProvider>
   );

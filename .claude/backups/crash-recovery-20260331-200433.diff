@@ -1,0 +1,484 @@
+diff --git a/.claude/settings.json b/.claude/settings.json
+index 0579c01..f3a095f 100644
+--- a/.claude/settings.json
++++ b/.claude/settings.json
+@@ -64,7 +64,7 @@
+           {
+             "type": "command",
+             "command": "bash C:/bescout-app/.claude/hooks/session-retro.sh",
+-            "timeout": 5000
++            "timeout": 15000
+           }
+         ]
+       }
+diff --git a/memory/current-sprint.md b/memory/current-sprint.md
+index ea3685f..e27a2c3 100644
+--- a/memory/current-sprint.md
++++ b/memory/current-sprint.md
+@@ -35,20 +35,30 @@
+ - **BES-10: QA PASS** — TradingDisclaimer verified on airdrop page. tsc clean, 2373 passed / 1 skipped.
+   - CONC-09 pre-existing failure (race-conditions.test.ts) — unrelated to change
+ 
++## Erledigt (Session 273 — Full Loop Test v2 + HEARTBEAT v2)
++- **BES-9: TradingDisclaimer on Airdrop** — FE implemented, CEO verified, QA passed
++- **BES-10: QA verification** — passed (tsc clean, 2373/2374 tests)
++- **BES-11: Auto-Wake Test** — completed
++- **BES-12: Compliance followup** — 6 remaining violations + 2 new critical fixes in de.json/tr.json
++- **HEARTBEAT v2** — all 5 agents upgraded (status discipline, tier awareness, jarvis sync)
++- **9 commits pushed** to remote
++
+ ## In Progress
+ - Keine
+ 
+-## Full Loop Test Results (v3)
+-- Handoff file: CREATED (improvement from v2)
+-- Issue status update: NOT done by FE (CEO compensated)
+-- QA started prematurely (before BES-9 done) — CEO blocked then unblocked
+-- Pipeline works but needs: FE auto-status-update + QA dependency checking
+-
+-## Naechste Prioritaet
+-1. ~~**BES-10 QA result**~~ — DONE (QA passed, 2026-03-31)
+-2. **Push to remote + Vercel deploy** — pending (Anil authorization needed)
+-3. **Visual QA auf Vercel** nach Deploy — pending (after push)
+-4. ~~**FE HEARTBEAT fix**~~ — DONE (mandatory 3-step handoff block added, 2026-03-31)
++## Uncommitted (needs Jarvis to commit + push)
++- `messages/de.json` + `messages/tr.json` — BES-12 compliance fixes (~10 wording changes)
++- `memory/sessions/retro-*` — session retro files
++
++## Board Status
++- 11 done, 0 open, 0 blocked — clean board
++- Pipeline validated: CEO → FE → QA works end-to-end
++
++## Naechste Prioritaet (fuer Jarvis)
++1. **Commit + push BES-12 compliance fixes** (de.json + tr.json unstaged)
++2. **Vercel deploy + Visual QA**
++3. **Loop Test v3** — Tier 2+ task (multi-file, skills invoked) — CEO will plan when Anil gives direction
++4. **Attribution fix** — agent API calls show local-board instead of agentId
+ 
+ ## Bekannte Issues
+ - Sentry import warnings in build (harmless)
+diff --git a/memory/sessions/retro-20260331-190632.md b/memory/sessions/retro-20260331-190632.md
+deleted file mode 100644
+index cf50dec..0000000
+--- a/memory/sessions/retro-20260331-190632.md
++++ /dev/null
+@@ -1,43 +0,0 @@
+-# Retro 20260331-190632
+-
+-## Commits
+-2d5f367 chore: update session handoff + retros for agent team v2
+-ebcd1ff chore: agent team v2 — handoffs dir, v2 plan, updated session retros
+-20594b7 fix: BES-8 compliance wording — remove investment language from i18n
+-
+-## Changed Files
+-
+-docs/plans/2026-03-31-agent-team-v2-design.md
+-docs/plans/2026-03-31-agent-team-v2-plan.md
+-docs/team/handoffs/.gitkeep
+-memory/current-sprint.md
+-memory/session-handoff.md
+-memory/sessions/retro-20260331-161542.md
+-memory/sessions/retro-20260331-162507.md
+-memory/sessions/retro-20260331-163510.md
+-memory/sessions/retro-20260331-164150.md
+-memory/sessions/retro-20260331-164557.md
+-memory/sessions/retro-20260331-174306.md
+-memory/sessions/retro-20260331-174854.md
+-memory/sessions/retro-20260331-181032.md
+-memory/sessions/retro-20260331-181240.md
+-memory/sessions/retro-20260331-182118.md
+-memory/sessions/retro-20260331-182827.md
+-memory/sessions/retro-20260331-182938.md
+-messages/de.json
+-messages/tr.json
+-
+-## Uncommitted
+- M memory/current-sprint.md
+- D memory/sessions/retro-20260331-181032.md
+- D memory/sessions/retro-20260331-181240.md
+- D memory/sessions/retro-20260331-182118.md
+- D memory/sessions/retro-20260331-182827.md
+- M src/app/(app)/airdrop/page.tsx
+-?? .firecrawl/claude-code-with-codex.md
+-?? .firecrawl/search-codex-plugin.json
+-?? docs/team/handoffs/BES-9.md
+-?? memory/sessions/retro-20260331-184112.md
+-
+-## What Could Improve
+-- [filled by next session's quality review]
+diff --git a/memory/sessions/retro-20260331-191500.md b/memory/sessions/retro-20260331-191500.md
+deleted file mode 100644
+index d75be7f..0000000
+--- a/memory/sessions/retro-20260331-191500.md
++++ /dev/null
+@@ -1,19 +0,0 @@
+-# Retro 20260331-191500
+-
+-## What I did
+-Resumed from context compaction. Checked Paperclip inbox — no new issues assigned.
+-BES-10 was already marked done (completedAt: 17:00:07 UTC) by prior run.
+-Updated current-sprint.md to move BES-10 from "In Progress" to "Erledigt".
+-
+-## State
+-- All known issues: done or cancelled
+-- BES-10 loop complete (BES-9 → FE implemented → BES-10 QA PASS)
+-- Sprint: no active blockers, no in-progress items
+-
+-## Pending (not QA tasks)
+-- Push to remote + Vercel deploy (CEO/CTO)
+-- Visual QA on Vercel after deploy (QA — needs a new issue to be created)
+-
+-## What to do differently
+-- After context compaction, check issue state BEFORE assuming work remains
+-- The active run on BES-10 was a new heartbeat invocation, not a re-run of prior work
+diff --git a/memory/sessions/retro-20260331-192724.md b/memory/sessions/retro-20260331-193809.md
+similarity index 93%
+rename from memory/sessions/retro-20260331-192724.md
+rename to memory/sessions/retro-20260331-193809.md
+index e7334bc..77a2c6d 100644
+--- a/memory/sessions/retro-20260331-192724.md
++++ b/memory/sessions/retro-20260331-193809.md
+@@ -1,6 +1,7 @@
+-# Retro 20260331-192724
++# Retro 20260331-193809
+ 
+ ## Commits
++9325cc5 chore: update session handoff + retros for agent team v2
+ 38a81ad fix: BES-9 TradingDisclaimer on airdrop + HEARTBEAT v2 improvements
+ 1a82a60 AUTO: pre-compact checkpoint 20260331-190658
+ 2d5f367 chore: update session handoff + retros for agent team v2
+@@ -9,6 +10,7 @@ ebcd1ff chore: agent team v2 — handoffs dir, v2 plan, updated session retros
+ 
+ ## Changed Files
+ 
++.claude/rules/workflow.md
+ .firecrawl/claude-code-with-codex.md
+ .firecrawl/search-codex-plugin.json
+ docs/plans/2026-03-31-agent-team-v2-design.md
+@@ -37,7 +39,6 @@ memory/sessions/retro-20260331-190632.md
+ memory/sessions/retro-20260331-191021.md
+ memory/sessions/retro-20260331-191500.md
+ memory/sessions/retro-20260331-192121.md
+-messages/de.json
+ 
+ ## What Could Improve
+ - [filled by next session's quality review]
+diff --git a/memory/sessions/retro-20260331-191021.md b/memory/sessions/retro-20260331-193817.md
+similarity index 77%
+rename from memory/sessions/retro-20260331-191021.md
+rename to memory/sessions/retro-20260331-193817.md
+index 7afcefe..4288f28 100644
+--- a/memory/sessions/retro-20260331-191021.md
++++ b/memory/sessions/retro-20260331-193817.md
+@@ -1,6 +1,8 @@
+-# Retro 20260331-191021
++# Retro 20260331-193817
+ 
+ ## Commits
++9325cc5 chore: update session handoff + retros for agent team v2
++38a81ad fix: BES-9 TradingDisclaimer on airdrop + HEARTBEAT v2 improvements
+ 1a82a60 AUTO: pre-compact checkpoint 20260331-190658
+ 2d5f367 chore: update session handoff + retros for agent team v2
+ ebcd1ff chore: agent team v2 — handoffs dir, v2 plan, updated session retros
+@@ -8,6 +10,7 @@ ebcd1ff chore: agent team v2 — handoffs dir, v2 plan, updated session retros
+ 
+ ## Changed Files
+ 
++.claude/rules/workflow.md
+ .firecrawl/claude-code-with-codex.md
+ .firecrawl/search-codex-plugin.json
+ docs/plans/2026-03-31-agent-team-v2-design.md
+@@ -33,13 +36,13 @@ memory/sessions/retro-20260331-184438.md
+ memory/sessions/retro-20260331-184807.md
+ memory/sessions/retro-20260331-190108.md
+ memory/sessions/retro-20260331-190632.md
+-messages/de.json
+-messages/tr.json
+-src/app/(app)/airdrop/page.tsx
++memory/sessions/retro-20260331-191021.md
++memory/sessions/retro-20260331-191500.md
++memory/sessions/retro-20260331-192121.md
+ 
+ ## Uncommitted
+- M memory/current-sprint.md
+-?? memory/sessions/retro-20260331-191500.md
++ D memory/sessions/retro-20260331-190632.md
++?? memory/sessions/retro-20260331-193809.md
+ 
+ ## What Could Improve
+ - [filled by next session's quality review]
+diff --git a/memory/sessions/retro-20260331-192121.md b/memory/sessions/retro-20260331-194250.md
+similarity index 71%
+rename from memory/sessions/retro-20260331-192121.md
+rename to memory/sessions/retro-20260331-194250.md
+index 0886fbb..7f20283 100644
+--- a/memory/sessions/retro-20260331-192121.md
++++ b/memory/sessions/retro-20260331-194250.md
+@@ -1,6 +1,8 @@
+-# Retro 20260331-192121
++# Retro 20260331-194250
+ 
+ ## Commits
++9325cc5 chore: update session handoff + retros for agent team v2
++38a81ad fix: BES-9 TradingDisclaimer on airdrop + HEARTBEAT v2 improvements
+ 1a82a60 AUTO: pre-compact checkpoint 20260331-190658
+ 2d5f367 chore: update session handoff + retros for agent team v2
+ ebcd1ff chore: agent team v2 — handoffs dir, v2 plan, updated session retros
+@@ -8,6 +10,7 @@ ebcd1ff chore: agent team v2 — handoffs dir, v2 plan, updated session retros
+ 
+ ## Changed Files
+ 
++.claude/rules/workflow.md
+ .firecrawl/claude-code-with-codex.md
+ .firecrawl/search-codex-plugin.json
+ docs/plans/2026-03-31-agent-team-v2-design.md
+@@ -33,16 +36,16 @@ memory/sessions/retro-20260331-184438.md
+ memory/sessions/retro-20260331-184807.md
+ memory/sessions/retro-20260331-190108.md
+ memory/sessions/retro-20260331-190632.md
+-messages/de.json
+-messages/tr.json
+-src/app/(app)/airdrop/page.tsx
++memory/sessions/retro-20260331-191021.md
++memory/sessions/retro-20260331-191500.md
++memory/sessions/retro-20260331-192121.md
+ 
+ ## Uncommitted
+- M memory/current-sprint.md
+- D memory/sessions/retro-20260331-184112.md
+- D memory/sessions/retro-20260331-184438.md
+-?? memory/sessions/retro-20260331-191021.md
+-?? memory/sessions/retro-20260331-191500.md
++ D memory/sessions/retro-20260331-190632.md
++ D memory/sessions/retro-20260331-191500.md
++?? memory/sessions/retro-20260331-193809.md
++?? memory/sessions/retro-20260331-193817.md
++?? memory/sessions/retro-20260331-ba-compliance-2.md
+ 
+ ## What Could Improve
+ - [filled by next session's quality review]
+diff --git a/memory/sessions/retro-20260331-194930.md b/memory/sessions/retro-20260331-194930.md
+new file mode 100644
+index 0000000..106b3d4
+--- /dev/null
++++ b/memory/sessions/retro-20260331-194930.md
+@@ -0,0 +1,55 @@
++# Retro 20260331-194930
++
++## Commits
++9325cc5 chore: update session handoff + retros for agent team v2
++38a81ad fix: BES-9 TradingDisclaimer on airdrop + HEARTBEAT v2 improvements
++1a82a60 AUTO: pre-compact checkpoint 20260331-190658
++2d5f367 chore: update session handoff + retros for agent team v2
++ebcd1ff chore: agent team v2 — handoffs dir, v2 plan, updated session retros
++
++## Changed Files
++
++.claude/rules/workflow.md
++.firecrawl/claude-code-with-codex.md
++.firecrawl/search-codex-plugin.json
++docs/plans/2026-03-31-agent-team-v2-design.md
++docs/plans/2026-03-31-agent-team-v2-plan.md
++docs/team/handoffs/.gitkeep
++docs/team/handoffs/BES-9.md
++memory/current-sprint.md
++memory/session-handoff.md
++memory/sessions/retro-20260331-161542.md
++memory/sessions/retro-20260331-162507.md
++memory/sessions/retro-20260331-163510.md
++memory/sessions/retro-20260331-164150.md
++memory/sessions/retro-20260331-164557.md
++memory/sessions/retro-20260331-174306.md
++memory/sessions/retro-20260331-174854.md
++memory/sessions/retro-20260331-181032.md
++memory/sessions/retro-20260331-181240.md
++memory/sessions/retro-20260331-182118.md
++memory/sessions/retro-20260331-182827.md
++memory/sessions/retro-20260331-182938.md
++memory/sessions/retro-20260331-184112.md
++memory/sessions/retro-20260331-184438.md
++memory/sessions/retro-20260331-184807.md
++memory/sessions/retro-20260331-190108.md
++memory/sessions/retro-20260331-190632.md
++memory/sessions/retro-20260331-191021.md
++memory/sessions/retro-20260331-191500.md
++memory/sessions/retro-20260331-192121.md
++
++## Uncommitted
++ M .claude/settings.json
++ M memory/current-sprint.md
++ D memory/sessions/retro-20260331-190632.md
++ D memory/sessions/retro-20260331-191021.md
++ D memory/sessions/retro-20260331-191500.md
++ D memory/sessions/retro-20260331-192121.md
++ M messages/de.json
++ M messages/tr.json
++?? memory/sessions/retro-20260331-193809.md
++?? memory/sessions/retro-20260331-193817.md
++
++## What Could Improve
++- [filled by next session's quality review]
+diff --git a/memory/sessions/retro-20260331-ba-compliance-2.md b/memory/sessions/retro-20260331-ba-compliance-2.md
+new file mode 100644
+index 0000000..ac9ce70
+--- /dev/null
++++ b/memory/sessions/retro-20260331-ba-compliance-2.md
+@@ -0,0 +1,42 @@
++# BA Compliance Re-Scan Retro — 2026-03-31 (Heartbeat 2)
++
++## Context
++
++BES-8 was marked done by Engineer. Re-scanned to verify fixes were applied correctly.
++
++## Work Done
++
++- Re-scanned messages/de.json + messages/tr.json for forbidden wording
++- Discovered BES-8 was only partially fixed
++- Created BES-12 (critical) with 2 new critical violations + 4 missed keys
++
++## Findings
++
++### What Was Fixed Correctly in BES-8 ✓
++- `profitierst du` (3 instances) → replaced with benefit/fee language
++- `Mögliche Gewinne` → `Mögliche Belohnungen`
++- `Besitzer-Bonus` → `Halter-Bonus`
++- `dpcOwnership` key (2x DE + 2x TR) → fixed
++- `dpcTooltip` Spieleranteil → fixed
++- `Credits-Preisgelder` → `Credits-Preise`
++- TradingDisclaimer on Airdrop (BES-9) ✓
++
++### What Was Missed / New Violations in BES-12
++1. `de.json:3358` — "dein Anteil an einem Spieler" → Spieleranteil (CRITICAL, not in BES-8!)
++2. `de.json:4357` — "Dein Anteil an einem Fussballspieler" → Spieleranteil (CRITICAL, not in BES-8!)
++3. `de.json:3901` — `dpcOwned: "Scout Card Besitz"` → engineer fixed `dpcOwnership` not `dpcOwned`
++4. `de.json:4060` — `inPossession: "{count} im Besitz"` → different key, missed
++5. `tr.json:3901` — `dpcOwned: "Scout Card Sahipliği"` → missed
++6. `tr.json:4060` — `inPossession: "{count} sahipliğinde"` → missed
++7. Multiple `Besitzer` (holder) uses → borderline, recommend `Halter`
++
++## Lessons
++
++### Root Cause of Partial Fix
++Engineer searched for the exact key names from BES-8 (`dpcOwnership`), not the semantic content. Multiple keys with the same forbidden content were missed because they had different names.
++
++### Rule Promotion
++**For future compliance audits: scan by CONTENT (grep forbidden words), not by key name.** The BES-8 approach was content-based (grep) — but the fix verification should also be content-based. If BES-8 had been re-scanned after the fix, the 4 missed keys would have been caught.
++
++### New Pattern Found
++"Anteil an einem Spieler/Fußballspieler" = explicit Spieleranteil language. This exact phrase should be added to the grep pattern list alongside "profitierst", "Besitz", "Sahipliği".
+diff --git a/messages/de.json b/messages/de.json
+index a7d9ded..114c1cb 100644
+--- a/messages/de.json
++++ b/messages/de.json
+@@ -288,7 +288,7 @@
+     "discoverCommunity": "Community entdecken →",
+     "dpcOfTheWeek": "Scout Card der Woche",
+     "bestPlayer": "Bester Spieler",
+-    "owners": "Besitzer",
++    "owners": "Halter",
+     "whatSayScouts": "Was sagen die Scouts?",
+     "scoutMissions": "Scout Aufträge",
+     "nextEvent": "Nächstes Event",
+@@ -1944,7 +1944,7 @@
+     },
+     "offer": {
+       "title": "Kaufangebot erstellen",
+-      "subtitle": "Erstelle ein offenes Gebot, das jeder Besitzer annehmen kann.",
++      "subtitle": "Erstelle ein offenes Gebot, das jeder Halter annehmen kann.",
+       "priceLabel": "Preis pro Scout Card (Credits)",
+       "pricePlaceholder": "z.B. 150",
+       "messageLabel": "Nachricht (optional)",
+@@ -1999,7 +1999,7 @@
+     "supplyReserved": "Reserviert",
+     "supplyAvailable": "Verfügbar",
+     "supplyOtherHolders": "Andere Holder",
+-    "supplyYouOwn": "Du besitzt",
++    "supplyYouOwn": "Du hältst",
+     "tradeHistory": "Kaufhistorie",
+     "injured": "Verletzt",
+     "suspended": "Gesperrt",
+@@ -3355,7 +3355,7 @@
+   },
+   "tips": {
+     "marketTitle": "Dein erstes Scout Card",
+-    "marketDesc": "Ein Scout Card (Spielerkarte) ist dein Anteil an einem Spieler. Kaufe deinen ersten mit 1.000 Credits Startguthaben.",
++    "marketDesc": "Die digitale Spielerkarte deines Lieblingsspielers. Kaufe deine erste mit 1.000 Credits Startguthaben.",
+     "fantasyTitle": "Dein erstes Fantasy-Event",
+     "fantasyDesc": "Tritt einem Event bei, stelle dein Team auf und sammle Punkte.",
+     "communityTitle": "Willkommen in der Scouting Zone",
+@@ -3784,7 +3784,7 @@
+     "buyOffer": "Kaufangebot",
+     "sellOffer": "Verkaufsangebot",
+     "offerTo": "An: {receiver}",
+-    "openAllOwners": "Offen (alle Besitzer)",
++    "openAllOwners": "Offen (alle Halter)",
+     "offerFrom": "Von: @{sender}",
+     "timeRemaining": "{hours}h verbleibend",
+     "offerAccepted": "Angebot angenommen",
+@@ -3802,7 +3802,7 @@
+     "noHistory": "Kein Angebotsverlauf",
+     "noIncomingDesc": "Sobald dir jemand ein Angebot macht, siehst du es hier.",
+     "noOutgoingDesc": "Erstelle ein Angebot um zu verhandeln.",
+-    "noOpenBidsDesc": "Erstelle ein offenes Gebot, das jeder Besitzer annehmen kann.",
++    "noOpenBidsDesc": "Erstelle ein offenes Gebot, das jeder Halter annehmen kann.",
+     "noHistoryDesc": "Abgeschlossene Angebote erscheinen hier.",
+     "searchPlayer": "Spieler suchen",
+     "searchPlayerPlaceholder": "Spieler suchen...",
+@@ -3898,7 +3898,7 @@
+     "listForPrice": "Für {price} Credits listen",
+     "tradingLockedLiquidated": "Trading gesperrt — Spieler wurde liquidiert",
+     "yourPosition": "Deine Position",
+-    "dpcOwned": "Scout Card Besitz",
++    "dpcOwned": "Scout Card Halter",
+     "floatShare": "Anteil am Float",
+     "listed": "Gelistet",
+     "lockedInEvents": "In Events gesperrt",
+@@ -3946,7 +3946,7 @@
+     "change24h": "24h Change",
+     "clubPoolDpc": "Club-Pool Scout Cards",
+     "inCirculation": "Im Umlauf",
+-    "topOwners": "Top Besitzer",
++    "topOwners": "Top Halter",
+     "holderCount": "{count} Holder",
+     "performance": "Performance",
+     "sparkline": "Sparkline",
+@@ -4057,7 +4057,7 @@
+     "commitDpc": "{qty} Scout Card verpflichten",
+     "limitReachedMax": "Du hast das Maximum für diesen Erstverkauf erreicht",
+     "transferMarket": "Transfermarkt",
+-    "inPossession": "{count} im Besitz",
++    "inPossession": "{count} gehalten",
+     "userOffers": "User-Angebote",
+     "userOffersFrom": "{count} Angebot von Usern",
+     "userOffersFromPlural": "{count} Angebote von Usern",
+@@ -4354,7 +4354,7 @@
+     "terms": {
+       "dpc": {
+         "title": "Scout Card",
+-        "description": "Scout Card. Dein Anteil an einem Fussballspieler."
++        "description": "Scout Card. Deine digitale Spielerkarte."
+       },
+       "Credits": {
+         "title": "Credits",
+diff --git a/messages/tr.json b/messages/tr.json
+index e3cc952..3b784c7 100644
+--- a/messages/tr.json
++++ b/messages/tr.json
+@@ -3898,7 +3898,7 @@
+     "listForPrice": "{price} Credits'a listele",
+     "tradingLockedLiquidated": "İşlem kilitli — Oyuncu tasfiye edildi",
+     "yourPosition": "Senin Pozisyonun",
+-    "dpcOwned": "Scout Card Sahipliği",
++    "dpcOwned": "Scout Card Halter",
+     "floatShare": "Float Payı",
+     "listed": "Listelenen",
+     "lockedInEvents": "Etkinliklerde kilitli",
+@@ -4057,7 +4057,7 @@
+     "commitDpc": "{qty} Scout Card satın al",
+     "limitReachedMax": "Bu ilk satış için maksimum limiti doldurdunuz",
+     "transferMarket": "Transfer Piyasası",
+-    "inPossession": "{count} sahipliğinde",
++    "inPossession": "{count} Scout Card",
+     "userOffers": "Kullanıcı Teklifleri",
+     "userOffersFrom": "Kullanıcılardan {count} teklif",
+     "userOffersFromPlural": "Kullanıcılardan {count} teklif",

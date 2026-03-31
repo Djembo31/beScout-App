@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabaseClient';
-import { trackEvent } from '@/lib/posthog';
 
 // ============================================
 // Sponsor Impression & Click Tracking
@@ -72,16 +71,12 @@ if (typeof window !== 'undefined') {
 export function trackImpression(sponsorId: string, placement: string): void {
   queue.push({ sponsor_id: sponsorId, placement, impressions: 1, clicks: 0 });
   scheduleFlush();
-  // Dual-track to PostHog
-  trackEvent('sponsor_impression', { sponsor_id: sponsorId, placement });
 }
 
 /** Track a sponsor click (batched, fire-and-forget) */
 export function trackClick(sponsorId: string, placement: string): void {
   queue.push({ sponsor_id: sponsorId, placement, impressions: 0, clicks: 1 });
   scheduleFlush();
-  // Dual-track to PostHog
-  trackEvent('sponsor_click', { sponsor_id: sponsorId, placement });
 }
 
 /** Immediately flush pending events (e.g. on logout) */

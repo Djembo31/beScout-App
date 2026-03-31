@@ -14,10 +14,6 @@ vi.mock('../AuthProvider', () => ({
   useUser: () => ({ user: { id: 'u1' }, loading: false }),
 }));
 
-vi.mock('../AnalyticsProvider', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div data-testid="analytics-provider">{children}</div>,
-}));
-
 vi.mock('../ClubProvider', () => ({
   ClubProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="club-provider">{children}</div>,
 }));
