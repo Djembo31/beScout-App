@@ -40,12 +40,12 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
 
   const balanceTick = useNumTick(balanceCents);
   const t = useTranslations('nav');
+  // Streak from localStorage (written by useHomeData)
+  const [streakDays, setStreakDays] = useState(0);
+
   const name = profile?.display_name || displayName(user);
   const initial = name.charAt(0).toUpperCase();
   const plan = profile?.plan ?? 'Free';
-
-  // Streak from localStorage (written by useHomeData)
-  const [streakDays, setStreakDays] = useState(0);
   useEffect(() => {
     try {
       const raw = localStorage.getItem('bescout-login-streak');
@@ -268,7 +268,7 @@ export const TopBar = memo(function TopBar({ onMobileMenuToggle }: TopBarProps) 
               <div className="font-semibold text-sm">{loading ? '...' : name}</div>
               <div className="text-[10px] text-white/50">{plan}</div>
             </div>
-            <Link href="/profile" className="group">
+            <Link href="/profile" className="group" aria-label={t('profileLink')}>
               <div className={cn('relative size-8 md:size-10 rounded-xl bg-gold/10 border flex items-center justify-center overflow-hidden transition-colors group-hover:border-gold/40', pathname.startsWith('/profile') ? 'border-gold/60 ring-2 ring-gold/20' : 'border-white/10')}>
                 {loading ? (
                   <User className="size-4 md:size-5 text-white/70" />

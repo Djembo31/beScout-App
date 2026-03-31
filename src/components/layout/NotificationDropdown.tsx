@@ -141,10 +141,10 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
   const tn = useTranslations('notifications');
   const tc = useTranslations('common');
   const locale = useLocale();
-  const dateLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
   const router = useRouter();
   const desktopRef = useRef<HTMLDivElement>(null);
   const mobileRef = useRef<HTMLDivElement>(null);
+  const dateLocale = locale === 'tr' ? 'tr-TR' : 'de-DE';
 
   // Keep mounted during exit animation
   const [mounted, setMounted] = useState(false);
@@ -275,6 +275,9 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
       {/* Desktop: fixed dropdown — slide down/up */}
       <div
         ref={desktopRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={tn('title')}
         className={cn(
           'hidden md:block fixed top-[60px] right-4 lg:right-6 w-96 bg-surface-modal/95 backdrop-blur-md border border-white/[0.12] rounded-2xl shadow-card-lg z-[100] overflow-hidden transition-all',
           closing ? 'notif-exit-desktop' : 'notif-enter-desktop',
@@ -294,6 +297,9 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
       >
         <div
           ref={mobileRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={tn('title')}
           className={cn(
             'fixed inset-x-0 bottom-0 bg-[#111] border-t border-white/10 rounded-t-3xl shadow-2xl overflow-hidden transition-transform',
             closing ? 'translate-y-full' : 'translate-y-0',

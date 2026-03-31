@@ -20,12 +20,14 @@ export const BottomNav = memo(function BottomNav() {
   const pathname = usePathname();
   const { activeClub } = useClub();
   const tc = useTranslations('common');
+  const tn = useTranslations('nav');
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
   return (
     <nav
+      aria-label={tn('mainNavLabel')}
       className="lg:hidden border-t border-white/10 safe-bottom"
       style={{
         position: 'fixed',
@@ -63,7 +65,7 @@ export const BottomNav = memo(function BottomNav() {
               )}
             >
               {isActive && (
-                <div className="absolute -top-[1px] w-10 h-[3px] bg-gold rounded-full shadow-glow-gold" />
+                <div aria-hidden="true" className="absolute -top-[1px] w-10 h-[3px] bg-gold rounded-full shadow-glow-gold" />
               )}
               <Icon className={cn('size-5', isActive && 'drop-shadow-[0_0_10px_rgba(255,215,0,0.6)]')} />
               <span className={cn('text-[10px] leading-none truncate max-w-full px-0.5', isActive ? 'font-black' : 'font-medium')}>{tc(tab.labelKey)}</span>

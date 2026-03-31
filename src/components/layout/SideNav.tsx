@@ -18,7 +18,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { NAV_MAIN, NAV_MORE, NAV_ADMIN } from '@/lib/nav';
-import { supabase } from '@/lib/supabaseClient';
+import { signOut } from '@/lib/services/auth';
 import { useUser, useRoles } from '@/components/providers/AuthProvider';
 import { formatScout } from '@/lib/services/wallet';
 import { useWallet } from '@/components/providers/WalletProvider';
@@ -48,14 +48,14 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setMounted(true); }, []);
   const { data: ticketData } = useUserTickets(user?.id);
-  const ticketBalance = ticketData?.balance ?? null;
   const t = useTranslations('nav');
   const tc = useTranslations('common');
-
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const [wishOpen, setWishOpen] = useState(false);
+
+  const ticketBalance = ticketData?.balance ?? null;
   const handleLogout = useCallback(async () => {
-    await supabase.auth.signOut();
+    await signOut();
     router.push('/login');
   }, [router]);
 
@@ -132,7 +132,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
       <ClubSwitcher collapsed={collapsed} />
 
       {/* Main Navigation */}
-      <nav className="flex-1 p-3 overflow-y-auto">
+      <nav className="flex-1 p-3 overflow-y-auto" aria-label={t('mainNavLabel')}>
         <div className="space-y-1">
           {NAV_MAIN.map((item) => {
             const Icon = item.icon;
@@ -199,7 +199,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
                 href={href}
                 onClick={handleNavClick}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors',
+                  'flex items-center gap-3 px-3 py-2.5 rounded-xl min-h-[44px] transition-colors',
                   isActive
                     ? 'bg-white/5 text-white'
                     : 'text-white/40 hover:bg-white/5 hover:text-white/60',
@@ -219,7 +219,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
               href={`/club/${clubAdmin.slug}/admin`}
               onClick={handleNavClick}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors',
+                'flex items-center gap-3 px-3 py-2.5 rounded-xl min-h-[44px] transition-colors',
                 mounted && pathname.startsWith(`/club/${clubAdmin.slug}/admin`)
                   ? 'bg-white/5 text-white'
                   : 'text-white/40 hover:bg-white/5 hover:text-white/60',
@@ -268,6 +268,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
       <div className="p-3 border-t border-white/10 space-y-1">
         <button
           onClick={() => setWishOpen(true)}
+          aria-label={t('wishButton')}
           className={cn(
             'flex items-center gap-2 px-3 py-2 text-xs text-white/30 hover:text-gold transition-colors min-h-[44px] w-full',
             collapsed && 'justify-center'
@@ -280,40 +281,44 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
         <Link
           href="/profile/settings"
           onClick={handleNavClick}
+          aria-label={collapsed ? t('settings') : undefined}
           className={cn(
             'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl min-h-[44px]',
             'text-white/40 hover:bg-white/5 hover:text-white/60 transition-colors',
             collapsed && 'justify-center'
           )}
         >
-          <Settings className="size-5" />
+          <Settings className="size-5" aria-hidden="true" />
           {!collapsed && <span className="font-medium">{t('settings')}</span>}
         </Link>
         {logoutConfirm ? (
           <div className={cn('flex gap-1.5 px-1', collapsed && 'flex-col items-center')}>
             <button
               onClick={handleLogout}
+              aria-label={collapsed ? t('logoutConfirm') : undefined}
               className="flex-1 px-3 py-2 rounded-xl min-h-[44px] text-xs font-bold bg-red-500/15 text-red-400 border border-red-500/25 hover:bg-red-500/25 focus-visible:ring-2 focus-visible:ring-red-400/50 focus-visible:outline-none transition-colors"
             >
-              {collapsed ? <LogOut className="size-4" /> : t('logoutConfirm')}
+              {collapsed ? <LogOut className="size-4" aria-hidden="true" /> : t('logoutConfirm')}
             </button>
             <button
               onClick={() => setLogoutConfirm(false)}
+              aria-label={collapsed ? tc('cancel') : undefined}
               className="flex-1 px-3 py-2 rounded-xl min-h-[44px] text-xs font-bold bg-white/5 text-white/50 border border-white/10 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none transition-colors"
             >
-              {collapsed ? <X className="size-4" /> : tc('cancel')}
+              {collapsed ? <X className="size-4" aria-hidden="true" /> : tc('cancel')}
             </button>
           </div>
         ) : (
           <button
             onClick={() => setLogoutConfirm(true)}
+            aria-label={collapsed ? t('logout') : undefined}
             className={cn(
               'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl min-h-[44px]',
               'text-white/40 hover:bg-red-500/10 hover:text-red-400 transition-colors',
               collapsed && 'justify-center'
             )}
           >
-            <LogOut className="size-5" />
+            <LogOut className="size-5" aria-hidden="true" />
             {!collapsed && <span className="font-medium">{t('logout')}</span>}
           </button>
         )}
@@ -334,6 +339,7 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
     <>
       {/* Desktop SideNav */}
       <aside
+        aria-label={t('sideNavLabel')}
         className={cn(
           'hidden lg:flex fixed left-0 top-0 h-dvh z-40 flex-col',
           'bg-[#111114] backdrop-blur-xl border-r border-white/[0.08]',
@@ -349,11 +355,12 @@ export const SideNav = memo(function SideNav({ mobileOpen, onMobileClose }: Side
         <div className="lg:hidden fixed inset-0 z-[70]">
           {/* Backdrop */}
           <div
+            aria-hidden="true"
             className="absolute inset-0 bg-black/60 backdrop-blur-sm anim-fade"
             onClick={onMobileClose}
           />
           {/* Drawer */}
-          <aside className="relative w-[min(280px,85vw)] h-full flex flex-col bg-bg-main border-r border-white/10 shadow-2xl anim-slide-left">
+          <aside aria-label={t('sideNavLabel')} className="relative w-[min(280px,85vw)] h-full flex flex-col bg-bg-main border-r border-white/10 shadow-2xl anim-slide-left">
             {/* Close button */}
             <button
               onClick={onMobileClose}
