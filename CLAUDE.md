@@ -10,10 +10,14 @@ next-intl (Cookie bescout-locale) | lucide-react
 
 ## Workflow → `.claude/rules/workflow.md`
 - **4-Tier Tasks:** Hotfix / Targeted / Scoped / Full Feature
-- **Verification parallel:** tsc + vitest + Reviewer Agent + a11y gleichzeitig
-- **6 Agents** in `.claude/agents/` — laden sich SELBST ein (Phase 0)
+- **2 Execution-Ebenen:** Direkte Session (Anil+Jarvis) + Paperclip Agents (autonom)
+- **7 Paperclip Agents:** CEO, CTO, Engineer, QA, BA (Claude) + CodexReviewer, CodexRescue (GPT)
+- **Verification parallel:** tsc + vitest + Reviewer + CodexReviewer + a11y
+- **Sub-Agents** in `.claude/agents/` — laden sich SELBST ein (Phase 0)
+- **Codex Plugin:** `/codex:rescue` fuer Circuit-Breaker Eskalation
 - **Context7:** Bei Library-Arbeit aktuelle Docs holen, in Agent-Prompts einbetten
 - **Sequential Thinking:** Bei Design-Entscheidungen — NICHT raten
+- **Paperclip:** localhost:3100, Details in `memory/decision_paperclip_cofounder.md`
 
 ## Design Tokens (exakte Werte)
 | Token | Wert | Usage |

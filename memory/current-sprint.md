@@ -22,7 +22,10 @@
 ## Bekannte Issues
 - 2 pre-existing test failures (EDITABLE_FIELDS count)
 - Sentry import warnings in build (harmless)
-- Migration History divergiert
+- Migration History divergiert — BLOCKED (see BES-4)
+  - Circuit breaker open on Supabase pooler (too many parallel auth attempts)
+  - Reset in 30-60 min, then run: `npx supabase db pull 2>&1 | grep "migration repair" | bash`
+  - Root cause: local files use date-only names (20260315_*) vs remote timestamps (20260315000023)
 
 ## Blocker
 - Keine
