@@ -19,10 +19,12 @@ import {
   unlockResearch,
   rateResearch,
   resolveExpiredResearch,
+  _resetResolveCache,
   getAuthorTrackRecord,
 } from '../research';
 
 beforeEach(() => {
+  _resetResolveCache();
   resetMocks();
   vi.clearAllMocks();
 });

@@ -371,14 +371,29 @@ export async function rateResearch(
 // Track Record
 // ============================================
 
+// Debounce: only call once per minute (multiple components fire this independently)
+let _resolvePromise: Promise<number> | null = null;
+let _resolveTimestamp = 0;
+const RESOLVE_COOLDOWN_MS = 60_000; // 1 minute cooldown
+
+export function _resetResolveCache() { _resolvePromise = null; _resolveTimestamp = 0; }
+
 export async function resolveExpiredResearch(): Promise<number> {
-  const { data, error } = await supabase.rpc('resolve_expired_research');
-  if (error) {
-    console.error('[Research] resolveExpiredResearch RPC failed:', error.message);
-    return 0;
+  const now = Date.now();
+  if (_resolvePromise && now - _resolveTimestamp < RESOLVE_COOLDOWN_MS) {
+    return _resolvePromise;
   }
-  const resolved = (data as { resolved: number })?.resolved ?? 0;
-  return resolved;
+  _resolveTimestamp = now;
+  _resolvePromise = (async () => {
+    const { data, error } = await supabase.rpc('resolve_expired_research');
+    if (error) {
+      console.error('[Research] resolveExpiredResearch RPC failed:', error.message);
+      _resolvePromise = null; // allow retry on error
+      return 0;
+    }
+    return (data as { resolved: number })?.resolved ?? 0;
+  })();
+  return _resolvePromise;
 }
 
 export async function getAuthorTrackRecord(userId: string): Promise<AuthorTrackRecord> {
