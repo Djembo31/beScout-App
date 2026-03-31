@@ -51,9 +51,8 @@
             "command": "bash C:/bescout-app/.claude/hooks/session-handoff-auto.sh"
           },
           {
-            "type": "agent",
-            "prompt": "QUALITY GATE: Check if .ts/.tsx files were modified this turn (run: git diff --name-only HEAD). If NO code files changed, return {\"ok\": true}. If code WAS changed, read the changed files and check: 1) Duplicate functions/types/keys (common after agent merges)? 2) New fields propagated to ALL consumers (type→service→hook→UI→i18n)? 3) UI texts match context (e.g. not showing $SCOUT for ticket events)? 4) Hooks before early returns? 5) No raw query keys (must use qk.*)? 6) No supabase in components (service layer)? 7) UI: hover/active/focus states, aria-labels, loading/empty/error states, min 44px touch targets, tabular-nums on numbers? If ALL pass: {\"ok\": true}. If ANY issue: {\"ok\": false, \"reason\": \"QUALITY GATE: [specific issues with file:line]\"}.",
-            "timeout": 120
+            "type": "command",
+            "command": "bash C:/bescout-app/.claude/hooks/quality-gate.sh"
           }
         ]
       }
@@ -64,7 +63,7 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/session-retro.sh",
-            "timeout": 5000
+            "timeout": 15000
           }
         ]
       }
