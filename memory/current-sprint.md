@@ -37,9 +37,11 @@
 3. Speed-Test: Tier 1 Hotfix → sollte <10s dauern
 4. Playbooks fuer wiederkehrende Tasks
 
-## Board Status
-- 15 issues (13 done, 1 cancelled, 1 done test)
-- Clean board, pipeline maturing
+## Board Status (CEO Heartbeat 6 — 2026-03-31)
+- 22 issues total (20 done, 1 cancelled, 1 done test)
+- BES-16: Touch target fix, BES-18: Hook ordering fix, BES-19/21: QA, BES-20: CONC-09 N+1 fix, BES-22: SearchOverlay aria
+- 0 open, 0 blocked, 0 errors — cleanest board state yet
+- Pipeline fully operational: delegation, handoffs, QA all working
 
 ## Bekannte Issues
 - Auto-Wake localhost connectivity (intermittent)
