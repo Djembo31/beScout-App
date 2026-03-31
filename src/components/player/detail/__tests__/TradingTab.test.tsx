@@ -180,10 +180,24 @@ function makeResearch(index = 0): ResearchPostWithAuthor {
   } as unknown as ResearchPostWithAuthor;
 }
 
+// Minimal sell order so the "normal trading" section renders (component hides it when both are empty)
+const minimalSellOrder = {
+  id: 'o1',
+  player_id: 'p1',
+  user_id: 'u-seller',
+  side: 'sell' as const,
+  price: 2000,
+  quantity: 1,
+  filled_qty: 0,
+  status: 'open' as const,
+  created_at: new Date().toISOString(),
+  expires_at: null,
+} as unknown as DbOrder;
+
 const defaultProps = {
   player: basePlayer,
   trades: [] as DbTrade[],
-  allSellOrders: [] as DbOrder[],
+  allSellOrders: [minimalSellOrder] as DbOrder[],
   tradesLoading: false,
   profileMap: {} as Record<string, { handle: string; display_name: string | null }>,
   userId: undefined as string | undefined,

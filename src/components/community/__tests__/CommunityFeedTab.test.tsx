@@ -78,6 +78,14 @@ vi.mock('@/components/ui', () => ({
 }));
 
 // ============================================
+// Mock ReportModal (chains to supabase via contentReports service)
+// ============================================
+
+vi.mock('@/components/community/ReportModal', () => ({
+  default: () => null,
+}));
+
+// ============================================
 // Mock cosmetics query
 // ============================================
 

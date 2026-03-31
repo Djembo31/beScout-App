@@ -162,6 +162,34 @@ const mockOpenOfferModal = vi.fn();
 const mockCloseOfferModal = vi.fn();
 
 vi.mock('@/components/player/detail/hooks', () => ({
+  usePlayerDetailData: vi.fn(() => ({
+    player: playerFixture,
+    playerWithOwnership: playerFixture,
+    dbPlayer: dbPlayerFixture,
+    dpcAvailable: 100,
+    holdingQty: 0,
+    holderCount: 5,
+    lockedScMap: undefined,
+    allSellOrders: [],
+    openBids: [],
+    trades: [],
+    tradesLoading: false,
+    activeIpo: null,
+    userIpoPurchased: 0,
+    masteryData: null,
+    pbtTreasury: null,
+    matchTimelineData: [],
+    matchTimelineLoading: false,
+    liquidationEvent: null,
+    gwScores: [],
+    allPlayersForPercentile: [],
+    playerResearch: [],
+    playerPosts: [],
+    profileMap: {},
+    isLoading: false,
+    isError: false,
+    refetch: vi.fn(),
+  })),
   usePlayerTrading: vi.fn(() => ({
     buying: false,
     ipoBuying: false,
@@ -332,6 +360,36 @@ vi.mock('lucide-react', () => ({
 // ============================================
 import { useDbPlayerById } from '@/lib/queries/players';
 import { dbToPlayer } from '@/lib/services/players';
+import { usePlayerDetailData } from '@/components/player/detail/hooks';
+
+const baseDetailData: any = {
+  player: playerFixture,
+  playerWithOwnership: playerFixture,
+  dbPlayer: dbPlayerFixture,
+  dpcAvailable: 100,
+  holdingQty: 0,
+  holderCount: 5,
+  lockedScMap: undefined,
+  allSellOrders: [],
+  openBids: [],
+  trades: [],
+  tradesLoading: false,
+  activeIpo: null,
+  userIpoPurchased: 0,
+  masteryData: null,
+  pbtTreasury: null,
+  matchTimelineData: [],
+  matchTimelineLoading: false,
+  liquidationEvent: null,
+  gwScores: [],
+  allPlayersForPercentile: [],
+  playerResearch: [],
+  playerPosts: [],
+  profileMap: {},
+  isLoading: false,
+  isError: false,
+  refetch: vi.fn(),
+};
 
 // ============================================
 // Test Suite
@@ -363,12 +421,14 @@ describe('PlayerContent', () => {
 
   // ─── 1. Loading State ────────────────────
   it('shows skeleton while loading', () => {
-    vi.mocked(useDbPlayerById).mockReturnValue({
-      data: undefined,
+    vi.mocked(usePlayerDetailData).mockReturnValueOnce({
+      ...baseDetailData,
+      player: null,
+      playerWithOwnership: null,
+      dbPlayer: undefined,
       isLoading: true,
-      isError: false,
       refetch: mockRefetch,
-    } as unknown as ReturnType<typeof useDbPlayerById>);
+    });
 
     renderWithProviders(<PlayerContent playerId="p1" />);
 
@@ -378,12 +438,15 @@ describe('PlayerContent', () => {
 
   // ─── 2. Error State ─────────────────────
   it('shows error state when query fails', () => {
-    vi.mocked(useDbPlayerById).mockReturnValue({
-      data: undefined,
+    vi.mocked(usePlayerDetailData).mockReturnValueOnce({
+      ...baseDetailData,
+      player: null,
+      playerWithOwnership: null,
+      dbPlayer: undefined,
       isLoading: false,
       isError: true,
       refetch: mockRefetch,
-    } as unknown as ReturnType<typeof useDbPlayerById>);
+    });
 
     renderWithProviders(<PlayerContent playerId="p1" />);
 
@@ -393,12 +456,15 @@ describe('PlayerContent', () => {
 
   // ─── 3. Refetch button ──────────────────
   it('refetch button works on error state', async () => {
-    vi.mocked(useDbPlayerById).mockReturnValue({
-      data: undefined,
+    vi.mocked(usePlayerDetailData).mockReturnValueOnce({
+      ...baseDetailData,
+      player: null,
+      playerWithOwnership: null,
+      dbPlayer: undefined,
       isLoading: false,
       isError: true,
       refetch: mockRefetch,
-    } as unknown as ReturnType<typeof useDbPlayerById>);
+    });
 
     renderWithProviders(<PlayerContent playerId="p1" />);
 
@@ -462,7 +528,11 @@ describe('PlayerContent', () => {
   // ─── 10. LiquidationAlert for liquidated players ─
   it('renders LiquidationAlert for liquidated players', () => {
     const liquidatedPlayer = { ...playerFixture, isLiquidated: true };
-    vi.mocked(dbToPlayer).mockReturnValue(liquidatedPlayer as unknown as ReturnType<typeof dbToPlayer>);
+    vi.mocked(usePlayerDetailData).mockReturnValueOnce({
+      ...baseDetailData,
+      player: liquidatedPlayer as any,
+      playerWithOwnership: liquidatedPlayer as any,
+    });
 
     renderWithProviders(<PlayerContent playerId="p1" />);
 
