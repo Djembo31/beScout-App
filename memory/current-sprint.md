@@ -1,63 +1,49 @@
 # Current Sprint — Post-Launch Features
 
-## Stand (2026-03-31, Session 271 — Paperclip Agents)
-- **Tests:** tsc 0 Errors, 936/936 passed (all green)
-- **Build:** Compiled with warnings (Sentry import — pre-existing)
-- **Branch:** main (Commit 4769b0a)
+## Stand (2026-03-31, Session 274)
+- **Tests:** tsc 0 Errors
+- **Branch:** main
 - **Deploys:** Pending push
 
-## Erledigt (Session 270)
-- **Achievements → DB** — 33 Definitions in DB, Admin CRUD, Frontend DB-first + Fallback
-- **Content Moderation UI** — Report Button, ReportModal, Admin Queue, RPC mit Rate Limit
+## Erledigt (Session 274 — Agent Performance Optimization)
+- **Quality-Gate Hook:** AI-Agent (120s) → Bash-Script (<1s) — nur bei .ts/.tsx Aenderungen
+- **Tier-Gates:** Alle 5 Agent HEARTBEATs mit Tier 1/2/3-4 Differenzierung
+  - Tier 1: Keine Skills, nur tsc, PATCH done, <5 Min Target
+  - Tier 2: 1 Skill, betroffene Tests, Handoff, <15 Min Target
+  - Tier 3-4: Volle Pipeline (unchanged)
+- **workflow.md Split:** 340 → 106 Zeilen core + 99 Zeilen reference (on-demand)
+- **CEO Auto-Delegation:** Tier 1-2 direkt an Engineer, kein CEO-Processing
+- **SCOPE DISCIPLINE:** Regel in FE/SE HEARTBEATs (kein Bonus-Refactoring)
+- **Loop Test v3:** BES-13 aria-labels — Pipeline E2E funktioniert, 3-Step Handoff korrekt
+- **TR-Bug fix:** "Scout Card Halter" → "Scout Card Sahipligin" in tr.json
 
-## Erledigt (Session 269)
-- Full Platform Audit (7 Agents, A- Launch Ready)
-- XP/Level entfernt, Cosmetics entfernt, Treasury Service
-- Fantasy Missions, Push Notification UI, Streak Badge, i18n Fixes
+## Erledigt (Session 273)
+- BES-9: TradingDisclaimer on Airdrop, BES-10: QA Pass
+- HEARTBEAT v2 (alle 5 Agents), 9 Commits pushed
 
-## Erledigt (Session 271 — Paperclip)
-- **Paperclip Agent Team** — 7 Agents (CEO, CTO, Engineer, QA, BA, CodexReviewer, CodexRescue)
-- **BES-5: i18n metadata** — All page titles localized (DE+TR), CTO reviewed, committed
-- **BES-3: Test fix** — EDITABLE_FIELDS count 18→21, 17→20, all 936 tests green
-- **BES-1: Hiring** — CEO created hiring plan + delegated initial tasks
-- **BES-4: Migration fix** — 389 repair commands, history now in sync
-- **Test maintenance** — 4 test files updated for recent feature changes (CTO reviewed + tsc fix)
+## Erledigt (Session 270-272)
+- Achievements DB, Content Moderation, Platform Audit, Paperclip Agent Team
+- BES-1 through BES-8 (diverse), Migration fix, Test maintenance
 
-## Erledigt (Engineer Heartbeat 2026-03-31)
-- **Agent Team v2** — alle 6 Agents upgraded (KNOWLEDGE.md + v2 HEARTBEAT/SOUL)
-- **docs/team/handoffs/** erstellt — Handoff-Infrastruktur bereit
-- **API Cleanup** — SeniorEngineer/FrontendEngineer renamed, CodexRescue deleted, CTO deactivated
-
-## Erledigt (CEO Heartbeat 2 — 2026-03-31)
-- **BES-9: TradingDisclaimer on Airdrop** — FrontendEngineer implemented, CEO verified (tsc clean)
-  - Handoff file created at docs/team/handoffs/BES-9.md (progress from v2 test!)
-  - GAP: FE didn't update issue status to done or leave a comment — CEO had to close the loop
-- **BES-10: QA PASS** — TradingDisclaimer verified on airdrop page. tsc clean, 2373 passed / 1 skipped.
-  - CONC-09 pre-existing failure (race-conditions.test.ts) — unrelated to change
-
-## In Progress
-- Keine
-
-## Full Loop Test Results (v3)
-- Handoff file: CREATED (improvement from v2)
-- Issue status update: NOT done by FE (CEO compensated)
-- QA started prematurely (before BES-9 done) — CEO blocked then unblocked
-- Pipeline works but needs: FE auto-status-update + QA dependency checking
+## Uncommitted
+- BES-13: aria-labels (5 Layout Components + i18n)
+- BES-12/15: Compliance Wording (de.json/tr.json)
+- Agent Optimization (workflow.md, quality-gate.sh, settings.json, HEARTBEATs)
+- Session-Retro Hook Timeout: 5s → 15s
 
 ## Naechste Prioritaet
-1. ~~**BES-10 QA result**~~ — DONE (QA passed, 2026-03-31)
-2. **Push to remote + Vercel deploy** — pending (Anil authorization needed)
-3. **Visual QA auf Vercel** nach Deploy — pending (after push)
-4. ~~**FE HEARTBEAT fix**~~ — DONE (mandatory 3-step handoff block added, 2026-03-31)
+1. Commit + Push
+2. Vercel Deploy + Visual QA
+3. Speed-Test: Tier 1 Hotfix → sollte <10s dauern
+4. Playbooks fuer wiederkehrende Tasks
+
+## Board Status
+- 15 issues (13 done, 1 cancelled, 1 done test)
+- Clean board, pipeline maturing
 
 ## Bekannte Issues
-- Sentry import warnings in build (harmless)
-- Migration History — RESOLVED with known limitation (BES-4 closed 2026-03-31)
-  - Root cause: local files use date-only names (20260315_*) → Supabase treats as version `20260315`
-  - Fix: 61 repair commands ran (41 reverted + 20 applied)
-  - Remaining: dates with 2+ files (e.g. 20260315_a + 20260315_b) share same version key → second file stays "local only" permanently (cosmetic, no functional impact)
-  - Also fixed: 29 zero-quantity holdings deleted, 2 event current_entries corrected (FLOW-11 + INV-08)
-- CodexRescue + CodexReviewer agents in error state (Codex adapter issue, non-blocking)
+- Auto-Wake localhost connectivity (intermittent)
+- Sentry import warnings (harmless)
 
 ## Blocker
 - Keine

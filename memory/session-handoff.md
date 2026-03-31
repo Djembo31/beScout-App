@@ -1,42 +1,39 @@
 # Session Handoff
-## Letzte Session: 2026-03-31 (Session 273)
+## Letzte Session: 2026-03-31 (Session 274)
 ## Was wurde gemacht
 
-### Full Loop Test v2 — Pipeline Validated
-End-to-end test: Issue → CEO → FrontendEngineer → QA → Done.
-**BES-9:** TradingDisclaimer auf Airdrop page (FE implementiert, QA verifiziert)
-**BES-10:** QA Follow-up (vom CEO erstellt, QA hat verified + done)
+### Agent Performance Optimization (Hauptthema)
+Deep Research + Bottleneck Analysis → 4 Optimierungen implementiert:
+1. **Quality-Gate: 120s AI-Agent → <1s Bash-Script** (.claude/hooks/quality-gate.sh)
+2. **Tier-Gates in 5 HEARTBEATs** (FE, SE, QA, BA, CEO) — Tier 1 = keine Skills
+3. **workflow.md: 340→106 Zeilen** (Reference-Material in workflow-reference.md ausgelagert)
+4. **CEO Auto-Delegation** bei Tier 1-2 (spart ganzen Heartbeat-Cycle)
 
-### HEARTBEAT v2 Improvements (alle 5 Agents)
-- `in_progress` Status-Discipline (todo → in_progress → done)
-- Tier-Awareness (Tier 1-4 bestimmt Aufwand)
-- QA: Scoped Testing (Tier 1 = nur betroffene Tests, nicht full suite)
-- FE/SE: Skills = MANDATORY, Handoff = BLOCKING
-- CEO: Jarvis Sync via current-sprint.md
-- Alle: Self-Improvement Schema nach jedem Task
+### Loop Test v3 (BES-13 aria-labels)
+- Pipeline E2E funktioniert: Issue → FE → in_progress → in_review → QA → done
+- 3-Step Handoff ERSTMALS korrekt (Status, Comment, QA Issue)
+- FE ging beyond scope (Compliance Wording + signOut Refactor) — SCOPE DISCIPLINE Regel hinzugefuegt
+- TR-Bug gefixt (deutsches "Halter" in tuerkischer Uebersetzung)
 
-### CEO Error Fix
-Session-Retro Hook cancelled bei Heartbeat-Ende → error State. Reset to idle.
-Root cause: Hook timeout. Non-critical.
+### Handoff Items 1-5 (Session 273) abgearbeitet
+- Jarvis-Rolle formalisiert in workflow.md
+- Auto-Wake getestet (funktioniert, aber FE kann manchmal localhost nicht erreichen)
+- Attribution gecheckt (kein Bug — local-board fuer Jarvis-created Issues ist by design)
+- Session-Retro Hook Timeout: 5s → 15s
 
-### Pushed
-- BES-5 (i18n metadata) + BES-8 (compliance) + Agent Team v2 + BES-9 + HEARTBEAT v2
-- 9 Commits total pushed to remote
+### Uncommitted Changes
+- BES-13 aria-labels (5 Layout Components + i18n DE/TR)
+- BES-12/15 Compliance Wording (de.json/tr.json)
+- Agent Optimization (workflow.md split, quality-gate.sh, settings.json)
+- TR-Bug fix (dpcOwned)
 
 ## Naechster Schritt
-1. **Jarvis-Rolle formalisieren:** Workflow-Rule updaten (Jarvis = Anil's rechte Hand, entscheidet autonom wann Team Tasks uebernimmt)
-2. **Auto-Wake testen:** Agents sollen bei Issue-Assignment automatisch starten (kein manuelles heartbeat/invoke)
-3. **Attribution Fix:** Agent API-Calls muessen createdByAgentId setzen, nicht local-board
-4. **Session-Retro Hook:** Timeout erhoehen oder schlanker machen (CEO crash cause)
-5. **Loop Test v3:** Tier 2+ Task testen (mehr Files, Skills tatsaechlich invoked?)
+1. **Commit + Push** alle uncommitted Changes
+2. **Vercel Deploy + Visual QA**
+3. **Speed-Test:** Tier 1 Hotfix an FE delegieren — sollte jetzt <10s statt 150s dauern
+4. **Playbooks** erstellen (memory/playbooks/) fuer wiederkehrende Tasks
 
 ## Bekannte Issues
-- Attribution-Bug: CEO's API calls zeigen local-board statt agentId
-- Session-Retro Hook kann Agents crashen (timeout)
-- Auto-Wake nicht getestet (Agents brauchen manuellen Trigger)
-
-## Wichtige Pfade
-- Agent Instructions: `~/.paperclip/instances/default/companies/cab471f1-.../agents/{id}/instructions/`
-- Handoffs: `docs/team/handoffs/`
-- Learnings: `memory/feedback_full_loop_test_v2.md`
-- Company ID: `cab471f1-96c2-403d-b0a7-1c5bf5db0b5d`
+- Auto-Wake: FE kann manchmal localhost:3100 nicht erreichen im Subprocess
+- QA/SE gelegentlich in error State (Session-Retro Hook, jetzt 15s Timeout)
+- Sentry import warnings in build (harmless)
