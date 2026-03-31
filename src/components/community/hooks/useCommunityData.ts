@@ -11,7 +11,7 @@ import { getUserPollVotedIds } from '@/lib/services/communityPolls';
 import { getGesamtRang } from '@/lib/gamification';
 import {
   usePlayerNames, useHoldings, usePosts, useLeaderboard,
-  useFollowingIds, useFollowerCount, useFollowingCount,
+  useUserSocialStats,
   useClubVotes, useResearchPosts, useActiveBounties, useClubSubscription,
   useUserStats, useCommunityPolls,
 } from '@/lib/queries';
@@ -29,19 +29,19 @@ export function useCommunityData(
   const { data: posts = [], isLoading: postsLoading, isError: postsError } = usePosts({ limit: 50, clubId: scopeClubId });
   const { data: clubVotes = [] } = useClubVotes(state.clubId);
   const { data: leaderboard = [] } = useLeaderboard(50);
-  const { data: followingIdsList = [] } = useFollowingIds(userId);
+  const { data: socialStats } = useUserSocialStats(userId);
   const { data: rawHoldings = [] } = useHoldings(userId);
   const { data: playerNames = [] } = usePlayerNames();
   const { data: researchPosts = [] } = useResearchPosts(userId);
-  const { data: followerCount = 0 } = useFollowerCount(userId);
-  const { data: followingCount = 0 } = useFollowingCount(userId);
   const { data: bounties = [] } = useActiveBounties(userId, scopeClubId);
   const { data: subscription } = useClubSubscription(userId, state.clubId ?? undefined);
   const { data: userStats } = useUserStats(userId);
   const { data: communityPolls = [] } = useCommunityPolls(scopeClubId);
 
   // ─── Derived Data ─────────────────────────
-  const followingIds = useMemo(() => new Set(followingIdsList), [followingIdsList]);
+  const followingIds = useMemo(() => new Set(socialStats?.following_ids ?? []), [socialStats]);
+  const followerCount = socialStats?.follower_count ?? 0;
+  const followingCount = socialStats?.following_count ?? 0;
   const ownedPlayerIds = useMemo(() => new Set(rawHoldings.map(h => h.player_id)), [rawHoldings]);
   const allPlayers = playerNames;
 

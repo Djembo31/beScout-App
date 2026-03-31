@@ -2,7 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { qk } from './keys';
-import { getFollowingFeed, getFollowerCount, getFollowingCount, getFollowingIds } from '@/lib/services/social';
+import { getFollowingFeed, getFollowerCount, getFollowingCount, getFollowingIds, getUserSocialStats } from '@/lib/services/social';
+import type { UserSocialStats } from '@/lib/services/social';
 import { getClubFollowerCount, isUserFollowingClub } from '@/lib/services/club';
 
 const TWO_MIN = 2 * 60 * 1000;
@@ -38,6 +39,16 @@ export function useFollowingIds(userId: string | undefined) {
   return useQuery({
     queryKey: qk.social.followingIds(userId!),
     queryFn: () => getFollowingIds(userId!),
+    enabled: !!userId,
+    staleTime: TWO_MIN,
+  });
+}
+
+/** Batched: followingIds + followerCount + followingCount in 1 RPC call */
+export function useUserSocialStats(userId: string | undefined) {
+  return useQuery<UserSocialStats>({
+    queryKey: qk.social.stats(userId!),
+    queryFn: () => getUserSocialStats(),
     enabled: !!userId,
     staleTime: TWO_MIN,
   });

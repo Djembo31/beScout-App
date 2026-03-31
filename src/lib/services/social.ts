@@ -3,6 +3,27 @@ import { ACHIEVEMENTS } from '@/lib/achievements';
 import type { DbUserStats, DbUserAchievement, LeaderboardUser, ActivityFeedItem } from '@/types';
 
 // ============================================
+// Batched Social Stats (3 queries → 1 RPC)
+// ============================================
+
+export type UserSocialStats = {
+  following_ids: string[];
+  follower_count: number;
+  following_count: number;
+};
+
+export async function getUserSocialStats(): Promise<UserSocialStats> {
+  const { data, error } = await supabase.rpc('rpc_get_user_social_stats');
+  if (error) throw new Error(error.message);
+  const result = data as UserSocialStats;
+  return {
+    following_ids: result.following_ids ?? [],
+    follower_count: result.follower_count ?? 0,
+    following_count: result.following_count ?? 0,
+  };
+}
+
+// ============================================
 // Follow / Unfollow
 // ============================================
 

@@ -8,7 +8,7 @@ export { usePlayers, usePlayerById, usePlayerNames } from './players';
 export { useHoldings } from './holdings';
 export { useAllOpenOrders, useOrdersCapped, useAllOpenBuyOrders } from './orders';
 export { useEnrichedPlayers, enrichPlayersWithData } from './enriched';
-export { useFollowingFeed, useFollowerCount, useFollowingCount, useFollowingIds } from './social';
+export { useFollowingFeed, useFollowerCount, useFollowingCount, useFollowingIds, useUserSocialStats } from './social';
 export { useEvents, useJoinedEventIds } from './events';
 export { useUserStats } from './stats';
 export { useRecentGlobalTrades, useTopTraders } from './trades';

@@ -12,12 +12,10 @@ vi.mock('@/lib/queries', () => ({
   usePosts: vi.fn(() => ({ data: undefined, isLoading: false, isError: false })),
   useClubVotes: vi.fn(() => ({ data: undefined })),
   useLeaderboard: vi.fn(() => ({ data: undefined })),
-  useFollowingIds: vi.fn(() => ({ data: undefined })),
+  useUserSocialStats: vi.fn(() => ({ data: undefined })),
   useHoldings: vi.fn(() => ({ data: undefined })),
   usePlayerNames: vi.fn(() => ({ data: undefined })),
   useResearchPosts: vi.fn(() => ({ data: undefined })),
-  useFollowerCount: vi.fn(() => ({ data: undefined })),
-  useFollowingCount: vi.fn(() => ({ data: undefined })),
   useActiveBounties: vi.fn(() => ({ data: undefined })),
   useClubSubscription: vi.fn(() => ({ data: undefined })),
   useUserStats: vi.fn(() => ({ data: undefined })),
@@ -74,12 +72,10 @@ import {
   usePosts,
   useClubVotes,
   useLeaderboard,
-  useFollowingIds,
+  useUserSocialStats,
   useHoldings,
   usePlayerNames,
   useResearchPosts,
-  useFollowerCount,
-  useFollowingCount,
   useActiveBounties,
   useClubSubscription,
   useUserStats,
@@ -156,12 +152,10 @@ describe('useCommunityData', () => {
     vi.mocked(usePosts).mockReturnValue({ data: undefined, isLoading: false, isError: false } as unknown as ReturnType<typeof usePosts>);
     vi.mocked(useClubVotes).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof useClubVotes>);
     vi.mocked(useLeaderboard).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof useLeaderboard>);
-    vi.mocked(useFollowingIds).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof useFollowingIds>);
+    vi.mocked(useUserSocialStats).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof useUserSocialStats>);
     vi.mocked(useHoldings).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof useHoldings>);
     vi.mocked(usePlayerNames).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof usePlayerNames>);
     vi.mocked(useResearchPosts).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof useResearchPosts>);
-    vi.mocked(useFollowerCount).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof useFollowerCount>);
-    vi.mocked(useFollowingCount).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof useFollowingCount>);
     vi.mocked(useActiveBounties).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof useActiveBounties>);
     vi.mocked(useClubSubscription).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof useClubSubscription>);
     vi.mocked(useUserStats).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof useUserStats>);
@@ -223,10 +217,10 @@ describe('useCommunityData', () => {
   // 2. Derived data: followingIds Set
   // ------------------------------------------
   describe('followingIds derived Set', () => {
-    it('builds a Set from useFollowingIds data', () => {
-      vi.mocked(useFollowingIds).mockReturnValue({
-        data: ['user-a', 'user-b', 'user-c'],
-      } as unknown as ReturnType<typeof useFollowingIds>);
+    it('builds a Set from useUserSocialStats following_ids', () => {
+      vi.mocked(useUserSocialStats).mockReturnValue({
+        data: { following_ids: ['user-a', 'user-b', 'user-c'], follower_count: 5, following_count: 3 },
+      } as unknown as ReturnType<typeof useUserSocialStats>);
 
       const { result } = renderHook(
         () => useCommunityData(USER_ID, null, undefined, makeDefaultState(), mockDispatch),
@@ -238,12 +232,14 @@ describe('useCommunityData', () => {
       expect(result.current.followingIds.has('user-a')).toBe(true);
       expect(result.current.followingIds.has('user-b')).toBe(true);
       expect(result.current.followingIds.has('user-c')).toBe(true);
+      expect(result.current.followerCount).toBe(5);
+      expect(result.current.followingCount).toBe(3);
     });
 
-    it('handles empty following array', () => {
-      vi.mocked(useFollowingIds).mockReturnValue({
-        data: [],
-      } as unknown as ReturnType<typeof useFollowingIds>);
+    it('handles undefined socialStats gracefully', () => {
+      vi.mocked(useUserSocialStats).mockReturnValue({
+        data: undefined,
+      } as unknown as ReturnType<typeof useUserSocialStats>);
 
       const { result } = renderHook(
         () => useCommunityData(USER_ID, null, undefined, makeDefaultState(), mockDispatch),
@@ -252,19 +248,8 @@ describe('useCommunityData', () => {
 
       expect(result.current.followingIds).toBeInstanceOf(Set);
       expect(result.current.followingIds.size).toBe(0);
-    });
-
-    it('handles duplicate IDs in following data gracefully', () => {
-      vi.mocked(useFollowingIds).mockReturnValue({
-        data: ['user-a', 'user-a', 'user-b'],
-      } as unknown as ReturnType<typeof useFollowingIds>);
-
-      const { result } = renderHook(
-        () => useCommunityData(USER_ID, null, undefined, makeDefaultState(), mockDispatch),
-        { wrapper: createWrapper() },
-      );
-
-      expect(result.current.followingIds.size).toBe(2);
+      expect(result.current.followerCount).toBe(0);
+      expect(result.current.followingCount).toBe(0);
     });
   });
 
@@ -715,13 +700,10 @@ describe('useCommunityData', () => {
       expect(result.current.communityPolls).toEqual(mockPolls);
     });
 
-    it('forwards followerCount and followingCount', () => {
-      vi.mocked(useFollowerCount).mockReturnValue({
-        data: 42,
-      } as unknown as ReturnType<typeof useFollowerCount>);
-      vi.mocked(useFollowingCount).mockReturnValue({
-        data: 17,
-      } as unknown as ReturnType<typeof useFollowingCount>);
+    it('forwards followerCount and followingCount from batched social stats', () => {
+      vi.mocked(useUserSocialStats).mockReturnValue({
+        data: { following_ids: ['u1'], follower_count: 42, following_count: 17 },
+      } as unknown as ReturnType<typeof useUserSocialStats>);
 
       const { result } = renderHook(
         () => useCommunityData(USER_ID, null, undefined, makeDefaultState(), mockDispatch),
