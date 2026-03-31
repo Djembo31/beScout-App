@@ -64,7 +64,7 @@ Wenn ja → nochmal hinschauen. Wenn nein → committen.
 
 ---
 
-## Self-Review Checkliste (8 Punkte)
+## Self-Review Checkliste (9 Punkte)
 
 | # | Check | Wie pruefen |
 |---|-------|------------|
@@ -76,6 +76,7 @@ Wenn ja → nochmal hinschauen. Wenn nein → committen.
 | 6 | **Keine Duplikate?** | Grep nach Funktionsname — doppelt nach Agent-Merge? |
 | 7 | **Service Layer eingehalten?** | Kein Supabase direkt, Hooks vor returns, `qk.*` |
 | 8 | **Edge Cases bedacht?** | Null-Guards, Loading/Empty/Error, 0 Items, 1000 Items |
+| 9 | **Dependencies konsistent?** | package.json geaendert → `pnpm install` → Lockfile committen |
 
 1 Punkt unklar → nochmal hinschauen. Nicht "wird schon passen".
 
