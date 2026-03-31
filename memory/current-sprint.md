@@ -32,10 +32,11 @@
 - **BES-9: TradingDisclaimer on Airdrop** — FrontendEngineer implemented, CEO verified (tsc clean)
   - Handoff file created at docs/team/handoffs/BES-9.md (progress from v2 test!)
   - GAP: FE didn't update issue status to done or leave a comment — CEO had to close the loop
-- **BES-10: QA verification** — unblocked, QA woken up, pending
+- **BES-10: QA PASS** — TradingDisclaimer verified on airdrop page. tsc clean, 2373 passed / 1 skipped.
+  - CONC-09 pre-existing failure (race-conditions.test.ts) — unrelated to change
 
 ## In Progress
-- **BES-10:** QA verifying BES-9 (TradingDisclaimer on Airdrop page)
+- Keine
 
 ## Full Loop Test Results (v3)
 - Handoff file: CREATED (improvement from v2)
@@ -44,10 +45,10 @@
 - Pipeline works but needs: FE auto-status-update + QA dependency checking
 
 ## Naechste Prioritaet
-1. **BES-10 QA result** — verify QA completes the loop
-2. **Push to remote + Vercel deploy**
-3. **Visual QA auf Vercel** nach Deploy
-4. **FE HEARTBEAT fix** — add mandatory issue status update after implementation
+1. ~~**BES-10 QA result**~~ — DONE (QA passed, 2026-03-31)
+2. **Push to remote + Vercel deploy** — pending (Anil authorization needed)
+3. **Visual QA auf Vercel** nach Deploy — pending (after push)
+4. ~~**FE HEARTBEAT fix**~~ — DONE (mandatory 3-step handoff block added, 2026-03-31)
 
 ## Bekannte Issues
 - Sentry import warnings in build (harmless)
