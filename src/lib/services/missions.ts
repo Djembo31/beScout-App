@@ -28,24 +28,42 @@ async function getMissionDefinitions(): Promise<DbMissionDefinition[]> {
 // GET USER MISSIONS (calls assign RPC — idempotent)
 // ============================================
 
+// Debounce: only call once per 60s per user (multiple pages fire this on navigation)
+const _missionsCache = new Map<string, { promise: Promise<UserMissionWithDef[]>; ts: number }>();
+const MISSIONS_COOLDOWN_MS = 60_000;
+
+export function _resetCache() { _missionsCache.clear(); }
+
 export async function getUserMissions(userId: string): Promise<UserMissionWithDef[]> {
-  // Call the assign RPC — it will create missions if needed, or just return existing ones
-  const { data: userMissions, error } = await supabase
-    .rpc('assign_user_missions', { p_user_id: userId });
+  const now = Date.now();
+  const cached = _missionsCache.get(userId);
+  if (cached && now - cached.ts < MISSIONS_COOLDOWN_MS) {
+    return cached.promise;
+  }
+  const promise = (async () => {
+    // Call the assign RPC — it will create missions if needed, or just return existing ones
+    const { data: userMissions, error } = await supabase
+      .rpc('assign_user_missions', { p_user_id: userId });
 
-  if (error) throw error;
+    if (error) {
+      _missionsCache.delete(userId); // allow retry on error
+      throw error;
+    }
 
-  // Fetch definitions for enrichment
-  const defs = await getMissionDefinitions();
-  const defMap = new Map(defs.map(d => [d.id, d]));
+    // Fetch definitions for enrichment
+    const defs = await getMissionDefinitions();
+    const defMap = new Map(defs.map(d => [d.id, d]));
 
-  return ((userMissions ?? []) as DbUserMission[])
-    .map(um => {
-      const def = defMap.get(um.mission_id);
-      if (!def) return null;
-      return { ...um, definition: def } as UserMissionWithDef;
-    })
-    .filter((m): m is UserMissionWithDef => m !== null);
+    return ((userMissions ?? []) as DbUserMission[])
+      .map(um => {
+        const def = defMap.get(um.mission_id);
+        if (!def) return null;
+        return { ...um, definition: def } as UserMissionWithDef;
+      })
+      .filter((m): m is UserMissionWithDef => m !== null);
+  })();
+  _missionsCache.set(userId, { promise, ts: now });
+  return promise;
 }
 
 // ============================================

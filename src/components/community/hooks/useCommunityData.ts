@@ -86,9 +86,7 @@ export function useCommunityData(
         const primaryClub = await getUserPrimaryClub(userId!);
         if (primaryClub) { cId = primaryClub.id; cName = primaryClub.name; }
       }
-      const clubData = cId
-        ? await getClubBySlug(cName ?? '', userId!).catch(() => null)
-        : await getClubBySlug('sakaryaspor', userId!).catch(() => null);
+      const clubData = await getClubBySlug(cId ? (cName ?? '') : 'sakaryaspor', userId!).catch(() => null);
       if (!cId && clubData) { cId = clubData.id; cName = clubData.name; }
       if (!cancelled && cId) { dispatch({ type: 'SET_CLUB', clubId: cId, clubName: cName }); }
       if (!cancelled && clubData) { dispatch({ type: 'SET_CLUB_ADMIN', value: clubData.is_admin }); }

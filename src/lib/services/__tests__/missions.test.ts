@@ -12,9 +12,11 @@ import {
   claimMissionReward,
   trackMissionProgress,
   triggerMissionProgress,
+  _resetCache,
 } from '../missions';
 
 beforeEach(() => {
+  _resetCache();
   resetMocks();
   vi.clearAllMocks();
 });
