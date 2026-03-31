@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Rocket, Trophy, ChevronLeft, TrendingUp, Users, Star } from 'lucide-react';
 import { Card, Skeleton } from '@/components/ui';
+import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { cn, fmtScout } from '@/lib/utils';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useAirdropLeaderboard, useAirdropStats } from '@/lib/queries';
@@ -205,6 +206,8 @@ export default function AirdropPage() {
           ))}
         </div>
       </Card>
+
+      <TradingDisclaimer />
     </div>
   );
 }

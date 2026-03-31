@@ -28,10 +28,26 @@
 - **docs/team/handoffs/** erstellt — Handoff-Infrastruktur bereit
 - **API Cleanup** — SeniorEngineer/FrontendEngineer renamed, CodexRescue deleted, CTO deactivated
 
+## Erledigt (CEO Heartbeat 2 — 2026-03-31)
+- **BES-9: TradingDisclaimer on Airdrop** — FrontendEngineer implemented, CEO verified (tsc clean)
+  - Handoff file created at docs/team/handoffs/BES-9.md (progress from v2 test!)
+  - GAP: FE didn't update issue status to done or leave a comment — CEO had to close the loop
+- **BES-10: QA verification** — unblocked, QA woken up, pending
+
+## In Progress
+- **BES-10:** QA verifying BES-9 (TradingDisclaimer on Airdrop page)
+
+## Full Loop Test Results (v3)
+- Handoff file: CREATED (improvement from v2)
+- Issue status update: NOT done by FE (CEO compensated)
+- QA started prematurely (before BES-9 done) — CEO blocked then unblocked
+- Pipeline works but needs: FE auto-status-update + QA dependency checking
+
 ## Naechste Prioritaet
-1. **Full Loop Test** — CEO erstellt Issue → FrontendEngineer baut → QA testet (Pipeline-Validation)
+1. **BES-10 QA result** — verify QA completes the loop
 2. **Push to remote + Vercel deploy**
 3. **Visual QA auf Vercel** nach Deploy
+4. **FE HEARTBEAT fix** — add mandatory issue status update after implementation
 
 ## Bekannte Issues
 - Sentry import warnings in build (harmless)
