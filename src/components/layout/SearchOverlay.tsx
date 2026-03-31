@@ -297,7 +297,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
           {/* Loading */}
           {loading && query.length >= 2 && (
             <div className="flex items-center justify-center py-8 gap-2 text-white/30">
-              <Loader2 className="size-5 animate-spin motion-reduce:animate-none" />
+              <Loader2 className="size-5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
               <span className="text-sm">{t('searching')}</span>
             </div>
           )}
