@@ -1,59 +1,42 @@
 # Session Handoff
-## Letzte Session: 2026-03-31 (Session 272)
+## Letzte Session: 2026-03-31 (Session 273)
 ## Was wurde gemacht
 
-### Agent Team v2 — Komplettes Redesign
-Von isolierten LLMs zu autonomem Startup-Team mit Skills, Handoffs und Bootstrap-Chain.
+### Full Loop Test v2 — Pipeline Validated
+End-to-end test: Issue → CEO → FrontendEngineer → QA → Done.
+**BES-9:** TradingDisclaimer auf Airdrop page (FE implementiert, QA verifiziert)
+**BES-10:** QA Follow-up (vom CEO erstellt, QA hat verified + done)
 
-**Design:** `docs/plans/2026-03-31-agent-team-v2-design.md`
-**Plan:** `docs/plans/2026-03-31-agent-team-v2-plan.md`
+### HEARTBEAT v2 Improvements (alle 5 Agents)
+- `in_progress` Status-Discipline (todo → in_progress → done)
+- Tier-Awareness (Tier 1-4 bestimmt Aufwand)
+- QA: Scoped Testing (Tier 1 = nur betroffene Tests, nicht full suite)
+- FE/SE: Skills = MANDATORY, Handoff = BLOCKING
+- CEO: Jarvis Sync via current-sprint.md
+- Alle: Self-Improvement Schema nach jedem Task
 
-### Team (6 aktive Agents)
-| Agent | Model | Turns | Rolle |
-|-------|-------|-------|-------|
-| CEO | Opus 4.6 | 50 | Sprint-Planung, Delegation, koordiniert mit Jarvis |
-| SeniorEngineer | Sonnet 4.6 | 200 | Backend: DB, RPCs, Services, Trading |
-| FrontendEngineer | Sonnet 4.6 | 150 | UI: Components, Pages, i18n, a11y |
-| QA | Sonnet 4.6 | 50 | Tests, Visual QA, Regression |
-| BusinessAnalyst | Sonnet 4.6 | 80 | Compliance, Wording, Fees, Business |
-| CodexReviewer | GPT-5.4-mini | 50 | Adversarial Review (on-demand) |
+### CEO Error Fix
+Session-Retro Hook cancelled bei Heartbeat-Ende → error State. Reset to idle.
+Root cause: Hook timeout. Non-critical.
 
-CTO-Agent paused (Jarvis direkt). CodexRescue entfernt (/codex:rescue Skill).
-
-### Jeder Agent hat 4 Instruction Files
-- AGENTS.md (slim bootstrap)
-- KNOWLEDGE.md (welche Repo-Files lesen, welche Skills/MCP nutzen)
-- HEARTBEAT.md (Checkliste mit Skills + Handoff-Protokoll)
-- SOUL.md (Persona + Autonomie-Regeln)
-
-### Full Loop Test v2 — Ergebnis
-- BA hat eigenstaendig Compliance-Audit gemacht → 9 Wording-Blocker gefunden (BES-8)
-- SeniorEngineer hat BES-8 gepickt und alle Fixes implementiert
-- CEO hat Sprint-Files autonom aktualisiert
-- ABER: Handoff-Protokoll nicht befolgt (kein File in docs/team/handoffs/)
-- ABER: Kein QA Follow-up Issue erstellt
-
-### i18n Metadata (BES-5, von v1 Loop)
-9 Layout/Page Files + 2 Message-Files geaendert (meta Namespace). Unstaged.
+### Pushed
+- BES-5 (i18n metadata) + BES-8 (compliance) + Agent Team v2 + BES-9 + HEARTBEAT v2
+- 9 Commits total pushed to remote
 
 ## Naechster Schritt
-**Detaillierter Full Loop Test (Anil will in naechster Session):**
-1. Handoff-Protokoll-Befolgung testen (docs/team/handoffs/BES-{N}.md)
-2. QA Follow-up Issue automatisch erstellt?
-3. Skills tatsaechlich invoked?
-4. End-to-End: CEO plant → Engineer baut → Handoff → QA testet → Done
-
-**Vorher:** BES-5 i18n Changes committen + pushen
+1. **Jarvis-Rolle formalisieren:** Workflow-Rule updaten (Jarvis = Anil's rechte Hand, entscheidet autonom wann Team Tasks uebernimmt)
+2. **Auto-Wake testen:** Agents sollen bei Issue-Assignment automatisch starten (kein manuelles heartbeat/invoke)
+3. **Attribution Fix:** Agent API-Calls muessen createdByAgentId setzen, nicht local-board
+4. **Session-Retro Hook:** Timeout erhoehen oder schlanker machen (CEO crash cause)
+5. **Loop Test v3:** Tier 2+ Task testen (mehr Files, Skills tatsaechlich invoked?)
 
 ## Bekannte Issues
-- BES-5 i18n Changes noch unstaged (9 Files + 2 Message-Files)
-- BES-8 Compliance Fixes noch unstaged
-- Handoff-Protokoll wird noch nicht befolgt — HEARTBEAT.md nachschaerfen
-- Paperclip Server muss manuell gestartet werden (`npx paperclipai start`)
+- Attribution-Bug: CEO's API calls zeigen local-board statt agentId
+- Session-Retro Hook kann Agents crashen (timeout)
+- Auto-Wake nicht getestet (Agents brauchen manuellen Trigger)
 
 ## Wichtige Pfade
 - Agent Instructions: `~/.paperclip/instances/default/companies/cab471f1-.../agents/{id}/instructions/`
 - Handoffs: `docs/team/handoffs/`
-- Design: `docs/plans/2026-03-31-agent-team-v2-design.md`
-- Learnings: `memory/feedback_paperclip_v2_learnings.md`
+- Learnings: `memory/feedback_full_loop_test_v2.md`
 - Company ID: `cab471f1-96c2-403d-b0a7-1c5bf5db0b5d`
