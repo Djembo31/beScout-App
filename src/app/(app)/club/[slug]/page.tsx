@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import ClubContent from './ClubContent';
 
@@ -14,9 +15,10 @@ async function getClubMeta(slug: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const t = await getTranslations('meta');
   const { slug } = await params;
   const club = await getClubMeta(slug);
-  if (!club) return { title: 'Club' };
+  if (!club) return { title: t('club') };
 
   const title = club.name;
   const description = `${club.name} auf BeScout: Spieler, Fantasy, Trading. Werde Fan!`;

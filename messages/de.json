@@ -4474,5 +4474,14 @@
     "clubMissing": "Dein Club fehlt?",
     "playerMissing": "Spieler nicht gefunden?",
     "wishHere": "Wünsch ihn dir!"
+  },
+  "meta": {
+    "profile": "Profil",
+    "community": "Community",
+    "club": "Club",
+    "airdrop": "Airdrop",
+    "fantasy": "Fantasy",
+    "market": "Marktplatz",
+    "player": "Spieler"
   }
 }

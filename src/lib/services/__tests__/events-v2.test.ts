@@ -415,8 +415,8 @@ describe('ALLOWED_TRANSITIONS', () => {
 // EDITABLE_FIELDS
 // ============================================
 describe('EDITABLE_FIELDS', () => {
-  it('upcoming has all 18 fields', () => {
-    expect(EDITABLE_FIELDS.upcoming).toHaveLength(18);
+  it('upcoming has all 21 fields', () => {
+    expect(EDITABLE_FIELDS.upcoming).toHaveLength(21);
     expect(EDITABLE_FIELDS.upcoming).toContain('name');
     expect(EDITABLE_FIELDS.upcoming).toContain('entry_fee');
     expect(EDITABLE_FIELDS.upcoming).toContain('ticket_cost');
@@ -425,8 +425,8 @@ describe('EDITABLE_FIELDS', () => {
     expect(EDITABLE_FIELDS.upcoming).toContain('reward_structure');
   });
 
-  it('registering has 17 fields (no currency)', () => {
-    expect(EDITABLE_FIELDS.registering).toHaveLength(17);
+  it('registering has 20 fields (no currency)', () => {
+    expect(EDITABLE_FIELDS.registering).toHaveLength(20);
     expect(EDITABLE_FIELDS.registering).toContain('name');
     expect(EDITABLE_FIELDS.registering).toContain('entry_fee');
     expect(EDITABLE_FIELDS.registering).toContain('ticket_cost');

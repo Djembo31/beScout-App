@@ -4474,5 +4474,14 @@
     "clubMissing": "Kulübün eksik mi?",
     "playerMissing": "Oyuncu bulunamadı mı?",
     "wishHere": "İste!"
+  },
+  "meta": {
+    "profile": "Profil",
+    "community": "Topluluk",
+    "club": "Kulüp",
+    "airdrop": "Airdrop",
+    "fantasy": "Maç Günü",
+    "market": "Pazar",
+    "player": "Oyuncu"
   }
 }

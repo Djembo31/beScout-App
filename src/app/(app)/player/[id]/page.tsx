@@ -1,8 +1,10 @@
 import { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import PlayerContent from './PlayerContent';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const t = await getTranslations('meta');
   try {
     const { data } = await supabaseAdmin
       .from('players')
@@ -30,7 +32,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       };
     }
   } catch (err) { console.error('[Player] generateMetadata failed:', err); }
-  return { title: 'Spieler' };
+  return { title: t('player') };
 }
 
 export default function PlayerDetailPage({ params }: { params: { id: string } }) {

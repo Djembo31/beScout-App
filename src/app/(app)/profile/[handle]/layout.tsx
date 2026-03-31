@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 type Props = { params: Promise<{ handle: string }>; children: React.ReactNode };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const t = await getTranslations('meta');
   try {
     const { handle } = await params;
     const { data } = await supabaseAdmin
@@ -30,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       };
     }
   } catch (err) { console.error('[Profile] generateMetadata failed:', err); }
-  return { title: 'Profil' };
+  return { title: t('profile') };
 }
 
 export default function ProfileHandleLayout({ children }: Props) {
