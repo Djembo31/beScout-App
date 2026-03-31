@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/components/providers/ToastProvider';
 import { getActiveSubscriptionsByUsers } from '@/lib/services/clubSubscriptions';
@@ -25,17 +25,29 @@ export function useCommunityData(
   state: CommunityState,
   dispatch: React.Dispatch<CommunityAction>,
 ) {
+  // ─── Deferred loading: below-fold queries load after 500ms ──
+  const [deferredReady, setDeferredReady] = useState(false);
+  const deferredRef = useRef(false);
+  useEffect(() => {
+    if (deferredRef.current) return;
+    const timer = setTimeout(() => { deferredRef.current = true; setDeferredReady(true); }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   // ─── React Query Hooks ────────────────────
+  // Critical path (feed + navigation)
   const { data: posts = [], isLoading: postsLoading, isError: postsError } = usePosts({ limit: 50, clubId: scopeClubId });
-  const { data: clubVotes = [] } = useClubVotes(state.clubId);
-  const { data: leaderboard = [] } = useLeaderboard(50);
   const { data: socialStats } = useUserSocialStats(userId);
   const { data: rawHoldings = [] } = useHoldings(userId);
   const { data: playerNames = [] } = usePlayerNames();
-  const { data: researchPosts = [] } = useResearchPosts(userId);
-  const { data: bounties = [] } = useActiveBounties(userId, scopeClubId);
-  const { data: subscription } = useClubSubscription(userId, state.clubId ?? undefined);
   const { data: userStats } = useUserStats(userId);
+  const { data: subscription } = useClubSubscription(userId, state.clubId ?? undefined);
+
+  // Deferred (sidebar + below-fold — loads 500ms after mount to reduce initial burst)
+  const { data: clubVotes = [] } = useClubVotes(deferredReady ? state.clubId : null);
+  const { data: leaderboard = [] } = useLeaderboard(50);
+  const { data: researchPosts = [] } = useResearchPosts(deferredReady ? userId : undefined);
+  const { data: bounties = [] } = useActiveBounties(deferredReady ? userId : undefined, scopeClubId);
   const { data: communityPolls = [] } = useCommunityPolls(scopeClubId);
 
   // ─── Derived Data ─────────────────────────
