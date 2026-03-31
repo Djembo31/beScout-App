@@ -28,10 +28,12 @@ import {
 import TradingTab from '@/components/player/detail/TradingTab';
 import PerformanceTab from '@/components/player/detail/PerformanceTab';
 import StickyDashboardStrip from '@/components/player/detail/StickyDashboardStrip';
-import BuyModal from '@/components/player/detail/BuyModal';
-import SellModal from '@/components/player/detail/SellModal';
-import OfferModal from '@/components/player/detail/OfferModal';
 import dynamic from 'next/dynamic';
+
+// Modals: lazy-loaded since they only render on user interaction
+const BuyModal = dynamic(() => import('@/components/player/detail/BuyModal'), { ssr: false });
+const SellModal = dynamic(() => import('@/components/player/detail/SellModal'), { ssr: false });
+const OfferModal = dynamic(() => import('@/components/player/detail/OfferModal'), { ssr: false });
 const LimitOrderModal = dynamic(() => import('@/components/player/detail/LimitOrderModal'), { ssr: false });
 
 // ============================================
