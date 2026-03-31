@@ -1,51 +1,34 @@
-# Current Sprint — Post-Launch Features
+# Current Sprint — Quality-First + Performance
 
-## Stand (2026-03-31, Session 274)
-- **Tests:** tsc 0 Errors
+## Stand (2026-04-01, Session 275)
+- **Tests:** tsc 0 Errors, 195+ Unit Tests
 - **Branch:** main
-- **Deploys:** Pending push
+- **Deploys:** Vercel green, pushed
 
-## Erledigt (Session 274 — Agent Performance Optimization)
-- **Quality-Gate Hook:** AI-Agent (120s) → Bash-Script (<1s) — nur bei .ts/.tsx Aenderungen
-- **Tier-Gates:** Alle 5 Agent HEARTBEATs mit Tier 1/2/3-4 Differenzierung
-  - Tier 1: Keine Skills, nur tsc, PATCH done, <5 Min Target
-  - Tier 2: 1 Skill, betroffene Tests, Handoff, <15 Min Target
-  - Tier 3-4: Volle Pipeline (unchanged)
-- **workflow.md Split:** 340 → 106 Zeilen core + 99 Zeilen reference (on-demand)
-- **CEO Auto-Delegation:** Tier 1-2 direkt an Engineer, kein CEO-Processing
-- **SCOPE DISCIPLINE:** Regel in FE/SE HEARTBEATs (kein Bonus-Refactoring)
-- **Loop Test v3:** BES-13 aria-labels — Pipeline E2E funktioniert, 3-Step Handoff korrekt
-- **TR-Bug fix:** "Scout Card Halter" → "Scout Card Sahipligin" in tr.json
+## Erledigt (Session 275)
+- **Quality-First Workflow:** 3-Phase System (BEFORE/DURING/AFTER), 9-Punkt Checkliste, Beweis-Pflicht
+- **Performance Audit:** FCP Community 652ms → 460ms (-29%), Load 833ms → 680ms (-18%)
+- **PostHog entfernt:** 0 Console-Errors (war 7), 3+ fehlgeschlagene Requests eliminiert
+- **3 Debounce-Fixes:** resolveExpiredResearch, record_login_streak, assign_user_missions
+- **user_follows RPC:** 3 Queries → 1 (neue Migration rpc_get_user_social_stats)
+- **Community deferred loading:** below-fold Queries 500ms delayed
+- **Player Detail:** Buy/Sell/Offer Modals lazy-loaded
+- **Agent Team Test:** BES-23 + BES-24, Quality-First in Issue-Description funktioniert
+- **Lockfile-Fix:** pnpm-lock.yaml nach PostHog-Removal aktualisiert
 
-## Erledigt (Session 273)
-- BES-9: TradingDisclaimer on Airdrop, BES-10: QA Pass
-- HEARTBEAT v2 (alle 5 Agents), 9 Commits pushed
-
-## Erledigt (Session 270-272)
-- Achievements DB, Content Moderation, Platform Audit, Paperclip Agent Team
-- BES-1 through BES-8 (diverse), Migration fix, Test maintenance
-
-## Uncommitted
-- BES-13: aria-labels (5 Layout Components + i18n)
-- BES-12/15: Compliance Wording (de.json/tr.json)
-- Agent Optimization (workflow.md, quality-gate.sh, settings.json, HEARTBEATs)
-- Session-Retro Hook Timeout: 5s → 15s
+## Board Status
+- BES-23: get_club_by_slug vereinfacht (done)
+- BES-24: assign_user_missions debounce (done)
+- Pipeline operational, Quality-First Workflow in Agent-Definitionen
 
 ## Naechste Prioritaet
-1. Commit + Push
-2. Vercel Deploy + Visual QA
-3. Speed-Test: Tier 1 Hotfix → sollte <10s dauern
-4. Playbooks fuer wiederkehrende Tasks
-
-## Board Status (CEO Heartbeat 6 — 2026-03-31)
-- 22 issues total (20 done, 1 cancelled, 1 done test)
-- BES-16: Touch target fix, BES-18: Hook ordering fix, BES-19/21: QA, BES-20: CONC-09 N+1 fix, BES-22: SearchOverlay aria
-- 0 open, 0 blocked, 0 errors — cleanest board state yet
-- Pipeline fully operational: delegation, handoffs, QA all working
+1. auto_close_expired_bounties → Cron statt Client-Call
+2. Echtes Feature (Roadmap)
+3. Connection Pool Tuning (Infra)
 
 ## Bekannte Issues
-- Auto-Wake localhost connectivity (intermittent)
-- Sentry import warnings (harmless)
+- Vercel Connection Pool Contention bei 40+ parallelen Queries
+- auto_close_expired_bounties client-seitig (2.8s)
 
 ## Blocker
 - Keine

@@ -1,39 +1,42 @@
 # Session Handoff
-## Letzte Session: 2026-03-31 (Session 274)
+## Letzte Session: 2026-04-01 (Session 275)
 ## Was wurde gemacht
 
-### Agent Performance Optimization (Hauptthema)
-Deep Research + Bottleneck Analysis → 4 Optimierungen implementiert:
-1. **Quality-Gate: 120s AI-Agent → <1s Bash-Script** (.claude/hooks/quality-gate.sh)
-2. **Tier-Gates in 5 HEARTBEATs** (FE, SE, QA, BA, CEO) — Tier 1 = keine Skills
-3. **workflow.md: 340→106 Zeilen** (Reference-Material in workflow-reference.md ausgelagert)
-4. **CEO Auto-Delegation** bei Tier 1-2 (spart ganzen Heartbeat-Cycle)
+### Quality-First Workflow (Hauptthema)
+Design + Implementation eines neuen Workflow-Standards:
+- 3 Phasen: BEFORE (Define/Scope/Criteria/Verify Hypothesis) → DURING → AFTER (Self-Review/9-Punkt Checkliste/Verify/Evidence)
+- Kein Tier-System fuer Quality — ein Standard fuer alles
+- Speed-Override nur wenn Anil explizit "schnell" sagt
+- Agent-Output = Entwurf, Fakten-Check Pflicht
+- STOP-Regel: 10s Pause vor Commit
+- Design-Doc: docs/plans/2026-04-01-quality-first-workflow-design.md
+- 3 Agent-Definitionen aktualisiert (frontend, backend, reviewer)
+- 6 Feedback-Memories konsolidiert → 1 authoritative File
 
-### Loop Test v3 (BES-13 aria-labels)
-- Pipeline E2E funktioniert: Issue → FE → in_progress → in_review → QA → done
-- 3-Step Handoff ERSTMALS korrekt (Status, Comment, QA Issue)
-- FE ging beyond scope (Compliance Wording + signOut Refactor) — SCOPE DISCIPLINE Regel hinzugefuegt
-- TR-Bug gefixt (deutsches "Halter" in tuerkischer Uebersetzung)
+### Performance Audit + Fixes
+Playwright + Performance API + Build-Analyse auf bescout.net:
+1. **PostHog entfernt** — broken 401/404, 3+ Errors/Page → 0
+2. **record_login_streak Duplicate** — AuthProvider-Call entfernt
+3. **resolveExpiredResearch debounce** — 60s Cooldown, 4 Stellen → 1 Call
+4. **Player Detail Modals lazy** — Buy/Sell/Offer erst bei Klick
+5. **user_follows 3→1 RPC** — neue Migration `rpc_get_user_social_stats`
+6. **Community deferred loading** — below-fold 500ms delayed (FCP -29%)
+7. **assign_user_missions debounce** — per-User 60s Cache (Agent-implemented)
+8. **getClubBySlug vereinfacht** — Ternary consolidated (Agent-implemented)
+9. **Lockfile fix** — pnpm install nach PostHog-Removal vergessen
+10. **DB Indexes verifiziert** — VERIFY HYPOTHESIS: alle existierten bereits
 
-### Handoff Items 1-5 (Session 273) abgearbeitet
-- Jarvis-Rolle formalisiert in workflow.md
-- Auto-Wake getestet (funktioniert, aber FE kann manchmal localhost nicht erreichen)
-- Attribution gecheckt (kein Bug — local-board fuer Jarvis-created Issues ist by design)
-- Session-Retro Hook Timeout: 5s → 15s
-
-### Uncommitted Changes
-- BES-13 aria-labels (5 Layout Components + i18n DE/TR)
-- BES-12/15 Compliance Wording (de.json/tr.json)
-- Agent Optimization (workflow.md split, quality-gate.sh, settings.json)
-- TR-Bug fix (dpcOwned)
+### Workflow-Learnings (in workflow.md eingebaut)
+- VERIFY HYPOTHESIS als 4. BEFORE-Schritt
+- Fakten-Check bei Agent-Output
+- Lockfile als 9. Checklisten-Punkt
+- "Messen VOR Optimieren" Leitplanke
 
 ## Naechster Schritt
-1. **Commit + Push** alle uncommitted Changes
-2. **Vercel Deploy + Visual QA**
-3. **Speed-Test:** Tier 1 Hotfix an FE delegieren — sollte jetzt <10s statt 150s dauern
-4. **Playbooks** erstellen (memory/playbooks/) fuer wiederkehrende Tasks
+1. Session-Handoff + Sprint updaten (jetzt)
+2. Naechste Session: echtes Feature oder weitere Performance-Arbeit
+3. Community verbleibend: auto_close_expired_bounties → Cron statt Client
 
 ## Bekannte Issues
-- Auto-Wake: FE kann manchmal localhost:3100 nicht erreichen im Subprocess
-- QA/SE gelegentlich in error State (Session-Retro Hook, jetzt 15s Timeout)
-- Sentry import warnings in build (harmless)
+- Vercel Connection Pool Contention bei vielen parallelen Queries
+- auto_close_expired_bounties laeuft client-seitig (2.8s) → sollte Cron sein
