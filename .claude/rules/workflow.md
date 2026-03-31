@@ -31,14 +31,21 @@ Jarvis nimmt Speed-Mode NIE selbst an.
 | **DEFINE** | Was genau aendern? | 1 Satz (Hotfix) bis 1 Seite (Feature) |
 | **SCOPE** | Alle betroffenen Files + Consumers auflisten | Explizite File-Liste |
 | **CRITERIA** | Woran messe ich "fertig"? | Binaere Ja/Nein Kriterien |
+| **VERIFY HYPOTHESIS** | Wird die Aenderung den gewuenschten Effekt haben? | Messung/Grep/Read VOR Code |
 
-Kein Code ohne alle 3.
+Kein Code ohne alle 4.
+
+**VERIFY HYPOTHESIS — Warum?**
+Session 275: Player Detail `dynamic()` umgebaut → Build gemessen → Bundle GROESSER.
+10 Minuten verschwendet weil die Hypothese ("lazy = kleiner") nicht VOR dem Code geprueft wurde.
+Bei Performance: MESSEN. Bei Refactoring: GREP fuer Consumers. Bei "unused": VERIFY in UI.
 
 ### Phase 2: DURING (Waehrend der Implementation)
 
 - NUR was im DEFINE steht umsetzen. Nichts extra.
 - Neues Problem entdeckt → notieren, separater Task. NICHT sofort fixen.
 - Bei Unsicherheit: Code lesen, nicht raten.
+- "Unused" heisst NICHTS bis Grep es bestaetigt. Jede Loeschung → Grep nach ALLEN Consumers.
 
 ### Phase 3: AFTER (NACH dem letzten Buchstaben Code)
 
@@ -50,6 +57,10 @@ Kein Code ohne alle 3.
 | **EVIDENCE** | Beweis-Artefakt je Aenderungstyp | Ablegen/zeigen |
 
 **Kein "done" ohne AFTER komplett durchlaufen.**
+
+**STOP-Regel:** Vor "done" 10 Sekunden PAUSE. Nicht sofort committen.
+Frage: "Wenn Anil diesen Diff liest — wuerde er etwas finden das ich uebersehen habe?"
+Wenn ja → nochmal hinschauen. Wenn nein → committen.
 
 ---
 
@@ -96,12 +107,17 @@ Agent-Output ist ein ENTWURF, kein fertiges Ergebnis.
 
 1. **Diff lesen** — JEDE Zeile die der Agent geaendert hat
 2. **Scope-Check** — NUR was im Issue stand? Beyond-Scope → revert
-3. **8-Punkt Checkliste** — genau wie bei eigener Arbeit. Kein Vertrauensbonus.
-4. **Kontext-Check** — passt Agent-Code zum bestehenden File? Doppelte Imports?
-5. **Git Diff** vor Commit (Paperclip Agents)
-6. **Zusammenspiel** pruefen bei parallelen Agents
+3. **Fakten-Check** — Agent sagt "unused"? GREP. Agent sagt "nicht importiert"? GREP. Agents luegen nicht absichtlich, aber sie uebersehen Dinge.
+4. **8-Punkt Checkliste** — genau wie bei eigener Arbeit. Kein Vertrauensbonus.
+5. **Kontext-Check** — passt Agent-Code zum bestehenden File? Doppelte Imports?
+6. **Git Diff** vor Commit (Paperclip Agents)
+7. **Zusammenspiel** pruefen bei parallelen Agents
 
 Review laenger als selber machen → selber machen.
+
+**Research-Agents vs. direkter Grep:**
+Fuer "wo wird X benutzt?" ist `Grep` schneller und genauer als ein Research-Agent.
+Agents nur fuer komplexe Cross-File-Analyse (Architektur, Datenfluss, Zusammenspiel).
 
 ---
 
@@ -112,6 +128,8 @@ Review laenger als selber machen → selber machen.
 3. **Wissen waechst mit Code.** Spec/Memory im SELBEN Commit updaten.
 4. **2x gescheitert → STOP.** Expert-Agent oder Anil fragen.
 5. **"tsc clean" ≠ fertig.** "Agent sagt fertig" ≠ fertig.
+6. **BEFORE ueberspringen = Zeit verschwenden.** 30 Sekunden BEFORE spart 10 Minuten falschen Code.
+7. **Messen VOR Optimieren.** Keine Performance-Aenderung ohne Baseline-Messung.
 
 ---
 
