@@ -47,6 +47,11 @@ im Journal sinnvoll waren und ob die Spec vollstaendig umgesetzt wurde.
 
 ## Checkliste (JEDER Punkt wird geprueft)
 
+**Referenz:** Die 8-Punkt Self-Review Checkliste aus workflow.md gilt als Minimum-Standard.
+Dein Review prueft ob der Implementer JEDE Checkliste eingehalten hat:
+Types propagiert? i18n komplett? Column-Names? Consumers? UI-Text Kontext? Duplikate? Service Layer? Edge Cases?
+Zusaetzlich pruefst du die erweiterten Punkte unten (RPC Paritaet, Side-Effects, etc.).
+
 ### 1. Spec-Vollstaendigkeit
 - Wurden ALLE Tasks aus der Spec umgesetzt?
 - Fehlen States/Flows die in der Spec stehen?

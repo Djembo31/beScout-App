@@ -94,13 +94,24 @@ REPEAT:
 
 ## Phase 2: SELF-CHECK + LEARNINGS
 
-### 2a. Verification bestanden
+### 2a. AFTER Phase (PFLICHT — Quality-First Standard aus workflow.md)
 
-Acceptance Criteria Checkliste durchgehen (JEDER Punkt ja/nein):
-- [ ] Column-Namen korrekt (gegen Skill geprueft)?
+Bevor du "PASS" meldest, durchlaufe die AFTER Phase KOMPLETT:
+
+**SELF-REVIEW:** JEDE geaenderte Datei nochmal komplett lesen.
+
+**8-Punkt Checkliste (JEDER Punkt explizit pruefen):**
+- [ ] Types propagiert (Type → Service → Hook → UI)?
+- [ ] i18n komplett (DE + TR falls UI-relevant)?
+- [ ] Column-Names korrekt (gegen common-errors.md + Skill)?
+- [ ] Alle Consumers aktualisiert (Grep nach Identifier)?
+- [ ] UI-Text passt zum Kontext (falls UI betroffen)?
+- [ ] Keine Duplikate nach Merge (Grep nach Funktionsname)?
+- [ ] Service Layer eingehalten (kein Supabase direkt, qk.*)?
+- [ ] Edge Cases bedacht (Null-Guards, concurrent writes, 0 Items)?
+
+**Backend-spezifische Checks (zusaetzlich):**
 - [ ] CHECK Constraints eingehalten (exakte Werte aus Skill)?
-- [ ] Service Layer genutzt (nicht Supabase direkt in Components)?
-- [ ] `qk.*` Query Key Factory genutzt?
 - [ ] `invalidateQueries` nach Writes?
 - [ ] RPCs: REVOKE Pattern korrekt (PUBLIC + authenticated + anon)?
 - [ ] RPCs: Guards vorhanden (Liquidation, Balance, Auth)?
@@ -109,6 +120,8 @@ Acceptance Criteria Checkliste durchgehen (JEDER Punkt ja/nein):
 - [ ] Fee-Split korrekt (Prozente aus Skill)?
 - [ ] Geld als BIGINT cents?
 - [ ] FK-Reihenfolge: Parent vor Child INSERT?
+
+**Beweis im Journal:** tsc Output + Test Output + bei DB: SELECT Query dokumentieren.
 
 Journal finalisieren. Git commit im Worktree.
 
@@ -150,3 +163,5 @@ Journal als Fehlerbericht. KEIN commit.
 - NICHT raw query keys `['foo']` — IMMER `qk.*`
 - NICHT raten bei Column-Namen — im Skill nachschauen
 - NICHT Supabase direkt in Components aufrufen
+- NICHT "fertig" melden ohne AFTER Phase — JEDER Punkt muss geprueft sein
+- NICHT beyond-scope arbeiten — NUR was im Issue/Task-Package steht

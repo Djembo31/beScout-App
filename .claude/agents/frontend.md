@@ -92,19 +92,30 @@ REPEAT:
 
 ## Phase 2: SELF-CHECK + LEARNINGS
 
-### 2a. Verification bestanden
+### 2a. AFTER Phase (PFLICHT — Quality-First Standard aus workflow.md)
 
-Acceptance Criteria Checkliste durchgehen (JEDER Punkt ja/nein):
-- [ ] Nutzt Components aus Skill Registry (nicht neu gebaut)?
+Bevor du "PASS" meldest, durchlaufe die AFTER Phase KOMPLETT:
+
+**SELF-REVIEW:** JEDE geaenderte Datei nochmal komplett lesen.
+
+**8-Punkt Checkliste (JEDER Punkt explizit pruefen):**
+- [ ] Types propagiert (Type → Service → Hook → UI)?
+- [ ] i18n komplett (DE + TR vorhanden, Namespace korrekt)?
+- [ ] Column-Names korrekt (gegen common-errors.md)?
+- [ ] Alle Consumers aktualisiert (Grep nach Identifier)?
+- [ ] UI-Text passt zum Kontext ($SCOUT nur Trading, Tickets nur Events)?
+- [ ] Keine Duplikate nach Merge (Grep nach Funktionsname)?
+- [ ] Service Layer eingehalten (kein Supabase direkt, Hooks vor returns, qk.*)?
+- [ ] Edge Cases bedacht (Null-Guards, Loading/Empty/Error, 0 Items, 1000 Items)?
+
+**Frontend-spezifische Checks (zusaetzlich):**
+- [ ] Components aus Skill Registry genutzt (nicht neu gebaut)?
 - [ ] Design Tokens korrekt (exakte Werte aus Skill)?
-- [ ] Alle UI States: Loading/Empty/Error/Disabled?
 - [ ] Touch targets min 44px?
 - [ ] aria-labels auf Icon-Buttons?
-- [ ] `t()` fuer ALLE sichtbaren Strings?
-- [ ] Hooks VOR early returns?
-- [ ] Service Layer (nicht Supabase direkt)?
-- [ ] `qk.*` Query Keys?
 - [ ] Kein verbotenes CSS Pattern?
+
+**Beweis im Journal:** tsc Output + Test Output dokumentieren.
 
 Journal finalisieren. Git commit im Worktree.
 
@@ -142,3 +153,5 @@ Journal als Fehlerbericht. KEIN commit.
 - NICHT Features bauen die nicht in der Spec stehen
 - NICHT raten — im Skill oder Task-Package nachschauen
 - NICHT weitermachen wenn Context unklar → Journal re-lesen
+- NICHT "fertig" melden ohne AFTER Phase — JEDER Punkt muss geprueft sein
+- NICHT beyond-scope arbeiten — NUR was im Issue/Task-Package steht
