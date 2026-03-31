@@ -198,14 +198,27 @@ describe('Concurrency — Race Condition Guards', () => {
     expect(error).toBeNull();
     if (!filledOrders || filledOrders.length === 0) return;
 
+    // Batch query: single round-trip for all trades instead of N+1
+    const orderIds = filledOrders.map(o => o.id);
+    const { data: allTrades, error: tradesError } = await sb
+      .from('trades')
+      .select('sell_order_id, quantity')
+      .in('sell_order_id', orderIds);
+
+    expect(tradesError).toBeNull();
+
+    // Aggregate trade quantities per order in memory
+    const tradeSumByOrder = new Map<string, number>();
+    for (const trade of allTrades ?? []) {
+      tradeSumByOrder.set(
+        trade.sell_order_id,
+        (tradeSumByOrder.get(trade.sell_order_id) ?? 0) + trade.quantity
+      );
+    }
+
     const violations: string[] = [];
     for (const order of filledOrders) {
-      const { data: trades } = await sb
-        .from('trades')
-        .select('quantity')
-        .eq('sell_order_id', order.id);
-
-      const tradeSum = (trades ?? []).reduce((acc, t) => acc + t.quantity, 0);
+      const tradeSum = tradeSumByOrder.get(order.id) ?? 0;
       if (tradeSum !== order.filled_qty) {
         violations.push(
           `Order ${order.id.slice(0, 8)}: filled_qty=${order.filled_qty} but trade sum=${tradeSum}`
