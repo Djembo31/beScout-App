@@ -1,56 +1,59 @@
 # Session Handoff
-## Letzte Session: 2026-03-31 (Session 271)
+## Letzte Session: 2026-03-31 (Session 272)
 ## Was wurde gemacht
 
-### Paperclip AI Agent Team aufgesetzt
-Komplettes Multi-Agent-Team fuer autonomen Betrieb konfiguriert.
+### Agent Team v2 — Komplettes Redesign
+Von isolierten LLMs zu autonomem Startup-Team mit Skills, Handoffs und Bootstrap-Chain.
 
-**Server:** localhost:3100, embedded PGlite, local_trusted mode
-**Company:** beScout (cab471f1), Status: active
+**Design:** `docs/plans/2026-03-31-agent-team-v2-design.md`
+**Plan:** `docs/plans/2026-03-31-agent-team-v2-plan.md`
 
-### 7 Agents erstellt und konfiguriert
-| Agent | Model | Adapter | Rolle |
-|-------|-------|---------|-------|
-| CEO | Opus 4.6 | claude_local | Strategie, Delegation |
-| CTO | Opus 4.6 | claude_local | Code Review, Quality Gates |
-| Engineer | Sonnet 4.6 | claude_local | Implementation |
-| QA | Sonnet 4.6 | claude_local | Testing, Visual QA |
-| BusinessAnalyst | Sonnet 4.6 | claude_local | Compliance, Wording |
-| CodexReviewer | gpt-5.4-mini | codex_local | Adversarial Review |
-| CodexRescue | gpt-5.4 xhigh | codex_local | Last-Resort Debugger |
+### Team (6 aktive Agents)
+| Agent | Model | Turns | Rolle |
+|-------|-------|-------|-------|
+| CEO | Opus 4.6 | 50 | Sprint-Planung, Delegation, koordiniert mit Jarvis |
+| SeniorEngineer | Sonnet 4.6 | 200 | Backend: DB, RPCs, Services, Trading |
+| FrontendEngineer | Sonnet 4.6 | 150 | UI: Components, Pages, i18n, a11y |
+| QA | Sonnet 4.6 | 50 | Tests, Visual QA, Regression |
+| BusinessAnalyst | Sonnet 4.6 | 80 | Compliance, Wording, Fees, Business |
+| CodexReviewer | GPT-5.4-mini | 50 | Adversarial Review (on-demand) |
 
-Alle mit AGENTS.md + SOUL.md + HEARTBEAT.md (Self-Improvement Loop).
-Alle cwd: C:\bescout-app. Alle dangerouslySkipPermissions: true.
+CTO-Agent paused (Jarvis direkt). CodexRescue entfernt (/codex:rescue Skill).
 
-### 4 Routinen mit Cron-Trigger
-- Daily Standup (CEO, 09:00 Berlin)
-- Nightly Test Suite (QA, 22:00 Berlin)
-- Weekly Compliance Audit (BA, Mo 10:00)
-- Weekly Code Quality Review (CTO, Fr 14:00)
+### Jeder Agent hat 4 Instruction Files
+- AGENTS.md (slim bootstrap)
+- KNOWLEDGE.md (welche Repo-Files lesen, welche Skills/MCP nutzen)
+- HEARTBEAT.md (Checkliste mit Skills + Handoff-Protokoll)
+- SOUL.md (Persona + Autonomie-Regeln)
 
-### Windows Symlink Fix
-Junction-Patch auf adapter-claude-local UND adapter-codex-local (execute.js + codex-home.js).
-Patch lebt im npx-Cache — bei Version-Update neu anwenden.
+### Full Loop Test v2 — Ergebnis
+- BA hat eigenstaendig Compliance-Audit gemacht → 9 Wording-Blocker gefunden (BES-8)
+- SeniorEngineer hat BES-8 gepickt und alle Fixes implementiert
+- CEO hat Sprint-Files autonom aktualisiert
+- ABER: Handoff-Protokoll nicht befolgt (kein File in docs/team/handoffs/)
+- ABER: Kein QA Follow-up Issue erstellt
 
-### Workflow-Entscheidungen
-- Jarvis = Co-Founder, managed Paperclip komplett
-- Anil beruehrt Dashboard nie
-- Codex-Integration: Verification Wave + Adversarial Review + Rescue Circuit Breaker
-- Claude Max Plan = $0 Kosten fuer alle Claude-Agents
-- CTO-Agent merged autonom
+### i18n Metadata (BES-5, von v1 Loop)
+9 Layout/Page Files + 2 Message-Files geaendert (meta Namespace). Unstaged.
 
 ## Naechster Schritt
-**Full Loop Test:** Issue erstellen → Engineer baut → QA testet → CTO reviewed
-Soll in der naechsten Session durchgefuehrt werden.
+**Detaillierter Full Loop Test (Anil will in naechster Session):**
+1. Handoff-Protokoll-Befolgung testen (docs/team/handoffs/BES-{N}.md)
+2. QA Follow-up Issue automatisch erstellt?
+3. Skills tatsaechlich invoked?
+4. End-to-End: CEO plant → Engineer baut → Handoff → QA testet → Done
+
+**Vorher:** BES-5 i18n Changes committen + pushen
 
 ## Bekannte Issues
-- 2 pre-existing test failures (EDITABLE_FIELDS count) — BES-3
-- Migration History divergence — BES-4
-- Engineer hat BES-2 (Visual QA) bearbeitet, Status unklar
-- Paperclip Server muss manuell gestartet werden
+- BES-5 i18n Changes noch unstaged (9 Files + 2 Message-Files)
+- BES-8 Compliance Fixes noch unstaged
+- Handoff-Protokoll wird noch nicht befolgt — HEARTBEAT.md nachschaerfen
+- Paperclip Server muss manuell gestartet werden (`npx paperclipai start`)
 
 ## Wichtige Pfade
-- Paperclip Config: ~/.paperclip/instances/default/
-- Agent Instructions: ~/.paperclip/.../agents/{id}/instructions/
-- Memory: memory/decision_paperclip_cofounder.md (alle IDs, Routinen, API-Reference)
-- Symlink Patches: npm-cache/_npx/.../adapter-*/dist/server/execute.js
+- Agent Instructions: `~/.paperclip/instances/default/companies/cab471f1-.../agents/{id}/instructions/`
+- Handoffs: `docs/team/handoffs/`
+- Design: `docs/plans/2026-03-31-agent-team-v2-design.md`
+- Learnings: `memory/feedback_paperclip_v2_learnings.md`
+- Company ID: `cab471f1-96c2-403d-b0a7-1c5bf5db0b5d`

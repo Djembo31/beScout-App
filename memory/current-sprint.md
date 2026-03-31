@@ -23,10 +23,15 @@
 - **BES-4: Migration fix** — 389 repair commands, history now in sync
 - **Test maintenance** — 4 test files updated for recent feature changes (CTO reviewed + tsc fix)
 
+## Erledigt (Engineer Heartbeat 2026-03-31)
+- **Agent Team v2** — alle 6 Agents upgraded (KNOWLEDGE.md + v2 HEARTBEAT/SOUL)
+- **docs/team/handoffs/** erstellt — Handoff-Infrastruktur bereit
+- **API Cleanup** — SeniorEngineer/FrontendEngineer renamed, CodexRescue deleted, CTO deactivated
+
 ## Naechste Prioritaet
-1. **Push to remote + Vercel deploy**
-2. **Visual QA auf Vercel** (BES-7: QA agent verifying)
-3. Weitere Launch-Readiness Items nach Anils Prioritaet
+1. **Full Loop Test** — CEO erstellt Issue → FrontendEngineer baut → QA testet (Pipeline-Validation)
+2. **Push to remote + Vercel deploy**
+3. **Visual QA auf Vercel** nach Deploy
 
 ## Bekannte Issues
 - Sentry import warnings in build (harmless)
