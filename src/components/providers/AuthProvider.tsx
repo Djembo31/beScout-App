@@ -209,11 +209,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           import('@/lib/services/activityLog').then(({ logActivity }) => {
             logActivity(u.id, 'login', 'auth', { provider: session?.user?.app_metadata?.provider });
           }).catch(err => console.error('[AuthProvider] logActivity login:', err));
-          // Record login streak (fire-and-forget) — ensures streak is tracked
-          // even if user never visits Home page
-          import('@/lib/services/streaks').then(({ recordLoginStreak }) => {
-            recordLoginStreak(u.id).catch(err => console.error('[AuthProvider] recordLoginStreak:', err));
-          }).catch(err => console.error('[AuthProvider] streaks module load:', err));
+          // Login streak is recorded in useHomeData (with UI updates).
+          // Home is the landing page for all sessions.
         }
       } else {
         // Activity log — logout (before clearing state)
