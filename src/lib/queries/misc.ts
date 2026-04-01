@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { qk } from './keys';
 import { getTransactions, getHoldingQty, getPlayerHolderCount } from '@/lib/services/wallet';
+import { getWatcherCount } from '@/lib/services/watchlist';
 import { getLeaderboard } from '@/lib/services/social';
 import { getPosts } from '@/lib/services/posts';
 import { getDpcOfTheWeek } from '@/lib/services/dpcOfTheWeek';
@@ -200,5 +201,14 @@ export function useUserIpoPurchases(userId: string | undefined, ipoId: string | 
     queryFn: () => getUserIpoPurchases(userId!, ipoId!),
     enabled: !!userId && !!ipoId,
     staleTime: TWO_MIN,
+  });
+}
+
+export function useWatcherCount(playerId: string | undefined) {
+  return useQuery({
+    queryKey: qk.watchlist.watcherCount(playerId!),
+    queryFn: () => getWatcherCount(playerId!),
+    enabled: !!playerId,
+    staleTime: 60_000,
   });
 }

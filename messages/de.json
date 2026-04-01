@@ -1940,7 +1940,8 @@
       "floorCheapest": "Floor · günstigstes Angebot",
       "removeAlert": "Alert entfernen",
       "alertBtn": "Alert",
-      "close": "Schließen"
+      "close": "Schließen",
+      "watcherCount": "{count} Beobachter"
     },
     "mastery": {
       "held": "gehalten",

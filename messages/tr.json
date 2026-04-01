@@ -1940,7 +1940,8 @@
       "floorCheapest": "Taban · en ucuz teklif",
       "removeAlert": "Alarmı kaldır",
       "alertBtn": "Alarm",
-      "close": "Kapat"
+      "close": "Kapat",
+      "watcherCount": "{count} Takipci"
     },
     "mastery": {
       "held": "tutuldu",

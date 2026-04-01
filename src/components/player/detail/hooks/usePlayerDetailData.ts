@@ -25,6 +25,7 @@ import {
   useOpenBids,
   usePosts,
   useUserIpoPurchases,
+  useWatcherCount,
 } from '@/lib/queries/misc';
 import { usePlayerResearch } from '@/lib/queries/research';
 import { usePlayerTrades } from '@/lib/queries/trades';
@@ -43,6 +44,7 @@ export interface PlayerDetailData {
   // Holdings & market
   holdingQty: number;
   holderCount: number;
+  watcherCount: number;
   lockedScMap: Map<string, number> | undefined;
   allSellOrders: DbOrder[];
   openBids: OfferWithDetails[];
@@ -87,6 +89,7 @@ export function usePlayerDetailData(
   const { data: holdingQtyData } = useHoldingQty(userId, playerId);
   const { data: lockedScMap } = useHoldingLocks(userId);
   const { data: holderCountData } = usePlayerHolderCount(playerId);
+  const { data: watcherCountData } = useWatcherCount(playerId);
   const { data: allSellOrdersData } = useSellOrders(playerId);
   const { data: activeIpo } = useIpoForPlayer(playerId);
 
@@ -115,6 +118,7 @@ export function usePlayerDetailData(
   const dpcAvailable = dbPlayer?.dpc_available ?? 0;
   const holdingQty = holdingQtyData ?? 0;
   const holderCount = holderCountData ?? 0;
+  const watcherCount = watcherCountData ?? 0;
   const allSellOrders = allSellOrdersData ?? [];
   const openBids = openBidsData ?? [];
   const trades = tradesData ?? [];
@@ -178,6 +182,7 @@ export function usePlayerDetailData(
     dpcAvailable,
     holdingQty,
     holderCount,
+    watcherCount,
     lockedScMap,
     allSellOrders,
     openBids,

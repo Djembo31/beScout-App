@@ -172,6 +172,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           isIPO={trading.isIPO}
           activeIpo={data.activeIpo ?? null}
           holderCount={data.holderCount}
+          watcherCount={data.watcherCount}
           holdingQty={data.holdingQty}
           isWatchlisted={isWatchlisted}
           priceAlert={alerts.priceAlert}

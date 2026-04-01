@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import {
   ArrowLeft, Star, Share2, Bell, TrendingUp, TrendingDown,
-  Users, MoreVertical, ShoppingCart, Send, XCircle, ArrowLeftRight, Clock,
+  Users, Eye, MoreVertical, ShoppingCart, Send, XCircle, ArrowLeftRight, Clock,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { StatusBadge } from '@/components/player';
@@ -26,6 +26,7 @@ interface PlayerHeroProps {
   isIPO: boolean;
   activeIpo: DbIpo | null;
   holderCount: number;
+  watcherCount: number;
   isWatchlisted: boolean;
   priceAlert: { target: number; dir: 'above' | 'below' } | null;
   onToggleWatchlist: () => void;
@@ -41,7 +42,7 @@ interface PlayerHeroProps {
 }
 
 function PlayerHeroInner({
-  player, isIPO, activeIpo, holderCount,
+  player, isIPO, activeIpo, holderCount, watcherCount,
   isWatchlisted, priceAlert,
   onToggleWatchlist, onShare, onBuyClick, onSellClick,
   onSetPriceAlert, onRemovePriceAlert, onLimitClick, holdingQty, masteryLevel,
@@ -225,6 +226,12 @@ function PlayerHeroInner({
                 <span className="flex items-center gap-1 px-2 py-1 bg-sky-500/10 border border-sky-500/20 rounded-lg text-xs text-sky-300">
                   <Users className="size-3" aria-hidden="true" />
                   {t('hero.scoutsCount', { count: holderCount })}
+                </span>
+              )}
+              {watcherCount > 0 && (
+                <span className="flex items-center gap-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-xs text-white/50">
+                  <Eye className="size-3" aria-hidden="true" />
+                  {t('hero.watcherCount', { count: watcherCount })}
                 </span>
               )}
               {holdingQty > 0 && (

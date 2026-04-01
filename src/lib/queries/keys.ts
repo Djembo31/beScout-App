@@ -63,6 +63,7 @@ export const qk = {
   watchlist: {
     byUser: (uid: string) => ['watchlist', uid] as const,
     mostWatched: (limit: number) => ['watchlist', 'mostWatched', limit] as const,
+    watcherCount: (playerId: string) => ['watchlist', 'watcherCount', playerId] as const,
   },
 
   // ── Trending ──

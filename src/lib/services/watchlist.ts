@@ -101,6 +101,16 @@ export async function updateAlertThreshold(
   if (error) throw new Error(error.message);
 }
 
+/** Get total watcher count for a player (platform-wide) */
+export async function getWatcherCount(playerId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from('watchlist')
+    .select('*', { count: 'exact', head: true })
+    .eq('player_id', playerId);
+  if (error) throw new Error(error.message);
+  return count ?? 0;
+}
+
 /** Get most-watched players platform-wide (auth-gated) */
 export async function getMostWatchedPlayers(limit = 5): Promise<MostWatchedPlayer[]> {
   const { data, error } = await supabase.rpc('get_most_watched_players', { p_limit: limit });
