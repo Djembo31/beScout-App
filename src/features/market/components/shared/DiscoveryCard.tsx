@@ -103,6 +103,19 @@ export default function DiscoveryCard({
         {price > 0 && <span className="font-mono font-black text-[11px] gold-glow">{fmtScout(price)}</span>}
       </div>
 
+      {/* 24h Change badge — all non-trending variants */}
+      {variant !== 'trending' && p.prices.change24h !== 0 && (
+        <div className="flex items-center gap-0.5 mt-0.5">
+          {p.prices.change24h > 0
+            ? <TrendingUp className="w-2.5 h-2.5 text-vivid-green" aria-hidden="true" />
+            : <TrendingDown className="w-2.5 h-2.5 text-vivid-red" aria-hidden="true" />
+          }
+          <span className={cn('text-[9px] font-mono font-bold', p.prices.change24h > 0 ? 'text-vivid-green' : 'text-vivid-red')}>
+            {p.prices.change24h > 0 ? '+' : ''}{p.prices.change24h.toFixed(1)}%
+          </span>
+        </div>
+      )}
+
       {/* Stat micro-row: Goals · Assists · Matches  Trend  Age */}
       <div className="flex items-center justify-between mt-0.5 text-[9px] font-mono leading-none">
         <div className="flex items-center gap-0.5">
