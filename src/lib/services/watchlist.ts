@@ -4,6 +4,17 @@ import { supabase } from '@/lib/supabaseClient';
 // Types
 // ============================================
 
+export type MostWatchedPlayer = {
+  playerId: string;
+  watcherCount: number;
+  firstName: string;
+  lastName: string;
+  position: string;
+  club: string;
+  imageUrl: string | null;
+  floorPrice: number;
+};
+
 export type WatchlistEntry = {
   id: string;
   playerId: string;
@@ -87,6 +98,32 @@ export async function updateAlertThreshold(
     .eq('player_id', playerId);
 
   if (error) throw new Error(error.message);
+}
+
+/** Get most-watched players platform-wide (auth-gated) */
+export async function getMostWatchedPlayers(limit = 5): Promise<MostWatchedPlayer[]> {
+  const { data, error } = await supabase.rpc('get_most_watched_players', { p_limit: limit });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((r: {
+    player_id: string;
+    watcher_count: number;
+    first_name: string;
+    last_name: string;
+    player_pos: string;
+    club: string;
+    image_url: string | null;
+    floor_price: number;
+  }) => ({
+    playerId: r.player_id,
+    watcherCount: r.watcher_count,
+    firstName: r.first_name,
+    lastName: r.last_name,
+    position: r.player_pos,
+    club: r.club,
+    imageUrl: r.image_url,
+    floorPrice: r.floor_price,
+  }));
 }
 
 /** Migrate localStorage watchlist to DB (one-time). Returns number of items migrated. */

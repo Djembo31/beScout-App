@@ -1,1 +1,1 @@
-export { useWatchlist } from '@/features/market/queries/watchlist';
+export { useWatchlist, useMostWatchedPlayers } from '@/features/market/queries/watchlist';
