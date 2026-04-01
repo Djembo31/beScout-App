@@ -182,6 +182,19 @@ describe('createEvent', () => {
     });
     expect(result.success).toBe(true);
   });
+
+  it('rejects tournament mode with paid entry (Phase-4 gate)', async () => {
+    const result = await createEvent({ ...baseParams, type: 'tournament', entryFeeCents: 1000 });
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('Phase-4 license');
+  });
+
+  it('allows tournament mode with free entry', async () => {
+    mockTable('events', { id: 'evt-tournament-free' });
+    mockTable('club_followers', []);
+    const result = await createEvent({ ...baseParams, type: 'tournament', entryFeeCents: 0 });
+    expect(result.success).toBe(true);
+  });
 });
 
 // ============================================

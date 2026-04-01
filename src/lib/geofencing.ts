@@ -6,7 +6,7 @@
  * TIER_RESTRICTED (TR) | TIER_BLOCKED (USA/CN/OFAC)
  *
  * Country detection: Vercel x-vercel-ip-country header → tier mapping.
- * Feature flag OFF = no restrictions (development default).
+ * Feature flag ON by default (safe default). Set NEXT_PUBLIC_GEOFENCING_ENABLED=false to disable in development.
  */
 
 export type GeoTier = 'full' | 'casp' | 'free' | 'restricted' | 'blocked';
@@ -81,7 +81,7 @@ const REGION_FEATURES: Record<string, Record<GeoRegion, boolean>> = {
   paid_research: { turkey: true,  eu_strict: true, eu_rest: true, global: true },
 };
 
-export const GEOFENCING_ENABLED = process.env.NEXT_PUBLIC_GEOFENCING_ENABLED === 'true';
+export const GEOFENCING_ENABLED = process.env.NEXT_PUBLIC_GEOFENCING_ENABLED !== 'false';
 
 /**
  * Check if a feature is allowed for the given tier.

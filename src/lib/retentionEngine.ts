@@ -7,7 +7,7 @@ import type { DbUserStats } from '@/types';
 export type RetentionStage =
   | 'new'         // Day 0-1: First session magic
   | 'building'    // Day 2-7: Building the habit
-  | 'deepening'   // Day 8-30: Deepening investment
+  | 'deepening'   // Day 8-30: Deepening engagement
   | 'evangelist'  // Day 31-90: Creating evangelists
   | 'sustained';  // Day 90+: Sustaining engagement
 
