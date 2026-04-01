@@ -202,7 +202,8 @@ export const EventDetailModal = ({
           setSelectedFormation(getDefaultFormation(event.format, event.lineupSize));
           setSlotScores(null);
         }
-      }).catch(() => {
+      }).catch((err) => {
+        console.error('[EventDetailModal] Failed to load lineup:', err);
         setSelectedPlayers([]);
         setSelectedFormation(getDefaultFormation(event.format, event.lineupSize));
         setSlotScores(null);

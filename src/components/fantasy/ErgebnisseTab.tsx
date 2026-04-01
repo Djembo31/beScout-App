@@ -108,7 +108,8 @@ export function ErgebnisseTab({
     let cancelled = false;
     getGameweekStatsForPlayers(gameweek, heldPlayerIds).then(data => {
       if (!cancelled) setHeldPlayerStats(data);
-    }).catch(() => {
+    }).catch((err) => {
+      console.error('[ErgebnisseTab] Failed to load player stats:', err);
       if (!cancelled) setHeldPlayerStats([]);
     });
     return () => { cancelled = true; };

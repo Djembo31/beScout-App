@@ -74,7 +74,7 @@ export default function ProfileSettingsPage() {
     import('@/lib/services/pushSubscription').then(({ isPushSupported, isPushEnabled }) => {
       setPushSupported(isPushSupported());
       setPushEnabled(isPushEnabled());
-    }).catch(() => { /* push not available */ });
+    }).catch((err) => { console.error('[Settings] Push service unavailable:', err); });
   }, []);
 
   const togglePush = useCallback(async () => {

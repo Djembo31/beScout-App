@@ -82,7 +82,8 @@ export function SpieltagTab({
     let cancelled = false;
     hasApiFixtures(gameweek).then(avail => {
       if (!cancelled) setApiAvailable(avail);
-    }).catch(() => {
+    }).catch((err) => {
+      console.error('[SpieltagTab] Failed to check API availability:', err);
       if (!cancelled) setApiAvailable(false);
     });
     return () => { cancelled = true; };

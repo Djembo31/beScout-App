@@ -653,7 +653,7 @@ export async function GET(request: Request) {
                     const sn = dbMatch ? mappings.clubPlayersMap.get(clubId)?.find(cp => cp.id === dbMatch.id)?.shirt_number : undefined;
                     if (sn != null && lineupByShirtNumber.has(sn)) {
                       lineupInfo = lineupByShirtNumber.get(sn) ?? undefined;
-                      if (lineupInfo) console.log(`[NAME_DISAMBIG] "${pd.player.name}" ambiguous last-name "${last}" → resolved via shirt #${sn}`);
+                      if (lineupInfo) console.info(`[NAME_DISAMBIG] "${pd.player.name}" ambiguous last-name "${last}" → resolved via shirt #${sn}`);
                     } else {
                       console.warn(`[NAME_AMBIG] "${pd.player.name}" matches multiple lineup entries for last-name "${last}" — cannot resolve, defaulting to bench`);
                     }
