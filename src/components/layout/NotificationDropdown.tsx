@@ -3,7 +3,8 @@
 import React, { useEffect, useCallback, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight, Send, RotateCcw, Crown, TrendingUp, Star, Crosshair, Play, Clock, Zap, Gift, Coins, UserCheck, Sparkles, Megaphone, Award, BarChart3 } from 'lucide-react';
+import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight, Send, RotateCcw, Crown, TrendingUp, Star, Crosshair, Play, Clock, Zap, Gift, Coins, UserCheck, Sparkles, Megaphone, Award, BarChart3, Settings } from 'lucide-react';
+import NotificationPreferencesPanel from '@/components/layout/NotificationPreferencesPanel';
 import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { DbNotification, NotificationType } from '@/types';
@@ -150,11 +151,13 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
   const [mounted, setMounted] = useState(false);
   const [closing, setClosing] = useState(false);
   const closingRef = useRef(false);
+  const [showPreferences, setShowPreferences] = useState(false);
 
   useEffect(() => {
     if (open) {
       setMounted(true);
       setClosing(false);
+      setShowPreferences(false);
       closingRef.current = false;
     } else if (mounted && !closingRef.current) {
       // Start exit animation
@@ -217,15 +220,26 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
 
   if (!mounted || !portalTarget) return null;
 
-  const notifContent = (
+  const notifContent = showPreferences ? (
+    <NotificationPreferencesPanel userId={userId} onBack={() => setShowPreferences(false)} />
+  ) : (
     <>
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
         <span className="font-bold text-sm">{tn('title')}</span>
-        <button onClick={handleMarkAllRead} className="text-xs text-gold hover:underline flex items-center gap-1 min-h-[44px] md:min-h-0 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none rounded-lg">
-          <Check className="size-3" />
-          {tn('markAllRead')}
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setShowPreferences(true)}
+            className="flex items-center justify-center size-8 rounded-lg hover:bg-white/[0.06] transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none"
+            aria-label={tn('preferences')}
+          >
+            <Settings className="size-4" aria-hidden="true" />
+          </button>
+          <button onClick={handleMarkAllRead} className="text-xs text-gold hover:underline flex items-center gap-1 min-h-[44px] md:min-h-0 focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:outline-none rounded-lg">
+            <Check className="size-3" />
+            {tn('markAllRead')}
+          </button>
+        </div>
       </div>
 
       {/* Content */}

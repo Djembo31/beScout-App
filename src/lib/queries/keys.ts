@@ -121,6 +121,7 @@ export const qk = {
   notifications: {
     byUser: (uid: string) => ['notifications', uid] as const,
     unread: (uid: string) => ['notifications', 'unread', uid] as const,
+    preferences: (uid: string) => ['notifications', 'preferences', uid] as const,
   },
 
   // ── Offers ──

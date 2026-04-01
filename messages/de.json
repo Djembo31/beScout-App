@@ -2680,7 +2680,15 @@
     "newOfferTitle": "Neues Angebot",
     "newOfferBody": "Du hast ein neues Angebot erhalten",
     "counterOfferTitle": "Gegenangebot",
-    "counterOfferBody": "Du hast ein Gegenangebot erhalten"
+    "counterOfferBody": "Du hast ein Gegenangebot erhalten",
+    "preferences": "Einstellungen",
+    "back": "Zurück",
+    "prefTrading": "Trading",
+    "prefOffers": "Angebote",
+    "prefFantasy": "Fantasy",
+    "prefSocial": "Sozial",
+    "prefBounties": "Bounties",
+    "prefRewards": "Belohnungen"
   },
   "gamification": {
     "rang": {

@@ -2680,7 +2680,15 @@
     "newOfferTitle": "Yeni teklif",
     "newOfferBody": "Yeni bir teklif aldın",
     "counterOfferTitle": "Karşı teklif",
-    "counterOfferBody": "Bir karşı teklif aldın"
+    "counterOfferBody": "Bir karşı teklif aldın",
+    "preferences": "Ayarlar",
+    "back": "Geri",
+    "prefTrading": "Ticaret",
+    "prefOffers": "Teklifler",
+    "prefFantasy": "Fantezi",
+    "prefSocial": "Sosyal",
+    "prefBounties": "Bounties",
+    "prefRewards": "Ödüller"
   },
   "gamification": {
     "rang": {
