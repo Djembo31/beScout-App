@@ -3836,7 +3836,10 @@
     "yourPrice": "Senin fiyatın (Credits)",
     "sending": "Gönderiliyor...",
     "sendCounter": "Karşı teklif gönder",
-    "error": "Hata"
+    "error": "Hata",
+    "offerFeeLabel": "3% Ücret:",
+    "offerProceeds": "Gelir",
+    "offerSellerReceives": "Satıcı alır"
   },
   "clubs": {
     "discoverTitle": "Kulüpleri Keşfet",

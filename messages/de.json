@@ -3836,7 +3836,10 @@
     "yourPrice": "Dein Preis (Credits)",
     "sending": "Wird gesendet...",
     "sendCounter": "Gegenangebot senden",
-    "error": "Fehler"
+    "error": "Fehler",
+    "offerFeeLabel": "3% Gebühr:",
+    "offerProceeds": "Erlös",
+    "offerSellerReceives": "Verkäufer erhält"
   },
   "clubs": {
     "discoverTitle": "Clubs entdecken",

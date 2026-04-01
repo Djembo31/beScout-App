@@ -103,9 +103,9 @@ function OfferCard({
             const proceeds = total - fee;
             return (
               <div className="flex items-center gap-2 text-[11px] text-white/35 mb-1">
-                <span>3% Gebuehr: <span className="font-mono tabular-nums text-red-400/70">{fmtScout(centsToBsd(fee))}</span></span>
+                <span>{t('offerFeeLabel')} <span className="font-mono tabular-nums text-red-400/70">{fmtScout(centsToBsd(fee))}</span></span>
                 <span>&bull;</span>
-                <span>{offer.side === 'buy' ? 'Erloes' : 'Verkaeufer erhaelt'}: <span className="font-mono tabular-nums text-green-400/70">{fmtScout(centsToBsd(proceeds))}</span></span>
+                <span>{offer.side === 'buy' ? t('offerProceeds') : t('offerSellerReceives')}: <span className="font-mono tabular-nums text-green-400/70">{fmtScout(centsToBsd(proceeds))}</span></span>
               </div>
             );
           })()}
